@@ -1,0 +1,41 @@
+/*
+ *    GPCS4
+ *    
+ *    This file implements:
+ *    module: libSceMouse
+ *        library: libSceMouse
+ *    
+ */
+
+#pragma once
+
+#include "sce_module_common.h"
+
+
+extern const SCE_EXPORT_MODULE g_ExpModuleSceMouse;
+
+
+// Note:
+// The codebase is genarated using GenerateCode.py
+// You may need to modify the code manually to fit development needs
+
+
+
+//////////////////////////////////////////////////////////////////////////
+// library: libSceMouse
+//////////////////////////////////////////////////////////////////////////
+
+int PS4API sceMouseClose(void);
+
+
+int PS4API sceMouseInit(void);
+
+
+int PS4API sceMouseOpen(void);
+
+
+int PS4API sceMouseRead(void);
+
+
+
+

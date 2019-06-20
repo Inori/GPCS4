@@ -1,0 +1,628 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Loader">
+      <UniqueIdentifier>{1efb0e78-5d38-4f60-9d20-ca8fff9febef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Common">
+      <UniqueIdentifier>{123ee8fb-dc6f-448d-be20-88991ce27390}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Platform">
+      <UniqueIdentifier>{78222735-0fe6-4c0d-b76a-7f5c113ee9db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Emulator">
+      <UniqueIdentifier>{9a707c88-79d8-4c96-ad6c-658b1e5f496c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules">
+      <UniqueIdentifier>{103e400e-fb5e-4330-87fa-00878384bc7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceVideoRecording">
+      <UniqueIdentifier>{cd6add65-cf5c-4f46-8923-18d459325b35}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceVideoOut">
+      <UniqueIdentifier>{cacf4cdd-ac81-4b54-9473-5331a6be72cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceUserService">
+      <UniqueIdentifier>{77f896d4-d1dc-4ee7-ab3a-683d6d9752b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceSystemService">
+      <UniqueIdentifier>{521ffc8f-4134-480e-a78b-c8c6a56b4dae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceSysmodule">
+      <UniqueIdentifier>{cd043a49-3784-454e-be4a-ad1a9c2ee1cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceSsl">
+      <UniqueIdentifier>{39357e14-98ba-4d0c-96bc-679aebfd5d75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceScreenShot">
+      <UniqueIdentifier>{aff3bd0f-e77e-4633-bcd0-9034dd309f63}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceSaveDataDialog">
+      <UniqueIdentifier>{7f6aa586-a08c-4752-ad1e-2b7e3b79ff76}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceSaveData">
+      <UniqueIdentifier>{4830a981-d88a-4b9a-8b64-b1e4b6d5b26d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceRudp">
+      <UniqueIdentifier>{c6a9eec1-9c3f-4ac2-b9f1-71b5d16bd3f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceRtc">
+      <UniqueIdentifier>{34ac2de4-a78f-4fde-8209-5981160a9f73}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\ScePlayGo">
+      <UniqueIdentifier>{aad85b19-b64d-43cb-9a44-ef17358aec69}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\ScePad">
+      <UniqueIdentifier>{0c77afd9-9cfc-4a3b-b88a-8cfe61662595}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceNpWebApi">
+      <UniqueIdentifier>{ed09943f-d9b0-4d41-baa7-6f0cd3ea884a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceNpTus">
+      <UniqueIdentifier>{d8962e0e-8102-44d6-9ecd-1a2f2dc20f24}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceNpTrophy">
+      <UniqueIdentifier>{ef0a41aa-7900-497a-ba4a-fa87c9b009fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceNpSignaling">
+      <UniqueIdentifier>{f845e210-21dc-409d-9ca6-fc4c1a89c656}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceNpScore">
+      <UniqueIdentifier>{a55dd555-4dc4-4806-9591-78c1251027a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceNpProfileDialog">
+      <UniqueIdentifier>{96540076-dbf6-46d3-9ad2-717048a57f14}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceNpMatching2">
+      <UniqueIdentifier>{067771c8-f12d-4f8c-8910-317416a21421}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceNpManager">
+      <UniqueIdentifier>{825da163-c179-489b-9133-945fdcb29bc9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceNpCommon">
+      <UniqueIdentifier>{29ce8395-377b-4a09-b41f-3de21306f8ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceNpCommerce">
+      <UniqueIdentifier>{cb924662-e208-4f52-9d32-7b27e48d8469}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceNetCtl">
+      <UniqueIdentifier>{4a642c03-5b24-4190-ad14-f54e182adf58}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceNet">
+      <UniqueIdentifier>{458d4f83-41d5-4d15-b015-00261fe4102c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceMsgDialog">
+      <UniqueIdentifier>{4d1dd7a0-046c-4599-b7aa-b7c94d0bbead}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceMouse">
+      <UniqueIdentifier>{fab95265-abea-47c4-a51f-d2ef7eda2a8b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceLibkernel">
+      <UniqueIdentifier>{03e62667-39d9-4d3f-8f47-0505e9d68f62}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceLibc">
+      <UniqueIdentifier>{f9feabc2-7e13-4ae8-a5f6-bfb1d5eb9cbe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceJson">
+      <UniqueIdentifier>{07e470ee-289f-4263-b3f2-ff6a8428bb85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceInvitationDialog">
+      <UniqueIdentifier>{ca88a2ef-1397-46fa-b3c6-7b6ff2fc4750}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceIme">
+      <UniqueIdentifier>{9b64638c-1a5f-4491-93a5-b26da38d915e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceHttp">
+      <UniqueIdentifier>{0464e633-5784-46bb-bfdd-6d8848b546a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceGnmDriver">
+      <UniqueIdentifier>{279b2de0-ec86-45e8-bf45-9ed4a1587176}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceGameLiveStreaming">
+      <UniqueIdentifier>{d4025b8d-025f-4278-864b-f7931febc2f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceFios2">
+      <UniqueIdentifier>{adf80165-03f4-45b3-bf75-0aa107e1b091}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceFiber">
+      <UniqueIdentifier>{7f9dc5c8-a98b-4a74-9d91-785a9f78c467}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceErrorDialog">
+      <UniqueIdentifier>{de318f0c-8fee-4a54-b80e-3f57404251e1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceCommonDialog">
+      <UniqueIdentifier>{f84ee50b-ae3d-4763-b0a9-93acd636537a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceAudioOut">
+      <UniqueIdentifier>{01f20bc2-8d28-4bec-90bd-7d1c22aaa60e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceAudio3d">
+      <UniqueIdentifier>{9e5b2e3d-c453-4dd7-a396-242aee5762c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceAppContentUtil">
+      <UniqueIdentifier>{dceaf124-386f-4573-bb25-89fc2634449d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SceModules\SceAjm">
+      <UniqueIdentifier>{f6b61ba3-f586-418a-9c5d-725446043ca6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="SceModules\SceLibc\sce_libc.h">
+      <Filter>SceModules\SceLibc</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\sce_module_common.h">
+      <Filter>SceModules</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\sce_modules.h">
+      <Filter>SceModules</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\sce_types.h">
+      <Filter>SceModules</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\sce_errors.h">
+      <Filter>SceModules</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceAjm\sce_ajm.h">
+      <Filter>SceModules\SceAjm</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceAppContentUtil\sce_appcontentutil.h">
+      <Filter>SceModules\SceAppContentUtil</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceAudio3d\sce_audio3d.h">
+      <Filter>SceModules\SceAudio3d</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceAudioOut\sce_audioout.h">
+      <Filter>SceModules\SceAudioOut</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceCommonDialog\sce_commondialog.h">
+      <Filter>SceModules\SceCommonDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceErrorDialog\sce_errordialog.h">
+      <Filter>SceModules\SceErrorDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceFiber\sce_fiber.h">
+      <Filter>SceModules\SceFiber</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceFios2\sce_fios2.h">
+      <Filter>SceModules\SceFios2</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceGameLiveStreaming\sce_gamelivestreaming.h">
+      <Filter>SceModules\SceGameLiveStreaming</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceGnmDriver\sce_gnmdriver.h">
+      <Filter>SceModules\SceGnmDriver</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceHttp\sce_http.h">
+      <Filter>SceModules\SceHttp</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceIme\sce_ime.h">
+      <Filter>SceModules\SceIme</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceInvitationDialog\sce_invitationdialog.h">
+      <Filter>SceModules\SceInvitationDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceJson\sce_json.h">
+      <Filter>SceModules\SceJson</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceLibkernel\sce_libkernel.h">
+      <Filter>SceModules\SceLibkernel</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceMouse\sce_mouse.h">
+      <Filter>SceModules\SceMouse</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceMsgDialog\sce_msgdialog.h">
+      <Filter>SceModules\SceMsgDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceNet\sce_net.h">
+      <Filter>SceModules\SceNet</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceNetCtl\sce_netctl.h">
+      <Filter>SceModules\SceNetCtl</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceNpCommerce\sce_npcommerce.h">
+      <Filter>SceModules\SceNpCommerce</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceNpCommon\sce_npcommon.h">
+      <Filter>SceModules\SceNpCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceNpManager\sce_npmanager.h">
+      <Filter>SceModules\SceNpManager</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceNpMatching2\sce_npmatching2.h">
+      <Filter>SceModules\SceNpMatching2</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceNpProfileDialog\sce_npprofiledialog.h">
+      <Filter>SceModules\SceNpProfileDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceNpScore\sce_npscore.h">
+      <Filter>SceModules\SceNpScore</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceNpSignaling\sce_npsignaling.h">
+      <Filter>SceModules\SceNpSignaling</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceNpTrophy\sce_nptrophy.h">
+      <Filter>SceModules\SceNpTrophy</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceNpTus\sce_nptus.h">
+      <Filter>SceModules\SceNpTus</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceNpWebApi\sce_npwebapi.h">
+      <Filter>SceModules\SceNpWebApi</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\ScePad\sce_pad.h">
+      <Filter>SceModules\ScePad</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\ScePlayGo\sce_playgo.h">
+      <Filter>SceModules\ScePlayGo</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceRtc\sce_rtc.h">
+      <Filter>SceModules\SceRtc</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceRudp\sce_rudp.h">
+      <Filter>SceModules\SceRudp</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceSaveData\sce_savedata.h">
+      <Filter>SceModules\SceSaveData</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceSaveDataDialog\sce_savedatadialog.h">
+      <Filter>SceModules\SceSaveDataDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceScreenShot\sce_screenshot.h">
+      <Filter>SceModules\SceScreenShot</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceSsl\sce_ssl.h">
+      <Filter>SceModules\SceSsl</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceSysmodule\sce_sysmodule.h">
+      <Filter>SceModules\SceSysmodule</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceSystemService\sce_systemservice.h">
+      <Filter>SceModules\SceSystemService</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceUserService\sce_userservice.h">
+      <Filter>SceModules\SceUserService</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceVideoOut\sce_videoout.h">
+      <Filter>SceModules\SceVideoOut</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceVideoRecording\sce_videorecording.h">
+      <Filter>SceModules\SceVideoRecording</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform\PlatformUtils.h">
+      <Filter>Source Files\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform\UtilMemory.h">
+      <Filter>Source Files\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform\UtilString.h">
+      <Filter>Source Files\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="GPCS4Config.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GPCS4Common.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Loader\EbootObject.h">
+      <Filter>Source Files\Loader</Filter>
+    </ClInclude>
+    <ClInclude Include="Loader\elf.h">
+      <Filter>Source Files\Loader</Filter>
+    </ClInclude>
+    <ClInclude Include="elf-sce.h">
+      <Filter>Source Files\Loader</Filter>
+    </ClInclude>
+    <ClInclude Include="Emulator\Emulator.h">
+      <Filter>Source Files\Emulator</Filter>
+    </ClInclude>
+    <ClInclude Include="Emulator\Linker.h">
+      <Filter>Source Files\Emulator</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\GPCS4Log.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\GPCS4Types.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\MacroHelper.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Emulator\SceModuleSystem.h">
+      <Filter>Source Files\Emulator</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Singleton.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Loader\EbootObject.cpp">
+      <Filter>Source Files\Loader</Filter>
+    </ClCompile>
+    <ClCompile Include="GPCS4Main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Platform\UtilMemory.cpp">
+      <Filter>Source Files\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\GPCS4Log.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Emulator\Emulator.cpp">
+      <Filter>Source Files\Emulator</Filter>
+    </ClCompile>
+    <ClCompile Include="Emulator\Linker.cpp">
+      <Filter>Source Files\Emulator</Filter>
+    </ClCompile>
+    <ClCompile Include="Platform\UtilString.cpp">
+      <Filter>Source Files\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceLibc\sce_libc.cpp">
+      <Filter>SceModules\SceLibc</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceAjm\sce_ajm.cpp">
+      <Filter>SceModules\SceAjm</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceAjm\sce_ajm_export.cpp">
+      <Filter>SceModules\SceAjm</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceAppContentUtil\sce_appcontentutil.cpp">
+      <Filter>SceModules\SceAppContentUtil</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceAppContentUtil\sce_appcontentutil_export.cpp">
+      <Filter>SceModules\SceAppContentUtil</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceAudio3d\sce_audio3d.cpp">
+      <Filter>SceModules\SceAudio3d</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceAudio3d\sce_audio3d_export.cpp">
+      <Filter>SceModules\SceAudio3d</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceAudioOut\sce_audioout.cpp">
+      <Filter>SceModules\SceAudioOut</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceAudioOut\sce_audioout_export.cpp">
+      <Filter>SceModules\SceAudioOut</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceCommonDialog\sce_commondialog.cpp">
+      <Filter>SceModules\SceCommonDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceCommonDialog\sce_commondialog_export.cpp">
+      <Filter>SceModules\SceCommonDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceErrorDialog\sce_errordialog.cpp">
+      <Filter>SceModules\SceErrorDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceErrorDialog\sce_errordialog_export.cpp">
+      <Filter>SceModules\SceErrorDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceFiber\sce_fiber.cpp">
+      <Filter>SceModules\SceFiber</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceFiber\sce_fiber_export.cpp">
+      <Filter>SceModules\SceFiber</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceFios2\sce_fios2.cpp">
+      <Filter>SceModules\SceFios2</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceFios2\sce_fios2_export.cpp">
+      <Filter>SceModules\SceFios2</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceGameLiveStreaming\sce_gamelivestreaming.cpp">
+      <Filter>SceModules\SceGameLiveStreaming</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceGameLiveStreaming\sce_gamelivestreaming_export.cpp">
+      <Filter>SceModules\SceGameLiveStreaming</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceGnmDriver\sce_gnmdriver.cpp">
+      <Filter>SceModules\SceGnmDriver</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceGnmDriver\sce_gnmdriver_export.cpp">
+      <Filter>SceModules\SceGnmDriver</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceHttp\sce_http.cpp">
+      <Filter>SceModules\SceHttp</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceHttp\sce_http_export.cpp">
+      <Filter>SceModules\SceHttp</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceIme\sce_ime.cpp">
+      <Filter>SceModules\SceIme</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceIme\sce_ime_export.cpp">
+      <Filter>SceModules\SceIme</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceInvitationDialog\sce_invitationdialog.cpp">
+      <Filter>SceModules\SceInvitationDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceInvitationDialog\sce_invitationdialog_export.cpp">
+      <Filter>SceModules\SceInvitationDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceJson\sce_json.cpp">
+      <Filter>SceModules\SceJson</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceJson\sce_json_export.cpp">
+      <Filter>SceModules\SceJson</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceLibc\sce_libc_export.cpp">
+      <Filter>SceModules\SceLibc</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceLibkernel\sce_libkernel.cpp">
+      <Filter>SceModules\SceLibkernel</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceLibkernel\sce_libkernel_export.cpp">
+      <Filter>SceModules\SceLibkernel</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceMouse\sce_mouse.cpp">
+      <Filter>SceModules\SceMouse</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceMouse\sce_mouse_export.cpp">
+      <Filter>SceModules\SceMouse</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceMsgDialog\sce_msgdialog.cpp">
+      <Filter>SceModules\SceMsgDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceMsgDialog\sce_msgdialog_export.cpp">
+      <Filter>SceModules\SceMsgDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceNet\sce_net.cpp">
+      <Filter>SceModules\SceNet</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceNet\sce_net_export.cpp">
+      <Filter>SceModules\SceNet</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceNetCtl\sce_netctl.cpp">
+      <Filter>SceModules\SceNetCtl</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceNetCtl\sce_netctl_export.cpp">
+      <Filter>SceModules\SceNetCtl</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceNpCommerce\sce_npcommerce.cpp">
+      <Filter>SceModules\SceNpCommerce</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceNpCommerce\sce_npcommerce_export.cpp">
+      <Filter>SceModules\SceNpCommerce</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceNpCommon\sce_npcommon.cpp">
+      <Filter>SceModules\SceNpCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceNpCommon\sce_npcommon_export.cpp">
+      <Filter>SceModules\SceNpCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceNpManager\sce_npmanager.cpp">
+      <Filter>SceModules\SceNpManager</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceNpManager\sce_npmanager_export.cpp">
+      <Filter>SceModules\SceNpManager</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceNpMatching2\sce_npmatching2.cpp">
+      <Filter>SceModules\SceNpMatching2</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceNpMatching2\sce_npmatching2_export.cpp">
+      <Filter>SceModules\SceNpMatching2</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceNpProfileDialog\sce_npprofiledialog.cpp">
+      <Filter>SceModules\SceNpProfileDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceNpProfileDialog\sce_npprofiledialog_export.cpp">
+      <Filter>SceModules\SceNpProfileDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceNpScore\sce_npscore.cpp">
+      <Filter>SceModules\SceNpScore</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceNpScore\sce_npscore_export.cpp">
+      <Filter>SceModules\SceNpScore</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceNpSignaling\sce_npsignaling.cpp">
+      <Filter>SceModules\SceNpSignaling</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceNpSignaling\sce_npsignaling_export.cpp">
+      <Filter>SceModules\SceNpSignaling</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceNpTrophy\sce_nptrophy.cpp">
+      <Filter>SceModules\SceNpTrophy</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceNpTrophy\sce_nptrophy_export.cpp">
+      <Filter>SceModules\SceNpTrophy</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceNpTus\sce_nptus.cpp">
+      <Filter>SceModules\SceNpTus</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceNpTus\sce_nptus_export.cpp">
+      <Filter>SceModules\SceNpTus</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceNpWebApi\sce_npwebapi.cpp">
+      <Filter>SceModules\SceNpWebApi</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceNpWebApi\sce_npwebapi_export.cpp">
+      <Filter>SceModules\SceNpWebApi</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\ScePad\sce_pad.cpp">
+      <Filter>SceModules\ScePad</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\ScePad\sce_pad_export.cpp">
+      <Filter>SceModules\ScePad</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\ScePlayGo\sce_playgo.cpp">
+      <Filter>SceModules\ScePlayGo</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\ScePlayGo\sce_playgo_export.cpp">
+      <Filter>SceModules\ScePlayGo</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceRtc\sce_rtc.cpp">
+      <Filter>SceModules\SceRtc</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceRtc\sce_rtc_export.cpp">
+      <Filter>SceModules\SceRtc</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceRudp\sce_rudp.cpp">
+      <Filter>SceModules\SceRudp</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceRudp\sce_rudp_export.cpp">
+      <Filter>SceModules\SceRudp</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceSaveData\sce_savedata.cpp">
+      <Filter>SceModules\SceSaveData</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceSaveData\sce_savedata_export.cpp">
+      <Filter>SceModules\SceSaveData</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceSaveDataDialog\sce_savedatadialog.cpp">
+      <Filter>SceModules\SceSaveDataDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceSaveDataDialog\sce_savedatadialog_export.cpp">
+      <Filter>SceModules\SceSaveDataDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceScreenShot\sce_screenshot.cpp">
+      <Filter>SceModules\SceScreenShot</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceScreenShot\sce_screenshot_export.cpp">
+      <Filter>SceModules\SceScreenShot</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceSsl\sce_ssl.cpp">
+      <Filter>SceModules\SceSsl</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceSsl\sce_ssl_export.cpp">
+      <Filter>SceModules\SceSsl</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceSysmodule\sce_sysmodule.cpp">
+      <Filter>SceModules\SceSysmodule</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceSysmodule\sce_sysmodule_export.cpp">
+      <Filter>SceModules\SceSysmodule</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceSystemService\sce_systemservice.cpp">
+      <Filter>SceModules\SceSystemService</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceSystemService\sce_systemservice_export.cpp">
+      <Filter>SceModules\SceSystemService</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceUserService\sce_userservice.cpp">
+      <Filter>SceModules\SceUserService</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceUserService\sce_userservice_export.cpp">
+      <Filter>SceModules\SceUserService</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceVideoOut\sce_videoout.cpp">
+      <Filter>SceModules\SceVideoOut</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceVideoOut\sce_videoout_export.cpp">
+      <Filter>SceModules\SceVideoOut</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceVideoRecording\sce_videorecording.cpp">
+      <Filter>SceModules\SceVideoRecording</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceVideoRecording\sce_videorecording_export.cpp">
+      <Filter>SceModules\SceVideoRecording</Filter>
+    </ClCompile>
+    <ClCompile Include="Emulator\SceModuleSystem.cpp">
+      <Filter>Source Files\Emulator</Filter>
+    </ClCompile>
+    <ClCompile Include="Emulator\RegisterModules.cpp">
+      <Filter>Source Files\Emulator</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

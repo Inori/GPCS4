@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Common\GPCS4Log.h" />
+    <ClInclude Include="Common\GPCS4Types.h" />
+    <ClInclude Include="Common\MacroHelper.h" />
+    <ClInclude Include="Common\Singleton.h" />
+    <ClInclude Include="elf-sce.h" />
+    <ClInclude Include="Emulator\Emulator.h" />
+    <ClInclude Include="Emulator\Linker.h" />
+    <ClInclude Include="Emulator\SceModuleSystem.h" />
+    <ClInclude Include="GPCS4Common.h" />
+    <ClInclude Include="GPCS4Config.h" />
+    <ClInclude Include="Loader\EbootObject.h" />
+    <ClInclude Include="Loader\elf.h" />
+    <ClInclude Include="Platform\PlatformUtils.h" />
+    <ClInclude Include="Platform\UtilMemory.h" />
+    <ClInclude Include="Platform\UtilString.h" />
+    <ClInclude Include="SceModules\SceAjm\sce_ajm.h" />
+    <ClInclude Include="SceModules\SceAppContentUtil\sce_appcontentutil.h" />
+    <ClInclude Include="SceModules\SceAudio3d\sce_audio3d.h" />
+    <ClInclude Include="SceModules\SceAudioOut\sce_audioout.h" />
+    <ClInclude Include="SceModules\SceCommonDialog\sce_commondialog.h" />
+    <ClInclude Include="SceModules\SceErrorDialog\sce_errordialog.h" />
+    <ClInclude Include="SceModules\SceFiber\sce_fiber.h" />
+    <ClInclude Include="SceModules\SceFios2\sce_fios2.h" />
+    <ClInclude Include="SceModules\SceGameLiveStreaming\sce_gamelivestreaming.h" />
+    <ClInclude Include="SceModules\SceGnmDriver\sce_gnmdriver.h" />
+    <ClInclude Include="SceModules\SceHttp\sce_http.h" />
+    <ClInclude Include="SceModules\SceIme\sce_ime.h" />
+    <ClInclude Include="SceModules\SceInvitationDialog\sce_invitationdialog.h" />
+    <ClInclude Include="SceModules\SceJson\sce_json.h" />
+    <ClInclude Include="SceModules\SceLibc\sce_libc.h" />
+    <ClInclude Include="SceModules\SceLibkernel\sce_libkernel.h" />
+    <ClInclude Include="SceModules\SceMouse\sce_mouse.h" />
+    <ClInclude Include="SceModules\SceMsgDialog\sce_msgdialog.h" />
+    <ClInclude Include="SceModules\SceNetCtl\sce_netctl.h" />
+    <ClInclude Include="SceModules\SceNet\sce_net.h" />
+    <ClInclude Include="SceModules\SceNpCommerce\sce_npcommerce.h" />
+    <ClInclude Include="SceModules\SceNpCommon\sce_npcommon.h" />
+    <ClInclude Include="SceModules\SceNpManager\sce_npmanager.h" />
+    <ClInclude Include="SceModules\SceNpMatching2\sce_npmatching2.h" />
+    <ClInclude Include="SceModules\SceNpProfileDialog\sce_npprofiledialog.h" />
+    <ClInclude Include="SceModules\SceNpScore\sce_npscore.h" />
+    <ClInclude Include="SceModules\SceNpSignaling\sce_npsignaling.h" />
+    <ClInclude Include="SceModules\SceNpTrophy\sce_nptrophy.h" />
+    <ClInclude Include="SceModules\SceNpTus\sce_nptus.h" />
+    <ClInclude Include="SceModules\SceNpWebApi\sce_npwebapi.h" />
+    <ClInclude Include="SceModules\ScePad\sce_pad.h" />
+    <ClInclude Include="SceModules\ScePlayGo\sce_playgo.h" />
+    <ClInclude Include="SceModules\SceRtc\sce_rtc.h" />
+    <ClInclude Include="SceModules\SceRudp\sce_rudp.h" />
+    <ClInclude Include="SceModules\SceSaveDataDialog\sce_savedatadialog.h" />
+    <ClInclude Include="SceModules\SceSaveData\sce_savedata.h" />
+    <ClInclude Include="SceModules\SceScreenShot\sce_screenshot.h" />
+    <ClInclude Include="SceModules\SceSsl\sce_ssl.h" />
+    <ClInclude Include="SceModules\SceSysmodule\sce_sysmodule.h" />
+    <ClInclude Include="SceModules\SceSystemService\sce_systemservice.h" />
+    <ClInclude Include="SceModules\SceUserService\sce_userservice.h" />
+    <ClInclude Include="SceModules\SceVideoOut\sce_videoout.h" />
+    <ClInclude Include="SceModules\SceVideoRecording\sce_videorecording.h" />
+    <ClInclude Include="SceModules\sce_errors.h" />
+    <ClInclude Include="SceModules\sce_modules.h" />
+    <ClInclude Include="SceModules\sce_module_common.h" />
+    <ClInclude Include="SceModules\sce_types.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Common\GPCS4Log.cpp" />
+    <ClCompile Include="Emulator\Emulator.cpp" />
+    <ClCompile Include="Emulator\Linker.cpp" />
+    <ClCompile Include="Emulator\RegisterModules.cpp" />
+    <ClCompile Include="Emulator\SceModuleSystem.cpp" />
+    <ClCompile Include="GPCS4Main.cpp" />
+    <ClCompile Include="Loader\EbootObject.cpp" />
+    <ClCompile Include="Platform\UtilMemory.cpp" />
+    <ClCompile Include="Platform\UtilString.cpp" />
+    <ClCompile Include="SceModules\SceAjm\sce_ajm.cpp" />
+    <ClCompile Include="SceModules\SceAjm\sce_ajm_export.cpp" />
+    <ClCompile Include="SceModules\SceAppContentUtil\sce_appcontentutil.cpp" />
+    <ClCompile Include="SceModules\SceAppContentUtil\sce_appcontentutil_export.cpp" />
+    <ClCompile Include="SceModules\SceAudio3d\sce_audio3d.cpp" />
+    <ClCompile Include="SceModules\SceAudio3d\sce_audio3d_export.cpp" />
+    <ClCompile Include="SceModules\SceAudioOut\sce_audioout.cpp" />
+    <ClCompile Include="SceModules\SceAudioOut\sce_audioout_export.cpp" />
+    <ClCompile Include="SceModules\SceCommonDialog\sce_commondialog.cpp" />
+    <ClCompile Include="SceModules\SceCommonDialog\sce_commondialog_export.cpp" />
+    <ClCompile Include="SceModules\SceErrorDialog\sce_errordialog.cpp" />
+    <ClCompile Include="SceModules\SceErrorDialog\sce_errordialog_export.cpp" />
+    <ClCompile Include="SceModules\SceFiber\sce_fiber.cpp" />
+    <ClCompile Include="SceModules\SceFiber\sce_fiber_export.cpp" />
+    <ClCompile Include="SceModules\SceFios2\sce_fios2.cpp" />
+    <ClCompile Include="SceModules\SceFios2\sce_fios2_export.cpp" />
+    <ClCompile Include="SceModules\SceGameLiveStreaming\sce_gamelivestreaming.cpp" />
+    <ClCompile Include="SceModules\SceGameLiveStreaming\sce_gamelivestreaming_export.cpp" />
+    <ClCompile Include="SceModules\SceGnmDriver\sce_gnmdriver.cpp" />
+    <ClCompile Include="SceModules\SceGnmDriver\sce_gnmdriver_export.cpp" />
+    <ClCompile Include="SceModules\SceHttp\sce_http.cpp" />
+    <ClCompile Include="SceModules\SceHttp\sce_http_export.cpp" />
+    <ClCompile Include="SceModules\SceIme\sce_ime.cpp" />
+    <ClCompile Include="SceModules\SceIme\sce_ime_export.cpp" />
+    <ClCompile Include="SceModules\SceInvitationDialog\sce_invitationdialog.cpp" />
+    <ClCompile Include="SceModules\SceInvitationDialog\sce_invitationdialog_export.cpp" />
+    <ClCompile Include="SceModules\SceJson\sce_json.cpp" />
+    <ClCompile Include="SceModules\SceJson\sce_json_export.cpp" />
+    <ClCompile Include="SceModules\SceLibc\sce_libc.cpp" />
+    <ClCompile Include="SceModules\SceLibc\sce_libc_export.cpp" />
+    <ClCompile Include="SceModules\SceLibkernel\sce_libkernel.cpp" />
+    <ClCompile Include="SceModules\SceLibkernel\sce_libkernel_export.cpp" />
+    <ClCompile Include="SceModules\SceMouse\sce_mouse.cpp" />
+    <ClCompile Include="SceModules\SceMouse\sce_mouse_export.cpp" />
+    <ClCompile Include="SceModules\SceMsgDialog\sce_msgdialog.cpp" />
+    <ClCompile Include="SceModules\SceMsgDialog\sce_msgdialog_export.cpp" />
+    <ClCompile Include="SceModules\SceNetCtl\sce_netctl.cpp" />
+    <ClCompile Include="SceModules\SceNetCtl\sce_netctl_export.cpp" />
+    <ClCompile Include="SceModules\SceNet\sce_net.cpp" />
+    <ClCompile Include="SceModules\SceNet\sce_net_export.cpp" />
+    <ClCompile Include="SceModules\SceNpCommerce\sce_npcommerce.cpp" />
+    <ClCompile Include="SceModules\SceNpCommerce\sce_npcommerce_export.cpp" />
+    <ClCompile Include="SceModules\SceNpCommon\sce_npcommon.cpp" />
+    <ClCompile Include="SceModules\SceNpCommon\sce_npcommon_export.cpp" />
+    <ClCompile Include="SceModules\SceNpManager\sce_npmanager.cpp" />
+    <ClCompile Include="SceModules\SceNpManager\sce_npmanager_export.cpp" />
+    <ClCompile Include="SceModules\SceNpMatching2\sce_npmatching2.cpp" />
+    <ClCompile Include="SceModules\SceNpMatching2\sce_npmatching2_export.cpp" />
+    <ClCompile Include="SceModules\SceNpProfileDialog\sce_npprofiledialog.cpp" />
+    <ClCompile Include="SceModules\SceNpProfileDialog\sce_npprofiledialog_export.cpp" />
+    <ClCompile Include="SceModules\SceNpScore\sce_npscore.cpp" />
+    <ClCompile Include="SceModules\SceNpScore\sce_npscore_export.cpp" />
+    <ClCompile Include="SceModules\SceNpSignaling\sce_npsignaling.cpp" />
+    <ClCompile Include="SceModules\SceNpSignaling\sce_npsignaling_export.cpp" />
+    <ClCompile Include="SceModules\SceNpTrophy\sce_nptrophy.cpp" />
+    <ClCompile Include="SceModules\SceNpTrophy\sce_nptrophy_export.cpp" />
+    <ClCompile Include="SceModules\SceNpTus\sce_nptus.cpp" />
+    <ClCompile Include="SceModules\SceNpTus\sce_nptus_export.cpp" />
+    <ClCompile Include="SceModules\SceNpWebApi\sce_npwebapi.cpp" />
+    <ClCompile Include="SceModules\SceNpWebApi\sce_npwebapi_export.cpp" />
+    <ClCompile Include="SceModules\ScePad\sce_pad.cpp" />
+    <ClCompile Include="SceModules\ScePad\sce_pad_export.cpp" />
+    <ClCompile Include="SceModules\ScePlayGo\sce_playgo.cpp" />
+    <ClCompile Include="SceModules\ScePlayGo\sce_playgo_export.cpp" />
+    <ClCompile Include="SceModules\SceRtc\sce_rtc.cpp" />
+    <ClCompile Include="SceModules\SceRtc\sce_rtc_export.cpp" />
+    <ClCompile Include="SceModules\SceRudp\sce_rudp.cpp" />
+    <ClCompile Include="SceModules\SceRudp\sce_rudp_export.cpp" />
+    <ClCompile Include="SceModules\SceSaveDataDialog\sce_savedatadialog.cpp" />
+    <ClCompile Include="SceModules\SceSaveDataDialog\sce_savedatadialog_export.cpp" />
+    <ClCompile Include="SceModules\SceSaveData\sce_savedata.cpp" />
+    <ClCompile Include="SceModules\SceSaveData\sce_savedata_export.cpp" />
+    <ClCompile Include="SceModules\SceScreenShot\sce_screenshot.cpp" />
+    <ClCompile Include="SceModules\SceScreenShot\sce_screenshot_export.cpp" />
+    <ClCompile Include="SceModules\SceSsl\sce_ssl.cpp" />
+    <ClCompile Include="SceModules\SceSsl\sce_ssl_export.cpp" />
+    <ClCompile Include="SceModules\SceSysmodule\sce_sysmodule.cpp" />
+    <ClCompile Include="SceModules\SceSysmodule\sce_sysmodule_export.cpp" />
+    <ClCompile Include="SceModules\SceSystemService\sce_systemservice.cpp" />
+    <ClCompile Include="SceModules\SceSystemService\sce_systemservice_export.cpp" />
+    <ClCompile Include="SceModules\SceUserService\sce_userservice.cpp" />
+    <ClCompile Include="SceModules\SceUserService\sce_userservice_export.cpp" />
+    <ClCompile Include="SceModules\SceVideoOut\sce_videoout.cpp" />
+    <ClCompile Include="SceModules\SceVideoOut\sce_videoout_export.cpp" />
+    <ClCompile Include="SceModules\SceVideoRecording\sce_videorecording.cpp" />
+    <ClCompile Include="SceModules\SceVideoRecording\sce_videorecording_export.cpp" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{C6268336-3B18-41C4-AC99-18B5F8A0BF29}</ProjectGuid>
+    <RootNamespace>GPCS4</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>llvm</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>llvm</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(ProjectDir);$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>$(ProjectDir);$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(ProjectDir)SceModules;$(ProjectDir)Common;$(ProjectDir);$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(ProjectDir)SceModules;$(ProjectDir)Common;$(ProjectDir);$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Label="LLVM" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClangClAdditionalOptions>-Wc99-extensions</ClangClAdditionalOptions>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

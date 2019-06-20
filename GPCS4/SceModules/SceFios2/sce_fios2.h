@@ -1,0 +1,74 @@
+/*
+ *    GPCS4
+ *    
+ *    This file implements:
+ *    module: libSceFios2
+ *        library: libSceFios2
+ *    
+ */
+
+#pragma once
+
+#include "sce_module_common.h"
+
+
+extern const SCE_EXPORT_MODULE g_ExpModuleSceFios2;
+
+
+// Note:
+// The codebase is genarated using GenerateCode.py
+// You may need to modify the code manually to fit development needs
+
+
+
+//////////////////////////////////////////////////////////////////////////
+// library: libSceFios2
+//////////////////////////////////////////////////////////////////////////
+
+int PS4API sceFiosDateToComponents(void);
+
+
+int PS4API sceFiosDeleteSync(void);
+
+
+int PS4API sceFiosDirectoryCreateSync(void);
+
+
+int PS4API sceFiosDirectoryExistsSync(void);
+
+
+int PS4API sceFiosFHCloseSync(void);
+
+
+int PS4API sceFiosFHOpenSync(void);
+
+
+int PS4API sceFiosFHReadSync(void);
+
+
+int PS4API sceFiosFHSeek(void);
+
+
+int PS4API sceFiosFHStatSync(void);
+
+
+int PS4API sceFiosFHWriteSync(void);
+
+
+int PS4API sceFiosFileExistsSync(void);
+
+
+int PS4API sceFiosFileGetSizeSync(void);
+
+
+int PS4API sceFiosFileReadSync(void);
+
+
+int PS4API sceFiosFileWriteSync(void);
+
+
+int PS4API sceFiosStatSync(void);
+
+
+
+
