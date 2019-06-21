@@ -36,7 +36,7 @@ static const SCE_EXPORT_FUNCTION g_pSceLibc_libc_FunctionTable[] =
 	{ 0x574DA816FFBF2730, "__isinf", (void*)scec___isinf },
 	{ 0x19FC40A7D5F28AAB, "__isnan", (void*)scec___isnan },
 	{ 0x0A3F352CF12B3C27, "__signbitl", (void*)scec___signbitl },
-	{ 0x6F3404C72D7CF592, "_init_env", (void*)scec__init_env },
+	{ 0x6F3404C72D7CF592, "_init_env", (void*)scec_init_env },
 	{ 0x2F54814E40BE0AFC, "abort", (void*)scec_abort },
 	{ 0x24172062E5BC94F5, "acos", (void*)scec_acos },
 	{ 0x408FF1D122FC8E1C, "acosf", (void*)scec_acosf },

@@ -19,7 +19,6 @@ void LogPrint(const char* szLevel, const char* szFunction, int nLine, const char
 	char szTempStr[LOG_STR_BUFFER_LEN + 1] = { 0 };
 	unsigned int nTid = 0;
 	va_list   stArgList;
-	int nTagLen = strlen(LOG_TAG);
 
 	nTid = GetCurrentThreadId();
 	va_start(stArgList, szFormat);

@@ -122,6 +122,10 @@
     <ClCompile Include="SceModules\SceJson\sce_json_export.cpp" />
     <ClCompile Include="SceModules\SceLibc\sce_libc.cpp" />
     <ClCompile Include="SceModules\SceLibc\sce_libc_export.cpp" />
+    <ClCompile Include="SceModules\SceLibc\sce_libc_file.cpp" />
+    <ClCompile Include="SceModules\SceLibc\sce_libc_math.cpp" />
+    <ClCompile Include="SceModules\SceLibc\sce_libc_memory.cpp" />
+    <ClCompile Include="SceModules\SceLibc\sce_libc_string.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\sce_libkernel.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\sce_libkernel_export.cpp" />
     <ClCompile Include="SceModules\SceMouse\sce_mouse.cpp" />

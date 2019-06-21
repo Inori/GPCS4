@@ -624,5 +624,17 @@
     <ClCompile Include="Emulator\RegisterModules.cpp">
       <Filter>Source Files\Emulator</Filter>
     </ClCompile>
+    <ClCompile Include="SceModules\SceLibc\sce_libc_string.cpp">
+      <Filter>SceModules\SceLibc</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceLibc\sce_libc_math.cpp">
+      <Filter>SceModules\SceLibc</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceLibc\sce_libc_file.cpp">
+      <Filter>SceModules\SceLibc</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceLibc\sce_libc_memory.cpp">
+      <Filter>SceModules\SceLibc</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

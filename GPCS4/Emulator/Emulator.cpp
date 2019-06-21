@@ -60,8 +60,10 @@ bool CEmulator::Run()
 		PFUNC_EntryPoint pfuncEntryPoint = (PFUNC_EntryPoint)m_oEboot.EntryPoint();
 
 		LOG_DEBUG("run into eboot.");
-		uint64 pCtx[0x10] = { 0 };
-		pfuncEntryPoint(pCtx, 0x10);
+		const int nArgNum = 0x10;
+		uint64 pArgs[nArgNum] = { 0xDEADBEE1, 0xDEADBEE2, 0xDEADBEE3, 0xDEADBEE4, 0xDEADBEE5, 
+			0xDEADBEE6, 0xDEADBEE7, 0xDEADBEE8, 0xDEADBEE9, 0xDEADBEEA };
+		pfuncEntryPoint(pArgs, nArgNum);
 
 		bRet = true;
 	} while (false);

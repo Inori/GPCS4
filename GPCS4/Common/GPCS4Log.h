@@ -24,6 +24,13 @@ void LogPrint(const char* szLevel, const char* szFunction, int nLine, const char
 #define LOG_WARN(format, ...)	_LOG_PRINT_(LOG_LEVEL_WARNING, format, __VA_ARGS__);
 #define LOG_ERR(format, ...)	_LOG_PRINT_(LOG_LEVEL_ERROR, format, __VA_ARGS__);
 
+
+// only use to trace sce module export functions
+// to trace other functions, use LOG_TRACE
+// TODO:
+// set specific logger
+#define LOG_SCE_TRACE LOG_TRACE
+
 #else
 
 
@@ -32,5 +39,7 @@ void LogPrint(const char* szLevel, const char* szFunction, int nLine, const char
 #define LOG_FIXME(format, ...)
 #define LOG_WARN(format, ...)
 #define LOG_ERR(format, ...)
+
+#define LOG_SCE_TRACE (format, ...)
 
 #endif  //ENABLE_DEBUG

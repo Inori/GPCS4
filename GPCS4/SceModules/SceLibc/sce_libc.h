@@ -81,7 +81,7 @@ int PS4API scec___isnan(void);
 
 int PS4API scec___signbitl(void);
 
-int PS4API scec__init_env(void);
+int PS4API scec_init_env(void);
 
 int PS4API scec_abort(void);
 
@@ -185,7 +185,7 @@ int PS4API scec_memcpy_s(void);
 
 int PS4API scec_memmove(void);
 
-int PS4API scec_memset(void);
+void* PS4API scec_memset(void * ptr, int value, size_t num);
 
 int PS4API scec_modf(void);
 
@@ -239,7 +239,7 @@ int PS4API scec_snprintf(void);
 
 int PS4API scec_sprintf(void);
 
-int PS4API scec_sprintf_s(void);
+int PS4API scec_sprintf_s(char *buffer, size_t sizeOfBuffer, const char *format, ...);
 
 int PS4API scec_sscanf(void);
 

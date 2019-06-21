@@ -172,10 +172,12 @@ int PS4API sceKernelGetdents(void)
 }
 
 
+// Is PS4 Pro?
 int PS4API sceKernelIsNeoMode(void)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	int is_neo_mode = 1;
+	LOG_TRACE("return %d", is_neo_mode);
+	return is_neo_mode;
 }
 
 
