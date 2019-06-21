@@ -130,7 +130,7 @@ def WriteHeadComment(dst, mod_name, lib_dic):
 
 def WriteNote(dst):
     dst.write('// Note:' + '\n')
-    dst.write('// ' + 'The codebase is genarated using {}'.format(os.path.basename(__file__)) + '\n')
+    dst.write('// ' + 'The codebase is generated using {}'.format(os.path.basename(__file__)) + '\n')
     dst.write('// ' + 'You may need to modify the code manually to fit development needs' + '\n')
 
 
