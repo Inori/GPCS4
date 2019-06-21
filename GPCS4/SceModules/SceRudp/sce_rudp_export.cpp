@@ -2,7 +2,7 @@
 
 
 // Note:
-// The codebase is genarated using GenerateCode.py
+// The codebase is generated using GenerateCode.py
 // You may need to modify the code manually to fit development needs
 
 
