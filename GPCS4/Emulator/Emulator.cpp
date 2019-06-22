@@ -60,12 +60,17 @@ bool CEmulator::Run()
 		PFUNC_EntryPoint pfuncEntryPoint = (PFUNC_EntryPoint)m_oEboot.EntryPoint();
 
 		LOG_DEBUG("run into eboot.");
-		const int nArgNum = 0x10;
-		uint64 pArgs[nArgNum] = { 0xDEADBEE1, 0xDEADBEE2, 0xDEADBEE3, 0xDEADBEE4, 0xDEADBEE5, 
+		const int nEnvNum = 0x10;
+		uint64 pEnv[nEnvNum] = { 0xDEADBEE1, 0xDEADBEE2, 0xDEADBEE3, 0xDEADBEE4, 0xDEADBEE5, 
 			0xDEADBEE6, 0xDEADBEE7, 0xDEADBEE8, 0xDEADBEE9, 0xDEADBEEA };
-		pfuncEntryPoint(pArgs, nArgNum);
+		pfuncEntryPoint(pEnv, CEmulator::LastExitHandler);
 
 		bRet = true;
 	} while (false);
 	return bRet;
+}
+
+void CEmulator::LastExitHandler(void)
+{
+	LOG_DEBUG("program exit.");
 }

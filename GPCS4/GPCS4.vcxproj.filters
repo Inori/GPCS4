@@ -639,5 +639,17 @@
     <ClCompile Include="SceModules\SceLibc\sce_libc_string_asm.asm">
       <Filter>SceModules\SceLibc</Filter>
     </ClCompile>
+    <ClCompile Include="SceModules\SceLibc\sce_libc_sce.cpp">
+      <Filter>SceModules\SceLibc</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceLibc\sce_libc_stdlib.cpp">
+      <Filter>SceModules\SceLibc</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceLibc\sce_libc_stdio.cpp">
+      <Filter>SceModules\SceLibc</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceLibc\sce_libc_cxa.cpp">
+      <Filter>SceModules\SceLibc</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

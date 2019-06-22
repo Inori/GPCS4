@@ -5,7 +5,7 @@
 #include "Linker.h"
 #include <memory>
 
-typedef void (PS4NORETURN PS4API *PFUNC_EntryPoint)(void* pCtx, uint64 nUk);
+typedef void (PS4NORETURN PS4API *PFUNC_EntryPoint)(void* pEnv, void* pfnExitHandler);
 
 class CEmulator
 {
@@ -24,6 +24,7 @@ public:
 private:
 	bool RegisterModules();
 
+	static void LastExitHandler(void);
 private:
 	CEbootObject m_oEboot;
 	std::shared_ptr<CLinker> m_pLinker;

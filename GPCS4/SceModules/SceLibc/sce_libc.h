@@ -86,7 +86,7 @@ int PS4API scec___isnan(void);
 
 int PS4API scec___signbitl(void);
 
-int PS4API scec_init_env(void);
+int PS4API scec_init_env(void* env);
 
 int PS4API scec_abort(void);
 
@@ -110,7 +110,7 @@ int PS4API scec_atan2f(void);
 
 int PS4API scec_atanh(void);
 
-int PS4API scec_atexit(void);
+int PS4API scec_atexit(PFUNC_exit_handler handler);
 
 int PS4API scec_atof(void);
 
