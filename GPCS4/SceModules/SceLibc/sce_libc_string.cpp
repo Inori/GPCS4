@@ -81,6 +81,7 @@ int PS4API scec_sprintf(void)
 	return SCE_OK;
 }
 
+
 #ifdef GPCS4_WINDOWS
 extern "C" int scec_sprintf_s_asm();
 #endif // GPCS4_WINDOWS

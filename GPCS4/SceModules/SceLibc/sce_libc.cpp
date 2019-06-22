@@ -12,27 +12,12 @@
 //////////////////////////////////////////////////////////////////////////
 
 
-// This is the very first function a game calls
-int PS4API scec_init_env(void)
-{
-	LOG_SCE_TRACE("do nothing.");
-	return SCE_OK;
-}
-
-
-int PS4API scec_exit(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
 
 int PS4API scec_Need_sceLibc(void)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
 }
-
 
 
 int PS4API scec__FDtest(void)
@@ -84,34 +69,6 @@ int PS4API scec__Log(void)
 }
 
 
-int PS4API scec__Stderr(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scec__Stdout(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scec__Stoul(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scec__Stoull(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
 int PS4API scec__ZSt14_Xlength_errorPKc(void)
 {
 	LOG_FIXME("Not implemented");
@@ -125,33 +82,6 @@ int PS4API scec__ZSt14_Xout_of_rangePKc(void)
 	return SCE_OK;
 }
 
-
-int PS4API scec___cxa_atexit(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scec___cxa_guard_acquire(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scec___cxa_guard_release(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scec___cxa_pure_virtual(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
 
 
 int PS4API scec___isfinite(void)
@@ -197,40 +127,11 @@ int PS4API scec___signbitl(void)
 
 
 
-int PS4API scec_abort(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scec_atexit(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scec_atof(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scec_bsearch(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
 int PS4API scec_catchReturnFromMain(void)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
 }
-
 
 
 int PS4API scec_setjmp(void)
@@ -246,112 +147,6 @@ int PS4API scec_longjmp(void)
 	return SCE_OK;
 }
 
-
-
-int PS4API scec_qsort(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scec_rand(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scec_sceLibcMspaceCalloc(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scec_sceLibcMspaceCreate(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scec_sceLibcMspaceDestroy(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scec_sceLibcMspaceFree(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scec_sceLibcMspaceMalloc(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scec_sceLibcMspaceMallocStats(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scec_sceLibcMspaceMallocStatsFast(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scec_sceLibcMspaceMallocUsableSize(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scec_sceLibcMspaceMemalign(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scec_sceLibcMspacePosixMemalign(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scec_sceLibcMspaceRealloc(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scec_sceLibcMspaceReallocalign(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-
-int PS4API scec_time(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
 
 
 
