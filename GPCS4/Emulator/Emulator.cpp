@@ -70,7 +70,7 @@ bool CEmulator::Run()
 	return bRet;
 }
 
-void CEmulator::LastExitHandler(void)
+void PS4API CEmulator::LastExitHandler(void)
 {
 	LOG_DEBUG("program exit.");
 }

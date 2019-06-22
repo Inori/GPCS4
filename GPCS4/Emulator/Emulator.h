@@ -24,7 +24,7 @@ public:
 private:
 	bool RegisterModules();
 
-	static void LastExitHandler(void);
+	static void PS4API LastExitHandler(void);
 private:
 	CEbootObject m_oEboot;
 	std::shared_ptr<CLinker> m_pLinker;

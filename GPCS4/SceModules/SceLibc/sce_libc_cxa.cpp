@@ -3,13 +3,15 @@
 
 
 // at least 32
-#define SCE_CXA_EXIT_HANDLER_MAX 64
+// currently give a large value to prevent atexit failed
+#define SCE_CXA_EXIT_HANDLER_MAX 0x1000 
 
 // note:
 // when dso_handler and arg are both NULL
 // we should call exit_handler with no arg
 // this is strange, but it seems it's the standard
 // http://refspecs.linuxbase.org/LSB_3.1.0/LSB-Core-generic/LSB-Core-generic/baselib---cxa-atexit.html
+// also, all handlers are sysv abi, of course.
 
 struct CAX_EXIT_HANDLER_INFO
 {
