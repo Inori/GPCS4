@@ -86,7 +86,12 @@ int PS4API scec_sprintf(void)
 extern "C" int scec_sprintf_s_asm();
 #endif // GPCS4_WINDOWS
 
-int PS4API PS4NAKED scec_sprintf_s(char *buffer, size_t sizeOfBuffer, const char *format, ...)
+int 
+PS4API
+#ifdef GPCS4_WINDOWS
+PS4NAKED
+#endif // GPCS4_WINDOWS
+scec_sprintf_s(char *buffer, size_t sizeOfBuffer, const char *format, ...)
 {
 	//LOG_SCE_TRACE("buffer %p %x %p", buffer, sizeOfBuffer, format);
 
