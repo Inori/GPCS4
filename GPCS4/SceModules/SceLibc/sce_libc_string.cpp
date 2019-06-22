@@ -81,12 +81,31 @@ int PS4API scec_sprintf(void)
 	return SCE_OK;
 }
 
+#ifdef GPCS4_WINDOWS
+extern "C" int scec_sprintf_s_asm();
+#endif // GPCS4_WINDOWS
 
-int PS4API scec_sprintf_s(char *buffer, size_t sizeOfBuffer, const char *format, ...)
+int PS4API PS4NAKED scec_sprintf_s(char *buffer, size_t sizeOfBuffer, const char *format, ...)
 {
-	LOG_SCE_TRACE("buffer %p %x %p", buffer, sizeOfBuffer, format);
+	//LOG_SCE_TRACE("buffer %p %x %p", buffer, sizeOfBuffer, format);
 
-	return SCE_OK;
+#ifdef GPCS4_WINDOWS
+	// why not just write inline assembly directly here?
+	// because I really hate the stupid AT&T syntax
+	// after 3 hours' learn, I still get compiling errors and errors and erros..
+	// so I just give up.
+	// fuck that.
+	asm volatile("jmp scec_sprintf_s_asm");
+
+#elif defined(GPCS4_LINUX)
+	// on linux, this can be implemented more friendly.
+	va_list arg_list;
+
+	va_start(arg_list, format);
+	int ret = vsprintf_s(buffer, sizeOfBuffer, format, arg_list);
+	va_end(arg_list);
+#endif
+
 }
 
 
@@ -146,17 +165,17 @@ int PS4API scec_strcpy(void)
 }
 
 
-int PS4API scec_strcpy_s(void)
+errno_t PS4API scec_strcpy_s(char *dest, rsize_t dest_size, const char *src)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("dst %p dst_sz %x src %p", dest, dest_size, src);
+	return strcpy_s(dest, dest_size, src);
 }
 
 
-int PS4API scec_strlen(void)
+size_t PS4API scec_strlen(const char* str)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("str %p", str);
+	return strlen(str);
 }
 
 
@@ -244,10 +263,10 @@ int PS4API scec_swprintf_s(void)
 }
 
 
-int PS4API scec_vsnprintf(void)
+int PS4API scec_vsnprintf(char * s, size_t n, const char * format, va_list arg)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("s %p n %x fmt %p", s, n, format);
+	return vsnprintf(s, n, format, arg);
 }
 
 

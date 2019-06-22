@@ -10,5 +10,7 @@
 
 #define PS4NORETURN __attribute__((noreturn))
 
+#define PS4NAKED __attribute__((naked))
+
  
 
