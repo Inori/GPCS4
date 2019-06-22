@@ -6,6 +6,8 @@
 *.lib
 *.pdb
 *.ilk
+*.o
+*.inlined_static_stamp
 *.exp
 version.res
 tests/*.pass
