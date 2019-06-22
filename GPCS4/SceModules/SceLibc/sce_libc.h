@@ -25,7 +25,8 @@ extern const SCE_EXPORT_MODULE g_ExpModuleSceLibc;
 // library: libc
 //////////////////////////////////////////////////////////////////////////
 
-typedef void(*PFUNC_exit_handler)(void);
+typedef void(*pfunc_cxa_exit_handler)(void*);
+typedef void(*pfunc_exit_handler)(void);
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -66,7 +67,7 @@ int PS4API scec__ZSt14_Xlength_errorPKc(void);
 
 int PS4API scec__ZSt14_Xout_of_rangePKc(void);
 
-int PS4API scec___cxa_atexit(void);
+int PS4API scec___cxa_atexit(pfunc_cxa_exit_handler func, void * arg, void * dso_handle);
 
 int PS4API scec___cxa_guard_acquire(void);
 
@@ -110,7 +111,7 @@ int PS4API scec_atan2f(void);
 
 int PS4API scec_atanh(void);
 
-int PS4API scec_atexit(PFUNC_exit_handler handler);
+int PS4API scec_atexit(pfunc_exit_handler handler);
 
 int PS4API scec_atof(void);
 

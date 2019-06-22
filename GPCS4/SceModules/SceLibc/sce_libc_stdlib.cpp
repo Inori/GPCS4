@@ -1,15 +1,7 @@
 #include "sce_libc.h"
-#include <mutex>
 
-#define SCE_MAX_EXIT_HANDLER 0x10
-struct EXIT_HANDLER_ARRAY
-{
-	std::mutex mutex;
-	uint nCount;
-	PFUNC_exit_handler pHandlers[SCE_MAX_EXIT_HANDLER];
-};
 
-EXIT_HANDLER_ARRAY g_stExitHandlerArray;
+
 
 //////////////////////////////////////////////////////////////////////////
 // This is the very first function a game calls
@@ -20,17 +12,10 @@ int PS4API scec_init_env(void* env)
 }
 
 
-int PS4API scec_atexit(PFUNC_exit_handler handler)
+int PS4API scec_atexit(pfunc_exit_handler handler)
 {
 	LOG_SCE_TRACE("handler %p", handler);
-	std::lock_guard<std::mutex> lock(g_stExitHandlerArray.mutex);
-
-	// TODO:
-	// currently we just record, these should be executed on program exit
-	g_stExitHandlerArray.pHandlers[g_stExitHandlerArray.nCount] = handler;
-	++g_stExitHandlerArray.nCount;
-
-	return SCE_OK;
+	return scec___cxa_atexit((pfunc_cxa_exit_handler)handler, NULL, NULL);
 }
 
 
