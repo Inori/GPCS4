@@ -1,5 +1,5 @@
 #include "Emulator.h"
-
+#include "GameThread.h"
 
 
 CEmulator::CEmulator()
@@ -57,13 +57,28 @@ bool CEmulator::Run()
 	do 
 	{
 
-		PFUNC_EntryPoint pfuncEntryPoint = (PFUNC_EntryPoint)m_oEboot.EntryPoint();
+		void* pEntryPoint = m_oEboot.EntryPoint();
+		if (!pEntryPoint)
+		{
+			break;
+		}
+
+		const int nEnvNum = 0x10;
+		uint64 pEnv[nEnvNum] = { 0xDEADBEE1, 0xDEADBEE2, 0xDEADBEE3, 0xDEADBEE4, 0xDEADBEE5,
+			0xDEADBEE6, 0xDEADBEE7, 0xDEADBEE8, 0xDEADBEE9, 0xDEADBEEA };
 
 		LOG_DEBUG("run into eboot.");
-		const int nEnvNum = 0x10;
-		uint64 pEnv[nEnvNum] = { 0xDEADBEE1, 0xDEADBEE2, 0xDEADBEE3, 0xDEADBEE4, 0xDEADBEE5, 
-			0xDEADBEE6, 0xDEADBEE7, 0xDEADBEE8, 0xDEADBEE9, 0xDEADBEEA };
-		pfuncEntryPoint(pEnv, CEmulator::LastExitHandler);
+		CGameThread oMainThread(pEntryPoint, pEnv, (void*)CEmulator::LastExitHandler);
+		if (!oMainThread.Start())
+		{
+			break;
+		}
+
+		// block the emulator's thread
+		if (!oMainThread.Join(NULL))
+		{
+			break;
+		}
 
 		bRet = true;
 	} while (false);

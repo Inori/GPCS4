@@ -25,6 +25,7 @@
     <ClInclude Include="Common\Singleton.h" />
     <ClInclude Include="elf-sce.h" />
     <ClInclude Include="Emulator\Emulator.h" />
+    <ClInclude Include="Emulator\GameThread.h" />
     <ClInclude Include="Emulator\Linker.h" />
     <ClInclude Include="Emulator\SceModuleSystem.h" />
     <ClInclude Include="GPCS4Common.h" />
@@ -49,6 +50,7 @@
     <ClInclude Include="SceModules\SceInvitationDialog\sce_invitationdialog.h" />
     <ClInclude Include="SceModules\SceJson\sce_json.h" />
     <ClInclude Include="SceModules\SceLibc\sce_libc.h" />
+    <ClInclude Include="SceModules\SceLibkernel\sce_kernel_scepthread.h" />
     <ClInclude Include="SceModules\SceLibkernel\sce_libkernel.h" />
     <ClInclude Include="SceModules\SceMouse\sce_mouse.h" />
     <ClInclude Include="SceModules\SceMsgDialog\sce_msgdialog.h" />
@@ -85,6 +87,7 @@
   <ItemGroup>
     <ClCompile Include="Common\GPCS4Log.cpp" />
     <ClCompile Include="Emulator\Emulator.cpp" />
+    <ClCompile Include="Emulator\GameThread.cpp" />
     <ClCompile Include="Emulator\Linker.cpp" />
     <ClCompile Include="Emulator\RegisterModules.cpp" />
     <ClCompile Include="Emulator\SceModuleSystem.cpp" />
@@ -134,6 +137,8 @@
     <MASM Include="SceModules\SceLibc\sce_libc_string_asm.asm">
       <FileType>Document</FileType>
     </MASM>
+    <ClCompile Include="SceModules\SceLibkernel\sce_kernel_pthread.cpp" />
+    <ClCompile Include="SceModules\SceLibkernel\sce_kernel_scepthread.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\sce_libkernel.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\sce_libkernel_export.cpp" />
     <ClCompile Include="SceModules\SceMouse\sce_mouse.cpp" />

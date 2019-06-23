@@ -337,6 +337,12 @@
     <ClInclude Include="Common\Singleton.h">
       <Filter>Source Files\Common</Filter>
     </ClInclude>
+    <ClInclude Include="SceModules\SceLibkernel\sce_kernel_scepthread.h">
+      <Filter>SceModules\SceLibkernel</Filter>
+    </ClInclude>
+    <ClInclude Include="Emulator\GameThread.h">
+      <Filter>Source Files\Emulator</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -650,6 +656,15 @@
     </ClCompile>
     <ClCompile Include="ImportLibs.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceLibkernel\sce_kernel_scepthread.cpp">
+      <Filter>SceModules\SceLibkernel</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceLibkernel\sce_kernel_pthread.cpp">
+      <Filter>SceModules\SceLibkernel</Filter>
+    </ClCompile>
+    <ClCompile Include="Emulator\GameThread.cpp">
+      <Filter>Source Files\Emulator</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
