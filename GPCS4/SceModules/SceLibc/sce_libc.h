@@ -69,9 +69,9 @@ int PS4API scec__ZSt14_Xout_of_rangePKc(void);
 
 int PS4API scec___cxa_atexit(pfunc_cxa_exit_handler func, void * arg, void * dso_handle);
 
-int PS4API scec___cxa_guard_acquire(void);
+int PS4API scec___cxa_guard_acquire(uint64_t* guard_object);
 
-int PS4API scec___cxa_guard_release(void);
+void PS4API scec___cxa_guard_release(uint64_t* guard_object);
 
 int PS4API scec___cxa_pure_virtual(void);
 
