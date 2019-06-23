@@ -110,6 +110,7 @@ scec_sprintf_s(char *buffer, size_t sizeOfBuffer, const char *format, ...)
 	va_start(arg_list, format);
 	int ret = vsprintf_s(buffer, sizeOfBuffer, format, arg_list);
 	va_end(arg_list);
+	return ret;
 #endif
 
 }

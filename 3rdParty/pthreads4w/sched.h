@@ -38,7 +38,7 @@
 #define _SCHED_H
 #define __SCHED_H_SOURCED__
 
-#include <_ptw32.h>
+#include "_ptw32.h"
 
 /* We need a typedef for pid_t, (and POSIX requires <sched.h> to
  * define it, as it is defined in <sys/types.h>, but it does NOT

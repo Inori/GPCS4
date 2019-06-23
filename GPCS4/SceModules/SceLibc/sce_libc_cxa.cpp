@@ -2,6 +2,9 @@
 #include <mutex>
 
 
+#include "pthreads4w/pthread.h"
+
+
 // at least 32
 // currently give a large value to prevent atexit failed
 #define SCE_CXA_EXIT_HANDLER_MAX 0x1000 

@@ -648,6 +648,9 @@
     <ClCompile Include="SceModules\SceLibc\sce_libc_cxa.cpp">
       <Filter>SceModules\SceLibc</Filter>
     </ClCompile>
+    <ClCompile Include="ImportLibs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="SceModules\SceLibc\sce_libc_string_asm.asm">

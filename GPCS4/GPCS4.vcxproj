@@ -89,6 +89,7 @@
     <ClCompile Include="Emulator\RegisterModules.cpp" />
     <ClCompile Include="Emulator\SceModuleSystem.cpp" />
     <ClCompile Include="GPCS4Main.cpp" />
+    <ClCompile Include="ImportLibs.cpp" />
     <ClCompile Include="Loader\EbootObject.cpp" />
     <ClCompile Include="Platform\UtilMemory.cpp" />
     <ClCompile Include="Platform\UtilString.cpp" />
@@ -249,10 +250,12 @@
     <IncludePath>$(ProjectDir);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)SceModules;$(ProjectDir)Common;$(ProjectDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)3rdParty;$(ProjectDir)SceModules;$(ProjectDir)Common;$(ProjectDir);$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir)SceModules;$(ProjectDir)Common;$(ProjectDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)3rdParty;$(ProjectDir)SceModules;$(ProjectDir)Common;$(ProjectDir);$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Label="LLVM" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClangClAdditionalOptions>-Wc99-extensions</ClangClAdditionalOptions>
@@ -278,9 +281,11 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -309,11 +314,13 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

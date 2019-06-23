@@ -38,6 +38,17 @@
 #ifndef __PTW32_H
 #define __PTW32_H
 
+
+// Note:
+// From pthread4w's readme, 
+// __PTW32_STATIC_LIB must be defined for both the library build and the
+// application build
+// since we only use static libs
+// we define it here for convenience
+#define  __PTW32_STATIC_LIB
+
+
+
 /* See the README file for an explanation of the pthreads-win32
  * version numbering scheme and how the DLL is named etc.
  *
