@@ -11,7 +11,7 @@
 #pragma once
 
 #include "sce_module_common.h"
-
+#include "sce_kernel_scepthread.h"
 
 extern const SCE_EXPORT_MODULE g_ExpModuleSceLibkernel;
 
@@ -218,28 +218,28 @@ int PS4API scePthreadGetprio(void);
 int PS4API scePthreadJoin(void);
 
 
-int PS4API scePthreadMutexDestroy(void);
+int PS4API scePthreadMutexDestroy(ScePthreadMutex *mutex);
 
 
-int PS4API scePthreadMutexInit(void);
+int PS4API scePthreadMutexInit(ScePthreadMutex *mutex, const ScePthreadMutexattr *attr, const char *name);
 
 
-int PS4API scePthreadMutexLock(void);
+int PS4API scePthreadMutexLock(ScePthreadMutex *mutex);
 
 
-int PS4API scePthreadMutexUnlock(void);
+int PS4API scePthreadMutexUnlock(ScePthreadMutex *mutex);
 
 
-int PS4API scePthreadMutexattrDestroy(void);
+int PS4API scePthreadMutexattrDestroy(ScePthreadMutexattr *attr);
 
 
-int PS4API scePthreadMutexattrInit(void);
+int PS4API scePthreadMutexattrInit(ScePthreadMutexattr *attr);
 
 
-int PS4API scePthreadMutexattrSetprotocol(void);
+int PS4API scePthreadMutexattrSetprotocol(ScePthreadMutexattr *attr, int protocol);
 
 
-int PS4API scePthreadMutexattrSettype(void);
+int PS4API scePthreadMutexattrSettype(ScePthreadMutexattr *attr, int type);
 
 
 int PS4API scePthreadRename(void);

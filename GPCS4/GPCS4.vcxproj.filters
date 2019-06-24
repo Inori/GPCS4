@@ -343,6 +343,9 @@
     <ClInclude Include="Emulator\GameThread.h">
       <Filter>Source Files\Emulator</Filter>
     </ClInclude>
+    <ClInclude Include="SceModules\sce_kernel_error.h">
+      <Filter>SceModules</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">

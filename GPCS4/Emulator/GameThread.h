@@ -4,9 +4,6 @@
 #include "pthreads4w/pthread.h"
 #include <memory>
 
-// all game threads including main thread
-// should be create using this class
-
 class CGameThread
 {
 public:
