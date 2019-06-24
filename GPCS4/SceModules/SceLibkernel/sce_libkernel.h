@@ -104,7 +104,7 @@ int PS4API sceKernelLseek(void);
 int PS4API sceKernelMapDirectMemory(void);
 
 
-int PS4API sceKernelMapFlexibleMemory(void);
+int PS4API sceKernelMapFlexibleMemory(void **addrInOut, size_t len, int prot, int flags);
 
 
 int PS4API sceKernelMkdir(void);

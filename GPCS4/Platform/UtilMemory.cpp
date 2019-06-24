@@ -19,9 +19,18 @@ void* VMMap(size_t nSize, uint nProtectFlag)
 	return pAddr;
 }
 
+void* VMMapEx(void* pAddr, size_t nSize, uint nProtectFlag, uint nType)
+{
+	do
+	{
+		pAddr = VirtualAlloc(pAddr, nSize, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+	} while (false);
+	return pAddr;
+}
+
 void VMUnMap(void* pAddr, size_t nSize)
 {
-
+	VirtualFree(pAddr, nSize, MEM_RELEASE);
 }
 
 bool VMProtect(void* pAddr, size_t nSize, uint nProtectFlag)

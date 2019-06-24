@@ -346,6 +346,9 @@
     <ClInclude Include="SceModules\sce_kernel_error.h">
       <Filter>SceModules</Filter>
     </ClInclude>
+    <ClInclude Include="SceModules\SceLibkernel\sce_kernel_memory.h">
+      <Filter>SceModules\SceLibkernel</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -668,6 +671,9 @@
     </ClCompile>
     <ClCompile Include="Emulator\GameThread.cpp">
       <Filter>Source Files\Emulator</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceLibkernel\sce_kernel_memory.cpp">
+      <Filter>SceModules\SceLibkernel</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

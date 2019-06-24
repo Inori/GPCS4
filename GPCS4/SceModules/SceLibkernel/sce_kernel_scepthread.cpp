@@ -8,6 +8,8 @@ int pthreadErrorToSceError(int perror)
 
 	switch (perror)
 	{
+	case 0:
+		sceError = SCE_OK;
 	case EPERM:
 		sceError = SCE_KERNEL_ERROR_EPERM;
 		break;

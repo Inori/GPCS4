@@ -39,12 +39,6 @@ int PS4API __tls_get_addr(void)
 }
 
 
-int PS4API sceKernelAllocateDirectMemory(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
 
 int PS4API sceKernelClockGettime(void)
 {
@@ -130,13 +124,6 @@ int PS4API sceKernelGetCpumode(void)
 }
 
 
-int PS4API sceKernelGetDirectMemorySize(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
 int PS4API sceKernelGetProcessTime(void)
 {
 	LOG_FIXME("Not implemented");
@@ -188,20 +175,6 @@ int PS4API sceKernelLseek(void)
 }
 
 
-int PS4API sceKernelMapDirectMemory(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API sceKernelMapFlexibleMemory(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
 int PS4API sceKernelMkdir(void)
 {
 	LOG_FIXME("Not implemented");
@@ -224,20 +197,6 @@ int PS4API sceKernelRead(void)
 
 
 int PS4API sceKernelReadTsc(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API sceKernelReleaseDirectMemory(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API sceKernelReleaseFlexibleMemory(void)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
