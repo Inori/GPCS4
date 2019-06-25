@@ -272,7 +272,8 @@ int PS4API scec_swprintf_s(void)
 
 int PS4API scec_vsnprintf(char * s, size_t n, const char * format, va_list arg)
 {
-	LOG_SCE_TRACE("s %p n %x fmt %p", s, n, format);
+	LOG_FIXME("Not implemented");
+	//LOG_SCE_TRACE("s %p n %x fmt %p", s, n, format);
 	return vsnprintf(s, n, format, arg);
 }
 
