@@ -163,7 +163,7 @@ int PS4API sceKernelGetdents(void)
 int PS4API sceKernelIsNeoMode(void)
 {
 	int is_neo_mode = 1;
-	LOG_TRACE("return %d", is_neo_mode);
+	LOG_SCE_TRACE("return %d", is_neo_mode);
 	return is_neo_mode;
 }
 

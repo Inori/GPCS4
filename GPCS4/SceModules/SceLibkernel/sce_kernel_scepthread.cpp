@@ -300,7 +300,6 @@ int PS4API scePthreadAttrSetstacksize(void)
 //////////////////////////////////////////////////////////////////////////
 ScePthread PS4API scePthreadSelf(void)
 {
-	LOG_SCE_TRACE("");
 	if (t_threadTMap.first == 0)
 	{
 		ScePthread st = UtilThread::GetThreadId();
@@ -308,7 +307,7 @@ ScePthread PS4API scePthreadSelf(void)
 		t_threadTMap.first = st;
 		t_threadTMap.second = pt;
 	}
-
+	LOG_SCE_TRACE("thread self %d", t_threadTMap.first);
 	return t_threadTMap.first;
 }
 

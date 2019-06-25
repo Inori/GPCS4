@@ -27,3 +27,12 @@
 #define SCE_KERNEL_MAP_NO_OVERWRITE	0x0080
 #define SCE_KERNEL_MAP_DMEM_COMPAT	0x0400
 #define SCE_KERNEL_MAP_NO_COALESCE	0x400000
+
+
+// direct memory size
+// TODO:
+// this should be decreased as direct memory being alloced
+// but currently we use fixed size
+// 
+// always 2GB
+#define  SCE_KERNEL_MAIN_DMEM_SIZE (1024 * 1024 * 1024 * 2)

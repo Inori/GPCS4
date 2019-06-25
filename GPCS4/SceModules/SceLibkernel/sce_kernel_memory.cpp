@@ -2,28 +2,33 @@
 #include "sce_kernel_memory.h"
 #include "Platform/UtilMemory.h"
 
-int PS4API sceKernelAllocateDirectMemory(void)
+int PS4API sceKernelAllocateDirectMemory(sce::off_t searchStart, sce::off_t searchEnd, 
+	size_t len, size_t alignment, int memoryType, sce::off_t *physAddrOut)
 {
-	LOG_FIXME("Not implemented");
+	LOG_FIXME("Dummy implemented");
+	*physAddrOut = (sce::off_t)new byte[len];
 	return SCE_OK;
 }
 
 
-int PS4API sceKernelMapDirectMemory(void)
+int PS4API sceKernelMapDirectMemory(void **addr, size_t len, int prot, int flags, 
+	sce::off_t directMemoryStart, size_t maxPageSize)
 {
-	LOG_FIXME("Not implemented");
+	LOG_FIXME("Dummy implemented");
+	*addr = (void*)directMemoryStart;
 	return SCE_OK;
 }
 
 
-int PS4API sceKernelGetDirectMemorySize(void)
+size_t PS4API sceKernelGetDirectMemorySize(void)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	size_t retSize = SCE_KERNEL_MAIN_DMEM_SIZE;
+	LOG_SCE_TRACE("size %x", retSize);
+	return retSize;
 }
 
 
-int PS4API sceKernelReleaseDirectMemory(void)
+int PS4API sceKernelReleaseDirectMemory(sce::off_t start, size_t len)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
