@@ -40,3 +40,13 @@ typedef enum ScePthreadRwlocktype {
 	SCE_PTHREAD_RWLOCK_PREFER_READER = 2,
 	SCE_PTHREAD_RWLOCK_TYPE_MAX
 } ScePthreadRwlocktype;
+
+
+typedef uint64_t	SceKernelCpumask;
+// SceKernelCpumask 
+#define SCE_KERNEL_CPUMASK_6CPU_ALL   0x3f
+#define SCE_KERNEL_CPUMASK_7CPU_ALL   0x7f
+#define SCE_KERNEL_CPUMASK_USER_ALL   0x3f
+
+// ps4 have at most have 7 cpus
+#define SCE_KERNEL_CPU_MAX	7

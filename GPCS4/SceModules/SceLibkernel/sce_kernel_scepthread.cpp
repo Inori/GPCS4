@@ -287,7 +287,35 @@ int PS4API scePthreadAttrSetstacksize(void)
 }
 
 //////////////////////////////////////////////////////////////////////////
+ScePthread PS4API scePthreadSelf(void)
+{
+	//LOG_SCE_TRACE("");
+	//pthread_t t = pthread_self();
+	//return (ScePthread)t;
+	return pthread_self();
+	//asm volatile("call pthread_self");
+	//asm volatile("ret");
+}
 
+
+int PS4API scePthreadSetaffinity(ScePthread thread, const SceKernelCpumask mask)
+{
+	LOG_SCE_TRACE("mask %x", mask);
+	cpu_set_t cpuset;
+
+	// TODO:
+	// should limit cpu count according to running machine
+	for (int i = 0; i != SCE_KERNEL_CPU_MAX; ++i)
+	{
+		if (BIT_IS_SET(mask, i))
+		{
+			CPU_SET(i, &cpuset);
+		}
+	}
+
+	int err = pthread_setaffinity_np((pthread_t)thread, sizeof(cpu_set_t), &cpuset);
+	return pthreadErrorToSceError(err);
+}
 
 
 int PS4API scePthreadCondInit(void)
@@ -430,18 +458,6 @@ int PS4API scePthreadRwlockattrInit(void)
 }
 
 
-int PS4API scePthreadSelf(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scePthreadSetaffinity(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
 
 
 int PS4API scePthreadSetprio(void)

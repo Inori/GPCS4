@@ -266,10 +266,10 @@ int PS4API scePthreadRwlockattrDestroy(void);
 int PS4API scePthreadRwlockattrInit(void);
 
 
-int PS4API scePthreadSelf(void);
+ScePthread PS4API scePthreadSelf(void);
 
 
-int PS4API scePthreadSetaffinity(void);
+int PS4API scePthreadSetaffinity(ScePthread thread, const SceKernelCpumask mask);
 
 
 int PS4API scePthreadSetprio(void);
