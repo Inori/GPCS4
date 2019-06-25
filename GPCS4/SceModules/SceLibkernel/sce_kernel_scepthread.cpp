@@ -142,7 +142,10 @@ int PS4API scePthreadMutexInit(ScePthreadMutex *mutex, const ScePthreadMutexattr
 	// pthread mutex do not have names
 	// if this is necessary, we could add a name field
 	// in pthread_mutex_t of pthread4w
-	LOG_FIXME("set name is not supported yet.")
+	if (name)
+	{
+		LOG_FIXME("set name is not supported yet.")
+	}
 	int err = pthread_mutex_init((pthread_mutex_t*)mutex, (pthread_mutexattr_t*)attr);
 	return pthreadErrorToSceError(err);
 }
