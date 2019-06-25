@@ -349,6 +349,9 @@
     <ClInclude Include="SceModules\SceLibkernel\sce_kernel_memory.h">
       <Filter>SceModules\SceLibkernel</Filter>
     </ClInclude>
+    <ClInclude Include="Platform\UtilThread.h">
+      <Filter>Source Files\Platform</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -674,6 +677,9 @@
     </ClCompile>
     <ClCompile Include="SceModules\SceLibkernel\sce_kernel_memory.cpp">
       <Filter>SceModules\SceLibkernel</Filter>
+    </ClCompile>
+    <ClCompile Include="Platform\UtilThread.cpp">
+      <Filter>Source Files\Platform</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

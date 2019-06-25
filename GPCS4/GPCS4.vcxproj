@@ -35,6 +35,7 @@
     <ClInclude Include="Platform\PlatformUtils.h" />
     <ClInclude Include="Platform\UtilMemory.h" />
     <ClInclude Include="Platform\UtilString.h" />
+    <ClInclude Include="Platform\UtilThread.h" />
     <ClInclude Include="SceModules\SceAjm\sce_ajm.h" />
     <ClInclude Include="SceModules\SceAppContentUtil\sce_appcontentutil.h" />
     <ClInclude Include="SceModules\SceAudio3d\sce_audio3d.h" />
@@ -98,6 +99,7 @@
     <ClCompile Include="Loader\EbootObject.cpp" />
     <ClCompile Include="Platform\UtilMemory.cpp" />
     <ClCompile Include="Platform\UtilString.cpp" />
+    <ClCompile Include="Platform\UtilThread.cpp" />
     <ClCompile Include="SceModules\SceAjm\sce_ajm.cpp" />
     <ClCompile Include="SceModules\SceAjm\sce_ajm_export.cpp" />
     <ClCompile Include="SceModules\SceAppContentUtil\sce_appcontentutil.cpp" />

@@ -1,6 +1,13 @@
 #include "sce_libkernel.h"
 #include "sce_kernel_scepthread.h"
+#include <utility>
+#include "Platform/PlatformUtils.h"
 
+// for non pointer type, we need to build a map to fit the type
+thread_local std::pair<ScePthread, pthread_t> t_threadTMap;
+
+
+//////////////////////////////////////////////////////////////////////////
 
 int pthreadErrorToSceError(int perror)
 {
@@ -10,6 +17,7 @@ int pthreadErrorToSceError(int perror)
 	{
 	case 0:
 		sceError = SCE_OK;
+		break;
 	case EPERM:
 		sceError = SCE_KERNEL_ERROR_EPERM;
 		break;
@@ -289,12 +297,16 @@ int PS4API scePthreadAttrSetstacksize(void)
 //////////////////////////////////////////////////////////////////////////
 ScePthread PS4API scePthreadSelf(void)
 {
-	//LOG_SCE_TRACE("");
-	//pthread_t t = pthread_self();
-	//return (ScePthread)t;
-	return pthread_self();
-	//asm volatile("call pthread_self");
-	//asm volatile("ret");
+	LOG_SCE_TRACE("");
+	if (t_threadTMap.first == 0)
+	{
+		ScePthread st = UtilThread::GetThreadId();
+		pthread_t pt = pthread_self();
+		t_threadTMap.first = st;
+		t_threadTMap.second = pt;
+	}
+
+	return t_threadTMap.first;
 }
 
 
@@ -313,7 +325,7 @@ int PS4API scePthreadSetaffinity(ScePthread thread, const SceKernelCpumask mask)
 		}
 	}
 
-	int err = pthread_setaffinity_np((pthread_t)thread, sizeof(cpu_set_t), &cpuset);
+	int err = pthread_setaffinity_np(t_threadTMap.second, sizeof(cpu_set_t), &cpuset);
 	return pthreadErrorToSceError(err);
 }
 
