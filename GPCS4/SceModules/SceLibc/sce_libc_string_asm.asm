@@ -34,4 +34,33 @@ L_FOUND_FP:
 scec_sprintf_s_asm endp
 
 
+;int vsnprintf (char * s, size_t n, const char * format, va_list arg );
+;int vsprintf (char * s, const char * format, va_list arg );
+extern vsprintf:proc
+scec_vsnprintf_asm proc
+
+	sub rsp, 40h
+
+	mov rax, [rcx + 10h] ; rcx points to va_list (sysv version)
+	mov rcx, [rax + 10h] ; rdx
+	mov [rsp + 20h], rcx 
+	mov rcx, [rax + 18h] ; rcx 
+	mov [rsp + 28h], rcx 
+	mov rcx, [rax + 20h] ; r8
+	mov [rsp + 30h], rcx 
+	mov rcx, [rax + 28h] ; r9
+	mov [rsp + 38h], rcx 
+
+	lea r8, [rsp + 20h]
+	mov rdx, rdx
+	mov rcx, rdi
+	call vsprintf
+	add rsp, 40h
+	ret
+L_FOUND_FP:
+	xor bl, bl 
+	div bl    ; for debugging purpose
+
+scec_vsnprintf_asm endp
+
 end

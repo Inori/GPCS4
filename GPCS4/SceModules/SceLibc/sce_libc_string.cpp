@@ -270,11 +270,22 @@ int PS4API scec_swprintf_s(void)
 }
 
 
-int PS4API scec_vsnprintf(char * s, size_t n, const char * format, va_list arg)
+#ifdef GPCS4_WINDOWS
+extern "C" int scec_vsnprintf_asm();
+#endif  //GPCS4_WINDOWS
+
+int PS4API 
+#ifdef GPCS4_WINDOWS
+PS4NAKED
+#endif  //GPCS4_WINDOWS
+scec_vsnprintf(char * s, size_t n, const char * format, void* arg)
 {
-	LOG_FIXME("Not implemented");
-	//LOG_SCE_TRACE("s %p n %x fmt %p", s, n, format);
-	return vsnprintf(s, n, format, arg);
+	//LOG_SCE_TRACE("s %p n %x format %p", s, n, format);
+#ifdef GPCS4_WINDOWS
+	asm volatile ("jmp  scec_vsnprintf_asm");
+#else
+	return SCE_OK;
+#endif  //GPCS4_WINDOWS
 }
 
 

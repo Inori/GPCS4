@@ -11,7 +11,6 @@
 
 #include "sce_module_common.h"
 
-
 extern const SCE_EXPORT_MODULE g_ExpModuleSceLibc;
 
 
@@ -299,7 +298,7 @@ int PS4API scec_tanh(void);
 
 int PS4API scec_time(void);
 
-int PS4API scec_vsnprintf(char * s, size_t n, const char * format, va_list arg);
+int PS4API scec_vsnprintf(char * s, size_t n, const char * format, void* arg);
 
 int PS4API scec_vsprintf(void);
 
