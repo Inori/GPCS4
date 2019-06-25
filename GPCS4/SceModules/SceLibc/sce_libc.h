@@ -188,7 +188,7 @@ int PS4API scec_memcpy(void);
 
 int PS4API scec_memcpy_s(void);
 
-int PS4API scec_memmove(void);
+void* PS4API scec_memmove(void * destination, const void * source, size_t num);
 
 void* PS4API scec_memset(void * ptr, int value, size_t num);
 

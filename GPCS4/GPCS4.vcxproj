@@ -33,6 +33,7 @@
     <ClInclude Include="Loader\EbootObject.h" />
     <ClInclude Include="Loader\elf.h" />
     <ClInclude Include="Platform\PlatformUtils.h" />
+    <ClInclude Include="Platform\UtilHardware.h" />
     <ClInclude Include="Platform\UtilMemory.h" />
     <ClInclude Include="Platform\UtilString.h" />
     <ClInclude Include="Platform\UtilThread.h" />
@@ -51,6 +52,7 @@
     <ClInclude Include="SceModules\SceInvitationDialog\sce_invitationdialog.h" />
     <ClInclude Include="SceModules\SceJson\sce_json.h" />
     <ClInclude Include="SceModules\SceLibc\sce_libc.h" />
+    <ClInclude Include="SceModules\SceLibkernel\sce_kernel_file.h" />
     <ClInclude Include="SceModules\SceLibkernel\sce_kernel_memory.h" />
     <ClInclude Include="SceModules\SceLibkernel\sce_kernel_scepthread.h" />
     <ClInclude Include="SceModules\SceLibkernel\sce_libkernel.h" />
@@ -97,6 +99,7 @@
     <ClCompile Include="GPCS4Main.cpp" />
     <ClCompile Include="ImportLibs.cpp" />
     <ClCompile Include="Loader\EbootObject.cpp" />
+    <ClCompile Include="Platform\UtilHardware.cpp" />
     <ClCompile Include="Platform\UtilMemory.cpp" />
     <ClCompile Include="Platform\UtilString.cpp" />
     <ClCompile Include="Platform\UtilThread.cpp" />
@@ -141,6 +144,7 @@
     <MASM Include="SceModules\SceLibc\sce_libc_string_asm.asm">
       <FileType>Document</FileType>
     </MASM>
+    <ClCompile Include="SceModules\SceLibkernel\sce_kernel_file.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\sce_kernel_memory.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\sce_kernel_pthread.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\sce_kernel_scepthread.cpp" />

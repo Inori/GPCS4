@@ -12,6 +12,7 @@
 
 #include "sce_module_common.h"
 #include "sce_kernel_scepthread.h"
+#include "sce_kernel_file.h"
 
 extern const SCE_EXPORT_MODULE g_ExpModuleSceLibkernel;
 
@@ -44,7 +45,7 @@ int PS4API sceKernelAllocateDirectMemory(sce::off_t searchStart, sce::off_t sear
 int PS4API sceKernelClockGettime(void);
 
 
-int PS4API sceKernelClose(void);
+int PS4API sceKernelClose(int d);
 
 
 int PS4API sceKernelCreateEqueue(void);
@@ -89,7 +90,7 @@ int PS4API sceKernelGetProcessTimeCounter(void);
 int PS4API sceKernelGetProcessTimeCounterFrequency(void);
 
 
-int PS4API sceKernelGetTscFrequency(void);
+uint64_t PS4API sceKernelGetTscFrequency(void);
 
 
 int PS4API sceKernelGetdents(void);
@@ -110,10 +111,10 @@ int PS4API sceKernelMapFlexibleMemory(void **addrInOut, size_t len, int prot, in
 int PS4API sceKernelMkdir(void);
 
 
-int PS4API sceKernelOpen(void);
+int PS4API sceKernelOpen(const char *path, int flags, SceKernelMode mode);
 
 
-int PS4API sceKernelRead(void);
+ssize_t PS4API sceKernelRead(int d, void *buf, size_t nbytes);
 
 
 int PS4API sceKernelReadTsc(void);
@@ -152,7 +153,7 @@ int PS4API sceKernelWaitEventFlag(void);
 int PS4API sceKernelWaitSema(void);
 
 
-int PS4API sceKernelWrite(void);
+ssize_t PS4API sceKernelWrite(int d, const void *buf, size_t nbytes);
 
 
 int PS4API scePthreadAttrDestroy(void);

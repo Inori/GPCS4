@@ -54,10 +54,10 @@ int PS4API scec_memcpy_s(void)
 }
 
 
-int PS4API scec_memmove(void)
+void* PS4API scec_memmove(void * destination, const void * source, size_t num)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("dst %p src %p num %x", destination, source, num);
+	return memmove(destination, source, num);
 }
 
 

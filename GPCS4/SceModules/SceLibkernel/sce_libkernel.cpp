@@ -1,5 +1,6 @@
 #include "sce_libkernel.h"
 #include "pthreads4w/pthread.h"
+#include "Platform/PlatformUtils.h"
 
 // Note:
 // The codebase is generated using GenerateCode.py
@@ -47,12 +48,6 @@ int PS4API sceKernelClockGettime(void)
 }
 
 
-int PS4API sceKernelClose(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
 
 int PS4API sceKernelCreateEqueue(void)
 {
@@ -96,26 +91,6 @@ int PS4API sceKernelDeleteSema(void)
 }
 
 
-int PS4API sceKernelFstat(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API sceKernelFsync(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API sceKernelFtruncate(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
 
 int PS4API sceKernelGetCpumode(void)
 {
@@ -145,55 +120,23 @@ int PS4API sceKernelGetProcessTimeCounterFrequency(void)
 }
 
 
-int PS4API sceKernelGetTscFrequency(void)
+uint64_t PS4API sceKernelGetTscFrequency(void)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	uint64_t nFreq = UtilHardware::GetTscFrequency();
+	LOG_SCE_TRACE("freq %llx", nFreq);
+	return nFreq;
 }
 
-
-int PS4API sceKernelGetdents(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
 
 
 // Is PS4 Pro
 int PS4API sceKernelIsNeoMode(void)
 {
-	int is_neo_mode = 1;
-	LOG_SCE_TRACE("return %d", is_neo_mode);
-	return is_neo_mode;
+	int isNeoMode = 1;
+	LOG_SCE_TRACE("return %d", isNeoMode);
+	return isNeoMode;
 }
 
-
-int PS4API sceKernelLseek(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API sceKernelMkdir(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API sceKernelOpen(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API sceKernelRead(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
 
 
 int PS4API sceKernelReadTsc(void)
@@ -202,12 +145,6 @@ int PS4API sceKernelReadTsc(void)
 	return SCE_OK;
 }
 
-
-int PS4API sceKernelRename(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
 
 
 int PS4API sceKernelSetEventFlag(void)
@@ -218,20 +155,6 @@ int PS4API sceKernelSetEventFlag(void)
 
 
 int PS4API sceKernelSignalSema(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API sceKernelStat(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API sceKernelUnlink(void)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
@@ -265,12 +188,6 @@ int PS4API sceKernelWaitSema(void)
 	return SCE_OK;
 }
 
-
-int PS4API sceKernelWrite(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
 
 
 

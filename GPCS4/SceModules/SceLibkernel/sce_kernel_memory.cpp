@@ -5,7 +5,7 @@
 int PS4API sceKernelAllocateDirectMemory(sce::off_t searchStart, sce::off_t searchEnd, 
 	size_t len, size_t alignment, int memoryType, sce::off_t *physAddrOut)
 {
-	LOG_FIXME("Dummy implemented");
+	LOG_SCE_DUMMY_IMPL();
 	*physAddrOut = (sce::off_t)new byte[len];
 	return SCE_OK;
 }
@@ -14,7 +14,7 @@ int PS4API sceKernelAllocateDirectMemory(sce::off_t searchStart, sce::off_t sear
 int PS4API sceKernelMapDirectMemory(void **addr, size_t len, int prot, int flags, 
 	sce::off_t directMemoryStart, size_t maxPageSize)
 {
-	LOG_FIXME("Dummy implemented");
+	LOG_SCE_DUMMY_IMPL();
 	*addr = (void*)directMemoryStart;
 	return SCE_OK;
 }
@@ -23,7 +23,7 @@ int PS4API sceKernelMapDirectMemory(void **addr, size_t len, int prot, int flags
 size_t PS4API sceKernelGetDirectMemorySize(void)
 {
 	size_t retSize = SCE_KERNEL_MAIN_DMEM_SIZE;
-	LOG_SCE_TRACE("size %x", retSize);
+	LOG_SCE_TRACE("size %llx", retSize);
 	return retSize;
 }
 

@@ -34,6 +34,10 @@ void LogPrint(const char* szLevel, const char* szFunction, int nLine, const char
 // to trace other functions, use LOG_TRACE
 #define LOG_SCE_TRACE(format, ...)	_LOG_PRINT_(LOG_LEVEL_SCE_TRACE, format, __VA_ARGS__);
 
+// not really implemented
+// just return result which looks correct to let the program go on
+#define LOG_SCE_DUMMY_IMPL()	LOG_FIXME("SCE Dummy implemented");
+
 #else
 
 
@@ -44,5 +48,6 @@ void LogPrint(const char* szLevel, const char* szFunction, int nLine, const char
 #define LOG_ERR(format, ...)
 
 #define LOG_SCE_TRACE (format, ...)
+#define LOG_SCE_DUMMY_IMPL()
 
 #endif  //ENABLE_DEBUG
