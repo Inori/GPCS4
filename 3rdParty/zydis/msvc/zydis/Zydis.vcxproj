@@ -49,7 +49,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>llvm</PlatformToolset>
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -71,12 +71,12 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(ProjectDir)\..\..\</OutDir>
+    <OutDir>$(ProjectDir)\..\..</OutDir>
     <IntDir>obj\$(ProjectName)-$(Platform)-$(Configuration)\</IntDir>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(ProjectDir)\..\..\</OutDir>
+    <OutDir>$(ProjectDir)\..\..</OutDir>
     <IntDir>obj\$(ProjectName)-$(Platform)-$(Configuration)\</IntDir>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
@@ -182,30 +182,28 @@
     <ClCompile Include="..\..\src\Formatter.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\Zydis\CommonTypes.h" />
-    <ClInclude Include="..\..\include\Zydis\Defines.h" />
-    <ClInclude Include="..\..\include\Zydis\MetaInfo.h" />
-    <ClInclude Include="..\..\include\Zydis\Mnemonic.h" />
-    <ClInclude Include="..\..\include\Zydis\Register.h" />
-    <ClInclude Include="..\..\include\Zydis\SharedTypes.h" />
-    <ClInclude Include="..\..\include\Zydis\Status.h" />
-    <ClInclude Include="..\..\include\Zydis\String.h" />
-    <ClInclude Include="..\..\include\Zydis\Utils.h" />
-    <ClInclude Include="..\..\include\Zydis\Zydis.h" />
-    <ClInclude Include="..\..\include\Zydis\Decoder.h" />
-    <ClInclude Include="..\..\include\Zydis\DecoderTypes.h" />
-    <ClInclude Include="..\..\include\Zydis\Formatter.h" />
-    <ClInclude Include="..\..\include\Zydis\Internal\LibC.h" />
-    <ClInclude Include="..\..\include\Zydis\Internal\SharedData.h" />
-    <ClInclude Include="..\..\include\Zydis\Internal\DecoderData.h" />
-  </ItemGroup>
-  <ItemGroup>
     <ResourceCompile Include="..\..\src\VersionInfo.rc">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\CommonTypes.h" />
+    <ClInclude Include="..\..\Decoder.h" />
+    <ClInclude Include="..\..\DecoderTypes.h" />
+    <ClInclude Include="..\..\Defines.h" />
+    <ClInclude Include="..\..\Formatter.h" />
+    <ClInclude Include="..\..\MetaInfo.h" />
+    <ClInclude Include="..\..\Mnemonic.h" />
+    <ClInclude Include="..\..\Register.h" />
+    <ClInclude Include="..\..\SharedTypes.h" />
+    <ClInclude Include="..\..\Status.h" />
+    <ClInclude Include="..\..\String.h" />
+    <ClInclude Include="..\..\Utils.h" />
+    <ClInclude Include="..\..\Zydis.h" />
+    <ClInclude Include="..\ZydisExportConfig.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

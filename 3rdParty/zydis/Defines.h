@@ -32,7 +32,7 @@
 #ifndef ZYDIS_DEFINES_H
 #define ZYDIS_DEFINES_H
 
-#include <ZydisExportConfig.h>
+#include "msvc/ZydisExportConfig.h"
 
 /* ============================================================================================== */
 /* Compiler detection                                                                             */

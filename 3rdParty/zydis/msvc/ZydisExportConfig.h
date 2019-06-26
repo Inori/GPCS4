@@ -2,24 +2,8 @@
 #ifndef ZYDIS_EXPORT_H
 #define ZYDIS_EXPORT_H
 
-#ifdef ZYDIS_STATIC_DEFINE
 #  define ZYDIS_EXPORT
 #  define ZYDIS_NO_EXPORT
-#else
-#  ifndef ZYDIS_EXPORT
-#    ifdef Zydis_EXPORTS
-        /* We are building this library */
-#      define ZYDIS_EXPORT __declspec(dllexport)
-#    else
-        /* We are using this library */
-#      define ZYDIS_EXPORT __declspec(dllimport)
-#    endif
-#  endif
-
-#  ifndef ZYDIS_NO_EXPORT
-#    define ZYDIS_NO_EXPORT 
-#  endif
-#endif
 
 #ifndef ZYDIS_DEPRECATED
 #  define ZYDIS_DEPRECATED __declspec(deprecated)
