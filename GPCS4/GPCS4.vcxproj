@@ -147,6 +147,7 @@
     <ClCompile Include="SceModules\SceLibc\sce_libc_stdio.cpp" />
     <ClCompile Include="SceModules\SceLibc\sce_libc_stdlib.cpp" />
     <ClCompile Include="SceModules\SceLibc\sce_libc_string.cpp" />
+    <MASM Include="Emulator\TLSStub.asm" />
     <MASM Include="SceModules\SceLibc\sce_libc_string_asm.asm">
       <FileType>Document</FileType>
     </MASM>

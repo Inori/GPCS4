@@ -5,6 +5,7 @@
 #include "zydis/Zydis.h"
 
 
+
 class CTLSHandler
 {
 public:
@@ -17,11 +18,15 @@ public:
 
 protected:
 	void InitZydis();
-	bool IsTlsAccess(void* pCode);
+	static void PrintInst(ZydisDecodedInstruction& inst);
+	static bool IsTlsAccess(void* pCode);
+	static uint GetPatchLen(byte* pCode, uint nOldLen);
+	static uint GetMovFsLenLen(void* pCode);
+	static bool PatchTLSInstruction(void* pCode);
 
 protected:
-	ZydisDecoder m_oDecoder;
-	ZydisFormatter m_oFormatter;
+	static ZydisDecoder s_oDecoder;
+	static ZydisFormatter s_oFormatter;
 
 private:
 
@@ -41,7 +46,6 @@ public:
 	virtual ~CTLSHandlerWin();
 
 	virtual bool Install() override;
-
 
 	virtual void Uninstall() override;
 

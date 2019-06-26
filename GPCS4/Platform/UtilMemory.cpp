@@ -35,7 +35,8 @@ void VMUnMap(void* pAddr, size_t nSize)
 
 bool VMProtect(void* pAddr, size_t nSize, uint nProtectFlag)
 {
-	return false;
+	LOG_FIXME("Not Implemented.");
+	return  true;
 }
 
 #elif defined(GPCS4_LINUX)
