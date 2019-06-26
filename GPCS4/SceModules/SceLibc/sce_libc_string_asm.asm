@@ -35,7 +35,6 @@ scec_sprintf_s_asm endp
 
 
 ;int vsnprintf (char * s, size_t n, const char * format, va_list arg );
-;int vsprintf (char * s, const char * format, va_list arg );
 extern vsnprintf:proc
 scec_vsnprintf_asm proc
 
