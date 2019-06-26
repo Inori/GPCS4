@@ -370,6 +370,9 @@
     <ClInclude Include="SceModules\SceJobManager\sce_jobmanager.h">
       <Filter>SceModules\SceJobManager</Filter>
     </ClInclude>
+    <ClInclude Include="Emulator\TLSHandler.h">
+      <Filter>Source Files\Emulator</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -716,6 +719,9 @@
     </ClCompile>
     <ClCompile Include="SceModules\SceJobManager\sce_jobmanager_export.cpp">
       <Filter>SceModules\SceJobManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Emulator\TLSHandler.cpp">
+      <Filter>Source Files\Emulator</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

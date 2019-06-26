@@ -28,6 +28,7 @@
     <ClInclude Include="Emulator\GameThread.h" />
     <ClInclude Include="Emulator\Linker.h" />
     <ClInclude Include="Emulator\SceModuleSystem.h" />
+    <ClInclude Include="Emulator\TLSHandler.h" />
     <ClInclude Include="GPCS4Common.h" />
     <ClInclude Include="GPCS4Config.h" />
     <ClInclude Include="Loader\EbootObject.h" />
@@ -98,6 +99,7 @@
     <ClCompile Include="Emulator\Linker.cpp" />
     <ClCompile Include="Emulator\RegisterModules.cpp" />
     <ClCompile Include="Emulator\SceModuleSystem.cpp" />
+    <ClCompile Include="Emulator\TLSHandler.cpp" />
     <ClCompile Include="GPCS4Main.cpp" />
     <ClCompile Include="ImportLibs.cpp" />
     <ClCompile Include="Loader\EbootObject.cpp" />
