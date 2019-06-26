@@ -45,6 +45,12 @@ int PS4API sceFiberSwitch(void)
 	return SCE_OK;
 }
 
+int PS4API sceFiberGetSelf(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
 
 
 

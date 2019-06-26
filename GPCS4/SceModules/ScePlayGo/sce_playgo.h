@@ -43,5 +43,20 @@ int PS4API scePlayGoOpen(void);
 int PS4API scePlayGoTerminate(void);
 
 
+int PS4API scePlayGoGetEta(void);
+
+
+int PS4API scePlayGoGetInstallSpeed(void);
+
+
+int PS4API scePlayGoGetLanguageMask(void);
+
+
+int PS4API scePlayGoGetToDoList(void);
+
+
+int PS4API scePlayGoSetLanguageMask(void);
+
+
 
 

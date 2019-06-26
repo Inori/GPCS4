@@ -15,6 +15,7 @@ static const SCE_EXPORT_FUNCTION g_pSceNpTrophy_libSceNpTrophy_FunctionTable[] =
 	{ 0x2C7B9298EDD22DDF, "sceNpTrophyGetTrophyUnlockState", (void*)sceNpTrophyGetTrophyUnlockState },
 	{ 0x4C9080C6DA3D4845, "sceNpTrophyRegisterContext", (void*)sceNpTrophyRegisterContext },
 	{ 0xDBCC6645415AA3AF, "sceNpTrophyUnlockTrophy", (void*)sceNpTrophyUnlockTrophy },
+	{ 0x6939C7B3B5BFF549, "sceNpTrophyAbortHandle", (void*)sceNpTrophyAbortHandle },
 	SCE_FUNCTION_ENTRY_END
 };
 

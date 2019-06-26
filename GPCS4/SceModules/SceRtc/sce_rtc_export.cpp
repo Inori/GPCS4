@@ -14,6 +14,8 @@ static const SCE_EXPORT_FUNCTION g_pSceRtc_libSceRtc_FunctionTable[] =
 	{ 0x0B220AFE2E177604, "sceRtcGetDayOfWeek", (void*)sceRtcGetDayOfWeek },
 	{ 0xF30FC7D7D8A9E3C2, "sceRtcGetTick", (void*)sceRtcGetTick },
 	{ 0xB9E7A06BABF7194C, "sceRtcSetTick", (void*)sceRtcSetTick },
+	{ 0xF257EF9D132AC043, "sceRtcGetCurrentClock", (void*)sceRtcGetCurrentClock },
+	{ 0xD7C076352D72F545, "sceRtcGetCurrentTick", (void*)sceRtcGetCurrentTick },
 	SCE_FUNCTION_ENTRY_END
 };
 

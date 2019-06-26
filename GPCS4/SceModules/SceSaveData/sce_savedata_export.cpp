@@ -17,6 +17,11 @@ static const SCE_EXPORT_FUNCTION g_pSceSaveData_libSceSaveData_FunctionTable[] =
 	{ 0xF39CEE97FFDE197B, "sceSaveDataSetParam", (void*)sceSaveDataSetParam },
 	{ 0xC8A0F2F12E722C0D, "sceSaveDataTerminate", (void*)sceSaveDataTerminate },
 	{ 0x04C47817F51E9371, "sceSaveDataUmount", (void*)sceSaveDataUmount },
+	{ 0x8FCC4AB62163D126, "sceSaveDataGetEventResult", (void*)sceSaveDataGetEventResult },
+	{ 0x43038EEEF7A09D5F, "sceSaveDataGetSaveDataMemory2", (void*)sceSaveDataGetSaveDataMemory2 },
+	{ 0x71DBB2F6FE18993E, "sceSaveDataSetSaveDataMemory2", (void*)sceSaveDataSetSaveDataMemory2 },
+	{ 0xA10C921147E05D10, "sceSaveDataSetupSaveDataMemory2", (void*)sceSaveDataSetupSaveDataMemory2 },
+	{ 0xC224FD8DE0BBC4FC, "sceSaveDataSyncSaveDataMemory", (void*)sceSaveDataSyncSaveDataMemory },
 	SCE_FUNCTION_ENTRY_END
 };
 

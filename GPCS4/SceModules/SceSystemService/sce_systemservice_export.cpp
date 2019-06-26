@@ -12,12 +12,20 @@ static const SCE_EXPORT_FUNCTION g_pSceSystemService_libSceSystemService_Functio
 	{ 0x568E55F0A0300A69, "sceSystemServiceHideSplashScreen", (void*)sceSystemServiceHideSplashScreen },
 	{ 0x7D9A38F2E9FB2CAE, "sceSystemServiceParamGetInt", (void*)sceSystemServiceParamGetInt },
 	{ 0xEB9E8B3104AB83A5, "sceSystemServiceReceiveEvent", (void*)sceSystemServiceReceiveEvent },
+	{ 0xD67DFBAB506F7396, "sceSystemServiceGetDisplaySafeAreaInfo", (void*)sceSystemServiceGetDisplaySafeAreaInfo },
+	SCE_FUNCTION_ENTRY_END
+};
+
+static const SCE_EXPORT_FUNCTION g_pSceSystemService_libSceSystemServicePlatformPrivacy_FunctionTable[] =
+{
+	{ 0x86FA0B62173872AD, "sceSystemServiceGetPlatformPrivacySetting", (void*)sceSystemServiceGetPlatformPrivacySetting },
 	SCE_FUNCTION_ENTRY_END
 };
 
 static const SCE_EXPORT_LIBRARY g_pSceSystemService_LibTable[] =
 {
 	{ "libSceSystemService", g_pSceSystemService_libSceSystemService_FunctionTable },
+	{ "libSceSystemServicePlatformPrivacy", g_pSceSystemService_libSceSystemServicePlatformPrivacy_FunctionTable },
 	SCE_LIBRARY_ENTRY_END
 };
 

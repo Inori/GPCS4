@@ -328,7 +328,66 @@ int PS4API scec_wcsstr(void);
 
 int PS4API scec_wcstombs_s(void);
 
+int PS4API scec__Stdin(void);
+
+int PS4API scec__ZSt11_Xbad_allocv(void);
+
+int PS4API scec__ZSt7nothrow(void);
+
+int PS4API scec_ferror(void);
+
+int PS4API scec_fflush(void);
+
+int PS4API scec_fgets(void);
+
+int PS4API scec_freopen(void);
+
+int PS4API scec_getc(void);
+
+int PS4API scec_localeconv(void);
+
+int PS4API scec_localtime(void);
+
+int PS4API scec_mbstowcs(void);
+
+int PS4API scec_memalign(void);
+
+int PS4API scec_reallocalign(void);
+
+int PS4API scec_scalbn(void);
+
+int PS4API scec_scalbnf(void);
+
+int PS4API scec_set_constraint_handler_s(void);
+
+int PS4API scec_setvbuf(void);
+
+int PS4API scec_snprintf_s(void);
+
+int PS4API scec_srand(void);
+
+int PS4API scec_strcoll(void);
+
+int PS4API scec_strdup(void);
+
+int PS4API scec_strerror(void);
+
+int PS4API scec_strpbrk(void);
+
+int PS4API scec_strspn(void);
+
+int PS4API scec_wcsncpy(void);
+
+int PS4API scec_wcstombs(void);
 
 
 
+//////////////////////////////////////////////////////////////////////////
+// library: libc_setjmp
+//////////////////////////////////////////////////////////////////////////
+
+int PS4API _longjmp(void);
+
+
+int PS4API _setjmp(void);
 

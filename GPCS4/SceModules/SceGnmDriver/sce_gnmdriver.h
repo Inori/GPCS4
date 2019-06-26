@@ -280,5 +280,17 @@ int PS4API sceRazorCaptureImmediate(void);
 int PS4API sceRazorIsLoaded(void);
 
 
+int PS4API _import_75EC17C39AE82ECD(void);
+
+
+int PS4API sceGnmComputeWaitOnAddress(void);
+
+
+int PS4API sceGnmComputeWaitSemaphore(void);
+
+
+int PS4API sceGnmLogicalTcaUnitToPhysical(void);
+
+
 
 

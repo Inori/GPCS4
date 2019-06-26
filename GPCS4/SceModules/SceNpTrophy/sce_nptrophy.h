@@ -46,5 +46,5 @@ int PS4API sceNpTrophyRegisterContext(void);
 int PS4API sceNpTrophyUnlockTrophy(void);
 
 
-
+int PS4API sceNpTrophyAbortHandle(void);
 

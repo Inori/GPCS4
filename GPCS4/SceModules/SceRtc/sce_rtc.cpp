@@ -53,5 +53,19 @@ int PS4API sceRtcSetTick(void)
 }
 
 
+int PS4API sceRtcGetCurrentClock(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceRtcGetCurrentTick(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
 
 

@@ -60,5 +60,10 @@ int PS4API sceNpTrophyUnlockTrophy(void)
 }
 
 
+int PS4API sceNpTrophyAbortHandle(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
 
 

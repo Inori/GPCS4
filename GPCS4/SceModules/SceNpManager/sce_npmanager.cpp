@@ -144,5 +144,40 @@ int PS4API sceNpUnregisterStateCallback(void)
 }
 
 
+int PS4API sceNpCreateRequest(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceNpGetAccountCountryA(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceNpGetAccountDateOfBirthA(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceNpGetAccountIdA(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceNpGetAccountLanguageA(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
 
 

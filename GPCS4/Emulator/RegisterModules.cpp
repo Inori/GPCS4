@@ -34,6 +34,7 @@ bool CEmulator::RegisterModules()
 		REGISTER_MODULE(g_ExpModuleSceHttp);
 		REGISTER_MODULE(g_ExpModuleSceIme);
 		REGISTER_MODULE(g_ExpModuleSceInvitationDialog);
+		REGISTER_MODULE(g_ExpModuleSceJobManager);
 		REGISTER_MODULE(g_ExpModuleSceJson);
 		REGISTER_MODULE(g_ExpModuleSceLibc);
 		REGISTER_MODULE(g_ExpModuleSceLibkernel);
@@ -53,6 +54,7 @@ bool CEmulator::RegisterModules()
 		REGISTER_MODULE(g_ExpModuleSceNpWebApi);
 		REGISTER_MODULE(g_ExpModuleScePad);
 		REGISTER_MODULE(g_ExpModuleScePlayGo);
+		REGISTER_MODULE(g_ExpModuleScePlayGoDialog);
 		REGISTER_MODULE(g_ExpModuleSceRtc);
 		REGISTER_MODULE(g_ExpModuleSceRudp);
 		REGISTER_MODULE(g_ExpModuleSceSaveData);

@@ -200,5 +200,33 @@ int PS4API sceNetTerm(void)
 }
 
 
+int PS4API sceNetGetMacAddress(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceNetResolverCreate(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceNetResolverDestroy(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceNetResolverStartNtoa(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
 
 

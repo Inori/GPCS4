@@ -43,5 +43,41 @@ int PS4API sceVideoOutSetBufferAttribute(void);
 int PS4API sceVideoOutSetFlipRate(void);
 
 
+int PS4API sceVideoOutAddFlipEvent(void);
 
+
+int PS4API sceVideoOutAdjustColor_(void);
+
+
+int PS4API sceVideoOutColorSettingsSetGamma_(void);
+
+
+int PS4API sceVideoOutConfigureOutputMode_(void);
+
+
+int PS4API sceVideoOutGetDeviceCapabilityInfo_(void);
+
+
+int PS4API sceVideoOutGetEventData(void);
+
+
+int PS4API sceVideoOutGetFlipStatus(void);
+
+
+int PS4API sceVideoOutIsFlipPending(void);
+
+
+int PS4API sceVideoOutModeSetAny_(void);
+
+
+int PS4API sceVideoOutSetWindowModeMargins(void);
+
+
+int PS4API sceVideoOutSubmitChangeBufferAttribute(void);
+
+
+int PS4API sceVideoOutSubmitFlip(void);
+
+
+int PS4API sceVideoOutWaitVblank(void);
 

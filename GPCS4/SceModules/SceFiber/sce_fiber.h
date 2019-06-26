@@ -40,5 +40,8 @@ int PS4API sceFiberRun(void);
 int PS4API sceFiberSwitch(void);
 
 
+int PS4API sceFiberGetSelf(void);
+
+
 
 

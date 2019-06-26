@@ -2,8 +2,8 @@
  *    GPCS4
  *    
  *    This file implements:
- *    module: libSceNetCtl
- *        library: libSceNetCtl
+ *    module: libScePlayGoDialog
+ *        library: libScePlayGoDialog
  *    
  */
 
@@ -12,7 +12,7 @@
 #include "sce_module_common.h"
 
 
-extern const SCE_EXPORT_MODULE g_ExpModuleSceNetCtl;
+extern const SCE_EXPORT_MODULE g_ExpModuleScePlayGoDialog;
 
 
 // Note:
@@ -22,22 +22,10 @@ extern const SCE_EXPORT_MODULE g_ExpModuleSceNetCtl;
 
 
 //////////////////////////////////////////////////////////////////////////
-// library: libSceNetCtl
+// library: libScePlayGoDialog
 //////////////////////////////////////////////////////////////////////////
 
-int PS4API sceNetCtlCheckCallback(void);
-
-
-int PS4API sceNetCtlGetResult(void);
-
-
-int PS4API sceNetCtlRegisterCallback(void);
-
-
-int PS4API sceNetCtlUnregisterCallback(void);
-
-
-int PS4API sceNetCtlGetInfo(void);
+int PS4API scePlayGoDialogOpen(void);
 
 
 

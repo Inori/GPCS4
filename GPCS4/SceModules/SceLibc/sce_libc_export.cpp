@@ -157,12 +157,46 @@ static const SCE_EXPORT_FUNCTION g_pSceLibc_libc_FunctionTable[] =
 	{ 0xB0E38C959A32D698, "wcsrtombs", (void*)scec_wcsrtombs },
 	{ 0x583A686E322601BE, "wcsstr", (void*)scec_wcsstr },
 	{ 0xB192EB8F1FF2131E, "wcstombs_s", (void*)scec_wcstombs_s },
+	{ 0xD530E8FC89AA9097, "_Stdin", (void*)scec__Stdin },
+	{ 0x793D94B264DEC1B5, "_ZSt11_Xbad_allocv", (void*)scec__ZSt11_Xbad_allocv },
+	{ 0x34BC09DEAFBAE1B6, "_ZSt7nothrow", (void*)scec__ZSt7nothrow },
+	{ 0x007C7284DF7A772E, "ferror", (void*)scec_ferror },
+	{ 0x3148C2E256C7ACAE, "fflush", (void*)scec_fflush },
+	{ 0x29D3FF9D42E9B86C, "fgets", (void*)scec_fgets },
+	{ 0x8245A09F4A7501F5, "freopen", (void*)scec_freopen },
+	{ 0xF10EB424B27A46FE, "getc", (void*)scec_getc },
+	{ 0xD2195F5B53B801AE, "localeconv", (void*)scec_localeconv },
+	{ 0x79F84AFD84946184, "localtime", (void*)scec_localtime },
+	{ 0x554CE35E49CF3C1B, "mbstowcs", (void*)scec_mbstowcs },
+	{ 0x5237F72B332F4662, "memalign", (void*)scec_memalign },
+	{ 0x386C9B56E3C08406, "reallocalign", (void*)scec_reallocalign },
+	{ 0x28628179572A2637, "scalbn", (void*)scec_scalbn },
+	{ 0xF5FB356ED7CBA14B, "scalbnf", (void*)scec_scalbnf },
+	{ 0x10D2DF2891194E31, "set_constraint_handler_s", (void*)scec_set_constraint_handler_s },
+	{ 0x40C1722E8A8DC488, "setvbuf", (void*)scec_setvbuf },
+	{ 0xDC1CAD3CE42054A7, "snprintf_s", (void*)scec_snprintf_s },
+	{ 0x54F6C9C130A0304D, "srand", (void*)scec_srand },
+	{ 0x8236E66293FF5C94, "strcoll", (void*)scec_strcoll },
+	{ 0x83BCF3CCB0D81B0D, "strdup", (void*)scec_strdup },
+	{ 0x4486BA1A75A9FA25, "strerror", (void*)scec_strerror },
+	{ 0x90366FA15B2C0A04, "strpbrk", (void*)scec_strpbrk },
+	{ 0xFE453A6C1E0CFFE9, "strspn", (void*)scec_strspn },
+	{ 0xD27576D498D8087F, "wcsncpy", (void*)scec_wcsncpy },
+	{ 0xBFB4BB2E13F63897, "wcstombs", (void*)scec_wcstombs },
+	SCE_FUNCTION_ENTRY_END
+};
+
+static const SCE_EXPORT_FUNCTION g_pSceLibc_libc_setjmp_FunctionTable[] =
+{
+	{ 0xF85FBD8618BA93D4, "_longjmp", (void*)_longjmp },
+	{ 0xB23A64AE1BA0BD52, "_setjmp", (void*)_setjmp },
 	SCE_FUNCTION_ENTRY_END
 };
 
 static const SCE_EXPORT_LIBRARY g_pSceLibc_LibTable[] =
 {
 	{ "libc", g_pSceLibc_libc_FunctionTable },
+	{ "libc_setjmp", g_pSceLibc_libc_setjmp_FunctionTable },
 	SCE_LIBRARY_ENTRY_END
 };
 

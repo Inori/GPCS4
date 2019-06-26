@@ -37,5 +37,12 @@ int PS4API sceSystemServiceParamGetInt(void);
 int PS4API sceSystemServiceReceiveEvent(void);
 
 
+int PS4API sceSystemServiceGetDisplaySafeAreaInfo(void);
 
+
+//////////////////////////////////////////////////////////////////////////
+// library: libSceSystemServicePlatformPrivacy
+//////////////////////////////////////////////////////////////////////////
+
+int PS4API sceSystemServiceGetPlatformPrivacySetting(void);
 

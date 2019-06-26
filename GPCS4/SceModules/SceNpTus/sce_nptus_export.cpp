@@ -17,6 +17,8 @@ static const SCE_EXPORT_FUNCTION g_pSceNpTus_libSceNpTus_FunctionTable[] =
 	{ 0xB7B6FA766A503622, "sceNpTusPollAsync", (void*)sceNpTusPollAsync },
 	{ 0xE49F4618C96E7716, "sceNpTusSetMultiSlotVariableAsync", (void*)sceNpTusSetMultiSlotVariableAsync },
 	{ 0xC507D1E758B891C9, "sceNpTusTryAndSetVariableAsync", (void*)sceNpTusTryAndSetVariableAsync },
+	{ 0x941B6B93EEE5935E, "sceNpTssCreateNpTitleCtxA", (void*)sceNpTssCreateNpTitleCtxA },
+	{ 0xFD2511F94A0B4BA7, "sceNpTssGetData", (void*)sceNpTssGetData },
 	SCE_FUNCTION_ENTRY_END
 };
 

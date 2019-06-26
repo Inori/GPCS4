@@ -49,5 +49,8 @@ int PS4API scePadSetLightBar(void);
 int PS4API scePadSetVibration(void);
 
 
+int PS4API scePadRead(void);
+
+
 
 

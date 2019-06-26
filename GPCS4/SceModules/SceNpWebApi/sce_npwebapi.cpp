@@ -102,5 +102,12 @@ int PS4API sceNpWebApiTerminate(void)
 }
 
 
+int PS4API sceNpWebApiCreateContextA(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
 
 

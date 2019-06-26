@@ -35,6 +35,10 @@ static const SCE_EXPORT_FUNCTION g_pSceNet_libSceNet_FunctionTable[] =
 	{ 0xCC919FF318C59D01, "sceNetSocketAbort", (void*)sceNetSocketAbort },
 	{ 0xE398201336A43C94, "sceNetSocketClose", (void*)sceNetSocketClose },
 	{ 0x7131A473AFD30652, "sceNetTerm", (void*)sceNetTerm },
+	{ 0xE8E7346CBB0861ED, "sceNetGetMacAddress", (void*)sceNetGetMacAddress },
+	{ 0x0B85200C71CFBDDC, "sceNetResolverCreate", (void*)sceNetResolverCreate },
+	{ 0x9099581F9B8C0162, "sceNetResolverDestroy", (void*)sceNetResolverDestroy },
+	{ 0x35DF7559A5A61B6C, "sceNetResolverStartNtoa", (void*)sceNetResolverStartNtoa },
 	SCE_FUNCTION_ENTRY_END
 };
 

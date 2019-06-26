@@ -82,5 +82,20 @@ int PS4API sceNpUnregisterPlusEventCallback(void);
 int PS4API sceNpUnregisterStateCallback(void);
 
 
+int PS4API sceNpCreateRequest(void);
+
+
+int PS4API sceNpGetAccountCountryA(void);
+
+
+int PS4API sceNpGetAccountDateOfBirthA(void);
+
+
+int PS4API sceNpGetAccountIdA(void);
+
+
+int PS4API sceNpGetAccountLanguageA(void);
+
+
 
 

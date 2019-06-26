@@ -67,5 +67,12 @@ int PS4API scePadSetVibration(void)
 }
 
 
+int PS4API scePadRead(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
 
 

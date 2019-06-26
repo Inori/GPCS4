@@ -13,6 +13,7 @@ static const SCE_EXPORT_FUNCTION g_pSceFiber_libSceFiber_FunctionTable[] =
 	{ 0x074657DA1C7D0CCC, "sceFiberReturnToThread", (void*)sceFiberReturnToThread },
 	{ 0x6B42CBAD959A7343, "sceFiberRun", (void*)sceFiberRun },
 	{ 0x3C54F64BFB49ED49, "sceFiberSwitch", (void*)sceFiberSwitch },
+	{ 0xA7ECCB20E836EF35, "sceFiberGetSelf", (void*)sceFiberGetSelf },
 	SCE_FUNCTION_ENTRY_END
 };
 

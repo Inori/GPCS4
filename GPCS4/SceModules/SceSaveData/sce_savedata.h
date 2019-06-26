@@ -52,5 +52,19 @@ int PS4API sceSaveDataTerminate(void);
 int PS4API sceSaveDataUmount(void);
 
 
+int PS4API sceSaveDataGetEventResult(void);
+
+
+int PS4API sceSaveDataGetSaveDataMemory2(void);
+
+
+int PS4API sceSaveDataSetSaveDataMemory2(void);
+
+
+int PS4API sceSaveDataSetupSaveDataMemory2(void);
+
+
+int PS4API sceSaveDataSyncSaveDataMemory(void);
+
 
 

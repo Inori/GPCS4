@@ -37,5 +37,8 @@ int PS4API sceUserServiceInitialize(void);
 int PS4API sceUserServiceTerminate(void);
 
 
+int PS4API sceUserServiceGetUserName(void);
+
+
 
 

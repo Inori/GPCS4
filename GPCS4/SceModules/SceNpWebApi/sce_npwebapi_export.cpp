@@ -21,6 +21,7 @@ static const SCE_EXPORT_FUNCTION g_pSceNpWebApi_libSceNpWebApi_FunctionTable[] =
 	{ 0x0EC3CE4C4BD27BB3, "sceNpWebApiSendMultipartRequest2", (void*)sceNpWebApiSendMultipartRequest2 },
 	{ 0x2A335E67FDBDCAC4, "sceNpWebApiSendRequest2", (void*)sceNpWebApiSendRequest2 },
 	{ 0x6ACCF74ED22A185F, "sceNpWebApiTerminate", (void*)sceNpWebApiTerminate },
+	{ 0xCE4E9CEB9C68C8ED, "sceNpWebApiCreateContextA", (void*)sceNpWebApiCreateContextA },
 	SCE_FUNCTION_ENTRY_END
 };
 

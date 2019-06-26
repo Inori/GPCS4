@@ -50,6 +50,7 @@
     <ClInclude Include="SceModules\SceHttp\sce_http.h" />
     <ClInclude Include="SceModules\SceIme\sce_ime.h" />
     <ClInclude Include="SceModules\SceInvitationDialog\sce_invitationdialog.h" />
+    <ClInclude Include="SceModules\SceJobManager\sce_jobmanager.h" />
     <ClInclude Include="SceModules\SceJson\sce_json.h" />
     <ClInclude Include="SceModules\SceLibc\sce_libc.h" />
     <ClInclude Include="SceModules\SceLibkernel\sce_kernel_file.h" />
@@ -71,6 +72,7 @@
     <ClInclude Include="SceModules\SceNpTus\sce_nptus.h" />
     <ClInclude Include="SceModules\SceNpWebApi\sce_npwebapi.h" />
     <ClInclude Include="SceModules\ScePad\sce_pad.h" />
+    <ClInclude Include="SceModules\ScePlayGoDialog\sce_playgodialog.h" />
     <ClInclude Include="SceModules\ScePlayGo\sce_playgo.h" />
     <ClInclude Include="SceModules\SceRtc\sce_rtc.h" />
     <ClInclude Include="SceModules\SceRudp\sce_rudp.h" />
@@ -129,6 +131,8 @@
     <ClCompile Include="SceModules\SceIme\sce_ime_export.cpp" />
     <ClCompile Include="SceModules\SceInvitationDialog\sce_invitationdialog.cpp" />
     <ClCompile Include="SceModules\SceInvitationDialog\sce_invitationdialog_export.cpp" />
+    <ClCompile Include="SceModules\SceJobManager\sce_jobmanager.cpp" />
+    <ClCompile Include="SceModules\SceJobManager\sce_jobmanager_export.cpp" />
     <ClCompile Include="SceModules\SceJson\sce_json.cpp" />
     <ClCompile Include="SceModules\SceJson\sce_json_export.cpp" />
     <ClCompile Include="SceModules\SceLibc\sce_libc.cpp" />
@@ -180,6 +184,8 @@
     <ClCompile Include="SceModules\SceNpWebApi\sce_npwebapi_export.cpp" />
     <ClCompile Include="SceModules\ScePad\sce_pad.cpp" />
     <ClCompile Include="SceModules\ScePad\sce_pad_export.cpp" />
+    <ClCompile Include="SceModules\ScePlayGoDialog\sce_playgodialog.cpp" />
+    <ClCompile Include="SceModules\ScePlayGoDialog\sce_playgodialog_export.cpp" />
     <ClCompile Include="SceModules\ScePlayGo\sce_playgo.cpp" />
     <ClCompile Include="SceModules\ScePlayGo\sce_playgo_export.cpp" />
     <ClCompile Include="SceModules\SceRtc\sce_rtc.cpp" />

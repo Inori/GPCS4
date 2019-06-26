@@ -27,6 +27,11 @@ static const SCE_EXPORT_FUNCTION g_pSceNpManager_libSceNpManager_FunctionTable[]
 	{ 0x71120B004BE7FBD3, "sceNpUnregisterNpReachabilityStateCallback", (void*)sceNpUnregisterNpReachabilityStateCallback },
 	{ 0xC558AA25D0E02A5D, "sceNpUnregisterPlusEventCallback", (void*)sceNpUnregisterPlusEventCallback },
 	{ 0x9A38D35E1F8D1D66, "sceNpUnregisterStateCallback", (void*)sceNpUnregisterStateCallback },
+	{ 0x1A92D00CD28809A7, "sceNpCreateRequest", (void*)sceNpCreateRequest },
+	{ 0x253FADD346B74F10, "sceNpGetAccountCountryA", (void*)sceNpGetAccountCountryA },
+	{ 0xAB733B5F304A0B7B, "sceNpGetAccountDateOfBirthA", (void*)sceNpGetAccountDateOfBirthA },
+	{ 0xADB9276948E9A96A, "sceNpGetAccountIdA", (void*)sceNpGetAccountIdA },
+	{ 0x4CF31B808C6FA20D, "sceNpGetAccountLanguageA", (void*)sceNpGetAccountLanguageA },
 	SCE_FUNCTION_ENTRY_END
 };
 

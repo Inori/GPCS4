@@ -74,5 +74,38 @@ int PS4API sceSaveDataUmount(void)
 }
 
 
+int PS4API sceSaveDataGetEventResult(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceSaveDataGetSaveDataMemory2(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceSaveDataSetSaveDataMemory2(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceSaveDataSetupSaveDataMemory2(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceSaveDataSyncSaveDataMemory(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
 
 

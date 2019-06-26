@@ -39,5 +39,20 @@ int PS4API sceSystemServiceReceiveEvent(void)
 }
 
 
+int PS4API sceSystemServiceGetDisplaySafeAreaInfo(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
 
+
+//////////////////////////////////////////////////////////////////////////
+// library: libSceSystemServicePlatformPrivacy
+//////////////////////////////////////////////////////////////////////////
+
+int PS4API sceSystemServiceGetPlatformPrivacySetting(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
 

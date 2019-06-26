@@ -39,5 +39,9 @@ int PS4API sceUserServiceTerminate(void)
 }
 
 
-
+int PS4API sceUserServiceGetUserName(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
 

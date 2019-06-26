@@ -106,5 +106,17 @@ int PS4API sceNetSocketClose(void);
 int PS4API sceNetTerm(void);
 
 
+int PS4API sceNetGetMacAddress(void);
+
+
+int PS4API sceNetResolverCreate(void);
+
+
+int PS4API sceNetResolverDestroy(void);
+
+
+int PS4API sceNetResolverStartNtoa(void);
+
+
 
 

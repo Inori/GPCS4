@@ -64,5 +64,7 @@ int PS4API sceNpWebApiSendRequest2(void);
 int PS4API sceNpWebApiTerminate(void);
 
 
+int PS4API sceNpWebApiCreateContextA(void);
+
 
 

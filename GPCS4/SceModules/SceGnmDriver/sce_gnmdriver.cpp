@@ -606,5 +606,34 @@ int PS4API sceRazorIsLoaded(void)
 }
 
 
+int PS4API _import_75EC17C39AE82ECD(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceGnmComputeWaitOnAddress(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceGnmComputeWaitSemaphore(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceGnmLogicalTcaUnitToPhysical(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+
 
 

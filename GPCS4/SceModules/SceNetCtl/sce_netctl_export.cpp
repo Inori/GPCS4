@@ -12,6 +12,7 @@ static const SCE_EXPORT_FUNCTION g_pSceNetCtl_libSceNetCtl_FunctionTable[] =
 	{ 0xD1C06076E3D147E3, "sceNetCtlGetResult", (void*)sceNetCtlGetResult },
 	{ 0x509F99ED0FB8724D, "sceNetCtlRegisterCallback", (void*)sceNetCtlRegisterCallback },
 	{ 0x46A9B63A764C0B3D, "sceNetCtlUnregisterCallback", (void*)sceNetCtlUnregisterCallback },
+	{ 0xA1BBB17538B0905F, "sceNetCtlGetInfo", (void*)sceNetCtlGetInfo },
 	SCE_FUNCTION_ENTRY_END
 };
 

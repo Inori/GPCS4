@@ -14,6 +14,11 @@ static const SCE_EXPORT_FUNCTION g_pScePlayGo_libScePlayGo_FunctionTable[] =
 	{ 0xB6CE8695938A46B1, "scePlayGoInitialize", (void*)scePlayGoInitialize },
 	{ 0x3351A66B5A1CAC61, "scePlayGoOpen", (void*)scePlayGoOpen },
 	{ 0x30F7B411E04633F1, "scePlayGoTerminate", (void*)scePlayGoTerminate },
+	{ 0xBFA119FD859174CB, "scePlayGoGetEta", (void*)scePlayGoGetEta },
+	{ 0xAEF0527D38A67A31, "scePlayGoGetInstallSpeed", (void*)scePlayGoGetInstallSpeed },
+	{ 0xDCE31B61905A6B9D, "scePlayGoGetLanguageMask", (void*)scePlayGoGetLanguageMask },
+	{ 0x367EF32B09C0E6AD, "scePlayGoGetToDoList", (void*)scePlayGoGetToDoList },
+	{ 0x2E8B0B9473A936A4, "scePlayGoSetLanguageMask", (void*)scePlayGoSetLanguageMask },
 	SCE_FUNCTION_ENTRY_END
 };
 

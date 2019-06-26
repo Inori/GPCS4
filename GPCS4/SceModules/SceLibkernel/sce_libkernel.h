@@ -279,6 +279,109 @@ int PS4API scePthreadSetprio(void);
 int PS4API scePthreadYield(void);
 
 
+int PS4API sceKernelBatchMap(void);
+
+
+int PS4API sceKernelCheckedReleaseDirectMemory(void);
+
+
+int PS4API sceKernelDlsym(void);
+
+
+int PS4API sceKernelGetDirectMemoryType(void);
+
+
+int PS4API sceKernelGetGPI(void);
+
+
+int PS4API sceKernelGetPageTableStats(void);
+
+
+int PS4API sceKernelGettimeofday(void);
+
+
+int PS4API sceKernelIsStack(void);
+
+
+int PS4API sceKernelLoadStartModule(void);
+
+
+int PS4API sceKernelMapNamedDirectMemory(void);
+
+
+int PS4API sceKernelMapNamedFlexibleMemory(void);
+
+
+int PS4API sceKernelMprotect(void);
+
+
+int PS4API sceKernelMtypeprotect(void);
+
+
+int PS4API sceKernelMunmap(void);
+
+
+int PS4API sceKernelQueryMemoryProtection(void);
+
+
+int PS4API sceKernelReserveVirtualRange(void);
+
+
+int PS4API sceKernelSetPrtAperture(void);
+
+
+int PS4API sceKernelSetVirtualRangeName(void);
+
+
+int PS4API sceKernelUuidCreate(void);
+
+
+int PS4API sceKernelVirtualQuery(void);
+
+
+int PS4API scePthreadCancel(void);
+
+
+int PS4API scePthreadDetach(void);
+
+
+int PS4API scePthreadGetname(void);
+
+
+int PS4API scePthreadGetschedparam(void);
+
+
+int PS4API scePthreadGetspecific(void);
+
+
+int PS4API scePthreadKeyCreate(void);
+
+
+int PS4API scePthreadMutexTimedlock(void);
+
+
+int PS4API scePthreadMutexTrylock(void);
+
+
+int PS4API scePthreadSetschedparam(void);
+
+
+int PS4API scePthreadSetspecific(void);
+
+
+//////////////////////////////////////////////////////////////////////////
+// library: libSceCoredump
+//////////////////////////////////////////////////////////////////////////
+
+int PS4API sceCoredumpAttachMemoryRegion(void);
+
+
+int PS4API sceCoredumpRegisterCoredumpHandler(void);
+
+
+int PS4API sceCoredumpWriteUserData(void);
+
+
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -346,6 +449,42 @@ int PS4API scek_sched_yield(void);
 
 
 int PS4API scek_usleep(void);
+
+
+int PS4API scek_close(void);
+
+
+int PS4API scek_connect(void);
+
+
+int PS4API scek_pthread_setschedparam(void);
+
+
+int PS4API scek_recv(void);
+
+
+int PS4API scek_select(void);
+
+
+int PS4API scek_sem_destroy(void);
+
+
+int PS4API scek_sem_init(void);
+
+
+int PS4API scek_sem_post(void);
+
+
+int PS4API scek_sem_timedwait(void);
+
+
+int PS4API scek_sem_wait(void);
+
+
+int PS4API scek_send(void);
+
+
+int PS4API scek_shutdown(void);
 
 
 

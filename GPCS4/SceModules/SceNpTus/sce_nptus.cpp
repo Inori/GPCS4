@@ -74,5 +74,16 @@ int PS4API sceNpTusTryAndSetVariableAsync(void)
 }
 
 
+int PS4API sceNpTssCreateNpTitleCtxA(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
 
+
+int PS4API sceNpTssGetData(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
 

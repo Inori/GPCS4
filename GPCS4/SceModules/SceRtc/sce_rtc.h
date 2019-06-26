@@ -43,5 +43,11 @@ int PS4API sceRtcGetTick(void);
 int PS4API sceRtcSetTick(void);
 
 
+int PS4API sceRtcGetCurrentClock(void);
+
+
+int PS4API sceRtcGetCurrentTick(void);
+
+
 
 

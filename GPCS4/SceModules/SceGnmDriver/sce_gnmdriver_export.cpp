@@ -93,6 +93,10 @@ static const SCE_EXPORT_FUNCTION g_pSceGnmDriver_libSceGnmDriver_FunctionTable[]
 	{ 0x577D55D3552249C6, "sceGnmUpdateVsShader", (void*)sceGnmUpdateVsShader },
 	{ 0xBBD60AA514477BF3, "sceRazorCaptureImmediate", (void*)sceRazorCaptureImmediate },
 	{ 0x7F7DCEAEBB9061B3, "sceRazorIsLoaded", (void*)sceRazorIsLoaded },
+	{ 0x75EC17C39AE82ECD, "_import_75EC17C39AE82ECD", (void*)_import_75EC17C39AE82ECD },
+	{ 0x7DFACD40EB21A30B, "sceGnmComputeWaitOnAddress", (void*)sceGnmComputeWaitOnAddress },
+	{ 0x1096A9365DBEA605, "sceGnmComputeWaitSemaphore", (void*)sceGnmComputeWaitSemaphore },
+	{ 0x2A5D19DCB1F4ED02, "sceGnmLogicalTcaUnitToPhysical", (void*)sceGnmLogicalTcaUnitToPhysical },
 	SCE_FUNCTION_ENTRY_END
 };
 

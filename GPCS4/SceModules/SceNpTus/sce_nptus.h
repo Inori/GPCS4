@@ -52,5 +52,11 @@ int PS4API sceNpTusSetMultiSlotVariableAsync(void);
 int PS4API sceNpTusTryAndSetVariableAsync(void);
 
 
+int PS4API sceNpTssCreateNpTitleCtxA(void);
+
+
+int PS4API sceNpTssGetData(void);
+
+
 
 
