@@ -36,7 +36,7 @@ scec_sprintf_s_asm endp
 
 ;int vsnprintf (char * s, size_t n, const char * format, va_list arg );
 ;int vsprintf (char * s, const char * format, va_list arg );
-extern vsprintf:proc
+extern vsnprintf:proc
 scec_vsnprintf_asm proc
 
 	sub rsp, 40h
@@ -51,10 +51,11 @@ scec_vsnprintf_asm proc
 	mov rcx, [rax + 28h] ; r9
 	mov [rsp + 38h], rcx 
 
-	lea r8, [rsp + 20h]
-	mov rdx, rdx
+	lea r9, [rsp + 20h]
+	mov r8, rdx
+	mov rdx, rsi
 	mov rcx, rdi
-	call vsprintf
+	call vsnprintf
 	add rsp, 40h
 	ret
 L_FOUND_FP:
