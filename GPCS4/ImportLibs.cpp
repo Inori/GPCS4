@@ -13,10 +13,12 @@
 #ifdef _DEBUG
 
 #pragma comment(lib, "../3rdParty/pthreads4w/libpthreadVCE3d.lib")
+#pragma comment(lib, "../3rdParty/zydis/Zydisd.lib")
 
 #else
 
 #pragma comment(lib, "../3rdParty/pthreads4w/libpthreadVCE3.lib")
+#pragma comment(lib, "../3rdParty/zydis/Zydis.lib")
 
 #endif  //_DEBUG
 #endif  //GPCS4_WINDOWS

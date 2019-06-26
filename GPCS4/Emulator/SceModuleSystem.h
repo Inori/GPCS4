@@ -26,15 +26,18 @@ class CSceModuleSystem final : public Singleton<CSceModuleSystem>
 
 public:
 
-	bool IsEndLibraryEntry(const SCE_EXPORT_LIBRARY* pLib);
-	bool IsEndFunctionEntry(const SCE_EXPORT_FUNCTION* pFunc);
 	bool RegisterModule(const SCE_EXPORT_MODULE& stModule);
 	
 	void* FindFunction(const std::string& strModName, const std::string& strLibName, uint64 nNid);
 
 private:
+	bool IsEndFunctionEntry(const SCE_EXPORT_FUNCTION* pFunc);
+	bool IsEndLibraryEntry(const SCE_EXPORT_LIBRARY* pLib);
+
+private:
 	SceModuleMapNid m_umpModuleMapNid;
 	SceModuleMapName m_umpModuleMapName;
+
 private:
 	CSceModuleSystem();
 	~CSceModuleSystem();
