@@ -3,6 +3,7 @@
 #include "GPCS4Common.h"
 #include "../Loader/EbootObject.h"
 #include "Linker.h"
+#include "TLSHandler.h"
 #include <memory>
 
 typedef void (PS4NORETURN PS4API *PFUNC_EntryPoint)(void* pEnv, void* pfnExitHandler);
@@ -28,5 +29,6 @@ private:
 private:
 	CEbootObject m_oEboot;
 	std::shared_ptr<CLinker> m_pLinker;
+	std::unique_ptr<CTLSHandler> m_pTlsHandler;
 };
 

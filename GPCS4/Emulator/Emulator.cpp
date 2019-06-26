@@ -23,6 +23,17 @@ bool CEmulator::Init()
 
 		m_pLinker = std::make_shared<CLinker>();
 
+#ifdef GPCS4_WINDOWS
+		m_pTlsHandler = std::make_unique<CTLSHandlerWin>();
+#else
+
+#endif // GPCS4_WINDOWS
+
+		if (!m_pTlsHandler->Install())
+		{
+			break;
+		}
+
 		bRet = true;
 	} while (false);
 	return bRet;
