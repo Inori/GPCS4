@@ -31,7 +31,7 @@ void CTLSHandler::PrintInst(ZydisDecodedInstruction& inst)
 	const int nBufLen = 256;
 	char szBuffer[nBufLen];
 	ZydisFormatterFormatInstruction(&s_oFormatter, &inst, szBuffer, sizeof(szBuffer));
-	LOG_DEBUG("exception inst: %s", szBuffer);
+	LOG_DEBUG("instruction: %s", szBuffer);
 }
 
 bool CTLSHandler::IsTlsAccess(void* pCode)
