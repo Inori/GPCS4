@@ -61,4 +61,16 @@ std::string Format(const char* pFormat, ...)
 
 	return strDst;
 }
+
+std::string ReplaceAll(const std::string& cstr, const std::string& from, const std::string& to) 
+{
+	std::string str = cstr;
+	size_t start_pos = 0;
+	while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
+		str.replace(start_pos, from.length(), to);
+		start_pos += to.length(); // Handles case where 'to' is a substring of 'from'
+	}
+	return str;
+}
+
 }

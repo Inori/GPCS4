@@ -36,6 +36,7 @@
     <ClInclude Include="Platform\PlatformUtils.h" />
     <ClInclude Include="Platform\UtilHardware.h" />
     <ClInclude Include="Platform\UtilMemory.h" />
+    <ClInclude Include="Platform\UtilPath.h" />
     <ClInclude Include="Platform\UtilProcess.h" />
     <ClInclude Include="Platform\UtilString.h" />
     <ClInclude Include="Platform\UtilThread.h" />
@@ -106,6 +107,7 @@
     <ClCompile Include="Loader\EbootObject.cpp" />
     <ClCompile Include="Platform\UtilHardware.cpp" />
     <ClCompile Include="Platform\UtilMemory.cpp" />
+    <ClCompile Include="Platform\UtilPath.cpp" />
     <ClCompile Include="Platform\UtilProcess.cpp" />
     <ClCompile Include="Platform\UtilString.cpp" />
     <ClCompile Include="Platform\UtilThread.cpp" />

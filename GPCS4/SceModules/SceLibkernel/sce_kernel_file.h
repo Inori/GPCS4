@@ -2,6 +2,18 @@
 
 
 typedef uint16_t SceKernelMode;
+// open mode
+#define SCE_KERNEL_S_IRUSR         (S_IRUSR | S_IRGRP | S_IROTH | S_IXUSR | \
+				    S_IXGRP | S_IXOTH)
+#define SCE_KERNEL_S_IWUSR         (S_IWUSR | S_IWGRP | S_IWOTH | S_IXUSR | \
+				    S_IXGRP | S_IXOTH)
+#define SCE_KERNEL_S_IXUSR         (S_IXUSR | S_IXGRP | S_IXOTH)
+#define SCE_KERNEL_S_IRWXU         (SCE_KERNEL_S_IRUSR | SCE_KERNEL_S_IWUSR)
+
+// read write
+#define SCE_KERNEL_S_IRWU          (SCE_KERNEL_S_IRUSR | SCE_KERNEL_S_IWUSR)
+// read
+#define SCE_KERNEL_S_IRU           (SCE_KERNEL_S_IRUSR)
 
 // open flags
 #define SCE_KERNEL_O_RDONLY        O_RDONLY

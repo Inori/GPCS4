@@ -1,10 +1,16 @@
 #include "sce_libkernel.h"
 #include "sce_kernel_file.h"
+#include "Platform/UtilPath.h"
+#include <io.h>
 
 int PS4API sceKernelOpen(const char *path, int flags, SceKernelMode mode)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("path %s flag %x mode %x", path, flags, mode);
+	std::string pcPath = UtilPath::PS4PathToPCPath(path);
+	int fd = open(pcPath.c_str(), flags, mode);
+	int e = errno;
+	
+	return fd;
 }
 
 
