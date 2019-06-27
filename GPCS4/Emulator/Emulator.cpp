@@ -31,7 +31,8 @@ bool CEmulator::Init()
 
 void CEmulator::Unit()
 {
-
+	CTLSHandlerWin::Uninstall();
+	m_oEboot.Unload();
 }
 
 bool CEmulator::LoadEboot(const std::string& strEbtPath)

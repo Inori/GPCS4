@@ -12,6 +12,17 @@ public:
 	CTLSHandler();
 	virtual ~CTLSHandler();
 
+	static void NotifyThreadCreate(uint nTid);
+
+	static void NotifyThreadExit(uint nTid);
+
+protected:
+	struct TCB
+	{
+		void* pSegBase;
+		void* pDTV;
+	};
+
 protected:
 	static void InitZydis();
 	static void PrintInst(ZydisDecodedInstruction& inst);
@@ -19,11 +30,18 @@ protected:
 	static uint GetPatchLen(byte* pCode, uint nOldLen);
 	static uint GetMovFsLenLen(void* pCode);
 	static bool PatchTLSInstruction(void* pCode);
-
+	//
+	static bool BuildTLSBackup(void* pTls, uint nInitSize, uint nTotalSize);
+	static void* AllocateTLS();
+	static void FreeTLS(TCB* pTcb);
 protected:
 	static ZydisDecoder s_oDecoder;
 	static ZydisFormatter s_oFormatter;
-
+	// build tls backup on install,
+	// whenever a new thread created,
+	// we just copy this backup
+	static std::vector<byte> s_vtTlsImageBackup;
+	static thread_local TCB* t_pTcbRecord;
 private:
 
 };
@@ -45,30 +63,14 @@ public:
 
 	static void Uninstall();
 
-	static void NotifyThreadCreate(uint nTid);
-
-	static void NotifyThreadExit(uint nTid);
-
-private:
-
-	struct TCB
-	{
-		void* pSegBase;
-		void* pDTV;
-	};
 
 private:
 	static long __stdcall VEHExceptionHandler(void* pExceptionArg);
-	static bool BuildTLSBackup(void* pTls, uint nInitSize, uint nTotalSize);
-	static void* AllocateTLS();
-	static void FreeTLS(TCB* pTcb);
+
 private:
-	// build tls backup on install,
-	// whenever a new thread created,
-	// we just copy this backup
-	static std::vector<byte> s_vtTlsImageBackup;
+
 	static void* s_pVEHHandle;
-	static thread_local TCB* t_pTcbRecord;
+	
 };
 
 

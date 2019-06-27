@@ -1,13 +1,14 @@
 #include "TLSHandler.h"
 #include "Platform/UtilMemory.h"
+
 // x86_64 max instruction length
 #define X64_INSTRUCTION_LEN_MAX 15
 
 
-
 ZydisDecoder CTLSHandler::s_oDecoder;
-
 ZydisFormatter CTLSHandler::s_oFormatter;
+std::vector<byte> CTLSHandler::s_vtTlsImageBackup;
+thread_local CTLSHandler::TCB* CTLSHandler::t_pTcbRecord = NULL;
 
 
 CTLSHandler::CTLSHandler()
@@ -18,6 +19,19 @@ CTLSHandler::~CTLSHandler()
 {
 }
 
+void CTLSHandler::NotifyThreadCreate(uint nTid)
+{
+
+}
+
+void CTLSHandler::NotifyThreadExit(uint nTid)
+{
+	if (t_pTcbRecord)
+	{
+		FreeTLS(t_pTcbRecord);
+		t_pTcbRecord = NULL;
+	}
+}
 
 
 void CTLSHandler::InitZydis()
@@ -204,6 +218,76 @@ bool CTLSHandler::PatchTLSInstruction(void* pCode)
 	return bRet;
 }
 
+bool CTLSHandler::BuildTLSBackup(void* pTls, uint nInitSize, uint nTotalSize)
+{
+	bool bRet = false;
+	do
+	{
+		if (!pTls || !nInitSize || !nTotalSize)
+		{
+			break;
+		}
+
+		s_vtTlsImageBackup.resize(nTotalSize);
+		memcpy(s_vtTlsImageBackup.data(), pTls, nInitSize);
+		memset(s_vtTlsImageBackup.data() + nInitSize, 0, nTotalSize - nInitSize);
+
+		bRet = true;
+	} while (false);
+	return bRet;
+}
+
+void* CTLSHandler::AllocateTLS()
+{
+	TCB* pTcb = NULL;
+	do
+	{
+		byte* pTls = new byte[s_vtTlsImageBackup.size() + sizeof(TCB)];
+		memcpy(pTls, s_vtTlsImageBackup.data(), s_vtTlsImageBackup.size());
+
+		// TODO:
+		// currently, it seems ps4 game only use these DTVs
+		// but who knows..
+		// will see if there's crash...
+		uint64* pDtv = new uint64[3];
+		pDtv[0] = 1;
+		pDtv[1] = 1;
+		pDtv[2] = (uint64)pTls;
+
+		pTcb = (TCB*)(pTls + s_vtTlsImageBackup.size());
+		pTcb->pSegBase = pTcb;
+		pTcb->pDTV = pDtv;
+
+		// record this allocation, will free on thread exit
+		t_pTcbRecord = pTcb;
+	} while (false);
+	return pTcb;
+}
+
+void CTLSHandler::FreeTLS(TCB* pTcb)
+{
+	do
+	{
+		if (!pTcb)
+		{
+			break;
+		}
+
+		void* pDtv = pTcb->pDTV;
+		if (pDtv)
+		{
+			delete pDtv;
+		}
+
+		void* pTls = (byte*)pTcb->pSegBase - s_vtTlsImageBackup.size();
+		if (pTls)
+		{
+			delete pTls;
+		}
+
+	} while (false);
+}
+
 //////////////////////////////////////////////////////////////////////////
 #ifdef GPCS4_WINDOWS
 
@@ -213,9 +297,7 @@ bool CTLSHandler::PatchTLSInstruction(void* pCode)
 
 void* CTLSHandlerWin::s_pVEHHandle = NULL;
 
-thread_local CTLSHandlerWin::TCB* CTLSHandlerWin::t_pTcbRecord = NULL;
 
-std::vector<byte> CTLSHandlerWin::s_vtTlsImageBackup;
 
 CTLSHandlerWin::CTLSHandlerWin()
 {
@@ -258,20 +340,6 @@ void CTLSHandlerWin::Uninstall()
 }
 
 
-void CTLSHandlerWin::NotifyThreadCreate(uint nTid)
-{
-
-}
-
-void CTLSHandlerWin::NotifyThreadExit(uint nTid)
-{
-	if (t_pTcbRecord)
-	{
-		FreeTLS(t_pTcbRecord);
-		t_pTcbRecord = NULL;
-	}
-}
-
 // exception handler runs in the same thread which cause this exception
 long CTLSHandlerWin::VEHExceptionHandler(void* pExceptionArg)
 {
@@ -313,77 +381,6 @@ long CTLSHandlerWin::VEHExceptionHandler(void* pExceptionArg)
 	return nRet;
 }
 
-
-
-bool CTLSHandlerWin::BuildTLSBackup(void* pTls, uint nInitSize, uint nTotalSize)
-{
-	bool bRet = false;
-	do
-	{
-		if (!pTls || !nInitSize || !nTotalSize)
-		{
-			break;
-		}
-
-		s_vtTlsImageBackup.resize(nTotalSize);
-		memcpy(s_vtTlsImageBackup.data(), pTls, nInitSize);
-		memset(s_vtTlsImageBackup.data() + nInitSize, 0, nTotalSize - nInitSize);
-
-		bRet  = true;
-	}while(false);
-	return bRet;
-}
-
-void* CTLSHandlerWin::AllocateTLS()
-{
-	TCB* pTcb = NULL;
-	do 
-	{
-		byte* pTls = new byte[s_vtTlsImageBackup.size() + sizeof(TCB)];
-		memcpy(pTls, s_vtTlsImageBackup.data(), s_vtTlsImageBackup.size());
-
-		// TODO:
-		// currently, it seems ps4 game only use these DTVs
-		// but who knows..
-		// will see if there's crash...
-		uint64* pDtv = new uint64[3];
-		pDtv[0] = 1;
-		pDtv[1] = 1;
-		pDtv[2] = (uint64)pTls;
-
-		pTcb = (TCB*)(pTls + s_vtTlsImageBackup.size());
-		pTcb->pSegBase = pTcb;
-		pTcb->pDTV = pDtv;
-
-		// record this allocation, will free on thread exit
-		t_pTcbRecord = pTcb;
-	} while (false);
-	return pTcb;
-}
-
-void CTLSHandlerWin::FreeTLS(TCB* pTcb)
-{
-	do 
-	{
-		if (!pTcb)
-		{
-			break;
-		}
-
-		void* pDtv = pTcb->pDTV;
-		if (pDtv)
-		{
-			delete pDtv;
-		}
-
-		void* pTls = (byte*)pTcb->pSegBase - s_vtTlsImageBackup.size();
-		if (pTls)
-		{
-			delete pTls;
-		}
-
-	} while (false);
-}
 
 #else
 
