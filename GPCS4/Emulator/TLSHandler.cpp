@@ -237,6 +237,8 @@ bool CTLSHandler::BuildTLSBackup(void* pTls, uint nInitSize, uint nTotalSize)
 	return bRet;
 }
 
+// based on freebsd 9 libc implement
+// https://github.com/freebsd/freebsd/blob/stable/9/lib/libc/gen/tls.c#L201
 void* CTLSHandler::AllocateTLS()
 {
 	TCB* pTcb = NULL;
