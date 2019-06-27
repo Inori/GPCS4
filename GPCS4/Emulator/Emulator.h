@@ -29,6 +29,5 @@ private:
 private:
 	CEbootObject m_oEboot;
 	std::shared_ptr<CLinker> m_pLinker;
-	std::unique_ptr<CTLSHandler> m_pTlsHandler;
 };
 

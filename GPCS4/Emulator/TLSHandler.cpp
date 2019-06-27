@@ -211,8 +211,13 @@ bool CTLSHandler::PatchTLSInstruction(void* pCode)
 #include <Windows.h>
 #undef WIN32_LEAN_AND_MEAN
 
-CTLSHandlerWin::CTLSHandlerWin():
-	m_pVEHHandle(NULL)
+void* CTLSHandlerWin::s_pVEHHandle = NULL;
+
+thread_local CTLSHandlerWin::TCB* CTLSHandlerWin::t_pTcbRecord = NULL;
+
+std::vector<byte> CTLSHandlerWin::s_vtTlsImageBackup;
+
+CTLSHandlerWin::CTLSHandlerWin()
 {
 }
 
@@ -220,21 +225,24 @@ CTLSHandlerWin::~CTLSHandlerWin()
 {
 }
 
-
-bool CTLSHandlerWin::Install()
+bool CTLSHandlerWin::Install(void* pTls, uint nInitSize, uint nTotalSize)
 {
 	bool bRet = false;
-	do 
+	do
 	{
 		InitZydis();
 
-		m_pVEHHandle = AddVectoredExceptionHandler(TRUE, 
-			(PVECTORED_EXCEPTION_HANDLER)CTLSHandlerWin::StaticExceptionHandler);
-		if (!m_pVEHHandle)
+		s_pVEHHandle = AddVectoredExceptionHandler(TRUE,
+			(PVECTORED_EXCEPTION_HANDLER)CTLSHandlerWin::VEHExceptionHandler);
+		if (!s_pVEHHandle)
 		{
 			break;
 		}
 
+		if (!BuildTLSBackup(pTls, nInitSize, nTotalSize))
+		{
+			break;
+		}
 		bRet = true;
 	} while (false);
 	return bRet;
@@ -242,14 +250,30 @@ bool CTLSHandlerWin::Install()
 
 void CTLSHandlerWin::Uninstall()
 {
-	if (m_pVEHHandle)
+	if (s_pVEHHandle)
 	{
-		RemoveVectoredExceptionHandler(m_pVEHHandle);
-		m_pVEHHandle = NULL;
+		RemoveVectoredExceptionHandler(s_pVEHHandle);
+		s_pVEHHandle = NULL;
 	}
 }
 
-long CTLSHandlerWin::StaticExceptionHandler(void* pExceptionArg)
+
+void CTLSHandlerWin::NotifyThreadCreate(uint nTid)
+{
+
+}
+
+void CTLSHandlerWin::NotifyThreadExit(uint nTid)
+{
+	if (t_pTcbRecord)
+	{
+		FreeTLS(t_pTcbRecord);
+		t_pTcbRecord = NULL;
+	}
+}
+
+// exception handler runs in the same thread which cause this exception
+long CTLSHandlerWin::VEHExceptionHandler(void* pExceptionArg)
 {
 	PEXCEPTION_POINTERS pExceptionInfo = (PEXCEPTION_POINTERS)pExceptionArg;
 	long nRet = EXCEPTION_CONTINUE_SEARCH;
@@ -265,15 +289,100 @@ long CTLSHandlerWin::StaticExceptionHandler(void* pExceptionArg)
 			break;
 		}	
 
-		if (!PatchTLSInstruction(pExcptAddr))
-		{
-			LOG_ERR("patch tls instruction failed.");
-			break;
-		}
+		// I firstly tried to make a simple hook to the tls access instruction,
+		// hoping there's no rip-relative instruction around,
+		// but soon I found I was wrong, rip-relative instructions are everywhere
+		// thus I need to do relocation...
+		// fuck that.
+		// let's get rid of that shit and focus on more important things
+		// current implementation will raise an exception on every tls access
+		// which is not efficient
+		// I'll fix this soon or later
+		//if (!PatchTLSInstruction(pExcptAddr))
+		//{
+		//	LOG_ERR("patch tls instruction failed.");
+		//	break;
+		//}
+
+		uint nMovFsLen = GetMovFsLenLen(pExcptAddr);
+		pExceptionInfo->ContextRecord->Rip += nMovFsLen;
+		pExceptionInfo->ContextRecord->Rax = (DWORD64)AllocateTLS();
 
 		nRet = EXCEPTION_CONTINUE_EXECUTION;
 	} while (false);
 	return nRet;
+}
+
+
+
+bool CTLSHandlerWin::BuildTLSBackup(void* pTls, uint nInitSize, uint nTotalSize)
+{
+	bool bRet = false;
+	do
+	{
+		if (!pTls || !nInitSize || !nTotalSize)
+		{
+			break;
+		}
+
+		s_vtTlsImageBackup.resize(nTotalSize);
+		memcpy(s_vtTlsImageBackup.data(), pTls, nInitSize);
+		memset(s_vtTlsImageBackup.data() + nInitSize, 0, nTotalSize - nInitSize);
+
+		bRet  = true;
+	}while(false);
+	return bRet;
+}
+
+void* CTLSHandlerWin::AllocateTLS()
+{
+	TCB* pTcb = NULL;
+	do 
+	{
+		byte* pTls = new byte[s_vtTlsImageBackup.size() + sizeof(TCB)];
+		memcpy(pTls, s_vtTlsImageBackup.data(), s_vtTlsImageBackup.size());
+
+		// TODO:
+		// currently, it seems ps4 game only use these DTVs
+		// but who knows..
+		// will see if there's crash...
+		uint64* pDtv = new uint64[3];
+		pDtv[0] = 1;
+		pDtv[1] = 1;
+		pDtv[2] = (uint64)pTls;
+
+		pTcb = (TCB*)(pTls + s_vtTlsImageBackup.size());
+		pTcb->pSegBase = pTcb;
+		pTcb->pDTV = pDtv;
+
+		// record this allocation, will free on thread exit
+		t_pTcbRecord = pTcb;
+	} while (false);
+	return pTcb;
+}
+
+void CTLSHandlerWin::FreeTLS(TCB* pTcb)
+{
+	do 
+	{
+		if (!pTcb)
+		{
+			break;
+		}
+
+		void* pDtv = pTcb->pDTV;
+		if (pDtv)
+		{
+			delete pDtv;
+		}
+
+		void* pTls = (byte*)pTcb->pSegBase - s_vtTlsImageBackup.size();
+		if (pTls)
+		{
+			delete pTls;
+		}
+
+	} while (false);
 }
 
 #else

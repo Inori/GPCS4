@@ -4,9 +4,7 @@
 
 GetTlsDataStub proc
 
-pop rax
-jmp rax
-
+ret
 
 GetTlsDataStub endp
 

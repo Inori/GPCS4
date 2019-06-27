@@ -23,16 +23,6 @@ bool CEmulator::Init()
 
 		m_pLinker = std::make_shared<CLinker>();
 
-#ifdef GPCS4_WINDOWS
-		m_pTlsHandler = std::make_unique<CTLSHandlerWin>();
-#else
-
-#endif // GPCS4_WINDOWS
-
-		if (!m_pTlsHandler->Install())
-		{
-			break;
-		}
 
 		bRet = true;
 	} while (false);
@@ -56,6 +46,21 @@ bool CEmulator::LoadEboot(const std::string& strEbtPath)
 			break;
 		}
 
+		void* pTls = NULL;
+		uint nInitSize = 0, nTotalSize = 0;
+		if (!m_oEboot.GetTlsInfo(&pTls, nInitSize, nTotalSize))
+		{
+			break;
+		}
+
+#ifdef GPCS4_WINDOWS
+		if (!CTLSHandlerWin::Install(pTls, nInitSize, nTotalSize))
+		{
+			break;
+		}
+#else
+
+#endif // GPCS4_WINDOWS
 		bRet = true;
 	} while (false);
 	return bRet;

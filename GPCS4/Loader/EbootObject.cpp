@@ -67,6 +67,25 @@ void* CEbootObject::EntryPoint()
 	return m_stModuleInfo.pEntryPoint;
 }
 
+bool CEbootObject::GetTlsInfo(void** pTls, uint& nInitSize, uint& nTotalSize)
+{
+	bool bRet = false;
+	do
+	{
+		if (!pTls)
+		{
+			break;
+		}
+
+		*pTls = m_stModuleInfo.pTlsAddr;
+		nInitSize = m_stModuleInfo.nTlsInitSize;
+		nTotalSize = m_stModuleInfo.nTlsSize;
+
+		bRet  = true;
+	}while(false);
+	return bRet;
+}
+
 void CEbootObject::SetLinker(std::shared_ptr<CLinker>& pLinker)
 {
 	m_pLinker = pLinker;
@@ -153,6 +172,11 @@ bool CEbootObject::CollectModuleInfo()
 			case PT_INTERP:
 				break;
 			case PT_TLS:
+			{
+				m_stModuleInfo.pTlsAddr = (byte*)phdr.p_vaddr;  // neet to rebase when load
+				m_stModuleInfo.nTlsInitSize = phdr.p_filesz;
+				m_stModuleInfo.nTlsSize = ALIGN_ROUND(phdr.p_memsz, phdr.p_align);
+			}
 				break;
 			case PT_GNU_EH_FRAME:
 				break;
@@ -522,7 +546,11 @@ bool CEbootObject::LoadSgmtCode(Elf64_Phdr& phdr)
 
 		memcpy(m_stModuleInfo.pCodeAddr, pCodeFileOff, phdr.p_filesz);
 
+		//
 		m_stModuleInfo.pEntryPoint = m_stModuleInfo.pCodeAddr + m_stEhdr.e_entry;
+
+		//
+		m_stModuleInfo.pTlsAddr = m_stModuleInfo.pCodeAddr + (uint64)m_stModuleInfo.pTlsAddr;
 	
 		bRet = true;
 	} while (false);

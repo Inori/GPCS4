@@ -1,4 +1,7 @@
 #include "GameThread.h"
+#include "TLSHandler.h"
+#include "Platform/UtilThread.h"
+
 
 CGameThread::CGameThread(void* pFunc, void* pArg):
 	m_pFunc(pFunc),
@@ -72,9 +75,19 @@ void* CGameThread::ThreadFunc(void* pArg)
 		{
 			break;
 		}
-	
+
+#ifdef GPCS4_WINDOWS
+		CTLSHandlerWin::NotifyThreadCreate(UtilThread::GetThreadId());
+#else
+#endif
+
 		void* pRet = RunGameThread(pThis);
-	
+
+#ifdef GPCS4_WINDOWS
+		CTLSHandlerWin::NotifyThreadExit(UtilThread::GetThreadId());
+#else
+#endif	
+
 		pthread_exit(pRet);
 
 		nRet = 0;

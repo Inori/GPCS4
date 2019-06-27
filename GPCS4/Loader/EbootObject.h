@@ -18,6 +18,8 @@ public:
 
 	void* EntryPoint();
 
+	bool GetTlsInfo(void** pTls, uint& nInitSize, uint& nTotalSize);
+
 	void SetLinker(std::shared_ptr<CLinker>& pLinker);
 
 private:
@@ -62,6 +64,10 @@ private:
 
 		byte* pDataAddr;
 		uint nDataSize;
+
+		byte* pTlsAddr;
+		uint nTlsInitSize;  // initialized tls data size
+		uint nTlsSize;	// whole tls data size, including nTlsInitSize
 
 		//the following segments do not have vaddr or memsz in phdr (at least in GOW4),
 		//so we don't have to load them into virtual memory,

@@ -3,7 +3,7 @@
 #include "GPCS4Common.h"
 #include "Singleton.h"
 #include "zydis/Zydis.h"
-
+#include <vector>
 
 
 class CTLSHandler
@@ -12,12 +12,8 @@ public:
 	CTLSHandler();
 	virtual ~CTLSHandler();
 
-	virtual bool Install() = 0;
-
-	virtual void Uninstall() = 0;
-
 protected:
-	void InitZydis();
+	static void InitZydis();
 	static void PrintInst(ZydisDecodedInstruction& inst);
 	static bool IsTlsAccess(void* pCode);
 	static uint GetPatchLen(byte* pCode, uint nOldLen);
@@ -45,15 +41,34 @@ public:
 	CTLSHandlerWin();
 	virtual ~CTLSHandlerWin();
 
-	virtual bool Install() override;
+	static bool Install(void* pTls, uint nInitSize, uint nTotalSize);
 
-	virtual void Uninstall() override;
+	static void Uninstall();
+
+	static void NotifyThreadCreate(uint nTid);
+
+	static void NotifyThreadExit(uint nTid);
 
 private:
-	static long __stdcall StaticExceptionHandler(void* pExceptionArg);
+
+	struct TCB
+	{
+		void* pSegBase;
+		void* pDTV;
+	};
 
 private:
-	void* m_pVEHHandle;
+	static long __stdcall VEHExceptionHandler(void* pExceptionArg);
+	static bool BuildTLSBackup(void* pTls, uint nInitSize, uint nTotalSize);
+	static void* AllocateTLS();
+	static void FreeTLS(TCB* pTcb);
+private:
+	// build tls backup on install,
+	// whenever a new thread created,
+	// we just copy this backup
+	static std::vector<byte> s_vtTlsImageBackup;
+	static void* s_pVEHHandle;
+	static thread_local TCB* t_pTcbRecord;
 };
 
 
