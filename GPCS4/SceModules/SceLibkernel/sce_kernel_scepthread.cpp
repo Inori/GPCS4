@@ -4,6 +4,8 @@
 #include "Platform/PlatformUtils.h"
 
 // for non pointer type, we need to build a map to fit the type
+// TODO:
+// this implementation is not correct if other thread access pthread_t
 thread_local std::pair<ScePthread, pthread_t> t_threadTMap;
 
 
@@ -482,6 +484,76 @@ int PS4API scePthreadSetprio(void)
 
 
 int PS4API scePthreadYield(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API scePthreadCancel(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API scePthreadDetach(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API scePthreadGetname(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API scePthreadGetschedparam(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API scePthreadGetspecific(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API scePthreadKeyCreate(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API scePthreadMutexTimedlock(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API scePthreadMutexTrylock(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API scePthreadSetschedparam(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API scePthreadSetspecific(void)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;

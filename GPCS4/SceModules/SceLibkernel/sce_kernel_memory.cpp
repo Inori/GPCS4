@@ -34,6 +34,93 @@ int PS4API sceKernelReleaseDirectMemory(sce::off_t start, size_t len)
 	return SCE_OK;
 }
 
+
+int PS4API sceKernelGetDirectMemoryType(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceKernelGetPageTableStats(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceKernelIsStack(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+
+int PS4API sceKernelMapNamedDirectMemory(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceKernelMapNamedFlexibleMemory(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceKernelMprotect(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceKernelMtypeprotect(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceKernelMunmap(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceKernelQueryMemoryProtection(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceKernelReserveVirtualRange(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+
+int PS4API sceKernelSetVirtualRangeName(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceKernelVirtualQuery(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
 //////////////////////////////////////////////////////////////////////////
 
 int PS4API sceKernelMapFlexibleMemory(void **addrInOut, size_t len, int prot, int flags)

@@ -34,6 +34,28 @@ L_FOUND_FP:
 scec_sprintf_s_asm endp
 
 
+extern sprintf:proc
+scec_sprintf_asm proc
+
+	sub rsp, 30h
+	test al, al  ; al stores number of vector registers used.
+	jnz L_FOUND_FP
+	mov [rsp + 28h], r9
+	mov [rsp + 20h], r8
+	mov r9, rcx
+	mov r8, rdx
+	mov rdx, rsi
+	mov rcx, rdi
+	call sprintf
+	add rsp, 30h
+	ret
+L_FOUND_FP:
+	xor bl, bl 
+	div bl    ; for debugging purpose
+
+scec_sprintf_asm endp
+
+
 ;int vsnprintf (char * s, size_t n, const char * format, va_list arg );
 extern vsnprintf:proc
 scec_vsnprintf_asm proc

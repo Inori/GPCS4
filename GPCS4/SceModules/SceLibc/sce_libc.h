@@ -10,6 +10,8 @@
 #pragma once
 
 #include "sce_module_common.h"
+#include <cstdlib>
+#include <cstdio>
 
 extern const SCE_EXPORT_MODULE g_ExpModuleSceLibc;
 
@@ -150,7 +152,7 @@ int PS4API scec_fopen(void);
 
 int PS4API scec_fprintf(void);
 
-int PS4API scec_fputc(void);
+int PS4API scec_fputc(int c, FILE *stream);
 
 int PS4API scec_fputs(void);
 
@@ -164,7 +166,7 @@ int PS4API scec_fseek(void);
 
 int PS4API scec_ftell(void);
 
-int PS4API scec_fwrite(void);
+size_t PS4API scec_fwrite(const void *ptr, size_t size, size_t nmemb, FILE* stream);
 
 int PS4API scec_hypot(void);
 
@@ -184,7 +186,7 @@ int PS4API scec_memchr(void);
 
 int PS4API scec_memcmp(void);
 
-int PS4API scec_memcpy(void);
+void* PS4API scec_memcpy(void *dest, const void *src, size_t n);
 
 int PS4API scec_memcpy_s(void);
 
@@ -242,7 +244,7 @@ int PS4API scec_setjmp(void);
 
 int PS4API scec_snprintf(void);
 
-int PS4API scec_sprintf(void);
+int PS4API scec_sprintf(char *str, const char *format, ...);
 
 int PS4API PS4NAKED scec_sprintf_s(char *buffer, size_t sizeOfBuffer, const char *format, ...);
 
@@ -272,7 +274,7 @@ int PS4API scec_strncat(void);
 
 int PS4API scec_strncmp(void);
 
-int PS4API scec_strncpy(void);
+void* PS4API scec_strncpy(char *dest, const char *src, size_t n);
 
 int PS4API scec_strncpy_s(void);
 
@@ -360,7 +362,7 @@ int PS4API scec_scalbnf(void);
 
 int PS4API scec_set_constraint_handler_s(void);
 
-int PS4API scec_setvbuf(void);
+int PS4API scec_setvbuf(FILE *stream, char *buf, int mode, size_t size);
 
 int PS4API scec_snprintf_s(void);
 

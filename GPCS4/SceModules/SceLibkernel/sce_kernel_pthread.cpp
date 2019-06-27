@@ -111,3 +111,9 @@ int PS4API scek_pthread_self(void)
 	return SCE_OK;
 }
 
+
+int PS4API scek_pthread_setschedparam(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}

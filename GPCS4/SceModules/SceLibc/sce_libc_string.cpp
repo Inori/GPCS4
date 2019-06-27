@@ -40,10 +40,10 @@ int PS4API scec_memcmp(void)
 }
 
 
-int PS4API scec_memcpy(void)
+void* PS4API scec_memcpy(void *dest, const void *src, size_t n)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("dst %p src %p sizt %x", dest, src, n);
+	return memcpy(dest, src, n);
 }
 
 
@@ -75,10 +75,32 @@ int PS4API scec_snprintf(void)
 }
 
 
-int PS4API scec_sprintf(void)
+#ifdef GPCS4_WINDOWS
+extern "C" int scec_sprintf_asm();
+#endif // GPCS4_WINDOWS
+
+int
+PS4API
+#ifdef GPCS4_WINDOWS
+PS4NAKED
+#endif // GPCS4_WINDOWS
+PS4API scec_sprintf(char *str, const char *format, ...)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	//LOG_SCE_TRACE("buffer %p %x %p", buffer, sizeOfBuffer, format);
+
+#ifdef GPCS4_WINDOWS
+
+	asm volatile("jmp scec_sprintf_asm");
+
+#elif defined(GPCS4_LINUX)
+	// on linux, this can be implemented more friendly.
+	va_list arg_list;
+
+	va_start(arg_list, format);
+	int ret = vsprintf(buffer, format, arg_list);
+	va_end(arg_list);
+	return ret;
+#endif
 }
 
 
@@ -113,6 +135,13 @@ scec_sprintf_s(char *buffer, size_t sizeOfBuffer, const char *format, ...)
 	return ret;
 #endif
 
+}
+
+
+int PS4API scec_snprintf_s(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
 }
 
 
@@ -207,10 +236,10 @@ int PS4API scec_strncmp(void)
 }
 
 
-int PS4API scec_strncpy(void)
+void* PS4API scec_strncpy(char *dest, const char *src, size_t n)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("dst %p src %p size %x", dest, src, n);
+	return strncpy(dest, src, n);
 }
 
 

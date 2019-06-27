@@ -84,7 +84,7 @@ size_t PS4API sceKernelGetDirectMemorySize(void);
 int PS4API sceKernelGetProcessTime(void);
 
 
-int PS4API sceKernelGetProcessTimeCounter(void);
+uint64_t PS4API sceKernelGetProcessTimeCounter(void);
 
 
 int PS4API sceKernelGetProcessTimeCounterFrequency(void);

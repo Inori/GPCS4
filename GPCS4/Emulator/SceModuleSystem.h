@@ -30,6 +30,7 @@ public:
 	
 	void* FindFunction(const std::string& strModName, const std::string& strLibName, uint64 nNid);
 
+	bool IsModuleLoaded(const std::string& modName);
 private:
 	bool IsEndFunctionEntry(const SCE_EXPORT_FUNCTION* pFunc);
 	bool IsEndLibraryEntry(const SCE_EXPORT_LIBRARY* pLib);

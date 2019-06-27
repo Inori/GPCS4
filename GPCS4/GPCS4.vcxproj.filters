@@ -373,6 +373,9 @@
     <ClInclude Include="Emulator\TLSHandler.h">
       <Filter>Source Files\Emulator</Filter>
     </ClInclude>
+    <ClInclude Include="Platform\UtilProcess.h">
+      <Filter>Source Files\Platform</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -722,6 +725,12 @@
     </ClCompile>
     <ClCompile Include="Emulator\TLSHandler.cpp">
       <Filter>Source Files\Emulator</Filter>
+    </ClCompile>
+    <ClCompile Include="Platform\UtilProcess.cpp">
+      <Filter>Source Files\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceLibkernel\sce_kernel_time.cpp">
+      <Filter>SceModules\SceLibkernel</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

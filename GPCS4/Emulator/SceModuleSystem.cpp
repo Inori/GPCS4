@@ -88,4 +88,8 @@ void* CSceModuleSystem::FindFunction(const std::string& strModName, const std::s
 	return pFunction;
 }
 
+bool CSceModuleSystem::IsModuleLoaded(const std::string& modName)
+{
+	return (m_umpModuleMapNid.count(modName) != 0);
+}
 

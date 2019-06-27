@@ -148,13 +148,6 @@ int PS4API scec_longjmp(void)
 }
 
 
-int PS4API scec__Stdin(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
 int PS4API scec__ZSt11_Xbad_allocv(void)
 {
 	LOG_FIXME("Not implemented");
@@ -169,32 +162,6 @@ int PS4API scec__ZSt7nothrow(void)
 }
 
 
-int PS4API scec_ferror(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scec_fflush(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scec_fgets(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scec_freopen(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
 
 
 int PS4API scec_getc(void)
@@ -259,19 +226,6 @@ int PS4API scec_set_constraint_handler_s(void)
 	return SCE_OK;
 }
 
-
-int PS4API scec_setvbuf(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scec_snprintf_s(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
 
 
 int PS4API scec_srand(void)
