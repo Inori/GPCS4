@@ -13,6 +13,7 @@
 #include "sce_module_common.h"
 #include "sce_kernel_scepthread.h"
 #include "sce_kernel_file.h"
+#include "sce_kernel_memory.h"
 
 extern const SCE_EXPORT_MODULE g_ExpModuleSceLibkernel;
 
@@ -39,7 +40,7 @@ int PS4API __stack_chk_guard(void);
 int PS4API __tls_get_addr(void);
 
 
-int PS4API sceKernelAllocateDirectMemory(sce::off_t searchStart, sce::off_t searchEnd, size_t len, size_t alignment, int memoryType, sce::off_t *physAddrOut);
+int PS4API sceKernelAllocateDirectMemory(sceoff_t searchStart, sceoff_t searchEnd, size_t len, size_t alignment, int memoryType, sceoff_t *physAddrOut);
 
 
 int PS4API sceKernelClockGettime(void);
@@ -102,7 +103,7 @@ int PS4API sceKernelIsNeoMode(void);
 int PS4API sceKernelLseek(void);
 
 
-int PS4API sceKernelMapDirectMemory(void **addr, size_t len, int prot, int flags, sce::off_t directMemoryStart, size_t maxPageSize);
+int PS4API sceKernelMapDirectMemory(void **addr, size_t len, int prot, int flags, sceoff_t directMemoryStart, size_t maxPageSize);
 
 
 int PS4API sceKernelMapFlexibleMemory(void **addrInOut, size_t len, int prot, int flags);
@@ -120,7 +121,7 @@ ssize_t PS4API sceKernelRead(int d, void *buf, size_t nbytes);
 int PS4API sceKernelReadTsc(void);
 
 
-int PS4API sceKernelReleaseDirectMemory(sce::off_t start, size_t len);
+int PS4API sceKernelReleaseDirectMemory(sceoff_t start, size_t len);
 
 
 int PS4API sceKernelReleaseFlexibleMemory(void);
@@ -288,7 +289,7 @@ int PS4API sceKernelCheckedReleaseDirectMemory(void);
 int PS4API sceKernelDlsym(void);
 
 
-int PS4API sceKernelGetDirectMemoryType(void);
+int PS4API sceKernelGetDirectMemoryType(sceoff_t start, int *memoryType, sceoff_t *regionStartOut, sceoff_t *regionEndOut);
 
 
 int PS4API sceKernelGetGPI(void);
@@ -306,7 +307,7 @@ int PS4API sceKernelIsStack(void);
 int PS4API sceKernelLoadStartModule(void);
 
 
-int PS4API sceKernelMapNamedDirectMemory(void);
+int PS4API sceKernelMapNamedDirectMemory(void **addr, size_t len, int prot, int flags, sceoff_t directMemoryStart, size_t alignment, const char *name);
 
 
 int PS4API sceKernelMapNamedFlexibleMemory(void);
@@ -324,19 +325,19 @@ int PS4API sceKernelMunmap(void);
 int PS4API sceKernelQueryMemoryProtection(void);
 
 
-int PS4API sceKernelReserveVirtualRange(void);
+int PS4API sceKernelReserveVirtualRange(void **addr, size_t len, int flags, size_t alignment);
 
 
 int PS4API sceKernelSetPrtAperture(void);
 
 
-int PS4API sceKernelSetVirtualRangeName(void);
+int PS4API sceKernelSetVirtualRangeName(void* start, size_t len, const char *name);
 
 
 int PS4API sceKernelUuidCreate(void);
 
 
-int PS4API sceKernelVirtualQuery(void);
+int PS4API sceKernelVirtualQuery(const void *addr, int flags, SceKernelVirtualQueryInfo *info, size_t infoSize);
 
 
 int PS4API scePthreadCancel(void);

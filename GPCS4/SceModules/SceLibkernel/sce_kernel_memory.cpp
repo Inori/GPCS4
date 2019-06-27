@@ -2,17 +2,17 @@
 #include "sce_kernel_memory.h"
 #include "Platform/UtilMemory.h"
 
-int PS4API sceKernelAllocateDirectMemory(sce::off_t searchStart, sce::off_t searchEnd, 
-	size_t len, size_t alignment, int memoryType, sce::off_t *physAddrOut)
+int PS4API sceKernelAllocateDirectMemory(sceoff_t searchStart, sceoff_t searchEnd, 
+	size_t len, size_t alignment, int memoryType, sceoff_t *physAddrOut)
 {
 	LOG_SCE_DUMMY_IMPL();
-	*physAddrOut = (sce::off_t)new byte[len];
+	*physAddrOut = (sceoff_t)new byte[len];
 	return SCE_OK;
 }
 
 
 int PS4API sceKernelMapDirectMemory(void **addr, size_t len, int prot, int flags, 
-	sce::off_t directMemoryStart, size_t maxPageSize)
+	sceoff_t directMemoryStart, size_t maxPageSize)
 {
 	LOG_SCE_DUMMY_IMPL();
 	*addr = (void*)directMemoryStart;
@@ -28,16 +28,19 @@ size_t PS4API sceKernelGetDirectMemorySize(void)
 }
 
 
-int PS4API sceKernelReleaseDirectMemory(sce::off_t start, size_t len)
+int PS4API sceKernelReleaseDirectMemory(sceoff_t start, size_t len)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
 }
 
 
-int PS4API sceKernelGetDirectMemoryType(void)
+int PS4API sceKernelGetDirectMemoryType(sceoff_t start, int *memoryType, 
+	sceoff_t *regionStartOut, sceoff_t *regionEndOut)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_DUMMY_IMPL();
+	*memoryType = SCE_KERNEL_WB_GARLIC;
+	*memoryType = SCE_KERNEL_WC_GARLIC;
 	return SCE_OK;
 }
 
@@ -56,10 +59,13 @@ int PS4API sceKernelIsStack(void)
 }
 
 
-
-int PS4API sceKernelMapNamedDirectMemory(void)
+int PS4API sceKernelMapNamedDirectMemory(void **addr, size_t len, 
+	int prot, int flags, 
+	sceoff_t directMemoryStart, size_t alignment, 
+	const char *name)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_DUMMY_IMPL();
+	*addr = (void*)directMemoryStart;
 	return SCE_OK;
 }
 
@@ -99,29 +105,27 @@ int PS4API sceKernelQueryMemoryProtection(void)
 }
 
 
-int PS4API sceKernelReserveVirtualRange(void)
+int PS4API sceKernelReserveVirtualRange(void **addr, size_t len, int flags, size_t alignment)
+{
+	LOG_SCE_DUMMY_IMPL();
+	*addr = new byte[1024 * 1024 * 256];
+	return SCE_OK;
+}
+
+
+int PS4API sceKernelSetVirtualRangeName(void* start, size_t len, const char *name)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
 }
 
 
-
-int PS4API sceKernelSetVirtualRangeName(void)
+int PS4API sceKernelVirtualQuery(const void *addr, int flags, SceKernelVirtualQueryInfo *info, size_t infoSize)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
 }
 
-
-int PS4API sceKernelVirtualQuery(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-//////////////////////////////////////////////////////////////////////////
 
 int PS4API sceKernelMapFlexibleMemory(void **addrInOut, size_t len, int prot, int flags)
 {
