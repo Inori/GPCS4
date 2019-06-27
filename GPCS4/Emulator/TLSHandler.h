@@ -28,7 +28,7 @@ protected:
 	static void PrintInst(ZydisDecodedInstruction& inst);
 	static bool IsTlsAccess(void* pCode);
 	static uint GetPatchLen(byte* pCode, uint nOldLen);
-	static uint GetMovFsLenLen(void* pCode);
+	static uint GetMovFsLen(void* pCode);
 	static bool PatchTLSInstruction(void* pCode);
 	//
 	static bool BuildTLSBackup(void* pTls, uint nInitSize, uint nTotalSize);

@@ -132,7 +132,7 @@ uint CTLSHandler::GetPatchLen(byte* pCode, uint nOldLen)
 	return nSumLen;
 }
 
-uint CTLSHandler::GetMovFsLenLen(void* pCode)
+uint CTLSHandler::GetMovFsLen(void* pCode)
 {
 	ZydisDecodedInstruction instruction;
 	ZydisDecoderDecodeBuffer(&s_oDecoder, pCode,
@@ -184,7 +184,7 @@ bool CTLSHandler::PatchTLSInstruction(void* pCode)
 		// first, build foot jmp code
 		JMP_CODE_FOOT jmpFoot;
 		jmpFoot.nJmpVal = (uint64)((byte*)pCode + nPatchedLen);
-		uint nMovFsLen = GetMovFsLenLen(pCode);
+		uint nMovFsLen = GetMovFsLen(pCode);
 		// delete mov rax, fs:[0]
 		// go straight to next instruction
 		byte* pMovNext = (byte*)pCode + nMovFsLen;
@@ -372,7 +372,7 @@ long CTLSHandlerWin::VEHExceptionHandler(void* pExceptionArg)
 		//	break;
 		//}
 
-		uint nMovFsLen = GetMovFsLenLen(pExcptAddr);
+		uint nMovFsLen = GetMovFsLen(pExcptAddr);
 		pExceptionInfo->ContextRecord->Rip += nMovFsLen;
 		pExceptionInfo->ContextRecord->Rax = (DWORD64)AllocateTLS();
 
