@@ -11,4 +11,6 @@ std::string GetExePath();
 
 std::string PS4PathToPCPath(const std::string& strPs4Path);
 
+size_t FileCountInDirectory(const std::string& path);
+
 }

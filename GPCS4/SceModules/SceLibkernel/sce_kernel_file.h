@@ -1,5 +1,9 @@
 #pragma once
 
+// maximum file descriptor count, including DIR* pointers
+#define SCE_FD_MAX 2048
+
+#define SCE_MAX_PATH 256
 
 // based on freebsd 9
 // we plus "sce" prefix to prevent conflict with native defination
@@ -94,6 +98,23 @@ typedef uint16_t SceKernelMode;
 
 
 // open flags
+#define	O_RDONLY	0x0000		/* open for reading only */
+#define	O_WRONLY	0x0001		/* open for writing only */
+#define	O_RDWR		0x0002		/* open for reading and writing */
+#define	O_ACCMODE	0x0003		/* mask for above modes */
+#define	O_NONBLOCK	0x0004		/* no delay */
+#define	O_APPEND	0x0008		/* set append mode */
+#define	O_CREAT		0x0200		/* create if nonexistent */
+#define	O_TRUNC		0x0400		/* truncate to zero length */
+#define	O_EXCL		0x0800		/* error if already exists */
+#define	O_DSYNC		0x1000		/* synchronous data writes(omit inode writes) */
+#define	O_NOCTTY	0x8000		/* don't assign controlling terminal */
+#define	O_FSYNC		0x0080		/* synchronous writes */
+#define	O_SYNC		0x0080		/* POSIX synonym for O_FSYNC */
+#define O_DIRECT	0x00010000  /* Attempt to bypass buffer cache */
+								/* Defined by POSIX Extended API Set Part 2 */
+#define	O_DIRECTORY	0x00020000	/* Fail if not directory */
+
 #define SCE_KERNEL_O_RDONLY        O_RDONLY
 #define SCE_KERNEL_O_WRONLY        O_WRONLY 
 #define SCE_KERNEL_O_RDWR          O_RDWR

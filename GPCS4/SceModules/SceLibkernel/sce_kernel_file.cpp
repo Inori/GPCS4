@@ -3,16 +3,107 @@
 #include "Platform/UtilPath.h"
 #include <io.h>
 
-#define SCE_FD_MAX 2048
+#ifdef GPCS4_WINDOWS
+
+#include "dirent/dirent.h"
+
+
+
+
+// since windows doesn't allow open(directory),
+// we record both DIR* and fd in this slot array
+ulong_ptr g_fdSlots[SCE_FD_MAX] = { 0 };
+
+inline uint getEmptySlotIdx()
+{
+	uint idx = 0;
+	// note, we shouldn't use index 0, it's an invalid fd
+	for (uint i = 1; i != SCE_FD_MAX; ++i)
+	{
+		if (g_fdSlots[i] != NULL)
+		{
+			continue;
+		}
+		idx = i;
+		break;
+	}
+
+	if (idx == 0)
+	{
+		LOG_ERR("exceed max fd count.");
+	}
+
+	return idx;
+}
+
+inline bool isDirFd(uint idx)
+{
+	bool isDir = false;
+	do 
+	{
+		if (idx >= SCE_FD_MAX)
+		{
+			LOG_ERR("exceed max fd count.");
+			break;
+		}
+
+		// for dir, we store DIR* in slots
+		// and for x64 program, pointer value > 0xFFFFFFFF
+		if (g_fdSlots[idx] > 0xFFFFFFFF)
+		{
+			isDir = true;
+			break;
+		}
+
+	} while (false);
+	return isDir;
+}
+
+inline bool getDirName(DIR* dir, char* dirname, int len)
+{
+	bool bRet = false;
+	do
+	{
+		wchar_t* wfname = dir->wdirp->patt;
+		if (!wfname)
+		{
+			break;
+		}
+
+		if (wcstombs(dirname, wfname, len) == (size_t)-1)
+		{
+			break;
+		}
+		
+		int str_len = strlen(dirname);
+		dirname[str_len - 2] = 0;
+		dirname[str_len - 1] = 0;
+		
+		bRet  = true;
+	}while(false);
+	return bRet;
+}
+
+#endif  //GPCS4_WINDOWS
 
 int PS4API sceKernelOpen(const char *path, int flags, SceKernelMode mode)
 {
 	LOG_SCE_TRACE("path %s flag %x mode %x", path, flags, mode);
 	std::string pcPath = UtilPath::PS4PathToPCPath(path);
-	int fd = open(pcPath.c_str(), flags, mode);
-	int e = errno;
-	
-	return 234;
+#ifdef GPCS4_WINDOWS
+	uint idx = getEmptySlotIdx();
+	if (flags & SCE_KERNEL_O_DIRECTORY)
+	{
+		DIR* dir = opendir(pcPath.c_str());
+		g_fdSlots[idx] = (ulong_ptr)dir;
+	}
+	else
+	{
+		
+	}
+
+	return idx;
+#endif  //GPCS4_WINDOWS
 }
 
 
@@ -43,10 +134,35 @@ int PS4API sceKernelClose(int d)
 	return SCE_OK;
 }
 
-int PS4API sceKernelFstat(void)
+int PS4API sceKernelFstat(int fd, SceKernelStat *sb)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("fd %d sb %p", fd, sb);
+
+#ifdef GPCS4_WINDOWS
+	int ret = -1;
+	bool isDir = isDirFd((uint)fd);
+	if (isDir)
+	{
+		char dir_path[SCE_MAX_PATH] = { 0 };
+		getDirName((DIR*)g_fdSlots[fd], dir_path, SCE_MAX_PATH);
+		struct _stat stat;
+		ret = _stat(dir_path, &stat);
+		sb->st_mode = stat.st_mode;
+		//sb->st_atim = stat.st_atime;
+		//sb->st_mtim = stat.st_mtime;
+		//sb->st_ctim = stat.st_ctime;
+		sb->st_size = stat.st_size;
+		//sb->st_birthtim = stat.st_ctime; //?
+		sb->st_blocks = UtilPath::FileCountInDirectory(dir_path);
+		sb->st_blksize = sizeof(SceKernelDirent);
+	}
+	else
+	{
+
+	}
+
+	return ret;
+#endif  //GPCS4_WINDOWS
 }
 
 

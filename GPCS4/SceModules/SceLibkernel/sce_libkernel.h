@@ -67,7 +67,7 @@ int PS4API sceKernelDeleteEventFlag(void);
 int PS4API sceKernelDeleteSema(void);
 
 
-int PS4API sceKernelFstat(void);
+int PS4API sceKernelFstat(int fd, SceKernelStat *sb);
 
 
 int PS4API sceKernelFsync(void);

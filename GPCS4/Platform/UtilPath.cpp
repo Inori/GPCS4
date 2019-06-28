@@ -2,7 +2,6 @@
 #include "UtilString.h"
 #include <algorithm>
 
-
 namespace UtilPath
 {;
 
@@ -45,9 +44,43 @@ std::string PS4PathToPCPath(const std::string& strPs4Path)
 	return strPcPath;
 }
 
+
+size_t FileCountInDirectory(const std::string& path)
+{
+	int counter = 0;
+	WIN32_FIND_DATA ffd;
+	HANDLE hFind = INVALID_HANDLE_VALUE;
+	std::string dirPath = path;
+	if (dirPath.at(dirPath.length() - 1) != '\\' &&
+		dirPath.at(dirPath.length() - 1) != '/')
+	{
+		dirPath.append("\\");
+	}
+	dirPath.append("*");
+
+	// Start iterating over the files in the path directory.
+	hFind = FindFirstFileA(dirPath.c_str(), &ffd);
+	if (hFind != INVALID_HANDLE_VALUE)
+	{
+		do // Managed to locate and create an handle to that folder.
+		{
+			counter++;
+		} while (FindNextFileA(hFind, &ffd) == TRUE);
+		FindClose(hFind);
+	}
+	else {
+		LOG_ERR("Failed to find path: %s", dirPath.c_str());
+	}
+
+	return counter;
+}
+
+
 #else
 
 
 #endif  //GPCS4_WINDOWS
+
+
 
 }
