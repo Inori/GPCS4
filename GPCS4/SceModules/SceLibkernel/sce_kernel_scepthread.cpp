@@ -4,9 +4,22 @@
 #include "Platform/PlatformUtils.h"
 
 // for non pointer type, we need to build a map to fit the type
-// TODO:
-// this implementation is not correct if other thread access pthread_t
-thread_local std::pair<ScePthread, pthread_t> t_threadTMap;
+
+#ifdef GPCS4_WINDOWS
+#define SYS_TID_MAX 100000
+#else
+
+#endif  //GPCS4_WINDOWS
+
+pthread_t g_threadTMap[SYS_TID_MAX];
+
+#define CHECK_TID_RANGE(tid) \
+if (tid >= SYS_TID_MAX) \
+{\
+	LOG_ASSERT("tid exceed max range %d", tid); \
+}
+
+#define IS_NULL_PTHREAD(pt) ( (pt).p == NULL && (pt).x == 0 )
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -302,15 +315,15 @@ int PS4API scePthreadAttrSetstacksize(void)
 //////////////////////////////////////////////////////////////////////////
 ScePthread PS4API scePthreadSelf(void)
 {
-	if (t_threadTMap.first == 0)
+	ScePthread tid = UtilThread::GetThreadId();
+	CHECK_TID_RANGE(tid);
+	if (IS_NULL_PTHREAD(g_threadTMap[tid]))
 	{
-		ScePthread st = UtilThread::GetThreadId();
 		pthread_t pt = pthread_self();
-		t_threadTMap.first = st;
-		t_threadTMap.second = pt;
+		g_threadTMap[tid] = pt;
 	}
-	LOG_SCE_TRACE("thread self %d", t_threadTMap.first);
-	return t_threadTMap.first;
+	LOG_SCE_TRACE("thread self %d", tid);
+	return tid;
 }
 
 
@@ -318,7 +331,8 @@ int PS4API scePthreadSetaffinity(ScePthread thread, const SceKernelCpumask mask)
 {
 	LOG_SCE_TRACE("mask %x", mask);
 	cpu_set_t cpuset;
-
+	ScePthread tid = UtilThread::GetThreadId();
+	CHECK_TID_RANGE(tid);
 	// TODO:
 	// should limit cpu count according to running machine
 	for (int i = 0; i != SCE_KERNEL_CPU_MAX; ++i)
@@ -329,7 +343,7 @@ int PS4API scePthreadSetaffinity(ScePthread thread, const SceKernelCpumask mask)
 		}
 	}
 
-	int err = pthread_setaffinity_np(t_threadTMap.second, sizeof(cpu_set_t), &cpuset);
+	int err = pthread_setaffinity_np(g_threadTMap[tid], sizeof(cpu_set_t), &cpuset);
 	return pthreadErrorToSceError(err);
 }
 
