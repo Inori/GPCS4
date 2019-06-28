@@ -94,7 +94,7 @@ int PS4API sceKernelGetProcessTimeCounterFrequency(void);
 uint64_t PS4API sceKernelGetTscFrequency(void);
 
 
-int PS4API sceKernelGetdents(void);
+int PS4API sceKernelGetdents(int fd, char *buf, int nbytes);
 
 
 int PS4API sceKernelIsNeoMode(void);

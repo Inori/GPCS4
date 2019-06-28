@@ -180,7 +180,7 @@ int PS4API sceKernelFtruncate(void)
 }
 
 
-int PS4API sceKernelGetdents(void)
+int PS4API sceKernelGetdents(int fd, char *buf, int nbytes)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
