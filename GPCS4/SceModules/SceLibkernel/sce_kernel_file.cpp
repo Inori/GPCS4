@@ -3,12 +3,12 @@
 #include "Platform/UtilPath.h"
 #include <io.h>
 
+
+// this will be more friendly on linux....
+
 #ifdef GPCS4_WINDOWS
 
 #include "dirent/dirent.h"
-
-
-
 
 // since windows doesn't allow open(directory),
 // we record both DIR* and fd in this slot array
@@ -130,9 +130,78 @@ int PS4API sceKernelLseek(void)
 
 int PS4API sceKernelClose(int d)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("fd %d", d);
+
+#ifdef GPCS4_WINDOWS
+	int ret = -1;
+	bool isDir = isDirFd((uint)d);
+	if (isDir)
+	{
+		DIR* dir = (DIR*)g_fdSlots[d];
+		closedir(dir);
+		g_fdSlots[d] = 0;
+	}
+	else
+	{
+
+	}
+
+	return ret;
+#endif  //GPCS4_WINDOWS
 }
+
+
+inline scemode_t getSceFileMode(ushort oldMode)
+{
+	scemode_t sceMode = 0;
+	if (oldMode & _S_IREAD)
+	{
+		sceMode = SCE_KERNEL_S_IRU;
+	}
+
+	if (oldMode & _S_IWRITE)
+	{
+		sceMode = SCE_KERNEL_S_IRWU;
+	}
+
+	if (oldMode & _S_IFMT & _S_IFREG)
+	{
+		sceMode |= SCE_KERNEL_S_IFREG;
+	}
+	else if (oldMode & _S_IFMT & _S_IFDIR)
+	{
+		sceMode |= SCE_KERNEL_S_IFDIR;
+	}
+	return sceMode;
+}
+
+
+int PS4API sceKernelStat(const char *path, SceKernelStat *sb)
+{
+	LOG_SCE_TRACE("path %s sb %p", path, sb);
+	std::string pcPath = UtilPath::PS4PathToPCPath(path);
+
+	struct _stat stat;
+	int ret = _stat(pcPath.c_str(), &stat);
+	sb->st_mode = getSceFileMode(stat.st_mode);
+	//sb->st_atim = stat.st_atime;
+	//sb->st_mtim = stat.st_mtime;
+	//sb->st_ctim = stat.st_ctime;
+	sb->st_size = stat.st_size;
+	//sb->st_birthtim = stat.st_ctime; //?
+	if (stat.st_mode & _S_IFMT & _S_IFDIR)
+	{
+		sb->st_blocks = UtilPath::FileCountInDirectory(pcPath);
+		sb->st_blksize = sizeof(SceKernelDirent);
+	}
+	else
+	{
+		sb->st_blocks = stat.st_size / SSD_BLOCK_SIZE + (stat.st_size % SSD_BLOCK_SIZE) ? 1 : 0;
+		sb->st_blksize = SSD_BLOCK_SIZE;
+	}
+	return ret;
+}
+
 
 int PS4API sceKernelFstat(int fd, SceKernelStat *sb)
 {
@@ -147,7 +216,8 @@ int PS4API sceKernelFstat(int fd, SceKernelStat *sb)
 		getDirName((DIR*)g_fdSlots[fd], dir_path, SCE_MAX_PATH);
 		struct _stat stat;
 		ret = _stat(dir_path, &stat);
-		sb->st_mode = stat.st_mode;
+		sb->st_mode = getSceFileMode(stat.st_mode);
+		
 		//sb->st_atim = stat.st_atime;
 		//sb->st_mtim = stat.st_mtime;
 		//sb->st_ctim = stat.st_ctime;
@@ -223,7 +293,7 @@ int PS4API sceKernelGetdents(int fd, char *buf, int nbytes)
 		DIR* dir = (DIR*)g_fdSlots[fd];
 		dirent *ent;
 		ent = readdir(dir);
-		if (!dir)
+		if (!ent)
 		{
 			ret = 0;  //ends
 			break;
@@ -234,8 +304,9 @@ int PS4API sceKernelGetdents(int fd, char *buf, int nbytes)
 		sce_ent->d_reclen = sizeof(SceKernelDirent);
 		sce_ent->d_type = getSceFileType(ent);
 		sce_ent->d_namlen = ent->d_namlen;
-		strncpy(sce_ent->d_name, ent->d_name, ent->d_namlen);
-
+		//strncpy(sce_ent->d_name, ent->d_name, ent->d_namlen);
+		strcpy_s(sce_ent->d_name, SCE_MAX_PATH, ent->d_name);
+		
 		ret = sizeof(SceKernelDirent);
 	} while (false);
 
@@ -253,13 +324,6 @@ int PS4API sceKernelMkdir(void)
 
 
 int PS4API sceKernelRename(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API sceKernelStat(void)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;

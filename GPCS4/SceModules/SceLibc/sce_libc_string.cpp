@@ -173,10 +173,10 @@ int PS4API scec_strcat(void)
 }
 
 
-int PS4API scec_strcat_s(void)
+errno_t PS4API scec_strcat_s(char *dest, rsize_t destsz, const char *src)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("dst %p dstsize %x src %p", dest, destsz, src);
+	return strcat_s(dest, destsz, src);
 }
 
 

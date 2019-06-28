@@ -2,10 +2,10 @@
 #include "Platform/PlatformUtils.h"
 
 
-int PS4API sceKernelGetProcessTime(void)
+uint64_t PS4API sceKernelGetProcessTime(void)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_DUMMY_IMPL();
+	return 0x123456;
 }
 
 

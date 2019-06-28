@@ -256,7 +256,7 @@ int PS4API scec_strcasecmp(void);
 
 int PS4API scec_strcat(void);
 
-int PS4API scec_strcat_s(void);
+errno_t PS4API scec_strcat_s(char *dest, rsize_t destsz, const char *src);
 
 int PS4API scec_strchr(void);
 

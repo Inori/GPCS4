@@ -82,7 +82,7 @@ int PS4API sceKernelGetCpumode(void);
 size_t PS4API sceKernelGetDirectMemorySize(void);
 
 
-int PS4API sceKernelGetProcessTime(void);
+uint64_t PS4API sceKernelGetProcessTime(void);
 
 
 uint64_t PS4API sceKernelGetProcessTimeCounter(void);
@@ -136,7 +136,7 @@ int PS4API sceKernelSetEventFlag(void);
 int PS4API sceKernelSignalSema(void);
 
 
-int PS4API sceKernelStat(void);
+int PS4API sceKernelStat(const char *path, SceKernelStat *sb);
 
 
 int PS4API sceKernelUnlink(void);
