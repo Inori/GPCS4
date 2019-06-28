@@ -349,6 +349,11 @@ long CTLSHandlerWin::VEHExceptionHandler(void* pExceptionArg)
 	long nRet = EXCEPTION_CONTINUE_SEARCH;
 	do 
 	{
+		if (pExceptionInfo->ExceptionRecord->ExceptionCode != EXCEPTION_ACCESS_VIOLATION)
+		{
+			break;
+		}
+
 		LOG_DEBUG("exception code %x addr %p",
 			pExceptionInfo->ExceptionRecord->ExceptionCode, pExceptionInfo->ExceptionRecord->ExceptionAddress);
 
