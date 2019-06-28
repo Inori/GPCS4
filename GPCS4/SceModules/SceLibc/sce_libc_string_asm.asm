@@ -60,16 +60,18 @@ scec_sprintf_asm endp
 extern vsnprintf:proc
 scec_vsnprintf_asm proc
 
+	push rbx
 	sub rsp, 40h
 
-	mov rax, [rcx + 10h] ; rcx points to va_list (sysv version)
-	mov rcx, [rax + 10h] ; rdx
+	mov rax, [rcx + 10h] ; rcx points to va_list (sysv version), after this, rax = reg_save_area
+	mov ebx, dword ptr [rcx]; rbx = gp_offset
+	mov rcx, [rax + rbx] ; 1st reg
 	mov [rsp + 20h], rcx 
-	mov rcx, [rax + 18h] ; rcx 
+	mov rcx, [rax + rbx + 8h] ; 2nd reg
 	mov [rsp + 28h], rcx 
-	mov rcx, [rax + 20h] ; r8
+	mov rcx, [rax + rbx + 10h] ; 3rd reg
 	mov [rsp + 30h], rcx 
-	mov rcx, [rax + 28h] ; r9
+	mov rcx, [rax + rbx + 18h] ; 4th reg
 	mov [rsp + 38h], rcx 
 
 	lea r9, [rsp + 20h]
@@ -78,6 +80,7 @@ scec_vsnprintf_asm proc
 	mov rcx, rdi
 	call vsnprintf
 	add rsp, 40h
+	pop rbx
 	ret
 L_FOUND_FP:
 	xor bl, bl 
