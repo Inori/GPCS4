@@ -251,10 +251,10 @@ void* CTLSHandler::AllocateTLS()
 		// currently, it seems ps4 game only use these DTVs
 		// but who knows..
 		// will see if there's crash...
-		uint64* pDtv = new uint64[3];
+		ulong_ptr* pDtv = new ulong_ptr[3];
 		pDtv[0] = 1;
 		pDtv[1] = 1;
-		pDtv[2] = (uint64)pTls;
+		pDtv[2] = (ulong_ptr)pTls;
 
 		pTcb = (TCB*)(pTls + s_vtTlsImageBackup.size());
 		pTcb->pSegBase = pTcb;
@@ -275,13 +275,13 @@ void CTLSHandler::FreeTLS(TCB* pTcb)
 			break;
 		}
 
-		void* pDtv = pTcb->pDTV;
+		ulong_ptr* pDtv = pTcb->pDTV;
 		if (pDtv)
 		{
 			delete pDtv;
 		}
 
-		void* pTls = (byte*)pTcb->pSegBase - s_vtTlsImageBackup.size();
+		byte* pTls = (byte*)pTcb->pSegBase - s_vtTlsImageBackup.size();
 		if (pTls)
 		{
 			delete pTls;

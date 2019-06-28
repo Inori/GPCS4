@@ -88,7 +88,7 @@ uint64_t PS4API sceKernelGetProcessTime(void);
 uint64_t PS4API sceKernelGetProcessTimeCounter(void);
 
 
-int PS4API sceKernelGetProcessTimeCounterFrequency(void);
+uint64_t PS4API sceKernelGetProcessTimeCounterFrequency(void);
 
 
 uint64_t PS4API sceKernelGetTscFrequency(void);

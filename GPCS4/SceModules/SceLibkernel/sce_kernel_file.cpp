@@ -304,7 +304,6 @@ int PS4API sceKernelGetdents(int fd, char *buf, int nbytes)
 		sce_ent->d_reclen = sizeof(SceKernelDirent);
 		sce_ent->d_type = getSceFileType(ent);
 		sce_ent->d_namlen = ent->d_namlen;
-		//strncpy(sce_ent->d_name, ent->d_name, ent->d_namlen);
 		strcpy_s(sce_ent->d_name, SCE_MAX_PATH, ent->d_name);
 		
 		ret = sizeof(SceKernelDirent);

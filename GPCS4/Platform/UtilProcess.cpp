@@ -19,15 +19,42 @@ uint64 GetProcessTimeCounter()
 		// this implement maybe not correct
 		// Microsoft saids we can't get the frequency of the cpu
 		// thus we can't calculate the elapsed time of a process
-		ULONG64 nCycleTime = 0;
-		if (!QueryProcessCycleTime(GetCurrentProcess(), &nCycleTime))
+		//ULONG64 nCycleTime = 0;
+		//if (!QueryProcessCycleTime(GetCurrentProcess(), &nCycleTime))
+		//{
+		//	break;
+		//}
+		//nCounter = nCycleTime;
+
+		// TODO:
+		// this implementation maybe not correct either :(
+		// what we want is process time counter,
+		// but performance counter give us the general system counter
+		LARGE_INTEGER stCounter;
+		if (!QueryPerformanceCounter(&stCounter))
+		{
+			break;
+		}
+		nCounter = stCounter.QuadPart;
+
+	} while (false);
+	return nCounter;
+}
+
+uint64 GetProcessTimeFrequency()
+{
+	uint64 nFreq = 0;
+	do 
+	{
+		LARGE_INTEGER stFreq;
+		if (!QueryPerformanceFrequency(&stFreq))
 		{
 			break;
 		}
 
-		nCounter = nCycleTime;
+		nFreq = stFreq.QuadPart;
 	} while (false);
-	return nCounter;
+	return nFreq;
 }
 
 #else

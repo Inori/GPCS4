@@ -20,7 +20,7 @@ protected:
 	struct TCB
 	{
 		void* pSegBase;
-		void* pDTV;
+		ulong_ptr* pDTV;
 	};
 
 protected:

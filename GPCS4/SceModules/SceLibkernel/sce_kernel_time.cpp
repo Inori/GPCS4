@@ -17,10 +17,11 @@ uint64_t PS4API sceKernelGetProcessTimeCounter(void)
 }
 
 
-int PS4API sceKernelGetProcessTimeCounterFrequency(void)
+uint64_t PS4API sceKernelGetProcessTimeCounterFrequency(void)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	uint64 nFreq = UtilProcess::GetProcessTimeFrequency();
+	LOG_SCE_TRACE("process time frequency %lld", nFreq);
+	return nFreq;
 }
 
 

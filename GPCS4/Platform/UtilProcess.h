@@ -7,4 +7,6 @@ namespace UtilProcess
 
 uint64 GetProcessTimeCounter();
 
+uint64 GetProcessTimeFrequency();
+
 }
