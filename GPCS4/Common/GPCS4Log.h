@@ -50,7 +50,7 @@ void LogAssert(const char* szLevel, const char* szFunction, int nLine, const cha
 #define LOG_FIXME(format, ...)
 #define LOG_WARN(format, ...)
 #define LOG_ERR(format, ...)
-#define LOG_ASSERT_FAIL(format, ...) 
+#define LOG_ASSERT(format, ...) 
 
 #define LOG_SCE_TRACE (format, ...)
 #define LOG_SCE_DUMMY_IMPL()
