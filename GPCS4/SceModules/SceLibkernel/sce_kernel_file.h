@@ -180,6 +180,10 @@ struct sce_stat {
 typedef struct sce_stat SceKernelStat;
 
 
+#define SCE_KERNEL_DT_UNKNOWN      0
+#define SCE_KERNEL_DT_DIR          4
+#define SCE_KERNEL_DT_REG          8
+
 struct sce_dirent {
 	uint32_t d_fileno;		/* file number of entry */
 	uint16_t d_reclen;		/* length of this record */

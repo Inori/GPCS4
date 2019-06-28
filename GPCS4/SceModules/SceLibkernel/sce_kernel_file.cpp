@@ -179,11 +179,69 @@ int PS4API sceKernelFtruncate(void)
 	return SCE_OK;
 }
 
+inline byte getSceFileType(dirent* ent)
+{
+	byte type = SCE_KERNEL_DT_UNKNOWN;
+	if ( (ent->d_namlen == 1 && !strncmp(ent->d_name, ".", 1)) ||
+		 (ent->d_namlen == 2 && !strncmp(ent->d_name, ".", 2)) )
+	{
+		type = SCE_KERNEL_DT_DIR;
+	}
+	else
+	{
+		switch (ent->d_type)
+		{
+		case DT_DIR:
+			type = SCE_KERNEL_DT_DIR;
+			break;
+		case DT_REG:
+			type = SCE_KERNEL_DT_REG;
+			break;
+		default:
+			LOG_ERR("found unknown file type. file %s type %x", ent->d_name, ent->d_type);
+			break;
+		}
+	}
+
+	return type;
+}
 
 int PS4API sceKernelGetdents(int fd, char *buf, int nbytes)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("fd %d buff %p nbytes %x", fd, buf, nbytes);
+#ifdef GPCS4_WINDOWS
+	int ret = SCE_KERNEL_ERROR_EBADF;
+	do 
+	{
+		bool isDir = isDirFd((uint)fd);
+		if (!isDir)
+		{
+			ret = SCE_KERNEL_ERROR_EINVAL;
+			break;
+		}
+
+		DIR* dir = (DIR*)g_fdSlots[fd];
+		dirent *ent;
+		ent = readdir(dir);
+		if (!dir)
+		{
+			ret = 0;  //ends
+			break;
+		}
+
+		SceKernelDirent* sce_ent = (SceKernelDirent*)buf;
+		sce_ent->d_fileno = ent->d_ino;
+		sce_ent->d_reclen = sizeof(SceKernelDirent);
+		sce_ent->d_type = getSceFileType(ent);
+		sce_ent->d_namlen = ent->d_namlen;
+		strncpy(sce_ent->d_name, ent->d_name, ent->d_namlen);
+
+		ret = sizeof(SceKernelDirent);
+	} while (false);
+
+	return ret;
+
+#endif  //GPCS4_WINDOWS
 }
 
 
