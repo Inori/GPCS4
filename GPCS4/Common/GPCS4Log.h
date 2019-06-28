@@ -12,9 +12,11 @@
 #define LOG_LEVEL_ERROR "ERROR"
 #define LOG_LEVEL_SCE_TRACE "SCE-TRACE"
 
-//do not use this directly
+//do not use these directly
 void LogPrint(const char* szLevel, const char* szFunction, int nLine, const char* szFormat, ...);
+void LogAssert(const char* szLevel, const char* szFunction, int nLine, const char* szFormat, ...);
 #define _LOG_PRINT_(level, format, ...) LogPrint(level, __FUNCTION__, __LINE__, format, __VA_ARGS__)
+#define _LOG_ASSERT_(level, format, ...) LogAssert(level, __FUNCTION__, __LINE__, format, __VA_ARGS__)
 
 
 #ifdef GPCS4_DEBUG
@@ -29,7 +31,9 @@ void LogPrint(const char* szLevel, const char* szFunction, int nLine, const char
 #define LOG_WARN(format, ...)	_LOG_PRINT_(LOG_LEVEL_WARNING, format, __VA_ARGS__);
 // critical error, program can't go on
 #define LOG_ERR(format, ...)	_LOG_PRINT_(LOG_LEVEL_ERROR, format, __VA_ARGS__);
-
+// critical error, log then pop up a window then exit process
+#define LOG_ASSERT(format, ...)	_LOG_ASSERT_(LOG_LEVEL_ERROR, format, __VA_ARGS__);
+ 
 // only use to trace sce module export functions
 // to trace other functions, use LOG_TRACE
 #define LOG_SCE_TRACE(format, ...)	_LOG_PRINT_(LOG_LEVEL_SCE_TRACE, format, __VA_ARGS__);
@@ -46,6 +50,7 @@ void LogPrint(const char* szLevel, const char* szFunction, int nLine, const char
 #define LOG_FIXME(format, ...)
 #define LOG_WARN(format, ...)
 #define LOG_ERR(format, ...)
+#define LOG_ASSERT_FAIL(format, ...) 
 
 #define LOG_SCE_TRACE (format, ...)
 #define LOG_SCE_DUMMY_IMPL()
