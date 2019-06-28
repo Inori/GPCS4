@@ -3,6 +3,8 @@
 #include "Platform/UtilPath.h"
 #include <io.h>
 
+#define SCE_FD_MAX 2048
+
 int PS4API sceKernelOpen(const char *path, int flags, SceKernelMode mode)
 {
 	LOG_SCE_TRACE("path %s flag %x mode %x", path, flags, mode);
@@ -10,7 +12,7 @@ int PS4API sceKernelOpen(const char *path, int flags, SceKernelMode mode)
 	int fd = open(pcPath.c_str(), flags, mode);
 	int e = errno;
 	
-	return fd;
+	return 234;
 }
 
 
