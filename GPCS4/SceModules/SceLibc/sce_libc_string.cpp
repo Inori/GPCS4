@@ -160,7 +160,7 @@ int PS4API scec_sscanf_s(void)
 
 #ifdef GPCS4_WINDOWS
 #define strcasecmp _stricmp
-#define strncasecmp  _strnicmp 
+#define strncasecmp  _strnicmp
 #endif
 
 int PS4API scec_strcasecmp(const char *s1, const char *s2)
@@ -170,10 +170,10 @@ int PS4API scec_strcasecmp(const char *s1, const char *s2)
 }
 
 
-int PS4API scec_strncasecmp(void)
+int PS4API scec_strncasecmp(const char *s1, const char *s2, size_t n)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("s1 %p s2 %p n %x", s1, s2, n);
+	return strncasecmp(s1, s2, n);
 }
 
 

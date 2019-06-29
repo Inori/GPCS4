@@ -379,6 +379,12 @@
     <ClInclude Include="Platform\UtilPath.h">
       <Filter>Source Files\Platform</Filter>
     </ClInclude>
+    <ClInclude Include="SceModules\SceUserService\sce_userservice_types.h">
+      <Filter>SceModules\SceUserService</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceLibkernel\sce_kernel_types.h">
+      <Filter>SceModules\SceLibkernel</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">

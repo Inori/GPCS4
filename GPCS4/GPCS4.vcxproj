@@ -59,6 +59,7 @@
     <ClInclude Include="SceModules\SceLibkernel\sce_kernel_file.h" />
     <ClInclude Include="SceModules\SceLibkernel\sce_kernel_memory.h" />
     <ClInclude Include="SceModules\SceLibkernel\sce_kernel_scepthread.h" />
+    <ClInclude Include="SceModules\SceLibkernel\sce_kernel_types.h" />
     <ClInclude Include="SceModules\SceLibkernel\sce_libkernel.h" />
     <ClInclude Include="SceModules\SceMouse\sce_mouse.h" />
     <ClInclude Include="SceModules\SceMsgDialog\sce_msgdialog.h" />
@@ -86,6 +87,7 @@
     <ClInclude Include="SceModules\SceSysmodule\sce_sysmodule.h" />
     <ClInclude Include="SceModules\SceSystemService\sce_systemservice.h" />
     <ClInclude Include="SceModules\SceUserService\sce_userservice.h" />
+    <ClInclude Include="SceModules\SceUserService\sce_userservice_types.h" />
     <ClInclude Include="SceModules\SceVideoOut\sce_videoout.h" />
     <ClInclude Include="SceModules\SceVideoRecording\sce_videorecording.h" />
     <ClInclude Include="SceModules\sce_errors.h" />

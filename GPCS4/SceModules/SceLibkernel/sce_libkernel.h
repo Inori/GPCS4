@@ -11,6 +11,7 @@
 #pragma once
 
 #include "sce_module_common.h"
+#include "sce_kernel_types.h"
 #include "sce_kernel_scepthread.h"
 #include "sce_kernel_file.h"
 #include "sce_kernel_memory.h"
@@ -100,7 +101,7 @@ int PS4API sceKernelGetdents(int fd, char *buf, int nbytes);
 int PS4API sceKernelIsNeoMode(void);
 
 
-int PS4API sceKernelLseek(void);
+sceoff_t PS4API sceKernelLseek(int fildes, sceoff_t offset, int whence);
 
 
 int PS4API sceKernelMapDirectMemory(void **addr, size_t len, int prot, int flags, sceoff_t directMemoryStart, size_t maxPageSize);
@@ -142,7 +143,7 @@ int PS4API sceKernelStat(const char *path, SceKernelStat *sb);
 int PS4API sceKernelUnlink(void);
 
 
-int PS4API sceKernelUsleep(void);
+int PS4API sceKernelUsleep(SceKernelUseconds microseconds);
 
 
 int PS4API sceKernelWaitEqueue(void);
@@ -157,46 +158,46 @@ int PS4API sceKernelWaitSema(void);
 ssize_t PS4API sceKernelWrite(int d, const void *buf, size_t nbytes);
 
 
-int PS4API scePthreadAttrDestroy(void);
+int PS4API scePthreadAttrDestroy(ScePthreadAttr *attr);
 
 
 int PS4API scePthreadAttrGetschedparam(void);
 
 
-int PS4API scePthreadAttrInit(void);
+int PS4API scePthreadAttrInit(ScePthreadAttr *attr);
 
 
 int PS4API scePthreadAttrSetaffinity(void);
 
 
-int PS4API scePthreadAttrSetdetachstate(void);
+int PS4API scePthreadAttrSetdetachstate(ScePthreadAttr *attr, int state);
 
 
-int PS4API scePthreadAttrSetinheritsched(void);
+int PS4API scePthreadAttrSetinheritsched(ScePthreadAttr *attr, int inheritSched);
 
 
-int PS4API scePthreadAttrSetschedparam(void);
+int PS4API scePthreadAttrSetschedparam(ScePthreadAttr *attr, const SceKernelSchedParam *param);
 
 
 int PS4API scePthreadAttrSetschedpolicy(void);
 
 
-int PS4API scePthreadAttrSetstacksize(void);
+int PS4API scePthreadAttrSetstacksize(ScePthreadAttr *attr, size_t stackSize);
 
 
-int PS4API scePthreadCondBroadcast(void);
+int PS4API scePthreadCondBroadcast(ScePthreadCond *cond);
 
 
 int PS4API scePthreadCondDestroy(void);
 
 
-int PS4API scePthreadCondInit(void);
+int PS4API scePthreadCondInit(ScePthreadCond *cond, const ScePthreadCondattr *attr, const char *name);
 
 
 int PS4API scePthreadCondSignal(void);
 
 
-int PS4API scePthreadCondWait(void);
+int PS4API scePthreadCondWait(ScePthreadCond *cond, ScePthreadMutex *mutex);
 
 
 int PS4API scePthreadCondattrDestroy(void);
@@ -205,7 +206,7 @@ int PS4API scePthreadCondattrDestroy(void);
 int PS4API scePthreadCondattrInit(void);
 
 
-int PS4API scePthreadCreate(void);
+int PS4API scePthreadCreate(ScePthread *thread, const ScePthreadAttr *attr, void *(PS4API *entry) (void *), void *arg, const char *name);
 
 
 int PS4API scePthreadExit(void);
@@ -274,7 +275,7 @@ ScePthread PS4API scePthreadSelf(void);
 int PS4API scePthreadSetaffinity(ScePthread thread, const SceKernelCpumask mask);
 
 
-int PS4API scePthreadSetprio(void);
+int PS4API scePthreadSetprio(ScePthread thread, int prio);
 
 
 int PS4API scePthreadYield(void);

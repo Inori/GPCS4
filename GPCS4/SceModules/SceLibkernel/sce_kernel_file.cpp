@@ -2,7 +2,7 @@
 #include "sce_kernel_file.h"
 #include "Platform/UtilPath.h"
 #include <io.h>
-
+#include <fcntl.h>
 
 // this will be more friendly on linux....
 
@@ -99,7 +99,17 @@ int PS4API sceKernelOpen(const char *path, int flags, SceKernelMode mode)
 	}
 	else
 	{
-		
+		if (flags != SCE_KERNEL_O_RDONLY || mode != SCE_KERNEL_S_IRU)
+		{
+			LOG_ASSERT("not supported open flag and mode yet.");
+		}
+
+		int fd = _open(pcPath.c_str(), _O_RDONLY, _S_IREAD);
+		if (fd == -1)
+		{
+			LOG_WARN("open file failed %s", path);
+		}
+		g_fdSlots[idx] = fd;
 	}
 
 	return idx;
@@ -109,8 +119,9 @@ int PS4API sceKernelOpen(const char *path, int flags, SceKernelMode mode)
 
 ssize_t PS4API sceKernelRead(int d, void *buf, size_t nbytes)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("d %d buff %p nbytes %x", d, buf, nbytes);
+	int fd = g_fdSlots[d];
+	return _read(fd, buf, nbytes);
 }
 
 
@@ -121,10 +132,11 @@ ssize_t PS4API sceKernelWrite(int d, const void *buf, size_t nbytes)
 }
 
 
-int PS4API sceKernelLseek(void)
+sceoff_t PS4API sceKernelLseek(int fildes, sceoff_t offset, int whence)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("fd %d off %d where %d", fildes, offset, whence);
+	int fd = g_fdSlots[fildes];
+	return _lseeki64(fd, offset, whence);
 }
 
 
@@ -139,13 +151,14 @@ int PS4API sceKernelClose(int d)
 	{
 		DIR* dir = (DIR*)g_fdSlots[d];
 		closedir(dir);
-		g_fdSlots[d] = 0;
 	}
 	else
 	{
-
+		int fd = g_fdSlots[d];
+		_close(fd);
 	}
 
+	g_fdSlots[d] = 0;
 	return ret;
 #endif  //GPCS4_WINDOWS
 }
@@ -228,7 +241,18 @@ int PS4API sceKernelFstat(int fd, SceKernelStat *sb)
 	}
 	else
 	{
+		int pcFd = g_fdSlots[fd];
+		struct _stat stat;
+		ret = _fstat(pcFd, &stat);
+		sb->st_mode = getSceFileMode(stat.st_mode);
 
+		//sb->st_atim = stat.st_atime;
+		//sb->st_mtim = stat.st_mtime;
+		//sb->st_ctim = stat.st_ctime;
+		sb->st_size = stat.st_size;
+		//sb->st_birthtim = stat.st_ctime; //?
+		sb->st_blocks = stat.st_size / SSD_BLOCK_SIZE + (stat.st_size % SSD_BLOCK_SIZE) ? 1 : 0;
+		sb->st_blksize = SSD_BLOCK_SIZE;
 	}
 
 	return ret;

@@ -55,3 +55,25 @@ typedef uint64_t	SceKernelCpumask;
 
 // ps4 have at most have 7 cpus
 #define SCE_KERNEL_CPU_MAX	7
+
+// detach state
+#define SCE_PTHREAD_CREATE_DETACHED     1
+#define SCE_PTHREAD_CREATE_JOINABLE     0
+
+// inherit sched
+#define SCE_PTHREAD_EXPLICIT_SCHED      0
+#define SCE_PTHREAD_INHERIT_SCHED       0x4
+
+
+struct sce_sched_param {
+	int     sched_priority;
+};
+
+typedef struct sce_sched_param  SceKernelSchedParam;
+
+
+
+#define SCE_KERNEL_PRIO_FIFO_DEFAULT    700
+#define SCE_KERNEL_PRIO_FIFO_HIGHEST    256
+#define SCE_KERNEL_PRIO_FIFO_LOWEST     767
+

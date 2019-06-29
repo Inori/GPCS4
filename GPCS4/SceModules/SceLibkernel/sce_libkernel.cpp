@@ -1,6 +1,6 @@
 #include "sce_libkernel.h"
 #include "pthreads4w/pthread.h"
-
+#include "Platform/PlatformUtils.h"
 
 // Note:
 // The codebase is generated using GenerateCode.py
@@ -123,9 +123,10 @@ int PS4API sceKernelSignalSema(void)
 }
 
 
-int PS4API sceKernelUsleep(void)
+int PS4API sceKernelUsleep(SceKernelUseconds microseconds)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_TRACE("ms %d", microseconds);
+	UtilThread::USleep(microseconds);
 	return SCE_OK;
 }
 

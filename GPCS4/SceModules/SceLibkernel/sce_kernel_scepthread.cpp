@@ -2,6 +2,7 @@
 #include "sce_kernel_scepthread.h"
 #include <utility>
 #include "Platform/PlatformUtils.h"
+#include "Emulator/TLSHandler.h"
 
 // for non pointer type, we need to build a map to fit the type
 
@@ -249,17 +250,19 @@ int PS4API scePthreadMutexattrSettype(ScePthreadMutexattr *attr, int type)
 
 //////////////////////////////////////////////////////////////////////////
 
-int PS4API scePthreadAttrInit(void)
+int PS4API scePthreadAttrInit(ScePthreadAttr *attr)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("attr %p", attr);
+	int err = pthread_attr_init(attr);
+	return pthreadErrorToSceError(err);
 }
 
 
-int PS4API scePthreadAttrDestroy(void)
+int PS4API scePthreadAttrDestroy(ScePthreadAttr *attr)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("attr %p", attr);
+	int err = pthread_attr_destroy(attr);
+	return pthreadErrorToSceError(err);
 }
 
 
@@ -277,25 +280,98 @@ int PS4API scePthreadAttrSetaffinity(void)
 	return SCE_OK;
 }
 
-
-int PS4API scePthreadAttrSetdetachstate(void)
+inline int sceDetachStateToPthreadState(int oldState)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	int newState = -1;
+	switch (oldState)
+	{
+	case SCE_PTHREAD_CREATE_DETACHED:
+		newState = PTHREAD_CREATE_DETACHED;
+		break;
+	case SCE_PTHREAD_CREATE_JOINABLE:
+		newState = PTHREAD_CREATE_JOINABLE;
+		break;
+	default:
+		LOG_ERR("unknown state %d", oldState);
+		break;
+	}
+	return newState;
 }
 
 
-int PS4API scePthreadAttrSetinheritsched(void)
+int PS4API scePthreadAttrSetdetachstate(ScePthreadAttr *attr, int state)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_TRACE("attr %p state %x", attr, state);
+	int pthreadState = sceDetachStateToPthreadState(state);
+	int err = pthread_attr_setdetachstate(attr, pthreadState);
+	return pthreadErrorToSceError(err);
+}
+
+inline int sceAttrInheritSchedToPthreadInheritSched(int oldIS)
+{
+	int newIS = -1;
+	switch (oldIS)
+	{
+	case SCE_PTHREAD_EXPLICIT_SCHED:
+		newIS = PTHREAD_EXPLICIT_SCHED;
+		break;
+	case SCE_PTHREAD_INHERIT_SCHED:
+		newIS = PTHREAD_INHERIT_SCHED;
+		break;
+	default:
+		LOG_ERR("unknown inheritSched %d", oldIS);
+		break;
+	}
+	return newIS;
+}
+
+int PS4API scePthreadAttrSetinheritsched(ScePthreadAttr *attr, int inheritSched)
+{
+	LOG_SCE_TRACE("attr %p inheritSched %d", attr, inheritSched);
+	int pthreadIS = sceAttrInheritSchedToPthreadInheritSched(inheritSched);
+	int err = pthread_attr_setinheritsched(attr, pthreadIS);
 	return SCE_OK;
 }
 
+#ifdef GPCS4_WINDOWS
+// we need to map
+// 256 -> 700 > 767
+// to
+// 15 -> 0 -> -15
+#define THREAD_PRIORITY_IDLE			(-15)
+#define THREAD_PRIORITY_NORMAL			0
+#define THREAD_PRIORITY_TIME_CRITICAL	15
 
-int PS4API scePthreadAttrSetschedparam(void)
+int scePriorityToPthreadPriority(int oldPriority)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	int newPriority = THREAD_PRIORITY_NORMAL;
+	if (SCE_KERNEL_PRIO_FIFO_HIGHEST <= oldPriority && SCE_KERNEL_PRIO_FIFO_DEFAULT > oldPriority)
+	{
+		newPriority = THREAD_PRIORITY_TIME_CRITICAL -
+			((float)(oldPriority - SCE_KERNEL_PRIO_FIFO_HIGHEST) / (float)(SCE_KERNEL_PRIO_FIFO_DEFAULT - SCE_KERNEL_PRIO_FIFO_HIGHEST)) *
+			(float)THREAD_PRIORITY_TIME_CRITICAL;
+	}
+	else if (SCE_KERNEL_PRIO_FIFO_DEFAULT <= oldPriority && SCE_KERNEL_PRIO_FIFO_LOWEST >= oldPriority)
+	{
+		newPriority = THREAD_PRIORITY_IDLE *
+			(float)(oldPriority - SCE_KERNEL_PRIO_FIFO_DEFAULT) / (float)(SCE_KERNEL_PRIO_FIFO_LOWEST - SCE_KERNEL_PRIO_FIFO_DEFAULT);
+	}
+	else
+	{
+		LOG_ERR("error sce thread priority %d", oldPriority);
+	}
+	return newPriority;
+}
+
+#endif
+
+int PS4API scePthreadAttrSetschedparam(ScePthreadAttr *attr, const SceKernelSchedParam *param)
+{
+	LOG_SCE_TRACE("attr %p priority %d", attr, param->sched_priority);
+	sched_param pthreadParam;
+	pthreadParam.sched_priority = scePriorityToPthreadPriority(param->sched_priority);
+	int err = pthread_attr_setschedparam(attr, &pthreadParam);
+	return pthreadErrorToSceError(err);
 }
 
 
@@ -306,10 +382,11 @@ int PS4API scePthreadAttrSetschedpolicy(void)
 }
 
 
-int PS4API scePthreadAttrSetstacksize(void)
+int PS4API scePthreadAttrSetstacksize(ScePthreadAttr *attr, size_t stackSize)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("attr %p stackSize %d", attr, stackSize);
+	int err = pthread_attr_setstacksize(attr, stackSize);
+	return pthreadErrorToSceError(err);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -348,10 +425,15 @@ int PS4API scePthreadSetaffinity(ScePthread thread, const SceKernelCpumask mask)
 }
 
 
-int PS4API scePthreadCondInit(void)
+int PS4API scePthreadCondInit(ScePthreadCond *cond, const ScePthreadCondattr *attr, const char *name)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("cond %p attr %p name %s", cond, attr, name);
+	if (name)
+	{
+		LOG_FIXME("cond name is not supported yet");
+	}
+	int err = pthread_cond_init(cond, attr);
+	return pthreadErrorToSceError(err);
 }
 
 
@@ -362,10 +444,11 @@ int PS4API scePthreadCondDestroy(void)
 }
 
 
-int PS4API scePthreadCondBroadcast(void)
+int PS4API scePthreadCondBroadcast(ScePthreadCond *cond)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("cond %p", cond);
+	int err = pthread_cond_broadcast(cond);
+	return pthreadErrorToSceError(err);
 }
 
 int PS4API scePthreadCondSignal(void)
@@ -375,7 +458,15 @@ int PS4API scePthreadCondSignal(void)
 }
 
 
-int PS4API scePthreadCondWait(void)
+int PS4API scePthreadCondWait(ScePthreadCond *cond, ScePthreadMutex *mutex)
+{
+	LOG_SCE_TRACE("cond %p mutex %p", cond, mutex);
+	int err = pthread_cond_wait(cond, mutex);
+	return pthreadErrorToSceError(err);
+}
+
+
+int PS4API scePthreadCondattrInit(void)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
@@ -388,18 +479,63 @@ int PS4API scePthreadCondattrDestroy(void)
 	return SCE_OK;
 }
 
+//////////////////////////////////////////////////////////////////////////
+typedef void* (PS4API *PFUNC_PS4_THREAD_ENTRY)(void*);
 
-int PS4API scePthreadCondattrInit(void)
+struct SCE_THREAD_PARAM
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	void* entry;
+	void* arg;
+};
+
+void* newThreadWrapper(void* arg)
+{
+	void* ret = NULL;
+	SCE_THREAD_PARAM* param = (SCE_THREAD_PARAM*)arg;
+	do 
+	{
+		if (!param)
+		{
+			break;
+		}
+		
+		ScePthread tid = UtilThread::GetThreadId();
+		CTLSHandler::NotifyThreadCreate(tid);
+
+		PFUNC_PS4_THREAD_ENTRY pSceEntry = (PFUNC_PS4_THREAD_ENTRY)param->entry;
+		ret = pSceEntry(param->arg);
+
+		CTLSHandler::NotifyThreadExit(tid);
+
+	} while (false);
+	if (param)
+	{
+		delete param;
+	}
+	return ret;
 }
 
-
-int PS4API scePthreadCreate(void)
+int PS4API scePthreadCreate(ScePthread *thread, const ScePthreadAttr *attr, void *(PS4API *entry) (void *), void *arg, const char *name)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("thread %p attr %p entry %p arg %p name %s", thread, attr, entry, arg, name);
+	if (name)
+	{
+		LOG_FIXME("thread name is not supported.");
+	}
+
+	ScePthread tid = UtilThread::GetThreadId();
+	CHECK_TID_RANGE(tid);
+
+	SCE_THREAD_PARAM* param = new SCE_THREAD_PARAM();
+	param->entry = (void*)entry;
+	param->arg = arg;
+
+	pthread_t pthread;
+	int err = pthread_create(&pthread, attr, newThreadWrapper, param);
+	g_threadTMap[tid] = pthread;
+	*thread = tid;
+
+	return pthreadErrorToSceError(err);
 }
 
 
@@ -488,11 +624,10 @@ int PS4API scePthreadRwlockattrInit(void)
 }
 
 
-
-
-int PS4API scePthreadSetprio(void)
+int PS4API scePthreadSetprio(ScePthread thread, int prio)
 {
-	LOG_FIXME("Not implemented");
+	//LOG_SCE_TRACE("pthread %d prio %d", thread, prio);
+	LOG_SCE_DUMMY_IMPL();
 	return SCE_OK;
 }
 

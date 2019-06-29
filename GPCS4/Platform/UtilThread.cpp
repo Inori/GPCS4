@@ -15,6 +15,10 @@ uint64 GetThreadId(void)
 	return GetCurrentThreadId();
 }
 
+void USleep(uint ms)
+{
+	Sleep(ms);
+}
 
 #elif defined(GPCS4_LINUX)
 
@@ -22,6 +26,12 @@ uint64 GetThreadId(void)
 uint64 GetThreadId(void)
 {
 	return gettid();
+}
+
+
+void USleep(uint ms)
+{
+
 }
 
 #endif  //GPCS4_WINDOWS

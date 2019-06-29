@@ -11,23 +11,10 @@
 // library: libSceUserService
 //////////////////////////////////////////////////////////////////////////
 
-int PS4API sceUserServiceGetEvent(void)
+
+int PS4API sceUserServiceInitialize(const SceUserServiceInitializeParams *initParams)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API sceUserServiceGetInitialUser(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API sceUserServiceInitialize(void)
-{
-	LOG_FIXME("Not implemented");
+	LOG_SCE_DUMMY_IMPL();
 	return SCE_OK;
 }
 
@@ -39,9 +26,25 @@ int PS4API sceUserServiceTerminate(void)
 }
 
 
+int PS4API sceUserServiceGetInitialUser(SceUserServiceUserId *userId)
+{
+	LOG_SCE_DUMMY_IMPL();
+	*userId = SCE_DUMMY_USERID;
+	return SCE_OK;
+}
+
+
 int PS4API sceUserServiceGetUserName(void)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
 }
+
+
+int PS4API sceUserServiceGetEvent(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
 

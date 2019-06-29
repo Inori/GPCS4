@@ -7,4 +7,6 @@ namespace UtilThread
 
 uint64 GetThreadId(void);
 
+void USleep(uint ms);
+
 }

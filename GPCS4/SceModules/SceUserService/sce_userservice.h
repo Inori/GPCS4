@@ -10,7 +10,7 @@
 #pragma once
 
 #include "sce_module_common.h"
-
+#include "sce_userservice_types.h"
 
 extern const SCE_EXPORT_MODULE g_ExpModuleSceUserService;
 
@@ -28,10 +28,10 @@ extern const SCE_EXPORT_MODULE g_ExpModuleSceUserService;
 int PS4API sceUserServiceGetEvent(void);
 
 
-int PS4API sceUserServiceGetInitialUser(void);
+int PS4API sceUserServiceGetInitialUser(SceUserServiceUserId *userId);
 
 
-int PS4API sceUserServiceInitialize(void);
+int PS4API sceUserServiceInitialize(const SceUserServiceInitializeParams *initParams);
 
 
 int PS4API sceUserServiceTerminate(void);

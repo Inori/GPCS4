@@ -268,7 +268,7 @@ errno_t PS4API scec_strcpy_s(char *dest, rsize_t dest_size, const char *src);
 
 size_t PS4API scec_strlen(const char* str);
 
-int PS4API scec_strncasecmp(void);
+int PS4API scec_strncasecmp(const char *s1, const char *s2, size_t n);
 
 int PS4API scec_strncat(void);
 
