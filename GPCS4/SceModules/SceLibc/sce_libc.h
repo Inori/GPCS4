@@ -252,13 +252,13 @@ int PS4API scec_sscanf(void);
 
 int PS4API scec_sscanf_s(void);
 
-int PS4API scec_strcasecmp(void);
+int PS4API scec_strcasecmp(const char *s1, const char *s2);
 
 int PS4API scec_strcat(void);
 
 errno_t PS4API scec_strcat_s(char *dest, rsize_t destsz, const char *src);
 
-int PS4API scec_strchr(void);
+char* PS4API scec_strchr(const char *s, int c);
 
 int PS4API scec_strcmp(void);
 
@@ -272,7 +272,7 @@ int PS4API scec_strncasecmp(void);
 
 int PS4API scec_strncat(void);
 
-int PS4API scec_strncmp(void);
+int PS4API scec_strncmp(const char *s1, const char *s2, size_t n);
 
 void* PS4API scec_strncpy(char *dest, const char *src, size_t n);
 
@@ -282,7 +282,7 @@ int PS4API scec_strnlen_s(void);
 
 int PS4API scec_strrchr(void);
 
-int PS4API scec_strstr(void);
+char* PS4API scec_strstr(const char *haystack, const char *needle);
 
 int PS4API scec_strtod(void);
 

@@ -158,8 +158,19 @@ int PS4API scec_sscanf_s(void)
 	return SCE_OK;
 }
 
+#ifdef GPCS4_WINDOWS
+#define strcasecmp _stricmp
+#define strncasecmp  _strnicmp 
+#endif
 
-int PS4API scec_strcasecmp(void)
+int PS4API scec_strcasecmp(const char *s1, const char *s2)
+{
+	LOG_SCE_TRACE("s1 %p s2 %p", s1, s2);
+	return strcasecmp(s1, s2);
+}
+
+
+int PS4API scec_strncasecmp(void)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
@@ -180,10 +191,10 @@ errno_t PS4API scec_strcat_s(char *dest, rsize_t destsz, const char *src)
 }
 
 
-int PS4API scec_strchr(void)
+char* PS4API scec_strchr(const char *s, int c)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("s %p c %x", s, c);
+	return (char*)strchr(s, c);
 }
 
 
@@ -215,11 +226,7 @@ size_t PS4API scec_strlen(const char* str)
 }
 
 
-int PS4API scec_strncasecmp(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
+
 
 
 int PS4API scec_strncat(void)
@@ -229,10 +236,10 @@ int PS4API scec_strncat(void)
 }
 
 
-int PS4API scec_strncmp(void)
+int PS4API scec_strncmp(const char *s1, const char *s2, size_t n)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("s1 %p s2 %p n %x", s1, s2, n);
+	return strncmp(s1, s2, n);
 }
 
 
@@ -264,10 +271,10 @@ int PS4API scec_strrchr(void)
 }
 
 
-int PS4API scec_strstr(void)
+char* PS4API scec_strstr(const char *haystack, const char *needle)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("haystack %p needle %p", haystack, needle);
+	return (char*)strstr(haystack, needle);
 }
 
 
