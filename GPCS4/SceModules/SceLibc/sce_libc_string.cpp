@@ -198,10 +198,10 @@ char* PS4API scec_strchr(const char *s, int c)
 }
 
 
-int PS4API scec_strcmp(void)
+int PS4API scec_strcmp(const char *s1, const char *s2)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("s1 %p s2 %p", s1, s2);
+	return strcmp(s1, s2);
 }
 
 

@@ -40,6 +40,7 @@
     <ClInclude Include="Platform\UtilProcess.h" />
     <ClInclude Include="Platform\UtilString.h" />
     <ClInclude Include="Platform\UtilThread.h" />
+    <ClInclude Include="Platform\UtilTime.h" />
     <ClInclude Include="SceModules\SceAjm\sce_ajm.h" />
     <ClInclude Include="SceModules\SceAppContentUtil\sce_appcontentutil.h" />
     <ClInclude Include="SceModules\SceAudio3d\sce_audio3d.h" />
@@ -56,6 +57,7 @@
     <ClInclude Include="SceModules\SceJobManager\sce_jobmanager.h" />
     <ClInclude Include="SceModules\SceJson\sce_json.h" />
     <ClInclude Include="SceModules\SceLibc\sce_libc.h" />
+    <ClInclude Include="SceModules\SceLibkernel\SceSemaphore.h" />
     <ClInclude Include="SceModules\SceLibkernel\sce_kernel_file.h" />
     <ClInclude Include="SceModules\SceLibkernel\sce_kernel_memory.h" />
     <ClInclude Include="SceModules\SceLibkernel\sce_kernel_scepthread.h" />
@@ -113,6 +115,7 @@
     <ClCompile Include="Platform\UtilProcess.cpp" />
     <ClCompile Include="Platform\UtilString.cpp" />
     <ClCompile Include="Platform\UtilThread.cpp" />
+    <ClCompile Include="Platform\UtilTime.cpp" />
     <ClCompile Include="SceModules\SceAjm\sce_ajm.cpp" />
     <ClCompile Include="SceModules\SceAjm\sce_ajm_export.cpp" />
     <ClCompile Include="SceModules\SceAppContentUtil\sce_appcontentutil.cpp" />
@@ -157,10 +160,12 @@
     <MASM Include="SceModules\SceLibc\sce_libc_string_asm.asm">
       <FileType>Document</FileType>
     </MASM>
+    <ClCompile Include="SceModules\SceLibkernel\SceSemaphore.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\sce_kernel_file.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\sce_kernel_memory.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\sce_kernel_pthread.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\sce_kernel_scepthread.cpp" />
+    <ClCompile Include="SceModules\SceLibkernel\sce_kernel_semaphore.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\sce_kernel_time.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\sce_libkernel.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\sce_libkernel_export.cpp" />

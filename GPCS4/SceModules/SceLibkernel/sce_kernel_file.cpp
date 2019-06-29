@@ -92,9 +92,15 @@ int PS4API sceKernelOpen(const char *path, int flags, SceKernelMode mode)
 	std::string pcPath = UtilPath::PS4PathToPCPath(path);
 #ifdef GPCS4_WINDOWS
 	uint idx = getEmptySlotIdx();
+	bool hasError = false;
 	if (flags & SCE_KERNEL_O_DIRECTORY)
 	{
 		DIR* dir = opendir(pcPath.c_str());
+		if (!dir)
+		{
+			LOG_WARN("open dir failed %s", path);
+			hasError = true;
+		}
 		g_fdSlots[idx] = (ulong_ptr)dir;
 	}
 	else
@@ -104,15 +110,21 @@ int PS4API sceKernelOpen(const char *path, int flags, SceKernelMode mode)
 			LOG_ASSERT("not supported open flag and mode yet.");
 		}
 
-		int fd = _open(pcPath.c_str(), _O_RDONLY, _S_IREAD);
+		int fd = _open(pcPath.c_str(), _O_RDONLY | _O_BINARY, _S_IREAD);
 		if (fd == -1)
 		{
 			LOG_WARN("open file failed %s", path);
+			hasError = true;
+			g_fdSlots[idx] = 0;
 		}
-		g_fdSlots[idx] = fd;
+		else
+		{
+			g_fdSlots[idx] = fd;
+		}
 	}
 
-	return idx;
+	int ret_fd = hasError ? -1 : idx;
+	return ret_fd;
 #endif  //GPCS4_WINDOWS
 }
 

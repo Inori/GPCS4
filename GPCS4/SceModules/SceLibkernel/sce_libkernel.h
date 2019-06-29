@@ -56,7 +56,7 @@ int PS4API sceKernelCreateEqueue(void);
 int PS4API sceKernelCreateEventFlag(void);
 
 
-int PS4API sceKernelCreateSema(void);
+int PS4API sceKernelCreateSema(SceKernelSema *sem, const char *name, uint32_t attr, int init, int max, const SceKernelSemaOptParam *opt);
 
 
 int PS4API sceKernelDeleteEqueue(void);
@@ -65,7 +65,7 @@ int PS4API sceKernelDeleteEqueue(void);
 int PS4API sceKernelDeleteEventFlag(void);
 
 
-int PS4API sceKernelDeleteSema(void);
+int PS4API sceKernelDeleteSema(SceKernelSema sem);
 
 
 int PS4API sceKernelFstat(int fd, SceKernelStat *sb);
@@ -134,7 +134,7 @@ int PS4API sceKernelRename(void);
 int PS4API sceKernelSetEventFlag(void);
 
 
-int PS4API sceKernelSignalSema(void);
+int PS4API sceKernelSignalSema(SceKernelSema sem, int count);
 
 
 int PS4API sceKernelStat(const char *path, SceKernelStat *sb);
@@ -152,7 +152,7 @@ int PS4API sceKernelWaitEqueue(void);
 int PS4API sceKernelWaitEventFlag(void);
 
 
-int PS4API sceKernelWaitSema(void);
+int PS4API sceKernelWaitSema(SceKernelSema sem, int need, SceKernelUseconds *timo);
 
 
 ssize_t PS4API sceKernelWrite(int d, const void *buf, size_t nbytes);
@@ -209,7 +209,7 @@ int PS4API scePthreadCondattrInit(void);
 int PS4API scePthreadCreate(ScePthread *thread, const ScePthreadAttr *attr, void *(PS4API *entry) (void *), void *arg, const char *name);
 
 
-int PS4API scePthreadExit(void);
+void PS4API scePthreadExit(void *value_ptr);
 
 
 int PS4API scePthreadGetaffinity(void);
@@ -218,7 +218,7 @@ int PS4API scePthreadGetaffinity(void);
 int PS4API scePthreadGetprio(void);
 
 
-int PS4API scePthreadJoin(void);
+int PS4API scePthreadJoin(ScePthread thread, void **value);
 
 
 int PS4API scePthreadMutexDestroy(ScePthreadMutex *mutex);

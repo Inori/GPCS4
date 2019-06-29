@@ -385,6 +385,12 @@
     <ClInclude Include="SceModules\SceLibkernel\sce_kernel_types.h">
       <Filter>SceModules\SceLibkernel</Filter>
     </ClInclude>
+    <ClInclude Include="SceModules\SceLibkernel\SceSemaphore.h">
+      <Filter>SceModules\SceLibkernel</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform\UtilTime.h">
+      <Filter>Source Files\Platform</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -742,6 +748,15 @@
       <Filter>SceModules\SceLibkernel</Filter>
     </ClCompile>
     <ClCompile Include="Platform\UtilPath.cpp">
+      <Filter>Source Files\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceLibkernel\SceSemaphore.cpp">
+      <Filter>SceModules\SceLibkernel</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceLibkernel\sce_kernel_semaphore.cpp">
+      <Filter>SceModules\SceLibkernel</Filter>
+    </ClCompile>
+    <ClCompile Include="Platform\UtilTime.cpp">
       <Filter>Source Files\Platform</Filter>
     </ClCompile>
   </ItemGroup>

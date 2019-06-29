@@ -63,12 +63,6 @@ int PS4API sceKernelCreateEventFlag(void)
 }
 
 
-int PS4API sceKernelCreateSema(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
 
 int PS4API sceKernelDeleteEqueue(void)
 {
@@ -78,13 +72,6 @@ int PS4API sceKernelDeleteEqueue(void)
 
 
 int PS4API sceKernelDeleteEventFlag(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API sceKernelDeleteSema(void)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
@@ -116,17 +103,10 @@ int PS4API sceKernelSetEventFlag(void)
 }
 
 
-int PS4API sceKernelSignalSema(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
 int PS4API sceKernelUsleep(SceKernelUseconds microseconds)
 {
 	LOG_SCE_TRACE("ms %d", microseconds);
-	UtilThread::USleep(microseconds);
+	UtilTime::MicroSleep(microseconds);
 	return SCE_OK;
 }
 
@@ -144,12 +124,6 @@ int PS4API sceKernelWaitEventFlag(void)
 	return SCE_OK;
 }
 
-
-int PS4API sceKernelWaitSema(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
 
 
 int PS4API sceKernelBatchMap(void)

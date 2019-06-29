@@ -408,8 +408,7 @@ int PS4API scePthreadSetaffinity(ScePthread thread, const SceKernelCpumask mask)
 {
 	LOG_SCE_TRACE("mask %x", mask);
 	cpu_set_t cpuset;
-	ScePthread tid = UtilThread::GetThreadId();
-	CHECK_TID_RANGE(tid);
+	CHECK_TID_RANGE(thread);
 	// TODO:
 	// should limit cpu count according to running machine
 	for (int i = 0; i != SCE_KERNEL_CPU_MAX; ++i)
@@ -420,7 +419,7 @@ int PS4API scePthreadSetaffinity(ScePthread thread, const SceKernelCpumask mask)
 		}
 	}
 
-	int err = pthread_setaffinity_np(g_threadTMap[tid], sizeof(cpu_set_t), &cpuset);
+	int err = pthread_setaffinity_np(g_threadTMap[thread], sizeof(cpu_set_t), &cpuset);
 	return pthreadErrorToSceError(err);
 }
 
@@ -515,6 +514,9 @@ void* newThreadWrapper(void* arg)
 	return ret;
 }
 
+// TODO:
+// this implementation is very wrong.
+// if one thread create several thread, these threads' id will be same
 int PS4API scePthreadCreate(ScePthread *thread, const ScePthreadAttr *attr, void *(PS4API *entry) (void *), void *arg, const char *name)
 {
 	LOG_SCE_TRACE("thread %p attr %p entry %p arg %p name %s", thread, attr, entry, arg, name);
@@ -539,10 +541,10 @@ int PS4API scePthreadCreate(ScePthread *thread, const ScePthreadAttr *attr, void
 }
 
 
-int PS4API scePthreadExit(void)
+void PS4API scePthreadExit(void *value_ptr)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("value %p", value_ptr);
+	//pthread_exit(value_ptr);
 }
 
 
@@ -560,10 +562,11 @@ int PS4API scePthreadGetprio(void)
 }
 
 
-int PS4API scePthreadJoin(void)
+int PS4API scePthreadJoin(ScePthread thread, void **value)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("thread %d value %p", thread, value);
+	int err = pthread_join(g_threadTMap[thread], value);
+	return pthreadErrorToSceError(err);
 }
 
 

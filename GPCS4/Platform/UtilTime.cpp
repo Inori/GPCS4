@@ -1,0 +1,17 @@
+#include "UtilTime.h"
+#include <thread>
+#include <chrono>
+
+namespace UtilTime
+{;
+
+
+void MicroSleep(uint ms)
+{
+	std::this_thread::sleep_for(
+		std::chrono::microseconds(ms)
+	);
+}
+
+}
+
