@@ -41,7 +41,7 @@ int CSceSemaphore::Poll(int count)
 	std::lock_guard lock(m_mutex);
 	do 
 	{
-		if (m_count < count)
+		if (count < 1 || count > m_maxCount)
 		{
 			err = SCE_KERNEL_ERROR_EBUSY;
 			break;
@@ -60,7 +60,13 @@ int CSceSemaphore::Wait(int count, uint* pTimeOut)
 	std::unique_lock<std::mutex> lock(m_mutex);
 	do 
 	{
-		auto pred = [this] { return m_count > 0; };
+		if (count < 1 || count > m_maxCount)
+		{
+			err = SCE_KERNEL_ERROR_EINVAL;
+			break;
+		}
+
+		auto pred = [this, count] { return m_count >= count; };
 		if (!pTimeOut)  // infinite
 		{
 			m_cond.wait(lock, pred);
@@ -79,6 +85,7 @@ int CSceSemaphore::Wait(int count, uint* pTimeOut)
 				auto dura = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 				auto timeLeft = timeMs - dura;
 				*pTimeOut = timeLeft.count();
+				m_count -= count;
 			}
 			else
 			{
