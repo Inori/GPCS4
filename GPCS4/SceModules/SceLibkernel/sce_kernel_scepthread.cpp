@@ -3,24 +3,24 @@
 #include <utility>
 #include "Platform/PlatformUtils.h"
 #include "Emulator/TLSHandler.h"
+#include "MapSlot.h"
 
 // for non pointer type, we need to build a map to fit the type
 
-#ifdef GPCS4_WINDOWS
-#define SYS_TID_MAX 100000
-#else
 
-#endif  //GPCS4_WINDOWS
-
-pthread_t g_threadTMap[SYS_TID_MAX];
-
-#define CHECK_TID_RANGE(tid) \
-if (tid >= SYS_TID_MAX) \
-{\
-	LOG_ASSERT("tid exceed max range %d", tid); \
+bool isEmptyPthreadT(pthread_t& pt)
+{
+	return pt.p == NULL && pt.x == 0;
 }
 
-#define IS_NULL_PTHREAD(pt) ( (pt).p == NULL && (pt).x == 0 )
+bool isEqualPthreadT(const pthread_t& lhs, const pthread_t& rhs)
+{
+	return lhs.p == rhs.p && lhs.x == rhs.x;
+}
+
+#define SCE_THREAD_COUNT_MAX 1024
+MapSlot<pthread_t, decltype(isEmptyPthreadT)> g_threadSlot(SCE_THREAD_COUNT_MAX, isEmptyPthreadT);
+
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -330,7 +330,7 @@ int PS4API scePthreadAttrSetinheritsched(ScePthreadAttr *attr, int inheritSched)
 	LOG_SCE_TRACE("attr %p inheritSched %d", attr, inheritSched);
 	int pthreadIS = sceAttrInheritSchedToPthreadInheritSched(inheritSched);
 	int err = pthread_attr_setinheritsched(attr, pthreadIS);
-	return SCE_OK;
+	return pthreadErrorToSceError(err);
 }
 
 #ifdef GPCS4_WINDOWS
@@ -392,12 +392,12 @@ int PS4API scePthreadAttrSetstacksize(ScePthreadAttr *attr, size_t stackSize)
 //////////////////////////////////////////////////////////////////////////
 ScePthread PS4API scePthreadSelf(void)
 {
-	ScePthread tid = UtilThread::GetThreadId();
-	CHECK_TID_RANGE(tid);
-	if (IS_NULL_PTHREAD(g_threadTMap[tid]))
+	pthread_t pt = pthread_self();
+	ScePthread tid = g_threadSlot.GetItemIndex(pt, isEqualPthreadT);
+	if (tid == 0)
 	{
-		pthread_t pt = pthread_self();
-		g_threadTMap[tid] = pt;
+		tid = g_threadSlot.GetEmptySlotIndex();
+		g_threadSlot[tid] = pt;
 	}
 	LOG_SCE_TRACE("thread self %d", tid);
 	return tid;
@@ -408,7 +408,6 @@ int PS4API scePthreadSetaffinity(ScePthread thread, const SceKernelCpumask mask)
 {
 	LOG_SCE_TRACE("mask %x", mask);
 	cpu_set_t cpuset;
-	CHECK_TID_RANGE(thread);
 	// TODO:
 	// should limit cpu count according to running machine
 	for (int i = 0; i != SCE_KERNEL_CPU_MAX; ++i)
@@ -419,7 +418,7 @@ int PS4API scePthreadSetaffinity(ScePthread thread, const SceKernelCpumask mask)
 		}
 	}
 
-	int err = pthread_setaffinity_np(g_threadTMap[thread], sizeof(cpu_set_t), &cpuset);
+	int err = pthread_setaffinity_np(g_threadSlot[thread], sizeof(cpu_set_t), &cpuset);
 	return pthreadErrorToSceError(err);
 }
 
@@ -498,13 +497,17 @@ void* newThreadWrapper(void* arg)
 			break;
 		}
 		
-		ScePthread tid = UtilThread::GetThreadId();
+		ScePthread tid = scePthreadSelf();
 		CTLSHandler::NotifyThreadCreate(tid);
 
 		PFUNC_PS4_THREAD_ENTRY pSceEntry = (PFUNC_PS4_THREAD_ENTRY)param->entry;
 		ret = pSceEntry(param->arg);
 
 		CTLSHandler::NotifyThreadExit(tid);
+
+		// do clear
+		pthread_t emptyPt = { 0 };
+		g_threadSlot.SetItemAt(tid, emptyPt);
 
 	} while (false);
 	if (param)
@@ -525,16 +528,15 @@ int PS4API scePthreadCreate(ScePthread *thread, const ScePthreadAttr *attr, void
 		LOG_FIXME("thread name is not supported.");
 	}
 
-	ScePthread tid = UtilThread::GetThreadId();
-	CHECK_TID_RANGE(tid);
-
 	SCE_THREAD_PARAM* param = new SCE_THREAD_PARAM();
 	param->entry = (void*)entry;
 	param->arg = arg;
 
 	pthread_t pthread;
 	int err = pthread_create(&pthread, attr, newThreadWrapper, param);
-	g_threadTMap[tid] = pthread;
+
+	ScePthread tid = g_threadSlot.GetEmptySlotIndex();
+	g_threadSlot[tid] = pthread;
 	*thread = tid;
 
 	return pthreadErrorToSceError(err);
@@ -544,7 +546,12 @@ int PS4API scePthreadCreate(ScePthread *thread, const ScePthreadAttr *attr, void
 void PS4API scePthreadExit(void *value_ptr)
 {
 	LOG_SCE_TRACE("value %p", value_ptr);
-	//pthread_exit(value_ptr);
+	pthread_exit(value_ptr);
+
+	// do clear
+	pthread_t emptyPt = { 0 };
+	ScePthread tid = scePthreadSelf();
+	g_threadSlot.SetItemAt(tid, emptyPt);
 }
 
 
@@ -565,7 +572,7 @@ int PS4API scePthreadGetprio(void)
 int PS4API scePthreadJoin(ScePthread thread, void **value)
 {
 	LOG_SCE_TRACE("thread %d value %p", thread, value);
-	int err = pthread_join(g_threadTMap[thread], value);
+	int err = pthread_join(g_threadSlot[thread], value);
 	return pthreadErrorToSceError(err);
 }
 

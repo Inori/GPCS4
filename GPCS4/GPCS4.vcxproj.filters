@@ -391,6 +391,9 @@
     <ClInclude Include="Platform\UtilTime.h">
       <Filter>Source Files\Platform</Filter>
     </ClInclude>
+    <ClInclude Include="SceModules\MapSlot.h">
+      <Filter>SceModules</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">

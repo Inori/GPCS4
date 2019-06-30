@@ -41,6 +41,7 @@
     <ClInclude Include="Platform\UtilString.h" />
     <ClInclude Include="Platform\UtilThread.h" />
     <ClInclude Include="Platform\UtilTime.h" />
+    <ClInclude Include="SceModules\MapSlot.h" />
     <ClInclude Include="SceModules\SceAjm\sce_ajm.h" />
     <ClInclude Include="SceModules\SceAppContentUtil\sce_appcontentutil.h" />
     <ClInclude Include="SceModules\SceAudio3d\sce_audio3d.h" />
