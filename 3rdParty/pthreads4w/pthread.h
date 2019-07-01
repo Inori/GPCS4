@@ -61,6 +61,8 @@
  * C++ apps). This is currently consistent with most/all commercial Unix
  * POSIX threads implementations.
  */
+
+
 #if !defined( __PTW32_CLEANUP_SEH ) && !defined( __PTW32_CLEANUP_CXX ) && !defined( __PTW32_CLEANUP_C )
 # define __PTW32_CLEANUP_C
 #endif

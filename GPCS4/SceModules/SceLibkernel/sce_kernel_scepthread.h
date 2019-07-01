@@ -1,5 +1,4 @@
 #pragma once
-
 #include "pthreads4w/pthread.h"
 #include "pthreads4w/sched.h"
 

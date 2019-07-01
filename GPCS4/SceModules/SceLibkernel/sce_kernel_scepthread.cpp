@@ -94,6 +94,9 @@ int pthreadErrorToSceError(int perror)
 	case EISDIR:
 		sceError = SCE_KERNEL_ERROR_EISDIR;
 		break;
+	case EINVAL:
+		sceError = SCE_KERNEL_ERROR_EINVAL;
+		break;
 	case ENFILE:
 		sceError = SCE_KERNEL_ERROR_ENFILE;
 		break;
@@ -546,12 +549,15 @@ int PS4API scePthreadCreate(ScePthread *thread, const ScePthreadAttr *attr, void
 void PS4API scePthreadExit(void *value_ptr)
 {
 	LOG_SCE_TRACE("value %p", value_ptr);
-	pthread_exit(value_ptr);
 
 	// do clear
 	pthread_t emptyPt = { 0 };
 	ScePthread tid = scePthreadSelf();
 	g_threadSlot.SetItemAt(tid, emptyPt);
+
+	pthread_exit(value_ptr);
+
+	LOG_WARN("shoudn't reach here %d", tid);
 }
 
 

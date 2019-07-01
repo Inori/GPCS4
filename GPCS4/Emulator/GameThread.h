@@ -1,5 +1,4 @@
 #pragma once
-
 #include "GPCS4Common.h"
 #include "pthreads4w/pthread.h"
 #include <memory>
