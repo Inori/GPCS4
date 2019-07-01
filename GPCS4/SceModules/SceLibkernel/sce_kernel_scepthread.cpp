@@ -499,8 +499,11 @@ void* newThreadWrapper(void* arg)
 		{
 			break;
 		}
+
 		
 		ScePthread tid = scePthreadSelf();
+		LOG_DEBUG("new sce thread created %d", tid);
+
 		CTLSHandler::NotifyThreadCreate(tid);
 
 		PFUNC_PS4_THREAD_ENTRY pSceEntry = (PFUNC_PS4_THREAD_ENTRY)param->entry;
@@ -555,6 +558,14 @@ void PS4API scePthreadExit(void *value_ptr)
 	ScePthread tid = scePthreadSelf();
 	g_threadSlot.SetItemAt(tid, emptyPt);
 
+	// TODO:
+	// I formerly compiled pthread4w using VCE(using C++ exceptions) option,
+	// and we really should do that.
+	// but in that option, pthread_exit will throw an exception which will never be caught,
+	// that's strange, and I don't know why.
+	// so I change the compile option to use setjmp/longjmp, and this works,
+	// but without stack unwinding.
+	// we should fix this later...
 	pthread_exit(value_ptr);
 
 	LOG_WARN("shoudn't reach here %d", tid);
