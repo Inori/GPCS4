@@ -1,12 +1,14 @@
 #include "sce_libkernel.h"
 #include "sce_kernel_memory.h"
 #include "Platform/UtilMemory.h"
+#include <cstring>
 
 int PS4API sceKernelAllocateDirectMemory(sceoff_t searchStart, sceoff_t searchEnd, 
 	size_t len, size_t alignment, int memoryType, sceoff_t *physAddrOut)
 {
 	LOG_SCE_DUMMY_IMPL();
 	*physAddrOut = (sceoff_t)new byte[len];
+	//memset((void*)*physAddrOut, 0, len);
 	return SCE_OK;
 }
 

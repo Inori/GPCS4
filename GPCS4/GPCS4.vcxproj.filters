@@ -394,6 +394,9 @@
     <ClInclude Include="SceModules\MapSlot.h">
       <Filter>SceModules</Filter>
     </ClInclude>
+    <ClInclude Include="SceModules\SceVideoOut\sce_videoout_types.h">
+      <Filter>SceModules\SceVideoOut</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">

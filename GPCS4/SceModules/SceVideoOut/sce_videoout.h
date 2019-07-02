@@ -10,6 +10,7 @@
 #pragma once
 
 #include "sce_module_common.h"
+#include "sce_videoout_types.h"
 
 
 extern const SCE_EXPORT_MODULE g_ExpModuleSceVideoOut;
@@ -25,22 +26,22 @@ extern const SCE_EXPORT_MODULE g_ExpModuleSceVideoOut;
 // library: libSceVideoOut
 //////////////////////////////////////////////////////////////////////////
 
-int PS4API sceVideoOutClose(void);
+int PS4API sceVideoOutClose(int32_t handle);
 
 
-int PS4API sceVideoOutGetResolutionStatus(void);
+int PS4API sceVideoOutGetResolutionStatus(int32_t handle, SceVideoOutResolutionStatus *status);
 
 
-int PS4API sceVideoOutOpen(void);
+int PS4API sceVideoOutOpen(SceUserServiceUserId userId, int32_t type, int32_t index, const void *param);
 
 
-int PS4API sceVideoOutRegisterBuffers(void);
+int PS4API sceVideoOutRegisterBuffers(int32_t handle, int32_t startIndex, void * const *addresses, int32_t bufferNum, const SceVideoOutBufferAttribute *attribute);
 
 
-int PS4API sceVideoOutSetBufferAttribute(void);
+int PS4API sceVideoOutSetBufferAttribute(SceVideoOutBufferAttribute *attribute, uint32_t pixelFormat, uint32_t tilingMode, uint32_t aspectRatio,	uint32_t width, uint32_t height, uint32_t pitchInPixel);
 
 
-int PS4API sceVideoOutSetFlipRate(void);
+int PS4API sceVideoOutSetFlipRate(int32_t handle, int32_t rate);
 
 
 int PS4API sceVideoOutAddFlipEvent(void);

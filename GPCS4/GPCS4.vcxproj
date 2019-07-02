@@ -92,6 +92,7 @@
     <ClInclude Include="SceModules\SceUserService\sce_userservice.h" />
     <ClInclude Include="SceModules\SceUserService\sce_userservice_types.h" />
     <ClInclude Include="SceModules\SceVideoOut\sce_videoout.h" />
+    <ClInclude Include="SceModules\SceVideoOut\sce_videoout_types.h" />
     <ClInclude Include="SceModules\SceVideoRecording\sce_videorecording.h" />
     <ClInclude Include="SceModules\sce_errors.h" />
     <ClInclude Include="SceModules\sce_kernel_error.h" />

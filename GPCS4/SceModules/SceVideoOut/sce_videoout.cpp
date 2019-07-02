@@ -1,5 +1,5 @@
 #include "sce_videoout.h"
-
+#include <cstring>
 
 // Note:
 // The codebase is generated using GenerateCode.py
@@ -11,42 +11,60 @@
 // library: libSceVideoOut
 //////////////////////////////////////////////////////////////////////////
 
-int PS4API sceVideoOutClose(void)
+int PS4API sceVideoOutOpen(SceUserServiceUserId userId, int32_t type, int32_t index, const void *param)
+{
+	LOG_SCE_DUMMY_IMPL();
+	return 0x123;
+}
+
+
+int PS4API sceVideoOutClose(int32_t handle)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
 }
 
 
-int PS4API sceVideoOutGetResolutionStatus(void)
+int PS4API sceVideoOutGetResolutionStatus(int32_t handle, SceVideoOutResolutionStatus *status)
+{
+	LOG_SCE_DUMMY_IMPL();
+	status->fullWidth = 1920;
+	status->fullHeight = 1080;
+	status->paneWidth = 1920;
+	status->paneHeight = 1080;
+	status->refreshRate = SCE_VIDEO_OUT_REFRESH_RATE_59_94HZ;
+	status->screenSizeInInch = 32;
+	status->flags = SCE_VIDEO_OUT_RESOLUTION_STATUS_FLAGS_OUTPUT_IN_USE;
+	return SCE_OK;
+}
+
+
+int PS4API sceVideoOutSetFlipRate(int32_t handle, int32_t rate)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
 }
 
 
-int PS4API sceVideoOutOpen(void)
+int PS4API sceVideoOutSetBufferAttribute(SceVideoOutBufferAttribute *attribute, 
+	uint32_t pixelFormat, uint32_t tilingMode, uint32_t aspectRatio,
+	uint32_t width, uint32_t height, uint32_t pitchInPixel)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_DUMMY_IMPL();
+	memset(attribute, 0, sizeof(*attribute));
+	attribute->pixelFormat = pixelFormat;
+	attribute->tilingMode = tilingMode;
+	attribute->aspectRatio = SCE_VIDEO_OUT_ASPECT_RATIO_16_9;
+	attribute->width = width;
+	attribute->height = height;
+	attribute->pitchInPixel = pitchInPixel;
+	attribute->option = SCE_VIDEO_OUT_BUFFER_ATTRIBUTE_OPTION_NONE;
 	return SCE_OK;
 }
 
 
-int PS4API sceVideoOutRegisterBuffers(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API sceVideoOutSetBufferAttribute(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API sceVideoOutSetFlipRate(void)
+int PS4API sceVideoOutRegisterBuffers(int32_t handle, int32_t startIndex, void * const *addresses, 
+	int32_t bufferNum, const SceVideoOutBufferAttribute *attribute)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
