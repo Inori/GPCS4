@@ -167,36 +167,7 @@ int PS4API sceCoredumpWriteUserData(void)
 // library: libScePosix
 //////////////////////////////////////////////////////////////////////////
 
-int PS4API scek_clock_gettime(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scek_gettimeofday(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scek_nanosleep(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-
 int PS4API scek_sched_yield(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scek_usleep(void)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;

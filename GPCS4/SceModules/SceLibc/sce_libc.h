@@ -38,7 +38,7 @@ int PS4API scec__Cosh(void);
 
 int PS4API scec__FDtest(void);
 
-int PS4API scec__FLog(void);
+float PS4API scec__FLog(float arg, int n);
 
 int PS4API scec__FSin(void);
 
@@ -52,7 +52,7 @@ int PS4API scec__Getptoupper(void);
 
 int PS4API scec__Log(void);
 
-int PS4API scec__Sin(void);
+double PS4API scec__Sin(double arg, unsigned int m, int n);
 
 int PS4API scec__Sinh(void);
 
@@ -298,7 +298,7 @@ int PS4API scec_tanf(void);
 
 int PS4API scec_tanh(void);
 
-int PS4API scec_time(void);
+scetime_t PS4API scec_time(scetime_t* pt);
 
 int PS4API scec_vsnprintf(char * s, size_t n, const char * format, void* arg);
 

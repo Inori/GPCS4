@@ -63,9 +63,3 @@ int PS4API scec_rand(void)
 }
 
 
-int PS4API scec_time(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
