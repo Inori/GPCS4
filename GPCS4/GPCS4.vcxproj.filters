@@ -400,6 +400,12 @@
     <ClInclude Include="SceModules\SceLibkernel\sce_kernel_eventqueue.h">
       <Filter>SceModules\SceLibkernel</Filter>
     </ClInclude>
+    <ClInclude Include="SceModules\SceLibkernel\sce_kernel_eventflag.h">
+      <Filter>SceModules\SceLibkernel</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceLibkernel\SceEventFlag.h">
+      <Filter>SceModules\SceLibkernel</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -769,6 +775,12 @@
       <Filter>Source Files\Platform</Filter>
     </ClCompile>
     <ClCompile Include="SceModules\SceLibkernel\sce_kernel_eventqueue.cpp">
+      <Filter>SceModules\SceLibkernel</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceLibkernel\sce_kernel_eventflag.cpp">
+      <Filter>SceModules\SceLibkernel</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceLibkernel\SceEventFlag.cpp">
       <Filter>SceModules\SceLibkernel</Filter>
     </ClCompile>
   </ItemGroup>

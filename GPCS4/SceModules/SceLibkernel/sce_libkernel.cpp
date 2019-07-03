@@ -49,20 +49,6 @@ int PS4API sceKernelClockGettime(void)
 
 
 
-int PS4API sceKernelCreateEventFlag(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-
-int PS4API sceKernelDeleteEventFlag(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
 
 int PS4API sceKernelGetCpumode(void)
 {
@@ -82,25 +68,10 @@ int PS4API sceKernelIsNeoMode(void)
 
 
 
-int PS4API sceKernelSetEventFlag(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
 int PS4API sceKernelUsleep(SceKernelUseconds microseconds)
 {
 	LOG_SCE_TRACE("ms %d", microseconds);
 	UtilTime::MicroSleep(microseconds);
-	return SCE_OK;
-}
-
-
-
-int PS4API sceKernelWaitEventFlag(void)
-{
-	LOG_FIXME("Not implemented");
 	return SCE_OK;
 }
 
