@@ -59,6 +59,7 @@
     <ClInclude Include="SceModules\SceJson\sce_json.h" />
     <ClInclude Include="SceModules\SceLibc\sce_libc.h" />
     <ClInclude Include="SceModules\SceLibkernel\SceSemaphore.h" />
+    <ClInclude Include="SceModules\SceLibkernel\sce_kernel_eventqueue.h" />
     <ClInclude Include="SceModules\SceLibkernel\sce_kernel_file.h" />
     <ClInclude Include="SceModules\SceLibkernel\sce_kernel_memory.h" />
     <ClInclude Include="SceModules\SceLibkernel\sce_kernel_scepthread.h" />
@@ -163,6 +164,7 @@
       <FileType>Document</FileType>
     </MASM>
     <ClCompile Include="SceModules\SceLibkernel\SceSemaphore.cpp" />
+    <ClCompile Include="SceModules\SceLibkernel\sce_kernel_eventqueue.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\sce_kernel_file.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\sce_kernel_memory.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\sce_kernel_pthread.cpp" />

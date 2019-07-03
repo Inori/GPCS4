@@ -18,7 +18,7 @@ int PS4API sceKernelCreateSema(SceKernelSema *sem, const char *name,
 int PS4API sceKernelDeleteSema(SceKernelSema sem)
 {
 	LOG_SCE_TRACE("sem %p", sem);
-	delete (CSceSemaphore*)sem;
+	//delete (CSceSemaphore*)sem;
 	return SCE_OK;
 }
 

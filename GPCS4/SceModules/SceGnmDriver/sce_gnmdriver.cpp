@@ -389,9 +389,15 @@ int PS4API sceGnmLogicalCuMaskToPhysicalCuMask(void)
 }
 
 
-int PS4API sceGnmMapComputeQueue(void)
+int PS4API sceGnmMapComputeQueue(uint32_t *vqueueId, 
+	uint32_t globalPipeId, uint32_t queueId, 
+	void *ringBaseAddr, uint32_t ringSizeInDW, void *readPtrAddr)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_DUMMY_IMPL();
+	if (vqueueId)
+	{
+		*vqueueId = 0x567;
+	}
 	return SCE_OK;
 }
 

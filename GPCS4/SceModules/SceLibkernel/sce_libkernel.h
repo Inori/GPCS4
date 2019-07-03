@@ -15,6 +15,8 @@
 #include "sce_kernel_scepthread.h"
 #include "sce_kernel_file.h"
 #include "sce_kernel_memory.h"
+#include "sce_kernel_eventqueue.h"
+
 
 extern const SCE_EXPORT_MODULE g_ExpModuleSceLibkernel;
 
@@ -50,7 +52,7 @@ int PS4API sceKernelClockGettime(void);
 int PS4API sceKernelClose(int d);
 
 
-int PS4API sceKernelCreateEqueue(void);
+int PS4API sceKernelCreateEqueue(SceKernelEqueue *eq, const char *name);
 
 
 int PS4API sceKernelCreateEventFlag(void);
@@ -59,7 +61,7 @@ int PS4API sceKernelCreateEventFlag(void);
 int PS4API sceKernelCreateSema(SceKernelSema *sem, const char *name, uint32_t attr, int init, int max, const SceKernelSemaOptParam *opt);
 
 
-int PS4API sceKernelDeleteEqueue(void);
+int PS4API sceKernelDeleteEqueue(SceKernelEqueue eq);
 
 
 int PS4API sceKernelDeleteEventFlag(void);
@@ -146,7 +148,7 @@ int PS4API sceKernelUnlink(void);
 int PS4API sceKernelUsleep(SceKernelUseconds microseconds);
 
 
-int PS4API sceKernelWaitEqueue(void);
+int PS4API sceKernelWaitEqueue(SceKernelEqueue eq, SceKernelEvent *ev, int num, int *out, SceKernelUseconds *timo);
 
 
 int PS4API sceKernelWaitEventFlag(void);

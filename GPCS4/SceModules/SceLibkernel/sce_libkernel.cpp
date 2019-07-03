@@ -49,26 +49,12 @@ int PS4API sceKernelClockGettime(void)
 
 
 
-int PS4API sceKernelCreateEqueue(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
 int PS4API sceKernelCreateEventFlag(void)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
 }
 
-
-
-int PS4API sceKernelDeleteEqueue(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
 
 
 int PS4API sceKernelDeleteEventFlag(void)
@@ -110,12 +96,6 @@ int PS4API sceKernelUsleep(SceKernelUseconds microseconds)
 	return SCE_OK;
 }
 
-
-int PS4API sceKernelWaitEqueue(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
 
 
 int PS4API sceKernelWaitEventFlag(void)

@@ -397,6 +397,9 @@
     <ClInclude Include="SceModules\SceVideoOut\sce_videoout_types.h">
       <Filter>SceModules\SceVideoOut</Filter>
     </ClInclude>
+    <ClInclude Include="SceModules\SceLibkernel\sce_kernel_eventqueue.h">
+      <Filter>SceModules\SceLibkernel</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -764,6 +767,9 @@
     </ClCompile>
     <ClCompile Include="Platform\UtilTime.cpp">
       <Filter>Source Files\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceLibkernel\sce_kernel_eventqueue.cpp">
+      <Filter>SceModules\SceLibkernel</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
