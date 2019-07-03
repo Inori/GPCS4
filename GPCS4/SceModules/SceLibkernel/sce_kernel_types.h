@@ -8,3 +8,9 @@ typedef struct _SceKernelSemaOptParam {
 
 
 typedef void* SceKernelSema;
+
+
+typedef	long		__scesuseconds_t;	/* microseconds (signed) */
+typedef	unsigned int	__sceuseconds_t;	/* microseconds (unsigned) */
+
+typedef	__sceuseconds_t	sceuseconds_t;	/* microseconds (unsigned) */

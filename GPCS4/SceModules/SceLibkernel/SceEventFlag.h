@@ -23,10 +23,15 @@ public:
 	int Cancel(uint64 setPattern, int* pNumWaitThreads);
 
 private:
+	bool IsConditionMet(uint mode, uint64 bitPattern);
+	bool IsSingleMode();
+
+private:
 	uint m_attr;
 	std::string m_name;
 	uint64 m_bitPattern;
 	std::mutex m_mutex;
 	std::condition_variable m_cond;
+	bool m_anyWaiting;
 };
 
