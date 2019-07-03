@@ -21,7 +21,29 @@ int PS4API scec_tanh(void)
 }
 
 
+int PS4API scec__Log(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+
 int PS4API scec__Cosh(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API scec__FDtest(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API scec__FLog(void)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;

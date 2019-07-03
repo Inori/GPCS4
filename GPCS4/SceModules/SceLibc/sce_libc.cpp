@@ -20,20 +20,6 @@ int PS4API scec_Need_sceLibc(void)
 }
 
 
-int PS4API scec__FDtest(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scec__FLog(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
 int PS4API scec__Getmbcurmax(void)
 {
 	LOG_FIXME("Not implemented");
@@ -61,12 +47,6 @@ int PS4API scec__Getptoupper(void)
 	return SCE_OK;
 }
 
-
-int PS4API scec__Log(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
 
 
 int PS4API scec__ZSt14_Xlength_errorPKc(void)
