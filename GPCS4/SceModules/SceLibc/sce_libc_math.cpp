@@ -1,4 +1,8 @@
 #include "sce_libc.h"
+#include <cmath>
+
+// declarations in this file can be found in FreeBSD 9, ymath.h
+
 
 int PS4API scec_tan(void)
 {
@@ -42,10 +46,10 @@ int PS4API scec__FDtest(void)
 }
 
 
-int PS4API scec__FLog(void)
+float PS4API scec__FLog(float arg, int n)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("arg %f", arg);
+	return logf(arg);
 }
 
 
@@ -56,10 +60,10 @@ int PS4API scec__FSin(void)
 }
 
 
-int PS4API scec__Sin(void)
+double PS4API scec__Sin(double arg, unsigned int m, int n)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("arg %f", arg);
+	return sin(arg);
 }
 
 

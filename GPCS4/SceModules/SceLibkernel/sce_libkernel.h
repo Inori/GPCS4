@@ -16,6 +16,7 @@
 #include "sce_kernel_file.h"
 #include "sce_kernel_memory.h"
 #include "sce_kernel_eventqueue.h"
+#include "sce_kernel_eventflag.h"
 
 
 extern const SCE_EXPORT_MODULE g_ExpModuleSceLibkernel;
@@ -55,7 +56,7 @@ int PS4API sceKernelClose(int d);
 int PS4API sceKernelCreateEqueue(SceKernelEqueue *eq, const char *name);
 
 
-int PS4API sceKernelCreateEventFlag(void);
+int PS4API sceKernelCreateEventFlag(SceKernelEventFlag *ef, const char *pName, uint32_t attr, uint64_t initPattern, const SceKernelEventFlagOptParam *pOptParam);
 
 
 int PS4API sceKernelCreateSema(SceKernelSema *sem, const char *name, uint32_t attr, int init, int max, const SceKernelSemaOptParam *opt);
@@ -64,7 +65,7 @@ int PS4API sceKernelCreateSema(SceKernelSema *sem, const char *name, uint32_t at
 int PS4API sceKernelDeleteEqueue(SceKernelEqueue eq);
 
 
-int PS4API sceKernelDeleteEventFlag(void);
+int PS4API sceKernelDeleteEventFlag(SceKernelEventFlag ef);
 
 
 int PS4API sceKernelDeleteSema(SceKernelSema sem);
@@ -133,7 +134,7 @@ int PS4API sceKernelReleaseFlexibleMemory(void);
 int PS4API sceKernelRename(void);
 
 
-int PS4API sceKernelSetEventFlag(void);
+int PS4API sceKernelSetEventFlag(SceKernelEventFlag ef, uint64_t bitPattern);
 
 
 int PS4API sceKernelSignalSema(SceKernelSema sem, int count);
@@ -151,7 +152,7 @@ int PS4API sceKernelUsleep(SceKernelUseconds microseconds);
 int PS4API sceKernelWaitEqueue(SceKernelEqueue eq, SceKernelEvent *ev, int num, int *out, SceKernelUseconds *timo);
 
 
-int PS4API sceKernelWaitEventFlag(void);
+int PS4API sceKernelWaitEventFlag(SceKernelEventFlag ef, uint64_t bitPattern, uint32_t waitMode, uint64_t *pResultPat, SceKernelUseconds *pTimeout);
 
 
 int PS4API sceKernelWaitSema(SceKernelSema sem, int need, SceKernelUseconds *timo);
@@ -392,7 +393,7 @@ int PS4API sceCoredumpWriteUserData(void);
 // library: libScePosix
 //////////////////////////////////////////////////////////////////////////
 
-int PS4API scek_clock_gettime(void);
+int PS4API scek_clock_gettime(sceclockid_t clk_id, struct sce_timespec * tp);
 
 
 int PS4API scek_gettimeofday(void);
@@ -452,7 +453,7 @@ int PS4API scek_pthread_self(void);
 int PS4API scek_sched_yield(void);
 
 
-int PS4API scek_usleep(void);
+int PS4API scek_usleep(sceuseconds_t microsecond);
 
 
 int PS4API scek_close(void);
