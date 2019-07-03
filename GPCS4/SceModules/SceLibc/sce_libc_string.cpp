@@ -33,10 +33,10 @@ int PS4API scec_memchr(void)
 }
 
 
-int PS4API scec_memcmp(void)
+int PS4API scec_memcmp(const void *s1, const void *s2, size_t n)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("s1 %p s2 %p n %d", s1, s2, n);
+	return memcmp(s1, s2, n);
 }
 
 
@@ -264,10 +264,10 @@ int PS4API scec_strnlen_s(void)
 }
 
 
-int PS4API scec_strrchr(void)
+char* PS4API scec_strrchr(const char *s, int c)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("s %p c %x", s, c);
+	return (char*)strrchr(s, c);
 }
 
 
@@ -332,10 +332,19 @@ int PS4API scec_vsprintf(void)
 }
 
 
-int PS4API scec_vsprintf_s(void)
+int PS4API
+#ifdef GPCS4_WINDOWS
+PS4NAKED
+#endif  //GPCS4_WINDOWS
+scec_vsprintf_s(char *buffer, size_t numberOfElements, const char *format, void* argptr)
 {
-	LOG_FIXME("Not implemented");
+	//LOG_SCE_TRACE("s %p n %x format %p", buffer, numberOfElements, format);
+#ifdef GPCS4_WINDOWS
+	// vsprintf_s is the same as vsnprintf
+	asm volatile ("jmp  scec_vsnprintf_asm");
+#else
 	return SCE_OK;
+#endif  //GPCS4_WINDOWS
 }
 
 

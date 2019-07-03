@@ -184,7 +184,7 @@ int PS4API scec_mbstowcs_s(void);
 
 int PS4API scec_memchr(void);
 
-int PS4API scec_memcmp(void);
+int PS4API scec_memcmp(const void *s1, const void *s2, size_t n);
 
 void* PS4API scec_memcpy(void *dest, const void *src, size_t n);
 
@@ -280,7 +280,7 @@ int PS4API scec_strncpy_s(void);
 
 int PS4API scec_strnlen_s(void);
 
-int PS4API scec_strrchr(void);
+char* PS4API scec_strrchr(const char *s, int c);
 
 char* PS4API scec_strstr(const char *haystack, const char *needle);
 
@@ -304,7 +304,7 @@ int PS4API scec_vsnprintf(char * s, size_t n, const char * format, void* arg);
 
 int PS4API scec_vsprintf(void);
 
-int PS4API scec_vsprintf_s(void);
+int PS4API scec_vsprintf_s(char *buffer, size_t numberOfElements, const char *format, void* argptr);
 
 int PS4API scec_wcscat_s(void);
 

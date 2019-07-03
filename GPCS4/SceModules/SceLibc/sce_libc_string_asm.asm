@@ -56,6 +56,7 @@ L_FOUND_FP:
 scec_sprintf_asm endp
 
 
+
 ;int vsnprintf (char * s, size_t n, const char * format, va_list arg );
 extern vsnprintf:proc
 scec_vsnprintf_asm proc
