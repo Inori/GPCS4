@@ -389,16 +389,47 @@ int PS4API sceGnmLogicalCuMaskToPhysicalCuMask(void)
 }
 
 
-int PS4API sceGnmMapComputeQueue(uint32_t *vqueueId, 
-	uint32_t globalPipeId, uint32_t queueId, 
+// Note:
+// it seems that nier:automata use an old version of this function
+// and it has 5 params and the vqueueId is the return value.
+
+//int PS4API sceGnmMapComputeQueue(uint32_t *vqueueId, 
+//	uint32_t globalPipeId, uint32_t queueId, 
+//	void *ringBaseAddr, uint32_t ringSizeInDW, void *readPtrAddr)
+
+int PS4API sceGnmMapComputeQueue(uint32_t globalPipeId, uint32_t queueId,
 	void *ringBaseAddr, uint32_t ringSizeInDW, void *readPtrAddr)
 {
 	LOG_SCE_DUMMY_IMPL();
-	if (vqueueId)
+	int vqueueId = 0;
+	do 
 	{
-		*vqueueId = 0x567;
-	}
-	return SCE_OK;
+		if (globalPipeId >= 7)
+		{
+			break;
+		}
+
+		if (queueId >= 8)
+		{
+			break;
+		}
+
+		if ((ulong_ptr)ringBaseAddr % 256 != 0)
+		{
+			break;
+		}
+
+		if ((ulong_ptr)readPtrAddr % 4 != 0)
+		{
+			break;
+		}
+
+		*(sceoff_t*)readPtrAddr = 0;
+
+		vqueueId = 0x567;
+	} while (false);
+
+	return vqueueId;
 }
 
 
