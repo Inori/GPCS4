@@ -34,8 +34,8 @@ int PS4API sceAudioOutInit(void)
 
 int PS4API sceAudioOutOpen(void)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_DUMMY_IMPL();
+	return 0x789;
 }
 
 

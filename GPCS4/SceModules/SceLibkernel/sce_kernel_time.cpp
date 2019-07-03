@@ -59,12 +59,6 @@ int PS4API scek_clock_gettime(sceclockid_t clk_id, struct sce_timespec * tp)
 }
 
 
-scetime_t PS4API scec_time(scetime_t* pt)
-{
-	LOG_SCE_TRACE("pt %p", pt);
-	return time(pt);
-}
-
 
 int PS4API scek_gettimeofday(void)
 {

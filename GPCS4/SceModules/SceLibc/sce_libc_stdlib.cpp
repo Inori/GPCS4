@@ -1,6 +1,5 @@
 #include "sce_libc.h"
-
-
+#include <ctime>
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -62,4 +61,10 @@ int PS4API scec_rand(void)
 	return SCE_OK;
 }
 
+
+scetime_t PS4API scec_time(scetime_t* pt)
+{
+	LOG_SCE_TRACE("pt %p", pt);
+	return time(pt);
+}
 
