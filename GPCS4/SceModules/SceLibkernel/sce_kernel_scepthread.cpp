@@ -469,17 +469,19 @@ int PS4API scePthreadCondWait(ScePthreadCond *cond, ScePthreadMutex *mutex)
 }
 
 
-int PS4API scePthreadCondattrInit(void)
+int PS4API scePthreadCondattrInit(ScePthreadCondattr *attr)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("attr %p", attr);
+	int err = pthread_condattr_init(attr);
+	return pthreadErrorToSceError(err);
 }
 
 
-int PS4API scePthreadCondattrDestroy(void)
+int PS4API scePthreadCondattrDestroy(ScePthreadCondattr *attr)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("attr %p", attr);
+	int err = pthread_condattr_destroy(attr);
+	return pthreadErrorToSceError(err);
 }
 
 //////////////////////////////////////////////////////////////////////////

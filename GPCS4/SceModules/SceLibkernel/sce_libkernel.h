@@ -205,7 +205,7 @@ int PS4API scePthreadCondWait(ScePthreadCond *cond, ScePthreadMutex *mutex);
 int PS4API scePthreadCondattrDestroy(void);
 
 
-int PS4API scePthreadCondattrInit(void);
+int PS4API scePthreadCondattrInit(ScePthreadCondattr *attr);
 
 
 int PS4API scePthreadCreate(ScePthread *thread, const ScePthreadAttr *attr, void *(PS4API *entry) (void *), void *arg, const char *name);
