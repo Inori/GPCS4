@@ -28,7 +28,6 @@ int PS4API scec__Log(void)
 }
 
 
-
 int PS4API scec__Cosh(void)
 {
 	LOG_FIXME("Not implemented");
