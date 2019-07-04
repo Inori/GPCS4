@@ -41,7 +41,7 @@ int PS4API scec__FDtest(void);
 
 float PS4API scec__FLog(float arg, int n);
 
-int PS4API scec__FSin(void);
+float PS4API scec__FSin(float arg, unsigned int m, int n);
 
 int PS4API scec__Getmbcurmax(void);
 
@@ -109,7 +109,7 @@ int PS4API scec_atan(void);
 
 int PS4API scec_atan2(void);
 
-int PS4API scec_atan2f(void);
+float PS4API scec_atan2f(float y, float x);
 
 int PS4API scec_atanh(void);
 
@@ -135,7 +135,7 @@ int PS4API scec_exp(void);
 
 int PS4API scec_exp2(void);
 
-int PS4API scec_exp2f(void);
+float PS4API scec_exp2f(float arg);
 
 int PS4API scec_expf(void);
 
@@ -211,7 +211,7 @@ int PS4API scec_putchar(void);
 
 int PS4API scec_puts(void);
 
-int PS4API scec_qsort(void);
+void PS4API scec_qsort(void *base, size_t nmemb, size_t size, int(*compar)(const void *, const void *));
 
 int PS4API scec_rand(void);
 
@@ -293,7 +293,7 @@ int PS4API scec_strtol(void);
 
 int PS4API scec_swprintf_s(void);
 
-int PS4API scec_tan(void);
+double PS4API scec_tan(double arg);
 
 int PS4API scec_tanf(void);
 

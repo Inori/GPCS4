@@ -48,10 +48,11 @@ int PS4API scec_bsearch(void)
 
 
 
-int PS4API scec_qsort(void)
+void PS4API scec_qsort(void *base, size_t nmemb, size_t size, 
+	int(*compar)(const void *, const void *))
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("base %p nmemb %d size %d compar %p", base, nmemb, size, compar);
+	qsort(base, nmemb, size, compar);
 }
 
 

@@ -1,13 +1,13 @@
 #include "sce_libc.h"
 #include <cmath>
 
-// declarations in this file can be found in FreeBSD 9, ymath.h
+// declarations in this file can be found in FreeBSD 9, math.h and ymath.h
 
 
-int PS4API scec_tan(void)
+double PS4API scec_tan(double arg)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("arg %f", arg);
+	return tan(arg);
 }
 
 
@@ -53,10 +53,10 @@ float PS4API scec__FLog(float arg, int n)
 }
 
 
-int PS4API scec__FSin(void)
+float PS4API scec__FSin(float arg, unsigned int m, int n)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("arg %f", arg);
+	return sinf(arg);
 }
 
 
@@ -130,10 +130,10 @@ int PS4API scec_atan2(void)
 }
 
 
-int PS4API scec_atan2f(void)
+float PS4API scec_atan2f(float y, float x)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("y %f x %f", y, x);
+	return atan2f(y, x);
 }
 
 
@@ -179,10 +179,10 @@ int PS4API scec_exp2(void)
 }
 
 
-int PS4API scec_exp2f(void)
+float PS4API scec_exp2f(float arg)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("arg %f", arg);
+	return exp2f(arg);
 }
 
 
