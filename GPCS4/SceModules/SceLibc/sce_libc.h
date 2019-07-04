@@ -211,7 +211,7 @@ int PS4API scec_putchar(void);
 
 int PS4API scec_puts(void);
 
-void PS4API scec_qsort(void *base, size_t nmemb, size_t size, int(*compar)(const void *, const void *));
+void PS4API scec_qsort(void *base, size_t nmemb, size_t size, int(PS4API *compar)(const void *, const void *));
 
 int PS4API scec_rand(void);
 

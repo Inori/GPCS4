@@ -46,13 +46,20 @@ int PS4API scec_bsearch(void)
 	return SCE_OK;
 }
 
+typedef int (PS4API *PFUNC_QsortCmp)(const void*, const void*);
+thread_local static PFUNC_QsortCmp t_qsort_compair_ps4;
 
+int qsort_compair(const void* arg1, const void* arg2)
+{
+	return t_qsort_compair_ps4(arg1, arg2);
+}
 
 void PS4API scec_qsort(void *base, size_t nmemb, size_t size, 
-	int(*compar)(const void *, const void *))
+	int(PS4API *compar)(const void *, const void *))
 {
 	LOG_SCE_TRACE("base %p nmemb %d size %d compar %p", base, nmemb, size, compar);
-	qsort(base, nmemb, size, compar);
+	t_qsort_compair_ps4 = compar;
+	qsort(base, nmemb, size, qsort_compair);
 }
 
 
