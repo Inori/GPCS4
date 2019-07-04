@@ -253,6 +253,19 @@ int PS4API scePthreadMutexattrSettype(ScePthreadMutexattr *attr, int type)
 }
 
 
+int PS4API scePthreadMutexTimedlock(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API scePthreadMutexTrylock(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 int PS4API scePthreadAttrInit(ScePthreadAttr *attr)
@@ -582,10 +595,20 @@ int PS4API scePthreadGetaffinity(void)
 	return SCE_OK;
 }
 
-
-int PS4API scePthreadGetprio(void)
+thread_local static int t_thread_prio = 0;
+int PS4API scePthreadSetprio(ScePthread thread, int prio)
 {
-	LOG_FIXME("Not implemented");
+	//LOG_SCE_TRACE("pthread %d prio %d", thread, prio);
+	LOG_SCE_DUMMY_IMPL();
+	t_thread_prio = prio;
+	return SCE_OK;
+}
+
+
+int PS4API scePthreadGetprio(ScePthread thread, int *prio)
+{
+	LOG_SCE_DUMMY_IMPL();
+	*prio = t_thread_prio;
 	return SCE_OK;
 }
 
@@ -598,67 +621,9 @@ int PS4API scePthreadJoin(ScePthread thread, void **value)
 }
 
 
-
 int PS4API scePthreadRename(void)
 {
 	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scePthreadRwlockDestroy(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scePthreadRwlockInit(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scePthreadRwlockRdlock(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scePthreadRwlockUnlock(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scePthreadRwlockWrlock(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scePthreadRwlockattrDestroy(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scePthreadRwlockattrInit(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scePthreadSetprio(ScePthread thread, int prio)
-{
-	//LOG_SCE_TRACE("pthread %d prio %d", thread, prio);
-	LOG_SCE_DUMMY_IMPL();
 	return SCE_OK;
 }
 
@@ -705,27 +670,6 @@ int PS4API scePthreadGetspecific(void)
 }
 
 
-int PS4API scePthreadKeyCreate(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scePthreadMutexTimedlock(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scePthreadMutexTrylock(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
 int PS4API scePthreadSetschedparam(void)
 {
 	LOG_FIXME("Not implemented");
@@ -738,4 +682,64 @@ int PS4API scePthreadSetspecific(void)
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
 }
+
+//////////////////////////////////////////////////////////////////////////
+int PS4API scePthreadRwlockattrInit(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+int PS4API scePthreadRwlockattrDestroy(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API scePthreadRwlockInit(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API scePthreadRwlockDestroy(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API scePthreadRwlockRdlock(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API scePthreadRwlockUnlock(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API scePthreadRwlockWrlock(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+
+
+int PS4API scePthreadKeyCreate(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
 

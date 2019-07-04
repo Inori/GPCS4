@@ -33,10 +33,11 @@ uint64_t PS4API sceKernelGetTscFrequency(void)
 }
 
 
-int PS4API sceKernelReadTsc(void)
+uint64_t PS4API sceKernelReadTsc(void)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	uint64_t nCount = UtilProcess::GetProcessTimeCounter();
+	LOG_SCE_TRACE("tsc %lld", nCount);
+	return nCount;
 }
 
 

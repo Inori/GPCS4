@@ -15,3 +15,5 @@
 #define PS4NOINLINE __attribute__((noinline))
 
 #define PS4DEPRECATED __attribute__((deprecated))
+
+#define PS4UNUSED __attribute__((unused))

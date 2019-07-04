@@ -34,6 +34,7 @@ void LogPrint(const char* szLevel, const char* szFunction, int nLine, const char
 	va_end(stArgList);
 
 	OutputDebugStringA(szDbgStr);
+	//printf(szDbgStr);
 }
 
 void LogAssert(const char* szLevel, const char* szFunction, int nLine, const char* szFormat, ...)

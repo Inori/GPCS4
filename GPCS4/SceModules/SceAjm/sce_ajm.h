@@ -38,10 +38,10 @@ int PS4API sceAjmBatchStartBuffer(void);
 int PS4API sceAjmBatchWait(void);
 
 
-int PS4API sceAjmFinalize(const SceAjmContextId uiContext);
+int PS4API sceAjmFinalize(PS4UNUSED const SceAjmContextId uiContext);
 
 
-int PS4API sceAjmInitialize(int64_t iReserved, SceAjmContextId * const pContext);
+int PS4API sceAjmInitialize(PS4UNUSED int64_t iReserved, SceAjmContextId * const pContext);
 
 
 int PS4API sceAjmInstanceCreate(void);
@@ -50,7 +50,7 @@ int PS4API sceAjmInstanceCreate(void);
 int PS4API sceAjmInstanceDestroy(void);
 
 
-int PS4API sceAjmModuleRegister(const SceAjmContextId uiContext, const SceAjmCodecType uiCodec, int64_t iReserved);
+int PS4API sceAjmModuleRegister(PS4UNUSED const SceAjmContextId uiContext, PS4UNUSED const SceAjmCodecType uiCodec, PS4UNUSED int64_t iReserved);
 
 
 int PS4API sceAjmModuleUnregister(void);

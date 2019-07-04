@@ -2,7 +2,7 @@
 
 #include "GPCS4Common.h"
 
-#define GPCS4_DEBUG
+//#define GPCS4_DEBUG
 
 
 #define LOG_LEVEL_DEBUG "DEBUG"
@@ -44,6 +44,15 @@ void LogAssert(const char* szLevel, const char* szFunction, int nLine, const cha
 
 #else
 
+// Note:
+// if we undef GPCS4_DEBUG and using the following empty macros,
+// we will get compiling errors.
+// it seems that this is because 
+// clang do not support a function with 4-bytes-aligned param list
+// when declared as sysv_abi,
+// eg. int PS4API my_func(int arg);
+// but int PS4API my_func(long long arg); will be fine.
+// this is fucking strange... and I don't why...
 
 #define LOG_DEBUG(format, ...)	
 #define LOG_TRACE(format, ...)	
@@ -52,7 +61,7 @@ void LogAssert(const char* szLevel, const char* szFunction, int nLine, const cha
 #define LOG_ERR(format, ...)
 #define LOG_ASSERT(format, ...) 
 
-#define LOG_SCE_TRACE (format, ...)
+#define LOG_SCE_TRACE(format, ...)
 #define LOG_SCE_DUMMY_IMPL()
 
 #endif  //ENABLE_DEBUG

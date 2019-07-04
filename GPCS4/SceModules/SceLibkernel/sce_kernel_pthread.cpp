@@ -1,13 +1,15 @@
 #include "sce_libkernel.h"
+#include "pthreads4w/pthread.h"
 
-int PS4API scek_pthread_cond_destroy(void)
+int pthreadErrorToSceError(int perror);
+
+int PS4API scek_pthread_cond_init(void)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
 }
 
-
-int PS4API scek_pthread_cond_init(void)
+int PS4API scek_pthread_cond_destroy(void)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
@@ -34,6 +36,7 @@ int PS4API scek_pthread_cond_wait(void)
 	return SCE_OK;
 }
 
+//////////////////////////////////////////////////////////////////////////
 
 int PS4API scek_pthread_create(void)
 {
@@ -55,6 +58,13 @@ int PS4API scek_pthread_join(void)
 	return SCE_OK;
 }
 
+//////////////////////////////////////////////////////////////////////////
+int PS4API scek_pthread_mutex_init(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
 
 int PS4API scek_pthread_mutex_destroy(void)
 {
@@ -63,24 +73,19 @@ int PS4API scek_pthread_mutex_destroy(void)
 }
 
 
-int PS4API scek_pthread_mutex_init(void)
+int PS4API scek_pthread_mutex_lock(pthread_mutex_t* mtx)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("mtx %p", mtx);
+	int err = pthread_mutex_lock(mtx);
+	return pthreadErrorToSceError(err);
 }
 
 
-int PS4API scek_pthread_mutex_lock(void)
+int PS4API scek_pthread_mutex_unlock(pthread_mutex_t* mtx)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scek_pthread_mutex_unlock(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("mtx %p", mtx);
+	int err = pthread_mutex_unlock(mtx);
+	return pthreadErrorToSceError(err);
 }
 
 

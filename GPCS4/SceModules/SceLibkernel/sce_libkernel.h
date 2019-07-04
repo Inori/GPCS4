@@ -122,7 +122,7 @@ int PS4API sceKernelOpen(const char *path, int flags, SceKernelMode mode);
 ssize_t PS4API sceKernelRead(int d, void *buf, size_t nbytes);
 
 
-int PS4API sceKernelReadTsc(void);
+uint64_t PS4API sceKernelReadTsc(void);
 
 
 int PS4API sceKernelReleaseDirectMemory(sceoff_t start, size_t len);
@@ -218,7 +218,7 @@ void PS4API scePthreadExit(void *value_ptr);
 int PS4API scePthreadGetaffinity(void);
 
 
-int PS4API scePthreadGetprio(void);
+int PS4API scePthreadGetprio(ScePthread thread, int *prio);
 
 
 int PS4API scePthreadJoin(ScePthread thread, void **value);
@@ -432,10 +432,10 @@ int PS4API scek_pthread_mutex_destroy(void);
 int PS4API scek_pthread_mutex_init(void);
 
 
-int PS4API scek_pthread_mutex_lock(void);
+int PS4API scek_pthread_mutex_lock(pthread_mutex_t* mtx);
 
 
-int PS4API scek_pthread_mutex_unlock(void);
+int PS4API scek_pthread_mutex_unlock(pthread_mutex_t* mtx);
 
 
 int PS4API scek_pthread_mutexattr_destroy(void);
