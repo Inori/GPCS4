@@ -303,7 +303,8 @@
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Label="LLVM" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClangClAdditionalOptions>-v</ClangClAdditionalOptions>
+    <ClangClAdditionalOptions>
+    </ClangClAdditionalOptions>
   </PropertyGroup>
   <PropertyGroup Label="LLVM" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClangClAdditionalOptions>-flto=thin</ClangClAdditionalOptions>
