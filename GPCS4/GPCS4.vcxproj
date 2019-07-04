@@ -43,9 +43,11 @@
     <ClInclude Include="Platform\UtilTime.h" />
     <ClInclude Include="SceModules\MapSlot.h" />
     <ClInclude Include="SceModules\SceAjm\sce_ajm.h" />
+    <ClInclude Include="SceModules\SceAjm\sce_ajm_types.h" />
     <ClInclude Include="SceModules\SceAppContentUtil\sce_appcontentutil.h" />
     <ClInclude Include="SceModules\SceAudio3d\sce_audio3d.h" />
     <ClInclude Include="SceModules\SceAudioOut\sce_audioout.h" />
+    <ClInclude Include="SceModules\SceAudioOut\sce_audioout_types.h" />
     <ClInclude Include="SceModules\SceCommonDialog\sce_commondialog.h" />
     <ClInclude Include="SceModules\SceErrorDialog\sce_errordialog.h" />
     <ClInclude Include="SceModules\SceFiber\sce_fiber.h" />

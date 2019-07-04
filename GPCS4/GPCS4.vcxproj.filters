@@ -406,6 +406,12 @@
     <ClInclude Include="SceModules\SceLibkernel\SceEventFlag.h">
       <Filter>SceModules\SceLibkernel</Filter>
     </ClInclude>
+    <ClInclude Include="SceModules\SceAudioOut\sce_audioout_types.h">
+      <Filter>SceModules\SceAudioOut</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceAjm\sce_ajm_types.h">
+      <Filter>SceModules\SceAjm</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
