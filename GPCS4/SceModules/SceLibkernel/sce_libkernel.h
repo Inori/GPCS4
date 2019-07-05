@@ -191,13 +191,13 @@ int PS4API scePthreadAttrSetstacksize(ScePthreadAttr *attr, size_t stackSize);
 int PS4API scePthreadCondBroadcast(ScePthreadCond *cond);
 
 
-int PS4API scePthreadCondDestroy(void);
+int PS4API scePthreadCondDestroy(ScePthreadCond *cond);
 
 
 int PS4API scePthreadCondInit(ScePthreadCond *cond, const ScePthreadCondattr *attr, const char *name);
 
 
-int PS4API scePthreadCondSignal(void);
+int PS4API scePthreadCondSignal(ScePthreadCond *cond);
 
 
 int PS4API scePthreadCondWait(ScePthreadCond *cond, ScePthreadMutex *mutex);
@@ -251,25 +251,25 @@ int PS4API scePthreadMutexattrSettype(ScePthreadMutexattr *attr, int type);
 int PS4API scePthreadRename(void);
 
 
-int PS4API scePthreadRwlockDestroy(void);
+int PS4API scePthreadRwlockDestroy(ScePthreadRwlock *rwlock);
 
 
-int PS4API scePthreadRwlockInit(void);
+int PS4API scePthreadRwlockInit(ScePthreadRwlock *rwlock, const ScePthreadRwlockattr *attr, const char *name);
 
 
-int PS4API scePthreadRwlockRdlock(void);
+int PS4API scePthreadRwlockRdlock(ScePthreadRwlock *rwlock);
 
 
-int PS4API scePthreadRwlockUnlock(void);
+int PS4API scePthreadRwlockUnlock(ScePthreadRwlock *rwlock);
 
 
-int PS4API scePthreadRwlockWrlock(void);
+int PS4API scePthreadRwlockWrlock(ScePthreadRwlock *rwlock);
 
 
-int PS4API scePthreadRwlockattrDestroy(void);
+int PS4API scePthreadRwlockattrDestroy(ScePthreadRwlockattr *attr);
 
 
-int PS4API scePthreadRwlockattrInit(void);
+int PS4API scePthreadRwlockattrInit(ScePthreadRwlockattr *attr);
 
 
 ScePthread PS4API scePthreadSelf(void);

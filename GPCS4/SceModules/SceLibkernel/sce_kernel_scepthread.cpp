@@ -453,10 +453,11 @@ int PS4API scePthreadCondInit(ScePthreadCond *cond, const ScePthreadCondattr *at
 }
 
 
-int PS4API scePthreadCondDestroy(void)
+int PS4API scePthreadCondDestroy(ScePthreadCond *cond)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("cond %p", cond);
+	int err = pthread_cond_destroy(cond);
+	return pthreadErrorToSceError(err);
 }
 
 
@@ -467,10 +468,11 @@ int PS4API scePthreadCondBroadcast(ScePthreadCond *cond)
 	return pthreadErrorToSceError(err);
 }
 
-int PS4API scePthreadCondSignal(void)
+int PS4API scePthreadCondSignal(ScePthreadCond *cond)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("cond %p", cond);
+	int err = pthread_cond_signal(cond);
+	return pthreadErrorToSceError(err);
 }
 
 
@@ -684,53 +686,60 @@ int PS4API scePthreadSetspecific(void)
 }
 
 //////////////////////////////////////////////////////////////////////////
-int PS4API scePthreadRwlockattrInit(void)
+int PS4API scePthreadRwlockattrInit(ScePthreadRwlockattr *attr)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("attr %p", attr);
+	int err = pthread_rwlockattr_init(attr);
+	return pthreadErrorToSceError(err);
 }
 
-int PS4API scePthreadRwlockattrDestroy(void)
+int PS4API scePthreadRwlockattrDestroy(ScePthreadRwlockattr *attr)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scePthreadRwlockInit(void)
-{
-	LOG_FIXME("Not implemented");
+	LOG_SCE_TRACE("attr %p", attr);
+	int err = pthread_rwlockattr_destroy(attr);
+	return pthreadErrorToSceError(err);
 	return SCE_OK;
 }
 
 
-int PS4API scePthreadRwlockDestroy(void)
+int PS4API scePthreadRwlockInit(ScePthreadRwlock *rwlock, const ScePthreadRwlockattr *attr, const char *name)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("rwlock %p attr %p name %p", rwlock, attr, name);
+	int err = pthread_rwlock_init(rwlock, attr);
+	return pthreadErrorToSceError(err);
 }
 
 
-int PS4API scePthreadRwlockRdlock(void)
+int PS4API scePthreadRwlockDestroy(ScePthreadRwlock *rwlock)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("rwlock %p", rwlock);
+	int err = pthread_rwlock_destroy(rwlock);
+	return pthreadErrorToSceError(err);
 }
 
 
-int PS4API scePthreadRwlockUnlock(void)
+int PS4API scePthreadRwlockRdlock(ScePthreadRwlock *rwlock)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("rwlock %p", rwlock);
+	int err = pthread_rwlock_rdlock(rwlock);
+	return pthreadErrorToSceError(err);
 }
 
 
-int PS4API scePthreadRwlockWrlock(void)
+int PS4API scePthreadRwlockWrlock(ScePthreadRwlock *rwlock)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("rwlock %p", rwlock);
+	int err = pthread_rwlock_wrlock(rwlock);
+	return pthreadErrorToSceError(err);
 }
 
+
+int PS4API scePthreadRwlockUnlock(ScePthreadRwlock *rwlock)
+{
+	LOG_SCE_TRACE("rwlock %p", rwlock);
+	int err = pthread_rwlock_unlock(rwlock);
+	return pthreadErrorToSceError(err);
+}
 
 //////////////////////////////////////////////////////////////////////////
 
