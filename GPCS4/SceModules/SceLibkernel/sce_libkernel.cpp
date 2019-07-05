@@ -70,7 +70,7 @@ int PS4API sceKernelIsNeoMode(void)
 
 int PS4API sceKernelUsleep(SceKernelUseconds microseconds)
 {
-	LOG_SCE_TRACE("ms %d", microseconds);
+	//LOG_SCE_TRACE("ms %d", microseconds);
 	UtilTime::MicroSleep(microseconds);
 	return SCE_OK;
 }

@@ -172,10 +172,10 @@ int PS4API scec_exp(void)
 }
 
 
-int PS4API scec_exp2(void)
+double PS4API scec_exp2(double arg)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("arg %p", arg);
+	return exp2(arg);
 }
 
 

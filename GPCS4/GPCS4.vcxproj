@@ -56,6 +56,7 @@
     <ClInclude Include="SceModules\SceGnmDriver\sce_gnmdriver.h" />
     <ClInclude Include="SceModules\SceHttp\sce_http.h" />
     <ClInclude Include="SceModules\SceIme\sce_ime.h" />
+    <ClInclude Include="SceModules\SceIme\sce_ime_error.h" />
     <ClInclude Include="SceModules\SceInvitationDialog\sce_invitationdialog.h" />
     <ClInclude Include="SceModules\SceJobManager\sce_jobmanager.h" />
     <ClInclude Include="SceModules\SceJson\sce_json.h" />
@@ -94,6 +95,7 @@
     <ClInclude Include="SceModules\SceSsl\sce_ssl.h" />
     <ClInclude Include="SceModules\SceSysmodule\sce_sysmodule.h" />
     <ClInclude Include="SceModules\SceSystemService\sce_systemservice.h" />
+    <ClInclude Include="SceModules\SceSystemService\sce_systemservice_types.h" />
     <ClInclude Include="SceModules\SceUserService\sce_userservice.h" />
     <ClInclude Include="SceModules\SceUserService\sce_userservice_types.h" />
     <ClInclude Include="SceModules\SceVideoOut\sce_videoout.h" />

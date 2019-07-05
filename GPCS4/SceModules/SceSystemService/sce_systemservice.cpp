@@ -11,9 +11,15 @@
 // library: libSceSystemService
 //////////////////////////////////////////////////////////////////////////
 
-int PS4API sceSystemServiceGetStatus(void)
+int PS4API sceSystemServiceGetStatus(SceSystemServiceStatus* status)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_DUMMY_IMPL();
+	status->eventNum = 0;
+	status->isSystemUiOverlaid = false;
+	status->isInBackgroundExecution = false;
+	status->isCpuMode7CpuNormal = true;
+	status->isGameLiveStreamingOnAir = false;
+	status->isOutOfVrPlayArea = false;
 	return SCE_OK;
 }
 

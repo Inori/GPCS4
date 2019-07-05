@@ -177,10 +177,10 @@ int PS4API scec_strncasecmp(const char *s1, const char *s2, size_t n)
 }
 
 
-int PS4API scec_strcat(void)
+char* PS4API scec_strcat(char *dest, const char *src)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("dest %p src %p", dest, src);
+	return strcat(dest, src);
 }
 
 
@@ -205,10 +205,10 @@ int PS4API scec_strcmp(const char *s1, const char *s2)
 }
 
 
-int PS4API scec_strcpy(void)
+char* PS4API scec_strcpy(char * dst, const char * src)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("dst %p src %p", dst, src);
+	return strcpy(dst, src);
 }
 
 
@@ -273,7 +273,7 @@ char* PS4API scec_strrchr(const char *s, int c)
 
 char* PS4API scec_strstr(const char *haystack, const char *needle)
 {
-	LOG_SCE_TRACE("haystack %p needle %p", haystack, needle);
+	//LOG_SCE_TRACE("haystack %p needle %p", haystack, needle);
 	return (char*)strstr(haystack, needle);
 }
 

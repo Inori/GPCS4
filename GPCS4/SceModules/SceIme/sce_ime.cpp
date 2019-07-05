@@ -1,5 +1,5 @@
 #include "sce_ime.h"
-
+#include "sce_ime_error.h"
 
 // Note:
 // The codebase is generated using GenerateCode.py
@@ -27,8 +27,8 @@ int PS4API sceImeKeyboardClose(void)
 
 int PS4API sceImeKeyboardOpen(void)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_DUMMY_IMPL();
+	return SCE_IME_ERROR_CONNECTION_FAILED;
 }
 
 

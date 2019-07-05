@@ -10,7 +10,7 @@
 #pragma once
 
 #include "sce_module_common.h"
-
+#include "sce_systemservice_types.h"
 
 extern const SCE_EXPORT_MODULE g_ExpModuleSceSystemService;
 
@@ -25,7 +25,7 @@ extern const SCE_EXPORT_MODULE g_ExpModuleSceSystemService;
 // library: libSceSystemService
 //////////////////////////////////////////////////////////////////////////
 
-int PS4API sceSystemServiceGetStatus(void);
+int PS4API sceSystemServiceGetStatus(SceSystemServiceStatus* status);
 
 
 int PS4API sceSystemServiceHideSplashScreen(void);

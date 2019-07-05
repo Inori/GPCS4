@@ -27,8 +27,10 @@ int PS4API sceMouseInit(void)
 
 int PS4API sceMouseOpen(void)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_DUMMY_IMPL();
+	// it seems that mouse open must be successful even not connected a mouse,
+	// not sure...
+	return 0x123;
 }
 
 

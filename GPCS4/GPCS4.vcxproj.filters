@@ -412,6 +412,12 @@
     <ClInclude Include="SceModules\SceAjm\sce_ajm_types.h">
       <Filter>SceModules\SceAjm</Filter>
     </ClInclude>
+    <ClInclude Include="SceModules\SceSystemService\sce_systemservice_types.h">
+      <Filter>SceModules\SceSystemService</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceIme\sce_ime_error.h">
+      <Filter>SceModules\SceIme</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
