@@ -2,6 +2,7 @@
 #include "sce_kernel_eventflag.h"
 #include "SceEventFlag.h"
 
+
 int PS4API sceKernelCreateEventFlag(SceKernelEventFlag *ef, const char *pName, uint32_t attr, 
 	uint64_t initPattern, const SceKernelEventFlagOptParam *pOptParam)
 {
@@ -40,7 +41,7 @@ int PS4API sceKernelDeleteEventFlag(SceKernelEventFlag ef)
 
 int PS4API sceKernelSetEventFlag(SceKernelEventFlag ef, uint64_t bitPattern)
 {
-	LOG_SCE_TRACE("ef %p bitpat %x", ef, bitPattern);
+	//LOG_SCE_TRACE("ef %p bitpat %x", ef, bitPattern);
 	return ((CSceEventFlag*)ef)->Set(bitPattern);
 }
 
@@ -49,6 +50,6 @@ int PS4API sceKernelWaitEventFlag(SceKernelEventFlag ef,
 	uint64_t bitPattern, uint32_t waitMode, 
 	uint64_t *pResultPat, SceKernelUseconds *pTimeout)
 {
-	LOG_SCE_TRACE("ef %p bitpat %x mode %x timo %p", ef, bitPattern, waitMode, pTimeout);
+	//LOG_SCE_TRACE("ef %p bitpat %x mode %x timo %p", ef, bitPattern, waitMode, pTimeout);
 	return ((CSceEventFlag*)ef)->Wait(bitPattern, waitMode, pResultPat, pTimeout);
 }

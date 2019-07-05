@@ -102,7 +102,7 @@ int CSceEventFlag::Wait(uint64 bitPattern, uint mode, uint64* pResultPat, SceKer
 				break;
 			}
 		}
-		LOG_DEBUG("thread awake %d", UtilThread::GetThreadId());
+		//LOG_DEBUG("thread awake %d", UtilThread::GetThreadId());
 
 		err = SCE_OK;
 	} while (false);

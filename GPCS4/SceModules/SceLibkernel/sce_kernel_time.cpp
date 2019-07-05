@@ -48,7 +48,7 @@ uint64_t PS4API sceKernelReadTsc(void)
 
 int PS4API scek_clock_gettime(sceclockid_t clk_id, struct sce_timespec * tp)
 {
-	LOG_SCE_TRACE("id %d tp %p", clk_id, tp);
+	//LOG_SCE_TRACE("id %d tp %p", clk_id, tp);
 	// TODO:
 	// TIME_UTC is CLOCK_REALTIME,
 	// we need CLOCK_MONOTONIC

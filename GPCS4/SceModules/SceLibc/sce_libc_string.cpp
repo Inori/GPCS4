@@ -35,14 +35,14 @@ int PS4API scec_memchr(void)
 
 int PS4API scec_memcmp(const void *s1, const void *s2, size_t n)
 {
-	LOG_SCE_TRACE("s1 %p s2 %p n %d", s1, s2, n);
+	//LOG_SCE_TRACE("s1 %p s2 %p n %d", s1, s2, n);
 	return memcmp(s1, s2, n);
 }
 
 
 void* PS4API scec_memcpy(void *dest, const void *src, size_t n)
 {
-	LOG_SCE_TRACE("dst %p src %p sizt %x", dest, src, n);
+	//LOG_SCE_TRACE("dst %p src %p sizt %x", dest, src, n);
 	return memcpy(dest, src, n);
 }
 
@@ -63,7 +63,7 @@ void* PS4API scec_memmove(void * destination, const void * source, size_t num)
 
 void* PS4API scec_memset(void * ptr, int value, size_t num)
 {
-	LOG_SCE_TRACE("ptr %p val %x num %x", ptr, value, num);
+	//LOG_SCE_TRACE("ptr %p val %x num %x", ptr, value, num);
 	return memset(ptr, value, num);
 }
 
@@ -165,14 +165,14 @@ int PS4API scec_sscanf_s(void)
 
 int PS4API scec_strcasecmp(const char *s1, const char *s2)
 {
-	LOG_SCE_TRACE("s1 %p s2 %p", s1, s2);
+	//LOG_SCE_TRACE("s1 %p s2 %p", s1, s2);
 	return strcasecmp(s1, s2);
 }
 
 
 int PS4API scec_strncasecmp(const char *s1, const char *s2, size_t n)
 {
-	LOG_SCE_TRACE("s1 %p s2 %p n %x", s1, s2, n);
+	//LOG_SCE_TRACE("s1 %p s2 %p n %x", s1, s2, n);
 	return strncasecmp(s1, s2, n);
 }
 
@@ -200,7 +200,7 @@ char* PS4API scec_strchr(const char *s, int c)
 
 int PS4API scec_strcmp(const char *s1, const char *s2)
 {
-	LOG_SCE_TRACE("s1 %p s2 %p", s1, s2);
+	//LOG_SCE_TRACE("s1 %p s2 %p", s1, s2);
 	return strcmp(s1, s2);
 }
 
@@ -221,7 +221,7 @@ errno_t PS4API scec_strcpy_s(char *dest, rsize_t dest_size, const char *src)
 
 size_t PS4API scec_strlen(const char* str)
 {
-	LOG_SCE_TRACE("str %p", str);
+	//LOG_SCE_TRACE("str %p", str);
 	return strlen(str);
 }
 
