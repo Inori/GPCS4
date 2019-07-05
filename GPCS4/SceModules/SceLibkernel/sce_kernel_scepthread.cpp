@@ -698,14 +698,15 @@ int PS4API scePthreadRwlockattrDestroy(ScePthreadRwlockattr *attr)
 	LOG_SCE_TRACE("attr %p", attr);
 	int err = pthread_rwlockattr_destroy(attr);
 	return pthreadErrorToSceError(err);
-	return SCE_OK;
 }
 
 
 int PS4API scePthreadRwlockInit(ScePthreadRwlock *rwlock, const ScePthreadRwlockattr *attr, const char *name)
 {
 	LOG_SCE_TRACE("rwlock %p attr %p name %p", rwlock, attr, name);
-	int err = pthread_rwlock_init(rwlock, attr);
+	// Note:
+	// pthread4w do not support attr
+	int err = pthread_rwlock_init(rwlock, NULL);
 	return pthreadErrorToSceError(err);
 }
 
