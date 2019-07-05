@@ -13,21 +13,21 @@
 
 int PS4API sceVideoOutOpen(SceUserServiceUserId userId, int32_t type, int32_t index, const void *param)
 {
-	LOG_SCE_DUMMY_IMPL();
+	LOG_SCE_GRAPHIC("user id %d", userId);
 	return 0x123;
 }
 
 
 int PS4API sceVideoOutClose(int32_t handle)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceVideoOutGetResolutionStatus(int32_t handle, SceVideoOutResolutionStatus *status)
 {
-	LOG_SCE_DUMMY_IMPL();
+	LOG_SCE_GRAPHIC("handle %d", handle);
 	status->fullWidth = 1920;
 	status->fullHeight = 1080;
 	status->paneWidth = 1920;
@@ -41,7 +41,7 @@ int PS4API sceVideoOutGetResolutionStatus(int32_t handle, SceVideoOutResolutionS
 
 int PS4API sceVideoOutSetFlipRate(int32_t handle, int32_t rate)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
@@ -66,98 +66,98 @@ int PS4API sceVideoOutSetBufferAttribute(SceVideoOutBufferAttribute *attribute,
 int PS4API sceVideoOutRegisterBuffers(int32_t handle, int32_t startIndex, void * const *addresses, 
 	int32_t bufferNum, const SceVideoOutBufferAttribute *attribute)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceVideoOutAddFlipEvent(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceVideoOutAdjustColor_(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceVideoOutColorSettingsSetGamma_(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceVideoOutConfigureOutputMode_(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceVideoOutGetDeviceCapabilityInfo_(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceVideoOutGetEventData(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceVideoOutGetFlipStatus(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceVideoOutIsFlipPending(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceVideoOutModeSetAny_(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceVideoOutSetWindowModeMargins(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceVideoOutSubmitChangeBufferAttribute(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceVideoOutSubmitFlip(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceVideoOutWaitVblank(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 

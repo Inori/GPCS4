@@ -11,6 +11,7 @@
 #define LOG_LEVEL_WARNING "WARNING"
 #define LOG_LEVEL_ERROR "ERROR"
 #define LOG_LEVEL_SCE_TRACE "SCE-TRACE"
+#define LOG_LEVEL_SCE_GRAPHIC "SCE-GRAPHIC"
 
 //do not use these directly
 void LogPrint(const char* szLevel, const char* szFunction, int nLine, const char* szFormat, ...);
@@ -37,6 +38,9 @@ void LogAssert(const char* szLevel, const char* szFunction, int nLine, const cha
 // only use to trace sce module export functions
 // to trace other functions, use LOG_TRACE
 #define LOG_SCE_TRACE(format, ...)	_LOG_PRINT_(LOG_LEVEL_SCE_TRACE, format, __VA_ARGS__);
+
+// only use to trace graphic calls, mostly in libVideoOut and libGnmDriver
+#define LOG_SCE_GRAPHIC(format, ...)	_LOG_PRINT_(LOG_LEVEL_SCE_GRAPHIC, format, __VA_ARGS__);
 
 // not really implemented
 // just return result which looks correct to let the program go on
