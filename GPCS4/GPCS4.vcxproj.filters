@@ -424,6 +424,21 @@
     <ClInclude Include="Graphic\SceVideoOut.h">
       <Filter>Source Files\Graphic</Filter>
     </ClInclude>
+    <ClInclude Include="Common\ReferenceCount.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\VkInstance.h">
+      <Filter>Source Files\Graphic</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\VkPhysicalDevice.h">
+      <Filter>Source Files\Graphic</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\VkDevice.h">
+      <Filter>Source Files\Graphic</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\VkSwapChain.h">
+      <Filter>Source Files\Graphic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -802,6 +817,18 @@
       <Filter>SceModules\SceLibkernel</Filter>
     </ClCompile>
     <ClCompile Include="Graphic\SceVideoOut.cpp">
+      <Filter>Source Files\Graphic</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\VkInstance.cpp">
+      <Filter>Source Files\Graphic</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\VkPhysicalDevice.cpp">
+      <Filter>Source Files\Graphic</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\VkDevice.cpp">
+      <Filter>Source Files\Graphic</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\VkSwapChain.cpp">
       <Filter>Source Files\Graphic</Filter>
     </ClCompile>
   </ItemGroup>

@@ -22,6 +22,7 @@
     <ClInclude Include="Common\GPCS4Log.h" />
     <ClInclude Include="Common\GPCS4Types.h" />
     <ClInclude Include="Common\MacroHelper.h" />
+    <ClInclude Include="Common\ReferenceCount.h" />
     <ClInclude Include="Common\Singleton.h" />
     <ClInclude Include="elf-sce.h" />
     <ClInclude Include="Emulator\Emulator.h" />
@@ -32,6 +33,10 @@
     <ClInclude Include="GPCS4Common.h" />
     <ClInclude Include="GPCS4Config.h" />
     <ClInclude Include="Graphic\SceVideoOut.h" />
+    <ClInclude Include="Graphic\VkDevice.h" />
+    <ClInclude Include="Graphic\VkInstance.h" />
+    <ClInclude Include="Graphic\VkPhysicalDevice.h" />
+    <ClInclude Include="Graphic\VkSwapChain.h" />
     <ClInclude Include="Loader\EbootObject.h" />
     <ClInclude Include="Loader\elf.h" />
     <ClInclude Include="Platform\PlatformUtils.h" />
@@ -118,6 +123,10 @@
     <ClCompile Include="Emulator\TLSHandler.cpp" />
     <ClCompile Include="GPCS4Main.cpp" />
     <ClCompile Include="Graphic\SceVideoOut.cpp" />
+    <ClCompile Include="Graphic\VkDevice.cpp" />
+    <ClCompile Include="Graphic\VkInstance.cpp" />
+    <ClCompile Include="Graphic\VkPhysicalDevice.cpp" />
+    <ClCompile Include="Graphic\VkSwapChain.cpp" />
     <ClCompile Include="ImportLibs.cpp" />
     <ClCompile Include="Loader\EbootObject.cpp" />
     <ClCompile Include="Platform\UtilHardware.cpp" />

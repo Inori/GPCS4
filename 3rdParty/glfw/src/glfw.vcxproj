@@ -131,6 +131,7 @@
     <ClCompile Include="win32_joystick.c" />
     <ClCompile Include="win32_monitor.c" />
     <ClCompile Include="win32_thread.c" />
+    <ClCompile Include="win32_time.c" />
     <ClCompile Include="win32_window.c" />
     <ClCompile Include="window.c" />
   </ItemGroup>
