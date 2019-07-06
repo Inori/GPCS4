@@ -4,6 +4,7 @@
 #include "Common/GPCS4Types.h"
 #include "Common/GPCS4Log.h"
 #include "Common/MacroHelper.h"
+#include "Common/ReferenceCount.h"
 
 
 #define PS4API __attribute__((sysv_abi))
