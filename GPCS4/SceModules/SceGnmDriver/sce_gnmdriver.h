@@ -245,7 +245,7 @@ int PS4API sceGnmSetWaveLimitMultipliers(void);
 int PS4API sceGnmSetupMipStatsReport(void);
 
 
-int PS4API sceGnmSubmitAndFlipCommandBuffers(void);
+int PS4API sceGnmSubmitAndFlipCommandBuffers(uint32_t count, void *dcbGpuAddrs[], uint32_t *dcbSizesInBytes, void *ccbGpuAddrs[], uint32_t *ccbSizesInBytes, uint32_t videoOutHandle, uint32_t displayBufferIndex, uint32_t flipMode, int64_t flipArg);
 
 
 int PS4API sceGnmSubmitAndFlipCommandBuffersForWorkload(void);

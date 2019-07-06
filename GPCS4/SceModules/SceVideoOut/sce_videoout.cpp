@@ -1,5 +1,6 @@
 #include "sce_videoout.h"
 #include <cstring>
+#include "Graphic/SceVideoOut.h"
 
 // Note:
 // The codebase is generated using GenerateCode.py
@@ -11,16 +12,27 @@
 // library: libSceVideoOut
 //////////////////////////////////////////////////////////////////////////
 
+// start at 1
+CSceVideoOut* g_VideoOutHanleMap[3] = { nullptr };
+
+
 int PS4API sceVideoOutOpen(SceUserServiceUserId userId, int32_t type, int32_t index, const void *param)
 {
 	LOG_SCE_GRAPHIC("user id %d", userId);
-	return 0x123;
+	if (type != SCE_VIDEO_OUT_BUS_TYPE_MAIN)
+	{
+		LOG_ASSERT("not supported videoout type %d", type);
+	}
+
+	g_VideoOutHanleMap[1] = new CSceVideoOut();
+	return 1;
 }
 
 
 int PS4API sceVideoOutClose(int32_t handle)
 {
-	LOG_SCE_GRAPHIC("Not implemented");
+	LOG_SCE_GRAPHIC("handle %d", handle);
+	delete g_VideoOutHanleMap[handle];
 	return SCE_OK;
 }
 
@@ -66,7 +78,10 @@ int PS4API sceVideoOutSetBufferAttribute(SceVideoOutBufferAttribute *attribute,
 int PS4API sceVideoOutRegisterBuffers(int32_t handle, int32_t startIndex, void * const *addresses, 
 	int32_t bufferNum, const SceVideoOutBufferAttribute *attribute)
 {
-	LOG_SCE_GRAPHIC("Not implemented");
+	LOG_SCE_GRAPHIC("handle %d addr %p num %d attr %p", handle, addresses, bufferNum, attribute);
+	CSceVideoOut* pVdOut = g_VideoOutHanleMap[handle];
+	pVdOut->SetResolution(attribute->width, attribute->height);
+	pVdOut->SetDisplayBuffer((void**)addresses, bufferNum);
 	return SCE_OK;
 }
 

@@ -1,11 +1,12 @@
 #include "sce_gnmdriver.h"
-
+#include "Graphic/SceVideoOut.h"
 
 // Note:
 // The codebase is generated using GenerateCode.py
 // You may need to modify the code manually to fit development needs
 
 
+extern CSceVideoOut* g_VideoOutHanleMap[3];
 
 //////////////////////////////////////////////////////////////////////////
 // library: libSceGnmDriver
@@ -559,9 +560,15 @@ int PS4API sceGnmSetupMipStatsReport(void)
 }
 
 
-int PS4API sceGnmSubmitAndFlipCommandBuffers(void)
+int PS4API sceGnmSubmitAndFlipCommandBuffers(uint32_t count, 
+	void *dcbGpuAddrs[], uint32_t *dcbSizesInBytes, 
+	void *ccbGpuAddrs[], uint32_t *ccbSizesInBytes, 
+	uint32_t videoOutHandle, uint32_t displayBufferIndex, 
+	uint32_t flipMode, int64_t flipArg)
 {
-	LOG_SCE_GRAPHIC("Not implemented");
+	LOG_SCE_GRAPHIC("displayBuffIdx %d", displayBufferIndex);
+	CSceVideoOut* pVdOut = g_VideoOutHanleMap[videoOutHandle];
+	pVdOut->Flip(displayBufferIndex);
 	return SCE_OK;
 }
 
