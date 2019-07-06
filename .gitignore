@@ -57,6 +57,7 @@ Generated\ Files/
 *.svclog
 *.scc
 
+
 # Chutzpah Test files
 _Chutzpah*
 
@@ -76,3 +77,10 @@ ipch/
 *.vsp
 *.vspx
 *.sap
+
+# GLFW
+glfw.dir/
+
+
+# 3rdParty built libs
+*.lib
