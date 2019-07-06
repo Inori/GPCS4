@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{4684D519-FA57-37F5-90C8-CBAE7EB8C748}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{0273BEFA-E4EB-3B97-892F-36D329041151}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="context.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="egl_context.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="init.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="input.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="monitor.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="osmesa_context.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="vulkan.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wgl_context.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="win32_init.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="win32_joystick.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="win32_monitor.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="win32_thread.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="win32_window.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="window.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="egl_context.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glfw_config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="internal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mappings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="osmesa_context.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wgl_context.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="win32_joystick.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="win32_platform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\glfw3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\glfw3native.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
