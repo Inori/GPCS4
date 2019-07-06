@@ -155,6 +155,9 @@
     <Filter Include="SceModules\SceJobManager">
       <UniqueIdentifier>{569e8466-32c7-451b-ba57-e408f98537b5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Graphic">
+      <UniqueIdentifier>{23ae136e-2909-4dc4-ac7c-a05b48eb5e30}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SceModules\SceLibc\sce_libc.h">
@@ -417,6 +420,9 @@
     </ClInclude>
     <ClInclude Include="SceModules\SceIme\sce_ime_error.h">
       <Filter>SceModules\SceIme</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\SceVideoOut.h">
+      <Filter>Source Files\Graphic</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -794,6 +800,9 @@
     </ClCompile>
     <ClCompile Include="SceModules\SceLibkernel\SceEventFlag.cpp">
       <Filter>SceModules\SceLibkernel</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\SceVideoOut.cpp">
+      <Filter>Source Files\Graphic</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
