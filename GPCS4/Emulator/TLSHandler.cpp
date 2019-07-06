@@ -101,7 +101,7 @@ bool CTLSHandler::IsTlsAccess(void* pCode)
 
 uint CTLSHandler::GetPatchLen(byte* pCode, uint nOldLen)
 {
-	uint nSumLen = 0, nInstLen = 0;
+	uint nSumLen = 0;
 	ZydisDecodedInstruction instruction;
 	while (nSumLen < nOldLen)
 	{

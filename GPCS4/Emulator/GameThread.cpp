@@ -108,7 +108,7 @@ void* CGameThread::ThreadFunc(void* pArg)
 
 		nRet = 0;
 	} while (false);
-	return (void*)nRet;
+	return (void*)(uint64)nRet;
 }
 
 void* CGameThread::RunGameThread(CGameThread* pThis)
