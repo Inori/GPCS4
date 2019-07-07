@@ -2,10 +2,10 @@
 
 A Playstation 4 emulator just begin.  
 A project for fun, and technical research.  
+
 The only reason I start this project is learning 3D graphics, nothing serious.
 
 ## Latest progress
-![Frame-01](https://github.com/Inori/GPCS4/blob/master/Misc/Frame-01.jpg)  
 
 First frame rendered, a blank frame though. But I'm pretty sure this is truly the first frame of Nier:Automata.
 
