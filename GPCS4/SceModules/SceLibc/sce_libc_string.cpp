@@ -19,10 +19,10 @@ int PS4API scec_mbsrtowcs(void)
 }
 
 
-int PS4API scec_mbstowcs_s(void)
+errno_t PS4API scec_mbstowcs_s(size_t * retval, wchar_t * dst, rsize_t dstsz, const char * src, rsize_t len)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("retv %p dst %p dstsz %d src %p len %d", retval, dst, dstsz, src, len);
+	return mbstowcs_s(retval, dst, dstsz, src, len);
 }
 
 
@@ -250,17 +250,17 @@ void* PS4API scec_strncpy(char *dest, const char *src, size_t n)
 }
 
 
-int PS4API scec_strncpy_s(void)
+errno_t PS4API scec_strncpy_s(char* dest, rsize_t destsz, const char* src, rsize_t count)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("dest %p dstsz %d src %p count %d", dest, destsz, src, count);
+	return strncpy_s(dest, destsz, src, count);
 }
 
 
-int PS4API scec_strnlen_s(void)
+size_t PS4API scec_strnlen_s(const char *str, size_t strsz)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("str %p sz %d", str, strsz);
+	return strnlen_s(str, strsz);
 }
 
 
@@ -279,20 +279,6 @@ char* PS4API scec_strstr(const char *haystack, const char *needle)
 
 
 int PS4API scec_strtod(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scec_strtok(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scec_strtol(void)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
@@ -369,17 +355,17 @@ int PS4API scec_wcscmp(void)
 }
 
 
-int PS4API scec_wcscpy_s(void)
+errno_t PS4API scec_wcscpy_s(wchar_t * dest, rsize_t destsz, const wchar_t * src)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("dest %p sz %d src %p", dest, destsz, src);
+	return wcscpy_s(dest, destsz, src);
 }
 
 
-int PS4API scec_wcslen(void)
+size_t PS4API scec_wcslen(const wchar_t *str)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("str %p", str);
+	return wcslen(str);
 }
 
 

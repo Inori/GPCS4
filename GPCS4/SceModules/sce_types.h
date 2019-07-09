@@ -88,6 +88,11 @@ struct sce_timespec {
 
 typedef	__sceuseconds_t	sceuseconds_t;	/* microseconds (unsigned) */
 
+typedef struct
+{	/* result of int divide */
+	int quot;
+	int rem;
+} scediv_t;
 
 // this should be off_t, but conflict with c++'s header
 // I don't know why, fuck that 

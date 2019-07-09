@@ -81,10 +81,10 @@ int PS4API scec_acos(void)
 }
 
 
-int PS4API scec_acosf(void)
+float PS4API scec_acosf(float x)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("x %f", x);
+	return acosf(x);
 }
 
 
@@ -102,10 +102,10 @@ int PS4API scec_asin(void)
 }
 
 
-int PS4API scec_asinf(void)
+float PS4API scec_asinf(float x)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("x %f", x);
+	return asinf(x);
 }
 
 
@@ -144,10 +144,14 @@ int PS4API scec_atanh(void)
 }
 
 
-int PS4API scec_div(void)
+scediv_t PS4API scec_div(int numerator, int denominator)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("numerator %d denominator %d", numerator, denominator);
+	div_t res = div(numerator, denominator);
+	scediv_t ret;
+	ret.quot = res.quot;
+	ret.rem = res.rem;
+	return ret;
 }
 
 
@@ -186,10 +190,10 @@ float PS4API scec_exp2f(float arg)
 }
 
 
-int PS4API scec_expf(void)
+float PS4API scec_expf(float x)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("x %f", x);
+	return expf(x);
 }
 
 
@@ -228,10 +232,10 @@ int PS4API scec_pow(void)
 }
 
 
-int PS4API scec_powf(void)
+float PS4API scec_powf(float x, float y)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("x %f y %f", x, y);
+	return powf(x, y);
 }
 
 int PS4API scec_hypot(void)

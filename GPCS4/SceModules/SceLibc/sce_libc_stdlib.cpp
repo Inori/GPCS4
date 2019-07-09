@@ -33,11 +33,40 @@ int PS4API scec_abort(void)
 
 
 
-int PS4API scec_atof(void)
+double PS4API scec_atof(const char* nptr)
+{
+	LOG_SCE_TRACE("ptr %p", nptr);
+	return atof(nptr);
+}
+
+
+unsigned long PS4API scec__Stoul(const char* str, char ** endptr, int base)
+{
+	LOG_SCE_TRACE("str %p endptr %p base %d", str, endptr, base);
+	return strtoul(str, endptr, base);
+}
+
+
+int PS4API scec__Stoull(void)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
 }
+
+
+int PS4API scec_strtok(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+long int PS4API scec_strtol(const char *nptr, char **endptr, int base)
+{
+	LOG_SCE_TRACE("nptr %p endptr %p base %d", nptr, endptr, base);
+	return strtol(nptr, endptr, base);
+}
+
 
 
 int PS4API scec_bsearch(void)

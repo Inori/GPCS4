@@ -24,16 +24,3 @@ int PS4API scec__Stdout(void)
 	return SCE_OK;
 }
 
-
-int PS4API scec__Stoul(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scec__Stoull(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
