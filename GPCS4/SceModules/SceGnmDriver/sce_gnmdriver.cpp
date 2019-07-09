@@ -362,9 +362,32 @@ int PS4API sceGnmInsertThreadTraceMarker(void)
 }
 
 
-int PS4API sceGnmInsertWaitFlipDone(void)
+int PS4API sceGnmInsertWaitFlipDone(void* gpuAddress, int type_or_mask, int uk, int value)
 {
-	LOG_SCE_GRAPHIC("Not implemented");
+	LOG_SCE_GRAPHIC("gpuaddr %p type %d uk %d val %d", gpuAddress, type_or_mask, uk, value);
+	// TODO:
+	// this is just a guess based on reverse engining of nier:automata.
+	// I didn't find this function in libSceGnmDriver.sprx of 5.05 system.
+	//
+	// it seems the purpose of this function is to insert a wait token in
+	// command buffer, and when the flip is done by the GPU, the GPU will set
+	// the "value" at "*gpuAddress", theoretically.
+	// but if I only do the above, the game still loops infinitely.
+	// so I make a hack to just let the game to.
+	// is looks not reasonable, though.
+	// should be fixed....
+
+
+	static uint nCount = 0;
+	static uint nMod = 0;
+	*(uint32_t*)((uint8_t*)gpuAddress + 0x2000034) = value + nCount;
+	*(uint32_t*)((uint8_t*)gpuAddress + 0x200008C) = value + nCount;
+	++nMod;
+	if (nMod % 3 == 0)
+	{
+		nCount += 3;
+	}
+
 	return SCE_OK;
 }
 

@@ -8,7 +8,7 @@ int PS4API sceKernelAllocateDirectMemory(sceoff_t searchStart, sceoff_t searchEn
 {
 	LOG_SCE_DUMMY_IMPL();
 	*physAddrOut = (sceoff_t)new byte[len];
-	memset((void*)*physAddrOut, 0x20, len);
+	memset((void*)*physAddrOut, 0x00, len);
 	return SCE_OK;
 }
 

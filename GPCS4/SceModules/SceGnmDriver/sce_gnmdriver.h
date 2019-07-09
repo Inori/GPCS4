@@ -175,7 +175,7 @@ int PS4API sceGnmInsertSetMarker(void);
 int PS4API sceGnmInsertThreadTraceMarker(void);
 
 
-int PS4API sceGnmInsertWaitFlipDone(void);
+int PS4API sceGnmInsertWaitFlipDone(void* gpuAddress, int type_or_mask, int uk, int value);
 
 
 int PS4API sceGnmIsUserPaEnabled(void);
