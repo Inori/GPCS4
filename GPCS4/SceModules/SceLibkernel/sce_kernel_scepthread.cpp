@@ -630,10 +630,10 @@ int PS4API scePthreadRename(void)
 }
 
 
-int PS4API scePthreadYield(void)
+void PS4API scePthreadYield(void)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("");
+	UtilThread::ThreadYield();
 }
 
 

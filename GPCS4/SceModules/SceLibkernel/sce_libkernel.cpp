@@ -48,12 +48,10 @@ int PS4API sceKernelClockGettime(void)
 }
 
 
-
-
 int PS4API sceKernelGetCpumode(void)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_DUMMY_IMPL();
+	return SCE_KERNEL_CPUMODE_7CPU_NORMAL;
 }
 
 

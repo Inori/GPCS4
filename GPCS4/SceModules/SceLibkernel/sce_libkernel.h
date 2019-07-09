@@ -281,7 +281,7 @@ int PS4API scePthreadSetaffinity(ScePthread thread, const SceKernelCpumask mask)
 int PS4API scePthreadSetprio(ScePthread thread, int prio);
 
 
-int PS4API scePthreadYield(void);
+void PS4API scePthreadYield(void);
 
 
 int PS4API sceKernelBatchMap(void);

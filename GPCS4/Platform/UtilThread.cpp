@@ -15,6 +15,11 @@ uint64 GetThreadId(void)
 	return GetCurrentThreadId();
 }
 
+void ThreadYield()
+{
+	SwitchToThread();
+}
+
 
 #elif defined(GPCS4_LINUX)
 
@@ -24,6 +29,11 @@ uint64 GetThreadId(void)
 	return gettid();
 }
 
+
+void ThreadYield()
+{
+
+}
 
 #endif  //GPCS4_WINDOWS
 

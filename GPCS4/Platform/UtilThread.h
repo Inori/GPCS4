@@ -7,5 +7,6 @@ namespace UtilThread
 
 uint64 GetThreadId(void);
 
+void ThreadYield();
 
 }
