@@ -178,7 +178,7 @@ int PS4API scec_exp(void)
 
 double PS4API scec_exp2(double arg)
 {
-	LOG_SCE_TRACE("arg %p", arg);
+	LOG_SCE_TRACE("arg %f", arg);
 	return exp2(arg);
 }
 
