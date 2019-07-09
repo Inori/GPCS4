@@ -103,7 +103,7 @@ int PS4API sceGnmDrawIndirectCountMulti(void);
 int PS4API sceGnmDrawIndirectMulti(void);
 
 
-int PS4API sceGnmDrawInitDefaultHardwareState350(void);
+uint64_t PS4API sceGnmDrawInitDefaultHardwareState350(void* pStruct, uint64_t size);
 
 
 int PS4API sceGnmDrawOpaqueAuto(void);
