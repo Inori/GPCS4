@@ -1,5 +1,5 @@
 #include "sce_userservice.h"
-
+#include "sce_userservice_error.h"
 
 // Note:
 // The codebase is generated using GenerateCode.py
@@ -41,10 +41,12 @@ int PS4API sceUserServiceGetUserName(void)
 }
 
 
-int PS4API sceUserServiceGetEvent(void)
+int PS4API sceUserServiceGetEvent(SceUserServiceEvent* event)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("event %p", event);
+	event->eventType = SCE_USER_SERVICE_EVENT_TYPE_LOGIN;
+	event->userId = SCE_DUMMY_USERID;
+	return SCE_USER_SERVICE_ERROR_NO_EVENT;
 }
 
 

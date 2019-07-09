@@ -25,7 +25,7 @@ extern const SCE_EXPORT_MODULE g_ExpModuleSceUserService;
 // library: libSceUserService
 //////////////////////////////////////////////////////////////////////////
 
-int PS4API sceUserServiceGetEvent(void);
+int PS4API sceUserServiceGetEvent(SceUserServiceEvent* event);
 
 
 int PS4API sceUserServiceGetInitialUser(SceUserServiceUserId *userId);

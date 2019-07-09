@@ -103,6 +103,7 @@
     <ClInclude Include="SceModules\SceSystemService\sce_systemservice.h" />
     <ClInclude Include="SceModules\SceSystemService\sce_systemservice_types.h" />
     <ClInclude Include="SceModules\SceUserService\sce_userservice.h" />
+    <ClInclude Include="SceModules\SceUserService\sce_userservice_error.h" />
     <ClInclude Include="SceModules\SceUserService\sce_userservice_types.h" />
     <ClInclude Include="SceModules\SceVideoOut\sce_videoout.h" />
     <ClInclude Include="SceModules\SceVideoOut\sce_videoout_types.h" />

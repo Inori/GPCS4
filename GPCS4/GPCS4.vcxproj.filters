@@ -439,6 +439,9 @@
     <ClInclude Include="Graphic\VkSwapChain.h">
       <Filter>Source Files\Graphic</Filter>
     </ClInclude>
+    <ClInclude Include="SceModules\SceUserService\sce_userservice_error.h">
+      <Filter>SceModules\SceUserService</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
