@@ -244,6 +244,12 @@ void* CTLSHandler::AllocateTLS()
 	TCB* pTcb = NULL;
 	do
 	{
+		if (t_pTcbRecord)
+		{
+			pTcb = t_pTcbRecord;
+			break;
+		}
+
 		byte* pTls = new byte[s_vtTlsImageBackup.size() + sizeof(TCB)];
 		memcpy(pTls, s_vtTlsImageBackup.data(), s_vtTlsImageBackup.size());
 
