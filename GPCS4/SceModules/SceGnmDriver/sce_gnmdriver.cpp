@@ -240,6 +240,26 @@ uint64_t PS4API sceGnmDrawInitDefaultHardwareState350(void* pStruct, uint64_t si
 // this function will fill a struct pointed to by  'gpuAddress'
 // the value of 'gpuAddress' is affected by the return value of sceGnmDrawInitDefaultHardwareState350
 //
+// the purpose of this function is to insert a wait token in the command buffer,
+// and when the flip is done on gpu/kernel,
+// the gpu/kernel will set the value specified by 'value' param on gpuAddress.
+// I just set this value immediately.
+
+/*
+LOAD:000000000000493D      mov     dword ptr [rbx], 0C0053C00h ; rbx = gpuAddress
+LOAD:0000000000004943      mov     dword ptr [rbx+4], 13h
+LOAD:000000000000494A      lea     rax, [rax+rcx*8]
+LOAD:000000000000494E      mov     ecx, eax
+LOAD:0000000000004950      shr     rax, 20h
+LOAD:0000000000004954      and     ecx, 0FFFFFFFCh
+LOAD:0000000000004957      movzx   eax, ax
+LOAD:000000000000495A      mov     [rbx+8], ecx
+LOAD:000000000000495D      mov     [rbx+0Ch], eax
+LOAD:0000000000004960      xor     eax, eax
+LOAD:0000000000004962      mov     dword ptr [rbx+10h], 0
+LOAD:0000000000004969      mov     dword ptr [rbx+14h], 0FFFFFFFFh
+LOAD:0000000000004970      mov     dword ptr [rbx+18h], 0Ah
+*/
 int PS4API sceGnmInsertWaitFlipDone(void* gpuAddress, int type_or_mask, int uk, int value)
 {
 	LOG_SCE_GRAPHIC("gpuaddr %p type %d uk %d val %d", gpuAddress, type_or_mask, uk, value);
