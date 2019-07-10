@@ -9,12 +9,20 @@ int main(int argc, char* argv[])
 	int nRet = -1;
 	do 
 	{
+		if (argc != 2)
+		{
+			printf("usage %s eboot.bin\n", argv[0]);
+			break;
+		}
+
+		char* szEboot = argv[1];
+
 		if (!pEmulator->Init())
 		{
 			break;
 		}
 
-		if (!pEmulator->LoadEboot("eboot.bin"))
+		if (!pEmulator->LoadEboot(szEboot))
 		{
 			break;
 		}
