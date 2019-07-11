@@ -32,6 +32,7 @@
     <ClInclude Include="Emulator\TLSHandler.h" />
     <ClInclude Include="GPCS4Common.h" />
     <ClInclude Include="GPCS4Config.h" />
+    <ClInclude Include="Graphic\Gnm\GnmOpCode.h" />
     <ClInclude Include="Graphic\SceVideoOut.h" />
     <ClInclude Include="Graphic\VkDevice.h" />
     <ClInclude Include="Graphic\VkInstance.h" />

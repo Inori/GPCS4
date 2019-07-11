@@ -158,6 +158,9 @@
     <Filter Include="Source Files\Graphic">
       <UniqueIdentifier>{23ae136e-2909-4dc4-ac7c-a05b48eb5e30}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Graphic\Gnm">
+      <UniqueIdentifier>{c17c385d-eecd-4fea-80d6-b98d03d57992}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SceModules\SceLibc\sce_libc.h">
@@ -441,6 +444,9 @@
     </ClInclude>
     <ClInclude Include="SceModules\SceUserService\sce_userservice_error.h">
       <Filter>SceModules\SceUserService</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GnmOpCode.h">
+      <Filter>Source Files\Graphic\Gnm</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
