@@ -834,6 +834,18 @@
     <ClCompile Include="Graphic\VkSwapChain.cpp">
       <Filter>Source Files\Graphic</Filter>
     </ClCompile>
+    <ClCompile Include="SceModules\SceGnmDriver\sce_gnm_draw.cpp">
+      <Filter>SceModules\SceGnmDriver</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceGnmDriver\sce_gnm_dispatch.cpp">
+      <Filter>SceModules\SceGnmDriver</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceGnmDriver\sce_gnm_constant.cpp">
+      <Filter>SceModules\SceGnmDriver</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceGnmDriver\sce_gnm_cmd.cpp">
+      <Filter>SceModules\SceGnmDriver</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="SceModules\SceLibc\sce_libc_string_asm.asm">

@@ -157,6 +157,10 @@
     <ClCompile Include="SceModules\SceGameLiveStreaming\sce_gamelivestreaming_export.cpp" />
     <ClCompile Include="SceModules\SceGnmDriver\sce_gnmdriver.cpp" />
     <ClCompile Include="SceModules\SceGnmDriver\sce_gnmdriver_export.cpp" />
+    <ClCompile Include="SceModules\SceGnmDriver\sce_gnm_cmd.cpp" />
+    <ClCompile Include="SceModules\SceGnmDriver\sce_gnm_constant.cpp" />
+    <ClCompile Include="SceModules\SceGnmDriver\sce_gnm_dispatch.cpp" />
+    <ClCompile Include="SceModules\SceGnmDriver\sce_gnm_draw.cpp" />
     <ClCompile Include="SceModules\SceHttp\sce_http.cpp" />
     <ClCompile Include="SceModules\SceHttp\sce_http_export.cpp" />
     <ClCompile Include="SceModules\SceIme\sce_ime.cpp" />
