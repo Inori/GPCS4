@@ -32,7 +32,12 @@
     <ClInclude Include="Emulator\TLSHandler.h" />
     <ClInclude Include="GPCS4Common.h" />
     <ClInclude Include="GPCS4Config.h" />
+    <ClInclude Include="Graphic\Gnm\GnmCmdStreamConstant.h" />
+    <ClInclude Include="Graphic\Gnm\GnmCmdStreamDispatch.h" />
+    <ClInclude Include="Graphic\Gnm\GnmCmdStreamDraw.h" />
+    <ClInclude Include="Graphic\Gnm\GnmConstant.h" />
     <ClInclude Include="Graphic\Gnm\GnmOpCode.h" />
+    <ClInclude Include="Graphic\Gnm\GnmStructure.h" />
     <ClInclude Include="Graphic\SceVideoOut.h" />
     <ClInclude Include="Graphic\VkDevice.h" />
     <ClInclude Include="Graphic\VkInstance.h" />
@@ -124,6 +129,9 @@
     <ClCompile Include="Emulator\SceModuleSystem.cpp" />
     <ClCompile Include="Emulator\TLSHandler.cpp" />
     <ClCompile Include="GPCS4Main.cpp" />
+    <ClCompile Include="Graphic\Gnm\GnmCmdStreamConstant.cpp" />
+    <ClCompile Include="Graphic\Gnm\GnmCmdStreamDispatch.cpp" />
+    <ClCompile Include="Graphic\Gnm\GnmCmdStreamDraw.cpp" />
     <ClCompile Include="Graphic\SceVideoOut.cpp" />
     <ClCompile Include="Graphic\VkDevice.cpp" />
     <ClCompile Include="Graphic\VkInstance.cpp" />
@@ -162,6 +170,8 @@
     <ClCompile Include="SceModules\SceGnmDriver\sce_gnm_constant.cpp" />
     <ClCompile Include="SceModules\SceGnmDriver\sce_gnm_dispatch.cpp" />
     <ClCompile Include="SceModules\SceGnmDriver\sce_gnm_draw.cpp" />
+    <ClCompile Include="SceModules\SceGnmDriver\sce_gnm_eqevent.cpp" />
+    <ClCompile Include="SceModules\SceGnmDriver\sce_gnm_submit.cpp" />
     <ClCompile Include="SceModules\SceHttp\sce_http.cpp" />
     <ClCompile Include="SceModules\SceHttp\sce_http_export.cpp" />
     <ClCompile Include="SceModules\SceIme\sce_ime.cpp" />

@@ -3,7 +3,7 @@
 #include "GPCS4Common.h"
 
 
-#define OPCODE_BUILD(numDwords, type) ( ((uint32_t)( (((uint16_t)numDwords) << 16 + 0x3FFE0000) | 0xC0001000)) | (uint16_t)(type))
+#define OPCODE_BUILD(numDwords, type) ( ((uint32_t)( ((((uint16_t)numDwords) << 16) + 0x3FFE0000) | 0xC0001000)) | (uint16_t)(type))
 
 
 //////////////////////////////////////////////////////////////////////////

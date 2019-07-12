@@ -15,28 +15,7 @@ int PS4API sceGnmDisableMipStatsReport(void)
 }
 
 
-int PS4API sceGnmDispatchDirect(void)
-{
-	LOG_SCE_GRAPHIC("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API sceGnmDispatchIndirect(void)
-{
-	LOG_SCE_GRAPHIC("Not implemented");
-	return SCE_OK;
-}
-
-
 int PS4API sceGnmDispatchIndirectOnMec(void)
-{
-	LOG_SCE_GRAPHIC("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API sceGnmSetCsShaderWithModifier(void)
 {
 	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;

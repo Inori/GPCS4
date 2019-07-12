@@ -1,12 +1,12 @@
 #include "sce_gnmdriver.h"
-#include "Graphic/SceVideoOut.h"
+
 
 // Note:
 // The codebase is generated using GenerateCode.py
 // You may need to modify the code manually to fit development needs
 
 
-extern CSceVideoOut* g_VideoOutHanleMap[3];
+
 
 //////////////////////////////////////////////////////////////////////////
 // library: libSceGnmDriver
@@ -27,20 +27,6 @@ int PS4API _import_8A6D99B88B5A6EEE(void)
 
 
 int PS4API _import_B616CF706EC4EEA9(void)
-{
-	LOG_SCE_GRAPHIC("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API sceGnmAddEqEvent(void)
-{
-	LOG_SCE_GRAPHIC("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API sceGnmAreSubmitsAllowed(void)
 {
 	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
@@ -68,28 +54,8 @@ int PS4API sceGnmDebugHardwareStatus(void)
 }
 
 
-int PS4API sceGnmDeleteEqEvent(void)
-{
-	LOG_SCE_GRAPHIC("Not implemented");
-	return SCE_OK;
-}
-
 
 int PS4API sceGnmDestroyWorkloadStream(void)
-{
-	LOG_SCE_GRAPHIC("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API sceGnmDingDong(void)
-{
-	LOG_SCE_GRAPHIC("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API sceGnmDingDongForWorkload(void)
 {
 	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
@@ -126,13 +92,6 @@ int PS4API sceGnmEndWorkload(void)
 
 
 int PS4API sceGnmFlushGarlic(void)
-{
-	LOG_SCE_GRAPHIC("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API sceGnmGetEqEventType(void)
 {
 	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
@@ -219,6 +178,20 @@ int PS4API sceGnmLogicalCuIndexToPhysicalCuIndex(void)
 
 
 int PS4API sceGnmLogicalCuMaskToPhysicalCuMask(void)
+{
+	LOG_SCE_GRAPHIC("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceGnmDingDong(void)
+{
+	LOG_SCE_GRAPHIC("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceGnmDingDongForWorkload(void)
 {
 	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
@@ -324,49 +297,6 @@ int PS4API sceGnmSetupMipStatsReport(void)
 	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
-
-
-int PS4API sceGnmSubmitAndFlipCommandBuffers(uint32_t count, 
-	void *dcbGpuAddrs[], uint32_t *dcbSizesInBytes, 
-	void *ccbGpuAddrs[], uint32_t *ccbSizesInBytes, 
-	uint32_t videoOutHandle, uint32_t displayBufferIndex, 
-	uint32_t flipMode, int64_t flipArg)
-{
-	LOG_SCE_GRAPHIC("displayBuffIdx %d", displayBufferIndex);
-	CSceVideoOut* pVdOut = g_VideoOutHanleMap[videoOutHandle];
-	pVdOut->Flip(displayBufferIndex);
-	return SCE_OK;
-}
-
-
-int PS4API sceGnmSubmitAndFlipCommandBuffersForWorkload(void)
-{
-	LOG_SCE_GRAPHIC("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API sceGnmSubmitCommandBuffers(void)
-{
-	LOG_SCE_GRAPHIC("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API sceGnmSubmitCommandBuffersForWorkload(void)
-{
-	LOG_SCE_GRAPHIC("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API sceGnmSubmitDone(void)
-{
-	LOG_SCE_GRAPHIC("Not implemented");
-	return SCE_OK;
-}
-
-
 
 
 int PS4API sceRazorCaptureImmediate(void)

@@ -10,7 +10,8 @@
 #pragma once
 
 #include "sce_module_common.h"
-
+#include "Graphic/Gnm/GnmConstant.h"
+#include "Graphic/Gnm/GnmStructure.h"
 
 extern const SCE_EXPORT_MODULE g_ExpModuleSceGnmDriver;
 
@@ -76,37 +77,44 @@ int PS4API sceGnmDispatchIndirectOnMec(void);
 int PS4API sceGnmDispatchInitDefaultHardwareState(void);
 
 
-int PS4API sceGnmDrawIndex(void);
+int PS4API sceGnmDrawIndex(uint32_t* cmdBuffer, uint32_t numDwords,
+	uint32_t indexCount, const void *indexAddr, uint32_t pred, uint32_t inlineMode);
 
 
-int PS4API sceGnmDrawIndexAuto(void);
+int PS4API sceGnmDrawIndexAuto(uint32_t* cmdBuffer, uint32_t numDwords,
+	uint32_t indexCount, uint32_t pred);
 
 
-int PS4API sceGnmDrawIndexIndirect(void);
+int PS4API sceGnmDrawIndexIndirect(uint32_t* cmdBuffer, uint32_t numDwords,
+	uint32_t dataOffsetInBytes,
+	ShaderStage stage,
+	uint8_t vertexOffsetUserSgpr,
+	uint8_t instanceOffsetUserSgpr,
+	uint32_t pred);
 
 
-int PS4API sceGnmDrawIndexIndirectMulti(void);
+int PS4API sceGnmDrawIndexIndirectMulti(uint32_t* cmdBuffer, uint32_t numDwords);
 
 
-int PS4API sceGnmDrawIndexMultiInstanced(void);
+int PS4API sceGnmDrawIndexMultiInstanced(uint32_t* cmdBuffer, uint32_t numDwords);
 
 
-int PS4API sceGnmDrawIndexOffset(void);
+int PS4API sceGnmDrawIndexOffset(uint32_t* cmdBuffer, uint32_t numDwords);
 
 
-int PS4API sceGnmDrawIndirect(void);
+int PS4API sceGnmDrawIndirect(uint32_t* cmdBuffer, uint32_t numDwords);
 
 
-int PS4API sceGnmDrawIndirectCountMulti(void);
+int PS4API sceGnmDrawIndirectCountMulti(uint32_t* cmdBuffer, uint32_t numDwords);
 
 
-int PS4API sceGnmDrawIndirectMulti(void);
+int PS4API sceGnmDrawIndirectMulti(uint32_t* cmdBuffer, uint32_t numDwords);
 
 
-uint64_t PS4API sceGnmDrawInitDefaultHardwareState350(void* pStruct, uint64_t size);
+uint32_t PS4API sceGnmDrawInitDefaultHardwareState350(uint32_t* cmdBuffer, uint64_t cmdSize);
 
 
-int PS4API sceGnmDrawOpaqueAuto(void);
+int PS4API sceGnmDrawOpaqueAuto(uint32_t* cmdBuffer, uint32_t numDwords);
 
 
 int PS4API sceGnmDriverCaptureInProgress(void);
@@ -157,13 +165,13 @@ int PS4API sceGnmGetTheTessellationFactorRingBufferBaseAddress(void);
 int PS4API sceGnmInsertDingDongMarker(void);
 
 
-int PS4API sceGnmInsertPopMarker(void);
+int PS4API sceGnmInsertPopMarker(uint32_t* cmdBuffer, uint32_t numDwords);
 
 
 int PS4API sceGnmInsertPushColorMarker(void);
 
 
-int PS4API sceGnmInsertPushMarker(void);
+int PS4API sceGnmInsertPushMarker(uint32_t* cmdBuffer, uint32_t numDwords, const char *debugString);
 
 
 int PS4API sceGnmInsertSetColorMarker(void);
@@ -175,7 +183,7 @@ int PS4API sceGnmInsertSetMarker(void);
 int PS4API sceGnmInsertThreadTraceMarker(void);
 
 
-int PS4API sceGnmInsertWaitFlipDone(void* gpuAddress, int type_or_mask, int uk, int value);
+int PS4API sceGnmInsertWaitFlipDone(uint32_t* cmdBuffer, uint32_t numDwords, int videoOutHandle, uint32_t displayBufferIndex);
 
 
 int PS4API sceGnmIsUserPaEnabled(void);
@@ -203,40 +211,44 @@ int PS4API sceGnmRequestFlipAndSubmitDoneForWorkload(void);
 int PS4API sceGnmRequestMipStatsReportAndReset(void);
 
 
-int PS4API sceGnmResetVgtControl(void);
+int PS4API sceGnmResetVgtControl(uint32_t* cmdBuffer, uint32_t numDwords);
 
 
-int PS4API sceGnmSetCsShaderWithModifier(void);
+int PS4API sceGnmSetCsShaderWithModifier(uint32_t* cmdBuffer, uint32_t numDwords,
+	const CsStageRegisters *csRegs, uint32_t shaderModifier);
 
 
-int PS4API sceGnmSetEmbeddedPsShader(void);
+int PS4API sceGnmSetEmbeddedPsShader(uint32_t* cmdBuffer, uint32_t numDwords);
 
 
-int PS4API sceGnmSetEmbeddedVsShader(void);
+int PS4API sceGnmSetEmbeddedVsShader(uint32_t* cmdBuffer, uint32_t numDwords);
 
 
-int PS4API sceGnmSetEsShader(void);
+int PS4API sceGnmSetEsShader(uint32_t* cmdBuffer, uint32_t numDwords);
 
 
 int PS4API sceGnmSetGsRingSizes(void);
 
 
-int PS4API sceGnmSetGsShader(void);
+int PS4API sceGnmSetGsShader(uint32_t* cmdBuffer, uint32_t numDwords);
 
 
-int PS4API sceGnmSetHsShader(void);
+int PS4API sceGnmSetHsShader(uint32_t* cmdBuffer, uint32_t numDwords);
 
 
-int PS4API sceGnmSetLsShader(void);
+int PS4API sceGnmSetLsShader(uint32_t* cmdBuffer, uint32_t numDwords);
 
 
-int PS4API sceGnmSetPsShader350(void);
+int PS4API sceGnmSetPsShader350(uint32_t* cmdBuffer, uint32_t numDwords, const PsStageRegisters *psRegs);
 
 
-int PS4API sceGnmSetVgtControl(void);
+int PS4API sceGnmSetVgtControl(uint32_t* cmdBuffer, uint32_t numDwords,
+	uint8_t primGroupSizeMinusOne,
+	VgtPartialVsWaveMode partialVsWaveMode,
+	WdSwitchOnlyOnEopMode wdSwitchOnlyOnEopMode);
 
 
-int PS4API sceGnmSetVsShader(void);
+int PS4API sceGnmSetVsShader(uint32_t* cmdBuffer, uint32_t numDwords, const VsStageRegisters *vsRegs, uint32_t shaderModifier);
 
 
 int PS4API sceGnmSetWaveLimitMultipliers(void);
