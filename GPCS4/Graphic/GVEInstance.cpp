@@ -1,6 +1,6 @@
-#include "VkInstance.h"
+#include "GVEInstance.h"
 
-namespace scevk
+namespace gve
 {;
 
 CVkInstance::CVkInstance()
