@@ -22,17 +22,17 @@ inline uint GetProtectFlag(uint nOldFlag)
 
 		if (nOldFlag & VMPF_READ)
 		{
-			nNewFlag |= PAGE_READONLY;
+			nNewFlag = PAGE_READONLY;
 		}
 
 		if (nOldFlag & VMPF_WRITE)
 		{
-			nNewFlag |= PAGE_READWRITE;
+			nNewFlag = PAGE_READWRITE;
 		}
 
 		if (nOldFlag & VMPF_EXECUTE)
 		{
-			nNewFlag |= PAGE_EXECUTE_READWRITE;
+			nNewFlag = PAGE_EXECUTE_READWRITE;
 		}
 
 	} while (false);
@@ -47,7 +47,6 @@ inline uint GetTypeFlag(uint nOldFlag)
 		if (nOldFlag & VMAT_RESERVE)
 		{
 			nNewFlag |= MEM_RESERVE;
-			break;
 		}
 
 		if (nOldFlag & VMAT_COMMIT)
