@@ -10,11 +10,11 @@
 #include <vector>
 #include <optional>
 
-class CSceVideoOut
+class SceVideoOut
 {
 public:
-	CSceVideoOut();
-	~CSceVideoOut();
+	SceVideoOut();
+	~SceVideoOut();
 
 	void SetResolution(uint nWidth, uint nHeight);
 

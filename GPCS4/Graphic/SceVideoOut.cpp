@@ -43,33 +43,33 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT
 
 
 
-CSceVideoOut::CSceVideoOut()
+SceVideoOut::SceVideoOut()
 {
 }
 
-CSceVideoOut::~CSceVideoOut()
+SceVideoOut::~SceVideoOut()
 {
 }
 
-void CSceVideoOut::SetResolution(uint nWidth, uint nHeight)
+void SceVideoOut::SetResolution(uint nWidth, uint nHeight)
 {
 	m_nWidth = nWidth;
 	m_nHeight = nHeight;
 	initWindow();
 }
 
-void CSceVideoOut::SetDisplayBuffer(void* address[], uint num)
+void SceVideoOut::SetDisplayBuffer(void* address[], uint num)
 {
 	m_vtDispBuffers.assign(address, address + num);
 	initVulkan();
 }
 
-void CSceVideoOut::Flip(uint idx)
+void SceVideoOut::Flip(uint idx)
 {
 	drawFrame(idx);
 }
 
-void CSceVideoOut::copyPixelToVkImage(void* pixels, uint width, uint height, VkImage& dstImage)
+void SceVideoOut::copyPixelToVkImage(void* pixels, uint width, uint height, VkImage& dstImage)
 {
 	VkFormatProperties formatProps;
 
@@ -102,7 +102,7 @@ void CSceVideoOut::copyPixelToVkImage(void* pixels, uint width, uint height, VkI
 
 }
 
-void CSceVideoOut::initWindow()
+void SceVideoOut::initWindow()
 {
 	glfwInit();
 
@@ -113,13 +113,13 @@ void CSceVideoOut::initWindow()
 	glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 }
 
-void CSceVideoOut::framebufferResizeCallback(GLFWwindow* window, int width, int height)
+void SceVideoOut::framebufferResizeCallback(GLFWwindow* window, int width, int height)
 {
-	auto app = reinterpret_cast<CSceVideoOut*>(glfwGetWindowUserPointer(window));
+	auto app = reinterpret_cast<SceVideoOut*>(glfwGetWindowUserPointer(window));
 	app->framebufferResized = true;
 }
 
-void CSceVideoOut::initVulkan()
+void SceVideoOut::initVulkan()
 {
 	createInstance();
 	setupDebugMessenger();
@@ -136,7 +136,7 @@ void CSceVideoOut::initVulkan()
 	createSyncObjects();
 }
 
-void CSceVideoOut::mainLoop()
+void SceVideoOut::mainLoop()
 {
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
@@ -146,7 +146,7 @@ void CSceVideoOut::mainLoop()
 	vkDeviceWaitIdle(device);
 }
 
-void CSceVideoOut::cleanupSwapChain()
+void SceVideoOut::cleanupSwapChain()
 {
 	for (auto framebuffer : swapChainFramebuffers) {
 		vkDestroyFramebuffer(device, framebuffer, nullptr);
@@ -165,7 +165,7 @@ void CSceVideoOut::cleanupSwapChain()
 	vkDestroySwapchainKHR(device, swapChain, nullptr);
 }
 
-void CSceVideoOut::cleanup()
+void SceVideoOut::cleanup()
 {
 	cleanupSwapChain();
 
@@ -191,7 +191,7 @@ void CSceVideoOut::cleanup()
 	glfwTerminate();
 }
 
-void CSceVideoOut::recreateSwapChain()
+void SceVideoOut::recreateSwapChain()
 {
 	int width = 0, height = 0;
 	while (width == 0 || height == 0) {
@@ -211,7 +211,7 @@ void CSceVideoOut::recreateSwapChain()
 	createCommandBuffers();
 }
 
-void CSceVideoOut::createInstance()
+void SceVideoOut::createInstance()
 {
 	if (enableValidationLayers && !checkValidationLayerSupport()) {
 		throw std::runtime_error("validation layers requested, but not available!");
@@ -252,7 +252,7 @@ void CSceVideoOut::createInstance()
 	}
 }
 
-void CSceVideoOut::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo)
+void SceVideoOut::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo)
 {
 	createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
@@ -261,7 +261,7 @@ void CSceVideoOut::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateI
 	createInfo.pfnUserCallback = debugCallback;
 }
 
-void CSceVideoOut::setupDebugMessenger()
+void SceVideoOut::setupDebugMessenger()
 {
 	if (!enableValidationLayers) return;
 
@@ -273,14 +273,14 @@ void CSceVideoOut::setupDebugMessenger()
 	}
 }
 
-void CSceVideoOut::createSurface()
+void SceVideoOut::createSurface()
 {
 	if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create window surface!");
 	}
 }
 
-void CSceVideoOut::pickPhysicalDevice()
+void SceVideoOut::pickPhysicalDevice()
 {
 	uint32_t deviceCount = 0;
 	vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
@@ -304,7 +304,7 @@ void CSceVideoOut::pickPhysicalDevice()
 	}
 }
 
-void CSceVideoOut::createLogicalDevice()
+void SceVideoOut::createLogicalDevice()
 {
 	QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
 
@@ -350,7 +350,7 @@ void CSceVideoOut::createLogicalDevice()
 	vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
 }
 
-void CSceVideoOut::createSwapChain()
+void SceVideoOut::createSwapChain()
 {
 	SwapChainSupportDetails swapChainSupport = querySwapChainSupport(physicalDevice);
 
@@ -403,7 +403,7 @@ void CSceVideoOut::createSwapChain()
 	swapChainExtent = extent;
 }
 
-void CSceVideoOut::createImageViews()
+void SceVideoOut::createImageViews()
 {
 	swapChainImageViews.resize(swapChainImages.size());
 
@@ -429,7 +429,7 @@ void CSceVideoOut::createImageViews()
 	}
 }
 
-void CSceVideoOut::createRenderPass()
+void SceVideoOut::createRenderPass()
 {
 	VkAttachmentDescription colorAttachment = {};
 	colorAttachment.format = swapChainImageFormat;
@@ -472,7 +472,7 @@ void CSceVideoOut::createRenderPass()
 	}
 }
 
-void CSceVideoOut::createGraphicsPipeline()
+void SceVideoOut::createGraphicsPipeline()
 {
 	auto vertShaderCode = readFile("shaders/vert.spv");
 	auto fragShaderCode = readFile("shaders/frag.spv");
@@ -585,7 +585,7 @@ void CSceVideoOut::createGraphicsPipeline()
 	vkDestroyShaderModule(device, vertShaderModule, nullptr);
 }
 
-void CSceVideoOut::createFramebuffers()
+void SceVideoOut::createFramebuffers()
 {
 	swapChainFramebuffers.resize(swapChainImageViews.size());
 
@@ -609,7 +609,7 @@ void CSceVideoOut::createFramebuffers()
 	}
 }
 
-void CSceVideoOut::createCommandPool()
+void SceVideoOut::createCommandPool()
 {
 	QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice);
 
@@ -622,7 +622,7 @@ void CSceVideoOut::createCommandPool()
 	}
 }
 
-void CSceVideoOut::createCommandBuffers()
+void SceVideoOut::createCommandBuffers()
 {
 	commandBuffers.resize(swapChainFramebuffers.size());
 
@@ -670,7 +670,7 @@ void CSceVideoOut::createCommandBuffers()
 	//}
 }
 
-void CSceVideoOut::createSyncObjects()
+void SceVideoOut::createSyncObjects()
 {
 	imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 	renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
@@ -692,7 +692,7 @@ void CSceVideoOut::createSyncObjects()
 	}
 }
 
-uint32_t CSceVideoOut::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+uint32_t SceVideoOut::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
 {
 	VkPhysicalDeviceMemoryProperties memProperties;
 	vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
@@ -706,7 +706,7 @@ uint32_t CSceVideoOut::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags
 	throw std::runtime_error("failed to find suitable memory type!");
 }
 
-void CSceVideoOut::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
+void SceVideoOut::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
 {
 	VkBufferCreateInfo bufferInfo = {};
 	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -733,7 +733,7 @@ void CSceVideoOut::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkM
 	vkBindBufferMemory(device, buffer, bufferMemory, 0);
 }
 
-void CSceVideoOut::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory)
+void SceVideoOut::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory)
 {
 	VkImageCreateInfo imageInfo = {};
 	imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -769,7 +769,7 @@ void CSceVideoOut::createImage(uint32_t width, uint32_t height, VkFormat format,
 	vkBindImageMemory(device, image, imageMemory, 0);
 }
 
-void CSceVideoOut::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout)
+void SceVideoOut::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout)
 {
 	VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
@@ -819,7 +819,7 @@ void CSceVideoOut::transitionImageLayout(VkImage image, VkFormat format, VkImage
 	endSingleTimeCommands(commandBuffer);
 }
 
-void CSceVideoOut::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height)
+void SceVideoOut::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height)
 {
 	VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
@@ -843,7 +843,7 @@ void CSceVideoOut::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t wi
 	endSingleTimeCommands(commandBuffer);
 }
 
-VkCommandBuffer CSceVideoOut::beginSingleTimeCommands()
+VkCommandBuffer SceVideoOut::beginSingleTimeCommands()
 {
 	VkCommandBufferAllocateInfo allocInfo = {};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -863,7 +863,7 @@ VkCommandBuffer CSceVideoOut::beginSingleTimeCommands()
 	return commandBuffer;
 }
 
-void CSceVideoOut::endSingleTimeCommands(VkCommandBuffer commandBuffer)
+void SceVideoOut::endSingleTimeCommands(VkCommandBuffer commandBuffer)
 {
 	vkEndCommandBuffer(commandBuffer);
 
@@ -878,7 +878,7 @@ void CSceVideoOut::endSingleTimeCommands(VkCommandBuffer commandBuffer)
 	vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
 }
 
-void CSceVideoOut::drawFrame(uint idx)
+void SceVideoOut::drawFrame(uint idx)
 {
 	vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
 
@@ -942,7 +942,7 @@ void CSceVideoOut::drawFrame(uint idx)
 	currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
-VkShaderModule CSceVideoOut::createShaderModule(const std::vector<char>& code)
+VkShaderModule SceVideoOut::createShaderModule(const std::vector<char>& code)
 {
 	VkShaderModuleCreateInfo createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -957,7 +957,7 @@ VkShaderModule CSceVideoOut::createShaderModule(const std::vector<char>& code)
 	return shaderModule;
 }
 
-VkSurfaceFormatKHR CSceVideoOut::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
+VkSurfaceFormatKHR SceVideoOut::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
 {
 	for (const auto& availableFormat : availableFormats) {
 		if (availableFormat.format == VK_FORMAT_B8G8R8A8_UNORM && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
@@ -968,7 +968,7 @@ VkSurfaceFormatKHR CSceVideoOut::chooseSwapSurfaceFormat(const std::vector<VkSur
 	return availableFormats[0];
 }
 
-VkPresentModeKHR CSceVideoOut::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
+VkPresentModeKHR SceVideoOut::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
 {
 	VkPresentModeKHR bestMode = VK_PRESENT_MODE_FIFO_KHR;
 
@@ -984,7 +984,7 @@ VkPresentModeKHR CSceVideoOut::chooseSwapPresentMode(const std::vector<VkPresent
 	return bestMode;
 }
 
-VkExtent2D CSceVideoOut::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities)
+VkExtent2D SceVideoOut::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities)
 {
 	if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
 		return capabilities.currentExtent;
@@ -1005,7 +1005,7 @@ VkExtent2D CSceVideoOut::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabi
 	}
 }
 
-CSceVideoOut::SwapChainSupportDetails CSceVideoOut::querySwapChainSupport(VkPhysicalDevice device)
+SceVideoOut::SwapChainSupportDetails SceVideoOut::querySwapChainSupport(VkPhysicalDevice device)
 {
 	SwapChainSupportDetails details;
 
@@ -1030,7 +1030,7 @@ CSceVideoOut::SwapChainSupportDetails CSceVideoOut::querySwapChainSupport(VkPhys
 	return details;
 }
 
-bool CSceVideoOut::isDeviceSuitable(VkPhysicalDevice device)
+bool SceVideoOut::isDeviceSuitable(VkPhysicalDevice device)
 {
 	QueueFamilyIndices indices = findQueueFamilies(device);
 
@@ -1045,7 +1045,7 @@ bool CSceVideoOut::isDeviceSuitable(VkPhysicalDevice device)
 	return indices.isComplete() && extensionsSupported && swapChainAdequate;
 }
 
-bool CSceVideoOut::checkDeviceExtensionSupport(VkPhysicalDevice device)
+bool SceVideoOut::checkDeviceExtensionSupport(VkPhysicalDevice device)
 {
 	uint32_t extensionCount;
 	vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
@@ -1062,7 +1062,7 @@ bool CSceVideoOut::checkDeviceExtensionSupport(VkPhysicalDevice device)
 	return requiredExtensions.empty();
 }
 
-CSceVideoOut::QueueFamilyIndices CSceVideoOut::findQueueFamilies(VkPhysicalDevice device)
+SceVideoOut::QueueFamilyIndices SceVideoOut::findQueueFamilies(VkPhysicalDevice device)
 {
 	QueueFamilyIndices indices;
 
@@ -1095,7 +1095,7 @@ CSceVideoOut::QueueFamilyIndices CSceVideoOut::findQueueFamilies(VkPhysicalDevic
 	return indices;
 }
 
-std::vector<const char*> CSceVideoOut::getRequiredExtensions()
+std::vector<const char*> SceVideoOut::getRequiredExtensions()
 {
 	uint32_t glfwExtensionCount = 0;
 	const char** glfwExtensions;
@@ -1110,7 +1110,7 @@ std::vector<const char*> CSceVideoOut::getRequiredExtensions()
 	return extensions;
 }
 
-bool CSceVideoOut::checkValidationLayerSupport()
+bool SceVideoOut::checkValidationLayerSupport()
 {
 	uint32_t layerCount;
 	vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
@@ -1136,7 +1136,7 @@ bool CSceVideoOut::checkValidationLayerSupport()
 	return true;
 }
 
-std::vector<char> CSceVideoOut::readFile(const std::string& filename)
+std::vector<char> SceVideoOut::readFile(const std::string& filename)
 {
 	std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
@@ -1155,7 +1155,7 @@ std::vector<char> CSceVideoOut::readFile(const std::string& filename)
 	return buffer;
 }
 
-VKAPI_ATTR VkBool32 VKAPI_CALL CSceVideoOut::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
+VKAPI_ATTR VkBool32 VKAPI_CALL SceVideoOut::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
 {
 	std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
 
