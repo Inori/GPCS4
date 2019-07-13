@@ -2,8 +2,6 @@
 
 #include "GPCS4Common.h"
 
-//#define GPCS4_DEBUG
-
 
 #define LOG_LEVEL_DEBUG "DEBUG"
 #define LOG_LEVEL_TRACE "TRACE"

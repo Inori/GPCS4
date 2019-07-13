@@ -1,10 +1,16 @@
 #include "sce_gnmdriver.h"
+#include "Graphic/Gnm/GnmOpCode.h"
+#include <cassert>
 
-
-int PS4API sceGnmDispatchInitDefaultHardwareState(void)
+uint32_t PS4API sceGnmDispatchInitDefaultHardwareState(uint32_t* cmdBuffer, uint32_t numDwords)
 {
-	LOG_SCE_GRAPHIC("Not implemented");
-	return 0;
+	LOG_SCE_GRAPHIC("cmdbuff %p numDwords %d", cmdBuffer, numDwords);
+	const uint initCmdSize = sizeof(GnmDispatchInitDefaultHardwareState) / sizeof(uint32_t);
+	assert(numDwords >= initCmdSize);
+	GnmDispatchInitDefaultHardwareState* initParam = (GnmDispatchInitDefaultHardwareState*)cmdBuffer;
+	initParam->opcode = OPCODE_BUILD(initCmdSize, OP_TYPE_DISPATCH_INITIALIZE_DEFAULT_HARDWARE_STATE);
+	memset(initParam->reserved, 0, sizeof(initParam->reserved) * sizeof(uint32_t));
+	return initCmdSize;
 }
 
 

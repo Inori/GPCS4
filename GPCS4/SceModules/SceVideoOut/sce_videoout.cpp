@@ -1,5 +1,6 @@
 #include "sce_videoout.h"
 #include <cstring>
+#include "Graphic/GraphicShared.h"
 #include "Graphic/SceVideoOut.h"
 
 // Note:
@@ -12,8 +13,7 @@
 // library: libSceVideoOut
 //////////////////////////////////////////////////////////////////////////
 
-// start at 1
-CSceVideoOut* g_VideoOutHanleMap[3] = { nullptr };
+
 
 
 int PS4API sceVideoOutOpen(SceUserServiceUserId userId, int32_t type, int32_t index, const void *param)
@@ -24,7 +24,7 @@ int PS4API sceVideoOutOpen(SceUserServiceUserId userId, int32_t type, int32_t in
 		LOG_ASSERT("not supported videoout type %d", type);
 	}
 
-	g_VideoOutHanleMap[1] = new CSceVideoOut();
+	g_VideoOutHanleMap[1] = new SceVideoOut();
 	return 1;
 }
 
@@ -79,7 +79,7 @@ int PS4API sceVideoOutRegisterBuffers(int32_t handle, int32_t startIndex, void *
 	int32_t bufferNum, const SceVideoOutBufferAttribute *attribute)
 {
 	LOG_SCE_GRAPHIC("handle %d addr %p num %d attr %p", handle, addresses, bufferNum, attribute);
-	CSceVideoOut* pVdOut = g_VideoOutHanleMap[handle];
+	SceVideoOut* pVdOut = g_VideoOutHanleMap[handle];
 	pVdOut->SetResolution(attribute->width, attribute->height);
 	pVdOut->SetDisplayBuffer((void**)addresses, bufferNum);
 	return SCE_OK;

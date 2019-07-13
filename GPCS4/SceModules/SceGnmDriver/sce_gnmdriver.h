@@ -56,7 +56,7 @@ int PS4API sceGnmDeleteEqEvent(void);
 int PS4API sceGnmDestroyWorkloadStream(void);
 
 
-int PS4API sceGnmDingDong(void);
+int PS4API sceGnmDingDong(uint32_t vqueueId, uint32_t nextStartOffsetInDw);
 
 
 int PS4API sceGnmDingDongForWorkload(void);
@@ -65,7 +65,7 @@ int PS4API sceGnmDingDongForWorkload(void);
 int PS4API sceGnmDisableMipStatsReport(void);
 
 
-int PS4API sceGnmDispatchDirect(void);
+int PS4API sceGnmDispatchDirect(uint32_t* cmdBuffer, uint32_t numDwords, uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ, uint32_t pred);
 
 
 int PS4API sceGnmDispatchIndirect(void);
@@ -74,7 +74,7 @@ int PS4API sceGnmDispatchIndirect(void);
 int PS4API sceGnmDispatchIndirectOnMec(void);
 
 
-int PS4API sceGnmDispatchInitDefaultHardwareState(void);
+uint32_t PS4API sceGnmDispatchInitDefaultHardwareState(uint32_t* cmdBuffer, uint32_t numDwords);
 
 
 int PS4API sceGnmDrawIndex(uint32_t* cmdBuffer, uint32_t numDwords,

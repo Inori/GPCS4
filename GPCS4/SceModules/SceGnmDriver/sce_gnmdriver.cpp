@@ -184,7 +184,7 @@ int PS4API sceGnmLogicalCuMaskToPhysicalCuMask(void)
 }
 
 
-int PS4API sceGnmDingDong(void)
+int PS4API sceGnmDingDong(uint32_t vqueueId, uint32_t nextStartOffsetInDw)
 {
 	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
