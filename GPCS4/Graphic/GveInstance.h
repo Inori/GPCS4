@@ -6,11 +6,11 @@ namespace gve
 {;
 
 
-class CVkInstance : public RcObject
+class CGveInstance : public RcObject
 {
 public:
-	CVkInstance();
-	~CVkInstance();
+	CGveInstance();
+	~CGveInstance();
 
 private:
 

@@ -3,11 +3,11 @@
 namespace gve
 {;
 
-CVkInstance::CVkInstance()
+CGveInstance::CGveInstance()
 {
 }
 
-CVkInstance::~CVkInstance()
+CGveInstance::~CGveInstance()
 {
 }
 
