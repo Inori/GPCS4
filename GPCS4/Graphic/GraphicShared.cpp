@@ -2,4 +2,4 @@
 #include "SceVideoOut.h"
 
 // start at 1
-SceVideoOut* g_VideoOutHanleMap[3] = { nullptr };
+GfxContext g_VideoOutHanleMap[SCE_VIDEO_PORT_MAX];

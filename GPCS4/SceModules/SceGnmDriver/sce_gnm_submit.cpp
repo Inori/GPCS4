@@ -1,6 +1,7 @@
 #include "sce_gnmdriver.h"
 #include "Graphic/GraphicShared.h"
 #include "Graphic/SceVideoOut.h"
+#include "Graphic/SceGnmDriver.h"
 
 
 
@@ -18,8 +19,7 @@ int PS4API sceGnmSubmitAndFlipCommandBuffers(uint32_t count,
 	uint32_t flipMode, int64_t flipArg)
 {
 	LOG_SCE_GRAPHIC("displayBuffIdx %d", displayBufferIndex);
-	SceVideoOut* pVdOut = g_VideoOutHanleMap[videoOutHandle];
-	pVdOut->Flip(displayBufferIndex);
+	
 	return SCE_OK;
 }
 

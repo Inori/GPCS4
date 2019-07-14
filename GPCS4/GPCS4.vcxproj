@@ -44,6 +44,7 @@
     <ClInclude Include="Graphic\GveInstance.h" />
     <ClInclude Include="Graphic\GvePhysicalDevice.h" />
     <ClInclude Include="Graphic\GveSwapChain.h" />
+    <ClInclude Include="Graphic\SceGnmDriver.h" />
     <ClInclude Include="Graphic\SceVideoOut.h" />
     <ClInclude Include="Loader\EbootObject.h" />
     <ClInclude Include="Loader\elf.h" />
@@ -140,6 +141,7 @@
     <ClCompile Include="Graphic\GveInstance.cpp" />
     <ClCompile Include="Graphic\GvePhysicalDevice.cpp" />
     <ClCompile Include="Graphic\GveSwapChain.cpp" />
+    <ClCompile Include="Graphic\SceGnmDriver.cpp" />
     <ClCompile Include="Graphic\SceVideoOut.cpp" />
     <ClCompile Include="ImportLibs.cpp" />
     <ClCompile Include="Loader\EbootObject.cpp" />

@@ -2,6 +2,7 @@
 #include <cstring>
 #include "Graphic/GraphicShared.h"
 #include "Graphic/SceVideoOut.h"
+#include "Graphic/SceGnmDriver.h"
 
 // Note:
 // The codebase is generated using GenerateCode.py
@@ -24,16 +25,37 @@ int PS4API sceVideoOutOpen(SceUserServiceUserId userId, int32_t type, int32_t in
 		LOG_ASSERT("not supported videoout type %d", type);
 	}
 
-	g_VideoOutHanleMap[1] = new SceVideoOut();
-	return 1;
+	GfxContext gfxCtx;
+	gfxCtx.videoOut = new SceVideoOut();
+	gfxCtx.gnmDriver = new SceGnmDriver();
+	setGfxContext(SCE_VIDEO_PORT_MAIN, gfxCtx);
+	return SCE_VIDEO_PORT_MAIN;
 }
 
 
 int PS4API sceVideoOutClose(int32_t handle)
 {
 	LOG_SCE_GRAPHIC("handle %d", handle);
-	delete g_VideoOutHanleMap[handle];
-	return SCE_OK;
+	int ret = -1;
+	do 
+	{
+		SceVideoOut* videoOut = getVideoOut(handle);
+		if (videoOut)
+		{
+			delete videoOut;
+		}
+		SceGnmDriver* gnmDriver = getGnmDriver(handle);
+		if (gnmDriver)
+		{
+			delete gnmDriver;
+		}
+		// clear
+		GfxContext gfxCtx = { NULL };
+		setGfxContext(handle, gfxCtx);
+
+		ret = SCE_OK;
+	} while (false);
+	return ret;
 }
 
 
@@ -78,10 +100,8 @@ int PS4API sceVideoOutSetBufferAttribute(SceVideoOutBufferAttribute *attribute,
 int PS4API sceVideoOutRegisterBuffers(int32_t handle, int32_t startIndex, void * const *addresses, 
 	int32_t bufferNum, const SceVideoOutBufferAttribute *attribute)
 {
-	LOG_SCE_GRAPHIC("handle %d addr %p num %d attr %p", handle, addresses, bufferNum, attribute);
-	SceVideoOut* pVdOut = g_VideoOutHanleMap[handle];
-	pVdOut->SetResolution(attribute->width, attribute->height);
-	pVdOut->SetDisplayBuffer((void**)addresses, bufferNum);
+	//LOG_SCE_GRAPHIC("handle %d addr %p num %d attr %p", handle, addresses, bufferNum, attribute);
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 

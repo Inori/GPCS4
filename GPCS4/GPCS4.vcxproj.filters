@@ -469,6 +469,9 @@
     <ClInclude Include="Graphic\GveInstance.h">
       <Filter>Source Files\Graphic</Filter>
     </ClInclude>
+    <ClInclude Include="Graphic\SceGnmDriver.h">
+      <Filter>Source Files\Graphic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -892,6 +895,9 @@
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClCompile>
     <ClCompile Include="Graphic\GraphicShared.cpp">
+      <Filter>Source Files\Graphic</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\SceGnmDriver.cpp">
       <Filter>Source Files\Graphic</Filter>
     </ClCompile>
   </ItemGroup>
