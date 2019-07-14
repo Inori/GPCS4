@@ -3,11 +3,11 @@
 #include "GPCS4Common.h"
 
 
-class CGnmCmdStream
+class GnmCmdStream
 {
 public:
-	CGnmCmdStream();
-	virtual ~CGnmCmdStream();
+	GnmCmdStream();
+	virtual ~GnmCmdStream();
 
 private:
 

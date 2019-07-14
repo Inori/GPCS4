@@ -4,12 +4,16 @@
 
 
 #define OPCODE_BUILD(numDwords, type) ( ((uint32_t)( ((((uint16_t)numDwords) << 16) + 0x3FFE0000) | 0xC0001000)) | (uint16_t)(type))
+#define OPCODE_TYPE(code) (((uint32_t)(code) & 0x0000FF00) >> 8)
+#define OPCODE_LENGTH(code) ((((uint32_t)(code) & 0x3FFF0000) >> 16) + 2)
+#define IS_OPCODE(code) ((uint32_t)(code) & 0xC0000000)
+#define IS_NOP_OPCODE(code) ((uint32_t)(code) == 0x80000000)
 
 //////////////////////////////////////////////////////////////////////////
 // used by both draw and dispatch command
 enum OpTypePrivateShared
 {
-	OP_TYPE_PRIV_SHARED = 0xFE,
+	OP_TYPE_PRIV_SHARED = 0xFF,
 	// used for OPCODE_BUILD
 	OP_TYPE_PUSH_MARKER = 0xFF00,
 	OP_TYPE_PUSH_COLOR_MARKER = 0xFF01,

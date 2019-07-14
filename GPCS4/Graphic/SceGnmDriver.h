@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GPCS4Common.h"
+#include "Gnm/GnmCmdStreamDraw.h"
 
 class SceGnmDriver
 {
@@ -15,8 +16,9 @@ public:
 		uint32_t flipMode, int64_t flipArg);
 
 	int sceGnmSubmitDone(void);
-private:
 
+private:
+	GnmCmdStreamDraw m_cmdHandlerDraw;
 };
 
 

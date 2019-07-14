@@ -1,11 +1,11 @@
 #include "GnmCmdStream.h"
 
-CGnmCmdStream::CGnmCmdStream()
+GnmCmdStream::GnmCmdStream()
 {
 
 }
 
-CGnmCmdStream::~CGnmCmdStream()
+GnmCmdStream::~GnmCmdStream()
 {
 
 }
