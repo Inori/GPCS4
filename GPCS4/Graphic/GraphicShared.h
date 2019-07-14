@@ -15,51 +15,51 @@ struct GfxContext
 };
 
 
-#define SCE_VIDEO_PORT_MAIN 1
-#define SCE_VIDEO_PORT_MAX 3
+#define SCE_VIDEO_HANDLE_MAIN 1
+#define SCE_VIDEO_HANDLE_MAX 3
 
-extern GfxContext g_VideoOutHanleMap[SCE_VIDEO_PORT_MAX];
+extern GfxContext g_VideoOutHanleMap[SCE_VIDEO_HANDLE_MAX];
 
 
 //////////////////////////////////////////////////////////////////////////
 // helper functions
 
-inline void setGfxContext(int videoPort, GfxContext& gfxContext)
+inline void setGfxContext(int videoHandle, GfxContext& gfxContext)
 {
 	do 
 	{
-		if (videoPort == 0 || videoPort >= SCE_VIDEO_PORT_MAX)
+		if (videoHandle == 0 || videoHandle >= SCE_VIDEO_HANDLE_MAX)
 		{
 			break;
 		}
 
-		g_VideoOutHanleMap[videoPort] = gfxContext;
+		g_VideoOutHanleMap[videoHandle] = gfxContext;
 	} while (false);
 }
 
-inline GfxContext* getGfxContext(int videoPort)
+inline GfxContext* getGfxContext(int videoHandle)
 {
 	GfxContext* ctx = NULL;
 	do 
 	{
-		if (videoPort == 0 || videoPort >= SCE_VIDEO_PORT_MAX)
+		if (videoHandle == 0 || videoHandle >= SCE_VIDEO_HANDLE_MAX)
 		{
 			break;
 		}
 
-		ctx = &g_VideoOutHanleMap[videoPort];
+		ctx = &g_VideoOutHanleMap[videoHandle];
 	} while (false);
 	return ctx;
 }
 
-inline SceVideoOut* getVideoOut(int videoPort)
+inline SceVideoOut* getVideoOut(int videoHandle)
 {
-	GfxContext* ctx = getGfxContext(videoPort);
+	GfxContext* ctx = getGfxContext(videoHandle);
 	return ctx ? ctx->videoOut : NULL;
 }
 
-inline SceGnmDriver* getGnmDriver(int videoPort)
+inline SceGnmDriver* getGnmDriver(int videoHandle)
 {
-	GfxContext* ctx = getGfxContext(videoPort);
+	GfxContext* ctx = getGfxContext(videoHandle);
 	return ctx ? ctx->gnmDriver : NULL;
 }

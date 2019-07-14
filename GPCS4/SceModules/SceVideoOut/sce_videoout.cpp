@@ -28,8 +28,8 @@ int PS4API sceVideoOutOpen(SceUserServiceUserId userId, int32_t type, int32_t in
 	GfxContext gfxCtx;
 	gfxCtx.videoOut = new SceVideoOut();
 	gfxCtx.gnmDriver = new SceGnmDriver();
-	setGfxContext(SCE_VIDEO_PORT_MAIN, gfxCtx);
-	return SCE_VIDEO_PORT_MAIN;
+	setGfxContext(SCE_VIDEO_HANDLE_MAIN, gfxCtx);
+	return SCE_VIDEO_HANDLE_MAIN;
 }
 
 

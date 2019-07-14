@@ -472,6 +472,9 @@
     <ClInclude Include="Graphic\SceGnmDriver.h">
       <Filter>Source Files\Graphic</Filter>
     </ClInclude>
+    <ClInclude Include="SceModules\sce_gnm_error.h">
+      <Filter>SceModules</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
