@@ -10,7 +10,7 @@ public:
 	virtual ~GnmCmdStream();
 
 protected:
-	uint32_t onPacketPrivateShared(uint32_t* packetBuffer, uint32_t packetSizeInDwords);
+	uint32_t onPacketPrivateShared(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords);
 
 };
 

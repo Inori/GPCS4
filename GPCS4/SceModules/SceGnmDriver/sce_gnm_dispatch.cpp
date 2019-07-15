@@ -8,7 +8,7 @@ uint32_t PS4API sceGnmDispatchInitDefaultHardwareState(uint32_t* cmdBuffer, uint
 	const uint initCmdSize = sizeof(GnmDispatchInitDefaultHardwareState) / sizeof(uint32_t);
 	assert(numDwords >= initCmdSize);
 	GnmDispatchInitDefaultHardwareState* initParam = (GnmDispatchInitDefaultHardwareState*)cmdBuffer;
-	initParam->opcode = OPCODE_BUILD(initCmdSize, OP_TYPE_PRIV_DISPATCH, OP_SUB_DISPATCH_INITIALIZE_DEFAULT_HARDWARE_STATE);
+	initParam->opcode = OPCODE_BUILD(initCmdSize, OP_TYPE_PRIV_DISPATCH, OP_INFO_DISPATCH_INITIALIZE_DEFAULT_HARDWARE_STATE);
 	memset(initParam->reserved, 0, sizeof(initParam->reserved) * sizeof(uint32_t));
 	return initCmdSize;
 }

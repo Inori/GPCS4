@@ -69,3 +69,27 @@ enum GsMaxOutputPrimitiveDwordSize
 	kGsMaxOutputPrimitiveDwordSize256 = 0x00000002,
 	kGsMaxOutputPrimitiveDwordSize128 = 0x00000003,
 };
+
+enum CacheAction
+{
+	kCacheActionNone = 0x00,
+	kCacheActionWriteBackAndInvalidateL1andL2 = 0x38,
+	kCacheActionWriteBackL2Volatile = 0x3B,
+	kCacheActionWriteBackAndInvalidateL2Volatile = 0x3B,
+	kCacheActionInvalidateL2Volatile = 0x33,
+	kCacheActionInvalidateL1 = 0x10,
+};
+
+enum StallCommandBufferParserMode
+{
+	kStallCommandBufferParserEnable = 0x00000000,
+	kStallCommandBufferParserDisable = 0x00000001,
+};
+
+enum ShaderEngine
+{
+	kShaderEngine0 = 0,
+	kShaderEngine1 = 1,
+	kShaderEngine2 = 2,
+	kShaderEngine3 = 3,
+};

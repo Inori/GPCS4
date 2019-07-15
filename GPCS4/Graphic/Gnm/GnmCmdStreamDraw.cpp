@@ -62,105 +62,106 @@ bool GnmCmdStreamDraw::processCommandBuffer(uint32_t* commandBuffer, uint32_t co
 			switch (cmdType)
 			{
 			case OP_TYPE_BASE:
-				realPacketSizeDwords = onPacketBase(packetBuffer, packetSizeDwords);
+				realPacketSizeDwords = onPacketBase(opcode, packetBuffer, packetSizeDwords);
 				break;
 			case OP_TYPE_BASE_INDIRECT_ARGS:
-				realPacketSizeDwords = onPacketBaseIndirectArgs(packetBuffer, packetSizeDwords);
+				realPacketSizeDwords = onPacketBaseIndirectArgs(opcode, packetBuffer, packetSizeDwords);
 				break;
 			case OP_TYPE_INDEX_COUNT:
-				realPacketSizeDwords = onPacketIndexCount(packetBuffer, packetSizeDwords);
+				realPacketSizeDwords = onPacketIndexCount(opcode, packetBuffer, packetSizeDwords);
 				break;
 			case OP_TYPE_Z_PASS_PREDICATION:
-				realPacketSizeDwords = onPacketZPassPredication(packetBuffer, packetSizeDwords);
+				realPacketSizeDwords = onPacketZPassPredication(opcode, packetBuffer, packetSizeDwords);
 				break;
 			case OP_TYPE_PREDICATION:
-				realPacketSizeDwords = onPacketPredication(packetBuffer, packetSizeDwords);
+				realPacketSizeDwords = onPacketPredication(opcode, packetBuffer, packetSizeDwords);
 				break;
 			case OP_TYPE_INDEX_BUFFER:
-				realPacketSizeDwords = onPacketIndexBuffer(packetBuffer, packetSizeDwords);
+				realPacketSizeDwords = onPacketIndexBuffer(opcode, packetBuffer, packetSizeDwords);
 				break;
 			case OP_TYPE_INDEX_SIZE:
-				realPacketSizeDwords = onPacketIndexSize(packetBuffer, packetSizeDwords);
+				realPacketSizeDwords = onPacketIndexSize(opcode, packetBuffer, packetSizeDwords);
 				break;
 			case OP_TYPE_NUM_INSTANCES:
-				realPacketSizeDwords = onPacketNumInstances(packetBuffer, packetSizeDwords);
+				realPacketSizeDwords = onPacketNumInstances(opcode, packetBuffer, packetSizeDwords);
 				break;
 			case OP_TYPE_WRITE_STREAMOUT_BUFFER:
-				realPacketSizeDwords = onPacketWriteStreamoutBuffer(packetBuffer, packetSizeDwords);
+				realPacketSizeDwords = onPacketWriteStreamoutBuffer(opcode, packetBuffer, packetSizeDwords);
 				break;
 			case OP_TYPE_WRITE_DATA_INLINE:
-				realPacketSizeDwords = onPacketWriteDataInline(packetBuffer, packetSizeDwords);
+				realPacketSizeDwords = onPacketWriteDataInline(opcode, packetBuffer, packetSizeDwords);
 				break;
 			case OP_TYPE_SEMAPHORE:
-				realPacketSizeDwords = onPacketSemaphore(packetBuffer, packetSizeDwords);
+				realPacketSizeDwords = onPacketSemaphore(opcode, packetBuffer, packetSizeDwords);
 				break;
 			case OP_TYPE_WAIT_ON:
-				realPacketSizeDwords = onPacketWaitOn(packetBuffer, packetSizeDwords);
+				realPacketSizeDwords = onPacketWaitOn(opcode, packetBuffer, packetSizeDwords);
 				break;
 			case OP_TYPE_CHAIN_COMMAND_BUFFER:
-				realPacketSizeDwords = onPacketChainCommandBuffer(packetBuffer, packetSizeDwords);
+				realPacketSizeDwords = onPacketChainCommandBuffer(opcode, packetBuffer, packetSizeDwords);
 				break;
 			case OP_TYPE_STALL_COMMAND_BUFFER_PARSER:
-				realPacketSizeDwords = onPacketStallCommandBufferParser(packetBuffer, packetSizeDwords);
+				realPacketSizeDwords = onPacketStallCommandBufferParser(opcode, packetBuffer, packetSizeDwords);
 				break;
 			case OP_TYPE_EVENT:
-				realPacketSizeDwords = onPacketEvent(packetBuffer, packetSizeDwords);
+				realPacketSizeDwords = onPacketEvent(opcode, packetBuffer, packetSizeDwords);
 				break;
 			case OP_TYPE_END_OF_PIPE:
-				realPacketSizeDwords = onPacketEndOfPipe(packetBuffer, packetSizeDwords);
+				realPacketSizeDwords = onPacketEndOfPipe(opcode, packetBuffer, packetSizeDwords);
 				break;
 			case OP_TYPE_END_OF_SHADER:
-				realPacketSizeDwords = onPacketEndOfShader(packetBuffer, packetSizeDwords);
+				realPacketSizeDwords = onPacketEndOfShader(opcode, packetBuffer, packetSizeDwords);
 				break;
 			case OP_TYPE_GPU_FACILITY:
-				realPacketSizeDwords = onPacketGpuFacility(packetBuffer, packetSizeDwords);
+				realPacketSizeDwords = onPacketGpuFacility(opcode, packetBuffer, packetSizeDwords);
 				break;
 			case OP_TYPE_WAIT_FOR_GRAPHICS_WRITES:
-				realPacketSizeDwords = onPacketWaitForGraphicsWrites(packetBuffer, packetSizeDwords);
+				realPacketSizeDwords = onPacketWaitForGraphicsWrites(opcode, packetBuffer, packetSizeDwords);
 				break;
 			case OP_TYPE_PAUSE:
-				realPacketSizeDwords = onPacketPause(packetBuffer, packetSizeDwords);
+				realPacketSizeDwords = onPacketPause(opcode, packetBuffer, packetSizeDwords);
 				break;
 			case OP_TYPE_CONFIG_REGISTER:
-				realPacketSizeDwords = onPacketConfigRegister(packetBuffer, packetSizeDwords);
+				realPacketSizeDwords = onPacketConfigRegister(opcode, packetBuffer, packetSizeDwords);
 				break;
 			case OP_TYPE_SET_1:
-				realPacketSizeDwords = onPacketSet1(packetBuffer, packetSizeDwords);
+				realPacketSizeDwords = onPacketSet1(opcode, packetBuffer, packetSizeDwords);
 				break;
 			case OP_TYPE_SET_2:
-				realPacketSizeDwords = onPacketSet2(packetBuffer, packetSizeDwords);
+				realPacketSizeDwords = onPacketSet2(opcode, packetBuffer, packetSizeDwords);
 				break;
 			case OP_TYPE_SET_3:
-				realPacketSizeDwords = onPacketSet3(packetBuffer, packetSizeDwords);
+				realPacketSizeDwords = onPacketSet3(opcode, packetBuffer, packetSizeDwords);
 				break;
 			case OP_TYPE_INCREMENT_DE_COUNTER:
-				realPacketSizeDwords = onPacketIncrementDeCounter(packetBuffer, packetSizeDwords);
+				realPacketSizeDwords = onPacketIncrementDeCounter(opcode, packetBuffer, packetSizeDwords);
 				break;
 			case OP_TYPE_WAIT_ON_CE:
-				realPacketSizeDwords = onPacketWaitOnCe(packetBuffer, packetSizeDwords);
+				realPacketSizeDwords = onPacketWaitOnCe(opcode, packetBuffer, packetSizeDwords);
 				break;
 			case OP_TYPE_WAIT_FOR_SETUP_DISPATCH_DRAW_KICK_RING_BUFFER:
-				realPacketSizeDwords = onPacketWaitForSetupDispatchDrawKickRingBuffer(packetBuffer, packetSizeDwords);
+				realPacketSizeDwords = onPacketWaitForSetupDispatchDrawKickRingBuffer(opcode, packetBuffer, packetSizeDwords);
 				break;
 			case OP_TYPE_DISPATCH_DRAW:
-				realPacketSizeDwords = onPacketDispatchDraw(packetBuffer, packetSizeDwords);
+				realPacketSizeDwords = onPacketDispatchDraw(opcode, packetBuffer, packetSizeDwords);
 				break;
 			case OP_TYPE_REQUEST_MIP_STATS_REPORT_AND_RESET:
-				realPacketSizeDwords = onPacketRequestMipStatsReportAndReset(packetBuffer, packetSizeDwords);
+				realPacketSizeDwords = onPacketRequestMipStatsReportAndReset(opcode, packetBuffer, packetSizeDwords);
 				break;
 
-			// private types
+				// private types
 
 			case OP_TYPE_PRIV_SHARED:
-				realPacketSizeDwords = onPacketPrivateShared(packetBuffer, packetSizeDwords);
+				realPacketSizeDwords = onPacketPrivateShared(opcode, packetBuffer, packetSizeDwords);
 				break;
 			case OP_TYPE_PRIV_DRAW:
-				realPacketSizeDwords = onPacketPrivateDraw(packetBuffer, packetSizeDwords);
+				realPacketSizeDwords = onPacketPrivateDraw(opcode, packetBuffer, packetSizeDwords);
 				break;
 			case OP_TYPE_PRIV_DISPATCH:
-				realPacketSizeDwords = onPacketPrivateDispatch(packetBuffer, packetSizeDwords);
+				realPacketSizeDwords = onPacketPrivateDispatch(opcode, packetBuffer, packetSizeDwords);
 				break;
 			default:
+				LOG_WARN("unknows opcode %X", opcode);
 				break;
 			}
 
@@ -173,161 +174,302 @@ bool GnmCmdStreamDraw::processCommandBuffer(uint32_t* commandBuffer, uint32_t co
 }
 
 //////////////////////////////////////////////////////////////////////////
+uint32_t GnmCmdStreamDraw::onPacketBase(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+{
+	uint32_t opSub = OPCODE_SUB(packetBuffer);
+	uint32_t realPktSizeDwords = 0;
+	do 
+	{
+		switch (opSub)
+		{
+		case OP_SUB_SET_USER_DATA_REGION:
+			realPktSizeDwords = onSetUserDataRegion(opcode, packetBuffer, packetSizeInDwords);
+			break;
+		default:
+			realPktSizeDwords = packetSizeInDwords;
+			break;
+		}
+	} while (false);
+	return realPktSizeDwords;
+}
 
-uint32_t GnmCmdStreamDraw::onPacketBase(uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+uint32_t GnmCmdStreamDraw::onPacketBaseIndirectArgs(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
 {
 	return packetSizeInDwords;
 }
 
-uint32_t GnmCmdStreamDraw::onPacketBaseIndirectArgs(uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+uint32_t GnmCmdStreamDraw::onPacketIndexCount(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
 {
 	return packetSizeInDwords;
 }
 
-uint32_t GnmCmdStreamDraw::onPacketIndexCount(uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+uint32_t GnmCmdStreamDraw::onPacketZPassPredication(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
 {
 	return packetSizeInDwords;
 }
 
-uint32_t GnmCmdStreamDraw::onPacketZPassPredication(uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+uint32_t GnmCmdStreamDraw::onPacketPredication(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
 {
 	return packetSizeInDwords;
 }
 
-uint32_t GnmCmdStreamDraw::onPacketPredication(uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+uint32_t GnmCmdStreamDraw::onPacketIndexBuffer(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
 {
 	return packetSizeInDwords;
 }
 
-uint32_t GnmCmdStreamDraw::onPacketIndexBuffer(uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+uint32_t GnmCmdStreamDraw::onPacketIndexSize(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
 {
 	return packetSizeInDwords;
 }
 
-uint32_t GnmCmdStreamDraw::onPacketIndexSize(uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+uint32_t GnmCmdStreamDraw::onPacketNumInstances(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
 {
 	return packetSizeInDwords;
 }
 
-uint32_t GnmCmdStreamDraw::onPacketNumInstances(uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+uint32_t GnmCmdStreamDraw::onPacketWriteStreamoutBuffer(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
 {
 	return packetSizeInDwords;
 }
 
-uint32_t GnmCmdStreamDraw::onPacketWriteStreamoutBuffer(uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+uint32_t GnmCmdStreamDraw::onPacketWriteDataInline(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
 {
 	return packetSizeInDwords;
 }
 
-uint32_t GnmCmdStreamDraw::onPacketWriteDataInline(uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+uint32_t GnmCmdStreamDraw::onPacketSemaphore(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
 {
 	return packetSizeInDwords;
 }
 
-uint32_t GnmCmdStreamDraw::onPacketSemaphore(uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+uint32_t GnmCmdStreamDraw::onPacketWaitOn(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
 {
 	return packetSizeInDwords;
 }
 
-uint32_t GnmCmdStreamDraw::onPacketWaitOn(uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+uint32_t GnmCmdStreamDraw::onPacketChainCommandBuffer(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
 {
 	return packetSizeInDwords;
 }
 
-uint32_t GnmCmdStreamDraw::onPacketChainCommandBuffer(uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+uint32_t GnmCmdStreamDraw::onPacketStallCommandBufferParser(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
 {
 	return packetSizeInDwords;
 }
 
-uint32_t GnmCmdStreamDraw::onPacketStallCommandBufferParser(uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+uint32_t GnmCmdStreamDraw::onPacketEvent(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
 {
 	return packetSizeInDwords;
 }
 
-uint32_t GnmCmdStreamDraw::onPacketEvent(uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+uint32_t GnmCmdStreamDraw::onPacketEndOfPipe(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
 {
 	return packetSizeInDwords;
 }
 
-uint32_t GnmCmdStreamDraw::onPacketEndOfPipe(uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+uint32_t GnmCmdStreamDraw::onPacketEndOfShader(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
 {
 	return packetSizeInDwords;
 }
 
-uint32_t GnmCmdStreamDraw::onPacketEndOfShader(uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+uint32_t GnmCmdStreamDraw::onPacketGpuFacility(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
 {
 	return packetSizeInDwords;
 }
 
-uint32_t GnmCmdStreamDraw::onPacketGpuFacility(uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+uint32_t GnmCmdStreamDraw::onPacketWaitForGraphicsWrites(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+{
+	//m_dcb.waitForGraphicsWrites();
+	return packetSizeInDwords;
+}
+
+uint32_t GnmCmdStreamDraw::onPacketPause(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
 {
 	return packetSizeInDwords;
 }
 
-uint32_t GnmCmdStreamDraw::onPacketWaitForGraphicsWrites(uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+uint32_t GnmCmdStreamDraw::onPacketConfigRegister(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
 {
 	return packetSizeInDwords;
 }
 
-uint32_t GnmCmdStreamDraw::onPacketPause(uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+uint32_t GnmCmdStreamDraw::onPacketSet1(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
 {
 	return packetSizeInDwords;
 }
 
-uint32_t GnmCmdStreamDraw::onPacketConfigRegister(uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+uint32_t GnmCmdStreamDraw::onPacketSet2(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+{
+	uint8_t opInfo = OPCODE_INFO(opcode);
+	uint32_t opLen = OPCODE_LENGTH(opcode);
+	uint32_t opSub = OPCODE_SUB(packetBuffer);
+	
+	do 
+	{
+		if (opLen == 3)
+		{
+			if (opSub == OP_SUB_SET_COMPUTE_SHADER_CONTROL)
+			{
+				//m_dcb.setComputeShaderControl();
+			}
+			else if (opSub == OP_SUB_SET_COMPUTE_SCRATCH_SIZE)
+			{
+				//m_dcb.setComputeScratchSize();
+			}
+			else if (opInfo == 0 && opSub >= 0x0C && opSub <= 0x14C)
+			{
+				// non cs
+				//m_dcb.setUserData()
+			}
+			else if (opInfo == 2 && opSub == 0x240)
+			{
+				//cs
+				//m_dcb.setUserData();
+			}
+			else if (opSub >= 0x216 && opSub <= 0x21A)
+			{
+				//m_dcb.setComputeResourceManagement()
+			}
+		}
+		else if (opLen == 4)
+		{
+			if (opSub >= 0x0C && opSub <= 0x240)
+			{
+				//m_dcb.setPointerInUserData();
+			}
+		}
+
+	} while (false);
+	return packetSizeInDwords;
+}
+
+uint32_t GnmCmdStreamDraw::onPacketSet3(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
 {
 	return packetSizeInDwords;
 }
 
-uint32_t GnmCmdStreamDraw::onPacketSet1(uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+uint32_t GnmCmdStreamDraw::onPacketIncrementDeCounter(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
 {
 	return packetSizeInDwords;
 }
 
-uint32_t GnmCmdStreamDraw::onPacketSet2(uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+uint32_t GnmCmdStreamDraw::onPacketWaitOnCe(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
 {
 	return packetSizeInDwords;
 }
 
-uint32_t GnmCmdStreamDraw::onPacketSet3(uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+uint32_t GnmCmdStreamDraw::onPacketWaitForSetupDispatchDrawKickRingBuffer(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
 {
 	return packetSizeInDwords;
 }
 
-uint32_t GnmCmdStreamDraw::onPacketIncrementDeCounter(uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+uint32_t GnmCmdStreamDraw::onPacketDispatchDraw(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
 {
 	return packetSizeInDwords;
 }
 
-uint32_t GnmCmdStreamDraw::onPacketWaitOnCe(uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+uint32_t GnmCmdStreamDraw::onPacketRequestMipStatsReportAndReset(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
 {
 	return packetSizeInDwords;
 }
 
-uint32_t GnmCmdStreamDraw::onPacketWaitForSetupDispatchDrawKickRingBuffer(uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+//
+
+uint32_t GnmCmdStreamDraw::onPacketPrivateDraw(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+{
+	OpSubPrivateDraw opInfo = (OpSubPrivateDraw)OPCODE_INFO(opcode);
+	switch (opInfo)
+	{
+	case OP_INFO_DRAW_INITIALIZE_DEFAULT_HARDWARE_STATE:
+		break;
+	case OP_INFO_DRAW_INITIALIZE_TO_DEFAULT_CONTEXT_STATE:
+		break;
+	case OP_INFO_SET_EMBEDDED_VS_SHADER:
+		break;
+	case OP_INFO_SET_EMBEDDED_PS_SHADER:
+		break;
+	case OP_INFO_SET_VS_SHADER:
+		break;
+	case OP_INFO_SET_PS_SHADER:
+		break;
+	case OP_INFO_SET_ES_SHADER:
+		break;
+	case OP_INFO_SET_GS_SHADER:
+		break;
+	case OP_INFO_SET_HS_SHADER:
+		break;
+	case OP_INFO_SET_LS_SHADER:
+		break;
+	case OP_INFO_UPDATE_GS_SHADER:
+		break;
+	case OP_INFO_UPDATE_HS_SHADER:
+		break;
+	case OP_INFO_UPDATE_PS_SHADER:
+		break;
+	case OP_INFO_UPDATE_VS_SHADER:
+		break;
+	case OP_INFO_SET_VGT_CONTROL:
+		break;
+	case OP_INFO_RESET_VGT_CONTROL:
+		break;
+	case OP_INFO_DRAW_INDEX:
+		break;
+	case OP_INFO_DRAW_INDEX_AUTO:
+		break;
+	case OP_INFO_DRAW_INDEX_INDIRECT:
+		break;
+	case OP_INFO_DRAW_INDEX_INDIRECT_COUNT_MULTI:
+		break;
+	case OP_INFO_DRAW_INDEX_MULTI_INSTANCED:
+		break;
+	case OP_INFO_DRAW_INDEX_OFFSET:
+		break;
+	case OP_INFO_DRAW_INDIRECT:
+		break;
+	case OP_INFO_DRAW_INDIRECT_COUNT_MULTI:
+		break;
+	case OP_INFO_DRAW_OPAQUE_AUTO:
+		break;
+	case OP_INFO_WAIT_UNTIL_SAFE_FOR_RENDERING:
+		break;
+	default:
+		break;
+	}
+	return packetSizeInDwords;
+}
+
+uint32_t GnmCmdStreamDraw::onPacketPrivateDispatch(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
 {
 	return packetSizeInDwords;
 }
 
-uint32_t GnmCmdStreamDraw::onPacketDispatchDraw(uint32_t* packetBuffer, uint32_t packetSizeInDwords)
-{
-	return packetSizeInDwords;
-}
-
-uint32_t GnmCmdStreamDraw::onPacketRequestMipStatsReportAndReset(uint32_t* packetBuffer, uint32_t packetSizeInDwords)
-{
-	return packetSizeInDwords;
-}
 
 //////////////////////////////////////////////////////////////////////////
-
-
-uint32_t GnmCmdStreamDraw::onPacketPrivateDraw(uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+uint32_t GnmCmdStreamDraw::onSetUserDataRegion(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
 {
-	return packetSizeInDwords;
-}
+	uint32_t realPktSizeDwords = 0;
+	uint32_t* packet = packetBuffer + 2;
+	do 
+	{
+		uint32_t numDwords = 0;
+		uint8_t opType = OPCODE_TYPE(*packet);
+		if (opType == OP_TYPE_SET_2)
+		{
+			numDwords = OPCODE_LENGTH(*packet);
+		}
+		else if (opType == OP_TYPE_BASE)
+		{
+			numDwords = 0;
+		}
+		else
+		{
+			LOG_ERR("error packet.");
+		}
 
-uint32_t GnmCmdStreamDraw::onPacketPrivateDispatch(uint32_t* packetBuffer, uint32_t packetSizeInDwords)
-{
-	return packetSizeInDwords;
+		//m_dcb.setUserDataRegion()
+		realPktSizeDwords = 2 + numDwords;
+
+	} while (false);
+	return realPktSizeDwords;
 }

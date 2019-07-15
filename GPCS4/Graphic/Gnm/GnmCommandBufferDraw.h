@@ -203,10 +203,9 @@ public:
 	//void setClipRectangleRule(uint16_t clipRule);
 	//void setClipRectangleRule(uint16_t clipRule);
 	//void setCmaskClearColor(uint32_t rtSlot, const uint32_t clearColor[2]);
-	//void setComputeResourceManagementForBase(ShaderEngine engine, uint16_t mask);
-	//void setComputeResourceManagementForNeo(ShaderEngine engine, uint16_t mask);
-	//void setComputeScratchSize(uint32_t maxNumWaves, uint32_t num1KByteChunksPerWave);
-	//void setComputeShaderControl(uint32_t wavesPerSh, uint32_t threadgroupsPerCu, uint32_t lockThreshold);
+	void setComputeResourceManagement(ShaderEngine engine, uint16_t mask);
+	void setComputeScratchSize(uint32_t maxNumWaves, uint32_t num1KByteChunksPerWave);
+	void setComputeShaderControl(uint32_t wavesPerSh, uint32_t threadgroupsPerCu, uint32_t lockThreshold);
 	//void setConfigRegister(uint32_t regAddr, uint32_t regValue);
 	//void setConfigRegisterRange(uint32_t regAddr, const uint32_t *pRegValues, uint32_t numValues);
 	//void setContextRegisterWithIndex(uint32_t regAddr, uint32_t regValue, uint32_t index);
@@ -259,7 +258,7 @@ public:
 	//void setPerfmonEnable(PerfmonEnable enable);
 	//void setPersistentRegister(ShaderType shaderType, uint32_t regAddr, uint32_t regValue);
 	//void setPersistentRegisterRange(ShaderType shaderType, uint32_t regAddr, const uint32_t *pRegValues, uint32_t numValues);
-	//void setPointerInUserData(ShaderStage stage, uint32_t startUserDataSlot, void *gpuAddr);
+	void setPointerInUserData(ShaderStage stage, uint32_t startUserDataSlot, void *gpuAddr);
 	//void setPointMinMax(uint16_t minRadius, uint16_t maxRadius);
 	//void setPointSize(uint16_t halfWidth, uint16_t halfHeight);
 	//void setPolygonOffsetBack(float scale, float offset);
@@ -314,8 +313,8 @@ public:
 	//void setUserConfigRegister(uint32_t regAddr, uint32_t regValue);
 	//void setUserConfigRegisterRange(uint32_t regAddr, const uint32_t *pRegValues, uint32_t numValues);
 	//void setUserConfigRegisterWithIndex(uint32_t regAddr, uint32_t regValue, uint32_t index);
-	//void setUserData(ShaderStage stage, uint32_t userDataSlot, uint32_t data);
-	//void setUserDataRegion(ShaderStage stage, uint32_t startUserDataSlot, const uint32_t *userData, uint32_t numDwords);
+	void setUserData(ShaderStage stage, uint32_t userDataSlot, uint32_t data);
+	void setUserDataRegion(ShaderStage stage, uint32_t startUserDataSlot, const uint32_t *userData, uint32_t numDwords);
 	//void setUserDataRegion(ShaderStage stage, uint32_t startUserDataSlot, const uint32_t *userData, uint32_t numDwords);
 	//void setVertexQuantization(VertexQuantizationMode quantizeMode, VertexQuantizationRoundMode roundMode, VertexQuantizationCenterMode centerMode);
 	//void setVertexReuseEnable(bool enable);
@@ -352,8 +351,8 @@ public:
 	//void updateHsShader(const HsStageRegisters *hsRegs, const TessellationRegisters *tessRegs);
 	//void updatePsShader(const PsStageRegisters *psRegs);
 	//void updateVsShader(const VsStageRegisters *vsRegs, uint32_t shaderModifier);
-	//void waitForGraphicsWrites(uint32_t baseAddr256, uint32_t sizeIn256ByteBlocks, uint32_t targetMask, CacheAction cacheAction, uint32_t extendedCacheMask,
-	//						   StallCommandBufferParserMode commandBufferStallMode);
+	void waitForGraphicsWrites(uint32_t baseAddr256, uint32_t sizeIn256ByteBlocks, uint32_t targetMask, CacheAction cacheAction, uint32_t extendedCacheMask,
+							   StallCommandBufferParserMode commandBufferStallMode);
 	//void waitForSetupDispatchDrawKickRingBuffer(uint32_t krbCount, uint32_t gdsDwOffsetKrb, uint32_t gdsDwOffsetKrbCounters, void *addrIrb, uint32_t sizeofIrbInBytes);
 	//void waitOnAddress(void *gpuAddr, uint32_t mask, WaitCompareFunc compareFunc, uint32_t refValue);
 	//void waitOnAddressAndStallCommandBufferParser(void *gpuAddr, uint32_t mask, uint32_t refValue);
