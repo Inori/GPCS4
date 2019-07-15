@@ -9,7 +9,8 @@ public:
 	GnmCmdStream();
 	virtual ~GnmCmdStream();
 
-private:
+protected:
+	uint32_t onPacketPrivateShared(uint32_t* packetBuffer, uint32_t packetSizeInDwords);
 
 };
 

@@ -42,6 +42,12 @@ struct PsStageRegisters
 	uint32_t cbShaderMask;
 };
 
+struct DrawModifier
+{
+	uint32_t m_renderTargetSliceOffset : 3;
+	uint32_t m_reserved : 29;
+};
+
 
 // we must keep the size of these structs
 // thus if add new field, decrease the reserved count to keep size unchanged.

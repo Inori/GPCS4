@@ -2,70 +2,81 @@
 
 #include "GPCS4Common.h"
 
+// OpCode format:
+//
+// flags | length-2  |   type   |   sub
+// 31 30 | 29 ... 16 | 15 ... 8 | 7 ... 0
 
-#define OPCODE_BUILD(numDwords, type) ( ((uint32_t)( ((((uint16_t)numDwords) << 16) + 0x3FFE0000) | 0xC0001000)) | (uint16_t)(type))
+
+#define OPCODE_BUILD(numDwords, type, sub) ( ((uint32_t)( ((((uint16_t)numDwords) << 16) + 0x3FFE0000) | 0xC0001000)) | ((uint8_t)(type)) << 8 | ((uint8_t)(sub)))
 #define OPCODE_TYPE(code) (((uint32_t)(code) & 0x0000FF00) >> 8)
+#define OPCODE_SUB(code) (((uint32_t)(code) & 0x000000FF))
 #define OPCODE_LENGTH(code) ((((uint32_t)(code) & 0x3FFF0000) >> 16) + 2)
+
 #define IS_OPCODE(code) ((uint32_t)(code) & 0xC0000000)
 #define IS_NOP_OPCODE(code) ((uint32_t)(code) == 0x80000000)
 
 //////////////////////////////////////////////////////////////////////////
 // used by both draw and dispatch command
-enum OpTypePrivateShared
+
+enum OpTypePrivate : uint8_t
 {
 	OP_TYPE_PRIV_SHARED = 0xFF,
-	// used for OPCODE_BUILD
-	OP_TYPE_PUSH_MARKER = 0xFF00,
-	OP_TYPE_PUSH_COLOR_MARKER = 0xFF01,
-	OP_TYPE_POP_MARKER = 0xFF02,
-	OP_TYPE_SET_MARKER = 0xFF03,
+	OP_TYPE_PRIV_DRAW = 0xFE,
+	OP_TYPE_PRIV_DISPATCH = 0xFD,
+};
 
-	OP_TYPE_SET_CS_SHADER = 0xFF04,
-	OP_TYPE_DISPATCH_DIRECT = 0xFF05,
-	OP_TYPE_DISPATCH_INDIRECT = 0xFF06,
+enum OpSubPrivateShared : uint8_t
+{
+	OP_SUB_PUSH_MARKER = 0x00,
+	OP_SUB_PUSH_COLOR_MARKER = 0x01,
+	OP_SUB_POP_MARKER = 0x02,
+	OP_SUB_SET_MARKER = 0x03,
+	OP_SUB_SET_CS_SHADER = 0x04,
+	OP_SUB_DISPATCH_DIRECT = 0x05,
+	OP_SUB_DISPATCH_INDIRECT = 0x06,
 };
 
 //////////////////////////////////////////////////////////////////////////
 // self defined
-enum OpTypePrivateDraw
+// used for OPCODE_BUILD
+enum OpSubPrivateDraw : uint8_t
 {
-	OP_TYPE_PRIV_DRAW = 0xFE,
-	// used for OPCODE_BUILD
-	OP_TYPE_DRAW_INITIALIZE_DEFAULT_HARDWARE_STATE = 0xFE00,
-	OP_TYPE_DRAW_INITIALIZE_TO_DEFAULT_CONTEXT_STATE = 0xFE01,
+	OP_SUB_DRAW_INITIALIZE_DEFAULT_HARDWARE_STATE = 0x00,
+	OP_SUB_DRAW_INITIALIZE_TO_DEFAULT_CONTEXT_STATE = 0x01,
 
-	OP_TYPE_SET_EMBEDDED_VS_SHADER = 0xFE02,
-	OP_TYPE_SET_EMBEDDED_PS_SHADER = 0xFE03,
+	OP_SUB_SET_EMBEDDED_VS_SHADER = 0x02,
+	OP_SUB_SET_EMBEDDED_PS_SHADER = 0x03,
 
-	OP_TYPE_SET_VS_SHADER = 0xFE04,
-	OP_TYPE_SET_PS_SHADER = 0xFE05,
-	OP_TYPE_SET_ES_SHADER = 0xFE06,
-	OP_TYPE_SET_GS_SHADER = 0xFE07,
-	OP_TYPE_SET_HS_SHADER = 0xFE08,
-	OP_TYPE_SET_LS_SHADER = 0xFE09,
-	OP_TYPE_UPDATE_GS_SHADER = 0xFE0A,
-	OP_TYPE_UPDATE_HS_SHADER = 0xFE0B,
-	OP_TYPE_UPDATE_PS_SHADER = 0xFE0C,
-	OP_TYPE_UPDATE_VS_SHADER = 0xFE0D,
+	OP_SUB_SET_VS_SHADER = 0x04,
+	OP_SUB_SET_PS_SHADER = 0x05,
+	OP_SUB_SET_ES_SHADER = 0x06,
+	OP_SUB_SET_GS_SHADER = 0x07,
+	OP_SUB_SET_HS_SHADER = 0x08,
+	OP_SUB_SET_LS_SHADER = 0x09,
+	OP_SUB_UPDATE_GS_SHADER = 0x0A,
+	OP_SUB_UPDATE_HS_SHADER = 0x0B,
+	OP_SUB_UPDATE_PS_SHADER = 0x0C,
+	OP_SUB_UPDATE_VS_SHADER = 0x0D,
 
-	OP_TYPE_SET_VGT_CONTROL = 0xFE0E,
-	OP_TYPE_RESET_VGT_CONTROL = 0xFE0F,
+	OP_SUB_SET_VGT_CONTROL = 0x0E,
+	OP_SUB_RESET_VGT_CONTROL = 0x0F,
 
-	OP_TYPE_DRAW_INDEX = 0xFE10,
-	OP_TYPE_DRAW_INDEX_AUTO = 0xFE11,
-	OP_TYPE_DRAW_INDEX_INDIRECT = 0xFE12,
-	OP_TYPE_DRAW_INDEX_INDIRECT_COUNT_MULTI = 0xFE13,
-	OP_TYPE_DRAW_INDEX_MULTI_INSTANCED = 0xFE14,
-	OP_TYPE_DRAW_INDEX_OFFSET = 0xFE15,
-	OP_TYPE_DRAW_INDIRECT = 0xFE16,
-	OP_TYPE_DRAW_INDIRECT_COUNT_MULTI = 0xFE17,
-	OP_TYPE_DRAW_OPAQUE_AUTO = 0xFE18,
+	OP_SUB_DRAW_INDEX = 0x10,
+	OP_SUB_DRAW_INDEX_AUTO = 0x11,
+	OP_SUB_DRAW_INDEX_INDIRECT = 0x12,
+	OP_SUB_DRAW_INDEX_INDIRECT_COUNT_MULTI = 0x13,
+	OP_SUB_DRAW_INDEX_MULTI_INSTANCED = 0x14,
+	OP_SUB_DRAW_INDEX_OFFSET = 0x15,
+	OP_SUB_DRAW_INDIRECT = 0x16,
+	OP_SUB_DRAW_INDIRECT_COUNT_MULTI = 0x17,
+	OP_SUB_DRAW_OPAQUE_AUTO = 0x18,
 
-	OP_TYPE_WAIT_UNTIL_SAFE_FOR_RENDERING = 0xFE19,
+	OP_SUB_WAIT_UNTIL_SAFE_FOR_RENDERING = 0x19,
 };
 
 
-enum OpTypeDraw
+enum OpTypeDraw : uint8_t
 {
 	OP_TYPE_BASE = 0x10,
 	OP_TYPE_BASE_INDIRECT_ARGS = 0x11,
@@ -100,7 +111,7 @@ enum OpTypeDraw
 
 
 
-enum OpCodeDraw
+enum OpCodeDraw : uint32_t
 {
 	OP_CODE_BASE = 0xC0001000,
 	OP_CODE_CHAIN_COMMAND_BUFFER = 0xC0023F00,
@@ -299,19 +310,19 @@ enum OpSubDraw
 
 //////////////////////////////////////////////////////////////////////////
 // self defined
-enum OpTypePrivateDispatch
+enum OpSubPrivateDispatch : uint8_t
 {
-	OP_TYPE_PRIV_DISPATCH = 0xFD,
+	
 	// used for OPCODE_BUILD
-	OP_TYPE_DISPATCH_INITIALIZE_DEFAULT_HARDWARE_STATE = 0xFD00,
+	OP_SUB_DISPATCH_INITIALIZE_DEFAULT_HARDWARE_STATE = 0x00,
 };
 
-enum OpTypeDispatch
+enum OpTypeDispatch : uint8_t
 {
 
 };
 
-enum OpCodeDispatch
+enum OpCodeDispatch : uint32_t
 {
 
 };
@@ -323,17 +334,17 @@ enum OpSubDispatch
 
 //////////////////////////////////////////////////////////////////////////
 // self defined
-enum OpTypePrivateConstant
+enum OpSubPrivateConstant : uint8_t
 {
 
 };
 
-enum OpTypeConstant
+enum OpTypeConstant : uint8_t
 {
 
 };
 
-enum OpCodeConstant
+enum OpCodeConstant : uint32_t
 {
 
 };

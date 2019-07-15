@@ -58,6 +58,7 @@ bool GnmCmdStreamDraw::processCommandBuffer(uint32_t* commandBuffer, uint32_t co
 			cmdType = OPCODE_TYPE(opcode);
 			packetSizeDwords = OPCODE_LENGTH(opcode);
 			packetBuffer = command;
+
 			switch (cmdType)
 			{
 			case OP_TYPE_BASE:
@@ -320,10 +321,6 @@ uint32_t GnmCmdStreamDraw::onPacketRequestMipStatsReportAndReset(uint32_t* packe
 
 //////////////////////////////////////////////////////////////////////////
 
-uint32_t GnmCmdStreamDraw::onPacketPrivateShared(uint32_t* packetBuffer, uint32_t packetSizeInDwords)
-{
-	return packetSizeInDwords;
-}
 
 uint32_t GnmCmdStreamDraw::onPacketPrivateDraw(uint32_t* packetBuffer, uint32_t packetSizeInDwords)
 {

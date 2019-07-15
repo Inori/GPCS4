@@ -9,3 +9,8 @@ GnmCmdStream::~GnmCmdStream()
 {
 
 }
+
+uint32_t GnmCmdStream::onPacketPrivateShared(uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+{
+	return packetSizeInDwords;
+}

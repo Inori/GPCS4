@@ -11,7 +11,7 @@ int PS4API sceGnmInsertPushMarker(uint32_t* cmdBuffer, uint32_t numDwords, const
 {
 	LOG_SCE_GRAPHIC("cmd %p numdw %d str %p", cmdBuffer, numDwords, debugString);
 	GnmPushMarker* param = (GnmPushMarker*)cmdBuffer;
-	param->opcode = OPCODE_BUILD(numDwords, OP_TYPE_PUSH_MARKER);
+	param->opcode = OPCODE_BUILD(numDwords, OP_TYPE_PRIV_SHARED, OP_SUB_PUSH_MARKER);
 	uint32_t strLen = strlen(debugString);
 	if ((numDwords - 1) * sizeof(uint32_t) > strLen)
 	{
@@ -34,7 +34,7 @@ int PS4API sceGnmInsertPopMarker(uint32_t* cmdBuffer, uint32_t numDwords)
 	const uint32_t paramSize = sizeof(GnmPopMarker) / sizeof(uint32_t);
 	assert(paramSize == numDwords);
 	GnmPopMarker* param = (GnmPopMarker*)cmdBuffer;
-	param->opcode = OPCODE_BUILD(paramSize, OP_TYPE_POP_MARKER);
+	param->opcode = OPCODE_BUILD(paramSize, OP_TYPE_PRIV_SHARED, OP_SUB_POP_MARKER);
 	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
 	return SCE_OK;
 }
@@ -67,7 +67,7 @@ int PS4API sceGnmSetCsShaderWithModifier(uint32_t* cmdBuffer, uint32_t numDwords
 	const uint32_t paramSize = sizeof(GnmCSShader) / sizeof(uint32_t);
 	assert(paramSize == numDwords);
 	GnmCSShader* param = (GnmCSShader*)cmdBuffer;
-	param->opcode = OPCODE_BUILD(paramSize, OP_TYPE_SET_CS_SHADER);
+	param->opcode = OPCODE_BUILD(paramSize, OP_TYPE_PRIV_SHARED, OP_SUB_SET_CS_SHADER);
 	param->modifier = shaderModifier;
 	memcpy(&param->csRegs, csRegs, sizeof(CsStageRegisters));
 	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
@@ -82,7 +82,7 @@ int PS4API sceGnmDispatchDirect(uint32_t* cmdBuffer, uint32_t numDwords,
 	const uint32_t paramSize = sizeof(GnmDispatchDirect) / sizeof(uint32_t);
 	assert(paramSize == numDwords);
 	GnmDispatchDirect* param = (GnmDispatchDirect*)cmdBuffer;
-	param->opcode = OPCODE_BUILD(paramSize, OP_TYPE_DISPATCH_DIRECT);
+	param->opcode = OPCODE_BUILD(paramSize, OP_TYPE_PRIV_SHARED, OP_SUB_DISPATCH_DIRECT);
 	param->threadGroupX = threadGroupX;
 	param->threadGroupY = threadGroupY;
 	param->threadGroupZ = threadGroupZ;
