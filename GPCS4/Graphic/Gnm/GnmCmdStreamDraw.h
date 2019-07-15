@@ -2,6 +2,7 @@
 
 #include "GPCS4Common.h"
 #include "GnmCmdStream.h"
+#include "GnmCommandBufferDraw.h"
 
 
 // The command buffer itself is a PM4Packet queue. 
@@ -77,6 +78,8 @@ private:
 	uint32_t onPacketPrivateDraw(uint32_t* packetBuffer, uint32_t packetSizeInDwords);
 	uint32_t onPacketPrivateDispatch(uint32_t* packetBuffer, uint32_t packetSizeInDwords);
 
+private:
+	GnmCommandBufferDraw m_dcb;
 };
 
 

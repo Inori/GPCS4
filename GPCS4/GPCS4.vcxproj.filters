@@ -475,6 +475,12 @@
     <ClInclude Include="SceModules\sce_gnm_error.h">
       <Filter>SceModules</Filter>
     </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GnmCommandBuffer.h">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GnmCommandBufferDraw.h">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -902,6 +908,12 @@
     </ClCompile>
     <ClCompile Include="Graphic\SceGnmDriver.cpp">
       <Filter>Source Files\Graphic</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gnm\GnmCommandBuffer.cpp">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gnm\GnmCommandBufferDraw.cpp">
+      <Filter>Source Files\Graphic\Gnm</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

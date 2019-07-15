@@ -36,6 +36,8 @@
     <ClInclude Include="Graphic\Gnm\GnmCmdStreamConstant.h" />
     <ClInclude Include="Graphic\Gnm\GnmCmdStreamDispatch.h" />
     <ClInclude Include="Graphic\Gnm\GnmCmdStreamDraw.h" />
+    <ClInclude Include="Graphic\Gnm\GnmCommandBuffer.h" />
+    <ClInclude Include="Graphic\Gnm\GnmCommandBufferDraw.h" />
     <ClInclude Include="Graphic\Gnm\GnmConstant.h" />
     <ClInclude Include="Graphic\Gnm\GnmOpCode.h" />
     <ClInclude Include="Graphic\Gnm\GnmStructure.h" />
@@ -137,6 +139,8 @@
     <ClCompile Include="Graphic\Gnm\GnmCmdStreamConstant.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmCmdStreamDispatch.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmCmdStreamDraw.cpp" />
+    <ClCompile Include="Graphic\Gnm\GnmCommandBuffer.cpp" />
+    <ClCompile Include="Graphic\Gnm\GnmCommandBufferDraw.cpp" />
     <ClCompile Include="Graphic\GraphicShared.cpp" />
     <ClCompile Include="Graphic\GveDevice.cpp" />
     <ClCompile Include="Graphic\GveInstance.cpp" />
