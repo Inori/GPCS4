@@ -2,6 +2,7 @@
 
 #include "GPCS4Common.h"
 #include "Gnm/GnmCmdStreamDraw.h"
+#include <memory>
 
 class SceGnmDriver
 {
@@ -18,7 +19,8 @@ public:
 	int sceGnmSubmitDone(void);
 
 private:
-	GnmCmdStreamDraw m_cmdHandlerDraw;
+	std::shared_ptr<GnmCommandBufferDraw> m_dcb;
+	std::shared_ptr <GnmCmdStreamDraw> m_cmdHandlerDraw;
 };
 
 

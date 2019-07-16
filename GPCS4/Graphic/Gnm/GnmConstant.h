@@ -93,3 +93,33 @@ enum ShaderEngine
 	kShaderEngine2 = 2,
 	kShaderEngine3 = 3,
 };
+
+enum EndOfPipeEventType
+{
+	kEopFlushCbDbCaches = 0x00000004,
+	kEopFlushAndInvalidateCbDbCaches = 0x00000014,
+	kEopCbDbReadsDone = 0x00000028,
+	kEopCsDone = 0x00000028,
+};
+
+enum EventWriteDest
+{
+	kEventWriteDestMemory = 0x00,
+	kEventWriteDestTcL2 = 0x01,
+	kEventWriteDestTcL2Volatile = 0x11,
+};
+
+enum EventWriteSource
+{
+	kEventWriteSource32BitsImmediate = 0x1,
+	kEventWriteSource64BitsImmediate = 0x2,
+	kEventWriteSourceGlobalClockCounter = 0x3,
+	kEventWriteSourceGpuCoreClockCounter = 0x4,
+};
+
+enum CachePolicy
+{
+	kCachePolicyLru = 0x0,
+	kCachePolicyStream = 0x1,
+	kCachePolicyBypass = 0x2,
+};

@@ -118,7 +118,7 @@ public:
 	//void popMarker();
 	//void prefetchIntoL2(void *dataAddr, uint32_t sizeInBytes);
 	//void prepareFlip();
-	//void prepareFlip(void *labelAddr, uint32_t value);
+	void prepareFlip(void *labelAddr, uint32_t value);
 	//void prepareFlipWithEopInterrupt(EndOfPipeEventType eventType, CacheAction cacheAction);
 	//void prepareFlip();
 	//void prepareFlip(void *labelAddr, uint32_t value);
@@ -361,14 +361,14 @@ public:
 	//void waitOnRegister(uint16_t gpuReg, uint32_t mask, WaitCompareFunc compareFunc, uint32_t refValue);
 	//void waitSemaphore(uint64_t* semAddr, SemaphoreWaitBehavior behavior);
 	//void waitUntilSafeForRendering(uint32_t videoOutHandle, uint32_t displayBufferIndex);
-	//void writeAtEndOfPipe(EndOfPipeEventType eventType,
-	//					  EventWriteDest dstSelector, void *dstGpuAddr,
-	//					  EventWriteSource srcSelector, uint64_t immValue,
-	//					  CacheAction cacheAction, CachePolicy cachePolicy);
-	//void writeAtEndOfPipeWithInterrupt(EndOfPipeEventType eventType,
-	//								   EventWriteDest dstSelector, void *dstGpuAddr,
-	//								   EventWriteSource srcSelector, uint64_t immValue,
-	//								   CacheAction cacheAction, CachePolicy cachePolicy);
+	void writeAtEndOfPipe(EndOfPipeEventType eventType,
+		EventWriteDest dstSelector, void *dstGpuAddr,
+		EventWriteSource srcSelector, uint64_t immValue,
+		CacheAction cacheAction, CachePolicy cachePolicy);
+	void writeAtEndOfPipeWithInterrupt(EndOfPipeEventType eventType,
+		EventWriteDest dstSelector, void *dstGpuAddr,
+		EventWriteSource srcSelector, uint64_t immValue,
+		CacheAction cacheAction, CachePolicy cachePolicy);
 	//void writeAtEndOfShader(EndOfShaderEventType eventType, void *dstGpuAddr, uint32_t immValue);
 	//void writeDataInline(void *dstGpuAddr, const void *data, uint32_t sizeInDwords, WriteDataConfirmMode writeConfirm);
 	//void writeDataInlineThroughL2(void *dstGpuAddr, const void *data, uint32_t sizeInDwords, CachePolicy cachePolicy, WriteDataConfirmMode writeConfirm);

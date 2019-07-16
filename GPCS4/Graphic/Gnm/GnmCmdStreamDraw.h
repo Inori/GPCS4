@@ -3,7 +3,7 @@
 #include "GPCS4Common.h"
 #include "GnmCmdStream.h"
 #include "GnmCommandBufferDraw.h"
-
+#include <memory>
 
 // The command buffer itself is a PM4Packet queue. 
 // Since PS4 use a unified memory architecture,
@@ -35,7 +35,7 @@
 class GnmCmdStreamDraw : public GnmCmdStream
 {
 public:
-	GnmCmdStreamDraw();
+	GnmCmdStreamDraw(std::shared_ptr<GnmCommandBufferDraw> dcb);
 	virtual ~GnmCmdStreamDraw();
 
 	bool processCommandBuffer(uint32_t count, void* dcbGpuAddrs[], uint32_t* dcbSizesInBytes);
@@ -81,8 +81,12 @@ private:
 
 	//
 	uint32_t onSetUserDataRegion(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords);
+	// deal with all prepareFlip and prepareFlipWithEopInterrupt
+	uint32_t onPrepareFlipOrEopInterrupt(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords);
+
 private:
-	GnmCommandBufferDraw m_dcb;
+	bool m_lastPacketDone = false;  // last packet marker, usually prepareFlip packet.
+	std::shared_ptr<GnmCommandBufferDraw> m_dcb;
 };
 
 

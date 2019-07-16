@@ -12,7 +12,7 @@ uint64_t PS4API sceKernelGetProcessTime(void)
 uint64_t PS4API sceKernelGetProcessTimeCounter(void)
 {
 	uint64_t nCount = UtilProcess::GetProcessTimeCounter();
-	LOG_SCE_TRACE("process time counter %lld", nCount);
+	//LOG_SCE_TRACE("process time counter %lld", nCount);
 	return nCount;
 }
 
@@ -36,7 +36,7 @@ uint64_t PS4API sceKernelGetTscFrequency(void)
 uint64_t PS4API sceKernelReadTsc(void)
 {
 	uint64_t nCount = UtilProcess::GetProcessTimeCounter();
-	LOG_SCE_TRACE("tsc %lld", nCount);
+	//LOG_SCE_TRACE("tsc %lld", nCount);
 	return nCount;
 }
 

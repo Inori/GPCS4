@@ -178,12 +178,16 @@ int PS4API sceGnmSetVsShader(uint32_t* cmdBuffer, uint32_t numDwords,
 	const VsStageRegisters *vsRegs, uint32_t shaderModifier)
 {
 	LOG_SCE_GRAPHIC("cmd %p numdw %d vs %p mod %d", cmdBuffer, numDwords, vsRegs, shaderModifier);
+
 	const uint32_t paramSize = sizeof(GnmVSShader) / sizeof(uint32_t);
 	assert(paramSize == numDwords);
 	GnmVSShader* param = (GnmVSShader*)cmdBuffer;
 	param->opcode = OPCODE_BUILD(paramSize, OP_TYPE_PRIV_DRAW, OP_INFO_SET_VS_SHADER);
 	param->modifier = shaderModifier;
-	memcpy(&param->vsRegs, vsRegs, sizeof(VsStageRegisters));
+	if (vsRegs != NULL)
+	{
+		memcpy(&param->vsRegs, vsRegs, sizeof(VsStageRegisters));
+	}
 	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
 	return SCE_OK;
 }
@@ -193,11 +197,15 @@ int PS4API sceGnmSetPsShader350(uint32_t* cmdBuffer, uint32_t numDwords,
 	const PsStageRegisters *psRegs)
 {
 	LOG_SCE_GRAPHIC("cmd %p numdw %d ps %p", cmdBuffer, numDwords, psRegs);
+
 	const uint32_t paramSize = sizeof(GnmPSShader) / sizeof(uint32_t);
 	assert(paramSize == numDwords);
 	GnmPSShader* param = (GnmPSShader*)cmdBuffer;
 	param->opcode = OPCODE_BUILD(paramSize, OP_TYPE_PRIV_DRAW, OP_INFO_SET_PS_SHADER);
-	memcpy(&param->psRegs, psRegs, sizeof(PsStageRegisters));
+	if (psRegs != NULL)
+	{
+		memcpy(&param->psRegs, psRegs, sizeof(PsStageRegisters));
+	}
 	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
 	return SCE_OK;
 }

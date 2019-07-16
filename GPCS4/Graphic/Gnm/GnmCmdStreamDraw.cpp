@@ -1,8 +1,11 @@
 #include "GnmCmdStreamDraw.h"
 #include "GnmOpCode.h"
+#include "Platform/PlatformUtils.h"
 
-GnmCmdStreamDraw::GnmCmdStreamDraw()
+GnmCmdStreamDraw::GnmCmdStreamDraw(std::shared_ptr<GnmCommandBufferDraw> dcb):
+	m_dcb(dcb)
 {
+
 }
 
 GnmCmdStreamDraw::~GnmCmdStreamDraw()
@@ -52,6 +55,9 @@ bool GnmCmdStreamDraw::processCommandBuffer(uint32_t* commandBuffer, uint32_t co
 		uint32_t opcode = 0;
 		uint8_t cmdType;
 
+		// reset marker
+		m_lastPacketDone = false;
+
 		while (processedCmdSize < commandSize)
 		{
 			opcode = *command;
@@ -59,6 +65,7 @@ bool GnmCmdStreamDraw::processCommandBuffer(uint32_t* commandBuffer, uint32_t co
 			packetSizeDwords = OPCODE_LENGTH(opcode);
 			packetBuffer = command;
 
+			LOG_DEBUG("opcode 0x%08X", opcode);
 			switch (cmdType)
 			{
 			case OP_TYPE_BASE:
@@ -149,7 +156,7 @@ bool GnmCmdStreamDraw::processCommandBuffer(uint32_t* commandBuffer, uint32_t co
 				realPacketSizeDwords = onPacketRequestMipStatsReportAndReset(opcode, packetBuffer, packetSizeDwords);
 				break;
 
-				// private types
+			// private types
 
 			case OP_TYPE_PRIV_SHARED:
 				realPacketSizeDwords = onPacketPrivateShared(opcode, packetBuffer, packetSizeDwords);
@@ -161,7 +168,12 @@ bool GnmCmdStreamDraw::processCommandBuffer(uint32_t* commandBuffer, uint32_t co
 				realPacketSizeDwords = onPacketPrivateDispatch(opcode, packetBuffer, packetSizeDwords);
 				break;
 			default:
-				LOG_WARN("unknows opcode %X", opcode);
+				LOG_WARN("unknown opcode 0x%08X", opcode);
+				break;
+			}
+
+			if (m_lastPacketDone)
+			{
 				break;
 			}
 
@@ -184,6 +196,12 @@ uint32_t GnmCmdStreamDraw::onPacketBase(uint32_t opcode, uint32_t* packetBuffer,
 		{
 		case OP_SUB_SET_USER_DATA_REGION:
 			realPktSizeDwords = onSetUserDataRegion(opcode, packetBuffer, packetSizeInDwords);
+			break;
+		case OP_SUB_PREPARE_FLIP_VOID:
+		case OP_SUB_PREPARE_FLIP_LABEL:
+		case OP_SUB_PREPARE_FLIP_WITH_EOP_INTERRUPT_VOID:
+		case OP_SUB_PREPARE_FLIP_WITH_EOP_INTERRUPT_LABEL:
+			realPktSizeDwords = onPrepareFlipOrEopInterrupt(opcode, packetBuffer, packetSizeInDwords);
 			break;
 		default:
 			realPktSizeDwords = packetSizeInDwords;
@@ -265,6 +283,40 @@ uint32_t GnmCmdStreamDraw::onPacketEvent(uint32_t opcode, uint32_t* packetBuffer
 
 uint32_t GnmCmdStreamDraw::onPacketEndOfPipe(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
 {
+	uint32_t flags = packetBuffer[3];
+	uint32_t hiDword = packetBuffer[3] & 0xFFFF;
+	uint32_t loDword = packetBuffer[2];
+	// TODO:
+	// this is a GPU relative address lacking of the highest byte (masked by 0xFFFFFFFFF8 or 0xFFFFFFFFFC)
+	// I'm not sure this relative to what, maybe to the command buffer.
+	uint64_t relaGpuAddr = (((uint64_t)hiDword << 32) | loDword);
+	void* gpuAddr = (void*)(((uint64_t)packetBuffer & 0x0000FF0000000000) | relaGpuAddr);
+	uint64_t value = *((uint64_t*)packetBuffer + 2);
+
+	uint8_t dstSel = (flags & 0x10000) >> 16;
+	uint8_t srcSel = (flags & 0xE0000000) >> 29;
+	if (flags & 0x2000000)
+	{
+		//m_dcb->writeAtEndOfPipeWithInterrupt();
+	}
+	else
+	{
+		//m_dcb->writeAtEndOfPipe();
+	}
+
+	if (srcSel == kEventWriteSource32BitsImmediate)
+	{
+		*(uint32_t*)gpuAddr = value;
+	}
+	else if (srcSel == kEventWriteSource64BitsImmediate)
+	{
+		*(uint64_t*)gpuAddr = value;
+	}
+	else
+	{
+		*(uint64_t*)gpuAddr = UtilProcess::GetProcessTimeCounter();
+	}
+	
 	return packetSizeInDwords;
 }
 
@@ -472,4 +524,34 @@ uint32_t GnmCmdStreamDraw::onSetUserDataRegion(uint32_t opcode, uint32_t* packet
 
 	} while (false);
 	return realPktSizeDwords;
+}
+
+uint32_t GnmCmdStreamDraw::onPrepareFlipOrEopInterrupt(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+{
+	uint32_t opSub = OPCODE_SUB(packetBuffer);
+
+	void* labelAddr = (void*)*((uint64_t*)packetBuffer + 1);
+	uint32_t value = packetBuffer[4];
+
+	switch (opSub)
+	{
+	case OP_SUB_PREPARE_FLIP_VOID:
+		break;
+	case OP_SUB_PREPARE_FLIP_LABEL:
+	{
+		m_dcb->prepareFlip(labelAddr, value);
+	}
+		break;
+	case OP_SUB_PREPARE_FLIP_WITH_EOP_INTERRUPT_VOID:
+		break;
+	case OP_SUB_PREPARE_FLIP_WITH_EOP_INTERRUPT_LABEL:
+		break;
+	default:
+		break;
+	}
+
+	// mark this is the last packet in cmd buff.
+	m_lastPacketDone = true;
+
+	return packetSizeInDwords;
 }
