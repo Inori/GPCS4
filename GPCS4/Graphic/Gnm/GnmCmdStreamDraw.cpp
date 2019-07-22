@@ -22,11 +22,8 @@ bool GnmCmdStreamDraw::processCommandBuffer(uint32_t count, void* dcbGpuAddrs[],
 	bool ret = false;
 	do 
 	{
-		if (count != 1)
-		{
-			LOG_ASSERT("currently only support 1 cmdbuff.");
-		}
-
+		LOG_ASSERT((count == 1), "currently only support 1 cmdbuff.");
+		
 		uint32_t* cmdBuff = (uint32_t*)dcbGpuAddrs[0];
 		uint32_t cmdSize = dcbSizesInBytes[0];
 

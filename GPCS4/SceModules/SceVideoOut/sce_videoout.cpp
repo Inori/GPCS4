@@ -20,10 +20,7 @@
 int PS4API sceVideoOutOpen(SceUserServiceUserId userId, int32_t type, int32_t index, const void *param)
 {
 	LOG_SCE_GRAPHIC("user id %d", userId);
-	if (type != SCE_VIDEO_OUT_BUS_TYPE_MAIN)
-	{
-		LOG_ASSERT("not supported videoout type %d", type);
-	}
+	LOG_ASSERT((type == SCE_VIDEO_OUT_BUS_TYPE_MAIN), "not supported videoout type %d", type);
 
 	GfxContext gfxCtx;
 	gfxCtx.videoOut = new SceVideoOut();

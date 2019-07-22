@@ -490,6 +490,12 @@
     <ClInclude Include="Graphic\Sce\SceVideoOut.h">
       <Filter>Source Files\Graphic\Sce</Filter>
     </ClInclude>
+    <ClInclude Include="Graphic\Psbc\ShaderBinary.h">
+      <Filter>Source Files\Graphic\Psbc</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Psbc\PsbcReader.h">
+      <Filter>Source Files\Graphic\Psbc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -923,6 +929,12 @@
     </ClCompile>
     <ClCompile Include="Graphic\Sce\SceVideoOut.cpp">
       <Filter>Source Files\Graphic\Sce</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Psbc\ShaderBinary.cpp">
+      <Filter>Source Files\Graphic\Psbc</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Psbc\PsbcReader.cpp">
+      <Filter>Source Files\Graphic\Psbc</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

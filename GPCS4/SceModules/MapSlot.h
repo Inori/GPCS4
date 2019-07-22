@@ -84,14 +84,7 @@ public:
 	T& operator[](const uint i)
 	{
 		std::lock_guard<std::mutex> lock(m_mutex);
-
-#ifdef GPCS4_DEBUG
-		if (i >= m_vtArray.size())
-		{
-			LOG_ASSERT("index exceed max item size %d/%d", i, m_vtArray.size());
-		}
-#endif  //GPCS4_DEBUG
-
+		LOG_ASSERT((i < m_vtArray.size()), "index exceed max item size %d/%d", i, m_vtArray.size());
 		return m_vtArray[i];
 	}
 

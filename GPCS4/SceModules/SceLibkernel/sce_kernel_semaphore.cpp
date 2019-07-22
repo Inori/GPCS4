@@ -7,10 +7,6 @@ int PS4API sceKernelCreateSema(SceKernelSema *sem, const char *name,
 {
 	LOG_SCE_TRACE("sem %p name %s attr %d init %d max %d opt %p", sem, name, attr, init, max, opt);
 	*sem = (SceKernelSema)new CSceSemaphore(name, init, max, attr);
-	if (!*sem)
-	{
-		LOG_ASSERT("null sem");
-	}
 	return SCE_OK;
 }
 

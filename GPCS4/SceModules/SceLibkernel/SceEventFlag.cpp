@@ -70,7 +70,7 @@ int CSceEventFlag::Wait(uint64 bitPattern, uint mode, uint64* pResultPat, SceKer
 		}
 		else
 		{
-			LOG_ASSERT("invalid mode %x", mode);
+			LOG_ERR("invalid mode %x", mode);
 		}
 
 	
@@ -169,7 +169,7 @@ bool CSceEventFlag::IsConditionMet(uint mode, uint64 bitPattern)
 	}
 	else
 	{
-		LOG_ASSERT("invalid mode %x", mode);
+		LOG_ERR("invalid mode %x", mode);
 	}
 	return bMet;
 }
