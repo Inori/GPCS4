@@ -25,35 +25,21 @@ std::string PsbcReader::readString()
 
 void PsbcReader::read(void* dst, size_t n)
 {
-	do 
-	{
-		if (m_pos + n > m_size)
-		{
-			LOG_ERR("Unexpected end of file %d", n);
-			break;
-		}
-
-		std::memcpy(dst, m_data + m_pos, n);
-		m_pos += n;
-	} while (false);
+	LOG_ASSERT((m_pos + n <= m_size), "Unexpected end of file %d", n);
+	std::memcpy(dst, m_data + m_pos, n);
+	m_pos += n;
 }
 
 void PsbcReader::skip(size_t n)
 {
-	do 
-	{
-		if (m_pos + n > m_size)
-		{
-			LOG_ERR("Unexpected end of file %d", n);
-			break;
-		}
-		m_pos += n;
-	} while (false);
+	LOG_ASSERT((m_pos + n <= m_size), "Unexpected end of file %d", n);
+	m_pos += n;
 }
 
 PsbcReader PsbcReader::clone(size_t pos) const
 {
-
+	LOG_ASSERT((pos <= m_size), "Invalid offset %d", pos);
+	return PsbcReader(m_data + pos, m_size - pos);
 }
 
 PsbcReader PsbcReader::resize(size_t size) const
@@ -64,5 +50,5 @@ PsbcReader PsbcReader::resize(size_t size) const
 
 void PsbcReader::store(std::ostream&& stream) const
 {
-
+	stream.write((const char*)m_data, m_size);
 }
