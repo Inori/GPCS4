@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Algorithm\sha1.h" />
+    <ClInclude Include="Algorithm\Sha1Hash.h" />
     <ClInclude Include="Common\GPCS4Log.h" />
     <ClInclude Include="Common\GPCS4Types.h" />
     <ClInclude Include="Common\MacroHelper.h" />
@@ -129,6 +131,8 @@
     <ClInclude Include="SceModules\sce_types.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Algorithm\sha1.c" />
+    <ClCompile Include="Algorithm\Sha1Hash.cpp" />
     <ClCompile Include="Common\GPCS4Log.cpp" />
     <ClCompile Include="Emulator\Emulator.cpp" />
     <ClCompile Include="Emulator\GameThread.cpp" />

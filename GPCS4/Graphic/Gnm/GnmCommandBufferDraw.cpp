@@ -50,6 +50,7 @@ void GnmCommandBufferDraw::setUserDataRegion(ShaderStage stage, uint32_t startUs
 
 void GnmCommandBufferDraw::setVsShader(const VsStageRegisters *vsRegs, uint32_t shaderModifier)
 {
+	void* gpuAddress = (void*)(uintptr_t(vsRegs->spiShaderPgmHiVs) << 40 | uintptr_t(vsRegs->spiShaderPgmLoVs) << 8);
 
 }
 

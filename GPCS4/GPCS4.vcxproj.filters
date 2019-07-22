@@ -170,6 +170,9 @@
     <Filter Include="Source Files\Graphic\Psbc">
       <UniqueIdentifier>{14ee293f-1109-4eb5-9d47-bb00adbe680a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Algorithm">
+      <UniqueIdentifier>{cb8dfaa7-aa84-454b-a1ea-ead2594a832f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SceModules\SceLibc\sce_libc.h">
@@ -495,6 +498,12 @@
     </ClInclude>
     <ClInclude Include="Graphic\Psbc\PsbcReader.h">
       <Filter>Source Files\Graphic\Psbc</Filter>
+    </ClInclude>
+    <ClInclude Include="Algorithm\sha1.h">
+      <Filter>Source Files\Algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="Algorithm\Sha1Hash.h">
+      <Filter>Source Files\Algorithm</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -935,6 +944,12 @@
     </ClCompile>
     <ClCompile Include="Graphic\Psbc\PsbcReader.cpp">
       <Filter>Source Files\Graphic\Psbc</Filter>
+    </ClCompile>
+    <ClCompile Include="Algorithm\sha1.c">
+      <Filter>Source Files\Algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="Algorithm\Sha1Hash.cpp">
+      <Filter>Source Files\Algorithm</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
