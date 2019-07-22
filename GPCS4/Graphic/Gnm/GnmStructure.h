@@ -54,24 +54,24 @@ struct DrawModifier
 
 #pragma pack(push, 1)
 
-struct GnmDrawInitDefaultHardwareState
+struct GnmCmdDrawInitDefaultHardwareState
 {
 	uint32_t opcode;
 	uint32_t reserved[255];
 };
 
-struct GnmDispatchInitDefaultHardwareState
+struct GnmCmdDispatchInitDefaultHardwareState
 {
 	uint32_t opcode;
 	uint32_t reserved[255];
 };
 
-struct GnmInitToDefaultContextState
+struct GnmCmdInitToDefaultContextState
 {
 	uint32_t reserved[256];
 };
 
-struct GnmVSShader
+struct GnmCmdVSShader
 {
 	uint32_t opcode;
 	VsStageRegisters vsRegs;
@@ -79,14 +79,14 @@ struct GnmVSShader
 	uint32_t reserved[20];
 };
 
-struct GnmPSShader
+struct GnmCmdPSShader
 {
 	uint32_t opcode;
 	PsStageRegisters psRegs;
 	uint32_t reserved[27];
 };
 
-struct GnmCSShader
+struct GnmCmdCSShader
 {
 	uint32_t opcode;
 	CsStageRegisters csRegs;
@@ -94,27 +94,27 @@ struct GnmCSShader
 	uint32_t reserved[16];
 };
 
-struct GnmESShader
+struct GnmCmdESShader
 {
 	uint32_t reserved[20];
 };
 
-struct GnmGSShader
+struct GnmCmdGSShader
 {
 	uint32_t reserved[29];
 };
 
-struct GnmHSShader
+struct GnmCmdHSShader
 {
 	uint32_t reserved[30];
 };
 
-struct GnmLSShader
+struct GnmCmdLSShader
 {
 	uint32_t reserved[23];
 };
 
-struct GnmVgtControl
+struct GnmCmdVgtControl
 {
 	uint32_t opcode;
 	uint32_t primGroupSizeMinusOne;
@@ -123,25 +123,25 @@ struct GnmVgtControl
 };
 
 // not fixed size
-struct GnmPushMarker
+struct GnmCmdPushMarker
 {
 	uint32_t opcode;
 	char debugString[1];
 };
 
 // not fixed size
-struct GnmPushColorMarker
+struct GnmCmdPushColorMarker
 {
 	uint32_t* reserved;
 };
 
-struct GnmPopMarker
+struct GnmCmdPopMarker
 {
 	uint32_t opcode;
 	uint32_t reserved[5];
 };
 
-struct GnmDrawIndex
+struct GnmCmdDrawIndex
 {
 	uint32_t opcode;
 	uint32_t indexCount;
@@ -151,37 +151,37 @@ struct GnmDrawIndex
 	uint32_t reserved[4];
 };
 
-struct GnmDrawIndexAuto
+struct GnmCmdDrawIndexAuto
 {
 	uint32_t reserved[7];
 };
 
-struct GnmDrawIndexOffset
+struct GnmCmdDrawIndexOffset
 {
 	uint32_t reserved[9];
 };
 
-struct GnmDrawIndexIndirect
+struct GnmCmdDrawIndexIndirect
 {
 	uint32_t reserved[9];
 };
 
-struct GnmDrawIndexIndirectCountMulti
+struct GnmCmdDrawIndexIndirectCountMulti
 {
 	uint32_t reserved[16];
 };
 
-struct GnmDrawIndexMultiInstanced
+struct GnmCmdDrawIndexMultiInstanced
 {
 	uint32_t reserved[13];
 };
 
-struct GnmDrawOpaqueAuto
+struct GnmCmdDrawOpaqueAuto
 {
 	uint32_t reserved[7];
 };
 
-struct GnmDispatchDirect
+struct GnmCmdDispatchDirect
 {
 	uint32_t opcode;
 	uint32_t threadGroupX;
@@ -191,12 +191,12 @@ struct GnmDispatchDirect
 	uint32_t reserved[4];
 };
 
-struct GnmDispatchIndirect
+struct GnmCmdDispatchIndirect
 {
 	uint32_t reserved[7];
 };
 
-struct GnmWaitFlipDone
+struct GnmCmdWaitFlipDone
 {
 	uint32_t opcode;
 	uint32_t videoOutHandle;

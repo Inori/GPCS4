@@ -66,6 +66,12 @@ bool GnmCmdStreamDraw::processCommandBuffer(uint32_t* commandBuffer, uint32_t co
 			packetBuffer = command;
 
 			LOG_DEBUG("opcode 0x%08X", opcode);
+
+			if (opcode == 0x00000000)
+			{
+				LOG_DEBUG("opcode 0");
+			}
+
 			switch (cmdType)
 			{
 			case OP_TYPE_BASE:
