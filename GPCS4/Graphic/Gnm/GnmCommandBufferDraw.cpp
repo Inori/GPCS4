@@ -33,12 +33,22 @@ void GnmCommandBufferDraw::setPointerInUserData(ShaderStage stage, uint32_t star
 
 }
 
+void GnmCommandBufferDraw::setPsShader(const PsStageRegisters *psRegs)
+{
+
+}
+
 void GnmCommandBufferDraw::setUserData(ShaderStage stage, uint32_t userDataSlot, uint32_t data)
 {
 
 }
 
 void GnmCommandBufferDraw::setUserDataRegion(ShaderStage stage, uint32_t startUserDataSlot, const uint32_t *userData, uint32_t numDwords)
+{
+
+}
+
+void GnmCommandBufferDraw::setVsShader(const VsStageRegisters *vsRegs, uint32_t shaderModifier)
 {
 
 }

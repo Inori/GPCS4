@@ -188,6 +188,10 @@ int PS4API sceGnmSetVsShader(uint32_t* cmdBuffer, uint32_t numDwords,
 	{
 		memcpy(&param->vsRegs, vsRegs, sizeof(VsStageRegisters));
 	}
+	else
+	{
+		memset(&param->vsRegs, 0, sizeof(VsStageRegisters));
+	}
 	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
 	return SCE_OK;
 }
@@ -205,6 +209,10 @@ int PS4API sceGnmSetPsShader350(uint32_t* cmdBuffer, uint32_t numDwords,
 	if (psRegs != NULL)
 	{
 		memcpy(&param->psRegs, psRegs, sizeof(PsStageRegisters));
+	}
+	else
+	{
+		memset(&param->psRegs, 0, sizeof(PsStageRegisters));
 	}
 	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
 	return SCE_OK;

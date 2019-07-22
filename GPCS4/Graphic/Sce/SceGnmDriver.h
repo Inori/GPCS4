@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GPCS4Common.h"
-#include "Gnm/GnmCmdStreamDraw.h"
+#include "../Gnm/GnmCmdStreamDraw.h"
 #include <memory>
 
 class SceGnmDriver
@@ -9,6 +9,9 @@ class SceGnmDriver
 public:
 	SceGnmDriver();
 	~SceGnmDriver();
+
+
+
 
 	int submitAndFlipCommandBuffers(uint32_t count,
 		void *dcbGpuAddrs[], uint32_t *dcbSizesInBytes,

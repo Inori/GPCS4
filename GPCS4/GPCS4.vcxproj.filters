@@ -161,6 +161,15 @@
     <Filter Include="Source Files\Loader">
       <UniqueIdentifier>{1efb0e78-5d38-4f60-9d20-ca8fff9febef}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Graphic\Sce">
+      <UniqueIdentifier>{70eaff62-ab67-46e2-af21-4b6909ea46dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphic\Gve">
+      <UniqueIdentifier>{8714f22f-65d4-40c8-a2fe-44bf175a49b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphic\Psbc">
+      <UniqueIdentifier>{14ee293f-1109-4eb5-9d47-bb00adbe680a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SceModules\SceLibc\sce_libc.h">
@@ -424,9 +433,6 @@
     <ClInclude Include="SceModules\SceIme\sce_ime_error.h">
       <Filter>SceModules\SceIme</Filter>
     </ClInclude>
-    <ClInclude Include="Graphic\SceVideoOut.h">
-      <Filter>Source Files\Graphic</Filter>
-    </ClInclude>
     <ClInclude Include="Common\ReferenceCount.h">
       <Filter>Source Files\Common</Filter>
     </ClInclude>
@@ -451,25 +457,10 @@
     <ClInclude Include="Graphic\Gnm\GnmConstant.h">
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClInclude>
-    <ClInclude Include="Graphic\GveDevice.h">
-      <Filter>Source Files\Graphic</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\GvePhysicalDevice.h">
-      <Filter>Source Files\Graphic</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\GveSwapChain.h">
-      <Filter>Source Files\Graphic</Filter>
-    </ClInclude>
     <ClInclude Include="Graphic\Gnm\GnmCmdStream.h">
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClInclude>
     <ClInclude Include="Graphic\GraphicShared.h">
-      <Filter>Source Files\Graphic</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\GveInstance.h">
-      <Filter>Source Files\Graphic</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\SceGnmDriver.h">
       <Filter>Source Files\Graphic</Filter>
     </ClInclude>
     <ClInclude Include="SceModules\sce_gnm_error.h">
@@ -480,6 +471,24 @@
     </ClInclude>
     <ClInclude Include="Graphic\Gnm\GnmCommandBufferDraw.h">
       <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gve\GveDevice.h">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gve\GveInstance.h">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gve\GvePhysicalDevice.h">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gve\GveSwapChain.h">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Sce\SceGnmDriver.h">
+      <Filter>Source Files\Graphic\Sce</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Sce\SceVideoOut.h">
+      <Filter>Source Files\Graphic\Sce</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -858,9 +867,6 @@
     <ClCompile Include="SceModules\SceLibkernel\SceEventFlag.cpp">
       <Filter>SceModules\SceLibkernel</Filter>
     </ClCompile>
-    <ClCompile Include="Graphic\SceVideoOut.cpp">
-      <Filter>Source Files\Graphic</Filter>
-    </ClCompile>
     <ClCompile Include="SceModules\SceGnmDriver\sce_gnm_draw.cpp">
       <Filter>SceModules\SceGnmDriver</Filter>
     </ClCompile>
@@ -888,25 +894,10 @@
     <ClCompile Include="SceModules\SceGnmDriver\sce_gnm_eqevent.cpp">
       <Filter>SceModules\SceGnmDriver</Filter>
     </ClCompile>
-    <ClCompile Include="Graphic\GveDevice.cpp">
-      <Filter>Source Files\Graphic</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\GvePhysicalDevice.cpp">
-      <Filter>Source Files\Graphic</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\GveSwapChain.cpp">
-      <Filter>Source Files\Graphic</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\GveInstance.cpp">
-      <Filter>Source Files\Graphic</Filter>
-    </ClCompile>
     <ClCompile Include="Graphic\Gnm\GnmCmdStream.cpp">
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClCompile>
     <ClCompile Include="Graphic\GraphicShared.cpp">
-      <Filter>Source Files\Graphic</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\SceGnmDriver.cpp">
       <Filter>Source Files\Graphic</Filter>
     </ClCompile>
     <ClCompile Include="Graphic\Gnm\GnmCommandBuffer.cpp">
@@ -914,6 +905,24 @@
     </ClCompile>
     <ClCompile Include="Graphic\Gnm\GnmCommandBufferDraw.cpp">
       <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gve\GveDevice.cpp">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gve\GveInstance.cpp">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gve\GvePhysicalDevice.cpp">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gve\GveSwapChain.cpp">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Sce\SceGnmDriver.cpp">
+      <Filter>Source Files\Graphic\Sce</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Sce\SceVideoOut.cpp">
+      <Filter>Source Files\Graphic\Sce</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

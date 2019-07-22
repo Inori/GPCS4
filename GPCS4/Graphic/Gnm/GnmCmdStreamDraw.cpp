@@ -2,6 +2,11 @@
 #include "GnmOpCode.h"
 #include "Platform/PlatformUtils.h"
 
+
+
+const uint32_t GnmCmdStreamDraw::s_stageBases[kShaderStageCount] = { 0x2E40, 0x2C0C, 0x2C4C, 0x2C8C, 0x2CCC, 0x2D0C, 0x2D4C };
+
+
 GnmCmdStreamDraw::GnmCmdStreamDraw(std::shared_ptr<GnmCommandBufferDraw> dcb):
 	m_dcb(dcb)
 {
@@ -389,7 +394,22 @@ uint32_t GnmCmdStreamDraw::onPacketSet2(uint32_t opcode, uint32_t* packetBuffer,
 		{
 			if (opSub >= 0x0C && opSub <= 0x240)
 			{
-				//m_dcb.setPointerInUserData();
+				ShaderStage stage; 
+				uint32_t slot = 0;
+
+				uint32_t value = packetBuffer[1];
+				void* gpuAddr = (void*)*((uint64_t*)packetBuffer + 1);
+				if (opInfo == 2)
+				{
+					stage = kShaderStageCs;
+				}
+				else
+				{
+					stage = (ShaderStage)(((value & 0xFFFFFFE0) >> 4) / 4 + 1);
+				}
+				uint32_t stageBase = s_stageBases[stage];
+				slot = value + 0x2C00 - stageBase;
+				m_dcb->setPointerInUserData(stage, slot, gpuAddr);
 			}
 		}
 
@@ -443,8 +463,16 @@ uint32_t GnmCmdStreamDraw::onPacketPrivateDraw(uint32_t opcode, uint32_t* packet
 	case OP_INFO_SET_EMBEDDED_PS_SHADER:
 		break;
 	case OP_INFO_SET_VS_SHADER:
+	{
+		GnmCmdVSShader* param = (GnmCmdVSShader*)packetBuffer;
+		m_dcb->setVsShader(&param->vsRegs, param->modifier);
+	}
 		break;
 	case OP_INFO_SET_PS_SHADER:
+	{
+		GnmCmdPSShader* param = (GnmCmdPSShader*)packetBuffer;
+		m_dcb->setPsShader(&param->psRegs);
+	}
 		break;
 	case OP_INFO_SET_ES_SHADER:
 		break;

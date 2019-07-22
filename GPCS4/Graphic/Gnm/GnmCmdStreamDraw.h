@@ -85,6 +85,9 @@ private:
 	uint32_t onPrepareFlipOrEopInterrupt(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords);
 
 private:
+	static const uint32_t s_stageBases[kShaderStageCount];
+
+private:
 	bool m_lastPacketDone = false;  // last packet marker, usually prepareFlip packet.
 	std::shared_ptr<GnmCommandBufferDraw> m_dcb;
 };

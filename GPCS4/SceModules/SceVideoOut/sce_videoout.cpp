@@ -1,8 +1,8 @@
 #include "sce_videoout.h"
 #include <cstring>
 #include "Graphic/GraphicShared.h"
-#include "Graphic/SceVideoOut.h"
-#include "Graphic/SceGnmDriver.h"
+#include "Graphic/Sce/SceVideoOut.h"
+#include "Graphic/Sce/SceGnmDriver.h"
 
 // Note:
 // The codebase is generated using GenerateCode.py
