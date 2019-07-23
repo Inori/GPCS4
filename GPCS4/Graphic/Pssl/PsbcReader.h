@@ -3,6 +3,7 @@
 #include "GPCS4Common.h"
 #include <string>
 
+// PSSL bytecode reader
 class PsbcReader
 {
 public:

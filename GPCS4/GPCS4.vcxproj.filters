@@ -167,11 +167,11 @@
     <Filter Include="Source Files\Graphic\Gve">
       <UniqueIdentifier>{8714f22f-65d4-40c8-a2fe-44bf175a49b2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Graphic\Psbc">
-      <UniqueIdentifier>{14ee293f-1109-4eb5-9d47-bb00adbe680a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Algorithm">
       <UniqueIdentifier>{cb8dfaa7-aa84-454b-a1ea-ead2594a832f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphic\Pssl">
+      <UniqueIdentifier>{14ee293f-1109-4eb5-9d47-bb00adbe680a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -493,17 +493,17 @@
     <ClInclude Include="Graphic\Sce\SceVideoOut.h">
       <Filter>Source Files\Graphic\Sce</Filter>
     </ClInclude>
-    <ClInclude Include="Graphic\Psbc\ShaderBinary.h">
-      <Filter>Source Files\Graphic\Psbc</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Psbc\PsbcReader.h">
-      <Filter>Source Files\Graphic\Psbc</Filter>
-    </ClInclude>
     <ClInclude Include="Algorithm\sha1.h">
       <Filter>Source Files\Algorithm</Filter>
     </ClInclude>
     <ClInclude Include="Algorithm\Sha1Hash.h">
       <Filter>Source Files\Algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\PsbcReader.h">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\ShaderBinary.h">
+      <Filter>Source Files\Graphic\Pssl</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -939,17 +939,17 @@
     <ClCompile Include="Graphic\Sce\SceVideoOut.cpp">
       <Filter>Source Files\Graphic\Sce</Filter>
     </ClCompile>
-    <ClCompile Include="Graphic\Psbc\ShaderBinary.cpp">
-      <Filter>Source Files\Graphic\Psbc</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Psbc\PsbcReader.cpp">
-      <Filter>Source Files\Graphic\Psbc</Filter>
-    </ClCompile>
     <ClCompile Include="Algorithm\sha1.c">
       <Filter>Source Files\Algorithm</Filter>
     </ClCompile>
     <ClCompile Include="Algorithm\Sha1Hash.cpp">
       <Filter>Source Files\Algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\PsbcReader.cpp">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\ShaderBinary.cpp">
+      <Filter>Source Files\Graphic\Pssl</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
