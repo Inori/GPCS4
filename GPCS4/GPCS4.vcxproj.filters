@@ -499,10 +499,10 @@
     <ClInclude Include="Algorithm\Sha1Hash.h">
       <Filter>Source Files\Algorithm</Filter>
     </ClInclude>
-    <ClInclude Include="Graphic\Pssl\PsbcReader.h">
+    <ClInclude Include="Graphic\Pssl\ShaderBinary.h">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClInclude>
-    <ClInclude Include="Graphic\Pssl\ShaderBinary.h">
+    <ClInclude Include="Graphic\Pssl\SbReader.h">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClInclude>
   </ItemGroup>
@@ -945,10 +945,10 @@
     <ClCompile Include="Algorithm\Sha1Hash.cpp">
       <Filter>Source Files\Algorithm</Filter>
     </ClCompile>
-    <ClCompile Include="Graphic\Pssl\PsbcReader.cpp">
+    <ClCompile Include="Graphic\Pssl\ShaderBinary.cpp">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClCompile>
-    <ClCompile Include="Graphic\Pssl\ShaderBinary.cpp">
+    <ClCompile Include="Graphic\Pssl\SbReader.cpp">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClCompile>
   </ItemGroup>

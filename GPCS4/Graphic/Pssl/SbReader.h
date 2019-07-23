@@ -4,11 +4,11 @@
 #include <string>
 
 // PSSL bytecode reader
-class PsbcReader
+class SbReader
 {
 public:
-	PsbcReader(const uint8_t* data, size_t size);
-	~PsbcReader();
+	SbReader(const uint8_t* data, size_t size);
+	~SbReader();
 
 	auto readu8() { return this->readNum<uint8_t>(); }
 	auto readu16() { return this->readNum<uint16_t>(); }
@@ -35,9 +35,9 @@ public:
 
 	void skip(size_t n);
 
-	PsbcReader clone(size_t pos) const;
+	SbReader clone(size_t pos) const;
 
-	PsbcReader resize(size_t size) const;
+	SbReader resize(size_t size) const;
 
 	bool eof() const {
 		return m_pos >= m_size;
@@ -47,7 +47,7 @@ public:
 
 private:
 
-	PsbcReader(const uint8_t* data, size_t size, size_t pos)
+	SbReader(const uint8_t* data, size_t size, size_t pos)
 		: m_data(data), m_size(size), m_pos(pos) { }
 
 	template<typename T>
