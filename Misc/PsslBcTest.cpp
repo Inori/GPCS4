@@ -47,7 +47,8 @@ typedef int32_t _BOOL4;
 
 
 static unsigned s_vex_vv[] = {
-	#include "vex_vv.h"
+	//#include "vex_vv.h"
+	#include "test_vv.h"
 };
 
 struct ShaderBinaryInfo
@@ -1158,38 +1159,42 @@ void generateInputResourceOffsetTable(InputResourceOffsets* outTable, ShaderBina
 	
 }
 
-int generateVsFetchShaderBuildState(FetchShaderBuildState *fsbs, const VsStageRegisters *pregs, uint32_t numInputs, const FetchShaderInstancingMode *instancingData, const uint32_t numElementsInInstancingData, uint8_t vertexBaseUserSgpr, uint8_t instanceBaseUsgpr)
+int generateVsFetchShaderBuildState(FetchShaderBuildState *fsbs, const VsStageRegisters *pregs, uint32_t numInputs, 
+	const FetchShaderInstancingMode *instancingData, const uint32_t numElementsInInstancingData, 
+	uint8_t vertexBaseUserSgpr, uint8_t instanceBaseUsgpr)
 {
-	uint32_t v7; // ebp
-	uint32_t v8; // er14
-	uint32_t v9; // ebp
+	uint32_t spiShaderPgmRsrc2Vs; // ebp
+	uint32_t spiShaderPgmRsrc1Vs; // er14
+	uint32_t firstFreeSgpr; // ebp
 	_BOOL4 v10; // ebx
-	unsigned int v11; // er15
+	unsigned int vsharpSlotCount; // er15
 	int v12; // er14
 	int v13; // esi
 	__int16 result; // ax
-	bool v15; // zf
+	bool noInstance; // zf
 	signed int v16; // ecx
 
-	v7 = pregs->m_spiShaderPgmRsrc2Vs;
-	v8 = pregs->m_spiShaderPgmRsrc1Vs;
-	v9 = ((((unsigned __int8)(v7 >> 7) | (unsigned __int8)(v7 >> 12)) & 1)
-		+ ((pregs->m_spiShaderPgmRsrc2Vs >> 24) & 1)
-		+ ((pregs->m_spiShaderPgmRsrc2Vs >> 7) & 1)
-		+ ((v7 >> 11) & 1)
-		+ ((v7 >> 10) & 1)
-		+ ((v7 >> 9) & 1)
-		+ ((unsigned __int8)v7 >> 8)
-		+ ((v7 >> 12) & 1)
-		+ (v7 & 1)
-		+ ((pregs->m_spiShaderPgmRsrc2Vs >> 1) & 0x1F)
+	spiShaderPgmRsrc1Vs = pregs->m_spiShaderPgmRsrc1Vs;
+	spiShaderPgmRsrc2Vs = pregs->m_spiShaderPgmRsrc2Vs;
+	
+	firstFreeSgpr = ((((unsigned __int8)(spiShaderPgmRsrc2Vs >> 7) | (unsigned __int8)(spiShaderPgmRsrc2Vs >> 12)) & 1)
+		+ ((spiShaderPgmRsrc2Vs >> 24) & 1)
+		+ ((spiShaderPgmRsrc2Vs >> 12) & 1)
+		+ ((spiShaderPgmRsrc2Vs >> 11) & 1)
+		+ ((spiShaderPgmRsrc2Vs >> 10) & 1)
+		+ ((spiShaderPgmRsrc2Vs >> 9) & 1)
+		+ ((unsigned __int8)spiShaderPgmRsrc2Vs >> 8)
+		+ ((spiShaderPgmRsrc2Vs >> 7) & 1)
+		+ (spiShaderPgmRsrc2Vs & 1)
+		+ ((spiShaderPgmRsrc2Vs >> 1) & 0x1F)
 		+ 3) & 0xFFFFFFFC;
-	v10 = (((v8 >> 3) & 0x78) + 8 - v9) >> 2 == 0;
-	v11 = ((((v8 >> 3) & 0x78) + 8 - v9) >> 2) + 2 * v10;
-	v12 = v8 & 0x3000000;
+
+	v10 = (((spiShaderPgmRsrc1Vs >> 3) & 0x78) + 8 - firstFreeSgpr) >> 2 == 0;
+	vsharpSlotCount = ((((spiShaderPgmRsrc1Vs >> 3) & 0x78) + 8 - firstFreeSgpr) >> 2) + 2 * v10;
+	v12 = spiShaderPgmRsrc1Vs & 0x3000000;
 	v13 = (((_BYTE)v10 + (unsigned __int8)(pregs->m_spiShaderPgmRsrc1Vs >> 6)) & 0xF) << 6;
 	fsbs->m_fetchShaderBufferSize = 4
-		* ((numInputs + v11 - 1) / v11
+		* ((numInputs + vsharpSlotCount - 1) / vsharpSlotCount
 			+ (instanceBaseUsgpr != 0)
 			+ numInputs
 			- ((vertexBaseUserSgpr < 1u)
@@ -1197,15 +1202,15 @@ int generateVsFetchShaderBuildState(FetchShaderBuildState *fsbs, const VsStageRe
 		+ 8 * numInputs
 		+ 12;
 	fsbs->m_fetchShaderFlags = 0;
-	fsbs->m_firstFreeSgpr = v9;
-	fsbs->m_vsharpSlotCount = v11;
+	fsbs->m_firstFreeSgpr = firstFreeSgpr;
+	fsbs->m_vsharpSlotCount = vsharpSlotCount;
 	fsbs->m_fetchShaderInstancingData = instancingData;
 	result = 0;
-	v15 = instancingData == 0LL;
+	noInstance = instancingData == 0LL;
 	if (instancingData)
 		result = numElementsInInstancingData;
 	v16 = 0x3000000;
-	if (v15)
+	if (noInstance)
 		v16 = v12;
 	fsbs->m_numElementsInInstancingData = result;
 	fsbs->m_vertexBaseUsgpr = vertexBaseUserSgpr;
@@ -1229,17 +1234,17 @@ int generateFetchShader(uint32_t *fs, FetchShaderBuildState *fsbs)
 	signed __int64 idx; // r9
 	unsigned __int64 inputSemaCount; // rdi
 	uint8_t vsharpSlotCount; // bl
-	_DWORD *pEleNumInRemap; // r15
+	_DWORD *pEleNumInRemapTable; // r15
 	__int64 v12; // rdx
 	unsigned int k; // er13
 	int shiftVbtStartRegister; // er14
-	unsigned __int64 v15; // r10
-	unsigned int v16; // er8
-	const uint32_t *v17; // rbx
+	unsigned __int64 m; // r10
+	unsigned int n; // er8
+	const uint32_t *semanticsRemapTable; // rbx
 	int v18; // er12
-	int semaIdx; // edx
+	int semanticIdx; // edx
 	__int64 j; // rax
-	unsigned int v21; // eax
+	unsigned int firstFreeSgprAndVsharp; // eax
 	char v22; // cl
 	int v23; // edx
 	__int64 v24; // rcx
@@ -1247,15 +1252,15 @@ int generateFetchShader(uint32_t *fs, FetchShaderBuildState *fsbs)
 	unsigned int v26; // esi
 	__int64 v27; // rcx
 	const FetchShaderInstancingMode *v28; // r12
-	const VertexInputSemantic *v29; // rdx
-	__int64 v30; // r14
+	const VertexInputSemantic *inputSemantics; // rdx
+	__int64 t; // r14
 	int v31; // er11
-	signed __int64 v32; // r8
+	signed __int64 pSizeInElements; // r8
 	unsigned int v33; // edx
 	unsigned int v34; // er13
 	unsigned int v35; // er15
-	int v36; // edi
-	int v37; // esi
+	int vgpr; // edi
+	int sizeInElmt; // esi
 	unsigned int v38; // ebx
 	unsigned int v39; // ecx
 	__int64 v40; // rbx
@@ -1263,18 +1268,18 @@ int generateFetchShader(uint32_t *fs, FetchShaderBuildState *fsbs)
 	__int64 v42; // rcx
 	__int64 v43; // rax
 	__int64 v44; // r9
-	unsigned __int64 v46; // [rsp+8h] [rbp-98h]
+	unsigned __int64 numElementsInInstancingData; // [rsp+8h] [rbp-98h]
 	__int64 v47; // [rsp+10h] [rbp-90h]
 	signed __int64 v48; // [rsp+18h] [rbp-88h]
 	__int64 v49; // [rsp+20h] [rbp-80h]
-	FetchShaderBuildState *v50; // [rsp+28h] [rbp-78h]
-	unsigned __int64 v51; // [rsp+30h] [rbp-70h]
-	signed __int64 v52; // [rsp+38h] [rbp-68h]
+	FetchShaderBuildState *fsbs_bak; // [rsp+28h] [rbp-78h]
+	unsigned __int64 numInputSemantics; // [rsp+30h] [rbp-70h]
+	signed __int64 pEleNumInRemapTable_; // [rsp+38h] [rbp-68h]
 	int v53; // [rsp+44h] [rbp-5Ch]
 	int v54; // [rsp+48h] [rbp-58h]
-	int v55; // [rsp+4Ch] [rbp-54h]
+	int shiftVbtStartRegister_; // [rsp+4Ch] [rbp-54h]
 	uint32_t *fs_dst; // [rsp+50h] [rbp-50h]
-	uint8_t v57; // [rsp+5Fh] [rbp-41h]
+	uint8_t vsharpSlotCount_; // [rsp+5Fh] [rbp-41h]
 	__int64 v58; // [rsp+60h] [rbp-40h]
 	int v59; // [rsp+68h] [rbp-38h]
 	int v60; // [rsp+6Ch] [rbp-34h]
@@ -1306,112 +1311,112 @@ int generateFetchShader(uint32_t *fs, FetchShaderBuildState *fsbs)
 
 	if (fsbs_->m_vertexBaseUsgpr)
 	{
-		idx = 1LL;
-		*fs = fsbs_->m_vertexBaseUsgpr | 0x4A000000;
+		fs[idx] = fsbs_->m_vertexBaseUsgpr | 0x4A000000;
+		++idx;
 	}
 
 	if (fsbs_->m_instanceBaseUsgpr)
 	{
 		fs[idx] = fsbs_->m_instanceBaseUsgpr | 0x4A060600;
-		LODWORD(idx) = idx + 1;
+		++idx;
 	}
 
 	inputSemaCount = fsbs_->m_numInputSemantics;
 	if (fsbs_->m_numInputSemantics)
 	{
 		vsharpSlotCount = fsbs_->m_vsharpSlotCount;
-		pEleNumInRemap = &fsbs_->m_numElementsInRemapTable;
+		pEleNumInRemapTable = &fsbs_->m_numElementsInRemapTable;
 		v12 = 0LL;
 		k = 0;
-		v50 = fsbs_;
-		v51 = fsbs_->m_numInputSemantics;
+		fsbs_bak = fsbs_;
+		numInputSemantics = fsbs_->m_numInputSemantics;
 		shiftVbtStartRegister = (vbtStartRegister & 0x7E) << 8;
-		v52 = (signed __int64)&fsbs_->m_numElementsInRemapTable;
-		v55 = shiftVbtStartRegister;
-		v57 = fsbs_->m_vsharpSlotCount;
+		pEleNumInRemapTable_ = (signed __int64)&fsbs_->m_numElementsInRemapTable;
+		shiftVbtStartRegister_ = shiftVbtStartRegister;
+		vsharpSlotCount_ = fsbs_->m_vsharpSlotCount;
 		do
 		{
 			if (vsharpSlotCount)
 			{
-				v15 = (unsigned int)v12;
-				v16 = 0;
+				m = (unsigned int)v12;
+				n = 0;
 				while (1)
 				{
-					v12 = (unsigned int)v15;
-					if (v15 >= inputSemaCount)
+					v12 = (unsigned int)m;
+					if (m >= inputSemaCount)
 						break;
-					v17 = fsbs_->m_semanticsRemapTable;
-					v18 = v15;
-					semaIdx = fsbs_->m_inputSemantics[v15].m_semantic;
-					if (v17 && *pEleNumInRemap)
+					semanticsRemapTable = fsbs_->m_semanticsRemapTable;
+					v18 = m;
+					semanticIdx = fsbs_->m_inputSemantics[m].m_semantic;
+					if (semanticsRemapTable && *pEleNumInRemapTable)
 					{
 						j = 0LL;
 						do
 						{
-							if (v17[j] == semaIdx)
+							if (semanticsRemapTable[j] == semanticIdx)
 								break;
 							++j;
-						} while ((unsigned int)j < *pEleNumInRemap);
-						LOBYTE(semaIdx) = j;
+						} while ((unsigned int)j < *pEleNumInRemapTable);
+						LOBYTE(semanticIdx) = j;
 					}
-					v21 = *(unsigned __int16 *)&fsbs_->m_firstFreeSgpr;
-					++v15;
-					v22 = v21 + 4 * v16++;
-					v23 = ((v22 & 0x7F) << 15) | shiftVbtStartRegister | 4 * (semaIdx & 0x3F);
+					firstFreeSgprAndVsharp = *(unsigned __int16 *)&fsbs_->m_firstFreeSgpr;
+					++m;
+					v22 = firstFreeSgprAndVsharp + 4 * n++;
+					v23 = ((v22 & 0x7F) << 15) | shiftVbtStartRegister | 4 * (semanticIdx & 0x3F);
 					v24 = (unsigned int)idx;
-					LODWORD(idx) = idx + 1;
+					++idx;
 					fs_dst[v24] = v23 | 0xC0800100;
-					if (v16 >= v21 >> 8)
+					if (n >= firstFreeSgprAndVsharp >> 8)
 					{
 						v12 = (unsigned int)(v18 + 1);
 						break;
 					}
 				}
-				vsharpSlotCount = v57;
+				vsharpSlotCount = vsharpSlotCount_;
 			}
 			v25 = (unsigned int)idx;
-			LODWORD(idx) = idx + 1;
+			++idx;
 			fs_dst[v25] = 0xBF8C007F;
 			if ((unsigned int)v12 > k)
 			{
 				v26 = *(_DWORD *)&fsbs_->m_firstFreeSgpr;
 				v27 = v12;
 				v28 = fsbs_->m_fetchShaderInstancingData;
-				v29 = fsbs_->m_inputSemantics;
-				v30 = 0LL;
+				inputSemantics = fsbs_->m_inputSemantics;
+				t = 0LL;
 				v49 = v27;
 				v53 = 2 * k;
 				v54 = 2 * v27;
 				v47 = k;
 				v31 = k - v27;
-				v32 = (signed __int64)&v29[k].m_sizeInElements;
+				pSizeInElements = (signed __int64)&inputSemantics[k].m_sizeInElements;
 				v33 = idx;
-				v46 = v26 >> 16;
+				numElementsInInstancingData = v26 >> 16;
 				v48 = (signed __int64)&v28[k];
 				v34 = (v26 & 0xFFFFFFFC) << 14;
 				do
 				{
 					v35 = 0;
-					if (v28 && v47 + v30 < v46)
-						v35 = *(_DWORD *)(v48 + 4 * v30);
-					v36 = *(unsigned __int8 *)(v32 + 4 * v30 - 1);
-					v37 = *(unsigned __int8 *)(v32 + 4 * v30);
+					if (v28 && v47 + t < numElementsInInstancingData)
+						v35 = *(_DWORD *)(v48 + 4 * t);
+					vgpr = *(unsigned __int8 *)(pSizeInElements + 4 * t - 1);
+					sizeInElmt = *(unsigned __int8 *)(pSizeInElements + 4 * t);
 					v38 = v34;
-					++v30;
+					++t;
 					v34 += 0x10000;
-					v39 = (v38 & 0x1F0000) + (*((unsigned __int8 *)&v58 + 4 * v35) | (v36 << 8)) + 0x80000000;
+					v39 = (v38 & 0x1F0000) + (*((unsigned __int8 *)&v58 + 4 * v35) | (vgpr << 8)) + 0x80000000;
 					v40 = v33;
 					v41 = v33 + 1;
 					v33 += 2;
-					fs_dst[v40] = ((v37 << 18) + 0x1FC0000) & 0x1FC0000 | 0xE0002000;
+					fs_dst[v40] = ((sizeInElmt << 18) + 0x1FC0000) & 0x1FC0000 | 0xE0002000;
 					fs_dst[v41] = v39;
-				} while (v31 + (_DWORD)v30);
+				} while (v31 + (_DWORD)t);
 				v12 = v49;
-				fsbs_ = v50;
-				shiftVbtStartRegister = v55;
-				inputSemaCount = v51;
-				pEleNumInRemap = (_DWORD *)v52;
-				vsharpSlotCount = v57;
+				fsbs_ = fsbs_bak;
+				shiftVbtStartRegister = shiftVbtStartRegister_;
+				inputSemaCount = numInputSemantics;
+				pEleNumInRemapTable = (_DWORD *)pEleNumInRemapTable_;
+				vsharpSlotCount = vsharpSlotCount_;
 				LODWORD(idx) = v54 + idx - v53;
 				k = v49;
 			}
@@ -1420,15 +1425,15 @@ int generateFetchShader(uint32_t *fs, FetchShaderBuildState *fsbs)
 	}
 	else
 	{
-		pEleNumInRemap = &fsbs_->m_numElementsInRemapTable;
+		pEleNumInRemapTable = &fsbs_->m_numElementsInRemapTable;
 	}
 	v42 = (unsigned int)idx;
 	v43 = (unsigned int)(idx + 1);
 	v44 = (unsigned int)(idx + 2);
 	fs_dst[v42] = 0xBF8C0000;
 	fs_dst[v43] = 0xBE802000;
-	if (*pEleNumInRemap)
-		LODWORD(inputSemaCount) = *pEleNumInRemap;
+	if (*pEleNumInRemapTable)
+		LODWORD(inputSemaCount) = *pEleNumInRemapTable;
 	fs_dst[v44] = inputSemaCount;
 	return 0;
 }
