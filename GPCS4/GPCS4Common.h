@@ -18,3 +18,5 @@
 #define PS4DEPRECATED __attribute__((deprecated))
 
 #define PS4UNUSED __attribute__((unused))
+
+#define PS4ALIGN(n) __attribute__((__aligned__(n)))

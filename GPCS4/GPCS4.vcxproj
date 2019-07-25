@@ -51,7 +51,9 @@
     <ClInclude Include="Graphic\Pssl\FetchShader.h" />
     <ClInclude Include="Graphic\Pssl\PsUsageTable.h" />
     <ClInclude Include="Graphic\Pssl\SbReader.h" />
-    <ClInclude Include="Graphic\Pssl\ShaderBinary.h" />
+    <ClInclude Include="Graphic\Pssl\Shader.h" />
+    <ClInclude Include="Graphic\Pssl\ShaderFileBinary.h" />
+    <ClInclude Include="Graphic\Pssl\ShaderRegister.h" />
     <ClInclude Include="Graphic\Sce\SceGnmDriver.h" />
     <ClInclude Include="Graphic\Sce\SceVideoOut.h" />
     <ClInclude Include="Loader\EbootObject.h" />
@@ -157,7 +159,6 @@
     <ClCompile Include="Graphic\Pssl\FetchShader.cpp" />
     <ClCompile Include="Graphic\Pssl\PsUsageTable.cpp" />
     <ClCompile Include="Graphic\Pssl\SbReader.cpp" />
-    <ClCompile Include="Graphic\Pssl\ShaderBinary.cpp" />
     <ClCompile Include="Graphic\Sce\SceGnmDriver.cpp" />
     <ClCompile Include="Graphic\Sce\SceVideoOut.cpp" />
     <ClCompile Include="ImportLibs.cpp" />

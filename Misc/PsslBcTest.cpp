@@ -1388,7 +1388,7 @@ int generateFetchShader(uint32_t *fs, FetchShaderBuildState *fsbs)
 	__int64 v25; // rax
 	unsigned int v26; // esi
 	__int64 v27; // rcx
-	const FetchShaderInstancingMode *v28; // r12
+	const FetchShaderInstancingMode *fetchShaderInstancingData; // r12
 	const VertexInputSemantic *inputSemantics; // rdx
 	__int64 t; // r14
 	int v31; // er11
@@ -1518,7 +1518,7 @@ int generateFetchShader(uint32_t *fs, FetchShaderBuildState *fsbs)
 			{
 				v26 = *(_DWORD *)&fsbs_->m_firstFreeSgpr;
 				v27 = v12;
-				v28 = fsbs_->m_fetchShaderInstancingData;
+				fetchShaderInstancingData = fsbs_->m_fetchShaderInstancingData;
 				inputSemantics = fsbs_->m_inputSemantics;
 				t = 0LL;
 				v49 = v27;
@@ -1529,12 +1529,12 @@ int generateFetchShader(uint32_t *fs, FetchShaderBuildState *fsbs)
 				pSizeInElements = (signed __int64)&inputSemantics[k].m_sizeInElements;
 				v33 = idx;
 				numElementsInInstancingData = v26 >> 16;
-				v48 = (signed __int64)&v28[k];
+				v48 = (signed __int64)&fetchShaderInstancingData[k];
 				v34 = (v26 & 0xFFFFFFFC) << 14;
 				do
 				{
 					v35 = 0;
-					if (v28 && v47 + t < numElementsInInstancingData)
+					if (fetchShaderInstancingData && v47 + t < numElementsInInstancingData)
 						v35 = *(_DWORD *)(v48 + 4 * t);
 					vgpr = *(unsigned __int8 *)(pSizeInElements + 4 * t - 1);
 					sizeInElmt = *(unsigned __int8 *)(pSizeInElements + 4 * t);
