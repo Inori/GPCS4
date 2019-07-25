@@ -46,9 +46,13 @@ typedef int32_t _BOOL4;
 #define HIDWORD(x) DWORDn(x,HIGH_IND(x,_DWORD))
 
 
-static unsigned s_vex_vv[] = {
+static const unsigned s_vex_vv[] = {
 	#include "vex_vv.h"
 	//#include "test_vv.h"
+};
+
+static const unsigned s_pix_p[] = {
+	#include "pix_p.h"
 };
 
 struct ShaderBinaryInfo
@@ -277,6 +281,7 @@ typedef enum ShaderInputUsageType
 } ShaderInputUsageType;
 
 class VsShader;
+class PsShader;
 class ShaderInfo
 {
 public:
@@ -285,6 +290,7 @@ public:
 	{
 		const void *m_shaderStruct;		///< A pointer to the shader struct -- typeless.
 		const VsShader* m_vsShader;
+		const PsShader* m_psShader;
 	};
 
 	const uint32_t *m_gpuShaderCode;		///< A pointer to the GPU Shader Code which will need to be copied into GPU visible memory.
@@ -566,6 +572,47 @@ public:
 #endif // __cplusplus
 
 
+
+#ifdef __cplusplus
+class PsStageRegisters
+#else  // __cplusplus
+typedef struct PsStageRegisters
+#endif // __cplusplus
+{
+#ifdef __cplusplus
+public:
+#endif // __cplusplus
+	uint32_t        m_spiShaderPgmLoPs; ///< A pointer to shader program (bits 39:8).
+	uint32_t        m_spiShaderPgmHiPs; ///< A pointer to shader program (bits 47:40). This must be set to zero.
+
+	uint32_t        m_spiShaderPgmRsrc1Ps;
+	uint32_t        m_spiShaderPgmRsrc2Ps;
+
+	uint32_t        m_spiShaderZFormat;
+	uint32_t        m_spiShaderColFormat;
+
+	uint32_t        m_spiPsInputEna;
+	uint32_t        m_spiPsInputAddr;
+
+	uint32_t        m_spiPsInControl;
+	uint32_t        m_spiBarycCntl;
+
+	uint32_t		m_dbShaderControl;
+	uint32_t		m_cbShaderMask;
+
+#ifdef __cplusplus
+	void patchShaderGpuAddress(void *gpuAddress)
+	{
+		m_spiShaderPgmLoPs = static_cast<uint32_t>(uintptr_t(gpuAddress) >> 8);
+		m_spiShaderPgmHiPs = static_cast<uint32_t>(uintptr_t(gpuAddress) >> 40);
+	}
+#endif // __cplusplus
+#ifdef __cplusplus
+};
+#else // __cplusplus
+		} PsStageRegisters;
+#endif // __cplusplus
+
 #ifdef __cplusplus
 class FetchShaderBuildState
 #else  // __cplusplus
@@ -713,6 +760,61 @@ public:
 	uint8_t getInstanceOffsetUserRegister() const
 	{
 		return (m_fetchControl >> 4) & 0xf;
+	}
+};
+
+
+class PsShader
+{
+public:
+	ShaderCommonData m_common;				///< The common data for all shader stages.
+
+	PsStageRegisters  m_psStageRegisters;		///< The data to be loaded into the PS shader stage registers. Please see Gnm::DrawCommandBuffer::setPsShader() for more details.
+
+	uint8_t              m_numInputSemantics;		///< The number of entries in the input semantic table.
+	uint8_t              m_reserved[3];				///< Unused
+
+	/** @brief Patches the GPU address of the shader code.
+
+		@param[in] gpuAddress		The address to patch. This must be aligned to a 256-byte boundary.
+	 */
+	void patchShaderGpuAddress(void *gpuAddress)
+	{
+		m_psStageRegisters.patchShaderGpuAddress(gpuAddress);
+	}
+
+	/** @brief Retrieves the GPU address of the shader code.
+
+		@return The address of the shader code.
+		*/
+	void *getBaseAddress() const
+	{
+		return (void *)((((uintptr_t)m_psStageRegisters.m_spiShaderPgmHiPs) << 40) | (((uintptr_t)m_psStageRegisters.m_spiShaderPgmLoPs) << 8));
+	}
+
+	/** @brief Gets a pointer to this shader's input usage slot table that immediately follows this shader's structure in memory.
+
+		@return A pointer to this shader's input usage slot table.
+		*/
+	const InputUsageSlot     *getInputUsageSlotTable()     const { return (const InputUsageSlot *)(this + 1); }
+
+	/** @brief Gets a pointer to this shader's input semantic table that immediately follows the input usage table in memory.
+
+		@return A pointer to this shader's input semantic table.
+		*/
+	const PixelInputSemantic *getPixelInputSemanticTable() const { return (const PixelInputSemantic *)(getInputUsageSlotTable() + m_common.m_numInputUsageSlots); }
+
+	/** @brief Computes the total size (in bytes) of the shader binary including this structure, the input usage table and the input semantic table.
+
+		@return The total size in bytes of this shader binary and its associated tables.
+		*/
+	uint32_t computeSize() const
+	{
+		const uint32_t size = sizeof(PsShader) +
+			sizeof(InputUsageSlot) * m_common.m_numInputUsageSlots +
+			sizeof(PixelInputSemantic) * m_numInputSemantics;
+
+		return (size + 3) & ~3U;
 	}
 };
 
@@ -1493,11 +1595,10 @@ void generatePsShaderUsageTable(uint32_t *inputTable, const VertexExportSemantic
 	unsigned __int64 v15; // rax
 	__int64 matchVsIdx; // r15
 	char hasMatchedVsSema; // r13
-	signed __int64 v18; // r8
+	const PixelInputSemantic *v18; // r8
 	unsigned int v19; // edx
 	unsigned int v20; // ecx
 	uint32_t numPsInputSemantics; // [rsp+4h] [rbp-3Ch]
-	uint32_t *inputTab; // [rsp+8h] [rbp-38h]
 	const VertexExportSemantic *vsTab; // [rsp+10h] [rbp-30h]
 
 	psTab = psTable;
@@ -1507,7 +1608,6 @@ void generatePsShaderUsageTable(uint32_t *inputTable, const VertexExportSemantic
 	{
 		idx = 0LL;
 		vsTab = vsTable;
-		inputTab = inputTable;
 		do
 		{
 			LODWORD(matchVsIdx) = 0;
@@ -1525,14 +1625,15 @@ void generatePsShaderUsageTable(uint32_t *inputTable, const VertexExportSemantic
 				}
 				hasMatchedVsSema = 1;
 			}
-		LABEL_14:
+
+LABEL_14:
 			if (getGpuMode() == 1 && psTab[idx].m_interpF16)
 			{
 				if (hasMatchedVsSema)
 				{
 					vsTable = vsTab;
 					v9 = *((_BYTE *)&vsTab[(unsigned int)matchVsIdx] + 1) & 0x1F;
-					v8 = (unsigned __int16)(psTab[idx].m_interpF16) & ~(unsigned __int8)(vsTab[(unsigned int)matchVsIdx].m_exportF16);
+					v8 = (unsigned __int16)(psTab[idx].m_interpF16) & ~(unsigned __int8)(*((_BYTE *)&vsTab[(unsigned int)matchVsIdx] + 1) >> 6);
 				}
 				else
 				{
@@ -1540,61 +1641,53 @@ void generatePsShaderUsageTable(uint32_t *inputTable, const VertexExportSemantic
 					v8 = 0;
 					v9 = 0x20;
 				}
-				inputTable = inputTab;
-				inputTab[idx] = 0x80000;
-				v10 = psTab[idx].m_isFlatShaded & 0x1000000;
-				inputTab[idx] = v10 + 0x80000;
-				v11 = (psTab[idx].m_isFlatShaded & 0x2000000) + v10 + 0x80000;
-				inputTab[idx] = v11;
+				inputTable[idx] = 0x80000;
+				v10 = (*(_WORD *)&psTab[idx] << 10) & 0x1000000;
+				inputTable[idx] = v10 + 0x80000;
+				v11 = ((*(_WORD *)&psTab[idx] << 10) & 0x2000000) + v10 + 0x80000;
+				inputTable[idx] = v11;
 				if (*(_WORD *)&psTab[idx] < 0xC000u)
 				{
 					v15 = ((unsigned __int8)v9 | (unsigned __int8)(32 * (v8 != 0))) & 0x3F | (unsigned __int64)v11;
-					inputTab[idx] = v15;
+					inputTable[idx] = v15;
 					v14 = v15 | (((*(_WORD *)&psTab[idx] >> (4 * v8 & 4 ^ 0xC)) & 3LL) << 8);
 				}
 				else
 				{
 					v12 = ((unsigned __int8)v9 | (unsigned __int8)(32 * v8)) & 0x3F | (unsigned __int64)v11;
-					inputTab[idx] = v12;
+					inputTable[idx] = v12;
 					v13 = v12 | ((unsigned __int64)(*((_BYTE *)&psTab[idx] + 1) & 3) << 8) | (v8 << 19) & 0x100000;
-					inputTab[idx] = v13;
+					inputTable[idx] = v13;
 					v14 = v13 & 0xFFFFFFFFFF9FFFFFLL | (*(_WORD *)&psTab[idx] << 9) & 0x600000;
 				}
-				inputTab[idx] = v14;
+				inputTable[idx] = v14;
 			}
 			else
 			{
-				inputTable = inputTab;
-				inputTab[idx] = 0;
+				inputTable[idx] = 0;
 				if (hasMatchedVsSema)
 				{
 					vsTable = vsTab;
-					v18 = (signed __int64)&psTab[idx];
+					v18 = &psTab[idx];
 					v19 = *((_BYTE *)&vsTab[(unsigned int)matchVsIdx] + 1) & 0x1F | ((unsigned int)*(_WORD *)&psTab[idx] >> 7) & 0x20;
-					inputTab[idx] = v19;
-					v20 = v19 | (((((unsigned int)psTab[idx].m_isFlatShaded) | ((unsigned int)psTab[idx].m_isCustom)) & 1) << 10);
+					inputTable[idx] = v19;
+					v20 = v19 | (((((unsigned int)*(_WORD *)&psTab[idx] >> 10) | ((unsigned int)*(_WORD *)&psTab[idx] >> 12)) & 1) << 10);
 				}
 				else
 				{
 					vsTable = vsTab;
-					v18 = (signed __int64)&psTab[idx];
+					v18 = &psTab[idx];
 					v20 = 32;
 				}
-				inputTab[idx] = v20;
-				inputTab[idx] = v20 & 0xFFFFFCFF | ((*(_BYTE *)(v18 + 1) & 3) << 8);
+				inputTable[idx] = v20;
+				inputTable[idx] = v20 & 0xFFFFFCFF | ((*((_BYTE *)v18 + 1) & 3) << 8);
 			}
 			++idx;
 		} while ((_DWORD)idx != numPsInputSemantics);
 	}
 }
-
 int main(void)
 {
-
-	PixelInputSemantic pi = {0};
-	pi.m_interpF16 = 1;
-	int a = *(_WORD *)&pi >> 14;
-
 	ShaderInfo shaderInfo;
 	parseShader(&shaderInfo, s_vex_vv);
 
@@ -1632,6 +1725,31 @@ int main(void)
 	const InputUsageSlot* slot = m_shader->getInputUsageSlotTable();
 	const VertexInputSemantic* inputSema = m_shader->getInputSemanticTable();
 	const VertexExportSemantic* expSema = m_shader->getExportSemanticTable();
+
+	//
+	ShaderInfo psShaderInfo;
+	parseShader(&psShaderInfo, s_pix_p);
+
+	void *psshaderBinary = malloc(psShaderInfo.m_gpuShaderCodeSize);
+	void *psshaderHeader = malloc(psShaderInfo.m_psShader->computeSize());
+
+	memcpy(psshaderBinary, psShaderInfo.m_gpuShaderCode, psShaderInfo.m_gpuShaderCodeSize);
+	memcpy(psshaderHeader, psShaderInfo.m_psShader, psShaderInfo.m_psShader->computeSize());
+
+	ShaderBinaryInfo* psbinInfo = findShaderBinInfo((uint8_t*)psshaderBinary);
+
+	InputResourceOffsets pstable;
+	generateInputResourceOffsetTable(&pstable, psbinInfo);
+
+	size_t pscodeLength = psbinInfo->m_length + sizeof(ShaderBinaryInfo);
+
+	PsShader* m_psshader = static_cast<PsShader*>(psshaderHeader);
+	m_psshader->patchShaderGpuAddress(psshaderBinary);
+
+	uint32_t psInputs[32] = {0};
+	generatePsShaderUsageTable(psInputs,
+		vertexShader->getExportSemanticTable(), vertexShader->m_numExportSemantics,
+		m_psshader->getPixelInputSemanticTable(), m_psshader->m_numInputSemantics);
 	
 	return binInfo->m_isSrt;
 }
