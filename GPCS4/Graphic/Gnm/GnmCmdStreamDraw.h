@@ -9,7 +9,7 @@
 // Since PS4 use a unified memory architecture,
 // there no device abstraction in Gnm like Vulkan or DirectX does.
 // The high level Gnm API calls are pretty thin functions, just record the parameters passed in,
-// building one or more PM4 packets, then insert it in the queue (command buffer),
+// building one or more PM4 packets directly in command buffer memory,
 // no kernel or hardware interaction occurs except submit calls.
 // And as for submit calls, they are thin functions too in UserMode,
 // they just pass the command buffer to the kernel using ioctl.
