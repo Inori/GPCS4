@@ -274,7 +274,7 @@ public:
 	//void setPrimitiveType(PrimitiveType primType);
 	//void setPsShaderRate(PsShaderRate rate);
 	//void setPsShaderSampleExclusionMask(uint16_t mask);
-	//void setPsShaderUsage(const uint32_t *inputTable, uint32_t numItems);
+	void setPsShaderUsage(const uint32_t *inputTable, uint32_t numItems);
 	void setPsShader(const PsStageRegisters *psRegs);
 	//void setPsShaderRate(PsShaderRate rate);
 	//void setPsShaderSampleExclusionMask(uint16_t mask);

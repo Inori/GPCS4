@@ -66,8 +66,8 @@ private:
 	uint32_t onPacketWaitForGraphicsWrites(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords);
 	uint32_t onPacketPause(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords);
 	uint32_t onPacketConfigRegister(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords);
-	uint32_t onPacketSet1(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords);
-	uint32_t onPacketSet2(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords);
+	uint32_t onPacketSetContext(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords);
+	uint32_t onPacketSetResource(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords);
 	uint32_t onPacketSet3(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords);
 	uint32_t onPacketIncrementDeCounter(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords);
 	uint32_t onPacketWaitOnCe(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords);

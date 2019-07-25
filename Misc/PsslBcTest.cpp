@@ -1595,7 +1595,7 @@ void generatePsShaderUsageTable(uint32_t *inputTable, const VertexExportSemantic
 	unsigned __int64 v15; // rax
 	__int64 matchVsIdx; // r15
 	char hasMatchedVsSema; // r13
-	const PixelInputSemantic *v18; // r8
+	const PixelInputSemantic *psTab_; // r8
 	unsigned int v19; // edx
 	unsigned int v20; // ecx
 	uint32_t numPsInputSemantics; // [rsp+4h] [rbp-3Ch]
@@ -1668,7 +1668,7 @@ LABEL_14:
 				if (hasMatchedVsSema)
 				{
 					vsTable = vsTab;
-					v18 = &psTab[idx];
+					psTab_ = &psTab[idx];
 					v19 = *((_BYTE *)&vsTab[(unsigned int)matchVsIdx] + 1) & 0x1F | ((unsigned int)*(_WORD *)&psTab[idx] >> 7) & 0x20;
 					inputTable[idx] = v19;
 					v20 = v19 | (((((unsigned int)*(_WORD *)&psTab[idx] >> 10) | ((unsigned int)*(_WORD *)&psTab[idx] >> 12)) & 1) << 10);
@@ -1676,16 +1676,18 @@ LABEL_14:
 				else
 				{
 					vsTable = vsTab;
-					v18 = &psTab[idx];
+					psTab_ = &psTab[idx];
 					v20 = 32;
 				}
 				inputTable[idx] = v20;
-				inputTable[idx] = v20 & 0xFFFFFCFF | ((*((_BYTE *)v18 + 1) & 3) << 8);
+				inputTable[idx] = v20 & 0xFFFFFCFF | ((*((_BYTE *)psTab_ + 1) & 3) << 8);
 			}
 			++idx;
 		} while ((_DWORD)idx != numPsInputSemantics);
 	}
 }
+
+
 int main(void)
 {
 	ShaderInfo shaderInfo;

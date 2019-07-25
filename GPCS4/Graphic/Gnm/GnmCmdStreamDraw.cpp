@@ -134,11 +134,11 @@ bool GnmCmdStreamDraw::processCommandBuffer(uint32_t* commandBuffer, uint32_t co
 			case OP_TYPE_CONFIG_REGISTER:
 				realPacketSizeDwords = onPacketConfigRegister(opcode, packetBuffer, packetSizeDwords);
 				break;
-			case OP_TYPE_SET_1:
-				realPacketSizeDwords = onPacketSet1(opcode, packetBuffer, packetSizeDwords);
+			case OP_TYPE_SET_CONTEXT:
+				realPacketSizeDwords = onPacketSetContext(opcode, packetBuffer, packetSizeDwords);
 				break;
-			case OP_TYPE_SET_2:
-				realPacketSizeDwords = onPacketSet2(opcode, packetBuffer, packetSizeDwords);
+			case OP_TYPE_SET_RESOURCE:
+				realPacketSizeDwords = onPacketSetResource(opcode, packetBuffer, packetSizeDwords);
 				break;
 			case OP_TYPE_SET_3:
 				realPacketSizeDwords = onPacketSet3(opcode, packetBuffer, packetSizeDwords);
@@ -206,6 +206,12 @@ uint32_t GnmCmdStreamDraw::onPacketBase(uint32_t opcode, uint32_t* packetBuffer,
 		case OP_SUB_PREPARE_FLIP_WITH_EOP_INTERRUPT_LABEL:
 			realPktSizeDwords = onPrepareFlipOrEopInterrupt(opcode, packetBuffer, packetSizeInDwords);
 			break;
+
+		// setPsShaderUsage with 0 numItems
+		case OP_SUB_SET_PS_SHADER_USAGE:
+			realPktSizeDwords = packetSizeInDwords;
+			break;
+
 		default:
 			realPktSizeDwords = packetSizeInDwords;
 			break;
@@ -349,12 +355,30 @@ uint32_t GnmCmdStreamDraw::onPacketConfigRegister(uint32_t opcode, uint32_t* pac
 	return packetSizeInDwords;
 }
 
-uint32_t GnmCmdStreamDraw::onPacketSet1(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+uint32_t GnmCmdStreamDraw::onPacketSetContext(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
 {
+	uint8_t opInfo = OPCODE_INFO(opcode);
+	uint32_t opLen = OPCODE_LENGTH(opcode);
+	uint32_t opSub = OPCODE_SUB(packetBuffer);
+	do 
+	{
+		switch (opSub)
+		{
+		case OP_SUB_SET_PS_SHADER_USAGE:
+		{
+			const uint32_t* inputTable = &packetBuffer[2];
+			uint32_t numItems = opLen - 2;
+			m_dcb->setPsShaderUsage(inputTable, numItems);
+		}
+			break;
+		default:
+			break;
+		}
+	} while (false);
 	return packetSizeInDwords;
 }
 
-uint32_t GnmCmdStreamDraw::onPacketSet2(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
+uint32_t GnmCmdStreamDraw::onPacketSetResource(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
 {
 	uint8_t opInfo = OPCODE_INFO(opcode);
 	uint32_t opLen = OPCODE_LENGTH(opcode);
@@ -532,7 +556,7 @@ uint32_t GnmCmdStreamDraw::onSetUserDataRegion(uint32_t opcode, uint32_t* packet
 	{
 		uint32_t numDwords = 0;
 		uint8_t opType = OPCODE_TYPE(*packet);
-		if (opType == OP_TYPE_SET_2)
+		if (opType == OP_TYPE_SET_RESOURCE)
 		{
 			numDwords = OPCODE_LENGTH(*packet);
 		}
