@@ -48,6 +48,8 @@
     <ClInclude Include="Graphic\Gve\GveInstance.h" />
     <ClInclude Include="Graphic\Gve\GvePhysicalDevice.h" />
     <ClInclude Include="Graphic\Gve\GveSwapChain.h" />
+    <ClInclude Include="Graphic\Pssl\FetchShader.h" />
+    <ClInclude Include="Graphic\Pssl\PsUsageTable.h" />
     <ClInclude Include="Graphic\Pssl\SbReader.h" />
     <ClInclude Include="Graphic\Pssl\ShaderBinary.h" />
     <ClInclude Include="Graphic\Sce\SceGnmDriver.h" />
@@ -152,6 +154,8 @@
     <ClCompile Include="Graphic\Gve\GveInstance.cpp" />
     <ClCompile Include="Graphic\Gve\GvePhysicalDevice.cpp" />
     <ClCompile Include="Graphic\Gve\GveSwapChain.cpp" />
+    <ClCompile Include="Graphic\Pssl\FetchShader.cpp" />
+    <ClCompile Include="Graphic\Pssl\PsUsageTable.cpp" />
     <ClCompile Include="Graphic\Pssl\SbReader.cpp" />
     <ClCompile Include="Graphic\Pssl\ShaderBinary.cpp" />
     <ClCompile Include="Graphic\Sce\SceGnmDriver.cpp" />

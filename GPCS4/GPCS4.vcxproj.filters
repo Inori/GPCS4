@@ -505,6 +505,12 @@
     <ClInclude Include="Graphic\Pssl\SbReader.h">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClInclude>
+    <ClInclude Include="Graphic\Pssl\FetchShader.h">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\PsUsageTable.h">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -949,6 +955,12 @@
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClCompile>
     <ClCompile Include="Graphic\Pssl\SbReader.cpp">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\FetchShader.cpp">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\PsUsageTable.cpp">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClCompile>
   </ItemGroup>
