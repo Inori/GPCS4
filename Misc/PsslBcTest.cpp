@@ -47,8 +47,8 @@ typedef int32_t _BOOL4;
 
 
 static unsigned s_vex_vv[] = {
-	//#include "vex_vv.h"
-	#include "test_vv.h"
+	#include "vex_vv.h"
+	//#include "test_vv.h"
 };
 
 struct ShaderBinaryInfo
@@ -602,6 +602,41 @@ public:
 };
 #else // __cplusplus
 		} FetchShaderBuildState;
+#endif // __cplusplus
+
+
+#ifdef __cplusplus
+class PixelInputSemantic
+#else  // __cplusplus
+typedef struct PixelInputSemantic
+#endif // __cplusplus
+{
+#ifdef __cplusplus
+public:
+#endif // __cplusplus
+	union
+	{
+		struct
+		{
+			uint16_t              m_semantic : 8;	///< The semantic, matched against the semantic value in the VertexExportSemantic table in the VS shader.
+			uint16_t              m_defaultValue : 2;	///< The default value supplied to the shader, if m_semantic is not matched in the VS shader. 0={0,0,0,0}, 1={0,0,0,1.0}, 2={1.0,1.0,1.0,0}, 3={1.0,1.0,1.0,1.0}
+			uint16_t              m_isFlatShaded : 1;	///< if (m_interpF16 == 0) A bitflag that specifies whether the value interpolation is constant in the shader. It is ignored if <c><i>m_isCustom</i></c> is set; otherwise, it  indicates that a shader reads only { P0 } and that some handling of infinite values in the calculation of P1-P0 and P2-P0 can be disabled. 
+			uint16_t              m_isLinear : 1;	///< A bitflag that specifies whether the value interpolation is linear in the shader. It is unused by the Gnm runtime.
+			uint16_t              m_isCustom : 1;	///< if (m_interpF16 == 0) A bitflag that specifies whether the value interpolation is custom in the shader. It determines whether hardware subtraction should be disabled, supplying { P0, P1, P2 } to the shader instead of { P0, P1-P0, P2-P0 }.
+			uint16_t              m_reserved : 3;	///< Unused; set to zero.
+		};
+		// NEO mode only:
+		struct
+		{
+			uint16_t : 12; ///< Description to be specified.
+					   uint16_t              m_defaultValueHi : 2;	///< if (m_interpF16 != 0) indicates the default value supplied to the shader for the upper 16-bits if m_semantic is not matched in the VS shader, and m_defaultValue indicates the default value for the lower 16-bits.
+					   uint16_t              m_interpF16 : 2;	///< if (m_interpF16 == 0) this is a 32-bit float or custom value; if (m_interpF16 & 1) the low 16-bits of this parameter expect 16-bit float interpolation and/or default value; if (m_interpF16 & 2) the high 16-bits of this parameter expect 16-bit float interpolation and/or default value
+		};
+	};
+#ifdef __cplusplus
+};
+#else // __cplusplus
+		} PixelInputSemantic;
 #endif // __cplusplus
 
 class VsShader
@@ -1438,8 +1473,128 @@ int generateFetchShader(uint32_t *fs, FetchShaderBuildState *fsbs)
 	return 0;
 }
 
+int getGpuMode()
+{
+	return 1;
+}
+
+void generatePsShaderUsageTable(uint32_t *inputTable, const VertexExportSemantic *vsTable, uint32_t vsTableNumItems, const PixelInputSemantic *psTable, uint32_t psTableNumItem)
+{
+	const PixelInputSemantic *psTab; // r12
+	uint32_t numVsExportSemantics; // ebx
+	__int64 idx; // r14
+	int v8; // ecx
+	char v9; // r8
+	__int64 v10; // rax
+	signed __int64 v11; // rax
+	unsigned __int64 v12; // rax
+	unsigned __int64 v13; // rcx
+	unsigned __int64 v14; // rdx
+	unsigned __int64 v15; // rax
+	__int64 matchVsIdx; // r15
+	char hasMatchedVsSema; // r13
+	signed __int64 v18; // r8
+	unsigned int v19; // edx
+	unsigned int v20; // ecx
+	uint32_t numPsInputSemantics; // [rsp+4h] [rbp-3Ch]
+	uint32_t *inputTab; // [rsp+8h] [rbp-38h]
+	const VertexExportSemantic *vsTab; // [rsp+10h] [rbp-30h]
+
+	psTab = psTable;
+	numVsExportSemantics = vsTableNumItems;
+	numPsInputSemantics = psTableNumItem;
+	if (psTableNumItem)
+	{
+		idx = 0LL;
+		vsTab = vsTable;
+		inputTab = inputTable;
+		do
+		{
+			LODWORD(matchVsIdx) = 0;
+			hasMatchedVsSema = 0;
+			if (numVsExportSemantics)
+			{
+				matchVsIdx = 0LL;
+				while (vsTable[matchVsIdx].m_semantic != psTab[idx].m_semantic)
+				{
+					if ((unsigned int)++matchVsIdx >= numVsExportSemantics)
+					{
+						hasMatchedVsSema = 0;
+						goto LABEL_14;
+					}
+				}
+				hasMatchedVsSema = 1;
+			}
+		LABEL_14:
+			if (getGpuMode() == 1 && psTab[idx].m_interpF16)
+			{
+				if (hasMatchedVsSema)
+				{
+					vsTable = vsTab;
+					v9 = *((_BYTE *)&vsTab[(unsigned int)matchVsIdx] + 1) & 0x1F;
+					v8 = (unsigned __int16)(psTab[idx].m_interpF16) & ~(unsigned __int8)(vsTab[(unsigned int)matchVsIdx].m_exportF16);
+				}
+				else
+				{
+					vsTable = vsTab;
+					v8 = 0;
+					v9 = 0x20;
+				}
+				inputTable = inputTab;
+				inputTab[idx] = 0x80000;
+				v10 = psTab[idx].m_isFlatShaded & 0x1000000;
+				inputTab[idx] = v10 + 0x80000;
+				v11 = (psTab[idx].m_isFlatShaded & 0x2000000) + v10 + 0x80000;
+				inputTab[idx] = v11;
+				if (*(_WORD *)&psTab[idx] < 0xC000u)
+				{
+					v15 = ((unsigned __int8)v9 | (unsigned __int8)(32 * (v8 != 0))) & 0x3F | (unsigned __int64)v11;
+					inputTab[idx] = v15;
+					v14 = v15 | (((*(_WORD *)&psTab[idx] >> (4 * v8 & 4 ^ 0xC)) & 3LL) << 8);
+				}
+				else
+				{
+					v12 = ((unsigned __int8)v9 | (unsigned __int8)(32 * v8)) & 0x3F | (unsigned __int64)v11;
+					inputTab[idx] = v12;
+					v13 = v12 | ((unsigned __int64)(*((_BYTE *)&psTab[idx] + 1) & 3) << 8) | (v8 << 19) & 0x100000;
+					inputTab[idx] = v13;
+					v14 = v13 & 0xFFFFFFFFFF9FFFFFLL | (*(_WORD *)&psTab[idx] << 9) & 0x600000;
+				}
+				inputTab[idx] = v14;
+			}
+			else
+			{
+				inputTable = inputTab;
+				inputTab[idx] = 0;
+				if (hasMatchedVsSema)
+				{
+					vsTable = vsTab;
+					v18 = (signed __int64)&psTab[idx];
+					v19 = *((_BYTE *)&vsTab[(unsigned int)matchVsIdx] + 1) & 0x1F | ((unsigned int)*(_WORD *)&psTab[idx] >> 7) & 0x20;
+					inputTab[idx] = v19;
+					v20 = v19 | (((((unsigned int)psTab[idx].m_isFlatShaded) | ((unsigned int)psTab[idx].m_isCustom)) & 1) << 10);
+				}
+				else
+				{
+					vsTable = vsTab;
+					v18 = (signed __int64)&psTab[idx];
+					v20 = 32;
+				}
+				inputTab[idx] = v20;
+				inputTab[idx] = v20 & 0xFFFFFCFF | ((*(_BYTE *)(v18 + 1) & 3) << 8);
+			}
+			++idx;
+		} while ((_DWORD)idx != numPsInputSemantics);
+	}
+}
+
 int main(void)
 {
+
+	PixelInputSemantic pi = {0};
+	pi.m_interpF16 = 1;
+	int a = *(_WORD *)&pi >> 14;
+
 	ShaderInfo shaderInfo;
 	parseShader(&shaderInfo, s_vex_vv);
 
