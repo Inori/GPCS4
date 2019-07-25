@@ -25,7 +25,13 @@ bool FetchShader::getFetchShaderBuildState(FetchShaderBuildState& fsbs)
 
 uint32_t FetchShader::getFetchShaderLengthDw(const uint32_t* code)
 {
-
+	uint32_t lengthDw = 0;
+	while (code[lengthDw] != FS_TOKEN_END1 && code[lengthDw + 1] != FS_TOKEN_END2)
+	{
+		++lengthDw;
+	}
+	++lengthDw;
+	return lengthDw;
 }
 
 void FetchShader::extractTokens(const uint32_t* code, uint32_t lengthDw)
