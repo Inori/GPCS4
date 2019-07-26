@@ -4,6 +4,9 @@
 #include "../Gnm/GnmCmdStreamDraw.h"
 #include <memory>
 
+namespace sce
+{;
+
 class SceGnmDriver
 {
 public:
@@ -23,7 +26,7 @@ public:
 
 private:
 	std::shared_ptr<GnmCommandBufferDraw> m_dcb;
-	std::shared_ptr <GnmCmdStreamDraw> m_cmdHandlerDraw;
+	std::shared_ptr<GnmCmdStreamDraw> m_cmdHandlerDraw;
 };
 
-
+}  //sce

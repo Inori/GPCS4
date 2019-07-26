@@ -3,6 +3,9 @@
 #include "GPCS4Common.h"
 #include <string>
 
+namespace pssl
+{;
+
 // shader bytecode reader
 class SbReader
 {
@@ -63,3 +66,5 @@ private:
 	size_t      m_pos = 0;
 
 };
+
+}  // pssl

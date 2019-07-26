@@ -47,12 +47,13 @@ typedef int32_t _BOOL4;
 
 
 static const unsigned s_vex_vv[] = {
-	#include "vex_vv.h"
-	//#include "test_vv.h"
+	//#include "vex_vv.h"
+	#include "test_vv.h"
 };
 
 static const unsigned s_pix_p[] = {
-	#include "pix_p.h"
+	//#include "pix_p.h"
+	#include "test_p.h"
 };
 
 struct ShaderBinaryInfo

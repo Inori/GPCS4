@@ -1,4 +1,7 @@
-#include "FetchShader.h"
+#include "PsslFetchShader.h"
+
+namespace pssl
+{;
 
 FetchShader::FetchShader(const uint32_t* code, uint32_t lengthDw):
 	m_numInputSlots(0),
@@ -39,13 +42,13 @@ void FetchShader::extractTokens(const uint32_t* code, uint32_t lengthDw)
 	uint32_t idx = 0;
 	bool parseSemaIdx = true;
 
-	if (code[idx] & FS_TOKEN_VERTEX_BASE_USGPR == FS_TOKEN_VERTEX_BASE_USGPR)
+	if ((code[idx] & FS_TOKEN_VERTEX_BASE_USGPR) == FS_TOKEN_VERTEX_BASE_USGPR)
 	{
 		m_vertexBaseToken = code[idx];
 		++idx;
 	}
 
-	if (code[idx] & FS_TOKEN_INSTANCE_BASE_USGPR == FS_TOKEN_INSTANCE_BASE_USGPR)
+	if ((code[idx] & FS_TOKEN_INSTANCE_BASE_USGPR) == FS_TOKEN_INSTANCE_BASE_USGPR)
 	{
 		m_instanceBaseToken = code[idx];
 		++idx;
@@ -84,3 +87,4 @@ void FetchShader::extractTokens(const uint32_t* code, uint32_t lengthDw)
 	}
 }
 
+}  // pssl

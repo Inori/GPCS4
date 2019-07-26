@@ -38,7 +38,7 @@ void GnmCommandBufferDraw::setPsShaderUsage(const uint32_t *inputTable, uint32_t
 
 }
 
-void GnmCommandBufferDraw::setPsShader(const PsStageRegisters *psRegs)
+void GnmCommandBufferDraw::setPsShader(const pssl::PsStageRegisters *psRegs)
 {
 
 }
@@ -54,7 +54,7 @@ void GnmCommandBufferDraw::setUserDataRegion(ShaderStage stage, uint32_t startUs
 }
 
 
-void GnmCommandBufferDraw::setVsShader(const VsStageRegisters *vsRegs, uint32_t shaderModifier)
+void GnmCommandBufferDraw::setVsShader(const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier)
 {
 	void* gpuAddress = (void*)(uintptr_t(vsRegs->spiShaderPgmHiVs) << 40 | uintptr_t(vsRegs->spiShaderPgmLoVs) << 8);
 }

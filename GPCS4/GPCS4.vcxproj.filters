@@ -499,22 +499,22 @@
     <ClInclude Include="Algorithm\Sha1Hash.h">
       <Filter>Source Files\Algorithm</Filter>
     </ClInclude>
-    <ClInclude Include="Graphic\Pssl\SbReader.h">
+    <ClInclude Include="Graphic\Pssl\PsslFetchShader.h">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClInclude>
-    <ClInclude Include="Graphic\Pssl\FetchShader.h">
+    <ClInclude Include="Graphic\Pssl\PsslSbReader.h">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClInclude>
-    <ClInclude Include="Graphic\Pssl\PsUsageTable.h">
+    <ClInclude Include="Graphic\Pssl\PsslPsUsageTable.h">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClInclude>
-    <ClInclude Include="Graphic\Pssl\ShaderFileBinary.h">
+    <ClInclude Include="Graphic\Pssl\PsslShaderRegister.h">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClInclude>
-    <ClInclude Include="Graphic\Pssl\ShaderRegister.h">
+    <ClInclude Include="Graphic\Pssl\PsslShaderFileBinary.h">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClInclude>
-    <ClInclude Include="Graphic\Pssl\Shader.h">
+    <ClInclude Include="Graphic\Pssl\PsslShaderStructure.h">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClInclude>
   </ItemGroup>
@@ -957,13 +957,13 @@
     <ClCompile Include="Algorithm\Sha1Hash.cpp">
       <Filter>Source Files\Algorithm</Filter>
     </ClCompile>
-    <ClCompile Include="Graphic\Pssl\SbReader.cpp">
+    <ClCompile Include="Graphic\Pssl\PsslFetchShader.cpp">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClCompile>
-    <ClCompile Include="Graphic\Pssl\FetchShader.cpp">
+    <ClCompile Include="Graphic\Pssl\PsslSbReader.cpp">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClCompile>
-    <ClCompile Include="Graphic\Pssl\PsUsageTable.cpp">
+    <ClCompile Include="Graphic\Pssl\PsslPsUsageTable.cpp">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClCompile>
   </ItemGroup>

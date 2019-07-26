@@ -5,6 +5,10 @@
 
 // only place shader binary file related structures
 
+namespace pssl
+{;
+
+
 #pragma pack(push, 4)
 struct InputUsageSlot
 {
@@ -93,3 +97,5 @@ struct ShaderBinaryInfo
 	uint32_t		crc32;
 };
 
+
+}  // pssl

@@ -2,6 +2,9 @@
 
 #include "GPCS4Common.h"
 
+namespace pssl
+{;
+
 struct CsStageRegisters
 {
 	uint32_t  computePgmLo;
@@ -41,3 +44,4 @@ struct PsStageRegisters
 	uint32_t cbShaderMask;
 };
 
+}  // pssl

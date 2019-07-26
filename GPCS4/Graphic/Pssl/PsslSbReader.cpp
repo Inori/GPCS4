@@ -1,5 +1,7 @@
-#include "SbReader.h"
+#include "PsslSbReader.h"
 
+namespace pssl
+{;
 
 SbReader::SbReader(const uint8_t* data, size_t size):
 	SbReader(data, size, 0)
@@ -52,3 +54,5 @@ void SbReader::store(std::ostream&& stream) const
 {
 	stream.write((const char*)m_data, m_size);
 }
+
+}  // pssl

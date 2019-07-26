@@ -275,7 +275,7 @@ public:
 	//void setPsShaderRate(PsShaderRate rate);
 	//void setPsShaderSampleExclusionMask(uint16_t mask);
 	void setPsShaderUsage(const uint32_t *inputTable, uint32_t numItems);
-	void setPsShader(const PsStageRegisters *psRegs);
+	void setPsShader(const pssl::PsStageRegisters *psRegs);
 	//void setPsShaderRate(PsShaderRate rate);
 	//void setPsShaderSampleExclusionMask(uint16_t mask);
 	//void setPsShaderUsage(const uint32_t *inputTable, uint32_t numItems);
@@ -337,7 +337,7 @@ public:
 	//void setViewportTransformControl(ViewportTransformControl vportControl);
 	//void setVsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Buffer *buffer);
 	//void setVsShaderStreamoutEnable(bool enable);
-	void setVsShader(const VsStageRegisters *vsRegs, uint32_t shaderModifier);
+	void setVsShader(const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier);
 	//void setVsShaderStreamoutEnable(bool enable);
 	//void setWindowOffset(int16_t offsetX, int16_t offsetY);
 	//void setWindowScissor(uint32_t left, uint32_t top, uint32_t right, uint32_t bottom, WindowOffsetMode windowOffsetEnable);

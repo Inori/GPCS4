@@ -61,7 +61,7 @@ int PS4API sceGnmInsertThreadTraceMarker(void)
 
 
 int PS4API sceGnmSetCsShaderWithModifier(uint32_t* cmdBuffer, uint32_t numDwords,
-	const CsStageRegisters *csRegs, uint32_t shaderModifier)
+	const pssl::CsStageRegisters *csRegs, uint32_t shaderModifier)
 {
 	LOG_SCE_GRAPHIC("cmd %p numdw %d cs %p mod %d", cmdBuffer, numDwords, csRegs, shaderModifier);
 	const uint32_t paramSize = sizeof(GnmCmdCSShader) / sizeof(uint32_t);
@@ -69,7 +69,7 @@ int PS4API sceGnmSetCsShaderWithModifier(uint32_t* cmdBuffer, uint32_t numDwords
 	GnmCmdCSShader* param = (GnmCmdCSShader*)cmdBuffer;
 	param->opcode = OPCODE_BUILD(paramSize, OP_TYPE_PRIV_SHARED, OP_INFO_SET_CS_SHADER);
 	param->modifier = shaderModifier;
-	memcpy(&param->csRegs, csRegs, sizeof(CsStageRegisters));
+	memcpy(&param->csRegs, csRegs, sizeof(pssl::CsStageRegisters));
 	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
 	return SCE_OK;
 }

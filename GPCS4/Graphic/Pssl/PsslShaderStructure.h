@@ -1,8 +1,12 @@
 #pragma once
 
-#include "ShaderFileBinary.h"
-#include "ShaderRegister.h"
+#include "PsslShaderFileBinary.h"
+#include "PsslShaderRegister.h"
 #include <vector>
+
+namespace pssl
+{;
+
 
 enum FetchShaderInstancingMode
 {
@@ -33,3 +37,5 @@ struct FetchShaderBuildState
 	// Semantic Remap Table
 	std::vector<uint32_t>			 semanticsRemapTable;
 };
+
+}  // pssl

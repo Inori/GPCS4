@@ -4,14 +4,16 @@
 
 // shared staffs among graphic components
 
-
-class SceVideoOut;
-class SceGnmDriver;
+namespace sce
+{
+	class SceVideoOut;
+	class SceGnmDriver;
+}
 
 struct GfxContext
 {
-	SceVideoOut* videoOut;
-	SceGnmDriver* gnmDriver;
+	sce::SceVideoOut* videoOut;
+	sce::SceGnmDriver* gnmDriver;
 };
 
 
@@ -52,13 +54,13 @@ inline GfxContext* getGfxContext(int videoHandle)
 	return ctx;
 }
 
-inline SceVideoOut* getVideoOut(int videoHandle)
+inline sce::SceVideoOut* getVideoOut(int videoHandle)
 {
 	GfxContext* ctx = getGfxContext(videoHandle);
 	return ctx ? ctx->videoOut : NULL;
 }
 
-inline SceGnmDriver* getGnmDriver(int videoHandle)
+inline sce::SceGnmDriver* getGnmDriver(int videoHandle)
 {
 	GfxContext* ctx = getGfxContext(videoHandle);
 	return ctx ? ctx->gnmDriver : NULL;

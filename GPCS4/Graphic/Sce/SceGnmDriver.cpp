@@ -1,6 +1,10 @@
 #include "SceGnmDriver.h"
 #include "sce_errors.h"
 
+
+namespace sce
+{;
+
 SceGnmDriver::SceGnmDriver()
 {
 	m_dcb = std::make_shared<GnmCommandBufferDraw>();
@@ -33,3 +37,5 @@ int SceGnmDriver::sceGnmSubmitDone(void)
 {
 	return SCE_OK;
 }
+
+}  //sce

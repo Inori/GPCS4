@@ -1,8 +1,12 @@
 #pragma once
 
 #include "GPCS4Common.h"
-#include "Shader.h"
+#include "PsslShaderStructure.h"
 #include <vector>
+
+namespace pssl 
+{;
+
 
 class FetchShader
 {
@@ -35,4 +39,5 @@ private:
 	std::vector<std::pair<uint32_t, uint32_t>> m_semaInfoTokens;
 };
 
+}  // pssl
 

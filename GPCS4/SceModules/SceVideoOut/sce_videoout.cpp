@@ -23,8 +23,8 @@ int PS4API sceVideoOutOpen(SceUserServiceUserId userId, int32_t type, int32_t in
 	LOG_ASSERT((type == SCE_VIDEO_OUT_BUS_TYPE_MAIN), "not supported videoout type %d", type);
 
 	GfxContext gfxCtx;
-	gfxCtx.videoOut = new SceVideoOut();
-	gfxCtx.gnmDriver = new SceGnmDriver();
+	gfxCtx.videoOut = new sce::SceVideoOut();
+	gfxCtx.gnmDriver = new sce::SceGnmDriver();
 	setGfxContext(SCE_VIDEO_HANDLE_MAIN, gfxCtx);
 	return SCE_VIDEO_HANDLE_MAIN;
 }
@@ -36,12 +36,12 @@ int PS4API sceVideoOutClose(int32_t handle)
 	int ret = -1;
 	do 
 	{
-		SceVideoOut* videoOut = getVideoOut(handle);
+		sce::SceVideoOut* videoOut = getVideoOut(handle);
 		if (videoOut)
 		{
 			delete videoOut;
 		}
-		SceGnmDriver* gnmDriver = getGnmDriver(handle);
+		sce::SceGnmDriver* gnmDriver = getGnmDriver(handle);
 		if (gnmDriver)
 		{
 			delete gnmDriver;

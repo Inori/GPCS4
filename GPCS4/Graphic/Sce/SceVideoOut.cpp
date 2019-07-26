@@ -8,6 +8,8 @@
 #include <cstdlib>
 #include <set>
 
+namespace sce
+{;
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
 const std::vector<const char*> validationLayers = {
@@ -1162,3 +1164,4 @@ VKAPI_ATTR VkBool32 VKAPI_CALL SceVideoOut::debugCallback(VkDebugUtilsMessageSev
 	return VK_FALSE;
 }
 
+} // sce

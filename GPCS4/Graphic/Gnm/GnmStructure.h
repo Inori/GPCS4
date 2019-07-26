@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GPCS4Common.h"
-#include "../Pssl/ShaderRegister.h"
+#include "../Pssl/PsslShaderRegister.h"
 
 struct DrawModifier
 {
@@ -35,7 +35,7 @@ struct GnmCmdInitToDefaultContextState
 struct GnmCmdVSShader
 {
 	uint32_t opcode;
-	VsStageRegisters vsRegs;
+	pssl::VsStageRegisters vsRegs;
 	uint32_t modifier;
 	uint32_t reserved[20];
 };
@@ -43,14 +43,14 @@ struct GnmCmdVSShader
 struct GnmCmdPSShader
 {
 	uint32_t opcode;
-	PsStageRegisters psRegs;
+	pssl::PsStageRegisters psRegs;
 	uint32_t reserved[27];
 };
 
 struct GnmCmdCSShader
 {
 	uint32_t opcode;
-	CsStageRegisters csRegs;
+	pssl::CsStageRegisters csRegs;
 	uint32_t modifier;
 	uint32_t reserved[16];
 };

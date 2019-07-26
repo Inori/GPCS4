@@ -10,6 +10,11 @@
 #include <vector>
 #include <optional>
 
+namespace sce 
+{;
+
+
+
 class SceVideoOut
 {
 public:
@@ -164,5 +169,7 @@ private:
 
 	bool framebufferResized = false;
 };
+
+} // sce
 
 
