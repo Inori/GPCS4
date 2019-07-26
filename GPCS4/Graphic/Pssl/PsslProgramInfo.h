@@ -13,7 +13,7 @@ namespace pssl
 class PsslProgramInfo
 {
 public:
-	PsslProgramInfo(uint8_t* code);
+	PsslProgramInfo(const uint8_t* code);
 	~PsslProgramInfo();
 
 	uint32_t getCodeSizeBytes() const;
@@ -31,7 +31,7 @@ public:
 	const InputUsageSlot* getInputUsageSlot(uint32_t idx) const;
 
 private:
-	bool initBinaryInfo(uint8_t* code);
+	bool initBinaryInfo(const uint8_t* code);
 
 private:
 	const ShaderBinaryInfo* m_shaderBinaryInfo;
@@ -41,4 +41,5 @@ private:
 // return UINT_MAX means no fetch shader
 uint32_t getFetchShaderStartRegister(const PsslProgramInfo& progInfo);
 
+uint32_t getFetchShaderStartRegister(const uint8_t* code);
 }

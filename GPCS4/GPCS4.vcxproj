@@ -58,7 +58,8 @@
     <ClInclude Include="Graphic\Pssl\PsslPsUsageTable.h" />
     <ClInclude Include="Graphic\Pssl\PsslSbReader.h" />
     <ClInclude Include="Graphic\Pssl\PsslProgramInfo.h" />
-    <ClInclude Include="Graphic\Pssl\PsslShaderModule.h" />
+    <ClInclude Include="Graphic\Pssl\PsslShaderInstruction.h" />
+    <ClInclude Include="Graphic\Pssl\PsslShaderGenerator.h" />
     <ClInclude Include="Graphic\Pssl\PsslShaderStructure.h" />
     <ClInclude Include="Graphic\Pssl\PsslShaderFileBinary.h" />
     <ClInclude Include="Graphic\Pssl\PsslShaderRegister.h" />
@@ -177,7 +178,7 @@
     <ClCompile Include="Graphic\Pssl\PsslPsUsageTable.cpp" />
     <ClCompile Include="Graphic\Pssl\PsslSbReader.cpp" />
     <ClCompile Include="Graphic\Pssl\PsslProgramInfo.cpp" />
-    <ClCompile Include="Graphic\Pssl\PsslShaderModule.cpp" />
+    <ClCompile Include="Graphic\Pssl\PsslShaderGenerator.cpp" />
     <ClCompile Include="Graphic\Sce\SceGnmDriver.cpp" />
     <ClCompile Include="Graphic\Sce\SceVideoOut.cpp" />
     <ClCompile Include="Graphic\SpirV\SpirvCodeBuffer.cpp" />

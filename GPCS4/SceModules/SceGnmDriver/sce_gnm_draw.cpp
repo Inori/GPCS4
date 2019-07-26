@@ -46,7 +46,7 @@ int PS4API sceGnmInsertWaitFlipDone(uint32_t* cmdBuffer, uint32_t numDwords, int
 
 
 int PS4API sceGnmDrawIndex(uint32_t* cmdBuffer, uint32_t numDwords,
-	uint32_t indexCount, const void *indexAddr, uint32_t pred, uint32_t inlineMode)
+	uint32_t indexCount, const void *indexAddr, uint32_t predAndMod, uint32_t inlineMode)
 {
 	LOG_SCE_GRAPHIC("cmd %p numdw %d idxcount %d", cmdBuffer, numDwords, indexCount);
 	const uint32_t paramSize = sizeof(GnmCmdDrawIndex) / sizeof(uint32_t);
@@ -55,8 +55,8 @@ int PS4API sceGnmDrawIndex(uint32_t* cmdBuffer, uint32_t numDwords,
 	param->opcode = OPCODE_BUILD(paramSize, OP_TYPE_PRIV_DRAW, OP_INFO_DRAW_INDEX);
 	param->indexCount = indexCount;
 	param->indexAddr = (ulong_ptr)indexAddr;
-	param->pred = pred;
-	param->inlineMode = inlineMode;
+	param->predAndMod = predAndMod;
+	param->inlineMode = (GnmEnumDrawIndexInlineMode)inlineMode;
 	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
 	return SCE_OK;
 }

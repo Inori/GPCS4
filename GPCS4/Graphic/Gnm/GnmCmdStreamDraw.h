@@ -31,6 +31,9 @@
 // we can not dispatch the packet in a straight forward way like a single switch statement.
 // I'm pretty sure current implement is far from Sony does.
 
+// We do all the draw command buffer reverse engining work
+// in this class, so the code maybe hard to read. 
+// One should read these pieces of junk code with IDA Pro opening at the same time.
 
 class GnmCmdStreamDraw : public GnmCmdStream
 {

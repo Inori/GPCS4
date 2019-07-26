@@ -1,6 +1,10 @@
 #include "GnmCommandBufferDraw.h"
+#include "Platform/PlatformUtils.h"
+#include "../Pssl/PsslShaderGenerator.h"
 
-GnmCommandBufferDraw::GnmCommandBufferDraw()
+GnmCommandBufferDraw::GnmCommandBufferDraw():
+	m_vsCode(nullptr),
+	m_psCode(nullptr)
 {
 }
 
@@ -8,29 +12,49 @@ GnmCommandBufferDraw::~GnmCommandBufferDraw()
 {
 }
 
+void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr, DrawModifier modifier)
+{
+	do 
+	{
+		pssl::PsslShaderGenerator generator;
+		uint32_t* fsCode = getFetchShaderCode(m_vsCode);
+		if (fsCode)
+		{
+			m_vsShader = generator.compile((uint32_t*)m_vsCode, fsCode);
+		}
+		else
+		{
+			m_vsShader = generator.compile((uint32_t*)m_vsCode);
+		}
+	} while (false);
+
+	clearRenderState();
+}
+
+void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr)
+{
+	DrawModifier mod = { 0 };
+	drawIndex(indexCount, indexAddr, mod);
+}
+
 void GnmCommandBufferDraw::prepareFlip(void *labelAddr, uint32_t value)
 {
 	*(uint32_t*)labelAddr = value;
 }
 
-void GnmCommandBufferDraw::setComputeResourceManagement(ShaderEngine engine, uint16_t mask)
-{
-
-}
-
-void GnmCommandBufferDraw::setComputeScratchSize(uint32_t maxNumWaves, uint32_t num1KByteChunksPerWave)
-{
-
-}
-
-void GnmCommandBufferDraw::setComputeShaderControl(uint32_t wavesPerSh, uint32_t threadgroupsPerCu, uint32_t lockThreshold)
-{
-
-}
-
 void GnmCommandBufferDraw::setPointerInUserData(ShaderStage stage, uint32_t startUserDataSlot, void *gpuAddr)
 {
-
+	do 
+	{
+		if (stage == kShaderStageVs)
+		{
+			m_vsUserDataSlotTable.push_back(std::make_pair(startUserDataSlot, gpuAddr));
+		}
+		else if (stage == kShaderStagePs)
+		{
+			m_psUserDataSlotTable.push_back(std::make_pair(startUserDataSlot, gpuAddr));
+		}
+	} while (false);
 }
 
 void GnmCommandBufferDraw::setPsShaderUsage(const uint32_t *inputTable, uint32_t numItems)
@@ -40,36 +64,82 @@ void GnmCommandBufferDraw::setPsShaderUsage(const uint32_t *inputTable, uint32_t
 
 void GnmCommandBufferDraw::setPsShader(const pssl::PsStageRegisters *psRegs)
 {
-
+	m_psCode = psRegs->getCodeAddress();
 }
-
-void GnmCommandBufferDraw::setUserData(ShaderStage stage, uint32_t userDataSlot, uint32_t data)
-{
-
-}
-
-void GnmCommandBufferDraw::setUserDataRegion(ShaderStage stage, uint32_t startUserDataSlot, const uint32_t *userData, uint32_t numDwords)
-{
-
-}
-
 
 void GnmCommandBufferDraw::setVsShader(const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier)
 {
-	void* gpuAddress = (void*)(uintptr_t(vsRegs->spiShaderPgmHiVs) << 40 | uintptr_t(vsRegs->spiShaderPgmLoVs) << 8);
+	m_vsCode = vsRegs->getCodeAddress();
 }
 
-void GnmCommandBufferDraw::waitForGraphicsWrites(uint32_t baseAddr256, uint32_t sizeIn256ByteBlocks, uint32_t targetMask, CacheAction cacheAction, uint32_t extendedCacheMask, StallCommandBufferParserMode commandBufferStallMode)
+void GnmCommandBufferDraw::writeAtEndOfPipe(EndOfPipeEventType eventType, 
+	EventWriteDest dstSelector, void *dstGpuAddr, 
+	EventWriteSource srcSelector, uint64_t immValue, 
+	CacheAction cacheAction, CachePolicy cachePolicy)
 {
-
+	if (srcSelector == kEventWriteSource32BitsImmediate)
+	{
+		*(uint32_t*)dstGpuAddr = immValue;
+	}
+	else if (srcSelector == kEventWriteSource64BitsImmediate)
+	{
+		*(uint64_t*)dstGpuAddr = immValue;
+	}
+	else
+	{
+		*(uint64_t*)dstGpuAddr = UtilProcess::GetProcessTimeCounter();
+	}
 }
 
-void GnmCommandBufferDraw::writeAtEndOfPipe(EndOfPipeEventType eventType, EventWriteDest dstSelector, void *dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy cachePolicy)
+void GnmCommandBufferDraw::writeAtEndOfPipeWithInterrupt(EndOfPipeEventType eventType, 
+	EventWriteDest dstSelector, void *dstGpuAddr, 
+	EventWriteSource srcSelector, uint64_t immValue, 
+	CacheAction cacheAction, CachePolicy cachePolicy)
 {
-
+	if (srcSelector == kEventWriteSource32BitsImmediate)
+	{
+		*(uint32_t*)dstGpuAddr = immValue;
+	}
+	else if (srcSelector == kEventWriteSource64BitsImmediate)
+	{
+		*(uint64_t*)dstGpuAddr = immValue;
+	}
+	else
+	{
+		*(uint64_t*)dstGpuAddr = UtilProcess::GetProcessTimeCounter();
+	}
 }
 
-void GnmCommandBufferDraw::writeAtEndOfPipeWithInterrupt(EndOfPipeEventType eventType, EventWriteDest dstSelector, void *dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy cachePolicy)
+uint32_t* GnmCommandBufferDraw::getFetchShaderCode(void* vsCode)
 {
+	uint32_t* fsCode = nullptr;
+	do 
+	{
+		uint32_t fsStartReg = pssl::getFetchShaderStartRegister((const uint8_t*)vsCode);
+		if (fsStartReg == UINT_MAX)
+		{
+			break;
+		}
 
+		for (auto& pair : m_vsUserDataSlotTable)
+		{
+			if (pair.first != fsStartReg)
+			{
+				continue;
+			}
+
+			fsCode = (uint32_t*)pair.second;
+			break;
+		}
+
+	} while (false);
+	return fsCode;
+}
+
+void GnmCommandBufferDraw::clearRenderState()
+{
+	m_vsCode = nullptr;
+	m_psCode = nullptr;
+	m_vsUserDataSlotTable.clear();
+	m_psUserDataSlotTable.clear();
 }

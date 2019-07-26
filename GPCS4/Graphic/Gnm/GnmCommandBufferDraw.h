@@ -4,9 +4,17 @@
 #include "GnmCommandBuffer.h"
 #include "GnmConstant.h"
 #include "GnmStructure.h"
+#include "../Gve/GveShader.h"
+#include <vector>
+
+// This class is designed for graphic development,
+// no reverse engining knowledge should be required.
 
 class GnmCommandBufferDraw : public GnmCommandBuffer
 {
+private:
+	typedef std::vector<std::pair<uint32_t, void*>> UDSTVector;
+
 public:
 	GnmCommandBufferDraw();
 	virtual ~GnmCommandBufferDraw();
@@ -34,8 +42,8 @@ public:
 	//void drawIndexAuto(uint32_t indexCount);
 	//void drawIndexInline(uint32_t indexCount, const void *indices, uint32_t indicesSizeInBytes, DrawModifier modifier);
 	//void drawIndexInline(uint32_t indexCount, const void *indices, uint32_t indicesSizeInBytes);
-	//void drawIndex(uint32_t indexCount, const void *indexAddr, DrawModifier modifier);
-	//void drawIndex(uint32_t indexCount, const void *indexAddr);
+	void drawIndex(uint32_t indexCount, const void *indexAddr, DrawModifier modifier);
+	void drawIndex(uint32_t indexCount, const void *indexAddr);
 	//void drawIndexMultiInstanced(uint32_t indexCount, uint32_t instanceCount, const void *indexAddr, const void *objectIdAddr, DrawModifier modifier);
 	//void drawIndexMultiInstanced(uint32_t indexCount, uint32_t instanceCount, const void *indexAddr, const void *objectIdAddr);
 	//void drawIndexOffset(uint32_t indexOffset, uint32_t indexCount, DrawModifier modifier);
@@ -203,9 +211,9 @@ public:
 	//void setClipRectangleRule(uint16_t clipRule);
 	//void setClipRectangleRule(uint16_t clipRule);
 	//void setCmaskClearColor(uint32_t rtSlot, const uint32_t clearColor[2]);
-	void setComputeResourceManagement(ShaderEngine engine, uint16_t mask);
-	void setComputeScratchSize(uint32_t maxNumWaves, uint32_t num1KByteChunksPerWave);
-	void setComputeShaderControl(uint32_t wavesPerSh, uint32_t threadgroupsPerCu, uint32_t lockThreshold);
+	//void setComputeResourceManagement(ShaderEngine engine, uint16_t mask);
+	//void setComputeScratchSize(uint32_t maxNumWaves, uint32_t num1KByteChunksPerWave);
+	//void setComputeShaderControl(uint32_t wavesPerSh, uint32_t threadgroupsPerCu, uint32_t lockThreshold);
 	//void setConfigRegister(uint32_t regAddr, uint32_t regValue);
 	//void setConfigRegisterRange(uint32_t regAddr, const uint32_t *pRegValues, uint32_t numValues);
 	//void setContextRegisterWithIndex(uint32_t regAddr, uint32_t regValue, uint32_t index);
@@ -313,8 +321,8 @@ public:
 	//void setUserConfigRegister(uint32_t regAddr, uint32_t regValue);
 	//void setUserConfigRegisterRange(uint32_t regAddr, const uint32_t *pRegValues, uint32_t numValues);
 	//void setUserConfigRegisterWithIndex(uint32_t regAddr, uint32_t regValue, uint32_t index);
-	void setUserData(ShaderStage stage, uint32_t userDataSlot, uint32_t data);
-	void setUserDataRegion(ShaderStage stage, uint32_t startUserDataSlot, const uint32_t *userData, uint32_t numDwords);
+	//void setUserData(ShaderStage stage, uint32_t userDataSlot, uint32_t data);
+	//void setUserDataRegion(ShaderStage stage, uint32_t startUserDataSlot, const uint32_t *userData, uint32_t numDwords);
 	//void setUserDataRegion(ShaderStage stage, uint32_t startUserDataSlot, const uint32_t *userData, uint32_t numDwords);
 	//void setVertexQuantization(VertexQuantizationMode quantizeMode, VertexQuantizationRoundMode roundMode, VertexQuantizationCenterMode centerMode);
 	//void setVertexReuseEnable(bool enable);
@@ -351,8 +359,8 @@ public:
 	//void updateHsShader(const HsStageRegisters *hsRegs, const TessellationRegisters *tessRegs);
 	//void updatePsShader(const PsStageRegisters *psRegs);
 	//void updateVsShader(const VsStageRegisters *vsRegs, uint32_t shaderModifier);
-	void waitForGraphicsWrites(uint32_t baseAddr256, uint32_t sizeIn256ByteBlocks, uint32_t targetMask, CacheAction cacheAction, uint32_t extendedCacheMask,
-							   StallCommandBufferParserMode commandBufferStallMode);
+	//void waitForGraphicsWrites(uint32_t baseAddr256, uint32_t sizeIn256ByteBlocks, uint32_t targetMask, CacheAction cacheAction, uint32_t extendedCacheMask,
+							   //StallCommandBufferParserMode commandBufferStallMode);
 	//void waitForSetupDispatchDrawKickRingBuffer(uint32_t krbCount, uint32_t gdsDwOffsetKrb, uint32_t gdsDwOffsetKrbCounters, void *addrIrb, uint32_t sizeofIrbInBytes);
 	//void waitOnAddress(void *gpuAddr, uint32_t mask, WaitCompareFunc compareFunc, uint32_t refValue);
 	//void waitOnAddressAndStallCommandBufferParser(void *gpuAddr, uint32_t mask, uint32_t refValue);
@@ -387,10 +395,19 @@ public:
 	//	uint32_t interval
 	//);
 
-
+private:
+	uint32_t* getFetchShaderCode(void* vsCode);
+	void clearRenderState();
 
 private:
 
+	void* m_vsCode;
+	void* m_psCode;
+	UDSTVector m_vsUserDataSlotTable;
+	UDSTVector m_psUserDataSlotTable;
+
+	RcPtr<gve::GveShader> m_vsShader;
+	RcPtr<gve::GveShader> m_psShader;
 };
 
 

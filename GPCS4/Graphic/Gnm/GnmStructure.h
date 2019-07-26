@@ -5,8 +5,8 @@
 
 struct DrawModifier
 {
-	uint32_t m_renderTargetSliceOffset : 3;
-	uint32_t m_reserved : 29;
+	uint32_t renderTargetSliceOffset : 3;
+	uint32_t reserved : 29;
 };
 
 
@@ -102,13 +102,20 @@ struct GnmCmdPopMarker
 	uint32_t reserved[5];
 };
 
+
+enum GnmEnumDrawIndexInlineMode : uint32_t
+{
+	INLINE_MODE_NOINLINE = 1,
+	INLINE_MODE_INLINE = 2,
+};
+
 struct GnmCmdDrawIndex
 {
 	uint32_t opcode;
 	uint32_t indexCount;
-	ulong_ptr indexAddr;
-	uint32_t pred;
-	uint32_t inlineMode;
+	uintptr_t indexAddr;
+	uint32_t predAndMod;
+	GnmEnumDrawIndexInlineMode inlineMode;
 	uint32_t reserved[4];
 };
 

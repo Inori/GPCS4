@@ -78,7 +78,7 @@ uint32_t PS4API sceGnmDispatchInitDefaultHardwareState(uint32_t* cmdBuffer, uint
 
 
 int PS4API sceGnmDrawIndex(uint32_t* cmdBuffer, uint32_t numDwords,
-	uint32_t indexCount, const void *indexAddr, uint32_t pred, uint32_t inlineMode);
+	uint32_t indexCount, const void *indexAddr, uint32_t predAndMod, uint32_t inlineMode);
 
 
 int PS4API sceGnmDrawIndexAuto(uint32_t* cmdBuffer, uint32_t numDwords,

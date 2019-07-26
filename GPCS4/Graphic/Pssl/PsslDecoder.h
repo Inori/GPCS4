@@ -1,17 +1,11 @@
 #pragma once
 
 #include "GPCS4Common.h"
+#include "PsslShaderInstruction.h"
 
 namespace pssl
 {;
 
- 
-struct PsslShaderInstruction
-{
-	uint32_t placeHolder;
-};
-
-//////////////////////////////////////////////////////////////////////////
 class PsslCodeSlice {
 
 public:

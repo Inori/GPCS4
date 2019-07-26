@@ -520,9 +520,6 @@
     <ClInclude Include="Graphic\Pssl\PsslShaderStructure.h">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClInclude>
-    <ClInclude Include="Graphic\Pssl\PsslShaderModule.h">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClInclude>
     <ClInclude Include="Graphic\Pssl\PsslKey.h">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClInclude>
@@ -558,6 +555,12 @@
     </ClInclude>
     <ClInclude Include="Common\LikelyHelper.h">
       <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\PsslShaderInstruction.h">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\PsslShaderGenerator.h">
+      <Filter>Source Files\Graphic\Pssl</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1008,9 +1011,6 @@
     <ClCompile Include="Graphic\Pssl\PsslPsUsageTable.cpp">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClCompile>
-    <ClCompile Include="Graphic\Pssl\PsslShaderModule.cpp">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClCompile>
     <ClCompile Include="Graphic\Pssl\PsslKey.cpp">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClCompile>
@@ -1034,6 +1034,9 @@
     </ClCompile>
     <ClCompile Include="Graphic\SpirV\SpirvCodeBuffer.cpp">
       <Filter>Source Files\Graphic\SpirV</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\PsslShaderGenerator.cpp">
+      <Filter>Source Files\Graphic\Pssl</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

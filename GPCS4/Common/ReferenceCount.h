@@ -102,7 +102,7 @@ public:
 	RcPtr& operator = (RcPtr&& other) 
 	{
 		this->DecRef();
-		this->m_object = other.m_pObject;
+		this->m_pObject = other.m_pObject;
 		other.m_pObject = nullptr;
 		return *this;
 	}
@@ -111,7 +111,7 @@ public:
 	RcPtr& operator = (RcPtr<Tx>&& other) 
 	{
 		this->DecRef();
-		this->m_object = other.m_pObject;
+		this->m_pObject = other.m_pObject;
 		other.m_pObject = nullptr;
 		return *this;
 	}

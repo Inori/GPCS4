@@ -1,6 +1,6 @@
 #include "GnmCmdStreamDraw.h"
 #include "GnmOpCode.h"
-#include "Platform/PlatformUtils.h"
+
 
 
 
@@ -292,38 +292,40 @@ uint32_t GnmCmdStreamDraw::onPacketEvent(uint32_t opcode, uint32_t* packetBuffer
 
 uint32_t GnmCmdStreamDraw::onPacketEndOfPipe(uint32_t opcode, uint32_t* packetBuffer, uint32_t packetSizeInDwords)
 {
-	uint32_t flags = packetBuffer[3];
-	uint32_t hiDword = packetBuffer[3] & 0xFFFF;
+	uint32_t value1 = packetBuffer[1];
 	uint32_t loDword = packetBuffer[2];
+	uint32_t hiDword = packetBuffer[3] & 0xFFFF;
+	uint32_t value3 = packetBuffer[3];
+	
+	value1 = value1 - 0x500;
+
 	// TODO:
 	// this is a GPU relative address lacking of the highest byte (masked by 0xFFFFFFFFF8 or 0xFFFFFFFFFC)
 	// I'm not sure this relative to what, maybe to the command buffer.
 	uint64_t relaGpuAddr = (((uint64_t)hiDword << 32) | loDword);
 	void* gpuAddr = (void*)(((uint64_t)packetBuffer & 0x0000FF0000000000) | relaGpuAddr);
-	uint64_t value = *((uint64_t*)packetBuffer + 2);
+	uint64_t immValue = *((uint64_t*)packetBuffer + 2);
 
-	uint8_t dstSel = (flags & 0x10000) >> 16;
-	uint8_t srcSel = (flags & 0xE0000000) >> 29;
-	if (flags & 0x2000000)
+	uint8_t eventType = value1 & 0x3F;
+	uint8_t cachePolicy = (value1 >> 25) & 0x03;
+	uint8_t cacheAction = (value1 >> 12) & 0x3F;
+
+	uint8_t dstSel = ((value3 >> 16) & 1) | ((value1 >> 23) & 0b10);
+	uint8_t srcSel = (value3 >> 29) & 0b111;
+
+	if (value3 & 0x02000000)
 	{
-		//m_dcb->writeAtEndOfPipeWithInterrupt();
+		m_dcb->writeAtEndOfPipeWithInterrupt((EndOfPipeEventType)eventType, 
+			(EventWriteDest)dstSel, gpuAddr, 
+			(EventWriteSource)srcSel, immValue,
+			(CacheAction)cacheAction, (CachePolicy)cachePolicy);
 	}
 	else
 	{
-		//m_dcb->writeAtEndOfPipe();
-	}
-
-	if (srcSel == kEventWriteSource32BitsImmediate)
-	{
-		*(uint32_t*)gpuAddr = value;
-	}
-	else if (srcSel == kEventWriteSource64BitsImmediate)
-	{
-		*(uint64_t*)gpuAddr = value;
-	}
-	else
-	{
-		*(uint64_t*)gpuAddr = UtilProcess::GetProcessTimeCounter();
+		m_dcb->writeAtEndOfPipe((EndOfPipeEventType)eventType,
+			(EventWriteDest)dstSel, gpuAddr,
+			(EventWriteSource)srcSel, immValue,
+			(CacheAction)cacheAction, (CachePolicy)cachePolicy);
 	}
 	
 	return packetSizeInDwords;
@@ -516,6 +518,19 @@ uint32_t GnmCmdStreamDraw::onPacketPrivateDraw(uint32_t opcode, uint32_t* packet
 	case OP_INFO_RESET_VGT_CONTROL:
 		break;
 	case OP_INFO_DRAW_INDEX:
+	{
+		GnmCmdDrawIndex* param = (GnmCmdDrawIndex*)packetBuffer;
+		DrawModifier modifier = { 0 };
+		modifier.renderTargetSliceOffset = (param->predAndMod >> 29) & 0b111;
+		if (!modifier.renderTargetSliceOffset)
+		{
+			m_dcb->drawIndex(param->indexCount, (const void*)param->indexAddr);
+		}
+		else
+		{
+			m_dcb->drawIndex(param->indexCount, (const void*)param->indexAddr, modifier);
+		}
+	}
 		break;
 	case OP_INFO_DRAW_INDEX_AUTO:
 		break;

@@ -7,7 +7,7 @@ namespace pssl
 {;
 
 
-PsslProgramInfo::PsslProgramInfo(uint8_t* code):
+PsslProgramInfo::PsslProgramInfo(const uint8_t* code) :
 	m_shaderBinaryInfo(nullptr),
 	m_inputUsageSlots(nullptr)
 {
@@ -69,7 +69,7 @@ const InputUsageSlot* PsslProgramInfo::getInputUsageSlot(uint32_t idx) const
 	return &m_inputUsageSlots[idx];
 }
 
-bool PsslProgramInfo::initBinaryInfo(uint8_t* code)
+bool PsslProgramInfo::initBinaryInfo(const uint8_t* code)
 {
 	bool ret = false;
 	do 
@@ -121,6 +121,12 @@ uint32_t getFetchShaderStartRegister(const PsslProgramInfo& progInfo)
 	}
 
 	return startReg;
+}
+
+uint32_t getFetchShaderStartRegister(const uint8_t* code)
+{
+	PsslProgramInfo progInfo(code);
+	return getFetchShaderStartRegister(progInfo);
 }
 
 }
