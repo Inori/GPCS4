@@ -517,6 +517,15 @@
     <ClInclude Include="Graphic\Pssl\PsslShaderStructure.h">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClInclude>
+    <ClInclude Include="Graphic\Pssl\PsslShaderModule.h">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\PsslKey.h">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\PsslProgramInfo.h">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -964,6 +973,15 @@
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClCompile>
     <ClCompile Include="Graphic\Pssl\PsslPsUsageTable.cpp">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\PsslShaderModule.cpp">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\PsslKey.cpp">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\PsslProgramInfo.cpp">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClCompile>
   </ItemGroup>

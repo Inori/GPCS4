@@ -49,8 +49,11 @@
     <ClInclude Include="Graphic\Gve\GvePhysicalDevice.h" />
     <ClInclude Include="Graphic\Gve\GveSwapChain.h" />
     <ClInclude Include="Graphic\Pssl\PsslFetchShader.h" />
+    <ClInclude Include="Graphic\Pssl\PsslKey.h" />
     <ClInclude Include="Graphic\Pssl\PsslPsUsageTable.h" />
     <ClInclude Include="Graphic\Pssl\PsslSbReader.h" />
+    <ClInclude Include="Graphic\Pssl\PsslProgramInfo.h" />
+    <ClInclude Include="Graphic\Pssl\PsslShaderModule.h" />
     <ClInclude Include="Graphic\Pssl\PsslShaderStructure.h" />
     <ClInclude Include="Graphic\Pssl\PsslShaderFileBinary.h" />
     <ClInclude Include="Graphic\Pssl\PsslShaderRegister.h" />
@@ -157,8 +160,11 @@
     <ClCompile Include="Graphic\Gve\GvePhysicalDevice.cpp" />
     <ClCompile Include="Graphic\Gve\GveSwapChain.cpp" />
     <ClCompile Include="Graphic\Pssl\PsslFetchShader.cpp" />
+    <ClCompile Include="Graphic\Pssl\PsslKey.cpp" />
     <ClCompile Include="Graphic\Pssl\PsslPsUsageTable.cpp" />
     <ClCompile Include="Graphic\Pssl\PsslSbReader.cpp" />
+    <ClCompile Include="Graphic\Pssl\PsslProgramInfo.cpp" />
+    <ClCompile Include="Graphic\Pssl\PsslShaderModule.cpp" />
     <ClCompile Include="Graphic\Sce\SceGnmDriver.cpp" />
     <ClCompile Include="Graphic\Sce\SceVideoOut.cpp" />
     <ClCompile Include="ImportLibs.cpp" />

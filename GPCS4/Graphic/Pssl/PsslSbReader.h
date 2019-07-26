@@ -7,11 +7,11 @@ namespace pssl
 {;
 
 // shader bytecode reader
-class SbReader
+class PsslSbReader
 {
 public:
-	SbReader(const uint8_t* data, size_t size);
-	~SbReader();
+	PsslSbReader(const uint8_t* data, size_t size);
+	~PsslSbReader();
 
 	auto readu8() { return this->readNum<uint8_t>(); }
 	auto readu16() { return this->readNum<uint16_t>(); }
@@ -38,9 +38,9 @@ public:
 
 	void skip(size_t n);
 
-	SbReader clone(size_t pos) const;
+	PsslSbReader clone(size_t pos) const;
 
-	SbReader resize(size_t size) const;
+	PsslSbReader resize(size_t size) const;
 
 	bool eof() const {
 		return m_pos >= m_size;
@@ -50,7 +50,7 @@ public:
 
 private:
 
-	SbReader(const uint8_t* data, size_t size, size_t pos)
+	PsslSbReader(const uint8_t* data, size_t size, size_t pos)
 		: m_data(data), m_size(size), m_pos(pos) { }
 
 	template<typename T>

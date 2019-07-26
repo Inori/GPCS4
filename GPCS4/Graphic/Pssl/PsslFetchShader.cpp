@@ -3,7 +3,7 @@
 namespace pssl
 {;
 
-FetchShader::FetchShader(const uint32_t* code, uint32_t lengthDw):
+PsslFetchShader::PsslFetchShader(const uint32_t* code, uint32_t lengthDw):
 	m_numInputSlots(0),
 	m_vertexBaseToken(0),
 	m_instanceBaseToken(0)
@@ -11,11 +11,11 @@ FetchShader::FetchShader(const uint32_t* code, uint32_t lengthDw):
 	extractTokens(code, lengthDw);
 }
 
-FetchShader::~FetchShader()
+PsslFetchShader::~PsslFetchShader()
 {
 }
 
-bool FetchShader::getFetchShaderBuildState(FetchShaderBuildState& fsbs)
+bool PsslFetchShader::getFetchShaderBuildState(FetchShaderBuildState& fsbs)
 {
 	bool ret = false;
 	do
@@ -26,7 +26,7 @@ bool FetchShader::getFetchShaderBuildState(FetchShaderBuildState& fsbs)
 	return ret;
 }
 
-uint32_t FetchShader::getFetchShaderLengthDw(const uint32_t* code)
+uint32_t PsslFetchShader::getFetchShaderLengthDw(const uint32_t* code)
 {
 	uint32_t lengthDw = 0;
 	while (code[lengthDw] != FS_TOKEN_END1 && code[lengthDw + 1] != FS_TOKEN_END2)
@@ -37,7 +37,7 @@ uint32_t FetchShader::getFetchShaderLengthDw(const uint32_t* code)
 	return lengthDw;
 }
 
-void FetchShader::extractTokens(const uint32_t* code, uint32_t lengthDw)
+void PsslFetchShader::extractTokens(const uint32_t* code, uint32_t lengthDw)
 {
 	uint32_t idx = 0;
 	bool parseSemaIdx = true;

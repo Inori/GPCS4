@@ -8,7 +8,7 @@ namespace pssl
 {;
 
 
-class FetchShader
+class PsslFetchShader
 {
 private:
 	enum FetchShaderToken : uint32_t
@@ -21,8 +21,8 @@ private:
 	};
 
 public:
-	FetchShader(const uint32_t* code, uint32_t length);
-	~FetchShader();
+	PsslFetchShader(const uint32_t* code, uint32_t length);
+	~PsslFetchShader();
 
 	bool getFetchShaderBuildState(FetchShaderBuildState& fsbs);
 

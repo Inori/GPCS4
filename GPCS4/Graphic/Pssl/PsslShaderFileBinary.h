@@ -73,23 +73,24 @@ struct PixelInputSemantic
 };
 
 
+
 struct ShaderBinaryInfo
 {
 	uint8_t			signature[7];
 	uint8_t			version;
 
-	unsigned int	pssl_or_cg : 1;
-	unsigned int	cached : 1;
-	uint32_t		type : 4;
+	unsigned int	pssl_or_cg	: 1;
+	unsigned int	cached		: 1;
+	uint32_t		type		: 4; 
 	uint32_t		source_type : 2;
-	unsigned int	length : 24;
+	unsigned int	length		: 24;
 
 	uint8_t			chunkUsageBaseOffsetInDW;
 	uint8_t			numInputUsageSlots;
-	uint8_t         isSrt : 1;
-	uint8_t         isSrtUsedInfoValid : 1;
-	uint8_t         isExtendedUsageInfo : 1;
-	uint8_t         reserved2 : 5;
+	uint8_t         isSrt					: 1;
+	uint8_t         isSrtUsedInfoValid		: 1;
+	uint8_t         isExtendedUsageInfo		: 1;
+	uint8_t         reserved2				: 5;
 	uint8_t         reserved3;
 
 	uint32_t		shaderHash0;
