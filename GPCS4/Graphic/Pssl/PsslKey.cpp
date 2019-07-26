@@ -9,6 +9,16 @@ PsslKey::PsslKey(uint32_t crc, uint32_t hash)
 }
 
 
+PsslKey::PsslKey()
+{
+
+}
+
+PsslKey::PsslKey(const PsslKey& key)
+{
+	m_key = key.m_key;
+}
+
 PsslKey::~PsslKey()
 {
 }
@@ -16,6 +26,12 @@ PsslKey::~PsslKey()
 uint64_t PsslKey::getKey() const
 {
 	return m_key;
+}
+
+PsslKey& PsslKey::operator=(const PsslKey& other)
+{
+	m_key = other.m_key;
+	return *this;
 }
 
 bool PsslKey::operator==(const PsslKey& other)

@@ -173,6 +173,9 @@
     <Filter Include="Source Files\Graphic\Pssl">
       <UniqueIdentifier>{14ee293f-1109-4eb5-9d47-bb00adbe680a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Graphic\SpirV">
+      <UniqueIdentifier>{c103d6e7-d505-4adc-9124-c4a42be325dc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SceModules\SceLibc\sce_libc.h">
@@ -525,6 +528,36 @@
     </ClInclude>
     <ClInclude Include="Graphic\Pssl\PsslProgramInfo.h">
       <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\PsslDecoder.h">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\PsslCompiler.h">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gve\GveShader.h">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\SpirV\SpirvModule.h">
+      <Filter>Source Files\Graphic\SpirV</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\SpirV\SpirvInstruction.h">
+      <Filter>Source Files\Graphic\SpirV</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\SpirV\SpirvInclude.h">
+      <Filter>Source Files\Graphic\SpirV</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\SpirV\SpirvCompression.h">
+      <Filter>Source Files\Graphic\SpirV</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\SpirV\SpirvCodeBuffer.h">
+      <Filter>Source Files\Graphic\SpirV</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\BitHelper.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\LikelyHelper.h">
+      <Filter>Source Files\Common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -983,6 +1016,24 @@
     </ClCompile>
     <ClCompile Include="Graphic\Pssl\PsslProgramInfo.cpp">
       <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\PsslDecoder.cpp">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\PsslCompiler.cpp">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gve\GveShader.cpp">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\SpirV\SpirvModule.cpp">
+      <Filter>Source Files\Graphic\SpirV</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\SpirV\SpirvCompression.cpp">
+      <Filter>Source Files\Graphic\SpirV</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\SpirV\SpirvCodeBuffer.cpp">
+      <Filter>Source Files\Graphic\SpirV</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -30,9 +30,33 @@ uint32_t PsslProgramInfo::getCodeSizeDwords() const
 	return getCodeSizeBytes() / sizeof(uint32_t);
 }
 
+bool PsslProgramInfo::hasFetchShader()
+{
+	bool hasFs = false;
+	uint32_t slotCount = getInputUsageSlotCount();
+
+	for (uint32_t i = 0; i != slotCount; ++i)
+	{
+		const InputUsageSlot* slot = getInputUsageSlot(i);
+		if (slot->usageType != kShaderInputUsageSubPtrFetchShader)
+		{
+			continue;
+		}
+		hasFs = true;
+		break;
+	}
+
+	return hasFs;
+}
+
 uint32_t PsslProgramInfo::getShaderType() const
 {
 	return m_shaderBinaryInfo->type;
+}
+
+PsslKey PsslProgramInfo::getKey() const
+{
+	return PsslKey(m_shaderBinaryInfo->crc32, m_shaderBinaryInfo->shaderHash0);
 }
 
 uint32_t PsslProgramInfo::getInputUsageSlotCount() const
@@ -77,6 +101,26 @@ bool PsslProgramInfo::initBinaryInfo(uint8_t* code)
 		
 	} while (false);
 	return ret;
+}
+
+uint32_t getFetchShaderStartRegister(const PsslProgramInfo& progInfo)
+{
+	uint32_t startReg = UINT_MAX;
+	uint32_t slotCount = progInfo.getInputUsageSlotCount();
+
+	for (uint32_t i = 0; i != slotCount; ++i)
+	{
+		const InputUsageSlot* slot = progInfo.getInputUsageSlot(i);
+		if (slot->usageType != kShaderInputUsageSubPtrFetchShader)
+		{
+			continue;
+		}
+
+		startReg = slot->startRegister;
+		break;
+	}
+
+	return startReg;
 }
 
 }

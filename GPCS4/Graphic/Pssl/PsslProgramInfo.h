@@ -2,6 +2,7 @@
 
 #include "GPCS4Common.h"
 #include "PsslShaderStructure.h"
+#include "PsslKey.h"
 
 namespace pssl
 {;
@@ -19,7 +20,11 @@ public:
 
 	uint32_t getCodeSizeDwords() const;
 
+	bool hasFetchShader();
+
 	uint32_t getShaderType() const;
+
+	PsslKey getKey() const;
 
 	uint32_t getInputUsageSlotCount() const;
 
@@ -33,6 +38,7 @@ private:
 	const InputUsageSlot* m_inputUsageSlots;
 };
 
-
+// return UINT_MAX means no fetch shader
+uint32_t getFetchShaderStartRegister(const PsslProgramInfo& progInfo);
 
 }

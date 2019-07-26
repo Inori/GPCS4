@@ -26,6 +26,8 @@
     <ClInclude Include="Common\MacroHelper.h" />
     <ClInclude Include="Common\ReferenceCount.h" />
     <ClInclude Include="Common\Singleton.h" />
+    <ClInclude Include="Common\BitHelper.h" />
+    <ClInclude Include="Common\LikelyHelper.h" />
     <ClInclude Include="elf-sce.h" />
     <ClInclude Include="Emulator\Emulator.h" />
     <ClInclude Include="Emulator\GameThread.h" />
@@ -47,7 +49,10 @@
     <ClInclude Include="Graphic\Gve\GveDevice.h" />
     <ClInclude Include="Graphic\Gve\GveInstance.h" />
     <ClInclude Include="Graphic\Gve\GvePhysicalDevice.h" />
+    <ClInclude Include="Graphic\Gve\GveShader.h" />
     <ClInclude Include="Graphic\Gve\GveSwapChain.h" />
+    <ClInclude Include="Graphic\Pssl\PsslCompiler.h" />
+    <ClInclude Include="Graphic\Pssl\PsslDecoder.h" />
     <ClInclude Include="Graphic\Pssl\PsslFetchShader.h" />
     <ClInclude Include="Graphic\Pssl\PsslKey.h" />
     <ClInclude Include="Graphic\Pssl\PsslPsUsageTable.h" />
@@ -59,6 +64,11 @@
     <ClInclude Include="Graphic\Pssl\PsslShaderRegister.h" />
     <ClInclude Include="Graphic\Sce\SceGnmDriver.h" />
     <ClInclude Include="Graphic\Sce\SceVideoOut.h" />
+    <ClInclude Include="Graphic\SpirV\SpirvCodeBuffer.h" />
+    <ClInclude Include="Graphic\SpirV\SpirvCompression.h" />
+    <ClInclude Include="Graphic\SpirV\SpirvInclude.h" />
+    <ClInclude Include="Graphic\SpirV\SpirvInstruction.h" />
+    <ClInclude Include="Graphic\SpirV\SpirvModule.h" />
     <ClInclude Include="Loader\EbootObject.h" />
     <ClInclude Include="Loader\elf.h" />
     <ClInclude Include="Platform\PlatformUtils.h" />
@@ -158,7 +168,10 @@
     <ClCompile Include="Graphic\Gve\GveDevice.cpp" />
     <ClCompile Include="Graphic\Gve\GveInstance.cpp" />
     <ClCompile Include="Graphic\Gve\GvePhysicalDevice.cpp" />
+    <ClCompile Include="Graphic\Gve\GveShader.cpp" />
     <ClCompile Include="Graphic\Gve\GveSwapChain.cpp" />
+    <ClCompile Include="Graphic\Pssl\PsslCompiler.cpp" />
+    <ClCompile Include="Graphic\Pssl\PsslDecoder.cpp" />
     <ClCompile Include="Graphic\Pssl\PsslFetchShader.cpp" />
     <ClCompile Include="Graphic\Pssl\PsslKey.cpp" />
     <ClCompile Include="Graphic\Pssl\PsslPsUsageTable.cpp" />
@@ -167,6 +180,9 @@
     <ClCompile Include="Graphic\Pssl\PsslShaderModule.cpp" />
     <ClCompile Include="Graphic\Sce\SceGnmDriver.cpp" />
     <ClCompile Include="Graphic\Sce\SceVideoOut.cpp" />
+    <ClCompile Include="Graphic\SpirV\SpirvCodeBuffer.cpp" />
+    <ClCompile Include="Graphic\SpirV\SpirvCompression.cpp" />
+    <ClCompile Include="Graphic\SpirV\SpirvModule.cpp" />
     <ClCompile Include="ImportLibs.cpp" />
     <ClCompile Include="Loader\EbootObject.cpp" />
     <ClCompile Include="Platform\UtilHardware.cpp" />

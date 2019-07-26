@@ -8,6 +8,41 @@
 namespace pssl
 {;
 
+enum ShaderInputUsageType
+{
+	kShaderInputUsageImmResource = 0x00,
+	kShaderInputUsageImmSampler = 0x01,
+	kShaderInputUsageImmConstBuffer = 0x02,
+	kShaderInputUsageImmVertexBuffer = 0x03,
+	kShaderInputUsageImmRwResource = 0x04,
+	kShaderInputUsageImmAluFloatConst = 0x05,
+	kShaderInputUsageImmAluBool32Const = 0x06,
+	kShaderInputUsageImmGdsCounterRange = 0x07,
+	kShaderInputUsageImmGdsMemoryRange = 0x08,
+	kShaderInputUsageImmGwsBase = 0x09,
+	kShaderInputUsageImmShaderResourceTable = 0x0A,
+	kShaderInputUsageImmLdsEsGsSize = 0x0D,
+
+	kShaderInputUsageSubPtrFetchShader = 0x12,
+	kShaderInputUsagePtrResourceTable = 0x13,
+	kShaderInputUsagePtrInternalResourceTable = 0x14,
+	kShaderInputUsagePtrSamplerTable = 0x15,
+	kShaderInputUsagePtrConstBufferTable = 0x16,
+	kShaderInputUsagePtrVertexBufferTable = 0x17,
+	kShaderInputUsagePtrSoBufferTable = 0x18,
+	kShaderInputUsagePtrRwResourceTable = 0x19,
+	kShaderInputUsagePtrInternalGlobalTable = 0x1A,
+	kShaderInputUsagePtrExtendedUserData = 0x1B,
+	kShaderInputUsagePtrIndirectResourceTable = 0x1C,
+	kShaderInputUsagePtrIndirectInternalResourceTable = 0x1D,
+	kShaderInputUsagePtrIndirectRwResourceTable = 0x1E,
+
+	kShaderInputUsageImmGdsKickRingBufferOffset = 0x22,
+	kShaderInputUsageImmVertexRingBufferOffset = 0x23,
+	kShaderInputUsagePtrDispatchDraw = 0x24,
+	kShaderInputUsageImmDispatchDrawInstances = 0x25,
+};
+
 
 #pragma pack(push, 4)
 struct InputUsageSlot
