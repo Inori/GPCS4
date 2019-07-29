@@ -51,8 +51,44 @@
     <ClInclude Include="Graphic\Gve\GvePhysicalDevice.h" />
     <ClInclude Include="Graphic\Gve\GveShader.h" />
     <ClInclude Include="Graphic\Gve\GveSwapChain.h" />
-    <ClInclude Include="Graphic\Pssl\PsslCompiler.h" />
-    <ClInclude Include="Graphic\Pssl\PsslDecoder.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\beStringConstants.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\DeviceInfo.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\DSInstruction.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\EXPInstruction.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\GCNParser.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\GenericInstructionFields1.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\GenericInstructionFields2.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\Instruction.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\MIMGInstruction.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\MTBUFInstruction.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\MUBUFInstruction.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\ParserFLAT.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSI.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSIDS.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSIEXP.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSIMIMG.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSIMTBUF.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSIMUBUF.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSISMRD.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSISOP1.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSISOP2.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSISOPC.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSISOPK.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSISOPP.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSIVINTRP.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSIVOP.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\rgaCliDefs.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\ScalarInstructionFields.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\SMRDInstruction.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\SOP1Instruction.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\SOP2Instruction.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\SOPCInstruction.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\SOPKInstruction.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\SOPPInstruction.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\VINTRPInstruction.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\VOPInstruction.h" />
+    <ClInclude Include="Graphic\Pssl\GCNCompiler.h" />
+    <ClInclude Include="Graphic\Pssl\GCNDecoder.h" />
     <ClInclude Include="Graphic\Pssl\PsslFetchShader.h" />
     <ClInclude Include="Graphic\Pssl\PsslKey.h" />
     <ClInclude Include="Graphic\Pssl\PsslPsUsageTable.h" />
@@ -171,8 +207,24 @@
     <ClCompile Include="Graphic\Gve\GvePhysicalDevice.cpp" />
     <ClCompile Include="Graphic\Gve\GveShader.cpp" />
     <ClCompile Include="Graphic\Gve\GveSwapChain.cpp" />
-    <ClCompile Include="Graphic\Pssl\PsslCompiler.cpp" />
-    <ClCompile Include="Graphic\Pssl\PsslDecoder.cpp" />
+    <ClCompile Include="Graphic\Pssl\GCNParser\GCNParser.cpp" />
+    <ClCompile Include="Graphic\Pssl\GCNParser\Instruction.cpp" />
+    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSI.cpp" />
+    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSIDS.cpp" />
+    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSIEXP.cpp" />
+    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSIMIMG.cpp" />
+    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSIMTBUF.cpp" />
+    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSIMUBUF.cpp" />
+    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSISMRD.cpp" />
+    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSISOP1.cpp" />
+    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSISOP2.cpp" />
+    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSISOPC.cpp" />
+    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSISOPK.cpp" />
+    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSISOPP.cpp" />
+    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSIVINTRP.cpp" />
+    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSIVOP.cpp" />
+    <ClCompile Include="Graphic\Pssl\GCNCompiler.cpp" />
+    <ClCompile Include="Graphic\Pssl\GCNDecoder.cpp" />
     <ClCompile Include="Graphic\Pssl\PsslFetchShader.cpp" />
     <ClCompile Include="Graphic\Pssl\PsslKey.cpp" />
     <ClCompile Include="Graphic\Pssl\PsslPsUsageTable.cpp" />
@@ -379,11 +431,10 @@
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Label="LLVM" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClangClAdditionalOptions>
-    </ClangClAdditionalOptions>
+    <ClangClAdditionalOptions>-Wno-unused-variable</ClangClAdditionalOptions>
   </PropertyGroup>
   <PropertyGroup Label="LLVM" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ClangClAdditionalOptions>-flto=thin</ClangClAdditionalOptions>
+    <ClangClAdditionalOptions>-flto=thin -Wno-unused-variable</ClangClAdditionalOptions>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

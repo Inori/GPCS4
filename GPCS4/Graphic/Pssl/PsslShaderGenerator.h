@@ -3,8 +3,8 @@
 #include "GPCS4Common.h"
 #include "PsslProgramInfo.h"
 #include "../Gve/GveShader.h"
-#include "PsslCompiler.h"
-#include "PsslDecoder.h"
+#include "GCNCompiler.h"
+#include "GCNDecoder.h"
 
 namespace pssl
 {;
@@ -20,8 +20,8 @@ public:
 	RcPtr<gve::GveShader> compile(const uint32_t* code, const uint32_t* fsCode);
 
 private:
-	void runCompiler(PsslCompiler& compiler, PsslCodeSlice slice);
-	void decodeFetchShader(PsslCodeSlice slice, PsslFetchShader& fsShader);
+	void runCompiler(GCNCompiler& compiler, GCNCodeSlice slice);
+	void decodeFetchShader(GCNCodeSlice slice, PsslFetchShader& fsShader);
 
 private:
 

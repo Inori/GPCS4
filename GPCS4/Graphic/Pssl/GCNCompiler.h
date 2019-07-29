@@ -1,7 +1,6 @@
 #pragma once
 
 #include "GPCS4Common.h"
-#include "PsslDecoder.h"
 #include "PsslProgramInfo.h"
 #include "PsslFetchShader.h"
 #include "../Gve/GveShader.h"
@@ -10,12 +9,12 @@
 namespace pssl
 {;
 
-class PsslCompiler
+class GCNCompiler
 {
 public:
-	PsslCompiler(const PsslProgramInfo& progInfo,
+	GCNCompiler(const PsslProgramInfo& progInfo,
 		std::optional<PsslFetchShader> fsShader = {});
-	~PsslCompiler();
+	~GCNCompiler();
 
 	void processInstruction(const PsslShaderInstruction& ins);
 

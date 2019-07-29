@@ -19,9 +19,9 @@ RcPtr<gve::GveShader> PsslShaderGenerator::compile(const uint32_t* code)
 	PsslProgramInfo programInfo((uint8_t*)code);
 
 	const uint32_t* codeEnd = code + programInfo.getCodeSizeDwords();
-	PsslCodeSlice codeSlice(code, codeEnd);
+	GCNCodeSlice codeSlice(code, codeEnd);
 
-	PsslCompiler compiler(programInfo);
+	GCNCompiler compiler(programInfo);
 	runCompiler(compiler, codeSlice);
 
 	return compiler.finalize();
@@ -32,21 +32,21 @@ RcPtr<gve::GveShader> PsslShaderGenerator::compile(const uint32_t* code, const u
 	PsslProgramInfo programInfo((uint8_t*)code);
 
 	const uint32_t* codeEnd = code + programInfo.getCodeSizeDwords();
-	PsslCodeSlice codeSlice(code, codeEnd);
+	GCNCodeSlice codeSlice(code, codeEnd);
 
 	PsslFetchShader fsShader(fsCode);
 	const uint32_t* fsCodeEnd = fsCode + fsShader.m_codeLengthDw;
-	PsslCodeSlice fsCodeSlice(fsCode, fsCodeEnd);
+	GCNCodeSlice fsCodeSlice(fsCode, fsCodeEnd);
 
 	decodeFetchShader(fsCodeSlice, fsShader);
 
-	PsslCompiler compiler(programInfo, fsShader);
+	GCNCompiler compiler(programInfo, fsShader);
 	runCompiler(compiler, codeSlice);
 }
 
-void PsslShaderGenerator::runCompiler(PsslCompiler& compiler, PsslCodeSlice slice)
+void PsslShaderGenerator::runCompiler(GCNCompiler& compiler, GCNCodeSlice slice)
 {
-	PsslDecoder decoder;
+	GCNDecodeContext decoder;
 
 	while (!slice.atEnd()) 
 	{
@@ -56,9 +56,9 @@ void PsslShaderGenerator::runCompiler(PsslCompiler& compiler, PsslCodeSlice slic
 	}
 }
 
-void PsslShaderGenerator::decodeFetchShader(PsslCodeSlice slice, PsslFetchShader& fsShader)
+void PsslShaderGenerator::decodeFetchShader(GCNCodeSlice slice, PsslFetchShader& fsShader)
 {
-	PsslDecoder decoder;
+	GCNDecodeContext decoder;
 
 	while (!slice.atEnd())
 	{

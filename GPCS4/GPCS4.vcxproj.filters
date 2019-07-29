@@ -176,6 +176,9 @@
     <Filter Include="Source Files\Graphic\SpirV">
       <UniqueIdentifier>{c103d6e7-d505-4adc-9124-c4a42be325dc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Graphic\Pssl\GCNParser">
+      <UniqueIdentifier>{e6dace8b-4b96-441c-8035-feff4e14a70b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SceModules\SceLibc\sce_libc.h">
@@ -526,12 +529,6 @@
     <ClInclude Include="Graphic\Pssl\PsslProgramInfo.h">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClInclude>
-    <ClInclude Include="Graphic\Pssl\PsslDecoder.h">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\PsslCompiler.h">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClInclude>
     <ClInclude Include="Graphic\Gve\GveShader.h">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClInclude>
@@ -560,6 +557,120 @@
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClInclude>
     <ClInclude Include="Graphic\Pssl\PsslShaderGenerator.h">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\beStringConstants.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\DeviceInfo.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\DSInstruction.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\EXPInstruction.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\GCNParser.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\GenericInstructionFields1.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\GenericInstructionFields2.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\Instruction.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\MIMGInstruction.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\MTBUFInstruction.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\MUBUFInstruction.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\ParserFLAT.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSI.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSIDS.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSIEXP.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSIMIMG.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSIMTBUF.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSIMUBUF.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSISMRD.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSISOP1.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSISOP2.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSISOPC.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSISOPK.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSISOPP.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSIVINTRP.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSIVOP.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\rgaCliDefs.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\ScalarInstructionFields.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\SMRDInstruction.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\SOP1Instruction.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\SOP2Instruction.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\SOPCInstruction.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\SOPKInstruction.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\SOPPInstruction.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\VINTRPInstruction.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\VOPInstruction.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNCompiler.h">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNDecoder.h">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1017,12 +1128,6 @@
     <ClCompile Include="Graphic\Pssl\PsslProgramInfo.cpp">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClCompile>
-    <ClCompile Include="Graphic\Pssl\PsslDecoder.cpp">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\PsslCompiler.cpp">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClCompile>
     <ClCompile Include="Graphic\Gve\GveShader.cpp">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClCompile>
@@ -1036,6 +1141,60 @@
       <Filter>Source Files\Graphic\SpirV</Filter>
     </ClCompile>
     <ClCompile Include="Graphic\Pssl\PsslShaderGenerator.cpp">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\GCNParser\GCNParser.cpp">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\GCNParser\Instruction.cpp">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSI.cpp">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSIDS.cpp">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSIEXP.cpp">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSIMIMG.cpp">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSIMTBUF.cpp">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSIMUBUF.cpp">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSISMRD.cpp">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSISOP1.cpp">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSISOP2.cpp">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSISOPC.cpp">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSISOPK.cpp">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSISOPP.cpp">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSIVINTRP.cpp">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSIVOP.cpp">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\GCNCompiler.cpp">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\GCNDecoder.cpp">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClCompile>
   </ItemGroup>

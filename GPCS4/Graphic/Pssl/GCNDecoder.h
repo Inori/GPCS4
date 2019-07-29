@@ -6,11 +6,11 @@
 namespace pssl
 {;
 
-class PsslCodeSlice {
+class GCNCodeSlice {
 
 public:
 
-	PsslCodeSlice(
+	GCNCodeSlice(
 		const uint32_t* ptr,
 		const uint32_t* end)
 		: m_ptr(ptr), m_end(end) { }
@@ -20,8 +20,8 @@ public:
 	uint32_t at(uint32_t id) const;
 	uint32_t read();
 
-	PsslCodeSlice take(uint32_t n) const;
-	PsslCodeSlice skip(uint32_t n) const;
+	GCNCodeSlice take(uint32_t n) const;
+	GCNCodeSlice skip(uint32_t n) const;
 
 	bool atEnd() const 
 	{
@@ -38,18 +38,22 @@ private:
 //////////////////////////////////////////////////////////////////////////
 
 
-class PsslDecoder
+class GCNDecodeContext
 {
 public:
-	PsslDecoder();
-	~PsslDecoder();
+	GCNDecodeContext();
+	~GCNDecodeContext();
 
-	void decodeInstruction(PsslCodeSlice slice);
+	void decodeInstruction(GCNCodeSlice slice);
 
 	const PsslShaderInstruction&  getInstruction();
 
 private:
 
+	PsslInstructionEncoding getInstructionEncoding(uint32_t token);
+
+private:
+	PsslShaderInstruction m_instruction;
 };
 
 
