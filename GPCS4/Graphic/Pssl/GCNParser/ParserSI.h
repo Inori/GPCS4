@@ -132,6 +132,13 @@ public:
     /// \returns                   An instruction`s encoding.
     static InstructionEncoding GetInstructionEncoding(Instruction::instruction32bit hexInstruction);
 
+	/// Get instruction`s length in dwords
+	/// \param[in]  encoding		An instruction`s encoding.
+	/// \returns					An instruction`s length in dwords. Should be either 1 or 2,
+	///								0 for illegal encoding.
+	///								Note: the returned length doesn't include literal constant followed by the instruction.
+	static uint32_t GetInstructionLengthDwords(InstructionEncoding encoding);
+
     /// Get instruction`s encoding
     /// \param[in]  hexInstruction  The 64 bit hexadecimal instruction.
     /// \returns                   An instruction`s encoding.

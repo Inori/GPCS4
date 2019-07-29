@@ -1,7 +1,9 @@
 #pragma once
 
 #include "GPCS4Common.h"
-#include "PsslShaderInstruction.h"
+#include "GCNInstruction.h"
+#include "GCNParser/GCNParser.h"
+
 
 namespace pssl
 {;
@@ -15,10 +17,15 @@ public:
 		const uint32_t* end)
 		: m_ptr(ptr), m_end(end) { }
 
-	const uint32_t* ptrAt(uint32_t id) const;
+	const void* ptrAt(uint32_t id) const;
 
 	uint32_t at(uint32_t id) const;
-	uint32_t read();
+
+	uint32_t frontDword() const;
+	uint64_t frontQword() const;
+
+	uint32_t readDword();
+	uint64_t readQword();
 
 	GCNCodeSlice take(uint32_t n) const;
 	GCNCodeSlice skip(uint32_t n) const;
@@ -44,16 +51,18 @@ public:
 	GCNDecodeContext();
 	~GCNDecodeContext();
 
-	void decodeInstruction(GCNCodeSlice slice);
+	void decodeInstruction(GCNCodeSlice& code);
 
-	const PsslShaderInstruction&  getInstruction();
+	const GCNInstruction&  getInstruction();
 
-private:
-
-	PsslInstructionEncoding getInstructionEncoding(uint32_t token);
+	void freeInstruction();
 
 private:
-	PsslShaderInstruction m_instruction;
+	
+
+private:
+	GCNParser m_parser;
+	GCNInstruction m_instruction;
 };
 
 

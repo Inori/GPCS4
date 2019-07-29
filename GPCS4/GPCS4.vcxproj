@@ -94,7 +94,7 @@
     <ClInclude Include="Graphic\Pssl\PsslPsUsageTable.h" />
     <ClInclude Include="Graphic\Pssl\PsslSbReader.h" />
     <ClInclude Include="Graphic\Pssl\PsslProgramInfo.h" />
-    <ClInclude Include="Graphic\Pssl\PsslShaderInstruction.h" />
+    <ClInclude Include="Graphic\Pssl\GCNInstruction.h" />
     <ClInclude Include="Graphic\Pssl\PsslShaderGenerator.h" />
     <ClInclude Include="Graphic\Pssl\PsslShaderStructure.h" />
     <ClInclude Include="Graphic\Pssl\PsslShaderFileBinary.h" />
@@ -431,10 +431,10 @@
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Label="LLVM" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClangClAdditionalOptions>-Wno-unused-variable</ClangClAdditionalOptions>
+    <ClangClAdditionalOptions>-Wno-unused-variable -Wno-unused-private-field</ClangClAdditionalOptions>
   </PropertyGroup>
   <PropertyGroup Label="LLVM" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ClangClAdditionalOptions>-flto=thin -Wno-unused-variable</ClangClAdditionalOptions>
+    <ClangClAdditionalOptions>-flto=thin -Wno-unused-variable -Wno-unused-private-field</ClangClAdditionalOptions>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

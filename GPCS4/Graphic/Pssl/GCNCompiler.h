@@ -16,7 +16,7 @@ public:
 		std::optional<PsslFetchShader> fsShader = {});
 	~GCNCompiler();
 
-	void processInstruction(const PsslShaderInstruction& ins);
+	void processInstruction(const GCNInstruction& ins);
 
 	RcPtr<gve::GveShader> finalize();
 private:

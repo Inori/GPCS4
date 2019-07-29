@@ -44,18 +44,6 @@ RcPtr<gve::GveShader> PsslShaderGenerator::compile(const uint32_t* code, const u
 	runCompiler(compiler, codeSlice);
 }
 
-void PsslShaderGenerator::runCompiler(GCNCompiler& compiler, GCNCodeSlice slice)
-{
-	GCNDecodeContext decoder;
-
-	while (!slice.atEnd()) 
-	{
-		decoder.decodeInstruction(slice);
-
-		compiler.processInstruction(decoder.getInstruction());
-	}
-}
-
 void PsslShaderGenerator::decodeFetchShader(GCNCodeSlice slice, PsslFetchShader& fsShader)
 {
 	GCNDecodeContext decoder;
@@ -65,7 +53,24 @@ void PsslShaderGenerator::decodeFetchShader(GCNCodeSlice slice, PsslFetchShader&
 		decoder.decodeInstruction(slice);
 
 		fsShader.m_instructionList.push_back(decoder.getInstruction());
+
+		decoder.freeInstruction();
 	}
 }
+
+void PsslShaderGenerator::runCompiler(GCNCompiler& compiler, GCNCodeSlice slice)
+{
+	GCNDecodeContext decoder;
+
+	while (!slice.atEnd()) 
+	{
+		decoder.decodeInstruction(slice);
+
+		compiler.processInstruction(decoder.getInstruction());
+
+		decoder.freeInstruction();
+	}
+}
+
 
 }  // namespace pssl

@@ -122,6 +122,48 @@ ParserSI::InstructionEncoding ParserSI::GetInstructionEncoding(Instruction::inst
     return InstructionEncoding_ILLEGAL;
 }
 
+
+uint32_t ParserSI::GetInstructionLengthDwords(InstructionEncoding encoding)
+{
+	uint32_t instLenDw = 0;
+	switch (encoding)
+	{
+	case ParserSI::InstructionEncoding_SOP1:
+	case ParserSI::InstructionEncoding_SOPP:
+	case ParserSI::InstructionEncoding_SOPC:
+	case ParserSI::InstructionEncoding_SOPK:
+	case ParserSI::InstructionEncoding_SOP2:
+	case ParserSI::InstructionEncoding_VOP1:
+	case ParserSI::InstructionEncoding_VOPC:
+	case ParserSI::InstructionEncoding_VOP2:
+	case ParserSI::InstructionEncoding_SMRD:
+	case ParserSI::InstructionEncoding_VINTRP:
+		instLenDw = 1;
+		break;
+
+	case ParserSI::InstructionEncoding_VOP3:
+	case ParserSI::InstructionEncoding_MUBUF:
+	case ParserSI::InstructionEncoding_MTBUF:
+	case ParserSI::InstructionEncoding_MIMG:
+	case ParserSI::InstructionEncoding_DS:
+	case ParserSI::InstructionEncoding_EXP:
+		instLenDw = 2;
+		break;
+
+	// Shouldn't occur for PS4's hardware generation.
+	//case ParserSI::VIInstructionEncoding_VINTRP:
+	//case ParserSI::VIInstructionEncoding_SMEM:
+	//case ParserSI::VIInstructionEncoding_FLAT:
+		//break;
+
+	case ParserSI::InstructionEncoding_ILLEGAL:
+		break;
+	default:
+		break;
+	}
+	return instLenDw;
+}
+
 void
 ParserSI::SetLog(
     ParserSI::LoggingCallBackFuncP callback)

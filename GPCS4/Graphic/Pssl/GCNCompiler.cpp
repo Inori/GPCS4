@@ -13,7 +13,7 @@ GCNCompiler::~GCNCompiler()
 {
 }
 
-void GCNCompiler::processInstruction(const PsslShaderInstruction& ins)
+void GCNCompiler::processInstruction(const GCNInstruction& ins)
 {
 
 }
