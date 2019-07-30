@@ -192,7 +192,7 @@ ParserSIMTBUF::GetSOFFSET(Instruction::instruction64bit hexInstruction, unsigned
 }
 
 ParserSI::kaStatus
-ParserSIMTBUF::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, Instruction*& instruction)
+ParserSIMTBUF::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, std::unique_ptr<Instruction>& instruction)
 {
     Instruction::InstructionCategory instKind = Instruction::VectorMemoryRead;
     unsigned int ridx = 0;
@@ -213,20 +213,20 @@ ParserSIMTBUF::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexI
     if ((hwGen == GDT_HW_GENERATION_SEAISLAND) || (hwGen == GDT_HW_GENERATION_SOUTHERNISLAND))
     {
         SIMTBUFInstruction::OP op = GetSIOpMTBUF(hexInstruction, instKind);
-        instruction = new SIMTBUFInstruction(offset, offen, idxen, glc, addr64, op, dfmt, nmft, vaddr, vdata, srsrc, slc,
+        instruction = std::make_unique<SIMTBUFInstruction>(offset, offen, idxen, glc, addr64, op, dfmt, nmft, vaddr, vdata, srsrc, slc,
                                              tfe, soffset, ridx, instKind);
     }
     else
     {
         VIMTBUFInstruction::OP op = GetVIOpMTBUF(hexInstruction, instKind);
-        instruction = new VIMTBUFInstruction(offset, offen, idxen, glc, addr64, op, dfmt, nmft, vaddr, vdata, srsrc, slc,
+        instruction = std::make_unique<VIMTBUFInstruction>(offset, offen, idxen, glc, addr64, op, dfmt, nmft, vaddr, vdata, srsrc, slc,
                                              tfe, soffset, ridx, instKind);
     }
 
     return ParserSI::Status_SUCCESS;
 }
 
-ParserSI::kaStatus ParserSIMTBUF::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction, bool& hasLiteral)
+ParserSI::kaStatus ParserSIMTBUF::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, std::unique_ptr<Instruction>& instruction, bool& hasLiteral)
 {
 	hasLiteral = false;
     return ParserSI::Status_32BitInstructionNotSupported;

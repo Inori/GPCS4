@@ -53,7 +53,7 @@ public:
 
 	void decodeInstruction(GCNCodeSlice& code);
 
-	const GCNInstruction&  getInstruction();
+	GCNInstruction& getInstruction();
 
 
 private:

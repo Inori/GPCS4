@@ -232,7 +232,7 @@ ParserSIMUBUF::GetSOFFSET(Instruction::instruction64bit hexInstruction, unsigned
 }
 
 ParserSI::kaStatus
-ParserSIMUBUF::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, Instruction*& instruction)
+ParserSIMUBUF::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, std::unique_ptr<Instruction>& instruction)
 {
     ParserSI::kaStatus status = ParserSI::Status_SUCCESS;
     Instruction::InstructionCategory instKind = Instruction::VectorMemoryRead;
@@ -253,19 +253,19 @@ ParserSIMUBUF::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexI
     if ((hwGen == GDT_HW_GENERATION_SEAISLAND) || (hwGen == GDT_HW_GENERATION_SOUTHERNISLAND))
     {
         SIMUBUFInstruction::OP op = GetSIOpMUBUF(hexInstruction, instKind);
-        instruction = new SIMUBUFInstruction(offset, offen, idxen, glc, addr64, lds, op, vaddr, vdata, srsrc, slc,
+        instruction = std::make_unique<SIMUBUFInstruction>(offset, offen, idxen, glc, addr64, lds, op, vaddr, vdata, srsrc, slc,
                                              tfe, soffset, ridx, instKind);
     }
     else if (hwGen == GDT_HW_GENERATION_VOLCANICISLAND)
     {
         VIMUBUFInstruction::OP op = GetVIOpMUBUF(hexInstruction, instKind);
-        instruction = new VIMUBUFInstruction(offset, offen, idxen, glc, addr64, lds, op, vaddr, vdata, srsrc, slc,
+        instruction = std::make_unique<VIMUBUFInstruction>(offset, offen, idxen, glc, addr64, lds, op, vaddr, vdata, srsrc, slc,
                                              tfe, soffset, ridx, instKind);
     }
     else if (hwGen == GDT_HW_GENERATION_GFX9)
     {
         G9MUBUFInstruction::OP op = GetG9OpMUBUF(hexInstruction, instKind);
-        instruction = new G9MUBUFInstruction(offset, offen, idxen, glc, addr64, lds, op, vaddr, vdata, srsrc, slc,
+        instruction = std::make_unique<G9MUBUFInstruction>(offset, offen, idxen, glc, addr64, lds, op, vaddr, vdata, srsrc, slc,
                                              tfe, soffset, ridx, instKind);
     }
     else
@@ -276,7 +276,7 @@ ParserSIMUBUF::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexI
     return status;
 }
 
-ParserSI::kaStatus ParserSIMUBUF::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction, bool& hasLiteral)
+ParserSI::kaStatus ParserSIMUBUF::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, std::unique_ptr<Instruction>& instruction, bool& hasLiteral)
 {
 	hasLiteral = false;
     return ParserSI::Status_32BitInstructionNotSupported;

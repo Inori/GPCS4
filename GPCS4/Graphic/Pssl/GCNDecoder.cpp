@@ -76,7 +76,7 @@ void GCNDecodeContext::decodeInstruction(GCNCodeSlice& code)
 		uint32_t codeLenDw = ParserSI::GetInstructionLengthDwords(encoding);
 
 		bool parseResult = false;
-		Instruction* pInstruction = nullptr;
+		std::unique_ptr<Instruction> pInstruction;
 		bool hasLiteral = false;
 		if (codeLenDw == 1)
 		{
@@ -98,7 +98,7 @@ void GCNDecodeContext::decodeInstruction(GCNCodeSlice& code)
 			LOG_ERR("parse instruction failed: %X", encToken);
 		}
 
-		m_instruction.instruction = pInstruction;
+		m_instruction.instruction = std::move(pInstruction);
 		m_instruction.hasLiteral = hasLiteral;
 		if (hasLiteral)
 		{
@@ -108,7 +108,7 @@ void GCNDecodeContext::decodeInstruction(GCNCodeSlice& code)
 	} while (false);
 }
 
-const GCNInstruction& GCNDecodeContext::getInstruction()
+GCNInstruction& GCNDecodeContext::getInstruction()
 {
 	return m_instruction;
 }
@@ -118,7 +118,7 @@ void GCNDecodeContext::freeInstruction()
 {
 	if (m_instruction.instruction)
 	{
-		delete m_instruction.instruction;
+		//delete m_instruction.instruction;
 		m_instruction.instruction = nullptr;
 	}
 	m_instruction.hasLiteral = false;

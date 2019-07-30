@@ -118,7 +118,7 @@ ParserSIDS::GetVDST(Instruction::instruction64bit hexInstruction)
 }
 
 ParserSI::kaStatus
-ParserSIDS::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, Instruction*& instruction)
+ParserSIDS::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, std::unique_ptr<Instruction>& instruction)
 {
     ParserSI::kaStatus status = ParserSI::Status_SUCCESS;
     DSInstruction::OFFSET offset0 = GetOffset(hexInstruction, 0);
@@ -132,17 +132,17 @@ ParserSIDS::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInst
     if ((hwGen == GDT_HW_GENERATION_SEAISLAND) || (hwGen == GDT_HW_GENERATION_SOUTHERNISLAND))
     {
         SIDSInstruction::OP op = GetSIDSOp(hexInstruction);
-        instruction = new SIDSInstruction(offset0, offset1, gds, op, addr, data0, data1, vdst);
+        instruction = std::make_unique<SIDSInstruction>(offset0, offset1, gds, op, addr, data0, data1, vdst);
     }
     else if (hwGen == GDT_HW_GENERATION_VOLCANICISLAND)
     {
         VIDSInstruction::OP op = GetVIDSOp(hexInstruction);
-        instruction = new VIDSInstruction(offset0, offset1, gds, op, addr, data0, data1, vdst);
+        instruction = std::make_unique<VIDSInstruction>(offset0, offset1, gds, op, addr, data0, data1, vdst);
     }
     else if (hwGen == GDT_HW_GENERATION_GFX9)
     {
         G9DSInstruction::OP op = GetG9DSOp(hexInstruction);
-        instruction = new G9DSInstruction(offset0, offset1, gds, op, addr, data0, data1, vdst);
+        instruction = std::make_unique<G9DSInstruction>(offset0, offset1, gds, op, addr, data0, data1, vdst);
     }
     else
     {
@@ -152,7 +152,7 @@ ParserSIDS::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInst
     return ParserSI::Status_SUCCESS;
 }
 
-ParserSI::kaStatus ParserSIDS::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction, bool& hasLiteral)
+ParserSI::kaStatus ParserSIDS::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, std::unique_ptr<Instruction>& instruction, bool& hasLiteral)
 {
 	hasLiteral = false;
     return ParserSI::Status_32BitInstructionNotSupported;

@@ -6,6 +6,7 @@
 #define __PARSERSI_H
 
 #include <string>
+#include <memory>
 #include "Instruction.h"
 #include "SMRDInstruction.h"
 #include "SOPPInstruction.h"
@@ -114,18 +115,18 @@ public:
 
     /// dtor
     virtual ~ParserSI() {};
-
+	
     /// Parse the instruction
     /// \param[in]  hexInstruction  The 32 bit hexadecimal instruction.
     /// \instruction[out]  instruction  The parsed instruction.
     /// \returns                   A status.
-    virtual ParserSI::kaStatus Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction, bool& hasLiteral) = 0;
+    virtual ParserSI::kaStatus Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, std::unique_ptr<Instruction>& instruction, bool& hasLiteral) = 0;
 
     /// Parse the instruction
     /// \param[in]  hexInstruction  The 64 bit hexadecimal instruction.
     /// \instruction[out]  instruction  The parsed instruction.
     /// \returns                   A status.
-    virtual ParserSI::kaStatus Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, Instruction*& instruction) = 0;
+    virtual ParserSI::kaStatus Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, std::unique_ptr<Instruction>& instruction) = 0;
 
     /// Get instruction`s encoding
     /// \param[in]  hexInstruction  The 32 bit hexadecimal instruction.

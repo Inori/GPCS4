@@ -25,11 +25,11 @@ public:
 
 	/// Parse the 32 instruction.
 	/// \returns true if the instruction`s parsing succeeded.
-	bool Parse(Instruction*& pOutInstruction, GDT_HW_GENERATION asicGen, Instruction::instruction32bit hexInstruction, bool& hasLiteral);
+	bool Parse(std::unique_ptr<Instruction>& outInstruction, GDT_HW_GENERATION asicGen, Instruction::instruction32bit hexInstruction, bool& hasLiteral);
 
 	/// Parse the 64 instruction.
 	/// \returns true if the instruction`s parsing succeeded.
-	bool Parse(Instruction*& pOutInstruction, GDT_HW_GENERATION asicGen, Instruction::instruction64bit hexInstruction);
+	bool Parse(std::unique_ptr<Instruction>& outInstruction, GDT_HW_GENERATION asicGen, Instruction::instruction64bit hexInstruction);
 
 	unsigned int GetVgprs() const { return m_vgprs; }
 	unsigned int GetSgprs() const { return m_sgprs; }

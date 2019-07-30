@@ -126,7 +126,7 @@ SOP2Instruction::SDST ParserSISOP2::GetSDST(Instruction::instruction32bit hexIns
     return SOP2Instruction::SDSTIllegal;
 }
 
-ParserSI::kaStatus ParserSISOP2::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction, bool& hasLiteral)
+ParserSI::kaStatus ParserSISOP2::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, std::unique_ptr<Instruction>& instruction, bool& hasLiteral)
 {
     ParserSI::kaStatus status = ParserSI::Status_SUCCESS;
     unsigned int ridx0 = 0, ridx1 = 0, sdstRidx = 0;
@@ -139,17 +139,17 @@ ParserSI::kaStatus ParserSISOP2::Parse(GDT_HW_GENERATION hwGen, Instruction::ins
     if ((hwGen == GDT_HW_GENERATION_SEAISLAND) || (hwGen == GDT_HW_GENERATION_SOUTHERNISLAND))
     {
         SISOP2Instruction::OP op = GetSISOP2Op(hexInstruction);
-        instruction = new SISOP2Instruction(ssrc0, ssrc1, sdst, op, ridx0, ridx1, sdstRidx);
+        instruction = std::make_unique<SISOP2Instruction>(ssrc0, ssrc1, sdst, op, ridx0, ridx1, sdstRidx);
     }
     else if (hwGen == GDT_HW_GENERATION_VOLCANICISLAND)
     {
         VISOP2Instruction::OP op = GetVISOP2Op(hexInstruction);
-        instruction = new VISOP2Instruction(ssrc0, ssrc1, sdst, op, ridx0, ridx1, sdstRidx);
+        instruction = std::make_unique<VISOP2Instruction>(ssrc0, ssrc1, sdst, op, ridx0, ridx1, sdstRidx);
     }
     else if (hwGen == GDT_HW_GENERATION_GFX9)
     {
         G9SOP2Instruction::OP op = GetG9SOP2Op(hexInstruction);
-        instruction = new G9SOP2Instruction(ssrc0, ssrc1, sdst, op, ridx0, ridx1, sdstRidx);
+        instruction = std::make_unique<G9SOP2Instruction>(ssrc0, ssrc1, sdst, op, ridx0, ridx1, sdstRidx);
     }
     else
     {
@@ -159,7 +159,7 @@ ParserSI::kaStatus ParserSISOP2::Parse(GDT_HW_GENERATION hwGen, Instruction::ins
     return status;
 }
 
-ParserSI::kaStatus ParserSISOP2::Parse(GDT_HW_GENERATION, Instruction::instruction64bit, Instruction*&)
+ParserSI::kaStatus ParserSISOP2::Parse(GDT_HW_GENERATION, Instruction::instruction64bit, std::unique_ptr<Instruction>&)
 {
     return ParserSI::Status_64BitInstructionNotSupported;
 }

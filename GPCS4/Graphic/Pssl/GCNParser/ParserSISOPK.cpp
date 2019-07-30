@@ -107,7 +107,7 @@ SOPKInstruction::SDST ParserSISOPK::GetSDST(Instruction::instruction32bit hexIns
     return SOPKInstruction::SDSTIllegal;
 }
 
-ParserSI::kaStatus ParserSISOPK::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction, bool& hasLiteral)
+ParserSI::kaStatus ParserSISOPK::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, std::unique_ptr<Instruction>& instruction, bool& hasLiteral)
 {
     kaStatus status = Status_SUCCESS;
     unsigned int simm16Ridx = 0, sdstRidx = 0;
@@ -120,22 +120,22 @@ ParserSI::kaStatus ParserSISOPK::Parse(GDT_HW_GENERATION hwGen, Instruction::ins
         case GDT_HW_GENERATION_SOUTHERNISLAND:
         {
             SISOPKInstruction::OP op = GetSISOPKOp(hexInstruction);
-            instruction = new SISOPKInstruction(simm16, op, sdst, simm16Ridx, sdstRidx);
-			hasLiteral == (op == SISOPKInstruction::S_SETREG_IMM32_B32);
+            instruction = std::make_unique<SISOPKInstruction>(simm16, op, sdst, simm16Ridx, sdstRidx);
+			hasLiteral = (op == SISOPKInstruction::S_SETREG_IMM32_B32);
             break;
         }
         case GDT_HW_GENERATION_VOLCANICISLAND:
         {
             VISOPKInstruction::OP op = GetVISOPKOp(hexInstruction);
-            instruction = new VISOPKInstruction(simm16, op, sdst, simm16Ridx, sdstRidx);
-			hasLiteral == (op == VISOPKInstruction::s_setreg_imm32_b32);
+            instruction = std::make_unique<VISOPKInstruction>(simm16, op, sdst, simm16Ridx, sdstRidx);
+			hasLiteral = (op == VISOPKInstruction::s_setreg_imm32_b32);
             break;
         }
         case GDT_HW_GENERATION_GFX9:
         {
             G9SOPKInstruction::OP op = GetG9SOPKOp(hexInstruction);
-            instruction = new G9SOPKInstruction(simm16, op, sdst, simm16Ridx, sdstRidx);
-			hasLiteral == (op == G9SOPKInstruction::s_setreg_imm32_b32);
+            instruction = std::make_unique<G9SOPKInstruction>(simm16, op, sdst, simm16Ridx, sdstRidx);
+			hasLiteral = (op == G9SOPKInstruction::s_setreg_imm32_b32);
             break;
         }
         default:
@@ -145,7 +145,7 @@ ParserSI::kaStatus ParserSISOPK::Parse(GDT_HW_GENERATION hwGen, Instruction::ins
     return status;
 }
 
-ParserSI::kaStatus ParserSISOPK::Parse(GDT_HW_GENERATION, Instruction::instruction64bit, Instruction*&)
+ParserSI::kaStatus ParserSISOPK::Parse(GDT_HW_GENERATION, Instruction::instruction64bit, std::unique_ptr<Instruction>&)
 {
     return ParserSI::Status_64BitInstructionNotSupported;
 }

@@ -84,7 +84,7 @@ EXPInstruction::VSRC ParserSIEXP::GetVSRC(Instruction::instruction64bit hexInstr
     return vsrc;
 }
 
-ParserSI::kaStatus ParserSIEXP::Parse(GDT_HW_GENERATION, Instruction::instruction64bit hexInstruction, Instruction*& instruction)
+ParserSI::kaStatus ParserSIEXP::Parse(GDT_HW_GENERATION, Instruction::instruction64bit hexInstruction, std::unique_ptr<Instruction>& instruction)
 {
     EXPInstruction::VSRC vsrc[4];
     EXPInstruction::EN en = GetEn(hexInstruction);
@@ -97,11 +97,11 @@ ParserSI::kaStatus ParserSIEXP::Parse(GDT_HW_GENERATION, Instruction::instructio
     vsrc[2] = GetVSRC(hexInstruction, 2);
     vsrc[3] = GetVSRC(hexInstruction, 3);
 
-    instruction = new EXPInstruction(en, tgt, compr, done, vm, vsrc[0], vsrc[1], vsrc[2], vsrc[3]);
+    instruction = std::make_unique<EXPInstruction>(en, tgt, compr, done, vm, vsrc[0], vsrc[1], vsrc[2], vsrc[3]);
     return ParserSI::Status_SUCCESS;
 }
 
-ParserSI::kaStatus ParserSIEXP::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction, bool& hasLiteral)
+ParserSI::kaStatus ParserSIEXP::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, std::unique_ptr<Instruction>& instruction, bool& hasLiteral)
 {
 	hasLiteral = false;
     return ParserSI::Status_32BitInstructionNotSupported;

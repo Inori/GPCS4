@@ -9,9 +9,30 @@ namespace pssl
 
 struct GCNInstruction
 {
-	Instruction* instruction;
+	std::unique_ptr<Instruction> instruction;
 	bool hasLiteral;
 	uint32_t literalConst;
+
+	GCNInstruction(std::unique_ptr<Instruction> inst, bool hasLit, uint32_t litConst):
+		instruction(std::move(inst)),
+		hasLiteral(hasLit),
+		literalConst(litConst)
+	{}
+
+	GCNInstruction(GCNInstruction& other):
+		instruction(std::move(other.instruction)),
+		hasLiteral(other.hasLiteral),
+		literalConst(other.literalConst)
+	{}
+
+	GCNInstruction(GCNInstruction&& other):
+		instruction(std::move(other.instruction)),
+		hasLiteral(other.hasLiteral),
+		literalConst(other.literalConst)
+	{}
+
+	~GCNInstruction()
+	{}
 };
 
 

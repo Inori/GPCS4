@@ -94,7 +94,7 @@ VISMEMInstruction::OP ParserSISMRD::GetVISMRDOp(Instruction::instruction64bit he
     }
 }
 
-ParserSI::kaStatus ParserSISMRD::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction, bool& hasLiteral)
+ParserSI::kaStatus ParserSISMRD::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, std::unique_ptr<Instruction>& instruction, bool& hasLiteral)
 {
     if (hwGen == GDT_HW_GENERATION_VOLCANICISLAND)
     {
@@ -111,12 +111,12 @@ ParserSI::kaStatus ParserSISMRD::Parse(GDT_HW_GENERATION hwGen, Instruction::ins
     SMRDInstruction::SBASE sbase  = GetSBase(hexInstruction);
     SMRDInstruction::SDST sdst = GetSDST(hexInstruction, ridx);
     SISMRDInstruction::OP op = GetSISMRDOp(hexInstruction);
-    instruction = new SISMRDInstruction(offset, imm, sbase, sdst, ridx, op);
+    instruction = std::make_unique<SISMRDInstruction>(offset, imm, sbase, sdst, ridx, op);
 
     return ParserSI::Status_SUCCESS;
 }
 
-ParserSI::kaStatus ParserSISMRD::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, Instruction*& instruction)
+ParserSI::kaStatus ParserSISMRD::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, std::unique_ptr<Instruction>& instruction)
 {
     if ((hwGen == GDT_HW_GENERATION_SEAISLAND) || (hwGen == GDT_HW_GENERATION_SOUTHERNISLAND))
     {
@@ -129,7 +129,7 @@ ParserSI::kaStatus ParserSISMRD::Parse(GDT_HW_GENERATION hwGen, Instruction::ins
     SMRDInstruction::SBASE sbase = GetSBase(Instruction::instruction32bit(hexInstruction & 0xffff));
     SMRDInstruction::SDST sdst = GetSDST(Instruction::instruction32bit(hexInstruction & 0xffff), ridx);
     VISMEMInstruction::OP op = GetVISMRDOp(hexInstruction);
-    instruction = new VISMEMInstruction(offset, imm, sbase, sdst, ridx, op);
+    instruction = std::make_unique<VISMEMInstruction>(offset, imm, sbase, sdst, ridx, op);
 
     return ParserSI::Status_SUCCESS;
 }

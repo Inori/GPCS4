@@ -168,7 +168,7 @@ ParserSIMIMG::GetSSAMP(Instruction::instruction64bit hexInstruction)
 
 
 ParserSI::kaStatus
-ParserSIMIMG::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, Instruction*& instruction)
+ParserSIMIMG::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, std::unique_ptr<Instruction>& instruction)
 {
     Instruction::InstructionCategory instKind = Instruction::ScalarMemoryRead;
     MIMGInstruction::DMASK dmask = GetDMASK(hexInstruction);
@@ -187,13 +187,13 @@ ParserSIMIMG::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexIn
     if ((hwGen == GDT_HW_GENERATION_SEAISLAND) || (hwGen == GDT_HW_GENERATION_SOUTHERNISLAND))
     {
         SIMIMGInstruction::OP op = GetOpSIMIMG(hexInstruction, instKind);
-        instruction = new SIMIMGInstruction(dmask, unorm, glc, da, r128, tfe, lwe, op, vaddr, vdata, srsrc, slc,
+        instruction = std::make_unique<SIMIMGInstruction>(dmask, unorm, glc, da, r128, tfe, lwe, op, vaddr, vdata, srsrc, slc,
                                             ssamp, instKind);
     }
     else
     {
         VIMIMGInstruction::OP op = GetOpVIMIMG(hexInstruction, instKind);
-        instruction = new VIMIMGInstruction(dmask, unorm, glc, da, r128, tfe, lwe, op, vaddr, vdata, srsrc, slc,
+        instruction = std::make_unique<VIMIMGInstruction>(dmask, unorm, glc, da, r128, tfe, lwe, op, vaddr, vdata, srsrc, slc,
                                             ssamp, instKind);
     }
 
@@ -201,7 +201,7 @@ ParserSIMIMG::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexIn
     return ParserSI::Status_SUCCESS;
 }
 
-ParserSI::kaStatus ParserSIMIMG::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction, bool& hasLiteral)
+ParserSI::kaStatus ParserSIMIMG::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, std::unique_ptr<Instruction>& instruction, bool& hasLiteral)
 {
 	hasLiteral = false;
     return ParserSI::Status_32BitInstructionNotSupported;

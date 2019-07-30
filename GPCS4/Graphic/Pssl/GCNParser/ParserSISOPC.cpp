@@ -91,7 +91,7 @@ VISOPCInstruction::OP ParserSISOPC::GetVISOPCOp(Instruction::instruction32bit he
     }
 }
 
-ParserSI::kaStatus ParserSISOPC::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction, bool& hasLiteral)
+ParserSI::kaStatus ParserSISOPC::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, std::unique_ptr<Instruction>& instruction, bool& hasLiteral)
 {
     unsigned int ridx0 = 0, ridx1 = 0;
     SOPCInstruction::SSRC ssrc0 = GetSSRC(hexInstruction, ridx0, 0);
@@ -102,18 +102,18 @@ ParserSI::kaStatus ParserSISOPC::Parse(GDT_HW_GENERATION hwGen, Instruction::ins
     if ((hwGen == GDT_HW_GENERATION_SEAISLAND) || (hwGen == GDT_HW_GENERATION_SOUTHERNISLAND))
     {
         SISOPCInstruction::OP op = GetSISOPCOp(hexInstruction);
-        instruction = new SISOPCInstruction(ssrc0, ssrc1, op, ridx0, ridx1);
+        instruction = std::make_unique<SISOPCInstruction>(ssrc0, ssrc1, op, ridx0, ridx1);
     }
     else
     {
         VISOPCInstruction::OP op = GetVISOPCOp(hexInstruction);
-        instruction = new VISOPCInstruction(ssrc0, ssrc1, op, ridx0, ridx1);
+        instruction = std::make_unique<VISOPCInstruction>(ssrc0, ssrc1, op, ridx0, ridx1);
     }
 
     return ParserSI::Status_SUCCESS;
 }
 
-ParserSI::kaStatus ParserSISOPC::Parse(GDT_HW_GENERATION, Instruction::instruction64bit, Instruction*&)
+ParserSI::kaStatus ParserSISOPC::Parse(GDT_HW_GENERATION, Instruction::instruction64bit, std::unique_ptr<Instruction>&)
 {
     return ParserSI::Status_64BitInstructionNotSupported;
 }

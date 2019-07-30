@@ -110,7 +110,7 @@ SOP1Instruction::SDST ParserSISOP1::GetSDST(Instruction::instruction32bit hexIns
     return SOP1Instruction::SDSTIllegal;
 }
 
-ParserSI::kaStatus ParserSISOP1::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction, bool& hasLiteral)
+ParserSI::kaStatus ParserSISOP1::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, std::unique_ptr<Instruction>& instruction, bool& hasLiteral)
 {
     ParserSI::kaStatus status = ParserSI::Status_SUCCESS;
     unsigned int ridx0 = 0, sdstRidx1 = 0;
@@ -122,17 +122,17 @@ ParserSI::kaStatus ParserSISOP1::Parse(GDT_HW_GENERATION hwGen, Instruction::ins
     if ((hwGen == GDT_HW_GENERATION_SEAISLAND) || (hwGen == GDT_HW_GENERATION_SOUTHERNISLAND))
     {
         SISOP1Instruction::OP op = GetSISOP1Op(hexInstruction);
-        instruction = new SISOP1Instruction(ssrc0, op, sdst, ridx0, sdstRidx1);
+        instruction = std::make_unique<SISOP1Instruction>(ssrc0, op, sdst, ridx0, sdstRidx1);
     }
     else if (hwGen == GDT_HW_GENERATION_VOLCANICISLAND)
     {
         VISOP1Instruction::OP op = GetVISOP1Op(hexInstruction);
-        instruction = new VISOP1Instruction(ssrc0, op, sdst, ridx0, sdstRidx1);
+        instruction = std::make_unique<VISOP1Instruction>(ssrc0, op, sdst, ridx0, sdstRidx1);
     }
     else if (hwGen == GDT_HW_GENERATION_GFX9)
     {
         G9SOP1Instruction::OP op = GetG9SOP1Op(hexInstruction);
-        instruction = new G9SOP1Instruction(ssrc0, op, sdst, ridx0, sdstRidx1);
+        instruction = std::make_unique<G9SOP1Instruction>(ssrc0, op, sdst, ridx0, sdstRidx1);
     }
     else
     {
@@ -142,7 +142,7 @@ ParserSI::kaStatus ParserSISOP1::Parse(GDT_HW_GENERATION hwGen, Instruction::ins
     return status;
 }
 
-ParserSI::kaStatus ParserSISOP1::Parse(GDT_HW_GENERATION, Instruction::instruction64bit, Instruction*&)
+ParserSI::kaStatus ParserSISOP1::Parse(GDT_HW_GENERATION, Instruction::instruction64bit, std::unique_ptr<Instruction>&)
 {
     return ParserSI::Status_64BitInstructionNotSupported;
 }

@@ -56,7 +56,7 @@ VISOPPInstruction::OP ParserSISOPP::GetVISOPPOp(Instruction::instruction32bit he
     }
 }
 
-ParserSI::kaStatus ParserSISOPP::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction, bool& hasLiteral)
+ParserSI::kaStatus ParserSISOPP::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, std::unique_ptr<Instruction>& instruction, bool& hasLiteral)
 {
     SOPPInstruction::SIMM16 simm16 = GetSIMM16(hexInstruction);
 
@@ -65,12 +65,12 @@ ParserSI::kaStatus ParserSISOPP::Parse(GDT_HW_GENERATION hwGen, Instruction::ins
     if ((hwGen == GDT_HW_GENERATION_SEAISLAND) || (hwGen == GDT_HW_GENERATION_SOUTHERNISLAND))
     {
         SISOPPInstruction::OP op = GetSISOPPOp(hexInstruction);
-        instruction = new SISOPPInstruction(simm16, op);
+        instruction = std::make_unique<SISOPPInstruction>(simm16, op);
     }
     else
     {
         VISOPPInstruction::OP op = GetVISOPPOp(hexInstruction);
-        instruction = new VISOPPInstruction(simm16, op);
+        instruction = std::make_unique<VISOPPInstruction>(simm16, op);
     }
 
 
@@ -78,7 +78,7 @@ ParserSI::kaStatus ParserSISOPP::Parse(GDT_HW_GENERATION hwGen, Instruction::ins
     return ParserSI::Status_SUCCESS;
 }
 
-ParserSI::kaStatus ParserSISOPP::Parse(GDT_HW_GENERATION, Instruction::instruction64bit, Instruction*&)
+ParserSI::kaStatus ParserSISOPP::Parse(GDT_HW_GENERATION, Instruction::instruction64bit, std::unique_ptr<Instruction>&)
 {
     return ParserSI::Status_64BitInstructionNotSupported;
 }

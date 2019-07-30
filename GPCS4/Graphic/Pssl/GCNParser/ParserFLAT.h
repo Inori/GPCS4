@@ -155,16 +155,16 @@ public:
     ~ParserFLAT() = default;
 
     // See description in "PerserSI" class.
-    virtual ParserSI::kaStatus Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction, bool& hasLiteral) override
+    virtual ParserSI::kaStatus Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, std::unique_ptr<Instruction>& instruction, bool& hasLiteral) override
     {
 		hasLiteral = false;
         return ParserSI::Status_32BitInstructionNotSupported;
     }
 
     // See description in "PerserSI" class.
-    virtual ParserSI::kaStatus Parse(GDT_HW_GENERATION, Instruction::instruction64bit hexInstruction, Instruction*& instruction) override
+    virtual ParserSI::kaStatus Parse(GDT_HW_GENERATION, Instruction::instruction64bit hexInstruction, std::unique_ptr<Instruction>& instruction) override
     {
-        instruction = new FLATInstruction((uint16_t)INSTRUCTION_FIELD(hexInstruction, FLAT, OFFSET, 0),
+        instruction = std::make_unique<FLATInstruction>((uint16_t)INSTRUCTION_FIELD(hexInstruction, FLAT, OFFSET, 0),
                                                0 != INSTRUCTION_FIELD(hexInstruction, FLAT, LDS,   13),
                                            (uint8_t)INSTRUCTION_FIELD(hexInstruction, FLAT, SEG,   14),
                                                0 != INSTRUCTION_FIELD(hexInstruction, FLAT, GLC,   16),
