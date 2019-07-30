@@ -53,8 +53,6 @@ void PsslShaderGenerator::decodeFetchShader(GCNCodeSlice slice, PsslFetchShader&
 		decoder.decodeInstruction(slice);
 
 		fsShader.m_instructionList.push_back(decoder.getInstruction());
-
-		decoder.freeInstruction();
 	}
 }
 
@@ -67,8 +65,6 @@ void PsslShaderGenerator::runCompiler(GCNCompiler& compiler, GCNCodeSlice slice)
 		decoder.decodeInstruction(slice);
 
 		compiler.processInstruction(decoder.getInstruction());
-
-		decoder.freeInstruction();
 	}
 }
 

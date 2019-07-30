@@ -55,12 +55,12 @@ public:
 
 	const GCNInstruction&  getInstruction();
 
+
+private:
 	void freeInstruction();
 
 private:
-	
-
-private:
+	const GDT_HW_GENERATION m_ps4HWGeneration = GDT_HW_GENERATION_SEAISLAND;
 	GCNParser m_parser;
 	GCNInstruction m_instruction;
 };

@@ -54,22 +54,25 @@ GCNCodeSlice GCNCodeSlice::skip(uint32_t n) const
 
 //////////////////////////////////////////////////////////////////////////
 
-GCNDecodeContext::GCNDecodeContext()
+GCNDecodeContext::GCNDecodeContext():
+	m_instruction {nullptr, false, 0}
 {
 }
 
 GCNDecodeContext::~GCNDecodeContext()
 {
+	freeInstruction();
 }
 
 void GCNDecodeContext::decodeInstruction(GCNCodeSlice& code)
 {
 	do
 	{
-		uint32_t token = code.frontDword();
+		freeInstruction();
+
+		uint32_t encToken = code.frontDword();
 		
-		ParserSI::InstructionEncoding encoding = ParserSI::GetInstructionEncoding(token);
-		
+		ParserSI::InstructionEncoding encoding = ParserSI::GetInstructionEncoding(encToken);
 		uint32_t codeLenDw = ParserSI::GetInstructionLengthDwords(encoding);
 
 		bool parseResult = false;
@@ -77,13 +80,13 @@ void GCNDecodeContext::decodeInstruction(GCNCodeSlice& code)
 		bool hasLiteral = false;
 		if (codeLenDw == 1)
 		{
-			uint32_t tokenDword = code.readDword();
-			parseResult = m_parser.Parse(pInstruction, GDT_HW_GENERATION_SEAISLAND, tokenDword, hasLiteral);
+			uint32_t token = code.readDword();
+			parseResult = m_parser.Parse(pInstruction, m_ps4HWGeneration, token, hasLiteral);
 		}
 		else if (codeLenDw == 2)
 		{
-			uint64_t tokenQword = code.readQword();
-			parseResult = m_parser.Parse(pInstruction, GDT_HW_GENERATION_SEAISLAND, tokenQword);
+			uint64_t token = code.readQword();
+			parseResult = m_parser.Parse(pInstruction, m_ps4HWGeneration, token);
 		}
 		else
 		{
@@ -92,7 +95,14 @@ void GCNDecodeContext::decodeInstruction(GCNCodeSlice& code)
 
 		if (!parseResult)
 		{
-			LOG_ERR("parse instruction failed: %X", token);
+			LOG_ERR("parse instruction failed: %X", encToken);
+		}
+
+		m_instruction.instruction = pInstruction;
+		m_instruction.hasLiteral = hasLiteral;
+		if (hasLiteral)
+		{
+			m_instruction.literalConst = code.readDword();
 		}
 
 	} while (false);
