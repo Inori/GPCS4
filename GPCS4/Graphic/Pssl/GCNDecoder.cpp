@@ -118,8 +118,7 @@ void GCNDecodeContext::freeInstruction()
 {
 	if (m_instruction.instruction)
 	{
-		//delete m_instruction.instruction;
-		m_instruction.instruction = nullptr;
+		m_instruction.instruction.reset();
 	}
 	m_instruction.hasLiteral = false;
 	m_instruction.literalConst = 0;
