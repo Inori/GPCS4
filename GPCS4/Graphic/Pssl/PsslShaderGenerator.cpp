@@ -42,6 +42,8 @@ RcPtr<gve::GveShader> PsslShaderGenerator::compile(const uint32_t* code, const u
 
 	GCNCompiler compiler(programInfo, fsShader);
 	runCompiler(compiler, codeSlice);
+
+	return compiler.finalize();
 }
 
 void PsslShaderGenerator::decodeFetchShader(GCNCodeSlice slice, PsslFetchShader& fsShader)
