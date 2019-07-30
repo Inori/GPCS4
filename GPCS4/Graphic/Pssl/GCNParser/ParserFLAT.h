@@ -157,6 +157,7 @@ public:
     // See description in "PerserSI" class.
     virtual ParserSI::kaStatus Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction, bool& hasLiteral) override
     {
+		hasLiteral = false;
         return ParserSI::Status_32BitInstructionNotSupported;
     }
 

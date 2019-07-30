@@ -121,18 +121,21 @@ ParserSI::kaStatus ParserSISOPK::Parse(GDT_HW_GENERATION hwGen, Instruction::ins
         {
             SISOPKInstruction::OP op = GetSISOPKOp(hexInstruction);
             instruction = new SISOPKInstruction(simm16, op, sdst, simm16Ridx, sdstRidx);
+			hasLiteral == (op == SISOPKInstruction::S_SETREG_IMM32_B32);
             break;
         }
         case GDT_HW_GENERATION_VOLCANICISLAND:
         {
             VISOPKInstruction::OP op = GetVISOPKOp(hexInstruction);
             instruction = new VISOPKInstruction(simm16, op, sdst, simm16Ridx, sdstRidx);
+			hasLiteral == (op == VISOPKInstruction::s_setreg_imm32_b32);
             break;
         }
         case GDT_HW_GENERATION_GFX9:
         {
             G9SOPKInstruction::OP op = GetG9SOPKOp(hexInstruction);
             instruction = new G9SOPKInstruction(simm16, op, sdst, simm16Ridx, sdstRidx);
+			hasLiteral == (op == G9SOPKInstruction::s_setreg_imm32_b32);
             break;
         }
         default:

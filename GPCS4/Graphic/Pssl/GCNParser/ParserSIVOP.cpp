@@ -163,6 +163,8 @@ ParserSI::kaStatus ParserSIVOP::Parse(GDT_HW_GENERATION hwGen, Instruction::inst
 
 			unsigned int vdstRidx = 0;
 			SIVOP1Instruction::VDST vdst = GetVDST(hexInstruction, vdstRidx, VOPInstruction::Encoding_VOP1);
+
+			hasLiteral = (src0 == SIVOP1Instruction::SRCLiteralConst);
             instruction = new SIVOP1Instruction(src0, vdst, ridx0, vdstRidx, 32, encoding, op1);
             retStatus = ParserSI::Status_SUCCESS;
         }
@@ -174,8 +176,10 @@ ParserSI::kaStatus ParserSIVOP::Parse(GDT_HW_GENERATION hwGen, Instruction::inst
 			unsigned int vidx1 = 0 ,vdstRidx = 0;;
 			VOPInstruction::VSRC vsrc1 = GetVSRC1(hexInstruction, vidx1);
 			SIVOP1Instruction::VDST vdst = GetVDST(hexInstruction, vdstRidx, VOPInstruction::Encoding_VOP2);
-
-            instruction = new SIVOP2Instruction(src0, vsrc1, vdst, ridx0, vidx1, vdstRidx, 32, encoding, op2);
+			// TODO:
+			// Not sure if there's some special opcode which use literal const while src != SRCLiteralConst
+			hasLiteral = (src0 == SIVOP1Instruction::SRCLiteralConst);
+			instruction = new SIVOP2Instruction(src0, vsrc1, vdst, ridx0, vidx1, vdstRidx, 32, encoding, op2);
             retStatus = ParserSI::Status_SUCCESS;
         }
 
@@ -186,7 +190,7 @@ ParserSI::kaStatus ParserSIVOP::Parse(GDT_HW_GENERATION hwGen, Instruction::inst
             SIVOPCInstruction::VOPC_OP opc = static_cast<SIVOPCInstruction::VOPC_OP>(hexInstTem);
 			unsigned int vidx1 = 0;
 			VOPInstruction::VSRC vsrc1 = GetVSRC1(hexInstruction, vidx1);
-
+			hasLiteral = (src0 == SIVOPCInstruction::SRCLiteralConst);
             instruction = new SIVOPCInstruction(src0, vsrc1, ridx0, vidx1, 32, encoding, opc);
             retStatus = ParserSI::Status_SUCCESS;
         }
@@ -198,6 +202,7 @@ ParserSI::kaStatus ParserSIVOP::Parse(GDT_HW_GENERATION hwGen, Instruction::inst
             uint64_t hexInstTem = hexInstruction << 15;
             hexInstTem = hexInstTem >> 24;
             VIVOP1Instruction::VOP1_OP op1 = static_cast<VIVOP1Instruction::VOP1_OP>(hexInstTem);
+			hasLiteral = (src0 == VIVOP1Instruction::SRCLiteralConst);
             instruction = new VIVOP1Instruction(32, encoding, op1);
             retStatus = ParserSI::Status_SUCCESS;
         }
@@ -206,6 +211,9 @@ ParserSI::kaStatus ParserSIVOP::Parse(GDT_HW_GENERATION hwGen, Instruction::inst
             uint64_t hexInstTem = hexInstruction << 15;
             hexInstTem = hexInstTem >> 24;
             VIVOP2Instruction::VOP2_OP op2 = static_cast<VIVOP2Instruction::VOP2_OP>(hexInstTem);
+			// TODO:
+			// Not sure if there's some special opcode which use literal const while src != SRCLiteralConst
+			hasLiteral = (src0 == VIVOP2Instruction::SRCLiteralConst);
             instruction = new VIVOP2Instruction(32, encoding, op2);
             retStatus = ParserSI::Status_SUCCESS;
         }
@@ -215,6 +223,7 @@ ParserSI::kaStatus ParserSIVOP::Parse(GDT_HW_GENERATION hwGen, Instruction::inst
             uint64_t hexInstTem = hexInstruction << 15;
             hexInstTem = hexInstTem >> 24;
             VIVOPCInstruction::VOPC_OP opc = static_cast<VIVOPCInstruction::VOPC_OP>(hexInstTem);
+			hasLiteral = (src0 == VIVOPCInstruction::SRCLiteralConst);
             instruction = new VIVOPCInstruction(32, encoding, opc);
             retStatus = ParserSI::Status_SUCCESS;
         }
@@ -226,6 +235,7 @@ ParserSI::kaStatus ParserSIVOP::Parse(GDT_HW_GENERATION hwGen, Instruction::inst
             uint64_t hexInstTem = hexInstruction << 15;
             hexInstTem = hexInstTem >> 24;
             G9VOP1Instruction::VOP1_OP op1 = static_cast<G9VOP1Instruction::VOP1_OP>(hexInstTem);
+			hasLiteral = (src0 == G9VOP1Instruction::SRCLiteralConst);
             instruction = new G9VOP1Instruction(32, encoding, op1);
             retStatus = ParserSI::Status_SUCCESS;
         }
@@ -234,6 +244,9 @@ ParserSI::kaStatus ParserSIVOP::Parse(GDT_HW_GENERATION hwGen, Instruction::inst
             uint64_t hexInstTem = hexInstruction << 15;
             hexInstTem = hexInstTem >> 24;
             G9VOP2Instruction::VOP2_OP op2 = static_cast<G9VOP2Instruction::VOP2_OP>(hexInstTem);
+			// TODO:
+			// Not sure if there's some special opcode which use literal const while src != SRCLiteralConst
+			hasLiteral = (src0 == G9VOP2Instruction::SRCLiteralConst);
             instruction = new G9VOP2Instruction(32, encoding, op2);
             retStatus = ParserSI::Status_SUCCESS;
         }
@@ -243,6 +256,7 @@ ParserSI::kaStatus ParserSIVOP::Parse(GDT_HW_GENERATION hwGen, Instruction::inst
             uint64_t hexInstTem = hexInstruction << 15;
             hexInstTem = hexInstTem >> 24;
             VIVOPCInstruction::VOPC_OP opc = static_cast<VIVOPCInstruction::VOPC_OP>(hexInstTem);
+			hasLiteral = (src0 == VIVOPCInstruction::SRCLiteralConst);
             instruction = new VIVOPCInstruction(32, encoding, opc);
             retStatus = ParserSI::Status_SUCCESS;
         }

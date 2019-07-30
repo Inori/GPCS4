@@ -103,6 +103,8 @@ ParserSI::kaStatus ParserSISMRD::Parse(GDT_HW_GENERATION hwGen, Instruction::ins
 
     unsigned int ridx = 0;
 
+	hasLiteral = false;
+
     // todo offset: [32:52]- it is not a char
     SMRDInstruction::OFFSET offset = GetOffset(hexInstruction);
     SMRDInstruction::IMM imm    = GetImm(hexInstruction);

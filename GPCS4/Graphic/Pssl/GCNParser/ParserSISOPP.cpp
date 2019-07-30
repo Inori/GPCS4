@@ -60,6 +60,8 @@ ParserSI::kaStatus ParserSISOPP::Parse(GDT_HW_GENERATION hwGen, Instruction::ins
 {
     SOPPInstruction::SIMM16 simm16 = GetSIMM16(hexInstruction);
 
+	hasLiteral = false;
+
     if ((hwGen == GDT_HW_GENERATION_SEAISLAND) || (hwGen == GDT_HW_GENERATION_SOUTHERNISLAND))
     {
         SISOPPInstruction::OP op = GetSISOPPOp(hexInstruction);

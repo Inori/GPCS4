@@ -97,6 +97,8 @@ ParserSI::kaStatus ParserSISOPC::Parse(GDT_HW_GENERATION hwGen, Instruction::ins
     SOPCInstruction::SSRC ssrc0 = GetSSRC(hexInstruction, ridx0, 0);
     SOPCInstruction::SSRC ssrc1 = GetSSRC(hexInstruction, ridx1, 1);
 
+	hasLiteral = (ssrc0 == SOPCInstruction::SSRCLiteralConst) || (ssrc1 == SOPCInstruction::SSRCLiteralConst);
+
     if ((hwGen == GDT_HW_GENERATION_SEAISLAND) || (hwGen == GDT_HW_GENERATION_SOUTHERNISLAND))
     {
         SISOPCInstruction::OP op = GetSISOPCOp(hexInstruction);

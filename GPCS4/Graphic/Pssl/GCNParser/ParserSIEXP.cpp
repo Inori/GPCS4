@@ -103,6 +103,7 @@ ParserSI::kaStatus ParserSIEXP::Parse(GDT_HW_GENERATION, Instruction::instructio
 
 ParserSI::kaStatus ParserSIEXP::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction, bool& hasLiteral)
 {
+	hasLiteral = false;
     return ParserSI::Status_32BitInstructionNotSupported;
 }
 

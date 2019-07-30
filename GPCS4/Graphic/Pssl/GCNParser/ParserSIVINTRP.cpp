@@ -59,6 +59,8 @@ ParserSI::kaStatus ParserSIVINTRP::Parse(GDT_HW_GENERATION hwGen, Instruction::i
     VINTRPInstruction::ATTR attr = GetATTR(hexInstruction);
     VINTRPInstruction::VDST vdst = GetVDST(hexInstruction);
 
+	hasLiteral = false;
+
     if ((hwGen == GDT_HW_GENERATION_SEAISLAND) || (hwGen == GDT_HW_GENERATION_SOUTHERNISLAND))
     {
         SIVINTRPInstruction::OP op = GetSIVINTRPOp(hexInstruction);
