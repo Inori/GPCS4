@@ -65,12 +65,6 @@ private:
     /// Note : Relevant only if m_sdst == ScalarGPR or m_sdst == ScalarTtmp
     unsigned int m_sdstRidx;
 
-    /// true if instruction is followed by 32-bit literal
-    bool m_isLiteral32bit;
-
-    /// 32-bit literal
-    uint32_t m_literal32bit;
-
     /// SOPP Instruction Width in bits
     static const unsigned int SOPCInstructionWidth = 32;
 public:
@@ -79,8 +73,8 @@ public:
     //
 
     /// ctor
-    SOP2Instruction(SSRC ssrc0, SSRC ssrc1, SDST sdst, unsigned int sridx0, unsigned int sridx1, unsigned int sdstRidx, bool isLiteral32bit = false, uint32_t literal32bit = 0): Instruction(SOPCInstructionWidth, ScalarALU, InstructionSet_SOP2),
-        m_ssrc0(ssrc0), m_ssrc1(ssrc1), m_sridx0(sridx0), m_sridx1(sridx1), m_sdst(sdst), m_sdstRidx(sdstRidx), m_isLiteral32bit(isLiteral32bit), m_literal32bit(literal32bit) {}
+    SOP2Instruction(SSRC ssrc0, SSRC ssrc1, SDST sdst, unsigned int sridx0, unsigned int sridx1, unsigned int sdstRidx): Instruction(SOPCInstructionWidth, ScalarALU, InstructionSet_SOP2),
+        m_ssrc0(ssrc0), m_ssrc1(ssrc1), m_sridx0(sridx0), m_sridx1(sridx1), m_sdst(sdst), m_sdstRidx(sdstRidx) {}
 
     /// dtor
     ~SOP2Instruction() {}
@@ -217,7 +211,7 @@ public:
     OP GetOp() const { return m_op; }
 
     /// ctor
-    SISOP2Instruction(SSRC ssrc0, SSRC ssrc1, SDST sdst, OP op, unsigned int sridx0, unsigned int sridx1, unsigned int sdstRidx, bool isLiteral32bit = false, uint32_t literal32bit = 0): SOP2Instruction(ssrc0, ssrc1, sdst, sridx0, sridx1, sdstRidx, isLiteral32bit, literal32bit), m_op(op) {}
+    SISOP2Instruction(SSRC ssrc0, SSRC ssrc1, SDST sdst, OP op, unsigned int sridx0, unsigned int sridx1, unsigned int sdstRidx): SOP2Instruction(ssrc0, ssrc1, sdst, sridx0, sridx1, sdstRidx), m_op(op) {}
 
 
 private:
@@ -284,7 +278,7 @@ public:
     OP GetOp() const { return m_op; }
 
     /// ctor
-    VISOP2Instruction(SSRC ssrc0, SSRC ssrc1, SDST sdst, OP op, unsigned int sridx0, unsigned int sridx1, unsigned int sdstRidx, bool isLiteral32bit = false, uint32_t literal32bit = 0): SOP2Instruction(ssrc0, ssrc1, sdst, sridx0, sridx1, sdstRidx, isLiteral32bit, literal32bit), m_op(op)
+    VISOP2Instruction(SSRC ssrc0, SSRC ssrc1, SDST sdst, OP op, unsigned int sridx0, unsigned int sridx1, unsigned int sdstRidx): SOP2Instruction(ssrc0, ssrc1, sdst, sridx0, sridx1, sdstRidx), m_op(op)
     {
         m_HwGen = GDT_HW_GENERATION_VOLCANICISLAND;
     }
@@ -365,7 +359,7 @@ public:
     OP GetOp() const { return m_op; }
 
     /// ctor
-    G9SOP2Instruction(SSRC ssrc0, SSRC ssrc1, SDST sdst, OP op, unsigned int sridx0, unsigned int sridx1, unsigned int sdstRidx, bool isLiteral32bit = false, uint32_t literal32bit = 0): SOP2Instruction(ssrc0, ssrc1, sdst, sridx0, sridx1, sdstRidx, isLiteral32bit, literal32bit), m_op(op)
+    G9SOP2Instruction(SSRC ssrc0, SSRC ssrc1, SDST sdst, OP op, unsigned int sridx0, unsigned int sridx1, unsigned int sdstRidx): SOP2Instruction(ssrc0, ssrc1, sdst, sridx0, sridx1, sdstRidx), m_op(op)
     {
         m_HwGen = GDT_HW_GENERATION_GFX9;
     }
