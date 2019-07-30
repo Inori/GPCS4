@@ -74,15 +74,16 @@ void GCNDecodeContext::decodeInstruction(GCNCodeSlice& code)
 
 		bool parseResult = false;
 		Instruction* pInstruction = nullptr;
+		bool hasLiteral = false;
 		if (codeLenDw == 1)
 		{
 			uint32_t tokenDword = code.readDword();
-			parseResult = m_parser.Parse32(pInstruction, GDT_HW_GENERATION_SEAISLAND, tokenDword);
+			parseResult = m_parser.Parse(pInstruction, GDT_HW_GENERATION_SEAISLAND, tokenDword, hasLiteral);
 		}
 		else if (codeLenDw == 2)
 		{
 			uint64_t tokenQword = code.readQword();
-			parseResult = m_parser.Parse64(pInstruction, GDT_HW_GENERATION_SEAISLAND, tokenQword);
+			parseResult = m_parser.Parse(pInstruction, GDT_HW_GENERATION_SEAISLAND, tokenQword);
 		}
 		else
 		{

@@ -24,14 +24,14 @@ public:
     /// \param[in]  hexInstruction  The 64 bit hexadecimal instruction.
     /// \instruction[out]  instruction  The parsed instruction.
     /// \returns                    A status.
-    ParserSI::kaStatus Parse64(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, Instruction*& instruction);
+    ParserSI::kaStatus Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, Instruction*& instruction);
 
     /// Parse the instruction
     /// Note: EXP instruction is 64 bit instruction - 32 bit instruction is not supported
     /// \param[in]  hexInstruction  The 32 bit hexadecimal instruction.
     /// \instruction[out]  instruction  Not relevant.
     /// \returns                   Status_32BitInstructionNotSupported.
-    virtual ParserSI::kaStatus Parse32(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction);
+    virtual ParserSI::kaStatus Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction, bool& hasLiteral);
 
     /// ctor
     ParserSIEXP() { }

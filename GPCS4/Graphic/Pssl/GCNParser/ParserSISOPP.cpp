@@ -56,19 +56,19 @@ VISOPPInstruction::OP ParserSISOPP::GetVISOPPOp(Instruction::instruction32bit he
     }
 }
 
-ParserSI::kaStatus ParserSISOPP::Parse32(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& pInstruction)
+ParserSI::kaStatus ParserSISOPP::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction, bool& hasLiteral)
 {
     SOPPInstruction::SIMM16 simm16 = GetSIMM16(hexInstruction);
 
     if ((hwGen == GDT_HW_GENERATION_SEAISLAND) || (hwGen == GDT_HW_GENERATION_SOUTHERNISLAND))
     {
         SISOPPInstruction::OP op = GetSISOPPOp(hexInstruction);
-        pInstruction = new SISOPPInstruction(simm16, op);
+        instruction = new SISOPPInstruction(simm16, op);
     }
     else
     {
         VISOPPInstruction::OP op = GetVISOPPOp(hexInstruction);
-        pInstruction = new VISOPPInstruction(simm16, op);
+        instruction = new VISOPPInstruction(simm16, op);
     }
 
 
@@ -76,7 +76,7 @@ ParserSI::kaStatus ParserSISOPP::Parse32(GDT_HW_GENERATION hwGen, Instruction::i
     return ParserSI::Status_SUCCESS;
 }
 
-ParserSI::kaStatus ParserSISOPP::Parse64(GDT_HW_GENERATION, Instruction::instruction64bit, Instruction*&)
+ParserSI::kaStatus ParserSISOPP::Parse(GDT_HW_GENERATION, Instruction::instruction64bit, Instruction*&)
 {
     return ParserSI::Status_64BitInstructionNotSupported;
 }

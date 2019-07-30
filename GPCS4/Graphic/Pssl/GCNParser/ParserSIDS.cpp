@@ -118,7 +118,7 @@ ParserSIDS::GetVDST(Instruction::instruction64bit hexInstruction)
 }
 
 ParserSI::kaStatus
-ParserSIDS::Parse64(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, Instruction*& instruction)
+ParserSIDS::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, Instruction*& instruction)
 {
     ParserSI::kaStatus status = ParserSI::Status_SUCCESS;
     DSInstruction::OFFSET offset0 = GetOffset(hexInstruction, 0);
@@ -152,7 +152,7 @@ ParserSIDS::Parse64(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexIn
     return ParserSI::Status_SUCCESS;
 }
 
-ParserSI::kaStatus ParserSIDS::Parse32(GDT_HW_GENERATION, Instruction::instruction32bit, Instruction*&)
+ParserSI::kaStatus ParserSIDS::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction, bool& hasLiteral)
 {
     return ParserSI::Status_32BitInstructionNotSupported;
 }

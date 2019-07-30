@@ -91,7 +91,7 @@ VISOPCInstruction::OP ParserSISOPC::GetVISOPCOp(Instruction::instruction32bit he
     }
 }
 
-ParserSI::kaStatus ParserSISOPC::Parse32(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction)
+ParserSI::kaStatus ParserSISOPC::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction, bool& hasLiteral)
 {
     unsigned int ridx0 = 0, ridx1 = 0;
     SOPCInstruction::SSRC ssrc0 = GetSSRC(hexInstruction, ridx0, 0);
@@ -111,7 +111,7 @@ ParserSI::kaStatus ParserSISOPC::Parse32(GDT_HW_GENERATION hwGen, Instruction::i
     return ParserSI::Status_SUCCESS;
 }
 
-ParserSI::kaStatus ParserSISOPC::Parse64(GDT_HW_GENERATION, Instruction::instruction64bit, Instruction*&)
+ParserSI::kaStatus ParserSISOPC::Parse(GDT_HW_GENERATION, Instruction::instruction64bit, Instruction*&)
 {
     return ParserSI::Status_64BitInstructionNotSupported;
 }

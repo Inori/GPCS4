@@ -23,7 +23,7 @@ public:
     /// \param[in]          literal32b
     /// \return ParserSI::Status
     /// -----------------------------------------------------------------------------------------------
-    ParserSI::kaStatus Parse32(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction);
+    ParserSI::kaStatus Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction, bool& hasLiteral);
     /// -----------------------------------------------------------------------------------------------
     /// \brief Name:        Parse
     /// \brief Description: Parse the 64-bit VOP instruction (Suits 2 kinds of VOP3)
@@ -31,7 +31,7 @@ public:
     /// \param[in]          instruction
     /// \return ParserSI::Status
     /// -----------------------------------------------------------------------------------------------
-    ParserSI::kaStatus Parse64(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, Instruction*& instruction);
+    ParserSI::kaStatus Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, Instruction*& instruction);
     /// -----------------------------------------------------------------------------------------------
     /// \brief Name:        ParserSIVOP
     /// \brief Description: ctor

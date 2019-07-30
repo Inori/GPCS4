@@ -107,7 +107,7 @@ SOPKInstruction::SDST ParserSISOPK::GetSDST(Instruction::instruction32bit hexIns
     return SOPKInstruction::SDSTIllegal;
 }
 
-ParserSI::kaStatus ParserSISOPK::Parse32(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction)
+ParserSI::kaStatus ParserSISOPK::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction, bool& hasLiteral)
 {
     kaStatus status = Status_SUCCESS;
     unsigned int simm16Ridx = 0, sdstRidx = 0;
@@ -142,7 +142,7 @@ ParserSI::kaStatus ParserSISOPK::Parse32(GDT_HW_GENERATION hwGen, Instruction::i
     return status;
 }
 
-ParserSI::kaStatus ParserSISOPK::Parse64(GDT_HW_GENERATION, Instruction::instruction64bit, Instruction*&)
+ParserSI::kaStatus ParserSISOPK::Parse(GDT_HW_GENERATION, Instruction::instruction64bit, Instruction*&)
 {
     return ParserSI::Status_64BitInstructionNotSupported;
 }

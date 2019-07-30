@@ -94,7 +94,7 @@ VISMEMInstruction::OP ParserSISMRD::GetVISMRDOp(Instruction::instruction64bit he
     }
 }
 
-ParserSI::kaStatus ParserSISMRD::Parse32(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction)
+ParserSI::kaStatus ParserSISMRD::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction, bool& hasLiteral)
 {
     if (hwGen == GDT_HW_GENERATION_VOLCANICISLAND)
     {
@@ -114,7 +114,7 @@ ParserSI::kaStatus ParserSISMRD::Parse32(GDT_HW_GENERATION hwGen, Instruction::i
     return ParserSI::Status_SUCCESS;
 }
 
-ParserSI::kaStatus ParserSISMRD::Parse64(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, Instruction*& instruction)
+ParserSI::kaStatus ParserSISMRD::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, Instruction*& instruction)
 {
     if ((hwGen == GDT_HW_GENERATION_SEAISLAND) || (hwGen == GDT_HW_GENERATION_SOUTHERNISLAND))
     {

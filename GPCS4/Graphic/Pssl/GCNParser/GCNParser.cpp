@@ -56,45 +56,45 @@ GCNParser::~GCNParser()
 	delete m_parsersSI[Instruction::InstructionSet_FLAT];
 }
 
-bool GCNParser::Parse32(Instruction*& pOutInstruction, GDT_HW_GENERATION asicGen, Instruction::instruction32bit hexInstruction)
+bool GCNParser::Parse(Instruction*& pOutInstruction, GDT_HW_GENERATION asicGen, Instruction::instruction32bit hexInstruction, bool& hasLiteral)
 {
 	Instruction* pInstruction = NULL;
 	ParserSI::InstructionEncoding instructionEncoding = ParserSI::GetInstructionEncoding(hexInstruction);
 
 	if (instructionEncoding == ParserSI::InstructionEncoding_SOP2)
 	{
-		m_parsersSI[Instruction::InstructionSet_SOP2]->Parse32(asicGen, hexInstruction, pInstruction);
+		m_parsersSI[Instruction::InstructionSet_SOP2]->Parse(asicGen, hexInstruction, pInstruction, hasLiteral);
 	}
 	else if (instructionEncoding == ParserSI::InstructionEncoding_SOPK)
 	{
-		m_parsersSI[Instruction::InstructionSet_SOPK]->Parse32(asicGen, hexInstruction, pInstruction);
+		m_parsersSI[Instruction::InstructionSet_SOPK]->Parse(asicGen, hexInstruction, pInstruction, hasLiteral);
 	}
 	else if (instructionEncoding == ParserSI::InstructionEncoding_SOP1)
 	{
-		m_parsersSI[Instruction::InstructionSet_SOP1]->Parse32(asicGen, hexInstruction, pInstruction);
+		m_parsersSI[Instruction::InstructionSet_SOP1]->Parse(asicGen, hexInstruction, pInstruction, hasLiteral);
 	}
 	else if (instructionEncoding == ParserSI::InstructionEncoding_SOPC)
 	{
-		m_parsersSI[Instruction::InstructionSet_SOPC]->Parse32(asicGen, hexInstruction, pInstruction);
+		m_parsersSI[Instruction::InstructionSet_SOPC]->Parse(asicGen, hexInstruction, pInstruction, hasLiteral);
 	}
 	else if (instructionEncoding == ParserSI::InstructionEncoding_SOPP)
 	{
-		m_parsersSI[Instruction::InstructionSet_SOPP]->Parse32(asicGen, hexInstruction, pInstruction);
+		m_parsersSI[Instruction::InstructionSet_SOPP]->Parse(asicGen, hexInstruction, pInstruction, hasLiteral);
 	}
 	else if ((instructionEncoding == ParserSI::InstructionEncoding_SMRD) || (instructionEncoding == ParserSI::VIInstructionEncoding_SMEM))
 	{
-		m_parsersSI[Instruction::InstructionSet_SMRD]->Parse32(asicGen, hexInstruction, pInstruction);
+		m_parsersSI[Instruction::InstructionSet_SMRD]->Parse(asicGen, hexInstruction, pInstruction, hasLiteral);
 	}
 	else if ((instructionEncoding == ParserSI::InstructionEncoding_VOP2) ||
 		(instructionEncoding == ParserSI::InstructionEncoding_VOP1) ||
 		(instructionEncoding == ParserSI::InstructionEncoding_VOPC))
 	{
-		m_parsersSI[Instruction::InstructionSet_VOP]->Parse32(asicGen, hexInstruction, pInstruction);
+		m_parsersSI[Instruction::InstructionSet_VOP]->Parse(asicGen, hexInstruction, pInstruction, hasLiteral);
 	}
 	else if ((instructionEncoding == ParserSI::InstructionEncoding_VINTRP) ||
 		(instructionEncoding == ParserSI::VIInstructionEncoding_VINTRP))
 	{
-		m_parsersSI[Instruction::InstructionSet_VINTRP]->Parse32(asicGen, hexInstruction, pInstruction);
+		m_parsersSI[Instruction::InstructionSet_VINTRP]->Parse(asicGen, hexInstruction, pInstruction, hasLiteral);
 	}
 
 	pOutInstruction = pInstruction;
@@ -102,7 +102,7 @@ bool GCNParser::Parse32(Instruction*& pOutInstruction, GDT_HW_GENERATION asicGen
 	return (pInstruction != NULL);
 }
 
-bool GCNParser::Parse64(Instruction*& pOutInstruction, GDT_HW_GENERATION asicGen, Instruction::instruction64bit hexInstruction)
+bool GCNParser::Parse(Instruction*& pOutInstruction, GDT_HW_GENERATION asicGen, Instruction::instruction64bit hexInstruction)
 {
 	Instruction* pInstruction = NULL;
 	/// Instruction encoding appears only in low 32 bits of instruction
@@ -111,35 +111,35 @@ bool GCNParser::Parse64(Instruction*& pOutInstruction, GDT_HW_GENERATION asicGen
 	switch (instructionEncoding)
 	{
 	case ParserSI::InstructionEncoding_DS:
-		m_parsersSI[Instruction::InstructionSet_DS]->Parse64(asicGen, hexInstruction, pInstruction);
+		m_parsersSI[Instruction::InstructionSet_DS]->Parse(asicGen, hexInstruction, pInstruction);
 		break;
 
 	case ParserSI::InstructionEncoding_MUBUF:
-		m_parsersSI[Instruction::InstructionSet_MUBUF]->Parse64(asicGen, hexInstruction, pInstruction);
+		m_parsersSI[Instruction::InstructionSet_MUBUF]->Parse(asicGen, hexInstruction, pInstruction);
 		break;
 
 	case ParserSI::InstructionEncoding_MIMG:
-		m_parsersSI[Instruction::InstructionSet_MIMG]->Parse64(asicGen, hexInstruction, pInstruction);
+		m_parsersSI[Instruction::InstructionSet_MIMG]->Parse(asicGen, hexInstruction, pInstruction);
 		break;
 
 	case ParserSI::InstructionEncoding_MTBUF:
-		m_parsersSI[Instruction::InstructionSet_MTBUF]->Parse64(asicGen, hexInstruction, pInstruction);
+		m_parsersSI[Instruction::InstructionSet_MTBUF]->Parse(asicGen, hexInstruction, pInstruction);
 		break;
 
 	case ParserSI::InstructionEncoding_EXP:
-		m_parsersSI[Instruction::InstructionSet_EXP]->Parse64(asicGen, hexInstruction, pInstruction);
+		m_parsersSI[Instruction::InstructionSet_EXP]->Parse(asicGen, hexInstruction, pInstruction);
 		break;
 
 	case ParserSI::InstructionEncoding_VOP3:
-		m_parsersSI[Instruction::InstructionSet_VOP]->Parse64(asicGen, hexInstruction, pInstruction);
+		m_parsersSI[Instruction::InstructionSet_VOP]->Parse(asicGen, hexInstruction, pInstruction);
 		break;
 
 	case ParserSI::VIInstructionEncoding_SMEM:
-		m_parsersSI[Instruction::InstructionSet_SMRD]->Parse64(asicGen, hexInstruction, pInstruction);
+		m_parsersSI[Instruction::InstructionSet_SMRD]->Parse(asicGen, hexInstruction, pInstruction);
 		break;
 
 	case ParserSI::VIInstructionEncoding_FLAT:
-		m_parsersSI[Instruction::InstructionSet_FLAT]->Parse64(asicGen, hexInstruction, pInstruction);
+		m_parsersSI[Instruction::InstructionSet_FLAT]->Parse(asicGen, hexInstruction, pInstruction);
 		break;
 
 	default:

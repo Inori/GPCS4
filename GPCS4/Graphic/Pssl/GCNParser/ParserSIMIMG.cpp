@@ -168,7 +168,7 @@ ParserSIMIMG::GetSSAMP(Instruction::instruction64bit hexInstruction)
 
 
 ParserSI::kaStatus
-ParserSIMIMG::Parse64(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, Instruction*& instruction)
+ParserSIMIMG::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, Instruction*& instruction)
 {
     Instruction::InstructionCategory instKind = Instruction::ScalarMemoryRead;
     MIMGInstruction::DMASK dmask = GetDMASK(hexInstruction);
@@ -201,8 +201,7 @@ ParserSIMIMG::Parse64(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hex
     return ParserSI::Status_SUCCESS;
 }
 
-ParserSI::kaStatus
-ParserSIMIMG::Parse32(GDT_HW_GENERATION, Instruction::instruction32bit, Instruction*&)
+ParserSI::kaStatus ParserSIMIMG::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction, bool& hasLiteral)
 {
     return ParserSI::Status_32BitInstructionNotSupported;
 }

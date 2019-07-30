@@ -52,7 +52,7 @@ VINTRPInstruction::VDST ParserSIVINTRP::GetVDST(Instruction::instruction32bit he
     RETURN_EXTRACT_INSTRUCTION(vdst);
 }
 
-ParserSI::kaStatus ParserSIVINTRP::Parse32(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction)
+ParserSI::kaStatus ParserSIVINTRP::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction, bool& hasLiteral)
 {
     VINTRPInstruction::VSRC vsrc = GetVSRC(hexInstruction);
     VINTRPInstruction::ATTRCHAN attrchan = GetATTRCHAN(hexInstruction);
@@ -73,7 +73,7 @@ ParserSI::kaStatus ParserSIVINTRP::Parse32(GDT_HW_GENERATION hwGen, Instruction:
     return ParserSI::Status_SUCCESS;
 }
 
-ParserSI::kaStatus ParserSIVINTRP::Parse64(GDT_HW_GENERATION, Instruction::instruction64bit, Instruction*&)
+ParserSI::kaStatus ParserSIVINTRP::Parse(GDT_HW_GENERATION, Instruction::instruction64bit, Instruction*&)
 {
     return ParserSI::Status_64BitInstructionNotSupported;
 }

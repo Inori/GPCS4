@@ -84,7 +84,7 @@ EXPInstruction::VSRC ParserSIEXP::GetVSRC(Instruction::instruction64bit hexInstr
     return vsrc;
 }
 
-ParserSI::kaStatus ParserSIEXP::Parse64(GDT_HW_GENERATION, Instruction::instruction64bit hexInstruction, Instruction*& instruction)
+ParserSI::kaStatus ParserSIEXP::Parse(GDT_HW_GENERATION, Instruction::instruction64bit hexInstruction, Instruction*& instruction)
 {
     EXPInstruction::VSRC vsrc[4];
     EXPInstruction::EN en = GetEn(hexInstruction);
@@ -101,7 +101,7 @@ ParserSI::kaStatus ParserSIEXP::Parse64(GDT_HW_GENERATION, Instruction::instruct
     return ParserSI::Status_SUCCESS;
 }
 
-ParserSI::kaStatus ParserSIEXP::Parse32(GDT_HW_GENERATION, Instruction::instruction32bit, Instruction*&)
+ParserSI::kaStatus ParserSIEXP::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction, bool& hasLiteral)
 {
     return ParserSI::Status_32BitInstructionNotSupported;
 }

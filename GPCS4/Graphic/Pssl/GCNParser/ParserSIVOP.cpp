@@ -145,8 +145,7 @@ VOPInstruction::CLMP ParserSIVOP::GetCLMP(Instruction::instruction64bit hexInstr
 }
 
 
-ParserSI::kaStatus
-ParserSIVOP::Parse32(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction)
+ParserSI::kaStatus ParserSIVOP::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction, bool& hasLiteral)
 {
     kaStatus retStatus =   ParserSI::Status_32BitInstructionNotSupported;
     VOPInstruction::Encoding encoding = GetInstructionType(hexInstruction);
@@ -257,7 +256,7 @@ ParserSIVOP::Parse32(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexI
 }
 
 ParserSI::kaStatus
-ParserSIVOP::Parse64(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, Instruction*& instruction)
+ParserSIVOP::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, Instruction*& instruction)
 {
     kaStatus retStatus =   ParserSI::Status_64BitInstructionNotSupported;
     VOPInstruction::Encoding encoding = GetInstructionType(hexInstruction);

@@ -119,13 +119,13 @@ public:
     /// \param[in]  hexInstruction  The 32 bit hexadecimal instruction.
     /// \instruction[out]  instruction  The parsed instruction.
     /// \returns                   A status.
-    virtual ParserSI::kaStatus Parse32(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction) = 0;
+    virtual ParserSI::kaStatus Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction, bool& hasLiteral) = 0;
 
     /// Parse the instruction
     /// \param[in]  hexInstruction  The 64 bit hexadecimal instruction.
     /// \instruction[out]  instruction  The parsed instruction.
     /// \returns                   A status.
-    virtual ParserSI::kaStatus Parse64(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, Instruction*& instruction) = 0;
+    virtual ParserSI::kaStatus Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, Instruction*& instruction) = 0;
 
     /// Get instruction`s encoding
     /// \param[in]  hexInstruction  The 32 bit hexadecimal instruction.

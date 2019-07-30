@@ -232,7 +232,7 @@ ParserSIMUBUF::GetSOFFSET(Instruction::instruction64bit hexInstruction, unsigned
 }
 
 ParserSI::kaStatus
-ParserSIMUBUF::Parse64(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, Instruction*& instruction)
+ParserSIMUBUF::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, Instruction*& instruction)
 {
     ParserSI::kaStatus status = ParserSI::Status_SUCCESS;
     Instruction::InstructionCategory instKind = Instruction::VectorMemoryRead;
@@ -276,8 +276,7 @@ ParserSIMUBUF::Parse64(GDT_HW_GENERATION hwGen, Instruction::instruction64bit he
     return status;
 }
 
-ParserSI::kaStatus
-ParserSIMUBUF::Parse32(GDT_HW_GENERATION, Instruction::instruction32bit, Instruction*&)
+ParserSI::kaStatus ParserSIMUBUF::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction, bool& hasLiteral)
 {
     return ParserSI::Status_32BitInstructionNotSupported;
 }

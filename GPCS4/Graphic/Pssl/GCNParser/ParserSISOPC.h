@@ -24,14 +24,14 @@ public:
     /// \param[in]  hexInstruction  The 64 bit hexadecimal instruction.
     /// \instruction[out]  instruction  The parsed instruction.
     /// \returns                   A status.
-    ParserSI::kaStatus Parse32(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction);
+    ParserSI::kaStatus Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, Instruction*& instruction, bool& hasLiteral);
 
     /// Parse the instruction
     /// Note: SOPC instruction is 32 bit instruction - 64 bit instruction is not supported
     /// \param[in]  hexInstruction  The 64 bit hexadecimal instruction.
     /// \instruction[out]  instruction  Not relevant.
     /// \returns                   Status_64BitInstructionNotSupported.
-    virtual ParserSI::kaStatus Parse64(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, Instruction*& instruction);
+    virtual ParserSI::kaStatus Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, Instruction*& instruction);
 
     /// ctor
     ParserSISOPC() { }
