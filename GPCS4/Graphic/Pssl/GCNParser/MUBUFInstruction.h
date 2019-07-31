@@ -106,7 +106,9 @@ public:
 
     /// ctor
     MUBUFInstruction(OFFSET offset, OFFEN offen, IDXEN idxen, GLC glc, ADDR64 addr64, LDS lds, VADDR vaddr, VDATA vdata, SRSRC srsrc,
-                     SLC slc, TFE tfe, SOFFSET soffset, unsigned int ridx, Instruction::InstructionCategory inst): Instruction(MUBUFInstructionWidth, inst, InstructionSet_MUBUF),
+                     SLC slc, TFE tfe, SOFFSET soffset, unsigned int ridx, 
+		Instruction::InstructionCategory inst, InstructionClass insClass = InstructionClassUnknown):
+		Instruction(MUBUFInstructionWidth, inst, InstructionSet_MUBUF, insClass),
         m_offset(offset), m_offen(offen), m_idxen(idxen), m_glc(glc), m_addr64(addr64), m_lds(lds),
         m_vaddr(vaddr), m_vdata(vdata), m_srsrc(srsrc), m_slc(slc), m_tfe(tfe), m_soffset(soffset), m_ridx(ridx) {}
 

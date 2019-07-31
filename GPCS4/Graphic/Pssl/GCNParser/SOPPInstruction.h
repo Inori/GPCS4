@@ -30,7 +30,9 @@ public:
     //
 
     /// ctor
-    SOPPInstruction(SIMM16 simm16): Instruction(SOPPInstructionWidth, ScalarALU, InstructionSet_SOPP), m_simm16(simm16) {}
+    SOPPInstruction(SIMM16 simm16, InstructionCategory insCat = FlowControl, InstructionClass insClass = InstructionClassUnknown):
+		Instruction(SOPPInstructionWidth, insCat, InstructionSet_SOPP, insClass), 
+		m_simm16(simm16) {}
 
     /// dtor
     ~SOPPInstruction() {}

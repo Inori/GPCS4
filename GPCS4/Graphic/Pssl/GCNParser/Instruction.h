@@ -124,10 +124,8 @@ const int NO_LABEL = -1;
             VectorMemory,
 			/// Scalar Program Flow Control and Special Operations
 			FlowControl,
-            /// LDS
-            LDS,
-            /// GDS
-            GDS,
+            /// LDS and GDS
+            DataShare,
 			/// Vector Interpolation Operations
 			VectorInterpolation,
 			/// Export
@@ -260,12 +258,12 @@ const int NO_LABEL = -1;
         /// -----------------------------------------------------------------------------------------------
         InstructionCategory GetInstructionCategory() const { return m_instructionCategory; }
 
-        /// -----------------------------------------------------------------------------------------------
-        /// \brief Name:        SetInstructionFormatKind
-        /// \brief Description: Set the instruction`s format kind
-        /// \return InstructionFormatKind
-        /// -----------------------------------------------------------------------------------------------
-        void SetInstructionCategory(InstructionCategory instructionType) { m_instructionCategory = instructionType; }
+		/// -----------------------------------------------------------------------------------------------
+		/// \brief Name:        GetInstructionClass
+		/// \brief Description: Get Instruction`s class type
+		/// \return InstructionClass
+		/// -----------------------------------------------------------------------------------------------
+		InstructionClass GetInstructionClass() const { return m_instructionClass; }
 
         /// -----------------------------------------------------------------------------------------------
         /// \brief Name:        GetInstructionFormat
@@ -288,12 +286,10 @@ const int NO_LABEL = -1;
 		/// Instruction`s format
 		InstructionSet m_instructionFormat;
 
-		/// Instruction`s class
-		InstructionClass m_instructionClass;
-
-
 		GDT_HW_GENERATION m_HwGen;
 
+		/// Instruction`s class
+		InstructionClass m_instructionClass;
     };
 
 

@@ -54,7 +54,9 @@ public:
     //
 
     /// ctor
-    SOPCInstruction(SSRC ssrc0, SSRC ssrc1, unsigned int sridx0, unsigned int sridx1): Instruction(SOPCInstructionWidth, ScalarALU, InstructionSet_SOPC),
+    SOPCInstruction(SSRC ssrc0, SSRC ssrc1, unsigned int sridx0, unsigned int sridx1, 
+		InstructionCategory insCat = ScalarALU, InstructionClass insClass = InstructionClassUnknown):
+		Instruction(SOPCInstructionWidth, insCat, InstructionSet_SOPC, insClass),
         m_ssrc0(ssrc0), m_ssrc1(ssrc1), m_sridx0(sridx0), m_sridx1(sridx1) {}
 
     /// dtor

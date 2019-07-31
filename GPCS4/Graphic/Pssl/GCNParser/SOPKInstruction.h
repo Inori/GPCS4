@@ -64,7 +64,9 @@ public:
     //
 
     /// ctor
-    SOPKInstruction(SIMM16 simm16, SDST sdst, unsigned int simm16Ridx, unsigned int sdstRidx): Instruction(SOPKInstructionWidth, ScalarALU, InstructionSet_SOPK),
+    SOPKInstruction(SIMM16 simm16, SDST sdst, unsigned int simm16Ridx, unsigned int sdstRidx,
+		InstructionCategory insCat = ScalarALU, InstructionClass insClass = InstructionClassUnknown):
+		Instruction(SOPKInstructionWidth, insCat, InstructionSet_SOPK, insClass),
         m_simm16(simm16), m_simm16Ridx(simm16Ridx), m_sdst(sdst), m_sdstRidx(sdstRidx) { }
 
     /// dtor

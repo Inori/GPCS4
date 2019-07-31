@@ -93,7 +93,9 @@ public:
     /// -----------------------------------------------------------------------------------------------
     VOPInstruction(SRC src0, VDST vdst, 
 		unsigned int ridx0, unsigned int vdstRidx,
-		unsigned int instructionWidth, InstructionSet instructionEncoding) : Instruction(instructionWidth, VectorALU, instructionEncoding),
+		unsigned int instructionWidth, 
+		InstructionSet instructionEncoding, InstructionClass insClass = InstructionClassUnknown) : 
+		Instruction(instructionWidth, VectorALU, instructionEncoding, insClass),
 	m_src0(src0), m_vdst(vdst), m_ridx0(ridx0), m_vdstRidx(vdstRidx) { }
     /// -----------------------------------------------------------------------------------------------
     /// \brief Name:        ~VOPInstruction

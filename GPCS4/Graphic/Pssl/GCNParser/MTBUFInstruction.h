@@ -110,7 +110,9 @@ public:
 
     /// ctor
     MTBUFInstruction(OFFSET offset, OFFEN offen, IDXEN idxen, GLC glc, ADDR64 addr64, DFMT dmft, NFMT nmft, VADDR vaddr, VDATA vdata, SRSRC srsrc,
-                     SLC slc, TFE tfe, SOFFSET soffset, unsigned int ridx, Instruction::InstructionCategory inst): Instruction(MTBUFInstructionWidth, inst, InstructionSet_MTBUF),
+                     SLC slc, TFE tfe, SOFFSET soffset, unsigned int ridx, 
+		Instruction::InstructionCategory inst, InstructionClass insClass = InstructionClassUnknown):
+		Instruction(MTBUFInstructionWidth, inst, InstructionSet_MTBUF, insClass),
         m_offset(offset), m_offen(offen), m_idxen(idxen), m_glc(glc), m_addr64(addr64), m_dmft(dmft), m_nmft(nmft),
         m_vaddr(vaddr), m_vdata(vdata), m_srsrc(srsrc), m_slc(slc), m_tfe(tfe), m_soffset(soffset), m_ridx(ridx) {}
 

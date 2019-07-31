@@ -101,7 +101,8 @@ public:
     //
 
     /// ctor
-    EXPInstruction(EN en, TGT tgt, COMPR compr, DONE done, VM vm, VSRC vsrc0, VSRC vsrc1, VSRC vsrc2, VSRC vsrc3): Instruction(EXPInstructionWidth, Export, InstructionSet_EXP),
+    EXPInstruction(EN en, TGT tgt, COMPR compr, DONE done, VM vm, VSRC vsrc0, VSRC vsrc1, VSRC vsrc2, VSRC vsrc3): 
+		Instruction(EXPInstructionWidth, Export, InstructionSet_EXP, Exp),
         m_en(en), m_tgt(tgt), m_compr(compr), m_done(done), m_vm(vm)
     {
         m_vsrc[0] = vsrc0;

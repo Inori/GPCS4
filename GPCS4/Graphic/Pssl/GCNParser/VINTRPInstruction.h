@@ -47,7 +47,9 @@ public:
     //
 
     /// ctor
-    VINTRPInstruction(VSRC vsrc, ATTRCHAN attrchan, ATTR attr, VDST vdst): Instruction(VSRCInstructionWidth, VectorALU, InstructionSet_VINTRP),
+    VINTRPInstruction(VSRC vsrc, ATTRCHAN attrchan, ATTR attr, VDST vdst,
+		InstructionClass insClass = InstructionClassUnknown): 
+		Instruction(VSRCInstructionWidth, VectorInterpolation, InstructionSet_VINTRP, insClass),
         m_vsrc(vsrc), m_attrchan(attrchan), m_attr(attr), m_vdst(vdst) {}
 
     /// dtor

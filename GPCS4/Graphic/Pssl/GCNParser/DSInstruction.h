@@ -57,7 +57,9 @@ public:
     //
 
     /// ctor
-    DSInstruction(OFFSET offset0, OFFSET offset1, GDS isGDS, ADDR addr, DATA data0, DATA data1, VDST vdst): Instruction(DSInstructionWidth, isGDS ? Instruction::GDS : Instruction::LDS, InstructionSet_DS),
+    DSInstruction(OFFSET offset0, OFFSET offset1, GDS isGDS, ADDR addr, DATA data0, DATA data1, VDST vdst,
+		InstructionClass insClass = InstructionClassUnknown):
+		Instruction(DSInstructionWidth, Instruction::DataShare, InstructionSet_DS, insClass),
         m_offset0(offset0), m_offset1(offset1), m_isGDS(isGDS), m_addr(addr), m_data0(data0), m_data1(data1), m_vdst(vdst) { }
 
     /// dtor

@@ -64,9 +64,10 @@ public:
     //
 
     /// ctor
-    SMRDInstruction(OFFSET offset, IMM imm, SBASE sbase, SDST sdst, unsigned int sridx) :
-        Instruction(SMRDInstructionWidth, ScalarMemory, InstructionSet_SMRD), m_offset(offset),
-        m_imm(imm), m_sbase(sbase), m_sdst(sdst), m_sridx(sridx) {}
+    SMRDInstruction(OFFSET offset, IMM imm, SBASE sbase, SDST sdst, unsigned int sridx,
+		InstructionClass insClass = InstructionClassUnknown) :
+        Instruction(SMRDInstructionWidth, ScalarMemory, InstructionSet_SMRD, insClass),
+		m_offset(offset), m_imm(imm), m_sbase(sbase), m_sdst(sdst), m_sridx(sridx) {}
 
     /// dtor
     ~SMRDInstruction() {}

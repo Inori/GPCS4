@@ -65,7 +65,8 @@ public:
     //
 
     /// ctor
-    SOP1Instruction(SSRC ssrc0, SDST sdst, unsigned int sridx0, unsigned int sdstRidx): Instruction(SOP1InstructionWidth, ScalarALU, InstructionSet_SOP1),
+    SOP1Instruction(SSRC ssrc0, SDST sdst, unsigned int sridx0, unsigned int sdstRidx, InstructionClass insClass = InstructionClassUnknown): 
+		Instruction(SOP1InstructionWidth, ScalarALU, InstructionSet_SOP1, insClass),
         m_ssrc0(ssrc0), m_sridx0(sridx0), m_sdst(sdst), m_sdstRidx(sdstRidx) { }
 
     /// dtor
