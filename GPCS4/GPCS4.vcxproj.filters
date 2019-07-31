@@ -556,9 +556,6 @@
     <ClInclude Include="Graphic\Pssl\PsslShaderGenerator.h">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\beStringConstants.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
     <ClInclude Include="Graphic\Pssl\GCNParser\DeviceInfo.h">
       <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
     </ClInclude>

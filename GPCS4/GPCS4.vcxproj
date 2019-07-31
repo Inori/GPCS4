@@ -51,7 +51,6 @@
     <ClInclude Include="Graphic\Gve\GvePhysicalDevice.h" />
     <ClInclude Include="Graphic\Gve\GveShader.h" />
     <ClInclude Include="Graphic\Gve\GveSwapChain.h" />
-    <ClInclude Include="Graphic\Pssl\GCNParser\beStringConstants.h" />
     <ClInclude Include="Graphic\Pssl\GCNParser\DeviceInfo.h" />
     <ClInclude Include="Graphic\Pssl\GCNParser\DSInstruction.h" />
     <ClInclude Include="Graphic\Pssl\GCNParser\EXPInstruction.h" />

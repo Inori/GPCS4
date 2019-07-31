@@ -21,19 +21,6 @@
 #include "DeviceInfo.h"
 
 
-// Used only for debugging purpose.
-// If defined, every Instruction class will contains extra strings and tables,
-// which will reduce performance
-
-//#define INSTRUCTION_STRING_REPRESENTATION 1
-
-
-
-#ifdef INSTRUCTION_STRING_REPRESENTATION
-#include "beStringConstants.h"
-#endif  // INSTRUCTION_STRING_REPRESENTATION
-
-
 const int NO_LABEL = -1;
 
 #define GENERIC_INSTRUCTION_FIELDS_1(in,val) \
@@ -154,7 +141,7 @@ const int NO_LABEL = -1;
 		/// Instruction`s format kinds
 		enum InstructionClass
 		{
-			ClassUnknown,
+			InstructionClassUnknown,
 
 			ScalarArith,
 			ScalarAbs,
@@ -234,7 +221,9 @@ const int NO_LABEL = -1;
 
 			Exp,
 
-			DbgProf
+			DbgProf,
+
+			InstructionClassCount
 		};
 
         /// -----------------------------------------------------------------------------------------------
@@ -255,7 +244,7 @@ const int NO_LABEL = -1;
         //
 
         /// ctor
-        Instruction(unsigned int instructionWidth, InstructionCategory instructionFormatKind, InstructionSet instructionFormat);
+        Instruction(unsigned int instructionWidth, InstructionCategory instructionFormatKind, InstructionSet instructionFormat, InstructionClass instructionClass = InstructionClassUnknown);
 
         /// dtor
         virtual ~Instruction() {}
@@ -299,110 +288,12 @@ const int NO_LABEL = -1;
 		/// Instruction`s format
 		InstructionSet m_instructionFormat;
 
+		/// Instruction`s class
+		InstructionClass m_instructionClass;
+
 
 		GDT_HW_GENERATION m_HwGen;
 
-
-#ifdef INSTRUCTION_STRING_REPRESENTATION
-
-	public:
-
-		/// ctor for label instruction
-		explicit Instruction(const std::string& labelString);
-
-        int GetInstructionClockCount(const std::string& deviceName) const;
-
-        /// The Instruction Asic HW generation. default is SI
-        GDT_HW_GENERATION GetHwGen() const { return m_HwGen; }
-        void SetHwGen(GDT_HW_GENERATION HwGen) { m_HwGen = HwGen; }
-
-        // String representation of the instruction's opcode.
-        const std::string& GetInstructionOpCode() const { return m_instructionOpCode; }
-
-        // String representation of the instruction's parameters.
-        const std::string& GetInstructionParameters() const { return m_parameters; }
-
-        // String representation of the instruction's binary representation.
-        const std::string& GetInstructionBinaryRep() const { return m_binaryInstruction; }
-
-        // String representation of the instruction's offset within the program.
-        const std::string& GetInstructionOffset() const { return m_offsetInBytes; }
-
-        // Sets the string representation of the instruction's opcode.
-        void SetInstructionOpCode(const std::string& opCode) { m_instructionOpCode = opCode; }
-
-        // Sets the string representation of the instruction's parameters.
-        void SetInstructionParameters(const std::string& params) { m_parameters = params; }
-
-        // Sets the string representation of the instruction's binary representation.
-        void SetInstructionBinaryRep(const std::string& binaryRep) { m_binaryInstruction = binaryRep; }
-
-        // Sets the string representation of the instruction's offset within the program.
-        void SetInstructionOffset(const std::string& offset) { m_offsetInBytes = offset; }
-
-        // Sets the string representation of the instruction: opcode, parameters, binary representation and offset within the program.
-        void SetInstructionStringRepresentation(const std::string& opCode,
-                                                const std::string& params, const std::string& binaryRep, const std::string& offset);
-
-        /// Returns pointing label string
-        const std::string& GetPointingLabelString() const { return m_pointingLabelString; }
-
-	protected:
-		/// String representation of the instruction's opcode.
-		std::string m_instructionOpCode;
-
-    private:
-
-        /// Initializes the performance tables.
-        static void SetUpPerfTables();
-
-        /// Initializes the hybrid architecture performance tables.
-        static void SetUpHybridPerfTables();
-
-        /// Initializes the scalar performance tables.
-        static void SetUpScalarPerfTables();
-
-        /// Initializes quarter devices performance tables.
-        static void SetUpQuarterDevicesPerfTables();
-
-        /// Initializes half devices performance tables.
-        static void SetUpHalfDevicesPerfTables();
-
-        /// String representation of the parameters.
-        std::string m_parameters;
-
-        /// String of the binary representation of the instruction (e.g. 0xC2078914).
-        std::string m_binaryInstruction;
-
-        /// String representation of the offset in bytes of the current instruction
-        /// from the beginning of the program.
-        std::string m_offsetInBytes;
-
-        /// If this instruction is being pointed by a label, this member will hold the label.
-        std::string m_pointingLabelString;
-
-        /// Corresponding source line.
-        std::string m_srcLine;
-
-        /// Corresponding source line number.
-        int m_srcLineNum;
-
-        /// Indicates whether the performance tables were initialized or not.
-        static bool m_s_IsPerfTablesInitialized;
-
-        /// Holds the cycles per instruction for the 1/2 device architecture.
-        static std::unordered_map<std::string, int> m_s_halfDevicePerfTable;
-
-        /// Holds the cycles per instruction for the 1/4 device architecture.
-        static std::unordered_map<std::string, int> m_s_quarterDevicePerfTable;
-
-        /// Holds the cycles per instruction for the 1/16 device architecture.
-        static std::unordered_map<std::string, int> m_s_hybridDevicePerfTable;
-
-        /// Holds the cycles per instruction for the scalar instructions.
-        static std::unordered_map<std::string, int> m_s_scalarPerfTable;
-
-#endif  // INSTRUCTION_STRING_REPRESENTATION
     };
 
 
