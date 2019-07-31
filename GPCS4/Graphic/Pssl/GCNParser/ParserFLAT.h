@@ -124,13 +124,13 @@ private:
         if (SEG == 0b01)
         {
             return ( ((SCRATCH_OP)OP >= SCRATCH_OP::scratch_store_byte && (SCRATCH_OP)OP <= SCRATCH_OP::scratch_store_dwordx4) ?
-                     InstructionCategory::VectorMemoryWrite : InstructionCategory::VectorMemoryRead );
+                     InstructionCategory::VectorMemory : InstructionCategory::VectorMemory );
         }
         else
         {
             return ( (FLAT_GLBL_OP)OP >= FLAT_GLBL_OP::atomic_swap  ? InstructionCategory::Atomics :
                      (((FLAT_GLBL_OP)OP >= FLAT_GLBL_OP::store_byte && (FLAT_GLBL_OP)OP <= FLAT_GLBL_OP::store_dwordx4) ?
-                     InstructionCategory::VectorMemoryWrite : InstructionCategory::VectorMemoryRead) );
+                     InstructionCategory::VectorMemory : InstructionCategory::VectorMemory) );
         }
     }
 

@@ -126,34 +126,113 @@ const int NO_LABEL = -1;
         /// Instruction`s format kinds
         enum InstructionCategory
         {
-            /// Scalar Instruction Memory Read
-            ScalarMemoryRead = 0,
-            /// Scalar Instruction Memory Write
-            /// Note : No scalar memory write until Volcanic Island [VI]
-            ScalarMemoryWrite,
-            /// Scalar ALU Operation
-            ScalarALU,
+			/// Scalar ALU Operation
+			ScalarALU,
+            /// Scalar Instruction Memory
+            ScalarMemory,
+			/// Vector ALU Operation
+			VectorALU,
             /// Vector Instruction Memory Read
-            VectorMemoryRead,
-            /// Vector Instruction Memory Write
-            VectorMemoryWrite,
-            /// Vector ALU Operation
-            VectorALU,
+            VectorMemory,
+			/// Scalar Program Flow Control and Special Operations
+			FlowControl,
             /// LDS
             LDS,
             /// GDS
             GDS,
-            /// Export
-            Export,
-            /// Atomics
-            Atomics,
-            /// Flow-Control ([Internal] functional unit)
-            Internal,
-            /// Branch
-            Branch,
+			/// Vector Interpolation Operations
+			VectorInterpolation,
+			/// Export
+			Export,
+			/// Debug and Profiling Operations
+			DebugProfile,
             /// Amount of type
             InstructionsCategoriesCount
         };
+
+		/// Instruction`s format kinds
+		enum InstructionClass
+		{
+			ScalarArith,
+			ScalarAbs,
+			ScalarMov,
+			ScalarCmp,
+			ScalarSelect,
+			ScalarBitLogic,
+			ScalarBitManip,
+			ScalarBitField,
+			ScalarConv,
+			ScalarExecMask,
+			ScalarQuadMask,
+			
+			VectorRegMov,
+			VectorLane,
+			VectorBitLogic,
+			VectorBitField32,
+			VectorThreadMask,
+			VectorBitField64,
+			VectorFpArith32,
+			VectorFpRound32,
+			VectorFpField32,
+			VectorFpTran32,
+			VectorFpCmp32,
+			VectorFpArith64,
+			VectorFpRound64,
+			VectorFpField64,
+			VectorFpTran64,
+			VectorFpCmp64,
+			VectorIntArith32,
+			VectorIntArith64,
+			VectorIntCmp32,
+			VectorIntCmp64,
+			VectorConv,
+			VectorFpGraph32,
+			VectorIntGraph,
+			VectorMisc,
+
+			ScalarProgFlow,
+			ScalarSync,
+			ScalarWait,
+			ScalarCache,
+			ScalarPrior,
+			ScalarRegAccess,
+			ScalarMsg,
+
+			ScalarMemRd,
+			ScalarMemUt,
+
+			VectorMemBufNoFmt,
+			VectorMemBufFmt,
+			VectorMemImgNoSmp,
+			VectorMemImgSmp,
+			VectorMemImgUt,
+			VectorMemL1Cache,
+
+			DsIdxRd,
+			DsIdxWr,
+			DsIdxWrXchg,
+			DsIdxCondXchg,
+			DsIdxWrap,
+			DsAtomicArith32,
+			DsAtomicArith64,
+			DsAtomicMinMax32,
+			DsAtomicMinMax64,
+			DsAtomicCmpSt32,
+			DsAtomicCmpSt64,
+			DsAtomicLogic32,
+			DsAtomicLogic64,
+			DsAppendCon,
+			DsDataShareUt,
+			DsDataShareMisc,
+			GdsSync,
+			GdsOrdCnt,
+
+			VectorInterpFpCache,
+
+			Exp,
+
+			DbgProf
+		};
 
         /// -----------------------------------------------------------------------------------------------
         /// \brief Name:        GetFunctionalUnitAsString

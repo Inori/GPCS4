@@ -74,11 +74,11 @@ ParserSIMIMG::GetOpSIMIMG(Instruction::instruction64bit hexInstruction, Instruct
         (op == SIMIMGInstruction::IMAGE_GET_RESINFO) ||
         (op >= SIMIMGInstruction::IMAGE_SAMPLE && op <= SIMIMGInstruction::IMAGE_SAMPLE_C_CD_CL_O))
     {
-        instKind = Instruction::VectorMemoryRead;
+        instKind = Instruction::VectorMemory;
     }
     else if (op >= SIMIMGInstruction::IMAGE_STORE && op <= SIMIMGInstruction::IMAGE_STORE_MIP_PCK)
     {
-        instKind = Instruction::VectorMemoryWrite;
+        instKind = Instruction::VectorMemory;
     }
     else if (op >= SIMIMGInstruction::IMAGE_ATOMIC_SWAP && op <= SIMIMGInstruction::IMAGE_ATOMIC_FMAX)
     {
@@ -110,11 +110,11 @@ ParserSIMIMG::GetOpVIMIMG(Instruction::instruction64bit hexInstruction, Instruct
         (op == VIMIMGInstruction::image_get_resinfo) ||
         (op >= VIMIMGInstruction::image_sample && op <= VIMIMGInstruction::image_sample_c_cd_cl_o))
     {
-        instKind = Instruction::VectorMemoryRead;
+        instKind = Instruction::VectorMemory;
     }
     else if (op >= VIMIMGInstruction::image_store && op <= VIMIMGInstruction::image_store_mip_pck)
     {
-        instKind = Instruction::VectorMemoryWrite;
+        instKind = Instruction::VectorMemory;
     }
     else if (op >= VIMIMGInstruction::image_atomic_swap && op <= VIMIMGInstruction::image_atomic_dec)
     {
@@ -170,7 +170,7 @@ ParserSIMIMG::GetSSAMP(Instruction::instruction64bit hexInstruction)
 ParserSI::kaStatus
 ParserSIMIMG::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, std::unique_ptr<Instruction>& instruction)
 {
-    Instruction::InstructionCategory instKind = Instruction::ScalarMemoryRead;
+    Instruction::InstructionCategory instKind = Instruction::ScalarMemory;
     MIMGInstruction::DMASK dmask = GetDMASK(hexInstruction);
     MIMGInstruction::UNORM unorm = GetUNORM(hexInstruction);
     MIMGInstruction::GLC glc = GetGLC(hexInstruction);

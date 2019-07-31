@@ -55,6 +55,7 @@ void PsslShaderGenerator::decodeFetchShader(GCNCodeSlice slice, PsslFetchShader&
 		decoder.decodeInstruction(slice);
 
 		GCNInstruction& inst = decoder.getInstruction();
+		// store the decoded instructions for use later in compile.
 		fsShader.m_instructionList.push_back(std::move(inst));
 	}
 }

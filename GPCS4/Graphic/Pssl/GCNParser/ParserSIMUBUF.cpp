@@ -68,13 +68,13 @@ ParserSIMUBUF::GetSIOpMUBUF(Instruction::instruction64bit hexInstruction, Instru
     if ((op >= SIMUBUFInstruction::BUFFER_LOAD_FORMAT_X && op <= SIMUBUFInstruction::BUFFER_LOAD_FORMAT_XYZW) ||
         (op >= SIMUBUFInstruction::BUFFER_LOAD_UBYTE && op <= SIMUBUFInstruction::BUFFER_LOAD_DWORDX4))
     {
-        instKind = Instruction::VectorMemoryRead;
+        instKind = Instruction::VectorMemory;
     }
     else if ((op >= SIMUBUFInstruction::BUFFER_STORE_FORMAT_X && op <= SIMUBUFInstruction::BUFFER_STORE_FORMAT_XYZW) ||
              (op >= SIMUBUFInstruction::BUFFER_STORE_BYTE && op <= SIMUBUFInstruction::BUFFER_STORE_DWORDX4) ||
              (op >= SIMUBUFInstruction::BUFFER_WBINVL1_SC && op <= SIMUBUFInstruction::BUFFER_WBINVL1))
     {
-        instKind = Instruction::VectorMemoryWrite;
+        instKind = Instruction::VectorMemory;
     }
     else if (op >= SIMUBUFInstruction::BUFFER_ATOMIC_SWAP && op <= SIMUBUFInstruction::BUFFER_ATOMIC_FMAX_X2)
     {
@@ -106,13 +106,13 @@ ParserSIMUBUF::GetVIOpMUBUF(Instruction::instruction64bit hexInstruction, Instru
         (op >= VIMUBUFInstruction::buffer_load_format_d16_x && op <= VIMUBUFInstruction::buffer_load_format_d16_xyzw) ||
         (op >= VIMUBUFInstruction::buffer_load_ubyte && op <= VIMUBUFInstruction::buffer_load_dwordx4))
     {
-        instKind = Instruction::VectorMemoryRead;
+        instKind = Instruction::VectorMemory;
     }
     else if ((op >= VIMUBUFInstruction::buffer_store_format_x && op <= VIMUBUFInstruction::buffer_store_format_xyzw) ||
              (op >= VIMUBUFInstruction::buffer_store_format_d16_x && op <= VIMUBUFInstruction::buffer_store_format_d16_xyzw) ||
              (op >= VIMUBUFInstruction::buffer_store_byte && op <= VIMUBUFInstruction::buffer_wbinvl1_vol))
     {
-        instKind = Instruction::VectorMemoryWrite;
+        instKind = Instruction::VectorMemory;
     }
     else if (op >= VIMUBUFInstruction::buffer_atomic_swap && op <= VIMUBUFInstruction::buffer_atomic_dec_x2)
     {
@@ -139,7 +139,7 @@ ParserSIMUBUF::GetG9OpMUBUF(Instruction::instruction64bit hexInstruction, Instru
         (op >= G9MUBUFInstruction::buffer_load_ubyte && op <= G9MUBUFInstruction::buffer_load_dwordx4) ||
         (op >= G9MUBUFInstruction:: buffer_load_ubyte_d16 && op <= G9MUBUFInstruction::buffer_load_format_d16_hi_x))
     {
-        instKind = Instruction::VectorMemoryRead;
+        instKind = Instruction::VectorMemory;
     }
     else if ((op >= G9MUBUFInstruction::buffer_store_format_x && op <= G9MUBUFInstruction::buffer_store_format_xyzw) ||
              (op >= G9MUBUFInstruction::buffer_store_format_d16_x && op <= G9MUBUFInstruction::buffer_store_format_d16_xyzw) ||
@@ -147,7 +147,7 @@ ParserSIMUBUF::GetG9OpMUBUF(Instruction::instruction64bit hexInstruction, Instru
              (op >= G9MUBUFInstruction::buffer_store_format_d16_hi_x && op <= G9MUBUFInstruction::buffer_wbinvl1_vol))
 
     {
-        instKind = Instruction::VectorMemoryWrite;
+        instKind = Instruction::VectorMemory;
     }
     else if (op >= G9MUBUFInstruction::buffer_atomic_swap && op <= G9MUBUFInstruction::buffer_atomic_dec_x2)
     {
@@ -235,7 +235,7 @@ ParserSI::kaStatus
 ParserSIMUBUF::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, std::unique_ptr<Instruction>& instruction)
 {
     ParserSI::kaStatus status = ParserSI::Status_SUCCESS;
-    Instruction::InstructionCategory instKind = Instruction::VectorMemoryRead;
+    Instruction::InstructionCategory instKind = Instruction::VectorMemory;
     unsigned int ridx = 0;
     MUBUFInstruction::OFFSET offset = GetOFFSET(hexInstruction);
     MUBUFInstruction::OFFEN offen = GetOFFEN(hexInstruction);

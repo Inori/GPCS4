@@ -55,7 +55,6 @@ public:
 
 	GCNInstruction& getInstruction();
 
-
 private:
 	void freeInstruction();
 

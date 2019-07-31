@@ -13,7 +13,7 @@ GCNCompiler::~GCNCompiler()
 {
 }
 
-void GCNCompiler::processInstruction(const GCNInstruction& ins)
+void GCNCompiler::processInstruction(GCNInstruction& ins)
 {
 
 }

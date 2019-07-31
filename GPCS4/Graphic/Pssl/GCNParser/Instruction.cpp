@@ -1342,13 +1342,13 @@ std::string Instruction::GetFunctionalUnitAsString(InstructionCategory category)
             ret = FUNC_UNIT_SALU;
             break;
 
-        case ScalarMemoryRead:
+        case ScalarMemory:
         case ScalarMemoryWrite:
             ret = FUNC_UNIT_SMEM;
             break;
 
-        case VectorMemoryRead:
-        case VectorMemoryWrite:
+        case VectorMemory:
+        case VectorMemory:
             ret = FUNC_UNIT_VMEM;
             break;
 

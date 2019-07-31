@@ -61,11 +61,11 @@ ParserSIMTBUF::GetSIOpMTBUF(Instruction::instruction64bit hexInstruction, Instru
 
     if (op <= SIMTBUFInstruction::TBUFFER_LOAD_FORMAT_XYZW)
     {
-        instKind = Instruction::VectorMemoryRead;
+        instKind = Instruction::VectorMemory;
     }
     else
     {
-        instKind = Instruction::VectorMemoryWrite;
+        instKind = Instruction::VectorMemory;
     }
 
     if ((op >= SIMTBUFInstruction::TBUFFER_RESERVED))
@@ -85,11 +85,11 @@ ParserSIMTBUF::GetVIOpMTBUF(Instruction::instruction64bit hexInstruction, Instru
 
     if (((op <= VIMTBUFInstruction::tbuffer_load_format_xyzw) || (op >= VIMTBUFInstruction::tbuffer_load_format_d16_xyzw)) && (op <= VIMTBUFInstruction::tbuffer_load_format_d16_x))
     {
-        instKind = Instruction::VectorMemoryRead;
+        instKind = Instruction::VectorMemory;
     }
     else
     {
-        instKind = Instruction::VectorMemoryWrite;
+        instKind = Instruction::VectorMemory;
     }
 
     if ((op >= VIMTBUFInstruction::tbuffer_Ilegal))
@@ -194,7 +194,7 @@ ParserSIMTBUF::GetSOFFSET(Instruction::instruction64bit hexInstruction, unsigned
 ParserSI::kaStatus
 ParserSIMTBUF::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, std::unique_ptr<Instruction>& instruction)
 {
-    Instruction::InstructionCategory instKind = Instruction::VectorMemoryRead;
+    Instruction::InstructionCategory instKind = Instruction::VectorMemory;
     unsigned int ridx = 0;
     MTBUFInstruction::OFFSET offset = GetOFFSET(hexInstruction);
     MTBUFInstruction::OFFEN offen = GetOFFEN(hexInstruction);
