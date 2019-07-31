@@ -81,6 +81,8 @@ private:
     /// \param[in]  ridx           register value ,relevant only if SSRC is ScalarGPR or SSRC ScalarTtmp.
     /// \returns                   A SDST.
     static SOP1Instruction::SDST GetSDST(Instruction::instruction32bit hexInstruction, unsigned int& ridx);
+
+	static Instruction::InstructionClass GetSIOPClass(SISOP1Instruction::OP op);
 };
 
 #endif //__PARSERSISOP1_H

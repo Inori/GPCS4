@@ -54,6 +54,7 @@
     <ClInclude Include="Graphic\Pssl\GCNParser\DeviceInfo.h" />
     <ClInclude Include="Graphic\Pssl\GCNParser\DSInstruction.h" />
     <ClInclude Include="Graphic\Pssl\GCNParser\EXPInstruction.h" />
+    <ClInclude Include="Graphic\Pssl\GCNParser\GCNInstructionDefs.h" />
     <ClInclude Include="Graphic\Pssl\GCNParser\GCNParser.h" />
     <ClInclude Include="Graphic\Pssl\GCNParser\GenericInstructionFields1.h" />
     <ClInclude Include="Graphic\Pssl\GCNParser\GenericInstructionFields2.h" />
@@ -206,6 +207,7 @@
     <ClCompile Include="Graphic\Gve\GvePhysicalDevice.cpp" />
     <ClCompile Include="Graphic\Gve\GveShader.cpp" />
     <ClCompile Include="Graphic\Gve\GveSwapChain.cpp" />
+    <ClCompile Include="Graphic\Pssl\GCNParser\GCNInstructionDefs.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNParser\GCNParser.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNParser\Instruction.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNParser\ParserSI.cpp" />

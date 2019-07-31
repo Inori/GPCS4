@@ -110,19 +110,25 @@ SOP1Instruction::SDST ParserSISOP1::GetSDST(Instruction::instruction32bit hexIns
     return SOP1Instruction::SDSTIllegal;
 }
 
+Instruction::InstructionClass ParserSISOP1::GetSIOPClass(SISOP1Instruction::OP op)
+{
+	return g_instructionFormatMapSOP1[op].insClass;
+}
+
 ParserSI::kaStatus ParserSISOP1::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, std::unique_ptr<Instruction>& instruction, bool& hasLiteral)
 {
     ParserSI::kaStatus status = ParserSI::Status_SUCCESS;
     unsigned int ridx0 = 0, sdstRidx1 = 0;
     SOP1Instruction::SSRC ssrc0 = GetSSRC0(hexInstruction, ridx0);
     SOP1Instruction::SDST sdst = GetSDST(hexInstruction, sdstRidx1);
-
+	
 	hasLiteral = (ssrc0 == SOP1Instruction::SSRCLiteralConst);
 
     if ((hwGen == GDT_HW_GENERATION_SEAISLAND) || (hwGen == GDT_HW_GENERATION_SOUTHERNISLAND))
     {
         SISOP1Instruction::OP op = GetSISOP1Op(hexInstruction);
-        instruction = std::make_unique<SISOP1Instruction>(ssrc0, op, sdst, ridx0, sdstRidx1);
+		Instruction::InstructionClass insClass = GetSIOPClass(op);
+        instruction = std::make_unique<SISOP1Instruction>(ssrc0, op, sdst, ridx0, sdstRidx1, insClass);
     }
     else if (hwGen == GDT_HW_GENERATION_VOLCANICISLAND)
     {

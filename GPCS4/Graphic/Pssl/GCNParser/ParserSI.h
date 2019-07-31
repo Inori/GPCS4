@@ -21,6 +21,7 @@
 #include "MIMGInstruction.h"
 #include "EXPInstruction.h"
 #include "VOPInstruction.h"
+#include "GCNInstructionDefs.h"
 
 /// -----------------------------------------------------------------------------------------------
 /// \class Name: ParserSI

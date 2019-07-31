@@ -72,6 +72,7 @@ public:
 
     /// VGPR of the data source to export.
     typedef char VSRC;
+
 private:
     /// This bitmask determines which VSRC registers export data.
     EN m_en;

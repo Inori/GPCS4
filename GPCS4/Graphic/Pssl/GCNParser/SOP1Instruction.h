@@ -65,7 +65,8 @@ public:
     //
 
     /// ctor
-    SOP1Instruction(SSRC ssrc0, SDST sdst, unsigned int sridx0, unsigned int sdstRidx, InstructionClass insClass = InstructionClassUnknown): 
+    SOP1Instruction(SSRC ssrc0, SDST sdst, unsigned int sridx0, unsigned int sdstRidx, 
+		InstructionClass insClass = InstructionClassUnknown): 
 		Instruction(SOP1InstructionWidth, ScalarALU, InstructionSet_SOP1, insClass),
         m_ssrc0(ssrc0), m_sridx0(sridx0), m_sdst(sdst), m_sdstRidx(sdstRidx) { }
 
@@ -215,7 +216,9 @@ public:
     OP GetOp() const { return m_op; }
 
     /// ctor
-    SISOP1Instruction(SSRC ssrc0, OP op, SDST sdst, unsigned int sridx0, unsigned int sdstRidx): SOP1Instruction(ssrc0, sdst, sridx0, sdstRidx), m_op(op) { }
+    SISOP1Instruction(SSRC ssrc0, OP op, SDST sdst, unsigned int sridx0, unsigned int sdstRidx,
+		InstructionClass insClass = InstructionClassUnknown):
+		SOP1Instruction(ssrc0, sdst, sridx0, sdstRidx, insClass), m_op(op) { }
 private:
     /// SOP1 operation.
     OP m_op;

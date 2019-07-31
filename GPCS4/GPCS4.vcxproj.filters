@@ -670,6 +670,9 @@
     <ClInclude Include="Graphic\Pssl\GCNInstruction.h">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNParser\GCNInstructionDefs.h">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1193,6 +1196,9 @@
     </ClCompile>
     <ClCompile Include="Graphic\Pssl\GCNDecoder.cpp">
       <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\GCNParser\GCNInstructionDefs.cpp">
+      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
