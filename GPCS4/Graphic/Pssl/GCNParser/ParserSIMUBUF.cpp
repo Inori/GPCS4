@@ -78,7 +78,7 @@ ParserSIMUBUF::GetSIOpMUBUF(Instruction::instruction64bit hexInstruction, Instru
     }
     else if (op >= SIMUBUFInstruction::BUFFER_ATOMIC_SWAP && op <= SIMUBUFInstruction::BUFFER_ATOMIC_FMAX_X2)
     {
-        instKind = Instruction::Atomics;
+        instKind = Instruction::VectorMemory;
     }
 
     if ((op > SIMUBUFInstruction::BUFFER_LOAD_DWORDX4 && op < SIMUBUFInstruction::BUFFER_STORE_BYTE)
@@ -116,7 +116,7 @@ ParserSIMUBUF::GetVIOpMUBUF(Instruction::instruction64bit hexInstruction, Instru
     }
     else if (op >= VIMUBUFInstruction::buffer_atomic_swap && op <= VIMUBUFInstruction::buffer_atomic_dec_x2)
     {
-        instKind = Instruction::Atomics;
+        instKind = Instruction::VectorMemory;
     }
 
     if (op > VIMUBUFInstruction::buffer_Ilegal)
@@ -151,7 +151,7 @@ ParserSIMUBUF::GetG9OpMUBUF(Instruction::instruction64bit hexInstruction, Instru
     }
     else if (op >= G9MUBUFInstruction::buffer_atomic_swap && op <= G9MUBUFInstruction::buffer_atomic_dec_x2)
     {
-        instKind = Instruction::Atomics;
+        instKind = Instruction::VectorMemory;
     }
 
     return (op < G9MUBUFInstruction::buffer_Illegal ? op : G9MUBUFInstruction::buffer_Illegal);

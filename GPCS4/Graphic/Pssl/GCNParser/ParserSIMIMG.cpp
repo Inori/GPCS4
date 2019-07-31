@@ -82,7 +82,7 @@ ParserSIMIMG::GetOpSIMIMG(Instruction::instruction64bit hexInstruction, Instruct
     }
     else if (op >= SIMIMGInstruction::IMAGE_ATOMIC_SWAP && op <= SIMIMGInstruction::IMAGE_ATOMIC_FMAX)
     {
-        instKind = Instruction::Atomics;
+        instKind = Instruction::VectorMemory;
     }
 
     if ((op > SIMIMGInstruction::IMAGE_LOAD_MIP_PCK_SGN && op < SIMIMGInstruction::IMAGE_STORE) //TODO refactor this is always false!!!
@@ -118,7 +118,7 @@ ParserSIMIMG::GetOpVIMIMG(Instruction::instruction64bit hexInstruction, Instruct
     }
     else if (op >= VIMIMGInstruction::image_atomic_swap && op <= VIMIMGInstruction::image_atomic_dec)
     {
-        instKind = Instruction::Atomics;
+        instKind = Instruction::VectorMemory;
     }
 
     if (op > VIMIMGInstruction::image_sample_c_cd_cl_o)

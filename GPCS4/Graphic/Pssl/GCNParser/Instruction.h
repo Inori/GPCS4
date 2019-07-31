@@ -126,6 +126,7 @@ const int NO_LABEL = -1;
         /// Instruction`s format kinds
         enum InstructionCategory
         {
+			CategoryUnknown,
 			/// Scalar ALU Operation
 			ScalarALU,
             /// Scalar Instruction Memory
@@ -153,6 +154,8 @@ const int NO_LABEL = -1;
 		/// Instruction`s format kinds
 		enum InstructionClass
 		{
+			ClassUnknown,
+
 			ScalarArith,
 			ScalarAbs,
 			ScalarMov,

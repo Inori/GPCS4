@@ -121,17 +121,18 @@ private:
     // Returns the category of instruction (Load, Store or Atomic).
     static InstructionCategory  GetInstKind(uint8_t SEG, uint8_t OP)
     {
-        if (SEG == 0b01)
-        {
-            return ( ((SCRATCH_OP)OP >= SCRATCH_OP::scratch_store_byte && (SCRATCH_OP)OP <= SCRATCH_OP::scratch_store_dwordx4) ?
-                     InstructionCategory::VectorMemory : InstructionCategory::VectorMemory );
-        }
-        else
-        {
-            return ( (FLAT_GLBL_OP)OP >= FLAT_GLBL_OP::atomic_swap  ? InstructionCategory::Atomics :
-                     (((FLAT_GLBL_OP)OP >= FLAT_GLBL_OP::store_byte && (FLAT_GLBL_OP)OP <= FLAT_GLBL_OP::store_dwordx4) ?
-                     InstructionCategory::VectorMemory : InstructionCategory::VectorMemory) );
-        }
+        //if (SEG == 0b01)
+        //{
+        //    return ( ((SCRATCH_OP)OP >= SCRATCH_OP::scratch_store_byte && (SCRATCH_OP)OP <= SCRATCH_OP::scratch_store_dwordx4) ?
+        //             InstructionCategory::VectorMemory : InstructionCategory::VectorMemory );
+        //}
+        //else
+        //{
+        //    return ( (FLAT_GLBL_OP)OP >= FLAT_GLBL_OP::atomic_swap  ? InstructionCategory::Atomics :
+        //             (((FLAT_GLBL_OP)OP >= FLAT_GLBL_OP::store_byte && (FLAT_GLBL_OP)OP <= FLAT_GLBL_OP::store_dwordx4) ?
+        //             InstructionCategory::VectorMemory : InstructionCategory::VectorMemory) );
+        //}
+		return InstructionCategory::VectorMemory;
     }
 
     uint16_t  m_OFFSET;
