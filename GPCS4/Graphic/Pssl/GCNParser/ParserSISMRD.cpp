@@ -94,6 +94,11 @@ VISMEMInstruction::OP ParserSISMRD::GetVISMRDOp(Instruction::instruction64bit he
     }
 }
 
+Instruction::InstructionClass ParserSISMRD::GetSISMRDOPClass(SISMRDInstruction::OP op)
+{
+	return g_instructionFormatMapSMRD[op].insClass;
+}
+
 ParserSI::kaStatus ParserSISMRD::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, std::unique_ptr<Instruction>& instruction, bool& hasLiteral)
 {
     if (hwGen == GDT_HW_GENERATION_VOLCANICISLAND)
@@ -111,7 +116,8 @@ ParserSI::kaStatus ParserSISMRD::Parse(GDT_HW_GENERATION hwGen, Instruction::ins
     SMRDInstruction::SBASE sbase  = GetSBase(hexInstruction);
     SMRDInstruction::SDST sdst = GetSDST(hexInstruction, ridx);
     SISMRDInstruction::OP op = GetSISMRDOp(hexInstruction);
-    instruction = std::make_unique<SISMRDInstruction>(offset, imm, sbase, sdst, ridx, op);
+	Instruction::InstructionClass insCls = GetSISMRDOPClass(op);
+    instruction = std::make_unique<SISMRDInstruction>(offset, imm, sbase, sdst, ridx, op, insCls);
 
     return ParserSI::Status_SUCCESS;
 }

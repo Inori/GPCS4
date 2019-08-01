@@ -117,6 +117,8 @@ private:
     /// -----------------------------------------------------------------------------------------------
     static VOPInstruction::Encoding GetInstructionType(Instruction::instruction64bit hexInstruction);
 
+	static Instruction::InstructionClass GetSIVOP1Class(SIVOP1Instruction::VOP1_OP op);
+
 };
 
 #endif //__PARSESIVOP_H

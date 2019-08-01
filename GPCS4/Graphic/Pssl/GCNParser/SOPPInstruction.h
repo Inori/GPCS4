@@ -123,7 +123,9 @@ public:
     OP GetOp() const { return m_op; }
 
     /// ctor
-    SISOPPInstruction(SIMM16 simm16, OP op): SOPPInstruction(simm16), m_op(op) {}
+    SISOPPInstruction(SIMM16 simm16, OP op,
+		InstructionCategory insCat = FlowControl, InstructionClass insClass = InstructionClassUnknown): 
+		SOPPInstruction(simm16, insCat, insClass), m_op(op) {}
 
 
 private:

@@ -110,6 +110,16 @@ SOP1Instruction::SDST ParserSISOP1::GetSDST(Instruction::instruction32bit hexIns
     return SOP1Instruction::SDSTIllegal;
 }
 
+Instruction::InstructionCategory ParserSISOP1::GetSIOPCategory(SISOP1Instruction::OP op)
+{
+	if ((op >= SISOP1Instruction::S_GETPC_B64 && op <= SISOP1Instruction::S_SWAPPC_B64) ||
+		op == SISOP1Instruction::S_CBRANCH_JOIN)
+	{
+		return Instruction::FlowControl;
+	}
+	return Instruction::ScalarALU;
+}
+
 Instruction::InstructionClass ParserSISOP1::GetSIOPClass(SISOP1Instruction::OP op)
 {
 	return g_instructionFormatMapSOP1[op].insClass;
@@ -127,8 +137,9 @@ ParserSI::kaStatus ParserSISOP1::Parse(GDT_HW_GENERATION hwGen, Instruction::ins
     if ((hwGen == GDT_HW_GENERATION_SEAISLAND) || (hwGen == GDT_HW_GENERATION_SOUTHERNISLAND))
     {
         SISOP1Instruction::OP op = GetSISOP1Op(hexInstruction);
+		Instruction::InstructionCategory insCat = GetSIOPCategory(op);
 		Instruction::InstructionClass insClass = GetSIOPClass(op);
-        instruction = std::make_unique<SISOP1Instruction>(ssrc0, op, sdst, ridx0, sdstRidx1, insClass);
+        instruction = std::make_unique<SISOP1Instruction>(ssrc0, op, sdst, ridx0, sdstRidx1, insCat, insClass);
     }
     else if (hwGen == GDT_HW_GENERATION_VOLCANICISLAND)
     {

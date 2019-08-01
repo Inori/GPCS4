@@ -1,4 +1,5 @@
 #include "GCNCompiler.h"
+#include "GCNParser/SOP1Instruction.h"
 
 namespace pssl
 {;

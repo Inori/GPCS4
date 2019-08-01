@@ -165,7 +165,9 @@ ParserSI::kaStatus ParserSIVOP::Parse(GDT_HW_GENERATION hwGen, Instruction::inst
 			SIVOP1Instruction::VDST vdst = GetVDST(hexInstruction, vdstRidx, VOPInstruction::Encoding_VOP1);
 
 			hasLiteral = (src0 == SIVOP1Instruction::SRCLiteralConst);
-            instruction = std::make_unique<SIVOP1Instruction>(src0, vdst, ridx0, vdstRidx, 32, encoding, op1);
+
+			Instruction::InstructionClass insCls = GetSIVOP1Class(op1);
+            instruction = std::make_unique<SIVOP1Instruction>(src0, vdst, ridx0, vdstRidx, 32, encoding, op1, insCls);
             retStatus = ParserSI::Status_SUCCESS;
         }
         else if (VOPInstruction::Encoding_VOP2 == encoding)
@@ -367,4 +369,9 @@ ParserSIVOP::GetInstructionType(Instruction::instruction64bit hexInstruction)
     }
 
     return VOPInstruction::Encoding_Illegal;
+}
+
+Instruction::InstructionClass ParserSIVOP::GetSIVOP1Class(SIVOP1Instruction::VOP1_OP op)
+{
+	return g_instructionFormatMapVOP1[op].insClass;
 }

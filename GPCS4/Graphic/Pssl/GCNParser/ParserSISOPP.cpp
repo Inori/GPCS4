@@ -56,6 +56,21 @@ VISOPPInstruction::OP ParserSISOPP::GetVISOPPOp(Instruction::instruction32bit he
     }
 }
 
+Instruction::InstructionCategory ParserSISOPP::GetSIOPCaterory(SISOPPInstruction::OP op)
+{
+	if (op >= SISOPPInstruction::S_INCPERFLEVEL && op <= SISOPPInstruction::S_TTRACEDATA)
+	{
+		return Instruction::DebugProfile;
+	}
+	
+	return Instruction::FlowControl;
+}
+
+Instruction::InstructionClass ParserSISOPP::GetSIOPClass(SISOPPInstruction::OP op)
+{
+	return g_instructionFormatMapSOPP[op].insClass;
+}
+
 ParserSI::kaStatus ParserSISOPP::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, std::unique_ptr<Instruction>& instruction, bool& hasLiteral)
 {
     SOPPInstruction::SIMM16 simm16 = GetSIMM16(hexInstruction);
@@ -65,7 +80,9 @@ ParserSI::kaStatus ParserSISOPP::Parse(GDT_HW_GENERATION hwGen, Instruction::ins
     if ((hwGen == GDT_HW_GENERATION_SEAISLAND) || (hwGen == GDT_HW_GENERATION_SOUTHERNISLAND))
     {
         SISOPPInstruction::OP op = GetSISOPPOp(hexInstruction);
-        instruction = std::make_unique<SISOPPInstruction>(simm16, op);
+		Instruction::InstructionCategory insCat = GetSIOPCaterory(op);
+		Instruction::InstructionClass insCls = GetSIOPClass(op);
+        instruction = std::make_unique<SISOPPInstruction>(simm16, op, insCat, insCls);
     }
     else
     {

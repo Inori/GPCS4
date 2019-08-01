@@ -204,8 +204,9 @@ public:
     /// -----------------------------------------------------------------------------------------------
     SIVOP1Instruction(SRC src0, VDST vdst, 
 		unsigned int ridx0, unsigned int vdstRidx,
-		unsigned int instructionWidth, Encoding instructionEncoding, VOP1_OP op) : 
-		VOPInstruction(src0, vdst, ridx0, vdstRidx, instructionWidth, InstructionSet_VOP1), 
+		unsigned int instructionWidth, Encoding instructionEncoding, VOP1_OP op,
+		InstructionClass insClass = InstructionClassUnknown) :
+		VOPInstruction(src0, vdst, ridx0, vdstRidx, instructionWidth, InstructionSet_VOP1, insClass),
 		m_op(op), m_instructionEncoding(instructionEncoding) { }
     /// -----------------------------------------------------------------------------------------------
 

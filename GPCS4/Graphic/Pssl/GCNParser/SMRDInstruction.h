@@ -131,7 +131,10 @@ public:
     OP GetOp() const { return m_op; }
 
     /// ctor
-    SISMRDInstruction(OFFSET offset, IMM imm, SBASE sbase, SDST sdst, unsigned int sridx, OP op) : SMRDInstruction(offset, imm, sbase, sdst, sridx), m_op(op) {}
+    SISMRDInstruction(OFFSET offset, IMM imm, SBASE sbase, SDST sdst, unsigned int sridx, OP op, 
+		InstructionClass insClass = InstructionClassUnknown) : 
+		SMRDInstruction(offset, imm, sbase, sdst, sridx, insClass), 
+		m_op(op) {}
 
 private:
     /// SMRD operation.

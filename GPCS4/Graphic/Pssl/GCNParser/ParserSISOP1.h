@@ -82,6 +82,8 @@ private:
     /// \returns                   A SDST.
     static SOP1Instruction::SDST GetSDST(Instruction::instruction32bit hexInstruction, unsigned int& ridx);
 
+	static Instruction::InstructionCategory GetSIOPCategory(SISOP1Instruction::OP op);
+
 	static Instruction::InstructionClass GetSIOPClass(SISOP1Instruction::OP op);
 };
 

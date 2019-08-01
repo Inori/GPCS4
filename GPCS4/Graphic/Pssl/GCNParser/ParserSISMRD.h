@@ -91,6 +91,8 @@ private:
     /// \param[in]  hexInstruction  The 32 bit hexadecimal instruction.
     /// \returns                   An OP.
     static VISMEMInstruction::OP GetVISMRDOp(Instruction::instruction64bit hexInstruction);
+
+	static Instruction::InstructionClass GetSISMRDOPClass(SISMRDInstruction::OP op);
 };
 
 #endif //__PARSERSISMRD_H

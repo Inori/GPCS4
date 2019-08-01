@@ -68,6 +68,8 @@ private:
     /// \returns                   An OP.
     static VISOPPInstruction::OP GetVISOPPOp(Instruction::instruction32bit hexInstruction);
 
+	static Instruction::InstructionCategory GetSIOPCaterory(SISOPPInstruction::OP op);
+	static Instruction::InstructionClass GetSIOPClass(SISOPPInstruction::OP op);
 };
 
 #endif //__PARSERSISOPP_H

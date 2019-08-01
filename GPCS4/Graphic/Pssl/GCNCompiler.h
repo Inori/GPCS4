@@ -10,6 +10,7 @@
 namespace pssl
 {;
 
+
 class GCNCompiler
 {
 public:
@@ -122,6 +123,12 @@ private:
 	// DebugProfile
 	void emitDbgProf(GCNInstruction& ins);
 
+	// Convenient functions to dynamic cast instruction types
+	template <typename InsType>
+	inline InsType* castTo(GCNInstruction& ins)
+	{
+		return dynamic_cast<InsType*>(ins.instruction.get());
+	}
 
 };
 
