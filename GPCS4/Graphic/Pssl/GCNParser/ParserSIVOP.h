@@ -119,6 +119,8 @@ private:
 
 	static Instruction::InstructionClass GetSIVOP1Class(SIVOP1Instruction::VOP1_OP op);
 
+	static Instruction::InstructionClass GetSIVOP2Class(SIVOP2Instruction::VOP2_OP op);
+
 };
 
 #endif //__PARSESIVOP_H

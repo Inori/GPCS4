@@ -192,8 +192,10 @@ public:
 
     /// ctor
     SIMTBUFInstruction(OFFSET offset, OFFEN offen, IDXEN idxen, GLC glc, ADDR64 addr64, OP op, DFMT dmft, NFMT nmft, VADDR vaddr, VDATA vdata, SRSRC srsrc,
-                       SLC slc, TFE tfe, SOFFSET soffset, unsigned int ridx, Instruction::InstructionCategory inst): MTBUFInstruction(offset, offen, idxen, glc, addr64, dmft, nmft, vaddr, vdata, srsrc,
-                                   slc, tfe, soffset, ridx, inst), m_op(op) {}
+                       SLC slc, TFE tfe, SOFFSET soffset, unsigned int ridx,
+		Instruction::InstructionCategory inst, InstructionClass insClass):
+		MTBUFInstruction(offset, offen, idxen, glc, addr64, dmft, nmft, vaddr, vdata, srsrc,
+                                   slc, tfe, soffset, ridx, inst, insClass), m_op(op) {}
 
 private:
     /// MTBUF operation.

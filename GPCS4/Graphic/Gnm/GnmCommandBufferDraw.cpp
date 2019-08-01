@@ -26,6 +26,9 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 		{
 			m_vsShader = generator.compile((uint32_t*)m_vsCode);
 		}
+
+		m_psShader = generator.compile((uint32_t*)m_psCode);
+
 	} while (false);
 
 	clearRenderState();

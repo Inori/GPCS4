@@ -373,7 +373,9 @@ public:
     /// -----------------------------------------------------------------------------------------------
     SIVOP2Instruction(SRC src0, VSRC vsrc1, VDST vdst, 
 		unsigned int ridx0, unsigned int vridx1, unsigned int vdstRidx,
-		unsigned int instructionWidth, Encoding instructionEncoding, VOP2_OP op) : VOPInstruction(src0, vdst, ridx0, vdstRidx, instructionWidth, InstructionSet_VOP2), 
+		unsigned int instructionWidth, Encoding instructionEncoding, VOP2_OP op,
+		InstructionClass insClass) :
+		VOPInstruction(src0, vdst, ridx0, vdstRidx, instructionWidth, InstructionSet_VOP2, insClass),
 		m_op(op), m_vsrc1(vsrc1), m_vridx1(vridx1), m_instructionEncoding(instructionEncoding) { }
     /// -----------------------------------------------------------------------------------------------
 

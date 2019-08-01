@@ -56,7 +56,7 @@ void GCNCompiler::processInstruction(GCNInstruction& ins)
 
 RcPtr<gve::GveShader> GCNCompiler::finalize()
 {
-
+	return RcPtr<gve::GveShader>(new gve::GveShader());
 }
 
 
