@@ -207,6 +207,15 @@
     <ClCompile Include="Graphic\Gve\GvePhysicalDevice.cpp" />
     <ClCompile Include="Graphic\Gve\GveShader.cpp" />
     <ClCompile Include="Graphic\Gve\GveSwapChain.cpp" />
+    <ClCompile Include="Graphic\Pssl\GCNCompilerDataShare.cpp" />
+    <ClCompile Include="Graphic\Pssl\GCNCompilerDebugProfile.cpp" />
+    <ClCompile Include="Graphic\Pssl\GCNCompilerExport.cpp" />
+    <ClCompile Include="Graphic\Pssl\GCNCompilerFlowControl.cpp" />
+    <ClCompile Include="Graphic\Pssl\GCNCompilerScalarALU.cpp" />
+    <ClCompile Include="Graphic\Pssl\GCNCompilerScalarMemory.cpp" />
+    <ClCompile Include="Graphic\Pssl\GCNCompilerVectorALU.cpp" />
+    <ClCompile Include="Graphic\Pssl\GCNCompilerVectorInterpolation.cpp" />
+    <ClCompile Include="Graphic\Pssl\GCNCompilerVectorMemory.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNParser\GCNInstructionDefs.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNParser\GCNParser.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNParser\Instruction.cpp" />

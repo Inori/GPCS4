@@ -224,13 +224,6 @@ const int NO_LABEL = -1;
 			InstructionClassCount
 		};
 
-        /// -----------------------------------------------------------------------------------------------
-        /// \brief Name:        GetFunctionalUnitAsString
-        /// \brief Description: Translates Instruction`s functional unit to user friendly std::string
-        /// \return std::string describing instruction's functional unit
-        /// -----------------------------------------------------------------------------------------------
-        static std::string GetFunctionalUnitAsString(InstructionCategory category);
-
         /// 32 bit instructions
         typedef uint32_t instruction32bit;
 

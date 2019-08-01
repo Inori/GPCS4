@@ -1200,6 +1200,33 @@
     <ClCompile Include="Graphic\Pssl\GCNParser\GCNInstructionDefs.cpp">
       <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
     </ClCompile>
+    <ClCompile Include="Graphic\Pssl\GCNCompilerScalarALU.cpp">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\GCNCompilerScalarMemory.cpp">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\GCNCompilerVectorALU.cpp">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\GCNCompilerVectorMemory.cpp">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\GCNCompilerFlowControl.cpp">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\GCNCompilerDataShare.cpp">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\GCNCompilerVectorInterpolation.cpp">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\GCNCompilerExport.cpp">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\GCNCompilerDebugProfile.cpp">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="SceModules\SceLibc\sce_libc_string_asm.asm">
