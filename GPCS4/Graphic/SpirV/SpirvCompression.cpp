@@ -1,6 +1,6 @@
 #include "SpirvCompression.h"
 
-namespace spv {
+namespace pssl {
 
   SpirvCompressedBuffer::SpirvCompressedBuffer()
   : m_size(0) {

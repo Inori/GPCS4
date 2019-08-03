@@ -3,7 +3,7 @@
 #include "SpirvModule.h"
 #include <array>
 
-namespace spv {
+namespace pssl {
   
   SpirvModule:: SpirvModule() {
     this->instImportGlsl450();

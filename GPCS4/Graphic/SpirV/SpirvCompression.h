@@ -4,7 +4,7 @@
 
 #include "SpirvCodeBuffer.h"
 
-namespace spv {
+namespace pssl {
 
   /**
    * \brief Compressed SPIR-V code buffer

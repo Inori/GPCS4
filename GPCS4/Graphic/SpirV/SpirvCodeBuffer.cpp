@@ -3,7 +3,7 @@
 
 #include "SpirvCodeBuffer.h"
 
-namespace spv {
+namespace pssl {
   
   SpirvCodeBuffer:: SpirvCodeBuffer() { }
   SpirvCodeBuffer::~SpirvCodeBuffer() { }

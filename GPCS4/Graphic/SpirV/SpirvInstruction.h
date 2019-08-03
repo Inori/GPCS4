@@ -5,7 +5,7 @@
 
 #include "SpirvInclude.h"
 
-namespace spv {
+namespace pssl {
   
   /**
    * \brief SPIR-V instruction

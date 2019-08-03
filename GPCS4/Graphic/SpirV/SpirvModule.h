@@ -2,7 +2,7 @@
 
 #include "SpirvCodeBuffer.h"
 
-namespace spv {
+namespace pssl {
   
   struct SpirvPhiLabel {
     uint32_t varId         = 0;
