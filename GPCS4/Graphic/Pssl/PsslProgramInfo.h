@@ -2,10 +2,12 @@
 
 #include "GPCS4Common.h"
 #include "PsslShaderStructure.h"
+#include "PsslEnums.h"
 #include "PsslKey.h"
 
 namespace pssl
 {;
+
 
 // Data is not persistent,
 // you can't use this class after code is free.
@@ -22,7 +24,7 @@ public:
 
 	bool hasFetchShader();
 
-	uint32_t getShaderType() const;
+	PsslProgramType getShaderType() const;
 
 	PsslKey getKey() const;
 

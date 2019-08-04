@@ -49,9 +49,38 @@ bool PsslProgramInfo::hasFetchShader()
 	return hasFs;
 }
 
-uint32_t PsslProgramInfo::getShaderType() const
+PsslProgramType PsslProgramInfo::getShaderType() const
 {
-	return m_shaderBinaryInfo->type;
+	PsslProgramType type = UnknownShader;
+	switch (m_shaderBinaryInfo->type)
+	{
+	case kShaderTypePs:
+		type = PixelShader;
+		break;
+	case kShaderTypeVsVs:
+		type = VertexShader;
+		break;
+	case kShaderTypeCs:
+		type = ComputeShader;
+		break;
+	case kShaderTypeGs:
+		type = GeometryShader;
+		break;
+	case kShaderTypeHs:
+		type = HullShader;
+		break;
+	case kShaderTypeDsVs:
+		type = DomainShader;
+		break;
+	case kShaderTypeVsEs:
+	case kShaderTypeVsLs:
+		LOG_FIXME("LS and ES stage is not supported yet.");
+		break;
+	default:
+		LOG_ERR("Error shader type %d", m_shaderBinaryInfo->type);
+		break;
+	}
+	return type;
 }
 
 PsslKey PsslProgramInfo::getKey() const

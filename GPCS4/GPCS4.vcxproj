@@ -89,6 +89,7 @@
     <ClInclude Include="Graphic\Pssl\GCNParser\VOPInstruction.h" />
     <ClInclude Include="Graphic\Pssl\GCNCompiler.h" />
     <ClInclude Include="Graphic\Pssl\GCNDecoder.h" />
+    <ClInclude Include="Graphic\Pssl\PsslEnums.h" />
     <ClInclude Include="Graphic\Pssl\PsslFetchShader.h" />
     <ClInclude Include="Graphic\Pssl\PsslKey.h" />
     <ClInclude Include="Graphic\Pssl\PsslPsUsageTable.h" />

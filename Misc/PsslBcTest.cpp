@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
+#include <fstream>
 
 #define SCE_GNM_SET_ALIGN(n) __attribute__((__aligned__(n)))
 #define SCE_GNM_ASSERT(x) ((void)(x))
@@ -51,10 +52,10 @@ static const unsigned s_vex_vv[] = {
 	#include "test_vv.h"
 };
 
-static const unsigned s_pix_p[] = {
-	//#include "pix_p.h"
-	#include "test_p.h"
-};
+//static const unsigned s_pix_p[] = {
+//	#include "pix_p.h"
+//	#include "test_p.h"
+//};
 
 struct ShaderBinaryInfo
 {
@@ -1725,34 +1726,38 @@ int main(void)
 	uint32_t *fs = (uint32_t *)malloc(fb.m_fetchShaderBufferSize);
 	generateFetchShader(fs, &fb);
 
+	std::ofstream fout("fetch_shader.bin");
+	fout.write((char*)fs, fb.m_fetchShaderBufferSize);
+	fout.close();
+
 	const InputUsageSlot* slot = m_shader->getInputUsageSlotTable();
 	const VertexInputSemantic* inputSema = m_shader->getInputSemanticTable();
 	const VertexExportSemantic* expSema = m_shader->getExportSemanticTable();
 
 	//
-	ShaderInfo psShaderInfo;
-	parseShader(&psShaderInfo, s_pix_p);
+	//ShaderInfo psShaderInfo;
+	//parseShader(&psShaderInfo, s_pix_p);
 
-	void *psshaderBinary = malloc(psShaderInfo.m_gpuShaderCodeSize);
-	void *psshaderHeader = malloc(psShaderInfo.m_psShader->computeSize());
+	//void *psshaderBinary = malloc(psShaderInfo.m_gpuShaderCodeSize);
+	//void *psshaderHeader = malloc(psShaderInfo.m_psShader->computeSize());
 
-	memcpy(psshaderBinary, psShaderInfo.m_gpuShaderCode, psShaderInfo.m_gpuShaderCodeSize);
-	memcpy(psshaderHeader, psShaderInfo.m_psShader, psShaderInfo.m_psShader->computeSize());
+	//memcpy(psshaderBinary, psShaderInfo.m_gpuS	haderCode, psShaderInfo.m_gpuShaderCodeSize);
+	//memcpy(psshaderHeader, psShaderInfo.m_psShader, psShaderInfo.m_psShader->computeSize());
 
-	ShaderBinaryInfo* psbinInfo = findShaderBinInfo((uint8_t*)psshaderBinary);
+	//ShaderBinaryInfo* psbinInfo = findShaderBinInfo((uint8_t*)psshaderBinary);
 
-	InputResourceOffsets pstable;
-	generateInputResourceOffsetTable(&pstable, psbinInfo);
+	//InputResourceOffsets pstable;
+	//generateInputResourceOffsetTable(&pstable, psbinInfo);
 
-	size_t pscodeLength = psbinInfo->m_length + sizeof(ShaderBinaryInfo);
+	//size_t pscodeLength = psbinInfo->m_length + sizeof(ShaderBinaryInfo);
 
-	PsShader* m_psshader = static_cast<PsShader*>(psshaderHeader);
-	m_psshader->patchShaderGpuAddress(psshaderBinary);
+	//PsShader* m_psshader = static_cast<PsShader*>(psshaderHeader);
+	//m_psshader->patchShaderGpuAddress(psshaderBinary);
 
-	uint32_t psInputs[32] = {0};
-	generatePsShaderUsageTable(psInputs,
-		vertexShader->getExportSemanticTable(), vertexShader->m_numExportSemantics,
-		m_psshader->getPixelInputSemanticTable(), m_psshader->m_numInputSemantics);
-	
+	//uint32_t psInputs[32] = {0};
+	//generatePsShaderUsageTable(psInputs,
+	//	vertexShader->getExportSemanticTable(), vertexShader->m_numExportSemantics,
+	//	m_psshader->getPixelInputSemanticTable(), m_psshader->m_numInputSemantics);
+	//
 	return binInfo->m_isSrt;
 }

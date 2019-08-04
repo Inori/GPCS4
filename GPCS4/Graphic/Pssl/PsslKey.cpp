@@ -1,4 +1,5 @@
 #include "PsslKey.h"
+#include "Platform/UtilString.h"
 
 namespace pssl
 {;
@@ -26,6 +27,13 @@ PsslKey::~PsslKey()
 uint64_t PsslKey::getKey() const
 {
 	return m_key;
+}
+
+std::string PsslKey::toString() const
+{
+	// TODO:
+	// More meaningful name
+	return UtilString::Format("%llX", m_key);
 }
 
 PsslKey& PsslKey::operator=(const PsslKey& other)

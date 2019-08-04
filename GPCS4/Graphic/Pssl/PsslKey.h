@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GPCS4Common.h"
+#include <string>
 
 
 namespace pssl
@@ -15,6 +16,8 @@ public:
 	~PsslKey();
 
 	uint64_t getKey() const;
+
+	std::string toString() const;
 
 	bool operator == (const PsslKey& other);
 

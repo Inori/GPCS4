@@ -108,6 +108,17 @@ struct PixelInputSemantic
 };
 
 
+enum ShaderBinaryType
+{
+	kShaderTypePs = 0,
+	kShaderTypeVsVs = 1,
+	kShaderTypeVsEs = 2,
+	kShaderTypeVsLs = 3,
+	kShaderTypeCs = 4,
+	kShaderTypeGs = 5,
+	kShaderTypeHs = 7,
+	kShaderTypeDsVs = 8,
+};
 
 struct ShaderBinaryInfo
 {

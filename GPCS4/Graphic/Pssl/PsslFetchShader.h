@@ -15,6 +15,10 @@ struct PsslFetchShader
 	std::vector<GCNInstruction> m_instructionList;
 
 	PsslFetchShader(const uint32_t* code);
+
+	PsslFetchShader(PsslFetchShader& other);
+
+	PsslFetchShader(PsslFetchShader&& other);
 };
 
 }  // pssl

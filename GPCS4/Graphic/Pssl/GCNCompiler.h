@@ -3,12 +3,62 @@
 #include "GPCS4Common.h"
 #include "PsslProgramInfo.h"
 #include "PsslFetchShader.h"
-#include "../Gve/GveShader.h"
 #include "GCNInstruction.h"
+
+#include "../Gve/GveShader.h"
+#include "../SpirV/SpirvModule.h"
+
 #include <optional>
 
 namespace pssl
 {;
+
+/**
+ * \brief Scalar value type
+ *
+ * Enumerates possible register component
+ * types. Scalar types are represented as
+ * a one-component vector type.
+ */
+enum PsslScalarType : uint32_t
+{
+	Uint32 = 0,
+	Uint64 = 1,
+	Sint32 = 2,
+	Sint64 = 3,
+	Float32 = 4,
+	Float64 = 5,
+	Bool = 6,
+};
+
+/**
+ * \brief Vector type
+ *
+ * Convenience struct that stores a scalar
+ * type and a component count. The compiler
+ * can use this to generate SPIR-V types.
+ */
+struct PsslVectorType 
+{
+	PsslScalarType    ctype;
+	uint32_t          ccount;
+};
+
+
+/**
+ * \brief Array type
+ *
+ * Convenience struct that stores a scalar type, a
+ * component count and an array size. An array of
+ * length 0 will be evaluated to a vector type. The
+ * compiler can use this to generate SPIR-V types.
+ */
+struct PsslArrayType 
+{
+	PsslScalarType    ctype;
+	uint32_t          ccount;
+	uint32_t          alength;
+};
 
 
 class GCNCompiler
@@ -21,7 +71,44 @@ public:
 	void processInstruction(GCNInstruction& ins);
 
 	RcPtr<gve::GveShader> finalize();
+
+
 private:
+	SpirvModule m_module;
+
+	///////////////////////////////////////////////////
+	// Entry point description - we'll need to declare
+	// the function ID and all input/output variables.
+	std::vector<uint32_t> m_entryPointInterfaces;
+	uint32_t              m_entryPointId = 0;
+
+	////////////////////////////////////////////////////
+	// Per-vertex input and output blocks. Depending on
+	// the shader stage, these may be declared as arrays.
+	uint32_t m_perVertexIn = 0;
+	uint32_t m_perVertexOut = 0;
+
+	uint32_t m_clipDistances = 0;
+	uint32_t m_cullDistances = 0;
+
+	uint32_t m_primitiveIdIn = 0;
+	uint32_t m_primitiveIdOut = 0;
+
+
+	std::optional<PsslFetchShader> m_fsShader;
+	PsslProgramInfo m_programInfo;
+private:
+
+	void emitInit();
+
+	void emitVsInit();
+	void emitHsInit();
+	void emitDsInit();
+	void emitGsInit();
+	void emitPsInit();
+	void emitCsInit();
+
+
 
 	// Category handlers
 	void emitScalarALU(GCNInstruction& ins);
@@ -123,12 +210,30 @@ private:
 	// DebugProfile
 	void emitDbgProf(GCNInstruction& ins);
 
+	//////////////
+	// Misc stuff
+	void emitDclInputArray(
+		uint32_t          vertexCount);
+
+	void emitDclInputPerVertex(
+		uint32_t          vertexCount,
+		const char*             varName);
+
+	uint32_t emitDclClipCullDistanceArray(
+		uint32_t          length,
+		spv::BuiltIn      builtIn,
+		spv::StorageClass storageClass);
+
 	// Convenient functions to dynamic cast instruction types
 	template <typename InsType>
 	inline InsType* castTo(GCNInstruction& ins)
 	{
 		return dynamic_cast<InsType*>(ins.instruction.get());
 	}
+
+	///////////////////////////
+	// Type definition methods
+	uint32_t getPerVertexBlockId();
 
 };
 
