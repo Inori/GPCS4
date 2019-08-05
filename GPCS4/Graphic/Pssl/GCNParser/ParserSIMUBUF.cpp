@@ -231,6 +231,11 @@ ParserSIMUBUF::GetSOFFSET(Instruction::instruction64bit hexInstruction, unsigned
     //return MUBUFInstruction::SOFFSETIllegal;
 }
 
+Instruction::InstructionClass ParserSIMUBUF::GetSIMUBUFClass(SIMUBUFInstruction::OP op)
+{
+	return g_instructionFormatMapMUBUF[op].insClass;
+}
+
 ParserSI::kaStatus
 ParserSIMUBUF::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, std::unique_ptr<Instruction>& instruction)
 {
@@ -253,8 +258,9 @@ ParserSIMUBUF::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexI
     if ((hwGen == GDT_HW_GENERATION_SEAISLAND) || (hwGen == GDT_HW_GENERATION_SOUTHERNISLAND))
     {
         SIMUBUFInstruction::OP op = GetSIOpMUBUF(hexInstruction, instKind);
+		Instruction::InstructionClass insClass = GetSIMUBUFClass(op);
         instruction = std::make_unique<SIMUBUFInstruction>(offset, offen, idxen, glc, addr64, lds, op, vaddr, vdata, srsrc, slc,
-                                             tfe, soffset, ridx, instKind);
+                                             tfe, soffset, ridx, instKind, insClass);
     }
     else if (hwGen == GDT_HW_GENERATION_VOLCANICISLAND)
     {

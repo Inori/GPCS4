@@ -5,6 +5,20 @@
 #include "PsslFetchShader.h"
 #include "GCNInstruction.h"
 
+#include "GCNParser/SMRDInstruction.h"
+#include "GCNParser/SOPPInstruction.h"
+#include "GCNParser/SOPCInstruction.h"
+#include "GCNParser/SOP1Instruction.h"
+#include "GCNParser/SOPKInstruction.h"
+#include "GCNParser/SOP2Instruction.h"
+#include "GCNParser/VINTRPInstruction.h"
+#include "GCNParser/DSInstruction.h"
+#include "GCNParser/MUBUFInstruction.h"
+#include "GCNParser/MTBUFInstruction.h"
+#include "GCNParser/MIMGInstruction.h"
+#include "GCNParser/EXPInstruction.h"
+#include "GCNParser/VOPInstruction.h"
+
 #include "../Gve/GveShader.h"
 #include "../SpirV/SpirvModule.h"
 
@@ -235,6 +249,9 @@ private:
 	// Type definition methods
 	uint32_t getPerVertexBlockId();
 
+	///////////////////////////
+	// Fetch Shader staffs
+	std::vector<VertexInputSemantic> parseFetchShader();
 };
 
 

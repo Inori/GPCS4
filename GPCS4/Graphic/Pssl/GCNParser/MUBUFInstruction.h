@@ -316,8 +316,11 @@ public:
 
     /// ctor
     SIMUBUFInstruction(OFFSET offset, OFFEN offen, IDXEN idxen, GLC glc, ADDR64 addr64, LDS lds, OP op, VADDR vaddr, VDATA vdata, SRSRC srsrc,
-                       SLC slc, TFE tfe, SOFFSET soffset, unsigned int ridx, Instruction::InstructionCategory inst): MUBUFInstruction(offset, offen, idxen, glc, addr64, lds, vaddr, vdata, srsrc,
-                                   slc, tfe, soffset, ridx, inst), m_op(op) {}
+                       SLC slc, TFE tfe, SOFFSET soffset, unsigned int ridx, 
+		Instruction::InstructionCategory inst, InstructionClass insClass):
+		MUBUFInstruction(offset, offen, idxen, glc, addr64, lds, vaddr, vdata, srsrc, 
+			slc, tfe, soffset, ridx, inst, insClass),
+		m_op(op) {}
 
 private:
 

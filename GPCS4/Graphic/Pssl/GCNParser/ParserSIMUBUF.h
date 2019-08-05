@@ -156,6 +156,8 @@ private:
     /// \param[in]  ridx           register value ,relevant only if SOFFSET is ScalarGPR or SOFFSET ScalarTtmp.
     /// \returns                   An SOFFSET.
     static MUBUFInstruction::SOFFSET GetSOFFSET(Instruction::instruction64bit hexInstruction, unsigned int& ridx);
+
+	static Instruction::InstructionClass GetSIMUBUFClass(SIMUBUFInstruction::OP op);
 };
 
 #endif //__PARSERSIMUBUF_H
