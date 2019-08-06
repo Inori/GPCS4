@@ -78,8 +78,8 @@ struct PsslArrayType
 class GCNCompiler
 {
 public:
-	GCNCompiler(const PsslProgramInfo& progInfo,
-		std::optional<PsslFetchShader> fsShader = {});
+	GCNCompiler(const PsslProgramInfo& progInfo);
+	GCNCompiler(const PsslProgramInfo& progInfo, const std::vector<VertexInputSemantic>& inputSemantic);
 	~GCNCompiler();
 
 	void processInstruction(GCNInstruction& ins);
@@ -109,8 +109,9 @@ private:
 	uint32_t m_primitiveIdOut = 0;
 
 
-	std::optional<PsslFetchShader> m_fsShader;
 	PsslProgramInfo m_programInfo;
+
+	std::vector<VertexInputSemantic> m_vsInputSemantic;
 private:
 
 	void emitInit();
@@ -249,9 +250,6 @@ private:
 	// Type definition methods
 	uint32_t getPerVertexBlockId();
 
-	///////////////////////////
-	// Fetch Shader staffs
-	std::vector<VertexInputSemantic> parseFetchShader();
 };
 
 

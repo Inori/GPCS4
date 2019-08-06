@@ -7,9 +7,7 @@ namespace pssl
 {;
 
 
-PsslProgramInfo::PsslProgramInfo(const uint8_t* code) :
-	m_shaderBinaryInfo(nullptr),
-	m_inputUsageSlots(nullptr)
+PsslProgramInfo::PsslProgramInfo(const uint8_t* code) 
 {
 	bool success = initBinaryInfo(code);
 	LOG_ASSERT(success, "init ShaderBinaryInfo failed.");
@@ -22,7 +20,7 @@ PsslProgramInfo::~PsslProgramInfo()
 
 uint32_t PsslProgramInfo::getCodeSizeBytes() const
 {
-	return m_shaderBinaryInfo->length;
+	return m_shaderBinaryInfo.length;
 }
 
 uint32_t PsslProgramInfo::getCodeSizeDwords() const
@@ -33,12 +31,10 @@ uint32_t PsslProgramInfo::getCodeSizeDwords() const
 bool PsslProgramInfo::hasFetchShader()
 {
 	bool hasFs = false;
-	uint32_t slotCount = getInputUsageSlotCount();
 
-	for (uint32_t i = 0; i != slotCount; ++i)
+	for (auto& slot : m_inputUsageSlots)
 	{
-		const InputUsageSlot* slot = getInputUsageSlot(i);
-		if (slot->usageType != kShaderInputUsageSubPtrFetchShader)
+		if (slot.usageType != kShaderInputUsageSubPtrFetchShader)
 		{
 			continue;
 		}
@@ -52,7 +48,7 @@ bool PsslProgramInfo::hasFetchShader()
 PsslProgramType PsslProgramInfo::getShaderType() const
 {
 	PsslProgramType type = UnknownShader;
-	switch (m_shaderBinaryInfo->type)
+	switch (m_shaderBinaryInfo.type)
 	{
 	case kShaderTypePs:
 		type = PixelShader;
@@ -77,7 +73,7 @@ PsslProgramType PsslProgramInfo::getShaderType() const
 		LOG_FIXME("LS and ES stage is not supported yet.");
 		break;
 	default:
-		LOG_ERR("Error shader type %d", m_shaderBinaryInfo->type);
+		LOG_ERR("Error shader type %d", m_shaderBinaryInfo.type);
 		break;
 	}
 	return type;
@@ -85,12 +81,12 @@ PsslProgramType PsslProgramInfo::getShaderType() const
 
 PsslKey PsslProgramInfo::getKey() const
 {
-	return PsslKey(m_shaderBinaryInfo->crc32, m_shaderBinaryInfo->shaderHash0);
+	return PsslKey(m_shaderBinaryInfo.crc32, m_shaderBinaryInfo.shaderHash0);
 }
 
 uint32_t PsslProgramInfo::getInputUsageSlotCount() const
 {
-	return m_shaderBinaryInfo->numInputUsageSlots;
+	return m_shaderBinaryInfo.numInputUsageSlots;
 }
 
 const InputUsageSlot* PsslProgramInfo::getInputUsageSlot(uint32_t idx) const
@@ -108,12 +104,14 @@ bool PsslProgramInfo::initBinaryInfo(const uint8_t* code)
 			break;
 		}
 
-		const uint32_t sigLen = sizeof(m_shaderBinaryInfo->signature);
+		ShaderBinaryInfo* info = NULL;
+		const uint32_t sigLen = sizeof(m_shaderBinaryInfo.signature);
 		for (uint32_t i = 0; i != SHADER_BINARY_INFO_SEARCH_MAX; ++i)
 		{
 			if (!std::memcmp(&code[i], SHADER_BINARY_INFO_SIG, sigLen))
 			{
-				m_shaderBinaryInfo = (ShaderBinaryInfo*)&code[i];
+				info = (ShaderBinaryInfo*)&code[i];
+				memcpy(&m_shaderBinaryInfo, info, sizeof(m_shaderBinaryInfo));
 				ret = true;
 				break;
 			}
@@ -124,9 +122,13 @@ bool PsslProgramInfo::initBinaryInfo(const uint8_t* code)
 			break;
 		}
 
-		uint32_t const* usageMasks = reinterpret_cast<unsigned int const*>((unsigned char const*)m_shaderBinaryInfo - m_shaderBinaryInfo->chunkUsageBaseOffsetInDW * 4);
-		int32_t inputUsageSlotsCount = m_shaderBinaryInfo->numInputUsageSlots;
-		m_inputUsageSlots = (InputUsageSlot const*)usageMasks - inputUsageSlotsCount;
+		uint32_t const* usageMasks = reinterpret_cast<unsigned int const*>((unsigned char const*)info - info->chunkUsageBaseOffsetInDW * 4);
+		int32_t inputUsageSlotsCount = info->numInputUsageSlots;
+		const InputUsageSlot* inputUsageSlots = (InputUsageSlot const*)usageMasks - inputUsageSlotsCount;
+		for (uint32_t j = 0; j != inputUsageSlotsCount; ++j)
+		{
+			m_inputUsageSlots.push_back(inputUsageSlots[j]);
+		}
 		
 	} while (false);
 	return ret;

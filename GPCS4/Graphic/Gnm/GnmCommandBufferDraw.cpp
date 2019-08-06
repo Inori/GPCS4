@@ -1,6 +1,6 @@
 #include "GnmCommandBufferDraw.h"
 #include "Platform/PlatformUtils.h"
-#include "../Pssl/PsslShaderGenerator.h"
+#include "../Pssl/PsslShaderModule.h"
 
 GnmCommandBufferDraw::GnmCommandBufferDraw():
 	m_vsCode(nullptr),
@@ -16,18 +16,20 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 {
 	do 
 	{
-		pssl::PsslShaderGenerator generator;
 		uint32_t* fsCode = getFetchShaderCode(m_vsCode);
 		if (fsCode)
 		{
-			m_vsShader = generator.compile((uint32_t*)m_vsCode, fsCode);
+			pssl::PsslShaderModule module((const uint32_t*)m_vsCode, fsCode);
+			m_vsShader = module.compile();
 		}
 		else
 		{
-			m_vsShader = generator.compile((uint32_t*)m_vsCode);
+			pssl::PsslShaderModule module((const uint32_t*)m_vsCode);
+			m_vsShader = module.compile();
 		}
 
-		m_psShader = generator.compile((uint32_t*)m_psCode);
+		pssl::PsslShaderModule module((const uint32_t*)m_psCode);
+		m_psShader = module.compile();
 
 	} while (false);
 

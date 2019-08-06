@@ -553,9 +553,6 @@
     <ClInclude Include="Common\LikelyHelper.h">
       <Filter>Source Files\Common</Filter>
     </ClInclude>
-    <ClInclude Include="Graphic\Pssl\PsslShaderGenerator.h">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClInclude>
     <ClInclude Include="Graphic\Pssl\GCNParser\DeviceInfo.h">
       <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
     </ClInclude>
@@ -674,6 +671,9 @@
       <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
     </ClInclude>
     <ClInclude Include="Graphic\Pssl\PsslEnums.h">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\PsslShaderModule.h">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1143,9 +1143,6 @@
     <ClCompile Include="Graphic\SpirV\SpirvCodeBuffer.cpp">
       <Filter>Source Files\Graphic\SpirV</Filter>
     </ClCompile>
-    <ClCompile Include="Graphic\Pssl\PsslShaderGenerator.cpp">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClCompile>
     <ClCompile Include="Graphic\Pssl\GCNParser\GCNParser.cpp">
       <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
     </ClCompile>
@@ -1228,6 +1225,9 @@
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClCompile>
     <ClCompile Include="Graphic\Pssl\GCNCompilerDebugProfile.cpp">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\PsslShaderModule.cpp">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClCompile>
   </ItemGroup>

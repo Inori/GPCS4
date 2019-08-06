@@ -9,10 +9,15 @@ constexpr uint32_t PerVertex_Position = 0;
 constexpr uint32_t PerVertex_CullDist = 1;
 constexpr uint32_t PerVertex_ClipDist = 2;
 
-GCNCompiler::GCNCompiler(const PsslProgramInfo& progInfo,
-	std::optional<PsslFetchShader> fsShader):
-	m_fsShader(std::move(fsShader)),
-	m_programInfo(progInfo)
+GCNCompiler::GCNCompiler(const PsslProgramInfo& progInfo):
+	GCNCompiler(progInfo, {})
+{
+
+}
+
+GCNCompiler::GCNCompiler(const PsslProgramInfo& progInfo, const std::vector<VertexInputSemantic>& inputSemantic):
+	m_programInfo(progInfo),
+	m_vsInputSemantic(m_vsInputSemantic)
 {
 	// Declare an entry point ID. We'll need it during the
 	// initialization phase where the execution mode is set.
@@ -68,8 +73,6 @@ void GCNCompiler::emitVsInit()
 	m_module.enableCapability(spv::CapabilityDrawParameters);
 
 	m_module.enableExtension("SPV_KHR_shader_draw_parameters");
-
-	std::vector<VertexInputSemantic> inputSemantics = parseFetchShader();
 
 	// Declare the per-vertex output block. This is where
 	// the vertex shader will write the vertex position.
@@ -176,58 +179,6 @@ uint32_t GCNCompiler::getPerVertexBlockId()
 	//     m_module.setDebugMemberName(typeId, PerVertex_CullDist, "cull_dist");
 	//     m_module.setDebugMemberName(typeId, PerVertex_ClipDist, "clip_dist");
 	return typeId;
-}
-
-std::vector<VertexInputSemantic> GCNCompiler::parseFetchShader()
-{
-	std::vector<VertexInputSemantic> inputSemantics;
-
-	do 
-	{
-		if (!m_fsShader)
-		{
-			break;
-		}
-
-
-		//s_load_dwordx4 s[8:11], s[2:3], 0x00                      // 00000000: C0840300
-		//s_load_dwordx4 s[12:15], s[2:3], 0x04                     // 00000004: C0860304
-		//s_load_dwordx4 s[16:19], s[2:3], 0x08                     // 00000008: C0880308
-		//s_waitcnt     lgkmcnt(0)                                  // 0000000C: BF8C007F
-		//buffer_load_format_xyzw v[4:7], v0, s[8:11], 0 idxen      // 00000010: E00C2000 80020400
-		//buffer_load_format_xyz v[8:10], v0, s[12:15], 0 idxen     // 00000018: E0082000 80030800
-		//buffer_load_format_xy v[12:13], v0, s[16:19], 0 idxen     // 00000020: E0042000 80040C00
-		//s_waitcnt     0                                           // 00000028: BF8C0000
-		//s_setpc_b64   s[0:1]                                      // 0000002C: BE802000
-
-		// A common fetch shader looks like the above, the instructions are generated
-		// using input semantics on cpu side.
-		// We take the reverse way, extract the original input semantics from these instructions.
-
-		uint32_t semanIdx = 0;
-		for (auto& ins : m_fsShader->m_instructionList)
-		{
-			if (ins.instruction->GetInstructionClass() != Instruction::VectorMemBufFmt)
-			{
-				// We only care about the buffer_load_format_xxx instructions
-				continue;
-			}
-
-			SIMUBUFInstruction* vecLoadIns = castTo<SIMUBUFInstruction>(ins);
-
-			VertexInputSemantic semantic = {0};
-			semantic.semantic = semanIdx;
-			semantic.vgpr = vecLoadIns->GetVDATA();
-			semantic.sizeInElements = (uint32_t)vecLoadIns->GetOp() + 1;
-			semantic.reserved = 0;
-
-			inputSemantics.push_back(semantic);
-
-			++semanIdx;
-		}
-	} while (false);
-
-	return inputSemantics;
 }
 
 void GCNCompiler::processInstruction(GCNInstruction& ins)
