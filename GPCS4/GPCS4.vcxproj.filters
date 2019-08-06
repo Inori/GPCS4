@@ -676,6 +676,9 @@
     <ClInclude Include="Graphic\Pssl\PsslShaderModule.h">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GnmSharpBuffer.h">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
