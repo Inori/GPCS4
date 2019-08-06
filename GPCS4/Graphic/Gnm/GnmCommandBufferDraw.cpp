@@ -16,20 +16,25 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 {
 	do 
 	{
-		uint32_t* fsCode = getFetchShaderCode(m_vsCode);
-		if (fsCode)
+		if (!m_vsCode)
 		{
-			pssl::PsslShaderModule module((const uint32_t*)m_vsCode, fsCode);
-			m_vsShader = module.compile();
-		}
-		else
-		{
-			pssl::PsslShaderModule module((const uint32_t*)m_vsCode);
-			m_vsShader = module.compile();
+			break;
 		}
 
-		pssl::PsslShaderModule module((const uint32_t*)m_psCode);
-		m_psShader = module.compile();
+		//uint32_t* fsCode = getFetchShaderCode(m_vsCode);
+		//if (fsCode)
+		//{
+		//	pssl::PsslShaderModule module((const uint32_t*)m_vsCode, fsCode);
+		//	m_vsShader = module.compile();
+		//}
+		//else
+		//{
+		//	pssl::PsslShaderModule module((const uint32_t*)m_vsCode);
+		//	m_vsShader = module.compile();
+		//}
+
+		//pssl::PsslShaderModule module((const uint32_t*)m_psCode);
+		//m_psShader = module.compile();
 
 	} while (false);
 
