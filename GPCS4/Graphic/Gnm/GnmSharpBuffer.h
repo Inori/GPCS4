@@ -6,50 +6,68 @@
 // 128 bits
 struct VSharpBuffer
 {
-	uint64_t base			: 44;
-	uint64_t mtype_L1s		: 2;
-	uint64_t mtype_L2		: 2;
-	uint64_t stride			: 14;
-	uint64_t cache_swizzle	: 1;
-	uint64_t swizzle_en		: 1;
+	uint64_t base			: 44;  // base byte address (only 40 bits supported)
+	uint64_t mtype_L1s		: 2;   // mtype for scalar L1
+	uint64_t mtype_L2		: 2;   // mtype for L2
+	uint64_t stride			: 14;  // bytes: 0..16383
+	uint64_t cache_swizzle  : 1;   // buffer access. optionally swizzle TC L1 cache banks
+	uint64_t swizzle_en		: 1;   // swizzle AOS according to stride, index_stride, and element_size, else linear (stride * index + offset)
 
-	uint32_t num_records;
+	uint32_t num_records;  // in units of 'stride'
 
+	// Destination channel select:
+	// 0=0, 1=1, 4=R, 5=G, 6=B, 7=A
 	uint32_t dst_sel_x : 3;
 	uint32_t dst_sel_y : 3;
 	uint32_t dst_sel_z : 3;
 	uint32_t dst_sel_w : 3;
-	uint32_t nfmt			: 3;
-	uint32_t dfmt			: 4;
-	uint32_t element_size	: 2;
-	uint32_t index_stride	: 2;
-	uint32_t addtid_en		: 1;
+
+	uint32_t nfmt			: 3;  // numeric data type (float, int, бн)
+	uint32_t dfmt			: 4;  // # of fields, size of each field. Note: dfmt=0 (invalid) is a special case that will disable buffer access via vector memory ops.
+	uint32_t element_size	: 2;  // 2, 4, 8, or 16 bytes. Used for swizzled buffer addressing
+	uint32_t index_stride	: 2;  // 8, 16, 32, or 64. Used for swizzled buffer addressing
+	uint32_t addtid_en		: 1;  // add thread id to the index for addr calc
 	uint32_t reserved0		: 1;
-	uint32_t hash_en		: 1;
-	uint32_t reserved1		: 1;
-	uint32_t mtype			: 3;
-	uint32_t type			: 2;
+	uint32_t hash_en		: 1;  // 1 = buffer addresses are hashed for better cache perf
+	uint32_t reserved1		: 1;  
+	uint32_t mtype			: 3;  // mtype for L1
+	uint32_t type			: 2;  // value == 0 for buf. Overlaps upper 2 bits of 4-bit TYPE field in 128-bit T# resource
 };
 
 // T# Texture Descriptor Buffer
 // 256 bits
 struct TSharpBuffer
 {
-	uint64_t baseaddr256	: 38;
-	uint64_t mtype_L2		: 2;
-	uint64_t min_lod		: 12;
-	uint64_t dfmt			: 6;
-	uint64_t nfmt			: 4;
-	uint64_t mtype_lsbs		: 2;
+	uint64_t baseaddr256	: 38;  // base 256-byte aligned address bits [39:8] (top 6 bits are not used)
+	uint64_t mtype_L2		: 2;   // mtype for L2
+	uint64_t min_lod		: 12;  // fixed point 4.8 minimum LOD (0.0..15.0)
+	uint64_t dfmt			: 6;   // texture data format; num components, num bits
+	uint64_t nfmt			: 4;   // texture numeric format; value conversion
+	uint64_t mtype_lsbs		: 2;   // mtype for L1 (LSBs)
 
-	uint64_t width			: 14;
-	uint64_t height			: 14;
+	uint64_t width			: 14;  // texture width (0..16383)
+	uint64_t height			: 14;  // texture height (0..16383)
+
+	// Specifies the scale factor applied to the perf_z, perf_mip,
+	// aniso_bias, aniso_threshold, lod_bias_sec settings
+	// specified in the associated S#:
+	// 0=0/16, 1=2/16, 2=5/16, 3=7/16, 4=9/16, 5=11/16, 6=14/16, 7=16/16
+	// The result after scaling is rounded down to the nearest
+	// representable value for the given S# field.
+	// (Note that perf_mod=0 effectively disables these S#
+	// settings, while perf_mod=7 essentially eliminates the
+	// dependency between the T# and S#.)
 	uint64_t perf_mod		: 3;
-	uint64_t interlaced		: 1;
+
+	uint64_t interlaced		: 1;  // texture is interlaced
+
+	// Destination channel select:
+	// 0=0, 1=1, 4=R, 5=G, 6=B, 7=A
 	uint64_t dst_sel_x		: 3;
 	uint64_t dst_sel_y		: 3;
 	uint64_t dst_sel_z		: 3;
 	uint64_t dst_sel_w		: 3;
+
 	uint64_t base_level		: 4;
 	uint64_t last_level		: 4;
 	uint64_t tiling_idx		: 5;
@@ -59,10 +77,10 @@ struct TSharpBuffer
 	uint64_t type			: 4;
 
 	uint64_t depth			: 13;
-	uint64_t pitch			: 14;
+	uint64_t pitch			: 14;  // texture pitch in texels (0..16383); defaults to width
 	uint64_t reserved1		: 5;
-	uint64_t base_array		: 13;
-	uint64_t last_array		: 13;
+	uint64_t base_array		: 13;  // first array index (0..16383)
+	uint64_t last_array		: 13;  // texture height (0..16383)
 	uint64_t reserved2		: 6;
 
 	uint64_t min_lod_warn	: 12;
