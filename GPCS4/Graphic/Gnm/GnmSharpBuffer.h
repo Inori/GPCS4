@@ -45,48 +45,48 @@ struct TSharpBuffer
 	uint64_t nfmt			: 4;   // texture numeric format; value conversion
 	uint64_t mtype_lsbs		: 2;   // mtype for L1 (LSBs)
 
-	uint64_t width			: 14;  // texture width (0..16383)
-	uint64_t height			: 14;  // texture height (0..16383)
+	//uint64_t width			: 14;  // texture width (0..16383)
+	//uint64_t height			: 14;  // texture height (0..16383)
 
-	// Specifies the scale factor applied to the perf_z, perf_mip,
-	// aniso_bias, aniso_threshold, lod_bias_sec settings
-	// specified in the associated S#:
-	// 0=0/16, 1=2/16, 2=5/16, 3=7/16, 4=9/16, 5=11/16, 6=14/16, 7=16/16
-	// The result after scaling is rounded down to the nearest
-	// representable value for the given S# field.
-	// (Note that perf_mod=0 effectively disables these S#
-	// settings, while perf_mod=7 essentially eliminates the
-	// dependency between the T# and S#.)
-	uint64_t perf_mod		: 3;
+	//// Specifies the scale factor applied to the perf_z, perf_mip,
+	//// aniso_bias, aniso_threshold, lod_bias_sec settings
+	//// specified in the associated S#:
+	//// 0=0/16, 1=2/16, 2=5/16, 3=7/16, 4=9/16, 5=11/16, 6=14/16, 7=16/16
+	//// The result after scaling is rounded down to the nearest
+	//// representable value for the given S# field.
+	//// (Note that perf_mod=0 effectively disables these S#
+	//// settings, while perf_mod=7 essentially eliminates the
+	//// dependency between the T# and S#.)
+	//uint64_t perf_mod		: 3;
 
-	uint64_t interlaced		: 1;  // texture is interlaced
+	//uint64_t interlaced		: 1;  // texture is interlaced
 
-	// Destination channel select:
-	// 0=0, 1=1, 4=R, 5=G, 6=B, 7=A
-	uint64_t dst_sel_x		: 3;
-	uint64_t dst_sel_y		: 3;
-	uint64_t dst_sel_z		: 3;
-	uint64_t dst_sel_w		: 3;
+	//// Destination channel select:
+	//// 0=0, 1=1, 4=R, 5=G, 6=B, 7=A
+	//uint64_t dst_sel_x		: 3;
+	//uint64_t dst_sel_y		: 3;
+	//uint64_t dst_sel_z		: 3;
+	//uint64_t dst_sel_w		: 3;
 
-	uint64_t base_level		: 4;
-	uint64_t last_level		: 4;
-	uint64_t tiling_idx		: 5;
-	uint64_t pow2pad		: 1;
-	uint64_t mtype_msb		: 1;
-	uint64_t reserved0		: 1;
-	uint64_t type			: 4;
+	//uint64_t base_level		: 4;
+	//uint64_t last_level		: 4;
+	//uint64_t tiling_idx		: 5;
+	//uint64_t pow2pad		: 1;
+	//uint64_t mtype_msb		: 1;
+	//uint64_t reserved0		: 1;
+	//uint64_t type			: 4;
 
-	uint64_t depth			: 13;
-	uint64_t pitch			: 14;  // texture pitch in texels (0..16383); defaults to width
-	uint64_t reserved1		: 5;
-	uint64_t base_array		: 13;  // first array index (0..16383)
-	uint64_t last_array		: 13;  // texture height (0..16383)
-	uint64_t reserved2		: 6;
+	//uint64_t depth			: 13;
+	//uint64_t pitch			: 14;  // texture pitch in texels (0..16383); defaults to width
+	//uint64_t reserved1		: 5;
+	//uint64_t base_array		: 13;  // first array index (0..16383)
+	//uint64_t last_array		: 13;  // texture height (0..16383)
+	//uint64_t reserved2		: 6;
 
-	uint64_t min_lod_warn	: 12;
-	uint64_t counter_bank_id	: 8;
-	uint64_t LOD_hdw_cnt_en		: 1;
-	uint64_t reserved3			: 52;
+	//uint64_t min_lod_warn	: 12;
+	//uint64_t counter_bank_id	: 8;
+	//uint64_t LOD_hdw_cnt_en		: 1;
+	//uint64_t reserved3			: 52;
 };
 
 // S# Sampler Descriptor Buffer

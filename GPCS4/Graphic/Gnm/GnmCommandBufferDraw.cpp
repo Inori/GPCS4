@@ -1,5 +1,6 @@
 #include "GnmCommandBufferDraw.h"
 #include "Platform/PlatformUtils.h"
+#include "GnmSharpBuffer.h"
 #include "../Pssl/PsslShaderModule.h"
 
 GnmCommandBufferDraw::GnmCommandBufferDraw():
@@ -21,19 +22,24 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 			break;
 		}
 
-		//uint32_t* fsCode = getFetchShaderCode(m_vsCode);
-		//if (fsCode)
-		//{
-		//	pssl::PsslShaderModule module((const uint32_t*)m_vsCode, fsCode);
-		//	m_vsShader = module.compile();
-		//}
-		//else
-		//{
-		//	pssl::PsslShaderModule module((const uint32_t*)m_vsCode);
-		//	m_vsShader = module.compile();
-		//}
+		uint32_t* fsCode = getFetchShaderCode(m_vsCode);
+		if (fsCode)
+		{
+			pssl::PsslShaderModule module((const uint32_t*)m_vsCode, fsCode);
+			auto vsInputSlots = module.inputUsageSlots();
+			//m_vsShader = module.compile();
+		}
+		else
+		{
+			pssl::PsslShaderModule module((const uint32_t*)m_vsCode);
+			//m_vsShader = module.compile();
+		}
 
-		//pssl::PsslShaderModule module((const uint32_t*)m_psCode);
+		pssl::PsslShaderModule module((const uint32_t*)m_psCode);
+		
+		auto psInputSlots = module.inputUsageSlots();
+	
+
 		//m_psShader = module.compile();
 
 	} while (false);

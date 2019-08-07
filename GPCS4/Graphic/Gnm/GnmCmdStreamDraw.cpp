@@ -435,6 +435,10 @@ uint32_t GnmCmdStreamDraw::onPacketSetResource(uint32_t opcode, uint32_t* packet
 				m_dcb->setPointerInUserData(stage, slot, gpuAddr);
 			}
 		}
+		else
+		{
+			LOG_WARN("op not processed, op %08X opLen %d", opcode, opLen);
+		}
 
 	} while (false);
 	return packetSizeInDwords;

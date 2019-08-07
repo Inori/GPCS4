@@ -29,6 +29,8 @@ public:
 
 	const InputUsageSlot* getInputUsageSlot(uint32_t idx) const;
 
+	std::vector<InputUsageSlot> getInputUsageSlot() const;
+
 private:
 	bool initBinaryInfo(const uint8_t* code);
 

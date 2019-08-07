@@ -23,6 +23,7 @@ PsslShaderModule::~PsslShaderModule()
 
 }
 
+
 RcPtr<gve::GveShader> PsslShaderModule::compile()
 {
 	return m_vsInputSemantic.size() ? compileWithFS() : compileNoFS();
@@ -129,7 +130,14 @@ void PsslShaderModule::runCompiler(GCNCompiler& compiler, GCNCodeSlice slice)
 	}
 }
 
+std::vector<InputUsageSlot> PsslShaderModule::inputUsageSlots()
+{
+	return m_progInfo.getInputUsageSlot();
+}
 
-
+std::vector<VertexInputSemantic> PsslShaderModule::vsInputSemantic()
+{
+	return m_vsInputSemantic;
+}
 
 }  // namespace pssl

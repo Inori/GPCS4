@@ -94,6 +94,11 @@ const InputUsageSlot* PsslProgramInfo::getInputUsageSlot(uint32_t idx) const
 	return &m_inputUsageSlots[idx];
 }
 
+std::vector<InputUsageSlot> PsslProgramInfo::getInputUsageSlot() const
+{
+	return m_inputUsageSlots;
+}
+
 bool PsslProgramInfo::initBinaryInfo(const uint8_t* code)
 {
 	bool ret = false;

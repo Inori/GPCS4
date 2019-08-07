@@ -16,6 +16,10 @@ public:
 	PsslShaderModule(const uint32_t* code, const uint32_t* fsCode);
 	~PsslShaderModule();
 
+	std::vector<VertexInputSemantic> vsInputSemantic();
+
+	std::vector<InputUsageSlot> inputUsageSlots();
+
 	RcPtr<gve::GveShader> compile();
 
 private:
