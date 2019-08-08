@@ -69,6 +69,10 @@ void GnmCommandBufferDraw::setPointerInUserData(ShaderStage stage, uint32_t star
 		else if (stage == kShaderStagePs)
 		{
 			m_psUserDataSlotTable.push_back(std::make_pair(startUserDataSlot, gpuAddr));
+			if (startUserDataSlot != 0xC)
+			{
+				LOG_DEBUG("hit");
+			}
 		}
 	} while (false);
 }

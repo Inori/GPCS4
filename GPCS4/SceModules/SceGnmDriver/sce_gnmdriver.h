@@ -221,7 +221,7 @@ int PS4API sceGnmSetCsShaderWithModifier(uint32_t* cmdBuffer, uint32_t numDwords
 int PS4API sceGnmSetEmbeddedPsShader(uint32_t* cmdBuffer, uint32_t numDwords);
 
 
-int PS4API sceGnmSetEmbeddedVsShader(uint32_t* cmdBuffer, uint32_t numDwords);
+int PS4API sceGnmSetEmbeddedVsShader(uint32_t* cmdBuffer, uint32_t numDwords, EmbeddedVsShader shaderId, uint32_t shaderModifier);
 
 
 int PS4API sceGnmSetEsShader(uint32_t* cmdBuffer, uint32_t numDwords);
@@ -281,10 +281,10 @@ int PS4API sceGnmUpdateGsShader(void);
 int PS4API sceGnmUpdateHsShader(void);
 
 
-int PS4API sceGnmUpdatePsShader350(void);
+int PS4API sceGnmUpdatePsShader350(uint32_t* cmdBuffer, uint32_t numDwords, const pssl::PsStageRegisters *psRegs);
 
 
-int PS4API sceGnmUpdateVsShader(void);
+int PS4API sceGnmUpdateVsShader(uint32_t* cmdBuffer, uint32_t numDwords, const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier);
 
 
 int PS4API sceRazorCaptureImmediate(void);

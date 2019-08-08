@@ -65,7 +65,14 @@ int PS4API sceGnmDrawIndex(uint32_t* cmdBuffer, uint32_t numDwords,
 int PS4API sceGnmDrawIndexAuto(uint32_t* cmdBuffer, uint32_t numDwords,
 	uint32_t indexCount, uint32_t pred)
 {
-	LOG_SCE_GRAPHIC("Not implemented");
+	LOG_SCE_GRAPHIC("cmd %p numdw %d idxcount %d", cmdBuffer, numDwords, indexCount);
+	const uint32_t paramSize = sizeof(GnmCmdDrawIndexAuto) / sizeof(uint32_t);
+	assert(paramSize == numDwords);
+	GnmCmdDrawIndexAuto* param = (GnmCmdDrawIndexAuto*)cmdBuffer;
+	param->opcode = OPCODE_BUILD(paramSize, OP_TYPE_PRIV_DRAW, OP_INFO_DRAW_INDEX_AUTO);
+	param->indexCount = indexCount;
+	param->predAndMod = pred;
+	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
 	return SCE_OK;
 }
 
@@ -138,9 +145,18 @@ int PS4API sceGnmSetEmbeddedPsShader(uint32_t* cmdBuffer, uint32_t numDwords)
 }
 
 
-int PS4API sceGnmSetEmbeddedVsShader(uint32_t* cmdBuffer, uint32_t numDwords)
+int PS4API sceGnmSetEmbeddedVsShader(uint32_t* cmdBuffer, uint32_t numDwords, 
+	EmbeddedVsShader shaderId, uint32_t shaderModifier)
 {
-	LOG_SCE_GRAPHIC("Not implemented");
+	LOG_SCE_GRAPHIC("cmd %p numdw %d id %d mod %d", cmdBuffer, numDwords, shaderId, shaderModifier);
+
+	const uint32_t paramSize = sizeof(GnmCmdVSShader) / sizeof(uint32_t);
+	assert(paramSize == numDwords);
+	GnmCmdVSShader* param = (GnmCmdVSShader*)cmdBuffer;
+	param->opcode = OPCODE_BUILD(paramSize, OP_TYPE_PRIV_DRAW, OP_INFO_SET_EMBEDDED_VS_SHADER);
+	param->shaderId = (uint32_t)shaderId;
+	param->modifier = shaderModifier;
+	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
 	return SCE_OK;
 }
 
@@ -252,6 +268,51 @@ int PS4API sceGnmLogicalTcaUnitToPhysical(void)
 }
 
 
+int PS4API sceGnmUpdateVsShader(uint32_t* cmdBuffer, uint32_t numDwords, 
+	const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier)
+{
+	LOG_SCE_GRAPHIC("cmd %p numdw %d vs %p mod %d", cmdBuffer, numDwords, vsRegs, shaderModifier);
+
+	const uint32_t paramSize = sizeof(GnmCmdVSShader) / sizeof(uint32_t);
+	assert(paramSize == numDwords);
+	GnmCmdVSShader* param = (GnmCmdVSShader*)cmdBuffer;
+	param->opcode = OPCODE_BUILD(paramSize, OP_TYPE_PRIV_DRAW, OP_INFO_UPDATE_VS_SHADER);
+	param->modifier = shaderModifier;
+	if (vsRegs != NULL)
+	{
+		memcpy(&param->vsRegs, vsRegs, sizeof(pssl::VsStageRegisters));
+	}
+	else
+	{
+		memset(&param->vsRegs, 0, sizeof(pssl::VsStageRegisters));
+	}
+	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
+	return SCE_OK;
+}
+
+
+int PS4API sceGnmUpdatePsShader350(uint32_t* cmdBuffer, uint32_t numDwords, 
+	const pssl::PsStageRegisters *psRegs)
+{
+	LOG_SCE_GRAPHIC("cmd %p numdw %d ps %p", cmdBuffer, numDwords, psRegs);
+
+	const uint32_t paramSize = sizeof(GnmCmdPSShader) / sizeof(uint32_t);
+	assert(paramSize == numDwords);
+	GnmCmdPSShader* param = (GnmCmdPSShader*)cmdBuffer;
+	param->opcode = OPCODE_BUILD(paramSize, OP_TYPE_PRIV_DRAW, OP_INFO_SET_PS_SHADER);
+	if (psRegs != NULL)
+	{
+		memcpy(&param->psRegs, psRegs, sizeof(pssl::PsStageRegisters));
+	}
+	else
+	{
+		memset(&param->psRegs, 0, sizeof(pssl::PsStageRegisters));
+	}
+	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
+	return SCE_OK;
+}
+
+
 int PS4API sceGnmUpdateGsShader(void)
 {
 	LOG_SCE_GRAPHIC("Not implemented");
@@ -260,20 +321,6 @@ int PS4API sceGnmUpdateGsShader(void)
 
 
 int PS4API sceGnmUpdateHsShader(void)
-{
-	LOG_SCE_GRAPHIC("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API sceGnmUpdatePsShader350(void)
-{
-	LOG_SCE_GRAPHIC("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API sceGnmUpdateVsShader(void)
 {
 	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;

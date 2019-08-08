@@ -36,8 +36,9 @@ struct GnmCmdVSShader
 {
 	uint32_t opcode;
 	pssl::VsStageRegisters vsRegs;
+	uint32_t shaderId;
 	uint32_t modifier;
-	uint32_t reserved[20];
+	uint32_t reserved[19];
 };
 
 struct GnmCmdPSShader
@@ -121,7 +122,10 @@ struct GnmCmdDrawIndex
 
 struct GnmCmdDrawIndexAuto
 {
-	uint32_t reserved[7];
+	uint32_t opcode;
+	uint32_t indexCount;
+	uint32_t predAndMod;
+	uint32_t reserved[4];
 };
 
 struct GnmCmdDrawIndexOffset
