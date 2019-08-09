@@ -2,7 +2,12 @@
 
 #include "GPCS4Common.h"
 
-
+// The "correct" way to build a pm4 packet should following the official standard,
+// for example:
+// using IT_DRAW_INDEX_AUTO to implement sceGnmDrawIndexAuto
+// But that will make things more complicated.
+// So I defined our own private format for functions in gnm driver.
+// This will make our dispatch routines more easier.
 #define PM4_HEADER_BUILD(lenDw, op, priv) ( ((uint32_t)( ((((uint16_t)lenDw) << 16) + 0x3FFE0000) | 0xC0000000)) | ((uint8_t)(op)) << 8 | ((uint8_t)(priv)))
 
 #define PM4_PRIV(token) ( (IT_OpCodePriv)(((uint32_t)(token)) & 0xFF) )
@@ -47,7 +52,7 @@ constexpr unsigned int PM4_TYPE_0 = 0;
 constexpr unsigned int PM4_TYPE_2 = 2;
 constexpr unsigned int PM4_TYPE_3 = 3;
 
-//
+// Some of the following opcode type is not used by PS4 Gnm.
 enum IT_OpCodeType
 {
 	IT_NOP =								0x00000010,

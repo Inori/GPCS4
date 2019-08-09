@@ -38,6 +38,7 @@
     <ClInclude Include="GPCS4Config.h" />
     <ClInclude Include="Graphic\Gnm\GnmCmdStream.h" />
     <ClInclude Include="Graphic\Gnm\GnmCommandBuffer.h" />
+    <ClInclude Include="Graphic\Gnm\GnmCommandBufferDispatch.h" />
     <ClInclude Include="Graphic\Gnm\GnmCommandBufferDraw.h" />
     <ClInclude Include="Graphic\Gnm\GnmConstant.h" />
     <ClInclude Include="Graphic\Gnm\GnmOpCode.h" />
@@ -196,6 +197,7 @@
     <ClCompile Include="GPCS4Main.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmCmdStream.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmCommandBuffer.cpp" />
+    <ClCompile Include="Graphic\Gnm\GnmCommandBufferDispatch.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmCommandBufferDraw.cpp" />
     <ClCompile Include="Graphic\GraphicShared.cpp" />
     <ClCompile Include="Graphic\Gve\GveDevice.cpp" />

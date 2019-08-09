@@ -670,6 +670,9 @@
     <ClInclude Include="Graphic\Gnm\GnmSharpBuffer.h">
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GnmCommandBufferDispatch.h">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1214,6 +1217,9 @@
     </ClCompile>
     <ClCompile Include="Graphic\Pssl\PsslShaderModule.cpp">
       <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gnm\GnmCommandBufferDispatch.cpp">
+      <Filter>Source Files\Graphic\Gnm</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
