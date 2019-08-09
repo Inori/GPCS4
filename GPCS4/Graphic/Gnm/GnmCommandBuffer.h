@@ -3,6 +3,7 @@
 #include "GPCS4Common.h"
 #include "GnmConstant.h"
 #include "GnmStructure.h"
+#include "GnmSharpBuffer.h"
 
 class GnmCommandBuffer
 {
@@ -190,7 +191,7 @@ public:
 	//virtual void setScaledResolutionGrid(const ScaledResolutionGridAxis xAxisLeftEye, const ScaledResolutionGridAxis xAxisRightEye, const ScaledResolutionGridAxis yAxisBothEyes) = 0;
 	//virtual void setScanModeControl(ScanModeControlAa msaa, ScanModeControlViewportScissor viewportScissor) = 0;
 	//virtual void setScreenScissor(int32_t left, int32_t top, int32_t right, int32_t bottom) = 0;
-	//virtual void setSsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Sampler *sampler) = 0;
+	virtual void setSsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Sampler *sampler) = 0;
 	//virtual void setStencilClearValue(uint8_t clearValue) = 0;
 	//virtual void setStencil(StencilControl stencilControl) = 0;
 	//virtual void setStencilSeparate(StencilControl front, StencilControl back) = 0;
@@ -200,13 +201,13 @@ public:
 	//virtual void setTessellationDistributionThresholds(TessellationDistributionThresholds thresholds) = 0;
 	//virtual void setTextureGradientFactors(uint8_t factor00, uint8_t factor01, uint8_t factor10, uint8_t factor11,
 	//	TextureGradientFactor01SignNegationBehavior factor01sb, TextureGradientFactor10SignNegationBehavior factor10sb) = 0;
-	//virtual void setTsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Texture *tex) = 0;
+	virtual void setTsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Texture *tex) = 0;
 	//virtual void setupDrawOpaqueParameters(void *sizeLocation, uint32_t stride, uint32_t offset) = 0;
 	//virtual void setupEsGsRingRegisters(uint32_t maxExportVertexSizeInDword) = 0;
 	//virtual void setupGsVsRingRegisters(const uint32_t vertexSizePerStreamInDword[4], uint32_t maxOutputVertexCount) = 0;
 	//virtual void setUserClipPlane(uint32_t clipPlane, float x, float y, float z, float w) = 0;
 	//virtual void setUserData(ShaderStage stage, uint32_t userDataSlot, uint32_t data) = 0;
-	//virtual void setUserDataRegion(ShaderStage stage, uint32_t startUserDataSlot, const uint32_t *userData, uint32_t numDwords) = 0;
+	virtual void setUserDataRegion(ShaderStage stage, uint32_t startUserDataSlot, const uint32_t *userData, uint32_t numDwords) = 0;
 	//virtual void setVertexQuantization(VertexQuantizationMode quantizeMode, VertexQuantizationRoundMode roundMode, VertexQuantizationCenterMode centerMode) = 0;
 	//virtual void setVertexReuseEnable(bool enable) = 0;
 	//virtual void setVgtControl(uint8_t primGroupSizeMinusOne) = 0;
@@ -216,7 +217,7 @@ public:
 	//virtual void setViewportTransformControl(ViewportTransformControl vportControl) = 0;
 	//virtual void setViewportScissor(uint32_t viewportId, uint32_t left, uint32_t top, uint32_t right, uint32_t bottom, WindowOffsetMode windowOffsetEnable) = 0;
 	//virtual void setViewport(uint32_t viewportId, float dmin, float dmax, const float scale[3], const float offset[3]) = 0;
-	//virtual void setVsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Buffer *buffer) = 0;
+	virtual void setVsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Buffer *buffer) = 0;
 	//virtual void setVsShaderStreamoutEnable(bool enable) = 0;
 	virtual void setVsShader(const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier) = 0;
 	//virtual void setWindowOffset(int16_t offsetX, int16_t offsetY) = 0;

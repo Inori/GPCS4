@@ -24,11 +24,16 @@ public:
 
 	virtual void prepareFlip(void *labelAddr, uint32_t value);
 
-	virtual void setPointerInUserData(ShaderStage stage, uint32_t startUserDataSlot, void *gpuAddr);
+	
 	virtual void setPsShaderUsage(const uint32_t *inputTable, uint32_t numItems);
 	virtual void setPsShader(const pssl::PsStageRegisters *psRegs);
 	virtual void setVsShader(const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier);
 
+	virtual void setVsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Buffer *buffer);
+	virtual void setTsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Texture *tex);
+	virtual void setSsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Sampler *sampler);
+	virtual void setUserDataRegion(ShaderStage stage, uint32_t startUserDataSlot, const uint32_t *userData, uint32_t numDwords);
+	virtual void setPointerInUserData(ShaderStage stage, uint32_t startUserDataSlot, void *gpuAddr);
 	virtual void writeAtEndOfPipe(EndOfPipeEventType eventType,
 		EventWriteDest dstSelector, void *dstGpuAddr,
 		EventWriteSource srcSelector, uint64_t immValue,

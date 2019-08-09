@@ -6,6 +6,18 @@
 
 #include <memory>
 
+// This class takes all the reverse engining work, parsing PM4 packets (aka command buffer),
+// restore the original high level Gnm API calls, and the forward to CnmCommandBufferXXX class,
+// we handle graphic staffs there.
+// This way we gain the game developers' original idea without
+// interacting with low level command buffers.
+// 
+// You should open IDA Pro on libSceGnm.a when read/write code here.
+//
+// The parsing process takes references from:
+// AMD manual: Radeon Southern Islands Acceleration
+// PAL: https://github.com/GPUOpen-Drivers/pal
+
 class GnmCmdStream
 {
 public:
@@ -53,11 +65,19 @@ private:
 	// Private
 	void onGnmPrivate(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody);
 
-	// Private Handlers
-
+	// Parsing methods
+	void onPrepareFlipOrEopInterrupt(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody);
+	void onDrawIndex(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody);
 
 private:
 	std::shared_ptr<GnmCommandBuffer> m_cb;
+
+	bool m_flipPacketDone = false;
+
+	// Used for recording hint, usually provided by IT_NOP
+	// Note: This MUST clear to 0 every time after we use it.
+	uint32_t m_lastHint = 0;
+
 };
 
 

@@ -96,6 +96,26 @@ void GnmCommandBufferDraw::setVsShader(const pssl::VsStageRegisters *vsRegs, uin
 	m_vsCode = vsRegs->getCodeAddress();
 }
 
+void GnmCommandBufferDraw::setVsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Buffer *buffer)
+{
+
+}
+
+void GnmCommandBufferDraw::setTsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Texture *tex)
+{
+
+}
+
+void GnmCommandBufferDraw::setSsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Sampler *sampler)
+{
+
+}
+
+void GnmCommandBufferDraw::setUserDataRegion(ShaderStage stage, uint32_t startUserDataSlot, const uint32_t *userData, uint32_t numDwords)
+{
+
+}
+
 void GnmCommandBufferDraw::writeAtEndOfPipe(EndOfPipeEventType eventType, 
 	EventWriteDest dstSelector, void *dstGpuAddr, 
 	EventWriteSource srcSelector, uint64_t immValue, 

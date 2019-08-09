@@ -41,6 +41,7 @@
     <ClInclude Include="Graphic\Gnm\GnmCommandBufferDispatch.h" />
     <ClInclude Include="Graphic\Gnm\GnmCommandBufferDraw.h" />
     <ClInclude Include="Graphic\Gnm\GnmConstant.h" />
+    <ClInclude Include="Graphic\Gnm\GnmGfx9MePm4Packets.h" />
     <ClInclude Include="Graphic\Gnm\GnmOpCode.h" />
     <ClInclude Include="Graphic\Gnm\GnmSharpBuffer.h" />
     <ClInclude Include="Graphic\Gnm\GnmStructure.h" />

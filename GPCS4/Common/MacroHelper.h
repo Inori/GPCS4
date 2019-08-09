@@ -8,4 +8,6 @@
 
 #define BIT_IS_SET(x, n) ((x) & (1 << (n)))
 
+#define BUILD_QWORD(high, low) (((unsigned long long)(high) << 32) | (low))
+
 

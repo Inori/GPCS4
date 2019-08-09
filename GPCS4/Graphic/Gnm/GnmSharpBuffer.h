@@ -34,6 +34,8 @@ struct VSharpBuffer
 	uint32_t type			: 2;  // value == 0 for buf. Overlaps upper 2 bits of 4-bit TYPE field in 128-bit T# resource
 };
 
+typedef VSharpBuffer Buffer;
+
 // T# Texture Descriptor Buffer
 // 256 bits
 struct TSharpBuffer
@@ -89,6 +91,8 @@ struct TSharpBuffer
 	//uint64_t reserved3			: 52;
 };
 
+typedef TSharpBuffer Texture;
+
 // S# Sampler Descriptor Buffer
 // 128 bits
 struct SSharpBuffer
@@ -123,3 +127,5 @@ struct SSharpBuffer
 	uint64_t reserved2			: 18;
 	uint64_t border_color_type	: 2;
 };
+
+typedef SSharpBuffer Sampler;

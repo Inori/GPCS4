@@ -1,5 +1,8 @@
 #include "GnmCmdStream.h"
+#include "GnmGfx9MePm4Packets.h"
 
+
+const uint32_t c_stageBases[kShaderStageCount] = { 0x2E40, 0x2C0C, 0x2C4C, 0x2C8C, 0x2CCC, 0x2D0C, 0x2D4C };
 
 GnmCmdStream::GnmCmdStream(std::shared_ptr<GnmCommandBuffer>& cb):
 	m_cb(cb)
@@ -41,12 +44,21 @@ bool GnmCmdStream::processCommandBuffer(uint32_t* commandBuffer, uint32_t comman
 				break;
 			}
 
+			if (m_flipPacketDone)
+			{
+				break;
+			}
+
 			command += pm4LengthDw;
 			processedCmdSize += (pm4LengthDw * sizeof(uint32_t));
 		}
 
 		bRet  = true;
 	}while(false);
+
+	// Clear works for this command buffer.
+	m_flipPacketDone = false;
+
 	return bRet;
 }
 
@@ -259,9 +271,29 @@ uint32_t GnmCmdStream::processPM4Type3(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBo
 	return pm4LengthDw;
 }
 
+// NOP packet usually used for providing a hint for the following packet,
+// or used for some platform specific operations that do not have a standard
+// opcode, like prepareFlip
 void GnmCmdStream::onNop(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 {
-
+	uint32_t hint = *itBody;
+	switch (hint)
+	{
+	case OP_HINT_SET_VSHARP_IN_USER_DATA:
+	case OP_HINT_SET_TSHARP_IN_USER_DATA:
+	case OP_HINT_SET_SSHARP_IN_USER_DATA:
+	case OP_HINT_SET_USER_DATA_REGION:
+		m_lastHint = hint;
+		break;
+	case OP_HINT_PREPARE_FLIP_VOID:
+	case OP_HINT_PREPARE_FLIP_LABEL:
+	case OP_HINT_PREPARE_FLIP_WITH_EOP_INTERRUPT_VOID:
+	case OP_HINT_PREPARE_FLIP_WITH_EOP_INTERRUPT_LABEL:
+		onPrepareFlipOrEopInterrupt(pm4Hdr, itBody);
+		break;
+	default:
+		break;
+	}
 }
 
 void GnmCmdStream::onSetBase(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
@@ -337,6 +369,37 @@ void GnmCmdStream::onEventWrite(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 void GnmCmdStream::onEventWriteEop(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 {
 
+	PPM4_ME_EVENT_WRITE_EOP eopPacket = (PPM4_ME_EVENT_WRITE_EOP)pm4Hdr;
+
+	// From IDA
+	eopPacket->ordinal2 -= 0x500;
+
+	// dstSel uses packet's reserved fields
+	uint8_t dstSel = ((eopPacket->ordinal4 >> 16) & 1) | ((eopPacket->ordinal2 >> 23) & 0b10);
+
+	// TODO:
+	// this is a GPU relative address lacking of the highest byte (masked by 0xFFFFFFFFF8 or 0xFFFFFFFFFC)
+	// I'm not sure this relative to what, maybe to the command buffer.
+	uint64_t relaGpuAddr = BUILD_QWORD(eopPacket->addressHi, eopPacket->addressLo);
+	void* gpuAddr = (void*)(((uint64_t)pm4Hdr & 0x0000FF0000000000) | relaGpuAddr);
+
+	uint64_t immValue = BUILD_QWORD(eopPacket->dataHi, eopPacket->dataLo);
+	uint8_t cacheAction = (eopPacket->ordinal2 >> 12) & 0x3F;
+
+	if (eopPacket->intSel)
+	{
+		m_cb->writeAtEndOfPipeWithInterrupt((EndOfPipeEventType)eopPacket->eventType,
+			(EventWriteDest)dstSel, gpuAddr,
+			(EventWriteSource)eopPacket->dataSel, immValue,
+			(CacheAction)cacheAction, (CachePolicy)eopPacket->cachePolicy__CI);
+	}
+	else
+	{
+		m_cb->writeAtEndOfPipe((EndOfPipeEventType)eopPacket->eventType,
+			(EventWriteDest)dstSel, gpuAddr,
+			(EventWriteSource)eopPacket->dataSel, immValue,
+			(CacheAction)cacheAction, (CachePolicy)eopPacket->cachePolicy__CI);
+	}
 }
 
 void GnmCmdStream::onEventWriteEos(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
@@ -366,12 +429,99 @@ void GnmCmdStream::onSetConfigReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 
 void GnmCmdStream::onSetContextReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 {
-
+	uint32_t hint = itBody[0];
+	switch (hint)
+	{
+	case OP_HINT_SET_PS_SHADER_USAGE:
+	{
+		const uint32_t* inputTable = &itBody[1];
+		const uint32_t numItems = pm4Hdr->count;
+		m_cb->setPsShaderUsage(inputTable, numItems);
+	}
+		break;
+	default:
+		break;
+	}
 }
 
 void GnmCmdStream::onSetShReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 {
+	PPM4ME_SET_SH_REG shPacket = (PPM4ME_SET_SH_REG)pm4Hdr;
 
+	if (pm4Hdr->count != 1)
+	{
+		ShaderStage stage;
+		if (pm4Hdr->shaderType)
+		{
+			stage = kShaderStageCs;
+		}
+		else
+		{
+			//0x2C0C - 0x2C00 = 0x00C
+			//0x2C4C - 0x2C00 = 0x04C
+			//0x2C8C - 0x2C00 = 0x08C
+			//0x2CCC - 0x2C00 = 0x0CC
+			//0x2D0C - 0x2C00 = 0x10C
+			//0x2D4C - 0x2C00 = 0x14C
+			//
+			//(0x00C + 0xE) >> 5 = 0 = 2 * 0
+			//(0x04C + 0xE) >> 5 = 2 = 2 * 1
+			//(0x08C + 0xE) >> 5 = 4 = 2 * 2
+			//(0x0CC + 0xE) >> 5 = 6 = 2 * 3
+			//(0x10C + 0xE) >> 5 = 8 = 2 * 4
+			//(0x14C + 0xE) >> 5 = 10 = 2 * 5
+			stage = (ShaderStage)(((shPacket->bitfields2.reg_offset >> 5) / 2) + 1);
+		}
+		uint32_t stageBase = c_stageBases[stage];
+		uint32_t startSlot = shPacket->bitfields2.reg_offset + 0x2C00 - stageBase;
+
+		switch (m_lastHint)
+		{
+		case OP_HINT_SET_VSHARP_IN_USER_DATA:
+			break;
+		case OP_HINT_SET_TSHARP_IN_USER_DATA:
+			break;
+		case OP_HINT_SET_SSHARP_IN_USER_DATA:
+			break;
+		case OP_HINT_SET_USER_DATA_REGION:
+			m_cb->setUserDataRegion(stage, startSlot, &itBody[1], pm4Hdr->count);
+			break;
+		}
+
+		if (pm4Hdr->count == 2)  // 2 for a pointer type size
+		{
+			void* gpuAddr = (void*)*(uint64_t*)(itBody + 1);
+			m_cb->setPointerInUserData(stage, startSlot, gpuAddr);
+		}
+	}
+	else
+	{
+		uint32_t hint = shPacket->bitfields2.reg_offset;
+		if (hint == OP_HINT_SET_COMPUTE_SHADER_CONTROL)
+		{
+			//m_dcb.setComputeShaderControl();
+		}
+		else if (hint == OP_HINT_SET_COMPUTE_SCRATCH_SIZE)
+		{
+			//m_dcb.setComputeScratchSize();
+		}
+		else if (!pm4Hdr->shaderType && hint >= 0x0C && hint <= 0x14C)
+		{
+			// non cs
+			//m_dcb.setUserData()
+		}
+		else if (pm4Hdr->shaderType && hint == 0x240)
+		{
+			//cs
+			//m_dcb.setUserData();
+		}
+		else if (hint >= 0x216 && hint <= 0x21A)
+		{
+			//m_dcb.setComputeResourceManagement()
+		}
+	}
+
+	m_lastHint = 0;
 }
 
 void GnmCmdStream::onSetUconfigReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
@@ -418,8 +568,16 @@ void GnmCmdStream::onGnmPrivate(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	case OP_PRIV_SET_EMBEDDED_PS_SHADER:
 		break;
 	case OP_PRIV_SET_VS_SHADER:
+	{
+		GnmCmdVSShader* param = (GnmCmdVSShader*)pm4Hdr;
+		m_cb->setVsShader(&param->vsRegs, param->modifier);
+	}
 		break;
 	case OP_PRIV_SET_PS_SHADER:
+	{
+		GnmCmdPSShader* param = (GnmCmdPSShader*)pm4Hdr;
+		m_cb->setPsShader(&param->psRegs);
+	}
 		break;
 	case OP_PRIV_SET_ES_SHADER:
 		break;
@@ -442,6 +600,7 @@ void GnmCmdStream::onGnmPrivate(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	case OP_PRIV_RESET_VGT_CONTROL:
 		break;
 	case OP_PRIV_DRAW_INDEX:
+		onDrawIndex(pm4Hdr, itBody);
 		break;
 	case OP_PRIV_DRAW_INDEX_AUTO:
 		break;
@@ -477,6 +636,51 @@ void GnmCmdStream::onGnmPrivate(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 		break;
 	default:
 		break;
+	}
+}
+
+void GnmCmdStream::onPrepareFlipOrEopInterrupt(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
+{
+	uint32_t hint = itBody[0];
+
+	//void* labelAddr = (void*)((uint64_t(itBody[2]) << 32) | itBody[1]);
+	void* labelAddr = (void*)*(uint64_t*)(itBody + 1);
+	uint32_t value = itBody[3];
+
+	switch (hint)
+	{
+	case OP_HINT_PREPARE_FLIP_VOID:
+		LOG_FIXME("Not implemented.");
+		break;
+	case OP_HINT_PREPARE_FLIP_LABEL:
+		m_cb->prepareFlip(labelAddr, value);
+		break;
+	case OP_HINT_PREPARE_FLIP_WITH_EOP_INTERRUPT_VOID:
+		LOG_FIXME("Not implemented.");
+		break;
+	case OP_HINT_PREPARE_FLIP_WITH_EOP_INTERRUPT_LABEL:
+		LOG_FIXME("Not implemented.");
+		break;
+	default:
+		break;
+	}
+
+	// mark this is the last packet in command buffer.
+	m_flipPacketDone = true;
+}
+
+void GnmCmdStream::onDrawIndex(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
+{
+	GnmCmdDrawIndex* param = (GnmCmdDrawIndex*)pm4Hdr;
+	DrawModifier modifier = { 0 };
+	modifier.renderTargetSliceOffset = (param->predAndMod >> 29) & 0b111;
+	if (!modifier.renderTargetSliceOffset)
+	{
+		m_cb->drawIndex(param->indexCount, (const void*)param->indexAddr);
+	}
+	else
+	{
+		m_cb->drawIndex(param->indexCount, (const void*)param->indexAddr, modifier);
 	}
 }
 
