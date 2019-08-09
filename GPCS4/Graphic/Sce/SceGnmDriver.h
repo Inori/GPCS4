@@ -1,7 +1,8 @@
 #pragma once
 
 #include "GPCS4Common.h"
-#include "../Gnm/GnmCmdStreamDraw.h"
+#include "../Gnm/GnmCmdStream.h"
+#include "../Gnm/GnmCommandBufferDraw.h"
 #include <memory>
 
 namespace sce
@@ -13,9 +14,6 @@ public:
 	SceGnmDriver();
 	~SceGnmDriver();
 
-
-
-
 	int submitAndFlipCommandBuffers(uint32_t count,
 		void *dcbGpuAddrs[], uint32_t *dcbSizesInBytes,
 		void *ccbGpuAddrs[], uint32_t *ccbSizesInBytes,
@@ -25,8 +23,8 @@ public:
 	int sceGnmSubmitDone(void);
 
 private:
-	std::shared_ptr<GnmCommandBufferDraw> m_dcb;
-	std::shared_ptr<GnmCmdStreamDraw> m_cmdHandlerDraw;
+	std::shared_ptr<GnmCommandBuffer> m_cb;
+	std::shared_ptr<GnmCmdStream> m_cmdParser;
 };
 
 }  //sce

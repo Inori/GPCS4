@@ -454,15 +454,6 @@
     <ClInclude Include="Graphic\Gnm\GnmStructure.h">
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GnmCmdStreamDraw.h">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GnmCmdStreamConstant.h">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GnmCmdStreamDispatch.h">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClInclude>
     <ClInclude Include="Graphic\Gnm\GnmConstant.h">
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClInclude>
@@ -1067,15 +1058,6 @@
     </ClCompile>
     <ClCompile Include="SceModules\SceGnmDriver\sce_gnm_cmd.cpp">
       <Filter>SceModules\SceGnmDriver</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gnm\GnmCmdStreamDraw.cpp">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gnm\GnmCmdStreamConstant.cpp">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gnm\GnmCmdStreamDispatch.cpp">
-      <Filter>Source Files\Graphic\Gnm</Filter>
     </ClCompile>
     <ClCompile Include="SceModules\SceGnmDriver\sce_gnm_submit.cpp">
       <Filter>SceModules\SceGnmDriver</Filter>

@@ -11,7 +11,7 @@ int PS4API sceGnmInsertPushMarker(uint32_t* cmdBuffer, uint32_t numDwords, const
 {
 	LOG_SCE_GRAPHIC("cmd %p numdw %d str %p", cmdBuffer, numDwords, debugString);
 	GnmCmdPushMarker* param = (GnmCmdPushMarker*)cmdBuffer;
-	param->opcode = OPCODE_BUILD(numDwords, OP_TYPE_PRIV_SHARED, OP_INFO_PUSH_MARKER);
+	param->opcode = PM4_HEADER_BUILD(numDwords, IT_GNM_PRIVATE, OP_PRIV_PUSH_MARKER);
 	uint32_t strLen = strlen(debugString);
 	if ((numDwords - 1) * sizeof(uint32_t) > strLen)
 	{
@@ -34,7 +34,7 @@ int PS4API sceGnmInsertPopMarker(uint32_t* cmdBuffer, uint32_t numDwords)
 	const uint32_t paramSize = sizeof(GnmCmdPopMarker) / sizeof(uint32_t);
 	assert(paramSize == numDwords);
 	GnmCmdPopMarker* param = (GnmCmdPopMarker*)cmdBuffer;
-	param->opcode = OPCODE_BUILD(paramSize, OP_TYPE_PRIV_SHARED, OP_INFO_POP_MARKER);
+	param->opcode = PM4_HEADER_BUILD(paramSize, IT_GNM_PRIVATE, OP_PRIV_POP_MARKER);
 	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
 	return SCE_OK;
 }
@@ -67,7 +67,7 @@ int PS4API sceGnmSetCsShaderWithModifier(uint32_t* cmdBuffer, uint32_t numDwords
 	const uint32_t paramSize = sizeof(GnmCmdCSShader) / sizeof(uint32_t);
 	assert(paramSize == numDwords);
 	GnmCmdCSShader* param = (GnmCmdCSShader*)cmdBuffer;
-	param->opcode = OPCODE_BUILD(paramSize, OP_TYPE_PRIV_SHARED, OP_INFO_SET_CS_SHADER);
+	param->opcode = PM4_HEADER_BUILD(paramSize, IT_GNM_PRIVATE, OP_PRIV_SET_CS_SHADER);
 	param->modifier = shaderModifier;
 	memcpy(&param->csRegs, csRegs, sizeof(pssl::CsStageRegisters));
 	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
@@ -82,7 +82,7 @@ int PS4API sceGnmDispatchDirect(uint32_t* cmdBuffer, uint32_t numDwords,
 	const uint32_t paramSize = sizeof(GnmCmdDispatchDirect) / sizeof(uint32_t);
 	assert(paramSize == numDwords);
 	GnmCmdDispatchDirect* param = (GnmCmdDispatchDirect*)cmdBuffer;
-	param->opcode = OPCODE_BUILD(paramSize, OP_TYPE_PRIV_SHARED, OP_INFO_DISPATCH_DIRECT);
+	param->opcode = PM4_HEADER_BUILD(paramSize, IT_GNM_PRIVATE, OP_PRIV_DISPATCH_DIRECT);
 	param->threadGroupX = threadGroupX;
 	param->threadGroupY = threadGroupY;
 	param->threadGroupZ = threadGroupZ;

@@ -12,7 +12,7 @@ uint32_t PS4API sceGnmDrawInitDefaultHardwareState350(uint32_t* cmdBuffer, uint6
 	const uint initCmdSize = sizeof(GnmCmdDrawInitDefaultHardwareState) / sizeof(uint32_t);
 	assert(numDwords >= initCmdSize);
 	GnmCmdDrawInitDefaultHardwareState* initParam = (GnmCmdDrawInitDefaultHardwareState*)cmdBuffer;
-	initParam->opcode = OPCODE_BUILD(initCmdSize, OP_TYPE_PRIV_DRAW, OP_INFO_DRAW_INITIALIZE_DEFAULT_HARDWARE_STATE);
+	initParam->opcode = PM4_HEADER_BUILD(initCmdSize, IT_GNM_PRIVATE, OP_PRIV_INITIALIZE_DEFAULT_HARDWARE_STATE);
 	memset(initParam->reserved, 0, sizeof(initParam->reserved) * sizeof(uint32_t));
 	return initCmdSize;
 }
@@ -25,7 +25,7 @@ int PS4API sceGnmInsertWaitFlipDone(uint32_t* cmdBuffer, uint32_t numDwords, int
 	const uint cmdSize = sizeof(GnmCmdWaitFlipDone) / sizeof(uint32_t);
 	assert(cmdSize == numDwords);
 	GnmCmdWaitFlipDone* param = (GnmCmdWaitFlipDone*)cmdBuffer;
-	param->opcode = OPCODE_BUILD(cmdSize, OP_TYPE_PRIV_DRAW, OP_INFO_WAIT_UNTIL_SAFE_FOR_RENDERING);
+	param->opcode = PM4_HEADER_BUILD(cmdSize, IT_GNM_PRIVATE, OP_PRIV_WAIT_UNTIL_SAFE_FOR_RENDERING);
 	param->videoOutHandle = videoOutHandle;
 	param->displayBufferIndex = displayBufferIndex;
 	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
@@ -52,7 +52,7 @@ int PS4API sceGnmDrawIndex(uint32_t* cmdBuffer, uint32_t numDwords,
 	const uint32_t paramSize = sizeof(GnmCmdDrawIndex) / sizeof(uint32_t);
 	assert(paramSize == numDwords);
 	GnmCmdDrawIndex* param = (GnmCmdDrawIndex*)cmdBuffer;
-	param->opcode = OPCODE_BUILD(paramSize, OP_TYPE_PRIV_DRAW, OP_INFO_DRAW_INDEX);
+	param->opcode = PM4_HEADER_BUILD(paramSize, IT_GNM_PRIVATE, OP_PRIV_DRAW_INDEX);
 	param->indexCount = indexCount;
 	param->indexAddr = (ulong_ptr)indexAddr;
 	param->predAndMod = predAndMod;
@@ -69,7 +69,7 @@ int PS4API sceGnmDrawIndexAuto(uint32_t* cmdBuffer, uint32_t numDwords,
 	const uint32_t paramSize = sizeof(GnmCmdDrawIndexAuto) / sizeof(uint32_t);
 	assert(paramSize == numDwords);
 	GnmCmdDrawIndexAuto* param = (GnmCmdDrawIndexAuto*)cmdBuffer;
-	param->opcode = OPCODE_BUILD(paramSize, OP_TYPE_PRIV_DRAW, OP_INFO_DRAW_INDEX_AUTO);
+	param->opcode = PM4_HEADER_BUILD(paramSize, IT_GNM_PRIVATE, OP_PRIV_DRAW_INDEX_AUTO);
 	param->indexCount = indexCount;
 	param->predAndMod = pred;
 	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
@@ -153,7 +153,7 @@ int PS4API sceGnmSetEmbeddedVsShader(uint32_t* cmdBuffer, uint32_t numDwords,
 	const uint32_t paramSize = sizeof(GnmCmdVSShader) / sizeof(uint32_t);
 	assert(paramSize == numDwords);
 	GnmCmdVSShader* param = (GnmCmdVSShader*)cmdBuffer;
-	param->opcode = OPCODE_BUILD(paramSize, OP_TYPE_PRIV_DRAW, OP_INFO_SET_EMBEDDED_VS_SHADER);
+	param->opcode = PM4_HEADER_BUILD(paramSize, IT_GNM_PRIVATE, OP_PRIV_SET_EMBEDDED_VS_SHADER);
 	param->shaderId = (uint32_t)shaderId;
 	param->modifier = shaderModifier;
 	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
@@ -198,7 +198,7 @@ int PS4API sceGnmSetVsShader(uint32_t* cmdBuffer, uint32_t numDwords,
 	const uint32_t paramSize = sizeof(GnmCmdVSShader) / sizeof(uint32_t);
 	assert(paramSize == numDwords);
 	GnmCmdVSShader* param = (GnmCmdVSShader*)cmdBuffer;
-	param->opcode = OPCODE_BUILD(paramSize, OP_TYPE_PRIV_DRAW, OP_INFO_SET_VS_SHADER);
+	param->opcode = PM4_HEADER_BUILD(paramSize, IT_GNM_PRIVATE, OP_PRIV_SET_VS_SHADER);
 	param->modifier = shaderModifier;
 	if (vsRegs != NULL)
 	{
@@ -221,7 +221,7 @@ int PS4API sceGnmSetPsShader350(uint32_t* cmdBuffer, uint32_t numDwords,
 	const uint32_t paramSize = sizeof(GnmCmdPSShader) / sizeof(uint32_t);
 	assert(paramSize == numDwords);
 	GnmCmdPSShader* param = (GnmCmdPSShader*)cmdBuffer;
-	param->opcode = OPCODE_BUILD(paramSize, OP_TYPE_PRIV_DRAW, OP_INFO_SET_PS_SHADER);
+	param->opcode = PM4_HEADER_BUILD(paramSize, IT_GNM_PRIVATE, OP_PRIV_SET_PS_SHADER);
 	if (psRegs != NULL)
 	{
 		memcpy(&param->psRegs, psRegs, sizeof(pssl::PsStageRegisters));
@@ -245,7 +245,7 @@ int PS4API sceGnmSetVgtControl(uint32_t* cmdBuffer, uint32_t numDwords,
 	const uint32_t paramSize = sizeof(GnmCmdVgtControl) / sizeof(uint32_t);
 	assert(paramSize == numDwords);
 	GnmCmdVgtControl* param = (GnmCmdVgtControl*)cmdBuffer;
-	param->opcode = OPCODE_BUILD(paramSize, OP_TYPE_PRIV_DRAW, OP_INFO_SET_VGT_CONTROL);
+	param->opcode = PM4_HEADER_BUILD(paramSize, IT_GNM_PRIVATE, OP_PRIV_SET_VGT_CONTROL);
 	param->primGroupSizeMinusOne = primGroupSizeMinusOne;
 	param->partialVsWaveMode = partialVsWaveMode;
 	param->wdSwitchOnlyOnEopMode = wdSwitchOnlyOnEopMode;
@@ -276,7 +276,7 @@ int PS4API sceGnmUpdateVsShader(uint32_t* cmdBuffer, uint32_t numDwords,
 	const uint32_t paramSize = sizeof(GnmCmdVSShader) / sizeof(uint32_t);
 	assert(paramSize == numDwords);
 	GnmCmdVSShader* param = (GnmCmdVSShader*)cmdBuffer;
-	param->opcode = OPCODE_BUILD(paramSize, OP_TYPE_PRIV_DRAW, OP_INFO_UPDATE_VS_SHADER);
+	param->opcode = PM4_HEADER_BUILD(paramSize, IT_GNM_PRIVATE, OP_PRIV_UPDATE_VS_SHADER);
 	param->modifier = shaderModifier;
 	if (vsRegs != NULL)
 	{
@@ -299,7 +299,7 @@ int PS4API sceGnmUpdatePsShader350(uint32_t* cmdBuffer, uint32_t numDwords,
 	const uint32_t paramSize = sizeof(GnmCmdPSShader) / sizeof(uint32_t);
 	assert(paramSize == numDwords);
 	GnmCmdPSShader* param = (GnmCmdPSShader*)cmdBuffer;
-	param->opcode = OPCODE_BUILD(paramSize, OP_TYPE_PRIV_DRAW, OP_INFO_SET_PS_SHADER);
+	param->opcode = PM4_HEADER_BUILD(paramSize, IT_GNM_PRIVATE, OP_PRIV_SET_PS_SHADER);
 	if (psRegs != NULL)
 	{
 		memcpy(&param->psRegs, psRegs, sizeof(pssl::PsStageRegisters));

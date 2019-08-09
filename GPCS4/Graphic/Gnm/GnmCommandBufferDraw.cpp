@@ -74,6 +74,10 @@ void GnmCommandBufferDraw::setPointerInUserData(ShaderStage stage, uint32_t star
 				LOG_DEBUG("hit");
 			}
 		}
+		else
+		{
+			LOG_DEBUG("other stage %d", stage);
+		}
 	} while (false);
 }
 

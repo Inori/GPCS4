@@ -7,8 +7,8 @@ namespace sce
 
 SceGnmDriver::SceGnmDriver()
 {
-	m_dcb = std::make_shared<GnmCommandBufferDraw>();
-	m_cmdHandlerDraw = std::make_shared<GnmCmdStreamDraw>(m_dcb);
+	m_cb = std::make_shared<GnmCommandBufferDraw>();
+	m_cmdParser = std::make_shared<GnmCmdStream>(m_cb);
 }
 
 SceGnmDriver::~SceGnmDriver()
@@ -24,10 +24,19 @@ int SceGnmDriver::submitAndFlipCommandBuffers(uint32_t count,
 	int err = SCE_GNM_ERROR_UNKNOWN;
 	do 
 	{
-		if (!m_cmdHandlerDraw->processCommandBuffer(count, dcbGpuAddrs, dcbSizesInBytes))
+		if (count != 1)
+		{
+			LOG_FIXME("Currently only support only 1 cmdbuff.");
+			break;
+		}
+
+		uint32_t* cmdBuff = (uint32_t*)dcbGpuAddrs[0];
+		uint32_t cmdSize = dcbSizesInBytes[0];
+		if (!m_cmdParser->processCommandBuffer(cmdBuff, cmdSize))
 		{
 			break;
 		}
+
 		err = SCE_OK;
 	} while (false);
 	return err;

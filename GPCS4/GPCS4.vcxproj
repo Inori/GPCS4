@@ -37,9 +37,6 @@
     <ClInclude Include="GPCS4Common.h" />
     <ClInclude Include="GPCS4Config.h" />
     <ClInclude Include="Graphic\Gnm\GnmCmdStream.h" />
-    <ClInclude Include="Graphic\Gnm\GnmCmdStreamConstant.h" />
-    <ClInclude Include="Graphic\Gnm\GnmCmdStreamDispatch.h" />
-    <ClInclude Include="Graphic\Gnm\GnmCmdStreamDraw.h" />
     <ClInclude Include="Graphic\Gnm\GnmCommandBuffer.h" />
     <ClInclude Include="Graphic\Gnm\GnmCommandBufferDraw.h" />
     <ClInclude Include="Graphic\Gnm\GnmConstant.h" />
@@ -198,9 +195,6 @@
     <ClCompile Include="Emulator\TLSHandler.cpp" />
     <ClCompile Include="GPCS4Main.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmCmdStream.cpp" />
-    <ClCompile Include="Graphic\Gnm\GnmCmdStreamConstant.cpp" />
-    <ClCompile Include="Graphic\Gnm\GnmCmdStreamDispatch.cpp" />
-    <ClCompile Include="Graphic\Gnm\GnmCmdStreamDraw.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmCommandBuffer.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmCommandBufferDraw.cpp" />
     <ClCompile Include="Graphic\GraphicShared.cpp" />
