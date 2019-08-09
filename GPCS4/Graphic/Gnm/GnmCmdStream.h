@@ -75,7 +75,7 @@ private:
 	bool m_flipPacketDone = false;
 
 	// Used for recording hint, usually provided by IT_NOP
-	// Note: This MUST clear to 0 every time after we use it.
+	// Note: This MUST clear to 0 every time after we read it.
 	uint32_t m_lastHint = 0;
 
 };

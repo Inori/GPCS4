@@ -457,19 +457,21 @@ void GnmCmdStream::onSetShReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 		}
 		else
 		{
+			// This is a trick.
 			//0x2C0C - 0x2C00 = 0x00C
 			//0x2C4C - 0x2C00 = 0x04C
 			//0x2C8C - 0x2C00 = 0x08C
 			//0x2CCC - 0x2C00 = 0x0CC
 			//0x2D0C - 0x2C00 = 0x10C
 			//0x2D4C - 0x2C00 = 0x14C
-			//
-			//(0x00C + 0xE) >> 5 = 0 = 2 * 0
-			//(0x04C + 0xE) >> 5 = 2 = 2 * 1
-			//(0x08C + 0xE) >> 5 = 4 = 2 * 2
-			//(0x0CC + 0xE) >> 5 = 6 = 2 * 3
-			//(0x10C + 0xE) >> 5 = 8 = 2 * 4
-			//(0x14C + 0xE) >> 5 = 10 = 2 * 5
+			// The max value for startSlot is 15 = 0xF
+			// And the sub result plus 0xF won't exceed 5 bits
+			//(0x00C + 0xF) >> 5 = 0 = 2 * 0
+			//(0x04C + 0xF) >> 5 = 2 = 2 * 1
+			//(0x08C + 0xF) >> 5 = 4 = 2 * 2
+			//(0x0CC + 0xF) >> 5 = 6 = 2 * 3
+			//(0x10C + 0xF) >> 5 = 8 = 2 * 4
+			//(0x14C + 0xF) >> 5 = 10 = 2 * 5
 			stage = (ShaderStage)(((shPacket->bitfields2.reg_offset >> 5) / 2) + 1);
 		}
 		uint32_t stageBase = c_stageBases[stage];
@@ -478,10 +480,13 @@ void GnmCmdStream::onSetShReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 		switch (m_lastHint)
 		{
 		case OP_HINT_SET_VSHARP_IN_USER_DATA:
+			LOG_FIXME("Not implemented.");
 			break;
 		case OP_HINT_SET_TSHARP_IN_USER_DATA:
+			LOG_FIXME("Not implemented.");
 			break;
 		case OP_HINT_SET_SSHARP_IN_USER_DATA:
+			LOG_FIXME("Not implemented.");
 			break;
 		case OP_HINT_SET_USER_DATA_REGION:
 			m_cb->setUserDataRegion(stage, startSlot, &itBody[1], pm4Hdr->count);
@@ -496,6 +501,7 @@ void GnmCmdStream::onSetShReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	}
 	else
 	{
+		LOG_FIXME("Not implemented.");
 		uint32_t hint = shPacket->bitfields2.reg_offset;
 		if (hint == OP_HINT_SET_COMPUTE_SHADER_CONTROL)
 		{
