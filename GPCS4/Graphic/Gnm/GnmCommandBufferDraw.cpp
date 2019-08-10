@@ -58,28 +58,6 @@ void GnmCommandBufferDraw::prepareFlip(void *labelAddr, uint32_t value)
 	*(uint32_t*)labelAddr = value;
 }
 
-void GnmCommandBufferDraw::setPointerInUserData(ShaderStage stage, uint32_t startUserDataSlot, void *gpuAddr)
-{
-	do 
-	{
-		if (stage == kShaderStageVs)
-		{
-			m_vsUserDataSlotTable.push_back(std::make_pair(startUserDataSlot, gpuAddr));
-		}
-		else if (stage == kShaderStagePs)
-		{
-			m_psUserDataSlotTable.push_back(std::make_pair(startUserDataSlot, gpuAddr));
-			if (startUserDataSlot != 0xC)
-			{
-				LOG_DEBUG("hit");
-			}
-		}
-		else
-		{
-			LOG_DEBUG("other stage %d", stage);
-		}
-	} while (false);
-}
 
 void GnmCommandBufferDraw::setPsShaderUsage(const uint32_t *inputTable, uint32_t numItems)
 {
@@ -96,24 +74,57 @@ void GnmCommandBufferDraw::setVsShader(const pssl::VsStageRegisters *vsRegs, uin
 	m_vsCode = vsRegs->getCodeAddress();
 }
 
-void GnmCommandBufferDraw::setVsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Buffer *buffer)
+void GnmCommandBufferDraw::setVsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const GnmBuffer *buffer)
 {
 
 }
 
-void GnmCommandBufferDraw::setTsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Texture *tex)
+void GnmCommandBufferDraw::setTsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const GnmTexture *tex)
 {
 
 }
 
-void GnmCommandBufferDraw::setSsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Sampler *sampler)
+void GnmCommandBufferDraw::setSsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const GnmSampler *sampler)
 {
 
+}
+
+void GnmCommandBufferDraw::setPointerInUserData(ShaderStage stage, uint32_t startUserDataSlot, void *gpuAddr)
+{
+	do
+	{
+		if (stage == kShaderStageVs)
+		{
+			m_vsUserDataSlotTable.push_back(std::make_pair(startUserDataSlot, gpuAddr));
+		}
+		else if (stage == kShaderStagePs)
+		{
+			m_psUserDataSlotTable.push_back(std::make_pair(startUserDataSlot, gpuAddr));
+		}
+		else
+		{
+			LOG_FIXME("other stage %d", stage);
+		}
+	} while (false);
 }
 
 void GnmCommandBufferDraw::setUserDataRegion(ShaderStage stage, uint32_t startUserDataSlot, const uint32_t *userData, uint32_t numDwords)
 {
-
+	do
+	{
+		if (stage == kShaderStageVs)
+		{
+			m_vsUserDataSlotTable.push_back(std::make_pair(startUserDataSlot, (void*)userData));
+		}
+		else if (stage == kShaderStagePs)
+		{
+			m_psUserDataSlotTable.push_back(std::make_pair(startUserDataSlot, (void*)userData));
+		}
+		else
+		{
+			LOG_FIXME("other stage %d", stage);
+		}
+	} while (false);
 }
 
 void GnmCommandBufferDraw::writeAtEndOfPipe(EndOfPipeEventType eventType, 
@@ -153,6 +164,53 @@ void GnmCommandBufferDraw::writeAtEndOfPipeWithInterrupt(EndOfPipeEventType even
 		*(uint64_t*)dstGpuAddr = UtilProcess::GetProcessTimeCounter();
 	}
 }
+
+
+void GnmCommandBufferDraw::waitUntilSafeForRendering(uint32_t videoOutHandle, uint32_t displayBufferIndex)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void GnmCommandBufferDraw::initializeDefaultHardwareState()
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void GnmCommandBufferDraw::drawIndexAuto(uint32_t indexCount, DrawModifier modifier)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void GnmCommandBufferDraw::drawIndexAuto(uint32_t indexCount)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void GnmCommandBufferDraw::setEmbeddedVsShader(EmbeddedVsShader shaderId, uint32_t shaderModifier)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void GnmCommandBufferDraw::setVgtControl(uint8_t primGroupSizeMinusOne)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void GnmCommandBufferDraw::setVgtControl(uint8_t primGroupSizeMinusOne, VgtPartialVsWaveMode partialVsWaveMode)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void GnmCommandBufferDraw::updatePsShader(const pssl::PsStageRegisters *psRegs)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void GnmCommandBufferDraw::updateVsShader(const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
 
 uint32_t* GnmCommandBufferDraw::getFetchShaderCode(void* vsCode)
 {

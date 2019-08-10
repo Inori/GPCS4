@@ -28,8 +28,8 @@ public:
 	//virtual void dispatch(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ) = 0;
 	//virtual void dispatchWithOrderedAppend(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ, DispatchOrderedAppendMode orderedAppendMode) = 0;
 	//virtual void dmaData(DmaDataDst	dstSel, uint64_t dst, DmaDataSrc srcSel, uint64_t srcOrData, uint32_t numBytes, DmaDataBlockingMode isBlocking) = 0;
-	//virtual void drawIndexAuto(uint32_t indexCount, DrawModifier modifier) = 0;
-	//virtual void drawIndexAuto(uint32_t indexCount) = 0;
+	virtual void drawIndexAuto(uint32_t indexCount, DrawModifier modifier) = 0;
+	virtual void drawIndexAuto(uint32_t indexCount) = 0;
 	//virtual void drawIndexInline(uint32_t indexCount, const void *indices, uint32_t indicesSizeInBytes, DrawModifier modifier) = 0;
 	//virtual void drawIndexInline(uint32_t indexCount, const void *indices, uint32_t indicesSizeInBytes) = 0;
 	virtual void drawIndex(uint32_t indexCount, const void *indexAddr, DrawModifier modifier) = 0;
@@ -56,7 +56,7 @@ public:
 	//virtual void flushShaderCachesAndWait(CacheAction cacheAction, uint32_t extendedCacheMask, StallCommandBufferParserMode commandBufferStallMode) = 0;
 	//virtual void flushStreamout() = 0;
 	//virtual void incrementDeCounter() = 0;
-	//virtual void initializeDefaultHardwareState() = 0;
+	virtual void initializeDefaultHardwareState() = 0;
 	//virtual void initializeToDefaultContextState() = 0;
 	//virtual void insertNop(uint32_t numDwords) = 0;
 	//virtual void markDispatchDrawAcbAddress(uint32_t const* addrAcb, uint32_t const* addrAcbBegin) = 0;
@@ -138,7 +138,7 @@ public:
 	//virtual void setDispatchDrawIndexDeallocationMask(uint32_t indexMask) = 0;
 	//virtual void setDrawPayloadControl(DrawPayloadControl cntrl) = 0;
 	//virtual void setEmbeddedPsShader(EmbeddedPsShader shaderId) = 0;
-	//virtual void setEmbeddedVsShader(EmbeddedVsShader shaderId, uint32_t shaderModifier) = 0;
+	virtual void setEmbeddedVsShader(EmbeddedVsShader shaderId, uint32_t shaderModifier) = 0;
 	//virtual void setEsShader(const EsStageRegisters *esRegs, uint32_t shaderModifier) = 0;
 	//virtual void setFoveatedWindow(uint8_t xMinLeftEye, uint8_t xMaxLeftEye, uint8_t xMinRightEye, uint8_t xMaxRightEye, uint8_t yMinBothEyes, uint8_t yMaxBothEyes) = 0;
 	//virtual void setGenericScissor(uint32_t left, uint32_t top, uint32_t right, uint32_t bottom, WindowOffsetMode windowOffsetEnable) = 0;
@@ -191,7 +191,7 @@ public:
 	//virtual void setScaledResolutionGrid(const ScaledResolutionGridAxis xAxisLeftEye, const ScaledResolutionGridAxis xAxisRightEye, const ScaledResolutionGridAxis yAxisBothEyes) = 0;
 	//virtual void setScanModeControl(ScanModeControlAa msaa, ScanModeControlViewportScissor viewportScissor) = 0;
 	//virtual void setScreenScissor(int32_t left, int32_t top, int32_t right, int32_t bottom) = 0;
-	virtual void setSsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Sampler *sampler) = 0;
+	virtual void setSsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const GnmSampler *sampler) = 0;
 	//virtual void setStencilClearValue(uint8_t clearValue) = 0;
 	//virtual void setStencil(StencilControl stencilControl) = 0;
 	//virtual void setStencilSeparate(StencilControl front, StencilControl back) = 0;
@@ -201,7 +201,7 @@ public:
 	//virtual void setTessellationDistributionThresholds(TessellationDistributionThresholds thresholds) = 0;
 	//virtual void setTextureGradientFactors(uint8_t factor00, uint8_t factor01, uint8_t factor10, uint8_t factor11,
 	//	TextureGradientFactor01SignNegationBehavior factor01sb, TextureGradientFactor10SignNegationBehavior factor10sb) = 0;
-	virtual void setTsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Texture *tex) = 0;
+	virtual void setTsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const GnmTexture *tex) = 0;
 	//virtual void setupDrawOpaqueParameters(void *sizeLocation, uint32_t stride, uint32_t offset) = 0;
 	//virtual void setupEsGsRingRegisters(uint32_t maxExportVertexSizeInDword) = 0;
 	//virtual void setupGsVsRingRegisters(const uint32_t vertexSizePerStreamInDword[4], uint32_t maxOutputVertexCount) = 0;
@@ -210,14 +210,14 @@ public:
 	virtual void setUserDataRegion(ShaderStage stage, uint32_t startUserDataSlot, const uint32_t *userData, uint32_t numDwords) = 0;
 	//virtual void setVertexQuantization(VertexQuantizationMode quantizeMode, VertexQuantizationRoundMode roundMode, VertexQuantizationCenterMode centerMode) = 0;
 	//virtual void setVertexReuseEnable(bool enable) = 0;
-	//virtual void setVgtControl(uint8_t primGroupSizeMinusOne) = 0;
-	//virtual void setVgtControl(uint8_t primGroupSizeMinusOne, VgtPartialVsWaveMode partialVsWaveMode) = 0;
+	virtual void setVgtControl(uint8_t primGroupSizeMinusOne) = 0;
+	virtual void setVgtControl(uint8_t primGroupSizeMinusOne, VgtPartialVsWaveMode partialVsWaveMode) = 0;
 	//virtual void setVgtControlForBase(uint8_t primGroupSizeMinusOne, VgtPartialVsWaveMode partialVsWaveMode) = 0;
 	//virtual void setVgtControlForNeo(uint8_t primGroupSizeMinusOne, WdSwitchOnlyOnEopMode wdSwitchOnlyOnEopMode, VgtPartialVsWaveMode partialVsWaveMode) = 0;
 	//virtual void setViewportTransformControl(ViewportTransformControl vportControl) = 0;
 	//virtual void setViewportScissor(uint32_t viewportId, uint32_t left, uint32_t top, uint32_t right, uint32_t bottom, WindowOffsetMode windowOffsetEnable) = 0;
 	//virtual void setViewport(uint32_t viewportId, float dmin, float dmax, const float scale[3], const float offset[3]) = 0;
-	virtual void setVsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Buffer *buffer) = 0;
+	virtual void setVsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const GnmBuffer *buffer) = 0;
 	//virtual void setVsShaderStreamoutEnable(bool enable) = 0;
 	virtual void setVsShader(const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier) = 0;
 	//virtual void setWindowOffset(int16_t offsetX, int16_t offsetY) = 0;
@@ -230,8 +230,8 @@ public:
 	//virtual void triggerEvent(EventType eventType) = 0;
 	//virtual void updateGsShader(const GsStageRegisters *gsRegs) = 0;
 	//virtual void updateHsShader(const HsStageRegisters *hsRegs, const TessellationRegisters *tessRegs) = 0;
-	//virtual void updatePsShader(const PsStageRegisters *psRegs) = 0;
-	//virtual void updateVsShader(const VsStageRegisters *vsRegs, uint32_t shaderModifier) = 0;
+	virtual void updatePsShader(const pssl::PsStageRegisters *psRegs) = 0;
+	virtual void updateVsShader(const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier) = 0;
 	//virtual void waitForGraphicsWrites(uint32_t baseAddr256, uint32_t sizeIn256ByteBlocks, uint32_t targetMask, CacheAction cacheAction, uint32_t extendedCacheMask,
 	//	StallCommandBufferParserMode commandBufferStallMode) = 0;
 	//virtual void waitForSetupDispatchDrawKickRingBuffer(uint32_t krbCount, uint32_t gdsDwOffsetKrb, uint32_t gdsDwOffsetKrbCounters, void *addrIrb, uint32_t sizeofIrbInBytes) = 0;
@@ -240,7 +240,7 @@ public:
 	//virtual void waitOnCe() = 0;
 	//virtual void waitOnRegister(uint16_t gpuReg, uint32_t mask, WaitCompareFunc compareFunc, uint32_t refValue) = 0;
 	//virtual void waitSemaphore(uint64_t* semAddr, SemaphoreWaitBehavior behavior) = 0;
-	//virtual void waitUntilSafeForRendering(uint32_t videoOutHandle, uint32_t displayBufferIndex) = 0;
+	virtual void waitUntilSafeForRendering(uint32_t videoOutHandle, uint32_t displayBufferIndex) = 0;
 	virtual void writeAtEndOfPipe(EndOfPipeEventType eventType,
 		EventWriteDest dstSelector, void *dstGpuAddr,
 		EventWriteSource srcSelector, uint64_t immValue,

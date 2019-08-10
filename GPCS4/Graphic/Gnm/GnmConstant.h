@@ -124,7 +124,7 @@ enum CachePolicy
 	kCachePolicyBypass = 0x2,
 };
 
-enum EmbeddedVsShader 
+enum EmbeddedVsShader
 {
 	kEmbeddedVsShaderFullScreen = 0,
 	kNumEmbeddedVsShaders

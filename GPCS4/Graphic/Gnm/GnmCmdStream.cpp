@@ -562,14 +562,26 @@ void GnmCmdStream::onGetLodStatsGfx09(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBod
 
 void GnmCmdStream::onGnmPrivate(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 {
+	// Note:
+	// Most private opcode handle cases are not much complicated,
+	// just cast pm4Hdr to proper GnmCmdxxx and call the graphic function.
+	// But if it's going to be complicated (eg. contains 'if' statement), 
+	// please write a new function to handle it,
+	// like onDrawIndex
+
 	IT_OpCodePriv priv = PM4_PRIV(*(uint32_t*)pm4Hdr);
 	switch (priv)
 	{
 	case OP_PRIV_INITIALIZE_DEFAULT_HARDWARE_STATE:
+		m_cb->initializeDefaultHardwareState();
 		break;
 	case OP_PRIV_INITIALIZE_TO_DEFAULT_CONTEXT_STATE:
 		break;
 	case OP_PRIV_SET_EMBEDDED_VS_SHADER:
+	{
+		GnmCmdVSShader* param = (GnmCmdVSShader*)pm4Hdr;
+		m_cb->setEmbeddedVsShader(param->shaderId, param->modifier);
+	}
 		break;
 	case OP_PRIV_SET_EMBEDDED_PS_SHADER:
 		break;
@@ -598,8 +610,16 @@ void GnmCmdStream::onGnmPrivate(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	case OP_PRIV_UPDATE_HS_SHADER:
 		break;
 	case OP_PRIV_UPDATE_PS_SHADER:
+	{
+		GnmCmdPSShader* param = (GnmCmdPSShader*)pm4Hdr;
+		m_cb->setPsShader(&param->psRegs);
+	}
 		break;
 	case OP_PRIV_UPDATE_VS_SHADER:
+	{
+		GnmCmdVSShader* param = (GnmCmdVSShader*)pm4Hdr;
+		m_cb->setVsShader(&param->vsRegs, param->modifier);
+	}
 		break;
 	case OP_PRIV_SET_VGT_CONTROL:
 		break;
@@ -609,6 +629,7 @@ void GnmCmdStream::onGnmPrivate(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 		onDrawIndex(pm4Hdr, itBody);
 		break;
 	case OP_PRIV_DRAW_INDEX_AUTO:
+		onDrawIndexAuto(pm4Hdr, itBody);
 		break;
 	case OP_PRIV_DRAW_INDEX_INDIRECT:
 		break;
@@ -625,6 +646,10 @@ void GnmCmdStream::onGnmPrivate(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	case OP_PRIV_DRAW_OPAQUE_AUTO:
 		break;
 	case OP_PRIV_WAIT_UNTIL_SAFE_FOR_RENDERING:
+	{
+		GnmCmdWaitFlipDone* param = (GnmCmdWaitFlipDone*)pm4Hdr;
+		m_cb->waitUntilSafeForRendering(param->videoOutHandle, param->displayBufferIndex);
+	}
 		break;
 	case OP_PRIV_PUSH_MARKER:
 		break;
@@ -687,6 +712,21 @@ void GnmCmdStream::onDrawIndex(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	else
 	{
 		m_cb->drawIndex(param->indexCount, (const void*)param->indexAddr, modifier);
+	}
+}
+
+void GnmCmdStream::onDrawIndexAuto(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
+{
+	GnmCmdDrawIndexAuto* param = (GnmCmdDrawIndexAuto*)pm4Hdr;
+	DrawModifier modifier = { 0 };
+	modifier.renderTargetSliceOffset = (param->predAndMod >> 29) & 0b111;
+	if (!modifier.renderTargetSliceOffset)
+	{
+		m_cb->drawIndexAuto(param->indexCount);
+	}
+	else
+	{
+		m_cb->drawIndexAuto(param->indexCount, modifier);
 	}
 }
 

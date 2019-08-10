@@ -18,31 +18,44 @@ public:
 	GnmCommandBufferDraw();
 	virtual ~GnmCommandBufferDraw();
 
+	virtual void initializeDefaultHardwareState() override;
 
-	virtual void drawIndex(uint32_t indexCount, const void *indexAddr, DrawModifier modifier);
-	virtual void drawIndex(uint32_t indexCount, const void *indexAddr);
+	virtual void setVsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const GnmBuffer *buffer) override;
+	virtual void setTsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const GnmTexture *tex) override;
+	virtual void setSsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const GnmSampler *sampler) override;
+	virtual void setUserDataRegion(ShaderStage stage, uint32_t startUserDataSlot, const uint32_t *userData, uint32_t numDwords) override;
+	virtual void setPointerInUserData(ShaderStage stage, uint32_t startUserDataSlot, void *gpuAddr) override;
 
-	virtual void prepareFlip(void *labelAddr, uint32_t value);
+	virtual void setPsShaderUsage(const uint32_t *inputTable, uint32_t numItems) override;
 
-	
-	virtual void setPsShaderUsage(const uint32_t *inputTable, uint32_t numItems);
+	virtual void setVgtControl(uint8_t primGroupSizeMinusOne) override;
+	virtual void setVgtControl(uint8_t primGroupSizeMinusOne, VgtPartialVsWaveMode partialVsWaveMode) override;
+
+	virtual void setEmbeddedVsShader(EmbeddedVsShader shaderId, uint32_t shaderModifier) override;
+
 	virtual void setPsShader(const pssl::PsStageRegisters *psRegs);
-	virtual void setVsShader(const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier);
+	virtual void setVsShader(const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier) override;
+	virtual void updatePsShader(const pssl::PsStageRegisters *psRegs) override;
+	virtual void updateVsShader(const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier) override;
 
-	virtual void setVsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Buffer *buffer);
-	virtual void setTsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Texture *tex);
-	virtual void setSsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Sampler *sampler);
-	virtual void setUserDataRegion(ShaderStage stage, uint32_t startUserDataSlot, const uint32_t *userData, uint32_t numDwords);
-	virtual void setPointerInUserData(ShaderStage stage, uint32_t startUserDataSlot, void *gpuAddr);
+	virtual void drawIndex(uint32_t indexCount, const void *indexAddr, DrawModifier modifier) override;
+	virtual void drawIndex(uint32_t indexCount, const void *indexAddr) override;
+	virtual void drawIndexAuto(uint32_t indexCount, DrawModifier modifier) override;
+	virtual void drawIndexAuto(uint32_t indexCount) override;
+
+	virtual void prepareFlip(void *labelAddr, uint32_t value) override;
+
 	virtual void writeAtEndOfPipe(EndOfPipeEventType eventType,
 		EventWriteDest dstSelector, void *dstGpuAddr,
 		EventWriteSource srcSelector, uint64_t immValue,
-		CacheAction cacheAction, CachePolicy cachePolicy);
+		CacheAction cacheAction, CachePolicy cachePolicy) override;
 
 	virtual void writeAtEndOfPipeWithInterrupt(EndOfPipeEventType eventType,
 		EventWriteDest dstSelector, void *dstGpuAddr,
 		EventWriteSource srcSelector, uint64_t immValue,
-		CacheAction cacheAction, CachePolicy cachePolicy);
+		CacheAction cacheAction, CachePolicy cachePolicy) override;
+
+	virtual void waitUntilSafeForRendering(uint32_t videoOutHandle, uint32_t displayBufferIndex) override;
 
 private:
 	uint32_t* getFetchShaderCode(void* vsCode);

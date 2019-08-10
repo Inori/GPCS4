@@ -154,7 +154,7 @@ int PS4API sceGnmSetEmbeddedVsShader(uint32_t* cmdBuffer, uint32_t numDwords,
 	assert(paramSize == numDwords);
 	GnmCmdVSShader* param = (GnmCmdVSShader*)cmdBuffer;
 	param->opcode = PM4_HEADER_BUILD(paramSize, IT_GNM_PRIVATE, OP_PRIV_SET_EMBEDDED_VS_SHADER);
-	param->shaderId = (uint32_t)shaderId;
+	param->shaderId = shaderId;
 	param->modifier = shaderModifier;
 	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
 	return SCE_OK;

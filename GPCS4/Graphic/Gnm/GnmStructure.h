@@ -36,7 +36,7 @@ struct GnmCmdVSShader
 {
 	uint32_t opcode;
 	pssl::VsStageRegisters vsRegs;
-	uint32_t shaderId;
+	EmbeddedVsShader shaderId;
 	uint32_t modifier;
 	uint32_t reserved[19];
 };
