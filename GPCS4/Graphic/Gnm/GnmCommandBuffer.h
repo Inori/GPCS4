@@ -210,10 +210,7 @@ public:
 	virtual void setUserDataRegion(ShaderStage stage, uint32_t startUserDataSlot, const uint32_t *userData, uint32_t numDwords) = 0;
 	//virtual void setVertexQuantization(VertexQuantizationMode quantizeMode, VertexQuantizationRoundMode roundMode, VertexQuantizationCenterMode centerMode) = 0;
 	//virtual void setVertexReuseEnable(bool enable) = 0;
-	virtual void setVgtControl(uint8_t primGroupSizeMinusOne) = 0;
-	virtual void setVgtControl(uint8_t primGroupSizeMinusOne, VgtPartialVsWaveMode partialVsWaveMode) = 0;
-	//virtual void setVgtControlForBase(uint8_t primGroupSizeMinusOne, VgtPartialVsWaveMode partialVsWaveMode) = 0;
-	//virtual void setVgtControlForNeo(uint8_t primGroupSizeMinusOne, WdSwitchOnlyOnEopMode wdSwitchOnlyOnEopMode, VgtPartialVsWaveMode partialVsWaveMode) = 0;
+	virtual void setVgtControl(uint8_t primGroupSizeMinusOne, WdSwitchOnlyOnEopMode wdSwitchOnlyOnEopMode, VgtPartialVsWaveMode partialVsWaveMode) = 0;
 	//virtual void setViewportTransformControl(ViewportTransformControl vportControl) = 0;
 	//virtual void setViewportScissor(uint32_t viewportId, uint32_t left, uint32_t top, uint32_t right, uint32_t bottom, WindowOffsetMode windowOffsetEnable) = 0;
 	//virtual void setViewport(uint32_t viewportId, float dmin, float dmax, const float scale[3], const float offset[3]) = 0;

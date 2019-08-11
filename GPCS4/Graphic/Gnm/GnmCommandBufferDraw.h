@@ -28,10 +28,9 @@ public:
 
 	virtual void setPsShaderUsage(const uint32_t *inputTable, uint32_t numItems) override;
 
-	virtual void setVgtControl(uint8_t primGroupSizeMinusOne) override;
-	virtual void setVgtControl(uint8_t primGroupSizeMinusOne, VgtPartialVsWaveMode partialVsWaveMode) override;
-
 	virtual void setEmbeddedVsShader(EmbeddedVsShader shaderId, uint32_t shaderModifier) override;
+	virtual void setVgtControl(uint8_t primGroupSizeMinusOne, WdSwitchOnlyOnEopMode wdSwitchOnlyOnEopMode,
+		VgtPartialVsWaveMode partialVsWaveMode) override;
 
 	virtual void setPsShader(const pssl::PsStageRegisters *psRegs);
 	virtual void setVsShader(const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier) override;
@@ -57,10 +56,14 @@ public:
 
 	virtual void waitUntilSafeForRendering(uint32_t videoOutHandle, uint32_t displayBufferIndex) override;
 
+
 private:
 	uint32_t* getFetchShaderCode(void* vsCode);
 	void clearRenderState();
 
+
+	// Debug only
+	void debugDumpTexture();
 private:
 
 	void* m_vsCode;

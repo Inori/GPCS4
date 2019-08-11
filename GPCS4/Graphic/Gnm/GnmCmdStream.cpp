@@ -381,7 +381,7 @@ void GnmCmdStream::onEventWriteEop(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	// this is a GPU relative address lacking of the highest byte (masked by 0xFFFFFFFFF8 or 0xFFFFFFFFFC)
 	// I'm not sure this relative to what, maybe to the command buffer.
 	uint64_t relaGpuAddr = BUILD_QWORD(eopPacket->addressHi, eopPacket->addressLo);
-	void* gpuAddr = (void*)(((uint64_t)pm4Hdr & 0x0000FF0000000000) | relaGpuAddr);
+	void* gpuAddr = GNM_GPU_ABS_ADDR(pm4Hdr, relaGpuAddr);
 
 	uint64_t immValue = BUILD_QWORD(eopPacket->dataHi, eopPacket->dataLo);
 	uint8_t cacheAction = (eopPacket->ordinal2 >> 12) & 0x3F;
@@ -622,6 +622,12 @@ void GnmCmdStream::onGnmPrivate(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	}
 		break;
 	case OP_PRIV_SET_VGT_CONTROL:
+	{
+		GnmCmdVgtControl* param = (GnmCmdVgtControl*)pm4Hdr;
+		m_cb->setVgtControl(param->primGroupSizeMinusOne, 
+			(WdSwitchOnlyOnEopMode)param->wdSwitchOnlyOnEopMode, 
+			(VgtPartialVsWaveMode)param->partialVsWaveMode);
+	}
 		break;
 	case OP_PRIV_RESET_VGT_CONTROL:
 		break;

@@ -3,6 +3,10 @@
 #include "GnmSharpBuffer.h"
 #include "../Pssl/PsslShaderModule.h"
 
+// For test
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image/stb_image_write.h"
+
 GnmCommandBufferDraw::GnmCommandBufferDraw():
 	m_vsCode(nullptr),
 	m_psCode(nullptr)
@@ -13,45 +17,7 @@ GnmCommandBufferDraw::~GnmCommandBufferDraw()
 {
 }
 
-void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr, DrawModifier modifier)
-{
-	do 
-	{
-		if (!m_vsCode)
-		{
-			break;
-		}
 
-		uint32_t* fsCode = getFetchShaderCode(m_vsCode);
-		if (fsCode)
-		{
-			pssl::PsslShaderModule module((const uint32_t*)m_vsCode, fsCode);
-			auto vsInputSlots = module.inputUsageSlots();
-			//m_vsShader = module.compile();
-		}
-		else
-		{
-			pssl::PsslShaderModule module((const uint32_t*)m_vsCode);
-			//m_vsShader = module.compile();
-		}
-
-		pssl::PsslShaderModule module((const uint32_t*)m_psCode);
-		
-		auto psInputSlots = module.inputUsageSlots();
-	
-
-		//m_psShader = module.compile();
-
-	} while (false);
-
-	clearRenderState();
-}
-
-void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr)
-{
-	DrawModifier mod = { 0 };
-	drawIndex(indexCount, indexAddr, mod);
-}
 
 void GnmCommandBufferDraw::prepareFlip(void *labelAddr, uint32_t value)
 {
@@ -72,6 +38,11 @@ void GnmCommandBufferDraw::setPsShader(const pssl::PsStageRegisters *psRegs)
 void GnmCommandBufferDraw::setVsShader(const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier)
 {
 	m_vsCode = vsRegs->getCodeAddress();
+}
+
+void GnmCommandBufferDraw::setVgtControl(uint8_t primGroupSizeMinusOne, WdSwitchOnlyOnEopMode wdSwitchOnlyOnEopMode, VgtPartialVsWaveMode partialVsWaveMode)
+{
+	
 }
 
 void GnmCommandBufferDraw::setVsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const GnmBuffer *buffer)
@@ -168,47 +139,88 @@ void GnmCommandBufferDraw::writeAtEndOfPipeWithInterrupt(EndOfPipeEventType even
 
 void GnmCommandBufferDraw::waitUntilSafeForRendering(uint32_t videoOutHandle, uint32_t displayBufferIndex)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	
 }
 
+
+// We be called on every frame start.
 void GnmCommandBufferDraw::initializeDefaultHardwareState()
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	
+}
+
+void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr, DrawModifier modifier)
+{
+	do
+	{
+		if (!m_vsCode)
+		{
+			break;
+		}
+
+		uint32_t* fsCode = getFetchShaderCode(m_vsCode);
+		if (fsCode)
+		{
+			pssl::PsslShaderModule module((const uint32_t*)m_vsCode, fsCode);
+			auto vsInputSlots = module.inputUsageSlots();
+			//m_vsShader = module.compile();
+		}
+		else
+		{
+			pssl::PsslShaderModule module((const uint32_t*)m_vsCode);
+			//m_vsShader = module.compile();
+		}
+
+		pssl::PsslShaderModule module((const uint32_t*)m_psCode);
+
+		auto psInputSlots = module.inputUsageSlots();
+		//m_psShader = module.compile();
+
+		if (m_vsUserDataSlotTable.size())
+		{
+			for (auto& pair : m_vsUserDataSlotTable)
+			{
+				GnmBuffer* vsBuffer = (GnmBuffer*)pair.second;
+				uint64_t gpuAddr = vsBuffer->base;
+				uint32_t stride = vsBuffer->stride;
+			}
+		}
+		//debugDumpTexture();
+
+	} while (false);
+
+	clearRenderState();
+}
+
+void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr)
+{
+	DrawModifier mod = { 0 };
+	drawIndex(indexCount, indexAddr, mod);
 }
 
 void GnmCommandBufferDraw::drawIndexAuto(uint32_t indexCount, DrawModifier modifier)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	drawIndex(indexCount, NULL);
 }
 
 void GnmCommandBufferDraw::drawIndexAuto(uint32_t indexCount)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	drawIndex(indexCount, NULL);
 }
 
 void GnmCommandBufferDraw::setEmbeddedVsShader(EmbeddedVsShader shaderId, uint32_t shaderModifier)
 {
-	throw std::logic_error("The method or operation is not implemented.");
-}
-
-void GnmCommandBufferDraw::setVgtControl(uint8_t primGroupSizeMinusOne)
-{
-	throw std::logic_error("The method or operation is not implemented.");
-}
-
-void GnmCommandBufferDraw::setVgtControl(uint8_t primGroupSizeMinusOne, VgtPartialVsWaveMode partialVsWaveMode)
-{
-	throw std::logic_error("The method or operation is not implemented.");
+	
 }
 
 void GnmCommandBufferDraw::updatePsShader(const pssl::PsStageRegisters *psRegs)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	
 }
 
 void GnmCommandBufferDraw::updateVsShader(const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	
 }
 
 
@@ -244,4 +256,26 @@ void GnmCommandBufferDraw::clearRenderState()
 	m_psCode = nullptr;
 	m_vsUserDataSlotTable.clear();
 	m_psUserDataSlotTable.clear();
+}
+
+void GnmCommandBufferDraw::debugDumpTexture()
+{
+	if (m_psUserDataSlotTable.size())
+	{
+		if (m_psUserDataSlotTable[0].first == 0)
+		{
+			TSharpBuffer* tsBuffer = (TSharpBuffer*)m_psUserDataSlotTable[0].second;
+			uint64_t relaAddr = tsBuffer->baseaddr256 << 8;
+			void* texAddr = GNM_GPU_ABS_ADDR(m_vsCode, relaAddr);
+			uint32_t width = tsBuffer->width;
+			uint32_t height = tsBuffer->height;
+			uint32_t dfmd = tsBuffer->dfmt;
+			uint32_t nfmd = tsBuffer->nfmt;
+
+			static uint32_t count = 0;
+			char filename[64] = { 0 };
+			sprintf(filename, "tex%d.bmp", count++);
+			stbi_write_bmp(filename, width, height, 4, texAddr);
+		}
+	}
 }
