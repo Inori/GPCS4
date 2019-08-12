@@ -135,6 +135,11 @@ std::vector<InputUsageSlot> PsslShaderModule::inputUsageSlots()
 	return m_progInfo.getInputUsageSlot();
 }
 
+pssl::PsslKey PsslShaderModule::key()
+{
+	return m_progInfo.getKey();
+}
+
 std::vector<VertexInputSemantic> PsslShaderModule::vsInputSemantic()
 {
 	return m_vsInputSemantic;

@@ -20,6 +20,8 @@ public:
 
 	std::vector<InputUsageSlot> inputUsageSlots();
 
+	PsslKey key();
+
 	RcPtr<gve::GveShader> compile();
 
 private:

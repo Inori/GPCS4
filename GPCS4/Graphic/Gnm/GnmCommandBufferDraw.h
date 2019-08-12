@@ -32,7 +32,7 @@ public:
 	virtual void setVgtControl(uint8_t primGroupSizeMinusOne, WdSwitchOnlyOnEopMode wdSwitchOnlyOnEopMode,
 		VgtPartialVsWaveMode partialVsWaveMode) override;
 
-	virtual void setPsShader(const pssl::PsStageRegisters *psRegs);
+	virtual void setPsShader(const pssl::PsStageRegisters *psRegs) override;
 	virtual void setVsShader(const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier) override;
 	virtual void updatePsShader(const pssl::PsStageRegisters *psRegs) override;
 	virtual void updateVsShader(const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier) override;

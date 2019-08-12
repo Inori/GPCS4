@@ -149,6 +149,10 @@ void GnmCommandBufferDraw::initializeDefaultHardwareState()
 	
 }
 
+
+#include <set>
+std::set<std::pair<uint64_t, uint64_t>> g_shaderKeys;
+
 void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr, DrawModifier modifier)
 {
 	do
@@ -159,19 +163,24 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 		}
 
 		uint32_t* fsCode = getFetchShaderCode(m_vsCode);
+		uint64_t vsKey = 0;
 		if (fsCode)
 		{
 			pssl::PsslShaderModule module((const uint32_t*)m_vsCode, fsCode);
 			auto vsInputSlots = module.inputUsageSlots();
+			vsKey = module.key().getKey();
 			//m_vsShader = module.compile();
 		}
 		else
 		{
 			pssl::PsslShaderModule module((const uint32_t*)m_vsCode);
+			vsKey = module.key().getKey();
 			//m_vsShader = module.compile();
 		}
 
 		pssl::PsslShaderModule module((const uint32_t*)m_psCode);
+		uint64_t psKey = module.key().getKey();
+		g_shaderKeys.insert(std::make_pair(vsKey, psKey));
 
 		auto psInputSlots = module.inputUsageSlots();
 		//m_psShader = module.compile();
