@@ -55,7 +55,7 @@ struct InputUsageSlot
 	{
 		struct
 		{
-			uint8_t registerCount	: 1;
+			uint8_t registerCount	: 1;  //0 for 4DW; 1 for 8DW; Other count depend on usageType
 			uint8_t resourceType	: 1;
 			uint8_t reserved		: 2;
 			uint8_t chunkMask		: 4;
