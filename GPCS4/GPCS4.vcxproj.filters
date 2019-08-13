@@ -676,6 +676,9 @@
     <ClInclude Include="Graphic\Gnm\GnmGfx9MePm4Packets.h">
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClInclude>
+    <ClInclude Include="Platform\UtilFile.h">
+      <Filter>Source Files\Platform</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1223,6 +1226,9 @@
     </ClCompile>
     <ClCompile Include="Graphic\Gnm\GnmCommandBufferDispatch.cpp">
       <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClCompile>
+    <ClCompile Include="Platform\UtilFile.cpp">
+      <Filter>Source Files\Platform</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
