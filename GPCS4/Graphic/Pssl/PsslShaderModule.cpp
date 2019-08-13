@@ -1,4 +1,13 @@
 #include "PsslShaderModule.h"
+#include "Platform/UtilFile.h"
+
+#ifdef GPCS4_DEBUG
+// Dump shader to file
+#define GPCS4_DUMP_SHADER
+#endif
+
+
+
 
 
 namespace pssl
@@ -8,12 +17,13 @@ PsslShaderModule::PsslShaderModule(const uint32_t* code):
 	m_code(code),
 	m_progInfo((const uint8_t*)code)
 {
-
+#ifdef GPCS4_DUMP_SHADER
+	dumpShader(m_progInfo.getShaderType(), (const uint8_t*)code, m_progInfo.getCodeSizeBytes());
+#endif  // GPCS4_DUMP_SHADER
 }
 
 PsslShaderModule::PsslShaderModule(const uint32_t* code, const uint32_t* fsCode):
-	m_code(code),
-	m_progInfo((const uint8_t*)code)
+	PsslShaderModule(code)
 {
 	parseFetchShader(fsCode);
 }
@@ -60,6 +70,10 @@ void PsslShaderModule::parseFetchShader(const uint32_t* fsCode)
 
 	decodeFetchShader(fsCodeSlice, fsShader);
 	extractInputSemantic(fsShader);
+
+#ifdef GPCS4_DUMP_SHADER
+	dumpShader(FetchShader, (const uint8_t*)fsCode, fsShader.m_codeLengthDw * sizeof(uint32_t));
+#endif  // GPCS4_DUMP_SHADER
 }
 
 void PsslShaderModule::decodeFetchShader(GCNCodeSlice slice, PsslFetchShader& fsShader)
@@ -116,6 +130,42 @@ void PsslShaderModule::extractInputSemantic(PsslFetchShader& fsShader)
 			++semanIdx;
 		}
 	} while (false);
+}
+
+void PsslShaderModule::dumpShader(PsslProgramType type, const uint8_t* code, uint32_t size)
+{
+	char filename[64] = { 0 };
+	const char* format = nullptr;
+
+	switch (type)
+	{
+	case pssl::PixelShader:
+		format = "%016llX.ps.bin";
+		break;
+	case pssl::VertexShader:
+		format = "%016llX.vs.bin";
+		break;
+	case pssl::GeometryShader:
+		format = "%016llX.gs.bin";
+		break;
+	case pssl::HullShader:
+		format = "%016llX.hs.bin";
+		break;
+	case pssl::DomainShader:
+		format = "%016llX.ds.bin";
+		break;
+	case pssl::ComputeShader:
+		format = "%016llX.cs.bin";
+		break;
+	case pssl::FetchShader:
+		format = "%016llX.fs.bin";
+		break;
+	default:
+		break;
+	}
+
+	sprintf_s(filename, 64, format, m_progInfo.getKey().getKey());
+	UtilFile::StoreFile(filename, code, size);
 }
 
 void PsslShaderModule::runCompiler(GCNCompiler& compiler, GCNCodeSlice slice)

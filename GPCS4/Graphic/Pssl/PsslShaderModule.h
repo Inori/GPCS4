@@ -36,6 +36,8 @@ private:
 	void decodeFetchShader(GCNCodeSlice slice, PsslFetchShader& fsShader);
 	void extractInputSemantic(PsslFetchShader& fsShader);
 
+	// Debug only
+	void dumpShader(PsslProgramType type, const uint8_t* code, uint32_t size);
 private:
 	const uint32_t* m_code;
 
