@@ -1,6 +1,8 @@
 #pragma once
 
 #include "GPCS4Common.h"
+#include "../Pssl/PsslShaderFileBinary.h"
+
 
 // copy-paste code, quick and dirty implementation, just a test
 // need to fully reconstruct, of course :)
@@ -18,41 +20,6 @@
 namespace sce 
 {;
 
-struct Vertex {
-	glm::vec2 pos;
-	glm::vec3 color;
-	glm::vec2 texCoord;
-
-	static VkVertexInputBindingDescription getBindingDescription() {
-		VkVertexInputBindingDescription bindingDescription = {};
-		bindingDescription.binding = 0;
-		bindingDescription.stride = sizeof(Vertex);
-		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
-		return bindingDescription;
-	}
-
-	static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions() {
-		std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions = {};
-
-		attributeDescriptions[0].binding = 0;
-		attributeDescriptions[0].location = 0;
-		attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
-		attributeDescriptions[0].offset = offsetof(Vertex, pos);
-
-		attributeDescriptions[1].binding = 0;
-		attributeDescriptions[1].location = 1;
-		attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-		attributeDescriptions[1].offset = offsetof(Vertex, color);
-
-		attributeDescriptions[2].binding = 0;
-		attributeDescriptions[2].location = 2;
-		attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
-		attributeDescriptions[2].offset = offsetof(Vertex, texCoord);
-
-		return attributeDescriptions;
-	}
-};
 
 struct UniformBufferObject {
 	alignas(16) glm::mat4 model;
@@ -60,16 +27,6 @@ struct UniformBufferObject {
 	alignas(16) glm::mat4 proj;
 };
 
-const std::vector<Vertex> vertices = {
-	{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-	{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-	{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-	{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
-};
-
-const std::vector<uint16_t> indices = {
-	0, 1, 2, 2, 3, 0
-};
 
 class SceVideoOut
 {
@@ -77,6 +34,24 @@ public:
 	SceVideoOut(int width, int height);
 	~SceVideoOut();
 
+	void createIndexBuffer(void* idxData, uint32_t size);
+
+	void createVertexInputInfo(uint32_t stride, const std::vector<pssl::VertexInputSemantic>& inputSemantic);
+
+	void createVertexBuffer(void* vtxData, uint32_t size);
+
+	void createTextureImage(void* pixels, uint32_t texWidth, uint32_t texHeight,
+		uint32_t texChannels, VkFormat format);
+
+	void createShaderModules(const std::vector<uint8_t>& vsCode,
+		const std::vector<uint8_t>& psCode);
+
+	void createDescriptorSets();
+
+	void updateUniformBuffer(uint32_t currentImage);
+
+	void createCommandBuffers();
+	void createGraphicsPipeline();
 
 private:
 	struct QueueFamilyIndices {
@@ -110,34 +85,34 @@ private:
 	void pickPhysicalDevice();
 	void createLogicalDevice();
 	void createSwapChain();
-	void createImageViews();
+	void createSwapChainImageViews();
 	void createRenderPass();
 	void createDescriptorSetLayout();
-	void createGraphicsPipeline();
+	
 	void createFramebuffers();
 	void createCommandPool();
-	void createTextureImage();
+
 	void createTextureImageView();
 	void createTextureSampler();
 	VkImageView createImageView(VkImage image, VkFormat format);
 	void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
 	void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
 	void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
-	void createVertexBuffer();
-	void createIndexBuffer();
+	
+
 	void createUniformBuffers();
 	void createDescriptorPool();
-	void createDescriptorSets();
+
 	void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 	VkCommandBuffer beginSingleTimeCommands();
 	void endSingleTimeCommands(VkCommandBuffer commandBuffer);
 	void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
-	void createCommandBuffers();
+	
 	void createSyncObjects();
-	void updateUniformBuffer(uint32_t currentImage);
+	
 	void drawFrame();
-	VkShaderModule createShaderModule(const std::vector<char>& code);
+	VkShaderModule createShaderModule(const std::vector<uint8_t>& code);
 	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 	VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
 	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
@@ -190,11 +165,15 @@ private:
 
 	VkBuffer vertexBuffer;
 	VkDeviceMemory vertexBufferMemory;
+	VkPipelineVertexInputStateCreateInfo vertexInputInfo;
 	VkBuffer indexBuffer;
 	VkDeviceMemory indexBufferMemory;
 
 	std::vector<VkBuffer> uniformBuffers;
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
+
+	VkShaderModule vertShaderModule;
+	VkShaderModule fragShaderModule;
 
 	VkDescriptorPool descriptorPool;
 	std::vector<VkDescriptorSet> descriptorSets;
