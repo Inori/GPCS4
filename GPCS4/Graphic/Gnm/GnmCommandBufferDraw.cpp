@@ -285,6 +285,9 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 				tex.width, tex.height, texSize, format);
 		}
 
+		// Shaders
+
+
 		
 	} while (false);
 
