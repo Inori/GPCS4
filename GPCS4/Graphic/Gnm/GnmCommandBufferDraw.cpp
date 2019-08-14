@@ -7,7 +7,8 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image/stb_image_write.h"
 
-GnmCommandBufferDraw::GnmCommandBufferDraw():
+GnmCommandBufferDraw::GnmCommandBufferDraw(std::shared_ptr<sce::SceVideoOut> videoOut):
+	m_videoOut(videoOut),
 	m_vsCode(nullptr),
 	m_psCode(nullptr)
 {

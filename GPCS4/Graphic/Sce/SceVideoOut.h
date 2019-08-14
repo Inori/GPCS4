@@ -50,8 +50,12 @@ public:
 
 	void updateUniformBuffer(uint32_t currentImage);
 
-	void createCommandBuffers();
+	void createCommandBuffers(uint32_t displayIndex);
 	void createGraphicsPipeline();
+
+	void clearStateResource();
+
+	void flip(uint32_t displayBufferIndex);
 
 private:
 	struct QueueFamilyIndices {

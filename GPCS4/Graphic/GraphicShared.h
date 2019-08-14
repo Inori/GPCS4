@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GPCS4Common.h"
-
+#include <memory>
 // shared staffs among graphic components
 
 namespace sce
@@ -12,8 +12,8 @@ namespace sce
 
 struct GfxContext
 {
-	sce::SceVideoOut* videoOut;
-	sce::SceGnmDriver* gnmDriver;
+	std::shared_ptr<sce::SceVideoOut> videoOut;
+	std::shared_ptr<sce::SceGnmDriver> gnmDriver;
 };
 
 
@@ -54,13 +54,13 @@ inline GfxContext* getGfxContext(int videoHandle)
 	return ctx;
 }
 
-inline sce::SceVideoOut* getVideoOut(int videoHandle)
+inline std::shared_ptr<sce::SceVideoOut> getVideoOut(int videoHandle)
 {
 	GfxContext* ctx = getGfxContext(videoHandle);
 	return ctx ? ctx->videoOut : NULL;
 }
 
-inline sce::SceGnmDriver* getGnmDriver(int videoHandle)
+inline std::shared_ptr<sce::SceGnmDriver> getGnmDriver(int videoHandle)
 {
 	GfxContext* ctx = getGfxContext(videoHandle);
 	return ctx ? ctx->gnmDriver : NULL;

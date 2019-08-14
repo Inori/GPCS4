@@ -129,8 +129,10 @@ void SceVideoOut::cleanupSwapChain() {
 	vkDestroyDescriptorPool(device, descriptorPool, nullptr);
 }
 
-void SceVideoOut::cleanup() {
-	cleanupSwapChain();
+void SceVideoOut::clearStateResource()
+{
+	vkDestroyShaderModule(device, fragShaderModule, nullptr);
+	vkDestroyShaderModule(device, vertShaderModule, nullptr);
 
 	vkDestroySampler(device, textureSampler, nullptr);
 	vkDestroyImageView(device, textureImageView, nullptr);
@@ -145,6 +147,18 @@ void SceVideoOut::cleanup() {
 
 	vkDestroyBuffer(device, vertexBuffer, nullptr);
 	vkFreeMemory(device, vertexBufferMemory, nullptr);
+}
+
+
+void SceVideoOut::flip(uint32_t displayBufferIndex)
+{
+
+}
+
+void SceVideoOut::cleanup() {
+	cleanupSwapChain();
+
+	clearStateResource();
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 		vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
@@ -187,7 +201,7 @@ void SceVideoOut::recreateSwapChain() {
 	createUniformBuffers();
 	createDescriptorPool();
 	createDescriptorSets();
-	createCommandBuffers();
+	//createCommandBuffers();
 }
 
 void SceVideoOut::createInstance() {
@@ -551,8 +565,7 @@ void SceVideoOut::createGraphicsPipeline() {
 		throw std::runtime_error("failed to create graphics pipeline!");
 	}
 
-	vkDestroyShaderModule(device, fragShaderModule, nullptr);
-	vkDestroyShaderModule(device, vertShaderModule, nullptr);
+
 }
 
 void SceVideoOut::createFramebuffers() {
@@ -1022,7 +1035,7 @@ uint32_t SceVideoOut::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags 
 	throw std::runtime_error("failed to find suitable memory type!");
 }
 
-void SceVideoOut::createCommandBuffers() {
+void SceVideoOut::createCommandBuffers(uint32_t displayIndex) {
 	commandBuffers.resize(swapChainFramebuffers.size());
 
 	VkCommandBufferAllocateInfo allocInfo = {};

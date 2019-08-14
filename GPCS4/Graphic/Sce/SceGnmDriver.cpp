@@ -5,9 +5,10 @@
 namespace sce
 {;
 
-SceGnmDriver::SceGnmDriver()
+SceGnmDriver::SceGnmDriver(std::shared_ptr<SceVideoOut>& videoOut):
+	m_videoOut(videoOut)
 {
-	m_cb = std::make_shared<GnmCommandBufferDraw>();
+	m_cb = std::make_shared<GnmCommandBufferDraw>(m_videoOut);
 	m_cmdParser = std::make_shared<GnmCmdStream>(m_cb);
 }
 
@@ -36,6 +37,8 @@ int SceGnmDriver::submitAndFlipCommandBuffers(uint32_t count,
 		{
 			break;
 		}
+
+		m_videoOut->flip(displayBufferIndex);
 
 		err = SCE_OK;
 	} while (false);

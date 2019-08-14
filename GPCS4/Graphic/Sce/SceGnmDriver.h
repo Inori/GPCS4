@@ -1,8 +1,11 @@
 #pragma once
 
 #include "GPCS4Common.h"
+#include "SceVideoOut.h"
+
 #include "../Gnm/GnmCmdStream.h"
 #include "../Gnm/GnmCommandBufferDraw.h"
+
 #include <memory>
 
 namespace sce
@@ -11,7 +14,7 @@ namespace sce
 class SceGnmDriver
 {
 public:
-	SceGnmDriver();
+	SceGnmDriver(std::shared_ptr<SceVideoOut>& videoOut);
 	~SceGnmDriver();
 
 	int submitAndFlipCommandBuffers(uint32_t count,
@@ -23,6 +26,7 @@ public:
 	int sceGnmSubmitDone(void);
 
 private:
+	std::shared_ptr<SceVideoOut> m_videoOut;
 	std::shared_ptr<GnmCommandBuffer> m_cb;
 	std::shared_ptr<GnmCmdStream> m_cmdParser;
 };

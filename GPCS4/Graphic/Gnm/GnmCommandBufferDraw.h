@@ -4,6 +4,7 @@
 #include "GnmCommandBuffer.h"
 
 #include "../Gve/GveShader.h"
+#include "../Sce/SceVideoOut.h"
 #include <vector>
 
 // This class is designed for graphic development,
@@ -15,7 +16,7 @@ private:
 	typedef std::vector<std::pair<uint32_t, void*>> UDSTVector;
 
 public:
-	GnmCommandBufferDraw();
+	GnmCommandBufferDraw(std::shared_ptr<sce::SceVideoOut> videoOut);
 	virtual ~GnmCommandBufferDraw();
 
 	virtual void initializeDefaultHardwareState() override;
@@ -65,6 +66,8 @@ private:
 	// Debug only
 	void debugDumpTexture();
 private:
+
+	std::shared_ptr<sce::SceVideoOut> m_videoOut;
 
 	void* m_vsCode;
 	void* m_psCode;

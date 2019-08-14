@@ -19,7 +19,7 @@ int PS4API sceGnmSubmitAndFlipCommandBuffers(uint32_t count,
 	uint32_t flipMode, int64_t flipArg)
 {
 	LOG_SCE_GRAPHIC("displayBuffIdx %d", displayBufferIndex);
-	sce::SceGnmDriver* gnmDriver = getGnmDriver(videoOutHandle);
+	std::shared_ptr<sce::SceGnmDriver> gnmDriver = getGnmDriver(videoOutHandle);
 	return gnmDriver->submitAndFlipCommandBuffers(count,
 		dcbGpuAddrs, dcbSizesInBytes,
 		ccbGpuAddrs, ccbSizesInBytes,
@@ -52,7 +52,7 @@ int PS4API sceGnmSubmitCommandBuffersForWorkload(void)
 int PS4API sceGnmSubmitDone(void)
 {
 	LOG_SCE_GRAPHIC("");
-	sce::SceGnmDriver* gnmDriver = getGnmDriver(SCE_VIDEO_HANDLE_MAIN);
+	std::shared_ptr<sce::SceGnmDriver> gnmDriver = getGnmDriver(SCE_VIDEO_HANDLE_MAIN);
 	return gnmDriver->sceGnmSubmitDone();
 }
 
