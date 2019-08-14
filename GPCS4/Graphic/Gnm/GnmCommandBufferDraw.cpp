@@ -153,6 +153,7 @@ void GnmCommandBufferDraw::initializeDefaultHardwareState()
 
 #include <set>
 std::set<std::pair<uint64_t, uint64_t>> g_shaderKeys;
+std::set<std::pair<uint32_t, uint32_t>> g_fmtSets;
 
 void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr, DrawModifier modifier)
 {
@@ -164,41 +165,130 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 		}
 
 		uint32_t* fsCode = getFetchShaderCode(m_vsCode);
-		uint64_t vsKey = 0;
-		if (fsCode)
+		if (!fsCode)
 		{
-			pssl::PsslShaderModule module((const uint32_t*)m_vsCode, fsCode);
-			auto vsInputSlots = module.inputUsageSlots();
-			vsKey = module.key().getKey();
-			//m_vsShader = module.compile();
-		}
-		else
-		{
-			pssl::PsslShaderModule module((const uint32_t*)m_vsCode);
-			vsKey = module.key().getKey();
-			//m_vsShader = module.compile();
+			break;
 		}
 
-		pssl::PsslShaderModule module((const uint32_t*)m_psCode);
-		uint64_t psKey = module.key().getKey();
+
+		pssl::PsslShaderModule vsModule((const uint32_t*)m_vsCode, fsCode);
+		pssl::PsslShaderModule psModule((const uint32_t*)m_psCode);
+	
+
+		uint64_t vsKey = vsModule.key().getKey();
+		uint64_t psKey = psModule.key().getKey();
 		g_shaderKeys.insert(std::make_pair(vsKey, psKey));
 
-		auto psInputSlots = module.inputUsageSlots();
-		//m_psShader = module.compile();
 
-		if (m_vsUserDataSlotTable.size())
+		// Index Buffer
+		if (indexAddr)
 		{
-			for (auto& pair : m_vsUserDataSlotTable)
+			m_videoOut->createIndexBuffer((void*)indexAddr, indexCount * sizeof(uint16_t));
+		}
+
+		// Vertex Buffer
+		uint32_t vbtStartReg = 0;
+		auto vsInputSlots = vsModule.inputUsageSlots();
+		for (auto& slot : vsInputSlots)
+		{
+			if (slot.usageType != pssl::kShaderInputUsagePtrVertexBufferTable)
 			{
-				GnmBuffer* vsBuffer = (GnmBuffer*)pair.second;
-				uint64_t gpuAddr = vsBuffer->base;
-				uint32_t stride = vsBuffer->stride;
+				continue;
+			}
+
+			vbtStartReg = slot.startRegister;
+			break;
+		}
+
+		// Find VertexBufferTable
+		GnmBuffer* vsharpBuffers = nullptr;
+		for (auto& pair : m_vsUserDataSlotTable)
+		{
+			if (pair.first != vbtStartReg)
+			{
+				continue;
+			}
+			vsharpBuffers = (GnmBuffer*)pair.second;
+			break;
+		}
+
+		if (!vsharpBuffers)
+		{
+			break;
+		}
+
+		auto inputSemantics = vsModule.vsInputSemantic();
+		if (inputSemantics.empty())
+		{
+			break;
+		}
+
+		// All VertexElements should have the same stride
+		uint32_t stride = vsharpBuffers[0].stride;
+		m_videoOut->createVertexInputInfo(stride, vsharpBuffers, inputSemantics);
+		uint32_t vertexBufferSize = vsharpBuffers[0].num_records * stride;
+		m_videoOut->createVertexBuffer((void*)vsharpBuffers[0].base, vertexBufferSize);
+
+		// Texture
+		uint32_t texBuffStartReg = 0xFF;
+		auto psInputSlots = psModule.inputUsageSlots();
+		for (auto& slot : psInputSlots)
+		{
+			if (slot.usageType != pssl::kShaderInputUsageImmResource)
+			{
+				continue;
+			}
+			texBuffStartReg = slot.startRegister;
+			break;
+		}
+
+		GnmTexture* tsharpBuffer = nullptr;
+		if (texBuffStartReg != 0xFF)
+		{
+			// Have texture, find it.
+			for (auto& pair : m_psUserDataSlotTable)
+			{
+				if (pair.first != texBuffStartReg)
+				{
+					continue;
+				}
+				tsharpBuffer = (GnmTexture*)pair.second;
+				break;
 			}
 		}
-		//debugDumpTexture();
 
+		if (tsharpBuffer)
+		{
+			GnmTexture& tex = tsharpBuffer[0];
+			VkFormat format = VK_FORMAT_UNDEFINED;
+
+			g_fmtSets.insert(std::make_pair<uint32_t, uint32_t>(tex.dfmt, tex.nfmt));
+
+			switch (tex.dfmt)
+			{
+			case kBufferFormat8:
+				format = VK_FORMAT_R8_UNORM;
+				break;
+			case kBufferFormat32:
+				format = VK_FORMAT_R32_SFLOAT;
+				break;
+			case kBufferFormat10_11_11:
+				format = VK_FORMAT_B10G11R11_UFLOAT_PACK32;
+				break;
+			default:
+				break;
+			}
+
+			uint32_t texSize = tex.pitch * tex.height;
+			void* texAddr = GNM_GPU_ABS_ADDR(indexAddr, tex.baseaddr256 << 8);
+			m_videoOut->createTextureImage(texAddr,
+				tex.width, tex.height, texSize, format);
+		}
+
+		
 	} while (false);
 
+	//m_videoOut->clearStateResource();
 	clearRenderState();
 }
 
@@ -266,26 +356,4 @@ void GnmCommandBufferDraw::clearRenderState()
 	m_psCode = nullptr;
 	m_vsUserDataSlotTable.clear();
 	m_psUserDataSlotTable.clear();
-}
-
-void GnmCommandBufferDraw::debugDumpTexture()
-{
-	if (m_psUserDataSlotTable.size())
-	{
-		if (m_psUserDataSlotTable[0].first == 0)
-		{
-			TSharpBuffer* tsBuffer = (TSharpBuffer*)m_psUserDataSlotTable[0].second;
-			uint64_t relaAddr = tsBuffer->baseaddr256 << 8;
-			void* texAddr = GNM_GPU_ABS_ADDR(m_vsCode, relaAddr);
-			uint32_t width = tsBuffer->width;
-			uint32_t height = tsBuffer->height;
-			uint32_t dfmd = tsBuffer->dfmt;
-			uint32_t nfmd = tsBuffer->nfmt;
-
-			static uint32_t count = 0;
-			char filename[64] = { 0 };
-			sprintf(filename, "tex%d.bmp", count++);
-			stbi_write_bmp(filename, width, height, 4, texAddr);
-		}
-	}
 }

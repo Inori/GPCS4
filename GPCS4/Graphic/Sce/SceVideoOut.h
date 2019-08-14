@@ -2,7 +2,7 @@
 
 #include "GPCS4Common.h"
 #include "../Pssl/PsslShaderFileBinary.h"
-
+#include "../Gnm/GnmSharpBuffer.h"
 
 // copy-paste code, quick and dirty implementation, just a test
 // need to fully reconstruct, of course :)
@@ -36,17 +36,16 @@ public:
 
 	void createIndexBuffer(void* idxData, uint32_t size);
 
-	void createVertexInputInfo(uint32_t stride, const std::vector<pssl::VertexInputSemantic>& inputSemantic);
+	void createVertexInputInfo(uint32_t stride, GnmBuffer* vsharpBuffers, const std::vector<pssl::VertexInputSemantic>& inputSemantic);
 
 	void createVertexBuffer(void* vtxData, uint32_t size);
 
 	void createTextureImage(void* pixels, uint32_t texWidth, uint32_t texHeight,
-		uint32_t texChannels, VkFormat format);
+		uint32_t texSize, VkFormat format);
 
 	void createShaderModules(const std::vector<uint8_t>& vsCode,
 		const std::vector<uint8_t>& psCode);
 
-	void createDescriptorSets();
 
 	void updateUniformBuffer(uint32_t currentImage);
 
@@ -106,6 +105,7 @@ private:
 
 	void createUniformBuffers();
 	void createDescriptorPool();
+	void createDescriptorSets();
 
 	void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 	VkCommandBuffer beginSingleTimeCommands();
@@ -169,6 +169,8 @@ private:
 
 	VkBuffer vertexBuffer;
 	VkDeviceMemory vertexBufferMemory;
+	VkVertexInputBindingDescription bindingDescription;
+	std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo;
 	VkBuffer indexBuffer;
 	VkDeviceMemory indexBufferMemory;

@@ -73,6 +73,7 @@ void SceVideoOut::initVulkan() {
 	
 	createCommandPool();
 	createDescriptorPool();
+	createDescriptorSetLayout();
 	createSyncObjects();
 	
 	createUniformBuffers();
@@ -111,6 +112,8 @@ void SceVideoOut::cleanupSwapChain() {
 
 	vkFreeCommandBuffers(device, commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
 
+	vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
+
 	vkDestroyPipeline(device, graphicsPipeline, nullptr);
 	vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
 	vkDestroyRenderPass(device, renderPass, nullptr);
@@ -140,7 +143,7 @@ void SceVideoOut::clearStateResource()
 	vkDestroyImage(device, textureImage, nullptr);
 	vkFreeMemory(device, textureImageMemory, nullptr);
 
-	vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
+	
 
 	vkDestroyBuffer(device, indexBuffer, nullptr);
 	vkFreeMemory(device, indexBufferMemory, nullptr);
@@ -604,13 +607,13 @@ void SceVideoOut::createCommandPool() {
 }
 
 void SceVideoOut::createTextureImage(void* pixels, uint32_t texWidth, uint32_t texHeight, 
-	uint32_t texChannels, VkFormat format) {
+	uint32_t texSize, VkFormat format) {
 
 	if (!pixels) {
 		throw std::runtime_error("failed to load texture image!");
 	}
 
-	VkDeviceSize imageSize = texWidth * texHeight * texChannels;
+	VkDeviceSize imageSize = texSize;
 
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
@@ -832,17 +835,21 @@ void SceVideoOut::createIndexBuffer(void* idxData, uint32_t size) {
 	vkFreeMemory(device, stagingBufferMemory, nullptr);
 }
 
-void SceVideoOut::createVertexInputInfo(uint32_t stride, const std::vector<pssl::VertexInputSemantic>& inputSemantic)
+void SceVideoOut::createVertexInputInfo(uint32_t stride, GnmBuffer* vsharpBuffers, const std::vector<pssl::VertexInputSemantic>& inputSemantic)
 {
-	VkVertexInputBindingDescription bindingDescription = {};
 	bindingDescription.binding = 0;
 	bindingDescription.stride = stride;
 	bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
-	std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
-	uint32_t lastElementSize = 0;
-	for (auto& inputSema : inputSemantic)
+
+	GnmBuffer* lastBuffer = nullptr;
+	uint32_t semaCount = inputSemantic.size();
+
+	for (uint32_t i = 0; i != semaCount; ++i)
 	{
+		auto& inputSema = inputSemantic[i];
+		GnmBuffer& vsBuffer = vsharpBuffers[i];
+
 		VkVertexInputAttributeDescription desc;
 		desc.binding = 0;
 		desc.location = inputSema.semantic;
@@ -862,11 +869,19 @@ void SceVideoOut::createVertexInputInfo(uint32_t stride, const std::vector<pssl:
 			break;
 		}
 
-		desc.offset = inputSema.semantic * lastElementSize;
-		lastElementSize = inputSema.sizeInElements;
+		if (!lastBuffer)
+		{
+			desc.offset = 0;
+		}
+		else
+		{
+			desc.offset = vsBuffer.base - lastBuffer->base;
+		}
 
+		lastBuffer = &vsBuffer;
 		attributeDescriptions.push_back(desc);
 	}
+
 
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 	vertexInputInfo.vertexBindingDescriptionCount = 1;
@@ -906,7 +921,7 @@ void SceVideoOut::createDescriptorPool() {
 
 void SceVideoOut::createDescriptorSets() {
 
-	createDescriptorSetLayout();
+	
 
 	std::vector<VkDescriptorSetLayout> layouts(swapChainImages.size(), descriptorSetLayout);
 	VkDescriptorSetAllocateInfo allocInfo = {};

@@ -62,9 +62,6 @@ private:
 	uint32_t* getFetchShaderCode(void* vsCode);
 	void clearRenderState();
 
-
-	// Debug only
-	void debugDumpTexture();
 private:
 
 	std::shared_ptr<sce::SceVideoOut> m_videoOut;
