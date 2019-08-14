@@ -34,11 +34,11 @@ public:
 	SceVideoOut(int width, int height);
 	~SceVideoOut();
 
-	void createIndexBuffer(void* idxData, uint32_t size);
+	void createIndexBuffer(void* idxData, uint32_t count, uint32_t size);
 
 	void createVertexInputInfo(uint32_t stride, GnmBuffer* vsharpBuffers, const std::vector<pssl::VertexInputSemantic>& inputSemantic);
 
-	void createVertexBuffer(void* vtxData, uint32_t size);
+	void createVertexBuffer(void* vtxData, uint32_t count, uint32_t size);
 
 	void createTextureImage(void* pixels, uint32_t texWidth, uint32_t texHeight,
 		uint32_t texSize, VkFormat format);
@@ -52,7 +52,7 @@ public:
 	void createCommandBuffers(uint32_t displayIndex);
 	void createGraphicsPipeline();
 
-	void clearStateResource();
+	void clearFrameResource();
 
 	void flip(uint32_t displayBufferIndex);
 
@@ -77,7 +77,6 @@ private:
 	void initVulkan();
 	void initWindow();
 	static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
-	void mainLoop();
 	void cleanupSwapChain();
 	void cleanup();
 	void recreateSwapChain();
@@ -115,7 +114,7 @@ private:
 	
 	void createSyncObjects();
 	
-	void drawFrame();
+	void drawFrame(uint32_t displayBufferIndex);
 	VkShaderModule createShaderModule(const std::vector<uint8_t>& code);
 	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 	VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
@@ -135,6 +134,12 @@ private:
 
 	uint m_width;
 	uint m_height;
+
+	bool m_hasIndex = false;
+	bool m_hasTexture = false;
+	bool m_cmdReady = false;
+	uint32_t m_vtxCount = 0;
+	uint32_t m_idxCount = 0;
 
 	GLFWwindow* window;
 

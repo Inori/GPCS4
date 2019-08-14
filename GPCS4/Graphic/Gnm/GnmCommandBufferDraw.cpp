@@ -183,7 +183,7 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 		// Index Buffer
 		if (indexAddr)
 		{
-			m_videoOut->createIndexBuffer((void*)indexAddr, indexCount * sizeof(uint16_t));
+			m_videoOut->createIndexBuffer((void*)indexAddr, indexCount, indexCount * sizeof(uint16_t));
 		}
 
 		// Vertex Buffer
@@ -227,7 +227,7 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 		uint32_t stride = vsharpBuffers[0].stride;
 		m_videoOut->createVertexInputInfo(stride, vsharpBuffers, inputSemantics);
 		uint32_t vertexBufferSize = vsharpBuffers[0].num_records * stride;
-		m_videoOut->createVertexBuffer((void*)vsharpBuffers[0].base, vertexBufferSize);
+		m_videoOut->createVertexBuffer((void*)vsharpBuffers[0].base, vsharpBuffers[0].num_records, vertexBufferSize);
 
 		// Texture
 		uint32_t texBuffStartReg = 0xFF;
@@ -286,12 +286,22 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 		}
 
 		// Shaders
+		auto vsEmptyCode = UtilFile::LoadFile("empty.vert.spv");
+		auto psEmptyCode = UtilFile::LoadFile("empty.frag.spv");
+		m_videoOut->createShaderModules(vsEmptyCode, psEmptyCode);
 
+		m_videoOut->createGraphicsPipeline();
 
+		static uint32_t displayBufferIndex = 0;
+
+		m_videoOut->createCommandBuffers(displayBufferIndex);
+
+		++displayBufferIndex;
+		displayBufferIndex %= 3;
 		
 	} while (false);
 
-	//m_videoOut->clearStateResource();
+	m_videoOut->clearFrameResource();
 	clearRenderState();
 }
 

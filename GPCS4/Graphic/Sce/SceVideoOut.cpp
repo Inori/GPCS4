@@ -67,10 +67,10 @@ void SceVideoOut::initVulkan() {
 
 	createSwapChain();
 	createSwapChainImageViews();
+	
+	createRenderPass();
 	createFramebuffers();
 
-	createRenderPass();
-	
 	createCommandPool();
 	createDescriptorPool();
 	createDescriptorSetLayout();
@@ -94,15 +94,6 @@ void SceVideoOut::framebufferResizeCallback(GLFWwindow* window, int width, int h
 {
 	auto app = reinterpret_cast<SceVideoOut*>(glfwGetWindowUserPointer(window));
 	app->framebufferResized = true;
-}
-
-void SceVideoOut::mainLoop() {
-	while (!glfwWindowShouldClose(window)) {
-		glfwPollEvents();
-		drawFrame();
-	}
-
-	vkDeviceWaitIdle(device);
 }
 
 void SceVideoOut::cleanupSwapChain() {
@@ -132,36 +123,55 @@ void SceVideoOut::cleanupSwapChain() {
 	vkDestroyDescriptorPool(device, descriptorPool, nullptr);
 }
 
-void SceVideoOut::clearStateResource()
+void SceVideoOut::clearFrameResource()
 {
+	/*
+	if (!m_cmdReady)
+	{
+		return;
+	}
+
 	vkDestroyShaderModule(device, fragShaderModule, nullptr);
 	vkDestroyShaderModule(device, vertShaderModule, nullptr);
 
-	vkDestroySampler(device, textureSampler, nullptr);
-	vkDestroyImageView(device, textureImageView, nullptr);
+	if (m_hasTexture)
+	{
+		vkDestroySampler(device, textureSampler, nullptr);
+		vkDestroyImageView(device, textureImageView, nullptr);
 
-	vkDestroyImage(device, textureImage, nullptr);
-	vkFreeMemory(device, textureImageMemory, nullptr);
+		vkDestroyImage(device, textureImage, nullptr);
+		vkFreeMemory(device, textureImageMemory, nullptr);
+	}
 
 	
-
-	vkDestroyBuffer(device, indexBuffer, nullptr);
-	vkFreeMemory(device, indexBufferMemory, nullptr);
+	if (m_hasIndex)
+	{
+		vkDestroyBuffer(device, indexBuffer, nullptr);
+		vkFreeMemory(device, indexBufferMemory, nullptr);
+	}
 
 	vkDestroyBuffer(device, vertexBuffer, nullptr);
 	vkFreeMemory(device, vertexBufferMemory, nullptr);
+	*/
+
+	//m_hasIndex = false;
+	//m_cmdReady = false;
+	//m_hasTexture = false;
 }
 
 
 void SceVideoOut::flip(uint32_t displayBufferIndex)
 {
-
+	glfwPollEvents();
+	drawFrame(displayBufferIndex);
+	m_cmdReady = false;
+	m_hasTexture = false;
 }
 
 void SceVideoOut::cleanup() {
 	cleanupSwapChain();
 
-	clearStateResource();
+	clearFrameResource();
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 		vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
@@ -635,6 +645,8 @@ void SceVideoOut::createTextureImage(void* pixels, uint32_t texWidth, uint32_t t
 
 	createTextureImageView();
 	createTextureSampler();
+	createDescriptorSets();
+	m_hasTexture = true;
 }
 
 void SceVideoOut::createShaderModules(const std::vector<uint8_t>& vsCode, const std::vector<uint8_t>& psCode)
@@ -795,9 +807,9 @@ void SceVideoOut::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t wid
 	endSingleTimeCommands(commandBuffer);
 }
 
-void SceVideoOut::createVertexBuffer(void* vtxData, uint32_t size) {
+void SceVideoOut::createVertexBuffer(void* vtxData, uint32_t count, uint32_t size) {
 	VkDeviceSize bufferSize = size;
-
+	m_vtxCount = count;
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
 	createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
@@ -815,9 +827,9 @@ void SceVideoOut::createVertexBuffer(void* vtxData, uint32_t size) {
 	vkFreeMemory(device, stagingBufferMemory, nullptr);
 }
 
-void SceVideoOut::createIndexBuffer(void* idxData, uint32_t size) {
+void SceVideoOut::createIndexBuffer(void* idxData, uint32_t count, uint32_t size) {
 	VkDeviceSize bufferSize = size;
-
+	m_idxCount = count;
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
 	createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
@@ -833,10 +845,15 @@ void SceVideoOut::createIndexBuffer(void* idxData, uint32_t size) {
 
 	vkDestroyBuffer(device, stagingBuffer, nullptr);
 	vkFreeMemory(device, stagingBufferMemory, nullptr);
+
+	m_hasIndex = true;
 }
 
 void SceVideoOut::createVertexInputInfo(uint32_t stride, GnmBuffer* vsharpBuffers, const std::vector<pssl::VertexInputSemantic>& inputSemantic)
 {
+	memset(&vertexInputInfo, 0, sizeof(vertexInputInfo));
+	memset(&bindingDescription, 0, sizeof(bindingDescription));
+
 	bindingDescription.binding = 0;
 	bindingDescription.stride = stride;
 	bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
@@ -1063,46 +1080,60 @@ void SceVideoOut::createCommandBuffers(uint32_t displayIndex) {
 		throw std::runtime_error("failed to allocate command buffers!");
 	}
 
-	//for (size_t i = 0; i < commandBuffers.size(); i++) {
-	//	VkCommandBufferBeginInfo beginInfo = {};
-	//	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	//	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+	VkCommandBufferBeginInfo beginInfo = {};
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
 
-	//	if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS) {
-	//		throw std::runtime_error("failed to begin recording command buffer!");
-	//	}
+	if (vkBeginCommandBuffer(commandBuffers[displayIndex], &beginInfo) != VK_SUCCESS) {
+		throw std::runtime_error("failed to begin recording command buffer!");
+	}
 
-	//	VkRenderPassBeginInfo renderPassInfo = {};
-	//	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	//	renderPassInfo.renderPass = renderPass;
-	//	renderPassInfo.framebuffer = swapChainFramebuffers[i];
-	//	renderPassInfo.renderArea.offset = { 0, 0 };
-	//	renderPassInfo.renderArea.extent = swapChainExtent;
+	VkRenderPassBeginInfo renderPassInfo = {};
+	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	renderPassInfo.renderPass = renderPass;
+	renderPassInfo.framebuffer = swapChainFramebuffers[displayIndex];
+	renderPassInfo.renderArea.offset = { 0, 0 };
+	renderPassInfo.renderArea.extent = swapChainExtent;
 
-	//	VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
-	//	renderPassInfo.clearValueCount = 1;
-	//	renderPassInfo.pClearValues = &clearColor;
+	VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+	renderPassInfo.clearValueCount = 1;
+	renderPassInfo.pClearValues = &clearColor;
 
-	//	vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+	vkCmdBeginRenderPass(commandBuffers[displayIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-	//	vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+	vkCmdBindPipeline(commandBuffers[displayIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
-	//	VkBuffer vertexBuffers[] = { vertexBuffer };
-	//	VkDeviceSize offsets[] = { 0 };
-	//	vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
+	VkBuffer vertexBuffers[] = { vertexBuffer };
+	VkDeviceSize offsets[] = { 0 };
+	vkCmdBindVertexBuffers(commandBuffers[displayIndex], 0, 1, vertexBuffers, offsets);
 
-	//	vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+	if (m_hasIndex)
+	{
+		vkCmdBindIndexBuffer(commandBuffers[displayIndex], indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+	}
 
-	//	vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[i], 0, nullptr);
+	if (m_hasTexture)
+	{
+		vkCmdBindDescriptorSets(commandBuffers[displayIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[displayIndex], 0, nullptr);
+	}
 
-	//	vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+	if (m_hasIndex)
+	{
+		vkCmdDrawIndexed(commandBuffers[displayIndex], m_idxCount, 1, 0, 0, 0);
+	}
+	else
+	{
+		vkCmdDraw(commandBuffers[displayIndex], m_vtxCount, 1, 0, 0);
+	}
 
-	//	vkCmdEndRenderPass(commandBuffers[i]);
+	vkCmdEndRenderPass(commandBuffers[displayIndex]);
 
-	//	if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
-	//		throw std::runtime_error("failed to record command buffer!");
-	//	}
-	//}
+	if (vkEndCommandBuffer(commandBuffers[displayIndex]) != VK_SUCCESS) {
+		throw std::runtime_error("failed to record command buffer!");
+	}
+
+	m_cmdReady = true;
+	m_hasIndex = false;
 }
 
 void SceVideoOut::createSyncObjects() {
@@ -1144,7 +1175,13 @@ void SceVideoOut::updateUniformBuffer(uint32_t currentImage) {
 	vkUnmapMemory(device, uniformBuffersMemory[currentImage]);
 }
 
-void SceVideoOut::drawFrame() {
+void SceVideoOut::drawFrame(uint32_t displayBufferIndex)
+{
+	if (!m_cmdReady)
+	{
+		return;
+	}
+
 	vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
 
 	uint32_t imageIndex;
@@ -1158,7 +1195,7 @@ void SceVideoOut::drawFrame() {
 		throw std::runtime_error("failed to acquire swap chain image!");
 	}
 
-	updateUniformBuffer(imageIndex);
+	//updateUniformBuffer(imageIndex);
 
 	VkSubmitInfo submitInfo = {};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;

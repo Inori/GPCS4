@@ -33,6 +33,13 @@ bool LoadFile(const std::string& strFilename, std::vector<uint8_t>& vtData)
 	return bRet;
 }
 
+std::vector<uint8_t> LoadFile(const std::string& strFilename)
+{
+	std::vector<uint8_t> vtData;
+	LoadFile(strFilename, vtData);
+	return vtData;
+}
+
 bool StoreFile(const std::string& strFilename, const uint8_t* pBuffer, uint32_t nSize)
 {
 	bool bRet = false;
