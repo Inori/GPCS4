@@ -38,6 +38,8 @@ public:
 	virtual void updatePsShader(const pssl::PsStageRegisters *psRegs) override;
 	virtual void updateVsShader(const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier) override;
 
+	virtual void setPrimitiveType(PrimitiveType primType) override;
+
 	virtual void drawIndex(uint32_t indexCount, const void *indexAddr, DrawModifier modifier) override;
 	virtual void drawIndex(uint32_t indexCount, const void *indexAddr) override;
 	virtual void drawIndexAuto(uint32_t indexCount, DrawModifier modifier) override;
@@ -57,6 +59,9 @@ public:
 
 	virtual void waitUntilSafeForRendering(uint32_t videoOutHandle, uint32_t displayBufferIndex) override;
 
+
+
+	
 
 private:
 	uint32_t* getFetchShaderCode(void* vsCode);

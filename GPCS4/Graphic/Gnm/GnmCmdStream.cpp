@@ -532,7 +532,16 @@ void GnmCmdStream::onSetShReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 
 void GnmCmdStream::onSetUconfigReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 {
+	PPM4ME_SET_UCONFIG_REG setUcfgPacket = (PPM4ME_SET_UCONFIG_REG)pm4Hdr;
 
+	switch (setUcfgPacket->bitfields2.reg_offset)
+	{
+	case OP_HINT_SET_PRIMITIVE_TYPE_BASE:
+		m_cb->setPrimitiveType((PrimitiveType)itBody[1]);
+		break;
+	default:
+		break;
+	}
 }
 
 void GnmCmdStream::onIncrementDeCounter(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)

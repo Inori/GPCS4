@@ -2240,7 +2240,7 @@ typedef struct PM4_ME_SET_UCONFIG_REG
         struct
         {
             uint32_t                         reg_offset : 16;
-            uint32_t                          reserved1 : 16;
+            uint32_t                           neo_mode : 16;
         } bitfields2;
         uint32_t                               ordinal2;
     };

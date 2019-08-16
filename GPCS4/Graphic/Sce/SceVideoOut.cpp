@@ -498,7 +498,8 @@ void SceVideoOut::createGraphicsPipeline() {
 
 	VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
 	inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-	inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+	//inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+	inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
 	inputAssembly.primitiveRestartEnable = VK_FALSE;
 
 	VkViewport viewport = {};
@@ -634,7 +635,7 @@ void SceVideoOut::createTextureImage(void* pixels, uint32_t texWidth, uint32_t t
 	memcpy(data, pixels, static_cast<size_t>(imageSize));
 	vkUnmapMemory(device, stagingBufferMemory);
 
-	createImage(texWidth, texHeight, format, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, textureImageMemory);
+	createImage(texWidth, texHeight, format, VK_IMAGE_TILING_LINEAR, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, textureImageMemory);
 
 	transitionImageLayout(textureImage, format, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 	copyBufferToImage(stagingBuffer, textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
@@ -643,7 +644,7 @@ void SceVideoOut::createTextureImage(void* pixels, uint32_t texWidth, uint32_t t
 	vkDestroyBuffer(device, stagingBuffer, nullptr);
 	vkFreeMemory(device, stagingBufferMemory, nullptr);
 
-	createTextureImageView();
+	createTextureImageView(format);
 	createTextureSampler();
 	createDescriptorSets();
 	m_hasTexture = true;
@@ -655,8 +656,9 @@ void SceVideoOut::createShaderModules(const std::vector<uint8_t>& vsCode, const 
 	fragShaderModule = createShaderModule(psCode);
 }
 
-void SceVideoOut::createTextureImageView() {
-	textureImageView = createImageView(textureImage, VK_FORMAT_R8G8B8A8_UNORM);
+void SceVideoOut::createTextureImageView(VkFormat format)
+{
+	textureImageView = createImageView(textureImage, format);
 }
 
 void SceVideoOut::createTextureSampler() {
@@ -853,6 +855,7 @@ void SceVideoOut::createVertexInputInfo(uint32_t stride, GnmBuffer* vsharpBuffer
 {
 	memset(&vertexInputInfo, 0, sizeof(vertexInputInfo));
 	memset(&bindingDescription, 0, sizeof(bindingDescription));
+	attributeDescriptions.clear();
 
 	bindingDescription.binding = 0;
 	bindingDescription.stride = stride;

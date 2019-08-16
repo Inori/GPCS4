@@ -143,14 +143,16 @@ void GnmCommandBufferDraw::waitUntilSafeForRendering(uint32_t videoOutHandle, ui
 	
 }
 
-
 // We be called on every frame start.
 void GnmCommandBufferDraw::initializeDefaultHardwareState()
 {
 	
 }
 
+void GnmCommandBufferDraw::setPrimitiveType(PrimitiveType primType)
+{
 
+}
 #include <set>
 std::set<std::pair<uint64_t, uint64_t>> g_shaderKeys;
 std::set<std::pair<uint32_t, uint32_t>> g_fmtSets;
@@ -264,22 +266,26 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 
 			g_fmtSets.insert(std::make_pair<uint32_t, uint32_t>(tex.dfmt, tex.nfmt));
 
+			uint32_t pixSize = 0;
 			switch (tex.dfmt)
 			{
 			case kBufferFormat8:
+				pixSize = 1;
 				format = VK_FORMAT_R8_UNORM;
 				break;
 			case kBufferFormat32:
+				pixSize = 4;
 				format = VK_FORMAT_R32_SFLOAT;
 				break;
 			case kBufferFormat10_11_11:
+				pixSize = 4;
 				format = VK_FORMAT_B10G11R11_UFLOAT_PACK32;
 				break;
 			default:
 				break;
 			}
 
-			uint32_t texSize = tex.pitch * tex.height;
+			uint32_t texSize = tex.width * tex.height * pixSize;
 			void* texAddr = GNM_GPU_ABS_ADDR(indexAddr, tex.baseaddr256 << 8);
 			m_videoOut->createTextureImage(texAddr,
 				tex.width, tex.height, texSize, format);
