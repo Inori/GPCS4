@@ -40,6 +40,10 @@ public:
 
 	void createVertexBuffer(void* vtxData, uint32_t count, uint32_t size);
 
+	void createCoordBuffer(void* vtxData, uint32_t size);
+
+	void createTextureSampler(uint32_t min_lod, uint32_t max_lod, uint32_t aniso);
+
 	void createTextureImage(void* pixels, uint32_t texWidth, uint32_t texHeight,
 		uint32_t texSize, VkFormat format);
 
@@ -95,7 +99,7 @@ private:
 	void createCommandPool();
 
 	void createTextureImageView(VkFormat format);
-	void createTextureSampler();
+	
 	VkImageView createImageView(VkImage image, VkFormat format);
 	void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
 	void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
@@ -138,6 +142,8 @@ private:
 	bool m_hasIndex = false;
 	bool m_hasTexture = false;
 	bool m_cmdReady = false;
+	bool m_hasCoord = false;
+
 	uint32_t m_vtxCount = 0;
 	uint32_t m_idxCount = 0;
 
@@ -167,24 +173,27 @@ private:
 
 	VkCommandPool commandPool;
 
-	VkImage textureImage;
-	VkDeviceMemory textureImageMemory;
-	VkImageView textureImageView;
-	VkSampler textureSampler;
+	VkImage textureImage = VK_NULL_HANDLE;
+	VkDeviceMemory textureImageMemory = VK_NULL_HANDLE;
+	VkImageView textureImageView = VK_NULL_HANDLE;
+	VkSampler textureSampler = VK_NULL_HANDLE;
 
-	VkBuffer vertexBuffer;
-	VkDeviceMemory vertexBufferMemory;
-	VkVertexInputBindingDescription bindingDescription;
+	VkBuffer vertexBuffer = VK_NULL_HANDLE;
+	VkBuffer coordBuffer = VK_NULL_HANDLE;
+	VkDeviceMemory vertexBufferMemory = VK_NULL_HANDLE;
+	VkDeviceMemory coordBufferMemory = VK_NULL_HANDLE;
+
+	std::vector<VkVertexInputBindingDescription> bindingDescriptions;
 	std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo;
-	VkBuffer indexBuffer;
-	VkDeviceMemory indexBufferMemory;
+	VkBuffer indexBuffer = VK_NULL_HANDLE;
+	VkDeviceMemory indexBufferMemory = VK_NULL_HANDLE;
 
 	std::vector<VkBuffer> uniformBuffers;
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
 
-	VkShaderModule vertShaderModule;
-	VkShaderModule fragShaderModule;
+	VkShaderModule vertShaderModule = VK_NULL_HANDLE;
+	VkShaderModule fragShaderModule = VK_NULL_HANDLE;
 
 	VkDescriptorPool descriptorPool;
 	std::vector<VkDescriptorSet> descriptorSets;

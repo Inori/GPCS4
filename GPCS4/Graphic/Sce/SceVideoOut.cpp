@@ -125,34 +125,40 @@ void SceVideoOut::cleanupSwapChain() {
 
 void SceVideoOut::clearFrameResource()
 {
-	/*
-	if (!m_cmdReady)
+	
+	if (vertShaderModule != VK_NULL_HANDLE)
 	{
-		return;
+		vkDestroyShaderModule(device, fragShaderModule, nullptr);
+		vkDestroyShaderModule(device, vertShaderModule, nullptr);
+		vertShaderModule = VK_NULL_HANDLE;
+		fragShaderModule = VK_NULL_HANDLE;
 	}
 
-	vkDestroyShaderModule(device, fragShaderModule, nullptr);
-	vkDestroyShaderModule(device, vertShaderModule, nullptr);
+	//if (m_hasTexture)
+	//{
+	//	vkDestroySampler(device, textureSampler, nullptr);
+	//	vkDestroyImageView(device, textureImageView, nullptr);
 
-	if (m_hasTexture)
-	{
-		vkDestroySampler(device, textureSampler, nullptr);
-		vkDestroyImageView(device, textureImageView, nullptr);
-
-		vkDestroyImage(device, textureImage, nullptr);
-		vkFreeMemory(device, textureImageMemory, nullptr);
-	}
+	//	vkDestroyImage(device, textureImage, nullptr);
+	//	vkFreeMemory(device, textureImageMemory, nullptr);
+	//}
 
 	
-	if (m_hasIndex)
+	if (indexBuffer != VK_NULL_HANDLE)
 	{
 		vkDestroyBuffer(device, indexBuffer, nullptr);
 		vkFreeMemory(device, indexBufferMemory, nullptr);
+		indexBuffer = VK_NULL_HANDLE;
+		indexBufferMemory = VK_NULL_HANDLE;
 	}
 
-	vkDestroyBuffer(device, vertexBuffer, nullptr);
-	vkFreeMemory(device, vertexBufferMemory, nullptr);
-	*/
+	if (vertexBuffer != VK_NULL_HANDLE)
+	{
+		vkDestroyBuffer(device, vertexBuffer, nullptr);
+		vkFreeMemory(device, vertexBufferMemory, nullptr);
+		vertexBuffer = VK_NULL_HANDLE;
+	}
+	
 
 	//m_hasIndex = false;
 	//m_cmdReady = false;
@@ -624,6 +630,22 @@ void SceVideoOut::createTextureImage(void* pixels, uint32_t texWidth, uint32_t t
 		throw std::runtime_error("failed to load texture image!");
 	}
 
+
+	if (textureImage != VK_NULL_HANDLE)
+	{
+		vkDestroyImage(device, textureImage, nullptr);
+		vkFreeMemory(device, textureImageMemory, nullptr);
+		textureImage = VK_NULL_HANDLE;
+		textureImageMemory = VK_NULL_HANDLE;
+	}
+	
+	if (textureImageView != VK_NULL_HANDLE)
+	{
+		vkDestroyImageView(device, textureImageView, nullptr);
+		textureImageView = VK_NULL_HANDLE;
+	}
+	
+
 	VkDeviceSize imageSize = texSize;
 
 	VkBuffer stagingBuffer;
@@ -645,7 +667,6 @@ void SceVideoOut::createTextureImage(void* pixels, uint32_t texWidth, uint32_t t
 	vkFreeMemory(device, stagingBufferMemory, nullptr);
 
 	createTextureImageView(format);
-	createTextureSampler();
 	createDescriptorSets();
 	m_hasTexture = true;
 }
@@ -661,7 +682,14 @@ void SceVideoOut::createTextureImageView(VkFormat format)
 	textureImageView = createImageView(textureImage, format);
 }
 
-void SceVideoOut::createTextureSampler() {
+void SceVideoOut::createTextureSampler(uint32_t min_lod, uint32_t max_lod, uint32_t aniso)
+{
+	if (textureSampler != VK_NULL_HANDLE)
+	{
+		vkDestroySampler(device, textureSampler, nullptr);
+		textureSampler = VK_NULL_HANDLE;
+	}
+	
 	VkSamplerCreateInfo samplerInfo = {};
 	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
 	samplerInfo.magFilter = VK_FILTER_LINEAR;
@@ -676,6 +704,8 @@ void SceVideoOut::createTextureSampler() {
 	samplerInfo.compareEnable = VK_FALSE;
 	samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
 	samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+	samplerInfo.minLod = min_lod;
+	samplerInfo.maxLod = max_lod;
 
 	if (vkCreateSampler(device, &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create texture sampler!");
@@ -829,6 +859,28 @@ void SceVideoOut::createVertexBuffer(void* vtxData, uint32_t count, uint32_t siz
 	vkFreeMemory(device, stagingBufferMemory, nullptr);
 }
 
+void SceVideoOut::createCoordBuffer(void* vtxData, uint32_t size)
+{
+	VkDeviceSize bufferSize = size;
+	VkBuffer stagingBuffer;
+	VkDeviceMemory stagingBufferMemory;
+	createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+
+	void* data;
+	vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
+	memcpy(data, vtxData, (size_t)bufferSize);
+	vkUnmapMemory(device, stagingBufferMemory);
+
+	createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, coordBuffer, coordBufferMemory);
+
+	copyBuffer(stagingBuffer, coordBuffer, bufferSize);
+
+	vkDestroyBuffer(device, stagingBuffer, nullptr);
+	vkFreeMemory(device, stagingBufferMemory, nullptr);
+
+	m_hasCoord = true;
+}
+
 void SceVideoOut::createIndexBuffer(void* idxData, uint32_t count, uint32_t size) {
 	VkDeviceSize bufferSize = size;
 	m_idxCount = count;
@@ -854,17 +906,18 @@ void SceVideoOut::createIndexBuffer(void* idxData, uint32_t count, uint32_t size
 void SceVideoOut::createVertexInputInfo(uint32_t stride, GnmBuffer* vsharpBuffers, const std::vector<pssl::VertexInputSemantic>& inputSemantic)
 {
 	memset(&vertexInputInfo, 0, sizeof(vertexInputInfo));
-	memset(&bindingDescription, 0, sizeof(bindingDescription));
+	bindingDescriptions.clear();
 	attributeDescriptions.clear();
 
-	bindingDescription.binding = 0;
-	bindingDescription.stride = stride;
-	bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+	VkVertexInputBindingDescription bindingDesc;
+	bindingDesc.binding = 0;
+	bindingDesc.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+	bindingDesc.stride = stride;
+	bindingDescriptions.push_back(bindingDesc);
 
-
-	GnmBuffer* lastBuffer = nullptr;
 	uint32_t semaCount = inputSemantic.size();
 
+	GnmBuffer* lastBuffer = nullptr;
 	for (uint32_t i = 0; i != semaCount; ++i)
 	{
 		auto& inputSema = inputSemantic[i];
@@ -897,15 +950,15 @@ void SceVideoOut::createVertexInputInfo(uint32_t stride, GnmBuffer* vsharpBuffer
 		{
 			desc.offset = vsBuffer.base - lastBuffer->base;
 		}
-
+	
 		lastBuffer = &vsBuffer;
 		attributeDescriptions.push_back(desc);
 	}
 
 
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-	vertexInputInfo.vertexBindingDescriptionCount = 1;
-	vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+	vertexInputInfo.vertexBindingDescriptionCount = bindingDescriptions.size();
+	vertexInputInfo.pVertexBindingDescriptions = bindingDescriptions.data();
 	vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
 	vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 }
@@ -941,8 +994,6 @@ void SceVideoOut::createDescriptorPool() {
 
 void SceVideoOut::createDescriptorSets() {
 
-	
-
 	std::vector<VkDescriptorSetLayout> layouts(swapChainImages.size(), descriptorSetLayout);
 	VkDescriptorSetAllocateInfo allocInfo = {};
 	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -950,39 +1001,42 @@ void SceVideoOut::createDescriptorSets() {
 	allocInfo.descriptorSetCount = static_cast<uint32_t>(swapChainImages.size());
 	allocInfo.pSetLayouts = layouts.data();
 
-	descriptorSets.resize(swapChainImages.size());
-	if (vkAllocateDescriptorSets(device, &allocInfo, descriptorSets.data()) != VK_SUCCESS) {
-		throw std::runtime_error("failed to allocate descriptor sets!");
+	if (descriptorSets.empty())
+	{
+		descriptorSets.resize(swapChainImages.size());
+		if (vkAllocateDescriptorSets(device, &allocInfo, descriptorSets.data()) != VK_SUCCESS) {
+			throw std::runtime_error("failed to allocate descriptor sets!");
+		}
 	}
 
 	for (size_t i = 0; i < swapChainImages.size(); i++) {
-		VkDescriptorBufferInfo bufferInfo = {};
-		bufferInfo.buffer = uniformBuffers[i];
-		bufferInfo.offset = 0;
-		bufferInfo.range = sizeof(UniformBufferObject);
+		//VkDescriptorBufferInfo bufferInfo = {};
+		//bufferInfo.buffer = uniformBuffers[i];
+		//bufferInfo.offset = 0;
+		//bufferInfo.range = sizeof(UniformBufferObject);
 
 		VkDescriptorImageInfo imageInfo = {};
 		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 		imageInfo.imageView = textureImageView;
 		imageInfo.sampler = textureSampler;
 
-		std::array<VkWriteDescriptorSet, 2> descriptorWrites = {};
+		std::array<VkWriteDescriptorSet, 1> descriptorWrites = {};
+
+		//descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		//descriptorWrites[0].dstSet = descriptorSets[i];
+		//descriptorWrites[0].dstBinding = 0;
+		//descriptorWrites[0].dstArrayElement = 0;
+		//descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		//descriptorWrites[0].descriptorCount = 1;
+		//descriptorWrites[0].pBufferInfo = &bufferInfo;
 
 		descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptorWrites[0].dstSet = descriptorSets[i];
-		descriptorWrites[0].dstBinding = 0;
+		descriptorWrites[0].dstBinding = 1;
 		descriptorWrites[0].dstArrayElement = 0;
-		descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		descriptorWrites[0].descriptorCount = 1;
-		descriptorWrites[0].pBufferInfo = &bufferInfo;
-
-		descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrites[1].dstSet = descriptorSets[i];
-		descriptorWrites[1].dstBinding = 1;
-		descriptorWrites[1].dstArrayElement = 0;
-		descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		descriptorWrites[1].descriptorCount = 1;
-		descriptorWrites[1].pImageInfo = &imageInfo;
+		descriptorWrites[0].pImageInfo = &imageInfo;
 
 		vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}
@@ -1106,9 +1160,20 @@ void SceVideoOut::createCommandBuffers(uint32_t displayIndex) {
 
 	vkCmdBindPipeline(commandBuffers[displayIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
-	VkBuffer vertexBuffers[] = { vertexBuffer };
-	VkDeviceSize offsets[] = { 0 };
-	vkCmdBindVertexBuffers(commandBuffers[displayIndex], 0, 1, vertexBuffers, offsets);
+	if (m_hasCoord)
+	{
+		VkBuffer vertexBuffers[] = { vertexBuffer, coordBuffer };
+		VkDeviceSize offsets[] = { 0, 0 };
+		vkCmdBindVertexBuffers(commandBuffers[displayIndex], 0, 2, vertexBuffers, offsets);
+	}
+	else
+	{
+		VkBuffer vertexBuffers[] = { vertexBuffer };
+		VkDeviceSize offsets[] = { 0 };
+		vkCmdBindVertexBuffers(commandBuffers[displayIndex], 0, 1, vertexBuffers, offsets);
+	}
+
+	m_hasCoord = false;
 
 	if (m_hasIndex)
 	{
@@ -1227,6 +1292,7 @@ void SceVideoOut::drawFrame(uint32_t displayBufferIndex)
 
 	presentInfo.waitSemaphoreCount = 1;
 	presentInfo.pWaitSemaphores = signalSemaphores;
+
 
 	VkSwapchainKHR swapChains[] = { swapChain };
 	presentInfo.swapchainCount = 1;

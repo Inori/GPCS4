@@ -5,6 +5,8 @@
 
 // For test
 #define STB_IMAGE_WRITE_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image/stb_image.h"
 #include "stb_image/stb_image_write.h"
 
 GnmCommandBufferDraw::GnmCommandBufferDraw(std::shared_ptr<sce::SceVideoOut> videoOut):
@@ -146,7 +148,7 @@ void GnmCommandBufferDraw::waitUntilSafeForRendering(uint32_t videoOutHandle, ui
 // We be called on every frame start.
 void GnmCommandBufferDraw::initializeDefaultHardwareState()
 {
-	
+	m_videoOut->clearFrameResource();
 }
 
 void GnmCommandBufferDraw::setPrimitiveType(PrimitiveType primType)
@@ -172,7 +174,6 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 			break;
 		}
 
-
 		pssl::PsslShaderModule vsModule((const uint32_t*)m_vsCode, fsCode);
 		pssl::PsslShaderModule psModule((const uint32_t*)m_psCode);
 	
@@ -181,12 +182,6 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 		uint64_t psKey = psModule.key().getKey();
 		g_shaderKeys.insert(std::make_pair(vsKey, psKey));
 
-
-		// Index Buffer
-		if (indexAddr)
-		{
-			m_videoOut->createIndexBuffer((void*)indexAddr, indexCount, indexCount * sizeof(uint16_t));
-		}
 
 		// Vertex Buffer
 		uint32_t vbtStartReg = 0;
@@ -219,20 +214,10 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 			break;
 		}
 
-		auto inputSemantics = vsModule.vsInputSemantic();
-		if (inputSemantics.empty())
-		{
-			break;
-		}
-
-		// All VertexElements should have the same stride
-		uint32_t stride = vsharpBuffers[0].stride;
-		m_videoOut->createVertexInputInfo(stride, vsharpBuffers, inputSemantics);
-		uint32_t vertexBufferSize = vsharpBuffers[0].num_records * stride;
-		m_videoOut->createVertexBuffer((void*)vsharpBuffers[0].base, vsharpBuffers[0].num_records, vertexBufferSize);
 
 		// Texture
 		uint32_t texBuffStartReg = 0xFF;
+		
 		auto psInputSlots = psModule.inputUsageSlots();
 		for (auto& slot : psInputSlots)
 		{
@@ -241,6 +226,17 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 				continue;
 			}
 			texBuffStartReg = slot.startRegister;
+			break;
+		}
+
+		uint32_t sampBuffStartReg = 0xFF;
+		for (auto& slot : psInputSlots)
+		{
+			if (slot.usageType != pssl::kShaderInputUsageImmSampler)
+			{
+				continue;
+			}
+			sampBuffStartReg = slot.startRegister;
 			break;
 		}
 
@@ -259,6 +255,22 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 			}
 		}
 
+		GnmSampler* sshartBuffer = nullptr;
+		if (sampBuffStartReg != 0xFF)
+		{
+			// Have texture, find it.
+			for (auto& pair : m_psUserDataSlotTable)
+			{
+				if (pair.first != sampBuffStartReg)
+				{
+					continue;
+				}
+				sshartBuffer = (GnmSampler*)pair.second;
+				break;
+			}
+		}
+		
+		bool hasTexture = false;
 		if (tsharpBuffer)
 		{
 			GnmTexture& tex = tsharpBuffer[0];
@@ -286,28 +298,116 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 			}
 
 			uint32_t texSize = tex.width * tex.height * pixSize;
-			void* texAddr = GNM_GPU_ABS_ADDR(indexAddr, tex.baseaddr256 << 8);
+
+			
+			void* texAddr = GNM_GPU_ABS_ADDR(m_vsCode, tex.baseaddr256 << 8);
+
+			//if (tex.width != 0x77F)
+			//{
+			//	stbi_write_bmp("test.bmp", tex.width, tex.height, pixSize, texAddr);
+			//}
+
+			//if (tex.width == 0x77F)
+			//{
+			//	//break;
+			//}
+			//else
+			//{
+
+			//if (tex.width != 0x77F)
+			//{
+			//	UtilFile::StoreFile("tex.bin", (uint8_t*)texAddr, texSize);
+			//	LOG_DEBUG("");
+			//}
+
+			//auto texData = UtilFile::LoadFile("tex.bin");
+			//m_videoOut->createTextureImage(texData.data(),
+			//	1599, 903, texData.size(), VK_FORMAT_R8_UNORM);
+
+
+			if (tex.width == 0x77F)
+			{
+				break;
+			}
+
+			if (sshartBuffer)
+			{
+				m_videoOut->createTextureSampler(sshartBuffer->min_lod, sshartBuffer->max_lod, sshartBuffer->aniso_bias);
+			}
+
 			m_videoOut->createTextureImage(texAddr,
 				tex.width, tex.height, texSize, format);
+			hasTexture = true;
+
+			//	int texWidth, texHeight, texChannels;
+			//	stbi_uc* pixels = stbi_load("test.bmp", &texWidth, &texHeight, &texChannels, STBI_grey);
+			//	VkDeviceSize imageSize = texWidth * texHeight;
+			//	m_videoOut->createTextureImage(pixels,
+			//		texWidth, texHeight, imageSize, VK_FORMAT_R8_UNORM);
+			//	startTexture = true;
+			//}
+
+			//int texWidth, texHeight, texChannels;
+			//stbi_uc* pixels = stbi_load("test.bmp", &texWidth, &texHeight, &texChannels, STBI_grey);
+			//VkDeviceSize imageSize = texWidth * texHeight;
+			//m_videoOut->createTextureImage(pixels,
+			//	texWidth, texHeight, imageSize, VK_FORMAT_R8_UNORM);
+			//startTexture = true;
 		}
 
+		if (!hasTexture)
+		{
+			break;
+		}
+		// Index Buffer
+		if (indexAddr)
+		{
+			m_videoOut->createIndexBuffer((void*)indexAddr, indexCount, indexCount * sizeof(uint16_t));
+		}
+
+		auto inputSemantics = vsModule.vsInputSemantic();
+		if (inputSemantics.empty())
+		{
+			break;
+		}
+
+		// All VertexElements should have the same stride
+		uint32_t stride = vsharpBuffers[0].stride;
+		m_videoOut->createVertexInputInfo(stride, vsharpBuffers, inputSemantics);
+		uint32_t vertexBufferSize = vsharpBuffers[0].num_records * stride;
+		m_videoOut->createVertexBuffer((void*)vsharpBuffers[0].base, vsharpBuffers[0].num_records, vertexBufferSize);
+
+		//if (inputSemantics.size() == 2)
+		//{
+		//	m_videoOut->createCoordBuffer((void*)vsharpBuffers[1].base, vsharpBuffers[1].stride * vsharpBuffers[1].num_records);
+		//}
+
 		// Shaders
-		auto vsEmptyCode = UtilFile::LoadFile("empty.vert.spv");
-		auto psEmptyCode = UtilFile::LoadFile("empty.frag.spv");
-		m_videoOut->createShaderModules(vsEmptyCode, psEmptyCode);
+		std::vector<uint8_t> vsCode;
+		std::vector<uint8_t> psCode;
+		
+		//if (!startTexture)
+		//{
+		//	vsCode = UtilFile::LoadFile("empty.vert.spv");
+		//	psCode = UtilFile::LoadFile("empty.frag.spv");
+		//}
+		//else
+		//{
+			vsCode = UtilFile::LoadFile("tex.vert.spv");
+			psCode = UtilFile::LoadFile("tex.frag.spv");
+		//}
+
+		m_videoOut->createShaderModules(vsCode, psCode);
 
 		m_videoOut->createGraphicsPipeline();
 
-		static uint32_t displayBufferIndex = 0;
+		m_videoOut->createCommandBuffers(m_displayBufferIndex);
 
-		m_videoOut->createCommandBuffers(displayBufferIndex);
-
-		++displayBufferIndex;
-		displayBufferIndex %= 3;
+		++m_displayBufferIndex;
+		m_displayBufferIndex %= 3;
 		
 	} while (false);
 
-	m_videoOut->clearFrameResource();
 	clearRenderState();
 }
 

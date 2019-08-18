@@ -78,6 +78,8 @@ private:
 
 	RcPtr<gve::GveShader> m_vsShader;
 	RcPtr<gve::GveShader> m_psShader;
+
+	int m_displayBufferIndex = 0;
 };
 
 
