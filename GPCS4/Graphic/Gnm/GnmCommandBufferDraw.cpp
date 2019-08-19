@@ -393,8 +393,8 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 		//}
 		//else
 		//{
-			vsCode = UtilFile::LoadFile("tex.vert.spv");
-			psCode = UtilFile::LoadFile("tex.frag.spv");
+		vsCode = UtilFile::LoadFile("tex.vert.spv");
+		psCode = UtilFile::LoadFile("tex.frag.spv");
 		//}
 
 		m_videoOut->createShaderModules(vsCode, psCode);
