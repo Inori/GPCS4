@@ -7,7 +7,10 @@ The only reason I start this project is learning 3D graphics, nothing serious.
 
 ## Latest progress
 
-First frame rendered, a blank frame though. But I'm pretty sure this is truly the first frame of Nier:Automata.
+![Demo](https://github.com/Inori/GPCS4/blob/master/Misc/demo.gif)  
+
+First texture rendered, [with hand write shaders](https://github.com/Inori/GPCS4/blob/master/Misc/tex.frag). The renderer code is just some test code without any design.
+Next I will focus on the shader translator.
 
 ## Build
 Currently, only Windows build is supported.  
