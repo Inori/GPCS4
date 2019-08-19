@@ -429,7 +429,10 @@ void GnmCmdStream::onSetConfigReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 
 void GnmCmdStream::onSetContextReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 {
-	uint32_t hint = itBody[0];
+	PPM4ME_SET_CONTEXT_REG setCtxPacket = (PPM4ME_SET_CONTEXT_REG)pm4Hdr;
+	uint32_t regOffset = setCtxPacket->bitfields2.reg_offset;
+	uint32_t hint = regOffset;
+
 	switch (hint)
 	{
 	case OP_HINT_SET_PS_SHADER_USAGE:
@@ -439,9 +442,30 @@ void GnmCmdStream::onSetContextReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 		m_cb->setPsShaderUsage(inputTable, numItems);
 	}
 		break;
-	default:
-		break;
 	}
+
+	thread_local static float dmin = 0.0, dmax = 0.0;
+	if (regOffset >= 0xB4 && regOffset <= 0xD2)
+	{
+		dmin = *reinterpret_cast<float*>(&itBody[1]);
+		dmax = *reinterpret_cast<float*>(&itBody[2]);
+	}
+	else if (regOffset >= 0x10F && regOffset <= 0x169)
+	{
+		float scale[3] = { 0.0 };
+		float offset[3] = { 0.0 };
+
+		scale[0] = *reinterpret_cast<float*>(&itBody[1]);
+		scale[1] = *reinterpret_cast<float*>(&itBody[3]);
+		scale[2] = *reinterpret_cast<float*>(&itBody[5]);
+		offset[0] = *reinterpret_cast<float*>(&itBody[2]);
+		offset[1] = *reinterpret_cast<float*>(&itBody[4]);
+		offset[2] = *reinterpret_cast<float*>(&itBody[6]);
+
+		uint32_t viewportId = (regOffset - 0x10F) / 6;
+		m_cb->setViewport(viewportId, dmin, dmax, scale, offset);
+	}
+
 }
 
 void GnmCmdStream::onSetShReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)

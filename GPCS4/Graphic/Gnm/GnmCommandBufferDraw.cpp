@@ -33,6 +33,11 @@ void GnmCommandBufferDraw::setPsShaderUsage(const uint32_t *inputTable, uint32_t
 
 }
 
+void GnmCommandBufferDraw::setViewport(uint32_t viewportId, float dmin, float dmax, const float scale[3], const float offset[3])
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
 void GnmCommandBufferDraw::setPsShader(const pssl::PsStageRegisters *psRegs)
 {
 	m_psCode = psRegs->getCodeAddress();
@@ -101,6 +106,7 @@ void GnmCommandBufferDraw::setUserDataRegion(ShaderStage stage, uint32_t startUs
 	} while (false);
 }
 
+
 void GnmCommandBufferDraw::writeAtEndOfPipe(EndOfPipeEventType eventType, 
 	EventWriteDest dstSelector, void *dstGpuAddr, 
 	EventWriteSource srcSelector, uint64_t immValue, 
@@ -144,6 +150,7 @@ void GnmCommandBufferDraw::waitUntilSafeForRendering(uint32_t videoOutHandle, ui
 {
 	
 }
+
 
 // We be called on every frame start.
 void GnmCommandBufferDraw::initializeDefaultHardwareState()
