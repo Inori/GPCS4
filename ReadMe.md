@@ -9,7 +9,8 @@ The only reason I start this project is learning 3D graphics, nothing serious.
 
 ![Demo](https://github.com/Inori/GPCS4/blob/master/Misc/demo.gif)  
 
-First texture rendered, [with hand write shaders](https://github.com/Inori/GPCS4/blob/master/Misc/tex.frag). The renderer code is just some test code without any design.
+First texture rendered, [with hand write shaders](https://github.com/Inori/GPCS4/blob/master/Misc/tex.frag).  
+The renderer code is just some test code without any design, and full of bugs, but I can get all the vertex buffers, textures and shader bytecode running so far.  
 Next I will focus on the shader translator.
 
 ## Build
