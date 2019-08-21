@@ -23,7 +23,7 @@ int PS4API sceVideoOutOpen(SceUserServiceUserId userId, int32_t type, int32_t in
 	LOG_ASSERT((type == SCE_VIDEO_OUT_BUS_TYPE_MAIN), "not supported videoout type %d", type);
 
 	GfxContext gfxCtx;
-	gfxCtx.videoOut =  std::make_shared<sce::SceVideoOut>(1920, 1080);
+	gfxCtx.videoOut =  std::make_shared<sce::SceVideoOut>();
 	gfxCtx.gnmDriver = std::make_shared<sce::SceGnmDriver>(gfxCtx.videoOut);
 	setGfxContext(SCE_VIDEO_HANDLE_MAIN, gfxCtx);
 	return SCE_VIDEO_HANDLE_MAIN;

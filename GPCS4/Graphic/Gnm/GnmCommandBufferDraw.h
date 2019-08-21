@@ -16,7 +16,7 @@ private:
 	typedef std::vector<std::pair<uint32_t, void*>> UDSTVector;
 
 public:
-	GnmCommandBufferDraw(std::shared_ptr<sce::SceVideoOut> videoOut);
+	GnmCommandBufferDraw();
 	virtual ~GnmCommandBufferDraw();
 
 	virtual void initializeDefaultHardwareState() override;
@@ -63,11 +63,9 @@ public:
 
 private:
 	uint32_t* getFetchShaderCode(void* vsCode);
-	void clearRenderState();
 
 private:
 
-	std::shared_ptr<sce::SceVideoOut> m_videoOut;
 
 	void* m_vsCode;
 	void* m_psCode;
@@ -77,7 +75,6 @@ private:
 	RcPtr<gve::GveShader> m_vsShader;
 	RcPtr<gve::GveShader> m_psShader;
 
-	int m_displayBufferIndex = 0;
 };
 
 
