@@ -14,6 +14,11 @@ SceGnmDriver::~SceGnmDriver()
 {
 }
 
+bool SceGnmDriver::allocateCommandBuffers(uint32_t bufferNum)
+{
+	
+}
+
 int SceGnmDriver::submitAndFlipCommandBuffers(uint32_t count, 
 	void *dcbGpuAddrs[], uint32_t *dcbSizesInBytes,
 	void *ccbGpuAddrs[], uint32_t *ccbSizesInBytes,

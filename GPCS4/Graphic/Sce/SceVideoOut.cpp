@@ -22,4 +22,15 @@ SceVideoOut::~SceVideoOut()
 
 }
 
+bool SceVideoOut::registerBuffers(uint32_t startIndex, uint32_t bufferNum)
+{
+	bool bRet = false;
+	do
+	{
+		
+		bRet  = true;
+	}while(false);
+	return bRet;
+}
+
 } // sce

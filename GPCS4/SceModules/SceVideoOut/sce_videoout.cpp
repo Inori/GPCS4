@@ -97,9 +97,32 @@ int PS4API sceVideoOutSetBufferAttribute(SceVideoOutBufferAttribute *attribute,
 int PS4API sceVideoOutRegisterBuffers(int32_t handle, int32_t startIndex, void * const *addresses, 
 	int32_t bufferNum, const SceVideoOutBufferAttribute *attribute)
 {
-	//LOG_SCE_GRAPHIC("handle %d addr %p num %d attr %p", handle, addresses, bufferNum, attribute);
-	LOG_SCE_GRAPHIC("Not implemented");
-	return SCE_OK;
+	LOG_SCE_GRAPHIC("handle %d addr %p num %d attr %p", handle, addresses, bufferNum, attribute);
+	int ret = SCE_GNM_ERROR_UNKNOWN;
+	do 
+	{
+		std::shared_ptr<sce::SceVideoOut> videoOut = getVideoOut(handle);
+		std::shared_ptr<sce::SceGnmDriver> gnmDriver = getGnmDriver(handle);
+
+		if (!videoOut || !gnmDriver)
+		{
+			break;
+		}
+
+		// Maybe need more params, such as attribute...
+		if (!videoOut->registerBuffers(startIndex, bufferNum))
+		{
+			break;
+		}
+		
+		if (!gnmDriver->allocateCommandBuffers(bufferNum))
+		{
+			break;
+		}
+		
+		ret = SCE_OK;
+	} while (false);
+	return ret;
 }
 
 

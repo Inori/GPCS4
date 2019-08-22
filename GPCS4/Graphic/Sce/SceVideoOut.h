@@ -27,6 +27,7 @@ public:
 	SceVideoOut();
 	~SceVideoOut();
 
+	bool registerBuffers(uint32_t startIndex, uint32_t bufferNum);
 private:
 
 };
