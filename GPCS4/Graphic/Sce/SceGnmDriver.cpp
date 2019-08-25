@@ -12,6 +12,7 @@ SceGnmDriver::SceGnmDriver(std::shared_ptr<SceVideoOut>& videoOut):
 
 SceGnmDriver::~SceGnmDriver()
 {
+	m_commandBuffers.clear();
 }
 
 bool SceGnmDriver::allocateCommandBuffers(uint32_t bufferNum)
