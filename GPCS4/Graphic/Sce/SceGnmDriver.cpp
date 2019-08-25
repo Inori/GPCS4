@@ -16,7 +16,12 @@ SceGnmDriver::~SceGnmDriver()
 
 bool SceGnmDriver::allocateCommandBuffers(uint32_t bufferNum)
 {
-	
+	m_commandBuffers.resize(bufferNum);
+	for (auto& cmd : m_commandBuffers)
+	{
+		cmd = std::make_unique<GnmCommandBufferDraw>();
+	}
+	return true;
 }
 
 int SceGnmDriver::submitAndFlipCommandBuffers(uint32_t count, 

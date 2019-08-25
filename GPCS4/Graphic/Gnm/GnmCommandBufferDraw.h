@@ -3,8 +3,9 @@
 #include "GPCS4Common.h"
 #include "GnmCommandBuffer.h"
 
+#include "../Gve/GveCommandBuffer.h"
 #include "../Gve/GveShader.h"
-#include "../Sce/SceVideoOut.h"
+
 #include <vector>
 
 // This class is designed for graphic development,
@@ -66,6 +67,7 @@ private:
 
 private:
 
+	gve::GveCommandBuffer m_cmd;
 
 	void* m_vsCode;
 	void* m_psCode;

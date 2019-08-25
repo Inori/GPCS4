@@ -29,8 +29,7 @@ public:
 
 private:
 	std::shared_ptr<SceVideoOut> m_videoOut;
-	std::shared_ptr<GnmCommandBuffer> m_cb;
-	std::shared_ptr<GnmCmdStream> m_cmdParser;
+	std::vector<std::unique_ptr<GnmCommandBufferDraw>> m_commandBuffers;
 };
 
 }  //sce
