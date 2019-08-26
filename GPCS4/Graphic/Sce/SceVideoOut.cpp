@@ -33,6 +33,44 @@ uint32_t SceVideoOut::height()
 	return m_height;
 }
 
+bool SceVideoOut::getWindowSize(uint32_t& width, uint32_t& height)
+{
+	bool bRet = false;
+	do
+	{
+		if (!m_width || !m_height)
+		{
+			break;
+		}
+
+		width = m_width;
+		height = m_height;
+
+		bRet  = true;
+	}while(false);
+	return bRet;
+}
+
+bool SceVideoOut::getFramebufferSize(uint32_t& width, uint32_t& height)
+{
+	glfwGetFramebufferSize(m_window, (int*)&width, (int*)&height);
+	return true;
+}
+
+bool SceVideoOut::getSurface(VkInstance instance, VkSurfaceKHR& surface)
+{
+	bool bRet = false;
+	do
+	{
+		if (glfwCreateWindowSurface(instance, m_window, nullptr, &surface) != VK_SUCCESS)
+		{
+			break;
+		}
+		bRet  = true;
+	}while(false);
+	return bRet;
+}
+
 bool SceVideoOut::registerBuffers(uint32_t startIndex, uint32_t bufferNum)
 {
 	bool bRet = false;

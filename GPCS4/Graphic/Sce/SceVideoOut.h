@@ -29,6 +29,12 @@ public:
 
 	uint32_t height();
 
+	bool getWindowSize(uint32_t& width, uint32_t& height);
+
+	bool getFramebufferSize(uint32_t& width, uint32_t& height);
+
+	bool getSurface(VkInstance instance, VkSurfaceKHR& surface);
+
 	bool registerBuffers(uint32_t startIndex, uint32_t bufferNum);
 
 	void processEvents();
