@@ -21,6 +21,11 @@ CGveInstance::CGveInstance(const std::vector<const char*>& requiredExtensions)
 
 CGveInstance::~CGveInstance()
 {
+
+#ifdef GVE_VALIDATION_LAYERS_ENABLE
+	destroyDebugUtilsMessengerEXT(m_debugMessenger, nullptr);
+#endif // GVE_VALIDATION_LAYERS_ENABLE
+
 	vkDestroyInstance(m_instance, nullptr);
 }
 
@@ -167,7 +172,7 @@ VkResult CGveInstance::createDebugUtilsMessengerEXT(const VkDebugUtilsMessengerC
 	return ret;
 }
 
-void CGveInstance::DestroyDebugUtilsMessengerEXT(VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator)
+void CGveInstance::destroyDebugUtilsMessengerEXT(VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator)
 {
 	do 
 	{
