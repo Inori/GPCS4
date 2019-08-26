@@ -47,6 +47,7 @@
     <ClInclude Include="Graphic\Gnm\GnmStructure.h" />
     <ClInclude Include="Graphic\GraphicShared.h" />
     <ClInclude Include="Graphic\Gve\GveCommandBuffer.h" />
+    <ClInclude Include="Graphic\Gve\GveCommon.h" />
     <ClInclude Include="Graphic\Gve\GveDevice.h" />
     <ClInclude Include="Graphic\Gve\GveInstance.h" />
     <ClInclude Include="Graphic\Gve\GvePhysicalDevice.h" />

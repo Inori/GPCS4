@@ -5,6 +5,8 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+#include <vector>
+
 namespace sce 
 {;
 
@@ -29,17 +31,20 @@ public:
 
 	uint32_t height();
 
-	bool getWindowSize(uint32_t& width, uint32_t& height);
+	void getWindowSize(uint32_t& width, uint32_t& height);
 
-	bool getFramebufferSize(uint32_t& width, uint32_t& height);
+	void getFramebufferSize(uint32_t& width, uint32_t& height);
 
 	bool getSurface(VkInstance instance, VkSurfaceKHR& surface);
+
+	std::vector<const char*> getExtensions();
 
 	bool registerBuffers(uint32_t startIndex, uint32_t bufferNum);
 
 	void processEvents();
 
 private:
+	static void windowResizeCallback(GLFWwindow* window, int width, int height);
 	static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
 
 private:

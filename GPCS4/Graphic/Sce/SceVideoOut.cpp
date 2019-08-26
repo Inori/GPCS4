@@ -14,6 +14,8 @@ SceVideoOut::SceVideoOut(uint32_t width, uint32_t height):
 
 	m_window = glfwCreateWindow(m_width, m_height, GPCS4_APP_NAME, nullptr, nullptr);
 	glfwSetWindowUserPointer(m_window, this);
+
+	glfwSetWindowSizeCallback(m_window, windowResizeCallback);
 	glfwSetFramebufferSizeCallback(m_window, framebufferResizeCallback);
 }
 
@@ -33,28 +35,14 @@ uint32_t SceVideoOut::height()
 	return m_height;
 }
 
-bool SceVideoOut::getWindowSize(uint32_t& width, uint32_t& height)
+void SceVideoOut::getWindowSize(uint32_t& width, uint32_t& height)
 {
-	bool bRet = false;
-	do
-	{
-		if (!m_width || !m_height)
-		{
-			break;
-		}
-
-		width = m_width;
-		height = m_height;
-
-		bRet  = true;
-	}while(false);
-	return bRet;
+	glfwGetWindowSize(m_window, (int*)&width, (int*)&height);
 }
 
-bool SceVideoOut::getFramebufferSize(uint32_t& width, uint32_t& height)
+void SceVideoOut::getFramebufferSize(uint32_t& width, uint32_t& height)
 {
 	glfwGetFramebufferSize(m_window, (int*)&width, (int*)&height);
-	return true;
 }
 
 bool SceVideoOut::getSurface(VkInstance instance, VkSurfaceKHR& surface)
@@ -71,6 +59,16 @@ bool SceVideoOut::getSurface(VkInstance instance, VkSurfaceKHR& surface)
 	return bRet;
 }
 
+std::vector<const char*> SceVideoOut::getExtensions()
+{
+	uint32_t glfwExtensionCount = 0;
+	const char** glfwExtensions;
+	glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+	std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+	return extensions;
+}
+
 bool SceVideoOut::registerBuffers(uint32_t startIndex, uint32_t bufferNum)
 {
 	bool bRet = false;
@@ -85,6 +83,14 @@ bool SceVideoOut::registerBuffers(uint32_t startIndex, uint32_t bufferNum)
 void SceVideoOut::processEvents()
 {
 	glfwPollEvents();
+}
+
+void SceVideoOut::windowResizeCallback(GLFWwindow* window, int width, int height)
+{
+	auto videoOut = reinterpret_cast<SceVideoOut*>(glfwGetWindowUserPointer(window));
+	
+	videoOut->m_width = width;
+	videoOut->m_height = height;
 }
 
 void SceVideoOut::framebufferResizeCallback(GLFWwindow* window, int width, int height)
