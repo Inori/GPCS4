@@ -23,7 +23,7 @@ int PS4API sceVideoOutOpen(SceUserServiceUserId userId, int32_t type, int32_t in
 	LOG_ASSERT((type == SCE_VIDEO_OUT_BUS_TYPE_MAIN), "not supported videoout type %d", type);
 
 	GfxContext gfxCtx;
-	gfxCtx.videoOut =  std::make_shared<sce::SceVideoOut>();
+	gfxCtx.videoOut =  std::make_shared<sce::SceVideoOut>(sce::kVideoOutDefaultWidth, sce::kVideoOutDefaultHeight);
 	gfxCtx.gnmDriver = std::make_shared<sce::SceGnmDriver>(gfxCtx.videoOut);
 	setGfxContext(SCE_VIDEO_HANDLE_MAIN, gfxCtx);
 	return SCE_VIDEO_HANDLE_MAIN;
@@ -59,10 +59,13 @@ int PS4API sceVideoOutClose(int32_t handle)
 int PS4API sceVideoOutGetResolutionStatus(int32_t handle, SceVideoOutResolutionStatus *status)
 {
 	LOG_SCE_GRAPHIC("handle %d", handle);
-	status->fullWidth = 1920;
-	status->fullHeight = 1080;
-	status->paneWidth = 1920;
-	status->paneHeight = 1080;
+
+	std::shared_ptr<sce::SceVideoOut> videoOut = getVideoOut(handle);
+
+	status->fullWidth = videoOut->width();
+	status->fullHeight = videoOut->height();
+	status->paneWidth = videoOut->width();
+	status->paneHeight = videoOut->height();
 	status->refreshRate = SCE_VIDEO_OUT_REFRESH_RATE_59_94HZ;
 	status->screenSizeInInch = 32;
 	status->flags = SCE_VIDEO_OUT_RESOLUTION_STATUS_FLAGS_OUTPUT_IN_USE;

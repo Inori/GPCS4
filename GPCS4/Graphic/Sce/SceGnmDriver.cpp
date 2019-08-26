@@ -13,6 +13,7 @@ SceGnmDriver::SceGnmDriver(std::shared_ptr<SceVideoOut>& videoOut):
 SceGnmDriver::~SceGnmDriver()
 {
 	m_commandBuffers.clear();
+	m_commandParsers.clear();
 }
 
 bool SceGnmDriver::allocateCommandBuffers(uint32_t bufferNum)
@@ -20,8 +21,15 @@ bool SceGnmDriver::allocateCommandBuffers(uint32_t bufferNum)
 	m_commandBuffers.resize(bufferNum);
 	for (auto& cmd : m_commandBuffers)
 	{
-		cmd = std::make_unique<GnmCommandBufferDraw>();
+		cmd = std::make_shared<GnmCommandBufferDraw>();
 	}
+
+	m_commandParsers.resize(bufferNum);
+	for (uint32_t i = 0; i != bufferNum; ++i)
+	{
+		m_commandParsers[i] = std::make_unique<GnmCmdStream>(m_commandBuffers[i]);
+	}
+
 	return true;
 }
 
@@ -34,12 +42,13 @@ int SceGnmDriver::submitAndFlipCommandBuffers(uint32_t count,
 	int err = SCE_GNM_ERROR_UNKNOWN;
 	do 
 	{
-		if (count != 1)
+		LOG_ASSERT(count == 1, "Currently only support only 1 cmdbuff.");
+
+		auto& cmdParser = m_commandParsers[displayBufferIndex];
+		if (!cmdParser->processCommandBuffer((uint32_t*)dcbGpuAddrs[0], dcbSizesInBytes[0]))
 		{
-			LOG_FIXME("Currently only support only 1 cmdbuff.");
 			break;
 		}
-
 	
 		err = SCE_OK;
 	} while (false);
