@@ -1,5 +1,6 @@
 #include "sce_libkernel.h"
 #include "sce_kernel_file.h"
+#include "MapSlot.h"
 #include "Platform/UtilPath.h"
 #include <io.h>
 #include <fcntl.h>
@@ -10,54 +11,29 @@
 
 #include "dirent/dirent.h"
 
+enum FdType
+{
+	FD_TYPE_UNKNOWN,
+	FD_TYPE_FILE,
+	FD_TYPE_DIRECTORY
+};
+
+struct FdItem
+{
+	uintptr_t fd;  // Maybe a file or a directory
+	FdType type;
+};
+
+
+bool isEmptyFdItem(FdItem& item)
+{
+	return (item.fd == 0 && item.type == FD_TYPE_UNKNOWN);
+}
+
 // since windows doesn't allow open(directory),
 // we record both DIR* and fd in this slot array
-ulong_ptr g_fdSlots[SCE_FD_MAX] = { 0 };
+MapSlot<FdItem, decltype(isEmptyFdItem)> g_fdSlots(SCE_FD_MAX, isEmptyFdItem);
 
-inline uint getEmptySlotIdx()
-{
-	uint idx = 0;
-	// note, we shouldn't use index 0, it's an invalid fd
-	for (uint i = 1; i != SCE_FD_MAX; ++i)
-	{
-		if (g_fdSlots[i] != NULL)
-		{
-			continue;
-		}
-		idx = i;
-		break;
-	}
-
-	if (idx == 0)
-	{
-		LOG_ERR("exceed max fd count.");
-	}
-
-	return idx;
-}
-
-inline bool isDirFd(uint idx)
-{
-	bool isDir = false;
-	do 
-	{
-		if (idx >= SCE_FD_MAX)
-		{
-			LOG_ERR("exceed max fd count.");
-			break;
-		}
-
-		// for dir, we store DIR* in slots
-		// and for x64 program, pointer value > 0xFFFFFFFF
-		if (g_fdSlots[idx] > 0xFFFFFFFF)
-		{
-			isDir = true;
-			break;
-		}
-
-	} while (false);
-	return isDir;
-}
 
 inline bool getDirName(DIR* dir, char* dirname, int len)
 {
@@ -90,8 +66,9 @@ int PS4API sceKernelOpen(const char *path, int flags, SceKernelMode mode)
 {
 	LOG_SCE_TRACE("path %s flag %x mode %x", path, flags, mode);
 	std::string pcPath = UtilPath::PS4PathToPCPath(path);
+
 #ifdef GPCS4_WINDOWS
-	uint idx = getEmptySlotIdx();
+	int idx = g_fdSlots.GetEmptySlotIndex();
 	bool hasError = false;
 	if (flags & SCE_KERNEL_O_DIRECTORY)
 	{
@@ -101,7 +78,9 @@ int PS4API sceKernelOpen(const char *path, int flags, SceKernelMode mode)
 			LOG_WARN("open dir failed %s", path);
 			hasError = true;
 		}
-		g_fdSlots[idx] = (ulong_ptr)dir;
+		g_fdSlots[idx].fd = (ulong_ptr)dir;
+		g_fdSlots[idx].type = FD_TYPE_DIRECTORY;
+
 	}
 	else
 	{
@@ -113,11 +92,13 @@ int PS4API sceKernelOpen(const char *path, int flags, SceKernelMode mode)
 		{
 			LOG_WARN("open file failed %s", path);
 			hasError = true;
-			g_fdSlots[idx] = 0;
+			g_fdSlots[idx].fd = 0;
+			g_fdSlots[idx].type = FD_TYPE_UNKNOWN;
 		}
 		else
 		{
-			g_fdSlots[idx] = fd;
+			g_fdSlots[idx].fd = fd;
+			g_fdSlots[idx].type = FD_TYPE_FILE;
 		}
 	}
 
@@ -130,7 +111,7 @@ int PS4API sceKernelOpen(const char *path, int flags, SceKernelMode mode)
 ssize_t PS4API sceKernelRead(int d, void *buf, size_t nbytes)
 {
 	LOG_SCE_TRACE("d %d buff %p nbytes %x", d, buf, nbytes);
-	int fd = g_fdSlots[d];
+	int fd = g_fdSlots[d].fd;
 	return _read(fd, buf, nbytes);
 }
 
@@ -145,7 +126,7 @@ ssize_t PS4API sceKernelWrite(int d, const void *buf, size_t nbytes)
 sceoff_t PS4API sceKernelLseek(int fildes, sceoff_t offset, int whence)
 {
 	LOG_SCE_TRACE("fd %d off %d where %d", fildes, offset, whence);
-	int fd = g_fdSlots[fildes];
+	int fd = g_fdSlots[fildes].fd;
 	return _lseeki64(fd, offset, whence);
 }
 
@@ -156,19 +137,19 @@ int PS4API sceKernelClose(int d)
 
 #ifdef GPCS4_WINDOWS
 	int ret = -1;
-	bool isDir = isDirFd((uint)d);
-	if (isDir)
+	FdItem& item = g_fdSlots[d];
+	if (item.type == FD_TYPE_DIRECTORY)
 	{
-		DIR* dir = (DIR*)g_fdSlots[d];
+		DIR* dir = (DIR*)item.fd;
 		closedir(dir);
 	}
 	else
 	{
-		int fd = g_fdSlots[d];
+		int fd = item.fd;
 		_close(fd);
 	}
 
-	g_fdSlots[d] = 0;
+	g_fdSlots[d] = {0, FD_TYPE_UNKNOWN};
 	return ret;
 #endif  //GPCS4_WINDOWS
 }
@@ -232,11 +213,11 @@ int PS4API sceKernelFstat(int fd, SceKernelStat *sb)
 
 #ifdef GPCS4_WINDOWS
 	int ret = -1;
-	bool isDir = isDirFd((uint)fd);
-	if (isDir)
+	FdItem& item = g_fdSlots[fd];
+	if (item.type == FD_TYPE_DIRECTORY)
 	{
 		char dir_path[SCE_MAX_PATH] = { 0 };
-		getDirName((DIR*)g_fdSlots[fd], dir_path, SCE_MAX_PATH);
+		getDirName((DIR*)item.fd, dir_path, SCE_MAX_PATH);
 		struct _stat stat;
 		ret = _stat(dir_path, &stat);
 		sb->st_mode = getSceFileMode(stat.st_mode);
@@ -251,7 +232,7 @@ int PS4API sceKernelFstat(int fd, SceKernelStat *sb)
 	}
 	else
 	{
-		int pcFd = g_fdSlots[fd];
+		int pcFd = item.fd;
 		struct _stat stat;
 		ret = _fstat(pcFd, &stat);
 		sb->st_mode = getSceFileMode(stat.st_mode);
@@ -317,14 +298,14 @@ int PS4API sceKernelGetdents(int fd, char *buf, int nbytes)
 	int ret = SCE_KERNEL_ERROR_EBADF;
 	do 
 	{
-		bool isDir = isDirFd((uint)fd);
-		if (!isDir)
+		FdItem& item = g_fdSlots[fd];
+		if (item.type != FD_TYPE_DIRECTORY)
 		{
 			ret = SCE_KERNEL_ERROR_EINVAL;
 			break;
 		}
 
-		DIR* dir = (DIR*)g_fdSlots[fd];
+		DIR* dir = (DIR*)item.fd;
 		dirent *ent;
 		ent = readdir(dir);
 		if (!ent)
