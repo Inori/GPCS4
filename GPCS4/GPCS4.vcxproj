@@ -109,6 +109,7 @@
     <ClInclude Include="Graphic\SpirV\SpirvInclude.h" />
     <ClInclude Include="Graphic\SpirV\SpirvInstruction.h" />
     <ClInclude Include="Graphic\SpirV\SpirvModule.h" />
+    <ClInclude Include="GveVkLayers.h" />
     <ClInclude Include="Loader\EbootObject.h" />
     <ClInclude Include="Loader\elf.h" />
     <ClInclude Include="Platform\PlatformUtils.h" />

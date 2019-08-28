@@ -1,14 +1,10 @@
 #include "GveInstance.h"
-
+#include "GveVkLayers.h"
 #include <iostream>
 
 namespace gve
 {;
 
-const std::vector<const char*> validationLayers = 
-{
-	"VK_LAYER_KHRONOS_validation"
-};
 
 CGveInstance::CGveInstance(const std::vector<const char*>& requiredExtensions)
 {
@@ -17,6 +13,8 @@ CGveInstance::CGveInstance(const std::vector<const char*>& requiredExtensions)
 #ifdef GVE_VALIDATION_LAYERS_ENABLE
 	setupDebugMessenger();
 #endif // GVE_VALIDATION_LAYERS_ENABLE
+
+	enumPhysicalDevices();
 }
 
 CGveInstance::~CGveInstance()
@@ -32,6 +30,16 @@ CGveInstance::~CGveInstance()
 CGveInstance::operator VkInstance() const
 {
 	return m_instance;
+}
+
+uint32_t CGveInstance::physicalDeviceCount() const
+{
+	return m_phyDevices.size();
+}
+
+RcPtr<gve::GvePhysicalDevice> CGveInstance::getPhysicalDevice(uint32_t index)
+{
+	return m_phyDevices[index];
 }
 
 void CGveInstance::createInstance(const std::vector<const char*>& requiredExtensions)
@@ -191,6 +199,25 @@ VKAPI_ATTR VkBool32 VKAPI_CALL CGveInstance::debugCallback(VkDebugUtilsMessageSe
 {
 	std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
 	return VK_FALSE;
+}
+
+void CGveInstance::enumPhysicalDevices()
+{
+	uint32_t deviceCount = 0;
+	vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr);
+
+	if (deviceCount == 0) {
+		throw std::runtime_error("failed to find GPUs with Vulkan support!");
+	}
+
+	std::vector<VkPhysicalDevice> vkDevices(deviceCount);
+	vkEnumeratePhysicalDevices(m_instance, &deviceCount, vkDevices.data());
+
+	m_phyDevices.resize(deviceCount);
+	for (auto& device : vkDevices)
+	{
+		m_phyDevices.push_back(new GvePhysicalDevice(device));
+	}
 }
 
 }  // gve

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "GveCommon.h"
+#include "GvePhysicalDevice.h"
+
 #include <vector>
 
 namespace gve
@@ -14,6 +16,10 @@ public:
 	~CGveInstance();
 
 	operator VkInstance() const;
+
+	uint32_t physicalDeviceCount() const;
+
+	RcPtr<GvePhysicalDevice> getPhysicalDevice(uint32_t index);
 
 private:
 
@@ -36,7 +42,13 @@ private:
 		void* pUserData);
 
 private:
+
+	void enumPhysicalDevices();
+
+private:
 	VkInstance m_instance = VK_NULL_HANDLE;
+
+	std::vector<RcPtr<GvePhysicalDevice>> m_phyDevices;
 
 #ifdef GVE_VALIDATION_LAYERS_ENABLE
 	VkDebugUtilsMessengerEXT m_debugMessenger = VK_NULL_HANDLE;
