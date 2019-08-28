@@ -15,7 +15,7 @@ public:
 	GveInstance(const std::vector<const char*>& requiredExtensions);
 	~GveInstance();
 
-	operator VkInstance() const;
+	explicit operator VkInstance() const;
 
 	uint32_t physicalDeviceCount() const;
 

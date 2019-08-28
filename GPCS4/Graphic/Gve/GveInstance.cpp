@@ -216,7 +216,7 @@ void GveInstance::enumPhysicalDevices()
 	m_phyDevices.resize(deviceCount);
 	for (auto& device : vkDevices)
 	{
-		m_phyDevices.push_back(new GvePhysicalDevice(device));
+		m_phyDevices.push_back(new GvePhysicalDevice(this, device));
 	}
 }
 

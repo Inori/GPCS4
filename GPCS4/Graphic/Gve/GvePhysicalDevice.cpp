@@ -27,7 +27,7 @@ GvePhysicalDevice::operator VkPhysicalDevice() const
 	return m_device;
 }
 
-gve::GveInstance* GvePhysicalDevice::getInstance() const
+GveInstance* GvePhysicalDevice::getInstance() const
 {
 	return m_instance;
 }
