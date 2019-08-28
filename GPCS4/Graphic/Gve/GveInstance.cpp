@@ -6,7 +6,7 @@ namespace gve
 {;
 
 
-CGveInstance::CGveInstance(const std::vector<const char*>& requiredExtensions)
+GveInstance::GveInstance(const std::vector<const char*>& requiredExtensions)
 {
 	createInstance(requiredExtensions);
 
@@ -17,7 +17,7 @@ CGveInstance::CGveInstance(const std::vector<const char*>& requiredExtensions)
 	enumPhysicalDevices();
 }
 
-CGveInstance::~CGveInstance()
+GveInstance::~GveInstance()
 {
 
 #ifdef GVE_VALIDATION_LAYERS_ENABLE
@@ -27,22 +27,22 @@ CGveInstance::~CGveInstance()
 	vkDestroyInstance(m_instance, nullptr);
 }
 
-CGveInstance::operator VkInstance() const
+GveInstance::operator VkInstance() const
 {
 	return m_instance;
 }
 
-uint32_t CGveInstance::physicalDeviceCount() const
+uint32_t GveInstance::physicalDeviceCount() const
 {
 	return m_phyDevices.size();
 }
 
-RcPtr<gve::GvePhysicalDevice> CGveInstance::getPhysicalDevice(uint32_t index)
+RcPtr<gve::GvePhysicalDevice> GveInstance::getPhysicalDevice(uint32_t index)
 {
 	return m_phyDevices[index];
 }
 
-void CGveInstance::createInstance(const std::vector<const char*>& requiredExtensions)
+void GveInstance::createInstance(const std::vector<const char*>& requiredExtensions)
 {
 	do 
 	{
@@ -100,7 +100,7 @@ void CGveInstance::createInstance(const std::vector<const char*>& requiredExtens
 	} while (false);
 }
 
-void CGveInstance::setupDebugMessenger()
+void GveInstance::setupDebugMessenger()
 {
 #ifdef GVE_VALIDATION_LAYERS_ENABLE
 	do 
@@ -120,7 +120,7 @@ void CGveInstance::setupDebugMessenger()
 #endif // GVE_VALIDATION_LAYERS_ENABLE
 }
 
-bool CGveInstance::checkValidationLayerSupport()
+bool GveInstance::checkValidationLayerSupport()
 {
 	bool support = true;
 	do 
@@ -154,7 +154,7 @@ bool CGveInstance::checkValidationLayerSupport()
 	return support;
 }
 
-void CGveInstance::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo)
+void GveInstance::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo)
 {
 	createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
@@ -163,7 +163,7 @@ void CGveInstance::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateI
 	createInfo.pfnUserCallback = debugCallback;
 }
 
-VkResult CGveInstance::createDebugUtilsMessengerEXT(const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger)
+VkResult GveInstance::createDebugUtilsMessengerEXT(const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger)
 {
 	VkResult ret = VK_ERROR_EXTENSION_NOT_PRESENT;
 	do 
@@ -180,7 +180,7 @@ VkResult CGveInstance::createDebugUtilsMessengerEXT(const VkDebugUtilsMessengerC
 	return ret;
 }
 
-void CGveInstance::destroyDebugUtilsMessengerEXT(VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator)
+void GveInstance::destroyDebugUtilsMessengerEXT(VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator)
 {
 	do 
 	{
@@ -195,13 +195,13 @@ void CGveInstance::destroyDebugUtilsMessengerEXT(VkDebugUtilsMessengerEXT debugM
 	} while (false);
 }
 
-VKAPI_ATTR VkBool32 VKAPI_CALL CGveInstance::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
+VKAPI_ATTR VkBool32 VKAPI_CALL GveInstance::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
 {
 	std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
 	return VK_FALSE;
 }
 
-void CGveInstance::enumPhysicalDevices()
+void GveInstance::enumPhysicalDevices()
 {
 	uint32_t deviceCount = 0;
 	vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr);

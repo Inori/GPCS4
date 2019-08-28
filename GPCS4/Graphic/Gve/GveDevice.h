@@ -11,6 +11,8 @@ public:
 	GveDevice(VkDevice device);
 	~GveDevice();
 
+	operator VkDevice() const;
+
 private:
 	VkDevice m_device;
 };

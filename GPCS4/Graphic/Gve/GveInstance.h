@@ -9,11 +9,11 @@ namespace gve
 {;
 
 
-class CGveInstance : public RcObject
+class GveInstance : public RcObject
 {
 public:
-	CGveInstance(const std::vector<const char*>& requiredExtensions);
-	~CGveInstance();
+	GveInstance(const std::vector<const char*>& requiredExtensions);
+	~GveInstance();
 
 	operator VkInstance() const;
 

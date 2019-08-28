@@ -10,7 +10,8 @@ const std::vector<const char*> deviceExtensions =
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
 
-GvePhysicalDevice::GvePhysicalDevice(VkPhysicalDevice device):
+GvePhysicalDevice::GvePhysicalDevice(GveInstance* instance, VkPhysicalDevice device):
+	m_instance(instance),
 	m_device(device)
 {
 
@@ -26,6 +27,11 @@ GvePhysicalDevice::operator VkPhysicalDevice() const
 	return m_device;
 }
 
+gve::GveInstance* GvePhysicalDevice::getInstance() const
+{
+	return m_instance;
+}
+
 std::vector<VkQueueFamilyProperties> GvePhysicalDevice::getQueueFamilies()
 {
 	uint32_t queueFamilyCount = 0;
@@ -37,13 +43,43 @@ std::vector<VkQueueFamilyProperties> GvePhysicalDevice::getQueueFamilies()
 	return queueFamilies;
 }
 
-RcPtr<GveDevice> GvePhysicalDevice::createLogicalDevice(uint32_t graphicsFamily, uint32_t presentFamily)
+QueueFamilyIndices GvePhysicalDevice::getSuitableQueueIndices(VkSurfaceKHR presentSurface)
+{
+	QueueFamilyIndices indices;
+	auto queueFamilies = getQueueFamilies();
+	int i = 0;
+	for (const auto& queueFamily : queueFamilies) 
+	{
+		if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) 
+		{
+			indices.graphicsFamily = i;
+		}
+
+		VkBool32 presentSupport = false;
+		vkGetPhysicalDeviceSurfaceSupportKHR(m_device, i, presentSurface, &presentSupport);
+
+		if (queueFamily.queueCount > 0 && presentSupport)
+		{
+			indices.presentFamily = i;
+		}
+
+		if (indices.isComplete()) 
+		{
+			break;
+		}
+
+		i++;
+	}
+	return indices;
+}
+
+RcPtr<GveDevice> GvePhysicalDevice::createLogicalDevice(QueueFamilyIndices& indices)
 {
 	RcPtr<GveDevice> createdDevice;
 	do 
 	{
 		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-		std::set<uint32_t> uniqueQueueFamilies = { graphicsFamily, presentFamily };
+		std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
 		float queuePriority = 1.0f;
 		for (uint32_t queueFamily : uniqueQueueFamilies)

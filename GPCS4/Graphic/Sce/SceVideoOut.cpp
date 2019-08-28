@@ -1,5 +1,8 @@
 #include "SceVideoOut.h"
 
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+
 namespace sce
 {;
 
@@ -45,18 +48,11 @@ void SceVideoOut::getFramebufferSize(uint32_t& width, uint32_t& height)
 	glfwGetFramebufferSize(m_window, (int*)&width, (int*)&height);
 }
 
-bool SceVideoOut::getSurface(VkInstance instance, VkSurfaceKHR& surface)
+VkSurfaceKHR SceVideoOut::getSurface(VkInstance instance)
 {
-	bool bRet = false;
-	do
-	{
-		if (glfwCreateWindowSurface(instance, m_window, nullptr, &surface) != VK_SUCCESS)
-		{
-			break;
-		}
-		bRet  = true;
-	}while(false);
-	return bRet;
+	VkSurfaceKHR surface = VK_NULL_HANDLE;
+	glfwCreateWindowSurface(instance, m_window, nullptr, &surface);
+	return surface;
 }
 
 std::vector<const char*> SceVideoOut::getExtensions()

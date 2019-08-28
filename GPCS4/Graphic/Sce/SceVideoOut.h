@@ -1,11 +1,10 @@
 #pragma once
 
 #include "GPCS4Common.h"
-
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-
+#include "../Gve/GveCommon.h"
 #include <vector>
+
+class GLFWwindow;
 
 namespace sce 
 {;
@@ -35,7 +34,7 @@ public:
 
 	void getFramebufferSize(uint32_t& width, uint32_t& height);
 
-	bool getSurface(VkInstance instance, VkSurfaceKHR& surface);
+	VkSurfaceKHR getSurface(VkInstance instance);
 
 	std::vector<const char*> getExtensions();
 

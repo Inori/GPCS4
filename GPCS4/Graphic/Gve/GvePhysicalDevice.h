@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GveCommon.h"
+#include "GveInstance.h"
 #include "GveDevice.h"
 
 #include <vector>
@@ -24,17 +25,21 @@ struct QueueFamilyIndices
 class GvePhysicalDevice : public RcObject
 {
 public:
-	GvePhysicalDevice(VkPhysicalDevice device);
+	GvePhysicalDevice(GveInstance* instance, VkPhysicalDevice device);
 	~GvePhysicalDevice();
 
 	operator VkPhysicalDevice() const;
 
+	GveInstance* getInstance() const;
+
 	std::vector<VkQueueFamilyProperties> getQueueFamilies();
 
-	RcPtr<GveDevice> createLogicalDevice(uint32_t graphicsFamily, uint32_t presentFamily);
+	QueueFamilyIndices getSuitableQueueIndices(VkSurfaceKHR presentSurface);
+
+	RcPtr<GveDevice> createLogicalDevice(QueueFamilyIndices& indices);
 
 private:
-
+	GveInstance* m_instance;
 	VkPhysicalDevice m_device;
 };
 

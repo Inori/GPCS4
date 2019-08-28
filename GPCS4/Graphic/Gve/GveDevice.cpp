@@ -15,4 +15,9 @@ GveDevice::~GveDevice()
 
 }
 
+GveDevice::operator VkDevice() const
+{
+	return m_device;
+}
+
 } // namespace gve
