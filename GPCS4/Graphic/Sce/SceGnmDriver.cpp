@@ -41,6 +41,8 @@ SceGnmDriver::~SceGnmDriver()
 
 bool SceGnmDriver::initDriver(uint32_t bufferNum)
 {
+	// Initialize command buffers and command parsers
+	// according to bufferNum
 	m_commandBuffers.resize(bufferNum);
 	for (auto& cmd : m_commandBuffers)
 	{
@@ -53,6 +55,7 @@ bool SceGnmDriver::initDriver(uint32_t bufferNum)
 		m_commandParsers[i] = std::make_unique<GnmCmdStream>(m_commandBuffers[i]);
 	}
 
+	// Create our swapchain
 	m_swapchain = new GveSwapChain(m_physDevice, m_device, m_videoOut, bufferNum);
 	return true;
 }

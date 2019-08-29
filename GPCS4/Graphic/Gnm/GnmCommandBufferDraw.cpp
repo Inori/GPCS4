@@ -1,13 +1,15 @@
 #include "GnmCommandBufferDraw.h"
-#include "Platform/PlatformUtils.h"
 #include "GnmSharpBuffer.h"
+
 #include "../Pssl/PsslShaderModule.h"
 
-// For test
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image/stb_image.h"
-#include "stb_image/stb_image_write.h"
+#include "Platform/PlatformUtils.h"
+
+//// For test
+//#define STB_IMAGE_WRITE_IMPLEMENTATION
+//#define STB_IMAGE_IMPLEMENTATION
+//#include "stb_image/stb_image.h"
+//#include "stb_image/stb_image_write.h"
 
 GnmCommandBufferDraw::GnmCommandBufferDraw():
 	m_vsCode(nullptr),
