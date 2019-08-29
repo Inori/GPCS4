@@ -17,6 +17,7 @@ GveSwapChain::GveSwapChain(RcPtr<GvePhysicalDevice>& phyDevice,
 
 GveSwapChain::~GveSwapChain()
 {
+	vkDestroySwapchainKHR(*m_logicalDevice, m_swapchain, nullptr);
 }
 
 
@@ -36,9 +37,9 @@ void GveSwapChain::createSwapChain()
 			imageCount = swapChainSupport.capabilities.maxImageCount;
 		}
 
-		VkInstance instance = m_phyDevice->getInstance()->instance();
+		GveInstance* instance = m_phyDevice->getInstance();
 		VkDevice device = *m_logicalDevice;
-		VkSurfaceKHR surface = m_videoOut->getSurface(instance);
+		VkSurfaceKHR surface = m_videoOut->getSurface(*instance);
 
 		VkSwapchainCreateInfoKHR createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -91,9 +92,9 @@ SwapChainSupportDetails GveSwapChain::querySwapChainSupport()
 
 	do 
 	{
-		VkInstance instance = m_phyDevice->getInstance()->instance();
+		GveInstance* instance = m_phyDevice->getInstance();
 		VkPhysicalDevice device = *m_phyDevice;
-		VkSurfaceKHR surface = m_videoOut->getSurface(instance);
+		VkSurfaceKHR surface = m_videoOut->getSurface(*instance);
 
 		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities);
 
