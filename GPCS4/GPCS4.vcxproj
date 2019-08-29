@@ -53,6 +53,7 @@
     <ClInclude Include="Graphic\Gve\GvePhysicalDevice.h" />
     <ClInclude Include="Graphic\Gve\GveShader.h" />
     <ClInclude Include="Graphic\Gve\GveSwapChain.h" />
+    <ClInclude Include="Graphic\Gve\GveVkLayers.h" />
     <ClInclude Include="Graphic\Pssl\GCNParser\DeviceInfo.h" />
     <ClInclude Include="Graphic\Pssl\GCNParser\DSInstruction.h" />
     <ClInclude Include="Graphic\Pssl\GCNParser\EXPInstruction.h" />
@@ -109,7 +110,6 @@
     <ClInclude Include="Graphic\SpirV\SpirvInclude.h" />
     <ClInclude Include="Graphic\SpirV\SpirvInstruction.h" />
     <ClInclude Include="Graphic\SpirV\SpirvModule.h" />
-    <ClInclude Include="GveVkLayers.h" />
     <ClInclude Include="Loader\EbootObject.h" />
     <ClInclude Include="Loader\elf.h" />
     <ClInclude Include="Platform\PlatformUtils.h" />

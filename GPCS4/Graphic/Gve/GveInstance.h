@@ -8,14 +8,13 @@
 namespace gve
 {;
 
-
 class GveInstance : public RcObject
 {
 public:
 	GveInstance(const std::vector<const char*>& requiredExtensions);
 	~GveInstance();
 
-	explicit operator VkInstance() const;
+	VkInstance instance();
 
 	uint32_t physicalDeviceCount() const;
 

@@ -27,7 +27,8 @@ GveInstance::~GveInstance()
 	vkDestroyInstance(m_instance, nullptr);
 }
 
-GveInstance::operator VkInstance() const
+
+VkInstance GveInstance::instance()
 {
 	return m_instance;
 }

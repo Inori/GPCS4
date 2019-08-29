@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GveCommon.h"
-#include "GvePhysicalDevice.h"
+#include "GveInstance.h"
 #include "GveDevice.h"
 #include "../Sce/SceVideoOut.h"
 

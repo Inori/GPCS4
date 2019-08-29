@@ -1,7 +1,6 @@
 #pragma once
 
 #include "GveCommon.h"
-#include "GveInstance.h"
 #include "GveDevice.h"
 
 #include <vector>
@@ -9,6 +8,8 @@
 
 namespace gve
 {;
+
+class GveInstance;
 
 struct QueueFamilyIndices 
 {

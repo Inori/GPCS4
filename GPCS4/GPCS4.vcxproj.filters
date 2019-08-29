@@ -685,7 +685,7 @@
     <ClInclude Include="Graphic\Gve\GveCommon.h">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClInclude>
-    <ClInclude Include="GveVkLayers.h">
+    <ClInclude Include="Graphic\Gve\GveVkLayers.h">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClInclude>
   </ItemGroup>
