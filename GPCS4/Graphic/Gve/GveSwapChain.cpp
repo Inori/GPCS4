@@ -6,13 +6,14 @@ namespace gve
 
 GveSwapChain::GveSwapChain(RcPtr<GvePhysicalDevice>& phyDevice,
 	RcPtr<GveDevice>& logicDevice,
-	std::shared_ptr<sce::SceVideoOut>& videoOut) :
+	std::shared_ptr<sce::SceVideoOut>& videoOut,
+	uint32_t imageCount) :
 	m_swapchain(VK_NULL_HANDLE),
 	m_phyDevice(phyDevice),
 	m_logicalDevice(logicDevice),
 	m_videoOut(videoOut)
 {
-	createSwapChain();
+	createSwapChain(imageCount);
 }
 
 GveSwapChain::~GveSwapChain()
@@ -20,27 +21,25 @@ GveSwapChain::~GveSwapChain()
 	vkDestroySwapchainKHR(*m_logicalDevice, m_swapchain, nullptr);
 }
 
-
-
-void GveSwapChain::createSwapChain()
+void GveSwapChain::createSwapChain(uint32_t imageCount)
 {
 	do 
 	{
-		SwapChainSupportDetails swapChainSupport = querySwapChainSupport();
+		GveInstance* instance = m_phyDevice->getInstance();
+		VkDevice device = *m_logicalDevice;
+		VkSurfaceKHR surface = m_videoOut->getSurface(*instance);
+
+		SwapChainSupportDetails swapChainSupport = querySwapChainSupport(*m_phyDevice, surface);
 
 		VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
 		VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
 		VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
 
-		uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
+		//imageCount = swapChainSupport.capabilities.minImageCount + 1;
 		if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount)
 		{
 			imageCount = swapChainSupport.capabilities.maxImageCount;
 		}
-
-		GveInstance* instance = m_phyDevice->getInstance();
-		VkDevice device = *m_logicalDevice;
-		VkSurfaceKHR surface = m_videoOut->getSurface(*instance);
 
 		VkSwapchainCreateInfoKHR createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -87,16 +86,12 @@ void GveSwapChain::createSwapChain()
 	} while (false);
 }
 
-SwapChainSupportDetails GveSwapChain::querySwapChainSupport()
+SwapChainSupportDetails GveSwapChain::querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface)
 {
 	SwapChainSupportDetails details;
 
 	do 
 	{
-		GveInstance* instance = m_phyDevice->getInstance();
-		VkPhysicalDevice device = *m_phyDevice;
-		VkSurfaceKHR surface = m_videoOut->getSurface(*instance);
-
 		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities);
 
 		uint32_t formatCount;
@@ -120,8 +115,6 @@ SwapChainSupportDetails GveSwapChain::querySwapChainSupport()
 		vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, details.presentModes.data());
 
 	} while (false);
-
-
 
 	return details;
 }

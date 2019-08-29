@@ -50,9 +50,11 @@ void SceVideoOut::getFramebufferSize(uint32_t& width, uint32_t& height)
 
 VkSurfaceKHR SceVideoOut::getSurface(VkInstance instance)
 {
-	VkSurfaceKHR surface = VK_NULL_HANDLE;
-	glfwCreateWindowSurface(instance, m_window, nullptr, &surface);
-	return surface;
+	if (m_windowSurface == VK_NULL_HANDLE)
+	{
+		glfwCreateWindowSurface(instance, m_window, nullptr, &m_windowSurface);
+	}
+	return m_windowSurface;
 }
 
 std::vector<const char*> SceVideoOut::getExtensions()

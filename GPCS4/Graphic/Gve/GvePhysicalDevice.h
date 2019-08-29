@@ -35,9 +35,14 @@ public:
 
 	std::vector<VkQueueFamilyProperties> getQueueFamilies();
 
+	std::vector<VkExtensionProperties> getAvailableExtensions();
+
+	VkPhysicalDeviceFeatures getFeatures();
+
 	QueueFamilyIndices getSuitableQueueIndices(VkSurfaceKHR presentSurface);
 
-	RcPtr<GveDevice> createLogicalDevice(QueueFamilyIndices& indices);
+	RcPtr<GveDevice> createLogicalDevice(QueueFamilyIndices& indices,
+		const std::vector<const char*>& deviceExtensions);
 
 private:
 	GveInstance* m_instance;

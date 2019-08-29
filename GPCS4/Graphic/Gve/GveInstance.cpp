@@ -206,14 +206,12 @@ void GveInstance::enumPhysicalDevices()
 	uint32_t deviceCount = 0;
 	vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr);
 
-	if (deviceCount == 0) {
-		throw std::runtime_error("failed to find GPUs with Vulkan support!");
-	}
+	LOG_ASSERT(deviceCount != 0, "0 physical device count.");
 
 	std::vector<VkPhysicalDevice> vkDevices(deviceCount);
 	vkEnumeratePhysicalDevices(m_instance, &deviceCount, vkDevices.data());
 
-	m_phyDevices.resize(deviceCount);
+	m_phyDevices.reserve(deviceCount);
 	for (auto& device : vkDevices)
 	{
 		m_phyDevices.push_back(new GvePhysicalDevice(this, device));

@@ -53,6 +53,7 @@ private:
 	uint32_t m_width;
 	uint32_t m_height;
 
+	VkSurfaceKHR m_windowSurface = VK_NULL_HANDLE;
 	bool m_framebufferResized;
 };
 

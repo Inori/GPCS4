@@ -5,10 +5,6 @@
 namespace gve
 {;
 
-const std::vector<const char*> deviceExtensions = 
-{
-	VK_KHR_SWAPCHAIN_EXTENSION_NAME
-};
 
 GvePhysicalDevice::GvePhysicalDevice(GveInstance* instance, VkPhysicalDevice device):
 	m_instance(instance),
@@ -43,6 +39,24 @@ std::vector<VkQueueFamilyProperties> GvePhysicalDevice::getQueueFamilies()
 	return queueFamilies;
 }
 
+std::vector<VkExtensionProperties> GvePhysicalDevice::getAvailableExtensions()
+{
+	uint32_t extensionCount;
+	vkEnumerateDeviceExtensionProperties(m_device, nullptr, &extensionCount, nullptr);
+
+	std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+	vkEnumerateDeviceExtensionProperties(m_device, nullptr, &extensionCount, availableExtensions.data());
+
+	return availableExtensions;
+}
+
+VkPhysicalDeviceFeatures GvePhysicalDevice::getFeatures()
+{
+	VkPhysicalDeviceFeatures supportedFeatures;
+	vkGetPhysicalDeviceFeatures(m_device, &supportedFeatures);
+	return supportedFeatures;
+}
+
 QueueFamilyIndices GvePhysicalDevice::getSuitableQueueIndices(VkSurfaceKHR presentSurface)
 {
 	QueueFamilyIndices indices;
@@ -73,7 +87,8 @@ QueueFamilyIndices GvePhysicalDevice::getSuitableQueueIndices(VkSurfaceKHR prese
 	return indices;
 }
 
-RcPtr<GveDevice> GvePhysicalDevice::createLogicalDevice(QueueFamilyIndices& indices)
+RcPtr<GveDevice> GvePhysicalDevice::createLogicalDevice(QueueFamilyIndices& indices,
+	const std::vector<const char*>& deviceExtensions)
 {
 	RcPtr<GveDevice> createdDevice;
 	do 

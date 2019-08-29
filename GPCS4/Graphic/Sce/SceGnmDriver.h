@@ -6,6 +6,9 @@
 #include "../Gnm/GnmCmdStream.h"
 #include "../Gnm/GnmCommandBufferDraw.h"
 
+#include "../Gve/GveInstance.h"
+#include "../Gve/GveSwapChain.h"
+
 #include <memory>
 
 namespace sce
@@ -17,7 +20,7 @@ public:
 	SceGnmDriver(std::shared_ptr<SceVideoOut>& videoOut);
 	~SceGnmDriver();
 
-	bool allocateCommandBuffers(uint32_t bufferNum);
+	bool initDriver(uint32_t bufferNum);
 
 	int submitAndFlipCommandBuffers(uint32_t count,
 		void *dcbGpuAddrs[], uint32_t *dcbSizesInBytes,
@@ -28,9 +31,19 @@ public:
 	int sceGnmSubmitDone(void);
 
 private:
+	RcPtr<gve::GvePhysicalDevice>  pickPhysicalDevice();
+	bool isDeviceSuitable(RcPtr<gve::GvePhysicalDevice>& device);
+	bool checkDeviceExtensionSupport(RcPtr<gve::GvePhysicalDevice>& device);
+
+private:
 	std::shared_ptr<SceVideoOut> m_videoOut;
 	std::vector<std::unique_ptr<GnmCmdStream>> m_commandParsers;
 	std::vector<std::shared_ptr<GnmCommandBuffer>> m_commandBuffers;
+
+	RcPtr<gve::GveInstance> m_instance;
+	RcPtr<gve::GvePhysicalDevice> m_physDevice;
+	RcPtr<gve::GveDevice> m_device;
+	RcPtr<gve::GveSwapChain> m_swapchain;
 };
 
 }  //sce

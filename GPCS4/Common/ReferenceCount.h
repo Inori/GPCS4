@@ -131,6 +131,8 @@ public:
 	bool operator == (std::nullptr_t) const { return m_pObject == nullptr; }
 	bool operator != (std::nullptr_t) const { return m_pObject != nullptr; }
 
+	operator bool() const { return m_pObject != nullptr; }
+
 private:
 
 	T* m_pObject = nullptr;

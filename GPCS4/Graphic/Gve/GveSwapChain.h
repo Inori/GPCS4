@@ -18,21 +18,22 @@ struct SwapChainSupportDetails
 	std::vector<VkPresentModeKHR> presentModes;
 };
 
-class GveSwapChain
+class GveSwapChain : public RcObject
 {
 public:
 	GveSwapChain(RcPtr<GvePhysicalDevice>& phyDevice,
 		RcPtr<GveDevice>& logicDevice,
-		std::shared_ptr<sce::SceVideoOut>& videoOut);
+		std::shared_ptr<sce::SceVideoOut>& videoOut,
+		uint32_t imageCount);
 	~GveSwapChain();
 
 	VkFormat imageFormat() const;
 
 	VkExtent2D extent() const;
 
+	static SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
 private:
-	void createSwapChain();
-	SwapChainSupportDetails querySwapChainSupport();
+	void createSwapChain(uint32_t imageCount);
 	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 	VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
 	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);

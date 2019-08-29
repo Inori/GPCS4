@@ -118,7 +118,7 @@ int PS4API sceVideoOutRegisterBuffers(int32_t handle, int32_t startIndex, void *
 			break;
 		}
 		
-		if (!gnmDriver->allocateCommandBuffers(bufferNum))
+		if (!gnmDriver->initDriver(bufferNum))
 		{
 			break;
 		}
