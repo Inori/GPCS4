@@ -21,6 +21,7 @@ GveSwapChain::~GveSwapChain()
 }
 
 
+
 void GveSwapChain::createSwapChain()
 {
 	do 
@@ -189,6 +190,17 @@ VkExtent2D GveSwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabi
 		extend = actualExtent;
 	}
 	return extend;
+}
+
+
+VkFormat GveSwapChain::imageFormat() const
+{
+	return m_swapChainImageFormat;
+}
+
+VkExtent2D GveSwapChain::extent() const
+{
+	return m_swapChainExtent;
 }
 
 }  // namespace gve

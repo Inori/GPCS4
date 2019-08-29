@@ -26,6 +26,10 @@ public:
 		std::shared_ptr<sce::SceVideoOut>& videoOut);
 	~GveSwapChain();
 
+	VkFormat imageFormat() const;
+
+	VkExtent2D extent() const;
+
 private:
 	void createSwapChain();
 	SwapChainSupportDetails querySwapChainSupport();
