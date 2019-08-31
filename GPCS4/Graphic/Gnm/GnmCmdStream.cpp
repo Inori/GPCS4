@@ -75,6 +75,8 @@ uint32_t GnmCmdStream::processPM4Type3(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBo
 
 	IT_OpCodeType opcode = (IT_OpCodeType)pm4Hdr->opcode;
 
+	LOG_DEBUG("OpCode Name %s", opcodeName(*(uint32_t*)pm4Hdr));
+
 	switch (opcode)
 	{
 	case IT_NOP:

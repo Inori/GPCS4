@@ -204,6 +204,7 @@
     <ClCompile Include="Graphic\Gnm\GnmCommandBuffer.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmCommandBufferDispatch.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmCommandBufferDraw.cpp" />
+    <ClCompile Include="Graphic\Gnm\GnmOpCode.cpp" />
     <ClCompile Include="Graphic\GraphicShared.cpp" />
     <ClCompile Include="Graphic\Gve\GveCommandBuffer.cpp" />
     <ClCompile Include="Graphic\Gve\GveDevice.cpp" />

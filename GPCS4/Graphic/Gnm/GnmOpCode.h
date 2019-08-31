@@ -187,6 +187,7 @@ enum IT_OpCodeType
 	IT_GNM_PRIVATE =						0x000000FF,
 };
 
+const char* opcodeName(uint32_t header);
 
 //////////////////////////////////////////////////////////////////////////
 // For private opcode type (IT_GNM_PRIVATE),

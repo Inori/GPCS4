@@ -10,7 +10,7 @@ public:
 	~GveCommandBuffer();
 
 private:
-
+	
 };
 
 

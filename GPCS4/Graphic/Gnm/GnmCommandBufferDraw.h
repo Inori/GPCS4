@@ -10,6 +10,7 @@
 
 // This class is designed for graphic development,
 // no reverse engining knowledge should be required.
+// What we need to do, is mapping Gnm command buffers to Vulkan command buffers.
 
 class GnmCommandBufferDraw : public GnmCommandBuffer
 {
