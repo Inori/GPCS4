@@ -16,6 +16,7 @@ public:
 	GveContex(RcPtr<GveDevice>& device);
 	~GveContex();
 
+
 private:
 	RcPtr<GveDevice> m_device;
 };
