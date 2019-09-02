@@ -48,9 +48,12 @@
     <ClInclude Include="Graphic\GraphicShared.h" />
     <ClInclude Include="Graphic\Gve\GveCommandBuffer.h" />
     <ClInclude Include="Graphic\Gve\GveCommon.h" />
+    <ClInclude Include="Graphic\Gve\GveContext.h" />
     <ClInclude Include="Graphic\Gve\GveDevice.h" />
+    <ClInclude Include="Graphic\Gve\GveFrameBuffer.h" />
     <ClInclude Include="Graphic\Gve\GveInstance.h" />
     <ClInclude Include="Graphic\Gve\GvePhysicalDevice.h" />
+    <ClInclude Include="Graphic\Gve\GveRenderPass.h" />
     <ClInclude Include="Graphic\Gve\GveShader.h" />
     <ClInclude Include="Graphic\Gve\GveSwapChain.h" />
     <ClInclude Include="Graphic\Gve\GveVkLayers.h" />
@@ -207,9 +210,12 @@
     <ClCompile Include="Graphic\Gnm\GnmOpCode.cpp" />
     <ClCompile Include="Graphic\GraphicShared.cpp" />
     <ClCompile Include="Graphic\Gve\GveCommandBuffer.cpp" />
+    <ClCompile Include="Graphic\Gve\GveContext.cpp" />
     <ClCompile Include="Graphic\Gve\GveDevice.cpp" />
+    <ClCompile Include="Graphic\Gve\GveFrameBuffer.cpp" />
     <ClCompile Include="Graphic\Gve\GveInstance.cpp" />
     <ClCompile Include="Graphic\Gve\GvePhysicalDevice.cpp" />
+    <ClCompile Include="Graphic\Gve\GveRenderPass.cpp" />
     <ClCompile Include="Graphic\Gve\GveShader.cpp" />
     <ClCompile Include="Graphic\Gve\GveSwapChain.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNCompilerDataShare.cpp" />

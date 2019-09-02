@@ -9,8 +9,9 @@ namespace gve
 
 class GveFrameBuffer
 {
+	friend class GveContex;
 public:
-	GveFrameBuffer(RcPtr<GveDevice>& device, 
+	GveFrameBuffer(const RcPtr<GveDevice>& device, 
 		VkRenderPass renderPass,
 		VkImageView swapChainImageView,
 		VkExtent2D& swapChainExtent);

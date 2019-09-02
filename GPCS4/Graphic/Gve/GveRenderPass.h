@@ -18,7 +18,7 @@ class GveRenderPass
 {
 public:
 	GveRenderPass(
-		RcPtr<GveDevice>& device,
+		const RcPtr<GveDevice>& device,
 		GveRenderPassFormat& fmt);
 	~GveRenderPass();
 

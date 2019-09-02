@@ -3,7 +3,7 @@
 namespace gve
 {;
 
-GveFrameBuffer::GveFrameBuffer(RcPtr<GveDevice>& device, VkRenderPass renderPass,
+GveFrameBuffer::GveFrameBuffer(const RcPtr<GveDevice>& device, VkRenderPass renderPass,
 	VkImageView swapChainImageView, VkExtent2D& swapChainExtent):
 	m_device(device),
 	m_renderPass(renderPass)

@@ -688,6 +688,15 @@
     <ClInclude Include="Graphic\Gve\GveVkLayers.h">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClInclude>
+    <ClInclude Include="Graphic\Gve\GveContext.h">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gve\GveFrameBuffer.h">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gve\GveRenderPass.h">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1244,6 +1253,15 @@
     </ClCompile>
     <ClCompile Include="Graphic\Gnm\GnmOpCode.cpp">
       <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gve\GveContext.cpp">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gve\GveFrameBuffer.cpp">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gve\GveRenderPass.cpp">
+      <Filter>Source Files\Graphic\Gve</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -4,7 +4,7 @@ namespace gve
 {;
 
 
-GveRenderPass::GveRenderPass(RcPtr<GveDevice>& device, GveRenderPassFormat& fmt):
+GveRenderPass::GveRenderPass(const RcPtr<GveDevice>& device, GveRenderPassFormat& fmt):
 	m_device(device)
 {
 	createRenderPass(fmt);

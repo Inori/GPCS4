@@ -13,8 +13,9 @@ class GveDevice;
 class GveContex
 {
 public:
-	GveContex(RcPtr<GveDevice>& device);
+	GveContex(const RcPtr<GveDevice>& device);
 	~GveContex();
+
 
 
 private:
