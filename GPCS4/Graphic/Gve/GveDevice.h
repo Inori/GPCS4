@@ -23,6 +23,8 @@ public:
 
 	RcPtr<GveFrameBuffer> createFrameBuffer(VkRenderPass renderPass, VkImageView imageView, VkExtent2D& extent);
 
+	RcPtr<GveCommandBuffer> createCommandBuffer();
+
 	RcPtr<GveContex> createContext();
 
 private:

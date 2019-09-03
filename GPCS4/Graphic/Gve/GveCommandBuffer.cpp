@@ -4,8 +4,10 @@ namespace gve
 {;
 
 
-GveCommandBuffer::GveCommandBuffer()
+GveCommandBuffer::GveCommandBuffer(const RcPtr<GveDevice>& device):
+	m_device(device)
 {
+
 }
 
 GveCommandBuffer::~GveCommandBuffer()

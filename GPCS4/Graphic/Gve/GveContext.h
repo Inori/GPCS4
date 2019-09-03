@@ -1,6 +1,8 @@
 #pragma once
 
 #include "GveCommon.h"
+#include "GveCommandBuffer.h"
+#include "GveFrameBuffer.h"
 
 namespace gve
 {;
@@ -16,10 +18,10 @@ public:
 	GveContex(const RcPtr<GveDevice>& device);
 	~GveContex();
 
-
-
 private:
 	RcPtr<GveDevice> m_device;
+	RcPtr<GveCommandBuffer> m_command;
+	RcPtr<GveFrameBuffer> m_frameBuffer;
 };
 
 
