@@ -1,5 +1,6 @@
 #include "GvePhysicalDevice.h"
 #include "GveVkLayers.h"
+#include "GveDevice.h"
 #include <set>
 
 namespace gve
@@ -10,7 +11,7 @@ GvePhysicalDevice::GvePhysicalDevice(GveInstance* instance, VkPhysicalDevice dev
 	m_instance(instance),
 	m_device(device)
 {
-
+	queryDeviceQueues();
 }
 
 GvePhysicalDevice::~GvePhysicalDevice()
@@ -28,15 +29,24 @@ GveInstance* GvePhysicalDevice::getInstance() const
 	return m_instance;
 }
 
-std::vector<VkQueueFamilyProperties> GvePhysicalDevice::getQueueFamilies()
+gve::GvePhysicalDeviceQueueFamilies GvePhysicalDevice::findQueueFamilies()
+{
+	uint32_t graphicsQueue = findQueueFamily(
+		VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT,
+		VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT);
+
+	GvePhysicalDeviceQueueFamilies queueFamilies;
+	queueFamilies.graphicsFamily = graphicsQueue;
+	return queueFamilies;
+}
+
+void GvePhysicalDevice::queryDeviceQueues()
 {
 	uint32_t queueFamilyCount = 0;
 	vkGetPhysicalDeviceQueueFamilyProperties(m_device, &queueFamilyCount, nullptr);
 
-	std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-	vkGetPhysicalDeviceQueueFamilyProperties(m_device, &queueFamilyCount, queueFamilies.data());
-
-	return queueFamilies;
+	m_queueFamilyProps.resize(queueFamilyCount);
+	vkGetPhysicalDeviceQueueFamilyProperties(m_device, &queueFamilyCount, m_queueFamilyProps.data());
 }
 
 std::vector<VkExtensionProperties> GvePhysicalDevice::getAvailableExtensions()
@@ -57,55 +67,18 @@ VkPhysicalDeviceFeatures GvePhysicalDevice::getFeatures()
 	return supportedFeatures;
 }
 
-QueueFamilyIndices GvePhysicalDevice::getSuitableQueueIndices(VkSurfaceKHR presentSurface)
-{
-	QueueFamilyIndices indices;
-	auto queueFamilies = getQueueFamilies();
-	int i = 0;
-	for (const auto& queueFamily : queueFamilies) 
-	{
-		if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) 
-		{
-			indices.graphicsFamily = i;
-		}
-
-		VkBool32 presentSupport = false;
-		vkGetPhysicalDeviceSurfaceSupportKHR(m_device, i, presentSurface, &presentSupport);
-
-		if (queueFamily.queueCount > 0 && presentSupport)
-		{
-			indices.presentFamily = i;
-		}
-
-		if (indices.isComplete()) 
-		{
-			break;
-		}
-
-		i++;
-	}
-	return indices;
-}
-
-RcPtr<GveDevice> GvePhysicalDevice::createLogicalDevice(QueueFamilyIndices& indices,
-	const std::vector<const char*>& deviceExtensions)
+RcPtr<GveDevice> GvePhysicalDevice::createLogicalDevice(const std::vector<const char*>& deviceExtensions)
 {
 	RcPtr<GveDevice> createdDevice;
 	do 
 	{
-		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-		std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
-
 		float queuePriority = 1.0f;
-		for (uint32_t queueFamily : uniqueQueueFamilies)
-		{
-			VkDeviceQueueCreateInfo queueCreateInfo = {};
-			queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-			queueCreateInfo.queueFamilyIndex = queueFamily;
-			queueCreateInfo.queueCount = 1;
-			queueCreateInfo.pQueuePriorities = &queuePriority;
-			queueCreateInfos.push_back(queueCreateInfo);
-		}
+		GvePhysicalDeviceQueueFamilies queueFamilies = findQueueFamilies();
+		VkDeviceQueueCreateInfo queueCreateInfo = {};
+		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		queueCreateInfo.queueFamilyIndex = queueFamilies.graphicsFamily;
+		queueCreateInfo.queueCount = 1;
+		queueCreateInfo.pQueuePriorities = &queuePriority;
 
 		VkPhysicalDeviceFeatures deviceFeatures = {};
 		deviceFeatures.samplerAnisotropy = VK_TRUE;
@@ -113,8 +86,8 @@ RcPtr<GveDevice> GvePhysicalDevice::createLogicalDevice(QueueFamilyIndices& indi
 		VkDeviceCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 
-		createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
-		createInfo.pQueueCreateInfos = queueCreateInfos.data();
+		createInfo.queueCreateInfoCount = 1;
+		createInfo.pQueueCreateInfos = &queueCreateInfo;
 
 		createInfo.pEnabledFeatures = &deviceFeatures;
 
@@ -138,10 +111,26 @@ RcPtr<GveDevice> GvePhysicalDevice::createLogicalDevice(QueueFamilyIndices& indi
 			break;
 		}
 
-		createdDevice = new GveDevice(logicalDevice);
+		createdDevice = new GveDevice(logicalDevice, this);
 	} while (false);
 
 	return createdDevice;
+}
+
+uint32_t GvePhysicalDevice::findQueueFamily(VkQueueFlags mask, VkQueueFlags flags)
+{
+	uint32_t index = VK_QUEUE_FAMILY_IGNORED;
+
+	for (uint32_t i = 0; i < m_queueFamilyProps.size(); i++)
+	{
+		if ((m_queueFamilyProps[i].queueFlags & mask) == flags)
+		{
+			index = i;
+			break;
+		}
+	}
+
+	return index;
 }
 
 } // namespace gve

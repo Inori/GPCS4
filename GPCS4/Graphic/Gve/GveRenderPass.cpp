@@ -1,4 +1,5 @@
 #include "GveRenderPass.h"
+#include "GveDevice.h"
 
 namespace gve
 {;

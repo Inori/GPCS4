@@ -21,8 +21,7 @@ struct SwapChainSupportDetails
 class GveSwapChain : public RcObject
 {
 public:
-	GveSwapChain(RcPtr<GvePhysicalDevice>& phyDevice,
-		RcPtr<GveDevice>& logicDevice,
+	GveSwapChain(RcPtr<GveDevice>& logicDevice,
 		std::shared_ptr<sce::SceVideoOut>& videoOut,
 		uint32_t imageCount);
 	~GveSwapChain();

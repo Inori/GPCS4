@@ -4,12 +4,10 @@
 namespace gve
 {;
 
-GveSwapChain::GveSwapChain(RcPtr<GvePhysicalDevice>& phyDevice,
-	RcPtr<GveDevice>& logicDevice,
+GveSwapChain::GveSwapChain(RcPtr<GveDevice>& logicDevice,
 	std::shared_ptr<sce::SceVideoOut>& videoOut,
 	uint32_t imageCount) :
 	m_swapchain(VK_NULL_HANDLE),
-	m_phyDevice(phyDevice),
 	m_logicalDevice(logicDevice),
 	m_videoOut(videoOut)
 {
@@ -51,21 +49,7 @@ void GveSwapChain::createSwapChain(uint32_t imageCount)
 		createInfo.imageExtent = extent;
 		createInfo.imageArrayLayers = 1;
 		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-
-		QueueFamilyIndices indices = m_phyDevice->getSuitableQueueIndices(surface);
-		uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
-
-		if (indices.graphicsFamily != indices.presentFamily)
-		{
-			createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-			createInfo.queueFamilyIndexCount = 2;
-			createInfo.pQueueFamilyIndices = queueFamilyIndices;
-		}
-		else 
-		{
-			createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-		}
-
+		createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
 		createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
 		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 		createInfo.presentMode = presentMode;

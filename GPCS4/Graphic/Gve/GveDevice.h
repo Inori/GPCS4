@@ -9,10 +9,23 @@
 namespace gve
 {;
 
+struct GveDeviceQueue 
+{
+	VkQueue   queueHandle = VK_NULL_HANDLE;
+	uint32_t  queueFamily = 0;
+	uint32_t  queueIndex = 0;
+};
+
+struct GveDeviceQueueSet 
+{
+	GveDeviceQueue graphics;
+};
+
+
 class GveDevice : public RcObject
 {
 public:
-	GveDevice(VkDevice device, RcPtr<GvePhysicalDevice>& phyDevice);
+	GveDevice(VkDevice device, const RcPtr<GvePhysicalDevice>& phyDevice);
 	~GveDevice();
 
 	operator VkDevice() const;
@@ -28,8 +41,12 @@ public:
 	RcPtr<GveContex> createContext();
 
 private:
+	void initQueues();
+
+private:
 	VkDevice m_device;
 	RcPtr<GvePhysicalDevice> m_phyDevice;
+	GveDeviceQueueSet m_queues;
 };
 
 } // namespace gve

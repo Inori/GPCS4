@@ -4,11 +4,11 @@ namespace gve
 {;
 
 
-GveDevice::GveDevice(VkDevice device, RcPtr<GvePhysicalDevice>& phyDevice):
+GveDevice::GveDevice(VkDevice device, const RcPtr<GvePhysicalDevice>& phyDevice):
 	m_device(device),
 	m_phyDevice(phyDevice)
 {
-
+	initQueues();
 }
 
 GveDevice::~GveDevice()
@@ -36,9 +36,23 @@ RcPtr<gve::GveFrameBuffer> GveDevice::createFrameBuffer(VkRenderPass renderPass,
 	return new GveFrameBuffer(this, renderPass, imageView, extent);
 }
 
+RcPtr<gve::GveCommandBuffer> GveDevice::createCommandBuffer()
+{
+
+}
+
 RcPtr<gve::GveContex> GveDevice::createContext()
 {
 	return new GveContex(this);
+}
+
+void GveDevice::initQueues()
+{
+	GvePhysicalDeviceQueueFamilies families = m_phyDevice->findQueueFamilies();
+	GveDeviceQueue& graphicQueue = m_queues.graphics;
+	graphicQueue.queueFamily = families.graphicsFamily;
+	graphicQueue.queueIndex = 0;
+	vkGetDeviceQueue(m_device, families.graphicsFamily, graphicQueue.queueIndex, &graphicQueue.queueHandle);
 }
 
 } // namespace gve

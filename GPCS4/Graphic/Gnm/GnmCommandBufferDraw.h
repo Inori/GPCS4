@@ -68,8 +68,6 @@ private:
 
 private:
 
-	gve::GveCommandBuffer m_cmd;
-
 	void* m_vsCode;
 	void* m_psCode;
 	UDSTVector m_vsUserDataSlotTable;

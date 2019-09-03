@@ -7,7 +7,7 @@ namespace gve
 {;
 
 
-class GveFrameBuffer
+class GveFrameBuffer : public RcObject
 {
 	friend class GveContex;
 public:

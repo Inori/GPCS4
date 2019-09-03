@@ -1,7 +1,6 @@
 #pragma once
 
 #include "GveCommon.h"
-#include "GveDevice.h"
 
 #include <vector>
 #include <optional>
@@ -10,16 +9,11 @@ namespace gve
 {;
 
 class GveInstance;
+class GveDevice;
 
-struct QueueFamilyIndices 
+struct GvePhysicalDeviceQueueFamilies
 {
-	std::optional<uint32_t> graphicsFamily;
-	std::optional<uint32_t> presentFamily;
-
-	bool isComplete() 
-	{
-		return graphicsFamily.has_value() && presentFamily.has_value();
-	}
+	uint32_t graphicsFamily;
 };
 
 
@@ -33,20 +27,23 @@ public:
 
 	GveInstance* getInstance() const;
 
-	std::vector<VkQueueFamilyProperties> getQueueFamilies();
+	GvePhysicalDeviceQueueFamilies findQueueFamilies();
 
 	std::vector<VkExtensionProperties> getAvailableExtensions();
 
 	VkPhysicalDeviceFeatures getFeatures();
 
-	QueueFamilyIndices getSuitableQueueIndices(VkSurfaceKHR presentSurface);
+	RcPtr<GveDevice> createLogicalDevice(const std::vector<const char*>& deviceExtensions);
 
-	RcPtr<GveDevice> createLogicalDevice(QueueFamilyIndices& indices,
-		const std::vector<const char*>& deviceExtensions);
+private:
+	void queryDeviceQueues();
+	uint32_t findQueueFamily(VkQueueFlags mask, VkQueueFlags flags);
 
 private:
 	GveInstance* m_instance;
 	VkPhysicalDevice m_device;
+	GvePhysicalDeviceQueueFamilies m_queueFamilies;
+	std::vector<VkQueueFamilyProperties> m_queueFamilyProps;
 };
 
 } // namespace gve

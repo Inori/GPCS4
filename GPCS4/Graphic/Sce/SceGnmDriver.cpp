@@ -27,9 +27,7 @@ SceGnmDriver::SceGnmDriver(std::shared_ptr<SceVideoOut>& videoOut):
 	LOG_ASSERT(m_physDevice != nullptr, "pick physical device failed.");
 
 	// Logical device
-	VkSurfaceKHR surface = m_videoOut->getSurface(*m_instance);
-	auto indices = m_physDevice->getSuitableQueueIndices(surface);
-	m_device = m_physDevice->createLogicalDevice(indices, deviceExtensions);
+	m_device = m_physDevice->createLogicalDevice(deviceExtensions);
 	LOG_ASSERT(m_device != nullptr, "create logical device failed.");
 }
 
@@ -56,7 +54,7 @@ bool SceGnmDriver::initDriver(uint32_t bufferNum)
 	}
 
 	// Create our swapchain
-	m_swapchain = new GveSwapChain(m_physDevice, m_device, m_videoOut, bufferNum);
+	m_swapchain = new GveSwapChain(m_device, m_videoOut, bufferNum);
 	return true;
 }
 
@@ -126,9 +124,8 @@ bool SceGnmDriver::isDeviceSuitable(RcPtr<gve::GvePhysicalDevice>& device)
 	}
 
 	VkPhysicalDeviceFeatures supportedFeatures = device->getFeatures();
-	auto indices = device->getSuitableQueueIndices(surface);
 
-	return indices.isComplete() && extensionsSupported && swapChainAdequate && supportedFeatures.samplerAnisotropy;
+	return extensionsSupported && swapChainAdequate && supportedFeatures.samplerAnisotropy;
 }
 
 bool SceGnmDriver::checkDeviceExtensionSupport(RcPtr<gve::GvePhysicalDevice>& device)

@@ -1,11 +1,11 @@
 #pragma once
 
 #include "GveCommon.h"
-#include "GveDevice.h"
 
 namespace gve
 {;
 
+class GveDevice;
 
 // Maybe need to update in the future.
 struct GveRenderPassFormat
@@ -14,7 +14,7 @@ struct GveRenderPassFormat
 };
 
 
-class GveRenderPass
+class GveRenderPass : public RcObject
 {
 public:
 	GveRenderPass(
