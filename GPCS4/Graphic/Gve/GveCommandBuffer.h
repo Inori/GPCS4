@@ -13,11 +13,12 @@ public:
 	~GveCommandBuffer();
 
 private:
-
+	bool initCommandBuffer();
 
 private:
-	const RcPtr<GveDevice>& m_device;
-	
+	RcPtr<GveDevice> m_device;
+	VkCommandPool m_pool = VK_NULL_HANDLE;
+	VkCommandBuffer m_cmd = VK_NULL_HANDLE;
 };
 
 
