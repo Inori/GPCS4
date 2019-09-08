@@ -11,6 +11,7 @@ GveSwapChain::GveSwapChain(RcPtr<GveDevice>& logicDevice,
 	m_logicalDevice(logicDevice),
 	m_videoOut(videoOut)
 {
+	m_phyDevice = m_logicalDevice->getPhysicalDevice();
 	createSwapChain(imageCount);
 }
 
