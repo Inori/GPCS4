@@ -16,6 +16,9 @@ Next I will focus on the shader translator.
 ## Build
 Currently, only Windows build is supported.  
 
+## Join
+If you want to join, keep the code style and make a pull request, I'll see.
+
 Visual Studio 2017  
 [LLVM/Clang](https://llvm.org/)  
 [LLVM Compiler Toolchain Extension](https://marketplace.visualstudio.com/items?itemName=LLVMExtensions.llvm-toolchain)  
