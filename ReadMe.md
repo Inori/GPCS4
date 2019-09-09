@@ -14,7 +14,7 @@ The renderer code is just some test code without any design, and full of bugs, b
 Next I will focus on the shader translator.
 
 ## Join
-If you want to join, keep the code style and make a pull request, I'll see.
+If you want to join, feel free to open an issue, or make a pull request while keeping the code style, I'll see it.
 
 ## Build
 Currently, only Windows build is supported.  
