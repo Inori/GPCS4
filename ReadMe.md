@@ -13,11 +13,11 @@ First texture rendered, [with hand write shaders](https://github.com/Inori/GPCS4
 The renderer code is just some test code without any design, and full of bugs, but I can get all the vertex buffers, textures and shader bytecode running so far.  
 Next I will focus on the shader translator.
 
-## Build
-Currently, only Windows build is supported.  
-
 ## Join
 If you want to join, keep the code style and make a pull request, I'll see.
+
+## Build
+Currently, only Windows build is supported.  
 
 Visual Studio 2017  
 [LLVM/Clang](https://llvm.org/)  
