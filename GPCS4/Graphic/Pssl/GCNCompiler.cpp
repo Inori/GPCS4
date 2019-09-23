@@ -17,7 +17,7 @@ GCNCompiler::GCNCompiler(const PsslProgramInfo& progInfo):
 
 GCNCompiler::GCNCompiler(const PsslProgramInfo& progInfo, const std::vector<VertexInputSemantic>& inputSemantic):
 	m_programInfo(progInfo),
-	m_vsInputSemantic(m_vsInputSemantic)
+	m_vsInputSemantic(inputSemantic)
 {
 	// Declare an entry point ID. We'll need it during the
 	// initialization phase where the execution mode is set.

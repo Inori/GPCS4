@@ -38,7 +38,7 @@ RcPtr<gve::GveFrameBuffer> GveDevice::createFrameBuffer(VkRenderPass renderPass,
 
 RcPtr<gve::GveCommandBuffer> GveDevice::createCommandBuffer()
 {
-
+	return new GveCommandBuffer(this);
 }
 
 RcPtr<gve::GveContex> GveDevice::createContext()
