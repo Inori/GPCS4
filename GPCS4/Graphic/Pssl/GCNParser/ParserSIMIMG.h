@@ -149,6 +149,8 @@ private:
     /// \param[in]  hexInstruction  The 64 bit hexadecimal instruction.
     /// \returns                   An SSAMP.
     static MIMGInstruction::SSAMP GetSSAMP(Instruction::instruction64bit hexInstruction);
+
+    static Instruction::InstructionClass GetSIMIMGClass(SIMIMGInstruction::OP op);
 };
 
 #endif //__PARSERSIMIMG_H
