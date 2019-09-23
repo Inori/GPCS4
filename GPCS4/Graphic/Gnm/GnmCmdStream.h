@@ -26,6 +26,8 @@ public:
 
 	bool processCommandBuffer(uint32_t* commandBuffer, uint32_t commandSize);
 
+	std::shared_ptr<GnmCommandBuffer> getCommandBuffer();
+
 private:
 	
 	uint32_t processPM4Type0(PPM4_TYPE_0_HEADER pm4Hdr, uint32_t* regDataX);

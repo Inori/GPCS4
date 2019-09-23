@@ -22,7 +22,6 @@ public:
 private:
 	RcPtr<GveDevice> m_device;
 	RcPtr<GveCommandBuffer> m_command;
-	RcPtr<GveFrameBuffer> m_frameBuffer;
 };
 
 

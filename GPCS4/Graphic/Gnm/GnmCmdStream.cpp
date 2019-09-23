@@ -62,6 +62,11 @@ bool GnmCmdStream::processCommandBuffer(uint32_t* commandBuffer, uint32_t comman
 	return bRet;
 }
 
+std::shared_ptr<GnmCommandBuffer> GnmCmdStream::getCommandBuffer()
+{
+	return m_cb;
+}
+
 uint32_t GnmCmdStream::processPM4Type0(PPM4_TYPE_0_HEADER pm4Hdr, uint32_t* regDataX)
 {
 	LOG_FIXME("Type 0 PM4 packet is not supported.");
