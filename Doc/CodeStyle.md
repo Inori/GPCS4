@@ -22,12 +22,12 @@ For example:
    like `uint8_t`, `int64_t`, `uint32_t`
 
 5. Start left brace `{` in new line, not at the end of current line.
-```
-	if (shaderResourceOffset != 0)
-	{
+    ```
+    if (shaderResourceOffset != 0)
+    {
         doSomething();
-	}
-```
+    }
+    ```
 
 <br><br>
 
