@@ -14,7 +14,9 @@ The renderer code is just some test code without any design, and full of bugs, b
 Next I will focus on the shader translator.
 
 ## Join
-If you want to join, feel free to open an issue, or make a pull request while keeping the code style, I'll see it.  
+If you want to join, feel free to open an issue to contact with me,  
+or make a pull request while keeping the [code style](https://github.com/Inori/GPCS4/blob/master/Doc/CodeStyle.md), I'll see it.  
+
 Discord: [GPCS4](https://discord.gg/PXrUxtk)  
 Or if you are used to Tencent QQ/TIM, our group number is 470865218
 
