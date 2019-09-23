@@ -383,8 +383,8 @@ public:
 
     /// ctor
     SIMIMGInstruction(DMASK dmask, UNORM unorm, GLC glc, DA da, R128 r128, TFE tfe, LWE lwe, OP op, SLC slc, VADDR vaddr, VDATA vdata, SRSRC srsrc,
-                      SSAMP ssamp, Instruction::InstructionCategory inst): 
-		MIMGInstruction(dmask, unorm, glc, da, r128, tfe, lwe, slc, vaddr, vdata, srsrc, ssamp, inst), m_op(op) {}
+                      SSAMP ssamp, Instruction::InstructionCategory inst, InstructionClass insClass):
+        MIMGInstruction(dmask, unorm, glc, da, r128, tfe, lwe, slc, vaddr, vdata, srsrc, ssamp, inst, insClass), m_op(op) {}
 
 private:
     /// MTBUF operation.

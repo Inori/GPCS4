@@ -166,6 +166,10 @@ ParserSIMIMG::GetSSAMP(Instruction::instruction64bit hexInstruction)
     RETURN_EXTRACT_INSTRUCTION(ssamp);
 }
 
+Instruction::InstructionClass ParserSIMIMG::GetSIMIMGClass(SIMIMGInstruction::OP op)
+{
+    return g_instructionFormatMapMIMG[op].insClass;
+}
 
 ParserSI::kaStatus
 ParserSIMIMG::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, std::unique_ptr<Instruction>& instruction)
@@ -187,8 +191,9 @@ ParserSIMIMG::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexIn
     if ((hwGen == GDT_HW_GENERATION_SEAISLAND) || (hwGen == GDT_HW_GENERATION_SOUTHERNISLAND))
     {
         SIMIMGInstruction::OP op = GetOpSIMIMG(hexInstruction, instKind);
+        Instruction::InstructionClass insCls = GetSIMIMGClass(op);
         instruction = std::make_unique<SIMIMGInstruction>(dmask, unorm, glc, da, r128, tfe, lwe, op, vaddr, vdata, srsrc, slc,
-                                            ssamp, instKind);
+                                            ssamp, instKind, insCls);
     }
     else
     {
