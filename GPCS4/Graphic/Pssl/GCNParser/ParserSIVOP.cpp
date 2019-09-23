@@ -364,7 +364,7 @@ ParserSIVOP::GetInstructionType(Instruction::instruction32bit hexInstruction)
 VOPInstruction::Encoding
 ParserSIVOP::GetInstructionType(Instruction::instruction64bit hexInstruction)
 {
-    if ((hexInstruction && VOPInstruction::VOPMask_VOP3) >> 26 == VOPInstruction::Encoding_VOP3)
+    if ((hexInstruction & VOPInstruction::VOPMask_VOP3) >> 26 == VOPInstruction::Encoding_VOP3)
     {
         return VOPInstruction::Encoding_VOP3;
     }
