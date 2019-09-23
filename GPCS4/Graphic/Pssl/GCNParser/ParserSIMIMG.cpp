@@ -192,13 +192,13 @@ ParserSIMIMG::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexIn
     {
         SIMIMGInstruction::OP op = GetOpSIMIMG(hexInstruction, instKind);
         Instruction::InstructionClass insCls = GetSIMIMGClass(op);
-        instruction = std::make_unique<SIMIMGInstruction>(dmask, unorm, glc, da, r128, tfe, lwe, op, vaddr, vdata, srsrc, slc,
+        instruction = std::make_unique<SIMIMGInstruction>(dmask, unorm, glc, da, r128, tfe, lwe, op, slc, vaddr, vdata, srsrc,
                                             ssamp, instKind, insCls);
     }
     else
     {
         VIMIMGInstruction::OP op = GetOpVIMIMG(hexInstruction, instKind);
-        instruction = std::make_unique<VIMIMGInstruction>(dmask, unorm, glc, da, r128, tfe, lwe, op, vaddr, vdata, srsrc, slc,
+        instruction = std::make_unique<VIMIMGInstruction>(dmask, unorm, glc, da, r128, tfe, lwe, op, slc, vaddr, vdata, srsrc,
                                             ssamp, instKind);
     }
 
