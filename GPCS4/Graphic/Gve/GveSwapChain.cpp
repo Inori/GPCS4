@@ -66,9 +66,36 @@ void GveSwapChain::createSwapChain(uint32_t imageCount)
 		m_swapChainImages.resize(imageCount);
 		vkGetSwapchainImagesKHR(device, m_swapchain, &imageCount, m_swapChainImages.data());
 
+		createImageViews();
+
 		m_swapChainImageFormat = surfaceFormat.format;
 		m_swapChainExtent = extent;
 	} while (false);
+}
+
+void GveSwapChain::createImageViews()
+{
+	for (auto& image : m_swapChainImages)
+	{
+		VkImageViewCreateInfo viewInfo = {};
+		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		viewInfo.image = image;
+		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		viewInfo.format = m_swapChainImageFormat;
+		viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		viewInfo.subresourceRange.baseMipLevel = 0;
+		viewInfo.subresourceRange.levelCount = 1;
+		viewInfo.subresourceRange.baseArrayLayer = 0;
+		viewInfo.subresourceRange.layerCount = 1;
+
+		VkImageView imageView;
+		if (vkCreateImageView(*m_logicalDevice, &viewInfo, nullptr, &imageView) != VK_SUCCESS) 
+		{
+			LOG_ERR("failed to create swapchain texture image view!");
+		}
+
+		m_swapChainImageViews.push_back(imageView);
+	}
 }
 
 SwapChainSupportDetails GveSwapChain::querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface)
@@ -176,9 +203,24 @@ VkFormat GveSwapChain::imageFormat() const
 	return m_swapChainImageFormat;
 }
 
+uint32_t GveSwapChain::imageCount() const
+{
+	return m_swapChainImages.size();
+}
+
 VkExtent2D GveSwapChain::extent() const
 {
 	return m_swapChainExtent;
+}
+
+VkImage GveSwapChain::getImage(uint32_t index)
+{
+	return m_swapChainImages[index];
+}
+
+VkImageView GveSwapChain::getImageView(uint32_t index)
+{
+	return m_swapChainImageViews[index];
 }
 
 }  // namespace gve

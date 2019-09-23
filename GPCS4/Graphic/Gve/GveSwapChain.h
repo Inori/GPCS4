@@ -28,11 +28,18 @@ public:
 
 	VkFormat imageFormat() const;
 
+	uint32_t imageCount() const;
+
 	VkExtent2D extent() const;
+
+	VkImage getImage(uint32_t index);
+
+	VkImageView getImageView(uint32_t index);
 
 	static SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
 private:
 	void createSwapChain(uint32_t imageCount);
+	void createImageViews();
 	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 	VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
 	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
@@ -44,6 +51,8 @@ private:
 	std::shared_ptr<sce::SceVideoOut> m_videoOut;
 
 	std::vector<VkImage> m_swapChainImages;
+	std::vector<VkImageView> m_swapChainImageViews;
+
 	VkFormat m_swapChainImageFormat;
 	VkExtent2D m_swapChainExtent;
 
