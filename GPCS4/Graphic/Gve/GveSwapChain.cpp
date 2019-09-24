@@ -40,6 +40,14 @@ void GveSwapChain::createSwapChain(uint32_t imageCount)
 			imageCount = swapChainSupport.capabilities.maxImageCount;
 		}
 
+		GvePhysicalDeviceQueueFamilies queueFamilies = m_phyDevice->findQueueFamilies();
+		VkBool32 presentSupport = false;
+		vkGetPhysicalDeviceSurfaceSupportKHR(*m_phyDevice, queueFamilies.graphicsFamily, surface, &presentSupport);
+		if (!presentSupport)
+		{
+			break;
+		}
+
 		VkSwapchainCreateInfoKHR createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 		createInfo.surface = surface;
@@ -66,10 +74,11 @@ void GveSwapChain::createSwapChain(uint32_t imageCount)
 		m_swapChainImages.resize(imageCount);
 		vkGetSwapchainImagesKHR(device, m_swapchain, &imageCount, m_swapChainImages.data());
 
-		createImageViews();
-
 		m_swapChainImageFormat = surfaceFormat.format;
 		m_swapChainExtent = extent;
+
+		createImageViews();
+
 	} while (false);
 }
 
