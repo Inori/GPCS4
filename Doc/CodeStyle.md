@@ -183,5 +183,5 @@ And based on the above Sony's style, we add the following extra rules, to make o
 
 
 
-PS1: Forget about some old Hungarian notation style code, I'll fix that once I have time.  
-PS2: Third party library code is not limited by the above rules.
+PS1: Third party library code is not limited by the above rules.  
+PS2: Forget about some old Hungarian notation style code, I'll fix that once I have time.
