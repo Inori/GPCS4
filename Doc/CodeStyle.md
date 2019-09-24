@@ -7,27 +7,28 @@ Basically, the code style is based on Sony's style.
 
 For example:
 1. Use lower camel case for `varable` and `function` name.  
-   like: `shaderModifier`, `generateVsFetchShader`
+   like: `uint8_t shaderModifier;`, `void generateVsFetchShader();`
 
 2. Use upper camel case for `class`, `enum` and `struct` name.  
-   like: `ConstantUpdateEngine`, `PsslType`, `VsStageRegisters`
+   like: `class ConstantUpdateEngine;`, `enum PsslType;`, `struct VsStageRegisters;`
 
 3. Use `m_` prefix for class member varable,   
-   like: `m_cmdptr`  
+   like: `void* m_cmdptr`  
 
    Use `g_` prefix for global varable,  
-   like: `g_moduleLibc`  
+   like: `SceModule g_moduleLibc`  
 
 4. Use stdint types  
    like `uint8_t`, `int64_t`, `uint32_t`
 
-5. Start left brace `{` in new line, not at the end of current line.
-    ```
-    if (shaderResourceOffset != 0)
-    {
-        doSomething();
-    }
-    ```
+5. Start left brace `{` in new line, not at the end of current line.  
+   like:
+   ```
+   if (shaderResourceOffset != 0)
+   {
+       doSomething();
+   }
+   ```
 
 <br><br>
 
