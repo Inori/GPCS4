@@ -35,6 +35,8 @@ SceGnmDriver::~SceGnmDriver()
 {
 	m_commandBuffers.clear();
 	m_commandParsers.clear();
+	m_frameBuffers.clear();
+	m_contexts.clear();
 }
 
 bool SceGnmDriver::initDriver(uint32_t bufferNum)

@@ -5,15 +5,14 @@
 #include "GnmStructure.h"
 #include "GnmSharpBuffer.h"
 
+#include "../Sce/SceGnmDriver.h"
 #include "../Gve/GveContext.h"
 
 class GnmCommandBuffer
 {
 public:
-	GnmCommandBuffer(RcPtr<gve::GveContex>& context);
+	GnmCommandBuffer(sce::SceGnmDriver* driver, RcPtr<gve::GveContex>& context);
 	virtual ~GnmCommandBuffer();
-
-	RcPtr<gve::GveContex> getContext();
 
 	// Implement these one by one...
 
@@ -322,6 +321,7 @@ public:
 	//static bool readDispatchDrawAcbSubmitMarker(uint32_t const *pAcbSubmitMarker, uint32_t *out_pSizeofAcbSegment, uint32_t *out_pPipe, uint32_t *out_pQueue, void const** out_ppAcbSegmentNext);
 
 protected:
+	sce::SceGnmDriver* m_driver;
 	RcPtr<gve::GveContex> m_context;
 
 private:
