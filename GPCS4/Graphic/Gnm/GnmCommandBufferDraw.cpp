@@ -11,18 +11,19 @@
 //#include "stb_image/stb_image.h"
 //#include "stb_image/stb_image_write.h"
 
-GnmCommandBufferDraw::GnmCommandBufferDraw(RcPtr<gve::GveContex>& context):
+GnmCommandBufferDraw::GnmCommandBufferDraw(RcPtr<gve::GveContex>& context, const gve::GveRenderTarget& renderTarget):
 	GnmCommandBuffer(context),
+	m_renderTarget(renderTarget),
 	m_vsCode(nullptr),
 	m_psCode(nullptr)
 {
 
 }
 
+
 GnmCommandBufferDraw::~GnmCommandBufferDraw()
 {
 }
-
 
 
 void GnmCommandBufferDraw::prepareFlip(void *labelAddr, uint32_t value)

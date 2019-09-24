@@ -6,6 +6,13 @@
 namespace gve
 {;
 
+class GveFrameBuffer;
+
+struct GveRenderTarget
+{
+	RcPtr<GveFrameBuffer> frameBuffer;
+};
+
 
 class GveFrameBuffer : public RcObject
 {

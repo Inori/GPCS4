@@ -1,14 +1,8 @@
 #include "GnmCommandBuffer.h"
 
 
-GnmCommandBuffer::GnmCommandBuffer(sce::SceGnmDriver* driver, RcPtr<gve::GveContex>& context):
-	m_driver(driver),
+GnmCommandBuffer::GnmCommandBuffer(RcPtr<gve::GveContex>& context):
 	m_context(context)
-{
-
-}
-
-GnmCommandBuffer::GnmCommandBuffer(sce::SceGnmDriver* driver, RcPtr<gve::GveContex>& context)
 {
 
 }

@@ -18,7 +18,7 @@ private:
 	typedef std::vector<std::pair<uint32_t, void*>> UDSTVector;
 
 public:
-	GnmCommandBufferDraw(RcPtr<gve::GveContex>& context);
+	GnmCommandBufferDraw(RcPtr<gve::GveContex>& context, const gve::GveRenderTarget& renderTarget);
 	virtual ~GnmCommandBufferDraw();
 
 	virtual void initializeDefaultHardwareState() override;
@@ -67,6 +67,8 @@ private:
 	uint32_t* getFetchShaderCode(void* vsCode);
 
 private:
+
+	gve::GveRenderTarget m_renderTarget;
 
 	void* m_vsCode;
 	void* m_psCode;

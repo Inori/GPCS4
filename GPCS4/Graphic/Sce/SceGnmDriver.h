@@ -32,9 +32,6 @@ public:
 
 private:
 
-	void beginProcessCmd(GnmCommandBuffer* gnmCmd);
-	void endProcessCmd(GnmCommandBuffer* gnmCmd);
-
 	RcPtr<gve::GvePhysicalDevice>  pickPhysicalDevice();
 	bool isDeviceSuitable(RcPtr<gve::GvePhysicalDevice>& device);
 	bool checkDeviceExtensionSupport(RcPtr<gve::GvePhysicalDevice>& device);
@@ -51,7 +48,7 @@ private:
 	RcPtr<gve::GvePhysicalDevice> m_physDevice;
 	RcPtr<gve::GveDevice> m_device;
 	RcPtr<gve::GveSwapChain> m_swapchain;
-	std::vector<VkFramebuffer> m_frameBuffers;
+	std::vector<RcPtr<gve::GveFrameBuffer>> m_frameBuffers;
 	std::vector<RcPtr<gve::GveContex>> m_contexts;
 };
 
