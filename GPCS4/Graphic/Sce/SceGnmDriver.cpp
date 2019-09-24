@@ -65,8 +65,6 @@ int SceGnmDriver::submitAndFlipCommandBuffers(uint32_t count,
 		LOG_ASSERT(count == 1, "Currently only support only 1 cmdbuff.");
 
 		auto& cmdParser = m_commandParsers[displayBufferIndex];
-		GnmCommandBuffer* gnmCmd = cmdParser->getCommandBuffer().get();
-
 		if (!cmdParser->processCommandBuffer((uint32_t*)dcbGpuAddrs[0], dcbSizesInBytes[0]))
 		{
 			break;
