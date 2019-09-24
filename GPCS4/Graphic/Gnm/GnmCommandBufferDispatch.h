@@ -6,7 +6,7 @@
 class GnmCommandBufferDispatch : GnmCommandBuffer
 {
 public:
-	GnmCommandBufferDispatch();
+	GnmCommandBufferDispatch(RcPtr<gve::GveContex>& context);
 	virtual ~GnmCommandBufferDispatch();
 
 

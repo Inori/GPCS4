@@ -31,9 +31,16 @@ public:
 	int sceGnmSubmitDone(void);
 
 private:
+
+	void beginProcessCmd(GnmCommandBuffer* gnmCmd);
+	void endProcessCmd(GnmCommandBuffer* gnmCmd);
+
 	RcPtr<gve::GvePhysicalDevice>  pickPhysicalDevice();
 	bool isDeviceSuitable(RcPtr<gve::GvePhysicalDevice>& device);
 	bool checkDeviceExtensionSupport(RcPtr<gve::GvePhysicalDevice>& device);
+	void createFrameBuffers(uint32_t count);
+	void createContexts(uint32_t count);
+	void createCommandParsers(uint32_t count);
 
 private:
 	std::shared_ptr<SceVideoOut> m_videoOut;
@@ -44,6 +51,8 @@ private:
 	RcPtr<gve::GvePhysicalDevice> m_physDevice;
 	RcPtr<gve::GveDevice> m_device;
 	RcPtr<gve::GveSwapChain> m_swapchain;
+	std::vector<VkFramebuffer> m_frameBuffers;
+	std::vector<RcPtr<gve::GveContex>> m_contexts;
 };
 
 }  //sce

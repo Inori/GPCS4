@@ -18,7 +18,7 @@ private:
 	typedef std::vector<std::pair<uint32_t, void*>> UDSTVector;
 
 public:
-	GnmCommandBufferDraw();
+	GnmCommandBufferDraw(RcPtr<gve::GveContex>& context);
 	virtual ~GnmCommandBufferDraw();
 
 	virtual void initializeDefaultHardwareState() override;

@@ -1,6 +1,7 @@
 #include "GnmCommandBufferDispatch.h"
 
-GnmCommandBufferDispatch::GnmCommandBufferDispatch()
+GnmCommandBufferDispatch::GnmCommandBufferDispatch(RcPtr<gve::GveContex>& context):
+	GnmCommandBuffer(context)
 {
 }
 

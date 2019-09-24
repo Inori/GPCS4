@@ -5,11 +5,15 @@
 #include "GnmStructure.h"
 #include "GnmSharpBuffer.h"
 
+#include "../Gve/GveContext.h"
+
 class GnmCommandBuffer
 {
 public:
-	GnmCommandBuffer();
+	GnmCommandBuffer(RcPtr<gve::GveContex>& context);
 	virtual ~GnmCommandBuffer();
+
+	RcPtr<gve::GveContex> getContext();
 
 	// Implement these one by one...
 
@@ -316,6 +320,9 @@ public:
 	//static bool patchDispatchDrawAcbSubmitMarker(uint32_t *pAcbSubmitMarker, uint32_t sizeofAcbSegment, uint32_t pipe, uint32_t queue, void const* pAcbSegmentNext);
 	//static bool isDispatchDrawAcbSubmitMarker(uint32_t const *pAcbSubmitMarker);
 	//static bool readDispatchDrawAcbSubmitMarker(uint32_t const *pAcbSubmitMarker, uint32_t *out_pSizeofAcbSegment, uint32_t *out_pPipe, uint32_t *out_pQueue, void const** out_ppAcbSegmentNext);
+
+protected:
+	RcPtr<gve::GveContex> m_context;
 
 private:
 

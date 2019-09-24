@@ -11,10 +11,12 @@
 //#include "stb_image/stb_image.h"
 //#include "stb_image/stb_image_write.h"
 
-GnmCommandBufferDraw::GnmCommandBufferDraw():
+GnmCommandBufferDraw::GnmCommandBufferDraw(RcPtr<gve::GveContex>& context):
+	GnmCommandBuffer(context),
 	m_vsCode(nullptr),
 	m_psCode(nullptr)
 {
+
 }
 
 GnmCommandBufferDraw::~GnmCommandBufferDraw()
