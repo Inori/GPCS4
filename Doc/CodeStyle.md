@@ -89,7 +89,7 @@ And based on the above Sony's style, we add the following extra rules, to make o
     }
     ```
 
-3. Do not write code nested more than 3 layers. Write nested statement as few      as possible.  
+3. Do not write code nested more than 3 layers (`do{} while(false);` not included). Write nested statement as few as possible.  
 
    You can use `break` or `continue` to cancel nested code, or write a new function if necessary.
    
@@ -164,7 +164,8 @@ And based on the above Sony's style, we add the following extra rules, to make o
         }
     }
    ```
-4. Do not write a function longer than your sceen's height. Typically 50-80 lines at most.
+4. Do not write a function longer than your sceen's height. Typically 50-80 lines at most.  
+   Some table type functions not included, like a big `switch` statement.
 
 5. Add brace to `if`, `while` statement even if it has only one line of code followed.
 
