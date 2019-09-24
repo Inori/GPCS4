@@ -158,6 +158,7 @@ void GnmCommandBufferDraw::waitUntilSafeForRendering(uint32_t videoOutHandle, ui
 // We be called on every frame start.
 void GnmCommandBufferDraw::initializeDefaultHardwareState()
 {
+	m_context->initState();
 }
 
 void GnmCommandBufferDraw::setPrimitiveType(PrimitiveType primType)

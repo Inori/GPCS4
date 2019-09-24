@@ -18,12 +18,12 @@ GveContex::~GveContex()
 
 }
 
-void GveContex::beginRecording()
+void GveContex::initState()
 {
 	m_command->beginRecording();
 }
 
-void GveContex::endRecording()
+void GveContex::submit()
 {
 	m_command->endRecording();
 }

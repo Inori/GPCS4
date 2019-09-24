@@ -19,10 +19,9 @@ public:
 	GveContex(const RcPtr<GveDevice>& device);
 	~GveContex();
 
-	void beginRecording();
+	void initState();
 
-	void endRecording();
-
+	void submit();
 
 private:
 	RcPtr<GveDevice> m_device;
