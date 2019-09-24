@@ -19,6 +19,11 @@ public:
 	GveContex(const RcPtr<GveDevice>& device);
 	~GveContex();
 
+	void beginRecording();
+
+	void endRecording();
+
+
 private:
 	RcPtr<GveDevice> m_device;
 	RcPtr<GveCommandBuffer> m_command;
