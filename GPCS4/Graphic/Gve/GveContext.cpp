@@ -1,7 +1,7 @@
 #include "GveContext.h"
 #include "GveCommandBuffer.h"
 #include "GveFrameBuffer.h"
-
+#include "GveShader.h"
 
 
 namespace gve
@@ -26,6 +26,11 @@ void GveContex::initState()
 void GveContex::submit()
 {
 	m_command->endRecording();
+}
+
+void GveContex::bindShader(VkShaderStageFlagBits stage, const RcPtr<GveShader>& shader)
+{
+
 }
 
 } // namespace gve

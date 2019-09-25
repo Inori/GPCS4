@@ -48,7 +48,25 @@ void GnmCommandBufferDraw::setPsShader(const pssl::PsStageRegisters *psRegs)
 
 void GnmCommandBufferDraw::setVsShader(const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier)
 {
-	m_vsCode = vsRegs->getCodeAddress();
+	do 
+	{
+		m_vsCode = vsRegs->getCodeAddress();
+		uint32_t* fsCode = getFetchShaderCode(m_vsCode);
+
+		RcPtr<gve::GveShader> vsShader;
+		if (fsCode)
+		{
+			pssl::PsslShaderModule vsModule((const uint32_t*)m_vsCode, fsCode);
+			vsShader = vsModule.compile();
+		}
+		else
+		{
+			pssl::PsslShaderModule vsModule((const uint32_t*)m_vsCode);
+			vsShader = vsModule.compile();
+		}
+
+		m_context->bindShader(VK_SHADER_STAGE_VERTEX_BIT, vsShader);
+	} while (false);
 }
 
 void GnmCommandBufferDraw::setVgtControl(uint8_t primGroupSizeMinusOne, WdSwitchOnlyOnEopMode wdSwitchOnlyOnEopMode, VgtPartialVsWaveMode partialVsWaveMode)
