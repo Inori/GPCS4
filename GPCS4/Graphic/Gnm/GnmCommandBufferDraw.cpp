@@ -51,6 +51,8 @@ void GnmCommandBufferDraw::setVsShader(const pssl::VsStageRegisters *vsRegs, uin
 	do 
 	{
 		m_vsCode = vsRegs->getCodeAddress();
+		// Fetch shader slot can be set after vs shader set and before draw call
+		// so this can be nullptr sometimes.
 		uint32_t* fsCode = getFetchShaderCode(m_vsCode);
 
 		RcPtr<gve::GveShader> vsShader;
