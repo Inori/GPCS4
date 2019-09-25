@@ -2,6 +2,7 @@
 
 #include "GPCS4Common.h"
 #include "Singleton.h"
+#include "Module.h"
 #include <string>
 #include <unordered_map>
 
@@ -12,6 +13,19 @@ struct SCE_EXPORT_MODULE;
 class CSceModuleSystem final : public Singleton<CSceModuleSystem>
 {
 	friend class  Singleton<CSceModuleSystem>;
+private:
+	struct LibraryRecord
+	{
+		bool overrideable;
+		std::unordered_map<uint64_t, bool> functions;
+
+	};
+
+	struct ModuleRecord
+	{
+		bool overrideable;
+		std::unordered_map<std::string, LibraryRecord> libraries;
+	};
 
 	//since we won't insert or remove item after initialization
 	//we use unordered_map instead of map
@@ -23,6 +37,8 @@ class CSceModuleSystem final : public Singleton<CSceModuleSystem>
 
 	typedef std::unordered_map<std::string, SceLibMapNid> SceModuleMapNid;
 	typedef std::unordered_map<std::string, SceLibMapName> SceModuleMapName;
+	typedef std::unordered_map<std::string, ModuleRecord> SceOverridableMapNid;
+	typedef std::unordered_map<std::string, MemoryMappedModule> SceMappedModuleMap;
 
 public:
 
@@ -49,23 +65,12 @@ private:
 	bool isFunctionLoadable(std::string const &modName,std::string const &libName, uint64_t nid);
 
 private:
+
 	SceModuleMapNid m_umpModuleMapNid;
 	SceModuleMapName m_umpModuleMapName;
 
-	struct LibraryRecord
-	{
-		bool overrideable;
-		std::unordered_map<uint64_t, bool> functions;
-
-	};
-
-	struct ModuleRecord
-	{
-		bool overrideable;
-		std::unordered_map<std::string, LibraryRecord> libraries;
-	};
-
-	std::unordered_map<std::string, ModuleRecord> m_overrideableModules;
+	SceOverridableMapNid m_overridableModules;
+	SceMappedModuleMap m_mappedModules;
 
 private:
 	CSceModuleSystem();

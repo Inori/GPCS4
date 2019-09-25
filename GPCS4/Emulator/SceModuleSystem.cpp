@@ -20,8 +20,8 @@ bool CSceModuleSystem::isModuleLoadable(const char * modueleName)
 
 	if (m_umpModuleMapName.count(modueleName) != 0)
 	{
-		if (m_overrideableModules.count(modueleName) != 0 && 
-			m_overrideableModules.at(modueleName).overrideable)
+		if (m_overridableModules.count(modueleName) != 0 && 
+			m_overridableModules.at(modueleName).overrideable)
 		{
 			retVal = true;
 		}
@@ -53,12 +53,12 @@ bool CSceModuleSystem::isLibraryLoadable(std::string const &modName, std::string
 	}
 
 	// module is not overrideable
-	if (m_overrideableModules.count(modName) == 0)
+	if (m_overridableModules.count(modName) == 0)
 	{
 		return false;
 	}
 	
-	auto &mr = m_overrideableModules.at(modName);
+	auto &mr = m_overridableModules.at(modName);
 	if (mr.overrideable == false)
 	{
 		return false;
@@ -99,12 +99,12 @@ bool CSceModuleSystem::isFunctionLoadable(std::string const & modName, std::stri
 	}
 
 	// module is not overrideable
-	if (m_overrideableModules.count(modName) == 0)
+	if (m_overridableModules.count(modName) == 0)
 	{
 		return false;
 	}
 
-	auto &mr = m_overrideableModules.at(modName);
+	auto &mr = m_overridableModules.at(modName);
 	if (mr.overrideable == false)
 	{
 		return false;
@@ -243,19 +243,19 @@ bool CSceModuleSystem::setModuleOverridability(const std::string & modName, bool
 
 		if (ovrd)
 		{
-			if (m_overrideableModules.count(modName) == 0)
+			if (m_overridableModules.count(modName) == 0)
 			{
 				ModuleRecord mr = {};
-				m_overrideableModules.insert(std::make_pair(modName, mr));
+				m_overridableModules.insert(std::make_pair(modName, mr));
 			}
 
-			m_overrideableModules.at(modName).overrideable = true;
+			m_overridableModules.at(modName).overrideable = true;
 		}
 		else
 		{
-			if (m_overrideableModules.count(modName) != 0)
+			if (m_overridableModules.count(modName) != 0)
 			{
-				m_overrideableModules.at(modName).overrideable = false;
+				m_overridableModules.at(modName).overrideable = false;
 			}
 		}
 
@@ -274,7 +274,7 @@ bool CSceModuleSystem::setLibraryOverridability(const std::string & modName,
 
 	do
 	{
-		if (m_overrideableModules.count(modName) == 0)
+		if (m_overridableModules.count(modName) == 0)
 		{
 			if (ovrd == false) 
 			{
@@ -283,10 +283,10 @@ bool CSceModuleSystem::setLibraryOverridability(const std::string & modName,
 
 			ModuleRecord mr = {};
 			mr.overrideable = true;
-			m_overrideableModules.insert(std::make_pair(modName, mr));
+			m_overridableModules.insert(std::make_pair(modName, mr));
 		}
 
-		auto &mr = m_overrideableModules.at(modName);
+		auto &mr = m_overridableModules.at(modName);
 		
 		if (mr.libraries.count(libName) == 0)
 		{
@@ -315,7 +315,7 @@ bool CSceModuleSystem::setFunctionOverridability(const std::string & modName,
 
 	do 
 	{
-		if (m_overrideableModules.count(modName) == 0)
+		if (m_overridableModules.count(modName) == 0)
 		{
 			if (ovrd == false)
 			{
@@ -324,10 +324,10 @@ bool CSceModuleSystem::setFunctionOverridability(const std::string & modName,
 
 			ModuleRecord mr = {};
 			mr.overrideable = true;
-			m_overrideableModules.insert(std::make_pair(modName, mr));
+			m_overridableModules.insert(std::make_pair(modName, mr));
 		}
 
-		auto &mr = m_overrideableModules.at(modName);
+		auto &mr = m_overridableModules.at(modName);
 
 		if (mr.libraries.count(libName) == 0)
 		{
