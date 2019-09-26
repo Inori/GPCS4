@@ -34,11 +34,6 @@ GCNCompiler::GCNCompiler(const PsslProgramInfo& progInfo, const std::vector<Vert
 		spv::AddressingModelLogical,
 		spv::MemoryModelGLSL450);
 
-	// Make sure our interface registers are clear
-	//for (uint32_t i = 0; i < DxbcMaxInterfaceRegs; i++) {
-	//	m_vRegs.at(i) = DxbcRegisterPointer{ };
-	//	m_oRegs.at(i) = DxbcRegisterPointer{ };
-	//}
 
 	this->emitInit();
 }
@@ -76,15 +71,25 @@ void GCNCompiler::emitVsInit()
 
 	// Declare the per-vertex output block. This is where
 	// the vertex shader will write the vertex position.
-	const uint32_t perVertexStruct = this->getPerVertexBlockId();
-	const uint32_t perVertexPointer = m_module.defPointerType(
-		perVertexStruct, spv::StorageClassOutput);
+	const uint32_t perVertexStructType = this->getPerVertexBlockId();
+	const uint32_t perVertexPointerType = m_module.defPointerType(
+		perVertexStructType, spv::StorageClassOutput);
 
 	m_perVertexOut = m_module.newVar(
-		perVertexPointer, spv::StorageClassOutput);
+		perVertexPointerType, spv::StorageClassOutput);
 	m_entryPointInterfaces.push_back(m_perVertexOut);
 	m_module.setDebugName(m_perVertexOut, "vs_vertex_out");
 
+	// Main function of the vertex shader
+	m_vs.functionId = m_module.allocateId();
+	m_module.setDebugName(m_vs.functionId, "vs_main");
+
+	this->emitFunctionBegin(
+		m_vs.functionId,
+		m_module.defVoidType(),
+		m_module.defFunctionType(
+			m_module.defVoidType(), 0, nullptr));
+	this->emitFunctionLabel();
 }
 
 void GCNCompiler::emitHsInit()
@@ -112,51 +117,44 @@ void GCNCompiler::emitCsInit()
 
 }
 
-void GCNCompiler::emitDclInputArray(uint32_t vertexCount)
+void GCNCompiler::emitFunctionBegin(uint32_t entryPoint, uint32_t returnType, uint32_t funcType)
 {
-	//PsslArrayType info;
-	//info.ctype = PsslScalarType::Float32;
-	//info.ccount = 4;
-	//info.alength = m_isgn != nullptr ? m_isgn->maxRegisterCount() : 0;
+	this->emitFunctionEnd();
 
-	//if (info.alength == 0)
-	//	return;
+	m_module.functionBegin(
+		returnType, entryPoint, funcType,
+		spv::FunctionControlMaskNone);
 
-	//// Define the array type. This will be two-dimensional
-	//// in some shaders, with the outer index representing
-	//// the vertex ID within an invocation.
-	//uint32_t arrayTypeId = getArrayTypeId(info);
-
-	//if (vertexCount != 0) {
-	//	arrayTypeId = m_module.defArrayType(
-	//		arrayTypeId, m_module.constu32(vertexCount));
-	//}
-
-	//// Define the actual variable. Note that this is private
-	//// because we will copy input registers and some system
-	//// variables to the array during the setup phase.
-	//const uint32_t ptrTypeId = m_module.defPointerType(
-	//	arrayTypeId, spv::StorageClassPrivate);
-
-	//const uint32_t varId = m_module.newVar(
-	//	ptrTypeId, spv::StorageClassPrivate);
-
-	//m_module.setDebugName(varId, "shader_in");
-	//m_vArray = varId;
+	m_insideFunction = true;
 }
 
-void GCNCompiler::emitDclInputPerVertex(uint32_t vertexCount, const char* varName)
+void GCNCompiler::emitFunctionEnd()
 {
+	if (m_insideFunction) 
+	{
+		m_module.opReturn();
+		m_module.functionEnd();
+	}
 
+	m_insideFunction = false;
 }
 
-uint32_t GCNCompiler::emitDclClipCullDistanceArray(uint32_t length, spv::BuiltIn builtIn, spv::StorageClass storageClass)
+void GCNCompiler::emitFunctionLabel()
 {
-
+	m_module.opLabel(m_module.allocateId());
 }
 
 uint32_t GCNCompiler::getPerVertexBlockId()
 {
+	// Should be:
+	// out gl_PerVertex
+	// {
+	//   vec4 gl_Position;
+	//   float gl_PointSize;
+	//   float gl_ClipDist[];
+	//   float gl_CullDist[];
+	// };
+
 	uint32_t t_f32 = m_module.defFloatType(32);
 	uint32_t t_f32_v4 = m_module.defVectorType(t_f32, 4);
 	//     uint32_t t_f32_a4 = m_module.defArrayType(t_f32, m_module.constu32(4));
@@ -174,8 +172,8 @@ uint32_t GCNCompiler::getPerVertexBlockId()
 	//     m_module.memberDecorateBuiltIn(typeId, PerVertex_ClipDist, spv::BuiltInClipDistance);
 	m_module.decorateBlock(typeId);
 
-	m_module.setDebugName(typeId, "s_per_vertex");
-	m_module.setDebugMemberName(typeId, PerVertex_Position, "position");
+	m_module.setDebugName(typeId, "gl_PerVertex");
+	m_module.setDebugMemberName(typeId, PerVertex_Position, "Position");
 	//     m_module.setDebugMemberName(typeId, PerVertex_CullDist, "cull_dist");
 	//     m_module.setDebugMemberName(typeId, PerVertex_ClipDist, "clip_dist");
 	return typeId;
@@ -226,15 +224,6 @@ RcPtr<gve::GveShader> GCNCompiler::finalize()
 {
 	return RcPtr<gve::GveShader>(new gve::GveShader());
 }
-
-
-
-
-
-
-//////////////////////////////////////////////////////////////////////////
-
-
 
 
 

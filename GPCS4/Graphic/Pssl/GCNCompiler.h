@@ -75,6 +75,72 @@ struct PsslArrayType
 };
 
 
+struct GcnStateRegister
+{
+	// local data share
+	uint64_t lds;
+	// exec mask
+	uint64_t exec;
+	// vector condition code
+	uint64_t vcc;
+	// mode register
+	uint32_t mode;
+	// memory descriptor register
+	uint32_t m0;
+};
+
+/**
+ * \brief Vertex shader-specific structure
+ */
+struct GcnCompilerVsPart {
+	uint32_t functionId = 0;
+
+	uint32_t builtinVertexId = 0;
+	uint32_t builtinInstanceId = 0;
+	uint32_t builtinBaseVertex = 0;
+	uint32_t builtinBaseInstance = 0;
+};
+
+
+/**
+ * \brief Pixel shader-specific structure
+ */
+struct GcnCompilerPsPart {
+	uint32_t functionId = 0;
+
+	uint32_t builtinFragCoord = 0;
+	uint32_t builtinDepth = 0;
+	uint32_t builtinIsFrontFace = 0;
+	uint32_t builtinSampleId = 0;
+	uint32_t builtinSampleMaskIn = 0;
+	uint32_t builtinSampleMaskOut = 0;
+	uint32_t builtinLayer = 0;
+	uint32_t builtinViewportId = 0;
+
+	uint32_t builtinLaneId = 0;
+	uint32_t killState = 0;
+
+	uint32_t specRsSampleCount = 0;
+};
+
+
+/**
+ * \brief Compute shader-specific structure
+ */
+struct GcnCompilerCsPart {
+	uint32_t functionId = 0;
+
+	uint32_t workgroupSizeX = 0;
+	uint32_t workgroupSizeY = 0;
+	uint32_t workgroupSizeZ = 0;
+
+	uint32_t builtinGlobalInvocationId = 0;
+	uint32_t builtinLocalInvocationId = 0;
+	uint32_t builtinLocalInvocationIndex = 0;
+	uint32_t builtinWorkgroupId = 0;
+};
+
+
 class GCNCompiler
 {
 public:
@@ -88,6 +154,11 @@ public:
 
 
 private:
+
+	PsslProgramInfo m_programInfo;
+
+	std::vector<VertexInputSemantic> m_vsInputSemantic;
+
 	SpirvModule m_module;
 
 	///////////////////////////////////////////////////
@@ -102,16 +173,19 @@ private:
 	uint32_t m_perVertexIn = 0;
 	uint32_t m_perVertexOut = 0;
 
-	uint32_t m_clipDistances = 0;
-	uint32_t m_cullDistances = 0;
 
-	uint32_t m_primitiveIdIn = 0;
-	uint32_t m_primitiveIdOut = 0;
+	//////////////////////////////////////////////
+	// Function state tracking. Required in order
+	// to properly end functions in some cases.
+	bool m_insideFunction = false;
 
 
-	PsslProgramInfo m_programInfo;
+	///////////////////////////////////
+	// Shader-specific data structures
+	GcnCompilerVsPart m_vs;
+	GcnCompilerPsPart m_ps;
+	GcnCompilerCsPart m_cs;
 
-	std::vector<VertexInputSemantic> m_vsInputSemantic;
 private:
 
 	void emitInit();
@@ -123,6 +197,14 @@ private:
 	void emitPsInit();
 	void emitCsInit();
 
+	void emitFunctionBegin(
+		uint32_t                entryPoint,
+		uint32_t                returnType,
+		uint32_t                funcType);
+
+	void emitFunctionEnd();
+
+	void emitFunctionLabel();
 
 
 	// Category handlers
@@ -225,19 +307,8 @@ private:
 	// DebugProfile
 	void emitDbgProf(GCNInstruction& ins);
 
-	//////////////
-	// Misc stuff
-	void emitDclInputArray(
-		uint32_t          vertexCount);
+	/////////////////////////////////////////////////////////
 
-	void emitDclInputPerVertex(
-		uint32_t          vertexCount,
-		const char*             varName);
-
-	uint32_t emitDclClipCullDistanceArray(
-		uint32_t          length,
-		spv::BuiltIn      builtIn,
-		spv::StorageClass storageClass);
 
 	// Convenient functions to dynamic cast instruction types
 	template <typename InsType>
