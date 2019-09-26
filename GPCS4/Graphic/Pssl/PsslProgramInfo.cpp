@@ -99,6 +99,40 @@ std::vector<InputUsageSlot> PsslProgramInfo::getInputUsageSlot() const
 	return m_inputUsageSlots;
 }
 
+spv::ExecutionModel PsslProgramInfo::executionModel() const
+{
+	spv::ExecutionModel mode = spv::ExecutionModelMax;
+	switch (m_shaderBinaryInfo.type)
+	{
+	case kShaderTypePs:
+		mode = spv::ExecutionModelFragment;
+		break;
+	case kShaderTypeVsVs:
+		mode = spv::ExecutionModelVertex;
+		break;
+	case kShaderTypeCs:
+		mode = spv::ExecutionModelGLCompute;
+		break;
+	case kShaderTypeGs:
+		mode = spv::ExecutionModelGeometry;
+		break;
+	case kShaderTypeHs:
+		mode = spv::ExecutionModelTessellationControl;
+		break;
+	case kShaderTypeDsVs:
+		mode = spv::ExecutionModelTessellationEvaluation;
+		break;
+	case kShaderTypeVsEs:
+	case kShaderTypeVsLs:
+		LOG_FIXME("LS and ES stage is not supported yet.");
+		break;
+	default:
+		LOG_ERR("Error shader type %d", m_shaderBinaryInfo.type);
+		break;
+	}
+	return mode;
+}
+
 bool PsslProgramInfo::initBinaryInfo(const uint8_t* code)
 {
 	bool ret = false;

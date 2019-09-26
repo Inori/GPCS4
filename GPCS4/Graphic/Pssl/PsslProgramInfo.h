@@ -4,6 +4,7 @@
 #include "PsslShaderStructure.h"
 #include "PsslEnums.h"
 #include "PsslKey.h"
+#include "../SpirV/spirv.hpp"
 
 namespace pssl
 {;
@@ -30,6 +31,8 @@ public:
 	const InputUsageSlot* getInputUsageSlot(uint32_t idx) const;
 
 	std::vector<InputUsageSlot> getInputUsageSlot() const;
+
+	spv::ExecutionModel executionModel() const;
 
 private:
 	bool initBinaryInfo(const uint8_t* code);

@@ -88,7 +88,8 @@ void GCNCompiler::emitVsInit()
 		m_vs.functionId,
 		m_module.defVoidType(),
 		m_module.defFunctionType(
-			m_module.defVoidType(), 0, nullptr));
+		m_module.defVoidType(), 0, nullptr));
+
 	this->emitFunctionLabel();
 }
 
@@ -117,6 +118,46 @@ void GCNCompiler::emitCsInit()
 
 }
 
+void GCNCompiler::emitVsFinalize()
+{
+	this->emitMainFunctionBegin();
+
+	//this->emitInputSetup();
+
+	m_module.opFunctionCall(
+		m_module.defVoidType(),
+		m_vs.functionId, 0, nullptr);
+
+	//this->emitOutputSetup();
+	
+	this->emitFunctionEnd();
+}
+
+void GCNCompiler::emitHsFinalize()
+{
+
+}
+
+void GCNCompiler::emitDsFinalize()
+{
+
+}
+
+void GCNCompiler::emitGsFinalize()
+{
+
+}
+
+void GCNCompiler::emitPsFinalize()
+{
+
+}
+
+void GCNCompiler::emitCsFinalize()
+{
+
+}
+
 void GCNCompiler::emitFunctionBegin(uint32_t entryPoint, uint32_t returnType, uint32_t funcType)
 {
 	this->emitFunctionEnd();
@@ -137,6 +178,17 @@ void GCNCompiler::emitFunctionEnd()
 	}
 
 	m_insideFunction = false;
+}
+
+void GCNCompiler::emitMainFunctionBegin()
+{
+	this->emitFunctionBegin(
+		m_entryPointId,
+		m_module.defVoidType(),
+		m_module.defFunctionType(
+		m_module.defVoidType(), 0, nullptr));
+
+	this->emitFunctionLabel();
 }
 
 void GCNCompiler::emitFunctionLabel()
@@ -222,6 +274,24 @@ void GCNCompiler::processInstruction(GCNInstruction& ins)
 
 RcPtr<gve::GveShader> GCNCompiler::finalize()
 {
+	switch (m_programInfo.getShaderType())
+	{
+	case VertexShader:   this->emitVsFinalize(); break;
+	case HullShader:     this->emitHsFinalize(); break;
+	case DomainShader:   this->emitDsFinalize(); break;
+	case GeometryShader: this->emitGsFinalize(); break;
+	case PixelShader:    this->emitPsFinalize(); break;
+	case ComputeShader:  this->emitCsFinalize(); break;
+	}
+
+	// Declare the entry point, we now have all the
+	// information we need, including the interfaces
+	m_module.addEntryPoint(m_entryPointId,
+		m_programInfo.executionModel(), "main",
+		m_entryPointInterfaces.size(),
+		m_entryPointInterfaces.data());
+	m_module.setDebugName(m_entryPointId, "main");
+
 	return RcPtr<gve::GveShader>(new gve::GveShader());
 }
 

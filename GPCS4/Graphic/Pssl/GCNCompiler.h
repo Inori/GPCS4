@@ -189,7 +189,8 @@ private:
 private:
 
 	void emitInit();
-
+	/////////////////////////////////
+	// Shader initialization methods
 	void emitVsInit();
 	void emitHsInit();
 	void emitDsInit();
@@ -197,12 +198,23 @@ private:
 	void emitPsInit();
 	void emitCsInit();
 
+	///////////////////////////////
+	// Shader finalization methods
+	void emitVsFinalize();
+	void emitHsFinalize();
+	void emitDsFinalize();
+	void emitGsFinalize();
+	void emitPsFinalize();
+	void emitCsFinalize();
+
 	void emitFunctionBegin(
 		uint32_t                entryPoint,
 		uint32_t                returnType,
 		uint32_t                funcType);
 
 	void emitFunctionEnd();
+
+	void emitMainFunctionBegin();
 
 	void emitFunctionLabel();
 
