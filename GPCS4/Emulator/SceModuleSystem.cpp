@@ -16,7 +16,7 @@ bool CSceModuleSystem::IsEndLibraryEntry(const SCE_EXPORT_LIBRARY* pLib)
 
 bool CSceModuleSystem::isModuleLoadable(const char * modueleName)
 {
-	bool retVal;
+	bool retVal = false;
 
 	if (m_umpModuleMapName.count(modueleName) != 0)
 	{
@@ -38,6 +38,7 @@ bool CSceModuleSystem::isModuleLoadable(const char * modueleName)
 	return retVal;
 }
 
+// TODO: code style issue. use do {} while (false); instead.
 bool CSceModuleSystem::isLibraryLoadable(std::string const &modName, std::string const &libName)
 {
 	// module has not been loaded
@@ -78,6 +79,7 @@ bool CSceModuleSystem::isLibraryLoadable(std::string const &modName, std::string
 	return true;
 }
 
+// TODO: code style issue. use do {} while (false); instead. 
 bool CSceModuleSystem::isFunctionLoadable(std::string const & modName, std::string const &libName, uint64_t nid)
 {
 	// module has not been loaded
