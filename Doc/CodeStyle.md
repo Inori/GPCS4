@@ -6,16 +6,16 @@
 Basically, the code style is based on Sony's style.  
 
 For example:
-1. Use lower camel case for `varable` and `function` name.  
+1. Use lower camel case for `variable` and `function` name.  
    like: `uint8_t shaderModifier;`, `void generateVsFetchShader();`
 
 2. Use upper camel case for `class`, `enum` and `struct` name.  
    like: `class ConstantUpdateEngine;`, `enum PsslType;`, `struct VsStageRegisters;`
 
-3. Use `m_` prefix for class member varable,   
+3. Use `m_` prefix for class member variable,   
    like: `void* m_cmdptr`  
 
-   Use `g_` prefix for global varable,  
+   Use `g_` prefix for global variable,  
    like: `SceModule g_moduleLibc`  
 
 4. Use stdint types  
@@ -170,6 +170,8 @@ And based on the above Sony's style, we add the following extra rules, to make o
 5. Add brace to `if`, `while` statement even if it has only one line of code followed.
 
 6. Do not use magic numbers directly, give it a meaningful name.
+
+7. Local variables should be initialized when defined.
 
 
 ## Rules recommended:
