@@ -53,6 +53,10 @@ void GCNCompiler::emitScalarALU(GCNInstruction& ins)
 	}
 }
 
+void GCNCompiler::emitScalarMov(GCNInstruction& ins)
+{
+
+}
 
 void GCNCompiler::emitScalarArith(GCNInstruction& ins)
 {
@@ -60,11 +64,6 @@ void GCNCompiler::emitScalarArith(GCNInstruction& ins)
 }
 
 void GCNCompiler::emitScalarAbs(GCNInstruction& ins)
-{
-
-}
-
-void GCNCompiler::emitScalarMov(GCNInstruction& ins)
 {
 
 }
