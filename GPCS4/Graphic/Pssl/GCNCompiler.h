@@ -78,15 +78,15 @@ struct PsslArrayType
 struct GcnStateRegister
 {
 	// local data share
-	uint64_t lds;
+	uint64_t lds = 0;
 	// exec mask
-	uint64_t exec;
+	uint64_t exec = 0;
 	// vector condition code
-	uint64_t vcc;
+	uint64_t vcc = 0;
 	// mode register
-	uint32_t mode;
+	uint32_t mode = 0;
 	// memory descriptor register
-	uint32_t m0;
+	uint32_t m0 = 0;
 };
 
 /**
@@ -185,6 +185,10 @@ private:
 	GcnCompilerVsPart m_vs;
 	GcnCompilerPsPart m_ps;
 	GcnCompilerCsPart m_cs;
+
+	///////////////////////////////////
+	// State registers
+	GcnStateRegister m_stateRegs;
 
 private:
 
