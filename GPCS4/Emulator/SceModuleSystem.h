@@ -23,7 +23,7 @@ private:
 
 	struct ModuleRecord
 	{
-		bool overrideable;
+		bool overridable;
 		std::unordered_map<std::string, LibraryRecord> libraries;
 	};
 
@@ -43,26 +43,34 @@ private:
 public:
 
 	bool RegisterModule(const SCE_EXPORT_MODULE& stModule);
+
+	bool RegisterFunction(std::string const &modName, std::string const &libName, uint64_t nid, void *p);
 	
 	void* FindFunction(const std::string& strModName, const std::string& strLibName, uint64 nNid);
 
 	bool IsModuleLoaded(const std::string& modName);
 
-	bool setModuleOverridability(const std::string &modName, bool overrideable);
+	bool isLibraryLoaded(std::string const &modName, std::string const &libName);
 
-	bool setLibraryOverridability(const std::string &modName, const std::string &libName, bool ovrd);
+	bool setModuleOverridability(const std::string &modName, bool isOverridable);
+
+	bool setLibraryOverridability(const std::string &modName, const std::string &libName, bool isOverridable);
 
 	bool setFunctionOverridability(const std::string &modName,
 								 const std::string &libName,
-								 uint64_t nid, bool overrideable);
+								 uint64_t nid, bool isOverridable);
 
 private:
 	bool IsEndFunctionEntry(const SCE_EXPORT_FUNCTION* pFunc);
 	bool IsEndLibraryEntry(const SCE_EXPORT_LIBRARY* pLib);
 
-	bool isModuleLoadable(const char *modueleName);
+	bool isModuleLoadable(std::string const &modName);
 	bool isLibraryLoadable(std::string const &modName, std::string const &libName);
 	bool isFunctionLoadable(std::string const &modName,std::string const &libName, uint64_t nid);
+
+	bool isModuleOverridable(std::string const &modName);
+	bool isLibraryOverridable(std::string const &modName, std::string const &libName);
+	bool isFunctionOverridable(std::string const &modName, std::string const &libName, uint64_t nid);
 
 private:
 
