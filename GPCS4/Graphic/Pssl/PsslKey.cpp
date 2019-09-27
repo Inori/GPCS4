@@ -24,7 +24,7 @@ PsslKey::~PsslKey()
 {
 }
 
-uint64_t PsslKey::getKey() const
+uint64_t PsslKey::toUint64() const
 {
 	return m_key;
 }

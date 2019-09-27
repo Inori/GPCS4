@@ -3,7 +3,7 @@
 
 #ifdef GPCS4_DEBUG
 // Dump shader to file
-#define GPCS4_DUMP_SHADER
+#define PSSL_DUMP_SHADER
 #endif
 
 
@@ -18,7 +18,7 @@ PsslShaderModule::PsslShaderModule(const uint32_t* code):
 	m_progInfo((const uint8_t*)code)
 {
 #ifdef GPCS4_DUMP_SHADER
-	dumpShader(m_progInfo.getShaderType(), (const uint8_t*)code, m_progInfo.getCodeSizeBytes());
+	dumpShader(m_progInfo.shaderType(), (const uint8_t*)code, m_progInfo.codeSizeBytes());
 #endif  // GPCS4_DUMP_SHADER
 }
 
@@ -41,7 +41,7 @@ RcPtr<gve::GveShader> PsslShaderModule::compile()
 
 RcPtr<gve::GveShader> PsslShaderModule::compileWithFS()
 {
-	const uint32_t* codeEnd = m_code + m_progInfo.getCodeSizeDwords();
+	const uint32_t* codeEnd = m_code + m_progInfo.codeSizeDwords();
 	GCNCodeSlice codeSlice(m_code, codeEnd);
 
 	GCNCompiler compiler(m_progInfo, m_vsInputSemantic);
@@ -52,7 +52,7 @@ RcPtr<gve::GveShader> PsslShaderModule::compileWithFS()
 
 RcPtr<gve::GveShader> PsslShaderModule::compileNoFS()
 {
-	const uint32_t* codeEnd = m_code + m_progInfo.getCodeSizeDwords();
+	const uint32_t* codeEnd = m_code + m_progInfo.codeSizeDwords();
 	GCNCodeSlice codeSlice(m_code, codeEnd);
 
 	GCNCompiler compiler(m_progInfo);
@@ -164,7 +164,7 @@ void PsslShaderModule::dumpShader(PsslProgramType type, const uint8_t* code, uin
 		break;
 	}
 
-	sprintf_s(filename, 64, format, m_progInfo.getKey().getKey());
+	sprintf_s(filename, 64, format, m_progInfo.key().toUint64());
 	UtilFile::StoreFile(filename, code, size);
 }
 
@@ -182,12 +182,12 @@ void PsslShaderModule::runCompiler(GCNCompiler& compiler, GCNCodeSlice slice)
 
 std::vector<InputUsageSlot> PsslShaderModule::inputUsageSlots()
 {
-	return m_progInfo.getInputUsageSlot();
+	return m_progInfo.inputUsageSlot();
 }
 
 pssl::PsslKey PsslShaderModule::key()
 {
-	return m_progInfo.getKey();
+	return m_progInfo.key();
 }
 
 std::vector<VertexInputSemantic> PsslShaderModule::vsInputSemantic()
