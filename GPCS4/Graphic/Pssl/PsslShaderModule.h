@@ -5,6 +5,7 @@
 #include "../Gve/GveShader.h"
 #include "GCNCompiler.h"
 #include "GCNDecoder.h"
+#include "GCNAnalyzer.h"
 
 namespace pssl
 {;
@@ -28,6 +29,8 @@ private:
 
 	RcPtr<gve::GveShader> compileWithFS();
 	RcPtr<gve::GveShader> compileNoFS();
+
+	void runAnalyzer(GCNAnalyzer& analyzer, GCNCodeSlice slice);
 
 	void runCompiler(GCNCompiler& compiler, GCNCodeSlice slice);
 

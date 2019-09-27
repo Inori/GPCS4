@@ -9,15 +9,17 @@ constexpr uint32_t PerVertex_Position = 0;
 constexpr uint32_t PerVertex_CullDist = 1;
 constexpr uint32_t PerVertex_ClipDist = 2;
 
-GCNCompiler::GCNCompiler(const PsslProgramInfo& progInfo):
-	GCNCompiler(progInfo, {})
+GCNCompiler::GCNCompiler(const PsslProgramInfo& progInfo, const GcnAnalysisInfo& analysis):
+	GCNCompiler(progInfo, analysis, {})
 {
 
 }
 
-GCNCompiler::GCNCompiler(const PsslProgramInfo& progInfo, const std::vector<VertexInputSemantic>& inputSemantic):
+GCNCompiler::GCNCompiler(const PsslProgramInfo& progInfo, const GcnAnalysisInfo& analysis, 
+	const std::vector<VertexInputSemantic>& inputSemantic):
 	m_programInfo(progInfo),
-	m_vsInputSemantic(inputSemantic)
+	m_vsInputSemantic(inputSemantic),
+	m_analysis(&analysis)
 {
 	// Declare an entry point ID. We'll need it during the
 	// initialization phase where the execution mode is set.

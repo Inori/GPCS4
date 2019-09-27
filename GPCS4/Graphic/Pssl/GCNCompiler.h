@@ -4,6 +4,7 @@
 #include "PsslProgramInfo.h"
 #include "PsslFetchShader.h"
 #include "GCNInstruction.h"
+#include "GCNAnalyzer.h"
 
 #include "GCNParser/SMRDInstruction.h"
 #include "GCNParser/SOPPInstruction.h"
@@ -144,8 +145,8 @@ struct GcnCompilerCsPart {
 class GCNCompiler
 {
 public:
-	GCNCompiler(const PsslProgramInfo& progInfo);
-	GCNCompiler(const PsslProgramInfo& progInfo, const std::vector<VertexInputSemantic>& inputSemantic);
+	GCNCompiler(const PsslProgramInfo& progInfo, const GcnAnalysisInfo& analysis);
+	GCNCompiler(const PsslProgramInfo& progInfo, const GcnAnalysisInfo& analysis, const std::vector<VertexInputSemantic>& inputSemantic);
 	~GCNCompiler();
 
 	void processInstruction(GCNInstruction& ins);
@@ -160,6 +161,9 @@ private:
 	std::vector<VertexInputSemantic> m_vsInputSemantic;
 
 	SpirvModule m_module;
+
+	// Global analyze information
+	const GcnAnalysisInfo* m_analysis;
 
 	///////////////////////////////////////////////////
 	// Entry point description - we'll need to declare

@@ -44,9 +44,12 @@ RcPtr<gve::GveShader> PsslShaderModule::compileWithFS()
 	const uint32_t* codeEnd = m_code + m_progInfo.codeSizeDwords();
 	GCNCodeSlice codeSlice(m_code, codeEnd);
 
-	GCNCompiler compiler(m_progInfo, m_vsInputSemantic);
-	runCompiler(compiler, codeSlice);
+	GcnAnalysisInfo analysisInfo;
+	GCNAnalyzer analyzer(analysisInfo);
+	this->runAnalyzer(analyzer, codeSlice);
 
+	GCNCompiler compiler(m_progInfo, analysisInfo, m_vsInputSemantic);
+	runCompiler(compiler, codeSlice);
 	return compiler.finalize();
 }
 
@@ -55,9 +58,12 @@ RcPtr<gve::GveShader> PsslShaderModule::compileNoFS()
 	const uint32_t* codeEnd = m_code + m_progInfo.codeSizeDwords();
 	GCNCodeSlice codeSlice(m_code, codeEnd);
 
-	GCNCompiler compiler(m_progInfo);
-	runCompiler(compiler, codeSlice);
+	GcnAnalysisInfo analysisInfo;
+	GCNAnalyzer analyzer(analysisInfo);
+	this->runAnalyzer(analyzer, codeSlice);
 
+	GCNCompiler compiler(m_progInfo, analysisInfo);
+	runCompiler(compiler, codeSlice);
 	return compiler.finalize();
 }
 
@@ -166,6 +172,19 @@ void PsslShaderModule::dumpShader(PsslProgramType type, const uint8_t* code, uin
 
 	sprintf_s(filename, 64, format, m_progInfo.key().toUint64());
 	UtilFile::StoreFile(filename, code, size);
+
+}
+
+void PsslShaderModule::runAnalyzer(GCNAnalyzer& analyzer, GCNCodeSlice slice)
+{
+	GCNDecodeContext decoder;
+
+	while (!slice.atEnd())
+	{
+		decoder.decodeInstruction(slice);
+
+		analyzer.processInstruction(decoder.getInstruction());
+	}
 }
 
 void PsslShaderModule::runCompiler(GCNCompiler& compiler, GCNCodeSlice slice)
