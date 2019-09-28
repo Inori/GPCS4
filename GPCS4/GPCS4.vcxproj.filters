@@ -697,11 +697,14 @@
     <ClInclude Include="Graphic\Gve\GveRenderPass.h">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClInclude>
-    <ClInclude Include="Loader\Module.h">
-      <Filter>Source Files\Loader</Filter>
-    </ClInclude>
     <ClInclude Include="Emulator\Module.h">
       <Filter>Source Files\Emulator</Filter>
+    </ClInclude>
+    <ClInclude Include="Loader\ELFMapper.h">
+      <Filter>Source Files\Loader</Filter>
+    </ClInclude>
+    <ClInclude Include="Loader\ModuleLoader.h">
+      <Filter>Source Files\Loader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1268,6 +1271,12 @@
     </ClCompile>
     <ClCompile Include="Graphic\Gve\GveRenderPass.cpp">
       <Filter>Source Files\Graphic\Gve</Filter>
+    </ClCompile>
+    <ClCompile Include="Loader\ELFMapper.cpp">
+      <Filter>Source Files\Loader</Filter>
+    </ClCompile>
+    <ClCompile Include="Loader\ModuleLoader.cpp">
+      <Filter>Source Files\Loader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

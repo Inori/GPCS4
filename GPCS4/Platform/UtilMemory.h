@@ -46,6 +46,6 @@ struct MemoryUnMapper
 	}
 };
 
-typedef std::unique_ptr<void, MemoryUnMapper> memory_uptr;
+typedef std::unique_ptr<byte, MemoryUnMapper> memory_uptr;
 
 }

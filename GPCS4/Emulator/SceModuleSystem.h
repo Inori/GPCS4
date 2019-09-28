@@ -45,10 +45,18 @@ public:
 	bool RegisterModule(const SCE_EXPORT_MODULE& stModule);
 
 	bool RegisterFunction(std::string const &modName, std::string const &libName, uint64_t nid, void *p);
+
+	// I use rvalue reference here to express "sink" semantics, which means the container would take ownership
+	// of the object after registeration and the original one would no longer be valid.
+	bool RegisterMemoryMappedModule(std::string const &modName, MemoryMappedModule &&mod);
+
+	bool GetMemoryMappedModule(std::string const &modName, MemoryMappedModule **ppMod);
 	
 	void* FindFunction(const std::string& strModName, const std::string& strLibName, uint64 nNid);
 
 	bool IsModuleLoaded(const std::string& modName);
+
+	bool isModuleLoadable(std::string const &modName);
 
 	bool isLibraryLoaded(std::string const &modName, std::string const &libName);
 
@@ -64,7 +72,6 @@ private:
 	bool IsEndFunctionEntry(const SCE_EXPORT_FUNCTION* pFunc);
 	bool IsEndLibraryEntry(const SCE_EXPORT_LIBRARY* pLib);
 
-	bool isModuleLoadable(std::string const &modName);
 	bool isLibraryLoadable(std::string const &modName, std::string const &libName);
 	bool isFunctionLoadable(std::string const &modName,std::string const &libName, uint64_t nid);
 

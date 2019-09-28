@@ -116,7 +116,8 @@
     <ClInclude Include="Graphic\SpirV\SpirvModule.h" />
     <ClInclude Include="Loader\EbootObject.h" />
     <ClInclude Include="Loader\elf.h" />
-    <ClInclude Include="Loader\Module.h" />
+    <ClInclude Include="Loader\ELFMapper.h" />
+    <ClInclude Include="Loader\ModuleLoader.h" />
     <ClInclude Include="Platform\PlatformUtils.h" />
     <ClInclude Include="Platform\UtilFile.h" />
     <ClInclude Include="Platform\UtilHardware.h" />
@@ -261,6 +262,8 @@
     <ClCompile Include="Graphic\SpirV\SpirvModule.cpp" />
     <ClCompile Include="ImportLibs.cpp" />
     <ClCompile Include="Loader\EbootObject.cpp" />
+    <ClCompile Include="Loader\ELFMapper.cpp" />
+    <ClCompile Include="Loader\ModuleLoader.cpp" />
     <ClCompile Include="Platform\UtilFile.cpp" />
     <ClCompile Include="Platform\UtilHardware.cpp" />
     <ClCompile Include="Platform\UtilMemory.cpp" />

@@ -228,7 +228,9 @@ bool CSceModuleSystem::RegisterModule(const SCE_EXPORT_MODULE& stModule)
 	return bRet;
 }
 
-bool CSceModuleSystem::RegisterFunction(std::string const & modName, std::string const & libName, uint64_t nid, void *p)
+bool CSceModuleSystem::RegisterFunction(std::string const & modName, 
+										std::string const & libName,
+										uint64_t nid, void *p)
 {
 	bool retVal = false;
 
@@ -268,6 +270,29 @@ bool CSceModuleSystem::RegisterFunction(std::string const & modName, std::string
 		}
 
 	} while (false);
+
+	return retVal;
+}
+
+bool CSceModuleSystem::RegisterMemoryMappedModule(std::string const &modName,
+												  MemoryMappedModule &&mod)
+{
+	m_mappedModules.insert(std::make_pair(modName, std::move(mod)));
+	return true;
+}
+
+bool CSceModuleSystem::GetMemoryMappedModule(std::string const & modName, MemoryMappedModule **ppMod)
+{
+	bool retVal = true;
+
+	if (m_mappedModules.count(modName) == 0)
+	{
+		retVal = false;
+	}
+	else
+	{
+		*ppMod = &m_mappedModules.at(modName);
+	}
 
 	return retVal;
 }

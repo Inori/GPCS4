@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <memory>
+#include <map>
 
 
 struct MODULE_INFO
@@ -88,13 +89,15 @@ struct IMPORT_LIBRARY
 
 struct MemoryMappedModule
 {
-	Elf64_Ehdr *elfHeader;
+	std::string moduleName;
 	std::vector<Elf64_Phdr> segmentHeaders;
 	std::vector<IMPORT_LIBRARY> importLibraries;
 	std::vector<IMPORT_MODULE> importModules;
+	std::map<std::string, void*> exportSymbols;
 	UtilMemory::memory_uptr mappedMemory;
 	size_t mappedSize;
 	std::vector<byte> fileMemory;
 
+	Elf64_Ehdr *elfHeader;
 	MODULE_INFO moduleInfo;
 };
