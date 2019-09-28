@@ -89,10 +89,15 @@ struct IMPORT_LIBRARY
 
 struct MemoryMappedModule
 {
-	std::string moduleName;
+	std::string fileName;
 	std::vector<Elf64_Phdr> segmentHeaders;
 	std::vector<IMPORT_LIBRARY> importLibraries;
+	std::vector<IMPORT_LIBRARY> exportLibraries;
+
 	std::vector<IMPORT_MODULE> importModules;
+	std::vector<IMPORT_MODULE> exportModules;
+
+	std::vector<std::string> neededFiles;
 	std::map<std::string, void*> exportSymbols;
 	UtilMemory::memory_uptr mappedMemory;
 	size_t mappedSize;

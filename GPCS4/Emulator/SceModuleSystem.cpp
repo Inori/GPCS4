@@ -480,5 +480,31 @@ bool CSceModuleSystem::setFunctionOverridability(const std::string & modName,
 	return retVal;
 }
 
+bool CSceModuleSystem::addAllowedFile(std::string const & fileName)
+{
+	if (m_allowedFiles.count(fileName) == 0)
+	{
+		m_allowedFiles.insert(std::make_pair(fileName, true));
+	}
+
+	return true;
+}
+
+bool CSceModuleSystem::isFileAllowedToLoad(std::string const & fileName)
+{
+	bool retVal = false;
+
+	if (m_allowedFiles.count(fileName) == 0)
+	{
+		retVal = false;
+	}
+	else
+	{
+		retVal = true;
+	}
+
+	return retVal;
+}
+
 
 

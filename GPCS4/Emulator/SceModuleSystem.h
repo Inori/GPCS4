@@ -36,6 +36,8 @@ private:
 	typedef std::unordered_map<std::string, NameFuncMap> SceLibMapName;
 
 	typedef std::unordered_map<std::string, SceLibMapNid> SceModuleMapNid;
+
+	typedef std::unordered_map<std::string, bool> SceAllowedFileMap;
 	typedef std::unordered_map<std::string, SceLibMapName> SceModuleMapName;
 	typedef std::unordered_map<std::string, ModuleRecord> SceOverridableMapNid;
 	typedef std::unordered_map<std::string, MemoryMappedModule> SceMappedModuleMap;
@@ -68,6 +70,9 @@ public:
 								 const std::string &libName,
 								 uint64_t nid, bool isOverridable);
 
+	bool addAllowedFile(std::string const &fileName);
+	bool isFileAllowedToLoad(std::string const &fileName);
+
 private:
 	bool IsEndFunctionEntry(const SCE_EXPORT_FUNCTION* pFunc);
 	bool IsEndLibraryEntry(const SCE_EXPORT_LIBRARY* pLib);
@@ -86,6 +91,8 @@ private:
 
 	SceOverridableMapNid m_overridableModules;
 	SceMappedModuleMap m_mappedModules;
+
+	SceAllowedFileMap m_allowedFiles;
 
 private:
 	CSceModuleSystem();

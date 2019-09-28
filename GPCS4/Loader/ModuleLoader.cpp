@@ -18,7 +18,7 @@ bool ModuleLoader::loadModule(std::string const & fileName)
 			break;
 		}
 
-		retVal = loadDepedencies();
+		retVal = loadDependencies();
 		if (!retVal)
 		{
 			break;
@@ -36,6 +36,12 @@ bool ModuleLoader::loadModuleFromFile(std::string const & fileName, MemoryMapped
 	bool retVal = false;
 	do
 	{
+		retVal = mapFilePathToModuleName(fileName, &mod->fileName);
+		if (!retVal)
+		{
+			break;
+		}
+
 		retVal = m_mapper.loadFile(fileName, mod);
 		if (!retVal)
 		{
@@ -93,26 +99,26 @@ bool ModuleLoader::loadModuleFromFile(std::string const & fileName, MemoryMapped
 	return retVal;
 }
 
-bool ModuleLoader::loadDepedencies()
+bool ModuleLoader::loadDependencies()
 {
 	bool retVal = true;
 
-	while (!m_modulesToLoad.empty())
+	while (!m_filesToLoad.empty())
 	{
-		auto modName = m_modulesToLoad.front();
-		m_modulesToLoad.pop();
+		auto fileName = m_filesToLoad.front();
+		m_filesToLoad.pop();
 		
-		if (!m_modSystem->isModuleLoadable(modName))
+		if (!m_modSystem->isFileAllowedToLoad(fileName))
 		{
-			LOG_DEBUG("module %s is not loadable", modName.c_str());
+			LOG_DEBUG("File %s is not loadable", fileName.c_str());
 			continue;
 		}
 
 		std::string path = {};
-		retVal = mapModuleNameToFilePath(modName, &path);
+		retVal = mapModuleNameToFilePath(fileName, &path);
 		if (!retVal)
 		{
-			LOG_ERR("unable to locate module %s", modName.c_str());
+			LOG_ERR("Unable to locate file %s", fileName.c_str());
 			break;
 		}
 
@@ -120,7 +126,7 @@ bool ModuleLoader::loadDepedencies()
 		retVal = loadModuleFromFile(path, &mod);
 		if (!retVal)
 		{
-			LOG_ERR("fail to get module name from file name");
+			LOG_ERR("Fail to load module");
 			break;
 		}
 	}
@@ -130,9 +136,9 @@ bool ModuleLoader::loadDepedencies()
 
 bool ModuleLoader::addDepedenciesToLoad(MemoryMappedModule const &mod)
 {
-	for (auto const &importMod : mod.importModules)
+	for (auto const &file : mod.neededFiles)
 	{
-		m_modulesToLoad.push(importMod.strName);
+		m_filesToLoad.push(file);
 	}
 
 	return true;
@@ -140,14 +146,36 @@ bool ModuleLoader::addDepedenciesToLoad(MemoryMappedModule const &mod)
 
 bool ModuleLoader::mapModuleNameToFilePath(std::string const & modName, std::string * path)
 {
-	LOG_FIXME("not implemented");
-	return false;
+	LOG_FIXME("Test only implementation");
+	*path = modName;
+	return true;
 }
 
 bool ModuleLoader::mapFilePathToModuleName(std::string const & filePath, std::string * modName)
 {
-	LOG_FIXME("not implemented");
-	return false;
+	// TODO: an unified implementation is needed.
+	bool retVal = false;
+	do
+	{
+		auto idx = filePath.find_last_of("/\\");
+		if (idx == std::string::npos)
+		{
+			retVal = true;
+			*modName = filePath;
+			break;
+		}
+
+		if (idx == filePath.size() - 1)
+		{
+			LOG_ERR("file name %s is invalid", filePath.c_str());
+			break;
+		}
+
+		*modName = filePath.substr(idx + 1);
+		retVal = true;
+	} while (false);
+
+	return retVal;
 }
 
 bool ModuleLoader::registerSymbol(std::string const & encName, void * pointer)

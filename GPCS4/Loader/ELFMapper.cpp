@@ -41,7 +41,7 @@ bool ELFMapper::loadFile(std::string const & filePath, MemoryMappedModule * mod)
 
 		fseek(file.get(), 0, SEEK_SET);
 		size_t numOfBytes = fread(&mod->fileMemory[0], fileSize, 1, file.get());
-		if (numOfBytes != fileSize)
+		if (numOfBytes != 1)
 		{
 			LOG_ERR("fail to read file");
 			break;
@@ -252,6 +252,8 @@ bool ELFMapper::mapImageIntoMemroy()
 		m_moduleData->mappedMemory.reset(buffer);
 		m_moduleData->mappedSize = totalSize;
 
+		LOG_DEBUG("Module %s is loaded at 0x%08x size=%ld", m_moduleData->fileName.c_str(), buffer, totalSize);
+
 		info.pMappedAddr = buffer;
 		info.nMappedSize = totalSize;
 
@@ -260,6 +262,7 @@ bool ELFMapper::mapImageIntoMemroy()
 			if (phdr.p_flags & PF_X)
 			{
 				retVal = mapCodeSegment(phdr);
+				LOG_DEBUG("code segment at 0x%08x size=%ld", info.pCodeAddr, info.nCodeSize);
 			}
 			else if (phdr.p_type == PT_SCE_RELRO)
 			{
@@ -268,6 +271,7 @@ bool ELFMapper::mapImageIntoMemroy()
 			else if (phdr.p_flags & PF_W)
 			{
 				retVal = mapDataSegment(phdr);
+				LOG_DEBUG("data segment at 0x%08x size=%ld", info.pDataAddr, info.nDataSize);
 				// there should no longer be segment to be mapped,
 				// and we stop enumerating right here.
 				break;
@@ -304,23 +308,29 @@ bool ELFMapper::parseSymbols()
 		case STB_GLOBAL:
 		{
 			LOG_DEBUG("%s symbol: %s BINDING: STB_GLOBAL VAL: %d", type, name, symbol.st_value);
-			void *addr = m_moduleData->mappedMemory.get() + symbol.st_value;
-			m_moduleData->exportSymbols.insert(std::make_pair(name, addr));
+			if (symbol.st_value != 0)
+			{
+				void *addr = m_moduleData->mappedMemory.get() + symbol.st_value;
+				m_moduleData->exportSymbols.insert(std::make_pair(name, addr));
+			}
 		}
 		break;
 
 		case STB_WEAK:
 		{
 			LOG_DEBUG("%s symbol: %s BINDING: STB_WEAK VAL: %d", type, name, symbol.st_value);
-			void *addr = m_moduleData->mappedMemory.get() + symbol.st_value;
-			m_moduleData->exportSymbols.insert(std::make_pair(name, addr));
+			if (symbol.st_value != 0)
+			{
+				void *addr = m_moduleData->mappedMemory.get() + symbol.st_value;
+				m_moduleData->exportSymbols.insert(std::make_pair(name, addr));
+			}
 		}
 		break;
 
 		}
 	}
 
-	return false;
+	return true;
 }
 
 bool ELFMapper::prepareTables(Elf64_Dyn const & entry, uint index)
@@ -488,6 +498,7 @@ bool ELFMapper::parseSingleDynEntry(Elf64_Dyn const & entry, uint index)
 	case DT_NEEDED:
 	{
 		char *fileName = (char*)&strTable[entry.d_un.d_ptr];
+		m_moduleData->neededFiles.push_back(fileName);
 		LOG_DEBUG("DT_NEEDED: %s", fileName);
 	}
 	break;
@@ -497,6 +508,7 @@ bool ELFMapper::parseSingleDynEntry(Elf64_Dyn const & entry, uint index)
 		IMPORT_MODULE mod;
 		mod.value = entry.d_un.d_val;
 		mod.strName = reinterpret_cast<char*>(&strTable[mod.name_offset]);
+		m_moduleData->exportModules.push_back(mod);
 		LOG_DEBUG("DT_SCE_MODULE_INFO: %s", mod.strName.c_str());
 	}
 	break;
@@ -516,8 +528,8 @@ bool ELFMapper::parseSingleDynEntry(Elf64_Dyn const & entry, uint index)
 		IMPORT_LIBRARY lib;
 		lib.value = entry.d_un.d_val;
 		lib.strName = reinterpret_cast<char*>(&strTable[lib.name_offset]);
+		m_moduleData->exportLibraries.push_back(lib);
 		LOG_DEBUG("DT_SCE_EXPORT_LIB %s", lib.strName.c_str());
-		// m_ELFMeta->importLibraries.push_back(lib);
 	}
 	break;
 
@@ -624,17 +636,12 @@ bool ELFMapper::mapSecReloSegment(Elf64_Phdr const & phdr)
 			break;
 		}
 
-		info.nCodeSize = phdr.p_memsz;
-		info.pCodeAddr = reinterpret_cast<byte*>(
-			ALIGN_DOWN(size_t(info.pMappedAddr) + phdr.p_vaddr, phdr.p_align)
+		byte *relroAddr = reinterpret_cast<byte*>(
+			ALIGN_DOWN(size_t(info.pMappedAddr + phdr.p_vaddr), phdr.p_align)
 			);
+		byte *fileDataPtr = fileData.data() + phdr.p_offset;
 
-		byte *fileDataPtr = reinterpret_cast<byte*>(m_moduleData->mappedMemory.get()) + phdr.p_offset;
-		memcpy(info.pCodeAddr, fileDataPtr, phdr.p_filesz);
-
-		info.pEntryPoint = info.pCodeAddr + m_moduleData->elfHeader->e_entry;
-		info.pTlsAddr = info.pCodeAddr + (uint64_t)info.pTlsAddr;
-
+		memcpy(relroAddr, fileDataPtr, phdr.p_filesz);
 		retVal = true;
 
 	} while (false);
@@ -655,16 +662,13 @@ bool ELFMapper::mapDataSegment(Elf64_Phdr const & phdr)
 			break;
 		}
 
-		info.nCodeSize = phdr.p_memsz;
-		info.pCodeAddr = reinterpret_cast<byte*>(
+		info.nDataSize = phdr.p_memsz;
+		info.pDataAddr = reinterpret_cast<byte*>(
 			ALIGN_DOWN(size_t(info.pMappedAddr) + phdr.p_vaddr, phdr.p_align)
 			);
 
 		byte *fileDataPtr = reinterpret_cast<byte*>(m_moduleData->mappedMemory.get()) + phdr.p_offset;
-		memcpy(info.pCodeAddr, fileDataPtr, phdr.p_filesz);
-
-		info.pEntryPoint = info.pCodeAddr + m_moduleData->elfHeader->e_entry;
-		info.pTlsAddr = info.pCodeAddr + (uint64_t)info.pTlsAddr;
+		memcpy(info.pDataAddr, fileDataPtr, phdr.p_filesz);
 
 		retVal = true;
 
@@ -676,7 +680,7 @@ bool ELFMapper::mapDataSegment(Elf64_Phdr const & phdr)
 bool ELFMapper::getModuleNameFromId(uint id, std::string * modName)
 {
 	bool retVal = false;
-	auto &modules = m_moduleData->importModules;
+	auto &modules = m_moduleData->exportModules;
 	do
 	{
 		if (modName == nullptr)
@@ -702,7 +706,7 @@ bool ELFMapper::getModuleNameFromId(uint id, std::string * modName)
 bool ELFMapper::getLibraryNameFromId(uint id, std::string * libName)
 {
 	bool retVal = false;
-	auto &libs = m_moduleData->importLibraries;
+	auto &libs = m_moduleData->exportLibraries;
 
 	do
 	{

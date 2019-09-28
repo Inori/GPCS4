@@ -1,4 +1,6 @@
 #include "Emulator/Emulator.h"
+#include "Loader/ModuleLoader.h"
+#include "Emulator/SceModuleSystem.h"
 #include <memory>
 
 int main(int argc, char* argv[])
@@ -22,14 +24,20 @@ int main(int argc, char* argv[])
 			break;
 		}
 
-		if (!pEmulator->LoadEboot(szEboot))
+		// TODO: for testing only. remember to remove this
+		ModuleLoader loader = { CSceModuleSystem::GetInstance() };
+		if (!loader.loadModule(szEboot))
 		{
 			break;
 		}
+		//if (!pEmulator->LoadEboot(szEboot))
+		//{
+		//	break;
+		//}
 
-		pEmulator->Run();
+		//pEmulator->Run();
 
-		pEmulator->Unit();
+		//pEmulator->Unit();
 		nRet = 0;
 	} while (false);
 
