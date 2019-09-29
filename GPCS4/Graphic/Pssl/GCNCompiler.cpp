@@ -9,15 +9,17 @@ constexpr uint32_t PerVertex_Position = 0;
 constexpr uint32_t PerVertex_CullDist = 1;
 constexpr uint32_t PerVertex_ClipDist = 2;
 
-GCNCompiler::GCNCompiler(const PsslProgramInfo& progInfo):
-	GCNCompiler(progInfo, {})
+GCNCompiler::GCNCompiler(const PsslProgramInfo& progInfo, const GcnAnalysisInfo& analysis):
+	GCNCompiler(progInfo, analysis, {})
 {
 
 }
 
-GCNCompiler::GCNCompiler(const PsslProgramInfo& progInfo, const std::vector<VertexInputSemantic>& inputSemantic):
+GCNCompiler::GCNCompiler(const PsslProgramInfo& progInfo, const GcnAnalysisInfo& analysis, 
+	const std::vector<VertexInputSemantic>& inputSemantic):
 	m_programInfo(progInfo),
-	m_vsInputSemantic(inputSemantic)
+	m_vsInputSemantic(inputSemantic),
+	m_analysis(&analysis)
 {
 	// Declare an entry point ID. We'll need it during the
 	// initialization phase where the execution mode is set.
@@ -26,7 +28,7 @@ GCNCompiler::GCNCompiler(const PsslProgramInfo& progInfo, const std::vector<Vert
 	// Set the shader name so that we recognize it in renderdoc
 	m_module.setDebugSource(
 		spv::SourceLanguageUnknown, 0,
-		m_module.addDebugString(progInfo.getKey().toString().c_str()),
+		m_module.addDebugString(progInfo.key().toString().c_str()),
 		nullptr);
 
 	//// Set the memory model. This is the same for all shaders.
@@ -50,7 +52,7 @@ void GCNCompiler::emitInit()
 
 	// Initialize the shader module with capabilities
 	// etc. Each shader type has its own peculiarities.
-	switch (m_programInfo.getShaderType())
+	switch (m_programInfo.shaderType())
 	{
 	case VertexShader:   emitVsInit(); break;
 	case HullShader:     emitHsInit(); break;
@@ -285,7 +287,7 @@ void GCNCompiler::processInstruction(GCNInstruction& ins)
 
 RcPtr<gve::GveShader> GCNCompiler::finalize()
 {
-	switch (m_programInfo.getShaderType())
+	switch (m_programInfo.shaderType())
 	{
 	case VertexShader:   this->emitVsFinalize(); break;
 	case HullShader:     this->emitHsFinalize(); break;
@@ -303,7 +305,9 @@ RcPtr<gve::GveShader> GCNCompiler::finalize()
 		m_entryPointInterfaces.data());
 	m_module.setDebugName(m_entryPointId, "main");
 
-	return RcPtr<gve::GveShader>(new gve::GveShader());
+	return new gve::GveShader(m_programInfo.shaderStage(), 
+		m_module.compile(), 
+		m_programInfo.key());
 }
 
 

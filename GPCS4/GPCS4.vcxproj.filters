@@ -697,6 +697,9 @@
     <ClInclude Include="Graphic\Gve\GveRenderPass.h">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNAnalyzer.h">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1262,6 +1265,9 @@
     </ClCompile>
     <ClCompile Include="Graphic\Gve\GveRenderPass.cpp">
       <Filter>Source Files\Graphic\Gve</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\GCNAnalyzer.cpp">
+      <Filter>Source Files\Graphic\Pssl</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

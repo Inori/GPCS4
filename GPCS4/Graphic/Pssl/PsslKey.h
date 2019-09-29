@@ -15,7 +15,7 @@ public:
 	PsslKey(uint32_t crc, uint32_t hash);
 	~PsslKey();
 
-	uint64_t getKey() const;
+	uint64_t toUint64() const;
 
 	std::string toString() const;
 
