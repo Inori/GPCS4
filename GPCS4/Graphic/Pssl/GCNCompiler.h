@@ -23,57 +23,21 @@
 #include "../SpirV/SpirvModule.h"
 
 #include <optional>
+#include <map>
 
 namespace pssl
 {;
 
-/**
- * \brief Scalar value type
- *
- * Enumerates possible register component
- * types. Scalar types are represented as
- * a one-component vector type.
- */
-enum PsslScalarType : uint32_t
+
+struct SpirvRegisterValue
 {
-	Uint32 = 0,
-	Uint64 = 1,
-	Sint32 = 2,
-	Sint64 = 3,
-	Float32 = 4,
-	Float64 = 5,
-	Bool = 6,
+	SpirvRegisterValue(spv::Id tid, spv::Id vid):
+		typeId(tid), varId(vid)
+	{}
+
+	spv::Id typeId = 0;
+	spv::Id varId = 0;
 };
-
-/**
- * \brief Vector type
- *
- * Convenience struct that stores a scalar
- * type and a component count. The compiler
- * can use this to generate SPIR-V types.
- */
-struct PsslVectorType 
-{
-	PsslScalarType    ctype;
-	uint32_t          ccount;
-};
-
-
-/**
- * \brief Array type
- *
- * Convenience struct that stores a scalar type, a
- * component count and an array size. An array of
- * length 0 will be evaluated to a vector type. The
- * compiler can use this to generate SPIR-V types.
- */
-struct PsslArrayType 
-{
-	PsslScalarType    ctype;
-	uint32_t          ccount;
-	uint32_t          alength;
-};
-
 
 struct GcnStateRegister
 {
@@ -92,11 +56,12 @@ struct GcnStateRegister
 /**
  * \brief Vertex shader-specific structure
  */
-struct GcnCompilerVsPart {
-	uint32_t functionId = 0;
+struct GcnCompilerVsPart 
+{
+	spv::Id functionId = 0;
 
-	uint32_t builtinVertexId = 0;
-	uint32_t builtinInstanceId = 0;
+	spv::Id builtinVertexId = 0;
+	spv::Id builtinInstanceId = 0;
 	uint32_t builtinBaseVertex = 0;
 	uint32_t builtinBaseInstance = 0;
 };
@@ -105,8 +70,9 @@ struct GcnCompilerVsPart {
 /**
  * \brief Pixel shader-specific structure
  */
-struct GcnCompilerPsPart {
-	uint32_t functionId = 0;
+struct GcnCompilerPsPart 
+{
+	spv::Id functionId = 0;
 
 	uint32_t builtinFragCoord = 0;
 	uint32_t builtinDepth = 0;
@@ -127,8 +93,9 @@ struct GcnCompilerPsPart {
 /**
  * \brief Compute shader-specific structure
  */
-struct GcnCompilerCsPart {
-	uint32_t functionId = 0;
+struct GcnCompilerCsPart 
+{
+	spv::Id functionId = 0;
 
 	uint32_t workgroupSizeX = 0;
 	uint32_t workgroupSizeY = 0;
@@ -190,6 +157,11 @@ private:
 	// State registers
 	GcnStateRegister m_stateRegs;
 
+	///////////////////////////////////
+	// Gcn register to spir-v variable map
+	std::map<uint32_t, SpirvRegisterValue> m_sgprs;
+	std::map<uint32_t, SpirvRegisterValue> m_vgprs;
+
 private:
 
 	void emitInit();
@@ -222,7 +194,10 @@ private:
 
 	void emitFunctionLabel();
 
+	void emitDclVertexInput();
+	void emitDclVertexOutput();
 
+	/////////////////////////////////////////////////////////
 	// Category handlers
 	void emitScalarALU(GCNInstruction& ins);
 	void emitScalarMemory(GCNInstruction& ins);
@@ -326,11 +301,13 @@ private:
 	/////////////////////////////////////////////////////////
 
 
-	// Convenient functions to dynamic cast instruction types
-	template <typename InsType>
-	inline InsType* castTo(GCNInstruction& ins)
+	// Convenience function to dynamic cast instruction types
+	template<typename InsType>
+	inline
+	typename std::enable_if<std::is_base_of<Instruction, InsType>::value, const InsType*>::type
+	asInst(const GCNInstruction& ins)
 	{
-		return dynamic_cast<InsType*>(ins.instruction.get());
+		return dynamic_cast<const InsType*>(ins.instruction.get());
 	}
 
 	///////////////////////////

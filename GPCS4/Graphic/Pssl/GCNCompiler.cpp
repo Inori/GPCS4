@@ -63,34 +63,26 @@ void GCNCompiler::emitInit()
 
 void GCNCompiler::emitVsInit()
 {
-	m_module.enableCapability(spv::CapabilityClipDistance);
-	m_module.enableCapability(spv::CapabilityCullDistance);
+	//m_module.enableCapability(spv::CapabilityClipDistance);
+	//m_module.enableCapability(spv::CapabilityCullDistance);
 	m_module.enableCapability(spv::CapabilityDrawParameters);
 
 	m_module.enableExtension("SPV_KHR_shader_draw_parameters");
 
-	// Declare the per-vertex output block. This is where
-	// the vertex shader will write the vertex position.
-	const uint32_t perVertexStructType = this->getPerVertexBlockId();
-	const uint32_t perVertexPointerType = m_module.defPointerType(
-		perVertexStructType, spv::StorageClassOutput);
-
-	m_perVertexOut = m_module.newVar(
-		perVertexPointerType, spv::StorageClassOutput);
-	m_entryPointInterfaces.push_back(m_perVertexOut);
-	m_module.setDebugName(m_perVertexOut, "vs_vertex_out");
+	emitDclVertexInput();
+	emitDclVertexOutput();
 
 	// Main function of the vertex shader
 	m_vs.functionId = m_module.allocateId();
 	m_module.setDebugName(m_vs.functionId, "vs_main");
 
-	this->emitFunctionBegin(
+	emitFunctionBegin(
 		m_vs.functionId,
 		m_module.defVoidType(),
 		m_module.defFunctionType(
 		m_module.defVoidType(), 0, nullptr));
 
-	this->emitFunctionLabel();
+	emitFunctionLabel();
 }
 
 void GCNCompiler::emitHsInit()
@@ -194,6 +186,25 @@ void GCNCompiler::emitMainFunctionBegin()
 void GCNCompiler::emitFunctionLabel()
 {
 	m_module.opLabel(m_module.allocateId());
+}
+
+void GCNCompiler::emitDclVertexInput()
+{
+
+}
+
+void GCNCompiler::emitDclVertexOutput()
+{
+	// Declare the per-vertex output block. This is where
+	// the vertex shader will write the vertex position.
+	const uint32_t perVertexStructType = this->getPerVertexBlockId();
+	const uint32_t perVertexPointerType = m_module.defPointerType(
+		perVertexStructType, spv::StorageClassOutput);
+
+	m_perVertexOut = m_module.newVar(
+		perVertexPointerType, spv::StorageClassOutput);
+	m_entryPointInterfaces.push_back(m_perVertexOut);
+	m_module.setDebugName(m_perVertexOut, "vs_vertex_out");
 }
 
 uint32_t GCNCompiler::getPerVertexBlockId()
