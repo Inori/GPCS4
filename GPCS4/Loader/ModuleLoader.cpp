@@ -1,7 +1,8 @@
 #include "ModuleLoader.h"
 
-ModuleLoader::ModuleLoader(CSceModuleSystem * modSystem):
-	m_modSystem(modSystem)
+ModuleLoader::ModuleLoader(CSceModuleSystem &modSystem):
+	m_modSystem(modSystem),
+	m_linker(modSystem)
 {
 }
 
@@ -24,8 +25,13 @@ bool ModuleLoader::loadModule(std::string const & fileName)
 			break;
 		}
 
-		retVal = true;
+		retVal = m_linker.relocateModules();
+		if (!retVal)
+		{
+			break;
+		}
 
+		retVal = true;
 	} while (false);
 
 	return retVal;
@@ -89,10 +95,10 @@ bool ModuleLoader::loadModuleFromFile(std::string const & fileName, MemoryMapped
 
 		for (auto &symbol : mod->exportSymbols)
 		{
-			registerSymbol(symbol.first, symbol.second);
+			registerSymbol(*mod, symbol.first, symbol.second);
 		}
 
-		m_modSystem->RegisterMemoryMappedModule(moduleName, std::move(*mod));
+		m_modSystem.registerMemoryMappedModule(moduleName, std::move(*mod));
 		retVal = true;
 	} while (false);
 
@@ -108,7 +114,7 @@ bool ModuleLoader::loadDependencies()
 		auto fileName = m_filesToLoad.front();
 		m_filesToLoad.pop();
 		
-		if (!m_modSystem->isFileAllowedToLoad(fileName))
+		if (!m_modSystem.isFileAllowedToLoad(fileName))
 		{
 			LOG_DEBUG("File %s is not loadable", fileName.c_str());
 			continue;
@@ -178,39 +184,222 @@ bool ModuleLoader::mapFilePathToModuleName(std::string const & filePath, std::st
 	return retVal;
 }
 
-bool ModuleLoader::registerSymbol(std::string const & encName, void * pointer)
+bool ModuleLoader::registerSymbol(MemoryMappedModule const & mod, std::string const & encName, void *pointer)
+{
+	bool retVal = false;
+	do
+	{
+		std::string modName = {};
+		std::string libName = {};
+		uint64_t nid = 0;
+
+		retVal = mod.getExportSymbolInfo(encName, &modName, &libName, &nid);
+		if (!retVal)
+		{
+			break;
+		}
+
+		retVal = m_modSystem.registerFunction(modName, libName, nid, pointer);
+		if (!retVal)
+		{
+			break;
+		}
+
+		retVal = true;
+	} while (false);
+
+	return retVal;
+}
+
+//bool ModuleLoader::registerSymbol(std::string const & encName, void * pointer)
+//{
+//	bool retVal = false;
+//
+//	do
+//	{
+//		uint modId = 0, libId = 0;
+//		uint64_t funcNid = 0;
+//
+//		retVal = m_mapper.decodeEncodedName(encName, &modId, &libId, &funcNid);
+//		if (!retVal)
+//		{
+//			break;
+//		}
+//
+//		std::string modName = {};
+//		std::string libName = {};
+//
+//		//retVal = m_mapper.getModuleNameFromId(modId, &modName);
+//		//if (!retVal)
+//		//{
+//		//	break;
+//		//}
+//
+//		//retVal = m_mapper.getLibraryNameFromId(libId, &libName);
+//		//if (!retVal)
+//		//{
+//		//	break;
+//		//}
+//
+//		m_modSystem.registerFunction(modName, libName, funcNid, pointer);
+//
+//	} while (false);
+//
+//	return retVal;
+//}
+
+bool ModuleLoader::relocateRela(MemoryMappedModule const & mod)
+{
+	bool retVal = false;
+	do
+	{
+		if (mod.fileMemory.empty())
+		{
+			break;
+		}
+
+		auto &info = mod.moduleInfo;
+
+		byte* pImageBase = info.pCodeAddr;
+		byte* pStrTab = info.pStrTab;
+		Elf64_Sym* pSymTab = (Elf64_Sym*)info.pSymTab;
+		Elf64_Rela* pRelaEntries = (Elf64_Rela*)info.pRela;
+		for (uint i = 0; i != info.nRelaCount; ++i)
+		{
+			Elf64_Rela* pRela = &pRelaEntries[i];
+			auto nType = ELF64_R_TYPE(pRela->r_info);
+			auto nSymIdx = ELF64_R_SYM(pRela->r_info);
+
+			switch (nType)
+			{
+			case R_X86_64_NONE:
+			case R_X86_64_PC32:
+			case R_X86_64_COPY:
+			case R_X86_64_GLOB_DAT:
+			case R_X86_64_TPOFF64:
+			case R_X86_64_TPOFF32:
+			case R_X86_64_DTPMOD64:
+			case R_X86_64_DTPOFF64:
+			case R_X86_64_DTPOFF32:
+				break;
+			case R_X86_64_64:
+			{
+				Elf64_Sym& symbol = pSymTab[nSymIdx];
+				auto nBinding = ELF64_ST_BIND(symbol.st_info);
+				uint64 nSymVal = 0;
+
+				if (nBinding == STB_LOCAL)
+				{
+					nSymVal = (uint64)(pImageBase + symbol.st_value);
+				}
+				else if (nBinding == STB_GLOBAL || nBinding == STB_WEAK)
+				{
+					char* pName = (char*)&pStrTab[symbol.st_name];
+
+					//if (!ResolveSymbol(pName, nSymVal))
+					if (!m_linker.resolveSymbol(mod, pName, &nSymVal))
+					{
+						LOG_ERR("can not get symbol address.");
+						break;
+					}
+				}
+				else
+				{
+					LOG_ERR("invalid sym bingding %d", nBinding);
+				}
+
+				*(uint64*)&pImageBase[pRela->r_offset] = nSymVal + pRela->r_addend;
+			}
+				break;
+			case R_X86_64_RELATIVE:
+			{
+				*(uint64*)&pImageBase[pRela->r_offset] = (uint64)(pImageBase + pRela->r_addend);
+			}
+				break;
+			default:
+				LOG_FIXME("rela type not handled %d", nType);
+				break;
+			}
+		}
+		retVal = true;
+
+	} while (false);
+
+	return retVal;
+}
+
+bool ModuleLoader::relocatePltRela(MemoryMappedModule const &mod)
+{
+	bool bRet = false;
+	do
+	{
+		auto &fileData = mod.fileMemory;
+		auto &info = mod.moduleInfo;
+
+		if (fileData.empty())
+		{
+			break;
+		}
+
+		byte* pImageBase = info.pCodeAddr;
+		byte* pStrTab = info.pStrTab;;
+		Elf64_Sym* pSymTab = (Elf64_Sym*)info.pSymTab;
+		Elf64_Rela* pRelaEntries = (Elf64_Rela*)info.pPltRela;
+		for (uint i = 0; i != info.nPltRelaCount; ++i)
+		{
+			Elf64_Rela* pRela = &pRelaEntries[i];
+			auto nType = ELF64_R_TYPE(pRela->r_info);
+			auto nSymIdx = ELF64_R_SYM(pRela->r_info);
+
+			switch (nType)
+			{
+			case R_X86_64_JUMP_SLOT:
+			{
+				Elf64_Sym& symbol = pSymTab[nSymIdx];
+				auto nBinding = ELF64_ST_BIND(symbol.st_info);
+				uint64 nSymVal = 0;
+
+				if (nBinding == STB_LOCAL)
+				{
+					nSymVal = (uint64)(pImageBase + symbol.st_value);
+				}
+				else if (nBinding == STB_GLOBAL || nBinding == STB_WEAK)
+				{
+					char* pName = (char*)&pStrTab[symbol.st_name];
+					// if (!ResolveSymbol(pName, nSymVal))
+					if(!m_linker.resolveSymbol(mod, pName, &nSymVal))
+					{
+						LOG_ERR("can not get symbol address.");
+						break;
+					}
+				}
+				else
+				{
+					LOG_ERR("invalid sym bingding %d", nBinding);
+				}
+
+				*(uint64*)&pImageBase[pRela->r_offset] = nSymVal;
+			}
+				break;
+			default:
+				LOG_FIXME("rela type not handled %d", nType);
+				break;
+			}
+		}
+		bRet = true;
+	} while (false);
+
+	return bRet;
+}
+
+bool ModuleLoader::relocateModule(MemoryMappedModule const &mod)
 {
 	bool retVal = false;
 
-	do
+	if (relocateRela(mod) && relocatePltRela(mod))
 	{
-		uint modId = 0, libId = 0;
-		uint64_t funcNid = 0;
-
-		retVal = m_mapper.decodeEncodedName(encName, &modId, &libId, &funcNid);
-		if (!retVal)
-		{
-			break;
-		}
-
-		std::string modName = {};
-		std::string libName = {};
-
-		retVal = m_mapper.getModuleNameFromId(modId, &modName);
-		if (!retVal)
-		{
-			break;
-		}
-
-		retVal = m_mapper.getLibraryNameFromId(libId, &libName);
-		if (!retVal)
-		{
-			break;
-		}
-
-		m_modSystem->RegisterFunction(modName, libName, funcNid, pointer);
-
-	} while (false);
+		retVal = true;
+	}
 
 	return retVal;
 }

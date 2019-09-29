@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
 		}
 
 		// TODO: for testing only. remember to remove this
-		ModuleLoader loader = { CSceModuleSystem::GetInstance() };
+		ModuleLoader loader = { *CSceModuleSystem::GetInstance() };
 		if (!loader.loadModule(szEboot))
 		{
 			break;

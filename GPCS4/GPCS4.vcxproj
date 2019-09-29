@@ -202,6 +202,7 @@
     <ClCompile Include="Emulator\Emulator.cpp" />
     <ClCompile Include="Emulator\GameThread.cpp" />
     <ClCompile Include="Emulator\Linker.cpp" />
+    <ClCompile Include="Emulator\Module.cpp" />
     <ClCompile Include="Emulator\RegisterModules.cpp" />
     <ClCompile Include="Emulator\SceModuleSystem.cpp" />
     <ClCompile Include="Emulator\TLSHandler.cpp" />

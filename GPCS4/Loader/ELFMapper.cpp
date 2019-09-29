@@ -313,6 +313,17 @@ bool ELFMapper::parseSymbols()
 				void *addr = m_moduleData->mappedMemory.get() + symbol.st_value;
 				m_moduleData->exportSymbols.insert(std::make_pair(name, addr));
 			}
+			else
+			{
+				SymbolInfo si = {};
+				si.type = SymbolInfo::Type::GLOBAL;
+				auto ret = m_moduleData->getImportSymbolInfo(name, &si.moduleName, &si.libraryName, &si.nid);
+				if (ret != true)
+				{
+					LOG_ERR("fail to find information for symbol %s", name);
+				}
+				m_moduleData->importSymbols.insert(std::make_pair(name, si));
+			}
 		}
 		break;
 
@@ -323,6 +334,17 @@ bool ELFMapper::parseSymbols()
 			{
 				void *addr = m_moduleData->mappedMemory.get() + symbol.st_value;
 				m_moduleData->exportSymbols.insert(std::make_pair(name, addr));
+			}
+			else
+			{
+				SymbolInfo si = {};
+				si.type = SymbolInfo::Type::WEAK;
+				auto ret = m_moduleData->getImportSymbolInfo(name, &si.moduleName, &si.libraryName, &si.nid);
+				if (!ret)
+				{
+					LOG_ERR("fail to find information for symbol %s", name);
+				}
+				m_moduleData->importSymbols.insert(std::make_pair(name, si));
 			}
 		}
 		break;
@@ -677,59 +699,59 @@ bool ELFMapper::mapDataSegment(Elf64_Phdr const & phdr)
 	return retVal;
 }
 
-bool ELFMapper::getModuleNameFromId(uint id, std::string * modName)
-{
-	bool retVal = false;
-	auto &modules = m_moduleData->exportModules;
-	do
-	{
-		if (modName == nullptr)
-		{
-			break;
-		}
-
-		auto iter = std::find_if(modules.begin(), modules.end(),
-								 [=](IMPORT_MODULE &mod) { return id == mod.id; });
-
-		if (iter == modules.end())
-		{
-			break;
-		}
-		
-		*modName = iter->strName;
-		retVal = true;
-	} while (false);
-
-	return retVal;
-}
-
-bool ELFMapper::getLibraryNameFromId(uint id, std::string * libName)
-{
-	bool retVal = false;
-	auto &libs = m_moduleData->exportLibraries;
-
-	do
-	{
-		if (libName == nullptr)
-		{
-			break;
-		}
-
-		auto iter = std::find_if(libs.begin(), libs.end(),
-								 [=](IMPORT_LIBRARY &lib) {return id == lib.id; });
-
-		if (iter == libs.end())
-		{
-			break;
-		}
-		
-		*libName = iter->strName;
-		retVal = true;
-
-	} while (false);
-
-	return retVal;
-}
+//bool ELFMapper::getModuleNameFromId(uint id, std::string * modName)
+//{
+//	bool retVal = false;
+//	auto &modules = m_moduleData->exportModules;
+//	do
+//	{
+//		if (modName == nullptr)
+//		{
+//			break;
+//		}
+//
+//		auto iter = std::find_if(modules.begin(), modules.end(),
+//								 [=](IMPORT_MODULE &mod) { return id == mod.id; });
+//
+//		if (iter == modules.end())
+//		{
+//			break;
+//		}
+//		
+//		*modName = iter->strName;
+//		retVal = true;
+//	} while (false);
+//
+//	return retVal;
+//}
+//
+//bool ELFMapper::getLibraryNameFromId(uint id, std::string * libName)
+//{
+//	bool retVal = false;
+//	auto &libs = m_moduleData->exportLibraries;
+//
+//	do
+//	{
+//		if (libName == nullptr)
+//		{
+//			break;
+//		}
+//
+//		auto iter = std::find_if(libs.begin(), libs.end(),
+//								 [=](IMPORT_LIBRARY &lib) {return id == lib.id; });
+//
+//		if (iter == libs.end())
+//		{
+//			break;
+//		}
+//		
+//		*libName = iter->strName;
+//		retVal = true;
+//
+//	} while (false);
+//
+//	return retVal;
+//}
 
 bool ELFMapper::decodeValue(std::string const & encodedStr, uint64_t &value)
 {

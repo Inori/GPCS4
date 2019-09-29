@@ -1278,6 +1278,9 @@
     <ClCompile Include="Loader\ModuleLoader.cpp">
       <Filter>Source Files\Loader</Filter>
     </ClCompile>
+    <ClCompile Include="Emulator\Module.cpp">
+      <Filter>Source Files\Emulator</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="SceModules\SceLibc\sce_libc_string_asm.asm">

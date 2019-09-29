@@ -6,7 +6,9 @@
 
 #include <vector>
 #include <memory>
+#include <string>
 #include <map>
+#include <unordered_map>
 
 
 struct MODULE_INFO
@@ -87,6 +89,22 @@ struct IMPORT_LIBRARY
 	};
 };
 
+struct SymbolInfo
+{
+	enum class Type
+	{
+		GLOBAL,
+		LOCAL,
+		WEAK
+	};
+	
+	Type type;
+	uint64_t nid;
+	std::string moduleName;
+	std::string libraryName;
+	uint64_t address;
+};
+
 struct MemoryMappedModule
 {
 	std::string fileName;
@@ -96,8 +114,9 @@ struct MemoryMappedModule
 
 	std::vector<IMPORT_MODULE> importModules;
 	std::vector<IMPORT_MODULE> exportModules;
-
 	std::vector<std::string> neededFiles;
+
+	std::unordered_map<std::string, SymbolInfo> importSymbols;
 	std::map<std::string, void*> exportSymbols;
 	UtilMemory::memory_uptr mappedMemory;
 	size_t mappedSize;
@@ -105,4 +124,23 @@ struct MemoryMappedModule
 
 	Elf64_Ehdr *elfHeader;
 	MODULE_INFO moduleInfo;
+
+	MODULE_INFO &getModuleInfo();
+	bool getImportSymbolInfo(std::string const &encSymbol, std::string *modName, std::string *libName, uint64_t *nid) const;
+	bool getExportSymbolInfo(std::string const &encSymbol, std::string *modName, std::string *libName, uint64_t *nid) const;
+
+	bool getImportSymbol(std::string const &encName, SymbolInfo const **symbolInfo) const;
+	bool decodeSymbol(std::string const &encName, std::string *modName, std::string *libName, uint64_t *nid);
+
+private:
+	bool getSymbolInfo(std::string const &encSymbol,
+					   std::vector<IMPORT_MODULE> const &mods,
+					   std::vector<IMPORT_LIBRARY> const &libs,
+					   std::string *modName, std::string *libName, uint64_t *nid) const; 
+
+	bool getModNameFromId(uint64_t id, std::vector<IMPORT_MODULE> const &mods, std::string *modName) const;
+	bool getLibNameFromId(uint64_t id, std::vector<IMPORT_LIBRARY> const &libs, std::string *libName) const;
+	bool decodeValue(std::string const &encodedStr, uint64_t &value) const;
+	bool decodeSymbol(std::string const & strEncName, uint * modId, uint * libId, uint64_t *funcNid) const;
+
 };

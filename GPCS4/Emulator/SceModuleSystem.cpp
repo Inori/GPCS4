@@ -1,4 +1,5 @@
 #include "SceModuleSystem.h"
+#include "Platform/PlatformUtils.h"
 #include "sce_modules.h"
 
 CSceModuleSystem::CSceModuleSystem()
@@ -164,6 +165,66 @@ bool CSceModuleSystem::isFunctionOverridable(std::string const & modName,
 	return retVal;
 }
 
+bool CSceModuleSystem::decodeValue(std::string const & encodedStr, uint64_t & value)
+{
+	bool bRet = false;
+
+	//the max length for an encode id is 11
+	//from orbis-ld.exe
+	const uint nEncLenMax = 11;
+	const char pCodes[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-";
+
+	do
+	{
+
+		if (encodedStr.size() > nEncLenMax)
+		{
+			LOG_ERR("encode id too long: %s", encodedStr.c_str());
+			break;
+		}
+
+		bool bError = false;
+		value = 0;
+
+		for (int i = 0; i < encodedStr.size(); ++i)
+		{
+			auto pChPos = strchr(pCodes, encodedStr[i]);
+			uint nIndex = 0;
+
+			if (pChPos != nullptr)
+			{
+				nIndex = static_cast<uint>(pChPos - pCodes);
+			}
+			else
+			{
+				bError = true;
+				break;
+			}
+
+			// NID is 64 bits long, thus we do 6 x 10 + 4 times
+			if (i < nEncLenMax - 1)
+			{
+				value <<= 6;
+				value |= nIndex;
+			}
+			else
+			{
+				value <<= 4;
+				value |= (nIndex >> 2);
+			}
+		}
+
+		if (bError)
+		{
+			break;
+		}
+
+		bRet = true;
+	} while (false);
+	return bRet;
+	return false;
+}
+
 bool CSceModuleSystem::IsEndFunctionEntry(const SCE_EXPORT_FUNCTION* pFunc)
 {
 	return (pFunc->nNid == 0 && pFunc->szFunctionName == NULL && pFunc->pFunction == NULL);
@@ -228,7 +289,7 @@ bool CSceModuleSystem::RegisterModule(const SCE_EXPORT_MODULE& stModule)
 	return bRet;
 }
 
-bool CSceModuleSystem::RegisterFunction(std::string const & modName, 
+bool CSceModuleSystem::registerFunction(std::string const & modName, 
 										std::string const & libName,
 										uint64_t nid, void *p)
 {
@@ -274,12 +335,18 @@ bool CSceModuleSystem::RegisterFunction(std::string const & modName,
 	return retVal;
 }
 
-bool CSceModuleSystem::RegisterMemoryMappedModule(std::string const &modName,
+bool CSceModuleSystem::registerMemoryMappedModule(std::string const &modName,
 												  MemoryMappedModule &&mod)
 {
 	m_mappedModules.insert(std::make_pair(modName, std::move(mod)));
 	return true;
 }
+
+CSceModuleSystem::SceMappedModuleMap &CSceModuleSystem::getMemoryMappedModules()
+{
+	return m_mappedModules;
+}
+
 
 bool CSceModuleSystem::GetMemoryMappedModule(std::string const & modName, MemoryMappedModule **ppMod)
 {
@@ -504,6 +571,50 @@ bool CSceModuleSystem::isFileAllowedToLoad(std::string const & fileName)
 	}
 
 	return retVal;
+}
+
+bool CSceModuleSystem::decodeEncodedName(std::string const & strEncName, uint * modId, uint * libId, uint64_t *funcNid)
+{
+	bool bRet = false;
+	do
+	{
+		if (modId == nullptr || libId == nullptr || funcNid == nullptr)
+		{
+			break;
+		}
+
+		auto &nModuleId = *modId;
+		auto &nLibraryId = *libId;
+		auto &nNid = *funcNid;
+
+		std::vector<std::string> vtNameParts;
+		if (!UtilString::Split(strEncName, '#', vtNameParts))
+		{
+			break;
+		}
+
+		if (!decodeValue(vtNameParts[0], nNid))
+		{
+			break;
+		}
+
+		uint64 nLibId = 0;
+		if (!decodeValue(vtNameParts[1], nLibId))
+		{
+			break;
+		}
+		nLibraryId = static_cast<uint>(nLibId);
+
+		uint64 nModId = 0;
+		if (!decodeValue(vtNameParts[2], nModId))
+		{
+			break;
+		}
+		nModuleId = static_cast<uint>(nModId);
+
+		bRet = true;
+	} while (false);
+	return bRet;
 }
 
 

@@ -27,8 +27,9 @@ public:
 	bool decodeValue(std::string const &strEnc, uint64_t &val);
 	bool decodeEncodedName(std::string const &strEncName, uint *nModuleId, uint *nLibraryId, uint64_t *nNid);
 
-	bool getModuleNameFromId(uint id, std::string *modName);
-	bool getLibraryNameFromId(uint id, std::string *libName);
+	//bool getModuleNameFromId(uint id, std::string *modName);
+	//bool getLibraryNameFromId(uint id, std::string *libName);
+
 
 private:
 	bool prepareTables(Elf64_Dyn const &entry, uint index);
