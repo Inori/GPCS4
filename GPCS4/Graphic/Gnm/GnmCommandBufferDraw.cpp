@@ -48,27 +48,9 @@ void GnmCommandBufferDraw::setPsShader(const pssl::PsStageRegisters *psRegs)
 
 void GnmCommandBufferDraw::setVsShader(const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier)
 {
-	do 
-	{
-		m_vsCode = vsRegs->getCodeAddress();
-		// Fetch shader slot can be set after vs shader set and before draw call
-		// so this can be nullptr sometimes.
-		uint32_t* fsCode = getFetchShaderCode(m_vsCode);
+	m_vsCode = vsRegs->getCodeAddress();
 
-		RcPtr<gve::GveShader> vsShader;
-		if (fsCode)
-		{
-			pssl::PsslShaderModule vsModule((const uint32_t*)m_vsCode, fsCode);
-			vsShader = vsModule.compile();
-		}
-		else
-		{
-			pssl::PsslShaderModule vsModule((const uint32_t*)m_vsCode);
-			vsShader = vsModule.compile();
-		}
-
-		m_context->bindShader(VK_SHADER_STAGE_VERTEX_BIT, vsShader);
-	} while (false);
+	// Fetch shader slot can be set after vs shader set and before draw call
 }
 
 void GnmCommandBufferDraw::setVgtControl(uint8_t primGroupSizeMinusOne, WdSwitchOnlyOnEopMode wdSwitchOnlyOnEopMode, VgtPartialVsWaveMode partialVsWaveMode)
@@ -188,6 +170,26 @@ void GnmCommandBufferDraw::setPrimitiveType(PrimitiveType primType)
 
 void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr, DrawModifier modifier)
 {
+	do
+	{
+		
+
+		uint32_t* fsCode = getFetchShaderCode(m_vsCode);
+
+		RcPtr<gve::GveShader> vsShader;
+		if (fsCode)
+		{
+			pssl::PsslShaderModule vsModule((const uint32_t*)m_vsCode, fsCode);
+			vsShader = vsModule.compile();
+		}
+		else
+		{
+			pssl::PsslShaderModule vsModule((const uint32_t*)m_vsCode);
+			vsShader = vsModule.compile();
+		}
+
+		m_context->bindShader(VK_SHADER_STAGE_VERTEX_BIT, vsShader);
+	} while (false);
 }
 
 void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr)
