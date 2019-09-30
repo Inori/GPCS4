@@ -250,6 +250,10 @@ namespace pssl {
     
     uint32_t defFloatType(
             uint32_t                width);
+
+	uint32_t defFloatPointerType(
+			uint32_t				width, 
+			spv::StorageClass		storageClass);
     
     uint32_t defVectorType(
             uint32_t                elementType,

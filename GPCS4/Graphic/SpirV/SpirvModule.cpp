@@ -588,7 +588,13 @@ namespace pssl {
       args.size(), args.data());
   }
   
-  
+  uint32_t SpirvModule::defFloatPointerType(
+	  uint32_t width, 
+	  spv::StorageClass storageClass) {
+	  uint32_t fpType = this->defFloatType(width);
+	  return this->defPointerType(fpType, storageClass);
+  }
+
   uint32_t SpirvModule::defVectorType(
           uint32_t                elementType,
           uint32_t                elementCount) {

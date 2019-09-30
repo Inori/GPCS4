@@ -30,15 +30,26 @@ namespace pssl
 {;
 
 
-struct SpirvRegisterValue
+enum class GcnGprType
 {
-	SpirvRegisterValue(spv::Id tid, spv::Id vid):
+	Scalar,
+	Vector
+};
+
+struct SpirvRegister
+{
+	SpirvRegister() :
+		typeId(0), varId(0)
+	{}
+
+	SpirvRegister(spv::Id tid, spv::Id vid) :
 		typeId(tid), varId(vid)
 	{}
 
 	spv::Id typeId = 0;
 	spv::Id varId = 0;
 };
+
 
 struct GcnStateRegister
 {
@@ -59,12 +70,9 @@ struct GcnStateRegister
  */
 struct GcnCompilerVsPart 
 {
-	spv::Id functionId = 0;
-
-	spv::Id builtinVertexId = 0;
-	spv::Id builtinInstanceId = 0;
-	uint32_t builtinBaseVertex = 0;
-	uint32_t builtinBaseInstance = 0;
+	spv::Id mainFunctionId = 0;
+	spv::Id fsFunctionId = 0;
+	std::map<uint32_t, SpirvRegister> vsInputs;
 };
 
 
@@ -125,7 +133,7 @@ private:
 
 	PsslProgramInfo m_programInfo;
 
-	std::vector<VertexInputSemantic> m_vsInputSemantic;
+	std::vector<VertexInputSemantic> m_vsInputSemantics;
 
 	SpirvModule m_module;
 
@@ -163,8 +171,8 @@ private:
 
 	///////////////////////////////////
 	// Gcn register to spir-v variable map
-	std::map<uint32_t, SpirvRegisterValue> m_sgprs;
-	std::map<uint32_t, SpirvRegisterValue> m_vgprs;
+	std::map<uint32_t, SpirvRegister> m_sgprs;
+	std::map<uint32_t, SpirvRegister> m_vgprs;
 
 private:
 
@@ -200,6 +208,15 @@ private:
 
 	void emitDclVertexInput();
 	void emitDclVertexOutput();
+	void emitEmuFetchShader();
+
+	/////////////////////////////////////////////////////////
+	SpirvRegister emitDclFloat(uint32_t width, 
+		spv::StorageClass storageCls, const std::string& debugName = "");
+	SpirvRegister emitDclFloatVector(uint32_t width, uint32_t count, 
+		spv::StorageClass storageCls, const std::string& debugName = "");
+
+	SpirvRegister emitValueLoad(const SpirvRegister& reg);
 
 	/////////////////////////////////////////////////////////
 	// Category handlers

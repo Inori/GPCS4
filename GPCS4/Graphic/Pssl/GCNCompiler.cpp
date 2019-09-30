@@ -1,5 +1,5 @@
 #include "GCNCompiler.h"
-
+#include "Platform/UtilString.h"
 #include <array>
 
 namespace pssl
@@ -18,7 +18,7 @@ GCNCompiler::GCNCompiler(const PsslProgramInfo& progInfo, const GcnAnalysisInfo&
 GCNCompiler::GCNCompiler(const PsslProgramInfo& progInfo, const GcnAnalysisInfo& analysis, 
 	const std::vector<VertexInputSemantic>& inputSemantic):
 	m_programInfo(progInfo),
-	m_vsInputSemantic(inputSemantic),
+	m_vsInputSemantics(inputSemantic),
 	m_analysis(&analysis)
 {
 	// Declare an entry point ID. We'll need it during the
@@ -37,7 +37,7 @@ GCNCompiler::GCNCompiler(const PsslProgramInfo& progInfo, const GcnAnalysisInfo&
 		spv::MemoryModelGLSL450);
 
 
-	this->emitInit();
+	emitInit();
 }
 
 GCNCompiler::~GCNCompiler()
@@ -73,18 +73,23 @@ void GCNCompiler::emitVsInit()
 
 	emitDclVertexInput();
 	emitDclVertexOutput();
+	emitEmuFetchShader();
 
 	// Main function of the vertex shader
-	m_vs.functionId = m_module.allocateId();
-	m_module.setDebugName(m_vs.functionId, "vs_main");
+	m_vs.mainFunctionId = m_module.allocateId();
+	m_module.setDebugName(m_vs.mainFunctionId, "vs_main");
 
 	emitFunctionBegin(
-		m_vs.functionId,
+		m_vs.mainFunctionId,
 		m_module.defVoidType(),
 		m_module.defFunctionType(
 		m_module.defVoidType(), 0, nullptr));
 
 	emitFunctionLabel();
+
+	m_module.opFunctionCall(
+		m_module.defVoidType(),
+		m_vs.fsFunctionId, 0, nullptr);
 }
 
 void GCNCompiler::emitHsInit()
@@ -116,13 +121,13 @@ void GCNCompiler::emitVsFinalize()
 {
 	this->emitMainFunctionBegin();
 
-	//this->emitInputSetup();
+	//emitInputSetup();
 
 	m_module.opFunctionCall(
 		m_module.defVoidType(),
-		m_vs.functionId, 0, nullptr);
+		m_vs.mainFunctionId, 0, nullptr);
 
-	//this->emitOutputSetup();
+	//emitOutputSetup();
 	
 	this->emitFunctionEnd();
 }
@@ -154,7 +159,7 @@ void GCNCompiler::emitCsFinalize()
 
 void GCNCompiler::emitFunctionBegin(uint32_t entryPoint, uint32_t returnType, uint32_t funcType)
 {
-	this->emitFunctionEnd();
+	emitFunctionEnd();
 
 	m_module.functionBegin(
 		returnType, entryPoint, funcType,
@@ -176,13 +181,13 @@ void GCNCompiler::emitFunctionEnd()
 
 void GCNCompiler::emitMainFunctionBegin()
 {
-	this->emitFunctionBegin(
+	emitFunctionBegin(
 		m_entryPointId,
 		m_module.defVoidType(),
 		m_module.defFunctionType(
 		m_module.defVoidType(), 0, nullptr));
 
-	this->emitFunctionLabel();
+	emitFunctionLabel();
 }
 
 void GCNCompiler::emitFunctionLabel()
@@ -192,21 +197,121 @@ void GCNCompiler::emitFunctionLabel()
 
 void GCNCompiler::emitDclVertexInput()
 {
+	do 
+	{
+		if (m_vsInputSemantics.empty())
+		{
+			break;
+		}
 
+		for (const auto& inputSemantic : m_vsInputSemantics)
+		{
+			// TODO:
+			// Not sure if all vertex inputs are float type
+			auto inputReg = emitDclFloatVector(32, inputSemantic.sizeInElements, spv::StorageClassInput);
+			m_vs.vsInputs[inputSemantic.semantic] = inputReg;
+
+			// Use semantic index for location, so vulkan code need to match.
+			m_module.decorateLocation(inputReg.varId, inputSemantic.semantic);
+			m_entryPointInterfaces.push_back(inputReg.varId);
+		}
+	} while (false);
 }
 
 void GCNCompiler::emitDclVertexOutput()
 {
 	// Declare the per-vertex output block. This is where
 	// the vertex shader will write the vertex position.
-	const uint32_t perVertexStructType = this->getPerVertexBlockId();
+	const uint32_t perVertexStructType = getPerVertexBlockId();
 	const uint32_t perVertexPointerType = m_module.defPointerType(
 		perVertexStructType, spv::StorageClassOutput);
 
-	m_perVertexOut = m_module.newVar(
-		perVertexPointerType, spv::StorageClassOutput);
+	m_perVertexOut = m_module.newVar(perVertexPointerType, spv::StorageClassOutput);
 	m_entryPointInterfaces.push_back(m_perVertexOut);
 	m_module.setDebugName(m_perVertexOut, "vs_vertex_out");
+}
+
+void GCNCompiler::emitEmuFetchShader()
+{
+	do 
+	{
+		if (m_vsInputSemantics.empty())
+		{
+			break;
+		}
+
+		m_vs.fsFunctionId = m_module.allocateId();
+
+		emitFunctionBegin(
+			m_vs.fsFunctionId,
+			m_module.defVoidType(),
+			m_module.defFunctionType(
+			m_module.defVoidType(), 0, nullptr));
+		emitFunctionLabel();
+		m_module.setDebugName(m_vs.fsFunctionId, "vs_fetch");
+
+		for (const auto& inputSemantic : m_vsInputSemantics)
+		{
+			for (uint32_t i = 0; i != inputSemantic.sizeInElements; ++i)
+			{
+				uint32_t vgprIdx = inputSemantic.vgpr + i;
+
+				// Declare a new vgpr reg
+				// TODO:
+				// Not sure if all vertex inputs are float type
+				auto vgprReg = emitDclFloat(32, spv::StorageClassPrivate, UtilString::Format("v%d", vgprIdx));
+				uint32_t inputVarId = m_vs.vsInputs[inputSemantic.semantic].varId;
+
+				// Access vector member
+				uint32_t fpPtrTypeId = m_module.defFloatPointerType(32, spv::StorageClassPrivate);
+				uint32_t accessIndexArray[] = { m_module.constu32(i) };
+				uint32_t inputElementId = m_module.opAccessChain(
+					fpPtrTypeId,
+					inputVarId,
+					1, accessIndexArray);
+
+				// Store input value to our new vgpr reg.
+				uint32_t loadId = m_module.opLoad(fpPtrTypeId, inputElementId);
+				m_module.opStore(vgprReg.varId, loadId);
+
+				// Save to the map
+				m_vgprs[vgprIdx] = vgprReg;
+			}
+		}
+
+		emitFunctionEnd();
+	} while (false);
+}
+
+pssl::SpirvRegister GCNCompiler::emitDclFloat(uint32_t width, 
+	spv::StorageClass storageCls, const std::string& debugName /*= ""*/)
+{
+	uint32_t fpPtrTypeId = m_module.defFloatPointerType(width, storageCls);
+	uint32_t varId = m_module.newVar(fpPtrTypeId, storageCls);
+	if (!debugName.empty())
+	{
+		m_module.setDebugName(varId, debugName.c_str());
+	}
+	return SpirvRegister(fpPtrTypeId, varId);
+}
+
+SpirvRegister GCNCompiler::emitDclFloatVector(uint32_t width, uint32_t count, 
+	spv::StorageClass storageCls, const std::string& debugName /*= ""*/)
+{
+	uint32_t fpTypeId = m_module.defFloatType(width);
+	uint32_t vfpTypeId = m_module.defVectorType(fpTypeId, count);
+	uint32_t vfpPtrTypeId = m_module.defPointerType(vfpTypeId, storageCls);
+	uint32_t varId = m_module.newVar(vfpPtrTypeId, storageCls);
+	if (!debugName.empty())
+	{
+		m_module.setDebugName(varId, debugName.c_str());
+	}
+	return SpirvRegister(vfpPtrTypeId, varId);
+}
+
+SpirvRegister GCNCompiler::emitValueLoad(const SpirvRegister& reg)
+{
+
 }
 
 uint32_t GCNCompiler::getPerVertexBlockId()
