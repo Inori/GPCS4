@@ -56,9 +56,25 @@ struct GcnStateRegister
 	// local data share
 	uint64_t lds = 0;
 	// exec mask
-	uint64_t exec = 0;
+	union
+	{
+		struct
+		{
+			uint32_t exec_lo;
+			uint32_t exec_hi;
+		};
+		uint64_t exec = 0;
+	};
 	// vector condition code
-	uint64_t vcc = 0;
+	union
+	{
+		struct  
+		{
+			uint32_t vcc_lo;
+			uint32_t vcc_hi;
+		};
+		uint64_t vcc = 0;
+	};
 	// mode register
 	uint32_t mode = 0;
 	// memory descriptor register
