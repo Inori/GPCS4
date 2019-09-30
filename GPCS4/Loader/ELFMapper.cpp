@@ -302,50 +302,78 @@ bool ELFMapper::parseSymbols()
 		case STB_LOCAL:
 		{
 			LOG_DEBUG("%s symbol: %s BINDING: STB_LOCAL VAL: %d", type, name, symbol.st_value);
+			void *addr = m_moduleData->mappedMemory.get() + symbol.st_value;
+
+			SymbolInfo si = {};
+			si.type = SymbolInfo::Type::LOCAL;
+			si.address = reinterpret_cast<uint64_t>(addr);
+			m_moduleData->symbols.emplace_back(si);
 		}
 		break;
 
 		case STB_GLOBAL:
 		{
 			LOG_DEBUG("%s symbol: %s BINDING: STB_GLOBAL VAL: %d", type, name, symbol.st_value);
+			SymbolInfo si = {};
+			si.type = SymbolInfo::Type::GLOBAL;
+			void *addr = nullptr;
+
 			if (symbol.st_value != 0)
 			{
-				void *addr = m_moduleData->mappedMemory.get() + symbol.st_value;
+				addr = m_moduleData->mappedMemory.get() + symbol.st_value;
 				m_moduleData->exportSymbols.insert(std::make_pair(name, addr));
+
+				auto ret = m_moduleData->getExportSymbolInfo(name, &si.moduleName, &si.libraryName, &si.nid);
+				if (ret != true)
+				{
+					LOG_ERR("fail to find information for symbol %s", name);
+				}
 			}
 			else
 			{
-				SymbolInfo si = {};
-				si.type = SymbolInfo::Type::GLOBAL;
 				auto ret = m_moduleData->getImportSymbolInfo(name, &si.moduleName, &si.libraryName, &si.nid);
 				if (ret != true)
 				{
 					LOG_ERR("fail to find information for symbol %s", name);
 				}
-				m_moduleData->importSymbols.insert(std::make_pair(name, si));
 			}
+			si.address = reinterpret_cast<uint64_t>(addr);
+			auto idx = m_moduleData->symbols.size();
+			m_moduleData->symbols.emplace_back(si);
+			m_moduleData->nameSymbolMap.insert(std::make_pair(name, idx));
 		}
 		break;
 
 		case STB_WEAK:
 		{
 			LOG_DEBUG("%s symbol: %s BINDING: STB_WEAK VAL: %d", type, name, symbol.st_value);
+			SymbolInfo si = {};
+			si.type = SymbolInfo::Type::WEAK;
+			void *addr = nullptr;
+
 			if (symbol.st_value != 0)
 			{
-				void *addr = m_moduleData->mappedMemory.get() + symbol.st_value;
+				addr = m_moduleData->mappedMemory.get() + symbol.st_value;
 				m_moduleData->exportSymbols.insert(std::make_pair(name, addr));
+
+				auto ret = m_moduleData->getExportSymbolInfo(name, &si.moduleName, &si.libraryName, &si.nid);
+				if (ret != true)
+				{
+					LOG_ERR("fail to find information for symbol %s", name);
+				}
 			}
 			else
 			{
-				SymbolInfo si = {};
-				si.type = SymbolInfo::Type::WEAK;
 				auto ret = m_moduleData->getImportSymbolInfo(name, &si.moduleName, &si.libraryName, &si.nid);
 				if (!ret)
 				{
 					LOG_ERR("fail to find information for symbol %s", name);
 				}
-				m_moduleData->importSymbols.insert(std::make_pair(name, si));
 			}
+			si.address = reinterpret_cast<uint64_t>(addr);
+			auto idx = m_moduleData->symbols.size();
+			m_moduleData->symbols.emplace_back(si);
+			m_moduleData->nameSymbolMap.insert(std::make_pair(name, idx));
 		}
 		break;
 

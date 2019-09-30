@@ -105,32 +105,50 @@ struct SymbolInfo
 	uint64_t address;
 };
 
+using SegmentHeaderList = std::vector<Elf64_Phdr>;
+using LibraryList = std::vector<IMPORT_LIBRARY>;
+using ModuleList = std::vector<IMPORT_MODULE>;
+using SymbolList = std::vector<SymbolInfo>;
+using NameSymbolIndexMap = std::unordered_map<std::string, size_t>;
+using FileList = std::vector<std::string>;
+using SymbolAddrMap = std::map<std::string, void*>;
+using ByteArray = std::vector<uint8_t>;
+
 struct MemoryMappedModule
 {
+
 	std::string fileName;
-	std::vector<Elf64_Phdr> segmentHeaders;
-	std::vector<IMPORT_LIBRARY> importLibraries;
-	std::vector<IMPORT_LIBRARY> exportLibraries;
+	SegmentHeaderList segmentHeaders;
+	LibraryList importLibraries;
+	LibraryList exportLibraries;
 
-	std::vector<IMPORT_MODULE> importModules;
-	std::vector<IMPORT_MODULE> exportModules;
-	std::vector<std::string> neededFiles;
+	ModuleList importModules;
+	ModuleList exportModules;
+	FileList neededFiles;
 
-	std::unordered_map<std::string, SymbolInfo> importSymbols;
-	std::map<std::string, void*> exportSymbols;
+	SymbolList symbols;
+	NameSymbolIndexMap nameSymbolMap;
+	SymbolAddrMap exportSymbols;
 	UtilMemory::memory_uptr mappedMemory;
 	size_t mappedSize;
-	std::vector<byte> fileMemory;
+	ByteArray fileMemory;
 
 	Elf64_Ehdr *elfHeader;
 	MODULE_INFO moduleInfo;
 
 	MODULE_INFO &getModuleInfo();
-	bool getImportSymbolInfo(std::string const &encSymbol, std::string *modName, std::string *libName, uint64_t *nid) const;
-	bool getExportSymbolInfo(std::string const &encSymbol, std::string *modName, std::string *libName, uint64_t *nid) const;
+	bool getImportSymbolInfo(std::string const &encSymbol, 
+							 std::string *modName,
+							 std::string *libName,
+							 uint64_t *nid) const;
 
-	bool getImportSymbol(std::string const &encName, SymbolInfo const **symbolInfo) const;
-	bool decodeSymbol(std::string const &encName, std::string *modName, std::string *libName, uint64_t *nid);
+	bool getExportSymbolInfo(std::string const &encSymbol,
+							 std::string *modName,
+							 std::string *libName,
+							 uint64_t *nid) const;
+
+	bool getSymbol(std::string const &encName, SymbolInfo const **symbolInfo) const;
+	bool getSymbol(size_t index, SymbolInfo const **symbolInfo) const;
 
 private:
 	bool getSymbolInfo(std::string const &encSymbol,
@@ -138,8 +156,8 @@ private:
 					   std::vector<IMPORT_LIBRARY> const &libs,
 					   std::string *modName, std::string *libName, uint64_t *nid) const; 
 
-	bool getModNameFromId(uint64_t id, std::vector<IMPORT_MODULE> const &mods, std::string *modName) const;
-	bool getLibNameFromId(uint64_t id, std::vector<IMPORT_LIBRARY> const &libs, std::string *libName) const;
+	bool getModNameFromId(uint64_t id, ModuleList const &mods, std::string *modName) const;
+	bool getLibNameFromId(uint64_t id, LibraryList const &libs, std::string *libName) const;
 	bool decodeValue(std::string const &encodedStr, uint64_t &value) const;
 	bool decodeSymbol(std::string const & strEncName, uint * modId, uint * libId, uint64_t *funcNid) const;
 

@@ -13,7 +13,8 @@ bool MemoryMappedModule::getImportSymbolInfo(std::string const &encSymbol,
 											 std::string * libName,
 											 uint64_t * nid) const
 {
-	return getSymbolInfo(encSymbol, importModules, importLibraries, modName, libName, nid);
+	return getSymbolInfo(encSymbol, importModules, importLibraries,
+						modName, libName, nid);
 }
 
 bool MemoryMappedModule::getExportSymbolInfo(std::string const &encSymbol,
@@ -21,19 +22,22 @@ bool MemoryMappedModule::getExportSymbolInfo(std::string const &encSymbol,
 											 std::string * libName,
 											 uint64_t * nid) const
 {
-	return getSymbolInfo(encSymbol, exportModules, exportLibraries, modName, libName, nid);
+	return getSymbolInfo(encSymbol, exportModules, exportLibraries,
+						modName, libName, nid);
 }
 
-bool MemoryMappedModule::getImportSymbol(std::string const & encName, SymbolInfo const **symbolInfo) const
+bool MemoryMappedModule::getSymbol(std::string const & encName,
+										 SymbolInfo const **symbolInfo) const
 {
 	bool retVal = false;
-	if (importSymbols.count(encName) == 0)
+	if (nameSymbolMap.count(encName) == 0)
 	{
 		retVal = false;
 	}
 	else
 	{
-		*symbolInfo = &importSymbols.at(encName);
+		auto idx = nameSymbolMap.at(encName);
+		*symbolInfo = &symbols[idx];
 		retVal = true;
 	}
 
@@ -44,7 +48,8 @@ bool MemoryMappedModule::getImportSymbol(std::string const & encName, SymbolInfo
 bool MemoryMappedModule::getSymbolInfo(std::string const & encSymbol,
 									   std::vector<IMPORT_MODULE> const & mods,
 									   std::vector<IMPORT_LIBRARY> const & libs,
-									   std::string * modName, std::string * libName, uint64_t * nid) const
+									   std::string * modName, std::string * libName, 
+									   uint64_t * nid) const
 {
 	bool retVal = false;
 
@@ -84,9 +89,10 @@ bool MemoryMappedModule::getSymbolInfo(std::string const & encSymbol,
 	return retVal;
 }
 
-bool MemoryMappedModule::getModNameFromId(uint64_t id, std::vector<IMPORT_MODULE> const &mods, std::string * modName) const 
+bool MemoryMappedModule::getModNameFromId(uint64_t id,
+										ModuleList const &mods,
+										std::string * modName) const 
 {
-
 	bool retVal = false;
 	auto &modules = mods;
 	do
@@ -97,7 +103,7 @@ bool MemoryMappedModule::getModNameFromId(uint64_t id, std::vector<IMPORT_MODULE
 		}
 
 		auto iter = std::find_if(modules.begin(), modules.end(),
-								 [=](IMPORT_MODULE const &mod) { return id == mod.id; });
+						[=](IMPORT_MODULE const &mod) { return id == mod.id; });
 
 		if (iter == modules.end())
 		{
@@ -111,7 +117,9 @@ bool MemoryMappedModule::getModNameFromId(uint64_t id, std::vector<IMPORT_MODULE
 	return retVal;
 }
 
-bool MemoryMappedModule::getLibNameFromId(uint64_t id, std::vector<IMPORT_LIBRARY> const &libs, std::string *libName) const
+bool MemoryMappedModule::getLibNameFromId(uint64_t id,
+										LibraryList const &libs,
+										std::string *libName) const
 {
 	bool retVal = false;
 
@@ -123,7 +131,7 @@ bool MemoryMappedModule::getLibNameFromId(uint64_t id, std::vector<IMPORT_LIBRAR
 		}
 
 		auto iter = std::find_if(libs.begin(), libs.end(),
-								 [=](IMPORT_LIBRARY const &lib) {return id == lib.id; });
+						[=](IMPORT_LIBRARY const &lib) {return id == lib.id; });
 
 		if (iter == libs.end())
 		{
@@ -241,4 +249,20 @@ bool MemoryMappedModule::decodeSymbol(std::string const & strEncName, uint * mod
 	} while (false);
 
 	return bRet;
+}
+
+bool MemoryMappedModule::getSymbol(size_t index, SymbolInfo const **symbolInfo) const
+{
+	bool retVal = false;
+	if (index > symbols.size() - 1)
+	{
+		retVal = false;
+	}
+	else 
+	{
+		*symbolInfo = &symbols[index];
+		retVal = true;
+	}
+
+	return retVal;
 }

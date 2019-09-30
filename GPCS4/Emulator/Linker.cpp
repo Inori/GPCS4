@@ -39,7 +39,7 @@ bool CLinker::resolveSymbol(MemoryMappedModule const & mod, std::string const &e
 		const SymbolInfo *info = nullptr;
 		void *address = nullptr;
 
-		retVal = mod.getImportSymbol(encName, &info);
+		retVal = mod.getSymbol(encName, &info);
 		if (!retVal)
 		{
 			LOG_ERR("fail to find symbol");
