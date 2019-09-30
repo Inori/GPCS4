@@ -55,7 +55,19 @@ void GCNCompiler::emitScalarALU(GCNInstruction& ins)
 
 void GCNCompiler::emitScalarMov(GCNInstruction& ins)
 {
-
+	auto inst = asInst<SISOP1Instruction>(ins);
+	auto op = inst->GetOp();
+	
+	switch (op)
+	{
+	case SISOP1Instruction::S_MOV_B32:
+		break;
+	case SISOP1Instruction::S_MOV_B64:
+		break;
+	default:
+		LOG_FIXME("Not implementd: op %X", op);
+		break;
+	}
 }
 
 void GCNCompiler::emitScalarArith(GCNInstruction& ins)
