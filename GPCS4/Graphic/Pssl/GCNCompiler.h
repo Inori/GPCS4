@@ -30,33 +30,6 @@
 namespace pssl
 {;
 
-
-
-//struct SpirvRegister
-//{
-//	SpirvRegister() :
-//		typeId(0), varId(0)
-//	{}
-//
-//	SpirvRegister(spv::Id tid, spv::Id vid) :
-//		typeId(tid), varId(vid)
-//	{}
-//
-//	bool isValid() const
-//	{
-//		return (typeId != 0) && (varId != 0);
-//	}
-//
-//	spv::Id typeId = 0;
-//	spv::Id varId = 0;
-//};
-
-enum class GcnGprType
-{
-	Scalar,
-	Vector
-};
-
 /**
  * \brief Scalar value type
  *
