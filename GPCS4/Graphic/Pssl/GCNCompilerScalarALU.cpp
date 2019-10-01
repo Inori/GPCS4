@@ -64,7 +64,7 @@ void GCNCompiler::emitScalarMov(GCNInstruction& ins)
 	{
 		auto sdst = inst->GetSDST();
 		auto ssrc = inst->GetSSRC0();
-		auto value = emitLoadScalarOperand(ssrc);
+		auto value = emitLoadScalarOperand(ssrc, ins.literalConst);
 		emitStoreScalarOperand(sdst, value);
 	}
 		break;

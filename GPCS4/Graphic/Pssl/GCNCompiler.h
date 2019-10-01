@@ -318,7 +318,7 @@ private:
 
 	/////////////////////////////////////////
 	// Operands manipulation methods
-	SpirvRegisterValue emitLoadScalarOperand(uint32_t index);
+	SpirvRegisterValue emitLoadScalarOperand(uint32_t index, uint32_t literalConst = 0);
 	SpirvRegisterValue emitLoadVectorOperand(uint32_t index);
 
 	void emitStoreScalarOperand(uint32_t dstIndex, const SpirvRegisterValue& srcReg);

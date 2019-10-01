@@ -446,7 +446,7 @@ void GCNCompiler::emitVgprStore(uint32_t dstIdx, const SpirvRegisterValue& srcRe
 }
 
 // See table "SDST, SSRC and SRC Operands" in section 3.1 of GPU Shader Core ISA manual
-SpirvRegisterValue GCNCompiler::emitLoadScalarOperand(uint32_t index)
+pssl::SpirvRegisterValue GCNCompiler::emitLoadScalarOperand(uint32_t index, uint32_t literalConst /*= 0*/)
 {
 	Instruction::OperandSRC src = static_cast<Instruction::OperandSRC>(index);
 	SpirvRegisterValue operand;
@@ -505,6 +505,9 @@ SpirvRegisterValue GCNCompiler::emitLoadScalarOperand(uint32_t index)
 	case Instruction::OperandSRC::SRCLdsDirect:
 		break;
 	case Instruction::OperandSRC::SRCLiteralConst:
+	{
+
+	}
 		break;
 	// For 9 bits SRC operand
 	case Instruction::OperandSRC::SRCVectorGPRMin ... Instruction::OperandSRC::SRCVectorGPRMax:
