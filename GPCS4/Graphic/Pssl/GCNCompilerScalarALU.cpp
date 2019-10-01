@@ -61,6 +61,12 @@ void GCNCompiler::emitScalarMov(GCNInstruction& ins)
 	switch (op)
 	{
 	case SISOP1Instruction::S_MOV_B32:
+	{
+		auto sdst = inst->GetSDST();
+		auto ssrc = inst->GetSSRC0();
+		auto value = emitLoadScalarOperand(ssrc);
+		emitStoreScalarOperand(sdst, value);
+	}
 		break;
 	case SISOP1Instruction::S_MOV_B64:
 		break;
