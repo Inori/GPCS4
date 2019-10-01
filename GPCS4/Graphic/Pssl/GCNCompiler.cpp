@@ -9,6 +9,7 @@ constexpr uint32_t PerVertex_Position = 0;
 constexpr uint32_t PerVertex_CullDist = 1;
 constexpr uint32_t PerVertex_ClipDist = 2;
 
+
 GCNCompiler::GCNCompiler(const PsslProgramInfo& progInfo, const GcnAnalysisInfo& analysis):
 	GCNCompiler(progInfo, analysis, {})
 {
@@ -43,6 +44,73 @@ GCNCompiler::GCNCompiler(const PsslProgramInfo& progInfo, const GcnAnalysisInfo&
 GCNCompiler::~GCNCompiler()
 {
 }
+
+void GCNCompiler::processInstruction(GCNInstruction& ins)
+{
+	Instruction::InstructionCategory insCategory = ins.instruction->GetInstructionCategory();
+	switch (insCategory)
+	{
+	case Instruction::ScalarALU:
+		emitScalarALU(ins);
+		break;
+	case Instruction::ScalarMemory:
+		emitScalarMemory(ins);
+		break;
+	case Instruction::VectorALU:
+		emitVectorALU(ins);
+		break;
+	case Instruction::VectorMemory:
+		emitVectorMemory(ins);
+		break;
+	case Instruction::FlowControl:
+		emitFlowControl(ins);
+		break;
+	case Instruction::DataShare:
+		emitDataShare(ins);
+		break;
+	case Instruction::VectorInterpolation:
+		emitVectorInterpolation(ins);
+		break;
+	case Instruction::Export:
+		emitExport(ins);
+		break;
+	case Instruction::DebugProfile:
+		emitDebugProfile(ins);
+		break;
+	case Instruction::CategoryUnknown:
+	case Instruction::InstructionsCategoriesCount:
+		LOG_FIXME("Instruction category not initialized. Encoding %d", ins.instruction->GetInstructionFormat());
+		break;
+	default:
+		break;
+	}
+}
+
+RcPtr<gve::GveShader> GCNCompiler::finalize()
+{
+	switch (m_programInfo.shaderType())
+	{
+	case VertexShader:   this->emitVsFinalize(); break;
+	case HullShader:     this->emitHsFinalize(); break;
+	case DomainShader:   this->emitDsFinalize(); break;
+	case GeometryShader: this->emitGsFinalize(); break;
+	case PixelShader:    this->emitPsFinalize(); break;
+	case ComputeShader:  this->emitCsFinalize(); break;
+	}
+
+	// Declare the entry point, we now have all the
+	// information we need, including the interfaces
+	m_module.addEntryPoint(m_entryPointId,
+		m_programInfo.executionModel(), "main",
+		m_entryPointInterfaces.size(),
+		m_entryPointInterfaces.data());
+	m_module.setDebugName(m_entryPointId, "main");
+
+	return new gve::GveShader(m_programInfo.shaderStage(),
+		m_module.compile(),
+		m_programInfo.key());
+}
+
 
 void GCNCompiler::emitInit()
 {
@@ -208,12 +276,12 @@ void GCNCompiler::emitDclVertexInput()
 		{
 			// TODO:
 			// Not sure if all vertex inputs are float type
-			auto inputReg = emitDclFloatVector(32, inputSemantic.sizeInElements, spv::StorageClassInput);
+			auto inputReg = emitDclFloatVector(SpirvScalarType::Float32, inputSemantic.sizeInElements, spv::StorageClassInput);
 			m_vs.vsInputs[inputSemantic.semantic] = inputReg;
 
 			// Use semantic index for location, so vulkan code need to match.
-			m_module.decorateLocation(inputReg.varId, inputSemantic.semantic);
-			m_entryPointInterfaces.push_back(inputReg.varId);
+			m_module.decorateLocation(inputReg.id, inputSemantic.semantic);
+			m_entryPointInterfaces.push_back(inputReg.id);
 		}
 	} while (false);
 }
@@ -259,8 +327,9 @@ void GCNCompiler::emitEmuFetchShader()
 				// Declare a new vgpr reg
 				// TODO:
 				// Not sure if all vertex inputs are float type
-				auto vgprReg = emitDclFloat(32, spv::StorageClassPrivate, UtilString::Format("v%d", vgprIdx));
-				uint32_t inputVarId = m_vs.vsInputs[inputSemantic.semantic].varId;
+				auto vgprReg = emitDclFloat(SpirvScalarType::Float32, 
+					spv::StorageClassPrivate, UtilString::Format("v%d", vgprIdx));
+				uint32_t inputVarId = m_vs.vsInputs[inputSemantic.semantic].id;
 
 				// Access vector member
 				uint32_t fpPtrTypeId = m_module.defFloatPointerType(32, spv::StorageClassPrivate);
@@ -272,7 +341,7 @@ void GCNCompiler::emitEmuFetchShader()
 
 				// Store input value to our new vgpr reg.
 				uint32_t loadId = m_module.opLoad(fpPtrTypeId, inputElementId);
-				m_module.opStore(vgprReg.varId, loadId);
+				m_module.opStore(vgprReg.id, loadId);
 
 				// Save to the map
 				m_vgprs[vgprIdx] = vgprReg;
@@ -283,21 +352,24 @@ void GCNCompiler::emitEmuFetchShader()
 	} while (false);
 }
 
-pssl::SpirvRegister GCNCompiler::emitDclFloat(uint32_t width, 
+SpirvRegisterPointer GCNCompiler::emitDclFloat(SpirvScalarType type,
 	spv::StorageClass storageCls, const std::string& debugName /*= ""*/)
 {
+	uint32_t width = type == SpirvScalarType::Float32 ? 32 : 64;
 	uint32_t fpPtrTypeId = m_module.defFloatPointerType(width, storageCls);
 	uint32_t varId = m_module.newVar(fpPtrTypeId, storageCls);
 	if (!debugName.empty())
 	{
 		m_module.setDebugName(varId, debugName.c_str());
 	}
-	return SpirvRegister(fpPtrTypeId, varId);
+	
+	return SpirvRegisterPointer(type, 1, varId);
 }
 
-SpirvRegister GCNCompiler::emitDclFloatVector(uint32_t width, uint32_t count, 
+SpirvRegisterPointer GCNCompiler::emitDclFloatVector(SpirvScalarType type, uint32_t count,
 	spv::StorageClass storageCls, const std::string& debugName /*= ""*/)
 {
+	uint32_t width = type == SpirvScalarType::Float32 ? 32 : 64;
 	uint32_t fpTypeId = m_module.defFloatType(width);
 	uint32_t vfpTypeId = m_module.defVectorType(fpTypeId, count);
 	uint32_t vfpPtrTypeId = m_module.defPointerType(vfpTypeId, storageCls);
@@ -306,12 +378,334 @@ SpirvRegister GCNCompiler::emitDclFloatVector(uint32_t width, uint32_t count,
 	{
 		m_module.setDebugName(varId, debugName.c_str());
 	}
-	return SpirvRegister(vfpPtrTypeId, varId);
+	return SpirvRegisterPointer(type, count, varId);
 }
 
-SpirvRegister GCNCompiler::emitValueLoad(const SpirvRegister& reg)
+SpirvRegisterValue GCNCompiler::emitValueLoad(const SpirvRegisterPointer& reg)
+{
+	uint32_t varId = m_module.opLoad(
+		getVectorTypeId(reg.type),
+		reg.id);
+	return SpirvRegisterValue(reg.type, varId);
+}
+
+SpirvRegisterValue GCNCompiler::emitSgprLoad(uint32_t index)
+{
+	return emitValueLoad(m_sgprs[index]);
+}
+
+SpirvRegisterValue GCNCompiler::emitVgprLoad(uint32_t index)
+{
+	return emitValueLoad(m_vgprs[index]);
+}
+
+void GCNCompiler::emitValueStore(
+	const SpirvRegisterPointer &ptr,
+	const SpirvRegisterValue &src, 
+	const GcnRegMask &writeMask)
+{
+	SpirvRegisterValue value = src;
+	// If the component types are not compatible,
+	// we need to bit-cast the source variable.
+	if (src.type.ctype != ptr.type.ctype)
+	{
+		value = emitRegisterBitcast(src, ptr.type.ctype);
+	}
+		
+	// If the source value consists of only one component,
+	// it is stored in all components of the destination.
+	if (src.type.ccount == 1)
+	{
+		value = emitRegisterExtend(src, writeMask.popCount());
+	}
+		
+	if (ptr.type.ccount == writeMask.popCount()) 
+	{
+		// Simple case: We write to the entire register
+		m_module.opStore(ptr.id, value.id);
+	}
+	else 
+	{
+		// We only write to part of the destination
+		// register, so we need to load and modify it
+		SpirvRegisterValue tmp = emitValueLoad(ptr);
+		tmp = emitRegisterInsert(tmp, value, writeMask);
+
+		m_module.opStore(ptr.id, tmp.id);
+	}
+}
+
+void GCNCompiler::emitSgprStore(uint32_t dstIdx, const SpirvRegisterValue& srcReg)
+{
+	emitValueStore(m_sgprs[dstIdx], srcReg, 1);
+}
+
+void GCNCompiler::emitVgprStore(uint32_t dstIdx, const SpirvRegisterValue& srcReg)
+{
+	emitValueStore(m_vgprs[dstIdx], srcReg, 1);
+}
+
+// See table "SDST, SSRC and SRC Operands" in section 3.1 of GPU Shader Core ISA manual
+SpirvRegisterValue GCNCompiler::emitLoadScalarOperand(uint32_t index)
+{
+	Instruction::OperandSRC src = static_cast<Instruction::OperandSRC>(index);
+	SpirvRegisterValue operand;
+
+	switch (src)
+	{
+	case Instruction::OperandSRC::SRCScalarGPRMin ... Instruction::OperandSRC::SRCScalarGPRMax:
+	{
+		operand = emitSgprLoad((uint32_t)src);
+	}
+		break;
+	case Instruction::OperandSRC::SRCVccLo:
+		break;
+	case Instruction::OperandSRC::SRCVccHi:
+		break;
+	case Instruction::OperandSRC::SRCM0:
+		break;
+	case Instruction::OperandSRC::SRCExecLo:
+		break;
+	case Instruction::OperandSRC::SRCExecHi:
+		break;
+	case Instruction::OperandSRC::SRCConstZero:
+		break;
+	case Instruction::OperandSRC::SRCSignedConstIntPosMin ... Instruction::OperandSRC::SRCSignedConstIntPosMax:
+	{
+
+	}
+		break;
+	case Instruction::OperandSRC::SRCSignedConstIntNegMin ... Instruction::OperandSRC::SRCSignedConstIntNegMax:
+	{
+
+	}
+		break;
+	case Instruction::OperandSRC::SRCConstFloatPos_0_5:
+		break;
+	case Instruction::OperandSRC::SRCConstFloatNeg_0_5:
+		break;
+	case Instruction::OperandSRC::SRCConstFloatPos_1_0:
+		break;
+	case Instruction::OperandSRC::SRCConstFloatNeg_1_0:
+		break;
+	case Instruction::OperandSRC::SRCConstFloatPos_2_0:
+		break;
+	case Instruction::OperandSRC::SRCConstFloatNeg_2_0:
+		break;
+	case Instruction::OperandSRC::SRCConstFloatPos_4_0:
+		break;
+	case Instruction::OperandSRC::SRCConstFloatNeg_4_0:
+		break;
+	case Instruction::OperandSRC::SRCVCCZ:
+		break;
+	case Instruction::OperandSRC::SRCEXECZ:
+		break;
+	case Instruction::OperandSRC::SRCSCC:
+		break;
+	case Instruction::OperandSRC::SRCLdsDirect:
+		break;
+	case Instruction::OperandSRC::SRCLiteralConst:
+		break;
+	// For 9 bits SRC operand
+	case Instruction::OperandSRC::SRCVectorGPRMin ... Instruction::OperandSRC::SRCVectorGPRMax:
+	{
+
+	}
+		break;
+	default:
+		LOG_ERR("error operand range %d", (uint32_t)src);
+		break;
+	}
+
+	return operand;
+}
+
+// See table "VSRC and VDST Operands" in section 3.1 of GPU Shader Core ISA manual
+SpirvRegisterValue GCNCompiler::emitLoadVectorOperand(uint32_t index)
 {
 
+}
+
+void GCNCompiler::emitStoreScalarOperand(uint32_t dstIndex, const SpirvRegisterValue& srcReg)
+{
+	Instruction::OperandSDST dst = static_cast<Instruction::OperandSDST>(dstIndex);
+	
+	switch (dst)
+	{
+	case Instruction::OperandSDST::SDSTScalarGPRMin ... Instruction::OperandSDST::SDSTScalarGPRMax:
+	{
+		emitSgprStore((uint32_t)dst, srcReg);
+	}
+		break;
+	case Instruction::OperandSDST::SDSTVccLo:
+		break;
+	case Instruction::OperandSDST::SDSTVccHi:
+		break;
+	case Instruction::OperandSDST::SDSTM0:
+		break;
+	case Instruction::OperandSDST::SDSTExecLo:
+		break;
+	case Instruction::OperandSDST::SDSTExecHi:
+		break;
+	default:
+		LOG_ERR("error operand range %d", (uint32_t)dst);
+		break;
+	}
+}
+
+void GCNCompiler::emitStoreVectorOperand(uint32_t dstIndex, const SpirvRegisterValue& srcReg)
+{
+
+}
+
+SpirvRegisterValue GCNCompiler::emitRegisterBitcast(SpirvRegisterValue srcValue, SpirvScalarType dstType)
+{
+	SpirvScalarType srcType = srcValue.type.ctype;
+
+	if (srcType == dstType)
+		return srcValue;
+
+	SpirvRegisterValue result;
+	result.type.ctype = dstType;
+	result.type.ccount = srcValue.type.ccount;
+
+	if (isWideType(srcType)) result.type.ccount *= 2;
+	if (isWideType(dstType)) result.type.ccount /= 2;
+
+	result.id = m_module.opBitcast(
+		getVectorTypeId(result.type),
+		srcValue.id);
+	return result;
+}
+
+SpirvRegisterValue GCNCompiler::emitRegisterSwizzle(SpirvRegisterValue value, GcnRegSwizzle swizzle, GcnRegMask writeMask)
+{
+	if (value.type.ccount == 1)
+	{
+		return emitRegisterExtend(value, writeMask.popCount());
+	}
+		
+	std::array<uint32_t, 4> indices;
+
+	uint32_t dstIndex = 0;
+
+	for (uint32_t i = 0; i < 4; i++) 
+	{
+		if (writeMask[i])
+		{
+			indices[dstIndex++] = swizzle[i];
+		}
+	}
+
+	// If the swizzle combined with the mask can be reduced
+	// to a no-op, we don't need to insert any instructions.
+	bool isIdentitySwizzle = dstIndex == value.type.ccount;
+
+	for (uint32_t i = 0; i < dstIndex && isIdentitySwizzle; i++)
+		isIdentitySwizzle &= indices[i] == i;
+
+	if (isIdentitySwizzle)
+	{
+		return value;
+	}
+
+	// Use OpCompositeExtract if the resulting vector contains
+	// only one component, and OpVectorShuffle if it is a vector.
+	SpirvRegisterValue result;
+	result.type.ctype = value.type.ctype;
+	result.type.ccount = dstIndex;
+
+	const uint32_t typeId = getVectorTypeId(result.type);
+
+	if (dstIndex == 1) 
+	{
+		result.id = m_module.opCompositeExtract(
+			typeId, value.id, 1, indices.data());
+	}
+	else 
+	{
+		result.id = m_module.opVectorShuffle(
+			typeId, value.id, value.id,
+			dstIndex, indices.data());
+	}
+
+	return result;
+}
+
+SpirvRegisterValue GCNCompiler::emitRegisterExtract(SpirvRegisterValue value, GcnRegMask mask)
+{
+	return emitRegisterSwizzle(value,
+		GcnRegSwizzle(0, 1, 2, 3), mask);
+}
+
+SpirvRegisterValue GCNCompiler::emitRegisterInsert(SpirvRegisterValue dstValue, SpirvRegisterValue srcValue, GcnRegMask srcMask)
+{
+	SpirvRegisterValue result;
+	result.type = dstValue.type;
+
+	const uint32_t typeId = getVectorTypeId(result.type);
+
+	if (srcMask.popCount() == 0) 
+	{
+		// Nothing to do if the insertion mask is empty
+		result.id = dstValue.id;
+	}
+	else if (dstValue.type.ccount == 1) 
+	{
+		// Both values are scalar, so the first component
+		// of the write mask decides which one to take.
+		result.id = srcMask[0] ? srcValue.id : dstValue.id;
+	}
+	else if (srcValue.type.ccount == 1) 
+	{
+		// The source value is scalar. Since OpVectorShuffle
+		// requires both arguments to be vectors, we have to
+		// use OpCompositeInsert to modify the vector instead.
+		const uint32_t componentId = srcMask.firstSet();
+
+		result.id = m_module.opCompositeInsert(typeId,
+			srcValue.id, dstValue.id, 1, &componentId);
+	}
+	else 
+	{
+		// Both arguments are vectors. We can determine which
+		// components to take from which vector and use the
+		// OpVectorShuffle instruction.
+		std::array<uint32_t, 4> components;
+		uint32_t srcComponentId = dstValue.type.ccount;
+
+		for (uint32_t i = 0; i < dstValue.type.ccount; i++)
+		{
+			components.at(i) = srcMask[i] ? srcComponentId++ : i;
+		}
+			
+		result.id = m_module.opVectorShuffle(
+			typeId, dstValue.id, srcValue.id,
+			dstValue.type.ccount, components.data());
+	}
+
+	return result;
+}
+
+SpirvRegisterValue GCNCompiler::emitRegisterExtend(SpirvRegisterValue value, uint32_t size)
+{
+	if (size == 1)
+	{
+		return value;
+	}
+		
+	std::array<uint32_t, 4> ids = { {
+	  value.id, value.id,
+	  value.id, value.id,
+	} };
+
+	SpirvRegisterValue result;
+	result.type.ctype = value.type.ctype;
+	result.type.ccount = size;
+	result.id = m_module.opCompositeConstruct(
+		getVectorTypeId(result.type),
+		size, ids.data());
+	return result;
 }
 
 uint32_t GCNCompiler::getPerVertexBlockId()
@@ -349,72 +743,49 @@ uint32_t GCNCompiler::getPerVertexBlockId()
 	return typeId;
 }
 
-void GCNCompiler::processInstruction(GCNInstruction& ins)
+uint32_t GCNCompiler::getScalarTypeId(SpirvScalarType type)
 {
-	Instruction::InstructionCategory insCategory = ins.instruction->GetInstructionCategory();
-	switch (insCategory)
+	if (type == SpirvScalarType::Float64)
 	{
-	case Instruction::ScalarALU:
-		emitScalarALU(ins);
-		break;
-	case Instruction::ScalarMemory:
-		emitScalarMemory(ins);
-		break;
-	case Instruction::VectorALU:
-		emitVectorALU(ins);
-		break;
-	case Instruction::VectorMemory:
-		emitVectorMemory(ins);
-		break;
-	case Instruction::FlowControl:
-		emitFlowControl(ins);
-		break;
-	case Instruction::DataShare:
-		emitDataShare(ins);
-		break;
-	case Instruction::VectorInterpolation:
-		emitVectorInterpolation(ins);
-		break;
-	case Instruction::Export:
-		emitExport(ins);
-		break;
-	case Instruction::DebugProfile:
-		emitDebugProfile(ins);
-		break;
-	case Instruction::CategoryUnknown:
-	case Instruction::InstructionsCategoriesCount:
-		LOG_FIXME("Instruction category not initialized. Encoding %d", ins.instruction->GetInstructionFormat());
-		break;
-	default:
-		break;
-	}
-}
-
-RcPtr<gve::GveShader> GCNCompiler::finalize()
-{
-	switch (m_programInfo.shaderType())
-	{
-	case VertexShader:   this->emitVsFinalize(); break;
-	case HullShader:     this->emitHsFinalize(); break;
-	case DomainShader:   this->emitDsFinalize(); break;
-	case GeometryShader: this->emitGsFinalize(); break;
-	case PixelShader:    this->emitPsFinalize(); break;
-	case ComputeShader:  this->emitCsFinalize(); break;
+		m_module.enableCapability(spv::CapabilityFloat64);
 	}
 
-	// Declare the entry point, we now have all the
-	// information we need, including the interfaces
-	m_module.addEntryPoint(m_entryPointId,
-		m_programInfo.executionModel(), "main",
-		m_entryPointInterfaces.size(),
-		m_entryPointInterfaces.data());
-	m_module.setDebugName(m_entryPointId, "main");
+	if (type == SpirvScalarType::Sint64 || type == SpirvScalarType::Uint64)
+	{
+		m_module.enableCapability(spv::CapabilityInt64);
+	}
 
-	return new gve::GveShader(m_programInfo.shaderStage(), 
-		m_module.compile(), 
-		m_programInfo.key());
+	uint32_t typeId = 0;
+	switch (type) 
+	{
+	case SpirvScalarType::Uint32:  typeId = m_module.defIntType(32, 0); break;
+	case SpirvScalarType::Uint64:  typeId = m_module.defIntType(64, 0); break;
+	case SpirvScalarType::Sint32:  typeId = m_module.defIntType(32, 1); break;
+	case SpirvScalarType::Sint64:  typeId = m_module.defIntType(64, 1); break;
+	case SpirvScalarType::Float32: typeId = m_module.defFloatType(32); break;
+	case SpirvScalarType::Float64: typeId = m_module.defFloatType(64); break;
+	case SpirvScalarType::Bool:    typeId = m_module.defBoolType(); break;
+	}
+	return typeId;
 }
 
+uint32_t GCNCompiler::getVectorTypeId(const SpirvVectorType& type)
+{
+	uint32_t typeId = this->getScalarTypeId(type.ctype);
 
+	if (type.ccount > 1)
+	{
+		typeId = m_module.defVectorType(typeId, type.ccount);
+	}
+
+	return typeId;
+}
+
+bool GCNCompiler::isWideType(SpirvScalarType type) const
+{
+	return type == SpirvScalarType::Sint64
+		|| type == SpirvScalarType::Uint64
+		|| type == SpirvScalarType::Float64;
+}
 
 } // namespace pssl

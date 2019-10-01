@@ -5,6 +5,7 @@
 #include "PsslFetchShader.h"
 #include "GCNInstruction.h"
 #include "GCNAnalyzer.h"
+#include "GCNDecoder.h"
 
 #include "GCNParser/SMRDInstruction.h"
 #include "GCNParser/SOPPInstruction.h"
@@ -30,24 +31,123 @@ namespace pssl
 {;
 
 
+
+//struct SpirvRegister
+//{
+//	SpirvRegister() :
+//		typeId(0), varId(0)
+//	{}
+//
+//	SpirvRegister(spv::Id tid, spv::Id vid) :
+//		typeId(tid), varId(vid)
+//	{}
+//
+//	bool isValid() const
+//	{
+//		return (typeId != 0) && (varId != 0);
+//	}
+//
+//	spv::Id typeId = 0;
+//	spv::Id varId = 0;
+//};
+
 enum class GcnGprType
 {
 	Scalar,
 	Vector
 };
 
-struct SpirvRegister
+/**
+ * \brief Scalar value type
+ *
+ * Enumerates possible register component
+ * types. Scalar types are represented as
+ * a one-component vector type.
+ */
+enum class SpirvScalarType : uint32_t
 {
-	SpirvRegister() :
-		typeId(0), varId(0)
+	Uint32 = 0,
+	Uint64 = 1,
+	Sint32 = 2,
+	Sint64 = 3,
+	Float32 = 4,
+	Float64 = 5,
+	Bool = 6,
+	Unknown = 7
+};
+
+/**
+ * \brief Vector type
+ *
+ * Convenience struct that stores a scalar
+ * type and a component count. The compiler
+ * can use this to generate SPIR-V types.
+ */
+struct SpirvVectorType 
+{
+	SpirvVectorType():
+		ctype(SpirvScalarType::Unknown), ccount(0)
+	{}
+	SpirvVectorType(SpirvScalarType type, uint32_t count):
+		ctype(type), ccount(count)
 	{}
 
-	SpirvRegister(spv::Id tid, spv::Id vid) :
-		typeId(tid), varId(vid)
+	SpirvScalarType   ctype;
+	uint32_t          ccount;
+};
+
+/**
+ * \brief Register value
+ *
+ * Stores a vector type and a SPIR-V ID that
+ * represents an intermediate value. This is
+ * used to track the type of such values.
+ */
+struct SpirvRegisterValue 
+{
+	SpirvRegisterValue():
+		id(0)
+	{}
+	SpirvRegisterValue(SpirvVectorType vType, uint32_t spvId):
+		type(vType), id(spvId)
+	{}
+	SpirvRegisterValue(SpirvScalarType sType, uint32_t count, uint32_t spvId) :
+		type(sType, count), id(spvId)
 	{}
 
-	spv::Id typeId = 0;
-	spv::Id varId = 0;
+	SpirvVectorType   type;
+	uint32_t          id;
+};
+
+
+/**
+ * \brief Register pointer
+ *
+ * Stores a vector type and a SPIR-V ID that
+ * represents a pointer to such a vector. This
+ * can be used to load registers conveniently.
+ */
+struct SpirvRegisterPointer
+{
+	SpirvRegisterPointer():
+		id(0)
+	{}
+	SpirvRegisterPointer(SpirvVectorType vType, uint32_t spvId):
+		type(vType), id(spvId)
+	{}
+	SpirvRegisterPointer(SpirvScalarType sType, uint32_t count, uint32_t spvId) :
+		type(sType, count), id(spvId)
+	{}
+
+	SpirvVectorType   type;
+	uint32_t          id;
+};
+
+
+struct SpirvRegisterArray
+{
+	SpirvVectorType type;
+	std::vector<SpirvRegisterPointer> regs;
 };
 
 
@@ -88,7 +188,7 @@ struct GcnCompilerVsPart
 {
 	spv::Id mainFunctionId = 0;
 	spv::Id fsFunctionId = 0;
-	std::map<uint32_t, SpirvRegister> vsInputs;
+	std::map<uint32_t, SpirvRegisterPointer> vsInputs;
 };
 
 
@@ -187,8 +287,8 @@ private:
 
 	///////////////////////////////////
 	// Gcn register to spir-v variable map
-	std::map<uint32_t, SpirvRegister> m_sgprs;
-	std::map<uint32_t, SpirvRegister> m_vgprs;
+	std::map<uint32_t, SpirvRegisterPointer> m_sgprs;
+	std::map<uint32_t, SpirvRegisterPointer> m_vgprs;
 
 private:
 
@@ -227,12 +327,53 @@ private:
 	void emitEmuFetchShader();
 
 	/////////////////////////////////////////////////////////
-	SpirvRegister emitDclFloat(uint32_t width, 
+	SpirvRegisterPointer emitDclFloat(SpirvScalarType type,
 		spv::StorageClass storageCls, const std::string& debugName = "");
-	SpirvRegister emitDclFloatVector(uint32_t width, uint32_t count, 
+	SpirvRegisterPointer emitDclFloatVector(SpirvScalarType type, uint32_t count,
 		spv::StorageClass storageCls, const std::string& debugName = "");
 
-	SpirvRegister emitValueLoad(const SpirvRegister& reg);
+	SpirvRegisterValue emitValueLoad(const SpirvRegisterPointer& reg);
+	SpirvRegisterValue emitSgprLoad(uint32_t index);
+	SpirvRegisterValue emitVgprLoad(uint32_t index);
+
+	void emitValueStore(
+		const SpirvRegisterPointer &ptr,
+		const SpirvRegisterValue &src,
+		const GcnRegMask &writeMask);
+	void emitSgprStore(uint32_t dstIdx, const SpirvRegisterValue& srcReg);
+	void emitVgprStore(uint32_t dstIdx, const SpirvRegisterValue& srcReg);
+
+	/////////////////////////////////////////
+	// Operands manipulation methods
+	SpirvRegisterValue emitLoadScalarOperand(uint32_t index);
+	SpirvRegisterValue emitLoadVectorOperand(uint32_t index);
+
+	void emitStoreScalarOperand(uint32_t dstIndex, const SpirvRegisterValue& srcReg);
+	void emitStoreVectorOperand(uint32_t dstIndex, const SpirvRegisterValue& srcReg);
+
+	/////////////////////////////////////////
+	// Generic register manipulation methods
+	SpirvRegisterValue emitRegisterBitcast(
+		SpirvRegisterValue       srcValue,
+		SpirvScalarType          dstType);
+
+	SpirvRegisterValue emitRegisterSwizzle(
+		SpirvRegisterValue      value,
+		GcnRegSwizzle			swizzle,
+		GcnRegMask              writeMask);
+
+	SpirvRegisterValue emitRegisterExtract(
+		SpirvRegisterValue		value,
+		GcnRegMask				mask);
+
+	SpirvRegisterValue emitRegisterInsert(
+		SpirvRegisterValue		dstValue,
+		SpirvRegisterValue		srcValue,
+		GcnRegMask				srcMask);
+
+	SpirvRegisterValue emitRegisterExtend(
+		SpirvRegisterValue		value,
+		uint32_t				size);
 
 	/////////////////////////////////////////////////////////
 	// Category handlers
@@ -337,20 +478,30 @@ private:
 
 	/////////////////////////////////////////////////////////
 
-
-	// Convenience function to dynamic cast instruction types
-	template<typename InsType>
-	inline
-	typename std::enable_if<std::is_base_of<Instruction, InsType>::value, const InsType*>::type
-	asInst(const GCNInstruction& ins)
-	{
-		return dynamic_cast<const InsType*>(ins.instruction.get());
-	}
-
 	///////////////////////////
 	// Type definition methods
 	uint32_t getPerVertexBlockId();
 
+	uint32_t getScalarTypeId(
+		SpirvScalarType type);
+
+	uint32_t getVectorTypeId(
+		const SpirvVectorType& type);
+
+	////////////////
+	// Misc methods
+
+	bool isWideType(
+		SpirvScalarType type) const;
+
+	// Convenience function to dynamic cast instruction types
+	template<typename InsType>
+	inline
+		typename std::enable_if<std::is_base_of<Instruction, InsType>::value, const InsType*>::type
+		asInst(const GCNInstruction& ins)
+	{
+		return dynamic_cast<const InsType*>(ins.instruction.get());
+	}
 };
 
 
