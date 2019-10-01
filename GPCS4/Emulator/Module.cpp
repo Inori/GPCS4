@@ -3,31 +3,28 @@
 
 #include <algorithm>
 
-MODULE_INFO &MemoryMappedModule::getModuleInfo()
-{
-	return moduleInfo;
-}
+MODULE_INFO &MemoryMappedModule::getModuleInfo() { return moduleInfo; }
 
 bool MemoryMappedModule::getImportSymbolInfo(std::string const &encSymbol,
 											 std::string *modName,
-											 std::string * libName,
-											 uint64_t * nid) const
+											 std::string *libName,
+											 uint64_t *nid) const
 {
-	return getSymbolInfo(encSymbol, importModules, importLibraries,
-						modName, libName, nid);
+	return getSymbolInfo(encSymbol, importModules, importLibraries, modName,
+						 libName, nid);
 }
 
 bool MemoryMappedModule::getExportSymbolInfo(std::string const &encSymbol,
 											 std::string *modName,
-											 std::string * libName,
-											 uint64_t * nid) const
+											 std::string *libName,
+											 uint64_t *nid) const
 {
-	return getSymbolInfo(encSymbol, exportModules, exportLibraries,
-						modName, libName, nid);
+	return getSymbolInfo(encSymbol, exportModules, exportLibraries, modName,
+						 libName, nid);
 }
 
-bool MemoryMappedModule::getSymbol(std::string const & encName,
-										 SymbolInfo const **symbolInfo) const
+bool MemoryMappedModule::getSymbol(std::string const &encName,
+								   SymbolInfo const **symbolInfo) const
 {
 	bool retVal = false;
 	if (nameSymbolMap.count(encName) == 0)
@@ -36,20 +33,20 @@ bool MemoryMappedModule::getSymbol(std::string const & encName,
 	}
 	else
 	{
-		auto idx = nameSymbolMap.at(encName);
+		auto idx    = nameSymbolMap.at(encName);
 		*symbolInfo = &symbols[idx];
-		retVal = true;
+		retVal      = true;
 	}
 
 	return retVal;
-
 }
 
-bool MemoryMappedModule::getSymbolInfo(std::string const & encSymbol,
-									   std::vector<IMPORT_MODULE> const & mods,
-									   std::vector<IMPORT_LIBRARY> const & libs,
-									   std::string * modName, std::string * libName, 
-									   uint64_t * nid) const
+bool MemoryMappedModule::getSymbolInfo(std::string const &encSymbol,
+									   ModuleList const &mods,
+									   LibraryList const &libs,
+									   std::string *modName,
+									   std::string *libName,
+									   uint64_t *nid) const
 {
 	bool retVal = false;
 
@@ -90,10 +87,10 @@ bool MemoryMappedModule::getSymbolInfo(std::string const & encSymbol,
 }
 
 bool MemoryMappedModule::getModNameFromId(uint64_t id,
-										ModuleList const &mods,
-										std::string * modName) const 
+										  ModuleList const &mods,
+										  std::string *modName) const
 {
-	bool retVal = false;
+	bool retVal   = false;
 	auto &modules = mods;
 	do
 	{
@@ -102,24 +99,25 @@ bool MemoryMappedModule::getModNameFromId(uint64_t id,
 			break;
 		}
 
-		auto iter = std::find_if(modules.begin(), modules.end(),
-						[=](IMPORT_MODULE const &mod) { return id == mod.id; });
+		auto iter = std::find_if(
+			modules.begin(), modules.end(),
+			[=](IMPORT_MODULE const &mod) { return id == mod.id; });
 
 		if (iter == modules.end())
 		{
 			break;
 		}
-		
+
 		*modName = iter->strName;
-		retVal = true;
+		retVal   = true;
 	} while (false);
 
 	return retVal;
 }
 
 bool MemoryMappedModule::getLibNameFromId(uint64_t id,
-										LibraryList const &libs,
-										std::string *libName) const
+										  LibraryList const &libs,
+										  std::string *libName) const
 {
 	bool retVal = false;
 
@@ -130,30 +128,33 @@ bool MemoryMappedModule::getLibNameFromId(uint64_t id,
 			break;
 		}
 
-		auto iter = std::find_if(libs.begin(), libs.end(),
-						[=](IMPORT_LIBRARY const &lib) {return id == lib.id; });
+		auto iter = std::find_if(
+			libs.begin(), libs.end(),
+			[=](IMPORT_LIBRARY const &lib) { return id == lib.id; });
 
 		if (iter == libs.end())
 		{
 			break;
 		}
-		
+
 		*libName = iter->strName;
-		retVal = true;
+		retVal   = true;
 
 	} while (false);
 
 	return retVal;
 }
 
-bool MemoryMappedModule::decodeValue(std::string const & encodedStr, uint64_t & value) const
-{	
+bool MemoryMappedModule::decodeValue(std::string const &encodedStr,
+									 uint64_t &value) const
+{
 	bool bRet = false;
 
-	//the max length for an encode id is 11
-	//from orbis-ld.exe
+	// the max length for an encode id is 11
+	// from orbis-ld.exe
 	const uint nEncLenMax = 11;
-	const char pCodes[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-";
+	const char pCodes[] =
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-";
 
 	do
 	{
@@ -165,7 +166,7 @@ bool MemoryMappedModule::decodeValue(std::string const & encodedStr, uint64_t & 
 		}
 
 		bool bError = false;
-		value = 0;
+		value       = 0;
 
 		for (int i = 0; i < encodedStr.size(); ++i)
 		{
@@ -205,7 +206,10 @@ bool MemoryMappedModule::decodeValue(std::string const & encodedStr, uint64_t & 
 	return bRet;
 }
 
-bool MemoryMappedModule::decodeSymbol(std::string const & strEncName, uint * modId, uint * libId, uint64_t * funcNid) const
+bool MemoryMappedModule::decodeSymbol(std::string const &strEncName,
+									  uint *modId,
+									  uint *libId,
+									  uint64_t *funcNid) const
 {
 	bool bRet = false;
 
@@ -216,9 +220,9 @@ bool MemoryMappedModule::decodeSymbol(std::string const & strEncName, uint * mod
 			break;
 		}
 
-		auto &nModuleId = *modId;
+		auto &nModuleId  = *modId;
 		auto &nLibraryId = *libId;
-		auto &nNid = *funcNid;
+		auto &nNid       = *funcNid;
 
 		std::vector<std::string> vtNameParts;
 		if (!UtilString::Split(strEncName, '#', vtNameParts))
@@ -251,17 +255,18 @@ bool MemoryMappedModule::decodeSymbol(std::string const & strEncName, uint * mod
 	return bRet;
 }
 
-bool MemoryMappedModule::getSymbol(size_t index, SymbolInfo const **symbolInfo) const
+bool MemoryMappedModule::getSymbol(size_t index,
+								   SymbolInfo const **symbolInfo) const
 {
 	bool retVal = false;
 	if (index > symbols.size() - 1)
 	{
 		retVal = false;
 	}
-	else 
+	else
 	{
 		*symbolInfo = &symbols[index];
-		retVal = true;
+		retVal      = true;
 	}
 
 	return retVal;

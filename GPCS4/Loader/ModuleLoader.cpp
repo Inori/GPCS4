@@ -1,19 +1,18 @@
 #include "ModuleLoader.h"
 
-ModuleLoader::ModuleLoader(CSceModuleSystem &modSystem):
-	m_modSystem(modSystem),
-	m_linker(modSystem)
+ModuleLoader::ModuleLoader(CSceModuleSystem &modSystem)
+	: m_modSystem(modSystem), m_linker(modSystem)
 {
 }
 
-bool ModuleLoader::loadModule(std::string const & fileName)
+bool ModuleLoader::loadModule(std::string const &fileName)
 {
 	bool retVal = false;
-	
+
 	do
 	{
 		MemoryMappedModule mod = {};
-		retVal = loadModuleFromFile(fileName, &mod);
+		retVal                 = loadModuleFromFile(fileName, &mod);
 		if (!retVal)
 		{
 			break;
@@ -37,7 +36,8 @@ bool ModuleLoader::loadModule(std::string const & fileName)
 	return retVal;
 }
 
-bool ModuleLoader::loadModuleFromFile(std::string const & fileName, MemoryMappedModule *mod)
+bool ModuleLoader::loadModuleFromFile(std::string const &fileName,
+									  MemoryMappedModule *mod)
 {
 	bool retVal = false;
 	do
@@ -87,7 +87,7 @@ bool ModuleLoader::loadModuleFromFile(std::string const & fileName, MemoryMapped
 		addDepedenciesToLoad(*mod);
 
 		std::string moduleName = {};
-		retVal = mapFilePathToModuleName(fileName, &moduleName);
+		retVal                 = mapFilePathToModuleName(fileName, &moduleName);
 		if (!retVal)
 		{
 			break;
@@ -113,7 +113,7 @@ bool ModuleLoader::loadDependencies()
 	{
 		auto fileName = m_filesToLoad.front();
 		m_filesToLoad.pop();
-		
+
 		if (!m_modSystem.isFileAllowedToLoad(fileName))
 		{
 			LOG_DEBUG("File %s is not loadable", fileName.c_str());
@@ -121,15 +121,15 @@ bool ModuleLoader::loadDependencies()
 		}
 
 		std::string path = {};
-		retVal = mapModuleNameToFilePath(fileName, &path);
+		retVal           = mapModuleNameToFilePath(fileName, &path);
 		if (!retVal)
 		{
 			LOG_ERR("Unable to locate file %s", fileName.c_str());
 			break;
 		}
 
-		MemoryMappedModule mod = {};
-		retVal = loadModuleFromFile(path, &mod);
+		auto mod = MemoryMappedModule{};
+		retVal   = loadModuleFromFile(path, &mod);
 		if (!retVal)
 		{
 			LOG_ERR("Fail to load module");
@@ -150,14 +150,16 @@ bool ModuleLoader::addDepedenciesToLoad(MemoryMappedModule const &mod)
 	return true;
 }
 
-bool ModuleLoader::mapModuleNameToFilePath(std::string const & modName, std::string * path)
+bool ModuleLoader::mapModuleNameToFilePath(std::string const &modName,
+										   std::string *path)
 {
 	LOG_FIXME("Test only implementation");
 	*path = modName;
 	return true;
 }
 
-bool ModuleLoader::mapFilePathToModuleName(std::string const & filePath, std::string * modName)
+bool ModuleLoader::mapFilePathToModuleName(std::string const &filePath,
+										   std::string *modName)
 {
 	// TODO: an unified implementation is needed.
 	bool retVal = false;
@@ -166,7 +168,7 @@ bool ModuleLoader::mapFilePathToModuleName(std::string const & filePath, std::st
 		auto idx = filePath.find_last_of("/\\");
 		if (idx == std::string::npos)
 		{
-			retVal = true;
+			retVal   = true;
 			*modName = filePath;
 			break;
 		}
@@ -178,20 +180,22 @@ bool ModuleLoader::mapFilePathToModuleName(std::string const & filePath, std::st
 		}
 
 		*modName = filePath.substr(idx + 1);
-		retVal = true;
+		retVal   = true;
 	} while (false);
 
 	return retVal;
 }
 
-bool ModuleLoader::registerSymbol(MemoryMappedModule const & mod, std::string const & encName, void *pointer)
+bool ModuleLoader::registerSymbol(MemoryMappedModule const &mod,
+								  std::string const &encName,
+								  void *pointer)
 {
 	bool retVal = false;
 	do
 	{
 		std::string modName = {};
 		std::string libName = {};
-		uint64_t nid = 0;
+		uint64_t nid        = 0;
 
 		retVal = mod.getExportSymbolInfo(encName, &modName, &libName, &nid);
 		if (!retVal)
@@ -211,44 +215,7 @@ bool ModuleLoader::registerSymbol(MemoryMappedModule const & mod, std::string co
 	return retVal;
 }
 
-//bool ModuleLoader::registerSymbol(std::string const & encName, void * pointer)
-//{
-//	bool retVal = false;
-//
-//	do
-//	{
-//		uint modId = 0, libId = 0;
-//		uint64_t funcNid = 0;
-//
-//		retVal = m_mapper.decodeEncodedName(encName, &modId, &libId, &funcNid);
-//		if (!retVal)
-//		{
-//			break;
-//		}
-//
-//		std::string modName = {};
-//		std::string libName = {};
-//
-//		//retVal = m_mapper.getModuleNameFromId(modId, &modName);
-//		//if (!retVal)
-//		//{
-//		//	break;
-//		//}
-//
-//		//retVal = m_mapper.getLibraryNameFromId(libId, &libName);
-//		//if (!retVal)
-//		//{
-//		//	break;
-//		//}
-//
-//		m_modSystem.registerFunction(modName, libName, funcNid, pointer);
-//
-//	} while (false);
-//
-//	return retVal;
-//}
-
-bool ModuleLoader::relocateRela(MemoryMappedModule const & mod)
+bool ModuleLoader::relocateRela(MemoryMappedModule const &mod) const
 {
 	bool retVal = false;
 	do
@@ -260,15 +227,15 @@ bool ModuleLoader::relocateRela(MemoryMappedModule const & mod)
 
 		auto &info = mod.moduleInfo;
 
-		byte* pImageBase = info.pCodeAddr;
-		byte* pStrTab = info.pStrTab;
-		Elf64_Sym* pSymTab = (Elf64_Sym*)info.pSymTab;
-		Elf64_Rela* pRelaEntries = (Elf64_Rela*)info.pRela;
+		byte *pImageBase         = info.pCodeAddr;
+		byte *pStrTab            = info.pStrTab;
+		Elf64_Sym *pSymTab       = (Elf64_Sym *)info.pSymTab;
+		Elf64_Rela *pRelaEntries = (Elf64_Rela *)info.pRela;
 		for (uint i = 0; i != info.nRelaCount; ++i)
 		{
-			Elf64_Rela* pRela = &pRelaEntries[i];
-			auto nType = ELF64_R_TYPE(pRela->r_info);
-			auto nSymIdx = ELF64_R_SYM(pRela->r_info);
+			Elf64_Rela *pRela = &pRelaEntries[i];
+			auto nType        = ELF64_R_TYPE(pRela->r_info);
+			auto nSymIdx      = ELF64_R_SYM(pRela->r_info);
 
 			switch (nType)
 			{
@@ -284,9 +251,9 @@ bool ModuleLoader::relocateRela(MemoryMappedModule const & mod)
 				break;
 			case R_X86_64_64:
 			{
-				Elf64_Sym& symbol = pSymTab[nSymIdx];
-				auto nBinding = ELF64_ST_BIND(symbol.st_info);
-				uint64 nSymVal = 0;
+				Elf64_Sym &symbol = pSymTab[nSymIdx];
+				auto nBinding     = ELF64_ST_BIND(symbol.st_info);
+				uint64 nSymVal    = 0;
 
 				if (nBinding == STB_LOCAL)
 				{
@@ -294,9 +261,9 @@ bool ModuleLoader::relocateRela(MemoryMappedModule const & mod)
 				}
 				else if (nBinding == STB_GLOBAL || nBinding == STB_WEAK)
 				{
-					char* pName = (char*)&pStrTab[symbol.st_name];
+					char *pName = (char *)&pStrTab[symbol.st_name];
 
-					//if (!ResolveSymbol(pName, nSymVal))
+					// if (!ResolveSymbol(pName, nSymVal))
 					if (!m_linker.resolveSymbol(mod, pName, &nSymVal))
 					{
 						LOG_ERR("can not get symbol address.");
@@ -308,14 +275,16 @@ bool ModuleLoader::relocateRela(MemoryMappedModule const & mod)
 					LOG_ERR("invalid sym bingding %d", nBinding);
 				}
 
-				*(uint64*)&pImageBase[pRela->r_offset] = nSymVal + pRela->r_addend;
+				*(uint64 *)&pImageBase[pRela->r_offset] =
+					nSymVal + pRela->r_addend;
 			}
-				break;
+			break;
 			case R_X86_64_RELATIVE:
 			{
-				*(uint64*)&pImageBase[pRela->r_offset] = (uint64)(pImageBase + pRela->r_addend);
+				*(uint64 *)&pImageBase[pRela->r_offset] =
+					(uint64)(pImageBase + pRela->r_addend);
 			}
-				break;
+			break;
 			default:
 				LOG_FIXME("rela type not handled %d", nType);
 				break;
@@ -328,46 +297,48 @@ bool ModuleLoader::relocateRela(MemoryMappedModule const & mod)
 	return retVal;
 }
 
-bool ModuleLoader::relocatePltRela(MemoryMappedModule const &mod)
+bool ModuleLoader::relocatePltRela(MemoryMappedModule const &mod) const
 {
 	bool bRet = false;
 	do
 	{
 		auto &fileData = mod.fileMemory;
-		auto &info = mod.moduleInfo;
+		auto &info     = mod.moduleInfo;
 
 		if (fileData.empty())
 		{
 			break;
 		}
 
-		byte* pImageBase = info.pCodeAddr;
-		byte* pStrTab = info.pStrTab;;
-		Elf64_Sym* pSymTab = (Elf64_Sym*)info.pSymTab;
-		Elf64_Rela* pRelaEntries = (Elf64_Rela*)info.pPltRela;
+		byte *pImageBase = info.pCodeAddr;
+		byte *pStrTab    = info.pStrTab;
+		;
+		Elf64_Sym *pSymTab       = (Elf64_Sym *)info.pSymTab;
+		Elf64_Rela *pRelaEntries = (Elf64_Rela *)info.pPltRela;
 		for (uint i = 0; i != info.nPltRelaCount; ++i)
 		{
-			Elf64_Rela* pRela = &pRelaEntries[i];
-			auto nType = ELF64_R_TYPE(pRela->r_info);
-			auto nSymIdx = ELF64_R_SYM(pRela->r_info);
+			Elf64_Rela *pRela = &pRelaEntries[i];
+			auto type         = ELF64_R_TYPE(pRela->r_info);
+			auto symbolIndex  = ELF64_R_SYM(pRela->r_info);
 
-			switch (nType)
+			switch (type)
 			{
 			case R_X86_64_JUMP_SLOT:
 			{
-				Elf64_Sym& symbol = pSymTab[nSymIdx];
-				auto nBinding = ELF64_ST_BIND(symbol.st_info);
-				uint64 nSymVal = 0;
+				Elf64_Sym &symbol = pSymTab[symbolIndex];
+				auto binding      = ELF64_ST_BIND(symbol.st_info);
+				uint64 symValue   = 0;
 
-				if (nBinding == STB_LOCAL)
+				if (binding == STB_LOCAL)
 				{
-					nSymVal = (uint64)(pImageBase + symbol.st_value);
+					symValue = reinterpret_cast<uint64_t>(pImageBase +
+														  symbol.st_value);
 				}
-				else if (nBinding == STB_GLOBAL || nBinding == STB_WEAK)
+				else if (binding == STB_GLOBAL || binding == STB_WEAK)
 				{
-					char* pName = (char*)&pStrTab[symbol.st_name];
+					char *pName = (char *)&pStrTab[symbol.st_name];
 					// if (!ResolveSymbol(pName, nSymVal))
-					if(!m_linker.resolveSymbol(mod, pName, &nSymVal))
+					if (!m_linker.resolveSymbol(mod, pName, &symValue))
 					{
 						LOG_ERR("can not get symbol address.");
 						break;
@@ -375,14 +346,14 @@ bool ModuleLoader::relocatePltRela(MemoryMappedModule const &mod)
 				}
 				else
 				{
-					LOG_ERR("invalid sym bingding %d", nBinding);
+					LOG_ERR("invalid sym bingding %d", binding);
 				}
 
-				*(uint64*)&pImageBase[pRela->r_offset] = nSymVal;
+				*(uint64 *)&pImageBase[pRela->r_offset] = symValue;
 			}
-				break;
+			break;
 			default:
-				LOG_FIXME("rela type not handled %d", nType);
+				LOG_FIXME("rela type not handled %d", type);
 				break;
 			}
 		}
@@ -392,7 +363,7 @@ bool ModuleLoader::relocatePltRela(MemoryMappedModule const &mod)
 	return bRet;
 }
 
-bool ModuleLoader::relocateModule(MemoryMappedModule const &mod)
+bool ModuleLoader::relocateModule(MemoryMappedModule const &mod) const
 {
 	bool retVal = false;
 

@@ -16,7 +16,7 @@ public:
 
 	ELFMapper(ELFMapper const &) = delete;
 	void operator=(ELFMapper const &) = delete;
-	
+
 	bool loadFile(std::string const &filePath, MemoryMappedModule *mod);
 	bool validateHeader();
 	bool parseSegmentHeaders();
@@ -25,11 +25,10 @@ public:
 	bool parseSymbols();
 
 	bool decodeValue(std::string const &strEnc, uint64_t &val);
-	bool decodeEncodedName(std::string const &strEncName, uint *nModuleId, uint *nLibraryId, uint64_t *nNid);
-
-	//bool getModuleNameFromId(uint id, std::string *modName);
-	//bool getLibraryNameFromId(uint id, std::string *libName);
-
+	bool decodeEncodedName(std::string const &strEncName,
+						   uint *nModuleId,
+						   uint *nLibraryId,
+						   uint64_t *nNid);
 
 private:
 	bool prepareTables(Elf64_Dyn const &entry, uint index);
@@ -40,7 +39,6 @@ private:
 	bool mapCodeSegment(Elf64_Phdr const &hdr);
 	bool mapSecReloSegment(Elf64_Phdr const &phdr);
 	bool mapDataSegment(Elf64_Phdr const &phdr);
-
 
 	MemoryMappedModule *m_moduleData;
 };

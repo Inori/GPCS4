@@ -10,59 +10,57 @@
 #include <map>
 #include <unordered_map>
 
-
 struct MODULE_INFO
 {
-	void* pEntryPoint;
+	void *pEntryPoint;
 
-	//virtual memory
-	byte* pMappedAddr;
+	// virtual memory
+	byte *pMappedAddr;
 	uint nMappedSize;
 
-	//loadable segments
-	byte* pCodeAddr;
+	// loadable segments
+	byte *pCodeAddr;
 	uint nCodeSize;
 
-	byte* pDataAddr;
+	byte *pDataAddr;
 	uint nDataSize;
 
-	byte* pTlsAddr;
-	uint nTlsInitSize;  // initialized tls data size
-	uint nTlsSize;	// whole tls data size, including nTlsInitSize
+	byte *pTlsAddr;
+	uint nTlsInitSize; // initialized tls data size
+	uint nTlsSize;     // whole tls data size, including nTlsInitSize
 
-	//the following segments do not have vaddr or memsz in phdr (at least in GOW4),
-	//so we don't have to load them into virtual memory,
-	//just record it's pointer in file memory
-	byte* pDynamic;
+	// the following segments do not have vaddr or memsz in phdr (at least in
+	// GOW4), so we don't have to load them into virtual memory, just record
+	// it's pointer in file memory
+	byte *pDynamic;
 	uint nDynamicSize;
 
-	byte* pSceDynLib;
+	byte *pSceDynLib;
 	uint nSceDynLibSize;
 
-	byte* pRela;
+	byte *pRela;
 	uint nRelaCount;
-	byte* pPltRela;
+	byte *pPltRela;
 	uint nPltRelaCount;
 	uint nPltRelType;
 
-	byte* pSymTab;
+	byte *pSymTab;
 	uint nSymTabSize;
 
-	byte* pStrTab;
+	byte *pStrTab;
 	uint nStrTabSize;
 
-	byte* pSceComment;
+	byte *pSceComment;
 	uint nSceCommentSize;
 
-	byte* pSceLibVersion;
+	byte *pSceLibVersion;
 	uint nSceLibVersionSize;
 };
 
 struct IMPORT_MODULE
 {
 	std::string strName;
-	union
-	{
+	union {
 		uint64_t value;
 		struct
 		{
@@ -77,8 +75,7 @@ struct IMPORT_MODULE
 struct IMPORT_LIBRARY
 {
 	std::string strName;
-	union
-	{
+	union {
 		uint64_t value;
 		struct
 		{
@@ -97,7 +94,7 @@ struct SymbolInfo
 		LOCAL,
 		WEAK
 	};
-	
+
 	Type type;
 	uint64_t nid;
 	std::string moduleName;
@@ -105,14 +102,14 @@ struct SymbolInfo
 	uint64_t address;
 };
 
-using SegmentHeaderList = std::vector<Elf64_Phdr>;
-using LibraryList = std::vector<IMPORT_LIBRARY>;
-using ModuleList = std::vector<IMPORT_MODULE>;
-using SymbolList = std::vector<SymbolInfo>;
+using SegmentHeaderList  = std::vector<Elf64_Phdr>;
+using LibraryList        = std::vector<IMPORT_LIBRARY>;
+using ModuleList         = std::vector<IMPORT_MODULE>;
+using SymbolList         = std::vector<SymbolInfo>;
 using NameSymbolIndexMap = std::unordered_map<std::string, size_t>;
-using FileList = std::vector<std::string>;
-using SymbolAddrMap = std::map<std::string, void*>;
-using ByteArray = std::vector<uint8_t>;
+using FileList           = std::vector<std::string>;
+using SymbolAddrMap      = std::map<std::string, void *>;
+using ByteArray          = std::vector<uint8_t>;
 
 struct MemoryMappedModule
 {
@@ -137,7 +134,7 @@ struct MemoryMappedModule
 	MODULE_INFO moduleInfo;
 
 	MODULE_INFO &getModuleInfo();
-	bool getImportSymbolInfo(std::string const &encSymbol, 
+	bool getImportSymbolInfo(std::string const &encSymbol,
 							 std::string *modName,
 							 std::string *libName,
 							 uint64_t *nid) const;
@@ -147,18 +144,30 @@ struct MemoryMappedModule
 							 std::string *libName,
 							 uint64_t *nid) const;
 
-	bool getSymbol(std::string const &encName, SymbolInfo const **symbolInfo) const;
+	bool getSymbol(std::string const &encName,
+				   SymbolInfo const **symbolInfo) const;
 	bool getSymbol(size_t index, SymbolInfo const **symbolInfo) const;
 
 private:
 	bool getSymbolInfo(std::string const &encSymbol,
-					   std::vector<IMPORT_MODULE> const &mods,
-					   std::vector<IMPORT_LIBRARY> const &libs,
-					   std::string *modName, std::string *libName, uint64_t *nid) const; 
+					   ModuleList const &mods,
+					   LibraryList const &libs,
+					   std::string *modName,
+					   std::string *libName,
+					   uint64_t *nid) const;
 
-	bool getModNameFromId(uint64_t id, ModuleList const &mods, std::string *modName) const;
-	bool getLibNameFromId(uint64_t id, LibraryList const &libs, std::string *libName) const;
+	bool getModNameFromId(uint64_t id,
+						  ModuleList const &mods,
+						  std::string *modName) const;
+
+	bool getLibNameFromId(uint64_t id,
+						  LibraryList const &libs,
+						  std::string *libName) const;
+
 	bool decodeValue(std::string const &encodedStr, uint64_t &value) const;
-	bool decodeSymbol(std::string const & strEncName, uint * modId, uint * libId, uint64_t *funcNid) const;
 
+	bool decodeSymbol(std::string const &strEncName,
+					  uint *modId,
+					  uint *libId,
+					  uint64_t *funcNid) const;
 };
