@@ -44,7 +44,7 @@ const int NO_LABEL = -1;
     X(VCCZ,in)\
     X(EXECZ,in)\
     X(SCC,in) \
-    X_RANGE(Reserved254,Reserved254,Reserved,in) \
+    X_RANGE(LdsDirect,LdsDirect,Reserved,in) \
 
 #define SCALAR_INSTRUCTION_FIELDS(in) \
     X(ConstZero,in) \
@@ -78,6 +78,11 @@ const int NO_LABEL = -1;
 #define RETURN_EXTRACT_INSTRUCTION(fieldVar) \
     return fieldVar
 
+
+
+
+
+
     /// ISA Instruction
     /// Defines all possible instruction categories [InstructionCategory] and
     /// defines general data/functionality for all instruction`s kinds
@@ -85,6 +90,30 @@ const int NO_LABEL = -1;
     {
     public:
 
+
+#define X(SYM) SRC##SYM
+#define X_INIT(SYM,VAL) SRC##SYM = VAL
+		/// Destination for scalar memory read instruction
+		enum class OperandSRC : unsigned short
+		{
+#include "GenericInstructionFields1.h"
+#include "ScalarInstructionFields.h"
+#include "GenericInstructionFields2.h"
+			X(Illegal)
+		};
+#undef X_INIT
+#undef X
+
+#define X(SYM) SDST##SYM
+#define X_INIT(SYM,VAL) SDST##SYM = VAL
+		/// Destination for SDST
+		enum class OperandSDST : unsigned short
+		{
+#include "GenericInstructionFields1.h"
+			X(Illegal)
+		};
+#undef X_INIT
+#undef X
 
         /// SI instruction`s microcode formats
         enum InstructionSet
