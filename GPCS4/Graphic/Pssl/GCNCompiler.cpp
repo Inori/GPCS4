@@ -506,7 +506,10 @@ pssl::SpirvRegisterValue GCNCompiler::emitLoadScalarOperand(uint32_t index, uint
 		break;
 	case Instruction::OperandSRC::SRCLiteralConst:
 	{
+		uint32_t constId = m_module.constu32(literalConst);
+		operand = SpirvRegisterValue(SpirvScalarType::Uint32, 1, constId);
 
+		m_constValueTable[constId] = SpirvLiteralConstant(operand.type, literalConst);
 	}
 		break;
 	// For 9 bits SRC operand
@@ -541,8 +544,10 @@ void GCNCompiler::emitStoreScalarOperand(uint32_t dstIndex, const SpirvRegisterV
 	}
 		break;
 	case Instruction::OperandSDST::SDSTVccLo:
+		emitStoreVCC(srcReg, false);
 		break;
 	case Instruction::OperandSDST::SDSTVccHi:
+		emitStoreVCC(srcReg, true);
 		break;
 	case Instruction::OperandSDST::SDSTM0:
 		break;
@@ -558,6 +563,29 @@ void GCNCompiler::emitStoreScalarOperand(uint32_t dstIndex, const SpirvRegisterV
 
 void GCNCompiler::emitStoreVectorOperand(uint32_t dstIndex, const SpirvRegisterValue& srcReg)
 {
+
+}
+
+void GCNCompiler::emitStoreVCC(const SpirvRegisterValue& vccValueReg, bool isVccHi)
+{
+	do 
+	{
+		const auto& spvConst = m_constValueTable[vccValueReg.id];
+		if (spvConst.type.ctype != SpirvScalarType::Unknown)
+		{
+			// Vcc source is an immediate constant value.
+			uint32_t vccValue = spvConst.literalConst;
+			// TODO:
+			// Change VCC will change hardware state accordingly.
+			// Currently I just record the value and do nothing.
+			m_stateRegs.vcc = isVccHi ? (vccValue << 32) : vccValue;
+		}
+		else
+		{
+			// Vcc source is a register.
+		}
+
+	} while (false);
 
 }
 

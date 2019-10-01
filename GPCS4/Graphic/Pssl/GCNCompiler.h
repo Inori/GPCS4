@@ -116,11 +116,28 @@ struct SpirvRegisterPointer
 	uint32_t          id;
 };
 
-
-struct SpirvRegisterArray
+/**
+ * \brief Literal Constant
+ *
+ * May be a single literal constant
+ * or a constant vector.
+ */
+struct SpirvLiteralConstant
 {
+	SpirvLiteralConstant():
+		literalConst(0)
+	{}
+	SpirvLiteralConstant(SpirvVectorType vType, uint32_t value):
+		type(vType), literalConst(value)
+	{}
+	SpirvLiteralConstant(SpirvScalarType sType, uint32_t count, uint32_t value):
+		type(sType, count), literalConst(value)
+	{}
+
 	SpirvVectorType type;
-	std::vector<SpirvRegisterPointer> regs;
+	// Note: this may need to cast to proper type 
+	// depending on the instruction involved
+	uint32_t literalConst;
 };
 
 
@@ -217,7 +234,6 @@ public:
 
 	RcPtr<gve::GveShader> finalize();
 
-
 private:
 
 	PsslProgramInfo m_programInfo;
@@ -262,6 +278,10 @@ private:
 	// Gcn register to spir-v variable map
 	std::map<uint32_t, SpirvRegisterPointer> m_sgprs;
 	std::map<uint32_t, SpirvRegisterPointer> m_vgprs;
+
+	///////////////////////////////////
+	// spir-v id to literal constant value table
+	std::map<uint32_t, SpirvLiteralConstant> m_constValueTable;
 
 private:
 
@@ -324,6 +344,9 @@ private:
 	void emitStoreScalarOperand(uint32_t dstIndex, const SpirvRegisterValue& srcReg);
 	void emitStoreVectorOperand(uint32_t dstIndex, const SpirvRegisterValue& srcReg);
 
+	/////////////////////////////////////////
+	// Hardware state register manipulation methods
+	void emitStoreVCC(const SpirvRegisterValue& vccValueReg, bool isVccHi);
 	/////////////////////////////////////////
 	// Generic register manipulation methods
 	SpirvRegisterValue emitRegisterBitcast(
