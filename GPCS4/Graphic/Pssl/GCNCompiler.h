@@ -119,24 +119,21 @@ struct SpirvRegisterPointer
 /**
  * \brief Literal Constant
  *
- * May be a single literal constant
- * or a constant vector.
+ * A single literal constant
+ * 
  */
 struct SpirvLiteralConstant
 {
 	SpirvLiteralConstant():
 		literalConst(0)
 	{}
-	SpirvLiteralConstant(SpirvVectorType vType, uint32_t value):
-		type(vType), literalConst(value)
-	{}
-	SpirvLiteralConstant(SpirvScalarType sType, uint32_t count, uint32_t value):
-		type(sType, count), literalConst(value)
+	SpirvLiteralConstant(SpirvScalarType sType, uint32_t value):
+		type(sType), literalConst(value)
 	{}
 
-	SpirvVectorType type;
+	SpirvScalarType type;
 	// Note: this may need to cast to proper type 
-	// depending on the instruction involved
+	// depending on the type member
 	uint32_t literalConst;
 };
 
@@ -338,15 +335,19 @@ private:
 
 	/////////////////////////////////////////
 	// Operands manipulation methods
-	SpirvRegisterValue emitLoadScalarOperand(uint32_t index, uint32_t literalConst = 0);
+	SpirvRegisterValue emitLoadScalarOperand(uint32_t srcOperand, uint32_t regIndex, uint32_t literalConst = 0);
 	SpirvRegisterValue emitLoadVectorOperand(uint32_t index);
 
-	void emitStoreScalarOperand(uint32_t dstIndex, const SpirvRegisterValue& srcReg);
+	void emitStoreScalarOperand(uint32_t dstOperand, uint32_t regIndex, const SpirvRegisterValue& srcReg);
 	void emitStoreVectorOperand(uint32_t dstIndex, const SpirvRegisterValue& srcReg);
 
+	SpirvRegisterValue emitInlineConstantFloat(Instruction::OperandSRC src);
+	SpirvRegisterValue emitInlineConstantInteger(Instruction::OperandSRC src);
 	/////////////////////////////////////////
 	// Hardware state register manipulation methods
 	void emitStoreVCC(const SpirvRegisterValue& vccValueReg, bool isVccHi);
+	void emitStoreM0(const SpirvRegisterValue& m0ValueReg);
+
 	/////////////////////////////////////////
 	// Generic register manipulation methods
 	SpirvRegisterValue emitRegisterBitcast(
@@ -468,6 +469,8 @@ private:
 
 	// Export
 	void emitExp(GCNInstruction& ins);
+	void emitExpVS(GCNInstruction& ins);
+	void emitExpPS(GCNInstruction& ins);
 
 	// DebugProfile
 	void emitDbgProf(GCNInstruction& ins);

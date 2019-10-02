@@ -437,25 +437,44 @@ void GCNCompiler::emitValueStore(
 
 void GCNCompiler::emitSgprStore(uint32_t dstIdx, const SpirvRegisterValue& srcReg)
 {
-	emitValueStore(m_sgprs[dstIdx], srcReg, 1);
+	auto& sgpr = m_sgprs[dstIdx];
+	if (sgpr.id == 0)  // Not initialized
+	{
+		sgpr.type = srcReg.type;
+		// TODO:
+		// Not sure whether the storage class should be Function, maybe Private is better?
+		sgpr.id = m_module.newVar(getVectorTypeId(srcReg.type), spv::StorageClassFunction);
+		m_module.setDebugName(sgpr.id, UtilString::Format("s%d", dstIdx).c_str());
+	}
+	emitValueStore(sgpr, srcReg, 1);
 }
 
 void GCNCompiler::emitVgprStore(uint32_t dstIdx, const SpirvRegisterValue& srcReg)
 {
-	emitValueStore(m_vgprs[dstIdx], srcReg, 1);
+	auto& vgpr = m_vgprs[dstIdx];
+	if (vgpr.id == 0)  // Not initialized
+	{
+		vgpr.type = srcReg.type;
+		// TODO:
+		// Not sure whether the storage class should be Function, maybe Private is better?
+		vgpr.id = m_module.newVar(getVectorTypeId(srcReg.type), spv::StorageClassFunction);
+		m_module.setDebugName(vgpr.id, UtilString::Format("v%d", dstIdx).c_str());
+	}
+	emitValueStore(vgpr, srcReg, 1);
 }
 
+// Used with with 7 bits SDST, 8 bits SSRC or 9 bits SRC
 // See table "SDST, SSRC and SRC Operands" in section 3.1 of GPU Shader Core ISA manual
-pssl::SpirvRegisterValue GCNCompiler::emitLoadScalarOperand(uint32_t index, uint32_t literalConst /*= 0*/)
+pssl::SpirvRegisterValue GCNCompiler::emitLoadScalarOperand(uint32_t srcOperand, uint32_t regIndex, uint32_t literalConst /*= 0*/)
 {
-	Instruction::OperandSRC src = static_cast<Instruction::OperandSRC>(index);
+	Instruction::OperandSRC src = static_cast<Instruction::OperandSRC>(srcOperand);
 	SpirvRegisterValue operand;
-
+	
 	switch (src)
 	{
 	case Instruction::OperandSRC::SRCScalarGPRMin ... Instruction::OperandSRC::SRCScalarGPRMax:
 	{
-		operand = emitSgprLoad((uint32_t)src);
+		operand = emitSgprLoad(regIndex);
 	}
 		break;
 	case Instruction::OperandSRC::SRCVccLo:
@@ -469,32 +488,12 @@ pssl::SpirvRegisterValue GCNCompiler::emitLoadScalarOperand(uint32_t index, uint
 	case Instruction::OperandSRC::SRCExecHi:
 		break;
 	case Instruction::OperandSRC::SRCConstZero:
-		break;
 	case Instruction::OperandSRC::SRCSignedConstIntPosMin ... Instruction::OperandSRC::SRCSignedConstIntPosMax:
-	{
-
-	}
-		break;
 	case Instruction::OperandSRC::SRCSignedConstIntNegMin ... Instruction::OperandSRC::SRCSignedConstIntNegMax:
-	{
-
-	}
+		operand = emitInlineConstantInteger(src);
 		break;
-	case Instruction::OperandSRC::SRCConstFloatPos_0_5:
-		break;
-	case Instruction::OperandSRC::SRCConstFloatNeg_0_5:
-		break;
-	case Instruction::OperandSRC::SRCConstFloatPos_1_0:
-		break;
-	case Instruction::OperandSRC::SRCConstFloatNeg_1_0:
-		break;
-	case Instruction::OperandSRC::SRCConstFloatPos_2_0:
-		break;
-	case Instruction::OperandSRC::SRCConstFloatNeg_2_0:
-		break;
-	case Instruction::OperandSRC::SRCConstFloatPos_4_0:
-		break;
-	case Instruction::OperandSRC::SRCConstFloatNeg_4_0:
+	case Instruction::OperandSRC::SRCConstFloatPos_0_5 ... Instruction::OperandSRC::SRCConstFloatNeg_4_0:
+		operand = emitInlineConstantFloat(src);
 		break;
 	case Instruction::OperandSRC::SRCVCCZ:
 		break;
@@ -509,7 +508,7 @@ pssl::SpirvRegisterValue GCNCompiler::emitLoadScalarOperand(uint32_t index, uint
 		uint32_t constId = m_module.constu32(literalConst);
 		operand = SpirvRegisterValue(SpirvScalarType::Uint32, 1, constId);
 
-		m_constValueTable[constId] = SpirvLiteralConstant(operand.type, literalConst);
+		m_constValueTable[constId] = SpirvLiteralConstant(operand.type.ctype, literalConst);
 	}
 		break;
 	// For 9 bits SRC operand
@@ -519,28 +518,31 @@ pssl::SpirvRegisterValue GCNCompiler::emitLoadScalarOperand(uint32_t index, uint
 	}
 		break;
 	default:
-		LOG_ERR("error operand range %d", (uint32_t)src);
+		LOG_ERR("error operand range %d", (uint32_t)srcOperand);
 		break;
 	}
 
 	return operand;
 }
 
+// Used with 8 bits VSRC/VDST
+// for 9 bits SRC, call emitLoadScalarOperand instead
 // See table "VSRC and VDST Operands" in section 3.1 of GPU Shader Core ISA manual
 SpirvRegisterValue GCNCompiler::emitLoadVectorOperand(uint32_t index)
 {
 
 }
 
-void GCNCompiler::emitStoreScalarOperand(uint32_t dstIndex, const SpirvRegisterValue& srcReg)
+// Used with 7 bits SDST
+void GCNCompiler::emitStoreScalarOperand(uint32_t dstOperand, uint32_t regIndex, const SpirvRegisterValue& srcReg)
 {
-	Instruction::OperandSDST dst = static_cast<Instruction::OperandSDST>(dstIndex);
+	Instruction::OperandSDST dst = static_cast<Instruction::OperandSDST>(dstOperand);
 	
 	switch (dst)
 	{
 	case Instruction::OperandSDST::SDSTScalarGPRMin ... Instruction::OperandSDST::SDSTScalarGPRMax:
 	{
-		emitSgprStore((uint32_t)dst, srcReg);
+		emitSgprStore(regIndex, srcReg);
 	}
 		break;
 	case Instruction::OperandSDST::SDSTVccLo:
@@ -550,6 +552,7 @@ void GCNCompiler::emitStoreScalarOperand(uint32_t dstIndex, const SpirvRegisterV
 		emitStoreVCC(srcReg, true);
 		break;
 	case Instruction::OperandSDST::SDSTM0:
+		emitStoreM0(srcReg);
 		break;
 	case Instruction::OperandSDST::SDSTExecLo:
 		break;
@@ -561,9 +564,71 @@ void GCNCompiler::emitStoreScalarOperand(uint32_t dstIndex, const SpirvRegisterV
 	}
 }
 
+// Used with 8 bits VSRC/VDST
+// for 9 bits SRC, call emitLoadScalarOperand instead
+// See table "VSRC and VDST Operands" in section 3.1 of GPU Shader Core ISA manual
 void GCNCompiler::emitStoreVectorOperand(uint32_t dstIndex, const SpirvRegisterValue& srcReg)
 {
+	emitVgprStore(dstIndex, srcReg);
+}
 
+SpirvRegisterValue GCNCompiler::emitInlineConstantFloat(Instruction::OperandSRC src)
+{
+	float value = 0.0;
+	switch (src)
+	{
+	case Instruction::OperandSRC::SRCConstFloatPos_0_5:
+		value = 0.5;
+		break;
+	case Instruction::OperandSRC::SRCConstFloatNeg_0_5:
+		value = -0.5;
+		break;
+	case Instruction::OperandSRC::SRCConstFloatPos_1_0:
+		value = 1.0;
+		break;
+	case Instruction::OperandSRC::SRCConstFloatNeg_1_0:
+		value = -1.0;
+		break;
+	case Instruction::OperandSRC::SRCConstFloatPos_2_0:
+		value = 2.0;
+		break;
+	case Instruction::OperandSRC::SRCConstFloatNeg_2_0:
+		value = -2.0;
+		break;
+	case Instruction::OperandSRC::SRCConstFloatPos_4_0:
+		value = 4.0;
+		break;
+	case Instruction::OperandSRC::SRCConstFloatNeg_4_0:
+		value = -4.0;
+		break;
+	default:
+		break;
+	}
+
+	uint32_t valueId = m_module.constf32(value);
+	return SpirvRegisterValue(SpirvScalarType::Float32, 1, valueId);
+}
+
+SpirvRegisterValue GCNCompiler::emitInlineConstantInteger(Instruction::OperandSRC src)
+{
+	int32_t value = 0;
+	switch (src)
+	{
+	case Instruction::OperandSRC::SRCConstZero:
+		value = 0;
+		break;
+	case Instruction::OperandSRC::SRCSignedConstIntPosMin ... Instruction::OperandSRC::SRCSignedConstIntPosMax:
+		value = (int32_t)src - 128;
+		break;
+	case Instruction::OperandSRC::SRCSignedConstIntNegMin ... Instruction::OperandSRC::SRCSignedConstIntNegMax:
+		value = 192 - (int32_t)src;
+		break;
+	default:
+		break;
+	}
+
+	uint32_t valueId = m_module.consti32(value);
+	return SpirvRegisterValue(SpirvScalarType::Sint32, 1, valueId);
 }
 
 void GCNCompiler::emitStoreVCC(const SpirvRegisterValue& vccValueReg, bool isVccHi)
@@ -571,7 +636,7 @@ void GCNCompiler::emitStoreVCC(const SpirvRegisterValue& vccValueReg, bool isVcc
 	do 
 	{
 		const auto& spvConst = m_constValueTable[vccValueReg.id];
-		if (spvConst.type.ctype != SpirvScalarType::Unknown)
+		if (spvConst.type != SpirvScalarType::Unknown)
 		{
 			// Vcc source is an immediate constant value.
 			uint32_t vccValue = spvConst.literalConst;
@@ -587,6 +652,29 @@ void GCNCompiler::emitStoreVCC(const SpirvRegisterValue& vccValueReg, bool isVcc
 
 	} while (false);
 
+}
+
+void GCNCompiler::emitStoreM0(const SpirvRegisterValue& m0ValueReg)
+{
+	// M0 is used by several types of instruction for accessing LDS or GDS, 
+	// for indirect GPR addressing and for sending messages to VGT.
+	// But if there's no such instruction in current shader,
+	// it will be used for debugging purpose, together with s_ttracedata
+
+	const auto& spvConst = m_constValueTable[m0ValueReg.id];
+	if (spvConst.type != SpirvScalarType::Unknown)
+	{
+		// M0 source is an immediate constant value.
+
+		// TODO:
+		// Change M0 will change hardware state accordingly.
+		// Currently I just record the value and do nothing.
+		m_stateRegs.m0 = spvConst.literalConst;
+	}
+	else
+	{
+		// M0 source is a register.
+	}
 }
 
 SpirvRegisterValue GCNCompiler::emitRegisterBitcast(SpirvRegisterValue srcValue, SpirvScalarType dstType)
