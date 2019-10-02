@@ -425,6 +425,8 @@ private:
 
 	// FlowControl
 	void emitScalarProgFlow(GCNInstruction& ins);
+	void emitScalarProgFlowPC(GCNInstruction& ins);
+
 	void emitScalarSync(GCNInstruction& ins);
 	void emitScalarWait(GCNInstruction& ins);
 	void emitScalarCache(GCNInstruction& ins);
