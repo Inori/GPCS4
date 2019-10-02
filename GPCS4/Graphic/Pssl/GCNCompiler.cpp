@@ -643,7 +643,7 @@ void GCNCompiler::emitStoreVCC(const SpirvRegisterValue& vccValueReg, bool isVcc
 			// TODO:
 			// Change VCC will change hardware state accordingly.
 			// Currently I just record the value and do nothing.
-			m_stateRegs.vcc = isVccHi ? (vccValue << 32) : vccValue;
+			m_stateRegs.vcc = isVccHi ? (uint64_t(vccValue) << 32) : vccValue;
 		}
 		else
 		{
