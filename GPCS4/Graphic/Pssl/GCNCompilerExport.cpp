@@ -38,8 +38,7 @@ void GCNCompiler::emitExpVS(GCNInstruction& ins)
 		if (writeMask[i])
 		{
 			uint32_t regIdx = inst->GetVSRC(i);
-			auto vgprPtr = emitVgprLoad(regIdx);
-			indices.push_back(vgprPtr.id);
+			indices.push_back(m_vgprs[regIdx].id);
 		}
 	}
 
