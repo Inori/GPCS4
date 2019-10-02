@@ -43,6 +43,7 @@ void LogAssert(const char* szLevel, const char* szFunction, int nLine, const cha
 // only use to trace graphic calls, mostly in libVideoOut and libGnmDriver
 #define LOG_SCE_GRAPHIC(format, ...)	_LOG_PRINT_(LOG_LEVEL_SCE_GRAPHIC, format, __VA_ARGS__);
 
+
 // not really implemented
 // just return result which looks correct to let the program go on
 #define LOG_SCE_DUMMY_IMPL()	LOG_FIXME("SCE Dummy implemented");
