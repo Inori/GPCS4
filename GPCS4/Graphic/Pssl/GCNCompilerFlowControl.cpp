@@ -43,7 +43,29 @@ void GCNCompiler::emitFlowControl(GCNInstruction& ins)
 
 void GCNCompiler::emitScalarProgFlow(GCNInstruction& ins)
 {
+	auto inst = asInst<SISOP1Instruction>(ins);
+	auto op = inst->GetOp();
 
+	auto sidx = inst->GetSRidx();
+	auto didx = inst->GetSDSTRidx();
+
+	switch (op)
+	{
+	case SISOP1Instruction::S_SWAPPC_B64:
+	{
+		if (sidx == 0 && sidx == didx)
+		{
+			// s_swappc_b64  s[0:1], s[0:1]
+			// call fetch shader, since we've emulated fetch shader with a fetch_vs function
+			// we ignore this
+			LOG_DEBUG("call fetch shader.");
+		}
+	}
+		break;
+	default:
+		LOG_FIXME("Not implementd: op %X", op);
+		break;
+	}
 }
 
 void GCNCompiler::emitScalarSync(GCNInstruction& ins)
