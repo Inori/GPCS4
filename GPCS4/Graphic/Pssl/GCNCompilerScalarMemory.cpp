@@ -27,7 +27,26 @@ void GCNCompiler::emitScalarMemory(GCNInstruction& ins)
 
 void GCNCompiler::emitScalarMemRd(GCNInstruction& ins)
 {
+	auto inst = asInst<SISMRDInstruction>(ins);
+	auto op = inst->GetOp();
 
+	switch (op)
+	{
+	case SISMRDInstruction::S_LOAD_DWORD:
+	case SISMRDInstruction::S_LOAD_DWORDX2:
+	case SISMRDInstruction::S_LOAD_DWORDX4:
+	case SISMRDInstruction::S_LOAD_DWORDX8:
+	case SISMRDInstruction::S_LOAD_DWORDX16:
+		break;
+	case SISMRDInstruction::S_BUFFER_LOAD_DWORD:
+	case SISMRDInstruction::S_BUFFER_LOAD_DWORDX2:
+	case SISMRDInstruction::S_BUFFER_LOAD_DWORDX4:
+	case SISMRDInstruction::S_BUFFER_LOAD_DWORDX8:
+	case SISMRDInstruction::S_BUFFER_LOAD_DWORDX16:
+		break;
+	default:
+		break;
+	}
 }
 
 void GCNCompiler::emitScalarMemUt(GCNInstruction& ins)

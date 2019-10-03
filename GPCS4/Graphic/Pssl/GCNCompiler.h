@@ -119,6 +119,19 @@ struct SpirvLiteralConstant
 	uint32_t literalConst;
 };
 
+/**
+ * \brief GPR array
+ *
+ * SGPR or VGPR array/group
+ * e.g. s[8:11], v[4:6] etc.
+ * Useful when access #V #T #S buffers
+ */
+struct SpirvRegisterArray
+{
+	SpirvGprType type;
+	uint32_t startIndex;
+	uint32_t count;
+};
 
 struct GcnStateRegister
 {
@@ -220,9 +233,10 @@ private:
 
 	PsslProgramInfo m_programInfo;
 
+	SpirvModule m_module;
+
 	std::vector<VertexInputSemantic> m_vsInputSemantics;
 
-	SpirvModule m_module;
 
 	// Global analyze information
 	const GcnAnalysisInfo* m_analysis;
@@ -258,6 +272,7 @@ private:
 
 	///////////////////////////////////
 	// Gcn register to spir-v variable map
+	// gcn register index -- spirv register
 	std::map<uint32_t, SpirvRegisterPointer> m_sgprs;
 	std::map<uint32_t, SpirvRegisterPointer> m_vgprs;
 
@@ -300,6 +315,9 @@ private:
 	void emitDclVertexInput();
 	void emitDclVertexOutput();
 	void emitEmuFetchShader();
+
+	// For all shader types
+	void emitDclUniformBuffer();
 
 	/////////////////////////////////////////////////////////
 	SpirvRegisterPointer emitDclFloat(SpirvScalarType type,

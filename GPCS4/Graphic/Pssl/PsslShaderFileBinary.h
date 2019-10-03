@@ -47,7 +47,7 @@ enum ShaderInputUsageType
 #pragma pack(push, 4)
 struct InputUsageSlot
 {
-	uint8_t usageType;
+	uint8_t usageType;  // ShaderInputUsageType
 	uint8_t apiSlot;
 	uint8_t startRegister;
 

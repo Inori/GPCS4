@@ -379,6 +379,34 @@ void GCNCompiler::emitEmuFetchShader()
 	} while (false);
 }
 
+void GCNCompiler::emitDclUniformBuffer()
+{
+	do 
+	{
+		uint32_t usageSlotCount = m_programInfo.inputUsageSlotCount();
+		for (uint32_t i = 0; i != usageSlotCount; ++i)
+		{
+			const InputUsageSlot* usageSlot = m_programInfo.inputUsageSlot(i);
+			ShaderInputUsageType usageType = static_cast<ShaderInputUsageType>(usageSlot->usageType);
+
+			switch (usageType)
+			{
+			case kShaderInputUsagePtrVertexBufferTable:
+			case kShaderInputUsageSubPtrFetchShader:
+				// Handled in other functions.
+				break;
+			case kShaderInputUsageImmConstBuffer:
+			{
+				
+			}
+				break;
+			default:
+				break;
+			}
+		}
+	} while (false);
+}
+
 SpirvRegisterPointer GCNCompiler::emitDclFloat(SpirvScalarType type,
 	spv::StorageClass storageCls, const std::string& debugName /*= ""*/)
 {

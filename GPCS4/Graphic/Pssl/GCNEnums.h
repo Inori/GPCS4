@@ -5,6 +5,11 @@
 namespace pssl
 {;
 
+enum class SpirvGprType : uint32_t
+{
+	Scalar = 0,
+	Vector = 1,
+};
 
 /**
  * \brief Scalar value type
