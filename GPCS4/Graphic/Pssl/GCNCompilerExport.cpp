@@ -29,6 +29,8 @@ void GCNCompiler::emitExpVS(GCNInstruction& ins)
 {
 	auto inst = asInst<EXPInstruction>(ins);
 
+	EXPInstruction::TGT expTgt = inst->GetTGT();
+
 	auto en = inst->GetEn();
 	GcnRegMask writeMask(en);
 
@@ -52,7 +54,7 @@ void GCNCompiler::emitExpVS(GCNInstruction& ins)
 	src.id = srcId;
 
 	// Determine the dst vector
-	EXPInstruction::TGT expTgt = inst->GetTGT();
+	
 	uint32_t dstId = 0;
 	SpirvVectorType dstType;
 	switch (expTgt)
