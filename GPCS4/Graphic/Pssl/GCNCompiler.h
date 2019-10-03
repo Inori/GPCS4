@@ -126,7 +126,7 @@ struct SpirvLiteralConstant
  * e.g. s[8:11], v[4:6] etc.
  * Useful when access #V #T #S buffers
  */
-struct SpirvRegisterArray
+struct SpirvGprArray
 {
 	SpirvGprType type;
 	uint32_t startIndex;
