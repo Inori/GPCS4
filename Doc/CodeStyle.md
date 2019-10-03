@@ -173,6 +173,10 @@ And based on the above Sony's style, we add the following extra rules, to make o
 
 7. Local variables should be initialized when defined.
 
+8. Do not use `goto`, use `do {} while(false)` instead.
+
+9. Do not use C++ exception.
+
 
 ## Rules recommended:
 
@@ -182,6 +186,10 @@ And based on the above Sony's style, we add the following extra rules, to make o
    e.g. use `textureAlign`, not `tA`
 
 3. Use macros as few as possible.
+
+4. Make a variable's scope as small as possible.  
+   If you can use a local variable, don't make it a class member.  
+   If you can use a class member, don't make it global. And so on.
 
 
 
