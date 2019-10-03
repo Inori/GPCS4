@@ -6,6 +6,7 @@
 #include "GCNInstruction.h"
 #include "GCNAnalyzer.h"
 #include "GCNDecoder.h"
+#include "GCNEnums.h"
 
 #include "GCNParser/SMRDInstruction.h"
 #include "GCNParser/SOPPInstruction.h"
@@ -29,25 +30,6 @@
 
 namespace pssl
 {;
-
-/**
- * \brief Scalar value type
- *
- * Enumerates possible register component
- * types. Scalar types are represented as
- * a one-component vector type.
- */
-enum class SpirvScalarType : uint32_t
-{
-	Uint32 = 0,
-	Uint64 = 1,
-	Sint32 = 2,
-	Sint64 = 3,
-	Float32 = 4,
-	Float64 = 5,
-	Bool = 6,
-	Unknown = 7
-};
 
 /**
  * \brief Vector type
@@ -351,6 +333,36 @@ private:
 	void emitStoreVCC(const SpirvRegisterValue& vccValueReg, bool isVccHi);
 	void emitStoreM0(const SpirvRegisterValue& m0ValueReg);
 
+	////////////////////////////////////////////////
+	// Constant building methods. These are used to
+	// generate constant vectors that store the same
+	// value in each component.
+	SpirvRegisterValue emitBuildConstVecf32(
+		float                   x,
+		float                   y,
+		float                   z,
+		float                   w,
+		const GcnRegMask&       writeMask);
+
+	SpirvRegisterValue emitBuildConstVecu32(
+		uint32_t                x,
+		uint32_t                y,
+		uint32_t                z,
+		uint32_t                w,
+		const GcnRegMask&       writeMask);
+
+	SpirvRegisterValue emitBuildConstVeci32(
+		int32_t                 x,
+		int32_t                 y,
+		int32_t                 z,
+		int32_t                 w,
+		const GcnRegMask&       writeMask);
+
+	SpirvRegisterValue emitBuildConstVecf64(
+		double                  xy,
+		double                  zw,
+		const GcnRegMask&       writeMask);
+
 	/////////////////////////////////////////
 	// Generic register manipulation methods
 	SpirvRegisterValue emitRegisterBitcast(
@@ -358,22 +370,40 @@ private:
 		SpirvScalarType          dstType);
 
 	SpirvRegisterValue emitRegisterSwizzle(
-		SpirvRegisterValue      value,
-		GcnRegSwizzle			swizzle,
-		GcnRegMask              writeMask);
+		SpirvRegisterValue     value,
+		GcnRegSwizzle          swizzle,
+		GcnRegMask             writeMask);
 
 	SpirvRegisterValue emitRegisterExtract(
-		SpirvRegisterValue		value,
-		GcnRegMask				mask);
+		SpirvRegisterValue     value,
+		GcnRegMask             mask);
 
 	SpirvRegisterValue emitRegisterInsert(
-		SpirvRegisterValue		dstValue,
-		SpirvRegisterValue		srcValue,
-		GcnRegMask				srcMask);
+		SpirvRegisterValue     dstValue,
+		SpirvRegisterValue     srcValue,
+		GcnRegMask             srcMask);
+
+	SpirvRegisterValue emitRegisterConcat(
+		SpirvRegisterValue       value1,
+		SpirvRegisterValue       value2);
 
 	SpirvRegisterValue emitRegisterExtend(
-		SpirvRegisterValue		value,
-		uint32_t				size);
+		SpirvRegisterValue      value,
+		uint32_t                size);
+
+	SpirvRegisterValue emitRegisterAbsolute(
+		SpirvRegisterValue       value);
+
+	SpirvRegisterValue emitRegisterNegate(
+		SpirvRegisterValue       value);
+
+	SpirvRegisterValue emitRegisterZeroTest(
+		SpirvRegisterValue       value,
+		SpirvZeroTest            test);
+
+	SpirvRegisterValue emitRegisterMaskBits(
+		SpirvRegisterValue       value,
+		uint32_t                mask);
 
 	/////////////////////////////////////////////////////////
 	// Category handlers

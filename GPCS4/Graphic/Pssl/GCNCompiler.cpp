@@ -704,6 +704,89 @@ void GCNCompiler::emitStoreM0(const SpirvRegisterValue& m0ValueReg)
 	}
 }
 
+pssl::SpirvRegisterValue GCNCompiler::emitBuildConstVecf32(float x, float y, float z, float w, const GcnRegMask& writeMask)
+{
+	// TODO refactor these functions into one single template
+	std::array<uint32_t, 4> ids = { 0, 0, 0, 0 };
+	uint32_t componentIndex = 0;
+
+	if (writeMask[0]) ids[componentIndex++] = m_module.constf32(x);
+	if (writeMask[1]) ids[componentIndex++] = m_module.constf32(y);
+	if (writeMask[2]) ids[componentIndex++] = m_module.constf32(z);
+	if (writeMask[3]) ids[componentIndex++] = m_module.constf32(w);
+
+	SpirvRegisterValue result;
+	result.type.ctype = SpirvScalarType::Float32;
+	result.type.ccount = componentIndex;
+	result.id = componentIndex > 1
+		? m_module.constComposite(
+			getVectorTypeId(result.type),
+			componentIndex, ids.data())
+		: ids[0];
+	return result;
+}
+
+pssl::SpirvRegisterValue GCNCompiler::emitBuildConstVecu32(uint32_t x, uint32_t y, uint32_t z, uint32_t w, const GcnRegMask& writeMask)
+{
+	std::array<uint32_t, 4> ids = { 0, 0, 0, 0 };
+	uint32_t componentIndex = 0;
+
+	if (writeMask[0]) ids[componentIndex++] = m_module.constu32(x);
+	if (writeMask[1]) ids[componentIndex++] = m_module.constu32(y);
+	if (writeMask[2]) ids[componentIndex++] = m_module.constu32(z);
+	if (writeMask[3]) ids[componentIndex++] = m_module.constu32(w);
+
+	SpirvRegisterValue result;
+	result.type.ctype = SpirvScalarType::Uint32;
+	result.type.ccount = componentIndex;
+	result.id = componentIndex > 1
+		? m_module.constComposite(
+			getVectorTypeId(result.type),
+			componentIndex, ids.data())
+		: ids[0];
+	return result;
+}
+
+pssl::SpirvRegisterValue GCNCompiler::emitBuildConstVeci32(int32_t x, int32_t y, int32_t z, int32_t w, const GcnRegMask& writeMask)
+{
+	std::array<uint32_t, 4> ids = { 0, 0, 0, 0 };
+	uint32_t componentIndex = 0;
+
+	if (writeMask[0]) ids[componentIndex++] = m_module.consti32(x);
+	if (writeMask[1]) ids[componentIndex++] = m_module.consti32(y);
+	if (writeMask[2]) ids[componentIndex++] = m_module.consti32(z);
+	if (writeMask[3]) ids[componentIndex++] = m_module.consti32(w);
+
+	SpirvRegisterValue result;
+	result.type.ctype = SpirvScalarType::Sint32;
+	result.type.ccount = componentIndex;
+	result.id = componentIndex > 1
+		? m_module.constComposite(
+			getVectorTypeId(result.type),
+			componentIndex, ids.data())
+		: ids[0];
+	return result;
+}
+
+pssl::SpirvRegisterValue GCNCompiler::emitBuildConstVecf64(double xy, double zw, const GcnRegMask& writeMask)
+{
+	std::array<uint32_t, 2> ids = { 0, 0 };
+	uint32_t componentIndex = 0;
+
+	if (writeMask[0] && writeMask[1]) ids[componentIndex++] = m_module.constf64(xy);
+	if (writeMask[2] && writeMask[3]) ids[componentIndex++] = m_module.constf64(zw);
+
+	SpirvRegisterValue result;
+	result.type.ctype = SpirvScalarType::Float64;
+	result.type.ccount = componentIndex;
+	result.id = componentIndex > 1
+		? m_module.constComposite(
+			getVectorTypeId(result.type),
+			componentIndex, ids.data())
+		: ids[0];
+	return result;
+}
+
 SpirvRegisterValue GCNCompiler::emitRegisterBitcast(SpirvRegisterValue srcValue, SpirvScalarType dstType)
 {
 	SpirvScalarType srcType = srcValue.type.ctype;
@@ -833,6 +916,20 @@ SpirvRegisterValue GCNCompiler::emitRegisterInsert(SpirvRegisterValue dstValue, 
 	return result;
 }
 
+SpirvRegisterValue GCNCompiler::emitRegisterConcat(SpirvRegisterValue value1, SpirvRegisterValue value2)
+{
+	std::array<uint32_t, 2> ids =
+	{ { value1.id, value2.id } };
+
+	SpirvRegisterValue result;
+	result.type.ctype = value1.type.ctype;
+	result.type.ccount = value1.type.ccount + value2.type.ccount;
+	result.id = m_module.opCompositeConstruct(
+		getVectorTypeId(result.type),
+		ids.size(), ids.data());
+	return result;
+}
+
 SpirvRegisterValue GCNCompiler::emitRegisterExtend(SpirvRegisterValue value, uint32_t size)
 {
 	if (size == 1)
@@ -851,6 +948,64 @@ SpirvRegisterValue GCNCompiler::emitRegisterExtend(SpirvRegisterValue value, uin
 	result.id = m_module.opCompositeConstruct(
 		getVectorTypeId(result.type),
 		size, ids.data());
+	return result;
+}
+
+SpirvRegisterValue GCNCompiler::emitRegisterAbsolute(SpirvRegisterValue value)
+{
+	const uint32_t typeId = getVectorTypeId(value.type);
+
+	switch (value.type.ctype)
+	{
+	case SpirvScalarType::Float32: value.id = m_module.opFAbs(typeId, value.id); break;
+	case SpirvScalarType::Sint32:  value.id = m_module.opSAbs(typeId, value.id); break;
+	default: LOG_WARN("GCNCompiler: Cannot get absolute value for given type");
+	}
+
+	return value;
+}
+
+SpirvRegisterValue GCNCompiler::emitRegisterNegate(SpirvRegisterValue value)
+{
+	const uint32_t typeId = getVectorTypeId(value.type);
+
+	switch (value.type.ctype) 
+	{
+	case SpirvScalarType::Float32: value.id = m_module.opFNegate(typeId, value.id); break;
+	case SpirvScalarType::Float64: value.id = m_module.opFNegate(typeId, value.id); break;
+	case SpirvScalarType::Sint32:  value.id = m_module.opSNegate(typeId, value.id); break;
+	case SpirvScalarType::Sint64:  value.id = m_module.opSNegate(typeId, value.id); break;
+	default: LOG_WARN("GCNCompiler: Cannot negate given type");
+	}
+
+	return value;
+}
+
+SpirvRegisterValue GCNCompiler::emitRegisterZeroTest(SpirvRegisterValue value, SpirvZeroTest test)
+{
+	SpirvRegisterValue result;
+	result.type.ctype = SpirvScalarType::Bool;
+	result.type.ccount = 1;
+
+	const uint32_t zeroId = m_module.constu32(0u);
+	const uint32_t typeId = getVectorTypeId(result.type);
+
+	result.id = test == SpirvZeroTest::TestZ
+		? m_module.opIEqual(typeId, value.id, zeroId)
+		: m_module.opINotEqual(typeId, value.id, zeroId);
+	return result;
+}
+
+SpirvRegisterValue GCNCompiler::emitRegisterMaskBits(SpirvRegisterValue value, uint32_t mask)
+{
+	SpirvRegisterValue maskVector = emitBuildConstVecu32(
+		mask, mask, mask, mask, GcnRegMask::firstN(value.type.ccount));
+
+	SpirvRegisterValue result;
+	result.type = value.type;
+	result.id = m_module.opBitwiseAnd(
+		getVectorTypeId(result.type),
+		value.id, maskVector.id);
 	return result;
 }
 
