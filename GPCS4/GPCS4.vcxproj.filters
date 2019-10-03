@@ -700,6 +700,9 @@
     <ClInclude Include="Graphic\Pssl\GCNAnalyzer.h">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNEnums.h">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
