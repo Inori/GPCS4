@@ -295,8 +295,35 @@ void GCNCompiler::emitDclVertexOutput()
 		perVertexStructType, spv::StorageClassOutput);
 
 	m_perVertexOut = m_module.newVar(perVertexPointerType, spv::StorageClassOutput);
+
 	m_entryPointInterfaces.push_back(m_perVertexOut);
 	m_module.setDebugName(m_perVertexOut, "vs_vertex_out");
+
+	// Declare other vertex output.
+	// like normal or texture coordinate
+	do 
+	{
+		uint32_t outLocation = 0;
+		for (const auto& expInfo : m_analysis->expParams)
+		{
+			if (expInfo.target == EXPInstruction::TGT::TGTExpPosMin)
+			{
+				// Already handled above
+				continue;
+			}
+
+			auto outVector = emitDclFloatVector(SpirvScalarType::Float32,
+				expInfo.regIndices.size(),
+				spv::StorageClassOutput,
+				UtilString::Format("out_param%d", outLocation));
+			m_module.decorateLocation(outVector.id, outLocation);
+
+			m_vs.vsOutputs[expInfo.target] = outVector;
+
+			++outLocation;
+		}
+	} while (false);
+	
 }
 
 void GCNCompiler::emitEmuFetchShader()

@@ -175,7 +175,10 @@ struct GcnCompilerVsPart
 {
 	spv::Id mainFunctionId = 0;
 	spv::Id fsFunctionId = 0;
+	// semantic -- spirv id
 	std::map<uint32_t, SpirvRegisterPointer> vsInputs;
+	// exp target -- spirv id
+	std::map<uint32_t, SpirvRegisterPointer> vsOutputs;
 };
 
 

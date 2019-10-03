@@ -67,6 +67,11 @@ void GCNCompiler::emitExpVS(GCNInstruction& ins)
 	}
 		break;
 	case EXPInstruction::TGTExpParamMin ... EXPInstruction::TGTExpParamMax:
+	{
+		const auto& outParam = m_vs.vsOutputs[expTgt];
+		dstType = outParam.type;
+		dstId = outParam.id;
+	}
 		break;
 	default:
 		break;

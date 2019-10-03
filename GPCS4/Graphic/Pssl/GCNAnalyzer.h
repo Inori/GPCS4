@@ -5,9 +5,15 @@
 namespace pssl
 {;
 
+struct GcnExportInfo
+{
+	uint32_t target = 0;  // will be cast to EXPInstruction::TGT
+	std::vector<uint32_t> regIndices;
+};
+
 struct GcnAnalysisInfo
 {
-	bool useM0Debug = false;
+	std::vector<GcnExportInfo> expParams;
 };
 
 // Used for collecting global information
@@ -21,6 +27,9 @@ public:
 	~GCNAnalyzer();
 
 	void processInstruction(GCNInstruction& ins);
+
+private:
+	void getExportInfo(GCNInstruction& ins);
 
 private:
 	GcnAnalysisInfo* m_analysis = nullptr;
