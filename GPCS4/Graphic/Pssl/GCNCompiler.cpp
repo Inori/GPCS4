@@ -416,7 +416,7 @@ void GCNCompiler::emitDclUniformBuffer()
 
 			uint32_t arrayId = m_module.defArrayTypeUnique(
 				m_module.defFloatType(32),
-				arraySize);
+				m_module.constu32(arraySize));
 			m_module.decorateArrayStride(arrayId, vsharpBuffer->stride);
 			uint32_t uboStuctId = m_module.defStructTypeUnique(1, &arrayId);
 			m_module.decorateBlock(uboStuctId);
