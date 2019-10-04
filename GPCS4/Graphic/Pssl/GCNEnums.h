@@ -11,6 +11,13 @@ enum class SpirvGprType : uint32_t
 	Vector = 1,
 };
 
+enum class SpirvResourceType : uint32_t
+{
+	VSharp = 0,  // V#
+	TSharp = 1,  // T#
+	SSharp = 2   // S#
+};
+
 /**
  * \brief Scalar value type
  *

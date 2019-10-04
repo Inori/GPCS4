@@ -13,17 +13,19 @@
 namespace pssl
 {;
 
-PsslShaderModule::PsslShaderModule(const uint32_t* code):
+PsslShaderModule::PsslShaderModule(const uint32_t* code, const std::vector<PsslShaderResource>& shaderResTab):
 	m_code(code),
-	m_progInfo((const uint8_t*)code)
+	m_progInfo((const uint8_t*)code),
+	m_shaderResourceTable(shaderResTab)
 {
 #ifdef GPCS4_DUMP_SHADER
 	dumpShader(m_progInfo.shaderType(), (const uint8_t*)code, m_progInfo.codeSizeBytes());
 #endif  // GPCS4_DUMP_SHADER
 }
 
-PsslShaderModule::PsslShaderModule(const uint32_t* code, const uint32_t* fsCode):
-	PsslShaderModule(code)
+PsslShaderModule::PsslShaderModule(const uint32_t* code, const uint32_t* fsCode,
+	const std::vector<PsslShaderResource>& shaderResTab):
+	PsslShaderModule(code, shaderResTab)
 {
 	parseFetchShader(fsCode);
 }
@@ -48,7 +50,8 @@ RcPtr<gve::GveShader> PsslShaderModule::compileWithFS()
 	GCNAnalyzer analyzer(analysisInfo);
 	this->runAnalyzer(analyzer, codeSlice);
 
-	GCNCompiler compiler(m_progInfo, analysisInfo, m_vsInputSemantic);
+	const auto resBuffers = findResourceBuffers();
+	GCNCompiler compiler(m_progInfo, analysisInfo, m_vsInputSemantic, resBuffers);
 	runCompiler(compiler, codeSlice);
 	return compiler.finalize();
 }
@@ -62,7 +65,8 @@ RcPtr<gve::GveShader> PsslShaderModule::compileNoFS()
 	GCNAnalyzer analyzer(analysisInfo);
 	this->runAnalyzer(analyzer, codeSlice);
 
-	GCNCompiler compiler(m_progInfo, analysisInfo);
+	const auto resBuffers = findResourceBuffers();
+	GCNCompiler compiler(m_progInfo, analysisInfo, resBuffers);
 	runCompiler(compiler, codeSlice);
 	return compiler.finalize();
 }
@@ -136,6 +140,57 @@ void PsslShaderModule::extractInputSemantic(PsslFetchShader& fsShader)
 			++semanIdx;
 		}
 	} while (false);
+}
+
+std::vector<pssl::GcnResourceBuffer> PsslShaderModule::findResourceBuffers()
+{
+	std::vector<pssl::GcnResourceBuffer> resultRes;
+	do
+	{
+		uint32_t usageSlotCount = m_progInfo.inputUsageSlotCount();
+		for (uint32_t i = 0; i != usageSlotCount; ++i)
+		{
+			const InputUsageSlot* usageSlot = m_progInfo.inputUsageSlot(i);
+			ShaderInputUsageType usageType = static_cast<ShaderInputUsageType>(usageSlot->usageType);
+
+			switch (usageType)
+			{
+			case kShaderInputUsageImmSampler:
+				break;
+			case kShaderInputUsageImmConstBuffer:
+			{
+				PsslShaderResource res;
+				bool found = findShaderResource(usageSlot->startRegister, res);
+				LOG_ASSERT(found == true, "can not find matched shader resource.");
+				SpirvResourceType type = usageSlot->resourceType == 0 ? 
+					SpirvResourceType::VSharp : SpirvResourceType::TSharp;
+				resultRes.emplace_back(type, res);
+			}
+				break;
+			default:
+				break;
+			}
+		}
+	} while (false);
+	return resultRes;
+}
+
+bool PsslShaderModule::findShaderResource(uint32_t startSlot, PsslShaderResource& outRes)
+{
+	bool found = false;
+	do 
+	{
+		for (const auto& res : m_shaderResourceTable)
+		{
+			if (res.startSlot == startSlot)
+			{
+				outRes = res;
+				found = true;
+				break;
+			}
+		}
+	} while (false);
+	return found;
 }
 
 void PsslShaderModule::dumpShader(PsslProgramType type, const uint8_t* code, uint32_t size)

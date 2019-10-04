@@ -133,6 +133,24 @@ struct SpirvGprArray
 	uint32_t count;
 };
 
+
+/**
+ * \brief Sharp buffer resource.
+ *
+ * V# T# or S# buffer input to the shader
+ */
+struct GcnResourceBuffer
+{
+	GcnResourceBuffer(SpirvResourceType resType, PsslShaderResource& resource):
+		type(resType), res(resource)
+	{}
+
+	SpirvResourceType type;
+	PsslShaderResource res;
+};
+
+
+
 struct GcnStateRegister
 {
 	// local data share
@@ -218,11 +236,22 @@ struct GcnCompilerCsPart
 };
 
 
+
+
+
 class GCNCompiler
 {
 public:
-	GCNCompiler(const PsslProgramInfo& progInfo, const GcnAnalysisInfo& analysis);
-	GCNCompiler(const PsslProgramInfo& progInfo, const GcnAnalysisInfo& analysis, const std::vector<VertexInputSemantic>& inputSemantic);
+	GCNCompiler(
+		const PsslProgramInfo& progInfo, 
+		const GcnAnalysisInfo& analysis,
+		const std::vector<GcnResourceBuffer>& bufferResources);
+
+	GCNCompiler(
+		const PsslProgramInfo& progInfo, 
+		const GcnAnalysisInfo& analysis,
+		const std::vector<VertexInputSemantic>& inputSemantic, 
+		const std::vector<GcnResourceBuffer>& bufferResources);
 	~GCNCompiler();
 
 	void processInstruction(GCNInstruction& ins);
@@ -235,12 +264,12 @@ private:
 
 	SpirvModule m_module;
 
-	std::vector<VertexInputSemantic> m_vsInputSemantics;
-
-
 	// Global analyze information
 	const GcnAnalysisInfo* m_analysis;
 
+	std::vector<VertexInputSemantic> m_vsInputSemantics;
+
+	std::vector<GcnResourceBuffer> m_shaderResources;
 	///////////////////////////////////////////////////
 	// Entry point description - we'll need to declare
 	// the function ID and all input/output variables.
@@ -253,6 +282,8 @@ private:
 	uint32_t m_perVertexIn = 0;
 	uint32_t m_perVertexOut = 0;
 
+	// Uniform Buffer Object Id
+	uint32_t m_uboId;
 
 	//////////////////////////////////////////////
 	// Function state tracking. Required in order
@@ -277,8 +308,12 @@ private:
 	std::map<uint32_t, SpirvRegisterPointer> m_vgprs;
 
 	///////////////////////////////////
+	// Resources
+
 	// spir-v id to literal constant value table
 	std::map<uint32_t, SpirvLiteralConstant> m_constValueTable;
+
+	
 
 private:
 
@@ -318,6 +353,8 @@ private:
 
 	// For all shader types
 	void emitDclUniformBuffer();
+	void emitDclImmConstBuffer(const InputUsageSlot* usageSlot);
+	void emitDclImmSampler(const InputUsageSlot* usageSlot);
 
 	/////////////////////////////////////////////////////////
 	SpirvRegisterPointer emitDclFloat(SpirvScalarType type,

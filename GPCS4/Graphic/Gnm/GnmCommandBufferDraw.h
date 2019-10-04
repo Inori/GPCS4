@@ -2,7 +2,7 @@
 
 #include "GPCS4Common.h"
 #include "GnmCommandBuffer.h"
-
+#include "../Pssl/PsslShaderModule.h"
 #include "../Gve/GveCommandBuffer.h"
 #include "../Gve/GveShader.h"
 
@@ -15,7 +15,7 @@
 class GnmCommandBufferDraw : public GnmCommandBuffer
 {
 private:
-	typedef std::vector<std::pair<uint32_t, void*>> UDSTVector;
+	typedef std::vector<pssl::PsslShaderResource> UDSTVector;
 
 public:
 	GnmCommandBufferDraw(RcPtr<gve::GveContex>& context, const gve::GveRenderTarget& renderTarget);

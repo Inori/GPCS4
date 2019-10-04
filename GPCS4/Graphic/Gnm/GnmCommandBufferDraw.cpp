@@ -1,7 +1,7 @@
 #include "GnmCommandBufferDraw.h"
 #include "GnmSharpBuffer.h"
 
-#include "../Pssl/PsslShaderModule.h"
+
 
 #include "Platform/PlatformUtils.h"
 
@@ -79,11 +79,11 @@ void GnmCommandBufferDraw::setPointerInUserData(ShaderStage stage, uint32_t star
 	{
 		if (stage == kShaderStageVs)
 		{
-			m_vsUserDataSlotTable.push_back(std::make_pair(startUserDataSlot, gpuAddr));
+			m_vsUserDataSlotTable.push_back({ startUserDataSlot, gpuAddr });
 		}
 		else if (stage == kShaderStagePs)
 		{
-			m_psUserDataSlotTable.push_back(std::make_pair(startUserDataSlot, gpuAddr));
+			m_psUserDataSlotTable.push_back({ startUserDataSlot, gpuAddr });
 		}
 		else
 		{
@@ -98,11 +98,11 @@ void GnmCommandBufferDraw::setUserDataRegion(ShaderStage stage, uint32_t startUs
 	{
 		if (stage == kShaderStageVs)
 		{
-			m_vsUserDataSlotTable.push_back(std::make_pair(startUserDataSlot, (void*)userData));
+			m_vsUserDataSlotTable.push_back({ startUserDataSlot, (void*)userData });
 		}
 		else if (stage == kShaderStagePs)
 		{
-			m_psUserDataSlotTable.push_back(std::make_pair(startUserDataSlot, (void*)userData));
+			m_psUserDataSlotTable.push_back({ startUserDataSlot, (void*)userData });
 		}
 		else
 		{
@@ -172,19 +172,17 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 {
 	do
 	{
-		
-
 		uint32_t* fsCode = getFetchShaderCode(m_vsCode);
 
 		RcPtr<gve::GveShader> vsShader;
 		if (fsCode)
 		{
-			pssl::PsslShaderModule vsModule((const uint32_t*)m_vsCode, fsCode);
+			pssl::PsslShaderModule vsModule((const uint32_t*)m_vsCode, fsCode, m_vsUserDataSlotTable);
 			vsShader = vsModule.compile();
 		}
 		else
 		{
-			pssl::PsslShaderModule vsModule((const uint32_t*)m_vsCode);
+			pssl::PsslShaderModule vsModule((const uint32_t*)m_vsCode, m_vsUserDataSlotTable);
 			vsShader = vsModule.compile();
 		}
 
@@ -233,14 +231,14 @@ uint32_t* GnmCommandBufferDraw::getFetchShaderCode(void* vsCode)
 			break;
 		}
 
-		for (auto& pair : m_vsUserDataSlotTable)
+		for (const auto& res : m_vsUserDataSlotTable)
 		{
-			if (pair.first != fsStartReg)
+			if (res.startSlot != fsStartReg)
 			{
 				continue;
 			}
 
-			fsCode = (uint32_t*)pair.second;
+			fsCode = (uint32_t*)res.resource;
 			break;
 		}
 

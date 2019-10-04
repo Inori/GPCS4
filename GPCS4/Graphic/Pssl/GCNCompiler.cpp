@@ -1,4 +1,5 @@
 #include "GCNCompiler.h"
+#include "../Gnm/GnmSharpBuffer.h"
 #include "Platform/UtilString.h"
 #include <array>
 
@@ -10,17 +11,24 @@ constexpr uint32_t PerVertex_CullDist = 1;
 constexpr uint32_t PerVertex_ClipDist = 2;
 
 
-GCNCompiler::GCNCompiler(const PsslProgramInfo& progInfo, const GcnAnalysisInfo& analysis):
-	GCNCompiler(progInfo, analysis, {})
+GCNCompiler::GCNCompiler(
+	const PsslProgramInfo& progInfo, 
+	const GcnAnalysisInfo& analysis,
+	const std::vector<GcnResourceBuffer>& bufferResources):
+	GCNCompiler(progInfo, analysis, {}, bufferResources)
 {
 
 }
 
-GCNCompiler::GCNCompiler(const PsslProgramInfo& progInfo, const GcnAnalysisInfo& analysis, 
-	const std::vector<VertexInputSemantic>& inputSemantic):
+GCNCompiler::GCNCompiler(
+	const PsslProgramInfo& progInfo, 
+	const GcnAnalysisInfo& analysis, 
+	const std::vector<VertexInputSemantic>& inputSemantic,
+	const std::vector<GcnResourceBuffer>& bufferResources):
 	m_programInfo(progInfo),
+	m_analysis(&analysis),
 	m_vsInputSemantics(inputSemantic),
-	m_analysis(&analysis)
+	m_shaderResources(bufferResources)
 {
 	// Declare an entry point ID. We'll need it during the
 	// initialization phase where the execution mode is set.
@@ -141,7 +149,9 @@ void GCNCompiler::emitVsInit()
 
 	emitDclVertexInput();
 	emitDclVertexOutput();
+	emitDclUniformBuffer();
 	emitEmuFetchShader();
+	
 
 	// Main function of the vertex shader
 	m_vs.mainFunctionId = m_module.allocateId();
@@ -381,30 +391,78 @@ void GCNCompiler::emitEmuFetchShader()
 
 void GCNCompiler::emitDclUniformBuffer()
 {
-	do 
-	{
-		uint32_t usageSlotCount = m_programInfo.inputUsageSlotCount();
-		for (uint32_t i = 0; i != usageSlotCount; ++i)
-		{
-			const InputUsageSlot* usageSlot = m_programInfo.inputUsageSlot(i);
-			ShaderInputUsageType usageType = static_cast<ShaderInputUsageType>(usageSlot->usageType);
+	// For PSSL uniform buffer, it's hard to detect how many variables have been declared,
+	// and even if we know, it's almost useless, because the shader could access part of a variable,
+	// like the upper-left mat3x3 of a mat4x4, thus can't be accessed via AccessChain.
+	// So here we treat all the uniform buffer together as a dword array.
+	// Then we can access any element in this array.
+	
+	// Based on the above, there're at least 2 ways to achieve this.
+	// First is UBO and second is SSBO.
+	// 
+	// 1. For UBO, the disadvantage is that we can not declare a variable-length array of UBO member,
+	// thus we have to get this information from stride field of input V# buffer,
+	// which make things a little more complicated.
+	// But what we gain is performance, UBO access is usually faster than SSBO.
+	// 
+	// 2. For SSBO, the advantage is that it support variable-length arrays, which will make
+	// the compiler implementation a little easier. 
+	// Besides, SSBO support write to the buffer,
+	// The disadvantage is that it will slower than UBO.
+	// 
+	// Currently I can not determine which one is better, and how much performance we could gain from using UBO,
+	// but I just choose the UBO way first due to performance reason. Maybe need to change in the future.
 
-			switch (usageType)
-			{
-			case kShaderInputUsagePtrVertexBufferTable:
-			case kShaderInputUsageSubPtrFetchShader:
-				// Handled in other functions.
-				break;
-			case kShaderInputUsageImmConstBuffer:
-			{
-				
-			}
-				break;
-			default:
-				break;
-			}
+	uint32_t index = 0;
+	for (const auto& res : m_shaderResources)
+	{
+		switch (res.type)
+		{
+		case SpirvResourceType::VSharp:
+		{
+			GnmBuffer* vsharpBuffer = reinterpret_cast<GnmBuffer*>(res.res.resource);
+			uint32_t arraySize = vsharpBuffer->stride;
+
+			uint32_t arrayId = m_module.defArrayTypeUnique(
+				m_module.defFloatType(32),
+				arraySize);
+			uint32_t uboStuctId = m_module.defStructTypeUnique(1, &arrayId);
+			m_module.decorateBlock(uboStuctId);
+			m_module.memberDecorateOffset(uboStuctId, 0, 0);
+			m_module.setDebugName(uboStuctId, "UniformBufferObject");
+
+			uint32_t uboPtrId = m_module.defPointerType(uboStuctId, spv::StorageClassUniform);
+			m_uboId = m_module.newVar(uboPtrId, spv::StorageClassUniform);
+
+			// TODO:
+			// Not sure, need to correct.
+			m_module.decorateDescriptorSet(m_uboId, index);
+			m_module.decorateBinding(m_uboId, index);
+
+			m_module.setDebugName(m_uboId, "ubo");
 		}
-	} while (false);
+			break;
+		case SpirvResourceType::SSharp:
+			break;
+		case SpirvResourceType::TSharp:
+			break;
+		default:
+			break;
+		}
+
+		++index;
+	}
+	
+}
+
+void GCNCompiler::emitDclImmConstBuffer(const InputUsageSlot* usageSlot)
+{
+	
+}
+
+void GCNCompiler::emitDclImmSampler(const InputUsageSlot* usageSlot)
+{
+
 }
 
 SpirvRegisterPointer GCNCompiler::emitDclFloat(SpirvScalarType type,
