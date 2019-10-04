@@ -144,7 +144,7 @@ void GCNCompiler::emitVsInit()
 
 	// Main function of the vertex shader
 	m_vs.mainFunctionId = m_module.allocateId();
-	m_module.setDebugName(m_vs.mainFunctionId, "vs_main");
+	m_module.setDebugName(m_vs.mainFunctionId, "vsMain");
 
 	emitFunctionBegin(
 		m_vs.mainFunctionId,
@@ -277,6 +277,8 @@ void GCNCompiler::emitDclVertexInput()
 			// Not sure if all vertex inputs are float type
 			auto inputReg = emitDclFloatVectorVar(SpirvScalarType::Float32, inputSemantic.sizeInElements, spv::StorageClassInput);
 			m_vs.vsInputs[inputSemantic.semantic] = inputReg;
+			m_module.setDebugName(inputReg.id, 
+				UtilString::Format("inParam%d", inputSemantic.semantic).c_str());
 
 			// Use semantic index for location, so vulkan code need to match.
 			m_module.decorateLocation(inputReg.id, inputSemantic.semantic);
@@ -296,7 +298,7 @@ void GCNCompiler::emitDclVertexOutput()
 	m_perVertexOut = m_module.newVar(perVertexPointerType, spv::StorageClassOutput);
 
 	m_entryPointInterfaces.push_back(m_perVertexOut);
-	m_module.setDebugName(m_perVertexOut, "vs_vertex_out");
+	m_module.setDebugName(m_perVertexOut, "vsVertexOut");
 
 	// Declare other vertex output.
 	// like normal or texture coordinate
@@ -314,7 +316,7 @@ void GCNCompiler::emitDclVertexOutput()
 			auto outVector = emitDclFloatVectorVar(SpirvScalarType::Float32,
 				expInfo.regIndices.size(),
 				spv::StorageClassOutput,
-				UtilString::Format("out_param%d", outLocation));
+				UtilString::Format("outParam%d", outLocation));
 			m_module.decorateLocation(outVector.id, outLocation);
 
 			m_vs.vsOutputs[expInfo.target] = outVector;
@@ -342,7 +344,7 @@ void GCNCompiler::emitEmuFetchShader()
 			m_module.defFunctionType(
 			m_module.defVoidType(), 0, nullptr));
 		emitFunctionLabel();
-		m_module.setDebugName(m_vs.fsFunctionId, "vs_fetch");
+		m_module.setDebugName(m_vs.fsFunctionId, "vsFetch");
 
 		for (const auto& inputSemantic : m_shaderInput.vsInputSemantics.value())
 		{
