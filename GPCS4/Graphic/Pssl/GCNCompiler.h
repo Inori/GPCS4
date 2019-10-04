@@ -27,6 +27,7 @@
 
 #include <optional>
 #include <map>
+#include <array>
 
 namespace pssl
 {;
@@ -288,6 +289,12 @@ private:
 	uint32_t m_perVertexOut = 0;
 
 	// Uniform Buffer Object Id
+	// TODO:
+	// Currently I see only one block of uniform buffer memory being used
+	// even if multiple uniform variables declared.
+	// So I only declare one member variable.
+	// If multiple blocks of uniform buffer are found in the future
+	// change this to a std::vector or something convinient.
 	uint32_t m_uboId;
 
 	//////////////////////////////////////////////
@@ -317,8 +324,6 @@ private:
 
 	// spir-v id to literal constant value table
 	std::map<uint32_t, SpirvLiteralConstant> m_constValueTable;
-
-	
 
 private:
 
@@ -364,7 +369,9 @@ private:
 	/////////////////////////////////////////////////////////
 	SpirvRegisterPointer emitDclFloat(SpirvScalarType type,
 		spv::StorageClass storageCls, const std::string& debugName = "");
-	SpirvRegisterPointer emitDclFloatVector(SpirvScalarType type, uint32_t count,
+	SpirvRegisterPointer emitDclFloatVectorType(SpirvScalarType type, uint32_t count,
+		spv::StorageClass storageCls, const std::string& debugName = "");
+	SpirvRegisterPointer emitDclFloatVectorVar(SpirvScalarType type, uint32_t count,
 		spv::StorageClass storageCls, const std::string& debugName = "");
 
 	SpirvRegisterValue emitValueLoad(const SpirvRegisterPointer& reg);
@@ -376,7 +383,10 @@ private:
 		const SpirvRegisterValue &src,
 		const GcnRegMask &writeMask);
 	void emitSgprStore(uint32_t dstIdx, const SpirvRegisterValue& srcReg);
+	void emitSgprArrayStore(uint32_t startIdx, const SpirvRegisterValue* values, uint32_t count);
 	void emitVgprStore(uint32_t dstIdx, const SpirvRegisterValue& srcReg);
+	void emitVgprArrayStore(uint32_t startIdx, const SpirvRegisterValue* values, uint32_t count);
+	
 
 	/////////////////////////////////////////
 	// Operands manipulation methods

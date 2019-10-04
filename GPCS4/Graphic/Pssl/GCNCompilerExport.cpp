@@ -63,7 +63,9 @@ void GCNCompiler::emitExpVS(GCNInstruction& ins)
 	{
 		// TODO:
 		// Only support pos0 currently
-		dstId = m_perVertexOut;
+		auto ptrType = emitDclFloatVectorType(SpirvScalarType::Float32, 4, spv::StorageClassOutput);
+		uint32_t memberId = m_module.constu32(0);
+		dstId = m_module.opAccessChain(ptrType.id, m_perVertexOut, 1, &memberId);
 		dstType.ctype = SpirvScalarType::Float32;
 		dstType.ccount = 4;
 	}

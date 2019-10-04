@@ -275,7 +275,7 @@ void GCNCompiler::emitDclVertexInput()
 		{
 			// TODO:
 			// Not sure if all vertex inputs are float type
-			auto inputReg = emitDclFloatVector(SpirvScalarType::Float32, inputSemantic.sizeInElements, spv::StorageClassInput);
+			auto inputReg = emitDclFloatVectorVar(SpirvScalarType::Float32, inputSemantic.sizeInElements, spv::StorageClassInput);
 			m_vs.vsInputs[inputSemantic.semantic] = inputReg;
 
 			// Use semantic index for location, so vulkan code need to match.
@@ -311,7 +311,7 @@ void GCNCompiler::emitDclVertexOutput()
 				continue;
 			}
 
-			auto outVector = emitDclFloatVector(SpirvScalarType::Float32,
+			auto outVector = emitDclFloatVectorVar(SpirvScalarType::Float32,
 				expInfo.regIndices.size(),
 				spv::StorageClassOutput,
 				UtilString::Format("out_param%d", outLocation));
@@ -410,15 +410,17 @@ void GCNCompiler::emitDclUniformBuffer()
 		case SpirvResourceType::VSharp:
 		{
 			GnmBuffer* vsharpBuffer = reinterpret_cast<GnmBuffer*>(res.res.resource);
-			uint32_t arraySize = vsharpBuffer->stride;
+			uint32_t arraySize = vsharpBuffer->stride / sizeof(uint32_t);
 
 			uint32_t arrayId = m_module.defArrayTypeUnique(
 				m_module.defFloatType(32),
 				arraySize);
+			m_module.decorateArrayStride(arrayId, vsharpBuffer->stride);
 			uint32_t uboStuctId = m_module.defStructTypeUnique(1, &arrayId);
 			m_module.decorateBlock(uboStuctId);
 			m_module.memberDecorateOffset(uboStuctId, 0, 0);
 			m_module.setDebugName(uboStuctId, "UniformBufferObject");
+			m_module.setDebugMemberName(uboStuctId, 0, "data");
 
 			uint32_t uboPtrId = m_module.defPointerType(uboStuctId, spv::StorageClassUniform);
 			m_uboId = m_module.newVar(uboPtrId, spv::StorageClassUniform);
@@ -429,6 +431,7 @@ void GCNCompiler::emitDclUniformBuffer()
 			m_module.decorateBinding(m_uboId, index);
 
 			m_module.setDebugName(m_uboId, "ubo");
+			
 		}
 			break;
 		case SpirvResourceType::SSharp:
@@ -468,14 +471,25 @@ SpirvRegisterPointer GCNCompiler::emitDclFloat(SpirvScalarType type,
 	return SpirvRegisterPointer(type, 1, varId);
 }
 
-SpirvRegisterPointer GCNCompiler::emitDclFloatVector(SpirvScalarType type, uint32_t count,
+SpirvRegisterPointer GCNCompiler::emitDclFloatVectorType(SpirvScalarType type, uint32_t count,
 	spv::StorageClass storageCls, const std::string& debugName /*= ""*/)
 {
 	uint32_t width = type == SpirvScalarType::Float32 ? 32 : 64;
 	uint32_t fpTypeId = m_module.defFloatType(width);
 	uint32_t vfpTypeId = m_module.defVectorType(fpTypeId, count);
 	uint32_t vfpPtrTypeId = m_module.defPointerType(vfpTypeId, storageCls);
-	uint32_t varId = m_module.newVar(vfpPtrTypeId, storageCls);
+	
+	if (!debugName.empty())
+	{
+		m_module.setDebugName(vfpPtrTypeId, debugName.c_str());
+	}
+	return SpirvRegisterPointer(type, count, vfpPtrTypeId);
+}
+
+SpirvRegisterPointer GCNCompiler::emitDclFloatVectorVar(SpirvScalarType type, uint32_t count, spv::StorageClass storageCls, const std::string& debugName /*= ""*/)
+{
+	auto ptrType = emitDclFloatVectorType(type, count, storageCls, debugName);
+	uint32_t varId = m_module.newVar(ptrType.id, storageCls);
 	if (!debugName.empty())
 	{
 		m_module.setDebugName(varId, debugName.c_str());
@@ -551,6 +565,14 @@ void GCNCompiler::emitSgprStore(uint32_t dstIdx, const SpirvRegisterValue& srcRe
 	emitValueStore(sgpr, srcReg, 1);
 }
 
+void GCNCompiler::emitSgprArrayStore(uint32_t startIdx, const SpirvRegisterValue* values, uint32_t count)
+{
+	for (uint32_t i = 0; i != count; ++i)
+	{
+		emitSgprStore(startIdx + i, values[i]);
+	}
+}
+
 void GCNCompiler::emitVgprStore(uint32_t dstIdx, const SpirvRegisterValue& srcReg)
 {
 	auto& vgpr = m_vgprs[dstIdx];
@@ -563,6 +585,14 @@ void GCNCompiler::emitVgprStore(uint32_t dstIdx, const SpirvRegisterValue& srcRe
 		m_module.setDebugName(vgpr.id, UtilString::Format("v%d", dstIdx).c_str());
 	}
 	emitValueStore(vgpr, srcReg, 1);
+}
+
+void GCNCompiler::emitVgprArrayStore(uint32_t startIdx, const SpirvRegisterValue* values, uint32_t count)
+{
+	for (uint32_t i = 0; i != count; ++i)
+	{
+		emitVgprStore(startIdx + i, values[i]);
+	}
 }
 
 // Used with with 7 bits SDST, 8 bits SSRC or 9 bits SRC
@@ -1113,7 +1143,7 @@ uint32_t GCNCompiler::getPerVertexBlockId()
 	m_module.decorateBlock(typeId);
 
 	m_module.setDebugName(typeId, "gl_PerVertex");
-	m_module.setDebugMemberName(typeId, PerVertex_Position, "Position");
+	m_module.setDebugMemberName(typeId, PerVertex_Position, "gl_Position");
 	//     m_module.setDebugMemberName(typeId, PerVertex_CullDist, "cull_dist");
 	//     m_module.setDebugMemberName(typeId, PerVertex_ClipDist, "clip_dist");
 	return typeId;
