@@ -38,9 +38,6 @@ public:
 
 private:
 
-	RcPtr<gve::GveShader> compileWithFS();
-	RcPtr<gve::GveShader> compileNoFS();
-
 	void runAnalyzer(GCNAnalyzer& analyzer, GCNCodeSlice slice);
 
 	void runCompiler(GCNCompiler& compiler, GCNCodeSlice slice);
