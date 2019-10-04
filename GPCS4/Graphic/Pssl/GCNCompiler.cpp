@@ -13,22 +13,11 @@ constexpr uint32_t PerVertex_ClipDist = 2;
 
 GCNCompiler::GCNCompiler(
 	const PsslProgramInfo& progInfo, 
-	const GcnAnalysisInfo& analysis,
-	const std::vector<GcnResourceBuffer>& bufferResources):
-	GCNCompiler(progInfo, analysis, {}, bufferResources)
-{
-
-}
-
-GCNCompiler::GCNCompiler(
-	const PsslProgramInfo& progInfo, 
 	const GcnAnalysisInfo& analysis, 
-	const std::vector<VertexInputSemantic>& inputSemantic,
-	const std::vector<GcnResourceBuffer>& bufferResources):
+	const GcnShaderInput& shaderInput):
 	m_programInfo(progInfo),
 	m_analysis(&analysis),
-	m_vsInputSemantics(inputSemantic),
-	m_shaderResources(bufferResources)
+	m_shaderInput(shaderInput)
 {
 	// Declare an entry point ID. We'll need it during the
 	// initialization phase where the execution mode is set.
@@ -277,12 +266,12 @@ void GCNCompiler::emitDclVertexInput()
 {
 	do 
 	{
-		if (m_vsInputSemantics.empty())
+		if (!m_shaderInput.vsInputSemantics.has_value())
 		{
 			break;
 		}
 
-		for (const auto& inputSemantic : m_vsInputSemantics)
+		for (const auto& inputSemantic : m_shaderInput.vsInputSemantics.value())
 		{
 			// TODO:
 			// Not sure if all vertex inputs are float type
@@ -340,7 +329,7 @@ void GCNCompiler::emitEmuFetchShader()
 {
 	do 
 	{
-		if (m_vsInputSemantics.empty())
+		if (!m_shaderInput.vsInputSemantics.has_value())
 		{
 			break;
 		}
@@ -355,7 +344,7 @@ void GCNCompiler::emitEmuFetchShader()
 		emitFunctionLabel();
 		m_module.setDebugName(m_vs.fsFunctionId, "vs_fetch");
 
-		for (const auto& inputSemantic : m_vsInputSemantics)
+		for (const auto& inputSemantic : m_shaderInput.vsInputSemantics.value())
 		{
 			for (uint32_t i = 0; i != inputSemantic.sizeInElements; ++i)
 			{
@@ -414,7 +403,7 @@ void GCNCompiler::emitDclUniformBuffer()
 	// but I just choose the UBO way first due to performance reason. Maybe need to change in the future.
 
 	uint32_t index = 0;
-	for (const auto& res : m_shaderResources)
+	for (const auto& res : m_shaderInput.resourceBuffer)
 	{
 		switch (res.type)
 		{

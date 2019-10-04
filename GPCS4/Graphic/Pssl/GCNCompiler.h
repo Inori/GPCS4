@@ -235,23 +235,30 @@ struct GcnCompilerCsPart
 	uint32_t builtinWorkgroupId = 0;
 };
 
+/**
+ * \brief Shader input information
+ * 
+ * Convenience struct to prevent too many parameters
+ * in GCNCompiler's constructor.
+ *
+ */
 
-
+struct GcnShaderInput
+{
+	std::vector<GcnResourceBuffer> resourceBuffer;
+	std::optional<std::vector<VertexInputSemantic>> vsInputSemantics;
+	std::optional<std::vector<PixelInputSemantic>> psInputSemantics;
+};
 
 
 class GCNCompiler
 {
 public:
-	GCNCompiler(
-		const PsslProgramInfo& progInfo, 
-		const GcnAnalysisInfo& analysis,
-		const std::vector<GcnResourceBuffer>& bufferResources);
 
 	GCNCompiler(
-		const PsslProgramInfo& progInfo, 
+		const PsslProgramInfo& progInfo,
 		const GcnAnalysisInfo& analysis,
-		const std::vector<VertexInputSemantic>& inputSemantic, 
-		const std::vector<GcnResourceBuffer>& bufferResources);
+		const GcnShaderInput& shaderInput);
 	~GCNCompiler();
 
 	void processInstruction(GCNInstruction& ins);
@@ -267,9 +274,7 @@ private:
 	// Global analyze information
 	const GcnAnalysisInfo* m_analysis;
 
-	std::vector<VertexInputSemantic> m_vsInputSemantics;
-
-	std::vector<GcnResourceBuffer> m_shaderResources;
+	GcnShaderInput m_shaderInput;
 	///////////////////////////////////////////////////
 	// Entry point description - we'll need to declare
 	// the function ID and all input/output variables.

@@ -38,36 +38,26 @@ PsslShaderModule::~PsslShaderModule()
 
 RcPtr<gve::GveShader> PsslShaderModule::compile()
 {
-	return m_vsInputSemantic.size() ? compileWithFS() : compileNoFS();
-}
-
-RcPtr<gve::GveShader> PsslShaderModule::compileWithFS()
-{
 	const uint32_t* codeEnd = m_code + m_progInfo.codeSizeDwords();
 	GCNCodeSlice codeSlice(m_code, codeEnd);
-
+	
+	// Analyze shader global information
 	GcnAnalysisInfo analysisInfo;
 	GCNAnalyzer analyzer(analysisInfo);
-	this->runAnalyzer(analyzer, codeSlice);
+	runAnalyzer(analyzer, codeSlice);
 
-	const auto resBuffers = findResourceBuffers();
-	GCNCompiler compiler(m_progInfo, analysisInfo, m_vsInputSemantic, resBuffers);
+	// Generate input
+	GcnShaderInput shaderInput;
+	shaderInput.resourceBuffer = findResourceBuffers();
+	if (!m_vsInputSemantic.empty())
+	{
+		shaderInput.vsInputSemantics = m_vsInputSemantic;
+	}
+
+	// Recompile
+	GCNCompiler compiler(m_progInfo, analysisInfo, shaderInput);
 	runCompiler(compiler, codeSlice);
-	return compiler.finalize();
-}
 
-RcPtr<gve::GveShader> PsslShaderModule::compileNoFS()
-{
-	const uint32_t* codeEnd = m_code + m_progInfo.codeSizeDwords();
-	GCNCodeSlice codeSlice(m_code, codeEnd);
-
-	GcnAnalysisInfo analysisInfo;
-	GCNAnalyzer analyzer(analysisInfo);
-	this->runAnalyzer(analyzer, codeSlice);
-
-	const auto resBuffers = findResourceBuffers();
-	GCNCompiler compiler(m_progInfo, analysisInfo, resBuffers);
-	runCompiler(compiler, codeSlice);
 	return compiler.finalize();
 }
 
