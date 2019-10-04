@@ -73,9 +73,8 @@ bool ELFMapper::validateHeader()
 			break;
 		}
 
-		m_moduleData->elfHeader =
-			reinterpret_cast<Elf64_Ehdr *>(fileMemory.data());
-		auto elfHeader = m_moduleData->elfHeader;
+		m_moduleData->elfHeader = reinterpret_cast<Elf64_Ehdr *>(fileMemory.data());
+		auto elfHeader          = m_moduleData->elfHeader;
 
 		if (strncmp((char *)elfHeader->e_ident, ELFMAG, SELFMAG))
 		{
@@ -94,7 +93,6 @@ bool ELFMapper::validateHeader()
 		}
 
 		retVal = true;
-
 	} while (false);
 
 	return retVal;
@@ -113,11 +111,10 @@ bool ELFMapper::parseSegmentHeaders()
 			break;
 		}
 
-		auto &fileMemory  = m_moduleData->fileMemory;
-		MODULE_INFO &info = m_moduleData->moduleInfo;
-		byte *pSegmentHeader =
-			fileMemory.data() + m_moduleData->elfHeader->e_phoff;
-		uint shCount = m_moduleData->elfHeader->e_phnum;
+		auto &fileMemory     = m_moduleData->fileMemory;
+		MODULE_INFO &info    = m_moduleData->moduleInfo;
+		byte *pSegmentHeader = fileMemory.data() + m_moduleData->elfHeader->e_phoff;
+		uint shCount         = m_moduleData->elfHeader->e_phnum;
 
 		m_moduleData->segmentHeaders.resize(shCount);
 
@@ -287,6 +284,7 @@ bool ELFMapper::mapImageIntoMemroy()
 	return retVal;
 }
 
+// TODO: clean up the verbose code here when it is done.
 bool ELFMapper::parseSymbols()
 {
 	MODULE_INFO &info = m_moduleData->moduleInfo;
@@ -298,37 +296,38 @@ bool ELFMapper::parseSymbols()
 		auto const &symbol = reinterpret_cast<Elf64_Sym *>(info.pSymTab)[i];
 		auto binding       = ELF64_ST_BIND(symbol.st_info);
 		auto name          = (char *)(&info.pStrTab[symbol.st_name]);
+		auto isDef         = symbol.st_value == 0 ? "UNDEF" : "EXPORT";
+		SymbolInfo si      = {};
 
-		auto type = symbol.st_value == 0 ? "UNDEF" : "EXPORT";
+		si.type       = static_cast<SymbolInfo::Type>(ELF64_ST_TYPE(symbol.st_info));
+		si.symbolName = name;
+		si.isEncoded  = m_moduleData->isEncodedSymbol(name);
 
 		switch (binding)
 		{
 		case STB_LOCAL:
 		{
-			LOG_DEBUG("%s symbol: %s BINDING: STB_LOCAL VAL: %d", type, name,
+			LOG_DEBUG("%s symbol: %s BINDING: STB_LOCAL VAL: %d", isDef, name,
 					  symbol.st_value);
 			void *addr = m_moduleData->mappedMemory.get() + symbol.st_value;
 
-			SymbolInfo si = {};
-			si.type       = SymbolInfo::Type::LOCAL;
-			si.address    = reinterpret_cast<uint64_t>(addr);
+			si.binding = SymbolInfo::Binding::LOCAL;
+			si.address = reinterpret_cast<uint64_t>(addr);
 			m_moduleData->symbols.emplace_back(si);
 		}
 		break;
 
 		case STB_GLOBAL:
 		{
-			LOG_DEBUG("%s symbol: %s BINDING: STB_GLOBAL VAL: %d", type, name,
+			LOG_DEBUG("%s symbol: %s BINDING: STB_GLOBAL VAL: %d", isDef, name,
 					  symbol.st_value);
-			SymbolInfo si = {};
-			si.type       = SymbolInfo::Type::GLOBAL;
-			void *addr    = nullptr;
+
+			si.binding = SymbolInfo::Binding::GLOBAL;
+			void *addr = nullptr;
 
 			if (symbol.st_value != 0)
 			{
-				addr = m_moduleData->mappedMemory.get() + symbol.st_value;
-				m_moduleData->exportSymbols.insert(std::make_pair(name, addr));
-
+				addr     = m_moduleData->mappedMemory.get() + symbol.st_value;
 				auto ret = m_moduleData->getExportSymbolInfo(
 					name, &si.moduleName, &si.libraryName, &si.nid);
 				if (ret != true)
@@ -349,21 +348,25 @@ bool ELFMapper::parseSymbols()
 			auto idx   = m_moduleData->symbols.size();
 			m_moduleData->symbols.emplace_back(si);
 			m_moduleData->nameSymbolMap.insert(std::make_pair(name, idx));
+			if (symbol.st_value != 0)
+			{
+				m_moduleData->exportSymbols.push_back(idx);
+			}
 		}
 		break;
 
+		// TODO: merge this branch with STB_GLOBAL
 		case STB_WEAK:
 		{
-			LOG_DEBUG("%s symbol: %s BINDING: STB_WEAK VAL: %d", type, name,
+			LOG_DEBUG("%s symbol: %s BINDING: STB_WEAK VAL: %d", isDef, name,
 					  symbol.st_value);
-			SymbolInfo si = {};
-			si.type       = SymbolInfo::Type::WEAK;
-			void *addr    = nullptr;
+
+			si.binding = SymbolInfo::Binding::WEAK;
+			void *addr = nullptr;
 
 			if (symbol.st_value != 0)
 			{
 				addr = m_moduleData->mappedMemory.get() + symbol.st_value;
-				m_moduleData->exportSymbols.insert(std::make_pair(name, addr));
 
 				auto ret = m_moduleData->getExportSymbolInfo(
 					name, &si.moduleName, &si.libraryName, &si.nid);
@@ -385,6 +388,10 @@ bool ELFMapper::parseSymbols()
 			auto idx   = m_moduleData->symbols.size();
 			m_moduleData->symbols.emplace_back(si);
 			m_moduleData->nameSymbolMap.insert(std::make_pair(name, idx));
+			if (symbol.st_value != 0)
+			{
+				m_moduleData->exportSymbols.push_back(idx);
+			}
 		}
 		break;
 		}
@@ -677,12 +684,18 @@ bool ELFMapper::mapCodeSegment(Elf64_Phdr const &phdr)
 		info.pCodeAddr = reinterpret_cast<byte *>(
 			ALIGN_DOWN(size_t(info.pMappedAddr) + phdr.p_vaddr, phdr.p_align));
 
-		byte *fileDataPtr =
-			reinterpret_cast<byte *>(m_moduleData->mappedMemory.get()) +
-			phdr.p_offset;
-		memcpy(info.pCodeAddr, fileDataPtr, phdr.p_filesz);
+		byte *fileDataPtr = fileData.data() + phdr.p_offset;
 
-		info.pEntryPoint = info.pCodeAddr + m_moduleData->elfHeader->e_entry;
+		memcpy(info.pCodeAddr, fileDataPtr, phdr.p_filesz);
+		if (m_moduleData->elfHeader->e_entry != 0)
+		{
+			//info.pEntryPoint = info.pCodeAddr + m_moduleData->elfHeader->e_entry;
+			info.pEntryPoint = info.pMappedAddr + m_moduleData->elfHeader->e_entry;
+		}
+		else
+		{
+			info.pEntryPoint = nullptr;
+		}
 		info.pTlsAddr    = info.pCodeAddr + (uint64_t)info.pTlsAddr;
 
 		retVal = true;
@@ -734,9 +747,7 @@ bool ELFMapper::mapDataSegment(Elf64_Phdr const &phdr)
 		info.pDataAddr = reinterpret_cast<byte *>(
 			ALIGN_DOWN(size_t(info.pMappedAddr) + phdr.p_vaddr, phdr.p_align));
 
-		byte *fileDataPtr =
-			reinterpret_cast<byte *>(m_moduleData->mappedMemory.get()) +
-			phdr.p_offset;
+		byte *fileDataPtr = fileData.data() + phdr.p_offset;
 		memcpy(info.pDataAddr, fileDataPtr, phdr.p_filesz);
 
 		retVal = true;

@@ -3,7 +3,42 @@
 
 #include <algorithm>
 
+
+const MODULE_INFO &MemoryMappedModule::getModuleInfo() const { return moduleInfo; }
 MODULE_INFO &MemoryMappedModule::getModuleInfo() { return moduleInfo; }
+
+const ByteArray &MemoryMappedModule::getFileMemory() const { return fileMemory; }
+ByteArray &MemoryMappedModule::getFileMemory() { return fileMemory; }
+
+bool MemoryMappedModule::isModule()
+{
+	return elfHeader->e_type == ET_SCE_DYNAMIC ? true : false;
+}
+
+const FileList &MemoryMappedModule::getNeededFiles() const
+{
+	return neededFiles; 
+}
+
+const std::vector<size_t> &MemoryMappedModule::getExportSymbols() const
+{
+	return exportSymbols;
+}
+
+std::vector<size_t> &MemoryMappedModule::getExportSymbols()
+{
+	return exportSymbols; 
+}
+
+const UtilMemory::memory_uptr &MemoryMappedModule::getMappedMemory() const
+{
+	return mappedMemory;
+}
+
+UtilMemory::memory_uptr &MemoryMappedModule::getMappedMemory()
+{
+	return mappedMemory;
+}
 
 bool MemoryMappedModule::getImportSymbolInfo(std::string const &encSymbol,
 											 std::string *modName,
@@ -56,6 +91,15 @@ bool MemoryMappedModule::getSymbolInfo(std::string const &encSymbol,
 
 		if (modName == nullptr || libName == nullptr || nid == nullptr)
 		{
+			break;
+		}
+
+		if (!isEncodedSymbol(encSymbol))
+		{
+			*modName = "";
+			*libName = "";
+			*nid     = 0;
+			retVal   = true;
 			break;
 		}
 
@@ -253,6 +297,37 @@ bool MemoryMappedModule::decodeSymbol(std::string const &strEncName,
 	} while (false);
 
 	return bRet;
+}
+
+bool MemoryMappedModule::isEncodedSymbol(std::string const &symbolName) const
+{
+	bool retVal = false;
+	if (symbolName.length() != 15)
+	{
+		retVal = false;
+	}
+	else if (symbolName[11] != '#' || symbolName[13] != '#')
+	{
+		retVal = false;
+	}
+	else
+	{
+		retVal = true;
+	}
+
+	return retVal;
+}
+
+int MemoryMappedModule::initialize() 
+{ 
+	int retVal = 0;
+	if (isModule() && moduleInfo.pEntryPoint != nullptr)
+	{
+		auto ep = reinterpret_cast<intialize_func>(moduleInfo.pEntryPoint);
+		retVal = ep(0, nullptr, nullptr);
+	}
+
+	return retVal;
 }
 
 bool MemoryMappedModule::getSymbol(size_t index,

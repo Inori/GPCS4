@@ -30,6 +30,7 @@ int main(int argc, char* argv[])
 		{
 			break;
 		}
+
 		//if (!pEmulator->LoadEboot(szEboot))
 		//{
 		//	break;

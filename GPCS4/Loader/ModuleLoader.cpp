@@ -12,7 +12,8 @@ bool ModuleLoader::loadModule(std::string const &fileName)
 	do
 	{
 		MemoryMappedModule mod = {};
-		retVal                 = loadModuleFromFile(fileName, &mod);
+
+		retVal = loadModuleFromFile(fileName, &mod);
 		if (!retVal)
 		{
 			break;
@@ -30,6 +31,12 @@ bool ModuleLoader::loadModule(std::string const &fileName)
 			break;
 		}
 
+		retVal = initializeModules();
+		if (!retVal)
+		{
+			break;
+		}
+
 		retVal = true;
 	} while (false);
 
@@ -42,9 +49,17 @@ bool ModuleLoader::loadModuleFromFile(std::string const &fileName,
 	bool retVal = false;
 	do
 	{
+
 		retVal = mapFilePathToModuleName(fileName, &mod->fileName);
 		if (!retVal)
 		{
+			break;
+		}
+
+		bool isLoaded = m_modSystem.isMemoryMappedModuleLoaded(mod->fileName);
+		if (isLoaded)
+		{
+			LOG_DEBUG("module %s has already been loaded", mod->fileName.c_str());
 			break;
 		}
 
@@ -93,12 +108,16 @@ bool ModuleLoader::loadModuleFromFile(std::string const &fileName,
 			break;
 		}
 
-		for (auto &symbol : mod->exportSymbols)
+		for (auto &id : mod->getExportSymbols())
 		{
-			registerSymbol(*mod, symbol.first, symbol.second);
+			const SymbolInfo *info = nullptr;
+			mod->getSymbol(id, &info);
+
+			registerSymbol(*mod, info->symbolName,
+						   reinterpret_cast<void *>(info->address));
 		}
 
-		m_modSystem.registerMemoryMappedModule(moduleName, std::move(*mod));
+		m_modSystem.registerMemoryMappedModule(mod->fileName, std::move(*mod));
 		retVal = true;
 	} while (false);
 
@@ -142,7 +161,7 @@ bool ModuleLoader::loadDependencies()
 
 bool ModuleLoader::addDepedenciesToLoad(MemoryMappedModule const &mod)
 {
-	for (auto const &file : mod.neededFiles)
+	for (auto const &file : mod.getNeededFiles())
 	{
 		m_filesToLoad.push(file);
 	}
@@ -215,17 +234,40 @@ bool ModuleLoader::registerSymbol(MemoryMappedModule const &mod,
 	return retVal;
 }
 
+bool ModuleLoader::registerSymbol(MemoryMappedModule const &mod, size_t idx)
+{
+	const SymbolInfo *info = nullptr;
+	mod.getSymbol(idx, &info);
+
+	if (info->isEncoded)
+	{
+		m_modSystem.registerFunction(info->moduleName,
+									 info->libraryName,
+									 info->nid,
+									 reinterpret_cast<void *>(info->address));
+	}
+	else
+	{
+		m_modSystem.registerSymbol(info->moduleName,
+								   info->libraryName,
+								   info->symbolName,
+								   reinterpret_cast<void *>(info->address));
+	}
+
+	return true;
+}
+
 bool ModuleLoader::relocateRela(MemoryMappedModule const &mod) const
 {
 	bool retVal = false;
 	do
 	{
-		if (mod.fileMemory.empty())
+		if (mod.getFileMemory().empty())
 		{
 			break;
 		}
 
-		auto &info = mod.moduleInfo;
+		auto &info = mod.getModuleInfo();
 
 		byte *pImageBase         = info.pCodeAddr;
 		byte *pStrTab            = info.pStrTab;
@@ -302,8 +344,8 @@ bool ModuleLoader::relocatePltRela(MemoryMappedModule const &mod) const
 	bool bRet = false;
 	do
 	{
-		auto &fileData = mod.fileMemory;
-		auto &info     = mod.moduleInfo;
+		auto &fileData = mod.getFileMemory();
+		auto &info     = mod.getModuleInfo();
 
 		if (fileData.empty())
 		{
@@ -362,6 +404,28 @@ bool ModuleLoader::relocatePltRela(MemoryMappedModule const &mod) const
 
 	return bRet;
 }
+
+bool ModuleLoader::initializeModules()
+{ 
+	auto &mods = m_modSystem.getMemoryMappedModules(); 
+	bool retVal = true;
+
+	// skip eboot.bin
+	for (size_t i = 1; i < mods.size(); i++)
+	{
+		int ret = mods[i].initialize();
+		if (ret != 0)
+		{
+			LOG_ERR("unable to initialize module %s. ret=%d", 
+					mods[i].fileName.c_str(), ret);
+			retVal = false;
+			break;
+		}
+	}
+
+	return retVal;
+}
+
 
 bool ModuleLoader::relocateModule(MemoryMappedModule const &mod) const
 {

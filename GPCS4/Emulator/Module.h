@@ -88,18 +88,36 @@ struct IMPORT_LIBRARY
 
 struct SymbolInfo
 {
-	enum class Type
+	enum class Binding
 	{
 		GLOBAL,
 		LOCAL,
 		WEAK
 	};
 
+	enum class Type
+	{
+		NOTYPE,
+		OBJECT,
+		FUNC,
+		SECTION,
+		FILE,
+		COMMON,
+		LOOS = 10,
+		HIOS = 12,
+		LOPROC,
+		SPARC_REGISTER,
+		HIPROC
+	};
+
 	Type type;
-	uint64_t nid;
+	Binding binding;
+	std::string symbolName;
 	std::string moduleName;
 	std::string libraryName;
 	uint64_t address;
+	uint64_t nid;
+	bool isEncoded;
 };
 
 using SegmentHeaderList  = std::vector<Elf64_Phdr>;
@@ -111,29 +129,26 @@ using FileList           = std::vector<std::string>;
 using SymbolAddrMap      = std::map<std::string, void *>;
 using ByteArray          = std::vector<uint8_t>;
 
+class ELFMapper;
 struct MemoryMappedModule
 {
+	friend ELFMapper;
 
+public:
+	typedef int PS4API (*intialize_func)(size_t argc, void *argv, void *term);
 	std::string fileName;
-	SegmentHeaderList segmentHeaders;
-	LibraryList importLibraries;
-	LibraryList exportLibraries;
 
-	ModuleList importModules;
-	ModuleList exportModules;
-	FileList neededFiles;
-
-	SymbolList symbols;
-	NameSymbolIndexMap nameSymbolMap;
-	SymbolAddrMap exportSymbols;
-	UtilMemory::memory_uptr mappedMemory;
-	size_t mappedSize;
-	ByteArray fileMemory;
-
-	Elf64_Ehdr *elfHeader;
-	MODULE_INFO moduleInfo;
-
+	const FileList &getNeededFiles() const;
+	const std::vector<size_t> &getExportSymbols() const;
+	std::vector<size_t> &getExportSymbols();
+	const UtilMemory::memory_uptr &getMappedMemory() const;
+	UtilMemory::memory_uptr &getMappedMemory();
+	const MODULE_INFO &getModuleInfo() const;
 	MODULE_INFO &getModuleInfo();
+	const ByteArray &getFileMemory() const;
+	ByteArray &getFileMemory();
+	bool isModule();
+
 	bool getImportSymbolInfo(std::string const &encSymbol,
 							 std::string *modName,
 							 std::string *libName,
@@ -147,6 +162,8 @@ struct MemoryMappedModule
 	bool getSymbol(std::string const &encName,
 				   SymbolInfo const **symbolInfo) const;
 	bool getSymbol(size_t index, SymbolInfo const **symbolInfo) const;
+	bool isEncodedSymbol(std::string const &symbolName) const;
+	int initialize();
 
 private:
 	bool getSymbolInfo(std::string const &encSymbol,
@@ -170,4 +187,26 @@ private:
 					  uint *modId,
 					  uint *libId,
 					  uint64_t *funcNid) const;
+
+
+
+private:
+	SegmentHeaderList segmentHeaders;
+	LibraryList importLibraries;
+	LibraryList exportLibraries;
+
+	ModuleList importModules;
+	ModuleList exportModules;
+	FileList neededFiles;
+
+	SymbolList symbols;
+	NameSymbolIndexMap nameSymbolMap;
+	std::vector<size_t> exportSymbols;
+
+	UtilMemory::memory_uptr mappedMemory;
+	size_t mappedSize;
+	ByteArray fileMemory;
+
+	Elf64_Ehdr *elfHeader;
+	MODULE_INFO moduleInfo;
 };

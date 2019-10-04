@@ -17,14 +17,14 @@ public:
 					   void **ppAddress) const;
 
 	bool resolveSymbol(MemoryMappedModule const &mod,
-					   std::string const &encName,
+					   std::string const &name,
 					   uint64_t *addr) const;
 
 	bool relocateModules();
 
 private:
-	bool relocateModule(MemoryMappedModule const &mod);
-	bool relocateRela(MemoryMappedModule const &mod);
-	bool relocatePltRela(MemoryMappedModule const &mod);
+	bool relocateModule(MemoryMappedModule &mod);
+	bool relocateRela(MemoryMappedModule &mod);
+	bool relocatePltRela(MemoryMappedModule &mod);
 	CSceModuleSystem &m_modSystem;
 };

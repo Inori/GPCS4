@@ -42,20 +42,32 @@ private:
 	typedef std::unordered_map<std::string, ModuleRecord> SceOverridableMapNid;
 	typedef std::unordered_map<std::string, MemoryMappedModule> SceMappedModuleMap;
 
+	typedef std::vector<MemoryMappedModule> SceMappedModuleList;
+	typedef std::unordered_map<std::string, size_t> SceModuleNameIndexMap;
+
 public:
 
 	bool RegisterModule(const SCE_EXPORT_MODULE& stModule);
 
 	bool registerFunction(std::string const &modName, std::string const &libName, uint64_t nid, void *p);
 
+	bool registerSymbol(std::string const &modName,
+						std::string const &libName,
+						std::string const &symbolName,
+						void *p);
+
 	// I use rvalue reference here to express "sink" semantics, which means the container would take ownership
 	// of the object after registeration and the original one would no longer be valid.
 	bool registerMemoryMappedModule(std::string const &modName, MemoryMappedModule &&mod);
-	SceMappedModuleMap &getMemoryMappedModules();
+
+	bool isMemoryMappedModuleLoaded(std::string const &modName);
+
+	SceMappedModuleList &getMemoryMappedModules();
 
 	bool GetMemoryMappedModule(std::string const &modName, MemoryMappedModule **ppMod);
 	
 	void* FindFunction(const std::string& strModName, const std::string& strLibName, uint64 nNid);
+	void *findSymbol(std::string const &modName, std::string const &libName, std::string const &symbolName);
 
 	bool IsModuleLoaded(const std::string& modName);
 
@@ -94,9 +106,12 @@ private:
 	SceModuleMapName m_umpModuleMapName;
 
 	SceOverridableMapNid m_overridableModules;
-	SceMappedModuleMap m_mappedModules;
+	//SceMappedModuleMap m_mappedModules;
 
 	SceAllowedFileMap m_allowedFiles;
+
+	SceMappedModuleList m_mappedModules;
+	SceModuleNameIndexMap m_mappedModuleNameIndexMap;
 
 private:
 	CSceModuleSystem();

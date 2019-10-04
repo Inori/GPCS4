@@ -25,9 +25,10 @@ private:
 	bool registerSymbol(MemoryMappedModule const &mod,
 						std::string const &encName,
 						void *pointer);
-
+	bool registerSymbol(MemoryMappedModule const &mod, size_t idx);
 	bool relocateRela(MemoryMappedModule const &mod) const;
 	bool relocatePltRela(MemoryMappedModule const &mod) const;
+	bool initializeModules();
 
 	std::queue<std::string> m_filesToLoad;
 	CSceModuleSystem &m_modSystem;

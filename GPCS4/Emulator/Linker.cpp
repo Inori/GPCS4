@@ -31,7 +31,7 @@ bool CLinker::ResolveSymbol(const std::string &strModName,
 }
 
 bool CLinker::resolveSymbol(MemoryMappedModule const &mod,
-							std::string const &encName,
+							std::string const &name,
 							uint64_t *addr) const
 {
 	bool retVal = false;
@@ -41,23 +41,37 @@ bool CLinker::resolveSymbol(MemoryMappedModule const &mod,
 		const SymbolInfo *info = nullptr;
 		void *address          = nullptr;
 
-		retVal = mod.getSymbol(encName, &info);
-		if (!retVal)
+		if (addr == nullptr)
 		{
-			LOG_ERR("fail to find symbol");
+			LOG_ERR("null pointer");
 			break;
 		}
 
-		retVal = ResolveSymbol(info->moduleName, info->libraryName, info->nid,
-							   &address);
+		retVal = mod.getSymbol(name, &info);
 		if (!retVal)
 		{
-			LOG_ERR("fail to resolve symbol: %s", encName.c_str());
+			LOG_ERR("fail to find symbol: %s", name.c_str());
+			break;
+		}
+
+		if (!info->isEncoded)
+		{
+			address = m_modSystem.findSymbol(info->moduleName, info->libraryName,
+								   info->moduleName);
+		}
+		else
+		{
+			address = m_modSystem.FindFunction(info->moduleName, info->libraryName,
+											   info->nid);
+		}
+
+		if (address == nullptr)
+		{
+			LOG_ERR("fail to resolve symbol: %s", name.c_str());
 			break;
 		}
 
 		*addr = reinterpret_cast<uint64_t>(address);
-
 		retVal = true;
 	} while (false);
 
@@ -69,12 +83,12 @@ bool CLinker::relocateModules()
 	auto &mods  = m_modSystem.getMemoryMappedModules();
 	bool retVal = false;
 
-	for (auto const &mod : mods)
+	for (auto &mod : mods)
 	{
-		retVal = relocateModule(mod.second);
+		retVal = relocateModule(mod);
 		if (retVal == false)
 		{
-			LOG_ERR("fail to relocate module: %s", mod.first.c_str());
+			LOG_ERR("fail to relocate module: %s", mod.fileName.c_str());
 			break;
 		}
 	}
@@ -82,7 +96,7 @@ bool CLinker::relocateModules()
 	return retVal;
 }
 
-bool CLinker::relocateModule(MemoryMappedModule const &mod)
+bool CLinker::relocateModule(MemoryMappedModule &mod)
 {
 	bool retVal = false;
 
@@ -94,17 +108,17 @@ bool CLinker::relocateModule(MemoryMappedModule const &mod)
 	return retVal;
 }
 
-bool CLinker::relocateRela(MemoryMappedModule const &mod)
+bool CLinker::relocateRela(MemoryMappedModule &mod)
 {
 	bool retVal = false;
 	do
 	{
-		if (mod.fileMemory.empty())
+		if (mod.getFileMemory().empty())
 		{
 			break;
 		}
 
-		auto &info = mod.moduleInfo;
+		auto &info = mod.getModuleInfo();
 
 		byte *pImageBase         = info.pCodeAddr;
 		byte *pStrTab            = info.pStrTab;
@@ -176,13 +190,13 @@ bool CLinker::relocateRela(MemoryMappedModule const &mod)
 	return retVal;
 }
 
-bool CLinker::relocatePltRela(MemoryMappedModule const &mod)
+bool CLinker::relocatePltRela(MemoryMappedModule &mod)
 {
 	bool bRet = false;
 	do
 	{
-		auto &fileData = mod.fileMemory;
-		auto &info     = mod.moduleInfo;
+		auto &fileData = mod.getFileMemory();
+		auto &info     = mod.getModuleInfo();
 
 		if (fileData.empty())
 		{
