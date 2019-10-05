@@ -4,40 +4,40 @@
 #include <algorithm>
 
 
-const MODULE_INFO &MemoryMappedModule::getModuleInfo() const { return moduleInfo; }
-MODULE_INFO &MemoryMappedModule::getModuleInfo() { return moduleInfo; }
+const MODULE_INFO &MemoryMappedModule::getModuleInfo() const { return m_moduleInfo; }
+MODULE_INFO &MemoryMappedModule::getModuleInfo() { return m_moduleInfo; }
 
-const ByteArray &MemoryMappedModule::getFileMemory() const { return fileMemory; }
-ByteArray &MemoryMappedModule::getFileMemory() { return fileMemory; }
+const ByteArray &MemoryMappedModule::getFileMemory() const { return m_fileMemory; }
+ByteArray &MemoryMappedModule::getFileMemory() { return m_fileMemory; }
 
 bool MemoryMappedModule::isModule()
 {
-	return elfHeader->e_type == ET_SCE_DYNAMIC ? true : false;
+	return m_elfHeader->e_type == ET_SCE_DYNAMIC ? true : false;
 }
 
 const FileList &MemoryMappedModule::getNeededFiles() const
 {
-	return neededFiles; 
+	return m_neededFiles; 
 }
 
 const std::vector<size_t> &MemoryMappedModule::getExportSymbols() const
 {
-	return exportSymbols;
+	return m_exportSymbols;
 }
 
 std::vector<size_t> &MemoryMappedModule::getExportSymbols()
 {
-	return exportSymbols; 
+	return m_exportSymbols; 
 }
 
 const UtilMemory::memory_uptr &MemoryMappedModule::getMappedMemory() const
 {
-	return mappedMemory;
+	return m_mappedMemory;
 }
 
 UtilMemory::memory_uptr &MemoryMappedModule::getMappedMemory()
 {
-	return mappedMemory;
+	return m_mappedMemory;
 }
 
 bool MemoryMappedModule::getImportSymbolInfo(std::string const &encSymbol,
@@ -45,7 +45,7 @@ bool MemoryMappedModule::getImportSymbolInfo(std::string const &encSymbol,
 											 std::string *libName,
 											 uint64_t *nid) const
 {
-	return getSymbolInfo(encSymbol, importModules, importLibraries, modName,
+	return getSymbolInfo(encSymbol, m_importModules, m_importLibraries, modName,
 						 libName, nid);
 }
 
@@ -54,7 +54,7 @@ bool MemoryMappedModule::getExportSymbolInfo(std::string const &encSymbol,
 											 std::string *libName,
 											 uint64_t *nid) const
 {
-	return getSymbolInfo(encSymbol, exportModules, exportLibraries, modName,
+	return getSymbolInfo(encSymbol, m_exportModules, m_exportLibraries, modName,
 						 libName, nid);
 }
 
@@ -62,14 +62,14 @@ bool MemoryMappedModule::getSymbol(std::string const &encName,
 								   SymbolInfo const **symbolInfo) const
 {
 	bool retVal = false;
-	if (nameSymbolMap.count(encName) == 0)
+	if (m_nameSymbolMap.count(encName) == 0)
 	{
 		retVal = false;
 	}
 	else
 	{
-		auto idx    = nameSymbolMap.at(encName);
-		*symbolInfo = &symbols[idx];
+		auto idx    = m_nameSymbolMap.at(encName);
+		*symbolInfo = &m_symbols[idx];
 		retVal      = true;
 	}
 
@@ -321,9 +321,9 @@ bool MemoryMappedModule::isEncodedSymbol(std::string const &symbolName) const
 int MemoryMappedModule::initialize() 
 { 
 	int retVal = 0;
-	if (isModule() && moduleInfo.pEntryPoint != nullptr)
+	if (isModule() && m_moduleInfo.pEntryPoint != nullptr)
 	{
-		auto ep = reinterpret_cast<intialize_func>(moduleInfo.pEntryPoint);
+		auto ep = reinterpret_cast<intialize_func>(m_moduleInfo.pEntryPoint);
 		retVal = ep(0, nullptr, nullptr);
 	}
 
@@ -334,13 +334,13 @@ bool MemoryMappedModule::getSymbol(size_t index,
 								   SymbolInfo const **symbolInfo) const
 {
 	bool retVal = false;
-	if (index > symbols.size() - 1)
+	if (index > m_symbols.size() - 1)
 	{
 		retVal = false;
 	}
 	else
 	{
-		*symbolInfo = &symbols[index];
+		*symbolInfo = &m_symbols[index];
 		retVal      = true;
 	}
 

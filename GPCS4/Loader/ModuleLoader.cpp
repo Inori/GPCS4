@@ -1,4 +1,5 @@
 #include "ModuleLoader.h"
+#include "Platform/PlatformUtils.h"
 
 ModuleLoader::ModuleLoader(CSceModuleSystem &modSystem)
 	: m_modSystem(modSystem), m_linker(modSystem)
@@ -140,7 +141,8 @@ bool ModuleLoader::loadDependencies()
 		}
 
 		std::string path = {};
-		retVal           = mapModuleNameToFilePath(fileName, &path);
+
+		retVal = mapModuleNameToFilePath(fileName, &path);
 		if (!retVal)
 		{
 			LOG_ERR("Unable to locate file %s", fileName.c_str());
@@ -169,12 +171,30 @@ bool ModuleLoader::addDepedenciesToLoad(MemoryMappedModule const &mod)
 	return true;
 }
 
+// TODO: This is a temporary implenmentation
 bool ModuleLoader::mapModuleNameToFilePath(std::string const &modName,
 										   std::string *path)
 {
-	LOG_FIXME("Test only implementation");
-	*path = modName;
-	return true;
+	std::string fileName  = {};
+	std::string extension = {};
+
+	bool retVal = false;
+
+	do
+	{
+		retVal = UtilPath::splitFileName(modName, &fileName, &extension);
+		if (retVal == false)
+		{
+			break;
+		}
+
+		auto outName = UtilString::Format("lib\\%s.sprx", fileName.c_str());
+
+		*path = std::move(outName);
+		retVal = true;
+	} while (false);
+
+	return retVal;
 }
 
 bool ModuleLoader::mapFilePathToModuleName(std::string const &filePath,
@@ -241,15 +261,12 @@ bool ModuleLoader::registerSymbol(MemoryMappedModule const &mod, size_t idx)
 
 	if (info->isEncoded)
 	{
-		m_modSystem.registerFunction(info->moduleName,
-									 info->libraryName,
-									 info->nid,
+		m_modSystem.registerFunction(info->moduleName, info->libraryName, info->nid,
 									 reinterpret_cast<void *>(info->address));
 	}
 	else
 	{
-		m_modSystem.registerSymbol(info->moduleName,
-								   info->libraryName,
+		m_modSystem.registerSymbol(info->moduleName, info->libraryName,
 								   info->symbolName,
 								   reinterpret_cast<void *>(info->address));
 	}
@@ -317,8 +334,7 @@ bool ModuleLoader::relocateRela(MemoryMappedModule const &mod) const
 					LOG_ERR("invalid sym bingding %d", nBinding);
 				}
 
-				*(uint64 *)&pImageBase[pRela->r_offset] =
-					nSymVal + pRela->r_addend;
+				*(uint64 *)&pImageBase[pRela->r_offset] = nSymVal + pRela->r_addend;
 			}
 			break;
 			case R_X86_64_RELATIVE:
@@ -373,8 +389,8 @@ bool ModuleLoader::relocatePltRela(MemoryMappedModule const &mod) const
 
 				if (binding == STB_LOCAL)
 				{
-					symValue = reinterpret_cast<uint64_t>(pImageBase +
-														  symbol.st_value);
+					symValue =
+						reinterpret_cast<uint64_t>(pImageBase + symbol.st_value);
 				}
 				else if (binding == STB_GLOBAL || binding == STB_WEAK)
 				{
@@ -406,8 +422,8 @@ bool ModuleLoader::relocatePltRela(MemoryMappedModule const &mod) const
 }
 
 bool ModuleLoader::initializeModules()
-{ 
-	auto &mods = m_modSystem.getMemoryMappedModules(); 
+{
+	auto &mods  = m_modSystem.getMemoryMappedModules();
 	bool retVal = true;
 
 	// skip eboot.bin
@@ -416,7 +432,7 @@ bool ModuleLoader::initializeModules()
 		int ret = mods[i].initialize();
 		if (ret != 0)
 		{
-			LOG_ERR("unable to initialize module %s. ret=%d", 
+			LOG_ERR("unable to initialize module %s. ret=%d",
 					mods[i].fileName.c_str(), ret);
 			retVal = false;
 			break;
@@ -425,7 +441,6 @@ bool ModuleLoader::initializeModules()
 
 	return retVal;
 }
-
 
 bool ModuleLoader::relocateModule(MemoryMappedModule const &mod) const
 {

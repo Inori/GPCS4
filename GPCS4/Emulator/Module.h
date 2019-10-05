@@ -191,22 +191,22 @@ private:
 
 
 private:
-	SegmentHeaderList segmentHeaders;
-	LibraryList importLibraries;
-	LibraryList exportLibraries;
+	SegmentHeaderList m_segmentHeaders;
+	LibraryList m_importLibraries;
+	LibraryList m_exportLibraries;
 
-	ModuleList importModules;
-	ModuleList exportModules;
-	FileList neededFiles;
+	ModuleList m_importModules;
+	ModuleList m_exportModules;
+	FileList m_neededFiles;
 
-	SymbolList symbols;
-	NameSymbolIndexMap nameSymbolMap;
-	std::vector<size_t> exportSymbols;
+	SymbolList m_symbols;
+	NameSymbolIndexMap m_nameSymbolMap;
+	std::vector<size_t> m_exportSymbols;
 
-	UtilMemory::memory_uptr mappedMemory;
-	size_t mappedSize;
-	ByteArray fileMemory;
+	UtilMemory::memory_uptr m_mappedMemory;
+	size_t m_mappedSize;
+	ByteArray m_fileMemory;
 
-	Elf64_Ehdr *elfHeader;
-	MODULE_INFO moduleInfo;
+	Elf64_Ehdr *m_elfHeader;
+	MODULE_INFO m_moduleInfo;
 };

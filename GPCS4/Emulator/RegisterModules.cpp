@@ -73,8 +73,8 @@ bool CEmulator::RegisterModules()
 		// TODO: Set libc module&libaray as overridable for linker test only. Remember to 
 		// remove this.
 
+		//ALLOW_OVERRIDE("libkernel");
 		ALLOW_OVERRIDE("libc");
-		ALLOW_OVERRIDE("libkernel");
 		ALLOW_OVERRIDE("libSceGnmDriver");
 		ALLOW_OVERRIDE("libSceLibcInternal");
 		ALLOW_OVERRIDE("libScePad");

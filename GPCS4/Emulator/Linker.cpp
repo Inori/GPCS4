@@ -67,7 +67,8 @@ bool CLinker::resolveSymbol(MemoryMappedModule const &mod,
 
 		if (address == nullptr)
 		{
-			LOG_ERR("fail to resolve symbol: %s", name.c_str());
+			LOG_ERR("fail to resolve symbol: %s from %s for module %s",
+					name.c_str(), info->moduleName.c_str(), mod.fileName.c_str());
 			break;
 		}
 
@@ -156,7 +157,6 @@ bool CLinker::relocateRela(MemoryMappedModule &mod)
 				{
 					char *pName = (char *)&pStrTab[symbol.st_name];
 					LOG_DEBUG("RELA symbol: %s", pName);
-					// if (!ResolveSymbol(pName, nSymVal))
 					if (!resolveSymbol(mod, pName, &nSymVal))
 					{
 						LOG_ERR("can not get symbol address.");
@@ -230,7 +230,6 @@ bool CLinker::relocatePltRela(MemoryMappedModule &mod)
 				else if (nBinding == STB_GLOBAL || nBinding == STB_WEAK)
 				{
 					char *pName = (char *)&pStrTab[symbol.st_name];
-					// if (!ResolveSymbol(pName, nSymVal))
 					LOG_DEBUG("PLT RELA symbol: %s", pName);
 					if (!resolveSymbol(mod, pName, &nSymVal))
 					{
