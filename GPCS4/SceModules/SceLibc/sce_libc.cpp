@@ -264,6 +264,11 @@ int PS4API scec_wcstombs(void)
 }
 
 
+int PS4API scec_roundf(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
 
 //////////////////////////////////////////////////////////////////////////
 // library: libc_setjmp

@@ -305,5 +305,83 @@ int PS4API sceGnmComputeWaitSemaphore(void);
 int PS4API sceGnmLogicalTcaUnitToPhysical(void);
 
 
+int PS4API sceGnmFindResourcesPublic(void);
+
+
+int PS4API sceGnmGetOwnerName(void);
+
+
+int PS4API sceGnmGetResourceBaseAddressAndSizeInBytes(void);
+
+
+int PS4API sceGnmGetResourceName(void);
+
+
+int PS4API sceGnmGetResourceShaderGuid(void);
+
+
+int PS4API sceGnmGetResourceType(void);
+
+
+int PS4API sceGnmGetResourceUserData(void);
+
+
+int PS4API sceGnmQueryResourceRegistrationUserMemoryRequirements(void);
+
+
+int PS4API sceGnmRegisterGdsResource(void);
+
+
+int PS4API sceGnmRegisterOwner(void);
+
+
+int PS4API sceGnmRegisterResource(void);
+
+
+int PS4API sceGnmSetResourceRegistrationUserMemory(void);
+
+
+int PS4API sceGnmSetResourceUserData(void);
+
+
+int PS4API sceGnmUnregisterAllResourcesForOwner(void);
+
+
+int PS4API sceGnmUnregisterOwnerAndResources(void);
+
+
+int PS4API sceGnmUnregisterResource(void);
+
+
+int PS4API _import_060337B772EF70D9(void);
+
+
+int PS4API sceGnmValidateDisableDiagnostics(void);
+
+
+int PS4API sceGnmValidateDispatchCommandBuffers(void);
+
+
+int PS4API sceGnmValidateDrawCommandBuffers(void);
+
+
+int PS4API sceGnmValidateGetDiagnosticInfo(void);
+
+
+int PS4API sceGnmValidateGetDiagnostics(void);
+
+
+int PS4API sceGnmValidateGetVersion(void);
+
+
+int PS4API sceGnmValidateOnSubmitEnabled(void);
+
+
+int PS4API sceGnmValidateResetState(void);
+
+
+int PS4API sceGnmValidationRegisterMemoryCheckCallback(void);
+
+
 
 
