@@ -184,7 +184,7 @@ And based on the above Sony's style, we add the following extra rules, to make o
    It's better to make a high level design first in your mind and then coding,  
    like which class responsable for which job.  
    Do not just write what comes your mind directly and hastily.  
-   It will make your code looks messy and hard to understand.  
+   It will make your code looks messy and hard to maintian.  
    If you are not sure how to design, we can discuss first.
 
 2. Functions should return simple type, like `void`, `bool`, `uint32_t`.
