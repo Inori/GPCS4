@@ -49,6 +49,9 @@ public:
 	virtual void drawIndexAuto(uint32_t indexCount) override;
 
 	virtual void prepareFlip(void *labelAddr, uint32_t value) override;
+	virtual void prepareFlipWithEopInterrupt(EndOfPipeEventType eventType,
+		void *labelAddr, uint32_t value,
+		CacheAction cacheAction) override;
 
 	virtual void writeAtEndOfPipe(EndOfPipeEventType eventType,
 		EventWriteDest dstSelector, void *dstGpuAddr,
@@ -61,6 +64,8 @@ public:
 		CacheAction cacheAction, CachePolicy cachePolicy) override;
 
 	virtual void waitUntilSafeForRendering(uint32_t videoOutHandle, uint32_t displayBufferIndex) override;
+
+
 
 
 private:
