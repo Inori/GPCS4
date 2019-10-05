@@ -1,17 +1,24 @@
 #include "sce_libc.h"
+#include "Platform/PlatformUtils.h"
 
-
-int PS4API scec_fseek(void)
+FILE* PS4API scec_fopen(const char *pathname, const char *mode)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("fname %s mode %s", pathname, mode);
+	auto pcPath = UtilPath::PS4PathToPCPath(pathname);
+	return fopen(pcPath.c_str(), mode);
+}
+
+int PS4API scec_fseek(FILE *stream, long offset, int whence)
+{
+	LOG_SCE_TRACE("fp %p off %d whence %d", stream, offset, whence);
+	return fseek(stream, offset, whence);
 }
 
 
-int PS4API scec_ftell(void)
+size_t PS4API scec_fread(void *ptr, size_t size, size_t nmemb, FILE *stream)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("fp %p size %d", stream, size);
+	return fread(ptr, size, nmemb, stream);
 }
 
 
@@ -22,10 +29,17 @@ size_t PS4API scec_fwrite(const void *ptr, size_t size, size_t nmemb, FILE* stre
 }
 
 
-int PS4API scec_fclose(void)
+long PS4API scec_ftell(FILE *stream)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("fp %p", stream);
+	return ftell(stream);
+}
+
+
+int PS4API scec_fclose(FILE *stream)
+{
+	LOG_SCE_TRACE("fp %p", stream);
+	return fclose(stream);
 }
 
 
@@ -37,13 +51,6 @@ int PS4API scec_feof(void)
 
 
 int PS4API scec_fgetc(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scec_fopen(void)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
@@ -67,13 +74,6 @@ int PS4API scec_fputc(int c, FILE *stream)
 
 
 int PS4API scec_fputs(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-int PS4API scec_fread(void)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;

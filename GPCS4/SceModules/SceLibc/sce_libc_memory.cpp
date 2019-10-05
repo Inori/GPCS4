@@ -1,10 +1,10 @@
 #include "sce_libc.h"
 
 
-int PS4API scec_malloc(void)
+void* PS4API scec_malloc(size_t size)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("size %d", size)
+	return malloc(size);
 }
 
 
@@ -15,9 +15,9 @@ int PS4API scec_realloc(void)
 }
 
 
-int PS4API scec_free(void)
+void PS4API scec_free(void *ptr)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("ptr %p", ptr)
+	return free(ptr);
 }
 

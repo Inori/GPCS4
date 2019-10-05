@@ -139,7 +139,7 @@ float PS4API scec_exp2f(float arg);
 
 float PS4API scec_expf(float x);
 
-int PS4API scec_fclose(void);
+int PS4API scec_fclose(FILE *stream);
 
 int PS4API scec_feof(void);
 
@@ -149,7 +149,7 @@ int PS4API scec_fmod(void);
 
 int PS4API scec_fmodf(void);
 
-int PS4API scec_fopen(void);
+FILE* PS4API scec_fopen(const char *pathname, const char *mode);
 
 int PS4API scec_fprintf(void);
 
@@ -157,15 +157,15 @@ int PS4API scec_fputc(int c, FILE *stream);
 
 int PS4API scec_fputs(void);
 
-int PS4API scec_fread(void);
+size_t PS4API scec_fread(void *ptr, size_t size, size_t nmemb, FILE *stream);
 
-int PS4API scec_free(void);
+void PS4API scec_free(void *ptr);
 
 int PS4API scec_frexp(void);
 
-int PS4API scec_fseek(void);
+int PS4API scec_fseek(FILE *stream, long offset, int whence);
 
-int PS4API scec_ftell(void);
+long PS4API scec_ftell(FILE *stream);
 
 size_t PS4API scec_fwrite(const void *ptr, size_t size, size_t nmemb, FILE* stream);
 
@@ -175,7 +175,7 @@ int PS4API scec_ldexp(void);
 
 int PS4API scec_longjmp(void);
 
-int PS4API scec_malloc(void);
+void* PS4API scec_malloc(size_t size);
 
 int PS4API scec_mblen(void);
 
