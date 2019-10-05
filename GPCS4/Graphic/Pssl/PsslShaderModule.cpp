@@ -18,7 +18,7 @@ PsslShaderModule::PsslShaderModule(const uint32_t* code, const std::vector<PsslS
 	m_progInfo((const uint8_t*)code),
 	m_shaderResourceTable(shaderResTab)
 {
-#ifdef GPCS4_DUMP_SHADER
+#ifdef PSSL_DUMP_SHADER
 	dumpShader(m_progInfo.shaderType(), (const uint8_t*)code, m_progInfo.codeSizeBytes());
 #endif  // GPCS4_DUMP_SHADER
 }
