@@ -28,8 +28,13 @@ namespace bit {
     n = popcntStep(n, 0x0000FFFF, 16);
     return n;
   }
-  
-  extern unsigned int     _tzcnt_u32(unsigned int);
+
+// TODO:
+// This is an ugly hack, I don't know why I can't compile when using clang 9
+// if declare this function.
+#if (__clang_major__ < 9)
+  extern unsigned int _tzcnt_u32(unsigned int);
+#endif // __clang_major__ < 9
 
   inline uint32_t tzcnt(uint32_t n) {
     #if defined(_MSC_VER)

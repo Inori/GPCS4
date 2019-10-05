@@ -383,7 +383,7 @@ int PS4API scec_wcsncpy(void);
 
 int PS4API scec_wcstombs(void);
 
-
+int PS4API scec_roundf(void);
 
 //////////////////////////////////////////////////////////////////////////
 // library: libc_setjmp

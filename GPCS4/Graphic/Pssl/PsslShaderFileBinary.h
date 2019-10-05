@@ -47,7 +47,7 @@ enum ShaderInputUsageType
 #pragma pack(push, 4)
 struct InputUsageSlot
 {
-	uint8_t usageType;
+	uint8_t usageType;  // ShaderInputUsageType
 	uint8_t apiSlot;
 	uint8_t startRegister;
 
@@ -55,8 +55,8 @@ struct InputUsageSlot
 	{
 		struct
 		{
-			uint8_t registerCount	: 1;  //0 for 4DW; 1 for 8DW; Other count depend on usageType
-			uint8_t resourceType	: 1;
+			uint8_t registerCount	: 1;  // 0 for 4DW; 1 for 8DW; Other count depend on usageType
+			uint8_t resourceType	: 1;  // If 0, resource type V#; if 1, resource type T#, in case of a Gnm::kShaderInputUsageImmResource.
 			uint8_t reserved		: 2;
 			uint8_t chunkMask		: 4;
 		};

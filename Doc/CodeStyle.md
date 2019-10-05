@@ -6,16 +6,16 @@
 Basically, the code style is based on Sony's style.  
 
 For example:
-1. Use lower camel case for `varable` and `function` name.  
+1. Use lower camel case for `variable` and `function` name.  
    like: `uint8_t shaderModifier;`, `void generateVsFetchShader();`
 
 2. Use upper camel case for `class`, `enum` and `struct` name.  
    like: `class ConstantUpdateEngine;`, `enum PsslType;`, `struct VsStageRegisters;`
 
-3. Use `m_` prefix for class member varable,   
+3. Use `m_` prefix for class member variable,   
    like: `void* m_cmdptr`  
 
-   Use `g_` prefix for global varable,  
+   Use `g_` prefix for global variable,  
    like: `SceModule g_moduleLibc`  
 
 4. Use stdint types  
@@ -89,7 +89,7 @@ And based on the above Sony's style, we add the following extra rules, to make o
     }
     ```
 
-3. Do not write code nested more than 3 layers. Write nested statement as few      as possible.  
+3. Do not write code nested more than 3 layers (`do{} while(false);` not included). Write nested statement as few as possible.  
 
    You can use `break` or `continue` to cancel nested code, or write a new function if necessary.
    
@@ -164,11 +164,18 @@ And based on the above Sony's style, we add the following extra rules, to make o
         }
     }
    ```
-4. Do not write a function longer than your sceen's height. Typically 50-80 lines at most.
+4. Do not write a function longer than your sceen's height. Typically 50-80 lines at most.  
+   Some table type functions not included, like a big `switch` statement.
 
 5. Add brace to `if`, `while` statement even if it has only one line of code followed.
 
 6. Do not use magic numbers directly, give it a meaningful name.
+
+7. Local variables should be initialized when defined.
+
+8. Do not use `goto`, use `do {} while(false)` instead.
+
+9. Do not use C++ exception.
 
 
 ## Rules recommended:
@@ -180,7 +187,11 @@ And based on the above Sony's style, we add the following extra rules, to make o
 
 3. Use macros as few as possible.
 
+4. Make a variable's scope as small as possible.  
+   If you can use a local variable, don't make it a class member.  
+   If you can use a class member, don't make it global. And so on.
 
 
-PS1: Forget about some old Hungarian notation style code, I'll fix that once I have time.  
-PS2: Third party library code is not limited by the above rules.
+
+PS1: Third party library code is not limited by the above rules.  
+PS2: Forget about some old Hungarian notation style code, I'll fix that once I have time.

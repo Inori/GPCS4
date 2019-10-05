@@ -19,7 +19,7 @@ GveCommandBuffer::~GveCommandBuffer()
 bool GveCommandBuffer::initCommandBuffer()
 {
 	bool ret = false;
-	do 
+	do
 	{
 		auto phyDevice = m_device->getPhysicalDevice();
 		GvePhysicalDeviceQueueFamilies families = phyDevice->findQueueFamilies();
@@ -27,7 +27,7 @@ bool GveCommandBuffer::initCommandBuffer()
 		VkCommandPoolCreateInfo poolInfo = {};
 		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 		poolInfo.queueFamilyIndex = families.graphicsFamily;
-		if (vkCreateCommandPool(*m_device, &poolInfo, nullptr, &m_pool) != VK_SUCCESS) 
+		if (vkCreateCommandPool(*m_device, &poolInfo, nullptr, &m_pool) != VK_SUCCESS)
 		{
 			LOG_ERR("failed to create graphics command pool!");
 			break;
@@ -39,7 +39,7 @@ bool GveCommandBuffer::initCommandBuffer()
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		allocInfo.commandBufferCount = 1;
 
-		if (vkAllocateCommandBuffers(*m_device, &allocInfo, &m_cmd) != VK_SUCCESS) 
+		if (vkAllocateCommandBuffers(*m_device, &allocInfo, &m_cmd) != VK_SUCCESS)
 		{
 			LOG_ERR("failed to allocate command buffers!");
 			break;
@@ -49,5 +49,36 @@ bool GveCommandBuffer::initCommandBuffer()
 	} while (false);
 	return ret;
 }
+
+void GveCommandBuffer::beginRecording()
+{
+	do 
+	{
+		if (vkResetCommandPool(*m_device, m_pool, 0) != VK_SUCCESS)
+		{
+			LOG_ERR("reset command pool failed.");
+			break;
+		}
+
+		VkCommandBufferBeginInfo info;
+		info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		info.pNext = nullptr;
+		info.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+		info.pInheritanceInfo = nullptr;
+		if (vkBeginCommandBuffer(m_cmd, &info) != VK_SUCCESS)
+		{
+			LOG_ERR("begin command buffer failed.");
+			break;
+		}
+
+	} while (false);
+}
+
+void GveCommandBuffer::endRecording()
+{
+	vkEndCommandBuffer(m_cmd);
+}
+
+
 
 }  // namespace gve

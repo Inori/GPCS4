@@ -4,6 +4,8 @@
 #include "PsslShaderStructure.h"
 #include "PsslEnums.h"
 #include "PsslKey.h"
+#include "vulkan/vulkan.h"
+#include "../SpirV/spirv.hpp"
 
 namespace pssl
 {;
@@ -15,28 +17,34 @@ public:
 	PsslProgramInfo(const uint8_t* code);
 	~PsslProgramInfo();
 
-	uint32_t getCodeSizeBytes() const;
+	uint32_t codeSizeBytes() const;
 
-	uint32_t getCodeSizeDwords() const;
+	uint32_t codeSizeDwords() const;
 
 	bool hasFetchShader();
 
-	PsslProgramType getShaderType() const;
+	PsslProgramType shaderType() const;
 
-	PsslKey getKey() const;
+	PsslKey key() const;
 
-	uint32_t getInputUsageSlotCount() const;
+	uint32_t inputUsageSlotCount() const;
 
-	const InputUsageSlot* getInputUsageSlot(uint32_t idx) const;
+	const InputUsageSlot* inputUsageSlot(uint32_t idx) const;
 
-	std::vector<InputUsageSlot> getInputUsageSlot() const;
+	std::vector<InputUsageSlot> inputUsageSlot() const;
+
+	VkShaderStageFlagBits shaderStage() const;
+
+	spv::ExecutionModel executionModel() const;
 
 private:
 	bool initBinaryInfo(const uint8_t* code);
+	bool initShaderType();
 
 private:
 	ShaderBinaryInfo m_shaderBinaryInfo;
 	std::vector<InputUsageSlot> m_inputUsageSlots;
+	PsslProgramType m_type;
 };
 
 // return UINT_MAX means no fetch shader

@@ -225,6 +225,7 @@ bool CTLSHandler::BuildTLSBackup(void* pTls, uint nInitSize, uint nTotalSize)
 	{
 		if (!pTls || !nInitSize || !nTotalSize)
 		{
+			bRet = true;  // No TLS, mainly some sdk demos.
 			break;
 		}
 

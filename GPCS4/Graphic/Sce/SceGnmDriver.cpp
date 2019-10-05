@@ -35,6 +35,8 @@ SceGnmDriver::~SceGnmDriver()
 {
 	m_commandBuffers.clear();
 	m_commandParsers.clear();
+	m_frameBuffers.clear();
+	m_contexts.clear();
 }
 
 bool SceGnmDriver::initDriver(uint32_t bufferNum)
@@ -63,16 +65,10 @@ int SceGnmDriver::submitAndFlipCommandBuffers(uint32_t count,
 		LOG_ASSERT(count == 1, "Currently only support only 1 cmdbuff.");
 
 		auto& cmdParser = m_commandParsers[displayBufferIndex];
-		GnmCommandBuffer* gnmCmd = cmdParser->getCommandBuffer().get();
-
-		beginProcessCmd(gnmCmd);
-
 		if (!cmdParser->processCommandBuffer((uint32_t*)dcbGpuAddrs[0], dcbSizesInBytes[0]))
 		{
 			break;
 		}
-
-		endProcessCmd(gnmCmd);
 	
 		err = SCE_OK;
 	} while (false);
@@ -82,16 +78,6 @@ int SceGnmDriver::submitAndFlipCommandBuffers(uint32_t count,
 int SceGnmDriver::sceGnmSubmitDone(void)
 {
 	return SCE_OK;
-}
-
-void SceGnmDriver::beginProcessCmd(GnmCommandBuffer* gnmCmd)
-{
-	auto context = gnmCmd->getContext();
-}
-
-void SceGnmDriver::endProcessCmd(GnmCommandBuffer* gnmCmd)
-{
-	auto context = gnmCmd->getContext();
 }
 
 RcPtr<gve::GvePhysicalDevice> SceGnmDriver::pickPhysicalDevice()
@@ -158,28 +144,10 @@ void SceGnmDriver::createFrameBuffers(uint32_t count)
 	format.swapChainImageFormat = m_swapchain->imageFormat();
 	auto renderPass = m_device->createRenderPass(format);
 
-	for (uint32_t i = 0; i != count; ++i) 
+	for (uint32_t i = 0; i != count; ++i)
 	{
-		VkImageView swapchainImgView = m_swapchain->getImageView(i);
-		VkImageView attachments[] = 
-		{
-			swapchainImgView
-		};
-
-		VkFramebufferCreateInfo framebufferInfo = {};
-		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-		framebufferInfo.renderPass = renderPass->handle();
-		framebufferInfo.attachmentCount = 1;
-		framebufferInfo.pAttachments = attachments;
-		framebufferInfo.width = extent.width;
-		framebufferInfo.height = extent.height;
-		framebufferInfo.layers = 1;
-
-		VkFramebuffer frameBuffer = VK_NULL_HANDLE;
-		if (vkCreateFramebuffer(*m_device, &framebufferInfo, nullptr, &frameBuffer) != VK_SUCCESS) 
-		{
-			LOG_ERR("failed to create framebuffer!");
-		}
+		auto imageView = m_swapchain->getImageView(i);
+		auto frameBuffer = m_device->createFrameBuffer(renderPass->handle(), imageView, extent);
 		m_frameBuffers.push_back(frameBuffer);
 	}
 }
@@ -198,13 +166,12 @@ void SceGnmDriver::createCommandParsers(uint32_t count)
 	// Initialize command buffers and command parsers
 	// according to bufferNum
 	m_commandBuffers.resize(count);
-	uint32_t index = 0;
-	for (auto& cmd : m_commandBuffers)
+	for (uint32_t i = 0; i != count; ++i)
 	{
-		cmd = std::make_shared<GnmCommandBufferDraw>(m_contexts[index]);
-		++index;
+		gve::GveRenderTarget target = { m_frameBuffers[i] };
+		m_commandBuffers[i] = std::make_shared<GnmCommandBufferDraw>(m_contexts[i], target);
 	}
-
+	
 	m_commandParsers.resize(count);
 	for (uint32_t i = 0; i != count; ++i)
 	{

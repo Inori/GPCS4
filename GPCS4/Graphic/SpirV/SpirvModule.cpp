@@ -588,7 +588,13 @@ namespace pssl {
       args.size(), args.data());
   }
   
-  
+  uint32_t SpirvModule::defFloatPointerType(
+	  uint32_t width, 
+	  spv::StorageClass storageClass) {
+	  uint32_t fpType = this->defFloatType(width);
+	  return this->defPointerType(fpType, storageClass);
+  }
+
   uint32_t SpirvModule::defVectorType(
           uint32_t                elementType,
           uint32_t                elementCount) {
@@ -3336,7 +3342,8 @@ namespace pssl {
     // Since the type info is stored in the code buffer,
     // we can use the code buffer to look up type IDs as
     // well. Result IDs are always stored as argument 1.
-    for (auto ins : m_typeConstDefs) {
+    for (auto ins : m_typeConstDefs) 
+	{
       bool match = ins.opCode() == op
                 && ins.length() == 2 + argCount;
       

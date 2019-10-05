@@ -13,8 +13,6 @@ public:
 	GnmCommandBuffer(RcPtr<gve::GveContex>& context);
 	virtual ~GnmCommandBuffer();
 
-	RcPtr<gve::GveContex> getContext();
-
 	// Implement these one by one...
 
 	// Note:
@@ -22,6 +20,8 @@ public:
 	// Uncomment the method here,
 	// then add the override(implementation) version
 	// to either GnmCommandBufferDraw or GnmCommandBufferDispatch
+	// and fill in param structures or constant in GnmContant.h or GnmStructure.h or other source files
+	// at the same time.
 
 	//virtual void *allocateFromCommandBuffer(uint32_t sizeInBytes, EmbeddedDataAlignment alignment) = 0;
 	//virtual void chainCommandBufferAndResume(uint64_t holeAddr, void *nextIbBaseAddr, uint64_t nextIbSizeInDW) = 0;
@@ -323,7 +323,7 @@ public:
 
 protected:
 	RcPtr<gve::GveContex> m_context;
-
+	
 private:
 
 };

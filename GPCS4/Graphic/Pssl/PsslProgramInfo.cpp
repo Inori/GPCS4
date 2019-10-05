@@ -11,6 +11,9 @@ PsslProgramInfo::PsslProgramInfo(const uint8_t* code)
 {
 	bool success = initBinaryInfo(code);
 	LOG_ASSERT(success, "init ShaderBinaryInfo failed.");
+
+	success = initShaderType();
+	LOG_ASSERT(success, "init shader type failed.");
 }
 
 PsslProgramInfo::~PsslProgramInfo()
@@ -18,14 +21,14 @@ PsslProgramInfo::~PsslProgramInfo()
 }
 
 
-uint32_t PsslProgramInfo::getCodeSizeBytes() const
+uint32_t PsslProgramInfo::codeSizeBytes() const
 {
 	return m_shaderBinaryInfo.length;
 }
 
-uint32_t PsslProgramInfo::getCodeSizeDwords() const
+uint32_t PsslProgramInfo::codeSizeDwords() const
 {
-	return getCodeSizeBytes() / sizeof(uint32_t);
+	return codeSizeBytes() / sizeof(uint32_t);
 }
 
 bool PsslProgramInfo::hasFetchShader()
@@ -45,58 +48,55 @@ bool PsslProgramInfo::hasFetchShader()
 	return hasFs;
 }
 
-PsslProgramType PsslProgramInfo::getShaderType() const
+PsslProgramType PsslProgramInfo::shaderType() const
 {
-	PsslProgramType type = UnknownShader;
-	switch (m_shaderBinaryInfo.type)
-	{
-	case kShaderTypePs:
-		type = PixelShader;
-		break;
-	case kShaderTypeVsVs:
-		type = VertexShader;
-		break;
-	case kShaderTypeCs:
-		type = ComputeShader;
-		break;
-	case kShaderTypeGs:
-		type = GeometryShader;
-		break;
-	case kShaderTypeHs:
-		type = HullShader;
-		break;
-	case kShaderTypeDsVs:
-		type = DomainShader;
-		break;
-	case kShaderTypeVsEs:
-	case kShaderTypeVsLs:
-		LOG_FIXME("LS and ES stage is not supported yet.");
-		break;
-	default:
-		LOG_ERR("Error shader type %d", m_shaderBinaryInfo.type);
-		break;
-	}
-	return type;
+	return m_type;
 }
 
-PsslKey PsslProgramInfo::getKey() const
+PsslKey PsslProgramInfo::key() const
 {
 	return PsslKey(m_shaderBinaryInfo.crc32, m_shaderBinaryInfo.shaderHash0);
 }
 
-uint32_t PsslProgramInfo::getInputUsageSlotCount() const
+uint32_t PsslProgramInfo::inputUsageSlotCount() const
 {
 	return m_shaderBinaryInfo.numInputUsageSlots;
 }
 
-const InputUsageSlot* PsslProgramInfo::getInputUsageSlot(uint32_t idx) const
+const InputUsageSlot* PsslProgramInfo::inputUsageSlot(uint32_t idx) const
 {
 	return &m_inputUsageSlots[idx];
 }
 
-std::vector<InputUsageSlot> PsslProgramInfo::getInputUsageSlot() const
+std::vector<InputUsageSlot> PsslProgramInfo::inputUsageSlot() const
 {
 	return m_inputUsageSlots;
+}
+
+VkShaderStageFlagBits PsslProgramInfo::shaderStage() const
+{
+	switch (m_type) 
+	{
+		case PixelShader: return VK_SHADER_STAGE_FRAGMENT_BIT;
+		case VertexShader: return VK_SHADER_STAGE_VERTEX_BIT;
+		case GeometryShader: return VK_SHADER_STAGE_GEOMETRY_BIT;
+		case HullShader: return VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
+		case DomainShader: return VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
+		case ComputeShader: return VK_SHADER_STAGE_COMPUTE_BIT;
+	}
+}
+
+spv::ExecutionModel PsslProgramInfo::executionModel() const
+{
+	switch (m_type) 
+	{
+		case PixelShader: return spv::ExecutionModelFragment;
+		case VertexShader: return spv::ExecutionModelVertex;
+		case GeometryShader: return spv::ExecutionModelGeometry;
+		case HullShader: return spv::ExecutionModelTessellationControl;
+		case DomainShader: return spv::ExecutionModelTessellationEvaluation;
+		case ComputeShader: return spv::ExecutionModelGLCompute;
+	}
 }
 
 bool PsslProgramInfo::initBinaryInfo(const uint8_t* code)
@@ -139,14 +139,48 @@ bool PsslProgramInfo::initBinaryInfo(const uint8_t* code)
 	return ret;
 }
 
+bool PsslProgramInfo::initShaderType()
+{
+	m_type = UnknownShader;
+	switch (m_shaderBinaryInfo.type)
+	{
+	case kShaderTypePs:
+		m_type = PixelShader;
+		break;
+	case kShaderTypeVsVs:
+		m_type = VertexShader;
+		break;
+	case kShaderTypeCs:
+		m_type = ComputeShader;
+		break;
+	case kShaderTypeGs:
+		m_type = GeometryShader;
+		break;
+	case kShaderTypeHs:
+		m_type = HullShader;
+		break;
+	case kShaderTypeDsVs:
+		m_type = DomainShader;
+		break;
+	case kShaderTypeVsEs:
+	case kShaderTypeVsLs:
+		LOG_FIXME("LS and ES stage is not supported yet.");
+		break;
+	default:
+		LOG_ERR("Error shader type %d", m_shaderBinaryInfo.type);
+		break;
+	}
+	return (m_type != UnknownShader);
+}
+
 uint32_t getFetchShaderStartRegister(const PsslProgramInfo& progInfo)
 {
 	uint32_t startReg = UINT_MAX;
-	uint32_t slotCount = progInfo.getInputUsageSlotCount();
+	uint32_t slotCount = progInfo.inputUsageSlotCount();
 
 	for (uint32_t i = 0; i != slotCount; ++i)
 	{
-		const InputUsageSlot* slot = progInfo.getInputUsageSlot(i);
+		const InputUsageSlot* slot = progInfo.inputUsageSlot(i);
 		if (slot->usageType != kShaderInputUsageSubPtrFetchShader)
 		{
 			continue;

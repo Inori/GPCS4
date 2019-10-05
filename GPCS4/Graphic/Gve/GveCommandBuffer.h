@@ -12,6 +12,10 @@ public:
 	GveCommandBuffer(const RcPtr<GveDevice>& device);
 	~GveCommandBuffer();
 
+	void beginRecording();
+
+	void endRecording();
+
 private:
 	bool initCommandBuffer();
 

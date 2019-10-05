@@ -95,7 +95,27 @@ void GCNCompiler::emitVectorALU(GCNInstruction& ins)
 
 void GCNCompiler::emitVectorRegMov(GCNInstruction& ins)
 {
+	LOG_ASSERT(ins.instruction->GetInstructionFormat() == Instruction::InstructionSet_VOP1, "vector mov is not VOP1");
 
+	auto inst = asInst<SIVOP1Instruction>(ins);
+	auto op = inst->GetOp();
+
+	auto src = inst->GetSRC0();
+	auto dst = inst->GetVDST();
+	auto sidx = inst->GetSRidx0();
+	auto didx = inst->GetVDSTRidx();
+
+	switch (op)
+	{
+	case SIVOP1Instruction::V_MOV_B32:
+	{
+		auto value = emitLoadScalarOperand(src, sidx, ins.literalConst);
+		emitStoreVectorOperand(didx, value);
+	}
+		break;
+	default:
+		break;
+	}
 }
 
 void GCNCompiler::emitVectorLane(GCNInstruction& ins)

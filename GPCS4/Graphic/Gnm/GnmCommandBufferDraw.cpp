@@ -1,7 +1,7 @@
 #include "GnmCommandBufferDraw.h"
 #include "GnmSharpBuffer.h"
 
-#include "../Pssl/PsslShaderModule.h"
+
 
 #include "Platform/PlatformUtils.h"
 
@@ -11,18 +11,19 @@
 //#include "stb_image/stb_image.h"
 //#include "stb_image/stb_image_write.h"
 
-GnmCommandBufferDraw::GnmCommandBufferDraw(RcPtr<gve::GveContex>& context):
+GnmCommandBufferDraw::GnmCommandBufferDraw(RcPtr<gve::GveContex>& context, const gve::GveRenderTarget& renderTarget):
 	GnmCommandBuffer(context),
+	m_renderTarget(renderTarget),
 	m_vsCode(nullptr),
 	m_psCode(nullptr)
 {
 
 }
 
+
 GnmCommandBufferDraw::~GnmCommandBufferDraw()
 {
 }
-
 
 
 void GnmCommandBufferDraw::prepareFlip(void *labelAddr, uint32_t value)
@@ -48,6 +49,8 @@ void GnmCommandBufferDraw::setPsShader(const pssl::PsStageRegisters *psRegs)
 void GnmCommandBufferDraw::setVsShader(const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier)
 {
 	m_vsCode = vsRegs->getCodeAddress();
+
+	// Fetch shader slot can be set after vs shader set and before draw call
 }
 
 void GnmCommandBufferDraw::setVgtControl(uint8_t primGroupSizeMinusOne, WdSwitchOnlyOnEopMode wdSwitchOnlyOnEopMode, VgtPartialVsWaveMode partialVsWaveMode)
@@ -76,11 +79,11 @@ void GnmCommandBufferDraw::setPointerInUserData(ShaderStage stage, uint32_t star
 	{
 		if (stage == kShaderStageVs)
 		{
-			m_vsUserDataSlotTable.push_back(std::make_pair(startUserDataSlot, gpuAddr));
+			m_vsUserDataSlotTable.push_back({ startUserDataSlot, gpuAddr });
 		}
 		else if (stage == kShaderStagePs)
 		{
-			m_psUserDataSlotTable.push_back(std::make_pair(startUserDataSlot, gpuAddr));
+			m_psUserDataSlotTable.push_back({ startUserDataSlot, gpuAddr });
 		}
 		else
 		{
@@ -95,11 +98,11 @@ void GnmCommandBufferDraw::setUserDataRegion(ShaderStage stage, uint32_t startUs
 	{
 		if (stage == kShaderStageVs)
 		{
-			m_vsUserDataSlotTable.push_back(std::make_pair(startUserDataSlot, (void*)userData));
+			m_vsUserDataSlotTable.push_back({ startUserDataSlot, (void*)userData });
 		}
 		else if (stage == kShaderStagePs)
 		{
-			m_psUserDataSlotTable.push_back(std::make_pair(startUserDataSlot, (void*)userData));
+			m_psUserDataSlotTable.push_back({ startUserDataSlot, (void*)userData });
 		}
 		else
 		{
@@ -157,6 +160,7 @@ void GnmCommandBufferDraw::waitUntilSafeForRendering(uint32_t videoOutHandle, ui
 // We be called on every frame start.
 void GnmCommandBufferDraw::initializeDefaultHardwareState()
 {
+	m_context->initState();
 }
 
 void GnmCommandBufferDraw::setPrimitiveType(PrimitiveType primType)
@@ -166,6 +170,24 @@ void GnmCommandBufferDraw::setPrimitiveType(PrimitiveType primType)
 
 void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr, DrawModifier modifier)
 {
+	do
+	{
+		uint32_t* fsCode = getFetchShaderCode(m_vsCode);
+
+		RcPtr<gve::GveShader> vsShader;
+		if (fsCode)
+		{
+			pssl::PsslShaderModule vsModule((const uint32_t*)m_vsCode, fsCode, m_vsUserDataSlotTable);
+			vsShader = vsModule.compile();
+		}
+		else
+		{
+			pssl::PsslShaderModule vsModule((const uint32_t*)m_vsCode, m_vsUserDataSlotTable);
+			vsShader = vsModule.compile();
+		}
+
+		m_context->bindShader(VK_SHADER_STAGE_VERTEX_BIT, vsShader);
+	} while (false);
 }
 
 void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr)
@@ -209,14 +231,14 @@ uint32_t* GnmCommandBufferDraw::getFetchShaderCode(void* vsCode)
 			break;
 		}
 
-		for (auto& pair : m_vsUserDataSlotTable)
+		for (const auto& res : m_vsUserDataSlotTable)
 		{
-			if (pair.first != fsStartReg)
+			if (res.startSlot != fsStartReg)
 			{
 				continue;
 			}
 
-			fsCode = (uint32_t*)pair.second;
+			fsCode = (uint32_t*)res.resource;
 			break;
 		}
 

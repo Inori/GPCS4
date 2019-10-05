@@ -10,8 +10,3 @@ GnmCommandBuffer::GnmCommandBuffer(RcPtr<gve::GveContex>& context):
 GnmCommandBuffer::~GnmCommandBuffer()
 {
 }
-
-RcPtr<gve::GveContex> GnmCommandBuffer::getContext()
-{
-
-}
