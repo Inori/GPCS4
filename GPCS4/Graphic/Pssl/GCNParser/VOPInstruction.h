@@ -393,6 +393,11 @@ public:
         return iRet;
     }
 
+	VSRC GetVSRC1() const { return m_vsrc1; }
+
+	unsigned int GetVRidx1() const { return m_vridx1; }
+
+
 private:
 
     /// VOP operation.
@@ -843,6 +848,12 @@ public:
 	ABS GetABS() const { return m_abs; }
 
 	CLMP GetCLMP() const { return m_clmp; }
+
+	uint32_t GetRidx1() const { return m_ridx1; }
+
+	uint32_t GetRidx2() const { return m_ridx2; }
+
+	uint32_t GetSDSTRidx() const { return m_sdstRidx; }
 
 private:
 
