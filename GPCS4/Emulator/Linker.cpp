@@ -69,6 +69,9 @@ bool CLinker::resolveSymbol(MemoryMappedModule const &mod,
 		{
 			LOG_ERR("fail to resolve symbol: %s from %s for module %s",
 					name.c_str(), info->moduleName.c_str(), mod.fileName.c_str());
+
+			// mark the address as DEAD
+			*addr = 0xffffffffdeaddead;
 			break;
 		}
 

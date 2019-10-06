@@ -12,6 +12,8 @@ public:
 	CTLSHandler();
 	virtual ~CTLSHandler();
 
+	virtual bool initialize(void *pTls, uint initSize, uint totalSize) = 0;
+
 	static void NotifyThreadCreate(uint nTid);
 
 	static void NotifyThreadExit(uint nTid);
@@ -60,6 +62,7 @@ public:
 	virtual ~CTLSHandlerWin();
 
 	static bool Install(void* pTls, uint nInitSize, uint nTotalSize);
+	virtual bool initialize(void *pTls, uint initSize, uint totalSize);
 
 	static void Uninstall();
 

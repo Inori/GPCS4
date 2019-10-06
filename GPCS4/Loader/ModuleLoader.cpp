@@ -1,12 +1,15 @@
 #include "ModuleLoader.h"
 #include "Platform/PlatformUtils.h"
 
-ModuleLoader::ModuleLoader(CSceModuleSystem &modSystem)
-	: m_modSystem(modSystem), m_linker(modSystem)
+ModuleLoader::ModuleLoader(CSceModuleSystem &modSystem,
+						   CLinker &linker,
+						   CTLSHandler &tlsHandler)
+	: m_modSystem{modSystem}, m_linker{linker}, m_tlsHandler{tlsHandler}
 {
 }
 
-bool ModuleLoader::loadModule(std::string const &fileName)
+bool ModuleLoader::loadModule(std::string const &fileName,
+							  MemoryMappedModule **modOut)
 {
 	bool retVal = false;
 
@@ -38,7 +41,8 @@ bool ModuleLoader::loadModule(std::string const &fileName)
 			break;
 		}
 
-		retVal = true;
+		*modOut = &(m_modSystem.getMemoryMappedModules()[0]);
+		retVal  = true;
 	} while (false);
 
 	return retVal;
@@ -190,7 +194,7 @@ bool ModuleLoader::mapModuleNameToFilePath(std::string const &modName,
 
 		auto outName = UtilString::Format("lib\\%s.sprx", fileName.c_str());
 
-		*path = std::move(outName);
+		*path  = std::move(outName);
 		retVal = true;
 	} while (false);
 
@@ -425,6 +429,28 @@ bool ModuleLoader::initializeModules()
 {
 	auto &mods  = m_modSystem.getMemoryMappedModules();
 	bool retVal = true;
+
+	// intialize TLS
+	for (auto const &mod : mods)
+	{
+		void *pTls     = nullptr;
+		uint initSize  = 0;
+		uint totalSize = 0;
+
+		retVal = mod.getTLSInfo(&pTls, &initSize, &totalSize);
+		if (!retVal || pTls == nullptr)
+		{
+			LOG_ERR("fail to get TLS info for module:%s", mod.fileName.c_str());
+			continue;
+		}
+
+		retVal = m_tlsHandler.initialize(pTls, initSize, totalSize);
+		if (!retVal)
+		{
+			LOG_ERR("fail to initialize TLS for module:%s", mod.fileName.c_str());
+			continue;
+		}
+	}
 
 	// skip eboot.bin
 	for (size_t i = 1; i < mods.size(); i++)

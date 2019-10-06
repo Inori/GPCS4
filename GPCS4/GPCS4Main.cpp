@@ -1,15 +1,17 @@
 #include "Emulator/Emulator.h"
 #include "Loader/ModuleLoader.h"
 #include "Emulator/SceModuleSystem.h"
+#include "Emulator/TLSHandler.h"
+
 #include <memory>
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
 	LOG_DEBUG("enter main function.");
 
 	std::unique_ptr<CEmulator> pEmulator = std::make_unique<CEmulator>();
-	int nRet = -1;
-	do 
+	int nRet                             = -1;
+	do
 	{
 		if (argc != 2)
 		{
@@ -17,7 +19,7 @@ int main(int argc, char* argv[])
 			break;
 		}
 
-		char* szEboot = argv[1];
+		char *szEboot = argv[1];
 
 		if (!pEmulator->Init())
 		{
@@ -25,20 +27,31 @@ int main(int argc, char* argv[])
 		}
 
 		// TODO: for testing only. remember to remove this
-		ModuleLoader loader = { *CSceModuleSystem::GetInstance() };
-		if (!loader.loadModule(szEboot))
+
+		CTLSHandlerWin tlsHandler = {};
+
+		CLinker linker      = {*CSceModuleSystem::GetInstance()};
+		ModuleLoader loader = {*CSceModuleSystem::GetInstance(), linker, tlsHandler};
+
+		MemoryMappedModule *ebootModule = nullptr;
+		if (!loader.loadModule(szEboot, &ebootModule))
 		{
 			break;
 		}
 
-		//if (!pEmulator->LoadEboot(szEboot))
+		if(!pEmulator->Run(*ebootModule))
+		{
+			break;
+		}
+
+		// if (!pEmulator->LoadEboot(szEboot))
 		//{
 		//	break;
 		//}
 
-		//pEmulator->Run();
+		// pEmulator->Run();
 
-		//pEmulator->Unit();
+		// pEmulator->Unit();
 		nRet = 0;
 	} while (false);
 

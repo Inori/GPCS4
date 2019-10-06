@@ -1,20 +1,14 @@
 #include "Emulator.h"
 #include "GameThread.h"
 
+CEmulator::CEmulator() {}
 
-CEmulator::CEmulator()
-{
-}
-
-
-CEmulator::~CEmulator()
-{
-}
+CEmulator::~CEmulator() {}
 
 bool CEmulator::Init()
 {
 	bool bRet = false;
-	do 
+	do
 	{
 		if (!RegisterModules())
 		{
@@ -22,7 +16,6 @@ bool CEmulator::Init()
 		}
 
 		m_pLinker = std::make_shared<CLinker>();
-
 
 		bRet = true;
 	} while (false);
@@ -35,10 +28,10 @@ void CEmulator::Unit()
 	m_oEboot.Unload();
 }
 
-bool CEmulator::LoadEboot(const std::string& strEbtPath)
+bool CEmulator::LoadEboot(const std::string &strEbtPath)
 {
 	bool bRet = false;
-	do 
+	do
 	{
 		m_oEboot.SetLinker(m_pLinker);
 
@@ -47,7 +40,7 @@ bool CEmulator::LoadEboot(const std::string& strEbtPath)
 			break;
 		}
 
-		void* pTls = NULL;
+		void *pTls     = NULL;
 		uint nInitSize = 0, nTotalSize = 0;
 		if (!m_oEboot.GetTlsInfo(&pTls, nInitSize, nTotalSize))
 		{
@@ -71,21 +64,23 @@ bool CEmulator::Run()
 {
 
 	bool bRet = false;
-	do 
+	do
 	{
 
-		void* pEntryPoint = m_oEboot.EntryPoint();
+		void *pEntryPoint = m_oEboot.EntryPoint();
 		if (!pEntryPoint)
 		{
 			break;
 		}
 
-		const int nEnvNum = 0x10;
-		uint64 pEnv[nEnvNum] = { 0xDEADBEE1, 0xDEADBEE2, 0xDEADBEE3, 0xDEADBEE4, 0xDEADBEE5,
-			0xDEADBEE6, 0xDEADBEE7, 0xDEADBEE8, 0xDEADBEE9, 0xDEADBEEA };
+		const int nEnvNum    = 0x10;
+		uint64 pEnv[nEnvNum] = {0xDEADBEE1, 0xDEADBEE2, 0xDEADBEE3, 0xDEADBEE4,
+								0xDEADBEE5, 0xDEADBEE6, 0xDEADBEE7, 0xDEADBEE8,
+								0xDEADBEE9, 0xDEADBEEA};
 
 		LOG_DEBUG("run into eboot.");
-		CGameThread oMainThread(pEntryPoint, pEnv, (void*)CEmulator::LastExitHandler);
+		CGameThread oMainThread(pEntryPoint, pEnv,
+								(void *)CEmulator::LastExitHandler);
 		if (!oMainThread.Start())
 		{
 			break;
@@ -102,7 +97,49 @@ bool CEmulator::Run()
 	return bRet;
 }
 
-void PS4API CEmulator::LastExitHandler(void)
+bool CEmulator::Run(MemoryMappedModule const &mod)
 {
-	LOG_DEBUG("program exit.");
+	bool retVal = false;
+
+	do
+	{
+		if (mod.isModule())
+		{
+			LOG_ERR("%s is not an executable module", mod.fileName.c_str());
+			break;
+		}
+
+		void *entryPoint = mod.getEntryPoint();
+		if (entryPoint == nullptr)
+		{
+			LOG_ERR("fail to get entry point");
+			break;
+		}
+
+		const int nEnvNum    = 0x10;
+		uint64 pEnv[nEnvNum] = {0xDEADBEE1, 0xDEADBEE2, 0xDEADBEE3, 0xDEADBEE4,
+								0xDEADBEE5, 0xDEADBEE6, 0xDEADBEE7, 0xDEADBEE8,
+								0xDEADBEE9, 0xDEADBEEA};
+
+		LOG_DEBUG("run into eboot.");
+		CGameThread oMainThread(entryPoint, pEnv,
+								(void *)CEmulator::LastExitHandler);
+		if (!oMainThread.Start())
+		{
+			break;
+		}
+
+		// block the emulator's thread
+		if (!oMainThread.Join(NULL))
+		{
+			break;
+		}
+
+	retVal = true;
+	} while (false);
+
+	return retVal;
 }
+
+void PS4API CEmulator::LastExitHandler(void) { LOG_DEBUG("program exit."); }
+

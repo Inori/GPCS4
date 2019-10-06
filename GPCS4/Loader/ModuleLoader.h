@@ -3,14 +3,15 @@
 #include "ELFMapper.h"
 #include "Emulator/Linker.h"
 #include "Emulator/SceModuleSystem.h"
+#include "Emulator/TLSHandler.h"
 
 #include <queue>
 
 class ModuleLoader
 {
 public:
-	ModuleLoader(CSceModuleSystem &modSystem);
-	bool loadModule(std::string const &fileName);
+	ModuleLoader(CSceModuleSystem &modSystem, CLinker &linker, CTLSHandler &tlsHandler);
+	bool loadModule(std::string const &fileName, MemoryMappedModule **mod);
 	bool relocateModule(MemoryMappedModule const &mod) const;
 
 private:
@@ -32,6 +33,7 @@ private:
 
 	std::queue<std::string> m_filesToLoad;
 	CSceModuleSystem &m_modSystem;
+	CTLSHandler &m_tlsHandler;
+	CLinker &m_linker;
 	ELFMapper m_mapper;
-	CLinker m_linker;
 };

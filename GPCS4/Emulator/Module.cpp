@@ -3,22 +3,18 @@
 
 #include <algorithm>
 
-
 const MODULE_INFO &MemoryMappedModule::getModuleInfo() const { return m_moduleInfo; }
 MODULE_INFO &MemoryMappedModule::getModuleInfo() { return m_moduleInfo; }
 
 const ByteArray &MemoryMappedModule::getFileMemory() const { return m_fileMemory; }
 ByteArray &MemoryMappedModule::getFileMemory() { return m_fileMemory; }
 
-bool MemoryMappedModule::isModule()
+bool MemoryMappedModule::isModule() const
 {
 	return m_elfHeader->e_type == ET_SCE_DYNAMIC ? true : false;
 }
 
-const FileList &MemoryMappedModule::getNeededFiles() const
-{
-	return m_neededFiles; 
-}
+const FileList &MemoryMappedModule::getNeededFiles() const { return m_neededFiles; }
 
 const std::vector<size_t> &MemoryMappedModule::getExportSymbols() const
 {
@@ -27,7 +23,7 @@ const std::vector<size_t> &MemoryMappedModule::getExportSymbols() const
 
 std::vector<size_t> &MemoryMappedModule::getExportSymbols()
 {
-	return m_exportSymbols; 
+	return m_exportSymbols;
 }
 
 const UtilMemory::memory_uptr &MemoryMappedModule::getMappedMemory() const
@@ -113,7 +109,8 @@ bool MemoryMappedModule::getSymbolInfo(std::string const &encSymbol,
 		retVal = getModNameFromId(modId, mods, modName);
 		if (!retVal)
 		{
-			LOG_ERR("fail to get module name");
+			LOG_ERR("fail to get module name for symbol: %s in %s",
+					encSymbol.c_str(), fileName.c_str());
 			break;
 		}
 
@@ -143,9 +140,9 @@ bool MemoryMappedModule::getModNameFromId(uint64_t id,
 			break;
 		}
 
-		auto iter = std::find_if(
-			modules.begin(), modules.end(),
-			[=](IMPORT_MODULE const &mod) { return id == mod.id; });
+		auto iter =
+			std::find_if(modules.begin(), modules.end(),
+						 [=](IMPORT_MODULE const &mod) { return id == mod.id; });
 
 		if (iter == modules.end())
 		{
@@ -172,9 +169,9 @@ bool MemoryMappedModule::getLibNameFromId(uint64_t id,
 			break;
 		}
 
-		auto iter = std::find_if(
-			libs.begin(), libs.end(),
-			[=](IMPORT_LIBRARY const &lib) { return id == lib.id; });
+		auto iter =
+			std::find_if(libs.begin(), libs.end(),
+						 [=](IMPORT_LIBRARY const &lib) { return id == lib.id; });
 
 		if (iter == libs.end())
 		{
@@ -318,20 +315,44 @@ bool MemoryMappedModule::isEncodedSymbol(std::string const &symbolName) const
 	return retVal;
 }
 
-int MemoryMappedModule::initialize() 
-{ 
+int MemoryMappedModule::initialize()
+{
 	int retVal = 0;
 	if (isModule() && m_moduleInfo.pEntryPoint != nullptr)
 	{
 		auto ep = reinterpret_cast<intialize_func>(m_moduleInfo.pEntryPoint);
-		retVal = ep(0, nullptr, nullptr);
+		retVal  = ep(0, nullptr, nullptr);
 	}
 
 	return retVal;
 }
 
-bool MemoryMappedModule::getSymbol(size_t index,
-								   SymbolInfo const **symbolInfo) const
+bool MemoryMappedModule::getTLSInfo(void **pTls,
+									uint *initSize,
+									uint *totalSize) const
+{
+	bool retVal = false;
+	do
+	{
+		if (pTls == nullptr)
+		{
+			LOG_ERR("nullptr error");
+			break;
+		}
+
+		*pTls      = m_moduleInfo.pTlsAddr;
+		*initSize  = m_moduleInfo.nTlsInitSize;
+		*totalSize = m_moduleInfo.nTlsSize;
+
+		retVal = true;
+	} while (false);
+
+	return retVal;
+}
+
+void *MemoryMappedModule::getEntryPoint() const { return m_moduleInfo.pEntryPoint; }
+
+bool MemoryMappedModule::getSymbol(size_t index, SymbolInfo const **symbolInfo) const
 {
 	bool retVal = false;
 	if (index > m_symbols.size() - 1)

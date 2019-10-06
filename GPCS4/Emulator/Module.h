@@ -147,8 +147,9 @@ public:
 	MODULE_INFO &getModuleInfo();
 	const ByteArray &getFileMemory() const;
 	ByteArray &getFileMemory();
-	bool isModule();
+	bool isModule() const;
 
+	int initialize();
 	bool getImportSymbolInfo(std::string const &encSymbol,
 							 std::string *modName,
 							 std::string *libName,
@@ -162,10 +163,13 @@ public:
 	bool getSymbol(std::string const &encName,
 				   SymbolInfo const **symbolInfo) const;
 	bool getSymbol(size_t index, SymbolInfo const **symbolInfo) const;
-	bool isEncodedSymbol(std::string const &symbolName) const;
-	int initialize();
+
+
+	bool getTLSInfo(void **pTls, uint *initSIze, uint *totalSize) const;
+	void *getEntryPoint() const;
 
 private:
+	bool isEncodedSymbol(std::string const &symbolName) const;
 	bool getSymbolInfo(std::string const &encSymbol,
 					   ModuleList const &mods,
 					   LibraryList const &libs,
