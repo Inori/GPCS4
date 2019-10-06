@@ -173,21 +173,28 @@ And based on the above Sony's style, we add the following extra rules, to make o
 
 7. Local variables should be initialized when defined.
 
-8. Do not use `goto`, use `do {} while(false)` instead.
+8. Do not use `goto`, use `do {} while(false)` mentioned above instead.
 
 9. Do not use C++ exception.
 
 
 ## Rules recommended:
 
-1. Functions should return simple type, like `void`, `bool`, `uint32_t`.
+1. Design first in your mind, then coding.  
+   It's better to make a high level design first in your mind and then coding,  
+   like which class responsable for which job.  
+   Do not just write what comes your mind directly and hastily.  
+   It will make your code looks messy and hard to maintian.  
+   If you are not sure how to design, we can discuss first.
 
-2. Try to name code tokens more friendly to non-english country people.  
+2. Functions should return simple type, like `void`, `bool`, `uint32_t`.
+
+3. Try to name code tokens more friendly to non-english country people.  
    e.g. use `textureAlign`, not `tA`
 
-3. Use macros as few as possible.
+4. Use macros as few as possible.
 
-4. Make a variable's scope as small as possible.  
+5. Make a variable's scope as small as possible.  
    If you can use a local variable, don't make it a class member.  
    If you can use a class member, don't make it global. And so on.
 

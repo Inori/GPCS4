@@ -70,6 +70,7 @@ public:
 	//virtual void prepareFlip() = 0;
 	virtual void prepareFlip(void *labelAddr, uint32_t value) = 0;
 	//virtual void prepareFlipWithEopInterrupt(EndOfPipeEventType eventType, CacheAction cacheAction) = 0;
+	virtual void prepareFlipWithEopInterrupt(EndOfPipeEventType eventType, void *labelAddr, uint32_t value ,CacheAction cacheAction) = 0;
 	//virtual void pushMarker(const char *debugString) = 0;
 	//virtual void pushMarker(const char *debugString, uint32_t argbColor) = 0;
 	//virtual void readCpcPerfCounter(uint32_t counterSlot, void *pgpuOutput) = 0;

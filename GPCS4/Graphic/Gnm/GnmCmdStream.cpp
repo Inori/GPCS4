@@ -736,7 +736,11 @@ void GnmCmdStream::onPrepareFlipOrEopInterrupt(PPM4_TYPE_3_HEADER pm4Hdr, uint32
 		LOG_FIXME("Not implemented.");
 		break;
 	case OP_HINT_PREPARE_FLIP_WITH_EOP_INTERRUPT_LABEL:
-		LOG_FIXME("Not implemented.");
+	{
+		EndOfPipeEventType eventType = (EndOfPipeEventType)itBody[4];
+		CacheAction cacheAction = (CacheAction)itBody[5];
+		m_cb->prepareFlipWithEopInterrupt(eventType, labelAddr, value, cacheAction);
+	}
 		break;
 	default:
 		break;

@@ -31,6 +31,10 @@ void GnmCommandBufferDraw::prepareFlip(void *labelAddr, uint32_t value)
 	*(uint32_t*)labelAddr = value;
 }
 
+void GnmCommandBufferDraw::prepareFlipWithEopInterrupt(EndOfPipeEventType eventType, void *labelAddr, uint32_t value, CacheAction cacheAction)
+{
+	*(uint32_t*)labelAddr = value;
+}
 
 void GnmCommandBufferDraw::setPsShaderUsage(const uint32_t *inputTable, uint32_t numItems)
 {
