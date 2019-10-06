@@ -44,14 +44,14 @@ int main(int argc, char *argv[])
 			break;
 		}
 
-		// if (!pEmulator->LoadEboot(szEboot))
+		//if (!pEmulator->LoadEboot(szEboot))
 		//{
 		//	break;
 		//}
 
-		// pEmulator->Run();
+		//pEmulator->Run();
 
-		// pEmulator->Unit();
+		//pEmulator->Unit();
 		nRet = 0;
 	} while (false);
 

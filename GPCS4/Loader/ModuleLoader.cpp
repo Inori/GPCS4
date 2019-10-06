@@ -440,7 +440,7 @@ bool ModuleLoader::initializeModules()
 		retVal = mod.getTLSInfo(&pTls, &initSize, &totalSize);
 		if (!retVal || pTls == nullptr)
 		{
-			LOG_ERR("fail to get TLS info for module:%s", mod.fileName.c_str());
+			LOG_DEBUG("no TLS info for module:%s", mod.fileName.c_str());
 			continue;
 		}
 

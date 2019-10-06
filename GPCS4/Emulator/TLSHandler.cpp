@@ -341,7 +341,7 @@ bool CTLSHandlerWin::Install(void* pTls, uint nInitSize, uint nTotalSize)
 
 bool CTLSHandlerWin::initialize(void *pTls, uint initSize, uint totalSize)
 {
-	Install(pTls, initSize, totalSize);
+	return CTLSHandlerWin::Install(pTls, initSize, totalSize);
 }
 
 void CTLSHandlerWin::Uninstall()

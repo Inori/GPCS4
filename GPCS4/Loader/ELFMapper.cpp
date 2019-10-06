@@ -696,7 +696,11 @@ bool ELFMapper::mapCodeSegment(Elf64_Phdr const &phdr)
 		{
 			info.pEntryPoint = nullptr;
 		}
-		info.pTlsAddr    = info.pCodeAddr + (uint64_t)info.pTlsAddr;
+
+		if (info.pTlsAddr != nullptr)
+		{
+			info.pTlsAddr    = info.pCodeAddr + (uint64_t)info.pTlsAddr;
+		}
 
 		retVal = true;
 
