@@ -163,7 +163,14 @@ bool CSceModuleSystem::isFunctionOverridable(std::string const &modName,
 			break;
 		}
 
-		retVal = lr.functions.count(nid) > 0 ? true : false;
+		if (lr.mode == LibraryRecord::Mode::Allow)
+		{
+			retVal = lr.functions.count(nid) > 0 ? true : false;
+		}
+		else
+		{
+			retVal = lr.functions.count(nid) > 0 ? false : true;
+		}
 
 	} while (false);
 
@@ -388,14 +395,14 @@ bool CSceModuleSystem::registerMemoryMappedModule(std::string const &modName,
 
 	m_mappedModuleNameIndexMap.insert(std::make_pair(modName, index));
 	m_mappedModules.push_back(std::move(mod));
-	
+
 	return true;
 }
 
 bool CSceModuleSystem::isMemoryMappedModuleLoaded(std::string const &modName)
 {
 	bool retVal = false;
-	
+
 	if (m_mappedModuleNameIndexMap.count(modName) != 0)
 	{
 		retVal = true;
@@ -528,12 +535,6 @@ bool CSceModuleSystem::setModuleOverridability(const std::string &modName, bool 
 	bool retVal = false;
 	do
 	{
-		//if (!IsModuleLoaded(modName))
-		//{
-		//	LOG_DEBUG("Module %s is not loaded.", modName.c_str());
-		//	break;
-		//}
-
 		if (ovrd)
 		{
 			if (m_overridableModules.count(modName) == 0)
@@ -561,7 +562,8 @@ bool CSceModuleSystem::setModuleOverridability(const std::string &modName, bool 
 
 bool CSceModuleSystem::setLibraryOverridability(const std::string &modName,
 												const std::string &libName,
-												bool ovrd)
+												bool ovrd,
+												LibraryRecord::Mode mode)
 {
 	bool retVal = true;
 
@@ -589,6 +591,7 @@ bool CSceModuleSystem::setLibraryOverridability(const std::string &modName,
 			}
 
 			LibraryRecord lr = {};
+			lr.mode          = mode;
 			lr.overrideable  = true;
 			mr.libraries.insert(std::make_pair(libName, lr));
 		}
@@ -622,7 +625,6 @@ bool CSceModuleSystem::setFunctionOverridability(const std::string &modName,
 		}
 
 		auto &mr = m_overridableModules.at(modName);
-
 		if (mr.libraries.count(libName) == 0)
 		{
 			if (ovrd == false)
@@ -636,15 +638,42 @@ bool CSceModuleSystem::setFunctionOverridability(const std::string &modName,
 		}
 
 		auto &lr = mr.libraries.at(modName);
-
-		if (lr.functions.count(nid) != 0 && ovrd == false)
+		if (ovrd)
 		{
-			lr.functions.erase(nid);
+			if (lr.mode == LibraryRecord::Mode::Allow &&
+				lr.functions.count(nid) == 0)
+			{
+				lr.functions.insert(std::make_pair(nid, true));
+			}
+			else if (lr.mode == LibraryRecord::Mode::Disallow &&
+					 lr.functions.count(nid) != 0)
+			{
+				lr.functions.erase(nid);
+			}
 		}
 		else
 		{
-			lr.functions.insert(std::make_pair(nid, true));
+			if (lr.mode == LibraryRecord::Mode::Disallow &&
+				lr.functions.count(nid) == 0)
+			{
+				lr.functions.insert(std::make_pair(nid, true));
+			}
+			else if (lr.mode == LibraryRecord::Mode::Allow &&
+					 lr.functions.count(nid) != 0)
+			{
+				lr.functions.erase(nid);
+			}
 		}
+
+		retVal = true;
+		// if (lr.functions.count(nid) != 0 && ovrd == false)
+		// {
+		// 	lr.functions.erase(nid);
+		// }
+		// else
+		// {
+		// 	lr.functions.insert(std::make_pair(nid, true));
+		// }
 
 	} while (false);
 

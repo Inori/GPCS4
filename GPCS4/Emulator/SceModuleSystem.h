@@ -16,9 +16,15 @@ class CSceModuleSystem final : public Singleton<CSceModuleSystem>
 private:
 	struct LibraryRecord
 	{
+		enum class Mode
+		{
+			Disallow,
+			Allow,
+		};
+
+		Mode mode;
 		bool overrideable;
 		std::unordered_map<uint64_t, bool> functions;
-
 	};
 
 	struct ModuleRecord
@@ -77,7 +83,10 @@ public:
 
 	bool setModuleOverridability(const std::string &modName, bool isOverridable);
 
-	bool setLibraryOverridability(const std::string &modName, const std::string &libName, bool isOverridable);
+	bool setLibraryOverridability(const std::string &modName,
+								  const std::string &libName,
+								  bool isOverridable,
+								  LibraryRecord::Mode mode = LibraryRecord::Mode::Disallow);
 
 	bool setFunctionOverridability(const std::string &modName,
 								 const std::string &libName,

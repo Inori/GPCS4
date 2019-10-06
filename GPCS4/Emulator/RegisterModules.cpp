@@ -10,7 +10,7 @@ if (!pModuleSystem->RegisterModule(name))\
 	break;\
 }
 
-#define ALLOW_OVERRIDE(name) \
+#define ALLOW_MODULE_OVERRIDE(name) \
 if(!pModuleSystem->setModuleOverridability(name, true)) \
 {\
 	LOG_ERR("Fail to set overridability for module %s", name);\
@@ -77,8 +77,38 @@ bool CEmulator::RegisterModules()
 		// TODO: Set libc module&libaray as overridable for linker test only. Remember to 
 		// remove this.
 
-		//ALLOW_OVERRIDE("libc");
-		//ALLOW_OVERRIDE("libSceLibcInternal");
+		ALLOW_MODULE_OVERRIDE("libc");
+		ALLOW_MODULE_OVERRIDE("libSceLibcInternal");
+		pModuleSystem->setLibraryOverridability("libc", "libc", true);
+
+		/* disable below functions, which are implemented in virutal libc module */
+
+		// fopen
+		pModuleSystem->setFunctionOverridability("libc", "libc",
+												 14260101637949278365, false);
+
+		// fseek
+		pModuleSystem->setFunctionOverridability("libc", "libc",
+												 12466338725556587288, false);
+
+		// ftell
+		pModuleSystem->setFunctionOverridability("libc", "libc",
+												 4732424424179322620, false);
+		// fread
+		pModuleSystem->setFunctionOverridability("libc", "libc",
+												 10786259999654564973, false);
+
+		// fclose
+		pModuleSystem->setFunctionOverridability("libc", "libc",
+												 13440794502107408237, false);
+
+		// malloc
+		pModuleSystem->setFunctionOverridability("libc", "libc",
+												 9297117245426667155, false);
+
+		// free
+		pModuleSystem->setFunctionOverridability("libc", "libc",
+												 13008767002086125649, false);
 
 		//ALLOW_OVERRIDE("libkernel");
 		//ALLOW_OVERRIDE("libScePad");
