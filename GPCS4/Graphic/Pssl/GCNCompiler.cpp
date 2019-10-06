@@ -412,12 +412,12 @@ void GCNCompiler::emitDclUniformBuffer()
 		case SpirvResourceType::VSharp:
 		{
 			GnmBuffer* vsharpBuffer = reinterpret_cast<GnmBuffer*>(res.res.resource);
-			uint32_t arraySize = vsharpBuffer->stride / sizeof(uint32_t);
+			uint32_t arraySize = vsharpBuffer->stride * vsharpBuffer->num_records / sizeof(uint32_t);
 
 			uint32_t arrayId = m_module.defArrayTypeUnique(
 				m_module.defFloatType(32),
 				m_module.constu32(arraySize));
-			m_module.decorateArrayStride(arrayId, vsharpBuffer->stride);
+			m_module.decorateArrayStride(arrayId, 16);
 			uint32_t uboStuctId = m_module.defStructTypeUnique(1, &arrayId);
 			m_module.decorateBlock(uboStuctId);
 			m_module.memberDecorateOffset(uboStuctId, 0, 0);
