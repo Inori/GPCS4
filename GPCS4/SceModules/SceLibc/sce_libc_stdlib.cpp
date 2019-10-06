@@ -18,10 +18,10 @@ int PS4API scec_atexit(pfunc_exit_handler handler)
 }
 
 
-int PS4API scec_exit(void)
+void PS4API scec_exit(int status)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("status %d", status);
+	exit(status);
 }
 
 
