@@ -155,7 +155,7 @@ void GCNCompiler::emitVectorFpArith32(GCNInstruction& ins)
 	uint32_t fpTypeId = getScalarTypeId(SpirvScalarType::Float32);
 
 	auto spvSrc0 = emitLoadScalarOperand(src0, src0RIdx, ins.literalConst);
-	auto spvSrc1 = emitLoadScalarOperand(src1, src1RIdx, ins.literalConst);
+	auto spvSrc1 = emitLoadVectorOperand(src1RIdx);
 
 	SpirvRegisterValue dstVal;
 	dstVal.type.ctype = SpirvScalarType::Float32;
@@ -169,7 +169,7 @@ void GCNCompiler::emitVectorFpArith32(GCNInstruction& ins)
 		dstVal = emitLoadVectorOperand(dstRIdx);
 		dstVal.id = m_module.opFAdd(fpTypeId,
 			dstVal.id,
-			m_module.opFMul(fpTypeId, spvSrc1.id, spvSrc0.id));
+			m_module.opFMul(fpTypeId, spvSrc0.id, spvSrc1.id));
 	}
 	default:
 		break;
