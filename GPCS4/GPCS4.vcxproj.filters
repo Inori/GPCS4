@@ -712,6 +712,9 @@
     <ClInclude Include="Graphic\Pssl\GCNEnums.h">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClInclude>
+    <ClInclude Include="Loader\FuncStub.h">
+      <Filter>Source Files\Loader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1289,6 +1292,9 @@
     </ClCompile>
     <ClCompile Include="Graphic\Pssl\GCNAnalyzer.cpp">
       <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClCompile>
+    <ClCompile Include="Loader\FuncStub.cpp">
+      <Filter>Source Files\Loader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

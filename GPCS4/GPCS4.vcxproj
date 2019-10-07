@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -119,6 +119,7 @@
     <ClInclude Include="Loader\EbootObject.h" />
     <ClInclude Include="Loader\elf.h" />
     <ClInclude Include="Loader\ELFMapper.h" />
+    <ClInclude Include="Loader\FuncStub.h" />
     <ClInclude Include="Loader\ModuleLoader.h" />
     <ClInclude Include="Platform\PlatformUtils.h" />
     <ClInclude Include="Platform\UtilFile.h" />
@@ -267,6 +268,7 @@
     <ClCompile Include="ImportLibs.cpp" />
     <ClCompile Include="Loader\EbootObject.cpp" />
     <ClCompile Include="Loader\ELFMapper.cpp" />
+    <ClCompile Include="Loader\FuncStub.cpp" />
     <ClCompile Include="Loader\ModuleLoader.cpp" />
     <ClCompile Include="Platform\UtilFile.cpp" />
     <ClCompile Include="Platform\UtilHardware.cpp" />
