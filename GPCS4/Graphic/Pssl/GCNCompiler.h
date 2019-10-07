@@ -595,8 +595,18 @@ private:
 	////////////////
 	// Misc methods
 
-	bool isWideType(
+	bool isDoubleWordType(
 		SpirvScalarType type) const;
+
+	void getVopOperands(
+		GCNInstruction& ins,
+		uint32_t* vdst, uint32_t* vdstRidx,
+		uint32_t* src0, uint32_t* src0Ridx,
+		uint32_t* src1 = nullptr, uint32_t* src1Ridx = nullptr,
+		uint32_t* src2 = nullptr, uint32_t* src2Ridx = nullptr,
+		uint32_t* sdst = nullptr, uint32_t* sdstRidx = nullptr);
+
+	uint32_t getVopOpcode(GCNInstruction& ins);
 
 	// Convenience function to dynamic cast instruction types
 	template<typename InsType>

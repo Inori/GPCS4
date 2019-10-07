@@ -95,15 +95,13 @@ void GCNCompiler::emitVectorALU(GCNInstruction& ins)
 
 void GCNCompiler::emitVectorRegMov(GCNInstruction& ins)
 {
-	LOG_ASSERT(ins.instruction->GetInstructionFormat() == Instruction::InstructionSet_VOP1, "vector mov is not VOP1");
+	uint32_t op = getVopOpcode(ins);
 
-	auto inst = asInst<SIVOP1Instruction>(ins);
-	auto op = inst->GetOp();
-
-	auto src = inst->GetSRC0();
-	auto dst = inst->GetVDST();
-	auto sidx = inst->GetSRidx0();
-	auto didx = inst->GetVDSTRidx();
+	uint32_t src = 0;
+	uint32_t dst = 0;
+	uint32_t sidx = 0;
+	uint32_t didx = 0;
+	getVopOperands(ins, &dst, &didx, &src, &sidx);
 
 	switch (op)
 	{
@@ -145,7 +143,39 @@ void GCNCompiler::emitVectorBitField64(GCNInstruction& ins)
 
 void GCNCompiler::emitVectorFpArith32(GCNInstruction& ins)
 {
+	uint32_t op = getVopOpcode(ins);
+	uint32_t src0 = 0;
+	uint32_t src1 = 0;
+	uint32_t dst = 0;
+	uint32_t src0RIdx = 0;
+	uint32_t src1RIdx = 0;
+	uint32_t dstRIdx = 0;
+	getVopOperands(ins, &dst, &dstRIdx, &src0, &src0RIdx, &src1, &src1RIdx);
+	
+	uint32_t fpTypeId = getScalarTypeId(SpirvScalarType::Float32);
 
+	auto spvSrc0 = emitLoadScalarOperand(src0, src0RIdx, ins.literalConst);
+	auto spvSrc1 = emitLoadVectorOperand(src1RIdx);
+
+	SpirvRegisterValue dstVal;
+	dstVal.type.ctype = SpirvScalarType::Float32;
+	dstVal.type.ccount = 1;
+	
+	switch (op)
+	{
+	case SIVOP2Instruction::V_MAC_F32:
+	case SIVOP3Instruction::V3_MAC_F32:
+	{
+		dstVal = emitLoadVectorOperand(dstRIdx);
+		dstVal.id = m_module.opFAdd(fpTypeId,
+			dstVal.id,
+			m_module.opFMul(fpTypeId, spvSrc0.id, spvSrc1.id));
+	}
+	default:
+		break;
+	}
+
+	emitStoreVectorOperand(dstRIdx, dstVal);
 }
 
 void GCNCompiler::emitVectorFpRound32(GCNInstruction& ins)

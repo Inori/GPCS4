@@ -412,12 +412,12 @@ void GCNCompiler::emitDclUniformBuffer()
 		case SpirvResourceType::VSharp:
 		{
 			GnmBuffer* vsharpBuffer = reinterpret_cast<GnmBuffer*>(res.res.resource);
-			uint32_t arraySize = vsharpBuffer->stride / sizeof(uint32_t);
+			uint32_t arraySize = vsharpBuffer->stride * vsharpBuffer->num_records / sizeof(uint32_t);
 
 			uint32_t arrayId = m_module.defArrayTypeUnique(
 				m_module.defFloatType(32),
 				m_module.constu32(arraySize));
-			m_module.decorateArrayStride(arrayId, vsharpBuffer->stride);
+			m_module.decorateArrayStride(arrayId, 16);
 			uint32_t uboStuctId = m_module.defStructTypeUnique(1, &arrayId);
 			m_module.decorateBlock(uboStuctId);
 			m_module.memberDecorateOffset(uboStuctId, 0, 0);
@@ -664,7 +664,7 @@ pssl::SpirvRegisterValue GCNCompiler::emitLoadScalarOperand(uint32_t srcOperand,
 // See table "VSRC and VDST Operands" in section 3.1 of GPU Shader Core ISA manual
 SpirvRegisterValue GCNCompiler::emitLoadVectorOperand(uint32_t index)
 {
-
+	return emitVgprLoad(index);
 }
 
 // Used with 7 bits SDST
@@ -905,8 +905,8 @@ SpirvRegisterValue GCNCompiler::emitRegisterBitcast(SpirvRegisterValue srcValue,
 	result.type.ctype = dstType;
 	result.type.ccount = srcValue.type.ccount;
 
-	if (isWideType(srcType)) result.type.ccount *= 2;
-	if (isWideType(dstType)) result.type.ccount /= 2;
+	if (isDoubleWordType(srcType)) result.type.ccount *= 2;
+	if (isDoubleWordType(dstType)) result.type.ccount /= 2;
 
 	result.id = m_module.opBitcast(
 		getVectorTypeId(result.type),
@@ -1189,11 +1189,92 @@ uint32_t GCNCompiler::getVectorTypeId(const SpirvVectorType& type)
 	return typeId;
 }
 
-bool GCNCompiler::isWideType(SpirvScalarType type) const
+bool GCNCompiler::isDoubleWordType(SpirvScalarType type) const
 {
 	return type == SpirvScalarType::Sint64
 		|| type == SpirvScalarType::Uint64
 		|| type == SpirvScalarType::Float64;
+}
+
+void GCNCompiler::getVopOperands(
+	GCNInstruction& ins, 
+	uint32_t* vdst, uint32_t* vdstRidx, 
+	uint32_t* src0, uint32_t* src0Ridx, 
+	uint32_t* src1 /*= nullptr*/, uint32_t* src1Ridx /*= nullptr*/, 
+	uint32_t* src2 /*= nullptr*/, uint32_t* src2Ridx /*= nullptr*/, 
+	uint32_t* sdst /*= nullptr*/, uint32_t* sdstRidx /*= nullptr*/)
+{
+	auto encoding = ins.instruction->GetInstructionFormat();
+	switch (encoding)
+	{
+	case Instruction::InstructionSet_VOP1:
+	{
+		auto vop1Ins = asInst<SIVOP1Instruction>(ins);
+		*vdst = vop1Ins->GetVDST();
+		*vdstRidx = vop1Ins->GetVDSTRidx();
+		*src0 = vop1Ins->GetSRC0();
+		*src0Ridx = vop1Ins->GetSRidx0();
+	}
+		break;
+	case Instruction::InstructionSet_VOP2:
+	{
+		auto vop2Ins = asInst<SIVOP2Instruction>(ins);
+		*vdst = vop2Ins->GetVDST();
+		*vdstRidx = vop2Ins->GetVDSTRidx();
+		*src0 = vop2Ins->GetSRC0();
+		*src0Ridx = vop2Ins->GetSRidx0();
+		if (src1) *src1 = vop2Ins->GetVSRC1();
+		if (src1Ridx) *src1Ridx = vop2Ins->GetVRidx1();
+	}
+		break;
+	case Instruction::InstructionSet_VOP3:
+	{
+		auto vop3Ins = asInst<SIVOP3Instruction>(ins);
+		*vdst = vop3Ins->GetVDST();
+		*vdstRidx = vop3Ins->GetVDSTRidx();
+		*src0 = vop3Ins->GetSRC0();
+		*src0Ridx = vop3Ins->GetSRidx0();
+		if (src1) *src1 = vop3Ins->GetSRC1();
+		if (src1Ridx) *src1Ridx = vop3Ins->GetRidx1();
+		if (src2) *src2 = vop3Ins->GetSRC2();
+		if (src2Ridx) *src2Ridx = vop3Ins->GetRidx2();
+		if (sdst) *sdst = vop3Ins->GetSDST();
+		if (sdstRidx) *sdstRidx = vop3Ins->GetSDSTRidx();
+	}
+		break;
+	default:
+		break;
+	}
+}
+
+uint32_t GCNCompiler::getVopOpcode(GCNInstruction& ins)
+{
+	uint32_t op = 0;
+	auto encoding = ins.instruction->GetInstructionFormat();
+	switch (encoding)
+	{
+	case Instruction::InstructionSet_VOP1:
+	{
+		auto vop1Ins = asInst<SIVOP1Instruction>(ins);
+		op = vop1Ins->GetOp();
+	}
+		break;
+	case Instruction::InstructionSet_VOP2:
+	{
+		auto vop2Ins = asInst<SIVOP2Instruction>(ins);
+		op = vop2Ins->GetOp();
+	}
+		break;
+	case Instruction::InstructionSet_VOP3:
+	{
+		auto vop3Ins = asInst<SIVOP3Instruction>(ins);
+		op = vop3Ins->GetOp();
+	}
+		break;
+	default:
+		break;
+	}
+	return op;
 }
 
 } // namespace pssl

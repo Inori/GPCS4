@@ -132,7 +132,7 @@ int PS4API scec_erf(void);
 
 int PS4API scec_erfc(void);
 
-int PS4API scec_exit(void);
+void PS4API scec_exit(int status);
 
 int PS4API scec_exp(void);
 

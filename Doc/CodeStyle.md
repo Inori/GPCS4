@@ -183,6 +183,7 @@ And based on the above Sony's style, we add the following extra rules, to make o
 1. Design first in your mind, then coding.  
    It's better to make a high level design first in your mind and then coding,  
    like which class responsable for which job.  
+   Think about code reuse.  
    Do not just write what comes your mind directly and hastily.  
    It will make your code looks messy and hard to maintian.  
    If you are not sure how to design, we can discuss first.
