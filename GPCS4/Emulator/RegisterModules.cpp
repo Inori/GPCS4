@@ -109,7 +109,13 @@ bool CEmulator::RegisterModules()
 		// free
 		pModuleSystem->setFunctionOverridability("libc", "libc",
 												 13008767002086125649, false);
+		// catchReturnFromMain
+		pModuleSystem->setFunctionOverridability("libc", "libc",
+												 0x5CA45E82C1691299, false);
 
+		// exit
+		pModuleSystem->setFunctionOverridability("libc", "libc",
+												 0xB8C7A2D56F6EC8DA, false);
 		//ALLOW_OVERRIDE("libkernel");
 		//ALLOW_OVERRIDE("libScePad");
 		//ALLOW_OVERRIDE("libSceMbus");

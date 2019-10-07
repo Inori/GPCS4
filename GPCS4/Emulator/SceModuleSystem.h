@@ -96,6 +96,9 @@ public:
 	bool isFileAllowedToLoad(std::string const &fileName);
 	bool decodeEncodedName(std::string const &strEncName, uint *nModuleId, uint *nLibraryId, uint64_t *nNid);
 
+	bool isModuleOverridable(std::string const &modName) const;
+	bool isLibraryOverridable(std::string const &modName, std::string const &libName) const;
+	bool isFunctionOverridable(std::string const &modName, std::string const &libName, uint64_t nid) const;
 
 private:
 	bool decodeValue(std::string const &strEnc, uint64_t &val);
@@ -105,9 +108,6 @@ private:
 	bool isLibraryLoadable(std::string const &modName, std::string const &libName);
 	bool isFunctionLoadable(std::string const &modName,std::string const &libName, uint64_t nid);
 
-	bool isModuleOverridable(std::string const &modName);
-	bool isLibraryOverridable(std::string const &modName, std::string const &libName);
-	bool isFunctionOverridable(std::string const &modName, std::string const &libName, uint64_t nid);
 
 private:
 

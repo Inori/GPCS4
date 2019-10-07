@@ -98,7 +98,7 @@ bool CSceModuleSystem::isFunctionLoadable(std::string const &modName,
 	return retVal;
 }
 
-bool CSceModuleSystem::isModuleOverridable(std::string const &modName)
+bool CSceModuleSystem::isModuleOverridable(std::string const &modName) const
 {
 	return m_overridableModules.count(modName) > 0
 			   ? m_overridableModules.at(modName).overridable
@@ -106,7 +106,7 @@ bool CSceModuleSystem::isModuleOverridable(std::string const &modName)
 }
 
 bool CSceModuleSystem::isLibraryOverridable(std::string const &modName,
-											std::string const &libName)
+											std::string const &libName) const
 {
 	bool retVal = false;
 
@@ -138,7 +138,7 @@ bool CSceModuleSystem::isLibraryOverridable(std::string const &modName,
 
 bool CSceModuleSystem::isFunctionOverridable(std::string const &modName,
 											 std::string const &libName,
-											 uint64_t nid)
+											 uint64_t nid) const
 {
 	bool retVal = false;
 

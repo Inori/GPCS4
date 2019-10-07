@@ -1,6 +1,11 @@
 #include "FuncStub.h"
+#include <cassert>
 
-static void logFunc(const char *log) { LOG_TRACE(log); }
+static void logFunc(const char *log) 
+{
+	LOG_TRACE(log); 
+}
+static void assertFail() { assert(false); }
 
 // TODO: For safety sake, all the non-volatile registers should be saved, but I only save
 // rcx, rdx, r8, r9, r10, r11 for convenience.
@@ -48,6 +53,12 @@ uint8_t *JitFunctionPool::newFunctionMemory()
 		if (m_memory.get() == nullptr)
 		{
 			LOG_ERR("null pointer error");
+			break;
+		}
+
+		if (m_index == m_funcNum)
+		{
+			LOG_ERR("OUT OF MEMORY");
 			break;
 		}
 
@@ -134,7 +145,13 @@ void *FuncStubManager::generate(std::string const &message, void *dest)
 		auto msgPtr = msg.c_str();
 
 		auto funcMem = m_pool->newFunctionMemory();
-		auto ret     = m_stub->attach(funcMem);
+
+		if (funcMem == nullptr)
+		{
+			break;
+		}
+
+		auto ret = m_stub->attach(funcMem);
 		if (!ret)
 		{
 			break;
@@ -148,4 +165,18 @@ void *FuncStubManager::generate(std::string const &message, void *dest)
 	} while (false);
 
 	return retPtr;
+}
+
+void *FuncStubManager::generate(std::string const &message)
+{
+	return generate(message, assertFail);
+}
+
+FuncStubManager *GetFuncStubManager() 
+{ 
+	static FuncStubGenerator generator = {};
+	static JitFunctionPool pool        = {generator.size(), 5000};
+	static FuncStubManager manager     = { &pool, &generator };
+	
+	return &manager;
 }

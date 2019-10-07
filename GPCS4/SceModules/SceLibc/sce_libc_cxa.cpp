@@ -188,3 +188,9 @@ int PS4API scec___cxa_pure_virtual(void)
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
 }
+
+int PS4API scec___catchReturnFromMain(void)
+{
+	LOG_SCE_DUMMY_IMPL();
+	return SCE_OK;
+}

@@ -1,5 +1,9 @@
 #include "Linker.h"
 #include "SceModuleSystem.h"
+#include "Loader/FuncStub.h"
+#include "Platform/PlatformUtils.h"
+
+//#include <cinttypes>
 
 CLinker::CLinker() : m_modSystem{*CSceModuleSystem::GetInstance()} {}
 
@@ -41,6 +45,7 @@ bool CLinker::resolveSymbol(MemoryMappedModule const &mod,
 	{
 		const SymbolInfo *info = nullptr;
 		void *address          = nullptr;
+		bool overrided         = false;
 
 		if (addr == nullptr)
 		{
@@ -64,6 +69,10 @@ bool CLinker::resolveSymbol(MemoryMappedModule const &mod,
 		{
 			address = m_modSystem.FindFunction(info->moduleName, info->libraryName,
 											   info->nid);
+
+			overrided = m_modSystem.isFunctionOverridable(info->moduleName,
+														  info->libraryName,
+														  info->nid);
 		}
 
 		if (address == nullptr)
@@ -72,11 +81,30 @@ bool CLinker::resolveSymbol(MemoryMappedModule const &mod,
 					name.c_str(), info->moduleName.c_str(), mod.fileName.c_str());
 
 			// mark the address as DEAD
-			*addr = 0xffffffffdeaddead;
-			break;
+			// *addr = 0xffffffffdeaddead;
+			// break;
 		}
 
-		*addr = reinterpret_cast<uint64_t>(address);
+		if (!overrided && address != nullptr)
+		{
+			*addr = reinterpret_cast<uint64_t>(address);
+		}
+		else
+		{
+			auto msg      = UtilString::Format("function nid %llu from lib:%s is called: 0x%08x",
+											   info->nid,
+											   info->libraryName.c_str(),
+											   address);
+
+			auto stubMgr  = GetFuncStubManager();
+			auto stubAddr = address == nullptr? 
+								stubMgr->generate(msg):
+							    stubMgr->generate(msg, address);
+
+			*addr = reinterpret_cast<uint64_t>(stubAddr);
+		}
+
+
 		retVal = true;
 	} while (false);
 
