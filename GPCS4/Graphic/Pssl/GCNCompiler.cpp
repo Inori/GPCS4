@@ -423,6 +423,10 @@ void GCNCompiler::emitDclPixelOutput()
 	size_t expCount = m_analysis->expParams.size();
 	for (size_t i = 0; i != expCount; ++i)
 	{
+		// TODO:
+		// Currently I don't detect the target's type,
+		// we need to support different target like mrtz for more complex shaders
+		// in the future.
 		const auto& exp = m_analysis->expParams[i];
 		uint32_t componentCount = exp.isCompressed ? exp.regIndices.size() * 2 : exp.regIndices.size();
 		auto output = emitDclFloatVectorVar(SpirvScalarType::Float32, componentCount, 
@@ -461,26 +465,26 @@ void GCNCompiler::emitDclUniformBuffer()
 	uint32_t index = 0;
 	for (const auto& res : m_shaderInput.resourceBuffer)
 	{
-		switch (res.type)
+		switch (res.usageType)
 		{
-		case SpirvResourceType::VSharp:
-			emitDclVsharpBuffer(res, index);
+		case kShaderInputUsageImmConstBuffer:
+			emitDclImmConstBuffer(res, index);
 			break;
-		case SpirvResourceType::SSharp:
-			emitDclSsharpBuffer(res, index);
+		case kShaderInputUsageImmResource:
+			emitDclImmResource(res, index);
 			break;
-		case SpirvResourceType::TSharp:
+		case kShaderInputUsageImmSampler:
+			emitDclImmSampler(res, index);
 			break;
 		default:
 			break;
 		}
-
 		++index;
 	}
 	
 }
 
-void GCNCompiler::emitDclVsharpBuffer(const GcnResourceBuffer& res, uint32_t index)
+void GCNCompiler::emitDclImmConstBuffer(const GcnResourceBuffer& res, uint32_t index)
 {
 	GnmBuffer* vsharpBuffer = reinterpret_cast<GnmBuffer*>(res.res.resource);
 	uint32_t arraySize = vsharpBuffer->stride * vsharpBuffer->num_records / sizeof(uint32_t);
@@ -500,17 +504,59 @@ void GCNCompiler::emitDclVsharpBuffer(const GcnResourceBuffer& res, uint32_t ind
 	m_module.setDebugMemberName(uboStuctId, 0, "data");
 
 	uint32_t uboPtrId = m_module.defPointerType(uboStuctId, spv::StorageClassUniform);
-	m_uboId = m_module.newVar(uboPtrId, spv::StorageClassUniform);
+	m_vs.m_uboId = m_module.newVar(uboPtrId, spv::StorageClassUniform);
 
 	// TODO:
 	// Not sure, need to correct.
-	m_module.decorateDescriptorSet(m_uboId, index);
-	m_module.decorateBinding(m_uboId, index);
+	m_module.decorateDescriptorSet(m_vs.m_uboId, index);
+	m_module.decorateBinding(m_vs.m_uboId, index);
 
-	m_module.setDebugName(m_uboId, "ubo");
+	m_module.setDebugName(m_vs.m_uboId, "ubo");
 }
 
-void GCNCompiler::emitDclSsharpBuffer(const GcnResourceBuffer& res, uint32_t index)
+void GCNCompiler::emitDclImmSampler(const GcnResourceBuffer& res, uint32_t index)
+{
+	// The sampler start register
+	const uint32_t samplerId = res.res.startSlot;
+
+	const SSharpBuffer* ssharpBuffer = reinterpret_cast<SSharpBuffer*>(res.res.resource);
+
+	// TODO:
+	// Currently, I just hardcoded the image type,
+	// we should defined the image type according to ssharpBuffer
+	// 
+	// Or we should declare the sampler and image separately,
+	// but not declared a combined sampler and image.
+	// 
+	const uint32_t imageType = m_module.defImageType(
+		m_module.defFloatType(32),
+		spv::Dim::Dim2D, 
+		0, 0, 0, 1, 
+		spv::ImageFormatUnknown
+	);
+	const uint32_t samplerType = m_module.defSampledImageType(imageType);
+
+	// The sampler type is opaque, but we still have to
+	// define a pointer and a variable in oder to use it
+	const uint32_t samplerPtrType = m_module.defPointerType(
+		samplerType, spv::StorageClassUniformConstant);
+
+	// Define the sampler variable
+	const uint32_t varId = m_module.newVar(samplerPtrType,
+		spv::StorageClassUniformConstant);
+	m_module.setDebugName(varId,
+		UtilString::Format("sampler%d", samplerId).c_str());
+
+	SpirvSampler sampler;
+	sampler.varId = varId;
+	sampler.typeId = samplerType;
+	m_ps.samplers[samplerId] = sampler;
+
+	m_module.decorateDescriptorSet(varId, 0);
+	m_module.decorateBinding(varId, index);
+}
+
+void GCNCompiler::emitDclImmResource(const GcnResourceBuffer& res, uint32_t index)
 {
 
 }

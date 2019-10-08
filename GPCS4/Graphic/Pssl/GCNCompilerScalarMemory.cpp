@@ -60,7 +60,7 @@ void GCNCompiler::emitScalarMemRd(GCNInstruction& ins)
 			std::array<uint32_t, 2> indices = { m_module.constu32(0), offsetId };
 			uint32_t srcId = m_module.opAccessChain(
 				uniformFloatPtrId,
-				m_uboId, 
+				m_vs.m_uboId,
 				indices.size(), indices.data());
 			auto value = emitValueLoad({ SpirvScalarType::Float32, 1, srcId });
 			valueArray.emplace_back(SpirvScalarType::Float32, 1, value.id);
