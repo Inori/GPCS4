@@ -202,20 +202,10 @@ struct GcnCompilerVsPart
 struct GcnCompilerPsPart 
 {
 	spv::Id functionId = 0;
-
-	uint32_t builtinFragCoord = 0;
-	uint32_t builtinDepth = 0;
-	uint32_t builtinIsFrontFace = 0;
-	uint32_t builtinSampleId = 0;
-	uint32_t builtinSampleMaskIn = 0;
-	uint32_t builtinSampleMaskOut = 0;
-	uint32_t builtinLayer = 0;
-	uint32_t builtinViewportId = 0;
-
-	uint32_t builtinLaneId = 0;
-	uint32_t killState = 0;
-
-	uint32_t specRsSampleCount = 0;
+	// attr index -- spirv id
+	std::map<uint32_t, SpirvRegisterPointer> psInputs;
+	// exp target -- spirv id
+	std::map<uint32_t, SpirvRegisterPointer> psOutputs;
 };
 
 
@@ -361,6 +351,9 @@ private:
 	void emitDclVertexOutput();
 	void emitEmuFetchShader();
 
+	void emitDclPixelInput();
+	void emitDclPixelOutput();
+
 	// For all shader types
 	void emitDclUniformBuffer();
 	void emitDclVsharpBuffer(const GcnResourceBuffer& res, uint32_t index);
@@ -369,7 +362,7 @@ private:
 	/////////////////////////////////////////////////////////
 	SpirvRegisterPointer emitDclFloat(SpirvScalarType type,
 		spv::StorageClass storageCls, const std::string& debugName = "");
-	SpirvRegisterPointer emitDclFloatVectorType(SpirvScalarType type, uint32_t count,
+	SpirvRegisterPointer emitDclFloatVectorPointer(SpirvScalarType type, uint32_t count,
 		spv::StorageClass storageCls, const std::string& debugName = "");
 	SpirvRegisterPointer emitDclFloatVectorVar(SpirvScalarType type, uint32_t count,
 		spv::StorageClass storageCls, const std::string& debugName = "");
