@@ -176,7 +176,23 @@ void GCNCompiler::emitGsInit()
 
 void GCNCompiler::emitPsInit()
 {
+	m_module.setExecutionMode(m_entryPointId,
+		spv::ExecutionModeOriginUpperLeft);
 
+	// Main function of the pixel shader
+	m_ps.functionId = m_module.allocateId();
+	m_module.setDebugName(m_ps.functionId, "psMain");
+
+	emitDclPixelInput();
+	emitDclPixelOutput();
+	emitDclUniformBuffer();
+
+	this->emitFunctionBegin(
+		m_ps.functionId,
+		m_module.defVoidType(),
+		m_module.defFunctionType(
+			m_module.defVoidType(), 0, nullptr));
+	this->emitFunctionLabel();
 }
 
 void GCNCompiler::emitCsInit()
@@ -216,7 +232,15 @@ void GCNCompiler::emitGsFinalize()
 
 void GCNCompiler::emitPsFinalize()
 {
+	emitMainFunctionBegin();
 
+	m_module.opFunctionCall(
+		m_module.defVoidType(),
+		m_ps.functionId, 0, nullptr);
+
+	
+
+	emitFunctionEnd();
 }
 
 void GCNCompiler::emitCsFinalize()
@@ -380,6 +404,36 @@ void GCNCompiler::emitEmuFetchShader()
 	} while (false);
 }
 
+void GCNCompiler::emitDclPixelInput()
+{
+	for (uint32_t i = 0; i != m_analysis->vinterpAttrCount; ++i)
+	{
+		// Treat all input variables as vec4
+		auto input = emitDclFloatVectorVar(SpirvScalarType::Float32, 4,
+			spv::StorageClassInput, UtilString::Format("inParam%d", i));
+		m_module.decorateLocation(input.id, i);
+
+		m_ps.psInputs[i] = input;
+		m_entryPointInterfaces.push_back(input.id);
+	}
+}
+
+void GCNCompiler::emitDclPixelOutput()
+{
+	size_t expCount = m_analysis->expParams.size();
+	for (size_t i = 0; i != expCount; ++i)
+	{
+		const auto& exp = m_analysis->expParams[i];
+		uint32_t componentCount = exp.isCompressed ? exp.regIndices.size() * 2 : exp.regIndices.size();
+		auto output = emitDclFloatVectorVar(SpirvScalarType::Float32, componentCount, 
+			spv::StorageClassOutput, UtilString::Format("outParam%d", i));
+		m_module.decorateLocation(output.id, i);
+
+		m_ps.psOutputs[exp.target] = output;
+		m_entryPointInterfaces.push_back(output.id);
+	}
+}
+
 void GCNCompiler::emitDclUniformBuffer()
 {
 	// For PSSL uniform buffer, it's hard to detect how many variables have been declared,
@@ -475,7 +529,7 @@ SpirvRegisterPointer GCNCompiler::emitDclFloat(SpirvScalarType type,
 	return SpirvRegisterPointer(type, 1, varId);
 }
 
-SpirvRegisterPointer GCNCompiler::emitDclFloatVectorType(SpirvScalarType type, uint32_t count,
+SpirvRegisterPointer GCNCompiler::emitDclFloatVectorPointer(SpirvScalarType type, uint32_t count,
 	spv::StorageClass storageCls, const std::string& debugName /*= ""*/)
 {
 	uint32_t width = type == SpirvScalarType::Float32 ? 32 : 64;
@@ -492,7 +546,7 @@ SpirvRegisterPointer GCNCompiler::emitDclFloatVectorType(SpirvScalarType type, u
 
 SpirvRegisterPointer GCNCompiler::emitDclFloatVectorVar(SpirvScalarType type, uint32_t count, spv::StorageClass storageCls, const std::string& debugName /*= ""*/)
 {
-	auto ptrType = emitDclFloatVectorType(type, count, storageCls, debugName);
+	auto ptrType = emitDclFloatVectorPointer(type, count, storageCls);
 	uint32_t varId = m_module.newVar(ptrType.id, storageCls);
 	if (!debugName.empty())
 	{

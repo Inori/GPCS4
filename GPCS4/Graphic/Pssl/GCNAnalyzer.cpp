@@ -1,6 +1,7 @@
 #include "GCNAnalyzer.h"
 #include "GCNDecoder.h"
 #include "GCNParser/ParserSI.h"
+#include "BitHelper.h"
 
 namespace pssl
 {;
@@ -161,6 +162,7 @@ void GCNAnalyzer::processInstruction(GCNInstruction& ins)
 	case Instruction::GdsOrdCnt:
 		break;
 	case Instruction::VectorInterpFpCache:
+		getVinterpInfo(ins);
 		break;
 	case Instruction::Exp:
 		getExportInfo(ins);
@@ -180,8 +182,24 @@ void GCNAnalyzer::getExportInfo(GCNInstruction& ins)
 
 	GcnExportInfo info;
 	info.target = (uint32_t)inst->GetTGT();
+	info.isCompressed = inst->GetCOMPR();
 
-	GcnRegMask mask(inst->GetEn());
+	GcnRegMask mask;
+	if (!info.isCompressed)
+	{
+		mask = GcnRegMask(inst->GetEn());
+	}
+	else
+	{
+		uint8_t en = inst->GetEn();
+		mask = GcnRegMask(
+			bit::extract<uint8_t>(en, 0, 1),
+			bit::extract<uint8_t>(en, 2, 3),
+			false,
+			false
+		);
+	}
+
 	for (uint32_t i = 0; i != 4; ++i)
 	{
 		if (mask[i])
@@ -192,6 +210,16 @@ void GCNAnalyzer::getExportInfo(GCNInstruction& ins)
 	}
 
 	m_analysis->expParams.push_back(info);
+}
+
+void GCNAnalyzer::getVinterpInfo(GCNInstruction& ins)
+{
+	auto inst = dynamic_cast<SIVINTRPInstruction*>(ins.instruction.get());
+
+	uint32_t attrIdx = inst->GetATTR();
+	m_vinterpAttrSet.insert(attrIdx);
+
+	m_analysis->vinterpAttrCount = m_vinterpAttrSet.size();
 }
 
 }  // namespace pssl
