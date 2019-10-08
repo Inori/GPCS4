@@ -1266,7 +1266,7 @@ std::unordered_map<SISMRDInstruction::OP, GCNInstructionFormat> g_instructionFor
 
 std::unordered_map<SIVINTRPInstruction::OP, GCNInstructionFormat> g_instructionFormatMapVINTRP =
 {
-	{ SIVINTRPInstruction::V_INTERP_P1_F32, { Instruction::InstructionClassUnknown } },
-	{ SIVINTRPInstruction::V_INTERP_P2_F32, { Instruction::InstructionClassUnknown } },
-	{ SIVINTRPInstruction::V_INTERP_MOV_F32, { Instruction::InstructionClassUnknown } },
+	{ SIVINTRPInstruction::V_INTERP_P1_F32, { Instruction::VectorInterpFpCache } },
+	{ SIVINTRPInstruction::V_INTERP_P2_F32, { Instruction::VectorInterpFpCache } },
+	{ SIVINTRPInstruction::V_INTERP_MOV_F32, { Instruction::VectorInterpFpCache } },
 };

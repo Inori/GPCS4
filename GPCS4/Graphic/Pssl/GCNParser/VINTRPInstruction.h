@@ -48,7 +48,7 @@ public:
 
     /// ctor
     VINTRPInstruction(VSRC vsrc, ATTRCHAN attrchan, ATTR attr, VDST vdst,
-		InstructionClass insClass = InstructionClassUnknown): 
+		InstructionClass insClass = VectorInterpFpCache):
 		Instruction(VSRCInstructionWidth, VectorInterpolation, InstructionSet_VINTRP, insClass),
         m_vsrc(vsrc), m_attrchan(attrchan), m_attr(attr), m_vdst(vdst) {}
 
@@ -88,7 +88,8 @@ public:
     OP GetOp() const { return m_op; }
 
     /// ctor
-    SIVINTRPInstruction(VSRC vsrc, ATTRCHAN attrchan, ATTR attr, OP op, VDST vdst): VINTRPInstruction(vsrc, attrchan, attr, vdst), m_op(op) {}
+    SIVINTRPInstruction(VSRC vsrc, ATTRCHAN attrchan, ATTR attr, OP op, VDST vdst):
+		VINTRPInstruction(vsrc, attrchan, attr, vdst, VectorInterpFpCache), m_op(op) {}
 
 
 private:
