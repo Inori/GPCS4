@@ -410,33 +410,10 @@ void GCNCompiler::emitDclUniformBuffer()
 		switch (res.type)
 		{
 		case SpirvResourceType::VSharp:
-		{
-			GnmBuffer* vsharpBuffer = reinterpret_cast<GnmBuffer*>(res.res.resource);
-			uint32_t arraySize = vsharpBuffer->stride * vsharpBuffer->num_records / sizeof(uint32_t);
-
-			uint32_t arrayId = m_module.defArrayTypeUnique(
-				m_module.defFloatType(32),
-				m_module.constu32(arraySize));
-			m_module.decorateArrayStride(arrayId, 16);
-			uint32_t uboStuctId = m_module.defStructTypeUnique(1, &arrayId);
-			m_module.decorateBlock(uboStuctId);
-			m_module.memberDecorateOffset(uboStuctId, 0, 0);
-			m_module.setDebugName(uboStuctId, "UniformBufferObject");
-			m_module.setDebugMemberName(uboStuctId, 0, "data");
-
-			uint32_t uboPtrId = m_module.defPointerType(uboStuctId, spv::StorageClassUniform);
-			m_uboId = m_module.newVar(uboPtrId, spv::StorageClassUniform);
-
-			// TODO:
-			// Not sure, need to correct.
-			m_module.decorateDescriptorSet(m_uboId, index);
-			m_module.decorateBinding(m_uboId, index);
-
-			m_module.setDebugName(m_uboId, "ubo");
-			
-		}
+			emitDclVsharpBuffer(res, index);
 			break;
 		case SpirvResourceType::SSharp:
+			emitDclSsharpBuffer(res, index);
 			break;
 		case SpirvResourceType::TSharp:
 			break;
@@ -449,12 +426,37 @@ void GCNCompiler::emitDclUniformBuffer()
 	
 }
 
-void GCNCompiler::emitDclImmConstBuffer(const InputUsageSlot* usageSlot)
+void GCNCompiler::emitDclVsharpBuffer(const GcnResourceBuffer& res, uint32_t index)
 {
-	
+	GnmBuffer* vsharpBuffer = reinterpret_cast<GnmBuffer*>(res.res.resource);
+	uint32_t arraySize = vsharpBuffer->stride * vsharpBuffer->num_records / sizeof(uint32_t);
+
+	uint32_t arrayId = m_module.defArrayTypeUnique(
+		m_module.defFloatType(32),
+		m_module.constu32(arraySize));
+
+	// It seems the official glsl compiler(glslangValidator.exe) always
+	// set the ArrayStride to 16 no matter what type the element is.
+	m_module.decorateArrayStride(arrayId, 16);
+
+	uint32_t uboStuctId = m_module.defStructTypeUnique(1, &arrayId);
+	m_module.decorateBlock(uboStuctId);
+	m_module.memberDecorateOffset(uboStuctId, 0, 0);
+	m_module.setDebugName(uboStuctId, "UniformBufferObject");
+	m_module.setDebugMemberName(uboStuctId, 0, "data");
+
+	uint32_t uboPtrId = m_module.defPointerType(uboStuctId, spv::StorageClassUniform);
+	m_uboId = m_module.newVar(uboPtrId, spv::StorageClassUniform);
+
+	// TODO:
+	// Not sure, need to correct.
+	m_module.decorateDescriptorSet(m_uboId, index);
+	m_module.decorateBinding(m_uboId, index);
+
+	m_module.setDebugName(m_uboId, "ubo");
 }
 
-void GCNCompiler::emitDclImmSampler(const InputUsageSlot* usageSlot)
+void GCNCompiler::emitDclSsharpBuffer(const GcnResourceBuffer& res, uint32_t index)
 {
 
 }

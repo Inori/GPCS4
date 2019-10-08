@@ -363,8 +363,8 @@ private:
 
 	// For all shader types
 	void emitDclUniformBuffer();
-	void emitDclImmConstBuffer(const InputUsageSlot* usageSlot);
-	void emitDclImmSampler(const InputUsageSlot* usageSlot);
+	void emitDclVsharpBuffer(const GcnResourceBuffer& res, uint32_t index);
+	void emitDclSsharpBuffer(const GcnResourceBuffer& res, uint32_t index);
 
 	/////////////////////////////////////////////////////////
 	SpirvRegisterPointer emitDclFloat(SpirvScalarType type,
@@ -598,6 +598,10 @@ private:
 	bool isDoubleWordType(
 		SpirvScalarType type) const;
 
+	// Convenient when used with opcodes with may have
+	// different encodings. e.g. V_MAC_F32 [VOP2|VOP3]
+	uint32_t getVopOpcode(GCNInstruction& ins);
+
 	void getVopOperands(
 		GCNInstruction& ins,
 		uint32_t* vdst, uint32_t* vdstRidx,
@@ -606,7 +610,6 @@ private:
 		uint32_t* src2 = nullptr, uint32_t* src2Ridx = nullptr,
 		uint32_t* sdst = nullptr, uint32_t* sdstRidx = nullptr);
 
-	uint32_t getVopOpcode(GCNInstruction& ins);
 
 	// Convenience function to dynamic cast instruction types
 	template<typename InsType>
