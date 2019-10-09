@@ -720,7 +720,7 @@ void GCNCompiler::emitVgprArrayStore(uint32_t startIdx, const SpirvRegisterValue
 	}
 }
 
-void GCNCompiler::emitVgprComponentStore(uint32_t startIdx, const SpirvRegisterValue& srcVec, const GcnRegMask& writeMask)
+void GCNCompiler::emitVgprVectorStore(uint32_t startIdx, const SpirvRegisterValue& srcVec, const GcnRegMask& writeMask)
 {
 
 }
