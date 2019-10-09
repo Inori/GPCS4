@@ -80,7 +80,7 @@ void GCNCompiler::emitVectorMemImgSmp(GCNInstruction& ins)
 		colorValue.type.ccount = 4;
 		uint32_t resultTypeId = getVectorTypeId(colorValue.type);
 		colorValue.id = m_module.opImageSampleImplicitLod(resultTypeId, sampledImageId, uvId, { 0 });
-		emitVgprComponentStore(dstReg, colorValue, 0x0F);
+		emitVgprVectorStore(dstReg, colorValue, 0x0F);
 	}
 		break;
 	default:
