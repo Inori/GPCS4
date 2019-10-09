@@ -720,7 +720,7 @@ void GCNCompiler::emitVgprArrayStore(uint32_t startIdx, const SpirvRegisterValue
 	}
 }
 
-SpirvRegisterValue GCNCompiler::emitVectorCompositeLoad(
+SpirvRegisterValue GCNCompiler::emitVectorComponentLoad(
 	const SpirvRegisterPointer& srcVec,
 	uint32_t compIndex)
 {

@@ -432,7 +432,7 @@ private:
 	
 	// load a vector's composite,
 	// 0 - x, 1 - y, 2 - z, 3 - w
-	SpirvRegisterValue emitVectorCompositeLoad(
+	SpirvRegisterValue emitVectorComponentLoad(
 		const SpirvRegisterPointer& srcVec,
 		uint32_t compIndex);
 
