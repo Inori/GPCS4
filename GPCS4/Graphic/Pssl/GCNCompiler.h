@@ -430,6 +430,11 @@ private:
 	void emitVgprStore(uint32_t dstIdx, const SpirvRegisterValue& srcReg);
 	void emitVgprArrayStore(uint32_t startIdx, const SpirvRegisterValue* values, uint32_t count);
 	
+	// load a vector's composite,
+	// 0 - x, 1 - y, 2 - z, 3 - w
+	SpirvRegisterValue emitVectorCompositeLoad(
+		const SpirvRegisterPointer& srcVec,
+		uint32_t compIndex);
 
 	/////////////////////////////////////////
 	// Operands manipulation methods
@@ -441,10 +446,17 @@ private:
 
 	SpirvRegisterValue emitInlineConstantFloat(Instruction::OperandSRC src);
 	SpirvRegisterValue emitInlineConstantInteger(Instruction::OperandSRC src);
+
 	/////////////////////////////////////////
 	// Hardware state register manipulation methods
 	void emitStoreVCC(const SpirvRegisterValue& vccValueReg, bool isVccHi);
 	void emitStoreM0(const SpirvRegisterValue& m0ValueReg);
+
+	///////////////////////////////////////
+	// Image register manipulation methods
+	uint32_t emitLoadSampledImage(
+		const SpirvTexture&     textureResource,
+		const SpirvSampler&     samplerResource);
 
 	////////////////////////////////////////////////
 	// Constant building methods. These are used to

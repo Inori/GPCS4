@@ -720,6 +720,20 @@ void GCNCompiler::emitVgprArrayStore(uint32_t startIdx, const SpirvRegisterValue
 	}
 }
 
+SpirvRegisterValue GCNCompiler::emitVectorCompositeLoad(
+	const SpirvRegisterPointer& srcVec,
+	uint32_t compIndex)
+{
+	uint32_t typeId = getScalarTypeId(srcVec.type.ctype);
+	uint32_t compositeIndexId = m_module.constu32(compIndex);
+	uint32_t compositePointer = m_module.opAccessChain(
+		typeId,
+		srcVec.id,
+		1, &compositeIndexId);
+	uint32_t valueId = m_module.opLoad(typeId, compositePointer);
+	return SpirvRegisterValue(srcVec.type.ctype, 1, valueId);
+}
+
 // Used with with 7 bits SDST, 8 bits SSRC or 9 bits SRC
 // See table "SDST, SSRC and SRC Operands" in section 3.1 of GPU Shader Core ISA manual
 pssl::SpirvRegisterValue GCNCompiler::emitLoadScalarOperand(uint32_t srcOperand, uint32_t regIndex, uint32_t literalConst /*= 0*/)
@@ -932,6 +946,15 @@ void GCNCompiler::emitStoreM0(const SpirvRegisterValue& m0ValueReg)
 	{
 		// M0 source is a register.
 	}
+}
+
+uint32_t GCNCompiler::emitLoadSampledImage(const SpirvTexture& textureResource, const SpirvSampler& samplerResource)
+{
+	const uint32_t sampledImageType = m_module.defSampledImageType(textureResource.imageTypeId);
+
+	return m_module.opSampledImage(sampledImageType,
+		m_module.opLoad(textureResource.imageTypeId, textureResource.varId),
+		m_module.opLoad(samplerResource.typeId, samplerResource.varId));
 }
 
 pssl::SpirvRegisterValue GCNCompiler::emitBuildConstVecf32(float x, float y, float z, float w, const GcnRegMask& writeMask)

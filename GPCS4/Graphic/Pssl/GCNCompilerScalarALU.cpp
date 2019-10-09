@@ -57,20 +57,25 @@ void GCNCompiler::emitScalarMov(GCNInstruction& ins)
 {
 	auto inst = asInst<SISOP1Instruction>(ins);
 	auto op = inst->GetOp();
-	
+
+	auto sdst = inst->GetSDST();
+	auto sidx = inst->GetSRidx();
+	auto ssrc = inst->GetSSRC0();
+	auto didx = inst->GetSDSTRidx();
+
 	switch (op)
 	{
 	case SISOP1Instruction::S_MOV_B32:
 	{
-		auto sdst = inst->GetSDST();
-		auto sidx = inst->GetSRidx();
-		auto ssrc = inst->GetSSRC0();
-		auto didx = inst->GetSDSTRidx();
 		auto value = emitLoadScalarOperand(ssrc, sidx, ins.literalConst);
 		emitStoreScalarOperand(sdst, didx, value);
 	}
 		break;
 	case SISOP1Instruction::S_MOV_B64:
+	{
+		// TODO:
+		// I only find 's_mov_b64 vcc, exec' currently, just pass
+	}
 		break;
 	default:
 		LOG_FIXME("Not implementd: op %X", op);
@@ -125,7 +130,16 @@ void GCNCompiler::emitScalarExecMask(GCNInstruction& ins)
 
 void GCNCompiler::emitScalarQuadMask(GCNInstruction& ins)
 {
-
+	auto inst = asInst<SISOP1Instruction>(ins);
+	auto op = inst->GetOp();
+	
+	switch (op)
+	{
+	case SISOP1Instruction::S_WQM_B64:
+		break;
+	default:
+		break;
+	}
 }
 
 }
