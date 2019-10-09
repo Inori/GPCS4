@@ -147,6 +147,32 @@ struct SpirvSampler
 	uint32_t typeId = 0;
 };
 
+/**
+ * \brief Image type information
+ */
+struct SpirvImageInfo 
+{
+	spv::Dim        dim		= spv::Dim1D;
+	uint32_t        array	= 0;
+	uint32_t        ms		= 0;
+	uint32_t        sampled = 0;
+	spv::ImageFormat format = spv::ImageFormatUnknown;
+};
+
+
+/**
+ * \brief Shader resource binding
+ *
+ * Stores a resource variable
+ * and associated type IDs.
+ */
+struct SpirvTexture
+{
+	SpirvImageInfo    imageInfo;
+	uint32_t          varId = 0;
+	uint32_t          imageTypeId = 0;
+};
+
 
 /**
  * \brief Sharp buffer resource.
@@ -230,7 +256,9 @@ struct GcnCompilerPsPart
 	// exp target -- spirv id
 	std::map<uint32_t, SpirvRegisterPointer> psOutputs;
 	// start register index -- sampler
-	std::map<uint32_t, SpirvSampler> samplers;
+	std::array<SpirvSampler, 16> samplers;
+	// start register index -- texture
+	std::array<SpirvTexture, 128> textures;
 };
 
 

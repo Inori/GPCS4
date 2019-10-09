@@ -519,23 +519,9 @@ void GCNCompiler::emitDclImmSampler(const GcnResourceBuffer& res, uint32_t index
 	// The sampler start register
 	const uint32_t samplerId = res.res.startSlot;
 
-	const SSharpBuffer* ssharpBuffer = reinterpret_cast<SSharpBuffer*>(res.res.resource);
+	//const SSharpBuffer* ssharpBuffer = reinterpret_cast<SSharpBuffer*>(res.res.resource);
 
-	// TODO:
-	// Currently, I just hardcoded the image type,
-	// we should defined the image type according to ssharpBuffer
-	// 
-	// Or we should declare the sampler and image separately,
-	// but not declared a combined sampler and image.
-	// 
-	const uint32_t imageType = m_module.defImageType(
-		m_module.defFloatType(32),
-		spv::Dim::Dim2D, 
-		0, 0, 0, 1, 
-		spv::ImageFormatUnknown
-	);
-	const uint32_t samplerType = m_module.defSampledImageType(imageType);
-
+	const uint32_t samplerType = m_module.defSamplerType();
 	// The sampler type is opaque, but we still have to
 	// define a pointer and a variable in oder to use it
 	const uint32_t samplerPtrType = m_module.defPointerType(
@@ -547,18 +533,53 @@ void GCNCompiler::emitDclImmSampler(const GcnResourceBuffer& res, uint32_t index
 	m_module.setDebugName(varId,
 		UtilString::Format("sampler%d", samplerId).c_str());
 
+	m_module.decorateDescriptorSet(varId, 0);
+	m_module.decorateBinding(varId, index);
+
 	SpirvSampler sampler;
 	sampler.varId = varId;
 	sampler.typeId = samplerType;
-	m_ps.samplers[samplerId] = sampler;
-
-	m_module.decorateDescriptorSet(varId, 0);
-	m_module.decorateBinding(varId, index);
+	m_ps.samplers.at(samplerId) = sampler;
 }
 
 void GCNCompiler::emitDclImmResource(const GcnResourceBuffer& res, uint32_t index)
 {
 
+	const uint32_t registerId = res.res.startSlot;
+
+	const TSharpBuffer* tsharpBuffer = reinterpret_cast<TSharpBuffer*>(res.res.resource);
+
+	// TODO:
+	// We should define the type info according to tsharpBuffer
+	SpirvImageInfo typeInfo;
+	typeInfo.format = spv::ImageFormatUnknown;
+	typeInfo.dim = spv::Dim2D;
+	typeInfo.array = 0;
+	typeInfo.ms = 0;
+	typeInfo.sampled = 1;
+
+	const uint32_t sampledTypeId = getScalarTypeId(SpirvScalarType::Float32);
+	const uint32_t imageTypeId = m_module.defImageType(sampledTypeId,
+		typeInfo.dim, 0, typeInfo.array, typeInfo.ms, typeInfo.sampled,
+		typeInfo.format);
+
+	const uint32_t resourcePtrType = m_module.defPointerType(
+		imageTypeId, spv::StorageClassUniformConstant);
+
+	const uint32_t varId = m_module.newVar(resourcePtrType,
+		spv::StorageClassUniformConstant);
+
+	m_module.setDebugName(varId,
+		UtilString::Format("texture%d", registerId).c_str());
+
+	m_module.decorateDescriptorSet(varId, 0);
+	m_module.decorateBinding(varId, index);
+
+	SpirvTexture texture;
+	texture.imageInfo = typeInfo;
+	texture.varId = varId;
+	texture.imageTypeId = imageTypeId;
+	m_ps.textures.at(registerId) = texture;
 }
 
 SpirvRegisterPointer GCNCompiler::emitDclFloat(SpirvScalarType type,
