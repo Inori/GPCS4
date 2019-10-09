@@ -55,7 +55,37 @@ void GCNCompiler::emitVectorMemImgNoSmp(GCNInstruction& ins)
 
 void GCNCompiler::emitVectorMemImgSmp(GCNInstruction& ins)
 {
+	auto inst = asInst<SIMIMGInstruction>(ins);
+	auto op = inst->GetOp();
 
+	uint32_t uvReg = inst->GetVADDR();
+	uint32_t sampReg = inst->GetSSAMP();
+	uint32_t texReg = inst->GetSRSRC();
+	uint32_t dstReg = inst->GetVDATA();
+
+	switch (op)
+	{
+	case SIMIMGInstruction::IMAGE_SAMPLE_L:
+	{
+		std::array<uint32_t, 2> components = { m_vgprs[uvReg].id, m_vgprs[uvReg + 1].id };
+		uint32_t typeId = getVectorTypeId({ SpirvScalarType::Float32, 2 });
+		uint32_t uvId = m_module.opCompositeConstruct(typeId, components.size(), components.data());
+
+		auto& sampler = m_ps.samplers.at(sampReg);
+		auto& texture = m_ps.textures.at(texReg);
+
+		uint32_t sampledImageId = emitLoadSampledImage(texture, sampler);
+		SpirvRegisterValue colorValue;
+		colorValue.type.ctype = SpirvScalarType::Float32;
+		colorValue.type.ccount = 4;
+		uint32_t resultTypeId = getVectorTypeId(colorValue.type);
+		colorValue.id = m_module.opImageSampleImplicitLod(resultTypeId, sampledImageId, uvId, { 0 });
+		emitVgprComponentStore(dstReg, colorValue, 0x0F);
+	}
+		break;
+	default:
+		break;
+	}
 }
 
 void GCNCompiler::emitVectorMemImgUt(GCNInstruction& ins)
