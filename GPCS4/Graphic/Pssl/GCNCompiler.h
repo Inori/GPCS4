@@ -32,6 +32,11 @@
 namespace pssl
 {;
 
+
+constexpr size_t GcnMaxSgprCount = 104;
+constexpr size_t GcnMaxVgprCount = 256;
+
+
 /**
  * \brief Vector type
  *
@@ -256,9 +261,9 @@ struct GcnCompilerPsPart
 	// exp target -- spirv id
 	std::map<uint32_t, SpirvRegisterPointer> psOutputs;
 	// start register index -- sampler
-	std::array<SpirvSampler, 16> samplers;
+	std::array<SpirvSampler, GcnMaxSgprCount> samplers;
 	// start register index -- texture
-	std::array<SpirvTexture, 128> textures;
+	std::array<SpirvTexture, GcnMaxSgprCount> textures;
 };
 
 
