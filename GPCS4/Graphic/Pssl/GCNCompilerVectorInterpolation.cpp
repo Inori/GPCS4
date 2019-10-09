@@ -18,8 +18,6 @@ void GCNCompiler::emitVectorInterpFpCache(GCNInstruction& ins)
 	uint32_t attr = inst->GetATTR();
 	uint32_t chan = inst->GetATTRCHAN();
 
-	uint32_t fpTypeId = getScalarTypeId(SpirvScalarType::Float32);
-
 	SpirvRegisterValue dstValue;
 
 	switch (op)
