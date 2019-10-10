@@ -632,7 +632,26 @@ SpirvRegisterValue GCNCompiler::emitValueLoad(const SpirvRegisterPointer& reg)
 
 SpirvRegisterValue GCNCompiler::emitSgprLoad(uint32_t index)
 {
-	return emitValueLoad(m_sgprs[index]);
+	// TODO:
+	// For sgpr load, we shouldn't do initialize here,
+	// because it should be already initialized in other places.
+	// Currently I do initialize just to prevent zero spir-v id,
+	// I haven't implemented
+	// sgpr allocation and initialization routines, the sgprs should be
+	// mapped to 16 user data registers at 'vsInit'.
+	auto& sgpr = m_sgprs[index];
+	if (sgpr.id == 0)  // Not initialized
+	{
+		sgpr.type.ctype = SpirvScalarType::Float32;
+		sgpr.type.ccount = 1;
+		sgpr.id = m_module.newVarInit(getVectorTypeId(sgpr.type), 
+			spv::StorageClassFunction, 
+			m_module.constf32(0.0));
+		m_module.setDebugName(sgpr.id, UtilString::Format("s%d", index).c_str());
+	}
+	return emitValueLoad(sgpr);
+
+	//return emitValueLoad(m_sgprs[index]);
 }
 
 SpirvRegisterValue GCNCompiler::emitVgprLoad(uint32_t index)
@@ -722,7 +741,22 @@ void GCNCompiler::emitVgprArrayStore(uint32_t startIdx, const SpirvRegisterValue
 
 void GCNCompiler::emitVgprVectorStore(uint32_t startIdx, const SpirvRegisterValue& srcVec, const GcnRegMask& writeMask)
 {
+	uint32_t componentCount = writeMask.popCount();
+	uint32_t fpTypeId = getScalarTypeId(SpirvScalarType::Float32);
+	for (uint32_t i = 0; i != componentCount; ++i)
+	{
+		if (!writeMask[i])
+		{
+			continue;
+		}
 
+		SpirvRegisterValue value;
+		value.type.ctype = SpirvScalarType::Float32;
+		value.type.ccount = 1;
+		value.id = m_module.opCompositeExtract(fpTypeId, srcVec.id, 1, &i);
+
+		emitVgprStore(startIdx + i, value);
+	}
 }
 
 SpirvRegisterValue GCNCompiler::emitVectorComponentLoad(
