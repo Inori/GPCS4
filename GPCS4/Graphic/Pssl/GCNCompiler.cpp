@@ -823,9 +823,7 @@ pssl::SpirvRegisterValue GCNCompiler::emitLoadScalarOperand(uint32_t srcOperand,
 		break;
 	// For 9 bits SRC operand
 	case Instruction::OperandSRC::SRCVectorGPRMin ... Instruction::OperandSRC::SRCVectorGPRMax:
-	{
-
-	}
+		operand = emitVgprLoad(regIndex);
 		break;
 	default:
 		LOG_ERR("error operand range %d", (uint32_t)srcOperand);

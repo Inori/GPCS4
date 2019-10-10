@@ -171,6 +171,11 @@ void GCNCompiler::emitVectorFpArith32(GCNInstruction& ins)
 			dstVal.id,
 			m_module.opFMul(fpTypeId, spvSrc0.id, spvSrc1.id));
 	}
+	case SIVOP2Instruction::V_MUL_F32:
+	case SIVOP3Instruction::V3_MUL_F32:
+	{
+		dstVal.id = m_module.opFMul(fpTypeId, spvSrc0.id, spvSrc1.id);
+	}
 	default:
 		break;
 	}
@@ -245,7 +250,25 @@ void GCNCompiler::emitVectorIntCmp64(GCNInstruction& ins)
 
 void GCNCompiler::emitVectorConv(GCNInstruction& ins)
 {
+	uint32_t op = getVopOpcode(ins);
+	uint32_t src0 = 0;
+	uint32_t src1 = 0;
+	uint32_t dst = 0;
+	uint32_t src0RIdx = 0;
+	uint32_t src1RIdx = 0;
+	uint32_t dstRIdx = 0;
+	getVopOperands(ins, &dst, &dstRIdx, &src0, &src0RIdx, &src1, &src1RIdx);
 
+	switch (op)
+	{
+	case SIVOP2Instruction::V_CVT_PKRTZ_F16_F32:
+	case SIVOP3Instruction::V3_CVT_PKRTZ_F16_F32:
+	{
+
+	}
+	default:
+		break;
+	}
 }
 
 void GCNCompiler::emitVectorFpGraph32(GCNInstruction& ins)

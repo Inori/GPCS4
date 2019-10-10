@@ -41,7 +41,7 @@ void GCNCompiler::emitVectorInterpFpCache(GCNInstruction& ins)
 		break;
 	}
 
-	if (dstValue.id != 0)  // For V_INTERP_P1_F32, we shouldn't store.
+	if (op != SIVINTRPInstruction::V_INTERP_P1_F32)  // For V_INTERP_P1_F32, we shouldn't store.
 	{
 		emitVgprStore(dst, dstValue);
 	}
