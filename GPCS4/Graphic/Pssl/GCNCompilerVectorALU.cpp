@@ -287,8 +287,8 @@ void GCNCompiler::emitVectorConv(GCNInstruction& ins)
 	// here we need to new a proper type variable.
 	if (m_vgprs[dstRIdx].type.ctype != dstValue.type.ctype)
 	{
-		uint32_t u32PtrType = m_module.defPointerType(getVectorTypeId(dstValue.type), spv::StorageClassFunction);
-		uint32_t varId = m_module.newVar(u32PtrType, spv::StorageClassFunction);
+		uint32_t u32PtrType = m_module.defPointerType(getVectorTypeId(dstValue.type), spv::StorageClassPrivate);
+		uint32_t varId = m_module.newVar(u32PtrType, spv::StorageClassPrivate);
 		m_module.setDebugName(varId, UtilString::Format("v_%d", dstRIdx).c_str());
 		m_vgprs[dstRIdx] = SpirvRegisterPointer(dstValue.type, varId);
 	}

@@ -57,6 +57,37 @@ struct SpirvVectorType
 	uint32_t          ccount;
 };
 
+
+/**
+ * \brief Array type
+ *
+ * Convenience struct that stores a scalar type, a
+ * component count and an array size. An array of
+ * length 0 will be evaluated to a vector type. The
+ * compiler can use this to generate SPIR-V types.
+ */
+struct SpirvArrayType 
+{
+	SpirvScalarType    ctype;
+	uint32_t           ccount;
+	uint32_t           alength;
+};
+
+
+/**
+ * \brief Register info
+ *
+ * Stores the array type of a register and
+ * its storage class. The compiler can use
+ * this to generate SPIR-V pointer types.
+ */
+struct SpirvRegisterInfo 
+{
+	SpirvArrayType     type;
+	spv::StorageClass  sclass;
+};
+
+
 /**
  * \brief Register value
  *
@@ -410,13 +441,6 @@ private:
 	void emitDclImmResource(const GcnResourceBuffer& res, uint32_t index);
 
 	/////////////////////////////////////////////////////////
-	SpirvRegisterPointer emitDclFloat(SpirvScalarType type,
-		spv::StorageClass storageCls, const std::string& debugName = "");
-	SpirvRegisterPointer emitDclFloatVectorPointer(SpirvScalarType type, uint32_t count,
-		spv::StorageClass storageCls, const std::string& debugName = "");
-	SpirvRegisterPointer emitDclFloatVectorVar(SpirvScalarType type, uint32_t count,
-		spv::StorageClass storageCls, const std::string& debugName = "");
-
 	SpirvRegisterValue emitValueLoad(const SpirvRegisterPointer& reg);
 	SpirvRegisterValue emitSgprLoad(uint32_t index);
 	SpirvRegisterValue emitVgprLoad(uint32_t index);
@@ -437,7 +461,7 @@ private:
 	SpirvRegisterValue emitVectorComponentLoad(
 		const SpirvRegisterPointer& srcVec,
 		uint32_t compIndex,
-		spv::StorageClass storageClass = spv::StorageClassFunction);
+		spv::StorageClass storageClass = spv::StorageClassPrivate);
 
 	
 
@@ -465,6 +489,25 @@ private:
 
 	SpirvRegisterValue emitPackFloat16(const SpirvRegisterValue& v2floatVec);
 	SpirvRegisterValue emitUnpackFloat16(const SpirvRegisterValue& uiVec);
+
+	///////////////////////////////
+	// Variable definition methods
+	uint32_t emitNewVariable(
+		const SpirvRegisterInfo& info,
+		const std::string& name = "");
+
+	uint32_t emitNewBuiltinVariable(
+		const SpirvRegisterInfo& info,
+		spv::BuiltIn	         builtIn,
+		const char*              name);
+
+	SpirvRegisterPointer emitDclFloat(SpirvScalarType type,
+		spv::StorageClass storageCls, const std::string& debugName = "");
+	SpirvRegisterPointer emitDclFloatVectorPointer(SpirvScalarType type, uint32_t count,
+		spv::StorageClass storageCls, const std::string& debugName = "");
+	SpirvRegisterPointer emitNewFloatVectorVar(SpirvScalarType type, uint32_t count,
+		spv::StorageClass storageCls, const std::string& debugName = "");
+
 
 	////////////////////////////////////////////////
 	// Constant building methods. These are used to
@@ -654,6 +697,12 @@ private:
 
 	uint32_t getVectorTypeId(
 		const SpirvVectorType& type);
+
+	uint32_t getArrayTypeId(
+		const SpirvArrayType& type);
+
+	uint32_t getPointerTypeId(
+		const SpirvRegisterInfo& type);
 
 	////////////////
 	// Misc methods
