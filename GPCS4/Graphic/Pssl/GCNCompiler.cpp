@@ -644,7 +644,9 @@ SpirvRegisterValue GCNCompiler::emitSgprLoad(uint32_t index)
 	{
 		sgpr.type.ctype = SpirvScalarType::Float32;
 		sgpr.type.ccount = 1;
-		sgpr.id = m_module.newVarInit(getVectorTypeId(sgpr.type), 
+		uint32_t ptrType = m_module.defPointerType(getVectorTypeId(sgpr.type), spv::StorageClassFunction);
+		sgpr.id = m_module.newVarInit(
+			ptrType, 
 			spv::StorageClassFunction, 
 			m_module.constf32(0.0));
 		m_module.setDebugName(sgpr.id, UtilString::Format("s%d", index).c_str());
@@ -695,7 +697,8 @@ void GCNCompiler::emitValueStore(
 	}
 }
 
-void GCNCompiler::emitSgprStore(uint32_t dstIdx, const SpirvRegisterValue& srcReg)
+void GCNCompiler::emitSgprStore(uint32_t dstIdx, 
+	const SpirvRegisterValue& srcReg)
 {
 	auto& sgpr = m_sgprs[dstIdx];
 	if (sgpr.id == 0)  // Not initialized
@@ -703,13 +706,15 @@ void GCNCompiler::emitSgprStore(uint32_t dstIdx, const SpirvRegisterValue& srcRe
 		sgpr.type = srcReg.type;
 		// TODO:
 		// Not sure whether the storage class should be Function, maybe Private is better?
-		sgpr.id = m_module.newVar(getVectorTypeId(srcReg.type), spv::StorageClassFunction);
+		uint32_t ptrType = m_module.defPointerType(getVectorTypeId(srcReg.type), spv::StorageClassFunction);
+		sgpr.id = m_module.newVar(ptrType, spv::StorageClassFunction);
 		m_module.setDebugName(sgpr.id, UtilString::Format("s%d", dstIdx).c_str());
 	}
 	emitValueStore(sgpr, srcReg, 1);
 }
 
-void GCNCompiler::emitSgprArrayStore(uint32_t startIdx, const SpirvRegisterValue* values, uint32_t count)
+void GCNCompiler::emitSgprArrayStore(uint32_t startIdx, 
+	const SpirvRegisterValue* values, uint32_t count)
 {
 	for (uint32_t i = 0; i != count; ++i)
 	{
@@ -717,7 +722,8 @@ void GCNCompiler::emitSgprArrayStore(uint32_t startIdx, const SpirvRegisterValue
 	}
 }
 
-void GCNCompiler::emitVgprStore(uint32_t dstIdx, const SpirvRegisterValue& srcReg)
+void GCNCompiler::emitVgprStore(uint32_t dstIdx, 
+	const SpirvRegisterValue& srcReg)
 {
 	auto& vgpr = m_vgprs[dstIdx];
 	if (vgpr.id == 0)  // Not initialized
@@ -725,13 +731,15 @@ void GCNCompiler::emitVgprStore(uint32_t dstIdx, const SpirvRegisterValue& srcRe
 		vgpr.type = srcReg.type;
 		// TODO:
 		// Not sure whether the storage class should be Function, maybe Private is better?
-		vgpr.id = m_module.newVar(getVectorTypeId(srcReg.type), spv::StorageClassFunction);
+		uint32_t ptrType = m_module.defPointerType(getVectorTypeId(srcReg.type), spv::StorageClassFunction);
+		vgpr.id = m_module.newVar(ptrType, spv::StorageClassFunction);
 		m_module.setDebugName(vgpr.id, UtilString::Format("v%d", dstIdx).c_str());
 	}
 	emitValueStore(vgpr, srcReg, 1);
 }
 
-void GCNCompiler::emitVgprArrayStore(uint32_t startIdx, const SpirvRegisterValue* values, uint32_t count)
+void GCNCompiler::emitVgprArrayStore(uint32_t startIdx, 
+	const SpirvRegisterValue* values, uint32_t count)
 {
 	for (uint32_t i = 0; i != count; ++i)
 	{
@@ -761,12 +769,14 @@ void GCNCompiler::emitVgprVectorStore(uint32_t startIdx, const SpirvRegisterValu
 
 SpirvRegisterValue GCNCompiler::emitVectorComponentLoad(
 	const SpirvRegisterPointer& srcVec,
-	uint32_t compIndex)
+	uint32_t compIndex,
+	spv::StorageClass storageClass /* = spv::StorageClassFunction */)
 {
 	uint32_t typeId = getScalarTypeId(srcVec.type.ctype);
+	uint32_t ptrTypeId = m_module.defPointerType(typeId, storageClass);
 	uint32_t compositeIndexId = m_module.constu32(compIndex);
 	uint32_t compositePointer = m_module.opAccessChain(
-		typeId,
+		ptrTypeId,
 		srcVec.id,
 		1, &compositeIndexId);
 	uint32_t valueId = m_module.opLoad(typeId, compositePointer);

@@ -114,8 +114,8 @@ void GCNCompiler::emitExpPS(GCNInstruction& ins)
 			if (writeMask[i * 2])
 			{
 				uint32_t regIdx = inst->GetVSRC(i);
-				//auto v2fpValue = emitUnpackFloat16(emitVgprLoad(regIdx));
-				auto v2fpValue = emitUnpackFloat16({ SpirvScalarType::Uint32, 1, m_vgprs[regIdx].id });
+				auto v2fpValue = emitUnpackFloat16(emitVgprLoad(regIdx));
+				//auto v2fpValue = emitUnpackFloat16({ SpirvScalarType::Uint32, 1, m_vgprs[regIdx].id });
 				components.push_back(v2fpValue);
 			}
 		}

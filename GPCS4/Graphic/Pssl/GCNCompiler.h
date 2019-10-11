@@ -436,7 +436,8 @@ private:
 	// 0 - x, 1 - y, 2 - z, 3 - w
 	SpirvRegisterValue emitVectorComponentLoad(
 		const SpirvRegisterPointer& srcVec,
-		uint32_t compIndex);
+		uint32_t compIndex,
+		spv::StorageClass storageClass = spv::StorageClassFunction);
 
 	
 
