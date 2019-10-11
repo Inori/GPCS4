@@ -68,8 +68,19 @@ struct SpirvVectorType
  */
 struct SpirvArrayType 
 {
-	SpirvScalarType    ctype;
-	uint32_t           ccount;
+	SpirvArrayType():
+		alength(0)
+	{}
+
+	SpirvArrayType(const SpirvVectorType& type, uint32_t alen):
+		vtype(type), alength(alen)
+	{}
+
+	SpirvArrayType(SpirvScalarType type, uint32_t count, uint32_t alen):
+		vtype(type, count), alength(alen)
+	{}
+
+	SpirvVectorType    vtype;
 	uint32_t           alength;
 };
 
@@ -83,7 +94,26 @@ struct SpirvArrayType
  */
 struct SpirvRegisterInfo 
 {
-	SpirvArrayType     type;
+	SpirvRegisterInfo():
+		sclass(spv::StorageClassMax)
+	{}
+
+	SpirvRegisterInfo(const SpirvVectorType& type, spv::StorageClass cls):
+		atype(type, 0), sclass(cls)
+	{}
+
+	SpirvRegisterInfo(const SpirvArrayType& type, spv::StorageClass cls) :
+		atype(type), sclass(cls)
+	{}
+
+	SpirvRegisterInfo(SpirvScalarType type, 
+		uint32_t count, uint32_t alen, 
+		spv::StorageClass cls):
+		atype(type, count, alen),
+		sclass(cls)
+	{}
+
+	SpirvArrayType     atype;
 	spv::StorageClass  sclass;
 };
 
@@ -500,14 +530,6 @@ private:
 		const SpirvRegisterInfo& info,
 		spv::BuiltIn	         builtIn,
 		const char*              name);
-
-	SpirvRegisterPointer emitDclFloat(SpirvScalarType type,
-		spv::StorageClass storageCls, const std::string& debugName = "");
-	SpirvRegisterPointer emitDclFloatVectorPointer(SpirvScalarType type, uint32_t count,
-		spv::StorageClass storageCls, const std::string& debugName = "");
-	SpirvRegisterPointer emitNewFloatVectorVar(SpirvScalarType type, uint32_t count,
-		spv::StorageClass storageCls, const std::string& debugName = "");
-
 
 	////////////////////////////////////////////////
 	// Constant building methods. These are used to

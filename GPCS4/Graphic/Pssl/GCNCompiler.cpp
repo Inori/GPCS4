@@ -297,16 +297,15 @@ void GCNCompiler::emitDclVertexInput()
 
 		for (const auto& inputSemantic : m_shaderInput.vsInputSemantics.value())
 		{
-			// TODO:
-			// Not sure if all vertex inputs are float type
-			auto inputReg = emitNewFloatVectorVar(SpirvScalarType::Float32, inputSemantic.sizeInElements, spv::StorageClassInput);
-			m_vs.vsInputs[inputSemantic.semantic] = inputReg;
-			m_module.setDebugName(inputReg.id, 
-				UtilString::Format("inParam%d", inputSemantic.semantic).c_str());
-
+			SpirvRegisterInfo info(SpirvScalarType::Float32, inputSemantic.sizeInElements, 0, spv::StorageClassInput);
+			uint32_t inputId = emitNewVariable(info, 
+				UtilString::Format("inParam%d", inputSemantic.semantic));
+			
 			// Use semantic index for location, so vulkan code need to match.
-			m_module.decorateLocation(inputReg.id, inputSemantic.semantic);
-			m_entryPointInterfaces.push_back(inputReg.id);
+			m_module.decorateLocation(inputId, inputSemantic.semantic);
+			m_entryPointInterfaces.push_back(inputId);
+
+			m_vs.vsInputs[inputSemantic.semantic] = SpirvRegisterPointer(info.atype.vtype, inputId);
 		}
 	} while (false);
 }
@@ -337,13 +336,14 @@ void GCNCompiler::emitDclVertexOutput()
 				continue;
 			}
 
-			auto outVector = emitNewFloatVectorVar(SpirvScalarType::Float32,
-				expInfo.regIndices.size(),
-				spv::StorageClassOutput,
+			SpirvRegisterInfo info(SpirvScalarType::Float32, expInfo.regIndices.size(), 
+				0, spv::StorageClassOutput);
+			uint32_t outputId = emitNewVariable(info, 
 				UtilString::Format("outParam%d", outLocation));
-			m_module.decorateLocation(outVector.id, outLocation);
 
-			m_vs.vsOutputs[expInfo.target] = outVector;
+			m_module.decorateLocation(outputId, outLocation);
+
+			m_vs.vsOutputs[expInfo.target] = SpirvRegisterPointer(info.atype.vtype, outputId);
 
 			++outLocation;
 		}
@@ -379,24 +379,26 @@ void GCNCompiler::emitEmuFetchShader()
 				// Declare a new vgpr reg
 				// TODO:
 				// Not sure if all vertex inputs are float type
-				auto vgprReg = emitDclFloat(SpirvScalarType::Float32, 
-					spv::StorageClassPrivate, UtilString::Format("v%d", vgprIdx));
-				uint32_t inputVarId = m_vs.vsInputs[inputSemantic.semantic].id;
+				//auto vgprReg = emitDclFloat(SpirvScalarType::Float32, 
+				//	spv::StorageClassPrivate, UtilString::Format("v%d", vgprIdx));
+
+				SpirvRegisterInfo info(SpirvScalarType::Float32, 1,
+					0, spv::StorageClassPrivate);
+				uint32_t vgprId = emitNewVariable(info,
+					UtilString::Format("v%d", vgprIdx));
+
+				auto& input = m_vs.vsInputs[inputSemantic.semantic];
 
 				// Access vector member
-				uint32_t fpPtrTypeId = m_module.defFloatPointerType(32, spv::StorageClassPrivate);
-				uint32_t accessIndexArray[] = { m_module.constu32(i) };
-				uint32_t inputElementId = m_module.opAccessChain(
-					fpPtrTypeId,
-					inputVarId,
-					1, accessIndexArray);
+				uint32_t fpPtrTypeId = getPointerTypeId(info);
+				auto element = emitVectorComponentLoad(input, i);
 
 				// Store input value to our new vgpr reg.
-				uint32_t loadId = m_module.opLoad(fpPtrTypeId, inputElementId);
-				m_module.opStore(vgprReg.id, loadId);
+				uint32_t loadId = m_module.opLoad(fpPtrTypeId, element.id);
+				m_module.opStore(vgprId, loadId);
 
 				// Save to the map
-				m_vgprs[vgprIdx] = vgprReg;
+				m_vgprs[vgprIdx] = SpirvRegisterPointer(info.atype.vtype, vgprId);
 			}
 		}
 
@@ -409,12 +411,15 @@ void GCNCompiler::emitDclPixelInput()
 	for (uint32_t i = 0; i != m_analysis->vinterpAttrCount; ++i)
 	{
 		// Treat all input variables as vec4
-		auto input = emitNewFloatVectorVar(SpirvScalarType::Float32, 4,
-			spv::StorageClassInput, UtilString::Format("inParam%d", i));
-		m_module.decorateLocation(input.id, i);
+		SpirvRegisterInfo info(SpirvScalarType::Float32, 4,
+			0, spv::StorageClassInput);
+		uint32_t inputId = emitNewVariable(info,
+			UtilString::Format("inParam%d", i));
 
-		m_ps.psInputs[i] = input;
-		m_entryPointInterfaces.push_back(input.id);
+		m_module.decorateLocation(inputId, i);
+
+		m_ps.psInputs[i] = SpirvRegisterPointer(info.atype.vtype, inputId);
+		m_entryPointInterfaces.push_back(inputId);
 	}
 }
 
@@ -428,13 +433,19 @@ void GCNCompiler::emitDclPixelOutput()
 		// we need to support different target like mrtz for more complex shaders
 		// in the future.
 		const auto& exp = m_analysis->expParams[i];
-		uint32_t componentCount = exp.isCompressed ? exp.regIndices.size() * 2 : exp.regIndices.size();
-		auto output = emitNewFloatVectorVar(SpirvScalarType::Float32, componentCount, 
-			spv::StorageClassOutput, UtilString::Format("outParam%d", i));
-		m_module.decorateLocation(output.id, i);
+		uint32_t componentCount = exp.isCompressed ? 
+			exp.regIndices.size() * 2 : 
+			exp.regIndices.size();
 
-		m_ps.psOutputs[exp.target] = output;
-		m_entryPointInterfaces.push_back(output.id);
+		SpirvRegisterInfo info(SpirvScalarType::Float32, componentCount,
+			0, spv::StorageClassOutput);
+		uint32_t outputId = emitNewVariable(info,
+			UtilString::Format("outParam%d", i));
+
+		m_module.decorateLocation(outputId, i);
+
+		m_ps.psOutputs.emplace(exp.target, SpirvRegisterPointer(info.atype.vtype, outputId));
+		m_entryPointInterfaces.push_back(outputId);
 	}
 }
 
@@ -580,46 +591,6 @@ void GCNCompiler::emitDclImmResource(const GcnResourceBuffer& res, uint32_t inde
 	texture.varId = varId;
 	texture.imageTypeId = imageTypeId;
 	m_ps.textures.at(registerId) = texture;
-}
-
-SpirvRegisterPointer GCNCompiler::emitDclFloat(SpirvScalarType type,
-	spv::StorageClass storageCls, const std::string& debugName /*= ""*/)
-{
-	uint32_t width = type == SpirvScalarType::Float32 ? 32 : 64;
-	uint32_t fpPtrTypeId = m_module.defFloatPointerType(width, storageCls);
-	uint32_t varId = m_module.newVar(fpPtrTypeId, storageCls);
-	if (!debugName.empty())
-	{
-		m_module.setDebugName(varId, debugName.c_str());
-	}
-	
-	return SpirvRegisterPointer(type, 1, varId);
-}
-
-SpirvRegisterPointer GCNCompiler::emitDclFloatVectorPointer(SpirvScalarType type, uint32_t count,
-	spv::StorageClass storageCls, const std::string& debugName /*= ""*/)
-{
-	uint32_t width = type == SpirvScalarType::Float32 ? 32 : 64;
-	uint32_t fpTypeId = m_module.defFloatType(width);
-	uint32_t vfpTypeId = m_module.defVectorType(fpTypeId, count);
-	uint32_t vfpPtrTypeId = m_module.defPointerType(vfpTypeId, storageCls);
-	
-	if (!debugName.empty())
-	{
-		m_module.setDebugName(vfpPtrTypeId, debugName.c_str());
-	}
-	return SpirvRegisterPointer(type, count, vfpPtrTypeId);
-}
-
-SpirvRegisterPointer GCNCompiler::emitNewFloatVectorVar(SpirvScalarType type, uint32_t count, spv::StorageClass storageCls, const std::string& debugName /*= ""*/)
-{
-	auto ptrType = emitDclFloatVectorPointer(type, count, storageCls);
-	uint32_t varId = m_module.newVar(ptrType.id, storageCls);
-	if (!debugName.empty())
-	{
-		m_module.setDebugName(varId, debugName.c_str());
-	}
-	return SpirvRegisterPointer(type, count, varId);
 }
 
 SpirvRegisterValue GCNCompiler::emitValueLoad(const SpirvRegisterPointer& reg)
@@ -1045,8 +1016,8 @@ uint32_t GCNCompiler::emitNewBuiltinVariable(const SpirvRegisterInfo& info, spv:
 	m_module.decorateBuiltIn(varId, builtIn);
 
 	if (m_programInfo.shaderType() == PixelShader
-		&& info.type.ctype != SpirvScalarType::Float32
-		&& info.type.ctype != SpirvScalarType::Bool
+		&& info.atype.vtype.ctype != SpirvScalarType::Float32
+		&& info.atype.vtype.ctype != SpirvScalarType::Bool
 		&& info.sclass == spv::StorageClassInput)
 	{
 		m_module.decorate(varId, spv::DecorationFlat);
@@ -1436,11 +1407,7 @@ uint32_t GCNCompiler::getVectorTypeId(const SpirvVectorType& type)
 
 uint32_t GCNCompiler::getArrayTypeId(const SpirvArrayType& type)
 {
-	SpirvVectorType vtype;
-	vtype.ctype = type.ctype;
-	vtype.ccount = type.ccount;
-
-	uint32_t typeId = getVectorTypeId(vtype);
+	uint32_t typeId = getVectorTypeId(type.vtype);
 
 	if (type.alength != 0) 
 	{
@@ -1454,7 +1421,7 @@ uint32_t GCNCompiler::getArrayTypeId(const SpirvArrayType& type)
 uint32_t GCNCompiler::getPointerTypeId(const SpirvRegisterInfo& type)
 {
 	return m_module.defPointerType(
-		getArrayTypeId(type.type),
+		getArrayTypeId(type.atype),
 		type.sclass);
 }
 

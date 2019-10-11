@@ -63,9 +63,12 @@ void GCNCompiler::emitExpVS(GCNInstruction& ins)
 	{
 		// TODO:
 		// Only support pos0 currently
-		auto ptrType = emitDclFloatVectorPointer(SpirvScalarType::Float32, 4, spv::StorageClassOutput);
+		SpirvRegisterInfo info(SpirvScalarType::Float32, 4,
+			0, spv::StorageClassOutput);
+		uint32_t ptrTypeId = getPointerTypeId(info);
+
 		uint32_t memberId = m_module.constu32(0);
-		dstId = m_module.opAccessChain(ptrType.id, m_perVertexOut, 1, &memberId);
+		dstId = m_module.opAccessChain(ptrTypeId, m_perVertexOut, 1, &memberId);
 		dstType.ctype = SpirvScalarType::Float32;
 		dstType.ccount = 4;
 	}
