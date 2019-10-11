@@ -994,6 +994,28 @@ uint32_t GCNCompiler::emitLoadSampledImage(const SpirvTexture& textureResource, 
 		m_module.opLoad(samplerResource.typeId, samplerResource.varId));
 }
 
+pssl::SpirvRegisterValue GCNCompiler::emitPackFloat16(const SpirvRegisterValue& v2floatVec)
+{
+	SpirvRegisterValue result;
+	result.type.ctype = SpirvScalarType::Uint32;
+	result.type.ccount = 1;
+
+	const uint32_t u32Type = getVectorTypeId(result.type);
+	result.id = m_module.opPackHalf2x16(u32Type, v2floatVec.id);
+	return result;
+}
+
+pssl::SpirvRegisterValue GCNCompiler::emitUnpackFloat16(const SpirvRegisterValue& uiVec)
+{
+	SpirvRegisterValue result;
+	result.type.ctype = SpirvScalarType::Float32;
+	result.type.ccount = 2;
+
+	const uint32_t v2fpType = getVectorTypeId(result.type);
+	result.id = m_module.opUnpackHalf2x16(v2fpType, uiVec.id);
+	return result;
+}
+
 pssl::SpirvRegisterValue GCNCompiler::emitBuildConstVecf32(float x, float y, float z, float w, const GcnRegMask& writeMask)
 {
 	// TODO refactor these functions into one single template

@@ -462,6 +462,9 @@ private:
 		const SpirvTexture&     textureResource,
 		const SpirvSampler&     samplerResource);
 
+	SpirvRegisterValue emitPackFloat16(const SpirvRegisterValue& v2floatVec);
+	SpirvRegisterValue emitUnpackFloat16(const SpirvRegisterValue& uiVec);
+
 	////////////////////////////////////////////////
 	// Constant building methods. These are used to
 	// generate constant vectors that store the same

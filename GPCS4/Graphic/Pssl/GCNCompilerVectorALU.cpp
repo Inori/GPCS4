@@ -259,16 +259,31 @@ void GCNCompiler::emitVectorConv(GCNInstruction& ins)
 	uint32_t dstRIdx = 0;
 	getVopOperands(ins, &dst, &dstRIdx, &src0, &src0RIdx, &src1, &src1RIdx);
 
+	auto value0 = emitLoadScalarOperand(src0, src0RIdx, ins.literalConst);
+
+	SpirvRegisterValue dstValue;
+
 	switch (op)
 	{
 	case SIVOP2Instruction::V_CVT_PKRTZ_F16_F32:
+	{
+		auto value1 = emitLoadVectorOperand(src1RIdx);
+		dstValue = emitPackFloat16(
+			emitRegisterConcat(value0, value1));
+	}
+		break;
 	case SIVOP3Instruction::V3_CVT_PKRTZ_F16_F32:
 	{
-
+		auto value1 = emitLoadScalarOperand(src1, src1RIdx, ins.literalConst);
+		dstValue = emitPackFloat16(
+			emitRegisterConcat(value0, value1));
 	}
+		break;
 	default:
 		break;
 	}
+
+	emitStoreVectorOperand(dstRIdx, dstValue);
 }
 
 void GCNCompiler::emitVectorFpGraph32(GCNInstruction& ins)

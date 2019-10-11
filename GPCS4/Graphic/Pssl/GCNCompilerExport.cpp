@@ -92,7 +92,73 @@ void GCNCompiler::emitExpVS(GCNInstruction& ins)
 
 void GCNCompiler::emitExpPS(GCNInstruction& ins)
 {
+	auto inst = asInst<EXPInstruction>(ins);
 
+	EXPInstruction::TGT expTgt = inst->GetTGT();
+	bool isCompressed = inst->GetCOMPR();
+	auto en = inst->GetEn();
+
+	// Src vector to be exported.
+	SpirvRegisterValue src;
+	// TODO:
+	// Currently, I found whether exp is compressed or not, 
+	// the 'en' field holds the right value, 
+	// e.g, if compressed, '[1:0]' bits will be '11'
+	// but I'm not sure if this will be true forever.
+	GcnRegMask writeMask(en);
+	if (isCompressed)
+	{
+		std::vector<SpirvRegisterValue> components;
+		for (uint32_t i = 0; i != 2; ++i)
+		{
+			if (writeMask[i * 2])
+			{
+				uint32_t regIdx = inst->GetVSRC(i);
+				auto v2fpValue = emitUnpackFloat16(emitVgprLoad(regIdx));
+				components.push_back(v2fpValue);
+			}
+		}
+		
+		src = components.size() == 1 ?
+			components[0] :
+			emitRegisterConcat(components[0], components[1]);
+	}
+	else
+	{
+		std::vector<uint32_t> indices;
+		for (uint32_t i = 0; i != 4; ++i)
+		{
+			if (writeMask[i])
+			{
+				uint32_t regIdx = inst->GetVSRC(i);
+				indices.push_back(m_vgprs[regIdx].id);
+			}
+		}
+
+		src.type.ctype = SpirvScalarType::Float32;
+		src.type.ccount = writeMask.popCount();
+
+		uint32_t typeId = getVectorTypeId(src.type);
+		src.id = m_module.opCompositeConstruct(typeId, indices.size(), indices.data());
+	}
+
+	// Dst vector to export to.
+	SpirvRegisterPointer dst;
+
+	// Determine the dst vector
+	switch (expTgt)
+	{
+	case EXPInstruction::TGTExpMRTMin ... EXPInstruction::TGTExpMRTMax:
+	{
+		dst = m_ps.psOutputs[expTgt];
+	}
+		break;
+	default:
+		break;
+	}
+
+	// Store
+	emitValueStore(dst, src, writeMask);
 }
 
 }  // namespace pssl
