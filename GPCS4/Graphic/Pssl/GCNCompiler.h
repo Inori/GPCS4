@@ -464,6 +464,7 @@ private:
 	void emitDclPixelInput();
 	void emitDclPixelOutput();
 
+	void emitGprInitialize();
 	// For all shader types
 	void emitDclUniformBuffer();
 	void emitDclImmConstBuffer(const GcnResourceBuffer& res, uint32_t index);

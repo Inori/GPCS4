@@ -40,7 +40,7 @@ void GCNCompiler::emitExpVS(GCNInstruction& ins)
 		if (writeMask[i])
 		{
 			uint32_t regIdx = inst->GetVSRC(i);
-			indices.push_back(m_vgprs[regIdx].id);
+			indices.push_back(emitVgprLoad(regIdx).id);
 		}
 	}
 
@@ -48,15 +48,12 @@ void GCNCompiler::emitExpVS(GCNInstruction& ins)
 	SpirvRegisterValue src;
 	src.type.ctype = SpirvScalarType::Float32;
 	src.type.ccount = writeMask.popCount();
+	src.id = m_module.opCompositeConstruct(getVectorTypeId(src.type), 
+		indices.size(), indices.data());
 
-	uint32_t typeId = getVectorTypeId(src.type);
-	uint32_t srcId = m_module.opCompositeConstruct(typeId, indices.size(), indices.data());
-	src.id = srcId;
-
+	// Dst vector to export to.
+	SpirvRegisterPointer dst;
 	// Determine the dst vector
-	
-	uint32_t dstId = 0;
-	SpirvVectorType dstType;
 	switch (expTgt)
 	{
 	case EXPInstruction::TGTExpPosMin ... EXPInstruction::TGTExpPosMax:
@@ -68,26 +65,18 @@ void GCNCompiler::emitExpVS(GCNInstruction& ins)
 		uint32_t ptrTypeId = getPointerTypeId(info);
 
 		uint32_t memberId = m_module.constu32(0);
-		dstId = m_module.opAccessChain(ptrTypeId, m_perVertexOut, 1, &memberId);
-		dstType.ctype = SpirvScalarType::Float32;
-		dstType.ccount = 4;
+		dst.id = m_module.opAccessChain(ptrTypeId, m_perVertexOut, 1, &memberId);
+		dst.type = info.atype.vtype;
 	}
 		break;
 	case EXPInstruction::TGTExpParamMin ... EXPInstruction::TGTExpParamMax:
 	{
-		const auto& outParam = m_vs.vsOutputs[expTgt];
-		dstType = outParam.type;
-		dstId = outParam.id;
+		dst = m_vs.vsOutputs[expTgt];
 	}
 		break;
 	default:
 		break;
 	}
-
-	// Dst vector to export to.
-	SpirvRegisterPointer dst;
-	dst.type = dstType;
-	dst.id = dstId;
 
 	// Store
 	emitValueStore(dst, src, writeMask);
