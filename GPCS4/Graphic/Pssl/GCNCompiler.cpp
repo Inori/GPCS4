@@ -449,10 +449,12 @@ void GCNCompiler::emitGprInitialize()
 {
 	// TODO:
 	// For sgprs and vgprs, we should initialize them
-	// following the ISA manual 
+	// following the ISA manual:
 	// 7. Appendix: GPR Allocation and Initialization
-	//
-	// Currently I just initialize which I use.
+	// e.g. We could declare another uniform buffer to hold 
+	// the 16 user data registers.
+	// 
+	// Currently I just create which I use.
 
 	SpirvRegisterPointer s12;
 	s12.type.ctype = SpirvScalarType::Float32;
