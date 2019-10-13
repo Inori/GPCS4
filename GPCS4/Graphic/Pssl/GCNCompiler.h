@@ -436,14 +436,6 @@ private:
 	void emitVgprArrayStore(uint32_t startIdx, const SpirvRegisterValue* values, uint32_t count);
 	// Store a vector to continuous vgprs
 	void emitVgprVectorStore(uint32_t startIdx, const SpirvRegisterValue& srcVec, const GcnRegMask& writeMask);
-
-	// load a vector's composite,
-	// 0 - x, 1 - y, 2 - z, 3 - w
-	SpirvRegisterValue emitVectorComponentLoad(
-		const SpirvRegisterPointer& srcVec,
-		uint32_t compIndex,
-		spv::StorageClass storageClass = spv::StorageClassPrivate);
-
 	
 
 	/////////////////////////////////////////
@@ -553,6 +545,13 @@ private:
 	SpirvRegisterValue emitRegisterMaskBits(
 		SpirvRegisterValue       value,
 		uint32_t                mask);
+
+	// load a vector's composite,
+	// 0 - x, 1 - y, 2 - z, 3 - w
+	SpirvRegisterValue emitRegisterComponentLoad(
+		const SpirvRegisterPointer&		srcVec,
+		uint32_t						compIndex,
+		spv::StorageClass				storageClass = spv::StorageClassPrivate);
 
 	/////////////////////////////////////////////////////////
 	// Category handlers
