@@ -388,7 +388,7 @@ void GCNCompiler::emitEmuFetchShader()
 
 				// Access vector member
 				uint32_t fpPtrTypeId = getPointerTypeId(info);
-				auto element = emitVectorComponentLoad(input, i, spv::StorageClassInput);
+				auto element = emitRegisterComponentLoad(input, i, spv::StorageClassInput);
 
 				// Store input value to our new vgpr reg.
 				m_module.opStore(vgprId, element.id);
@@ -724,22 +724,6 @@ void GCNCompiler::emitVgprVectorStore(uint32_t startIdx, const SpirvRegisterValu
 
 		emitVgprStore(startIdx + i, value);
 	}
-}
-
-SpirvRegisterValue GCNCompiler::emitVectorComponentLoad(
-	const SpirvRegisterPointer& srcVec,
-	uint32_t compIndex,
-	spv::StorageClass storageClass /* = spv::StorageClassPrivate */)
-{
-	uint32_t typeId = getScalarTypeId(srcVec.type.ctype);
-	uint32_t ptrTypeId = m_module.defPointerType(typeId, storageClass);
-	uint32_t compositeIndexId = m_module.constu32(compIndex);
-	uint32_t compositePointer = m_module.opAccessChain(
-		ptrTypeId,
-		srcVec.id,
-		1, &compositeIndexId);
-	uint32_t valueId = m_module.opLoad(typeId, compositePointer);
-	return SpirvRegisterValue(srcVec.type.ctype, 1, valueId);
 }
 
 // Used with with 7 bits SDST, 8 bits SSRC or 9 bits SRC
@@ -1318,6 +1302,22 @@ SpirvRegisterValue GCNCompiler::emitRegisterMaskBits(SpirvRegisterValue value, u
 		getVectorTypeId(result.type),
 		value.id, maskVector.id);
 	return result;
+}
+
+SpirvRegisterValue GCNCompiler::emitRegisterComponentLoad(
+	const SpirvRegisterPointer& srcVec,
+	uint32_t compIndex,
+	spv::StorageClass storageClass /* = spv::StorageClassPrivate */)
+{
+	uint32_t typeId = getScalarTypeId(srcVec.type.ctype);
+	uint32_t ptrTypeId = m_module.defPointerType(typeId, storageClass);
+	uint32_t compositeIndexId = m_module.constu32(compIndex);
+	uint32_t compositePointer = m_module.opAccessChain(
+		ptrTypeId,
+		srcVec.id,
+		1, &compositeIndexId);
+	uint32_t valueId = m_module.opLoad(typeId, compositePointer);
+	return SpirvRegisterValue(srcVec.type.ctype, 1, valueId);
 }
 
 uint32_t GCNCompiler::getPerVertexBlockId()
