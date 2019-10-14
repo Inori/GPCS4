@@ -52,6 +52,7 @@
     <ClInclude Include="Graphic\Gve\GveDevice.h" />
     <ClInclude Include="Graphic\Gve\GveFrameBuffer.h" />
     <ClInclude Include="Graphic\Gve\GveInstance.h" />
+    <ClInclude Include="Graphic\Gve\GveMemory.h" />
     <ClInclude Include="Graphic\Gve\GvePhysicalDevice.h" />
     <ClInclude Include="Graphic\Gve\GveRenderPass.h" />
     <ClInclude Include="Graphic\Gve\GveShader.h" />
@@ -216,6 +217,7 @@
     <ClCompile Include="Graphic\Gve\GveDevice.cpp" />
     <ClCompile Include="Graphic\Gve\GveFrameBuffer.cpp" />
     <ClCompile Include="Graphic\Gve\GveInstance.cpp" />
+    <ClCompile Include="Graphic\Gve\GveMemory.cpp" />
     <ClCompile Include="Graphic\Gve\GvePhysicalDevice.cpp" />
     <ClCompile Include="Graphic\Gve\GveRenderPass.cpp" />
     <ClCompile Include="Graphic\Gve\GveShader.cpp" />
