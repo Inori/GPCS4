@@ -51,7 +51,7 @@ struct GveDeviceMemory
  */
 struct GveMemoryHeap 
 {
-	VkMemoryHeap      properties;
+	VkMemoryHeap     properties;
 	GveMemoryStats   stats;
 };
 
@@ -148,6 +148,9 @@ public:
 	}
 
 private:
+	void free();
+
+private:
 
 	GveMemoryAllocator*   m_alloc = nullptr;
 	GveMemoryChunk*       m_chunk = nullptr;
@@ -156,9 +159,6 @@ private:
 	VkDeviceSize          m_offset = 0;
 	VkDeviceSize          m_length = 0;
 	void*                 m_mapPtr = nullptr;
-
-	void free();
-
 };
 
 
@@ -284,8 +284,8 @@ public:
 private:
 
 	const GveDevice*                       m_device;
-	//const VkPhysicalDeviceProperties       m_devProps;
-	//const VkPhysicalDeviceMemoryProperties m_memProps;
+	const VkPhysicalDeviceProperties       m_devProps;
+	const VkPhysicalDeviceMemoryProperties m_memProps;
 
 	std::mutex                                     m_mutex;
 	std::array<GveMemoryHeap, VK_MAX_MEMORY_HEAPS> m_memHeaps;

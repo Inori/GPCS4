@@ -10,11 +10,12 @@ GveMemory::GveMemory(
 	GveMemoryAllocator*  alloc,
 	GveMemoryChunk*      chunk,
 	GveMemoryType*       type,
-	VkDeviceMemory        memory,
-	VkDeviceSize          offset,
-	VkDeviceSize          length,
-	void*                 mapPtr)
-	: m_alloc(alloc),
+	VkDeviceMemory       memory,
+	VkDeviceSize         offset,
+	VkDeviceSize         length,
+	void*                mapPtr)
+	: 
+	m_alloc(alloc),
 	m_chunk(chunk),
 	m_type(type),
 	m_memory(memory),
@@ -26,7 +27,8 @@ GveMemory::GveMemory(
 
 
 GveMemory::GveMemory(GveMemory&& other)
-	: m_alloc(std::exchange(other.m_alloc, nullptr)),
+	: 
+	m_alloc(std::exchange(other.m_alloc, nullptr)),
 	m_chunk(std::exchange(other.m_chunk, nullptr)),
 	m_type(std::exchange(other.m_type, nullptr)),
 	m_memory(std::exchange(other.m_memory, VkDeviceMemory(VK_NULL_HANDLE))),
@@ -39,7 +41,7 @@ GveMemory::GveMemory(GveMemory&& other)
 
 GveMemory& GveMemory::operator = (GveMemory&& other) 
 {
-	this->free();
+	free();
 	m_alloc = std::exchange(other.m_alloc, nullptr);
 	m_chunk = std::exchange(other.m_chunk, nullptr);
 	m_type = std::exchange(other.m_type, nullptr);
@@ -53,7 +55,7 @@ GveMemory& GveMemory::operator = (GveMemory&& other)
 
 GveMemory::~GveMemory() 
 {
-	this->free();
+	free();
 }
 
 
@@ -91,69 +93,71 @@ GveMemory GveMemoryChunk::alloc(
 	VkDeviceSize          align,
 	float                 priority) 
 {
-	// Property flags must be compatible. This could
-	// be refined a bit in the future if necessary.
-	if (m_memory.memFlags != flags
-		|| m_memory.priority != priority)
+	GveMemory memory;
+	do
 	{
-		return GveMemory();
-	}
-		
-
-	// If the chunk is full, return
-	if (m_freeList.size() == 0)
-	{
-		return GveMemory();
-	}
-	
-
-	// Select the slice to allocate from in a worst-fit
-	// manner. This may help keep fragmentation low.
-	auto bestSlice = m_freeList.begin();
-
-	for (auto slice = m_freeList.begin(); slice != m_freeList.end(); slice++) 
-	{
-		if (slice->length == size) 
+		// Property flags must be compatible. This could
+		// be refined a bit in the future if necessary.
+		if (m_memory.memFlags != flags || m_memory.priority != priority)
 		{
-			bestSlice = slice;
 			break;
 		}
-		else if (slice->length > bestSlice->length) 
+
+		// If the chunk is full, break
+		if (m_freeList.size() == 0)
 		{
-			bestSlice = slice;
+			break;
 		}
-	}
 
-	// We need to align the allocation to the requested alignment
-	const VkDeviceSize sliceStart = bestSlice->offset;
-	const VkDeviceSize sliceEnd = bestSlice->offset + bestSlice->length;
+		// Select the slice to allocate from in a worst-fit
+		// manner. This may help keep fragmentation low.
+		auto bestSlice = m_freeList.begin();
 
-	const VkDeviceSize allocStart = ALIGN_ROUND(sliceStart, align);
-	const VkDeviceSize allocEnd = ALIGN_ROUND(allocStart + size, align);
+		for (auto slice = m_freeList.begin(); slice != m_freeList.end(); slice++)
+		{
+			if (slice->length == size)
+			{
+				bestSlice = slice;
+				break;
+			}
+			else if (slice->length > bestSlice->length)
+			{
+				bestSlice = slice;
+			}
+		}
 
-	if (allocEnd > sliceEnd)
-	{
-		return GveMemory();
-	}
+		// We need to align the allocation to the requested alignment
+		const VkDeviceSize sliceStart = bestSlice->offset;
+		const VkDeviceSize sliceEnd = bestSlice->offset + bestSlice->length;
 
-	// We can use this slice, but we'll have to add
-	// the unused parts of it back to the free list.
-	m_freeList.erase(bestSlice);
+		const VkDeviceSize allocStart = ALIGN_ROUND(sliceStart, align);
+		const VkDeviceSize allocEnd = ALIGN_ROUND(allocStart + size, align);
 
-	if (allocStart != sliceStart)
-	{
-		m_freeList.push_back({ sliceStart, allocStart - sliceStart });
-	}
+		if (allocEnd > sliceEnd)
+		{
+			break;
+		}
 
-	if (allocEnd != sliceEnd)
-	{
-		m_freeList.push_back({ allocEnd, sliceEnd - allocEnd });
-	}
+		// We can use this slice, but we'll have to add
+		// the unused parts of it back to the free list.
+		m_freeList.erase(bestSlice);
 
-	// Create the memory object with the aligned slice
-	return GveMemory(m_alloc, this, m_type,
-		m_memory.memHandle, allocStart, allocEnd - allocStart,
-		reinterpret_cast<char*>(m_memory.memPointer) + allocStart);
+		if (allocStart != sliceStart)
+		{
+			m_freeList.push_back({ sliceStart, allocStart - sliceStart });
+		}
+
+		if (allocEnd != sliceEnd)
+		{
+			m_freeList.push_back({ allocEnd, sliceEnd - allocEnd });
+		}
+
+		// Create the memory object with the aligned slice
+		memory = GveMemory(m_alloc, this, m_type,
+			m_memory.memHandle, allocStart, allocEnd - allocStart,
+			reinterpret_cast<char*>(m_memory.memPointer) + allocStart);
+	} while (false);
+	return memory;
 }
 
 
@@ -190,25 +194,24 @@ void GveMemoryChunk::free(
 
 
 GveMemoryAllocator::GveMemoryAllocator(const GveDevice* device):
-	m_device(device)
-	//,
-	//m_devProps(device->adapter()->deviceProperties()),
-	//m_memProps(device->adapter()->memoryProperties()) 
+	m_device(device),
+	m_devProps(device->physicalDevice()->deviceProperties()),
+	m_memProps(device->physicalDevice()->memoryProperties())
 {
-	//for (uint32_t i = 0; i < m_memProps.memoryHeapCount; i++) 
-	//{
-	//	m_memHeaps[i].properties = m_memProps.memoryHeaps[i];
-	//	m_memHeaps[i].stats = GveMemoryStats{ 0, 0 };
-	//}
+	for (uint32_t i = 0; i < m_memProps.memoryHeapCount; i++) 
+	{
+		m_memHeaps[i].properties = m_memProps.memoryHeaps[i];
+		m_memHeaps[i].stats = GveMemoryStats{ 0, 0 };
+	}
 
-	//for (uint32_t i = 0; i < m_memProps.memoryTypeCount; i++) 
-	//{
-	//	m_memTypes[i].heap = &m_memHeaps[m_memProps.memoryTypes[i].heapIndex];
-	//	m_memTypes[i].heapId = m_memProps.memoryTypes[i].heapIndex;
-	//	m_memTypes[i].memType = m_memProps.memoryTypes[i];
-	//	m_memTypes[i].memTypeId = i;
-	//	m_memTypes[i].chunkSize = pickChunkSize(i);
-	//}
+	for (uint32_t i = 0; i < m_memProps.memoryTypeCount; i++) 
+	{
+		m_memTypes[i].heap = &m_memHeaps[m_memProps.memoryTypes[i].heapIndex];
+		m_memTypes[i].heapId = m_memProps.memoryTypes[i].heapIndex;
+		m_memTypes[i].memType = m_memProps.memoryTypes[i];
+		m_memTypes[i].memTypeId = i;
+		m_memTypes[i].chunkSize = pickChunkSize(i);
+	}
 }
 
 
@@ -286,11 +289,11 @@ GveMemoryStats GveMemoryAllocator::getMemoryStats()
 
 	GveMemoryStats totalStats;
 
-	//for (size_t i = 0; i < m_memProps.memoryHeapCount; i++) 
-	//{
-	//	totalStats.memoryAllocated += m_memHeaps[i].stats.memoryAllocated;
-	//	totalStats.memoryUsed += m_memHeaps[i].stats.memoryUsed;
-	//}
+	for (size_t i = 0; i < m_memProps.memoryHeapCount; i++) 
+	{
+		totalStats.memoryAllocated += m_memHeaps[i].stats.memoryAllocated;
+		totalStats.memoryUsed += m_memHeaps[i].stats.memoryUsed;
+	}
 
 	return totalStats;
 }
@@ -304,17 +307,17 @@ GveMemory GveMemoryAllocator::tryAlloc(
 {
 	GveMemory result;
 
-	//for (uint32_t i = 0; i < m_memProps.memoryTypeCount && !result; i++) 
-	//{
-	//	const bool supported = (req->memoryTypeBits & (1u << i)) != 0;
-	//	const bool adequate = (m_memTypes[i].memType.propertyFlags & flags) == flags;
+	for (uint32_t i = 0; i < m_memProps.memoryTypeCount && !result; i++)
+	{
+		const bool supported = (req->memoryTypeBits & (1u << i)) != 0;
+		const bool adequate = (m_memTypes[i].memType.propertyFlags & flags) == flags;
 
-	//	if (supported && adequate) 
-	//	{
-	//		result = this->tryAllocFromType(&m_memTypes[i],
-	//			flags, req->size, req->alignment, priority, dedAllocInfo);
-	//	}
-	//}
+		if (supported && adequate)
+		{
+			result = this->tryAllocFromType(&m_memTypes[i],
+				flags, req->size, req->alignment, priority, dedAllocInfo);
+		}
+	}
 
 	return result;
 }
@@ -390,43 +393,47 @@ GveDeviceMemory GveMemoryAllocator::tryAllocDeviceMemory(
 	float                             priority,
 	const VkMemoryDedicatedAllocateInfoKHR* dedAllocInfo) 
 {
-	bool useMemoryPriority = (flags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-		//&& (m_device->features().extMemoryPriority.memoryPriority);
-
 	GveDeviceMemory result;
 	result.memSize = size;
 	result.memFlags = flags;
 	result.priority = priority;
 
-	VkMemoryPriorityAllocateInfoEXT prio;
-	prio.sType = VK_STRUCTURE_TYPE_MEMORY_PRIORITY_ALLOCATE_INFO_EXT;
-	prio.pNext = dedAllocInfo;
-	prio.priority = priority;
-
-	VkMemoryAllocateInfo info;
-	info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-	info.pNext = useMemoryPriority ? &prio : prio.pNext;
-	info.allocationSize = size;
-	info.memoryTypeIndex = type->memTypeId;
-
-	if (vkAllocateMemory(*m_device, &info, nullptr, &result.memHandle) != VK_SUCCESS)
+	do 
 	{
-		return GveDeviceMemory();
-	}
+		bool useMemoryPriority = (flags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
+			&& (m_device->physicalDevice()->features().extMemoryPriority.memoryPriority);
 
-	if (flags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) 
-	{
-		VkResult status = vkMapMemory(*m_device, result.memHandle, 0, VK_WHOLE_SIZE, 0, &result.memPointer);
+		VkMemoryPriorityAllocateInfoEXT prio;
+		prio.sType = VK_STRUCTURE_TYPE_MEMORY_PRIORITY_ALLOCATE_INFO_EXT;
+		prio.pNext = dedAllocInfo;
+		prio.priority = priority;
 
-		if (status != VK_SUCCESS) 
+		VkMemoryAllocateInfo info;
+		info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+		info.pNext = useMemoryPriority ? &prio : prio.pNext;
+		info.allocationSize = size;
+		info.memoryTypeIndex = type->memTypeId;
+
+		if (vkAllocateMemory(*m_device, &info, nullptr, &result.memHandle) != VK_SUCCESS)
 		{
-			LOG_ERR("GveMemoryAllocator: Mapping memory failed with ", status);
-			vkFreeMemory(*m_device, result.memHandle, nullptr);
-			return GveDeviceMemory();
+			break;
 		}
-	}
 
-	type->heap->stats.memoryAllocated += size;
+		if (flags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+		{
+			VkResult status = vkMapMemory(*m_device, result.memHandle, 0, VK_WHOLE_SIZE, 0, &result.memPointer);
+
+			if (status != VK_SUCCESS)
+			{
+				LOG_ERR("GveMemoryAllocator: Mapping memory failed with ", status);
+				vkFreeMemory(*m_device, result.memHandle, nullptr);
+				break;
+			}
+		}
+
+		type->heap->stats.memoryAllocated += size;
+	} while (false);
+
 	return result;
 }
 
@@ -439,7 +446,7 @@ void GveMemoryAllocator::free(
 
 	if (memory.m_chunk != nullptr) 
 	{
-		this->freeChunkMemory(
+		freeChunkMemory(
 			memory.m_type,
 			memory.m_chunk,
 			memory.m_offset,
@@ -451,7 +458,7 @@ void GveMemoryAllocator::free(
 		devMem.memHandle = memory.m_memory;
 		devMem.memPointer = nullptr;
 		devMem.memSize = memory.m_length;
-		this->freeDeviceMemory(memory.m_type, devMem);
+		freeDeviceMemory(memory.m_type, devMem);
 	}
 }
 
@@ -477,20 +484,20 @@ void GveMemoryAllocator::freeDeviceMemory(
 
 VkDeviceSize GveMemoryAllocator::pickChunkSize(uint32_t memTypeId) const 
 {
-	//VkMemoryType type = m_memProps.memoryTypes[memTypeId];
-	//VkMemoryHeap heap = m_memProps.memoryHeaps[type.heapIndex];
+	VkMemoryType type = m_memProps.memoryTypes[memTypeId];
+	VkMemoryHeap heap = m_memProps.memoryHeaps[type.heapIndex];
 
-	//// Default to a chunk size of 128 MiB
-	//VkDeviceSize chunkSize = 128 << 20;
+	// Default to a chunk size of 128 MiB
+	VkDeviceSize chunkSize = 128 << 20;
 
-	//// Reduce the chunk size on small heaps so
-	//// we can at least fit in 15 allocations
-	//while (chunkSize * 15 > heap.size)
-	//{
-	//	chunkSize >>= 1;
-	//}
-	//	
-	//return chunkSize;
+	// Reduce the chunk size on small heaps so
+	// we can at least fit in 15 allocations
+	while (chunkSize * 15 > heap.size)
+	{
+		chunkSize >>= 1;
+	}
+		
+	return chunkSize;
 }
 
 

@@ -118,7 +118,7 @@ bool SceGnmDriver::isDeviceSuitable(RcPtr<gve::GvePhysicalDevice>& device)
 		swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
 	}
 
-	VkPhysicalDeviceFeatures supportedFeatures = device->getFeatures();
+	const VkPhysicalDeviceFeatures& supportedFeatures = device->features().core.features;
 
 	return extensionsSupported && swapChainAdequate && supportedFeatures.samplerAnisotropy;
 }

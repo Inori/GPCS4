@@ -11,7 +11,7 @@ GveSwapChain::GveSwapChain(RcPtr<GveDevice>& logicDevice,
 	m_logicalDevice(logicDevice),
 	m_videoOut(videoOut)
 {
-	m_phyDevice = m_logicalDevice->getPhysicalDevice();
+	m_phyDevice = m_logicalDevice->physicalDevice();
 	createSwapChain(imageCount);
 }
 
@@ -24,7 +24,7 @@ void GveSwapChain::createSwapChain(uint32_t imageCount)
 {
 	do 
 	{
-		GveInstance* instance = m_phyDevice->getInstance();
+		GveInstance* instance = m_phyDevice->instance();
 		VkDevice device = *m_logicalDevice;
 		VkSurfaceKHR surface = m_videoOut->getSurface(*instance);
 

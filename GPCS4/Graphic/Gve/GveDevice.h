@@ -31,7 +31,7 @@ public:
 
 	operator VkDevice() const;
 
-	RcPtr<GvePhysicalDevice> getPhysicalDevice();
+	RcPtr<GvePhysicalDevice> physicalDevice() const;
 
 	RcPtr<GveRenderPass> createRenderPass(GveRenderPassFormat& format);
 

@@ -21,7 +21,7 @@ GveDevice::operator VkDevice() const
 	return m_device;
 }
 
-RcPtr<gve::GvePhysicalDevice> GveDevice::getPhysicalDevice()
+RcPtr<gve::GvePhysicalDevice> GveDevice::physicalDevice() const
 {
 	return m_phyDevice;
 }

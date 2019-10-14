@@ -21,7 +21,7 @@ bool GveCommandBuffer::initCommandBuffer()
 	bool ret = false;
 	do
 	{
-		auto phyDevice = m_device->getPhysicalDevice();
+		auto phyDevice = m_device->physicalDevice();
 		GvePhysicalDeviceQueueFamilies families = phyDevice->findQueueFamilies();
 
 		VkCommandPoolCreateInfo poolInfo = {};
