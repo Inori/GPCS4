@@ -200,7 +200,7 @@ RcPtr<gve::GveDevice> GvePhysicalDevice::createLogicalDevice()
 	{
 		GveDeviceExtensions devExtensions;
 
-		std::array<GveExt*, 25> devExtensionList = { {
+		std::array<GveExt*, 1> devExtensionList = { {
 		  &devExtensions.khrSwapchain,
 		} };
 

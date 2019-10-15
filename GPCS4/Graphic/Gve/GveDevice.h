@@ -5,10 +5,11 @@
 #include "GveRenderPass.h"
 #include "GveFrameBuffer.h"
 #include "GveContext.h"
-#include "GveCommandBuffer.h"
 
 namespace gve
 {;
+
+class GveCommandBuffer;
 
 struct GveDeviceQueue 
 {

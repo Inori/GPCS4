@@ -39,7 +39,7 @@ bool GveCommandBuffer::initCommandBuffer()
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		allocInfo.commandBufferCount = 1;
 
-		if (vkAllocateCommandBuffers(*m_device, &allocInfo, &m_cmd) != VK_SUCCESS)
+		if (vkAllocateCommandBuffers(*m_device, &allocInfo, &m_execBuffer) != VK_SUCCESS)
 		{
 			LOG_ERR("failed to allocate command buffers!");
 			break;
@@ -65,7 +65,7 @@ void GveCommandBuffer::beginRecording()
 		info.pNext = nullptr;
 		info.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 		info.pInheritanceInfo = nullptr;
-		if (vkBeginCommandBuffer(m_cmd, &info) != VK_SUCCESS)
+		if (vkBeginCommandBuffer(m_execBuffer, &info) != VK_SUCCESS)
 		{
 			LOG_ERR("begin command buffer failed.");
 			break;
@@ -76,9 +76,14 @@ void GveCommandBuffer::beginRecording()
 
 void GveCommandBuffer::endRecording()
 {
-	vkEndCommandBuffer(m_cmd);
+	vkEndCommandBuffer(m_execBuffer);
 }
 
 
+
+void GveCommandBuffer::reset()
+{
+
+}
 
 }  // namespace gve
