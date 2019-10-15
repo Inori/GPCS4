@@ -259,4 +259,53 @@ private:
 };
 
 
+/**
+ * \brief Device extensions
+ *
+ * Lists all Vulkan extensions that are potentially
+ * used by GPCS4 if supported by the implementation.
+ */
+struct GveDeviceExtensions
+{
+	GveExt amdMemoryOverallocationBehaviour =		{ VK_AMD_MEMORY_OVERALLOCATION_BEHAVIOR_EXTENSION_NAME,     GveExtMode::Optional };
+	GveExt amdShaderFragmentMask =					{ VK_AMD_SHADER_FRAGMENT_MASK_EXTENSION_NAME,               GveExtMode::Optional };
+	GveExt extConditionalRendering =				{ VK_EXT_CONDITIONAL_RENDERING_EXTENSION_NAME,              GveExtMode::Optional };
+	GveExt extDepthClipEnable =						{ VK_EXT_DEPTH_CLIP_ENABLE_EXTENSION_NAME,                  GveExtMode::Optional };
+	GveExt extHostQueryReset =						{ VK_EXT_HOST_QUERY_RESET_EXTENSION_NAME,                   GveExtMode::Optional };
+	GveExt extMemoryBudget =						{ VK_EXT_MEMORY_BUDGET_EXTENSION_NAME,                      GveExtMode::Passive };
+	GveExt extMemoryPriority =						{ VK_EXT_MEMORY_PRIORITY_EXTENSION_NAME,                    GveExtMode::Optional };
+	GveExt extShaderDemoteToHelperInvocation =		{ VK_EXT_SHADER_DEMOTE_TO_HELPER_INVOCATION_EXTENSION_NAME, GveExtMode::Optional };
+	GveExt extShaderStencilExport =					{ VK_EXT_SHADER_STENCIL_EXPORT_EXTENSION_NAME,              GveExtMode::Optional };
+	GveExt extShaderViewportIndexLayer =			{ VK_EXT_SHADER_VIEWPORT_INDEX_LAYER_EXTENSION_NAME,        GveExtMode::Optional };
+	GveExt extTransformFeedback =					{ VK_EXT_TRANSFORM_FEEDBACK_EXTENSION_NAME,                 GveExtMode::Optional };
+	GveExt extVertexAttributeDivisor =				{ VK_EXT_VERTEX_ATTRIBUTE_DIVISOR_EXTENSION_NAME,           GveExtMode::Optional };
+	GveExt khrCreateRenderPass2 =					{ VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME,                GveExtMode::Optional };
+	GveExt khrDedicatedAllocation =					{ VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME,               GveExtMode::Required };
+	GveExt khrDepthStencilResolve =					{ VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME,              GveExtMode::Optional };
+	GveExt khrDescriptorUpdateTemplate =			{ VK_KHR_DESCRIPTOR_UPDATE_TEMPLATE_EXTENSION_NAME,         GveExtMode::Required };
+	GveExt khrDrawIndirectCount =					{ VK_KHR_DRAW_INDIRECT_COUNT_EXTENSION_NAME,                GveExtMode::Optional };
+	GveExt khrDriverProperties =					{ VK_KHR_DRIVER_PROPERTIES_EXTENSION_NAME,                  GveExtMode::Optional };
+	GveExt khrGetMemoryRequirements2 =				{ VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,          GveExtMode::Required };
+	GveExt khrImageFormatList =						{ VK_KHR_IMAGE_FORMAT_LIST_EXTENSION_NAME,                  GveExtMode::Required };
+	GveExt khrMaintenance1 =						{ VK_KHR_MAINTENANCE1_EXTENSION_NAME,                       GveExtMode::Required };
+	GveExt khrMaintenance2 =						{ VK_KHR_MAINTENANCE2_EXTENSION_NAME,                       GveExtMode::Required };
+	GveExt khrSamplerMirrorClampToEdge =			{ VK_KHR_SAMPLER_MIRROR_CLAMP_TO_EDGE_EXTENSION_NAME,       GveExtMode::Optional };
+	GveExt khrShaderDrawParameters =				{ VK_KHR_SHADER_DRAW_PARAMETERS_EXTENSION_NAME,             GveExtMode::Required };
+	GveExt khrSwapchain =							{ VK_KHR_SWAPCHAIN_EXTENSION_NAME,                          GveExtMode::Required };
+};
+
+/**
+ * \brief Instance extensions
+ *
+ * Lists all Vulkan extensions that are potentially
+ * used by GPCS4 if supported by the implementation.
+ */
+struct GveInstanceExtensions
+{
+	GveExt khrGetPhysicalDeviceProperties2 =	{ VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, GveExtMode::Required };
+	GveExt khrSurface =							{ VK_KHR_SURFACE_EXTENSION_NAME,                          GveExtMode::Required };
+	//GveExt khrWin32Surface =					{ VK_KHR_WIN32_SURFACE_EXTENSION_NAME,                    GveExtMode::Required };
+};
+
+
 }  // namespace gve

@@ -70,7 +70,7 @@ public:
 	 */
 	VkPhysicalDeviceMemoryProperties memoryProperties() const;
 
-	RcPtr<GveDevice> createLogicalDevice(const std::vector<const char*>& deviceExtensions);
+	RcPtr<GveDevice> createLogicalDevice();
 
 private:
 	void queryExtensions();

@@ -9,12 +9,6 @@ namespace sce
 using namespace gve;
 
 
-const std::vector<const char*> deviceExtensions =
-{
-	VK_KHR_SWAPCHAIN_EXTENSION_NAME
-};
-
-
 SceGnmDriver::SceGnmDriver(std::shared_ptr<SceVideoOut>& videoOut):
 	m_videoOut(videoOut)
 {
@@ -27,7 +21,7 @@ SceGnmDriver::SceGnmDriver(std::shared_ptr<SceVideoOut>& videoOut):
 	LOG_ASSERT(m_physDevice != nullptr, "pick physical device failed.");
 
 	// Logical device
-	m_device = m_physDevice->createLogicalDevice(deviceExtensions);
+	m_device = m_physDevice->createLogicalDevice();
 	LOG_ASSERT(m_device != nullptr, "create logical device failed.");
 }
 
@@ -90,7 +84,6 @@ RcPtr<gve::GvePhysicalDevice> SceGnmDriver::pickPhysicalDevice()
 			break;
 		}
 
-		VkSurfaceKHR surface = m_videoOut->getSurface(*m_instance);
 		uint32_t devCount = m_instance->physicalDeviceCount();
 		for (uint32_t i = 0; i != devCount; ++i)
 		{
@@ -108,32 +101,15 @@ RcPtr<gve::GvePhysicalDevice> SceGnmDriver::pickPhysicalDevice()
 
 bool SceGnmDriver::isDeviceSuitable(RcPtr<gve::GvePhysicalDevice>& device)
 {
-	bool extensionsSupported = checkDeviceExtensionSupport(device);
-
 	bool swapChainAdequate = false;
 	VkSurfaceKHR surface = m_videoOut->getSurface(*m_instance);
-	if (extensionsSupported) 
-	{
-		SwapChainSupportDetails swapChainSupport = GveSwapChain::querySwapChainSupport(*device, surface);
-		swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
-	}
 
+	SwapChainSupportDetails swapChainSupport = GveSwapChain::querySwapChainSupport(*device, surface);
+	swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
+	
 	const VkPhysicalDeviceFeatures& supportedFeatures = device->features().core.features;
 
-	return extensionsSupported && swapChainAdequate && supportedFeatures.samplerAnisotropy;
-}
-
-bool SceGnmDriver::checkDeviceExtensionSupport(RcPtr<gve::GvePhysicalDevice>& device)
-{
-	auto availableExtensions = device->getAvailableExtensions();
-	std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
-
-	for (const auto& extension : availableExtensions) 
-	{
-		requiredExtensions.erase(extension.extensionName);
-	}
-
-	return requiredExtensions.empty();
+	return  swapChainAdequate && supportedFeatures.samplerAnisotropy;
 }
 
 void SceGnmDriver::createFrameBuffers(uint32_t count)

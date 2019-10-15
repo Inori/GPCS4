@@ -1,7 +1,9 @@
 #include "GvePhysicalDevice.h"
 #include "GveVkLayers.h"
 #include "GveDevice.h"
+
 #include <set>
+#include <array>
 
 namespace gve
 {;
@@ -191,11 +193,34 @@ VkPhysicalDeviceMemoryProperties GvePhysicalDevice::memoryProperties() const
 	return memoryProperties;
 }
 
-RcPtr<GveDevice> GvePhysicalDevice::createLogicalDevice(const std::vector<const char*>& deviceExtensions)
+RcPtr<gve::GveDevice> GvePhysicalDevice::createLogicalDevice()
 {
 	RcPtr<GveDevice> createdDevice;
 	do 
 	{
+		GveDeviceExtensions devExtensions;
+
+		std::array<GveExt*, 25> devExtensionList = { {
+		  &devExtensions.khrSwapchain,
+		} };
+
+		GveNameSet extensionsEnabled;
+
+		if (!m_deviceExtensions.enableExtensions(
+			devExtensionList.size(),
+			devExtensionList.data(),
+			extensionsEnabled))
+		{
+			LOG_ERR("Failed to create device");
+			break;
+		}
+			
+		// Enable additional extensions if necessary
+		extensionsEnabled.merge(m_extraExtensions);
+		GveNameList extensionNameList = extensionsEnabled.toNameList();
+
+		// TODO:
+		// We should check whether the present queue is the same as graphic queue.
 		float queuePriority = 1.0f;
 		GvePhysicalDeviceQueueFamilies queueFamilies = findQueueFamilies();
 		VkDeviceQueueCreateInfo queueCreateInfo = {};
@@ -212,11 +237,9 @@ RcPtr<GveDevice> GvePhysicalDevice::createLogicalDevice(const std::vector<const 
 
 		createInfo.queueCreateInfoCount = 1;
 		createInfo.pQueueCreateInfos = &queueCreateInfo;
-
 		createInfo.pEnabledFeatures = &deviceFeatures;
-
-		createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
-		createInfo.ppEnabledExtensionNames = deviceExtensions.data();
+		createInfo.enabledExtensionCount = extensionNameList.count();
+		createInfo.ppEnabledExtensionNames = extensionNameList.names();
 
 #ifdef GVE_VALIDATION_LAYERS_ENABLE
 
