@@ -9,7 +9,8 @@
 
 
 //Debug build
-#define GPCS4_DEBUG
+//Configured in project properties settings.
+//#define GPCS4_DEBUG
 
 
 //Windows compile

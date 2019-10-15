@@ -68,6 +68,7 @@ void LogAssert(const char* szLevel, const char* szFunction, int nLine, const cha
 #define LOG_ASSERT(expression, format, ...) 
 
 #define LOG_SCE_TRACE(format, ...)
+#define LOG_SCE_GRAPHIC(format, ...)	
 #define LOG_SCE_DUMMY_IMPL()
 
 #endif  //ENABLE_DEBUG
