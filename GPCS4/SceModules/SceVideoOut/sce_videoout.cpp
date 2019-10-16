@@ -75,8 +75,30 @@ int PS4API sceVideoOutGetResolutionStatus(int32_t handle, SceVideoOutResolutionS
 
 int PS4API sceVideoOutSetFlipRate(int32_t handle, int32_t rate)
 {
-	LOG_SCE_GRAPHIC("Not implemented");
-	return SCE_OK;
+	LOG_SCE_GRAPHIC("handle %d rate %d", handle, rate);
+	int ret = SCE_GNM_ERROR_UNKNOWN;
+	const uint32_t rateTable[3] = { 60, 30, 20 };
+	do 
+	{
+		if (rate < 0 || rate > 2)
+		{
+			ret = SCE_VIDEO_OUT_ERROR_INVALID_VALUE;
+			break;
+		}
+
+		std::shared_ptr<sce::SceGnmDriver> gnmDriver = getGnmDriver(handle);
+		if (!gnmDriver)
+		{
+			ret = SCE_VIDEO_OUT_ERROR_INVALID_HANDLE;
+			break;
+		}
+
+		uint32_t realRate = rateTable[rate];
+		gnmDriver->setFlipRate(realRate);
+
+		ret = SCE_OK;
+	} while (false);
+	return ret;
 }
 
 

@@ -30,11 +30,12 @@ public:
 
 	int sceGnmSubmitDone(void);
 
+	void setFlipRate(uint32_t rate);
+
 private:
 
 	RcPtr<gve::GvePhysicalDevice>  pickPhysicalDevice();
 	bool isDeviceSuitable(RcPtr<gve::GvePhysicalDevice>& device);
-	bool checkDeviceExtensionSupport(RcPtr<gve::GvePhysicalDevice>& device);
 	void createFrameBuffers(uint32_t count);
 	void createContexts(uint32_t count);
 	void createCommandParsers(uint32_t count);
