@@ -1,6 +1,6 @@
 #include "GnmCmdStream.h"
 #include "GnmGfx9MePm4Packets.h"
-
+#include "BitHelper.h"
 
 const uint32_t c_stageBases[kShaderStageCount] = { 0x2E40, 0x2C0C, 0x2C4C, 0x2C8C, 0x2CCC, 0x2D0C, 0x2D4C };
 
@@ -454,6 +454,15 @@ void GnmCmdStream::onSetContextReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 		ViewportTransformControl vpc = { 0 };
 		vpc.reg = itBody[1];
 		m_cb->setViewportTransformControl(vpc);
+	}
+		break;
+	case OP_HINT_SET_SCREEN_SCISSOR:
+	{
+		int32_t left = bit::extract(itBody[1], 0, 15);
+		int32_t top = bit::extract(itBody[1], 16, 31);
+		int32_t right = bit::extract(itBody[2], 0, 15);
+		int32_t bottom = bit::extract(itBody[2], 16, 31);
+		m_cb->setScreenScissor(left, top, right, bottom);
 	}
 		break;
 	}

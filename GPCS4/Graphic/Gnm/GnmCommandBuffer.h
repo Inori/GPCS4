@@ -195,7 +195,7 @@ public:
 	//virtual void setRenderTargetMask(uint32_t mask) = 0;
 	//virtual void setScaledResolutionGrid(const ScaledResolutionGridAxis xAxisLeftEye, const ScaledResolutionGridAxis xAxisRightEye, const ScaledResolutionGridAxis yAxisBothEyes) = 0;
 	//virtual void setScanModeControl(ScanModeControlAa msaa, ScanModeControlViewportScissor viewportScissor) = 0;
-	//virtual void setScreenScissor(int32_t left, int32_t top, int32_t right, int32_t bottom) = 0;
+	virtual void setScreenScissor(int32_t left, int32_t top, int32_t right, int32_t bottom) = 0;
 	virtual void setSsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const GnmSampler *sampler) = 0;
 	//virtual void setStencilClearValue(uint8_t clearValue) = 0;
 	//virtual void setStencil(StencilControl stencilControl) = 0;

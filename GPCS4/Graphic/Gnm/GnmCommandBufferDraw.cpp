@@ -166,6 +166,11 @@ void GnmCommandBufferDraw::setViewportTransformControl(ViewportTransformControl 
 
 }
 
+void GnmCommandBufferDraw::setScreenScissor(int32_t left, int32_t top, int32_t right, int32_t bottom)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
 // We be called on every frame start.
 void GnmCommandBufferDraw::initializeDefaultHardwareState()
 {
