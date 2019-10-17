@@ -14,6 +14,7 @@
 
 #define PM4_TYPE(token) ( ( (uint32_t)(token) >> 30 ) & 3)
 
+#define PM4_LENGTH_DW(token) ( (((uint32_t)(token) >> 16) & 0x3FFF) + 2)
 
 //////////////////////////////////////////////////////////////////////////
 

@@ -78,6 +78,9 @@ public:
 
 	virtual void setHardwareScreenOffset(uint32_t offsetX, uint32_t offsetY) override;
 
+
+	virtual void setRenderTarget(uint32_t rtSlot, RenderTarget const *target) override;
+
 private:
 	uint32_t* getFetchShaderCode(void* vsCode);
 

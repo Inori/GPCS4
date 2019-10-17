@@ -71,6 +71,7 @@ private:
 	void onPrepareFlipOrEopInterrupt(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody);
 	void onDrawIndex(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody);
 	void onDrawIndexAuto(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody);
+	void onSetRenderTarget(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody);
 
 private:
 	std::shared_ptr<GnmCommandBuffer> m_cb;

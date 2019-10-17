@@ -181,6 +181,11 @@ void GnmCommandBufferDraw::setHardwareScreenOffset(uint32_t offsetX, uint32_t of
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
+void GnmCommandBufferDraw::setRenderTarget(uint32_t rtSlot, RenderTarget const *target)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
 // We be called on every frame start.
 void GnmCommandBufferDraw::initializeDefaultHardwareState()
 {

@@ -191,7 +191,7 @@ public:
 	virtual void setPsShader(const pssl::PsStageRegisters *psRegs) = 0;
 	//virtual void setRenderOverride2Control(RenderOverride2Control renderOverride2Control) = 0;
 	//virtual void setRenderOverrideControl(RenderOverrideControl renderOverrideControl) = 0;
-	//virtual void setRenderTarget(uint32_t rtSlot, RenderTarget const *target) = 0;
+	virtual void setRenderTarget(uint32_t rtSlot, RenderTarget const *target) = 0;
 	//virtual void setRenderTargetMask(uint32_t mask) = 0;
 	//virtual void setScaledResolutionGrid(const ScaledResolutionGridAxis xAxisLeftEye, const ScaledResolutionGridAxis xAxisRightEye, const ScaledResolutionGridAxis yAxisBothEyes) = 0;
 	//virtual void setScanModeControl(ScanModeControlAa msaa, ScanModeControlViewportScissor viewportScissor) = 0;

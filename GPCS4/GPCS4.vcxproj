@@ -43,6 +43,7 @@
     <ClInclude Include="Graphic\Gnm\GnmConstant.h" />
     <ClInclude Include="Graphic\Gnm\GnmGfx9MePm4Packets.h" />
     <ClInclude Include="Graphic\Gnm\GnmOpCode.h" />
+    <ClInclude Include="Graphic\Gnm\GnmRegInfo.h" />
     <ClInclude Include="Graphic\Gnm\GnmSharpBuffer.h" />
     <ClInclude Include="Graphic\Gnm\GnmStructure.h" />
     <ClInclude Include="Graphic\GraphicShared.h" />
