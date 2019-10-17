@@ -474,10 +474,10 @@ void GnmCmdStream::onSetContextReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 		break;
 	case OP_HINT_SET_GUARD_BANDS:
 	{
-		float horzClip = *(float*)&itBody[1];
-		float vertClip = *(float*)&itBody[2];
-		float horzDiscard = *(float*)&itBody[3];
-		float vertDiscard = *(float*)&itBody[4];
+		float horzClip = *reinterpret_cast<float*>(&itBody[1]);
+		float vertClip = *reinterpret_cast<float*>(&itBody[2]);
+		float horzDiscard = *reinterpret_cast<float*>(&itBody[3]);
+		float vertDiscard = *reinterpret_cast<float*>(&itBody[4]);
 		m_cb->setGuardBands(horzClip, vertClip, horzDiscard, vertDiscard);
 	}
 		break;
