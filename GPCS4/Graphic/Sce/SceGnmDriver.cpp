@@ -74,11 +74,6 @@ int SceGnmDriver::sceGnmSubmitDone(void)
 	return SCE_OK;
 }
 
-void SceGnmDriver::setFlipRate(uint32_t rate)
-{
-
-}
-
 RcPtr<gve::GvePhysicalDevice> SceGnmDriver::pickPhysicalDevice()
 {
 	RcPtr<gve::GvePhysicalDevice> phyDevice;

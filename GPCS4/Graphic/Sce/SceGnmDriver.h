@@ -30,8 +30,6 @@ public:
 
 	int sceGnmSubmitDone(void);
 
-	void setFlipRate(uint32_t rate);
-
 private:
 
 	RcPtr<gve::GvePhysicalDevice>  pickPhysicalDevice();

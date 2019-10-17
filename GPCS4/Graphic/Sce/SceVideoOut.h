@@ -40,6 +40,10 @@ public:
 
 	bool registerBuffers(uint32_t startIndex, uint32_t bufferNum);
 
+	void setFlipRate(uint32_t rate);
+
+	uint32_t getFlipRate() const;
+
 	void processEvents();
 
 private:
@@ -48,13 +52,15 @@ private:
 
 private:
 
-	GLFWwindow* m_window;
+	GLFWwindow* m_window = nullptr;
 
 	uint32_t m_width;
 	uint32_t m_height;
 
 	VkSurfaceKHR m_windowSurface = VK_NULL_HANDLE;
-	bool m_framebufferResized;
+	bool m_framebufferResized = false;
+
+	uint32_t m_flipRate = 60;
 };
 
 } // sce

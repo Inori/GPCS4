@@ -86,15 +86,15 @@ int PS4API sceVideoOutSetFlipRate(int32_t handle, int32_t rate)
 			break;
 		}
 
-		std::shared_ptr<sce::SceGnmDriver> gnmDriver = getGnmDriver(handle);
-		if (!gnmDriver)
+		std::shared_ptr<sce::SceVideoOut> videoOut = getVideoOut(handle);
+		if (!videoOut)
 		{
 			ret = SCE_VIDEO_OUT_ERROR_INVALID_HANDLE;
 			break;
 		}
 
 		uint32_t realRate = rateTable[rate];
-		gnmDriver->setFlipRate(realRate);
+		videoOut->setFlipRate(realRate);
 
 		ret = SCE_OK;
 	} while (false);
