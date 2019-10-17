@@ -72,6 +72,12 @@ public:
 
 	virtual void setScreenScissor(int32_t left, int32_t top, int32_t right, int32_t bottom) override;
 
+
+	virtual void setGuardBands(float horzClip, float vertClip, float horzDiscard, float vertDiscard) override;
+
+
+	virtual void setHardwareScreenOffset(uint32_t offsetX, uint32_t offsetY) override;
+
 private:
 	uint32_t* getFetchShaderCode(void* vsCode);
 

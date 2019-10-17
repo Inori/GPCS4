@@ -171,6 +171,16 @@ void GnmCommandBufferDraw::setScreenScissor(int32_t left, int32_t top, int32_t r
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
+void GnmCommandBufferDraw::setGuardBands(float horzClip, float vertClip, float horzDiscard, float vertDiscard)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void GnmCommandBufferDraw::setHardwareScreenOffset(uint32_t offsetX, uint32_t offsetY)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
 // We be called on every frame start.
 void GnmCommandBufferDraw::initializeDefaultHardwareState()
 {

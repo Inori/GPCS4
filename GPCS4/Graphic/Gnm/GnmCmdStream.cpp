@@ -465,6 +465,13 @@ void GnmCmdStream::onSetContextReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 		m_cb->setScreenScissor(left, top, right, bottom);
 	}
 		break;
+	case OP_HINT_SET_HARDWARE_SCREEN_OFFSET:
+	{
+		uint32_t offsetX = bit::extract(itBody[1], 0, 15);
+		uint32_t offsetY = bit::extract(itBody[1], 16, 31);
+		m_cb->setHardwareScreenOffset(offsetX, offsetY);
+	}
+		break;
 	}
 
 	thread_local static float dmin = 0.0, dmax = 0.0;

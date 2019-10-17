@@ -152,8 +152,8 @@ public:
 	//virtual void setGsMode(GsMode mode, GsMaxOutputPrimitiveDwordSize maxPrimDwordSize) = 0;
 	//virtual void setGsOnChipControl(uint32_t esVerticesPerSubGroup, uint32_t gsInputPrimitivesPerSubGroup) = 0;
 	//virtual void setGsShader(const GsStageRegisters *gsRegs) = 0;
-	//virtual void setGuardBands(float horzClip, float vertClip, float horzDiscard, float vertDiscard) = 0;
-	//virtual void setHardwareScreenOffset(uint32_t offsetX, uint32_t offsetY) = 0;
+	virtual void setGuardBands(float horzClip, float vertClip, float horzDiscard, float vertDiscard) = 0;
+	virtual void setHardwareScreenOffset(uint32_t offsetX, uint32_t offsetY) = 0;
 	//virtual void setHsShader(const HsStageRegisters *hsRegs, const TessellationRegisters *tessRegs) = 0;
 	//virtual void setHsShader(const HsStageRegisters *hsRegs, const TessellationRegisters *tessRegs, TessellationDistributionMode distributionMode) = 0;
 	//virtual void setHtileStencil0(HtileStencilControl htileStencilControl) = 0;
