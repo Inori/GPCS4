@@ -472,6 +472,15 @@ void GnmCmdStream::onSetContextReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 		m_cb->setHardwareScreenOffset(offsetX, offsetY);
 	}
 		break;
+	case OP_HINT_SET_GUARD_BANDS:
+	{
+		float horzClip = *(float*)&itBody[1];
+		float vertClip = *(float*)&itBody[2];
+		float horzDiscard = *(float*)&itBody[3];
+		float vertDiscard = *(float*)&itBody[4];
+		m_cb->setGuardBands(horzClip, vertClip, horzDiscard, vertDiscard);
+	}
+		break;
 	}
 
 	thread_local static float dmin = 0.0, dmax = 0.0;
