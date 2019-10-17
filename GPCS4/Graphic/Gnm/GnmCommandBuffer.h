@@ -218,7 +218,7 @@ public:
 	virtual void setVgtControl(uint8_t primGroupSizeMinusOne, WdSwitchOnlyOnEopMode wdSwitchOnlyOnEopMode, VgtPartialVsWaveMode partialVsWaveMode) = 0;
 	virtual void setViewport(uint32_t viewportId, float dmin, float dmax, const float scale[3], const float offset[3]) = 0;
 	//virtual void setViewportScissor(uint32_t viewportId, uint32_t left, uint32_t top, uint32_t right, uint32_t bottom, WindowOffsetMode windowOffsetEnable) = 0;
-	//virtual void setViewportTransformControl(ViewportTransformControl vportControl) = 0;
+	virtual void setViewportTransformControl(ViewportTransformControl vportControl) = 0;
 	virtual void setVsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const GnmBuffer *buffer) = 0;
 	//virtual void setVsShaderStreamoutEnable(bool enable) = 0;
 	virtual void setVsShader(const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier) = 0;

@@ -67,6 +67,7 @@ public:
 
 
 
+	virtual void setViewportTransformControl(ViewportTransformControl vportControl) override;
 
 private:
 	uint32_t* getFetchShaderCode(void* vsCode);

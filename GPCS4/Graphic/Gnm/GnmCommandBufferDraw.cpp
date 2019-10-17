@@ -161,6 +161,11 @@ void GnmCommandBufferDraw::waitUntilSafeForRendering(uint32_t videoOutHandle, ui
 }
 
 
+void GnmCommandBufferDraw::setViewportTransformControl(ViewportTransformControl vportControl)
+{
+
+}
+
 // We be called on every frame start.
 void GnmCommandBufferDraw::initializeDefaultHardwareState()
 {

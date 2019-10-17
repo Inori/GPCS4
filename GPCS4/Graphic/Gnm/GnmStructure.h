@@ -9,7 +9,12 @@ struct DrawModifier
 	uint32_t reserved : 29;
 };
 
+//////////////////////////////////////////////////////////////////////////
 
+// Self defined structures.
+// Used to record gnm driver calls' parameters.
+
+// Note:
 // we must keep the size of these structs
 // thus if add new field, decrease the reserved count to keep size unchanged.
 
@@ -179,3 +184,37 @@ struct GnmCmdWaitFlipDone
 
 
 #pragma pack(pop)
+
+//////////////////////////////////////////////////////////////////////////
+
+// Encoded regs' definition
+
+
+union ViewportTransformControl
+{
+	struct
+	{
+		uint16_t scaleX		: 1;
+		uint16_t offsetX	: 1;
+		uint16_t scaleY		: 1;
+		uint16_t offsetY	: 1;
+		uint16_t scaleZ		: 1;
+		uint16_t offsetZ	: 1;
+
+		uint16_t passThrough : 2;
+
+		uint16_t perspectiveDivideXY	: 1;  // 0 for enable
+		uint16_t perspectiveDivideZ		: 1;  // 0 for enable
+		uint16_t invertW	: 1;
+
+		uint16_t reserved0	: 1;
+		uint16_t reserved1	: 1;
+		uint16_t reserved2	: 1;
+		uint16_t reserved3	: 1;
+		uint16_t reserved4	: 1;
+
+		uint16_t reserved5;
+	};
+
+	uint32_t reg;
+};

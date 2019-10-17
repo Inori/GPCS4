@@ -147,13 +147,13 @@ uint32_t GnmCmdStream::processPM4Type3(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBo
 	case IT_SET_CONFIG_REG:
 		onSetConfigReg(pm4Hdr, itBody);
 		break;
-	case IT_SET_CONTEXT_REG:
+	case IT_SET_CONTEXT_REG:  // 0x69
 		onSetContextReg(pm4Hdr, itBody);
 		break;
 	case IT_SET_SH_REG:
 		onSetShReg(pm4Hdr, itBody);
 		break;
-	case IT_SET_UCONFIG_REG:
+	case IT_SET_UCONFIG_REG:  // 0x79
 		onSetUconfigReg(pm4Hdr, itBody);
 		break;
 	case IT_INCREMENT_DE_COUNTER:
@@ -447,6 +447,13 @@ void GnmCmdStream::onSetContextReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 		const uint32_t* inputTable = &itBody[1];
 		const uint32_t numItems = pm4Hdr->count;
 		m_cb->setPsShaderUsage(inputTable, numItems);
+	}
+		break;
+	case OP_HINT_SET_VIEWPORT_TRANSFORM_CONTROL:
+	{
+		ViewportTransformControl vpc = { 0 };
+		vpc.reg = itBody[1];
+		m_cb->setViewportTransformControl(vpc);
 	}
 		break;
 	}
