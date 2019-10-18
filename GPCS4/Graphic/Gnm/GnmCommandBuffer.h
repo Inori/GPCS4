@@ -140,7 +140,7 @@ public:
 	//virtual void setDepthClearValue(float clearValue) = 0;
 	//virtual void setDepthEqaaControl(DepthEqaaControl depthEqaa) = 0;
 	virtual void setDepthRenderTarget(DepthRenderTarget const *depthTarget) = 0;
-	//virtual void setDepthStencilControl(DepthStencilControl depthControl) = 0;
+	virtual void setDepthStencilControl(DepthStencilControl depthControl) = 0;
 	//virtual void setDepthStencilDisable() = 0;
 	//virtual void setDispatchDrawIndexDeallocationMask(uint32_t indexMask) = 0;
 	//virtual void setDrawPayloadControl(DrawPayloadControl cntrl) = 0;

@@ -347,3 +347,22 @@ enum StencilFormat
 	kStencilInvalid = 0x00000000,
 	kStencil8 = 0x00000001,
 };
+
+
+enum DepthControlZWrite
+{
+	kDepthControlZWriteDisable = 0, 
+	kDepthControlZWriteEnable = 1,
+};
+
+enum CompareFunc
+{
+	kCompareFuncNever = 0x00000000,
+	kCompareFuncLess = 0x00000001,
+	kCompareFuncEqual = 0x00000002,
+	kCompareFuncLessEqual = 0x00000003,
+	kCompareFuncGreater = 0x00000004,
+	kCompareFuncNotEqual = 0x00000005,
+	kCompareFuncGreaterEqual = 0x00000006,
+	kCompareFuncAlways = 0x00000007,
+};

@@ -87,6 +87,9 @@ public:
 
 	virtual void setRenderTargetMask(uint32_t mask) override;
 
+
+	virtual void setDepthStencilControl(DepthStencilControl depthControl) override;
+
 private:
 	uint32_t* getFetchShaderCode(void* vsCode);
 

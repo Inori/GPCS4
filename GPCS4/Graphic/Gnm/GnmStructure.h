@@ -221,4 +221,30 @@ union ViewportTransformControl
 };
 
 
+union DepthStencilControl
+{
+	struct
+	{
+		uint32_t stencilTestEnable : 1;
+		uint32_t depthTestEnable : 1;
+		uint32_t zWrite : 1;
+		uint32_t depthBoundsTestEnable : 1;
+
+		uint32_t zFunc : 3;
+		uint32_t separateStencilTestEnable : 1;
+
+		uint32_t stencilFunc : 3;
+		uint32_t reserved0 : 1;
+
+		uint32_t reserved1 : 8;
+
+		uint32_t stencilFuncBack : 3;
+		uint32_t reserved2 : 1;
+
+		uint32_t reserved3 : 8;
+	};
+
+	uint32_t reg;
+};
+
 //////////////////////////////////////////////////////////////////////////

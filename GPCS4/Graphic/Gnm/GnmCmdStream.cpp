@@ -502,6 +502,13 @@ void GnmCmdStream::onSetContextReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 			m_cb->setRenderTargetMask(mask);
 		}
 			break;
+		case OP_HINT_SET_DEPTH_STENCIL_CONTROL:
+		{
+			DepthStencilControl dsc;
+			dsc.reg = itBody[1];
+			m_cb->setDepthStencilControl(dsc);
+		}
+			break;
 	}
 
 	if (regOffset >= 0xB4 && regOffset <= 0xD2)
