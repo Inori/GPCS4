@@ -17,6 +17,18 @@
 #define PM4_LENGTH_DW(token) ( (((uint32_t)(token) >> 16) & 0x3FFF) + 2)
 
 //////////////////////////////////////////////////////////////////////////
+//--------------------General PM4 HEADER--------------------
+typedef union PM4_HEADER
+{
+	struct
+	{
+		uint32_t                               reserved : 16;
+		uint32_t                                  count : 14;
+		uint32_t                                   type : 2;   // PM4_TYPE
+	};
+	uint32_t                                     u32All;
+
+} PM4_HEADER, *PPM4_HEADER;
 
 //--------------------TYPE_0_HEADER--------------------
 typedef union PM4_TYPE_0_HEADER
@@ -261,7 +273,7 @@ enum OpCodeHint
 	OP_HINT_SET_DEPTH_BOUNDS_RANGE = 0x8,
 	OP_HINT_SET_DEPTH_CLEAR_VALUE = 0xB,
 	OP_HINT_SET_DEPTH_EQAA_CONTROL = 0x201,
-	OP_HINT_SET_DEPTH_RENDER_TARGET_DISABLE = 0x10,
+	OP_HINT_SET_DEPTH_RENDER_TARGET = 0x10,
 	OP_HINT_SET_DEPTH_STENCIL_CONTROL = 0x200,
 	OP_HINT_SET_DEPTH_STENCIL_DISABLE = 0x200,
 	OP_HINT_SET_DISPATCH_DRAW_INDEX_DEALLOCATION_MASK = 0x2DD,

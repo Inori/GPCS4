@@ -30,8 +30,8 @@ public:
 
 private:
 	
-	uint32_t processPM4Type0(PPM4_TYPE_0_HEADER pm4Hdr, uint32_t* regDataX);
-	uint32_t processPM4Type3(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody);
+	void processPM4Type0(PPM4_TYPE_0_HEADER pm4Hdr, uint32_t* regDataX);
+	void processPM4Type3(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody);
 
 	// Type 3 pm4 packet handlers
 	void onNop(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody);
@@ -71,16 +71,46 @@ private:
 	void onPrepareFlipOrEopInterrupt(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody);
 	void onDrawIndex(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody);
 	void onDrawIndexAuto(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody);
+	void onSetViewport(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody);
 	void onSetRenderTarget(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody);
+	void onSetDepthRenderTarget(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody);
+
+	template <typename HdrType>
+	HdrType getNextNPm4(HdrType thisPm4, uint32_t n)
+	{
+		HdrType curPm4 = thisPm4;
+		while (n)
+		{
+			curPm4 = reinterpret_cast<HdrType>((uint32_t*)curPm4 + PM4_LENGTH_DW(curPm4->u32All));
+			--n;
+		}
+		return curPm4;
+	}
+
+	template <typename HdrType>
+	HdrType getNextPm4(HdrType thisPm4)
+	{
+		return getNextNPm4<HdrType>(thisPm4, 1);
+	}
+
 
 private:
 	std::shared_ptr<GnmCommandBuffer> m_cb;
 
+	// Flip packet is the last pm4 packet of a command buffer,
+	// when flip packet had been processed, we end processing command buffer.
 	bool m_flipPacketDone = false;
 
 	// Used for recording hint, usually provided by IT_NOP
 	// Note: This MUST clear to 0 every time after we read it.
 	uint32_t m_lastHint = 0;
+
+	// Some Gnm calls formed with several pm4 packets
+	// so after recover that call, we need to skip N packets.
+	// NOte:
+	// This should be the the real pm4 packet count which forms a gnm call minus one.
+	// e.g. 2 packets makes gnm call, m_skipPm4Count = 1
+	uint32_t m_skipPm4Count = 0;
 
 };
 

@@ -22,23 +22,21 @@ bool GnmCmdStream::processCommandBuffer(uint32_t* commandBuffer, uint32_t comman
 	do
 	{
 		uint32_t processedCmdSize = 0;
-		uint32_t* command = commandBuffer;
+		PPM4_HEADER pm4Hdr = reinterpret_cast<PPM4_HEADER>(commandBuffer);
 		while (processedCmdSize < commandSize)
 		{
-			uint32_t pm4Type = PM4_TYPE(*command);
-			uint32_t pm4LengthDw = 0;
-
+			uint32_t pm4Type = pm4Hdr->type;
+	
 			switch (pm4Type)
 			{
 			case PM4_TYPE_0:
-				pm4LengthDw = processPM4Type0((PPM4_TYPE_0_HEADER)command, command + 1);
+				processPM4Type0((PPM4_TYPE_0_HEADER)pm4Hdr, (uint32_t*)(pm4Hdr + 1));
 				break;
 			case PM4_TYPE_2:
 				// opcode should be 0x80000000, this is an 1 dword NOP
-				pm4LengthDw = 1;
 				break;
 			case PM4_TYPE_3:
-				pm4LengthDw = processPM4Type3((PPM4_TYPE_3_HEADER)command, command + 1);
+				processPM4Type3((PPM4_TYPE_3_HEADER)pm4Hdr, (uint32_t*)(pm4Hdr + 1));
 				break;
 			default:
 				LOG_ERR("Invalid pm4 type %d", pm4Type);
@@ -50,8 +48,18 @@ bool GnmCmdStream::processCommandBuffer(uint32_t* commandBuffer, uint32_t comman
 				break;
 			}
 
-			command += pm4LengthDw;
-			processedCmdSize += (pm4LengthDw * sizeof(uint32_t));
+			uint32_t processedPm4Count = 1;
+
+			if (m_skipPm4Count != 0)
+			{
+				processedPm4Count += m_skipPm4Count;
+				m_skipPm4Count = 0;
+			}
+
+			PPM4_HEADER nextPm4Hdr = getNextNPm4(pm4Hdr, processedPm4Count);
+			uint32_t processedLength = reinterpret_cast<ulong_ptr>(nextPm4Hdr) - reinterpret_cast<ulong_ptr>(pm4Hdr);
+			pm4Hdr = nextPm4Hdr;
+			processedCmdSize += processedLength;
 		}
 
 		bRet  = true;
@@ -68,17 +76,13 @@ std::shared_ptr<GnmCommandBuffer> GnmCmdStream::getCommandBuffer()
 	return m_cb;
 }
 
-uint32_t GnmCmdStream::processPM4Type0(PPM4_TYPE_0_HEADER pm4Hdr, uint32_t* regDataX)
+void GnmCmdStream::processPM4Type0(PPM4_TYPE_0_HEADER pm4Hdr, uint32_t* regDataX)
 {
 	LOG_FIXME("Type 0 PM4 packet is not supported.");
-	// Type 0 PM4 packet is fixed sized of 2 dwords.
-	return 2;
 }
 
-uint32_t GnmCmdStream::processPM4Type3(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
+void GnmCmdStream::processPM4Type3(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 {
-	uint32_t pm4LengthDw = pm4Hdr->count + 2;
-
 	IT_OpCodeType opcode = (IT_OpCodeType)pm4Hdr->opcode;
 
 	LOG_DEBUG("OpCode Name %s", opcodeName(*(uint32_t*)pm4Hdr));
@@ -276,7 +280,6 @@ uint32_t GnmCmdStream::processPM4Type3(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBo
 		break;
 	}
 
-	return pm4LengthDw;
 }
 
 // NOP packet usually used for providing a hint for the following packet,
@@ -443,67 +446,61 @@ void GnmCmdStream::onSetContextReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 
 	switch (hint)
 	{
-	case OP_HINT_SET_PS_SHADER_USAGE:
-	{
-		const uint32_t* inputTable = &itBody[1];
-		const uint32_t numItems = pm4Hdr->count;
-		m_cb->setPsShaderUsage(inputTable, numItems);
-	}
-		break;
-	case OP_HINT_SET_VIEWPORT_TRANSFORM_CONTROL:
-	{
-		ViewportTransformControl vpc = { {0} };
-		vpc.reg = itBody[1];
-		m_cb->setViewportTransformControl(vpc);
-	}
-		break;
-	case OP_HINT_SET_SCREEN_SCISSOR:
-	{
-		int32_t left = bit::extract(itBody[1], 0, 15);
-		int32_t top = bit::extract(itBody[1], 16, 31);
-		int32_t right = bit::extract(itBody[2], 0, 15);
-		int32_t bottom = bit::extract(itBody[2], 16, 31);
-		m_cb->setScreenScissor(left, top, right, bottom);
-	}
-		break;
-	case OP_HINT_SET_HARDWARE_SCREEN_OFFSET:
-	{
-		uint32_t offsetX = bit::extract(itBody[1], 0, 15);
-		uint32_t offsetY = bit::extract(itBody[1], 16, 31);
-		m_cb->setHardwareScreenOffset(offsetX, offsetY);
-	}
-		break;
-	case OP_HINT_SET_GUARD_BANDS:
-	{
-		float horzClip = *reinterpret_cast<float*>(&itBody[1]);
-		float vertClip = *reinterpret_cast<float*>(&itBody[2]);
-		float horzDiscard = *reinterpret_cast<float*>(&itBody[3]);
-		float vertDiscard = *reinterpret_cast<float*>(&itBody[4]);
-		m_cb->setGuardBands(horzClip, vertClip, horzDiscard, vertDiscard);
-	}
-		break;
+		case OP_HINT_SET_PS_SHADER_USAGE:
+		{
+			const uint32_t* inputTable = &itBody[1];
+			const uint32_t numItems = pm4Hdr->count;
+			m_cb->setPsShaderUsage(inputTable, numItems);
+		}
+			break;
+		case OP_HINT_SET_VIEWPORT_TRANSFORM_CONTROL:
+		{
+			ViewportTransformControl vpc = { {0} };
+			vpc.reg = itBody[1];
+			m_cb->setViewportTransformControl(vpc);
+		}
+			break;
+		case OP_HINT_SET_SCREEN_SCISSOR:
+		{
+			int32_t left = bit::extract(itBody[1], 0, 15);
+			int32_t top = bit::extract(itBody[1], 16, 31);
+			int32_t right = bit::extract(itBody[2], 0, 15);
+			int32_t bottom = bit::extract(itBody[2], 16, 31);
+			m_cb->setScreenScissor(left, top, right, bottom);
+		}
+			break;
+		case OP_HINT_SET_HARDWARE_SCREEN_OFFSET:
+		{
+			uint32_t offsetX = bit::extract(itBody[1], 0, 15);
+			uint32_t offsetY = bit::extract(itBody[1], 16, 31);
+			m_cb->setHardwareScreenOffset(offsetX, offsetY);
+		}
+			break;
+		case OP_HINT_SET_GUARD_BANDS:
+		{
+			float horzClip = *reinterpret_cast<float*>(&itBody[1]);
+			float vertClip = *reinterpret_cast<float*>(&itBody[2]);
+			float horzDiscard = *reinterpret_cast<float*>(&itBody[3]);
+			float vertDiscard = *reinterpret_cast<float*>(&itBody[4]);
+			m_cb->setGuardBands(horzClip, vertClip, horzDiscard, vertDiscard);
+		}
+			break;
+		case OP_HINT_SET_DEPTH_RENDER_TARGET:
+		{
+			auto nextPm4 = getNextPm4(pm4Hdr);
+			if (nextPm4->opcode == IT_SET_CONTEXT_REG &&
+				(((uint32_t*)nextPm4)[1] == 15 ||
+				((uint32_t*)nextPm4)[1] == 17))
+			{
+				onSetDepthRenderTarget(pm4Hdr, itBody);
+			}
+		}
+			break;
 	}
 
-	thread_local static float dmin = 0.0, dmax = 0.0;
 	if (regOffset >= 0xB4 && regOffset <= 0xD2)
 	{
-		dmin = *reinterpret_cast<float*>(&itBody[1]);
-		dmax = *reinterpret_cast<float*>(&itBody[2]);
-	}
-	else if (regOffset >= 0x10F && regOffset <= 0x169)
-	{
-		float scale[3] = { 0.0 };
-		float offset[3] = { 0.0 };
-
-		scale[0] = *reinterpret_cast<float*>(&itBody[1]);
-		scale[1] = *reinterpret_cast<float*>(&itBody[3]);
-		scale[2] = *reinterpret_cast<float*>(&itBody[5]);
-		offset[0] = *reinterpret_cast<float*>(&itBody[2]);
-		offset[1] = *reinterpret_cast<float*>(&itBody[4]);
-		offset[2] = *reinterpret_cast<float*>(&itBody[6]);
-
-		uint32_t viewportId = (regOffset - 0x10F) / 6;
-		m_cb->setViewport(viewportId, dmin, dmax, scale, offset);
+		onSetViewport(pm4Hdr, itBody);
 	}
 	else if (regOffset >= 0x318 && regOffset <= (0x31C + 15 * 7))
 	{
@@ -817,6 +814,31 @@ void GnmCmdStream::onDrawIndexAuto(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	}
 }
 
+void GnmCmdStream::onSetViewport(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
+{
+	float dmin = *reinterpret_cast<float*>(&itBody[1]);
+	float dmax = *reinterpret_cast<float*>(&itBody[2]);
+
+	PPM4_TYPE_3_HEADER nextPacket = getNextPm4(pm4Hdr);
+	uint32_t* nextItBody = reinterpret_cast<uint32_t*>(nextPacket + 1);
+
+	float scale[3] = { 0.0 };
+	float offset[3] = { 0.0 };
+
+	scale[0] = *reinterpret_cast<float*>(&nextItBody[1]);
+	scale[1] = *reinterpret_cast<float*>(&nextItBody[3]);
+	scale[2] = *reinterpret_cast<float*>(&nextItBody[5]);
+	offset[0] = *reinterpret_cast<float*>(&nextItBody[2]);
+	offset[1] = *reinterpret_cast<float*>(&nextItBody[4]);
+	offset[2] = *reinterpret_cast<float*>(&nextItBody[6]);
+
+	uint32_t viewportId = (nextItBody[0] - 0x10F) / 6;
+	m_cb->setViewport(viewportId, dmin, dmax, scale, offset);
+
+	// Skip the second packet.
+	m_skipPm4Count = 1;
+}
+
 void GnmCmdStream::onSetRenderTarget(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 {
 	PPM4ME_SET_CONTEXT_REG setCtxPacket = (PPM4ME_SET_CONTEXT_REG)pm4Hdr;
@@ -834,6 +856,9 @@ void GnmCmdStream::onSetRenderTarget(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody
 		target.m_regs[RenderTarget::kCbWidthHeight] = packWidthHeight;
 
 		m_cb->setRenderTarget(rtSlot, &target);
+
+		// Skip the nop packet
+		m_skipPm4Count = 1;
 	}
 	else if (packetLenDw == 0x03)
 	{
@@ -846,3 +871,18 @@ void GnmCmdStream::onSetRenderTarget(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody
 	}
 }
 
+void GnmCmdStream::onSetDepthRenderTarget(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
+{
+	PPM4ME_SET_CONTEXT_REG nextPacket = (PPM4ME_SET_CONTEXT_REG)getNextPm4(pm4Hdr);
+	if (nextPacket->bitfields2.reg_offset == 15)
+	{
+
+	}
+	else if (nextPacket->bitfields2.reg_offset == 17)
+	{
+	}
+	else
+	{
+		LOG_ERR("error set depth render target packet, next reg off %d", nextPacket->bitfields2.reg_offset);
+	}
+}
