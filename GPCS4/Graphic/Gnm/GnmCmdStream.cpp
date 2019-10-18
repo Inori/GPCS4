@@ -496,6 +496,12 @@ void GnmCmdStream::onSetContextReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 			}
 		}
 			break;
+		case OP_HINT_SET_RENDER_TARGET_MASK:
+		{
+			uint32_t mask = itBody[1];
+			m_cb->setRenderTargetMask(mask);
+		}
+			break;
 	}
 
 	if (regOffset >= 0xB4 && regOffset <= 0xD2)
@@ -876,10 +882,23 @@ void GnmCmdStream::onSetDepthRenderTarget(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* i
 	PPM4ME_SET_CONTEXT_REG nextPacket = (PPM4ME_SET_CONTEXT_REG)getNextPm4(pm4Hdr);
 	if (nextPacket->bitfields2.reg_offset == 15)
 	{
+		DepthRenderTarget target;
 
+		std::memcpy(&target.m_regs[0], &itBody[2], 0x20);
+
+		target.m_regs[11] = itBody[11];
+		target.m_regs[8] = itBody[14];
+		target.m_regs[9] = itBody[17];
+		target.m_regs[10] = itBody[20];
+		target.m_regs[12] = itBody[22];
+
+		m_cb->setDepthRenderTarget(&target);
+		m_skipPm4Count = 5;
 	}
 	else if (nextPacket->bitfields2.reg_offset == 17)
 	{
+		m_cb->setDepthRenderTarget(nullptr);
+		m_skipPm4Count = 1;
 	}
 	else
 	{

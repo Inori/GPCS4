@@ -5,6 +5,7 @@
 #include "GnmStructure.h"
 #include "GnmSharpBuffer.h"
 #include "GnmRenderTarget.h"
+#include "GnmDepthRenderTarget.h"
 
 #include "../Gve/GveContext.h"
 
@@ -138,7 +139,7 @@ public:
 	//virtual void setDepthBoundsRange(float depthBoundsMin, float depthBoundsMax) = 0;
 	//virtual void setDepthClearValue(float clearValue) = 0;
 	//virtual void setDepthEqaaControl(DepthEqaaControl depthEqaa) = 0;
-	//virtual void setDepthRenderTarget(DepthRenderTarget const *depthTarget) = 0;
+	virtual void setDepthRenderTarget(DepthRenderTarget const *depthTarget) = 0;
 	//virtual void setDepthStencilControl(DepthStencilControl depthControl) = 0;
 	//virtual void setDepthStencilDisable() = 0;
 	//virtual void setDispatchDrawIndexDeallocationMask(uint32_t indexMask) = 0;
@@ -193,7 +194,7 @@ public:
 	//virtual void setRenderOverride2Control(RenderOverride2Control renderOverride2Control) = 0;
 	//virtual void setRenderOverrideControl(RenderOverrideControl renderOverrideControl) = 0;
 	virtual void setRenderTarget(uint32_t rtSlot, RenderTarget const *target) = 0;
-	//virtual void setRenderTargetMask(uint32_t mask) = 0;
+	virtual void setRenderTargetMask(uint32_t mask) = 0;
 	//virtual void setScaledResolutionGrid(const ScaledResolutionGridAxis xAxisLeftEye, const ScaledResolutionGridAxis xAxisRightEye, const ScaledResolutionGridAxis yAxisBothEyes) = 0;
 	//virtual void setScanModeControl(ScanModeControlAa msaa, ScanModeControlViewportScissor viewportScissor) = 0;
 	virtual void setScreenScissor(int32_t left, int32_t top, int32_t right, int32_t bottom) = 0;

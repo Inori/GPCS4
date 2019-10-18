@@ -18,6 +18,7 @@ union DepthRenderTargetInitFlags
 
 class DepthRenderTarget
 {
+public:
 	enum
 	{
 		kDbZInfo = 0,

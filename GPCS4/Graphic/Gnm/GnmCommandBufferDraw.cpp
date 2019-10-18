@@ -186,6 +186,16 @@ void GnmCommandBufferDraw::setRenderTarget(uint32_t rtSlot, RenderTarget const *
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
+void GnmCommandBufferDraw::setDepthRenderTarget(DepthRenderTarget const *depthTarget)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void GnmCommandBufferDraw::setRenderTargetMask(uint32_t mask)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
 // We be called on every frame start.
 void GnmCommandBufferDraw::initializeDefaultHardwareState()
 {

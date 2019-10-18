@@ -81,6 +81,12 @@ public:
 
 	virtual void setRenderTarget(uint32_t rtSlot, RenderTarget const *target) override;
 
+
+	virtual void setDepthRenderTarget(DepthRenderTarget const *depthTarget) override;
+
+
+	virtual void setRenderTargetMask(uint32_t mask) override;
+
 private:
 	uint32_t* getFetchShaderCode(void* vsCode);
 
