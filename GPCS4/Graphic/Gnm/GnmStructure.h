@@ -247,4 +247,36 @@ union DepthStencilControl
 	uint32_t reg;
 };
 
+
+union PrimitiveSetup
+{
+	struct
+	{
+		uint32_t cullMode : 2;
+		uint32_t frontFace : 1;
+		uint32_t pointOrWairframe : 1;  // Not sure, means one of front or back is not rendered as solid
+
+		uint32_t reserved0 : 1;
+		uint32_t frontMode : 3;
+
+		uint32_t backMode : 3;
+		uint32_t frontOffsetMode : 1;
+
+		uint32_t backOffsetMode : 1;
+		uint32_t reserved1 : 3;
+
+		uint32_t vertexWindowOffsetEnable : 1;
+		uint32_t reserved2 : 1;
+		uint32_t reserved3 : 1;
+		uint32_t provokeVertexMode : 1;
+
+		uint32_t perspectiveCorrectionEnable : 1;
+		uint32_t reserved4 : 3;
+
+		uint32_t reserved5 : 8;
+	};
+
+	uint32_t reg;
+};
+
 //////////////////////////////////////////////////////////////////////////

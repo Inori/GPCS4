@@ -348,7 +348,6 @@ enum StencilFormat
 	kStencil8 = 0x00000001,
 };
 
-
 enum DepthControlZWrite
 {
 	kDepthControlZWriteDisable = 0, 
@@ -365,4 +364,37 @@ enum CompareFunc
 	kCompareFuncNotEqual = 0x00000005,
 	kCompareFuncGreaterEqual = 0x00000006,
 	kCompareFuncAlways = 0x00000007,
+};
+
+enum PrimitiveSetupCullFaceMode
+{
+	kPrimitiveSetupCullFaceNone = 0,
+	kPrimitiveSetupCullFaceFront = 1,
+	kPrimitiveSetupCullFaceBack = 2,
+	kPrimitiveSetupCullFaceFrontAndBack = 3,
+};
+
+enum PrimitiveSetupFrontFace
+{
+	kPrimitiveSetupFrontFaceCw = 1,
+	kPrimitiveSetupFrontFaceCcw = 0,
+};
+
+enum PrimitiveSetupPolygonMode
+{
+	kPrimitiveSetupPolygonModePoint = 0,
+	kPrimitiveSetupPolygonModeLine = 1,
+	kPrimitiveSetupPolygonModeFill = 2,
+};
+
+enum PrimitiveSetupPolygonOffsetMode
+{
+	kPrimitiveSetupPolygonOffsetEnable = 1,
+	kPrimitiveSetupPolygonOffsetDisable = 0,
+};
+
+enum PrimitiveSetupProvokingVertexMode
+{
+	kPrimitiveSetupProvokingVertexFirst = 0,
+	kPrimitiveSetupProvokingVertexLast = 1,
 };

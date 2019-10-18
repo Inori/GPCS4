@@ -509,6 +509,13 @@ void GnmCmdStream::onSetContextReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 			m_cb->setDepthStencilControl(dsc);
 		}
 			break;
+		case OP_HINT_SET_PRIMITIVE_SETUP:
+		{
+			PrimitiveSetup primSetupReg;
+			primSetupReg.reg = itBody[1];
+			m_cb->setPrimitiveSetup(primSetupReg);
+		}
+			break;
 	}
 
 	if (regOffset >= 0xB4 && regOffset <= 0xD2)
