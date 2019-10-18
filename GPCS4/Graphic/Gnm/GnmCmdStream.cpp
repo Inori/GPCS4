@@ -824,16 +824,15 @@ void GnmCmdStream::onSetRenderTarget(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody
 	if (packetLenDw == 0x18)
 	{
 		uint32_t rtSlot = (setCtxPacket->bitfields2.reg_offset - 0x318) / 15;
-		uint32_t regs[RenderTarget::kNumCbRegisters] = { 0 };
-		std::memcpy(&regs[0], &itBody[1], 0x20);  // 0x20 == sizeof(ymm)
-		std::memcpy(&regs[6], &itBody[7], 0x20);
+
+		RenderTarget target;
+		std::memcpy(&target.m_regs[0], &itBody[1], 0x20);  // 0x20 == sizeof(ymm)
+		std::memcpy(&target.m_regs[6], &itBody[7], 0x20);
 
 		uint32_t nopOp = itBody[15];  // not used, just for reference
 		uint32_t packWidthHeight = itBody[16];
-		regs[RenderTarget::kCbWidthHeight] = packWidthHeight;
+		target.m_regs[RenderTarget::kCbWidthHeight] = packWidthHeight;
 
-		RenderTarget target;
-		std::memcpy(target.m_regs, regs, sizeof(uint32_t) * RenderTarget::kNumCbRegisters);
 		m_cb->setRenderTarget(rtSlot, &target);
 	}
 	else if (packetLenDw == 0x03)
