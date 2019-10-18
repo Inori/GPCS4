@@ -66,7 +66,12 @@ public:
 
 	DataFormat getDataFormat() const
 	{
-		// TODO:
+		// From IDA
+		return DataFormat::build(
+			static_cast<RenderTargetFormat>((m_regs[4] >> 2) & 0x1F),
+			static_cast<RenderTargetChannelType>((m_regs[4] >> 8) & 7),
+			static_cast<RenderTargetChannelOrder>((m_regs[4] >> 11) & 3)
+		);
 	}
 
 	TileMode getTileMode(void) const

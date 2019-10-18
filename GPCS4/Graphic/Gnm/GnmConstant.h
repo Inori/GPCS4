@@ -198,6 +198,30 @@ enum TileMode
 	kTileModeDisplay_LinearGeneral = 0x0000001F,
 };
 
+enum RenderTargetFormat
+{
+	kRenderTargetFormatInvalid = 0x00000000,
+	kRenderTargetFormat8 = 0x00000001,
+	kRenderTargetFormat16 = 0x00000002,
+	kRenderTargetFormat8_8 = 0x00000003,
+	kRenderTargetFormat32 = 0x00000004,
+	kRenderTargetFormat16_16 = 0x00000005,
+	kRenderTargetFormat10_11_11 = 0x00000006,
+	kRenderTargetFormat11_11_10 = 0x00000007,
+	kRenderTargetFormat10_10_10_2 = 0x00000008,
+	kRenderTargetFormat2_10_10_10 = 0x00000009,
+	kRenderTargetFormat8_8_8_8 = 0x0000000a,
+	kRenderTargetFormat32_32 = 0x0000000b,
+	kRenderTargetFormat16_16_16_16 = 0x0000000c,
+	kRenderTargetFormat32_32_32_32 = 0x0000000e,
+	kRenderTargetFormat5_6_5 = 0x00000010,
+	kRenderTargetFormat1_5_5_5 = 0x00000011,
+	kRenderTargetFormat5_5_5_1 = 0x00000012,
+	kRenderTargetFormat4_4_4_4 = 0x00000013,
+	kRenderTargetFormat8_24 = 0x00000014,
+	kRenderTargetFormat24_8 = 0x00000015,
+	kRenderTargetFormatX24_8_32 = 0x00000016,
+};
 
 enum SurfaceFormat
 {
@@ -280,6 +304,13 @@ enum TextureChannel
 	kTextureChannelW = 0x00000007,
 };
 
+enum RenderTargetChannelOrder
+{
+	kRenderTargetChannelOrderStandard = 0x00000000,
+	kRenderTargetChannelOrderAlt = 0x00000001,
+	kRenderTargetChannelOrderReversed = 0x00000002,
+	kRenderTargetChannelOrderAltReversed = 0x00000003,
+};
 
 enum NumSamples
 {

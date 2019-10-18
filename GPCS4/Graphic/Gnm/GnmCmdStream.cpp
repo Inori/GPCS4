@@ -452,7 +452,7 @@ void GnmCmdStream::onSetContextReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 		break;
 	case OP_HINT_SET_VIEWPORT_TRANSFORM_CONTROL:
 	{
-		ViewportTransformControl vpc = { 0 };
+		ViewportTransformControl vpc = { {0} };
 		vpc.reg = itBody[1];
 		m_cb->setViewportTransformControl(vpc);
 	}

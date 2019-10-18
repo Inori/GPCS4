@@ -17,6 +17,70 @@ union DataFormat
 		uint32_t   m_unused : 8;
 	} m_bits;
 	uint32_t m_asInt;
+
+	static DataFormat build(RenderTargetFormat rtFmt, RenderTargetChannelType rtChannelType, RenderTargetChannelOrder channelOrder)
+	{
+		const uint32_t channelCountTab[kRenderTargetFormatX24_8_32 + 1] = 
+		{
+			0,1,1,2,1,2,3,3,4,4,4,2,4,0,4,0,3,4,4,4,2,2,3
+		};
+
+		uint32_t channelCount = channelCountTab[rtFmt];
+
+		DataFormat result = { {0} };
+		result.m_bits.m_surfaceFormat = rtFmt;
+		result.m_bits.m_channelType = rtChannelType;
+
+		switch (channelOrder)
+		{
+		case kRenderTargetChannelOrderStandard:
+		{
+			switch (channelCount)
+			{
+			case 1: result.m_bits.m_channelX = kTextureChannelX;
+			case 2: result.m_bits.m_channelY = kTextureChannelY;
+			case 3: result.m_bits.m_channelZ = kTextureChannelZ;
+			case 4: result.m_bits.m_channelW = kTextureChannelW;
+			}
+		}
+			break;
+		case kRenderTargetChannelOrderAlt:
+		{
+			switch (channelCount)
+			{
+			case 1: { result.m_bits.m_channelX = kTextureChannelY; } break;
+			case 2: { result.m_bits.m_channelX = kTextureChannelX; result.m_bits.m_channelY = kTextureChannelW; } break;
+			case 3: { result.m_bits.m_channelX = kTextureChannelX; result.m_bits.m_channelY = kTextureChannelY; result.m_bits.m_channelZ = kTextureChannelW; } break;
+			case 4: { result.m_bits.m_channelX = kTextureChannelZ; result.m_bits.m_channelY = kTextureChannelY; result.m_bits.m_channelZ = kTextureChannelX; result.m_bits.m_channelW = kTextureChannelW; } break;
+			}
+		}
+			break;
+		case kRenderTargetChannelOrderReversed:
+		{
+			switch (channelCount)
+			{
+			case 1: { result.m_bits.m_channelX = kTextureChannelZ; } break;
+			case 2: { result.m_bits.m_channelX = kTextureChannelY; result.m_bits.m_channelY = kTextureChannelX; } break;
+			case 3: { result.m_bits.m_channelX = kTextureChannelZ; result.m_bits.m_channelY = kTextureChannelY; result.m_bits.m_channelZ = kTextureChannelX; } break;
+			case 4: { result.m_bits.m_channelX = kTextureChannelW; result.m_bits.m_channelY = kTextureChannelZ; result.m_bits.m_channelZ = kTextureChannelY; result.m_bits.m_channelW = kTextureChannelX; } break;
+			}
+		}
+			break;
+		case kRenderTargetChannelOrderAltReversed:
+		{
+			switch (channelCount)
+			{
+			case 1: { result.m_bits.m_channelX = kTextureChannelW; } break;
+			case 2: { result.m_bits.m_channelX = kTextureChannelW; result.m_bits.m_channelY = kTextureChannelX; } break;
+			case 3: { result.m_bits.m_channelX = kTextureChannelW; result.m_bits.m_channelY = kTextureChannelY; result.m_bits.m_channelZ = kTextureChannelX; } break;
+			case 4: { result.m_bits.m_channelX = kTextureChannelW; result.m_bits.m_channelY = kTextureChannelX; result.m_bits.m_channelZ = kTextureChannelY; result.m_bits.m_channelW = kTextureChannelZ; } break;
+			}
+		}
+			break;
+		}
+
+		return result;
+	}
 };
 
 
