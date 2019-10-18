@@ -37,10 +37,10 @@ union DataFormat
 		{
 			switch (channelCount)
 			{
-			case 1: result.m_bits.m_channelX = kTextureChannelX;
-			case 2: result.m_bits.m_channelY = kTextureChannelY;
-			case 3: result.m_bits.m_channelZ = kTextureChannelZ;
 			case 4: result.m_bits.m_channelW = kTextureChannelW;
+			case 3: result.m_bits.m_channelZ = kTextureChannelZ;
+			case 2: result.m_bits.m_channelY = kTextureChannelY;
+			case 1: result.m_bits.m_channelX = kTextureChannelX;
 			}
 		}
 			break;
