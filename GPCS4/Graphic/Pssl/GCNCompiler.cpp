@@ -512,7 +512,7 @@ void GCNCompiler::emitDclUniformBuffer()
 
 void GCNCompiler::emitDclImmConstBuffer(const GcnResourceBuffer& res, uint32_t index)
 {
-	GnmBuffer* vsharpBuffer = reinterpret_cast<GnmBuffer*>(res.res.resource);
+	VSharpBuffer* vsharpBuffer = reinterpret_cast<VSharpBuffer*>(res.res.resource);
 	uint32_t arraySize = vsharpBuffer->stride * vsharpBuffer->num_records / sizeof(uint32_t);
 
 	uint32_t arrayId = m_module.defArrayTypeUnique(

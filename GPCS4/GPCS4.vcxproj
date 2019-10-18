@@ -36,6 +36,7 @@
     <ClInclude Include="Emulator\TLSHandler.h" />
     <ClInclude Include="GPCS4Common.h" />
     <ClInclude Include="GPCS4Config.h" />
+    <ClInclude Include="Graphic\Gnm\GnmBuffer.h" />
     <ClInclude Include="Graphic\Gnm\GnmCmdStream.h" />
     <ClInclude Include="Graphic\Gnm\GnmCommandBuffer.h" />
     <ClInclude Include="Graphic\Gnm\GnmCommandBufferDispatch.h" />
@@ -48,8 +49,10 @@
     <ClInclude Include="Graphic\Gnm\GnmOpCode.h" />
     <ClInclude Include="Graphic\Gnm\GnmRegInfo.h" />
     <ClInclude Include="Graphic\Gnm\GnmRenderTarget.h" />
+    <ClInclude Include="Graphic\Gnm\GnmSampler.h" />
     <ClInclude Include="Graphic\Gnm\GnmSharpBuffer.h" />
     <ClInclude Include="Graphic\Gnm\GnmStructure.h" />
+    <ClInclude Include="Graphic\Gnm\GnmTexture.h" />
     <ClInclude Include="Graphic\GraphicShared.h" />
     <ClInclude Include="Graphic\Gve\GveCommandBuffer.h" />
     <ClInclude Include="Graphic\Gve\GveCommon.h" />

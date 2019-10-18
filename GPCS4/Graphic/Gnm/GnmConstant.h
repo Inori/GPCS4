@@ -449,3 +449,138 @@ enum IndexSize
 	kIndexSize16ForDispatchDraw = 0x00000010,
 	kIndexSize32ForDispatchDraw = 0x00000011,
 };
+
+enum ResourceMemoryType
+{
+	kResourceMemoryTypePV = 0x60,
+	kResourceMemoryTypeGC = 0x6D,
+	kResourceMemoryTypeSC = 0x6E,
+	kResourceMemoryTypeUC = 0x6F,
+	kResourceMemoryTypeRO = 0x10,
+};
+
+enum BufferSwizzleElementSize
+{
+	kBufferSwizzleElementSize2 = 0x0,
+	kBufferSwizzleElementSize4 = 0x1,
+	kBufferSwizzleElementSize8 = 0x2,
+	kBufferSwizzleElementSize16 = 0x3,
+};
+
+enum BufferSwizzleStride
+{
+	kBufferSwizzleStride8 = 0x0,
+	kBufferSwizzleStride16 = 0x1,
+	kBufferSwizzleStride32 = 0x2,
+	kBufferSwizzleStride64 = 0x3,
+};
+
+enum TextureType
+{
+	kTextureType1d = 0x00000008,
+	kTextureType2d = 0x00000009,
+	kTextureType3d = 0x0000000A,
+	kTextureTypeCubemap = 0x0000000B,
+	kTextureType1dArray = 0x0000000C,
+	kTextureType2dArray = 0x0000000D,
+	kTextureType2dMsaa = 0x0000000E,
+	kTextureType2dArrayMsaa = 0x0000000F,
+};
+
+enum SamplerModulationFactor
+{
+	kSamplerModulationFactor0_0000 = 0x0,
+	kSamplerModulationFactor0_1250 = 0x1,
+	kSamplerModulationFactor0_3125 = 0x2,
+	kSamplerModulationFactor0_4375 = 0x3,
+	kSamplerModulationFactor0_5625 = 0x4,
+	kSamplerModulationFactor0_6875 = 0x5,
+	kSamplerModulationFactor0_8750 = 0x6,
+	kSamplerModulationFactor1_0000 = 0x7,
+};
+
+enum TextureMetadataType
+{
+	kTextureMetadataTypeDcc = 0,
+	kTextureMetadataTypeCmask = 1,
+	kTextureMetadataTypeHtile = 2,
+	kTextureMetadataTypeNone = 3,
+};
+
+enum DccColorTransform
+{
+	kDccColorTransformAuto = 0,
+	kDccColorTransformNone = 1,
+	kDccColorTransformAbgr = 2,
+	kDccColorTransformBgra = 3,
+};
+
+enum WrapMode
+{
+	kWrapModeWrap = 0x00000000,
+	kWrapModeMirror = 0x00000001,
+	kWrapModeClampLastTexel = 0x00000002,
+	kWrapModeMirrorOnceLastTexel = 0x00000003,
+	kWrapModeClampHalfBorder = 0x00000004,
+	kWrapModeMirrorOnceHalfBorder = 0x00000005,
+	kWrapModeClampBorder = 0x00000006,
+	kWrapModeMirrorOnceBorder = 0x00000007,
+};
+
+enum FilterMode
+{
+	kFilterModePoint = 0x00000000,
+	kFilterModeBilinear = 0x00000001,
+	kFilterModeAnisoPoint = 0x00000002,
+	kFilterModeAnisoBilinear = 0x00000003,
+};
+
+enum ZFilterMode
+{
+	kZFilterModeNone = 0x00000000, 
+	kZFilterModePoint = 0x00000001, 
+	kZFilterModeLinear = 0x00000002,
+};
+
+enum MipFilterMode
+{
+	kMipFilterModeNone = 0x00000000,
+	kMipFilterModePoint = 0x00000001,
+	kMipFilterModeLinear = 0x00000002,
+};
+
+enum FilterReductionMode
+{
+	kFilterReductionModeWeightedAverage = 0x00000000,
+	kFilterReductionModeMin = 0x00000001,
+	kFilterReductionModeMax = 0x00000002,
+};
+
+enum AnisotropyRatio
+{
+	kAnisotropyRatio1 = 0x00000000,
+	kAnisotropyRatio2 = 0x00000001,
+	kAnisotropyRatio4 = 0x00000002,
+	kAnisotropyRatio8 = 0x00000003,
+	kAnisotropyRatio16 = 0x00000004,
+};
+
+enum DepthCompare
+{
+	kDepthCompareNever = 0x00000000,
+	kDepthCompareLess = 0x00000001,
+	kDepthCompareEqual = 0x00000002,
+	kDepthCompareLessEqual = 0x00000003,
+	kDepthCompareGreater = 0x00000004,
+	kDepthCompareNotEqual = 0x00000005,
+	kDepthCompareGreaterEqual = 0x00000006,
+	kDepthCompareAlways = 0x00000007,
+};
+
+enum BorderColor
+{
+	kBorderColorTransBlack = 0x00000000,
+	kBorderColorOpaqueBlack = 0x00000001,
+	kBorderColorOpaqueWhite = 0x00000002,
+	kBorderColorFromTable = 0x00000003,
+};

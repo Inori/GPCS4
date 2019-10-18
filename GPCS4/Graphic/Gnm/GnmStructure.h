@@ -304,3 +304,10 @@ union BlendControl
 };
 
 //////////////////////////////////////////////////////////////////////////
+typedef uint32_t AlignmentType;
+
+struct SizeAlign
+{
+	uint32_t m_size;
+	AlignmentType m_align;
+};
