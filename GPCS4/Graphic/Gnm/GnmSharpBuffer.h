@@ -2,6 +2,13 @@
 
 #include "GPCS4Common.h"
 
+// Note:
+// There are to ways to interpret these buffer types (V# T# S#).
+// One is to cast to XSharpBuffer defined in this file, these definitions are hardware related.
+// Another is to cast to GnmBuffer, GnmTexture or GnmSampler class defined in correspond header files.
+// These definitions are more human friendly.
+
+
 // V# Vertex Descriptor Buffer
 // 128 bits
 struct VSharpBuffer
