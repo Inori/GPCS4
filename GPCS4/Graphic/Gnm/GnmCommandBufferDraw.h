@@ -96,6 +96,9 @@ public:
 
 	virtual void setPrimitiveSetup(PrimitiveSetup reg) override;
 
+
+	virtual void setActiveShaderStages(ActiveShaderStages activeStages) override;
+
 private:
 	uint32_t* getFetchShaderCode(void* vsCode);
 

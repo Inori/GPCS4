@@ -119,7 +119,7 @@ public:
 	//virtual void setAaSampleCount(NumSamples logNumSamples, uint32_t maxSampleDistance) = 0;
 	//virtual void setAaSampleLocationControl(const AaSampleLocationControl *control) = 0;
 	//virtual void setAaSampleMask(uint64_t mask) = 0;
-	//virtual void setActiveShaderStages(ActiveShaderStages activeStages) = 0;
+	virtual void setActiveShaderStages(ActiveShaderStages activeStages) = 0;
 	//virtual void setAlphaToMaskControl(AlphaToMaskControl alphaToMaskControl) = 0;
 	//virtual void setBaseIndirectArgs(ShaderType shaderType, void *indirectBaseAddr) = 0;
 	//virtual void setBlendColor(float red, float green, float blue, float alpha) = 0;

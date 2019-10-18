@@ -430,3 +430,14 @@ enum BlendFunc
 	kBlendFuncMax = 0x00000003,
 	kBlendFuncReverseSubtract = 0x00000004,
 };
+
+enum ActiveShaderStages
+{
+	kActiveShaderStagesVsPs = 0x00000000,
+	kActiveShaderStagesEsGsVsPs = 0x000000B0,
+	kActiveShaderStagesLsHsVsPs = 0x00000045,
+	kActiveShaderStagesOffChipLsHsVsPs = 0x00000145,
+	kActiveShaderStagesLsHsEsGsVsPs = 0x000000AD,
+	kActiveShaderStagesOffChipLsHsEsGsVsPs = 0x000001AD,
+	kActiveShaderStagesDispatchDrawVsPs = 0x00000200,
+};

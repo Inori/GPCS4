@@ -516,6 +516,12 @@ void GnmCmdStream::onSetContextReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 			m_cb->setPrimitiveSetup(primSetupReg);
 		}
 			break;
+		case OP_HINT_SET_ACTIVE_SHADER_STAGES:
+		{
+			ActiveShaderStages activeStages = static_cast<ActiveShaderStages>(itBody[1]);
+			m_cb->setActiveShaderStages(activeStages);
+		}
+			break;
 	}
 
 	if (regOffset >= 0xB4 && regOffset <= 0xD2)
