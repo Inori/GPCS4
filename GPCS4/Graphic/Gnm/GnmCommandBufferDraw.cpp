@@ -216,6 +216,11 @@ void GnmCommandBufferDraw::setActiveShaderStages(ActiveShaderStages activeStages
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
+void GnmCommandBufferDraw::setIndexSize(IndexSize indexSize, CachePolicy cachePolicy)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
 // We be called on every frame start.
 void GnmCommandBufferDraw::initializeDefaultHardwareState()
 {

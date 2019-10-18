@@ -163,7 +163,7 @@ public:
 	//virtual void setIndexBuffer(const void *indexAddr) = 0;
 	//virtual void setIndexCount(uint32_t indexCount) = 0;
 	//virtual void setIndexOffset(uint32_t offset) = 0;
-	//virtual void setIndexSize(IndexSize indexSize, CachePolicy cachePolicy) = 0;
+	virtual void setIndexSize(IndexSize indexSize, CachePolicy cachePolicy) = 0;
 	//virtual void setInstanceStepRate(uint32_t step0, uint32_t step1) = 0;
 	//virtual void setLineWidth(uint16_t widthIn8ths) = 0;
 	//virtual void setLsShader(const LsStageRegisters *lsRegs, uint32_t shaderModifier) = 0;

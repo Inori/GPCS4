@@ -334,7 +334,21 @@ void GnmCmdStream::onIndexBase(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 
 void GnmCmdStream::onIndexType(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 {
+	uint32_t value = itBody[0];
 
+	IndexSize idxSize = static_cast<IndexSize>(value & 0x3F);
+
+	CachePolicy policy;
+	bool notCachePolicyBypass = bit::extract(value, 10, 10);
+	if (notCachePolicyBypass)
+	{
+		policy = static_cast<CachePolicy>(bit::extract(value, 6, 7));
+	}
+	else
+	{
+		policy = kCachePolicyBypass;
+	}
+	m_cb->setIndexSize(idxSize, policy);
 }
 
 void GnmCmdStream::onNumInstances(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)

@@ -99,6 +99,9 @@ public:
 
 	virtual void setActiveShaderStages(ActiveShaderStages activeStages) override;
 
+
+	virtual void setIndexSize(IndexSize indexSize, CachePolicy cachePolicy) override;
+
 private:
 	uint32_t* getFetchShaderCode(void* vsCode);
 

@@ -441,3 +441,11 @@ enum ActiveShaderStages
 	kActiveShaderStagesOffChipLsHsEsGsVsPs = 0x000001AD,
 	kActiveShaderStagesDispatchDrawVsPs = 0x00000200,
 };
+
+enum IndexSize
+{
+	kIndexSize16 = 0x00000000,
+	kIndexSize32 = 0x00000001,
+	kIndexSize16ForDispatchDraw = 0x00000010,
+	kIndexSize32ForDispatchDraw = 0x00000011,
+};
