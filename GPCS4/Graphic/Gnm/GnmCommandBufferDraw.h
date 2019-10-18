@@ -90,6 +90,12 @@ public:
 
 	virtual void setDepthStencilControl(DepthStencilControl depthControl) override;
 
+
+	virtual void setBlendControl(uint32_t rtSlot, BlendControl blendControl) override;
+
+
+	virtual void setPrimitiveSetup(PrimitiveSetup reg) override;
+
 private:
 	uint32_t* getFetchShaderCode(void* vsCode);
 

@@ -123,7 +123,7 @@ public:
 	//virtual void setAlphaToMaskControl(AlphaToMaskControl alphaToMaskControl) = 0;
 	//virtual void setBaseIndirectArgs(ShaderType shaderType, void *indirectBaseAddr) = 0;
 	//virtual void setBlendColor(float red, float green, float blue, float alpha) = 0;
-	//virtual void setBlendControl(uint32_t rtSlot, BlendControl blendControl) = 0;
+	virtual void setBlendControl(uint32_t rtSlot, BlendControl blendControl) = 0;
 	//virtual void setBorderColorTableAddr(void *tableAddr) = 0;
 	//virtual void setCbControl(CbMode mode, RasterOp op) = 0;
 	//virtual void setClipControl(ClipControl reg) = 0;

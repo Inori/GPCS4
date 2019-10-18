@@ -526,6 +526,13 @@ void GnmCmdStream::onSetContextReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	{
 		onSetRenderTarget(pm4Hdr, itBody);
 	}
+	else if (regOffset >= 0x1E0 && regOffset <= (0x1E0 + 7))
+	{
+		uint32_t rtSlot = regOffset - 0x1E0;
+		BlendControl bc;
+		bc.reg = itBody[1];
+		m_cb->setBlendControl(rtSlot, bc);
+	}
 
 }
 

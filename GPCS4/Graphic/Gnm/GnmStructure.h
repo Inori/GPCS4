@@ -279,4 +279,28 @@ union PrimitiveSetup
 	uint32_t reg;
 };
 
+
+union BlendControl
+{
+	struct
+	{
+		uint32_t colorSourceMul : 5;
+		uint32_t colorBlendFunc : 3;
+
+		uint32_t colorDestMul : 5;
+		uint32_t reserved0 : 3;
+		
+
+		uint32_t alphaSourceMul : 5;
+		uint32_t alphaBlendFunc : 3;
+
+		uint32_t alphaDestMul : 5;
+		uint32_t separateAlphaEnable : 1;
+		uint32_t blendEnable : 1;
+		uint32_t reserved1 : 1;
+	};
+
+	uint32_t reg;
+};
+
 //////////////////////////////////////////////////////////////////////////

@@ -398,3 +398,35 @@ enum PrimitiveSetupProvokingVertexMode
 	kPrimitiveSetupProvokingVertexFirst = 0,
 	kPrimitiveSetupProvokingVertexLast = 1,
 };
+
+enum BlendMultiplier
+{
+	kBlendMultiplierZero = 0x00000000,
+	kBlendMultiplierOne = 0x00000001,
+	kBlendMultiplierSrcColor = 0x00000002,
+	kBlendMultiplierOneMinusSrcColor = 0x00000003,
+	kBlendMultiplierSrcAlpha = 0x00000004,
+	kBlendMultiplierOneMinusSrcAlpha = 0x00000005,
+	kBlendMultiplierDestAlpha = 0x00000006,
+	kBlendMultiplierOneMinusDestAlpha = 0x00000007,
+	kBlendMultiplierDestColor = 0x00000008,
+	kBlendMultiplierOneMinusDestColor = 0x00000009,
+	kBlendMultiplierSrcAlphaSaturate = 0x0000000a,
+	kBlendMultiplierConstantColor = 0x0000000d,
+	kBlendMultiplierOneMinusConstantColor = 0x0000000e,
+	kBlendMultiplierSrc1Color = 0x0000000f,
+	kBlendMultiplierInverseSrc1Color = 0x00000010,
+	kBlendMultiplierSrc1Alpha = 0x00000011,
+	kBlendMultiplierInverseSrc1Alpha = 0x00000012,
+	kBlendMultiplierConstantAlpha = 0x00000013,
+	kBlendMultiplierOneMinusConstantAlpha = 0x00000014,
+};
+
+enum BlendFunc
+{
+	kBlendFuncAdd = 0x00000000,
+	kBlendFuncSubtract = 0x00000001,
+	kBlendFuncMin = 0x00000002,
+	kBlendFuncMax = 0x00000003,
+	kBlendFuncReverseSubtract = 0x00000004,
+};
