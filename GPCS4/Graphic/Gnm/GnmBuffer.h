@@ -4,6 +4,7 @@
 #include "GnmConstant.h"
 #include "GnmRegInfo.h"
 #include "GnmDataFormat.h"
+#include "GnmSharpBuffer.h"
 
 class Buffer
 {
@@ -74,5 +75,10 @@ public:
 		return (BufferSwizzleStride)SCE_GNM_GET_FIELD(m_regs[kSqBufRsrcWord3], SQ_BUF_RSRC_WORD3, INDEX_STRIDE);
 	}
 
-	uint32_t m_regs[4]; // As VSharpBuffer
+	union
+	{
+		uint32_t m_regs[4];
+		VSharpBuffer vsharp;
+	};
+	
 };

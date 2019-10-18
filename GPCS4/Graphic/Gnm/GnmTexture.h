@@ -5,7 +5,7 @@
 #include "GnmStructure.h"
 #include "GnmRegInfo.h"
 #include "GnmDataFormat.h"
-
+#include "GnmSharpBuffer.h"
 
 class GnmTexture
 {
@@ -219,5 +219,10 @@ public:
 
 	}
 
-	uint32_t m_regs[8]; // As TSharpBuffer
+	union
+	{
+		uint32_t m_regs[8];
+		TSharpBuffer tsharp;
+	};
+	
 };

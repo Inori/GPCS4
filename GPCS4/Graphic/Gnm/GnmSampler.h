@@ -4,6 +4,7 @@
 #include "GnmConstant.h"
 #include "GnmRegInfo.h"
 #include "GnmDataFormat.h"
+#include "GnmSharpBuffer.h"
 
 class GnmSampler
 {
@@ -112,6 +113,11 @@ public:
 		return SCE_GNM_GET_FIELD(m_regs[kSqImgSampWord3], SQ_IMG_SAMP_WORD3, BORDER_COLOR_PTR);
 	}
 
-	uint32_t m_regs[4]; // As SSharpBuffer
+	union
+	{
+		uint32_t m_regs[4];
+		SSharpBuffer ssharp;
+	};
+	
 
 };
