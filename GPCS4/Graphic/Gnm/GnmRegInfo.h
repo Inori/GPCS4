@@ -1,6 +1,10 @@
 #pragma once
 
 
+#define SCE_GNM_GET_FIELD(src, registername, field) \
+	(((src) & (GNM_ ## registername ## __ ## field ## __MASK)) >> (GNM_ ## registername ## __ ## field ## __SHIFT))
+
+
 #define mmSQ_BUF_RSRC_WORD0                                                              0x23C0
 #define GNM_SQ_BUF_RSRC_WORD0__BASE_ADDRESS__MASK                                        0xffffffffL //size:32
 #define GNM_SQ_BUF_RSRC_WORD0__BASE_ADDRESS__SHIFT                                        0

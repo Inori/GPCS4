@@ -1,6 +1,7 @@
 #include "GnmCmdStream.h"
-#include "GnmGfx9MePm4Packets.h"
 #include "BitHelper.h"
+#include "GnmGfx9MePm4Packets.h"
+
 
 const uint32_t c_stageBases[kShaderStageCount] = { 0x2E40, 0x2C0C, 0x2C4C, 0x2C8C, 0x2CCC, 0x2D0C, 0x2D4C };
 
@@ -823,28 +824,16 @@ void GnmCmdStream::onSetRenderTarget(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody
 	if (packetLenDw == 0x18)
 	{
 		uint32_t rtSlot = (setCtxPacket->bitfields2.reg_offset - 0x318) / 15;
-		uint32_t regs[16] = { 0 };
+		uint32_t regs[RenderTarget::kNumCbRegisters] = { 0 };
 		std::memcpy(&regs[0], &itBody[1], 0x20);  // 0x20 == sizeof(ymm)
 		std::memcpy(&regs[6], &itBody[7], 0x20);
 
-		uint32_t nopOp = itBody[15];
+		uint32_t nopOp = itBody[15];  // not used, just for reference
 		uint32_t packWidthHeight = itBody[16];
+		regs[RenderTarget::kCbWidthHeight] = packWidthHeight;
 
-		RenderTarget target = { 0 };
-		//target.regColorBase = SCE_GNM_GET_FIELD(regs[RenderTarget::kCbColorBase], CB_COLOR0_BASE, BASE_256B);
-		//target.regColorPitch = SCE_GNM_GET_FIELD(regs[RenderTarget::kCbColorPitch], );
-		//target.regColorSlice = SCE_GNM_GET_FIELD(regs[RenderTarget::kCbColorSlice], );
-		//target.regColorView = SCE_GNM_GET_FIELD(regs[RenderTarget::kCbColorView], );
-		//target.regColorInfo = SCE_GNM_GET_FIELD(regs[RenderTarget::kCbColorInfo], );
-		//target.regColorAttrib = SCE_GNM_GET_FIELD(regs[RenderTarget::kCbColorAttrib], );
-		//target.regColorDccControl = SCE_GNM_GET_FIELD(regs[RenderTarget::kCbColorDccControl], );
-		//target.regColorCmask = SCE_GNM_GET_FIELD(regs[RenderTarget::kCbColorCmask], );
-		//target.regColorCmaskSlice = SCE_GNM_GET_FIELD(regs[RenderTarget::kCbColorCmaskSlice], );
-		//target.regColorFmask = SCE_GNM_GET_FIELD(regs[RenderTarget::kCbColorFmask], );
-		//target.regColorFmaskSlice = SCE_GNM_GET_FIELD(regs[RenderTarget::kCbColorFmaskSlice], );
-		//target.regColorClearWord0 = SCE_GNM_GET_FIELD(regs[RenderTarget::kCbColorClearWord0], );
-		//target.regColorClearWord1 = SCE_GNM_GET_FIELD(regs[RenderTarget::kCbColorClearWord1], );
-		//target.regColorDccBase = SCE_GNM_GET_FIELD(regs[RenderTarget::kCbColorDccBase], );
+		RenderTarget target;
+		std::memcpy(target.m_regs, regs, sizeof(uint32_t) * RenderTarget::kNumCbRegisters);
 		m_cb->setRenderTarget(rtSlot, &target);
 	}
 	else if (packetLenDw == 0x03)

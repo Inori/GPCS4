@@ -4,6 +4,7 @@
 #include "GnmConstant.h"
 #include "GnmStructure.h"
 #include "GnmSharpBuffer.h"
+#include "GnmRenderTarget.h"
 
 #include "../Gve/GveContext.h"
 
