@@ -88,7 +88,7 @@ public:
 	virtual void setRenderTargetMask(uint32_t mask) override;
 
 
-	virtual void setDepthStencilControl(DepthStencilControl depthControl) override;
+	virtual void setDepthStencilControl(DepthStencilControl depthStencilControl) override;
 
 
 	virtual void setBlendControl(uint32_t rtSlot, BlendControl blendControl) override;
