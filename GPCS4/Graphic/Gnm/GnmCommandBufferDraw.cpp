@@ -168,27 +168,27 @@ void GnmCommandBufferDraw::setViewportTransformControl(ViewportTransformControl 
 
 void GnmCommandBufferDraw::setScreenScissor(int32_t left, int32_t top, int32_t right, int32_t bottom)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+
 }
 
 void GnmCommandBufferDraw::setGuardBands(float horzClip, float vertClip, float horzDiscard, float vertDiscard)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+
 }
 
 void GnmCommandBufferDraw::setHardwareScreenOffset(uint32_t offsetX, uint32_t offsetY)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+
 }
 
 void GnmCommandBufferDraw::setRenderTarget(uint32_t rtSlot, RenderTarget const *target)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+
 }
 
 void GnmCommandBufferDraw::setDepthRenderTarget(DepthRenderTarget const *depthTarget)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+
 }
 
 void GnmCommandBufferDraw::setRenderTargetMask(uint32_t mask)

@@ -492,10 +492,10 @@ void GnmCmdStream::onSetContextReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 			break;
 		case OP_HINT_SET_GUARD_BANDS:
 		{
-			float horzClip = *reinterpret_cast<float*>(&itBody[1]);
-			float vertClip = *reinterpret_cast<float*>(&itBody[2]);
-			float horzDiscard = *reinterpret_cast<float*>(&itBody[3]);
-			float vertDiscard = *reinterpret_cast<float*>(&itBody[4]);
+			float vertClip  = *reinterpret_cast<float*>(&itBody[1]);
+			float vertDiscard = *reinterpret_cast<float*>(&itBody[2]);
+			float horzClip = *reinterpret_cast<float*>(&itBody[3]);
+			float horzDiscard  = *reinterpret_cast<float*>(&itBody[4]);
 			m_cb->setGuardBands(horzClip, vertClip, horzDiscard, vertDiscard);
 		}
 			break;
@@ -890,7 +890,7 @@ void GnmCmdStream::onSetRenderTarget(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody
 {
 	PPM4ME_SET_CONTEXT_REG setCtxPacket = (PPM4ME_SET_CONTEXT_REG)pm4Hdr;
 	uint32_t packetLenDw = PM4_LENGTH_DW(pm4Hdr->u32All);
-	if (packetLenDw == 0x18)
+	if (packetLenDw == 0x10)
 	{
 		uint32_t rtSlot = (setCtxPacket->bitfields2.reg_offset - 0x318) / 15;
 
