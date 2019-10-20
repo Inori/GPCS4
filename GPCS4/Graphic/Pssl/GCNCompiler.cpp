@@ -139,7 +139,7 @@ void GCNCompiler::emitVsInit()
 	emitGprInitialize();
 	emitDclVertexInput();
 	emitDclVertexOutput();
-	emitDclUniformBuffer();
+	emitDclResourceBuffer();
 	emitEmuFetchShader();
 	
 
@@ -187,7 +187,7 @@ void GCNCompiler::emitPsInit()
 	emitGprInitialize();
 	emitDclPixelInput();
 	emitDclPixelOutput();
-	emitDclUniformBuffer();
+	emitDclResourceBuffer();
 
 	this->emitFunctionBegin(
 		m_ps.functionId,
@@ -464,9 +464,9 @@ void GCNCompiler::emitGprInitialize()
 	m_sgprs.emplace(12, s12);
 }
 
-void GCNCompiler::emitDclUniformBuffer()
+void GCNCompiler::emitDclResourceBuffer()
 {
-	// For PSSL uniform buffer, it's hard to detect how many variables have been declared,
+	// For PSSL resource buffer, it's hard to detect how many variables have been declared,
 	// and even if we know, it's almost useless, because the shader could access part of a variable,
 	// like the upper-left mat3x3 of a mat4x4, thus can't be accessed via AccessChain.
 	// So here we treat all the uniform buffer together as a dword array.
