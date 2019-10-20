@@ -326,6 +326,7 @@ public:
 
 protected:
 	RcPtr<gve::GveContex> m_context;
+	RcPtr<gve::GveCommandBuffer> m_cmd;
 	
 private:
 
