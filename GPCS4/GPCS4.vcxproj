@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="Algorithm\sha1.h" />
     <ClInclude Include="Algorithm\Sha1Hash.h" />
+    <ClInclude Include="Common\FlagHelper.h" />
     <ClInclude Include="Common\GPCS4Log.h" />
     <ClInclude Include="Common\GPCS4Types.h" />
     <ClInclude Include="Common\MacroHelper.h" />
@@ -54,9 +55,13 @@
     <ClInclude Include="Graphic\Gnm\GnmStructure.h" />
     <ClInclude Include="Graphic\Gnm\GnmTexture.h" />
     <ClInclude Include="Graphic\GraphicShared.h" />
+    <ClInclude Include="Graphic\Gve\GveBuffer.h" />
     <ClInclude Include="Graphic\Gve\GveCommandBuffer.h" />
     <ClInclude Include="Graphic\Gve\GveCommon.h" />
     <ClInclude Include="Graphic\Gve\GveContext.h" />
+    <ClInclude Include="Graphic\Gve\GveImage.h" />
+    <ClInclude Include="Graphic\Gve\GveLimit.h" />
+    <ClInclude Include="Graphic\Gve\GveRenderState.h" />
     <ClInclude Include="Graphic\Gve\GveDevice.h" />
     <ClInclude Include="Graphic\Gve\GveDeviceInfo.h" />
     <ClInclude Include="Graphic\Gve\GveExtension.h" />
@@ -65,6 +70,7 @@
     <ClInclude Include="Graphic\Gve\GveMemory.h" />
     <ClInclude Include="Graphic\Gve\GvePhysicalDevice.h" />
     <ClInclude Include="Graphic\Gve\GveRenderPass.h" />
+    <ClInclude Include="Graphic\Gve\GveSampler.h" />
     <ClInclude Include="Graphic\Gve\GveShader.h" />
     <ClInclude Include="Graphic\Gve\GveSwapChain.h" />
     <ClInclude Include="Graphic\Gve\GveVkLayers.h" />
@@ -222,15 +228,18 @@
     <ClCompile Include="Graphic\Gnm\GnmCommandBufferDraw.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmOpCode.cpp" />
     <ClCompile Include="Graphic\GraphicShared.cpp" />
+    <ClCompile Include="Graphic\Gve\GveBuffer.cpp" />
     <ClCompile Include="Graphic\Gve\GveCommandBuffer.cpp" />
     <ClCompile Include="Graphic\Gve\GveContext.cpp" />
     <ClCompile Include="Graphic\Gve\GveDevice.cpp" />
     <ClCompile Include="Graphic\Gve\GveExtension.cpp" />
     <ClCompile Include="Graphic\Gve\GveFrameBuffer.cpp" />
+    <ClCompile Include="Graphic\Gve\GveImage.cpp" />
     <ClCompile Include="Graphic\Gve\GveInstance.cpp" />
     <ClCompile Include="Graphic\Gve\GveMemory.cpp" />
     <ClCompile Include="Graphic\Gve\GvePhysicalDevice.cpp" />
     <ClCompile Include="Graphic\Gve\GveRenderPass.cpp" />
+    <ClCompile Include="Graphic\Gve\GveSampler.cpp" />
     <ClCompile Include="Graphic\Gve\GveShader.cpp" />
     <ClCompile Include="Graphic\Gve\GveSwapChain.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNAnalyzer.cpp" />
