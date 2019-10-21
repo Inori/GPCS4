@@ -103,9 +103,12 @@ RcPtr<gve::GveShader> GCNCompiler::finalize()
 		m_entryPointInterfaces.data());
 	m_module.setDebugName(m_entryPointId, "main");
 
-	return new gve::GveShader(m_programInfo.shaderStage(),
+	return new gve::GveShader(
+		m_programInfo.shaderStage(),
 		m_module.compile(),
-		m_programInfo.key());
+		m_programInfo.key(),
+		std::move(m_resourceSlots)
+	);
 }
 
 
@@ -538,6 +541,8 @@ void GCNCompiler::emitDclImmConstBuffer(const GcnResourceBuffer& res, uint32_t i
 	m_module.decorateBinding(m_vs.m_uboId, index);
 
 	m_module.setDebugName(m_vs.m_uboId, "ubo");
+
+	m_resourceSlots.push_back({ res.res.startSlot, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER });
 }
 
 void GCNCompiler::emitDclImmSampler(const GcnResourceBuffer& res, uint32_t index)
@@ -566,6 +571,8 @@ void GCNCompiler::emitDclImmSampler(const GcnResourceBuffer& res, uint32_t index
 	sampler.varId = varId;
 	sampler.typeId = samplerType;
 	m_ps.samplers.at(samplerId) = sampler;
+
+	m_resourceSlots.push_back({ res.res.startSlot, VK_DESCRIPTOR_TYPE_SAMPLER });
 }
 
 void GCNCompiler::emitDclImmResource(const GcnResourceBuffer& res, uint32_t index)
@@ -606,6 +613,8 @@ void GCNCompiler::emitDclImmResource(const GcnResourceBuffer& res, uint32_t inde
 	texture.varId = varId;
 	texture.imageTypeId = imageTypeId;
 	m_ps.textures.at(registerId) = texture;
+
+	m_resourceSlots.push_back({ res.res.startSlot, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE });
 }
 
 SpirvRegisterValue GCNCompiler::emitValueLoad(const SpirvRegisterPointer& reg)

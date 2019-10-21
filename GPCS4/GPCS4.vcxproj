@@ -275,7 +275,6 @@
     <ClCompile Include="Graphic\Pssl\GCNParser\ParserSIVOP.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNCompiler.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNDecoder.cpp" />
-    <ClCompile Include="Graphic\Pssl\PsslBindingCalculator.cpp" />
     <ClCompile Include="Graphic\Pssl\PsslFetchShader.cpp" />
     <ClCompile Include="Graphic\Pssl\PsslKey.cpp" />
     <ClCompile Include="Graphic\Pssl\PsslPsUsageTable.cpp" />

@@ -1350,9 +1350,6 @@
     <ClCompile Include="Graphic\Gve\GvePipelineLayout.cpp">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClCompile>
-    <ClCompile Include="Graphic\Pssl\PsslBindingCalculator.cpp">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="SceModules\SceLibc\sce_libc_string_asm.asm">

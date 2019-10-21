@@ -13,10 +13,12 @@ namespace gve
 
 GveShader::GveShader(VkShaderStageFlagBits stage, 
 	SpirvCodeBuffer code,
-	const PsslKey& key):
+	const PsslKey& key,
+	std::vector<GveResourceSlot>&& resSlots):
 	m_stage(stage),
 	m_code(code),
-	m_key(key)
+	m_key(key),
+	m_slots(resSlots)
 {
 
 	generateBindingIdOffsets(code);
@@ -35,7 +37,15 @@ VkShaderStageFlagBits GveShader::stage() const
 	return m_stage;
 }
 
-GveShaderModule GveShader::createShaderModule(const GveDevice* device, const pssl::PsslResourceSlotMap& slotMap)
+void GveShader::fillResourceSlots(GveDescriptorSlotMap& slotMap) const
+{
+	for (const auto& slot : m_slots)
+	{
+		slotMap.defineSlot(slot, m_stage);
+	}
+}
+
+GveShaderModule GveShader::createShaderModule(const GveDevice* device, const GveDescriptorSlotMap& slotMap)
 {
 	SpirvCodeBuffer spirvCode = m_code.decompress();
 

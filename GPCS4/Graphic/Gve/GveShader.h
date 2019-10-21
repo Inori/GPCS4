@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GveCommon.h"
+#include "GvePipelineLayout.h"
 #include "../Pssl/PsslKey.h"
 #include "../Pssl/PsslBindingCalculator.h"
 #include "../SpirV/SpirvCodeBuffer.h"
@@ -21,13 +22,17 @@ class GveShader : public RcObject
 public:
 	GveShader(VkShaderStageFlagBits stage,
 			  SpirvCodeBuffer code,
-			  const PsslKey& key);
+			  const PsslKey& key,
+			  std::vector<GveResourceSlot>&& resSlots);
+
 	virtual ~GveShader();
 
 	VkShaderStageFlagBits stage() const;
 
+	void fillResourceSlots(GveDescriptorSlotMap& slotMap) const;
+
 	GveShaderModule createShaderModule(const GveDevice* device,
-		const pssl::PsslResourceSlotMap& slotMap);
+		const GveDescriptorSlotMap& slotMap);
 
 private:
 	void generateBindingIdOffsets(SpirvCodeBuffer& code);
@@ -38,6 +43,7 @@ private:
 	SpirvCompressedBuffer m_code;
 	PsslKey m_key;
 	std::vector<uint32_t> m_bindingIdOffsets;
+	std::vector<GveResourceSlot> m_slots;
 };
 
 

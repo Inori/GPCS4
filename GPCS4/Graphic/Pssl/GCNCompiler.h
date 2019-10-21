@@ -23,6 +23,7 @@
 #include "GCNParser/VOPInstruction.h"
 
 #include "../Gve/GveShader.h"
+#include "../Gve/GvePipelineLayout.h"
 #include "../SpirV/SpirvModule.h"
 
 #include <optional>
@@ -753,6 +754,9 @@ private:
 
 	// spir-v id to literal constant value table
 	std::map<uint32_t, SpirvLiteralConstant> m_constValueTable;
+
+	// Used to record shader resource this shader declared using InputUsageSlot
+	std::vector<gve::GveResourceSlot> m_resourceSlots;
 
 };
 

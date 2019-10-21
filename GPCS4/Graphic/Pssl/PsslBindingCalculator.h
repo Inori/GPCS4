@@ -80,32 +80,4 @@ inline uint32_t computeResBinding(PsslProgramType stage, uint32_t index)
 }
 
 
-///
-
-struct PsslResourceSlot
-{
-	VkShaderStageFlagBits stage;
-	uint32_t startRegister;  // TODO: need to take apiSlot into consideration?
-};
-
-
-class PsslResourceSlotMap
-{
-	constexpr static uint32_t InvalidBindingId = 0xFFFFFFFF;
-
-public:
-	PsslResourceSlotMap();
-	~PsslResourceSlotMap();
-
-	void defineSlot(const PsslResourceSlot& slot);
-
-	uint32_t getBindingId(VkShaderStageFlagBits stage, uint32_t startRegister) const;
-
-	uint32_t getBindingId(const PsslResourceSlot& slot) const;
-
-private:
-	std::vector<PsslResourceSlot> m_slots;
-};
-
-
 }  // namespace pssl
