@@ -754,6 +754,15 @@
     <ClInclude Include="Graphic\Gve\GveSampler.h">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClInclude>
+    <ClInclude Include="Graphic\Gve\GvePipelineLayout.h">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\PsslBindingCalculator.h">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\PsslCommon.h">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1337,6 +1346,12 @@
     </ClCompile>
     <ClCompile Include="Graphic\Gve\GveSampler.cpp">
       <Filter>Source Files\Graphic\Gve</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gve\GvePipelineLayout.cpp">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Pssl\PsslBindingCalculator.cpp">
+      <Filter>Source Files\Graphic\Pssl</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

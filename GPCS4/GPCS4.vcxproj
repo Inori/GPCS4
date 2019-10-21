@@ -61,6 +61,7 @@
     <ClInclude Include="Graphic\Gve\GveContext.h" />
     <ClInclude Include="Graphic\Gve\GveImage.h" />
     <ClInclude Include="Graphic\Gve\GveLimit.h" />
+    <ClInclude Include="Graphic\Gve\GvePipelineLayout.h" />
     <ClInclude Include="Graphic\Gve\GveRenderState.h" />
     <ClInclude Include="Graphic\Gve\GveDevice.h" />
     <ClInclude Include="Graphic\Gve\GveDeviceInfo.h" />
@@ -114,6 +115,8 @@
     <ClInclude Include="Graphic\Pssl\GCNParser\VOPInstruction.h" />
     <ClInclude Include="Graphic\Pssl\GCNCompiler.h" />
     <ClInclude Include="Graphic\Pssl\GCNDecoder.h" />
+    <ClInclude Include="Graphic\Pssl\PsslBindingCalculator.h" />
+    <ClInclude Include="Graphic\Pssl\PsslCommon.h" />
     <ClInclude Include="Graphic\Pssl\PsslEnums.h" />
     <ClInclude Include="Graphic\Pssl\PsslFetchShader.h" />
     <ClInclude Include="Graphic\Pssl\PsslKey.h" />
@@ -238,6 +241,7 @@
     <ClCompile Include="Graphic\Gve\GveInstance.cpp" />
     <ClCompile Include="Graphic\Gve\GveMemory.cpp" />
     <ClCompile Include="Graphic\Gve\GvePhysicalDevice.cpp" />
+    <ClCompile Include="Graphic\Gve\GvePipelineLayout.cpp" />
     <ClCompile Include="Graphic\Gve\GveRenderPass.cpp" />
     <ClCompile Include="Graphic\Gve\GveSampler.cpp" />
     <ClCompile Include="Graphic\Gve\GveShader.cpp" />
@@ -271,6 +275,7 @@
     <ClCompile Include="Graphic\Pssl\GCNParser\ParserSIVOP.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNCompiler.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNDecoder.cpp" />
+    <ClCompile Include="Graphic\Pssl\PsslBindingCalculator.cpp" />
     <ClCompile Include="Graphic\Pssl\PsslFetchShader.cpp" />
     <ClCompile Include="Graphic\Pssl\PsslKey.cpp" />
     <ClCompile Include="Graphic\Pssl\PsslPsUsageTable.cpp" />
