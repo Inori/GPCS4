@@ -11,5 +11,15 @@ GveImage::~GveImage()
 {
 }
 
+///
+
+GveImageView::GveImageView()
+{
+}
+
+GveImageView::~GveImageView()
+{
+}
+
 }  // namespace gve
 

@@ -12,6 +12,7 @@ class GveFrameBuffer;
 class GveShader;
 class GveBuffer;
 class GveImage;
+class GveImageView;
 class GveSampler;
 
 // This is our render context.
@@ -32,45 +33,21 @@ public:
 	void setViewports(uint32_t viewportCount,
 		const VkViewport* viewports, const VkRect2D* scissorRects);
 
-	/**
-	 * \brief Binds a shader to a given state
-	 *
-	 * \param [in] stage Target shader stage
-	 * \param [in] shader The shader to bind
-	 */
+	void setInputLayout(
+		uint32_t								 attributeCount,
+		const VkVertexInputAttributeDescription* attributes,
+		uint32_t								 bindingCount,
+		const VkVertexInputBindingDescription*   bindings);
+
 	void bindShader(VkShaderStageFlagBits stage, const RcPtr<GveShader>& shader);
 
-	/**
-	 * \brief Binds index buffer
-	 *
-	 * The index buffer will be used when
-	 * issuing \c drawIndexed commands.
-	 * \param [in] buffer New index buffer
-	 * \param [in] indexType Index type
-	 */
 	void bindIndexBuffer(const GveBuffer& buffer, VkIndexType indexType);
 
-	/**
-	 * \brief Binds vertex buffer
-	 *
-	 * \param [in] binding Vertex buffer binding
-	 * \param [in] buffer New vertex buffer
-	 * \param [in] stride Stride between vertices
-	 */
 	void bindVertexBuffer(uint32_t binding, const GveBuffer& buffer, uint32_t stride);
 
-	/**
-	 * \brief Binds image sampler
-	 *
-	 * Binds a sampler that can be used together with
-	 * an image in order to read from a texture.
-	 * \param [in] slot Resource binding slot
-	 * \param [in] sampler Sampler view to bind
-	 */
-	void bindSampler(uint32_t slot, const RcPtr<GveSampler>& sampler);
+	void bindSampler(uint32_t startRegister, const RcPtr<GveSampler>& sampler);
 
-
-	void bindImage(uint32_t slot, const RcPtr<GveImage>& image);
+	void bindImage(uint32_t startRegister, const RcPtr<GveImageView>& image);
 
 
 

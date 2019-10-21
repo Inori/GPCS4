@@ -15,4 +15,18 @@ private:
 
 };
 
+
+///
+
+class GveImageView : public RcObject
+{
+public:
+	GveImageView();
+	~GveImageView();
+
+private:
+
+};
+
+
 }  // namespace gve

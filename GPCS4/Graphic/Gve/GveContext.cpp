@@ -38,7 +38,32 @@ void GveContex::setViewports(uint32_t viewportCount, const VkViewport* viewports
 
 }
 
+void GveContex::setInputLayout(uint32_t attributeCount, const VkVertexInputAttributeDescription* attributes, uint32_t bindingCount, const VkVertexInputBindingDescription* bindings)
+{
+
+}
+
 void GveContex::bindShader(VkShaderStageFlagBits stage, const RcPtr<GveShader>& shader)
+{
+
+}
+
+void GveContex::bindIndexBuffer(const GveBuffer& buffer, VkIndexType indexType)
+{
+
+}
+
+void GveContex::bindVertexBuffer(uint32_t binding, const GveBuffer& buffer, uint32_t stride)
+{
+
+}
+
+void GveContex::bindSampler(uint32_t startRegister, const RcPtr<GveSampler>& sampler)
+{
+
+}
+
+void GveContex::bindImage(uint32_t startRegister, const RcPtr<GveImageView>& image)
 {
 
 }
