@@ -547,7 +547,7 @@ void* newThreadWrapper(void* arg)
 // if one thread create several thread, these threads' id will be same
 int PS4API scePthreadCreate(ScePthread *thread, const ScePthreadAttr *attr, void *(PS4API *entry) (void *), void *arg, const char *name)
 {
-	LOG_SCE_TRACE("thread %p attr %p entry %p arg %p name %s", thread, attr, entry, arg, name);
+	LOG_SCE_TRACE("thread %p attr %p entry %p arg %p name %s", thread, attr, entry, arg,"placeholder" /*name*/);
 	if (name)
 	{
 		LOG_FIXME("thread name is not supported.");

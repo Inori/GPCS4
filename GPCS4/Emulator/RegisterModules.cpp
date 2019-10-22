@@ -80,7 +80,12 @@ bool CEmulator::RegisterModules()
 		ALLOW_MODULE_OVERRIDE("libc");
 		ALLOW_MODULE_OVERRIDE("libSceLibcInternal");
 		pModuleSystem->setLibraryOverridability("libc", "libc", true);
-
+		pModuleSystem->setLibraryOverridability(
+			"libkernel", "libkernel", true,
+			CSceModuleSystem::LibraryRecord::Mode::Allow);
+		
+		pModuleSystem->setFunctionOverridability("libkernel", "libkernel",
+												 0xF41703CA43E6A352, true);
 		/* disable below functions, which are implemented in virutal libc module */
 
 		// fopen
@@ -116,16 +121,9 @@ bool CEmulator::RegisterModules()
 		// exit
 		pModuleSystem->setFunctionOverridability("libc", "libc",
 												 0xB8C7A2D56F6EC8DA, false);
-		//ALLOW_OVERRIDE("libkernel");
-		//ALLOW_OVERRIDE("libScePad");
-		//ALLOW_OVERRIDE("libSceMbus");
-		//ALLOW_OVERRIDE("libSceRegMgr");
-		//ALLOW_OVERRIDE("libSceAvSetting");
-		//ALLOW_OVERRIDE("libSceFios2");
-		//ALLOW_OVERRIDE("libSceVideoOut");
-		//ALLOW_OVERRIDE("libSceSysmodule");
-		//ALLOW_OVERRIDE("libSceGnmDriver");
-
+		// time
+		pModuleSystem->setFunctionOverridability("libc", "libc",
+												 0xC0B9459301BD51C4, false);
 		bRet = true;
 	} while (false);
 	return bRet;

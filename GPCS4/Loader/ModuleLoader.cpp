@@ -433,6 +433,8 @@ bool ModuleLoader::initializeModules()
 	// intialize TLS
 	for (auto const &mod : mods)
 	{
+		//auto const &mod = mods[0];
+
 		void *pTls     = nullptr;
 		uint initSize  = 0;
 		uint totalSize = 0;

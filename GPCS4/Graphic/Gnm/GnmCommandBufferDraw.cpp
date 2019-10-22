@@ -176,21 +176,21 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 {
 	do
 	{
-		uint32_t* fsCode = getFetchShaderCode(m_vsCode);
+		//uint32_t* fsCode = getFetchShaderCode(m_vsCode);
 
-		RcPtr<gve::GveShader> vsShader;
-		if (fsCode)
-		{
-			pssl::PsslShaderModule vsModule((const uint32_t*)m_vsCode, fsCode, m_vsUserDataSlotTable);
-			vsShader = vsModule.compile();
-		}
-		else
-		{
-			pssl::PsslShaderModule vsModule((const uint32_t*)m_vsCode, m_vsUserDataSlotTable);
-			vsShader = vsModule.compile();
-		}
+		//RcPtr<gve::GveShader> vsShader;
+		//if (fsCode)
+		//{
+		//	pssl::PsslShaderModule vsModule((const uint32_t*)m_vsCode, fsCode, m_vsUserDataSlotTable);
+		//	vsShader = vsModule.compile();
+		//}
+		//else
+		//{
+		//	pssl::PsslShaderModule vsModule((const uint32_t*)m_vsCode, m_vsUserDataSlotTable);
+		//	vsShader = vsModule.compile();
+		//}
 
-		m_context->bindShader(VK_SHADER_STAGE_VERTEX_BIT, vsShader);
+		//m_context->bindShader(VK_SHADER_STAGE_VERTEX_BIT, vsShader);
 	} while (false);
 }
 

@@ -13,7 +13,8 @@ struct SCE_EXPORT_MODULE;
 class CSceModuleSystem final : public Singleton<CSceModuleSystem>
 {
 	friend class  Singleton<CSceModuleSystem>;
-private:
+
+public:
 	struct LibraryRecord
 	{
 		enum class Mode
@@ -27,6 +28,7 @@ private:
 		std::unordered_map<uint64_t, bool> functions;
 	};
 
+private:
 	struct ModuleRecord
 	{
 		bool overridable;

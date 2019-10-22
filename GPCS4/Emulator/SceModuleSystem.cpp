@@ -78,11 +78,12 @@ bool CSceModuleSystem::isFunctionLoadable(std::string const &modName,
 
 	do
 	{
-		if (FindFunction(modName, libName, nid) == nullptr)
-		{
-			retVal = true;
-			break;
-		}
+		// TODO:
+		//if (FindFunction(modName, libName, nid) == nullptr)
+		//{
+		//	retVal = true;
+		//	break;
+		//}
 
 		if (isFunctionOverridable(modName, libName, nid))
 		{
@@ -282,11 +283,11 @@ bool CSceModuleSystem::RegisterModule(const SCE_EXPORT_MODULE &stModule)
 			NameFuncMap nameMap;
 			while (!IsEndFunctionEntry(pFunc))
 			{
-				if (!isFunctionLoadable(szModName, szLibName, pFunc->nNid))
-				{
-					LOG_DEBUG("function %s is not loadable", pFunc->szFunctionName);
-					continue;
-				}
+				//if (!isFunctionLoadable(szModName, szLibName, pFunc->nNid))
+				//{
+				//	LOG_DEBUG("function %s is not loadable", pFunc->szFunctionName);
+				//	continue;
+				//}
 
 				nidMap.insert(
 					std::make_pair((uint64)pFunc->nNid, (void *)pFunc->pFunction));

@@ -318,7 +318,9 @@ bool MemoryMappedModule::isEncodedSymbol(std::string const &symbolName) const
 int MemoryMappedModule::initialize()
 {
 	int retVal = 0;
-	if (isModule() && m_moduleInfo.pEntryPoint != nullptr)
+
+	// TODO: libkernel's startup function contains syscalls.
+	if (0 && isModule() && m_moduleInfo.pEntryPoint != nullptr)
 	{
 		auto ep = reinterpret_cast<intialize_func>(m_moduleInfo.pEntryPoint);
 		retVal  = ep(0, nullptr, nullptr);

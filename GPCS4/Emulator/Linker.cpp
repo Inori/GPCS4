@@ -101,7 +101,8 @@ bool CLinker::resolveSymbol(MemoryMappedModule const &mod,
 								stubMgr->generate(msg):
 							    stubMgr->generate(msg, address);
 
-			*addr = reinterpret_cast<uint64_t>(stubAddr);
+			//*addr = reinterpret_cast<uint64_t>(stubAddr);
+			*addr = reinterpret_cast<uint64_t>(address);
 		}
 
 
