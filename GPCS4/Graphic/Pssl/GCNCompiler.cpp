@@ -535,10 +535,11 @@ void GCNCompiler::emitDclImmConstBuffer(const GcnResourceBuffer& res)
 	uint32_t uboPtrId = m_module.defPointerType(uboStuctId, spv::StorageClassUniform);
 	m_vs.m_uboId = m_module.newVar(uboPtrId, spv::StorageClassUniform);
 
-	// TODO:
-	// Not sure, need to correct.
 	m_module.decorateDescriptorSet(m_vs.m_uboId, 0);
 
+	// Note:
+	// The calculated bindingId is not "correct", it's a dummy value.
+	// We'll remap binding id before compiling pipeline in GveShader class.
 	uint32_t bindingId = computeConstantBufferBinding(m_programInfo.shaderType(), res.res.startSlot);
 	m_module.decorateBinding(m_vs.m_uboId, bindingId);
 
