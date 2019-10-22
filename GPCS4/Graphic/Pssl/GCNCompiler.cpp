@@ -1,6 +1,8 @@
 #include "GCNCompiler.h"
+#include "PsslBindingCalculator.h"
 #include "../Gnm/GnmSharpBuffer.h"
 #include "Platform/UtilString.h"
+
 #include <array>
 
 namespace pssl
@@ -491,29 +493,27 @@ void GCNCompiler::emitDclResourceBuffer()
 	// Currently I can not determine which one is better, and how much performance we could gain from using UBO,
 	// but I just choose the UBO way first due to performance reason. Maybe need to change in the future.
 
-	uint32_t index = 0;
 	for (const auto& res : m_shaderInput.resourceBuffer)
 	{
 		switch (res.usageType)
 		{
 		case kShaderInputUsageImmConstBuffer:
-			emitDclImmConstBuffer(res, index);
+			emitDclImmConstBuffer(res);
 			break;
 		case kShaderInputUsageImmResource:
-			emitDclImmResource(res, index);
+			emitDclImmResource(res);
 			break;
 		case kShaderInputUsageImmSampler:
-			emitDclImmSampler(res, index);
+			emitDclImmSampler(res);
 			break;
 		default:
 			break;
 		}
-		++index;
 	}
 	
 }
 
-void GCNCompiler::emitDclImmConstBuffer(const GcnResourceBuffer& res, uint32_t index)
+void GCNCompiler::emitDclImmConstBuffer(const GcnResourceBuffer& res)
 {
 	VSharpBuffer* vsharpBuffer = reinterpret_cast<VSharpBuffer*>(res.res.resource);
 	uint32_t arraySize = vsharpBuffer->stride * vsharpBuffer->num_records / sizeof(uint32_t);
@@ -537,15 +537,17 @@ void GCNCompiler::emitDclImmConstBuffer(const GcnResourceBuffer& res, uint32_t i
 
 	// TODO:
 	// Not sure, need to correct.
-	m_module.decorateDescriptorSet(m_vs.m_uboId, index);
-	m_module.decorateBinding(m_vs.m_uboId, index);
+	m_module.decorateDescriptorSet(m_vs.m_uboId, 0);
+
+	uint32_t bindingId = computeConstantBufferBinding(m_programInfo.shaderType(), res.res.startSlot);
+	m_module.decorateBinding(m_vs.m_uboId, bindingId);
 
 	m_module.setDebugName(m_vs.m_uboId, "ubo");
 
-	m_resourceSlots.push_back({ res.res.startSlot, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER });
+	m_resourceSlots.push_back({ bindingId, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER });
 }
 
-void GCNCompiler::emitDclImmSampler(const GcnResourceBuffer& res, uint32_t index)
+void GCNCompiler::emitDclImmSampler(const GcnResourceBuffer& res)
 {
 	// The sampler start register
 	const uint32_t samplerId = res.res.startSlot;
@@ -565,17 +567,19 @@ void GCNCompiler::emitDclImmSampler(const GcnResourceBuffer& res, uint32_t index
 		UtilString::Format("sampler%d", samplerId).c_str());
 
 	m_module.decorateDescriptorSet(varId, 0);
-	m_module.decorateBinding(varId, index);
+
+	uint32_t bindingId = computeSamplerBinding(m_programInfo.shaderType(), res.res.startSlot);
+	m_module.decorateBinding(varId, bindingId);
 
 	SpirvSampler sampler;
 	sampler.varId = varId;
 	sampler.typeId = samplerType;
 	m_ps.samplers.at(samplerId) = sampler;
 
-	m_resourceSlots.push_back({ res.res.startSlot, VK_DESCRIPTOR_TYPE_SAMPLER });
+	m_resourceSlots.push_back({ bindingId, VK_DESCRIPTOR_TYPE_SAMPLER });
 }
 
-void GCNCompiler::emitDclImmResource(const GcnResourceBuffer& res, uint32_t index)
+void GCNCompiler::emitDclImmResource(const GcnResourceBuffer& res)
 {
 
 	const uint32_t registerId = res.res.startSlot;
@@ -606,7 +610,9 @@ void GCNCompiler::emitDclImmResource(const GcnResourceBuffer& res, uint32_t inde
 		UtilString::Format("texture%d", registerId).c_str());
 
 	m_module.decorateDescriptorSet(varId, 0);
-	m_module.decorateBinding(varId, index);
+
+	uint32_t bindingId = computeResBinding(m_programInfo.shaderType(), res.res.startSlot);
+	m_module.decorateBinding(varId, bindingId);
 
 	SpirvTexture texture;
 	texture.imageInfo = typeInfo;
@@ -614,7 +620,7 @@ void GCNCompiler::emitDclImmResource(const GcnResourceBuffer& res, uint32_t inde
 	texture.imageTypeId = imageTypeId;
 	m_ps.textures.at(registerId) = texture;
 
-	m_resourceSlots.push_back({ res.res.startSlot, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE });
+	m_resourceSlots.push_back({ bindingId, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE });
 }
 
 SpirvRegisterValue GCNCompiler::emitValueLoad(const SpirvRegisterPointer& reg)

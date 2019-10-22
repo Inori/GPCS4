@@ -418,9 +418,9 @@ private:
 	void emitGprInitialize();
 	// For all shader types
 	void emitDclResourceBuffer();
-	void emitDclImmConstBuffer(const GcnResourceBuffer& res, uint32_t index);
-	void emitDclImmSampler(const GcnResourceBuffer& res, uint32_t index);
-	void emitDclImmResource(const GcnResourceBuffer& res, uint32_t index);
+	void emitDclImmConstBuffer(const GcnResourceBuffer& res);
+	void emitDclImmSampler(const GcnResourceBuffer& res);
+	void emitDclImmResource(const GcnResourceBuffer& res);
 
 	/////////////////////////////////////////////////////////
 	SpirvRegisterValue emitValueLoad(const SpirvRegisterPointer& reg);
