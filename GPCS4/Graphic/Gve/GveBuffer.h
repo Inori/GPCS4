@@ -5,11 +5,22 @@
 namespace gve
 {;
 
-class GveBuffer
+class GveBuffer : public RcObject
 {
 public:
 	GveBuffer();
 	~GveBuffer();
+
+private:
+
+};
+
+
+class GveBufferView : public RcObject
+{
+public:
+	GveBufferView();
+	~GveBufferView();
 
 private:
 

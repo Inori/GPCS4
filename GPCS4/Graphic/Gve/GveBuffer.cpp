@@ -12,4 +12,16 @@ GveBuffer::~GveBuffer()
 {
 }
 
+
+
+GveBufferView::GveBufferView()
+{
+}
+
+GveBufferView::~GveBufferView()
+{
+}
+
+
+
 }  // namespace gve

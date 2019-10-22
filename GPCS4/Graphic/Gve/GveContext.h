@@ -11,6 +11,7 @@ class GveCommandBuffer;
 class GveFrameBuffer;
 class GveShader;
 class GveBuffer;
+class GveBufferView;
 class GveImage;
 class GveImageView;
 class GveSampler;
@@ -45,11 +46,13 @@ public:
 
 	void bindVertexBuffer(uint32_t binding, const GveBuffer& buffer, uint32_t stride);
 
-	void bindSampler(uint32_t startRegister, const RcPtr<GveSampler>& sampler);
+	void bindSampler(uint32_t regSlot, const RcPtr<GveSampler>& sampler);
 
-	void bindImage(uint32_t startRegister, const RcPtr<GveImageView>& image);
+	void bindResourceBuffer(uint32_t regSlot, const RcPtr<GveBuffer>& buffer);
 
-
+	void bindResourceView(uint32_t regSlot, 
+		const RcPtr<GveImageView>& imageView, 
+		const RcPtr<GveBufferView>& bufferView);
 
 private:
 	RcPtr<GveDevice> m_device;

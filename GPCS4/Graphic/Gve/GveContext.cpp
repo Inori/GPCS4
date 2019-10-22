@@ -58,12 +58,19 @@ void GveContex::bindVertexBuffer(uint32_t binding, const GveBuffer& buffer, uint
 
 }
 
-void GveContex::bindSampler(uint32_t startRegister, const RcPtr<GveSampler>& sampler)
+void GveContex::bindSampler(uint32_t regSlot, const RcPtr<GveSampler>& sampler)
 {
 
 }
 
-void GveContex::bindImage(uint32_t startRegister, const RcPtr<GveImageView>& image)
+void GveContex::bindResourceBuffer(uint32_t regSlot, const RcPtr<GveBuffer>& buffer)
+{
+
+}
+
+void GveContex::bindResourceView(uint32_t regSlot, 
+	const RcPtr<GveImageView>& imageView, 
+	const RcPtr<GveBufferView>& bufferView)
 {
 
 }
