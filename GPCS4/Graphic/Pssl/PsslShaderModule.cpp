@@ -143,23 +143,28 @@ std::vector<pssl::GcnResourceBuffer> PsslShaderModule::findResourceBuffers()
 			const InputUsageSlot* usageSlot = m_progInfo.inputUsageSlot(i);
 			ShaderInputUsageType usageType = static_cast<ShaderInputUsageType>(usageSlot->usageType);
 
+			PsslShaderResource res;
+			bool found = findShaderResource(usageSlot->startRegister, res);
+			LOG_ASSERT(found == true, "can not find matched shader resource.");
+
+			SpirvResourceType resType;
 			switch (usageType)
 			{
 			case kShaderInputUsageImmSampler:
+				// For ImmSampler, although resourceType tells it's a V#,
+				// we should treat it as a S#
+				resType = SpirvResourceType::SSharp;
 				break;
+			case kShaderInputUsageImmResource:
 			case kShaderInputUsageImmConstBuffer:
-			{
-				PsslShaderResource res;
-				bool found = findShaderResource(usageSlot->startRegister, res);
-				LOG_ASSERT(found == true, "can not find matched shader resource.");
-				SpirvResourceType type = usageSlot->resourceType == 0 ? 
+				resType = usageSlot->resourceType == 0 ? 
 					SpirvResourceType::VSharp : SpirvResourceType::TSharp;
-				resultRes.emplace_back(type, res);
-			}
 				break;
 			default:
 				break;
 			}
+
+			resultRes.emplace_back(resType, usageType, res);
 		}
 	} while (false);
 	return resultRes;

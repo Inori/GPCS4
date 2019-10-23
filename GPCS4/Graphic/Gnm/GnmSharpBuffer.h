@@ -2,6 +2,13 @@
 
 #include "GPCS4Common.h"
 
+// Note:
+// There are to ways to interpret these buffer types (V# T# S#).
+// One is to cast to XSharpBuffer defined in this file, these definitions are hardware related.
+// Another is to cast to GnmBuffer, GnmTexture or GnmSampler class defined in correspond header files.
+// These definitions are more human friendly.
+
+
 // V# Vertex Descriptor Buffer
 // 128 bits
 struct VSharpBuffer
@@ -33,8 +40,6 @@ struct VSharpBuffer
 	uint32_t mtype			: 3;  // mtype for L1
 	uint32_t type			: 2;  // value == 0 for buf. Overlaps upper 2 bits of 4-bit TYPE field in 128-bit T# resource
 };
-
-typedef VSharpBuffer GnmBuffer;
 
 
 
@@ -93,8 +98,6 @@ struct TSharpBuffer
 	uint64_t reserved3			: 43;  // Should be 43 bits, but 52 bits on the manual, an error.
 };
 
-typedef TSharpBuffer GnmTexture;
-
 
 
 // S# Sampler Descriptor Buffer
@@ -138,5 +141,3 @@ struct SSharpBuffer
 	uint64_t reserved2			: 18;
 	uint64_t border_color_type	: 2;
 };
-
-typedef SSharpBuffer GnmSampler;

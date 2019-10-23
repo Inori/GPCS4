@@ -62,17 +62,17 @@ void GnmCommandBufferDraw::setVgtControl(uint8_t primGroupSizeMinusOne, WdSwitch
 	
 }
 
-void GnmCommandBufferDraw::setVsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const GnmBuffer *buffer)
+void GnmCommandBufferDraw::setVsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const VSharpBuffer *buffer)
 {
 
 }
 
-void GnmCommandBufferDraw::setTsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const GnmTexture *tex)
+void GnmCommandBufferDraw::setTsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const TSharpBuffer *tex)
 {
 
 }
 
-void GnmCommandBufferDraw::setSsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const GnmSampler *sampler)
+void GnmCommandBufferDraw::setSsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const SSharpBuffer *sampler)
 {
 
 }
@@ -87,7 +87,7 @@ void GnmCommandBufferDraw::setPointerInUserData(ShaderStage stage, uint32_t star
 		}
 		else if (stage == kShaderStagePs)
 		{
-			m_psUserDataSlotTable.push_back({ startUserDataSlot, gpuAddr });
+			//m_psUserDataSlotTable.push_back({ startUserDataSlot, gpuAddr });
 		}
 		else
 		{
@@ -161,10 +161,70 @@ void GnmCommandBufferDraw::waitUntilSafeForRendering(uint32_t videoOutHandle, ui
 }
 
 
-// We be called on every frame start.
+void GnmCommandBufferDraw::setViewportTransformControl(ViewportTransformControl vportControl)
+{
+
+}
+
+void GnmCommandBufferDraw::setScreenScissor(int32_t left, int32_t top, int32_t right, int32_t bottom)
+{
+
+}
+
+void GnmCommandBufferDraw::setGuardBands(float horzClip, float vertClip, float horzDiscard, float vertDiscard)
+{
+
+}
+
+void GnmCommandBufferDraw::setHardwareScreenOffset(uint32_t offsetX, uint32_t offsetY)
+{
+
+}
+
+void GnmCommandBufferDraw::setRenderTarget(uint32_t rtSlot, RenderTarget const *target)
+{
+
+}
+
+void GnmCommandBufferDraw::setDepthRenderTarget(DepthRenderTarget const *depthTarget)
+{
+
+}
+
+void GnmCommandBufferDraw::setRenderTargetMask(uint32_t mask)
+{
+
+}
+
+void GnmCommandBufferDraw::setDepthStencilControl(DepthStencilControl depthStencilControl)
+{
+	
+}
+
+void GnmCommandBufferDraw::setBlendControl(uint32_t rtSlot, BlendControl blendControl)
+{
+
+}
+
+void GnmCommandBufferDraw::setPrimitiveSetup(PrimitiveSetup reg)
+{
+
+}
+
+void GnmCommandBufferDraw::setActiveShaderStages(ActiveShaderStages activeStages)
+{
+
+}
+
+void GnmCommandBufferDraw::setIndexSize(IndexSize indexSize, CachePolicy cachePolicy)
+{
+
+}
+
+// Will be called on every frame start.
 void GnmCommandBufferDraw::initializeDefaultHardwareState()
 {
-	m_context->initState();
+	m_context->beginRecording(m_cmd);
 }
 
 void GnmCommandBufferDraw::setPrimitiveType(PrimitiveType primType)
@@ -176,21 +236,25 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 {
 	do
 	{
-		//uint32_t* fsCode = getFetchShaderCode(m_vsCode);
+		uint32_t* fsCode = getFetchShaderCode(m_vsCode);
 
-		//RcPtr<gve::GveShader> vsShader;
-		//if (fsCode)
-		//{
-		//	pssl::PsslShaderModule vsModule((const uint32_t*)m_vsCode, fsCode, m_vsUserDataSlotTable);
-		//	vsShader = vsModule.compile();
-		//}
-		//else
-		//{
-		//	pssl::PsslShaderModule vsModule((const uint32_t*)m_vsCode, m_vsUserDataSlotTable);
-		//	vsShader = vsModule.compile();
-		//}
+		RcPtr<gve::GveShader> vsShader;
+		if (fsCode)
+		{
+			pssl::PsslShaderModule vsModule((const uint32_t*)m_vsCode, fsCode, m_vsUserDataSlotTable);
+			vsShader = vsModule.compile();
+		}
+		else
+		{
+			pssl::PsslShaderModule vsModule((const uint32_t*)m_vsCode, m_vsUserDataSlotTable);
+			vsShader = vsModule.compile();
+		}
 
-		//m_context->bindShader(VK_SHADER_STAGE_VERTEX_BIT, vsShader);
+		pssl::PsslShaderModule psModule((const uint32_t*)m_psCode, m_psUserDataSlotTable);
+		RcPtr<gve::GveShader> psShader = psModule.compile();
+
+		m_context->bindShader(VK_SHADER_STAGE_VERTEX_BIT, vsShader);
+		m_context->bindShader(VK_SHADER_STAGE_FRAGMENT_BIT, psShader);
 	} while (false);
 }
 

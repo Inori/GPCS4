@@ -23,6 +23,7 @@
 #include "GCNParser/VOPInstruction.h"
 
 #include "../Gve/GveShader.h"
+#include "../Gve/GvePipelineLayout.h"
 #include "../SpirV/SpirvModule.h"
 
 #include <optional>
@@ -31,6 +32,11 @@
 
 namespace pssl
 {;
+
+
+constexpr size_t GcnMaxSgprCount = 104;
+constexpr size_t GcnMaxVgprCount = 256;
+
 
 /**
  * \brief Vector type
@@ -51,6 +57,67 @@ struct SpirvVectorType
 	SpirvScalarType   ctype;
 	uint32_t          ccount;
 };
+
+
+/**
+ * \brief Array type
+ *
+ * Convenience struct that stores a scalar type, a
+ * component count and an array size. An array of
+ * length 0 will be evaluated to a vector type. The
+ * compiler can use this to generate SPIR-V types.
+ */
+struct SpirvArrayType 
+{
+	SpirvArrayType():
+		alength(0)
+	{}
+
+	SpirvArrayType(const SpirvVectorType& type, uint32_t alen):
+		vtype(type), alength(alen)
+	{}
+
+	SpirvArrayType(SpirvScalarType type, uint32_t count, uint32_t alen):
+		vtype(type, count), alength(alen)
+	{}
+
+	SpirvVectorType    vtype;
+	uint32_t           alength;
+};
+
+
+/**
+ * \brief Register info
+ *
+ * Stores the array type of a register and
+ * its storage class. The compiler can use
+ * this to generate SPIR-V pointer types.
+ */
+struct SpirvRegisterInfo 
+{
+	SpirvRegisterInfo():
+		sclass(spv::StorageClassMax)
+	{}
+
+	SpirvRegisterInfo(const SpirvVectorType& type, spv::StorageClass cls):
+		atype(type, 0), sclass(cls)
+	{}
+
+	SpirvRegisterInfo(const SpirvArrayType& type, spv::StorageClass cls) :
+		atype(type), sclass(cls)
+	{}
+
+	SpirvRegisterInfo(SpirvScalarType type, 
+		uint32_t count, uint32_t alen, 
+		spv::StorageClass cls):
+		atype(type, count, alen),
+		sclass(cls)
+	{}
+
+	SpirvArrayType     atype;
+	spv::StorageClass  sclass;
+};
+
 
 /**
  * \brief Register value
@@ -136,17 +203,57 @@ struct SpirvGprArray
 
 
 /**
+ * \brief Sampler binding
+ *
+ * Stores a sampler variable that can be
+ * used together with a texture resource.
+ */
+struct SpirvSampler 
+{
+	uint32_t varId = 0;
+	uint32_t typeId = 0;
+};
+
+/**
+ * \brief Image type information
+ */
+struct SpirvImageInfo 
+{
+	spv::Dim        dim		= spv::Dim1D;
+	uint32_t        array	= 0;
+	uint32_t        ms		= 0;
+	uint32_t        sampled = 0;
+	spv::ImageFormat format = spv::ImageFormatUnknown;
+};
+
+
+/**
+ * \brief Shader resource binding
+ *
+ * Stores a resource variable
+ * and associated type IDs.
+ */
+struct SpirvTexture
+{
+	SpirvImageInfo    imageInfo;
+	uint32_t          varId = 0;
+	uint32_t          imageTypeId = 0;
+};
+
+
+/**
  * \brief Sharp buffer resource.
  *
  * V# T# or S# buffer input to the shader
  */
 struct GcnResourceBuffer
 {
-	GcnResourceBuffer(SpirvResourceType resType, PsslShaderResource& resource):
-		type(resType), res(resource)
+	GcnResourceBuffer(SpirvResourceType rType, ShaderInputUsageType uType, PsslShaderResource& resource):
+		resType(rType), usageType(uType), res(resource)
 	{}
 
-	SpirvResourceType type;
+	SpirvResourceType resType;
+	ShaderInputUsageType usageType;
 	PsslShaderResource res;
 };
 
@@ -193,6 +300,15 @@ struct GcnCompilerVsPart
 	std::map<uint32_t, SpirvRegisterPointer> vsInputs;
 	// exp target -- spirv id
 	std::map<uint32_t, SpirvRegisterPointer> vsOutputs;
+
+	// Uniform Buffer Object Id
+	// TODO:
+	// Currently I see only one block of uniform buffer memory being used
+	// even if multiple uniform variables declared.
+	// So I only declare one member variable.
+	// If multiple blocks of uniform buffer are found in the future
+	// change this to a std::vector or something convinient.
+	uint32_t m_uboId = 0;
 };
 
 
@@ -202,20 +318,14 @@ struct GcnCompilerVsPart
 struct GcnCompilerPsPart 
 {
 	spv::Id functionId = 0;
-
-	uint32_t builtinFragCoord = 0;
-	uint32_t builtinDepth = 0;
-	uint32_t builtinIsFrontFace = 0;
-	uint32_t builtinSampleId = 0;
-	uint32_t builtinSampleMaskIn = 0;
-	uint32_t builtinSampleMaskOut = 0;
-	uint32_t builtinLayer = 0;
-	uint32_t builtinViewportId = 0;
-
-	uint32_t builtinLaneId = 0;
-	uint32_t killState = 0;
-
-	uint32_t specRsSampleCount = 0;
+	// attr index -- spirv id
+	std::map<uint32_t, SpirvRegisterPointer> psInputs;
+	// exp target -- spirv id
+	std::map<uint32_t, SpirvRegisterPointer> psOutputs;
+	// start register index -- sampler
+	std::array<SpirvSampler, GcnMaxSgprCount> samplers;
+	// start register index -- texture
+	std::array<SpirvTexture, GcnMaxSgprCount> textures;
 };
 
 
@@ -268,65 +378,6 @@ public:
 
 private:
 
-	PsslProgramInfo m_programInfo;
-
-	SpirvModule m_module;
-
-	// Global analyze information
-	const GcnAnalysisInfo* m_analysis;
-
-	GcnShaderInput m_shaderInput;
-	///////////////////////////////////////////////////
-	// Entry point description - we'll need to declare
-	// the function ID and all input/output variables.
-	std::vector<uint32_t> m_entryPointInterfaces;
-	uint32_t              m_entryPointId = 0;
-
-	////////////////////////////////////////////////////
-	// Per-vertex input and output blocks. Depending on
-	// the shader stage, these may be declared as arrays.
-	uint32_t m_perVertexIn = 0;
-	uint32_t m_perVertexOut = 0;
-
-	// Uniform Buffer Object Id
-	// TODO:
-	// Currently I see only one block of uniform buffer memory being used
-	// even if multiple uniform variables declared.
-	// So I only declare one member variable.
-	// If multiple blocks of uniform buffer are found in the future
-	// change this to a std::vector or something convinient.
-	uint32_t m_uboId;
-
-	//////////////////////////////////////////////
-	// Function state tracking. Required in order
-	// to properly end functions in some cases.
-	bool m_insideFunction = false;
-
-
-	///////////////////////////////////
-	// Shader-specific data structures
-	GcnCompilerVsPart m_vs;
-	GcnCompilerPsPart m_ps;
-	GcnCompilerCsPart m_cs;
-
-	///////////////////////////////////
-	// State registers
-	GcnStateRegister m_stateRegs;
-
-	///////////////////////////////////
-	// Gcn register to spir-v variable map
-	// gcn register index -- spirv register
-	std::map<uint32_t, SpirvRegisterPointer> m_sgprs;
-	std::map<uint32_t, SpirvRegisterPointer> m_vgprs;
-
-	///////////////////////////////////
-	// Resources
-
-	// spir-v id to literal constant value table
-	std::map<uint32_t, SpirvLiteralConstant> m_constValueTable;
-
-private:
-
 	void emitInit();
 	/////////////////////////////////
 	// Shader initialization methods
@@ -361,19 +412,17 @@ private:
 	void emitDclVertexOutput();
 	void emitEmuFetchShader();
 
+	void emitDclPixelInput();
+	void emitDclPixelOutput();
+
+	void emitGprInitialize();
 	// For all shader types
-	void emitDclUniformBuffer();
-	void emitDclImmConstBuffer(const InputUsageSlot* usageSlot);
-	void emitDclImmSampler(const InputUsageSlot* usageSlot);
+	void emitDclResourceBuffer();
+	void emitDclImmConstBuffer(const GcnResourceBuffer& res);
+	void emitDclImmSampler(const GcnResourceBuffer& res);
+	void emitDclImmResource(const GcnResourceBuffer& res);
 
 	/////////////////////////////////////////////////////////
-	SpirvRegisterPointer emitDclFloat(SpirvScalarType type,
-		spv::StorageClass storageCls, const std::string& debugName = "");
-	SpirvRegisterPointer emitDclFloatVectorType(SpirvScalarType type, uint32_t count,
-		spv::StorageClass storageCls, const std::string& debugName = "");
-	SpirvRegisterPointer emitDclFloatVectorVar(SpirvScalarType type, uint32_t count,
-		spv::StorageClass storageCls, const std::string& debugName = "");
-
 	SpirvRegisterValue emitValueLoad(const SpirvRegisterPointer& reg);
 	SpirvRegisterValue emitSgprLoad(uint32_t index);
 	SpirvRegisterValue emitVgprLoad(uint32_t index);
@@ -386,6 +435,8 @@ private:
 	void emitSgprArrayStore(uint32_t startIdx, const SpirvRegisterValue* values, uint32_t count);
 	void emitVgprStore(uint32_t dstIdx, const SpirvRegisterValue& srcReg);
 	void emitVgprArrayStore(uint32_t startIdx, const SpirvRegisterValue* values, uint32_t count);
+	// Store a vector to continuous vgprs
+	void emitVgprVectorStore(uint32_t startIdx, const SpirvRegisterValue& srcVec, const GcnRegMask& writeMask);
 	
 
 	/////////////////////////////////////////
@@ -398,10 +449,31 @@ private:
 
 	SpirvRegisterValue emitInlineConstantFloat(Instruction::OperandSRC src);
 	SpirvRegisterValue emitInlineConstantInteger(Instruction::OperandSRC src);
+
 	/////////////////////////////////////////
 	// Hardware state register manipulation methods
 	void emitStoreVCC(const SpirvRegisterValue& vccValueReg, bool isVccHi);
 	void emitStoreM0(const SpirvRegisterValue& m0ValueReg);
+
+	///////////////////////////////////////
+	// Image register manipulation methods
+	uint32_t emitLoadSampledImage(
+		const SpirvTexture&     textureResource,
+		const SpirvSampler&     samplerResource);
+
+	SpirvRegisterValue emitPackFloat16(const SpirvRegisterValue& v2floatVec);
+	SpirvRegisterValue emitUnpackFloat16(const SpirvRegisterValue& uiVec);
+
+	///////////////////////////////
+	// Variable definition methods
+	uint32_t emitNewVariable(
+		const SpirvRegisterInfo& info,
+		const std::string& name = "");
+
+	uint32_t emitNewBuiltinVariable(
+		const SpirvRegisterInfo& info,
+		spv::BuiltIn	         builtIn,
+		const char*              name);
 
 	////////////////////////////////////////////////
 	// Constant building methods. These are used to
@@ -474,6 +546,13 @@ private:
 	SpirvRegisterValue emitRegisterMaskBits(
 		SpirvRegisterValue       value,
 		uint32_t                mask);
+
+	// load a vector's composite,
+	// 0 - x, 1 - y, 2 - z, 3 - w
+	SpirvRegisterValue emitRegisterComponentLoad(
+		const SpirvRegisterPointer&		srcVec,
+		uint32_t						compIndex,
+		spv::StorageClass				storageClass = spv::StorageClassPrivate);
 
 	/////////////////////////////////////////////////////////
 	// Category handlers
@@ -592,11 +671,21 @@ private:
 	uint32_t getVectorTypeId(
 		const SpirvVectorType& type);
 
+	uint32_t getArrayTypeId(
+		const SpirvArrayType& type);
+
+	uint32_t getPointerTypeId(
+		const SpirvRegisterInfo& type);
+
 	////////////////
 	// Misc methods
 
 	bool isDoubleWordType(
 		SpirvScalarType type) const;
+
+	// Convenient when used with opcodes with may have
+	// different encodings. e.g. V_MAC_F32 [VOP2|VOP3]
+	uint32_t getVopOpcode(GCNInstruction& ins);
 
 	void getVopOperands(
 		GCNInstruction& ins,
@@ -606,7 +695,6 @@ private:
 		uint32_t* src2 = nullptr, uint32_t* src2Ridx = nullptr,
 		uint32_t* sdst = nullptr, uint32_t* sdstRidx = nullptr);
 
-	uint32_t getVopOpcode(GCNInstruction& ins);
 
 	// Convenience function to dynamic cast instruction types
 	template<typename InsType>
@@ -616,6 +704,60 @@ private:
 	{
 		return dynamic_cast<const InsType*>(ins.instruction.get());
 	}
+
+private:
+
+	PsslProgramInfo m_programInfo;
+
+	SpirvModule m_module;
+
+	// Global analyze information
+	const GcnAnalysisInfo* m_analysis;
+
+	GcnShaderInput m_shaderInput;
+	///////////////////////////////////////////////////
+	// Entry point description - we'll need to declare
+	// the function ID and all input/output variables.
+	std::vector<uint32_t> m_entryPointInterfaces;
+	uint32_t              m_entryPointId = 0;
+
+	////////////////////////////////////////////////////
+	// Per-vertex input and output blocks. Depending on
+	// the shader stage, these may be declared as arrays.
+	uint32_t m_perVertexIn = 0;
+	uint32_t m_perVertexOut = 0;
+
+	//////////////////////////////////////////////
+	// Function state tracking. Required in order
+	// to properly end functions in some cases.
+	bool m_insideFunction = false;
+
+
+	///////////////////////////////////
+	// Shader-specific data structures
+	GcnCompilerVsPart m_vs;
+	GcnCompilerPsPart m_ps;
+	GcnCompilerCsPart m_cs;
+
+	///////////////////////////////////
+	// State registers
+	GcnStateRegister m_stateRegs;
+
+	///////////////////////////////////
+	// Gcn register to spir-v variable map
+	// gcn register index -- spirv register
+	std::map<uint32_t, SpirvRegisterPointer> m_sgprs;
+	std::map<uint32_t, SpirvRegisterPointer> m_vgprs;
+
+	///////////////////////////////////
+	// Resources
+
+	// spir-v id to literal constant value table
+	std::map<uint32_t, SpirvLiteralConstant> m_constValueTable;
+
+	// Used to record shader resource this shader declared using InputUsageSlot
+	std::vector<gve::GveResourceSlot> m_resourceSlots;
+
 };
 
 

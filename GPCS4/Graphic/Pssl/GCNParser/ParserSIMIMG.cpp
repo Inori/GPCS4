@@ -174,7 +174,7 @@ Instruction::InstructionClass ParserSIMIMG::GetSIMIMGClass(SIMIMGInstruction::OP
 ParserSI::kaStatus
 ParserSIMIMG::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, std::unique_ptr<Instruction>& instruction)
 {
-    Instruction::InstructionCategory instKind = Instruction::ScalarMemory;
+    Instruction::InstructionCategory instKind = Instruction::VectorMemory;
     MIMGInstruction::DMASK dmask = GetDMASK(hexInstruction);
     MIMGInstruction::UNORM unorm = GetUNORM(hexInstruction);
     MIMGInstruction::GLC glc = GetGLC(hexInstruction);

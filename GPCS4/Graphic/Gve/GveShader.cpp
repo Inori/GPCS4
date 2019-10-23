@@ -1,5 +1,7 @@
 #include "GveShader.h"
+#include "GveDevice.h"
 #include "Platform/UtilFile.h"
+
 
 #ifdef GPCS4_DEBUG
 // Dump shader to file
@@ -11,21 +13,70 @@ namespace gve
 
 GveShader::GveShader(VkShaderStageFlagBits stage, 
 	SpirvCodeBuffer code,
-	const PsslKey& key):
+	const PsslKey& key,
+	std::vector<GveResourceSlot>&& resSlots):
 	m_stage(stage),
 	m_code(code),
-	m_key(key)
+	m_key(key),
+	m_slots(resSlots)
 {
+
+	generateBindingIdOffsets(code);
 
 #ifdef GVE_DUMP_SHADER
 	dumpShader();
 #endif // GVE_DUMP_SHADER
-
 }
 
 GveShader::~GveShader()
 {
 }
+
+VkShaderStageFlagBits GveShader::stage() const
+{
+	return m_stage;
+}
+
+void GveShader::fillResourceSlots(GveDescriptorSlotMap& slotMap) const
+{
+	for (const auto& slot : m_slots)
+	{
+		slotMap.defineSlot(slot, m_stage);
+	}
+}
+
+GveShaderModule GveShader::createShaderModule(const GveDevice* device, const GveDescriptorSlotMap& slotMap)
+{
+	SpirvCodeBuffer spirvCode = m_code.decompress();
+
+	// Remap resource binding IDs
+	uint32_t* code = spirvCode.data();
+	for (uint32_t off : m_bindingIdOffsets)
+	{
+		uint32_t binding = slotMap.getBindingId(m_stage, code[off]);
+		if (binding < MaxNumResourceSlots)
+		{
+			code[off] = binding;
+		}
+	}
+
+	return GveShaderModule(device, this, spirvCode);
+}
+
+void GveShader::generateBindingIdOffsets(SpirvCodeBuffer& code)
+{
+	for (auto ins : code) 
+	{
+		if (ins.opCode() == spv::OpDecorate) 
+		{
+			if (ins.arg(2) == spv::DecorationBinding || ins.arg(2) == spv::DecorationSpecId)
+			{
+				m_bindingIdOffsets.push_back(ins.offset() + 3);
+			}
+		}
+	}
+}
+
 
 void GveShader::dumpShader()
 {
@@ -59,6 +110,61 @@ void GveShader::dumpShader()
 	auto code = m_code.decompress();
 	sprintf_s(filename, 64, format, m_key.toUint64());
 	UtilFile::StoreFile(filename, (uint8_t*)code.data(), code.size());
+}
+
+///
+
+GveShaderModule::GveShaderModule():
+	m_device(nullptr),
+	m_stage()
+{
+}
+
+GveShaderModule::GveShaderModule(
+	const GveDevice* device,
+	const RcPtr<GveShader>& shader,
+	const pssl::SpirvCodeBuffer& code):
+	m_device(device),
+	m_stage() 
+{
+	m_stage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	m_stage.pNext = nullptr;
+	m_stage.flags = 0;
+	m_stage.stage = shader->stage();
+	m_stage.module = VK_NULL_HANDLE;
+	m_stage.pName = "main";
+	m_stage.pSpecializationInfo = nullptr;
+
+	VkShaderModuleCreateInfo info;
+	info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+	info.pNext = nullptr;
+	info.flags = 0;
+	info.codeSize = code.size();
+	info.pCode = code.data();
+
+	if (vkCreateShaderModule(*m_device, &info, nullptr, &m_stage.module) != VK_SUCCESS)
+	{
+		LOG_ERR("Failed to create shader module");
+	}
+}
+
+GveShaderModule::GveShaderModule(GveShaderModule&& other)
+{
+	m_stage = other.m_stage;
+	other.m_stage = VkPipelineShaderStageCreateInfo();
+}
+
+GveShaderModule::~GveShaderModule() 
+{
+	vkDestroyShaderModule(*m_device, m_stage.module, nullptr);
+}
+
+GveShaderModule& GveShaderModule::operator = (GveShaderModule&& other) 
+{
+	m_device = other.m_device;
+	this->m_stage = other.m_stage;
+	other.m_stage = VkPipelineShaderStageCreateInfo();
+	return *this;
 }
 
 }  // namespace gve
