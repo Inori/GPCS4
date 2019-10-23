@@ -81,18 +81,18 @@ void GnmCommandBufferDraw::setPointerInUserData(ShaderStage stage, uint32_t star
 {
 	do
 	{
-		if (stage == kShaderStageVs)
-		{
-			m_vsUserDataSlotTable.push_back({ startUserDataSlot, gpuAddr });
-		}
-		else if (stage == kShaderStagePs)
-		{
-			//m_psUserDataSlotTable.push_back({ startUserDataSlot, gpuAddr });
-		}
-		else
-		{
-			LOG_FIXME("other stage %d", stage);
-		}
+		//if (stage == kShaderStageVs)
+		//{
+		//	m_vsUserDataSlotTable.push_back({ startUserDataSlot, gpuAddr });
+		//}
+		//else if (stage == kShaderStagePs)
+		//{
+		//	//m_psUserDataSlotTable.push_back({ startUserDataSlot, gpuAddr });
+		//}
+		//else
+		//{
+		//	LOG_FIXME("other stage %d", stage);
+		//}
 	} while (false);
 }
 
@@ -100,18 +100,18 @@ void GnmCommandBufferDraw::setUserDataRegion(ShaderStage stage, uint32_t startUs
 {
 	do
 	{
-		if (stage == kShaderStageVs)
-		{
-			m_vsUserDataSlotTable.push_back({ startUserDataSlot, (void*)userData });
-		}
-		else if (stage == kShaderStagePs)
-		{
-			m_psUserDataSlotTable.push_back({ startUserDataSlot, (void*)userData });
-		}
-		else
-		{
-			LOG_FIXME("other stage %d", stage);
-		}
+		//if (stage == kShaderStageVs)
+		//{
+		//	m_vsUserDataSlotTable.push_back({ startUserDataSlot, (void*)userData });
+		//}
+		//else if (stage == kShaderStagePs)
+		//{
+		//	m_psUserDataSlotTable.push_back({ startUserDataSlot, (void*)userData });
+		//}
+		//else
+		//{
+		//	LOG_FIXME("other stage %d", stage);
+		//}
 	} while (false);
 }
 
@@ -224,7 +224,7 @@ void GnmCommandBufferDraw::setIndexSize(IndexSize indexSize, CachePolicy cachePo
 // Will be called on every frame start.
 void GnmCommandBufferDraw::initializeDefaultHardwareState()
 {
-	m_context->beginRecording(m_cmd);
+	//m_context->beginRecording(m_cmd);
 }
 
 void GnmCommandBufferDraw::setPrimitiveType(PrimitiveType primType)
@@ -236,25 +236,25 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 {
 	do
 	{
-		uint32_t* fsCode = getFetchShaderCode(m_vsCode);
+		//uint32_t* fsCode = getFetchShaderCode(m_vsCode);
 
-		RcPtr<gve::GveShader> vsShader;
-		if (fsCode)
-		{
-			pssl::PsslShaderModule vsModule((const uint32_t*)m_vsCode, fsCode, m_vsUserDataSlotTable);
-			vsShader = vsModule.compile();
-		}
-		else
-		{
-			pssl::PsslShaderModule vsModule((const uint32_t*)m_vsCode, m_vsUserDataSlotTable);
-			vsShader = vsModule.compile();
-		}
+		//RcPtr<gve::GveShader> vsShader;
+		//if (fsCode)
+		//{
+		//	pssl::PsslShaderModule vsModule((const uint32_t*)m_vsCode, fsCode, m_vsUserDataSlotTable);
+		//	vsShader = vsModule.compile();
+		//}
+		//else
+		//{
+		//	pssl::PsslShaderModule vsModule((const uint32_t*)m_vsCode, m_vsUserDataSlotTable);
+		//	vsShader = vsModule.compile();
+		//}
 
-		pssl::PsslShaderModule psModule((const uint32_t*)m_psCode, m_psUserDataSlotTable);
-		RcPtr<gve::GveShader> psShader = psModule.compile();
+		//pssl::PsslShaderModule psModule((const uint32_t*)m_psCode, m_psUserDataSlotTable);
+		//RcPtr<gve::GveShader> psShader = psModule.compile();
 
-		m_context->bindShader(VK_SHADER_STAGE_VERTEX_BIT, vsShader);
-		m_context->bindShader(VK_SHADER_STAGE_FRAGMENT_BIT, psShader);
+		//m_context->bindShader(VK_SHADER_STAGE_VERTEX_BIT, vsShader);
+		//m_context->bindShader(VK_SHADER_STAGE_FRAGMENT_BIT, psShader);
 	} while (false);
 }
 
