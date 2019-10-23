@@ -1,4 +1,5 @@
 #include "sce_libkernel.h"
+#include "sce_pthread_common.h"
 #include "sce_kernel_scepthread.h"
 #include <utility>
 #include "Platform/PlatformUtils.h"
@@ -8,18 +9,18 @@
 // for non pointer type, we need to build a map to fit the type
 
 
-bool isEmptyPthreadT(pthread_t& pt)
-{
-	return pt.p == NULL && pt.x == 0;
-}
-
-bool isEqualPthreadT(const pthread_t& lhs, const pthread_t& rhs)
-{
-	return lhs.p == rhs.p && lhs.x == rhs.x;
-}
-
-#define SCE_THREAD_COUNT_MAX 1024
-MapSlot<pthread_t, decltype(isEmptyPthreadT)> g_threadSlot(SCE_THREAD_COUNT_MAX, isEmptyPthreadT);
+//bool isEmptyPthreadT(pthread_t& pt)
+//{
+//	return pt.p == NULL && pt.x == 0;
+//}
+//
+//bool isEqualPthreadT(const pthread_t& lhs, const pthread_t& rhs)
+//{
+//	return lhs.p == rhs.p && lhs.x == rhs.x;
+//}
+//
+//#define SCE_THREAD_COUNT_MAX 1024
+//MapSlot<pthread_t, decltype(isEmptyPthreadT)> g_threadSlot(SCE_THREAD_COUNT_MAX, isEmptyPthreadT);
 
 
 
@@ -500,47 +501,7 @@ int PS4API scePthreadCondattrDestroy(ScePthreadCondattr *attr)
 }
 
 //////////////////////////////////////////////////////////////////////////
-typedef void* (PS4API *PFUNC_PS4_THREAD_ENTRY)(void*);
 
-struct SCE_THREAD_PARAM
-{
-	void* entry;
-	void* arg;
-};
-
-void* newThreadWrapper(void* arg)
-{
-	void* ret = NULL;
-	SCE_THREAD_PARAM* param = (SCE_THREAD_PARAM*)arg;
-	do 
-	{
-		if (!param)
-		{
-			break;
-		}
-
-		
-		ScePthread tid = scePthreadSelf();
-		LOG_DEBUG("new sce thread created %d", tid);
-
-		CTLSHandler::NotifyThreadCreate(tid);
-
-		PFUNC_PS4_THREAD_ENTRY pSceEntry = (PFUNC_PS4_THREAD_ENTRY)param->entry;
-		ret = pSceEntry(param->arg);
-
-		CTLSHandler::NotifyThreadExit(tid);
-
-		// do clear
-		pthread_t emptyPt = { 0 };
-		g_threadSlot.SetItemAt(tid, emptyPt);
-
-	} while (false);
-	if (param)
-	{
-		delete param;
-	}
-	return ret;
-}
 
 // TODO:
 // this implementation is very wrong.

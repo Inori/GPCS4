@@ -715,6 +715,9 @@
     <ClInclude Include="Loader\FuncStub.h">
       <Filter>Source Files\Loader</Filter>
     </ClInclude>
+    <ClInclude Include="SceModules\SceLibkernel\sce_pthread_common.h">
+      <Filter>SceModules\SceLibkernel</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1295,6 +1298,9 @@
     </ClCompile>
     <ClCompile Include="Loader\FuncStub.cpp">
       <Filter>Source Files\Loader</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceLibkernel\sce_pthread_common.cpp">
+      <Filter>SceModules\SceLibkernel</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

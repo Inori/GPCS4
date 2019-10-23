@@ -159,6 +159,7 @@
     <ClInclude Include="SceModules\SceLibkernel\sce_kernel_scepthread.h" />
     <ClInclude Include="SceModules\SceLibkernel\sce_kernel_types.h" />
     <ClInclude Include="SceModules\SceLibkernel\sce_libkernel.h" />
+    <ClInclude Include="SceModules\SceLibkernel\sce_pthread_common.h" />
     <ClInclude Include="SceModules\SceMouse\sce_mouse.h" />
     <ClInclude Include="SceModules\SceMsgDialog\sce_msgdialog.h" />
     <ClInclude Include="SceModules\SceNetCtl\sce_netctl.h" />
@@ -340,6 +341,7 @@
     <ClCompile Include="SceModules\SceLibkernel\sce_kernel_time.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\sce_libkernel.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\sce_libkernel_export.cpp" />
+    <ClCompile Include="SceModules\SceLibkernel\sce_pthread_common.cpp" />
     <ClCompile Include="SceModules\SceMouse\sce_mouse.cpp" />
     <ClCompile Include="SceModules\SceMouse\sce_mouse_export.cpp" />
     <ClCompile Include="SceModules\SceMsgDialog\sce_msgdialog.cpp" />

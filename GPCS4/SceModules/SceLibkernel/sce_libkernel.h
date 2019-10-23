@@ -402,22 +402,27 @@ int PS4API scek_gettimeofday(void);
 int PS4API scek_nanosleep(void);
 
 
-int PS4API scek_pthread_cond_destroy(void);
+//int PS4API scek_pthread_cond_destroy(void);
+int PS4API scek_pthread_cond_destroy(pthread_cond_t *cond);
 
+int PS4API scek_pthread_cond_init(pthread_cond_t *cond,
+								  const pthread_condattr_t *attr);
 
-int PS4API scek_pthread_cond_init(void);
-
-
-int PS4API scek_pthread_cond_signal(void);
+//int PS4API scek_pthread_cond_signal(void);
+int PS4API scek_pthread_cond_signal(pthread_cond_t *cond);
 
 
 int PS4API scek_pthread_cond_timedwait(void);
 
 
-int PS4API scek_pthread_cond_wait(void);
+//int PS4API scek_pthread_cond_wait(void);
+int PS4API scek_pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex);
 
 
-int PS4API scek_pthread_create(void);
+int PS4API scek_pthread_create(ScePthread *thread,
+							   const pthread_attr_t *attr,
+							   void *(PS4API *entry)(void *),
+							   void *args);
 
 
 int PS4API scek_pthread_equal(void);
@@ -426,10 +431,10 @@ int PS4API scek_pthread_equal(void);
 int PS4API scek_pthread_join(void);
 
 
-int PS4API scek_pthread_mutex_destroy(void);
+int PS4API scek_pthread_mutex_destroy(pthread_mutex_t *mutex);
 
-
-int PS4API scek_pthread_mutex_init(void);
+int PS4API scek_pthread_mutex_init(pthread_mutex_t *mutex,
+								   const pthread_mutexattr_t *attr);
 
 
 int PS4API scek_pthread_mutex_lock(pthread_mutex_t* mtx);
