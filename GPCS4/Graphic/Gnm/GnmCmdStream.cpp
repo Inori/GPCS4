@@ -21,20 +21,29 @@ bool GnmCmdStream::processCommandBuffer(uint32_t* commandBuffer, uint32_t comman
 	bool bRet = false;
 	do
 	{
+		// Note:
+		// If something went unusual here, like you found many zero dwords or TYPE0 packets
+		// it's likely because there are some GnmDriver functions not implemented,
+		// so no proper private packets being inserted into the command buffer.
+
 		uint32_t processedCmdSize = 0;
 		PPM4_HEADER pm4Hdr = reinterpret_cast<PPM4_HEADER>(commandBuffer);
 		while (processedCmdSize < commandSize)
 		{
 			uint32_t pm4Type = pm4Hdr->type;
-	
+
 			switch (pm4Type)
 			{
 			case PM4_TYPE_0:
 				processPM4Type0((PPM4_TYPE_0_HEADER)pm4Hdr, (uint32_t*)(pm4Hdr + 1));
 				break;
 			case PM4_TYPE_2:
+			{
 				// opcode should be 0x80000000, this is an 1 dword NOP
-				break;
+				++pm4Hdr;
+				processedCmdSize += sizeof(PPM4_HEADER);
+			}
+			break;
 			case PM4_TYPE_3:
 				processPM4Type3((PPM4_TYPE_3_HEADER)pm4Hdr, (uint32_t*)(pm4Hdr + 1));
 				break;
@@ -62,8 +71,8 @@ bool GnmCmdStream::processCommandBuffer(uint32_t* commandBuffer, uint32_t comman
 			processedCmdSize += processedLength;
 		}
 
-		bRet  = true;
-	}while(false);
+		bRet = true;
+	} while (false);
 
 	// Clear works for this command buffer.
 	m_flipPacketDone = false;
