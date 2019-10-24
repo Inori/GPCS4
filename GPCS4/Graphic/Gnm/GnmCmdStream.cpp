@@ -42,8 +42,9 @@ bool GnmCmdStream::processCommandBuffer(uint32_t* commandBuffer, uint32_t comman
 				// opcode should be 0x80000000, this is an 1 dword NOP
 				++pm4Hdr;
 				processedCmdSize += sizeof(PPM4_HEADER);
+				continue;
 			}
-			break;
+				break;
 			case PM4_TYPE_3:
 				processPM4Type3((PPM4_TYPE_3_HEADER)pm4Hdr, (uint32_t*)(pm4Hdr + 1));
 				break;
