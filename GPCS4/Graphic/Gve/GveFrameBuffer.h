@@ -20,8 +20,8 @@ class GveFrameBuffer : public RcObject
 public:
 	GveFrameBuffer(const RcPtr<GveDevice>& device, 
 		VkRenderPass renderPass,
-		VkImageView swapChainImageView,
-		VkExtent2D& swapChainExtent);
+		VkImageView imageView,
+		VkExtent2D& extent);
 	~GveFrameBuffer();
 
 	VkFramebuffer handle() const;

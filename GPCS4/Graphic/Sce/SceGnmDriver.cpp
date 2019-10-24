@@ -117,7 +117,7 @@ void SceGnmDriver::createFrameBuffers(uint32_t count)
 	VkExtent2D extent = m_swapchain->extent();
 
 	GveRenderPassFormat format;
-	format.swapChainImageFormat = m_swapchain->imageFormat();
+	format.colorFormat = m_swapchain->imageFormat();
 	auto renderPass = m_device->createRenderPass(format);
 
 	for (uint32_t i = 0; i != count; ++i)

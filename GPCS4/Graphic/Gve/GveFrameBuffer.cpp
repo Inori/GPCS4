@@ -4,11 +4,11 @@ namespace gve
 {;
 
 GveFrameBuffer::GveFrameBuffer(const RcPtr<GveDevice>& device, VkRenderPass renderPass,
-	VkImageView swapChainImageView, VkExtent2D& swapChainExtent):
+	VkImageView imageView, VkExtent2D& extent):
 	m_device(device),
 	m_renderPass(renderPass)
 {
-	bool ret = createFrameBuffer(swapChainImageView, swapChainExtent);
+	bool ret = createFrameBuffer(imageView, extent);
 	LOG_ASSERT(ret == true, "FrameBuffer init failed.");
 }
 

@@ -1,18 +1,57 @@
 #pragma once
 
 #include "GveCommon.h"
+#include "GveShader.h"
+#include "GveHash.h"
+#include "GveRenderState.h"
+#include "SyncHelper.h"
+
+#include <vector>
 
 namespace gve
 {;
 
+class GveRenderPass;
+class GvePipelineManager;
+
+
+struct GveGraphicsPipelineShaders
+{
+	RcPtr<GveShader> vs;
+	RcPtr<GveShader> fs;
+
+	bool operator == (const GveGraphicsPipelineShaders& other) const
+	{
+		return vs == other.vs &&
+			fs == other.fs;
+	}
+
+	GveHashState hash() const
+	{
+		GveHashState hash;
+		hash.add(vs->key().toUint64());
+		hash.add(fs->key().toUint64());
+		return hash;
+	}
+};
+
+
 class GvePipelineInstance
 {
 public:
-	GvePipelineInstance();
+	GvePipelineInstance(VkPipeline pipeline, 
+		const GveRenderState& state, 
+		GveRenderPass* rp);
 	~GvePipelineInstance();
 
-private:
+	VkPipeline pipeline();
 
+	bool isCompatible(const GveRenderState& state, const GveRenderPass& rp) const;
+
+private:
+	VkPipeline m_pipeline;
+	GveRenderState m_state;
+	GveRenderPass* m_renderPass;
 };
 
 ///
@@ -20,11 +59,19 @@ private:
 class GveGraphicsPipeline
 {
 public:
-	GveGraphicsPipeline();
+	GveGraphicsPipeline(GvePipelineManager* pipeMgr, 
+		const GveGraphicsPipelineShaders& shaders);
 	~GveGraphicsPipeline();
 
-private:
+	VkPipeline getPipelineHandle(const GveRenderState& state, GveRenderPass& rp);
 
+private:
+	GvePipelineInstance* findInstance(const GveRenderState& state, GveRenderPass& rp);
+	GvePipelineInstance* createInstance(const GveRenderState& state, GveRenderPass& rp);
+private:
+	
+	Spinlock m_mutex;
+	std::vector<GvePipelineInstance> m_pipelines;
 };
 
 

@@ -63,6 +63,16 @@ GveShaderModule GveShader::createShaderModule(const GveDevice* device, const Gve
 	return GveShaderModule(device, this, spirvCode);
 }
 
+GveShader::PsslKey GveShader::key()
+{
+	return m_key;
+}
+
+bool GveShader::operator==(const GveShader& other)
+{
+	return m_key == other.m_key;
+}
+
 void GveShader::generateBindingIdOffsets(SpirvCodeBuffer& code)
 {
 	for (auto ins : code) 
