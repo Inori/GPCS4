@@ -40,7 +40,7 @@ public:
 
 private:
 	void generateBindingIdOffsets(SpirvCodeBuffer& code);
-	void dumpShader();
+	void dumpShader(const SpirvCodeBuffer& code);
 	
 private:
 	VkShaderStageFlagBits m_stage;

@@ -3,11 +3,6 @@
 #include "Platform/UtilFile.h"
 
 
-#ifdef GPCS4_DEBUG
-// Dump shader to file
-#define GVE_DUMP_SHADER
-#endif
-
 namespace gve
 {;
 
@@ -20,12 +15,7 @@ GveShader::GveShader(VkShaderStageFlagBits stage,
 	m_key(key),
 	m_slots(resSlots)
 {
-
 	generateBindingIdOffsets(code);
-
-#ifdef GVE_DUMP_SHADER
-	dumpShader();
-#endif // GVE_DUMP_SHADER
 }
 
 GveShader::~GveShader()
@@ -60,6 +50,10 @@ GveShaderModule GveShader::createShaderModule(const GveDevice* device, const Gve
 		}
 	}
 
+#ifdef GVE_DUMP_SHADER
+	dumpShader(spirvCode);
+#endif // GVE_DUMP_SHADER
+
 	return GveShaderModule(device, this, spirvCode);
 }
 
@@ -88,7 +82,7 @@ void GveShader::generateBindingIdOffsets(SpirvCodeBuffer& code)
 }
 
 
-void GveShader::dumpShader()
+void GveShader::dumpShader(const SpirvCodeBuffer& code)
 {
 	char filename[64] = { 0 };
 	const char* format = nullptr;
@@ -117,7 +111,6 @@ void GveShader::dumpShader()
 		break;
 	}
 
-	auto code = m_code.decompress();
 	sprintf_s(filename, 64, format, m_key.toUint64());
 	UtilFile::StoreFile(filename, (uint8_t*)code.data(), code.size());
 }
