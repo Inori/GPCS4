@@ -1,4 +1,7 @@
 #include "GveGraphicsPipeline.h"
+#include "GveDevice.h"
+#include "GvePipelineManager.h"
+#include "GvePipelineLayout.h"
 
 #include <mutex>
 
@@ -33,9 +36,14 @@ bool GvePipelineInstance::isCompatible(const GveRenderState& state, const GveRen
 ///
 
 
-GveGraphicsPipeline::GveGraphicsPipeline(GvePipelineManager* pipeMgr, const GveGraphicsPipelineShaders& shaders)
+GveGraphicsPipeline::GveGraphicsPipeline(GvePipelineManager* pipeMgr, const GveGraphicsPipelineShaders& shaders):
+	m_pipelineManager(pipeMgr),
+	m_shaders(shaders)
 {
+	shaders.vs->fillResourceSlots(m_resSlotMap);
+	shaders.fs->fillResourceSlots(m_resSlotMap);
 
+	m_layout = new GvePipelineLayout(pipeMgr->m_device, m_resSlotMap, VK_PIPELINE_BIND_POINT_GRAPHICS);
 }
 
 GveGraphicsPipeline::~GveGraphicsPipeline()
@@ -52,7 +60,6 @@ VkPipeline GveGraphicsPipeline::getPipelineHandle(const GveRenderState& state, G
 		std::lock_guard<Spinlock> lock(m_mutex);
 
 		auto instance = findInstance(state, rp);
-
 		if (instance)
 		{
 			pipeline = instance->pipeline();
@@ -86,7 +93,55 @@ GvePipelineInstance* GveGraphicsPipeline::findInstance(const GveRenderState& sta
 
 GvePipelineInstance* GveGraphicsPipeline::createInstance(const GveRenderState& state, GveRenderPass& rp)
 {
+	GvePipelineInstance* instance = nullptr;
+	do 
+	{
+		auto vsModule = m_shaders.vs->createShaderModule(m_pipelineManager->m_device, m_resSlotMap);
+		auto vsStage = vsModule.stageInfo(nullptr);
 
+		auto fsModule = m_shaders.fs->createShaderModule(m_pipelineManager->m_device, m_resSlotMap);
+		auto fsStage = fsModule.stageInfo(nullptr);
+
+		VkPipelineShaderStageCreateInfo shaderStages[] = { vsStage, fsStage };
+
+		VkPipelineViewportStateCreateInfo viewportState = {};
+		viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+		viewportState.viewportCount = 1;
+		viewportState.pViewports = &state.viewport;
+		viewportState.scissorCount = 1;
+		viewportState.pScissors = &state.scissor;
+
+
+		VkPipelineColorBlendStateCreateInfo colorBlending = {};
+		colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+		colorBlending.pAttachments = &state.cba;
+
+		VkGraphicsPipelineCreateInfo pipelineInfo = {};
+		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+		pipelineInfo.stageCount = 2;
+		pipelineInfo.pStages = shaderStages;
+		pipelineInfo.pVertexInputState = &state.vi;
+		pipelineInfo.pInputAssemblyState = &state.ia;
+		pipelineInfo.pViewportState = &viewportState;
+		pipelineInfo.pRasterizationState = &state.rs;
+		pipelineInfo.pMultisampleState = &state.ms;
+		pipelineInfo.pColorBlendState = &colorBlending;
+		pipelineInfo.layout = m_layout->pipelineLayout();
+		pipelineInfo.renderPass = rp.handle();
+		pipelineInfo.subpass = 0;
+		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+
+		VkDevice device = *(m_pipelineManager->m_device);
+		VkPipeline pipeline = VK_NULL_HANDLE;
+		if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline) != VK_SUCCESS)
+		{
+			LOG_ERR("failed to create graphics pipeline!");
+			break;
+		}
+
+		instance = new GvePipelineInstance(pipeline, state, &rp);
+	} while (false);
+	return instance;
 }
 
 }  // namespace gve

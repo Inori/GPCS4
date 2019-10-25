@@ -290,9 +290,14 @@ struct GveRenderState
 {
 	VkPipelineVertexInputStateCreateInfo vi;
 	VkPipelineInputAssemblyStateCreateInfo ia;
-	VkPipelineViewportStateCreateInfo vp;
+
+	VkViewport viewport;
+	VkRect2D scissor;
+
 	VkPipelineRasterizationStateCreateInfo rs;
 	VkPipelineMultisampleStateCreateInfo ms;
+
+	VkPipelineColorBlendAttachmentState cba;
 	VkPipelineColorBlendStateCreateInfo cb;
 };
 

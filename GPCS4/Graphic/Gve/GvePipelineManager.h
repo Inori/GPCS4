@@ -10,6 +10,7 @@ namespace gve
 
 class GvePipelineManager
 {
+	friend class GveGraphicsPipeline;
 public:
 	GvePipelineManager(GveDevice* device);
 	~GvePipelineManager();

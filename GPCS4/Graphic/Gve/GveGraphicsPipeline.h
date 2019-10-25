@@ -13,6 +13,7 @@ namespace gve
 
 class GveRenderPass;
 class GvePipelineManager;
+class GvePipelineLayout;
 
 
 struct GveGraphicsPipelineShaders
@@ -70,6 +71,12 @@ private:
 	GvePipelineInstance* createInstance(const GveRenderState& state, GveRenderPass& rp);
 private:
 	
+	GvePipelineManager* m_pipelineManager;
+	GveGraphicsPipelineShaders m_shaders;
+
+	GveDescriptorSlotMap m_resSlotMap;
+	GvePipelineLayout* m_layout;
+
 	Spinlock m_mutex;
 	std::vector<GvePipelineInstance> m_pipelines;
 };
