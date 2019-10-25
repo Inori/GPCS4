@@ -22,8 +22,8 @@ struct GveGraphicsPipelineShaders
 
 	bool operator == (const GveGraphicsPipelineShaders& other) const
 	{
-		return vs == other.vs &&
-			fs == other.fs;
+		return *vs == *other.vs &&
+			*fs == *other.fs;
 	}
 
 	GveHashState hash() const
