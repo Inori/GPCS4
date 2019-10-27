@@ -1,4 +1,5 @@
 #include "GveMemory.h"
+#include "GveDevice.h"
 
 namespace gve
 {;

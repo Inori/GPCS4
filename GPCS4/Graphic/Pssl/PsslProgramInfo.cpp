@@ -141,7 +141,7 @@ bool PsslProgramInfo::initBinaryInfo(const uint8_t* code)
 
 bool PsslProgramInfo::initShaderType()
 {
-	m_type = UnknownShader;
+	m_type = ShaderTypeCount;
 	switch (m_shaderBinaryInfo.type)
 	{
 	case kShaderTypePs:
@@ -170,7 +170,7 @@ bool PsslProgramInfo::initShaderType()
 		LOG_ERR("Error shader type %d", m_shaderBinaryInfo.type);
 		break;
 	}
-	return (m_type != UnknownShader);
+	return (m_type != ShaderTypeCount);
 }
 
 uint32_t getFetchShaderStartRegister(const PsslProgramInfo& progInfo)

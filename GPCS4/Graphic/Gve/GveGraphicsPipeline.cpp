@@ -77,6 +77,11 @@ VkPipeline GveGraphicsPipeline::getPipelineHandle(const GveRenderState& state, G
 	return pipeline;
 }
 
+GvePipelineLayout* GveGraphicsPipeline::getLayout() const
+{
+	return m_layout;
+}
+
 GvePipelineInstance* GveGraphicsPipeline::findInstance(const GveRenderState& state, GveRenderPass& rp)
 {
 	GvePipelineInstance* instance = nullptr;
@@ -106,10 +111,10 @@ GvePipelineInstance* GveGraphicsPipeline::createInstance(const GveRenderState& s
 
 		VkPipelineViewportStateCreateInfo viewportState = {};
 		viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-		viewportState.viewportCount = 1;
-		viewportState.pViewports = &state.viewport;
-		viewportState.scissorCount = 1;
-		viewportState.pScissors = &state.scissor;
+		viewportState.viewportCount = state.viewports.size();
+		viewportState.pViewports = state.viewports.data();
+		viewportState.scissorCount = state.scissors.size();
+		viewportState.pScissors = state.scissors.data();
 
 
 		VkPipelineColorBlendStateCreateInfo colorBlending = {};
@@ -120,7 +125,7 @@ GvePipelineInstance* GveGraphicsPipeline::createInstance(const GveRenderState& s
 		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 		pipelineInfo.stageCount = 2;
 		pipelineInfo.pStages = shaderStages;
-		pipelineInfo.pVertexInputState = &state.vi;
+		pipelineInfo.pVertexInputState = &state.vi.state;
 		pipelineInfo.pInputAssemblyState = &state.ia;
 		pipelineInfo.pViewportState = &viewportState;
 		pipelineInfo.pRasterizationState = &state.rs;

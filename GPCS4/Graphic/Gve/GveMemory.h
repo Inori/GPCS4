@@ -1,7 +1,6 @@
 #pragma once
 
 #include "GveCommon.h"
-#include "GveDevice.h"
 
 #include <array>
 #include <vector>
@@ -10,6 +9,7 @@
 namespace gve
 {;
 
+class GveDevice;;
 class GveMemoryAllocator;
 class GveMemoryChunk;
 

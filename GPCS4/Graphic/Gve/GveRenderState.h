@@ -3,6 +3,7 @@
 #include "GveCommon.h"
 #include "FlagHelper.h"
 #include "GveLimit.h"
+#include "GveBuffer.h"
 
 #include <array>
 #include <vector>
@@ -162,9 +163,8 @@ struct GveRasterizerState
 	VkPolygonMode       polygonMode;
 	VkCullModeFlags     cullMode;
 	VkFrontFace         frontFace;
-	VkBool32            depthClipEnable;
+	VkBool32            depthClampEnable;
 	VkBool32            depthBiasEnable;
-	VkSampleCountFlags  sampleCount;
 };
 
 
@@ -176,8 +176,8 @@ struct GveRasterizerState
  */
 struct GveMultisampleState 
 {
-	uint32_t            sampleMask;
-	VkBool32            enableAlphaToCoverage;
+	uint32_t            sampleCount;
+	VkBool32            sampleShadingEnable;
 };
 
 
@@ -210,12 +210,12 @@ struct GveLogicOpState
 
 
 /**
- * \brief Blend mode for a single attachment
+ * \brief Blend control for a single attachment
  *
  * Stores the blend state for a single color attachment.
  * Blend modes can be set separately for each attachment.
  */
-struct GveBlendMode 
+struct GveBlendControl
 {
 	VkBool32              enableBlending;
 	VkBlendFactor         colorSrcFactor;
@@ -257,6 +257,17 @@ struct GveVertexBinding
 };
 
 
+struct GveVertexInputState
+{
+	RcPtr<GveBuffer> indexBuffer;
+	VkIndexType indexType = VK_INDEX_TYPE_UINT32;
+
+	std::array<RcPtr<GveBuffer>, GveLimits::MaxNumVertexBindings> vertexBuffers = { };
+	std::array<uint32_t, GveLimits::MaxNumVertexBindings> vertexStrides = { };
+
+	VkPipelineVertexInputStateCreateInfo state;
+};
+
 /**
  * \brief Input layout
  *
@@ -288,11 +299,11 @@ struct GveDynamicState
  */
 struct GveRenderState 
 {
-	VkPipelineVertexInputStateCreateInfo vi;
+	GveVertexInputState vi;
 	VkPipelineInputAssemblyStateCreateInfo ia;
 
-	VkViewport viewport;
-	VkRect2D scissor;
+	std::vector<VkViewport> viewports;
+	std::vector<VkRect2D> scissors;
 
 	VkPipelineRasterizationStateCreateInfo rs;
 	VkPipelineMultisampleStateCreateInfo ms;

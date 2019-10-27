@@ -11,8 +11,11 @@ class GveDevice;
 
 struct GveResourceSlot 
 {
-	uint32_t           startRegister;   ///< Start SGPR register index. TODO: Need to take apiSlot into consideration?
-	VkDescriptorType   type;			///< Descriptor type (aka resource type)
+	// SGPR register slot, calculated using methods in PsslBindingCalculator.h
+	// TODO: Need to take apiSlot into consideration?
+	uint32_t           regSlot;  
+	//Descriptor type (aka resource type)
+	VkDescriptorType   type;	  
 };
 
 struct GveDescriptorSlot 

@@ -2,6 +2,11 @@
 
 #include "GveCommon.h"
 #include "GveRenderState.h"
+#include "GveGraphicsPipeline.h"
+
+#include "../Pssl/PsslBindingCalculator.h"
+
+#include <array>
 
 namespace gve
 {;
@@ -15,6 +20,24 @@ class GveBufferView;
 class GveImage;
 class GveImageView;
 class GveSampler;
+class GvePipelineManager;
+class GveResourceManager;
+
+
+struct GveShaderResourceSlot
+{
+	RcPtr<GveSampler> sampler;
+	RcPtr<GveImageView> imageView;
+	RcPtr<GveBuffer> buffer;
+	RcPtr<GveBufferView> bufferView;
+};
+
+
+struct GveContextParam
+{
+	GvePipelineManager* pipeMgr = nullptr;
+	GveResourceManager* resMgr = nullptr;
+};
 
 // This is our render context.
 // Just like GfxContext in PS4, one GveContex should be bound to one display buffer.
@@ -22,7 +45,7 @@ class GveSampler;
 class GveContex : public RcObject
 {
 public:
-	GveContex(const RcPtr<GveDevice>& device);
+	GveContex(const RcPtr<GveDevice>& device, const GveContextParam& param);
 	~GveContex();
 
 	void beginRecording(const RcPtr<GveCommandBuffer>& commandBuffer);
@@ -40,11 +63,19 @@ public:
 		uint32_t								 bindingCount,
 		const VkVertexInputBindingDescription*   bindings);
 
+	void setPrimitiveType(VkPrimitiveTopology topology);
+
+	void setRasterizerState(const GveRasterizerState& state);
+
+	void setMultiSampleState(const GveMultisampleState& state);
+
+	void setBlendControl(const GveBlendControl& blendCtl);
+
 	void bindShader(VkShaderStageFlagBits stage, const RcPtr<GveShader>& shader);
 
-	void bindIndexBuffer(const GveBuffer& buffer, VkIndexType indexType);
+	void bindIndexBuffer(const RcPtr<GveBuffer>& buffer, VkIndexType indexType);
 
-	void bindVertexBuffer(uint32_t binding, const GveBuffer& buffer, uint32_t stride);
+	void bindVertexBuffer(uint32_t binding, const RcPtr<GveBuffer>& buffer, uint32_t stride);
 
 	void bindSampler(uint32_t regSlot, const RcPtr<GveSampler>& sampler);
 
@@ -54,12 +85,25 @@ public:
 		const RcPtr<GveImageView>& imageView, 
 		const RcPtr<GveBufferView>& bufferView);
 
+	void drawIndex(uint32_t indexCount, uint32_t firstIndex);
+
 private:
 	RcPtr<GveDevice> m_device;
+	GvePipelineManager* m_pipeMgr;
+	GveResourceManager* m_resMgr;
+
 	RcPtr<GveCommandBuffer> m_cmd;
 
+	GveGraphicsPipelineShaders m_shaders;
 	GveRenderState m_state;
 	GveContextFlag m_flag;
+
+	std::array<GveShaderResourceSlot, pssl::PsslBindingIndexMax> m_res;
+
+	static VkPipeline s_pipeline;
+	static GvePipelineLayout* s_layout;
+	static RcPtr<GveDescriptorPool> s_descPool;
+	VkDescriptorSet m_descSet = VK_NULL_HANDLE;
 };
 
 

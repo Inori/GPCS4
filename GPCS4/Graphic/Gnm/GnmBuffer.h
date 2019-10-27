@@ -6,7 +6,7 @@
 #include "GnmDataFormat.h"
 #include "GnmSharpBuffer.h"
 
-class Buffer
+class GnmBuffer
 {
 public:
 

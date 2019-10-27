@@ -66,6 +66,8 @@ public:
 
 	VkPipeline getPipelineHandle(const GveRenderState& state, GveRenderPass& rp);
 
+	GvePipelineLayout* getLayout() const;
+
 private:
 	GvePipelineInstance* findInstance(const GveRenderState& state, GveRenderPass& rp);
 	GvePipelineInstance* createInstance(const GveRenderState& state, GveRenderPass& rp);

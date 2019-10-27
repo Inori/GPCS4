@@ -26,6 +26,7 @@ enum PsslBindingIndex : uint32_t
 	PsslStageBindingCount = PsslConstBufBindingCount + 
 							PsslSamplerBindingCount + 
 							PsslResourceBindingCount,
+	PsslBindingIndexMax = PsslStageBindingCount * uint32_t(ShaderTypeCount)
 };
 
 

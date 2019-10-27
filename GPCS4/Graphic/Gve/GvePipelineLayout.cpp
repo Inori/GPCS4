@@ -39,7 +39,7 @@ uint32_t GveDescriptorSlotMap::getBindingId(VkShaderStageFlagBits stage, uint32_
 		for (uint32_t i = 0; i != slotCount; ++i)
 		{
 			auto& curSlot = m_slots[i];
-			if (curSlot.resSlot.startRegister == startRegister &&
+			if (curSlot.resSlot.regSlot == startRegister &&
 				curSlot.stage == stage)
 			{
 				bindingId = i;

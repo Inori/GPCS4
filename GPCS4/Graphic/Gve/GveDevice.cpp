@@ -1,5 +1,9 @@
 #include "GveDevice.h"
 #include "GveCommandBuffer.h"
+#include "GveDescriptor.h"
+#include "GveBuffer.h"
+#include "GveImage.h"
+
 
 namespace gve
 {;
@@ -42,9 +46,14 @@ RcPtr<gve::GveCommandBuffer> GveDevice::createCommandBuffer()
 	return new GveCommandBuffer(this);
 }
 
-RcPtr<gve::GveContex> GveDevice::createContext()
+RcPtr<gve::GveContex> GveDevice::createContext(const GveContextParam& param)
 {
-	return new GveContex(this);
+	return new GveContex(this, param);
+}
+
+RcPtr<gve::GveDescriptorPool> GveDevice::createDescriptorPool()
+{
+	return new GveDescriptorPool(this);
 }
 
 void GveDevice::initQueues()

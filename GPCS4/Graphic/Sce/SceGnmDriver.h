@@ -8,6 +8,8 @@
 
 #include "../Gve/GveInstance.h"
 #include "../Gve/GveSwapChain.h"
+#include "../Gve/GvePipelineManager.h"
+#include "../Gve/GveResourceManager.h"
 
 #include <memory>
 
@@ -49,6 +51,9 @@ private:
 	RcPtr<gve::GveSwapChain> m_swapchain;
 	std::vector<RcPtr<gve::GveFrameBuffer>> m_frameBuffers;
 	std::vector<RcPtr<gve::GveContex>> m_contexts;
+
+	std::unique_ptr<gve::GvePipelineManager> m_pipeMgr;
+	std::unique_ptr<gve::GveResourceManager> m_resMgr;
 };
 
 }  //sce
