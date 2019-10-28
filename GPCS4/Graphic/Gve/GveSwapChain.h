@@ -26,6 +26,8 @@ public:
 		uint32_t imageCount);
 	~GveSwapChain();
 
+	VkSwapchainKHR handle() const;
+
 	VkFormat imageFormat() const;
 
 	uint32_t imageCount() const;
@@ -35,6 +37,8 @@ public:
 	VkImage getImage(uint32_t index);
 
 	VkImageView getImageView(uint32_t index);
+
+	VkResult acquireNextImage(VkSemaphore signal, VkFence fence, uint32_t& index);
 
 	static SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
 private:
@@ -47,7 +51,7 @@ private:
 private:
 	VkSwapchainKHR m_swapchain;
 	RcPtr<GvePhysicalDevice> m_phyDevice;
-	RcPtr<GveDevice> m_logicalDevice;
+	RcPtr<GveDevice> m_device;
 	std::shared_ptr<sce::SceVideoOut> m_videoOut;
 
 	std::vector<VkImage> m_swapChainImages;

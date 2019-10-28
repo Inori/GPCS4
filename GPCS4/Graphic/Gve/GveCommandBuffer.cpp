@@ -16,6 +16,11 @@ GveCommandBuffer::~GveCommandBuffer()
 	vkDestroyCommandPool(*m_device, m_pool, nullptr);
 }
 
+VkCommandBuffer GveCommandBuffer::execBufferHandle() const
+{
+	return m_execBuffer;
+}
+
 bool GveCommandBuffer::initCommandBuffer()
 {
 	bool ret = false;

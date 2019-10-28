@@ -7,7 +7,7 @@ namespace sce
 {;
 
 using namespace gve;
-
+const int MAX_FRAMES_IN_FLIGHT = 2;
 
 SceGnmDriver::SceGnmDriver(std::shared_ptr<SceVideoOut>& videoOut):
 	m_videoOut(videoOut)
@@ -24,8 +24,10 @@ SceGnmDriver::SceGnmDriver(std::shared_ptr<SceVideoOut>& videoOut):
 	m_device = m_physDevice->createLogicalDevice();
 	LOG_ASSERT(m_device != nullptr, "create logical device failed.");
 
-	m_pipeMgr = std::make_unique<gve::GvePipelineManager>(m_device.ptr());
-	m_resMgr = std::make_unique<gve::GveResourceManager>(m_device);
+	m_pipeMgr = std::make_unique<GvePipelineManager>(m_device.ptr());
+	m_resMgr = std::make_unique<GveResourceManager>(m_device);
+
+	createSyncObjects(MAX_FRAMES_IN_FLIGHT);
 }
 
 SceGnmDriver::~SceGnmDriver()
@@ -66,6 +68,9 @@ int SceGnmDriver::submitAndFlipCommandBuffers(uint32_t count,
 		{
 			break;
 		}
+
+		auto cmdBuffer = m_commandParsers[displayBufferIndex]->getCommandBuffer()->getCmdBuffer();
+
 	
 		err = SCE_OK;
 	} while (false);
@@ -78,9 +83,9 @@ int SceGnmDriver::sceGnmSubmitDone(void)
 	return SCE_OK;
 }
 
-RcPtr<gve::GvePhysicalDevice> SceGnmDriver::pickPhysicalDevice()
+RcPtr<GvePhysicalDevice> SceGnmDriver::pickPhysicalDevice()
 {
-	RcPtr<gve::GvePhysicalDevice> phyDevice;
+	RcPtr<GvePhysicalDevice> phyDevice;
 	do 
 	{
 		if (!m_instance)
@@ -103,7 +108,7 @@ RcPtr<gve::GvePhysicalDevice> SceGnmDriver::pickPhysicalDevice()
 	return phyDevice;
 }
 
-bool SceGnmDriver::isDeviceSuitable(RcPtr<gve::GvePhysicalDevice>& device)
+bool SceGnmDriver::isDeviceSuitable(RcPtr<GvePhysicalDevice>& device)
 {
 	bool swapChainAdequate = false;
 	VkSurfaceKHR surface = m_videoOut->getSurface(*m_instance);
@@ -153,7 +158,7 @@ void SceGnmDriver::createCommandParsers(uint32_t count)
 	m_commandBuffers.resize(count);
 	for (uint32_t i = 0; i != count; ++i)
 	{
-		gve::GveRenderTarget target = { m_frameBuffers[i] };
+		GveRenderTarget target = { m_frameBuffers[i] };
 		m_commandBuffers[i] = std::make_shared<GnmCommandBufferDraw>(m_device, m_contexts[i], target);
 	}
 	
@@ -162,6 +167,79 @@ void SceGnmDriver::createCommandParsers(uint32_t count)
 	{
 		m_commandParsers[i] = std::make_unique<GnmCmdStream>(m_commandBuffers[i]);
 	}
+}
+
+void SceGnmDriver::createSyncObjects(uint32_t framesInFlight)
+{
+	m_imageAvailableSemaphores.resize(framesInFlight);
+	m_renderFinishedSemaphores.resize(framesInFlight);
+	m_inFlightFences.resize(framesInFlight);
+
+	VkSemaphoreCreateInfo semaphoreInfo = {};
+	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+	VkFenceCreateInfo fenceInfo = {};
+	fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+	fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+	for (size_t i = 0; i < framesInFlight; i++) 
+	{
+		if (vkCreateSemaphore(*m_device, &semaphoreInfo, nullptr, &m_imageAvailableSemaphores[i]) != VK_SUCCESS ||
+			vkCreateSemaphore(*m_device, &semaphoreInfo, nullptr, &m_renderFinishedSemaphores[i]) != VK_SUCCESS ||
+			vkCreateFence(*m_device, &fenceInfo, nullptr, &m_inFlightFences[i]) != VK_SUCCESS) 
+		{
+			LOG_ERR("failed to create synchronization objects for a frame!");
+		}
+	}
+}
+
+void SceGnmDriver::submitCommandBuffer(const RcPtr<GveCommandBuffer>& cmdBuffer)
+{
+	vkWaitForFences(*m_device, 1, &m_inFlightFences[m_currentFrame], VK_TRUE, UINT64_MAX);
+
+	uint32_t imageIndex;
+	VkResult result = m_swapchain->acquireNextImage(m_imageAvailableSemaphores[m_currentFrame], VK_NULL_HANDLE, imageIndex);
+
+	VkSubmitInfo submitInfo = {};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+	VkSemaphore waitSemaphores[] = { m_imageAvailableSemaphores[m_currentFrame] };
+	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+	submitInfo.waitSemaphoreCount = 1;
+	submitInfo.pWaitSemaphores = waitSemaphores;
+	submitInfo.pWaitDstStageMask = waitStages;
+
+	VkCommandBuffer cb = cmdBuffer->execBufferHandle();
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &cb;
+
+	VkSemaphore signalSemaphores[] = { m_renderFinishedSemaphores[m_currentFrame] };
+	submitInfo.signalSemaphoreCount = 1;
+	submitInfo.pSignalSemaphores = signalSemaphores;
+
+	vkResetFences(*m_device, 1, &m_inFlightFences[m_currentFrame]);
+
+	auto queues = m_device->queues();
+	if (vkQueueSubmit(queues.graphics.queueHandle, 1, &submitInfo, m_inFlightFences[m_currentFrame]) != VK_SUCCESS)
+	{
+		LOG_ERR("failed to submit draw command buffer!");
+	}
+
+	VkPresentInfoKHR presentInfo = {};
+	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+	presentInfo.waitSemaphoreCount = 1;
+	presentInfo.pWaitSemaphores = signalSemaphores;
+
+	VkSwapchainKHR swapChains[] = { m_swapchain->handle() };
+	presentInfo.swapchainCount = 1;
+	presentInfo.pSwapchains = swapChains;
+
+	presentInfo.pImageIndices = &imageIndex;
+
+	result = vkQueuePresentKHR(queues.graphics.queueHandle, &presentInfo);
+
+	m_currentFrame = (m_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
 }  //sce

@@ -12,6 +12,8 @@ public:
 	GveCommandBuffer(const RcPtr<GveDevice>& device);
 	~GveCommandBuffer();
 
+	VkCommandBuffer execBufferHandle() const;
+
 	void beginRecording();
 
 	void endRecording();

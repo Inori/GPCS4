@@ -8,16 +8,21 @@ GveSwapChain::GveSwapChain(RcPtr<GveDevice>& logicDevice,
 	std::shared_ptr<sce::SceVideoOut>& videoOut,
 	uint32_t imageCount) :
 	m_swapchain(VK_NULL_HANDLE),
-	m_logicalDevice(logicDevice),
+	m_device(logicDevice),
 	m_videoOut(videoOut)
 {
-	m_phyDevice = m_logicalDevice->physicalDevice();
+	m_phyDevice = m_device->physicalDevice();
 	createSwapChain(imageCount);
 }
 
 GveSwapChain::~GveSwapChain()
 {
-	vkDestroySwapchainKHR(*m_logicalDevice, m_swapchain, nullptr);
+	vkDestroySwapchainKHR(*m_device, m_swapchain, nullptr);
+}
+
+VkSwapchainKHR GveSwapChain::handle() const
+{
+	return m_swapchain;
 }
 
 void GveSwapChain::createSwapChain(uint32_t imageCount)
@@ -25,7 +30,7 @@ void GveSwapChain::createSwapChain(uint32_t imageCount)
 	do 
 	{
 		GveInstance* instance = m_phyDevice->instance();
-		VkDevice device = *m_logicalDevice;
+		VkDevice device = *m_device;
 		VkSurfaceKHR surface = m_videoOut->getSurface(*instance);
 
 		SwapChainSupportDetails swapChainSupport = querySwapChainSupport(*m_phyDevice, surface);
@@ -98,7 +103,7 @@ void GveSwapChain::createImageViews()
 		viewInfo.subresourceRange.layerCount = 1;
 
 		VkImageView imageView;
-		if (vkCreateImageView(*m_logicalDevice, &viewInfo, nullptr, &imageView) != VK_SUCCESS) 
+		if (vkCreateImageView(*m_device, &viewInfo, nullptr, &imageView) != VK_SUCCESS) 
 		{
 			LOG_ERR("failed to create swapchain texture image view!");
 		}
@@ -230,6 +235,13 @@ VkImage GveSwapChain::getImage(uint32_t index)
 VkImageView GveSwapChain::getImageView(uint32_t index)
 {
 	return m_swapChainImageViews[index];
+}
+
+VkResult GveSwapChain::acquireNextImage(VkSemaphore signal, VkFence fence, uint32_t& index)
+{
+	LOG_ASSERT(fence == VK_NULL_HANDLE, "TODO: only support null fence currently");
+	VkResult result = vkAcquireNextImageKHR(*m_device, m_swapchain, UINT64_MAX, signal, VK_NULL_HANDLE, &index);
+	return result;
 }
 
 }  // namespace gve

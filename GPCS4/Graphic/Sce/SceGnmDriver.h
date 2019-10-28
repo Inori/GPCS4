@@ -39,6 +39,9 @@ private:
 	void createFrameBuffers(uint32_t count);
 	void createContexts(uint32_t count);
 	void createCommandParsers(uint32_t count);
+	void createSyncObjects(uint32_t framesInFlight);
+
+	void submitCommandBuffer(const RcPtr<gve::GveCommandBuffer>& cmdBuffer);
 
 private:
 	std::shared_ptr<SceVideoOut> m_videoOut;
@@ -55,6 +58,12 @@ private:
 
 	std::unique_ptr<gve::GvePipelineManager> m_pipeMgr;
 	std::unique_ptr<gve::GveResourceManager> m_resMgr;
+
+
+	std::vector<VkSemaphore> m_imageAvailableSemaphores;
+	std::vector<VkSemaphore> m_renderFinishedSemaphores;
+	std::vector<VkFence> m_inFlightFences;
+	uint32_t m_currentFrame = 0;
 };
 
 }  //sce
