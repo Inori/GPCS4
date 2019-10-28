@@ -1,4 +1,5 @@
 #include "GveFrameBuffer.h"
+#include "GveDevice.h"
 
 namespace gve
 {;

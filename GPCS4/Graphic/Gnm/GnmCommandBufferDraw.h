@@ -18,7 +18,9 @@ private:
 	typedef std::vector<pssl::PsslShaderResource> UDSTVector;
 
 public:
-	GnmCommandBufferDraw(RcPtr<gve::GveContex>& context, const gve::GveRenderTarget& renderTarget);
+	GnmCommandBufferDraw(const RcPtr<gve::GveDevice>& device, 
+		const RcPtr<gve::GveContex>& context, 
+		const gve::GveRenderTarget& renderTarget);
 	virtual ~GnmCommandBufferDraw();
 
 	virtual void initializeDefaultHardwareState() override;

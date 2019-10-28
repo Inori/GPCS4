@@ -1,11 +1,12 @@
 #pragma once
 
 #include "GveCommon.h"
-#include "GveDevice.h"
+
 
 namespace gve
 {;
 
+class GveDevice;
 class GveFrameBuffer;
 
 struct GveRenderTarget

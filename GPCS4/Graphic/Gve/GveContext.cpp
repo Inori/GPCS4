@@ -9,7 +9,6 @@
 #include "GveSampler.h"
 #include "GveDevice.h"
 #include "GveRenderPass.h"
-#include "GveFrameBuffer.h"
 
 namespace gve
 {;
@@ -22,8 +21,7 @@ GveContex::GveContex(const RcPtr<GveDevice>& device, const GveContextParam& para
 	m_device(device),
 	m_pipeMgr(param.pipeMgr),
 	m_resMgr(param.resMgr),
-	m_renderPass(param.renderPass),
-	m_frameBuffer(param.frameBuffer)
+	m_renderPass(param.renderPass)
 {
 }
 
@@ -120,6 +118,11 @@ void GveContex::setBlendControl(const GveBlendControl& blendCtl)
 	m_state.cb.blendConstants[1] = 0.0f;
 	m_state.cb.blendConstants[2] = 0.0f;
 	m_state.cb.blendConstants[3] = 0.0f;
+}
+
+void GveContex::bindRenderTargets(const GveRenderTarget& target)
+{
+	m_renderTarget = target;
 }
 
 void GveContex::bindShader(VkShaderStageFlagBits stage, const RcPtr<GveShader>& shader)
@@ -258,9 +261,9 @@ void GveContex::drawIndex(uint32_t indexCount, uint32_t firstIndex)
 	VkRenderPassBeginInfo renderPassInfo = {};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	renderPassInfo.renderPass = m_renderPass->handle();
-	renderPassInfo.framebuffer = m_frameBuffer->handle();
+	renderPassInfo.framebuffer = m_renderTarget.frameBuffer->handle();
 	renderPassInfo.renderArea.offset = { 0, 0 };
-	renderPassInfo.renderArea.extent = m_frameBuffer->extent();
+	renderPassInfo.renderArea.extent = m_renderTarget.frameBuffer->extent();
 
 	m_cmd->cmdBeginRenderPass(&renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
@@ -289,6 +292,12 @@ void GveContex::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize 
 	m_cmd->cmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
 	auto queues = m_device->queues();
 	m_cmd->cmdEndSingleTimeCommands(commandBuffer, queues.graphics.queueHandle);
+}
+
+void GveContex::updateBuffer(const RcPtr<GveBuffer>& buffer, 
+	VkDeviceSize offset, VkDeviceSize size, const void* data)
+{
+
 }
 
 } // namespace gve

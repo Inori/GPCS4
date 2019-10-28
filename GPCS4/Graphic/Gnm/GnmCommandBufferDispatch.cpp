@@ -1,7 +1,8 @@
 #include "GnmCommandBufferDispatch.h"
 
-GnmCommandBufferDispatch::GnmCommandBufferDispatch(RcPtr<gve::GveContex>& context):
-	GnmCommandBuffer(context)
+GnmCommandBufferDispatch::GnmCommandBufferDispatch(const RcPtr<gve::GveDevice>& device,
+	RcPtr<gve::GveContex>& context) :
+	GnmCommandBuffer(device, context)
 {
 }
 

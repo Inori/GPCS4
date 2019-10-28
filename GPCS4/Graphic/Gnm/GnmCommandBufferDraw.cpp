@@ -11,8 +11,10 @@
 //#include "stb_image/stb_image.h"
 //#include "stb_image/stb_image_write.h"
 
-GnmCommandBufferDraw::GnmCommandBufferDraw(RcPtr<gve::GveContex>& context, const gve::GveRenderTarget& renderTarget):
-	GnmCommandBuffer(context),
+GnmCommandBufferDraw::GnmCommandBufferDraw(const RcPtr<gve::GveDevice>& device,
+	const RcPtr<gve::GveContex>& context,
+	const gve::GveRenderTarget& renderTarget) :
+	GnmCommandBuffer(device, context),
 	m_renderTarget(renderTarget),
 	m_vsCode(nullptr),
 	m_psCode(nullptr)
@@ -183,7 +185,7 @@ void GnmCommandBufferDraw::setHardwareScreenOffset(uint32_t offsetX, uint32_t of
 
 void GnmCommandBufferDraw::setRenderTarget(uint32_t rtSlot, RenderTarget const *target)
 {
-
+	m_context->bindRenderTargets(m_renderTarget);
 }
 
 void GnmCommandBufferDraw::setDepthRenderTarget(DepthRenderTarget const *depthTarget)
