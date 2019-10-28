@@ -41,7 +41,7 @@ private:
 	void createCommandParsers(uint32_t count);
 	void createSyncObjects(uint32_t framesInFlight);
 
-	void submitCommandBuffer(const RcPtr<gve::GveCommandBuffer>& cmdBuffer);
+	void submitCommandBufferAndPresent(const RcPtr<gve::GveCommandBuffer>& cmdBuffer);
 
 private:
 	std::shared_ptr<SceVideoOut> m_videoOut;

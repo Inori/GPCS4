@@ -70,7 +70,7 @@ int SceGnmDriver::submitAndFlipCommandBuffers(uint32_t count,
 		}
 
 		auto cmdBuffer = m_commandParsers[displayBufferIndex]->getCommandBuffer()->getCmdBuffer();
-
+		submitCommandBufferAndPresent(cmdBuffer);
 	
 		err = SCE_OK;
 	} while (false);
@@ -193,7 +193,7 @@ void SceGnmDriver::createSyncObjects(uint32_t framesInFlight)
 	}
 }
 
-void SceGnmDriver::submitCommandBuffer(const RcPtr<GveCommandBuffer>& cmdBuffer)
+void SceGnmDriver::submitCommandBufferAndPresent(const RcPtr<GveCommandBuffer>& cmdBuffer)
 {
 	vkWaitForFences(*m_device, 1, &m_inFlightFences[m_currentFrame], VK_TRUE, UINT64_MAX);
 
