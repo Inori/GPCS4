@@ -211,35 +211,70 @@ public:
 			rangeCount, pRanges);
 	}
 
+	VkCommandBuffer cmdBeginSingleTimeCommands()
+	{
+		VkCommandBufferAllocateInfo allocInfo = {};
+		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		allocInfo.commandPool = m_pool;
+		allocInfo.commandBufferCount = 1;
 
-	//void cmdCopyBuffer(
-	//	VkCommandBuffer         cmdBuffer,
-	//	VkBuffer                srcBuffer,
-	//	VkBuffer                dstBuffer,
-	//	uint32_t                regionCount,
-	//	const VkBufferCopy*           pRegions) 
-	//{
-	//	m_cmdBuffersUsed.set(cmdBuffer);
+		VkCommandBuffer commandBuffer;
+		vkAllocateCommandBuffers(*m_device, &allocInfo, &commandBuffer);
 
-	//	vkCmdCopyBuffer(getCmdBuffer(cmdBuffer),
-	//		srcBuffer, dstBuffer,
-	//		regionCount, pRegions);
-	//}
+		VkCommandBufferBeginInfo beginInfo = {};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+		vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+		return commandBuffer;
+	}
+
+	void cmdEndSingleTimeCommands(VkCommandBuffer commandBuffer, VkQueue queue)
+	{
+		vkEndCommandBuffer(commandBuffer);
+
+		VkSubmitInfo submitInfo = {};
+		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = &commandBuffer;
+
+		vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
+		vkQueueWaitIdle(queue);
+
+		vkFreeCommandBuffers(*m_device, m_pool, 1, &commandBuffer);
+	}
+
+	void cmdCopyBuffer(
+		VkCommandBuffer         cmdBuffer,
+		VkBuffer                srcBuffer,
+		VkBuffer                dstBuffer,
+		uint32_t                regionCount,
+		const VkBufferCopy*     pRegions) 
+	{
+		//m_cmdBuffersUsed.set(cmdBuffer);
+
+		vkCmdCopyBuffer(cmdBuffer,
+			srcBuffer, dstBuffer,
+			regionCount, pRegions);
+	}
 
 
-	//void cmdCopyBufferToImage(
-	//	DxvkCmdBuffer           cmdBuffer,
-	//	VkBuffer                srcBuffer,
-	//	VkImage                 dstImage,
-	//	VkImageLayout           dstImageLayout,
-	//	uint32_t                regionCount,
-	//	const VkBufferImageCopy*      pRegions) {
-	//	m_cmdBuffersUsed.set(cmdBuffer);
+	void cmdCopyBufferToImage(
+		VkCommandBuffer         cmdBuffer,
+		VkBuffer                srcBuffer,
+		VkImage                 dstImage,
+		VkImageLayout           dstImageLayout,
+		uint32_t                regionCount,
+		const VkBufferImageCopy*      pRegions) 
+	{
+		//m_cmdBuffersUsed.set(cmdBuffer);
 
-	//	vkCmdCopyBufferToImage(getCmdBuffer(cmdBuffer),
-	//		srcBuffer, dstImage, dstImageLayout,
-	//		regionCount, pRegions);
-	//}
+		vkCmdCopyBufferToImage(cmdBuffer,
+			srcBuffer, dstImage, dstImageLayout,
+			regionCount, pRegions);
+	}
 
 
 	//void cmdCopyImage(

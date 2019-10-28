@@ -49,6 +49,7 @@ private:
 	RcPtr<gve::GvePhysicalDevice> m_physDevice;
 	RcPtr<gve::GveDevice> m_device;
 	RcPtr<gve::GveSwapChain> m_swapchain;
+	RcPtr<gve::GveRenderPass> m_renderPass;
 	std::vector<RcPtr<gve::GveFrameBuffer>> m_frameBuffers;
 	std::vector<RcPtr<gve::GveContex>> m_contexts;
 

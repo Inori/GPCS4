@@ -22,6 +22,8 @@ class GveImageView;
 class GveSampler;
 class GvePipelineManager;
 class GveResourceManager;
+class GveRenderPass;
+class GveFrameBuffer;
 
 
 struct GveShaderResourceSlot
@@ -37,6 +39,8 @@ struct GveContextParam
 {
 	GvePipelineManager* pipeMgr = nullptr;
 	GveResourceManager* resMgr = nullptr;
+	RcPtr<GveRenderPass> renderPass;
+	RcPtr<GveFrameBuffer> frameBuffer;
 };
 
 // This is our render context.
@@ -87,10 +91,14 @@ public:
 
 	void drawIndex(uint32_t indexCount, uint32_t firstIndex);
 
+	void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+
 private:
 	RcPtr<GveDevice> m_device;
 	GvePipelineManager* m_pipeMgr;
 	GveResourceManager* m_resMgr;
+	RcPtr<GveRenderPass> m_renderPass;
+	RcPtr<GveFrameBuffer> m_frameBuffer;
 
 	RcPtr<GveCommandBuffer> m_cmd;
 

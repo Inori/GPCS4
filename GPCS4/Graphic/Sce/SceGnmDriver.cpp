@@ -122,24 +122,26 @@ void SceGnmDriver::createFrameBuffers(uint32_t count)
 
 	GveRenderPassFormat format;
 	format.colorFormat = m_swapchain->imageFormat();
-	auto renderPass = m_device->createRenderPass(format);
+	m_renderPass = m_device->createRenderPass(format);
 
 	for (uint32_t i = 0; i != count; ++i)
 	{
 		auto imageView = m_swapchain->getImageView(i);
-		auto frameBuffer = m_device->createFrameBuffer(renderPass->handle(), imageView, extent);
+		auto frameBuffer = m_device->createFrameBuffer(m_renderPass->handle(), imageView, extent);
 		m_frameBuffers.push_back(frameBuffer);
 	}
 }
 
 void SceGnmDriver::createContexts(uint32_t count)
 {
-	GveContextParam param;
-	param.pipeMgr = m_pipeMgr.get();
-	param.resMgr = m_resMgr.get();
-
 	for (uint32_t i = 0; i != count; ++i)
 	{
+		GveContextParam param;
+		param.pipeMgr = m_pipeMgr.get();
+		param.resMgr = m_resMgr.get();
+		param.renderPass = m_renderPass;
+		param.frameBuffer = m_frameBuffers[i];
+
 		auto context = m_device->createContext(param);
 		m_contexts.push_back(context);
 	}

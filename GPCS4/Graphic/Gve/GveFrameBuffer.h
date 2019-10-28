@@ -26,15 +26,19 @@ public:
 
 	VkFramebuffer handle() const;
 
+	VkExtent2D extent() const;
+
 	VkRenderPass renderPassHandle();
 
 private:
-	bool createFrameBuffer(VkImageView imageView, VkExtent2D& extent);
+	bool createFrameBuffer(VkImageView imageView);
 
 private:
-	VkFramebuffer m_frameBuffer;
-	VkRenderPass m_renderPass;
 	RcPtr<GveDevice> m_device;
+	VkRenderPass m_renderPass;
+	VkExtent2D m_extent;
+
+	VkFramebuffer m_frameBuffer;
 };
 
 

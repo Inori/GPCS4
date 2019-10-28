@@ -38,6 +38,8 @@ public:
 
 	RcPtr<GvePhysicalDevice> physicalDevice() const;
 
+	GveDeviceQueueSet queues() const;
+
 	RcPtr<GveRenderPass> createRenderPass(GveRenderPassFormat& format);
 
 	RcPtr<GveFrameBuffer> createFrameBuffer(VkRenderPass renderPass, VkImageView imageView, VkExtent2D& extent);

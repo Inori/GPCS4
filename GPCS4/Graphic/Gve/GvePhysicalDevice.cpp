@@ -34,7 +34,7 @@ GveInstance* GvePhysicalDevice::instance() const
 	return m_instance;
 }
 
-gve::GvePhysicalDeviceQueueFamilies GvePhysicalDevice::findQueueFamilies()
+GvePhysicalDeviceQueueFamilies GvePhysicalDevice::findQueueFamilies()
 {
 	uint32_t graphicsQueue = findQueueFamily(
 		VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT,

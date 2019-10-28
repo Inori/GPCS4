@@ -31,6 +31,11 @@ RcPtr<gve::GvePhysicalDevice> GveDevice::physicalDevice() const
 	return m_phyDevice;
 }
 
+GveDeviceQueueSet GveDevice::queues() const
+{
+	return m_queues;
+}
+
 RcPtr<gve::GveRenderPass> GveDevice::createRenderPass(GveRenderPassFormat& format)
 {
 	return new GveRenderPass(this, format);
