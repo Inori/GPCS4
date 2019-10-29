@@ -28,15 +28,15 @@ public:
 	GveResourceManager(const RcPtr<GveDevice>& device);
 	~GveResourceManager();
 
-	RcPtr<GveBuffer> createBuffer(const GveBufferCreateInfo& info, VkMemoryPropertyFlags memoryType);
+	RcPtr<GveBuffer> getBuffer(const GveBufferCreateInfo& info, VkMemoryPropertyFlags memoryType);
 
 	void freeBuffer(const RcPtr<GveBuffer>& buffer);
 
-	RcPtr<GveImage> createImage(const GveImageCreateInfo& info, VkMemoryPropertyFlags memoryType);
+	RcPtr<GveImage> getImage(const GveImageCreateInfo& info, VkMemoryPropertyFlags memoryType);
 
 	void freeImage(const RcPtr<GveImage>& image);
 
-	RcPtr<GveSampler> createSampler(const GveSamplerCreateInfo& info);
+	RcPtr<GveSampler> getSampler(const GveSamplerCreateInfo& info);
 
 	void freeSampler(const RcPtr<GveSampler>& sampler);
 

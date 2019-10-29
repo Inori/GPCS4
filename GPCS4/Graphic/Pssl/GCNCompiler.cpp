@@ -515,7 +515,7 @@ void GCNCompiler::emitDclResourceBuffer()
 
 void GCNCompiler::emitDclImmConstBuffer(const GcnResourceBuffer& res)
 {
-	VSharpBuffer* vsharpBuffer = reinterpret_cast<VSharpBuffer*>(res.res.resource);
+	const VSharpBuffer* vsharpBuffer = reinterpret_cast<const VSharpBuffer*>(res.res.resource);
 	uint32_t arraySize = vsharpBuffer->stride * vsharpBuffer->num_records / sizeof(uint32_t);
 
 	uint32_t arrayId = m_module.defArrayTypeUnique(
@@ -585,7 +585,7 @@ void GCNCompiler::emitDclImmResource(const GcnResourceBuffer& res)
 
 	const uint32_t registerId = res.res.startSlot;
 
-	const TSharpBuffer* tsharpBuffer = reinterpret_cast<TSharpBuffer*>(res.res.resource);
+	const TSharpBuffer* tsharpBuffer = reinterpret_cast<const TSharpBuffer*>(res.res.resource);
 
 	// TODO:
 	// We should define the type info according to tsharpBuffer

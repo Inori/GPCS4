@@ -501,5 +501,21 @@ VkDeviceSize GveMemoryAllocator::pickChunkSize(uint32_t memTypeId) const
 	return chunkSize;
 }
 
+///
+
+GveMappedPtr::GveMappedPtr(VkDevice device, VkDeviceMemory memory, 
+	VkDeviceSize offset, VkDeviceSize size):
+	m_device(device),
+	m_memory(memory),
+	m_offset(offset),
+	m_size(size)
+{
+	vkMapMemory(m_device, m_memory, m_offset, m_size, 0, &m_ptr);
+}
+
+GveMappedPtr::~GveMappedPtr()
+{
+	vkUnmapMemory(m_device, m_memory);
+}
 
 }  // namespace gve

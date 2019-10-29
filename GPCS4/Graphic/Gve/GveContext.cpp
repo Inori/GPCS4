@@ -20,7 +20,6 @@ RcPtr<gve::GveDescriptorPool> GveContex::s_descPool;
 GveContex::GveContex(const RcPtr<GveDevice>& device, const GveContextParam& param) :
 	m_device(device),
 	m_pipeMgr(param.pipeMgr),
-	m_resMgr(param.resMgr),
 	m_renderPass(param.renderPass)
 {
 }

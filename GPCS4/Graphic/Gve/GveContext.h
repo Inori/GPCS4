@@ -36,7 +36,6 @@ struct GveShaderResourceSlot
 struct GveContextParam
 {
 	GvePipelineManager* pipeMgr = nullptr;
-	GveResourceManager* resMgr = nullptr;
 	RcPtr<GveRenderPass> renderPass;
 };
 

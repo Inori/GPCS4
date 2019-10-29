@@ -1,14 +1,6 @@
 #include "PsslShaderModule.h"
 #include "Platform/UtilFile.h"
 
-#ifdef GPCS4_DEBUG
-// Dump shader to file
-#define PSSL_DUMP_SHADER
-#endif
-
-
-
-
 
 namespace pssl
 {;
@@ -71,7 +63,7 @@ void PsslShaderModule::parseFetchShader(const uint32_t* fsCode)
 	decodeFetchShader(fsCodeSlice, fsShader);
 	extractInputSemantic(fsShader);
 
-#ifdef GPCS4_DUMP_SHADER
+#ifdef PSSL_DUMP_SHADER
 	dumpShader(FetchShader, (const uint8_t*)fsCode, fsShader.m_codeLengthDw * sizeof(uint32_t));
 #endif  // GPCS4_DUMP_SHADER
 }

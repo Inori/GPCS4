@@ -6,20 +6,74 @@ namespace gve
 {;
 
 GveBuffer::GveBuffer(const RcPtr<GveDevice>& device, 
-	const GveBufferCreateInfo& createInfo, 
+	const GveBufferCreateInfoGnm& createInfo, 
 	GveMemoryAllocator& memAlloc, 
 	VkMemoryPropertyFlags memFlags):
 	m_device(device),
-	m_info(createInfo),
+	m_gnmInfo(createInfo),
 	m_memAlloc(&memAlloc),
 	m_memFlags(memFlags)
 {
 	do
 	{
-		VkBufferCreateInfo info;
-		convertCreateInfo(m_info, info);
+		VkBufferCreateInfo bufferInfo;
+		convertCreateInfo(m_gnmInfo, bufferInfo);
 
-		if (vkCreateBuffer(*m_device, &info, nullptr, &m_buffer) != VK_SUCCESS) 
+		createBuffer(bufferInfo);
+			
+	} while (false);
+}
+
+GveBuffer::GveBuffer(const RcPtr<GveDevice>& device, 
+	const GveBufferCreateInfoVk& createInfo, 
+	GveMemoryAllocator& memAlloc, 
+	VkMemoryPropertyFlags memFlags)
+{
+	VkBufferCreateInfo bufferInfo = {};
+	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+	bufferInfo.size = createInfo.size;
+	bufferInfo.usage = createInfo.usage;
+	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+	createBuffer(bufferInfo);
+}
+
+GveBuffer::~GveBuffer()
+{
+	vkDestroyBuffer(*m_device, m_buffer, nullptr);
+}
+
+
+VkBuffer GveBuffer::handle() const
+{
+	return m_buffer;
+}
+
+void* GveBuffer::mapPtr(VkDeviceSize offset) const
+{
+	return m_memory.mapPtr(offset);
+}
+
+const GnmBuffer* GveBuffer::getGnmBuffer() const
+{
+	return &m_gnmInfo.buffer;
+}
+
+void GveBuffer::convertCreateInfo(const GveBufferCreateInfoGnm& gveInfo, VkBufferCreateInfo& vkInfo)
+{
+	memset(&vkInfo, 0, sizeof(vkInfo));
+	// TODO:
+	vkInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+	vkInfo.size = gveInfo.buffer.getSize();
+	vkInfo.usage = m_gnmInfo.usage;
+	vkInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+}
+
+void GveBuffer::createBuffer(const VkBufferCreateInfo& info)
+{
+	do 
+	{
+		if (vkCreateBuffer(*m_device, &info, nullptr, &m_buffer) != VK_SUCCESS)
 		{
 			LOG_ERR("Failed to create buffer");
 			break;
@@ -64,34 +118,7 @@ GveBuffer::GveBuffer(const RcPtr<GveDevice>& device,
 			LOG_ERR("Failed to bind device memory");
 			break;
 		}
-			
 	} while (false);
-}
-
-GveBuffer::~GveBuffer()
-{
-	vkDestroyBuffer(*m_device, m_buffer, nullptr);
-}
-
-
-VkBuffer GveBuffer::handle() const
-{
-	return m_buffer;
-}
-
-const GnmBuffer* GveBuffer::getGnmBuffer() const
-{
-	return &m_info.buffer;
-}
-
-void GveBuffer::convertCreateInfo(const GveBufferCreateInfo& gveInfo, VkBufferCreateInfo& vkInfo)
-{
-	memset(&vkInfo, 0, sizeof(vkInfo));
-	// TODO:
-	vkInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-	vkInfo.size = gveInfo.buffer.getSize();
-	vkInfo.usage = m_info.usage;
-	vkInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 }
 
 ///

@@ -141,7 +141,6 @@ void SceGnmDriver::createContexts(uint32_t count)
 {
 	GveContextParam param;
 	param.pipeMgr = m_pipeMgr.get();
-	param.resMgr = m_resMgr.get();
 	param.renderPass = m_renderPass;
 
 	for (uint32_t i = 0; i != count; ++i)
@@ -159,7 +158,7 @@ void SceGnmDriver::createCommandParsers(uint32_t count)
 	for (uint32_t i = 0; i != count; ++i)
 	{
 		GveRenderTarget target = { m_frameBuffers[i] };
-		m_commandBuffers[i] = std::make_shared<GnmCommandBufferDraw>(m_device, m_contexts[i], target);
+		m_commandBuffers[i] = std::make_shared<GnmCommandBufferDraw>(m_device, m_contexts[i], m_resMgr.get(), target);
 	}
 	
 	m_commandParsers.resize(count);

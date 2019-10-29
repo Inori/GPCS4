@@ -19,7 +19,7 @@ GveResourceManager::~GveResourceManager()
 }
 
 
-RcPtr<GveBuffer> GveResourceManager::createBuffer(const GveBufferCreateInfo& info, VkMemoryPropertyFlags memoryType)
+RcPtr<GveBuffer> GveResourceManager::getBuffer(const GveBufferCreateInfo& info, VkMemoryPropertyFlags memoryType)
 {
 	RcPtr<GveBuffer> bufferPtr;
 	void* address = info.buffer.getBaseAddress();
@@ -43,7 +43,7 @@ void GveResourceManager::freeBuffer(const RcPtr<GveBuffer>& buffer)
 	m_buffers.erase(address);
 }
 
-RcPtr<GveImage> GveResourceManager::createImage(const GveImageCreateInfo& info, VkMemoryPropertyFlags memoryType)
+RcPtr<GveImage> GveResourceManager::getImage(const GveImageCreateInfo& info, VkMemoryPropertyFlags memoryType)
 {
 	RcPtr<GveImage> imagePtr;
 	void* address = info.texture.getBaseAddress();
@@ -67,7 +67,7 @@ void GveResourceManager::freeImage(const RcPtr<GveImage>& image)
 	m_images.erase(address);
 }
 
-RcPtr<GveSampler> GveResourceManager::createSampler(const GveSamplerCreateInfo& info)
+RcPtr<GveSampler> GveResourceManager::getSampler(const GveSamplerCreateInfo& info)
 {
 	RcPtr<GveSampler> samplerPtr;
 	uint64_t key = info.sampler.m_regs[0] | info.sampler.m_regs[0] << 32;

@@ -8,12 +8,15 @@
 #include "GnmDepthRenderTarget.h"
 
 #include "../Gve/GveContext.h"
+#include "../Gve/GveResourceManager.h"
 
 
 class GnmCommandBuffer
 {
 public:
-	GnmCommandBuffer(const RcPtr<gve::GveDevice>& device, const RcPtr<gve::GveContex>& context);
+	GnmCommandBuffer(const RcPtr<gve::GveDevice>& device, 
+		const RcPtr<gve::GveContex>& context,
+		gve::GveResourceManager* resMgr);
 	virtual ~GnmCommandBuffer();
 
 	RcPtr<gve::GveCommandBuffer> getCmdBuffer();
@@ -329,6 +332,7 @@ public:
 protected:
 	RcPtr<gve::GveDevice> m_device;
 	RcPtr<gve::GveContex> m_context;
+	gve::GveResourceManager* m_resourceManager;
 	RcPtr<gve::GveCommandBuffer> m_cmd;
 	
 private:

@@ -77,6 +77,26 @@ struct GveMemoryType
 };
 
 
+// Move construct only
+class GveMappedPtr
+{
+public:
+	GveMappedPtr(VkDevice device, VkDeviceMemory memory, 
+		VkDeviceSize offset, VkDeviceSize size);
+	~GveMappedPtr();
+
+	GveMappedPtr(const GveMappedPtr&) = delete;
+	GveMappedPtr& operator = (const GveMappedPtr&) = delete;
+
+private:
+	VkDevice m_device;
+	VkDeviceMemory m_memory;
+	VkDeviceSize m_offset;
+	VkDeviceSize m_size;
+	void* m_ptr;
+};
+
+
 /**
  * \brief Memory slice
  *
