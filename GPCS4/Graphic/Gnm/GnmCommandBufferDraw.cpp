@@ -390,6 +390,8 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 		m_context->copyBuffer(indexBuffer->handle(), stagingBuffer->handle(), indexSize);
 		m_context->bindIndexBuffer(indexBuffer, VK_INDEX_TYPE_UINT16);
 
+		m_context->drawIndex(indexCount, 0);
+
 	} while (false);
 }
 
