@@ -43,9 +43,5 @@ VkSampler GveSampler::handle() const
 	return m_sampler;
 }
 
-const GnmSampler* GveSampler::getGnmSampler() const
-{
-	return &m_info.sampler;
-}
 
 }  // namespace gve

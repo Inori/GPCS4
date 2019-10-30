@@ -3,7 +3,6 @@
 #include "GveCommon.h"
 #include "GveMemory.h"
 #include "GveDescriptor.h"
-#include "../Gnm/GnmTexture.h"
 
 
 namespace gve
@@ -13,12 +12,60 @@ class GveDevice;
 
 struct GveImageCreateInfo
 {
-	GnmTexture texture;
+	/// Image dimension
+	VkImageType type;
+
+	/// Pixel format
+	VkFormat format;
+
+	/// Flags
+	VkImageCreateFlags flags;
+
+	/// Sample count for MSAA
+	VkSampleCountFlagBits sampleCount;
+
+	/// Image size, in texels
+	VkExtent3D extent;
+
+	/// Number of image array layers
+	uint32_t numLayers;
+
+	/// Number of mip levels
+	uint32_t mipLevels;
+
+	/// Image usage flags
+	VkImageUsageFlags usage;
+
+	/// Pipeline stages that can access
+	/// the contents of the image
+	VkPipelineStageFlags stages;
+
+	/// Allowed access pattern
+	VkAccessFlags access;
+
+	/// Image tiling mode
+	VkImageTiling tiling;
+
+	/// Common image layout
+	VkImageLayout layout;
+
+	// Initial image layout
+	VkImageLayout initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 };
 
 struct GveImageViewCreateInfo
 {
-	GnmTexture texture;
+	/// Image view dimension
+	VkImageViewType type = VK_IMAGE_VIEW_TYPE_2D;
+
+	/// Pixel format
+	VkFormat format = VK_FORMAT_UNDEFINED;
+
+	/// Image view usage flags
+	VkImageUsageFlags usage = 0;
+
+	/// Subresources to use in the view
+	VkImageAspectFlags aspect = 0;
 };
 
 
@@ -38,12 +85,9 @@ public:
 
 	VkImageLayout getLayout() const;
 
-	const GnmTexture* getGnmTexture() const;
-
 
 private:
-	void convertCreateInfo(const GveImageCreateInfo& gveInfo,
-		VkImageCreateInfo& vkInfo);
+	
 
 private:
 	RcPtr<GveDevice> m_device;

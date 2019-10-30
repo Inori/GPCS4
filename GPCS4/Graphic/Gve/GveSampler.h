@@ -2,7 +2,6 @@
 
 #include "GveCommon.h"
 #include "GveMemory.h"
-#include "../Gnm/GnmSampler.h"
 
 
 namespace gve
@@ -12,7 +11,34 @@ class GveDevice;
 
 struct GveSamplerCreateInfo
 {
-	GnmSampler sampler;
+	/// Texture filter propertoes
+	VkFilter magFilter;
+	VkFilter minFilter;
+
+	/// Mipmapping properties
+	VkSamplerMipmapMode mipmapMode;
+	float               mipmapLodBias;
+	float               mipmapLodMin;
+	float               mipmapLodMax;
+
+	/// Anisotropic filtering
+	VkBool32 useAnisotropy;
+	float    maxAnisotropy;
+
+	/// Address modes
+	VkSamplerAddressMode addressModeU;
+	VkSamplerAddressMode addressModeV;
+	VkSamplerAddressMode addressModeW;
+
+	/// Compare op for shadow textures
+	VkBool32    compareToDepth;
+	VkCompareOp compareOp;
+
+	/// Texture border color
+	VkClearColorValue borderColor;
+
+	/// Enables unnormalized coordinates
+	VkBool32 usePixelCoord;
 };
 
 class GveSampler : public RcObject
@@ -22,8 +48,6 @@ public:
 	~GveSampler();
 
 	VkSampler handle() const;
-
-	const GnmSampler* getGnmSampler() const;
 
 private:
 	RcPtr<GveDevice> m_device;

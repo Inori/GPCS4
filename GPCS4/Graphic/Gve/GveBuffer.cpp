@@ -6,26 +6,7 @@ namespace gve
 {;
 
 GveBuffer::GveBuffer(const RcPtr<GveDevice>& device, 
-	const GveBufferCreateInfoGnm& createInfo, 
-	GveMemoryAllocator& memAlloc, 
-	VkMemoryPropertyFlags memFlags):
-	m_device(device),
-	m_gnmInfo(createInfo),
-	m_memAlloc(&memAlloc),
-	m_memFlags(memFlags)
-{
-	do
-	{
-		VkBufferCreateInfo bufferInfo;
-		convertCreateInfo(m_gnmInfo, bufferInfo);
-
-		createBuffer(bufferInfo);
-			
-	} while (false);
-}
-
-GveBuffer::GveBuffer(const RcPtr<GveDevice>& device, 
-	const GveBufferCreateInfoVk& createInfo, 
+	const GveBufferCreateInfo& createInfo,
 	GveMemoryAllocator& memAlloc, 
 	VkMemoryPropertyFlags memFlags)
 {
@@ -54,20 +35,11 @@ void* GveBuffer::mapPtr(VkDeviceSize offset) const
 	return m_memory.mapPtr(offset);
 }
 
-const GnmBuffer* GveBuffer::getGnmBuffer() const
+VkDeviceSize GveBuffer::size() const
 {
-	return &m_gnmInfo.buffer;
+	return m_info.size;
 }
 
-void GveBuffer::convertCreateInfo(const GveBufferCreateInfoGnm& gveInfo, VkBufferCreateInfo& vkInfo)
-{
-	memset(&vkInfo, 0, sizeof(vkInfo));
-	// TODO:
-	vkInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-	vkInfo.size = gveInfo.buffer.getSize();
-	vkInfo.usage = m_gnmInfo.usage;
-	vkInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-}
 
 void GveBuffer::createBuffer(const VkBufferCreateInfo& info)
 {

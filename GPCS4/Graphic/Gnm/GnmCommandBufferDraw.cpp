@@ -1,6 +1,8 @@
 #include "GnmCommandBufferDraw.h"
 #include "GnmSharpBuffer.h"
-
+#include "GnmBuffer.h"
+#include "GnmTexture.h"
+#include "GnmSampler.h"
 #include "Platform/PlatformUtils.h"
 
 #include <algorithm>
@@ -254,13 +256,14 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 			auto iter = std::find_if(m_vsUserDataSlotTable.begin(), m_vsUserDataSlotTable.end(), pred);
 			switch (inputSlot.usageType)
 			{
-			case pssl::kShaderInputUsageImmConstBuffer:
+			case kShaderInputUsageImmConstBuffer:
 			{
 				const GnmBuffer* buffer = reinterpret_cast<const GnmBuffer*>(iter->resource);
-				GveBufferCreateInfoGnm info;
-				info.buffer = *buffer;
+				GveBufferCreateInfo info;
+				info.size = buffer->getSize();
 				info.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-				auto uniformBuffer = m_resourceManager->getBuffer(info, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+				uint64_t key = reinterpret_cast<uint64_t>(buffer->getBaseAddress());
+				auto uniformBuffer = m_resourceManager->createBufferVsharp(info, key, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 				void* data = uniformBuffer->mapPtr(0);
 				void* addr = buffer->getBaseAddress();
 				uint32_t size = buffer->getSize();
@@ -272,7 +275,7 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 			case kShaderInputUsagePtrVertexBufferTable:
 			{
 				const GnmBuffer* vertexTable = reinterpret_cast<const GnmBuffer*>(iter->resource);
-				GveBufferCreateInfoVk stagingInfo;
+				GveBufferCreateInfo stagingInfo;
 				stagingInfo.size = vertexTable->getSize();
 				stagingInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
 

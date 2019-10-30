@@ -13,7 +13,19 @@ GveImage::GveImage(const RcPtr<GveDevice>& device,
 	m_info(createInfo)
 {
 	VkImageCreateInfo info;
-	convertCreateInfo(createInfo, info);
+	info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+	info.imageType = VK_IMAGE_TYPE_2D;
+	info.extent.width = m_info.extent.width;
+	info.extent.height = m_info.extent.height;
+	info.extent.depth = m_info.extent.depth;
+	info.mipLevels = m_info.mipLevels;
+	info.arrayLayers = 1;
+	info.format = VK_FORMAT_R8G8B8A8_UNORM;
+	info.tiling = VK_IMAGE_TILING_OPTIMAL;
+	info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	info.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+	info.samples = VK_SAMPLE_COUNT_1_BIT;
+	info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
 	if (vkCreateImage(*device, &info, nullptr, &m_image) != VK_SUCCESS)
 	{
@@ -90,31 +102,6 @@ VkFormat GveImage::getFormat() const
 VkImageLayout GveImage::getLayout() const
 {
 	return VK_IMAGE_LAYOUT_UNDEFINED;
-}
-
-const GnmTexture* GveImage::getGnmTexture() const
-{
-	return &m_info.texture;
-}
-
-void GveImage::convertCreateInfo(const GveImageCreateInfo& gveInfo, VkImageCreateInfo& vkInfo)
-{
-	std::memset(&vkInfo, 0, sizeof(vkInfo));
-	// TODO:
-	// Do convert actually.
-	vkInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-	vkInfo.imageType = VK_IMAGE_TYPE_2D;
-	vkInfo.extent.width = gveInfo.texture.getWidth();
-	vkInfo.extent.height = gveInfo.texture.getHeight();
-	vkInfo.extent.depth = gveInfo.texture.getDepth();
-	vkInfo.mipLevels = gveInfo.texture.getLastMipLevel();
-	vkInfo.arrayLayers = 1;
-	vkInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
-	vkInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-	vkInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	vkInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-	vkInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-	vkInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 }
 
 ///

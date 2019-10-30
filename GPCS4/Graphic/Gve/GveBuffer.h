@@ -3,20 +3,14 @@
 #include "GveCommon.h"
 #include "GveMemory.h"
 #include "GveDescriptor.h"
-#include "../Gnm/GnmBuffer.h"
+
 
 namespace gve
 {;
 
 class GveDevice;
 
-struct GveBufferCreateInfoGnm
-{
-	GnmBuffer buffer;
-	VkBufferUsageFlags usage;
-};
-
-struct GveBufferCreateInfoVk
+struct GveBufferCreateInfo
 {
 	VkDeviceSize size;
 	VkBufferUsageFlags usage;
@@ -24,15 +18,10 @@ struct GveBufferCreateInfoVk
 
 class GveBuffer : public RcObject
 {
-
 public:
-	GveBuffer(const RcPtr<GveDevice>& device,
-		const GveBufferCreateInfoGnm& createInfo,
-		GveMemoryAllocator&  memAlloc,
-		VkMemoryPropertyFlags memFlags);
 
 	GveBuffer(const RcPtr<GveDevice>& device,
-		const GveBufferCreateInfoVk& createInfo,
+		const GveBufferCreateInfo& createInfo,
 		GveMemoryAllocator&  memAlloc,
 		VkMemoryPropertyFlags memFlags);
 
@@ -42,17 +31,15 @@ public:
 
 	void* mapPtr(VkDeviceSize offset) const;
 
-	const GnmBuffer* getGnmBuffer() const;
+	VkDeviceSize size() const;
 
 private:
-	void convertCreateInfo(const GveBufferCreateInfoGnm& gveInfo,
-		VkBufferCreateInfo& vkInfo);
 
 	void createBuffer(const VkBufferCreateInfo& info);
 
 private:
 	RcPtr<GveDevice> m_device;
-	GveBufferCreateInfoGnm m_gnmInfo;
+	GveBufferCreateInfo m_info;
 	GveMemoryAllocator* m_memAlloc;
 	VkMemoryPropertyFlags m_memFlags;
 

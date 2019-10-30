@@ -16,18 +16,22 @@ GveResourceManager::GveResourceManager(const RcPtr<GveDevice>& device):
 
 GveResourceManager::~GveResourceManager()
 {
+	GC();
 }
 
+RcPtr<gve::GveBuffer> GveResourceManager::createBuffer(const GveBufferCreateInfo& info, VkMemoryPropertyFlags memoryType)
+{
+	return new GveBuffer(m_device, info, m_memAllocator, memoryType);
+}
 
-RcPtr<GveBuffer> GveResourceManager::getBuffer(const GveBufferCreateInfo& info, VkMemoryPropertyFlags memoryType)
+RcPtr<gve::GveBuffer> GveResourceManager::createBufferVsharp(const GveBufferCreateInfo& info, uint64_t key, VkMemoryPropertyFlags memoryType)
 {
 	RcPtr<GveBuffer> bufferPtr;
-	void* address = info.buffer.getBaseAddress();
-	auto iter = m_buffers.find(address);
+	auto iter = m_buffers.find(key);
 	if (iter == m_buffers.end())
 	{
 		auto buffer = new GveBuffer(m_device, info, m_memAllocator, memoryType);
-		auto pair = m_buffers.emplace(address, buffer);
+		auto pair = m_buffers.emplace(key, buffer);
 		bufferPtr = pair.first->second;
 	}
 	else
@@ -37,21 +41,26 @@ RcPtr<GveBuffer> GveResourceManager::getBuffer(const GveBufferCreateInfo& info, 
 	return bufferPtr;
 }
 
-void GveResourceManager::freeBuffer(const RcPtr<GveBuffer>& buffer)
+void GveResourceManager::freeBufferVsharp(uint64_t key)
 {
-	void* address = buffer->getGnmBuffer()->getBaseAddress();
-	m_buffers.erase(address);
+	m_buffers.erase(key);
 }
 
-RcPtr<GveImage> GveResourceManager::getImage(const GveImageCreateInfo& info, VkMemoryPropertyFlags memoryType)
+
+RcPtr<gve::GveImage> GveResourceManager::createImage(const GveImageCreateInfo& info, VkMemoryPropertyFlags memoryType)
+{
+	return new GveImage(m_device, info, m_memAllocator, memoryType);
+}
+
+RcPtr<gve::GveImage> GveResourceManager::createImageTsharp(const GveImageCreateInfo& info, 
+	uint64_t key, VkMemoryPropertyFlags memoryType)
 {
 	RcPtr<GveImage> imagePtr;
-	void* address = info.texture.getBaseAddress();
-	auto iter = m_images.find(address);
+	auto iter = m_images.find(key);
 	if (iter == m_images.end())
 	{
 		auto image = new GveImage(m_device, info, m_memAllocator, memoryType);
-		auto pair = m_images.emplace(address, image);
+		auto pair = m_images.emplace(key, image);
 		imagePtr = pair.first->second;
 	}
 	else
@@ -61,16 +70,19 @@ RcPtr<GveImage> GveResourceManager::getImage(const GveImageCreateInfo& info, VkM
 	return imagePtr;
 }
 
-void GveResourceManager::freeImage(const RcPtr<GveImage>& image)
+void GveResourceManager::freeImageTsharp(uint64_t key)
 {
-	void* address = image->getGnmTexture()->getBaseAddress();
-	m_images.erase(address);
+	m_images.erase(key);
 }
 
-RcPtr<GveSampler> GveResourceManager::getSampler(const GveSamplerCreateInfo& info)
+RcPtr<gve::GveSampler> GveResourceManager::createSampler(const GveSamplerCreateInfo& info)
+{
+	return new GveSampler(m_device, info);
+}
+
+RcPtr<gve::GveSampler> GveResourceManager::createSamplerSsharp(const GveSamplerCreateInfo& info, uint64_t key)
 {
 	RcPtr<GveSampler> samplerPtr;
-	uint64_t key = info.sampler.m_regs[0] | info.sampler.m_regs[0] << 32;
 	auto iter = m_samplers.find(key);
 	if (iter == m_samplers.end())
 	{
@@ -85,9 +97,8 @@ RcPtr<GveSampler> GveResourceManager::getSampler(const GveSamplerCreateInfo& inf
 	return samplerPtr;
 }
 
-void GveResourceManager::freeSampler(const RcPtr<GveSampler>& sampler)
+void GveResourceManager::freeSamplerSsharp(uint64_t key)
 {
-	uint64_t key = sampler->getGnmSampler()->m_regs[0] | sampler->getGnmSampler()->m_regs[0] << 32;
 	m_samplers.erase(key);
 }
 

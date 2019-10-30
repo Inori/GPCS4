@@ -199,7 +199,7 @@ void GveContex::drawIndex(uint32_t indexCount, uint32_t firstIndex)
 				VkDescriptorBufferInfo bufferInfo = {};
 				bufferInfo.buffer = res.buffer->handle();
 				bufferInfo.offset = 0;
-				bufferInfo.range = res.buffer->getGnmBuffer()->getSize();
+				bufferInfo.range = res.buffer->size();
 
 				VkWriteDescriptorSet writeSet;
 				writeSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -276,7 +276,7 @@ void GveContex::drawIndex(uint32_t indexCount, uint32_t firstIndex)
 
 	m_cmd->cmdBindDescriptorSet(VK_PIPELINE_BIND_POINT_GRAPHICS, s_layout->pipelineLayout(), m_descSet, 0, nullptr);
 
-	m_cmd->cmdDrawIndexed(m_state.vi.indexBuffer->getGnmBuffer()->getSize(), 1, 0, 0, 0);
+	m_cmd->cmdDrawIndexed(m_state.vi.indexBuffer->size()/2, 1, 0, 0, 0);
 
 	m_cmd->cmdEndRenderPass();
 }
