@@ -89,7 +89,7 @@ public:
 
 	void drawIndex(uint32_t indexCount, uint32_t firstIndex);
 
-	void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+	void copyBuffer(VkBuffer dstBuffer, VkBuffer srcBuffer, VkDeviceSize size);
 
 	void updateBuffer(const RcPtr<GveBuffer>& buffer, 
 		VkDeviceSize offset, VkDeviceSize size, const void* data);

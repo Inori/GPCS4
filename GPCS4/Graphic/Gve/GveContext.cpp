@@ -282,7 +282,7 @@ void GveContex::drawIndex(uint32_t indexCount, uint32_t firstIndex)
 }
 
 
-void GveContex::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
+void GveContex::copyBuffer(VkBuffer dstBuffer, VkBuffer srcBuffer, VkDeviceSize size)
 {
 	VkCommandBuffer commandBuffer = m_cmd->cmdBeginSingleTimeCommands();
 
