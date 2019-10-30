@@ -215,7 +215,7 @@ void GnmCommandBufferDraw::setActiveShaderStages(ActiveShaderStages activeStages
 
 void GnmCommandBufferDraw::setIndexSize(IndexSize indexSize, CachePolicy cachePolicy)
 {
-
+	m_indexSize = indexSize;
 }
 
 // Will be called on every frame start.
@@ -370,6 +370,26 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 
 		m_context->bindShader(VK_SHADER_STAGE_VERTEX_BIT, vsShader);
 		m_context->bindShader(VK_SHADER_STAGE_FRAGMENT_BIT, psShader);
+
+
+		VkDeviceSize indexSize = indexCount * sizeof(uint16_t);
+		GveBufferCreateInfo stagingInfo;
+		stagingInfo.size = indexSize;
+		stagingInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+		auto stagingBuffer = m_resourceManager->createBuffer(stagingInfo, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+		const void* data = indexAddr;
+		void* addr = stagingBuffer->mapPtr(0);
+		memcpy(addr, data, indexSize);
+
+		GveBufferCreateInfo indexInfo;
+		indexInfo.size = indexSize;
+		indexInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+		uint64_t key = reinterpret_cast<uint64_t>(indexAddr);
+		auto indexBuffer = m_resourceManager->createBufferVsharp(indexInfo, key, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		m_context->copyBuffer(indexBuffer->handle(), stagingBuffer->handle(), indexSize);
+		m_context->bindIndexBuffer(indexBuffer, VK_INDEX_TYPE_UINT16);
+
 	} while (false);
 }
 

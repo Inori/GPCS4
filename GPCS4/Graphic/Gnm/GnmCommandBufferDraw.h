@@ -124,6 +124,8 @@ private:
 	RcPtr<gve::GveShader> m_vsShader;
 	RcPtr<gve::GveShader> m_psShader;
 
+	IndexSize m_indexSize = kIndexSize16;
+
 };
 
 
