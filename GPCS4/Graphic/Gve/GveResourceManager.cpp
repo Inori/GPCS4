@@ -75,6 +75,33 @@ void GveResourceManager::freeImageTsharp(uint64_t key)
 	m_images.erase(key);
 }
 
+RcPtr<GveImageView> GveResourceManager::createImageView(const RcPtr<GveImage>& image, const GveImageViewCreateInfo& createInfo)
+{
+	return new GveImageView(m_device, createInfo, image);
+}
+
+RcPtr<GveImageView> GveResourceManager::createImageViewTsharp(const RcPtr<GveImage>& image, uint64_t key, const GveImageViewCreateInfo& createInfo)
+{
+	RcPtr<GveImageView> imageViewPtr;
+	auto iter = m_imageViews.find(key);
+	if (iter == m_imageViews.end())
+	{
+		auto imageView = new GveImageView(m_device, createInfo, image);
+		auto pair = m_imageViews.emplace(key, imageView);
+		imageViewPtr = pair.first->second;
+	}
+	else
+	{
+		imageViewPtr = iter->second;
+	}
+	return imageViewPtr;
+}
+
+void GveResourceManager::freeImageViewTsharp(uint64_t key)
+{
+	m_imageViews.erase(key);
+}
+
 RcPtr<gve::GveSampler> GveResourceManager::createSampler(const GveSamplerCreateInfo& info)
 {
 	return new GveSampler(m_device, info);

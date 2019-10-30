@@ -11,6 +11,8 @@ namespace gve
 class GveDevice;
 struct GveBufferCreateInfo;
 class GveBuffer;
+struct GveImageViewCreateInfo;
+class GveImageView;
 struct GveImageCreateInfo;
 class GveImage;
 struct GveSamplerCreateInfo;
@@ -82,6 +84,19 @@ public:
 	 */
 	void freeImageTsharp(uint64_t key);
 
+	/// Image View
+
+	RcPtr<GveImageView> createImageView(
+		const RcPtr<GveImage>&            image,
+		const GveImageViewCreateInfo&     createInfo);
+
+	RcPtr<GveImageView> createImageViewTsharp(
+		const RcPtr<GveImage>&            image,
+		uint64_t						  key,
+		const GveImageViewCreateInfo&     createInfo);
+
+	void freeImageViewTsharp(uint64_t key);
+
 	/// Sampler
 
 	/**
@@ -120,6 +135,7 @@ private:
 
 	std::unordered_map<uint64_t, RcPtr<GveBuffer>> m_buffers;
 	std::unordered_map<uint64_t, RcPtr<GveImage>> m_images;
+	std::unordered_map<uint64_t, RcPtr<GveImageView>> m_imageViews;
 	std::unordered_map<uint64_t, RcPtr<GveSampler>> m_samplers;
 };
 

@@ -20,10 +20,10 @@ GveImage::GveImage(const RcPtr<GveDevice>& device,
 	info.extent.depth = m_info.extent.depth;
 	info.mipLevels = m_info.mipLevels;
 	info.arrayLayers = 1;
-	info.format = VK_FORMAT_R8G8B8A8_UNORM;
-	info.tiling = VK_IMAGE_TILING_OPTIMAL;
-	info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	info.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+	info.format = m_info.format;
+	info.tiling = m_info.tiling;
+	info.initialLayout = m_info.initialLayout;
+	info.usage = m_info.usage;
 	info.samples = VK_SAMPLE_COUNT_1_BIT;
 	info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 

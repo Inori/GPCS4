@@ -3,6 +3,9 @@
 #include "GnmBuffer.h"
 #include "GnmTexture.h"
 #include "GnmSampler.h"
+#include "../Gve/GveBuffer.h"
+#include "../Gve/GveImage.h"
+#include "../Gve/GveSampler.h"
 #include "Platform/PlatformUtils.h"
 
 #include <algorithm>
@@ -246,8 +249,8 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 		pssl::PsslShaderModule vsModule((const uint32_t*)m_vsCode, fsCode, m_vsUserDataSlotTable);
 		RcPtr<GveShader> vsShader = vsModule.compile();
 
-		auto inputUsageSlots = vsModule.inputUsageSlots();
-		for (const auto& inputSlot : inputUsageSlots)
+		auto vsInputUsageSlots = vsModule.inputUsageSlots();
+		for (const auto& inputSlot : vsInputUsageSlots)
 		{
 			auto pred = [&inputSlot](const auto& item)
 			{
@@ -280,6 +283,11 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 				stagingInfo.size = bufferSize;
 				stagingInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
 				auto stagingBuffer = m_resourceManager->createBuffer(stagingInfo, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+				void* data = vertexTable->getBaseAddress();
+				void* addr = stagingBuffer->mapPtr(0);
+				memcpy(addr, data, bufferSize);
+
 				GveBufferCreateInfo vtxInfo;
 				vtxInfo.size = bufferSize;
 				vtxInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
@@ -297,6 +305,73 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 
 		pssl::PsslShaderModule psModule((const uint32_t*)m_psCode, m_psUserDataSlotTable);
 		RcPtr<GveShader> psShader = psModule.compile();
+
+		auto psInputUsageSlots = vsModule.inputUsageSlots();
+		for (const auto& inputSlot : psInputUsageSlots)
+		{
+			auto pred = [&inputSlot](const auto& item)
+			{
+				return inputSlot.startRegister == item.startSlot;
+			};
+			auto iter = std::find_if(m_psUserDataSlotTable.begin(), m_psUserDataSlotTable.end(), pred);
+			switch (inputSlot.usageType)
+			{
+			case kShaderInputUsageImmResource:
+			{
+				const GnmTexture* tsharp = reinterpret_cast<const GnmTexture*>(iter->resource);
+				GveImageCreateInfo info;
+				info.extent.width = tsharp->getWidth();
+				info.extent.height = tsharp->getHeight();
+				info.extent.depth = tsharp->getDepth();
+				info.mipLevels = tsharp->getLastMipLevel();
+				info.format = VK_FORMAT_R8G8B8A8_UNORM;
+				info.tiling = VK_IMAGE_TILING_OPTIMAL;
+				info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+				info.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+				uint64_t key = reinterpret_cast<uint64_t>(tsharp->getBaseAddress());
+				auto texture = m_resourceManager->createImageTsharp(info, key, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+				VkDeviceSize bufferSize = tsharp->getSizeAlign().m_size;
+				GveBufferCreateInfo stagingInfo;
+				stagingInfo.size = bufferSize;
+				stagingInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+				auto stagingBuffer = m_resourceManager->createBuffer(stagingInfo, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+				void* data = tsharp->getBaseAddress();
+				void* addr = stagingBuffer->mapPtr(0);
+				memcpy(addr, data, bufferSize);
+
+				m_context->transitionImageLayout(texture->handle(), VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+				m_context->copyBufferToImage(stagingBuffer->handle(), texture->handle(), tsharp->getWidth(), tsharp->getHeight());
+				m_context->transitionImageLayout(texture->handle(), VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+				GveImageViewCreateInfo viewInfo;
+				auto texView = m_resourceManager->createImageViewTsharp(texture, key, viewInfo);
+				uint32_t regSlot = computeResBinding(PixelShader, inputSlot.startRegister);
+				m_context->bindResourceView(regSlot, texView, nullptr);
+			}
+				break;
+			case kShaderInputUsageImmSampler:
+			{
+				const GnmBuffer* vertexTable = reinterpret_cast<const GnmBuffer*>(iter->resource);
+				VkDeviceSize bufferSize = vertexTable->getSize();
+				GveBufferCreateInfo stagingInfo;
+				stagingInfo.size = bufferSize;
+				stagingInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+				auto stagingBuffer = m_resourceManager->createBuffer(stagingInfo, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+				GveBufferCreateInfo vtxInfo;
+				vtxInfo.size = bufferSize;
+				vtxInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+				uint64_t key = reinterpret_cast<uint64_t>(vertexTable->getBaseAddress());
+				auto vertexBuffer = m_resourceManager->createBufferVsharp(vtxInfo, key, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+				m_context->copyBuffer(vertexBuffer->handle(), stagingBuffer->handle(), bufferSize);
+				m_context->bindVertexBuffer(0, vertexBuffer, vertexTable->getStride());
+			}
+				break;
+			default:
+				break;
+			}
+		}
 
 		m_context->bindShader(VK_SHADER_STAGE_VERTEX_BIT, vsShader);
 		m_context->bindShader(VK_SHADER_STAGE_FRAGMENT_BIT, psShader);
