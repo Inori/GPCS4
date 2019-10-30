@@ -353,19 +353,14 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 				break;
 			case kShaderInputUsageImmSampler:
 			{
-				const GnmBuffer* vertexTable = reinterpret_cast<const GnmBuffer*>(iter->resource);
-				VkDeviceSize bufferSize = vertexTable->getSize();
-				GveBufferCreateInfo stagingInfo;
-				stagingInfo.size = bufferSize;
-				stagingInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-				auto stagingBuffer = m_resourceManager->createBuffer(stagingInfo, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-				GveBufferCreateInfo vtxInfo;
-				vtxInfo.size = bufferSize;
-				vtxInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-				uint64_t key = reinterpret_cast<uint64_t>(vertexTable->getBaseAddress());
-				auto vertexBuffer = m_resourceManager->createBufferVsharp(vtxInfo, key, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-				m_context->copyBuffer(vertexBuffer->handle(), stagingBuffer->handle(), bufferSize);
-				m_context->bindVertexBuffer(0, vertexBuffer, vertexTable->getStride());
+				const GnmSampler* ssharp = reinterpret_cast<const GnmSampler*>(iter->resource);
+				
+				uint64_t key = ssharp->m_regs[0] | ssharp->m_regs[1] << 32;
+				GveSamplerCreateInfo info;
+				auto sampler = m_resourceManager->createSamplerSsharp(info, key);
+				
+				uint32_t regSlot = computeSamplerBinding(PixelShader, inputSlot.startRegister);
+				m_context->bindSampler(regSlot, sampler);
 			}
 				break;
 			default:
