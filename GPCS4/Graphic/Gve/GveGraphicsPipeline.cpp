@@ -117,10 +117,6 @@ GvePipelineInstance* GveGraphicsPipeline::createInstance(const GveRenderState& s
 		viewportState.pScissors = state.scissors.data();
 
 
-		VkPipelineColorBlendStateCreateInfo colorBlending = {};
-		colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-		colorBlending.pAttachments = &state.cba;
-
 		VkGraphicsPipelineCreateInfo pipelineInfo = {};
 		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 		pipelineInfo.stageCount = 2;
@@ -130,7 +126,7 @@ GvePipelineInstance* GveGraphicsPipeline::createInstance(const GveRenderState& s
 		pipelineInfo.pViewportState = &viewportState;
 		pipelineInfo.pRasterizationState = &state.rs;
 		pipelineInfo.pMultisampleState = &state.ms;
-		pipelineInfo.pColorBlendState = &colorBlending;
+		pipelineInfo.pColorBlendState = &state.cb;
 		pipelineInfo.layout = m_layout->pipelineLayout();
 		pipelineInfo.renderPass = rp.handle();
 		pipelineInfo.subpass = 0;

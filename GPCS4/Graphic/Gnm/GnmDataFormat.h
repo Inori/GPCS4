@@ -18,6 +18,15 @@ union DataFormat
 	} m_bits;
 	uint32_t m_asInt;
 
+	static DataFormat build(SurfaceFormat surfFmt, TextureChannelType channelType,
+		TextureChannel chanX = kTextureChannelX,
+		TextureChannel chanY = kTextureChannelY,
+		TextureChannel chanZ = kTextureChannelZ,
+		TextureChannel chanW = kTextureChannelW)
+	{
+
+	}
+
 	static DataFormat build(RenderTargetFormat rtFmt, RenderTargetChannelType rtChannelType, RenderTargetChannelOrder channelOrder)
 	{
 		const uint32_t channelCountTab[kRenderTargetFormatX24_8_32 + 1] = 

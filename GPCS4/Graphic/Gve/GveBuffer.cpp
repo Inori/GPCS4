@@ -8,7 +8,11 @@ namespace gve
 GveBuffer::GveBuffer(const RcPtr<GveDevice>& device, 
 	const GveBufferCreateInfo& createInfo,
 	GveMemoryAllocator& memAlloc, 
-	VkMemoryPropertyFlags memFlags)
+	VkMemoryPropertyFlags memFlags):
+	m_device(device),
+	m_info(createInfo),
+	m_memAlloc(&memAlloc),
+	m_memFlags(memFlags)
 {
 	VkBufferCreateInfo bufferInfo = {};
 	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;

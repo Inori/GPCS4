@@ -200,12 +200,32 @@ void GnmCommandBufferDraw::setDepthStencilControl(DepthStencilControl depthStenc
 
 void GnmCommandBufferDraw::setBlendControl(uint32_t rtSlot, BlendControl blendControl)
 {
-
+	GveBlendControl bc;
+	bc.enableBlending = blendControl.blendEnable;
+	bc.colorSrcFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+	bc.colorBlendOp = VK_BLEND_OP_ADD;
+	bc.colorDstFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+	bc.alphaSrcFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+	bc.alphaBlendOp = VK_BLEND_OP_ADD;
+	bc.alphaDstFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+	bc.writeMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+	m_context->setBlendControl(bc);
 }
 
 void GnmCommandBufferDraw::setPrimitiveSetup(PrimitiveSetup reg)
 {
+	GveRasterizerState rs;
+	rs.polygonMode = VK_POLYGON_MODE_FILL;
+	rs.cullMode = reg.cullMode == kPrimitiveSetupCullFaceBack ? VK_CULL_MODE_BACK_BIT : VK_CULL_MODE_FRONT_BIT;
+	rs.frontFace = reg.frontFace == kPrimitiveSetupFrontFaceCcw ? VK_FRONT_FACE_COUNTER_CLOCKWISE : VK_FRONT_FACE_CLOCKWISE;
+	rs.depthBiasEnable = VK_FALSE;
+	rs.depthClampEnable = VK_FALSE;
+	m_context->setRasterizerState(rs);
 
+	GveMultisampleState ms;
+	ms.sampleCount = VK_SAMPLE_COUNT_1_BIT;
+	ms.sampleShadingEnable = VK_FALSE;
+	m_context->setMultiSampleState(ms);
 }
 
 void GnmCommandBufferDraw::setActiveShaderStages(ActiveShaderStages activeStages)
@@ -271,7 +291,7 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 				void* addr = buffer->getBaseAddress();
 				uint32_t size = buffer->getSize();
 				memcpy(data, addr, size);
-				uint32_t regSlot = computeResBinding(VertexShader, inputSlot.startRegister);
+				uint32_t regSlot = computeConstantBufferBinding(VertexShader, inputSlot.startRegister);
 				m_context->bindResourceBuffer(regSlot, uniformBuffer);
 			}
 				break;
@@ -295,6 +315,31 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 				auto vertexBuffer = m_resourceManager->createBufferVsharp(vtxInfo, key, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 				m_context->copyBuffer(vertexBuffer->handle(), stagingBuffer->handle(), bufferSize);
 				m_context->bindVertexBuffer(0, vertexBuffer, vertexTable->getStride());
+
+				VkVertexInputBindingDescription bindingDescription = {};
+				bindingDescription.binding = 0;
+				bindingDescription.stride = vertexTable->getStride();
+				bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+				std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions = {};
+
+				attributeDescriptions[0].binding = 0;
+				attributeDescriptions[0].location = 0;
+				attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+				attributeDescriptions[0].offset = 0;
+
+				attributeDescriptions[1].binding = 0;
+				attributeDescriptions[1].location = 1;
+				attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+				attributeDescriptions[1].offset = 12;
+
+				attributeDescriptions[2].binding = 0;
+				attributeDescriptions[2].location = 2;
+				attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
+				attributeDescriptions[2].offset = 24;
+
+				m_context->setInputLayout(attributeDescriptions.size(), attributeDescriptions.data(),
+					1, &bindingDescription);
 			}
 				break;
 			default:
@@ -306,7 +351,7 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 		pssl::PsslShaderModule psModule((const uint32_t*)m_psCode, m_psUserDataSlotTable);
 		RcPtr<GveShader> psShader = psModule.compile();
 
-		auto psInputUsageSlots = vsModule.inputUsageSlots();
+		auto psInputUsageSlots = psModule.inputUsageSlots();
 		for (const auto& inputSlot : psInputUsageSlots)
 		{
 			auto pred = [&inputSlot](const auto& item)
