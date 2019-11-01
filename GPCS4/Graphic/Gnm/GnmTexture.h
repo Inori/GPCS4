@@ -6,6 +6,7 @@
 #include "GnmRegInfo.h"
 #include "GnmDataFormat.h"
 #include "GnmSharpBuffer.h"
+#include "GnmGpuAddress.h"
 
 class GnmTexture
 {
@@ -25,7 +26,12 @@ public:
 
 	SizeAlign getSizeAlign(void) const
 	{
-		// TODO
+		// TODO:
+		// Fix this according to IDA
+		SizeAlign result;
+		result.m_size = getWidth() * getHeight() * 4;
+		result.m_align = 0;
+		return result;
 	}
 
 	SizeAlign getMetadataSizeAlign(void) const
@@ -48,9 +54,51 @@ public:
 		return (TextureType)SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord3], SQ_IMG_RSRC_WORD3, TYPE);
 	}
 
+	// From IDA
 	uint32_t getBaseAddress256ByteBlocks() const
 	{
-		// TODO
+		uint32_t baseAddr256 = 0;
+		TileMode tileMode;
+		uint32_t numFragPerPixel = 0;
+		NumBanks numBanks;
+		uint32_t bitsPerElement = 0;
+	
+		DataFormat format = DataFormat::build((SurfaceFormat)tsharp.dfmt, (TextureChannelType)tsharp.nfmt,
+			(TextureChannel)tsharp.dst_sel_x,
+			(TextureChannel)tsharp.dst_sel_y,
+			(TextureChannel)tsharp.dst_sel_z,
+			(TextureChannel)tsharp.dst_sel_w);
+
+		bool isMacroTile = GpuAddress::isMacroTiled((TileMode)tsharp.tiling_idx);
+
+		baseAddr256 = tsharp.baseaddr256;
+
+		if (isMacroTile)
+		{
+			bitsPerElement = format.getTotalBitsPerElement();
+			tileMode = (TileMode)tsharp.tiling_idx;
+			numFragPerPixel = 1 << tsharp.last_level;
+			
+			if (m_regs[3] <= 0xDFFFFFFF)
+			{
+				numFragPerPixel = 1;
+			}
+			
+			uint8_t shift = 0;
+			if (m_regs[6] & 0x1000000)
+			{
+				GpuAddress::getAltNumBanks(&numBanks, tileMode, bitsPerElement, numFragPerPixel);
+				shift = 4;
+			}
+			else
+			{
+				GpuAddress::getNumBanks(&numBanks, tileMode, bitsPerElement, numFragPerPixel);
+				shift = 3;
+			}
+			baseAddr256 &= ~(((1 << (numBanks + 1)) - 1) << shift);
+		}
+	
+		return baseAddr256;
 	}
 
 	void *getBaseAddress() const

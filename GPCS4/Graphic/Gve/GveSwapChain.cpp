@@ -48,10 +48,7 @@ void GveSwapChain::createSwapChain(uint32_t imageCount)
 		GvePhysicalDeviceQueueFamilies queueFamilies = m_phyDevice->findQueueFamilies();
 		VkBool32 presentSupport = false;
 		vkGetPhysicalDeviceSurfaceSupportKHR(*m_phyDevice, queueFamilies.graphicsFamily, surface, &presentSupport);
-		if (!presentSupport)
-		{
-			break;
-		}
+		LOG_ASSERT(presentSupport == VK_TRUE, "graphics and present queue not same.");
 
 		VkSwapchainCreateInfoKHR createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;

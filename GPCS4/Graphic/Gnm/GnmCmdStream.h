@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GPCS4Common.h"
+#include "GnmCommon.h"
 #include "GnmOpCode.h"
 #include "GnmCommandBuffer.h"
 

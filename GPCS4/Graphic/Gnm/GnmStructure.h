@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GPCS4Common.h"
+#include "GnmCommon.h"
 #include "GnmRegInfo.h"
 #include "../Pssl/PsslShaderRegister.h"
 

@@ -584,3 +584,90 @@ enum BorderColor
 	kBorderColorOpaqueWhite = 0x00000002,
 	kBorderColorFromTable = 0x00000003,
 };
+
+enum ArrayMode
+{
+	kArrayModeLinearGeneral = 0x00000000,
+	kArrayModeLinearAligned = 0x00000001,
+	kArrayMode1dTiledThin = 0x00000002,
+	kArrayMode1dTiledThick = 0x00000003,
+	kArrayMode2dTiledThin = 0x00000004,
+	kArrayModeTiledThinPrt = 0x00000005,
+	kArrayMode2dTiledThinPrt = 0x00000006,
+	kArrayMode2dTiledThick = 0x00000007,
+	kArrayMode2dTiledXThick = 0x00000008,
+	kArrayModeTiledThickPrt = 0x00000009,
+	kArrayMode2dTiledThickPrt = 0x0000000a,
+	kArrayMode3dTiledThinPrt = 0x0000000b,
+	kArrayMode3dTiledThin = 0x0000000c,
+	kArrayMode3dTiledThick = 0x0000000d,
+	kArrayMode3dTiledXThick = 0x0000000e,
+	kArrayMode3dTiledThickPrt = 0x0000000f,
+};
+
+enum MicroTileMode
+{
+	kMicroTileModeDisplay = 0x00000000,
+	kMicroTileModeThin = 0x00000001,
+	kMicroTileModeDepth = 0x00000002,
+	kMicroTileModeRotated = 0x00000003,
+	kMicroTileModeThick = 0x00000004,
+};
+
+
+
+// Internal usage
+
+enum NumBanks
+{
+	kNumBanks2 = 0x00000000,
+	kNumBanks4 = 0x00000001,
+	kNumBanks8 = 0x00000002,
+	kNumBanks16 = 0x00000003,
+};
+
+enum MacroTileMode
+{
+	kMacroTileMode_1x4_16 = 0x00000000,
+	kMacroTileMode_1x2_16 = 0x00000001,
+	kMacroTileMode_1x1_16 = 0x00000002,
+	kMacroTileMode_1x1_16_dup = 0x00000003,
+	kMacroTileMode_1x1_8 = 0x00000004,
+	kMacroTileMode_1x1_4 = 0x00000005,
+	kMacroTileMode_1x1_2 = 0x00000006,
+	kMacroTileMode_1x1_2_dup = 0x00000007,
+	kMacroTileMode_1x8_16 = 0x00000008,
+	kMacroTileMode_1x4_16_dup = 0x00000009,
+	kMacroTileMode_1x2_16_dup = 0x0000000A,
+	kMacroTileMode_1x1_16_dup2 = 0x0000000B,
+	kMacroTileMode_1x1_8_dup = 0x0000000C,
+	kMacroTileMode_1x1_4_dup = 0x0000000D,
+	kMacroTileMode_1x1_2_dup2 = 0x0000000E,
+	kMacroTileMode_1x1_2_dup3 = 0x0000000F,
+};
+
+enum SampleSplit
+{
+	kSampleSplit1 = 0x00000000,
+	kSampleSplit2 = 0x00000001,
+	kSampleSplit4 = 0x00000002,
+	kSampleSplit8 = 0x00000003,
+};
+
+enum TileSplit
+{
+	kTileSplit64B = 0x00000000,
+	kTileSplit128B = 0x00000001,
+	kTileSplit256B = 0x00000002,
+	kTileSplit512B = 0x00000003,
+	kTileSplit1KB = 0x00000004,
+	kTileSplit2KB = 0x00000005,
+	kTileSplit4KB = 0x00000006,
+};
+
+enum PipeConfig
+{
+	kPipeConfigP8_32x32_8x16 = 0x0000000a,
+	kPipeConfigP8_32x32_16x16 = 0x0000000c,
+	kPipeConfigP16 = 0x00000012,
+};

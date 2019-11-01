@@ -49,6 +49,7 @@
     <ClInclude Include="Graphic\Gnm\GnmDataFormat.h" />
     <ClInclude Include="Graphic\Gnm\GnmDepthRenderTarget.h" />
     <ClInclude Include="Graphic\Gnm\GnmGfx9MePm4Packets.h" />
+    <ClInclude Include="Graphic\Gnm\GnmGpuAddress.h" />
     <ClInclude Include="Graphic\Gnm\GnmOpCode.h" />
     <ClInclude Include="Graphic\Gnm\GnmRegInfo.h" />
     <ClInclude Include="Graphic\Gnm\GnmRenderTarget.h" />

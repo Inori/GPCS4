@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GPCS4Common.h"
+#include "GnmCommon.h"
 
 // The "correct" way to build a pm4 packet should following the official standard,
 // for example:
