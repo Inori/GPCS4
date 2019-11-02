@@ -272,7 +272,7 @@ public:
 	 */
 	VkDeviceSize bufferImageGranularity() const 
 	{
-		//return m_devProps.limits.bufferImageGranularity;
+		return m_devProps.limits.bufferImageGranularity;
 	}
 
 	/**

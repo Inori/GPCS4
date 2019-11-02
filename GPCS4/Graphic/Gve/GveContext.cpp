@@ -32,7 +32,7 @@ GveContex::~GveContex()
 void GveContex::beginRecording(const RcPtr<GveCommandBuffer>& commandBuffer)
 {
 	m_cmd = commandBuffer;
-	//m_cmd->beginRecording();
+	m_cmd->beginRecording();
 }
 
 void GveContex::endRecording()
@@ -57,7 +57,7 @@ void GveContex::setViewports(uint32_t viewportCount, const VkViewport* viewports
 void GveContex::setInputLayout(uint32_t attributeCount, const VkVertexInputAttributeDescription* attributes, 
 	uint32_t bindingCount, const VkVertexInputBindingDescription* bindings)
 {
-	memset(&m_state.vi, 0, sizeof(m_state.vi));
+	memset(&m_state.vi.state, 0, sizeof(m_state.vi.state));
 	m_state.vi.state.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 	m_state.vi.state.pVertexAttributeDescriptions = attributes;
 	m_state.vi.state.vertexAttributeDescriptionCount = attributeCount;
@@ -173,11 +173,8 @@ void GveContex::drawIndex(uint32_t indexCount, uint32_t firstIndex)
 {
 	if (s_pipeline == VK_NULL_HANDLE)
 	{
-		GveRenderPassFormat format;
-		format.colorFormat = VK_FORMAT_R8G8B8A8_UNORM;
-		auto renderPass = m_device->createRenderPass(format);
 		auto pipeline = m_pipeMgr->getGraphicsPipeline(m_shaders);
-		s_pipeline = pipeline->getPipelineHandle(m_state, *renderPass);
+		s_pipeline = pipeline->getPipelineHandle(m_state, *m_renderPass);
 		s_layout = pipeline->getLayout();
 		s_descPool = m_device->createDescriptorPool();
 	}
@@ -201,7 +198,7 @@ void GveContex::drawIndex(uint32_t indexCount, uint32_t firstIndex)
 				bufferInfo.offset = 0;
 				bufferInfo.range = res.buffer->size();
 
-				VkWriteDescriptorSet writeSet;
+				VkWriteDescriptorSet writeSet = {};
 				writeSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 				writeSet.dstSet = m_descSet;
 				writeSet.dstBinding = i;
@@ -219,7 +216,7 @@ void GveContex::drawIndex(uint32_t indexCount, uint32_t firstIndex)
 				imageInfo.imageView = res.imageView->handle();
 				imageInfo.sampler = nullptr;
 
-				VkWriteDescriptorSet writeSet;
+				VkWriteDescriptorSet writeSet = {};
 				writeSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 				writeSet.dstSet = m_descSet;
 				writeSet.dstBinding = i;
@@ -237,7 +234,7 @@ void GveContex::drawIndex(uint32_t indexCount, uint32_t firstIndex)
 				imageInfo.imageView = VK_NULL_HANDLE;
 				imageInfo.sampler = res.sampler->handle();
 
-				VkWriteDescriptorSet writeSet;
+				VkWriteDescriptorSet writeSet = {};
 				writeSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 				writeSet.dstSet = m_descSet;
 				writeSet.dstBinding = i;
@@ -263,6 +260,9 @@ void GveContex::drawIndex(uint32_t indexCount, uint32_t firstIndex)
 	renderPassInfo.framebuffer = m_renderTarget.frameBuffer->handle();
 	renderPassInfo.renderArea.offset = { 0, 0 };
 	renderPassInfo.renderArea.extent = m_renderTarget.frameBuffer->extent();
+	VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+	renderPassInfo.clearValueCount = 1;
+	renderPassInfo.pClearValues = &clearColor;
 
 	m_cmd->cmdBeginRenderPass(&renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 

@@ -14,6 +14,6 @@
 // Some addresses in some gnm structures are GPU relative,
 // I'm not sure they are relative to what,
 // maybe relative to the garlic memory base address.
-#define GNM_GPU_ABS_ADDR(refAddr, relaAddr) ( (void*)(((uint64_t)(refAddr) & 0x0000FF0000000000) | relaAddr) )
+#define GNM_GPU_ABS_ADDR(refAddr, relaAddr) ( (void*)(((uint64_t)(refAddr) & 0x0000FF0000000000) | uint64_t(relaAddr)) )
 
 

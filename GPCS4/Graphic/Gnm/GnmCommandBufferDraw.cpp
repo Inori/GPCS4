@@ -368,7 +368,7 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 				info.extent.width = tsharp->getWidth();
 				info.extent.height = tsharp->getHeight();
 				info.extent.depth = tsharp->getDepth();
-				info.mipLevels = tsharp->getLastMipLevel();
+				info.mipLevels = 1;
 				info.format = VK_FORMAT_R8G8B8A8_UNORM;
 				info.tiling = VK_IMAGE_TILING_OPTIMAL;
 				info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -382,8 +382,9 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 				stagingInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
 				auto stagingBuffer = m_resourceManager->createBuffer(stagingInfo, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
-				void* data = tsharp->getBaseAddress();
+				void* data = GNM_GPU_ABS_ADDR(indexAddr, tsharp->getBaseAddress());
 				void* addr = stagingBuffer->mapPtr(0);
+				LOG_DEBUG("addr %p data %p", addr, data);
 				memcpy(addr, data, bufferSize);
 
 				m_context->transitionImageLayout(texture->handle(), VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
@@ -429,7 +430,7 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 
 		GveBufferCreateInfo indexInfo;
 		indexInfo.size = indexSize;
-		indexInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+		indexInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
 		uint64_t key = reinterpret_cast<uint64_t>(indexAddr);
 		auto indexBuffer = m_resourceManager->createBufferVsharp(indexInfo, key, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 		m_context->copyBuffer(indexBuffer->handle(), stagingBuffer->handle(), indexSize);

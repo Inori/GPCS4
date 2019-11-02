@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GPCS4Common.h"
+#include "GnmCommon.h"
 
 // Note:
 // There are to ways to interpret these buffer types (V# T# S#).
@@ -56,7 +56,6 @@ struct TSharpBuffer
 
 	uint64_t width			: 14;  // texture width (0..16383)
 	uint64_t height			: 14;  // texture height (0..16383)
-
 	// Specifies the scale factor applied to the perf_z, perf_mip,
 	// aniso_bias, aniso_threshold, lod_bias_sec settings
 	// specified in the associated S#:
@@ -67,7 +66,6 @@ struct TSharpBuffer
 	// settings, while perf_mod=7 essentially eliminates the
 	// dependency between the T# and S#.)
 	uint64_t perf_mod		: 3;
-
 	uint64_t interlaced		: 1;  // texture is interlaced
 
 	// Destination channel select:
@@ -76,7 +74,6 @@ struct TSharpBuffer
 	uint64_t dst_sel_y		: 3;
 	uint64_t dst_sel_z		: 3;
 	uint64_t dst_sel_w		: 3;
-
 	uint64_t base_level		: 4;
 	uint64_t last_level		: 4;
 	uint64_t tiling_idx		: 5;
@@ -88,6 +85,7 @@ struct TSharpBuffer
 	uint64_t depth			: 13;
 	uint64_t pitch			: 14;  // texture pitch in texels (0..16383); defaults to width
 	uint64_t reserved1		: 5;
+
 	uint64_t base_array		: 13;  // first array index (0..16383)
 	uint64_t last_array		: 13;  // texture height (0..16383)
 	uint64_t reserved2		: 6;

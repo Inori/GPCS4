@@ -24,7 +24,16 @@ union DataFormat
 		TextureChannel chanZ = kTextureChannelZ,
 		TextureChannel chanW = kTextureChannelW)
 	{
+		DataFormat result = { 0 };
+		result.m_bits.m_surfaceFormat = surfFmt;
+		result.m_bits.m_channelType = channelType;
+		result.m_bits.m_channelX = chanX;
+		result.m_bits.m_channelY = chanY;
+		result.m_bits.m_channelZ = chanZ;
+		result.m_bits.m_channelW = chanW;
+		result.m_bits.m_unused = 0;
 
+		return result;
 	}
 
 	static DataFormat build(RenderTargetFormat rtFmt, RenderTargetChannelType rtChannelType, RenderTargetChannelOrder channelOrder)
@@ -90,7 +99,43 @@ union DataFormat
 
 		return result;
 	}
+
+	// From IDA
+	uint32_t getTotalBitsPerElement() const
+	{
+		// TODO:
+		// Make it more beautiful, not just copy from ida.
+		uint32_t surfFmt = m_bits.m_surfaceFormat;
+		uint32_t result = 0LL;
+		if ((unsigned int)surfFmt <= 0x3C)
+		{
+			uint32_t v3 = 16;
+			if ((unsigned __int8)(surfFmt - 35) >= 7u)
+			{
+				if ((unsigned __int8)(surfFmt - 59) > 1u)
+				{
+					v3 = 1;
+				}
+				else
+				{
+					v3 = 8;
+				}
+			}
+			result = (unsigned int)(s_bitsPerElement[surfFmt] * v3);
+		}
+		return result;
+	}
+
+private:
+	static constexpr int s_bitsPerElement[] = 
+	{
+		0, 8, 16, 16, 32, 32, 32, 32, 32, 32, 32, 64, 64, 96, 128, -1, 
+		16, 16, 16, 16, 32, 32, 64, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
+		16, 16, 32, 4, 8, 8, 4, 8, 8, 8, -1, -1, 8, 8, 8, 8, 8, 8, 16,
+		16, 32, 32, 32, 64, 64, 8, 16, 1, 1
+	};
 };
+
 
 
 const DataFormat		kDataFormatInvalid = { {kSurfaceFormatInvalid, kTextureChannelTypeUNorm, kTextureChannelConstant0, kTextureChannelConstant0, kTextureChannelConstant0, kTextureChannelConstant0, 0 } };
