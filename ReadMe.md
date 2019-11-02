@@ -16,17 +16,19 @@ Next I will focus on the shader translator.
 ## Roadmap
 
 * ### Graphics
-    * Gnm reverse engineering
+    * [Gnm reverse engineering](https://github.com/Inori/GPCS4/tree/master/GPCS4/Graphic/Gnm)
         > Parsing PM4 command buffers and some other formats to recover the original Gnm calls.  
         Still a lot of work.
-    * Vulkan backend
+    * [Vulkan backend](https://github.com/Inori/GPCS4/tree/master/GPCS4/Graphic/Gve)
         > Translate Gnm calls into vulkan calls. Far from complete.
-    * Shader recompiler
+    * [Shader recompiler](https://github.com/Inori/GPCS4/tree/master/GPCS4/Graphic/Pssl)
         > Translate GCN bytecode to Spir-V bytecode. Far from complete.
 
 * ### Hardware
     * Audio
+        > Not started yet.
     * Gamepad
+        > Not started yet.
 
 * ### System
     * Dynamic linker
