@@ -42,7 +42,7 @@ If you want to participate in the project, read the roadmap above and see which 
 After that, read our [code style](https://github.com/Inori/GPCS4/blob/master/Doc/CodeStyle.md) document, and make a pull request while keeping the code style, I'll see it.  
 Or if you're willing to work on the project for a pretty long time, I could make a branch for you.
 
-For more details you could join our discord server to contact with me, or if you are used to Tencent QQ/TIM, join our group. Here you can get more resources which are very usefull for developing.
+For more details you could join our discord server to contact with me, or if you are used to Tencent QQ/TIM, 直接加群. Here you can get more resources which are very usefull for developing.
 
 Discord: [GPCS4](https://discord.gg/PXrUxtk)  
 Tencent QQ/TIM Group Number: 470865218
