@@ -32,10 +32,11 @@ int PS4API sceRtcGetCurrentNetworkTick(void)
 }
 
 
-int PS4API sceRtcGetDayOfWeek(void)
+int PS4API sceRtcGetDayOfWeek(int day, int month, int year)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("day %d month %m year %y", day, month, year);
+	int dayIndex = (day += month < 3 ? year-- : year - 2, 23 * month / 9 + day + 4 + year / 4 - year / 100 + year / 400) % 7;
+	return dayIndex;
 }
 
 

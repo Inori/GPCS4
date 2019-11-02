@@ -34,7 +34,7 @@ int PS4API sceRtcGetCurrentClockLocalTime(void);
 int PS4API sceRtcGetCurrentNetworkTick(void);
 
 
-int PS4API sceRtcGetDayOfWeek(void);
+int PS4API sceRtcGetDayOfWeek(int day, int month, int year);
 
 
 int PS4API sceRtcGetTick(void);
