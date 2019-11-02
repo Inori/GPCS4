@@ -22,7 +22,7 @@ Next I will focus on the shader translator.
     * [Vulkan backend](https://github.com/Inori/GPCS4/tree/master/GPCS4/Graphic/Gve)
         > Translate Gnm calls into vulkan calls. Far from complete.
     * [Shader recompiler](https://github.com/Inori/GPCS4/tree/master/GPCS4/Graphic/Pssl)
-        > Translate GCN bytecode to Spir-V bytecode. Far from complete.
+        > Translate GCN bytecode into Spir-V bytecode. Far from complete.
 
 * ### Hardware
     * Audio
@@ -36,7 +36,7 @@ Next I will focus on the shader translator.
     * System resource management, ie. Thread, virtual memory, synchronize object, file, clock.
         > For functions which don not require system resource (ie. math functions),  
         we'll use the system libraries directly.  
-        For others, we'll implement those.
+        For others, we implement those one by one.
 
 ## Join
 If you want to participate in the project, read the roadmap above and see which part you are insterested in.
