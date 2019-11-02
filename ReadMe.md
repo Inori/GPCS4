@@ -32,7 +32,7 @@ Next I will focus on the shader translator.
 
 * ### System
     * Dynamic linker
-        > TLS support is not complete yet.
+        > TLS support is not complete yet, maybe some other initialization functions either.
     * System resource management, ie. Thread, virtual memory, synchronize object, file, clock.
         > For functions which don not require system resource (ie. math functions),  
         we'll use the system libraries directly.  
