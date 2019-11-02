@@ -2,7 +2,7 @@
 
 #include "GPCS4Common.h"
 #include "GnmCommandBuffer.h"
-
+#include "../Pssl/PsslShaderModule.h"
 #include "../Gve/GveCommandBuffer.h"
 #include "../Gve/GveShader.h"
 
@@ -15,17 +15,20 @@
 class GnmCommandBufferDraw : public GnmCommandBuffer
 {
 private:
-	typedef std::vector<std::pair<uint32_t, void*>> UDSTVector;
+	typedef std::vector<pssl::PsslShaderResource> UDSTVector;
 
 public:
-	GnmCommandBufferDraw();
+	GnmCommandBufferDraw(const RcPtr<gve::GveDevice>& device, 
+		const RcPtr<gve::GveContex>& context,
+		gve::GveResourceManager* resMgr,
+		const gve::GveRenderTarget& renderTarget);
 	virtual ~GnmCommandBufferDraw();
 
 	virtual void initializeDefaultHardwareState() override;
 
-	virtual void setVsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const GnmBuffer *buffer) override;
-	virtual void setTsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const GnmTexture *tex) override;
-	virtual void setSsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const GnmSampler *sampler) override;
+	virtual void setVsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const VSharpBuffer *buffer) override;
+	virtual void setTsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const TSharpBuffer *tex) override;
+	virtual void setSsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const SSharpBuffer *sampler) override;
 	virtual void setUserDataRegion(ShaderStage stage, uint32_t startUserDataSlot, const uint32_t *userData, uint32_t numDwords) override;
 	virtual void setPointerInUserData(ShaderStage stage, uint32_t startUserDataSlot, void *gpuAddr) override;
 
@@ -49,6 +52,9 @@ public:
 	virtual void drawIndexAuto(uint32_t indexCount) override;
 
 	virtual void prepareFlip(void *labelAddr, uint32_t value) override;
+	virtual void prepareFlipWithEopInterrupt(EndOfPipeEventType eventType,
+		void *labelAddr, uint32_t value,
+		CacheAction cacheAction) override;
 
 	virtual void writeAtEndOfPipe(EndOfPipeEventType eventType,
 		EventWriteDest dstSelector, void *dstGpuAddr,
@@ -63,10 +69,52 @@ public:
 	virtual void waitUntilSafeForRendering(uint32_t videoOutHandle, uint32_t displayBufferIndex) override;
 
 
-private:
-	uint32_t* getFetchShaderCode(void* vsCode);
+
+	virtual void setViewportTransformControl(ViewportTransformControl vportControl) override;
+
+
+	virtual void setScreenScissor(int32_t left, int32_t top, int32_t right, int32_t bottom) override;
+
+
+	virtual void setGuardBands(float horzClip, float vertClip, float horzDiscard, float vertDiscard) override;
+
+
+	virtual void setHardwareScreenOffset(uint32_t offsetX, uint32_t offsetY) override;
+
+
+	virtual void setRenderTarget(uint32_t rtSlot, RenderTarget const *target) override;
+
+
+	virtual void setDepthRenderTarget(DepthRenderTarget const *depthTarget) override;
+
+
+	virtual void setRenderTargetMask(uint32_t mask) override;
+
+
+	virtual void setDepthStencilControl(DepthStencilControl depthStencilControl) override;
+
+
+	virtual void setBlendControl(uint32_t rtSlot, BlendControl blendControl) override;
+
+
+	virtual void setPrimitiveSetup(PrimitiveSetup reg) override;
+
+
+	virtual void setActiveShaderStages(ActiveShaderStages activeStages) override;
+
+
+	virtual void setIndexSize(IndexSize indexSize, CachePolicy cachePolicy) override;
 
 private:
+	uint32_t* getFetchShaderCode(void* vsCode);
+	void onSetUserDataRegister(ShaderStage stage, uint32_t startSlot, 
+		const uint32_t* data, uint32_t numDwords);
+
+	void insertUniqueShaderResource(UDSTVector& container, uint32_t startSlot, pssl::PsslShaderResource& shaderRes);
+
+private:
+
+	gve::GveRenderTarget m_renderTarget;
 
 	void* m_vsCode;
 	void* m_psCode;
@@ -75,6 +123,8 @@ private:
 
 	RcPtr<gve::GveShader> m_vsShader;
 	RcPtr<gve::GveShader> m_psShader;
+
+	IndexSize m_indexSize = kIndexSize16;
 
 };
 

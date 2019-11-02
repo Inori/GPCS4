@@ -4,13 +4,22 @@
 #include "GnmConstant.h"
 #include "GnmStructure.h"
 #include "GnmSharpBuffer.h"
+#include "GnmRenderTarget.h"
+#include "GnmDepthRenderTarget.h"
+
+#include "../Gve/GveContext.h"
+#include "../Gve/GveResourceManager.h"
+
 
 class GnmCommandBuffer
 {
 public:
-	GnmCommandBuffer();
+	GnmCommandBuffer(const RcPtr<gve::GveDevice>& device, 
+		const RcPtr<gve::GveContex>& context,
+		gve::GveResourceManager* resMgr);
 	virtual ~GnmCommandBuffer();
 
+	RcPtr<gve::GveCommandBuffer> getCmdBuffer();
 	// Implement these one by one...
 
 	// Note:
@@ -18,6 +27,8 @@ public:
 	// Uncomment the method here,
 	// then add the override(implementation) version
 	// to either GnmCommandBufferDraw or GnmCommandBufferDispatch
+	// and fill in param structures or constant in GnmContant.h or GnmStructure.h or other source files
+	// at the same time.
 
 	//virtual void *allocateFromCommandBuffer(uint32_t sizeInBytes, EmbeddedDataAlignment alignment) = 0;
 	//virtual void chainCommandBufferAndResume(uint64_t holeAddr, void *nextIbBaseAddr, uint64_t nextIbSizeInDW) = 0;
@@ -66,6 +77,7 @@ public:
 	//virtual void prepareFlip() = 0;
 	virtual void prepareFlip(void *labelAddr, uint32_t value) = 0;
 	//virtual void prepareFlipWithEopInterrupt(EndOfPipeEventType eventType, CacheAction cacheAction) = 0;
+	virtual void prepareFlipWithEopInterrupt(EndOfPipeEventType eventType, void *labelAddr, uint32_t value ,CacheAction cacheAction) = 0;
 	//virtual void pushMarker(const char *debugString) = 0;
 	//virtual void pushMarker(const char *debugString, uint32_t argbColor) = 0;
 	//virtual void readCpcPerfCounter(uint32_t counterSlot, void *pgpuOutput) = 0;
@@ -112,11 +124,11 @@ public:
 	//virtual void setAaSampleCount(NumSamples logNumSamples, uint32_t maxSampleDistance) = 0;
 	//virtual void setAaSampleLocationControl(const AaSampleLocationControl *control) = 0;
 	//virtual void setAaSampleMask(uint64_t mask) = 0;
-	//virtual void setActiveShaderStages(ActiveShaderStages activeStages) = 0;
+	virtual void setActiveShaderStages(ActiveShaderStages activeStages) = 0;
 	//virtual void setAlphaToMaskControl(AlphaToMaskControl alphaToMaskControl) = 0;
 	//virtual void setBaseIndirectArgs(ShaderType shaderType, void *indirectBaseAddr) = 0;
 	//virtual void setBlendColor(float red, float green, float blue, float alpha) = 0;
-	//virtual void setBlendControl(uint32_t rtSlot, BlendControl blendControl) = 0;
+	virtual void setBlendControl(uint32_t rtSlot, BlendControl blendControl) = 0;
 	//virtual void setBorderColorTableAddr(void *tableAddr) = 0;
 	//virtual void setCbControl(CbMode mode, RasterOp op) = 0;
 	//virtual void setClipControl(ClipControl reg) = 0;
@@ -132,8 +144,8 @@ public:
 	//virtual void setDepthBoundsRange(float depthBoundsMin, float depthBoundsMax) = 0;
 	//virtual void setDepthClearValue(float clearValue) = 0;
 	//virtual void setDepthEqaaControl(DepthEqaaControl depthEqaa) = 0;
-	//virtual void setDepthRenderTarget(DepthRenderTarget const *depthTarget) = 0;
-	//virtual void setDepthStencilControl(DepthStencilControl depthControl) = 0;
+	virtual void setDepthRenderTarget(DepthRenderTarget const *depthTarget) = 0;
+	virtual void setDepthStencilControl(DepthStencilControl depthStencilControl) = 0;
 	//virtual void setDepthStencilDisable() = 0;
 	//virtual void setDispatchDrawIndexDeallocationMask(uint32_t indexMask) = 0;
 	//virtual void setDrawPayloadControl(DrawPayloadControl cntrl) = 0;
@@ -147,8 +159,8 @@ public:
 	//virtual void setGsMode(GsMode mode, GsMaxOutputPrimitiveDwordSize maxPrimDwordSize) = 0;
 	//virtual void setGsOnChipControl(uint32_t esVerticesPerSubGroup, uint32_t gsInputPrimitivesPerSubGroup) = 0;
 	//virtual void setGsShader(const GsStageRegisters *gsRegs) = 0;
-	//virtual void setGuardBands(float horzClip, float vertClip, float horzDiscard, float vertDiscard) = 0;
-	//virtual void setHardwareScreenOffset(uint32_t offsetX, uint32_t offsetY) = 0;
+	virtual void setGuardBands(float horzClip, float vertClip, float horzDiscard, float vertDiscard) = 0;
+	virtual void setHardwareScreenOffset(uint32_t offsetX, uint32_t offsetY) = 0;
 	//virtual void setHsShader(const HsStageRegisters *hsRegs, const TessellationRegisters *tessRegs) = 0;
 	//virtual void setHsShader(const HsStageRegisters *hsRegs, const TessellationRegisters *tessRegs, TessellationDistributionMode distributionMode) = 0;
 	//virtual void setHtileStencil0(HtileStencilControl htileStencilControl) = 0;
@@ -156,7 +168,7 @@ public:
 	//virtual void setIndexBuffer(const void *indexAddr) = 0;
 	//virtual void setIndexCount(uint32_t indexCount) = 0;
 	//virtual void setIndexOffset(uint32_t offset) = 0;
-	//virtual void setIndexSize(IndexSize indexSize, CachePolicy cachePolicy) = 0;
+	virtual void setIndexSize(IndexSize indexSize, CachePolicy cachePolicy) = 0;
 	//virtual void setInstanceStepRate(uint32_t step0, uint32_t step1) = 0;
 	//virtual void setLineWidth(uint16_t widthIn8ths) = 0;
 	//virtual void setLsShader(const LsStageRegisters *lsRegs, uint32_t shaderModifier) = 0;
@@ -178,7 +190,7 @@ public:
 	//virtual void setPrimitiveIdEnable(bool enable) = 0;
 	//virtual void setPrimitiveResetIndexEnable(bool enable) = 0;
 	//virtual void setPrimitiveResetIndex(uint32_t resetIndex) = 0;
-	//virtual void setPrimitiveSetup(PrimitiveSetup reg) = 0;
+	virtual void setPrimitiveSetup(PrimitiveSetup reg) = 0;
 	virtual void setPrimitiveType(PrimitiveType primType) = 0;
 	//virtual void setPsShaderRate(PsShaderRate rate) = 0;
 	//virtual void setPsShaderSampleExclusionMask(uint16_t mask) = 0;
@@ -186,12 +198,12 @@ public:
 	virtual void setPsShader(const pssl::PsStageRegisters *psRegs) = 0;
 	//virtual void setRenderOverride2Control(RenderOverride2Control renderOverride2Control) = 0;
 	//virtual void setRenderOverrideControl(RenderOverrideControl renderOverrideControl) = 0;
-	//virtual void setRenderTarget(uint32_t rtSlot, RenderTarget const *target) = 0;
-	//virtual void setRenderTargetMask(uint32_t mask) = 0;
+	virtual void setRenderTarget(uint32_t rtSlot, RenderTarget const *target) = 0;
+	virtual void setRenderTargetMask(uint32_t mask) = 0;
 	//virtual void setScaledResolutionGrid(const ScaledResolutionGridAxis xAxisLeftEye, const ScaledResolutionGridAxis xAxisRightEye, const ScaledResolutionGridAxis yAxisBothEyes) = 0;
 	//virtual void setScanModeControl(ScanModeControlAa msaa, ScanModeControlViewportScissor viewportScissor) = 0;
-	//virtual void setScreenScissor(int32_t left, int32_t top, int32_t right, int32_t bottom) = 0;
-	virtual void setSsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const GnmSampler *sampler) = 0;
+	virtual void setScreenScissor(int32_t left, int32_t top, int32_t right, int32_t bottom) = 0;
+	virtual void setSsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const SSharpBuffer *sampler) = 0;
 	//virtual void setStencilClearValue(uint8_t clearValue) = 0;
 	//virtual void setStencil(StencilControl stencilControl) = 0;
 	//virtual void setStencilSeparate(StencilControl front, StencilControl back) = 0;
@@ -201,7 +213,7 @@ public:
 	//virtual void setTessellationDistributionThresholds(TessellationDistributionThresholds thresholds) = 0;
 	//virtual void setTextureGradientFactors(uint8_t factor00, uint8_t factor01, uint8_t factor10, uint8_t factor11,
 	//	TextureGradientFactor01SignNegationBehavior factor01sb, TextureGradientFactor10SignNegationBehavior factor10sb) = 0;
-	virtual void setTsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const GnmTexture *tex) = 0;
+	virtual void setTsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const TSharpBuffer *tex) = 0;
 	//virtual void setupDrawOpaqueParameters(void *sizeLocation, uint32_t stride, uint32_t offset) = 0;
 	//virtual void setupEsGsRingRegisters(uint32_t maxExportVertexSizeInDword) = 0;
 	//virtual void setupGsVsRingRegisters(const uint32_t vertexSizePerStreamInDword[4], uint32_t maxOutputVertexCount) = 0;
@@ -213,8 +225,8 @@ public:
 	virtual void setVgtControl(uint8_t primGroupSizeMinusOne, WdSwitchOnlyOnEopMode wdSwitchOnlyOnEopMode, VgtPartialVsWaveMode partialVsWaveMode) = 0;
 	virtual void setViewport(uint32_t viewportId, float dmin, float dmax, const float scale[3], const float offset[3]) = 0;
 	//virtual void setViewportScissor(uint32_t viewportId, uint32_t left, uint32_t top, uint32_t right, uint32_t bottom, WindowOffsetMode windowOffsetEnable) = 0;
-	//virtual void setViewportTransformControl(ViewportTransformControl vportControl) = 0;
-	virtual void setVsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const GnmBuffer *buffer) = 0;
+	virtual void setViewportTransformControl(ViewportTransformControl vportControl) = 0;
+	virtual void setVsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const VSharpBuffer *buffer) = 0;
 	//virtual void setVsShaderStreamoutEnable(bool enable) = 0;
 	virtual void setVsShader(const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier) = 0;
 	//virtual void setWindowOffset(int16_t offsetX, int16_t offsetY) = 0;
@@ -317,6 +329,12 @@ public:
 	//static bool isDispatchDrawAcbSubmitMarker(uint32_t const *pAcbSubmitMarker);
 	//static bool readDispatchDrawAcbSubmitMarker(uint32_t const *pAcbSubmitMarker, uint32_t *out_pSizeofAcbSegment, uint32_t *out_pPipe, uint32_t *out_pQueue, void const** out_ppAcbSegmentNext);
 
+protected:
+	RcPtr<gve::GveDevice> m_device;
+	RcPtr<gve::GveContex> m_context;
+	gve::GveResourceManager* m_resourceManager;
+	RcPtr<gve::GveCommandBuffer> m_cmd;
+	
 private:
 
 };

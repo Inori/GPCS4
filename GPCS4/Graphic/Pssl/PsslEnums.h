@@ -13,7 +13,7 @@ enum PsslProgramType
 	DomainShader = 4,
 	ComputeShader = 5,
 	FetchShader = 6,
-	UnknownShader = 0xFFFFFFFF
+	ShaderTypeCount
 };
 
 

@@ -10,7 +10,7 @@ class GveDevice;
 // Maybe need to update in the future.
 struct GveRenderPassFormat
 {
-	VkFormat swapChainImageFormat;
+	VkFormat colorFormat;
 };
 
 

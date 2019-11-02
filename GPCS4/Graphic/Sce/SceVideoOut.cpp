@@ -8,8 +8,7 @@ namespace sce
 
 SceVideoOut::SceVideoOut(uint32_t width, uint32_t height):
 	m_width(width),
-	m_height(height),
-	m_framebufferResized(false)
+	m_height(height)
 {
 	glfwInit();
 
@@ -76,6 +75,16 @@ bool SceVideoOut::registerBuffers(uint32_t startIndex, uint32_t bufferNum)
 		bRet  = true;
 	}while(false);
 	return bRet;
+}
+
+void SceVideoOut::setFlipRate(uint32_t rate)
+{
+	m_flipRate = rate;
+}
+
+uint32_t SceVideoOut::getFlipRate() const
+{
+	return m_flipRate;
 }
 
 void SceVideoOut::processEvents()

@@ -1,5 +1,5 @@
 #include "GCNCompiler.h"
-
+#include "Platform/UtilString.h"
 
 namespace pssl
 {;
@@ -95,7 +95,25 @@ void GCNCompiler::emitVectorALU(GCNInstruction& ins)
 
 void GCNCompiler::emitVectorRegMov(GCNInstruction& ins)
 {
+	uint32_t op = getVopOpcode(ins);
 
+	uint32_t src = 0;
+	uint32_t dst = 0;
+	uint32_t sidx = 0;
+	uint32_t didx = 0;
+	getVopOperands(ins, &dst, &didx, &src, &sidx);
+
+	switch (op)
+	{
+	case SIVOP1Instruction::V_MOV_B32:
+	{
+		auto value = emitLoadScalarOperand(src, sidx, ins.literalConst);
+		emitStoreVectorOperand(didx, value);
+	}
+		break;
+	default:
+		break;
+	}
 }
 
 void GCNCompiler::emitVectorLane(GCNInstruction& ins)
@@ -125,7 +143,44 @@ void GCNCompiler::emitVectorBitField64(GCNInstruction& ins)
 
 void GCNCompiler::emitVectorFpArith32(GCNInstruction& ins)
 {
+	uint32_t op = getVopOpcode(ins);
+	uint32_t src0 = 0;
+	uint32_t src1 = 0;
+	uint32_t dst = 0;
+	uint32_t src0RIdx = 0;
+	uint32_t src1RIdx = 0;
+	uint32_t dstRIdx = 0;
+	getVopOperands(ins, &dst, &dstRIdx, &src0, &src0RIdx, &src1, &src1RIdx);
+	
+	uint32_t fpTypeId = getScalarTypeId(SpirvScalarType::Float32);
 
+	auto spvSrc0 = emitLoadScalarOperand(src0, src0RIdx, ins.literalConst);
+	auto spvSrc1 = emitLoadVectorOperand(src1RIdx);
+
+	SpirvRegisterValue dstVal;
+	dstVal.type.ctype = SpirvScalarType::Float32;
+	dstVal.type.ccount = 1;
+	
+	switch (op)
+	{
+	case SIVOP2Instruction::V_MAC_F32:
+	case SIVOP3Instruction::V3_MAC_F32:
+	{
+		dstVal = emitLoadVectorOperand(dstRIdx);
+		dstVal.id = m_module.opFAdd(fpTypeId,
+			dstVal.id,
+			m_module.opFMul(fpTypeId, spvSrc0.id, spvSrc1.id));
+	}
+	case SIVOP2Instruction::V_MUL_F32:
+	case SIVOP3Instruction::V3_MUL_F32:
+	{
+		dstVal.id = m_module.opFMul(fpTypeId, spvSrc0.id, spvSrc1.id);
+	}
+	default:
+		break;
+	}
+
+	emitStoreVectorOperand(dstRIdx, dstVal);
 }
 
 void GCNCompiler::emitVectorFpRound32(GCNInstruction& ins)
@@ -195,7 +250,50 @@ void GCNCompiler::emitVectorIntCmp64(GCNInstruction& ins)
 
 void GCNCompiler::emitVectorConv(GCNInstruction& ins)
 {
+	uint32_t op = getVopOpcode(ins);
+	uint32_t src0 = 0;
+	uint32_t src1 = 0;
+	uint32_t dst = 0;
+	uint32_t src0RIdx = 0;
+	uint32_t src1RIdx = 0;
+	uint32_t dstRIdx = 0;
+	getVopOperands(ins, &dst, &dstRIdx, &src0, &src0RIdx, &src1, &src1RIdx);
 
+	auto value0 = emitLoadScalarOperand(src0, src0RIdx, ins.literalConst);
+
+	SpirvRegisterValue dstValue;
+
+	switch (op)
+	{
+	case SIVOP2Instruction::V_CVT_PKRTZ_F16_F32:
+	{
+		auto value1 = emitLoadVectorOperand(src1RIdx);
+		dstValue = emitPackFloat16(
+			emitRegisterConcat(value0, value1));
+	}
+		break;
+	case SIVOP3Instruction::V3_CVT_PKRTZ_F16_F32:
+	{
+		auto value1 = emitLoadScalarOperand(src1, src1RIdx, ins.literalConst);
+		dstValue = emitPackFloat16(
+			emitRegisterConcat(value0, value1));
+	}
+		break;
+	default:
+		break;
+	}
+
+	// v/sgprs store as float32 type by default,
+	// here we need to new a proper type variable.
+	if (m_vgprs[dstRIdx].type.ctype != dstValue.type.ctype)
+	{
+		uint32_t u32PtrType = m_module.defPointerType(getVectorTypeId(dstValue.type), spv::StorageClassPrivate);
+		uint32_t varId = m_module.newVar(u32PtrType, spv::StorageClassPrivate);
+		m_module.setDebugName(varId, UtilString::Format("v_%d", dstRIdx).c_str());
+		m_vgprs[dstRIdx] = SpirvRegisterPointer(dstValue.type, varId);
+	}
+
+	emitStoreVectorOperand(dstRIdx, dstValue);
 }
 
 void GCNCompiler::emitVectorFpGraph32(GCNInstruction& ins)

@@ -21,13 +21,16 @@
   <ItemGroup>
     <ClInclude Include="Algorithm\sha1.h" />
     <ClInclude Include="Algorithm\Sha1Hash.h" />
+    <ClInclude Include="Common\FlagHelper.h" />
     <ClInclude Include="Common\GPCS4Log.h" />
     <ClInclude Include="Common\GPCS4Types.h" />
+    <ClInclude Include="Common\GveHash.h" />
     <ClInclude Include="Common\MacroHelper.h" />
     <ClInclude Include="Common\ReferenceCount.h" />
     <ClInclude Include="Common\Singleton.h" />
     <ClInclude Include="Common\BitHelper.h" />
     <ClInclude Include="Common\LikelyHelper.h" />
+    <ClInclude Include="Common\SyncHelper.h" />
     <ClInclude Include="elf-sce.h" />
     <ClInclude Include="Emulator\Emulator.h" />
     <ClInclude Include="Emulator\GameThread.h" />
@@ -36,27 +39,50 @@
     <ClInclude Include="Emulator\TLSHandler.h" />
     <ClInclude Include="GPCS4Common.h" />
     <ClInclude Include="GPCS4Config.h" />
+    <ClInclude Include="Graphic\Gnm\GnmBuffer.h" />
     <ClInclude Include="Graphic\Gnm\GnmCmdStream.h" />
     <ClInclude Include="Graphic\Gnm\GnmCommandBuffer.h" />
     <ClInclude Include="Graphic\Gnm\GnmCommandBufferDispatch.h" />
     <ClInclude Include="Graphic\Gnm\GnmCommandBufferDraw.h" />
+    <ClInclude Include="Graphic\Gnm\GnmCommon.h" />
     <ClInclude Include="Graphic\Gnm\GnmConstant.h" />
+    <ClInclude Include="Graphic\Gnm\GnmDataFormat.h" />
+    <ClInclude Include="Graphic\Gnm\GnmDepthRenderTarget.h" />
     <ClInclude Include="Graphic\Gnm\GnmGfx9MePm4Packets.h" />
     <ClInclude Include="Graphic\Gnm\GnmOpCode.h" />
+    <ClInclude Include="Graphic\Gnm\GnmRegInfo.h" />
+    <ClInclude Include="Graphic\Gnm\GnmRenderTarget.h" />
+    <ClInclude Include="Graphic\Gnm\GnmSampler.h" />
     <ClInclude Include="Graphic\Gnm\GnmSharpBuffer.h" />
     <ClInclude Include="Graphic\Gnm\GnmStructure.h" />
+    <ClInclude Include="Graphic\Gnm\GnmTexture.h" />
     <ClInclude Include="Graphic\GraphicShared.h" />
+    <ClInclude Include="Graphic\Gve\GveBuffer.h" />
     <ClInclude Include="Graphic\Gve\GveCommandBuffer.h" />
     <ClInclude Include="Graphic\Gve\GveCommon.h" />
     <ClInclude Include="Graphic\Gve\GveContext.h" />
+    <ClInclude Include="Graphic\Gve\GveDescriptor.h" />
+    <ClInclude Include="Graphic\Gve\GveGraphicsPipeline.h" />
+    <ClInclude Include="Graphic\Gve\GveImage.h" />
+    <ClInclude Include="Graphic\Gve\GveLimit.h" />
+    <ClInclude Include="Graphic\Gve\GvePipelineLayout.h" />
+    <ClInclude Include="Graphic\Gve\GvePipelineManager.h" />
+    <ClInclude Include="Graphic\Gve\GveRenderState.h" />
     <ClInclude Include="Graphic\Gve\GveDevice.h" />
+    <ClInclude Include="Graphic\Gve\GveDeviceInfo.h" />
+    <ClInclude Include="Graphic\Gve\GveExtension.h" />
     <ClInclude Include="Graphic\Gve\GveFrameBuffer.h" />
     <ClInclude Include="Graphic\Gve\GveInstance.h" />
+    <ClInclude Include="Graphic\Gve\GveMemory.h" />
     <ClInclude Include="Graphic\Gve\GvePhysicalDevice.h" />
     <ClInclude Include="Graphic\Gve\GveRenderPass.h" />
+    <ClInclude Include="Graphic\Gve\GveResourceManager.h" />
+    <ClInclude Include="Graphic\Gve\GveSampler.h" />
     <ClInclude Include="Graphic\Gve\GveShader.h" />
     <ClInclude Include="Graphic\Gve\GveSwapChain.h" />
     <ClInclude Include="Graphic\Gve\GveVkLayers.h" />
+    <ClInclude Include="Graphic\Pssl\GCNAnalyzer.h" />
+    <ClInclude Include="Graphic\Pssl\GCNEnums.h" />
     <ClInclude Include="Graphic\Pssl\GCNParser\DeviceInfo.h" />
     <ClInclude Include="Graphic\Pssl\GCNParser\DSInstruction.h" />
     <ClInclude Include="Graphic\Pssl\GCNParser\EXPInstruction.h" />
@@ -95,6 +121,8 @@
     <ClInclude Include="Graphic\Pssl\GCNParser\VOPInstruction.h" />
     <ClInclude Include="Graphic\Pssl\GCNCompiler.h" />
     <ClInclude Include="Graphic\Pssl\GCNDecoder.h" />
+    <ClInclude Include="Graphic\Pssl\PsslBindingCalculator.h" />
+    <ClInclude Include="Graphic\Pssl\PsslCommon.h" />
     <ClInclude Include="Graphic\Pssl\PsslEnums.h" />
     <ClInclude Include="Graphic\Pssl\PsslFetchShader.h" />
     <ClInclude Include="Graphic\Pssl\PsslKey.h" />
@@ -209,15 +237,26 @@
     <ClCompile Include="Graphic\Gnm\GnmCommandBufferDraw.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmOpCode.cpp" />
     <ClCompile Include="Graphic\GraphicShared.cpp" />
+    <ClCompile Include="Graphic\Gve\GveBuffer.cpp" />
     <ClCompile Include="Graphic\Gve\GveCommandBuffer.cpp" />
     <ClCompile Include="Graphic\Gve\GveContext.cpp" />
+    <ClCompile Include="Graphic\Gve\GveDescriptor.cpp" />
     <ClCompile Include="Graphic\Gve\GveDevice.cpp" />
+    <ClCompile Include="Graphic\Gve\GveExtension.cpp" />
     <ClCompile Include="Graphic\Gve\GveFrameBuffer.cpp" />
+    <ClCompile Include="Graphic\Gve\GveGraphicsPipeline.cpp" />
+    <ClCompile Include="Graphic\Gve\GveImage.cpp" />
     <ClCompile Include="Graphic\Gve\GveInstance.cpp" />
+    <ClCompile Include="Graphic\Gve\GveMemory.cpp" />
     <ClCompile Include="Graphic\Gve\GvePhysicalDevice.cpp" />
+    <ClCompile Include="Graphic\Gve\GvePipelineLayout.cpp" />
+    <ClCompile Include="Graphic\Gve\GvePipelineManager.cpp" />
     <ClCompile Include="Graphic\Gve\GveRenderPass.cpp" />
+    <ClCompile Include="Graphic\Gve\GveResourceManager.cpp" />
+    <ClCompile Include="Graphic\Gve\GveSampler.cpp" />
     <ClCompile Include="Graphic\Gve\GveShader.cpp" />
     <ClCompile Include="Graphic\Gve\GveSwapChain.cpp" />
+    <ClCompile Include="Graphic\Pssl\GCNAnalyzer.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNCompilerDataShare.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNCompilerDebugProfile.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNCompilerExport.cpp" />
@@ -453,10 +492,10 @@
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Label="LLVM" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClangClAdditionalOptions>-Wno-unused-variable -Wno-unused-private-field</ClangClAdditionalOptions>
+    <ClangClAdditionalOptions>-Wno-unused-variable -Wno-unused-private-field -Wno-switch</ClangClAdditionalOptions>
   </PropertyGroup>
   <PropertyGroup Label="LLVM" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ClangClAdditionalOptions>-flto=thin -Wno-unused-variable -Wno-unused-private-field</ClangClAdditionalOptions>
+    <ClangClAdditionalOptions>-flto=thin -Wno-unused-variable -Wno-unused-private-field -Wno-switch</ClangClAdditionalOptions>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -476,7 +515,7 @@
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(VULKAN_SDK)\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>__PTW32_STATIC_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GPCS4_DEBUG;__PTW32_STATIC_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

@@ -79,4 +79,7 @@ X_INIT(Reserved209, 209),
        /// SCC.
        X(SCC),
        /// 254 reserved.
-       X(Reserved254),
+       X(LdsDirect),
+	   /// 9 bits SRC vgprs
+	   X_INIT(VectorGPRMin, 256),
+	   X_INIT(VectorGPRMax, 511),

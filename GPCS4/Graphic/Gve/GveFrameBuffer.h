@@ -1,10 +1,18 @@
 #pragma once
 
 #include "GveCommon.h"
-#include "GveDevice.h"
+
 
 namespace gve
 {;
+
+class GveDevice;
+class GveFrameBuffer;
+
+struct GveRenderTarget
+{
+	RcPtr<GveFrameBuffer> frameBuffer;
+};
 
 
 class GveFrameBuffer : public RcObject
@@ -13,21 +21,25 @@ class GveFrameBuffer : public RcObject
 public:
 	GveFrameBuffer(const RcPtr<GveDevice>& device, 
 		VkRenderPass renderPass,
-		VkImageView swapChainImageView,
-		VkExtent2D& swapChainExtent);
+		VkImageView imageView,
+		VkExtent2D& extent);
 	~GveFrameBuffer();
 
 	VkFramebuffer handle() const;
 
+	VkExtent2D extent() const;
+
 	VkRenderPass renderPassHandle();
 
 private:
-	bool createFrameBuffer(VkImageView imageView, VkExtent2D& extent);
+	bool createFrameBuffer(VkImageView imageView);
 
 private:
-	VkFramebuffer m_frameBuffer;
-	VkRenderPass m_renderPass;
 	RcPtr<GveDevice> m_device;
+	VkRenderPass m_renderPass;
+	VkExtent2D m_extent;
+
+	VkFramebuffer m_frameBuffer;
 };
 
 

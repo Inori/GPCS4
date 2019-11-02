@@ -1,14 +1,16 @@
 #include "GveFrameBuffer.h"
+#include "GveDevice.h"
 
 namespace gve
 {;
 
 GveFrameBuffer::GveFrameBuffer(const RcPtr<GveDevice>& device, VkRenderPass renderPass,
-	VkImageView swapChainImageView, VkExtent2D& swapChainExtent):
+	VkImageView imageView, VkExtent2D& extent):
 	m_device(device),
-	m_renderPass(renderPass)
+	m_renderPass(renderPass),
+	m_extent(extent)
 {
-	bool ret = createFrameBuffer(swapChainImageView, swapChainExtent);
+	bool ret = createFrameBuffer(imageView);
 	LOG_ASSERT(ret == true, "FrameBuffer init failed.");
 }
 
@@ -22,12 +24,17 @@ VkFramebuffer GveFrameBuffer::handle() const
 	return m_frameBuffer;
 }
 
+VkExtent2D GveFrameBuffer::extent() const
+{
+	return m_extent;
+}
+
 VkRenderPass GveFrameBuffer::renderPassHandle()
 {
 
 }
 
-bool GveFrameBuffer::createFrameBuffer(VkImageView imageView, VkExtent2D& extent)
+bool GveFrameBuffer::createFrameBuffer(VkImageView imageView)
 {
 	bool ret = false;
 	do 
@@ -39,8 +46,8 @@ bool GveFrameBuffer::createFrameBuffer(VkImageView imageView, VkExtent2D& extent
 		framebufferInfo.renderPass = m_renderPass;
 		framebufferInfo.attachmentCount = 1;
 		framebufferInfo.pAttachments = attachments;
-		framebufferInfo.width = extent.width;
-		framebufferInfo.height = extent.height;
+		framebufferInfo.width = m_extent.width;
+		framebufferInfo.height = m_extent.height;
 		framebufferInfo.layers = 1;
 
 		if (vkCreateFramebuffer(*m_device, &framebufferInfo, nullptr, &m_frameBuffer) != VK_SUCCESS)

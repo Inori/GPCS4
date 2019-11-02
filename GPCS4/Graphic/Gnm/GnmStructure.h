@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GPCS4Common.h"
+#include "GnmRegInfo.h"
 #include "../Pssl/PsslShaderRegister.h"
 
 struct DrawModifier
@@ -9,7 +10,12 @@ struct DrawModifier
 	uint32_t reserved : 29;
 };
 
+//////////////////////////////////////////////////////////////////////////
 
+// Self defined structures.
+// Used to record gnm driver calls' parameters.
+
+// Note:
 // we must keep the size of these structs
 // thus if add new field, decrease the reserved count to keep size unchanged.
 
@@ -179,3 +185,129 @@ struct GnmCmdWaitFlipDone
 
 
 #pragma pack(pop)
+
+//////////////////////////////////////////////////////////////////////////
+
+// Encoded regs' definition
+
+
+union ViewportTransformControl
+{
+	struct
+	{
+		uint16_t scaleX		: 1;
+		uint16_t offsetX	: 1;
+		uint16_t scaleY		: 1;
+		uint16_t offsetY	: 1;
+		uint16_t scaleZ		: 1;
+		uint16_t offsetZ	: 1;
+
+		uint16_t passThrough : 2;
+
+		uint16_t perspectiveDivideXY	: 1;  // 0 for enable
+		uint16_t perspectiveDivideZ		: 1;  // 0 for enable
+		uint16_t invertW	: 1;
+
+		uint16_t reserved0	: 1;
+		uint16_t reserved1	: 1;
+		uint16_t reserved2	: 1;
+		uint16_t reserved3	: 1;
+		uint16_t reserved4	: 1;
+
+		uint16_t reserved5;
+	};
+
+	uint32_t reg;
+};
+
+
+union DepthStencilControl
+{
+	struct
+	{
+		uint32_t stencilEnable : 1;
+		uint32_t depthEnable : 1;
+		uint32_t zWrite : 1;
+		uint32_t depthBoundsEnable : 1;
+
+		uint32_t zFunc : 3;
+		uint32_t separateStencilEnable : 1;
+
+		uint32_t stencilFunc : 3;
+		uint32_t reserved0 : 1;
+
+		uint32_t reserved1 : 8;
+
+		uint32_t stencilFuncBack : 3;
+		uint32_t reserved2 : 1;
+
+		uint32_t reserved3 : 8;
+	};
+
+	uint32_t reg;
+};
+
+
+union PrimitiveSetup
+{
+	struct
+	{
+		uint32_t cullMode : 2;
+		uint32_t frontFace : 1;
+		uint32_t pointOrWairframe : 1;  // Not sure, means one of front or back is not rendered as solid
+
+		uint32_t reserved0 : 1;
+		uint32_t frontMode : 3;
+
+		uint32_t backMode : 3;
+		uint32_t frontOffsetMode : 1;
+
+		uint32_t backOffsetMode : 1;
+		uint32_t reserved1 : 3;
+
+		uint32_t vertexWindowOffsetEnable : 1;
+		uint32_t reserved2 : 1;
+		uint32_t reserved3 : 1;
+		uint32_t provokeVertexMode : 1;
+
+		uint32_t perspectiveCorrectionEnable : 1;
+		uint32_t reserved4 : 3;
+
+		uint32_t reserved5 : 8;
+	};
+
+	uint32_t reg;
+};
+
+
+union BlendControl
+{
+	struct
+	{
+		uint32_t colorSourceMul : 5;
+		uint32_t colorBlendFunc : 3;
+
+		uint32_t colorDestMul : 5;
+		uint32_t reserved0 : 3;
+		
+
+		uint32_t alphaSourceMul : 5;
+		uint32_t alphaBlendFunc : 3;
+
+		uint32_t alphaDestMul : 5;
+		uint32_t separateAlphaEnable : 1;
+		uint32_t blendEnable : 1;
+		uint32_t reserved1 : 1;
+	};
+
+	uint32_t reg;
+};
+
+//////////////////////////////////////////////////////////////////////////
+typedef uint32_t AlignmentType;
+
+struct SizeAlign
+{
+	uint32_t m_size;
+	AlignmentType m_align;
+};

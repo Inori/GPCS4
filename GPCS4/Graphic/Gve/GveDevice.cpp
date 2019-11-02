@@ -1,4 +1,9 @@
 #include "GveDevice.h"
+#include "GveCommandBuffer.h"
+#include "GveDescriptor.h"
+#include "GveBuffer.h"
+#include "GveImage.h"
+
 
 namespace gve
 {;
@@ -21,9 +26,14 @@ GveDevice::operator VkDevice() const
 	return m_device;
 }
 
-RcPtr<gve::GvePhysicalDevice> GveDevice::getPhysicalDevice()
+RcPtr<gve::GvePhysicalDevice> GveDevice::physicalDevice() const
 {
 	return m_phyDevice;
+}
+
+GveDeviceQueueSet GveDevice::queues() const
+{
+	return m_queues;
 }
 
 RcPtr<gve::GveRenderPass> GveDevice::createRenderPass(GveRenderPassFormat& format)
@@ -38,12 +48,17 @@ RcPtr<gve::GveFrameBuffer> GveDevice::createFrameBuffer(VkRenderPass renderPass,
 
 RcPtr<gve::GveCommandBuffer> GveDevice::createCommandBuffer()
 {
-
+	return new GveCommandBuffer(this);
 }
 
-RcPtr<gve::GveContex> GveDevice::createContext()
+RcPtr<gve::GveContex> GveDevice::createContext(const GveContextParam& param)
 {
-	return new GveContex(this);
+	return new GveContex(this, param);
+}
+
+RcPtr<gve::GveDescriptorPool> GveDevice::createDescriptorPool()
+{
+	return new GveDescriptorPool(this);
 }
 
 void GveDevice::initQueues()

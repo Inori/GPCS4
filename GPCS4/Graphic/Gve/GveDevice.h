@@ -5,9 +5,15 @@
 #include "GveRenderPass.h"
 #include "GveFrameBuffer.h"
 #include "GveContext.h"
+#include "GveMemory.h"
 
 namespace gve
 {;
+
+class GveCommandBuffer;
+class GveDescriptorPool;
+class GveBuffer;
+class GveImage;
 
 struct GveDeviceQueue 
 {
@@ -30,7 +36,9 @@ public:
 
 	operator VkDevice() const;
 
-	RcPtr<GvePhysicalDevice> getPhysicalDevice();
+	RcPtr<GvePhysicalDevice> physicalDevice() const;
+
+	GveDeviceQueueSet queues() const;
 
 	RcPtr<GveRenderPass> createRenderPass(GveRenderPassFormat& format);
 
@@ -38,7 +46,9 @@ public:
 
 	RcPtr<GveCommandBuffer> createCommandBuffer();
 
-	RcPtr<GveContex> createContext();
+	RcPtr<GveContex> createContext(const GveContextParam& param);
+
+	RcPtr<GveDescriptorPool> createDescriptorPool();
 
 private:
 	void initQueues();
@@ -47,6 +57,8 @@ private:
 	VkDevice m_device;
 	RcPtr<GvePhysicalDevice> m_phyDevice;
 	GveDeviceQueueSet m_queues;
+	
+	
 };
 
 } // namespace gve

@@ -38,4 +38,19 @@ struct FetchShaderBuildState
 	std::vector<uint32_t>			 semanticsRemapTable;
 };
 
+
+/**
+ * \brief Shader resource buffer
+ *
+ * User data sent to a shader.
+ */
+struct PsslShaderResource
+{
+	uint32_t startSlot = 0;  // Start sgpr register index or EUD index
+	const void* resource = nullptr;  // Will be cast to proper buffer type when interpreted.
+	uint32_t sizeDwords = 0;
+};
+
+
+
 }  // pssl

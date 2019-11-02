@@ -8,6 +8,8 @@
 
 #include "../Gve/GveInstance.h"
 #include "../Gve/GveSwapChain.h"
+#include "../Gve/GvePipelineManager.h"
+#include "../Gve/GveResourceManager.h"
 
 #include <memory>
 
@@ -31,9 +33,15 @@ public:
 	int sceGnmSubmitDone(void);
 
 private:
+
 	RcPtr<gve::GvePhysicalDevice>  pickPhysicalDevice();
 	bool isDeviceSuitable(RcPtr<gve::GvePhysicalDevice>& device);
-	bool checkDeviceExtensionSupport(RcPtr<gve::GvePhysicalDevice>& device);
+	void createFrameBuffers(uint32_t count);
+	void createContexts(uint32_t count);
+	void createCommandParsers(uint32_t count);
+	void createSyncObjects(uint32_t framesInFlight);
+
+	void submitCommandBufferAndPresent(const RcPtr<gve::GveCommandBuffer>& cmdBuffer);
 
 private:
 	std::shared_ptr<SceVideoOut> m_videoOut;
@@ -44,6 +52,18 @@ private:
 	RcPtr<gve::GvePhysicalDevice> m_physDevice;
 	RcPtr<gve::GveDevice> m_device;
 	RcPtr<gve::GveSwapChain> m_swapchain;
+	RcPtr<gve::GveRenderPass> m_renderPass;
+	std::vector<RcPtr<gve::GveFrameBuffer>> m_frameBuffers;
+	std::vector<RcPtr<gve::GveContex>> m_contexts;
+
+	std::unique_ptr<gve::GvePipelineManager> m_pipeMgr;
+	std::unique_ptr<gve::GveResourceManager> m_resMgr;
+
+
+	std::vector<VkSemaphore> m_imageAvailableSemaphores;
+	std::vector<VkSemaphore> m_renderFinishedSemaphores;
+	std::vector<VkFence> m_inFlightFences;
+	uint32_t m_currentFrame = 0;
 };
 
 }  //sce

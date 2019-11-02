@@ -43,21 +43,12 @@ void LogAssert(const char* szLevel, const char* szFunction, int nLine, const cha
 // only use to trace graphic calls, mostly in libVideoOut and libGnmDriver
 #define LOG_SCE_GRAPHIC(format, ...)	_LOG_PRINT_(LOG_LEVEL_SCE_GRAPHIC, format, __VA_ARGS__);
 
+
 // not really implemented
 // just return result which looks correct to let the program go on
 #define LOG_SCE_DUMMY_IMPL()	LOG_FIXME("SCE Dummy implemented");
 
 #else
-
-// Note:
-// if we undef GPCS4_DEBUG and using the following empty macros,
-// we will get compiling errors.
-// it seems that this is because 
-// clang do not support a function with 4-bytes-aligned param list
-// when declared as sysv_abi,
-// eg. int PS4API my_func(int arg);
-// but int PS4API my_func(long long arg); will be fine.
-// this is fucking strange... and I don't why...
 
 #define LOG_DEBUG(format, ...)	
 #define LOG_TRACE(format, ...)	
@@ -67,6 +58,7 @@ void LogAssert(const char* szLevel, const char* szFunction, int nLine, const cha
 #define LOG_ASSERT(expression, format, ...) 
 
 #define LOG_SCE_TRACE(format, ...)
+#define LOG_SCE_GRAPHIC(format, ...)	
 #define LOG_SCE_DUMMY_IMPL()
 
 #endif  //ENABLE_DEBUG

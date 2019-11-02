@@ -8,24 +8,29 @@ GveSwapChain::GveSwapChain(RcPtr<GveDevice>& logicDevice,
 	std::shared_ptr<sce::SceVideoOut>& videoOut,
 	uint32_t imageCount) :
 	m_swapchain(VK_NULL_HANDLE),
-	m_logicalDevice(logicDevice),
+	m_device(logicDevice),
 	m_videoOut(videoOut)
 {
-	m_phyDevice = m_logicalDevice->getPhysicalDevice();
+	m_phyDevice = m_device->physicalDevice();
 	createSwapChain(imageCount);
 }
 
 GveSwapChain::~GveSwapChain()
 {
-	vkDestroySwapchainKHR(*m_logicalDevice, m_swapchain, nullptr);
+	vkDestroySwapchainKHR(*m_device, m_swapchain, nullptr);
+}
+
+VkSwapchainKHR GveSwapChain::handle() const
+{
+	return m_swapchain;
 }
 
 void GveSwapChain::createSwapChain(uint32_t imageCount)
 {
 	do 
 	{
-		GveInstance* instance = m_phyDevice->getInstance();
-		VkDevice device = *m_logicalDevice;
+		GveInstance* instance = m_phyDevice->instance();
+		VkDevice device = *m_device;
 		VkSurfaceKHR surface = m_videoOut->getSurface(*instance);
 
 		SwapChainSupportDetails swapChainSupport = querySwapChainSupport(*m_phyDevice, surface);
@@ -38,6 +43,14 @@ void GveSwapChain::createSwapChain(uint32_t imageCount)
 		if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount)
 		{
 			imageCount = swapChainSupport.capabilities.maxImageCount;
+		}
+
+		GvePhysicalDeviceQueueFamilies queueFamilies = m_phyDevice->findQueueFamilies();
+		VkBool32 presentSupport = false;
+		vkGetPhysicalDeviceSurfaceSupportKHR(*m_phyDevice, queueFamilies.graphicsFamily, surface, &presentSupport);
+		if (!presentSupport)
+		{
+			break;
 		}
 
 		VkSwapchainCreateInfoKHR createInfo = {};
@@ -68,7 +81,35 @@ void GveSwapChain::createSwapChain(uint32_t imageCount)
 
 		m_swapChainImageFormat = surfaceFormat.format;
 		m_swapChainExtent = extent;
+
+		createImageViews();
+
 	} while (false);
+}
+
+void GveSwapChain::createImageViews()
+{
+	for (auto& image : m_swapChainImages)
+	{
+		VkImageViewCreateInfo viewInfo = {};
+		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		viewInfo.image = image;
+		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		viewInfo.format = m_swapChainImageFormat;
+		viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		viewInfo.subresourceRange.baseMipLevel = 0;
+		viewInfo.subresourceRange.levelCount = 1;
+		viewInfo.subresourceRange.baseArrayLayer = 0;
+		viewInfo.subresourceRange.layerCount = 1;
+
+		VkImageView imageView;
+		if (vkCreateImageView(*m_device, &viewInfo, nullptr, &imageView) != VK_SUCCESS) 
+		{
+			LOG_ERR("failed to create swapchain texture image view!");
+		}
+
+		m_swapChainImageViews.push_back(imageView);
+	}
 }
 
 SwapChainSupportDetails GveSwapChain::querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface)
@@ -176,9 +217,31 @@ VkFormat GveSwapChain::imageFormat() const
 	return m_swapChainImageFormat;
 }
 
+uint32_t GveSwapChain::imageCount() const
+{
+	return m_swapChainImages.size();
+}
+
 VkExtent2D GveSwapChain::extent() const
 {
 	return m_swapChainExtent;
+}
+
+VkImage GveSwapChain::getImage(uint32_t index)
+{
+	return m_swapChainImages[index];
+}
+
+VkImageView GveSwapChain::getImageView(uint32_t index)
+{
+	return m_swapChainImageViews[index];
+}
+
+VkResult GveSwapChain::acquireNextImage(VkSemaphore signal, VkFence fence, uint32_t& index)
+{
+	LOG_ASSERT(fence == VK_NULL_HANDLE, "TODO: only support null fence currently");
+	VkResult result = vkAcquireNextImageKHR(*m_device, m_swapchain, UINT64_MAX, signal, VK_NULL_HANDLE, &index);
+	return result;
 }
 
 }  // namespace gve
