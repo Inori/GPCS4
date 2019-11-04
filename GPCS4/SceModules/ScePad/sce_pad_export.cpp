@@ -10,6 +10,7 @@ static const SCE_EXPORT_FUNCTION g_pScePad_libScePad_FunctionTable[] =
 {
 	{ 0xEA77207B9FA5E50B, "scePadClose", (void*)scePadClose },
 	{ 0x8233FDFCA433A149, "scePadGetControllerInformation", (void*)scePadGetControllerInformation },
+	{ 0xBB51911E9FA85A86, "scePadGetHandle", (void*)scePadGetHandle },
 	{ 0x86FD65BA226BA903, "scePadInit", (void*)scePadInit },
 	{ 0xC64D0071AACFDD5E, "scePadOpen", (void*)scePadOpen },
 	{ 0x6277605EA41557B7, "scePadReadState", (void*)scePadReadState },
