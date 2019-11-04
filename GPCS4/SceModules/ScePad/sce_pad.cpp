@@ -33,7 +33,7 @@ MapSlot<PadHandleItem, decltype(isPadPortClose)> g_padHandleSlots(SCE_PAD_HANDLE
 
 int PS4API scePadClose(int32_t handle)
 {
-	LOG_SCE_TRACE("handle %h", handle);
+	LOG_SCE_TRACE("handle %d", handle);
 	int ret = 0;
 	do
 	{
@@ -61,7 +61,7 @@ int PS4API scePadGetControllerInformation(void)
 
 int PS4API scePadGetHandle(SceUserServiceUserId userId, int32_t type, int32_t index)
 {
-	LOG_SCE_TRACE("userId %u type %t index %i", userId, type, index);
+	LOG_SCE_TRACE("userId %d type %d index %d", userId, type, index);
 	int ret = 0;
 	PadHandleItem item  { userId, type, index, true };
 
@@ -84,7 +84,7 @@ int PS4API scePadInit(void)
 
 int PS4API scePadOpen(SceUserServiceUserId userId, int32_t type, int32_t index, const ScePadOpenParam* pParam)
 {
-	LOG_SCE_TRACE("userId %u type %t index %i", userId, type, index);
+	LOG_SCE_TRACE("userId %d type %d index %d pParam %p", userId, type, index, pParam);
 	int ret = 0;
     PadHandleItem item  { userId, type, index, true };
 	do 
