@@ -20,7 +20,7 @@ extern const SCE_EXPORT_MODULE g_ExpModuleScePad;
 // The codebase is generated using GenerateCode.py
 // You may need to modify the code manually to fit development needs
 
-#define SCE_PAD_HANDLE_MAX 2048
+#define SCE_PAD_HANDLE_MAX 20 
 
 //////////////////////////////////////////////////////////////////////////
 // library: libScePad

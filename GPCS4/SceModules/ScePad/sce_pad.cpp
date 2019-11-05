@@ -22,7 +22,7 @@ bool isPadPortClose(PadHandleItem& item)
 
 bool isEqualPad(const PadHandleItem& lpad, const PadHandleItem& rpad)
 {
-	return lpad.userId == rpad.userId && lpad.type == rpad.type && lpad.index == rpad.index;
+	return lpad.userId == rpad.userId && lpad.type == rpad.type;
 }
 
 MapSlot<PadHandleItem, decltype(isPadPortClose)> g_padHandleSlots(SCE_PAD_HANDLE_MAX, isPadPortClose);
