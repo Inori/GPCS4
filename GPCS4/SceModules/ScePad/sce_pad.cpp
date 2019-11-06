@@ -13,6 +13,7 @@ struct PadHandleItem
 	int32_t type;
 	int32_t index;
 	bool portState;
+	bool motionSensor;
 };
 
 bool isPadPortClose(PadHandleItem& item)
@@ -40,11 +41,11 @@ int PS4API scePadClose(int32_t handle)
 		PadHandleItem& item = g_padHandleSlots[handle];
 		if (item.portState == false)
 		{
-			ret = SCE_PAD_ERROR_NO_HANDLE;
+			ret = SCE_PAD_ERROR_INVALID_HANDLE;
 			break;
 		}
 
-		g_padHandleSlots[handle] = { 0, 0, 0, false };
+		g_padHandleSlots[handle] = { 0, 0, 0, false, false };
 		ret = SCE_OK;
 	} while (false);
 
@@ -63,7 +64,7 @@ int PS4API scePadGetHandle(SceUserServiceUserId userId, int32_t type, int32_t in
 {
 	LOG_SCE_TRACE("userId %d type %d index %d", userId, type, index);
 	int ret = 0;
-	PadHandleItem item  { userId, type, index, true };
+	PadHandleItem item  { userId, type, index, true, true };
 
 	ret = g_padHandleSlots.GetItemIndex(item, isEqualPad);
 	if (ret == 0) 
@@ -86,7 +87,7 @@ int PS4API scePadOpen(SceUserServiceUserId userId, int32_t type, int32_t index, 
 {
 	LOG_SCE_TRACE("userId %d type %d index %d pParam %p", userId, type, index, pParam);
 	int ret = 0;
-    PadHandleItem item  { userId, type, index, true };
+    PadHandleItem item  { userId, type, index, true, true };
 	do 
 	{
 		ret = g_padHandleSlots.GetItemIndex(item, isEqualPad);
@@ -124,6 +125,28 @@ int PS4API scePadSetLightBar(void)
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
 }
+
+
+int PS4API scePadSetMotionSensorState(int32_t handle, bool bEnable)
+{
+	LOG_SCE_TRACE("handle %d bEnable %d", handle, bEnable);
+	int ret = 0;
+	do
+	{
+		PadHandleItem& item = g_padHandleSlots[handle];
+		if (item.portState == false)
+		{
+			ret = SCE_PAD_ERROR_INVALID_HANDLE;
+			break;
+		}
+
+		item.motionSensor = bEnable;
+		ret = SCE_OK;
+	} while (false);
+
+	return ret;
+}
+
 
 
 int PS4API scePadSetVibration(void)

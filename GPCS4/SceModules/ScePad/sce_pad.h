@@ -20,7 +20,7 @@ extern const SCE_EXPORT_MODULE g_ExpModuleScePad;
 // The codebase is generated using GenerateCode.py
 // You may need to modify the code manually to fit development needs
 
-#define SCE_PAD_HANDLE_MAX 20 
+#define SCE_PAD_HANDLE_MAX 70 
 
 //////////////////////////////////////////////////////////////////////////
 // library: libScePad
@@ -48,6 +48,9 @@ int PS4API scePadResetLightBar(void);
 
 
 int PS4API scePadSetLightBar(void);
+
+
+int PS4API scePadSetMotionSensorState(int32_t handle, bool bEnable);
 
 
 int PS4API scePadSetVibration(void);
