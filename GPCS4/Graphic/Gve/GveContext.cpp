@@ -260,7 +260,7 @@ void GveContex::drawIndex(uint32_t indexCount, uint32_t firstIndex)
 	renderPassInfo.framebuffer = m_renderTarget.frameBuffer->handle();
 	renderPassInfo.renderArea.offset = { 0, 0 };
 	renderPassInfo.renderArea.extent = m_renderTarget.frameBuffer->extent();
-	VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+	VkClearValue clearColor = { 0.5f, 0.5f, 0.5f, 1.0f };
 	renderPassInfo.clearValueCount = 1;
 	renderPassInfo.pClearValues = &clearColor;
 
