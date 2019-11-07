@@ -171,11 +171,13 @@ void GCNCompiler::emitVectorFpArith32(GCNInstruction& ins)
 			dstVal.id,
 			m_module.opFMul(fpTypeId, spvSrc0.id, spvSrc1.id));
 	}
+		break;
 	case SIVOP2Instruction::V_MUL_F32:
 	case SIVOP3Instruction::V3_MUL_F32:
 	{
 		dstVal.id = m_module.opFMul(fpTypeId, spvSrc0.id, spvSrc1.id);
 	}
+		break;
 	default:
 		break;
 	}

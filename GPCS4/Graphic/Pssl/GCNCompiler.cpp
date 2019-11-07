@@ -334,7 +334,6 @@ void GCNCompiler::emitDclVertexOutput()
 	// like normal or texture coordinate
 	do 
 	{
-		uint32_t outLocation = 0;
 		for (const auto& expInfo : m_analysis->expParams)
 		{
 			if (expInfo.target == EXPInstruction::TGT::TGTExpPosMin)
@@ -343,6 +342,7 @@ void GCNCompiler::emitDclVertexOutput()
 				continue;
 			}
 
+			uint32_t outLocation = expInfo.target - (uint32_t)EXPInstruction::TGT::TGTExpParamMin;
 			SpirvRegisterInfo info(SpirvScalarType::Float32, expInfo.regIndices.size(), 
 				0, spv::StorageClassOutput);
 			uint32_t outputId = emitNewVariable(info, 
@@ -524,7 +524,9 @@ void GCNCompiler::emitDclImmConstBuffer(const GcnResourceBuffer& res)
 
 	// It seems the official glsl compiler(glslangValidator.exe) always
 	// set the ArrayStride to 16 no matter what type the element is.
-	m_module.decorateArrayStride(arrayId, 16);
+	// This is std140 standard, but what we should use is std430
+	// We should specify the correct stride, for a float array, it's sizeof(float) == 4 .
+	m_module.decorateArrayStride(arrayId, 4);
 
 	uint32_t uboStuctId = m_module.defStructTypeUnique(1, &arrayId);
 	m_module.decorateBlock(uboStuctId);
