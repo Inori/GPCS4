@@ -216,7 +216,8 @@ void GnmCommandBufferDraw::setPrimitiveSetup(PrimitiveSetup reg)
 {
 	GveRasterizerState rs;
 	rs.polygonMode = VK_POLYGON_MODE_FILL;
-	rs.cullMode = reg.cullMode == kPrimitiveSetupCullFaceBack ? VK_CULL_MODE_BACK_BIT : VK_CULL_MODE_FRONT_BIT;
+	//rs.cullMode = reg.cullMode == kPrimitiveSetupCullFaceBack ? VK_CULL_MODE_BACK_BIT : VK_CULL_MODE_FRONT_BIT;
+	rs.cullMode = VK_CULL_MODE_NONE;
 	rs.frontFace = reg.frontFace == kPrimitiveSetupFrontFaceCcw ? VK_FRONT_FACE_COUNTER_CLOCKWISE : VK_FRONT_FACE_CLOCKWISE;
 	rs.depthBiasEnable = VK_FALSE;
 	rs.depthClampEnable = VK_FALSE;
