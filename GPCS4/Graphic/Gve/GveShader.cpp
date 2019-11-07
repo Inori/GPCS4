@@ -145,6 +145,20 @@ GveShaderModule::GveShaderModule(
 	info.codeSize = code.size();
 	info.pCode = code.data();
 
+	std::vector<uint8_t> data;
+	if (shader->stage() == VK_SHADER_STAGE_VERTEX_BIT)
+	{
+		data = UtilFile::LoadFile("vert.spv");
+	}
+	else
+	{
+		data = UtilFile::LoadFile("frag.spv");
+	}
+
+	info.codeSize = data.size();
+	info.pCode = (uint32_t*)data.data();
+
+
 	if (vkCreateShaderModule(*m_device, &info, nullptr, &m_stage.module) != VK_SUCCESS)
 	{
 		LOG_ERR("Failed to create shader module");
