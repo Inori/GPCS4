@@ -33,6 +33,7 @@ public:
 
 	VkDeviceSize size() const;
 
+
 private:
 
 	void createBuffer(const VkBufferCreateInfo& info);

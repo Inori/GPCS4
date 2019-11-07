@@ -261,6 +261,13 @@ void GnmCommandBufferDraw::setPrimitiveType(PrimitiveType primType)
 
 void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr, DrawModifier modifier)
 {
+	typedef struct Vertex
+	{
+		float x, y, z;	// Position
+		float r, g, b;	// Color
+		float u, v;		// UVs
+	} Vertex;
+
 	do
 	{
 		uint32_t* fsCode = getFetchShaderCode(m_vsCode);
@@ -326,17 +333,17 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 				attributeDescriptions[0].binding = 0;
 				attributeDescriptions[0].location = 0;
 				attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-				attributeDescriptions[0].offset = 0;
+				attributeDescriptions[0].offset = offsetof(Vertex, x);
 
 				attributeDescriptions[1].binding = 0;
 				attributeDescriptions[1].location = 1;
 				attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-				attributeDescriptions[1].offset = 12;
+				attributeDescriptions[1].offset = offsetof(Vertex, r);;
 
 				attributeDescriptions[2].binding = 0;
 				attributeDescriptions[2].location = 2;
 				attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
-				attributeDescriptions[2].offset = 24;
+				attributeDescriptions[2].offset = offsetof(Vertex, u);;
 
 				m_context->setInputLayout(attributeDescriptions.size(), attributeDescriptions.data(),
 					1, &bindingDescription);

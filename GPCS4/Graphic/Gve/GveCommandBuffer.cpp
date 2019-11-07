@@ -84,8 +84,6 @@ void GveCommandBuffer::endRecording()
 	vkEndCommandBuffer(m_execBuffer);
 }
 
-
-
 void GveCommandBuffer::reset()
 {
 

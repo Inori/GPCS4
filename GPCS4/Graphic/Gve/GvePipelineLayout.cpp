@@ -67,7 +67,7 @@ GvePipelineLayout::GvePipelineLayout(
 		m_bindingSlots[i] = bindingInfos[i];
 	}
 		
-	std::vector<VkDescriptorSetLayoutBinding>       bindings(bindingCount);
+	std::vector<VkDescriptorSetLayoutBinding> bindings(bindingCount);
 
 	for (uint32_t i = 0; i < bindingCount; i++) 
 	{
