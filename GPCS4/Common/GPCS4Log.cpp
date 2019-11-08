@@ -6,7 +6,6 @@
 #include <string.h>
 
 #define LOG_STR_BUFFER_LEN 1024 
-#define LOG_TAG "[Asuka]"
 
 #ifdef GPCS4_WINDOWS
 
@@ -23,8 +22,7 @@ void LogPrint(const char* szLevel, const char* szFunction, int nLine, const char
 	va_start(stArgList, szFormat);
 
 	vsprintf_s(szTempStr, LOG_STR_BUFFER_LEN, szFormat, stArgList);
-	sprintf_s(szDbgStr, LOG_STR_BUFFER_LEN, "%s:%s:%d:%s:%04d:%s\n",
-		LOG_TAG,
+	sprintf_s(szDbgStr, LOG_STR_BUFFER_LEN, "%s:%d:%s:%04d:%s\n",
 		szLevel,
 		nTid,
 		szFunction,
@@ -48,8 +46,7 @@ void LogAssert(const char* szLevel, const char* szFunction, int nLine, const cha
 	va_start(stArgList, szFormat);
 
 	vsprintf_s(szTempStr, LOG_STR_BUFFER_LEN, szFormat, stArgList);
-	sprintf_s(szDbgStr, LOG_STR_BUFFER_LEN, "%s:%s:%d:%s:%04d:%s\n",
-		LOG_TAG,
+	sprintf_s(szDbgStr, LOG_STR_BUFFER_LEN, "%s:%d:%s:%04d:%s\n",
 		szLevel,
 		nTid,
 		szFunction,
