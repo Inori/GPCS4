@@ -2,6 +2,7 @@
 
 
 ScePad::ScePad(SceUserServiceUserId userId, int32_t type, int32_t index):
+	m_userId(userId),
 	m_type(type),
 	m_index(index)
 {
@@ -10,6 +11,11 @@ ScePad::ScePad(SceUserServiceUserId userId, int32_t type, int32_t index):
 
 ScePad::~ScePad()
 {
+}
+
+SceUserServiceUserId ScePad::userId() const
+{
+	return m_userId;
 }
 
 int32_t ScePad::type() const

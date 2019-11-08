@@ -10,12 +10,15 @@ public:
 	ScePad(SceUserServiceUserId userId, int32_t type, int32_t index);
 	~ScePad();
 
+	SceUserServiceUserId userId() const;
+
 	int32_t type() const;
 
 	int read(ScePadData* data, int32_t num);
 
 	int readState(ScePadData* data);
 private:
+	SceUserServiceUserId m_userId;
 	int32_t m_type;
 	int32_t m_index;
 };
