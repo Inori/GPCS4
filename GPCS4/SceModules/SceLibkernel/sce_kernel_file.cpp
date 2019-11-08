@@ -24,15 +24,19 @@ struct FdItem
 	FdType type;
 };
 
+bool isEqualFdItem(const FdItem& lhs, const FdItem& rhs)
+{
+	return (lhs.fd == rhs.fd) && (lhs.type == rhs.type);
+}
 
-bool isEmptyFdItem(FdItem& item)
+bool isEmptyFdItem(const FdItem& item)
 {
 	return (item.fd == 0 && item.type == FD_TYPE_UNKNOWN);
 }
 
 // since windows doesn't allow open(directory),
 // we record both DIR* and fd in this slot array
-MapSlot<FdItem, decltype(isEmptyFdItem)> g_fdSlots(SCE_FD_MAX, isEmptyFdItem);
+MapSlot<FdItem, isEmptyFdItem, isEqualFdItem> g_fdSlots(SCE_FD_MAX);
 
 
 inline bool getDirName(DIR* dir, char* dirname, int len)

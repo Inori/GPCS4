@@ -8,18 +8,18 @@
 // for non pointer type, we need to build a map to fit the type
 
 
-bool isEmptyPthreadT(pthread_t& pt)
+bool isEmptyPthread(const pthread_t& pt)
 {
 	return pt.p == NULL && pt.x == 0;
 }
 
-bool isEqualPthreadT(const pthread_t& lhs, const pthread_t& rhs)
+bool isEqualPthread(const pthread_t& lhs, const pthread_t& rhs)
 {
 	return lhs.p == rhs.p && lhs.x == rhs.x;
 }
 
 #define SCE_THREAD_COUNT_MAX 1024
-MapSlot<pthread_t, decltype(isEmptyPthreadT)> g_threadSlot(SCE_THREAD_COUNT_MAX, isEmptyPthreadT);
+MapSlot<pthread_t, isEmptyPthread, isEqualPthread> g_threadSlot(SCE_THREAD_COUNT_MAX);
 
 
 
@@ -411,7 +411,7 @@ int PS4API scePthreadAttrSetstacksize(ScePthreadAttr *attr, size_t stackSize)
 ScePthread PS4API scePthreadSelf(void)
 {
 	pthread_t pt = pthread_self();
-	ScePthread tid = g_threadSlot.GetItemIndex(pt, isEqualPthreadT);
+	ScePthread tid = g_threadSlot.GetItemIndex(pt);
 	if (tid == 0)
 	{
 		tid = g_threadSlot.GetEmptySlotIndex();

@@ -5,22 +5,35 @@
 #include <mutex>
 #include <algorithm>
 
-template <typename T, typename EmptyFuncT>
+
+template <typename T> 
+bool MapSlotDefaultEmpty(const T& item)
+{
+	return (item == 0);
+}
+
+template <typename T>
+bool MapSlotDefaultEqual(const T& lhs, const T& rhs)
+{
+	return (lhs == rhs);
+}
+
+template <typename T, 
+	bool (*EmptylFunc)(const T&) = MapSlotDefaultEmpty<T>,
+	bool (*EqualFunc)(const T&, const T&) = MapSlotDefaultEqual>
 class MapSlot
 {
 public:
-	MapSlot(const uint nSize, EmptyFuncT func):
-		m_vtArray(nSize),
-		m_funcIsItemEmpty(func)
-	{
 
+	MapSlot()
+	{
 	}
 
-	MapSlot(EmptyFuncT func):
-		m_funcIsItemEmpty(func)
+	MapSlot(const uint nSize):
+		m_vtArray(nSize)
 	{
-
 	}
+
 
 	~MapSlot()
 	{
@@ -43,7 +56,7 @@ public:
 		uint nIdx = 0;
 		for (uint i = 1; i != m_vtArray.size(); ++i)
 		{
-			if (!m_funcIsItemEmpty(m_vtArray[i]))
+			if (!EmptylFunc(m_vtArray[i]))
 			{
 				continue;
 			}
@@ -55,17 +68,7 @@ public:
 
 	uint GetItemIndex(const T& item)
 	{
-		auto equal = [&item](T& ele) { return item == ele; };
-
-		std::lock_guard<std::mutex> lock(m_mutex);
-		auto it = std::find_if(m_vtArray.begin(), m_vtArray.end(), equal);
-		return it != m_vtArray.end() ? std::distance(m_vtArray.begin(), it) : 0;
-	}
-
-	template<typename EqualFuncT>
-	uint GetItemIndex(const T& item, EqualFuncT equal)
-	{
-		auto pred = [&item, &equal](T& ele) { return equal(item, ele); };
+		auto pred = [&item](T& ele) { return EqualFunc(item, ele); };
 		std::lock_guard<std::mutex> lock(m_mutex);
 		auto it = std::find_if(m_vtArray.begin(), m_vtArray.end(), pred);
 		return it != m_vtArray.end() ? std::distance(m_vtArray.begin(), it) : 0;
@@ -91,6 +94,5 @@ public:
 private:
 	std::mutex m_mutex;
 	std::vector<T> m_vtArray;
-	std::function<EmptyFuncT> m_funcIsItemEmpty;
 };
 
