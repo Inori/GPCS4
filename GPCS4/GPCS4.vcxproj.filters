@@ -784,6 +784,15 @@
     <ClInclude Include="Graphic\Gnm\GnmGpuAddress.h">
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClInclude>
+    <ClInclude Include="SceModules\ScePad\ScePad.h">
+      <Filter>SceModules\ScePad</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\ScePad\sce_pad_types.h">
+      <Filter>SceModules\ScePad</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\ScePad\sce_pad_error.h">
+      <Filter>SceModules\ScePad</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1382,6 +1391,9 @@
     </ClCompile>
     <ClCompile Include="Graphic\Gve\GveDescriptor.cpp">
       <Filter>Source Files\Graphic\Gve</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\ScePad\ScePad.cpp">
+      <Filter>SceModules\ScePad</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
