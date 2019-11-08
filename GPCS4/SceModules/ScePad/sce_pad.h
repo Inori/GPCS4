@@ -10,7 +10,8 @@
 #pragma once
 
 #include "sce_module_common.h"
-
+#include "sce_pad_types.h"
+#include "sce_pad_error.h"
 
 extern const SCE_EXPORT_MODULE g_ExpModuleScePad;
 
@@ -25,7 +26,7 @@ extern const SCE_EXPORT_MODULE g_ExpModuleScePad;
 // library: libScePad
 //////////////////////////////////////////////////////////////////////////
 
-int PS4API scePadClose(void);
+int PS4API scePadClose(int32_t handle);
 
 
 int PS4API scePadGetControllerInformation(void);
@@ -34,10 +35,10 @@ int PS4API scePadGetControllerInformation(void);
 int PS4API scePadInit(void);
 
 
-int PS4API scePadOpen(void);
+int PS4API scePadOpen(SceUserServiceUserId userId, int32_t type, int32_t index, const ScePadOpenParam* pParam);
 
 
-int PS4API scePadReadState(void);
+int PS4API scePadReadState(int32_t handle, ScePadData *pData);
 
 
 int PS4API scePadResetLightBar(void);
@@ -49,7 +50,7 @@ int PS4API scePadSetLightBar(void);
 int PS4API scePadSetVibration(void);
 
 
-int PS4API scePadRead(void);
+int PS4API scePadRead(int32_t handle, ScePadData *pData, int32_t num);
 
 
 
