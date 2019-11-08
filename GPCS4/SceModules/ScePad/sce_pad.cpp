@@ -12,7 +12,7 @@
 // library: libScePad
 //////////////////////////////////////////////////////////////////////////
 
-#define SCE_PAD_COUNT_MAX 0x20
+#define SCE_PAD_COUNT_MAX (16 * 4 + 1) //16 users, 4 ports per user + 1 system user
 MapSlot<ScePad*> g_padSlot(SCE_PAD_COUNT_MAX);
 
 //////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,31 @@ int PS4API scePadGetControllerInformation(void)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
+}
+
+
+int PS4API scePadGetHandle(SceUserServiceUserId userId, int32_t type, int32_t index)
+{
+	LOG_SCE_TRACE("uid %d type %d index %d", userId, type, index);
+	int port = SCE_PAD_ERROR_NO_HANDLE;
+	do
+	{
+		uint32_t padCount = g_padSlot.Size();
+		for (uint32_t i = 0; i != padCount; ++i) 
+		{
+			auto& pad = g_padSlot[i];
+			if (!pad)
+			{
+				continue;
+			}
+			if (pad->type() == type && pad->userId() == userId)
+			{
+				port = i;
+				break;
+			}
+		}
+	} while (false);
+	return port;
 }
 
 
@@ -46,7 +71,7 @@ int PS4API scePadOpen(SceUserServiceUserId userId, int32_t type, int32_t index, 
 			{
 				continue;
 			}
-			if (pad->type() == type)
+			if (pad->type() == type && pad->userId() == userId)
 			{
 				opended = true;
 				break;
@@ -114,6 +139,13 @@ int PS4API scePadResetLightBar(void)
 
 
 int PS4API scePadSetLightBar(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API scePadSetMotionSensorState(void) 
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;

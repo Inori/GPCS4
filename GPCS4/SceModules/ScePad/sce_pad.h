@@ -32,6 +32,9 @@ int PS4API scePadClose(int32_t handle);
 int PS4API scePadGetControllerInformation(void);
 
 
+int PS4API scePadGetHandle(SceUserServiceUserId userId, int32_t type, int32_t index);
+
+
 int PS4API scePadInit(void);
 
 
@@ -45,6 +48,9 @@ int PS4API scePadResetLightBar(void);
 
 
 int PS4API scePadSetLightBar(void);
+
+
+int PS4API scePadSetMotionSensorState(void);
 
 
 int PS4API scePadSetVibration(void);
