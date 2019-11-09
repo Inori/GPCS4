@@ -9,19 +9,16 @@ struct SCE_THREAD_PARAM
 	void* arg;
 };
 
-inline bool isEmptyPthreadT(pthread_t& pt)
-{
-	return pt.p == NULL && pt.x == 0;
-}
 
-inline bool isEqualPthreadT(const pthread_t& lhs, const pthread_t& rhs)
-{
-	return lhs.p == rhs.p && lhs.x == rhs.x;
-}
+bool isEmptyPthread(const pthread_t& pt);
+bool isEqualPthread(const pthread_t& lhs, const pthread_t& rhs);
 
 void *newThreadWrapper(void *arg);
+typedef void* (PS4API *PFUNC_PS4_THREAD_ENTRY)(void*);
+
+// for non pointer type, we need to build a map to fit the type
 
 #define SCE_THREAD_COUNT_MAX 1024
-extern MapSlot<pthread_t, decltype(isEmptyPthreadT)> g_threadSlot;
+extern MapSlot<pthread_t, isEmptyPthread, isEqualPthread> g_threadSlot;
 
-typedef void* (PS4API *PFUNC_PS4_THREAD_ENTRY)(void*);
+
