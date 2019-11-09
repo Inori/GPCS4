@@ -2,7 +2,20 @@
 #include "sce_libkernel.h"
 #include "Emulator/TLSHandler.h"
 
-MapSlot<pthread_t, decltype(isEmptyPthreadT)> g_threadSlot(SCE_THREAD_COUNT_MAX, isEmptyPthreadT);
+
+MapSlot<pthread_t, isEmptyPthread, isEqualPthread> g_threadSlot(SCE_THREAD_COUNT_MAX);
+
+
+bool isEmptyPthread(const pthread_t& pt)
+{
+	return pt.p == NULL && pt.x == 0;
+}
+
+bool isEqualPthread(const pthread_t& lhs, const pthread_t& rhs)
+{
+	return lhs.p == rhs.p && lhs.x == rhs.x;
+}
+
 
 void* newThreadWrapper(void* arg)
 {

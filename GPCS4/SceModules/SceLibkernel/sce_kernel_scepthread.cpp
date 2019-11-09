@@ -6,21 +6,6 @@
 #include "Emulator/TLSHandler.h"
 #include "MapSlot.h"
 
-// for non pointer type, we need to build a map to fit the type
-
-
-bool isEmptyPthread(const pthread_t& pt)
-{
-	return pt.p == NULL && pt.x == 0;
-}
-
-bool isEqualPthread(const pthread_t& lhs, const pthread_t& rhs)
-{
-	return lhs.p == rhs.p && lhs.x == rhs.x;
-}
-
-#define SCE_THREAD_COUNT_MAX 1024
-MapSlot<pthread_t, isEmptyPthread, isEqualPthread> g_threadSlot(SCE_THREAD_COUNT_MAX);
 
 //////////////////////////////////////////////////////////////////////////
 
