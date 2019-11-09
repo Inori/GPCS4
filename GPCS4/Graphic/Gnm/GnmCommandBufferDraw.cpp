@@ -242,7 +242,7 @@ void GnmCommandBufferDraw::setIndexSize(IndexSize indexSize, CachePolicy cachePo
 // Will be called on every frame start.
 void GnmCommandBufferDraw::initializeDefaultHardwareState()
 {
-	//m_context->beginRecording(m_cmd);
+	m_context->beginRecording(m_cmd);
 }
 
 void GnmCommandBufferDraw::setPrimitiveType(PrimitiveType primType)
