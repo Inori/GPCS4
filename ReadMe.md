@@ -5,6 +5,14 @@ A project for fun, and technical research.
 
 The only reason I start this project is learning 3D graphics, nothing serious.
 
+
+## _Apology_  
+There is another ps4 emulator project call ps4uv, which is close source and private.
+For some historical reason I got their code, and because of my careless, I let one of our developer see the code without their permission. I apologize for what I've done sincerely.  
+There're some points of details of our linker code are borrowed from ps4uv's linker module's idea, and I've deleted our linker branch, and after we delete those points and reform our code, I'll make it online again, not mean to stole anyone's code.  
+Apologize again. Asuka
+
+
 ## Latest progress
 
 ![Demo Basic Quad](https://github.com/Inori/GPCS4/blob/master/Misc/demo_basic_quad.gif)  
@@ -62,9 +70,13 @@ Visual Studio 2017
 [LLVM Compiler Toolchain Extension](https://marketplace.visualstudio.com/items?itemName=LLVMExtensions.llvm-toolchain)  
 [LunarG Vulkan SDK](https://www.lunarg.com/vulkan-sdk/)
 
+## Credits
+[DXVK](https://github.com/doitsujin/dxvk)  
+[uplift](https://github.com/idc/uplift)
+
 ## License
 [GPL-3.0](https://github.com/Inori/GPCS4/blob/master/LICENSE)  
-_But commercial usage is NOT permitted._
+
 
 
 
