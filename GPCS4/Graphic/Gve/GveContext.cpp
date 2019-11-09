@@ -37,7 +37,16 @@ void GveContex::beginRecording(const RcPtr<GveCommandBuffer>& commandBuffer)
 
 void GveContex::endRecording()
 {
-	m_cmd->endRecording();
+	do 
+	{
+		if (!m_cmd)
+		{
+			break;
+		}
+
+		m_cmd->endRecording();
+	} while (false);
+	
 }
 
 void GveContex::setViewport(const VkViewport& viewport, const VkRect2D& scissorRect)
