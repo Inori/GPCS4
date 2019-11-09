@@ -15,4 +15,15 @@ bool StoreFile(const std::string& strFilename, const std::vector<uint8_t>& vtDat
 
 bool StoreFile(const std::string& strFilename, const uint8_t* pBuffer, uint32_t nSize);
 
+struct FileCloser
+{
+	void operator()(FILE *fp) const noexcept
+	{
+		if (fp != nullptr)
+			fclose(fp);
+	}
+};
+
+typedef std::unique_ptr<FILE, FileCloser> file_uptr;
+
 }

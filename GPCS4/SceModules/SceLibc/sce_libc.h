@@ -77,6 +77,9 @@ void PS4API scec___cxa_guard_release(uint64_t* guard_object);
 
 int PS4API scec___cxa_pure_virtual(void);
 
+// TODO: I don't know wether this function belongs to this catalog. 
+int PS4API scec___catchReturnFromMain(void);
+
 int PS4API scec___isfinite(void);
 
 int PS4API scec___isfinitef(void);

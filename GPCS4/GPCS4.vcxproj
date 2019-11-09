@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -35,6 +35,7 @@
     <ClInclude Include="Emulator\Emulator.h" />
     <ClInclude Include="Emulator\GameThread.h" />
     <ClInclude Include="Emulator\Linker.h" />
+    <ClInclude Include="Emulator\Module.h" />
     <ClInclude Include="Emulator\SceModuleSystem.h" />
     <ClInclude Include="Emulator\TLSHandler.h" />
     <ClInclude Include="GPCS4Common.h" />
@@ -144,6 +145,9 @@
     <ClInclude Include="Graphic\SpirV\SpirvModule.h" />
     <ClInclude Include="Loader\EbootObject.h" />
     <ClInclude Include="Loader\elf.h" />
+    <ClInclude Include="Loader\ELFMapper.h" />
+    <ClInclude Include="Loader\FuncStub.h" />
+    <ClInclude Include="Loader\ModuleLoader.h" />
     <ClInclude Include="Platform\PlatformUtils.h" />
     <ClInclude Include="Platform\UtilFile.h" />
     <ClInclude Include="Platform\UtilHardware.h" />
@@ -182,6 +186,7 @@
     <ClInclude Include="SceModules\SceLibkernel\sce_kernel_scepthread.h" />
     <ClInclude Include="SceModules\SceLibkernel\sce_kernel_types.h" />
     <ClInclude Include="SceModules\SceLibkernel\sce_libkernel.h" />
+    <ClInclude Include="SceModules\SceLibkernel\sce_pthread_common.h" />
     <ClInclude Include="SceModules\SceMouse\sce_mouse.h" />
     <ClInclude Include="SceModules\SceMsgDialog\sce_msgdialog.h" />
     <ClInclude Include="SceModules\SceNetCtl\sce_netctl.h" />
@@ -228,6 +233,7 @@
     <ClCompile Include="Emulator\Emulator.cpp" />
     <ClCompile Include="Emulator\GameThread.cpp" />
     <ClCompile Include="Emulator\Linker.cpp" />
+    <ClCompile Include="Emulator\Module.cpp" />
     <ClCompile Include="Emulator\RegisterModules.cpp" />
     <ClCompile Include="Emulator\SceModuleSystem.cpp" />
     <ClCompile Include="Emulator\TLSHandler.cpp" />
@@ -299,6 +305,9 @@
     <ClCompile Include="Graphic\SpirV\SpirvModule.cpp" />
     <ClCompile Include="ImportLibs.cpp" />
     <ClCompile Include="Loader\EbootObject.cpp" />
+    <ClCompile Include="Loader\ELFMapper.cpp" />
+    <ClCompile Include="Loader\FuncStub.cpp" />
+    <ClCompile Include="Loader\ModuleLoader.cpp" />
     <ClCompile Include="Platform\UtilFile.cpp" />
     <ClCompile Include="Platform\UtilHardware.cpp" />
     <ClCompile Include="Platform\UtilMemory.cpp" />
@@ -369,6 +378,7 @@
     <ClCompile Include="SceModules\SceLibkernel\sce_kernel_time.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\sce_libkernel.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\sce_libkernel_export.cpp" />
+    <ClCompile Include="SceModules\SceLibkernel\sce_pthread_common.cpp" />
     <ClCompile Include="SceModules\SceMouse\sce_mouse.cpp" />
     <ClCompile Include="SceModules\SceMouse\sce_mouse_export.cpp" />
     <ClCompile Include="SceModules\SceMsgDialog\sce_msgdialog.cpp" />
@@ -515,7 +525,7 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(VULKAN_SDK)\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VULKAN_SDK)\Include;$(SolutionDir)GPCS4;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GPCS4_DEBUG;__PTW32_STATIC_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -551,7 +561,7 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(VULKAN_SDK)\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VULKAN_SDK)\Include;$(SolutionDir)GPCS4;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__PTW32_STATIC_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>

@@ -697,6 +697,15 @@
     <ClInclude Include="Graphic\Gve\GveRenderPass.h">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClInclude>
+    <ClInclude Include="Emulator\Module.h">
+      <Filter>Source Files\Emulator</Filter>
+    </ClInclude>
+    <ClInclude Include="Loader\ELFMapper.h">
+      <Filter>Source Files\Loader</Filter>
+    </ClInclude>
+    <ClInclude Include="Loader\ModuleLoader.h">
+      <Filter>Source Files\Loader</Filter>
+    </ClInclude>
     <ClInclude Include="Graphic\Pssl\GCNAnalyzer.h">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClInclude>
@@ -783,6 +792,12 @@
     </ClInclude>
     <ClInclude Include="Graphic\Gnm\GnmGpuAddress.h">
       <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClInclude>
+	<ClInclude Include="Loader\FuncStub.h">
+      <Filter>Source Files\Loader</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceLibkernel\sce_pthread_common.h">
+      <Filter>SceModules\SceLibkernel</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1350,6 +1365,15 @@
     <ClCompile Include="Graphic\Gve\GveRenderPass.cpp">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClCompile>
+    <ClCompile Include="Loader\ELFMapper.cpp">
+      <Filter>Source Files\Loader</Filter>
+    </ClCompile>
+    <ClCompile Include="Loader\ModuleLoader.cpp">
+      <Filter>Source Files\Loader</Filter>
+    </ClCompile>
+    <ClCompile Include="Emulator\Module.cpp">
+      <Filter>Source Files\Emulator</Filter>
+    </ClCompile>
     <ClCompile Include="Graphic\Pssl\GCNAnalyzer.cpp">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClCompile>
@@ -1382,6 +1406,12 @@
     </ClCompile>
     <ClCompile Include="Graphic\Gve\GveDescriptor.cpp">
       <Filter>Source Files\Graphic\Gve</Filter>
+    </ClCompile>
+	<ClCompile Include="Loader\FuncStub.cpp">
+      <Filter>Source Files\Loader</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceLibkernel\sce_pthread_common.cpp">
+      <Filter>SceModules\SceLibkernel</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

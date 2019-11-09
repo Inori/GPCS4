@@ -339,6 +339,11 @@ bool CTLSHandlerWin::Install(void* pTls, uint nInitSize, uint nTotalSize)
 	return bRet;
 }
 
+bool CTLSHandlerWin::initialize(void *pTls, uint initSize, uint totalSize)
+{
+	return CTLSHandlerWin::Install(pTls, initSize, totalSize);
+}
+
 void CTLSHandlerWin::Uninstall()
 {
 	if (s_pVEHHandle)

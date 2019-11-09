@@ -1,4 +1,5 @@
 #include "sce_libkernel.h"
+#include "sce_pthread_common.h"
 #include "sce_kernel_scepthread.h"
 #include <utility>
 #include "Platform/PlatformUtils.h"
@@ -20,8 +21,6 @@ bool isEqualPthread(const pthread_t& lhs, const pthread_t& rhs)
 
 #define SCE_THREAD_COUNT_MAX 1024
 MapSlot<pthread_t, isEmptyPthread, isEqualPthread> g_threadSlot(SCE_THREAD_COUNT_MAX);
-
-
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -500,54 +499,14 @@ int PS4API scePthreadCondattrDestroy(ScePthreadCondattr *attr)
 }
 
 //////////////////////////////////////////////////////////////////////////
-typedef void* (PS4API *PFUNC_PS4_THREAD_ENTRY)(void*);
 
-struct SCE_THREAD_PARAM
-{
-	void* entry;
-	void* arg;
-};
-
-void* newThreadWrapper(void* arg)
-{
-	void* ret = NULL;
-	SCE_THREAD_PARAM* param = (SCE_THREAD_PARAM*)arg;
-	do 
-	{
-		if (!param)
-		{
-			break;
-		}
-
-		
-		ScePthread tid = scePthreadSelf();
-		LOG_DEBUG("new sce thread created %d", tid);
-
-		CTLSHandler::NotifyThreadCreate(tid);
-
-		PFUNC_PS4_THREAD_ENTRY pSceEntry = (PFUNC_PS4_THREAD_ENTRY)param->entry;
-		ret = pSceEntry(param->arg);
-
-		CTLSHandler::NotifyThreadExit(tid);
-
-		// do clear
-		pthread_t emptyPt = { 0 };
-		g_threadSlot.SetItemAt(tid, emptyPt);
-
-	} while (false);
-	if (param)
-	{
-		delete param;
-	}
-	return ret;
-}
 
 // TODO:
 // this implementation is very wrong.
 // if one thread create several thread, these threads' id will be same
 int PS4API scePthreadCreate(ScePthread *thread, const ScePthreadAttr *attr, void *(PS4API *entry) (void *), void *arg, const char *name)
 {
-	LOG_SCE_TRACE("thread %p attr %p entry %p arg %p name %s", thread, attr, entry, arg, name);
+	LOG_SCE_TRACE("thread %p attr %p entry %p arg %p name %s", thread, attr, entry, arg,"placeholder" /*name*/);
 	if (name)
 	{
 		LOG_FIXME("thread name is not supported.");

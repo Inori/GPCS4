@@ -4,6 +4,8 @@
 #include "../Loader/EbootObject.h"
 #include "Linker.h"
 #include "TLSHandler.h"
+#include "Module.h"
+
 #include <memory>
 
 typedef void (PS4NORETURN PS4API *PFUNC_EntryPoint)(void* pEnv, void* pfnExitHandler);
@@ -21,6 +23,8 @@ public:
 	bool LoadEboot(const std::string& strEbtPath);
 
 	bool Run();
+
+	bool Run(MemoryMappedModule const &mod);
 
 private:
 	bool RegisterModules();

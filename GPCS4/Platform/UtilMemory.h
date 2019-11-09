@@ -1,6 +1,8 @@
 #pragma once
 #include "GPCS4Common.h"
 
+#include <memory>
+
 //Virtual memory stuffs
 
 namespace UtilMemory
@@ -33,5 +35,17 @@ void VMUnMap(void* pAddr, size_t nSize);
 
 bool VMProtect(void* pAddr, size_t nSize, uint nProtectFlag);
 
+struct MemoryUnMapper
+{
+	void operator()(void *vMem) const noexcept
+	{
+		if (vMem != nullptr) 
+		{
+			VMUnMap(vMem, 0);
+		}
+	}
+};
+
+typedef std::unique_ptr<byte, MemoryUnMapper> memory_uptr;
 
 }

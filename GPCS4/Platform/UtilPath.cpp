@@ -3,8 +3,8 @@
 #include <algorithm>
 
 namespace UtilPath
-{;
-
+{
+;
 
 #ifdef GPCS4_WINDOWS
 
@@ -12,11 +12,10 @@ namespace UtilPath
 #include <Windows.h>
 #undef WIN32_LEAN_AND_MEAN
 
-
 std::string GetExePath()
 {
 	std::string strExePath;
-	do 
+	do
 	{
 		HMODULE hModule = GetModuleHandleW(NULL);
 		if (!hModule)
@@ -35,7 +34,7 @@ std::string GetExePath()
 	return strExePath;
 }
 
-std::string PS4PathToPCPath(const std::string& strPs4Path)
+std::string PS4PathToPCPath(const std::string &strPs4Path)
 {
 	std::string strPcPath = strPs4Path;
 	std::replace(strPcPath.begin(), strPcPath.end(), '/', '\\');
@@ -44,12 +43,11 @@ std::string PS4PathToPCPath(const std::string& strPs4Path)
 	return strPcPath;
 }
 
-
-size_t FileCountInDirectory(const std::string& path)
+size_t FileCountInDirectory(const std::string &path)
 {
 	int counter = 0;
 	WIN32_FIND_DATA ffd;
-	HANDLE hFind = INVALID_HANDLE_VALUE;
+	HANDLE hFind        = INVALID_HANDLE_VALUE;
 	std::string dirPath = path;
 	if (dirPath.at(dirPath.length() - 1) != '\\' &&
 		dirPath.at(dirPath.length() - 1) != '/')
@@ -68,19 +66,51 @@ size_t FileCountInDirectory(const std::string& path)
 		} while (FindNextFileA(hFind, &ffd) == TRUE);
 		FindClose(hFind);
 	}
-	else {
+	else
+	{
 		LOG_ERR("Failed to find path: %s", dirPath.c_str());
 	}
 
 	return counter;
 }
 
+bool splitFileName(std::string const &fileName,
+				   std::string *name,
+				   std::string *extension)
+{
+	bool retval = false;
+	do
+	{
+		if (name == nullptr || extension == nullptr)
+		{
+			LOG_ERR("nullptr");
+			break;
+		}
+		if (fileName.find_first_of("\\/") != std::string::npos)
+		{
+			LOG_ERR("invalid file name");
+			break;
+		}
+
+		auto pos = fileName.find_last_of(".");
+		if (pos == std::string::npos)
+		{
+			*name = fileName;
+		}
+		else
+		{
+			*name = fileName.substr(0, pos);
+			*extension = fileName.substr(pos + 1);
+		}
+
+		retval = true;
+	} while (false);
+
+	return retval;
+}
 
 #else
 
+#endif // GPCS4_WINDOWS
 
-#endif  //GPCS4_WINDOWS
-
-
-
-}
+} // namespace UtilPath

@@ -10,6 +10,13 @@ if (!pModuleSystem->RegisterModule(name))\
 	break;\
 }
 
+#define ALLOW_MODULE_OVERRIDE(name) \
+if(!pModuleSystem->setModuleOverridability(name, true)) \
+{\
+	LOG_ERR("Fail to set overridability for module %s", name);\
+	break;\
+}\
+
 bool CEmulator::RegisterModules()
 {
 	bool bRet = false;
@@ -67,6 +74,56 @@ bool CEmulator::RegisterModules()
 		REGISTER_MODULE(g_ExpModuleSceVideoOut);
 		REGISTER_MODULE(g_ExpModuleSceVideoRecording);
 
+		// TODO: Set libc module&libaray as overridable for linker test only. Remember to 
+		// remove this.
+
+		ALLOW_MODULE_OVERRIDE("libc");
+		ALLOW_MODULE_OVERRIDE("libSceLibcInternal");
+		pModuleSystem->setLibraryOverridability("libc", "libc", true);
+		pModuleSystem->setLibraryOverridability(
+			"libkernel", "libkernel", true,
+			CSceModuleSystem::LibraryRecord::Mode::Allow);
+		
+		pModuleSystem->setFunctionOverridability("libkernel", "libkernel",
+												 0xF41703CA43E6A352, true);
+		/* disable below functions, which are implemented in virutal libc module */
+
+		// fopen
+		pModuleSystem->setFunctionOverridability("libc", "libc",
+												 14260101637949278365, false);
+
+		// fseek
+		pModuleSystem->setFunctionOverridability("libc", "libc",
+												 12466338725556587288, false);
+
+		// ftell
+		pModuleSystem->setFunctionOverridability("libc", "libc",
+												 4732424424179322620, false);
+		// fread
+		pModuleSystem->setFunctionOverridability("libc", "libc",
+												 10786259999654564973, false);
+
+		// fclose
+		pModuleSystem->setFunctionOverridability("libc", "libc",
+												 13440794502107408237, false);
+
+		// malloc
+		pModuleSystem->setFunctionOverridability("libc", "libc",
+												 9297117245426667155, false);
+
+		// free
+		pModuleSystem->setFunctionOverridability("libc", "libc",
+												 13008767002086125649, false);
+		// catchReturnFromMain
+		pModuleSystem->setFunctionOverridability("libc", "libc",
+												 0x5CA45E82C1691299, false);
+
+		// exit
+		pModuleSystem->setFunctionOverridability("libc", "libc",
+												 0xB8C7A2D56F6EC8DA, false);
+		// time
+		pModuleSystem->setFunctionOverridability("libc", "libc",
+												 0xC0B9459301BD51C4, false);
 		bRet = true;
 	} while (false);
 	return bRet;
