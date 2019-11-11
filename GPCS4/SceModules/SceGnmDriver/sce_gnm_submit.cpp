@@ -35,10 +35,15 @@ int PS4API sceGnmSubmitAndFlipCommandBuffersForWorkload(void)
 }
 
 
-int PS4API sceGnmSubmitCommandBuffers(void)
+int PS4API sceGnmSubmitCommandBuffers(uint32_t count, 
+	void *dcbGpuAddrs[], uint32_t *dcbSizesInBytes, 
+	void *ccbGpuAddrs[], uint32_t *ccbSizesInBytes)
 {
-	LOG_SCE_GRAPHIC("Not implemented");
-	return SCE_OK;
+	LOG_SCE_GRAPHIC("count %d", count);
+	std::shared_ptr<sce::SceGnmDriver> gnmDriver = getGnmDriver(SCE_VIDEO_HANDLE_MAIN);
+	return gnmDriver->submitCommandBuffers(count,
+		dcbGpuAddrs, dcbSizesInBytes,
+		ccbGpuAddrs, ccbSizesInBytes);
 }
 
 

@@ -1,7 +1,6 @@
 #include "SceGnmDriver.h"
 #include "sce_errors.h"
-
-#include <set>
+#include "../GraphicShared.h"
 
 namespace sce
 {;
@@ -50,6 +49,17 @@ bool SceGnmDriver::initDriver(uint32_t bufferNum)
 	createCommandParsers(bufferNum);
 
 	return true;
+}
+
+int SceGnmDriver::submitCommandBuffers(uint32_t count, 
+	void *dcbGpuAddrs[], uint32_t *dcbSizesInBytes,
+	void *ccbGpuAddrs[], uint32_t *ccbSizesInBytes)
+{
+	static uint32_t displayId = 0;
+	return submitAndFlipCommandBuffers(count,
+		dcbGpuAddrs, dcbSizesInBytes,
+		ccbGpuAddrs, ccbSizesInBytes,
+		SCE_VIDEO_HANDLE_MAIN, displayId++, 0, 0);
 }
 
 int SceGnmDriver::submitAndFlipCommandBuffers(uint32_t count, 

@@ -24,6 +24,10 @@ public:
 
 	bool initDriver(uint32_t bufferNum);
 
+	int submitCommandBuffers(uint32_t count,
+		void *dcbGpuAddrs[], uint32_t *dcbSizesInBytes,
+		void *ccbGpuAddrs[], uint32_t *ccbSizesInBytes);
+
 	int submitAndFlipCommandBuffers(uint32_t count,
 		void *dcbGpuAddrs[], uint32_t *dcbSizesInBytes,
 		void *ccbGpuAddrs[], uint32_t *ccbSizesInBytes,

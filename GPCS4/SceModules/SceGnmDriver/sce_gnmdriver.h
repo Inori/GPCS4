@@ -263,7 +263,7 @@ int PS4API sceGnmSubmitAndFlipCommandBuffers(uint32_t count, void *dcbGpuAddrs[]
 int PS4API sceGnmSubmitAndFlipCommandBuffersForWorkload(void);
 
 
-int PS4API sceGnmSubmitCommandBuffers(void);
+int PS4API sceGnmSubmitCommandBuffers(uint32_t count, void *dcbGpuAddrs[], uint32_t *dcbSizesInBytes, void *ccbGpuAddrs[], uint32_t *ccbSizesInBytes);
 
 
 int PS4API sceGnmSubmitCommandBuffersForWorkload(void);
