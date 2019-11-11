@@ -8,7 +8,6 @@ The only reason I start this project is learning 3D graphics, nothing serious.
 ## Latest progress
 ![Demo](https://github.com/Inori/GPCS4/blob/master/Misc/demo.gif)  
 
-First texture rendered, [with hand write shaders](https://github.com/Inori/GPCS4/blob/master/Misc/tex.frag).  
 First correct image rendered (not the above), but for some well known reasons, I can't show it here, you can see our graphicial output in our disord server.  
 
 And although this is a 2D image demo, it's actuall rendered in 3D pipeline.  
