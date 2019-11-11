@@ -1,4 +1,4 @@
-# GPCS4 linker dev branch
+# GPCS4
 
 A Playstation 4 emulator just begin.  
 A project for fun, and technical research.  
