@@ -4,6 +4,17 @@
 namespace gve
 {;
 
+bool GveRenderPassFormat::eq(const GveRenderPassFormat& fmt) const
+{
+
+}
+
+size_t GveRenderPassFormat::hash() const
+{
+
+}
+
+///
 
 GveRenderPass::GveRenderPass(const RcPtr<GveDevice>& device, GveRenderPassFormat& fmt):
 	m_device(device)
@@ -17,14 +28,19 @@ GveRenderPass::~GveRenderPass()
 }
 
 
-VkRenderPass GveRenderPass::handle() const
+bool GveRenderPass::hasCompatibleFormat(const GveRenderPassFormat& fmt) const
 {
-	return m_renderPass;
+
 }
 
-void GveRenderPass::createRenderPass(GveRenderPassFormat& fmt)
+VkRenderPass GveRenderPass::getHandle(const GveRenderPassOps& ops)
 {
-	do 
+
+}
+
+VkRenderPass GveRenderPass::createRenderPass(const GveRenderPassOps& ops)
+{
+	do
 	{
 		VkAttachmentDescription colorAttachment = {};
 		colorAttachment.format = fmt.colorFormat;
@@ -67,6 +83,26 @@ void GveRenderPass::createRenderPass(GveRenderPassFormat& fmt)
 			LOG_ERR("failed to create render pass!");
 		}
 	} while (false);
+}
+
+bool GveRenderPass::compareOps(const GveRenderPassOps& a, const GveRenderPassOps& b)
+{
+
+}
+
+GveRenderPassPool::GveRenderPassPool(const GveDevice* device)
+{
+
+}
+
+GveRenderPassPool::~GveRenderPassPool()
+{
+
+}
+
+GveRenderPass* GveRenderPassPool::getRenderPass(const GveRenderPassFormat& fmt)
+{
+
 }
 
 } // namespace gve

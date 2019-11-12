@@ -150,7 +150,7 @@ void SceGnmDriver::createFrameBuffers()
 	for (uint32_t i = 0; i != count; ++i)
 	{
 		auto imageView = m_swapchain->getImageView(i);
-		auto frameBuffer = m_device->createFrameBuffer(m_renderPass->handle(), imageView, extent);
+		auto frameBuffer = m_device->createFrameBuffer(m_renderPass->getHandle(), imageView, extent);
 		m_frameBuffers.push_back(frameBuffer);
 	}
 }

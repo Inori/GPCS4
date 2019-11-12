@@ -265,7 +265,7 @@ void GveContex::drawIndex(uint32_t indexCount, uint32_t firstIndex)
 
 	VkRenderPassBeginInfo renderPassInfo = {};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	renderPassInfo.renderPass = m_renderPass->handle();
+	renderPassInfo.renderPass = m_renderPass->getHandle();
 	renderPassInfo.framebuffer = m_renderTarget.frameBuffer->handle();
 	renderPassInfo.renderArea.offset = { 0, 0 };
 	renderPassInfo.renderArea.extent = m_renderTarget.frameBuffer->extent();
