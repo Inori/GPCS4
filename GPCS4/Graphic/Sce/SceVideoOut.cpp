@@ -23,6 +23,10 @@ SceVideoOut::SceVideoOut(uint32_t width, uint32_t height):
 
 SceVideoOut::~SceVideoOut()
 {
+	if (m_windowSurface)
+	{
+		
+	}
 	glfwDestroyWindow(m_window);
 	glfwTerminate();
 }
@@ -47,13 +51,22 @@ void SceVideoOut::getFramebufferSize(uint32_t& width, uint32_t& height)
 	glfwGetFramebufferSize(m_window, (int*)&width, (int*)&height);
 }
 
-VkSurfaceKHR SceVideoOut::getSurface(VkInstance instance)
+VkSurfaceKHR SceVideoOut::createSurface(VkInstance instance)
 {
 	if (m_windowSurface == VK_NULL_HANDLE)
 	{
 		glfwCreateWindowSurface(instance, m_window, nullptr, &m_windowSurface);
 	}
 	return m_windowSurface;
+}
+
+void SceVideoOut::DestroySurface(VkInstance instance)
+{
+	if (m_windowSurface)
+	{
+		vkDestroySurfaceKHR(instance, m_windowSurface, nullptr);
+		m_windowSurface = VK_NULL_HANDLE;
+	}
 }
 
 std::vector<const char*> SceVideoOut::getExtensions()

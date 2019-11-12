@@ -34,7 +34,9 @@ public:
 
 	void getFramebufferSize(uint32_t& width, uint32_t& height);
 
-	VkSurfaceKHR getSurface(VkInstance instance);
+	VkSurfaceKHR createSurface(VkInstance instance);
+
+	void DestroySurface(VkInstance instance);
 
 	std::vector<const char*> getExtensions();
 

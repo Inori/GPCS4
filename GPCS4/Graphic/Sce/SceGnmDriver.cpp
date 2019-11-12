@@ -35,14 +35,22 @@ SceGnmDriver::~SceGnmDriver()
 	m_commandParsers.clear();
 	m_frameBuffers.clear();
 	m_contexts.clear();
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
+	{
+		vkDestroySemaphore(*m_device, m_imageAvailableSemaphores[i], nullptr);
+		vkDestroySemaphore(*m_device, m_renderFinishedSemaphores[i], nullptr);
+		vkDestroyFence(*m_device, m_inFlightFences[i], nullptr);
+	}
+
+	m_videoOut->DestroySurface(*m_instance);
 }
 
 bool SceGnmDriver::initDriver(uint32_t bufferNum)
 {
 	
-	m_swapchain = new GveSwapChain(m_device, m_videoOut, bufferNum);
+	m_swapchain = new GveSwapChain(m_device, m_videoOut, 3);
 
-	createFrameBuffers(bufferNum);
+	createFrameBuffers();
 
 	createContexts(bufferNum);
 
@@ -55,11 +63,10 @@ int SceGnmDriver::submitCommandBuffers(uint32_t count,
 	void *dcbGpuAddrs[], uint32_t *dcbSizesInBytes,
 	void *ccbGpuAddrs[], uint32_t *ccbSizesInBytes)
 {
-	static uint32_t displayId = 0;
 	return submitAndFlipCommandBuffers(count,
 		dcbGpuAddrs, dcbSizesInBytes,
 		ccbGpuAddrs, ccbSizesInBytes,
-		SCE_VIDEO_HANDLE_MAIN, displayId++, 0, 0);
+		SCE_VIDEO_HANDLE_MAIN, 0, 0, 0);
 }
 
 int SceGnmDriver::submitAndFlipCommandBuffers(uint32_t count, 
@@ -121,7 +128,7 @@ RcPtr<GvePhysicalDevice> SceGnmDriver::pickPhysicalDevice()
 bool SceGnmDriver::isDeviceSuitable(RcPtr<GvePhysicalDevice>& device)
 {
 	bool swapChainAdequate = false;
-	VkSurfaceKHR surface = m_videoOut->getSurface(*m_instance);
+	VkSurfaceKHR surface = m_videoOut->createSurface(*m_instance);
 
 	SwapChainSupportDetails swapChainSupport = GveSwapChain::querySwapChainSupport(*device, surface);
 	swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
@@ -131,7 +138,7 @@ bool SceGnmDriver::isDeviceSuitable(RcPtr<GvePhysicalDevice>& device)
 	return  swapChainAdequate && supportedFeatures.samplerAnisotropy;
 }
 
-void SceGnmDriver::createFrameBuffers(uint32_t count)
+void SceGnmDriver::createFrameBuffers()
 {
 	VkExtent2D extent = m_swapchain->extent();
 
@@ -139,6 +146,7 @@ void SceGnmDriver::createFrameBuffers(uint32_t count)
 	format.colorFormat = m_swapchain->imageFormat();
 	m_renderPass = m_device->createRenderPass(format);
 
+	uint32_t count = m_swapchain->imageCount();
 	for (uint32_t i = 0; i != count; ++i)
 	{
 		auto imageView = m_swapchain->getImageView(i);

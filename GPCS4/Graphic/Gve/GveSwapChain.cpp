@@ -31,7 +31,7 @@ void GveSwapChain::createSwapChain(uint32_t imageCount)
 	{
 		GveInstance* instance = m_phyDevice->instance();
 		VkDevice device = *m_device;
-		VkSurfaceKHR surface = m_videoOut->getSurface(*instance);
+		VkSurfaceKHR surface = m_videoOut->createSurface(*instance);
 
 		SwapChainSupportDetails swapChainSupport = querySwapChainSupport(*m_phyDevice, surface);
 
