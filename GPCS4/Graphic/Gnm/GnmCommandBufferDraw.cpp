@@ -269,6 +269,8 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 		float u, v;		// UVs
 	} Vertex;
 
+	m_context->beginRecording(m_cmd);
+
 	do
 	{
 		uint32_t* fsCode = getFetchShaderCode(m_vsCode);
@@ -432,17 +434,21 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 		stagingInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
 		auto stagingBuffer = m_resourceManager->createBuffer(stagingInfo, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
-		const void* data = indexAddr;
-		void* addr = stagingBuffer->mapPtr(0);
-		memcpy(addr, data, indexSize);
+		if (indexAddr)
+		{
+			const void* data = indexAddr;
+			void* addr = stagingBuffer->mapPtr(0);
+			memcpy(addr, data, indexSize);
 
-		GveBufferCreateInfo indexInfo;
-		indexInfo.size = indexSize;
-		indexInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-		uint64_t key = reinterpret_cast<uint64_t>(indexAddr);
-		auto indexBuffer = m_resourceManager->createBufferVsharp(indexInfo, key, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-		m_context->copyBuffer(indexBuffer->handle(), stagingBuffer->handle(), indexSize);
-		m_context->bindIndexBuffer(indexBuffer, VK_INDEX_TYPE_UINT16);
+			GveBufferCreateInfo indexInfo;
+			indexInfo.size = indexSize;
+			indexInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+			uint64_t key = reinterpret_cast<uint64_t>(indexAddr);
+			auto indexBuffer = m_resourceManager->createBufferVsharp(indexInfo, key, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+			m_context->copyBuffer(indexBuffer->handle(), stagingBuffer->handle(), indexSize);
+			m_context->bindIndexBuffer(indexBuffer, VK_INDEX_TYPE_UINT16);
+		}
+
 
 		m_context->drawIndex(indexCount, 0);
 
@@ -461,6 +467,8 @@ void GnmCommandBufferDraw::drawIndexAuto(uint32_t indexCount, DrawModifier modif
 
 void GnmCommandBufferDraw::drawIndexAuto(uint32_t indexCount)
 {
+	DrawModifier mod = { 0 };
+	drawIndex(indexCount, nullptr, mod);
 }
 
 void GnmCommandBufferDraw::setEmbeddedVsShader(EmbeddedVsShader shaderId, uint32_t shaderModifier)
