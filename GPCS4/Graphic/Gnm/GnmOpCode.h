@@ -66,7 +66,7 @@ constexpr unsigned int PM4_TYPE_2 = 2;
 constexpr unsigned int PM4_TYPE_3 = 3;
 
 // Some of the following opcode type is not used by PS4 Gnm.
-enum IT_OpCodeType
+enum IT_OpCodeType : uint8_t
 {
 	IT_NOP =								0x00000010,
 	IT_SET_BASE =							0x00000011,

@@ -3,6 +3,8 @@
 #include "GveCommon.h"
 #include "SyncHelper.h"
 
+#include <mutex>
+
 namespace gve
 {;
 
@@ -27,13 +29,13 @@ struct GveAttachmentFormat
  * Stores the attachment formats for all depth and
  * color attachments, as well as the sample count.
  */
-struct GveRenderPassFormat 
+struct GveRenderPassFormat
 {
 	VkSampleCountFlagBits sampleCount = VK_SAMPLE_COUNT_1_BIT;
-	GveAttachmentFormat  depth;
-	GveAttachmentFormat  color[MaxNumRenderTargets];
+	GveAttachmentFormat   depth;
+	GveAttachmentFormat   color[MaxNumRenderTargets];
 
-	bool eq(const GveRenderPassFormat& fmt) const;
+	bool operator == (const GveRenderPassFormat& fmt) const;
 
 	size_t hash() const;
 };
@@ -211,7 +213,7 @@ class GveRenderPassPool
 
 public:
 
-	GveRenderPassPool(const GveDevice* device);
+	GveRenderPassPool(GveDevice* device);
 	~GveRenderPassPool();
 
 	/**
