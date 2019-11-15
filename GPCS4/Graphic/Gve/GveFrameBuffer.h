@@ -1,7 +1,9 @@
 #pragma once
 
 #include "GveCommon.h"
-
+#include "GveLimit.h"
+#include "GveRenderPass.h"
+#include "GveImage.h"
 
 namespace gve
 {;
@@ -9,37 +11,84 @@ namespace gve
 class GveDevice;
 class GveFrameBuffer;
 
-struct GveRenderTarget
+/**
+ * \brief Framebuffer size
+ *
+ * Stores the width, height and number of layers
+ * of a framebuffer. This can be used in case a
+ * framebuffer does not have any attachments.
+ */
+struct GveFramebufferSize
 {
-	RcPtr<GveFrameBuffer> frameBuffer;
+	uint32_t width;
+	uint32_t height;
+	uint32_t layers;
+};
+
+
+/**
+ * \brief Framebuffer attachment
+ *
+ * Stores an attachment, as well as the image layout
+ * that will be used for rendering to the attachment.
+ */
+struct GveAttachment 
+{
+	RcPtr<GveImageView> view = nullptr;
+	VkImageLayout       layout = VK_IMAGE_LAYOUT_UNDEFINED;
+};
+
+
+/**
+ * \brief Render targets
+ *
+ * Stores all depth-stencil and color
+ * attachments attached to a framebuffer.
+ */
+struct GveRenderTargets
+{
+	GveAttachment color[MaxNumRenderTargets];
+	GveAttachment depth;
 };
 
 
 class GveFrameBuffer : public RcObject
 {
-	friend class GveContex;
 public:
 	GveFrameBuffer(const RcPtr<GveDevice>& device, 
-		VkRenderPass renderPass,
-		VkImageView imageView,
-		VkExtent2D& extent);
+		const GveRenderTargets& renderTargets,
+		GveRenderPass* renderPass,
+		const GveFramebufferSize& defaultSize);
 	~GveFrameBuffer();
 
 	VkFramebuffer handle() const;
 
-	VkExtent2D extent() const;
+	VkRenderPass getDefaultRenderPassHandle() const;
 
-	VkRenderPass renderPassHandle();
+	VkRenderPass getRenderPassHandle(const GveRenderPassOps& ops) const;
+
+	static GveRenderPassFormat getRenderPassFormat(const GveRenderTargets& renderTargets);
 
 private:
-	bool createFrameBuffer(VkImageView imageView);
+	bool createFrameBuffer(const GveRenderTargets& renderTargets,
+		GveRenderPass* renderPass,
+		const GveFramebufferSize& defaultSize);
+
+	GveFramebufferSize computeRenderSize(
+		const GveFramebufferSize& defaultSize) const;
+
+	GveFramebufferSize getRenderTargetSize(
+		const RcPtr<GveImageView>& renderTarget) const;
 
 private:
 	RcPtr<GveDevice> m_device;
-	VkRenderPass m_renderPass;
-	VkExtent2D m_extent;
+	GveRenderTargets m_renderTargets;
+	GveRenderPass* m_renderPass;
 
-	VkFramebuffer m_frameBuffer;
+	VkFramebuffer m_frameBuffer = VK_NULL_HANDLE;
+
+	uint32_t                                                  m_attachmentCount = 0;
+	std::array<const GveAttachment*, MaxNumRenderTargets + 1> m_attachments;
 };
 
 

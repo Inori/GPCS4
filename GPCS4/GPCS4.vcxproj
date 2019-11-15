@@ -79,9 +79,11 @@
     <ClInclude Include="Graphic\Gve\GvePhysicalDevice.h" />
     <ClInclude Include="Graphic\Gve\GveRenderPass.h" />
     <ClInclude Include="Graphic\Gve\GveResourceManager.h" />
+    <ClInclude Include="Graphic\Gve\GveResourceObjects.h" />
     <ClInclude Include="Graphic\Gve\GveSampler.h" />
     <ClInclude Include="Graphic\Gve\GveShader.h" />
     <ClInclude Include="Graphic\Gve\GveSwapChain.h" />
+    <ClInclude Include="Graphic\Gve\GveUtil.h" />
     <ClInclude Include="Graphic\Gve\GveVkLayers.h" />
     <ClInclude Include="Graphic\Pssl\GCNAnalyzer.h" />
     <ClInclude Include="Graphic\Pssl\GCNEnums.h" />
@@ -260,9 +262,11 @@
     <ClCompile Include="Graphic\Gve\GvePipelineManager.cpp" />
     <ClCompile Include="Graphic\Gve\GveRenderPass.cpp" />
     <ClCompile Include="Graphic\Gve\GveResourceManager.cpp" />
+    <ClCompile Include="Graphic\Gve\GveResourceObjects.cpp" />
     <ClCompile Include="Graphic\Gve\GveSampler.cpp" />
     <ClCompile Include="Graphic\Gve\GveShader.cpp" />
     <ClCompile Include="Graphic\Gve\GveSwapChain.cpp" />
+    <ClCompile Include="Graphic\Gve\GveUtil.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNAnalyzer.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNCompilerDataShare.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNCompilerDebugProfile.cpp" />

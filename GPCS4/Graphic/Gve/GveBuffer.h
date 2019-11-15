@@ -22,7 +22,7 @@ public:
 
 	GveBuffer(const RcPtr<GveDevice>& device,
 		const GveBufferCreateInfo& createInfo,
-		GveMemoryAllocator&  memAlloc,
+		GveMemoryAllocator*  memAlloc,
 		VkMemoryPropertyFlags memFlags);
 
 	~GveBuffer();

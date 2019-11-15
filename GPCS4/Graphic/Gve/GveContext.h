@@ -71,7 +71,7 @@ public:
 
 	void setBlendControl(const GveBlendControl& blendCtl);
 
-	void bindRenderTargets(const GveRenderTarget& target);
+	void bindRenderTargets(const GveRenderTargets& target);
 
 	void bindShader(VkShaderStageFlagBits stage, const RcPtr<GveShader>& shader);
 
@@ -115,7 +115,7 @@ private:
 	GveRenderState m_state;
 	GveContextFlag m_flag;
 
-	GveRenderTarget m_renderTarget;
+	GveRenderTargets m_renderTargets;
 
 	std::array<GveShaderResourceSlot, pssl::PsslBindingIndexMax> m_res;
 

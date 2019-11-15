@@ -128,9 +128,9 @@ void GveContex::setBlendControl(const GveBlendControl& blendCtl)
 	m_state.cb.blendConstants[3] = 0.0f;
 }
 
-void GveContex::bindRenderTargets(const GveRenderTarget& target)
+void GveContex::bindRenderTargets(const GveRenderTargets& target)
 {
-	m_renderTarget = target;
+	m_renderTargets = target;
 }
 
 void GveContex::bindShader(VkShaderStageFlagBits stage, const RcPtr<GveShader>& shader)
@@ -266,9 +266,9 @@ void GveContex::drawIndex(uint32_t indexCount, uint32_t firstIndex)
 	VkRenderPassBeginInfo renderPassInfo = {};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	renderPassInfo.renderPass = m_renderPass->getHandle();
-	renderPassInfo.framebuffer = m_renderTarget.frameBuffer->handle();
+	renderPassInfo.framebuffer = m_renderTargets.frameBuffer->handle();
 	renderPassInfo.renderArea.offset = { 0, 0 };
-	renderPassInfo.renderArea.extent = m_renderTarget.frameBuffer->extent();
+	renderPassInfo.renderArea.extent = m_renderTargets.frameBuffer->extent();
 	VkClearValue clearColor = { 0.5f, 0.5f, 0.5f, 1.0f };
 	renderPassInfo.clearValueCount = 1;
 	renderPassInfo.pClearValues = &clearColor;

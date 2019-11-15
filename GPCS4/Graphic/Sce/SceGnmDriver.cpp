@@ -175,8 +175,7 @@ void SceGnmDriver::createCommandParsers(uint32_t count)
 	m_commandBuffers.resize(count);
 	for (uint32_t i = 0; i != count; ++i)
 	{
-		GveRenderTarget target = { m_frameBuffers[i] };
-		m_commandBuffers[i] = std::make_shared<GnmCommandBufferDraw>(m_device, m_contexts[i], m_resMgr.get(), target);
+		m_commandBuffers[i] = std::make_shared<GnmCommandBufferDraw>(m_device, m_contexts[i], m_resMgr.get());
 	}
 	
 	m_commandParsers.resize(count);

@@ -1,5 +1,6 @@
 #include "GveImage.h"
 #include "GveDevice.h"
+#include "GveUtil.h"
 
 namespace gve
 {;
@@ -7,7 +8,7 @@ namespace gve
 
 GveImage::GveImage(const RcPtr<GveDevice>& device, 
 	const GveImageCreateInfo& createInfo, 
-	GveMemoryAllocator& memAlloc, 
+	GveMemoryAllocator*  memAlloc,
 	VkMemoryPropertyFlags memFlags):
 	m_device(device),
 	m_info(createInfo)
@@ -61,8 +62,8 @@ GveImage::GveImage(const RcPtr<GveDevice>& device,
 
 	if (info.tiling != VK_IMAGE_TILING_LINEAR)
 	{
-		memReq.memoryRequirements.size = ALIGN_ROUND(memReq.memoryRequirements.size, memAlloc.bufferImageGranularity());
-		memReq.memoryRequirements.alignment = ALIGN_ROUND(memReq.memoryRequirements.alignment, memAlloc.bufferImageGranularity());
+		memReq.memoryRequirements.size = ALIGN_ROUND(memReq.memoryRequirements.size, memAlloc->bufferImageGranularity());
+		memReq.memoryRequirements.alignment = ALIGN_ROUND(memReq.memoryRequirements.alignment, memAlloc->bufferImageGranularity());
 	}
 
 	// Use high memory priority for GPU-writable resources
@@ -74,7 +75,7 @@ GveImage::GveImage(const RcPtr<GveDevice>& device,
 	float priority = isGpuWritable ? 1.0f : 0.5f;
 
 	// Ask driver whether we should be using a dedicated allocation
-	m_memory = memAlloc.alloc(&memReq.memoryRequirements,
+	m_memory = memAlloc->alloc(&memReq.memoryRequirements,
 		dedicatedRequirements, dedMemoryAllocInfo, memFlags, priority);
 
 	// Try to bind the allocated memory slice to the image
@@ -92,6 +93,11 @@ GveImage::~GveImage()
 VkImage GveImage::handle() const
 {
 	return m_image;
+}
+
+const GveImageCreateInfo GveImage::info() const
+{
+	return m_info;
 }
 
 VkFormat GveImage::getFormat() const
@@ -138,6 +144,11 @@ GveImageView::~GveImageView()
 {
 }
 
+const GveImageViewCreateInfo& GveImageView::info() const
+{
+	return m_info;
+}
+
 VkImageView GveImageView::handle() const
 {
 	return m_imageView;
@@ -149,6 +160,11 @@ RcPtr<gve::GveImage> GveImageView::getImage()
 }
 
 
+const gve::GveImageCreateInfo& GveImageView::imageInfo() const
+{
+	return m_image->info();
+}
+
 GveDescriptorInfo GveImageView::getDescriptor(VkImageViewType type, VkImageLayout layout) const
 {
 	GveDescriptorInfo descInfo;
@@ -158,6 +174,11 @@ GveDescriptorInfo GveImageView::getDescriptor(VkImageViewType type, VkImageLayou
 	descInfo.image.imageLayout = layout;
 	
 	return descInfo;
+}
+
+VkExtent3D GveImageView::mipLevelExtent(uint32_t mipLevel) const
+{
+	return util::computeMipLevelExtent(m_info.extent, mipLevel);
 }
 
 }  // namespace gve

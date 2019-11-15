@@ -44,30 +44,12 @@ public:
 
 	std::vector<VkExtensionProperties> getAvailableExtensions();
 
-	/**
-	 * \brief Supportred device features
-	 *
-	 * Queries the supported device features.
-	 * \returns Device features
-	 */
 	const GveDeviceFeatures& features() const;
 
-	/**
-	 * \brief Physical device properties
-	 *
-	 * Returns a read-only reference to the core
-	 * properties of the Vulkan physical device.
-	 * \returns Physical device core properties
-	 */
-	const VkPhysicalDeviceProperties& deviceProperties() const;;
+	const VkPhysicalDeviceProperties& deviceProperties() const;
 
-	/**
-	 * \brief Memory properties
-	 *
-	 * Queries the memory types and memory heaps of
-	 * the device. This is useful for memory allocators.
-	 * \returns Device memory properties
-	 */
+	const GveDeviceInfo& devicePropertiesExt() const;
+
 	VkPhysicalDeviceMemoryProperties memoryProperties() const;
 
 	RcPtr<GveDevice> createLogicalDevice();

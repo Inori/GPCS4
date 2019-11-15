@@ -186,6 +186,11 @@ const VkPhysicalDeviceProperties& GvePhysicalDevice::deviceProperties() const
 	return m_deviceInfo.core.properties;
 }
 
+const GveDeviceInfo& GvePhysicalDevice::devicePropertiesExt() const
+{
+	return m_deviceInfo;
+}
+
 VkPhysicalDeviceMemoryProperties GvePhysicalDevice::memoryProperties() const
 {
 	VkPhysicalDeviceMemoryProperties memoryProperties;

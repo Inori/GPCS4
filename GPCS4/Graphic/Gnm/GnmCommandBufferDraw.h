@@ -20,8 +20,7 @@ private:
 public:
 	GnmCommandBufferDraw(const RcPtr<gve::GveDevice>& device, 
 		const RcPtr<gve::GveContex>& context,
-		gve::GveResourceManager* resMgr,
-		const gve::GveRenderTarget& renderTarget);
+		gve::GveResourceManager* resMgr);
 	virtual ~GnmCommandBufferDraw();
 
 	virtual void initializeDefaultHardwareState() override;

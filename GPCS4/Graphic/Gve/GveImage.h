@@ -74,20 +74,19 @@ class GveImage : public RcObject
 public:
 	GveImage(const RcPtr<GveDevice>& device,
 		const GveImageCreateInfo& createInfo,
-		GveMemoryAllocator& memAlloc,
+		GveMemoryAllocator*  memAlloc,
 		VkMemoryPropertyFlags memFlags);
 
 	~GveImage();
 
 	VkImage handle() const;
 
+	const GveImageCreateInfo info() const;
+
 	VkFormat getFormat() const;
 
 	VkImageLayout getLayout() const;
 
-
-private:
-	
 
 private:
 	RcPtr<GveDevice> m_device;
@@ -109,11 +108,17 @@ public:
 		const RcPtr<GveImage>& image);
 	~GveImageView();
 
+	const GveImageViewCreateInfo& info() const;
+
 	VkImageView handle() const;
 
 	RcPtr<GveImage> getImage();
 
+	const GveImageCreateInfo& imageInfo() const;
+
 	GveDescriptorInfo getDescriptor(VkImageViewType type, VkImageLayout layout) const;
+
+	VkExtent3D mipLevelExtent(uint32_t mipLevel) const;
 
 private:
 	RcPtr<GveDevice> m_device;

@@ -27,7 +27,8 @@ class GveSampler;
 class GveResourceManager
 {
 public:
-	GveResourceManager(const RcPtr<GveDevice>& device);
+	GveResourceManager(GveDevice* device,
+		GveMemoryAllocator* memAlloc);
 	~GveResourceManager();
 
 
@@ -129,9 +130,9 @@ public:
 	void GC();
 
 private:
-	RcPtr<GveDevice> m_device;
+	GveDevice* m_device;
 
-	GveMemoryAllocator m_memAllocator;
+	GveMemoryAllocator* m_memAllocator;
 
 	std::unordered_map<uint64_t, RcPtr<GveBuffer>> m_buffers;
 	std::unordered_map<uint64_t, RcPtr<GveImage>> m_images;
