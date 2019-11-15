@@ -12,8 +12,8 @@ First correct image rendered, although this is a 2D image demo, it's actuall ren
 There're still some hardcode test code, but with more design, and most important, this time with our shader translator, no hand write shaders anymore.  
 Next I'll focus on Nier and improve the graphics implementation.
 
-![Demo](https://github.com/Inori/GPCS4/blob/master/Misc/demo.gif)  
-This a privious running result of Nier:Automata, not correct though, I'll improve it.
+![Demo](https://github.com/Inori/GPCS4/blob/master/Misc/nier_logo.gif)  
+This is a privious running result of Nier:Automata, not correct though, I'll improve it.
 
 ## Roadmap
 
