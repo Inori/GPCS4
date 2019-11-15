@@ -62,17 +62,31 @@ bool GveRenderPass::hasCompatibleFormat(const GveRenderPassFormat& fmt) const
 
 VkRenderPass GveRenderPass::getHandle(const GveRenderPassOps& ops)
 {
-	std::lock_guard<Spinlock> lock(m_mutex);
-
-	for (const auto& i : m_instances) 
+	VkRenderPass rp = VK_NULL_HANDLE;
+	do 
 	{
-		if (compareOps(i.ops, ops))
-			return i.handle;
-	}
+		std::lock_guard<Spinlock> lock(m_mutex);
 
-	VkRenderPass handle = this->createRenderPass(ops);
-	m_instances.push_back({ ops, handle });
-	return handle;
+		for (const auto& i : m_instances)
+		{
+			if (!compareOps(i.ops, ops))
+			{
+				continue;
+			}
+			rp = i.handle;
+			break;
+		}
+
+		if (rp != VK_NULL_HANDLE)
+		{
+			break;
+		}
+
+		rp = createRenderPass(ops);
+		m_instances.push_back({ ops, rp });
+
+	} while (false);
+	return rp;
 }
 
 VkRenderPass GveRenderPass::createRenderPass(const GveRenderPassOps& ops)

@@ -2,7 +2,8 @@
 
 #include "GveCommon.h"
 #include "SyncHelper.h"
-
+#include "GveLimit.h"
+#include "GveHash.h"
 #include <mutex>
 
 namespace gve
