@@ -64,8 +64,10 @@
     <ClInclude Include="Graphic\Gve\GveCommon.h" />
     <ClInclude Include="Graphic\Gve\GveContext.h" />
     <ClInclude Include="Graphic\Gve\GveDescriptor.h" />
+    <ClInclude Include="Graphic\Gve\GveGpuResource.h" />
     <ClInclude Include="Graphic\Gve\GveGraphicsPipeline.h" />
     <ClInclude Include="Graphic\Gve\GveImage.h" />
+    <ClInclude Include="Graphic\Gve\GveLifetime.h" />
     <ClInclude Include="Graphic\Gve\GveLimit.h" />
     <ClInclude Include="Graphic\Gve\GvePipelineLayout.h" />
     <ClInclude Include="Graphic\Gve\GvePipelineManager.h" />
@@ -82,6 +84,7 @@
     <ClInclude Include="Graphic\Gve\GveResourceObjects.h" />
     <ClInclude Include="Graphic\Gve\GveSampler.h" />
     <ClInclude Include="Graphic\Gve\GveShader.h" />
+    <ClInclude Include="Graphic\Gve\GveStaging.h" />
     <ClInclude Include="Graphic\Gve\GveSwapChain.h" />
     <ClInclude Include="Graphic\Gve\GveUtil.h" />
     <ClInclude Include="Graphic\Gve\GveVkLayers.h" />
@@ -253,9 +256,11 @@
     <ClCompile Include="Graphic\Gve\GveDevice.cpp" />
     <ClCompile Include="Graphic\Gve\GveExtension.cpp" />
     <ClCompile Include="Graphic\Gve\GveFrameBuffer.cpp" />
+    <ClCompile Include="Graphic\Gve\GveGpuResource.cpp" />
     <ClCompile Include="Graphic\Gve\GveGraphicsPipeline.cpp" />
     <ClCompile Include="Graphic\Gve\GveImage.cpp" />
     <ClCompile Include="Graphic\Gve\GveInstance.cpp" />
+    <ClCompile Include="Graphic\Gve\GveLifetime.cpp" />
     <ClCompile Include="Graphic\Gve\GveMemory.cpp" />
     <ClCompile Include="Graphic\Gve\GvePhysicalDevice.cpp" />
     <ClCompile Include="Graphic\Gve\GvePipelineLayout.cpp" />
@@ -265,6 +270,7 @@
     <ClCompile Include="Graphic\Gve\GveResourceObjects.cpp" />
     <ClCompile Include="Graphic\Gve\GveSampler.cpp" />
     <ClCompile Include="Graphic\Gve\GveShader.cpp" />
+    <ClCompile Include="Graphic\Gve\GveStaging.cpp" />
     <ClCompile Include="Graphic\Gve\GveSwapChain.cpp" />
     <ClCompile Include="Graphic\Gve\GveUtil.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNAnalyzer.cpp" />

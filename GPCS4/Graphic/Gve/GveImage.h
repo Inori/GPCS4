@@ -3,7 +3,7 @@
 #include "GveCommon.h"
 #include "GveMemory.h"
 #include "GveDescriptor.h"
-
+#include "GveGpuResource.h"
 
 namespace gve
 {;
@@ -69,7 +69,7 @@ struct GveImageViewCreateInfo
 };
 
 
-class GveImage : public RcObject
+class GveImage : public GveGpuResource
 {
 public:
 	GveImage(const RcPtr<GveDevice>& device,
@@ -100,7 +100,7 @@ private:
 
 ///
 
-class GveImageView : public RcObject
+class GveImageView : public GveGpuResource
 {
 public:
 	GveImageView(const RcPtr<GveDevice>& device,

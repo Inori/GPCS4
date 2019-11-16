@@ -805,6 +805,15 @@
     <ClInclude Include="Graphic\Gve\GveUtil.h">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClInclude>
+    <ClInclude Include="Graphic\Gve\GveGpuResource.h">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gve\GveLifetime.h">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gve\GveStaging.h">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1423,6 +1432,15 @@
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClCompile>
     <ClCompile Include="Graphic\Gve\GveUtil.cpp">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gve\GveGpuResource.cpp">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gve\GveLifetime.cpp">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gve\GveStaging.cpp">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClCompile>
   </ItemGroup>
