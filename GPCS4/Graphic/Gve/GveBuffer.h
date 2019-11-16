@@ -3,6 +3,7 @@
 #include "GveCommon.h"
 #include "GveMemory.h"
 #include "GveDescriptor.h"
+#include "GveGpuResource.h"
 
 
 namespace gve
@@ -16,7 +17,7 @@ struct GveBufferCreateInfo
 	VkBufferUsageFlags usage;
 };
 
-class GveBuffer : public RcObject
+class GveBuffer : public GveGpuResource
 {
 public:
 
@@ -29,10 +30,11 @@ public:
 
 	VkBuffer handle() const;
 
+	VkDeviceSize length() const;
+
+	const GveBufferCreateInfo& info() const;
+
 	void* mapPtr(VkDeviceSize offset) const;
-
-	VkDeviceSize size() const;
-
 
 private:
 
@@ -49,7 +51,32 @@ private:
 };
 
 
-class GveBufferView : public RcObject
+class GveBufferSlice
+{
+public:
+	GveBufferSlice();
+	GveBufferSlice(const RcPtr<GveBuffer>& buffer, VkDeviceSize offset, VkDeviceSize length);
+	GveBufferSlice(const RcPtr<GveBuffer>& buffer);
+	~GveBufferSlice();
+
+	RcPtr<GveBuffer> buffer();
+
+	VkDeviceSize offset() const;
+
+	VkDeviceSize length() const;
+
+	void* mapPtr(VkDeviceSize offset) const;
+
+	static GveBufferSlice fromBuffer(const RcPtr<GveBuffer>& buffer);
+
+private:
+	RcPtr<GveBuffer> m_buffer;
+	VkDeviceSize m_offset;
+	VkDeviceSize m_length;
+};
+
+
+class GveBufferView : public GveGpuResource
 {
 public:
 	GveBufferView();
