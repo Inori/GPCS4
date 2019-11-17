@@ -2,10 +2,10 @@
 
 #include "GveCommon.h"
 #include "GvePhysicalDevice.h"
-#include "GveRenderPass.h"
 #include "GveFrameBuffer.h"
 #include "GveContext.h"
 #include "GveMemory.h"
+#include "GveResourceObjects.h"
 
 namespace gve
 {;
@@ -40,9 +40,7 @@ public:
 
 	GveDeviceQueueSet queues() const;
 
-	RcPtr<GveRenderPass> createRenderPass(GveRenderPassFormat& format);
-
-	RcPtr<GveFrameBuffer> createFrameBuffer(VkRenderPass renderPass, VkImageView imageView, VkExtent2D& extent);
+	RcPtr<GveFrameBuffer> createFrameBuffer(const GveRenderTargets& renderTargets);
 
 	RcPtr<GveCommandBuffer> createCommandBuffer();
 
@@ -56,8 +54,11 @@ private:
 private:
 	VkDevice m_device;
 	RcPtr<GvePhysicalDevice> m_phyDevice;
+
 	GveDeviceQueueSet m_queues;
-	
+	GveDeviceInfo  m_properties;
+
+	GveResourceObjects m_resObjects;
 	
 };
 

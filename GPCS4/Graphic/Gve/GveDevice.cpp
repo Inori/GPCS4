@@ -11,7 +11,9 @@ namespace gve
 
 GveDevice::GveDevice(VkDevice device, const RcPtr<GvePhysicalDevice>& phyDevice):
 	m_device(device),
-	m_phyDevice(phyDevice)
+	m_phyDevice(phyDevice),
+	m_properties(phyDevice->devicePropertiesExt()),
+	m_resObjects(this)
 {
 	initQueues();
 }
@@ -26,7 +28,7 @@ GveDevice::operator VkDevice() const
 	return m_device;
 }
 
-RcPtr<gve::GvePhysicalDevice> GveDevice::physicalDevice() const
+RcPtr<GvePhysicalDevice> GveDevice::physicalDevice() const
 {
 	return m_phyDevice;
 }
@@ -36,27 +38,32 @@ GveDeviceQueueSet GveDevice::queues() const
 	return m_queues;
 }
 
-RcPtr<gve::GveRenderPass> GveDevice::createRenderPass(GveRenderPassFormat& format)
+RcPtr<GveFrameBuffer> GveDevice::createFrameBuffer(const GveRenderTargets& renderTargets)
 {
-	return new GveRenderPass(this, format);
+	auto rpFormat = GveFrameBuffer::getRenderPassFormat(renderTargets);
+	auto renderPass = m_resObjects.renderPassPool().getRenderPass(rpFormat);
+
+	const GveFramebufferSize defaultSize = 
+	{
+		m_properties.core.properties.limits.maxFramebufferWidth,
+		m_properties.core.properties.limits.maxFramebufferHeight,
+		m_properties.core.properties.limits.maxFramebufferLayers
+	};
+
+	return new GveFrameBuffer(this, renderTargets, renderPass, defaultSize);
 }
 
-RcPtr<gve::GveFrameBuffer> GveDevice::createFrameBuffer(VkRenderPass renderPass, VkImageView imageView, VkExtent2D& extent)
-{
-	return new GveFrameBuffer(this, renderPass, imageView, extent);
-}
-
-RcPtr<gve::GveCommandBuffer> GveDevice::createCommandBuffer()
+RcPtr<GveCommandBuffer> GveDevice::createCommandBuffer()
 {
 	return new GveCommandBuffer(this);
 }
 
-RcPtr<gve::GveContex> GveDevice::createContext(const GveContextParam& param)
+RcPtr<GveContex> GveDevice::createContext(const GveContextParam& param)
 {
 	return new GveContex(this, param);
 }
 
-RcPtr<gve::GveDescriptorPool> GveDevice::createDescriptorPool()
+RcPtr<GveDescriptorPool> GveDevice::createDescriptorPool()
 {
 	return new GveDescriptorPool(this);
 }

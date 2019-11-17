@@ -7,11 +7,11 @@ namespace gve
 
 GveBuffer::GveBuffer(const RcPtr<GveDevice>& device, 
 	const GveBufferCreateInfo& createInfo,
-	GveMemoryAllocator& memAlloc, 
+	GveMemoryAllocator*  memAlloc,
 	VkMemoryPropertyFlags memFlags):
 	m_device(device),
 	m_info(createInfo),
-	m_memAlloc(&memAlloc),
+	m_memAlloc(memAlloc),
 	m_memFlags(memFlags)
 {
 	VkBufferCreateInfo bufferInfo = {};
@@ -34,15 +34,21 @@ VkBuffer GveBuffer::handle() const
 	return m_buffer;
 }
 
+VkDeviceSize GveBuffer::length() const
+{
+	return m_info.size;
+}
+
+const GveBufferCreateInfo& GveBuffer::info() const
+{
+	return m_info;
+}
+
 void* GveBuffer::mapPtr(VkDeviceSize offset) const
 {
 	return m_memory.mapPtr(offset);
 }
 
-VkDeviceSize GveBuffer::size() const
-{
-	return m_info.size;
-}
 
 
 void GveBuffer::createBuffer(const VkBufferCreateInfo& info)
@@ -95,6 +101,59 @@ void GveBuffer::createBuffer(const VkBufferCreateInfo& info)
 			break;
 		}
 	} while (false);
+}
+
+///
+
+GveBufferSlice::GveBufferSlice(const RcPtr<GveBuffer>& buffer, 
+	VkDeviceSize offset, VkDeviceSize length):
+	m_buffer(buffer),
+	m_offset(offset),
+	m_length(length)
+{
+
+}
+
+GveBufferSlice::GveBufferSlice(const RcPtr<GveBuffer>& buffer):
+	GveBufferSlice(buffer, 0, buffer->length())
+{
+
+}
+
+GveBufferSlice::GveBufferSlice():
+	GveBufferSlice(nullptr, 0, 0)
+{
+
+}
+
+GveBufferSlice::~GveBufferSlice()
+{
+}
+
+
+RcPtr<GveBuffer> GveBufferSlice::buffer()
+{
+	return m_buffer;
+}
+
+VkDeviceSize GveBufferSlice::offset() const
+{
+	return m_offset;
+}
+
+VkDeviceSize GveBufferSlice::length() const
+{
+	return m_length;
+}
+
+void* GveBufferSlice::mapPtr(VkDeviceSize offset) const
+{
+	return m_buffer != nullptr ? m_buffer->mapPtr(m_offset + offset) : nullptr;
+}
+
+GveBufferSlice GveBufferSlice::fromBuffer(const RcPtr<GveBuffer>& buffer)
+{
+	return GveBufferSlice(buffer);
 }
 
 ///

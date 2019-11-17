@@ -259,7 +259,7 @@ class GveMemoryAllocator
 	friend class GveMemoryChunk;
 public:
 
-	GveMemoryAllocator(const GveDevice* device);
+	GveMemoryAllocator(GveDevice* device);
 	~GveMemoryAllocator();
 
 	/**
@@ -303,7 +303,7 @@ public:
 
 private:
 
-	const GveDevice*                       m_device;
+	GveDevice*							   m_device;
 	const VkPhysicalDeviceProperties       m_devProps;
 	const VkPhysicalDeviceMemoryProperties m_memProps;
 

@@ -7,9 +7,10 @@
 namespace gve
 {;
 
-GveResourceManager::GveResourceManager(const RcPtr<GveDevice>& device):
+GveResourceManager::GveResourceManager(GveDevice* device,
+	GveMemoryAllocator* memAlloc):
 	m_device(device),
-	m_memAllocator(m_device.ptr())
+	m_memAllocator(memAlloc)
 {
 
 }

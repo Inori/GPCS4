@@ -793,11 +793,26 @@
     <ClInclude Include="Graphic\Gnm\GnmGpuAddress.h">
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClInclude>
-	<ClInclude Include="Loader\FuncStub.h">
+    <ClInclude Include="Loader\FuncStub.h">
       <Filter>Source Files\Loader</Filter>
     </ClInclude>
     <ClInclude Include="SceModules\SceLibkernel\sce_pthread_common.h">
       <Filter>SceModules\SceLibkernel</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gve\GveResourceObjects.h">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gve\GveUtil.h">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gve\GveGpuResource.h">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gve\GveLifetime.h">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gve\GveStaging.h">
+      <Filter>Source Files\Graphic\Gve</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1407,11 +1422,26 @@
     <ClCompile Include="Graphic\Gve\GveDescriptor.cpp">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClCompile>
-	<ClCompile Include="Loader\FuncStub.cpp">
+    <ClCompile Include="Loader\FuncStub.cpp">
       <Filter>Source Files\Loader</Filter>
     </ClCompile>
     <ClCompile Include="SceModules\SceLibkernel\sce_pthread_common.cpp">
       <Filter>SceModules\SceLibkernel</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gve\GveResourceObjects.cpp">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gve\GveUtil.cpp">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gve\GveGpuResource.cpp">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gve\GveLifetime.cpp">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gve\GveStaging.cpp">
+      <Filter>Source Files\Graphic\Gve</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
