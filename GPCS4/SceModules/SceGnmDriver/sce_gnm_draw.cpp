@@ -84,7 +84,20 @@ int PS4API sceGnmDrawIndexIndirect(uint32_t* cmdBuffer, uint32_t numDwords,
 	uint8_t instanceOffsetUserSgpr,
 	uint32_t pred)
 {
-	LOG_SCE_GRAPHIC("Not implemented");
+	LOG_SCE_GRAPHIC("cmd %p numdw %d", cmdBuffer, numDwords);
+	GnmCmdDrawIndexIndirect *param = (GnmCmdDrawIndexIndirect *)cmdBuffer;
+	const uint32_t paramSize = sizeof(GnmCmdDrawIndexIndirect) / sizeof(uint32_t);
+	assert(paramSize == numDwords);
+	
+	param->opcode =
+		PM4_HEADER_BUILD(paramSize, IT_GNM_PRIVATE, OP_PRIV_DRAW_INDEX_INDIRECT);
+	param->dataOffsetInBytes = dataOffsetInBytes;
+	param->stage             = stage;
+	param->vertexOffsetUserSgpr = vertexOffsetUserSgpr;
+	param->instanceOffsetUserSgpr = instanceOffsetUserSgpr;
+	param->pred                   = pred;
+	
+	//LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
