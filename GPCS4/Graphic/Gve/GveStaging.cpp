@@ -39,7 +39,10 @@ GveBufferSlice GveStagingBufferAllocator::alloc(VkDeviceSize size, VkDeviceSize 
 		}
 
 		m_offset = ALIGN_ROUND(m_offset, align);
-		if (m_offset + size > MaxBufferSize)  // If this is true, m_buffer must be in use.
+
+		// If this is true, m_buffer must be in use,
+		// we need to find another buffer, either in cache or a new one
+		if (m_offset + size > MaxBufferSize)  
 		{
 			m_offset = 0;
 
@@ -49,7 +52,6 @@ GveBufferSlice GveStagingBufferAllocator::alloc(VkDeviceSize size, VkDeviceSize 
 				m_cacheBuffers.push(std::move(m_buffer));
 			}
 
-			// 
 			if (!m_cacheBuffers.front()->isInUse())
 			{
 				m_buffer = std::move(m_cacheBuffers.front());
