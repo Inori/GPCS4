@@ -69,8 +69,8 @@ int SceGnmDriver::submitAndFlipCommandBuffers(uint32_t count,
 			break;
 		}
 
-		auto cmdBuffer = m_commandParsers[displayBufferIndex]->getCommandBuffer()->getCmdBuffer();
-		submitCommandBufferAndPresent(cmdBuffer);
+		//auto cmdBuffer = m_commandParsers[displayBufferIndex]->getCommandBuffer()->getCmdBuffer();
+		//submitCommandBufferAndPresent(cmdBuffer);
 	
 		err = SCE_OK;
 	} while (false);
