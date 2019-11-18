@@ -63,6 +63,7 @@
     <ClInclude Include="Graphic\Gve\GveCommandBuffer.h" />
     <ClInclude Include="Graphic\Gve\GveCommon.h" />
     <ClInclude Include="Graphic\Gve\GveContext.h" />
+    <ClInclude Include="Graphic\Gve\GveDebugMarker.h" />
     <ClInclude Include="Graphic\Gve\GveDescriptor.h" />
     <ClInclude Include="Graphic\Gve\GveGpuResource.h" />
     <ClInclude Include="Graphic\Gve\GveGraphicsPipeline.h" />
@@ -252,6 +253,7 @@
     <ClCompile Include="Graphic\Gve\GveBuffer.cpp" />
     <ClCompile Include="Graphic\Gve\GveCommandBuffer.cpp" />
     <ClCompile Include="Graphic\Gve\GveContext.cpp" />
+    <ClCompile Include="Graphic\Gve\GveDebugMarker.cpp" />
     <ClCompile Include="Graphic\Gve\GveDescriptor.cpp" />
     <ClCompile Include="Graphic\Gve\GveDevice.cpp" />
     <ClCompile Include="Graphic\Gve\GveExtension.cpp" />
