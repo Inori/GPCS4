@@ -814,6 +814,9 @@
     <ClInclude Include="Graphic\Gve\GveStaging.h">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClInclude>
+    <ClInclude Include="Graphic\Gve\GveDebugMarker.h">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1441,6 +1444,9 @@
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClCompile>
     <ClCompile Include="Graphic\Gve\GveStaging.cpp">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gve\GveDebugMarker.cpp">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClCompile>
   </ItemGroup>
