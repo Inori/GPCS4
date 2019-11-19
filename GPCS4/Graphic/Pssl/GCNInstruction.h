@@ -3,6 +3,8 @@
 #include "GPCS4Common.h"
 #include "GCNParser/Instruction.h"
 
+#include <memory>
+
 namespace pssl
 {;
 

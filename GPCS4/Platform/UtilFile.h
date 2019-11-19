@@ -1,8 +1,10 @@
 #pragma once
 
 #include "GPCS4Common.h"
+
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace UtilFile
 {;

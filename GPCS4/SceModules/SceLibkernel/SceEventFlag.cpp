@@ -3,6 +3,8 @@
 #include "sce_kernel_eventflag.h"
 #include "Platform/UtilThread.h"
 
+#include <functional>
+
 CSceEventFlag::CSceEventFlag(const std::string& name, uint attr, uint64 initPattern) :
 	m_attr(attr),
 	m_name(name),
