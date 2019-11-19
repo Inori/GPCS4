@@ -179,9 +179,10 @@ struct GnmCmdDispatchDirect
 
 struct GnmCmdDispatchIndirect
 {
+	uint32_t opcode;
 	uint32_t dataOffsetInBytes;
 	uint32_t flag;
-	uint32_t reserved[5];
+	uint32_t reserved[4];
 };
 
 struct GnmCmdWaitFlipDone
