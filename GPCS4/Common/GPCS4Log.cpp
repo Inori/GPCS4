@@ -4,6 +4,7 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/msvc_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/sinks/basic_file_sink.h>
 
 #include <memory>
 #include <cstdio>
@@ -22,12 +23,18 @@ void InitLogging()
 	console_sink->set_level(spdlog::level::trace); // message generating filter
 	console_sink->set_pattern("[%T.%f][%t][%^%l%$]%v");
 
-	auto msvc_sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
-	msvc_sink->set_level(spdlog::level::trace); // message generating filter
-	msvc_sink->set_pattern("[Asuka:%t][%l]%v");
+	//auto msvc_sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
+	//msvc_sink->set_level(spdlog::level::trace); // message generating filter
+	//msvc_sink->set_pattern("[Asuka:%t][%l]%v");
 
-	logger.reset(new spdlog::logger("stdout_msvc", { console_sink, msvc_sink }));
+	auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("GPCS4.log", true);
+	file_sink->set_level(spdlog::level::trace);
+	file_sink->set_pattern("[%T.%f][%t][%^%l%$]%v");
+
+	//logger.reset(new spdlog::logger("stdout_msvc", { console_sink, msvc_sink }));
+	logger.reset(new spdlog::logger("GPCS4", { console_sink, file_sink }));
 	logger->set_level(spdlog::level::trace); // message showing filter
+	logger->flush_on(spdlog::level::trace); // I/O cost
 }
 
 void LogPrint(LogLevel nLevel, const char* szFunction, const char* szSourcePath, int nLine, const char* szFormat, ...)
