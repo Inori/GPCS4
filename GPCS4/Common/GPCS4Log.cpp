@@ -74,7 +74,7 @@ void LogAssert(const char* szExpression, const char* szFunction, const char* szS
 	char szTempStr[LOG_STR_BUFFER_LEN + 1] = { 0 };
 	vsprintf_s(szTempStr, LOG_STR_BUFFER_LEN, szFormat, stArgList);
 	char szMsgBoxStr[LOG_STR_BUFFER_LEN + 1] = { 0 };
-	sprintf_s(szMsgBoxStr, "[Assert]: %s\n[Cause]: %s\n[Path]: %s(%d): %s", szExpression, szTempStr, szSourcePath, nLine, szFunction);
+	sprintf_s(szMsgBoxStr, LOG_STR_BUFFER_LEN, "[Assert]: %s\n[Cause]: %s\n[Path]: %s(%d): %s", szExpression, szTempStr, szSourcePath, nLine, szFunction);
 	va_end(stArgList);
 
 	logger->critical("{}({}): [Assert: {}] {}", szFunction, nLine, szExpression, szTempStr);
