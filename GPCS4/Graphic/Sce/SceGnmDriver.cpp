@@ -23,9 +23,6 @@ SceGnmDriver::SceGnmDriver(std::shared_ptr<SceVideoOut>& videoOut):
 	m_device = m_physDevice->createLogicalDevice();
 	LOG_ASSERT(m_device != nullptr, "create logical device failed.");
 
-	m_pipeMgr = std::make_unique<GvePipelineManager>(m_device.ptr());
-	m_resMgr = std::make_unique<GveResourceManager>(m_device);
-
 	createSyncObjects(MAX_FRAMES_IN_FLIGHT);
 }
 
@@ -49,8 +46,6 @@ bool SceGnmDriver::initDriver(uint32_t bufferNum)
 {
 	
 	m_swapchain = new GveSwapChain(m_device, m_videoOut, 3);
-
-	createFrameBuffers();
 
 	createContexts(bufferNum);
 
@@ -138,22 +133,6 @@ bool SceGnmDriver::isDeviceSuitable(RcPtr<GvePhysicalDevice>& device)
 	return  swapChainAdequate && supportedFeatures.samplerAnisotropy;
 }
 
-void SceGnmDriver::createFrameBuffers()
-{
-	VkExtent2D extent = m_swapchain->extent();
-
-	GveRenderPassFormat format;
-	format.colorFormat = m_swapchain->imageFormat();
-	m_renderPass = m_device->createRenderPass(format);
-
-	uint32_t count = m_swapchain->imageCount();
-	for (uint32_t i = 0; i != count; ++i)
-	{
-		auto imageView = m_swapchain->getImageView(i);
-		auto frameBuffer = m_device->createFrameBuffer(m_renderPass->getHandle(), imageView, extent);
-		m_frameBuffers.push_back(frameBuffer);
-	}
-}
 
 void SceGnmDriver::createContexts(uint32_t count)
 {

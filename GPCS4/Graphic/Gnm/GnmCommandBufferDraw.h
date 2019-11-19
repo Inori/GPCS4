@@ -113,8 +113,6 @@ private:
 
 private:
 
-	gve::GveRenderTarget m_renderTarget;
-
 	void* m_vsCode;
 	void* m_psCode;
 	UDSTVector m_vsUserDataSlotTable;

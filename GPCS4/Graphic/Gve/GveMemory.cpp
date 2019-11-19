@@ -194,7 +194,7 @@ void GveMemoryChunk::free(
 }
 
 
-GveMemoryAllocator::GveMemoryAllocator(const GveDevice* device):
+GveMemoryAllocator::GveMemoryAllocator(GveDevice* device):
 	m_device(device),
 	m_devProps(device->physicalDevice()->deviceProperties()),
 	m_memProps(device->physicalDevice()->memoryProperties())

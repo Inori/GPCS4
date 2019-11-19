@@ -108,11 +108,11 @@ public:
 		const RcPtr<GveImage>& image);
 	~GveImageView();
 
-	const GveImageViewCreateInfo& info() const;
-
 	VkImageView handle() const;
 
 	RcPtr<GveImage> getImage();
+
+	const GveImageViewCreateInfo& info() const;
 
 	const GveImageCreateInfo& imageInfo() const;
 

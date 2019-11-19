@@ -150,7 +150,7 @@ GveFramebufferSize GveFrameBuffer::computeRenderSize(const GveFramebufferSize& d
 GveFramebufferSize GveFrameBuffer::getRenderTargetSize(const RcPtr<GveImageView>& renderTarget) const
 {
 	auto extent = renderTarget->mipLevelExtent(0);
-	auto layers = renderTarget->info().numLayers;
+	auto layers = renderTarget->imageInfo().numLayers;
 	return GveFramebufferSize{ extent.width, extent.height, layers };
 }
 
