@@ -48,6 +48,55 @@ public:
 
 	RcPtr<GveDescriptorPool> createDescriptorPool();
 
+	/// Buffer
+	
+	RcPtr<GveBuffer> createBuffer(
+		const GveBufferCreateInfo&	info, 
+		VkMemoryPropertyFlags		memoryType);
+
+	RcPtr<GveBuffer> createBufferVsharp(
+		const GveBufferCreateInfo&	info,
+		VkMemoryPropertyFlags		memoryType,
+		uint64_t					key);
+
+	void freeBufferVsharp(uint64_t key);
+
+	/// Image
+
+	RcPtr<GveImage> createImage(
+		const GveImageCreateInfo&	info, 
+		VkMemoryPropertyFlags		memoryType);
+
+	RcPtr<GveImage> createImageTsharp(
+		const GveImageCreateInfo&	info,
+		VkMemoryPropertyFlags		memoryType,
+		uint64_t					key);
+
+	void freeImageTsharp(uint64_t key);
+	
+	RcPtr<GveImageView> createImageView(
+		const RcPtr<GveImage>&            image,
+		const GveImageViewCreateInfo&     createInfo);
+
+	RcPtr<GveImageView> createImageViewTsharp(
+		const RcPtr<GveImage>&            image,
+		const GveImageViewCreateInfo&     createInfo,
+		uint64_t						  key);
+
+	void freeImageViewTsharp(uint64_t key);
+
+	/// Sampler
+
+	RcPtr<GveSampler> createSampler(const GveSamplerCreateInfo& info);
+
+	RcPtr<GveSampler> createSamplerSsharp(
+		const GveSamplerCreateInfo&		info, 
+		uint64_t						key);
+
+	void freeSamplerSsharp(uint64_t key);
+
+	void GCSharpResource();
+
 private:
 	void initQueues();
 

@@ -41,7 +41,9 @@ public:
 	 * For this type of buffer, we know exactly when it will be released,
 	 * so we don't need to hold a reference.
 	 */
-	RcPtr<GveBuffer> createBuffer(const GveBufferCreateInfo& info, VkMemoryPropertyFlags memoryType);
+	RcPtr<GveBuffer> createBuffer(
+		const GveBufferCreateInfo&	info,
+		VkMemoryPropertyFlags		memoryType);
 
 	/**
 	 * \brief Create a buffer correspond to a V# buffer
@@ -49,8 +51,10 @@ public:
 	 * For this type of buffer, we don't know when it will be released,
 	 * so we need to hold a reference count inside the GveResourceManager class
 	 */
-	RcPtr<GveBuffer> createBufferVsharp(const GveBufferCreateInfo& info,
-		uint64_t key, VkMemoryPropertyFlags memoryType);
+	RcPtr<GveBuffer> createBufferVsharp(
+		const GveBufferCreateInfo&	info,
+		VkMemoryPropertyFlags		memoryType,
+		uint64_t					key);
 
 	/**
 	 * \brief Free a buffer
@@ -67,7 +71,9 @@ public:
 	 * For this type of image, we know exactly when it will be released,
 	 * so we don't need to hold a reference.
 	 */
-	RcPtr<GveImage> createImage(const GveImageCreateInfo& info, VkMemoryPropertyFlags memoryType);
+	RcPtr<GveImage> createImage(
+		const GveImageCreateInfo&	info,
+		VkMemoryPropertyFlags		memoryType);
 
 	/**
 	 * \brief Create a image correspond to a T# buffer
@@ -75,8 +81,10 @@ public:
 	 * For this type of buffer, we don't know when it will be released,
 	 * so we need to hold a reference count inside the GveResourceManager class
 	 */
-	RcPtr<GveImage> createImageTsharp(const GveImageCreateInfo& info, 
-		uint64_t key, VkMemoryPropertyFlags memoryType);
+	RcPtr<GveImage> createImageTsharp(
+		const GveImageCreateInfo&	info,
+		VkMemoryPropertyFlags		memoryType,
+		uint64_t					key);
 
 	/**
 	 * \brief Free a image
@@ -93,8 +101,8 @@ public:
 
 	RcPtr<GveImageView> createImageViewTsharp(
 		const RcPtr<GveImage>&            image,
-		uint64_t						  key,
-		const GveImageViewCreateInfo&     createInfo);
+		const GveImageViewCreateInfo&     createInfo,
+		uint64_t						  key);
 
 	void freeImageViewTsharp(uint64_t key);
 
@@ -114,7 +122,9 @@ public:
 	 * For this type of sampler, we don't know when it will be released,
 	 * so we need to hold a reference count inside the GveResourceManager class
 	 */
-	RcPtr<GveSampler> createSamplerSsharp(const GveSamplerCreateInfo& info, uint64_t key);
+	RcPtr<GveSampler> createSamplerSsharp(
+		const GveSamplerCreateInfo&		info,
+		uint64_t						key);
 
 	/**
 	 * \brief Free a sampler
