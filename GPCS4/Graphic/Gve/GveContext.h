@@ -12,7 +12,7 @@ namespace gve
 {;
 
 class GveDevice;
-class GveCommandBuffer;
+class GveCmdList;
 class GveShader;
 class GveBuffer;
 class GveBufferView;
@@ -33,11 +33,6 @@ struct GveShaderResourceSlot
 };
 
 
-struct GveContextParam
-{
-	GvePipelineManager* pipeMgr = nullptr;
-	RcPtr<GveRenderPass> renderPass;
-};
 
 // This is our render context.
 // Just like GfxContext in PS4, one GveContex should be bound to one display buffer.
@@ -45,10 +40,10 @@ struct GveContextParam
 class GveContex : public RcObject
 {
 public:
-	GveContex(const RcPtr<GveDevice>& device, const GveContextParam& param);
+	GveContex(const RcPtr<GveDevice>& device);
 	~GveContex();
 
-	void beginRecording(const RcPtr<GveCommandBuffer>& commandBuffer);
+	void beginRecording(const RcPtr<GveCmdList>& commandBuffer);
 
 	void endRecording();
 
@@ -105,24 +100,10 @@ public:
 
 private:
 	RcPtr<GveDevice> m_device;
-	GvePipelineManager* m_pipeMgr;
-	GveResourceManager* m_resMgr;
-	RcPtr<GveRenderPass> m_renderPass;
 
-	RcPtr<GveCommandBuffer> m_cmd;
-
-	GveGraphicsPipelineShaders m_shaders;
-	GveRenderState m_state;
-	GveContextFlag m_flag;
-
-	GveRenderTargets m_renderTargets;
+	RcPtr<GveCmdList> m_cmd;
 
 	std::array<GveShaderResourceSlot, pssl::PsslBindingIndexMax> m_res;
-
-	static VkPipeline s_pipeline;
-	static GvePipelineLayout* s_layout;
-	static RcPtr<GveDescriptorPool> s_descPool;
-	VkDescriptorSet m_descSet = VK_NULL_HANDLE;
 };
 
 

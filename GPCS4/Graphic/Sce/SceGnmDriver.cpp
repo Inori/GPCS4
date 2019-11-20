@@ -23,31 +23,20 @@ SceGnmDriver::SceGnmDriver(std::shared_ptr<SceVideoOut>& videoOut):
 	m_device = m_physDevice->createLogicalDevice();
 	LOG_ASSERT(m_device != nullptr, "create logical device failed.");
 
-	createSyncObjects(MAX_FRAMES_IN_FLIGHT);
+	// Swap chain
+	m_swapchain = new GveSwapChain(m_device, m_videoOut, 3);
 }
 
 SceGnmDriver::~SceGnmDriver()
 {
 	m_commandBuffers.clear();
 	m_commandParsers.clear();
-	m_frameBuffers.clear();
-	m_contexts.clear();
-	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
-	{
-		vkDestroySemaphore(*m_device, m_imageAvailableSemaphores[i], nullptr);
-		vkDestroySemaphore(*m_device, m_renderFinishedSemaphores[i], nullptr);
-		vkDestroyFence(*m_device, m_inFlightFences[i], nullptr);
-	}
 
 	m_videoOut->DestroySurface(*m_instance);
 }
 
 bool SceGnmDriver::initDriver(uint32_t bufferNum)
 {
-	
-	m_swapchain = new GveSwapChain(m_device, m_videoOut, 3);
-
-	createContexts(bufferNum);
 
 	createCommandParsers(bufferNum);
 
@@ -80,9 +69,6 @@ int SceGnmDriver::submitAndFlipCommandBuffers(uint32_t count,
 		{
 			break;
 		}
-
-		auto cmdBuffer = m_commandParsers[displayBufferIndex]->getCommandBuffer()->getCmdBuffer();
-		submitCommandBufferAndPresent(cmdBuffer);
 	
 		err = SCE_OK;
 	} while (false);
@@ -134,19 +120,6 @@ bool SceGnmDriver::isDeviceSuitable(RcPtr<GvePhysicalDevice>& device)
 }
 
 
-void SceGnmDriver::createContexts(uint32_t count)
-{
-	GveContextParam param;
-	param.pipeMgr = m_pipeMgr.get();
-	param.renderPass = m_renderPass;
-
-	for (uint32_t i = 0; i != count; ++i)
-	{
-		auto context = m_device->createContext(param);
-		m_contexts.push_back(context);
-	}
-}
-
 void SceGnmDriver::createCommandParsers(uint32_t count)
 {
 	// Initialize command buffers and command parsers
@@ -154,7 +127,7 @@ void SceGnmDriver::createCommandParsers(uint32_t count)
 	m_commandBuffers.resize(count);
 	for (uint32_t i = 0; i != count; ++i)
 	{
-		m_commandBuffers[i] = std::make_shared<GnmCommandBufferDraw>(m_device, m_contexts[i], m_resMgr.get());
+		m_commandBuffers[i] = std::make_shared<GnmCommandBufferDraw>(m_device);
 	}
 	
 	m_commandParsers.resize(count);
@@ -162,79 +135,6 @@ void SceGnmDriver::createCommandParsers(uint32_t count)
 	{
 		m_commandParsers[i] = std::make_unique<GnmCmdStream>(m_commandBuffers[i]);
 	}
-}
-
-void SceGnmDriver::createSyncObjects(uint32_t framesInFlight)
-{
-	m_imageAvailableSemaphores.resize(framesInFlight);
-	m_renderFinishedSemaphores.resize(framesInFlight);
-	m_inFlightFences.resize(framesInFlight);
-
-	VkSemaphoreCreateInfo semaphoreInfo = {};
-	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-	VkFenceCreateInfo fenceInfo = {};
-	fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-	fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
-	for (size_t i = 0; i < framesInFlight; i++) 
-	{
-		if (vkCreateSemaphore(*m_device, &semaphoreInfo, nullptr, &m_imageAvailableSemaphores[i]) != VK_SUCCESS ||
-			vkCreateSemaphore(*m_device, &semaphoreInfo, nullptr, &m_renderFinishedSemaphores[i]) != VK_SUCCESS ||
-			vkCreateFence(*m_device, &fenceInfo, nullptr, &m_inFlightFences[i]) != VK_SUCCESS) 
-		{
-			LOG_ERR("failed to create synchronization objects for a frame!");
-		}
-	}
-}
-
-void SceGnmDriver::submitCommandBufferAndPresent(const RcPtr<GveCommandBuffer>& cmdBuffer)
-{
-	vkWaitForFences(*m_device, 1, &m_inFlightFences[m_currentFrame], VK_TRUE, UINT64_MAX);
-
-	uint32_t imageIndex;
-	VkResult result = m_swapchain->acquireNextImage(m_imageAvailableSemaphores[m_currentFrame], VK_NULL_HANDLE, imageIndex);
-
-	VkSubmitInfo submitInfo = {};
-	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-
-	VkSemaphore waitSemaphores[] = { m_imageAvailableSemaphores[m_currentFrame] };
-	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-	submitInfo.waitSemaphoreCount = 1;
-	submitInfo.pWaitSemaphores = waitSemaphores;
-	submitInfo.pWaitDstStageMask = waitStages;
-
-	VkCommandBuffer cb = cmdBuffer->execBufferHandle();
-	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &cb;
-
-	VkSemaphore signalSemaphores[] = { m_renderFinishedSemaphores[m_currentFrame] };
-	submitInfo.signalSemaphoreCount = 1;
-	submitInfo.pSignalSemaphores = signalSemaphores;
-
-	vkResetFences(*m_device, 1, &m_inFlightFences[m_currentFrame]);
-
-	auto queues = m_device->queues();
-	if (vkQueueSubmit(queues.graphics.queueHandle, 1, &submitInfo, m_inFlightFences[m_currentFrame]) != VK_SUCCESS)
-	{
-		LOG_ERR("failed to submit draw command buffer!");
-	}
-
-	VkPresentInfoKHR presentInfo = {};
-	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-
-	presentInfo.waitSemaphoreCount = 1;
-	presentInfo.pWaitSemaphores = signalSemaphores;
-
-	VkSwapchainKHR swapChains[] = { m_swapchain->handle() };
-	presentInfo.swapchainCount = 1;
-	presentInfo.pSwapchains = swapChains;
-
-	presentInfo.pImageIndices = &imageIndex;
-
-	result = vkQueuePresentKHR(queues.graphics.queueHandle, &presentInfo);
-
-	m_currentFrame = (m_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
 }  //sce

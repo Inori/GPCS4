@@ -3,7 +3,7 @@
 #include "GnmCommon.h"
 #include "GnmCommandBuffer.h"
 #include "../Pssl/PsslShaderModule.h"
-#include "../Gve/GveCommandBuffer.h"
+#include "../Gve/GveCmdList.h"
 #include "../Gve/GveShader.h"
 
 #include <vector>
@@ -18,9 +18,7 @@ private:
 	typedef std::vector<pssl::PsslShaderResource> UDSTVector;
 
 public:
-	GnmCommandBufferDraw(const RcPtr<gve::GveDevice>& device, 
-		const RcPtr<gve::GveContex>& context,
-		gve::GveResourceManager* resMgr);
+	GnmCommandBufferDraw(const RcPtr<gve::GveDevice>& device);
 	virtual ~GnmCommandBufferDraw();
 
 	virtual void initializeDefaultHardwareState() override;
@@ -120,8 +118,6 @@ private:
 
 	RcPtr<gve::GveShader> m_vsShader;
 	RcPtr<gve::GveShader> m_psShader;
-
-	IndexSize m_indexSize = kIndexSize16;
 
 };
 

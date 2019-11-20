@@ -13,10 +13,8 @@
 using namespace gve;
 using namespace pssl;
 
-GnmCommandBufferDraw::GnmCommandBufferDraw(const RcPtr<GveDevice>& device,
-	const RcPtr<GveContex>& context,
-	GveResourceManager* resMgr):
-	GnmCommandBuffer(device, context, resMgr),
+GnmCommandBufferDraw::GnmCommandBufferDraw(const RcPtr<GveDevice>& device):
+	GnmCommandBuffer(device),
 	m_vsCode(nullptr),
 	m_psCode(nullptr)
 {

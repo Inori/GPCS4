@@ -1,22 +1,19 @@
 #include "GnmCommandBuffer.h"
-#include "../Gve/GveCommandBuffer.h"
+#include "../Gve/GveCmdList.h"
 #include "../Gve/GveDevice.h"
 
-GnmCommandBuffer::GnmCommandBuffer(const RcPtr<gve::GveDevice>& device, 
-	const RcPtr<gve::GveContex>& context,
-	gve::GveResourceManager* resMgr):
+GnmCommandBuffer::GnmCommandBuffer(const RcPtr<gve::GveDevice>& device):
 	m_device(device),
-	m_context(context),
-	m_resourceManager(resMgr)
+	m_cmd(m_device->createCmdList()),
+	m_context(m_device->createContext())
 {
-	m_cmd = new gve::GveCommandBuffer(m_device);
 }
 
 GnmCommandBuffer::~GnmCommandBuffer()
 {
 }
 
-RcPtr<gve::GveCommandBuffer> GnmCommandBuffer::getCmdBuffer()
+RcPtr<gve::GveCmdList> GnmCommandBuffer::getCmdBuffer()
 {
 	return m_cmd;
 }

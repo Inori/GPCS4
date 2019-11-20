@@ -10,7 +10,7 @@
 namespace gve
 {;
 
-class GveCommandBuffer;
+class GveCmdList;
 class GveDescriptorPool;
 class GveBuffer;
 class GveImage;
@@ -42,9 +42,9 @@ public:
 
 	RcPtr<GveFrameBuffer> createFrameBuffer(const GveRenderTargets& renderTargets);
 
-	RcPtr<GveCommandBuffer> createCommandBuffer();
+	RcPtr<GveCmdList> createCmdList();
 
-	RcPtr<GveContex> createContext(const GveContextParam& param);
+	RcPtr<GveContex> createContext();
 
 	RcPtr<GveDescriptorPool> createDescriptorPool();
 

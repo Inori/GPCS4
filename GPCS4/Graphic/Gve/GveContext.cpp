@@ -1,5 +1,5 @@
 #include "GveContext.h"
-#include "GveCommandBuffer.h"
+#include "GveCmdList.h"
 #include "GveFrameBuffer.h"
 #include "GveShader.h"
 #include "GvePipelineManager.h"
@@ -13,14 +13,9 @@
 namespace gve
 {;
 
-VkPipeline GveContex::s_pipeline = VK_NULL_HANDLE;
-GvePipelineLayout* GveContex::s_layout = nullptr;
-RcPtr<gve::GveDescriptorPool> GveContex::s_descPool;
 
-GveContex::GveContex(const RcPtr<GveDevice>& device, const GveContextParam& param) :
-	m_device(device),
-	m_pipeMgr(param.pipeMgr),
-	m_renderPass(param.renderPass)
+GveContex::GveContex(const RcPtr<GveDevice>& device) :
+	m_device(device)
 {
 }
 
@@ -29,7 +24,7 @@ GveContex::~GveContex()
 
 }
 
-void GveContex::beginRecording(const RcPtr<GveCommandBuffer>& commandBuffer)
+void GveContex::beginRecording(const RcPtr<GveCmdList>& commandBuffer)
 {
 	m_cmd = commandBuffer;
 	m_cmd->beginRecording();

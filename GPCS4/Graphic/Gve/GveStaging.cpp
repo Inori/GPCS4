@@ -86,8 +86,8 @@ RcPtr<GveBuffer> GveStagingBufferAllocator::createBuffer(VkDeviceSize size)
 	info.size = size;
 	info.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
 
-	//return m_device->createBuffer(info, 
-	//	VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+	return m_device->createBuffer(info, 
+		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 }
 
 }  // namespace gve

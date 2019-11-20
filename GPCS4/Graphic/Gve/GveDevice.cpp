@@ -1,5 +1,5 @@
 #include "GveDevice.h"
-#include "GveCommandBuffer.h"
+#include "GveCmdList.h"
 #include "GveDescriptor.h"
 #include "GveBuffer.h"
 #include "GveImage.h"
@@ -54,14 +54,14 @@ RcPtr<GveFrameBuffer> GveDevice::createFrameBuffer(const GveRenderTargets& rende
 	return new GveFrameBuffer(this, renderTargets, renderPass, defaultSize);
 }
 
-RcPtr<GveCommandBuffer> GveDevice::createCommandBuffer()
+RcPtr<GveCmdList> GveDevice::createCmdList()
 {
-	return new GveCommandBuffer(this);
+	return new GveCmdList(this);
 }
 
-RcPtr<GveContex> GveDevice::createContext(const GveContextParam& param)
+RcPtr<GveContex> GveDevice::createContext()
 {
-	return new GveContex(this, param);
+	return new GveContex(this);
 }
 
 RcPtr<GveDescriptorPool> GveDevice::createDescriptorPool()
