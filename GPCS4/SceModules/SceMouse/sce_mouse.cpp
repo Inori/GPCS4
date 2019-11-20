@@ -25,7 +25,7 @@ int PS4API sceMouseInit(void)
 }
 
 
-int PS4API sceMouseOpen(void)
+int PS4API sceMouseOpen(SceUserServiceUserId userId, int32_t type, int32_t index, SceMouseOpenParam *pParam)
 {
 	LOG_SCE_DUMMY_IMPL();
 	// it seems that mouse open must be successful even not connected a mouse,
@@ -34,10 +34,23 @@ int PS4API sceMouseOpen(void)
 }
 
 
-int PS4API sceMouseRead(void)
+int PS4API sceMouseRead(int32_t handle, SceMouseData *pData, int32_t num)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_DUMMY_IMPL();
+	uint32_t dataCount = 0;
+	do 
+	{
+		if (num < 1)
+		{
+			break;
+		}
+
+		// This indicates that a mouse is not connected.
+		pData[0].connected = false;
+		dataCount = 1;
+			
+	} while (false);
+	return dataCount;
 }
 
 
