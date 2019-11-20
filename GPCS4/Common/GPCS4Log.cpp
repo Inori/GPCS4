@@ -21,7 +21,7 @@ void InitLogging()
 {
 	auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
 	console_sink->set_level(spdlog::level::trace); // message generating filter
-	console_sink->set_pattern("[%T.%f][%t][%^%l%$]%v");
+	console_sink->set_pattern("[%t][%^%l%$]%v");
 
 	//auto msvc_sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
 	//msvc_sink->set_level(spdlog::level::trace); // message generating filter
@@ -29,7 +29,7 @@ void InitLogging()
 
 	auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("GPCS4.log", true);
 	file_sink->set_level(spdlog::level::trace);
-	file_sink->set_pattern("[%T.%f][%t][%^%l%$]%v");
+	file_sink->set_pattern("[%t][%^%l%$]%v");
 
 	//logger.reset(new spdlog::logger("stdout_msvc", { console_sink, msvc_sink }));
 	logger.reset(new spdlog::logger("GPCS4", { console_sink, file_sink }));
@@ -49,25 +49,25 @@ void LogPrint(LogLevel nLevel, const char* szFunction, const char* szSourcePath,
 
 	switch (nLevel)
 	{
-	case LogLevel::debug:
+	case LogLevel::kDebug:
 		logger->debug("{}({}): {}", szFunction, nLine, szTempStr);
 		break;
-	case LogLevel::trace:
+	case LogLevel::kTrace:
 		logger->trace("{}({}): {}", szFunction, nLine, szTempStr);
 		break;
-	case LogLevel::fixme:
+	case LogLevel::kFixme:
 		logger->warn("<FIXME>{}({}): {}", szFunction, nLine, szTempStr);
 		break;
-	case LogLevel::warning:
+	case LogLevel::kWarning:
 		logger->warn("{}({}): {}", szFunction, nLine, szTempStr);
 		break;
-	case LogLevel::error:
+	case LogLevel::kError:
 		logger->error("{}({}): {}", szFunction, nLine, szTempStr);
 		break;
-	case LogLevel::sce_trace:
+	case LogLevel::kSceTrace:
 		logger->trace("<SCE>{}({}): {}", szFunction, nLine, szTempStr);
 		break;
-	case LogLevel::sce_graphic:
+	case LogLevel::kSceGraphic:
 		logger->trace("<GRAPH>{}({}): {}", szFunction, nLine, szTempStr);
 		break;
 	}
