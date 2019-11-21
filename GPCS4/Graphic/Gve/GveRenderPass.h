@@ -110,7 +110,7 @@ class GveRenderPass : public RcObject
 public:
 	GveRenderPass(
 		const RcPtr<GveDevice>& device,
-		GveRenderPassFormat& fmt);
+		const GveRenderPassFormat& fmt);
 
 	~GveRenderPass();
 

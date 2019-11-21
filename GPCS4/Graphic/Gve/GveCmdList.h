@@ -6,11 +6,11 @@
 namespace gve
 {;
 
-class GveCommandBuffer : public RcObject
+class GveCmdList : public RcObject
 {
 public:
-	GveCommandBuffer(const RcPtr<GveDevice>& device);
-	~GveCommandBuffer();
+	GveCmdList(const RcPtr<GveDevice>& device);
+	~GveCmdList();
 
 	VkCommandBuffer execBufferHandle() const;
 

@@ -60,7 +60,7 @@
     <ClInclude Include="Graphic\Gnm\GnmTexture.h" />
     <ClInclude Include="Graphic\GraphicShared.h" />
     <ClInclude Include="Graphic\Gve\GveBuffer.h" />
-    <ClInclude Include="Graphic\Gve\GveCommandBuffer.h" />
+    <ClInclude Include="Graphic\Gve\GveCmdList.h" />
     <ClInclude Include="Graphic\Gve\GveCommon.h" />
     <ClInclude Include="Graphic\Gve\GveContext.h" />
     <ClInclude Include="Graphic\Gve\GveDebugMarker.h" />
@@ -251,7 +251,7 @@
     <ClCompile Include="Graphic\Gnm\GnmOpCode.cpp" />
     <ClCompile Include="Graphic\GraphicShared.cpp" />
     <ClCompile Include="Graphic\Gve\GveBuffer.cpp" />
-    <ClCompile Include="Graphic\Gve\GveCommandBuffer.cpp" />
+    <ClCompile Include="Graphic\Gve\GveCmdList.cpp" />
     <ClCompile Include="Graphic\Gve\GveContext.cpp" />
     <ClCompile Include="Graphic\Gve\GveDebugMarker.cpp" />
     <ClCompile Include="Graphic\Gve\GveDescriptor.cpp" />

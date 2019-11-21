@@ -14,12 +14,10 @@
 class GnmCommandBuffer
 {
 public:
-	GnmCommandBuffer(const RcPtr<gve::GveDevice>& device, 
-		const RcPtr<gve::GveContex>& context,
-		gve::GveResourceManager* resMgr);
+	GnmCommandBuffer(const RcPtr<gve::GveDevice>& device);
 	virtual ~GnmCommandBuffer();
 
-	RcPtr<gve::GveCommandBuffer> getCmdBuffer();
+	RcPtr<gve::GveCmdList> getCmdBuffer();
 	// Implement these one by one...
 
 	// Note:
@@ -331,9 +329,8 @@ public:
 
 protected:
 	RcPtr<gve::GveDevice> m_device;
+	RcPtr<gve::GveCmdList> m_cmd;
 	RcPtr<gve::GveContex> m_context;
-	gve::GveResourceManager* m_resourceManager;
-	RcPtr<gve::GveCommandBuffer> m_cmd;
 	
 private:
 

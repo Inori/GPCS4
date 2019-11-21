@@ -25,7 +25,10 @@ RcPtr<gve::GveBuffer> GveResourceManager::createBuffer(const GveBufferCreateInfo
 	return new GveBuffer(m_device, info, m_memAllocator, memoryType);
 }
 
-RcPtr<gve::GveBuffer> GveResourceManager::createBufferVsharp(const GveBufferCreateInfo& info, uint64_t key, VkMemoryPropertyFlags memoryType)
+RcPtr<gve::GveBuffer> GveResourceManager::createBufferVsharp(
+	const GveBufferCreateInfo&	info,
+	VkMemoryPropertyFlags		memoryType,
+	uint64_t					key) 
 {
 	RcPtr<GveBuffer> bufferPtr;
 	auto iter = m_buffers.find(key);
@@ -53,8 +56,10 @@ RcPtr<gve::GveImage> GveResourceManager::createImage(const GveImageCreateInfo& i
 	return new GveImage(m_device, info, m_memAllocator, memoryType);
 }
 
-RcPtr<gve::GveImage> GveResourceManager::createImageTsharp(const GveImageCreateInfo& info, 
-	uint64_t key, VkMemoryPropertyFlags memoryType)
+RcPtr<gve::GveImage> GveResourceManager::createImageTsharp(
+	const GveImageCreateInfo&	info,
+	VkMemoryPropertyFlags		memoryType,
+	uint64_t					key)
 {
 	RcPtr<GveImage> imagePtr;
 	auto iter = m_images.find(key);
@@ -81,7 +86,10 @@ RcPtr<GveImageView> GveResourceManager::createImageView(const RcPtr<GveImage>& i
 	return new GveImageView(m_device, createInfo, image);
 }
 
-RcPtr<GveImageView> GveResourceManager::createImageViewTsharp(const RcPtr<GveImage>& image, uint64_t key, const GveImageViewCreateInfo& createInfo)
+RcPtr<GveImageView> GveResourceManager::createImageViewTsharp(
+	const RcPtr<GveImage>&            image,
+	const GveImageViewCreateInfo&     createInfo,
+	uint64_t						  key) 
 {
 	RcPtr<GveImageView> imageViewPtr;
 	auto iter = m_imageViews.find(key);

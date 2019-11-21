@@ -128,7 +128,7 @@ GvePipelineInstance* GveGraphicsPipeline::createInstance(const GveRenderState& s
 		pipelineInfo.pMultisampleState = &state.ms;
 		pipelineInfo.pColorBlendState = &state.cb;
 		pipelineInfo.layout = m_layout->pipelineLayout();
-		pipelineInfo.renderPass = rp.getHandle();
+		//pipelineInfo.renderPass = rp.getHandle();
 		pipelineInfo.subpass = 0;
 		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 

@@ -5,22 +5,34 @@ namespace gve
 {;
 
 
-GveDebugMarker::GveDebugMarker():
-	m_device(nullptr)
-{
 
-}
+PFN_vkDebugMarkerSetObjectTagEXT GveDebugMarker::pfnDebugMarkerSetObjectTag = VK_NULL_HANDLE;
+PFN_vkDebugMarkerSetObjectNameEXT GveDebugMarker::pfnDebugMarkerSetObjectName = VK_NULL_HANDLE;
+PFN_vkCmdDebugMarkerBeginEXT GveDebugMarker::pfnCmdDebugMarkerBegin = VK_NULL_HANDLE;
+PFN_vkCmdDebugMarkerEndEXT GveDebugMarker::pfnCmdDebugMarkerEnd = VK_NULL_HANDLE;
+PFN_vkCmdDebugMarkerInsertEXT GveDebugMarker::pfnCmdDebugMarkerInsert = VK_NULL_HANDLE;
 
 GveDebugMarker::GveDebugMarker(GveDevice* device):
 	m_device(device)
 {
-
+#ifdef GVE_DEBUG_MARKER
+	setupDebugFunctions();
+#endif  // GVE_DEBUG_MARKER
 }
 
 
 GveDebugMarker::~GveDebugMarker()
 {
 
+}
+
+void GveDebugMarker::setupDebugFunctions()
+{
+	pfnDebugMarkerSetObjectTag = reinterpret_cast<PFN_vkDebugMarkerSetObjectTagEXT>(vkGetDeviceProcAddr(*m_device, "vkDebugMarkerSetObjectTagEXT"));
+	pfnDebugMarkerSetObjectName = reinterpret_cast<PFN_vkDebugMarkerSetObjectNameEXT>(vkGetDeviceProcAddr(*m_device, "vkDebugMarkerSetObjectNameEXT"));
+	pfnCmdDebugMarkerBegin = reinterpret_cast<PFN_vkCmdDebugMarkerBeginEXT>(vkGetDeviceProcAddr(*m_device, "vkCmdDebugMarkerBeginEXT"));
+	pfnCmdDebugMarkerEnd = reinterpret_cast<PFN_vkCmdDebugMarkerEndEXT>(vkGetDeviceProcAddr(*m_device, "vkCmdDebugMarkerEndEXT"));
+	pfnCmdDebugMarkerInsert = reinterpret_cast<PFN_vkCmdDebugMarkerInsertEXT>(vkGetDeviceProcAddr(*m_device, "vkCmdDebugMarkerInsertEXT"));
 }
 
 void GveDebugMarker::setObjectName(uint64_t object, VkDebugReportObjectTypeEXT objType, const char* objName)
@@ -32,7 +44,7 @@ void GveDebugMarker::setObjectName(uint64_t object, VkDebugReportObjectTypeEXT o
 	nameInfo.object = object;
 	nameInfo.objectType = objType;
 	nameInfo.pObjectName = objName;
-	vkDebugMarkerSetObjectNameEXT(*m_device, &nameInfo);
+	pfnDebugMarkerSetObjectName(*m_device, &nameInfo);
 #endif  // GVE_DEBUG_MARKER
 }
 
@@ -48,7 +60,7 @@ void GveDebugMarker::setObjectTag(uint64_t object, VkDebugReportObjectTypeEXT ob
 	tagInfo.tagName = tagName;
 	tagInfo.pTag = tagData;
 	tagInfo.tagSize = tagSize;
-	vkDebugMarkerSetObjectTagEXT(*m_device, &tagInfo);
+	pfnDebugMarkerSetObjectTag(*m_device, &tagInfo);
 #endif  // GVE_DEBUG_MARKER
 }
 
@@ -59,14 +71,14 @@ void GveDebugMarker::cmdMarkerBegin(VkCommandBuffer command, const char* marker)
 	markerInfo.sType = VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT;
 	markerInfo.pNext = nullptr;
 	markerInfo.pMarkerName = marker;
-	vkCmdDebugMarkerBeginEXT(command, &markerInfo);
+	pfnCmdDebugMarkerBegin(command, &markerInfo);
 #endif  // GVE_DEBUG_MARKER
 }
 
 void GveDebugMarker::cmdMarkerEnd(VkCommandBuffer command)
 {
 #ifdef GVE_DEBUG_MARKER
-	vkCmdDebugMarkerEndEXT(command);
+	pfnCmdDebugMarkerEnd(command);
 #endif  // GVE_DEBUG_MARKER
 }
 
@@ -77,8 +89,10 @@ void GveDebugMarker::cmdMarkerInsert(VkCommandBuffer command, const char* marker
 	markerInfo.sType = VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT;
 	markerInfo.pNext = nullptr;
 	markerInfo.pMarkerName = marker;
-	vkCmdDebugMarkerInsertEXT(command, &markerInfo);
+	pfnCmdDebugMarkerInsert(command, &markerInfo);
 #endif  // GVE_DEBUG_MARKER
 }
+
+
 
 }  // namespace gve

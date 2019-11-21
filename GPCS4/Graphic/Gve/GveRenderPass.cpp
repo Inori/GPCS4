@@ -36,12 +36,11 @@ size_t GveRenderPassFormat::hash() const
 
 ///
 
-GveRenderPass::GveRenderPass(const RcPtr<GveDevice>& device, GveRenderPassFormat& fmt):
+GveRenderPass::GveRenderPass(const RcPtr<GveDevice>& device, const GveRenderPassFormat& fmt):
 	m_device(device),
 	m_format(fmt),
 	m_default(createRenderPass(GveRenderPassOps()))
 {
-	createRenderPass(fmt);
 }
 
 GveRenderPass::~GveRenderPass()

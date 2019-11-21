@@ -1,27 +1,27 @@
-#include "GveCommandBuffer.h"
+#include "GveCmdList.h"
 
 namespace gve
 {;
 
 
-GveCommandBuffer::GveCommandBuffer(const RcPtr<GveDevice>& device):
+GveCmdList::GveCmdList(const RcPtr<GveDevice>& device):
 	m_device(device)
 {
 	bool success = initCommandBuffer();
 	LOG_ASSERT(success, "init command buffer failed.");
 }
 
-GveCommandBuffer::~GveCommandBuffer()
+GveCmdList::~GveCmdList()
 {
 	vkDestroyCommandPool(*m_device, m_pool, nullptr);
 }
 
-VkCommandBuffer GveCommandBuffer::execBufferHandle() const
+VkCommandBuffer GveCmdList::execBufferHandle() const
 {
 	return m_execBuffer;
 }
 
-bool GveCommandBuffer::initCommandBuffer()
+bool GveCmdList::initCommandBuffer()
 {
 	bool ret = false;
 	do
@@ -55,7 +55,7 @@ bool GveCommandBuffer::initCommandBuffer()
 	return ret;
 }
 
-void GveCommandBuffer::beginRecording()
+void GveCmdList::beginRecording()
 {
 	do 
 	{
@@ -79,12 +79,12 @@ void GveCommandBuffer::beginRecording()
 	} while (false);
 }
 
-void GveCommandBuffer::endRecording()
+void GveCmdList::endRecording()
 {
 	vkEndCommandBuffer(m_execBuffer);
 }
 
-void GveCommandBuffer::reset()
+void GveCmdList::reset()
 {
 
 }

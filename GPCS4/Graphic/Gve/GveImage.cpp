@@ -178,7 +178,7 @@ GveDescriptorInfo GveImageView::getDescriptor(VkImageViewType type, VkImageLayou
 
 VkExtent3D GveImageView::mipLevelExtent(uint32_t mipLevel) const
 {
-	return util::computeMipLevelExtent(m_info.extent, mipLevel);
+	return util::computeMipLevelExtent(m_image->info().extent, mipLevel);
 }
 
 }  // namespace gve
