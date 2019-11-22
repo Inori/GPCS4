@@ -745,9 +745,6 @@
     <ClInclude Include="Common\FlagHelper.h">
       <Filter>Source Files\Common</Filter>
     </ClInclude>
-    <ClInclude Include="Graphic\Gve\GveRenderState.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClInclude>
     <ClInclude Include="Graphic\Gve\GveLimit.h">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClInclude>
@@ -815,6 +812,9 @@
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClInclude>
     <ClInclude Include="Graphic\Gve\GveCmdList.h">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gve\GvePipelineState.h">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1447,6 +1447,9 @@
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClCompile>
     <ClCompile Include="Graphic\Gve\GveCmdList.cpp">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gve\GvePipelineState.cpp">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClCompile>
   </ItemGroup>

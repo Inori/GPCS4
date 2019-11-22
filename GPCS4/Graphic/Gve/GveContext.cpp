@@ -65,20 +65,20 @@ void GveContex::setPrimitiveType(VkPrimitiveTopology topology)
 
 }
 
-void GveContex::setRasterizerState(const GveRasterizerState& state)
-{
-
-}
-
-void GveContex::setMultiSampleState(const GveMultisampleState& state)
-{
-
-}
-
-void GveContex::setBlendControl(const GveBlendControl& blendCtl)
-{
-
-}
+//void GveContex::setRasterizerState(const GveRasterizerState& state)
+//{
+//
+//}
+//
+//void GveContex::setMultiSampleState(const GveMultisampleState& state)
+//{
+//
+//}
+//
+//void GveContex::setBlendControl(const GveBlendControl& blendCtl)
+//{
+//
+//}
 
 void GveContex::bindRenderTargets(const GveRenderTargets& target)
 {

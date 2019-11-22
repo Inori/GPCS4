@@ -8,8 +8,8 @@
 namespace gve
 {;
 
-GvePipelineInstance::GvePipelineInstance(VkPipeline pipeline,
-	const GveRenderState& state,
+GveGraphicsPipelineInstance::GveGraphicsPipelineInstance(VkPipeline pipeline,
+	const GveGraphicsPipelineStateInfo& state,
 	GveRenderPass* rp) :
 	m_pipeline(pipeline),
 	m_state(state),
@@ -18,16 +18,16 @@ GvePipelineInstance::GvePipelineInstance(VkPipeline pipeline,
 
 }
 
-GvePipelineInstance::~GvePipelineInstance()
+GveGraphicsPipelineInstance::~GveGraphicsPipelineInstance()
 {
 }
 
-VkPipeline GvePipelineInstance::pipeline()
+VkPipeline GveGraphicsPipelineInstance::pipeline()
 {
 	return m_pipeline;
 }
 
-bool GvePipelineInstance::isCompatible(const GveRenderState& state, const GveRenderPass& rp) const
+bool GveGraphicsPipelineInstance::isCompatible(const GveGraphicsPipelineStateInfo& state, const GveRenderPass& rp) const
 {
 	// TODO:
 	return true;
@@ -51,7 +51,7 @@ GveGraphicsPipeline::~GveGraphicsPipeline()
 }
 
 
-VkPipeline GveGraphicsPipeline::getPipelineHandle(const GveRenderState& state, GveRenderPass& rp)
+VkPipeline GveGraphicsPipeline::getPipelineHandle(const GveGraphicsPipelineStateInfo& state, GveRenderPass& rp)
 {
 	VkPipeline pipeline = VK_NULL_HANDLE;
 	
@@ -82,9 +82,9 @@ GvePipelineLayout* GveGraphicsPipeline::getLayout() const
 	return m_layout;
 }
 
-GvePipelineInstance* GveGraphicsPipeline::findInstance(const GveRenderState& state, GveRenderPass& rp)
+GveGraphicsPipelineInstance* GveGraphicsPipeline::findInstance(const GveGraphicsPipelineStateInfo& state, GveRenderPass& rp)
 {
-	GvePipelineInstance* instance = nullptr;
+	GveGraphicsPipelineInstance* instance = nullptr;
 	for (auto& pipeInst : m_pipelines)
 	{
 		if (pipeInst.isCompatible(state, rp))
@@ -96,9 +96,9 @@ GvePipelineInstance* GveGraphicsPipeline::findInstance(const GveRenderState& sta
 	return instance;
 }
 
-GvePipelineInstance* GveGraphicsPipeline::createInstance(const GveRenderState& state, GveRenderPass& rp)
+GveGraphicsPipelineInstance* GveGraphicsPipeline::createInstance(const GveGraphicsPipelineStateInfo& state, GveRenderPass& rp)
 {
-	GvePipelineInstance* instance = nullptr;
+	GveGraphicsPipelineInstance* instance = nullptr;
 	do 
 	{
 		auto vsModule = m_shaders.vs->createShaderModule(m_pipelineManager->m_device, m_resSlotMap);
@@ -111,22 +111,22 @@ GvePipelineInstance* GveGraphicsPipeline::createInstance(const GveRenderState& s
 
 		VkPipelineViewportStateCreateInfo viewportState = {};
 		viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-		viewportState.viewportCount = state.viewports.size();
-		viewportState.pViewports = state.viewports.data();
-		viewportState.scissorCount = state.scissors.size();
-		viewportState.pScissors = state.scissors.data();
+		//viewportState.viewportCount = state.viewports.size();
+		//viewportState.pViewports = state.viewports.data();
+		//viewportState.scissorCount = state.scissors.size();
+		//viewportState.pScissors = state.scissors.data();
 
 
 		VkGraphicsPipelineCreateInfo pipelineInfo = {};
 		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 		pipelineInfo.stageCount = 2;
 		pipelineInfo.pStages = shaderStages;
-		pipelineInfo.pVertexInputState = &state.vi.state;
-		pipelineInfo.pInputAssemblyState = &state.ia;
-		pipelineInfo.pViewportState = &viewportState;
-		pipelineInfo.pRasterizationState = &state.rs;
-		pipelineInfo.pMultisampleState = &state.ms;
-		pipelineInfo.pColorBlendState = &state.cb;
+		//pipelineInfo.pVertexInputState = &state.vi.state;
+		//pipelineInfo.pInputAssemblyState = &state.ia;
+		//pipelineInfo.pViewportState = &viewportState;
+		//pipelineInfo.pRasterizationState = &state.rs;
+		//pipelineInfo.pMultisampleState = &state.ms;
+		//pipelineInfo.pColorBlendState = &state.cb;
 		pipelineInfo.layout = m_layout->pipelineLayout();
 		//pipelineInfo.renderPass = rp.getHandle();
 		pipelineInfo.subpass = 0;
@@ -140,7 +140,7 @@ GvePipelineInstance* GveGraphicsPipeline::createInstance(const GveRenderState& s
 			break;
 		}
 
-		instance = new GvePipelineInstance(pipeline, state, &rp);
+		instance = new GveGraphicsPipelineInstance(pipeline, state, &rp);
 	} while (false);
 	return instance;
 }
