@@ -8,7 +8,6 @@
 #include <array>
 #include <vector>
 #include <iostream>
-#include "glm/detail/type_vec1.hpp"
 
 namespace gve
 {;
