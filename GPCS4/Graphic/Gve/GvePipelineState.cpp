@@ -45,6 +45,11 @@ VkVertexInputAttributeDescription GveVertexAttribute::description() const
 	return result;
 }
 
+bool GveVertexAttribute::operator==(const GveVertexAttribute& other) const
+{
+	return m_asDword == other.m_asDword;
+}
+
 GveVertexBinding::GveVertexBinding(uint32_t binding, uint32_t stride, VkVertexInputRate inputRate, uint32_t divisor) :
 	m_binding(uint32_t(binding)),
 	m_stride(uint32_t(stride)),
@@ -82,6 +87,12 @@ VkVertexInputBindingDescription GveVertexBinding::description() const
 	result.stride = m_stride;
 	result.inputRate = VkVertexInputRate(m_inputRate);
 	return result;
+}
+
+bool GveVertexBinding::operator==(const GveVertexBinding& other) const
+{
+	return (m_asDword1 == other.m_asDword1) && 
+		   (m_divisor == other.m_divisor);
 }
 
 void GveVertexBinding::setStride(uint32_t stride)
@@ -130,6 +141,12 @@ VkPipelineVertexInputStateCreateInfo GveVertexInputInfo::state() const
 	return info;
 }
 
+bool GveVertexInputInfo::operator==(const GveVertexInputInfo& other) const
+{
+	return (m_bindings == other.m_bindings) && 
+		   (m_attributes == other.m_attributes);
+}
+
 GveInputAssemblyInfo::GveInputAssemblyInfo(VkPrimitiveTopology primitiveTopology, VkBool32 primitiveRestart, uint32_t patchVertexCount) : m_primitiveTopology(uint16_t(primitiveTopology)),
 m_primitiveRestart(uint16_t(primitiveRestart)),
 m_patchVertexCount(uint16_t(patchVertexCount)),
@@ -164,6 +181,84 @@ VkPipelineInputAssemblyStateCreateInfo GveInputAssemblyInfo::state() const
 	info.primitiveRestartEnable = VkBool32(m_primitiveRestart);
 	return info;
 }
+
+bool GveInputAssemblyInfo::operator==(const GveInputAssemblyInfo& other) const
+{
+	return m_asWord == other.m_asWord;
+}
+
+
+GveViewportInfo::GveViewportInfo(const VkViewport& viewport, const VkRect2D& scissor)
+{
+	m_viewports.push_back(viewport);
+	m_scissors.push_back(scissor);
+}
+
+
+
+void GveViewportInfo::addViewport(const VkViewport& viewport)
+{
+	m_viewports.push_back(viewport);
+}
+
+void GveViewportInfo::addScissor(const VkRect2D& scissor)
+{
+	m_scissors.push_back(scissor);
+}
+
+VkPipelineViewportStateCreateInfo GveViewportInfo::state() const
+{
+	VkPipelineViewportStateCreateInfo info = {};
+	info.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+	info.viewportCount = m_viewports.size();
+	info.pViewports = m_viewports.data();
+	info.scissorCount = m_scissors.size();
+	info.pScissors = m_scissors.data();
+	return info;
+}
+
+bool GveViewportInfo::operator==(const GveViewportInfo& other) const
+{
+	bool ret = false;
+	do
+	{
+		if (m_viewports.size() != other.m_viewports.size())
+		{
+			break;
+		}
+
+		if (m_scissors.size() != other.m_scissors.size())
+		{
+			break;
+		}
+
+		bool eq = std::equal(m_viewports.begin(), m_viewports.end(), other.m_viewports.begin(),
+			[](const VkViewport& lhs, const VkViewport& rhs)
+		{
+			return !std::memcmp(&lhs, &rhs, sizeof(VkViewport));
+		});
+
+		if (!eq)
+		{
+			break;
+		}
+
+		eq = std::equal(m_scissors.begin(), m_scissors.end(), other.m_scissors.begin(),
+			[](const VkRect2D& lhs, const VkRect2D& rhs)
+		{
+			return !std::memcmp(&lhs, &rhs, sizeof(VkRect2D));
+		});
+
+		if (!eq)
+		{
+			break;
+		}
+
+		ret = true;
+	} while (false);
+	return ret;
+}
+
 
 GveRasterizationInfo::GveRasterizationInfo(VkBool32 depthClipEnable, VkBool32 depthBiasEnable, VkPolygonMode polygonMode, VkCullModeFlags cullMode, VkFrontFace frontFace, uint32_t viewportCount, VkSampleCountFlags sampleCount) :
 	m_depthClipEnable(uint32_t(depthClipEnable)),
@@ -237,6 +332,15 @@ VkPipelineRasterizationStateCreateInfo GveRasterizationInfo::state() const
 	return info;
 }
 
+bool GveRasterizationInfo::operator==(const GveRasterizationInfo& other) const
+{
+	return (m_asDword1 == other.m_asDword1) &&
+		(m_depthBiasConstantFactor == other.m_depthBiasConstantFactor) &&
+		(m_depthBiasClamp == other.m_depthBiasClamp) &&
+		(m_depthBiasSlopeFactor == other.m_depthBiasSlopeFactor) &&
+		(m_lineWidth == other.m_lineWidth);
+}
+
 GveMultisampleInfo::GveMultisampleInfo(
 	VkSampleCountFlagBits rasterizationSamples, 
 	VkBool32 sampleShadingEnable, 
@@ -291,6 +395,13 @@ VkPipelineMultisampleStateCreateInfo GveMultisampleInfo::state() const
 	return info;
 }
 
+bool GveMultisampleInfo::operator==(const GveMultisampleInfo& other) const
+{
+	return (m_asDword1 == other.m_asDword1) &&
+		(m_sampleMask == other.m_sampleMask) &&
+		(m_minSampleShading == other.m_minSampleShading);
+}
+
 GveDepthStencilOp::GveDepthStencilOp(VkStencilOpState state) :
 	m_failOp(uint32_t(state.failOp)),
 	m_passOp(uint32_t(state.passOp)),
@@ -314,6 +425,11 @@ VkStencilOpState GveDepthStencilOp::state() const
 	result.writeMask = m_writeMask;
 	result.reference = 0;
 	return result;
+}
+
+bool GveDepthStencilOp::operator==(const GveDepthStencilOp& other) const
+{
+	return m_asDword == other.m_asDword;
 }
 
 GveDepthStencilInfo::GveDepthStencilInfo(VkBool32 enableDepthTest, 
@@ -386,6 +502,15 @@ VkPipelineDepthStencilStateCreateInfo GveDepthStencilInfo::state() const
  	return info;
 }
 
+bool GveDepthStencilInfo::operator==(const GveDepthStencilInfo& other) const
+{
+	return (m_asWord1 == other.m_asWord1) &&
+		(m_frontOp == other.m_frontOp) &&
+		(m_backOp == other.m_backOp) &&
+		(m_minDepthBounds == other.m_minDepthBounds) &&
+		(m_maxDepthBounds == other.m_minDepthBounds);
+}
+
 GveColorBlendAttachment::GveColorBlendAttachment(VkBool32 blendEnable, VkBlendFactor srcColorBlendFactor, VkBlendFactor dstColorBlendFactor, VkBlendOp colorBlendOp, VkBlendFactor srcAlphaBlendFactor, VkBlendFactor dstAlphaBlendFactor, VkBlendOp alphaBlendOp, VkColorComponentFlags colorWriteMask) :
 	m_blendEnable(uint32_t(blendEnable)),
 	m_srcColorBlendFactor(uint32_t(srcColorBlendFactor)),
@@ -454,6 +579,11 @@ VkPipelineColorBlendAttachmentState GveColorBlendAttachment::state() const
 	return result;
 }
 
+bool GveColorBlendAttachment::operator==(const GveColorBlendAttachment& other) const
+{
+	return m_asDword == other.m_asDword;
+}
+
 GveColorBlendInfo::GveColorBlendInfo(VkBool32 logicOpEnable, VkLogicOp logicOp):
 	m_logicOp(uint32_t(logicOp)),
 	m_logicOpEnable(uint32_t(logicOpEnable)),
@@ -496,6 +626,25 @@ VkPipelineColorBlendStateCreateInfo GveColorBlendInfo::state() const
 	return info;
 }
 
+bool GveGraphicsPipelineStateInfo::operator==(const GveGraphicsPipelineStateInfo& other) const
+{
+	return (vi == other.vi) &&
+		(ia == other.ia) &&
+		(vp == other.vp) &&
+		(rs == other.rs) &&
+		(ms == other.ms) &&
+		(ds == other.ds) &&
+		(cb == other.cb);
+}
+
+
+bool GveColorBlendInfo::operator==(const GveColorBlendInfo& other) const
+{
+	return (m_asDword1 == other.m_asDword1) &&
+		(m_attachments == other.m_attachments) &&
+		(!std::memcmp(m_blendConstants, other.m_blendConstants, sizeof(float) * 4));
+}
+
 std::ostream& operator << (std::ostream& out, const GveGraphicsPipelineStateInfo& state)
 {
 	// TODO:
@@ -507,33 +656,5 @@ std::istream& operator >> (std::istream& in, GveGraphicsPipelineStateInfo& state
 }
 
 
-GveViewportInfo::GveViewportInfo(const VkViewport& viewport, const VkRect2D& scissor)
-{
-	m_viewports.push_back(viewport);
-	m_scissors.push_back(scissor);
-}
-
-
-
-void GveViewportInfo::addViewport(const VkViewport& viewport)
-{
-	m_viewports.push_back(viewport);
-}
-
-void GveViewportInfo::addScissor(const VkRect2D& scissor)
-{
-	m_scissors.push_back(scissor);
-}
-
-VkPipelineViewportStateCreateInfo GveViewportInfo::state() const
-{
-	VkPipelineViewportStateCreateInfo info = {};
-	info.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-	info.viewportCount = m_viewports.size();
-	info.pViewports = m_viewports.data();
-	info.scissorCount = m_scissors.size();
-	info.pScissors = m_scissors.data();
-	return info;
-}
 
 }  // namespace gve

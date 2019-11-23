@@ -42,14 +42,22 @@ public:
 
 	VkVertexInputAttributeDescription description() const;
 
+	bool operator == (const GveVertexAttribute& other) const;
+
 private:
 
-	uint32_t m_location : 5;
-	uint32_t m_binding : 5;
-	uint32_t m_format : 7;
-	uint32_t m_offset : 11;
-	uint32_t m_reserved : 4;
-
+	union
+	{
+		struct
+		{
+			uint32_t m_location : 5;
+			uint32_t m_binding : 5;
+			uint32_t m_format : 7;
+			uint32_t m_offset : 11;
+			uint32_t m_reserved : 4;
+		};
+		uint32_t m_asDword;
+	};
 };
 
 
@@ -74,16 +82,26 @@ public:
 
 	uint32_t divisor() const;
 
+	void setStride(uint32_t stride);
+
 	VkVertexInputBindingDescription description() const;
 
-	void setStride(uint32_t stride);
+	bool operator == (const GveVertexBinding& other) const;
 
 private:
 
-	uint32_t m_binding : 5;
-	uint32_t m_stride : 12;
-	uint32_t m_inputRate : 1;
-	uint32_t m_reserved : 14;
+	union
+	{
+		struct
+		{
+			uint32_t m_binding : 5;
+			uint32_t m_stride : 12;
+			uint32_t m_inputRate : 1;
+			uint32_t m_reserved : 14;
+		};
+		uint32_t m_asDword1;
+	};
+
 	uint32_t m_divisor;
 };
 
@@ -98,6 +116,8 @@ public:
 	void addAttribute(const GveVertexAttribute& attr);
 
 	VkPipelineVertexInputStateCreateInfo state() const;
+
+	bool operator == (const GveVertexInputInfo& other) const;
 
 private:
 	
@@ -127,13 +147,21 @@ public:
 
 	VkPipelineInputAssemblyStateCreateInfo state() const;
 
+	bool operator == (const GveInputAssemblyInfo& other) const;
+
 private:
 
-	uint16_t m_primitiveTopology : 4;
-	uint16_t m_primitiveRestart : 1;
-	uint16_t m_patchVertexCount : 6;
-	uint16_t m_reserved : 5;
-
+	union
+	{
+		struct
+		{
+			uint16_t m_primitiveTopology : 4;
+			uint16_t m_primitiveRestart : 1;
+			uint16_t m_patchVertexCount : 6;
+			uint16_t m_reserved : 5;
+		};
+		uint16_t m_asWord;
+	};
 };
 
 
@@ -155,6 +183,8 @@ public:
 	void addScissor(const VkRect2D& scissor);
 
 	VkPipelineViewportStateCreateInfo state() const;
+
+	bool operator == (const GveViewportInfo& other) const;
 
 private:
 	std::vector<VkViewport> m_viewports;
@@ -196,17 +226,27 @@ public:
 
 	VkPipelineRasterizationStateCreateInfo state() const;
 
+	bool operator == (const GveRasterizationInfo& other) const;
+
 private:
 
-	uint32_t m_depthClipEnable : 1;
-	uint32_t m_depthBiasEnable : 1;
-	uint32_t m_rasterizerDiscardEnable : 1;
-	uint32_t m_polygonMode : 2;
-	uint32_t m_cullMode : 2;
-	uint32_t m_frontFace : 1;
-	uint32_t m_viewportCount : 5;
-	uint32_t m_sampleCount : 5;
-	uint32_t m_reserved : 14;
+	union
+	{
+		struct
+		{
+			uint32_t m_depthClipEnable : 1;
+			uint32_t m_depthBiasEnable : 1;
+			uint32_t m_rasterizerDiscardEnable : 1;
+			uint32_t m_polygonMode : 2;
+			uint32_t m_cullMode : 2;
+			uint32_t m_frontFace : 1;
+			uint32_t m_viewportCount : 5;
+			uint32_t m_sampleCount : 5;
+			uint32_t m_reserved : 14;
+		};
+		uint32_t m_asDword1;
+	};
+
 	float m_depthBiasConstantFactor = 0.0;
 	float m_depthBiasClamp = 0.0;
 	float m_depthBiasSlopeFactor = 0.0;
@@ -239,13 +279,23 @@ public:
 	void setSampleCount(VkSampleCountFlagBits sampleCount);
 
 	VkPipelineMultisampleStateCreateInfo state() const;
+
+	bool operator == (const GveMultisampleInfo& other) const;
 private:
 
-	uint32_t m_rasterizationSamples : 8;
-	uint32_t m_sampleShadingEnable : 1;
-	uint32_t m_alphaToCoverageEnable : 1;
-	uint32_t m_alphaToOneEnable : 1;
-	uint32_t m_reserved : 21;
+	union
+	{
+		struct
+		{
+			uint32_t m_rasterizationSamples : 8;
+			uint32_t m_sampleShadingEnable : 1;
+			uint32_t m_alphaToCoverageEnable : 1;
+			uint32_t m_alphaToOneEnable : 1;
+			uint32_t m_reserved : 21;
+		};
+		uint32_t m_asDword1;
+	};
+
 	uint32_t m_sampleMask;
 	float m_minSampleShading;
 
@@ -263,16 +313,24 @@ public:
 
 	VkStencilOpState state() const;
 
+	bool operator == (const GveDepthStencilOp& other) const;
+
 private:
 
-	uint32_t m_failOp : 3;
-	uint32_t m_passOp : 3;
-	uint32_t m_depthFailOp : 3;
-	uint32_t m_compareOp : 3;
-	uint32_t m_reserved : 4;
-	uint32_t m_compareMask : 8;
-	uint32_t m_writeMask : 8;
-
+	union
+	{
+		struct
+		{
+			uint32_t m_failOp : 3;
+			uint32_t m_passOp : 3;
+			uint32_t m_depthFailOp : 3;
+			uint32_t m_compareOp : 3;
+			uint32_t m_reserved : 4;
+			uint32_t m_compareMask : 8;
+			uint32_t m_writeMask : 8;
+		};
+		uint32_t m_asDword;
+	};
 };
 
 
@@ -305,14 +363,24 @@ public:
 	void setEnableDepthBoundsTest(VkBool32 enableDepthBoundsTest);
 
 	VkPipelineDepthStencilStateCreateInfo state() const;
+
+	bool operator == (const GveDepthStencilInfo& other) const;
 private:
 
-	uint16_t m_enableDepthTest : 1;
-	uint16_t m_enableDepthWrite : 1;
-	uint16_t m_enableDepthBoundsTest : 1;
-	uint16_t m_enableStencilTest : 1;
-	uint16_t m_depthCompareOp : 3;
-	uint16_t m_reserved : 9;
+	union
+	{
+		struct
+		{
+			uint16_t m_enableDepthTest : 1;
+			uint16_t m_enableDepthWrite : 1;
+			uint16_t m_enableDepthBoundsTest : 1;
+			uint16_t m_enableStencilTest : 1;
+			uint16_t m_depthCompareOp : 3;
+			uint16_t m_reserved : 9;
+		};
+		uint16_t m_asWord1;
+	};
+
 
 	GveDepthStencilOp m_frontOp;
 	GveDepthStencilOp m_backOp;
@@ -357,18 +425,26 @@ public:
 
 	VkPipelineColorBlendAttachmentState state() const;
 
+	bool operator == (const GveColorBlendAttachment& other) const;
+
 private:
 
-	uint32_t m_blendEnable : 1;
-	uint32_t m_srcColorBlendFactor : 5;
-	uint32_t m_dstColorBlendFactor : 5;
-	uint32_t m_colorBlendOp : 3;
-	uint32_t m_srcAlphaBlendFactor : 5;
-	uint32_t m_dstAlphaBlendFactor : 5;
-	uint32_t m_alphaBlendOp : 3;
-	uint32_t m_colorWriteMask : 4;
-	uint32_t m_reserved : 1;
-
+	union
+	{
+		struct
+		{
+			uint32_t m_blendEnable : 1;
+			uint32_t m_srcColorBlendFactor : 5;
+			uint32_t m_dstColorBlendFactor : 5;
+			uint32_t m_colorBlendOp : 3;
+			uint32_t m_srcAlphaBlendFactor : 5;
+			uint32_t m_dstAlphaBlendFactor : 5;
+			uint32_t m_alphaBlendOp : 3;
+			uint32_t m_colorWriteMask : 4;
+			uint32_t m_reserved : 1;
+		};
+		uint32_t m_asDword;
+	};
 };
 
 
@@ -385,10 +461,21 @@ public:
 	void setBlendConstants(float constants[4]);
 
 	VkPipelineColorBlendStateCreateInfo state() const;
+
+	bool operator == (const GveColorBlendInfo& other) const;
+
 private:
-	uint32_t m_logicOp : 8;
-	uint32_t m_logicOpEnable : 1;
-	uint32_t m_reserved : 23;
+	union
+	{
+		struct
+		{
+			uint32_t m_logicOp : 8;
+			uint32_t m_logicOpEnable : 1;
+			uint32_t m_reserved : 23;
+		};
+		uint32_t m_asDword1;
+	};
+
 	float m_blendConstants[4];
 	std::vector<GveColorBlendAttachment> m_attachments;
 };
@@ -410,6 +497,12 @@ struct GveGraphicsPipelineStateInfo
 	GveMultisampleInfo        ms;
 	GveDepthStencilInfo       ds;
 	GveColorBlendInfo         cb;
+
+	// TODO:
+	// Current operator== 's implementation may be not efficient,
+	// we should do some performance test in the future, and to see
+	// if we need to change to DXVK's way using bit::bcmpeq
+	bool operator == (const GveGraphicsPipelineStateInfo& other) const;
 
 	friend std::ostream& operator << (std::ostream& out, const GveGraphicsPipelineStateInfo& state);
 	friend std::istream& operator >> (std::istream& in, GveGraphicsPipelineStateInfo& state);
