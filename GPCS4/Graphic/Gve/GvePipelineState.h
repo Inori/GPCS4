@@ -103,14 +103,14 @@ private:
 
 
 
-class GveInputInputAssemblyInfo 
+class GveInputAssemblyInfo 
 {
 
 public:
 
-	GveInputInputAssemblyInfo() = default;
+	GveInputAssemblyInfo() = default;
 
-	GveInputInputAssemblyInfo(
+	GveInputAssemblyInfo(
 		VkPrimitiveTopology primitiveTopology,
 		VkBool32            primitiveRestart,
 		uint32_t            patchVertexCount);
@@ -374,7 +374,7 @@ private:
 struct GveGraphicsPipelineStateInfo
 {
 	GveVertexInputInfo        vi;
-	GveInputInputAssemblyInfo ia;
+	GveInputAssemblyInfo ia;
 	GveRasterizationInfo      rs;
 	GveMultisampleInfo        ms;
 	GveDepthStencilInfo       ds;

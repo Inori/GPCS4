@@ -131,7 +131,7 @@ VkPipelineVertexInputStateCreateInfo GveVertexInputInfo::state() const
 	return info;
 }
 
-GveInputInputAssemblyInfo::GveInputInputAssemblyInfo(VkPrimitiveTopology primitiveTopology, VkBool32 primitiveRestart, uint32_t patchVertexCount) : m_primitiveTopology(uint16_t(primitiveTopology)),
+GveInputAssemblyInfo::GveInputAssemblyInfo(VkPrimitiveTopology primitiveTopology, VkBool32 primitiveRestart, uint32_t patchVertexCount) : m_primitiveTopology(uint16_t(primitiveTopology)),
 m_primitiveRestart(uint16_t(primitiveRestart)),
 m_patchVertexCount(uint16_t(patchVertexCount)),
 m_reserved(0)
@@ -139,24 +139,24 @@ m_reserved(0)
 
 }
 
-VkPrimitiveTopology GveInputInputAssemblyInfo::primitiveTopology() const
+VkPrimitiveTopology GveInputAssemblyInfo::primitiveTopology() const
 {
 	return m_primitiveTopology <= VK_PRIMITIVE_TOPOLOGY_PATCH_LIST
 		? VkPrimitiveTopology(m_primitiveTopology)
 		: VK_PRIMITIVE_TOPOLOGY_MAX_ENUM;
 }
 
-VkBool32 GveInputInputAssemblyInfo::primitiveRestart() const
+VkBool32 GveInputAssemblyInfo::primitiveRestart() const
 {
 	return VkBool32(m_primitiveRestart);
 }
 
-uint32_t GveInputInputAssemblyInfo::patchVertexCount() const
+uint32_t GveInputAssemblyInfo::patchVertexCount() const
 {
 	return m_patchVertexCount;
 }
 
-VkPipelineInputAssemblyStateCreateInfo GveInputInputAssemblyInfo::state() const
+VkPipelineInputAssemblyStateCreateInfo GveInputAssemblyInfo::state() const
 {
 	VkPipelineInputAssemblyStateCreateInfo info = {};
 	info.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
