@@ -100,6 +100,8 @@ public:
 		VkImageLayout oldLayout, VkImageLayout newLayout);
 
 private:
+
+private:
 	RcPtr<GveDevice> m_device;
 	RcPtr<GveCmdList> m_cmd;
 

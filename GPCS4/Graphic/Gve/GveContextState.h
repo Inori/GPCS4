@@ -21,8 +21,8 @@ enum class GveContextFlag : uint32_t
 	GpXfbActive,                ///< Transform feedback is enabled
 	GpClearRenderTargets,       ///< Render targets need to be cleared
 	GpDirtyFramebuffer,         ///< Framebuffer binding is out of date
-	GpDirtyPipeline,            ///< Graphics pipeline binding is out of date
-	GpDirtyPipelineState,       ///< Graphics pipeline needs to be recompiled
+	GpDirtyPipeline,            ///< Graphics pipeline binding is out of date, shader resource layout changed
+	GpDirtyPipelineState,       ///< Graphics PSOs changed, thus needs to be recompiled
 	GpDirtyResources,           ///< Graphics pipeline resource bindings are out of date
 	GpDirtyDescriptorBinding,   ///< Graphics descriptor set needs to be rebound
 	GpDirtyVertexBuffers,       ///< Vertex buffer bindings are out of date
