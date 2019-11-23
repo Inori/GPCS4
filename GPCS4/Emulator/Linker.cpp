@@ -3,7 +3,7 @@
 #include "Loader/FuncStub.h"
 #include "Platform/PlatformUtils.h"
 
-//#include <cinttypes>
+constexpr bool USE_FUNCTION_STUBS = true;
 
 CLinker::CLinker() : m_modSystem{*CSceModuleSystem::GetInstance()} {}
 
@@ -45,7 +45,7 @@ bool CLinker::resolveSymbol(MemoryMappedModule const &mod,
 	{
 		const SymbolInfo *info = nullptr;
 		void *address          = nullptr;
-		bool overrided         = false;
+		bool overridden         = false;
 
 		if (addr == nullptr)
 		{
@@ -70,7 +70,7 @@ bool CLinker::resolveSymbol(MemoryMappedModule const &mod,
 			address = m_modSystem.FindFunction(info->moduleName, info->libraryName,
 											   info->nid);
 
-			overrided = m_modSystem.isFunctionOverridable(info->moduleName,
+			overridden = m_modSystem.isFunctionOverridable(info->moduleName,
 														  info->libraryName,
 														  info->nid);
 		}
@@ -85,26 +85,24 @@ bool CLinker::resolveSymbol(MemoryMappedModule const &mod,
 			// break;
 		}
 
-		if (!overrided && address != nullptr)
+		if (!overridden && address != nullptr || !USE_FUNCTION_STUBS)
 		{
 			*addr = reinterpret_cast<uint64_t>(address);
 		}
-		else
+		else // Use function stub
 		{
-			auto msg      = UtilString::Format("function nid %llu from lib:%s is called: 0x%08x",
-											   info->nid,
-											   info->libraryName.c_str(),
-											   address);
+			auto msg      = UtilString::Format("Unknown function nid 0x%016x from lib:%s is called: 0x%08x",
+												info->nid,
+												info->libraryName.c_str(),
+												address);
 
 			auto stubMgr  = GetFuncStubManager();
 			auto stubAddr = address == nullptr? 
 								stubMgr->generate(msg):
-							    stubMgr->generate(msg, address);
+								stubMgr->generate(msg, address);
 
-			//*addr = reinterpret_cast<uint64_t>(stubAddr);
-			*addr = reinterpret_cast<uint64_t>(address);
+			*addr = reinterpret_cast<uint64_t>(stubAddr);
 		}
-
 
 		retVal = true;
 	} while (false);
