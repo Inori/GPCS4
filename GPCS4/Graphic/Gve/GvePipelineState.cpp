@@ -497,4 +497,14 @@ VkPipelineColorBlendStateCreateInfo GveColorBlendInfo::state() const
 	return info;
 }
 
+std::ostream& operator << (std::ostream& out, const GveGraphicsPipelineStateInfo& state)
+{
+	// TODO:
+}
+
+std::istream& operator >> (std::istream& in, GveGraphicsPipelineStateInfo& state)
+{
+	// TODO:
+}
+
 }  // namespace gve

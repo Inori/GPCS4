@@ -7,6 +7,8 @@
 
 #include <array>
 #include <vector>
+#include <iostream>
+#include "glm/detail/type_vec1.hpp"
 
 namespace gve
 {;
@@ -374,11 +376,14 @@ private:
 struct GveGraphicsPipelineStateInfo
 {
 	GveVertexInputInfo        vi;
-	GveInputAssemblyInfo ia;
+	GveInputAssemblyInfo      ia;
 	GveRasterizationInfo      rs;
 	GveMultisampleInfo        ms;
 	GveDepthStencilInfo       ds;
 	GveColorBlendInfo         cb;
+
+	friend std::ostream& operator << (std::ostream& out, const GveGraphicsPipelineStateInfo& state);
+	friend std::istream& operator >> (std::istream& in, GveGraphicsPipelineStateInfo& state);
 };
 
 
