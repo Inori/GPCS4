@@ -817,6 +817,9 @@
     <ClInclude Include="Graphic\Gve\GvePipelineState.h">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClInclude>
+    <ClInclude Include="Graphic\Gve\GveContextState.h">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">

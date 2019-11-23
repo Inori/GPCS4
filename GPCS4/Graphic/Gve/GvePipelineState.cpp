@@ -111,6 +111,12 @@ void GveVertexInputInfo::addAttribute(const GveVertexAttribute& attr)
 	m_attributes.push_back(attr);
 }
 
+void GveVertexInputInfo::clear()
+{
+	m_bindings.clear();
+	m_attributes.clear();
+}
+
 VkPipelineVertexInputStateCreateInfo GveVertexInputInfo::state() const
 {
 	VkPipelineVertexInputStateCreateInfo info = {};
@@ -206,6 +212,17 @@ void GveViewportInfo::addScissor(const VkRect2D& scissor)
 	m_scissors.push_back(scissor);
 }
 
+uint32_t GveViewportInfo::viewportCount() const
+{
+	return m_viewports.size();
+}
+
+void GveViewportInfo::clear()
+{
+	m_viewports.clear();
+	m_scissors.clear();
+}
+
 VkPipelineViewportStateCreateInfo GveViewportInfo::state() const
 {
 	VkPipelineViewportStateCreateInfo info = {};
@@ -260,15 +277,18 @@ bool GveViewportInfo::operator==(const GveViewportInfo& other) const
 }
 
 
-GveRasterizationInfo::GveRasterizationInfo(VkBool32 depthClipEnable, VkBool32 depthBiasEnable, VkPolygonMode polygonMode, VkCullModeFlags cullMode, VkFrontFace frontFace, uint32_t viewportCount, VkSampleCountFlags sampleCount) :
+GveRasterizationInfo::GveRasterizationInfo(
+	VkBool32 depthClipEnable, 
+	VkBool32 depthBiasEnable, 
+	VkPolygonMode polygonMode, 
+	VkCullModeFlags cullMode, 
+	VkFrontFace frontFace) :
 	m_depthClipEnable(uint32_t(depthClipEnable)),
 	m_depthBiasEnable(uint32_t(depthBiasEnable)),
 	m_rasterizerDiscardEnable(uint32_t(0)),
 	m_polygonMode(uint32_t(polygonMode)),
 	m_cullMode(uint32_t(cullMode)),
 	m_frontFace(uint32_t(frontFace)),
-	m_viewportCount(uint32_t(viewportCount)),
-	m_sampleCount(uint32_t(sampleCount)),
 	m_reserved(0)
 {
 
@@ -297,21 +317,6 @@ VkCullModeFlags GveRasterizationInfo::cullMode() const
 VkFrontFace GveRasterizationInfo::frontFace() const
 {
 	return VkFrontFace(m_frontFace);
-}
-
-uint32_t GveRasterizationInfo::viewportCount() const
-{
-	return m_viewportCount;
-}
-
-VkSampleCountFlags GveRasterizationInfo::sampleCount() const
-{
-	return VkSampleCountFlags(m_sampleCount);
-}
-
-void GveRasterizationInfo::setViewportCount(uint32_t viewportCount)
-{
-	m_viewportCount = viewportCount;
 }
 
 VkPipelineRasterizationStateCreateInfo GveRasterizationInfo::state() const
@@ -600,6 +605,11 @@ void GveColorBlendInfo::addAttachment(GveColorBlendAttachment attachment)
 void GveColorBlendInfo::setBlendConstants(float constants[4])
 {
 	std::memcpy(m_blendConstants, constants, sizeof(float) * 4);
+}
+
+void GveColorBlendInfo::clear()
+{
+	m_attachments.clear();
 }
 
 VkPipelineColorBlendStateCreateInfo GveColorBlendInfo::state() const

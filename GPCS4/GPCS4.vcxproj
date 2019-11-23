@@ -63,6 +63,7 @@
     <ClInclude Include="Graphic\Gve\GveCmdList.h" />
     <ClInclude Include="Graphic\Gve\GveCommon.h" />
     <ClInclude Include="Graphic\Gve\GveContext.h" />
+    <ClInclude Include="Graphic\Gve\GveContextState.h" />
     <ClInclude Include="Graphic\Gve\GveDebugMarker.h" />
     <ClInclude Include="Graphic\Gve\GveDescriptor.h" />
     <ClInclude Include="Graphic\Gve\GveGpuResource.h" />

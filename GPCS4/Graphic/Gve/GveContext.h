@@ -4,6 +4,7 @@
 #include "GvePipelineState.h"
 #include "GveGraphicsPipeline.h"
 #include "GveFrameBuffer.h"
+#include "GveContextState.h"
 #include "../Pssl/PsslBindingCalculator.h"
 
 #include <array>
@@ -24,50 +25,6 @@ class GveResourceManager;
 class GveRenderPass;
 
 
-/**
- * \brief Graphics pipeline state flags
- *
- * Stores some information on which state
- * of the graphics and compute pipelines
- * has changed and/or needs to be updated.
- */
-enum class GveContextFlag : uint32_t
-{
-	GpRenderPassBound,          ///< Render pass is currently bound
-	GpCondActive,               ///< Conditional rendering is enabled
-	GpXfbActive,                ///< Transform feedback is enabled
-	GpClearRenderTargets,       ///< Render targets need to be cleared
-	GpDirtyFramebuffer,         ///< Framebuffer binding is out of date
-	GpDirtyPipeline,            ///< Graphics pipeline binding is out of date
-	GpDirtyPipelineState,       ///< Graphics pipeline needs to be recompiled
-	GpDirtyResources,           ///< Graphics pipeline resource bindings are out of date
-	GpDirtyDescriptorBinding,   ///< Graphics descriptor set needs to be rebound
-	GpDirtyVertexBuffers,       ///< Vertex buffer bindings are out of date
-	GpDirtyIndexBuffer,         ///< Index buffer binding are out of date
-	GpDirtyXfbBuffers,          ///< Transform feedback buffer bindings are out of date
-	GpDirtyXfbCounters,         ///< Counter buffer values are dirty
-	GpDirtyBlendConstants,      ///< Blend constants have changed
-	GpDirtyDepthBias,           ///< Depth bias has changed
-	GpDirtyDepthBounds,         ///< Depth bounds have changed
-	GpDirtyStencilRef,          ///< Stencil reference has changed
-	GpDirtyViewport,            ///< Viewport state has changed
-	GpDirtyPredicate,           ///< Predicate has changed
-	GpDynamicBlendConstants,    ///< Blend constants are dynamic
-	GpDynamicDepthBias,         ///< Depth bias is dynamic
-	GpDynamicDepthBounds,       ///< Depth bounds are dynamic
-	GpDynamicStencilRef,        ///< Stencil reference is dynamic
-
-	CpDirtyPipeline,            ///< Compute pipeline binding are out of date
-	CpDirtyPipelineState,       ///< Compute pipeline needs to be recompiled
-	CpDirtyResources,           ///< Compute pipeline resource bindings are out of date
-	CpDirtyDescriptorBinding,   ///< Compute descriptor set needs to be rebound
-
-	DirtyDrawBuffer,            ///< Indirect argument buffer is dirty
-	DirtyPushConstants,         ///< Push constant data has changed
-};
-
-using GveContextFlags = Flags<GveContextFlag>;
-
 
 struct GveShaderResourceSlot
 {
@@ -77,26 +34,6 @@ struct GveShaderResourceSlot
 	RcPtr<GveBufferView> bufferView;
 };
 
-
-struct GveGraphicsPipelineState
-{
-	GveGraphicsPipelineShaders   shader;
-	GveGraphicsPipelineStateInfo state;
-	GveGraphicsPipeline*         pipeline = nullptr;
-};
-
-struct GveComputePipelineState
-{
-	GveComputePipelineStateInfo state;
-};
-
-
-
-struct GveContextState
-{
-	GveGraphicsPipelineState gp;
-	GveComputePipelineState cp;
-};
 
 // This is our render context.
 // Just like GfxContext in PS4, one GveContex should be bound to one display buffer.
@@ -109,28 +46,28 @@ public:
 
 	void beginRecording(const RcPtr<GveCmdList>& commandBuffer);
 
-	void endRecording();
+	RcPtr<GveCmdList> endRecording();
 
 	void setViewport(const VkViewport& viewport, const VkRect2D& scissorRect);
 
 	void setViewports(uint32_t viewportCount,
 		const VkViewport* viewports, const VkRect2D* scissorRects);
 
-	void setInputLayout(
-		uint32_t								 attributeCount,
-		const VkVertexInputAttributeDescription* attributes,
-		uint32_t								 bindingCount,
-		const VkVertexInputBindingDescription*   bindings);
+	// alias for vertex input state
+	void setVertexInputLayout(const GveVertexInputInfo& viState);
 
-	void setPrimitiveType(VkPrimitiveTopology topology);
+	void setInputAssemblyState(const GveInputAssemblyInfo& iaState);
 
-	//void setRasterizerState(const GveRasterizeInfo& state);
+	void setRasterizerState(const GveRasterizationInfo& rsState);
 
-	//void setMultiSampleState(const GveMultisampleState& state);
+	void setMultiSampleState(const GveMultisampleInfo& msState);
 
-	//void setBlendControl(const GveBlendControl& blendCtl);
+	void setDepthStencilState(const GveDepthStencilInfo& dsState);
 
-	void bindRenderTargets(const GveRenderTargets& target);
+	void setColorBlendState(const GveColorBlendInfo& blendCtl);
+
+	// This bind render target and depth target at one time
+	void bindRenderTargets(const GveRenderTargets& targets);
 
 	void bindShader(VkShaderStageFlagBits stage, const RcPtr<GveShader>& shader);
 
@@ -164,8 +101,10 @@ public:
 
 private:
 	RcPtr<GveDevice> m_device;
-
 	RcPtr<GveCmdList> m_cmd;
+
+	GveContextFlags m_flags;
+	GveContextState m_state;
 
 	std::array<GveShaderResourceSlot, pssl::PsslBindingIndexMax> m_res;
 };

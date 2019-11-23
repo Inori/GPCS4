@@ -115,6 +115,8 @@ public:
 
 	void addAttribute(const GveVertexAttribute& attr);
 
+	void clear();
+
 	VkPipelineVertexInputStateCreateInfo state() const;
 
 	bool operator == (const GveVertexInputInfo& other) const;
@@ -182,6 +184,10 @@ public:
 
 	void addScissor(const VkRect2D& scissor);
 
+	uint32_t viewportCount() const;
+
+	void clear();
+
 	VkPipelineViewportStateCreateInfo state() const;
 
 	bool operator == (const GveViewportInfo& other) const;
@@ -204,9 +210,7 @@ public:
 		VkBool32              depthBiasEnable,
 		VkPolygonMode         polygonMode,
 		VkCullModeFlags       cullMode,
-		VkFrontFace           frontFace,
-		uint32_t              viewportCount,
-		VkSampleCountFlags    sampleCount);
+		VkFrontFace           frontFace);
 
 	VkBool32 depthClipEnable() const;
 
@@ -217,12 +221,6 @@ public:
 	VkCullModeFlags cullMode() const;
 
 	VkFrontFace frontFace() const;
-
-	uint32_t viewportCount() const;
-
-	VkSampleCountFlags sampleCount() const;
-
-	void setViewportCount(uint32_t viewportCount);
 
 	VkPipelineRasterizationStateCreateInfo state() const;
 
@@ -240,9 +238,7 @@ private:
 			uint32_t m_polygonMode : 2;
 			uint32_t m_cullMode : 2;
 			uint32_t m_frontFace : 1;
-			uint32_t m_viewportCount : 5;
-			uint32_t m_sampleCount : 5;
-			uint32_t m_reserved : 14;
+			uint32_t m_reserved : 24;
 		};
 		uint32_t m_asDword1;
 	};
@@ -460,6 +456,8 @@ public:
 
 	void setBlendConstants(float constants[4]);
 
+	void clear();
+
 	VkPipelineColorBlendStateCreateInfo state() const;
 
 	bool operator == (const GveColorBlendInfo& other) const;
@@ -499,7 +497,8 @@ struct GveGraphicsPipelineStateInfo
 	GveColorBlendInfo         cb;
 
 	// TODO:
-	// Current operator== 's implementation may be not efficient,
+	// Current operator== 's implementation is based on UE4's,
+	// and may be not efficient,
 	// we should do some performance test in the future, and to see
 	// if we need to change to DXVK's way using bit::bcmpeq
 	bool operator == (const GveGraphicsPipelineStateInfo& other) const;
