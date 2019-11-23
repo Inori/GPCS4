@@ -42,7 +42,7 @@ class GveGraphicsPipelineInstance
 public:
 	GveGraphicsPipelineInstance(VkPipeline pipeline, 
 		const GveGraphicsPipelineStateInfo& state, 
-		GveRenderPass* rp);
+		const GveRenderPass& rp);
 	~GveGraphicsPipelineInstance();
 
 	VkPipeline pipeline();
@@ -52,7 +52,7 @@ public:
 private:
 	VkPipeline m_pipeline;
 	GveGraphicsPipelineStateInfo m_state;
-	GveRenderPass* m_renderPass;
+	const GveRenderPass* m_renderPass;
 };
 
 ///
@@ -64,13 +64,13 @@ public:
 		const GveGraphicsPipelineShaders& shaders);
 	~GveGraphicsPipeline();
 
-	VkPipeline getPipelineHandle(const GveGraphicsPipelineStateInfo& state, GveRenderPass& rp);
+	VkPipeline getPipelineHandle(const GveGraphicsPipelineStateInfo& state, const GveRenderPass& rp);
 
 	GvePipelineLayout* getLayout() const;
 
 private:
-	GveGraphicsPipelineInstance* findInstance(const GveGraphicsPipelineStateInfo& state, GveRenderPass& rp);
-	GveGraphicsPipelineInstance* createInstance(const GveGraphicsPipelineStateInfo& state, GveRenderPass& rp);
+	GveGraphicsPipelineInstance* findInstance(const GveGraphicsPipelineStateInfo& state, const GveRenderPass& rp);
+	GveGraphicsPipelineInstance* createInstance(const GveGraphicsPipelineStateInfo& state, const GveRenderPass& rp);
 private:
 	
 	GvePipelineManager* m_pipelineManager;
