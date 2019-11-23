@@ -95,7 +95,7 @@ VkImage GveImage::handle() const
 	return m_image;
 }
 
-const GveImageCreateInfo GveImage::info() const
+const GveImageCreateInfo& GveImage::info() const
 {
 	return m_info;
 }
