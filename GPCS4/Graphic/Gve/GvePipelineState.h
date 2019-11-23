@@ -12,6 +12,9 @@
 namespace gve
 {;
 
+// A "Gve***Info" class is treated as "VkPipeline***StateCreateInfo"
+// during pipeline creation.
+
 
 //////////////////////////////////////////////////////////////////////////
 //Graphics pipeline state
@@ -131,6 +134,31 @@ private:
 	uint16_t m_patchVertexCount : 6;
 	uint16_t m_reserved : 5;
 
+};
+
+
+// Note:
+// Currently I treat viewport state as static state,
+// not sure if we need to change it to dynamic state or not
+// for a emulator.
+// Using static state may be a little faster, but this may
+// need to change in the future
+class GveViewportInfo
+{
+public:
+	GveViewportInfo() = default;
+
+	GveViewportInfo(const VkViewport& viewport, const VkRect2D& scissor);
+
+	void addViewport(const VkViewport& viewport);
+
+	void addScissor(const VkRect2D& scissor);
+
+	VkPipelineViewportStateCreateInfo state() const;
+
+private:
+	std::vector<VkViewport> m_viewports;
+	std::vector<VkRect2D> m_scissors;
 };
 
 
@@ -370,12 +398,14 @@ private:
 //////////////////////////////////////////////////////////////////////////
 
 
+
 //////////////////////////////////////////////////////////////////////////
 
 struct GveGraphicsPipelineStateInfo
 {
 	GveVertexInputInfo        vi;
 	GveInputAssemblyInfo      ia;
+	GveViewportInfo           vp;  // currently treated as static state
 	GveRasterizationInfo      rs;
 	GveMultisampleInfo        ms;
 	GveDepthStencilInfo       ds;

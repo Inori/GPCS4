@@ -506,4 +506,34 @@ std::istream& operator >> (std::istream& in, GveGraphicsPipelineStateInfo& state
 	// TODO:
 }
 
+
+GveViewportInfo::GveViewportInfo(const VkViewport& viewport, const VkRect2D& scissor)
+{
+	m_viewports.push_back(viewport);
+	m_scissors.push_back(scissor);
+}
+
+
+
+void GveViewportInfo::addViewport(const VkViewport& viewport)
+{
+	m_viewports.push_back(viewport);
+}
+
+void GveViewportInfo::addScissor(const VkRect2D& scissor)
+{
+	m_scissors.push_back(scissor);
+}
+
+VkPipelineViewportStateCreateInfo GveViewportInfo::state() const
+{
+	VkPipelineViewportStateCreateInfo info = {};
+	info.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+	info.viewportCount = m_viewports.size();
+	info.pViewports = m_viewports.data();
+	info.scissorCount = m_scissors.size();
+	info.pScissors = m_scissors.data();
+	return info;
+}
+
 }  // namespace gve
