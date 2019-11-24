@@ -5,7 +5,9 @@ static void logFunc(const char *log)
 {
 	LOG_TRACE(log); 
 }
-static void assertFail() { assert(false); }
+
+// Trap the debugger when an unresolved function is called.
+static void trapDebugger() { assert(false); }
 
 // TODO: For safety sake, all the non-volatile registers should be saved, but I only save
 // rcx, rdx, r8, r9, r10, r11 for convenience.
@@ -167,9 +169,9 @@ void *FuncStubManager::generate(std::string const &message, void *dest)
 	return retPtr;
 }
 
-void *FuncStubManager::generate(std::string const &message)
+void *FuncStubManager::generateUnknown(std::string const &message)
 {
-	return generate(message, assertFail);
+	return generate(message, trapDebugger);
 }
 
 FuncStubManager *GetFuncStubManager() 

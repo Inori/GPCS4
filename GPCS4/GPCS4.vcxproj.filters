@@ -802,6 +802,9 @@
     <ClInclude Include="SceModules\SceMouse\sce_mouse_types.h">
       <Filter>SceModules\SceMouse</Filter>
     </ClInclude>
+    <ClInclude Include="Emulator\ModuleSystemCommon.h">
+      <Filter>Source Files\Emulator</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">

@@ -157,8 +157,16 @@ bool ModuleLoader::loadDependencies()
 		retVal   = loadModuleFromFile(path, &mod);
 		if (!retVal)
 		{
-			LOG_ERR("Fail to load module");
-			break;
+			LOG_ERR("Failed to load module %s", fileName.c_str());
+
+			if (IGNORE_NOT_FOUND_MODULES)
+			{
+				retVal = true;
+			}
+			else
+			{
+				break;
+			}
 		}
 	}
 
