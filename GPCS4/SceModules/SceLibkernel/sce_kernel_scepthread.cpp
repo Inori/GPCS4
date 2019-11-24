@@ -254,7 +254,7 @@ int PS4API scePthreadMutexTimedlock(void)
 int PS4API scePthreadMutexTrylock(ScePthreadMutex *mutex)
 {
 	LOG_SCE_TRACE("mutex %p", mutex);
-	int err = pthread_mutex_unlock((pthread_mutex_t*)mutex);
+	int err = pthread_mutex_trylock((pthread_mutex_t*)mutex);
 	return pthreadErrorToSceError(err);
 }
 
