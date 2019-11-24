@@ -38,9 +38,6 @@ int main(int argc, char *argv[])
 			break;
 		}
 
-		auto modSystem = CSceModuleSystem::GetInstance();
-		
-
 		if(!pEmulator->Run(*ebootModule))
 		{
 			break;
