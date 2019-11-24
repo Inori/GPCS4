@@ -116,6 +116,14 @@ int PS4API scek_pthread_mutex_lock(pthread_mutex_t* mtx)
 }
 
 
+int PS4API scek_pthread_mutex_trylock(pthread_mutex_t *mtx) 
+{
+	LOG_SCE_TRACE("mtx %p", mtx);
+	int err = pthread_mutex_trylock(mtx);
+	return pthreadErrorToSceError(err);
+}
+
+
 int PS4API scek_pthread_mutex_unlock(pthread_mutex_t* mtx)
 {
 	LOG_SCE_TRACE("mtx %p", mtx);
@@ -156,4 +164,19 @@ int PS4API scek_pthread_setschedparam(void)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
+}
+
+
+void * PS4API scek_pthread_getspecific(pthread_key_t key) 
+{
+	LOG_SCE_TRACE("key %p", key);
+	return pthread_getspecific(key);
+}
+
+
+int PS4API scek_pthread_key_create(pthread_key_t *key, void(*destructor)(void*)) 
+{
+	LOG_SCE_TRACE("key %p destructor %p", key, destructor);
+	int err = pthread_key_create(key, destructor);
+	return pthreadErrorToSceError(err);
 }
