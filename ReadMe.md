@@ -56,7 +56,7 @@ To run or develop GPCS4, a CPU supporting AVX512 and a graphics card supporting 
 Currently, only Windows build is supported.  
 
 Visual Studio 2017  
-[LLVM/Clang](https://llvm.org/)  
+[LLVM/Clang](http://releases.llvm.org/9.0.0/LLVM-9.0.0-win64.exe)  
 [LLVM Compiler Toolchain Extension](https://marketplace.visualstudio.com/items?itemName=LLVMExtensions.llvm-toolchain)  
 [LunarG Vulkan SDK](https://www.lunarg.com/vulkan-sdk/)
 
