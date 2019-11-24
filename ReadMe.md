@@ -41,7 +41,7 @@ This is a privious running result of Nier:Automata, not correct though, I'll imp
         For others, we implement those one by one.
 
 ## Join
-If you want to participate in the project, read the roadmap above and see which part you are insterested in.
+If you want to participate in the project, read the roadmap above and [todo list](https://github.com/Inori/GPCS4/projects/1), see which part you are insterested in.
 
 After that, read our [code style](https://github.com/Inori/GPCS4/blob/master/Doc/CodeStyle.md) document, and make a pull request while keeping the code style, I'll see it.  
 Or if you're willing to work on the project for a pretty long time, I could make a branch for you.
