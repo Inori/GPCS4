@@ -24,7 +24,7 @@ union DataFormat
 		TextureChannel chanZ = kTextureChannelZ,
 		TextureChannel chanW = kTextureChannelW)
 	{
-		DataFormat result = { 0 };
+		DataFormat result{};
 		result.m_bits.m_surfaceFormat = surfFmt;
 		result.m_bits.m_channelType = channelType;
 		result.m_bits.m_channelX = chanX;

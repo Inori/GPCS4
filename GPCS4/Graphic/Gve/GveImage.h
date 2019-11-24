@@ -81,7 +81,7 @@ public:
 
 	VkImage handle() const;
 
-	const GveImageCreateInfo info() const;
+	const GveImageCreateInfo& info() const;
 
 	VkFormat getFormat() const;
 
