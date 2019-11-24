@@ -52,7 +52,7 @@ Discord: [GPCS4](https://discord.gg/PXrUxtk)
 Tencent QQ/TIM Group Number: 470865218
 
 ## Build
-To run or develop GPCS4, a CPU supporting AVX512 and a graphics card supporting Vulkan is required.  
+To run or develop GPCS4, a CPU supporting AVX512 and a graphics card supporting Vulkan are required.  
 Currently, only Windows build is supported.  
 
 Visual Studio 2017  
