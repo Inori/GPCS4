@@ -74,9 +74,6 @@ bool CEmulator::RegisterModules()
 		REGISTER_MODULE(g_ExpModuleSceVideoOut);
 		REGISTER_MODULE(g_ExpModuleSceVideoRecording);
 
-		// TODO: Set libc module&libaray as overridable for linker test only. Remember to 
-		// remove this.
-
 		ALLOW_MODULE_OVERRIDE("libc");
 		ALLOW_MODULE_OVERRIDE("libSceLibcInternal");
 		pModuleSystem->setLibraryOverridability("libc", "libc", true);

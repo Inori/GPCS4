@@ -1,7 +1,6 @@
 #include "ModuleLoader.h"
 #include "Platform/PlatformUtils.h"
 
-constexpr bool IGNORE_NOT_FOUND_MODULES = true;
 
 ModuleLoader::ModuleLoader(CSceModuleSystem &modSystem,
 						   CLinker &linker,
@@ -162,9 +161,13 @@ bool ModuleLoader::loadDependencies()
 			LOG_ERR("Failed to load module %s", fileName.c_str());
 
 			if (IGNORE_NOT_FOUND_MODULES)
+			{
 				retVal = true;
+			}
 			else
+			{
 				break;
+			}
 		}
 	}
 

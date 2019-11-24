@@ -49,7 +49,7 @@ class FuncStubManager
 public:
 	FuncStubManager(JitFunctionPool *pool, FuncStubGenerator *funcStub);
 	void *generate(std::string const &message, void *dest);
-	void *generate(std::string const &message);
+	void *generateUnknown(std::string const &message);
 private:
 	std::vector<std::string> m_messageList;
 	JitFunctionPool *m_pool;
