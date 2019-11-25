@@ -823,6 +823,9 @@
     <ClInclude Include="Graphic\Gve\GveHash.h">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClInclude>
+    <ClInclude Include="Graphic\Gve\GvePresenter.h">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1456,6 +1459,9 @@
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClCompile>
     <ClCompile Include="Graphic\Gve\GvePipelineState.cpp">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gve\GvePresenter.cpp">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClCompile>
   </ItemGroup>

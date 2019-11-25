@@ -82,6 +82,7 @@
     <ClInclude Include="Graphic\Gve\GveInstance.h" />
     <ClInclude Include="Graphic\Gve\GveMemory.h" />
     <ClInclude Include="Graphic\Gve\GvePhysicalDevice.h" />
+    <ClInclude Include="Graphic\Gve\GvePresenter.h" />
     <ClInclude Include="Graphic\Gve\GveRenderPass.h" />
     <ClInclude Include="Graphic\Gve\GveResourceManager.h" />
     <ClInclude Include="Graphic\Gve\GveResourceObjects.h" />
@@ -269,6 +270,7 @@
     <ClCompile Include="Graphic\Gve\GvePhysicalDevice.cpp" />
     <ClCompile Include="Graphic\Gve\GvePipelineLayout.cpp" />
     <ClCompile Include="Graphic\Gve\GvePipelineManager.cpp" />
+    <ClCompile Include="Graphic\Gve\GvePresenter.cpp" />
     <ClCompile Include="Graphic\Gve\GveRenderPass.cpp" />
     <ClCompile Include="Graphic\Gve\GvePipelineState.cpp" />
     <ClCompile Include="Graphic\Gve\GveResourceManager.cpp" />
