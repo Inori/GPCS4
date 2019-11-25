@@ -7,7 +7,7 @@ The only reason I start this project is learning 3D graphics, nothing serious.
 
 ## Latest progress
 
-![Basic Quad](https://www.dropbox.com/s/o7ihoemem9qxgkn/basic_quad.gif)  
+<a href='https://photos.app.goo.gl/1vwoLHCNj5E3iGCbA' /></a>
 First correct image rendered, although this is a 2D image demo, it's actuall rendered in 3D pipeline.  
 There're still some hardcode test code, but with more design, and most important, this time with our shader translator, no hand write shaders anymore.  
 Next I'll focus on Nier and improve the graphics implementation.
