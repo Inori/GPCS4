@@ -1,4 +1,5 @@
 #include "PsslSbReader.h"
+#include <ostream>
 
 namespace pssl
 {;

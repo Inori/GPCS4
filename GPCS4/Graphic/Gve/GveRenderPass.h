@@ -5,6 +5,7 @@
 #include "GveLimit.h"
 #include "GveHash.h"
 #include <mutex>
+#include <unordered_map>
 
 namespace gve
 {;
