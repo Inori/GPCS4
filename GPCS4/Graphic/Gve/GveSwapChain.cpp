@@ -4,7 +4,7 @@
 namespace gve
 {;
 
-GveSwapChain::GveSwapChain(RcPtr<GveDevice>& logicDevice,
+GveSwapChain::GveSwapChain(const RcPtr<GveDevice>& logicDevice,
 	std::shared_ptr<sce::SceVideoOut>& videoOut,
 	uint32_t imageCount) :
 	m_swapchain(VK_NULL_HANDLE),
@@ -43,6 +43,11 @@ void GveSwapChain::createSwapChain(uint32_t imageCount)
 		if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount)
 		{
 			imageCount = swapChainSupport.capabilities.maxImageCount;
+		}
+
+		if (swapChainSupport.capabilities.minImageCount > 0 && imageCount < swapChainSupport.capabilities.minImageCount)
+		{
+			imageCount = swapChainSupport.capabilities.minImageCount;
 		}
 
 		GvePhysicalDeviceQueueFamilies queueFamilies = m_phyDevice->findQueueFamilies();

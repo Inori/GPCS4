@@ -1,5 +1,7 @@
 #include "GveInstance.h"
 #include "GveVkLayers.h"
+#include "GveSwapChain.h"
+
 #include <iostream>
 
 namespace gve
@@ -32,14 +34,39 @@ GveInstance::operator VkInstance() const
 	return m_instance;
 }
 
-uint32_t GveInstance::physicalDeviceCount() const
+RcPtr<GvePhysicalDevice> GveInstance::pickPhysicalDevice(VkSurfaceKHR windowSurface)
 {
-	return m_phyDevices.size();
+	RcPtr<GvePhysicalDevice> phyDevice;
+	do
+	{
+		if (!m_instance)
+		{
+			break;
+		}
+
+		for (const auto& device : m_phyDevices)
+		{
+			if (isDeviceSuitable(device, windowSurface))
+			{
+				phyDevice = device;
+				break;
+			}
+		}
+
+	} while (false);
+	return phyDevice;
 }
 
-RcPtr<gve::GvePhysicalDevice> GveInstance::getPhysicalDevice(uint32_t index)
+bool GveInstance::isDeviceSuitable(const RcPtr<GvePhysicalDevice>& device, VkSurfaceKHR windowSurface)
 {
-	return m_phyDevices[index];
+	bool swapChainAdequate = false;
+
+	SwapChainSupportDetails swapChainSupport = GveSwapChain::querySwapChainSupport(*device, windowSurface);
+	swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
+
+	const VkPhysicalDeviceFeatures& supportedFeatures = device->features().core.features;
+
+	return swapChainAdequate && supportedFeatures.samplerAnisotropy;
 }
 
 void GveInstance::createInstance(const std::vector<const char*>& requiredExtensions)
@@ -216,6 +243,11 @@ void GveInstance::enumPhysicalDevices()
 	{
 		m_phyDevices.push_back(new GvePhysicalDevice(this, device));
 	}
+}
+
+RcPtr<gve::GveInstance> gveCreateInstance(const std::vector<const char*>& requiredExtensions)
+{
+	return new GveInstance(requiredExtensions);
 }
 
 }  // gve

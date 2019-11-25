@@ -36,7 +36,7 @@ public:
 
 	VkSurfaceKHR createSurface(VkInstance instance);
 
-	void DestroySurface(VkInstance instance);
+	void destroySurface(VkInstance instance);
 
 	std::vector<const char*> getExtensions();
 

@@ -4,7 +4,7 @@
 #include "GveBuffer.h"
 #include "GveImage.h"
 #include "GveSampler.h"
-
+#include "GveSwapChain.h"
 
 namespace gve
 {;
@@ -37,6 +37,11 @@ RcPtr<GvePhysicalDevice> GveDevice::physicalDevice() const
 GveDeviceQueueSet GveDevice::queues() const
 {
 	return m_queues;
+}
+
+RcPtr<GveSwapChain> GveDevice::createSwapchain(std::shared_ptr<sce::SceVideoOut>& videoOut, uint32_t displayBufferCount)
+{
+	return new GveSwapChain(this, videoOut, displayBufferCount);
 }
 
 RcPtr<GveFrameBuffer> GveDevice::createFrameBuffer(const GveRenderTargets& renderTargets)

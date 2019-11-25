@@ -7,6 +7,8 @@
 #include "GveMemory.h"
 #include "GveResourceObjects.h"
 
+#include "../Sce/SceVideoOut.h"
+
 namespace gve
 {;
 
@@ -14,6 +16,7 @@ class GveCmdList;
 class GveDescriptorPool;
 class GveBuffer;
 class GveImage;
+class GveSwapChain;
 
 struct GveDeviceQueue 
 {
@@ -39,6 +42,8 @@ public:
 	RcPtr<GvePhysicalDevice> physicalDevice() const;
 
 	GveDeviceQueueSet queues() const;
+
+	RcPtr<GveSwapChain> createSwapchain(std::shared_ptr<sce::SceVideoOut>& videoOut, uint32_t displayBufferCount);
 
 	RcPtr<GveFrameBuffer> createFrameBuffer(const GveRenderTargets& renderTargets);
 
