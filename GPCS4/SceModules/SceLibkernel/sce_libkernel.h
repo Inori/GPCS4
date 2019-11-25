@@ -485,7 +485,7 @@ int PS4API scek_pthread_setschedparam(void);
 void * PS4API scek_pthread_getspecific(pthread_key_t key);
 
 
-int PS4API scek_pthread_key_create(pthread_key_t *key, void(*destructor)(void*));
+int PS4API scek_pthread_key_create(void);
 
 
 int PS4API scek_recv(void);
