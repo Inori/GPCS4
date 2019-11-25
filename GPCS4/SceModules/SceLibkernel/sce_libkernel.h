@@ -113,6 +113,12 @@ int PS4API sceKernelMapDirectMemory(void **addr, size_t len, int prot, int flags
 int PS4API sceKernelMapFlexibleMemory(void **addrInOut, size_t len, int prot, int flags);
 
 
+int PS4API sceKernelCheckReachability(void);
+
+
+int PS4API sceKernelChmod(void);
+
+
 int PS4API sceKernelMkdir(void);
 
 
@@ -248,6 +254,9 @@ int PS4API scePthreadMutexattrSetprotocol(ScePthreadMutexattr *attr, int protoco
 int PS4API scePthreadMutexattrSettype(ScePthreadMutexattr *attr, int type);
 
 
+int PS4API scePthreadMutexGetprioceiling(void);
+
+
 int PS4API scePthreadRename(void);
 
 
@@ -365,7 +374,7 @@ int PS4API scePthreadKeyCreate(void);
 int PS4API scePthreadMutexTimedlock(void);
 
 
-int PS4API scePthreadMutexTrylock(void);
+int PS4API scePthreadMutexTrylock(ScePthreadMutex *mutex);
 
 
 int PS4API scePthreadSetschedparam(void);
@@ -440,6 +449,9 @@ int PS4API scek_pthread_mutex_init(pthread_mutex_t *mutex,
 int PS4API scek_pthread_mutex_lock(pthread_mutex_t* mtx);
 
 
+int PS4API scek_pthread_mutex_trylock(pthread_mutex_t *mtx);
+
+
 int PS4API scek_pthread_mutex_unlock(pthread_mutex_t* mtx);
 
 
@@ -468,6 +480,12 @@ int PS4API scek_connect(void);
 
 
 int PS4API scek_pthread_setschedparam(void);
+
+
+void * PS4API scek_pthread_getspecific(pthread_key_t key);
+
+
+int PS4API scek_pthread_key_create(void);
 
 
 int PS4API scek_recv(void);

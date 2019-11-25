@@ -8,29 +8,28 @@
 namespace gve
 {;
 
-GvePipelineInstance::GvePipelineInstance(VkPipeline pipeline,
-	const GveRenderState& state,
-	GveRenderPass* rp) :
+GveGraphicsPipelineInstance::GveGraphicsPipelineInstance(VkPipeline pipeline,
+	const GveGraphicsPipelineStateInfo& state,
+	const GveRenderPass& rp) :
 	m_pipeline(pipeline),
 	m_state(state),
-	m_renderPass(rp)
+	m_renderPass(&rp)
 {
 
 }
 
-GvePipelineInstance::~GvePipelineInstance()
+GveGraphicsPipelineInstance::~GveGraphicsPipelineInstance()
 {
 }
 
-VkPipeline GvePipelineInstance::pipeline()
+VkPipeline GveGraphicsPipelineInstance::pipeline()
 {
 	return m_pipeline;
 }
 
-bool GvePipelineInstance::isCompatible(const GveRenderState& state, const GveRenderPass& rp) const
+bool GveGraphicsPipelineInstance::isCompatible(const GveGraphicsPipelineStateInfo& state, const GveRenderPass& rp) const
 {
-	// TODO:
-	return true;
+	return (m_state == state) && (m_renderPass == &rp);
 }
 
 ///
@@ -51,7 +50,7 @@ GveGraphicsPipeline::~GveGraphicsPipeline()
 }
 
 
-VkPipeline GveGraphicsPipeline::getPipelineHandle(const GveRenderState& state, GveRenderPass& rp)
+VkPipeline GveGraphicsPipeline::getPipelineHandle(const GveGraphicsPipelineStateInfo& state, const GveRenderPass& rp)
 {
 	VkPipeline pipeline = VK_NULL_HANDLE;
 	
@@ -82,9 +81,9 @@ GvePipelineLayout* GveGraphicsPipeline::getLayout() const
 	return m_layout;
 }
 
-GvePipelineInstance* GveGraphicsPipeline::findInstance(const GveRenderState& state, GveRenderPass& rp)
+gve::GveGraphicsPipelineInstance* GveGraphicsPipeline::findInstance(const GveGraphicsPipelineStateInfo& state, const GveRenderPass& rp)
 {
-	GvePipelineInstance* instance = nullptr;
+	GveGraphicsPipelineInstance* instance = nullptr;
 	for (auto& pipeInst : m_pipelines)
 	{
 		if (pipeInst.isCompatible(state, rp))
@@ -96,9 +95,9 @@ GvePipelineInstance* GveGraphicsPipeline::findInstance(const GveRenderState& sta
 	return instance;
 }
 
-GvePipelineInstance* GveGraphicsPipeline::createInstance(const GveRenderState& state, GveRenderPass& rp)
+gve::GveGraphicsPipelineInstance* GveGraphicsPipeline::createInstance(const GveGraphicsPipelineStateInfo& state, const GveRenderPass& rp)
 {
-	GvePipelineInstance* instance = nullptr;
+	GveGraphicsPipelineInstance* instance = nullptr;
 	do 
 	{
 		auto vsModule = m_shaders.vs->createShaderModule(m_pipelineManager->m_device, m_resSlotMap);
@@ -109,26 +108,27 @@ GvePipelineInstance* GveGraphicsPipeline::createInstance(const GveRenderState& s
 
 		VkPipelineShaderStageCreateInfo shaderStages[] = { vsStage, fsStage };
 
-		VkPipelineViewportStateCreateInfo viewportState = {};
-		viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-		viewportState.viewportCount = state.viewports.size();
-		viewportState.pViewports = state.viewports.data();
-		viewportState.scissorCount = state.scissors.size();
-		viewportState.pScissors = state.scissors.data();
-
+		auto viState = state.vi.state();
+		auto iaState = state.ia.state();
+		auto vpState = state.vp.state();
+		auto rsState = state.rs.state();
+		auto msState = state.ms.state();
+		auto dsState = state.ds.state();
+		auto cbState = state.cb.state();
 
 		VkGraphicsPipelineCreateInfo pipelineInfo = {};
 		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 		pipelineInfo.stageCount = 2;
 		pipelineInfo.pStages = shaderStages;
-		pipelineInfo.pVertexInputState = &state.vi.state;
-		pipelineInfo.pInputAssemblyState = &state.ia;
-		pipelineInfo.pViewportState = &viewportState;
-		pipelineInfo.pRasterizationState = &state.rs;
-		pipelineInfo.pMultisampleState = &state.ms;
-		pipelineInfo.pColorBlendState = &state.cb;
+		pipelineInfo.pVertexInputState = &viState;
+		pipelineInfo.pInputAssemblyState = &iaState;
+		pipelineInfo.pViewportState = &vpState;
+		pipelineInfo.pRasterizationState = &rsState;
+		pipelineInfo.pMultisampleState = &msState;
+		pipelineInfo.pDepthStencilState = &dsState;
+		pipelineInfo.pColorBlendState = &cbState;
 		pipelineInfo.layout = m_layout->pipelineLayout();
-		//pipelineInfo.renderPass = rp.getHandle();
+		pipelineInfo.renderPass = rp.getDefaultHandle();
 		pipelineInfo.subpass = 0;
 		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
@@ -140,7 +140,9 @@ GvePipelineInstance* GveGraphicsPipeline::createInstance(const GveRenderState& s
 			break;
 		}
 
-		instance = new GvePipelineInstance(pipeline, state, &rp);
+		m_pipelines.emplace_back(pipeline, state, rp);
+		instance = &m_pipelines.back();
+		
 	} while (false);
 	return instance;
 }

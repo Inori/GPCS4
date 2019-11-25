@@ -1,9 +1,8 @@
 #include "Linker.h"
+#include "ModuleSystemCommon.h"
 #include "SceModuleSystem.h"
 #include "Loader/FuncStub.h"
 #include "Platform/PlatformUtils.h"
-
-//#include <cinttypes>
 
 CLinker::CLinker() : m_modSystem{*CSceModuleSystem::GetInstance()} {}
 
@@ -37,7 +36,7 @@ bool CLinker::ResolveSymbol(const std::string &strModName,
 // resolveSymbol always returns true
 bool CLinker::resolveSymbol(MemoryMappedModule const &mod,
 							std::string const &name,
-							uint64_t *addr) const
+							uint64_t *addrOut) const
 {
 	bool retVal = true;
 
@@ -45,9 +44,9 @@ bool CLinker::resolveSymbol(MemoryMappedModule const &mod,
 	{
 		const SymbolInfo *info = nullptr;
 		void *address          = nullptr;
-		bool overrided         = false;
+		bool overridden         = false;
 
-		if (addr == nullptr)
+		if (addrOut == nullptr)
 		{
 			LOG_ERR("null pointer");
 			break;
@@ -70,7 +69,7 @@ bool CLinker::resolveSymbol(MemoryMappedModule const &mod,
 			address = m_modSystem.FindFunction(info->moduleName, info->libraryName,
 											   info->nid);
 
-			overrided = m_modSystem.isFunctionOverridable(info->moduleName,
+			overridden = m_modSystem.isFunctionOverridable(info->moduleName,
 														  info->libraryName,
 														  info->nid);
 		}
@@ -79,32 +78,42 @@ bool CLinker::resolveSymbol(MemoryMappedModule const &mod,
 		{
 			LOG_ERR("fail to resolve symbol: %s from %s for module %s",
 					name.c_str(), info->moduleName.c_str(), mod.fileName.c_str());
-
-			// mark the address as DEAD
-			// *addr = 0xffffffffdeaddead;
-			// break;
 		}
 
-		if (!overrided && address != nullptr)
+		if (!overridden && address != nullptr || !USE_FUNCTION_STUBS)
 		{
-			*addr = reinterpret_cast<uint64_t>(address);
+			*addrOut = reinterpret_cast<uint64_t>(address);
 		}
-		else
+		else if (LOG_UNKNOWN_FUNCTION_ONLY && address != nullptr)
 		{
-			auto msg      = UtilString::Format("function nid %llu from lib:%s is called: 0x%08x",
-											   info->nid,
-											   info->libraryName.c_str(),
-											   address);
+			*addrOut  = reinterpret_cast<uint64_t>(address);
+		}
+		else // Use function stub 
+		{
+			const char *formatString = nullptr;
+
+			if (address == nullptr)
+			{
+				formatString =
+					"Unknown Function nid 0x%016x from lib:%s is called: 0x%08x";
+			}
+			else
+			{
+				formatString =
+					"Function nid 0x%016x from lib:%s is called";
+			}
+
+			auto msg = UtilString::Format(formatString,
+										  info->nid,
+										  info->libraryName.c_str());
 
 			auto stubMgr  = GetFuncStubManager();
 			auto stubAddr = address == nullptr? 
-								stubMgr->generate(msg):
-							    stubMgr->generate(msg, address);
+								stubMgr->generateUnknown(msg):
+								stubMgr->generate(msg, address);
 
-			//*addr = reinterpret_cast<uint64_t>(stubAddr);
-			*addr = reinterpret_cast<uint64_t>(address);
+			*addrOut = reinterpret_cast<uint64_t>(stubAddr);
 		}
-
 
 		retVal = true;
 	} while (false);

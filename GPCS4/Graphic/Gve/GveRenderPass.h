@@ -5,6 +5,7 @@
 #include "GveLimit.h"
 #include "GveHash.h"
 #include <mutex>
+#include <unordered_map>
 
 namespace gve
 {;
@@ -107,6 +108,12 @@ struct GveRenderPassOps
 
 class GveRenderPass : public RcObject
 {
+	struct Instance
+	{
+		GveRenderPassOps ops;
+		VkRenderPass handle;
+	};
+
 public:
 	GveRenderPass(
 		const RcPtr<GveDevice>& device,
@@ -170,28 +177,20 @@ public:
 	VkRenderPass getHandle(const GveRenderPassOps& ops);
 
 private:
-	VkRenderPass createRenderPass(GveRenderPassFormat& fmt);
-
-private:
-
-	struct Instance 
-	{
-		GveRenderPassOps ops;
-		VkRenderPass handle;
-	};
-
-	GveRenderPassFormat		m_format;
-	VkRenderPass            m_default;
-
-	Spinlock				m_mutex;
-	std::vector<Instance>   m_instances;
-
 	VkRenderPass createRenderPass(
 		const GveRenderPassOps& ops);
 
 	static bool compareOps(
 		const GveRenderPassOps& a,
 		const GveRenderPassOps& b);
+
+private:
+
+	GveRenderPassFormat		m_format;
+	VkRenderPass            m_default;
+
+	Spinlock				m_mutex;
+	std::vector<Instance>   m_instances;
 
 	RcPtr<GveDevice> m_device;
 	VkRenderPass m_renderPass;

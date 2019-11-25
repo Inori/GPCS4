@@ -3,7 +3,7 @@
 #include "GveCommon.h"
 #include "GveShader.h"
 #include "GveHash.h"
-#include "GveRenderState.h"
+#include "GvePipelineState.h"
 #include "SyncHelper.h"
 
 #include <vector>
@@ -37,22 +37,22 @@ struct GveGraphicsPipelineShaders
 };
 
 
-class GvePipelineInstance
+class GveGraphicsPipelineInstance
 {
 public:
-	GvePipelineInstance(VkPipeline pipeline, 
-		const GveRenderState& state, 
-		GveRenderPass* rp);
-	~GvePipelineInstance();
+	GveGraphicsPipelineInstance(VkPipeline pipeline, 
+		const GveGraphicsPipelineStateInfo& state, 
+		const GveRenderPass& rp);
+	~GveGraphicsPipelineInstance();
 
 	VkPipeline pipeline();
 
-	bool isCompatible(const GveRenderState& state, const GveRenderPass& rp) const;
+	bool isCompatible(const GveGraphicsPipelineStateInfo& state, const GveRenderPass& rp) const;
 
 private:
 	VkPipeline m_pipeline;
-	GveRenderState m_state;
-	GveRenderPass* m_renderPass;
+	GveGraphicsPipelineStateInfo m_state;
+	const GveRenderPass* m_renderPass;
 };
 
 ///
@@ -64,13 +64,13 @@ public:
 		const GveGraphicsPipelineShaders& shaders);
 	~GveGraphicsPipeline();
 
-	VkPipeline getPipelineHandle(const GveRenderState& state, GveRenderPass& rp);
+	VkPipeline getPipelineHandle(const GveGraphicsPipelineStateInfo& state, const GveRenderPass& rp);
 
 	GvePipelineLayout* getLayout() const;
 
 private:
-	GvePipelineInstance* findInstance(const GveRenderState& state, GveRenderPass& rp);
-	GvePipelineInstance* createInstance(const GveRenderState& state, GveRenderPass& rp);
+	GveGraphicsPipelineInstance* findInstance(const GveGraphicsPipelineStateInfo& state, const GveRenderPass& rp);
+	GveGraphicsPipelineInstance* createInstance(const GveGraphicsPipelineStateInfo& state, const GveRenderPass& rp);
 private:
 	
 	GvePipelineManager* m_pipelineManager;
@@ -80,7 +80,7 @@ private:
 	GvePipelineLayout* m_layout;
 
 	Spinlock m_mutex;
-	std::vector<GvePipelineInstance> m_pipelines;
+	std::vector<GveGraphicsPipelineInstance> m_pipelines;
 };
 
 

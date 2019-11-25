@@ -1,9 +1,11 @@
 #pragma once
 
-#include "ELFMapper.h"
+#include "GPCS4Common.h"
+#include "Emulator/ModuleSystemCommon.h"
 #include "Emulator/Linker.h"
 #include "Emulator/SceModuleSystem.h"
 #include "Emulator/TLSHandler.h"
+#include "ELFMapper.h"
 
 #include <queue>
 

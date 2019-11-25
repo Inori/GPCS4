@@ -36,6 +36,7 @@
     <ClInclude Include="Emulator\GameThread.h" />
     <ClInclude Include="Emulator\Linker.h" />
     <ClInclude Include="Emulator\Module.h" />
+    <ClInclude Include="Emulator\ModuleSystemCommon.h" />
     <ClInclude Include="Emulator\SceModuleSystem.h" />
     <ClInclude Include="Emulator\TLSHandler.h" />
     <ClInclude Include="GPCS4Common.h" />
@@ -63,6 +64,7 @@
     <ClInclude Include="Graphic\Gve\GveCmdList.h" />
     <ClInclude Include="Graphic\Gve\GveCommon.h" />
     <ClInclude Include="Graphic\Gve\GveContext.h" />
+    <ClInclude Include="Graphic\Gve\GveContextState.h" />
     <ClInclude Include="Graphic\Gve\GveDebugMarker.h" />
     <ClInclude Include="Graphic\Gve\GveDescriptor.h" />
     <ClInclude Include="Graphic\Gve\GveGpuResource.h" />
@@ -72,7 +74,7 @@
     <ClInclude Include="Graphic\Gve\GveLimit.h" />
     <ClInclude Include="Graphic\Gve\GvePipelineLayout.h" />
     <ClInclude Include="Graphic\Gve\GvePipelineManager.h" />
-    <ClInclude Include="Graphic\Gve\GveRenderState.h" />
+    <ClInclude Include="Graphic\Gve\GvePipelineState.h" />
     <ClInclude Include="Graphic\Gve\GveDevice.h" />
     <ClInclude Include="Graphic\Gve\GveDeviceInfo.h" />
     <ClInclude Include="Graphic\Gve\GveExtension.h" />
@@ -268,6 +270,7 @@
     <ClCompile Include="Graphic\Gve\GvePipelineLayout.cpp" />
     <ClCompile Include="Graphic\Gve\GvePipelineManager.cpp" />
     <ClCompile Include="Graphic\Gve\GveRenderPass.cpp" />
+    <ClCompile Include="Graphic\Gve\GvePipelineState.cpp" />
     <ClCompile Include="Graphic\Gve\GveResourceManager.cpp" />
     <ClCompile Include="Graphic\Gve\GveResourceObjects.cpp" />
     <ClCompile Include="Graphic\Gve\GveSampler.cpp" />

@@ -27,8 +27,6 @@ int main(int argc, char *argv[])
 			break;
 		}
 
-		// TODO: for testing only. remember to remove this
-
 		CTLSHandlerWin tlsHandler = {};
 
 		CLinker linker      = {*CSceModuleSystem::GetInstance()};
@@ -40,24 +38,13 @@ int main(int argc, char *argv[])
 			break;
 		}
 
-		auto modSystem = CSceModuleSystem::GetInstance();
-		//auto ptr = modSystem->FindFunction("libkernel", "libkernel", 0xF41703CA43E6A352);
-		
-
-
 		if(!pEmulator->Run(*ebootModule))
 		{
 			break;
 		}
 
-		// if (!pEmulator->LoadEboot(szEboot))
-		//{
-		//	break;
-		//}
-
-		// pEmulator->Run();
-
-		// pEmulator->Unit();
+		pEmulator->Unit();
+		
 		nRet = 0;
 	} while (false);
 

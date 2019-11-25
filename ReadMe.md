@@ -41,7 +41,7 @@ This is a privious running result of Nier:Automata, not correct though, I'll imp
         For others, we implement those one by one.
 
 ## Join
-If you want to participate in the project, read the roadmap above and see which part you are insterested in.
+If you want to participate in the project, read the roadmap above and [todo list](https://github.com/Inori/GPCS4/projects/1), see which part you are insterested in.
 
 After that, read our [code style](https://github.com/Inori/GPCS4/blob/master/Doc/CodeStyle.md) document, and make a pull request while keeping the code style, I'll see it.  
 Or if you're willing to work on the project for a pretty long time, I could make a branch for you.
@@ -52,12 +52,13 @@ Discord: [GPCS4](https://discord.gg/PXrUxtk)
 Tencent QQ/TIM Group Number: 470865218
 
 ## Build
+To run or develop GPCS4, a CPU supporting AVX512 together with a graphics card supporting Vulkan are required.  
 Currently, only Windows build is supported.  
 
 Visual Studio 2017  
-[LLVM/Clang](https://llvm.org/)  
+[LLVM/Clang](http://releases.llvm.org/9.0.0/LLVM-9.0.0-win64.exe)  
 [LLVM Compiler Toolchain Extension](https://marketplace.visualstudio.com/items?itemName=LLVMExtensions.llvm-toolchain)  
-[LunarG Vulkan SDK](https://www.lunarg.com/vulkan-sdk/)
+[LunarG Vulkan SDK](https://vulkan.lunarg.com/)
 
 ## Credits
 [DXVK](https://github.com/doitsujin/dxvk)  

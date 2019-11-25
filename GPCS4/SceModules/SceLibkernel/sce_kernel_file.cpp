@@ -334,6 +334,20 @@ int PS4API sceKernelGetdents(int fd, char *buf, int nbytes)
 }
 
 
+int PS4API sceKernelCheckReachability(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceKernelChmod(void) 
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
 int PS4API sceKernelMkdir(void)
 {
 	LOG_FIXME("Not implemented");

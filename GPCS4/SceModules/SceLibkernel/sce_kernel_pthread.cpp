@@ -3,19 +3,19 @@
 //#include "pthreads4w/pthread.h"
 #include "MapSlot.h"
 
+
 int pthreadErrorToSceError(int perror);
 
-int PS4API scek_pthread_cond_init(pthread_cond_t *cond,
-								  const pthread_condattr_t *attr)
+int PS4API scek_pthread_cond_init(pthread_cond_t *cond, const pthread_condattr_t *attr)
 {
-	//LOG_FIXME("Not implemented");
+	LOG_SCE_TRACE("cond %p attr %p", cond, attr);
 	auto rc = pthread_cond_init(cond, attr);
 	return rc;
 }
 
 int PS4API scek_pthread_cond_destroy(pthread_cond_t *cond)
 {
-	//LOG_FIXME("Not implemented");
+	LOG_SCE_TRACE("cond %p", cond);
 	auto rc = pthread_cond_destroy(cond);
 	return rc;
 }
@@ -23,10 +23,9 @@ int PS4API scek_pthread_cond_destroy(pthread_cond_t *cond)
 
 int PS4API scek_pthread_cond_signal(pthread_cond_t *cond)
 {
-	//LOG_FIXME("Not implemented");
+	LOG_SCE_TRACE("cond %p", cond);
 	auto rc = pthread_cond_signal(cond);
 	return rc;
-	//return SCE_OK;
 }
 
 
@@ -34,24 +33,21 @@ int PS4API scek_pthread_cond_timedwait(void)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
-	//auto rc = pthread_cond_timedwait()
-	//return SCE_OK;
 }
 
 
 int PS4API scek_pthread_cond_wait(pthread_cond_t * cond, pthread_mutex_t * mutex)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_TRACE("cond %p mutex %p", cond, mutex);
 	auto rc = pthread_cond_wait(cond, mutex);
 	return rc;
-	//return SCE_OK;
 }
 
 //////////////////////////////////////////////////////////////////////////
 int PS4API scek_pthread_create(ScePthread *thread, const pthread_attr_t *attr,  void *(PS4API *entry) (void *), void *args)
 {
 	//LOG_FIXME("Not implemented");
-	int rc        = 0;
+	int rc = 0;
 
 	do
 	{
@@ -73,7 +69,7 @@ int PS4API scek_pthread_create(ScePthread *thread, const pthread_attr_t *attr,  
 		*thread = tid;
 	} while (false);
 
-	return pthreadErrorToSceError(rc);
+	return rc;
 }
 
 
@@ -91,10 +87,9 @@ int PS4API scek_pthread_join(void)
 }
 
 //////////////////////////////////////////////////////////////////////////
-int PS4API scek_pthread_mutex_init(pthread_mutex_t *mutex,
-									const pthread_mutexattr_t *attr)
+int PS4API scek_pthread_mutex_init(pthread_mutex_t *mutex, const pthread_mutexattr_t *attr)
 {
-	//LOG_FIXME("Not implemented");
+	LOG_SCE_TRACE("mutex %p attr %p", mutex, attr);
 	auto ret =  pthread_mutex_init(mutex, attr);
 	return ret;
 }
@@ -102,7 +97,7 @@ int PS4API scek_pthread_mutex_init(pthread_mutex_t *mutex,
 
 int PS4API scek_pthread_mutex_destroy(pthread_mutex_t *mutex)
 {
-	//LOG_FIXME("Not implemented");
+	LOG_SCE_TRACE("mutex %p", mutex);
 	auto ret = pthread_mutex_destroy(mutex);
 	return ret;
 }
@@ -112,7 +107,15 @@ int PS4API scek_pthread_mutex_lock(pthread_mutex_t* mtx)
 {
 	LOG_SCE_TRACE("mtx %p", mtx);
 	int err = pthread_mutex_lock(mtx);
-	return pthreadErrorToSceError(err);
+	return err;
+}
+
+
+int PS4API scek_pthread_mutex_trylock(pthread_mutex_t *mtx) 
+{
+	LOG_SCE_TRACE("mtx %p", mtx);
+	int err = pthread_mutex_trylock(mtx);
+	return err;
 }
 
 
@@ -120,7 +123,7 @@ int PS4API scek_pthread_mutex_unlock(pthread_mutex_t* mtx)
 {
 	LOG_SCE_TRACE("mtx %p", mtx);
 	int err = pthread_mutex_unlock(mtx);
-	return pthreadErrorToSceError(err);
+	return err;
 }
 
 
@@ -153,6 +156,20 @@ int PS4API scek_pthread_self(void)
 
 
 int PS4API scek_pthread_setschedparam(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+void * PS4API scek_pthread_getspecific(pthread_key_t key) 
+{
+	LOG_SCE_TRACE("key %p", key);
+	return pthread_getspecific(key);
+}
+
+
+int PS4API scek_pthread_key_create(void)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
