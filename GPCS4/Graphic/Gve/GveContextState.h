@@ -55,6 +55,7 @@ using GveContextFlags = Flags<GveContextFlag>;
 
 struct GveOutputMergerState
 {
+	GveRenderTargets renderTargets;
 	RcPtr<GveFrameBuffer> framebuffer = nullptr;
 };
 

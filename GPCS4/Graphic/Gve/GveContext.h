@@ -101,6 +101,30 @@ public:
 
 private:
 
+	void updateFrameBuffer();
+
+	void beginRenderPass();
+	
+	void endRenderPass();
+
+	void updateVertexInput();
+
+	void updateIndexBuffer();
+
+	void updateShaderResources();
+
+	void updateDescriptorLayout();
+
+	template <VkPipelineBindPoint BindPoint>
+	void updatePipelineStates();
+
+	template <VkPipelineBindPoint BindPoint>
+	void updatePipeline();
+
+	void commitGraphicsState();
+
+	void commitComputeState();
+
 private:
 	RcPtr<GveDevice> m_device;
 	RcPtr<GveCmdList> m_cmd;
@@ -110,6 +134,7 @@ private:
 
 	std::array<GveShaderResourceSlot, pssl::PsslBindingIndexMax> m_res;
 };
+
 
 
 } // namespace gve
