@@ -778,9 +778,6 @@
     <ClInclude Include="Common\SyncHelper.h">
       <Filter>Source Files\Common</Filter>
     </ClInclude>
-    <ClInclude Include="Common\GveHash.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClInclude>
     <ClInclude Include="Graphic\Gve\GveDescriptor.h">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClInclude>
@@ -822,6 +819,12 @@
     </ClInclude>
     <ClInclude Include="Emulator\ModuleSystemCommon.h">
       <Filter>Source Files\Emulator</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gve\GveHash.h">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gve\GvePresenter.h">
+      <Filter>Source Files\Graphic\Gve</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1456,6 +1459,9 @@
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClCompile>
     <ClCompile Include="Graphic\Gve\GvePipelineState.cpp">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gve\GvePresenter.cpp">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClCompile>
   </ItemGroup>

@@ -7,12 +7,12 @@ The only reason I start this project is learning 3D graphics, nothing serious.
 
 ## Latest progress
 
-![Basic Quad](https://github.com/Inori/GPCS4/blob/master/Misc/basic_quad.gif)  
+![Basic Quad](https://github.com/Inori/ImageHost/blob/master/GPCS4/basic_quad.gif)  
 First correct image rendered, although this is a 2D image demo, it's actuall rendered in 3D pipeline.  
 There're still some hardcode test code, but with more design, and most important, this time with our shader translator, no hand write shaders anymore.  
 Next I'll focus on Nier and improve the graphics implementation.
 
-![Demo](https://github.com/Inori/GPCS4/blob/master/Misc/nier_logo.gif)  
+![Demo](https://github.com/Inori/ImageHost/blob/master/GPCS4/nier_logo.gif)  
 This is a privious running result of Nier:Automata, not correct though, I'll improve it.
 
 ## Roadmap

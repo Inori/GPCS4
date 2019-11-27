@@ -124,7 +124,7 @@ void GveContex::setColorBlendState(const GveColorBlendInfo& blendCtl)
 
 void GveContex::bindRenderTargets(const GveRenderTargets& targets)
 {
-	m_state.om.framebuffer = m_device->createFrameBuffer(targets);
+	m_state.om.renderTargets = targets;
 
 	m_flags.set(GveContextFlag::GpDirtyFramebuffer);
 }
@@ -309,6 +309,96 @@ void GveContex::transitionImageLayout(VkImage image, VkFormat format, VkImageLay
 
 	auto queues = m_device->queues();
 	m_cmd->cmdEndSingleTimeCommands(commandBuffer, queues.graphics.queueHandle);
+}
+
+void GveContex::updateFrameBuffer()
+{
+	m_flags.clr(GveContextFlag::GpDirtyFramebuffer);
+}
+
+void GveContex::beginRenderPass()
+{
+
+}
+
+void GveContex::endRenderPass()
+{
+
+}
+
+void GveContex::updateVertexInput()
+{
+	m_flags.clr(GveContextFlag::GpDirtyVertexBuffers);
+}
+
+void GveContex::updateIndexBuffer()
+{
+	m_flags.clr(GveContextFlag::GpDirtyIndexBuffer);
+}
+
+void GveContex::updateShaderResources()
+{
+	m_flags.clr(GveContextFlag::GpDirtyResources);
+}
+
+void GveContex::updateDescriptorLayout()
+{
+	m_flags.clr(GveContextFlag::GpDirtyDescriptorBinding);
+}
+
+template <VkPipelineBindPoint BindPoint>
+void GveContex::updatePipeline()
+{
+	m_flags.clr(GveContextFlag::GpDirtyPipelineState);
+}
+
+template <VkPipelineBindPoint BindPoint>
+void GveContex::updatePipelineStates()
+{
+	m_flags.clr(GveContextFlag::GpDirtyPipeline);
+}
+
+void GveContex::commitGraphicsState()
+{
+	if (m_flags.test(GveContextFlag::GpDirtyFramebuffer))
+	{
+		updateFrameBuffer();
+	}
+
+	if (m_flags.test(GveContextFlag::GpDirtyVertexBuffers))
+	{
+		updateVertexInput();
+	}
+
+	if (m_flags.test(GveContextFlag::GpDirtyIndexBuffer))
+	{
+		updateIndexBuffer();
+	}
+
+	if (m_flags.test(GveContextFlag::GpDirtyDescriptorBinding))
+	{
+		updateDescriptorLayout();
+	}
+
+	if (m_flags.test(GveContextFlag::GpDirtyResources))
+	{
+		updateShaderResources();
+	}
+
+	if (m_flags.test(GveContextFlag::GpDirtyPipelineState))
+	{
+		updatePipelineStates<VK_PIPELINE_BIND_POINT_GRAPHICS>();
+	}
+
+	if (m_flags.test(GveContextFlag::GpDirtyPipeline))
+	{
+		updatePipeline<VK_PIPELINE_BIND_POINT_GRAPHICS>();
+	}
+}
+
+void GveContex::commitComputeState()
+{
+
 }
 
 } // namespace gve

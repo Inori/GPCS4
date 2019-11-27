@@ -38,8 +38,6 @@ public:
 
 private:
 
-	RcPtr<gve::GvePhysicalDevice>  pickPhysicalDevice();
-	bool isDeviceSuitable(RcPtr<gve::GvePhysicalDevice>& device);
 	void createCommandParsers(uint32_t count);
 
 private:

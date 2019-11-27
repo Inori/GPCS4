@@ -40,6 +40,13 @@ int PS4API __tls_get_addr(void)
 }
 
 
+int PS4API __pthread_cxa_finalize(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
 
 int PS4API sceKernelClockGettime(void)
 {
@@ -246,6 +253,22 @@ int PS4API scek_shutdown(void)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
+}
+
+
+int PS4API scek_getpid(void)
+{
+	int pid = 0x1337;
+	LOG_SCE_TRACE("return %d", pid);
+	return pid;
+}
+
+
+int PS4API scek_getppid(void) 
+{
+	int pid = 0x1;
+	LOG_SCE_TRACE("return %d", pid);
+	return pid;
 }
 
 

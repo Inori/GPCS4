@@ -21,7 +21,7 @@ struct SwapChainSupportDetails
 class GveSwapChain : public RcObject
 {
 public:
-	GveSwapChain(RcPtr<GveDevice>& logicDevice,
+	GveSwapChain(const RcPtr<GveDevice>& logicDevice,
 		std::shared_ptr<sce::SceVideoOut>& videoOut,
 		uint32_t imageCount);
 	~GveSwapChain();
@@ -30,6 +30,7 @@ public:
 
 	VkFormat imageFormat() const;
 
+	// Image count is not guaranteed to be equal with display buffer count
 	uint32_t imageCount() const;
 
 	VkExtent2D extent() const;

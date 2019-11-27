@@ -60,7 +60,7 @@ VkSurfaceKHR SceVideoOut::createSurface(VkInstance instance)
 	return m_windowSurface;
 }
 
-void SceVideoOut::DestroySurface(VkInstance instance)
+void SceVideoOut::destroySurface(VkInstance instance)
 {
 	if (m_windowSurface)
 	{

@@ -24,7 +24,6 @@
     <ClInclude Include="Common\FlagHelper.h" />
     <ClInclude Include="Common\GPCS4Log.h" />
     <ClInclude Include="Common\GPCS4Types.h" />
-    <ClInclude Include="Common\GveHash.h" />
     <ClInclude Include="Common\MacroHelper.h" />
     <ClInclude Include="Common\ReferenceCount.h" />
     <ClInclude Include="Common\Singleton.h" />
@@ -69,6 +68,7 @@
     <ClInclude Include="Graphic\Gve\GveDescriptor.h" />
     <ClInclude Include="Graphic\Gve\GveGpuResource.h" />
     <ClInclude Include="Graphic\Gve\GveGraphicsPipeline.h" />
+    <ClInclude Include="Graphic\Gve\GveHash.h" />
     <ClInclude Include="Graphic\Gve\GveImage.h" />
     <ClInclude Include="Graphic\Gve\GveLifetime.h" />
     <ClInclude Include="Graphic\Gve\GveLimit.h" />
@@ -82,6 +82,7 @@
     <ClInclude Include="Graphic\Gve\GveInstance.h" />
     <ClInclude Include="Graphic\Gve\GveMemory.h" />
     <ClInclude Include="Graphic\Gve\GvePhysicalDevice.h" />
+    <ClInclude Include="Graphic\Gve\GvePresenter.h" />
     <ClInclude Include="Graphic\Gve\GveRenderPass.h" />
     <ClInclude Include="Graphic\Gve\GveResourceManager.h" />
     <ClInclude Include="Graphic\Gve\GveResourceObjects.h" />
@@ -269,6 +270,7 @@
     <ClCompile Include="Graphic\Gve\GvePhysicalDevice.cpp" />
     <ClCompile Include="Graphic\Gve\GvePipelineLayout.cpp" />
     <ClCompile Include="Graphic\Gve\GvePipelineManager.cpp" />
+    <ClCompile Include="Graphic\Gve\GvePresenter.cpp" />
     <ClCompile Include="Graphic\Gve\GveRenderPass.cpp" />
     <ClCompile Include="Graphic\Gve\GvePipelineState.cpp" />
     <ClCompile Include="Graphic\Gve\GveResourceManager.cpp" />

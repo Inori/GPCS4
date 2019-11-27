@@ -16,13 +16,14 @@ public:
 
 	operator VkInstance() const;
 
-	uint32_t physicalDeviceCount() const;
-
-	RcPtr<GvePhysicalDevice> getPhysicalDevice(uint32_t index);
+	RcPtr<GvePhysicalDevice> pickPhysicalDevice(VkSurfaceKHR windowSurface);
 
 private:
 
 	void createInstance(const std::vector<const char*>& requiredExtensions);
+
+
+
 	void setupDebugMessenger();
 
 	bool checkValidationLayerSupport();
@@ -40,9 +41,9 @@ private:
 		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
 		void* pUserData);
 
-private:
 
 	void enumPhysicalDevices();
+	bool isDeviceSuitable(const RcPtr<GvePhysicalDevice>& device, VkSurfaceKHR windowSurface);
 
 private:
 	VkInstance m_instance = VK_NULL_HANDLE;
@@ -53,6 +54,9 @@ private:
 	VkDebugUtilsMessengerEXT m_debugMessenger = VK_NULL_HANDLE;
 #endif // GVE_VALIDATION_LAYERS_ENABLE
 };
+
+
+RcPtr<GveInstance> gveCreateInstance(const std::vector<const char*>& requiredExtensions);
 
 
 }  // gve
