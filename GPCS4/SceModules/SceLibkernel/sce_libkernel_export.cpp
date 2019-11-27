@@ -12,6 +12,7 @@ static const SCE_EXPORT_FUNCTION g_pSceLibkernel_libkernel_FunctionTable[] =
 	{ 0x3AEDE22F569BBE78, "__stack_chk_fail", (void*)__stack_chk_fail },
 	{ 0x7FBB8EC58F663355, "__stack_chk_guard", (void*)__stack_chk_guard },
 	{ 0xBCD7B5C387622C2B, "__tls_get_addr", (void*)__tls_get_addr },
+	{ 0x91BC385071D2632D, "__pthread_cxa_finalize", (void*)__pthread_cxa_finalize },
 	{ 0xAD35F0EB9C662C80, "sceKernelAllocateDirectMemory", (void*)sceKernelAllocateDirectMemory },
 	{ 0x4018BB1C22B4DE1C, "sceKernelClockGettime", (void*)sceKernelClockGettime },
 	{ 0x50AD939760D6527B, "sceKernelClose", (void*)sceKernelClose },
@@ -174,6 +175,8 @@ static const SCE_EXPORT_FUNCTION g_pSceLibkernel_libScePosix_FunctionTable[] =
 	{ 0x602579746181702A, "sem_wait", (void*)scek_sem_wait },
 	{ 0x7D939E64838498BC, "send", (void*)scek_send },
 	{ 0x4D4BA2612DA413CB, "shutdown", (void*)scek_shutdown },
+	{ 0x1E82D558D6A70417, "getpid", (void*)scek_getpid },
+	{ 0x7BAA2F068F59BC97, "getppid", (void*)scek_getppid },
 	SCE_FUNCTION_ENTRY_END
 };
 
