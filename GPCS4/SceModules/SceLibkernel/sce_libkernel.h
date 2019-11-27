@@ -44,9 +44,6 @@ int PS4API __stack_chk_guard(void);
 int PS4API __tls_get_addr(void);
 
 
-int PS4API __pthread_cxa_finalize(void);
-
-
 int PS4API sceKernelAllocateDirectMemory(sceoff_t searchStart, sceoff_t searchEnd, size_t len, size_t alignment, int memoryType, sceoff_t *physAddrOut);
 
 
@@ -516,12 +513,6 @@ int PS4API scek_send(void);
 
 
 int PS4API scek_shutdown(void);
-
-
-int PS4API scek_getpid(void);
-
-
-int PS4API scek_getppid(void);
 
 
 
