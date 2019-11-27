@@ -259,7 +259,7 @@ int PS4API scek_shutdown(void)
 int PS4API scek_getpid(void)
 {
 	int pid = 0x1337;
-	LOG_SCE_TRACE("return %d", 0x1337);
+	LOG_SCE_TRACE("return %d", pid);
 	return pid;
 }
 
