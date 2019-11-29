@@ -21,6 +21,11 @@ GveBuffer::GveBuffer(const RcPtr<GveDevice>& device,
 	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
 	createBuffer(bufferInfo);
+
+	m_slice.buffer = m_buffer;
+	m_slice.offset = 0;
+	m_slice.length = m_info.size;
+	m_slice.mapPtr = m_memory.mapPtr(0);
 }
 
 GveBuffer::~GveBuffer()
@@ -42,6 +47,21 @@ VkDeviceSize GveBuffer::length() const
 const GveBufferCreateInfo& GveBuffer::info() const
 {
 	return m_info;
+}
+
+GveBufferSliceWeak GveBuffer::sliceWeak()
+{
+	return m_slice;
+}
+
+GveBufferSliceWeak GveBuffer::sliceWeak(VkDeviceSize offset, VkDeviceSize length)
+{
+	GveBufferSliceWeak result;
+	result.buffer = m_slice.buffer;
+	result.offset = m_slice.offset + offset;
+	result.length = length;
+	result.mapPtr = mapPtr(offset);
+	return result;
 }
 
 void* GveBuffer::mapPtr(VkDeviceSize offset) const
