@@ -1,5 +1,7 @@
 #include "GveMemory.h"
+#include "GvePhysicalDevice.h"
 #include "GveDevice.h"
+
 
 namespace gve
 {;

@@ -9,6 +9,7 @@
 #include "GveSampler.h"
 #include "GveDevice.h"
 #include "GveRenderPass.h"
+#include "GveResourceObjects.h"
 
 
 namespace gve
@@ -16,7 +17,9 @@ namespace gve
 
 
 GveContex::GveContex(const RcPtr<GveDevice>& device) :
-	m_device(device)
+	m_device(device),
+	m_objects(&m_device->m_resObjects),
+	m_cmd(nullptr)
 {
 }
 
@@ -167,7 +170,7 @@ void GveContex::bindShader(VkShaderStageFlagBits stage, const RcPtr<GveShader>& 
 	}
 }
 
-void GveContex::bindIndexBuffer(const RcPtr<GveBuffer>& buffer, VkIndexType indexType)
+void GveContex::bindIndexBuffer(const GveBufferSlice& buffer, VkIndexType indexType)
 {
 	m_state.vi.indexBuffer = buffer;
 	m_state.vi.indexType = indexType;
@@ -175,7 +178,7 @@ void GveContex::bindIndexBuffer(const RcPtr<GveBuffer>& buffer, VkIndexType inde
 	m_flags.set(GveContextFlag::GpDirtyIndexBuffer);
 }
 
-void GveContex::bindVertexBuffer(uint32_t binding, const RcPtr<GveBuffer>& buffer, uint32_t stride)
+void GveContex::bindVertexBuffer(uint32_t binding, const GveBufferSlice& buffer, uint32_t stride)
 {
 	m_state.vi.vertexBuffers[binding] = buffer;
 	m_state.vi.vertexStrides[binding] = stride;
@@ -319,26 +322,80 @@ void GveContex::transitionImageLayout(VkImage image, VkFormat format, VkImageLay
 
 void GveContex::updateFrameBuffer()
 {
+	m_state.om.framebuffer = m_device->createFrameBuffer(m_state.om.renderTargets);
 	m_flags.clr(GveContextFlag::GpDirtyFramebuffer);
+}
+
+void GveContex::setupRenderPassOps()
+{
+
 }
 
 void GveContex::beginRenderPass()
 {
+	setupRenderPassOps();
+	auto& framebuffer = m_state.om.framebuffer;
+	VkRenderPass renderPass = framebuffer->getRenderPassHandle(m_state.om.omInfo.ops);
+	
+	VkExtent2D extend = framebuffer->getRenderExtent();
 
+	VkRenderPassBeginInfo renderPassInfo = {};
+	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	renderPassInfo.renderPass = renderPass;
+	renderPassInfo.framebuffer = framebuffer->handle();
+	renderPassInfo.renderArea.offset = { 0, 0 };
+	renderPassInfo.renderArea.extent = extend;
+
+	// TODO:
+	// Set clear value according to gnm
+	std::array<VkClearValue, 2> clearValues = {};
+	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+	clearValues[1].depthStencil = { 1.0f, 0 };
+
+	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+	renderPassInfo.pClearValues = clearValues.data();
+
+	m_cmd->cmdBeginRenderPass(&renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+	m_flags.set(GveContextFlag::GpRenderPassBound);
 }
 
 void GveContex::endRenderPass()
 {
-
+	m_cmd->cmdEndRenderPass();
+	m_flags.clr(GveContextFlag::GpRenderPassBound);
 }
 
-void GveContex::updateVertexInput()
+void GveContex::updateVertexBindings()
 {
+	VkDeviceSize bindingCount = 0;
+	std::array<VkBuffer, MaxNumVertexBindings> buffers;
+	std::array<VkDeviceSize, MaxNumVertexBindings> offsets;
+	for (const auto& buffer : m_state.vi.vertexBuffers)
+	{
+		// break on first invalid buffer
+		if (!buffer.isValid())
+		{
+			break;
+		}
+
+		buffers[bindingCount] = buffer.handle();
+		offsets[bindingCount] = buffer.offset();
+		++bindingCount;
+	}
+
+	m_cmd->cmdBindVertexBuffers(0, bindingCount, buffers.data(), offsets.data());
+
 	m_flags.clr(GveContextFlag::GpDirtyVertexBuffers);
 }
 
-void GveContex::updateIndexBuffer()
+void GveContex::updateIndexBinding()
 {
+	VkBuffer indexBuffer = m_state.vi.indexBuffer.handle();
+	VkDeviceSize offset = m_state.vi.indexBuffer.offset();
+	VkIndexType type = m_state.vi.indexType;
+	m_cmd->cmdBindIndexBuffer(indexBuffer, offset, type);
+
 	m_flags.clr(GveContextFlag::GpDirtyIndexBuffer);
 }
 
@@ -347,21 +404,37 @@ void GveContex::updateShaderResources()
 	m_flags.clr(GveContextFlag::GpDirtyResources);
 }
 
-void GveContex::updateDescriptorLayout()
+template <VkPipelineBindPoint BindPoint>
+void GveContex::updateDescriptorLayout(const GvePipelineLayout* layout, VkDescriptorSet set)
 {
+	VkPipelineLayout pipelineLayout = layout->pipelineLayout();
+
+	m_cmd->cmdBindDescriptorSet(BindPoint, pipelineLayout, set, 0, nullptr);
+}
+
+void GveContex::updateGraphicsDescriptorLayout()
+{
+	updateDescriptorLayout<VK_PIPELINE_BIND_POINT_GRAPHICS>(m_state.gp.pipeline->getLayout(), m_gpCtx.descSet);
 	m_flags.clr(GveContextFlag::GpDirtyDescriptorBinding);
+}
+
+void GveContex::updateComputeDescriptorLayout()
+{
+	m_flags.clr(GveContextFlag::CpDirtyDescriptorBinding);
 }
 
 template <VkPipelineBindPoint BindPoint>
 void GveContex::updatePipeline()
 {
-	m_flags.clr(GveContextFlag::GpDirtyPipelineState);
+	// Descriptor layout is bound with shaders
+	m_state.gp.pipeline = m_objects->pipelineManager().getGraphicsPipeline(m_state.gp.shaders);
+	m_flags.clr(GveContextFlag::GpDirtyPipeline);
 }
 
 template <VkPipelineBindPoint BindPoint>
 void GveContex::updatePipelineStates()
 {
-	m_flags.clr(GveContextFlag::GpDirtyPipeline);
+	m_flags.clr(GveContextFlag::GpDirtyPipelineState);
 }
 
 void GveContex::commitGraphicsState()
@@ -371,19 +444,24 @@ void GveContex::commitGraphicsState()
 		updateFrameBuffer();
 	}
 
+	if (!m_flags.test(GveContextFlag::GpRenderPassBound))
+	{
+		beginRenderPass();
+	}
+
 	if (m_flags.test(GveContextFlag::GpDirtyVertexBuffers))
 	{
-		updateVertexInput();
+		updateVertexBindings();
 	}
 
 	if (m_flags.test(GveContextFlag::GpDirtyIndexBuffer))
 	{
-		updateIndexBuffer();
+		updateIndexBinding();
 	}
 
 	if (m_flags.test(GveContextFlag::GpDirtyDescriptorBinding))
 	{
-		updateDescriptorLayout();
+		updateGraphicsDescriptorLayout();
 	}
 
 	if (m_flags.test(GveContextFlag::GpDirtyResources))
@@ -406,5 +484,7 @@ void GveContex::commitComputeState()
 {
 
 }
+
+
 
 } // namespace gve

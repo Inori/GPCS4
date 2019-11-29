@@ -106,6 +106,8 @@ gve::GveGraphicsPipelineInstance* GveGraphicsPipeline::createInstance(const GveG
 		auto fsModule = m_shaders.fs->createShaderModule(m_pipelineManager->m_device, m_resSlotMap);
 		auto fsStage = fsModule.stageInfo(nullptr);
 
+		// TODO:
+		// More stages
 		VkPipelineShaderStageCreateInfo shaderStages[] = { vsStage, fsStage };
 
 		auto viState = state.vi.state();

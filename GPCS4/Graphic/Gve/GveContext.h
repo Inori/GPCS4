@@ -2,15 +2,14 @@
 
 #include "GveCommon.h"
 #include "GvePipelineState.h"
-#include "GveGraphicsPipeline.h"
-#include "GveFrameBuffer.h"
 #include "GveContextState.h"
-#include "../Pssl/PsslBindingCalculator.h"
 
 #include <array>
 
 namespace gve
 {;
+
+struct GveAttachment;
 
 class GveDevice;
 class GveCmdList;
@@ -23,7 +22,7 @@ class GveSampler;
 class GvePipelineManager;
 class GveResourceManager;
 class GveRenderPass;
-
+class GveResourceObjects;
 
 
 struct GveShaderResourceSlot
@@ -32,6 +31,12 @@ struct GveShaderResourceSlot
 	RcPtr<GveImageView> imageView;
 	RcPtr<GveBuffer> buffer;
 	RcPtr<GveBufferView> bufferView;
+};
+
+struct GvePipelineContext
+{
+	VkPipeline pipeline = VK_NULL_HANDLE;
+	VkDescriptorSet descSet = VK_NULL_HANDLE;
 };
 
 
@@ -72,9 +77,9 @@ public:
 
 	void bindShader(VkShaderStageFlagBits stage, const RcPtr<GveShader>& shader);
 
-	void bindIndexBuffer(const RcPtr<GveBuffer>& buffer, VkIndexType indexType);
+	void bindIndexBuffer(const GveBufferSlice& buffer, VkIndexType indexType);
 
-	void bindVertexBuffer(uint32_t binding, const RcPtr<GveBuffer>& buffer, uint32_t stride);
+	void bindVertexBuffer(uint32_t binding, const GveBufferSlice& buffer, uint32_t stride);
 
 	void bindSampler(uint32_t regSlot, const RcPtr<GveSampler>& sampler);
 
@@ -108,13 +113,17 @@ private:
 	
 	void endRenderPass();
 
-	void updateVertexInput();
+	void updateVertexBindings();
 
-	void updateIndexBuffer();
+	void updateIndexBinding();
 
 	void updateShaderResources();
 
-	void updateDescriptorLayout();
+	template <VkPipelineBindPoint BindPoint>
+	void updateDescriptorLayout(const GvePipelineLayout* layout, VkDescriptorSet set);
+
+	void updateGraphicsDescriptorLayout();
+	void updateComputeDescriptorLayout();
 
 	template <VkPipelineBindPoint BindPoint>
 	void updatePipelineStates();
@@ -126,14 +135,25 @@ private:
 
 	void commitComputeState();
 
+	void setupRenderPassOps();
+
 private:
 	RcPtr<GveDevice> m_device;
+	GveResourceObjects* m_objects;
+
 	RcPtr<GveCmdList> m_cmd;
 
 	GveContextFlags m_flags;
 	GveContextState m_state;
 
+	GvePipelineContext m_gpCtx;
+	GvePipelineContext m_cpCtx;
+
+	VkPipeline m_activePipeline = VK_NULL_HANDLE;
+
 	std::array<GveShaderResourceSlot, pssl::PsslBindingIndexMax> m_res;
+
+	
 };
 
 

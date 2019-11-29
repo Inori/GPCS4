@@ -49,7 +49,7 @@ const GveBufferCreateInfo& GveBuffer::info() const
 	return m_info;
 }
 
-GveBufferSliceWeak GveBuffer::sliceWeak()
+const GveBufferSliceWeak& GveBuffer::sliceWeak()
 {
 	return m_slice;
 }
@@ -151,12 +151,17 @@ GveBufferSlice::~GveBufferSlice()
 }
 
 
+bool GveBufferSlice::isValid() const
+{
+	return m_buffer != nullptr;
+}
+
 RcPtr<GveBuffer> GveBufferSlice::buffer()
 {
 	return m_buffer;
 }
 
-VkBuffer GveBufferSlice::handle()
+VkBuffer GveBufferSlice::handle() const
 {
 	return m_buffer->handle();
 }

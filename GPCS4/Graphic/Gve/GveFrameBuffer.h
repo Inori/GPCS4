@@ -67,6 +67,8 @@ public:
 
 	VkRenderPass getRenderPassHandle(const GveRenderPassOps& ops) const;
 
+	VkExtent2D getRenderExtent();
+
 	static GveRenderPassFormat getRenderPassFormat(const GveRenderTargets& renderTargets);
 
 private:
@@ -86,6 +88,7 @@ private:
 	GveRenderPass* m_renderPass;
 
 	VkFramebuffer m_frameBuffer = VK_NULL_HANDLE;
+	GveFramebufferSize m_renderSize;
 
 	uint32_t                                                  m_attachmentCount = 0;
 	std::array<const GveAttachment*, MaxNumRenderTargets + 1> m_attachments;

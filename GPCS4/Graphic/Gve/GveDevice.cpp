@@ -5,6 +5,11 @@
 #include "GveImage.h"
 #include "GveSampler.h"
 #include "GveSwapChain.h"
+#include "GveContext.h"
+#include "GveFrameBuffer.h"
+#include "GvePhysicalDevice.h"
+
+#include "../Sce/SceVideoOut.h"
 
 namespace gve
 {;

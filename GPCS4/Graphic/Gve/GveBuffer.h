@@ -45,7 +45,7 @@ public:
 
 	const GveBufferCreateInfo& info() const;
 
-	GveBufferSliceWeak sliceWeak();
+	const GveBufferSliceWeak& sliceWeak();
 
 	GveBufferSliceWeak sliceWeak(VkDeviceSize offset, VkDeviceSize length);
 
@@ -75,9 +75,11 @@ public:
 	GveBufferSlice(const RcPtr<GveBuffer>& buffer);
 	~GveBufferSlice();
 
+	bool isValid() const;
+
 	RcPtr<GveBuffer> buffer();
 
-	VkBuffer handle();
+	VkBuffer handle() const;
 
 	VkDeviceSize offset() const;
 

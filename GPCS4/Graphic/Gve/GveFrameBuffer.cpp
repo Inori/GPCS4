@@ -37,6 +37,14 @@ VkRenderPass GveFrameBuffer::getRenderPassHandle(const GveRenderPassOps& ops) co
 	return m_renderPass->getHandle(ops);
 }
 
+VkExtent2D GveFrameBuffer::getRenderExtent()
+{
+	VkExtent2D extent = {};
+	extent.width = m_renderSize.width;
+	extent.height = m_renderSize.height;
+	return extent;
+}
+
 GveRenderPassFormat GveFrameBuffer::getRenderPassFormat(const GveRenderTargets& renderTargets)
 {
 	GveRenderPassFormat format = {};
@@ -75,7 +83,7 @@ bool GveFrameBuffer::createFrameBuffer(const GveRenderTargets& renderTargets,
 			break;
 		}
 
-		GveFramebufferSize fbSize = computeRenderSize(defaultSize);
+		m_renderSize = computeRenderSize(defaultSize);
 
 		std::array<VkImageView, MaxNumRenderTargets + 1> attachmentViews;
 		
@@ -103,9 +111,9 @@ bool GveFrameBuffer::createFrameBuffer(const GveRenderTargets& renderTargets,
 		framebufferInfo.renderPass = m_renderPass->getDefaultHandle();
 		framebufferInfo.pAttachments = attachmentViews.data();
 		framebufferInfo.attachmentCount = m_attachmentCount;
-		framebufferInfo.width = fbSize.width;
-		framebufferInfo.height = fbSize.height;
-		framebufferInfo.layers = fbSize.layers;
+		framebufferInfo.width = m_renderSize.width;
+		framebufferInfo.height = m_renderSize.height;
+		framebufferInfo.layers = m_renderSize.layers;
 
 		if (vkCreateFramebuffer(*m_device, &framebufferInfo, nullptr, &m_frameBuffer) != VK_SUCCESS)
 		{

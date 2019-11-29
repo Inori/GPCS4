@@ -1,22 +1,27 @@
 #pragma once
 
 #include "GveCommon.h"
-#include "GvePhysicalDevice.h"
-#include "GveFrameBuffer.h"
-#include "GveContext.h"
-#include "GveMemory.h"
+#include "GveDeviceInfo.h"
 #include "GveResourceObjects.h"
 
-#include "../Sce/SceVideoOut.h"
+namespace sce
+{
+	class SceVideoOut;
+}
 
 namespace gve
 {;
+
+struct GveRenderTargets;
 
 class GveCmdList;
 class GveDescriptorPool;
 class GveBuffer;
 class GveImage;
 class GveSwapChain;
+class GveContex;
+class GveFrameBuffer;
+class GvePhysicalDevice;
 
 struct GveDeviceQueue 
 {
@@ -33,6 +38,7 @@ struct GveDeviceQueueSet
 
 class GveDevice : public RcObject
 {
+	friend class GveContex;
 public:
 	GveDevice(VkDevice device, const RcPtr<GvePhysicalDevice>& phyDevice);
 	~GveDevice();
