@@ -214,14 +214,15 @@ void GveContex::drawIndex(uint32_t indexCount, uint32_t firstIndex)
 
 }
 
-
-void GveContex::copyBuffer(VkBuffer dstBuffer, VkBuffer srcBuffer, VkDeviceSize size)
+void GveContex::copyBuffer(GveBufferSlice& dstBuffer, GveBufferSlice& srcBuffer, VkDeviceSize size)
 {
 	VkCommandBuffer commandBuffer = m_cmd->cmdBeginSingleTimeCommands();
 
+	// TODO:
+	// setup region correctly
 	VkBufferCopy copyRegion = { 0 };
 	copyRegion.size = size;
-	m_cmd->cmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+	m_cmd->cmdCopyBuffer(commandBuffer, srcBuffer.handle(), dstBuffer.handle(), 1, &copyRegion);
 	auto queues = m_device->queues();
 	m_cmd->cmdEndSingleTimeCommands(commandBuffer, queues.graphics.queueHandle);
 }

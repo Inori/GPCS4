@@ -77,6 +77,8 @@ public:
 
 	RcPtr<GveBuffer> buffer();
 
+	VkBuffer handle();
+
 	VkDeviceSize offset() const;
 
 	VkDeviceSize length() const;

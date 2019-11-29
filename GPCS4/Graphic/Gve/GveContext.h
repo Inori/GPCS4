@@ -86,7 +86,7 @@ public:
 
 	void drawIndex(uint32_t indexCount, uint32_t firstIndex);
 
-	void copyBuffer(VkBuffer dstBuffer, VkBuffer srcBuffer, VkDeviceSize size);
+	void copyBuffer(GveBufferSlice& dstBuffer, GveBufferSlice& srcBuffer, VkDeviceSize size);
 
 	void copyBufferToImage(VkBuffer buffer, VkImage image, 
 		uint32_t width, uint32_t height);

@@ -156,6 +156,11 @@ RcPtr<GveBuffer> GveBufferSlice::buffer()
 	return m_buffer;
 }
 
+VkBuffer GveBufferSlice::handle()
+{
+	return m_buffer->handle();
+}
+
 VkDeviceSize GveBufferSlice::offset() const
 {
 	return m_offset;
