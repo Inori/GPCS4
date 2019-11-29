@@ -122,10 +122,15 @@ void GveContex::setColorBlendState(const GveColorBlendInfo& blendCtl)
 	m_flags.set(GveContextFlag::GpDirtyPipelineState);
 }
 
-void GveContex::bindRenderTargets(const GveRenderTargets& targets)
+void GveContex::bindRenderTargets(const GveAttachment* color, uint32_t count)
 {
-	m_state.om.renderTargets = targets;
+	std::memcpy(m_state.om.renderTargets.color, color, sizeof(GveAttachment) * count);
+	m_flags.set(GveContextFlag::GpDirtyFramebuffer);
+}
 
+void GveContex::bindDepthRenderTarget(const GveAttachment& depth)
+{
+	m_state.om.renderTargets.depth = depth;
 	m_flags.set(GveContextFlag::GpDirtyFramebuffer);
 }
 

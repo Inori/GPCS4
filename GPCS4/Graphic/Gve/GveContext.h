@@ -66,8 +66,9 @@ public:
 
 	void setColorBlendState(const GveColorBlendInfo& blendCtl);
 
-	// This bind render target and depth target at one time
-	void bindRenderTargets(const GveRenderTargets& targets);
+	void bindRenderTargets(const GveAttachment* color, uint32_t count);
+
+	void bindDepthRenderTarget(const GveAttachment& depth);
 
 	void bindShader(VkShaderStageFlagBits stage, const RcPtr<GveShader>& shader);
 
