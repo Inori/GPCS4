@@ -4,6 +4,7 @@
 #include "GvePipelineManager.h"
 #include "GveRenderPass.h"
 #include "GveResourceManager.h"
+#include "GveDescriptor.h"
 #include "GveMemory.h"
 
 

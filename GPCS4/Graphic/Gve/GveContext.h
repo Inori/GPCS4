@@ -23,13 +23,14 @@ class GvePipelineManager;
 class GveResourceManager;
 class GveRenderPass;
 class GveResourceObjects;
+class GveDescriptorPool;
 
 
 struct GveShaderResourceSlot
 {
-	RcPtr<GveSampler> sampler;
-	RcPtr<GveImageView> imageView;
-	RcPtr<GveBuffer> buffer;
+	RcPtr<GveSampler>    sampler;
+	RcPtr<GveImageView>  imageView;
+	GveBufferSlice       buffer;
 	RcPtr<GveBufferView> bufferView;
 };
 
@@ -83,7 +84,7 @@ public:
 
 	void bindSampler(uint32_t regSlot, const RcPtr<GveSampler>& sampler);
 
-	void bindResourceBuffer(uint32_t regSlot, const RcPtr<GveBuffer>& buffer);
+	void bindResourceBuffer(uint32_t regSlot, const GveBufferSlice& buffer);
 
 	void bindResourceView(uint32_t regSlot, 
 		const RcPtr<GveImageView>& imageView, 
@@ -143,11 +144,15 @@ private:
 
 	RcPtr<GveCmdList> m_cmd;
 
+	RcPtr<GveDescriptorPool> m_descPool;
+
 	GveContextFlags m_flags;
 	GveContextState m_state;
 
 	GvePipelineContext m_gpCtx;
 	GvePipelineContext m_cpCtx;
+
+	
 
 	VkPipeline m_activePipeline = VK_NULL_HANDLE;
 

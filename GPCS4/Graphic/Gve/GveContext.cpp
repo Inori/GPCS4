@@ -10,7 +10,7 @@
 #include "GveDevice.h"
 #include "GveRenderPass.h"
 #include "GveResourceObjects.h"
-
+#include "GveDescriptor.h"
 
 namespace gve
 {;
@@ -19,7 +19,8 @@ namespace gve
 GveContex::GveContex(const RcPtr<GveDevice>& device) :
 	m_device(device),
 	m_objects(&m_device->m_resObjects),
-	m_cmd(nullptr)
+	m_cmd(nullptr),
+	m_descPool(m_device->createDescriptorPool())
 {
 }
 
@@ -192,7 +193,7 @@ void GveContex::bindSampler(uint32_t regSlot, const RcPtr<GveSampler>& sampler)
 	m_flags.set(GveContextFlag::GpDirtyResources);
 }
 
-void GveContex::bindResourceBuffer(uint32_t regSlot, const RcPtr<GveBuffer>& buffer)
+void GveContex::bindResourceBuffer(uint32_t regSlot, const GveBufferSlice& buffer)
 {
 	m_res[regSlot].buffer = buffer;
 	m_flags.set(GveContextFlag::GpDirtyResources);
@@ -402,76 +403,89 @@ void GveContex::updateIndexBinding()
 template <VkPipelineBindPoint BindPoint>
 void GveContex::updateShaderResources()
 {
-	//m_descSet = s_descPool->alloc(s_layout->descriptorSetLayout());
-	//uint32_t bindingCount = s_layout->bindingCount();
-	//std::vector<VkWriteDescriptorSet> descriptorWrites;
-	//for (uint32_t i = 0; i != bindingCount; ++i)
-	//{
-	//	auto binding = s_layout->binding(i);
-	//	uint32_t regSlot = binding.resSlot.regSlot;
-	//	auto res = m_res[regSlot];
-	//	switch (binding.resSlot.type)
-	//	{
-	//	case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-	//	{
-	//		VkDescriptorBufferInfo bufferInfo = {};
-	//		bufferInfo.buffer = res.buffer->handle();
-	//		bufferInfo.offset = 0;
-	//		bufferInfo.range = res.buffer->size();
+	GvePipelineLayout* pipelineLayout = m_state.gp.pipeline->getLayout();
 
-	//		VkWriteDescriptorSet writeSet = {};
-	//		writeSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-	//		writeSet.dstSet = m_descSet;
-	//		writeSet.dstBinding = i;
-	//		writeSet.dstArrayElement = 0;
-	//		writeSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	//		writeSet.descriptorCount = 1;
-	//		writeSet.pBufferInfo = &bufferInfo;
-	//		descriptorWrites.push_back(writeSet);
-	//	}
-	//	break;
-	//	case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
-	//	{
-	//		VkDescriptorImageInfo imageInfo = {};
-	//		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	//		imageInfo.imageView = res.imageView->handle();
-	//		imageInfo.sampler = nullptr;
+	if (m_gpCtx.descSet == VK_NULL_HANDLE)
+	{
+		VkDescriptorSetLayout descLayout = pipelineLayout->descriptorSetLayout();
+		m_gpCtx.descSet = m_descPool->alloc(descLayout);
+	}
 
-	//		VkWriteDescriptorSet writeSet = {};
-	//		writeSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-	//		writeSet.dstSet = m_descSet;
-	//		writeSet.dstBinding = i;
-	//		writeSet.dstArrayElement = 0;
-	//		writeSet.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-	//		writeSet.descriptorCount = 1;
-	//		writeSet.pImageInfo = &imageInfo;
-	//		descriptorWrites.push_back(writeSet);
-	//	}
-	//	break;
-	//	case VK_DESCRIPTOR_TYPE_SAMPLER:
-	//	{
-	//		VkDescriptorImageInfo imageInfo = {};
-	//		imageInfo.imageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	//		imageInfo.imageView = VK_NULL_HANDLE;
-	//		imageInfo.sampler = res.sampler->handle();
 
-	//		VkWriteDescriptorSet writeSet = {};
-	//		writeSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-	//		writeSet.dstSet = m_descSet;
-	//		writeSet.dstBinding = i;
-	//		writeSet.dstArrayElement = 0;
-	//		writeSet.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
-	//		writeSet.descriptorCount = 1;
-	//		writeSet.pImageInfo = &imageInfo;
-	//		descriptorWrites.push_back(writeSet);
-	//	}
-	//	break;
-	//	default:
-	//		break;
-	//	}
-	//}
+	uint32_t bindingCount = pipelineLayout->bindingCount();
+	std::vector<VkWriteDescriptorSet> descriptorWrites;
+	VkDescriptorSet descSet = m_gpCtx.descSet;
 
-	//vkUpdateDescriptorSets(*m_device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+	for (uint32_t i = 0; i != bindingCount; ++i)
+	{
+		auto binding = pipelineLayout->binding(i);
+		uint32_t regSlot = binding.resSlot.regSlot;
+		auto res = m_res[regSlot];
+
+		switch (binding.resSlot.type)
+		{
+		case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+		{
+			VkDescriptorBufferInfo bufferInfo = {};
+			bufferInfo.buffer = res.buffer.handle();
+			bufferInfo.offset = res.buffer.offset();
+			bufferInfo.range = res.buffer.length();
+
+			VkWriteDescriptorSet writeSet = {};
+			writeSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			writeSet.dstSet = descSet;
+			writeSet.dstBinding = i;
+			writeSet.dstArrayElement = 0;
+			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			writeSet.descriptorCount = 1;
+			writeSet.pBufferInfo = &bufferInfo;
+			descriptorWrites.push_back(writeSet);
+		}
+			break;
+		case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+		{
+			VkDescriptorImageInfo imageInfo = {};
+			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			imageInfo.imageView = res.imageView->handle();
+			imageInfo.sampler = nullptr;
+
+			VkWriteDescriptorSet writeSet = {};
+			writeSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			writeSet.dstSet = descSet;
+			writeSet.dstBinding = i;
+			writeSet.dstArrayElement = 0;
+			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+			writeSet.descriptorCount = 1;
+			writeSet.pImageInfo = &imageInfo;
+			descriptorWrites.push_back(writeSet);
+		}
+			break;
+		case VK_DESCRIPTOR_TYPE_SAMPLER:
+		{
+			VkDescriptorImageInfo imageInfo = {};
+			imageInfo.imageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+			imageInfo.imageView = VK_NULL_HANDLE;
+			imageInfo.sampler = res.sampler->handle();
+
+			VkWriteDescriptorSet writeSet = {};
+			writeSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			writeSet.dstSet = descSet;
+			writeSet.dstBinding = i;
+			writeSet.dstArrayElement = 0;
+			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
+			writeSet.descriptorCount = 1;
+			writeSet.pImageInfo = &imageInfo;
+			descriptorWrites.push_back(writeSet);
+		}
+			break;
+		default:
+			break;
+		}
+	}
+
+	// TODO:
+	// Use vkUpdateDescriptorSetWithTemplate
+	m_cmd->updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data());
 
 	m_flags.clr(GveContextFlag::GpDirtyResources);
 }
