@@ -63,6 +63,8 @@ public:
 
 	VkFramebuffer handle() const;
 
+	GveRenderPass* getRenderPass() const;
+
 	VkRenderPass getDefaultRenderPassHandle() const;
 
 	VkRenderPass getRenderPassHandle(const GveRenderPassOps& ops) const;

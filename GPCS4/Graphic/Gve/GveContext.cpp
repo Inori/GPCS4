@@ -399,8 +399,80 @@ void GveContex::updateIndexBinding()
 	m_flags.clr(GveContextFlag::GpDirtyIndexBuffer);
 }
 
+template <VkPipelineBindPoint BindPoint>
 void GveContex::updateShaderResources()
 {
+	//m_descSet = s_descPool->alloc(s_layout->descriptorSetLayout());
+	//uint32_t bindingCount = s_layout->bindingCount();
+	//std::vector<VkWriteDescriptorSet> descriptorWrites;
+	//for (uint32_t i = 0; i != bindingCount; ++i)
+	//{
+	//	auto binding = s_layout->binding(i);
+	//	uint32_t regSlot = binding.resSlot.regSlot;
+	//	auto res = m_res[regSlot];
+	//	switch (binding.resSlot.type)
+	//	{
+	//	case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+	//	{
+	//		VkDescriptorBufferInfo bufferInfo = {};
+	//		bufferInfo.buffer = res.buffer->handle();
+	//		bufferInfo.offset = 0;
+	//		bufferInfo.range = res.buffer->size();
+
+	//		VkWriteDescriptorSet writeSet = {};
+	//		writeSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	//		writeSet.dstSet = m_descSet;
+	//		writeSet.dstBinding = i;
+	//		writeSet.dstArrayElement = 0;
+	//		writeSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	//		writeSet.descriptorCount = 1;
+	//		writeSet.pBufferInfo = &bufferInfo;
+	//		descriptorWrites.push_back(writeSet);
+	//	}
+	//	break;
+	//	case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+	//	{
+	//		VkDescriptorImageInfo imageInfo = {};
+	//		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	//		imageInfo.imageView = res.imageView->handle();
+	//		imageInfo.sampler = nullptr;
+
+	//		VkWriteDescriptorSet writeSet = {};
+	//		writeSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	//		writeSet.dstSet = m_descSet;
+	//		writeSet.dstBinding = i;
+	//		writeSet.dstArrayElement = 0;
+	//		writeSet.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+	//		writeSet.descriptorCount = 1;
+	//		writeSet.pImageInfo = &imageInfo;
+	//		descriptorWrites.push_back(writeSet);
+	//	}
+	//	break;
+	//	case VK_DESCRIPTOR_TYPE_SAMPLER:
+	//	{
+	//		VkDescriptorImageInfo imageInfo = {};
+	//		imageInfo.imageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	//		imageInfo.imageView = VK_NULL_HANDLE;
+	//		imageInfo.sampler = res.sampler->handle();
+
+	//		VkWriteDescriptorSet writeSet = {};
+	//		writeSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	//		writeSet.dstSet = m_descSet;
+	//		writeSet.dstBinding = i;
+	//		writeSet.dstArrayElement = 0;
+	//		writeSet.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
+	//		writeSet.descriptorCount = 1;
+	//		writeSet.pImageInfo = &imageInfo;
+	//		descriptorWrites.push_back(writeSet);
+	//	}
+	//	break;
+	//	default:
+	//		break;
+	//	}
+	//}
+
+	//vkUpdateDescriptorSets(*m_device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+
 	m_flags.clr(GveContextFlag::GpDirtyResources);
 }
 
@@ -423,18 +495,30 @@ void GveContex::updateComputeDescriptorLayout()
 	m_flags.clr(GveContextFlag::CpDirtyDescriptorBinding);
 }
 
-template <VkPipelineBindPoint BindPoint>
-void GveContex::updatePipeline()
+
+void GveContex::updateGraphicsPipeline()
 {
 	// Descriptor layout is bound with shaders
 	m_state.gp.pipeline = m_objects->pipelineManager().getGraphicsPipeline(m_state.gp.shaders);
 	m_flags.clr(GveContextFlag::GpDirtyPipeline);
 }
 
-template <VkPipelineBindPoint BindPoint>
-void GveContex::updatePipelineStates()
+void GveContex::updateGraphicsPipelineStates()
 {
+	GveRenderPass* renderPass = m_state.om.framebuffer->getRenderPass();
+	m_gpCtx.pipeline = m_state.gp.pipeline->getPipelineHandle(m_state.gp.states, *renderPass);
+
 	m_flags.clr(GveContextFlag::GpDirtyPipelineState);
+}
+
+void GveContex::updateComputePipeline()
+{
+
+}
+
+void GveContex::updateComputePipelineStates()
+{
+
 }
 
 void GveContex::commitGraphicsState()
@@ -459,24 +543,24 @@ void GveContex::commitGraphicsState()
 		updateIndexBinding();
 	}
 
+	if (m_flags.test(GveContextFlag::GpDirtyResources))
+	{
+		updateShaderResources<VK_PIPELINE_BIND_POINT_GRAPHICS>();
+	}
+
 	if (m_flags.test(GveContextFlag::GpDirtyDescriptorBinding))
 	{
 		updateGraphicsDescriptorLayout();
 	}
 
-	if (m_flags.test(GveContextFlag::GpDirtyResources))
+	if (m_flags.test(GveContextFlag::GpDirtyPipeline))
 	{
-		updateShaderResources();
+		updateGraphicsPipeline();
 	}
 
 	if (m_flags.test(GveContextFlag::GpDirtyPipelineState))
 	{
-		updatePipelineStates<VK_PIPELINE_BIND_POINT_GRAPHICS>();
-	}
-
-	if (m_flags.test(GveContextFlag::GpDirtyPipeline))
-	{
-		updatePipeline<VK_PIPELINE_BIND_POINT_GRAPHICS>();
+		updateGraphicsPipelineStates();
 	}
 }
 

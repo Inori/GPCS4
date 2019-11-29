@@ -117,19 +117,19 @@ private:
 
 	void updateIndexBinding();
 
+	template <VkPipelineBindPoint BindPoint>
 	void updateShaderResources();
 
 	template <VkPipelineBindPoint BindPoint>
 	void updateDescriptorLayout(const GvePipelineLayout* layout, VkDescriptorSet set);
-
 	void updateGraphicsDescriptorLayout();
 	void updateComputeDescriptorLayout();
 
-	template <VkPipelineBindPoint BindPoint>
-	void updatePipelineStates();
-
-	template <VkPipelineBindPoint BindPoint>
-	void updatePipeline();
+	void updateGraphicsPipeline();
+	void updateGraphicsPipelineStates();
+	
+	void updateComputePipeline();
+	void updateComputePipelineStates();
 
 	void commitGraphicsState();
 

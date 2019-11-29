@@ -27,6 +27,11 @@ VkFramebuffer GveFrameBuffer::handle() const
 	return m_frameBuffer;
 }
 
+GveRenderPass* GveFrameBuffer::getRenderPass() const
+{
+	return m_renderPass;
+}
+
 VkRenderPass GveFrameBuffer::getDefaultRenderPassHandle() const
 {
 	return m_renderPass->getDefaultHandle();
