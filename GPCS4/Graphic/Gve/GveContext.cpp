@@ -403,6 +403,8 @@ void GveContex::updateIndexBinding()
 template <VkPipelineBindPoint BindPoint>
 void GveContex::updateShaderResources()
 {
+	// TODO:
+	// Take compute pipeline into consideration.
 	GvePipelineLayout* pipelineLayout = m_state.gp.pipeline->getLayout();
 
 	if (m_gpCtx.descSet == VK_NULL_HANDLE)
@@ -521,6 +523,8 @@ void GveContex::updateGraphicsPipelineStates()
 {
 	GveRenderPass* renderPass = m_state.om.framebuffer->getRenderPass();
 	m_gpCtx.pipeline = m_state.gp.pipeline->getPipelineHandle(m_state.gp.states, *renderPass);
+
+	m_cmd->cmdBindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, m_gpCtx.pipeline);
 
 	m_flags.clr(GveContextFlag::GpDirtyPipelineState);
 }
