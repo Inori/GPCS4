@@ -10,7 +10,7 @@ class GveDevice;
 class GveSwapChain;
 class GveCmdList;
 
-class GvePresenter : public RcObject
+class GvePresenter
 {
 public:
 	GvePresenter(GveDevice* device, GveSwapChain* swapchain);
