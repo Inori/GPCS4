@@ -264,13 +264,12 @@ int PS4API scek_getpid(void)
 }
 
 
-int PS4API scek_getppid(void) 
+int PS4API scek_getppid(void)
 {
 	int pid = 0x1;
 	LOG_SCE_TRACE("return %d", pid);
 	return pid;
 }
-
 
 
 
