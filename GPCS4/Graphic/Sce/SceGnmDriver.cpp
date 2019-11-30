@@ -10,6 +10,7 @@
 #include "../Gve/GveResourceManager.h"
 #include "../Gve/GvePresenter.h"
 #include "../Gve/GveCmdList.h"
+#include "../Gve/GveImage.h"
 
 namespace sce
 {;
@@ -103,7 +104,8 @@ void SceGnmDriver::createCommandParsers(uint32_t count)
 	m_commandBuffers.resize(count);
 	for (uint32_t i = 0; i != count; ++i)
 	{
-		m_commandBuffers[i] = std::make_shared<GnmCommandBufferDraw>(m_device);
+		auto rtImgView = m_swapchain->getImageView(i);
+		m_commandBuffers[i] = std::make_shared<GnmCommandBufferDraw>(m_device, rtImgView);
 	}
 	
 	m_commandParsers.resize(count);

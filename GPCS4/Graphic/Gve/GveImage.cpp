@@ -6,7 +6,8 @@ namespace gve
 {;
 
 
-GveImage::GveImage(const RcPtr<GveDevice>& device, 
+GveImage::GveImage(
+	const RcPtr<GveDevice>& device, 
 	const GveImageCreateInfo& createInfo, 
 	GveMemoryAllocator*  memAlloc,
 	VkMemoryPropertyFlags memFlags):
@@ -83,6 +84,17 @@ GveImage::GveImage(const RcPtr<GveDevice>& device,
 	{
 		LOG_ERR("DxvkImage::DxvkImage: Failed to bind device memory");
 	}
+}
+
+GveImage::GveImage(
+	const RcPtr<GveDevice>& device, 
+	const GveImageCreateInfo& info,
+	VkImage image):
+	m_device(device),
+	m_info(info),
+	m_image(image)
+{
+
 }
 
 GveImage::~GveImage()

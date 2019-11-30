@@ -123,7 +123,10 @@ public:
 	virtual void setIndexSize(IndexSize indexSize, CachePolicy cachePolicy) override;
 
 private:
+	void emuWriteGpuLabel(EventWriteSource selector, void* label, uint64_t value);
+
 	uint32_t* getFetchShaderCode(const GnmShaderContext& vsCtx);
+
 	void onSetUserDataRegister(ShaderStage stage, uint32_t startSlot, 
 		const uint32_t* data, uint32_t numDwords);
 

@@ -119,18 +119,7 @@ void GnmCommandBufferDraw::writeAtEndOfPipe(EndOfPipeEventType eventType,
 	EventWriteSource srcSelector, uint64_t immValue, 
 	CacheAction cacheAction, CachePolicy cachePolicy)
 {
-	if (srcSelector == kEventWriteSource32BitsImmediate)
-	{
-		*(uint32_t*)dstGpuAddr = immValue;
-	}
-	else if (srcSelector == kEventWriteSource64BitsImmediate)
-	{
-		*(uint64_t*)dstGpuAddr = immValue;
-	}
-	else
-	{
-		*(uint64_t*)dstGpuAddr = UtilProcess::GetProcessTimeCounter();
-	}
+	emuWriteGpuLabel(srcSelector, dstGpuAddr, immValue);
 }
 
 void GnmCommandBufferDraw::writeAtEndOfPipeWithInterrupt(EndOfPipeEventType eventType, 
@@ -138,18 +127,7 @@ void GnmCommandBufferDraw::writeAtEndOfPipeWithInterrupt(EndOfPipeEventType even
 	EventWriteSource srcSelector, uint64_t immValue, 
 	CacheAction cacheAction, CachePolicy cachePolicy)
 {
-	if (srcSelector == kEventWriteSource32BitsImmediate)
-	{
-		*(uint32_t*)dstGpuAddr = immValue;
-	}
-	else if (srcSelector == kEventWriteSource64BitsImmediate)
-	{
-		*(uint64_t*)dstGpuAddr = immValue;
-	}
-	else
-	{
-		*(uint64_t*)dstGpuAddr = UtilProcess::GetProcessTimeCounter();
-	}
+	emuWriteGpuLabel(srcSelector, dstGpuAddr, immValue);
 }
 
 
@@ -289,6 +267,22 @@ void GnmCommandBufferDraw::updateVsShader(const pssl::VsStageRegisters *vsRegs, 
 	
 }
 
+
+void GnmCommandBufferDraw::emuWriteGpuLabel(EventWriteSource selector, void* label, uint64_t value)
+{
+	if (selector == kEventWriteSource32BitsImmediate)
+	{
+		*(uint32_t*)label = value;
+	}
+	else if (selector == kEventWriteSource64BitsImmediate)
+	{
+		*(uint64_t*)label = value;
+	}
+	else
+	{
+		*(uint64_t*)label = UtilProcess::GetProcessTimeCounter();
+	}
+}
 
 uint32_t* GnmCommandBufferDraw::getFetchShaderCode(const GnmShaderContext& vsCtx)
 {
