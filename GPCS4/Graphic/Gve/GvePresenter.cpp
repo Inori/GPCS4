@@ -20,7 +20,6 @@ GvePresenter::~GvePresenter()
 {
 }
 
-
 void GvePresenter::present(const RcPtr<GveCmdList>& cmdList)
 {
 	do 
@@ -28,7 +27,7 @@ void GvePresenter::present(const RcPtr<GveCmdList>& cmdList)
 		vkWaitForFences(*m_device, 1, &m_inFlightFences[m_currentFrame], VK_TRUE, UINT64_MAX);
 
 		uint32_t imageIndex;
-		VkResult result = vkAcquireNextImageKHR(*m_device, m_swapchain->handle(), UINT64_MAX, m_imageAvailableSemaphores[m_currentFrame], VK_NULL_HANDLE, &imageIndex);
+		VkResult result = m_swapchain->acquireNextImage(m_imageAvailableSemaphores[m_currentFrame], VK_NULL_HANDLE, imageIndex);
 
 		VkSubmitInfo submitInfo = {};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;

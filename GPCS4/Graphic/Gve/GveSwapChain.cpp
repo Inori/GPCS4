@@ -241,8 +241,7 @@ VkImageView GveSwapChain::getImageView(uint32_t index)
 
 VkResult GveSwapChain::acquireNextImage(VkSemaphore signal, VkFence fence, uint32_t& index)
 {
-	LOG_ASSERT(fence == VK_NULL_HANDLE, "TODO: only support null fence currently");
-	VkResult result = vkAcquireNextImageKHR(*m_device, m_swapchain, UINT64_MAX, signal, VK_NULL_HANDLE, &index);
+	VkResult result = vkAcquireNextImageKHR(*m_device, m_swapchain, UINT64_MAX, signal, fence, &index);
 	return result;
 }
 

@@ -2,19 +2,25 @@
 
 #include "GPCS4Common.h"
 #include "SceVideoOut.h"
-
-#include "../Gnm/GnmCmdStream.h"
-#include "../Gnm/GnmCommandBufferDraw.h"
-
-#include "../Gve/GveInstance.h"
-#include "../Gve/GveSwapChain.h"
-#include "../Gve/GvePipelineManager.h"
-#include "../Gve/GveResourceManager.h"
-
 #include <memory>
+
+namespace gve
+{;
+class GveInstance;
+class GvePhysicalDevice;
+class GveDevice;
+class GveSwapChain;
+class GvePresenter;
+}  // namespace gve
+
+class GnmCmdStream;
+class GnmCommandBuffer;
 
 namespace sce
 {;
+
+class SceVideoOut;
+
 
 class SceGnmDriver
 {
@@ -49,6 +55,7 @@ private:
 	RcPtr<gve::GvePhysicalDevice> m_physDevice;
 	RcPtr<gve::GveDevice> m_device;
 	RcPtr<gve::GveSwapChain> m_swapchain;
+	std::unique_ptr<gve::GvePresenter> m_presenter;
 };
 
 }  //sce

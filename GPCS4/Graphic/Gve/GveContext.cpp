@@ -65,6 +65,10 @@ void GveContex::beginRecording(const RcPtr<GveCmdList>& commandBuffer)
 
 RcPtr<GveCmdList> GveContex::endRecording()
 {
+	m_cmd->endRecording();
+
+	m_descPool->reset();
+
 	return std::exchange(m_cmd, nullptr);
 }
 

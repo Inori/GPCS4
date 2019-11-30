@@ -7,9 +7,13 @@
 #include "GnmRenderTarget.h"
 #include "GnmDepthRenderTarget.h"
 
-#include "../Gve/GveContext.h"
-#include "../Gve/GveResourceManager.h"
 
+namespace gve
+{;
+class GveDevice;
+class GveCmdList;
+class GveContex;
+}  // namespace gve
 
 class GnmCommandBuffer
 {
@@ -17,7 +21,7 @@ public:
 	GnmCommandBuffer(const RcPtr<gve::GveDevice>& device);
 	virtual ~GnmCommandBuffer();
 
-	RcPtr<gve::GveCmdList> getCmdBuffer();
+	RcPtr<gve::GveCmdList> getCmdList();
 	// Implement these one by one...
 
 	// Note:

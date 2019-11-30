@@ -1,6 +1,14 @@
 #include "SceGnmDriver.h"
 #include "sce_errors.h"
+
 #include "../GraphicShared.h"
+#include "../Gnm/GnmCmdStream.h"
+#include "../Gnm/GnmCommandBufferDraw.h"
+#include "../Gve/GveInstance.h"
+#include "../Gve/GveSwapChain.h"
+#include "../Gve/GvePipelineManager.h"
+#include "../Gve/GveResourceManager.h"
+#include "../Gve/GvePresenter.h"
 
 namespace sce
 {;
@@ -38,6 +46,8 @@ bool SceGnmDriver::initDriver(uint32_t bufferNum)
 	// Swap chain
 	m_swapchain = m_device->createSwapchain(m_videoOut, bufferNum);
 
+	m_presenter = std::make_unique<gve::GvePresenter>(m_device.ptr(), m_swapchain.ptr());
+
 	createCommandParsers(bufferNum);
 
 	return true;
@@ -70,6 +80,10 @@ int SceGnmDriver::submitAndFlipCommandBuffers(uint32_t count,
 			break;
 		}
 	
+		auto cmdList = cmdParser->getCommandBuffer()->getCmdList();
+
+		m_presenter->present(cmdList);
+
 		err = SCE_OK;
 	} while (false);
 	return err;
