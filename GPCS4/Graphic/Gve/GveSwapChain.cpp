@@ -19,6 +19,8 @@ GveSwapChain::GveSwapChain(const RcPtr<GveDevice>& logicDevice,
 {
 	m_phyDevice = m_device->physicalDevice();
 	createSwapChain(imageCount);
+	createImages();
+	createImageViews();
 }
 
 GveSwapChain::~GveSwapChain()
@@ -85,9 +87,6 @@ void GveSwapChain::createSwapChain(uint32_t imageCount)
 		
 		m_swapChainImageFormat = surfaceFormat.format;
 		m_swapChainExtent = extent;
-
-		createImages();
-		createImageViews();
 
 	} while (false);
 }

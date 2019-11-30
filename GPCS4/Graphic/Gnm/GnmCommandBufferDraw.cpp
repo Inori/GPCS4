@@ -177,12 +177,13 @@ void GnmCommandBufferDraw::setDepthRenderTarget(DepthRenderTarget const *depthTa
 {
 	do 
 	{
-		if (m_depthTarget)
+		// TODO:
+		// Not very correct if the game's depth target changes.
+		if (!m_depthTarget)
 		{
-			break;
+			m_depthTarget = getDepthTarget(depthTarget);
 		}
 
-		m_depthTarget = getDepthTarget(depthTarget);
 		GveAttachment depthAttach;
 		depthAttach.view = m_depthTarget;
 		depthAttach.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
