@@ -2,15 +2,14 @@
 
 #include "GveCommon.h"
 #include "GvePipelineState.h"
-#include "GveGraphicsPipeline.h"
-#include "GveFrameBuffer.h"
 #include "GveContextState.h"
-#include "../Pssl/PsslBindingCalculator.h"
 
 #include <array>
 
 namespace gve
 {;
+
+struct GveAttachment;
 
 class GveDevice;
 class GveCmdList;
@@ -23,15 +22,22 @@ class GveSampler;
 class GvePipelineManager;
 class GveResourceManager;
 class GveRenderPass;
-
+class GveResourceObjects;
+class GveDescriptorPool;
 
 
 struct GveShaderResourceSlot
 {
-	RcPtr<GveSampler> sampler;
-	RcPtr<GveImageView> imageView;
-	RcPtr<GveBuffer> buffer;
+	RcPtr<GveSampler>    sampler;
+	RcPtr<GveImageView>  imageView;
+	GveBufferSlice       buffer;
 	RcPtr<GveBufferView> bufferView;
+};
+
+struct GvePipelineContext
+{
+	VkPipeline pipeline = VK_NULL_HANDLE;
+	VkDescriptorSet descSet = VK_NULL_HANDLE;
 };
 
 
@@ -66,18 +72,19 @@ public:
 
 	void setColorBlendState(const GveColorBlendInfo& blendCtl);
 
-	// This bind render target and depth target at one time
-	void bindRenderTargets(const GveRenderTargets& targets);
+	void bindRenderTargets(const GveAttachment* color, uint32_t count);
+
+	void bindDepthRenderTarget(const GveAttachment& depth);
 
 	void bindShader(VkShaderStageFlagBits stage, const RcPtr<GveShader>& shader);
 
-	void bindIndexBuffer(const RcPtr<GveBuffer>& buffer, VkIndexType indexType);
+	void bindIndexBuffer(const GveBufferSlice& buffer, VkIndexType indexType);
 
-	void bindVertexBuffer(uint32_t binding, const RcPtr<GveBuffer>& buffer, uint32_t stride);
+	void bindVertexBuffer(uint32_t binding, const GveBufferSlice& buffer, uint32_t stride);
 
 	void bindSampler(uint32_t regSlot, const RcPtr<GveSampler>& sampler);
 
-	void bindResourceBuffer(uint32_t regSlot, const RcPtr<GveBuffer>& buffer);
+	void bindResourceBuffer(uint32_t regSlot, const GveBufferSlice& buffer);
 
 	void bindResourceView(uint32_t regSlot, 
 		const RcPtr<GveImageView>& imageView, 
@@ -85,7 +92,7 @@ public:
 
 	void drawIndex(uint32_t indexCount, uint32_t firstIndex);
 
-	void copyBuffer(VkBuffer dstBuffer, VkBuffer srcBuffer, VkDeviceSize size);
+	void copyBuffer(GveBufferSlice& dstBuffer, GveBufferSlice& srcBuffer, VkDeviceSize size);
 
 	void copyBufferToImage(VkBuffer buffer, VkImage image, 
 		uint32_t width, uint32_t height);
@@ -107,32 +114,51 @@ private:
 	
 	void endRenderPass();
 
-	void updateVertexInput();
+	void updateVertexBindings();
 
-	void updateIndexBuffer();
+	void updateIndexBinding();
 
+	template <VkPipelineBindPoint BindPoint>
 	void updateShaderResources();
 
-	void updateDescriptorLayout();
-
 	template <VkPipelineBindPoint BindPoint>
-	void updatePipelineStates();
+	void updateDescriptorLayout(const GvePipelineLayout* layout, VkDescriptorSet set);
+	void updateGraphicsDescriptorLayout();
+	void updateComputeDescriptorLayout();
 
-	template <VkPipelineBindPoint BindPoint>
-	void updatePipeline();
+	void updateGraphicsPipeline();
+	void updateGraphicsPipelineStates();
+	
+	void updateComputePipeline();
+	void updateComputePipelineStates();
 
 	void commitGraphicsState();
 
 	void commitComputeState();
 
+	void setupRenderPassOps();
+
 private:
 	RcPtr<GveDevice> m_device;
+	GveResourceObjects* m_objects;
+
 	RcPtr<GveCmdList> m_cmd;
+
+	RcPtr<GveDescriptorPool> m_descPool;
 
 	GveContextFlags m_flags;
 	GveContextState m_state;
 
+	GvePipelineContext m_gpCtx;
+	GvePipelineContext m_cpCtx;
+
+	
+
+	VkPipeline m_activePipeline = VK_NULL_HANDLE;
+
 	std::array<GveShaderResourceSlot, pssl::PsslBindingIndexMax> m_res;
+
+	
 };
 
 

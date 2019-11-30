@@ -184,7 +184,8 @@ bool ModuleLoader::addDepedenciesToLoad(MemoryMappedModule const &mod)
 	return true;
 }
 
-// TODO: This is a temporary implenmentation
+// TODO: This is a temporary implenmentation.
+// Should be configurable.
 bool ModuleLoader::mapModuleNameToFilePath(std::string const &modName,
 										   std::string *path)
 {

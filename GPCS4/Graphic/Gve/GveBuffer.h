@@ -17,6 +17,17 @@ struct GveBufferCreateInfo
 	VkBufferUsageFlags usage;
 };
 
+
+// Convenient when we don't want to hold a reference 
+struct GveBufferSliceWeak
+{
+	VkBuffer buffer = VK_NULL_HANDLE;
+	VkDeviceSize offset = 0;
+	VkDeviceSize length = 0;
+	void* mapPtr = nullptr;
+};
+
+
 class GveBuffer : public GveGpuResource
 {
 public:
@@ -34,6 +45,10 @@ public:
 
 	const GveBufferCreateInfo& info() const;
 
+	const GveBufferSliceWeak& sliceWeak();
+
+	GveBufferSliceWeak sliceWeak(VkDeviceSize offset, VkDeviceSize length);
+
 	void* mapPtr(VkDeviceSize offset) const;
 
 private:
@@ -48,6 +63,7 @@ private:
 
 	VkBuffer m_buffer = VK_NULL_HANDLE;
 	GveMemory m_memory;
+	GveBufferSliceWeak m_slice;
 };
 
 
@@ -59,7 +75,11 @@ public:
 	GveBufferSlice(const RcPtr<GveBuffer>& buffer);
 	~GveBufferSlice();
 
+	bool isValid() const;
+
 	RcPtr<GveBuffer> buffer();
+
+	VkBuffer handle() const;
 
 	VkDeviceSize offset() const;
 

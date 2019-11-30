@@ -1,6 +1,9 @@
 #pragma once
 
 #include "GveCommon.h"
+#include "GveFrameBuffer.h"
+#include "GveGraphicsPipeline.h"
+
 
 namespace gve
 {;
@@ -52,19 +55,24 @@ enum class GveContextFlag : uint32_t
 using GveContextFlags = Flags<GveContextFlag>;
 
 //////////////////////////////////////////////////////////////////////////
+struct GveOutputMergerInfo
+{
+	GveRenderPassOps ops;
+};
 
 struct GveOutputMergerState
 {
+	GveOutputMergerInfo omInfo;
 	GveRenderTargets renderTargets;
 	RcPtr<GveFrameBuffer> framebuffer = nullptr;
 };
 
 struct GveVertexInputState
 {
-	RcPtr<GveBuffer> indexBuffer;
+	GveBufferSlice   indexBuffer;
 	VkIndexType      indexType = VK_INDEX_TYPE_UINT32;
 
-	std::array<RcPtr<GveBuffer>, MaxNumVertexBindings> vertexBuffers = { };
+	std::array<GveBufferSlice,   MaxNumVertexBindings> vertexBuffers = { };
 	std::array<uint32_t,         MaxNumVertexBindings> vertexStrides = { };
 };
 

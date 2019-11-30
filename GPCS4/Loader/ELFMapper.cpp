@@ -67,7 +67,7 @@ bool ELFMapper::validateHeader()
 			break;
 		}
 
-		if (fileMemory.size() < sizeof(m_moduleData->m_elfHeader))
+		if (fileMemory.size() < sizeof(*m_moduleData->m_elfHeader))
 		{
 			LOG_ERR("file size error. size=%d", fileMemory.size());
 			break;

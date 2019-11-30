@@ -46,46 +46,41 @@ And based on the above Sony's style, we add the following extra rules, to make o
 
     For examp;e:
     ```
-    bool GameThread::start()
+    bool ModuleLoader::loadModule(std::string const &fileName, MemoryMappedModule **modOut)
     {
-        bool ret = false;
-        pthread_attr_t attr = nullptr;
-        do 
+        bool retVal = false;
+        MemoryMappedModule mod = {};
+        do
         {
-            if (!m_func)
-            {
-                break;
-            }
-            
-            m_startParam = std::make_unique<PTHREAD_START_PARAM>();
-            m_startParam->this = this;
-
-            int err = pthread_attr_init(&attr);
-            if (err != 0)
+            if (!modOut)
             {
                 break;
             }
 
-            err = pthread_attr_setstacksize(&attr, PS4_MAIN_THREAD_STACK_SIZE);
-            if (err != 0)
+            retVal = loadModuleFromFile(fileName, &mod);
+            if (!retVal)
             {
+                LOG_ERR("load module failed %s", fileName.cstr());
                 break;
             }
 
-            err = pthread_create(&m_tid, &attr, GameThread::threadFunc, m_startParam.get());
-            if (err != 0)
+            retVal = loadDependencies();
+            if (!retVal)
             {
+                LOG_ERR("load dependencies failed");
                 break;
             }
 
-            ret = true;
+            *modOut = &(m_modSystem.getMemoryMappedModules()[0]);
+            retVal  = true;
         } while (false);
 
-        if (attr)
+        if (!retVal)
         {
-            pthread_attr_destroy(&attr);
+            releaseModule(mod);
         }
-        return ret;
+
+        return retVal;
     }
     ```
 
@@ -198,6 +193,8 @@ And based on the above Sony's style, we add the following extra rules, to make o
 5. Make a variable's scope as small as possible.  
    If you can use a local variable, don't make it a class member.  
    If you can use a class member, don't make it global. And so on.
+
+6. Include only required. Use forward declaration to resolve include dependencies.
 
 
 

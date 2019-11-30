@@ -70,5 +70,19 @@ int PS4API sceFiosFileWriteSync(void);
 int PS4API sceFiosStatSync(void);
 
 
+int PS4API sceFiosDeallocatePassthruFH(void);
 
 
+int PS4API sceFiosFilenoToFH(void);
+
+
+int PS4API sceFiosFHToFileno(void);
+
+
+int PS4API sceFiosIsValidHandle(void);
+
+
+int PS4API sceFiosFHOpenWithModeSync(void);
+
+
+int PS4API sceFiosRenameSync(void);

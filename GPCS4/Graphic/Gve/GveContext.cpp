@@ -9,14 +9,18 @@
 #include "GveSampler.h"
 #include "GveDevice.h"
 #include "GveRenderPass.h"
-
+#include "GveResourceObjects.h"
+#include "GveDescriptor.h"
 
 namespace gve
 {;
 
 
 GveContex::GveContex(const RcPtr<GveDevice>& device) :
-	m_device(device)
+	m_device(device),
+	m_objects(&m_device->m_resObjects),
+	m_cmd(nullptr),
+	m_descPool(m_device->createDescriptorPool())
 {
 }
 
@@ -122,10 +126,15 @@ void GveContex::setColorBlendState(const GveColorBlendInfo& blendCtl)
 	m_flags.set(GveContextFlag::GpDirtyPipelineState);
 }
 
-void GveContex::bindRenderTargets(const GveRenderTargets& targets)
+void GveContex::bindRenderTargets(const GveAttachment* color, uint32_t count)
 {
-	m_state.om.renderTargets = targets;
+	std::memcpy(m_state.om.renderTargets.color, color, sizeof(GveAttachment) * count);
+	m_flags.set(GveContextFlag::GpDirtyFramebuffer);
+}
 
+void GveContex::bindDepthRenderTarget(const GveAttachment& depth)
+{
+	m_state.om.renderTargets.depth = depth;
 	m_flags.set(GveContextFlag::GpDirtyFramebuffer);
 }
 
@@ -162,7 +171,7 @@ void GveContex::bindShader(VkShaderStageFlagBits stage, const RcPtr<GveShader>& 
 	}
 }
 
-void GveContex::bindIndexBuffer(const RcPtr<GveBuffer>& buffer, VkIndexType indexType)
+void GveContex::bindIndexBuffer(const GveBufferSlice& buffer, VkIndexType indexType)
 {
 	m_state.vi.indexBuffer = buffer;
 	m_state.vi.indexType = indexType;
@@ -170,7 +179,7 @@ void GveContex::bindIndexBuffer(const RcPtr<GveBuffer>& buffer, VkIndexType inde
 	m_flags.set(GveContextFlag::GpDirtyIndexBuffer);
 }
 
-void GveContex::bindVertexBuffer(uint32_t binding, const RcPtr<GveBuffer>& buffer, uint32_t stride)
+void GveContex::bindVertexBuffer(uint32_t binding, const GveBufferSlice& buffer, uint32_t stride)
 {
 	m_state.vi.vertexBuffers[binding] = buffer;
 	m_state.vi.vertexStrides[binding] = stride;
@@ -184,7 +193,7 @@ void GveContex::bindSampler(uint32_t regSlot, const RcPtr<GveSampler>& sampler)
 	m_flags.set(GveContextFlag::GpDirtyResources);
 }
 
-void GveContex::bindResourceBuffer(uint32_t regSlot, const RcPtr<GveBuffer>& buffer)
+void GveContex::bindResourceBuffer(uint32_t regSlot, const GveBufferSlice& buffer)
 {
 	m_res[regSlot].buffer = buffer;
 	m_flags.set(GveContextFlag::GpDirtyResources);
@@ -209,14 +218,15 @@ void GveContex::drawIndex(uint32_t indexCount, uint32_t firstIndex)
 
 }
 
-
-void GveContex::copyBuffer(VkBuffer dstBuffer, VkBuffer srcBuffer, VkDeviceSize size)
+void GveContex::copyBuffer(GveBufferSlice& dstBuffer, GveBufferSlice& srcBuffer, VkDeviceSize size)
 {
 	VkCommandBuffer commandBuffer = m_cmd->cmdBeginSingleTimeCommands();
 
+	// TODO:
+	// setup region correctly
 	VkBufferCopy copyRegion = { 0 };
 	copyRegion.size = size;
-	m_cmd->cmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+	m_cmd->cmdCopyBuffer(commandBuffer, srcBuffer.handle(), dstBuffer.handle(), 1, &copyRegion);
 	auto queues = m_device->queues();
 	m_cmd->cmdEndSingleTimeCommands(commandBuffer, queues.graphics.queueHandle);
 }
@@ -313,49 +323,220 @@ void GveContex::transitionImageLayout(VkImage image, VkFormat format, VkImageLay
 
 void GveContex::updateFrameBuffer()
 {
+	m_state.om.framebuffer = m_device->createFrameBuffer(m_state.om.renderTargets);
 	m_flags.clr(GveContextFlag::GpDirtyFramebuffer);
+}
+
+void GveContex::setupRenderPassOps()
+{
+
 }
 
 void GveContex::beginRenderPass()
 {
+	setupRenderPassOps();
+	auto& framebuffer = m_state.om.framebuffer;
+	VkRenderPass renderPass = framebuffer->getRenderPassHandle(m_state.om.omInfo.ops);
+	
+	VkExtent2D extend = framebuffer->getRenderExtent();
 
+	VkRenderPassBeginInfo renderPassInfo = {};
+	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	renderPassInfo.renderPass = renderPass;
+	renderPassInfo.framebuffer = framebuffer->handle();
+	renderPassInfo.renderArea.offset = { 0, 0 };
+	renderPassInfo.renderArea.extent = extend;
+
+	// TODO:
+	// Set clear value according to gnm
+	std::array<VkClearValue, 2> clearValues = {};
+	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+	clearValues[1].depthStencil = { 1.0f, 0 };
+
+	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+	renderPassInfo.pClearValues = clearValues.data();
+
+	m_cmd->cmdBeginRenderPass(&renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+	m_flags.set(GveContextFlag::GpRenderPassBound);
 }
 
 void GveContex::endRenderPass()
 {
-
+	m_cmd->cmdEndRenderPass();
+	m_flags.clr(GveContextFlag::GpRenderPassBound);
 }
 
-void GveContex::updateVertexInput()
+void GveContex::updateVertexBindings()
 {
+	VkDeviceSize bindingCount = 0;
+	std::array<VkBuffer, MaxNumVertexBindings> buffers;
+	std::array<VkDeviceSize, MaxNumVertexBindings> offsets;
+	for (const auto& buffer : m_state.vi.vertexBuffers)
+	{
+		// break on first invalid buffer
+		if (!buffer.isValid())
+		{
+			break;
+		}
+
+		buffers[bindingCount] = buffer.handle();
+		offsets[bindingCount] = buffer.offset();
+		++bindingCount;
+	}
+
+	m_cmd->cmdBindVertexBuffers(0, bindingCount, buffers.data(), offsets.data());
+
 	m_flags.clr(GveContextFlag::GpDirtyVertexBuffers);
 }
 
-void GveContex::updateIndexBuffer()
+void GveContex::updateIndexBinding()
 {
+	VkBuffer indexBuffer = m_state.vi.indexBuffer.handle();
+	VkDeviceSize offset = m_state.vi.indexBuffer.offset();
+	VkIndexType type = m_state.vi.indexType;
+	m_cmd->cmdBindIndexBuffer(indexBuffer, offset, type);
+
 	m_flags.clr(GveContextFlag::GpDirtyIndexBuffer);
 }
 
+template <VkPipelineBindPoint BindPoint>
 void GveContex::updateShaderResources()
 {
+	// TODO:
+	// Take compute pipeline into consideration.
+	GvePipelineLayout* pipelineLayout = m_state.gp.pipeline->getLayout();
+
+	if (m_gpCtx.descSet == VK_NULL_HANDLE)
+	{
+		VkDescriptorSetLayout descLayout = pipelineLayout->descriptorSetLayout();
+		m_gpCtx.descSet = m_descPool->alloc(descLayout);
+	}
+
+
+	uint32_t bindingCount = pipelineLayout->bindingCount();
+	std::vector<VkWriteDescriptorSet> descriptorWrites;
+	VkDescriptorSet descSet = m_gpCtx.descSet;
+
+	for (uint32_t i = 0; i != bindingCount; ++i)
+	{
+		auto binding = pipelineLayout->binding(i);
+		uint32_t regSlot = binding.resSlot.regSlot;
+		auto res = m_res[regSlot];
+
+		switch (binding.resSlot.type)
+		{
+		case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+		{
+			VkDescriptorBufferInfo bufferInfo = {};
+			bufferInfo.buffer = res.buffer.handle();
+			bufferInfo.offset = res.buffer.offset();
+			bufferInfo.range = res.buffer.length();
+
+			VkWriteDescriptorSet writeSet = {};
+			writeSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			writeSet.dstSet = descSet;
+			writeSet.dstBinding = i;
+			writeSet.dstArrayElement = 0;
+			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			writeSet.descriptorCount = 1;
+			writeSet.pBufferInfo = &bufferInfo;
+			descriptorWrites.push_back(writeSet);
+		}
+			break;
+		case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+		{
+			VkDescriptorImageInfo imageInfo = {};
+			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			imageInfo.imageView = res.imageView->handle();
+			imageInfo.sampler = nullptr;
+
+			VkWriteDescriptorSet writeSet = {};
+			writeSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			writeSet.dstSet = descSet;
+			writeSet.dstBinding = i;
+			writeSet.dstArrayElement = 0;
+			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+			writeSet.descriptorCount = 1;
+			writeSet.pImageInfo = &imageInfo;
+			descriptorWrites.push_back(writeSet);
+		}
+			break;
+		case VK_DESCRIPTOR_TYPE_SAMPLER:
+		{
+			VkDescriptorImageInfo imageInfo = {};
+			imageInfo.imageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+			imageInfo.imageView = VK_NULL_HANDLE;
+			imageInfo.sampler = res.sampler->handle();
+
+			VkWriteDescriptorSet writeSet = {};
+			writeSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			writeSet.dstSet = descSet;
+			writeSet.dstBinding = i;
+			writeSet.dstArrayElement = 0;
+			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
+			writeSet.descriptorCount = 1;
+			writeSet.pImageInfo = &imageInfo;
+			descriptorWrites.push_back(writeSet);
+		}
+			break;
+		default:
+			break;
+		}
+	}
+
+	// TODO:
+	// Use vkUpdateDescriptorSetWithTemplate
+	m_cmd->updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data());
+
 	m_flags.clr(GveContextFlag::GpDirtyResources);
 }
 
-void GveContex::updateDescriptorLayout()
+template <VkPipelineBindPoint BindPoint>
+void GveContex::updateDescriptorLayout(const GvePipelineLayout* layout, VkDescriptorSet set)
 {
+	VkPipelineLayout pipelineLayout = layout->pipelineLayout();
+
+	m_cmd->cmdBindDescriptorSet(BindPoint, pipelineLayout, set, 0, nullptr);
+}
+
+void GveContex::updateGraphicsDescriptorLayout()
+{
+	updateDescriptorLayout<VK_PIPELINE_BIND_POINT_GRAPHICS>(m_state.gp.pipeline->getLayout(), m_gpCtx.descSet);
 	m_flags.clr(GveContextFlag::GpDirtyDescriptorBinding);
 }
 
-template <VkPipelineBindPoint BindPoint>
-void GveContex::updatePipeline()
+void GveContex::updateComputeDescriptorLayout()
 {
+	m_flags.clr(GveContextFlag::CpDirtyDescriptorBinding);
+}
+
+
+void GveContex::updateGraphicsPipeline()
+{
+	// Descriptor layout is bound with shaders
+	m_state.gp.pipeline = m_objects->pipelineManager().getGraphicsPipeline(m_state.gp.shaders);
+	m_flags.clr(GveContextFlag::GpDirtyPipeline);
+}
+
+void GveContex::updateGraphicsPipelineStates()
+{
+	GveRenderPass* renderPass = m_state.om.framebuffer->getRenderPass();
+	m_gpCtx.pipeline = m_state.gp.pipeline->getPipelineHandle(m_state.gp.states, *renderPass);
+
+	m_cmd->cmdBindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, m_gpCtx.pipeline);
+
 	m_flags.clr(GveContextFlag::GpDirtyPipelineState);
 }
 
-template <VkPipelineBindPoint BindPoint>
-void GveContex::updatePipelineStates()
+void GveContex::updateComputePipeline()
 {
-	m_flags.clr(GveContextFlag::GpDirtyPipeline);
+
+}
+
+void GveContex::updateComputePipelineStates()
+{
+
 }
 
 void GveContex::commitGraphicsState()
@@ -365,34 +546,39 @@ void GveContex::commitGraphicsState()
 		updateFrameBuffer();
 	}
 
+	if (!m_flags.test(GveContextFlag::GpRenderPassBound))
+	{
+		beginRenderPass();
+	}
+
 	if (m_flags.test(GveContextFlag::GpDirtyVertexBuffers))
 	{
-		updateVertexInput();
+		updateVertexBindings();
 	}
 
 	if (m_flags.test(GveContextFlag::GpDirtyIndexBuffer))
 	{
-		updateIndexBuffer();
-	}
-
-	if (m_flags.test(GveContextFlag::GpDirtyDescriptorBinding))
-	{
-		updateDescriptorLayout();
+		updateIndexBinding();
 	}
 
 	if (m_flags.test(GveContextFlag::GpDirtyResources))
 	{
-		updateShaderResources();
+		updateShaderResources<VK_PIPELINE_BIND_POINT_GRAPHICS>();
 	}
 
-	if (m_flags.test(GveContextFlag::GpDirtyPipelineState))
+	if (m_flags.test(GveContextFlag::GpDirtyDescriptorBinding))
 	{
-		updatePipelineStates<VK_PIPELINE_BIND_POINT_GRAPHICS>();
+		updateGraphicsDescriptorLayout();
 	}
 
 	if (m_flags.test(GveContextFlag::GpDirtyPipeline))
 	{
-		updatePipeline<VK_PIPELINE_BIND_POINT_GRAPHICS>();
+		updateGraphicsPipeline();
+	}
+
+	if (m_flags.test(GveContextFlag::GpDirtyPipelineState))
+	{
+		updateGraphicsPipelineStates();
 	}
 }
 
@@ -400,5 +586,7 @@ void GveContex::commitComputeState()
 {
 
 }
+
+
 
 } // namespace gve

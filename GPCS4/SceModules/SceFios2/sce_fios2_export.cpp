@@ -23,6 +23,12 @@ static const SCE_EXPORT_FUNCTION g_pSceFios2_libSceFios2_FunctionTable[] =
 	{ 0x9153314A2603EAD7, "sceFiosFileReadSync", (void*)sceFiosFileReadSync },
 	{ 0xC23FD4FA631BC803, "sceFiosFileWriteSync", (void*)sceFiosFileWriteSync },
 	{ 0x8DACAF634EC2E5D9, "sceFiosStatSync", (void*)sceFiosStatSync },
+	{ 0xFA67CEDBB6BF6C46, "sceFiosDeallocatePassthruFH", (void*)sceFiosDeallocatePassthruFH },
+	{ 0xA1182C81F258DCC7, "sceFiosFilenoToFH", (void*)sceFiosFilenoToFH },
+	{ 0xF1DCD75391B1B232, "sceFiosFHToFileno", (void*)sceFiosFHToFileno },
+	{ 0xF081A3C2D9EF6302, "sceFiosIsValidHandle", (void*)sceFiosIsValidHandle },
+	{ 0xC35DCE8E6ECE37DA, "sceFiosFHOpenWithModeSync", (void*)sceFiosFHOpenWithModeSync },
+	{ 0x1BFDFD96C752817A, "sceFiosRenameSync", (void*)sceFiosRenameSync },
 	SCE_FUNCTION_ENTRY_END
 };
 
