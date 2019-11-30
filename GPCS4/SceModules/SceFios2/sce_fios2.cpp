@@ -116,5 +116,43 @@ int PS4API sceFiosStatSync(void)
 }
 
 
+int PS4API sceFiosDeallocatePassthruFH(void) 
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
 
 
+int PS4API sceFiosFilenoToFH(void) 
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceFiosFHToFileno(void) 
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceFiosIsValidHandle(void) 
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceFiosFHOpenWithModeSync(void) 
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceFiosRenameSync(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
