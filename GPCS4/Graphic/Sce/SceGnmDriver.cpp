@@ -9,6 +9,7 @@
 #include "../Gve/GvePipelineManager.h"
 #include "../Gve/GveResourceManager.h"
 #include "../Gve/GvePresenter.h"
+#include "../Gve/GveCmdList.h"
 
 namespace sce
 {;
