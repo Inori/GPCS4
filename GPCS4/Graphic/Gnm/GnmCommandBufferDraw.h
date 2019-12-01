@@ -85,40 +85,27 @@ public:
 
 	virtual void waitUntilSafeForRendering(uint32_t videoOutHandle, uint32_t displayBufferIndex) override;
 
-
-
 	virtual void setViewportTransformControl(ViewportTransformControl vportControl) override;
-
 
 	virtual void setScreenScissor(int32_t left, int32_t top, int32_t right, int32_t bottom) override;
 
-
 	virtual void setGuardBands(float horzClip, float vertClip, float horzDiscard, float vertDiscard) override;
-
 
 	virtual void setHardwareScreenOffset(uint32_t offsetX, uint32_t offsetY) override;
 
-
 	virtual void setRenderTarget(uint32_t rtSlot, RenderTarget const *target) override;
-
 
 	virtual void setDepthRenderTarget(DepthRenderTarget const *depthTarget) override;
 
-
 	virtual void setRenderTargetMask(uint32_t mask) override;
-
 
 	virtual void setDepthStencilControl(DepthStencilControl depthStencilControl) override;
 
-
 	virtual void setBlendControl(uint32_t rtSlot, BlendControl blendControl) override;
 
-
-	virtual void setPrimitiveSetup(PrimitiveSetup reg) override;
-
+	virtual void setPrimitiveSetup(PrimitiveSetup primSetup) override;
 
 	virtual void setActiveShaderStages(ActiveShaderStages activeStages) override;
-
 
 	virtual void setIndexSize(IndexSize indexSize, CachePolicy cachePolicy) override;
 
@@ -130,12 +117,21 @@ private:
 	void onSetUserDataRegister(ShaderStage stage, uint32_t startSlot, 
 		const uint32_t* data, uint32_t numDwords);
 
+	void clearUserDataSlots();
+
 	void insertUniqueShaderResource(GnmShaderContext::UDSTVector& container, uint32_t startSlot, pssl::PsslShaderResource& shaderRes);
 
 	RcPtr<gve::GveImageView> getDepthTarget(const DepthRenderTarget* depthTarget);
 
 	// Converters
 	VkFormat convertZFormatToVkFormat(ZFormat zfmt);
+	VkCompareOp convertCompareFunc(CompareFunc cmpFunc);
+	VkPolygonMode convertPolygonMode(PrimitiveSetupPolygonMode polyMode);
+	VkCullModeFlags convertCullMode(PrimitiveSetupCullFaceMode cullMode);
+	VkBlendFactor convertBlendMultiplierToFactor(BlendMultiplier blendMul);
+	VkBlendOp convertBlendFuncToOp(BlendFunc func);
+	VkPrimitiveTopology convertPrimitiveTypeToTopology(PrimitiveType primType);
+	VkIndexType convertIndexSize(IndexSize indexSize);
 
 private:
 
@@ -145,6 +141,8 @@ private:
 
 	GnmShaderContext m_vsContext;
 	GnmShaderContext m_psContext;
+
+	VkIndexType m_indexSize = VK_INDEX_TYPE_UINT16;
 
 };
 

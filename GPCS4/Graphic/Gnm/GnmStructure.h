@@ -245,6 +245,46 @@ union DepthStencilControl
 	};
 
 	uint32_t reg;
+
+	DepthControlZWrite getDepthControlZWrite(void) const
+	{
+		return (DepthControlZWrite)zWrite;
+	}
+
+	CompareFunc getDepthControlZCompareFunction(void) const
+	{
+		return (CompareFunc)zFunc;
+	}
+
+	CompareFunc getStencilFunction(void) const
+	{
+		return (CompareFunc)stencilFunc;
+	}
+
+	CompareFunc getStencilFunctionBack(void) const
+	{
+		return (CompareFunc)stencilFuncBack;
+	}
+
+	bool getSeparateStencilEnable(void) const
+	{
+		return separateStencilEnable;
+	}
+
+	bool getDepthEnable(void) const
+	{
+		return depthEnable;
+	}
+
+	bool getStencilEnable(void) const
+	{
+		return stencilEnable;
+	}
+
+	bool getDepthBoundsEnable(void) const
+	{
+		return depthBoundsEnable;
+	}
 };
 
 
@@ -277,6 +317,51 @@ union PrimitiveSetup
 	};
 
 	uint32_t reg;
+
+	PrimitiveSetupCullFaceMode getCullFace(void) const
+	{
+		return (PrimitiveSetupCullFaceMode)cullMode;
+	}
+
+	PrimitiveSetupFrontFace getFrontFace(void) const
+	{
+		return (PrimitiveSetupFrontFace)frontFace;
+	}
+
+	PrimitiveSetupPolygonMode getPolygonModeFront(void) const
+	{
+		return (PrimitiveSetupPolygonMode)frontMode;
+	}
+
+	PrimitiveSetupPolygonMode getPolygonModeBack(void) const
+	{
+		return (PrimitiveSetupPolygonMode)backMode;
+	}
+
+	PrimitiveSetupPolygonOffsetMode getPolygonOffsetEnableFront(void) const
+	{
+		return (PrimitiveSetupPolygonOffsetMode)frontOffsetMode;
+	}
+
+	PrimitiveSetupPolygonOffsetMode getPolygonOffsetEnableBack(void) const
+	{
+		return (PrimitiveSetupPolygonOffsetMode)backOffsetMode;
+	}
+
+	bool getVertexWindowOffsetEnable(void) const
+	{
+		return vertexWindowOffsetEnable;
+	}
+
+	PrimitiveSetupProvokingVertexMode getProvokingVertex(void) const
+	{
+		return (PrimitiveSetupProvokingVertexMode)provokeVertexMode;
+	}
+
+	bool getPerspectiveCorrectionEnable(void) const
+	{
+		return perspectiveCorrectionEnable;
+	}
 };
 
 
@@ -301,6 +386,46 @@ union BlendControl
 	};
 
 	uint32_t reg;
+
+	bool getBlendEnable(void) const
+	{
+		return blendEnable;
+	}
+
+	BlendMultiplier getColorEquationSourceMultiplier(void) const
+	{
+		return (BlendMultiplier)colorSourceMul;
+	}
+
+	BlendFunc getColorEquationBlendFunction(void) const
+	{
+		return (BlendFunc)colorBlendFunc;
+	}
+
+	BlendMultiplier getColorEquationDestinationMultiplier(void) const
+	{
+		return (BlendMultiplier)colorDestMul;
+	}
+
+	BlendMultiplier getAlphaEquationSourceMultiplier(void) const
+	{
+		return (BlendMultiplier)alphaSourceMul;
+	}
+
+	BlendFunc getAlphaEquationBlendFunction(void) const
+	{
+		return (BlendFunc)alphaBlendFunc;
+	}
+
+	BlendMultiplier getAlphaEquationDestinationMultiplier(void) const
+	{
+		return (BlendMultiplier)alphaDestMul;
+	}
+
+	bool getSeparateAlphaEnable(void) const
+	{
+		return separateAlphaEnable;
+	}
 };
 
 //////////////////////////////////////////////////////////////////////////

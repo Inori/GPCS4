@@ -112,14 +112,24 @@ const GveImageCreateInfo& GveImage::info() const
 	return m_info;
 }
 
+uint32_t GveImage::getWidth() const
+{
+	return m_info.extent.width;
+}
+
+uint32_t GveImage::getHeight() const
+{
+	return m_info.extent.height;
+}
+
 VkFormat GveImage::getFormat() const
 {
-	return VK_FORMAT_R8G8B8A8_UNORM;
+	return m_info.format;
 }
 
 VkImageLayout GveImage::getLayout() const
 {
-	return VK_IMAGE_LAYOUT_UNDEFINED;
+	return m_info.layout;
 }
 
 ///
@@ -159,6 +169,16 @@ GveImageView::~GveImageView()
 const GveImageViewCreateInfo& GveImageView::info() const
 {
 	return m_info;
+}
+
+uint32_t GveImageView::getWidth() const
+{
+	return m_image->getWidth();
+}
+
+uint32_t GveImageView::getHeight() const
+{
+	return m_image->getHeight();
 }
 
 VkImageView GveImageView::handle() const
