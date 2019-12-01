@@ -4,6 +4,7 @@
 #include "Platform/UtilPath.h"
 #include <io.h>
 #include <fcntl.h>
+#include <cstdio>
 
 // this will be more friendly on linux....
 
@@ -65,6 +66,26 @@ inline bool getDirName(DIR* dir, char* dirname, int len)
 }
 
 #endif  //GPCS4_WINDOWS
+
+
+int PS4API scek__write(int fd, const void* buf, size_t size)
+{
+	LOG_SCE_TRACE("fd %d buf 0x%p size %zu", fd, buf, size);
+
+	_write(fd, buf, size);
+
+	// If it's stdout/stderr, also log it to emulator logger
+	if (fd == 1 || fd == 2)
+	{
+		// TODO: Strip newline, log line already adds one
+		std::string tempBuf(static_cast<const char*>(buf), 0, size);
+		tempBuf.append("\0"); // buf is not guaranteed to be null-terminated, so append null terminator after 'size' chars
+		LOG_TRACE("%s", tempBuf.c_str());
+	}
+
+	return size;
+}
+
 
 int PS4API sceKernelOpen(const char *path, int flags, SceKernelMode mode)
 {
