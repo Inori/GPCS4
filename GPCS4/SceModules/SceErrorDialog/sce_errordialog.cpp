@@ -51,9 +51,11 @@ int PS4API sceErrorDialogInitialize(void)
 
 int PS4API sceErrorDialogOpen(DialogParam* param)
 {
-	printf("SceError: \n");
-	printf("   UserID: %d", myError.userId);
-	printf("   Error: %d", myError.errorCode);
+	// dont put \n at the end, LOG_SCE_TRACE
+	// adds \n at the end automatically
+	LOG_SCE_TRACE("SceError:");
+	LOG_SCE_TRACE("   UserID: %d", myError.userId);
+	LOG_SCE_TRACE("   Error: %d", myError.errorCode);
 	return SCE_OK;
 }
 
