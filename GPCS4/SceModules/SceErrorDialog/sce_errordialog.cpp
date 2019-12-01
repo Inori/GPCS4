@@ -15,18 +15,8 @@ DialogStatus status = NONE;
 #define ALREADY_INITIALIZED 0x80ED0002
 #define NOT_INITIALIZED 0x80ED0001
 
-//sceErrorDialogParamInitialize
+// sceErrorDialogParamInitialize
 // is a static inlinei function that does not need emulation
-
-/*
-static inline
-void sceErrorDialogParamInitialize(SceErrorDialogParam * param)
-{
-	memset(param, 0x0, sizeof(SceErrorDialogParam));
-	param->size = sizeof(SceErrorDialogParam);
-	param->userId = SCE_USER_SERVICE_USER_ID_EVERYONE;
-}
-*/
 
 DialogStatus PS4API sceErrorDialogGetStatus(void)
 {
