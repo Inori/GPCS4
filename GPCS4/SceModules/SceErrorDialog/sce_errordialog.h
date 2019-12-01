@@ -25,14 +25,14 @@ extern const SCE_EXPORT_MODULE g_ExpModuleSceErrorDialog;
 // library: libSceErrorDialog
 //////////////////////////////////////////////////////////////////////////
 
-typedef struct DialogParam {
+struct DialogParam {
 	uint32_t size;
 	uint32_t errorCode;
 	uint32_t userId;
 	uint32_t reserved;
-} SceErrorDialogParam;
+};
 
-typedef enum DialogStatus {
+enum DialogStatus {
 	NONE = 0,
 	INITIALIZED = 1,
 	RUNNING = 2,
