@@ -9,11 +9,7 @@
 // library: libSceErrorDialog
 //////////////////////////////////////////////////////////////////////////
 
-DialogParam myError;
 int status = NONE;
-
-#define ALREADY_INITIALIZED 0x80ED0002
-#define NOT_INITIALIZED 0x80ED0001
 
 // sceErrorDialogParamInitialize
 // is a static inlinei function that does not need emulation
@@ -23,6 +19,7 @@ int PS4API sceErrorDialogGetStatus(void)
 	return status;
 }
 
+#define ALREADY_INITIALIZED 0x80ED0002
 
 int PS4API sceErrorDialogInitialize(void)
 {
@@ -39,27 +36,53 @@ int PS4API sceErrorDialogInitialize(void)
 	}
 }
 
+#define NOT_INITIALIZED 0x80ED0001
+#define PARAM_INVALID 0x80ED0003
+#define INVALID_STATE 0x80ED0005
+#define SERVICE_BUSY 0x80ED0006
+#define INVALID_USER_ID 0x80ED0007
+#define UNEXPECTED_FATAL 0x80ED0004
+
 
 int PS4API sceErrorDialogOpen(DialogParam* param)
 {
+	if (0)
+		//if (status == NONE)
+	{
+		return NOT_INITIALIZED;
+	}
+
+	if (0)
+		//if(status == RUNNING) 
+	{
+		return INVALID_STATE;
+	}
+
+	if (0)
+		//if(param->userId == -1)
+	{
+		return INVALID_USER_ID;
+	}
+
 	LOG_TRACE("sceErrorDialogOpen called");
-	LOG_SCE_TRACE("userID 0x%p", myError.userId);
-	LOG_SCE_TRACE("error 0x%p", myError.errorCode);
+	LOG_SCE_TRACE("userID 0x%p", param->userId);
+	LOG_SCE_TRACE("error 0x%p", param->errorCode);
+
+	status = RUNNING;
 	return SCE_OK;
 }
-
 
 int PS4API sceErrorDialogTerminate(void)
 {
 	if(0)
-	//if (status != NONE)
+	//if (status == NONE)
 	{
-		status = NONE;
 		return NOT_INITIALIZED;
 	}
 
 	else
 	{
+		status = NONE;
 		return SCE_OK;
 	}
 }
@@ -67,26 +90,35 @@ int PS4API sceErrorDialogTerminate(void)
 
 int PS4API sceErrorDialogUpdateStatus(void)
 {
-	// If this were to open an actual error window,
-	// it would look more like this:
+	// Because we do not have a UI system
+	// for errors yet, we use if(1) to
+	// immediately end the window
 
-	// if window is still open, return RUNNING
-	// if you hit the close button, return FINISHED
+	// In the future, this will be something like
+	// if(closeButton == pushed)
 
-	return FINISHED;
+	if (1)
+	{
+		status = FINISHED;
+	}
+
+	// This will be FINISHED when the 
+	// window is closed, or it will be 
+	// RUNNING, which is set in sceErrorDialogOpen
+	return status;
 }
 
-/*
-	int sceErrorDialogClose()
+// We do not have a stub for this yet
+int sceErrorDialogClose()
+{
+	if(status == NONE)
 	{
-		if(status == NONE)
-		{
-			return NOT_INITIALIZED;
-		}
-
-		status = FINISHED;
-		return SCE_OK;
+		return NOT_INITIALIZED;
 	}
-*/
+
+	status = FINISHED;
+	return SCE_OK;
+}
+
 
 
