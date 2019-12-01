@@ -25,19 +25,33 @@ extern const SCE_EXPORT_MODULE g_ExpModuleSceErrorDialog;
 // library: libSceErrorDialog
 //////////////////////////////////////////////////////////////////////////
 
-int PS4API sceErrorDialogGetStatus(void);
+typedef struct DialogParam {
+	uint32_t size;
+	uint32_t errorCode;
+	uint32_t userId;
+	uint32_t reserved;
+} SceErrorDialogParam;
+
+typedef enum DialogStatus {
+	NONE = 0,
+	INITIALIZED = 1,
+	RUNNING = 2,
+	FINISHED = 3
+};
+
+DialogStatus PS4API sceErrorDialogGetStatus(void);
 
 
 int PS4API sceErrorDialogInitialize(void);
 
 
-int PS4API sceErrorDialogOpen(void);
+int PS4API sceErrorDialogOpen(DialogParam* param);
 
 
 int PS4API sceErrorDialogTerminate(void);
 
 
-int PS4API sceErrorDialogUpdateStatus(void);
+DialogStatus PS4API sceErrorDialogUpdateStatus(void);
 
 
 
