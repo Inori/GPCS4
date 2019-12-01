@@ -46,20 +46,17 @@ int PS4API sceErrorDialogInitialize(void)
 
 int PS4API sceErrorDialogOpen(DialogParam* param)
 {
-	if (0)
-		//if (status == NONE)
+	if (status == NONE)
 	{
 		return NOT_INITIALIZED;
 	}
 
-	if (0)
-		//if(status == RUNNING) 
+	if(status == RUNNING) 
 	{
 		return INVALID_STATE;
 	}
 
-	if (0)
-		//if(param->userId == -1)
+	if(param->userId == -1)
 	{
 		return INVALID_USER_ID;
 	}
