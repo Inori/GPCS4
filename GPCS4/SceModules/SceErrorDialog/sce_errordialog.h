@@ -39,7 +39,7 @@ enum DialogStatus {
 	FINISHED = 3
 };
 
-DialogStatus PS4API sceErrorDialogGetStatus(void);
+int PS4API sceErrorDialogGetStatus(void);
 
 
 int PS4API sceErrorDialogInitialize(void);
@@ -51,7 +51,7 @@ int PS4API sceErrorDialogOpen(DialogParam* param);
 int PS4API sceErrorDialogTerminate(void);
 
 
-DialogStatus PS4API sceErrorDialogUpdateStatus(void);
+int PS4API sceErrorDialogUpdateStatus(void);
 
 
 

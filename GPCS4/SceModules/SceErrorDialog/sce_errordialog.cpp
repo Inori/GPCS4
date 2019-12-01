@@ -10,7 +10,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 DialogParam myError;
-DialogStatus status = NONE;
+int status = NONE;
 
 #define ALREADY_INITIALIZED 0x80ED0002
 #define NOT_INITIALIZED 0x80ED0001
@@ -18,7 +18,7 @@ DialogStatus status = NONE;
 // sceErrorDialogParamInitialize
 // is a static inlinei function that does not need emulation
 
-DialogStatus PS4API sceErrorDialogGetStatus(void)
+int PS4API sceErrorDialogGetStatus(void)
 {
 	return status;
 }
@@ -26,7 +26,8 @@ DialogStatus PS4API sceErrorDialogGetStatus(void)
 
 int PS4API sceErrorDialogInitialize(void)
 {
-	if (status == NONE)
+	if(0)
+	//if (status == NONE)
 	{
 		status = INITIALIZED;
 		return SCE_OK;
@@ -41,18 +42,17 @@ int PS4API sceErrorDialogInitialize(void)
 
 int PS4API sceErrorDialogOpen(DialogParam* param)
 {
-	// dont put \n at the end, LOG_SCE_TRACE
-	// adds \n at the end automatically
-	LOG_SCE_TRACE("SceError:");
-	LOG_SCE_TRACE("   UserID: %d", myError.userId);
-	LOG_SCE_TRACE("   Error: %d", myError.errorCode);
+	LOG_TRACE("sceErrorDialogOpen called");
+	LOG_SCE_TRACE("userID 0x%p", myError.userId);
+	LOG_SCE_TRACE("error 0x%p", myError.errorCode);
 	return SCE_OK;
 }
 
 
 int PS4API sceErrorDialogTerminate(void)
 {
-	if (status != NONE)
+	if(0)
+	//if (status != NONE)
 	{
 		status = NONE;
 		return NOT_INITIALIZED;
@@ -65,13 +65,19 @@ int PS4API sceErrorDialogTerminate(void)
 }
 
 
-DialogStatus PS4API sceErrorDialogUpdateStatus(void)
+int PS4API sceErrorDialogUpdateStatus(void)
 {
+	// If this were to open an actual error window,
+	// it would look more like this:
+
+	// if window is still open, return RUNNING
+	// if you hit the close button, return FINISHED
+
 	return FINISHED;
 }
 
 /*
-	int32_t sceErrorDialogClose()
+	int sceErrorDialogClose()
 	{
 		if(status == NONE)
 		{
