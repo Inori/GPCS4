@@ -1,15 +1,22 @@
 #pragma once
 
 #include "GveCommon.h"
-#include "GveInstance.h"
-#include "GveDevice.h"
-#include "../Sce/SceVideoOut.h"
 
 #include <vector>
 #include <memory>
 
+namespace sce
+{;
+class SceVideoOut;
+}  // namespace sce
+
 namespace gve
 {;
+
+class GvePhysicalDevice;
+class GveDevice;
+class GveImage;
+class GveImageView;
 
 struct SwapChainSupportDetails 
 {
@@ -21,9 +28,10 @@ struct SwapChainSupportDetails
 class GveSwapChain : public RcObject
 {
 public:
-	GveSwapChain(const RcPtr<GveDevice>& logicDevice,
-		std::shared_ptr<sce::SceVideoOut>& videoOut,
-		uint32_t imageCount);
+	GveSwapChain(
+		const RcPtr<GveDevice>&             logicDevice,
+		std::shared_ptr<sce::SceVideoOut>&  videoOut,
+		uint32_t                            imageCount);
 	~GveSwapChain();
 
 	VkSwapchainKHR handle() const;
@@ -35,15 +43,16 @@ public:
 
 	VkExtent2D extent() const;
 
-	VkImage getImage(uint32_t index);
+	RcPtr<GveImage> getImage(uint32_t index);
 
-	VkImageView getImageView(uint32_t index);
+	RcPtr<GveImageView> getImageView(uint32_t index);
 
 	VkResult acquireNextImage(VkSemaphore signal, VkFence fence, uint32_t& index);
 
 	static SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
 private:
 	void createSwapChain(uint32_t imageCount);
+	void createImages();
 	void createImageViews();
 	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 	VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
@@ -55,8 +64,8 @@ private:
 	RcPtr<GveDevice> m_device;
 	std::shared_ptr<sce::SceVideoOut> m_videoOut;
 
-	std::vector<VkImage> m_swapChainImages;
-	std::vector<VkImageView> m_swapChainImageViews;
+	std::vector<RcPtr<GveImage>>     m_swapChainImages;
+	std::vector<RcPtr<GveImageView>> m_swapChainImageViews;
 
 	VkFormat m_swapChainImageFormat;
 	VkExtent2D m_swapChainExtent;

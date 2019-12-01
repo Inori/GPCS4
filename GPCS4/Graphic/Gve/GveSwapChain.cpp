@@ -1,4 +1,10 @@
 #include "GveSwapChain.h"
+#include "GveInstance.h"
+#include "GveDevice.h"
+#include "GveImage.h"
+
+#include "../Sce/SceVideoOut.h"
+
 #include <algorithm>
 
 namespace gve
@@ -13,6 +19,8 @@ GveSwapChain::GveSwapChain(const RcPtr<GveDevice>& logicDevice,
 {
 	m_phyDevice = m_device->physicalDevice();
 	createSwapChain(imageCount);
+	createImages();
+	createImageViews();
 }
 
 GveSwapChain::~GveSwapChain()
@@ -76,40 +84,56 @@ void GveSwapChain::createSwapChain(uint32_t imageCount)
 			LOG_ERR("failed to create swap chain!");
 			break;
 		}
-
-		vkGetSwapchainImagesKHR(device, m_swapchain, &imageCount, nullptr);
-		m_swapChainImages.resize(imageCount);
-		vkGetSwapchainImagesKHR(device, m_swapchain, &imageCount, m_swapChainImages.data());
-
+		
 		m_swapChainImageFormat = surfaceFormat.format;
 		m_swapChainExtent = extent;
-
-		createImageViews();
 
 	} while (false);
 }
 
+void GveSwapChain::createImages()
+{
+	std::vector<VkImage> swapchainImages;
+	uint32_t imageCount = 0;
+	vkGetSwapchainImagesKHR(*m_device, m_swapchain, &imageCount, nullptr);
+	swapchainImages.resize(imageCount);
+	vkGetSwapchainImagesKHR(*m_device, m_swapchain, &imageCount, swapchainImages.data());
+
+	GveImageCreateInfo imgInfo = {};
+	imgInfo.type = VK_IMAGE_TYPE_2D;
+	imgInfo.format = m_swapChainImageFormat;
+	imgInfo.flags = 0;
+	imgInfo.sampleCount = VK_SAMPLE_COUNT_1_BIT;
+	imgInfo.extent.width = m_swapChainExtent.width;
+	imgInfo.extent.height = m_swapChainExtent.height;
+	imgInfo.extent.depth = 1;
+	imgInfo.numLayers = 1;
+	imgInfo.mipLevels = 1;
+	imgInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+	imgInfo.stages = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	imgInfo.access = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	imgInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+	imgInfo.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	imgInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+	for (auto& img : swapchainImages)
+	{
+		auto gveImage = new GveImage(m_device, imgInfo, img);
+		m_swapChainImages.push_back(gveImage);
+	}
+}
+
 void GveSwapChain::createImageViews()
 {
+	GveImageViewCreateInfo viewInfo = {};
+	viewInfo.type = VK_IMAGE_VIEW_TYPE_2D;
+	viewInfo.format = m_swapChainImageFormat;
+	viewInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+	viewInfo.aspect = VK_IMAGE_ASPECT_COLOR_BIT;
+
 	for (auto& image : m_swapChainImages)
 	{
-		VkImageViewCreateInfo viewInfo = {};
-		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		viewInfo.image = image;
-		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		viewInfo.format = m_swapChainImageFormat;
-		viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		viewInfo.subresourceRange.baseMipLevel = 0;
-		viewInfo.subresourceRange.levelCount = 1;
-		viewInfo.subresourceRange.baseArrayLayer = 0;
-		viewInfo.subresourceRange.layerCount = 1;
-
-		VkImageView imageView;
-		if (vkCreateImageView(*m_device, &viewInfo, nullptr, &imageView) != VK_SUCCESS) 
-		{
-			LOG_ERR("failed to create swapchain texture image view!");
-		}
-
+		auto imageView = m_device->createImageView(image, viewInfo);
 		m_swapChainImageViews.push_back(imageView);
 	}
 }
@@ -229,20 +253,19 @@ VkExtent2D GveSwapChain::extent() const
 	return m_swapChainExtent;
 }
 
-VkImage GveSwapChain::getImage(uint32_t index)
+RcPtr<GveImage> GveSwapChain::getImage(uint32_t index)
 {
 	return m_swapChainImages[index];
 }
 
-VkImageView GveSwapChain::getImageView(uint32_t index)
+RcPtr<GveImageView> GveSwapChain::getImageView(uint32_t index)
 {
 	return m_swapChainImageViews[index];
 }
 
 VkResult GveSwapChain::acquireNextImage(VkSemaphore signal, VkFence fence, uint32_t& index)
 {
-	LOG_ASSERT(fence == VK_NULL_HANDLE, "TODO: only support null fence currently");
-	VkResult result = vkAcquireNextImageKHR(*m_device, m_swapchain, UINT64_MAX, signal, VK_NULL_HANDLE, &index);
+	VkResult result = vkAcquireNextImageKHR(*m_device, m_swapchain, UINT64_MAX, signal, fence, &index);
 	return result;
 }
 

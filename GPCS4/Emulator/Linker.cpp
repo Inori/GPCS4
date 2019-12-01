@@ -94,17 +94,22 @@ bool CLinker::resolveSymbol(MemoryMappedModule const &mod,
 
 			if (address == nullptr)
 			{
+				// NOTE: Something is wrong with va_args and u64 values, so print NID as 2 u32
 				formatString =
-					"Unknown Function nid 0x%016x from lib:%s is called: 0x%08x";
+					"Unknown Function nid 0x%08x%08x (\"%s\") from lib:%s is called at 0x%08x";
 			}
 			else
 			{
 				formatString =
-					"Function nid 0x%016x from lib:%s is called";
+					"Function nid 0x%08x%08x from lib:%s is called";
 			}
 
+			auto nidString = info->symbolName.substr(0, 11);
+
 			auto msg = UtilString::Format(formatString,
+										  info->nid >> 32,
 										  info->nid,
+										  nidString.c_str(),
 										  info->libraryName.c_str());
 
 			auto stubMgr  = GetFuncStubManager();

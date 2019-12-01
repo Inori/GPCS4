@@ -2,23 +2,43 @@
 
 #include "GnmCommon.h"
 #include "GnmCommandBuffer.h"
-#include "../Pssl/PsslShaderModule.h"
-#include "../Gve/GveCmdList.h"
-#include "../Gve/GveShader.h"
+#include "GnmConstant.h"
+
+#include "../Pssl/PsslShaderStructure.h"
 
 #include <vector>
 
-// This class is designed for graphic development,
+namespace gve
+{;
+class GveShader;
+class GveImageView;
+}  // namespace gve
+
+
+struct GnmShaderContext
+{
+	using UDSTVector = std::vector<pssl::PsslShaderResource>;
+	//
+	void*                  code    = nullptr;
+	RcPtr<gve::GveShader>  shader  = nullptr;
+	UDSTVector             userDataSlotTable;
+};
+
+
+// This class is designed for graphics development,
 // no reverse engining knowledge should be required.
-// What we need to do, is mapping Gnm command buffers to Vulkan command buffers.
+// It's responsible for mapping Gnm input/structures to Gve input/structures,
+// and convert Gnm calls into Gve calls.
 
 class GnmCommandBufferDraw : public GnmCommandBuffer
 {
-private:
-	typedef std::vector<pssl::PsslShaderResource> UDSTVector;
 
 public:
-	GnmCommandBufferDraw(const RcPtr<gve::GveDevice>& device);
+	GnmCommandBufferDraw(
+		const RcPtr<gve::GveDevice>&     evice,
+		const RcPtr<gve::GveImageView>&  defaultColorTarget
+	);
+
 	virtual ~GnmCommandBufferDraw();
 
 	virtual void initializeDefaultHardwareState() override;
@@ -103,21 +123,28 @@ public:
 	virtual void setIndexSize(IndexSize indexSize, CachePolicy cachePolicy) override;
 
 private:
-	uint32_t* getFetchShaderCode(void* vsCode);
+	void emuWriteGpuLabel(EventWriteSource selector, void* label, uint64_t value);
+
+	uint32_t* getFetchShaderCode(const GnmShaderContext& vsCtx);
+
 	void onSetUserDataRegister(ShaderStage stage, uint32_t startSlot, 
 		const uint32_t* data, uint32_t numDwords);
 
-	void insertUniqueShaderResource(UDSTVector& container, uint32_t startSlot, pssl::PsslShaderResource& shaderRes);
+	void insertUniqueShaderResource(GnmShaderContext::UDSTVector& container, uint32_t startSlot, pssl::PsslShaderResource& shaderRes);
+
+	RcPtr<gve::GveImageView> getDepthTarget(const DepthRenderTarget* depthTarget);
+
+	// Converters
+	VkFormat convertZFormatToVkFormat(ZFormat zfmt);
 
 private:
 
-	void* m_vsCode;
-	void* m_psCode;
-	UDSTVector m_vsUserDataSlotTable;
-	UDSTVector m_psUserDataSlotTable;
+	// Image view from swapchain, this is the default render target view.
+	RcPtr<gve::GveImageView> m_defaultColorTarget;
+	RcPtr<gve::GveImageView> m_depthTarget;
 
-	RcPtr<gve::GveShader> m_vsShader;
-	RcPtr<gve::GveShader> m_psShader;
+	GnmShaderContext m_vsContext;
+	GnmShaderContext m_psContext;
 
 };
 

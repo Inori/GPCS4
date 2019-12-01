@@ -1,6 +1,16 @@
 #include "SceGnmDriver.h"
 #include "sce_errors.h"
+
 #include "../GraphicShared.h"
+#include "../Gnm/GnmCmdStream.h"
+#include "../Gnm/GnmCommandBufferDraw.h"
+#include "../Gve/GveInstance.h"
+#include "../Gve/GveSwapChain.h"
+#include "../Gve/GvePipelineManager.h"
+#include "../Gve/GveResourceManager.h"
+#include "../Gve/GvePresenter.h"
+#include "../Gve/GveCmdList.h"
+#include "../Gve/GveImage.h"
 
 namespace sce
 {;
@@ -38,6 +48,8 @@ bool SceGnmDriver::initDriver(uint32_t bufferNum)
 	// Swap chain
 	m_swapchain = m_device->createSwapchain(m_videoOut, bufferNum);
 
+	m_presenter = std::make_unique<gve::GvePresenter>(m_device.ptr(), m_swapchain.ptr());
+
 	createCommandParsers(bufferNum);
 
 	return true;
@@ -70,6 +82,10 @@ int SceGnmDriver::submitAndFlipCommandBuffers(uint32_t count,
 			break;
 		}
 	
+		auto cmdList = cmdParser->getCommandBuffer()->getCmdList();
+
+		m_presenter->present(cmdList);
+
 		err = SCE_OK;
 	} while (false);
 	return err;
@@ -88,7 +104,8 @@ void SceGnmDriver::createCommandParsers(uint32_t count)
 	m_commandBuffers.resize(count);
 	for (uint32_t i = 0; i != count; ++i)
 	{
-		m_commandBuffers[i] = std::make_shared<GnmCommandBufferDraw>(m_device);
+		auto rtImgView = m_swapchain->getImageView(i);
+		m_commandBuffers[i] = std::make_shared<GnmCommandBufferDraw>(m_device, rtImgView);
 	}
 	
 	m_commandParsers.resize(count);

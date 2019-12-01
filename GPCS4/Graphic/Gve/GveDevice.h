@@ -65,7 +65,7 @@ public:
 		const GveBufferCreateInfo&	info, 
 		VkMemoryPropertyFlags		memoryType);
 
-	RcPtr<GveBuffer> createBufferVsharp(
+	RcPtr<GveBuffer> createOrGetBufferVsharp(
 		const GveBufferCreateInfo&	info,
 		VkMemoryPropertyFlags		memoryType,
 		uint64_t					key);
@@ -78,7 +78,7 @@ public:
 		const GveImageCreateInfo&	info, 
 		VkMemoryPropertyFlags		memoryType);
 
-	RcPtr<GveImage> createImageTsharp(
+	RcPtr<GveImage> createOrGetImageTsharp(
 		const GveImageCreateInfo&	info,
 		VkMemoryPropertyFlags		memoryType,
 		uint64_t					key);
@@ -89,7 +89,7 @@ public:
 		const RcPtr<GveImage>&            image,
 		const GveImageViewCreateInfo&     createInfo);
 
-	RcPtr<GveImageView> createImageViewTsharp(
+	RcPtr<GveImageView> createOrGetImageViewTsharp(
 		const RcPtr<GveImage>&            image,
 		const GveImageViewCreateInfo&     createInfo,
 		uint64_t						  key);
@@ -100,7 +100,7 @@ public:
 
 	RcPtr<GveSampler> createSampler(const GveSamplerCreateInfo& info);
 
-	RcPtr<GveSampler> createSamplerSsharp(
+	RcPtr<GveSampler> createOrGetSamplerSsharp(
 		const GveSamplerCreateInfo&		info, 
 		uint64_t						key);
 

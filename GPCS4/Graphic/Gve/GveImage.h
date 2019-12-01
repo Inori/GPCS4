@@ -72,10 +72,18 @@ struct GveImageViewCreateInfo
 class GveImage : public GveGpuResource
 {
 public:
-	GveImage(const RcPtr<GveDevice>& device,
-		const GveImageCreateInfo& createInfo,
-		GveMemoryAllocator*  memAlloc,
-		VkMemoryPropertyFlags memFlags);
+	GveImage(
+		const RcPtr<GveDevice>&    device,
+		const GveImageCreateInfo&  createInfo,
+		GveMemoryAllocator*        memAlloc,
+		VkMemoryPropertyFlags      memFlags);
+
+	// Creates image object from existing image
+	// Typically implementation-managed, like swapchain image.
+	GveImage(
+		const RcPtr<GveDevice>&    device,
+		const GveImageCreateInfo&  info,
+		VkImage               image);
 
 	~GveImage();
 
