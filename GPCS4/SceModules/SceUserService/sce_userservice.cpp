@@ -11,13 +11,15 @@
 // library: libSceUserService
 //////////////////////////////////////////////////////////////////////////
 
-bool init = false;
+static bool init = false;
 
 #define SCE_KERNEL_PRIO_FIFO_HIGHEST    256
 #define SCE_KERNEL_PRIO_FIFO_LOWEST     767
 
 int PS4API sceUserServiceInitialize(const SceUserServiceInitializeParams *initParams)
 {
+	LOG_FIXME("Not implemented");
+
 	if (initParams->priority > SCE_KERNEL_PRIO_FIFO_LOWEST ||
 		initParams->priority < SCE_KERNEL_PRIO_FIFO_HIGHEST)
 	{
@@ -39,6 +41,7 @@ int PS4API sceUserServiceInitialize(const SceUserServiceInitializeParams *initPa
 
 int PS4API sceUserServiceTerminate(void)
 {
+	LOG_FIXME("Not implemented");
 	if(0)
 	//if (!init)
 	{

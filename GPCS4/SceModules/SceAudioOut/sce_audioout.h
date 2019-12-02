@@ -43,7 +43,7 @@ int PS4API sceAudioOutOutput(void);
 int PS4API sceAudioOutOutputs(void);
 
 
-int PS4API sceAudioOutSetVolume(void);
+int PS4API sceAudioOutSetVolume(int32_t handle, int32_t flag, int32_t *vol);
 
 
 
