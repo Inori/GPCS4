@@ -14,7 +14,7 @@ GveImage::GveImage(
 	m_device(device),
 	m_info(createInfo)
 {
-	VkImageCreateInfo info;
+	VkImageCreateInfo info = {};
 	info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 	info.imageType = VK_IMAGE_TYPE_2D;
 	info.extent.width = m_info.extent.width;

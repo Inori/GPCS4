@@ -32,7 +32,8 @@ struct GnmShaderContext
 
 class GnmCommandBufferDraw : public GnmCommandBuffer
 {
-
+	using PsslShaderResource = pssl::PsslShaderResource;
+	using VertexInputSemantic = pssl::VertexInputSemantic;
 public:
 	GnmCommandBufferDraw(
 		const RcPtr<gve::GveDevice>&     evice,
@@ -114,14 +115,25 @@ private:
 
 	uint32_t* getFetchShaderCode(const GnmShaderContext& vsCtx);
 
-	void onSetUserDataRegister(ShaderStage stage, uint32_t startSlot, 
+	void setUserDataSlots(ShaderStage stage, uint32_t startSlot, 
 		const uint32_t* data, uint32_t numDwords);
 
 	void clearUserDataSlots();
 
-	void insertUniqueShaderResource(GnmShaderContext::UDSTVector& container, uint32_t startSlot, pssl::PsslShaderResource& shaderRes);
+	void insertUniqueUserDataSlot(GnmShaderContext::UDSTVector& container, uint32_t startSlot, pssl::PsslShaderResource& shaderRes);
 
 	RcPtr<gve::GveImageView> getDepthTarget(const DepthRenderTarget* depthTarget);
+
+	// Stages setup
+	void commitVsStage();
+	void commitPsStage();
+
+	void bindIndexBuffer(void* indexAddr, uint32_t indexCount);
+	void bindImmConstBuffer(const PsslShaderResource& res);
+	void bindVertexBuffers(const PsslShaderResource& res, const std::vector<VertexInputSemantic>& inputSemantics);
+	void bindImmResource(const PsslShaderResource& res);
+	void bindSampler(const PsslShaderResource& res);
+
 
 	// Converters
 	VkFormat convertZFormatToVkFormat(ZFormat zfmt);
