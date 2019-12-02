@@ -127,7 +127,7 @@ int PS4API sceAudioOutSetVolume(int32_t handle, int32_t flag, int32_t *vol)
 	// if pointer is invalid
 	if (vol == nullptr)
 	{
-		return SCE_AUDIO_OUT_ERROR_INVALID_FLAG;
+		return SCE_AUDIO_OUT_ERROR_INVALID_POINTER;
 	}
 
 	// check a maximum of 8 bits in flag
