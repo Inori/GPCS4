@@ -116,7 +116,8 @@ private:
 
 };
 
-class GCNCodeSlice {
+class GCNCodeSlice 
+{
 
 public:
 

@@ -100,27 +100,27 @@ void GnmCommandBufferDraw::setVgtControl(uint8_t primGroupSizeMinusOne, WdSwitch
 
 void GnmCommandBufferDraw::setVsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const VSharpBuffer *buffer)
 {
-	onSetUserDataRegister(stage, startUserDataSlot, (uint32_t*)buffer, sizeof(VSharpBuffer)/sizeof(uint32_t));
+	setUserDataSlots(stage, startUserDataSlot, (uint32_t*)buffer, sizeof(VSharpBuffer)/sizeof(uint32_t));
 }
 
 void GnmCommandBufferDraw::setTsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const TSharpBuffer *tex)
 {
-	onSetUserDataRegister(stage, startUserDataSlot, (uint32_t*)tex, sizeof(TSharpBuffer) / sizeof(uint32_t));
+	setUserDataSlots(stage, startUserDataSlot, (uint32_t*)tex, sizeof(TSharpBuffer) / sizeof(uint32_t));
 }
 
 void GnmCommandBufferDraw::setSsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const SSharpBuffer *sampler)
 {
-	onSetUserDataRegister(stage, startUserDataSlot, (uint32_t*)sampler, sizeof(SSharpBuffer) / sizeof(uint32_t));
+	setUserDataSlots(stage, startUserDataSlot, (uint32_t*)sampler, sizeof(SSharpBuffer) / sizeof(uint32_t));
 }
 
 void GnmCommandBufferDraw::setPointerInUserData(ShaderStage stage, uint32_t startUserDataSlot, void *gpuAddr)
 {
-	onSetUserDataRegister(stage, startUserDataSlot, (uint32_t*)gpuAddr, sizeof(void*) / sizeof(uint32_t));
+	setUserDataSlots(stage, startUserDataSlot, (uint32_t*)gpuAddr, sizeof(void*) / sizeof(uint32_t));
 }
 
 void GnmCommandBufferDraw::setUserDataRegion(ShaderStage stage, uint32_t startUserDataSlot, const uint32_t *userData, uint32_t numDwords)
 {
-	onSetUserDataRegister(stage, startUserDataSlot, userData, numDwords);
+	setUserDataSlots(stage, startUserDataSlot, userData, numDwords);
 }
 
 
@@ -375,6 +375,109 @@ void GnmCommandBufferDraw::updateVsShader(const pssl::VsStageRegisters *vsRegs, 
 	
 }
 
+void GnmCommandBufferDraw::commitVsStage()
+{
+	do
+	{
+		uint32_t* fsCode = getFetchShaderCode(m_vsContext);
+		LOG_ASSERT(fsCode != nullptr, "can not find fetch shader code.");
+
+		PsslShaderModule vsModule((const uint32_t*)m_vsContext.code, fsCode, m_vsContext.userDataSlotTable);
+		m_vsContext.shader = vsModule.compile();
+
+		auto vsInputUsageSlots = vsModule.inputUsageSlots();
+		for (const auto& inputSlot : vsInputUsageSlots)
+		{
+			// Find shader res in current slot
+			auto pred = [&inputSlot](const auto& item)
+			{
+				return inputSlot.startRegister == item.startSlot;
+			};
+			auto iter = std::find_if(m_vsContext.userDataSlotTable.begin(), m_vsContext.userDataSlotTable.end(), pred);
+
+			// Bind shader resources
+			switch (inputSlot.usageType)
+			{
+			case kShaderInputUsageImmConstBuffer:
+				bindImmConstBuffer(*iter);
+				break;
+			case kShaderInputUsagePtrVertexBufferTable:
+				bindVertexBuffers(*iter, vsModule.vsInputSemantic());
+				break;
+			default:
+				LOG_WARN("unsupported input usage %d", inputSlot.usageType);
+				break;
+			}
+		}
+
+		m_context->bindShader(VK_SHADER_STAGE_VERTEX_BIT, m_vsContext.shader);
+	} while (false);
+}
+
+void GnmCommandBufferDraw::commitPsStage()
+{
+	do 
+	{
+		PsslShaderModule psModule((const uint32_t*)m_psContext.code, m_psContext.userDataSlotTable);
+		m_psContext.shader = psModule.compile();
+
+		auto psInputUsageSlots = psModule.inputUsageSlots();
+		for (const auto& inputSlot : psInputUsageSlots)
+		{
+			// Find shader res in current slot
+			auto pred = [&inputSlot](const auto& item)
+			{
+				return inputSlot.startRegister == item.startSlot;
+			};
+			auto iter = std::find_if(m_psContext.userDataSlotTable.begin(), m_psContext.userDataSlotTable.end(), pred);
+
+			// Bind shader resources
+			switch (inputSlot.usageType)
+			{
+			case kShaderInputUsageImmResource:
+				bindImmResource(*iter);
+				break;
+			case kShaderInputUsageImmSampler:
+				bindSampler(*iter);
+				break;
+			default:
+				LOG_WARN("unsupported input usage %d", inputSlot.usageType);
+				break;
+			}
+		}
+
+		m_context->bindShader(VK_SHADER_STAGE_FRAGMENT_BIT, m_psContext.shader);
+	} while (false);
+}
+
+void GnmCommandBufferDraw::bindIndexBuffer(void* indexAddr, uint32_t indexCount)
+{
+
+}
+
+void GnmCommandBufferDraw::bindImmConstBuffer(const PsslShaderResource& res)
+{
+	// TODO:
+	// For buffers allocated directly from gnm command buffer,
+	// we should implement "allocateFromCommandBuffer",
+	// and use push constants instead of UBOs.
+
+}
+
+void GnmCommandBufferDraw::bindVertexBuffers(const PsslShaderResource& res, const std::vector<VertexInputSemantic>& inputSemantics)
+{
+
+}
+
+void GnmCommandBufferDraw::bindImmResource(const PsslShaderResource& res)
+{
+
+}
+
+void GnmCommandBufferDraw::bindSampler(const PsslShaderResource& res)
+{
+
+}
 
 void GnmCommandBufferDraw::emuWriteGpuLabel(EventWriteSource selector, void* label, uint64_t value)
 {
@@ -418,7 +521,7 @@ uint32_t* GnmCommandBufferDraw::getFetchShaderCode(const GnmShaderContext& vsCtx
 	return fsCode;
 }
 
-void GnmCommandBufferDraw::onSetUserDataRegister(ShaderStage stage, uint32_t startSlot, const uint32_t* data, uint32_t numDwords)
+void GnmCommandBufferDraw::setUserDataSlots(ShaderStage stage, uint32_t startSlot, const uint32_t* data, uint32_t numDwords)
 {
 	do 
 	{
@@ -432,10 +535,10 @@ void GnmCommandBufferDraw::onSetUserDataRegister(ShaderStage stage, uint32_t sta
 		switch (stage)
 		{
 		case kShaderStageVs:
-			insertUniqueShaderResource(m_vsContext.userDataSlotTable, startSlot, shaderRes);
+			insertUniqueUserDataSlot(m_vsContext.userDataSlotTable, startSlot, shaderRes);
 			break;
 		case kShaderStagePs:
-			insertUniqueShaderResource(m_psContext.userDataSlotTable, startSlot, shaderRes);
+			insertUniqueUserDataSlot(m_psContext.userDataSlotTable, startSlot, shaderRes);
 			break;
 		default:
 			break;
@@ -450,7 +553,7 @@ void GnmCommandBufferDraw::clearUserDataSlots()
 	m_psContext.userDataSlotTable.clear();
 }
 
-void GnmCommandBufferDraw::insertUniqueShaderResource(GnmShaderContext::UDSTVector& container, uint32_t startSlot, pssl::PsslShaderResource& shaderRes)
+void GnmCommandBufferDraw::insertUniqueUserDataSlot(GnmShaderContext::UDSTVector& container, uint32_t startSlot, pssl::PsslShaderResource& shaderRes)
 {
 	auto pred = [startSlot](const pssl::PsslShaderResource& item)
 	{
@@ -520,6 +623,7 @@ RcPtr<gve::GveImageView> GnmCommandBufferDraw::getDepthTarget(const DepthRenderT
 	} while (false);
 	return depthImgView;
 }
+
 
 VkFormat GnmCommandBufferDraw::convertZFormatToVkFormat(ZFormat zfmt)
 {
@@ -635,7 +739,7 @@ VkPrimitiveTopology GnmCommandBufferDraw::convertPrimitiveTypeToTopology(Primiti
 	case kPrimitiveTypeLineStripAdjacency: topology = VK_PRIMITIVE_TOPOLOGY_LINE_STRIP_WITH_ADJACENCY; break;
 	case kPrimitiveTypeTriListAdjacency: topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST_WITH_ADJACENCY; break;
 	case kPrimitiveTypeTriStripAdjacency: topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP_WITH_ADJACENCY; break;
-	// Not supported bu vulkan
+	// Not supported by vulkan
 	//case kPrimitiveTypeRectList: topology = ; break;
 	//case kPrimitiveTypeLineLoop: topology = ; break;
 	//case kPrimitiveTypeQuadList: topology = ; break;

@@ -41,15 +41,15 @@ This is a privious running result of Nier:Automata, not correct though, I'll imp
         For others, we implement those one by one.
 
 ## Join
-If you want to participate in the project, read the roadmap above and [todo list](https://github.com/Inori/GPCS4/projects/1), see which part you are insterested in.
 
-After that, read our [code style](https://github.com/Inori/GPCS4/blob/master/Doc/CodeStyle.md) document, and make a pull request while keeping the code style, I'll see it.  
-Or if you're willing to work on the project for a pretty long time, I could make a branch for you.
+Read our [Developer Guide](https://github.com/Inori/GPCS4/blob/master/Doc/DeveloperGuide.md)
 
 For more details you could join our discord server to contact with me, or if you are used to Tencent QQ/TIM, just join our group. Here you can get more resources which are very usefull for developing.
 
 Discord: [GPCS4](https://discord.gg/PXrUxtk)  
-Tencent QQ/TIM Group Number: 470865218
+Tencent QQ/TIM Group Number: <a target="_blank" href="//shang.qq.com/wpa/qunwpa?idkey=aacc9b682acbb7e7463c256cb76ce3fb0f7ba8a584d1561e7eeffe227e14e602">470865218</a>
+
+
 
 ## Build
 To run or develop GPCS4, a CPU supporting AVX512 together with a graphics card supporting Vulkan are required.  
@@ -60,6 +60,7 @@ Visual Studio 2017
 [LLVM Compiler Toolchain Extension](https://marketplace.visualstudio.com/items?itemName=LLVMExtensions.llvm-toolchain)  
 [LunarG Vulkan SDK](https://vulkan.lunarg.com/)
 
+For more details, see [Developer Guide](https://github.com/Inori/GPCS4/blob/master/Doc/DeveloperGuide.md)
 ## Credits
 [DXVK](https://github.com/doitsujin/dxvk)  
 [uplift](https://github.com/idc/uplift)
