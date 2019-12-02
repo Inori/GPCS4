@@ -47,7 +47,7 @@ Read our [Developer Guide](https://github.com/Inori/GPCS4/blob/master/Doc/Develo
 For more details you could join our discord server to contact with me, or if you are used to Tencent QQ/TIM, just join our group. Here you can get more resources which are very usefull for developing.
 
 Discord: [GPCS4](https://discord.gg/PXrUxtk)  
-Tencent QQ/TIM Group Number: <a target="_blank" href="//shang.qq.com/wpa/qunwpa?idkey=aacc9b682acbb7e7463c256cb76ce3fb0f7ba8a584d1561e7eeffe227e14e602"><img border="0" src="//pub.idqqimg.com/wpa/images/group.png" alt="470865218" title="GPCS4"></a>
+Tencent QQ/TIM Group Number: <a target="_blank" href="//shang.qq.com/wpa/qunwpa?idkey=aacc9b682acbb7e7463c256cb76ce3fb0f7ba8a584d1561e7eeffe227e14e602">470865218</a>
 
 
 
