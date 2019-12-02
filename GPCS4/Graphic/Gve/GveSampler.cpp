@@ -10,6 +10,8 @@ GveSampler::GveSampler(const RcPtr<GveDevice>& device, const GveSamplerCreateInf
 {
 	do 
 	{
+		// TODO:
+		// Create sampler according to createInfo
 		VkSamplerCreateInfo samplerInfo = {};
 		samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
 		samplerInfo.magFilter = VK_FILTER_LINEAR;

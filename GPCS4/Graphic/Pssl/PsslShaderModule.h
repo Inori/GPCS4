@@ -14,6 +14,7 @@ namespace pssl
 
 struct PsslFetchShader;
 struct GcnResourceBuffer;
+
 class GCNCompiler;
 class GCNAnalyzer;
 
