@@ -91,6 +91,10 @@ public:
 
 	const GveImageCreateInfo& info() const;
 
+	uint32_t getWidth() const;
+
+	uint32_t getHeight() const;
+
 	VkFormat getFormat() const;
 
 	VkImageLayout getLayout() const;
@@ -121,6 +125,10 @@ public:
 	RcPtr<GveImage> getImage();
 
 	const GveImageViewCreateInfo& info() const;
+
+	uint32_t getWidth() const;
+
+	uint32_t getHeight() const;
 
 	const GveImageCreateInfo& imageInfo() const;
 

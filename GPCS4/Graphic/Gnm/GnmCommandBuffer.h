@@ -192,7 +192,7 @@ public:
 	//virtual void setPrimitiveIdEnable(bool enable) = 0;
 	//virtual void setPrimitiveResetIndexEnable(bool enable) = 0;
 	//virtual void setPrimitiveResetIndex(uint32_t resetIndex) = 0;
-	virtual void setPrimitiveSetup(PrimitiveSetup reg) = 0;
+	virtual void setPrimitiveSetup(PrimitiveSetup primSetup) = 0;
 	virtual void setPrimitiveType(PrimitiveType primType) = 0;
 	//virtual void setPsShaderRate(PsShaderRate rate) = 0;
 	//virtual void setPsShaderSampleExclusionMask(uint16_t mask) = 0;

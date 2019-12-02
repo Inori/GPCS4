@@ -1,17 +1,21 @@
 #pragma once
 
 #include "PsslCommon.h"
-
 #include "PsslProgramInfo.h"
-#include "GCNCompiler.h"
 #include "GCNDecoder.h"
-#include "GCNAnalyzer.h"
 
-#include "../Gve/GveShader.h"
+namespace gve
+{;
+class GveShader;
+}  // namespace gve
 
 namespace pssl
 {;
 
+struct PsslFetchShader;
+struct GcnResourceBuffer;
+class GCNCompiler;
+class GCNAnalyzer;
 
 
 class PsslShaderModule

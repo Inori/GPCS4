@@ -1,4 +1,7 @@
 #include "PsslShaderModule.h"
+#include "GCNCompiler.h"
+#include "GCNAnalyzer.h"
+#include "../Gve/GveShader.h"
 #include "Platform/UtilFile.h"
 
 
