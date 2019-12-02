@@ -35,50 +35,64 @@ int PS4API sceMsgDialogGetResult(SceMsgDialogResult* result)
 {
 	LOG_FIXME("Not implemented");
 
+	int returnVal = -1;
+
 	if (status != FINISHED)
 	{
-		return SCE_COMMON_DIALOG_ERROR_NOT_FINISHED;
+		returnVal = SCE_COMMON_DIALOG_ERROR_NOT_FINISHED;
 	}
 
-	if (result == nullptr)
+	else if (result == nullptr)
 	{
-		return SCE_COMMON_DIALOG_ERROR_ARG_NULL;
+		returnVal = SCE_COMMON_DIALOG_ERROR_ARG_NULL;
 	}
 
-	if ((uint32_t)result->reserved != 0)
+	else if ((uint32_t)result->reserved != 0)
 	{
-		return SCE_COMMON_DIALOG_ERROR_PARAM_INVALID;
+		returnVal = SCE_COMMON_DIALOG_ERROR_PARAM_INVALID;
 	}
 
-	return SCE_OK;
+	else
+	{
+		returnVal = SCE_OK;
+	}
+
+	return returnVal;
 }
 
 
 int PS4API sceMsgDialogGetStatus(void)
 {
+	LOG_SCE_TRACE("sceMsgDialogGetStatus called");
+
 	return status;
 }
 
 
 int32_t PS4API sceMsgDialogInitialize(void)
 {
-	if(1)
-	//if (status == NONE)
+	LOG_SCE_TRACE("sceMsgDialogInitialize called");
+
+	int returnVal = -1;
+
+	if (status == NONE)
 	{
 		status = INITIALIZED;
-		return SCE_OK;
+		returnVal = SCE_OK;
 	}
 
 	else if (status == INITIALIZED)
 	{
-		return SCE_COMMON_DIALOG_ERROR_ALREADY_INITIALIZED;
+		returnVal = SCE_COMMON_DIALOG_ERROR_ALREADY_INITIALIZED;
 	}
 
 	// RUNNING OR FINISHED
 	else
 	{
-		return SCE_COMMON_DIALOG_ERROR_BUSY;
+		returnVal = SCE_COMMON_DIALOG_ERROR_BUSY;
 	}
+
+	return returnVal;
 }
 
 
@@ -87,47 +101,64 @@ int PS4API sceMsgDialogOpen(const SceMsgDialogParam *param)
 	// Do not know how to handle parameter
 	// const SceMsgDialogParam *param
 
-	LOG_FIXME("Not implemented");
+	LOG_FIXME("Not fully implemented");
+
+	int returnVal = -1;
 
 	if (status == RUNNING || status == NONE)
 	{
-		return SCE_COMMON_DIALOG_ERROR_INVALID_STATE;
+		returnVal = SCE_COMMON_DIALOG_ERROR_INVALID_STATE;
 	}
 
-	if (param == nullptr)
+	else if (param == nullptr)
 	{
-		return SCE_COMMON_DIALOG_ERROR_ARG_NULL;
+		returnVal = SCE_COMMON_DIALOG_ERROR_ARG_NULL;
 	}
 
-	if (param->userId == -1)
+	else if (param->userId == -1)
 	{
-		return SCE_COMMON_DIALOG_ERROR_PARAM_INVALID;
+		returnVal = SCE_COMMON_DIALOG_ERROR_PARAM_INVALID;
 	}
 
-	// In the future, this will open a window
-	// and print the error in that window,
-	// rather than printing to a console
+	else
+	{
+		// This does not print anything,
+		// because I cannot yet confirm if
+		// the SceMsgDialogParam structure is correct
 
-	status = RUNNING;
-	return SCE_OK;
+		status = RUNNING;
+		returnVal = SCE_OK;
+	}
+
+	return returnVal;
 }
 
 
 int PS4API sceMsgDialogTerminate(void)
 {
-	if(0)
-	//if (status == NONE)
+	LOG_SCE_TRACE("sceMsgDialogTerminate called");
+
+	int returnVal = -1;
+
+	if (status == NONE)
 	{
-		return SCE_COMMON_DIALOG_ERROR_NOT_INITIALIZED;
+		returnVal = SCE_COMMON_DIALOG_ERROR_NOT_INITIALIZED;
 	}
 
-	status = NONE;
-	return SCE_OK;
+	else
+	{
+		status = NONE;
+		returnVal = SCE_OK;
+	}
+
+	return returnVal;
 }
 
 
 int PS4API sceMsgDialogUpdateStatus(void)
 {
+	LOG_SCE_TRACE("sceMsgDialogUpdateStatus called");
+
 	// Because we do not have a UI system
 	// for messages yet, we use if(1) to
 	// immediately end the window

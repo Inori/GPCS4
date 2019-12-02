@@ -24,6 +24,8 @@ static int status = NONE;
 
 int PS4API sceErrorDialogGetStatus(void)
 {
+	LOG_SCE_TRACE("sceErrorDialogGetStatus called");
+
 	return status;
 }
 
@@ -31,17 +33,22 @@ int PS4API sceErrorDialogGetStatus(void)
 
 int PS4API sceErrorDialogInitialize(void)
 {
-	if(0)
-	//if (status == NONE)
+	LOG_SCE_TRACE("sceErrorDialogInitialize called");
+
+	int returnVal = -1;
+
+	if (status == NONE)
 	{
 		status = INITIALIZED;
-		return SCE_OK;
+		returnVal = SCE_OK;
 	}
 
 	else
 	{
-		return ALREADY_INITIALIZED;
+		returnVal = ALREADY_INITIALIZED;
 	}
+
+	return returnVal;
 }
 
 #define NOT_INITIALIZED 0x80ED0001
@@ -54,51 +61,66 @@ int PS4API sceErrorDialogInitialize(void)
 
 int PS4API sceErrorDialogOpen(DialogParam* param)
 {
+	SCE_LOG_TRACE("sceErrorDialogOpen called");
+
+	int returnVal = -1;
+
 	if (status == NONE)
 	{
-		return NOT_INITIALIZED;
+		returnVal = NOT_INITIALIZED;
 	}
 
-	if(status == RUNNING) 
+	else if (status == RUNNING)
 	{
-		return INVALID_STATE;
+		returnVal = INVALID_STATE;
 	}
 
-	if(param->userId == -1)
+	else if (param->userId == -1)
 	{
-		return INVALID_USER_ID;
+		returnVal = INVALID_USER_ID;
 	}
 
-	// In the future, this will open a window
-	// and print the error in that window,
-	// rather than printing to a console
+	else
+	{
+		// In the future, this will open a window
+		// and print the error in that window,
+		// rather than printing to a console
 
-	LOG_TRACE("sceErrorDialogOpen called");
-	LOG_SCE_TRACE("userID 0x%p", param->userId);
-	LOG_SCE_TRACE("error 0x%p", param->errorCode);
+		LOG_TRACE("userID 0x%p", param->userId);
+		LOG_TRACE("error 0x%p", param->errorCode);
 
-	status = RUNNING;
-	return SCE_OK;
+		status = RUNNING;
+		returnVal = SCE_OK;
+	}
+
+	return returnVal;
 }
 
 int PS4API sceErrorDialogTerminate(void)
 {
-	if(0)
-	//if (status == NONE)
+	SCE_LOG_TRACE("sceErrorDialogTerminate called")
+
+	int returnVal = -1;
+
+	if (status == NONE)
 	{
-		return NOT_INITIALIZED;
+		returnVal = NOT_INITIALIZED;
 	}
 
 	else
 	{
 		status = NONE;
-		return SCE_OK;
+		returnVal = SCE_OK;
 	}
+
+	return returnVal;
 }
 
 
 int PS4API sceErrorDialogUpdateStatus(void)
 {
+	SCE_LOG_TRACE("sceErrorDialogUpdateStatus called");
+
 	// Because we do not have a UI system
 	// for errors yet, we use if(1) to
 	// immediately end the window
@@ -120,17 +142,26 @@ int PS4API sceErrorDialogUpdateStatus(void)
 // We do not have a stub for this yet
 int sceErrorDialogClose()
 {
+	SCE_LOG_TRACE("sceErrorDialogClose called");
+
 	// In the future, this function 
 	// will close the error window that
 	// was opened by sceErrorDialogOpen
 
-	if(status == NONE)
+	int returnVal = -1;
+
+	if (status == NONE)
 	{
-		return NOT_INITIALIZED;
+		returnVal = NOT_INITIALIZED;
 	}
 
-	status = FINISHED;
-	return SCE_OK;
+	else
+	{
+		status = FINISHED;
+		returnVal = SCE_OK;
+	}
+
+	return returnVal;
 }
 
 

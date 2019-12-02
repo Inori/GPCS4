@@ -79,34 +79,39 @@ int PS4API sceSystemServiceHideSplashScreen(void)
 
 int PS4API sceSystemServiceParamGetInt(int paramID, int* value)
 {
+	LOG_SCE_TRACE("sceSystemServiceParamGetInt called");
+
+	int returnVal = -1;
+
 	if (paramID == SCE_SYSTEM_SERVICE_PARAM_ID_LANG)
 	{
 		*value = SCE_SYSTEM_PARAM_LANG_ENGLISH_US;
-		return SCE_OK;
+		returnVal = SCE_OK;
 	}
 
 	else if (paramID == SCE_SYSTEM_SERVICE_PARAM_ID_DATE_FORMAT)
 	{
 		*value = SCE_SYSTEM_PARAM_DATE_FORMAT_MMDDYYYY;
-		return SCE_OK;
+		returnVal = SCE_OK;
 	}
 
 	else if (paramID == SCE_SYSTEM_SERVICE_PARAM_ID_TIME_FORMAT)
 	{
 		*value = SCE_SYSTEM_PARAM_TIME_FORMAT_12HOUR;
-		return SCE_OK;
+		returnVal = SCE_OK;
 	}
 
 	else if (paramID == SCE_SYSTEM_SERVICE_PARAM_ID_TIME_ZONE)
 	{
 		*value = 0;
-		return SCE_OK;
+		returnVal = SCE_OK;
 	}
 
+	// Day-light savings
 	else if (paramID == SCE_SYSTEM_SERVICE_PARAM_ID_SUMMERTIME)
 	{
 		*value = 0;
-		return SCE_OK;
+		returnVal = SCE_OK;
 	}
 
 	else if (paramID == SCE_SYSTEM_SERVICE_PARAM_ID_GAME_PARENTAL_LEVEL)
@@ -120,7 +125,7 @@ int PS4API sceSystemServiceParamGetInt(int paramID, int* value)
 		// 10
 		// 11
 		*value = 0;
-		return SCE_OK;
+		returnVal = SCE_OK;
 	}
 
 	else if (paramID == SCE_SYSTEM_SERVICE_PARAM_ID_ENTER_BUTTON_ASSIGN)
@@ -129,35 +134,39 @@ int PS4API sceSystemServiceParamGetInt(int paramID, int* value)
 		// 1 means the X button
 		
 		*value = 1;
-		return SCE_OK;
+		returnVal = SCE_OK;
 	}
 
 	else
 	{
-		return SCE_SYSTEM_SERVICE_ERROR_PARAMETER;
+		 returnVal = SCE_SYSTEM_SERVICE_ERROR_PARAMETER;
 	}
+
+	return returnVal;
 }
 
 #define SCE_SYSTEM_SERVICE_PARAM_ID_SYSTEM_NAME 6
 #define SCE_SYSTEM_SERVICE_MAX_SYSTEM_NAME_LENGTH 65
 
 // We do not have a stub for this yet
-int sceSystemServiceParamGetString(
-	int paramId,
-	char *buf,
-	size_t bufSize
-)
+int sceSystemServiceParamGetString(int paramId, char *buf, size_t bufSize)
 {
+	LOG_SCE_TRACE("sceSystemServiceParamGetString");
+
+	int returnVal = -1;
+
 	if (paramId == SCE_SYSTEM_SERVICE_PARAM_ID_SYSTEM_NAME)
 	{
 		sprintf(buf, "dummySystemName");
-		return SCE_OK;
+		returnVal = SCE_OK;
 	}
 
 	else
 	{
-		return SCE_SYSTEM_SERVICE_ERROR_PARAMETER;
+		returnVal = SCE_SYSTEM_SERVICE_ERROR_PARAMETER;
 	}
+
+	return returnVal;
 }
 
 
@@ -170,6 +179,8 @@ int PS4API sceSystemServiceReceiveEvent(SceSystemServiceEvent* Event)
 
 int PS4API sceSystemServiceGetDisplaySafeAreaInfo(SceSystemServiceDisplaySafeAreaInfo* info)
 {
+	LOG_SCE_TRACE("sceSystemServiceGetDisplaySafeAreaInfo called");
+
 	// default value
 	info->ratio = 1.0f;
 

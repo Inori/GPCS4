@@ -19,56 +19,67 @@ static bool init = false;
 int PS4API sceUserServiceInitialize(const SceUserServiceInitializeParams *initParams)
 {
 	LOG_FIXME("Not implemented");
+	int returnVal = -1;
 
 	if (initParams->priority > SCE_KERNEL_PRIO_FIFO_LOWEST ||
 		initParams->priority < SCE_KERNEL_PRIO_FIFO_HIGHEST)
 	{
-		return SCE_USER_SERVICE_ERROR_INVALID_ARGUMENT;
+		returnVal = SCE_USER_SERVICE_ERROR_INVALID_ARGUMENT;
 	}
 
-	if (!init)
+	else if (!init)
 	{
 		init = true;
-		return SCE_OK;
+		returnVal = SCE_OK;
 	}
 
 	else
 	{
-		return SCE_USER_SERVICE_ERROR_ALREADY_INITIALIZED;
+		returnVal = SCE_USER_SERVICE_ERROR_ALREADY_INITIALIZED;
 	}
+
+	return returnVal;
 }
 
 
 int PS4API sceUserServiceTerminate(void)
 {
 	LOG_FIXME("Not implemented");
-	if(0)
-	//if (!init)
+	int returnVal = -1;
+
+	if (!init)
 	{
-		return SCE_USER_SERVICE_ERROR_NOT_INITIALIZED;
+		returnVal = SCE_USER_SERVICE_ERROR_NOT_INITIALIZED;
 	}
 
 	else
 	{
 		init = false;
-		return SCE_OK;
+		returnVal = SCE_OK;
 	}
 	
+	return returnVal;
 }
 
 
 int PS4API sceUserServiceGetInitialUser(SceUserServiceUserId *userId)
 {
+	SCE_LOG_TRACE("sceUserServiceGetInitialUser called");
+
+	int returnVal = -1;
+
 	if (!init)
 	{
-		return SCE_USER_SERVICE_ERROR_NOT_INITIALIZED;
+		returnVal = SCE_USER_SERVICE_ERROR_NOT_INITIALIZED;
 	}
 
 	else
 	{
 		*userId = SCE_DUMMY_USERID;
-		return SCE_OK;
+		returnVal = SCE_OK;
 	}
+
+	return returnVal;
 }
 
 
