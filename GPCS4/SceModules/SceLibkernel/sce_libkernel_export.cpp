@@ -127,6 +127,8 @@ static const SCE_EXPORT_FUNCTION g_pSceLibkernel_libkernel_FunctionTable[] =
 	{ 0xBA9A15AF330715E1, "scePthreadMutexTrylock", (void*)scePthreadMutexTrylock },
 	{ 0xA084454E3A082DB8, "scePthreadSetschedparam", (void*)scePthreadSetschedparam },
 	{ 0xF81CD7624A9878B1, "scePthreadSetspecific", (void*)scePthreadSetspecific },
+	{ 0x1E82D558D6A70417, "getpid", (void*)scek_getpid },
+	{ 0x7BAA2F068F59BC97, "getppid", (void*)scek_getppid },
 	SCE_FUNCTION_ENTRY_END
 };
 
@@ -176,8 +178,6 @@ static const SCE_EXPORT_FUNCTION g_pSceLibkernel_libScePosix_FunctionTable[] =
 	{ 0x602579746181702A, "sem_wait", (void*)scek_sem_wait },
 	{ 0x7D939E64838498BC, "send", (void*)scek_send },
 	{ 0x4D4BA2612DA413CB, "shutdown", (void*)scek_shutdown },
-	{ 0x1E82D558D6A70417, "getpid", (void*)scek_getpid },
-	{ 0x7BAA2F068F59BC97, "getppid", (void*)scek_getppid },
 	SCE_FUNCTION_ENTRY_END
 };
 
