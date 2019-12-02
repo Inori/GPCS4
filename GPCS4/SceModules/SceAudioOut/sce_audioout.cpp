@@ -130,6 +130,9 @@ int PS4API sceAudioOutSetVolume(int32_t handle, int32_t flag, int32_t *vol)
 		return SCE_AUDIO_OUT_ERROR_INVALID_POINTER;
 	}
 
+	// index of the vol array
+	int volumeIndex = 0;
+
 	// check a maximum of 8 bits in flag
 	for (int i = 0; i < 8; i++)
 	{
@@ -137,10 +140,13 @@ int PS4API sceAudioOutSetVolume(int32_t handle, int32_t flag, int32_t *vol)
 		if (flag & (1 << i))
 		{
 			// if the volume is out of range
-			if (vol[i] < 0 || vol[i] > 32768)
+			if (vol[volumeIndex] < 0 || vol[volumeIndex] > 32768)
 			{
 				return SCE_AUDIO_OUT_ERROR_INVALID_VOLUME;
 			}
+
+			// increment
+			volumeIndex++;
 		}
 	}
 
