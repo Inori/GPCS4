@@ -32,6 +32,7 @@ Read our [code style document](https://github.com/Inori/GPCS4/blob/master/Doc/Co
 
 ***Make sure you have enough free time to do this job. Don't just have a brief period of enthusiasm. This is the most important part.***
 
+<<<<<<< HEAD
 Note, before you write any code, read our [code style document](https://github.com/Inori/GPCS4/blob/master/Doc/CodeStyle.md) carefully, code which do not follow the style will not be accepted.  
 Also, you can take the existing code as example.
 
@@ -40,6 +41,16 @@ Follow the steps:
 2. Build GPCS4 following the above steps.
 3. Download all the files here, these are all you need to develop GPCS4.  
     https://pastebin.com/bUxckm3y
+=======
+Note, before you write any code, read our [code style document](https://github.com/Inori/GPCS4/blob/master/Doc/CodeStyle.md) carefully, code which do not follow the style will not be accepted.
+
+Follow the steps:
+1. Read the roadmap one the main page, select a part which you're insterested in. Or if you're not sure, see our [Trello](https://trello.com/b/4kZu97F5/gpcs4) and take a job from `TODO list for new developers` card.
+2. Build GPCS4 following the above steps.
+3. Download all the files here, these are all you need to develop GPCS4.
+    https://mega.nz/#F!8ORCVQgY
+    PW : qp7HFxj8awgIBP_L5K7c3g
+>>>>>>> 89cb7e7... add Developer Guide
 4. Run the demo or game you like, find why it crashes/doesn't work.
 5. Then you know what to do next.
 
