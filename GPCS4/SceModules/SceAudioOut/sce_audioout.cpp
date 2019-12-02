@@ -62,6 +62,7 @@ int PS4API sceAudioOutClose(int32_t handle)
 		return SCE_AUDIO_OUT_ERROR_NOT_INIT;
 	}
 
+	init = false;
 	return SCE_OK;
 }
 
