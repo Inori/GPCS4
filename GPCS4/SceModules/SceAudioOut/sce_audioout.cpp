@@ -45,7 +45,7 @@ int PS4API sceAudioOutInit(void)
 
 int PS4API sceAudioOutOpen(SceUserServiceUserId userId, int32_t type, int32_t index, uint32_t len, uint32_t freq, uint32_t param)
 {
-	SCE_LOG_TRACE("sceAudioOutOpen called");
+	LOG_SCE_TRACE("sceAudioOutOpen called");
 
 	int returnVal = -1;
 
@@ -89,7 +89,7 @@ int PS4API sceAudioOutClose(int32_t handle)
 
 int PS4API sceAudioOutGetPortState(int32_t handle, SceAudioOutPortState *state)
 {
-	SCE_LOG_TRACE("sceAudioOutGetPortState called");
+	LOG_SCE_TRACE("sceAudioOutGetPortState called");
 
 	int returnVal = -1;
 

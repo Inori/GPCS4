@@ -61,7 +61,7 @@ int PS4API sceErrorDialogInitialize(void)
 
 int PS4API sceErrorDialogOpen(DialogParam* param)
 {
-	SCE_LOG_TRACE("sceErrorDialogOpen called");
+	LOG_SCE_TRACE("sceErrorDialogOpen called");
 
 	int returnVal = -1;
 
@@ -98,7 +98,7 @@ int PS4API sceErrorDialogOpen(DialogParam* param)
 
 int PS4API sceErrorDialogTerminate(void)
 {
-	SCE_LOG_TRACE("sceErrorDialogTerminate called")
+	LOG_SCE_TRACE("sceErrorDialogTerminate called")
 
 	int returnVal = -1;
 
@@ -119,7 +119,7 @@ int PS4API sceErrorDialogTerminate(void)
 
 int PS4API sceErrorDialogUpdateStatus(void)
 {
-	SCE_LOG_TRACE("sceErrorDialogUpdateStatus called");
+	LOG_SCE_TRACE("sceErrorDialogUpdateStatus called");
 
 	// Because we do not have a UI system
 	// for errors yet, we use if(1) to
@@ -142,7 +142,7 @@ int PS4API sceErrorDialogUpdateStatus(void)
 // We do not have a stub for this yet
 int sceErrorDialogClose()
 {
-	SCE_LOG_TRACE("sceErrorDialogClose called");
+	LOG_SCE_TRACE("sceErrorDialogClose called");
 
 	// In the future, this function 
 	// will close the error window that

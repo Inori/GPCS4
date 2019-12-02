@@ -64,7 +64,7 @@ int PS4API sceUserServiceTerminate(void)
 
 int PS4API sceUserServiceGetInitialUser(SceUserServiceUserId *userId)
 {
-	SCE_LOG_TRACE("sceUserServiceGetInitialUser called");
+	LOG_SCE_TRACE("sceUserServiceGetInitialUser called");
 
 	int returnVal = -1;
 
