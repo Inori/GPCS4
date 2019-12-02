@@ -25,7 +25,28 @@ extern const SCE_EXPORT_MODULE g_ExpModuleSceMsgDialog;
 // library: libSceMsgDialog
 //////////////////////////////////////////////////////////////////////////
 
-int PS4API sceMsgDialogGetResult(void);
+struct SceMsgDialogResult {
+	int32_t mode;
+	int32_t result;
+	int32_t buttonId;
+	char reserved[32];
+};
+
+// not sure if all of these data types are right
+struct SceMsgDialogParam {
+	int baseParam;
+	size_t size;
+	int mode;
+	int : 32;
+	void *userMsgParam;
+	void *progBarParam;
+	void *sysMsgParam;
+	int userId;
+	char reserved[40];
+	int : 32;
+};
+
+int PS4API sceMsgDialogGetResult(SceMsgDialogResult* result);
 
 
 int PS4API sceMsgDialogGetStatus(void);
@@ -34,7 +55,7 @@ int PS4API sceMsgDialogGetStatus(void);
 int PS4API sceMsgDialogInitialize(void);
 
 
-int PS4API sceMsgDialogOpen(void);
+int PS4API sceMsgDialogOpen(const SceMsgDialogParam *param);
 
 
 int PS4API sceMsgDialogTerminate(void);

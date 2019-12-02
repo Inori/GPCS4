@@ -9,14 +9,15 @@
 // library: libSceErrorDialog
 //////////////////////////////////////////////////////////////////////////
 
-enum DialogStatus {
+// same as sce_msgdialog
+static enum DialogStatus {
 	NONE = 0,
 	INITIALIZED = 1,
 	RUNNING = 2,
 	FINISHED = 3
 };
 
-int status = NONE;
+static int status = NONE;
 
 // sceErrorDialogParamInitialize
 // is a static inlinei function that does not need emulation
