@@ -32,13 +32,6 @@ struct DialogParam {
 	uint32_t reserved;
 };
 
-enum DialogStatus {
-	NONE = 0,
-	INITIALIZED = 1,
-	RUNNING = 2,
-	FINISHED = 3
-};
-
 int PS4API sceErrorDialogGetStatus(void);
 
 

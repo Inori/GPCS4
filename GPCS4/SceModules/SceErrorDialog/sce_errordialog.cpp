@@ -9,6 +9,13 @@
 // library: libSceErrorDialog
 //////////////////////////////////////////////////////////////////////////
 
+enum DialogStatus {
+	NONE = 0,
+	INITIALIZED = 1,
+	RUNNING = 2,
+	FINISHED = 3
+};
+
 int status = NONE;
 
 // sceErrorDialogParamInitialize
@@ -61,6 +68,10 @@ int PS4API sceErrorDialogOpen(DialogParam* param)
 		return INVALID_USER_ID;
 	}
 
+	// In the future, this will open a window
+	// and print the error in that window,
+	// rather than printing to a console
+
 	LOG_TRACE("sceErrorDialogOpen called");
 	LOG_SCE_TRACE("userID 0x%p", param->userId);
 	LOG_SCE_TRACE("error 0x%p", param->errorCode);
@@ -108,6 +119,10 @@ int PS4API sceErrorDialogUpdateStatus(void)
 // We do not have a stub for this yet
 int sceErrorDialogClose()
 {
+	// In the future, this function 
+	// will close the error window that
+	// was opened by sceErrorDialogOpen
+
 	if(status == NONE)
 	{
 		return NOT_INITIALIZED;
