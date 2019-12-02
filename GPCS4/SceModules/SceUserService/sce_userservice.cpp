@@ -11,26 +11,61 @@
 // library: libSceUserService
 //////////////////////////////////////////////////////////////////////////
 
+bool init = false;
+
+#define SCE_KERNEL_PRIO_FIFO_HIGHEST    256
+#define SCE_KERNEL_PRIO_FIFO_LOWEST     767
 
 int PS4API sceUserServiceInitialize(const SceUserServiceInitializeParams *initParams)
 {
-	LOG_SCE_DUMMY_IMPL();
-	return SCE_OK;
+	if (initParams->priority > SCE_KERNEL_PRIO_FIFO_LOWEST ||
+		initParams->priority < SCE_KERNEL_PRIO_FIFO_HIGHEST)
+	{
+		return SCE_USER_SERVICE_ERROR_INVALID_ARGUMENT;
+	}
+
+	if (!init)
+	{
+		init = true;
+		return SCE_OK;
+	}
+
+	else
+	{
+		return SCE_USER_SERVICE_ERROR_ALREADY_INITIALIZED;
+	}
 }
 
 
 int PS4API sceUserServiceTerminate(void)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	if(0)
+	//if (!init)
+	{
+		return SCE_USER_SERVICE_ERROR_NOT_INITIALIZED;
+	}
+
+	else
+	{
+		init = false;
+		return SCE_OK;
+	}
+	
 }
 
 
 int PS4API sceUserServiceGetInitialUser(SceUserServiceUserId *userId)
 {
-	LOG_SCE_DUMMY_IMPL();
-	*userId = SCE_DUMMY_USERID;
-	return SCE_OK;
+	if (!init)
+	{
+		return SCE_USER_SERVICE_ERROR_NOT_INITIALIZED;
+	}
+
+	else
+	{
+		*userId = SCE_DUMMY_USERID;
+		return SCE_OK;
+	}
 }
 
 
