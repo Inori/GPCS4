@@ -867,7 +867,7 @@ VkFormat GnmCommandBufferDraw::convertDataFormatToVkFormat(DataFormat dataFormat
 		//{ kDataFormatB32G32R32X32Float, VK_FORMAT_B32G32R32X32_FLOAT },
 		{ kDataFormatR32G32B32A32Uint, VK_FORMAT_R32G32B32A32_UINT },
 		{ kDataFormatR32G32B32A32Sint, VK_FORMAT_R32G32B32A32_SINT },
-		//{ kDataFormatR32G32B32Float, VK_FORMAT_R32G32B32_FLOAT },
+		{ kDataFormatR32G32B32Float, VK_FORMAT_R32G32B32_SFLOAT },
 		{ kDataFormatR32G32B32Uint, VK_FORMAT_R32G32B32_UINT },
 		{ kDataFormatR32G32B32Sint, VK_FORMAT_R32G32B32_SINT },
 		//{ kDataFormatR16G16B16A16Float, VK_FORMAT_R16G16B16A16_FLOAT },
@@ -881,13 +881,13 @@ VkFormat GnmCommandBufferDraw::convertDataFormatToVkFormat(DataFormat dataFormat
 		//{ kDataFormatB16G16R16X16Unorm, VK_FORMAT_B16G16R16X16_UNORM },
 		{ kDataFormatR16G16B16A16Snorm, VK_FORMAT_R16G16B16A16_SNORM },
 		//{ kDataFormatL32A32Float, VK_FORMAT_L32A32_FLOAT },
-		//{ kDataFormatR32G32Float, VK_FORMAT_R32G32_FLOAT },
+		{ kDataFormatR32G32Float, VK_FORMAT_R32G32_SFLOAT },
 		{ kDataFormatR32G32Uint, VK_FORMAT_R32G32_UINT },
 		{ kDataFormatR32G32Sint, VK_FORMAT_R32G32_SINT },
 		//{ kDataFormatR11G11B10Float, VK_FORMAT_R11G11B10_FLOAT },
 		{ kDataFormatR8G8B8A8Unorm, VK_FORMAT_R8G8B8A8_UNORM },
 		//{ kDataFormatR8G8B8X8Unorm, VK_FORMAT_R8G8B8X8_UNORM },
-		//{ kDataFormatR8G8B8A8UnormSrgb, VK_FORMAT_R8G8B8A8_UNORMSRGB },
+		{ kDataFormatR8G8B8A8UnormSrgb, VK_FORMAT_R8G8B8A8_SRGB },
 		//{ kDataFormatR8G8B8X8UnormSrgb, VK_FORMAT_R8G8B8X8_UNORMSRGB },
 		{ kDataFormatR8G8B8A8Uint, VK_FORMAT_R8G8B8A8_UINT },
 		{ kDataFormatR8G8B8A8Snorm, VK_FORMAT_R8G8B8A8_SNORM },
@@ -992,7 +992,7 @@ VkFormat GnmCommandBufferDraw::convertDataFormatToVkFormat(DataFormat dataFormat
 	auto iter = formatMap.find(dataFormat);
 	if (iter == formatMap.end())
 	{
-		LOG_WARN("data format not found %X", dataFormat.m_asInt);
+		LOG_WARN("data format not found %s", dataFormatName(dataFormat));
 		format = VK_FORMAT_UNDEFINED;
 	}
 	else
