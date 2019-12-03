@@ -3,6 +3,8 @@
 #include "GnmCommon.h"
 #include "GnmConstant.h"
 
+#include <unordered_map>
+
 union DataFormat
 {
 	class
@@ -285,3 +287,6 @@ constexpr DataFormat		kDataFormatBc7UnormNoAlpha = { {kSurfaceFormatBc7,        
 constexpr DataFormat		kDataFormatBc7UnormSrgbNoAlpha = { {kSurfaceFormatBc7,         kTextureChannelTypeSrgb,  kTextureChannelX,  kTextureChannelY,  kTextureChannelZ,  kTextureChannelConstant1, 0 } };
 
 constexpr DataFormat		kDataFormatBc3UnormRABG = { {kSurfaceFormatBc3,         kTextureChannelTypeUNorm,  kTextureChannelX,  kTextureChannelW,  kTextureChannelZ,  kTextureChannelY, 0 } };
+
+// Used for debugging purpose
+const char* dataFormatName(DataFormat dataFmt);

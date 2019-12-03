@@ -1464,6 +1464,9 @@
     <ClCompile Include="Graphic\Gve\GvePresenter.cpp">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClCompile>
+    <ClCompile Include="Graphic\Gnm\GnmDataFormat.cpp">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="SceModules\SceLibc\sce_libc_string_asm.asm">
