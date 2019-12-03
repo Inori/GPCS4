@@ -11,6 +11,7 @@
 
 #include "sce_module_common.h"
 #include "sce_audioout_types.h"
+#include "sce_audioout_error.h"
 
 extern const SCE_EXPORT_MODULE g_ExpModuleSceAudioOut;
 
