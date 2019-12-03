@@ -51,7 +51,13 @@ public:
 
 	DataFormat getDataFormat() const
 	{
-		// TODO
+		return DataFormat::build(
+			(SurfaceFormat)m_vsharp.dfmt, 
+			(TextureChannelType)m_vsharp.nfmt,
+			(TextureChannel)m_vsharp.dst_sel_x, 
+			(TextureChannel)m_vsharp.dst_sel_y, 
+			(TextureChannel)m_vsharp.dst_sel_z, 
+			(TextureChannel)m_vsharp.dst_sel_w);
 	}
 
 	bool isBuffer(void) const
@@ -78,7 +84,7 @@ public:
 	union
 	{
 		uint32_t m_regs[4];
-		VSharpBuffer vsharp;
+		VSharpBuffer m_vsharp;
 	};
 	
 };
