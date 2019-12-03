@@ -56,7 +56,7 @@ GveRenderPassFormat GveFrameBuffer::getRenderPassFormat(const GveRenderTargets& 
 
 	for (uint32_t i = 0; i < MaxNumRenderTargets; i++) 
 	{
-		if (renderTargets.color[i].view != nullptr) 
+		if (renderTargets.color[i].view == nullptr) 
 		{
 			continue;
 		}

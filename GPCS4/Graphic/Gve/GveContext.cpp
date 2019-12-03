@@ -587,6 +587,16 @@ void GveContex::commitGraphicsState()
 		updateIndexBinding();
 	}
 
+	if (m_flags.test(GveContextFlag::GpDirtyPipeline))
+	{
+		updateGraphicsPipeline();
+	}
+
+	if (m_flags.test(GveContextFlag::GpDirtyPipelineState))
+	{
+		updateGraphicsPipelineStates();
+	}
+
 	if (m_flags.test(GveContextFlag::GpDirtyResources))
 	{
 		updateShaderResources<VK_PIPELINE_BIND_POINT_GRAPHICS>();
@@ -597,15 +607,6 @@ void GveContex::commitGraphicsState()
 		updateGraphicsDescriptorLayout();
 	}
 
-	if (m_flags.test(GveContextFlag::GpDirtyPipeline))
-	{
-		updateGraphicsPipeline();
-	}
-
-	if (m_flags.test(GveContextFlag::GpDirtyPipelineState))
-	{
-		updateGraphicsPipelineStates();
-	}
 }
 
 void GveContex::commitComputeState()
