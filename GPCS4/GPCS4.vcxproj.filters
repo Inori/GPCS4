@@ -826,6 +826,12 @@
     <ClInclude Include="Graphic\Gve\GvePresenter.h">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClInclude>
+    <ClInclude Include="sce_errordialog_types.h">
+      <Filter>SceModules\SceErrorDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="sce_errordialog_error.h">
+      <Filter>SceModules\SceErrorDialog</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">

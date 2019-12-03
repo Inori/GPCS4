@@ -10,15 +10,8 @@
 //////////////////////////////////////////////////////////////////////////
 
 // same as sce_msgdialog
-static enum DialogStatus 
-{
-	NONE = 0,
-	INITIALIZED = 1,
-	RUNNING = 2,
-	FINISHED = 3
-};
 
-static int g_status = NONE;
+static int g_status = SCE_ERROR_DIALOG_STATUS_NONE;
 
 // sceErrorDialogParamInitialize
 // is a static inlinei function that does not need emulation
@@ -38,9 +31,9 @@ int PS4API sceErrorDialogInitialize(void)
 
 	int returnVal = -1;
 
-	if (g_status == NONE)
+	if (g_status == SCE_ERROR_DIALOG_STATUS_NONE)
 	{
-		g_status = INITIALIZED;
+		g_status = SCE_ERROR_DIALOG_STATUS_INITIALIZED;
 		returnVal = SCE_OK;
 	}
 
@@ -52,33 +45,33 @@ int PS4API sceErrorDialogInitialize(void)
 	return returnVal;
 }
 
-#define NOT_INITIALIZED 0x80ED0001
-#define PARAM_INVALID 0x80ED0003
-#define INVALID_STATE 0x80ED0005
-#define SERVICE_BUSY 0x80ED0006
-#define INVALID_USER_ID 0x80ED0007
-#define UNEXPECTED_FATAL 0x80ED0004
+#define SCE_ERROR_DIALOG_ERROR_NOT_INITIALIZED 0x80ED0001
+#define SCE_ERROR_DIALOG_ERROR_PARAM_INVALID 0x80ED0003
+#define SCE_ERROR_DIALOG_ERROR_INVALID_STATE 0x80ED0005
+#define SCE_ERROR_DIALOG_ERROR_SERVICE_BUSY 0x80ED0006
+#define SCE_ERROR_DIALOG_ERROR_INVALID_USER_ID 0x80ED0007
+#define SCE_ERROR_DIALOG_ERROR_UNEXPECTED_FATAL 0x80ED0004
 
 
-int PS4API sceErrorDialogOpen(DialogParam* param)
+int PS4API sceErrorDialogOpen(SceErrorDialogParam* param)
 {
 	LOG_SCE_TRACE("sceErrorDialogOpen called");
 
 	int returnVal = -1;
 
-	if (g_status == NONE)
+	if (g_status == SCE_ERROR_DIALOG_STATUS_NONE)
 	{
-		returnVal = NOT_INITIALIZED;
+		returnVal = SCE_ERROR_DIALOG_ERROR_NOT_INITIALIZED;
 	}
 
-	else if (g_status == RUNNING)
+	else if (g_status == SCE_ERROR_DIALOG_STATUS_RUNNING)
 	{
-		returnVal = INVALID_STATE;
+		returnVal = SCE_ERROR_DIALOG_ERROR_INVALID_STATE;
 	}
 
 	else if (param->userId == -1)
 	{
-		returnVal = INVALID_USER_ID;
+		returnVal = SCE_ERROR_DIALOG_ERROR_INVALID_USER_ID;
 	}
 
 	else
@@ -90,7 +83,7 @@ int PS4API sceErrorDialogOpen(DialogParam* param)
 		LOG_TRACE("userID 0x%p", param->userId);
 		LOG_TRACE("error 0x%p", param->errorCode);
 
-		g_status = RUNNING;
+		g_status = SCE_ERROR_DIALOG_STATUS_RUNNING;
 		returnVal = SCE_OK;
 	}
 
@@ -103,14 +96,14 @@ int PS4API sceErrorDialogTerminate(void)
 
 	int returnVal = -1;
 
-	if (g_status == NONE)
+	if (g_status == SCE_ERROR_DIALOG_STATUS_NONE)
 	{
-		returnVal = NOT_INITIALIZED;
+		returnVal = SCE_ERROR_DIALOG_ERROR_NOT_INITIALIZED;
 	}
 
 	else
 	{
-		g_status = NONE;
+		g_status = SCE_ERROR_DIALOG_STATUS_NONE;
 		returnVal = SCE_OK;
 	}
 
@@ -131,12 +124,12 @@ int PS4API sceErrorDialogUpdateStatus(void)
 
 	if (1)
 	{
-		g_status = FINISHED;
+		g_status = SCE_ERROR_DIALOG_STATUS_FINISHED;
 	}
 
-	// This will be FINISHED when the 
+	// This will be SCE_ERROR_DIALOG_STATUS_FINISHED when the 
 	// window is closed, or it will be 
-	// RUNNING, which is set in sceErrorDialogOpen
+	// SCE_ERROR_DIALOG_STATUS_RUNNING, which is set in sceErrorDialogOpen
 	return g_status;
 }
 
@@ -151,14 +144,14 @@ int sceErrorDialogClose()
 
 	int returnVal = -1;
 
-	if (g_status == NONE)
+	if (g_status == SCE_ERROR_DIALOG_STATUS_NONE)
 	{
-		returnVal = NOT_INITIALIZED;
+		returnVal = SCE_ERROR_DIALOG_ERROR_NOT_INITIALIZED;
 	}
 
 	else
 	{
-		g_status = FINISHED;
+		g_status = SCE_ERROR_DIALOG_STATUS_FINISHED;
 		returnVal = SCE_OK;
 	}
 
