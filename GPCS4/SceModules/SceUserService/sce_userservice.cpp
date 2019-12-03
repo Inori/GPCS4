@@ -18,7 +18,8 @@ static bool g_init = false;
 
 int PS4API sceUserServiceInitialize(const SceUserServiceInitializeParams *initParams)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_DUMMY_IMPL();
+
 	int returnVal = -1;
 
 	if (initParams->priority > SCE_KERNEL_PRIO_FIFO_LOWEST ||
@@ -44,7 +45,8 @@ int PS4API sceUserServiceInitialize(const SceUserServiceInitializeParams *initPa
 
 int PS4API sceUserServiceTerminate(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_DUMMY_IMPL();
+
 	int returnVal = -1;
 
 	if (!g_init)
@@ -64,7 +66,7 @@ int PS4API sceUserServiceTerminate(void)
 
 int PS4API sceUserServiceGetInitialUser(SceUserServiceUserId *userId)
 {
-	LOG_SCE_TRACE("sceUserServiceGetInitialUser called");
+	LOG_SCE_DUMMY_IMPL();
 
 	int returnVal = -1;
 
