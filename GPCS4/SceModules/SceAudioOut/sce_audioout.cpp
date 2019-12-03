@@ -37,23 +37,27 @@ int PS4API sceAudioOutInit(void)
 int PS4API sceAudioOutOpen(SceUserServiceUserId userId, int32_t type, int32_t index, uint32_t len, uint32_t freq, uint32_t param)
 {
 	LOG_SCE_DUMMY_IMPL();
+	LOG_TRACE("userID: %d, type: %d, index %d, len %d, freq %d, param %d", userId, type, index, len, freq, param);
 
 	int returnVal = -1;
 
-	if (!g_init)
+	do
 	{
-		returnVal = SCE_AUDIO_OUT_ERROR_NOT_INIT;
-	}
+		if (!g_init)
+		{
+			returnVal = SCE_AUDIO_OUT_ERROR_NOT_INIT;
+		}
 
-	else if (len < 0)
-	{
-		returnVal = SCE_AUDIO_OUT_ERROR_INVALID_SIZE;
-	}
+		else if (len < 0)
+		{
+			returnVal = SCE_AUDIO_OUT_ERROR_INVALID_SIZE;
+		}
 
-	else
-	{
-		returnVal = 0x789;
-	}
+		else
+		{
+			returnVal = 0x789;
+		}
+	} while (false);
 
 	return returnVal;
 }
