@@ -31,16 +31,20 @@ int PS4API sceErrorDialogInitialize(void)
 
 	int returnVal = -1;
 
-	if (g_status == SCE_ERROR_DIALOG_STATUS_NONE)
+	do
 	{
-		g_status = SCE_ERROR_DIALOG_STATUS_INITIALIZED;
-		returnVal = SCE_OK;
-	}
+		if (g_status == SCE_ERROR_DIALOG_STATUS_NONE)
+		{
+			g_status = SCE_ERROR_DIALOG_STATUS_INITIALIZED;
+			returnVal = SCE_OK;
+		}
 
-	else
-	{
-		returnVal = ALREADY_INITIALIZED;
+		else
+		{
+			returnVal = ALREADY_INITIALIZED;
+		}
 	}
+	while (false);
 
 	return returnVal;
 }
