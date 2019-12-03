@@ -181,10 +181,8 @@ int PS4API sceAudioOutSetVolume(int32_t handle, int32_t flag, int32_t *vol)
 			if (flag & (1 << i))
 			{
 				// if the volume is out of range
-				if (vol[volumeIndex] < 0 || vol[volumeIndex] > 32768)
-				{
-					returnVal = SCE_AUDIO_OUT_ERROR_INVALID_VOLUME;
-				}
+				vol[volumeIndex] < 0 ?		returnVal = SCE_AUDIO_OUT_ERROR_INVALID_VOLUME : 0;
+				vol[volumeIndex] > 32768 ?	returnVal = SCE_AUDIO_OUT_ERROR_INVALID_VOLUME : 0;
 
 				// increment
 				volumeIndex++;
