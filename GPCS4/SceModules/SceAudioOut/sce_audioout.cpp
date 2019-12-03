@@ -23,7 +23,7 @@ static bool g_init = false;
 
 int PS4API sceAudioOutInit(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_DUMMY_IMPL();
 
 	int returnVal = -1;
 
@@ -44,7 +44,7 @@ int PS4API sceAudioOutInit(void)
 
 int PS4API sceAudioOutOpen(SceUserServiceUserId userId, int32_t type, int32_t index, uint32_t len, uint32_t freq, uint32_t param)
 {
-	LOG_SCE_TRACE("sceAudioOutOpen called");
+	LOG_SCE_DUMMY_IMPL();
 
 	int returnVal = -1;
 
@@ -60,7 +60,6 @@ int PS4API sceAudioOutOpen(SceUserServiceUserId userId, int32_t type, int32_t in
 
 	else
 	{
-		LOG_SCE_DUMMY_IMPL();
 		returnVal = 0x789;
 	}
 
@@ -88,7 +87,7 @@ int PS4API sceAudioOutClose(int32_t handle)
 
 int PS4API sceAudioOutGetPortState(int32_t handle, SceAudioOutPortState *state)
 {
-	LOG_SCE_TRACE("sceAudioOutGetPortState called");
+	LOG_SCE_DUMMY_IMPL();
 
 	int returnVal = -1;
 
@@ -99,7 +98,6 @@ int PS4API sceAudioOutGetPortState(int32_t handle, SceAudioOutPortState *state)
 
 	else
 	{
-		LOG_SCE_DUMMY_IMPL();
 		state->output = SCE_AUDIO_OUT_STATE_OUTPUT_CONNECTED_PRIMARY;
 		state->channel = SCE_AUDIO_OUT_STATE_CHANNEL_2;
 		state->volume = 50;
@@ -153,7 +151,7 @@ int PS4API sceAudioOutOutputs(void)
 
 int PS4API sceAudioOutSetVolume(int32_t handle, int32_t flag, int32_t *vol)
 {
-	LOG_FIXME("Not fully implemented");
+	LOG_FIXME("Not implemented");
 
 	int returnVal = -1;
 	
