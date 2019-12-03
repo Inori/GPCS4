@@ -826,6 +826,21 @@
     <ClInclude Include="Graphic\Gve\GvePresenter.h">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClInclude>
+    <ClInclude Include="SceModules\SceAudioOut\sce_audioout_error.h">
+      <Filter>SceModules\SceAudioOut</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceErrorDialog\sce_errordialog_error.h">
+      <Filter>SceModules\SceErrorDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceErrorDialog\sce_errordialog_types.h">
+      <Filter>SceModules\SceErrorDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceMsgDialog\sce_msgdialog_error.h">
+      <Filter>SceModules\SceMsgDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceMsgDialog\sce_msgdialog_types.h">
+      <Filter>SceModules\SceMsgDialog</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">

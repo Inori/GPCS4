@@ -11,6 +11,7 @@
 
 #include "sce_module_common.h"
 #include "sce_audioout_types.h"
+#include "sce_audioout_error.h"
 
 extern const SCE_EXPORT_MODULE g_ExpModuleSceAudioOut;
 
@@ -43,7 +44,7 @@ int PS4API sceAudioOutOutput(void);
 int PS4API sceAudioOutOutputs(void);
 
 
-int PS4API sceAudioOutSetVolume(void);
+int PS4API sceAudioOutSetVolume(int32_t handle, int32_t flag, int32_t *vol);
 
 
 

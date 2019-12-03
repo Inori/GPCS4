@@ -172,9 +172,12 @@
     <ClInclude Include="SceModules\SceAppContentUtil\sce_appcontentutil.h" />
     <ClInclude Include="SceModules\SceAudio3d\sce_audio3d.h" />
     <ClInclude Include="SceModules\SceAudioOut\sce_audioout.h" />
+    <ClInclude Include="SceModules\SceAudioOut\sce_audioout_error.h" />
     <ClInclude Include="SceModules\SceAudioOut\sce_audioout_types.h" />
     <ClInclude Include="SceModules\SceCommonDialog\sce_commondialog.h" />
     <ClInclude Include="SceModules\SceErrorDialog\sce_errordialog.h" />
+    <ClInclude Include="SceModules\SceErrorDialog\sce_errordialog_error.h" />
+    <ClInclude Include="SceModules\SceErrorDialog\sce_errordialog_types.h" />
     <ClInclude Include="SceModules\SceFiber\sce_fiber.h" />
     <ClInclude Include="SceModules\SceFios2\sce_fios2.h" />
     <ClInclude Include="SceModules\SceGameLiveStreaming\sce_gamelivestreaming.h" />
@@ -198,6 +201,8 @@
     <ClInclude Include="SceModules\SceLibkernel\sce_pthread_common.h" />
     <ClInclude Include="SceModules\SceMouse\sce_mouse.h" />
     <ClInclude Include="SceModules\SceMsgDialog\sce_msgdialog.h" />
+    <ClInclude Include="SceModules\SceMsgDialog\sce_msgdialog_error.h" />
+    <ClInclude Include="SceModules\SceMsgDialog\sce_msgdialog_types.h" />
     <ClInclude Include="SceModules\SceNetCtl\sce_netctl.h" />
     <ClInclude Include="SceModules\SceNet\sce_net.h" />
     <ClInclude Include="SceModules\SceNpCommerce\sce_npcommerce.h" />

@@ -10,7 +10,8 @@
 #pragma once
 
 #include "sce_module_common.h"
-
+#include "sce_errordialog_error.h"
+#include "sce_errordialog_types.h"
 
 extern const SCE_EXPORT_MODULE g_ExpModuleSceErrorDialog;
 
@@ -31,7 +32,7 @@ int PS4API sceErrorDialogGetStatus(void);
 int PS4API sceErrorDialogInitialize(void);
 
 
-int PS4API sceErrorDialogOpen(void);
+int PS4API sceErrorDialogOpen(SceErrorDialogParam* param);
 
 
 int PS4API sceErrorDialogTerminate(void);

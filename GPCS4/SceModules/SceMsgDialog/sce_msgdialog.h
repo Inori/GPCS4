@@ -10,6 +10,8 @@
 #pragma once
 
 #include "sce_module_common.h"
+#include "sce_msgdialog_error.h"
+#include "sce_msgdialog_types.h"
 
 
 extern const SCE_EXPORT_MODULE g_ExpModuleSceMsgDialog;
@@ -25,7 +27,7 @@ extern const SCE_EXPORT_MODULE g_ExpModuleSceMsgDialog;
 // library: libSceMsgDialog
 //////////////////////////////////////////////////////////////////////////
 
-int PS4API sceMsgDialogGetResult(void);
+int PS4API sceMsgDialogGetResult(SceMsgDialogResult* result);
 
 
 int PS4API sceMsgDialogGetStatus(void);
@@ -34,7 +36,7 @@ int PS4API sceMsgDialogGetStatus(void);
 int PS4API sceMsgDialogInitialize(void);
 
 
-int PS4API sceMsgDialogOpen(void);
+int PS4API sceMsgDialogOpen(const SceMsgDialogParam *param);
 
 
 int PS4API sceMsgDialogTerminate(void);
