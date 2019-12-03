@@ -83,40 +83,38 @@ int PS4API sceSystemServiceParamGetInt(int paramID, int* value)
 
 	int returnVal = -1;
 
-	if (paramID == SCE_SYSTEM_SERVICE_PARAM_ID_LANG)
+	switch (paramID)
 	{
+	case SCE_SYSTEM_SERVICE_PARAM_ID_LANG:
 		*value = SCE_SYSTEM_PARAM_LANG_ENGLISH_US;
 		returnVal = SCE_OK;
-	}
+		break;
 
-	else if (paramID == SCE_SYSTEM_SERVICE_PARAM_ID_DATE_FORMAT)
-	{
+	case SCE_SYSTEM_SERVICE_PARAM_ID_DATE_FORMAT:
 		*value = SCE_SYSTEM_PARAM_DATE_FORMAT_MMDDYYYY;
 		returnVal = SCE_OK;
-	}
+		break;
 
-	else if (paramID == SCE_SYSTEM_SERVICE_PARAM_ID_TIME_FORMAT)
-	{
+	case SCE_SYSTEM_SERVICE_PARAM_ID_TIME_FORMAT:
 		*value = SCE_SYSTEM_PARAM_TIME_FORMAT_12HOUR;
 		returnVal = SCE_OK;
-	}
+		break;
 
-	else if (paramID == SCE_SYSTEM_SERVICE_PARAM_ID_TIME_ZONE)
-	{
+	case SCE_SYSTEM_SERVICE_PARAM_ID_TIME_ZONE:
 		*value = 0;
 		returnVal = SCE_OK;
-	}
+		break;
 
-	// Day-light savings
-	else if (paramID == SCE_SYSTEM_SERVICE_PARAM_ID_SUMMERTIME)
-	{
+		// Day-light savings
+	case SCE_SYSTEM_SERVICE_PARAM_ID_SUMMERTIME:
 		*value = 0;
 		returnVal = SCE_OK;
-	}
+		break;
 
-	else if (paramID == SCE_SYSTEM_SERVICE_PARAM_ID_GAME_PARENTAL_LEVEL)
-	{
-		// parental controls can be any of the follwoing values
+	case SCE_SYSTEM_SERVICE_PARAM_ID_GAME_PARENTAL_LEVEL:
+		// parental controls can be any of 
+		// the following values
+
 		// 0 -- which means off
 		// 1
 		// 2
@@ -126,21 +124,20 @@ int PS4API sceSystemServiceParamGetInt(int paramID, int* value)
 		// 11
 		*value = 0;
 		returnVal = SCE_OK;
-	}
 
-	else if (paramID == SCE_SYSTEM_SERVICE_PARAM_ID_ENTER_BUTTON_ASSIGN)
-	{
+	case SCE_SYSTEM_SERVICE_PARAM_ID_ENTER_BUTTON_ASSIGN:
 		// 0 means the O button
 		// 1 means the X button
-		
+
 		*value = 1;
 		returnVal = SCE_OK;
-	}
+		break;
 
-	else
-	{
-		 returnVal = SCE_SYSTEM_SERVICE_ERROR_PARAMETER;
-	}
+	default:
+		returnVal = SCE_SYSTEM_SERVICE_ERROR_PARAMETER;
+		break;
+
+	};
 
 	return returnVal;
 }
