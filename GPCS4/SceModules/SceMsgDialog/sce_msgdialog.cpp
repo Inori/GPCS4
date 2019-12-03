@@ -34,7 +34,7 @@ static int g_status = NONE;
 
 int PS4API sceMsgDialogGetResult(SceMsgDialogResult* result)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_DUMMY_IMPL();
 
 	int returnVal = -1;
 
@@ -64,7 +64,7 @@ int PS4API sceMsgDialogGetResult(SceMsgDialogResult* result)
 
 int PS4API sceMsgDialogGetStatus(void)
 {
-	LOG_SCE_TRACE("sceMsgDialogGetStatus called");
+	LOG_SCE_DUMMY_IMPL();
 
 	return g_status;
 }
@@ -72,7 +72,7 @@ int PS4API sceMsgDialogGetStatus(void)
 
 int32_t PS4API sceMsgDialogInitialize(void)
 {
-	LOG_SCE_TRACE("sceMsgDialogInitialize called");
+	LOG_SCE_DUMMY_IMPL();
 
 	int returnVal = -1;
 
@@ -99,10 +99,9 @@ int32_t PS4API sceMsgDialogInitialize(void)
 
 int PS4API sceMsgDialogOpen(const SceMsgDialogParam *param)
 {
-	// Do not know how to handle parameter
-	// const SceMsgDialogParam *param
+	// SceMsgDialogParam structure is not correct right now
 
-	LOG_FIXME("Not fully implemented");
+	LOG_FIXME("Not implemented");
 
 	int returnVal = -1;
 
@@ -137,7 +136,7 @@ int PS4API sceMsgDialogOpen(const SceMsgDialogParam *param)
 
 int PS4API sceMsgDialogTerminate(void)
 {
-	LOG_SCE_TRACE("sceMsgDialogTerminate called");
+	LOG_SCE_DUMMY_IMPL();
 
 	int returnVal = -1;
 
@@ -158,7 +157,7 @@ int PS4API sceMsgDialogTerminate(void)
 
 int PS4API sceMsgDialogUpdateStatus(void)
 {
-	LOG_SCE_TRACE("sceMsgDialogUpdateStatus called");
+	LOG_SCE_DUMMY_IMPL();
 
 	// Because we do not have a UI system
 	// for messages yet, we use if(1) to
