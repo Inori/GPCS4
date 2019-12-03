@@ -11,6 +11,7 @@
 #include "GveRenderPass.h"
 #include "GveResourceObjects.h"
 #include "GveDescriptor.h"
+#include "GveStaging.h"
 
 namespace gve
 {;
@@ -20,7 +21,8 @@ GveContex::GveContex(const RcPtr<GveDevice>& device) :
 	m_device(device),
 	m_objects(&m_device->m_resObjects),
 	m_cmd(nullptr),
-	m_descPool(m_device->createDescriptorPool())
+	m_descPool(m_device->createDescriptorPool()),
+	m_stagingAlloc(std::make_unique<GveStagingBufferAllocator>(device))
 {
 }
 
@@ -68,6 +70,8 @@ RcPtr<GveCmdList> GveContex::endRecording()
 	m_cmd->endRecording();
 
 	m_descPool->reset();
+
+	m_stagingAlloc->trim();
 
 	return std::exchange(m_cmd, nullptr);
 }
@@ -217,9 +221,16 @@ void GveContex::bindResourceView(uint32_t regSlot,
 	m_flags.set(GveContextFlag::GpDirtyResources);
 }
 
-void GveContex::drawIndex(uint32_t indexCount, uint32_t firstIndex)
+void GveContex::drawIndex(
+	uint32_t                indexCount,
+	uint32_t                instanceCount,
+	uint32_t                firstIndex,
+	uint32_t                vertexOffset,
+	uint32_t                firstInstance)
 {
+	commitGraphicsState();
 
+	m_cmd->cmdDrawIndexed(indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 }
 
 void GveContex::copyBuffer(GveBufferSlice& dstBuffer, GveBufferSlice& srcBuffer, VkDeviceSize size)
@@ -236,7 +247,7 @@ void GveContex::copyBuffer(GveBufferSlice& dstBuffer, GveBufferSlice& srcBuffer,
 }
 
 void GveContex::copyBufferToImage(
-	RcPtr<GveImage>& dstImage,
+	const RcPtr<GveImage>& dstImage,
 	GveBufferSlice& srcBuffer,
 	uint32_t width, uint32_t height)
 {
@@ -262,13 +273,24 @@ void GveContex::copyBufferToImage(
 void GveContex::updateBuffer(const RcPtr<GveBuffer>& buffer, 
 	VkDeviceSize offset, VkDeviceSize size, const void* data)
 {
-	
+	auto stagingSlice = m_stagingAlloc->alloc(size, CACHE_LINE_SIZE);
+
+	void* stagingData = stagingSlice.mapPtr(0);
+	std::memcpy(stagingData, data, size);
+
+	auto dstSlice = GveBufferSlice(buffer, offset, size);
+	copyBuffer(dstSlice, stagingSlice, size);
 }
 
-void GveContex::updateImage(const RcPtr<GveImage>& buffer, 
+void GveContex::updateImage(const RcPtr<GveImage>& image, 
 	VkDeviceSize offset, VkDeviceSize size, const void* data)
 {
+	auto stagingSlice = m_stagingAlloc->alloc(size, CACHE_LINE_SIZE);
 
+	void* stagingData = stagingSlice.mapPtr(0);
+	std::memcpy(stagingData, data, size);
+
+	copyBufferToImage(image, stagingSlice, image->getWidth(), image->getHeight());
 }
 
 void GveContex::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout)

@@ -345,9 +345,11 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 	do 
 	{
 		bindIndexBuffer(indexAddr, indexCount);
+
 		commitVsStage();
 		commitPsStage();
-		m_context->drawIndex(indexCount, 0);
+
+		m_context->drawIndex(indexCount, 1, 0, 0, 0);
 
 	} while (false);
 }
@@ -532,10 +534,11 @@ void GnmCommandBufferDraw::setVertexInputLayout(const PsslShaderResource& res, c
 
 		// TODO:
 		// For some games, ie. Nier:Automata, vertex attributes are not stored
-		// in a single vertex buffer area, so in the case we need to use multiple vertex
+		// in a single vertex buffer area, so in this case we need to use multiple vertex
 		// bindings. But for other games, all vertex attributes are within the same memory area,
 		// in this case, we only need one vertex binding.
-		// Currently I only support the first case, need some improvements.
+		// Currently I only support the first case, we need to check whether these attributes 
+		// are in same memory area or not.
 
 		uint32_t bindingCount = inputSemantics.size();
 		GveVertexInputInfo viInfo = {};
@@ -562,6 +565,18 @@ bool GnmCommandBufferDraw::bindVertexBuffer(uint32_t bindingId, const GnmBuffer&
 	bool ret = false;
 	do
 	{
+		// TODO:
+		// There's a critical problem here, probably the most critical one for the whole GPCS4 project:
+		// Because of the uniform memory architecture of PSS4 hardware,
+		// We don't know when to update or release a GPU resource.
+		// Because PS4 use the same memory chip for both CPU and GPU,
+		// A PS4 game treat GPU buffers just as normal CPU memories, and manage them
+		// using in-game memory pool, which doesn't export explicit interface for us.
+		// That makes us impossible to detect buffer update and release.
+		//
+		// We may need to develop some heuristic strategies to deal with this problem.
+		// Currently I just update GPU buffer every time it gets bound and don't release any of them.
+
 		void* vtxData = vsharp.getBaseAddress();
 		if (!vtxData)
 		{

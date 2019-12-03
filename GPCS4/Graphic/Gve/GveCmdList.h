@@ -213,6 +213,11 @@ public:
 			rangeCount, pRanges);
 	}
 
+
+	// TODO:
+	// Currently I use single time command buffer to submit
+	// copy commands, which is not efficient, we should batch
+	// these operations and submit them once.
 	VkCommandBuffer cmdBeginSingleTimeCommands()
 	{
 		VkCommandBufferAllocateInfo allocInfo = {};

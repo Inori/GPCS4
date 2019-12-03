@@ -8,7 +8,9 @@
 	#define GVE_DEBUG_MARKER 1
 #endif  // GPCS4_DEBUG
 
-
 #include <vulkan/vulkan.h>
+
+
+constexpr size_t CACHE_LINE_SIZE = 64;
 
 
