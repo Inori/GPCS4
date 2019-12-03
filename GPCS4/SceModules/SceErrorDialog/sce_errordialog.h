@@ -25,7 +25,8 @@ extern const SCE_EXPORT_MODULE g_ExpModuleSceErrorDialog;
 // library: libSceErrorDialog
 //////////////////////////////////////////////////////////////////////////
 
-struct DialogParam {
+struct DialogParam 
+{
 	uint32_t size;
 	uint32_t errorCode;
 	uint32_t userId;

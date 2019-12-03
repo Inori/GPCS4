@@ -12,14 +12,15 @@
 //////////////////////////////////////////////////////////////////////////
 
 // same as sce_errordialog
-static enum DialogStatus {
+static enum DialogStatus 
+{
 	NONE = 0,
 	INITIALIZED = 1,
 	RUNNING = 2,
 	FINISHED = 3
 };
 
-static int status = NONE;
+static int g_status = NONE;
 
 #define SCE_COMMON_DIALOG_ERROR_NOT_SYSTEM_INITIALIZED 0x80B80001
 #define SCE_COMMON_DIALOG_ERROR_ALREADY_INITIALIZED 0x80B80004
@@ -37,7 +38,7 @@ int PS4API sceMsgDialogGetResult(SceMsgDialogResult* result)
 
 	int returnVal = -1;
 
-	if (status != FINISHED)
+	if (g_status != FINISHED)
 	{
 		returnVal = SCE_COMMON_DIALOG_ERROR_NOT_FINISHED;
 	}
@@ -65,7 +66,7 @@ int PS4API sceMsgDialogGetStatus(void)
 {
 	LOG_SCE_TRACE("sceMsgDialogGetStatus called");
 
-	return status;
+	return g_status;
 }
 
 
@@ -75,13 +76,13 @@ int32_t PS4API sceMsgDialogInitialize(void)
 
 	int returnVal = -1;
 
-	if (status == NONE)
+	if (g_status == NONE)
 	{
-		status = INITIALIZED;
+		g_status = INITIALIZED;
 		returnVal = SCE_OK;
 	}
 
-	else if (status == INITIALIZED)
+	else if (g_status == INITIALIZED)
 	{
 		returnVal = SCE_COMMON_DIALOG_ERROR_ALREADY_INITIALIZED;
 	}
@@ -105,7 +106,7 @@ int PS4API sceMsgDialogOpen(const SceMsgDialogParam *param)
 
 	int returnVal = -1;
 
-	if (status == RUNNING || status == NONE)
+	if (g_status == RUNNING || g_status == NONE)
 	{
 		returnVal = SCE_COMMON_DIALOG_ERROR_INVALID_STATE;
 	}
@@ -126,7 +127,7 @@ int PS4API sceMsgDialogOpen(const SceMsgDialogParam *param)
 		// because I cannot yet confirm if
 		// the SceMsgDialogParam structure is correct
 
-		status = RUNNING;
+		g_status = RUNNING;
 		returnVal = SCE_OK;
 	}
 
@@ -140,14 +141,14 @@ int PS4API sceMsgDialogTerminate(void)
 
 	int returnVal = -1;
 
-	if (status == NONE)
+	if (g_status == NONE)
 	{
 		returnVal = SCE_COMMON_DIALOG_ERROR_NOT_INITIALIZED;
 	}
 
 	else
 	{
-		status = NONE;
+		g_status = NONE;
 		returnVal = SCE_OK;
 	}
 
@@ -168,13 +169,13 @@ int PS4API sceMsgDialogUpdateStatus(void)
 
 	if (1)
 	{
-		status = FINISHED;
+		g_status = FINISHED;
 	}
 
 	// This will be FINISHED when the 
 	// window is closed, or it will be 
 	// RUNNING, which is set in sceMsgDialogOpen
-	return status;
+	return g_status;
 }
 
 

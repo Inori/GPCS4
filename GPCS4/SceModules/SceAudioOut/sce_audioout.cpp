@@ -11,8 +11,7 @@
 // library: libSceAudioOut
 //////////////////////////////////////////////////////////////////////////
 
-static bool init = false;
-static int volume;
+static bool g_init = false;
 
 #define SCE_AUDIO_OUT_ERROR_ALREADY_INIT 0x8026000e
 #define SCE_AUDIO_OUT_ERROR_NOT_INIT 0x8026000f
@@ -28,14 +27,14 @@ int PS4API sceAudioOutInit(void)
 
 	int returnVal = -1;
 
-	if (init)
+	if (g_init)
 	{
 		returnVal = SCE_AUDIO_OUT_ERROR_ALREADY_INIT;
 	}
 
 	else
 	{
-		init = true;
+		g_init = true;
 		returnVal = SCE_OK;
 	}
 
@@ -49,7 +48,7 @@ int PS4API sceAudioOutOpen(SceUserServiceUserId userId, int32_t type, int32_t in
 
 	int returnVal = -1;
 
-	if (!init)
+	if (!g_init)
 	{
 		returnVal = SCE_AUDIO_OUT_ERROR_NOT_INIT;
 	}
@@ -75,14 +74,14 @@ int PS4API sceAudioOutClose(int32_t handle)
 
 	int returnVal = -1;
 
-	if (!init)
+	if (!g_init)
 	{
 		returnVal = SCE_AUDIO_OUT_ERROR_NOT_INIT;
 	}
 
 	else
 	{
-		init = false;
+		g_init = false;
 		returnVal = SCE_OK;
 	}
 }
@@ -93,7 +92,7 @@ int PS4API sceAudioOutGetPortState(int32_t handle, SceAudioOutPortState *state)
 
 	int returnVal = -1;
 
-	if (!init)
+	if (!g_init)
 	{
 		returnVal = SCE_AUDIO_OUT_ERROR_NOT_INIT;
 	}
@@ -118,7 +117,7 @@ int PS4API sceAudioOutOutput(void)
 
 	int returnVal = -1;
 
-	if (!init)
+	if (!g_init)
 	{
 		returnVal = SCE_AUDIO_OUT_ERROR_NOT_INIT;
 	}
@@ -138,7 +137,7 @@ int PS4API sceAudioOutOutputs(void)
 
 	int returnVal = -1;
 
-	if (!init)
+	if (!g_init)
 	{
 		returnVal = SCE_AUDIO_OUT_ERROR_NOT_INIT;
 	}
@@ -159,7 +158,7 @@ int PS4API sceAudioOutSetVolume(int32_t handle, int32_t flag, int32_t *vol)
 	int returnVal = -1;
 	
 	// if initialization has not happened
-	if (!init)
+	if (!g_init)
 	{
 		returnVal = SCE_AUDIO_OUT_ERROR_NOT_INIT;
 	}

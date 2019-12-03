@@ -11,7 +11,7 @@
 // library: libSceUserService
 //////////////////////////////////////////////////////////////////////////
 
-static bool init = false;
+static bool g_init = false;
 
 #define SCE_KERNEL_PRIO_FIFO_HIGHEST    256
 #define SCE_KERNEL_PRIO_FIFO_LOWEST     767
@@ -27,9 +27,9 @@ int PS4API sceUserServiceInitialize(const SceUserServiceInitializeParams *initPa
 		returnVal = SCE_USER_SERVICE_ERROR_INVALID_ARGUMENT;
 	}
 
-	else if (!init)
+	else if (!g_init)
 	{
-		init = true;
+		g_init = true;
 		returnVal = SCE_OK;
 	}
 
@@ -47,14 +47,14 @@ int PS4API sceUserServiceTerminate(void)
 	LOG_FIXME("Not implemented");
 	int returnVal = -1;
 
-	if (!init)
+	if (!g_init)
 	{
 		returnVal = SCE_USER_SERVICE_ERROR_NOT_INITIALIZED;
 	}
 
 	else
 	{
-		init = false;
+		g_init = false;
 		returnVal = SCE_OK;
 	}
 	
@@ -68,7 +68,7 @@ int PS4API sceUserServiceGetInitialUser(SceUserServiceUserId *userId)
 
 	int returnVal = -1;
 
-	if (!init)
+	if (!g_init)
 	{
 		returnVal = SCE_USER_SERVICE_ERROR_NOT_INITIALIZED;
 	}
