@@ -36,7 +36,7 @@ int PS4API sceMsgDialogGetStatus(void);
 int PS4API sceMsgDialogInitialize(void);
 
 
-int PS4API sceMsgDialogOpen(const SceMsgDialogParam *param);
+int PS4API sceMsgDialogOpen(const MsgInfo *param);
 
 
 int PS4API sceMsgDialogTerminate(void);

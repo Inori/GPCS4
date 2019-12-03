@@ -11,7 +11,7 @@
 
 // same as sce_msgdialog
 
-static int g_status = SCE_ERROR_DIALOG_STATUS_NONE;
+static int g_status = DIALOG_STATUS_NONE;
 
 // sceErrorDialogParamInitialize
 // is a static inlinei function that does not need emulation
@@ -33,9 +33,9 @@ int PS4API sceErrorDialogInitialize(void)
 
 	do
 	{
-		if (g_status == SCE_ERROR_DIALOG_STATUS_NONE)
+		if (g_status == DIALOG_STATUS_NONE)
 		{
-			g_status = SCE_ERROR_DIALOG_STATUS_INITIALIZED;
+			g_status = DIALOG_STATUS_INITIALIZED;
 			returnVal = SCE_OK;
 		}
 
@@ -55,19 +55,19 @@ int PS4API sceErrorDialogOpen(SceErrorDialogParam* param)
 
 	int returnVal = -1;
 
-	if (g_status == SCE_ERROR_DIALOG_STATUS_NONE)
+	if (g_status == DIALOG_STATUS_NONE)
 	{
-		returnVal = SCE_ERROR_DIALOG_ERROR_NOT_INITIALIZED;
+		returnVal = DIALOG_ERROR_NOT_INITIALIZED;
 	}
 
-	else if (g_status == SCE_ERROR_DIALOG_STATUS_RUNNING)
+	else if (g_status == DIALOG_STATUS_RUNNING)
 	{
-		returnVal = SCE_ERROR_DIALOG_ERROR_INVALID_STATE;
+		returnVal = DIALOG_ERROR_INVALID_STATE;
 	}
 
 	else if (param->userId == -1)
 	{
-		returnVal = SCE_ERROR_DIALOG_ERROR_INVALID_USER_ID;
+		returnVal = DIALOG_ERROR_INVALID_USER_ID;
 	}
 
 	else
@@ -79,7 +79,7 @@ int PS4API sceErrorDialogOpen(SceErrorDialogParam* param)
 		LOG_TRACE("userID 0x%p", param->userId);
 		LOG_TRACE("error 0x%p", param->errorCode);
 
-		g_status = SCE_ERROR_DIALOG_STATUS_RUNNING;
+		g_status = DIALOG_STATUS_RUNNING;
 		returnVal = SCE_OK;
 	}
 
@@ -92,14 +92,14 @@ int PS4API sceErrorDialogTerminate(void)
 
 	int returnVal = -1;
 
-	if (g_status == SCE_ERROR_DIALOG_STATUS_NONE)
+	if (g_status == DIALOG_STATUS_NONE)
 	{
-		returnVal = SCE_ERROR_DIALOG_ERROR_NOT_INITIALIZED;
+		returnVal = DIALOG_ERROR_NOT_INITIALIZED;
 	}
 
 	else
 	{
-		g_status = SCE_ERROR_DIALOG_STATUS_NONE;
+		g_status = DIALOG_STATUS_NONE;
 		returnVal = SCE_OK;
 	}
 
@@ -120,12 +120,12 @@ int PS4API sceErrorDialogUpdateStatus(void)
 
 	if (1)
 	{
-		g_status = SCE_ERROR_DIALOG_STATUS_FINISHED;
+		g_status = DIALOG_STATUS_FINISHED;
 	}
 
-	// This will be SCE_ERROR_DIALOG_STATUS_FINISHED when the 
+	// This will be DIALOG_STATUS_FINISHED when the 
 	// window is closed, or it will be 
-	// SCE_ERROR_DIALOG_STATUS_RUNNING, which is set in sceErrorDialogOpen
+	// DIALOG_STATUS_RUNNING, which is set in sceErrorDialogOpen
 	return g_status;
 }
 
@@ -140,14 +140,14 @@ int sceErrorDialogClose()
 
 	int returnVal = -1;
 
-	if (g_status == SCE_ERROR_DIALOG_STATUS_NONE)
+	if (g_status == DIALOG_STATUS_NONE)
 	{
-		returnVal = SCE_ERROR_DIALOG_ERROR_NOT_INITIALIZED;
+		returnVal = DIALOG_ERROR_NOT_INITIALIZED;
 	}
 
 	else
 	{
-		g_status = SCE_ERROR_DIALOG_STATUS_FINISHED;
+		g_status = DIALOG_STATUS_FINISHED;
 		returnVal = SCE_OK;
 	}
 

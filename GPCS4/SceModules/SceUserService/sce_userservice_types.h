@@ -1,16 +1,16 @@
 #pragma once
 
 
-typedef struct SceUserServiceInitializeParams {
+typedef struct UserServiceInit {
 	int priority;
-} SceUserServiceInitializeParams;
+} UserServiceInit;
 
-typedef enum SceUserServiceEventType {
-	SCE_USER_SERVICE_EVENT_TYPE_LOGIN = 0,
-	SCE_USER_SERVICE_EVENT_TYPE_LOGOUT
-} SceUserServiceEventType;
+typedef enum UserEventType {
+	USER_EVENT_TYPE_LOGIN = 0,
+	USER_EVENT_TYPE_LOGOUT
+} UserEventType;
 
 typedef struct SceUserServiceEvent {
-	SceUserServiceEventType eventType;
+	UserEventType eventType;
 	SceUserServiceUserId userId;
 } SceUserServiceEvent;

@@ -10,7 +10,7 @@ struct SceMsgDialogResult
 };
 
 // This structure is not correct
-struct SceMsgDialogParam
+struct MsgInfo
 {
 	int baseParam;
 	size_t size;

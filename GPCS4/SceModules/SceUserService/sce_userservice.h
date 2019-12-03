@@ -28,10 +28,10 @@ extern const SCE_EXPORT_MODULE g_ExpModuleSceUserService;
 int PS4API sceUserServiceGetEvent(SceUserServiceEvent* event);
 
 
-int PS4API sceUserServiceGetInitialUser(SceUserServiceUserId *userId);
+int PS4API sceUserServiceGetInitialUser(SceUserServiceUserId  *userId);
 
 
-int PS4API sceUserServiceInitialize(const SceUserServiceInitializeParams *initParams);
+int PS4API sceUserServiceInitialize(const UserServiceInit *initParams);
 
 
 int PS4API sceUserServiceTerminate(void);

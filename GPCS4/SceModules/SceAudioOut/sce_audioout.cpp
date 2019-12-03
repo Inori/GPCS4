@@ -21,7 +21,7 @@ int PS4API sceAudioOutInit(void)
 
 	if (g_init)
 	{
-		returnVal = SCE_AUDIO_OUT_ERROR_ALREADY_INIT;
+		returnVal = AUDIO_ERROR_ALREADY_INIT;
 	}
 
 	else
@@ -45,12 +45,12 @@ int PS4API sceAudioOutOpen(SceUserServiceUserId userId, int32_t type, int32_t in
 	{
 		if (!g_init)
 		{
-			returnVal = SCE_AUDIO_OUT_ERROR_NOT_INIT;
+			returnVal = AUDIO_ERROR_NOT_INIT;
 		}
 
 		else if (len < 0)
 		{
-			returnVal = SCE_AUDIO_OUT_ERROR_INVALID_SIZE;
+			returnVal = AUDIO_ERROR_INVALID_SIZE;
 		}
 
 		else
@@ -71,7 +71,7 @@ int PS4API sceAudioOutClose(int32_t handle)
 
 	if (!g_init)
 	{
-		returnVal = SCE_AUDIO_OUT_ERROR_NOT_INIT;
+		returnVal = AUDIO_ERROR_NOT_INIT;
 	}
 
 	else
@@ -89,7 +89,7 @@ int PS4API sceAudioOutGetPortState(int32_t handle, SceAudioOutPortState *state)
 
 	if (!g_init)
 	{
-		returnVal = SCE_AUDIO_OUT_ERROR_NOT_INIT;
+		returnVal = AUDIO_ERROR_NOT_INIT;
 	}
 
 	else
@@ -113,7 +113,7 @@ int PS4API sceAudioOutOutput(void)
 
 	if (!g_init)
 	{
-		returnVal = SCE_AUDIO_OUT_ERROR_NOT_INIT;
+		returnVal = AUDIO_ERROR_NOT_INIT;
 	}
 
 	else
@@ -133,7 +133,7 @@ int PS4API sceAudioOutOutputs(void)
 
 	if (!g_init)
 	{
-		returnVal = SCE_AUDIO_OUT_ERROR_NOT_INIT;
+		returnVal = AUDIO_ERROR_NOT_INIT;
 	}
 
 	else
@@ -154,19 +154,19 @@ int PS4API sceAudioOutSetVolume(int32_t handle, int32_t flag, int32_t *vol)
 	// if initialization has not happened
 	if (!g_init)
 	{
-		returnVal = SCE_AUDIO_OUT_ERROR_NOT_INIT;
+		returnVal = AUDIO_ERROR_NOT_INIT;
 	}
 
 	// check for invalid flag
 	else if (flag < 0 || flag >= (1 << 8))
 	{
-		returnVal = SCE_AUDIO_OUT_ERROR_INVALID_FLAG;
+		returnVal = AUDIO_ERROR_INVALID_FLAG;
 	}
 
 	// if pointer is invalid
 	else if (vol == nullptr)
 	{
-		returnVal = SCE_AUDIO_OUT_ERROR_INVALID_POINTER;
+		returnVal = AUDIO_ERROR_INVALID_POINTER;
 	}
 
 	else
@@ -181,15 +181,15 @@ int PS4API sceAudioOutSetVolume(int32_t handle, int32_t flag, int32_t *vol)
 			if (flag & (1 << i))
 			{
 				// if the volume is out of range
-				vol[volumeIndex] < 0 ?		returnVal = SCE_AUDIO_OUT_ERROR_INVALID_VOLUME : 0;
-				vol[volumeIndex] > 32768 ?	returnVal = SCE_AUDIO_OUT_ERROR_INVALID_VOLUME : 0;
+				vol[volumeIndex] < 0 ?		returnVal = AUDIO_ERROR_INVALID_VOLUME : 0;
+				vol[volumeIndex] > 32768 ?	returnVal = AUDIO_ERROR_INVALID_VOLUME : 0;
 
 				// increment
 				volumeIndex++;
 			}
 		}
 
-		if (returnVal != SCE_AUDIO_OUT_ERROR_INVALID_VOLUME)
+		if (returnVal != AUDIO_ERROR_INVALID_VOLUME)
 		{
 			returnVal = SCE_OK;
 		}
