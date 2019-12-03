@@ -234,6 +234,8 @@
     <ClInclude Include="SceModules\sce_modules.h" />
     <ClInclude Include="SceModules\sce_module_common.h" />
     <ClInclude Include="SceModules\sce_types.h" />
+    <ClInclude Include="sce_errordialog_error.h" />
+    <ClInclude Include="sce_errordialog_types.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Algorithm\sha1.c" />
