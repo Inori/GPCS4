@@ -10,14 +10,15 @@
 //////////////////////////////////////////////////////////////////////////
 
 // same as sce_msgdialog
-static enum DialogStatus {
+static enum DialogStatus 
+{
 	NONE = 0,
 	INITIALIZED = 1,
 	RUNNING = 2,
 	FINISHED = 3
 };
 
-static int status = NONE;
+static int g_status = NONE;
 
 // sceErrorDialogParamInitialize
 // is a static inlinei function that does not need emulation
@@ -26,7 +27,7 @@ int PS4API sceErrorDialogGetStatus(void)
 {
 	LOG_SCE_TRACE("sceErrorDialogGetStatus called");
 
-	return status;
+	return g_status;
 }
 
 #define ALREADY_INITIALIZED 0x80ED0002
@@ -37,9 +38,9 @@ int PS4API sceErrorDialogInitialize(void)
 
 	int returnVal = -1;
 
-	if (status == NONE)
+	if (g_status == NONE)
 	{
-		status = INITIALIZED;
+		g_status = INITIALIZED;
 		returnVal = SCE_OK;
 	}
 
@@ -65,12 +66,12 @@ int PS4API sceErrorDialogOpen(DialogParam* param)
 
 	int returnVal = -1;
 
-	if (status == NONE)
+	if (g_status == NONE)
 	{
 		returnVal = NOT_INITIALIZED;
 	}
 
-	else if (status == RUNNING)
+	else if (g_status == RUNNING)
 	{
 		returnVal = INVALID_STATE;
 	}
@@ -89,7 +90,7 @@ int PS4API sceErrorDialogOpen(DialogParam* param)
 		LOG_TRACE("userID 0x%p", param->userId);
 		LOG_TRACE("error 0x%p", param->errorCode);
 
-		status = RUNNING;
+		g_status = RUNNING;
 		returnVal = SCE_OK;
 	}
 
@@ -102,14 +103,14 @@ int PS4API sceErrorDialogTerminate(void)
 
 	int returnVal = -1;
 
-	if (status == NONE)
+	if (g_status == NONE)
 	{
 		returnVal = NOT_INITIALIZED;
 	}
 
 	else
 	{
-		status = NONE;
+		g_status = NONE;
 		returnVal = SCE_OK;
 	}
 
@@ -130,13 +131,13 @@ int PS4API sceErrorDialogUpdateStatus(void)
 
 	if (1)
 	{
-		status = FINISHED;
+		g_status = FINISHED;
 	}
 
 	// This will be FINISHED when the 
 	// window is closed, or it will be 
 	// RUNNING, which is set in sceErrorDialogOpen
-	return status;
+	return g_status;
 }
 
 // We do not have a stub for this yet
@@ -150,14 +151,14 @@ int sceErrorDialogClose()
 
 	int returnVal = -1;
 
-	if (status == NONE)
+	if (g_status == NONE)
 	{
 		returnVal = NOT_INITIALIZED;
 	}
 
 	else
 	{
-		status = FINISHED;
+		g_status = FINISHED;
 		returnVal = SCE_OK;
 	}
 
