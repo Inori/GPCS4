@@ -48,10 +48,14 @@ For more details you could join our discord server to contact with me, or if you
 
 Discord: [GPCS4](https://discord.gg/PXrUxtk)  
 <<<<<<< HEAD
+<<<<<<< HEAD
 Tencent QQ/TIM Group Number: <a target="_blank" href="//shang.qq.com/wpa/qunwpa?idkey=aacc9b682acbb7e7463c256cb76ce3fb0f7ba8a584d1561e7eeffe227e14e602">470865218</a>
 =======
 Tencent QQ/TIM Group Number: <a target="_blank" href="//shang.qq.com/wpa/qunwpa?idkey=aacc9b682acbb7e7463c256cb76ce3fb0f7ba8a584d1561e7eeffe227e14e602"><img border="0" src="//pub.idqqimg.com/wpa/images/group.png" alt="470865218" title="GPCS4"></a>
 >>>>>>> 89cb7e7... add Developer Guide
+=======
+Tencent QQ/TIM Group Number: <a target="_blank" href="//shang.qq.com/wpa/qunwpa?idkey=aacc9b682acbb7e7463c256cb76ce3fb0f7ba8a584d1561e7eeffe227e14e602">470865218</a>
+>>>>>>> a3c75d2... Delete img tag of QQ group
 
 
 
