@@ -10,6 +10,8 @@
 #pragma once
 
 #include "sce_module_common.h"
+#include "sce_msgdialog_error.h"
+#include "sce_msgdialog_types.h"
 
 
 extern const SCE_EXPORT_MODULE g_ExpModuleSceMsgDialog;
@@ -24,27 +26,6 @@ extern const SCE_EXPORT_MODULE g_ExpModuleSceMsgDialog;
 //////////////////////////////////////////////////////////////////////////
 // library: libSceMsgDialog
 //////////////////////////////////////////////////////////////////////////
-
-struct SceMsgDialogResult {
-	int32_t mode;
-	int32_t result;
-	int32_t buttonId;
-	char reserved[32];
-};
-
-// not sure if all of these data types are right
-struct SceMsgDialogParam {
-	int baseParam;
-	size_t size;
-	int mode;
-	int : 32;
-	void *userMsgParam;
-	void *progBarParam;
-	void *sysMsgParam;
-	int userId;
-	char reserved[40];
-	int : 32;
-};
 
 int PS4API sceMsgDialogGetResult(SceMsgDialogResult* result);
 

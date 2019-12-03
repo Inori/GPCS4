@@ -11,26 +11,7 @@
 // library: libSceMsgDialog
 //////////////////////////////////////////////////////////////////////////
 
-// same as sce_errordialog
-static enum DialogStatus 
-{
-	NONE = 0,
-	INITIALIZED = 1,
-	RUNNING = 2,
-	FINISHED = 3
-};
-
-static int g_status = NONE;
-
-#define SCE_COMMON_DIALOG_ERROR_NOT_SYSTEM_INITIALIZED 0x80B80001
-#define SCE_COMMON_DIALOG_ERROR_ALREADY_INITIALIZED 0x80B80004
-#define SCE_COMMON_DIALOG_ERROR_BUSY 0x80B80008
-#define SCE_COMMON_DIALOG_ERROR_NOT_FINISHED 0x80B80005
-#define SCE_COMMON_DIALOG_ERROR_PARAM_INVALID 0x80B8000A
-#define SCE_COMMON_DIALOG_ERROR_ARG_NULL 0x80B8000D
-#define SCE_COMMON_DIALOG_ERROR_NOT_INITIALIZED 0x80B80003
-#define SCE_COMMON_DIALOG_ERROR_INVALID_STATE 0x80B80006
-#define SCE_COMMON_DIALOG_ERROR_ARG_NULL 0x80B8000D
+static int g_status = SCE_COMMON_DIALOG_STATUS_NONE;
 
 int PS4API sceMsgDialogGetResult(SceMsgDialogResult* result)
 {
@@ -38,7 +19,7 @@ int PS4API sceMsgDialogGetResult(SceMsgDialogResult* result)
 
 	int returnVal = -1;
 
-	if (g_status != FINISHED)
+	if (g_status != SCE_COMMON_DIALOG_STATUS_FINISHED)
 	{
 		returnVal = SCE_COMMON_DIALOG_ERROR_NOT_FINISHED;
 	}
@@ -76,13 +57,13 @@ int32_t PS4API sceMsgDialogInitialize(void)
 
 	int returnVal = -1;
 
-	if (g_status == NONE)
+	if (g_status == SCE_COMMON_DIALOG_STATUS_NONE)
 	{
-		g_status = INITIALIZED;
+		g_status = SCE_COMMON_DIALOG_STATUS_INITIALIZED;
 		returnVal = SCE_OK;
 	}
 
-	else if (g_status == INITIALIZED)
+	else if (g_status == SCE_COMMON_DIALOG_STATUS_INITIALIZED)
 	{
 		returnVal = SCE_COMMON_DIALOG_ERROR_ALREADY_INITIALIZED;
 	}
@@ -105,7 +86,7 @@ int PS4API sceMsgDialogOpen(const SceMsgDialogParam *param)
 
 	int returnVal = -1;
 
-	if (g_status == RUNNING || g_status == NONE)
+	if (g_status == SCE_COMMON_DIALOG_STATUS_RUNNING || g_status == SCE_COMMON_DIALOG_STATUS_NONE)
 	{
 		returnVal = SCE_COMMON_DIALOG_ERROR_INVALID_STATE;
 	}
@@ -126,7 +107,7 @@ int PS4API sceMsgDialogOpen(const SceMsgDialogParam *param)
 		// because I cannot yet confirm if
 		// the SceMsgDialogParam structure is correct
 
-		g_status = RUNNING;
+		g_status = SCE_COMMON_DIALOG_STATUS_RUNNING;
 		returnVal = SCE_OK;
 	}
 
@@ -140,14 +121,14 @@ int PS4API sceMsgDialogTerminate(void)
 
 	int returnVal = -1;
 
-	if (g_status == NONE)
+	if (g_status == SCE_COMMON_DIALOG_STATUS_NONE)
 	{
 		returnVal = SCE_COMMON_DIALOG_ERROR_NOT_INITIALIZED;
 	}
 
 	else
 	{
-		g_status = NONE;
+		g_status = SCE_COMMON_DIALOG_STATUS_NONE;
 		returnVal = SCE_OK;
 	}
 
@@ -168,7 +149,7 @@ int PS4API sceMsgDialogUpdateStatus(void)
 
 	if (1)
 	{
-		g_status = FINISHED;
+		g_status = SCE_COMMON_DIALOG_STATUS_FINISHED;
 	}
 
 	// This will be FINISHED when the 
