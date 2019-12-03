@@ -39,8 +39,7 @@ Follow the steps:
 1. Read the roadmap on the main page, select a part which you're insterested in. Or if you're not sure, see our [Trello](https://trello.com/b/4kZu97F5/gpcs4) and take a job from `TODO list for new developers` card.
 2. Build GPCS4 following the above steps.
 3. Download all the files here, these are all you need to develop GPCS4.  
-    https://mega.nz/#F!8ORCVQgY  
-    PW : qp7HFxj8awgIBP_L5K7c3g
+    https://pastebin.com/bUxckm3y
 4. Run the demo or game you like, find why it crashes/doesn't work.
 5. Then you know what to do next.
 
