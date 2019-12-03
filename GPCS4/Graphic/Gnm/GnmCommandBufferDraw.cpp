@@ -321,7 +321,7 @@ void GnmCommandBufferDraw::setActiveShaderStages(ActiveShaderStages activeStages
 
 void GnmCommandBufferDraw::setIndexSize(IndexSize indexSize, CachePolicy cachePolicy)
 {
-	m_indexSize = convertIndexSize(indexSize);
+	m_indexType = convertIndexSize(indexSize);
 }
 
 void GnmCommandBufferDraw::setPrimitiveType(PrimitiveType primType)
@@ -342,7 +342,14 @@ void GnmCommandBufferDraw::setPrimitiveType(PrimitiveType primType)
 
 void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr, DrawModifier modifier)
 {
+	do 
+	{
+		bindIndexBuffer(indexAddr, indexCount);
+		commitVsStage();
+		commitPsStage();
+		m_context->drawIndex(indexCount, 0);
 
+	} while (false);
 }
 
 void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr)
@@ -402,7 +409,10 @@ void GnmCommandBufferDraw::commitVsStage()
 				bindImmConstBuffer(*iter);
 				break;
 			case kShaderInputUsagePtrVertexBufferTable:
+			{
+				setVertexInputLayout(*iter, vsModule.vsInputSemantic());
 				bindVertexBuffers(*iter, vsModule.vsInputSemantic());
+			}
 				break;
 			default:
 				LOG_WARN("unsupported input usage %d", inputSlot.usageType);
@@ -450,9 +460,31 @@ void GnmCommandBufferDraw::commitPsStage()
 	} while (false);
 }
 
-void GnmCommandBufferDraw::bindIndexBuffer(void* indexAddr, uint32_t indexCount)
+void GnmCommandBufferDraw::bindIndexBuffer(const void* indexAddr, uint32_t indexCount)
 {
+	do 
+	{
+		if (!indexAddr || !indexCount)
+		{
+			break;
+		}
 
+		uint32_t perIndexSize = m_indexType == VK_INDEX_TYPE_UINT16 ? sizeof(uint16_t) : sizeof(uint32_t);
+		VkDeviceSize indexBufferSize = perIndexSize * indexCount;
+
+		GveBufferCreateInfo info = {};
+		info.size = indexBufferSize;
+		info.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+
+		uint64_t key = reinterpret_cast<uint64_t>(indexAddr);
+		auto indexBuffer = m_device->createOrGetBufferVsharp(info, 
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, key);
+
+		m_context->updateBuffer(indexBuffer, 0, indexBufferSize, indexAddr);
+
+		m_context->bindIndexBuffer(indexBuffer, m_indexType);
+
+	} while (false);
 }
 
 void GnmCommandBufferDraw::bindImmConstBuffer(const PsslShaderResource& res)
@@ -461,22 +493,186 @@ void GnmCommandBufferDraw::bindImmConstBuffer(const PsslShaderResource& res)
 	// For buffers allocated directly from gnm command buffer,
 	// we should implement "allocateFromCommandBuffer",
 	// and use push constants instead of UBOs.
+	do 
+	{
+		const GnmBuffer* buffer = reinterpret_cast<const GnmBuffer*>(res.resource);
+		if (!buffer)
+		{
+			break;
+		}
 
+		VkDeviceSize bufferSize = buffer->getSize();
+		GveBufferCreateInfo info = {};
+		info.size = bufferSize;
+		info.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+
+		uint64_t key = reinterpret_cast<uint64_t>(buffer->getBaseAddress());
+
+		auto uniformBuffer = m_device->createOrGetBufferVsharp(info, 
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, key);
+		
+		m_context->updateBuffer(uniformBuffer, 0, bufferSize, buffer->getBaseAddress());
+
+		uint32_t regSlot = computeConstantBufferBinding(VertexShader, res.startSlot);
+		m_context->bindResourceBuffer(regSlot, uniformBuffer);
+
+	} while (false);
+
+}
+
+void GnmCommandBufferDraw::setVertexInputLayout(const PsslShaderResource& res, const std::vector<VertexInputSemantic>& inputSemantics)
+{
+	do
+	{
+		const GnmBuffer* vertexTable = reinterpret_cast<const GnmBuffer*>(res.resource);
+		if (!vertexTable)
+		{
+			break;
+		}
+
+		// TODO:
+		// For some games, ie. Nier:Automata, vertex attributes are not stored
+		// in a single vertex buffer area, so in the case we need to use multiple vertex
+		// bindings. But for other games, all vertex attributes are within the same memory area,
+		// in this case, we only need one vertex binding.
+		// Currently I only support the first case, need some improvements.
+
+		uint32_t bindingCount = inputSemantics.size();
+		GveVertexInputInfo viInfo = {};
+
+		for (uint32_t i = 0; i != bindingCount; ++i)
+		{
+			const GnmBuffer& vsharp = vertexTable[i];
+
+			uint32_t stride = vsharp.getStride();
+			auto binding = GveVertexBinding(i, stride, VK_VERTEX_INPUT_RATE_VERTEX, 0);
+			viInfo.addBinding(binding);
+
+			VkFormat vtxFmt = convertDataFormatToVkFormat(vsharp.getDataFormat());
+			auto attr = GveVertexAttribute(0, i, vtxFmt, 0);
+			viInfo.addAttribute(attr);
+		}
+
+		m_context->setVertexInputLayout(viInfo);
+	} while (false);
+}
+
+bool GnmCommandBufferDraw::bindVertexBuffer(uint32_t bindingId, const GnmBuffer& vsharp)
+{
+	bool ret = false;
+	do
+	{
+		void* vtxData = vsharp.getBaseAddress();
+		if (!vtxData)
+		{
+			LOG_WARN("empty vertex data");
+			break;
+		}
+
+		VkDeviceSize bufferSize = vsharp.getSize();
+
+		GveBufferCreateInfo buffInfo = {};
+		buffInfo.size = bufferSize;
+		buffInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+
+		uint64_t key = reinterpret_cast<uint64_t>(vtxData);
+
+		auto vertexBuffer = m_device->createOrGetBufferVsharp(buffInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, key);
+		m_context->updateBuffer(vertexBuffer, 0, bufferSize, vtxData);
+
+		uint32_t stride = vsharp.getStride();
+		m_context->bindVertexBuffer(bindingId, GveBufferSlice(vertexBuffer, 0, bufferSize), stride);
+	} while (false);
+	return ret;
 }
 
 void GnmCommandBufferDraw::bindVertexBuffers(const PsslShaderResource& res, const std::vector<VertexInputSemantic>& inputSemantics)
 {
+	do 
+	{
+		const GnmBuffer* vertexTable = reinterpret_cast<const GnmBuffer*>(res.resource);
+		if (!vertexTable)
+		{
+			break;
+		}
 
+		uint32_t bindingCount = inputSemantics.size();
+		for (uint32_t i = 0; i != bindingCount; ++i)
+		{
+			const GnmBuffer& vsharp = vertexTable[i];
+			bindVertexBuffer(i, vsharp);
+		}
+	} while (false);
 }
 
 void GnmCommandBufferDraw::bindImmResource(const PsslShaderResource& res)
 {
+	do 
+	{
+		const GnmTexture* tsharp = reinterpret_cast<const GnmTexture*>(res.resource);
+		if (!tsharp)
+		{
+			break;
+		}
 
+		GveImageCreateInfo imgInfo = {};
+		imgInfo.type = VK_IMAGE_TYPE_2D;
+		imgInfo.format = convertDataFormatToVkFormat(tsharp->getDataFormat());
+		imgInfo.flags = 0;
+		imgInfo.sampleCount = VK_SAMPLE_COUNT_1_BIT;
+		imgInfo.extent.width = tsharp->getWidth();
+		imgInfo.extent.height = tsharp->getHeight();
+		imgInfo.extent.depth = tsharp->getDepth();
+		imgInfo.numLayers = 1;
+		imgInfo.mipLevels = 1;
+		imgInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+		imgInfo.stages = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+		imgInfo.access = VK_ACCESS_SHADER_READ_BIT;
+		imgInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+		imgInfo.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		imgInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+		uint64_t key = reinterpret_cast<uint64_t>(tsharp->getBaseAddress());
+		auto texture = m_device->createOrGetImageTsharp(imgInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, key);
+
+		VkDeviceSize imageBufferSize = tsharp->getSizeAlign().m_size;
+		void* data = GNM_GPU_ABS_ADDR(res.resource, tsharp->getBaseAddress());
+		m_context->updateImage(texture, 0, imageBufferSize, data);
+
+		GveImageViewCreateInfo viewInfo;
+		viewInfo.type = VK_IMAGE_VIEW_TYPE_2D;
+		viewInfo.format = imgInfo.format;
+		viewInfo.usage = imgInfo.usage;
+		viewInfo.aspect = VK_IMAGE_ASPECT_COLOR_BIT;
+		auto texView = m_device->createOrGetImageViewTsharp(texture, viewInfo, key);
+
+		uint32_t regSlot = computeResBinding(PixelShader, res.startSlot);
+		m_context->bindResourceView(regSlot, texView, nullptr);
+
+	} while (false);
 }
 
 void GnmCommandBufferDraw::bindSampler(const PsslShaderResource& res)
 {
+	do 
+	{
+		const GnmSampler* ssharp = reinterpret_cast<const GnmSampler*>(res.resource);
+		if (!ssharp)
+		{
+			break;
+		}
 
+		uint64_t key = ssharp->m_regs[0] | ssharp->m_regs[1] << 32;
+
+		// TODO:
+		// Fill info
+		GveSamplerCreateInfo info;
+		auto sampler = m_device->createOrGetSamplerSsharp(info, key);
+
+		uint32_t regSlot = computeSamplerBinding(PixelShader, res.startSlot);
+		m_context->bindSampler(regSlot, sampler);
+
+	} while (false);
 }
 
 void GnmCommandBufferDraw::emuWriteGpuLabel(EventWriteSource selector, void* label, uint64_t value)
@@ -635,6 +831,160 @@ VkFormat GnmCommandBufferDraw::convertZFormatToVkFormat(ZFormat zfmt)
 	case kZFormat16: format = VK_FORMAT_D16_UNORM; break;
 	case kZFormat32Float: format = VK_FORMAT_D32_SFLOAT; break;
 	}
+	return format;
+}
+
+VkFormat GnmCommandBufferDraw::convertDataFormatToVkFormat(DataFormat dataFormat)
+{
+	VkFormat format = VK_FORMAT_UNDEFINED;
+
+	// TODO:
+	// These key-value pairs are auto generated using sublime text,
+	// most of the value parts (VK_FORMAT_XXXX) are not exist,
+	// so I comment it out.
+	// Should be fixed to right format value.
+	const static std::unordered_map<DataFormat, VkFormat, DataFormatHash> formatMap =
+	{
+		{ kDataFormatInvalid, VK_FORMAT_UNDEFINED },
+		//{ kDataFormatR32G32B32A32Float, VK_FORMAT_R32G32B32A32_FLOAT },
+		//{ kDataFormatB32G32R32A32Float, VK_FORMAT_B32G32R32A32_FLOAT },
+		//{ kDataFormatR32G32B32X32Float, VK_FORMAT_R32G32B32X32_FLOAT },
+		//{ kDataFormatB32G32R32X32Float, VK_FORMAT_B32G32R32X32_FLOAT },
+		{ kDataFormatR32G32B32A32Uint, VK_FORMAT_R32G32B32A32_UINT },
+		{ kDataFormatR32G32B32A32Sint, VK_FORMAT_R32G32B32A32_SINT },
+		//{ kDataFormatR32G32B32Float, VK_FORMAT_R32G32B32_FLOAT },
+		{ kDataFormatR32G32B32Uint, VK_FORMAT_R32G32B32_UINT },
+		{ kDataFormatR32G32B32Sint, VK_FORMAT_R32G32B32_SINT },
+		//{ kDataFormatR16G16B16A16Float, VK_FORMAT_R16G16B16A16_FLOAT },
+		//{ kDataFormatR16G16B16X16Float, VK_FORMAT_R16G16B16X16_FLOAT },
+		//{ kDataFormatB16G16R16X16Float, VK_FORMAT_B16G16R16X16_FLOAT },
+		{ kDataFormatR16G16B16A16Uint, VK_FORMAT_R16G16B16A16_UINT },
+		{ kDataFormatR16G16B16A16Sint, VK_FORMAT_R16G16B16A16_SINT },
+		{ kDataFormatR16G16B16A16Unorm, VK_FORMAT_R16G16B16A16_UNORM },
+		//{ kDataFormatB16G16R16A16Unorm, VK_FORMAT_B16G16R16A16_UNORM },
+		//{ kDataFormatR16G16B16X16Unorm, VK_FORMAT_R16G16B16X16_UNORM },
+		//{ kDataFormatB16G16R16X16Unorm, VK_FORMAT_B16G16R16X16_UNORM },
+		{ kDataFormatR16G16B16A16Snorm, VK_FORMAT_R16G16B16A16_SNORM },
+		//{ kDataFormatL32A32Float, VK_FORMAT_L32A32_FLOAT },
+		//{ kDataFormatR32G32Float, VK_FORMAT_R32G32_FLOAT },
+		{ kDataFormatR32G32Uint, VK_FORMAT_R32G32_UINT },
+		{ kDataFormatR32G32Sint, VK_FORMAT_R32G32_SINT },
+		//{ kDataFormatR11G11B10Float, VK_FORMAT_R11G11B10_FLOAT },
+		{ kDataFormatR8G8B8A8Unorm, VK_FORMAT_R8G8B8A8_UNORM },
+		//{ kDataFormatR8G8B8X8Unorm, VK_FORMAT_R8G8B8X8_UNORM },
+		//{ kDataFormatR8G8B8A8UnormSrgb, VK_FORMAT_R8G8B8A8_UNORMSRGB },
+		//{ kDataFormatR8G8B8X8UnormSrgb, VK_FORMAT_R8G8B8X8_UNORMSRGB },
+		{ kDataFormatR8G8B8A8Uint, VK_FORMAT_R8G8B8A8_UINT },
+		{ kDataFormatR8G8B8A8Snorm, VK_FORMAT_R8G8B8A8_SNORM },
+		{ kDataFormatR8G8B8A8Sint, VK_FORMAT_R8G8B8A8_SINT },
+		//{ kDataFormatL16A16Float, VK_FORMAT_L16A16_FLOAT },
+		//{ kDataFormatR16G16Float, VK_FORMAT_R16G16_FLOAT },
+		//{ kDataFormatL16A16Unorm, VK_FORMAT_L16A16_UNORM },
+		{ kDataFormatR16G16Unorm, VK_FORMAT_R16G16_UNORM },
+		{ kDataFormatR16G16Uint, VK_FORMAT_R16G16_UINT },
+		{ kDataFormatR16G16Snorm, VK_FORMAT_R16G16_SNORM },
+		{ kDataFormatR16G16Sint, VK_FORMAT_R16G16_SINT },
+		//{ kDataFormatR32Float, VK_FORMAT_R32_FLOAT },
+		//{ kDataFormatL32Float, VK_FORMAT_L32_FLOAT },
+		//{ kDataFormatA32Float, VK_FORMAT_A32_FLOAT },
+		{ kDataFormatR32Uint, VK_FORMAT_R32_UINT },
+		{ kDataFormatR32Sint, VK_FORMAT_R32_SINT },
+		{ kDataFormatR8G8Unorm, VK_FORMAT_R8G8_UNORM },
+		{ kDataFormatR8G8Uint, VK_FORMAT_R8G8_UINT },
+		{ kDataFormatR8G8Snorm, VK_FORMAT_R8G8_SNORM },
+		{ kDataFormatR8G8Sint, VK_FORMAT_R8G8_SINT },
+		//{ kDataFormatL8A8Unorm, VK_FORMAT_L8A8_UNORM },
+		//{ kDataFormatL8A8UnormSrgb, VK_FORMAT_L8A8_UNORMSRGB },
+		//{ kDataFormatR16Float, VK_FORMAT_R16_FLOAT },
+		//{ kDataFormatL16Float, VK_FORMAT_L16_FLOAT },
+		//{ kDataFormatA16Float, VK_FORMAT_A16_FLOAT },
+		{ kDataFormatR16Unorm, VK_FORMAT_R16_UNORM },
+		//{ kDataFormatL16Unorm, VK_FORMAT_L16_UNORM },
+		//{ kDataFormatA16Unorm, VK_FORMAT_A16_UNORM },
+		{ kDataFormatR16Uint, VK_FORMAT_R16_UINT },
+		{ kDataFormatR16Snorm, VK_FORMAT_R16_SNORM },
+		{ kDataFormatR16Sint, VK_FORMAT_R16_SINT },
+		{ kDataFormatR8Unorm, VK_FORMAT_R8_UNORM },
+		//{ kDataFormatL8Unorm, VK_FORMAT_L8_UNORM },
+		//{ kDataFormatL8UnormSrgb, VK_FORMAT_L8_UNORMSRGB },
+		{ kDataFormatR8Uint, VK_FORMAT_R8_UINT },
+		{ kDataFormatR8Snorm, VK_FORMAT_R8_SNORM },
+		{ kDataFormatR8Sint, VK_FORMAT_R8_SINT },
+		//{ kDataFormatA8Unorm, VK_FORMAT_A8_UNORM },
+		//{ kDataFormatR1Unorm, VK_FORMAT_R1_UNORM },
+		//{ kDataFormatL1Unorm, VK_FORMAT_L1_UNORM },
+		//{ kDataFormatA1Unorm, VK_FORMAT_A1_UNORM },
+		//{ kDataFormatR1Uint, VK_FORMAT_R1_UINT },
+		//{ kDataFormatL1Uint, VK_FORMAT_L1_UINT },
+		//{ kDataFormatA1Uint, VK_FORMAT_A1_UINT },
+		//{ kDataFormatR1ReversedUnorm, VK_FORMAT_R1_REVERSEDUNORM },
+		//{ kDataFormatL1ReversedUnorm, VK_FORMAT_L1_REVERSEDUNORM },
+		//{ kDataFormatA1ReversedUnorm, VK_FORMAT_A1_REVERSEDUNORM },
+		//{ kDataFormatR1ReversedUint, VK_FORMAT_R1_REVERSEDUINT },
+		//{ kDataFormatL1ReversedUint, VK_FORMAT_L1_REVERSEDUINT },
+		//{ kDataFormatA1ReversedUint, VK_FORMAT_A1_REVERSEDUINT },
+		//{ kDataFormatBc1Unorm, VK_FORMAT_BC1_UNORM },
+		//{ kDataFormatBc1UBNorm, VK_FORMAT_BC1_UBNORM },
+		//{ kDataFormatBc1UnormSrgb, VK_FORMAT_BC1_UNORMSRGB },
+		//{ kDataFormatBc2Unorm, VK_FORMAT_BC2_UNORM },
+		//{ kDataFormatBc2UBNorm, VK_FORMAT_BC2_UBNORM },
+		//{ kDataFormatBc2UnormSrgb, VK_FORMAT_BC2_UNORMSRGB },
+		//{ kDataFormatBc3Unorm, VK_FORMAT_BC3_UNORM },
+		//{ kDataFormatBc3UBNorm, VK_FORMAT_BC3_UBNORM },
+		//{ kDataFormatBc3UnormSrgb, VK_FORMAT_BC3_UNORMSRGB },
+		//{ kDataFormatBc4Unorm, VK_FORMAT_BC4_UNORM },
+		//{ kDataFormatBc4Snorm, VK_FORMAT_BC4_SNORM },
+		//{ kDataFormatBc5Unorm, VK_FORMAT_BC5_UNORM },
+		//{ kDataFormatBc5Snorm, VK_FORMAT_BC5_SNORM },
+		//{ kDataFormatBc6Unorm, VK_FORMAT_BC6_UNORM },
+		//{ kDataFormatBc6Snorm, VK_FORMAT_BC6_SNORM },
+		//{ kDataFormatBc6Uf16, VK_FORMAT_BC6UF16_ },
+		//{ kDataFormatBc6Sf16, VK_FORMAT_BC6SF16_ },
+		//{ kDataFormatBc7Unorm, VK_FORMAT_BC7_UNORM },
+		//{ kDataFormatBc7UBNorm, VK_FORMAT_BC7_UBNORM },
+		//{ kDataFormatBc7UnormSrgb, VK_FORMAT_BC7_UNORMSRGB },
+		//{ kDataFormatB5G6R5Unorm, VK_FORMAT_B5G6R5_UNORM },
+		//{ kDataFormatR5G5B5A1Unorm, VK_FORMAT_R5G5B5A1_UNORM },
+		//{ kDataFormatB5G5R5A1Unorm, VK_FORMAT_B5G5R5A1_UNORM },
+		{ kDataFormatB8G8R8A8Unorm, VK_FORMAT_B8G8R8A8_UNORM },
+		//{ kDataFormatB8G8R8X8Unorm, VK_FORMAT_B8G8R8X8_UNORM },
+		//{ kDataFormatB8G8R8A8UnormSrgb, VK_FORMAT_B8G8R8A8_UNORMSRGB },
+		//{ kDataFormatB8G8R8X8UnormSrgb, VK_FORMAT_B8G8R8X8_UNORMSRGB },
+		//{ kDataFormatR4G4B4A4Unorm, VK_FORMAT_R4G4B4A4_UNORM },
+		//{ kDataFormatB4G4R4A4Unorm, VK_FORMAT_B4G4R4A4_UNORM },
+		//{ kDataFormatB4G4R4X4Unorm, VK_FORMAT_B4G4R4X4_UNORM },
+		//{ kDataFormatB5G5R5X1Unorm, VK_FORMAT_B5G5R5X1_UNORM },
+		//{ kDataFormatR5G6B5Unorm, VK_FORMAT_R5G6B5_UNORM },
+		//{ kDataFormatB10G10R10A2Unorm, VK_FORMAT_B10G10R10A2_UNORM },
+		//{ kDataFormatR10G10B10A2Unorm, VK_FORMAT_R10G10B10A2_UNORM },
+		//{ kDataFormatR10G10B10A2Uint, VK_FORMAT_R10G10B10A2_UINT },
+		//{ kDataFormatB10G10R10A2Uint, VK_FORMAT_B10G10R10A2_UINT },
+		//{ kDataFormatB16G16R16A16Float, VK_FORMAT_B16G16R16A16_FLOAT },
+		//{ kDataFormatR11G11B10Unorm, VK_FORMAT_R11G11B10_UNORM },
+		//{ kDataFormatR11G11B10Snorm, VK_FORMAT_R11G11B10_SNORM },
+		//{ kDataFormatB10G11R11Unorm, VK_FORMAT_B10G11R11_UNORM },
+		//{ kDataFormatB10G11R11Snorm, VK_FORMAT_B10G11R11_SNORM },
+		//{ kDataFormatR9G9B9E5Float, VK_FORMAT_R9G9B9E5_FLOAT },
+		//{ kDataFormatB8G8R8G8Unorm, VK_FORMAT_B8G8R8G8_UNORM },
+		//{ kDataFormatG8B8G8R8Unorm, VK_FORMAT_G8B8G8R8_UNORM },
+		//{ kDataFormatBc1UnormNoAlpha, VK_FORMAT_BC1_UNORMNOALPHA },
+		//{ kDataFormatBc1UnormSrgbNoAlpha, VK_FORMAT_BC1_UNORMSRGBNOALPHA },
+		//{ kDataFormatBc7UnormNoAlpha, VK_FORMAT_BC7_UNORMNOALPHA },
+		//{ kDataFormatBc7UnormSrgbNoAlpha, VK_FORMAT_BC7_UNORMSRGBNOALPHA },
+		//{ kDataFormatBc3UnormRABG, VK_FORMAT_BC3_UNORMRABG }
+	};
+
+	auto iter = formatMap.find(dataFormat);
+	if (iter == formatMap.end())
+	{
+		LOG_WARN("data format not found %X", dataFormat.m_asInt);
+		format = VK_FORMAT_UNDEFINED;
+	}
+	else
+	{
+		format = iter->second;
+	}
+
 	return format;
 }
 

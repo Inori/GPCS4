@@ -14,6 +14,7 @@ class GveShader;
 class GveImageView;
 }  // namespace gve
 
+class GnmBuffer;
 
 struct GnmShaderContext
 {
@@ -128,15 +129,22 @@ private:
 	void commitVsStage();
 	void commitPsStage();
 
-	void bindIndexBuffer(void* indexAddr, uint32_t indexCount);
+	void bindIndexBuffer(const void* indexAddr, uint32_t indexCount);
 	void bindImmConstBuffer(const PsslShaderResource& res);
-	void bindVertexBuffers(const PsslShaderResource& res, const std::vector<VertexInputSemantic>& inputSemantics);
+	bool bindVertexBuffer(uint32_t bindingId, const GnmBuffer& vsharp);
+	void setVertexInputLayout(
+		const PsslShaderResource& res,
+		const std::vector<VertexInputSemantic>& inputSemantics);
+	void bindVertexBuffers(
+		const PsslShaderResource& res, 
+		const std::vector<VertexInputSemantic>& inputSemantics);
 	void bindImmResource(const PsslShaderResource& res);
 	void bindSampler(const PsslShaderResource& res);
 
 
 	// Converters
 	VkFormat convertZFormatToVkFormat(ZFormat zfmt);
+	VkFormat convertDataFormatToVkFormat(DataFormat dataFormat);
 	VkCompareOp convertCompareFunc(CompareFunc cmpFunc);
 	VkPolygonMode convertPolygonMode(PrimitiveSetupPolygonMode polyMode);
 	VkCullModeFlags convertCullMode(PrimitiveSetupCullFaceMode cullMode);
@@ -154,7 +162,7 @@ private:
 	GnmShaderContext m_vsContext;
 	GnmShaderContext m_psContext;
 
-	VkIndexType m_indexSize = VK_INDEX_TYPE_UINT16;
+	VkIndexType m_indexType = VK_INDEX_TYPE_UINT16;
 
 };
 

@@ -235,12 +235,15 @@ void GveContex::copyBuffer(GveBufferSlice& dstBuffer, GveBufferSlice& srcBuffer,
 	m_cmd->cmdEndSingleTimeCommands(commandBuffer, queues.graphics.queueHandle);
 }
 
-void GveContex::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height)
+void GveContex::copyBufferToImage(
+	RcPtr<GveImage>& dstImage,
+	GveBufferSlice& srcBuffer,
+	uint32_t width, uint32_t height)
 {
 	VkCommandBuffer commandBuffer = m_cmd->cmdBeginSingleTimeCommands();
 
 	VkBufferImageCopy region = {};
-	region.bufferOffset = 0;
+	region.bufferOffset = srcBuffer.offset();
 	region.bufferRowLength = 0;
 	region.bufferImageHeight = 0;
 	region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -248,13 +251,9 @@ void GveContex::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width
 	region.imageSubresource.baseArrayLayer = 0;
 	region.imageSubresource.layerCount = 1;
 	region.imageOffset = { 0, 0, 0 };
-	region.imageExtent = {
-		width,
-		height,
-		1
-	};
+	region.imageExtent = { width, height, 1 };
 
-	vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+	vkCmdCopyBufferToImage(commandBuffer, srcBuffer.handle(), dstImage->handle(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
 	auto queues = m_device->queues();
 	m_cmd->cmdEndSingleTimeCommands(commandBuffer, queues.graphics.queueHandle);
@@ -266,7 +265,8 @@ void GveContex::updateBuffer(const RcPtr<GveBuffer>& buffer,
 	
 }
 
-void GveContex::updateImage(const RcPtr<GveImage>& buffer, VkDeviceSize offset, VkDeviceSize size, const void* data)
+void GveContex::updateImage(const RcPtr<GveImage>& buffer, 
+	VkDeviceSize offset, VkDeviceSize size, const void* data)
 {
 
 }

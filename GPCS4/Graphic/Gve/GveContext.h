@@ -94,7 +94,9 @@ public:
 
 	void copyBuffer(GveBufferSlice& dstBuffer, GveBufferSlice& srcBuffer, VkDeviceSize size);
 
-	void copyBufferToImage(VkBuffer buffer, VkImage image, 
+	void copyBufferToImage(
+		RcPtr<GveImage>& dstImage,
+		GveBufferSlice& srcBuffer,
 		uint32_t width, uint32_t height);
 
 	void updateBuffer(const RcPtr<GveBuffer>& buffer, 
