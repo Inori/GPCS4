@@ -146,9 +146,9 @@ GveImageView::GveImageView(const RcPtr<GveDevice>& device,
 		VkImageViewCreateInfo viewInfo = {};
 		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 		viewInfo.image = m_image->handle();
-		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		viewInfo.viewType = createInfo.type;
 		viewInfo.format = m_image->getFormat();
-		viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		viewInfo.subresourceRange.aspectMask = createInfo.aspect;
 		viewInfo.subresourceRange.baseMipLevel = 0;
 		viewInfo.subresourceRange.levelCount = 1;
 		viewInfo.subresourceRange.baseArrayLayer = 0;

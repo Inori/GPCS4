@@ -273,13 +273,31 @@ void GveContex::copyBufferToImage(
 void GveContex::updateBuffer(const RcPtr<GveBuffer>& buffer, 
 	VkDeviceSize offset, VkDeviceSize size, const void* data)
 {
-	auto stagingSlice = m_stagingAlloc->alloc(size, CACHE_LINE_SIZE);
+	do 
+	{
+		if (!data)
+		{
+			break;
+		}
 
-	void* stagingData = stagingSlice.mapPtr(0);
-	std::memcpy(stagingData, data, size);
+		if (buffer->info().usage & VK_BUFFER_USAGE_TRANSFER_DST_BIT)
+		{
+			auto stagingSlice = m_stagingAlloc->alloc(size, CACHE_LINE_SIZE);
 
-	auto dstSlice = GveBufferSlice(buffer, offset, size);
-	copyBuffer(dstSlice, stagingSlice, size);
+			void* stagingData = stagingSlice.mapPtr(0);
+			std::memcpy(stagingData, data, size);
+
+			auto dstSlice = GveBufferSlice(buffer, offset, size);
+			copyBuffer(dstSlice, stagingSlice, size);
+		}
+		else
+		{
+			void* bufferData = buffer->mapPtr(offset);
+			std::memcpy(bufferData, data, size);
+		}
+
+	} while (false);
+
 }
 
 void GveContex::updateImage(const RcPtr<GveImage>& image, 
@@ -290,7 +308,10 @@ void GveContex::updateImage(const RcPtr<GveImage>& image,
 	void* stagingData = stagingSlice.mapPtr(0);
 	std::memcpy(stagingData, data, size);
 
+	transitionImageLayout(image->handle(), image->getFormat(), image->info().initialLayout, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 	copyBufferToImage(image, stagingSlice, image->getWidth(), image->getHeight());
+	transitionImageLayout(image->handle(), image->getFormat(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, image->info().layout);
+
 }
 
 void GveContex::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout)
