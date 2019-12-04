@@ -72,16 +72,22 @@ int PS4API scek__write(int fd, const void* buf, size_t size)
 {
 	LOG_SCE_TRACE("fd %d buf 0x%p size %zu", fd, buf, size);
 
-	_write(fd, buf, size);
-
-	// If it's stdout/stderr, also log it to emulator logger
-	if (fd == 1 || fd == 2)
+	do 
 	{
+		_write(fd, buf, size);
+
+		if (fd != 1 && fd != 2)
+		{
+			break;
+		}
+
+		// If it's stdout/stderr, also log it to emulator logger
 		// TODO: Strip newline, log line already adds one
 		std::string tempBuf(static_cast<const char*>(buf), 0, size);
 		tempBuf.append("\0"); // buf is not guaranteed to be null-terminated, so append null terminator after 'size' chars
 		LOG_TRACE("%s", tempBuf.c_str());
-	}
+		
+	} while (false);
 
 	return size;
 }
