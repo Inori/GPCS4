@@ -67,9 +67,9 @@ void GveContex::beginRecording(const RcPtr<GveCmdList>& commandBuffer)
 
 RcPtr<GveCmdList> GveContex::endRecording()
 {
-	m_cmd->endRecording();
+	endRenderPass();
 
-	m_descPool->reset();
+	m_cmd->endRecording();
 
 	m_stagingAlloc->trim();
 
@@ -131,6 +131,7 @@ void GveContex::setDepthStencilState(const GveDepthStencilInfo& dsState)
 
 void GveContex::setColorBlendState(const GveColorBlendInfo& blendCtl)
 {
+	m_state.gp.states.cb = blendCtl;
 	m_flags.set(GveContextFlag::GpDirtyPipelineState);
 }
 
@@ -374,14 +375,34 @@ void GveContex::updateFrameBuffer()
 	m_flags.clr(GveContextFlag::GpDirtyFramebuffer);
 }
 
-void GveContex::setupRenderPassOps()
+void GveContex::updateRenderPassOps(const GveRenderTargets& rts, GveRenderPassOps& ops)
 {
+	for (uint32_t i = 0; i != MaxNumRenderTargets; ++i)
+	{
+		if (rts.color[i].view == nullptr)
+		{
+			continue;
+		}
 
+		ops.colorOps[i].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		ops.colorOps[i].loadLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		ops.colorOps[i].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+		ops.colorOps[i].storeLayout = rts.color[i].view->imageInfo().layout;
+	}
+
+	if (rts.depth.view != nullptr)
+	{
+		ops.depthOps.loadOpD = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		ops.depthOps.loadLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		ops.depthOps.storeOpD = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		ops.depthOps.storeLayout = rts.depth.layout;
+	}
 }
 
 void GveContex::beginRenderPass()
 {
-	setupRenderPassOps();
+	updateRenderPassOps(m_state.om.renderTargets, m_state.om.omInfo.ops);
+
 	auto& framebuffer = m_state.om.framebuffer;
 	VkRenderPass renderPass = framebuffer->getRenderPassHandle(m_state.om.omInfo.ops);
 	
@@ -410,8 +431,16 @@ void GveContex::beginRenderPass()
 
 void GveContex::endRenderPass()
 {
-	m_cmd->cmdEndRenderPass();
-	m_flags.clr(GveContextFlag::GpRenderPassBound);
+	do 
+	{
+		if (!m_flags.test(GveContextFlag::GpRenderPassBound))
+		{
+			break;
+		}
+
+		m_cmd->cmdEndRenderPass();
+		m_flags.clr(GveContextFlag::GpRenderPassBound);
+	} while (false);
 }
 
 void GveContex::updateVertexBindings()
@@ -588,6 +617,11 @@ void GveContex::updateComputePipelineStates()
 
 void GveContex::commitGraphicsState()
 {
+	if (m_flags.test(GveContextFlag::GpDirtyPipeline))
+	{
+		updateGraphicsPipeline();
+	}
+
 	if (m_flags.test(GveContextFlag::GpDirtyFramebuffer))
 	{
 		updateFrameBuffer();
@@ -606,11 +640,6 @@ void GveContex::commitGraphicsState()
 	if (m_flags.test(GveContextFlag::GpDirtyIndexBuffer))
 	{
 		updateIndexBinding();
-	}
-
-	if (m_flags.test(GveContextFlag::GpDirtyPipeline))
-	{
-		updateGraphicsPipeline();
 	}
 
 	if (m_flags.test(GveContextFlag::GpDirtyPipelineState))

@@ -117,31 +117,32 @@ void GveVertexInputInfo::clear()
 	m_attributes.clear();
 }
 
-VkPipelineVertexInputStateCreateInfo GveVertexInputInfo::state() const
+VkPipelineVertexInputStateCreateInfo GveVertexInputInfo::state(
+	std::vector<VkVertexInputBindingDescription>& bindings,
+	std::vector<VkVertexInputAttributeDescription>& attributes) const
 {
 	VkPipelineVertexInputStateCreateInfo info = {};
 	info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 	info.pNext = nullptr;
 
-	std::array<VkVertexInputBindingDescription, MaxNumVertexBindings> bindings;
-	uint32_t bindingCount = 0;
+	bindings.clear();
 	for (const auto& binding : m_bindings)
 	{
-		bindings[bindingCount++] = binding.description();
+		auto bindingDesc = binding.description();
+		bindings.push_back(bindingDesc);
 	}
 
-	info.vertexBindingDescriptionCount = bindingCount;
+	info.vertexBindingDescriptionCount = bindings.size();
 	info.pVertexBindingDescriptions = bindings.data();
 
-
-	uint32_t attrCount = 0;
-	std::array<VkVertexInputAttributeDescription, MaxNumVertexAttributes> attributes;
+	attributes.clear();
 	for (const auto& attr : m_attributes)
 	{
-		attributes[attrCount++] = attr.description();
+		auto attrDesc = attr.description();
+		attributes.push_back(attrDesc);
 	}
 
-	info.vertexAttributeDescriptionCount = attrCount;
+	info.vertexAttributeDescriptionCount = attributes.size();
 	info.pVertexAttributeDescriptions = attributes.data();
 
 	return info;
@@ -612,22 +613,23 @@ void GveColorBlendInfo::clear()
 	m_attachments.clear();
 }
 
-VkPipelineColorBlendStateCreateInfo GveColorBlendInfo::state() const
+VkPipelineColorBlendStateCreateInfo GveColorBlendInfo::state(
+	std::vector<VkPipelineColorBlendAttachmentState>& attachStates) const
 {
 	VkPipelineColorBlendStateCreateInfo info = {};
 	info.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
 	info.logicOpEnable = VkBool32(m_logicOpEnable);
 	info.logicOp = VkLogicOp(m_logicOp);
 
-	std::array<VkPipelineColorBlendAttachmentState, MaxNumRenderTargets> attachments;
-	uint32_t attachmentCount = 0;
+	attachStates.clear();
 	for (const auto& atc : m_attachments)
 	{
-		attachments[attachmentCount++] = atc.state();
+		auto attach = atc.state();
+		attachStates.push_back(attach);
 	}
 
-	info.attachmentCount = attachmentCount;
-	info.pAttachments = attachments.data();
+	info.attachmentCount = attachStates.size();
+	info.pAttachments = attachStates.data();
 
 	info.blendConstants[0] = m_blendConstants[0];
 	info.blendConstants[1] = m_blendConstants[1];

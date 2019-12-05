@@ -218,7 +218,7 @@ void GnmCommandBufferDraw::setDepthRenderTarget(DepthRenderTarget const *depthTa
 
 		GveAttachment depthAttach;
 		depthAttach.view = m_depthTarget;
-		depthAttach.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		depthAttach.layout = m_depthTarget->imageInfo().layout;
 		m_context->bindDepthRenderTarget(depthAttach);
 
 	} while (false);
@@ -348,6 +348,11 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 
 		commitVsStage();
 		commitPsStage();
+
+		// TODO:
+		// This is a dummy state.
+		auto msInfo = GveMultisampleInfo(VK_SAMPLE_COUNT_1_BIT, VK_FALSE, 0.0, 0, VK_FALSE, VK_FALSE);
+		m_context->setMultiSampleState(msInfo);
 
 		m_context->drawIndex(indexCount, 1, 0, 0, 0);
 
@@ -543,6 +548,7 @@ void GnmCommandBufferDraw::setVertexInputLayout(const PsslShaderResource& res, c
 		uint32_t bindingCount = inputSemantics.size();
 		GveVertexInputInfo viInfo = {};
 
+		uint32_t location = 0;
 		for (uint32_t i = 0; i != bindingCount; ++i)
 		{
 			const GnmBuffer& vsharp = vertexTable[i];
@@ -552,7 +558,7 @@ void GnmCommandBufferDraw::setVertexInputLayout(const PsslShaderResource& res, c
 			viInfo.addBinding(binding);
 
 			VkFormat vtxFmt = convertDataFormatToVkFormat(vsharp.getDataFormat());
-			auto attr = GveVertexAttribute(0, i, vtxFmt, 0);
+			auto attr = GveVertexAttribute(location++, i, vtxFmt, 0);
 			viInfo.addAttribute(attr);
 		}
 

@@ -192,8 +192,6 @@ private:
 
 	Spinlock				m_mutex;
 	std::vector<Instance>   m_instances;
-
-	VkRenderPass m_renderPass;
 };
 
 

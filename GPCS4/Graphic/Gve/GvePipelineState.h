@@ -117,7 +117,9 @@ public:
 
 	void clear();
 
-	VkPipelineVertexInputStateCreateInfo state() const;
+	VkPipelineVertexInputStateCreateInfo state(
+		std::vector<VkVertexInputBindingDescription>& bindings, 
+		std::vector<VkVertexInputAttributeDescription>& attributes) const;
 
 	bool operator == (const GveVertexInputInfo& other) const;
 
@@ -246,7 +248,7 @@ private:
 	float m_depthBiasConstantFactor = 0.0;
 	float m_depthBiasClamp = 0.0;
 	float m_depthBiasSlopeFactor = 0.0;
-	float m_lineWidth = 0.0;
+	float m_lineWidth = 1.0;
 };
 
 
@@ -458,7 +460,8 @@ public:
 
 	void clear();
 
-	VkPipelineColorBlendStateCreateInfo state() const;
+	VkPipelineColorBlendStateCreateInfo state(
+		std::vector<VkPipelineColorBlendAttachmentState>& attachStates) const;
 
 	bool operator == (const GveColorBlendInfo& other) const;
 

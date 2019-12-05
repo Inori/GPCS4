@@ -146,7 +146,7 @@ private:
 
 	void commitComputeState();
 
-	void setupRenderPassOps();
+	void updateRenderPassOps(const GveRenderTargets& rts, GveRenderPassOps& ops);
 
 private:
 	RcPtr<GveDevice> m_device;

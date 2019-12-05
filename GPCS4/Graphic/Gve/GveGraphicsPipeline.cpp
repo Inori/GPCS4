@@ -110,13 +110,18 @@ gve::GveGraphicsPipelineInstance* GveGraphicsPipeline::createInstance(const GveG
 		// More stages
 		VkPipelineShaderStageCreateInfo shaderStages[] = { vsStage, fsStage };
 
-		auto viState = state.vi.state();
+		std::vector<VkVertexInputBindingDescription> vertexBindings;
+		std::vector<VkVertexInputAttributeDescription> vertexAttributes;
+		auto viState = state.vi.state(vertexBindings, vertexAttributes);
+
 		auto iaState = state.ia.state();
 		auto vpState = state.vp.state();
 		auto rsState = state.rs.state();
 		auto msState = state.ms.state();
 		auto dsState = state.ds.state();
-		auto cbState = state.cb.state();
+
+		std::vector<VkPipelineColorBlendAttachmentState> colorAttachments;
+		auto cbState = state.cb.state(colorAttachments);
 
 		VkGraphicsPipelineCreateInfo pipelineInfo = {};
 		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;

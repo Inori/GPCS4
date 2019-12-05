@@ -113,7 +113,7 @@ void GveSwapChain::createImages()
 	imgInfo.stages = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 	imgInfo.access = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 	imgInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-	imgInfo.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	imgInfo.layout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 	imgInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
 	for (auto& img : swapchainImages)
