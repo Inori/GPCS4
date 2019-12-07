@@ -83,18 +83,18 @@ void GveContex::setViewport(const VkViewport& viewport, const VkRect2D& scissorR
 
 void GveContex::setViewports(uint32_t viewportCount, const VkViewport* viewports, const VkRect2D* scissorRects)
 {
-	auto& vp = m_state.gp.states.vp;
-	if (viewportCount != vp.viewportCount())
+	auto& vp = m_state.dy.vp;
+	if (viewportCount != vp.count)
 	{
 		m_flags.set(GveContextFlag::GpDirtyPipelineState);
 	}
 
-	vp.clear();
 	for (uint32_t i = 0; i != viewportCount; ++i)
 	{
-		vp.addViewport(viewports[i]);
-		vp.addScissor(scissorRects[i]);
+		vp.viewports[i] = viewports[i];
+		vp.scissors[i] = scissorRects[i];
 	}
+	vp.count = viewportCount;
 
 	m_flags.set(GveContextFlag::GpDirtyViewport);
 }
@@ -654,6 +654,21 @@ void GveContex::updateComputePipelineStates()
 
 }
 
+void GveContex::updateDynamicState()
+{
+	if (m_flags.test(GveContextFlag::GpDirtyViewport))
+	{
+		const auto& vp = m_state.dy.vp;
+
+		m_cmd->cmdSetViewport(0, vp.count, vp.viewports.data());
+		m_cmd->cmdSetScissor(0, vp.count, vp.scissors.data());
+
+		// Update viewport count, this will be used to create pipeline.
+		m_state.gp.states.dy.setViewportCount(vp.count);
+		m_flags.clr(GveContextFlag::GpDirtyViewport);
+	}
+}
+
 void GveContex::commitGraphicsState()
 {
 	if (m_flags.test(GveContextFlag::GpDirtyPipeline))
@@ -680,6 +695,8 @@ void GveContex::commitGraphicsState()
 	{
 		updateIndexBinding();
 	}
+
+	updateDynamicState();
 
 	if (m_flags.test(GveContextFlag::GpDirtyPipelineState))
 	{

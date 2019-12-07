@@ -195,88 +195,41 @@ bool GveInputAssemblyInfo::operator==(const GveInputAssemblyInfo& other) const
 }
 
 
-GveViewportInfo::GveViewportInfo(const VkViewport& viewport, const VkRect2D& scissor)
+void GveDynamicStateInfo::setViewportCount(uint32_t count)
 {
-	m_viewports.push_back(viewport);
-	m_scissors.push_back(scissor);
+	m_viewportCount = count;
 }
 
 
-
-void GveViewportInfo::addViewport(const VkViewport& viewport)
+VkPipelineViewportStateCreateInfo GveDynamicStateInfo::viewportState() const
 {
-	m_viewports.push_back(viewport);
+	VkPipelineViewportStateCreateInfo vpInfo = {};
+	vpInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+	vpInfo.pNext = nullptr;
+	vpInfo.flags = 0;
+	vpInfo.viewportCount = m_viewportCount;
+	vpInfo.pViewports = nullptr;
+	vpInfo.scissorCount = m_viewportCount;
+	vpInfo.pScissors = nullptr;
+	return vpInfo;
 }
 
-void GveViewportInfo::addScissor(const VkRect2D& scissor)
+VkPipelineDynamicStateCreateInfo GveDynamicStateInfo::state(std::vector<VkDynamicState>& dynStates) const
 {
-	m_scissors.push_back(scissor);
+	VkPipelineDynamicStateCreateInfo dyInfo = {};
+
+	dynStates.reserve(2);
+	dynStates.push_back(VK_DYNAMIC_STATE_VIEWPORT);
+	dynStates.push_back(VK_DYNAMIC_STATE_SCISSOR);
+
+	dyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+	dyInfo.pNext = nullptr;
+	dyInfo.flags = 0;
+	dyInfo.dynamicStateCount = dynStates.size();
+	dyInfo.pDynamicStates = dynStates.data();
+
+	return dyInfo;
 }
-
-uint32_t GveViewportInfo::viewportCount() const
-{
-	return m_viewports.size();
-}
-
-void GveViewportInfo::clear()
-{
-	m_viewports.clear();
-	m_scissors.clear();
-}
-
-VkPipelineViewportStateCreateInfo GveViewportInfo::state() const
-{
-	VkPipelineViewportStateCreateInfo info = {};
-	info.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-	info.viewportCount = m_viewports.size();
-	info.pViewports = m_viewports.data();
-	info.scissorCount = m_scissors.size();
-	info.pScissors = m_scissors.data();
-	return info;
-}
-
-bool GveViewportInfo::operator==(const GveViewportInfo& other) const
-{
-	bool ret = false;
-	do
-	{
-		if (m_viewports.size() != other.m_viewports.size())
-		{
-			break;
-		}
-
-		if (m_scissors.size() != other.m_scissors.size())
-		{
-			break;
-		}
-
-		bool eq = std::equal(m_viewports.begin(), m_viewports.end(), other.m_viewports.begin(),
-			[](const VkViewport& lhs, const VkViewport& rhs)
-		{
-			return !std::memcmp(&lhs, &rhs, sizeof(VkViewport));
-		});
-
-		if (!eq)
-		{
-			break;
-		}
-
-		eq = std::equal(m_scissors.begin(), m_scissors.end(), other.m_scissors.begin(),
-			[](const VkRect2D& lhs, const VkRect2D& rhs)
-		{
-			return !std::memcmp(&lhs, &rhs, sizeof(VkRect2D));
-		});
-
-		if (!eq)
-		{
-			break;
-		}
-
-		ret = true;
-	} while (false);
-	return ret;
-}
-
 
 GveRasterizationInfo::GveRasterizationInfo(
 	VkBool32 depthClipEnable, 
@@ -645,7 +598,6 @@ bool GveGraphicsPipelineStateInfo::operator==(const GveGraphicsPipelineStateInfo
 {
 	return (vi == other.vi) &&
 		(ia == other.ia) &&
-		(vp == other.vp) &&
 		(rs == other.rs) &&
 		(ms == other.ms) &&
 		(ds == other.ds) &&

@@ -142,6 +142,8 @@ private:
 	void updateComputePipeline();
 	void updateComputePipelineStates();
 
+	void updateDynamicState();
+
 	void commitGraphicsState();
 
 	void commitComputeState();

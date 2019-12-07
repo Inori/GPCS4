@@ -205,8 +205,10 @@ RcPtr<gve::GveDevice> GvePhysicalDevice::createLogicalDevice()
 	{
 		GveDeviceExtensions devExtensions;
 
-		std::array<GveExt*, 1> devExtensionList = { {
+		std::array<GveExt*, 3> devExtensionList = { {
 		  &devExtensions.khrSwapchain,
+		  &devExtensions.khrDedicatedAllocation,
+		  &devExtensions.khrMaintenance1
 		} };
 
 		GveNameSet extensionsEnabled;

@@ -305,7 +305,7 @@ void GnmCommandBufferDraw::setPrimitiveSetup(PrimitiveSetup primSetup)
 			VK_FALSE,
 			VK_FALSE,
 			polyMode,
-			cullMode,
+			VK_CULL_MODE_NONE,
 			frontFace
 		);
 
