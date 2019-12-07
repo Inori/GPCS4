@@ -42,7 +42,7 @@ VkRenderPass GveFrameBuffer::getRenderPassHandle(const GveRenderPassOps& ops) co
 	return m_renderPass->getHandle(ops);
 }
 
-VkExtent2D GveFrameBuffer::getRenderExtent()
+VkExtent2D GveFrameBuffer::getRenderExtent() const
 {
 	VkExtent2D extent = {};
 	extent.width = m_renderSize.width;
