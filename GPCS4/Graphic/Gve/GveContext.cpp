@@ -137,14 +137,38 @@ void GveContex::setColorBlendState(const GveColorBlendInfo& blendCtl)
 
 void GveContex::bindRenderTargets(const GveAttachment* color, uint32_t count)
 {
-	std::memcpy(m_state.om.renderTargets.color, color, sizeof(GveAttachment) * count);
-	m_flags.set(GveContextFlag::GpDirtyFramebuffer);
+	do 
+	{
+		if (!color || !count)
+		{
+			break;
+		}
+
+		if (m_state.om.framebuffer && m_state.om.framebuffer->matchColorTargets(color, count))
+		{
+			break;
+		}
+
+		std::memcpy(m_state.om.renderTargets.color, color, sizeof(GveAttachment) * count);
+		m_flags.set(GveContextFlag::GpDirtyFramebuffer);
+		
+	} while (false);
 }
 
 void GveContex::bindDepthRenderTarget(const GveAttachment& depth)
 {
-	m_state.om.renderTargets.depth = depth;
-	m_flags.set(GveContextFlag::GpDirtyFramebuffer);
+	do
+	{
+		if (m_state.om.framebuffer && m_state.om.framebuffer->matchDepthTarget(depth))
+		{
+			break;
+		}
+
+		m_state.om.renderTargets.depth = depth;
+		m_flags.set(GveContextFlag::GpDirtyFramebuffer);
+
+	} while (false);
+
 }
 
 void GveContex::bindShader(VkShaderStageFlagBits stage, const RcPtr<GveShader>& shader)
@@ -371,7 +395,17 @@ void GveContex::transitionImageLayout(VkImage image, VkFormat format, VkImageLay
 
 void GveContex::updateFrameBuffer()
 {
-	m_state.om.framebuffer = m_device->createFrameBuffer(m_state.om.renderTargets);
+	do 
+	{
+		if (m_state.om.framebuffer && m_state.om.framebuffer->matchRenderTargets(m_state.om.renderTargets))
+		{
+			break;
+		}
+
+		m_state.om.framebuffer = m_device->createFrameBuffer(m_state.om.renderTargets);
+		
+	} while (false);
+
 	m_flags.clr(GveContextFlag::GpDirtyFramebuffer);
 }
 
@@ -397,6 +431,11 @@ void GveContex::updateRenderPassOps(const GveRenderTargets& rts, GveRenderPassOp
 		ops.depthOps.storeOpD = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		ops.depthOps.storeLayout = rts.depth.layout;
 	}
+
+	ops.barrier.srcStages = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	ops.barrier.srcAccess = 0;
+	ops.barrier.dstStages = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	ops.barrier.dstAccess = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 }
 
 void GveContex::beginRenderPass()

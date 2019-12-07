@@ -50,6 +50,42 @@ VkExtent2D GveFrameBuffer::getRenderExtent()
 	return extent;
 }
 
+bool GveFrameBuffer::matchColorTargets(const GveAttachment* color, uint32_t count)
+{
+	bool match = true;
+	do 
+	{
+		if (!color || !count)
+		{
+			break;
+		}
+
+		for (uint32_t i = 0; i != count; ++i)
+		{
+			if (m_renderTargets.color[i].view != color[i].view ||
+				m_renderTargets.color[i].layout != color[i].layout)
+			{
+				match = false;
+				break;
+			}
+		}
+
+	} while (false);
+	return match;
+}
+
+bool GveFrameBuffer::matchDepthTarget(const GveAttachment& depth)
+{
+	return (m_renderTargets.depth.view == depth.view) && 
+		   (m_renderTargets.depth.layout == depth.layout);
+}
+
+bool GveFrameBuffer::matchRenderTargets(const GveRenderTargets& renderTargets)
+{
+	return matchColorTargets(renderTargets.color, MaxNumRenderTargets) &&
+		   matchDepthTarget(renderTargets.depth);
+}
+
 GveRenderPassFormat GveFrameBuffer::getRenderPassFormat(const GveRenderTargets& renderTargets)
 {
 	GveRenderPassFormat format = {};

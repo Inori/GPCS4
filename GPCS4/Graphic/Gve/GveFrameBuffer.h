@@ -71,6 +71,12 @@ public:
 
 	VkExtent2D getRenderExtent();
 
+	bool matchColorTargets(const GveAttachment* color, uint32_t count);
+
+	bool matchDepthTarget(const GveAttachment& depth);
+
+	bool matchRenderTargets(const GveRenderTargets& renderTargets);
+
 	static GveRenderPassFormat getRenderPassFormat(const GveRenderTargets& renderTargets);
 
 private:
