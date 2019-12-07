@@ -206,7 +206,7 @@ VkRenderPass GveRenderPass::createRenderPass(const GveRenderPassOps& ops)
 		{
 			subpassDeps[subpassDepCount++] = 
 			{
-			  0, VK_SUBPASS_EXTERNAL,
+			  VK_SUBPASS_EXTERNAL, 0,
 			  ops.barrier.srcStages,
 			  ops.barrier.dstStages,
 			  ops.barrier.srcAccess,
