@@ -395,7 +395,10 @@ VkPipelineMultisampleStateCreateInfo GveMultisampleInfo::state() const
 	info.sampleShadingEnable = VkBool32(m_sampleShadingEnable);
 	info.alphaToCoverageEnable = VkBool32(m_alphaToCoverageEnable);
 	info.alphaToOneEnable = VkBool32(m_alphaToOneEnable);
-	info.pSampleMask = (VkSampleMask*)&m_sampleMask;
+	// TODO:
+	// Currently, set sample mask will result in a black screen.
+	// To be fixed.
+	//info.pSampleMask = (VkSampleMask*)&m_sampleMask;
 	info.minSampleShading = m_minSampleShading;
 
 	return info;
