@@ -477,7 +477,7 @@ private:
 		uint32_t m_asDword1;
 	};
 
-	float m_blendConstants[4];
+	float m_blendConstants[4] = {};
 	std::vector<GveColorBlendAttachment> m_attachments;
 };
 
