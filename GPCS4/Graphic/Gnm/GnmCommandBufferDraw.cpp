@@ -61,6 +61,16 @@ void GnmCommandBufferDraw::setPsShaderUsage(const uint32_t *inputTable, uint32_t
 
 void GnmCommandBufferDraw::setViewport(uint32_t viewportId, float dmin, float dmax, const float scale[3], const float offset[3])
 {
+	// The viewport¡¯s origin in Gnm is in the lower left of the screen,
+	// with Y pointing up.
+	// In Vulkan the origin is in the top left of the screen,
+	// with Y pointing downwards.
+	// We need to flip the viewport of gnm to adapt to vulkan.
+	//
+	// Note, this is going to work with VK_KHR_Maintenance1 extension enabled,
+	// which is the default of Vulkan 1.1.
+	// And we must use dynamic viewport state (vkCmdSetViewport), or negative viewport height won't work.
+
 	float width = scale[0] / 0.5f;
 	float height = -scale[1] / 0.5f;
 	float left = offset[0] - scale[0];
@@ -68,17 +78,17 @@ void GnmCommandBufferDraw::setViewport(uint32_t viewportId, float dmin, float dm
 
 	VkViewport viewport;
 	viewport.x = left;
-	viewport.y = top;
+	viewport.y = top + height;
 	viewport.width = width;
-	viewport.height = height;
+	viewport.height = -height;
 	viewport.minDepth = dmin;
 	viewport.maxDepth = dmax;
 
 	VkRect2D scissor;
-	scissor.offset.x = viewport.x;
-	scissor.offset.y = viewport.y;
-	scissor.extent.width = viewport.width;
-	scissor.extent.height = viewport.height;
+	scissor.offset.x = 0;
+	scissor.offset.y = 0;
+	scissor.extent.width = width;
+	scissor.extent.height = height;
 
 	m_context->setViewport(viewport, scissor);
 }
@@ -305,7 +315,7 @@ void GnmCommandBufferDraw::setPrimitiveSetup(PrimitiveSetup primSetup)
 			VK_FALSE,
 			VK_FALSE,
 			polyMode,
-			VK_CULL_MODE_NONE,
+			cullMode,
 			frontFace
 		);
 
