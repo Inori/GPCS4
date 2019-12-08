@@ -838,6 +838,9 @@
     <ClInclude Include="SceModules\ScePad\sce_pad_error.h">
       <Filter>SceModules\ScePad</Filter>
     </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GnmConvertor.h">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1481,6 +1484,9 @@
     </ClCompile>
     <ClCompile Include="SceModules\ScePad\ScePad.cpp">
       <Filter>SceModules\ScePad</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gnm\GnmConvertor.cpp">
+      <Filter>Source Files\Graphic\Gnm</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

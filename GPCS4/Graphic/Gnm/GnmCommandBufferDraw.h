@@ -141,18 +141,6 @@ private:
 	void bindImmResource(const PsslShaderResource& res);
 	void bindSampler(const PsslShaderResource& res);
 
-
-	// Converters
-	VkFormat convertZFormatToVkFormat(ZFormat zfmt);
-	VkFormat convertDataFormatToVkFormat(DataFormat dataFormat);
-	VkCompareOp convertCompareFunc(CompareFunc cmpFunc);
-	VkPolygonMode convertPolygonMode(PrimitiveSetupPolygonMode polyMode);
-	VkCullModeFlags convertCullMode(PrimitiveSetupCullFaceMode cullMode);
-	VkBlendFactor convertBlendMultiplierToFactor(BlendMultiplier blendMul);
-	VkBlendOp convertBlendFuncToOp(BlendFunc func);
-	VkPrimitiveTopology convertPrimitiveTypeToTopology(PrimitiveType primType);
-	VkIndexType convertIndexSize(IndexSize indexSize);
-
 private:
 
 	// Image view from swapchain, this is the default render target view.
