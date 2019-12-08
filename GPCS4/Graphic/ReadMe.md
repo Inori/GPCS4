@@ -62,13 +62,13 @@ Finally, it will call Gve functions, translating Gnm calls into Gve calls.(`GnmC
 This module will only call functions in `Gve` module.
 
 #### 5. Gve
-This the vulkan engine.  
+This is the vulkan engine.  
 Gve means "Gnm to Vulkan tranlation engine".  
 It's the abstraction layer of vulkan. Most of vulkan objects will be wrapped into Gve classes for convenience.  
 And it will maintain vulkan states, pipelines, optimizations and so on.
 
 #### 6. Pssl
-This is the shader translator/recompiler.
+This is the shader translator/recompiler.  
 PS4 use AMD's GCN bytecode in its' shader binary.  
 We need to translate these GCN bytecode into vulkan's Spir-V bytecode.  
 Translating result will be used by `Gve` module.
