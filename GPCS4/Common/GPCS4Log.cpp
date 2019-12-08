@@ -15,9 +15,9 @@
 
 #include <Windows.h>
 
-static std::unique_ptr<spdlog::logger> logger;
+static std::unique_ptr<spdlog::logger> g_logger;
 
-void InitLogging()
+void initLogging()
 {
 	auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
 	console_sink->set_level(spdlog::level::trace); // message generating filter
@@ -32,9 +32,9 @@ void InitLogging()
 	file_sink->set_pattern("[%t][%^%l%$]%v");
 
 	//logger.reset(new spdlog::logger("stdout_msvc", { console_sink, msvc_sink }));
-	logger.reset(new spdlog::logger("GPCS4", { console_sink, file_sink }));
-	logger->set_level(spdlog::level::trace); // message showing filter
-	logger->flush_on(spdlog::level::trace); // I/O cost
+	g_logger.reset(new spdlog::logger("GPCS4", { console_sink, file_sink }));
+	g_logger->set_level(spdlog::level::trace); // message showing filter
+	g_logger->flush_on(spdlog::level::trace); // I/O cost
 }
 
 void LogPrint(LogLevel nLevel, const char* szFunction, const char* szSourcePath, int nLine, const char* szFormat, ...)
@@ -50,25 +50,25 @@ void LogPrint(LogLevel nLevel, const char* szFunction, const char* szSourcePath,
 	switch (nLevel)
 	{
 	case LogLevel::kDebug:
-		logger->debug("{}({}): {}", szFunction, nLine, szTempStr);
+		g_logger->debug("{}({}): {}", szFunction, nLine, szTempStr);
 		break;
 	case LogLevel::kTrace:
-		logger->trace("{}({}): {}", szFunction, nLine, szTempStr);
+		g_logger->trace("{}({}): {}", szFunction, nLine, szTempStr);
 		break;
 	case LogLevel::kFixme:
-		logger->warn("<FIXME>{}({}): {}", szFunction, nLine, szTempStr);
+		g_logger->warn("<FIXME>{}({}): {}", szFunction, nLine, szTempStr);
 		break;
 	case LogLevel::kWarning:
-		logger->warn("{}({}): {}", szFunction, nLine, szTempStr);
+		g_logger->warn("{}({}): {}", szFunction, nLine, szTempStr);
 		break;
 	case LogLevel::kError:
-		logger->error("{}({}): {}", szFunction, nLine, szTempStr);
+		g_logger->error("{}({}): {}", szFunction, nLine, szTempStr);
 		break;
 	case LogLevel::kSceTrace:
-		logger->trace("<SCE>{}({}): {}", szFunction, nLine, szTempStr);
+		g_logger->trace("<SCE>{}({}): {}", szFunction, nLine, szTempStr);
 		break;
 	case LogLevel::kSceGraphic:
-		logger->trace("<GRAPH>{}({}): {}", szFunction, nLine, szTempStr);
+		g_logger->trace("<GRAPH>{}({}): {}", szFunction, nLine, szTempStr);
 		break;
 	}
 }
@@ -84,7 +84,7 @@ void LogAssert(const char* szExpression, const char* szFunction, const char* szS
 	sprintf_s(szMsgBoxStr, LOG_STR_BUFFER_LEN, "[Assert]: %s\n[Cause]: %s\n[Path]: %s(%d): %s", szExpression, szTempStr, szSourcePath, nLine, szFunction);
 	va_end(stArgList);
 
-	logger->critical("{}({}): [Assert: {}] {}", szFunction, nLine, szExpression, szTempStr);
+	g_logger->critical("{}({}): [Assert: {}] {}", szFunction, nLine, szExpression, szTempStr);
 	MessageBoxA(NULL, szMsgBoxStr, "Assertion Fail", MB_OK | MB_ICONERROR);
 	exit(-1);
 }

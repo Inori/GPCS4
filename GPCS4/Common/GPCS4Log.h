@@ -2,7 +2,7 @@
 
 #include "GPCS4Common.h"
 
-void InitLogging();
+void initLogging();
 
 enum class LogLevel : int
 {

@@ -8,7 +8,7 @@
 
 int main(int argc, char *argv[])
 {
-	InitLogging();
+	initLogging();
 
 	LOG_DEBUG("enter main function.");
 
