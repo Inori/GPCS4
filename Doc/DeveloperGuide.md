@@ -1,8 +1,13 @@
 # Developer Guide for GPCS4
 
+## Branches
+1. `master` branch is under heavy develpment, mainly for graphics, so the code maybe not stable for test. If you aim to do graphics development, checkout this branch.
+2. `no_graphics` branch is used for non-graphics development. It will emulate GPU interrupt and label write, preventing program from trapping into infinite loop waiting for GPU events.
+3. If you just want to do some simple grahpics test, checkout a latest `tag` branch.
+
 ## Build GPCS4:
 Follow the steps:
-1. Checkout any release tag, do not checkout latest master branch.
+1. Checkout a proper branch.
 2. Close your Visual Studio first, install the 3 components listed on the github page.
 3. Restart Visual Studio, select `X64 Debug` build. Build 3rdParty libraries first, then GPCS4.
 4. If you still can't build, try to change clang or vulkan sdk version. My clang version is 9.0.0.0 and vulkan sdk version is 1.1.121.2. Other versions are not tested.
@@ -13,7 +18,7 @@ Currently, GPCS4 need a path of main elf/bin as input parameter, and will redire
 ie. `/app0/shader_vv.sb` to `E:\Code\GPCS4\Debug\shader_vv.sb`  
 
 Follow the steps:
-1. Choose a proper branch, the master branch is under heavy development and maybe not stable for test.
+1. Checkout a proper branch, the master branch is under heavy development and maybe not stable for test.
 2. Copy all the stuffs of a demo/game, including main elf/bin, shader binary file, texture and so on, in the `Debug` folder where GPCS4.exe output, and keep it's directory tree structure unchanged.
 3. Open properties window of GPCS4 project in Visual Studio, switch to Debugging tab,  
 set `Woring Directory` to `$(OutDir)`  
