@@ -23,18 +23,19 @@ void initLogging()
 	console_sink->set_level(spdlog::level::trace); // message generating filter
 	console_sink->set_pattern("[%t][%^%l%$]%v");
 
-	//auto msvc_sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
-	//msvc_sink->set_level(spdlog::level::trace); // message generating filter
-	//msvc_sink->set_pattern("[Asuka:%t][%l]%v");
+	auto msvc_sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
+	msvc_sink->set_level(spdlog::level::trace); // message generating filter
+	msvc_sink->set_pattern("[%t][%^%l%$]%v");
 
 	auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("GPCS4.log", true);
 	file_sink->set_level(spdlog::level::trace);
 	file_sink->set_pattern("[%t][%^%l%$]%v");
 
-	//logger.reset(new spdlog::logger("stdout_msvc", { console_sink, msvc_sink }));
-	g_logger.reset(new spdlog::logger("GPCS4", { console_sink, file_sink }));
+	//g_logger.reset(new spdlog::logger("GPCS4", { console_sink, msvc_sink }));
+	//g_logger.reset(new spdlog::logger("GPCS4", { console_sink, file_sink }));
+	g_logger.reset(new spdlog::logger("GPCS4", { msvc_sink }));
 	g_logger->set_level(spdlog::level::trace); // message showing filter
-	g_logger->flush_on(spdlog::level::trace); // I/O cost
+	//g_logger->flush_on(spdlog::level::trace); // I/O cost
 }
 
 void LogPrint(LogLevel nLevel, const char* szFunction, const char* szSourcePath, int nLine, const char* szFormat, ...)
