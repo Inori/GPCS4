@@ -12,7 +12,6 @@
 #include "../Gve/GveSampler.h"
 #include "../Gve/GveContext.h"
 #include "../Pssl/PsslShaderModule.h"
-#include "Platform/PlatformUtils.h"
 
 #include <algorithm>
 
@@ -705,22 +704,6 @@ void GnmCommandBufferDraw::bindSampler(const PsslShaderResource& res)
 		m_context->bindSampler(regSlot, sampler);
 
 	} while (false);
-}
-
-void GnmCommandBufferDraw::emuWriteGpuLabel(EventWriteSource selector, void* label, uint64_t value)
-{
-	if (selector == kEventWriteSource32BitsImmediate)
-	{
-		*(uint32_t*)label = value;
-	}
-	else if (selector == kEventWriteSource64BitsImmediate)
-	{
-		*(uint64_t*)label = value;
-	}
-	else
-	{
-		*(uint64_t*)label = UtilProcess::GetProcessTimeCounter();
-	}
 }
 
 uint32_t* GnmCommandBufferDraw::getFetchShaderCode(const GnmShaderContext& vsCtx)

@@ -45,6 +45,7 @@
     <ClInclude Include="Graphic\Gnm\GnmCommandBuffer.h" />
     <ClInclude Include="Graphic\Gnm\GnmCommandBufferDispatch.h" />
     <ClInclude Include="Graphic\Gnm\GnmCommandBufferDraw.h" />
+    <ClInclude Include="Graphic\Gnm\GnmCommandBufferDummy.h" />
     <ClInclude Include="Graphic\Gnm\GnmCommon.h" />
     <ClInclude Include="Graphic\Gnm\GnmConstant.h" />
     <ClInclude Include="Graphic\Gnm\GnmConvertor.h" />
@@ -256,6 +257,7 @@
     <ClCompile Include="Graphic\Gnm\GnmCommandBuffer.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmCommandBufferDispatch.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmCommandBufferDraw.cpp" />
+    <ClCompile Include="Graphic\Gnm\GnmCommandBufferDummy.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmConvertor.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmDataFormat.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmOpCode.cpp" />

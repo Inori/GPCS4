@@ -841,6 +841,9 @@
     <ClInclude Include="Graphic\Gnm\GnmConvertor.h">
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GnmCommandBufferDummy.h">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1486,6 +1489,9 @@
       <Filter>SceModules\ScePad</Filter>
     </ClCompile>
     <ClCompile Include="Graphic\Gnm\GnmConvertor.cpp">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gnm\GnmCommandBufferDummy.cpp">
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClCompile>
   </ItemGroup>

@@ -4,6 +4,7 @@
 #include "../GraphicShared.h"
 #include "../Gnm/GnmCmdStream.h"
 #include "../Gnm/GnmCommandBufferDraw.h"
+#include "../Gnm/GnmCommandBufferDummy.h"
 #include "../Gve/GveInstance.h"
 #include "../Gve/GveSwapChain.h"
 #include "../Gve/GvePipelineManager.h"
@@ -105,7 +106,13 @@ void SceGnmDriver::createCommandParsers(uint32_t count)
 	for (uint32_t i = 0; i != count; ++i)
 	{
 		auto rtImgView = m_swapchain->getImageView(i);
+
+#ifndef GPCS4_NO_GRAPHICS
 		m_commandBuffers[i] = std::make_shared<GnmCommandBufferDraw>(m_device, rtImgView);
+#else
+		m_commandBuffers[i] = std::make_shared<GnmCommandBufferDummy>();
+#endif // GPCS4_NO_GRAPHICS
+
 	}
 	
 	m_commandParsers.resize(count);

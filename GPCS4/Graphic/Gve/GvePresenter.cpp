@@ -24,6 +24,11 @@ void GvePresenter::present(const RcPtr<GveCmdList>& cmdList)
 {
 	do 
 	{
+		if (!cmdList)
+		{
+			break;
+		}
+
 		vkWaitForFences(*m_device, 1, &m_inFlightFences[m_currentFrame], VK_TRUE, UINT64_MAX);
 
 		uint32_t imageIndex;

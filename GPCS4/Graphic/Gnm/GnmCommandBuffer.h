@@ -332,6 +332,9 @@ public:
 	//static bool readDispatchDrawAcbSubmitMarker(uint32_t const *pAcbSubmitMarker, uint32_t *out_pSizeofAcbSegment, uint32_t *out_pPipe, uint32_t *out_pQueue, void const** out_ppAcbSegmentNext);
 
 protected:
+	void emuWriteGpuLabel(EventWriteSource selector, void* label, uint64_t value);
+
+protected:
 	RcPtr<gve::GveDevice> m_device;
 	RcPtr<gve::GveCmdList> m_cmd;
 	RcPtr<gve::GveContex> m_context;
