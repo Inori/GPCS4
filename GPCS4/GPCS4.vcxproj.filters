@@ -826,6 +826,15 @@
     <ClInclude Include="Graphic\Gve\GvePresenter.h">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClInclude>
+    <ClInclude Include="SceModules\ScePad\ScePad.h">
+      <Filter>SceModules\ScePad</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\ScePad\sce_pad_types.h">
+      <Filter>SceModules\ScePad</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\ScePad\sce_pad_error.h">
+      <Filter>SceModules\ScePad</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1466,6 +1475,9 @@
     </ClCompile>
     <ClCompile Include="Graphic\Gnm\GnmDataFormat.cpp">
       <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\ScePad\ScePad.cpp">
+      <Filter>SceModules\ScePad</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
