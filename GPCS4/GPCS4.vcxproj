@@ -197,6 +197,7 @@
     <ClInclude Include="SceModules\SceLibkernel\sce_libkernel.h" />
     <ClInclude Include="SceModules\SceLibkernel\sce_pthread_common.h" />
     <ClInclude Include="SceModules\SceMouse\sce_mouse.h" />
+    <ClInclude Include="SceModules\SceMouse\sce_mouse_types.h" />
     <ClInclude Include="SceModules\SceMsgDialog\sce_msgdialog.h" />
     <ClInclude Include="SceModules\SceNetCtl\sce_netctl.h" />
     <ClInclude Include="SceModules\SceNet\sce_net.h" />

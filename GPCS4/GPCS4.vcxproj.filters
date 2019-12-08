@@ -817,6 +817,9 @@
     <ClInclude Include="Graphic\Gve\GveContextState.h">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClInclude>
+    <ClInclude Include="SceModules\SceMouse\sce_mouse_types.h">
+      <Filter>SceModules\SceMouse</Filter>
+    </ClInclude>
     <ClInclude Include="Emulator\ModuleSystemCommon.h">
       <Filter>Source Files\Emulator</Filter>
     </ClInclude>
