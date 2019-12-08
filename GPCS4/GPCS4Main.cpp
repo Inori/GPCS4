@@ -8,6 +8,8 @@
 
 int main(int argc, char *argv[])
 {
+	initLogging();
+
 	LOG_DEBUG("enter main function.");
 
 	std::unique_ptr<CEmulator> pEmulator = std::make_unique<CEmulator>();

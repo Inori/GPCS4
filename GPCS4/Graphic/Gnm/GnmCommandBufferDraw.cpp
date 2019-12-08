@@ -44,14 +44,14 @@ void GnmCommandBufferDraw::initializeDefaultHardwareState()
 void GnmCommandBufferDraw::prepareFlip(void *labelAddr, uint32_t value)
 {
 	*(uint32_t*)labelAddr = value;
-	m_context->endRecording();
+	//m_context->endRecording();
 }
 
 // Last call of a frame, with interrupt.
 void GnmCommandBufferDraw::prepareFlipWithEopInterrupt(EndOfPipeEventType eventType, void *labelAddr, uint32_t value, CacheAction cacheAction)
 {
 	*(uint32_t*)labelAddr = value;
-	m_context->endRecording();
+	//m_context->endRecording();
 }
 
 void GnmCommandBufferDraw::setPsShaderUsage(const uint32_t *inputTable, uint32_t numItems)
@@ -61,7 +61,7 @@ void GnmCommandBufferDraw::setPsShaderUsage(const uint32_t *inputTable, uint32_t
 
 void GnmCommandBufferDraw::setViewport(uint32_t viewportId, float dmin, float dmax, const float scale[3], const float offset[3])
 {
-	// The viewport¡¯s origin in Gnm is in the lower left of the screen,
+	// The viewportï¿½ï¿½s origin in Gnm is in the lower left of the screen,
 	// with Y pointing up.
 	// In Vulkan the origin is in the top left of the screen,
 	// with Y pointing downwards.
@@ -90,7 +90,7 @@ void GnmCommandBufferDraw::setViewport(uint32_t viewportId, float dmin, float dm
 	scissor.extent.width = width;
 	scissor.extent.height = height;
 
-	m_context->setViewport(viewport, scissor);
+	//m_context->setViewport(viewport, scissor);
 }
 
 void GnmCommandBufferDraw::setPsShader(const pssl::PsStageRegisters *psRegs)

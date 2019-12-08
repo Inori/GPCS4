@@ -68,7 +68,10 @@ int PS4API sceGnmDisableMipStatsReport(void);
 int PS4API sceGnmDispatchDirect(uint32_t* cmdBuffer, uint32_t numDwords, uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ, uint32_t pred);
 
 
-int PS4API sceGnmDispatchIndirect(void);
+int PS4API sceGnmDispatchIndirect(uint32_t *cmdBuffer,
+								  uint32_t numDwords,
+								  uint32_t dataOffsetInBytes,
+								  uint32_t flag);
 
 
 int PS4API sceGnmDispatchIndirectOnMec(void);

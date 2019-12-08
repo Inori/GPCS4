@@ -4,6 +4,8 @@
 #include "GCNParser/Instruction.h"
 #include <memory>
 
+#include <memory>
+
 namespace pssl
 {;
 
