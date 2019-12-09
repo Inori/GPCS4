@@ -20,9 +20,9 @@
         +------------+
                |           
                v
-        +------------+      +------------+      +------------+
-        |     Gve    | <--- |    Pssl    | <--- |    Spirv   |
-        +------------+      +------------+      +------------+
+        +------------+      +------------+      +-------------+
+        |     Gve    | <--- |    Pssl    | <--- |    Spirv    |
+        +------------+      +------------+      +-------------+
                |           
                v
         +------------+
@@ -76,7 +76,7 @@ Translating result will be used by `Gve` module.
 Also, this module is responsible for parsing PSSL shader binary format.  
 
 #### 7. Spirv
-This is a helper module using to generate spir-v bytecode.
+This is a helper module using to generate spir-v bytecode.  
 It is used by `Pssl` module directly.
 
 #### 8. Vulkan
