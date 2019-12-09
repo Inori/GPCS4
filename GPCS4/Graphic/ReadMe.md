@@ -20,9 +20,9 @@
         +------------+
                |           
                v
-        +------------+      +------------+
-        |     Gve    | <--- |    Pssl    |
-        +------------+      +------------+
+        +------------+      +------------+      +------------+
+        |     Gve    | <--- |    Pssl    | <--- |    Spirv   |
+        +------------+      +------------+      +------------+
                |           
                v
         +------------+
@@ -48,15 +48,16 @@ This module will only call functions in `Sce` module.
 
 #### 3. Sce
 This is the top level graphics hardware abstraction.  
-`SceVideoOut` is abstract for display/television hardware for a real PS4 hardware. For GPCS4, it abstract for the window.  
-`SceGnmDriver` is the graphics driver module of PS4 system. For GPCS4, it abstract for graphics driver and GPU too.
+`SceVideoOut` abstracts for display/television hardware for a real PS4 machine. For GPCS4, it abstracts for the window system.  
+`SceGnmDriver` is the graphics driver module of PS4 system. For GPCS4, it abstracts for graphics driver and GPU too.
 
 This module will only call functions in `Gnm` module.
 
 #### 4. Gnm
-This module is responsible for Gnm reverse engineering and convert Gnm calls into Gve calls.  
-It will parse command buffers (PM4 packet queue) received from the game, recover the original Gnm calls. (`GnmCmdStream`)  
-Together with reverser engineering Gnm structures and converting Gnm enumerations/contants into Gve/Vulkan's format.(`cvt namespace`)  
+This module is the reverse engineering and api translation module.  
+It's responsible for three things:  
+First, it will parse command buffers (PM4 packet queue) received from the game, recover the original Gnm calls. (`GnmCmdStream`).  
+Second, it will reverser engineering Gnm structures and converting Gnm enumerations/constants into Gve/Vulkan's format.(`cvt namespace` and various structure definations.).    
 Finally, it will call Gve functions, translating Gnm calls into Gve calls.(`GnmCommandBufferDraw`)  
 
 This module will only call functions in `Gve` module.
@@ -64,19 +65,24 @@ This module will only call functions in `Gve` module.
 #### 5. Gve
 This is the vulkan engine.  
 Gve means "Gnm to Vulkan tranlation engine".  
-It's the abstraction layer of vulkan. Most of vulkan objects will be wrapped into Gve classes for convenience.  
-And it will maintain vulkan states, pipelines, optimizations and so on.
+It is the abstraction layer of vulkan. Most of vulkan objects will be wrapped into Gve classes for convenience.  
+It will maintain vulkan render states, pipelines, optimizations and so on.
 
 #### 6. Pssl
 This is the shader translator/recompiler.  
 PS4 use AMD's GCN bytecode in its' shader binary.  
 We need to translate these GCN bytecode into vulkan's Spir-V bytecode.  
-Translating result will be used by `Gve` module.
+Translating result will be used by `Gve` module.  
+Also, this module is responsible for parsing PSSL shader binary format.  
 
-#### 7. Vulkan
+#### 7. Spirv
+This is a helper module using to generate spir-v bytecode.
+It is used by `Pssl` module directly.
+
+#### 8. Vulkan
 This is the graphics api which GPCS4 uses.  
 Not much to say.
 
-#### 8. GPU Hardware
+#### 9. GPU Hardware
 This is the lowest hardware GPU.  
 Not much to say.
