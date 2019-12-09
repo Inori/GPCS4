@@ -5,9 +5,9 @@
         +-------------+
                |           
                v
-    +---------------------------+
-    | SceModules::sce_gnmdriver |
-    +---------------------------+
+    +--------------------------+
+    | SceModules::SceGnmDriver |
+    +--------------------------+
                |           
                v
         +------------+
@@ -40,7 +40,7 @@ Gnm libraries are all static libraries compiled into the game's main executable.
 So we won't receive any Gnm draw/state call directly from the game.  
 Instead, we can only receive the command buffers during a submit call.
 
-#### 2. SceModules::sce_gnmdriver
+#### 2. SceModules::SceGnmDriver
 This is the interface between the game and GPCS4.  
 Apis in this module are all the game's import functions. That is to say, the function pointer will be filled directly into the game's import table, and the game will call these apis directly.
 
