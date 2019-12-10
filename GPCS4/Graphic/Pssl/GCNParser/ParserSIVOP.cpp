@@ -13,7 +13,7 @@ VOPInstruction::SRC ParserSIVOP::GetSRC(Instruction::instruction64bit hexInstruc
 		src = static_cast<VOPInstruction::SRC>((hexInstruction & static_cast<Instruction::instruction32bit>(VOP3Mask_SRC1)) >> 9);
 		break;
 	case 2:
-		src = static_cast<VOPInstruction::SRC>((hexInstruction & static_cast<Instruction::instruction32bit>(VOP3Mask_SRC1)) >> 18);
+		src = static_cast<VOPInstruction::SRC>((hexInstruction & static_cast<Instruction::instruction32bit>(VOP3Mask_SRC2)) >> 18);
 		break;
 	default:
 		break;
@@ -276,6 +276,12 @@ ParserSI::kaStatus
 ParserSIVOP::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, std::unique_ptr<Instruction>& instruction)
 {
     kaStatus retStatus =   ParserSI::Status_64BitInstructionNotSupported;
+	// Note:
+	// This is bug of AMD's GCN Parser, for all other 64 bits encodings except for VOP3,
+	// Parsers assume that the higher dword of encoding is placed in the lower dword of value.
+	// But for VOP3, ParserSIVOP take the reverse, so we need to flip the higher dword and lower dword before parsing.
+	hexInstruction = (hexInstruction << 32) | (hexInstruction >> 32);
+
     VOPInstruction::Encoding encoding = GetInstructionType(hexInstruction);
 
 	unsigned int ridx0 = 0;
@@ -286,7 +292,7 @@ ParserSIVOP::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexIns
         if (VOPInstruction::Encoding_VOP3 == encoding)
         {
             uint64_t hexInstTem = hexInstruction << 6;
-            hexInstTem = hexInstTem >> 22;
+            hexInstTem = hexInstTem >> 55;
             SIVOP3Instruction::VOP3_OP op3 = static_cast<SIVOP3Instruction::VOP3_OP>(hexInstTem);
 
 			unsigned int ridx1 = 0, ridx2 = 0;
@@ -364,11 +370,11 @@ ParserSIVOP::GetInstructionType(Instruction::instruction32bit hexInstruction)
 VOPInstruction::Encoding
 ParserSIVOP::GetInstructionType(Instruction::instruction64bit hexInstruction)
 {
-    if ((hexInstruction & VOPInstruction::VOPMask_VOP3) >> 26 == VOPInstruction::Encoding_VOP3)
+	Instruction::instruction32bit higherDword = static_cast<Instruction::instruction32bit>(hexInstruction >> 32);
+    if ((higherDword & VOPInstruction::VOPMask_VOP3) >> 26 == VOPInstruction::Encoding_VOP3)
     {
         return VOPInstruction::Encoding_VOP3;
     }
-
     return VOPInstruction::Encoding_Illegal;
 }
 
