@@ -47,6 +47,14 @@ GCNCompiler::~GCNCompiler()
 void GCNCompiler::processInstruction(GCNInstruction& ins)
 {
 	Instruction::InstructionCategory insCategory = ins.instruction->GetInstructionCategory();
+
+	//LOG_ASSERT(ins.instruction->GetInstructionClass() != 
+	//	Instruction::InstructionClass::InstructionClassUnknown, 
+	//	"instruction class not initialized.");
+
+	LOG_ASSERT(insCategory != Instruction::CategoryUnknown,
+		"instruction category not initialized.");
+
 	switch (insCategory)
 	{
 	case Instruction::ScalarALU:

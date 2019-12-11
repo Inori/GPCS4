@@ -156,16 +156,18 @@ void GCNCompiler::emitVectorFpArith32(GCNInstruction& ins)
 	
 	uint32_t fpTypeId = getScalarTypeId(SpirvScalarType::Float32);
 
-	auto spvSrc0 = emitLoadScalarOperand(src0, src0RIdx, ins.literalConst);
-	auto spvSrc2 = emitLoadScalarOperand(src2, src2RIdx, ins.literalConst);
+	SpirvRegisterValue spvSrc0 = emitLoadScalarOperand(src0, src0RIdx, ins.literalConst);
+	SpirvRegisterValue spvSrc1;
+	SpirvRegisterValue spvSrc2;
 
 	// For SRC1, there are two types, VOP2/VOPC use 8 bits VSRC,
 	// VOP3 use 9 bits SRC. 
 	// We need to select proper src1 for different encodings.
-	SpirvRegisterValue spvSrc1;
 	if (ins.instruction->GetInstructionFormat() == Instruction::InstructionSet_VOP3)
 	{
 		spvSrc1 = emitLoadScalarOperand(src1, src1RIdx, ins.literalConst);
+		// Only VOP3 has SRC2
+		spvSrc2 = emitLoadScalarOperand(src2, src2RIdx, ins.literalConst);
 	}
 	else
 	{
