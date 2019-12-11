@@ -306,13 +306,14 @@ ParserSIVOP::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexIns
 			VOPInstruction::ABS abs = GetABS(hexInstruction);
 			VOPInstruction::CLMP clmp = GetCLMP(hexInstruction);
 
+			Instruction::InstructionClass insCls = GetSIVOP3Class(op3);
 
             instruction = std::make_unique<SIVOP3Instruction>(src0, src1, src2,
 				vdst, sdst,
 				ridx0, ridx1, ridx2,
 				vdstRidx, sdstRidx,
 				clmp, abs, neg, omod,
-				64, encoding, op3);
+				64, op3, encoding, insCls);
             retStatus =  ParserSI::Status_SUCCESS;
         }
     }
@@ -386,4 +387,9 @@ Instruction::InstructionClass ParserSIVOP::GetSIVOP1Class(SIVOP1Instruction::VOP
 Instruction::InstructionClass ParserSIVOP::GetSIVOP2Class(SIVOP2Instruction::VOP2_OP op)
 {
 	return g_instructionFormatMapVOP2[op].insClass;
+}
+
+Instruction::InstructionClass ParserSIVOP::GetSIVOP3Class(SIVOP3Instruction::VOP3_OP op)
+{
+	return g_instructionFormatMapVOP3[op].insClass;
 }

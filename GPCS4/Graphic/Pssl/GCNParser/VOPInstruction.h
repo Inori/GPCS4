@@ -818,8 +818,8 @@ public:
 		unsigned int ridx0, unsigned int ridx1, unsigned int ridx2, 
 		unsigned int vdstRidx, unsigned int sdstRidx,
 		CLMP clmp, ABS abs, NEG neg, OMOD omod,
-		unsigned int instructionWidth, Encoding instructionEncoding, VOP3_OP op) : 
-		VOPInstruction(src0, vdst, ridx0, vdstRidx, instructionWidth, InstructionSet_VOP3),
+		unsigned int instructionWidth, VOP3_OP op, Encoding instructionEncoding, InstructionClass insClass = InstructionClassUnknown) :
+		VOPInstruction(src0, vdst, ridx0, vdstRidx, instructionWidth, InstructionSet_VOP3, insClass),
 		m_op(op), m_instructionEncoding(instructionEncoding),
 		m_src1(src1), m_src2(src2), m_sdst(sdst),
 		m_ridx1(ridx1), m_ridx2(ridx2), m_sdstRidx(sdstRidx),
