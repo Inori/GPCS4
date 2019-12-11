@@ -146,16 +146,31 @@ void GCNCompiler::emitVectorFpArith32(GCNInstruction& ins)
 	uint32_t op = getVopOpcode(ins);
 	uint32_t src0 = 0;
 	uint32_t src1 = 0;
+	uint32_t src2 = 0;
 	uint32_t dst = 0;
 	uint32_t src0RIdx = 0;
 	uint32_t src1RIdx = 0;
+	uint32_t src2RIdx = 0;
 	uint32_t dstRIdx = 0;
-	getVopOperands(ins, &dst, &dstRIdx, &src0, &src0RIdx, &src1, &src1RIdx);
+	getVopOperands(ins, &dst, &dstRIdx, &src0, &src0RIdx, &src1, &src1RIdx, &src2, &src2RIdx);
 	
 	uint32_t fpTypeId = getScalarTypeId(SpirvScalarType::Float32);
 
 	auto spvSrc0 = emitLoadScalarOperand(src0, src0RIdx, ins.literalConst);
-	auto spvSrc1 = emitLoadVectorOperand(src1RIdx);
+	auto spvSrc2 = emitLoadScalarOperand(src2, src2RIdx, ins.literalConst);
+
+	// For SRC1, there are two types, VOP2/VOPC use 8 bits VSRC,
+	// VOP3 use 9 bits SRC. 
+	// We need to select proper src1 for different encodings.
+	SpirvRegisterValue spvSrc1;
+	if (ins.instruction->GetInstructionFormat() == Instruction::InstructionSet_VOP3)
+	{
+		spvSrc1 = emitLoadScalarOperand(src1, src1RIdx, ins.literalConst);
+	}
+	else
+	{
+		spvSrc1 = emitLoadVectorOperand(src1RIdx);
+	}
 
 	SpirvRegisterValue dstVal;
 	dstVal.type.ctype = SpirvScalarType::Float32;
@@ -163,8 +178,8 @@ void GCNCompiler::emitVectorFpArith32(GCNInstruction& ins)
 	
 	switch (op)
 	{
-	case SIVOP2Instruction::V_MAC_F32:
 	case SIVOP3Instruction::V3_MAC_F32:
+	case SIVOP2Instruction::V_MAC_F32:
 	{
 		dstVal = emitLoadVectorOperand(dstRIdx);
 		dstVal.id = m_module.opFAdd(fpTypeId,
@@ -172,10 +187,17 @@ void GCNCompiler::emitVectorFpArith32(GCNInstruction& ins)
 			m_module.opFMul(fpTypeId, spvSrc0.id, spvSrc1.id));
 	}
 		break;
-	case SIVOP2Instruction::V_MUL_F32:
 	case SIVOP3Instruction::V3_MUL_F32:
+	case SIVOP2Instruction::V_MUL_F32:
 	{
 		dstVal.id = m_module.opFMul(fpTypeId, spvSrc0.id, spvSrc1.id);
+	}
+		break;
+	case SIVOP3Instruction::V3_MAD_F32:
+	{
+		dstVal.id = m_module.opFAdd(fpTypeId,
+			spvSrc2.id,
+			m_module.opFMul(fpTypeId, spvSrc0.id, spvSrc1.id));
 	}
 		break;
 	default:
