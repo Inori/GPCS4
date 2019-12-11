@@ -413,6 +413,7 @@ void GnmCommandBufferDraw::commitVsStage()
 		}
 
 		m_vsContext.shader = vsModule.compile();
+		m_vsContext.shader->dumpShader();
 
 		auto vsInputUsageSlots = vsModule.inputUsageSlots();
 		for (const auto& inputSlot : vsInputUsageSlots)

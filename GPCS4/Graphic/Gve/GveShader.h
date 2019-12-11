@@ -36,11 +36,13 @@ public:
 
 	PsslKey key();
 
+	void dumpShader() const;
+
 	bool operator ==(const GveShader& other);
 
 private:
 	void generateBindingIdOffsets(SpirvCodeBuffer& code);
-	void dumpShader(const SpirvCodeBuffer& code);
+	void dumpShader(const SpirvCodeBuffer& code) const;
 	
 private:
 	VkShaderStageFlagBits m_stage;
