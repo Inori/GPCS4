@@ -87,7 +87,10 @@ void LogAssert(const char* szExpression, const char* szFunction, const char* szS
 
 	g_logger->critical("{}({}): [Assert: {}] {}", szFunction, nLine, szExpression, szTempStr);
 	MessageBoxA(NULL, szMsgBoxStr, "Assertion Fail", MB_OK | MB_ICONERROR);
+
+#ifndef GPCS4_DEBUG
 	exit(-1);
+#endif // !GPCS4_DEBUG
 }
 
 #else
