@@ -20,11 +20,12 @@ ie. `/app0/shader_vv.sb` to `E:\Code\GPCS4\Debug\shader_vv.sb`
 Follow the steps:
 1. Checkout a proper branch, the master branch is under heavy development and maybe not stable for test.
 2. Copy all the stuffs of a demo/game, including main elf/bin, shader binary file, texture and so on, in the `Debug` folder where GPCS4.exe output, and keep it's directory tree structure unchanged.
-3. Open properties window of GPCS4 project in Visual Studio, switch to Debugging tab,  
+3. Extract `lib` folder from [your download](https://pastebin.com/bUxckm3y) to `Debug` folder where GPCS4.exe output.
+4. Open properties window of GPCS4 project in Visual Studio, switch to Debugging tab,  
 set `Woring Directory` to `$(OutDir)`  
 set `Command Arguments` to the name of the main elf/bin, ie. `basic_quad.elf`.   
 Note you don't need to specify the full path because the `Woring Directory` has been set to the folder the elf/bin locate.
-4. Build the `x64 Debug` version and press F5.
+5. Build the `x64 Debug` version and press F5.
 
 Note, if you want to test the graphics part, currently I've not implemented constant buffers, so you need to 
 `#define SCE_GNMX_ENABLE_GFX_LCUE 1` before building any demos.
