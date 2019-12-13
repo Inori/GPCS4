@@ -6,6 +6,9 @@
 namespace pssl
 {;
 
+constexpr uint32_t InvalidSpvId = 0;
+
+
 class GCNInstructionIterator
 {
 public:

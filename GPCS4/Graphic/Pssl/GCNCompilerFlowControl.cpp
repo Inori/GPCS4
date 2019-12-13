@@ -152,10 +152,10 @@ void GCNCompiler::emitScalarProgFlowBranch(GCNInstruction& ins)
 	LOG_ASSERT(iter != m_branchLabels.end(), "branch target can not be found in m_branchLabels");
 	uint32_t& trueLabelId = iter->second;
 
-	// If trueLabelId is 0, this indicates the target label is under current branch instruction.
+	// If trueLabelId is InvalidSpvId, this indicates the target label is under current branch instruction.
 	// Or, it's above current branch instruction, 
 	// in this case, trueLabelId should be already initialized to a non-zero value.
-	if (trueLabelId == 0)
+	if (trueLabelId == InvalidSpvId)
 	{
 		trueLabelId = m_module.allocateId();
 	}

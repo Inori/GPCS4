@@ -261,7 +261,7 @@ void GCNAnalyzer::collectBranchLabel(GCNInstruction& ins)
 		{
 			int16_t imm = inst->GetSIMM16();
 			uint32_t target = m_programCounter + imm * 4 + 4;
-			m_analysis->branchLabels.insert(std::make_pair(target, 0));
+			m_analysis->branchLabels.insert(std::make_pair(target, InvalidSpvId));
 		}
 			break;
 		}

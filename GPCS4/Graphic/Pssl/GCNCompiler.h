@@ -33,10 +33,8 @@
 namespace pssl
 {;
 
-
 constexpr size_t GcnMaxSgprCount = 104;
 constexpr size_t GcnMaxVgprCount = 256;
-
 
 /**
  * \brief Vector type
@@ -705,6 +703,8 @@ private:
 
 
 private:
+	////////////////////////////////////////////////////
+	// Constructor inputs
 
 	PsslProgramInfo m_programInfo;
 
@@ -714,6 +714,7 @@ private:
 	const GcnAnalysisInfo* m_analysis;
 
 	GcnShaderInput m_shaderInput;
+
 	///////////////////////////////////////////////////
 	// Entry point description - we'll need to declare
 	// the function ID and all input/output variables.

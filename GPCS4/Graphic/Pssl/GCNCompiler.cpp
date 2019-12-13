@@ -702,7 +702,7 @@ void GCNCompiler::emitSgprStore(uint32_t dstIdx,
 	const SpirvRegisterValue& srcReg)
 {
 	auto& sgpr = m_sgprs[dstIdx];
-	if (sgpr.id == 0)  // Not initialized
+	if (sgpr.id == InvalidSpvId)  // Not initialized
 	{
 		sgpr.type = srcReg.type;
 		sgpr.id = emitNewVariable({ sgpr.type, spv::StorageClassPrivate },
@@ -724,7 +724,7 @@ void GCNCompiler::emitVgprStore(uint32_t dstIdx,
 	const SpirvRegisterValue& srcReg)
 {
 	auto& vgpr = m_vgprs[dstIdx];
-	if (vgpr.id == 0)  // Not initialized
+	if (vgpr.id == InvalidSpvId)  // Not initialized
 	{
 		vgpr.type = srcReg.type;
 		vgpr.id = emitNewVariable({ vgpr.type, spv::StorageClassPrivate },
@@ -1369,9 +1369,9 @@ void GCNCompiler::emitBranchLabelTry()
 		uint32_t& labelId = iter->second;
 
 		// A label can occur before or after s_branch_xxx instruction.
-		// If before, labelId should be value 0, then we allocate a new id for it.
+		// If before, labelId should be InvalidSpvId, then we allocate a new id for it.
 		// If after, labelId should be already set by s_branch_xxx instruction handler.
-		if (labelId == 0)
+		if (labelId == InvalidSpvId)
 		{
 			labelId = m_module.allocateId();
 		}
