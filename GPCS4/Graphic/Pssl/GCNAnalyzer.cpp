@@ -178,7 +178,7 @@ void GCNAnalyzer::processInstruction(GCNInstruction& ins)
 
 void GCNAnalyzer::getExportInfo(GCNInstruction& ins)
 {
-	auto inst = dynamic_cast<EXPInstruction*>(ins.instruction.get());
+	auto inst = asInst<EXPInstruction>(ins);
 
 	GcnExportInfo info;
 	info.target = (uint32_t)inst->GetTGT();
@@ -214,7 +214,7 @@ void GCNAnalyzer::getExportInfo(GCNInstruction& ins)
 
 void GCNAnalyzer::getVinterpInfo(GCNInstruction& ins)
 {
-	auto inst = dynamic_cast<SIVINTRPInstruction*>(ins.instruction.get());
+	auto inst = asInst<SIVINTRPInstruction>(ins);
 
 	uint32_t attrIdx = inst->GetATTR();
 	m_vinterpAttrSet.insert(attrIdx);

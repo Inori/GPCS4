@@ -362,7 +362,7 @@ struct GcnShaderInput
 };
 
 
-class GCNCompiler
+class GCNCompiler : public GCNInstructionIterator
 {
 public:
 
@@ -372,7 +372,7 @@ public:
 		const GcnShaderInput& shaderInput);
 	~GCNCompiler();
 
-	void processInstruction(GCNInstruction& ins);
+	virtual void processInstruction(GCNInstruction& ins);
 
 	RcPtr<gve::GveShader> finalize();
 
@@ -695,15 +695,6 @@ private:
 		uint32_t* src2 = nullptr, uint32_t* src2Ridx = nullptr,
 		uint32_t* sdst = nullptr, uint32_t* sdstRidx = nullptr);
 
-
-	// Convenience function to dynamic cast instruction types
-	template<typename InsType>
-	inline
-		typename std::enable_if<std::is_base_of<Instruction, InsType>::value, const InsType*>::type
-		asInst(const GCNInstruction& ins)
-	{
-		return dynamic_cast<const InsType*>(ins.instruction.get());
-	}
 
 private:
 

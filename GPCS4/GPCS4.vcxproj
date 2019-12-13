@@ -96,6 +96,7 @@
     <ClInclude Include="Graphic\Gve\GveVkLayers.h" />
     <ClInclude Include="Graphic\Pssl\GCNAnalyzer.h" />
     <ClInclude Include="Graphic\Pssl\GCNEnums.h" />
+    <ClInclude Include="Graphic\Pssl\GCNInstructionIterator.h" />
     <ClInclude Include="Graphic\Pssl\GCNParser\DeviceInfo.h" />
     <ClInclude Include="Graphic\Pssl\GCNParser\DSInstruction.h" />
     <ClInclude Include="Graphic\Pssl\GCNParser\EXPInstruction.h" />
@@ -299,6 +300,7 @@
     <ClCompile Include="Graphic\Pssl\GCNCompilerVectorALU.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNCompilerVectorInterpolation.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNCompilerVectorMemory.cpp" />
+    <ClCompile Include="Graphic\Pssl\GCNInstructionIterator.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNParser\GCNInstructionDefs.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNParser\GCNParser.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNParser\Instruction.cpp" />
