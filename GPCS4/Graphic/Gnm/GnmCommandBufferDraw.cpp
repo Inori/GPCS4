@@ -399,6 +399,12 @@ void GnmCommandBufferDraw::updateVsShader(const pssl::VsStageRegisters *vsRegs, 
 	
 }
 
+#define SHADER_DEBUG_BREAK(mod, hash) \
+if (mod.key().toUint64() == hash) \
+{\
+	__debugbreak();\
+}
+
 void GnmCommandBufferDraw::commitVsStage()
 {
 	do
@@ -451,10 +457,9 @@ void GnmCommandBufferDraw::commitPsStage()
 	{
 		PsslShaderModule psModule((const uint32_t*)m_psContext.code, m_psContext.userDataSlotTable);
 		LOG_DEBUG("pixel shader hash %llX", psModule.key().toUint64());
-		if (psModule.key().toUint64() == 0xF20EC962EB00545F)
-		{
-			__debugbreak();
-		}
+
+		SHADER_DEBUG_BREAK(psModule, 0xD01AEBEFEF57DAE3);
+		//SHADER_DEBUG_BREAK(psModule, 0xF20EC962EB00545F);
 
 		m_psContext.shader = psModule.compile();
 		m_psContext.shader->dumpShader();
