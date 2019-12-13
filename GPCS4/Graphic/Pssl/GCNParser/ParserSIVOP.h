@@ -121,6 +121,8 @@ private:
 
 	static Instruction::InstructionClass GetSIVOP2Class(SIVOP2Instruction::VOP2_OP op);
 
+	static Instruction::InstructionClass GetSIVOPCClass(SIVOPCInstruction::VOPC_OP op);
+
 	static Instruction::InstructionClass GetSIVOP3Class(SIVOP3Instruction::VOP3_OP op);
 
 };
