@@ -378,6 +378,8 @@ public:
 
 private:
 
+	void compileInstruction(GCNInstruction& ins);
+
 	void emitInit();
 	/////////////////////////////////
 	// Shader initialization methods
@@ -474,6 +476,11 @@ private:
 		const SpirvRegisterInfo& info,
 		spv::BuiltIn	         builtIn,
 		const char*              name);
+
+
+	///////////////////////////
+	// Control Flow methods
+	void emitBranchLabelTry();
 
 	////////////////////////////////////////////////
 	// Constant building methods. These are used to
@@ -608,6 +615,7 @@ private:
 	// FlowControl
 	void emitScalarProgFlow(GCNInstruction& ins);
 	void emitScalarProgFlowPC(GCNInstruction& ins);
+	void emitScalarProgFlowBranch(GCNInstruction& ins);
 
 	void emitScalarSync(GCNInstruction& ins);
 	void emitScalarWait(GCNInstruction& ins);
@@ -748,6 +756,10 @@ private:
 
 	// Used to record shader resource this shader declared using InputUsageSlot
 	std::vector<gve::GveResourceSlot> m_resourceSlots;
+
+	///////////////////////////////////
+	// Control flow
+	std::unordered_map<uint32_t, uint32_t> m_branchLabels;
 
 };
 

@@ -14,12 +14,13 @@ constexpr uint32_t PerVertex_ClipDist = 2;
 
 
 GCNCompiler::GCNCompiler(
-	const PsslProgramInfo& progInfo, 
-	const GcnAnalysisInfo& analysis, 
-	const GcnShaderInput& shaderInput):
+	const PsslProgramInfo& progInfo,
+	const GcnAnalysisInfo& analysis,
+	const GcnShaderInput& shaderInput) :
 	m_programInfo(progInfo),
 	m_analysis(&analysis),
-	m_shaderInput(shaderInput)
+	m_shaderInput(shaderInput),
+	m_branchLabels(m_analysis->branchLabels)
 {
 	// Declare an entry point ID. We'll need it during the
 	// initialization phase where the execution mode is set.
@@ -45,6 +46,15 @@ GCNCompiler::~GCNCompiler()
 }
 
 void GCNCompiler::processInstruction(GCNInstruction& ins)
+{
+	emitBranchLabelTry();
+
+	compileInstruction(ins);
+
+	updateProgramCounter(ins);
+}
+
+void GCNCompiler::compileInstruction(GCNInstruction& ins)
 {
 	Instruction::InstructionCategory insCategory = ins.instruction->GetInstructionCategory();
 
@@ -1344,6 +1354,30 @@ SpirvRegisterValue GCNCompiler::emitRegisterComponentLoad(
 		1, &compositeIndexId);
 	uint32_t valueId = m_module.opLoad(typeId, compositePointer);
 	return SpirvRegisterValue(srcVec.type.ctype, 1, valueId);
+}
+
+void GCNCompiler::emitBranchLabelTry()
+{
+	do 
+	{
+		auto iter = m_branchLabels.find(m_programCounter);
+		if (iter == m_branchLabels.end())
+		{
+			break;
+		}
+
+		uint32_t& labelId = iter->second;
+
+		// A label can occur before or after s_branch_xxx instruction.
+		// If before, labelId should be value 0, then we allocate a new id for it.
+		// If after, labelId should be already set by s_branch_xxx instruction handler.
+		if (labelId == 0)
+		{
+			labelId = m_module.allocateId();
+		}
+
+		m_module.opLabel(labelId);
+	} while (false);
 }
 
 uint32_t GCNCompiler::getPerVertexBlockId()

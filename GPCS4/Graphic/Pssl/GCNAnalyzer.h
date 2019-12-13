@@ -2,7 +2,9 @@
 
 #include "GCNInstruction.h"
 #include "GCNInstructionIterator.h"
+
 #include <set>
+#include <unordered_map>
 
 namespace pssl
 {;
@@ -23,7 +25,9 @@ struct GcnAnalysisInfo
 	// should be equal to the paired vertex shader's export params count
 	uint32_t vinterpAttrCount; 
 
-
+	// key:target address
+	// value : spirv label id
+	std::unordered_map<uint32_t, uint32_t> branchLabels;
 };
 
 // Used for collecting global information
@@ -39,9 +43,11 @@ public:
 	virtual void processInstruction(GCNInstruction& ins);
 
 private:
+	void analyzeInstruction(GCNInstruction& ins);
+
 	void getExportInfo(GCNInstruction& ins);
 	void getVinterpInfo(GCNInstruction& ins);
-
+	void collectBranchLabel(GCNInstruction& ins);
 private:
 	GcnAnalysisInfo* m_analysis = nullptr;
 
