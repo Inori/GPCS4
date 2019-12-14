@@ -125,6 +125,10 @@ private:
 
 	static Instruction::InstructionClass GetSIVOP3Class(SIVOP3Instruction::VOP3_OP op);
 
+	// Some special instructions use literal constants even 
+	// without having a literal const src or dst.
+	static bool IsLiteralConstInstruction(uint32_t op);
+
 };
 
 #endif //__PARSESIVOP_H

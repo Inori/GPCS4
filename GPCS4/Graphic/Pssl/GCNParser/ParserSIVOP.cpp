@@ -160,13 +160,11 @@ ParserSI::kaStatus ParserSIVOP::Parse(GDT_HW_GENERATION hwGen, Instruction::inst
             uint64_t hexInstTem = hexInstruction << 15;
             hexInstTem = hexInstTem >> 24;
             SIVOP1Instruction::VOP1_OP op1 = static_cast<SIVOP1Instruction::VOP1_OP>(hexInstTem);
-
 			unsigned int vdstRidx = 0;
 			SIVOP1Instruction::VDST vdst = GetVDST(hexInstruction, vdstRidx, VOPInstruction::Encoding_VOP1);
-
-			hasLiteral = (src0 == SIVOP1Instruction::SRCLiteralConst);
-
 			Instruction::InstructionClass insCls = GetSIVOP1Class(op1);
+
+			hasLiteral = (src0 == SIVOP1Instruction::SRCLiteralConst) || IsLiteralConstInstruction(op1);
             instruction = std::make_unique<SIVOP1Instruction>(src0, vdst, ridx0, vdstRidx, 32, encoding, op1, insCls);
             retStatus = ParserSI::Status_SUCCESS;
         }
@@ -179,9 +177,8 @@ ParserSI::kaStatus ParserSIVOP::Parse(GDT_HW_GENERATION hwGen, Instruction::inst
 			VOPInstruction::VSRC vsrc1 = GetVSRC1(hexInstruction, vidx1);
 			SIVOP1Instruction::VDST vdst = GetVDST(hexInstruction, vdstRidx, VOPInstruction::Encoding_VOP2);
 			Instruction::InstructionClass insCls = GetSIVOP2Class(op2);
-			// TODO:
-			// Not sure if there's some special opcode which use literal const while src != SRCLiteralConst
-			hasLiteral = (src0 == SIVOP1Instruction::SRCLiteralConst);
+		
+			hasLiteral = (src0 == SIVOP1Instruction::SRCLiteralConst) || IsLiteralConstInstruction(op2);
 			instruction = std::make_unique<SIVOP2Instruction>(src0, vsrc1, vdst, ridx0, vidx1, vdstRidx, 32, encoding, op2, insCls);
             retStatus = ParserSI::Status_SUCCESS;
         }
@@ -194,7 +191,8 @@ ParserSI::kaStatus ParserSIVOP::Parse(GDT_HW_GENERATION hwGen, Instruction::inst
 			unsigned int vidx1 = 0;
 			VOPInstruction::VSRC vsrc1 = GetVSRC1(hexInstruction, vidx1);
 			Instruction::InstructionClass insCls = GetSIVOPCClass(opc);
-			hasLiteral = (src0 == SIVOPCInstruction::SRCLiteralConst);
+
+			hasLiteral = (src0 == SIVOPCInstruction::SRCLiteralConst) || IsLiteralConstInstruction(opc);
             instruction = std::make_unique<SIVOPCInstruction>(src0, vsrc1, ridx0, vidx1, 32, opc, encoding, insCls);
             retStatus = ParserSI::Status_SUCCESS;
         }
@@ -398,4 +396,24 @@ Instruction::InstructionClass ParserSIVOP::GetSIVOPCClass(SIVOPCInstruction::VOP
 Instruction::InstructionClass ParserSIVOP::GetSIVOP3Class(SIVOP3Instruction::VOP3_OP op)
 {
 	return g_instructionFormatMapVOP3[op].insClass;
+}
+
+bool ParserSIVOP::IsLiteralConstInstruction(uint32_t op)
+{
+	bool hasLiteral = false;
+
+	SIVOP2Instruction::VOP2_OP op2 = static_cast<SIVOP2Instruction::VOP2_OP>(op);
+	// TODO:
+	// Complete this list
+	switch (op2)
+	{
+	case SIVOP2Instruction::V_MADMK_F32:
+	case SIVOP2Instruction::V_MADAK_F32:
+		hasLiteral = true;
+		break;
+	default:
+		break;
+	}
+
+	return hasLiteral;
 }
