@@ -480,6 +480,12 @@ private:
 	// Control Flow methods
 	void emitBranchLabelTry();
 
+	///////////////////////////
+	// VOP3 modifiers
+	SpirvRegisterValue emitVop3InputModifier(const GCNInstruction& ins, SpirvRegisterValue value);
+	SpirvRegisterValue emitVop3OutputModifier(const GCNInstruction& ins, SpirvRegisterValue value);
+
+
 	////////////////////////////////////////////////
 	// Constant building methods. These are used to
 	// generate constant vectors that store the same

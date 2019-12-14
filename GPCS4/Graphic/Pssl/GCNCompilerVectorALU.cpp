@@ -223,7 +223,45 @@ void GCNCompiler::emitVectorFpField32(GCNInstruction& ins)
 
 void GCNCompiler::emitVectorFpTran32(GCNInstruction& ins)
 {
-	LOG_PSSL_UNHANDLED_INST();
+	auto op = getVopOpcode(ins);
+	
+	uint32_t src0 = 0;
+	uint32_t vdst = 0;
+	uint32_t src0Ridx = 0;
+	uint32_t vdstRidx = 0;
+	getVopOperands(ins, &vdst, &vdstRidx, &src0, &src0Ridx);
+
+	auto spvSrc0 = emitLoadScalarOperand(src0, src0Ridx, ins.literalConst);
+
+	SpirvRegisterValue dstValue;
+	dstValue.type.ctype = SpirvScalarType::Float32;
+	dstValue.type.ccount = 1;
+
+	const uint32_t typeId = getVectorTypeId(dstValue.type);
+
+	bool isVop3 = ins.instruction->GetInstructionFormat() == Instruction::InstructionSet_VOP3;
+	if (isVop3)
+	{
+		spvSrc0 = emitVop3InputModifier(ins, spvSrc0);
+	}
+
+	switch (op)
+	{
+	case SIVOP3Instruction::V3_LOG_F32:
+	case SIVOP1Instruction::V_LOG_F32:
+		dstValue.id = m_module.opLog2(typeId, spvSrc0.id);
+		break;
+	default:
+		LOG_PSSL_UNHANDLED_INST();
+		break;
+	}
+
+	if (isVop3)
+	{
+		dstValue = emitVop3OutputModifier(ins, dstValue);
+	}
+
+	emitStoreVectorOperand(vdstRidx, dstValue);
 }
 
 void GCNCompiler::emitVectorFpCmp32(GCNInstruction& ins)

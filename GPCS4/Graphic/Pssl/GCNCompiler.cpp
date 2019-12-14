@@ -1380,6 +1380,64 @@ void GCNCompiler::emitBranchLabelTry()
 	} while (false);
 }
 
+SpirvRegisterValue GCNCompiler::emitVop3InputModifier(const GCNInstruction& ins, SpirvRegisterValue value)
+{
+	SpirvRegisterValue result = value;
+
+	auto inst = asInst<SIVOP3Instruction>(ins);
+
+	uint32_t neg = inst->GetNEG();
+	uint32_t abs = inst->GetABS();
+
+	if (abs)
+	{
+		result = emitRegisterAbsolute(result);
+	}
+
+	if (neg)
+	{
+		result = emitRegisterNegate(result);
+	}
+
+	return result;
+}
+
+SpirvRegisterValue GCNCompiler::emitVop3OutputModifier(const GCNInstruction& ins, SpirvRegisterValue value)
+{
+	SpirvRegisterValue result = value;
+
+	auto inst = asInst<SIVOP3Instruction>(ins);
+
+	uint32_t omod = inst->GetOMOD();
+	uint32_t clmp = inst->GetCLMP();
+	const uint32_t typeId = getVectorTypeId(result.type);
+
+	if (omod != 0)
+	{
+		float mul = 0.0;
+		switch (omod)
+		{
+		case 1: mul = 2.0; break;
+		case 2: mul = 4.0; break;
+		case 3: mul = 0.5; break;
+		}
+		
+		uint32_t mulId = m_module.constf32(mul);
+		result.id = m_module.opFMul(typeId, result.id, mulId);
+	}
+
+	if (clmp)
+	{
+		result.id = m_module.opFClamp(
+			typeId,
+			result.id,
+			m_module.constf32(0.0f),
+			m_module.constf32(1.0f));
+	}
+
+	return result;
+}
+
 uint32_t GCNCompiler::getPerVertexBlockId()
 {
 	// Should be:
