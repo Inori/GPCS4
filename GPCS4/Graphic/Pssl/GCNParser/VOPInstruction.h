@@ -418,221 +418,283 @@ public:
 
     enum VOP3_OP
     {
-        V3_CMP_F32_0    =   0,  //  Signal on sNaN input only.
-        V3_CMP_F32_1         = 1,
-        V3_CMP_F32_2         = 2,
-        V3_CMP_F32_3         = 3,
-        V3_CMP_F32_4         = 4,
-        V3_CMP_F32_5         = 5,
-        V3_CMP_F32_6         = 6,
-        V3_CMP_F32_7         = 7,
-        V3_CMP_F32_8         = 8,
-        V3_CMP_F32_9         = 9,
-        V3_CMP_F32_10    = 10,
-        V3_CMP_F32_11    = 11,
-        V3_CMP_F32_12    = 12,
-        V3_CMP_F32_13    = 13,
-        V3_CMP_F32_14    = 14,
-        V3_CMP_F32_15    = 15,
+		// Signal on sNaN input only.
+		V3_CMP_F_F32 = 0,
+		V3_CMP_LT_F32 = 1,
+		V3_CMP_EQ_F32 = 2,
+		V3_CMP_LE_F32 = 3,
+		V3_CMP_GT_F32 = 4,
+		V3_CMP_LG_F32 = 5,
+		V3_CMP_GE_F32 = 6,
+		V3_CMP_O_F32 = 7,
+		V3_CMP_U_F32 = 8,
+		V3_CMP_NGE_F32 = 9,
+		V3_CMP_NLG_F32 = 10,
+		V3_CMP_NGT_F32 = 11,
+		V3_CMP_NLE_F32 = 12,
+		V3_CMP_NEQ_F32 = 13,
+		V3_CMP_NLT_F32 = 14,
+		V3_CMP_TRU_F32 = 15,
 
-        V3_CMPX_F32_16  =   16,  // Signal on sNaN input only. Also write EXEC.
-        V3_CMPX_F32_17   =  17,
-        V3_CMPX_F32_18   =  18,
-        V3_CMPX_F32_19   =  19,
-        V3_CMPX_F32_20   =  20,
-        V3_CMPX_F32_21   =  21,
-        V3_CMPX_F32_22   =  22,
-        V3_CMPX_F32_23   =  23,
-        V3_CMPX_F32_24   =  24,
-        V3_CMPX_F32_25   =  25,
-        V3_CMPX_F32_26   =  26,
-        V3_CMPX_F32_27   =  27,
-        V3_CMPX_F32_28   =  28,
-        V3_CMPX_F32_29   =  29,
-        V3_CMPX_F32_30   =  30,
-        V3_CMPX_F32_31   =  31,
+		// Signal on sNaN input only. Also write EXEC.
+		V3_CMPX_F_F32 = 16,
+		V3_CMPX_LT_F32 = 17,
+		V3_CMPX_EQ_F32 = 18,
+		V3_CMPX_LE_F32 = 19,
+		V3_CMPX_GT_F32 = 20,
+		V3_CMPX_LG_F32 = 21,
+		V3_CMPX_GE_F32 = 22,
+		V3_CMPX_O_F32 = 23,
+		V3_CMPX_U_F32 = 24,
+		V3_CMPX_NGE_F32 = 25,
+		V3_CMPX_NLG_F32 = 26,
+		V3_CMPX_NGT_F32 = 27,
+		V3_CMPX_NLE_F32 = 28,
+		V3_CMPX_NEQ_F32 = 29,
+		V3_CMPX_NLT_F32 = 30,
+		V3_CMPX_TRU_F32 = 31,
 
-        V3_CMP_F64_32   =   32, //  Signal on sNaN input only.
-        V3_CMP_F64_33    =  33,
-        V3_CMP_F64_34    =  34,
-        V3_CMP_F64_35    =  35,
-        V3_CMP_F64_36    =  36,
-        V3_CMP_F64_37    =  37,
-        V3_CMP_F64_38    =  38,
-        V3_CMP_F64_39    =  39,
-        V3_CMP_F64_40    =  40,
-        V3_CMP_F64_41    =  41,
-        V3_CMP_F64_42    =  42,
-        V3_CMP_F64_43    =  43,
-        V3_CMP_F64_44    =  44,
-        V3_CMP_F64_45    =  45,
-        V3_CMP_F64_46    =  46,
-        V3_CMP_F64_47    =  47,
+		// Signal on sNaN input only.
+		V3_CMP_F_F64 = 32,
+		V3_CMP_LT_F64 = 33,
+		V3_CMP_EQ_F64 = 34,
+		V3_CMP_LE_F64 = 35,
+		V3_CMP_GT_F64 = 36,
+		V3_CMP_LG_F64 = 37,
+		V3_CMP_GE_F64 = 38,
+		V3_CMP_O_F64 = 39,
+		V3_CMP_U_F64 = 40,
+		V3_CMP_NGE_F64 = 41,
+		V3_CMP_NLG_F64 = 42,
+		V3_CMP_NGT_F64 = 43,
+		V3_CMP_NLE_F64 = 44,
+		V3_CMP_NEQ_F64 = 45,
+		V3_CMP_NLT_F64 = 46,
+		V3_CMP_TRU_F64 = 47,
 
-        V3_CMPX_F64_48  =   48, //  Signal on sNaN input only. Also write EXEC.
-        V3_CMPX_F64_49   =  49,
-        V3_CMPX_F64_50   =  50,
-        V3_CMPX_F64_51   =  51,
-        V3_CMPX_F64_52   =  52,
-        V3_CMPX_F64_53   =  53,
-        V3_CMPX_F64_54   =  54,
-        V3_CMPX_F64_55   =  55,
-        V3_CMPX_F64_56   =  56,
-        V3_CMPX_F64_57   =  57,
-        V3_CMPX_F64_58   =  58,
-        V3_CMPX_F64_59   =  59,
-        V3_CMPX_F64_60   =  60,
-        V3_CMPX_F64_61   =  61,
-        V3_CMPX_F64_62   =  62,
-        V3_CMPX_F64_63   =  63,
+		// Signal on sNaN input only. Also write EXEC.
+		V3_CMPX_F_F64 = 48,
+		V3_CMPX_LT_F64 = 49,
+		V3_CMPX_EQ_F64 = 50,
+		V3_CMPX_LE_F64 = 51,
+		V3_CMPX_GT_F64 = 52,
+		V3_CMPX_LG_F64 = 53,
+		V3_CMPX_GE_F64 = 54,
+		V3_CMPX_O_F64 = 55,
+		V3_CMPX_U_F64 = 56,
+		V3_CMPX_NGE_F64 = 57,
+		V3_CMPX_NLG_F64 = 58,
+		V3_CMPX_NGT_F64 = 59,
+		V3_CMPX_NLE_F64 = 60,
+		V3_CMPX_NEQ_F64 = 61,
+		V3_CMPX_NLT_F64 = 62,
+		V3_CMPX_TRU_F64 = 63,
 
-        V3_CMPS_F32_64  =  64,  //  Signal on any NaN.
-        V3_CMPS_F32_65  =  65,
-        V3_CMPS_F32_66  =  66,
-        V3_CMPS_F32_67  =  67,
-        V3_CMPS_F32_68  =  68,
-        V3_CMPS_F32_69  =  69,
-        V3_CMPS_F32_70  =  70,
-        V3_CMPS_F32_71  =  71,
-        V3_CMPS_F32_72  =  72,
-        V3_CMPS_F32_73  =  73,
-        V3_CMPS_F32_74  =  74,
-        V3_CMPS_F32_75  =  75,
-        V3_CMPS_F32_76  =  76,
-        V3_CMPS_F32_77  =  77,
-        V3_CMPS_F32_78  =  78,
-        V3_CMPS_F32_79  =  79,
+		// Signal on any NaN.
+		V3_CMPS_F_F32 = 64,
+		V3_CMPS_LT_F32 = 65,
+		V3_CMPS_EQ_F32 = 66,
+		V3_CMPS_LE_F32 = 67,
+		V3_CMPS_GT_F32 = 68,
+		V3_CMPS_LG_F32 = 69,
+		V3_CMPS_GE_F32 = 70,
+		V3_CMPS_O_F32 = 71,
+		V3_CMPS_U_F32 = 72,
+		V3_CMPS_NGE_F32 = 73,
+		V3_CMPS_NLG_F32 = 74,
+		V3_CMPS_NGT_F32 = 75,
+		V3_CMPS_NLE_F32 = 76,
+		V3_CMPS_NEQ_F32 = 77,
+		V3_CMPS_NLT_F32 = 78,
+		V3_CMPS_TRU_F32 = 79,
 
-        V3_CMPSX_F32_80 =  80,  //  Signal on any NaN. Also write EXEC.
-        V3_CMPSX_F32_81  =  81,
-        V3_CMPSX_F32_82  =  82,
-        V3_CMPSX_F32_83  =  83,
-        V3_CMPSX_F32_84  =  84,
-        V3_CMPSX_F32_85  =  85,
-        V3_CMPSX_F32_86  =  86,
-        V3_CMPSX_F32_87  =  87,
-        V3_CMPSX_F32_88  =  88,
-        V3_CMPSX_F32_89  =  89,
-        V3_CMPSX_F32_90  =  90,
-        V3_CMPSX_F32_91  =  91,
-        V3_CMPSX_F32_92  =  92,
-        V3_CMPSX_F32_93  =  93,
-        V3_CMPSX_F32_94  =  94,
-        V3_CMPSX_F32_95  =  95,
+		//Signal on any NaN. Also write EXEC.
+		V3_CMPSX_F_F32 = 80,
+		V3_CMPSX_LT_F32 = 81,
+		V3_CMPSX_EQ_F32 = 82,
+		V3_CMPSX_LE_F32 = 83,
+		V3_CMPSX_GT_F32 = 84,
+		V3_CMPSX_LG_F32 = 85,
+		V3_CMPSX_GE_F32 = 86,
+		V3_CMPSX_O_F32 = 87,
+		V3_CMPSX_U_F32 = 88,
+		V3_CMPSX_NGE_F32 = 89,
+		V3_CMPSX_NLG_F32 = 90,
+		V3_CMPSX_NGT_F32 = 91,
+		V3_CMPSX_NLE_F32 = 92,
+		V3_CMPSX_NEQ_F32 = 93,
+		V3_CMPSX_NLT_F32 = 94,
+		V3_CMPSX_TRU_F32 = 95,
 
-        V3_CMPS_F64_96  =  96,  //  Signal on any NaN.
-        V3_CMPS_F64_97   =  97 ,
-        V3_CMPS_F64_98   =  98 ,
-        V3_CMPS_F64_99   =  99 ,
-        V3_CMPS_F64_100  =  100,
-        V3_CMPS_F64_101  =  101,
-        V3_CMPS_F64_102  =  102,
-        V3_CMPS_F64_103  =  103,
-        V3_CMPS_F64_104  =  104,
-        V3_CMPS_F64_105  =  105,
-        V3_CMPS_F64_106  =  106,
-        V3_CMPS_F64_107  =  107,
-        V3_CMPS_F64_108  =  108,
-        V3_CMPS_F64_109  =  109,
-        V3_CMPS_F64_110  =  110,
-        V3_CMPS_F64_111  =  111,
+		//ignal on any NaN.
+		V3_CMPS_F_F64 = 96,
+		V3_CMPS_LT_F64 = 97,
+		V3_CMPS_EQ_F64 = 98,
+		V3_CMPS_LE_F64 = 99,
+		V3_CMPS_GT_F64 = 100,
+		V3_CMPS_LG_F64 = 101,
+		V3_CMPS_GE_F64 = 102,
+		V3_CMPS_O_F64 = 103,
+		V3_CMPS_U_F64 = 104,
+		V3_CMPS_NGE_F64 = 105,
+		V3_CMPS_NLG_F64 = 106,
+		V3_CMPS_NGT_F64 = 107,
+		V3_CMPS_NLE_F64 = 108,
+		V3_CMPS_NEQ_F64 = 109,
+		V3_CMPS_NLT_F64 = 110,
+		V3_CMPS_TRU_F64 = 111,
 
-        V3_CMPSX_F64_112    =   112,    //  Signal on any NaN. Also write EXEC.
-        V3_CMPSX_F64_113  =  113,
-        V3_CMPSX_F64_114     =  114,
-        V3_CMPSX_F64_115     =  115,
-        V3_CMPSX_F64_116     =  116,
-        V3_CMPSX_F64_117     =  117,
-        V3_CMPSX_F64_118     =  118,
-        V3_CMPSX_F64_119     =  119,
-        V3_CMPSX_F64_120     =  120,
-        V3_CMPSX_F64_121     =  121,
-        V3_CMPSX_F64_122     =  122,
-        V3_CMPSX_F64_123     =  123,
-        V3_CMPSX_F64_124     =  124,
-        V3_CMPSX_F64_125     =  125,
-        V3_CMPSX_F64_126     =  126,
-        V3_CMPSX_F64_127     =  127,
+		//Signal on any NaN. Also write EXEC.
+		V3_CMPSX_F_F64 = 112,
+		V3_CMPSX_LT_F64 = 113,
+		V3_CMPSX_EQ_F64 = 114,
+		V3_CMPSX_LE_F64 = 115,
+		V3_CMPSX_GT_F64 = 116,
+		V3_CMPSX_LG_F64 = 117,
+		V3_CMPSX_GE_F64 = 118,
+		V3_CMPSX_O_F64 = 119,
+		V3_CMPSX_U_F64 = 120,
+		V3_CMPSX_NGE_F64 = 121,
+		V3_CMPSX_NLG_F64 = 122,
+		V3_CMPSX_NGT_F64 = 123,
+		V3_CMPSX_NLE_F64 = 124,
+		V3_CMPSX_NEQ_F64 = 125,
+		V3_CMPSX_NLT_F64 = 126,
+		V3_CMPSX_TRU_F64 = 127,
 
-        V3_CMP_I32_128  = 128,  //  On 32-bit integers.
-        V3_CMP_I32_129  = 129,
-        V3_CMP_I32_130  = 130,
-        V3_CMP_I32_131  = 131,
-        V3_CMP_I32_132  = 132,
-        V3_CMP_I32_133  = 133,
-        V3_CMP_I32_134  = 134,
-        V3_CMP_I32_135  = 135,
+		// On 32-bit integers.
+		V3_CMP_F_I32 = 128,
+		V3_CMP_LT_I32 = 129,
+		V3_CMP_EQ_I32 = 130,
+		V3_CMP_LE_I32 = 131,
+		V3_CMP_GT_I32 = 132,
+		V3_CMP_NE_I32 = 133,
+		V3_CMP_GE_I32 = 134,
+		V3_CMP_T_I32 = 135,
+		V3_CMP_CLASS_F32 = 136,  // D = IEEE numeric class function specified in S1.u, performed on S0.f.
+		V3_CMP_LT_I16 = 137,
+		V3_CMP_EQ_I16 = 138,
+		V3_CMP_LE_I16 = 139,
+		V3_CMP_GT_I16 = 140,
+		V3_CMP_NE_I16 = 141,
+		V3_CMP_GE_I16 = 142,
+		V3_CMP_CLASS_F16 = 143,
 
-        V3_CMP_CLASS_F32        =   136, // D = IEEE numeric class function specified in S1.u, performed on S0.f.
+		// Also write EXEC.
+		V3_CMPX_F_I32 = 144,
+		V3_CMPX_LT_I32 = 145,
+		V3_CMPX_EQ_I32 = 146,
+		V3_CMPX_LE_I32 = 147,
+		V3_CMPX_GT_I32 = 148,
+		V3_CMPX_NE_I32 = 149,
+		V3_CMPX_GE_I32 = 150,
+		V3_CMPX_T_I32 = 151,
+		V3_CMPX_CLASS_F32 = 152,  // D = IEEE numeric class function specified in S1.u, performed on S0.f. Also write EXEC.
+		V3_CMPX_LT_I16 = 153,
+		V3_CMPX_EQ_I16 = 154,
+		V3_CMPX_LE_I16 = 155,
+		V3_CMPX_GT_I16 = 156,
+		V3_CMPX_NE_I16 = 157,
+		V3_CMPX_GE_I16 = 158,
+		V3_CMPX_CLASS_F16 = 159,
 
-        V3_CMPX_I32_144 =   144,    //  Also write EXEC.
-        V3_CMPX_I32_145 = 145,
-        V3_CMPX_I32_146 = 146,
-        V3_CMPX_I32_147 = 147,
-        V3_CMPX_I32_148 = 148,
-        V3_CMPX_I32_149 = 149,
-        V3_CMPX_I32_150 = 150,
-        V3_CMPX_I32_151 = 151,
+		// On 64-bit integers.
+		V3_CMP_F_I64 = 160,
+		V3_CMP_LT_I64 = 161,
+		V3_CMP_EQ_I64 = 162,
+		V3_CMP_LE_I64 = 163,
+		V3_CMP_GT_I64 = 164,
+		V3_CMP_NE_I64 = 165,
+		V3_CMP_GE_I64 = 166,
+		V3_CMP_T_I64 = 167,
+		V3_CMP_CLASS_F64 = 168,  // D = IEEE numeric class function specified in S1.u, performed on S0.d.
+		V3_CMP_LT_U16 = 169,
+		V3_CMP_EQ_U16 = 170,
+		V3_CMP_LE_U16 = 171,
+		V3_CMP_GT_U16 = 172,
+		V3_CMP_NE_U16 = 173,
+		V3_CMP_GE_U16 = 174,
 
-        V3_CMPX_CLASS_F32   =   152,    //  D = IEEE numeric class function specified in S1.u, performed on S0.f. Also write EXEC.
+		// Also write EXEC.
+		V3_CMPX_F_I64 = 176,
+		V3_CMPX_LT_I64 = 177,
+		V3_CMPX_EQ_I64 = 178,
+		V3_CMPX_LE_I64 = 179,
+		V3_CMPX_GT_I64 = 180,
+		V3_CMPX_NE_I64 = 181,
+		V3_CMPX_GE_I64 = 182,
+		V3_CMPX_T_I64 = 183,
+		V3_CMPX_CLASS_F64 = 184,  // D = IEEE numeric class function specified in S1.u, performed on S0.d. Also write EXEC.
+		V3_CMPX_LT_U16 = 185,
+		V3_CMPX_EQ_U16 = 186,
+		V3_CMPX_LE_U16 = 187,
+		V3_CMPX_GT_U16 = 188,
+		V3_CMPX_NE_U16 = 189,
+		V3_CMPX_GE_U16 = 190,
 
-        V3_CMP_I64_160  = 160,  //  On 64-bit integers.
-        V3_CMP_I64_161  = 161,
-        V3_CMP_I64_162  = 162,
-        V3_CMP_I64_163  = 163,
-        V3_CMP_I64_164  = 164,
-        V3_CMP_I64_165  = 165,
-        V3_CMP_I64_166  = 166,
-        V3_CMP_I64_167  = 167,
+		// On unsigned 32-bit intergers.
+		V3_CMP_F_U32 = 192,
+		V3_CMP_LT_U32 = 193,
+		V3_CMP_EQ_U32 = 194,
+		V3_CMP_LE_U32 = 195,
+		V3_CMP_GT_U32 = 196,
+		V3_CMP_NE_U32 = 197,
+		V3_CMP_GE_U32 = 198,
+		V3_CMP_T_U32 = 199,
+		V3_CMP_F_F16 = 200,
+		V3_CMP_LT_F16 = 201,
+		V3_CMP_EQ_F16 = 202,
+		V3_CMP_LE_F16 = 203,
+		V3_CMP_GT_F16 = 204,
+		V3_CMP_LG_F16 = 205,
+		V3_CMP_GE_F16 = 206,
+		V3_CMP_O_F16 = 207,
 
-        V3_CMP_CLASS_F64        =   168,    //  D = IEEE numeric class function specified in S1.u, performed on S0.d.
+		// Also write EXEC.
+		V3_CMPX_F_U32 = 208,
+		V3_CMPX_LT_U32 = 209,
+		V3_CMPX_EQ_U32 = 210,
+		V3_CMPX_LE_U32 = 211,
+		V3_CMPX_GT_U32 = 212,
+		V3_CMPX_NE_U32 = 213,
+		V3_CMPX_GE_U32 = 214,
+		V3_CMPX_T_U32 = 215,
+		V3_CMPX_F_F16 = 216,
+		V3_CMPX_LT_F16 = 217,
+		V3_CMPX_EQ_F16 = 218,
+		V3_CMPX_LE_F16 = 219,
+		V3_CMPX_GT_F16 = 220,
+		V3_CMPX_LG_F16 = 221,
+		V3_CMPX_GE_F16 = 222,
+		V3_CMPX_O_F16 = 223,
 
-        V3_CMPX_I64_176 = 176,  //  Also write EXEC.
-        V3_CMPX_I64_177 = 177,
-        V3_CMPX_I64_178 = 178,
-        V3_CMPX_I64_179 = 179,
-        V3_CMPX_I64_180 = 180,
-        V3_CMPX_I64_181 = 181,
-        V3_CMPX_I64_182 = 182,
-        V3_CMPX_I64_183 = 183,
+		// On unsigned 64-bit integers.
+		V3_CMP_F_U64 = 224,
+		V3_CMP_LT_U64 = 225,
+		V3_CMP_EQ_U64 = 226,
+		V3_CMP_LE_U64 = 227,
+		V3_CMP_GT_U64 = 228,
+		V3_CMP_NE_U64 = 229,
+		V3_CMP_GE_U64 = 230,
+		V3_CMP_T_U64 = 231,
+		V3_CMP_U_F16 = 232,
+		V3_CMP_NGE_F16 = 233,
+		V3_CMP_NLG_F16 = 234,
+		V3_CMP_NGT_F16 = 235,
+		V3_CMP_NLE_F16 = 236,
+		V3_CMP_NEQ_F16 = 237,
+		V3_CMP_NLT_F16 = 238,
+		V3_CMP_TRU_F16 = 239,
 
-        V3_CMPX_CLASS_F64   =   184,    //  D = IEEE numeric class function specified in S1.u, performed on S0.d. Also write EXEC.
-
-        V3_CMP_U32_192      =   192,    //  On unsigned 32-bit intergers.
-        V3_CMP_U32_193 = 193,
-        V3_CMP_U32_194 =    194,
-        V3_CMP_U32_195 =    195,
-        V3_CMP_U32_196 =    196,
-        V3_CMP_U32_197 =    197,
-        V3_CMP_U32_198 =    198,
-        V3_CMP_U32_199 =    199,
-
-        V3_CMPX_U32_208 = 208,  //  Also write EXEC.
-        V3_CMPX_U32_209 = 209,
-        V3_CMPX_U32_210 = 210,
-        V3_CMPX_U32_211 = 211,
-        V3_CMPX_U32_212 = 212,
-        V3_CMPX_U32_213 = 213,
-        V3_CMPX_U32_214 = 214,
-        V3_CMPX_U32_215 = 215,
-
-        V3_CMP_U64_224 =    224,    //  On unsigned 64-bit integers.
-        V3_CMP_U64_225 = 225,
-        V3_CMP_U64_226 =    226,
-        V3_CMP_U64_227 =    227,
-        V3_CMP_U64_228 =    228,
-        V3_CMP_U64_229 =    229,
-        V3_CMP_U64_230 =    230,
-        V3_CMP_U64_231 =    231,
-
-        V3_CMPX_U64_240 = 240,  //  Also write EXEC.
-        V3_CMPX_U64_241 = 241,
-        V3_CMPX_U64_242 = 242,
-        V3_CMPX_U64_243 = 243,
-        V3_CMPX_U64_244 = 244,
-        V3_CMPX_U64_245 = 245,
-        V3_CMPX_U64_246 = 246,
-        V3_CMPX_U64_247 = 247,
+		// Also write EXEC.
+		V3_CMPX_F_U64 = 240,
+		V3_CMPX_LT_U64 = 241,
+		V3_CMPX_EQ_U64 = 242,
+		V3_CMPX_LE_U64 = 243,
+		V3_CMPX_GT_U64 = 244,
+		V3_CMPX_NE_U64 = 245,
+		V3_CMPX_GE_U64 = 246,
+		V3_CMPX_T_U64 = 247,
 
         V3_CNDMASK_B32      = 256,       //  D.u = S2[i] ? S1.u : S0.u (i = threadID in wave).
         V3_READLANE_B32     = 257,       //  copy one VGPR value to one SGPR. Dst = SGPR-dest, Src0 = Source Data (VGPR# or M0(lds-direct)), Src1 = Lane Select (SGPR or M0). Ignores exec mask.
@@ -890,104 +952,104 @@ private:
 
         switch (m_op)
         {
-            case    V3_CMP_F32_0:
-            case    V3_CMP_F32_1:
-            case    V3_CMP_F32_2:
-            case    V3_CMP_F32_3:
-            case    V3_CMP_F32_4:
-            case    V3_CMP_F32_5:
-            case    V3_CMP_F32_6:
-            case    V3_CMP_F32_7:
-            case    V3_CMP_F32_8:
-            case    V3_CMP_F32_9:
-            case    V3_CMP_F32_10:
-            case    V3_CMP_F32_11:
-            case    V3_CMP_F32_12:
-            case    V3_CMP_F32_13:
-            case    V3_CMP_F32_14:
-            case    V3_CMP_F32_15:
-            case    V3_CMPX_F32_16:
-            case    V3_CMPX_F32_17:
-            case    V3_CMPX_F32_18:
-            case    V3_CMPX_F32_19:
-            case    V3_CMPX_F32_20:
-            case    V3_CMPX_F32_21:
-            case    V3_CMPX_F32_22:
-            case    V3_CMPX_F32_23:
-            case    V3_CMPX_F32_24:
-            case    V3_CMPX_F32_25:
-            case    V3_CMPX_F32_26:
-            case    V3_CMPX_F32_27:
-            case    V3_CMPX_F32_28:
-            case    V3_CMPX_F32_29:
-            case    V3_CMPX_F32_30:
-            case    V3_CMPX_F32_31:
-            case    V3_CMPS_F32_64:
-            case    V3_CMPS_F32_65:
-            case    V3_CMPS_F32_66:
-            case    V3_CMPS_F32_67:
-            case    V3_CMPS_F32_68:
-            case    V3_CMPS_F32_69:
-            case    V3_CMPS_F32_70:
-            case    V3_CMPS_F32_71:
-            case    V3_CMPS_F32_72:
-            case    V3_CMPS_F32_73:
-            case    V3_CMPS_F32_74:
-            case    V3_CMPS_F32_75:
-            case    V3_CMPS_F32_76:
-            case    V3_CMPS_F32_77:
-            case    V3_CMPS_F32_78:
-            case    V3_CMPS_F32_79:
-            case    V3_CMPSX_F32_80:
-            case    V3_CMPSX_F32_81:
-            case    V3_CMPSX_F32_82:
-            case    V3_CMPSX_F32_83:
-            case    V3_CMPSX_F32_84:
-            case    V3_CMPSX_F32_85:
-            case    V3_CMPSX_F32_86:
-            case    V3_CMPSX_F32_87:
-            case    V3_CMPSX_F32_88:
-            case    V3_CMPSX_F32_89:
-            case    V3_CMPSX_F32_90:
-            case    V3_CMPSX_F32_91:
-            case    V3_CMPSX_F32_92:
-            case    V3_CMPSX_F32_93:
-            case    V3_CMPSX_F32_94:
-            case    V3_CMPSX_F32_95:
-            case    V3_CMP_I32_128  :
-            case    V3_CMP_I32_129  :
-            case    V3_CMP_I32_130  :
-            case    V3_CMP_I32_131  :
-            case    V3_CMP_I32_132  :
-            case    V3_CMP_I32_133  :
-            case    V3_CMP_I32_134  :
-            case    V3_CMP_I32_135  :
-            case    V3_CMP_CLASS_F32:
-            case    V3_CMPX_I32_144 :
-            case    V3_CMPX_I32_145 :
-            case    V3_CMPX_I32_146 :
-            case    V3_CMPX_I32_147 :
-            case    V3_CMPX_I32_148 :
-            case    V3_CMPX_I32_149 :
-            case    V3_CMPX_I32_150 :
-            case    V3_CMPX_I32_151  :
-            case    V3_CMPX_CLASS_F32:
-            case    V3_CMP_U32_192   :
-            case    V3_CMP_U32_193   :
-            case    V3_CMP_U32_194   :
-            case    V3_CMP_U32_195   :
-            case    V3_CMP_U32_196   :
-            case    V3_CMP_U32_197   :
-            case    V3_CMP_U32_198   :
-            case    V3_CMP_U32_199   :
-            case    V3_CMPX_U32_208  :
-            case    V3_CMPX_U32_209  :
-            case    V3_CMPX_U32_210  :
-            case    V3_CMPX_U32_211  :
-            case    V3_CMPX_U32_212  :
-            case    V3_CMPX_U32_213  :
-            case    V3_CMPX_U32_214  :
-            case    V3_CMPX_U32_215  :
+			case    V3_CMP_F_F32:
+			case    V3_CMP_LT_F32:
+			case    V3_CMP_EQ_F32:
+			case    V3_CMP_LE_F32:
+			case    V3_CMP_GT_F32:
+			case    V3_CMP_LG_F32:
+			case    V3_CMP_GE_F32:
+			case    V3_CMP_O_F32:
+			case    V3_CMP_U_F32:
+			case    V3_CMP_NGE_F32:
+			case    V3_CMP_NLG_F32:
+			case    V3_CMP_NGT_F32:
+			case    V3_CMP_NLE_F32:
+			case    V3_CMP_NEQ_F32:
+			case    V3_CMP_NLT_F32:
+			case    V3_CMP_TRU_F32:
+			case    V3_CMPX_F_F32:
+			case    V3_CMPX_LT_F32:
+			case    V3_CMPX_EQ_F32:
+			case    V3_CMPX_LE_F32:
+			case    V3_CMPX_GT_F32:
+			case    V3_CMPX_LG_F32:
+			case    V3_CMPX_GE_F32:
+			case    V3_CMPX_O_F32:
+			case    V3_CMPX_U_F32:
+			case    V3_CMPX_NGE_F32:
+			case    V3_CMPX_NLG_F32:
+			case    V3_CMPX_NGT_F32:
+			case    V3_CMPX_NLE_F32:
+			case    V3_CMPX_NEQ_F32:
+			case    V3_CMPX_NLT_F32:
+			case    V3_CMPX_TRU_F32:
+			case    V3_CMPS_F_F32:
+			case    V3_CMPS_LT_F32:
+			case    V3_CMPS_EQ_F32:
+			case    V3_CMPS_LE_F32:
+			case    V3_CMPS_GT_F32:
+			case    V3_CMPS_LG_F32:
+			case    V3_CMPS_GE_F32:
+			case    V3_CMPS_O_F32:
+			case    V3_CMPS_U_F32:
+			case    V3_CMPS_NGE_F32:
+			case    V3_CMPS_NLG_F32:
+			case    V3_CMPS_NGT_F32:
+			case    V3_CMPS_NLE_F32:
+			case    V3_CMPS_NEQ_F32:
+			case    V3_CMPS_NLT_F32:
+			case    V3_CMPS_TRU_F32:
+			case    V3_CMPSX_F_F32:
+			case    V3_CMPSX_LT_F32:
+			case    V3_CMPSX_EQ_F32:
+			case    V3_CMPSX_LE_F32:
+			case    V3_CMPSX_GT_F32:
+			case    V3_CMPSX_LG_F32:
+			case    V3_CMPSX_GE_F32:
+			case    V3_CMPSX_O_F32:
+			case    V3_CMPSX_U_F32:
+			case    V3_CMPSX_NGE_F32:
+			case    V3_CMPSX_NLG_F32:
+			case    V3_CMPSX_NGT_F32:
+			case    V3_CMPSX_NLE_F32:
+			case    V3_CMPSX_NEQ_F32:
+			case    V3_CMPSX_NLT_F32:
+			case    V3_CMPSX_TRU_F32:
+			case    V3_CMP_F_I32:
+			case    V3_CMP_LT_I32:
+			case    V3_CMP_EQ_I32:
+			case    V3_CMP_LE_I32:
+			case    V3_CMP_GT_I32:
+			case    V3_CMP_NE_I32:
+			case    V3_CMP_GE_I32:
+			case    V3_CMP_T_I32:
+			case    V3_CMP_CLASS_F32:
+			case    V3_CMPX_F_I32:
+			case    V3_CMPX_LT_I32:
+			case    V3_CMPX_EQ_I32:
+			case    V3_CMPX_LE_I32:
+			case    V3_CMPX_GT_I32:
+			case    V3_CMPX_NE_I32:
+			case    V3_CMPX_GE_I32:
+			case    V3_CMPX_T_I32:
+			case    V3_CMPX_CLASS_F32:
+			case    V3_CMP_F_U32:
+			case    V3_CMP_LT_U32:
+			case    V3_CMP_EQ_U32:
+			case    V3_CMP_LE_U32:
+			case    V3_CMP_GT_U32:
+			case    V3_CMP_NE_U32:
+			case    V3_CMP_GE_U32:
+			case    V3_CMP_T_U32:
+			case    V3_CMPX_F_U32:
+			case    V3_CMPX_LT_U32:
+			case    V3_CMPX_EQ_U32:
+			case    V3_CMPX_LE_U32:
+			case    V3_CMPX_GT_U32:
+			case    V3_CMPX_NE_U32:
+			case    V3_CMPX_GE_U32:
+			case    V3_CMPX_T_U32:
             case    V3_CNDMASK_B32   :
             case    V3_READLANE_B32  :
             case    V3_WRITELANE_B32 :
@@ -1109,104 +1171,104 @@ private:
                 iRet = 4;
                 break;
 
-            case    V3_CMP_F64_32:
-            case    V3_CMP_F64_33:
-            case    V3_CMP_F64_34:
-            case    V3_CMP_F64_35:
-            case    V3_CMP_F64_36:
-            case    V3_CMP_F64_37:
-            case    V3_CMP_F64_38:
-            case    V3_CMP_F64_39:
-            case    V3_CMP_F64_40:
-            case    V3_CMP_F64_41:
-            case    V3_CMP_F64_42:
-            case    V3_CMP_F64_43:
-            case    V3_CMP_F64_44:
-            case    V3_CMP_F64_45:
-            case    V3_CMP_F64_46:
-            case    V3_CMP_F64_47:
-            case    V3_CMPX_F64_48:
-            case    V3_CMPX_F64_49:
-            case    V3_CMPX_F64_50:
-            case    V3_CMPX_F64_51:
-            case    V3_CMPX_F64_52:
-            case    V3_CMPX_F64_53:
-            case    V3_CMPX_F64_54:
-            case    V3_CMPX_F64_55:
-            case    V3_CMPX_F64_56:
-            case    V3_CMPX_F64_57:
-            case    V3_CMPX_F64_58:
-            case    V3_CMPX_F64_59:
-            case    V3_CMPX_F64_60:
-            case    V3_CMPX_F64_61:
-            case    V3_CMPX_F64_62:
-            case    V3_CMPX_F64_63:
-            case    V3_CMPS_F64_96 :
-            case    V3_CMPS_F64_97 :
-            case    V3_CMPS_F64_98 :
-            case    V3_CMPS_F64_99 :
-            case    V3_CMPS_F64_100:
-            case    V3_CMPS_F64_101:
-            case    V3_CMPS_F64_102:
-            case    V3_CMPS_F64_103:
-            case    V3_CMPS_F64_104:
-            case    V3_CMPS_F64_105:
-            case    V3_CMPS_F64_106:
-            case    V3_CMPS_F64_107:
-            case    V3_CMPS_F64_108:
-            case    V3_CMPS_F64_109:
-            case    V3_CMPS_F64_110:
-            case    V3_CMPS_F64_111:
-            case    V3_CMPSX_F64_112:
-            case    V3_CMPSX_F64_113:
-            case    V3_CMPSX_F64_114:
-            case    V3_CMPSX_F64_115:
-            case    V3_CMPSX_F64_116:
-            case    V3_CMPSX_F64_117:
-            case    V3_CMPSX_F64_118:
-            case    V3_CMPSX_F64_119:
-            case    V3_CMPSX_F64_120:
-            case    V3_CMPSX_F64_121:
-            case    V3_CMPSX_F64_122:
-            case    V3_CMPSX_F64_123:
-            case    V3_CMPSX_F64_124:
-            case    V3_CMPSX_F64_125:
-            case    V3_CMPSX_F64_126:
-            case    V3_CMPSX_F64_127:
-            case    V3_CMP_I64_160  :
-            case    V3_CMP_I64_161  :
-            case    V3_CMP_I64_162  :
-            case    V3_CMP_I64_163  :
-            case    V3_CMP_I64_164   :
-            case    V3_CMP_I64_165   :
-            case    V3_CMP_I64_166   :
-            case    V3_CMP_I64_167   :
-            case    V3_CMP_CLASS_F64 :
-            case    V3_CMPX_I64_176  :
-            case    V3_CMPX_I64_177  :
-            case    V3_CMPX_I64_178  :
-            case    V3_CMPX_I64_179  :
-            case    V3_CMPX_I64_180  :
-            case    V3_CMPX_I64_181  :
-            case    V3_CMPX_I64_182  :
-            case    V3_CMPX_I64_183  :
-            case    V3_CMPX_CLASS_F64:
-            case    V3_CMP_U64_224   :
-            case    V3_CMP_U64_225      :
-            case    V3_CMP_U64_226      :
-            case    V3_CMP_U64_227      :
-            case    V3_CMP_U64_228      :
-            case    V3_CMP_U64_229      :
-            case    V3_CMP_U64_230      :
-            case    V3_CMP_U64_231      :
-            case    V3_CMPX_U64_240     :
-            case    V3_CMPX_U64_241     :
-            case    V3_CMPX_U64_242     :
-            case    V3_CMPX_U64_243     :
-            case    V3_CMPX_U64_244     :
-            case    V3_CMPX_U64_245     :
-            case    V3_CMPX_U64_246     :
-            case    V3_CMPX_U64_247     :
+			case    V3_CMP_F_F64:
+			case    V3_CMP_LT_F64:
+			case    V3_CMP_EQ_F64:
+			case    V3_CMP_LE_F64:
+			case    V3_CMP_GT_F64:
+			case    V3_CMP_LG_F64:
+			case    V3_CMP_GE_F64:
+			case    V3_CMP_O_F64:
+			case    V3_CMP_U_F64:
+			case    V3_CMP_NGE_F64:
+			case    V3_CMP_NLG_F64:
+			case    V3_CMP_NGT_F64:
+			case    V3_CMP_NLE_F64:
+			case    V3_CMP_NEQ_F64:
+			case    V3_CMP_NLT_F64:
+			case    V3_CMP_TRU_F64:
+			case    V3_CMPX_F_F64:
+			case    V3_CMPX_LT_F64:
+			case    V3_CMPX_EQ_F64:
+			case    V3_CMPX_LE_F64:
+			case    V3_CMPX_GT_F64:
+			case    V3_CMPX_LG_F64:
+			case    V3_CMPX_GE_F64:
+			case    V3_CMPX_O_F64:
+			case    V3_CMPX_U_F64:
+			case    V3_CMPX_NGE_F64:
+			case    V3_CMPX_NLG_F64:
+			case    V3_CMPX_NGT_F64:
+			case    V3_CMPX_NLE_F64:
+			case    V3_CMPX_NEQ_F64:
+			case    V3_CMPX_NLT_F64:
+			case    V3_CMPX_TRU_F64:
+			case    V3_CMPS_F_F64:
+			case    V3_CMPS_LT_F64:
+			case    V3_CMPS_EQ_F64:
+			case    V3_CMPS_LE_F64:
+			case    V3_CMPS_GT_F64:
+			case    V3_CMPS_LG_F64:
+			case    V3_CMPS_GE_F64:
+			case    V3_CMPS_O_F64:
+			case    V3_CMPS_U_F64:
+			case    V3_CMPS_NGE_F64:
+			case    V3_CMPS_NLG_F64:
+			case    V3_CMPS_NGT_F64:
+			case    V3_CMPS_NLE_F64:
+			case    V3_CMPS_NEQ_F64:
+			case    V3_CMPS_NLT_F64:
+			case    V3_CMPS_TRU_F64:
+			case    V3_CMPSX_F_F64:
+			case    V3_CMPSX_LT_F64:
+			case    V3_CMPSX_EQ_F64:
+			case    V3_CMPSX_LE_F64:
+			case    V3_CMPSX_GT_F64:
+			case    V3_CMPSX_LG_F64:
+			case    V3_CMPSX_GE_F64:
+			case    V3_CMPSX_O_F64:
+			case    V3_CMPSX_U_F64:
+			case    V3_CMPSX_NGE_F64:
+			case    V3_CMPSX_NLG_F64:
+			case    V3_CMPSX_NGT_F64:
+			case    V3_CMPSX_NLE_F64:
+			case    V3_CMPSX_NEQ_F64:
+			case    V3_CMPSX_NLT_F64:
+			case    V3_CMPSX_TRU_F64:
+			case    V3_CMP_F_I64:
+			case    V3_CMP_LT_I64:
+			case    V3_CMP_EQ_I64:
+			case    V3_CMP_LE_I64:
+			case    V3_CMP_GT_I64:
+			case    V3_CMP_NE_I64:
+			case    V3_CMP_GE_I64:
+			case    V3_CMP_T_I64:
+			case    V3_CMP_CLASS_F64:
+			case    V3_CMPX_F_I64:
+			case    V3_CMPX_LT_I64:
+			case    V3_CMPX_EQ_I64:
+			case    V3_CMPX_LE_I64:
+			case    V3_CMPX_GT_I64:
+			case    V3_CMPX_NE_I64:
+			case    V3_CMPX_GE_I64:
+			case    V3_CMPX_T_I64:
+			case    V3_CMPX_CLASS_F64:
+			case    V3_CMP_F_U64:
+			case    V3_CMP_LT_U64:
+			case    V3_CMP_EQ_U64:
+			case    V3_CMP_LE_U64:
+			case    V3_CMP_GT_U64:
+			case    V3_CMP_NE_U64:
+			case    V3_CMP_GE_U64:
+			case    V3_CMP_T_U64:
+			case    V3_CMPX_F_U64:
+			case    V3_CMPX_LT_U64:
+			case    V3_CMPX_EQ_U64:
+			case    V3_CMPX_LE_U64:
+			case    V3_CMPX_GT_U64:
+			case    V3_CMPX_NE_U64:
+			case    V3_CMPX_GE_U64:
+			case    V3_CMPX_T_U64:
             case    V3_FMA_F64          :
             case    V3_DIV_FIXUP_F64 :
             case    V3_LSHL_B64      :
