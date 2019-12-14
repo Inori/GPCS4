@@ -134,10 +134,25 @@ void GCNCompiler::emitScalarQuadMask(GCNInstruction& ins)
 	auto inst = asInst<SISOP1Instruction>(ins);
 	auto op = inst->GetOp();
 	
+	auto ssrc0 = inst->GetSSRC0();
+	auto sdst = inst->GetSDST();
+
 	switch (op)
 	{
 	case SISOP1Instruction::S_WQM_B64:
-		LOG_PSSL_UNHANDLED_INST();
+	{
+		if (ssrc0 == sdst && ssrc0 == SISOP1Instruction::SSRC::SSRCExecLo)
+		{
+			// ignore  s_wqm_b64     exec, exec
+		}
+		else
+		{
+			// TODO:
+			// implement
+			LOG_PSSL_UNHANDLED_INST();
+		}
+	}
+		
 		break;
 	default:
 		LOG_PSSL_UNHANDLED_INST();
