@@ -79,54 +79,54 @@ void GCNCompiler::emitScalarMov(GCNInstruction& ins)
 	}
 		break;
 	default:
-		LOG_FIXME("Not implementd: op %X", op);
+		LOG_PSSL_UNHANDLED_INST();
 		break;
 	}
 }
 
 void GCNCompiler::emitScalarArith(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitScalarAbs(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitScalarCmp(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitScalarSelect(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitScalarBitLogic(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitScalarBitManip(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitScalarBitField(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitScalarConv(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitScalarExecMask(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitScalarQuadMask(GCNInstruction& ins)
@@ -137,8 +137,10 @@ void GCNCompiler::emitScalarQuadMask(GCNInstruction& ins)
 	switch (op)
 	{
 	case SISOP1Instruction::S_WQM_B64:
+		LOG_PSSL_UNHANDLED_INST();
 		break;
 	default:
+		LOG_PSSL_UNHANDLED_INST();
 		break;
 	}
 }

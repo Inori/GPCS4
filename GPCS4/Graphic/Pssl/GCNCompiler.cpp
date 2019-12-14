@@ -61,7 +61,6 @@ void GCNCompiler::compileInstruction(GCNInstruction& ins)
 	LOG_ASSERT(ins.instruction->GetInstructionClass() != 
 		Instruction::InstructionClass::InstructionClassUnknown, 
 		"instruction class not initialized.");
-
 	LOG_ASSERT(insCategory != Instruction::CategoryUnknown,
 		"instruction category not initialized.");
 
@@ -101,6 +100,7 @@ void GCNCompiler::compileInstruction(GCNInstruction& ins)
 	default:
 		break;
 	}
+
 }
 
 RcPtr<gve::GveShader> GCNCompiler::finalize()

@@ -40,17 +40,17 @@ void GCNCompiler::emitVectorMemory(GCNInstruction& ins)
 
 void GCNCompiler::emitVectorMemBufNoFmt(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorMemBufFmt(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorMemImgNoSmp(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorMemImgSmp(GCNInstruction& ins)
@@ -88,18 +88,19 @@ void GCNCompiler::emitVectorMemImgSmp(GCNInstruction& ins)
 	}
 		break;
 	default:
+		LOG_PSSL_UNHANDLED_INST();
 		break;
 	}
 }
 
 void GCNCompiler::emitVectorMemImgUt(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorMemL1Cache(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 }  // namespace pssl

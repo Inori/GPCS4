@@ -51,12 +51,12 @@ void GCNCompiler::emitScalarProgFlow(GCNInstruction& ins)
 	{
 	case Instruction::InstructionSet_SOP2:
 	{
-	
+		LOG_PSSL_UNHANDLED_INST();
 	}
 		break;
 	case Instruction::InstructionSet_SOPK:
 	{
-
+		LOG_PSSL_UNHANDLED_INST();
 	}
 		break;
 	case Instruction::InstructionSet_SOP1:
@@ -75,7 +75,7 @@ void GCNCompiler::emitScalarProgFlow(GCNInstruction& ins)
 		break;
 	case Instruction::InstructionSet_SOPC:
 	{
-
+		LOG_PSSL_UNHANDLED_INST();
 	}
 		break;
 	case Instruction::InstructionSet_SOPP:
@@ -129,9 +129,12 @@ void GCNCompiler::emitScalarProgFlowPC(GCNInstruction& ins)
 			LOG_DEBUG("call fetch shader.");
 		}
 	}
+		break;
 	case SISOP1Instruction::S_GETPC_B64:
+		LOG_PSSL_UNHANDLED_INST();
 		break;
 	case SISOP1Instruction::S_SETPC_B64:
+		LOG_PSSL_UNHANDLED_INST();
 		break;
 	default:
 		break;
@@ -170,6 +173,12 @@ void GCNCompiler::emitScalarProgFlowBranch(GCNInstruction& ins)
 		m_module.opBranch(trueLabelId);
 		break;
 	case SISOPPInstruction::S_CBRANCH_SCC0:
+	{
+		uint32_t falseLabelId = m_module.allocateId();
+		m_module.opBranchConditional(condition, trueLabelId, falseLabelId);
+		m_module.opLabel(falseLabelId);
+	}
+		break;
 	case SISOPPInstruction::S_CBRANCH_SCC1:
 	case SISOPPInstruction::S_CBRANCH_VCCZ:
 	case SISOPPInstruction::S_CBRANCH_VCCNZ:
@@ -179,11 +188,7 @@ void GCNCompiler::emitScalarProgFlowBranch(GCNInstruction& ins)
 	case SISOPPInstruction::S_CBRANCH_CDBGUSER:
 	case SISOPPInstruction::S_CBRANCH_CDBGSYS_OR_USER:
 	case SISOPPInstruction::S_CBRANCH_CDBGSYS_AND_USER:
-	{
-		uint32_t falseLabelId = m_module.allocateId();
-		m_module.opBranchConditional(condition, trueLabelId, falseLabelId);
-		m_module.opLabel(falseLabelId);
-	}
+		LOG_PSSL_UNHANDLED_INST();
 		break;
 	default:
 		LOG_ERR("error branch instruction %x", op);
@@ -194,32 +199,42 @@ void GCNCompiler::emitScalarProgFlowBranch(GCNInstruction& ins)
 
 void GCNCompiler::emitScalarSync(GCNInstruction& ins)
 {
-
+	auto inst = asInst<SISOPPInstruction>(ins);
+	auto op = inst->GetOp();
+	switch (op)
+	{
+	case SISOPPInstruction::S_BARRIER:
+		LOG_PSSL_UNHANDLED_INST();
+		break;
+	case SISOPPInstruction::S_WAITCNT:
+		// pass
+		break;
+	}
 }
 
 void GCNCompiler::emitScalarWait(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitScalarCache(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitScalarPrior(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitScalarRegAccess(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitScalarMsg(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 }  // namespace pssl

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "PsslCommon.h"
 #include "GCNInstruction.h"
 #include "GCNInstructionIterator.h"
 

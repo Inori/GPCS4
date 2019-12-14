@@ -112,33 +112,34 @@ void GCNCompiler::emitVectorRegMov(GCNInstruction& ins)
 	}
 		break;
 	default:
+		LOG_PSSL_UNHANDLED_INST();
 		break;
 	}
 }
 
 void GCNCompiler::emitVectorLane(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorBitLogic(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorBitField32(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorThreadMask(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorBitField64(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorFpArith32(GCNInstruction& ins)
@@ -203,6 +204,7 @@ void GCNCompiler::emitVectorFpArith32(GCNInstruction& ins)
 	}
 		break;
 	default:
+		LOG_PSSL_UNHANDLED_INST();
 		break;
 	}
 
@@ -211,67 +213,67 @@ void GCNCompiler::emitVectorFpArith32(GCNInstruction& ins)
 
 void GCNCompiler::emitVectorFpRound32(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorFpField32(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorFpTran32(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorFpCmp32(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorFpArith64(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorFpRound64(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorFpField64(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorFpTran64(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorFpCmp64(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorIntArith32(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorIntArith64(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorIntCmp32(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorIntCmp64(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorConv(GCNInstruction& ins)
@@ -306,6 +308,7 @@ void GCNCompiler::emitVectorConv(GCNInstruction& ins)
 	}
 		break;
 	default:
+		LOG_PSSL_UNHANDLED_INST();
 		break;
 	}
 
@@ -324,17 +327,17 @@ void GCNCompiler::emitVectorConv(GCNInstruction& ins)
 
 void GCNCompiler::emitVectorFpGraph32(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorIntGraph(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorMisc(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 }  // namespace pssl

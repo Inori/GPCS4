@@ -47,10 +47,18 @@ void LogAssert(const char* szExpression, const char* szFunction, const char* szS
 // only use to trace graphic calls, mostly in libVideoOut and libGnmDriver
 #define LOG_SCE_GRAPHIC(format, ...)	_LOG_PRINT_(LogLevel::kSceGraphic, format, __VA_ARGS__);
 
-
 // not really implemented
 // just return result which looks correct to let the program go on
 #define LOG_SCE_DUMMY_IMPL()	LOG_FIXME("SCE Dummy implemented");
+
+// only used in PSSL module
+// to indicate there's gcn instruction not translated.
+#define LOG_PSSL_UNHANDLED_INST()                            \
+		{                                                    \
+			LOG_FIXME("PSSL Instruction not translated.");   \
+			__debugbreak();                                  \
+		}
+
 
 #else
 
@@ -64,5 +72,6 @@ void LogAssert(const char* szExpression, const char* szFunction, const char* szS
 #define LOG_SCE_TRACE(format, ...)
 #define LOG_SCE_GRAPHIC(format, ...)	
 #define LOG_SCE_DUMMY_IMPL()
+#define LOG_PSSL_UNHANDLED_INST()
 
 #endif // GPCS4_DEBUG
