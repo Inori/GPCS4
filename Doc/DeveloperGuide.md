@@ -2,8 +2,8 @@
 
 ## Branches
 1. `master` branch is under heavy develpment, mainly for graphics, so the code maybe not stable for test. If you aim to do graphics development, checkout this branch.
-2. `no_graphics` branch is used for non-graphics development. It will emulate GPU interrupt and label write, preventing program from trapping into infinite loop waiting for GPU events.
-3. If you just want to do some simple grahpics test, checkout a latest `tag` branch.
+2. `no_graphics` branch is used for non-graphics development. It will emulate GPU interrupts and label write, preventing program from trapping into infinite loop waiting for GPU events.
+3. If you just want to do some simple graphics test, checkout the latest `tag` branch.
 
 ## Build GPCS4:
 Follow the steps:
@@ -20,7 +20,7 @@ ie. `/app0/shader_vv.sb` to `E:\Code\GPCS4\Debug\shader_vv.sb`
 Follow the steps:
 1. Checkout a proper branch, the master branch is under heavy development and maybe not stable for test.
 2. Copy all the stuffs of a demo/game, including main elf/bin, shader binary file, texture and so on, in the `Debug` folder where GPCS4.exe output, and keep it's directory tree structure unchanged.
-3. Extract `lib` folder from [your download](https://pastebin.com/bUxckm3y) to `Debug` folder where GPCS4.exe output.
+3. Extract `lib` from [your download](https://pastebin.com/bUxckm3y) to `Debug` folder where GPCS4.exe output.
 4. Open properties window of GPCS4 project in Visual Studio, switch to Debugging tab,  
 set `Woring Directory` to `$(OutDir)`  
 set `Command Arguments` to the name of the main elf/bin, ie. `basic_quad.elf`.   
@@ -42,10 +42,10 @@ Note, before you write any code, read our [code style document](https://github.c
 Also, you can take the existing code as example.
 
 Follow the steps:
-1. Read the roadmap on the main page, select a part which you're insterested in. Or if you're not sure, see our [Trello](https://trello.com/b/4kZu97F5/gpcs4) and take a job from `TODO list for new developers` card.
+1. Read the roadmap on the main page, select a part which you're insterested in. Or if you're not sure, see [Issues](https://github.com/Inori/GPCS4/issues) or [Trello](https://trello.com/b/4kZu97F5/gpcs4) cards.
 2. Build GPCS4 following the above steps.
 3. Download all the files here, these are all you need to develop GPCS4.  
     https://pastebin.com/bUxckm3y
-4. Run the demo or game you like, find why it crashes/doesn't work.
+4. Run a demo or game you like, find why it crashes/doesn't work.
 5. Then you know what to do next.
 
