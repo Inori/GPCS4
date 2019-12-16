@@ -412,7 +412,9 @@ void GnmCommandBufferDraw::commitVsStage()
 		uint32_t* fsCode = getFetchShaderCode(m_vsContext);
 		LOG_ASSERT(fsCode != nullptr, "can not find fetch shader code.");
 
+		PsslShaderModule vsModule((const uint32_t*)m_vsContext.code, fsCode, m_vsContext.userDataSlotTable);
 		LOG_DEBUG("vertex shader hash %llX", vsModule.key().toUint64());
+
 		m_vsContext.shader = vsModule.compile();
 
 		auto vsInputUsageSlots = vsModule.inputUsageSlots();
