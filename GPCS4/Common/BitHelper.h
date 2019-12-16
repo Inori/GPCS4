@@ -29,7 +29,7 @@ namespace bit {
     return n;
   }
 
-  // extern unsigned int _tzcnt_u32(unsigned int);
+  extern unsigned int _tzcnt_u32(unsigned int);
 
   inline uint32_t tzcnt(uint32_t n) {
     #if defined(_MSC_VER)
