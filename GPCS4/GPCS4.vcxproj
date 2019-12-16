@@ -96,6 +96,7 @@
     <ClInclude Include="Graphic\Gve\GveVkLayers.h" />
     <ClInclude Include="Graphic\Pssl\GCNAnalyzer.h" />
     <ClInclude Include="Graphic\Pssl\GCNEnums.h" />
+    <ClInclude Include="Graphic\Pssl\GCNInstructionIterator.h" />
     <ClInclude Include="Graphic\Pssl\GCNParser\DeviceInfo.h" />
     <ClInclude Include="Graphic\Pssl\GCNParser\DSInstruction.h" />
     <ClInclude Include="Graphic\Pssl\GCNParser\EXPInstruction.h" />
@@ -299,6 +300,7 @@
     <ClCompile Include="Graphic\Pssl\GCNCompilerVectorALU.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNCompilerVectorInterpolation.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNCompilerVectorMemory.cpp" />
+    <ClCompile Include="Graphic\Pssl\GCNInstructionIterator.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNParser\GCNInstructionDefs.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNParser\GCNParser.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNParser\Instruction.cpp" />
@@ -389,9 +391,6 @@
     <ClCompile Include="SceModules\SceLibc\sce_libc_stdlib.cpp" />
     <ClCompile Include="SceModules\SceLibc\sce_libc_string.cpp" />
     <MASM Include="Emulator\TLSStub.asm" />
-    <MASM Include="SceModules\SceLibc\sce_libc_string_asm.asm">
-      <FileType>Document</FileType>
-    </MASM>
     <ClCompile Include="SceModules\SceLibkernel\SceEventFlag.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\SceSemaphore.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\sce_kernel_eventflag.cpp" />
@@ -530,10 +529,10 @@
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Label="LLVM" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClangClAdditionalOptions>-Wno-unused-variable -Wno-unused-private-field -Wno-switch</ClangClAdditionalOptions>
+    <ClangClAdditionalOptions>-Wno-unused-variable -Wno-unused-private-field -Wno-switch -Wno-return-type -Wno-unused-function -Wno-return-type</ClangClAdditionalOptions>
   </PropertyGroup>
   <PropertyGroup Label="LLVM" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ClangClAdditionalOptions>-flto=thin -Wno-unused-variable -Wno-unused-private-field -Wno-switch</ClangClAdditionalOptions>
+    <ClangClAdditionalOptions>-flto=thin -Wno-unused-variable -Wno-unused-private-field -Wno-switch -Wno-unused-function -Wno-return-type</ClangClAdditionalOptions>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -549,14 +548,14 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(VULKAN_SDK)\Include;$(SolutionDir)GPCS4;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GPCS4_DEBUG;__PTW32_STATIC_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
       <AdditionalDependencies>vulkan-1.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <AdditionalLibraryDirectories>$(VULKAN_SDK)\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -585,7 +584,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" %(AdditionalOptions)</AdditionalOptions>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(VULKAN_SDK)\Include;$(SolutionDir)GPCS4;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>

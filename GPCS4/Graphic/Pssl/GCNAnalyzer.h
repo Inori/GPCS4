@@ -1,7 +1,11 @@
 #pragma once
 
+#include "PsslCommon.h"
 #include "GCNInstruction.h"
+#include "GCNInstructionIterator.h"
+
 #include <set>
+#include <unordered_map>
 
 namespace pssl
 {;
@@ -13,28 +17,38 @@ struct GcnExportInfo
 	bool isCompressed;
 };
 
+
+
 struct GcnAnalysisInfo
 {
 	std::vector<GcnExportInfo> expParams;
-	uint32_t vinterpAttrCount;  // should be equal to the paired vertex shader's export params count
+
+	// should be equal to the paired vertex shader's export params count
+	uint32_t vinterpAttrCount; 
+
+	// key:target address
+	// value : spirv label id
+	std::unordered_map<uint32_t, uint32_t> branchLabels;
 };
 
 // Used for collecting global information
 // of a shader module which is not convenient
 // for per instruction process in compiler.
 
-class GCNAnalyzer
+class GCNAnalyzer : public GCNInstructionIterator
 {
 public:
 	GCNAnalyzer(GcnAnalysisInfo& analysis);
-	~GCNAnalyzer();
+	virtual ~GCNAnalyzer();
 
-	void processInstruction(GCNInstruction& ins);
+	virtual void processInstruction(GCNInstruction& ins);
 
 private:
+	void analyzeInstruction(GCNInstruction& ins);
+
 	void getExportInfo(GCNInstruction& ins);
 	void getVinterpInfo(GCNInstruction& ins);
-
+	void collectBranchLabel(GCNInstruction& ins);
 private:
 	GcnAnalysisInfo* m_analysis = nullptr;
 

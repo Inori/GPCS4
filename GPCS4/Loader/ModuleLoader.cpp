@@ -5,7 +5,10 @@
 ModuleLoader::ModuleLoader(CSceModuleSystem &modSystem,
 						   CLinker &linker,
 						   CTLSHandler &tlsHandler)
-	: m_modSystem{modSystem}, m_linker{linker}, m_tlsHandler{tlsHandler}
+	: 
+	m_modSystem{ modSystem }, 
+	m_tlsHandler{ tlsHandler },
+	m_linker{ linker }
 {
 }
 

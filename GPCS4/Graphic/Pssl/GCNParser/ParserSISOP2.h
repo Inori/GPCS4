@@ -84,6 +84,8 @@ private:
     /// \param[in]  hexInstruction  The 32 bit hexadecimal instruction.
     /// \returns                   An OP.
     static G9SOP2Instruction::OP GetG9SOP2Op(Instruction::instruction32bit hexInstruction);
+
+	static Instruction::InstructionClass GetSISOP2Class(SISOP2Instruction::OP op);
 };
 
 #endif //__PARSERSISOP2_H

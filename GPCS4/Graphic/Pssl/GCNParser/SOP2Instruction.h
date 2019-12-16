@@ -213,7 +213,12 @@ public:
     OP GetOp() const { return m_op; }
 
     /// ctor
-    SISOP2Instruction(SSRC ssrc0, SSRC ssrc1, SDST sdst, OP op, unsigned int sridx0, unsigned int sridx1, unsigned int sdstRidx): SOP2Instruction(ssrc0, ssrc1, sdst, sridx0, sridx1, sdstRidx), m_op(op) {}
+    SISOP2Instruction(SSRC ssrc0, SSRC ssrc1, SDST sdst, 
+		OP op, 
+		unsigned int sridx0, unsigned int sridx1, unsigned int sdstRidx, 
+		InstructionClass insClass = InstructionClassUnknown):
+		SOP2Instruction(ssrc0, ssrc1, sdst, sridx0, sridx1, sdstRidx, ScalarALU, insClass),
+		m_op(op) {}
 
 
 private:

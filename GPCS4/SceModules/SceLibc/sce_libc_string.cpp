@@ -90,7 +90,7 @@ PS4API scec_sprintf(char *str, const char *format, ...)
 
 #ifdef GPCS4_WINDOWS
 
-	asm volatile("jmp scec_sprintf_asm");
+	// asm volatile("jmp scec_sprintf_asm");
 
 #elif defined(GPCS4_LINUX)
 	// on linux, this can be implemented more friendly.
@@ -123,7 +123,7 @@ scec_sprintf_s(char *buffer, size_t sizeOfBuffer, const char *format, ...)
 	// after 3 hours' learn, I still get compiling errors and errors and erros..
 	// so I just give up.
 	// fuck that.
-	asm volatile("jmp scec_sprintf_s_asm");
+	// asm volatile("jmp scec_sprintf_s_asm");
 
 #elif defined(GPCS4_LINUX)
 	// on linux, this can be implemented more friendly.
@@ -304,7 +304,7 @@ scec_vsnprintf(char * s, size_t n, const char * format, void* arg)
 {
 	//LOG_SCE_TRACE("s %p n %x format %p", s, n, format);
 #ifdef GPCS4_WINDOWS
-	asm volatile ("jmp  scec_vsnprintf_asm");
+	// asm volatile ("jmp  scec_vsnprintf_asm");
 #else
 	return SCE_OK;
 #endif  //GPCS4_WINDOWS
@@ -327,7 +327,7 @@ scec_vsprintf_s(char *buffer, size_t numberOfElements, const char *format, void*
 	//LOG_SCE_TRACE("s %p n %x format %p", buffer, numberOfElements, format);
 #ifdef GPCS4_WINDOWS
 	// vsprintf_s is the same as vsnprintf
-	asm volatile ("jmp  scec_vsnprintf_asm");
+	// asm volatile ("jmp  scec_vsnprintf_asm");
 #else
 	return SCE_OK;
 #endif  //GPCS4_WINDOWS

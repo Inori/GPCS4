@@ -844,6 +844,9 @@
     <ClInclude Include="Graphic\Gnm\GnmCommandBufferDummy.h">
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClInclude>
+    <ClInclude Include="Graphic\Pssl\GCNInstructionIterator.h">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1494,11 +1497,11 @@
     <ClCompile Include="Graphic\Gnm\GnmCommandBufferDummy.cpp">
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClCompile>
+    <ClCompile Include="Graphic\Pssl\GCNInstructionIterator.cpp">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="SceModules\SceLibc\sce_libc_string_asm.asm">
-      <Filter>SceModules\SceLibc</Filter>
-    </MASM>
     <MASM Include="Emulator\TLSStub.asm">
       <Filter>Source Files\Emulator</Filter>
     </MASM>

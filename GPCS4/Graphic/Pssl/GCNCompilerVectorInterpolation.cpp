@@ -36,8 +36,10 @@ void GCNCompiler::emitVectorInterpFpCache(GCNInstruction& ins)
 	}
 		break;
 	case SIVINTRPInstruction::V_INTERP_MOV_F32:
+		LOG_PSSL_UNHANDLED_INST();
 		break;
 	default:
+		LOG_PSSL_UNHANDLED_INST();
 		break;
 	}
 

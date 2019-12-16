@@ -14,12 +14,13 @@ constexpr uint32_t PerVertex_ClipDist = 2;
 
 
 GCNCompiler::GCNCompiler(
-	const PsslProgramInfo& progInfo, 
-	const GcnAnalysisInfo& analysis, 
-	const GcnShaderInput& shaderInput):
+	const PsslProgramInfo& progInfo,
+	const GcnAnalysisInfo& analysis,
+	const GcnShaderInput& shaderInput) :
 	m_programInfo(progInfo),
 	m_analysis(&analysis),
-	m_shaderInput(shaderInput)
+	m_shaderInput(shaderInput),
+	m_branchLabels(m_analysis->branchLabels)
 {
 	// Declare an entry point ID. We'll need it during the
 	// initialization phase where the execution mode is set.
@@ -46,7 +47,23 @@ GCNCompiler::~GCNCompiler()
 
 void GCNCompiler::processInstruction(GCNInstruction& ins)
 {
+	emitBranchLabelTry();
+
+	compileInstruction(ins);
+
+	updateProgramCounter(ins);
+}
+
+void GCNCompiler::compileInstruction(GCNInstruction& ins)
+{
 	Instruction::InstructionCategory insCategory = ins.instruction->GetInstructionCategory();
+
+	LOG_ASSERT(ins.instruction->GetInstructionClass() != 
+		Instruction::InstructionClass::InstructionClassUnknown, 
+		"instruction class not initialized.");
+	LOG_ASSERT(insCategory != Instruction::CategoryUnknown,
+		"instruction category not initialized.");
+
 	switch (insCategory)
 	{
 	case Instruction::ScalarALU:
@@ -83,6 +100,7 @@ void GCNCompiler::processInstruction(GCNInstruction& ins)
 	default:
 		break;
 	}
+
 }
 
 RcPtr<gve::GveShader> GCNCompiler::finalize()
@@ -684,7 +702,7 @@ void GCNCompiler::emitSgprStore(uint32_t dstIdx,
 	const SpirvRegisterValue& srcReg)
 {
 	auto& sgpr = m_sgprs[dstIdx];
-	if (sgpr.id == 0)  // Not initialized
+	if (sgpr.id == InvalidSpvId)  // Not initialized
 	{
 		sgpr.type = srcReg.type;
 		sgpr.id = emitNewVariable({ sgpr.type, spv::StorageClassPrivate },
@@ -706,7 +724,7 @@ void GCNCompiler::emitVgprStore(uint32_t dstIdx,
 	const SpirvRegisterValue& srcReg)
 {
 	auto& vgpr = m_vgprs[dstIdx];
-	if (vgpr.id == 0)  // Not initialized
+	if (vgpr.id == InvalidSpvId)  // Not initialized
 	{
 		vgpr.type = srcReg.type;
 		vgpr.id = emitNewVariable({ vgpr.type, spv::StorageClassPrivate },
@@ -1336,6 +1354,88 @@ SpirvRegisterValue GCNCompiler::emitRegisterComponentLoad(
 		1, &compositeIndexId);
 	uint32_t valueId = m_module.opLoad(typeId, compositePointer);
 	return SpirvRegisterValue(srcVec.type.ctype, 1, valueId);
+}
+
+void GCNCompiler::emitBranchLabelTry()
+{
+	do 
+	{
+		auto iter = m_branchLabels.find(m_programCounter);
+		if (iter == m_branchLabels.end())
+		{
+			break;
+		}
+
+		uint32_t& labelId = iter->second;
+
+		// A label can occur before or after s_branch_xxx instruction.
+		// If before, labelId should be InvalidSpvId, then we allocate a new id for it.
+		// If after, labelId should be already set by s_branch_xxx instruction handler.
+		if (labelId == InvalidSpvId)
+		{
+			labelId = m_module.allocateId();
+		}
+
+		m_module.opLabel(labelId);
+	} while (false);
+}
+
+SpirvRegisterValue GCNCompiler::emitVop3InputModifier(const GCNInstruction& ins, SpirvRegisterValue value)
+{
+	SpirvRegisterValue result = value;
+
+	auto inst = asInst<SIVOP3Instruction>(ins);
+
+	uint32_t neg = inst->GetNEG();
+	uint32_t abs = inst->GetABS();
+
+	if (abs)
+	{
+		result = emitRegisterAbsolute(result);
+	}
+
+	if (neg)
+	{
+		result = emitRegisterNegate(result);
+	}
+
+	return result;
+}
+
+SpirvRegisterValue GCNCompiler::emitVop3OutputModifier(const GCNInstruction& ins, SpirvRegisterValue value)
+{
+	SpirvRegisterValue result = value;
+
+	auto inst = asInst<SIVOP3Instruction>(ins);
+
+	uint32_t omod = inst->GetOMOD();
+	uint32_t clmp = inst->GetCLMP();
+	const uint32_t typeId = getVectorTypeId(result.type);
+
+	if (omod != 0)
+	{
+		float mul = 0.0;
+		switch (omod)
+		{
+		case 1: mul = 2.0; break;
+		case 2: mul = 4.0; break;
+		case 3: mul = 0.5; break;
+		}
+		
+		uint32_t mulId = m_module.constf32(mul);
+		result.id = m_module.opFMul(typeId, result.id, mulId);
+	}
+
+	if (clmp)
+	{
+		result.id = m_module.opFClamp(
+			typeId,
+			result.id,
+			m_module.constf32(0.0f),
+			m_module.constf32(1.0f));
+	}
+
+	return result;
 }
 
 uint32_t GCNCompiler::getPerVertexBlockId()

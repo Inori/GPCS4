@@ -82,7 +82,7 @@ void GveShader::generateBindingIdOffsets(SpirvCodeBuffer& code)
 }
 
 
-void GveShader::dumpShader(const SpirvCodeBuffer& code)
+void GveShader::dumpShader(const SpirvCodeBuffer& code) const
 {
 	char filename[64] = { 0 };
 	const char* format = nullptr;
@@ -113,6 +113,15 @@ void GveShader::dumpShader(const SpirvCodeBuffer& code)
 
 	sprintf_s(filename, 64, format, m_key.toUint64());
 	UtilFile::StoreFile(filename, (uint8_t*)code.data(), code.size());
+}
+
+void GveShader::dumpShader() const
+{
+	// Note:
+	// Binding IDs in this dump is not fixed,
+	// so it is only used to view the translation result for debugging purpose.
+	auto code = m_code.decompress();
+	dumpShader(code);
 }
 
 ///

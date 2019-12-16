@@ -1,4 +1,3 @@
-
 #include "GPCS4Log.h"
 
 #include <spdlog/spdlog.h>
@@ -9,13 +8,11 @@
 #include <memory>
 #include <cstdio>
 
+
 #define LOG_STR_BUFFER_LEN 2000
-
-#ifdef GPCS4_WINDOWS
-
-#include <Windows.h>
-
 static std::unique_ptr<spdlog::logger> g_logger;
+
+void showMessageBox(const char* title, const char* message);
 
 void initLogging()
 {
@@ -86,12 +83,33 @@ void LogAssert(const char* szExpression, const char* szFunction, const char* szS
 	va_end(stArgList);
 
 	g_logger->critical("{}({}): [Assert: {}] {}", szFunction, nLine, szExpression, szTempStr);
-	MessageBoxA(NULL, szMsgBoxStr, "Assertion Fail", MB_OK | MB_ICONERROR);
+
+	showMessageBox("Assertion Fail", szMsgBoxStr);
+
+#ifdef GPCS4_DEBUG
+	__debugbreak();
+#else
 	exit(-1);
+#endif // !GPCS4_DEBUG
+}
+
+
+
+#ifdef GPCS4_WINDOWS
+
+#include <Windows.h>
+
+void showMessageBox(const char* title, const char* message)
+{
+	MessageBoxA(NULL, message, title, MB_OK | MB_ICONERROR);
 }
 
 #else
 
+void showMessageBox(const char* title, const char* message)
+{
+
+}
 
 #endif  //GPCS4_WINDOWS
 
