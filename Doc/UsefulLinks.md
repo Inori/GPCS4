@@ -26,6 +26,11 @@ https://github.com/idc/uplift
 PS4 Module Loader (for IDA, can be used as NID database)  
 https://github.com/SocraticBliss/ps4_module_loader
 
+ELF relocation and linking
+https://eli.thegreenplace.net/2011/08/25/load-time-relocation-of-shared-libraries
+https://eli.thegreenplace.net/2011/11/03/position-independent-code-pic-in-shared-libraries
+https://eli.thegreenplace.net/2011/11/11/position-independent-code-pic-in-shared-libraries-on-x64
+
 
 ## Graphics:
 Flipping the Vulkan viewport  
