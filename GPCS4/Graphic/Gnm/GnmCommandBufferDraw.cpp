@@ -712,7 +712,7 @@ void GnmCommandBufferDraw::bindSampler(const PsslShaderResource& res)
 			break;
 		}
 
-		uint64_t key = ssharp->m_regs[0] | ssharp->m_regs[1] << 32;
+		uint64_t key = (uint64_t)ssharp->m_regs[0] | (uint64_t)ssharp->m_regs[1] << 32;
 
 		// TODO:
 		// Fill info

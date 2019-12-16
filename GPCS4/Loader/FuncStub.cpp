@@ -171,7 +171,7 @@ void *FuncStubManager::generate(std::string const &message, void *dest)
 
 void *FuncStubManager::generateUnknown(std::string const &message)
 {
-	return generate(message, trapDebugger);
+	return generate(message, (void*)trapDebugger);
 }
 
 FuncStubManager *GetFuncStubManager() 

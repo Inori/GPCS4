@@ -26,17 +26,17 @@ PsslFetchShader::PsslFetchShader(const uint32_t* code)
 }
 
 PsslFetchShader::PsslFetchShader(PsslFetchShader&& other):
-	m_instructionList(std::move(other.m_instructionList)),
 	m_codeLengthDw(other.m_codeLengthDw),
-	m_numInputSlots(other.m_numInputSlots)
+	m_numInputSlots(other.m_numInputSlots),
+	m_instructionList(std::move(other.m_instructionList))
 {
 
 }
 
 PsslFetchShader::PsslFetchShader(PsslFetchShader& other):
-	m_instructionList(std::move(other.m_instructionList)),
 	m_codeLengthDw(other.m_codeLengthDw),
-	m_numInputSlots(other.m_numInputSlots)
+	m_numInputSlots(other.m_numInputSlots),
+	m_instructionList(std::move(other.m_instructionList))
 {
 
 }
