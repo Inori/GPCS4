@@ -81,7 +81,7 @@ GvePipelineLayout* GveGraphicsPipeline::getLayout() const
 	return m_layout;
 }
 
-gve::GveGraphicsPipelineInstance* GveGraphicsPipeline::findInstance(const GveGraphicsPipelineStateInfo& state, const GveRenderPass& rp)
+GveGraphicsPipelineInstance* GveGraphicsPipeline::findInstance(const GveGraphicsPipelineStateInfo& state, const GveRenderPass& rp)
 {
 	GveGraphicsPipelineInstance* instance = nullptr;
 	for (auto& pipeInst : m_pipelines)
@@ -95,7 +95,8 @@ gve::GveGraphicsPipelineInstance* GveGraphicsPipeline::findInstance(const GveGra
 	return instance;
 }
 
-gve::GveGraphicsPipelineInstance* GveGraphicsPipeline::createInstance(const GveGraphicsPipelineStateInfo& state, const GveRenderPass& rp)
+
+GveGraphicsPipelineInstance* GveGraphicsPipeline::createInstance(const GveGraphicsPipelineStateInfo& state, const GveRenderPass& rp)
 {
 	GveGraphicsPipelineInstance* instance = nullptr;
 	do 
@@ -106,17 +107,23 @@ gve::GveGraphicsPipelineInstance* GveGraphicsPipeline::createInstance(const GveG
 		auto fsModule = m_shaders.fs->createShaderModule(m_pipelineManager->m_device, m_resSlotMap);
 		auto fsStage = fsModule.stageInfo(nullptr);
 
-		// TODO:
-		// More stages
 		VkPipelineShaderStageCreateInfo shaderStages[] = { vsStage, fsStage };
 
-		auto viState = state.vi.state();
+		std::vector<VkVertexInputBindingDescription> vertexBindings;
+		std::vector<VkVertexInputAttributeDescription> vertexAttributes;
+		auto viState = state.vi.state(vertexBindings, vertexAttributes);
+
+		std::vector<VkPipelineColorBlendAttachmentState> colorAttachments;
+		auto cbState = state.cb.state(colorAttachments);
+
+		std::vector<VkDynamicState> dynStateArray;
+		auto dyState = state.dy.state(dynStateArray);
+
+		auto vpState = state.dy.viewportState();
 		auto iaState = state.ia.state();
-		auto vpState = state.vp.state();
 		auto rsState = state.rs.state();
 		auto msState = state.ms.state();
 		auto dsState = state.ds.state();
-		auto cbState = state.cb.state();
 
 		VkGraphicsPipelineCreateInfo pipelineInfo = {};
 		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -129,6 +136,7 @@ gve::GveGraphicsPipelineInstance* GveGraphicsPipeline::createInstance(const GveG
 		pipelineInfo.pMultisampleState = &msState;
 		pipelineInfo.pDepthStencilState = &dsState;
 		pipelineInfo.pColorBlendState = &cbState;
+		pipelineInfo.pDynamicState = &dyState;
 		pipelineInfo.layout = m_layout->pipelineLayout();
 		pipelineInfo.renderPass = rp.getDefaultHandle();
 		pipelineInfo.subpass = 0;

@@ -45,8 +45,10 @@
     <ClInclude Include="Graphic\Gnm\GnmCommandBuffer.h" />
     <ClInclude Include="Graphic\Gnm\GnmCommandBufferDispatch.h" />
     <ClInclude Include="Graphic\Gnm\GnmCommandBufferDraw.h" />
+    <ClInclude Include="Graphic\Gnm\GnmCommandBufferDummy.h" />
     <ClInclude Include="Graphic\Gnm\GnmCommon.h" />
     <ClInclude Include="Graphic\Gnm\GnmConstant.h" />
+    <ClInclude Include="Graphic\Gnm\GnmConvertor.h" />
     <ClInclude Include="Graphic\Gnm\GnmDataFormat.h" />
     <ClInclude Include="Graphic\Gnm\GnmDepthRenderTarget.h" />
     <ClInclude Include="Graphic\Gnm\GnmGfx9MePm4Packets.h" />
@@ -197,6 +199,7 @@
     <ClInclude Include="SceModules\SceLibkernel\sce_libkernel.h" />
     <ClInclude Include="SceModules\SceLibkernel\sce_pthread_common.h" />
     <ClInclude Include="SceModules\SceMouse\sce_mouse.h" />
+    <ClInclude Include="SceModules\SceMouse\sce_mouse_types.h" />
     <ClInclude Include="SceModules\SceMsgDialog\sce_msgdialog.h" />
     <ClInclude Include="SceModules\SceNetCtl\sce_netctl.h" />
     <ClInclude Include="SceModules\SceNet\sce_net.h" />
@@ -210,7 +213,10 @@
     <ClInclude Include="SceModules\SceNpTrophy\sce_nptrophy.h" />
     <ClInclude Include="SceModules\SceNpTus\sce_nptus.h" />
     <ClInclude Include="SceModules\SceNpWebApi\sce_npwebapi.h" />
+    <ClInclude Include="SceModules\ScePad\ScePad.h" />
     <ClInclude Include="SceModules\ScePad\sce_pad.h" />
+    <ClInclude Include="SceModules\ScePad\sce_pad_error.h" />
+    <ClInclude Include="SceModules\ScePad\sce_pad_types.h" />
     <ClInclude Include="SceModules\ScePlayGoDialog\sce_playgodialog.h" />
     <ClInclude Include="SceModules\ScePlayGo\sce_playgo.h" />
     <ClInclude Include="SceModules\SceRtc\sce_rtc.h" />
@@ -251,6 +257,9 @@
     <ClCompile Include="Graphic\Gnm\GnmCommandBuffer.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmCommandBufferDispatch.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmCommandBufferDraw.cpp" />
+    <ClCompile Include="Graphic\Gnm\GnmCommandBufferDummy.cpp" />
+    <ClCompile Include="Graphic\Gnm\GnmConvertor.cpp" />
+    <ClCompile Include="Graphic\Gnm\GnmDataFormat.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmOpCode.cpp" />
     <ClCompile Include="Graphic\GraphicShared.cpp" />
     <ClCompile Include="Graphic\Gve\GveBuffer.cpp" />
@@ -424,6 +433,7 @@
     <ClCompile Include="SceModules\SceNpTus\sce_nptus_export.cpp" />
     <ClCompile Include="SceModules\SceNpWebApi\sce_npwebapi.cpp" />
     <ClCompile Include="SceModules\SceNpWebApi\sce_npwebapi_export.cpp" />
+    <ClCompile Include="SceModules\ScePad\ScePad.cpp" />
     <ClCompile Include="SceModules\ScePad\sce_pad.cpp" />
     <ClCompile Include="SceModules\ScePad\sce_pad_export.cpp" />
     <ClCompile Include="SceModules\ScePlayGoDialog\sce_playgodialog.cpp" />

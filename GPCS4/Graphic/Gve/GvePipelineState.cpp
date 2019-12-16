@@ -117,31 +117,32 @@ void GveVertexInputInfo::clear()
 	m_attributes.clear();
 }
 
-VkPipelineVertexInputStateCreateInfo GveVertexInputInfo::state() const
+VkPipelineVertexInputStateCreateInfo GveVertexInputInfo::state(
+	std::vector<VkVertexInputBindingDescription>& bindings,
+	std::vector<VkVertexInputAttributeDescription>& attributes) const
 {
 	VkPipelineVertexInputStateCreateInfo info = {};
 	info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 	info.pNext = nullptr;
 
-	std::array<VkVertexInputBindingDescription, MaxNumVertexBindings> bindings;
-	uint32_t bindingCount = 0;
+	bindings.clear();
 	for (const auto& binding : m_bindings)
 	{
-		bindings[bindingCount++] = binding.description();
+		auto bindingDesc = binding.description();
+		bindings.push_back(bindingDesc);
 	}
 
-	info.vertexBindingDescriptionCount = bindingCount;
+	info.vertexBindingDescriptionCount = bindings.size();
 	info.pVertexBindingDescriptions = bindings.data();
 
-
-	uint32_t attrCount = 0;
-	std::array<VkVertexInputAttributeDescription, MaxNumVertexAttributes> attributes;
+	attributes.clear();
 	for (const auto& attr : m_attributes)
 	{
-		attributes[attrCount++] = attr.description();
+		auto attrDesc = attr.description();
+		attributes.push_back(attrDesc);
 	}
 
-	info.vertexAttributeDescriptionCount = attrCount;
+	info.vertexAttributeDescriptionCount = attributes.size();
 	info.pVertexAttributeDescriptions = attributes.data();
 
 	return info;
@@ -194,88 +195,41 @@ bool GveInputAssemblyInfo::operator==(const GveInputAssemblyInfo& other) const
 }
 
 
-GveViewportInfo::GveViewportInfo(const VkViewport& viewport, const VkRect2D& scissor)
+void GveDynamicStateInfo::setViewportCount(uint32_t count)
 {
-	m_viewports.push_back(viewport);
-	m_scissors.push_back(scissor);
+	m_viewportCount = count;
 }
 
 
-
-void GveViewportInfo::addViewport(const VkViewport& viewport)
+VkPipelineViewportStateCreateInfo GveDynamicStateInfo::viewportState() const
 {
-	m_viewports.push_back(viewport);
+	VkPipelineViewportStateCreateInfo vpInfo = {};
+	vpInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+	vpInfo.pNext = nullptr;
+	vpInfo.flags = 0;
+	vpInfo.viewportCount = m_viewportCount;
+	vpInfo.pViewports = nullptr;
+	vpInfo.scissorCount = m_viewportCount;
+	vpInfo.pScissors = nullptr;
+	return vpInfo;
 }
 
-void GveViewportInfo::addScissor(const VkRect2D& scissor)
+VkPipelineDynamicStateCreateInfo GveDynamicStateInfo::state(std::vector<VkDynamicState>& dynStates) const
 {
-	m_scissors.push_back(scissor);
+	VkPipelineDynamicStateCreateInfo dyInfo = {};
+
+	dynStates.reserve(2);
+	dynStates.push_back(VK_DYNAMIC_STATE_VIEWPORT);
+	dynStates.push_back(VK_DYNAMIC_STATE_SCISSOR);
+
+	dyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+	dyInfo.pNext = nullptr;
+	dyInfo.flags = 0;
+	dyInfo.dynamicStateCount = dynStates.size();
+	dyInfo.pDynamicStates = dynStates.data();
+
+	return dyInfo;
 }
-
-uint32_t GveViewportInfo::viewportCount() const
-{
-	return m_viewports.size();
-}
-
-void GveViewportInfo::clear()
-{
-	m_viewports.clear();
-	m_scissors.clear();
-}
-
-VkPipelineViewportStateCreateInfo GveViewportInfo::state() const
-{
-	VkPipelineViewportStateCreateInfo info = {};
-	info.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-	info.viewportCount = m_viewports.size();
-	info.pViewports = m_viewports.data();
-	info.scissorCount = m_scissors.size();
-	info.pScissors = m_scissors.data();
-	return info;
-}
-
-bool GveViewportInfo::operator==(const GveViewportInfo& other) const
-{
-	bool ret = false;
-	do
-	{
-		if (m_viewports.size() != other.m_viewports.size())
-		{
-			break;
-		}
-
-		if (m_scissors.size() != other.m_scissors.size())
-		{
-			break;
-		}
-
-		bool eq = std::equal(m_viewports.begin(), m_viewports.end(), other.m_viewports.begin(),
-			[](const VkViewport& lhs, const VkViewport& rhs)
-		{
-			return !std::memcmp(&lhs, &rhs, sizeof(VkViewport));
-		});
-
-		if (!eq)
-		{
-			break;
-		}
-
-		eq = std::equal(m_scissors.begin(), m_scissors.end(), other.m_scissors.begin(),
-			[](const VkRect2D& lhs, const VkRect2D& rhs)
-		{
-			return !std::memcmp(&lhs, &rhs, sizeof(VkRect2D));
-		});
-
-		if (!eq)
-		{
-			break;
-		}
-
-		ret = true;
-	} while (false);
-	return ret;
-}
-
 
 GveRasterizationInfo::GveRasterizationInfo(
 	VkBool32 depthClipEnable, 
@@ -394,7 +348,10 @@ VkPipelineMultisampleStateCreateInfo GveMultisampleInfo::state() const
 	info.sampleShadingEnable = VkBool32(m_sampleShadingEnable);
 	info.alphaToCoverageEnable = VkBool32(m_alphaToCoverageEnable);
 	info.alphaToOneEnable = VkBool32(m_alphaToOneEnable);
-	info.pSampleMask = (VkSampleMask*)&m_sampleMask;
+	// TODO:
+	// Currently, set sample mask will result in a black screen.
+	// To be fixed.
+	//info.pSampleMask = (VkSampleMask*)&m_sampleMask;
 	info.minSampleShading = m_minSampleShading;
 
 	return info;
@@ -612,22 +569,23 @@ void GveColorBlendInfo::clear()
 	m_attachments.clear();
 }
 
-VkPipelineColorBlendStateCreateInfo GveColorBlendInfo::state() const
+VkPipelineColorBlendStateCreateInfo GveColorBlendInfo::state(
+	std::vector<VkPipelineColorBlendAttachmentState>& attachStates) const
 {
 	VkPipelineColorBlendStateCreateInfo info = {};
 	info.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
 	info.logicOpEnable = VkBool32(m_logicOpEnable);
 	info.logicOp = VkLogicOp(m_logicOp);
 
-	std::array<VkPipelineColorBlendAttachmentState, MaxNumRenderTargets> attachments;
-	uint32_t attachmentCount = 0;
+	attachStates.clear();
 	for (const auto& atc : m_attachments)
 	{
-		attachments[attachmentCount++] = atc.state();
+		auto attach = atc.state();
+		attachStates.push_back(attach);
 	}
 
-	info.attachmentCount = attachmentCount;
-	info.pAttachments = attachments.data();
+	info.attachmentCount = attachStates.size();
+	info.pAttachments = attachStates.data();
 
 	info.blendConstants[0] = m_blendConstants[0];
 	info.blendConstants[1] = m_blendConstants[1];
@@ -640,7 +598,6 @@ bool GveGraphicsPipelineStateInfo::operator==(const GveGraphicsPipelineStateInfo
 {
 	return (vi == other.vi) &&
 		(ia == other.ia) &&
-		(vp == other.vp) &&
 		(rs == other.rs) &&
 		(ms == other.ms) &&
 		(ds == other.ds) &&

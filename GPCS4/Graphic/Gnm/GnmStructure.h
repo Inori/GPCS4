@@ -141,7 +141,15 @@ struct GnmCmdDrawIndexOffset
 
 struct GnmCmdDrawIndexIndirect
 {
-	uint32_t reserved[9];
+	uint32_t opcode;
+	uint32_t dataOffsetInBytes;
+	uint32_t stage;
+	uint32_t pred;
+
+	uint16_t vertexOffsetUserSgpr;
+	uint16_t instanceOffsetUserSgpr;
+
+	uint32_t reserved[4];
 };
 
 struct GnmCmdDrawIndexIndirectCountMulti
@@ -171,7 +179,10 @@ struct GnmCmdDispatchDirect
 
 struct GnmCmdDispatchIndirect
 {
-	uint32_t reserved[7];
+	uint32_t opcode;
+	uint32_t dataOffsetInBytes;
+	uint32_t flag;
+	uint32_t reserved[4];
 };
 
 struct GnmCmdWaitFlipDone

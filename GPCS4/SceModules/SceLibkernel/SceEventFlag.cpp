@@ -4,6 +4,8 @@
 #include "Platform/UtilThread.h"
 #include <functional>
 
+#include <functional>
+
 CSceEventFlag::CSceEventFlag(const std::string& name, uint attr, uint64 initPattern) :
 	m_attr(attr),
 	m_name(name),

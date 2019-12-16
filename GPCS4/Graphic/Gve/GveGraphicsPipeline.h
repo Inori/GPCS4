@@ -71,6 +71,7 @@ public:
 private:
 	GveGraphicsPipelineInstance* findInstance(const GveGraphicsPipelineStateInfo& state, const GveRenderPass& rp);
 	GveGraphicsPipelineInstance* createInstance(const GveGraphicsPipelineStateInfo& state, const GveRenderPass& rp);
+	
 private:
 	
 	GvePipelineManager* m_pipelineManager;

@@ -3,6 +3,7 @@
 #include "GnmBuffer.h"
 #include "GnmTexture.h"
 #include "GnmSampler.h"
+#include "GnmConvertor.h"
 
 #include "../Gve/GveCmdList.h"
 #include "../Gve/GveShader.h"
@@ -11,7 +12,6 @@
 #include "../Gve/GveSampler.h"
 #include "../Gve/GveContext.h"
 #include "../Pssl/PsslShaderModule.h"
-#include "Platform/PlatformUtils.h"
 
 #include <algorithm>
 
@@ -61,6 +61,16 @@ void GnmCommandBufferDraw::setPsShaderUsage(const uint32_t *inputTable, uint32_t
 
 void GnmCommandBufferDraw::setViewport(uint32_t viewportId, float dmin, float dmax, const float scale[3], const float offset[3])
 {
+	// The viewport��s origin in Gnm is in the lower left of the screen,
+	// with Y pointing up.
+	// In Vulkan the origin is in the top left of the screen,
+	// with Y pointing downwards.
+	// We need to flip the viewport of gnm to adapt to vulkan.
+	//
+	// Note, this is going to work with VK_KHR_Maintenance1 extension enabled,
+	// which is the default of Vulkan 1.1.
+	// And we must use dynamic viewport state (vkCmdSetViewport), or negative viewport height won't work.
+
 	float width = scale[0] / 0.5f;
 	float height = -scale[1] / 0.5f;
 	float left = offset[0] - scale[0];
@@ -68,17 +78,17 @@ void GnmCommandBufferDraw::setViewport(uint32_t viewportId, float dmin, float dm
 
 	VkViewport viewport;
 	viewport.x = left;
-	viewport.y = top;
+	viewport.y = top + height;
 	viewport.width = width;
-	viewport.height = height;
+	viewport.height = -height;
 	viewport.minDepth = dmin;
 	viewport.maxDepth = dmax;
 
 	VkRect2D scissor;
-	scissor.offset.x = viewport.x;
-	scissor.offset.y = viewport.y;
-	scissor.extent.width = viewport.width;
-	scissor.extent.height = viewport.height;
+	scissor.offset.x = 0;
+	scissor.offset.y = 0;
+	scissor.extent.width = width;
+	scissor.extent.height = height;
 
 	m_context->setViewport(viewport, scissor);
 }
@@ -218,7 +228,7 @@ void GnmCommandBufferDraw::setDepthRenderTarget(DepthRenderTarget const *depthTa
 
 		GveAttachment depthAttach;
 		depthAttach.view = m_depthTarget;
-		depthAttach.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		depthAttach.layout = m_depthTarget->imageInfo().layout;
 		m_context->bindDepthRenderTarget(depthAttach);
 
 	} while (false);
@@ -233,7 +243,7 @@ void GnmCommandBufferDraw::setDepthStencilControl(DepthStencilControl depthStenc
 {
 	do 
 	{
-		VkCompareOp depthCmpOp = convertCompareFunc(depthStencilControl.getDepthControlZCompareFunction());
+		VkCompareOp depthCmpOp = cvt::convertCompareFunc(depthStencilControl.getDepthControlZCompareFunction());
 
 		GveDepthStencilOp frontOp;
 		GveDepthStencilOp backOp;
@@ -265,13 +275,13 @@ void GnmCommandBufferDraw::setBlendControl(uint32_t rtSlot, BlendControl blendCo
 			VK_LOGIC_OP_COPY
 		);
 
-		VkBlendFactor colorSrcFactor = convertBlendMultiplierToFactor(blendControl.getColorEquationSourceMultiplier());
-		VkBlendFactor colorDstFactor = convertBlendMultiplierToFactor(blendControl.getColorEquationDestinationMultiplier());
-		VkBlendOp colorBlendOp = convertBlendFuncToOp(blendControl.getColorEquationBlendFunction());
+		VkBlendFactor colorSrcFactor = cvt::convertBlendMultiplierToFactor(blendControl.getColorEquationSourceMultiplier());
+		VkBlendFactor colorDstFactor = cvt::convertBlendMultiplierToFactor(blendControl.getColorEquationDestinationMultiplier());
+		VkBlendOp colorBlendOp = cvt::convertBlendFuncToOp(blendControl.getColorEquationBlendFunction());
 
-		VkBlendFactor alphaSrcFactor = convertBlendMultiplierToFactor(blendControl.getAlphaEquationSourceMultiplier());
-		VkBlendFactor alphaDstFactor = convertBlendMultiplierToFactor(blendControl.getAlphaEquationDestinationMultiplier());
-		VkBlendOp alphaBlendOp = convertBlendFuncToOp(blendControl.getAlphaEquationBlendFunction());
+		VkBlendFactor alphaSrcFactor = cvt::convertBlendMultiplierToFactor(blendControl.getAlphaEquationSourceMultiplier());
+		VkBlendFactor alphaDstFactor = cvt::convertBlendMultiplierToFactor(blendControl.getAlphaEquationDestinationMultiplier());
+		VkBlendOp alphaBlendOp = cvt::convertBlendFuncToOp(blendControl.getAlphaEquationBlendFunction());
 
 		VkColorComponentFlags colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 
@@ -298,8 +308,8 @@ void GnmCommandBufferDraw::setPrimitiveSetup(PrimitiveSetup primSetup)
 	{
 		VkFrontFace frontFace = primSetup.getFrontFace() == kPrimitiveSetupFrontFaceCcw ? 
 			VK_FRONT_FACE_COUNTER_CLOCKWISE : VK_FRONT_FACE_CLOCKWISE;
-		VkPolygonMode polyMode = convertPolygonMode(primSetup.getPolygonModeFront());
-		VkCullModeFlags cullMode = convertCullMode(primSetup.getCullFace());
+		VkPolygonMode polyMode = cvt::convertPolygonMode(primSetup.getPolygonModeFront());
+		VkCullModeFlags cullMode = cvt::convertCullMode(primSetup.getCullFace());
 
 		auto rsInfo = GveRasterizationInfo(
 			VK_FALSE,
@@ -321,14 +331,14 @@ void GnmCommandBufferDraw::setActiveShaderStages(ActiveShaderStages activeStages
 
 void GnmCommandBufferDraw::setIndexSize(IndexSize indexSize, CachePolicy cachePolicy)
 {
-	m_indexSize = convertIndexSize(indexSize);
+	m_indexType = cvt::convertIndexSize(indexSize);
 }
 
 void GnmCommandBufferDraw::setPrimitiveType(PrimitiveType primType)
 {
 	do 
 	{
-		VkPrimitiveTopology topology = convertPrimitiveTypeToTopology(primType);
+		VkPrimitiveTopology topology = cvt::convertPrimitiveTypeToTopology(primType);
 
 		auto isInfo = GveInputAssemblyInfo(
 			topology,
@@ -342,7 +352,21 @@ void GnmCommandBufferDraw::setPrimitiveType(PrimitiveType primType)
 
 void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr, DrawModifier modifier)
 {
+	do 
+	{
+		bindIndexBuffer(indexAddr, indexCount);
 
+		commitVsStage();
+		commitPsStage();
+
+		// TODO:
+		// This is a dummy state.
+		auto msInfo = GveMultisampleInfo(VK_SAMPLE_COUNT_1_BIT, VK_FALSE, 0.0, 0, VK_FALSE, VK_FALSE);
+		m_context->setMultiSampleState(msInfo);
+
+		m_context->drawIndex(indexCount, 1, 0, 0, 0);
+
+	} while (false);
 }
 
 void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr)
@@ -402,7 +426,10 @@ void GnmCommandBufferDraw::commitVsStage()
 				bindImmConstBuffer(*iter);
 				break;
 			case kShaderInputUsagePtrVertexBufferTable:
+			{
+				setVertexInputLayout(*iter, vsModule.vsInputSemantic());
 				bindVertexBuffers(*iter, vsModule.vsInputSemantic());
+			}
 				break;
 			default:
 				LOG_WARN("unsupported input usage %d", inputSlot.usageType);
@@ -450,9 +477,31 @@ void GnmCommandBufferDraw::commitPsStage()
 	} while (false);
 }
 
-void GnmCommandBufferDraw::bindIndexBuffer(void* indexAddr, uint32_t indexCount)
+void GnmCommandBufferDraw::bindIndexBuffer(const void* indexAddr, uint32_t indexCount)
 {
+	do 
+	{
+		if (!indexAddr || !indexCount)
+		{
+			break;
+		}
 
+		uint32_t perIndexSize = m_indexType == VK_INDEX_TYPE_UINT16 ? sizeof(uint16_t) : sizeof(uint32_t);
+		VkDeviceSize indexBufferSize = perIndexSize * indexCount;
+
+		GveBufferCreateInfo info = {};
+		info.size = indexBufferSize;
+		info.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+
+		uint64_t key = reinterpret_cast<uint64_t>(indexAddr);
+		auto indexBuffer = m_device->createOrGetBufferVsharp(info, 
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, key);
+
+		m_context->updateBuffer(indexBuffer, 0, indexBufferSize, indexAddr);
+
+		m_context->bindIndexBuffer(indexBuffer, m_indexType);
+
+	} while (false);
 }
 
 void GnmCommandBufferDraw::bindImmConstBuffer(const PsslShaderResource& res)
@@ -461,38 +510,200 @@ void GnmCommandBufferDraw::bindImmConstBuffer(const PsslShaderResource& res)
 	// For buffers allocated directly from gnm command buffer,
 	// we should implement "allocateFromCommandBuffer",
 	// and use push constants instead of UBOs.
+	do 
+	{
+		const GnmBuffer* buffer = reinterpret_cast<const GnmBuffer*>(res.resource);
+		if (!buffer)
+		{
+			break;
+		}
 
+		VkDeviceSize bufferSize = buffer->getSize();
+		GveBufferCreateInfo info = {};
+		info.size = bufferSize;
+		info.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+
+		uint64_t key = reinterpret_cast<uint64_t>(buffer->getBaseAddress());
+
+		auto uniformBuffer = m_device->createOrGetBufferVsharp(info, 
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, key);
+		
+		m_context->updateBuffer(uniformBuffer, 0, bufferSize, buffer->getBaseAddress());
+
+		uint32_t regSlot = computeConstantBufferBinding(VertexShader, res.startSlot);
+		m_context->bindResourceBuffer(regSlot, uniformBuffer);
+
+	} while (false);
+
+}
+
+void GnmCommandBufferDraw::setVertexInputLayout(const PsslShaderResource& res, const std::vector<VertexInputSemantic>& inputSemantics)
+{
+	do
+	{
+		const GnmBuffer* vertexTable = reinterpret_cast<const GnmBuffer*>(res.resource);
+		if (!vertexTable)
+		{
+			break;
+		}
+
+		// TODO:
+		// For some games, ie. Nier:Automata, vertex attributes are not stored
+		// in a single vertex buffer area, so in this case we need to use multiple vertex
+		// bindings. But for other games, all vertex attributes are within the same memory area,
+		// in this case, we only need one vertex binding.
+		// Currently I only support the first case, we need to check whether these attributes 
+		// are in same memory area or not.
+
+		uint32_t bindingCount = inputSemantics.size();
+		GveVertexInputInfo viInfo = {};
+
+		uint32_t location = 0;
+		for (uint32_t i = 0; i != bindingCount; ++i)
+		{
+			const GnmBuffer& vsharp = vertexTable[i];
+
+			uint32_t stride = vsharp.getStride();
+			auto binding = GveVertexBinding(i, stride, VK_VERTEX_INPUT_RATE_VERTEX, 0);
+			viInfo.addBinding(binding);
+
+			VkFormat vtxFmt = cvt::convertDataFormatToVkFormat(vsharp.getDataFormat());
+			auto attr = GveVertexAttribute(location++, i, vtxFmt, 0);
+			viInfo.addAttribute(attr);
+		}
+
+		m_context->setVertexInputLayout(viInfo);
+	} while (false);
+}
+
+bool GnmCommandBufferDraw::bindVertexBuffer(uint32_t bindingId, const GnmBuffer& vsharp)
+{
+	bool ret = false;
+	do
+	{
+		// TODO:
+		// There's a critical problem here, probably the most critical one for the whole GPCS4 project:
+		// Because of the uniform memory architecture of PSS4 hardware,
+		// We don't know when to update or release a GPU resource.
+		// Because PS4 use the same memory chip for both CPU and GPU,
+		// A PS4 game treat GPU buffers just as normal CPU memories, and manage them
+		// using in-game memory pool, which doesn't export explicit interface for us.
+		// That makes us impossible to detect buffer update and release.
+		//
+		// We may need to develop some heuristic strategies to deal with this problem.
+		// Currently I just update GPU buffer every time it gets bound and don't release any of them.
+
+		void* vtxData = vsharp.getBaseAddress();
+		if (!vtxData)
+		{
+			LOG_WARN("empty vertex data");
+			break;
+		}
+
+		VkDeviceSize bufferSize = vsharp.getSize();
+
+		GveBufferCreateInfo buffInfo = {};
+		buffInfo.size = bufferSize;
+		buffInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+
+		uint64_t key = reinterpret_cast<uint64_t>(vtxData);
+
+		auto vertexBuffer = m_device->createOrGetBufferVsharp(buffInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, key);
+		m_context->updateBuffer(vertexBuffer, 0, bufferSize, vtxData);
+
+		uint32_t stride = vsharp.getStride();
+		m_context->bindVertexBuffer(bindingId, GveBufferSlice(vertexBuffer, 0, bufferSize), stride);
+	} while (false);
+	return ret;
 }
 
 void GnmCommandBufferDraw::bindVertexBuffers(const PsslShaderResource& res, const std::vector<VertexInputSemantic>& inputSemantics)
 {
+	do 
+	{
+		const GnmBuffer* vertexTable = reinterpret_cast<const GnmBuffer*>(res.resource);
+		if (!vertexTable)
+		{
+			break;
+		}
 
+		uint32_t bindingCount = inputSemantics.size();
+		for (uint32_t i = 0; i != bindingCount; ++i)
+		{
+			const GnmBuffer& vsharp = vertexTable[i];
+			bindVertexBuffer(i, vsharp);
+		}
+	} while (false);
 }
 
 void GnmCommandBufferDraw::bindImmResource(const PsslShaderResource& res)
 {
+	do 
+	{
+		const GnmTexture* tsharp = reinterpret_cast<const GnmTexture*>(res.resource);
+		if (!tsharp)
+		{
+			break;
+		}
 
+		GveImageCreateInfo imgInfo = {};
+		imgInfo.type = VK_IMAGE_TYPE_2D;
+		imgInfo.format = cvt::convertDataFormatToVkFormat(tsharp->getDataFormat());
+		imgInfo.flags = 0;
+		imgInfo.sampleCount = VK_SAMPLE_COUNT_1_BIT;
+		imgInfo.extent.width = tsharp->getWidth();
+		imgInfo.extent.height = tsharp->getHeight();
+		imgInfo.extent.depth = tsharp->getDepth();
+		imgInfo.numLayers = 1;
+		imgInfo.mipLevels = 1;
+		imgInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+		imgInfo.stages = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+		imgInfo.access = VK_ACCESS_SHADER_READ_BIT;
+		imgInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+		imgInfo.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		imgInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+		uint64_t key = reinterpret_cast<uint64_t>(tsharp->getBaseAddress());
+		auto texture = m_device->createOrGetImageTsharp(imgInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, key);
+
+		VkDeviceSize imageBufferSize = tsharp->getSizeAlign().m_size;
+		void* data = GNM_GPU_ABS_ADDR(res.resource, tsharp->getBaseAddress());
+		m_context->updateImage(texture, 0, imageBufferSize, data);
+
+		GveImageViewCreateInfo viewInfo;
+		viewInfo.type = VK_IMAGE_VIEW_TYPE_2D;
+		viewInfo.format = imgInfo.format;
+		viewInfo.usage = imgInfo.usage;
+		viewInfo.aspect = VK_IMAGE_ASPECT_COLOR_BIT;
+		auto texView = m_device->createOrGetImageViewTsharp(texture, viewInfo, key);
+
+		uint32_t regSlot = computeResBinding(PixelShader, res.startSlot);
+		m_context->bindResourceView(regSlot, texView, nullptr);
+
+	} while (false);
 }
 
 void GnmCommandBufferDraw::bindSampler(const PsslShaderResource& res)
 {
+	do 
+	{
+		const GnmSampler* ssharp = reinterpret_cast<const GnmSampler*>(res.resource);
+		if (!ssharp)
+		{
+			break;
+		}
 
-}
+		uint64_t key = ssharp->m_regs[0] | ssharp->m_regs[1] << 32;
 
-void GnmCommandBufferDraw::emuWriteGpuLabel(EventWriteSource selector, void* label, uint64_t value)
-{
-	if (selector == kEventWriteSource32BitsImmediate)
-	{
-		*(uint32_t*)label = value;
-	}
-	else if (selector == kEventWriteSource64BitsImmediate)
-	{
-		*(uint64_t*)label = value;
-	}
-	else
-	{
-		*(uint64_t*)label = UtilProcess::GetProcessTimeCounter();
-	}
+		// TODO:
+		// Fill info
+		GveSamplerCreateInfo info;
+		auto sampler = m_device->createOrGetSamplerSsharp(info, key);
+
+		uint32_t regSlot = computeSamplerBinding(PixelShader, res.startSlot);
+		m_context->bindSampler(regSlot, sampler);
+
+	} while (false);
 }
 
 uint32_t* GnmCommandBufferDraw::getFetchShaderCode(const GnmShaderContext& vsCtx)
@@ -583,7 +794,7 @@ RcPtr<gve::GveImageView> GnmCommandBufferDraw::getDepthTarget(const DepthRenderT
 
 		GveImageCreateInfo imgInfo = {};
 		imgInfo.type = VK_IMAGE_TYPE_2D;
-		imgInfo.format = convertZFormatToVkFormat(depthTarget->getZFormat());  // TODO: Should check format support
+		imgInfo.format = cvt::convertZFormatToVkFormat(depthTarget->getZFormat());  // TODO: Should check format support
 		imgInfo.flags = 0;
 		imgInfo.sampleCount = VK_SAMPLE_COUNT_1_BIT;
 		imgInfo.extent.width = depthTarget->getWidth();
@@ -622,143 +833,4 @@ RcPtr<gve::GveImageView> GnmCommandBufferDraw::getDepthTarget(const DepthRenderT
 
 	} while (false);
 	return depthImgView;
-}
-
-
-VkFormat GnmCommandBufferDraw::convertZFormatToVkFormat(ZFormat zfmt)
-{
-	VkFormat format = VK_FORMAT_UNDEFINED;
-	switch (zfmt)
-	{
-	case kZFormatInvalid: format = VK_FORMAT_UNDEFINED; break;
-	// seems there's no half float point image format.
-	case kZFormat16: format = VK_FORMAT_D16_UNORM; break;
-	case kZFormat32Float: format = VK_FORMAT_D32_SFLOAT; break;
-	}
-	return format;
-}
-
-VkCompareOp GnmCommandBufferDraw::convertCompareFunc(CompareFunc cmpFunc)
-{
-	VkCompareOp op;
-	switch (cmpFunc)
-	{
-	case kCompareFuncNever:        op = VK_COMPARE_OP_NEVER; break;
-	case kCompareFuncLess:         op = VK_COMPARE_OP_LESS; break;
-	case kCompareFuncEqual:        op = VK_COMPARE_OP_EQUAL; break;
-	case kCompareFuncLessEqual:    op = VK_COMPARE_OP_LESS_OR_EQUAL; break;
-	case kCompareFuncGreater:      op = VK_COMPARE_OP_GREATER; break;
-	case kCompareFuncNotEqual:     op = VK_COMPARE_OP_NOT_EQUAL; break;
-	case kCompareFuncGreaterEqual: op = VK_COMPARE_OP_GREATER_OR_EQUAL; break;
-	case kCompareFuncAlways:       op = VK_COMPARE_OP_ALWAYS;break;
-	}
-	return op;
-}
-
-VkPolygonMode GnmCommandBufferDraw::convertPolygonMode(PrimitiveSetupPolygonMode polyMode)
-{
-	VkPolygonMode mode;
-	switch (polyMode)
-	{
-	case kPrimitiveSetupPolygonModePoint: mode = VK_POLYGON_MODE_POINT; break;
-	case kPrimitiveSetupPolygonModeLine: mode = VK_POLYGON_MODE_LINE; break;
-	case kPrimitiveSetupPolygonModeFill: mode = VK_POLYGON_MODE_FILL; break;
-	}
-	return mode;
-}
-
-VkCullModeFlags GnmCommandBufferDraw::convertCullMode(PrimitiveSetupCullFaceMode cullMode)
-{
-	VkCullModeFlags mode;
-	switch (cullMode)
-	{
-	case kPrimitiveSetupCullFaceNone:  mode = VK_CULL_MODE_NONE; break;
-	case kPrimitiveSetupCullFaceFront: mode = VK_CULL_MODE_FRONT_BIT; break;
-	case kPrimitiveSetupCullFaceBack:  mode = VK_CULL_MODE_BACK_BIT; break;
-	case kPrimitiveSetupCullFaceFrontAndBack: mode = VK_CULL_MODE_FRONT_AND_BACK; break;
-	}
-	return mode;
-}
-
-VkBlendFactor GnmCommandBufferDraw::convertBlendMultiplierToFactor(BlendMultiplier blendMul)
-{
-	VkBlendFactor factor;
-	switch (blendMul)
-	{
-	case kBlendMultiplierZero: factor = VK_BLEND_FACTOR_ZERO; break;
-	case kBlendMultiplierOne: factor = VK_BLEND_FACTOR_ONE; break;
-	case kBlendMultiplierSrcColor: factor = VK_BLEND_FACTOR_SRC_COLOR; break;
-	case kBlendMultiplierOneMinusSrcColor: factor = VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR; break;
-	case kBlendMultiplierSrcAlpha: factor = VK_BLEND_FACTOR_SRC_ALPHA; break;
-	case kBlendMultiplierOneMinusSrcAlpha: factor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA; break;
-	case kBlendMultiplierDestAlpha: factor = VK_BLEND_FACTOR_DST_ALPHA; break;
-	case kBlendMultiplierOneMinusDestAlpha: factor = VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA; break;
-	case kBlendMultiplierDestColor: factor = VK_BLEND_FACTOR_DST_COLOR; break;
-	case kBlendMultiplierOneMinusDestColor: factor = VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR; break;
-	case kBlendMultiplierSrcAlphaSaturate: factor = VK_BLEND_FACTOR_SRC_ALPHA_SATURATE; break;
-	case kBlendMultiplierConstantColor: factor = VK_BLEND_FACTOR_CONSTANT_COLOR; break;
-	case kBlendMultiplierOneMinusConstantColor: factor = VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR; break;
-	case kBlendMultiplierSrc1Color: factor = VK_BLEND_FACTOR_SRC1_COLOR; break;
-	case kBlendMultiplierInverseSrc1Color: factor = VK_BLEND_FACTOR_ONE_MINUS_SRC1_COLOR; break;
-	case kBlendMultiplierSrc1Alpha: factor = VK_BLEND_FACTOR_SRC1_ALPHA; break;
-	case kBlendMultiplierInverseSrc1Alpha: factor = VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA; break;
-	case kBlendMultiplierConstantAlpha: factor = VK_BLEND_FACTOR_CONSTANT_ALPHA; break;
-	case kBlendMultiplierOneMinusConstantAlpha: factor = VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA; break;
-	}
-	return factor;
-}
-
-VkBlendOp GnmCommandBufferDraw::convertBlendFuncToOp(BlendFunc func)
-{
-	VkBlendOp op;
-	switch (func)
-	{
-	case kBlendFuncAdd: op = VK_BLEND_OP_ADD; break;
-	case kBlendFuncSubtract: op = VK_BLEND_OP_SUBTRACT; break;
-	case kBlendFuncMin: op = VK_BLEND_OP_MIN; break;
-	case kBlendFuncMax: op = VK_BLEND_OP_MAX; break;
-	case kBlendFuncReverseSubtract: op = VK_BLEND_OP_REVERSE_SUBTRACT; break;
-	}
-	return op;
-}
-
-VkPrimitiveTopology GnmCommandBufferDraw::convertPrimitiveTypeToTopology(PrimitiveType primType)
-{
-	VkPrimitiveTopology topology;
-	switch (primType)
-	{
-	case kPrimitiveTypeNone: topology = VK_PRIMITIVE_TOPOLOGY_MAX_ENUM; break;
-	case kPrimitiveTypePointList: topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST; break;
-	case kPrimitiveTypeLineList: topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST; break;
-	case kPrimitiveTypeLineStrip: topology = VK_PRIMITIVE_TOPOLOGY_LINE_STRIP; break;
-	case kPrimitiveTypeTriList: topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST; break;
-	case kPrimitiveTypeTriFan: topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN; break;
-	case kPrimitiveTypeTriStrip: topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP; break;
-	case kPrimitiveTypePatch: topology = VK_PRIMITIVE_TOPOLOGY_PATCH_LIST; break;
-	case kPrimitiveTypeLineListAdjacency: topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST_WITH_ADJACENCY; break;
-	case kPrimitiveTypeLineStripAdjacency: topology = VK_PRIMITIVE_TOPOLOGY_LINE_STRIP_WITH_ADJACENCY; break;
-	case kPrimitiveTypeTriListAdjacency: topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST_WITH_ADJACENCY; break;
-	case kPrimitiveTypeTriStripAdjacency: topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP_WITH_ADJACENCY; break;
-	// Not supported by vulkan
-	//case kPrimitiveTypeRectList: topology = ; break;
-	//case kPrimitiveTypeLineLoop: topology = ; break;
-	//case kPrimitiveTypeQuadList: topology = ; break;
-	//case kPrimitiveTypeQuadStrip: topology = ; break;
-	//case kPrimitiveTypePolygon: topology = ; break;
-	}
-	return topology;
-}
-
-VkIndexType GnmCommandBufferDraw::convertIndexSize(IndexSize indexSize)
-{
-	VkIndexType indexType;
-	switch (indexSize)
-	{
-	case kIndexSize16: indexType = VK_INDEX_TYPE_UINT16; break;
-	case kIndexSize32: indexType = VK_INDEX_TYPE_UINT32; break;
-	// Not sure for dispatch draw
-	case kIndexSize16ForDispatchDraw: indexType = VK_INDEX_TYPE_UINT16; break;
-	case kIndexSize32ForDispatchDraw: indexType = VK_INDEX_TYPE_UINT32; break;
-	}
-	return indexType;
 }

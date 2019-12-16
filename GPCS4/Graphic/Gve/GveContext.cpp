@@ -11,6 +11,7 @@
 #include "GveRenderPass.h"
 #include "GveResourceObjects.h"
 #include "GveDescriptor.h"
+#include "GveStaging.h"
 
 namespace gve
 {;
@@ -20,7 +21,8 @@ GveContex::GveContex(const RcPtr<GveDevice>& device) :
 	m_device(device),
 	m_objects(&m_device->m_resObjects),
 	m_cmd(nullptr),
-	m_descPool(m_device->createDescriptorPool())
+	m_descPool(m_device->createDescriptorPool()),
+	m_stagingAlloc(std::make_unique<GveStagingBufferAllocator>(device))
 {
 }
 
@@ -65,9 +67,11 @@ void GveContex::beginRecording(const RcPtr<GveCmdList>& commandBuffer)
 
 RcPtr<GveCmdList> GveContex::endRecording()
 {
+	endRenderPass();
+
 	m_cmd->endRecording();
 
-	m_descPool->reset();
+	m_stagingAlloc->trim();
 
 	return std::exchange(m_cmd, nullptr);
 }
@@ -79,18 +83,18 @@ void GveContex::setViewport(const VkViewport& viewport, const VkRect2D& scissorR
 
 void GveContex::setViewports(uint32_t viewportCount, const VkViewport* viewports, const VkRect2D* scissorRects)
 {
-	auto& vp = m_state.gp.states.vp;
-	if (viewportCount != vp.viewportCount())
+	auto& vp = m_state.dy.vp;
+	if (viewportCount != vp.count)
 	{
 		m_flags.set(GveContextFlag::GpDirtyPipelineState);
 	}
 
-	vp.clear();
 	for (uint32_t i = 0; i != viewportCount; ++i)
 	{
-		vp.addViewport(viewports[i]);
-		vp.addScissor(scissorRects[i]);
+		vp.viewports[i] = viewports[i];
+		vp.scissors[i] = scissorRects[i];
 	}
+	vp.count = viewportCount;
 
 	m_flags.set(GveContextFlag::GpDirtyViewport);
 }
@@ -127,19 +131,44 @@ void GveContex::setDepthStencilState(const GveDepthStencilInfo& dsState)
 
 void GveContex::setColorBlendState(const GveColorBlendInfo& blendCtl)
 {
+	m_state.gp.states.cb = blendCtl;
 	m_flags.set(GveContextFlag::GpDirtyPipelineState);
 }
 
 void GveContex::bindRenderTargets(const GveAttachment* color, uint32_t count)
 {
-	std::memcpy(m_state.om.renderTargets.color, color, sizeof(GveAttachment) * count);
-	m_flags.set(GveContextFlag::GpDirtyFramebuffer);
+	do 
+	{
+		if (!color || !count)
+		{
+			break;
+		}
+
+		if (m_state.om.framebuffer && m_state.om.framebuffer->matchColorTargets(color, count))
+		{
+			break;
+		}
+
+		std::memcpy(m_state.om.renderTargets.color, color, sizeof(GveAttachment) * count);
+		m_flags.set(GveContextFlag::GpDirtyFramebuffer);
+		
+	} while (false);
 }
 
 void GveContex::bindDepthRenderTarget(const GveAttachment& depth)
 {
-	m_state.om.renderTargets.depth = depth;
-	m_flags.set(GveContextFlag::GpDirtyFramebuffer);
+	do
+	{
+		if (m_state.om.framebuffer && m_state.om.framebuffer->matchDepthTarget(depth))
+		{
+			break;
+		}
+
+		m_state.om.renderTargets.depth = depth;
+		m_flags.set(GveContextFlag::GpDirtyFramebuffer);
+
+	} while (false);
+
 }
 
 void GveContex::bindShader(VkShaderStageFlagBits stage, const RcPtr<GveShader>& shader)
@@ -217,9 +246,16 @@ void GveContex::bindResourceView(uint32_t regSlot,
 	m_flags.set(GveContextFlag::GpDirtyResources);
 }
 
-void GveContex::drawIndex(uint32_t indexCount, uint32_t firstIndex)
+void GveContex::drawIndex(
+	uint32_t                indexCount,
+	uint32_t                instanceCount,
+	uint32_t                firstIndex,
+	uint32_t                vertexOffset,
+	uint32_t                firstInstance)
 {
+	commitGraphicsState();
 
+	m_cmd->cmdDrawIndexed(indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 }
 
 void GveContex::copyBuffer(GveBufferSlice& dstBuffer, GveBufferSlice& srcBuffer, VkDeviceSize size)
@@ -235,12 +271,15 @@ void GveContex::copyBuffer(GveBufferSlice& dstBuffer, GveBufferSlice& srcBuffer,
 	m_cmd->cmdEndSingleTimeCommands(commandBuffer, queues.graphics.queueHandle);
 }
 
-void GveContex::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height)
+void GveContex::copyBufferToImage(
+	const RcPtr<GveImage>& dstImage,
+	GveBufferSlice& srcBuffer,
+	uint32_t width, uint32_t height)
 {
 	VkCommandBuffer commandBuffer = m_cmd->cmdBeginSingleTimeCommands();
 
 	VkBufferImageCopy region = {};
-	region.bufferOffset = 0;
+	region.bufferOffset = srcBuffer.offset();
 	region.bufferRowLength = 0;
 	region.bufferImageHeight = 0;
 	region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -248,13 +287,9 @@ void GveContex::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width
 	region.imageSubresource.baseArrayLayer = 0;
 	region.imageSubresource.layerCount = 1;
 	region.imageOffset = { 0, 0, 0 };
-	region.imageExtent = {
-		width,
-		height,
-		1
-	};
+	region.imageExtent = { width, height, 1 };
 
-	vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+	vkCmdCopyBufferToImage(commandBuffer, srcBuffer.handle(), dstImage->handle(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
 	auto queues = m_device->queues();
 	m_cmd->cmdEndSingleTimeCommands(commandBuffer, queues.graphics.queueHandle);
@@ -263,11 +298,44 @@ void GveContex::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width
 void GveContex::updateBuffer(const RcPtr<GveBuffer>& buffer, 
 	VkDeviceSize offset, VkDeviceSize size, const void* data)
 {
-	
+	do 
+	{
+		if (!data)
+		{
+			break;
+		}
+
+		if (buffer->info().usage & VK_BUFFER_USAGE_TRANSFER_DST_BIT)
+		{
+			auto stagingSlice = m_stagingAlloc->alloc(size, CACHE_LINE_SIZE);
+
+			void* stagingData = stagingSlice.mapPtr(0);
+			std::memcpy(stagingData, data, size);
+
+			auto dstSlice = GveBufferSlice(buffer, offset, size);
+			copyBuffer(dstSlice, stagingSlice, size);
+		}
+		else
+		{
+			void* bufferData = buffer->mapPtr(offset);
+			std::memcpy(bufferData, data, size);
+		}
+
+	} while (false);
+
 }
 
-void GveContex::updateImage(const RcPtr<GveImage>& buffer, VkDeviceSize offset, VkDeviceSize size, const void* data)
+void GveContex::updateImage(const RcPtr<GveImage>& image, 
+	VkDeviceSize offset, VkDeviceSize size, const void* data)
 {
+	auto stagingSlice = m_stagingAlloc->alloc(size, CACHE_LINE_SIZE);
+
+	void* stagingData = stagingSlice.mapPtr(0);
+	std::memcpy(stagingData, data, size);
+
+	transitionImageLayout(image->handle(), image->getFormat(), image->info().initialLayout, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+	copyBufferToImage(image, stagingSlice, image->getWidth(), image->getHeight());
+	transitionImageLayout(image->handle(), image->getFormat(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, image->info().layout);
 
 }
 
@@ -327,18 +395,53 @@ void GveContex::transitionImageLayout(VkImage image, VkFormat format, VkImageLay
 
 void GveContex::updateFrameBuffer()
 {
-	m_state.om.framebuffer = m_device->createFrameBuffer(m_state.om.renderTargets);
+	do 
+	{
+		if (m_state.om.framebuffer && m_state.om.framebuffer->matchRenderTargets(m_state.om.renderTargets))
+		{
+			break;
+		}
+
+		m_state.om.framebuffer = m_device->createFrameBuffer(m_state.om.renderTargets);
+		
+	} while (false);
+
 	m_flags.clr(GveContextFlag::GpDirtyFramebuffer);
 }
 
-void GveContex::setupRenderPassOps()
+void GveContex::updateRenderPassOps(const GveRenderTargets& rts, GveRenderPassOps& ops)
 {
+	for (uint32_t i = 0; i != MaxNumRenderTargets; ++i)
+	{
+		if (rts.color[i].view == nullptr)
+		{
+			continue;
+		}
 
+		ops.colorOps[i].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		ops.colorOps[i].loadLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		ops.colorOps[i].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+		ops.colorOps[i].storeLayout = rts.color[i].view->imageInfo().layout;
+	}
+
+	if (rts.depth.view != nullptr)
+	{
+		ops.depthOps.loadOpD = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		ops.depthOps.loadLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		ops.depthOps.storeOpD = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		ops.depthOps.storeLayout = rts.depth.layout;
+	}
+
+	ops.barrier.srcStages = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	ops.barrier.srcAccess = 0;
+	ops.barrier.dstStages = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	ops.barrier.dstAccess = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 }
 
 void GveContex::beginRenderPass()
 {
-	setupRenderPassOps();
+	updateRenderPassOps(m_state.om.renderTargets, m_state.om.omInfo.ops);
+
 	auto& framebuffer = m_state.om.framebuffer;
 	VkRenderPass renderPass = framebuffer->getRenderPassHandle(m_state.om.omInfo.ops);
 	
@@ -367,8 +470,16 @@ void GveContex::beginRenderPass()
 
 void GveContex::endRenderPass()
 {
-	m_cmd->cmdEndRenderPass();
-	m_flags.clr(GveContextFlag::GpRenderPassBound);
+	do 
+	{
+		if (!m_flags.test(GveContextFlag::GpRenderPassBound))
+		{
+			break;
+		}
+
+		m_cmd->cmdEndRenderPass();
+		m_flags.clr(GveContextFlag::GpRenderPassBound);
+	} while (false);
 }
 
 void GveContex::updateVertexBindings()
@@ -543,8 +654,28 @@ void GveContex::updateComputePipelineStates()
 
 }
 
+void GveContex::updateDynamicState()
+{
+	if (m_flags.test(GveContextFlag::GpDirtyViewport))
+	{
+		const auto& vp = m_state.dy.vp;
+
+		m_cmd->cmdSetViewport(0, vp.count, vp.viewports.data());
+		m_cmd->cmdSetScissor(0, vp.count, vp.scissors.data());
+
+		// Update viewport count, this will be used to create pipeline.
+		m_state.gp.states.dy.setViewportCount(vp.count);
+		m_flags.clr(GveContextFlag::GpDirtyViewport);
+	}
+}
+
 void GveContex::commitGraphicsState()
 {
+	if (m_flags.test(GveContextFlag::GpDirtyPipeline))
+	{
+		updateGraphicsPipeline();
+	}
+
 	if (m_flags.test(GveContextFlag::GpDirtyFramebuffer))
 	{
 		updateFrameBuffer();
@@ -565,6 +696,13 @@ void GveContex::commitGraphicsState()
 		updateIndexBinding();
 	}
 
+	updateDynamicState();
+
+	if (m_flags.test(GveContextFlag::GpDirtyPipelineState))
+	{
+		updateGraphicsPipelineStates();
+	}
+
 	if (m_flags.test(GveContextFlag::GpDirtyResources))
 	{
 		updateShaderResources<VK_PIPELINE_BIND_POINT_GRAPHICS>();
@@ -575,15 +713,6 @@ void GveContex::commitGraphicsState()
 		updateGraphicsDescriptorLayout();
 	}
 
-	if (m_flags.test(GveContextFlag::GpDirtyPipeline))
-	{
-		updateGraphicsPipeline();
-	}
-
-	if (m_flags.test(GveContextFlag::GpDirtyPipelineState))
-	{
-		updateGraphicsPipelineStates();
-	}
 }
 
 void GveContex::commitComputeState()

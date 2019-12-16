@@ -97,6 +97,7 @@ VkRenderPass GveRenderPass::createRenderPass(const GveRenderPassOps& ops)
 
 		VkAttachmentReference                                  depthRef;
 		std::array<VkAttachmentReference, MaxNumRenderTargets> colorRef;
+		uint32_t colorRefCount = 0;
 
 		// Render passes may not require the previous
 		// contents of the attachments to be preserved.
@@ -117,6 +118,7 @@ VkRenderPass GveRenderPass::createRenderPass(const GveRenderPassOps& ops)
 
 				colorRef[i].attachment = attachments.size();
 				colorRef[i].layout = m_format.color[i].layout;
+				++colorRefCount;
 
 				attachments.push_back(desc);
 			}
@@ -156,7 +158,7 @@ VkRenderPass GveRenderPass::createRenderPass(const GveRenderPassOps& ops)
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 		subpass.inputAttachmentCount = 0;
 		subpass.pInputAttachments = nullptr;
-		subpass.colorAttachmentCount = colorRef.size();
+		subpass.colorAttachmentCount = colorRefCount;
 		subpass.pColorAttachments = colorRef.data();
 		subpass.pResolveAttachments = nullptr;
 		subpass.pDepthStencilAttachment = &depthRef;
@@ -204,7 +206,7 @@ VkRenderPass GveRenderPass::createRenderPass(const GveRenderPassOps& ops)
 		{
 			subpassDeps[subpassDepCount++] = 
 			{
-			  0, VK_SUBPASS_EXTERNAL,
+			  VK_SUBPASS_EXTERNAL, 0,
 			  ops.barrier.srcStages,
 			  ops.barrier.dstStages,
 			  ops.barrier.srcAccess,

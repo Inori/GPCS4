@@ -63,21 +63,17 @@ public:
 		NumBanks numBanks;
 		uint32_t bitsPerElement = 0;
 	
-		DataFormat format = DataFormat::build((SurfaceFormat)tsharp.dfmt, (TextureChannelType)tsharp.nfmt,
-			(TextureChannel)tsharp.dst_sel_x,
-			(TextureChannel)tsharp.dst_sel_y,
-			(TextureChannel)tsharp.dst_sel_z,
-			(TextureChannel)tsharp.dst_sel_w);
+		DataFormat format = getDataFormat();
 
-		bool isMacroTile = GpuAddress::isMacroTiled((TileMode)tsharp.tiling_idx);
+		bool isMacroTile = GpuAddress::isMacroTiled((TileMode)m_tsharp.tiling_idx);
 
-		baseAddr256 = tsharp.baseaddr256;
+		baseAddr256 = m_tsharp.baseaddr256;
 
 		if (isMacroTile)
 		{
 			bitsPerElement = format.getTotalBitsPerElement();
-			tileMode = (TileMode)tsharp.tiling_idx;
-			numFragPerPixel = 1 << tsharp.last_level;
+			tileMode = (TileMode)m_tsharp.tiling_idx;
+			numFragPerPixel = 1 << m_tsharp.last_level;
 			
 			if (m_regs[3] <= 0xDFFFFFFF)
 			{
@@ -168,7 +164,11 @@ public:
 
 	DataFormat getDataFormat() const
 	{
-		// TODO
+		return DataFormat::build((SurfaceFormat)m_tsharp.dfmt, (TextureChannelType)m_tsharp.nfmt,
+			(TextureChannel)m_tsharp.dst_sel_x,
+			(TextureChannel)m_tsharp.dst_sel_y,
+			(TextureChannel)m_tsharp.dst_sel_z,
+			(TextureChannel)m_tsharp.dst_sel_w);
 	}
 
 	uint32_t getBaseArraySliceIndex() const
@@ -270,7 +270,7 @@ public:
 	union
 	{
 		uint32_t m_regs[8];
-		TSharpBuffer tsharp;
+		TSharpBuffer m_tsharp;
 	};
 	
 };

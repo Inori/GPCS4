@@ -817,6 +817,9 @@
     <ClInclude Include="Graphic\Gve\GveContextState.h">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClInclude>
+    <ClInclude Include="SceModules\SceMouse\sce_mouse_types.h">
+      <Filter>SceModules\SceMouse</Filter>
+    </ClInclude>
     <ClInclude Include="Emulator\ModuleSystemCommon.h">
       <Filter>Source Files\Emulator</Filter>
     </ClInclude>
@@ -825,6 +828,21 @@
     </ClInclude>
     <ClInclude Include="Graphic\Gve\GvePresenter.h">
       <Filter>Source Files\Graphic\Gve</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\ScePad\ScePad.h">
+      <Filter>SceModules\ScePad</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\ScePad\sce_pad_types.h">
+      <Filter>SceModules\ScePad</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\ScePad\sce_pad_error.h">
+      <Filter>SceModules\ScePad</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GnmConvertor.h">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GnmCommandBufferDummy.h">
+      <Filter>Source Files\Graphic\Gnm</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1463,6 +1481,18 @@
     </ClCompile>
     <ClCompile Include="Graphic\Gve\GvePresenter.cpp">
       <Filter>Source Files\Graphic\Gve</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gnm\GnmDataFormat.cpp">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\ScePad\ScePad.cpp">
+      <Filter>SceModules\ScePad</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gnm\GnmConvertor.cpp">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gnm\GnmCommandBufferDummy.cpp">
+      <Filter>Source Files\Graphic\Gnm</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

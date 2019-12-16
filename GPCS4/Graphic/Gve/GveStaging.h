@@ -8,7 +8,6 @@ namespace gve
 {;
 
 class GveDevice;
-class GveBuffer;
 
 
 class GveStagingBufferAllocator

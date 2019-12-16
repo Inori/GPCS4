@@ -76,6 +76,18 @@ struct GveVertexInputState
 	std::array<uint32_t,         MaxNumVertexBindings> vertexStrides = { };
 };
 
+struct GveViewPortState
+{
+	uint32_t count;
+	std::array<VkViewport, MaxNumViewports> viewports;
+	std::array<VkRect2D,   MaxNumViewports> scissors;
+};
+
+struct GveDynamicState
+{
+	GveViewPortState vp;
+};
+
 //////////////////////////////////////////////////////////////////////////
 struct GveGraphicsPipelineState
 {
@@ -93,6 +105,7 @@ struct GveComputePipelineState
 struct GveContextState
 {
 	GveVertexInputState		vi;
+	GveDynamicState         dy;
 	GveOutputMergerState	om;
 
 	GveGraphicsPipelineState	gp;

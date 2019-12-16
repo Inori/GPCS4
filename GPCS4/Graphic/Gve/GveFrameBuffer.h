@@ -69,7 +69,13 @@ public:
 
 	VkRenderPass getRenderPassHandle(const GveRenderPassOps& ops) const;
 
-	VkExtent2D getRenderExtent();
+	VkExtent2D getRenderExtent() const;
+
+	bool matchColorTargets(const GveAttachment* color, uint32_t count);
+
+	bool matchDepthTarget(const GveAttachment& depth);
+
+	bool matchRenderTargets(const GveRenderTargets& renderTargets);
 
 	static GveRenderPassFormat getRenderPassFormat(const GveRenderTargets& renderTargets);
 

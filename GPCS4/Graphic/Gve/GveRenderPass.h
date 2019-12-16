@@ -186,14 +186,12 @@ private:
 
 private:
 
+	RcPtr<GveDevice>        m_device;
 	GveRenderPassFormat		m_format;
 	VkRenderPass            m_default;
 
 	Spinlock				m_mutex;
 	std::vector<Instance>   m_instances;
-
-	RcPtr<GveDevice> m_device;
-	VkRenderPass m_renderPass;
 };
 
 

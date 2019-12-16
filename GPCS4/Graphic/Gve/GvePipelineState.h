@@ -117,7 +117,9 @@ public:
 
 	void clear();
 
-	VkPipelineVertexInputStateCreateInfo state() const;
+	VkPipelineVertexInputStateCreateInfo state(
+		std::vector<VkVertexInputBindingDescription>& bindings, 
+		std::vector<VkVertexInputAttributeDescription>& attributes) const;
 
 	bool operator == (const GveVertexInputInfo& other) const;
 
@@ -167,34 +169,19 @@ private:
 };
 
 
-// Note:
-// Currently I treat viewport state as static state,
-// not sure if we need to change it to dynamic state or not
-// for a emulator.
-// Using static state may be a little faster, but this may
-// need to change in the future
-class GveViewportInfo
+class GveDynamicStateInfo
 {
 public:
-	GveViewportInfo() = default;
+	GveDynamicStateInfo() = default;
 
-	GveViewportInfo(const VkViewport& viewport, const VkRect2D& scissor);
+	void setViewportCount(uint32_t count);
 
-	void addViewport(const VkViewport& viewport);
+	VkPipelineViewportStateCreateInfo viewportState() const;
 
-	void addScissor(const VkRect2D& scissor);
-
-	uint32_t viewportCount() const;
-
-	void clear();
-
-	VkPipelineViewportStateCreateInfo state() const;
-
-	bool operator == (const GveViewportInfo& other) const;
+	VkPipelineDynamicStateCreateInfo state(std::vector<VkDynamicState>& dynStates) const;
 
 private:
-	std::vector<VkViewport> m_viewports;
-	std::vector<VkRect2D> m_scissors;
+	uint32_t m_viewportCount = 0;
 };
 
 
@@ -246,7 +233,7 @@ private:
 	float m_depthBiasConstantFactor = 0.0;
 	float m_depthBiasClamp = 0.0;
 	float m_depthBiasSlopeFactor = 0.0;
-	float m_lineWidth = 0.0;
+	float m_lineWidth = 1.0;
 };
 
 
@@ -458,7 +445,8 @@ public:
 
 	void clear();
 
-	VkPipelineColorBlendStateCreateInfo state() const;
+	VkPipelineColorBlendStateCreateInfo state(
+		std::vector<VkPipelineColorBlendAttachmentState>& attachStates) const;
 
 	bool operator == (const GveColorBlendInfo& other) const;
 
@@ -474,7 +462,7 @@ private:
 		uint32_t m_asDword1;
 	};
 
-	float m_blendConstants[4];
+	float m_blendConstants[4] = {};
 	std::vector<GveColorBlendAttachment> m_attachments;
 };
 
@@ -485,12 +473,12 @@ private:
 
 
 //////////////////////////////////////////////////////////////////////////
-
+// This is used to create graphics pipeline and pipeline cache.
 struct GveGraphicsPipelineStateInfo
 {
 	GveVertexInputInfo        vi;
 	GveInputAssemblyInfo      ia;
-	GveViewportInfo           vp;  // currently treated as static state
+	GveDynamicStateInfo       dy;
 	GveRasterizationInfo      rs;
 	GveMultisampleInfo        ms;
 	GveDepthStencilInfo       ds;

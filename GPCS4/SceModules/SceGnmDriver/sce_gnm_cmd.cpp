@@ -92,9 +92,23 @@ int PS4API sceGnmDispatchDirect(uint32_t* cmdBuffer, uint32_t numDwords,
 }
 
 
-int PS4API sceGnmDispatchIndirect(void)
+int PS4API sceGnmDispatchIndirect(uint32_t *cmdBuffer,
+								  uint32_t numDwords,
+								  uint32_t dataOffsetInBytes,
+								  uint32_t flag)
 {
-	LOG_SCE_GRAPHIC("Not implemented");
+	LOG_SCE_GRAPHIC("cmd %p numdw %d dataOffsetInBytes %d, flag: %d", cmdBuffer,
+					numDwords, dataOffsetInBytes, flag);
+
+	const uint32_t paramSize = sizeof(GnmCmdDispatchIndirect) / sizeof(uint32_t);
+	assert(paramSize == numDwords);
+
+	auto param = (GnmCmdDispatchIndirect*)cmdBuffer;
+	param->opcode = PM4_HEADER_BUILD(paramSize, IT_GNM_PRIVATE, OP_PRIV_DISPATCH_INDIRECT);
+	param->dataOffsetInBytes      = dataOffsetInBytes;
+	param->flag                   = flag;
+	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
+	
 	return SCE_OK;
 }
 

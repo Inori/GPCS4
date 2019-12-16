@@ -5,6 +5,7 @@
 #include "GveContextState.h"
 
 #include <array>
+#include <memory>
 
 namespace gve
 {;
@@ -24,6 +25,7 @@ class GveResourceManager;
 class GveRenderPass;
 class GveResourceObjects;
 class GveDescriptorPool;
+class GveStagingBufferAllocator;
 
 
 struct GveShaderResourceSlot
@@ -90,17 +92,25 @@ public:
 		const RcPtr<GveImageView>& imageView, 
 		const RcPtr<GveBufferView>& bufferView);
 
-	void drawIndex(uint32_t indexCount, uint32_t firstIndex);
+	void drawIndex(
+		uint32_t                indexCount,
+		uint32_t                instanceCount,
+		uint32_t                firstIndex,
+		uint32_t                vertexOffset,
+		uint32_t                firstInstance);
 
 	void copyBuffer(GveBufferSlice& dstBuffer, GveBufferSlice& srcBuffer, VkDeviceSize size);
 
-	void copyBufferToImage(VkBuffer buffer, VkImage image, 
-		uint32_t width, uint32_t height);
+	void copyBufferToImage(
+		const RcPtr<GveImage>& dstImage,
+		GveBufferSlice&        srcBuffer,
+		uint32_t               width, 
+		uint32_t               height);
 
 	void updateBuffer(const RcPtr<GveBuffer>& buffer, 
 		VkDeviceSize offset, VkDeviceSize size, const void* data);
 
-	void updateImage(const RcPtr<GveImage>& buffer,
+	void updateImage(const RcPtr<GveImage>& image,
 		VkDeviceSize offset, VkDeviceSize size, const void* data);
 
 	void transitionImageLayout(VkImage image, VkFormat format, 
@@ -132,11 +142,13 @@ private:
 	void updateComputePipeline();
 	void updateComputePipelineStates();
 
+	void updateDynamicState();
+
 	void commitGraphicsState();
 
 	void commitComputeState();
 
-	void setupRenderPassOps();
+	void updateRenderPassOps(const GveRenderTargets& rts, GveRenderPassOps& ops);
 
 private:
 	RcPtr<GveDevice> m_device;
@@ -146,15 +158,13 @@ private:
 
 	RcPtr<GveDescriptorPool> m_descPool;
 
+	std::unique_ptr<GveStagingBufferAllocator> m_stagingAlloc;
+
 	GveContextFlags m_flags;
 	GveContextState m_state;
 
 	GvePipelineContext m_gpCtx;
 	GvePipelineContext m_cpCtx;
-
-	
-
-	VkPipeline m_activePipeline = VK_NULL_HANDLE;
 
 	std::array<GveShaderResourceSlot, pssl::PsslBindingIndexMax> m_res;
 
