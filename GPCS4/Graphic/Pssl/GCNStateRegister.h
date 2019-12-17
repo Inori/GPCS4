@@ -34,7 +34,7 @@ public:
 	SpirvRegisterPointer value();
 
 private:
-	void initU64Value();
+	SpirvRegisterPointer createU64Value(const std::string& name);
 
 	SpirvRegisterPointer mapAccessPtr(RegType type);
 
