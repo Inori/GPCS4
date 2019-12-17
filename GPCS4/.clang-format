@@ -19,4 +19,12 @@ IndentWidth: 4
 TabWidth: 4
 
 ColumnLimit: 0
-SortIncludes: false
+SortIncludes: true
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex:           '^"(\.\.|Platform|Emulator|Graphic|Loader|Algorithm)/'
+    Priority:        2
+  - Regex:           '^(<|"(gtest|gmock|isl|json)/)'
+    Priority:        3
+  - Regex:           '.*'
+    Priority:        1
