@@ -1,4 +1,5 @@
 #include "GnmCommandBufferDraw.h"
+
 #include "GnmSharpBuffer.h"
 #include "GnmBuffer.h"
 #include "GnmTexture.h"
@@ -37,21 +38,21 @@ GnmCommandBufferDraw::~GnmCommandBufferDraw()
 void GnmCommandBufferDraw::initializeDefaultHardwareState()
 {
 	clearUserDataSlots();
-	m_context->beginRecording(m_cmd);
+	// m_context->beginRecording(m_cmd);
 }
 
 // Last call of a frame.
 void GnmCommandBufferDraw::prepareFlip(void *labelAddr, uint32_t value)
 {
 	*(uint32_t*)labelAddr = value;
-	m_context->endRecording();
+	// m_context->endRecording();
 }
 
 // Last call of a frame, with interrupt.
 void GnmCommandBufferDraw::prepareFlipWithEopInterrupt(EndOfPipeEventType eventType, void *labelAddr, uint32_t value, CacheAction cacheAction)
 {
 	*(uint32_t*)labelAddr = value;
-	m_context->endRecording();
+	// m_context->endRecording();
 }
 
 void GnmCommandBufferDraw::setPsShaderUsage(const uint32_t *inputTable, uint32_t numItems)
@@ -90,7 +91,7 @@ void GnmCommandBufferDraw::setViewport(uint32_t viewportId, float dmin, float dm
 	scissor.extent.width = width;
 	scissor.extent.height = height;
 
-	m_context->setViewport(viewport, scissor);
+	// m_context->setViewport(viewport, scissor);
 }
 
 void GnmCommandBufferDraw::setPsShader(const pssl::PsStageRegisters *psRegs)
@@ -197,7 +198,7 @@ void GnmCommandBufferDraw::setRenderTarget(uint32_t rtSlot, RenderTarget const *
 		GveAttachment colorTarget;
 		colorTarget.view = m_defaultColorTarget;
 		colorTarget.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-		m_context->bindRenderTargets(&colorTarget, 1);
+		// m_context->bindRenderTargets(&colorTarget, 1);
 	} while (false);
 
 }
@@ -229,7 +230,7 @@ void GnmCommandBufferDraw::setDepthRenderTarget(DepthRenderTarget const *depthTa
 		GveAttachment depthAttach;
 		depthAttach.view = m_depthTarget;
 		depthAttach.layout = m_depthTarget->imageInfo().layout;
-		m_context->bindDepthRenderTarget(depthAttach);
+		// m_context->bindDepthRenderTarget(depthAttach);
 
 	} while (false);
 }
@@ -259,7 +260,7 @@ void GnmCommandBufferDraw::setDepthStencilControl(DepthStencilControl depthStenc
 			frontOp,
 			backOp);
 
-		m_context->setDepthStencilState(dsInfo);
+		// m_context->setDepthStencilState(dsInfo);
 
 	} while (false);
 }
@@ -268,7 +269,7 @@ void GnmCommandBufferDraw::setBlendControl(uint32_t rtSlot, BlendControl blendCo
 {
 	do 
 	{
-		LOG_ASSERT(rtSlot == 0, "only support 0 rtSlot");
+		// LOG_ASSERT(rtSlot == 0, "only support 0 rtSlot");
 
 		auto cbInfo = GveColorBlendInfo(
 			VK_FALSE,
@@ -298,7 +299,7 @@ void GnmCommandBufferDraw::setBlendControl(uint32_t rtSlot, BlendControl blendCo
 
 		cbInfo.addAttachment(colorAttach);
 
-		m_context->setColorBlendState(cbInfo);
+		// m_context->setColorBlendState(cbInfo);
 	} while (false);
 }
 
@@ -319,7 +320,7 @@ void GnmCommandBufferDraw::setPrimitiveSetup(PrimitiveSetup primSetup)
 			frontFace
 		);
 
-		m_context->setRasterizerState(rsInfo);
+		// m_context->setRasterizerState(rsInfo);
 
 	} while (false);
 }
@@ -346,7 +347,7 @@ void GnmCommandBufferDraw::setPrimitiveType(PrimitiveType primType)
 			0
 		);
 
-		m_context->setInputAssemblyState(isInfo);
+		// m_context->setInputAssemblyState(isInfo);
 	} while (false);
 }
 
@@ -362,9 +363,9 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 		// TODO:
 		// This is a dummy state.
 		auto msInfo = GveMultisampleInfo(VK_SAMPLE_COUNT_1_BIT, VK_FALSE, 0.0, 0, VK_FALSE, VK_FALSE);
-		m_context->setMultiSampleState(msInfo);
+		// m_context->setMultiSampleState(msInfo);
 
-		m_context->drawIndex(indexCount, 1, 0, 0, 0);
+		// m_context->drawIndex(indexCount, 1, 0, 0, 0);
 
 	} while (false);
 }
@@ -420,6 +421,9 @@ void GnmCommandBufferDraw::commitVsStage()
 		auto vsInputUsageSlots = vsModule.inputUsageSlots();
 		for (const auto& inputSlot : vsInputUsageSlots)
 		{
+			// For Debug
+			continue;
+
 			// Find shader res in current slot
 			auto pred = [&inputSlot](const auto& item)
 			{
@@ -445,7 +449,7 @@ void GnmCommandBufferDraw::commitVsStage()
 			}
 		}
 
-		m_context->bindShader(VK_SHADER_STAGE_VERTEX_BIT, m_vsContext.shader);
+		// m_context->bindShader(VK_SHADER_STAGE_VERTEX_BIT, m_vsContext.shader);
 	} while (false);
 }
 
@@ -461,6 +465,9 @@ void GnmCommandBufferDraw::commitPsStage()
 		auto psInputUsageSlots = psModule.inputUsageSlots();
 		for (const auto& inputSlot : psInputUsageSlots)
 		{
+			// For Debug
+			continue;
+
 			// Find shader res in current slot
 			auto pred = [&inputSlot](const auto& item)
 			{
@@ -483,7 +490,7 @@ void GnmCommandBufferDraw::commitPsStage()
 			}
 		}
 
-		m_context->bindShader(VK_SHADER_STAGE_FRAGMENT_BIT, m_psContext.shader);
+		// m_context->bindShader(VK_SHADER_STAGE_FRAGMENT_BIT, m_psContext.shader);
 	} while (false);
 }
 
@@ -507,9 +514,9 @@ void GnmCommandBufferDraw::bindIndexBuffer(const void* indexAddr, uint32_t index
 		auto indexBuffer = m_device->createOrGetBufferVsharp(info, 
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, key);
 
-		m_context->updateBuffer(indexBuffer, 0, indexBufferSize, indexAddr);
+		// m_context->updateBuffer(indexBuffer, 0, indexBufferSize, indexAddr);
 
-		m_context->bindIndexBuffer(indexBuffer, m_indexType);
+		// m_context->bindIndexBuffer(indexBuffer, m_indexType);
 
 	} while (false);
 }
@@ -538,10 +545,10 @@ void GnmCommandBufferDraw::bindImmConstBuffer(const PsslShaderResource& res)
 		auto uniformBuffer = m_device->createOrGetBufferVsharp(info, 
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, key);
 		
-		m_context->updateBuffer(uniformBuffer, 0, bufferSize, buffer->getBaseAddress());
+		// m_context->updateBuffer(uniformBuffer, 0, bufferSize, buffer->getBaseAddress());
 
 		uint32_t regSlot = computeConstantBufferBinding(VertexShader, res.startSlot);
-		m_context->bindResourceBuffer(regSlot, uniformBuffer);
+		// m_context->bindResourceBuffer(regSlot, uniformBuffer);
 
 	} while (false);
 
@@ -582,7 +589,7 @@ void GnmCommandBufferDraw::setVertexInputLayout(const PsslShaderResource& res, c
 			viInfo.addAttribute(attr);
 		}
 
-		m_context->setVertexInputLayout(viInfo);
+		// m_context->setVertexInputLayout(viInfo);
 	} while (false);
 }
 
@@ -619,10 +626,10 @@ bool GnmCommandBufferDraw::bindVertexBuffer(uint32_t bindingId, const GnmBuffer&
 		uint64_t key = reinterpret_cast<uint64_t>(vtxData);
 
 		auto vertexBuffer = m_device->createOrGetBufferVsharp(buffInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, key);
-		m_context->updateBuffer(vertexBuffer, 0, bufferSize, vtxData);
+		// m_context->updateBuffer(vertexBuffer, 0, bufferSize, vtxData);
 
 		uint32_t stride = vsharp.getStride();
-		m_context->bindVertexBuffer(bindingId, GveBufferSlice(vertexBuffer, 0, bufferSize), stride);
+		// m_context->bindVertexBuffer(bindingId, GveBufferSlice(vertexBuffer, 0, bufferSize), stride);
 	} while (false);
 	return ret;
 }
@@ -678,7 +685,7 @@ void GnmCommandBufferDraw::bindImmResource(const PsslShaderResource& res)
 
 		VkDeviceSize imageBufferSize = tsharp->getSizeAlign().m_size;
 		void* data = GNM_GPU_ABS_ADDR(res.resource, tsharp->getBaseAddress());
-		m_context->updateImage(texture, 0, imageBufferSize, data);
+		// m_context->updateImage(texture, 0, imageBufferSize, data);
 
 		GveImageViewCreateInfo viewInfo;
 		viewInfo.type = VK_IMAGE_VIEW_TYPE_2D;
@@ -688,7 +695,7 @@ void GnmCommandBufferDraw::bindImmResource(const PsslShaderResource& res)
 		auto texView = m_device->createOrGetImageViewTsharp(texture, viewInfo, key);
 
 		uint32_t regSlot = computeResBinding(PixelShader, res.startSlot);
-		m_context->bindResourceView(regSlot, texView, nullptr);
+		// m_context->bindResourceView(regSlot, texView, nullptr);
 
 	} while (false);
 }
@@ -711,7 +718,7 @@ void GnmCommandBufferDraw::bindSampler(const PsslShaderResource& res)
 		auto sampler = m_device->createOrGetSamplerSsharp(info, key);
 
 		uint32_t regSlot = computeSamplerBinding(PixelShader, res.startSlot);
-		m_context->bindSampler(regSlot, sampler);
+		// m_context->bindSampler(regSlot, sampler);
 
 	} while (false);
 }
