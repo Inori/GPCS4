@@ -66,21 +66,21 @@ private:
 	enum VOP3Mask : uint64_t
 	{
 		///    SRC1 [17:9]
-		VOP3Mask_SRC1 = 0x00000000000001FF << 9,
+		VOP3Mask_SRC1 = 0x00000000000001FFULL << 9,
 		///    SRC2 [26:18]
-		VOP3Mask_SRC2 = 0x00000000000001FF << 18,
+		VOP3Mask_SRC2 = 0x00000000000001FFULL << 18,
 		///    OMOD [28:27]
-		VOP3Mask_OMOD = 0x0000000000000003 << 27,
+		VOP3Mask_OMOD = 0x0000000000000003ULL << 27,
 		///    NEG [31:29]
-		VOP3Mask_NEG = 0x0000000000000007 << 29,
+		VOP3Mask_NEG = 0x0000000000000007ULL << 29,
 		///    VDST [39:32]
-		VOP3Mask_VDST = 0x00000000000000FF << 32,
+		VOP3Mask_VDST = 0x00000000000000FFULL << 32,
 		///    SDST [46:40]
-		VOP3Mask_SDST = 0x000000000000007F << 40,
+		VOP3Mask_SDST = 0x000000000000007FULL << 40,
 		///    ABS [42:40]
-		VOP3Mask_ABS = 0x0000000000000007 << 40,
+		VOP3Mask_ABS = 0x0000000000000007ULL << 40,
 		///    CLMP [43]
-		VOP3Mask_CLMP = 0x0000000000000001 << 43,
+		VOP3Mask_CLMP = 0x0000000000000001ULL << 43,
 	};
     //
     // Private member functions
@@ -120,6 +120,14 @@ private:
 	static Instruction::InstructionClass GetSIVOP1Class(SIVOP1Instruction::VOP1_OP op);
 
 	static Instruction::InstructionClass GetSIVOP2Class(SIVOP2Instruction::VOP2_OP op);
+
+	static Instruction::InstructionClass GetSIVOPCClass(SIVOPCInstruction::VOPC_OP op);
+
+	static Instruction::InstructionClass GetSIVOP3Class(SIVOP3Instruction::VOP3_OP op);
+
+	// Some special instructions use literal constants even 
+	// without having a literal const src or dst.
+	static bool IsLiteralConstInstruction(uint32_t op);
 
 };
 

@@ -112,33 +112,34 @@ void GCNCompiler::emitVectorRegMov(GCNInstruction& ins)
 	}
 		break;
 	default:
+		LOG_PSSL_UNHANDLED_INST();
 		break;
 	}
 }
 
 void GCNCompiler::emitVectorLane(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorBitLogic(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorBitField32(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorThreadMask(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorBitField64(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorFpArith32(GCNInstruction& ins)
@@ -146,16 +147,33 @@ void GCNCompiler::emitVectorFpArith32(GCNInstruction& ins)
 	uint32_t op = getVopOpcode(ins);
 	uint32_t src0 = 0;
 	uint32_t src1 = 0;
+	uint32_t src2 = 0;
 	uint32_t dst = 0;
 	uint32_t src0RIdx = 0;
 	uint32_t src1RIdx = 0;
+	uint32_t src2RIdx = 0;
 	uint32_t dstRIdx = 0;
-	getVopOperands(ins, &dst, &dstRIdx, &src0, &src0RIdx, &src1, &src1RIdx);
+	getVopOperands(ins, &dst, &dstRIdx, &src0, &src0RIdx, &src1, &src1RIdx, &src2, &src2RIdx);
 	
 	uint32_t fpTypeId = getScalarTypeId(SpirvScalarType::Float32);
 
-	auto spvSrc0 = emitLoadScalarOperand(src0, src0RIdx, ins.literalConst);
-	auto spvSrc1 = emitLoadVectorOperand(src1RIdx);
+	SpirvRegisterValue spvSrc0 = emitLoadScalarOperand(src0, src0RIdx, ins.literalConst);
+	SpirvRegisterValue spvSrc1;
+	SpirvRegisterValue spvSrc2;
+
+	// For SRC1, there are two types, VOP2/VOPC use 8 bits VSRC,
+	// VOP3 use 9 bits SRC. 
+	// We need to select proper src1 for different encodings.
+	if (ins.instruction->GetInstructionFormat() == Instruction::InstructionSet_VOP3)
+	{
+		spvSrc1 = emitLoadScalarOperand(src1, src1RIdx, ins.literalConst);
+		// Only VOP3 has SRC2
+		spvSrc2 = emitLoadScalarOperand(src2, src2RIdx, ins.literalConst);
+	}
+	else
+	{
+		spvSrc1 = emitLoadVectorOperand(src1RIdx);
+	}
 
 	SpirvRegisterValue dstVal;
 	dstVal.type.ctype = SpirvScalarType::Float32;
@@ -163,8 +181,8 @@ void GCNCompiler::emitVectorFpArith32(GCNInstruction& ins)
 	
 	switch (op)
 	{
-	case SIVOP2Instruction::V_MAC_F32:
 	case SIVOP3Instruction::V3_MAC_F32:
+	case SIVOP2Instruction::V_MAC_F32:
 	{
 		dstVal = emitLoadVectorOperand(dstRIdx);
 		dstVal.id = m_module.opFAdd(fpTypeId,
@@ -172,13 +190,21 @@ void GCNCompiler::emitVectorFpArith32(GCNInstruction& ins)
 			m_module.opFMul(fpTypeId, spvSrc0.id, spvSrc1.id));
 	}
 		break;
-	case SIVOP2Instruction::V_MUL_F32:
 	case SIVOP3Instruction::V3_MUL_F32:
+	case SIVOP2Instruction::V_MUL_F32:
 	{
 		dstVal.id = m_module.opFMul(fpTypeId, spvSrc0.id, spvSrc1.id);
 	}
 		break;
+	case SIVOP3Instruction::V3_MAD_F32:
+	{
+		dstVal.id = m_module.opFAdd(fpTypeId,
+			spvSrc2.id,
+			m_module.opFMul(fpTypeId, spvSrc0.id, spvSrc1.id));
+	}
+		break;
 	default:
+		LOG_PSSL_UNHANDLED_INST();
 		break;
 	}
 
@@ -187,67 +213,105 @@ void GCNCompiler::emitVectorFpArith32(GCNInstruction& ins)
 
 void GCNCompiler::emitVectorFpRound32(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorFpField32(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorFpTran32(GCNInstruction& ins)
 {
+	auto op = getVopOpcode(ins);
+	
+	uint32_t src0 = 0;
+	uint32_t vdst = 0;
+	uint32_t src0Ridx = 0;
+	uint32_t vdstRidx = 0;
+	getVopOperands(ins, &vdst, &vdstRidx, &src0, &src0Ridx);
 
+	auto spvSrc0 = emitLoadScalarOperand(src0, src0Ridx, ins.literalConst);
+
+	SpirvRegisterValue dstValue;
+	dstValue.type.ctype = SpirvScalarType::Float32;
+	dstValue.type.ccount = 1;
+
+	const uint32_t typeId = getVectorTypeId(dstValue.type);
+
+	bool isVop3 = ins.instruction->GetInstructionFormat() == Instruction::InstructionSet_VOP3;
+	if (isVop3)
+	{
+		spvSrc0 = emitVop3InputModifier(ins, spvSrc0);
+	}
+
+	switch (op)
+	{
+	case SIVOP3Instruction::V3_LOG_F32:
+	case SIVOP1Instruction::V_LOG_F32:
+		dstValue.id = m_module.opLog2(typeId, spvSrc0.id);
+		break;
+	default:
+		LOG_PSSL_UNHANDLED_INST();
+		break;
+	}
+
+	if (isVop3)
+	{
+		dstValue = emitVop3OutputModifier(ins, dstValue);
+	}
+
+	emitStoreVectorOperand(vdstRidx, dstValue);
 }
 
 void GCNCompiler::emitVectorFpCmp32(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorFpArith64(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorFpRound64(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorFpField64(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorFpTran64(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorFpCmp64(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorIntArith32(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorIntArith64(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorIntCmp32(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorIntCmp64(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorConv(GCNInstruction& ins)
@@ -282,6 +346,7 @@ void GCNCompiler::emitVectorConv(GCNInstruction& ins)
 	}
 		break;
 	default:
+		LOG_PSSL_UNHANDLED_INST();
 		break;
 	}
 
@@ -300,17 +365,17 @@ void GCNCompiler::emitVectorConv(GCNInstruction& ins)
 
 void GCNCompiler::emitVectorFpGraph32(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorIntGraph(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 void GCNCompiler::emitVectorMisc(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 }  // namespace pssl

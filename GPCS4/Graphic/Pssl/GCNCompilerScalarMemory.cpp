@@ -43,6 +43,7 @@ void GCNCompiler::emitScalarMemRd(GCNInstruction& ins)
 	case SISMRDInstruction::S_LOAD_DWORDX4:
 	case SISMRDInstruction::S_LOAD_DWORDX8:
 	case SISMRDInstruction::S_LOAD_DWORDX16:
+		LOG_PSSL_UNHANDLED_INST();
 		break;
 	case SISMRDInstruction::S_BUFFER_LOAD_DWORD:
 	case SISMRDInstruction::S_BUFFER_LOAD_DWORDX2:
@@ -70,13 +71,14 @@ void GCNCompiler::emitScalarMemRd(GCNInstruction& ins)
 	}
 		break;
 	default:
+		LOG_PSSL_UNHANDLED_INST();
 		break;
 	}
 }
 
 void GCNCompiler::emitScalarMemUt(GCNInstruction& ins)
 {
-
+	LOG_PSSL_UNHANDLED_INST();
 }
 
 }  // namespace pssl
