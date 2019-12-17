@@ -1,9 +1,11 @@
 #pragma once
 
-#include "GPCS4Common.h"
+#include "PsslCommon.h"
 
 namespace pssl
 {;
+
+constexpr uint32_t InvalidSpvId = 0;
 
 enum class SpirvGprType : uint32_t
 {

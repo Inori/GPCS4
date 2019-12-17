@@ -20,7 +20,8 @@ GCNCompiler::GCNCompiler(
 	m_programInfo(progInfo),
 	m_analysis(&analysis),
 	m_shaderInput(shaderInput),
-	m_branchLabels(m_analysis->branchLabels)
+	m_branchLabels(m_analysis->branchLabels),
+	m_stateRegs(this)
 {
 	// Declare an entry point ID. We'll need it during the
 	// initialization phase where the execution mode is set.
@@ -806,8 +807,6 @@ pssl::SpirvRegisterValue GCNCompiler::emitLoadScalarOperand(uint32_t srcOperand,
 	{
 		uint32_t constId = m_module.constu32(literalConst);
 		operand = SpirvRegisterValue(SpirvScalarType::Uint32, 1, constId);
-
-		m_constValueTable[constId] = SpirvLiteralConstant(operand.type.ctype, literalConst);
 	}
 		break;
 	// For 9 bits SRC operand
@@ -932,20 +931,20 @@ void GCNCompiler::emitStoreVCC(const SpirvRegisterValue& vccValueReg, bool isVcc
 {
 	do 
 	{
-		const auto& spvConst = m_constValueTable[vccValueReg.id];
-		if (spvConst.type != SpirvScalarType::Unknown)
-		{
-			// Vcc source is an immediate constant value.
-			uint32_t vccValue = spvConst.literalConst;
-			// TODO:
-			// Change VCC will change hardware state accordingly.
-			// Currently I just record the value and do nothing.
-			m_stateRegs.vcc = isVccHi ? (uint64_t(vccValue) << 32) : vccValue;
-		}
-		else
-		{
-			// Vcc source is a register.
-		}
+		//const auto& spvConst = m_constValueTable[vccValueReg.id];
+		//if (spvConst.type != SpirvScalarType::Unknown)
+		//{
+		//	// Vcc source is an immediate constant value.
+		//	uint32_t vccValue = spvConst.literalConst;
+		//	// TODO:
+		//	// Change VCC will change hardware state accordingly.
+		//	// Currently I just record the value and do nothing.
+		//	// m_stateRegs.vcc = isVccHi ? (uint64_t(vccValue) << 32) : vccValue;
+		//}
+		//else
+		//{
+		//	// Vcc source is a register.
+		//}
 
 	} while (false);
 
@@ -958,20 +957,20 @@ void GCNCompiler::emitStoreM0(const SpirvRegisterValue& m0ValueReg)
 	// But if there's no such instruction in current shader,
 	// it will be used for debugging purpose, together with s_ttracedata
 
-	const auto& spvConst = m_constValueTable[m0ValueReg.id];
-	if (spvConst.type != SpirvScalarType::Unknown)
-	{
-		// M0 source is an immediate constant value.
+	//const auto& spvConst = m_constValueTable[m0ValueReg.id];
+	//if (spvConst.type != SpirvScalarType::Unknown)
+	//{
+	//	// M0 source is an immediate constant value.
 
-		// TODO:
-		// Change M0 will change hardware state accordingly.
-		// Currently I just record the value and do nothing.
-		m_stateRegs.m0 = spvConst.literalConst;
-	}
-	else
-	{
-		// M0 source is a register.
-	}
+	//	// TODO:
+	//	// Change M0 will change hardware state accordingly.
+	//	// Currently I just record the value and do nothing.
+	//	// m_stateRegs.m0 = spvConst.literalConst;
+	//}
+	//else
+	//{
+	//	// M0 source is a register.
+	//}
 }
 
 uint32_t GCNCompiler::emitLoadSampledImage(const SpirvTexture& textureResource, const SpirvSampler& samplerResource)
