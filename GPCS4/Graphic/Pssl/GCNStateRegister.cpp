@@ -70,10 +70,9 @@ SpirvRegisterPointer SpirvRegisterU64::castToVec2(SpirvRegisterPointer u64Val)
 
 SpirvRegisterPointer SpirvRegisterU64::mapAccessPtr(RegType type)
 {
-	SpirvRegisterPointer u64Value;
 	if (m_value.id == InvalidSpvId)
 	{
-		u64Value = createU64Value(m_name);
+		m_value = createU64Value(m_name);
 	}
 
 	SpirvRegisterPointer result;
@@ -81,7 +80,7 @@ SpirvRegisterPointer SpirvRegisterU64::mapAccessPtr(RegType type)
 	{
 		if (m_vec2Ptr.id == InvalidSpvId)
 		{
-			m_vec2Ptr = castToVec2(u64Value);
+			m_vec2Ptr = castToVec2(m_value);
 		}
 
 		result.type.ctype           = SpirvScalarType::Uint32;
@@ -93,7 +92,7 @@ SpirvRegisterPointer SpirvRegisterU64::mapAccessPtr(RegType type)
 	}
 	else
 	{
-		result = u64Value;
+		result = m_value;
 	}
 
 	return result;
