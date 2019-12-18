@@ -21,7 +21,7 @@ GCNCompiler::GCNCompiler(
 	m_analysis(&analysis),
 	m_shaderInput(shaderInput),
 	m_branchLabels(m_analysis->branchLabels),
-	m_stateRegs(this)
+	m_statusRegs(this)
 {
 	// Declare an entry point ID. We'll need it during the
 	// initialization phase where the execution mode is set.
@@ -161,6 +161,7 @@ void GCNCompiler::emitVsInit()
 	m_module.enableExtension("SPV_KHR_shader_draw_parameters");
 
 	emitGprInitialize();
+	emitStatusRegInitialize();
 	emitDclVertexInput();
 	emitDclVertexOutput();
 	emitDclResourceBuffer();
@@ -209,6 +210,7 @@ void GCNCompiler::emitPsInit()
 	m_module.setDebugName(m_ps.functionId, "psMain");
 
 	emitGprInitialize();
+	emitStatusRegInitialize();
 	emitDclPixelInput();
 	emitDclPixelOutput();
 	emitDclResourceBuffer();
@@ -486,6 +488,19 @@ void GCNCompiler::emitGprInitialize()
 	s12.id = emitNewVariable({ s12.type, spv::StorageClassPrivate },
 		UtilString::Format("s%d", 12));
 	m_sgprs.emplace(12, s12);
+}
+
+void GCNCompiler::emitStatusRegInitialize()
+{
+	SpirvVectorType u32Type;
+	u32Type.ctype   = SpirvScalarType::Uint32;
+	u32Type.ccount  = 1;
+
+	m_statusRegs.m0.type = u32Type;
+	m_statusRegs.m0.id   = emitNewVariable({ u32Type, spv::StorageClass::StorageClassPrivate }, "m0");
+
+	m_statusRegs.scc.type = u32Type;
+	m_statusRegs.scc.id   = emitNewVariable({ u32Type, spv::StorageClass::StorageClassPrivate }, "scc");
 }
 
 void GCNCompiler::emitDclResourceBuffer()
@@ -773,19 +788,22 @@ pssl::SpirvRegisterValue GCNCompiler::emitLoadScalarOperand(uint32_t srcOperand,
 	switch (src)
 	{
 	case Instruction::OperandSRC::SRCScalarGPRMin ... Instruction::OperandSRC::SRCScalarGPRMax:
-	{
 		operand = emitSgprLoad(regIndex);
-	}
 		break;
 	case Instruction::OperandSRC::SRCVccLo:
+		operand = emitValueLoad(m_statusRegs.vcc.low());
 		break;
 	case Instruction::OperandSRC::SRCVccHi:
+		operand = emitValueLoad(m_statusRegs.vcc.high());
 		break;
 	case Instruction::OperandSRC::SRCM0:
+		operand = emitValueLoad(m_statusRegs.m0);
 		break;
 	case Instruction::OperandSRC::SRCExecLo:
+		operand = emitValueLoad(m_statusRegs.exec.low());
 		break;
 	case Instruction::OperandSRC::SRCExecHi:
+		operand = emitValueLoad(m_statusRegs.exec.high());
 		break;
 	case Instruction::OperandSRC::SRCConstZero:
 	case Instruction::OperandSRC::SRCSignedConstIntPosMin ... Instruction::OperandSRC::SRCSignedConstIntPosMax:
@@ -800,6 +818,7 @@ pssl::SpirvRegisterValue GCNCompiler::emitLoadScalarOperand(uint32_t srcOperand,
 	case Instruction::OperandSRC::SRCEXECZ:
 		break;
 	case Instruction::OperandSRC::SRCSCC:
+		operand = emitValueLoad(m_statusRegs.scc);
 		break;
 	case Instruction::OperandSRC::SRCLdsDirect:
 		break;
@@ -842,17 +861,19 @@ void GCNCompiler::emitStoreScalarOperand(uint32_t dstOperand, uint32_t regIndex,
 	}
 		break;
 	case Instruction::OperandSDST::SDSTVccLo:
-		emitStoreVCC(srcReg, false);
+		emitValueStore(m_statusRegs.vcc.low(), srcReg, 1);
 		break;
 	case Instruction::OperandSDST::SDSTVccHi:
-		emitStoreVCC(srcReg, true);
-		break;
-	case Instruction::OperandSDST::SDSTM0:
-		emitStoreM0(srcReg);
+		emitValueStore(m_statusRegs.vcc.high(), srcReg, 1);
 		break;
 	case Instruction::OperandSDST::SDSTExecLo:
+		emitValueStore(m_statusRegs.exec.low(), srcReg, 1);
 		break;
 	case Instruction::OperandSDST::SDSTExecHi:
+		emitValueStore(m_statusRegs.exec.high(), srcReg, 1);
+		break;
+	case Instruction::OperandSDST::SDSTM0:
+		emitValueStore(m_statusRegs.m0, srcReg, 1);
 		break;
 	default:
 		LOG_ERR("error operand range %d", (uint32_t)dst);
@@ -925,52 +946,6 @@ SpirvRegisterValue GCNCompiler::emitInlineConstantInteger(Instruction::OperandSR
 
 	uint32_t valueId = m_module.consti32(value);
 	return SpirvRegisterValue(SpirvScalarType::Sint32, 1, valueId);
-}
-
-void GCNCompiler::emitStoreVCC(const SpirvRegisterValue& vccValueReg, bool isVccHi)
-{
-	do 
-	{
-		//const auto& spvConst = m_constValueTable[vccValueReg.id];
-		//if (spvConst.type != SpirvScalarType::Unknown)
-		//{
-		//	// Vcc source is an immediate constant value.
-		//	uint32_t vccValue = spvConst.literalConst;
-		//	// TODO:
-		//	// Change VCC will change hardware state accordingly.
-		//	// Currently I just record the value and do nothing.
-		//	// m_stateRegs.vcc = isVccHi ? (uint64_t(vccValue) << 32) : vccValue;
-		//}
-		//else
-		//{
-		//	// Vcc source is a register.
-		//}
-
-	} while (false);
-
-}
-
-void GCNCompiler::emitStoreM0(const SpirvRegisterValue& m0ValueReg)
-{
-	// M0 is used by several types of instruction for accessing LDS or GDS, 
-	// for indirect GPR addressing and for sending messages to VGT.
-	// But if there's no such instruction in current shader,
-	// it will be used for debugging purpose, together with s_ttracedata
-
-	//const auto& spvConst = m_constValueTable[m0ValueReg.id];
-	//if (spvConst.type != SpirvScalarType::Unknown)
-	//{
-	//	// M0 source is an immediate constant value.
-
-	//	// TODO:
-	//	// Change M0 will change hardware state accordingly.
-	//	// Currently I just record the value and do nothing.
-	//	// m_stateRegs.m0 = spvConst.literalConst;
-	//}
-	//else
-	//{
-	//	// M0 source is a register.
-	//}
 }
 
 uint32_t GCNCompiler::emitLoadSampledImage(const SpirvTexture& textureResource, const SpirvSampler& samplerResource)

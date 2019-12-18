@@ -187,6 +187,7 @@ private:
 	void emitDclPixelOutput();
 
 	void emitGprInitialize();
+	void emitStatusRegInitialize();
 	// For all shader types
 	void emitDclResourceBuffer();
 	void emitDclImmConstBuffer(const GcnResourceBuffer& res);
@@ -223,8 +224,8 @@ private:
 
 	/////////////////////////////////////////
 	// Hardware state register manipulation methods
-	void emitStoreVCC(const SpirvRegisterValue& vccValueReg, bool isVccHi);
-	void emitStoreM0(const SpirvRegisterValue& m0ValueReg);
+
+
 
 	///////////////////////////////////////
 	// Image register manipulation methods
@@ -518,7 +519,7 @@ private:
 
 	///////////////////////////////////
 	// State registers
-	GcnStateRegister m_stateRegs;
+	GcnStateRegister m_statusRegs;
 
 	///////////////////////////////////
 	// Gcn register to spir-v variable map

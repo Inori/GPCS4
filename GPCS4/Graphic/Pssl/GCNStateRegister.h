@@ -56,14 +56,14 @@ private:
 struct GcnStateRegister
 {
 	GcnStateRegister(GCNCompiler* compiler):
-		scc(compiler, "scc"),
 		vcc(compiler, "vcc"),
 		exec(compiler, "exec")
 	{}
 
-	SpirvRegisterU64 scc;
 	SpirvRegisterU64 vcc;
 	SpirvRegisterU64 exec;
+	SpirvRegisterPointer scc;
+	SpirvRegisterPointer m0;
 };
 
 
