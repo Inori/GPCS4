@@ -20,8 +20,8 @@ GCNCompiler::GCNCompiler(
 	m_programInfo(progInfo),
 	m_analysis(&analysis),
 	m_shaderInput(shaderInput),
-	m_branchLabels(m_analysis->branchLabels),
-	m_statusRegs(this)
+	m_statusRegs(this),
+	m_branchLabels(m_analysis->branchLabels)
 {
 	// Declare an entry point ID. We'll need it during the
 	// initialization phase where the execution mode is set.

@@ -222,10 +222,6 @@ private:
 	SpirvRegisterValue emitInlineConstantFloat(Instruction::OperandSRC src);
 	SpirvRegisterValue emitInlineConstantInteger(Instruction::OperandSRC src);
 
-	/////////////////////////////////////////
-	// Hardware state register manipulation methods
-
-
 
 	///////////////////////////////////////
 	// Image register manipulation methods
