@@ -62,8 +62,14 @@ struct GcnStateRegister
 
 	SpirvRegisterU64 vcc;
 	SpirvRegisterU64 exec;
+
 	SpirvRegisterPointer scc;
 	SpirvRegisterPointer m0;
+
+	// spirv condition id
+	uint32_t sccz;  // There's no hardware sccz, branch instruction detect if scc is 0 or 1
+	uint32_t vccz;
+	uint32_t execz;
 };
 
 
