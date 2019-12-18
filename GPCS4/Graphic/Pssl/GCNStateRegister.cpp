@@ -55,6 +55,19 @@ SpirvRegisterPointer SpirvRegisterU64::createU64Value(const std::string& name)
 	return result;
 }
 
+SpirvRegisterPointer SpirvRegisterU64::castToVec2(SpirvRegisterPointer u64Val)
+{
+	SpirvRegisterPointer result;
+	result.type.ctype = SpirvScalarType::Uint32;
+	result.type.ccount = 2;
+
+	const uint32_t vec2U32PtrTypeId = m_compiler->getPointerTypeId(
+		{ result.type, spv::StorageClass::StorageClassPrivate });
+
+	result.id = m_module->opBitcast(vec2U32PtrTypeId, u64Val.id);
+	return result;
+}
+
 SpirvRegisterPointer SpirvRegisterU64::mapAccessPtr(RegType type)
 {
 	SpirvRegisterPointer u64Value;
@@ -63,20 +76,14 @@ SpirvRegisterPointer SpirvRegisterU64::mapAccessPtr(RegType type)
 		u64Value = createU64Value(m_name);
 	}
 
-	if (m_vec2Ptr.id == InvalidSpvId)
-	{
-		m_vec2Ptr.type.ctype            = SpirvScalarType::Uint32;
-		m_vec2Ptr.type.ccount           = 2;
-
-		const uint32_t vec2U32PtrTypeId = m_compiler->getPointerTypeId(
-			{ m_vec2Ptr.type, spv::StorageClass::StorageClassPrivate });
-
-		m_vec2Ptr.id = m_module->opBitcast(vec2U32PtrTypeId, u64Value.id);
-	}
-
 	SpirvRegisterPointer result;
 	if (type != RegType::REG64_FULL)
 	{
+		if (m_vec2Ptr.id == InvalidSpvId)
+		{
+			m_vec2Ptr = castToVec2(u64Value);
+		}
+
 		result.type.ctype           = SpirvScalarType::Uint32;
 		result.type.ccount          = 1;
 

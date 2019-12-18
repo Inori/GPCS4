@@ -35,7 +35,7 @@ public:
 
 private:
 	SpirvRegisterPointer createU64Value(const std::string& name);
-
+	SpirvRegisterPointer castToVec2(SpirvRegisterPointer u64Val);
 	SpirvRegisterPointer mapAccessPtr(RegType type);
 
 private:
