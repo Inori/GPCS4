@@ -4,6 +4,7 @@
 #include "GCNSpirvTypes.h"
 
 #include <string>
+#include <optional>
 
 namespace pssl
 {;
@@ -21,7 +22,10 @@ class SpirvRegisterU64
 	};
 
 public:
-	SpirvRegisterU64(GCNCompiler* compiler, const std::string& name = nullptr);
+	SpirvRegisterU64(
+		GCNCompiler* compiler, 
+		const std::string& name = nullptr, 
+		std::optional<uint32_t> initValue = std::nullopt);
 	~SpirvRegisterU64();
 
 	// lower 32bit uint32
@@ -34,7 +38,7 @@ public:
 	SpirvRegisterPointer value();
 
 private:
-	SpirvRegisterPointer createU64Value(const std::string& name);
+	SpirvRegisterPointer createU64Value(const std::string& name, std::optional<uint32_t> initValue);
 	SpirvRegisterPointer castToVec2(SpirvRegisterPointer u64Val);
 	SpirvRegisterPointer mapAccessPtr(RegType type);
 
@@ -42,6 +46,7 @@ private:
 	GCNCompiler* m_compiler;
 	SpirvModule* m_module;
 	std::string m_name;
+	std::optional<uint32_t> m_initValue;
 
 	SpirvRegisterPointer m_value;
 	SpirvRegisterPointer m_vec2Ptr;
@@ -53,17 +58,20 @@ private:
 };
 
 
+// For all status registers related to thread,
+// we assume we are on 0's thread,
+// ie. exec will be initialized with 1 .
 struct GcnStateRegister
 {
 	GcnStateRegister(GCNCompiler* compiler):
 		vcc(compiler, "vcc"),
-		exec(compiler, "exec")
+		exec(compiler, "exec", 1)
 	{}
 
 	SpirvRegisterU64 vcc;
 	SpirvRegisterU64 exec;
 
-	SpirvRegisterPointer scc;
+	//SpirvRegisterPointer scc;
 	SpirvRegisterPointer m0;
 
 	// spirv condition id

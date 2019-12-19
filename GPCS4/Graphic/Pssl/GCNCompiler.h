@@ -213,8 +213,14 @@ private:
 
 	/////////////////////////////////////////
 	// Operands manipulation methods
-	SpirvRegisterValue emitLoadScalarOperand(uint32_t srcOperand, uint32_t regIndex, uint32_t literalConst = 0);
-	SpirvRegisterValue emitLoadVectorOperand(uint32_t index);
+	SpirvRegisterValue emitLoadScalarOperand(
+		uint32_t srcOperand, 
+		uint32_t regIndex, 
+		uint32_t literalConst = 0,
+		SpirvScalarType dstType = SpirvScalarType::Float32);
+	SpirvRegisterValue emitLoadVectorOperand(
+		uint32_t index,
+		SpirvScalarType dstType = SpirvScalarType::Float32);
 
 	void emitStoreScalarOperand(uint32_t dstOperand, uint32_t regIndex, const SpirvRegisterValue& srcReg);
 	void emitStoreVectorOperand(uint32_t dstIndex, const SpirvRegisterValue& srcReg);
@@ -236,7 +242,8 @@ private:
 	// Variable definition methods
 	uint32_t emitNewVariable(
 		const SpirvRegisterInfo& info,
-		const std::string& name = "");
+		const std::string& name = "",
+		std::optional<uint32_t> initValue = std::nullopt);
 
 	uint32_t emitNewBuiltinVariable(
 		const SpirvRegisterInfo& info,
@@ -254,7 +261,11 @@ private:
 		const GCNInstruction& ins,
 		const std::vector<SpirvRegisterValue>& values);
 	SpirvRegisterValue emitVop3OutputModifier(const GCNInstruction& ins, SpirvRegisterValue value);
-
+	SpirvRegisterValue emitLoadVopSrc1(
+		const GCNInstruction& ins,
+		uint32_t srcOperand,
+		uint32_t regIndex,
+		SpirvScalarType dstType = SpirvScalarType::Float32);
 
 	////////////////////////////////////////////////
 	// Constant building methods. These are used to
@@ -466,6 +477,7 @@ private:
 	bool isDoubleWordType(
 		SpirvScalarType type) const;
 
+	bool isVop3Encoding(const GCNInstruction& ins);
 	// Convenient when used with opcodes with may have
 	// different encodings. e.g. V_MAC_F32 [VOP2|VOP3]
 	uint32_t getVopOpcode(GCNInstruction& ins);

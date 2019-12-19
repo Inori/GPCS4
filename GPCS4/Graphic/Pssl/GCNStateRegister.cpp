@@ -6,10 +6,13 @@ namespace pssl
 {;
 	
 
-SpirvRegisterU64::SpirvRegisterU64(GCNCompiler* compiler, const std::string& name /* = nullptr */) :
+SpirvRegisterU64::SpirvRegisterU64(GCNCompiler* compiler,
+								   const std::string& name,
+								   std::optional<uint32_t> initValue) :
 	m_compiler(compiler),
 	m_module(&m_compiler->m_module),
-	m_name(name)
+	m_name(name),
+	m_initValue(initValue)
 {
 	// All lazy initialization
 }
@@ -46,12 +49,15 @@ SpirvRegisterPointer SpirvRegisterU64::value()
 }
 
 
-SpirvRegisterPointer SpirvRegisterU64::createU64Value(const std::string& name)
+pssl::SpirvRegisterPointer SpirvRegisterU64::createU64Value(const std::string& name, std::optional<uint32_t> initValue)
 {
 	SpirvRegisterPointer result;
-	result.type.ctype   = SpirvScalarType::Uint64;
+	result.type.ctype  = SpirvScalarType::Uint64;
 	result.type.ccount = 1;
-	result.id           = m_compiler->emitNewVariable({ result.type, spv::StorageClass::StorageClassPrivate }, name);
+	result.id          = m_compiler->emitNewVariable(
+		{ result.type, spv::StorageClass::StorageClassPrivate }, 
+		name, 
+		initValue);
 	return result;
 }
 
@@ -72,7 +78,7 @@ SpirvRegisterPointer SpirvRegisterU64::mapAccessPtr(RegType type)
 {
 	if (m_value.id == InvalidSpvId)
 	{
-		m_value = createU64Value(m_name);
+		m_value = createU64Value(m_name, m_initValue);
 	}
 
 	SpirvRegisterPointer result;

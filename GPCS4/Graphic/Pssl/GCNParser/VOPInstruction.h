@@ -1602,17 +1602,30 @@ public:
 
     /// -----------------------------------------------------------------------------------------------
     SIVOPCInstruction(SRC src0, VSRC vsrc1, 
-		unsigned int ridx0, unsigned int vsrcRidx,
+		unsigned int ridx0, unsigned int vsrc1Ridx,
 		unsigned int instructionWidth, VOPC_OP op, 
 		Encoding instructionEncoding, InstructionClass insClass) :
-		VOPInstruction(src0, vsrc1, ridx0, vsrcRidx, instructionWidth, InstructionSet_VOPC, insClass),
-		m_op(op), m_instructionEncoding(instructionEncoding) { }
+		VOPInstruction(src0, 0, ridx0, 0, instructionWidth, InstructionSet_VOPC, insClass),
+		m_op(op), 
+		m_vsrc1(vsrc1),
+		m_vridx1(vsrc1Ridx),
+		m_instructionEncoding(instructionEncoding) { }
     /// -----------------------------------------------------------------------------------------------
 
     ~SIVOPCInstruction() {}
 
     /// Get the OP
     VOPC_OP GetOp() const { return m_op; }
+
+	VSRC GetVSRC1() const
+	{
+		return m_vsrc1;
+	}
+
+	unsigned int GetVRidx1() const
+	{
+		return m_vridx1;
+	}
 
     // return the instruction encoding
     Encoding GetInstructionType() const { return m_instructionEncoding; }
@@ -1836,6 +1849,10 @@ private:
 
     /// VOP operation.
     VOPC_OP m_op;
+
+	VSRC m_vsrc1;
+
+	unsigned int m_vridx1;
 
     //Instruction Type
     Encoding m_instructionEncoding;

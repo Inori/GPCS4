@@ -68,7 +68,7 @@ void GCNCompiler::emitScalarMov(GCNInstruction& ins)
 	{
 	case SISOP1Instruction::S_MOV_B32:
 	{
-		auto value = emitLoadScalarOperand(ssrc, sidx, ins.literalConst);
+		auto value = emitLoadScalarOperand(ssrc, sidx, ins.literalConst, SpirvScalarType::Uint32);
 		emitStoreScalarOperand(sdst, didx, value);
 	}
 		break;

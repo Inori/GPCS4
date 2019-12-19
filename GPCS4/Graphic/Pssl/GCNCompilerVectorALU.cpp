@@ -107,7 +107,7 @@ void GCNCompiler::emitVectorRegMov(GCNInstruction& ins)
 	{
 	case SIVOP1Instruction::V_MOV_B32:
 	{
-		auto value = emitLoadScalarOperand(src, sidx, ins.literalConst);
+		auto value = emitLoadScalarOperand(src, sidx, ins.literalConst, SpirvScalarType::Uint32);
 		emitStoreVectorOperand(didx, value);
 	}
 		break;
@@ -239,7 +239,7 @@ void GCNCompiler::emitVectorFpTran32(GCNInstruction& ins)
 
 	const uint32_t typeId = getVectorTypeId(dstValue.type);
 
-	bool isVop3 = ins.instruction->GetInstructionFormat() == Instruction::InstructionSet_VOP3;
+	bool isVop3 = isVop3Encoding(ins);
 	if (isVop3)
 	{
 		auto srcGroup = emitVop3InputModifier(ins, { spvSrc0 });
@@ -278,10 +278,18 @@ void GCNCompiler::emitVectorFpCmp32(GCNInstruction& ins)
 	getVopOperands(ins, &vdst, &vdstRidx, &src0, &src0Ridx, &src1, &src1Ridx);
 
 	auto spvSrc0 = emitLoadScalarOperand(src0, src0Ridx, ins.literalConst);
-	spvSrc0      = emitVop3InputModifier(ins, spvSrc0);
+	auto spvSrc1 = emitLoadVopSrc1(ins, src1, src1Ridx);
+
+	bool isVop3  = isVop3Encoding(ins);
+	if (isVop3)
+	{
+		auto srcGroup = emitVop3InputModifier(ins, { spvSrc0, spvSrc1 });
+		spvSrc0       = srcGroup[0];
+		spvSrc1       = srcGroup[1];
+	}
 
 	SpirvRegisterValue dstValue;
-	dstValue.type.ctype  = SpirvScalarType::Float32;
+	dstValue.type.ctype  = SpirvScalarType::Bool;
 	dstValue.type.ccount = 1;
 
 	const uint32_t typeId = getVectorTypeId(dstValue.type);
@@ -292,15 +300,26 @@ void GCNCompiler::emitVectorFpCmp32(GCNInstruction& ins)
 	switch (op)
 	{
 	case SIVOPCInstruction::V_CMP_LT_F32:
-
+		break;
+	case SIVOPCInstruction::V_CMP_GE_F32:
+		dstValue.id = m_module.opFOrdGreaterThanEqual(typeId, spvSrc0.id, spvSrc1.id);
 		break;
 	default:
 		LOG_PSSL_UNHANDLED_INST();
 		break;
 	}
 
-	dstValue = emitVop3OutputModifier(ins, dstValue);
-	emitStoreVectorOperand(vdstRidx, dstValue);
+	if (isVop3)
+	{
+		dstValue = emitVop3OutputModifier(ins, dstValue);
+	}
+
+	if (!isVop3)
+	{
+		// 32-bit VOPC encoding requires sdst to be VCC, vsrc1 to be a VGPR, and no input modifiers.
+		vdst = static_cast<uint32_t>(Instruction::OperandSDST::SDSTVccLo);
+	}
+	emitStoreScalarOperand(vdst, vdstRidx, dstValue);
 }
 
 void GCNCompiler::emitVectorFpArith64(GCNInstruction& ins)

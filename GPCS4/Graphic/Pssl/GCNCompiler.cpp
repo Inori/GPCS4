@@ -499,8 +499,8 @@ void GCNCompiler::emitStatusRegInitialize()
 	m_statusRegs.m0.type = u32Type;
 	m_statusRegs.m0.id   = emitNewVariable({ u32Type, spv::StorageClass::StorageClassPrivate }, "m0");
 
-	m_statusRegs.scc.type = u32Type;
-	m_statusRegs.scc.id   = emitNewVariable({ u32Type, spv::StorageClass::StorageClassPrivate }, "scc");
+	//m_statusRegs.scc.type = u32Type;
+	//m_statusRegs.scc.id   = emitNewVariable({ u32Type, spv::StorageClass::StorageClassPrivate }, "scc");
 }
 
 void GCNCompiler::emitDclResourceBuffer()
@@ -780,7 +780,9 @@ void GCNCompiler::emitVgprVectorStore(uint32_t startIdx, const SpirvRegisterValu
 
 // Used with with 7 bits SDST, 8 bits SSRC or 9 bits SRC
 // See table "SDST, SSRC and SRC Operands" in section 3.1 of GPU Shader Core ISA manual
-pssl::SpirvRegisterValue GCNCompiler::emitLoadScalarOperand(uint32_t srcOperand, uint32_t regIndex, uint32_t literalConst /*= 0*/)
+SpirvRegisterValue GCNCompiler::emitLoadScalarOperand(
+	uint32_t srcOperand, uint32_t regIndex, 
+	uint32_t literalConst /*= 0*/, SpirvScalarType dstType /*= SpirvScalarType::Float32*/)
 {
 	Instruction::OperandSRC src = static_cast<Instruction::OperandSRC>(srcOperand);
 	SpirvRegisterValue operand;
@@ -818,7 +820,7 @@ pssl::SpirvRegisterValue GCNCompiler::emitLoadScalarOperand(uint32_t srcOperand,
 	case Instruction::OperandSRC::SRCEXECZ:
 		break;
 	case Instruction::OperandSRC::SRCSCC:
-		operand = emitValueLoad(m_statusRegs.scc);
+		//operand = emitValueLoad(m_statusRegs.scc);
 		break;
 	case Instruction::OperandSRC::SRCLdsDirect:
 		break;
@@ -837,15 +839,27 @@ pssl::SpirvRegisterValue GCNCompiler::emitLoadScalarOperand(uint32_t srcOperand,
 		break;
 	}
 
+	if (operand.type.ctype != dstType)
+	{
+		operand = emitRegisterBitcast(operand, dstType);
+	}
+
 	return operand;
 }
 
 // Used with 8 bits VSRC/VDST
 // for 9 bits SRC, call emitLoadScalarOperand instead
 // See table "VSRC and VDST Operands" in section 3.1 of GPU Shader Core ISA manual
-SpirvRegisterValue GCNCompiler::emitLoadVectorOperand(uint32_t index)
+SpirvRegisterValue GCNCompiler::emitLoadVectorOperand(uint32_t index, SpirvScalarType dstType /*= SpirvScalarType::Float32*/)
 {
-	return emitVgprLoad(index);
+	SpirvRegisterValue operand = emitVgprLoad(index);
+
+	if (operand.type.ctype != dstType)
+	{
+		operand = emitRegisterBitcast(operand, dstType);
+	}
+
+	return operand;
 }
 
 // Used with 7 bits SDST
@@ -979,10 +993,22 @@ pssl::SpirvRegisterValue GCNCompiler::emitUnpackFloat16(const SpirvRegisterValue
 	return result;
 }
 
-uint32_t GCNCompiler::emitNewVariable(const SpirvRegisterInfo& info, const std::string& name /* = "" */)
+uint32_t GCNCompiler::emitNewVariable(
+	const SpirvRegisterInfo& info, 
+	const std::string& name /* = "" */, 
+	std::optional<uint32_t> initValue /*= std::nullopt*/)
 {
 	const uint32_t ptrTypeId = getPointerTypeId(info);
-	uint32_t varId = m_module.newVar(ptrTypeId, info.sclass);
+	uint32_t varId           = InvalidSpvId;
+	if (!initValue.has_value())
+	{
+		varId = m_module.newVar(ptrTypeId, info.sclass);
+	}
+	else
+	{
+		varId = m_module.newVarInit(ptrTypeId, info.sclass, initValue.value());
+	}
+	
 	if (!name.empty())
 	{
 		m_module.setDebugName(varId, name.c_str());
@@ -1426,6 +1452,33 @@ SpirvRegisterValue GCNCompiler::emitVop3OutputModifier(const GCNInstruction& ins
 	return result;
 }
 
+SpirvRegisterValue GCNCompiler::emitLoadVopSrc1(
+	const GCNInstruction& ins, 
+	uint32_t srcOperand,
+	uint32_t regIndex,
+	SpirvScalarType dstType /*= SpirvScalarType::Float32*/)
+{
+	// For VOP encodings, there will be 2 types of SRC1
+	// VOP2 and VOPC use 8bits VSRC1
+	// VOP3 use 9 bits SRC1
+	// other VOP encodings don't have SRC1 field.
+
+	auto encoding = ins.instruction->GetInstructionFormat();
+
+	SpirvRegisterValue operand;
+	switch (encoding)
+	{
+	case Instruction::InstructionSet_VOP2:
+	case Instruction::InstructionSet_VOPC:
+		operand = emitLoadVectorOperand(regIndex, dstType);
+		break;
+	case Instruction::InstructionSet_VOP3:
+		operand = emitLoadScalarOperand(srcOperand, regIndex, 0, dstType);  // 64 bit VOP3 won't have literal const
+		break;
+	}
+	return operand;
+}
+
 uint32_t GCNCompiler::getPerVertexBlockId()
 {
 	// Should be:
@@ -1526,6 +1579,11 @@ bool GCNCompiler::isDoubleWordType(SpirvScalarType type) const
 		|| type == SpirvScalarType::Float64;
 }
 
+bool GCNCompiler::isVop3Encoding(const GCNInstruction& ins)
+{
+	return ins.instruction->GetInstructionFormat() == Instruction::InstructionSet_VOP3;
+}
+
 void GCNCompiler::getVopOperands(
 	GCNInstruction& ins, 
 	uint32_t* vdst, uint32_t* vdstRidx, 
@@ -1572,6 +1630,16 @@ void GCNCompiler::getVopOperands(
 		if (sdstRidx) *sdstRidx = vop3Ins->GetSDSTRidx();
 	}
 		break;
+	case Instruction::InstructionSet_VOPC:
+	{
+		auto vopcIns = asInst<SIVOPCInstruction>(ins);
+		// VOPC doesn't have vdst
+		*src0        = vopcIns->GetSRC0();
+		*src0Ridx    = vopcIns->GetSRidx0();
+		if (src1) *src1 = vopcIns->GetVSRC1();
+		if (src1Ridx) *src1Ridx = vopcIns->GetVRidx1();
+	}
+		break;
 	default:
 		break;
 	}
@@ -1599,6 +1667,12 @@ uint32_t GCNCompiler::getVopOpcode(GCNInstruction& ins)
 	{
 		auto vop3Ins = asInst<SIVOP3Instruction>(ins);
 		op = vop3Ins->GetOp();
+	}
+		break;
+	case Instruction::InstructionSet_VOPC:
+	{
+		auto vopcIns = asInst<SIVOPCInstruction>(ins);
+		op = vopcIns->GetOp();
 	}
 		break;
 	default:
