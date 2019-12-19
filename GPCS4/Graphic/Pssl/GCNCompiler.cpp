@@ -1354,9 +1354,11 @@ void GCNCompiler::emitBranchLabelTry()
 	} while (false);
 }
 
-SpirvRegisterValue GCNCompiler::emitVop3InputModifier(const GCNInstruction& ins, SpirvRegisterValue value)
+std::vector<SpirvRegisterValue> GCNCompiler::emitVop3InputModifier(
+	const GCNInstruction& ins,
+	const std::vector<SpirvRegisterValue>& values)
 {
-	SpirvRegisterValue result = value;
+	std::vector<SpirvRegisterValue> result(values);
 
 	auto inst = asInst<SIVOP3Instruction>(ins);
 
@@ -1365,12 +1367,24 @@ SpirvRegisterValue GCNCompiler::emitVop3InputModifier(const GCNInstruction& ins,
 
 	if (abs)
 	{
-		result = emitRegisterAbsolute(result);
+		for (uint32_t i = 0; i != 3; ++i)
+		{
+			if (abs & (1 << i))
+			{
+				result[i] = emitRegisterAbsolute(result[i]);
+			}
+		}
 	}
 
 	if (neg)
 	{
-		result = emitRegisterNegate(result);
+		for (uint32_t i = 0; i != 3; ++i)
+		{
+			if (neg & (1 << i))
+			{
+				result[i] = emitRegisterNegate(result[i]);
+			}
+		}
 	}
 
 	return result;
