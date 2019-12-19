@@ -66,9 +66,9 @@ public:
         InstructionEncoding_SOPC = 0x0000017Eu << 23,
         /// InstructionEncodingMask_7bit
         /// bits [31:25] - (0 1 1 1 1 1 1)
-        InstructionEncoding_VOP1 = 0x0000003F << 25,
+        InstructionEncoding_VOP1 = 0x0000003Fu << 25,
         /// bits [31:25] - (0 1 1 1 1 1 0)
-        InstructionEncoding_VOPC = 0x0000003E << 25,
+        InstructionEncoding_VOPC = 0x0000003Eu << 25,
         /// InstructionEncodingMask_6bit
         /// bits [31:26] - (1 1 0 1 0 0)
         InstructionEncoding_VOP3 = 0x00000034u << 26,
