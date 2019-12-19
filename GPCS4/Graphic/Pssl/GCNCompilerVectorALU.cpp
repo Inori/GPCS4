@@ -242,7 +242,8 @@ void GCNCompiler::emitVectorFpTran32(GCNInstruction& ins)
 	bool isVop3 = ins.instruction->GetInstructionFormat() == Instruction::InstructionSet_VOP3;
 	if (isVop3)
 	{
-		spvSrc0 = emitVop3InputModifier(ins, spvSrc0);
+		auto srcGroup = emitVop3InputModifier(ins, { spvSrc0 });
+		spvSrc0       = srcGroup[0];
 	}
 
 	switch (op)

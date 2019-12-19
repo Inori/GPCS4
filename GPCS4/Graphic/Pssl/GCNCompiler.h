@@ -250,7 +250,9 @@ private:
 
 	///////////////////////////
 	// VOP3 modifiers
-	SpirvRegisterValue emitVop3InputModifier(const GCNInstruction& ins, SpirvRegisterValue value);
+	std::vector<SpirvRegisterValue> emitVop3InputModifier(
+		const GCNInstruction& ins,
+		const std::vector<SpirvRegisterValue>& values);
 	SpirvRegisterValue emitVop3OutputModifier(const GCNInstruction& ins, SpirvRegisterValue value);
 
 
@@ -535,7 +537,6 @@ private:
 	std::unordered_map<uint32_t, uint32_t> m_branchLabels;
 
 };
-
 
 
 } // namespace pssl
