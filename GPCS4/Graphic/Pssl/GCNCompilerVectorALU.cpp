@@ -266,7 +266,40 @@ void GCNCompiler::emitVectorFpTran32(GCNInstruction& ins)
 
 void GCNCompiler::emitVectorFpCmp32(GCNInstruction& ins)
 {
-	LOG_PSSL_UNHANDLED_INST();
+	auto op = getVopOpcode(ins);
+
+	uint32_t src0     = 0;
+	uint32_t src1     = 0;
+	uint32_t vdst     = 0;
+	uint32_t src0Ridx = 0;
+	uint32_t src1Ridx = 0;
+	uint32_t vdstRidx = 0;
+	getVopOperands(ins, &vdst, &vdstRidx, &src0, &src0Ridx, &src1, &src1Ridx);
+
+	auto spvSrc0 = emitLoadScalarOperand(src0, src0Ridx, ins.literalConst);
+	spvSrc0      = emitVop3InputModifier(ins, spvSrc0);
+
+	SpirvRegisterValue dstValue;
+	dstValue.type.ctype  = SpirvScalarType::Float32;
+	dstValue.type.ccount = 1;
+
+	const uint32_t typeId = getVectorTypeId(dstValue.type);
+
+	// For VectorFpCmp32 class, VOPC and VOP3 instructions use same opcode values,
+	// ie. SIVOPCInstruction::V_CMP_LT_F32 == SIVOP3Instruction::V3_CMP_LT_F32 ,
+	// so we don't need to switch both cases.
+	switch (op)
+	{
+	case SIVOPCInstruction::V_CMP_LT_F32:
+
+		break;
+	default:
+		LOG_PSSL_UNHANDLED_INST();
+		break;
+	}
+
+	dstValue = emitVop3OutputModifier(ins, dstValue);
+	emitStoreVectorOperand(vdstRidx, dstValue);
 }
 
 void GCNCompiler::emitVectorFpArith64(GCNInstruction& ins)

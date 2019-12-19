@@ -386,9 +386,6 @@ private:
 
 	// FlowControl
 	void emitScalarProgFlow(GCNInstruction& ins);
-	void emitScalarProgFlowPC(GCNInstruction& ins);
-	void emitScalarProgFlowBranch(GCNInstruction& ins);
-
 	void emitScalarSync(GCNInstruction& ins);
 	void emitScalarWait(GCNInstruction& ins);
 	void emitScalarCache(GCNInstruction& ins);
@@ -438,6 +435,10 @@ private:
 
 	// DebugProfile
 	void emitDbgProf(GCNInstruction& ins);
+
+	// Extra dispatch
+	void emitScalarProgFlowPC(GCNInstruction& ins);
+	void emitScalarProgFlowBranch(GCNInstruction& ins);
 
 	/////////////////////////////////////////////////////////
 
