@@ -300,6 +300,7 @@ void GCNCompiler::emitVectorFpCmp32(GCNInstruction& ins)
 	switch (op)
 	{
 	case SIVOPCInstruction::V_CMP_LT_F32:
+		dstValue.id = m_module.opFOrdLessThan(typeId, spvSrc0.id, spvSrc1.id);
 		break;
 	case SIVOPCInstruction::V_CMP_GE_F32:
 		dstValue.id = m_module.opFOrdGreaterThanEqual(typeId, spvSrc0.id, spvSrc1.id);
