@@ -308,6 +308,10 @@ void GCNCompiler::emitVectorFpTran32(GCNInstruction& ins)
 	case SIVOP3Instruction::V3_EXP_F32:
 		dstValue.id = m_module.opExp2(typeId, spvSrc0.id);
 		break;
+	case SIVOP1Instruction::V_RCP_F32:
+	case SIVOP3Instruction::V3_RCP_F32:
+		dstValue.id = m_module.opFDiv(typeId, m_module.constf32(1.0f), spvSrc0.id);
+		break;
 	default:
 		LOG_PSSL_UNHANDLED_INST();
 		break;
