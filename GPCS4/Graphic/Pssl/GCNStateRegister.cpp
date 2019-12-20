@@ -26,6 +26,8 @@ SpirvRegisterPointer SpirvRegisterU64::low()
 	if (m_low.id == InvalidSpvId)
 	{
 		m_low = mapAccessPtr(RegType::REG64_LOW);
+		std::string name = m_name + "_lo";
+		m_module->setDebugName(m_low.id, name.c_str());
 	}
 	return m_low;
 }
@@ -35,6 +37,8 @@ SpirvRegisterPointer SpirvRegisterU64::high()
 	if (m_high.id == InvalidSpvId)
 	{
 		m_high = mapAccessPtr(RegType::REG64_HIGH);
+		std::string name = m_name + "_hi";
+		m_module->setDebugName(m_low.id, name.c_str());
 	}
 	return m_high;
 }

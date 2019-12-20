@@ -135,7 +135,51 @@ void GCNCompiler::emitVectorBitField32(GCNInstruction& ins)
 
 void GCNCompiler::emitVectorThreadMask(GCNInstruction& ins)
 {
-	LOG_PSSL_UNHANDLED_INST();
+	uint32_t op       = getVopOpcode(ins);
+	uint32_t src0     = 0;
+	uint32_t src1     = 0;
+	uint32_t src2     = 0;
+	uint32_t dst      = 0;
+	uint32_t src0RIdx = 0;
+	uint32_t src1RIdx = 0;
+	uint32_t src2RIdx = 0;
+	uint32_t dstRIdx  = 0;
+	getVopOperands(ins, &dst, &dstRIdx, &src0, &src0RIdx, &src1, &src1RIdx, &src2, &src2RIdx);
+
+	uint32_t fpTypeId = getScalarTypeId(SpirvScalarType::Uint32);
+
+	SpirvRegisterValue spvSrc0 = emitLoadScalarOperand(src0, src0RIdx, ins.literalConst, SpirvScalarType::Uint32);
+	SpirvRegisterValue spvSrc1 = emitLoadVopSrc1(ins, src1, src1RIdx, SpirvScalarType::Uint32);
+	SpirvRegisterValue spvSrc2;
+	
+	if (isVop3Encoding(ins))
+	{
+		// Only VOP3 has SRC2
+		spvSrc2 = emitLoadScalarOperand(src2, src2RIdx, ins.literalConst, SpirvScalarType::Uint32);
+	}
+
+	SpirvRegisterValue dstVal;
+	dstVal.type.ctype  = SpirvScalarType::Uint32;
+	dstVal.type.ccount = 1;
+
+	switch (op)
+	{
+	case SIVOP3Instruction::V3_CNDMASK_B32:
+		LOG_PSSL_UNHANDLED_INST();
+		break;
+	case SIVOP2Instruction::V_CNDMASK_B32:
+	{
+		auto condVal = emitValueLoad(m_statusRegs.vcc.low());
+		auto condition = emitRegisterZeroTest(condVal, SpirvZeroTest::TestNz);
+		dstVal.id      = m_module.opSelect(fpTypeId, condition.id, spvSrc1.id, spvSrc0.id);
+	}
+		break;
+	default:
+		LOG_PSSL_UNHANDLED_INST();
+		break;
+	}
+
+	emitStoreVectorOperand(dstRIdx, dstVal);
 }
 
 void GCNCompiler::emitVectorBitField64(GCNInstruction& ins)
@@ -159,21 +203,13 @@ void GCNCompiler::emitVectorFpArith32(GCNInstruction& ins)
 	uint32_t fpTypeId = getScalarTypeId(SpirvScalarType::Float32);
 
 	SpirvRegisterValue spvSrc0 = emitLoadScalarOperand(src0, src0RIdx, ins.literalConst);
-	SpirvRegisterValue spvSrc1;
+	SpirvRegisterValue spvSrc1 = emitLoadVopSrc1(ins, src1, src1RIdx);
 	SpirvRegisterValue spvSrc2;
 
-	// For SRC1, there are two types, VOP2/VOPC use 8 bits VSRC,
-	// VOP3 use 9 bits SRC.
-	// We need to select proper src1 for different encodings.
 	if (isVop3Encoding(ins))
 	{
-		spvSrc1 = emitLoadScalarOperand(src1, src1RIdx, ins.literalConst);
 		// Only VOP3 has SRC2
 		spvSrc2 = emitLoadScalarOperand(src2, src2RIdx, ins.literalConst);
-	}
-	else
-	{
-		spvSrc1 = emitLoadVectorOperand(src1RIdx);
 	}
 
 	SpirvRegisterValue dstVal;
