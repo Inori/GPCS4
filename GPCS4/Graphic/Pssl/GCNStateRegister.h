@@ -59,8 +59,8 @@ private:
 
 
 // For all status registers related to thread,
-// we assume we are on 0's thread,
-// ie. exec will be initialized with 1 .
+// we assume we are running on 0's thread, the thread mask is always 1.
+// ie. exec will be initialized to 1.
 struct GcnStateRegister
 {
 	GcnStateRegister(GCNCompiler* compiler):
