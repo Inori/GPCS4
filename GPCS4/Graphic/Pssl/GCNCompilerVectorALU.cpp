@@ -146,7 +146,7 @@ void GCNCompiler::emitVectorThreadMask(GCNInstruction& ins)
 	uint32_t dstRIdx  = 0;
 	getVopOperands(ins, &dst, &dstRIdx, &src0, &src0RIdx, &src1, &src1RIdx, &src2, &src2RIdx);
 
-	uint32_t fpTypeId = getScalarTypeId(SpirvScalarType::Uint32);
+	uint32_t b32TypeId = getScalarTypeId(SpirvScalarType::Uint32);
 
 	SpirvRegisterValue spvSrc0 = emitLoadScalarOperand(src0, src0RIdx, ins.literalConst, SpirvScalarType::Uint32);
 	SpirvRegisterValue spvSrc1 = emitLoadVopSrc1(ins, src1, src1RIdx, SpirvScalarType::Uint32);
@@ -171,7 +171,7 @@ void GCNCompiler::emitVectorThreadMask(GCNInstruction& ins)
 	{
 		auto condVal = emitValueLoad(m_statusRegs.vcc.low());
 		auto condition = emitRegisterZeroTest(condVal, SpirvZeroTest::TestNz);
-		dstVal.id      = m_module.opSelect(fpTypeId, condition.id, spvSrc1.id, spvSrc0.id);
+		dstVal.id      = m_module.opSelect(b32TypeId, condition.id, spvSrc1.id, spvSrc0.id);
 	}
 		break;
 	default:
@@ -247,6 +247,12 @@ void GCNCompiler::emitVectorFpArith32(GCNInstruction& ins)
 		dstVal.id = m_module.opFAdd(fpTypeId,
                                     constId,
 									m_module.opFMul(fpTypeId, spvSrc0.id, spvSrc1.id));
+	}
+		break;
+	case SIVOP3Instruction::V3_ADD_F32:
+	case SIVOP2Instruction::V_ADD_F32:
+	{
+		dstVal.id = m_module.opFAdd(fpTypeId, spvSrc0.id, spvSrc1.id);
 	}
 		break;
 	default:
