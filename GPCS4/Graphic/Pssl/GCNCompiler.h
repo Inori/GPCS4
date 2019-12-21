@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GPCS4Common.h"
+#include "PsslCommon.h"
 #include "PsslProgramInfo.h"
 #include "PsslFetchShader.h"
 #include "GCNInstruction.h"
@@ -33,10 +33,8 @@
 namespace pssl
 {;
 
-
 constexpr size_t GcnMaxSgprCount = 104;
 constexpr size_t GcnMaxVgprCount = 256;
-
 
 /**
  * \brief Vector type
@@ -362,7 +360,7 @@ struct GcnShaderInput
 };
 
 
-class GCNCompiler
+class GCNCompiler : public GCNInstructionIterator
 {
 public:
 
@@ -372,11 +370,13 @@ public:
 		const GcnShaderInput& shaderInput);
 	~GCNCompiler();
 
-	void processInstruction(GCNInstruction& ins);
+	virtual void processInstruction(GCNInstruction& ins);
 
 	RcPtr<gve::GveShader> finalize();
 
 private:
+
+	void compileInstruction(GCNInstruction& ins);
 
 	void emitInit();
 	/////////////////////////////////
@@ -474,6 +474,17 @@ private:
 		const SpirvRegisterInfo& info,
 		spv::BuiltIn	         builtIn,
 		const char*              name);
+
+
+	///////////////////////////
+	// Control Flow methods
+	void emitBranchLabelTry();
+
+	///////////////////////////
+	// VOP3 modifiers
+	SpirvRegisterValue emitVop3InputModifier(const GCNInstruction& ins, SpirvRegisterValue value);
+	SpirvRegisterValue emitVop3OutputModifier(const GCNInstruction& ins, SpirvRegisterValue value);
+
 
 	////////////////////////////////////////////////
 	// Constant building methods. These are used to
@@ -608,6 +619,7 @@ private:
 	// FlowControl
 	void emitScalarProgFlow(GCNInstruction& ins);
 	void emitScalarProgFlowPC(GCNInstruction& ins);
+	void emitScalarProgFlowBranch(GCNInstruction& ins);
 
 	void emitScalarSync(GCNInstruction& ins);
 	void emitScalarWait(GCNInstruction& ins);
@@ -696,16 +708,9 @@ private:
 		uint32_t* sdst = nullptr, uint32_t* sdstRidx = nullptr);
 
 
-	// Convenience function to dynamic cast instruction types
-	template<typename InsType>
-	inline
-		typename std::enable_if<std::is_base_of<Instruction, InsType>::value, const InsType*>::type
-		asInst(const GCNInstruction& ins)
-	{
-		return dynamic_cast<const InsType*>(ins.instruction.get());
-	}
-
 private:
+	////////////////////////////////////////////////////
+	// Constructor inputs
 
 	PsslProgramInfo m_programInfo;
 
@@ -715,6 +720,7 @@ private:
 	const GcnAnalysisInfo* m_analysis;
 
 	GcnShaderInput m_shaderInput;
+
 	///////////////////////////////////////////////////
 	// Entry point description - we'll need to declare
 	// the function ID and all input/output variables.
@@ -757,6 +763,10 @@ private:
 
 	// Used to record shader resource this shader declared using InputUsageSlot
 	std::vector<gve::GveResourceSlot> m_resourceSlots;
+
+	///////////////////////////////////
+	// Control flow
+	std::unordered_map<uint32_t, uint32_t> m_branchLabels;
 
 };
 

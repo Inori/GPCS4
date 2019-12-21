@@ -87,40 +87,40 @@ bool CEmulator::RegisterModules()
 
 		// fopen
 		pModuleSystem->setFunctionOverridability("libc", "libc",
-												 14260101637949278365, false);
+												 14260101637949278365ULL, false);
 
 		// fseek
 		pModuleSystem->setFunctionOverridability("libc", "libc",
-												 12466338725556587288, false);
+												 12466338725556587288ULL, false);
 
 		// ftell
 		pModuleSystem->setFunctionOverridability("libc", "libc",
-												 4732424424179322620, false);
+												 4732424424179322620ULL, false);
 		// fread
 		pModuleSystem->setFunctionOverridability("libc", "libc",
-												 10786259999654564973, false);
+												 10786259999654564973ULL, false);
 
 		// fclose
 		pModuleSystem->setFunctionOverridability("libc", "libc",
-												 13440794502107408237, false);
+												 13440794502107408237ULL, false);
 
 		// malloc
 		pModuleSystem->setFunctionOverridability("libc", "libc",
-												 9297117245426667155, false);
+												 9297117245426667155ULL, false);
 
 		// free
 		pModuleSystem->setFunctionOverridability("libc", "libc",
-												 13008767002086125649, false);
+												 13008767002086125649ULL, false);
 		// catchReturnFromMain
 		pModuleSystem->setFunctionOverridability("libc", "libc",
-												 0x5CA45E82C1691299, false);
+												 0x5CA45E82C1691299ULL, false);
 
 		// exit
 		pModuleSystem->setFunctionOverridability("libc", "libc",
-												 0xB8C7A2D56F6EC8DA, false);
+												 0xB8C7A2D56F6EC8DAULL, false);
 		// time
 		pModuleSystem->setFunctionOverridability("libc", "libc",
-												 0xC0B9459301BD51C4, false);
+												 0xC0B9459301BD51C4ULL, false);
 		bRet = true;
 	} while (false);
 	return bRet;

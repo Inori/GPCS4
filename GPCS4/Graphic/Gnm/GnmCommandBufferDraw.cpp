@@ -399,6 +399,12 @@ void GnmCommandBufferDraw::updateVsShader(const pssl::VsStageRegisters *vsRegs, 
 	
 }
 
+#define SHADER_DEBUG_BREAK(mod, hash) \
+if (mod.key().toUint64() == hash) \
+{\
+	__debugbreak();\
+}
+
 void GnmCommandBufferDraw::commitVsStage()
 {
 	do
@@ -407,6 +413,8 @@ void GnmCommandBufferDraw::commitVsStage()
 		LOG_ASSERT(fsCode != nullptr, "can not find fetch shader code.");
 
 		PsslShaderModule vsModule((const uint32_t*)m_vsContext.code, fsCode, m_vsContext.userDataSlotTable);
+		LOG_DEBUG("vertex shader hash %llX", vsModule.key().toUint64());
+
 		m_vsContext.shader = vsModule.compile();
 
 		auto vsInputUsageSlots = vsModule.inputUsageSlots();
@@ -446,6 +454,8 @@ void GnmCommandBufferDraw::commitPsStage()
 	do 
 	{
 		PsslShaderModule psModule((const uint32_t*)m_psContext.code, m_psContext.userDataSlotTable);
+		LOG_DEBUG("pixel shader hash %llX", psModule.key().toUint64());
+
 		m_psContext.shader = psModule.compile();
 
 		auto psInputUsageSlots = psModule.inputUsageSlots();
@@ -693,7 +703,7 @@ void GnmCommandBufferDraw::bindSampler(const PsslShaderResource& res)
 			break;
 		}
 
-		uint64_t key = ssharp->m_regs[0] | ssharp->m_regs[1] << 32;
+		uint64_t key = (uint64_t)ssharp->m_regs[0] | (uint64_t)ssharp->m_regs[1] << 32;
 
 		// TODO:
 		// Fill info

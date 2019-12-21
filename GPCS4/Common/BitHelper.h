@@ -29,12 +29,9 @@ namespace bit {
     return n;
   }
 
-// TODO:
-// This is an ugly hack, I don't know why I can't compile when using clang 9
-// if declare this function.
-#if (__clang_major__ < 9)
+#ifndef _tzcnt_u32
   extern unsigned int _tzcnt_u32(unsigned int);
-#endif // __clang_major__ < 9
+#endif  // !_tzcnt_u32
 
   inline uint32_t tzcnt(uint32_t n) {
     #if defined(_MSC_VER)

@@ -273,6 +273,10 @@ const int NO_LABEL = -1;
         /// \returns            a instruction`s width in bits.
         unsigned int GetInstructionWidth() const { return m_instructionWidth; }
 
+		/// Get an instruction`s length in bytes.
+		/// \returns            a instruction`s length in bytes.
+		unsigned int GetInstructionLength() const { return m_instructionWidth / 8; }
+
         /// -----------------------------------------------------------------------------------------------
         /// \brief Name:        GetInstructionFormatKind
         /// \brief Description: Get Instruction`s format kind

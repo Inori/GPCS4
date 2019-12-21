@@ -59,50 +59,50 @@ public:
     {
         /// InstructionEncodingMask_9bit
         /// bits [31:23] - (1 0 1 1 1 1 1 0 1)
-        InstructionEncoding_SOP1 = 0x0000017D << 23,
+        InstructionEncoding_SOP1 = 0x0000017Du << 23,
         /// bits [31:23] - (1 0 1 1 1 1 1 1 1)
-        InstructionEncoding_SOPP = 0x0000017F << 23,
+        InstructionEncoding_SOPP = 0x0000017Fu << 23,
         /// bits [31:23] - (1 0 1 1 1 1 1 1 0)
-        InstructionEncoding_SOPC = 0x0000017E << 23,
+        InstructionEncoding_SOPC = 0x0000017Eu << 23,
         /// InstructionEncodingMask_7bit
         /// bits [31:25] - (0 1 1 1 1 1 1)
-        InstructionEncoding_VOP1 = 0x0000003F << 25,
+        InstructionEncoding_VOP1 = 0x0000003Fu << 25,
         /// bits [31:25] - (0 1 1 1 1 1 0)
-        InstructionEncoding_VOPC = 0x0000003E << 25,
+        InstructionEncoding_VOPC = 0x0000003Eu << 25,
         /// InstructionEncodingMask_6bit
         /// bits [31:26] - (1 1 0 1 0 0)
-        InstructionEncoding_VOP3 = 0x00000034 << 26,
+        InstructionEncoding_VOP3 = 0x00000034u << 26,
         /// bits [31:26] - (1 1 1 1 1 0)
-        InstructionEncoding_EXP = 0x0000003E << 26,
+        InstructionEncoding_EXP = 0x0000003Eu << 26,
         /// bits [31:26] - (1 1 0 0 1 0)
-        InstructionEncoding_VINTRP = 0x00000032 << 26,
+        InstructionEncoding_VINTRP = 0x00000032u << 26,
         /// bits [31:26] - (1 1 0 1 1 0)
-        InstructionEncoding_DS =  0x00000036 << 26,
+        InstructionEncoding_DS =  0x00000036u << 26,
         /// bits [31:26] - (1 1 1 0 0 0)
-        InstructionEncoding_MUBUF =  0x00000038 << 26,
+        InstructionEncoding_MUBUF =  0x00000038u << 26,
         /// bits [31:26] - (1 1 1 0 1 0)
-        InstructionEncoding_MTBUF =  0x0000003A << 26,
+        InstructionEncoding_MTBUF =  0x0000003Au << 26,
         /// bits [31:26] - (1 1 1 1 0 0)
-        InstructionEncoding_MIMG =  0x0000003C << 26,
+        InstructionEncoding_MIMG =  0x0000003Cu << 26,
         /// InstructionEncodingMask_5bit
         /// bits [31:27] - (1 1 0 0 0)
-        InstructionEncoding_SMRD = 0x00000018 << 27,
+        InstructionEncoding_SMRD = 0x00000018u << 27,
         /// InstructionEncodingMask_4bit
         /// bits [31:28] - (1 0 1 1)
-        InstructionEncoding_SOPK = 0x0000000B << 28,
+        InstructionEncoding_SOPK = 0x0000000Bu << 28,
         /// InstructionEncodingMask_2bit
         /// bits [31:30] - (1 0)
-        InstructionEncoding_SOP2 = 0x00000002 << 30,
+        InstructionEncoding_SOP2 = 0x00000002u << 30,
         /// InstructionEncodingMask_1bit
         /// bits [31:31] - (0)
-        InstructionEncoding_VOP2 = 0x00000000 << 31,
+        InstructionEncoding_VOP2 = 0x00000000u << 31,
 
         /// bits [31:26] - (1 1 0 0 0 0)
-        VIInstructionEncoding_SMEM = 0x00000030 << 26,
+        VIInstructionEncoding_SMEM = 0x00000030u << 26,
         /// bits [31:26] - (1 1 0 1 0 1)
-        VIInstructionEncoding_VINTRP = 0x00000035 << 26,
+        VIInstructionEncoding_VINTRP = 0x00000035u << 26,
         /// bits [31:26] - (1 1 0 1 1 1)
-        VIInstructionEncoding_FLAT = 0x00000037 << 26,
+        VIInstructionEncoding_FLAT = 0x00000037u << 26,
 
         InstructionEncoding_ILLEGAL
     };

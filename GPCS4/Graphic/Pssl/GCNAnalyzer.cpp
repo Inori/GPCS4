@@ -19,6 +19,13 @@ GCNAnalyzer::~GCNAnalyzer()
 
 void GCNAnalyzer::processInstruction(GCNInstruction& ins)
 {
+	analyzeInstruction(ins);
+
+	updateProgramCounter(ins);
+}
+
+void GCNAnalyzer::analyzeInstruction(GCNInstruction& ins)
+{
 	auto insClass = ins.instruction->GetInstructionClass();
 
 	switch (insClass)
@@ -96,6 +103,7 @@ void GCNAnalyzer::processInstruction(GCNInstruction& ins)
 	case Instruction::VectorMisc:
 		break;
 	case Instruction::ScalarProgFlow:
+		collectBranchLabel(ins);
 		break;
 	case Instruction::ScalarSync:
 		break;
@@ -178,7 +186,7 @@ void GCNAnalyzer::processInstruction(GCNInstruction& ins)
 
 void GCNAnalyzer::getExportInfo(GCNInstruction& ins)
 {
-	auto inst = dynamic_cast<EXPInstruction*>(ins.instruction.get());
+	auto inst = asInst<EXPInstruction>(ins);
 
 	GcnExportInfo info;
 	info.target = (uint32_t)inst->GetTGT();
@@ -214,12 +222,50 @@ void GCNAnalyzer::getExportInfo(GCNInstruction& ins)
 
 void GCNAnalyzer::getVinterpInfo(GCNInstruction& ins)
 {
-	auto inst = dynamic_cast<SIVINTRPInstruction*>(ins.instruction.get());
+	auto inst = asInst<SIVINTRPInstruction>(ins);
 
 	uint32_t attrIdx = inst->GetATTR();
 	m_vinterpAttrSet.insert(attrIdx);
 
 	m_analysis->vinterpAttrCount = m_vinterpAttrSet.size();
+}
+
+void GCNAnalyzer::collectBranchLabel(GCNInstruction& ins)
+{
+	// TODO:
+	// Support s_cbranch_i_fork, s_cbranch_g_fork s_cbranch_join and etc..
+
+	do 
+	{
+		auto inst = asInst<SISOPPInstruction>(ins);
+		if (!inst)
+		{
+			LOG_WARN("control flow instruction not SOPP encoding");
+			break;
+		}
+
+		auto op = inst->GetOp();
+		switch (op)
+		{
+		case SISOPPInstruction::S_BRANCH:
+		case SISOPPInstruction::S_CBRANCH_SCC0:
+		case SISOPPInstruction::S_CBRANCH_SCC1:
+		case SISOPPInstruction::S_CBRANCH_VCCZ:
+		case SISOPPInstruction::S_CBRANCH_VCCNZ:
+		case SISOPPInstruction::S_CBRANCH_EXECZ:
+		case SISOPPInstruction::S_CBRANCH_EXECNZ:
+		case SISOPPInstruction::S_CBRANCH_CDBGSYS:
+		case SISOPPInstruction::S_CBRANCH_CDBGUSER:
+		case SISOPPInstruction::S_CBRANCH_CDBGSYS_OR_USER:
+		case SISOPPInstruction::S_CBRANCH_CDBGSYS_AND_USER:
+		{
+			int16_t imm = inst->GetSIMM16();
+			uint32_t target = m_programCounter + imm * 4 + 4;
+			m_analysis->branchLabels.insert(std::make_pair(target, InvalidSpvId));
+		}
+			break;
+		}
+	} while (false);
 }
 
 }  // namespace pssl
