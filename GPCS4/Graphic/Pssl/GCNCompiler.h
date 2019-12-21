@@ -210,7 +210,7 @@ private:
 	// Store a vector to continuous vgprs
 	void emitVgprVectorStore(uint32_t startIdx, const SpirvRegisterValue& srcVec, const GcnRegMask& writeMask);
 	
-
+	
 	/////////////////////////////////////////
 	// Operands manipulation methods
 	SpirvRegisterValue emitLoadScalarOperand(
@@ -490,6 +490,14 @@ private:
 		uint32_t* src2 = nullptr, uint32_t* src2Ridx = nullptr,
 		uint32_t* sdst = nullptr, uint32_t* sdstRidx = nullptr);
 
+	uint32_t getSopOpcode(const GCNInstruction& ins);
+
+	void getSopOperands(
+		const GCNInstruction& ins,
+		uint32_t* sdst, uint32_t* sdstRidx,
+		uint32_t* src0, uint32_t* src0Ridx,
+		uint32_t* src1 = nullptr, uint32_t* src1Ridx = nullptr,
+		int64_t* imm = nullptr);
 
 private:
 	////////////////////////////////////////////////////

@@ -40,6 +40,29 @@ void GCNCompiler::emitFlowControl(GCNInstruction& ins)
 	}
 }
 
+void GCNCompiler::emitBranchLabelTry()
+{
+	do
+	{
+		auto iter = m_branchLabels.find(m_programCounter);
+		if (iter == m_branchLabels.end())
+		{
+			break;
+		}
+
+		uint32_t& labelId = iter->second;
+
+		// A label can occur before or after s_branch_xxx instruction.
+		// If before, labelId should be InvalidSpvId, then we allocate a new id for it.
+		// If after, labelId should be already set by s_branch_xxx instruction handler.
+		if (labelId == InvalidSpvId)
+		{
+			labelId = m_module.allocateId();
+		}
+
+		m_module.opLabel(labelId);
+	} while (false);
+}
 
 void GCNCompiler::emitScalarProgFlow(GCNInstruction& ins)
 {
