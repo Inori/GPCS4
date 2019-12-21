@@ -30,8 +30,11 @@ public:
     //
 
     /// ctor
-    SOPPInstruction(SIMM16 simm16, InstructionCategory insCat = FlowControl, InstructionClass insClass = InstructionClassUnknown):
-		Instruction(SOPPInstructionWidth, insCat, InstructionSet_SOPP, insClass), 
+    SOPPInstruction(SIMM16 simm16,
+		InstructionCategory insCat = FlowControl, 
+		InstructionClass insClass = InstructionClassUnknown,
+		unsigned int insOperandWidth = 0) :
+		Instruction(SOPPInstructionWidth, insCat, InstructionSet_SOPP, insClass, insOperandWidth), 
 		m_simm16(simm16) {}
 
     /// dtor
@@ -124,8 +127,13 @@ public:
 
     /// ctor
     SISOPPInstruction(SIMM16 simm16, OP op,
-		InstructionCategory insCat = FlowControl, InstructionClass insClass = InstructionClassUnknown): 
-		SOPPInstruction(simm16, insCat, insClass), m_op(op) {}
+					  InstructionCategory insCat = FlowControl, 
+		InstructionClass insClass = InstructionClassUnknown, 
+		unsigned int insOperandWidth = 0) : 
+		SOPPInstruction(simm16, insCat, insClass, insOperandWidth),
+		m_op(op)
+	{
+	}
 
 
 private:

@@ -264,7 +264,11 @@ const int NO_LABEL = -1;
         //
 
         /// ctor
-        Instruction(unsigned int instructionWidth, InstructionCategory instructionFormatKind, InstructionSet instructionFormat, InstructionClass instructionClass = InstructionClassUnknown);
+        Instruction(unsigned int instructionWidth, 
+			InstructionCategory instructionFormatKind, 
+			InstructionSet instructionFormat, 
+			InstructionClass instructionClass = InstructionClassUnknown,
+			unsigned int instructionOperandWidth = 0);
 
         /// dtor
         virtual ~Instruction() {}
@@ -289,14 +293,22 @@ const int NO_LABEL = -1;
 		/// \brief Description: Get Instruction`s class type
 		/// \return InstructionClass
 		/// -----------------------------------------------------------------------------------------------
-		InstructionClass GetInstructionClass() const { return m_instructionClass; }
+		InstructionClass GetInstructionClass() const;
+
+		/// -----------------------------------------------------------------------------------------------
+		/// \brief Name:        GetInstructionOperandWidth
+		/// \brief Description: Get Instruction operand's width,
+		///						e.g. xxx_b32 is 32, xxx_i64 is 64
+		/// \return Instruction operand's width
+		/// -----------------------------------------------------------------------------------------------
+		unsigned int GetInstructionOperandWidth() const;
 
         /// -----------------------------------------------------------------------------------------------
         /// \brief Name:        GetInstructionFormat
         /// \brief Description: Get Instruction`s Format
         /// \return InstructionSet
         /// -----------------------------------------------------------------------------------------------
-        InstructionSet GetInstructionFormat() const { return m_instructionFormat; }
+		InstructionSet GetInstructionFormat() const { return m_instructionFormat; }
 
 	protected:
 		//
@@ -316,6 +328,8 @@ const int NO_LABEL = -1;
 
 		/// Instruction`s class
 		InstructionClass m_instructionClass;
+
+		unsigned int m_instructionOperandWidth;
     };
 
 
