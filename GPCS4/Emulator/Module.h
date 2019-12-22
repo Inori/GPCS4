@@ -195,8 +195,6 @@ private:
 					  uint *libId,
 					  uint64_t *funcNid) const;
 
-
-
 private:
 	SegmentHeaderList m_segmentHeaders;
 	LibraryList m_importLibraries;

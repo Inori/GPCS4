@@ -127,10 +127,7 @@ bool ModuleLoader::loadModuleFromFile(std::string const &fileName,
 			break;
 		}
 
-		addDepedenciesToLoad(*mod);
-
-		std::string moduleName = {};
-		retVal                 = mapFilePathToModuleName(fileName, &moduleName);
+		retVal = addDepedenciesToLoad(*mod);
 		if (!retVal)
 		{
 			break;
@@ -320,153 +317,6 @@ bool ModuleLoader::registerSymbol(MemoryMappedModule const &mod, size_t idx)
 	return true;
 }
 
-bool ModuleLoader::relocateRela(MemoryMappedModule const &mod) const
-{
-	bool retVal = false;
-	do
-	{
-		if (mod.getFileMemory().empty())
-		{
-			break;
-		}
-
-		auto &info = mod.getModuleInfo();
-
-		byte *pImageBase         = info.pCodeAddr;
-		byte *pStrTab            = info.pStrTab;
-		Elf64_Sym *pSymTab       = (Elf64_Sym *)info.pSymTab;
-		Elf64_Rela *pRelaEntries = (Elf64_Rela *)info.pRela;
-		for (uint i = 0; i != info.nRelaCount; ++i)
-		{
-			Elf64_Rela *pRela = &pRelaEntries[i];
-			auto nType        = ELF64_R_TYPE(pRela->r_info);
-			auto nSymIdx      = ELF64_R_SYM(pRela->r_info);
-
-			switch (nType)
-			{
-			case R_X86_64_NONE:
-			case R_X86_64_PC32:
-			case R_X86_64_COPY:
-			case R_X86_64_GLOB_DAT:
-			case R_X86_64_TPOFF64:
-			case R_X86_64_TPOFF32:
-			case R_X86_64_DTPMOD64:
-			case R_X86_64_DTPOFF64:
-			case R_X86_64_DTPOFF32:
-				break;
-			case R_X86_64_64:
-			{
-				Elf64_Sym &symbol = pSymTab[nSymIdx];
-				auto nBinding     = ELF64_ST_BIND(symbol.st_info);
-				uint64 nSymVal    = 0;
-
-				if (nBinding == STB_LOCAL)
-				{
-					nSymVal = (uint64)(pImageBase + symbol.st_value);
-				}
-				else if (nBinding == STB_GLOBAL || nBinding == STB_WEAK)
-				{
-					char *pName = (char *)&pStrTab[symbol.st_name];
-
-					// if (!ResolveSymbol(pName, nSymVal))
-					if (!m_linker.resolveSymbol(mod, pName, &nSymVal))
-					{
-						LOG_ERR("can not get symbol address.");
-						break;
-					}
-				}
-				else
-				{
-					LOG_ERR("invalid sym bingding %d", nBinding);
-				}
-
-				*(uint64 *)&pImageBase[pRela->r_offset] = nSymVal + pRela->r_addend;
-			}
-			break;
-			case R_X86_64_RELATIVE:
-			{
-				*(uint64 *)&pImageBase[pRela->r_offset] =
-					(uint64)(pImageBase + pRela->r_addend);
-			}
-			break;
-			default:
-				LOG_FIXME("rela type not handled %d", nType);
-				break;
-			}
-		}
-		retVal = true;
-
-	} while (false);
-
-	return retVal;
-}
-
-bool ModuleLoader::relocatePltRela(MemoryMappedModule const &mod) const
-{
-	bool bRet = false;
-	do
-	{
-		auto &fileData = mod.getFileMemory();
-		auto &info     = mod.getModuleInfo();
-
-		if (fileData.empty())
-		{
-			break;
-		}
-
-		byte *pImageBase = info.pCodeAddr;
-		byte *pStrTab    = info.pStrTab;
-		;
-		Elf64_Sym *pSymTab       = (Elf64_Sym *)info.pSymTab;
-		Elf64_Rela *pRelaEntries = (Elf64_Rela *)info.pPltRela;
-		for (uint i = 0; i != info.nPltRelaCount; ++i)
-		{
-			Elf64_Rela *pRela = &pRelaEntries[i];
-			auto type         = ELF64_R_TYPE(pRela->r_info);
-			auto symbolIndex  = ELF64_R_SYM(pRela->r_info);
-
-			switch (type)
-			{
-			case R_X86_64_JUMP_SLOT:
-			{
-				Elf64_Sym &symbol = pSymTab[symbolIndex];
-				auto binding      = ELF64_ST_BIND(symbol.st_info);
-				uint64 symValue   = 0;
-
-				if (binding == STB_LOCAL)
-				{
-					symValue =
-						reinterpret_cast<uint64_t>(pImageBase + symbol.st_value);
-				}
-				else if (binding == STB_GLOBAL || binding == STB_WEAK)
-				{
-					char *pName = (char *)&pStrTab[symbol.st_name];
-					// if (!ResolveSymbol(pName, nSymVal))
-					if (!m_linker.resolveSymbol(mod, pName, &symValue))
-					{
-						LOG_ERR("can not get symbol address.");
-						break;
-					}
-				}
-				else
-				{
-					LOG_ERR("invalid sym bingding %d", binding);
-				}
-
-				*(uint64 *)&pImageBase[pRela->r_offset] = symValue;
-			}
-			break;
-			default:
-				LOG_FIXME("rela type not handled %d", type);
-				break;
-			}
-		}
-		bRet = true;
-	} while (false);
-
-	return bRet;
-}
-
 bool ModuleLoader::initializeModules()
 {
 	auto &mods  = m_modSystem.getMemoryMappedModules();
@@ -511,16 +361,3 @@ bool ModuleLoader::initializeModules()
 
 	return retVal;
 }
-
-bool ModuleLoader::relocateModule(MemoryMappedModule const &mod) const
-{
-	bool retVal = false;
-
-	if (relocateRela(mod) && relocatePltRela(mod))
-	{
-		retVal = true;
-	}
-
-	return retVal;
-}
-
