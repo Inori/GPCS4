@@ -17,7 +17,29 @@ if(!pModuleSystem->setModuleOverridability(name, true)) \
 	break;\
 }\
 
-bool CEmulator::RegisterModules()
+#define ALLOW_LIBRARY_OVERRIDE(mod, lib, policy) \
+if(!pModuleSystem->setLibraryOverridability(mod, lib, true, policy))\
+{\
+	LOG_ERR("Fail to set overridability for library %s", lib);\
+	break;\
+}\
+
+#define ALLOW_FUNCTION_OVERRIDE(mod, lib, nid) \
+if (!pModuleSystem->setFunctionOverridability(mod, lib, nid, true)) \
+{\
+	LOG_ERR("Fail to set overridability for library %llx", nid);\
+	break;\
+}
+
+#define DISALLOW_FUNCTION_OVERRIDE(mod, lib, nid) \
+if (!pModuleSystem->setFunctionOverridability(mod, lib, nid, false)) \
+{\
+	LOG_ERR("Fail to set overridability for library %llx", nid);\
+	break;\
+}
+			
+
+bool CEmulator::registerModules()
 {
 	bool bRet = false;
 	do 
@@ -74,53 +96,34 @@ bool CEmulator::RegisterModules()
 		REGISTER_MODULE(g_ExpModuleSceVideoOut);
 		REGISTER_MODULE(g_ExpModuleSceVideoRecording);
 
-		ALLOW_MODULE_OVERRIDE("libc");
+		using Policy = CSceModuleSystem::LibraryRecord::OverridingPolicy;
+
 		ALLOW_MODULE_OVERRIDE("libSceLibcInternal");
-		pModuleSystem->setLibraryOverridability("libc", "libc", true);
-		pModuleSystem->setLibraryOverridability(
-			"libkernel", "libkernel", true,
-			CSceModuleSystem::LibraryRecord::Mode::Allow);
-		
-		pModuleSystem->setFunctionOverridability("libkernel", "libkernel",
-												 0xF41703CA43E6A352, true);
-		/* disable below functions, which are implemented in virutal libc module */
 
+		ALLOW_LIBRARY_OVERRIDE("libkernel", "libkernel", Policy::AllowList);
+		ALLOW_FUNCTION_OVERRIDE("libkernel", "libkernel", 0xF41703CA43E6A352);
+
+		ALLOW_LIBRARY_OVERRIDE("libc", "libc", Policy::DisallowList);
 		// fopen
-		pModuleSystem->setFunctionOverridability("libc", "libc",
-												 14260101637949278365ULL, false);
-
+		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 14260101637949278365ULL);
 		// fseek
-		pModuleSystem->setFunctionOverridability("libc", "libc",
-												 12466338725556587288ULL, false);
-
+		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 12466338725556587288ULL);
 		// ftell
-		pModuleSystem->setFunctionOverridability("libc", "libc",
-												 4732424424179322620ULL, false);
+		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 4732424424179322620ULL);
 		// fread
-		pModuleSystem->setFunctionOverridability("libc", "libc",
-												 10786259999654564973ULL, false);
-
+		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 10786259999654564973ULL);
 		// fclose
-		pModuleSystem->setFunctionOverridability("libc", "libc",
-												 13440794502107408237ULL, false);
-
+		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 13440794502107408237ULL);
 		// malloc
-		pModuleSystem->setFunctionOverridability("libc", "libc",
-												 9297117245426667155ULL, false);
-
+		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 9297117245426667155ULL);
 		// free
-		pModuleSystem->setFunctionOverridability("libc", "libc",
-												 13008767002086125649ULL, false);
+		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 13008767002086125649ULL);
 		// catchReturnFromMain
-		pModuleSystem->setFunctionOverridability("libc", "libc",
-												 0x5CA45E82C1691299ULL, false);
-
+		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 0x5CA45E82C1691299ULL);
 		// exit
-		pModuleSystem->setFunctionOverridability("libc", "libc",
-												 0xB8C7A2D56F6EC8DAULL, false);
+		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 0xB8C7A2D56F6EC8DAULL);
 		// time
-		pModuleSystem->setFunctionOverridability("libc", "libc",
-												 0xC0B9459301BD51C4ULL, false);
+		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 0xC0B9459301BD51C4ULL);
 		bRet = true;
 	} while (false);
 	return bRet;

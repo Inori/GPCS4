@@ -1,4 +1,5 @@
 #pragma once
+#if 0 // Legacy Code
 #include "GPCS4Common.h"
 #include "elf.h"
 #include <vector>
@@ -140,4 +141,4 @@ private:
 	std::vector<IMPORT_MODULE> m_vtModules;
 	std::vector<IMPORT_LIBRARY> m_vtLibraries;
 };
-
+#endif

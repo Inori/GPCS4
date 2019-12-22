@@ -122,7 +122,7 @@ bool CSceModuleSystem::isLibraryOverridable(std::string const &modName,
 		auto &mr = m_overridableModules.at(modName);
 		if (mr.libraries.empty())
 		{
-			// if the override library table is empty, all bibraries in the module is
+			// if the override library table is empty, all libraries in the module is
 			// overridable
 			retVal = true;
 			break;
@@ -164,7 +164,7 @@ bool CSceModuleSystem::isFunctionOverridable(std::string const &modName,
 			break;
 		}
 
-		if (lr.mode == LibraryRecord::Mode::Allow)
+		if (lr.mode == LibraryRecord::OverridingPolicy::AllowList)
 		{
 			retVal = lr.functions.count(nid) > 0 ? true : false;
 		}
@@ -176,67 +176,6 @@ bool CSceModuleSystem::isFunctionOverridable(std::string const &modName,
 	} while (false);
 
 	return retVal;
-}
-
-bool CSceModuleSystem::decodeValue(std::string const &encodedStr, uint64_t &value)
-{
-	bool bRet = false;
-
-	// the max length for an encode id is 11
-	// from orbis-ld.exe
-	const uint nEncLenMax = 11;
-	const char pCodes[] =
-		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-";
-
-	do
-	{
-
-		if (encodedStr.size() > nEncLenMax)
-		{
-			LOG_ERR("encode id too long: %s", encodedStr.c_str());
-			break;
-		}
-
-		bool bError = false;
-		value       = 0;
-
-		for (int i = 0; i < encodedStr.size(); ++i)
-		{
-			auto pChPos = strchr(pCodes, encodedStr[i]);
-			uint nIndex = 0;
-
-			if (pChPos != nullptr)
-			{
-				nIndex = static_cast<uint>(pChPos - pCodes);
-			}
-			else
-			{
-				bError = true;
-				break;
-			}
-
-			// NID is 64 bits long, thus we do 6 x 10 + 4 times
-			if (i < nEncLenMax - 1)
-			{
-				value <<= 6;
-				value |= nIndex;
-			}
-			else
-			{
-				value <<= 4;
-				value |= (nIndex >> 2);
-			}
-		}
-
-		if (bError)
-		{
-			break;
-		}
-
-		bRet = true;
-	} while (false);
-	return bRet;
-	return false;
 }
 
 bool CSceModuleSystem::IsEndFunctionEntry(const SCE_EXPORT_FUNCTION *pFunc)
@@ -283,12 +222,6 @@ bool CSceModuleSystem::RegisterModule(const SCE_EXPORT_MODULE &stModule)
 			NameFuncMap nameMap;
 			while (!IsEndFunctionEntry(pFunc))
 			{
-				//if (!isFunctionLoadable(szModName, szLibName, pFunc->nNid))
-				//{
-				//	LOG_DEBUG("function %s is not loadable", pFunc->szFunctionName);
-				//	continue;
-				//}
-
 				nidMap.insert(
 					std::make_pair((uint64)pFunc->nNid, (void *)pFunc->pFunction));
 				nameMap.insert(std::make_pair(std::string(pFunc->szFunctionName),
@@ -564,7 +497,7 @@ bool CSceModuleSystem::setModuleOverridability(const std::string &modName, bool 
 bool CSceModuleSystem::setLibraryOverridability(const std::string &modName,
 												const std::string &libName,
 												bool ovrd,
-												LibraryRecord::Mode mode)
+												LibraryRecord::OverridingPolicy mode)
 {
 	bool retVal = true;
 
@@ -641,12 +574,12 @@ bool CSceModuleSystem::setFunctionOverridability(const std::string &modName,
 		auto &lr = mr.libraries.at(modName);
 		if (ovrd)
 		{
-			if (lr.mode == LibraryRecord::Mode::Allow &&
+			if (lr.mode == LibraryRecord::OverridingPolicy::AllowList &&
 				lr.functions.count(nid) == 0)
 			{
 				lr.functions.insert(std::make_pair(nid, true));
 			}
-			else if (lr.mode == LibraryRecord::Mode::Disallow &&
+			else if (lr.mode == LibraryRecord::OverridingPolicy::DisallowList &&
 					 lr.functions.count(nid) != 0)
 			{
 				lr.functions.erase(nid);
@@ -654,12 +587,12 @@ bool CSceModuleSystem::setFunctionOverridability(const std::string &modName,
 		}
 		else
 		{
-			if (lr.mode == LibraryRecord::Mode::Disallow &&
+			if (lr.mode == LibraryRecord::OverridingPolicy::DisallowList &&
 				lr.functions.count(nid) == 0)
 			{
 				lr.functions.insert(std::make_pair(nid, true));
 			}
-			else if (lr.mode == LibraryRecord::Mode::Allow &&
+			else if (lr.mode == LibraryRecord::OverridingPolicy::AllowList &&
 					 lr.functions.count(nid) != 0)
 			{
 				lr.functions.erase(nid);
@@ -667,15 +600,6 @@ bool CSceModuleSystem::setFunctionOverridability(const std::string &modName,
 		}
 
 		retVal = true;
-		// if (lr.functions.count(nid) != 0 && ovrd == false)
-		// {
-		// 	lr.functions.erase(nid);
-		// }
-		// else
-		// {
-		// 	lr.functions.insert(std::make_pair(nid, true));
-		// }
-
 	} while (false);
 
 	return retVal;
@@ -723,49 +647,12 @@ bool CSceModuleSystem::isFileAllowedToLoad(std::string const &fileName)
 	return retVal;
 }
 
-bool CSceModuleSystem::decodeEncodedName(std::string const &strEncName,
-										 uint *modId,
-										 uint *libId,
-										 uint64_t *funcNid)
+void CSceModuleSystem::clearModules()
 {
-	bool bRet = false;
-	do
-	{
-		if (modId == nullptr || libId == nullptr || funcNid == nullptr)
-		{
-			break;
-		}
-
-		auto &nModuleId  = *modId;
-		auto &nLibraryId = *libId;
-		auto &nNid       = *funcNid;
-
-		std::vector<std::string> vtNameParts;
-		if (!UtilString::Split(strEncName, '#', vtNameParts))
-		{
-			break;
-		}
-
-		if (!decodeValue(vtNameParts[0], nNid))
-		{
-			break;
-		}
-
-		uint64 nLibId = 0;
-		if (!decodeValue(vtNameParts[1], nLibId))
-		{
-			break;
-		}
-		nLibraryId = static_cast<uint>(nLibId);
-
-		uint64 nModId = 0;
-		if (!decodeValue(vtNameParts[2], nModId))
-		{
-			break;
-		}
-		nModuleId = static_cast<uint>(nModId);
-
-		bRet = true;
-	} while (false);
-	return bRet;
+	m_umpModuleMapNid.clear();
+	m_umpModuleMapName.clear();
+	m_overridableModules.clear();
+	m_allowedFiles.clear();
+	m_mappedModules.clear();
+	m_mappedModuleNameIndexMap.clear();
 }
