@@ -122,7 +122,7 @@ bool CSceModuleSystem::isLibraryOverridable(std::string const &modName,
 		auto &mr = m_overridableModules.at(modName);
 		if (mr.libraries.empty())
 		{
-			// if the override library table is empty, all bibraries in the module is
+			// if the override library table is empty, all libraries in the module is
 			// overridable
 			retVal = true;
 			break;
@@ -164,7 +164,7 @@ bool CSceModuleSystem::isFunctionOverridable(std::string const &modName,
 			break;
 		}
 
-		if (lr.mode == LibraryRecord::Mode::Allow)
+		if (lr.mode == LibraryRecord::Mode::AllowList)
 		{
 			retVal = lr.functions.count(nid) > 0 ? true : false;
 		}
@@ -222,12 +222,6 @@ bool CSceModuleSystem::RegisterModule(const SCE_EXPORT_MODULE &stModule)
 			NameFuncMap nameMap;
 			while (!IsEndFunctionEntry(pFunc))
 			{
-				//if (!isFunctionLoadable(szModName, szLibName, pFunc->nNid))
-				//{
-				//	LOG_DEBUG("function %s is not loadable", pFunc->szFunctionName);
-				//	continue;
-				//}
-
 				nidMap.insert(
 					std::make_pair((uint64)pFunc->nNid, (void *)pFunc->pFunction));
 				nameMap.insert(std::make_pair(std::string(pFunc->szFunctionName),
@@ -580,12 +574,12 @@ bool CSceModuleSystem::setFunctionOverridability(const std::string &modName,
 		auto &lr = mr.libraries.at(modName);
 		if (ovrd)
 		{
-			if (lr.mode == LibraryRecord::Mode::Allow &&
+			if (lr.mode == LibraryRecord::Mode::AllowList &&
 				lr.functions.count(nid) == 0)
 			{
 				lr.functions.insert(std::make_pair(nid, true));
 			}
-			else if (lr.mode == LibraryRecord::Mode::Disallow &&
+			else if (lr.mode == LibraryRecord::Mode::DisallowList &&
 					 lr.functions.count(nid) != 0)
 			{
 				lr.functions.erase(nid);
@@ -593,12 +587,12 @@ bool CSceModuleSystem::setFunctionOverridability(const std::string &modName,
 		}
 		else
 		{
-			if (lr.mode == LibraryRecord::Mode::Disallow &&
+			if (lr.mode == LibraryRecord::Mode::DisallowList &&
 				lr.functions.count(nid) == 0)
 			{
 				lr.functions.insert(std::make_pair(nid, true));
 			}
-			else if (lr.mode == LibraryRecord::Mode::Allow &&
+			else if (lr.mode == LibraryRecord::Mode::AllowList &&
 					 lr.functions.count(nid) != 0)
 			{
 				lr.functions.erase(nid);
@@ -606,15 +600,6 @@ bool CSceModuleSystem::setFunctionOverridability(const std::string &modName,
 		}
 
 		retVal = true;
-		// if (lr.functions.count(nid) != 0 && ovrd == false)
-		// {
-		// 	lr.functions.erase(nid);
-		// }
-		// else
-		// {
-		// 	lr.functions.insert(std::make_pair(nid, true));
-		// }
-
 	} while (false);
 
 	return retVal;
@@ -660,4 +645,14 @@ bool CSceModuleSystem::isFileAllowedToLoad(std::string const &fileName)
 	}
 
 	return retVal;
+}
+
+void CSceModuleSystem::clearModules()
+{
+	m_umpModuleMapNid.clear();
+	m_umpModuleMapName.clear();
+	m_overridableModules.clear();
+	m_allowedFiles.clear();
+	m_mappedModules.clear();
+	m_mappedModuleNameIndexMap.clear();
 }

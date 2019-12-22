@@ -1,3 +1,4 @@
+#if 0 // Legacy code
 #include "EbootObject.h"
 #include "Platform/PlatformUtils.h"
 #include <algorithm>
@@ -937,3 +938,4 @@ std::string CEbootObject::LibraryNameFromId(uint nLibId)
 	} while (false);
 	return strLibName;
 }
+#endif

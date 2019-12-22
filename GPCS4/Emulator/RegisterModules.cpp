@@ -17,7 +17,7 @@ if(!pModuleSystem->setModuleOverridability(name, true)) \
 	break;\
 }\
 
-bool CEmulator::RegisterModules()
+bool CEmulator::registerModules()
 {
 	bool bRet = false;
 	do 
@@ -79,7 +79,7 @@ bool CEmulator::RegisterModules()
 		pModuleSystem->setLibraryOverridability("libc", "libc", true);
 		pModuleSystem->setLibraryOverridability(
 			"libkernel", "libkernel", true,
-			CSceModuleSystem::LibraryRecord::Mode::Allow);
+			CSceModuleSystem::LibraryRecord::Mode::AllowList);
 		
 		pModuleSystem->setFunctionOverridability("libkernel", "libkernel",
 												 0xF41703CA43E6A352, true);
