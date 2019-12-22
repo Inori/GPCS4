@@ -23,7 +23,7 @@ struct GCNInstructionFormat
 	// From GPU Shader Core ISA manual
 	Instruction::InstructionClass insClass;
 	// Instruction operand's bit width
-	uint32_t operandWidth;
+	Instruction::OperandType operandType;
 
 	// TODO:
 	// Add other meta data if needed.

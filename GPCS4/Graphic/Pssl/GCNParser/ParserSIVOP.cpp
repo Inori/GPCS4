@@ -165,7 +165,7 @@ ParserSI::kaStatus ParserSIVOP::Parse(GDT_HW_GENERATION hwGen, Instruction::inst
 			auto& meta                     = GetSIVOP1Meta(op1);
 
 			hasLiteral = (src0 == SIVOP1Instruction::SRCLiteralConst) || IsLiteralConstInstruction(op1);
-			instruction = std::make_unique<SIVOP1Instruction>(src0, vdst, ridx0, vdstRidx, 32, encoding, op1, meta.insClass, meta.operandWidth);
+			instruction = std::make_unique<SIVOP1Instruction>(src0, vdst, ridx0, vdstRidx, 32, encoding, op1, meta.insClass, meta.operandType);
             retStatus = ParserSI::Status_SUCCESS;
         }
         else if (VOPInstruction::Encoding_VOP2 == encoding)
@@ -179,7 +179,7 @@ ParserSI::kaStatus ParserSIVOP::Parse(GDT_HW_GENERATION hwGen, Instruction::inst
 			auto& meta                   = GetSIVOP2Meta(op2);
 		
 			hasLiteral = (src0 == SIVOP1Instruction::SRCLiteralConst) || IsLiteralConstInstruction(op2);
-			instruction = std::make_unique<SIVOP2Instruction>(src0, vsrc1, vdst, ridx0, vidx1, vdstRidx, 32, encoding, op2, meta.insClass, meta.operandWidth);
+			instruction = std::make_unique<SIVOP2Instruction>(src0, vsrc1, vdst, ridx0, vidx1, vdstRidx, 32, encoding, op2, meta.insClass, meta.operandType);
             retStatus = ParserSI::Status_SUCCESS;
         }
 
@@ -193,7 +193,7 @@ ParserSI::kaStatus ParserSIVOP::Parse(GDT_HW_GENERATION hwGen, Instruction::inst
 			auto& meta                     = GetSIVOPCMeta(opc);
 
 			hasLiteral = (src0 == SIVOPCInstruction::SRCLiteralConst) || IsLiteralConstInstruction(opc);
-			instruction = std::make_unique<SIVOPCInstruction>(src0, vsrc1, ridx0, vidx1, 32, opc, encoding, meta.insClass, meta.operandWidth);
+			instruction = std::make_unique<SIVOPCInstruction>(src0, vsrc1, ridx0, vidx1, 32, opc, encoding, meta.insClass, meta.operandType);
             retStatus = ParserSI::Status_SUCCESS;
         }
     }
@@ -312,7 +312,7 @@ ParserSIVOP::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexIns
 				ridx0, ridx1, ridx2,
 				vdstRidx, sdstRidx,
 				clmp, abs, neg, omod,
-				64, op3, encoding, meta.insClass, meta.operandWidth);
+				64, op3, encoding, meta.insClass, meta.operandType);
             retStatus =  ParserSI::Status_SUCCESS;
         }
     }

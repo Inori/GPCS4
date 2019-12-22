@@ -10,20 +10,20 @@ Instruction::Instruction(
 	InstructionCategory instructionFormatKind, 
 	InstructionSet instructionFormat, 
 	InstructionClass instructionClass, /*= InstructionClassUnknown*/
-	unsigned int instructionOperandWidth /*= 0*/) :
+	OperandType instructionOperandType /*= TypeNone*/) :
     m_instructionWidth(instructionWidth), 
 	m_instructionCategory(instructionFormatKind), 
 	m_instructionFormat(instructionFormat), 
 	m_HwGen(GDT_HW_GENERATION_SOUTHERNISLAND),
 	m_instructionClass(instructionClass),
-	m_instructionOperandWidth(instructionOperandWidth)
+	m_instructionOperandType(instructionOperandType)
 {
 }
 
-unsigned int Instruction::GetInstructionOperandWidth() const
+unsigned int Instruction::GetInstructionOperandType() const
 {
-	LOG_ASSERT(m_instructionOperandWidth != 0, "instruction operand width not initialized");
-	return m_instructionOperandWidth;
+	LOG_ASSERT(m_instructionOperandType != 0, "instruction operand width not initialized");
+	return m_instructionOperandType;
 }
 
 Instruction::InstructionClass Instruction::GetInstructionClass() const

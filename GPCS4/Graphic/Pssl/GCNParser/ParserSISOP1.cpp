@@ -140,7 +140,7 @@ ParserSI::kaStatus ParserSISOP1::Parse(GDT_HW_GENERATION hwGen, Instruction::ins
         SISOP1Instruction::OP op = GetSISOP1Op(hexInstruction);
 		Instruction::InstructionCategory insCat = GetSIOPCategory(op);
 		auto& meta = GetSISOP1Meta(op);
-		instruction = std::make_unique<SISOP1Instruction>(ssrc0, op, sdst, ridx0, sdstRidx1, insCat, meta.insClass, meta.operandWidth);
+		instruction = std::make_unique<SISOP1Instruction>(ssrc0, op, sdst, ridx0, sdstRidx1, insCat, meta.insClass, meta.operandType);
     }
     else if (hwGen == GDT_HW_GENERATION_VOLCANICISLAND)
     {

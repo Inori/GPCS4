@@ -33,8 +33,8 @@ public:
     SOPPInstruction(SIMM16 simm16,
 		InstructionCategory insCat = FlowControl, 
 		InstructionClass insClass = InstructionClassUnknown,
-		unsigned int insOperandWidth = 0) :
-		Instruction(SOPPInstructionWidth, insCat, InstructionSet_SOPP, insClass, insOperandWidth), 
+		OperandType operandType = TypeNone) :
+		Instruction(SOPPInstructionWidth, insCat, InstructionSet_SOPP, insClass, operandType), 
 		m_simm16(simm16) {}
 
     /// dtor
@@ -129,8 +129,8 @@ public:
     SISOPPInstruction(SIMM16 simm16, OP op,
 					  InstructionCategory insCat = FlowControl, 
 		InstructionClass insClass = InstructionClassUnknown, 
-		unsigned int insOperandWidth = 0) : 
-		SOPPInstruction(simm16, insCat, insClass, insOperandWidth),
+		OperandType operandType = TypeNone) : 
+		SOPPInstruction(simm16, insCat, insClass, operandType),
 		m_op(op)
 	{
 	}

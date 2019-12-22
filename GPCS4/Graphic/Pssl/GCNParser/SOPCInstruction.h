@@ -57,8 +57,8 @@ public:
     SOPCInstruction(SSRC ssrc0, SSRC ssrc1, unsigned int sridx0, unsigned int sridx1, 
 		InstructionCategory insCat = ScalarALU, 
 		InstructionClass insClass = InstructionClassUnknown, 
-		unsigned int insOperandWidth = 0) :
-		Instruction(SOPCInstructionWidth, insCat, InstructionSet_SOPC, insClass, insOperandWidth),
+		OperandType operandType = TypeNone) :
+		Instruction(SOPCInstructionWidth, insCat, InstructionSet_SOPC, insClass, operandType),
         m_ssrc0(ssrc0), m_ssrc1(ssrc1), m_sridx0(sridx0), m_sridx1(sridx1) {}
 
     /// dtor
@@ -130,12 +130,12 @@ public:
     SISOPCInstruction(SSRC ssrc0, SSRC ssrc1, 
 		OP op, unsigned int sridx0, unsigned int sridx1, 
 		InstructionClass insClass = InstructionClassUnknown,
-		unsigned int insOperandWidth = 0) : 
+		OperandType operandType = TypeNone) : 
 		SOPCInstruction(
 			ssrc0, ssrc1, sridx0, sridx1, 
 			Instruction::ScalarALU, 
 			insClass, 
-			insOperandWidth), 
+			operandType), 
 		m_op(op) {}
 
 

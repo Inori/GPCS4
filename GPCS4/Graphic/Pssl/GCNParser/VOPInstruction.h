@@ -96,8 +96,8 @@ public:
 		unsigned int instructionWidth, 
 		InstructionSet instructionEncoding, 
 		InstructionClass insClass = InstructionClassUnknown, 
-		unsigned int insOperandWidth = 0) : 
-		Instruction(instructionWidth, VectorALU, instructionEncoding, insClass, insOperandWidth),
+		OperandType operandType = TypeNone) : 
+		Instruction(instructionWidth, VectorALU, instructionEncoding, insClass, operandType),
 	m_src0(src0), m_vdst(vdst), m_ridx0(ridx0), m_vdstRidx(vdstRidx) { }
     /// -----------------------------------------------------------------------------------------------
     /// \brief Name:        ~VOPInstruction
@@ -208,8 +208,8 @@ public:
 		unsigned int ridx0, unsigned int vdstRidx,
 		unsigned int instructionWidth, Encoding instructionEncoding, VOP1_OP op,
 		InstructionClass insClass = InstructionClassUnknown,
-		unsigned int insOperandWidth = 0) :
-		VOPInstruction(src0, vdst, ridx0, vdstRidx, instructionWidth, InstructionSet_VOP1, insClass, insOperandWidth),
+		OperandType operandType = TypeNone) :
+		VOPInstruction(src0, vdst, ridx0, vdstRidx, instructionWidth, InstructionSet_VOP1, insClass, operandType),
 		m_op(op), m_instructionEncoding(instructionEncoding) { }
     /// -----------------------------------------------------------------------------------------------
 
@@ -380,13 +380,13 @@ public:
 		Encoding instructionEncoding, 
 		VOP2_OP op,	  
 		InstructionClass insClass, 
-		unsigned int insOperandWidth = 0) :
+		OperandType operandType = TypeNone) :
 		VOPInstruction(
 			src0, vdst, ridx0, vdstRidx, 
 			instructionWidth, 
 			InstructionSet_VOP2, 
 			insClass, 
-			insOperandWidth),
+			operandType),
 		m_op(op), m_vsrc1(vsrc1), m_vridx1(vridx1), m_instructionEncoding(instructionEncoding) { }
     /// -----------------------------------------------------------------------------------------------
 
@@ -894,8 +894,8 @@ public:
 		unsigned int instructionWidth, VOP3_OP op, 
 		Encoding instructionEncoding, 
 		InstructionClass insClass = InstructionClassUnknown, 
-		unsigned int insOperandWidth = 0) :
-		VOPInstruction(src0, vdst, ridx0, vdstRidx, instructionWidth, InstructionSet_VOP3, insClass, insOperandWidth),
+		OperandType operandType = TypeNone) :
+		VOPInstruction(src0, vdst, ridx0, vdstRidx, instructionWidth, InstructionSet_VOP3, insClass, operandType),
 		m_op(op), m_instructionEncoding(instructionEncoding),
 		m_src1(src1), m_src2(src2), m_sdst(sdst),
 		m_ridx1(ridx1), m_ridx2(ridx2), m_sdstRidx(sdstRidx),
@@ -1620,8 +1620,8 @@ public:
 		unsigned int instructionWidth, VOPC_OP op, 
 		Encoding instructionEncoding, 
 		InstructionClass insClass, 
-		unsigned int insOperandWidth = 0) :
-		VOPInstruction(src0, 0, ridx0, 0, instructionWidth, InstructionSet_VOPC, insClass, insOperandWidth),
+		OperandType operandType = TypeNone) :
+		VOPInstruction(src0, 0, ridx0, 0, instructionWidth, InstructionSet_VOPC, insClass, operandType),
 		m_op(op), 
 		m_vsrc1(vsrc1),
 		m_vridx1(vsrc1Ridx),

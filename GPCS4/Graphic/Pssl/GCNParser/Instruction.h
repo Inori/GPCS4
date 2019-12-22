@@ -253,6 +253,31 @@ const int NO_LABEL = -1;
 			InstructionClassCount
 		};
 
+		enum OperandType
+		{
+			TypeNone,
+			TypeB8,
+			TypeB16,
+			TypeB32,
+			TypeB64,
+			TypeB96,
+			TypeB128,
+			TypeF16,
+			TypeF32,
+			TypeF64,
+			TypeU8,
+			TypeU16,
+			TypeU24,
+			TypeU32,
+			TypeU64,
+			TypeI4,
+			TypeI8,
+			TypeI16,
+			TypeI24,
+			TypeI32,
+			TypeI64,
+		};
+
         /// 32 bit instructions
         typedef uint32_t instruction32bit;
 
@@ -268,7 +293,7 @@ const int NO_LABEL = -1;
 			InstructionCategory instructionFormatKind, 
 			InstructionSet instructionFormat, 
 			InstructionClass instructionClass = InstructionClassUnknown,
-			unsigned int instructionOperandWidth = 0);
+			OperandType instructionOperandType = TypeNone);
 
         /// dtor
         virtual ~Instruction() {}
@@ -301,7 +326,7 @@ const int NO_LABEL = -1;
 		///						e.g. xxx_b32 is 32, xxx_i64 is 64
 		/// \return Instruction operand's width
 		/// -----------------------------------------------------------------------------------------------
-		unsigned int GetInstructionOperandWidth() const;
+		unsigned int GetInstructionOperandType() const;
 
         /// -----------------------------------------------------------------------------------------------
         /// \brief Name:        GetInstructionFormat
@@ -329,7 +354,7 @@ const int NO_LABEL = -1;
 		/// Instruction`s class
 		InstructionClass m_instructionClass;
 
-		unsigned int m_instructionOperandWidth;
+		unsigned int m_instructionOperandType;
     };
 
 

@@ -68,8 +68,8 @@ public:
     SOP1Instruction(SSRC ssrc0, SDST sdst, unsigned int sridx0, unsigned int sdstRidx, 
 		InstructionCategory insCat = ScalarALU, 
 		InstructionClass insClass = InstructionClassUnknown,
-		unsigned int insOperandWidth = 0) :
-		Instruction(SOP1InstructionWidth, insCat, InstructionSet_SOP1, insClass, insOperandWidth),
+		OperandType operandType = TypeNone) :
+		Instruction(SOP1InstructionWidth, insCat, InstructionSet_SOP1, insClass, operandType),
         m_ssrc0(ssrc0), m_sridx0(sridx0), m_sdst(sdst), m_sdstRidx(sdstRidx) { }
 
     /// dtor
@@ -221,8 +221,8 @@ public:
     SISOP1Instruction(SSRC ssrc0, OP op, SDST sdst, unsigned int sridx0, unsigned int sdstRidx,
 		InstructionCategory insCat = ScalarALU, 
 		InstructionClass insClass = InstructionClassUnknown,
-		unsigned int insOperandWidth = 0) :
-		SOP1Instruction(ssrc0, sdst, sridx0, sdstRidx, insCat, insClass, insOperandWidth),
+		OperandType operandType = TypeNone) :
+		SOP1Instruction(ssrc0, sdst, sridx0, sdstRidx, insCat, insClass, operandType),
 		m_op(op)
 	{
 	}
