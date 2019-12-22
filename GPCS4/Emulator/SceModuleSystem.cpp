@@ -164,7 +164,7 @@ bool CSceModuleSystem::isFunctionOverridable(std::string const &modName,
 			break;
 		}
 
-		if (lr.mode == LibraryRecord::Mode::AllowList)
+		if (lr.mode == LibraryRecord::OverridingPolicy::AllowList)
 		{
 			retVal = lr.functions.count(nid) > 0 ? true : false;
 		}
@@ -497,7 +497,7 @@ bool CSceModuleSystem::setModuleOverridability(const std::string &modName, bool 
 bool CSceModuleSystem::setLibraryOverridability(const std::string &modName,
 												const std::string &libName,
 												bool ovrd,
-												LibraryRecord::Mode mode)
+												LibraryRecord::OverridingPolicy mode)
 {
 	bool retVal = true;
 
@@ -574,12 +574,12 @@ bool CSceModuleSystem::setFunctionOverridability(const std::string &modName,
 		auto &lr = mr.libraries.at(modName);
 		if (ovrd)
 		{
-			if (lr.mode == LibraryRecord::Mode::AllowList &&
+			if (lr.mode == LibraryRecord::OverridingPolicy::AllowList &&
 				lr.functions.count(nid) == 0)
 			{
 				lr.functions.insert(std::make_pair(nid, true));
 			}
-			else if (lr.mode == LibraryRecord::Mode::DisallowList &&
+			else if (lr.mode == LibraryRecord::OverridingPolicy::DisallowList &&
 					 lr.functions.count(nid) != 0)
 			{
 				lr.functions.erase(nid);
@@ -587,12 +587,12 @@ bool CSceModuleSystem::setFunctionOverridability(const std::string &modName,
 		}
 		else
 		{
-			if (lr.mode == LibraryRecord::Mode::DisallowList &&
+			if (lr.mode == LibraryRecord::OverridingPolicy::DisallowList &&
 				lr.functions.count(nid) == 0)
 			{
 				lr.functions.insert(std::make_pair(nid, true));
 			}
-			else if (lr.mode == LibraryRecord::Mode::AllowList &&
+			else if (lr.mode == LibraryRecord::OverridingPolicy::AllowList &&
 					 lr.functions.count(nid) != 0)
 			{
 				lr.functions.erase(nid);
