@@ -164,10 +164,13 @@ public:
 				   SymbolInfo const **symbolInfo) const;
 	bool getSymbol(size_t index, SymbolInfo const **symbolInfo) const;
 
-
 	bool getTLSInfo(void **pTls, uint *initSIze, uint *totalSize) const;
 	void *getEntryPoint() const;
 
+	bool getImportSymbols(SymbolList *symbols) const;
+	bool getExportSymbols(SymbolList *symbols) const;
+	bool getUnresolvedSymbols(SymbolList *symbols) const;
+	bool outputUnresolvedSymbols(std::string const &fileName) const;
 private:
 	bool isEncodedSymbol(std::string const &symbolName) const;
 	bool getSymbolInfo(std::string const &encSymbol,
@@ -206,6 +209,7 @@ private:
 	SymbolList m_symbols;
 	NameSymbolIndexMap m_nameSymbolMap;
 	std::vector<size_t> m_exportSymbols;
+	std::vector<size_t> m_importSymbols;
 
 	UtilMemory::memory_uptr m_mappedMemory;
 	size_t m_mappedSize;

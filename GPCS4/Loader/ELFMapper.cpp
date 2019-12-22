@@ -352,6 +352,10 @@ bool ELFMapper::parseSymbols()
 			{
 				m_moduleData->m_exportSymbols.push_back(idx);
 			}
+			else
+			{
+				m_moduleData->m_importSymbols.push_back(idx);
+			}
 		}
 		break;
 
@@ -391,6 +395,10 @@ bool ELFMapper::parseSymbols()
 			if (symbol.st_value != 0)
 			{
 				m_moduleData->m_exportSymbols.push_back(idx);
+			}
+			else
+			{
+				m_moduleData->m_importSymbols.push_back(idx);
 			}
 		}
 		break;

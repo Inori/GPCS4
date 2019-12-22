@@ -21,9 +21,22 @@ bool ModuleLoader::loadModule(std::string const &fileName,
 	{
 		MemoryMappedModule mod = {};
 
-		retVal = loadModuleFromFile(fileName, &mod);
+		bool exist = false;
+		retVal = loadModuleFromFile(fileName, &mod, &exist);
 		if (!retVal)
 		{
+			break;
+		}
+
+// Output NIDs of functions that are not implemented in HLE.
+#ifdef OUTPUT_NOT_IMPLEMENTED_HLE
+		mod.outputUnresolvedSymbols("unresolved_HLE.txt");
+#endif // OUTPUT_NOT_IMPLEMENTED_HLE
+
+		retVal = m_modSystem.registerMemoryMappedModule(mod.fileName, std::move(mod));
+		if (!retVal)
+		{
+			LOG_ERR("Failed to register module: %s", mod.fileName.c_str());
 			break;
 		}
 
@@ -53,12 +66,16 @@ bool ModuleLoader::loadModule(std::string const &fileName,
 }
 
 bool ModuleLoader::loadModuleFromFile(std::string const &fileName,
-									  MemoryMappedModule *mod)
+									  MemoryMappedModule *mod,
+									  bool *exist)
 {
+	LOG_ASSERT(mod != nullptr, "mod is nullpointer");
+	LOG_ASSERT(exist != nullptr, "mod is nullpointer");
+
+	*exist = false;
 	bool retVal = false;
 	do
 	{
-
 		retVal = mapFilePathToModuleName(fileName, &mod->fileName);
 		if (!retVal)
 		{
@@ -69,6 +86,8 @@ bool ModuleLoader::loadModuleFromFile(std::string const &fileName,
 		if (isLoaded)
 		{
 			LOG_DEBUG("module %s has already been loaded", mod->fileName.c_str());
+			retVal = true;
+			*exist = true;
 			break;
 		}
 
@@ -126,7 +145,6 @@ bool ModuleLoader::loadModuleFromFile(std::string const &fileName,
 						   reinterpret_cast<void *>(info->address));
 		}
 
-		m_modSystem.registerMemoryMappedModule(mod->fileName, std::move(*mod));
 		retVal = true;
 	} while (false);
 
@@ -157,8 +175,9 @@ bool ModuleLoader::loadDependencies()
 			break;
 		}
 
+		bool exist = false;
 		auto mod = MemoryMappedModule{};
-		retVal   = loadModuleFromFile(path, &mod);
+		retVal   = loadModuleFromFile(path, &mod, &exist);
 		if (!retVal)
 		{
 			LOG_ERR("Failed to load module %s", fileName.c_str());
@@ -169,6 +188,16 @@ bool ModuleLoader::loadDependencies()
 			}
 			else
 			{
+				break;
+			}
+		}
+
+		if (!exist)
+		{
+			retVal = m_modSystem.registerMemoryMappedModule(mod.fileName, std::move(mod));
+			if (!retVal)
+			{
+				LOG_ERR("Failed to register module: %s", mod.fileName.c_str());
 				break;
 			}
 		}
@@ -494,3 +523,4 @@ bool ModuleLoader::relocateModule(MemoryMappedModule const &mod) const
 
 	return retVal;
 }
+

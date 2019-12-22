@@ -1,7 +1,11 @@
 #include "Module.h"
 #include "Platform/PlatformUtils.h"
+#include "Emulator/SceModuleSystem.h"
 
+#include <spdlog/fmt/fmt.h>
+#include <fstream>
 #include <algorithm>
+
 
 const MODULE_INFO &MemoryMappedModule::getModuleInfo() const { return m_moduleInfo; }
 MODULE_INFO &MemoryMappedModule::getModuleInfo() { return m_moduleInfo; }
@@ -366,6 +370,87 @@ bool MemoryMappedModule::getSymbol(size_t index, SymbolInfo const **symbolInfo) 
 		*symbolInfo = &m_symbols[index];
 		retVal      = true;
 	}
+
+	return retVal;
+}
+
+bool MemoryMappedModule::getImportSymbols(SymbolList *importSymbols) const
+{
+	LOG_ASSERT(importSymbols != nullptr, "%s", "null pointer error");
+
+	for (auto index : m_importSymbols)
+	{
+		importSymbols->emplace_back(m_symbols[index]);
+	}
+
+	return true;
+}
+
+bool MemoryMappedModule::getExportSymbols(SymbolList *exportSymbols) const
+{
+	LOG_ASSERT(exportSymbols != nullptr, "%s", "null pointer error");
+
+	for (auto index : m_exportSymbols)
+	{
+		exportSymbols->emplace_back(m_symbols[index]);
+	}
+
+	return true;
+}
+
+bool MemoryMappedModule::getUnresolvedSymbols(SymbolList *symbolList) const
+{
+	LOG_ASSERT(symbolList != nullptr, "%s", "null pointer error");
+	auto modSystem = CSceModuleSystem::GetInstance();
+
+	for (auto index : m_importSymbols)
+	{
+		auto &symbol = m_symbols[index];
+		auto addr = modSystem->FindFunction(symbol.moduleName,
+											symbol.libraryName,
+											symbol.nid);
+		if (addr == nullptr)
+		{
+			symbolList->emplace_back(symbol);
+		}
+	}
+
+	return true;
+}
+
+bool MemoryMappedModule::outputUnresolvedSymbols(std::string const &fileName) const
+{
+	bool retVal = false;
+	do
+	{
+		SymbolList symbols = {};
+		retVal = getUnresolvedSymbols(&symbols);
+		if (!retVal)
+		{
+			LOG_ERR("Failed to get unresolved symbols");
+			break;
+		}
+
+		std::ofstream ofs;
+		ofs.open(fileName);
+
+		if (ofs.bad())
+		{
+			LOG_ERR("Failed to open file: %s", fileName.c_str());
+			break;
+		}
+
+		for (auto &symb : symbols)
+		{
+			auto line = fmt::format("{} {} {:x}\n",
+									symb.moduleName,
+									symb.libraryName,
+									symb.nid);
+			ofs << line;
+		}
+		
+		retVal = true;
+	} while (false);
 
 	return retVal;
 }

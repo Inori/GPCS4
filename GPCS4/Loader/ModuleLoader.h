@@ -18,7 +18,8 @@ public:
 
 private:
 	bool loadModuleFromFile(std::string const &fileName,
-							MemoryMappedModule *mod);
+							MemoryMappedModule *mod,
+							bool *exist);
 	bool loadDependencies();
 	bool addDepedenciesToLoad(MemoryMappedModule const &mod);
 	bool mapModuleNameToFilePath(std::string const &modName, std::string *path);
