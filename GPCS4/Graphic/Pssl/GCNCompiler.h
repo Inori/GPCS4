@@ -210,6 +210,10 @@ private:
 	// Store a vector to continuous vgprs
 	void emitVgprVectorStore(uint32_t startIdx, const SpirvRegisterValue& srcVec, const GcnRegMask& writeMask);
 	
+	// Load/Store sgpr pairs as Uint64 type
+	// e.g. s[2:3]
+	SpirvRegisterValue emitSgprPairLoad(uint32_t firstIndex);
+	void emitSgprPairStore(uint32_t firstIndex, const SpirvRegisterValue& srcReg);
 	
 	/////////////////////////////////////////
 	// Operands manipulation methods
@@ -266,6 +270,13 @@ private:
 		uint32_t srcOperand,
 		uint32_t regIndex,
 		SpirvScalarType dstType = SpirvScalarType::Float32);
+
+	////////////////////////////////
+	// Pointer manipulation methods
+	SpirvRegisterPointer emitArrayAccess(
+		SpirvRegisterPointer pointer,
+		spv::StorageClass sclass,
+		uint32_t index);
 
 	////////////////////////////////////////////////
 	// Constant building methods. These are used to
