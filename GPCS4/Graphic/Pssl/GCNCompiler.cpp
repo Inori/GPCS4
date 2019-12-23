@@ -1508,5 +1508,23 @@ bool GCNCompiler::isDoubleWordType(SpirvScalarType type) const
 		|| type == SpirvScalarType::Float64;
 }
 
+SpirvScalarType GCNCompiler::getScalarType(Instruction::OperandType operandType)
+{
+	SpirvScalarType resultType = SpirvScalarType::Unknown;
+	switch (operandType)
+	{
+	case Instruction::TypeB32:
+	case Instruction::TypeU32: resultType = SpirvScalarType::Uint32; break;
+	case Instruction::TypeB64:
+	case Instruction::TypeU64: resultType = SpirvScalarType::Uint64; break;
+	case Instruction::TypeF32: resultType = SpirvScalarType::Float32; break;
+	case Instruction::TypeF64: resultType = SpirvScalarType::Float64; break;
+	case Instruction::TypeI32: resultType = SpirvScalarType::Sint32; break;
+	case Instruction::TypeI64: resultType = SpirvScalarType::Sint64; break;
+	default:
+		LOG_ERR("unsupported operand type %d", static_cast<uint32_t>(operandType));
+		break;
+	}
+}
 
 }  // namespace pssl

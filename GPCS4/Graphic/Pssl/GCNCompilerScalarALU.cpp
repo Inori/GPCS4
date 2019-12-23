@@ -214,9 +214,10 @@ void GCNCompiler::emitScalarBitLogic(GCNInstruction& ins)
 	uint32_t src1Ridx;
 	getSopOperands(ins, &sdst, &sdstRidx, &src0, &src0Ridx, &src1, &src1Ridx);
 
-	const auto dstType = ins.instruction->GetInstructionOperandType() == Instruction::TypeB64 ? 
-		SpirvScalarType::Uint64 : 
-		SpirvScalarType::Uint32;
+	auto opType        = ins.instruction->GetInstructionOperandType();
+	const auto dstType = getScalarType(opType);
+
+	LOG_ASSERT(dstType == SpirvScalarType::Uint32 || dstType == SpirvScalarType::Uint64, "error operand type");
 
 	SpirvRegisterValue spvSrc0 = emitLoadScalarOperand(src0, src0Ridx, ins.literalConst, dstType);
 	SpirvRegisterValue spvSrc1;

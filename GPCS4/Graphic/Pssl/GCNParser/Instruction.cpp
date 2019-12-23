@@ -20,7 +20,7 @@ Instruction::Instruction(
 {
 }
 
-unsigned int Instruction::GetInstructionOperandType() const
+Instruction::OperandType Instruction::GetInstructionOperandType() const
 {
 	LOG_ASSERT(m_instructionOperandType != TypeNone, "instruction operand type not initialized");
 	return m_instructionOperandType;

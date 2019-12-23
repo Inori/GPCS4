@@ -493,6 +493,9 @@ private:
 		SpirvScalarType type) const;
 
 	bool isVop3Encoding(const GCNInstruction& ins);
+
+	SpirvScalarType getScalarType(Instruction::OperandType operandType);
+
 	// Convenient when used with opcodes with may have
 	// different encodings. e.g. V_MAC_F32 [VOP2|VOP3]
 	uint32_t getVopOpcode(GCNInstruction& ins);

@@ -326,7 +326,7 @@ const int NO_LABEL = -1;
 		///						e.g. xxx_b32 is 32, xxx_i64 is 64
 		/// \return Instruction operand's width
 		/// -----------------------------------------------------------------------------------------------
-		unsigned int GetInstructionOperandType() const;
+		OperandType GetInstructionOperandType() const;
 
         /// -----------------------------------------------------------------------------------------------
         /// \brief Name:        GetInstructionFormat
@@ -354,7 +354,7 @@ const int NO_LABEL = -1;
 		/// Instruction`s class
 		InstructionClass m_instructionClass;
 
-		unsigned int m_instructionOperandType;
+		OperandType m_instructionOperandType;
     };
 
 
