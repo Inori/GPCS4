@@ -222,6 +222,7 @@ void GCNCompiler::emitScalarBitLogic(GCNInstruction& ins)
 	SpirvRegisterValue spvSrc1;
 	if (ins.instruction->GetInstructionFormat() == Instruction::InstructionSet_SOP2)
 	{
+		// Only SOP2 has ssrc1
 		spvSrc1 = emitLoadScalarOperand(src1, src1Ridx, ins.literalConst, dstType);
 	}
 

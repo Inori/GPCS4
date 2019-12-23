@@ -76,8 +76,6 @@ struct GcnStateRegister
 
 	// spirv condition
 	SpirvRegisterValue sccz;  // There's no hardware sccz, branch instruction detect if scc is 0 or 1
-	SpirvRegisterValue vccz;
-	SpirvRegisterValue execz;
 };
 
 
