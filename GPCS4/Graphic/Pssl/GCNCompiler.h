@@ -454,15 +454,19 @@ private:
 
 	// Export
 	void emitExp(GCNInstruction& ins);
-	void emitExpVS(GCNInstruction& ins);
-	void emitExpPS(GCNInstruction& ins);
 
 	// DebugProfile
 	void emitDbgProf(GCNInstruction& ins);
 
-	// Extra dispatch
+	// Extra dispatch functions
+
 	void emitScalarProgFlowPC(GCNInstruction& ins);
 	void emitScalarProgFlowBranch(GCNInstruction& ins);
+
+	SpirvRegisterValue emitExpSrcLoadCompr(GCNInstruction& ins);
+	SpirvRegisterValue emitExpSrcLoadUnCompr(GCNInstruction& ins);
+	void emitExpVS(GCNInstruction& ins);
+	void emitExpPS(GCNInstruction& ins);
 
 	/////////////////////////////////////////////////////////
 

@@ -460,6 +460,8 @@ void GnmCommandBufferDraw::commitPsStage()
 		PsslShaderModule psModule((const uint32_t*)m_psContext.code, m_psContext.userDataSlotTable);
 		LOG_DEBUG("pixel shader hash %llX", psModule.key().toUint64());
 
+		SHADER_DEBUG_BREAK(psModule, 0xF20EC962EB00545F);
+
 		m_psContext.shader = psModule.compile();
 
 		auto psInputUsageSlots = psModule.inputUsageSlots();
