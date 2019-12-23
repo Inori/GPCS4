@@ -22,7 +22,7 @@ Instruction::Instruction(
 
 unsigned int Instruction::GetInstructionOperandType() const
 {
-	LOG_ASSERT(m_instructionOperandType != 0, "instruction operand width not initialized");
+	LOG_ASSERT(m_instructionOperandType != TypeNone, "instruction operand type not initialized");
 	return m_instructionOperandType;
 }
 
