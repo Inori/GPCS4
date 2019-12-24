@@ -1525,6 +1525,7 @@ SpirvScalarType GCNCompiler::getScalarType(Instruction::OperandType operandType)
 		LOG_ERR("unsupported operand type %d", static_cast<uint32_t>(operandType));
 		break;
 	}
+	return resultType;
 }
 
 }  // namespace pssl
