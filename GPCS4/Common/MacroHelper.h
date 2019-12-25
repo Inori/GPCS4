@@ -16,4 +16,6 @@
 // maybe relative to the garlic memory base address.
 #define GNM_GPU_ABS_ADDR(refAddr, relaAddr) ( (void*)(((uint64_t)(refAddr) & 0x0000FF0000000000) | uint64_t(relaAddr)) )
 
-
+// There is __INTELLISENSE__, but it does not appear to work correctly with the clang frontend,
+// so use this workaround instead (which works because Intellisense won't have __clang__ set).
+#define IS_INTELLISENSE defined(__clang__) || defined(__GNUC__)
