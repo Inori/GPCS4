@@ -847,6 +847,9 @@
     <ClInclude Include="Graphic\Pssl\GCNInstructionIterator.h">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClInclude>
+    <ClInclude Include="Common\IntellisenseClang.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
