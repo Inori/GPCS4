@@ -1,5 +1,5 @@
 #include "GnmCmdStream.h"
-#include "BitHelper.h"
+#include "UtilBit.h"
 #include "GnmGfx9MePm4Packets.h"
 
 
