@@ -37,8 +37,8 @@ const std::vector<uint8_t> FuncStubGenerator::funcTemplate = {
 	0xFF, 0xE0 // jmp rax
 };
 
-JitFunctionPool::JitFunctionPool(size_t funcSize, size_t funcNum)
-	: m_funcSize{ALIGN_ROUND(funcSize, 16)}, m_funcNum{funcNum}, m_index{0}
+JitFunctionPool::JitFunctionPool(size_t funcSize, size_t funcNum) :
+	m_funcSize{ util::alignRound(funcSize, (size_t)16) }, m_funcNum{ funcNum }, m_index{ 0 }
 {
 	m_totalSize = m_funcSize * funcNum;
 	auto memory = UtilMemory::VMMap(m_totalSize,

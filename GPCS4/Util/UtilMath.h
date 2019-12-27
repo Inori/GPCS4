@@ -1,17 +1,44 @@
 #pragma once
 
-#define IS_ALIGNED(x, a) (!((x)%(a)))
+namespace util
+{;
 
-#define ALIGN_DOWN(x, a) ((((x) / (a)) + (((x) % (a)) ? 1 : 0)) * (a))
+template <typename T, typename U = T>
+inline bool isAligned(T size, U align)
+{
+	return !(size % align);
+}
 
-#define ALIGN_ROUND(size, align) (((size) + (align) - 1) & ~((align) - 1))
+template <typename T, typename U = T>
+inline T alignDown(T size, U align)
+{
+	return ((size / align) + ((size % align) ? 1 : 0)) * align;
+}
 
-#define BIT_IS_SET(x, n) ((x) & (1 << (n)))
+template <typename T, typename U = T>
+inline T alignRound(T size, U align)
+{
+	return (size + align - 1) & ~(align - 1);
+}
 
-#define BUILD_QWORD(high, low) (((unsigned long long)(high) << 32) | (low))
+template <typename T>
+inline bool isBitSet(T value, uint32_t pos)
+{
+	return value & (1 << pos);
+}
+
+inline uint64_t buildUint64(uint32_t high, uint32_t low)
+{
+	return (uint64_t)(high) << 32 | low;
+}
 
 // TODO:
 // Some addresses in some gnm structures are GPU relative,
 // I'm not sure they are relative to what,
 // maybe relative to the garlic memory base address.
-#define GNM_GPU_ABS_ADDR(refAddr, relaAddr) ( (void*)(((uint64_t)(refAddr) & 0x0000FF0000000000) | uint64_t(relaAddr)) )
+inline void* gnmGpuAbsAddr(void* refAddr, void* relaAddr)
+{
+	return reinterpret_cast<void*>(((uintptr_t)(refAddr)&0x0000FF0000000000) | (uintptr_t)(relaAddr));
+}
+
+}  // namespace util

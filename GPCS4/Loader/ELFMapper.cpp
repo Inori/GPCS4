@@ -147,7 +147,7 @@ bool ELFMapper::parseSegmentHeaders()
 			{
 				info.pTlsAddr     = reinterpret_cast<byte *>(hdr.p_vaddr);
 				info.nTlsInitSize = hdr.p_filesz;
-				info.nTlsSize     = ALIGN_ROUND(hdr.p_memsz, hdr.p_align);
+				info.nTlsSize     = util::alignRound(hdr.p_memsz, hdr.p_align);
 			}
 			break;
 
@@ -645,7 +645,7 @@ size_t ELFMapper::calculateTotalLoadableSize()
 			}
 
 			size_t alignedAddr =
-				ALIGN_DOWN(phdr.p_vaddr + phdr.p_memsz, phdr.p_align);
+				util::alignDown(phdr.p_vaddr + phdr.p_memsz, phdr.p_align);
 			if (alignedAddr > loadAddrEnd)
 			{
 				loadAddrEnd = alignedAddr;
@@ -689,8 +689,8 @@ bool ELFMapper::mapCodeSegment(Elf64_Phdr const &phdr)
 		}
 
 		info.nCodeSize = phdr.p_memsz;
-		info.pCodeAddr = reinterpret_cast<byte *>(
-			ALIGN_DOWN(size_t(info.pMappedAddr) + phdr.p_vaddr, phdr.p_align));
+		info.pCodeAddr = reinterpret_cast<byte*>(
+			util::alignDown(size_t(info.pMappedAddr + phdr.p_vaddr), phdr.p_align));
 
 		byte *fileDataPtr = fileData.data() + phdr.p_offset;
 
@@ -731,7 +731,7 @@ bool ELFMapper::mapSecReloSegment(Elf64_Phdr const &phdr)
 		}
 
 		byte *relroAddr = reinterpret_cast<byte *>(
-			ALIGN_DOWN(size_t(info.pMappedAddr + phdr.p_vaddr), phdr.p_align));
+			util::alignDown(size_t(info.pMappedAddr + phdr.p_vaddr), phdr.p_align));
 		byte *fileDataPtr = fileData.data() + phdr.p_offset;
 
 		memcpy(relroAddr, fileDataPtr, phdr.p_filesz);
@@ -757,7 +757,7 @@ bool ELFMapper::mapDataSegment(Elf64_Phdr const &phdr)
 
 		info.nDataSize = phdr.p_memsz;
 		info.pDataAddr = reinterpret_cast<byte *>(
-			ALIGN_DOWN(size_t(info.pMappedAddr) + phdr.p_vaddr, phdr.p_align));
+			util::alignDown(size_t(info.pMappedAddr) + phdr.p_vaddr, phdr.p_align));
 
 		byte *fileDataPtr = fileData.data() + phdr.p_offset;
 		memcpy(info.pDataAddr, fileDataPtr, phdr.p_filesz);
