@@ -72,9 +72,11 @@ int PS4API sceKernelMapNamedDirectMemory(void **addr, size_t len,
 }
 
 
-int PS4API sceKernelMapNamedFlexibleMemory(void)
+int PS4API sceKernelMapNamedFlexibleMemory(void** addrInOut, size_t len, int prot, int flags, const char* name)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_DUMMY_IMPL();
+	void* direct = malloc(len);
+	*addrInOut   = direct;  // TODO: alignment, prot, flags
 	return SCE_OK;
 }
 

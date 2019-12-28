@@ -341,7 +341,7 @@ int PS4API sceKernelLoadStartModule(void);
 int PS4API sceKernelMapNamedDirectMemory(void **addr, size_t len, int prot, int flags, sceoff_t directMemoryStart, size_t alignment, const char *name);
 
 
-int PS4API sceKernelMapNamedFlexibleMemory(void);
+int PS4API sceKernelMapNamedFlexibleMemory(void** addrInOut, size_t len, int prot, int flags, const char* name);
 
 
 int PS4API sceKernelMprotect(void);
