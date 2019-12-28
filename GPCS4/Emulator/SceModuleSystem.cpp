@@ -283,6 +283,8 @@ bool CSceModuleSystem::registerFunction(std::string const &modName,
 			m_umpModuleMapNid.at(modName).at(libName).insert(std::make_pair(nid, p));
 		}
 
+		retVal = true;
+
 	} while (false);
 
 	return retVal;

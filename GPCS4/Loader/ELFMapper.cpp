@@ -226,7 +226,7 @@ bool ELFMapper::parseDynamicSection()
 	return retVal;
 }
 
-bool ELFMapper::mapImageIntoMemroy()
+bool ELFMapper::mapImageIntoMemory()
 {
 	bool retVal       = false;
 	MODULE_INFO &info = m_moduleData->m_moduleInfo;
@@ -250,7 +250,7 @@ bool ELFMapper::mapImageIntoMemroy()
 		m_moduleData->m_mappedMemory.reset(buffer);
 		m_moduleData->m_mappedSize = totalSize;
 
-		LOG_DEBUG("Module %s is loaded at 0x%08x size=%ld",
+		LOG_DEBUG("Module %s is loaded at 0x%x size=%ld",
 				  m_moduleData->fileName.c_str(), buffer, totalSize);
 
 		info.pMappedAddr = buffer;
@@ -261,7 +261,7 @@ bool ELFMapper::mapImageIntoMemroy()
 			if (phdr.p_flags & PF_X)
 			{
 				retVal = mapCodeSegment(phdr);
-				LOG_DEBUG("code segment at 0x%08x size=%ld", info.pCodeAddr,
+				LOG_DEBUG("code segment at 0x%x size=%ld", info.pCodeAddr,
 						  info.nCodeSize);
 			}
 			else if (phdr.p_type == PT_SCE_RELRO)
@@ -271,7 +271,7 @@ bool ELFMapper::mapImageIntoMemroy()
 			else if (phdr.p_flags & PF_W)
 			{
 				retVal = mapDataSegment(phdr);
-				LOG_DEBUG("data segment at 0x%08x size=%ld", info.pDataAddr,
+				LOG_DEBUG("data segment at 0x%x size=%ld", info.pDataAddr,
 						  info.nDataSize);
 				// there should no longer be segment to be mapped,
 				// and we stop enumerating right here.
@@ -444,19 +444,20 @@ bool ELFMapper::prepareTables(Elf64_Dyn const &entry, uint index)
 
 	case DT_INIT:
 	{
-		LOG_DEBUG("INIT addr: %08x", entry.d_un.d_ptr);
+		LOG_DEBUG("INIT addr: %x", entry.d_un.d_ptr);
+		info.pInitProc = entry.d_un.d_ptr;
 	}
 	break;
 
 	case DT_FINI:
 	{
-		LOG_DEBUG("FINI addr: %08x", entry.d_un.d_ptr);
+		LOG_DEBUG("FINI addr: %x", entry.d_un.d_ptr);
 	}
 	break;
 
 	case DT_SCE_PLTGOT:
 	{
-		LOG_DEBUG("PLTGOT addr: %08x", entry.d_un.d_ptr);
+		LOG_DEBUG("PLTGOT addr: %x", entry.d_un.d_ptr);
 	}
 	break;
 
@@ -704,6 +705,8 @@ bool ELFMapper::mapCodeSegment(Elf64_Phdr const &phdr)
 		{
 			info.pEntryPoint = nullptr;
 		}
+
+		info.pInitProc += reinterpret_cast<uint64_t>(info.pMappedAddr);
 
 		if (info.pTlsAddr != nullptr)
 		{

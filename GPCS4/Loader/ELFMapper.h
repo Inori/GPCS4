@@ -21,7 +21,7 @@ public:
 	bool validateHeader();
 	bool parseSegmentHeaders();
 	bool parseDynamicSection();
-	bool mapImageIntoMemroy();
+	bool mapImageIntoMemory();
 	bool parseSymbols();
 
 private:

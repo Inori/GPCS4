@@ -115,7 +115,7 @@ bool ModuleLoader::loadModuleFromFile(std::string const &fileName,
 			break;
 		}
 
-		retVal = m_mapper.mapImageIntoMemroy();
+		retVal = m_mapper.mapImageIntoMemory();
 		if (!retVal)
 		{
 			break;

@@ -14,6 +14,8 @@ static const SCE_EXPORT_FUNCTION g_pSceLibkernel_libkernel_FunctionTable[] =
 	{ 0xBCD7B5C387622C2B, "__tls_get_addr", (void*)__tls_get_addr },
 	{ 0x91BC385071D2632D, "__pthread_cxa_finalize", (void*)__pthread_cxa_finalize },
 	{ 0x171559A81000EE4B, "_write", (void*)scek__write },
+	{ 0xe9cdeb09513f7d35, "_open", (void*)scek__open },
+	{ 0xecdc2082b589e5c0, "__sys_regmgr_call", (void*)__sys_regmgr_call },
 	{ 0xAD35F0EB9C662C80, "sceKernelAllocateDirectMemory", (void*)sceKernelAllocateDirectMemory },
 	{ 0x4018BB1C22B4DE1C, "sceKernelClockGettime", (void*)sceKernelClockGettime },
 	{ 0x50AD939760D6527B, "sceKernelClose", (void*)sceKernelClose },
@@ -127,8 +129,19 @@ static const SCE_EXPORT_FUNCTION g_pSceLibkernel_libkernel_FunctionTable[] =
 	{ 0xBA9A15AF330715E1, "scePthreadMutexTrylock", (void*)scePthreadMutexTrylock },
 	{ 0xA084454E3A082DB8, "scePthreadSetschedparam", (void*)scePthreadSetschedparam },
 	{ 0xF81CD7624A9878B1, "scePthreadSetspecific", (void*)scePthreadSetspecific },
+	{ 0xc755fbe9aad83315, "scePthreadAttrGet", (void*)scePthreadAttrGet },
+	{ 0xf3eb39073663c528, "scePthreadAttrGetaffinity", (void*)scePthreadAttrGetaffinity },
 	{ 0x1E82D558D6A70417, "getpid", (void*)scek_getpid },
 	{ 0x7BAA2F068F59BC97, "getppid", (void*)scek_getppid },
+	{ 0xacd856cfe96f38c5, "_sceKernelSetThreadDtors", (void*)_sceKernelSetThreadDtors },
+	{ 0xa41ff2199da743da, "_sceKernelSetThreadAtexitCount", (void*)_sceKernelSetThreadAtexitCount },
+	{ 0x5a109cd70dc48522, "_sceKernelSetThreadAtexitReport", (void*)_sceKernelSetThreadAtexitReport },
+	{ 0xf79f6aadaccf22b8, "sceKernelGetProcParam", (void*)sceKernelGetProcParam },
+	{ 0xfa0f943fc3f27e6a, "sceKernelGetProcessType", (void*)sceKernelGetProcessType },
+	{ 0xcc4ff05c86632e83, "sceKernelDebugRaiseExceptionOnReleaseMode", (void*)sceKernelDebugRaiseExceptionOnReleaseMode },
+	{ 0x38c0d128a019f08e, "sceKernelDebugRaiseException", (void*)sceKernelDebugRaiseException },
+	{ 0xa7911c41e11e2401, "_sceKernelRtldSetApplicationHeapAPI", (void*)_sceKernelRtldSetApplicationHeapAPI },
+
 	SCE_FUNCTION_ENTRY_END
 };
 

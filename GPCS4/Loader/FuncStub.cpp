@@ -7,7 +7,15 @@ static void logFunc(const char *log)
 }
 
 // Trap the debugger when an unresolved function is called.
-static void trapDebugger() { assert(false); }
+static int PS4API trapDebugger()
+{
+#ifdef GPCS4_WINDOWS
+	__debugbreak();
+#else
+	raise(SIGTRAP);
+#endif
+	return -1;
+}
 
 // TODO: For safety sake, all the non-volatile registers should be saved, but I only save
 // rcx, rdx, r8, r9, r10, r11 for convenience.

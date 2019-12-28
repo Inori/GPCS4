@@ -12,10 +12,10 @@
 // library: libkernel
 //////////////////////////////////////////////////////////////////////////
 
-int PS4API __error(void)
+int* PS4API __error(void)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_DUMMY_IMPL();
+	return  &errno;
 }
 
 
@@ -46,7 +46,17 @@ int PS4API __pthread_cxa_finalize(void)
 	return SCE_OK;
 }
 
+int PS4API _sceKernelSetThreadAtexitCount()
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
 
+int PS4API _sceKernelSetThreadAtexitReport()
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
 
 int PS4API sceKernelClockGettime(void)
 {
@@ -54,14 +64,11 @@ int PS4API sceKernelClockGettime(void)
 	return SCE_OK;
 }
 
-
 int PS4API sceKernelGetCpumode(void)
 {
 	LOG_SCE_DUMMY_IMPL();
 	return SCE_KERNEL_CPUMODE_7CPU_NORMAL;
 }
-
-
 
 // Is PS4 Pro
 int PS4API sceKernelIsNeoMode(void)
@@ -72,14 +79,12 @@ int PS4API sceKernelIsNeoMode(void)
 }
 
 
-
 int PS4API sceKernelUsleep(SceKernelUseconds microseconds)
 {
 	//LOG_SCE_TRACE("ms %d", microseconds);
 	UtilTime::MicroSleep(microseconds);
 	return SCE_OK;
 }
-
 
 
 int PS4API sceKernelBatchMap(void)
@@ -140,6 +145,64 @@ int PS4API sceKernelUuidCreate(void)
 	return SCE_OK;
 }
 
+
+ProcParam* PS4API sceKernelGetProcParam(uint64_t p1, uint64_t p2)
+{
+	LOG_SCE_DUMMY_IMPL();
+	static SubProcParam subProcParam;
+	static ProcParam procParam;
+	procParam.subProcParam = &subProcParam;
+	return &procParam;
+}
+
+
+void PS4API _sceKernelRtldSetApplicationHeapAPI(void* heap_api)
+{
+	LOG_SCE_DUMMY_IMPL();
+}
+
+
+void PS4NORETURN PS4API sceKernelDebugRaiseException(uint32_t error_code, uint32_t param)
+{
+	LOG_FIXME("Not implemented");
+	exit(-1);
+}
+
+
+void PS4API sceKernelDebugRaiseExceptionOnReleaseMode(uint32_t error_code, uint32_t param)
+{
+	LOG_FIXME("Not implemented");
+}
+
+
+int PS4API __sys_regmgr_call()
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API scePthreadAttrGet(ScePthread thread, ScePthreadAttr* attr)
+{
+	LOG_SCE_DUMMY_IMPL();
+	*attr = nullptr;
+	return SCE_OK;
+}
+
+
+int PS4API scePthreadAttrGetaffinity(ScePthread thread, SceKernelCpumask* mask)
+{
+	LOG_SCE_DUMMY_IMPL();
+	*mask = 0;
+	return SCE_OK;
+}
+
+
+int PS4API sceKernelGetProcessType(int pid)
+{
+	LOG_SCE_DUMMY_IMPL();
+	return SCE_OK;
+}
 
 
 //////////////////////////////////////////////////////////////////////////

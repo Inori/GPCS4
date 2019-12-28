@@ -32,7 +32,7 @@ extern const SCE_EXPORT_MODULE g_ExpModuleSceLibkernel;
 // library: libkernel
 //////////////////////////////////////////////////////////////////////////
 
-int PS4API __error(void);
+int* PS4API __error(void);
 
 
 int PS4API __stack_chk_fail(void);
@@ -48,6 +48,18 @@ int PS4API __pthread_cxa_finalize(void);
 
 
 int PS4API scek__write(int fd, const void* buf, size_t size);
+
+
+int PS4API _sceKernelSetThreadDtors(void);
+
+
+int PS4API _sceKernelSetThreadAtexitCount(void);
+
+
+int PS4API _sceKernelSetThreadAtexitReport(void);
+
+
+ProcParam* PS4API sceKernelGetProcParam(uint64_t p1, uint64_t p2);
 
 
 int PS4API sceKernelAllocateDirectMemory(sceoff_t searchStart, sceoff_t searchEnd, size_t len, size_t alignment, int memoryType, sceoff_t *physAddrOut);
@@ -377,6 +389,12 @@ int PS4API scePthreadGetspecific(void);
 int PS4API scePthreadKeyCreate(void);
 
 
+int PS4API scePthreadAttrGet(ScePthread thread, ScePthreadAttr* attr);
+
+
+int PS4API scePthreadAttrGetaffinity(ScePthread thread, SceKernelCpumask* mask);
+
+
 int PS4API scePthreadMutexTimedlock(void);
 
 
@@ -387,6 +405,25 @@ int PS4API scePthreadSetschedparam(void);
 
 
 int PS4API scePthreadSetspecific(void);
+
+
+void PS4API sceKernelDebugRaiseExceptionOnReleaseMode(uint32_t error_code, uint32_t param);
+
+
+void PS4NORETURN PS4API sceKernelDebugRaiseException(uint32_t error_code, uint32_t param);
+
+
+void PS4API _sceKernelRtldSetApplicationHeapAPI(void* heap_api);
+
+
+int PS4API __sys_regmgr_call(void);
+
+
+int PS4API scek__open(const char* path, int flags, SceKernelMode mode);
+
+
+int PS4API sceKernelGetProcessType(int pid);
+
 
 
 //////////////////////////////////////////////////////////////////////////
