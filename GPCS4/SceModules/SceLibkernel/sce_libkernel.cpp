@@ -175,9 +175,16 @@ bool PS4API sceKernelGetSanitizerNewReplaceExternal()
 }
 
 
-void PS4NORETURN PS4API sceKernelDebugRaiseException(uint32_t error_code, uint32_t param)
+int PS4API _sceKernelSetThreadDtors()
 {
 	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+void PS4NORETURN PS4API sceKernelDebugRaiseException(uint32_t error_code, uint32_t param)
+{
+	LOG_SCE_DUMMY_IMPL();
 	exit(-1);
 }
 
@@ -237,6 +244,31 @@ int PS4API sceCoredumpRegisterCoredumpHandler(void)
 
 
 int PS4API sceCoredumpWriteUserData(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////
+// library: libSceCoredump_debug
+//////////////////////////////////////////////////////////////////////////
+
+int PS4API sceCoredumpDebugTriggerCoredump(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+
+
+//////////////////////////////////////////////////////////////////////////
+// library: libSceOpenPsId
+//////////////////////////////////////////////////////////////////////////
+
+int PS4API sceKernelGetOpenPsId(void)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;

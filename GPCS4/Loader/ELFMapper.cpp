@@ -451,6 +451,7 @@ bool ELFMapper::prepareTables(Elf64_Dyn const &entry, uint index)
 	case DT_SCE_SYMENT:
 	case DT_SCE_HASH:
 	case DT_SCE_HASHSZ:
+	case DT_SONAME:
 		break;
 
 	case DT_INIT:

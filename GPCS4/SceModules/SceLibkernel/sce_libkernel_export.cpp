@@ -155,6 +155,18 @@ static const SCE_EXPORT_FUNCTION g_pSceLibkernel_libSceCoredump_FunctionTable[] 
 	SCE_FUNCTION_ENTRY_END
 };
 
+static const SCE_EXPORT_FUNCTION g_pSceLibkernel_libSceCoredump_debug_FunctionTable[] =
+{
+	{ 0x1B8DB43F6E693796, "sceCoredumpDebugTriggerCoredump", (void *)sceCoredumpDebugTriggerCoredump },
+	SCE_FUNCTION_ENTRY_END
+};
+
+static const SCE_EXPORT_FUNCTION g_pSceLibkernel_libSceOpenPsId_FunctionTable[] =
+{
+	{ 0x0CB39172BA14A9B7, "sceKernelGetOpenPsId", (void *)sceKernelGetOpenPsId },
+	SCE_FUNCTION_ENTRY_END
+};
+
 static const SCE_EXPORT_FUNCTION g_pSceLibkernel_libScePosix_FunctionTable[] =
 {
 	{ 0x94B313F6F240724D, "clock_gettime", (void*)scek_clock_gettime },
@@ -200,7 +212,9 @@ static const SCE_EXPORT_LIBRARY g_pSceLibkernel_LibTable[] =
 {
 	{ "libkernel", g_pSceLibkernel_libkernel_FunctionTable },
 	{ "libSceCoredump", g_pSceLibkernel_libSceCoredump_FunctionTable },
+	{ "libSceCoredump_debug", g_pSceLibkernel_libSceCoredump_debug_FunctionTable },
 	{ "libScePosix", g_pSceLibkernel_libScePosix_FunctionTable },
+	{ "libSceOpenPsId", g_pSceLibkernel_libSceOpenPsId_FunctionTable },
 	SCE_LIBRARY_ENTRY_END
 };
 

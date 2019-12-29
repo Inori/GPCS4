@@ -346,9 +346,6 @@
     <ClInclude Include="Loader\elf.h">
       <Filter>Source Files\Loader</Filter>
     </ClInclude>
-    <ClInclude Include="elf-sce.h">
-      <Filter>Source Files\Loader</Filter>
-    </ClInclude>
     <ClInclude Include="Emulator\Emulator.h">
       <Filter>Source Files\Emulator</Filter>
     </ClInclude>
@@ -855,6 +852,9 @@
     </ClInclude>
     <ClInclude Include="Util\UtilInclude.h">
       <Filter>Source Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Loader\elf-sce.h">
+      <Filter>Source Files\Loader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -93,13 +93,6 @@ int PS4API scek__write(int fd, const void* buf, size_t size)
 }
 
 
-int PS4API _sceKernelSetThreadDtors()
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
 int PS4API sceKernelOpen(const char *path, int flags, SceKernelMode mode)
 {
 	LOG_SCE_TRACE("path %s flag %x mode %x", path, flags, mode);
