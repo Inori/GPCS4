@@ -13,7 +13,8 @@
 struct MODULE_INFO
 {
 	void *pEntryPoint;
-	uint64_t pInitProc; // pointer to .init_proc()
+	void *pInitProc; // pointer to .init_proc()
+	void *pProcParam;
 
 	// virtual memory
 	byte *pMappedAddr;

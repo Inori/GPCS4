@@ -24,6 +24,8 @@ public:
 	bool mapImageIntoMemory();
 	bool parseSymbols();
 
+	void *getProcParam() const;
+
 private:
 	bool prepareTables(Elf64_Dyn const &entry, uint index);
 	bool parseSingleDynEntry(Elf64_Dyn const &entry, uint index);

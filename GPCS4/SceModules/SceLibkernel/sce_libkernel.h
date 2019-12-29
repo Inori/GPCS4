@@ -59,7 +59,7 @@ int PS4API _sceKernelSetThreadAtexitCount(void);
 int PS4API _sceKernelSetThreadAtexitReport(void);
 
 
-ProcParam* PS4API sceKernelGetProcParam(uint64_t p1, uint64_t p2);
+void *PS4API sceKernelGetProcParam(uint64_t p1, uint64_t p2);
 
 
 int PS4API sceKernelAllocateDirectMemory(sceoff_t searchStart, sceoff_t searchEnd, size_t len, size_t alignment, int memoryType, sceoff_t *physAddrOut);
@@ -414,6 +414,12 @@ void PS4NORETURN PS4API sceKernelDebugRaiseException(uint32_t error_code, uint32
 
 
 void PS4API _sceKernelRtldSetApplicationHeapAPI(void* heap_api);
+
+
+bool PS4API sceKernelGetSanitizerMallocReplaceExternal();
+
+
+bool PS4API sceKernelGetSanitizerNewReplaceExternal();
 
 
 int PS4API __sys_regmgr_call(void);

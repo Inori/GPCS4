@@ -1,7 +1,7 @@
 #include "sce_libkernel.h"
 #include "pthreads4w/pthread.h"
 #include "Platform/PlatformUtils.h"
-
+#include "Emulator/SceModuleSystem.h"
 // Note:
 // The codebase is generated using GenerateCode.py
 // You may need to modify the code manually to fit development needs
@@ -146,19 +146,32 @@ int PS4API sceKernelUuidCreate(void)
 }
 
 
-ProcParam* PS4API sceKernelGetProcParam(uint64_t p1, uint64_t p2)
+void *PS4API sceKernelGetProcParam(uint64_t p1, uint64_t p2)
 {
-	LOG_SCE_DUMMY_IMPL();
-	static SubProcParam subProcParam;
-	static ProcParam procParam;
-	procParam.subProcParam = &subProcParam;
-	return &procParam;
+	LOG_DEBUG("param1: %zu, param2: %zu", p1, p2);
+	auto moduleSystem =CSceModuleSystem::GetInstance();
+	auto procParam    = moduleSystem->getProcParam();
+	return procParam;
 }
 
 
 void PS4API _sceKernelRtldSetApplicationHeapAPI(void* heap_api)
 {
 	LOG_SCE_DUMMY_IMPL();
+}
+
+
+bool PS4API sceKernelGetSanitizerMallocReplaceExternal()
+{
+	LOG_SCE_DUMMY_IMPL();
+	return false;
+}
+
+
+bool PS4API sceKernelGetSanitizerNewReplaceExternal()
+{
+	LOG_SCE_DUMMY_IMPL();
+	return false;
 }
 
 

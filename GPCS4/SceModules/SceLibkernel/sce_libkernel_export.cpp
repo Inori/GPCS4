@@ -141,6 +141,8 @@ static const SCE_EXPORT_FUNCTION g_pSceLibkernel_libkernel_FunctionTable[] =
 	{ 0xcc4ff05c86632e83, "sceKernelDebugRaiseExceptionOnReleaseMode", (void*)sceKernelDebugRaiseExceptionOnReleaseMode },
 	{ 0x38c0d128a019f08e, "sceKernelDebugRaiseException", (void*)sceKernelDebugRaiseException },
 	{ 0xa7911c41e11e2401, "_sceKernelRtldSetApplicationHeapAPI", (void*)_sceKernelRtldSetApplicationHeapAPI },
+	{ 0xa72e8bf2389500df, "sceKernelGetSanitizerMallocReplaceExternal", (void*)sceKernelGetSanitizerMallocReplaceExternal },
+	{ 0x6e7671620005780d, "sceKernelGetSanitizerNewReplaceExternal", (void*)sceKernelGetSanitizerNewReplaceExternal },
 
 	SCE_FUNCTION_ENTRY_END
 };

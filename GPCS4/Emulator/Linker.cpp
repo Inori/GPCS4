@@ -101,7 +101,7 @@ bool CLinker::resolveSymbol(MemoryMappedModule const &mod,
 			else
 			{
 				formatString =
-					"Function nid 0x%08x%08x from lib:%s is called";
+					"Function nid 0x%08x%08x (\"%s\") from lib:%s is called";
 			}
 
 			auto nidString = info->symbolName.substr(0, 11);
