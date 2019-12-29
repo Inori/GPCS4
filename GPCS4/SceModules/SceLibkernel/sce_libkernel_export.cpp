@@ -129,6 +129,7 @@ static const SCE_EXPORT_FUNCTION g_pSceLibkernel_libkernel_FunctionTable[] =
 	{ 0xF81CD7624A9878B1, "scePthreadSetspecific", (void*)scePthreadSetspecific },
 	{ 0x1E82D558D6A70417, "getpid", (void*)scek_getpid },
 	{ 0x7BAA2F068F59BC97, "getppid", (void*)scek_getppid },
+	{ 0xf65be3e438c76620, "sceKernelPollEventFlag", (void*)sceKernelPollEventFlag },
 	SCE_FUNCTION_ENTRY_END
 };
 
