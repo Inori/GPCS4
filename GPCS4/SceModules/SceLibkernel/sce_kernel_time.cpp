@@ -53,6 +53,7 @@ int PS4API scek_clock_gettime(sceclockid_t clk_id, struct sce_timespec * tp)
 	// TIME_UTC is CLOCK_REALTIME,
 	// we need CLOCK_MONOTONIC
 	struct timespec ts;
+	memset(tp, 0, sizeof(*tp));
 	timespec_get(&ts, TIME_UTC);
 	tp->tv_sec = ts.tv_sec;
 	tp->tv_nsec = ts.tv_nsec;
