@@ -1,8 +1,8 @@
 #include "ELFMapper.h"
 #include "Platform/PlatformUtils.h"
 
-#include <cassert>
 #include <algorithm>
+#include <cassert>
 
 bool ELFMapper::loadFile(std::string const &filePath, MemoryMappedModule *mod)
 {
@@ -74,9 +74,9 @@ bool ELFMapper::validateHeader()
 		}
 
 		m_moduleData->m_elfHeader = reinterpret_cast<Elf64_Ehdr *>(fileMemory.data());
-		auto elfHeader          = m_moduleData->m_elfHeader;
+		auto elfHeader            = m_moduleData->m_elfHeader;
 
-		if (strncmp((char *)elfHeader->e_ident, ELFMAG, SELFMAG))
+		if (strncmp((const char *)elfHeader->e_ident, ELFMAG, SELFMAG))
 		{
 			LOG_ERR("ELF identifier mismatch");
 			break;
@@ -128,13 +128,18 @@ bool ELFMapper::parseSegmentHeaders()
 			switch (hdr.p_type)
 			{
 			case PT_LOAD:
-			case PT_SCE_PROCPARAM:
 			case PT_INTERP:
 			case PT_GNU_EH_FRAME:
 			case PT_SCE_RELRO:
 				// TODO: what is PT_SCE_MODULEPARAM used for?
 			case PT_SCE_MODULEPARAM:
 				break;
+
+			case PT_SCE_PROCPARAM:
+			{
+				info.pProcParam = reinterpret_cast<void *>(hdr.p_vaddr);
+				break;
+			}
 
 			case PT_DYNAMIC:
 			{
@@ -226,7 +231,13 @@ bool ELFMapper::parseDynamicSection()
 	return retVal;
 }
 
-bool ELFMapper::mapImageIntoMemroy()
+void *ELFMapper::getProcParam() const
+{
+	const auto &info = m_moduleData->m_moduleInfo;
+	return info.pProcParam;
+}
+
+bool ELFMapper::mapImageIntoMemory()
 {
 	bool retVal       = false;
 	MODULE_INFO &info = m_moduleData->m_moduleInfo;
@@ -250,7 +261,7 @@ bool ELFMapper::mapImageIntoMemroy()
 		m_moduleData->m_mappedMemory.reset(buffer);
 		m_moduleData->m_mappedSize = totalSize;
 
-		LOG_DEBUG("Module %s is loaded at 0x%08x size=%ld",
+		LOG_DEBUG("Module %s is loaded at 0x%x size=%ld",
 				  m_moduleData->fileName.c_str(), buffer, totalSize);
 
 		info.pMappedAddr = buffer;
@@ -261,7 +272,7 @@ bool ELFMapper::mapImageIntoMemroy()
 			if (phdr.p_flags & PF_X)
 			{
 				retVal = mapCodeSegment(phdr);
-				LOG_DEBUG("code segment at 0x%08x size=%ld", info.pCodeAddr,
+				LOG_DEBUG("code segment at 0x%x size=%ld", info.pCodeAddr,
 						  info.nCodeSize);
 			}
 			else if (phdr.p_type == PT_SCE_RELRO)
@@ -271,7 +282,7 @@ bool ELFMapper::mapImageIntoMemroy()
 			else if (phdr.p_flags & PF_W)
 			{
 				retVal = mapDataSegment(phdr);
-				LOG_DEBUG("data segment at 0x%08x size=%ld", info.pDataAddr,
+				LOG_DEBUG("data segment at 0x%x size=%ld", info.pDataAddr,
 						  info.nDataSize);
 				// there should no longer be segment to be mapped,
 				// and we stop enumerating right here.
@@ -440,23 +451,25 @@ bool ELFMapper::prepareTables(Elf64_Dyn const &entry, uint index)
 	case DT_SCE_SYMENT:
 	case DT_SCE_HASH:
 	case DT_SCE_HASHSZ:
+	case DT_SONAME:
 		break;
 
 	case DT_INIT:
 	{
-		LOG_DEBUG("INIT addr: %08x", entry.d_un.d_ptr);
+		LOG_DEBUG("INIT addr: %x", entry.d_un.d_ptr);
+		info.pInitProc = reinterpret_cast<void *>(entry.d_un.d_ptr);
 	}
 	break;
 
 	case DT_FINI:
 	{
-		LOG_DEBUG("FINI addr: %08x", entry.d_un.d_ptr);
+		LOG_DEBUG("FINI addr: %x", entry.d_un.d_ptr);
 	}
 	break;
 
 	case DT_SCE_PLTGOT:
 	{
-		LOG_DEBUG("PLTGOT addr: %08x", entry.d_un.d_ptr);
+		LOG_DEBUG("PLTGOT addr: %x", entry.d_un.d_ptr);
 	}
 	break;
 
@@ -705,6 +718,8 @@ bool ELFMapper::mapCodeSegment(Elf64_Phdr const &phdr)
 			info.pEntryPoint = nullptr;
 		}
 
+		info.pInitProc = reinterpret_cast<uint64_t>(info.pInitProc) + info.pMappedAddr;
+
 		if (info.pTlsAddr != nullptr)
 		{
 			info.pTlsAddr    = info.pCodeAddr + (uint64_t)info.pTlsAddr;
@@ -761,6 +776,11 @@ bool ELFMapper::mapDataSegment(Elf64_Phdr const &phdr)
 
 		byte *fileDataPtr = fileData.data() + phdr.p_offset;
 		memcpy(info.pDataAddr, fileDataPtr, phdr.p_filesz);
+
+		if (info.pProcParam != nullptr)
+		{
+			info.pProcParam = info.pMappedAddr + reinterpret_cast<uint64_t>(info.pProcParam);
+		}
 
 		retVal = true;
 

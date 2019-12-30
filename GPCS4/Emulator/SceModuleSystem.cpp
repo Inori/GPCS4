@@ -283,6 +283,8 @@ bool CSceModuleSystem::registerFunction(std::string const &modName,
 			m_umpModuleMapNid.at(modName).at(libName).insert(std::make_pair(nid, p));
 		}
 
+		retVal = true;
+
 	} while (false);
 
 	return retVal;
@@ -644,6 +646,21 @@ bool CSceModuleSystem::isFileAllowedToLoad(std::string const &fileName)
 		retVal = false;
 	}
 
+	return retVal;
+}
+
+void *CSceModuleSystem::getProcParam() const
+{
+	void *retVal = nullptr;
+	do
+	{
+		if (m_mappedModules.size() == 0)
+		{
+			break;
+		}
+		const auto &eboot_bin = m_mappedModules.at(0);
+		retVal                = eboot_bin.getModuleInfo().pProcParam;
+	} while (false);
 	return retVal;
 }
 

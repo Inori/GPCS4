@@ -395,3 +395,12 @@ int PS4API sceKernelUnlink(void)
 	return SCE_OK;
 }
 
+
+int PS4API scek__open(const char* path, int flags, SceKernelMode mode)
+{
+	LOG_DEBUG("'%s', 0x%x, 0x%x)", path, flags, mode);
+	int fd = _open(path, flags, mode);
+	return fd;
+}
+
+

@@ -62,7 +62,7 @@ bool CLinker::resolveSymbol(MemoryMappedModule const &mod,
 		if (!info->isEncoded)
 		{
 			address = m_modSystem.findSymbol(info->moduleName, info->libraryName,
-								   info->moduleName);
+								   info->symbolName);
 		}
 		else
 		{
@@ -101,7 +101,7 @@ bool CLinker::resolveSymbol(MemoryMappedModule const &mod,
 			else
 			{
 				formatString =
-					"Function nid 0x%08x%08x from lib:%s is called";
+					"Function nid 0x%08x%08x (\"%s\") from lib:%s is called";
 			}
 
 			auto nidString = info->symbolName.substr(0, 11);
@@ -183,7 +183,6 @@ bool CLinker::relocateRela(MemoryMappedModule &mod)
 			case R_X86_64_NONE:
 			case R_X86_64_PC32:
 			case R_X86_64_COPY:
-			case R_X86_64_GLOB_DAT:
 			case R_X86_64_TPOFF64:
 			case R_X86_64_TPOFF32:
 			case R_X86_64_DTPMOD64:
@@ -202,7 +201,7 @@ bool CLinker::relocateRela(MemoryMappedModule &mod)
 				}
 				else if (nBinding == STB_GLOBAL || nBinding == STB_WEAK)
 				{
-					char *pName = (char *)&pStrTab[symbol.st_name];
+					auto pName = (const char *)&pStrTab[symbol.st_name];
 					//LOG_DEBUG("RELA symbol: %s", pName);
 					if (!resolveSymbol(mod, pName, &nSymVal))
 					{
@@ -216,6 +215,23 @@ bool CLinker::relocateRela(MemoryMappedModule &mod)
 				}
 
 				*(uint64 *)&pImageBase[pRela->r_offset] =
+					nSymVal + pRela->r_addend;
+			}
+			break;
+			case R_X86_64_GLOB_DAT:
+			{
+				Elf64_Sym& symbol = pSymTab[nSymIdx];
+				auto nBinding     = ELF64_ST_BIND(symbol.st_info);
+				uint64 nSymVal    = 0;
+				auto pName       = (const char*)&pStrTab[symbol.st_name];
+				//LOG_DEBUG("RELA symbol: %s", pName);
+				if (!resolveSymbol(mod, pName, &nSymVal))
+				{
+					*(uint64*)&pImageBase[pRela->r_offset] = 0;
+					LOG_ERR("can not get symbol address.");
+					break;
+				}
+				*(uint64*)&pImageBase[pRela->r_offset] =
 					nSymVal + pRela->r_addend;
 			}
 			break;
@@ -255,7 +271,7 @@ bool CLinker::relocatePltRela(MemoryMappedModule &mod)
 		Elf64_Sym *pSymTab       = (Elf64_Sym *)info.pSymTab;
 		Elf64_Rela *pRelaEntries = (Elf64_Rela *)info.pPltRela;
 
-		LOG_DEBUG("PLT RELA count: %d", info.nPltRelaCount);
+		LOG_DEBUG("PLT RELA count: %d, for library: %s", info.nPltRelaCount, mod.fileName.c_str());
 		for (uint i = 0; i != info.nPltRelaCount; ++i)
 		{
 			Elf64_Rela *pRela = &pRelaEntries[i];

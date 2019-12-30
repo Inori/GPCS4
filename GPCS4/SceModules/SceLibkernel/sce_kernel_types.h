@@ -6,7 +6,6 @@ typedef struct _SceKernelSemaOptParam {
 	size_t	size;
 } SceKernelSemaOptParam;
 
-
 typedef void* SceKernelSema;
 
 
