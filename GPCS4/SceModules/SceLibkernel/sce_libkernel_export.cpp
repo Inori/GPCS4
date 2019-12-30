@@ -133,6 +133,7 @@ static const SCE_EXPORT_FUNCTION g_pSceLibkernel_libkernel_FunctionTable[] =
 	{ 0xf3eb39073663c528, "scePthreadAttrGetaffinity", (void*)scePthreadAttrGetaffinity },
 	{ 0x1E82D558D6A70417, "getpid", (void*)scek_getpid },
 	{ 0x7BAA2F068F59BC97, "getppid", (void*)scek_getppid },
+	{ 0xf65be3e438c76620, "sceKernelPollEventFlag", (void*)sceKernelPollEventFlag },
 	{ 0xacd856cfe96f38c5, "_sceKernelSetThreadDtors", (void*)_sceKernelSetThreadDtors },
 	{ 0xa41ff2199da743da, "_sceKernelSetThreadAtexitCount", (void*)_sceKernelSetThreadAtexitCount },
 	{ 0x5a109cd70dc48522, "_sceKernelSetThreadAtexitReport", (void*)_sceKernelSetThreadAtexitReport },
@@ -143,7 +144,6 @@ static const SCE_EXPORT_FUNCTION g_pSceLibkernel_libkernel_FunctionTable[] =
 	{ 0xa7911c41e11e2401, "_sceKernelRtldSetApplicationHeapAPI", (void*)_sceKernelRtldSetApplicationHeapAPI },
 	{ 0xa72e8bf2389500df, "sceKernelGetSanitizerMallocReplaceExternal", (void*)sceKernelGetSanitizerMallocReplaceExternal },
 	{ 0x6e7671620005780d, "sceKernelGetSanitizerNewReplaceExternal", (void*)sceKernelGetSanitizerNewReplaceExternal },
-
 	SCE_FUNCTION_ENTRY_END
 };
 

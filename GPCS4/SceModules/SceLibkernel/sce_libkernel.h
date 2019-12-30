@@ -585,5 +585,6 @@ int PS4API scek_getpid(void);
 int PS4API scek_getppid(void);
 
 
+int PS4API sceKernelPollEventFlag(SceKernelEventFlag ef, uint64_t bitPattern, uint32_t waitMode, uint64_t* pResultPat);
 
 
