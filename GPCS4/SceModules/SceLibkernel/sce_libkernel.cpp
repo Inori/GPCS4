@@ -185,6 +185,11 @@ int PS4API _sceKernelSetThreadDtors()
 void PS4NORETURN PS4API sceKernelDebugRaiseException(uint32_t error_code, uint32_t param)
 {
 	LOG_SCE_DUMMY_IMPL();
+#ifdef GPCS4_WINDOWS
+	__debugbreak();
+#else
+	raise(SIGTRAP);
+#endif
 	exit(-1);
 }
 
