@@ -677,7 +677,7 @@ void GnmCommandBufferDraw::bindImmResource(const PsslShaderResource& res)
 		auto texture = m_device->createOrGetImageTsharp(imgInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, key);
 
 		VkDeviceSize imageBufferSize = tsharp->getSizeAlign().m_size;
-		void* data = GNM_GPU_ABS_ADDR(res.resource, tsharp->getBaseAddress());
+		void* data                   = util::gnmGpuAbsAddr((void*)res.resource, tsharp->getBaseAddress());
 		m_context->updateImage(texture, 0, imageBufferSize, data);
 
 		GveImageViewCreateInfo viewInfo;

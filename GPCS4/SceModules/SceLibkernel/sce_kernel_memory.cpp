@@ -1,5 +1,6 @@
 #include "sce_libkernel.h"
 #include "sce_kernel_memory.h"
+#include "UtilMath.h"
 #include "Platform/UtilMemory.h"
 #include <cstring>
 
@@ -133,13 +134,13 @@ int PS4API sceKernelMapFlexibleMemory(void **addrInOut, size_t len, int prot, in
 	int err = SCE_KERNEL_ERROR_UNKNOWN;
 	do 
 	{
-		if (!addrInOut || !len || !IS_ALIGNED(len, SCE_LOGICAL_PAGE_SIZE))
+		if (!addrInOut || !len || !util::isAligned(len, (size_t)SCE_LOGICAL_PAGE_SIZE))
 		{
 			err = SCE_KERNEL_ERROR_EINVAL;
 			break;
 		}
 
-		if (flags & SCE_KERNEL_MAP_FIXED && !IS_ALIGNED((uint64)*addrInOut, SCE_LOGICAL_PAGE_SIZE))
+		if (flags & SCE_KERNEL_MAP_FIXED && !util::isAligned((uint64)*addrInOut, (size_t)SCE_LOGICAL_PAGE_SIZE))
 		{
 			err = SCE_KERNEL_ERROR_EINVAL;
 			break;

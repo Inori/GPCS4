@@ -133,8 +133,8 @@ GveMemory GveMemoryChunk::alloc(
 		const VkDeviceSize sliceStart = bestSlice->offset;
 		const VkDeviceSize sliceEnd = bestSlice->offset + bestSlice->length;
 
-		const VkDeviceSize allocStart = ALIGN_ROUND(sliceStart, align);
-		const VkDeviceSize allocEnd = ALIGN_ROUND(allocStart + size, align);
+		const VkDeviceSize allocStart = util::alignRound(sliceStart, align);
+		const VkDeviceSize allocEnd   = util::alignRound(allocStart + size, align);
 
 		if (allocEnd > sliceEnd)
 		{

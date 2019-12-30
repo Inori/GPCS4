@@ -14,11 +14,10 @@ class ModuleLoader
 public:
 	ModuleLoader(CSceModuleSystem &modSystem, CLinker &linker, CTLSHandler &tlsHandler);
 	bool loadModule(std::string const &fileName, MemoryMappedModule **mod);
-	bool relocateModule(MemoryMappedModule const &mod) const;
-
 private:
 	bool loadModuleFromFile(std::string const &fileName,
-							MemoryMappedModule *mod);
+							MemoryMappedModule *mod,
+							bool *exist);
 	bool loadDependencies();
 	bool addDepedenciesToLoad(MemoryMappedModule const &mod);
 	bool mapModuleNameToFilePath(std::string const &modName, std::string *path);
@@ -29,8 +28,6 @@ private:
 						std::string const &encName,
 						void *pointer);
 	bool registerSymbol(MemoryMappedModule const &mod, size_t idx);
-	bool relocateRela(MemoryMappedModule const &mod) const;
-	bool relocatePltRela(MemoryMappedModule const &mod) const;
 	bool initializeModules();
 
 	std::queue<std::string> m_filesToLoad;

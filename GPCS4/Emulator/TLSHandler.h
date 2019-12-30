@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GPCS4Common.h"
-#include "Singleton.h"
+#include "UtilSingleton.h"
 #include "zydis/Zydis.h"
 #include <vector>
 

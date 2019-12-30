@@ -1,10 +1,11 @@
 #pragma once
 
-#include "BitHelper.h"
+#include "UtilBit.h"
 
 
 template<typename T>
-class Flags {
+class Flags 
+{
 
 public:
 

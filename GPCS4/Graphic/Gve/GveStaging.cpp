@@ -39,7 +39,7 @@ GveBufferSlice GveStagingBufferAllocator::alloc(VkDeviceSize size, VkDeviceSize 
 			m_offset = 0;
 		}
 
-		m_offset = ALIGN_ROUND(m_offset, align);
+		m_offset = util::alignRound(m_offset, align);
 
 		// If this is true, m_buffer must be in use,
 		// we need to find another buffer, either in cache or a new one
@@ -65,7 +65,7 @@ GveBufferSlice GveStagingBufferAllocator::alloc(VkDeviceSize size, VkDeviceSize 
 		}
 
 		slice = GveBufferSlice(m_buffer, m_offset, size);
-		m_offset = ALIGN_ROUND(m_offset + size, align);
+		m_offset = util::alignRound(m_offset + size, align);
 
 	} while (false);
 	return slice;

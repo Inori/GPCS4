@@ -4,7 +4,7 @@
 #include "GveShader.h"
 #include "GveHash.h"
 #include "GvePipelineState.h"
-#include "SyncHelper.h"
+#include "UtilSync.h"
 
 #include <vector>
 

@@ -147,7 +147,7 @@ bool ELFMapper::parseSegmentHeaders()
 			{
 				info.pTlsAddr     = reinterpret_cast<byte *>(hdr.p_vaddr);
 				info.nTlsInitSize = hdr.p_filesz;
-				info.nTlsSize     = ALIGN_ROUND(hdr.p_memsz, hdr.p_align);
+				info.nTlsSize     = util::alignRound(hdr.p_memsz, hdr.p_align);
 			}
 			break;
 
@@ -352,6 +352,10 @@ bool ELFMapper::parseSymbols()
 			{
 				m_moduleData->m_exportSymbols.push_back(idx);
 			}
+			else
+			{
+				m_moduleData->m_importSymbols.push_back(idx);
+			}
 		}
 		break;
 
@@ -391,6 +395,10 @@ bool ELFMapper::parseSymbols()
 			if (symbol.st_value != 0)
 			{
 				m_moduleData->m_exportSymbols.push_back(idx);
+			}
+			else
+			{
+				m_moduleData->m_importSymbols.push_back(idx);
 			}
 		}
 		break;
@@ -637,7 +645,7 @@ size_t ELFMapper::calculateTotalLoadableSize()
 			}
 
 			size_t alignedAddr =
-				ALIGN_DOWN(phdr.p_vaddr + phdr.p_memsz, phdr.p_align);
+				util::alignDown(phdr.p_vaddr + phdr.p_memsz, phdr.p_align);
 			if (alignedAddr > loadAddrEnd)
 			{
 				loadAddrEnd = alignedAddr;
@@ -681,8 +689,8 @@ bool ELFMapper::mapCodeSegment(Elf64_Phdr const &phdr)
 		}
 
 		info.nCodeSize = phdr.p_memsz;
-		info.pCodeAddr = reinterpret_cast<byte *>(
-			ALIGN_DOWN(size_t(info.pMappedAddr) + phdr.p_vaddr, phdr.p_align));
+		info.pCodeAddr = reinterpret_cast<byte*>(
+			util::alignDown(size_t(info.pMappedAddr + phdr.p_vaddr), phdr.p_align));
 
 		byte *fileDataPtr = fileData.data() + phdr.p_offset;
 
@@ -723,7 +731,7 @@ bool ELFMapper::mapSecReloSegment(Elf64_Phdr const &phdr)
 		}
 
 		byte *relroAddr = reinterpret_cast<byte *>(
-			ALIGN_DOWN(size_t(info.pMappedAddr + phdr.p_vaddr), phdr.p_align));
+			util::alignDown(size_t(info.pMappedAddr + phdr.p_vaddr), phdr.p_align));
 		byte *fileDataPtr = fileData.data() + phdr.p_offset;
 
 		memcpy(relroAddr, fileDataPtr, phdr.p_filesz);
@@ -749,7 +757,7 @@ bool ELFMapper::mapDataSegment(Elf64_Phdr const &phdr)
 
 		info.nDataSize = phdr.p_memsz;
 		info.pDataAddr = reinterpret_cast<byte *>(
-			ALIGN_DOWN(size_t(info.pMappedAddr) + phdr.p_vaddr, phdr.p_align));
+			util::alignDown(size_t(info.pMappedAddr) + phdr.p_vaddr, phdr.p_align));
 
 		byte *fileDataPtr = fileData.data() + phdr.p_offset;
 		memcpy(info.pDataAddr, fileDataPtr, phdr.p_filesz);
@@ -759,111 +767,4 @@ bool ELFMapper::mapDataSegment(Elf64_Phdr const &phdr)
 	} while (false);
 
 	return retVal;
-}
-
-bool ELFMapper::decodeValue(std::string const &encodedStr, uint64_t &value)
-{
-	bool bRet = false;
-
-	// the max length for an encode id is 11
-	// from orbis-ld.exe
-	const uint nEncLenMax = 11;
-	const char pCodes[] =
-		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-";
-
-	do
-	{
-
-		if (encodedStr.size() > nEncLenMax)
-		{
-			LOG_ERR("encode id too long: %s", encodedStr.c_str());
-			break;
-		}
-
-		bool bError = false;
-		value       = 0;
-
-		for (int i = 0; i < encodedStr.size(); ++i)
-		{
-			auto pChPos = strchr(pCodes, encodedStr[i]);
-			uint nIndex = 0;
-
-			if (pChPos != nullptr)
-			{
-				nIndex = static_cast<uint>(pChPos - pCodes);
-			}
-			else
-			{
-				bError = true;
-				break;
-			}
-
-			// NID is 64 bits long, thus we do 6 x 10 + 4 times
-			if (i < nEncLenMax - 1)
-			{
-				value <<= 6;
-				value |= nIndex;
-			}
-			else
-			{
-				value <<= 4;
-				value |= (nIndex >> 2);
-			}
-		}
-
-		if (bError)
-		{
-			break;
-		}
-
-		bRet = true;
-	} while (false);
-	return bRet;
-}
-
-bool ELFMapper::decodeEncodedName(std::string const &strEncName,
-								  uint *modId,
-								  uint *libId,
-								  uint64_t *funcNid)
-{
-	bool bRet = false;
-	do
-	{
-		if (modId == nullptr || libId == nullptr || funcNid == nullptr)
-		{
-			break;
-		}
-
-		auto &nModuleId  = *modId;
-		auto &nLibraryId = *libId;
-		auto &nNid       = *funcNid;
-
-		std::vector<std::string> vtNameParts;
-		if (!UtilString::Split(strEncName, '#', vtNameParts))
-		{
-			break;
-		}
-
-		if (!decodeValue(vtNameParts[0], nNid))
-		{
-			break;
-		}
-
-		uint64 nLibId = 0;
-		if (!decodeValue(vtNameParts[1], nLibId))
-		{
-			break;
-		}
-		nLibraryId = static_cast<uint>(nLibId);
-
-		uint64 nModId = 0;
-		if (!decodeValue(vtNameParts[2], nModId))
-		{
-			break;
-		}
-		nModuleId = static_cast<uint>(nModId);
-
-		bRet = true;
-	} while (false);
-	return bRet;
 }

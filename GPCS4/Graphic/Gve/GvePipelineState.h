@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GveCommon.h"
-#include "FlagHelper.h"
+#include "UtilFlag.h"
 #include "GveLimit.h"
 #include "GveBuffer.h"
 
