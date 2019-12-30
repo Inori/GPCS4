@@ -49,13 +49,16 @@ bool CEmulator::Run(MemoryMappedModule const &mod)
 			break;
 		}
 
-		struct PS4StartupParams {
-			uint64_t argc{ 1 };
-			const char *argv[1]{ {"/app0/eboot.bin"} };
-		} ps4StartupParams;
+		struct PS4StartupParams 
+		{
+			uint64_t argc = 1;
+			const char *argv[1] = { "/app0/eboot.bin" };
+		};
+
+		PS4StartupParams startupParams;
 
 		LOG_DEBUG("run into eboot.");
-		CGameThread oMainThread(entryPoint, &ps4StartupParams,
+		CGameThread oMainThread(entryPoint, &startupParams,
 								(void *)CEmulator::LastExitHandler);
 		if (!oMainThread.Start())
 		{

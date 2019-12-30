@@ -2,7 +2,8 @@
 
 typedef unsigned int        SceKernelUseconds;
 
-typedef struct _SceKernelSemaOptParam {
+typedef struct _SceKernelSemaOptParam 
+{
 	size_t	size;
 } SceKernelSemaOptParam;
 

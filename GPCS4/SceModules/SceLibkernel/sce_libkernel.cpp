@@ -149,8 +149,8 @@ int PS4API sceKernelUuidCreate(void)
 void *PS4API sceKernelGetProcParam(uint64_t p1, uint64_t p2)
 {
 	LOG_DEBUG("param1: %zu, param2: %zu", p1, p2);
-	auto moduleSystem =CSceModuleSystem::GetInstance();
-	auto procParam    = moduleSystem->getProcParam();
+	auto moduleSystem = CSceModuleSystem::GetInstance();
+	auto procParam    = moduleSystem->getEbootModuleInfo()->pProcParam;
 	return procParam;
 }
 
@@ -200,7 +200,7 @@ void PS4API sceKernelDebugRaiseExceptionOnReleaseMode(uint32_t error_code, uint3
 }
 
 
-int PS4API __sys_regmgr_call()
+int PS4API scek___sys_regmgr_call()
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;

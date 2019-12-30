@@ -15,7 +15,7 @@ static const SCE_EXPORT_FUNCTION g_pSceLibkernel_libkernel_FunctionTable[] =
 	{ 0x91BC385071D2632D, "__pthread_cxa_finalize", (void*)__pthread_cxa_finalize },
 	{ 0x171559A81000EE4B, "_write", (void*)scek__write },
 	{ 0xe9cdeb09513f7d35, "_open", (void*)scek__open },
-	{ 0xecdc2082b589e5c0, "__sys_regmgr_call", (void*)__sys_regmgr_call },
+	{ 0xecdc2082b589e5c0, "__sys_regmgr_call", (void*)scek___sys_regmgr_call },
 	{ 0xAD35F0EB9C662C80, "sceKernelAllocateDirectMemory", (void*)sceKernelAllocateDirectMemory },
 	{ 0x4018BB1C22B4DE1C, "sceKernelClockGettime", (void*)sceKernelClockGettime },
 	{ 0x50AD939760D6527B, "sceKernelClose", (void*)sceKernelClose },

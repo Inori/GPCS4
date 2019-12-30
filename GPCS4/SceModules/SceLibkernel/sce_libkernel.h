@@ -422,7 +422,7 @@ bool PS4API sceKernelGetSanitizerMallocReplaceExternal();
 bool PS4API sceKernelGetSanitizerNewReplaceExternal();
 
 
-int PS4API __sys_regmgr_call(void);
+int PS4API scek___sys_regmgr_call(void);
 
 
 int PS4API scek__open(const char* path, int flags, SceKernelMode mode);

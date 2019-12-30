@@ -649,17 +649,17 @@ bool CSceModuleSystem::isFileAllowedToLoad(std::string const &fileName)
 	return retVal;
 }
 
-void *CSceModuleSystem::getProcParam() const
+const MODULE_INFO* CSceModuleSystem::getEbootModuleInfo() const
 {
-	void *retVal = nullptr;
+	const MODULE_INFO* retVal = nullptr;
 	do
 	{
 		if (m_mappedModules.size() == 0)
 		{
 			break;
 		}
-		const auto &eboot_bin = m_mappedModules.at(0);
-		retVal                = eboot_bin.getModuleInfo().pProcParam;
+		const auto &ebootModule = m_mappedModules.at(0);
+		retVal                  = &ebootModule.getModuleInfo();
 	} while (false);
 	return retVal;
 }
