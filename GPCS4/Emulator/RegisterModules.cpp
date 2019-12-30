@@ -101,6 +101,7 @@ bool CEmulator::registerModules()
 		ALLOW_MODULE_OVERRIDE("libSceLibcInternal");
 
 		ALLOW_LIBRARY_OVERRIDE("libkernel", "libkernel", Policy::AllowList);
+		// __error
 		ALLOW_FUNCTION_OVERRIDE("libkernel", "libkernel", 0xF41703CA43E6A352);
 
 		ALLOW_LIBRARY_OVERRIDE("libc", "libc", Policy::DisallowList);

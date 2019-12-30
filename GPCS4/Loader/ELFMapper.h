@@ -21,8 +21,10 @@ public:
 	bool validateHeader();
 	bool parseSegmentHeaders();
 	bool parseDynamicSection();
-	bool mapImageIntoMemroy();
+	bool mapImageIntoMemory();
 	bool parseSymbols();
+
+	void *getProcParam() const;
 
 private:
 	bool prepareTables(Elf64_Dyn const &entry, uint index);

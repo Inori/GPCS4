@@ -100,6 +100,7 @@ public:
 	bool isLibraryOverridable(std::string const &modName, std::string const &libName) const;
 	bool isFunctionOverridable(std::string const &modName, std::string const &libName, uint64_t nid) const;
 
+	void *getProcParam() const;
 private:
 	bool IsEndFunctionEntry(const SCE_EXPORT_FUNCTION* pFunc);
 	bool IsEndLibraryEntry(const SCE_EXPORT_LIBRARY* pLib);
