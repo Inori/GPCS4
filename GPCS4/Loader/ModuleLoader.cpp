@@ -151,6 +151,7 @@ bool ModuleLoader::loadModuleFromFile(std::string const &fileName,
 bool ModuleLoader::loadDependencies()
 {
 	bool retVal = true;
+	bool moduleNotFoundIgnore = false;
 
 	while (!m_filesToLoad.empty())
 	{
@@ -181,7 +182,8 @@ bool ModuleLoader::loadDependencies()
 
 			if (IGNORE_NOT_FOUND_MODULES)
 			{
-				retVal = true;
+				moduleNotFoundIgnore = true;
+				continue;
 			}
 			else
 			{
@@ -200,7 +202,7 @@ bool ModuleLoader::loadDependencies()
 		}
 	}
 
-	return retVal;
+	return retVal || moduleNotFoundIgnore;
 }
 
 bool ModuleLoader::addDepedenciesToLoad(MemoryMappedModule const &mod)

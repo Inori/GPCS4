@@ -40,6 +40,22 @@ void LogAssert(const char* szExpression, const char* szFunction, const char* szS
             (_LOG_ASSERT_(#expression, format, __VA_ARGS__), 0)		\
         )
 
+#define LOG_DEBUG_IF(flag, ...) \
+		if (flag)               \
+			LOG_DEBUG(__VA_ARGS__)
+#define LOG_TRACE_IF(flag, ...) \
+		if (flag)               \
+			LOG_TRACE(__VA_ARGS__)
+#define LOG_FIXME_IF(flag, ...) \
+		if (flag)               \
+			LOG_FIXME(__VA_ARGS__)
+#define LOG_WARN_IF(flag, ...) \
+		if (flag)              \
+			LOG_WARN(__VA_ARGS__)
+#define LOG_ERR_IF(flag, ...) \
+		if (flag)             \
+			LOG_ERR(__VA_ARGS__)
+
 // only use to trace sce module export functions
 // to trace other functions, use LOG_TRACE
 #define LOG_SCE_TRACE(format, ...)	_LOG_PRINT_(LogLevel::kSceTrace, format, __VA_ARGS__);
@@ -68,6 +84,12 @@ void LogAssert(const char* szExpression, const char* szFunction, const char* szS
 #define LOG_WARN(format, ...)
 #define LOG_ERR(format, ...)
 #define LOG_ASSERT(expression, format, ...) 
+
+#define LOG_DEBUG_IF(format, ...)
+#define LOG_TRACE_IF(format, ...)
+#define LOG_FIXME_IF(format, ...)
+#define LOG_WARN_IF(format, ...)
+#define LOG_ERR_IF(format, ...)
 
 #define LOG_SCE_TRACE(format, ...)
 #define LOG_SCE_GRAPHIC(format, ...)	
