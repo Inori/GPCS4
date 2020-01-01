@@ -19,7 +19,8 @@ enum class LogLevel : int
 void LogPrint(LogLevel nLevel, const char* szFunction, const char* szSourcePath, int nLine, const char* szFormat, ...);
 void LogAssert(const char* szExpression, const char* szFunction, const char* szSourcePath, int nLine, const char* szFormat, ...);
 #define _LOG_PRINT_(level, format, ...) LogPrint(level, __FUNCTION__, __FILE__, __LINE__, format, __VA_ARGS__)
-#define _LOG_ASSERT_(expr, format, ...) LogAssert(expr, __FUNCTION__, __FILE__, __LINE__, format, __VA_ARGS__)
+#define _LOG_ASSERT_(expr, format, ...) (void)(!!(expr) || (LogAssert(#expr, __FUNCTION__, __FILE__, __LINE__, format, __VA_ARGS__), 0))
+#define _LOG_IF_(expr, level, format, ...) (void)(!!(expr) && (LogPrint(level, __FUNCTION__, __FILE__, __LINE__, format, __VA_ARGS__), 0))
 
 
 #ifdef GPCS4_DEBUG
@@ -35,26 +36,13 @@ void LogAssert(const char* szExpression, const char* szFunction, const char* szS
 // critical error, program can't go on
 #define LOG_ERR(format, ...)	_LOG_PRINT_(LogLevel::kError, format, __VA_ARGS__);
 // critical error, log then pop up a window then exit process
-#define LOG_ASSERT(expression, format, ...) (void)(                 \
-            (!!(expression)) ||                                     \
-            (_LOG_ASSERT_(#expression, format, __VA_ARGS__), 0)		\
-        )
+#define LOG_ASSERT(expr, format, ...)	_LOG_ASSERT_(expr, format, __VA_ARGS__)
 
-#define LOG_DEBUG_IF(flag, ...) \
-		if (flag)               \
-			LOG_DEBUG(__VA_ARGS__)
-#define LOG_TRACE_IF(flag, ...) \
-		if (flag)               \
-			LOG_TRACE(__VA_ARGS__)
-#define LOG_FIXME_IF(flag, ...) \
-		if (flag)               \
-			LOG_FIXME(__VA_ARGS__)
-#define LOG_WARN_IF(flag, ...) \
-		if (flag)              \
-			LOG_WARN(__VA_ARGS__)
-#define LOG_ERR_IF(flag, ...) \
-		if (flag)             \
-			LOG_ERR(__VA_ARGS__)
+#define LOG_DEBUG_IF(expr, format, ...)	_LOG_IF_(expr, LogLevel::kDebug, format, __VA_ARGS__)
+#define LOG_TRACE_IF(expr, format, ...)	_LOG_IF_(expr, LogLevel::kTrace, format, __VA_ARGS__)
+#define LOG_FIXME_IF(expr, format, ...)	_LOG_IF_(expr, LogLevel::kFixme, format, __VA_ARGS__)
+#define LOG_WARN_IF(expr, format, ...)	_LOG_IF_(expr, LogLevel::kWarning, format, __VA_ARGS__)
+#define LOG_ERR_IF(expr, format, ...)	_LOG_IF_(expr, LogLevel::kError, format, __VA_ARGS__)
 
 // only use to trace sce module export functions
 // to trace other functions, use LOG_TRACE
