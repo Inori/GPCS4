@@ -183,10 +183,8 @@ bool ModuleLoader::loadDependencies()
 			{
 				retVal = true;
 			}
-			else
-			{
-				break;
-			}
+
+			break;
 		}
 
 		if (!exist)
@@ -198,6 +196,7 @@ bool ModuleLoader::loadDependencies()
 				break;
 			}
 		}
+		retVal = true;
 	}
 
 	return retVal;
