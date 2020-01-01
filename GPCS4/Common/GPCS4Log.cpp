@@ -1,5 +1,8 @@
 #include "GPCS4Log.h"
 
+#define SPDLOG_NO_NAME
+#define SPDLOG_NO_ATOMIC_LEVELS
+
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/msvc_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
