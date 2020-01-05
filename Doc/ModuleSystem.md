@@ -49,18 +49,22 @@ As the ASCII diagram above shows that there are three levels as a PS4 module can
 
    ​	I present examples as Q&As base on [this](https://github.com/Inori/GPCS4/blob/3fbbfe51cad7974eb780673e5ade5149c9e423c7/GPCS4/Emulator/RegisterModules.cpp#99) module registering code.
 
-   +  **Q1: Is function  \_\_error(nid: 0xF41703CA43E6A352) of libkernel overrideable?**
+   + **Q1: Is function  \_\_error(nid: 0xF41703CA43E6A352) of libkernel overrideable?**
 
        A1: Yes. Because Line:103 specifies that libkernel is overridable. Since the symbol overriding policy of libkernel is Policy::AllowList, and  \_\_error() function is set to overrideable in Line:104, It is overridable.
        
    + **Q2: Is function \_\_inet_ntop(nid:0xE296228683E0827F) of libkernel overridable?** 
+   
        A2: No. Only \_\_error function in libkernel is overridable.
        
    + **Q3: Is function time(nid:0xC0B9459301BD51C4ULL) of libc overridable?** 
+   
        A3: No. Although libc is set to overrideable, the time() function is in the "disallow list", therefore, it is not overridable.
        
-   + **Q4: What happens to the libSceLibcInternal module as there is no library overridebility defnination? ** 
+   + **Q4: What happens to the libSceLibcInternal module as there is no library overridebility defnination?**
+   
        A4: All of its libraries and all symbols inside those libraries are **overridable**.
+   
 ### The Logic of Overriding
 
 + Is a function in a library overridable?
