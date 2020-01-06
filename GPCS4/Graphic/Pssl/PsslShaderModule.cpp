@@ -7,8 +7,49 @@
 #include "Platform/UtilFile.h"
 
 namespace pssl
+{;
+
+const uint8_t PsslShaderModule::m_shaderResourceSizeInDwords[kShaderInputUsageImmDispatchDrawInstances + 1] = 
 {
-;
+	8,  // kShaderInputUsageImmResource
+	4,  // kShaderInputUsageImmSampler
+	4,  // kShaderInputUsageImmConstBuffer
+	4,  // kShaderInputUsageImmVertexBuffer
+	8,  // kShaderInputUsageImmRwResource
+	1,  // kShaderInputUsageImmAluFloatConst
+	1,  // kShaderInputUsageImmAluBool32Const
+	1,  // kShaderInputUsageImmGdsCounterRange
+	1,  // kShaderInputUsageImmGdsMemoryRange
+	1,  // kShaderInputUsageImmGwsBase
+	2,  // kShaderInputUsageImmShaderResourceTable
+	0,  //
+	0,  //
+	1,  // kShaderInputUsageImmLdsEsGsSize
+	0,  //
+	0,  //
+	0,  //
+	0,  //
+	2,  // kShaderInputUsageSubPtrFetchShader
+	2,  // kShaderInputUsagePtrResourceTable
+	2,  // kShaderInputUsagePtrInternalResourceTable
+	2,  // kShaderInputUsagePtrSamplerTable
+	2,  // kShaderInputUsagePtrConstBufferTable
+	2,  // kShaderInputUsagePtrVertexBufferTable
+	2,  // kShaderInputUsagePtrSoBufferTable
+	2,  // kShaderInputUsagePtrRwResourceTable
+	2,  // kShaderInputUsagePtrInternalGlobalTable
+	2,  // kShaderInputUsagePtrExtendedUserData
+	2,  // kShaderInputUsagePtrIndirectResourceTable
+	2,  // kShaderInputUsagePtrIndirectInternalResourceTable
+	2,  // kShaderInputUsagePtrIndirectRwResourceTable
+	0,  //
+	0,  //
+	0,  //
+	1,  // kShaderInputUsageImmGdsKickRingBufferOffset
+	1,  // kShaderInputUsageImmVertexRingBufferOffset
+	2,  // kShaderInputUsagePtrDispatchDraw
+	1,  // kShaderInputUsageImmDispatchDrawInstances
+};
 
 PsslShaderModule::PsslShaderModule(const uint32_t* code) :
 	m_code(code),
@@ -137,7 +178,7 @@ std::vector<pssl::GcnResourceBuffer> PsslShaderModule::findResourceBuffers()
 			ShaderInputUsageType usageType  = static_cast<ShaderInputUsageType>(usageSlot->usageType);
 
 			PsslShaderResource res;
-			bool found = findShaderResource(usageSlot->startRegister, res);
+			bool found = findShaderResourceInUserData(usageSlot->startRegister, res);
 			LOG_ASSERT(found == true, "can not find matched shader resource.");
 
 			SpirvResourceType resType;
@@ -162,22 +203,32 @@ std::vector<pssl::GcnResourceBuffer> PsslShaderModule::findResourceBuffers()
 	return resultRes;
 }
 
-bool PsslShaderModule::findShaderResource(uint32_t startSlot, PsslShaderResource& outRes)
+const void* PsslShaderModule::findShaderResourceInUserData(uint32_t startRegister)
 {
-	bool found = false;
+	const void* resPtr = nullptr;
 	do
 	{
 		for (const auto& res : m_shaderInputTable)
 		{
-			if (res.startSlot == startSlot)
+			if (res.startRegister == startRegister)
 			{
-				outRes = res;
-				found  = true;
+				resPtr = res.resource;
 				break;
 			}
 		}
 	} while (false);
-	return found;
+	return resPtr;
+}
+
+const void* PsslShaderModule::findShaderResourceInEUD(uint32_t eudOffsetInDword)
+{
+	if (!m_eudTable)
+	{
+		m_eudTable = findEudTable();
+	}
+
+	const void* resPtr = m_eudTable + eudOffsetInDword;
+	return resPtr;
 }
 
 bool PsslShaderModule::parseShaderInput()
@@ -190,20 +241,9 @@ bool PsslShaderModule::parseShaderInput()
 			break;
 		}
 
-		if (!parseResImm())
-		{
-			break;
-		}
-
-		if (!parseResEud())
-		{
-			break;
-		}
-
-		if (!parseResPtrTable())
-		{
-			break;
-		}
+		parseResImm();
+		parseResEud();
+		parseResPtrTable();
 
 		if (!checkUnhandledRes())
 		{
@@ -216,29 +256,100 @@ bool PsslShaderModule::parseShaderInput()
 	return ret;
 }
 
-bool PsslShaderModule::parseResImm()
+void PsslShaderModule::parseResImm()
 {
-	bool ret                    = true;
 	const auto& inputUsageSlots = m_progInfo.inputUsageSlot();
+	for (auto& slot : inputUsageSlots)
+	{
+		uint8_t usageType      = slot.usageType;
+		uint32_t startRegister = slot.startRegister;
 
+		// immediate resources, must be within 16 user data regs.
+		switch (usageType)
+		{
+		case kShaderInputUsageImmGdsCounterRange:
+		case kShaderInputUsageImmGdsMemoryRange:
+		case kShaderInputUsageImmLdsEsGsSize:
+		case kShaderInputUsagePtrInternalGlobalTable:
+		case kShaderInputUsageImmGdsKickRingBufferOffset:
+		case kShaderInputUsageImmVertexRingBufferOffset:
+		case kShaderInputUsagePtrDispatchDraw:
+		case kShaderInputUsageImmDispatchDrawInstances:
+		{
+			PsslShaderResource res = {};
+			res.startRegister = startRegister;
+			res.sizeDwords    = m_shaderResourceSizeInDwords[usageType];
+			res.resource      = findShaderResourceInUserData(slot.startRegister);
+			LOG_ASSERT(res.resource != nullptr, "can not found imm type resource %d", usageType);
 
-	return ret;
+			m_linearResourceTable.push_back(res);
+		}
+			break;
+		case kShaderInputUsageImmShaderResourceTable:
+			LOG_ASSERT(false, "SRT is not supported yet.");
+			break;
+		default:
+			break;
+		}
+	}
 }
 
-bool PsslShaderModule::parseResEud()
+void PsslShaderModule::parseResEud()
 {
-	bool ret                    = true;
 	const auto& inputUsageSlots = m_progInfo.inputUsageSlot();
+	for (auto& slot : inputUsageSlots)
+	{
+		uint8_t usageType      = slot.usageType;
+		uint32_t startRegister = slot.startRegister;
+		uint16_t eudOffsetInDword = (startRegister >= kMaxUserDataCount) ? (startRegister - kMaxUserDataCount) : 0;
 
-	return ret;
+		// below resources can either be inside user data regs or the EUD
+		switch (usageType)
+		{
+		case kShaderInputUsageImmResource:
+		case kShaderInputUsageImmRwResource:
+		case kShaderInputUsageImmSampler:
+		case kShaderInputUsageImmConstBuffer:
+		case kShaderInputUsageImmVertexBuffer:
+		{
+			PsslShaderResource res = {};
+			res.startRegister      = startRegister;
+			res.sizeDwords         = m_shaderResourceSizeInDwords[usageType];
+			res.resource           = startRegister < kMaxUserDataCount ? 
+				findShaderResourceInUserData(startRegister) : 
+				findShaderResourceInEUD(eudOffsetInDword);
+			LOG_ASSERT(res.resource != nullptr, "can not found imm type resource %d", usageType);
+
+			m_linearResourceTable.push_back(res);
+		}
+			break;
+		default:
+			break;
+		}
+	}
 }
 
-bool PsslShaderModule::parseResPtrTable()
+void PsslShaderModule::parseResPtrTable()
 {
-	bool ret                    = true;
 	const auto& inputUsageSlots = m_progInfo.inputUsageSlot();
+	for (auto& slot : inputUsageSlots)
+	{
+		uint8_t usageType      = slot.usageType;
+		uint32_t startRegister = slot.startRegister;
 
-	return ret;
+		// resource tables
+		switch (usageType)
+		{
+		case kShaderInputUsagePtrResourceTable:
+		case kShaderInputUsagePtrRwResourceTable:
+		case kShaderInputUsagePtrConstBufferTable:
+		case kShaderInputUsagePtrSamplerTable:
+		case kShaderInputUsagePtrVertexBufferTable:
+			break;
+		default:
+			break;
+		}
+	}
 }
 
 bool PsslShaderModule::checkUnhandledRes()
@@ -283,6 +394,35 @@ bool PsslShaderModule::checkUnhandledRes()
 		}
 	}
 	return allHandled;
+}
+
+const uint32_t* PsslShaderModule::findEudTable()
+{
+	const uint32_t* eudTable    = nullptr;
+
+	do 
+	{
+		uint32_t startRegister      = 0;
+		const auto& inputUsageSlots = m_progInfo.inputUsageSlot();
+		for (auto& slot : inputUsageSlots)
+		{
+			switch (slot.usageType)
+			{
+			case kShaderInputUsagePtrExtendedUserData:
+				startRegister = slot.startRegister;
+				break;
+			}
+		}
+
+		LOG_ASSERT(startRegister != 0, "can not find EUD resource declaration in shader slots.");
+
+		eudTable = reinterpret_cast<const uint32_t*>(findShaderResourceInUserData(startRegister));
+
+		LOG_ASSERT(eudTable != nullptr, "can not find EUD in input user data from game.");
+
+	} while (false);
+
+	return eudTable;
 }
 
 void PsslShaderModule::dumpShader(PsslProgramType type, const uint8_t* code, uint32_t size)

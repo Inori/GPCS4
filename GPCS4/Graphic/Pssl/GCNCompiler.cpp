@@ -555,7 +555,7 @@ void GCNCompiler::emitDclImmConstBuffer(const GcnResourceBuffer& res)
 	// Note:
 	// The calculated bindingId is not "correct", it's a dummy value.
 	// We'll remap binding id before compiling pipeline in GveShader class.
-	uint32_t bindingId = computeConstantBufferBinding(m_programInfo.shaderType(), res.res.startSlot);
+	uint32_t bindingId = computeConstantBufferBinding(m_programInfo.shaderType(), res.res.startRegister);
 	m_module.decorateBinding(m_vs.m_uboId, bindingId);
 
 	m_module.setDebugName(m_vs.m_uboId, "ubo");
@@ -566,7 +566,7 @@ void GCNCompiler::emitDclImmConstBuffer(const GcnResourceBuffer& res)
 void GCNCompiler::emitDclImmSampler(const GcnResourceBuffer& res)
 {
 	// The sampler start register
-	const uint32_t samplerId = res.res.startSlot;
+	const uint32_t samplerId = res.res.startRegister;
 
 	//const SSharpBuffer* ssharpBuffer = reinterpret_cast<SSharpBuffer*>(res.res.resource);
 
@@ -584,7 +584,7 @@ void GCNCompiler::emitDclImmSampler(const GcnResourceBuffer& res)
 
 	m_module.decorateDescriptorSet(varId, 0);
 
-	uint32_t bindingId = computeSamplerBinding(m_programInfo.shaderType(), res.res.startSlot);
+	uint32_t bindingId = computeSamplerBinding(m_programInfo.shaderType(), res.res.startRegister);
 	m_module.decorateBinding(varId, bindingId);
 
 	SpirvSampler sampler;
@@ -598,7 +598,7 @@ void GCNCompiler::emitDclImmSampler(const GcnResourceBuffer& res)
 void GCNCompiler::emitDclImmResource(const GcnResourceBuffer& res)
 {
 
-	const uint32_t registerId = res.res.startSlot;
+	const uint32_t registerId = res.res.startRegister;
 
 	const TSharpBuffer* tsharpBuffer = reinterpret_cast<const TSharpBuffer*>(res.res.resource);
 
@@ -627,7 +627,7 @@ void GCNCompiler::emitDclImmResource(const GcnResourceBuffer& res)
 
 	m_module.decorateDescriptorSet(varId, 0);
 
-	uint32_t bindingId = computeResBinding(m_programInfo.shaderType(), res.res.startSlot);
+	uint32_t bindingId = computeResBinding(m_programInfo.shaderType(), res.res.startRegister);
 	m_module.decorateBinding(varId, bindingId);
 
 	SpirvTexture texture;

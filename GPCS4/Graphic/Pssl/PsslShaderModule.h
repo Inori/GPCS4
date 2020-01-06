@@ -56,13 +56,17 @@ private:
 
 	// Shader resource routines
 	std::vector<GcnResourceBuffer> findResourceBuffers();
-	bool findShaderResource(uint32_t startSlot, PsslShaderResource& outRes);
-	bool parseShaderInput();
 
-	bool parseResImm();
-	bool parseResEud();
-	bool parseResPtrTable();
+	const void* findShaderResourceInUserData(uint32_t startRegister);
+	const void* findShaderResourceInEUD(uint32_t eudOffsetInDword);
+
+	bool parseShaderInput();
+	void parseResImm();
+	void parseResEud();
+	void parseResPtrTable();
 	bool checkUnhandledRes();
+
+	const uint32_t* findEudTable();
 
 	// Debug only
 	void dumpShader(PsslProgramType type, const uint8_t* code, uint32_t size);
@@ -77,6 +81,11 @@ private:
 	// shader input contains SRT, EUD and other Table type resources,
 	// we extract these resource definitions from tables into a linear array.
 	std::vector<PsslShaderResource> m_linearResourceTable;
+
+	const uint32_t* m_eudTable       = nullptr;
+	const uint32_t kMaxUserDataCount = 16;
+
+	static const uint8_t m_shaderResourceSizeInDwords[kShaderInputUsageImmDispatchDrawInstances + 1];
 };
 
 

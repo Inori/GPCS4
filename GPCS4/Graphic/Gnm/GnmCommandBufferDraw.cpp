@@ -549,7 +549,7 @@ void GnmCommandBufferDraw::bindImmConstBuffer(const PsslShaderResource& res)
 		
 		// m_context->updateBuffer(uniformBuffer, 0, bufferSize, buffer->getBaseAddress());
 
-		uint32_t regSlot = computeConstantBufferBinding(VertexShader, res.startSlot);
+		uint32_t regSlot = computeConstantBufferBinding(VertexShader, res.startRegister);
 		// m_context->bindResourceBuffer(regSlot, uniformBuffer);
 
 	} while (false);
@@ -696,7 +696,7 @@ void GnmCommandBufferDraw::bindImmResource(const PsslShaderResource& res)
 		viewInfo.aspect = VK_IMAGE_ASPECT_COLOR_BIT;
 		auto texView = m_device->createOrGetImageViewTsharp(texture, viewInfo, key);
 
-		uint32_t regSlot = computeResBinding(PixelShader, res.startSlot);
+		uint32_t regSlot = computeResBinding(PixelShader, res.startRegister);
 		// m_context->bindResourceView(regSlot, texView, nullptr);
 
 	} while (false);
@@ -719,7 +719,7 @@ void GnmCommandBufferDraw::bindSampler(const PsslShaderResource& res)
 		GveSamplerCreateInfo info;
 		auto sampler = m_device->createOrGetSamplerSsharp(info, key);
 
-		uint32_t regSlot = computeSamplerBinding(PixelShader, res.startSlot);
+		uint32_t regSlot = computeSamplerBinding(PixelShader, res.startRegister);
 		// m_context->bindSampler(regSlot, sampler);
 
 	} while (false);
@@ -738,7 +738,7 @@ uint32_t* GnmCommandBufferDraw::getFetchShaderCode(const GnmShaderContext& vsCtx
 
 		for (const auto& res : vsCtx.userDataSlotTable)
 		{
-			if (res.startSlot != fsStartReg)
+			if (res.startRegister != fsStartReg)
 			{
 				continue;
 			}
@@ -787,7 +787,7 @@ void GnmCommandBufferDraw::insertUniqueUserDataSlot(GnmShaderContext::UDSTVector
 {
 	auto pred = [startSlot](const pssl::PsslShaderResource& item)
 	{
-		return item.startSlot == startSlot;
+		return item.startRegister == startSlot;
 	};
 
 	auto iter = std::find_if(container.begin(), container.end(), pred);
