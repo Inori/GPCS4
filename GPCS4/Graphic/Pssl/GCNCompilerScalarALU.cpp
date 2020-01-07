@@ -290,10 +290,9 @@ void GCNCompiler::emitScalarQuadMask(GCNInstruction& ins)
 	{
 	case SISOP1Instruction::S_WQM_B64:
 	{
-		if (static_cast<uint32_t>(ssrc0) == static_cast<uint32_t>(sdst) && 
-			ssrc0 == SISOP1Instruction::SSRC::SSRCExecLo)
+		if (static_cast<uint32_t>(sdst) == SISOP1Instruction::SSRC::SSRCExecLo)
 		{
-			// ignore  s_wqm_b64     exec, exec
+			// ignore  s_wqm_b64     exec, xxxx
 		}
 		else
 		{
