@@ -56,6 +56,7 @@ private:
 
 	const void* findShaderResourceInUserData(uint32_t startRegister);
 	const void* findShaderResourceInEUD(uint32_t eudOffsetInDword);
+	const uint32_t* findShaderResourceByType(ShaderInputUsageType usageType);
 
 	bool parseShaderInput();
 	void parseResImm();
@@ -63,7 +64,7 @@ private:
 	void parseResPtrTable();
 	bool checkUnhandledRes();
 
-	const uint32_t* findEudTable();
+	
 
 	// Debug only
 	void dumpShader(PsslProgramType type, const uint8_t* code, uint32_t size);

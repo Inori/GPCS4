@@ -190,7 +190,7 @@ const void* PsslShaderModule::findShaderResourceInEUD(uint32_t eudOffsetInDword)
 {
 	if (!m_eudTable)
 	{
-		m_eudTable = findEudTable();
+		m_eudTable = findShaderResourceByType(kShaderInputUsagePtrExtendedUserData);
 	}
 
 	const void* resPtr = m_eudTable + eudOffsetInDword;
@@ -205,6 +205,8 @@ bool PsslShaderModule::parseShaderInput()
 	{
 		if (m_shaderInputTable.empty())
 		{
+			// Some shaders has no input resource.
+			ret = true;
 			break;
 		}
 
@@ -389,9 +391,9 @@ bool PsslShaderModule::checkUnhandledRes()
 	return allHandled;
 }
 
-const uint32_t* PsslShaderModule::findEudTable()
+const uint32_t* PsslShaderModule::findShaderResourceByType(ShaderInputUsageType usageType)
 {
-	const uint32_t* eudTable    = nullptr;
+	const uint32_t* resPtr    = nullptr;
 
 	do 
 	{
@@ -399,23 +401,24 @@ const uint32_t* PsslShaderModule::findEudTable()
 		const auto& inputUsageSlots = m_progInfo.inputUsageSlot();
 		for (auto& slot : inputUsageSlots)
 		{
-			switch (slot.usageType)
+			if (slot.usageType != usageType)
 			{
-			case kShaderInputUsagePtrExtendedUserData:
-				startRegister = slot.startRegister;
-				break;
+				continue;
 			}
+
+			startRegister = slot.startRegister;
+			break;
 		}
 
-		LOG_ASSERT(startRegister != 0, "can not find EUD resource declaration in shader slots.");
+		LOG_ASSERT(startRegister != 0, "can not find resource declaration in shader slots.");
 
-		eudTable = reinterpret_cast<const uint32_t*>(findShaderResourceInUserData(startRegister));
+		resPtr = reinterpret_cast<const uint32_t*>(findShaderResourceInUserData(startRegister));
 
-		LOG_ASSERT(eudTable != nullptr, "can not find EUD in input user data from game.");
+		LOG_ASSERT(resPtr != nullptr, "can not find resource in input user data from game.");
 
 	} while (false);
 
-	return eudTable;
+	return resPtr;
 }
 
 void PsslShaderModule::dumpShader(PsslProgramType type, const uint8_t* code, uint32_t size)
