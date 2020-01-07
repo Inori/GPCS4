@@ -617,7 +617,7 @@ void GnmCmdStream::onSetShReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 
 		if (pm4Hdr->count == 2)  // 2 for a pointer type size
 		{
-			void* gpuAddr = (void*)*(uint64_t*)(itBody + 1);
+			void* gpuAddr = reinterpret_cast<void*>(*(uint64_t*)(itBody + 1));
 			m_cb->setPointerInUserData(stage, startSlot, gpuAddr);
 		}
 	}

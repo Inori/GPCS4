@@ -1,13 +1,16 @@
 #include "PsslShaderModule.h"
 
+#include "PsslContants.h"
 #include "GCNAnalyzer.h"
 #include "GCNCompiler.h"
 
-#include "../Gve/GveShader.h"
 #include "Platform/UtilFile.h"
+#include "../Gve/GveShader.h"
 
 namespace pssl
 {;
+
+const uint32_t kMaxUserDataCount = 16;
 
 const uint8_t PsslShaderModule::m_shaderResourceSizeInDwords[kShaderInputUsageImmDispatchDrawInstances + 1] = 
 {
@@ -82,7 +85,7 @@ RcPtr<gve::GveShader> PsslShaderModule::compile()
 
 	// Generate input
 	GcnShaderInput shaderInput;
-	shaderInput.resourceBuffer = findResourceBuffers();
+	shaderInput.shaderResources = getShaderResourceTable();
 	if (!m_vsInputSemantic.empty())
 	{
 		shaderInput.vsInputSemantics = m_vsInputSemantic;
@@ -166,43 +169,6 @@ void PsslShaderModule::extractInputSemantic(PsslFetchShader& fsShader)
 	} while (false);
 }
 
-std::vector<pssl::GcnResourceBuffer> PsslShaderModule::findResourceBuffers()
-{
-	std::vector<pssl::GcnResourceBuffer> resultRes;
-	do
-	{
-		uint32_t usageSlotCount = m_progInfo.inputUsageSlotCount();
-		for (uint32_t i = 0; i != usageSlotCount; ++i)
-		{
-			const InputUsageSlot* usageSlot = m_progInfo.inputUsageSlot(i);
-			ShaderInputUsageType usageType  = static_cast<ShaderInputUsageType>(usageSlot->usageType);
-
-			PsslShaderResource res;
-			bool found = findShaderResourceInUserData(usageSlot->startRegister, res);
-			LOG_ASSERT(found == true, "can not find matched shader resource.");
-
-			SpirvResourceType resType;
-			switch (usageType)
-			{
-			case kShaderInputUsageImmSampler:
-				// For ImmSampler, although resourceType tells it's a V#,
-				// we should treat it as a S#
-				resType = SpirvResourceType::SSharp;
-				break;
-			case kShaderInputUsageImmResource:
-			case kShaderInputUsageImmConstBuffer:
-				resType = usageSlot->resourceType == 0 ? SpirvResourceType::VSharp : SpirvResourceType::TSharp;
-				break;
-			default:
-				break;
-			}
-
-			resultRes.emplace_back(resType, usageType, res);
-		}
-	} while (false);
-	return resultRes;
-}
-
 const void* PsslShaderModule::findShaderResourceInUserData(uint32_t startRegister)
 {
 	const void* resPtr = nullptr;
@@ -228,6 +194,7 @@ const void* PsslShaderModule::findShaderResourceInEUD(uint32_t eudOffsetInDword)
 	}
 
 	const void* resPtr = m_eudTable + eudOffsetInDword;
+
 	return resPtr;
 }
 
@@ -276,11 +243,12 @@ void PsslShaderModule::parseResImm()
 		case kShaderInputUsagePtrDispatchDraw:
 		case kShaderInputUsageImmDispatchDrawInstances:
 		{
-			PsslShaderResource res = {};
-			res.startRegister = startRegister;
-			res.sizeDwords    = m_shaderResourceSizeInDwords[usageType];
-			res.resource      = findShaderResourceInUserData(slot.startRegister);
-			LOG_ASSERT(res.resource != nullptr, "can not found imm type resource %d", usageType);
+			GcnShaderResource res = {};
+			res.usageType          = static_cast<ShaderInputUsageType>(usageType);
+			res.res.startRegister  = startRegister;
+			res.res.sizeDwords     = m_shaderResourceSizeInDwords[usageType];
+			res.res.resource       = findShaderResourceInUserData(slot.startRegister);
+			LOG_ASSERT(res.res.resource != nullptr, "can not found imm type resource %d", usageType);
 
 			m_linearResourceTable.push_back(res);
 		}
@@ -303,7 +271,7 @@ void PsslShaderModule::parseResEud()
 		uint32_t startRegister = slot.startRegister;
 		uint16_t eudOffsetInDword = (startRegister >= kMaxUserDataCount) ? (startRegister - kMaxUserDataCount) : 0;
 
-		// below resources can either be inside user data regs or the EUD
+		// below resources can either be inside user data registers or the EUD
 		switch (usageType)
 		{
 		case kShaderInputUsageImmResource:
@@ -312,13 +280,14 @@ void PsslShaderModule::parseResEud()
 		case kShaderInputUsageImmConstBuffer:
 		case kShaderInputUsageImmVertexBuffer:
 		{
-			PsslShaderResource res = {};
-			res.startRegister      = startRegister;
-			res.sizeDwords         = m_shaderResourceSizeInDwords[usageType];
-			res.resource           = startRegister < kMaxUserDataCount ? 
+			GcnShaderResource res  = {};
+			res.usageType          = static_cast<ShaderInputUsageType>(usageType);
+			res.res.startRegister  = startRegister;
+			res.res.sizeDwords     = m_shaderResourceSizeInDwords[usageType];
+			res.res.resource       = startRegister < kMaxUserDataCount ? 
 				findShaderResourceInUserData(startRegister) : 
 				findShaderResourceInEUD(eudOffsetInDword);
-			LOG_ASSERT(res.resource != nullptr, "can not found imm type resource %d", usageType);
+			LOG_ASSERT(res.res.resource != nullptr, "can not found imm type resource %d", usageType);
 
 			m_linearResourceTable.push_back(res);
 		}
@@ -337,14 +306,37 @@ void PsslShaderModule::parseResPtrTable()
 		uint8_t usageType      = slot.usageType;
 		uint32_t startRegister = slot.startRegister;
 
-		// resource tables
+		// resource in tables
 		switch (usageType)
 		{
 		case kShaderInputUsagePtrResourceTable:
 		case kShaderInputUsagePtrRwResourceTable:
 		case kShaderInputUsagePtrConstBufferTable:
 		case kShaderInputUsagePtrSamplerTable:
+			LOG_ASSERT(false, "not supported yet.");
+			break;
 		case kShaderInputUsagePtrVertexBufferTable:
+		{
+			const uint32_t* vertexBufferTable = reinterpret_cast<const uint32_t*>(findShaderResourceInUserData(startRegister));
+			LOG_ASSERT(vertexBufferTable != nullptr, "can not find vertex buffer table.");
+
+			// TODO:
+			// Support Es Ls and Cs.
+			for (auto& sematic : m_vsInputSemantic)
+			{
+				uint32_t semanticIndex = sematic.semantic;
+
+				GcnShaderResource res = {};
+				// Convert to imm type.
+				res.usageType         = kShaderInputUsageImmVertexBuffer;
+				// startRegister is not meaningful for vertex buffer inputs, just give it a random value.
+				res.res.startRegister = semanticIndex;
+				res.res.resource      = &vertexBufferTable[semanticIndex * kDwordSizeVertexBuffer];
+				res.res.sizeDwords    = kDwordSizeVertexBuffer;
+
+				m_linearResourceTable.push_back(res);
+			}
+		}
 			break;
 		default:
 			break;
@@ -387,12 +379,13 @@ bool PsslShaderModule::checkUnhandledRes()
 		default:
 			// Not handled
 		{
-			LOG_ASSERT(false, "Input Usage Slot type %d not handled.", slot.usageType);
 			allHandled = false;
+			LOG_ASSERT(allHandled, "Input Usage Slot type %d not handled.", slot.usageType);
 		}
 			break;
 		}
 	}
+	
 	return allHandled;
 }
 
@@ -496,7 +489,7 @@ void PsslShaderModule::defineShaderInput(const std::vector<PsslShaderResource>& 
 	m_shaderInputTable.assign(shaderInputTab.cbegin(), shaderInputTab.cend());
 }
 
-const std::vector<pssl::PsslShaderResource>& PsslShaderModule::getShaderResourceTable()
+const std::vector<pssl::GcnShaderResource>& PsslShaderModule::getShaderResourceTable()
 {
 	do
 	{
@@ -515,7 +508,7 @@ const std::vector<pssl::PsslShaderResource>& PsslShaderModule::getShaderResource
 	return m_linearResourceTable;
 }
 
-pssl::PsslKey PsslShaderModule::key()
+PsslKey PsslShaderModule::key()
 {
 	return m_progInfo.key();
 }

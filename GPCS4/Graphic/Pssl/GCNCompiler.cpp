@@ -507,7 +507,7 @@ void GCNCompiler::emitDclResourceBuffer()
 	// Currently I can not determine which one is better, and how much performance we could gain from using UBO,
 	// but I just choose the UBO way first due to performance reason. Maybe need to change in the future.
 
-	for (const auto& res : m_shaderInput.resourceBuffer)
+	for (const auto& res : m_shaderInput.shaderResources)
 	{
 		switch (res.usageType)
 		{
@@ -526,7 +526,7 @@ void GCNCompiler::emitDclResourceBuffer()
 	}
 }
 
-void GCNCompiler::emitDclImmConstBuffer(const GcnResourceBuffer& res)
+void GCNCompiler::emitDclImmConstBuffer(const GcnShaderResource& res)
 {
 	const VSharpBuffer* vsharpBuffer = reinterpret_cast<const VSharpBuffer*>(res.res.resource);
 	uint32_t arraySize               = vsharpBuffer->stride * vsharpBuffer->num_records / sizeof(uint32_t);
@@ -563,7 +563,7 @@ void GCNCompiler::emitDclImmConstBuffer(const GcnResourceBuffer& res)
 	m_resourceSlots.push_back({ bindingId, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER });
 }
 
-void GCNCompiler::emitDclImmSampler(const GcnResourceBuffer& res)
+void GCNCompiler::emitDclImmSampler(const GcnShaderResource& res)
 {
 	// The sampler start register
 	const uint32_t samplerId = res.res.startRegister;
@@ -595,7 +595,7 @@ void GCNCompiler::emitDclImmSampler(const GcnResourceBuffer& res)
 	m_resourceSlots.push_back({ bindingId, VK_DESCRIPTOR_TYPE_SAMPLER });
 }
 
-void GCNCompiler::emitDclImmResource(const GcnResourceBuffer& res)
+void GCNCompiler::emitDclImmResource(const GcnShaderResource& res)
 {
 
 	const uint32_t registerId = res.res.startRegister;

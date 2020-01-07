@@ -63,7 +63,7 @@ SpirvRegisterValue GCNCompiler::emitExpSrcLoadCompr(GCNInstruction& ins)
 	return result;
 }
 
-SpirvRegisterValue GCNCompiler::emitExpSrcLoadUnCompr(GCNInstruction& ins)
+SpirvRegisterValue GCNCompiler::emitExpSrcLoadNoCompr(GCNInstruction& ins)
 {
 	auto inst = asInst<EXPInstruction>(ins);
 	auto en   = inst->GetEn();
@@ -111,7 +111,7 @@ void GCNCompiler::emitExpVS(GCNInstruction& ins)
 
 	// Src vector to be exported.
 	auto src = !isCompressed ? 
-		emitExpSrcLoadUnCompr(ins) : 
+		emitExpSrcLoadNoCompr(ins) : 
 		emitExpSrcLoadCompr(ins);
 
 	// Dst vector to export to.
@@ -153,7 +153,7 @@ void GCNCompiler::emitExpPS(GCNInstruction& ins)
 
 	auto src = isCompressed ? 
 		emitExpSrcLoadCompr(ins) : 
-		emitExpSrcLoadUnCompr(ins);
+		emitExpSrcLoadNoCompr(ins);
 
 	// Dst vector to export to.
 	SpirvRegisterPointer dst;

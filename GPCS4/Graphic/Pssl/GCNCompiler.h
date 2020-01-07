@@ -39,21 +39,25 @@ constexpr size_t GcnMaxSgprCount = 104;
 constexpr size_t GcnMaxVgprCount = 256;
 
 /**
- * \brief Sharp buffer resource.
+ * \brief Shader input resource.
  *
- * V# T# or S# buffer input to the shader
+ * V# T# S# buffer and any other shader resource input to the shader
  */
-struct GcnResourceBuffer
+struct GcnShaderResource
 {
-	GcnResourceBuffer(SpirvResourceType rType, ShaderInputUsageType uType, PsslShaderResource& resource):
-		resType(rType), usageType(uType), res(resource)
-	{}
+	GcnShaderResource()
+	{
+	}
 
-	SpirvResourceType resType;
+	GcnShaderResource(ShaderInputUsageType uType, PsslShaderResource& res):
+		usageType(uType), 
+		res(res)
+	{
+	}
+
 	ShaderInputUsageType usageType;
 	PsslShaderResource res;
 };
-
 
 
 
@@ -124,7 +128,7 @@ struct GcnCompilerCsPart
 
 struct GcnShaderInput
 {
-	std::vector<GcnResourceBuffer> resourceBuffer;
+	std::vector<GcnShaderResource> shaderResources;
 	std::optional<std::vector<VertexInputSemantic>> vsInputSemantics;
 	std::optional<std::vector<PixelInputSemantic>> psInputSemantics;
 };
@@ -190,9 +194,9 @@ private:
 	void emitStatusRegInitialize();
 	// For all shader types
 	void emitDclResourceBuffer();
-	void emitDclImmConstBuffer(const GcnResourceBuffer& res);
-	void emitDclImmSampler(const GcnResourceBuffer& res);
-	void emitDclImmResource(const GcnResourceBuffer& res);
+	void emitDclImmConstBuffer(const GcnShaderResource& res);
+	void emitDclImmSampler(const GcnShaderResource& res);
+	void emitDclImmResource(const GcnShaderResource& res);
 
 	/////////////////////////////////////////////////////////
 	SpirvRegisterValue emitValueLoad(const SpirvRegisterPointer& reg);
@@ -464,7 +468,7 @@ private:
 	void emitScalarProgFlowBranch(GCNInstruction& ins);
 
 	SpirvRegisterValue emitExpSrcLoadCompr(GCNInstruction& ins);
-	SpirvRegisterValue emitExpSrcLoadUnCompr(GCNInstruction& ins);
+	SpirvRegisterValue emitExpSrcLoadNoCompr(GCNInstruction& ins);
 	void emitExpVS(GCNInstruction& ins);
 	void emitExpPS(GCNInstruction& ins);
 

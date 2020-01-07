@@ -413,8 +413,9 @@ void GnmCommandBufferDraw::commitVsStage()
 		uint32_t* fsCode = getFetchShaderCode(m_vsContext);
 		LOG_ASSERT(fsCode != nullptr, "can not find fetch shader code.");
 
-		PsslShaderModule vsModule((const uint32_t*)m_vsContext.code, fsCode, m_vsContext.userDataSlotTable);
+		PsslShaderModule vsModule((const uint32_t*)m_vsContext.code, fsCode);
 		LOG_DEBUG("vertex shader hash %llX", vsModule.key().toUint64());
+		vsModule.defineShaderInput(m_vsContext.userDataSlotTable);
 
 		m_vsContext.shader = vsModule.compile();
 
@@ -427,7 +428,7 @@ void GnmCommandBufferDraw::commitVsStage()
 			// Find shader res in current slot
 			auto pred = [&inputSlot](const auto& item)
 			{
-				return inputSlot.startRegister == item.startSlot;
+				return inputSlot.startRegister == item.startRegister;
 			};
 			auto iter = std::find_if(m_vsContext.userDataSlotTable.begin(), m_vsContext.userDataSlotTable.end(), pred);
 
@@ -457,8 +458,9 @@ void GnmCommandBufferDraw::commitPsStage()
 {
 	do 
 	{
-		PsslShaderModule psModule((const uint32_t*)m_psContext.code, m_psContext.userDataSlotTable);
+		PsslShaderModule psModule((const uint32_t*)m_psContext.code);
 		LOG_DEBUG("pixel shader hash %llX", psModule.key().toUint64());
+		psModule.defineShaderInput(m_psContext.userDataSlotTable);
 
 		SHADER_DEBUG_BREAK(psModule, 0xF3FAB76ECBEAABD2);
 
@@ -473,7 +475,7 @@ void GnmCommandBufferDraw::commitPsStage()
 			// Find shader res in current slot
 			auto pred = [&inputSlot](const auto& item)
 			{
-				return inputSlot.startRegister == item.startSlot;
+				return inputSlot.startRegister == item.startRegister;
 			};
 			auto iter = std::find_if(m_psContext.userDataSlotTable.begin(), m_psContext.userDataSlotTable.end(), pred);
 

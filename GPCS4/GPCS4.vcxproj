@@ -139,6 +139,7 @@
     <ClInclude Include="Graphic\Pssl\GCNStateRegister.h" />
     <ClInclude Include="Graphic\Pssl\PsslBindingCalculator.h" />
     <ClInclude Include="Graphic\Pssl\PsslCommon.h" />
+    <ClInclude Include="Graphic\Pssl\PsslContants.h" />
     <ClInclude Include="Graphic\Pssl\PsslEnums.h" />
     <ClInclude Include="Graphic\Pssl\PsslFetchShader.h" />
     <ClInclude Include="Graphic\Pssl\PsslKey.h" />
