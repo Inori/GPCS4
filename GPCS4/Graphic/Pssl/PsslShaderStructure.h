@@ -2,7 +2,9 @@
 
 #include "PsslShaderFileBinary.h"
 #include "PsslShaderRegister.h"
+
 #include <vector>
+#include <optional>
 
 namespace pssl
 {;
@@ -51,6 +53,62 @@ struct PsslShaderResource
 	uint32_t sizeDwords = 0;
 };
 
+
+/**
+ * \brief A single shader input resource.
+ *
+ * V# T# S# buffer and any other shader resource input to the shader
+ */
+struct GcnShaderResourceInstance
+{
+	ShaderInputUsageType usageType;
+	PsslShaderResource res;
+};
+
+/**
+ * \brief Resources in EUD.
+ */
+struct GcnShaderResourceEUD
+{
+	using EudResourceVector = std::vector<std::pair<uint32_t, GcnShaderResourceInstance>>;
+
+	// EUD start register
+	uint32_t startRegister;
+
+	// Resources in Extended User Data (EUD)
+	// First field in the pair is EUD offset in dword.
+	std::optional<EudResourceVector> resources = std::nullopt;
+};
+
+/**
+ * \brief Resources in SRT.
+ */
+// TODO:
+struct GcnShaderResourceSRT
+{
+	uint32_t placeHolder;
+};
+
+/**
+ * \brief All shader input resources.
+ *
+ * V# T# S# buffer and any other shader resource input to the shader
+ * including resources in EUD and SRT.
+ */
+
+struct GcnShaderResources
+{
+	// Resources in 16 User Data Registers.
+	std::vector<GcnShaderResourceInstance> ud;
+
+	// EUD resources
+	GcnShaderResourceEUD eud;
+
+	// TODO:
+	// Add SRT support
+	// SRT resources
+	GcnShaderResourceSRT srt;
+};
 
 
 }  // pssl

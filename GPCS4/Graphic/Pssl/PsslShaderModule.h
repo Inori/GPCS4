@@ -2,6 +2,7 @@
 
 #include "PsslCommon.h"
 #include "PsslProgramInfo.h"
+#include "PsslShaderStructure.h"
 #include "GCNDecoder.h"
 
 namespace gve
@@ -13,7 +14,6 @@ namespace pssl
 {;
 
 struct PsslFetchShader;
-struct GcnShaderResource;
 
 class GCNCompiler;
 class GCNAnalyzer;
@@ -36,12 +36,14 @@ public:
 
 	void defineShaderInput(const std::vector<PsslShaderResource>& shaderInputTab);
 
-	// Get the linear shader resource table
-	const std::vector<GcnShaderResource>& getShaderResourceTable();
+	const GcnShaderResources& getShaderResources();
 
 	PsslKey key();
 
 	RcPtr<gve::GveShader> compile();
+
+	static std::vector<GcnShaderResourceInstance> 
+		linearlizeShaderResources(const GcnShaderResources& nestedResources);
 
 private:
 
@@ -64,8 +66,6 @@ private:
 	void parseResPtrTable();
 	bool checkUnhandledRes();
 
-	
-
 	// Debug only
 	void dumpShader(PsslProgramType type, const uint8_t* code, uint32_t size);
 private:
@@ -75,10 +75,13 @@ private:
 
 	std::vector<VertexInputSemantic> m_vsInputSemantic;
 
+	// Shader input backup received from the game.
 	std::vector<PsslShaderResource> m_shaderInputTable;
+
 	// shader input contains SRT, EUD and other Table type resources,
-	// we extract these resource definitions from tables into a linear array.
-	std::vector<GcnShaderResource> m_linearResourceTable;
+	// we need to parse the shader input slots 
+	// and extract these resource definitions from the tables.
+	GcnShaderResources m_shaderResources;
 
 	const uint32_t* m_eudTable       = nullptr;
 

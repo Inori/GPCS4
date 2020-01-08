@@ -158,7 +158,7 @@ void GCNCompiler::emitVsInit()
 	emitStatusRegInitialize();
 	emitDclVertexInput();
 	emitDclVertexOutput();
-	emitDclResourceBuffer();
+	emitDclShaderResource();
 	emitEmuFetchShader();
 
 	// Main function of the vertex shader
@@ -203,7 +203,7 @@ void GCNCompiler::emitPsInit()
 	emitStatusRegInitialize();
 	emitDclPixelInput();
 	emitDclPixelOutput();
-	emitDclResourceBuffer();
+	emitDclShaderResource();
 
 	this->emitFunctionBegin(
 		m_ps.functionId,
@@ -483,7 +483,7 @@ void GCNCompiler::emitStatusRegInitialize()
 	//m_statusRegs.scc.id   = emitNewVariable({ u32Type, spv::StorageClass::StorageClassPrivate }, "scc");
 }
 
-void GCNCompiler::emitDclResourceBuffer()
+void GCNCompiler::emitDclShaderResource()
 {
 	// For PSSL resource buffer, it's hard to detect how many variables have been declared,
 	// and even if we know, it's almost useless, because the shader could access part of a variable,
@@ -507,7 +507,7 @@ void GCNCompiler::emitDclResourceBuffer()
 	// Currently I can not determine which one is better, and how much performance we could gain from using UBO,
 	// but I just choose the UBO way first due to performance reason. Maybe need to change in the future.
 
-	for (const auto& res : m_shaderInput.shaderResources)
+	for (const auto& res : m_shaderInput.shaderResources.ud)
 	{
 		switch (res.usageType)
 		{
@@ -526,7 +526,7 @@ void GCNCompiler::emitDclResourceBuffer()
 	}
 }
 
-void GCNCompiler::emitDclImmConstBuffer(const GcnShaderResource& res)
+void GCNCompiler::emitDclImmConstBuffer(const GcnShaderResourceInstance& res)
 {
 	const VSharpBuffer* vsharpBuffer = reinterpret_cast<const VSharpBuffer*>(res.res.resource);
 	uint32_t arraySize               = vsharpBuffer->stride * vsharpBuffer->num_records / sizeof(uint32_t);
@@ -563,7 +563,7 @@ void GCNCompiler::emitDclImmConstBuffer(const GcnShaderResource& res)
 	m_resourceSlots.push_back({ bindingId, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER });
 }
 
-void GCNCompiler::emitDclImmSampler(const GcnShaderResource& res)
+void GCNCompiler::emitDclImmSampler(const GcnShaderResourceInstance& res)
 {
 	// The sampler start register
 	const uint32_t samplerId = res.res.startRegister;
@@ -595,7 +595,7 @@ void GCNCompiler::emitDclImmSampler(const GcnShaderResource& res)
 	m_resourceSlots.push_back({ bindingId, VK_DESCRIPTOR_TYPE_SAMPLER });
 }
 
-void GCNCompiler::emitDclImmResource(const GcnShaderResource& res)
+void GCNCompiler::emitDclImmResource(const GcnShaderResourceInstance& res)
 {
 
 	const uint32_t registerId = res.res.startRegister;

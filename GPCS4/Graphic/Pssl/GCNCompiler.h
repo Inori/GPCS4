@@ -3,12 +3,14 @@
 #include "PsslCommon.h"
 #include "PsslProgramInfo.h"
 #include "PsslFetchShader.h"
+#include "PsslShaderFileBinary.h"
+#include "PsslShaderStructure.h"
 #include "GCNInstruction.h"
 #include "GCNAnalyzer.h"
 #include "GCNDecoder.h"
 #include "GCNEnums.h"
-#include "GCNSpirvTypes.h"
 #include "GCNStateRegister.h"
+#include "GCNSpirvTypes.h"
 
 #include "GCNParser/SMRDInstruction.h"
 #include "GCNParser/SOPPInstruction.h"
@@ -37,28 +39,6 @@ namespace pssl
 
 constexpr size_t GcnMaxSgprCount = 104;
 constexpr size_t GcnMaxVgprCount = 256;
-
-/**
- * \brief Shader input resource.
- *
- * V# T# S# buffer and any other shader resource input to the shader
- */
-struct GcnShaderResource
-{
-	GcnShaderResource()
-	{
-	}
-
-	GcnShaderResource(ShaderInputUsageType uType, PsslShaderResource& res):
-		usageType(uType), 
-		res(res)
-	{
-	}
-
-	ShaderInputUsageType usageType;
-	PsslShaderResource res;
-};
-
 
 
 /**
@@ -128,9 +108,9 @@ struct GcnCompilerCsPart
 
 struct GcnShaderInput
 {
-	std::vector<GcnShaderResource> shaderResources;
-	std::optional<std::vector<VertexInputSemantic>> vsInputSemantics;
-	std::optional<std::vector<PixelInputSemantic>> psInputSemantics;
+	GcnShaderResources								shaderResources;
+	std::optional<std::vector<VertexInputSemantic>>	vsInputSemantics;
+	std::optional<std::vector<PixelInputSemantic>>	psInputSemantics;
 };
 
 
@@ -193,10 +173,10 @@ private:
 	void emitGprInitialize();
 	void emitStatusRegInitialize();
 	// For all shader types
-	void emitDclResourceBuffer();
-	void emitDclImmConstBuffer(const GcnShaderResource& res);
-	void emitDclImmSampler(const GcnShaderResource& res);
-	void emitDclImmResource(const GcnShaderResource& res);
+	void emitDclShaderResource();
+	void emitDclImmConstBuffer(const GcnShaderResourceInstance& res);
+	void emitDclImmSampler(const GcnShaderResourceInstance& res);
+	void emitDclImmResource(const GcnShaderResourceInstance& res);
 
 	/////////////////////////////////////////////////////////
 	SpirvRegisterValue emitValueLoad(const SpirvRegisterPointer& reg);
@@ -471,6 +451,8 @@ private:
 	SpirvRegisterValue emitExpSrcLoadNoCompr(GCNInstruction& ins);
 	void emitExpVS(GCNInstruction& ins);
 	void emitExpPS(GCNInstruction& ins);
+
+
 
 	/////////////////////////////////////////////////////////
 
