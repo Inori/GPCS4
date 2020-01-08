@@ -1,10 +1,10 @@
 #include "ELFMapper.h"
+
+#include "Emulator/ModuleSystemCommon.h"
 #include "Platform/PlatformUtils.h"
 
 #include <algorithm>
 #include <cassert>
-
-constexpr bool LOG_DEBUG_MAPPER = false;
 
 bool ELFMapper::loadFile(std::string const &filePath, MemoryMappedModule *mod)
 {
