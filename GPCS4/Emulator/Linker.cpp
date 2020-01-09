@@ -69,6 +69,7 @@ bool CLinker::resolveSymbol(MemoryMappedModule const &mod,
 			address = m_modSystem.FindFunction(info->moduleName, info->libraryName,
 											   info->nid);
 
+			// overridden == true, means the function is native
 			overridden = m_modSystem.isFunctionOverridable(info->moduleName,
 														  info->libraryName,
 														  info->nid);
@@ -77,22 +78,46 @@ bool CLinker::resolveSymbol(MemoryMappedModule const &mod,
 		LOG_ERR_IF(address == nullptr, "fail to resolve symbol: %s from %s for module %s",
 				   name.c_str(), info->moduleName.c_str(), mod.fileName.c_str());
 
+#ifdef MODSYS_STUB_DISABLE
+
+		if (!address)
+		{
+			break;
+		}
+		*addrOut = reinterpret_cast<uint64_t>(address);
+
+#else // MODSYS_STUB_DISABLE
+
 		if (address != nullptr && !overridden)
 		{
 			// builtin function
 			*addrOut = reinterpret_cast<uint64_t>(address);
 		}
-#ifdef MODSYS_USE_STUB_ON_UNKNOWN_ONLY
-		else if (address == nullptr)
+		else if (address != nullptr && overridden)
 		{
+			// native function
+
+#ifdef MODSYS_STUB_ON_NATIVE
 			*addrOut = reinterpret_cast<uint64_t>(generateStubFunction(info, address));
+#else  // MODSYS_STUB_ON_NATIVE
+			*addrOut = reinterpret_cast<uint64_t>(address);
+#endif  // MODSYS_STUB_ON_NATIVE
+
 		}
-#else // MODSYS_USE_STUB_ON_UNKNOWN_ONLY
 		else
 		{
+			// unknown function
+
+#ifdef MODSYS_STUB_ON_UNKNOWN
 			*addrOut = reinterpret_cast<uint64_t>(generateStubFunction(info, address));
+#else   // MODSYS_STUB_ON_UNKNOWN
+			*addrOut = reinterpret_cast<uint64_t>(address);
+#endif  // MODSYS_STUB_ON_UNKNOWN
+
 		}
-#endif // MODSYS_USE_STUB_ON_UNKNOWN_ONLY
+
+
+#endif  // MODSYS_STUB_DISABLE
 
 		retVal = true;
 	} while (false);
