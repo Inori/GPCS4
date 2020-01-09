@@ -173,7 +173,10 @@ private:
 	void emitGprInitialize();
 	void emitStatusRegInitialize();
 	// For all shader types
-	void emitDclShaderResource();
+	void emitDclShaderResource(const GcnShaderResourceInstance& res);
+	void emitDclShaderResourceUD();
+	void emitDclShaderResourceEUD(uint32_t dstRegIndex, uint32_t eudOffsetDw);
+
 	void emitDclImmConstBuffer(const GcnShaderResourceInstance& res);
 	void emitDclImmSampler(const GcnShaderResourceInstance& res);
 	void emitDclImmResource(const GcnShaderResourceInstance& res);
@@ -452,7 +455,11 @@ private:
 	void emitExpVS(GCNInstruction& ins);
 	void emitExpPS(GCNInstruction& ins);
 
-
+	void emitScalarMemBufferLoad(
+		uint32_t bufferId, 
+		uint32_t dstRegStart, 
+		uint32_t dstRegCount, 
+		uint32_t offsetDw);
 
 	/////////////////////////////////////////////////////////
 

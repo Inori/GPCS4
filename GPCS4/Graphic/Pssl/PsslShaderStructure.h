@@ -70,14 +70,12 @@ struct GcnShaderResourceInstance
  */
 struct GcnShaderResourceEUD
 {
-	using EudResourceVector = std::vector<std::pair<uint32_t, GcnShaderResourceInstance>>;
-
 	// EUD start register
 	uint32_t startRegister;
 
 	// Resources in Extended User Data (EUD)
 	// First field in the pair is EUD offset in dword.
-	std::optional<EudResourceVector> resources = std::nullopt;
+	std::vector<std::pair<uint32_t, GcnShaderResourceInstance>> resources;
 };
 
 /**
@@ -102,12 +100,12 @@ struct GcnShaderResources
 	std::vector<GcnShaderResourceInstance> ud;
 
 	// EUD resources
-	GcnShaderResourceEUD eud;
+	std::optional<GcnShaderResourceEUD> eud = std::nullopt;
 
-	// TODO:
-	// Add SRT support
 	// SRT resources
-	GcnShaderResourceSRT srt;
+	// TODO:
+	// Support SRT
+	std::optional<GcnShaderResourceSRT> srt = std::nullopt;
 };
 
 

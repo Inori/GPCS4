@@ -158,7 +158,7 @@ void GCNCompiler::emitVsInit()
 	emitStatusRegInitialize();
 	emitDclVertexInput();
 	emitDclVertexOutput();
-	emitDclShaderResource();
+	emitDclShaderResourceUD();
 	emitEmuFetchShader();
 
 	// Main function of the vertex shader
@@ -203,7 +203,7 @@ void GCNCompiler::emitPsInit()
 	emitStatusRegInitialize();
 	emitDclPixelInput();
 	emitDclPixelOutput();
-	emitDclShaderResource();
+	emitDclShaderResourceUD();
 
 	this->emitFunctionBegin(
 		m_ps.functionId,
@@ -483,7 +483,53 @@ void GCNCompiler::emitStatusRegInitialize()
 	//m_statusRegs.scc.id   = emitNewVariable({ u32Type, spv::StorageClass::StorageClassPrivate }, "scc");
 }
 
-void GCNCompiler::emitDclShaderResource()
+void GCNCompiler::emitDclShaderResource(const GcnShaderResourceInstance& res)
+{
+	switch (res.usageType)
+	{
+	case kShaderInputUsageImmConstBuffer:
+		emitDclImmConstBuffer(res);
+		break;
+	case kShaderInputUsageImmResource:
+		emitDclImmResource(res);
+		break;
+	case kShaderInputUsageImmSampler:
+		emitDclImmSampler(res);
+		break;
+	default:
+		break;
+	}
+}
+
+void GCNCompiler::emitDclShaderResourceUD()
+{
+	// Declare resources in User Data.
+	for (const auto& res : m_shaderInput.shaderResources.ud)
+	{
+		emitDclShaderResource(res);
+	}
+}
+
+void GCNCompiler::emitDclShaderResourceEUD(uint32_t dstRegIndex, uint32_t eudOffsetDw)
+{
+	const auto& eudResources = m_shaderInput.shaderResources.eud->resources;
+
+	// Find the matched resource at eudOffsetDw in EUD table.
+	auto iter = std::find_if(eudResources.begin(), eudResources.end(), 
+	[eudOffsetDw](const auto& resPair)
+	{
+		return resPair.first == eudOffsetDw;
+	});
+
+	// Declare the found resource.
+	auto res = iter->second;
+	// Reset startRegister register to S_LOAD_DWORDXN instruction's destination register.
+	// The following progress will use this to set resource in proper slot.
+	res.res.startRegister = dstRegIndex;
+	emitDclShaderResource(res);
+}
+
+void GCNCompiler::emitDclImmConstBuffer(const GcnShaderResourceInstance& res)
 {
 	// For PSSL resource buffer, it's hard to detect how many variables have been declared,
 	// and even if we know, it's almost useless, because the shader could access part of a variable,
@@ -507,27 +553,6 @@ void GCNCompiler::emitDclShaderResource()
 	// Currently I can not determine which one is better, and how much performance we could gain from using UBO,
 	// but I just choose the UBO way first due to performance reason. Maybe need to change in the future.
 
-	for (const auto& res : m_shaderInput.shaderResources.ud)
-	{
-		switch (res.usageType)
-		{
-		case kShaderInputUsageImmConstBuffer:
-			emitDclImmConstBuffer(res);
-			break;
-		case kShaderInputUsageImmResource:
-			emitDclImmResource(res);
-			break;
-		case kShaderInputUsageImmSampler:
-			emitDclImmSampler(res);
-			break;
-		default:
-			break;
-		}
-	}
-}
-
-void GCNCompiler::emitDclImmConstBuffer(const GcnShaderResourceInstance& res)
-{
 	const VSharpBuffer* vsharpBuffer = reinterpret_cast<const VSharpBuffer*>(res.res.resource);
 	uint32_t arraySize               = vsharpBuffer->stride * vsharpBuffer->num_records / sizeof(uint32_t);
 
@@ -1407,6 +1432,7 @@ SpirvRegisterValue GCNCompiler::emitRegisterComponentLoad(
 	uint32_t valueId = m_module.opLoad(typeId, compositePointer);
 	return SpirvRegisterValue(srcVec.type.ctype, 1, valueId);
 }
+
 
 uint32_t GCNCompiler::getPerVertexBlockId()
 {

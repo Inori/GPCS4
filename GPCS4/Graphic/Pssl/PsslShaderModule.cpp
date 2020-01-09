@@ -106,9 +106,9 @@ PsslShaderModule::linearlizeShaderResources(const GcnShaderResources& nestedReso
 	linearResourceTable.insert(linearResourceTable.begin(),
 		nestedResources.ud.begin(), nestedResources.ud.end());
 
-	if (nestedResources.eud.resources.has_value())
+	if (nestedResources.eud.has_value())
 	{
-		for (const auto& eudRes : nestedResources.eud.resources.value())
+		for (const auto& eudRes : nestedResources.eud->resources)
 		{
 			linearResourceTable.emplace_back(eudRes.second);
 		}
@@ -300,8 +300,8 @@ void PsslShaderModule::parseResEud()
 	// If there is, initialize it.
 	if (iter != inputUsageSlots.end())
 	{
-		m_shaderResources.eud.startRegister = iter->startRegister;
-		m_shaderResources.eud.resources     = GcnShaderResourceEUD::EudResourceVector();
+		m_shaderResources.eud                = std::make_optional<GcnShaderResourceEUD>();
+		m_shaderResources.eud->startRegister = iter->startRegister;
 	}
 
 	for (auto& slot : inputUsageSlots)
@@ -331,8 +331,8 @@ void PsslShaderModule::parseResEud()
 			LOG_ASSERT(res.res.resource != nullptr, "can not found imm type resource %d", usageType);
 
 			isInUserData ? 
-			m_shaderResources.ud.push_back(res):
-			m_shaderResources.eud.resources->push_back(std::make_pair(eudOffsetInDword, res));	
+			m_shaderResources.ud.push_back(res) : 
+			m_shaderResources.eud->resources.push_back(std::make_pair(eudOffsetInDword, res));
 		}
 			break;
 		default:
