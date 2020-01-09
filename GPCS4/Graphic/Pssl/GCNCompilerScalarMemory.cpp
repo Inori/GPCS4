@@ -76,6 +76,9 @@ void GCNCompiler::emitScalarMemRd(GCNInstruction& ins)
 	case SISMRDInstruction::S_LOAD_DWORDX8:
 	case SISMRDInstruction::S_LOAD_DWORDX16:
 	{
+		// TODO:
+		// Currently, I only found S_LOAD_DWORD[XN] used to load resource in EUD.
+		// If there's other usage, we need to supported it.
 		LOG_ASSERT(m_shaderInput.shaderResources.eud.has_value() &&
 				   srcStartReg == m_shaderInput.shaderResources.eud->startRegister,
 				   "only support load EUD currently.");

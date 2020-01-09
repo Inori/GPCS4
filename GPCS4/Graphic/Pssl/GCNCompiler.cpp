@@ -497,6 +497,7 @@ void GCNCompiler::emitDclShaderResource(const GcnShaderResourceInstance& res)
 		emitDclImmSampler(res);
 		break;
 	default:
+		LOG_WARN("unknown shader resource type found %d", res.usageType);
 		break;
 	}
 }
@@ -523,8 +524,8 @@ void GCNCompiler::emitDclShaderResourceEUD(uint32_t dstRegIndex, uint32_t eudOff
 
 	// Declare the found resource.
 	auto res = iter->second;
-	// Reset startRegister register to S_LOAD_DWORDXN instruction's destination register.
-	// The following progress will use this to set resource in proper slot.
+	// Reset startRegister to S_LOAD_DWORDXN instruction's destination register.
+	// Following progress will use this to set resource in proper slot.
 	res.res.startRegister = dstRegIndex;
 	emitDclShaderResource(res);
 }
