@@ -77,19 +77,22 @@ bool CLinker::resolveSymbol(MemoryMappedModule const &mod,
 		LOG_ERR_IF(address == nullptr, "fail to resolve symbol: %s from %s for module %s",
 				   name.c_str(), info->moduleName.c_str(), mod.fileName.c_str());
 
-
-#ifndef MODSYS_FORCE_USING_STUB_FUNCTION
 		if (address != nullptr && !overridden)
 		{
+			// builtin function
 			*addrOut = reinterpret_cast<uint64_t>(address);
 		}
+#ifdef MODSYS_USE_STUB_ON_UNKNOWN_ONLY
+		else if (address == nullptr)
+		{
+			*addrOut = reinterpret_cast<uint64_t>(generateStubFunction(info, address));
+		}
+#else // MODSYS_USE_STUB_ON_UNKNOWN_ONLY
 		else
 		{
 			*addrOut = reinterpret_cast<uint64_t>(generateStubFunction(info, address));
 		}
-#else  // MODSYS_FORCE_USING_STUB_FUNCTION
-		*addrOut = reinterpret_cast<uint64_t>(generateStubFunction(info, address));
-#endif  // MODSYS_FORCE_USING_STUB_FUNCTION
+#endif // MODSYS_USE_STUB_ON_UNKNOWN_ONLY
 
 		retVal = true;
 	} while (false);
