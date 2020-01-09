@@ -180,15 +180,12 @@ bool ModuleLoader::loadDependencies()
 		{
 			LOG_ERR("Failed to load module %s", fileName.c_str());
 
-			if (IGNORE_NOT_FOUND_MODULES)
-			{
-				moduleNotFoundIgnore = true;
-				continue;
-			}
-			else
-			{
-				break;
-			}
+#ifdef MODSYS_IGNORE_NOT_FOUND_MODULES
+			moduleNotFoundIgnore = true;
+			continue;
+#else  // MODSYS_IGNORE_NOT_FOUND_MODULES
+			break;
+#endif // MODSYS_IGNORE_NOT_FOUND_MODULES
 		}
 
 		if (!exist)

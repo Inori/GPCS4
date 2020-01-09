@@ -1,7 +1,13 @@
 #pragma once
 
 // Module system configs
-constexpr bool IGNORE_NOT_FOUND_MODULES  = true;
-constexpr bool USE_FUNCTION_STUBS        = true;
-constexpr bool LOG_UNKNOWN_FUNCTION_ONLY = true;
-constexpr bool LOG_DEBUG_MAPPER          = false;
+
+// Ignore not found modules while loading dependencies.
+#define MODSYS_IGNORE_NOT_FOUND_MODULES
+
+// Force using debug stub on all module functions
+#define MODSYS_FORCE_USING_STUB_FUNCTION
+
+// Disable LOG_DEBUG macro in ElfMapper.cpp
+// This is used to prevent too many logs while loading ELF.
+#define MODSYS_DISABLE_MAPPER_LOG_DEBUG

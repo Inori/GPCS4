@@ -6,6 +6,15 @@
 #include <algorithm>
 #include <cassert>
 
+
+#ifdef MODSYS_DISABLE_MAPPER_LOG_DEBUG
+
+#undef  LOG_DEBUG
+#define LOG_DEBUG(format, ...)
+
+#endif  // MODSYS_DISABLE_MAPPER_LOG_DEBUG
+
+
 bool ELFMapper::loadFile(std::string const &filePath, MemoryMappedModule *mod)
 {
 	UtilFile::file_uptr file = {};
@@ -458,20 +467,20 @@ bool ELFMapper::prepareTables(Elf64_Dyn const &entry, uint index)
 
 	case DT_INIT:
 	{
-		LOG_DEBUG_IF(LOG_DEBUG_MAPPER, "INIT addr: %x", entry.d_un.d_ptr);
+		LOG_DEBUG("INIT addr: %x", entry.d_un.d_ptr);
 		info.pInitProc = reinterpret_cast<void *>(entry.d_un.d_ptr);
 	}
 	break;
 
 	case DT_FINI:
 	{
-		LOG_DEBUG_IF(LOG_DEBUG_MAPPER, "FINI addr: %x", entry.d_un.d_ptr);
+		LOG_DEBUG("FINI addr: %x", entry.d_un.d_ptr);
 	}
 	break;
 
 	case DT_SCE_PLTGOT:
 	{
-		LOG_DEBUG_IF(LOG_DEBUG_MAPPER, "PLTGOT addr: %x", entry.d_un.d_ptr);
+		LOG_DEBUG("PLTGOT addr: %x", entry.d_un.d_ptr);
 	}
 	break;
 
@@ -482,7 +491,7 @@ bool ELFMapper::prepareTables(Elf64_Dyn const &entry, uint index)
 	*/
 	case DT_SCE_SYMTAB:
 	{
-		LOG_DEBUG_IF(LOG_DEBUG_MAPPER, "    %i: d_tag = %s, d_un = %08x", index, "DT_SCE_SYMTAB",
+		LOG_DEBUG("    %i: d_tag = %s, d_un = %08x", index, "DT_SCE_SYMTAB",
 				  entry.d_un.d_val);
 
 		// I'm not sure if it is possible for a ELF file to have multiple symbol
@@ -496,7 +505,7 @@ bool ELFMapper::prepareTables(Elf64_Dyn const &entry, uint index)
 
 	case DT_SCE_SYMTABSZ:
 	{
-		LOG_DEBUG_IF(LOG_DEBUG_MAPPER, "    %i: d_tag = %s, d_un = %08x", index, "DT_SCE_SYMTABSZ",
+		LOG_DEBUG("    %i: d_tag = %s, d_un = %08x", index, "DT_SCE_SYMTABSZ",
 				  entry.d_un.d_val);
 		assert(info.nSymTabSize == 0);
 		info.nSymTabSize = entry.d_un.d_val;
@@ -508,7 +517,7 @@ bool ELFMapper::prepareTables(Elf64_Dyn const &entry, uint index)
 	*/
 	case DT_SCE_STRTAB:
 	{
-		LOG_DEBUG_IF(LOG_DEBUG_MAPPER, "    %i: d_tag = %s, d_un = %08x", index, "DT_SCE_STRTAB",
+		LOG_DEBUG("    %i: d_tag = %s, d_un = %08x", index, "DT_SCE_STRTAB",
 				  entry.d_un.d_val);
 		assert(info.pStrTab == nullptr);
 		info.pStrTab = pDynBaseAddr + entry.d_un.d_ptr;
@@ -517,7 +526,7 @@ bool ELFMapper::prepareTables(Elf64_Dyn const &entry, uint index)
 
 	case DT_SCE_STRSZ:
 	{
-		LOG_DEBUG_IF(LOG_DEBUG_MAPPER, "    %i: d_tag = %s, d_un = %08x", index, "DT_SCE_STRSZ",
+		LOG_DEBUG("    %i: d_tag = %s, d_un = %08x", index, "DT_SCE_STRSZ",
 				  entry.d_un.d_val);
 		assert(info.nStrTabSize == 0);
 		info.nStrTabSize = entry.d_un.d_val;
@@ -529,7 +538,7 @@ bool ELFMapper::prepareTables(Elf64_Dyn const &entry, uint index)
 	*/
 	case DT_SCE_RELA:
 	{
-		LOG_DEBUG_IF(LOG_DEBUG_MAPPER, "    %i: d_tag = %s, d_un = %08x", index, "DT_SCE_RELA",
+		LOG_DEBUG("    %i: d_tag = %s, d_un = %08x", index, "DT_SCE_RELA",
 				  entry.d_un.d_val);
 		assert(info.pRela == nullptr);
 		info.pRela = pDynBaseAddr + entry.d_un.d_ptr;
@@ -538,7 +547,7 @@ bool ELFMapper::prepareTables(Elf64_Dyn const &entry, uint index)
 
 	case DT_SCE_RELASZ:
 	{
-		LOG_DEBUG_IF(LOG_DEBUG_MAPPER, "    %i: d_tag = %s, d_un = %08x", index, "DT_SCE_RELASZ",
+		LOG_DEBUG("    %i: d_tag = %s, d_un = %08x", index, "DT_SCE_RELASZ",
 				  entry.d_un.d_val);
 		assert(info.nRelaCount == 0);
 		info.nRelaCount = entry.d_un.d_val / sizeof(Elf64_Rela);
@@ -550,7 +559,7 @@ bool ELFMapper::prepareTables(Elf64_Dyn const &entry, uint index)
 	*/
 	case DT_SCE_JMPREL:
 	{
-		LOG_DEBUG_IF(LOG_DEBUG_MAPPER, "    %i: d_tag = %s, d_un = %08x", index, "DT_SCE_JMPREL",
+		LOG_DEBUG("    %i: d_tag = %s, d_un = %08x", index, "DT_SCE_JMPREL",
 				  entry.d_un.d_val);
 		assert(info.pPltRela == nullptr);
 		info.pPltRela = pDynBaseAddr + entry.d_un.d_ptr;
@@ -559,7 +568,7 @@ bool ELFMapper::prepareTables(Elf64_Dyn const &entry, uint index)
 
 	case DT_SCE_PLTREL:
 	{
-		LOG_DEBUG_IF(LOG_DEBUG_MAPPER, "    %i: d_tag = %s, d_un = %08x", index, "DT_SCE_PLTREL",
+		LOG_DEBUG("    %i: d_tag = %s, d_un = %08x", index, "DT_SCE_PLTREL",
 				  entry.d_un.d_val);
 		assert(info.nPltRelType == 0);
 		info.nPltRelType = entry.d_un.d_val;
@@ -568,7 +577,7 @@ bool ELFMapper::prepareTables(Elf64_Dyn const &entry, uint index)
 
 	case DT_SCE_PLTRELSZ:
 	{
-		LOG_DEBUG_IF(LOG_DEBUG_MAPPER, "    %i: d_tag = %s, d_un = %08x", index, "DT_SCE_PLTRELSZ",
+		LOG_DEBUG("    %i: d_tag = %s, d_un = %08x", index, "DT_SCE_PLTRELSZ",
 				  entry.d_un.d_val);
 		assert(info.nPltRelaCount == 0);
 		info.nPltRelaCount = entry.d_un.d_val / sizeof(Elf64_Rela);
@@ -597,7 +606,7 @@ bool ELFMapper::parseSingleDynEntry(Elf64_Dyn const &entry, uint index)
 	{
 		char *fileName = (char *)&strTable[entry.d_un.d_ptr];
 		m_moduleData->m_neededFiles.push_back(fileName);
-		LOG_DEBUG_IF(LOG_DEBUG_MAPPER, "DT_NEEDED: %s", fileName);
+		LOG_DEBUG("DT_NEEDED: %s", fileName);
 	}
 	break;
 
@@ -607,7 +616,7 @@ bool ELFMapper::parseSingleDynEntry(Elf64_Dyn const &entry, uint index)
 		mod.value   = entry.d_un.d_val;
 		mod.strName = reinterpret_cast<char *>(&strTable[mod.name_offset]);
 		m_moduleData->m_exportModules.push_back(mod);
-		LOG_DEBUG_IF(LOG_DEBUG_MAPPER, "DT_SCE_MODULE_INFO: %s", mod.strName.c_str());
+		LOG_DEBUG("DT_SCE_MODULE_INFO: %s", mod.strName.c_str());
 	}
 	break;
 
@@ -617,7 +626,7 @@ bool ELFMapper::parseSingleDynEntry(Elf64_Dyn const &entry, uint index)
 		mod.value   = entry.d_un.d_val;
 		mod.strName = reinterpret_cast<char *>(&strTable[mod.name_offset]);
 		m_moduleData->m_importModules.push_back(mod);
-		LOG_DEBUG_IF(LOG_DEBUG_MAPPER, "DT_SCE_NEEDED_MODULE: %s", mod.strName.c_str());
+		LOG_DEBUG("DT_SCE_NEEDED_MODULE: %s", mod.strName.c_str());
 	}
 	break;
 
@@ -627,7 +636,7 @@ bool ELFMapper::parseSingleDynEntry(Elf64_Dyn const &entry, uint index)
 		lib.value   = entry.d_un.d_val;
 		lib.strName = reinterpret_cast<char *>(&strTable[lib.name_offset]);
 		m_moduleData->m_exportLibraries.push_back(lib);
-		LOG_DEBUG_IF(LOG_DEBUG_MAPPER, "DT_SCE_EXPORT_LIB %s", lib.strName.c_str());
+		LOG_DEBUG("DT_SCE_EXPORT_LIB %s", lib.strName.c_str());
 	}
 	break;
 
@@ -637,7 +646,7 @@ bool ELFMapper::parseSingleDynEntry(Elf64_Dyn const &entry, uint index)
 		lib.value   = entry.d_un.d_val;
 		lib.strName = reinterpret_cast<char *>(&strTable[lib.name_offset]);
 		m_moduleData->m_importLibraries.push_back(lib);
-		LOG_DEBUG_IF(LOG_DEBUG_MAPPER, "DT_SCE_IMPORT_LIB %s", lib.strName.c_str());
+		LOG_DEBUG("DT_SCE_IMPORT_LIB %s", lib.strName.c_str());
 	}
 	break;
 	}

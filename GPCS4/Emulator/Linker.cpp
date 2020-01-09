@@ -74,57 +74,66 @@ bool CLinker::resolveSymbol(MemoryMappedModule const &mod,
 														  info->nid);
 		}
 
-		if (address == nullptr)
-		{
-			LOG_ERR("fail to resolve symbol: %s from %s for module %s",
-					name.c_str(), info->moduleName.c_str(), mod.fileName.c_str());
-		}
+		LOG_ERR_IF(address == nullptr, "fail to resolve symbol: %s from %s for module %s",
+				   name.c_str(), info->moduleName.c_str(), mod.fileName.c_str());
 
-		if (!overridden && address != nullptr || !USE_FUNCTION_STUBS)
+
+#ifndef MODSYS_FORCE_USING_STUB_FUNCTION
+		if (address != nullptr && !overridden)
 		{
 			*addrOut = reinterpret_cast<uint64_t>(address);
 		}
-		else if (LOG_UNKNOWN_FUNCTION_ONLY && address != nullptr)
+		else
 		{
-			*addrOut  = reinterpret_cast<uint64_t>(address);
+			*addrOut = reinterpret_cast<uint64_t>(generateStubFunction(info, address));
 		}
-		else // Use function stub 
-		{
-			const char *formatString = nullptr;
-
-			if (address == nullptr)
-			{
-				// NOTE: Something is wrong with va_args and u64 values, so print NID as 2 u32
-				formatString =
-					"Unknown Function nid 0x%08x%08x (\"%s\") from lib:%s is called at 0x%08x";
-			}
-			else
-			{
-				formatString =
-					"Function nid 0x%08x%08x (\"%s\") from lib:%s is called";
-			}
-
-			auto nidString = info->symbolName.substr(0, 11);
-
-			auto msg = UtilString::Format(formatString,
-										  info->nid >> 32,
-										  info->nid,
-										  nidString.c_str(),
-										  info->libraryName.c_str());
-
-			auto stubMgr  = GetFuncStubManager();
-			auto stubAddr = address == nullptr? 
-								stubMgr->generateUnknown(msg):
-								stubMgr->generate(msg, address);
-
-			*addrOut = reinterpret_cast<uint64_t>(stubAddr);
-		}
+#else  // MODSYS_FORCE_USING_STUB_FUNCTION
+		*addrOut = reinterpret_cast<uint64_t>(generateStubFunction(info, address));
+#endif  // MODSYS_FORCE_USING_STUB_FUNCTION
 
 		retVal = true;
 	} while (false);
 
 	return retVal;
 }
+
+
+void* CLinker::generateStubFunction(const SymbolInfo* sybInfo, void* oldFunc) const
+{
+	void* stubFunc = nullptr;
+	do 
+	{
+		const char* formatString = nullptr;
+
+		if (oldFunc == nullptr)
+		{
+			// NOTE: Something is wrong with va_args and u64 values, so print NID as 2 u32
+			formatString =
+				"Unknown Function nid 0x%08x%08x (\"%s\") from lib:%s is called at 0x%08x";
+		}
+		else
+		{
+			formatString =
+				"Function nid 0x%08x%08x (\"%s\") from lib:%s is called";
+		}
+
+		auto nidString = sybInfo->symbolName.substr(0, 11);
+
+		auto msg = UtilString::Format(formatString,
+									  sybInfo->nid >> 32,
+									  sybInfo->nid,
+									  nidString.c_str(),
+									  sybInfo->libraryName.c_str());
+
+		auto stubMgr  = GetFuncStubManager();
+		stubFunc      = oldFunc == nullptr ? 
+			stubMgr->generateUnknown(msg) : 
+			stubMgr->generate(msg, oldFunc);
+
+	} while (false);
+	return stubFunc;
+}
+
 
 bool CLinker::relocateModules()
 {

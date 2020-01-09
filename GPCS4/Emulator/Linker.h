@@ -26,5 +26,8 @@ private:
 	bool relocateModule(MemoryMappedModule &mod);
 	bool relocateRela(MemoryMappedModule &mod);
 	bool relocatePltRela(MemoryMappedModule &mod);
+	void* generateStubFunction(const SymbolInfo* sybInfo, void* oldFunc) const;
+
+private:
 	CSceModuleSystem &m_modSystem;
 };
