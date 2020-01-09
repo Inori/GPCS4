@@ -12,7 +12,7 @@
 // Functions can be separated into three types: builtin, native and unknown
 // builtin : Functions which GPCS4 implemented
 // native  : Functions in loaded modules
-// unknown : Functions which can not be found in either builtin nor native.
+// unknown : Functions which can not be found in either builtin nor native, typically nullptr, means an error occur.
 
 // Disable debug stub on all types of functions
 // #define MODSYS_STUB_DISABLE
