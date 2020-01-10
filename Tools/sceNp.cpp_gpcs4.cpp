@@ -13,7 +13,7 @@
 LOG_CHANNEL(sceNp);
 
 
-error_code sceNpScoreGetRankingByRangeAsync(int32_t transId, SceNpScoreBoardId boardId, SceNpScoreRankNumber startSerialRank, SceNpScoreRankData* rankArray,
+int sceNpScoreGetRankingByRangeAsync(int32_t transId, SceNpScoreBoardId boardId, SceNpScoreRankNumber startSerialRank, SceNpScoreRankData* rankArray,
 	uint64_t rankArraySize, SceNpScoreComment* commentArray, uint64_t commentArraySize, void* infoArray, uint64_t infoArraySize,
 	uint64_t arrayNum, CellRtcTick* lastSortDate, SceNpScoreRankNumber* totalRecord, int32_t prio, void* option)
 {
@@ -412,7 +412,7 @@ void fmt_class_string<SceNpError>::format(std::string& out, u64 arg)
 
 s32 g_psn_connection_status = SCE_NP_MANAGER_STATUS_OFFLINE;
 
-error_code sceNpInit(uint32_t poolsize, void* poolptr)
+int sceNpInit(uint32_t poolsize, void* poolptr)
 {
 	LOG_SCE_TRACE("sceNpInit(poolsize=0x%x, poolptr=*0x%x)", poolsize, poolptr);
 
@@ -452,7 +452,7 @@ error_code sceNpInit(uint32_t poolsize, void* poolptr)
 	return ret;
 }
 
-error_code sceNpTerm()
+int sceNpTerm()
 {
 	LOG_SCE_TRACE("sceNpTerm()");
 
@@ -554,7 +554,7 @@ error_code npDrmIsAvailable(vm::cptr<u8> k_licensee_addr, vm::cptr<char> drm_pat
 	return CELL_OK;
 }
 
-error_code sceNpDrmIsAvailable(const uint8_t* k_licensee_addr, const char* drm_path)
+int sceNpDrmIsAvailable(const uint8_t* k_licensee_addr, const char* drm_path)
 {
 	LOG_SCE_TRACE("sceNpDrmIsAvailable(k_licensee=*0x%x, drm_path=%s)", k_licensee_addr, drm_path);
 
@@ -566,7 +566,7 @@ error_code sceNpDrmIsAvailable(const uint8_t* k_licensee_addr, const char* drm_p
 			break;
 }
 
-error_code sceNpDrmIsAvailable2(const uint8_t* k_licensee_addr, const char* drm_path)
+int sceNpDrmIsAvailable2(const uint8_t* k_licensee_addr, const char* drm_path)
 {
 	LOG_SCE_TRACE("sceNpDrmIsAvailable2(k_licensee=*0x%x, drm_path=%s)", k_licensee_addr, drm_path);
 
@@ -578,7 +578,7 @@ error_code sceNpDrmIsAvailable2(const uint8_t* k_licensee_addr, const char* drm_
 			break;
 }
 
-error_code sceNpDrmVerifyUpgradeLicense(const char* content_id)
+int sceNpDrmVerifyUpgradeLicense(const char* content_id)
 {
 	LOG_SCE_TRACE("sceNpDrmVerifyUpgradeLicense(content_id=%s)", content_id);
 
@@ -605,7 +605,7 @@ error_code sceNpDrmVerifyUpgradeLicense(const char* content_id)
 	return ret;
 }
 
-error_code sceNpDrmVerifyUpgradeLicense2(const char* content_id)
+int sceNpDrmVerifyUpgradeLicense2(const char* content_id)
 {
 	LOG_SCE_TRACE("sceNpDrmVerifyUpgradeLicense2(content_id=%s)", content_id);
 
@@ -632,7 +632,7 @@ error_code sceNpDrmVerifyUpgradeLicense2(const char* content_id)
 	return ret;
 }
 
-error_code sceNpDrmExecuteGamePurchase()
+int sceNpDrmExecuteGamePurchase()
 {
 	LOG_SCE_TRACE("sceNpDrmExecuteGamePurchase()");
 
@@ -644,7 +644,7 @@ error_code sceNpDrmExecuteGamePurchase()
 	return ret;
 }
 
-error_code sceNpDrmGetTimelimit(const char* path, uint64_t* time_remain)
+int sceNpDrmGetTimelimit(const char* path, uint64_t* time_remain)
 {
 	LOG_SCE_TRACE("sceNpDrmGetTimelimit(path=%s, time_remain=*0x%x)", path, time_remain);
 
@@ -665,7 +665,7 @@ error_code sceNpDrmGetTimelimit(const char* path, uint64_t* time_remain)
 	return ret;
 }
 
-error_code sceNpDrmProcessExitSpawn(ppu_thread& ppu, const uint8_t* klicensee, const char* path, vm::cpptr<char> argv, vm::cpptr<char> envp, uint32_t data, uint32_t data_size, int32_t prio, uint64_t flags)
+int sceNpDrmProcessExitSpawn(ppu_thread& ppu, const uint8_t* klicensee, const char* path, vm::cpptr<char> argv, vm::cpptr<char> envp, uint32_t data, uint32_t data_size, int32_t prio, uint64_t flags)
 {
 	LOG_SCE_TRACE("sceNpDrmProcessExitSpawn(klicensee=*0x%x, path=%s, argv=**0x%x, envp=**0x%x, data=*0x%x, data_size=0x%x, prio=%d, flags=0x%x)", klicensee, path, argv, envp, data, data_size, prio, flags);
 
@@ -685,7 +685,7 @@ error_code sceNpDrmProcessExitSpawn(ppu_thread& ppu, const uint8_t* klicensee, c
 	return ret;
 }
 
-error_code sceNpDrmProcessExitSpawn2(ppu_thread& ppu, const uint8_t* klicensee, const char* path, vm::cpptr<char> argv, vm::cpptr<char> envp, uint32_t data, uint32_t data_size, int32_t prio, uint64_t flags)
+int sceNpDrmProcessExitSpawn2(ppu_thread& ppu, const uint8_t* klicensee, const char* path, vm::cpptr<char> argv, vm::cpptr<char> envp, uint32_t data, uint32_t data_size, int32_t prio, uint64_t flags)
 {
 	LOG_SCE_TRACE("sceNpDrmProcessExitSpawn2(klicensee=*0x%x, path=%s, argv=**0x%x, envp=**0x%x, data=*0x%x, data_size=0x%x, prio=%d, flags=0x%x)", klicensee, path, argv, envp, data, data_size, prio, flags);
 
@@ -705,7 +705,7 @@ error_code sceNpDrmProcessExitSpawn2(ppu_thread& ppu, const uint8_t* klicensee, 
 	return ret;
 }
 
-error_code sceNpBasicRegisterHandler(const SceNpCommunicationId* context, SceNpBasicEventHandler* handler, void* arg)
+int sceNpBasicRegisterHandler(const SceNpCommunicationId* context, SceNpBasicEventHandler* handler, void* arg)
 {
 	LOG_SCE_TRACE("sceNpBasicRegisterHandler(context=*0x%x, handler=*0x%x, arg=*0x%x)", context, handler, arg);
 
@@ -730,7 +730,7 @@ error_code sceNpBasicRegisterHandler(const SceNpCommunicationId* context, SceNpB
 	return ret;
 }
 
-error_code sceNpBasicRegisterContextSensitiveHandler(const SceNpCommunicationId* context, SceNpBasicEventHandler* handler, void* arg)
+int sceNpBasicRegisterContextSensitiveHandler(const SceNpCommunicationId* context, SceNpBasicEventHandler* handler, void* arg)
 {
 	LOG_SCE_TRACE("sceNpBasicRegisterContextSensitiveHandler(context=*0x%x, handler=*0x%x, arg=*0x%x)", context, handler, arg);
 
@@ -755,7 +755,7 @@ error_code sceNpBasicRegisterContextSensitiveHandler(const SceNpCommunicationId*
 	return ret;
 }
 
-error_code sceNpBasicUnregisterHandler()
+int sceNpBasicUnregisterHandler()
 {
 	LOG_SCE_TRACE("sceNpBasicUnregisterHandler()");
 
@@ -774,7 +774,7 @@ error_code sceNpBasicUnregisterHandler()
 	return ret;
 }
 
-error_code sceNpBasicSetPresence(const void* data, uint64_t size)
+int sceNpBasicSetPresence(const void* data, uint64_t size)
 {
 	LOG_SCE_TRACE("sceNpBasicSetPresence(data=*0x%x, size=%d)", data, size);
 
@@ -799,7 +799,7 @@ error_code sceNpBasicSetPresence(const void* data, uint64_t size)
 	return ret;
 }
 
-error_code sceNpBasicSetPresenceDetails(const SceNpBasicPresenceDetails* pres, uint32_t options)
+int sceNpBasicSetPresenceDetails(const SceNpBasicPresenceDetails* pres, uint32_t options)
 {
 	LOG_SCE_TRACE("sceNpBasicSetPresenceDetails(pres=*0x%x, options=0x%x)", pres, options);
 
@@ -830,7 +830,7 @@ error_code sceNpBasicSetPresenceDetails(const SceNpBasicPresenceDetails* pres, u
 	return ret;
 }
 
-error_code sceNpBasicSetPresenceDetails2(const SceNpBasicPresenceDetails2* pres, uint32_t options)
+int sceNpBasicSetPresenceDetails2(const SceNpBasicPresenceDetails2* pres, uint32_t options)
 {
 	LOG_SCE_TRACE("sceNpBasicSetPresenceDetails2(pres=*0x%x, options=0x%x)", pres, options);
 
@@ -861,7 +861,7 @@ error_code sceNpBasicSetPresenceDetails2(const SceNpBasicPresenceDetails2* pres,
 	return ret;
 }
 
-error_code sceNpBasicSendMessage(const SceNpId* to, const void* data, uint64_t size)
+int sceNpBasicSendMessage(const SceNpId* to, const void* data, uint64_t size)
 {
 	LOG_SCE_TRACE("sceNpBasicSendMessage(to=*0x%x, data=*0x%x, size=%d)", to, data, size);
 
@@ -892,7 +892,7 @@ error_code sceNpBasicSendMessage(const SceNpId* to, const void* data, uint64_t s
 	return ret;
 }
 
-error_code sceNpBasicSendMessageGui(const SceNpBasicMessageDetails* msg, sys_memory_container_t containerId)
+int sceNpBasicSendMessageGui(const SceNpBasicMessageDetails* msg, sys_memory_container_t containerId)
 {
 	LOG_SCE_TRACE("sceNpBasicSendMessageGui(msg=*0x%x, containerId=%d)", msg, containerId);
 
@@ -929,7 +929,7 @@ error_code sceNpBasicSendMessageGui(const SceNpBasicMessageDetails* msg, sys_mem
 	return ret;
 }
 
-error_code sceNpBasicSendMessageAttachment(const SceNpId* to, const char* subject, const char* body, const char* data, uint64_t size, sys_memory_container_t containerId)
+int sceNpBasicSendMessageAttachment(const SceNpId* to, const char* subject, const char* body, const char* data, uint64_t size, sys_memory_container_t containerId)
 {
 	LOG_SCE_TRACE("sceNpBasicSendMessageAttachment(to=*0x%x, subject=%s, body=%s, data=%s, size=%d, containerId=%d)", to, subject, body, data, size, containerId);
 
@@ -966,7 +966,7 @@ error_code sceNpBasicSendMessageAttachment(const SceNpId* to, const char* subjec
 	return ret;
 }
 
-error_code sceNpBasicRecvMessageAttachment(sys_memory_container_t containerId)
+int sceNpBasicRecvMessageAttachment(sys_memory_container_t containerId)
 {
 	LOG_SCE_TRACE("sceNpBasicRecvMessageAttachment(containerId=%d)", containerId);
 
@@ -985,7 +985,7 @@ error_code sceNpBasicRecvMessageAttachment(sys_memory_container_t containerId)
 	return ret;
 }
 
-error_code sceNpBasicRecvMessageAttachmentLoad(uint32_t id, void* buffer, uint64_t* size)
+int sceNpBasicRecvMessageAttachmentLoad(uint32_t id, void* buffer, uint64_t* size)
 {
 	LOG_SCE_TRACE("sceNpBasicRecvMessageAttachmentLoad(id=%d, buffer=*0x%x, size=*0x%x)", id, buffer, size);
 
@@ -1016,7 +1016,7 @@ error_code sceNpBasicRecvMessageAttachmentLoad(uint32_t id, void* buffer, uint64
 	return ret;
 }
 
-error_code sceNpBasicRecvMessageCustom(uint16_t mainType, uint32_t recvOptions, sys_memory_container_t containerId)
+int sceNpBasicRecvMessageCustom(uint16_t mainType, uint32_t recvOptions, sys_memory_container_t containerId)
 {
 	LOG_SCE_TRACE("sceNpBasicRecvMessageCustom(mainType=%d, recvOptions=%d, containerId=%d)", mainType, recvOptions, containerId);
 
@@ -1041,7 +1041,7 @@ error_code sceNpBasicRecvMessageCustom(uint16_t mainType, uint32_t recvOptions, 
 	return ret;
 }
 
-error_code sceNpBasicMarkMessageAsUsed(SceNpBasicMessageId msgId)
+int sceNpBasicMarkMessageAsUsed(SceNpBasicMessageId msgId)
 {
 	LOG_SCE_TRACE("sceNpBasicMarkMessageAsUsed(msgId=%d)", msgId);
 
@@ -1066,7 +1066,7 @@ error_code sceNpBasicMarkMessageAsUsed(SceNpBasicMessageId msgId)
 	return ret;
 }
 
-error_code sceNpBasicAbortGui()
+int sceNpBasicAbortGui()
 {
 	LOG_SCE_TRACE("sceNpBasicAbortGui()");
 
@@ -1085,7 +1085,7 @@ error_code sceNpBasicAbortGui()
 	return ret;
 }
 
-error_code sceNpBasicAddFriend(const SceNpId* contact, const char* body, sys_memory_container_t containerId)
+int sceNpBasicAddFriend(const SceNpId* contact, const char* body, sys_memory_container_t containerId)
 {
 	LOG_SCE_TRACE("sceNpBasicAddFriend(contact=*0x%x, body=%s, containerId=%d)", contact, body, containerId);
 
@@ -1122,7 +1122,7 @@ error_code sceNpBasicAddFriend(const SceNpId* contact, const char* body, sys_mem
 	return ret;
 }
 
-error_code sceNpBasicGetFriendListEntryCount(uint32_t* count)
+int sceNpBasicGetFriendListEntryCount(uint32_t* count)
 {
 	LOG_SCE_TRACE("sceNpBasicGetFriendListEntryCount(count=*0x%x)", count);
 
@@ -1158,7 +1158,7 @@ error_code sceNpBasicGetFriendListEntryCount(uint32_t* count)
 	return ret;
 }
 
-error_code sceNpBasicGetFriendListEntry(uint32_t index, SceNpId* npid)
+int sceNpBasicGetFriendListEntry(uint32_t index, SceNpId* npid)
 {
 	LOG_SCE_TRACE("sceNpBasicGetFriendListEntry(index=%d, npid=*0x%x)", index, npid);
 
@@ -1192,7 +1192,7 @@ error_code sceNpBasicGetFriendListEntry(uint32_t index, SceNpId* npid)
 	return ret;
 }
 
-error_code sceNpBasicGetFriendPresenceByIndex(uint32_t index, SceNpUserInfo* user, SceNpBasicPresenceDetails* pres, uint32_t options)
+int sceNpBasicGetFriendPresenceByIndex(uint32_t index, SceNpUserInfo* user, SceNpBasicPresenceDetails* pres, uint32_t options)
 {
 	LOG_SCE_TRACE("sceNpBasicGetFriendPresenceByIndex(index=%d, user=*0x%x, pres=*0x%x, options=%d)", index, user, pres, options);
 
@@ -1218,7 +1218,7 @@ error_code sceNpBasicGetFriendPresenceByIndex(uint32_t index, SceNpUserInfo* use
 	return ret;
 }
 
-error_code sceNpBasicGetFriendPresenceByIndex2(uint32_t index, SceNpUserInfo* user, SceNpBasicPresenceDetails2* pres, uint32_t options)
+int sceNpBasicGetFriendPresenceByIndex2(uint32_t index, SceNpUserInfo* user, SceNpBasicPresenceDetails2* pres, uint32_t options)
 {
 	LOG_SCE_TRACE("sceNpBasicGetFriendPresenceByIndex2(index=%d, user=*0x%x, pres=*0x%x, options=%d)", index, user, pres, options);
 
@@ -1244,7 +1244,7 @@ error_code sceNpBasicGetFriendPresenceByIndex2(uint32_t index, SceNpUserInfo* us
 	return ret;
 }
 
-error_code sceNpBasicGetFriendPresenceByNpId(const SceNpId* npid, SceNpBasicPresenceDetails* pres, uint32_t options)
+int sceNpBasicGetFriendPresenceByNpId(const SceNpId* npid, SceNpBasicPresenceDetails* pres, uint32_t options)
 {
 	LOG_SCE_TRACE("sceNpBasicGetFriendPresenceByNpId(npid=*0x%x, pres=*0x%x, options=%d)", npid, pres, options);
 
@@ -1270,7 +1270,7 @@ error_code sceNpBasicGetFriendPresenceByNpId(const SceNpId* npid, SceNpBasicPres
 	return ret;
 }
 
-error_code sceNpBasicGetFriendPresenceByNpId2(const SceNpId* npid, SceNpBasicPresenceDetails2* pres, uint32_t options)
+int sceNpBasicGetFriendPresenceByNpId2(const SceNpId* npid, SceNpBasicPresenceDetails2* pres, uint32_t options)
 {
 	LOG_SCE_TRACE("sceNpBasicGetFriendPresenceByNpId2(npid=*0x%x, pres=*0x%x, options=%d)", npid, pres, options);
 
@@ -1296,7 +1296,7 @@ error_code sceNpBasicGetFriendPresenceByNpId2(const SceNpId* npid, SceNpBasicPre
 	return ret;
 }
 
-error_code sceNpBasicAddPlayersHistory(const SceNpId* npid, char* description)
+int sceNpBasicAddPlayersHistory(const SceNpId* npid, char* description)
 {
 	LOG_SCE_TRACE("sceNpBasicAddPlayersHistory(npid=*0x%x, description=*0x%x)", npid, description);
 
@@ -1327,7 +1327,7 @@ error_code sceNpBasicAddPlayersHistory(const SceNpId* npid, char* description)
 	return ret;
 }
 
-error_code sceNpBasicAddPlayersHistoryAsync(const SceNpId* npids, uint32_t count, char* description, uint32_t* reqId)
+int sceNpBasicAddPlayersHistoryAsync(const SceNpId* npids, uint32_t count, char* description, uint32_t* reqId)
 {
 	LOG_SCE_TRACE("sceNpBasicAddPlayersHistoryAsync(npids=*0x%x, count=%d, description=*0x%x, reqId=*0x%x)", npids, count, description, reqId);
 
@@ -1379,7 +1379,7 @@ error_code sceNpBasicAddPlayersHistoryAsync(const SceNpId* npids, uint32_t count
 	return ret;
 }
 
-error_code sceNpBasicGetPlayersHistoryEntryCount(uint32_t options, uint32_t* count)
+int sceNpBasicGetPlayersHistoryEntryCount(uint32_t options, uint32_t* count)
 {
 	LOG_SCE_TRACE("sceNpBasicGetPlayersHistoryEntryCount(options=%d, count=*0x%x)", options, count);
 
@@ -1415,7 +1415,7 @@ error_code sceNpBasicGetPlayersHistoryEntryCount(uint32_t options, uint32_t* cou
 	return ret;
 }
 
-error_code sceNpBasicGetPlayersHistoryEntry(uint32_t options, uint32_t index, SceNpId* npid)
+int sceNpBasicGetPlayersHistoryEntry(uint32_t options, uint32_t index, SceNpId* npid)
 {
 	LOG_SCE_TRACE("sceNpBasicGetPlayersHistoryEntry(options=%d, index=%d, npid=*0x%x)", options, index, npid);
 
@@ -1449,7 +1449,7 @@ error_code sceNpBasicGetPlayersHistoryEntry(uint32_t options, uint32_t index, Sc
 	return ret;
 }
 
-error_code sceNpBasicAddBlockListEntry(const SceNpId* npid)
+int sceNpBasicAddBlockListEntry(const SceNpId* npid)
 {
 	LOG_SCE_TRACE("sceNpBasicAddBlockListEntry(npid=*0x%x)", npid);
 
@@ -1480,7 +1480,7 @@ error_code sceNpBasicAddBlockListEntry(const SceNpId* npid)
 	return ret;
 }
 
-error_code sceNpBasicGetBlockListEntryCount(uint32_t* count)
+int sceNpBasicGetBlockListEntryCount(uint32_t* count)
 {
 	LOG_SCE_TRACE("sceNpBasicGetBlockListEntryCount(count=*0x%x)", count);
 
@@ -1516,7 +1516,7 @@ error_code sceNpBasicGetBlockListEntryCount(uint32_t* count)
 	return ret;
 }
 
-error_code sceNpBasicGetBlockListEntry(uint32_t index, SceNpId* npid)
+int sceNpBasicGetBlockListEntry(uint32_t index, SceNpId* npid)
 {
 	LOG_SCE_TRACE("sceNpBasicGetBlockListEntry(index=%d, npid=*0x%x)", index, npid);
 
@@ -1550,7 +1550,7 @@ error_code sceNpBasicGetBlockListEntry(uint32_t index, SceNpId* npid)
 	return ret;
 }
 
-error_code sceNpBasicGetMessageAttachmentEntryCount(uint32_t* count)
+int sceNpBasicGetMessageAttachmentEntryCount(uint32_t* count)
 {
 	LOG_SCE_TRACE("sceNpBasicGetMessageAttachmentEntryCount(count=*0x%x)", count);
 
@@ -1586,7 +1586,7 @@ error_code sceNpBasicGetMessageAttachmentEntryCount(uint32_t* count)
 	return ret;
 }
 
-error_code sceNpBasicGetMessageAttachmentEntry(uint32_t index, SceNpUserInfo* from)
+int sceNpBasicGetMessageAttachmentEntry(uint32_t index, SceNpUserInfo* from)
 {
 	LOG_SCE_TRACE("sceNpBasicGetMessageAttachmentEntry(index=%d, from=*0x%x)", index, from);
 
@@ -1620,7 +1620,7 @@ error_code sceNpBasicGetMessageAttachmentEntry(uint32_t index, SceNpUserInfo* fr
 	return ret;
 }
 
-error_code sceNpBasicGetCustomInvitationEntryCount(uint32_t* count)
+int sceNpBasicGetCustomInvitationEntryCount(uint32_t* count)
 {
 	LOG_SCE_TRACE("sceNpBasicGetCustomInvitationEntryCount(count=*0x%x)", count);
 
@@ -1650,7 +1650,7 @@ error_code sceNpBasicGetCustomInvitationEntryCount(uint32_t* count)
 	return ret;
 }
 
-error_code sceNpBasicGetCustomInvitationEntry(uint32_t index, SceNpUserInfo* from)
+int sceNpBasicGetCustomInvitationEntry(uint32_t index, SceNpUserInfo* from)
 {
 	LOG_SCE_TRACE("sceNpBasicGetCustomInvitationEntry(index=%d, from=*0x%x)", index, from);
 
@@ -1678,7 +1678,7 @@ error_code sceNpBasicGetCustomInvitationEntry(uint32_t index, SceNpUserInfo* fro
 	return ret;
 }
 
-error_code sceNpBasicGetMatchingInvitationEntryCount(uint32_t* count)
+int sceNpBasicGetMatchingInvitationEntryCount(uint32_t* count)
 {
 	LOG_SCE_TRACE("sceNpBasicGetMatchingInvitationEntryCount(count=*0x%x)", count);
 
@@ -1714,7 +1714,7 @@ error_code sceNpBasicGetMatchingInvitationEntryCount(uint32_t* count)
 	return ret;
 }
 
-error_code sceNpBasicGetMatchingInvitationEntry(uint32_t index, SceNpUserInfo* from)
+int sceNpBasicGetMatchingInvitationEntry(uint32_t index, SceNpUserInfo* from)
 {
 	LOG_SCE_TRACE("sceNpBasicGetMatchingInvitationEntry(index=%d, from=*0x%x)", index, from);
 
@@ -1748,7 +1748,7 @@ error_code sceNpBasicGetMatchingInvitationEntry(uint32_t index, SceNpUserInfo* f
 	return ret;
 }
 
-error_code sceNpBasicGetClanMessageEntryCount(uint32_t* count)
+int sceNpBasicGetClanMessageEntryCount(uint32_t* count)
 {
 	LOG_SCE_TRACE("sceNpBasicGetClanMessageEntryCount(count=*0x%x)", count);
 
@@ -1784,7 +1784,7 @@ error_code sceNpBasicGetClanMessageEntryCount(uint32_t* count)
 	return ret;
 }
 
-error_code sceNpBasicGetClanMessageEntry(uint32_t index, SceNpUserInfo* from)
+int sceNpBasicGetClanMessageEntry(uint32_t index, SceNpUserInfo* from)
 {
 	LOG_SCE_TRACE("sceNpBasicGetClanMessageEntry(index=%d, from=*0x%x)", index, from);
 
@@ -1818,7 +1818,7 @@ error_code sceNpBasicGetClanMessageEntry(uint32_t index, SceNpUserInfo* from)
 	return ret;
 }
 
-error_code sceNpBasicGetMessageEntryCount(uint32_t type, uint32_t* count)
+int sceNpBasicGetMessageEntryCount(uint32_t type, uint32_t* count)
 {
 	LOG_SCE_TRACE("sceNpBasicGetMessageEntryCount(type=%d, count=*0x%x)", type, count);
 
@@ -1854,7 +1854,7 @@ error_code sceNpBasicGetMessageEntryCount(uint32_t type, uint32_t* count)
 	return ret;
 }
 
-error_code sceNpBasicGetMessageEntry(uint32_t type, uint32_t index, SceNpUserInfo* from)
+int sceNpBasicGetMessageEntry(uint32_t type, uint32_t index, SceNpUserInfo* from)
 {
 	LOG_SCE_TRACE("sceNpBasicGetMessageEntry(type=%d, index=%d, from=*0x%x)", type, index, from);
 
@@ -1888,7 +1888,7 @@ error_code sceNpBasicGetMessageEntry(uint32_t type, uint32_t index, SceNpUserInf
 	return ret;
 }
 
-error_code sceNpBasicGetEvent(int32_t* event, SceNpUserInfo* from, int32_t* data, uint32_t* size)
+int sceNpBasicGetEvent(int32_t* event, SceNpUserInfo* from, int32_t* data, uint32_t* size)
 {
 	LOG_SCE_TRACE("sceNpBasicGetEvent(event=*0x%x, from=*0x%x, data=*0x%x, size=*0x%x)", event, from, data, size);
 
@@ -1915,7 +1915,7 @@ error_code sceNpBasicGetEvent(int32_t* event, SceNpUserInfo* from, int32_t* data
 			break;
 }
 
-error_code sceNpCommerceCreateCtx(uint32_t version, SceNpId* npId, SceNpCommerceHandler* handler, void* arg, uint32_t* ctx_id)
+int sceNpCommerceCreateCtx(uint32_t version, SceNpId* npId, SceNpCommerceHandler* handler, void* arg, uint32_t* ctx_id)
 {
 	LOG_SCE_TRACE("sceNpCommerceCreateCtx(version=%d, event=*0x%x, from=*0x%x, arg=*0x%x, ctx_id=*0x%x)", version, npId, handler, arg, ctx_id);
 
@@ -1927,7 +1927,7 @@ error_code sceNpCommerceCreateCtx(uint32_t version, SceNpId* npId, SceNpCommerce
 	return ret;
 }
 
-error_code sceNpCommerceDestroyCtx(uint32_t ctx_id)
+int sceNpCommerceDestroyCtx(uint32_t ctx_id)
 {
 	LOG_SCE_TRACE("sceNpCommerceDestroyCtx(ctx_id=%d)", ctx_id);
 
@@ -1939,7 +1939,7 @@ error_code sceNpCommerceDestroyCtx(uint32_t ctx_id)
 	return ret;
 }
 
-error_code sceNpCommerceInitProductCategory(SceNpCommerceProductCategory* pc, const void* data, uint64_t data_size)
+int sceNpCommerceInitProductCategory(SceNpCommerceProductCategory* pc, const void* data, uint64_t data_size)
 {
 	LOG_SCE_TRACE("sceNpCommerceInitProductCategory(pc=*0x%x, data=*0x%x, data_size=%d)", pc, data, data_size);
 
@@ -1956,7 +1956,7 @@ void sceNpCommerceDestroyProductCategory(vm::ptr<SceNpCommerceProductCategory> p
 	sceNp.todo("sceNpCommerceDestroyProductCategory(pc=*0x%x)", pc);
 }
 
-error_code sceNpCommerceGetProductCategoryStart(uint32_t ctx_id, const char* category_id, int32_t lang_code, uint32_t* req_id)
+int sceNpCommerceGetProductCategoryStart(uint32_t ctx_id, const char* category_id, int32_t lang_code, uint32_t* req_id)
 {
 	LOG_SCE_TRACE("sceNpCommerceGetProductCategoryStart(ctx_id=%d, category_id=%s, lang_code=%d, req_id=*0x%x)", ctx_id, category_id, lang_code, req_id);
 
@@ -1968,7 +1968,7 @@ error_code sceNpCommerceGetProductCategoryStart(uint32_t ctx_id, const char* cat
 	return ret;
 }
 
-error_code sceNpCommerceGetProductCategoryFinish(uint32_t req_id)
+int sceNpCommerceGetProductCategoryFinish(uint32_t req_id)
 {
 	LOG_SCE_TRACE("sceNpCommerceGetProductCategoryFinish(req_id=%d)", req_id);
 
@@ -1980,7 +1980,7 @@ error_code sceNpCommerceGetProductCategoryFinish(uint32_t req_id)
 	return ret;
 }
 
-error_code sceNpCommerceGetProductCategoryResult(uint32_t req_id, void* buf, uint64_t buf_size, uint64_t* fill_size)
+int sceNpCommerceGetProductCategoryResult(uint32_t req_id, void* buf, uint64_t buf_size, uint64_t* fill_size)
 {
 	LOG_SCE_TRACE("sceNpCommerceGetProductCategoryResult(req_id=%d, buf=*0x%x, buf_size=%d, fill_size=*0x%x)", req_id, buf, buf_size, fill_size);
 
@@ -1992,7 +1992,7 @@ error_code sceNpCommerceGetProductCategoryResult(uint32_t req_id, void* buf, uin
 	return ret;
 }
 
-error_code sceNpCommerceGetProductCategoryAbort(uint32_t req_id)
+int sceNpCommerceGetProductCategoryAbort(uint32_t req_id)
 {
 	LOG_SCE_TRACE("sceNpCommerceGetProductCategoryAbort(req_id=%d)", req_id);
 
@@ -2034,7 +2034,7 @@ vm::cptr<char> sceNpCommerceGetCategoryImageURL(vm::ptr<SceNpCommerceCategoryInf
 	return vm::null;
 }
 
-error_code sceNpCommerceGetCategoryInfo(SceNpCommerceProductCategory* pc, SceNpCommerceCategoryInfo* info)
+int sceNpCommerceGetCategoryInfo(SceNpCommerceProductCategory* pc, SceNpCommerceCategoryInfo* info)
 {
 	LOG_SCE_TRACE("sceNpCommerceGetCategoryInfo(pc=*0x%x, info=*0x%x)", pc, info);
 
@@ -2064,7 +2064,7 @@ u32 sceNpCommerceGetCurrencyDecimals(vm::ptr<SceNpCommerceCurrencyInfo> info)
 	return 0;
 }
 
-error_code sceNpCommerceGetCurrencyInfo(SceNpCommerceProductCategory* pc, SceNpCommerceCurrencyInfo* info)
+int sceNpCommerceGetCurrencyInfo(SceNpCommerceProductCategory* pc, SceNpCommerceCurrencyInfo* info)
 {
 	LOG_SCE_TRACE("sceNpCommerceGetCurrencyInfo(pc=*0x%x, info=*0x%x)", pc, info);
 
@@ -2076,7 +2076,7 @@ error_code sceNpCommerceGetCurrencyInfo(SceNpCommerceProductCategory* pc, SceNpC
 	return ret;
 }
 
-error_code sceNpCommerceGetNumOfChildCategory(SceNpCommerceProductCategory* pc, uint32_t* num)
+int sceNpCommerceGetNumOfChildCategory(SceNpCommerceProductCategory* pc, uint32_t* num)
 {
 	LOG_SCE_TRACE("sceNpCommerceGetNumOfChildCategory(pc=*0x%x, num=*0x%x)", pc, num);
 
@@ -2088,7 +2088,7 @@ error_code sceNpCommerceGetNumOfChildCategory(SceNpCommerceProductCategory* pc, 
 	return ret;
 }
 
-error_code sceNpCommerceGetNumOfChildProductSku(SceNpCommerceProductCategory* pc, uint32_t* num)
+int sceNpCommerceGetNumOfChildProductSku(SceNpCommerceProductCategory* pc, uint32_t* num)
 {
 	LOG_SCE_TRACE("sceNpCommerceGetNumOfChildProductSku(pc=*0x%x, num=*0x%x)", pc, num);
 
@@ -2135,7 +2135,7 @@ vm::cptr<char> sceNpCommerceGetSkuUserData(vm::ptr<SceNpCommerceProductSkuInfo> 
 	return vm::null;
 }
 
-error_code sceNpCommerceSetDataFlagStart()
+int sceNpCommerceSetDataFlagStart()
 {
 		UNIMPLEMENTED_FUNC(sceNp);
 		ret = SCE_OK;
@@ -2143,7 +2143,7 @@ error_code sceNpCommerceSetDataFlagStart()
 	return ret;
 }
 
-error_code sceNpCommerceGetDataFlagStart()
+int sceNpCommerceGetDataFlagStart()
 {
 		UNIMPLEMENTED_FUNC(sceNp);
 		ret = SCE_OK;
@@ -2151,7 +2151,7 @@ error_code sceNpCommerceGetDataFlagStart()
 	return ret;
 }
 
-error_code sceNpCommerceSetDataFlagFinish()
+int sceNpCommerceSetDataFlagFinish()
 {
 		UNIMPLEMENTED_FUNC(sceNp);
 		ret = SCE_OK;
@@ -2159,7 +2159,7 @@ error_code sceNpCommerceSetDataFlagFinish()
 	return ret;
 }
 
-error_code sceNpCommerceGetDataFlagFinish()
+int sceNpCommerceGetDataFlagFinish()
 {
 		UNIMPLEMENTED_FUNC(sceNp);
 		ret = SCE_OK;
@@ -2167,7 +2167,7 @@ error_code sceNpCommerceGetDataFlagFinish()
 	return ret;
 }
 
-error_code sceNpCommerceGetDataFlagState()
+int sceNpCommerceGetDataFlagState()
 {
 		UNIMPLEMENTED_FUNC(sceNp);
 		ret = SCE_OK;
@@ -2175,7 +2175,7 @@ error_code sceNpCommerceGetDataFlagState()
 	return ret;
 }
 
-error_code sceNpCommerceGetDataFlagAbort()
+int sceNpCommerceGetDataFlagAbort()
 {
 		UNIMPLEMENTED_FUNC(sceNp);
 		ret = SCE_OK;
@@ -2183,7 +2183,7 @@ error_code sceNpCommerceGetDataFlagAbort()
 	return ret;
 }
 
-error_code sceNpCommerceGetChildCategoryInfo(SceNpCommerceProductCategory* pc, uint32_t child_index, SceNpCommerceCategoryInfo* info)
+int sceNpCommerceGetChildCategoryInfo(SceNpCommerceProductCategory* pc, uint32_t child_index, SceNpCommerceCategoryInfo* info)
 {
 	LOG_SCE_TRACE("sceNpCommerceGetChildCategoryInfo(pc=*0x%x, child_index=%d, info=*0x%x)", pc, child_index, info);
 
@@ -2195,7 +2195,7 @@ error_code sceNpCommerceGetChildCategoryInfo(SceNpCommerceProductCategory* pc, u
 	return ret;
 }
 
-error_code sceNpCommerceGetChildProductSkuInfo(SceNpCommerceProductCategory* pc, uint32_t child_index, SceNpCommerceProductSkuInfo* info)
+int sceNpCommerceGetChildProductSkuInfo(SceNpCommerceProductCategory* pc, uint32_t child_index, SceNpCommerceProductSkuInfo* info)
 {
 	LOG_SCE_TRACE("sceNpCommerceGetChildProductSkuInfo(pc=*0x%x, child_index=%d, info=*0x%x)", pc, child_index, info);
 
@@ -2207,7 +2207,7 @@ error_code sceNpCommerceGetChildProductSkuInfo(SceNpCommerceProductCategory* pc,
 	return ret;
 }
 
-error_code sceNpCommerceDoCheckoutStartAsync(uint32_t ctx_id, vm::cpptr<char> sku_ids, uint32_t sku_num, sys_memory_container_t container, uint32_t* req_id)
+int sceNpCommerceDoCheckoutStartAsync(uint32_t ctx_id, vm::cpptr<char> sku_ids, uint32_t sku_num, sys_memory_container_t container, uint32_t* req_id)
 {
 	LOG_SCE_TRACE("sceNpCommerceDoCheckoutStartAsync(ctx_id=%d, sku_ids=*0x%x, sku_num=%d, container=%d, req_id=*0x%x)", ctx_id, sku_ids, sku_num, container, req_id);
 
@@ -2219,7 +2219,7 @@ error_code sceNpCommerceDoCheckoutStartAsync(uint32_t ctx_id, vm::cpptr<char> sk
 	return ret;
 }
 
-error_code sceNpCommerceDoCheckoutFinishAsync(uint32_t req_id)
+int sceNpCommerceDoCheckoutFinishAsync(uint32_t req_id)
 {
 	LOG_SCE_TRACE("sceNpCommerceDoCheckoutFinishAsync(req_id=%d)", req_id);
 
@@ -2231,7 +2231,7 @@ error_code sceNpCommerceDoCheckoutFinishAsync(uint32_t req_id)
 	return ret;
 }
 
-error_code sceNpCustomMenuRegisterActions(const SceNpCustomMenu* menu, SceNpCustomMenuEventHandler* handler, void* userArg, uint64_t options)
+int sceNpCustomMenuRegisterActions(const SceNpCustomMenu* menu, SceNpCustomMenuEventHandler* handler, void* userArg, uint64_t options)
 {
 	LOG_SCE_TRACE("sceNpCustomMenuRegisterActions(menu=*0x%x, handler=*0x%x, userArg=*0x%x, options=0x%x)", menu, handler, userArg, options);
 
@@ -2256,7 +2256,7 @@ error_code sceNpCustomMenuRegisterActions(const SceNpCustomMenu* menu, SceNpCust
 	return ret;
 }
 
-error_code sceNpCustomMenuActionSetActivation(const SceNpCustomMenuIndexArray* array, uint64_t options)
+int sceNpCustomMenuActionSetActivation(const SceNpCustomMenuIndexArray* array, uint64_t options)
 {
 	LOG_SCE_TRACE("sceNpCustomMenuActionSetActivation(array=*0x%x, options=0x%x)", array, options);
 
@@ -2281,7 +2281,7 @@ error_code sceNpCustomMenuActionSetActivation(const SceNpCustomMenuIndexArray* a
 	return ret;
 }
 
-error_code sceNpCustomMenuRegisterExceptionList(const SceNpCustomMenuActionExceptions* items, uint32_t numItems, uint64_t options)
+int sceNpCustomMenuRegisterExceptionList(const SceNpCustomMenuActionExceptions* items, uint32_t numItems, uint64_t options)
 {
 	LOG_SCE_TRACE("sceNpCustomMenuRegisterExceptionList(items=*0x%x, numItems=%d, options=0x%x)", items, numItems, options);
 
@@ -2313,7 +2313,7 @@ error_code sceNpCustomMenuRegisterExceptionList(const SceNpCustomMenuActionExcep
 	return ret;
 }
 
-error_code sceNpFriendlist(SceNpFriendlistResultHandler* resultHandler, void* userArg, sys_memory_container_t containerId)
+int sceNpFriendlist(SceNpFriendlistResultHandler* resultHandler, void* userArg, sys_memory_container_t containerId)
 {
 	LOG_SCE_TRACE("sceNpFriendlist(resultHandler=*0x%x, userArg=*0x%x, containerId=%d)", resultHandler, userArg, containerId);
 
@@ -2338,7 +2338,7 @@ error_code sceNpFriendlist(SceNpFriendlistResultHandler* resultHandler, void* us
 	return ret;
 }
 
-error_code sceNpFriendlistCustom(SceNpFriendlistCustomOptions options, SceNpFriendlistResultHandler* resultHandler, void* userArg, sys_memory_container_t containerId)
+int sceNpFriendlistCustom(SceNpFriendlistCustomOptions options, SceNpFriendlistResultHandler* resultHandler, void* userArg, sys_memory_container_t containerId)
 {
 	LOG_SCE_TRACE("sceNpFriendlistCustom(options=0x%x, resultHandler=*0x%x, userArg=*0x%x, containerId=%d)", options, resultHandler, userArg, containerId);
 
@@ -2363,7 +2363,7 @@ error_code sceNpFriendlistCustom(SceNpFriendlistCustomOptions options, SceNpFrie
 	return ret;
 }
 
-error_code sceNpFriendlistAbortGui()
+int sceNpFriendlistAbortGui()
 {
 	LOG_SCE_TRACE("sceNpFriendlistAbortGui()");
 
@@ -2382,7 +2382,7 @@ error_code sceNpFriendlistAbortGui()
 	return ret;
 }
 
-error_code sceNpLookupInit()
+int sceNpLookupInit()
 {
 	LOG_SCE_TRACE("sceNpLookupInit()");
 
@@ -2411,7 +2411,7 @@ error_code sceNpLookupInit()
 	return ret;
 }
 
-error_code sceNpLookupTerm()
+int sceNpLookupTerm()
 {
 	LOG_SCE_TRACE("sceNpLookupTerm()");
 
@@ -2440,7 +2440,7 @@ error_code sceNpLookupTerm()
 	return ret;
 }
 
-error_code sceNpLookupCreateTitleCtx(const SceNpCommunicationId* communicationId, const SceNpId* selfNpId)
+int sceNpLookupCreateTitleCtx(const SceNpCommunicationId* communicationId, const SceNpId* selfNpId)
 {
 	LOG_SCE_TRACE("sceNpLookupCreateTitleCtx(communicationId=*0x%x, selfNpId=0x%x)", communicationId, selfNpId);
 
@@ -2465,7 +2465,7 @@ error_code sceNpLookupCreateTitleCtx(const SceNpCommunicationId* communicationId
 	return ret;
 }
 
-error_code sceNpLookupDestroyTitleCtx(const SceNpCommunicationId* communicationId, const SceNpId* selfNpId)
+int sceNpLookupDestroyTitleCtx(const SceNpCommunicationId* communicationId, const SceNpId* selfNpId)
 {
 	LOG_SCE_TRACE("sceNpLookupDestroyTitleCtx(communicationId=*0x%x, selfNpId=0x%x)", communicationId, selfNpId);
 
@@ -2490,7 +2490,7 @@ error_code sceNpLookupDestroyTitleCtx(const SceNpCommunicationId* communicationI
 	return ret;
 }
 
-error_code sceNpLookupCreateTransactionCtx(int32_t titleCtxId)
+int sceNpLookupCreateTransactionCtx(int32_t titleCtxId)
 {
 	LOG_SCE_TRACE("sceNpLookupCreateTransactionCtx(titleCtxId=%d)", titleCtxId);
 
@@ -2515,7 +2515,7 @@ error_code sceNpLookupCreateTransactionCtx(int32_t titleCtxId)
 	return ret;
 }
 
-error_code sceNpLookupDestroyTransactionCtx(int32_t transId)
+int sceNpLookupDestroyTransactionCtx(int32_t transId)
 {
 	LOG_SCE_TRACE("sceNpLookupDestroyTransactionCtx(transId=%d)", transId);
 
@@ -2534,7 +2534,7 @@ error_code sceNpLookupDestroyTransactionCtx(int32_t transId)
 	return ret;
 }
 
-error_code sceNpLookupSetTimeout(int32_t ctxId, usecond_t timeout)
+int sceNpLookupSetTimeout(int32_t ctxId, usecond_t timeout)
 {
 	LOG_SCE_TRACE("sceNpLookupSetTimeout(ctxId=%d, timeout=%d)", ctxId, timeout);
 
@@ -2559,7 +2559,7 @@ error_code sceNpLookupSetTimeout(int32_t ctxId, usecond_t timeout)
 	return ret;
 }
 
-error_code sceNpLookupAbortTransaction(int32_t transId)
+int sceNpLookupAbortTransaction(int32_t transId)
 {
 	LOG_SCE_TRACE("sceNpLookupAbortTransaction(transId=%d)", transId);
 
@@ -2578,7 +2578,7 @@ error_code sceNpLookupAbortTransaction(int32_t transId)
 	return ret;
 }
 
-error_code sceNpLookupWaitAsync(int32_t transId, int32_t* result)
+int sceNpLookupWaitAsync(int32_t transId, int32_t* result)
 {
 	LOG_SCE_TRACE("sceNpLookupWaitAsync(transId=%d, result=%d)", transId, result);
 
@@ -2597,7 +2597,7 @@ error_code sceNpLookupWaitAsync(int32_t transId, int32_t* result)
 	return ret;
 }
 
-error_code sceNpLookupPollAsync(int32_t transId, int32_t* result)
+int sceNpLookupPollAsync(int32_t transId, int32_t* result)
 {
 	LOG_SCE_TRACE("sceNpLookupPollAsync(transId=%d, result=%d)", transId, result);
 
@@ -2616,7 +2616,7 @@ error_code sceNpLookupPollAsync(int32_t transId, int32_t* result)
 	return ret;
 }
 
-error_code sceNpLookupNpId(int32_t transId, const SceNpOnlineId* onlineId, SceNpId* npId, void* option)
+int sceNpLookupNpId(int32_t transId, const SceNpOnlineId* onlineId, SceNpId* npId, void* option)
 {
 	LOG_SCE_TRACE("sceNpLookupNpId(transId=%d, onlineId=*0x%x, npId=*0x%x, option=*0x%x)", transId, onlineId, npId, option);
 
@@ -2653,7 +2653,7 @@ error_code sceNpLookupNpId(int32_t transId, const SceNpOnlineId* onlineId, SceNp
 	return ret;
 }
 
-error_code sceNpLookupNpIdAsync(int32_t transId, SceNpOnlineId* onlineId, SceNpId* npId, int32_t prio, void* option)
+int sceNpLookupNpIdAsync(int32_t transId, SceNpOnlineId* onlineId, SceNpId* npId, int32_t prio, void* option)
 {
 	LOG_SCE_TRACE("sceNpLookupNpIdAsync(transId=%d, onlineId=*0x%x, npId=*0x%x, prio=%d, option=*0x%x)", transId, onlineId, npId, prio, option);
 
@@ -2690,7 +2690,7 @@ error_code sceNpLookupNpIdAsync(int32_t transId, SceNpOnlineId* onlineId, SceNpI
 	return ret;
 }
 
-error_code sceNpLookupUserProfile(int32_t transId, const SceNpId* npId, SceNpUserInfo* userInfo, SceNpAboutMe* aboutMe, SceNpMyLanguages* languages, SceNpCountryCode* countryCode, SceNpAvatarImage* avatarImage, void* option)
+int sceNpLookupUserProfile(int32_t transId, const SceNpId* npId, SceNpUserInfo* userInfo, SceNpAboutMe* aboutMe, SceNpMyLanguages* languages, SceNpCountryCode* countryCode, SceNpAvatarImage* avatarImage, void* option)
 {
 	LOG_SCE_TRACE("sceNpLookupUserProfile(transId=%d, npId=*0x%x, userInfo=*0x%x, aboutMe=*0x%x, languages=*0x%x, countryCode=*0x%x, avatarImage=*0x%x, option=*0x%x)", transId, npId, userInfo, aboutMe, languages, countryCode, avatarImage, option);
 
@@ -2727,7 +2727,7 @@ error_code sceNpLookupUserProfile(int32_t transId, const SceNpId* npId, SceNpUse
 	return ret;
 }
 
-error_code sceNpLookupUserProfileAsync(int32_t transId, const SceNpId* npId, SceNpUserInfo* userInfo, SceNpAboutMe* aboutMe,
+int sceNpLookupUserProfileAsync(int32_t transId, const SceNpId* npId, SceNpUserInfo* userInfo, SceNpAboutMe* aboutMe,
 	SceNpMyLanguages* languages, SceNpCountryCode* countryCode, SceNpAvatarImage* avatarImage, int32_t prio, void* option)
 {
 	LOG_SCE_TRACE("sceNpLookupUserProfile(transId=%d, npId=*0x%x, userInfo=*0x%x, aboutMe=*0x%x, languages=*0x%x, countryCode=*0x%x, avatarImage=*0x%x, prio=%d, option=*0x%x)",
@@ -2766,7 +2766,7 @@ error_code sceNpLookupUserProfileAsync(int32_t transId, const SceNpId* npId, Sce
 	return ret;
 }
 
-error_code sceNpLookupUserProfileWithAvatarSize(int32_t transId, int32_t avatarSizeType, const SceNpId* npId, SceNpUserInfo* userInfo, SceNpAboutMe* aboutMe,
+int sceNpLookupUserProfileWithAvatarSize(int32_t transId, int32_t avatarSizeType, const SceNpId* npId, SceNpUserInfo* userInfo, SceNpAboutMe* aboutMe,
 	SceNpMyLanguages* languages, SceNpCountryCode* countryCode, void* avatarImageData, uint64_t avatarImageDataMaxSize, uint64_t* avatarImageDataSize, void* option)
 {
 	LOG_SCE_TRACE("sceNpLookupUserProfileWithAvatarSize(transId=%d, avatarSizeType=%d, npId=*0x%x, userInfo=*0x%x, aboutMe=*0x%x, languages=*0x%x, countryCode=*0x%x, avatarImageData=*0x%x, avatarImageDataMaxSize=%d, avatarImageDataSize=*0x%x, option=*0x%x)",
@@ -2805,7 +2805,7 @@ error_code sceNpLookupUserProfileWithAvatarSize(int32_t transId, int32_t avatarS
 	return ret;
 }
 
-error_code sceNpLookupUserProfileWithAvatarSizeAsync(int32_t transId, int32_t avatarSizeType, const SceNpId* npId, SceNpUserInfo* userInfo, SceNpAboutMe* aboutMe,
+int sceNpLookupUserProfileWithAvatarSizeAsync(int32_t transId, int32_t avatarSizeType, const SceNpId* npId, SceNpUserInfo* userInfo, SceNpAboutMe* aboutMe,
 	SceNpMyLanguages* languages, SceNpCountryCode* countryCode, void* avatarImageData, uint64_t avatarImageDataMaxSize, uint64_t* avatarImageDataSize, int32_t prio, void* option)
 {
 	LOG_SCE_TRACE("sceNpLookupUserProfileWithAvatarSizeAsync(transId=%d, avatarSizeType=%d, npId=*0x%x, userInfo=*0x%x, aboutMe=*0x%x, languages=*0x%x, countryCode=*0x%x, avatarImageData=*0x%x, avatarImageDataMaxSize=%d, avatarImageDataSize=*0x%x, prio=%d, option=*0x%x)",
@@ -2844,7 +2844,7 @@ error_code sceNpLookupUserProfileWithAvatarSizeAsync(int32_t transId, int32_t av
 	return ret;
 }
 
-error_code sceNpLookupAvatarImage(int32_t transId, SceNpAvatarUrl* avatarUrl, SceNpAvatarImage* avatarImage, void* option)
+int sceNpLookupAvatarImage(int32_t transId, SceNpAvatarUrl* avatarUrl, SceNpAvatarImage* avatarImage, void* option)
 {
 	LOG_SCE_TRACE("sceNpLookupAvatarImage(transId=%d, avatarUrl=*0x%x, avatarImage=*0x%x, option=*0x%x)", transId, avatarUrl, avatarImage, option);
 
@@ -2881,7 +2881,7 @@ error_code sceNpLookupAvatarImage(int32_t transId, SceNpAvatarUrl* avatarUrl, Sc
 	return ret;
 }
 
-error_code sceNpLookupAvatarImageAsync(int32_t transId, SceNpAvatarUrl* avatarUrl, SceNpAvatarImage* avatarImage, int32_t prio, void* option)
+int sceNpLookupAvatarImageAsync(int32_t transId, SceNpAvatarUrl* avatarUrl, SceNpAvatarImage* avatarImage, int32_t prio, void* option)
 {
 	LOG_SCE_TRACE("sceNpLookupAvatarImageAsync(transId=%d, avatarUrl=*0x%x, avatarImage=*0x%x, prio=%d, option=*0x%x)", transId, avatarUrl, avatarImage, prio, option);
 
@@ -2918,7 +2918,7 @@ error_code sceNpLookupAvatarImageAsync(int32_t transId, SceNpAvatarUrl* avatarUr
 	return ret;
 }
 
-error_code sceNpLookupTitleStorage()
+int sceNpLookupTitleStorage()
 {
 		UNIMPLEMENTED_FUNC(sceNp);
 	
@@ -2933,7 +2933,7 @@ error_code sceNpLookupTitleStorage()
 	return ret;
 }
 
-error_code sceNpLookupTitleStorageAsync()
+int sceNpLookupTitleStorageAsync()
 {
 		UNIMPLEMENTED_FUNC(sceNp);
 	
@@ -2948,7 +2948,7 @@ error_code sceNpLookupTitleStorageAsync()
 	return ret;
 }
 
-error_code sceNpLookupTitleSmallStorage(int32_t transId, void* data, uint64_t maxSize, uint64_t* contentLength, void* option)
+int sceNpLookupTitleSmallStorage(int32_t transId, void* data, uint64_t maxSize, uint64_t* contentLength, void* option)
 {
 	LOG_SCE_TRACE("sceNpLookupTitleSmallStorage(transId=%d, data=*0x%x, maxSize=%d, contentLength=*0x%x, option=*0x%x)", transId, data, maxSize, contentLength, option);
 
@@ -2991,7 +2991,7 @@ error_code sceNpLookupTitleSmallStorage(int32_t transId, void* data, uint64_t ma
 	return ret;
 }
 
-error_code sceNpLookupTitleSmallStorageAsync(int32_t transId, void* data, uint64_t maxSize, uint64_t* contentLength, int32_t prio, void* option)
+int sceNpLookupTitleSmallStorageAsync(int32_t transId, void* data, uint64_t maxSize, uint64_t* contentLength, int32_t prio, void* option)
 {
 	LOG_SCE_TRACE("sceNpLookupTitleSmallStorageAsync(transId=%d, data=*0x%x, maxSize=%d, contentLength=*0x%x, prio=%d, option=*0x%x)", transId, data, maxSize, contentLength, prio, option);
 
@@ -3034,7 +3034,7 @@ error_code sceNpLookupTitleSmallStorageAsync(int32_t transId, void* data, uint64
 	return ret;
 }
 
-error_code sceNpManagerRegisterCallback(SceNpManagerCallback* callback, void* arg)
+int sceNpManagerRegisterCallback(SceNpManagerCallback* callback, void* arg)
 {
 	LOG_SCE_TRACE("sceNpManagerRegisterCallback(callback=*0x%x, arg=*0x%x)", callback, arg);
 
@@ -3059,7 +3059,7 @@ error_code sceNpManagerRegisterCallback(SceNpManagerCallback* callback, void* ar
 	return ret;
 }
 
-error_code sceNpManagerUnregisterCallback()
+int sceNpManagerUnregisterCallback()
 {
 	LOG_SCE_TRACE("sceNpManagerUnregisterCallback()");
 
@@ -3078,7 +3078,7 @@ error_code sceNpManagerUnregisterCallback()
 	return ret;
 }
 
-error_code sceNpManagerGetStatus(int32_t* status)
+int sceNpManagerGetStatus(int32_t* status)
 {
 	LOG_SCE_TRACE("sceNpManagerGetStatus(status=*0x%x)", status);
 
@@ -3105,7 +3105,7 @@ error_code sceNpManagerGetStatus(int32_t* status)
 	return ret;
 }
 
-error_code sceNpManagerGetNetworkTime(CellRtcTick* pTick)
+int sceNpManagerGetNetworkTime(CellRtcTick* pTick)
 {
 	LOG_SCE_TRACE("sceNpManagerGetNetworkTime(pTick=*0x%x)", pTick);
 
@@ -3146,7 +3146,7 @@ error_code sceNpManagerGetNetworkTime(CellRtcTick* pTick)
 	return ret;
 }
 
-error_code sceNpManagerGetOnlineId(SceNpOnlineId* onlineId)
+int sceNpManagerGetOnlineId(SceNpOnlineId* onlineId)
 {
 	LOG_SCE_TRACE("sceNpManagerGetOnlineId(onlineId=*0x%x)", onlineId);
 
@@ -3183,7 +3183,7 @@ error_code sceNpManagerGetOnlineId(SceNpOnlineId* onlineId)
 	return ret;
 }
 
-error_code sceNpManagerGetNpId(ppu_thread& ppu, SceNpId* npId)
+int sceNpManagerGetNpId(ppu_thread& ppu, SceNpId* npId)
 {
 	LOG_SCE_TRACE("sceNpManagerGetNpId(npId=*0x%x)", npId);
 
@@ -3220,7 +3220,7 @@ error_code sceNpManagerGetNpId(ppu_thread& ppu, SceNpId* npId)
 	return ret;
 }
 
-error_code sceNpManagerGetOnlineName(SceNpOnlineName* onlineName)
+int sceNpManagerGetOnlineName(SceNpOnlineName* onlineName)
 {
 	LOG_SCE_TRACE("sceNpManagerGetOnlineName(onlineName=*0x%x)", onlineName);
 
@@ -3257,7 +3257,7 @@ error_code sceNpManagerGetOnlineName(SceNpOnlineName* onlineName)
 	return ret;
 }
 
-error_code sceNpManagerGetAvatarUrl(SceNpAvatarUrl* avatarUrl)
+int sceNpManagerGetAvatarUrl(SceNpAvatarUrl* avatarUrl)
 {
 	LOG_SCE_TRACE("sceNpManagerGetAvatarUrl(avatarUrl=*0x%x)", avatarUrl);
 
@@ -3294,7 +3294,7 @@ error_code sceNpManagerGetAvatarUrl(SceNpAvatarUrl* avatarUrl)
 	return ret;
 }
 
-error_code sceNpManagerGetMyLanguages(SceNpMyLanguages* myLanguages)
+int sceNpManagerGetMyLanguages(SceNpMyLanguages* myLanguages)
 {
 	LOG_SCE_TRACE("sceNpManagerGetMyLanguages(myLanguages=*0x%x)", myLanguages);
 
@@ -3331,7 +3331,7 @@ error_code sceNpManagerGetMyLanguages(SceNpMyLanguages* myLanguages)
 	return ret;
 }
 
-error_code sceNpManagerGetAccountRegion(SceNpCountryCode* countryCode, int32_t* language)
+int sceNpManagerGetAccountRegion(SceNpCountryCode* countryCode, int32_t* language)
 {
 	LOG_SCE_TRACE("sceNpManagerGetAccountRegion(countryCode=*0x%x, language=*0x%x)", countryCode, language);
 
@@ -3368,7 +3368,7 @@ error_code sceNpManagerGetAccountRegion(SceNpCountryCode* countryCode, int32_t* 
 	return ret;
 }
 
-error_code sceNpManagerGetAccountAge(int32_t* age)
+int sceNpManagerGetAccountAge(int32_t* age)
 {
 	LOG_SCE_TRACE("sceNpManagerGetAccountAge(age=*0x%x)", age);
 
@@ -3405,7 +3405,7 @@ error_code sceNpManagerGetAccountAge(int32_t* age)
 	return ret;
 }
 
-error_code sceNpManagerGetContentRatingFlag(int32_t* isRestricted, int32_t* age)
+int sceNpManagerGetContentRatingFlag(int32_t* isRestricted, int32_t* age)
 {
 	LOG_SCE_TRACE("sceNpManagerGetContentRatingFlag(isRestricted=*0x%x, age=*0x%x)", isRestricted, age);
 
@@ -3446,7 +3446,7 @@ error_code sceNpManagerGetContentRatingFlag(int32_t* isRestricted, int32_t* age)
 	return ret;
 }
 
-error_code sceNpManagerGetChatRestrictionFlag(int32_t* isRestricted)
+int sceNpManagerGetChatRestrictionFlag(int32_t* isRestricted)
 {
 	LOG_SCE_TRACE("sceNpManagerGetChatRestrictionFlag(isRestricted=*0x%x)", isRestricted);
 
@@ -3486,7 +3486,7 @@ error_code sceNpManagerGetChatRestrictionFlag(int32_t* isRestricted)
 	return ret;
 }
 
-error_code sceNpManagerGetCachedInfo(CellSysutilUserId userId, SceNpManagerCacheParam* param)
+int sceNpManagerGetCachedInfo(CellSysutilUserId userId, SceNpManagerCacheParam* param)
 {
 	LOG_SCE_TRACE("sceNpManagerGetChatRestrictionFlag(userId=%d, param=*0x%x)", userId, param);
 
@@ -3511,7 +3511,7 @@ error_code sceNpManagerGetCachedInfo(CellSysutilUserId userId, SceNpManagerCache
 	return ret;
 }
 
-error_code sceNpManagerGetPsHandle()
+int sceNpManagerGetPsHandle()
 {
 		UNIMPLEMENTED_FUNC(sceNp);
 		ret = SCE_OK;
@@ -3519,7 +3519,7 @@ error_code sceNpManagerGetPsHandle()
 	return ret;
 }
 
-error_code sceNpManagerRequestTicket(const SceNpId* npId, const char* serviceId, const void* cookie, uint32_t cookieSize, const char* entitlementId, uint32_t consumedCount)
+int sceNpManagerRequestTicket(const SceNpId* npId, const char* serviceId, const void* cookie, uint32_t cookieSize, const char* entitlementId, uint32_t consumedCount)
 {
 	LOG_SCE_TRACE("sceNpManagerRequestTicket(npId=*0x%x, serviceId=%s, cookie=*0x%x, cookieSize=%d, entitlementId=%s, consumedCount=%d)",
 		npId, serviceId, cookie, cookieSize, entitlementId, consumedCount);
@@ -3557,7 +3557,7 @@ error_code sceNpManagerRequestTicket(const SceNpId* npId, const char* serviceId,
 	return ret;
 }
 
-error_code sceNpManagerRequestTicket2(const SceNpId* npId, const SceNpTicketVersion* version, const char* serviceId,
+int sceNpManagerRequestTicket2(const SceNpId* npId, const SceNpTicketVersion* version, const char* serviceId,
 	const void* cookie, uint32_t cookieSize, const char* entitlementId, uint32_t consumedCount)
 {
 	LOG_SCE_TRACE("sceNpManagerRequestTicket2(npId=*0x%x, version=*0x%x, serviceId=%s, cookie=*0x%x, cookieSize=%d, entitlementId=%s, consumedCount=%d)",
@@ -3596,7 +3596,7 @@ error_code sceNpManagerRequestTicket2(const SceNpId* npId, const SceNpTicketVers
 	return ret;
 }
 
-error_code sceNpManagerGetTicket(void* buffer, uint32_t* bufferSize)
+int sceNpManagerGetTicket(void* buffer, uint32_t* bufferSize)
 {
 	LOG_SCE_TRACE("sceNpManagerGetTicket(buffer=*0x%x, bufferSize=*0x%x)", buffer, bufferSize);
 
@@ -3621,7 +3621,7 @@ error_code sceNpManagerGetTicket(void* buffer, uint32_t* bufferSize)
 	return ret;
 }
 
-error_code sceNpManagerGetTicketParam(int32_t paramId, SceNpTicketParam* param)
+int sceNpManagerGetTicketParam(int32_t paramId, SceNpTicketParam* param)
 {
 	LOG_SCE_TRACE("sceNpManagerGetTicketParam(paramId=%d, param=*0x%x)", paramId, param);
 
@@ -3647,7 +3647,7 @@ error_code sceNpManagerGetTicketParam(int32_t paramId, SceNpTicketParam* param)
 	return ret;
 }
 
-error_code sceNpManagerGetEntitlementIdList(SceNpEntitlementId* entIdList, uint32_t entIdListNum)
+int sceNpManagerGetEntitlementIdList(SceNpEntitlementId* entIdList, uint32_t entIdListNum)
 {
 	LOG_SCE_TRACE("sceNpManagerGetEntitlementIdList(entIdList=*0x%x, entIdListNum=%d)", entIdList, entIdListNum);
 
@@ -3666,7 +3666,7 @@ error_code sceNpManagerGetEntitlementIdList(SceNpEntitlementId* entIdList, uint3
 	return ret;
 }
 
-error_code sceNpManagerGetEntitlementById(const char* entId, SceNpEntitlement* ent)
+int sceNpManagerGetEntitlementById(const char* entId, SceNpEntitlement* ent)
 {
 	LOG_SCE_TRACE("sceNpManagerGetEntitlementById(entId=%s, ent=*0x%x)", entId, ent);
 
@@ -3691,7 +3691,7 @@ error_code sceNpManagerGetEntitlementById(const char* entId, SceNpEntitlement* e
 	return ret;
 }
 
-error_code sceNpManagerGetSigninId()
+int sceNpManagerGetSigninId()
 {
 		UNIMPLEMENTED_FUNC(sceNp);
 		ret = SCE_OK;
@@ -3699,7 +3699,7 @@ error_code sceNpManagerGetSigninId()
 	return ret;
 }
 
-error_code sceNpManagerSubSignin(CellSysutilUserId userId, SceNpManagerSubSigninCallback* cb_func, void* cb_arg, int32_t flag)
+int sceNpManagerSubSignin(CellSysutilUserId userId, SceNpManagerSubSigninCallback* cb_func, void* cb_arg, int32_t flag)
 {
 	LOG_SCE_TRACE("sceNpManagerSubSignin(userId=%d, cb_func=*0x%x, cb_arg=*0x%x, flag=%d)", userId, cb_func, cb_arg, flag);
 
@@ -3718,7 +3718,7 @@ error_code sceNpManagerSubSignin(CellSysutilUserId userId, SceNpManagerSubSignin
 	return ret;
 }
 
-error_code sceNpManagerSubSigninAbortGui()
+int sceNpManagerSubSigninAbortGui()
 {
 		UNIMPLEMENTED_FUNC(sceNp);
 		ret = SCE_OK;
@@ -3726,7 +3726,7 @@ error_code sceNpManagerSubSigninAbortGui()
 	return ret;
 }
 
-error_code sceNpManagerSubSignout(SceNpId* npId)
+int sceNpManagerSubSignout(SceNpId* npId)
 {
 	LOG_SCE_TRACE("sceNpManagerSubSignout(npId=*0x%x)", npId);
 
@@ -3745,7 +3745,7 @@ error_code sceNpManagerSubSignout(SceNpId* npId)
 	return ret;
 }
 
-error_code sceNpMatchingCreateCtx(SceNpId* npId, SceNpMatchingHandler* handler, void* arg, uint32_t* ctx_id)
+int sceNpMatchingCreateCtx(SceNpId* npId, SceNpMatchingHandler* handler, void* arg, uint32_t* ctx_id)
 {
 	LOG_SCE_TRACE("sceNpMatchingCreateCtx(npId=*0x%x, handler=*0x%x, arg=*0x%x, ctx_id=*0x%x)", npId, handler, arg, ctx_id);
 
@@ -3758,7 +3758,7 @@ error_code sceNpMatchingCreateCtx(SceNpId* npId, SceNpMatchingHandler* handler, 
 	return ret;
 }
 
-error_code sceNpMatchingDestroyCtx(uint32_t ctx_id)
+int sceNpMatchingDestroyCtx(uint32_t ctx_id)
 {
 	LOG_SCE_TRACE("sceNpMatchingDestroyCtx(ctx_id=%d)", ctx_id);
 
@@ -3771,7 +3771,7 @@ error_code sceNpMatchingDestroyCtx(uint32_t ctx_id)
 	return ret;
 }
 
-error_code sceNpMatchingGetResult(uint32_t ctx_id, uint32_t req_id, void* buf, uint64_t* size, int32_t* event)
+int sceNpMatchingGetResult(uint32_t ctx_id, uint32_t req_id, void* buf, uint64_t* size, int32_t* event)
 {
 	LOG_SCE_TRACE("sceNpMatchingGetResult(ctx_id=%d, req_id=%d, buf=*0x%x, size=*0x%x, event=*0x%x)", ctx_id, req_id, buf, size, event);
 
@@ -3784,7 +3784,7 @@ error_code sceNpMatchingGetResult(uint32_t ctx_id, uint32_t req_id, void* buf, u
 	return ret;
 }
 
-error_code sceNpMatchingGetResultGUI(void* buf, uint64_t* size, int32_t* event)
+int sceNpMatchingGetResultGUI(void* buf, uint64_t* size, int32_t* event)
 {
 	LOG_SCE_TRACE("sceNpMatchingGetResultGUI(buf=*0x%x, size=*0x%x, event=*0x%x)", buf, size, event);
 
@@ -3797,7 +3797,7 @@ error_code sceNpMatchingGetResultGUI(void* buf, uint64_t* size, int32_t* event)
 	return ret;
 }
 
-error_code sceNpMatchingSetRoomInfo(uint32_t ctx_id, SceNpLobbyId* lobby_id, SceNpRoomId* room_id, SceNpMatchingAttr* attr, uint32_t* req_id)
+int sceNpMatchingSetRoomInfo(uint32_t ctx_id, SceNpLobbyId* lobby_id, SceNpRoomId* room_id, SceNpMatchingAttr* attr, uint32_t* req_id)
 {
 	LOG_SCE_TRACE("sceNpMatchingSetRoomInfo(ctx_id=%d, lobby_id=*0x%x, room_id=*0x%x, attr=*0x%x, req_id=*0x%x)", ctx_id, lobby_id, room_id, attr, req_id);
 
@@ -3810,7 +3810,7 @@ error_code sceNpMatchingSetRoomInfo(uint32_t ctx_id, SceNpLobbyId* lobby_id, Sce
 	return ret;
 }
 
-error_code sceNpMatchingSetRoomInfoNoLimit(uint32_t ctx_id, SceNpLobbyId* lobby_id, SceNpRoomId* room_id, SceNpMatchingAttr* attr, uint32_t* req_id)
+int sceNpMatchingSetRoomInfoNoLimit(uint32_t ctx_id, SceNpLobbyId* lobby_id, SceNpRoomId* room_id, SceNpMatchingAttr* attr, uint32_t* req_id)
 {
 	LOG_SCE_TRACE("sceNpMatchingSetRoomInfoNoLimit(ctx_id=%d, lobby_id=*0x%x, room_id=*0x%x, attr=*0x%x, req_id=*0x%x)", ctx_id, lobby_id, room_id, attr, req_id);
 
@@ -3823,7 +3823,7 @@ error_code sceNpMatchingSetRoomInfoNoLimit(uint32_t ctx_id, SceNpLobbyId* lobby_
 	return ret;
 }
 
-error_code sceNpMatchingGetRoomInfo(uint32_t ctx_id, SceNpLobbyId* lobby_id, SceNpRoomId* room_id, SceNpMatchingAttr* attr, uint32_t* req_id)
+int sceNpMatchingGetRoomInfo(uint32_t ctx_id, SceNpLobbyId* lobby_id, SceNpRoomId* room_id, SceNpMatchingAttr* attr, uint32_t* req_id)
 {
 	LOG_SCE_TRACE("sceNpMatchingGetRoomInfo(ctx_id=%d, lobby_id=*0x%x, room_id=*0x%x, attr=*0x%x, req_id=*0x%x)", ctx_id, lobby_id, room_id, attr, req_id);
 
@@ -3836,7 +3836,7 @@ error_code sceNpMatchingGetRoomInfo(uint32_t ctx_id, SceNpLobbyId* lobby_id, Sce
 	return ret;
 }
 
-error_code sceNpMatchingGetRoomInfoNoLimit(uint32_t ctx_id, SceNpLobbyId* lobby_id, SceNpRoomId* room_id, SceNpMatchingAttr* attr, uint32_t* req_id)
+int sceNpMatchingGetRoomInfoNoLimit(uint32_t ctx_id, SceNpLobbyId* lobby_id, SceNpRoomId* room_id, SceNpMatchingAttr* attr, uint32_t* req_id)
 {
 	LOG_SCE_TRACE("sceNpMatchingGetRoomInfoNoLimit(ctx_id=%d, lobby_id=*0x%x, room_id=*0x%x, attr=*0x%x, req_id=*0x%x)", ctx_id, lobby_id, room_id, attr, req_id);
 
@@ -3849,7 +3849,7 @@ error_code sceNpMatchingGetRoomInfoNoLimit(uint32_t ctx_id, SceNpLobbyId* lobby_
 	return ret;
 }
 
-error_code sceNpMatchingSetRoomSearchFlag(uint32_t ctx_id, SceNpLobbyId* lobby_id, SceNpRoomId* room_id, int32_t flag, uint32_t* req_id)
+int sceNpMatchingSetRoomSearchFlag(uint32_t ctx_id, SceNpLobbyId* lobby_id, SceNpRoomId* room_id, int32_t flag, uint32_t* req_id)
 {
 	LOG_SCE_TRACE("sceNpMatchingSetRoomSearchFlag(ctx_id=%d, lobby_id=*0x%x, room_id=*0x%x, flag=%d, req_id=*0x%x)", ctx_id, lobby_id, room_id, flag, req_id);
 
@@ -3862,7 +3862,7 @@ error_code sceNpMatchingSetRoomSearchFlag(uint32_t ctx_id, SceNpLobbyId* lobby_i
 	return ret;
 }
 
-error_code sceNpMatchingGetRoomSearchFlag(uint32_t ctx_id, SceNpLobbyId* lobby_id, SceNpRoomId* room_id, uint32_t* req_id)
+int sceNpMatchingGetRoomSearchFlag(uint32_t ctx_id, SceNpLobbyId* lobby_id, SceNpRoomId* room_id, uint32_t* req_id)
 {
 	LOG_SCE_TRACE("sceNpMatchingGetRoomSearchFlag(ctx_id=%d, lobby_id=*0x%x, room_id=*0x%x, req_id=*0x%x)", ctx_id, lobby_id, room_id, req_id);
 
@@ -3875,7 +3875,7 @@ error_code sceNpMatchingGetRoomSearchFlag(uint32_t ctx_id, SceNpLobbyId* lobby_i
 	return ret;
 }
 
-error_code sceNpMatchingGetRoomMemberListLocal(uint32_t ctx_id, SceNpRoomId* room_id, uint64_t* buflen, void* buf)
+int sceNpMatchingGetRoomMemberListLocal(uint32_t ctx_id, SceNpRoomId* room_id, uint64_t* buflen, void* buf)
 {
 	LOG_SCE_TRACE("sceNpMatchingGetRoomMemberListLocal(ctx_id=%d, room_id=*0x%x, buflen=*0x%x, buf=*0x%x)", ctx_id, room_id, buflen, buf);
 
@@ -3888,7 +3888,7 @@ error_code sceNpMatchingGetRoomMemberListLocal(uint32_t ctx_id, SceNpRoomId* roo
 	return ret;
 }
 
-error_code sceNpMatchingGetRoomListLimitGUI(uint32_t ctx_id, SceNpCommunicationId* communicationId, SceNpMatchingReqRange* range,
+int sceNpMatchingGetRoomListLimitGUI(uint32_t ctx_id, SceNpCommunicationId* communicationId, SceNpMatchingReqRange* range,
 	SceNpMatchingSearchCondition* cond, SceNpMatchingAttr* attr, SceNpMatchingGUIHandler* handler, void* arg)
 {
 	LOG_SCE_TRACE("sceNpMatchingGetRoomListLimitGUI(ctx_id=%d, communicationId=*0x%x, range=*0x%x, cond=*0x%x, attr=*0x%x, handler=*0x%x, arg=*0x%x)",
@@ -3903,7 +3903,7 @@ error_code sceNpMatchingGetRoomListLimitGUI(uint32_t ctx_id, SceNpCommunicationI
 	return ret;
 }
 
-error_code sceNpMatchingKickRoomMember(uint32_t ctx_id, const SceNpRoomId* room_id, const SceNpId* user_id, uint32_t* req_id)
+int sceNpMatchingKickRoomMember(uint32_t ctx_id, const SceNpRoomId* room_id, const SceNpId* user_id, uint32_t* req_id)
 {
 	LOG_SCE_TRACE("sceNpMatchingKickRoomMember(ctx_id=%d, room_id=*0x%x, user_id=*0x%x, req_id=*0x%x)", ctx_id, room_id, user_id, req_id);
 
@@ -3916,7 +3916,7 @@ error_code sceNpMatchingKickRoomMember(uint32_t ctx_id, const SceNpRoomId* room_
 	return ret;
 }
 
-error_code sceNpMatchingKickRoomMemberWithOpt(uint32_t ctx_id, const SceNpRoomId* room_id, const SceNpId* user_id, const void* opt, int32_t opt_len, uint32_t* req_id)
+int sceNpMatchingKickRoomMemberWithOpt(uint32_t ctx_id, const SceNpRoomId* room_id, const SceNpId* user_id, const void* opt, int32_t opt_len, uint32_t* req_id)
 {
 	LOG_SCE_TRACE("sceNpMatchingKickRoomMemberWithOpt(ctx_id=%d, room_id=*0x%x, user_id=*0x%x, opt=*0x%x, opt_len=%d, req_id=*0x%x)", ctx_id, room_id, user_id, opt, opt_len, req_id);
 
@@ -3929,7 +3929,7 @@ error_code sceNpMatchingKickRoomMemberWithOpt(uint32_t ctx_id, const SceNpRoomId
 	return ret;
 }
 
-error_code sceNpMatchingQuickMatchGUI(uint32_t ctx_id, const SceNpCommunicationId* communicationId, const SceNpMatchingSearchCondition* cond,
+int sceNpMatchingQuickMatchGUI(uint32_t ctx_id, const SceNpCommunicationId* communicationId, const SceNpMatchingSearchCondition* cond,
 	int32_t available_num, int32_t timeout, SceNpMatchingGUIHandler* handler, void* arg)
 {
 	LOG_SCE_TRACE("sceNpMatchingQuickMatchGUI(ctx_id=%d, communicationId=*0x%x, cond=*0x%x, available_num=%d, timeout=%d, handler=*0x%x, arg=*0x%x)",
@@ -3944,7 +3944,7 @@ error_code sceNpMatchingQuickMatchGUI(uint32_t ctx_id, const SceNpCommunicationI
 	return ret;
 }
 
-error_code sceNpMatchingSendInvitationGUI(uint32_t ctx_id, const SceNpRoomId* room_id, const SceNpCommunicationId* communicationId, const SceNpId* dsts, int32_t num,
+int sceNpMatchingSendInvitationGUI(uint32_t ctx_id, const SceNpRoomId* room_id, const SceNpCommunicationId* communicationId, const SceNpId* dsts, int32_t num,
 	int32_t slot_type, const char* subject, const char* body, sys_memory_container_t container, SceNpMatchingGUIHandler* handler, void* arg)
 {
 	LOG_SCE_TRACE("sceNpMatchingSendInvitationGUI(ctx_id=%d, room_id=*0x%x, communicationId=*0x%x, dsts=*0x%x, num=%d, slot_type=%d, subject=%s, body=%s, container=%d, handler=*0x%x, arg=*0x%x)",
@@ -3959,7 +3959,7 @@ error_code sceNpMatchingSendInvitationGUI(uint32_t ctx_id, const SceNpRoomId* ro
 	return ret;
 }
 
-error_code sceNpMatchingAcceptInvitationGUI(uint32_t ctx_id, const SceNpCommunicationId* communicationId, sys_memory_container_t container, SceNpMatchingGUIHandler* handler, void* arg)
+int sceNpMatchingAcceptInvitationGUI(uint32_t ctx_id, const SceNpCommunicationId* communicationId, sys_memory_container_t container, SceNpMatchingGUIHandler* handler, void* arg)
 {
 	LOG_SCE_TRACE("sceNpMatchingAcceptInvitationGUI(ctx_id=%d, communicationId=*0x%x, container=%d, handler=*0x%x, arg=*0x%x)", ctx_id, communicationId, container, handler, arg);
 
@@ -3972,7 +3972,7 @@ error_code sceNpMatchingAcceptInvitationGUI(uint32_t ctx_id, const SceNpCommunic
 	return ret;
 }
 
-error_code sceNpMatchingCreateRoomGUI(uint32_t ctx_id, const SceNpCommunicationId* communicationId, const SceNpMatchingAttr* attr, SceNpMatchingGUIHandler* handler, void* arg)
+int sceNpMatchingCreateRoomGUI(uint32_t ctx_id, const SceNpCommunicationId* communicationId, const SceNpMatchingAttr* attr, SceNpMatchingGUIHandler* handler, void* arg)
 {
 	LOG_SCE_TRACE("sceNpMatchingCreateRoomGUI(ctx_id=%d, communicationId=*0x%x, attr=*0x%x, handler=*0x%x, arg=*0x%x)", ctx_id, communicationId, attr, handler, arg);
 
@@ -3985,7 +3985,7 @@ error_code sceNpMatchingCreateRoomGUI(uint32_t ctx_id, const SceNpCommunicationI
 	return ret;
 }
 
-error_code sceNpMatchingJoinRoomGUI(uint32_t ctx_id, SceNpRoomId* room_id, SceNpMatchingGUIHandler* handler, void* arg)
+int sceNpMatchingJoinRoomGUI(uint32_t ctx_id, SceNpRoomId* room_id, SceNpMatchingGUIHandler* handler, void* arg)
 {
 	LOG_SCE_TRACE("sceNpMatchingJoinRoomGUI(ctx_id=%d, room_id=*0x%x, handler=*0x%x, arg=*0x%x)", ctx_id, room_id, handler, arg);
 
@@ -3998,7 +3998,7 @@ error_code sceNpMatchingJoinRoomGUI(uint32_t ctx_id, SceNpRoomId* room_id, SceNp
 	return ret;
 }
 
-error_code sceNpMatchingLeaveRoom(uint32_t ctx_id, const SceNpRoomId* room_id, uint32_t* req_id)
+int sceNpMatchingLeaveRoom(uint32_t ctx_id, const SceNpRoomId* room_id, uint32_t* req_id)
 {
 	LOG_SCE_TRACE("sceNpMatchingLeaveRoom(ctx_id=%d, room_id=*0x%x, req_id=*0x%x)", ctx_id, room_id, req_id);
 
@@ -4010,7 +4010,7 @@ error_code sceNpMatchingLeaveRoom(uint32_t ctx_id, const SceNpRoomId* room_id, u
 	return ret;
 }
 
-error_code sceNpMatchingSearchJoinRoomGUI(uint32_t ctx_id, const SceNpCommunicationId* communicationId, const SceNpMatchingSearchCondition* cond,
+int sceNpMatchingSearchJoinRoomGUI(uint32_t ctx_id, const SceNpCommunicationId* communicationId, const SceNpMatchingSearchCondition* cond,
 	const SceNpMatchingAttr* attr, SceNpMatchingGUIHandler* handler, void* arg)
 {
 	LOG_SCE_TRACE("sceNpMatchingSearchJoinRoomGUI(ctx_id=%d, communicationId=*0x%x, cond=*0x%x, attr=*0x%x, handler=*0x%x, arg=*0x%x)",
@@ -4025,7 +4025,7 @@ error_code sceNpMatchingSearchJoinRoomGUI(uint32_t ctx_id, const SceNpCommunicat
 	return ret;
 }
 
-error_code sceNpMatchingGrantOwnership(uint32_t ctx_id, const SceNpRoomId* room_id, const SceNpId* user_id, uint32_t* req_id)
+int sceNpMatchingGrantOwnership(uint32_t ctx_id, const SceNpRoomId* room_id, const SceNpId* user_id, uint32_t* req_id)
 {
 	LOG_SCE_TRACE("sceNpMatchingGrantOwnership(ctx_id=%d, room_id=*0x%x, user_id=*0x%x, req_id=*0x%x)", ctx_id, room_id, user_id, req_id);
 
@@ -4038,7 +4038,7 @@ error_code sceNpMatchingGrantOwnership(uint32_t ctx_id, const SceNpRoomId* room_
 	return ret;
 }
 
-error_code sceNpProfileCallGui(const SceNpId* npid, SceNpProfileResultHandler* handler, void* userArg, uint64_t options)
+int sceNpProfileCallGui(const SceNpId* npid, SceNpProfileResultHandler* handler, void* userArg, uint64_t options)
 {
 	LOG_SCE_TRACE("sceNpProfileCallGui(npid=*0x%x, handler=*0x%x, userArg=*0x%x, options=0x%x)", npid, handler, userArg, options);
 
@@ -4063,7 +4063,7 @@ error_code sceNpProfileCallGui(const SceNpId* npid, SceNpProfileResultHandler* h
 	return ret;
 }
 
-error_code sceNpProfileAbortGui()
+int sceNpProfileAbortGui()
 {
 	LOG_SCE_TRACE("sceNpProfileAbortGui()");
 
@@ -4082,7 +4082,7 @@ error_code sceNpProfileAbortGui()
 	return ret;
 }
 
-error_code sceNpScoreInit()
+int sceNpScoreInit()
 {
 	LOG_SCE_TRACE("sceNpScoreInit()");
 
@@ -4111,7 +4111,7 @@ error_code sceNpScoreInit()
 	return ret;
 }
 
-error_code sceNpScoreTerm()
+int sceNpScoreTerm()
 {
 	LOG_SCE_TRACE("sceNpScoreTerm()");
 
@@ -4140,7 +4140,7 @@ error_code sceNpScoreTerm()
 	return ret;
 }
 
-error_code sceNpScoreCreateTitleCtx(const SceNpCommunicationId* communicationId, const SceNpCommunicationPassphrase* passphrase, const SceNpId* selfNpId)
+int sceNpScoreCreateTitleCtx(const SceNpCommunicationId* communicationId, const SceNpCommunicationPassphrase* passphrase, const SceNpId* selfNpId)
 {
 	LOG_SCE_TRACE("sceNpScoreCreateTitleCtx(communicationId=*0x%x, passphrase=*0x%x, selfNpId=*0x%x)", communicationId, passphrase, selfNpId);
 
@@ -4165,7 +4165,7 @@ error_code sceNpScoreCreateTitleCtx(const SceNpCommunicationId* communicationId,
 	return ret;
 }
 
-error_code sceNpScoreDestroyTitleCtx(int32_t titleCtxId)
+int sceNpScoreDestroyTitleCtx(int32_t titleCtxId)
 {
 	LOG_SCE_TRACE("sceNpScoreDestroyTitleCtx(titleCtxId=%d)", titleCtxId);
 
@@ -4184,7 +4184,7 @@ error_code sceNpScoreDestroyTitleCtx(int32_t titleCtxId)
 	return ret;
 }
 
-error_code sceNpScoreCreateTransactionCtx(int32_t titleCtxId)
+int sceNpScoreCreateTransactionCtx(int32_t titleCtxId)
 {
 	LOG_SCE_TRACE("sceNpScoreCreateTransactionCtx(titleCtxId=%d)", titleCtxId);
 
@@ -4209,7 +4209,7 @@ error_code sceNpScoreCreateTransactionCtx(int32_t titleCtxId)
 	return ret;
 }
 
-error_code sceNpScoreDestroyTransactionCtx(int32_t transId)
+int sceNpScoreDestroyTransactionCtx(int32_t transId)
 {
 	LOG_SCE_TRACE("sceNpScoreDestroyTransactionCtx(transId=%d)", transId);
 
@@ -4228,7 +4228,7 @@ error_code sceNpScoreDestroyTransactionCtx(int32_t transId)
 	return ret;
 }
 
-error_code sceNpScoreSetTimeout(int32_t ctxId, usecond_t timeout)
+int sceNpScoreSetTimeout(int32_t ctxId, usecond_t timeout)
 {
 	LOG_SCE_TRACE("sceNpScoreSetTimeout(ctxId=%d, timeout=%d)", ctxId, timeout);
 
@@ -4253,7 +4253,7 @@ error_code sceNpScoreSetTimeout(int32_t ctxId, usecond_t timeout)
 	return ret;
 }
 
-error_code sceNpScoreSetPlayerCharacterId(int32_t ctxId, SceNpScorePcId pcId)
+int sceNpScoreSetPlayerCharacterId(int32_t ctxId, SceNpScorePcId pcId)
 {
 	LOG_SCE_TRACE("sceNpScoreSetPlayerCharacterId(ctxId=%d, pcId=%d)", ctxId, pcId);
 
@@ -4278,7 +4278,7 @@ error_code sceNpScoreSetPlayerCharacterId(int32_t ctxId, SceNpScorePcId pcId)
 	return ret;
 }
 
-error_code sceNpScoreWaitAsync(int32_t transId, int32_t* result)
+int sceNpScoreWaitAsync(int32_t transId, int32_t* result)
 {
 	LOG_SCE_TRACE("sceNpScoreWaitAsync(transId=%d, result=*0x%x)", transId, result);
 
@@ -4303,7 +4303,7 @@ error_code sceNpScoreWaitAsync(int32_t transId, int32_t* result)
 	return ret;
 }
 
-error_code sceNpScorePollAsync(int32_t transId, int32_t* result)
+int sceNpScorePollAsync(int32_t transId, int32_t* result)
 {
 	LOG_SCE_TRACE("sceNpScorePollAsync(transId=%d, result=*0x%x)", transId, result);
 
@@ -4328,7 +4328,7 @@ error_code sceNpScorePollAsync(int32_t transId, int32_t* result)
 	return ret;
 }
 
-error_code sceNpScoreGetBoardInfo(int32_t transId, SceNpScoreBoardId boardId, SceNpScoreBoardInfo* boardInfo, void* option)
+int sceNpScoreGetBoardInfo(int32_t transId, SceNpScoreBoardId boardId, SceNpScoreBoardInfo* boardInfo, void* option)
 {
 	LOG_SCE_TRACE("sceNpScoreGetBoardInfo(transId=%d, boardId=%d, boardInfo=*0x%x, option=*0x%x)", transId, boardId, boardInfo, option);
 
@@ -4365,7 +4365,7 @@ error_code sceNpScoreGetBoardInfo(int32_t transId, SceNpScoreBoardId boardId, Sc
 	return ret;
 }
 
-error_code sceNpScoreGetBoardInfoAsync(int32_t transId, SceNpScoreBoardId boardId, SceNpScoreBoardInfo* boardInfo, int32_t prio, void* option)
+int sceNpScoreGetBoardInfoAsync(int32_t transId, SceNpScoreBoardId boardId, SceNpScoreBoardInfo* boardInfo, int32_t prio, void* option)
 {
 	LOG_SCE_TRACE("sceNpScoreGetBoardInfo(transId=%d, boardId=%d, boardInfo=*0x%x, prio=%d, option=*0x%x)", transId, boardId, boardInfo, prio, option);
 
@@ -4390,7 +4390,7 @@ error_code sceNpScoreGetBoardInfoAsync(int32_t transId, SceNpScoreBoardId boardI
 	return ret;
 }
 
-error_code sceNpScoreRecordScore(int32_t transId, SceNpScoreBoardId boardId, SceNpScoreValue score, const SceNpScoreComment* scoreComment,
+int sceNpScoreRecordScore(int32_t transId, SceNpScoreBoardId boardId, SceNpScoreValue score, const SceNpScoreComment* scoreComment,
 	const SceNpScoreGameInfo* gameInfo, SceNpScoreRankNumber* tmpRank, SceNpScoreRecordOptParam* option)
 {
 	LOG_SCE_TRACE("sceNpScoreRecordScore(transId=%d, boardId=%d, score=%d, scoreComment=*0x%x, gameInfo=*0x%x, tmpRank=*0x%x, option=*0x%x)",
@@ -4423,7 +4423,7 @@ error_code sceNpScoreRecordScore(int32_t transId, SceNpScoreBoardId boardId, Sce
 	return ret;
 }
 
-error_code sceNpScoreRecordScoreAsync(int32_t transId, SceNpScoreBoardId boardId, SceNpScoreValue score, const SceNpScoreComment* scoreComment,
+int sceNpScoreRecordScoreAsync(int32_t transId, SceNpScoreBoardId boardId, SceNpScoreValue score, const SceNpScoreComment* scoreComment,
 	const SceNpScoreGameInfo* gameInfo, SceNpScoreRankNumber* tmpRank, int32_t prio, SceNpScoreRecordOptParam* option)
 {
 	LOG_SCE_TRACE("sceNpScoreRecordScoreAsync(transId=%d, boardId=%d, score=%d, scoreComment=*0x%x, gameInfo=*0x%x, tmpRank=*0x%x, prio=%d, option=*0x%x)",
@@ -4450,7 +4450,7 @@ error_code sceNpScoreRecordScoreAsync(int32_t transId, SceNpScoreBoardId boardId
 	return ret;
 }
 
-error_code sceNpScoreRecordGameData(int32_t transId, SceNpScoreBoardId boardId, SceNpScoreValue score, uint64_t totalSize, uint64_t sendSize, const void* data, void* option)
+int sceNpScoreRecordGameData(int32_t transId, SceNpScoreBoardId boardId, SceNpScoreValue score, uint64_t totalSize, uint64_t sendSize, const void* data, void* option)
 {
 	LOG_SCE_TRACE("sceNpScoreRecordGameData(transId=%d, boardId=%d, score=%d, totalSize=%d, sendSize=%d, data=*0x%x, option=*0x%x)",
 		transId, boardId, score, totalSize, sendSize, data, option);
@@ -4488,7 +4488,7 @@ error_code sceNpScoreRecordGameData(int32_t transId, SceNpScoreBoardId boardId, 
 	return ret;
 }
 
-error_code sceNpScoreRecordGameDataAsync(int32_t transId, SceNpScoreBoardId boardId, SceNpScoreValue score, uint64_t totalSize, uint64_t sendSize, const void* data, int32_t prio, void* option)
+int sceNpScoreRecordGameDataAsync(int32_t transId, SceNpScoreBoardId boardId, SceNpScoreValue score, uint64_t totalSize, uint64_t sendSize, const void* data, int32_t prio, void* option)
 {
 	LOG_SCE_TRACE("sceNpScoreRecordGameDataAsync(transId=%d, boardId=%d, score=%d, totalSize=%d, sendSize=%d, data=*0x%x, prio=%d, option=*0x%x)",
 		transId, boardId, score, totalSize, sendSize, data, prio, option);
@@ -4514,7 +4514,7 @@ error_code sceNpScoreRecordGameDataAsync(int32_t transId, SceNpScoreBoardId boar
 	return ret;
 }
 
-error_code sceNpScoreGetGameData(int32_t transId, SceNpScoreBoardId boardId, const SceNpId* npId, uint64_t* totalSize, uint64_t recvSize, void* data, void* option)
+int sceNpScoreGetGameData(int32_t transId, SceNpScoreBoardId boardId, const SceNpId* npId, uint64_t* totalSize, uint64_t recvSize, void* data, void* option)
 {
 	LOG_SCE_TRACE("sceNpScoreGetGameDataAsync(transId=%d, boardId=%d, npId=*0x%x, totalSize=*0x%x, recvSize=%d, data=*0x%x, option=*0x%x)",
 		transId, boardId, npId, totalSize, recvSize, data, option);
@@ -4552,7 +4552,7 @@ error_code sceNpScoreGetGameData(int32_t transId, SceNpScoreBoardId boardId, con
 	return ret;
 }
 
-error_code sceNpScoreGetGameDataAsync(int32_t transId, SceNpScoreBoardId boardId, const SceNpId* npId, uint64_t* totalSize, uint64_t recvSize, void* data, int32_t prio, void* option)
+int sceNpScoreGetGameDataAsync(int32_t transId, SceNpScoreBoardId boardId, const SceNpId* npId, uint64_t* totalSize, uint64_t recvSize, void* data, int32_t prio, void* option)
 {
 	LOG_SCE_TRACE("sceNpScoreGetGameDataAsync(transId=%d, boardId=%d, npId=*0x%x, totalSize=*0x%x, recvSize=%d, data=*0x%x, prio=%d, option=*0x%x)",
 		transId, boardId, npId, totalSize, recvSize, data, prio, option);
@@ -4578,7 +4578,7 @@ error_code sceNpScoreGetGameDataAsync(int32_t transId, SceNpScoreBoardId boardId
 	return ret;
 }
 
-error_code sceNpScoreGetRankingByNpId(int32_t transId, SceNpScoreBoardId boardId, const SceNpId* npIdArray, uint64_t npIdArraySize, SceNpScorePlayerRankData* rankArray,
+int sceNpScoreGetRankingByNpId(int32_t transId, SceNpScoreBoardId boardId, const SceNpId* npIdArray, uint64_t npIdArraySize, SceNpScorePlayerRankData* rankArray,
 	uint64_t rankArraySize, SceNpScoreComment* commentArray, uint64_t commentArraySize, void* infoArray, uint64_t infoArraySize,
 	uint64_t arrayNum, CellRtcTick* lastSortDate, SceNpScoreRankNumber* totalRecord, void* option)
 {
@@ -4624,7 +4624,7 @@ error_code sceNpScoreGetRankingByNpId(int32_t transId, SceNpScoreBoardId boardId
 	return ret;
 }
 
-error_code sceNpScoreGetRankingByNpIdAsync(int32_t transId, SceNpScoreBoardId boardId, const SceNpId* npIdArray, uint64_t npIdArraySize, SceNpScorePlayerRankData* rankArray,
+int sceNpScoreGetRankingByNpIdAsync(int32_t transId, SceNpScoreBoardId boardId, const SceNpId* npIdArray, uint64_t npIdArraySize, SceNpScorePlayerRankData* rankArray,
 	uint64_t rankArraySize, SceNpScoreComment* commentArray, uint64_t commentArraySize, void* infoArray, uint64_t infoArraySize,
 	uint64_t arrayNum, CellRtcTick* lastSortDate, SceNpScoreRankNumber* totalRecord, int32_t prio, void* option)
 {
@@ -4658,7 +4658,7 @@ error_code sceNpScoreGetRankingByNpIdAsync(int32_t transId, SceNpScoreBoardId bo
 	return ret;
 }
 
-error_code sceNpScoreGetRankingByRange(int32_t transId, SceNpScoreBoardId boardId, SceNpScoreRankNumber startSerialRank, SceNpScoreRankData* rankArray,
+int sceNpScoreGetRankingByRange(int32_t transId, SceNpScoreBoardId boardId, SceNpScoreRankNumber startSerialRank, SceNpScoreRankData* rankArray,
 	uint64_t rankArraySize, SceNpScoreComment* commentArray, uint64_t commentArraySize, void* infoArray, uint64_t infoArraySize,
 	uint64_t arrayNum, CellRtcTick* lastSortDate, SceNpScoreRankNumber* totalRecord, void* option)
 {
@@ -4704,7 +4704,7 @@ error_code sceNpScoreGetRankingByRange(int32_t transId, SceNpScoreBoardId boardI
 	return ret;
 }
 
-error_code sceNpScoreGetRankingByRangeAsync(int32_t transId, SceNpScoreBoardId boardId, SceNpScoreRankNumber startSerialRank, SceNpScoreRankData* rankArray,
+int sceNpScoreGetRankingByRangeAsync(int32_t transId, SceNpScoreBoardId boardId, SceNpScoreRankNumber startSerialRank, SceNpScoreRankData* rankArray,
 	uint64_t rankArraySize, SceNpScoreComment* commentArray, uint64_t commentArraySize, void* infoArray, uint64_t infoArraySize,
 	uint64_t arrayNum, CellRtcTick* lastSortDate, SceNpScoreRankNumber* totalRecord, int32_t prio, void* option)
 {
@@ -4738,7 +4738,7 @@ error_code sceNpScoreGetRankingByRangeAsync(int32_t transId, SceNpScoreBoardId b
 	return ret;
 }
 
-error_code sceNpScoreGetFriendsRanking(int32_t transId, SceNpScoreBoardId boardId, int32_t includeSelf, SceNpScoreRankData* rankArray, uint64_t rankArraySize,
+int sceNpScoreGetFriendsRanking(int32_t transId, SceNpScoreBoardId boardId, int32_t includeSelf, SceNpScoreRankData* rankArray, uint64_t rankArraySize,
 	SceNpScoreComment* commentArray, uint64_t commentArraySize, SceNpScoreGameInfo* infoArray, uint64_t infoArraySize, uint64_t arrayNum,
 	CellRtcTick* lastSortDate, SceNpScoreRankNumber* totalRecord, void* option)
 {
@@ -4772,7 +4772,7 @@ error_code sceNpScoreGetFriendsRanking(int32_t transId, SceNpScoreBoardId boardI
 	return ret;
 }
 
-error_code sceNpScoreGetFriendsRankingAsync(int32_t transId, SceNpScoreBoardId boardId, int32_t includeSelf, SceNpScoreRankData* rankArray, uint64_t rankArraySize,
+int sceNpScoreGetFriendsRankingAsync(int32_t transId, SceNpScoreBoardId boardId, int32_t includeSelf, SceNpScoreRankData* rankArray, uint64_t rankArraySize,
 	SceNpScoreComment* commentArray, uint64_t commentArraySize, SceNpScoreGameInfo* infoArray, uint64_t infoArraySize, uint64_t arrayNum,
 	CellRtcTick* lastSortDate, SceNpScoreRankNumber* totalRecord, int32_t prio, void* option)
 {
@@ -4806,7 +4806,7 @@ error_code sceNpScoreGetFriendsRankingAsync(int32_t transId, SceNpScoreBoardId b
 	return ret;
 }
 
-error_code sceNpScoreCensorComment(int32_t transId, const char* comment, void* option)
+int sceNpScoreCensorComment(int32_t transId, const char* comment, void* option)
 {
 	LOG_SCE_TRACE("sceNpScoreCensorComment(transId=%d, comment=%s, option=*0x%x)", transId, comment, option);
 
@@ -4844,7 +4844,7 @@ error_code sceNpScoreCensorComment(int32_t transId, const char* comment, void* o
 	return ret;
 }
 
-error_code sceNpScoreCensorCommentAsync(int32_t transId, const char* comment, int32_t prio, void* option)
+int sceNpScoreCensorCommentAsync(int32_t transId, const char* comment, int32_t prio, void* option)
 {
 	LOG_SCE_TRACE("sceNpScoreCensorCommentAsync(transId=%d, comment=%s, prio=%d, option=*0x%x)", transId, comment, prio, option);
 
@@ -4876,7 +4876,7 @@ error_code sceNpScoreCensorCommentAsync(int32_t transId, const char* comment, in
 	return ret;
 }
 
-error_code sceNpScoreSanitizeComment(int32_t transId, const char* comment, char* sanitizedComment, void* option)
+int sceNpScoreSanitizeComment(int32_t transId, const char* comment, char* sanitizedComment, void* option)
 {
 	LOG_SCE_TRACE("sceNpScoreSanitizeComment(transId=%d, comment=%s, sanitizedComment=*0x%x, option=*0x%x)", transId, comment, sanitizedComment, option);
 
@@ -4914,7 +4914,7 @@ error_code sceNpScoreSanitizeComment(int32_t transId, const char* comment, char*
 	return ret;
 }
 
-error_code sceNpScoreSanitizeCommentAsync(int32_t transId, const char* comment, char* sanitizedComment, int32_t prio, void* option)
+int sceNpScoreSanitizeCommentAsync(int32_t transId, const char* comment, char* sanitizedComment, int32_t prio, void* option)
 {
 	LOG_SCE_TRACE("sceNpScoreSanitizeCommentAsync(transId=%d, comment=%s, sanitizedComment=*0x%x, prio=%d, option=*0x%x)", transId, comment, sanitizedComment, prio, option);
 
@@ -4946,7 +4946,7 @@ error_code sceNpScoreSanitizeCommentAsync(int32_t transId, const char* comment, 
 	return ret;
 }
 
-error_code sceNpScoreGetRankingByNpIdPcId(int32_t transId, SceNpScoreBoardId boardId, const SceNpScoreNpIdPcId* idArray, uint64_t idArraySize, SceNpScorePlayerRankData* rankArray,
+int sceNpScoreGetRankingByNpIdPcId(int32_t transId, SceNpScoreBoardId boardId, const SceNpScoreNpIdPcId* idArray, uint64_t idArraySize, SceNpScorePlayerRankData* rankArray,
 	uint64_t rankArraySize, SceNpScoreComment* commentArray, uint64_t commentArraySize, void* infoArray, uint64_t infoArraySize,
 	uint64_t arrayNum, CellRtcTick* lastSortDate, SceNpScoreRankNumber* totalRecord, void* option)
 {
@@ -4992,7 +4992,7 @@ error_code sceNpScoreGetRankingByNpIdPcId(int32_t transId, SceNpScoreBoardId boa
 	return ret;
 }
 
-error_code sceNpScoreGetRankingByNpIdPcIdAsync(int32_t transId, SceNpScoreBoardId boardId, const SceNpScoreNpIdPcId* idArray, uint64_t idArraySize, SceNpScorePlayerRankData* rankArray,
+int sceNpScoreGetRankingByNpIdPcIdAsync(int32_t transId, SceNpScoreBoardId boardId, const SceNpScoreNpIdPcId* idArray, uint64_t idArraySize, SceNpScorePlayerRankData* rankArray,
 	uint64_t rankArraySize, SceNpScoreComment* commentArray, uint64_t commentArraySize, void* infoArray, uint64_t infoArraySize,
 	uint64_t arrayNum, CellRtcTick* lastSortDate, SceNpScoreRankNumber* totalRecord, int32_t prio, void* option)
 {
@@ -5026,7 +5026,7 @@ error_code sceNpScoreGetRankingByNpIdPcIdAsync(int32_t transId, SceNpScoreBoardI
 	return ret;
 }
 
-error_code sceNpScoreAbortTransaction(int32_t transId)
+int sceNpScoreAbortTransaction(int32_t transId)
 {
 	LOG_SCE_TRACE("sceNpScoreAbortTransaction(transId=%d)", transId);
 
@@ -5045,7 +5045,7 @@ error_code sceNpScoreAbortTransaction(int32_t transId)
 	return ret;
 }
 
-error_code sceNpScoreGetClansMembersRankingByNpId(int32_t transId, SceNpClanId clanId, SceNpScoreBoardId boardId, const SceNpId* idArray, uint64_t idArraySize, SceNpScorePlayerRankData* rankArray,
+int sceNpScoreGetClansMembersRankingByNpId(int32_t transId, SceNpClanId clanId, SceNpScoreBoardId boardId, const SceNpId* idArray, uint64_t idArraySize, SceNpScorePlayerRankData* rankArray,
 	uint64_t rankArraySize, SceNpScoreComment* commentArray, uint64_t commentArraySize, SceNpScoreGameInfo* infoArray, uint64_t infoArraySize,
 	SceNpScoreClansMemberDescription* descriptArray, uint64_t descriptArraySize, uint64_t arrayNum, SceNpScoreClanBasicInfo* clanInfo, CellRtcTick* lastSortDate,
 	SceNpScoreRankNumber* totalRecord, void* option)
@@ -5092,7 +5092,7 @@ error_code sceNpScoreGetClansMembersRankingByNpId(int32_t transId, SceNpClanId c
 	return ret;
 }
 
-error_code sceNpScoreGetClansMembersRankingByNpIdAsync(int32_t transId, SceNpClanId clanId, SceNpScoreBoardId boardId, const SceNpId* idArray, uint64_t idArraySize, SceNpScorePlayerRankData* rankArray,
+int sceNpScoreGetClansMembersRankingByNpIdAsync(int32_t transId, SceNpClanId clanId, SceNpScoreBoardId boardId, const SceNpId* idArray, uint64_t idArraySize, SceNpScorePlayerRankData* rankArray,
 	uint64_t rankArraySize, SceNpScoreComment* commentArray, uint64_t commentArraySize, SceNpScoreGameInfo* infoArray, uint64_t infoArraySize,
 	SceNpScoreClansMemberDescription* descriptArray, uint64_t descriptArraySize, uint64_t arrayNum, SceNpScoreClanBasicInfo* clanInfo, CellRtcTick* lastSortDate,
 	SceNpScoreRankNumber* totalRecord, int32_t prio, void* option)
@@ -5127,7 +5127,7 @@ error_code sceNpScoreGetClansMembersRankingByNpIdAsync(int32_t transId, SceNpCla
 	return ret;
 }
 
-error_code sceNpScoreGetClansMembersRankingByNpIdPcId(int32_t transId, SceNpClanId clanId, SceNpScoreBoardId boardId, const SceNpId* idArray, uint64_t idArraySize, SceNpScorePlayerRankData* rankArray,
+int sceNpScoreGetClansMembersRankingByNpIdPcId(int32_t transId, SceNpClanId clanId, SceNpScoreBoardId boardId, const SceNpId* idArray, uint64_t idArraySize, SceNpScorePlayerRankData* rankArray,
 	uint64_t rankArraySize, SceNpScoreComment* commentArray, uint64_t commentArraySize, SceNpScoreGameInfo* infoArray, uint64_t infoArraySize,
 	SceNpScoreClansMemberDescription* descriptArray, uint64_t descriptArraySize, uint64_t arrayNum, SceNpScoreClanBasicInfo* clanInfo, CellRtcTick* lastSortDate,
 	SceNpScoreRankNumber* totalRecord, void* option)
@@ -5174,7 +5174,7 @@ error_code sceNpScoreGetClansMembersRankingByNpIdPcId(int32_t transId, SceNpClan
 	return ret;
 }
 
-error_code sceNpScoreGetClansMembersRankingByNpIdPcIdAsync(int32_t transId, SceNpClanId clanId, SceNpScoreBoardId boardId, const SceNpId* idArray, uint64_t idArraySize, SceNpScorePlayerRankData* rankArray,
+int sceNpScoreGetClansMembersRankingByNpIdPcIdAsync(int32_t transId, SceNpClanId clanId, SceNpScoreBoardId boardId, const SceNpId* idArray, uint64_t idArraySize, SceNpScorePlayerRankData* rankArray,
 	uint64_t rankArraySize, SceNpScoreComment* commentArray, uint64_t commentArraySize, SceNpScoreGameInfo* infoArray, uint64_t infoArraySize,
 	SceNpScoreClansMemberDescription* descriptArray, uint64_t descriptArraySize, uint64_t arrayNum, SceNpScoreClanBasicInfo* clanInfo, CellRtcTick* lastSortDate,
 	SceNpScoreRankNumber* totalRecord, int32_t prio, void* option)
@@ -5209,7 +5209,7 @@ error_code sceNpScoreGetClansMembersRankingByNpIdPcIdAsync(int32_t transId, SceN
 	return ret;
 }
 
-error_code sceNpScoreGetClansRankingByRange(int32_t transId, SceNpScoreClansBoardId clanBoardId, SceNpScoreRankNumber startSerialRank, SceNpScoreClanIdRankData* rankArray,
+int sceNpScoreGetClansRankingByRange(int32_t transId, SceNpScoreClansBoardId clanBoardId, SceNpScoreRankNumber startSerialRank, SceNpScoreClanIdRankData* rankArray,
 	uint64_t rankArraySize, void* reserved1, uint64_t reservedSize1, void* reserved2, uint64_t reservedSize2, uint64_t arrayNum,
 	CellRtcTick* lastSortDate, SceNpScoreRankNumber* totalRecord, void* option)
 {
@@ -5255,7 +5255,7 @@ error_code sceNpScoreGetClansRankingByRange(int32_t transId, SceNpScoreClansBoar
 	return ret;
 }
 
-error_code sceNpScoreGetClansRankingByRangeAsync(int32_t transId, SceNpScoreClansBoardId clanBoardId, SceNpScoreRankNumber startSerialRank, SceNpScoreClanIdRankData* rankArray,
+int sceNpScoreGetClansRankingByRangeAsync(int32_t transId, SceNpScoreClansBoardId clanBoardId, SceNpScoreRankNumber startSerialRank, SceNpScoreClanIdRankData* rankArray,
 	uint64_t rankArraySize, void* reserved1, uint64_t reservedSize1, void* reserved2, uint64_t reservedSize2, uint64_t arrayNum,
 	CellRtcTick* lastSortDate, SceNpScoreRankNumber* totalRecord, int32_t prio, void* option)
 {
@@ -5289,7 +5289,7 @@ error_code sceNpScoreGetClansRankingByRangeAsync(int32_t transId, SceNpScoreClan
 	return ret;
 }
 
-error_code sceNpScoreGetClanMemberGameData(int32_t transId, SceNpScoreBoardId boardId, SceNpClanId clanId, const SceNpId* npId,
+int sceNpScoreGetClanMemberGameData(int32_t transId, SceNpScoreBoardId boardId, SceNpClanId clanId, const SceNpId* npId,
 	uint64_t* totalSize, uint64_t recvSize, void* data, void* option)
 {
 	LOG_SCE_TRACE("sceNpScoreGetClanMemberGameData(transId=%d, boardId=%d, clanId=%d, npId=*0x%x, totalSize=*0x%x, recvSize=%d, data=*0x%x, option=*0x%x)",
@@ -5328,7 +5328,7 @@ error_code sceNpScoreGetClanMemberGameData(int32_t transId, SceNpScoreBoardId bo
 	return ret;
 }
 
-error_code sceNpScoreGetClanMemberGameDataAsync(int32_t transId, SceNpScoreBoardId boardId, SceNpClanId clanId, const SceNpId* npId,
+int sceNpScoreGetClanMemberGameDataAsync(int32_t transId, SceNpScoreBoardId boardId, SceNpClanId clanId, const SceNpId* npId,
 	uint64_t* totalSize, uint64_t recvSize, void* data, int32_t prio, void* option)
 {
 	LOG_SCE_TRACE("sceNpScoreGetClanMemberGameDataAsync(transId=%d, boardId=%d, clanId=%d, npId=*0x%x, totalSize=*0x%x, recvSize=%d, data=*0x%x, prio=%d, option=*0x%x)",
@@ -5355,7 +5355,7 @@ error_code sceNpScoreGetClanMemberGameDataAsync(int32_t transId, SceNpScoreBoard
 	return ret;
 }
 
-error_code sceNpScoreGetClansRankingByClanId(int32_t transId, SceNpScoreClansBoardId clanBoardId, const SceNpClanId* clanIdArray, uint64_t clanIdArraySize,
+int sceNpScoreGetClansRankingByClanId(int32_t transId, SceNpScoreClansBoardId clanBoardId, const SceNpClanId* clanIdArray, uint64_t clanIdArraySize,
 	SceNpScoreClanIdRankData* rankArray, uint64_t rankArraySize, void* reserved1, uint64_t reservedSize1, void* reserved2, uint64_t reservedSize2, uint64_t arrayNum,
 	CellRtcTick* lastSortDate, SceNpScoreRankNumber* totalRecord, void* option)
 {
@@ -5401,7 +5401,7 @@ error_code sceNpScoreGetClansRankingByClanId(int32_t transId, SceNpScoreClansBoa
 	return ret;
 }
 
-error_code sceNpScoreGetClansRankingByClanIdAsync(int32_t transId, SceNpScoreClansBoardId clanBoardId, const SceNpClanId* clanIdArray, uint64_t clanIdArraySize,
+int sceNpScoreGetClansRankingByClanIdAsync(int32_t transId, SceNpScoreClansBoardId clanBoardId, const SceNpClanId* clanIdArray, uint64_t clanIdArraySize,
 	SceNpScoreClanIdRankData* rankArray, uint64_t rankArraySize, void* reserved1, uint64_t reservedSize1, void* reserved2, uint64_t reservedSize2, uint64_t arrayNum,
 	CellRtcTick* lastSortDate, SceNpScoreRankNumber* totalRecord, int32_t prio, void* option)
 {
@@ -5435,7 +5435,7 @@ error_code sceNpScoreGetClansRankingByClanIdAsync(int32_t transId, SceNpScoreCla
 	return ret;
 }
 
-error_code sceNpScoreGetClansMembersRankingByRange(int32_t transId, SceNpClanId clanId, SceNpScoreBoardId boardId, SceNpScoreRankNumber startSerialRank,
+int sceNpScoreGetClansMembersRankingByRange(int32_t transId, SceNpClanId clanId, SceNpScoreBoardId boardId, SceNpScoreRankNumber startSerialRank,
 	SceNpScoreClanIdRankData* rankArray, uint64_t rankArraySize, SceNpScoreComment* commentArray, uint64_t commentArraySize, SceNpScoreGameInfo* infoArray,
 	uint64_t infoArraySize, SceNpScoreClansMemberDescription* descriptArray, uint64_t descriptArraySize, uint64_t arrayNum, SceNpScoreClanBasicInfo* clanInfo,
 	CellRtcTick* lastSortDate, SceNpScoreRankNumber* totalRecord, void* option)
@@ -5482,7 +5482,7 @@ error_code sceNpScoreGetClansMembersRankingByRange(int32_t transId, SceNpClanId 
 	return ret;
 }
 
-error_code sceNpScoreGetClansMembersRankingByRangeAsync(int32_t transId, SceNpClanId clanId, SceNpScoreBoardId boardId, SceNpScoreRankNumber startSerialRank,
+int sceNpScoreGetClansMembersRankingByRangeAsync(int32_t transId, SceNpClanId clanId, SceNpScoreBoardId boardId, SceNpScoreRankNumber startSerialRank,
 	SceNpScoreClanIdRankData* rankArray, uint64_t rankArraySize, SceNpScoreComment* commentArray, uint64_t commentArraySize, SceNpScoreGameInfo* infoArray,
 	uint64_t infoArraySize, SceNpScoreClansMemberDescription* descriptArray, uint64_t descriptArraySize, uint64_t arrayNum, SceNpScoreClanBasicInfo* clanInfo,
 	CellRtcTick* lastSortDate, SceNpScoreRankNumber* totalRecord, int32_t prio, void* option)
@@ -5517,7 +5517,7 @@ error_code sceNpScoreGetClansMembersRankingByRangeAsync(int32_t transId, SceNpCl
 	return ret;
 }
 
-error_code sceNpSignalingCreateCtx(SceNpId* npId, SceNpSignalingHandler* handler, void* arg, uint32_t* ctx_id)
+int sceNpSignalingCreateCtx(SceNpId* npId, SceNpSignalingHandler* handler, void* arg, uint32_t* ctx_id)
 {
 	LOG_SCE_TRACE("sceNpSignalingCreateCtx(npId=*0x%x, handler=*0x%x, arg=*0x%x, ctx_id=*0x%x)", npId, handler, arg, ctx_id);
 
@@ -5548,7 +5548,7 @@ error_code sceNpSignalingCreateCtx(SceNpId* npId, SceNpSignalingHandler* handler
 	return ret;
 }
 
-error_code sceNpSignalingDestroyCtx(uint32_t ctx_id)
+int sceNpSignalingDestroyCtx(uint32_t ctx_id)
 {
 	LOG_SCE_TRACE("sceNpSignalingDestroyCtx(ctx_id=%d)", ctx_id);
 
@@ -5567,7 +5567,7 @@ error_code sceNpSignalingDestroyCtx(uint32_t ctx_id)
 	return ret;
 }
 
-error_code sceNpSignalingAddExtendedHandler(uint32_t ctx_id, SceNpSignalingHandler* handler, void* arg)
+int sceNpSignalingAddExtendedHandler(uint32_t ctx_id, SceNpSignalingHandler* handler, void* arg)
 {
 	LOG_SCE_TRACE("sceNpSignalingAddExtendedHandler(ctx_id=%d, handler=*0x%x, arg=*0x%x)", ctx_id, handler, arg);
 
@@ -5586,7 +5586,7 @@ error_code sceNpSignalingAddExtendedHandler(uint32_t ctx_id, SceNpSignalingHandl
 	return ret;
 }
 
-error_code sceNpSignalingSetCtxOpt(uint32_t ctx_id, int32_t optname, int32_t optval)
+int sceNpSignalingSetCtxOpt(uint32_t ctx_id, int32_t optname, int32_t optval)
 {
 	LOG_SCE_TRACE("sceNpSignalingSetCtxOpt(ctx_id=%d, optname=%d, optval=%d)", ctx_id, optname, optval);
 
@@ -5611,7 +5611,7 @@ error_code sceNpSignalingSetCtxOpt(uint32_t ctx_id, int32_t optname, int32_t opt
 	return ret;
 }
 
-error_code sceNpSignalingGetCtxOpt(uint32_t ctx_id, int32_t optname, int32_t* optval)
+int sceNpSignalingGetCtxOpt(uint32_t ctx_id, int32_t optname, int32_t* optval)
 {
 	LOG_SCE_TRACE("sceNpSignalingGetCtxOpt(ctx_id=%d, optname=%d, optval=*0x%x)", ctx_id, optname, optval);
 
@@ -5636,7 +5636,7 @@ error_code sceNpSignalingGetCtxOpt(uint32_t ctx_id, int32_t optname, int32_t* op
 	return ret;
 }
 
-error_code sceNpSignalingActivateConnection(uint32_t ctx_id, SceNpId* npId, uint32_t conn_id)
+int sceNpSignalingActivateConnection(uint32_t ctx_id, SceNpId* npId, uint32_t conn_id)
 {
 	LOG_SCE_TRACE("sceNpSignalingActivateConnection(ctx_id=%d, npId=*0x%x, conn_id=%d)", ctx_id, npId, conn_id);
 
@@ -5661,7 +5661,7 @@ error_code sceNpSignalingActivateConnection(uint32_t ctx_id, SceNpId* npId, uint
 	return ret;
 }
 
-error_code sceNpSignalingDeactivateConnection(uint32_t ctx_id, uint32_t conn_id)
+int sceNpSignalingDeactivateConnection(uint32_t ctx_id, uint32_t conn_id)
 {
 	LOG_SCE_TRACE("sceNpSignalingDeactivateConnection(ctx_id=%d, conn_id=%d)", ctx_id, conn_id);
 
@@ -5680,7 +5680,7 @@ error_code sceNpSignalingDeactivateConnection(uint32_t ctx_id, uint32_t conn_id)
 	return ret;
 }
 
-error_code sceNpSignalingTerminateConnection(uint32_t ctx_id, uint32_t conn_id)
+int sceNpSignalingTerminateConnection(uint32_t ctx_id, uint32_t conn_id)
 {
 	LOG_SCE_TRACE("sceNpSignalingTerminateConnection(ctx_id=%d, conn_id=%d)", ctx_id, conn_id);
 
@@ -5699,7 +5699,7 @@ error_code sceNpSignalingTerminateConnection(uint32_t ctx_id, uint32_t conn_id)
 	return ret;
 }
 
-error_code sceNpSignalingGetConnectionStatus(uint32_t ctx_id, uint32_t conn_id, int32_t* conn_status, in_addr* peer_addr, in_port_t* peer_port)
+int sceNpSignalingGetConnectionStatus(uint32_t ctx_id, uint32_t conn_id, int32_t* conn_status, in_addr* peer_addr, in_port_t* peer_port)
 {
 	LOG_SCE_TRACE("sceNpSignalingGetConnectionStatus(ctx_id=%d, conn_id=%d, conn_status=*0x%x, peer_addr=*0x%x, peer_port=*0x%x)", ctx_id, conn_id, conn_status, peer_addr, peer_port);
 
@@ -5724,7 +5724,7 @@ error_code sceNpSignalingGetConnectionStatus(uint32_t ctx_id, uint32_t conn_id, 
 	return ret;
 }
 
-error_code sceNpSignalingGetConnectionInfo(uint32_t ctx_id, uint32_t conn_id, int32_t code, SceNpSignalingConnectionInfo* info)
+int sceNpSignalingGetConnectionInfo(uint32_t ctx_id, uint32_t conn_id, int32_t code, SceNpSignalingConnectionInfo* info)
 {
 	LOG_SCE_TRACE("sceNpSignalingGetConnectionInfo(ctx_id=%d, conn_id=%d, code=%d, info=*0x%x)", ctx_id, conn_id, code, info);
 
@@ -5749,7 +5749,7 @@ error_code sceNpSignalingGetConnectionInfo(uint32_t ctx_id, uint32_t conn_id, in
 	return ret;
 }
 
-error_code sceNpSignalingGetConnectionFromNpId(uint32_t ctx_id, SceNpId* npId, uint32_t* conn_id)
+int sceNpSignalingGetConnectionFromNpId(uint32_t ctx_id, SceNpId* npId, uint32_t* conn_id)
 {
 	LOG_SCE_TRACE("sceNpSignalingGetConnectionFromNpId(ctx_id=%d, npId=*0x%x, conn_id=*0x%x)", ctx_id, npId, conn_id);
 
@@ -5774,7 +5774,7 @@ error_code sceNpSignalingGetConnectionFromNpId(uint32_t ctx_id, SceNpId* npId, u
 	return ret;
 }
 
-error_code sceNpSignalingGetConnectionFromPeerAddress(uint32_t ctx_id, in_addr* peer_addr, in_port_t peer_port, uint32_t* conn_id)
+int sceNpSignalingGetConnectionFromPeerAddress(uint32_t ctx_id, in_addr* peer_addr, in_port_t peer_port, uint32_t* conn_id)
 {
 	LOG_SCE_TRACE("sceNpSignalingGetConnectionFromPeerAddress(ctx_id=%d, peer_addr=*0x%x, peer_port=%d, conn_id=*0x%x)", ctx_id, peer_addr, peer_port, conn_id);
 
@@ -5799,7 +5799,7 @@ error_code sceNpSignalingGetConnectionFromPeerAddress(uint32_t ctx_id, in_addr* 
 	return ret;
 }
 
-error_code sceNpSignalingGetLocalNetInfo(uint32_t ctx_id, SceNpSignalingNetInfo* info)
+int sceNpSignalingGetLocalNetInfo(uint32_t ctx_id, SceNpSignalingNetInfo* info)
 {
 	LOG_SCE_TRACE("sceNpSignalingGetLocalNetInfo(ctx_id=%d, info=*0x%x)", ctx_id, info);
 
@@ -5825,7 +5825,7 @@ error_code sceNpSignalingGetLocalNetInfo(uint32_t ctx_id, SceNpSignalingNetInfo*
 	return ret;
 }
 
-error_code sceNpSignalingGetPeerNetInfo(uint32_t ctx_id, SceNpId* npId, uint32_t* req_id)
+int sceNpSignalingGetPeerNetInfo(uint32_t ctx_id, SceNpId* npId, uint32_t* req_id)
 {
 	LOG_SCE_TRACE("sceNpSignalingGetPeerNetInfo(ctx_id=%d, npId=*0x%x, req_id=*0x%x)", ctx_id, npId, req_id);
 
@@ -5850,7 +5850,7 @@ error_code sceNpSignalingGetPeerNetInfo(uint32_t ctx_id, SceNpId* npId, uint32_t
 	return ret;
 }
 
-error_code sceNpSignalingCancelPeerNetInfo(uint32_t ctx_id, uint32_t req_id)
+int sceNpSignalingCancelPeerNetInfo(uint32_t ctx_id, uint32_t req_id)
 {
 	LOG_SCE_TRACE("sceNpSignalingCancelPeerNetInfo(ctx_id=%d, req_id=%d)", ctx_id, req_id);
 
@@ -5869,7 +5869,7 @@ error_code sceNpSignalingCancelPeerNetInfo(uint32_t ctx_id, uint32_t req_id)
 	return ret;
 }
 
-error_code sceNpSignalingGetPeerNetInfoResult(uint32_t ctx_id, uint32_t req_id, SceNpSignalingNetInfo* info)
+int sceNpSignalingGetPeerNetInfoResult(uint32_t ctx_id, uint32_t req_id, SceNpSignalingNetInfo* info)
 {
 	LOG_SCE_TRACE("sceNpSignalingGetPeerNetInfoResult(ctx_id=%d, req_id=%d, info=*0x%x)", ctx_id, req_id, info);
 
@@ -5895,7 +5895,7 @@ error_code sceNpSignalingGetPeerNetInfoResult(uint32_t ctx_id, uint32_t req_id, 
 	return ret;
 }
 
-error_code sceNpUtilCanonicalizeNpIdForPs3()
+int sceNpUtilCanonicalizeNpIdForPs3()
 {
 		UNIMPLEMENTED_FUNC(sceNp);
 		ret = SCE_OK;
@@ -5903,7 +5903,7 @@ error_code sceNpUtilCanonicalizeNpIdForPs3()
 	return ret;
 }
 
-error_code sceNpUtilCanonicalizeNpIdForPsp()
+int sceNpUtilCanonicalizeNpIdForPsp()
 {
 		UNIMPLEMENTED_FUNC(sceNp);
 		ret = SCE_OK;
@@ -5911,7 +5911,7 @@ error_code sceNpUtilCanonicalizeNpIdForPsp()
 	return ret;
 }
 
-error_code sceNpUtilCmpNpId(SceNpId* id1, SceNpId* id2)
+int sceNpUtilCmpNpId(SceNpId* id1, SceNpId* id2)
 {
 	LOG_SCE_TRACE("sceNpUtilCmpNpId(id1=*0x%x, id2=*0x%x)", id1, id2);
 
@@ -5953,7 +5953,7 @@ error_code sceNpUtilCmpNpId(SceNpId* id1, SceNpId* id2)
 	return ret;
 }
 
-error_code sceNpUtilCmpNpIdInOrder(const SceNpId* id1, const SceNpId* id2, int32_t* order)
+int sceNpUtilCmpNpIdInOrder(const SceNpId* id1, const SceNpId* id2, int32_t* order)
 {
 	LOG_SCE_TRACE("sceNpUtilCmpNpIdInOrder(id1=*0x%x, id2=*0x%x, order=*0x%x)", id1, id2, order);
 
@@ -6016,7 +6016,7 @@ error_code sceNpUtilCmpNpIdInOrder(const SceNpId* id1, const SceNpId* id2, int32
 	return ret;
 }
 
-error_code sceNpUtilCmpOnlineId(const SceNpId* id1, const SceNpId* id2)
+int sceNpUtilCmpOnlineId(const SceNpId* id1, const SceNpId* id2)
 {
 	LOG_SCE_TRACE("sceNpUtilCmpOnlineId(id1=*0x%x, id2=*0x%x)", id1, id2);
 
@@ -6047,7 +6047,7 @@ error_code sceNpUtilCmpOnlineId(const SceNpId* id1, const SceNpId* id2)
 	return ret;
 }
 
-error_code sceNpUtilGetPlatformType(const SceNpId* npId)
+int sceNpUtilGetPlatformType(const SceNpId* npId)
 {
 	LOG_SCE_TRACE("sceNpUtilGetPlatformType(npId=*0x%x)", npId);
 
@@ -6083,7 +6083,7 @@ error_code sceNpUtilGetPlatformType(const SceNpId* npId)
 			break;
 }
 
-error_code sceNpUtilSetPlatformType(SceNpId* npId, SceNpPlatformType platformType)
+int sceNpUtilSetPlatformType(SceNpId* npId, SceNpPlatformType platformType)
 {
 	LOG_SCE_TRACE("sceNpUtilSetPlatformType(npId=*0x%x, platformType=%d)", npId, platformType);
 

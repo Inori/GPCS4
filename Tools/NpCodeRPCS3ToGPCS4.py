@@ -56,6 +56,7 @@ def ConvertFunction(old_lines):
     pat_np_todo = re.compile('sceNp.*\.(todo|warning)')
     new_lines = []
 
+    new_func_sign = new_func_sign.replace('error_code', 'int')
     new_lines.append(new_func_sign + '\n')
 
     in_body = False
