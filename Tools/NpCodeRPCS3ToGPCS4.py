@@ -76,6 +76,7 @@ def ConvertFunction(old_lines):
             s = pat_np_todo.search(line)
             if s:
                 new_line = pat_np_todo.sub('LOG_SCE_TRACE', line)
+                new_line = re.sub('".*?\(', '"(', new_line)
                 new_lines.append(new_line)
                 if ');' in line:
                     new_lines.append('\n\tint ret = SCE_ERROR_UNKNOWN;\n')
