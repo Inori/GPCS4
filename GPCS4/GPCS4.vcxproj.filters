@@ -856,6 +856,9 @@
     <ClInclude Include="Loader\elf-sce.h">
       <Filter>Source Files\Loader</Filter>
     </ClInclude>
+    <ClInclude Include="Platform\UtilDebug.h">
+      <Filter>Source Files\Platform</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1508,6 +1511,9 @@
     </ClCompile>
     <ClCompile Include="Graphic\Pssl\GCNInstructionIterator.cpp">
       <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClCompile>
+    <ClCompile Include="Platform\UtilDebug.cpp">
+      <Filter>Source Files\Platform</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

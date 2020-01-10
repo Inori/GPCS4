@@ -1,5 +1,5 @@
 #include "FuncStub.h"
-#include <cassert>
+#include "Platform/UtilDebug.h"
 
 static void logFunc(const char *log) 
 {
@@ -9,11 +9,7 @@ static void logFunc(const char *log)
 // Trap the debugger when an unresolved function is called.
 static int PS4API trapDebugger()
 {
-#ifdef GPCS4_WINDOWS
-	__debugbreak();
-#else
-	raise(SIGTRAP);
-#endif
+	UtilDebug::debugBreakPoint();
 	return -1;
 }
 
