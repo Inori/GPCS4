@@ -29,9 +29,9 @@ bool ModuleLoader::loadModule(std::string const &fileName,
 		}
 
 // Output NIDs of functions that are not implemented in HLE.
-#ifdef OUTPUT_NOT_IMPLEMENTED_HLE
+#ifdef MODSYS_OUTPUT_NOT_IMPLEMENTED_HLE
 		mod.outputUnresolvedSymbols("unresolved_HLE.txt");
-#endif // OUTPUT_NOT_IMPLEMENTED_HLE
+#endif // MODSYS_OUTPUT_NOT_IMPLEMENTED_HLE
 
 		retVal = m_modSystem.registerMemoryMappedModule(mod.fileName, std::move(mod));
 		if (!retVal)

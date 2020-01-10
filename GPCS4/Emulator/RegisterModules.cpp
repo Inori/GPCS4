@@ -2,6 +2,7 @@
 #include "SceModuleSystem.h"
 #include "sce_modules.h"
 
+using Policy = CSceModuleSystem::LibraryRecord::OverridingPolicy;
 
 #define REGISTER_MODULE(name) \
 if (!pModuleSystem->RegisterModule(name))\
@@ -38,6 +39,68 @@ if (!pModuleSystem->setFunctionOverridability(mod, lib, nid, false)) \
 	break;\
 }
 			
+
+bool CEmulator::registerLibC(CSceModuleSystem* pModuleSystem)
+{
+	bool ret = false;
+	do
+	{
+		if (!pModuleSystem)
+		{
+			break;
+		}
+
+
+		ALLOW_LIBRARY_OVERRIDE("libc", "libc", Policy::DisallowList);
+		// fopen
+		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 14260101637949278365ULL);
+		// fseek
+		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 12466338725556587288ULL);
+		// ftell
+		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 4732424424179322620ULL);
+		// fread
+		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 10786259999654564973ULL);
+		// fclose
+		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 13440794502107408237ULL);
+		// malloc
+		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 9297117245426667155ULL);
+		// free
+		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 13008767002086125649ULL);
+		// catchReturnFromMain
+		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 0x5CA45E82C1691299ULL);
+		// exit
+		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 0xB8C7A2D56F6EC8DAULL);
+		// time
+		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 0xC0B9459301BD51C4ULL);
+
+
+		ret  = true;
+	}while(false);
+	return ret;
+}
+
+bool CEmulator::registerLibKernel(CSceModuleSystem* pModuleSystem)
+{
+	bool ret = false;
+	do
+	{
+		if (!pModuleSystem)
+		{
+			break;
+		}
+
+
+		ALLOW_LIBRARY_OVERRIDE("libkernel", "libkernel", Policy::AllowList);
+		// __error
+		ALLOW_FUNCTION_OVERRIDE("libkernel", "libkernel", 0xF41703CA43E6A352);
+		// sceKernelGetCompiledSdkVersion
+		ALLOW_FUNCTION_OVERRIDE("libkernel", "libkernel", 0x581EBA7AFBBC6EC5);
+
+		ret  = true;
+	}while(false);
+	return ret;
+}
+
 
 bool CEmulator::registerModules()
 {
@@ -96,35 +159,20 @@ bool CEmulator::registerModules()
 		REGISTER_MODULE(g_ExpModuleSceVideoOut);
 		REGISTER_MODULE(g_ExpModuleSceVideoRecording);
 
-		using Policy = CSceModuleSystem::LibraryRecord::OverridingPolicy;
-
+		//////////////////////////////////////////////////////////////////////////
 		ALLOW_MODULE_OVERRIDE("libSceLibcInternal");
 
-		ALLOW_LIBRARY_OVERRIDE("libkernel", "libkernel", Policy::AllowList);
-		// __error
-		ALLOW_FUNCTION_OVERRIDE("libkernel", "libkernel", 0xF41703CA43E6A352);
+		//////////////////////////////////////////////////////////////////////////
+		if (!registerLibKernel(pModuleSystem))
+		{
+			break;
+		}
 
-		ALLOW_LIBRARY_OVERRIDE("libc", "libc", Policy::DisallowList);
-		// fopen
-		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 14260101637949278365ULL);
-		// fseek
-		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 12466338725556587288ULL);
-		// ftell
-		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 4732424424179322620ULL);
-		// fread
-		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 10786259999654564973ULL);
-		// fclose
-		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 13440794502107408237ULL);
-		// malloc
-		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 9297117245426667155ULL);
-		// free
-		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 13008767002086125649ULL);
-		// catchReturnFromMain
-		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 0x5CA45E82C1691299ULL);
-		// exit
-		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 0xB8C7A2D56F6EC8DAULL);
-		// time
-		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 0xC0B9459301BD51C4ULL);
+		if (!registerLibC(pModuleSystem))
+		{
+			break;
+		}
+
 		bRet = true;
 	} while (false);
 	return bRet;

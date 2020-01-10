@@ -29,6 +29,9 @@ public:
 private:
 	bool registerModules();
 
+	bool registerLibC(CSceModuleSystem* pModuleSystem);
+	bool registerLibKernel(CSceModuleSystem* pModuleSystem);
+
 	static void PS4API LastExitHandler(void);
 private:
 	//CEbootObject m_oEboot;
