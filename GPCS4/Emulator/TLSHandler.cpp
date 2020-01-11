@@ -81,13 +81,16 @@ bool CTLSHandler::IsTlsAccess(void* pCode)
 		// TODO:
 		// I found that all TLS access instructions is the same:
 		// mov rax, fs:[0]
-		// so currently we only support rax as destination,
-		// this should be easy to extend to other registers
+		// so currently we only support 
+		// mov rax, fs:[0x0000000000000000]
+		// this should be easy to extend to other cases
 		if (instruction.operands[0].reg.value != ZYDIS_REGISTER_RAX || 
 			instruction.operands[1].mem.segment != ZYDIS_REGISTER_FS)
 		{
 			break;
 		}
+
+		LOG_ASSERT(instruction.raw.disp.value == 0, "only support mov rax, fs:[0x0000000000000000] currently.");
 
 #ifdef GPCS4_DEBUG
 		PrintInst(instruction);
