@@ -337,7 +337,8 @@ int MemoryMappedModule::initialize()
 
 bool MemoryMappedModule::getTLSInfo(void **pTls,
 									uint *initSize,
-									uint *totalSize) const
+									uint *totalSize,
+									uint *align) const
 {
 	bool retVal = false;
 	do
@@ -351,6 +352,7 @@ bool MemoryMappedModule::getTLSInfo(void **pTls,
 		*pTls      = m_moduleInfo.pTlsAddr;
 		*initSize  = m_moduleInfo.nTlsInitSize;
 		*totalSize = m_moduleInfo.nTlsSize;
+		*align     = m_moduleInfo.nTlsAlign;
 
 		retVal = true;
 	} while (false);

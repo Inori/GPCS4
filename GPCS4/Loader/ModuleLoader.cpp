@@ -10,11 +10,9 @@ const std::set<std::string> ModuleLoader::m_moduleInitBlackList =
 };
 
 ModuleLoader::ModuleLoader(CSceModuleSystem &modSystem,
-						   CLinker &linker,
-						   CTLSHandler &tlsHandler)
+						   CLinker &linker)
 	: 
 	m_modSystem{ modSystem }, 
-	m_tlsHandler{ tlsHandler },
 	m_linker{ linker }
 {
 }
@@ -329,28 +327,33 @@ bool ModuleLoader::initializeModules()
 	auto &mods  = m_modSystem.getMemoryMappedModules();
 	bool retVal = true;
 
+	auto tlsManager = TLSManager::GetInstance();
+	uint32_t tlsIndex = TLS_MODULE_ID_MAIN;
 	// intialize TLS
 	for (auto const &mod : mods)
 	{
-		//auto const &mod = mods[0];
-
 		void *pTls     = nullptr;
 		uint initSize  = 0;
 		uint totalSize = 0;
-
-		retVal = mod.getTLSInfo(&pTls, &initSize, &totalSize);
+		uint align     = 0;
+		retVal         = mod.getTLSInfo(&pTls, &initSize, &totalSize, &align);
 		if (!retVal || pTls == nullptr)
 		{
 			LOG_DEBUG("no TLS info for module:%s", mod.fileName.c_str());
 			continue;
 		}
 
-		retVal = m_tlsHandler.initialize(pTls, initSize, totalSize);
-		if (!retVal)
-		{
-			LOG_ERR("fail to initialize TLS for module:%s", mod.fileName.c_str());
-			continue;
-		}
+		TLSBlock block;
+		block.address   = pTls;
+		block.initSize  = initSize;
+		block.totalSize = totalSize;
+		block.align     = align;
+		block.index     = tlsIndex;
+		block.isDynamic = false;
+		block.offset    = 0;
+		tlsManager->registerTLSBlock(block);
+		
+		++tlsIndex;
 	}
 
 	// skip eboot.bin

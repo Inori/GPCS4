@@ -6,6 +6,7 @@
 #include <memory>
 #include <cmath>
 
+
 int main(int argc, char *argv[])
 {
 	initLogging();
@@ -29,10 +30,13 @@ int main(int argc, char *argv[])
 			break;
 		}
 
-		CTLSHandlerWin tlsHandler = {};
+		if (!installTLSManager())
+		{
+			break;
+		}
 
 		CLinker linker      = {*CSceModuleSystem::GetInstance()};
-		ModuleLoader loader = {*CSceModuleSystem::GetInstance(), linker, tlsHandler};
+		ModuleLoader loader = { *CSceModuleSystem::GetInstance(), linker };
 
 		MemoryMappedModule *ebootModule = nullptr;
 		if (!loader.loadModule(szEboot, &ebootModule))
@@ -45,6 +49,7 @@ int main(int argc, char *argv[])
 			break;
 		}
 
+		uninstallTLSManager();
 		pEmulator->Unit();
 		
 		nRet = 0;

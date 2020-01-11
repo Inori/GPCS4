@@ -32,12 +32,12 @@ void* newThreadWrapper(void* arg)
 		ScePthread tid = scePthreadSelf();
 		LOG_DEBUG("new sce thread created %d", tid);
 
-		CTLSHandler::NotifyThreadCreate(tid);
-
 		PFUNC_PS4_THREAD_ENTRY pSceEntry = (PFUNC_PS4_THREAD_ENTRY)param->entry;
 		ret = pSceEntry(param->arg);
 
-		CTLSHandler::NotifyThreadExit(tid);
+		// release tls data
+		TLSManager* tlsMgr = TLSManager::GetInstance();
+		tlsMgr->notifyThreadExit();
 
 		// do clear
 		pthread_t emptyPt = { 0 };

@@ -1,9 +1,10 @@
 #include "sce_libkernel.h"
 #include "sce_kernel_tls.h"
-
+#include "Emulator/TLSHandler.h"
 
 void* PS4API __tls_get_addr(tls_index *ti)
 {
 	LOG_SCE_DUMMY_IMPL();
-	return calloc(1, 0x1000);
+	auto tlsManager = TLSManager::GetInstance();
+	return tlsManager->tlsGetAddr(ti->ti_module, ti->ti_offset);
 }

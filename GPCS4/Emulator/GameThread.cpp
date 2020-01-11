@@ -92,17 +92,10 @@ void* CGameThread::ThreadFunc(void* pArg)
 			break;
 		}
 
-#ifdef GPCS4_WINDOWS
-		CTLSHandlerWin::NotifyThreadCreate(UtilThread::GetThreadId());
-#else
-#endif
-
 		void* pRet = RunGameThread(pThis);
 
-#ifdef GPCS4_WINDOWS
-		CTLSHandlerWin::NotifyThreadExit(UtilThread::GetThreadId());
-#else
-#endif	
+		TLSManager* tlsMgr = TLSManager::GetInstance();
+		tlsMgr->notifyThreadExit();
 
 		pthread_exit(pRet);
 

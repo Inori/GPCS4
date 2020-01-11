@@ -15,7 +15,7 @@
 class ModuleLoader
 {
 public:
-	ModuleLoader(CSceModuleSystem &modSystem, CLinker &linker, CTLSHandler &tlsHandler);
+	ModuleLoader(CSceModuleSystem &modSystem, CLinker &linker);
 	bool loadModule(std::string const &fileName, MemoryMappedModule **mod);
 private:
 	bool loadModuleFromFile(std::string const &fileName,
@@ -36,7 +36,6 @@ private:
 private:
 	std::queue<std::string> m_filesToLoad;
 	CSceModuleSystem &m_modSystem;
-	CTLSHandler &m_tlsHandler;
 	CLinker &m_linker;
 	ELFMapper m_mapper;
 

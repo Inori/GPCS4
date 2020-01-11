@@ -395,7 +395,6 @@
     <ClCompile Include="SceModules\SceLibc\sce_libc_stdio.cpp" />
     <ClCompile Include="SceModules\SceLibc\sce_libc_stdlib.cpp" />
     <ClCompile Include="SceModules\SceLibc\sce_libc_string.cpp" />
-    <MASM Include="Emulator\TLSStub.asm" />
     <ClCompile Include="SceModules\SceLibkernel\SceEventFlag.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\SceSemaphore.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\sce_kernel_eventflag.cpp" />
@@ -467,6 +466,13 @@
     <ClCompile Include="SceModules\SceVideoOut\sce_videoout_export.cpp" />
     <ClCompile Include="SceModules\SceVideoRecording\sce_videorecording.cpp" />
     <ClCompile Include="SceModules\SceVideoRecording\sce_videorecording_export.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Emulator\TLSStub.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Text>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

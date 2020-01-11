@@ -1523,8 +1523,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="Emulator\TLSStub.asm">
+    <Text Include="Emulator\TLSStub.asm">
       <Filter>Source Files\Emulator</Filter>
-    </MASM>
+    </Text>
   </ItemGroup>
 </Project>

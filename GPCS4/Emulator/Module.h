@@ -30,6 +30,7 @@ struct MODULE_INFO
 	byte *pTlsAddr;
 	uint nTlsInitSize; // initialized tls data size
 	uint nTlsSize;     // whole tls data size, including nTlsInitSize
+	uint nTlsAlign;
 
 	// the following segments do not have vaddr or memsz in phdr (at least in
 	// GOW4), so we don't have to load them into virtual memory, just record
@@ -166,7 +167,7 @@ public:
 				   SymbolInfo const **symbolInfo) const;
 	bool getSymbol(size_t index, SymbolInfo const **symbolInfo) const;
 
-	bool getTLSInfo(void **pTls, uint *initSIze, uint *totalSize) const;
+	bool getTLSInfo(void** pTls, uint* initSIze, uint* totalSize, uint* align) const;
 	void *getEntryPoint() const;
 
 	bool getImportSymbols(SymbolList *symbols) const;

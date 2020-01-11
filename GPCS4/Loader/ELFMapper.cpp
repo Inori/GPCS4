@@ -164,6 +164,7 @@ bool ELFMapper::parseSegmentHeaders()
 				info.pTlsAddr     = reinterpret_cast<byte *>(hdr.p_vaddr);
 				info.nTlsInitSize = hdr.p_filesz;
 				info.nTlsSize     = util::alignRound(hdr.p_memsz, hdr.p_align);
+				info.nTlsAlign    = hdr.p_align;
 			}
 			break;
 
