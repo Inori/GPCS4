@@ -1,6 +1,13 @@
 #include "ModuleLoader.h"
+
 #include "Platform/PlatformUtils.h"
 
+#define ADD_BLACK_MODULE(name) (name".sprx"),
+
+const std::set<std::string> ModuleLoader::m_moduleInitBlackList = 
+{
+	ADD_BLACK_MODULE("libSceNpScoreRanking")
+};
 
 ModuleLoader::ModuleLoader(CSceModuleSystem &modSystem,
 						   CLinker &linker,
@@ -316,6 +323,7 @@ bool ModuleLoader::registerSymbol(MemoryMappedModule const &mod, size_t idx)
 	return true;
 }
 
+
 bool ModuleLoader::initializeModules()
 {
 	auto &mods  = m_modSystem.getMemoryMappedModules();
@@ -348,12 +356,13 @@ bool ModuleLoader::initializeModules()
 	// skip eboot.bin
 	for (size_t i = 1; i < mods.size(); i++)
 	{
-		int ret = 0;
-		if (mods[i].fileName == "libc.sprx")
+		if (m_moduleInitBlackList.find(mods[i].fileName) != m_moduleInitBlackList.end())
 		{
-			ret = mods[i].initialize();
+			// skip black list modules
+			continue;
 		}
-		
+
+		int ret = mods[i].initialize();
 		if (ret != 0)
 		{
 			LOG_ERR("unable to initialize module %s. ret=%d",
@@ -365,3 +374,5 @@ bool ModuleLoader::initializeModules()
 
 	return retVal;
 }
+
+
