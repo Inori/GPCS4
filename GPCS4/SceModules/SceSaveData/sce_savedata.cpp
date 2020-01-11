@@ -108,4 +108,28 @@ int PS4API sceSaveDataSyncSaveDataMemory(void)
 	return SCE_OK;
 }
 
+int PS4API sceSaveDataGetSaveDataMemory(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+int PS4API sceSaveDataInitialize(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+int PS4API sceSaveDataSetSaveDataMemory(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+int PS4API sceSaveDataSetupSaveDataMemory(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
 

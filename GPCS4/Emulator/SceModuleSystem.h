@@ -78,7 +78,7 @@ public:
 
 	bool IsModuleLoaded(const std::string& modName);
 
-	bool isModuleLoadable(std::string const &modName);
+	bool isModuleLoadable(std::string const &modName) const;
 
 	bool isLibraryLoaded(std::string const &modName, std::string const &libName);
 

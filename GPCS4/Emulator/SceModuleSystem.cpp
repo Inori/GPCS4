@@ -11,7 +11,7 @@ bool CSceModuleSystem::IsEndLibraryEntry(const SCE_EXPORT_LIBRARY *pLib)
 	return (pLib->szLibraryName == NULL && pLib->pFunctionEntries == NULL);
 }
 
-bool CSceModuleSystem::isModuleLoadable(std::string const &modName)
+bool CSceModuleSystem::isModuleLoadable(std::string const &modName) const
 {
 	bool retVal = false;
 

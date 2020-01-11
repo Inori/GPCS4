@@ -348,8 +348,12 @@ bool ModuleLoader::initializeModules()
 	// skip eboot.bin
 	for (size_t i = 1; i < mods.size(); i++)
 	{
-		//int ret = mods[i].initialize();
 		int ret = 0;
+		if (mods[i].fileName == "libc.sprx")
+		{
+			ret = mods[i].initialize();
+		}
+		
 		if (ret != 0)
 		{
 			LOG_ERR("unable to initialize module %s. ret=%d",

@@ -67,4 +67,15 @@ int PS4API sceSaveDataSetupSaveDataMemory2(void);
 int PS4API sceSaveDataSyncSaveDataMemory(void);
 
 
+int PS4API sceSaveDataGetSaveDataMemory(void);
+
+
+int PS4API sceSaveDataInitialize(void);
+
+
+int PS4API sceSaveDataSetSaveDataMemory(void);
+
+
+int PS4API sceSaveDataSetupSaveDataMemory(void);
+
 

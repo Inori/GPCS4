@@ -64,6 +64,10 @@ bool CEmulator::registerLibC(CSceModuleSystem* pModuleSystem)
 		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 13440794502107408237ULL);
 		// malloc
 		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 9297117245426667155ULL);
+		// realloc
+		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 7185081811701939402ULL);
+		// calloc
+		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 15672063260587902151ULL);
 		// free
 		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 13008767002086125649ULL);
 		// catchReturnFromMain

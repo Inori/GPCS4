@@ -180,6 +180,8 @@ int PS4API scec_longjmp(void);
 
 void* PS4API scec_malloc(size_t size);
 
+void* PS4API scec_calloc(size_t nmemb, size_t size);
+
 int PS4API scec_mblen(void);
 
 int PS4API scec_mbsrtowcs(void);
@@ -218,7 +220,7 @@ void PS4API scec_qsort(void *base, size_t nmemb, size_t size, int(PS4API *compar
 
 int PS4API scec_rand(void);
 
-int PS4API scec_realloc(void);
+void* PS4API scec_realloc(void *ptr, size_t size);
 
 int PS4API scec_sceLibcMspaceCalloc(void);
 
