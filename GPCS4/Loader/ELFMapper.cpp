@@ -272,8 +272,8 @@ bool ELFMapper::mapImageIntoMemory()
 		m_moduleData->m_mappedMemory.reset(buffer);
 		m_moduleData->m_mappedSize = totalSize;
 
-		LOG_DEBUG("Module %s is loaded at 0x%x size=%ld",
-				  m_moduleData->fileName.c_str(), buffer, totalSize);
+		LOG_DEBUG("Module %s loaded. start %p end %p size=%ld",
+				  m_moduleData->fileName.c_str(), buffer, buffer + totalSize, totalSize);
 
 		info.pMappedAddr = buffer;
 		info.nMappedSize = totalSize;

@@ -7,7 +7,7 @@
 
 // Disable LOG_DEBUG macro in ElfMapper.cpp
 // This is used to prevent too many logs while loading ELF.
-#define MODSYS_DISABLE_MAPPER_LOG_DEBUG
+// #define MODSYS_DISABLE_MAPPER_LOG_DEBUG
 
 // Output NIDs of functions that are not implemented in HLE.
 #define MODSYS_OUTPUT_NOT_IMPLEMENTED_HLE

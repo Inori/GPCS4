@@ -323,14 +323,13 @@ int MemoryMappedModule::initialize()
 {
 	int retVal = 0;
 
-	// TODO: libkernel's startup function contains syscalls.
 	if (isModule())
 	{
-		LOG_DEBUG("(%s) .init_proc() start", fileName.c_str());
+		LOG_DEBUG("(%s) .init_proc() start.", fileName.c_str());
 		auto init = reinterpret_cast<init_proc>(m_moduleInfo.pInitProc);
 		retVal    = init(0, 0, nullptr);
 
-		LOG_DEBUG("(%s) .init_proc() result = 0x%x", fileName.c_str(), retVal);
+		LOG_DEBUG("(%s) .init_proc() end. result = 0x%x", fileName.c_str(), retVal);
 	}
 
 	return retVal;

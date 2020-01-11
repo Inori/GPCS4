@@ -17,6 +17,7 @@
 #include "sce_kernel_memory.h"
 #include "sce_kernel_eventqueue.h"
 #include "sce_kernel_eventflag.h"
+#include "sce_kernel_tls.h"
 
 
 extern const SCE_EXPORT_MODULE g_ExpModuleSceLibkernel;
@@ -41,7 +42,7 @@ int PS4API __stack_chk_fail(void);
 int PS4API __stack_chk_guard(void);
 
 
-int PS4API __tls_get_addr(void);
+void* PS4API __tls_get_addr(tls_index *ti);
 
 
 int PS4API __pthread_cxa_finalize(void);

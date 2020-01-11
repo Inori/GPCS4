@@ -191,6 +191,7 @@
     <ClInclude Include="SceModules\SceLibkernel\sce_kernel_file.h" />
     <ClInclude Include="SceModules\SceLibkernel\sce_kernel_memory.h" />
     <ClInclude Include="SceModules\SceLibkernel\sce_kernel_scepthread.h" />
+    <ClInclude Include="SceModules\SceLibkernel\sce_kernel_tls.h" />
     <ClInclude Include="SceModules\SceLibkernel\sce_kernel_types.h" />
     <ClInclude Include="SceModules\SceLibkernel\sce_libkernel.h" />
     <ClInclude Include="SceModules\SceLibkernel\sce_pthread_common.h" />
@@ -405,6 +406,7 @@
     <ClCompile Include="SceModules\SceLibkernel\sce_kernel_scepthread.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\sce_kernel_semaphore.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\sce_kernel_time.cpp" />
+    <ClCompile Include="SceModules\SceLibkernel\sce_kernel_tls.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\sce_libkernel.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\sce_libkernel_export.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\sce_pthread_common.cpp" />

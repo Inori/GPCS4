@@ -33,13 +33,6 @@ int PS4API __stack_chk_guard(void)
 }
 
 
-int PS4API __tls_get_addr(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
 int PS4API __pthread_cxa_finalize(void)
 {
 	LOG_FIXME("Not implemented");
@@ -185,11 +178,7 @@ int PS4API _sceKernelSetThreadDtors()
 void PS4NORETURN PS4API sceKernelDebugRaiseException(uint32_t error_code, uint32_t param)
 {
 	LOG_SCE_DUMMY_IMPL();
-#ifdef GPCS4_WINDOWS
-	__debugbreak();
-#else
-	raise(SIGTRAP);
-#endif
+	UtilDebug::debugBreakPoint();
 	exit(-1);
 }
 
