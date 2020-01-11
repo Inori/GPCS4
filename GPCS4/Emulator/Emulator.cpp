@@ -25,7 +25,6 @@ bool CEmulator::Init()
 
 void CEmulator::Unit()
 {
-	//CTLSHandlerWin::Uninstall();
 	auto modManager = CSceModuleSystem::GetInstance();
 	modManager->clearModules();
 }
