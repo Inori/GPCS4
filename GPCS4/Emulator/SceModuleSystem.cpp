@@ -374,6 +374,17 @@ void *CSceModuleSystem::findFunction(const std::string &strModName,
 		NidFuncMap::iterator iter_func = nidMap.find(nNid);
 		if (iter_func == nidMap.end())
 		{
+			// TODO: This is for experimental only. When a NID is not found,
+			// we attempt to traversal all libs in the module to find that nid.
+			for (auto libIt : iter_mod->second)
+			{
+				auto nidIter = libIt.second.find(nNid);
+				if (nidIter != libIt.second.end())
+				{
+					pFunction = nidIter->second;
+					break;
+				}
+			}
 			break;
 		}
 
