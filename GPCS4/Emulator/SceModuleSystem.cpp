@@ -1,6 +1,8 @@
 #include "SceModuleSystem.h"
 #include "Platform/PlatformUtils.h"
+#include "Util/UtilContainer.h"
 #include "sce_modules.h"
+
 
 CSceModuleSystem::CSceModuleSystem() {}
 
@@ -33,9 +35,31 @@ bool CSceModuleSystem::isNativeModuleLoadable(std::string const &modName) const
 
 bool CSceModuleSystem::isModuleOverridable(std::string const &modName) const
 {
-	return m_overridableModules.count(modName) > 0
-			   ? m_overridableModules.at(modName).overridable
-			   : false;
+	bool ret = false;
+
+	do
+	{
+		if (util::contains(m_overridableModules, modName) == true)
+		{
+			ret = m_overridableModules.at(modName).overridable;
+			break;
+		}
+		else
+		{
+			if (isBuitinModuleDefined(modName) == false)
+			{
+				ret = true;
+			}
+			else
+			{
+				ret = false;
+			}
+			break;
+		}
+
+	} while (false);
+
+	return ret;
 }
 
 bool CSceModuleSystem::isLibraryOverridable(std::string const &modName,
@@ -51,19 +75,19 @@ bool CSceModuleSystem::isLibraryOverridable(std::string const &modName,
 			break;
 		}
 
-		auto &mr = m_overridableModules.at(modName);
-		if (mr.libraries.empty())
+		if (isLibraryOverridabilityDefined(modName, libName) == false)
 		{
-			// if the override library table is empty, all libraries in the module is
-			// overridable
+			// If no library overridability defined for a overridable module,
+			// All libraries in the module are overridable.
 			retVal = true;
 			break;
 		}
 
-		retVal = mr.libraries.count(libName) > 0
+		auto &mr = m_overridableModules.at(modName);
+
+		retVal = util::contains(mr.libraries, libName) 
 					 ? mr.libraries.at(libName).overrideable
 					 : false;
-
 	} while (false);
 
 	return retVal;
@@ -83,7 +107,7 @@ bool CSceModuleSystem::isFunctionOverridable(std::string const &modName,
 			break;
 		}
 
-		if (m_overridableModules.at(modName).libraries.count(libName) == 0)
+		if (isLibraryOverridabilityDefined(modName, libName) == false)
 		{
 			retVal = true;
 			break;
@@ -98,11 +122,11 @@ bool CSceModuleSystem::isFunctionOverridable(std::string const &modName,
 
 		if (lr.mode == LibraryRecord::OverridingPolicy::AllowList)
 		{
-			retVal = lr.functions.count(nid) > 0 ? true : false;
+			retVal = util::contains(lr.functions, nid) ? true : false;
 		}
 		else
 		{
-			retVal = lr.functions.count(nid) > 0 ? false : true;
+			retVal = util::contains(lr.functions, nid) ? false : true;
 		}
 
 	} while (false);
@@ -110,7 +134,39 @@ bool CSceModuleSystem::isFunctionOverridable(std::string const &modName,
 	return retVal;
 }
 
-bool CSceModuleSystem::IsEndFunctionEntry(const SCE_EXPORT_FUNCTION *pFunc)
+bool CSceModuleSystem::isBuitinModuleDefined(std::string const& name) const
+{
+	return util::contains(m_builtinModules, name);
+}
+
+bool CSceModuleSystem::isLibraryOverridabilityDefined(std::string const& modName,
+													  std::string const& libName) const
+{
+	bool ret = false;
+	do 
+	{
+		auto modIt = m_overridableModules.find(modName);
+		if (modIt == m_overridableModules.end())
+		{
+			ret = false;
+			break;
+		}
+
+		auto libIt = modIt->second.libraries.find(libName);
+		if (libIt == modIt->second.libraries.end())
+		{
+			ret = false;
+			break;
+		}
+		
+		ret = true;
+
+	} while (false);
+
+	return ret;
+}
+
+bool CSceModuleSystem::IsEndFunctionEntry(const SCE_EXPORT_FUNCTION* pFunc)
 {
 	return (pFunc->nNid == 0 && pFunc->szFunctionName == NULL &&
 			pFunc->pFunction == NULL);
@@ -130,6 +186,9 @@ bool CSceModuleSystem::registerBuiltinModule(const SCE_EXPORT_MODULE &stModule)
 		const SCE_EXPORT_LIBRARY *pLib = stModule.pLibraries;
 		SceLibMapNid libMapNid;
 		SceLibMapName libMapName;
+
+		m_builtinModules.emplace_back(szModName);
+
 		while (!IsEndLibraryEntry(pLib))
 		{
 			const char *szLibName            = pLib->szLibraryName;
@@ -524,16 +583,6 @@ bool CSceModuleSystem::setFunctionOverridability(const std::string &modName,
 	return retVal;
 }
 
-bool CSceModuleSystem::addAllowedFile(std::string const &fileName)
-{
-	if (m_allowedFiles.count(fileName) == 0)
-	{
-		m_allowedFiles.insert(std::make_pair(fileName, true));
-	}
-
-	return true;
-}
-
 bool CSceModuleSystem::isFileAllowedToLoad(std::string const &fileName)
 {
 	bool retVal = false;
@@ -543,25 +592,30 @@ bool CSceModuleSystem::isFileAllowedToLoad(std::string const &fileName)
 
 	auto ret = UtilPath::splitFileName(fileName, &name, &extension);
 
-	if (m_allowedFiles.count(fileName) != 0)
+	do
 	{
-		retVal = true;
-	}
-	else if (ret && (extension == "prx" || extension == "sprx"))
-	{
-		if (isNativeModuleLoadable(name))
+		if (ret == false)
 		{
-			retVal = true;
+			retVal = false;
+			break;
+		}
+
+		if (extension == "prx" || extension == "sprx")
+		{
+			if (isNativeModuleLoadable(name))
+			{
+				retVal = true;
+			}
+			else
+			{
+				retVal = false;
+			}
 		}
 		else
 		{
 			retVal = false;
 		}
-	}
-	else
-	{
-		retVal = false;
-	}
+	} while (false);
 
 	return retVal;
 }
@@ -586,7 +640,6 @@ void CSceModuleSystem::clearModules()
 	m_moduleNidMap.clear();
 	m_moduleSymbNameMap.clear();
 	m_overridableModules.clear();
-	m_allowedFiles.clear();
 	m_mappedModules.clear();
 	m_mappedModuleNameIndexMap.clear();
 }

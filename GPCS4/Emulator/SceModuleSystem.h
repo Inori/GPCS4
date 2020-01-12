@@ -94,9 +94,7 @@ public:
 								 const std::string &libName,
 								 uint64_t nid, bool isOverridable);
 
-	bool addAllowedFile(std::string const &fileName);
 	bool isFileAllowedToLoad(std::string const &fileName);
-
 	bool isModuleOverridable(std::string const &modName) const;
 	bool isLibraryOverridable(std::string const &modName, std::string const &libName) const;
 	bool isFunctionOverridable(std::string const &modName, std::string const &libName, uint64_t nid) const;
@@ -104,6 +102,9 @@ public:
 	const MODULE_INFO* getEbootModuleInfo() const;
 
 private:
+	bool isBuitinModuleDefined(std::string const& name) const;
+	bool isLibraryOverridabilityDefined(std::string const &modName, std::string const &libName) const; 
+
 	bool IsEndFunctionEntry(const SCE_EXPORT_FUNCTION* pFunc);
 	bool IsEndLibraryEntry(const SCE_EXPORT_LIBRARY* pLib);
 
@@ -116,7 +117,8 @@ private:
 	SceModuleMapNid m_moduleNidMap;
 	SceModuleMapName m_moduleSymbNameMap;
 	SceOverridableMapNid m_overridableModules;
-	SceAllowedFileMap m_allowedFiles;
+
+	std::vector<std::string> m_builtinModules;
 	SceMappedModuleList m_mappedModules;
 	SceModuleNameIndexMap m_mappedModuleNameIndexMap;
 };
