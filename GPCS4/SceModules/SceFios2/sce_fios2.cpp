@@ -81,7 +81,7 @@ int PS4API sceFiosFHWriteSync(void)
 }
 
 
-int PS4API sceFiosFileExistsSync(void)
+bool PS4API sceFiosFileExistsSync(const SceFiosOpAttr *pAttr, const char *pPath)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;

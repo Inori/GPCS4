@@ -175,6 +175,7 @@
     <ClInclude Include="SceModules\SceErrorDialog\sce_errordialog.h" />
     <ClInclude Include="SceModules\SceFiber\sce_fiber.h" />
     <ClInclude Include="SceModules\SceFios2\sce_fios2.h" />
+    <ClInclude Include="SceModules\SceFios2\sce_fios2_types.h" />
     <ClInclude Include="SceModules\SceGameLiveStreaming\sce_gamelivestreaming.h" />
     <ClInclude Include="SceModules\SceGnmDriver\sce_gnmdriver.h" />
     <ClInclude Include="SceModules\SceHttp\sce_http.h" />

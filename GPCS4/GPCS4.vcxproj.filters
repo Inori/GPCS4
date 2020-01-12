@@ -868,6 +868,9 @@
     <ClInclude Include="SceModules\SceUserService\user_service_defs.h">
       <Filter>SceModules\SceUserService</Filter>
     </ClInclude>
+    <ClInclude Include="SceModules\SceFios2\sce_fios2_types.h">
+      <Filter>SceModules\SceFios2</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
