@@ -147,11 +147,11 @@ int PS4API scek_pthread_mutexattr_settype(void)
 	return SCE_OK;
 }
 
-
-int PS4API scek_pthread_self(void)
+// For PS4 system, ScePthread and pthread_t are same.
+ScePthread PS4API scek_pthread_self(void)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("");
+	return scePthreadSelf();
 }
 
 
