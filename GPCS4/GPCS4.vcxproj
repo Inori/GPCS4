@@ -238,6 +238,7 @@
     <ClInclude Include="SceModules\sce_module_common.h" />
     <ClInclude Include="SceModules\sce_types.h" />
     <ClInclude Include="Util\UtilBit.h" />
+    <ClInclude Include="Util\UtilContainer.h" />
     <ClInclude Include="Util\UtilFlag.h" />
     <ClInclude Include="Util\UtilInclude.h" />
     <ClInclude Include="Util\UtilLikely.h" />

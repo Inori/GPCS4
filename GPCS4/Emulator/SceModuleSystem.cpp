@@ -31,74 +31,6 @@ bool CSceModuleSystem::isModuleLoadable(std::string const &modName) const
 	return retVal;
 }
 
-bool CSceModuleSystem::isLibraryLoadable(std::string const &modName,
-										 std::string const &libName)
-{
-	bool retVal = false;
-
-	do
-	{
-		if (IsModuleLoaded(modName) == false)
-		{
-			retVal = true;
-			break;
-		}
-
-		if (isModuleLoadable(modName) == false)
-		{
-			retVal = false;
-			break;
-		}
-
-		if (m_umpModuleMapNid.at(modName).count(libName) == 0)
-		{
-			retVal = true;
-			break;
-		}
-
-		if (isLibraryOverridable(modName, libName))
-		{
-			retVal = true;
-		}
-		else
-		{
-			retVal = false;
-		}
-
-	} while (false);
-
-	return retVal;
-}
-
-bool CSceModuleSystem::isFunctionLoadable(std::string const &modName,
-										  std::string const &libName,
-										  uint64_t nid)
-{
-	bool retVal = false;
-
-	do
-	{
-		// TODO:
-		//if (FindFunction(modName, libName, nid) == nullptr)
-		//{
-		//	retVal = true;
-		//	break;
-		//}
-
-		if (isFunctionOverridable(modName, libName, nid))
-		{
-			retVal = true;
-		}
-		else
-		{
-			retVal = false;
-		}
-
-	} while (false);
-
-	return retVal;
-}
-
 bool CSceModuleSystem::isModuleOverridable(std::string const &modName) const
 {
 	return m_overridableModules.count(modName) > 0
@@ -194,14 +126,6 @@ bool CSceModuleSystem::RegisterModule(const SCE_EXPORT_MODULE &stModule)
 			break;
 		}
 
-		if (!isModuleLoadable(stModule.szModuleName))
-		{
-			LOG_DEBUG("Module %s has already been loaded and is not overrideable",
-					  stModule.szModuleName);
-			bRet = true;
-			break;
-		}
-
 		const char *szModName          = stModule.szModuleName;
 		const SCE_EXPORT_LIBRARY *pLib = stModule.pLibraries;
 		SceLibMapNid libMapNid;
@@ -210,13 +134,6 @@ bool CSceModuleSystem::RegisterModule(const SCE_EXPORT_MODULE &stModule)
 		{
 			const char *szLibName            = pLib->szLibraryName;
 			const SCE_EXPORT_FUNCTION *pFunc = pLib->pFunctionEntries;
-			if (!isLibraryLoadable(szModName, szLibName))
-			{
-				LOG_DEBUG("Library %s of Module %s has already been loaded and is "
-						  "not overrideable",
-						  szLibName, szModName);
-				continue;
-			}
 
 			NidFuncMap nidMap;
 			NameFuncMap nameMap;
@@ -250,7 +167,7 @@ bool CSceModuleSystem::registerFunction(std::string const &modName,
 
 	do
 	{
-		if (isFunctionLoadable(modName, libName, nid) == false)
+		if (isFunctionOverridable(modName, libName, nid) == false)
 		{
 			retVal = false;
 			break;

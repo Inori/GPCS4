@@ -106,9 +106,6 @@ private:
 	bool IsEndFunctionEntry(const SCE_EXPORT_FUNCTION* pFunc);
 	bool IsEndLibraryEntry(const SCE_EXPORT_LIBRARY* pLib);
 
-	bool isLibraryLoadable(std::string const &modName, std::string const &libName);
-	bool isFunctionLoadable(std::string const &modName,std::string const &libName, uint64_t nid);
-
 	CSceModuleSystem();
 	~CSceModuleSystem();
 	CSceModuleSystem(const CSceModuleSystem&);
