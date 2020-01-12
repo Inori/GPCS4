@@ -68,6 +68,7 @@ int ScePad::read(ScePadData* data, int32_t num)
 
 int ScePad::readState(ScePadData* data)
 {
-
+	LOG_SCE_DUMMY_IMPL();
+	return 0;
 }
 

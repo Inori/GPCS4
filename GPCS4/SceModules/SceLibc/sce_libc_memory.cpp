@@ -3,15 +3,18 @@
 
 void* PS4API scec_malloc(size_t size)
 {
-	LOG_SCE_TRACE("size %d", size)
-	return malloc(size);
+	auto p = malloc(size);
+	LOG_SCE_TRACE("size %d, addr:%p", size, p);
+	return p;
 }
 
 
 void* PS4API scec_realloc(void *ptr, size_t size)
 {
-	LOG_SCE_TRACE("ptr %p size %d", ptr, size);
-	return realloc(ptr, size);
+	void *p = realloc(ptr, size);
+	LOG_SCE_TRACE("ptr %p size %d, newptr:%p", ptr, size, p);
+	return p;
+
 }
 
 void* PS4API scec_calloc(size_t nmemb, size_t size)

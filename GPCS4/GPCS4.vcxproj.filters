@@ -865,6 +865,9 @@
     <ClInclude Include="Util\UtilContainer.h">
       <Filter>Source Files\Util</Filter>
     </ClInclude>
+    <ClInclude Include="SceModules\SceUserService\user_service_defs.h">
+      <Filter>SceModules\SceUserService</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">

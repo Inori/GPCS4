@@ -49,4 +49,9 @@ int PS4API sceUserServiceGetEvent(SceUserServiceEvent* event)
 	return SCE_USER_SERVICE_ERROR_NO_EVENT;
 }
 
+int PS4API sceUserServiceGetLoginUserIdList(SceUserServiceLoginUserIdList* userIdList)
+{
+	LOG_SCE_DUMMY_IMPL();
+	return SCE_OK;
+}
 

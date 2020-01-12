@@ -1,5 +1,5 @@
 #pragma once
-
+#include "user_service_defs.h"
 
 typedef struct SceUserServiceInitializeParams {
 	int priority;
@@ -14,3 +14,8 @@ typedef struct SceUserServiceEvent {
 	SceUserServiceEventType eventType;
 	SceUserServiceUserId userId;
 } SceUserServiceEvent;
+
+typedef struct SceUserServiceLoginUserIdList
+{
+	SceUserServiceUserId userId[SCE_USER_SERVICE_MAX_LOGIN_USERS];
+} SceUserServiceLoginUserIdList;

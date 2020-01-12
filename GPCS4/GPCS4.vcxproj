@@ -228,6 +228,7 @@
     <ClInclude Include="SceModules\SceUserService\sce_userservice.h" />
     <ClInclude Include="SceModules\SceUserService\sce_userservice_error.h" />
     <ClInclude Include="SceModules\SceUserService\sce_userservice_types.h" />
+    <ClInclude Include="SceModules\SceUserService\user_service_defs.h" />
     <ClInclude Include="SceModules\SceVideoOut\sce_videoout.h" />
     <ClInclude Include="SceModules\SceVideoOut\sce_videoout_types.h" />
     <ClInclude Include="SceModules\SceVideoRecording\sce_videorecording.h" />
