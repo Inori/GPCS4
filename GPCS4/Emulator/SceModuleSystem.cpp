@@ -11,11 +11,11 @@ bool CSceModuleSystem::IsEndLibraryEntry(const SCE_EXPORT_LIBRARY *pLib)
 	return (pLib->szLibraryName == NULL && pLib->pFunctionEntries == NULL);
 }
 
-bool CSceModuleSystem::isModuleLoadable(std::string const &modName) const
+bool CSceModuleSystem::isNativeModuleLoadable(std::string const &modName) const
 {
 	bool retVal = false;
 
-	if (m_umpModuleMapName.count(modName) == 0)
+	if (m_moduleSymbNameMap.count(modName) == 0)
 	{
 		retVal = true;
 	}
@@ -116,7 +116,7 @@ bool CSceModuleSystem::IsEndFunctionEntry(const SCE_EXPORT_FUNCTION *pFunc)
 			pFunc->pFunction == NULL);
 }
 
-bool CSceModuleSystem::RegisterModule(const SCE_EXPORT_MODULE &stModule)
+bool CSceModuleSystem::registerBuiltinModule(const SCE_EXPORT_MODULE &stModule)
 {
 	bool bRet = false;
 	do
@@ -150,15 +150,15 @@ bool CSceModuleSystem::RegisterModule(const SCE_EXPORT_MODULE &stModule)
 			++pLib;
 		}
 
-		m_umpModuleMapNid.insert(std::make_pair((char *)szModName, libMapNid));
-		m_umpModuleMapName.insert(std::make_pair((char *)szModName, libMapName));
+		m_moduleNidMap.insert(std::make_pair((char *)szModName, libMapNid));
+		m_moduleSymbNameMap.insert(std::make_pair((char *)szModName, libMapName));
 
 		bRet = true;
 	} while (false);
 	return bRet;
 }
 
-bool CSceModuleSystem::registerFunction(std::string const &modName,
+bool CSceModuleSystem::registerNativeFunction(std::string const &modName,
 										std::string const &libName,
 										uint64_t nid,
 										void *p)
@@ -173,13 +173,13 @@ bool CSceModuleSystem::registerFunction(std::string const &modName,
 			break;
 		}
 
-		if (!IsModuleLoaded(modName))
+		if (!isModuleLoaded(modName))
 		{
 			SceLibMapNid libMapNid   = {};
 			SceLibMapName libMapName = {};
 
-			m_umpModuleMapName.insert(std::make_pair(modName, libMapName));
-			m_umpModuleMapNid.insert(std::make_pair(modName, libMapNid));
+			m_moduleSymbNameMap.insert(std::make_pair(modName, libMapName));
+			m_moduleNidMap.insert(std::make_pair(modName, libMapNid));
 		}
 
 		if (!isLibraryLoaded(modName, libName))
@@ -187,17 +187,17 @@ bool CSceModuleSystem::registerFunction(std::string const &modName,
 			NidFuncMap nidMap = {};
 
 			nidMap.insert(std::make_pair(nid, p));
-			m_umpModuleMapNid.at(modName).insert(std::make_pair(libName, nidMap));
+			m_moduleNidMap.at(modName).insert(std::make_pair(libName, nidMap));
 			break;
 		}
 
-		if (m_umpModuleMapNid.at(modName).at(libName).count(nid) != 0)
+		if (m_moduleNidMap.at(modName).at(libName).count(nid) != 0)
 		{
-			m_umpModuleMapNid.at(modName).at(libName).at(nid) = p;
+			m_moduleNidMap.at(modName).at(libName).at(nid) = p;
 		}
 		else
 		{
-			m_umpModuleMapNid.at(modName).at(libName).insert(std::make_pair(nid, p));
+			m_moduleNidMap.at(modName).at(libName).insert(std::make_pair(nid, p));
 		}
 
 		retVal = true;
@@ -213,13 +213,13 @@ bool CSceModuleSystem::registerSymbol(std::string const &modName,
 									  void *p)
 {
 	bool retVal = false;
-	if (m_umpModuleMapName.count(modName) == 0)
+	if (m_moduleSymbNameMap.count(modName) == 0)
 	{
 		SceLibMapName libMapName = {};
-		m_umpModuleMapName.emplace(std::make_pair(modName, libMapName));
+		m_moduleSymbNameMap.emplace(std::make_pair(modName, libMapName));
 	}
 
-	auto &mod = m_umpModuleMapName.at(modName);
+	auto &mod = m_moduleSymbNameMap.at(modName);
 	if (mod.count(libName) == 0)
 	{
 		NameFuncMap symbolNameMap = {};
@@ -273,7 +273,7 @@ CSceModuleSystem::SceMappedModuleList &CSceModuleSystem::getMemoryMappedModules(
 	return m_mappedModules;
 }
 
-bool CSceModuleSystem::GetMemoryMappedModule(std::string const &modName,
+bool CSceModuleSystem::getMemoryMappedModule(std::string const &modName,
 											 MemoryMappedModule **ppMod)
 {
 	bool retVal = true;
@@ -291,15 +291,15 @@ bool CSceModuleSystem::GetMemoryMappedModule(std::string const &modName,
 	return retVal;
 }
 
-void *CSceModuleSystem::FindFunction(const std::string &strModName,
+void *CSceModuleSystem::findFunction(const std::string &strModName,
 									 const std::string &strLibName,
 									 uint64 nNid)
 {
 	void *pFunction = NULL;
 	do
 	{
-		SceModuleMapNid::iterator iter_mod = m_umpModuleMapNid.find(strModName);
-		if (iter_mod == m_umpModuleMapNid.end())
+		SceModuleMapNid::iterator iter_mod = m_moduleNidMap.find(strModName);
+		if (iter_mod == m_moduleNidMap.end())
 		{
 			break;
 		}
@@ -330,8 +330,8 @@ void *CSceModuleSystem::findSymbol(std::string const &modName,
 	void *pAddr = nullptr;
 	do
 	{
-		auto iterMod = m_umpModuleMapName.find(modName);
-		if (iterMod == m_umpModuleMapName.end())
+		auto iterMod = m_moduleSymbNameMap.find(modName);
+		if (iterMod == m_moduleSymbNameMap.end())
 		{
 			break;
 		}
@@ -357,9 +357,9 @@ void *CSceModuleSystem::findSymbol(std::string const &modName,
 	return pAddr;
 }
 
-bool CSceModuleSystem::IsModuleLoaded(const std::string &modName)
+bool CSceModuleSystem::isModuleLoaded(const std::string &modName)
 {
-	return (m_umpModuleMapNid.count(modName) != 0);
+	return (m_moduleNidMap.count(modName) != 0);
 }
 
 bool CSceModuleSystem::isLibraryLoaded(std::string const &modName,
@@ -367,11 +367,11 @@ bool CSceModuleSystem::isLibraryLoaded(std::string const &modName,
 {
 	bool retVal = false;
 
-	if (!IsModuleLoaded(modName))
+	if (!isModuleLoaded(modName))
 	{
 		retVal = false;
 	}
-	else if (m_umpModuleMapNid.at(modName).count(libName) > 0)
+	else if (m_moduleNidMap.at(modName).count(libName) > 0)
 	{
 		retVal = true;
 	}
@@ -549,7 +549,7 @@ bool CSceModuleSystem::isFileAllowedToLoad(std::string const &fileName)
 	}
 	else if (ret && (extension == "prx" || extension == "sprx"))
 	{
-		if (isModuleLoadable(name))
+		if (isNativeModuleLoadable(name))
 		{
 			retVal = true;
 		}
@@ -583,8 +583,8 @@ const MODULE_INFO* CSceModuleSystem::getEbootModuleInfo() const
 
 void CSceModuleSystem::clearModules()
 {
-	m_umpModuleMapNid.clear();
-	m_umpModuleMapName.clear();
+	m_moduleNidMap.clear();
+	m_moduleSymbNameMap.clear();
 	m_overridableModules.clear();
 	m_allowedFiles.clear();
 	m_mappedModules.clear();

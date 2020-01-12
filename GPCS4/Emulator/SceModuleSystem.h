@@ -28,12 +28,13 @@ public:
 		std::unordered_map<uint64_t, bool> functions;
 	};
 
-private:
 	struct ModuleRecord
 	{
 		bool overridable;
 		std::unordered_map<std::string, LibraryRecord> libraries;
 	};
+
+private:
 
 	//since we won't insert or remove item after initialization
 	//we use unordered_map instead of map
@@ -44,9 +45,9 @@ private:
 	typedef std::unordered_map<std::string, NameFuncMap> SceLibMapName;
 
 	typedef std::unordered_map<std::string, SceLibMapNid> SceModuleMapNid;
+	typedef std::unordered_map<std::string, SceLibMapName> SceModuleMapName;
 
 	typedef std::unordered_map<std::string, bool> SceAllowedFileMap;
-	typedef std::unordered_map<std::string, SceLibMapName> SceModuleMapName;
 	typedef std::unordered_map<std::string, ModuleRecord> SceOverridableMapNid;
 	typedef std::unordered_map<std::string, MemoryMappedModule> SceMappedModuleMap;
 
@@ -56,9 +57,9 @@ private:
 public:
 	void clearModules();
 
-	bool RegisterModule(const SCE_EXPORT_MODULE& stModule);
+	bool registerBuiltinModule(const SCE_EXPORT_MODULE& stModule);
 
-	bool registerFunction(std::string const &modName, std::string const &libName, uint64_t nid, void *p);
+	bool registerNativeFunction(std::string const &modName, std::string const &libName, uint64_t nid, void *p);
 
 	bool registerSymbol(std::string const &modName,
 						std::string const &libName,
@@ -71,14 +72,14 @@ public:
 
 	SceMappedModuleList &getMemoryMappedModules();
 
-	bool GetMemoryMappedModule(std::string const &modName, MemoryMappedModule **ppMod);
+	bool getMemoryMappedModule(std::string const &modName, MemoryMappedModule **ppMod);
 	
-	void* FindFunction(const std::string& strModName, const std::string& strLibName, uint64 nNid);
+	void* findFunction(const std::string& strModName, const std::string& strLibName, uint64 nNid);
 	void *findSymbol(std::string const &modName, std::string const &libName, std::string const &symbolName);
 
-	bool IsModuleLoaded(const std::string& modName);
+	bool isModuleLoaded(const std::string& modName);
 
-	bool isModuleLoadable(std::string const &modName) const;
+	bool isNativeModuleLoadable(std::string const &modName) const;
 
 	bool isLibraryLoaded(std::string const &modName, std::string const &libName);
 
@@ -112,8 +113,8 @@ private:
 	CSceModuleSystem& operator = (const CSceModuleSystem&) = delete;
 
 private:
-	SceModuleMapNid m_umpModuleMapNid;
-	SceModuleMapName m_umpModuleMapName;
+	SceModuleMapNid m_moduleNidMap;
+	SceModuleMapName m_moduleSymbNameMap;
 	SceOverridableMapNid m_overridableModules;
 	SceAllowedFileMap m_allowedFiles;
 	SceMappedModuleList m_mappedModules;

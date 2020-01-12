@@ -410,7 +410,7 @@ bool MemoryMappedModule::getUnresolvedSymbols(SymbolList *symbolList) const
 	for (auto index : m_importSymbols)
 	{
 		auto &symbol = m_symbols[index];
-		auto addr = modSystem->FindFunction(symbol.moduleName,
+		auto addr = modSystem->findFunction(symbol.moduleName,
 											symbol.libraryName,
 											symbol.nid);
 		if (addr == nullptr)

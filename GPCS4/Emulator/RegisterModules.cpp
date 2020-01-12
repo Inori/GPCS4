@@ -5,7 +5,7 @@
 using Policy = CSceModuleSystem::LibraryRecord::OverridingPolicy;
 
 #define REGISTER_MODULE(name) \
-if (!pModuleSystem->RegisterModule(name))\
+if (!pModuleSystem->registerBuiltinModule(name))\
 {\
 	LOG_ERR("Register module failed: %s", name.szModuleName ? name.szModuleName : "null" );\
 	break;\

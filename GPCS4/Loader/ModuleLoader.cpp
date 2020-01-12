@@ -289,7 +289,7 @@ bool ModuleLoader::registerSymbol(MemoryMappedModule const &mod,
 			break;
 		}
 
-		retVal = m_modSystem.registerFunction(modName, libName, nid, pointer);
+		retVal = m_modSystem.registerNativeFunction(modName, libName, nid, pointer);
 		if (!retVal)
 		{
 			break;
@@ -308,7 +308,7 @@ bool ModuleLoader::registerSymbol(MemoryMappedModule const &mod, size_t idx)
 
 	if (info->isEncoded)
 	{
-		m_modSystem.registerFunction(info->moduleName, info->libraryName, info->nid,
+		m_modSystem.registerNativeFunction(info->moduleName, info->libraryName, info->nid,
 									 reinterpret_cast<void *>(info->address));
 	}
 	else

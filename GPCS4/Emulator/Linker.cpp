@@ -19,7 +19,7 @@ bool CLinker::ResolveSymbol(const std::string &strModName,
 			break;
 		}
 
-		void *pFunc = CSceModuleSystem::GetInstance()->FindFunction(
+		void *pFunc = CSceModuleSystem::GetInstance()->findFunction(
 			strModName, strLibName, nNid);
 		if (!pFunc)
 		{
@@ -66,7 +66,7 @@ bool CLinker::resolveSymbol(MemoryMappedModule const &mod,
 		}
 		else
 		{
-			address = m_modSystem.FindFunction(info->moduleName, info->libraryName,
+			address = m_modSystem.findFunction(info->moduleName, info->libraryName,
 											   info->nid);
 
 			// overridden == true, means the function is native
