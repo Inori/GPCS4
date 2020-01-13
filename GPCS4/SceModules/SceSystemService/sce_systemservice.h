@@ -31,7 +31,7 @@ int PS4API sceSystemServiceGetStatus(SceSystemServiceStatus* status);
 int PS4API sceSystemServiceHideSplashScreen(void);
 
 
-int PS4API sceSystemServiceParamGetInt(void);
+int PS4API sceSystemServiceParamGetInt(SceSystemServiceParamId paramId, int32_t* value);
 
 
 int PS4API sceSystemServiceReceiveEvent(void);
