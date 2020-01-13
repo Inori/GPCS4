@@ -1,5 +1,8 @@
 #include "sce_fios2.h"
 
+#include "Platform/UtilPath.h"
+
+#include <filesystem>
 
 // Note:
 // The codebase is generated using GenerateCode.py
@@ -32,10 +35,27 @@ int PS4API sceFiosDirectoryCreateSync(void)
 }
 
 
+bool PS4API sceFiosFileExistsSync(const SceFiosOpAttr* pAttr, const char* pPath)
+{
+	LOG_SCE_TRACE("path %s", pPath);
+
+	LOG_ASSERT(pAttr == nullptr, "only support null attr.");
+	auto path = UtilPath::PS4PathToPCPath(pPath);
+	bool isDir = std::filesystem::is_directory(path);
+	bool exists = std::filesystem::exists(path);
+	return !isDir && exists;
+}
+
+
 bool PS4API sceFiosDirectoryExistsSync(const SceFiosOpAttr *pAttr, const char *pPath)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("path %s", pPath);
+
+	LOG_ASSERT(pAttr == nullptr, "only support null attr.");
+	auto path   = UtilPath::PS4PathToPCPath(pPath);
+	bool isDir  = std::filesystem::is_directory(path);
+	bool exists = std::filesystem::exists(path);
+	return isDir && exists;
 }
 
 
@@ -75,13 +95,6 @@ int PS4API sceFiosFHStatSync(void)
 
 
 int PS4API sceFiosFHWriteSync(void)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
-bool PS4API sceFiosFileExistsSync(const SceFiosOpAttr *pAttr, const char *pPath)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
