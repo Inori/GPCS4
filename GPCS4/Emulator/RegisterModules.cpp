@@ -76,7 +76,10 @@ bool CEmulator::registerLibC(CSceModuleSystem* pModuleSystem)
 		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 0xB8C7A2D56F6EC8DAULL);
 		// time
 		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 0xC0B9459301BD51C4ULL);
-
+		// setjmp
+		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 0x80D435576BDF5C31ULL);
+		// longjmp
+		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 0x94A10DD8879B809DULL);
 
 		ret  = true;
 	}while(false);

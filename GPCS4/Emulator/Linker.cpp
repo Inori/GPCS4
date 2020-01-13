@@ -151,7 +151,8 @@ void* CLinker::generateStubFunction(const SymbolInfo* sybInfo, void* oldFunc) co
 									  sybInfo->nid >> 32,
 									  sybInfo->nid,
 									  nidString.c_str(),
-									  sybInfo->libraryName.c_str());
+									  sybInfo->libraryName.c_str(),
+									  oldFunc);
 
 		auto stubMgr  = GetFuncStubManager();
 		stubFunc      = oldFunc == nullptr ? 

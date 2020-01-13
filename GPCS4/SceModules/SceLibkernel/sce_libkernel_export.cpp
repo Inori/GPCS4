@@ -145,6 +145,7 @@ static const SCE_EXPORT_FUNCTION g_pSceLibkernel_libkernel_FunctionTable[] =
 	{ 0xa72e8bf2389500df, "sceKernelGetSanitizerMallocReplaceExternal", (void*)sceKernelGetSanitizerMallocReplaceExternal },
 	{ 0x6e7671620005780d, "sceKernelGetSanitizerNewReplaceExternal", (void*)sceKernelGetSanitizerNewReplaceExternal },
 	{ 0x128B51F1ADC049FE, "pthread_self", (void*)scek_pthread_self },
+	{ 0x41CB5E4706EC9D5D, "usleep", (void*)scek_usleep },
 	SCE_FUNCTION_ENTRY_END
 };
 
