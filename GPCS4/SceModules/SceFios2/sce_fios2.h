@@ -34,7 +34,7 @@ int PS4API sceFiosDeleteSync(void);
 int PS4API sceFiosDirectoryCreateSync(void);
 
 
-int PS4API sceFiosDirectoryExistsSync(void);
+bool PS4API sceFiosDirectoryExistsSync(const SceFiosOpAttr *pAttr, const char *pPath);
 
 
 int PS4API sceFiosFHCloseSync(void);

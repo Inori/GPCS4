@@ -32,7 +32,7 @@ int PS4API sceFiosDirectoryCreateSync(void)
 }
 
 
-int PS4API sceFiosDirectoryExistsSync(void)
+bool PS4API sceFiosDirectoryExistsSync(const SceFiosOpAttr *pAttr, const char *pPath)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;

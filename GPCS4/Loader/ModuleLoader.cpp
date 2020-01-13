@@ -21,7 +21,6 @@ bool ModuleLoader::loadModule(std::string const &fileName,
 							  MemoryMappedModule **modOut)
 {
 	bool retVal = false;
-
 	do
 	{
 		MemoryMappedModule mod = {};
