@@ -19,7 +19,7 @@ uint64_t PS4API sceKernelGetProcessTimeCounter(void)
 
 uint64_t PS4API sceKernelGetProcessTimeCounterFrequency(void)
 {
-	uint64 nFreq = UtilProcess::GetProcessTimeFrequency();
+	uint64_t nFreq = UtilProcess::GetProcessTimeFrequency();
 	LOG_SCE_TRACE("process time frequency %lld", nFreq);
 	return nFreq;
 }

@@ -223,12 +223,12 @@ int PS4API sceGnmMapComputeQueue(uint32_t globalPipeId, uint32_t queueId,
 			break;
 		}
 
-		if ((ulong_ptr)ringBaseAddr % 256 != 0)
+		if ((uintptr_t)ringBaseAddr % 256 != 0)
 		{
 			break;
 		}
 
-		if ((ulong_ptr)readPtrAddr % 4 != 0)
+		if ((uintptr_t)readPtrAddr % 4 != 0)
 		{
 			break;
 		}

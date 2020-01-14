@@ -9,9 +9,9 @@ namespace UtilMemory
 #include <Windows.h>
 #undef WIN32_LEAN_AND_MEAN
 
-inline uint GetProtectFlag(uint nOldFlag)
+inline uint32_t GetProtectFlag(uint32_t nOldFlag)
 {
-	uint nNewFlag = 0;
+	uint32_t nNewFlag = 0;
 	do 
 	{
 		if (nOldFlag & VMPF_NOACCESS)
@@ -39,9 +39,9 @@ inline uint GetProtectFlag(uint nOldFlag)
 	return nNewFlag;
 }
 
-inline uint GetTypeFlag(uint nOldFlag)
+inline uint32_t GetTypeFlag(uint32_t nOldFlag)
 {
-	uint nNewFlag = 0;
+	uint32_t nNewFlag = 0;
 	do
 	{
 		if (nOldFlag & VMAT_RESERVE)
@@ -58,7 +58,7 @@ inline uint GetTypeFlag(uint nOldFlag)
 	return nNewFlag;
 }
 
-void* VMMap(size_t nSize, uint nProtectFlag)
+void* VMMap(size_t nSize, uint32_t nProtectFlag)
 {
 	void* pAddr = NULL;
 	do 
@@ -68,7 +68,7 @@ void* VMMap(size_t nSize, uint nProtectFlag)
 	return pAddr;
 }
 
-void* VMMapEx(void* pAddr, size_t nSize, uint nProtectFlag, uint nType)
+void* VMMapEx(void* pAddr, size_t nSize, uint32_t nProtectFlag, uint32_t nType)
 {
 	do
 	{
@@ -82,7 +82,7 @@ void VMUnMap(void* pAddr, size_t nSize)
 	VirtualFree(pAddr, nSize, MEM_RELEASE);
 }
 
-bool VMProtect(void* pAddr, size_t nSize, uint nProtectFlag)
+bool VMProtect(void* pAddr, size_t nSize, uint32_t nProtectFlag)
 {
 	LOG_FIXME("Not Implemented.");
 	return  true;

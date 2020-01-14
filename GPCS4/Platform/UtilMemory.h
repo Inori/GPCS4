@@ -27,13 +27,13 @@ enum VM_ALLOCATION_TYPE
 	VMAT_RESERVE_COMMIT = VMAT_RESERVE | VMAT_COMMIT
 };
 
-void* VMMap(size_t nSize, uint nProtectFlag);
+void* VMMap(size_t nSize, uint32_t nProtectFlag);
 
-void* VMMapEx(void* pAddr, size_t nSize, uint nProtectFlag, uint nType);
+void* VMMapEx(void* pAddr, size_t nSize, uint32_t nProtectFlag, uint32_t nType);
 
 void VMUnMap(void* pAddr, size_t nSize);
 
-bool VMProtect(void* pAddr, size_t nSize, uint nProtectFlag);
+bool VMProtect(void* pAddr, size_t nSize, uint32_t nProtectFlag);
 
 struct MemoryUnMapper
 {
@@ -46,6 +46,6 @@ struct MemoryUnMapper
 	}
 };
 
-typedef std::unique_ptr<byte, MemoryUnMapper> memory_uptr;
+typedef std::unique_ptr<uint8_t, MemoryUnMapper> memory_uptr;
 
 }

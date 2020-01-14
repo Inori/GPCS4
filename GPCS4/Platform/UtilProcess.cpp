@@ -10,9 +10,9 @@ namespace UtilProcess
 #include <Windows.h>
 #undef WIN32_LEAN_AND_MEAN
 
-uint64 GetProcessTimeCounter()
+uint64_t GetProcessTimeCounter()
 {
-	uint64 nCounter = 0;
+	uint64_t nCounter = 0;
 	do 
 	{
 		// TODO:
@@ -41,9 +41,9 @@ uint64 GetProcessTimeCounter()
 	return nCounter;
 }
 
-uint64 GetProcessTimeFrequency()
+uint64_t GetProcessTimeFrequency()
 {
-	uint64 nFreq = 0;
+	uint64_t nFreq = 0;
 	do 
 	{
 		LARGE_INTEGER stFreq;

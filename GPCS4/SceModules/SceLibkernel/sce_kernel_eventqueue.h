@@ -1,11 +1,12 @@
 #pragma once
 
 
-struct sce_kevent {
-	uint_ptr	ident;		/* identifier for this event */
+struct sce_kevent 
+{
+	uintptr_t	ident;		/* identifier for this event */
 	short		filter;		/* filter for event */
-	ushort		flags;
-	uint		fflags;
+	uint16_t	flags;
+	uint32_t	fflags;
 	intptr_t	data;
 	void		*udata;		/* opaque user data identifier */
 };

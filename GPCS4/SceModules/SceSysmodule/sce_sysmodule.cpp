@@ -8,7 +8,7 @@
 
 struct MODULE_ID_NAME_ENTRY
 {
-	ushort id;
+	uint16_t id;
 	const char* name;
 };
 
@@ -121,7 +121,7 @@ MODULE_ID_NAME_ENTRY g_moduleIdNameMap[] =
 // library: libSceSysmodule
 //////////////////////////////////////////////////////////////////////////
  
-const char* moduleNameFromId(ushort id)
+const char* moduleNameFromId(uint16_t id)
 {
 	const char* modName = NULL;
 	MODULE_ID_NAME_ENTRY* pEntry = g_moduleIdNameMap;

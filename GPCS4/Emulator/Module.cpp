@@ -87,7 +87,7 @@ bool MemoryMappedModule::getSymbolInfo(std::string const &encSymbol,
 
 	do
 	{
-		uint modId = 0, libId = 0;
+		uint32_t modId = 0, libId = 0;
 
 		if (modName == nullptr || libName == nullptr || nid == nullptr)
 		{
@@ -197,7 +197,7 @@ bool MemoryMappedModule::decodeValue(std::string const &encodedStr,
 
 	// the max length for an encode id is 11
 	// from orbis-ld.exe
-	const uint nEncLenMax = 11;
+	const uint32_t nEncLenMax = 11;
 	const char pCodes[] =
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-";
 
@@ -216,11 +216,11 @@ bool MemoryMappedModule::decodeValue(std::string const &encodedStr,
 		for (int i = 0; i < encodedStr.size(); ++i)
 		{
 			auto pChPos = strchr(pCodes, encodedStr[i]);
-			uint nIndex = 0;
+			uint32_t nIndex = 0;
 
 			if (pChPos != nullptr)
 			{
-				nIndex = static_cast<uint>(pChPos - pCodes);
+				nIndex = static_cast<uint32_t>(pChPos - pCodes);
 			}
 			else
 			{
@@ -252,8 +252,8 @@ bool MemoryMappedModule::decodeValue(std::string const &encodedStr,
 }
 
 bool MemoryMappedModule::decodeSymbol(std::string const &strEncName,
-									  uint *modId,
-									  uint *libId,
+									  uint32_t *modId,
+									  uint32_t *libId,
 									  uint64_t *funcNid) const
 {
 	bool bRet = false;
@@ -280,19 +280,19 @@ bool MemoryMappedModule::decodeSymbol(std::string const &strEncName,
 			break;
 		}
 
-		uint64 nLibId = 0;
+		uint64_t nLibId = 0;
 		if (!decodeValue(vtNameParts[1], nLibId))
 		{
 			break;
 		}
-		nLibraryId = static_cast<uint>(nLibId);
+		nLibraryId = static_cast<uint32_t>(nLibId);
 
-		uint64 nModId = 0;
+		uint64_t nModId = 0;
 		if (!decodeValue(vtNameParts[2], nModId))
 		{
 			break;
 		}
-		nModuleId = static_cast<uint>(nModId);
+		nModuleId = static_cast<uint32_t>(nModId);
 
 		bRet = true;
 	} while (false);
@@ -336,9 +336,9 @@ int MemoryMappedModule::initialize()
 }
 
 bool MemoryMappedModule::getTLSInfo(void **pTls,
-									uint *initSize,
-									uint *totalSize,
-									uint *align) const
+									uint32_t *initSize,
+									uint32_t *totalSize,
+									uint32_t *align) const
 {
 	bool retVal = false;
 	do

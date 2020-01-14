@@ -124,15 +124,15 @@ bool ELFMapper::parseSegmentHeaders()
 
 		auto &fileMemory     = m_moduleData->m_fileMemory;
 		MODULE_INFO &info    = m_moduleData->m_moduleInfo;
-		byte *pSegmentHeader = fileMemory.data() + m_moduleData->m_elfHeader->e_phoff;
-		uint shCount         = m_moduleData->m_elfHeader->e_phnum;
+		uint8_t *pSegmentHeader = fileMemory.data() + m_moduleData->m_elfHeader->e_phoff;
+		uint32_t shCount         = m_moduleData->m_elfHeader->e_phnum;
 
 		m_moduleData->m_segmentHeaders.resize(shCount);
 
 		memcpy(m_moduleData->m_segmentHeaders.data(), pSegmentHeader,
 			   shCount * sizeof(Elf64_Phdr));
 
-		byte *pBuffer = fileMemory.data();
+		uint8_t *pBuffer = fileMemory.data();
 
 		for (auto &hdr : m_moduleData->m_segmentHeaders)
 		{
@@ -161,7 +161,7 @@ bool ELFMapper::parseSegmentHeaders()
 
 			case PT_TLS:
 			{
-				info.pTlsAddr     = reinterpret_cast<byte *>(hdr.p_vaddr);
+				info.pTlsAddr     = reinterpret_cast<uint8_t *>(hdr.p_vaddr);
 				info.nTlsInitSize = hdr.p_filesz;
 				info.nTlsSize     = util::alignRound(hdr.p_memsz, hdr.p_align);
 				info.nTlsAlign    = hdr.p_align;
@@ -212,10 +212,10 @@ bool ELFMapper::parseDynamicSection()
 	do
 	{
 		Elf64_Dyn *pDynEntries = reinterpret_cast<Elf64_Dyn *>(info.pDynamic);
-		uint dynEntriesCount   = info.nDynamicSize / sizeof(Elf64_Dyn);
-		byte *pStrTab          = info.pStrTab;
+		uint32_t dynEntriesCount   = info.nDynamicSize / sizeof(Elf64_Dyn);
+		uint8_t *pStrTab          = info.pStrTab;
 
-		for (uint i = 0; i < dynEntriesCount; i++)
+		for (uint32_t i = 0; i < dynEntriesCount; i++)
 		{
 			retVal = prepareTables(pDynEntries[i], i);
 			if (retVal == false)
@@ -229,7 +229,7 @@ bool ELFMapper::parseDynamicSection()
 			break;
 		}
 
-		for (uint i = 0; i < dynEntriesCount; i++)
+		for (uint32_t i = 0; i < dynEntriesCount; i++)
 		{
 			retVal = parseSingleDynEntry(pDynEntries[i], i);
 			if (retVal == false)
@@ -262,7 +262,7 @@ bool ELFMapper::mapImageIntoMemory()
 			break;
 		}
 
-		byte *buffer = reinterpret_cast<byte *>(UtilMemory::VMMap(
+		uint8_t *buffer = reinterpret_cast<uint8_t *>(UtilMemory::VMMap(
 			totalSize, UtilMemory::VMPF_READ | UtilMemory::VMPF_EXECUTE));
 
 		if (buffer == nullptr)
@@ -314,7 +314,7 @@ bool ELFMapper::parseSymbols()
 	auto pSymbolTable = (Elf64_Sym *)info.pSymTab;
 	auto tableSize    = info.nSymTabSize / sizeof(Elf64_Sym);
 
-	for (uint i = 0; i < tableSize; i++)
+	for (uint32_t i = 0; i < tableSize; i++)
 	{
 		auto const &symbol = reinterpret_cast<Elf64_Sym *>(info.pSymTab)[i];
 		auto binding       = ELF64_ST_BIND(symbol.st_info);
@@ -431,10 +431,10 @@ bool ELFMapper::parseSymbols()
 	return true;
 }
 
-bool ELFMapper::prepareTables(Elf64_Dyn const &entry, uint index)
+bool ELFMapper::prepareTables(Elf64_Dyn const &entry, uint32_t index)
 {
 	MODULE_INFO &info  = m_moduleData->m_moduleInfo;
-	byte *pDynBaseAddr = info.pSceDynLib;
+	uint8_t *pDynBaseAddr = info.pSceDynLib;
 	bool retVal        = true;
 
 	switch (entry.d_tag)
@@ -596,10 +596,10 @@ bool ELFMapper::prepareTables(Elf64_Dyn const &entry, uint index)
 	return retVal;
 }
 
-bool ELFMapper::parseSingleDynEntry(Elf64_Dyn const &entry, uint index)
+bool ELFMapper::parseSingleDynEntry(Elf64_Dyn const &entry, uint32_t index)
 {
 	MODULE_INFO &info = m_moduleData->m_moduleInfo;
-	byte *strTable    = info.pStrTab;
+	uint8_t *strTable    = info.pStrTab;
 
 	switch (entry.d_tag)
 	{
@@ -714,10 +714,10 @@ bool ELFMapper::mapCodeSegment(Elf64_Phdr const &phdr)
 		}
 
 		info.nCodeSize = phdr.p_memsz;
-		info.pCodeAddr = reinterpret_cast<byte*>(
+		info.pCodeAddr = reinterpret_cast<uint8_t*>(
 			util::alignDown(size_t(info.pMappedAddr + phdr.p_vaddr), phdr.p_align));
 
-		byte *fileDataPtr = fileData.data() + phdr.p_offset;
+		uint8_t *fileDataPtr = fileData.data() + phdr.p_offset;
 
 		memcpy(info.pCodeAddr, fileDataPtr, phdr.p_filesz);
 		if (m_moduleData->m_elfHeader->e_entry != 0)
@@ -757,9 +757,9 @@ bool ELFMapper::mapSecReloSegment(Elf64_Phdr const &phdr)
 			break;
 		}
 
-		byte *relroAddr = reinterpret_cast<byte *>(
+		uint8_t *relroAddr = reinterpret_cast<uint8_t *>(
 			util::alignDown(size_t(info.pMappedAddr + phdr.p_vaddr), phdr.p_align));
-		byte *fileDataPtr = fileData.data() + phdr.p_offset;
+		uint8_t *fileDataPtr = fileData.data() + phdr.p_offset;
 
 		memcpy(relroAddr, fileDataPtr, phdr.p_filesz);
 		retVal = true;
@@ -783,10 +783,10 @@ bool ELFMapper::mapDataSegment(Elf64_Phdr const &phdr)
 		}
 
 		info.nDataSize = phdr.p_memsz;
-		info.pDataAddr = reinterpret_cast<byte *>(
+		info.pDataAddr = reinterpret_cast<uint8_t *>(
 			util::alignDown(size_t(info.pMappedAddr) + phdr.p_vaddr, phdr.p_align));
 
-		byte *fileDataPtr = fileData.data() + phdr.p_offset;
+		uint8_t *fileDataPtr = fileData.data() + phdr.p_offset;
 		memcpy(info.pDataAddr, fileDataPtr, phdr.p_filesz);
 
 		if (info.pProcParam != nullptr)

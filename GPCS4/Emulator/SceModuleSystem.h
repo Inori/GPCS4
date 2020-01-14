@@ -41,7 +41,7 @@ private:
 
 	//since we won't insert or remove item after initialization
 	//we use unordered_map instead of map
-	typedef std::unordered_map<uint64, void*> NidFuncMap;
+	typedef std::unordered_map<uint64_t, void*> NidFuncMap;
 	typedef std::unordered_map<std::string, void*> NameFuncMap;
 
 	typedef std::unordered_map<std::string, NidFuncMap> SceLibMapNid;
@@ -77,7 +77,7 @@ public:
 
 	bool getMemoryMappedModule(std::string const &modName, MemoryMappedModule **ppMod);
 	
-	void* findFunction(const std::string& strModName, const std::string& strLibName, uint64 nNid);
+	void* findFunction(const std::string& strModName, const std::string& strLibName, uint64_t nNid);
 	void *findSymbol(std::string const &modName, std::string const &libName, std::string const &symbolName);
 
 	bool isModuleLoaded(const std::string& modName);

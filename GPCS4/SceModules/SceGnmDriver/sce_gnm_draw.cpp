@@ -9,7 +9,7 @@
 uint32_t PS4API sceGnmDrawInitDefaultHardwareState350(uint32_t* cmdBuffer, uint64_t numDwords)
 {
 	LOG_SCE_GRAPHIC("cmdbuff %p numDwords %d", cmdBuffer, numDwords);
-	const uint initCmdSize = sizeof(GnmCmdDrawInitDefaultHardwareState) / sizeof(uint32_t);
+	const uint32_t initCmdSize = sizeof(GnmCmdDrawInitDefaultHardwareState) / sizeof(uint32_t);
 	assert(numDwords >= initCmdSize);
 	GnmCmdDrawInitDefaultHardwareState* initParam = (GnmCmdDrawInitDefaultHardwareState*)cmdBuffer;
 	initParam->opcode = PM4_HEADER_BUILD(initCmdSize, IT_GNM_PRIVATE, OP_PRIV_INITIALIZE_DEFAULT_HARDWARE_STATE);
@@ -21,7 +21,7 @@ uint32_t PS4API sceGnmDrawInitDefaultHardwareState350(uint32_t* cmdBuffer, uint6
 uint32_t PS4API sceGnmDrawInitDefaultHardwareState200(uint32_t* cmdBuffer, uint64_t numDwords)
 {
 	LOG_SCE_GRAPHIC("cmdbuff %p numDwords %d", cmdBuffer, numDwords);
-	const uint initCmdSize = sizeof(GnmCmdDrawInitDefaultHardwareState) / sizeof(uint32_t);
+	const uint32_t initCmdSize = sizeof(GnmCmdDrawInitDefaultHardwareState) / sizeof(uint32_t);
 	assert(numDwords >= initCmdSize);
 	GnmCmdDrawInitDefaultHardwareState* initParam = (GnmCmdDrawInitDefaultHardwareState*)cmdBuffer;
 	initParam->opcode                             = PM4_HEADER_BUILD(initCmdSize, IT_GNM_PRIVATE, OP_PRIV_INITIALIZE_DEFAULT_HARDWARE_STATE);
@@ -33,7 +33,7 @@ uint32_t PS4API sceGnmDrawInitDefaultHardwareState200(uint32_t* cmdBuffer, uint6
 int PS4API sceGnmInsertWaitFlipDone(uint32_t* cmdBuffer, uint32_t numDwords, int videoOutHandle, uint32_t displayBufferIndex)
 {
 	LOG_SCE_GRAPHIC("cmdbuff %p numdws %d handle %d dpindex %d", cmdBuffer, numDwords, videoOutHandle, displayBufferIndex);
-	const uint cmdSize = sizeof(GnmCmdWaitFlipDone) / sizeof(uint32_t);
+	const uint32_t cmdSize = sizeof(GnmCmdWaitFlipDone) / sizeof(uint32_t);
 	assert(cmdSize == numDwords);
 	GnmCmdWaitFlipDone* param = (GnmCmdWaitFlipDone*)cmdBuffer;
 	param->opcode = PM4_HEADER_BUILD(cmdSize, IT_GNM_PRIVATE, OP_PRIV_WAIT_UNTIL_SAFE_FOR_RENDERING);
@@ -42,8 +42,8 @@ int PS4API sceGnmInsertWaitFlipDone(uint32_t* cmdBuffer, uint32_t numDwords, int
 	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
 
 	// this is a hack of Nier:Automata, just let the game run without trap into infinity loop
-	//static uint nCount = 0;
-	//static uint nMod = 0;
+	//static uint32_t nCount = 0;
+	//static uint32_t nMod = 0;
 	//*(uint32_t*)((uint8_t*)gpuAddress + 0x2000034) = value + nCount;
 	//*(uint32_t*)((uint8_t*)gpuAddress + 0x200008C) = value + nCount;
 	//++nMod;
@@ -65,7 +65,7 @@ int PS4API sceGnmDrawIndex(uint32_t* cmdBuffer, uint32_t numDwords,
 	GnmCmdDrawIndex* param = (GnmCmdDrawIndex*)cmdBuffer;
 	param->opcode = PM4_HEADER_BUILD(paramSize, IT_GNM_PRIVATE, OP_PRIV_DRAW_INDEX);
 	param->indexCount = indexCount;
-	param->indexAddr = (ulong_ptr)indexAddr;
+	param->indexAddr = (uintptr_t)indexAddr;
 	param->predAndMod = predAndMod;
 	param->inlineMode = (GnmEnumDrawIndexInlineMode)inlineMode;
 	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));

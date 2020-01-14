@@ -112,7 +112,7 @@ int PS4API sceKernelQueryMemoryProtection(void)
 int PS4API sceKernelReserveVirtualRange(void **addr, size_t len, int flags, size_t alignment)
 {
 	LOG_SCE_DUMMY_IMPL();
-	*addr = new byte[1024 * 1024 * 256];
+	*addr = new uint8_t[1024 * 1024 * 256];
 	return SCE_OK;
 }
 
@@ -142,7 +142,7 @@ int PS4API sceKernelMapFlexibleMemory(void **addrInOut, size_t len, int prot, in
 			break;
 		}
 
-		if (flags & SCE_KERNEL_MAP_FIXED && !util::isAligned((uint64)*addrInOut, (size_t)SCE_LOGICAL_PAGE_SIZE))
+		if (flags & SCE_KERNEL_MAP_FIXED && !util::isAligned((uint64_t)*addrInOut, (size_t)SCE_LOGICAL_PAGE_SIZE))
 		{
 			err = SCE_KERNEL_ERROR_EINVAL;
 			break;

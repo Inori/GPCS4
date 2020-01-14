@@ -332,9 +332,9 @@ bool ModuleLoader::initializeModules()
 	for (auto const &mod : mods)
 	{
 		void *pTls     = nullptr;
-		uint initSize  = 0;
-		uint totalSize = 0;
-		uint align     = 0;
+		uint32_t initSize  = 0;
+		uint32_t totalSize = 0;
+		uint32_t align     = 0;
 		retVal         = mod.getTLSInfo(&pTls, &initSize, &totalSize, &align);
 		if (!retVal || pTls == nullptr)
 		{

@@ -8,7 +8,7 @@ CLinker::CLinker() : m_modSystem{*CSceModuleSystem::GetInstance()} {}
 
 bool CLinker::ResolveSymbol(const std::string &strModName,
 							const std::string &strLibName,
-							uint64 nNid,
+							uint64_t nNid,
 							void **ppAddress) const
 {
 	bool bRet = false;
@@ -206,11 +206,11 @@ bool CLinker::relocateRela(MemoryMappedModule &mod)
 
 		auto &info = mod.getModuleInfo();
 
-		byte *pImageBase         = info.pCodeAddr;
-		byte *pStrTab            = info.pStrTab;
+		uint8_t *pImageBase         = info.pCodeAddr;
+		uint8_t *pStrTab            = info.pStrTab;
 		Elf64_Sym *pSymTab       = (Elf64_Sym *)info.pSymTab;
 		Elf64_Rela *pRelaEntries = (Elf64_Rela *)info.pRela;
-		for (uint i = 0; i != info.nRelaCount; ++i)
+		for (uint32_t i = 0; i != info.nRelaCount; ++i)
 		{
 			Elf64_Rela *pRela = &pRelaEntries[i];
 			auto nType        = ELF64_R_TYPE(pRela->r_info);
@@ -231,11 +231,11 @@ bool CLinker::relocateRela(MemoryMappedModule &mod)
 			{
 				Elf64_Sym &symbol = pSymTab[nSymIdx];
 				auto nBinding     = ELF64_ST_BIND(symbol.st_info);
-				uint64 nSymVal    = 0;
+				uint64_t nSymVal    = 0;
 
 				if (nBinding == STB_LOCAL)
 				{
-					nSymVal = (uint64)(pImageBase + symbol.st_value);
+					nSymVal = (uint64_t)(pImageBase + symbol.st_value);
 				}
 				else if (nBinding == STB_GLOBAL || nBinding == STB_WEAK)
 				{
@@ -252,7 +252,7 @@ bool CLinker::relocateRela(MemoryMappedModule &mod)
 					LOG_ERR("invalid sym bingding %d", nBinding);
 				}
 
-				*(uint64 *)&pImageBase[pRela->r_offset] =
+				*(uint64_t *)&pImageBase[pRela->r_offset] =
 					nSymVal + pRela->r_addend;
 			}
 			break;
@@ -260,23 +260,23 @@ bool CLinker::relocateRela(MemoryMappedModule &mod)
 			{
 				Elf64_Sym& symbol = pSymTab[nSymIdx];
 				auto nBinding     = ELF64_ST_BIND(symbol.st_info);
-				uint64 nSymVal    = 0;
+				uint64_t nSymVal    = 0;
 				auto pName       = (const char*)&pStrTab[symbol.st_name];
 				//LOG_DEBUG("RELA symbol: %s", pName);
 				if (!resolveSymbol(mod, pName, &nSymVal))
 				{
-					*(uint64*)&pImageBase[pRela->r_offset] = 0;
+					*(uint64_t*)&pImageBase[pRela->r_offset] = 0;
 					LOG_ERR("can not get symbol address.");
 					break;
 				}
-				*(uint64*)&pImageBase[pRela->r_offset] =
+				*(uint64_t*)&pImageBase[pRela->r_offset] =
 					nSymVal + pRela->r_addend;
 			}
 			break;
 			case R_X86_64_RELATIVE:
 			{
-				*(uint64 *)&pImageBase[pRela->r_offset] =
-					(uint64)(pImageBase + pRela->r_addend);
+				*(uint64_t *)&pImageBase[pRela->r_offset] =
+					(uint64_t)(pImageBase + pRela->r_addend);
 			}
 			break;
 			default:
@@ -304,13 +304,13 @@ bool CLinker::relocatePltRela(MemoryMappedModule &mod)
 			break;
 		}
 
-		byte *pImageBase         = info.pCodeAddr;
-		byte *pStrTab            = info.pStrTab;
+		uint8_t *pImageBase         = info.pCodeAddr;
+		uint8_t *pStrTab            = info.pStrTab;
 		Elf64_Sym *pSymTab       = (Elf64_Sym *)info.pSymTab;
 		Elf64_Rela *pRelaEntries = (Elf64_Rela *)info.pPltRela;
 
 		LOG_DEBUG("PLT RELA count: %d, for library: %s", info.nPltRelaCount, mod.fileName.c_str());
-		for (uint i = 0; i != info.nPltRelaCount; ++i)
+		for (uint32_t i = 0; i != info.nPltRelaCount; ++i)
 		{
 			Elf64_Rela *pRela = &pRelaEntries[i];
 			auto nType        = ELF64_R_TYPE(pRela->r_info);
@@ -322,11 +322,11 @@ bool CLinker::relocatePltRela(MemoryMappedModule &mod)
 			{
 				Elf64_Sym &symbol = pSymTab[nSymIdx];
 				auto nBinding     = ELF64_ST_BIND(symbol.st_info);
-				uint64 nSymVal    = 0;
+				uint64_t nSymVal    = 0;
 
 				if (nBinding == STB_LOCAL)
 				{
-					nSymVal = (uint64)(pImageBase + symbol.st_value);
+					nSymVal = (uint64_t)(pImageBase + symbol.st_value);
 				}
 				else if (nBinding == STB_GLOBAL || nBinding == STB_WEAK)
 				{
@@ -343,7 +343,7 @@ bool CLinker::relocatePltRela(MemoryMappedModule &mod)
 					LOG_ERR("invalid sym bingding %d", nBinding);
 				}
 
-				*(uint64 *)&pImageBase[pRela->r_offset] = nSymVal;
+				*(uint64_t *)&pImageBase[pRela->r_offset] = nSymVal;
 			}
 			break;
 			default:

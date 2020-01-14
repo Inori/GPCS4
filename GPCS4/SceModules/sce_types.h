@@ -16,7 +16,7 @@ typedef	uint64_t	__scefsfilcnt_t;
 typedef	uint32_t	__scegid_t;
 typedef	int64_t		__sceid_t;		/* can hold a gid_t, pid_t, or uid_t */
 typedef	uint32_t	__sce_ino_t;	/* inode number */
-typedef	long		__scekey_t;	/* IPC key (for Sys V IPC) */
+typedef ps4_long    __scekey_t;        /* IPC key (for Sys V IPC) */
 typedef	int32_t		__scelwpid_t;	/* Thread ID (a.k.a. LWP) */
 typedef	uint16_t	__scemode_t;	/* permissions */
 typedef	int			__sceaccmode_t;	/* access permissions */
@@ -30,7 +30,7 @@ typedef	int64_t		__scerlim_t;	/* resource limit - intentionally */
 typedef	uint8_t		__scesa_family_t;
 typedef	uint32_t	__scesocklen_t;
 typedef	uint32_t	__sceuid_t;
-typedef	long		__scesuseconds_t;	/* microseconds (signed) */
+typedef ps4_long    __scesuseconds_t;    /* microseconds (signed) */
 typedef	unsigned int	__sceuseconds_t;	/* microseconds (unsigned) */
 typedef	int		__scecpuwhich_t;	/* which parameter for cpuset. */
 typedef	int		__scecpulevel_t;	/* level parameter for cpuset. */
@@ -81,9 +81,10 @@ typedef	__scetime_t		scetime_t;
 typedef	__sceclockid_t	sceclockid_t;
 
 
-struct sce_timespec {
-	scetime_t	tv_sec;		/* seconds */
-	long	tv_nsec;	/* and nanoseconds */
+struct sce_timespec
+{
+	scetime_t tv_sec;  /* seconds */
+	ps4_long  tv_nsec; /* and nanoseconds */
 };
 
 typedef	__sceuseconds_t	sceuseconds_t;	/* microseconds (unsigned) */

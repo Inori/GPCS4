@@ -67,7 +67,7 @@ private:
 	union DTV
 	{
 		void* pointer;
-		uint_ptr counter;
+		uintptr_t counter;
 	};
 
 	struct TCB
@@ -132,7 +132,7 @@ private:
 
 	void printInst(ZydisDecodedInstruction& inst);
 
-	uint32_t getPatchLen(byte* code, uint32_t oldLen);
+	uint32_t getPatchLen(uint8_t* code, uint32_t oldLen);
 
 private:
 	ZydisDecoder m_decoder;

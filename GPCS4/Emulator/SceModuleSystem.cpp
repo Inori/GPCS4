@@ -227,7 +227,7 @@ bool CSceModuleSystem::registerBuiltinModule(const SCE_EXPORT_MODULE &stModule)
 			while (!IsEndFunctionEntry(pFunc))
 			{
 				nidMap.insert(
-					std::make_pair((uint64)pFunc->nNid, (void *)pFunc->pFunction));
+					std::make_pair((uint64_t)pFunc->nNid, (void *)pFunc->pFunction));
 				nameMap.insert(std::make_pair(std::string(pFunc->szFunctionName),
 											  (void *)pFunc->pFunction));
 				++pFunc;
@@ -380,7 +380,7 @@ bool CSceModuleSystem::getMemoryMappedModule(std::string const &modName,
 
 void *CSceModuleSystem::findFunction(const std::string &strModName,
 									 const std::string &strLibName,
-									 uint64 nNid)
+									 uint64_t nNid)
 {
 	void *pFunction = NULL;
 	do

@@ -67,7 +67,7 @@ bool GnmCmdStream::processCommandBuffer(uint32_t* commandBuffer, uint32_t comman
 			}
 
 			PPM4_HEADER nextPm4Hdr = getNextNPm4(pm4Hdr, processedPm4Count);
-			uint32_t processedLength = reinterpret_cast<ulong_ptr>(nextPm4Hdr) - reinterpret_cast<ulong_ptr>(pm4Hdr);
+			uint32_t processedLength = reinterpret_cast<uintptr_t>(nextPm4Hdr) - reinterpret_cast<uintptr_t>(pm4Hdr);
 			pm4Hdr = nextPm4Hdr;
 			processedCmdSize += processedLength;
 		}
