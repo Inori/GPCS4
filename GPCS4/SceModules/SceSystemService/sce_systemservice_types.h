@@ -29,3 +29,10 @@ struct SceSystemServiceStatus
 	bool isOutOfVrPlayArea;
 	uint8_t reserved[125];
 };
+
+
+struct SceSystemServiceDisplaySafeAreaInfo
+{
+	float ratio;
+	uint8_t reserved[128];
+};

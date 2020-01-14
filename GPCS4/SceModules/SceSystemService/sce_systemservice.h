@@ -37,7 +37,7 @@ int PS4API sceSystemServiceParamGetInt(SceSystemServiceParamId paramId, int32_t*
 int PS4API sceSystemServiceReceiveEvent(void);
 
 
-int PS4API sceSystemServiceGetDisplaySafeAreaInfo(void);
+int PS4API sceSystemServiceGetDisplaySafeAreaInfo(SceSystemServiceDisplaySafeAreaInfo* info);
 
 
 //////////////////////////////////////////////////////////////////////////
