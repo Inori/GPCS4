@@ -75,11 +75,17 @@ bool CSceModuleSystem::isLibraryOverridable(std::string const &modName,
 			break;
 		}
 
-		if (isLibraryOverridabilityDefined(modName, libName) == false)
+		if (isModuleOVRDDefinationEmpty(modName))
 		{
 			// If no library overridability defined for a overridable module,
 			// All libraries in the module are overridable.
 			retVal = true;
+			break;
+		}
+
+		if (isLibraryOverridabilityDefined(modName, libName) == false)
+		{
+			retVal = false;
 			break;
 		}
 
@@ -107,7 +113,7 @@ bool CSceModuleSystem::isFunctionOverridable(std::string const &modName,
 			break;
 		}
 
-		if (isLibraryOverridabilityDefined(modName, libName) == false)
+		if (isModuleOVRDDefinationEmpty(modName))
 		{
 			retVal = true;
 			break;
@@ -137,6 +143,28 @@ bool CSceModuleSystem::isFunctionOverridable(std::string const &modName,
 bool CSceModuleSystem::isBuitinModuleDefined(std::string const& name) const
 {
 	return util::contains(m_builtinModules, name);
+}
+
+bool CSceModuleSystem::isModuleOVRDDefinationEmpty(std::string const& modName) const
+{
+	bool ret = false;
+	do
+	{
+		if (!util::contains(m_overridableModules, modName))
+		{
+			ret = true;
+			break;
+		}
+		
+		if (m_overridableModules.at(modName).libraries.empty())
+		{
+			ret = true;
+			break;
+		}
+
+	} while (false);
+
+	return ret;
 }
 
 bool CSceModuleSystem::isLibraryOverridabilityDefined(std::string const& modName,
@@ -519,7 +547,7 @@ bool CSceModuleSystem::setLibraryOverridability(const std::string &modName,
 			mr.libraries.insert(std::make_pair(libName, lr));
 		}
 
-		mr.libraries.at(modName).overrideable = ovrd;
+		mr.libraries.at(libName).overrideable = ovrd;
 
 	} while (false);
 

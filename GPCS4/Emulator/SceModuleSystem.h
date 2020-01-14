@@ -102,7 +102,13 @@ public:
 	const MODULE_INFO* getEbootModuleInfo() const;
 
 private:
+	// Check if a builtin module is defined
 	bool isBuitinModuleDefined(std::string const& name) const;
+
+	// Check if a module overridability defination is empty(does not contain any
+	// library definations). This function also returns true when the module
+	// overridability does not exist.
+	bool isModuleOVRDDefinationEmpty(std::string const& modName) const;
 	bool isLibraryOverridabilityDefined(std::string const &modName, std::string const &libName) const; 
 
 	bool IsEndFunctionEntry(const SCE_EXPORT_FUNCTION* pFunc);
