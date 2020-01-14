@@ -34,10 +34,30 @@ int PS4API sceUserServiceGetInitialUser(SceUserServiceUserId *userId)
 }
 
 
-int PS4API sceUserServiceGetUserName(void)
+int PS4API sceUserServiceGetUserName(const SceUserServiceUserId userId, char *userName, const size_t size)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("userId %d userName %p size %d", userId, userName, size);
+	int ret = SCE_ERROR_UNKNOWN;
+	do 
+	{
+		if (!userName || ! size)
+		{
+			ret = SCE_USER_SERVICE_ERROR_INVALID_ARGUMENT;
+			break;
+		}
+
+		uint32_t nameLen = strlen(GPCS4_APP_NAME);
+		if (size <= nameLen)
+		{
+			ret = SCE_USER_SERVICE_ERROR_BUFFER_TOO_SHORT;
+			break;
+		}
+
+		strcpy(userName, GPCS4_APP_NAME);
+
+		ret = SCE_OK;
+	} while (false);
+	return ret;
 }
 
 

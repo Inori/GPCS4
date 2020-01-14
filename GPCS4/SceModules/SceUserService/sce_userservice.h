@@ -39,7 +39,7 @@ int PS4API sceUserServiceGetLoginUserIdList(SceUserServiceLoginUserIdList* userI
 int PS4API sceUserServiceTerminate(void);
 
 
-int PS4API sceUserServiceGetUserName(void);
+int PS4API sceUserServiceGetUserName(const SceUserServiceUserId userId, char* userName, const size_t size);
 
 
 
