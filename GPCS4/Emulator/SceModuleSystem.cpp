@@ -560,7 +560,7 @@ bool CSceModuleSystem::setFunctionOverridability(const std::string &modName,
 			mr.libraries.insert(std::make_pair(libName, lr));
 		}
 
-		auto &lr = mr.libraries.at(modName);
+		auto &lr = mr.libraries.at(libName);
 		if (ovrd)
 		{
 			if (lr.mode == LibraryRecord::OverridingPolicy::AllowList &&
