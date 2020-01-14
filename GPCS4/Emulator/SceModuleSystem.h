@@ -10,6 +10,9 @@ struct SCE_EXPORT_FUNCTION;
 struct SCE_EXPORT_LIBRARY;
 struct SCE_EXPORT_MODULE;
 
+// Note:
+// Here "override" always mean native over builtin
+
 class CSceModuleSystem final : public Singleton<CSceModuleSystem>
 {
 	friend class  Singleton<CSceModuleSystem>;
