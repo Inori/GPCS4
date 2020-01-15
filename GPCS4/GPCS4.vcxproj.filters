@@ -871,11 +871,8 @@
     <ClInclude Include="SceModules\SceFios2\sce_fios2_types.h">
       <Filter>SceModules\SceFios2</Filter>
     </ClInclude>
-    <ClInclude Include="SceModules\SceSystemService\sce_system_param.h">
-      <Filter>SceModules\SceSystemService</Filter>
-    </ClInclude>
-    <ClInclude Include="SceModules\SceSystemService\sce_systemservice_error.h">
-      <Filter>SceModules\SceSystemService</Filter>
+    <ClInclude Include="SceModules\SceSaveData\sce_savedata_types.h">
+      <Filter>SceModules\SceSaveData</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
