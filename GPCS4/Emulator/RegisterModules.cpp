@@ -2,7 +2,7 @@
 #include "SceModuleSystem.h"
 #include "sce_modules.h"
 
-using Policy = CSceModuleSystem::LibraryRecord::OverridingPolicy;
+using OVRDPolicy = CSceModuleSystem::LibraryRecord::OverridingPolicy;
 
 #define REGISTER_MODULE(name)                                                                  \
 	if (!pModuleSystem->registerBuiltinModule(name))                                           \
@@ -22,7 +22,7 @@ using Policy = CSceModuleSystem::LibraryRecord::OverridingPolicy;
 // Define a builtin function preference list.
 // The linker will use builtin functions in this list over native functions in firmware modules.
 #define BUILTIN_LIST_BEGIN(mod, lib)                                                    \
-	if (!pModuleSystem->setLibraryOverridability(mod, lib, true, Policy::DisallowList)) \
+	if (!pModuleSystem->setLibraryOverridability(mod, lib, true, OVRDPolicy::DisallowList)) \
 	{                                                                                   \
 		LOG_ERR("Fail to begin builtin list for library %s", lib);                      \
 		break;                                                                          \
@@ -41,7 +41,7 @@ using Policy = CSceModuleSystem::LibraryRecord::OverridingPolicy;
 // Define a native function preference list.
 // The linker will use native functions (in firmware modules.) in this list over builtin functions we HLEed in SceModules.
 #define NATIVE_LIST_BEGIN(mod, lib)                                                  \
-	if (!pModuleSystem->setLibraryOverridability(mod, lib, true, Policy::AllowList)) \
+	if (!pModuleSystem->setLibraryOverridability(mod, lib, true, OVRDPolicy::AllowList)) \
 	{                                                                                \
 		LOG_ERR("Fail to set overridability for library %s", lib);                   \
 		break;                                                                       \
@@ -67,6 +67,27 @@ bool CEmulator::registerLibC(CSceModuleSystem* pModuleSystem)
 		{
 			break;
 		}
+		auto& policyManager = pModuleSystem->getPolicyManager();
+
+		policyManager.addModule("libc").with(Policy::UseNative)
+			.addLibrary("libc").with(Policy::UseNative).exclude
+			({ 
+				0xC5E60EE2EEEEC89DULL, // fopen
+				0xAD0155057A7F0B18ULL, // fssek
+				0x41ACF2F0B9974EFCULL, // ftell
+				0x95B07E52566A546DULL, // fread
+				0xBA874B632522A76DULL, // fclose
+				0x8105FEE060D08E93ULL, // malloc
+				0x63B689D6EC9D3CCAULL, // realloc
+				0xD97E5A8058CAC4C7ULL, // calloc
+				0xB4886CAA3D2AB051ULL, // free
+				0x5CA45E82C1691299ULL, // catchReturnFromMain
+				0xB8C7A2D56F6EC8DAULL, // exit
+				0xC0B9459301BD51C4ULL, // time
+				0x80D435576BDF5C31ULL, // setjmp
+				0x94A10DD8879B809DULL  // longjmp
+			 });
+
 
 		BUILTIN_LIST_BEGIN("libc", "libc");
 		USE_BUILTIN_FUNCTION("libc", "libc", 0xC5E60EE2EEEEC89DULL);  // fopen
@@ -99,6 +120,15 @@ bool CEmulator::registerLibKernel(CSceModuleSystem* pModuleSystem)
 		{
 			break;
 		}
+
+		auto& policyManager = pModuleSystem->getPolicyManager();
+
+		policyManager.addModule("libkernel").with(Policy::UseNative)
+			.addLibrary("libkernel").with(Policy::UseBuiltin).exclude
+			({ 
+				0xF41703CA43E6A352, // __error
+				0x581EBA7AFBBC6EC5  // sceKernelGetCompiledSdkVersion
+			 });
 
 		NATIVE_LIST_BEGIN("libkernel", "libkernel");
 		USE_NATIVE_FUNCTION("libkernel", "libkernel", 0xF41703CA43E6A352);  // __error

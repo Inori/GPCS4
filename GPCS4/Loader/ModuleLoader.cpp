@@ -312,9 +312,9 @@ bool ModuleLoader::registerSymbol(MemoryMappedModule const &mod, size_t idx)
 	}
 	else
 	{
-		m_modSystem.registerSymbol(info->moduleName, info->libraryName,
-								   info->symbolName,
-								   reinterpret_cast<void *>(info->address));
+		m_modSystem.registerNativeSymbol(info->moduleName, info->libraryName,
+										 info->symbolName,
+										 reinterpret_cast<void *>(info->address));
 	}
 
 	return true;

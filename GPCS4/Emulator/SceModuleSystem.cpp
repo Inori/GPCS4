@@ -4,7 +4,7 @@
 #include "sce_modules.h"
 
 
-CSceModuleSystem::CSceModuleSystem() {}
+CSceModuleSystem::CSceModuleSystem():m_policyManager{m_moduleManager} {}
 
 CSceModuleSystem::~CSceModuleSystem() {}
 
@@ -200,6 +200,7 @@ bool CSceModuleSystem::IsEndFunctionEntry(const SCE_EXPORT_FUNCTION* pFunc)
 			pFunc->pFunction == NULL);
 }
 
+// TODO: Modifications needed
 bool CSceModuleSystem::registerBuiltinModule(const SCE_EXPORT_MODULE &stModule)
 {
 	bool bRet = false;
@@ -216,40 +217,54 @@ bool CSceModuleSystem::registerBuiltinModule(const SCE_EXPORT_MODULE &stModule)
 		SceLibMapName libMapName;
 
 		m_builtinModules.emplace_back(szModName);
+		m_moduleManager.registerBuiltinModule(szModName);
 
 		while (!IsEndLibraryEntry(pLib))
 		{
 			const char *szLibName            = pLib->szLibraryName;
 			const SCE_EXPORT_FUNCTION *pFunc = pLib->pFunctionEntries;
 
+			///////////////////////////////////////////////
 			NidFuncMap nidMap;
 			NameFuncMap nameMap;
+			///////////////////////////////////////////////
 			while (!IsEndFunctionEntry(pFunc))
 			{
+				m_symbolManager.registerBuiltinSymbol(szModName, szLibName, pFunc->nNid, pFunc->pFunction);
+				m_symbolManager.registerBuiltinSymbol(szModName, szLibName, pFunc->szFunctionName, pFunc->pFunction);
+
+				////////////////////////////////////////////
 				nidMap.insert(
 					std::make_pair((uint64_t)pFunc->nNid, (void *)pFunc->pFunction));
 				nameMap.insert(std::make_pair(std::string(pFunc->szFunctionName),
 											  (void *)pFunc->pFunction));
 				++pFunc;
+				/////////////////////////////////////////////
 			}
+			/////////////////////////////////////////////////////////////////
 			libMapNid.insert(std::make_pair((char *)szLibName, nidMap));
 			libMapName.insert(std::make_pair((char *)szLibName, nameMap));
+			////////////////////////////////////////////////////////////////
 			++pLib;
 		}
 
+		///////////////////////////////////////
 		m_moduleNidMap.insert(std::make_pair((char *)szModName, libMapNid));
 		m_moduleSymbNameMap.insert(std::make_pair((char *)szModName, libMapName));
+		////////////////////////////////////////////
 
 		bRet = true;
 	} while (false);
 	return bRet;
 }
 
+// TODO: Modification needed
 bool CSceModuleSystem::registerNativeFunction(std::string const &modName,
 										std::string const &libName,
 										uint64_t nid,
 										void *p)
 {
+	m_symbolManager.registerNativeSymbol(modName, libName, nid, p);
 	bool retVal = false;
 
 	do
@@ -294,11 +309,14 @@ bool CSceModuleSystem::registerNativeFunction(std::string const &modName,
 	return retVal;
 }
 
-bool CSceModuleSystem::registerSymbol(std::string const &modName,
-									  std::string const &libName,
-									  std::string const &symbolName,
-									  void *p)
+// TODO: Modifications needed
+bool CSceModuleSystem::registerNativeSymbol(std::string const &modName,
+											std::string const &libName,
+											std::string const &symbolName, 
+											void *p)
 {
+	m_symbolManager.registerNativeSymbol(modName, libName, symbolName, p);
+
 	bool retVal = false;
 	if (m_moduleSymbNameMap.count(modName) == 0)
 	{
@@ -328,19 +346,54 @@ bool CSceModuleSystem::registerSymbol(std::string const &modName,
 	return retVal;
 }
 
+// TODO: Modifications needed
 bool CSceModuleSystem::registerMemoryMappedModule(std::string const &modName,
 												  MemoryMappedModule &&mod)
 {
+	//////////////////////////////////////////////////////////
 	auto index = m_mappedModules.size();
-
 	m_mappedModuleNameIndexMap.insert(std::make_pair(modName, index));
 	m_mappedModules.push_back(std::move(mod));
+	//////////////////////////////////////////////////////////
+
+	m_moduleManager.registerNativeModule(modName, std::move(mod));
 
 	return true;
 }
 
+Policy CSceModuleSystem::getModulePolicy(std::string const& modName) const
+{
+	return m_policyManager.getModulePolicy(modName);
+}
+
+Policy CSceModuleSystem::getSymbolPolicy(std::string const& modName,
+										 std::string const& libName,
+										 uint64_t nid) const
+{
+	m_policyManager.getSymbolPolicy(modName, libName, nid);
+}
+
+Policy CSceModuleSystem::getSymbolPolicy(std::string const& modName,
+										 std::string const& libName,
+										 std::string const& name) const
+{
+	m_policyManager.getSymbolPolicy(modName, libName, name);
+}
+
+const SymbolManager& CSceModuleSystem::getSymbolManager() const
+{
+	return m_symbolManager;
+}
+
+PolicyManager& CSceModuleSystem::getPolicyManager()
+{
+	return m_policyManager;
+}
+
+// TODO: Modifications needed
 bool CSceModuleSystem::isMemoryMappedModuleLoaded(std::string const &modName)
 {
+	////////////////////////////////////////////////////////////
 	bool retVal = false;
 
 	if (m_mappedModuleNameIndexMap.count(modName) != 0)
@@ -351,8 +404,11 @@ bool CSceModuleSystem::isMemoryMappedModuleLoaded(std::string const &modName)
 	{
 		retVal = false;
 	}
+	/////////////////////////////////////////////////////////////
 
-	return retVal;
+	return m_moduleManager.isNativeModuleLoaded(modName);
+	// return retVal;
+
 }
 
 CSceModuleSystem::SceMappedModuleList &CSceModuleSystem::getMemoryMappedModules()

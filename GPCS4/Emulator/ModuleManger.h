@@ -12,6 +12,8 @@ public:
 	void registerNativeModule(std::string const& modName, MemoryMappedModule&& mod);
 
 	bool isBuiltinModuleDefined(std::string const& modName) const;
+
+	bool isNativeModuleLoaded(std::string const& modName);
 	bool getNativeModule(std::string const& modName, MemoryMappedModule** modOut);
 
 private:

@@ -877,6 +877,9 @@
     <ClInclude Include="Emulator\SymbolManager.h">
       <Filter>Source Files\Emulator</Filter>
     </ClInclude>
+    <ClInclude Include="Emulator\ModuleManger.h">
+      <Filter>Source Files\Emulator</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1540,6 +1543,9 @@
       <Filter>Source Files\Emulator</Filter>
     </ClCompile>
     <ClCompile Include="Emulator\SymbolManager.cpp">
+      <Filter>Source Files\Emulator</Filter>
+    </ClCompile>
+    <ClCompile Include="Emulator\ModuleManger.cpp">
       <Filter>Source Files\Emulator</Filter>
     </ClCompile>
   </ItemGroup>

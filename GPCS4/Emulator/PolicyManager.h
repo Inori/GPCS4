@@ -20,7 +20,7 @@ public:
     void setPolicy(Policy policy);
 
     Policy getSymbolPolicy(uint64_t nid) const;
-    Policy getSymoblPolicy(std::string name) const;
+    Policy getSymoblPolicy(std::string const&  name) const;
 
 private:
     Policy m_policy;
@@ -61,13 +61,18 @@ public:
 	Policy getSymbolPolicy(std::string const &modName,
 	                      std::string const &libName,
                           uint64_t nid) const;
+
+	Policy getSymbolPolicy(std::string const &modName,
+	                      std::string const &libName,
+                          std::string const& name) const;
 	
 	ModulePolicyAdder addModule(std::string const &name);
 
 private:
-	ModuleManager& m_modManager;
 	const Policy m_defaultPolicy = Policy::UseBuiltin;
+	const bool m_useNativeImplsWhenBuiltinModuleNotDefined = true;	
     std::map<std::string, ModulePolicy> m_modPolicyTable;
+	ModuleManager& m_modManager;
 };
 
 

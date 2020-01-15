@@ -24,6 +24,7 @@
     <ClInclude Include="Common\GPCS4Log.h" />
     <ClInclude Include="Common\GPCS4Types.h" />
     <ClInclude Include="Common\IntelliSenseClang.h" />
+    <ClInclude Include="Emulator\ModuleManger.h" />
     <ClInclude Include="Emulator\PolicyManager.h" />
     <ClInclude Include="Emulator\SymbolManager.h" />
     <ClInclude Include="Loader\elf-sce.h" />
@@ -259,6 +260,7 @@
     <ClCompile Include="Emulator\GameThread.cpp" />
     <ClCompile Include="Emulator\Linker.cpp" />
     <ClCompile Include="Emulator\Module.cpp" />
+    <ClCompile Include="Emulator\ModuleManger.cpp" />
     <ClCompile Include="Emulator\PolicyManager.cpp" />
     <ClCompile Include="Emulator\RegisterModules.cpp" />
     <ClCompile Include="Emulator\SceModuleSystem.cpp" />

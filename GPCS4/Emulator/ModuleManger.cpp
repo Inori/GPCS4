@@ -20,6 +20,11 @@ bool ModuleManager::isBuiltinModuleDefined(std::string const& modName) const
 	return util::contains(m_builtinModules, modName);
 }
 
+bool ModuleManager::isNativeModuleLoaded(std::string const& modName)
+{
+	return util::contains(m_nativeModuleNameIndexMap, modName);
+}
+
 bool ModuleManager::getNativeModule(std::string const& modName,
 									MemoryMappedModule** modOut)
 {

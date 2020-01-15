@@ -23,6 +23,8 @@ public:
 	bool relocateModules();
 
 private:
+	void* getSymbolAddress(std::string const &modName, std::string const& libName, uint64_t nid) const;
+	void* getSymbolAddress(std::string const& modName, std::string const& libName, std::string const& symbName) const;
 	bool relocateModule(MemoryMappedModule &mod);
 	bool relocateRela(MemoryMappedModule &mod);
 	bool relocatePltRela(MemoryMappedModule &mod);

@@ -2,6 +2,10 @@
 
 #include "GPCS4Common.h"
 #include "UtilSingleton.h"
+#include "PolicyManager.h"
+#include "SymbolManager.h"
+#include "ModuleManger.h"
+
 #include "Module.h"
 #include <string>
 #include <unordered_map>
@@ -60,18 +64,10 @@ private:
 public:
 	void clearModules();
 
-	bool registerBuiltinModule(const SCE_EXPORT_MODULE& stModule);
 
-	bool registerNativeFunction(std::string const &modName, std::string const &libName, uint64_t nid, void *p);
 
-	bool registerSymbol(std::string const &modName,
-						std::string const &libName,
-						std::string const &symbolName,
-						void *p);
 
-	bool registerMemoryMappedModule(std::string const &modName, MemoryMappedModule &&mod);
 
-	bool isMemoryMappedModuleLoaded(std::string const &modName);
 
 	SceMappedModuleList &getMemoryMappedModules();
 
@@ -130,5 +126,38 @@ private:
 	std::vector<std::string> m_builtinModules;
 	SceMappedModuleList m_mappedModules;
 	SceModuleNameIndexMap m_mappedModuleNameIndexMap;
+//////////////////////////////////////////////////////////////////
+public:
+	bool isMemoryMappedModuleLoaded(std::string const &modName);
+	bool registerBuiltinModule(const SCE_EXPORT_MODULE& stModule);
+	bool registerMemoryMappedModule(std::string const &modName,
+									MemoryMappedModule &&mod);
+	
+	bool registerNativeFunction(std::string const &modName,
+								std::string const &libName,
+								uint64_t nid,
+								void *p);
+
+	bool registerNativeSymbol(std::string const &modName,
+							  std::string const &libName,
+							  std::string const &symbolName,
+							  void *p);
+
+	Policy getModulePolicy(std::string const& modName) const;
+
+	Policy getSymbolPolicy(std::string const &modName,
+						   std::string const &libName,
+						   uint64_t nid) const;
+
+	Policy getSymbolPolicy(std::string const& modName,
+						   std::string const& libName,
+						   std::string const& name) const;
+	
+	const SymbolManager& getSymbolManager() const;
+	PolicyManager& getPolicyManager();
+private:
+	ModuleManager m_moduleManager;
+	SymbolManager m_symbolManager;
+	PolicyManager m_policyManager;
 };
 

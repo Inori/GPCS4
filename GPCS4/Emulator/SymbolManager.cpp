@@ -1,27 +1,27 @@
 #include "SymbolManager.h"
 
-void *SymbolManager::findNativeSymbol(std::string const &modName,
+const void *SymbolManager::findNativeSymbol(std::string const &modName,
 	                                   std::string const &libName,
 	                                   uint64_t nid)
 {
 	return findSymbolGeneric(m_nativeModuleSymbolNidDir, modName, libName, nid);
 }
 
-void* SymbolManager::findNativeSymbol(std::string const& modName,
+const void* SymbolManager::findNativeSymbol(std::string const& modName,
 									  std::string const& libName,
 									  std::string const& symbName)
 {
 	return findSymbolGeneric(m_nativeModuleSymbolNameDir, modName, libName, symbName);
 }
 
-void* SymbolManager::findBuiltinSymbol(std::string const& modName,
+const void* SymbolManager::findBuiltinSymbol(std::string const& modName,
 									   std::string const& libName,
 									   uint64_t nid)
 {
 	return findSymbolGeneric(m_builtinModuleSymbolNidDir, modName, libName, nid);
 }
 
-void* SymbolManager::findBuiltinSymbol(std::string const& modName,
+const void* SymbolManager::findBuiltinSymbol(std::string const& modName,
 									   std::string const& libName,
 									   std::string const& name)
 {
@@ -31,7 +31,7 @@ void* SymbolManager::findBuiltinSymbol(std::string const& modName,
 bool SymbolManager::registerNativeSymbol(std::string const& modName,
 										 std::string const& libName,
 										 uint64_t nid,
-										 void* address)
+										 const void* address)
 {
 	return registerSymbolNidGeneric(m_nativeModuleSymbolNidDir,
 									modName,
@@ -40,7 +40,10 @@ bool SymbolManager::registerNativeSymbol(std::string const& modName,
 									address);
 }
 
-bool SymbolManager::registerNativeSymbol(std::string const& modName, std::string const& libName, std::string const& name, void* address)
+bool SymbolManager::registerNativeSymbol(std::string const& modName,
+										 std::string const& libName,
+										 std::string const& name,
+										 const void* address)
 {
 	return registerSymbolNidGeneric(m_nativeModuleSymbolNameDir,
 									modName,
@@ -52,7 +55,7 @@ bool SymbolManager::registerNativeSymbol(std::string const& modName, std::string
 bool SymbolManager::registerBuiltinSymbol(std::string const& modName,
 										  std::string const& libName,
 										  uint64_t nid,
-										  void* address)
+										  const void* address)
 {
 	return registerSymbolNidGeneric(m_builtinModuleSymbolNidDir,
 									modName,
@@ -64,7 +67,7 @@ bool SymbolManager::registerBuiltinSymbol(std::string const& modName,
 bool SymbolManager::registerBuiltinSymbol(std::string const& modName,
 										  std::string const& libName,
 										  std::string const& name,
-										  void* address)
+										  const void* address)
 {
 	return registerSymbolNidGeneric(m_builtinModuleSymbolNameDir,
 									modName,

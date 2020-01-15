@@ -4,58 +4,58 @@
 class SymbolManager
 {
 public:
-	void *findNativeSymbol(std::string const &modName,
-		                   std::string const &libName,
-		                   uint64_t nid);
+	const void *findNativeSymbol(std::string const &modName,
+								 std::string const &libName,
+								 uint64_t nid);
 
-	void *findNativeSymbol(std::string const &modName,
+	const void *findNativeSymbol(std::string const &modName,
 		                   std::string const &libName,
 		                   std::string const &symbName);
 
-	void *findBuiltinSymbol(std::string const &modName,
+	const void *findBuiltinSymbol(std::string const &modName,
 		                    std::string const &libName,
                             uint64_t nid);
 
-	void *findBuiltinSymbol(std::string const &modName,
+	const void *findBuiltinSymbol(std::string const &modName,
 		                    std::string const &libName,
                             std::string const &name);
 
 	bool registerNativeSymbol(std::string const &modName,
 		                      std::string const &libName,
 		                      uint64_t nid,
-		                      void *address);
+		                      const void *address);
 
 	bool registerNativeSymbol(std::string const &modName,
 		                      std::string const &libName,
 		                      std::string const &name,
-		                      void *address);
+		                      const void *address);
 
 	bool registerBuiltinSymbol(std::string const &modName,
 		                       std::string const &libName,
                                uint64_t nid,
-		                       void *address);
+		                       const void *address);
 
 	bool registerBuiltinSymbol(std::string const &modName,
 		                       std::string const &libName,
                                std::string const &name,
-		                       void *address);
+		                       const void *address);
 
 private:
-	using NidAddrMap = std::unordered_map<uint64_t, void*>;
-	using NameAddrMap = std::unordered_map<std::string, void*>;
+	using NidAddrMap = std::unordered_map<uint64_t, const void*>;
+	using NameAddrMap = std::unordered_map<std::string, const void*>;
 	using LibSymbNidMap = std::unordered_map<std::string, NidAddrMap>;
 	using LibSymbNameMap = std::unordered_map<std::string, NameAddrMap>;
 	using ModSymbNameMap = std::unordered_map<std::string, LibSymbNameMap>;
 	using ModSymbNidMap = std::unordered_map<std::string, LibSymbNidMap>;
 
 	template<typename Table, typename KeyType>
-	void *findSymbolGeneric(Table &table,
+	const void *findSymbolGeneric(Table &table,
 		                    std::string const &modName,
 		                    std::string const &libName,
 		                    KeyType nid)
 	{
 		auto &tab = table;
-		void *address = nullptr;
+		const void *address = nullptr;
 
 		do
 		{
@@ -91,7 +91,7 @@ private:
 							   std::string const &modName,
 							   std::string const &libName,
 							   KeyType nid,
-							   void *addr)
+							   const void *addr)
 	{
 		using LibMapType = typename Table::mapped_type;
 		using AddrMapType = typename Table::mapped_type::mapped_type;
