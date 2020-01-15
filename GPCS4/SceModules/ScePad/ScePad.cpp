@@ -1,5 +1,5 @@
 #include "ScePad.h"
-
+#include "sce_errors.h"
 
 SceInputController::~SceInputController()
 {
@@ -22,6 +22,10 @@ int SceGamepad::read(ScePadData* data, int32_t num)
 }
 
 
+int SceGamepad::readState(ScePadData* data)
+{
+}
+
 SceKeyboard::SceKeyboard()
 {
 }
@@ -35,6 +39,14 @@ int SceKeyboard::read(ScePadData* data, int32_t num)
 	
 }
 
+
+int SceKeyboard::readState(ScePadData* data)
+{
+	LOG_SCE_DUMMY_IMPL();
+	memset(data, 0, sizeof(ScePadData));
+	data->connected = false;
+	return SCE_OK;
+}
 
 ScePad::ScePad(SceUserServiceUserId userId, int32_t type, int32_t index):
 	m_userId(userId),
@@ -68,7 +80,6 @@ int ScePad::read(ScePadData* data, int32_t num)
 
 int ScePad::readState(ScePadData* data)
 {
-	LOG_SCE_DUMMY_IMPL();
-	return 0;
+	return m_controller->readState(data);
 }
 

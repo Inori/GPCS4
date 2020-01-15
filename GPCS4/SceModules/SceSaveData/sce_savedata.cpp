@@ -80,10 +80,13 @@ int PS4API sceSaveDataGetEventResult(void)
 	return SCE_OK;
 }
 
+uint8_t g_saveDataMemory[0x1000] = { 0 };
 
 int PS4API sceSaveDataGetSaveDataMemory(const SceUserServiceUserId userId, void* buf, const size_t bufSize, const uint64_t offset)
 {
 	LOG_FIXME("Not implemented");
+	std::memset(buf, 0, bufSize);
+	std::memcpy(buf, g_saveDataMemory, bufSize);
 	return SCE_OK;
 }
 
@@ -98,6 +101,7 @@ int PS4API sceSaveDataGetSaveDataMemory2(SceSaveDataMemoryGet2 *getParam)
 int PS4API sceSaveDataSetSaveDataMemory(const SceUserServiceUserId userId, const void* buf, const size_t bufSize, const uint64_t offset)
 {
 	LOG_FIXME("Not implemented");
+	std::memcpy(g_saveDataMemory, buf, bufSize);
 	return SCE_OK;
 }
 

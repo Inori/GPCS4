@@ -14,6 +14,8 @@ public:
 	virtual ~SceInputController() = 0;
 
 	virtual int read(ScePadData* data, int32_t num) = 0;
+
+	virtual int readState(ScePadData* data) = 0;
 };
 
 
@@ -24,6 +26,8 @@ public:
 	virtual ~SceGamepad();
 
 	virtual int read(ScePadData* data, int32_t num) override;
+
+	virtual int readState(ScePadData* data) override;
 
 private:
 
@@ -37,6 +41,9 @@ public:
 	virtual ~SceKeyboard();
 
 	virtual int read(ScePadData* data, int32_t num) override;
+
+	virtual int readState(ScePadData* data) override;
+
 private:
 
 };
