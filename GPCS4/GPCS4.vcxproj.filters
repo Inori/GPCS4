@@ -871,11 +871,11 @@
     <ClInclude Include="SceModules\SceFios2\sce_fios2_types.h">
       <Filter>SceModules\SceFios2</Filter>
     </ClInclude>
-    <ClInclude Include="SceModules\SceSystemService\sce_system_param.h">
-      <Filter>SceModules\SceSystemService</Filter>
+    <ClInclude Include="Emulator\PolicyManager.h">
+      <Filter>Source Files\Emulator</Filter>
     </ClInclude>
-    <ClInclude Include="SceModules\SceSystemService\sce_systemservice_error.h">
-      <Filter>SceModules\SceSystemService</Filter>
+    <ClInclude Include="Emulator\SymbolManager.h">
+      <Filter>Source Files\Emulator</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1535,6 +1535,12 @@
     </ClCompile>
     <ClCompile Include="SceModules\SceLibkernel\sce_kernel_tls.cpp">
       <Filter>SceModules\SceLibkernel</Filter>
+    </ClCompile>
+    <ClCompile Include="Emulator\PolicyManager.cpp">
+      <Filter>Source Files\Emulator</Filter>
+    </ClCompile>
+    <ClCompile Include="Emulator\SymbolManager.cpp">
+      <Filter>Source Files\Emulator</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
