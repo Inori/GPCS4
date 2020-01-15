@@ -71,7 +71,25 @@ int PS4API sceUserServiceGetEvent(SceUserServiceEvent* event)
 
 int PS4API sceUserServiceGetLoginUserIdList(SceUserServiceLoginUserIdList* userIdList)
 {
-	LOG_SCE_DUMMY_IMPL();
-	return SCE_OK;
+	LOG_SCE_TRACE("userIdList %p", userIdList);
+	int ret = SCE_ERROR_UNKNOWN;
+	do
+	{
+		if (!userIdList)
+		{
+			ret = SCE_USER_SERVICE_ERROR_INVALID_ARGUMENT;
+			break;
+		}
+
+		userIdList->userId[0] = SCE_DUMMY_USERID;
+
+		for (uint32_t i = 1; i != SCE_USER_SERVICE_MAX_LOGIN_USERS; ++i)
+		{
+			userIdList->userId[i] = SCE_USER_SERVICE_USER_ID_INVALID;
+		}
+
+		ret = SCE_OK;
+	} while (false);
+	return ret;
 }
 
