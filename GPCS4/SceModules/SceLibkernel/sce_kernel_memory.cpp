@@ -8,7 +8,9 @@ int PS4API sceKernelAllocateDirectMemory(sceoff_t searchStart, sceoff_t searchEn
 	size_t len, size_t alignment, int memoryType, sceoff_t *physAddrOut)
 {
 	LOG_SCE_DUMMY_IMPL();
-	*physAddrOut = (sceoff_t)UtilMemory::VMMapEx(NULL, len, UtilMemory::VMPF_READ_WRITE, UtilMemory::VMAT_RESERVE_COMMIT);
+	//*physAddrOut = (sceoff_t)UtilMemory::VMMapEx(NULL, len, UtilMemory::VMPF_READ_WRITE, UtilMemory::VMAT_RESERVE_COMMIT);
+	uint64_t direct = 0x100000000;
+	*physAddrOut    = (uint64_t)direct;
 	return SCE_OK;
 }
 
@@ -18,6 +20,15 @@ int PS4API sceKernelMapDirectMemory(void **addr, size_t len, int prot, int flags
 {
 	LOG_SCE_DUMMY_IMPL();
 	*addr = (void*)directMemoryStart;
+
+	// Note:
+	// Direct memory address is supposed to be within 0x000000FFFFFFFFFF
+	static uint64_t aaa = 0x400000;
+	auto a = (void*)(sceoff_t)UtilMemory::VMMapEx((void*)aaa, len, UtilMemory::VMPF_READ_WRITE, UtilMemory::VMAT_RESERVE_COMMIT);
+	aaa += len;
+	*addr = a;
+	return SCE_OK;
+
 	return SCE_OK;
 }
 
