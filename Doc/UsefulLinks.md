@@ -17,19 +17,25 @@ http://ghettohaxxx-blog.azurewebsites.net/executing-bsd-elfs-in-windows/
 (ELF) Relocations, Relocations  
 https://www.mindfruit.co.uk/2012/06/relocations-relocations.html?m=1
 
-elfstuff (ELF loader/parser)  
-https://github.com/shuffle2/elfstuff
-
 uplift (ELF loader/parser)  
 https://github.com/idc/uplift
 
 PS4 Module Loader (for IDA, can be used as NID database)  
 https://github.com/SocraticBliss/ps4_module_loader
 
-ELF relocation and linking
+ELF relocation and linking  
 https://eli.thegreenplace.net/2011/08/25/load-time-relocation-of-shared-libraries
 https://eli.thegreenplace.net/2011/11/03/position-independent-code-pic-in-shared-libraries
 https://eli.thegreenplace.net/2011/11/11/position-independent-code-pic-in-shared-libraries-on-x64
+
+Stack unwind/.eh_frame parse  
+http://blog.reverberate.org/2018/08/07/bloaty-1.0.html  
+http://refspecs.linuxfoundation.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/ehframechpt.html  
+https://www.airs.com/blog/archives/460  
+https://github.com/tomhughes/libdwarf  
+
+elfstuff (ELF loader/parser)  
+https://github.com/shuffle2/elfstuff
 
 
 ## Graphics:
