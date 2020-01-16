@@ -11,12 +11,7 @@ public:
 	CLinker();
 	CLinker(CSceModuleSystem &modSystem) : m_modSystem{modSystem} {};
 
-	bool ResolveSymbol(const std::string &strModName,
-					   const std::string &strLibName,
-					   uint64_t nNid,
-					   void **ppAddress) const;
-
-	bool resolveSymbol(MemoryMappedModule const &mod,
+	bool resolveSymbol(NativeModule const &mod,
 					   std::string const &name,
 					   uint64_t *addr) const;
 
@@ -25,9 +20,9 @@ public:
 private:
 	void* getSymbolAddress(std::string const &modName, std::string const& libName, uint64_t nid) const;
 	void* getSymbolAddress(std::string const& modName, std::string const& libName, std::string const& symbName) const;
-	bool relocateModule(MemoryMappedModule &mod);
-	bool relocateRela(MemoryMappedModule &mod);
-	bool relocatePltRela(MemoryMappedModule &mod);
+	bool relocateModule(NativeModule &mod);
+	bool relocateRela(NativeModule &mod);
+	bool relocatePltRela(NativeModule &mod);
 	void* generateStubFunction(const SymbolInfo* sybInfo, void* oldFunc) const;
 
 private:

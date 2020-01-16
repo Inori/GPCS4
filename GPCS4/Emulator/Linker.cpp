@@ -7,7 +7,7 @@
 CLinker::CLinker() : m_modSystem{*CSceModuleSystem::GetInstance()} {}
 
 // resolveSymbol always returns true
-bool CLinker::resolveSymbol(MemoryMappedModule const &mod,
+bool CLinker::resolveSymbol(NativeModule const &mod,
 							std::string const &name,
 							uint64_t *addrOut) const
 {
@@ -143,7 +143,7 @@ void* CLinker::generateStubFunction(const SymbolInfo* sybInfo, void* oldFunc) co
 
 bool CLinker::relocateModules()
 {
-	auto &mods  = m_modSystem.getMemoryMappedModules();
+	auto &mods  = m_modSystem.getAllNativeModules();
 	bool retVal = false;
 
 	for (auto &mod : mods)
@@ -185,7 +185,7 @@ void* CLinker::getSymbolAddress(std::string const& modName, std::string const& l
 	return const_cast<void*>(pointer);
 }
 
-bool CLinker::relocateModule(MemoryMappedModule& mod)
+bool CLinker::relocateModule(NativeModule& mod)
 {
 	bool retVal = false;
 
@@ -197,7 +197,7 @@ bool CLinker::relocateModule(MemoryMappedModule& mod)
 	return retVal;
 }
 
-bool CLinker::relocateRela(MemoryMappedModule &mod)
+bool CLinker::relocateRela(NativeModule &mod)
 {
 	bool retVal = false;
 	do
@@ -294,7 +294,7 @@ bool CLinker::relocateRela(MemoryMappedModule &mod)
 	return retVal;
 }
 
-bool CLinker::relocatePltRela(MemoryMappedModule &mod)
+bool CLinker::relocatePltRela(NativeModule &mod)
 {
 	bool bRet = false;
 	do

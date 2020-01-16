@@ -18,7 +18,7 @@ bool CSceModuleSystem::isNativeModuleLoadable(std::string const &modName) const
 	return m_policyManager.isModuleLoadable(modName);
 }
 
-std::vector<MemoryMappedModule>& CSceModuleSystem::getMemoryMappedModules()
+std::vector<NativeModule>& CSceModuleSystem::getAllNativeModules()
 {
 	return m_moduleManager.getNativeModules();
 }
@@ -91,7 +91,7 @@ bool CSceModuleSystem::registerNativeSymbol(std::string const &modName,
 }
 
 bool CSceModuleSystem::registerNativeModule(std::string const &modName,
-												  MemoryMappedModule &&mod)
+												  NativeModule &&mod)
 {
 	m_moduleManager.registerNativeModule(modName, std::move(mod));
 	return true;
@@ -132,8 +132,8 @@ bool CSceModuleSystem::isNativeModuleLoaded(std::string const &modName)
 }
 
 
-bool CSceModuleSystem::getMemoryMappedModule(std::string const &modName,
-											 MemoryMappedModule **ppMod)
+bool CSceModuleSystem::getNativeModule(std::string const &modName,
+											 NativeModule **ppMod)
 {
 	return m_moduleManager.getNativeModule(modName, ppMod);
 }

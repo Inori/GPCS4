@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 		CLinker linker      = {*CSceModuleSystem::GetInstance()};
 		ModuleLoader loader = { *CSceModuleSystem::GetInstance(), linker };
 
-		MemoryMappedModule *ebootModule = nullptr;
+		NativeModule *ebootModule = nullptr;
 		if (!loader.loadModule(szEboot, &ebootModule))
 		{
 			break;

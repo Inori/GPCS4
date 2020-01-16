@@ -24,7 +24,7 @@ public:
 
 	bool Run();
 
-	bool Run(MemoryMappedModule const &mod);
+	bool Run(NativeModule const &mod);
 
 private:
 	bool registerModules();

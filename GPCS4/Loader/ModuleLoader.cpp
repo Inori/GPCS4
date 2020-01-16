@@ -18,12 +18,12 @@ ModuleLoader::ModuleLoader(CSceModuleSystem &modSystem,
 }
 
 bool ModuleLoader::loadModule(std::string const &fileName,
-							  MemoryMappedModule **modOut)
+							  NativeModule **modOut)
 {
 	bool retVal = false;
 	do
 	{
-		MemoryMappedModule mod = {};
+		NativeModule mod = {};
 
 		bool exist = false;
 		retVal = loadModuleFromFile(fileName, &mod, &exist);
@@ -62,7 +62,7 @@ bool ModuleLoader::loadModule(std::string const &fileName,
 			break;
 		}
 
-		*modOut = &(m_modSystem.getMemoryMappedModules()[0]);
+		*modOut = &(m_modSystem.getAllNativeModules()[0]);
 		retVal  = true;
 	} while (false);
 
@@ -70,7 +70,7 @@ bool ModuleLoader::loadModule(std::string const &fileName,
 }
 
 bool ModuleLoader::loadModuleFromFile(std::string const &fileName,
-									  MemoryMappedModule *mod,
+									  NativeModule *mod,
 									  bool *exist)
 {
 	LOG_ASSERT(mod != nullptr, "mod is nullpointer");
@@ -178,7 +178,7 @@ bool ModuleLoader::loadDependencies()
 		}
 
 		bool exist = false;
-		auto mod = MemoryMappedModule{};
+		auto mod = NativeModule{};
 		retVal   = loadModuleFromFile(path, &mod, &exist);
 		if (!retVal)
 		{
@@ -206,7 +206,7 @@ bool ModuleLoader::loadDependencies()
 	return retVal || moduleNotFoundIgnore;
 }
 
-bool ModuleLoader::addDepedenciesToLoad(MemoryMappedModule const &mod)
+bool ModuleLoader::addDepedenciesToLoad(NativeModule const &mod)
 {
 	for (auto const &file : mod.getNeededFiles())
 	{
@@ -271,7 +271,7 @@ bool ModuleLoader::mapFilePathToModuleName(std::string const &filePath,
 	return retVal;
 }
 
-bool ModuleLoader::registerSymbol(MemoryMappedModule const &mod,
+bool ModuleLoader::registerSymbol(NativeModule const &mod,
 								  std::string const &encName,
 								  void *pointer)
 {
@@ -300,7 +300,7 @@ bool ModuleLoader::registerSymbol(MemoryMappedModule const &mod,
 	return retVal;
 }
 
-bool ModuleLoader::registerSymbol(MemoryMappedModule const &mod, size_t idx)
+bool ModuleLoader::registerSymbol(NativeModule const &mod, size_t idx)
 {
 	const SymbolInfo *info = nullptr;
 	mod.getSymbol(idx, &info);
@@ -323,7 +323,7 @@ bool ModuleLoader::registerSymbol(MemoryMappedModule const &mod, size_t idx)
 
 bool ModuleLoader::initializeModules()
 {
-	auto &mods  = m_modSystem.getMemoryMappedModules();
+	auto &mods  = m_modSystem.getAllNativeModules();
 	bool retVal = true;
 
 	auto tlsManager = TLSManager::GetInstance();

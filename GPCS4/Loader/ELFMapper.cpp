@@ -15,7 +15,7 @@
 #endif  // MODSYS_DISABLE_MAPPER_LOG_DEBUG
 
 
-bool ELFMapper::loadFile(std::string const &filePath, MemoryMappedModule *mod)
+bool ELFMapper::loadFile(std::string const &filePath, NativeModule *mod)
 {
 	UtilFile::file_uptr file = {};
 	bool retVal              = false;

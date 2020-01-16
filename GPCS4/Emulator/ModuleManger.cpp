@@ -7,7 +7,7 @@ void ModuleManager::registerBuiltinModule(std::string const& modName)
 }
 
 void ModuleManager::registerNativeModule(std::string const& modName,
-										 MemoryMappedModule&& mod)
+										 NativeModule&& mod)
 {
 	auto index = m_nativeModules.size();
 
@@ -26,7 +26,7 @@ bool ModuleManager::isNativeModuleLoaded(std::string const& modName)
 }
 
 bool ModuleManager::getNativeModule(std::string const& modName,
-									MemoryMappedModule** modOut)
+									NativeModule** modOut)
 {
 	bool ret  = false;
 	do
@@ -47,11 +47,11 @@ bool ModuleManager::getNativeModule(std::string const& modName,
 	return ret;
 }
 
-std::vector<MemoryMappedModule>& ModuleManager::getNativeModules()
+std::vector<NativeModule>& ModuleManager::getNativeModules()
 {
 	return m_nativeModules;
 }
-const std::vector<MemoryMappedModule>& ModuleManager::getNativeModules() const
+const std::vector<NativeModule>& ModuleManager::getNativeModules() const
 {
 	return m_nativeModules;
 }
