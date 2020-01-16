@@ -37,6 +37,12 @@ bool CLinker::resolveSymbol(NativeModule const &mod,
 			address = getSymbolAddress(info->moduleName,
 									   info->libraryName,
 									   info->symbolName);
+
+			auto policy = m_modSystem.getSymbolPolicy(info->moduleName,
+													  info->libraryName,
+													  info->symbolName);
+
+			useNative  = (policy == Policy::UseNative);
 		}
 		else
 		{
@@ -49,11 +55,12 @@ bool CLinker::resolveSymbol(NativeModule const &mod,
 													  info->nid);
 
 			useNative  = (policy == Policy::UseNative);
-
 		}
 
-		LOG_ERR_IF(address == nullptr, "fail to resolve symbol: %s from %s for module %s",
-				   name.c_str(), info->moduleName.c_str(), mod.fileName.c_str());
+		const char* source = useNative? "NATIVE":"BUILTIN";
+
+		LOG_ERR_IF(address == nullptr, "fail to resolve symbol: %s[%s] from %s for module %s",
+				   name.c_str(), source, info->moduleName.c_str(), mod.fileName.c_str());
 
 #ifdef MODSYS_STUB_DISABLE
 
