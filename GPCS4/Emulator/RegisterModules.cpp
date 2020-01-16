@@ -50,7 +50,14 @@ bool CEmulator::registerLibC(CSceModuleSystem* pModuleSystem)
 				0x94A10DD8879B809DULL  // longjmp
 			 });
 
-		policyManager.declareModule("libSceLibcInternal");
+		/*
+		 * Defines policy for libSceLibcInternal
+		 *
+		 * We load all of its symbols
+		 */
+		policyManager
+			.declareModule("libSceLibcInternal").withDefault(Policy::UseNative);
+
 		ret  = true;
 	}while(false);
 	return ret;
@@ -85,13 +92,6 @@ bool CEmulator::registerLibKernel(CSceModuleSystem* pModuleSystem)
 				0x581EBA7AFBBC6EC5  // sceKernelGetCompiledSdkVersion
 			 });
 
-		/*
-		 * Defines policy for libSceLibcInternal
-		 *
-		 * We load all of its symbols
-		 */
-		policyManager
-			.declareModule("libSceLibcInternal").withDefault(Policy::UseNative);
 
 		ret  = true;
 	}while(false);

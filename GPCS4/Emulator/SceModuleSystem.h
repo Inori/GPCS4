@@ -33,7 +33,7 @@ public:
 								 uint64_t nid) const;
 
 	/**
-	 * @brief Clear moduels. TODO: NOT IMPLEMENTED 
+	 * @brief Clear modules. TODO: NOT IMPLEMENTED 
 	 * 
 	 */
 	void clearModules();
@@ -192,8 +192,6 @@ private:
 	~CSceModuleSystem();
 	CSceModuleSystem(const CSceModuleSystem&) = delete;
 	CSceModuleSystem& operator = (const CSceModuleSystem&) = delete;
-	bool IsEndFunctionEntry(const SCE_EXPORT_FUNCTION* pFunc);
-	bool IsEndLibraryEntry(const SCE_EXPORT_LIBRARY* pLib);
 
 	ModuleManager m_moduleManager;
 	SymbolManager m_symbolManager;

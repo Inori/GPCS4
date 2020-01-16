@@ -8,10 +8,6 @@ CSceModuleSystem::CSceModuleSystem():m_policyManager{m_moduleManager} {}
 
 CSceModuleSystem::~CSceModuleSystem() {}
 
-bool CSceModuleSystem::IsEndLibraryEntry(const SCE_EXPORT_LIBRARY *pLib)
-{
-	return (pLib->szLibraryName == NULL && pLib->pFunctionEntries == NULL);
-}
 
 bool CSceModuleSystem::isNativeModuleLoadable(std::string const &modName) const
 {
@@ -21,13 +17,6 @@ bool CSceModuleSystem::isNativeModuleLoadable(std::string const &modName) const
 std::vector<NativeModule>& CSceModuleSystem::getAllNativeModules()
 {
 	return m_moduleManager.getNativeModules();
-}
-
-
-bool CSceModuleSystem::IsEndFunctionEntry(const SCE_EXPORT_FUNCTION* pFunc)
-{
-	return (pFunc->nNid == 0 && pFunc->szFunctionName == NULL &&
-			pFunc->pFunction == NULL);
 }
 
 bool CSceModuleSystem::registerBuiltinModule(const SCE_EXPORT_MODULE &stModule)
