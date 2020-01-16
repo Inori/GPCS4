@@ -38,7 +38,7 @@ public:
 	//virtual void disableGsMode() = 0;
 	//virtual void disableOrderedAppendAllocationCounter(uint32_t oaCounterIndex) = 0;
 	//virtual void dispatchDraw(PrimitiveType primType, uint32_t indexOffset, uint32_t primGroupIndexCount, uint32_t primGroupThreshold, uint32_t pollIntervalThreshold, DispatchDrawMode dispatchDrawMode, uint32_t sgprVrbLoc, DrawModifier modifier) = 0;
-	//virtual void dispatch(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ) = 0;
+	virtual void dispatch(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ) = 0;
 	//virtual void dispatchWithOrderedAppend(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ, DispatchOrderedAppendMode orderedAppendMode) = 0;
 	//virtual void dmaData(DmaDataDst	dstSel, uint64_t dst, DmaDataSrc srcSel, uint64_t srcOrData, uint32_t numBytes, DmaDataBlockingMode isBlocking) = 0;
 	virtual void drawIndexAuto(uint32_t indexCount, DrawModifier modifier) = 0;

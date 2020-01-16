@@ -191,12 +191,19 @@ void GnmCmdStream::processPM4Type3(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	case IT_GNM_PRIVATE:
 		onGnmPrivate(pm4Hdr, itBody);
 		break;
+
+	// Legacy packets used in old SDKs.
+	case IT_DRAW_INDEX_AUTO:
+	case IT_DISPATCH_DIRECT:
+		onOpLegacy(pm4Hdr, itBody);
+		break;
+
 	// The following opcode types are not used by Gnm
+
 	// TODO:
 	// There maybe still some opcodes belongs to Gnm that is not found.
 	// We should find all and place them above.
 	case IT_CLEAR_STATE:
-	case IT_DISPATCH_DIRECT:
 	case IT_DISPATCH_INDIRECT:
 	case IT_INDIRECT_BUFFER_END:
 	case IT_INDIRECT_BUFFER_CNST_END:
@@ -210,7 +217,6 @@ void GnmCmdStream::processPM4Type3(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	case IT_DRAW_INDEX_2:
 	case IT_CONTEXT_CONTROL:
 	case IT_DRAW_INDIRECT_MULTI:
-	case IT_DRAW_INDEX_AUTO:
 	case IT_DRAW_INDEX_MULTI_AUTO:
 	case IT_INDIRECT_BUFFER_PRIV:
 	case IT_INDIRECT_BUFFER_CNST:
@@ -803,6 +809,37 @@ void GnmCmdStream::onGnmPrivate(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	case OP_PRIV_DISPATCH_INDIRECT:
 		break;
 	default:
+		break;
+	}
+}
+
+void GnmCmdStream::onOpLegacy(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
+{
+	// Some gnm call implementations are different in old SDK libs.
+	// They will fill pm4 packets themselves directly,
+	// instead of calling gnm driver functions, like newer SDKs do.
+	// Thus we miss the chance to fill private packets in command buffer.
+	// So we have to handle these kinds of packets here.
+
+	IT_OpCodeType opcode = (IT_OpCodeType)pm4Hdr->opcode;
+	switch (opcode)
+	{
+	case IT_DISPATCH_DIRECT:
+	{
+		uint32_t threadGroupX = itBody[0];
+		uint32_t threadGroupY = itBody[1];
+		uint32_t threadGroupZ = itBody[2];
+		m_cb->dispatch(threadGroupX, threadGroupY, threadGroupZ);
+	}
+		break;
+	case IT_DRAW_INDEX_AUTO:
+	{
+		uint32_t indexCount = itBody[0];
+		m_cb->drawIndexAuto(indexCount);
+	}
+		break;
+	default:
+		LOG_FIXME("legacy opcode not handled %X", opcode);
 		break;
 	}
 }

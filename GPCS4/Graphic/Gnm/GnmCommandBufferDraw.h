@@ -113,6 +113,9 @@ public:
 	virtual void setIndexSize(IndexSize indexSize, CachePolicy cachePolicy) override;
 
 
+
+	virtual void dispatch(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ) override;
+
 private:
 	
 

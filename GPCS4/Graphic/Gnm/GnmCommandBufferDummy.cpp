@@ -195,3 +195,8 @@ void GnmCommandBufferDummy::writeAtEndOfPipeWithInterrupt(EndOfPipeEventType eve
 {
 	emuWriteGpuLabel(srcSelector, dstGpuAddr, immValue);
 }
+
+void GnmCommandBufferDummy::dispatch(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ)
+{
+	
+}

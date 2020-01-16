@@ -340,6 +340,11 @@ void GnmCommandBufferDraw::setIndexSize(IndexSize indexSize, CachePolicy cachePo
 	m_indexType = cvt::convertIndexSize(indexSize);
 }
 
+void GnmCommandBufferDraw::dispatch(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
 void GnmCommandBufferDraw::setPrimitiveType(PrimitiveType primType)
 {
 	do 
