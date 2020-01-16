@@ -2,7 +2,7 @@
 #include "sce_errors.h"
 #include <chrono>
 
-CSceSemaphore::CSceSemaphore(const std::string& name, int initCount, int maxCount, uint mode):
+CSceSemaphore::CSceSemaphore(const std::string& name, int initCount, int maxCount, uint32_t mode):
 	m_name(name),
 	m_count(initCount),
 	m_maxCount(maxCount)
@@ -54,7 +54,7 @@ int CSceSemaphore::Poll(int count)
 	return err;
 }
 
-int CSceSemaphore::Wait(int count, uint* pTimeOut)
+int CSceSemaphore::Wait(int count, uint32_t* pTimeOut)
 {
 	int err = SCE_KERNEL_ERROR_UNKNOWN;
 	std::unique_lock<std::mutex> lock(m_mutex);
@@ -103,7 +103,7 @@ int CSceSemaphore::Wait(int count, uint* pTimeOut)
 
 // TODO:
 // implement Cancel
-int CSceSemaphore::Cancel(int setCount, uint* pNumWaitThreads)
+int CSceSemaphore::Cancel(int setCount, uint32_t* pNumWaitThreads)
 {
 	return SCE_KERNEL_ERROR_ESRCH;
 }

@@ -10,7 +10,7 @@ namespace UtilThread
 #undef WIN32_LEAN_AND_MEAN
 
 
-uint64 GetThreadId(void)
+uint64_t GetThreadId(void)
 {
 	return GetCurrentThreadId();
 }
@@ -24,7 +24,7 @@ void ThreadYield()
 #elif defined(GPCS4_LINUX)
 
 #include <sys/types.h>
-uint64 GetThreadId(void)
+uint64_t GetThreadId(void)
 {
 	return gettid();
 }

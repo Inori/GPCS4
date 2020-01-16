@@ -8,7 +8,7 @@
 
 struct SCE_EXPORT_FUNCTION
 {
-	const uint64 nNid;
+	const uint64_t nNid;
 	const char* szFunctionName;
 	const void* pFunction;
 };

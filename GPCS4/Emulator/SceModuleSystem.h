@@ -10,6 +10,9 @@ struct SCE_EXPORT_FUNCTION;
 struct SCE_EXPORT_LIBRARY;
 struct SCE_EXPORT_MODULE;
 
+// Note:
+// Here "override" always mean native over builtin
+
 class CSceModuleSystem final : public Singleton<CSceModuleSystem>
 {
 	friend class  Singleton<CSceModuleSystem>;
@@ -38,7 +41,7 @@ private:
 
 	//since we won't insert or remove item after initialization
 	//we use unordered_map instead of map
-	typedef std::unordered_map<uint64, void*> NidFuncMap;
+	typedef std::unordered_map<uint64_t, void*> NidFuncMap;
 	typedef std::unordered_map<std::string, void*> NameFuncMap;
 
 	typedef std::unordered_map<std::string, NidFuncMap> SceLibMapNid;
@@ -74,7 +77,7 @@ public:
 
 	bool getMemoryMappedModule(std::string const &modName, MemoryMappedModule **ppMod);
 	
-	void* findFunction(const std::string& strModName, const std::string& strLibName, uint64 nNid);
+	void* findFunction(const std::string& strModName, const std::string& strLibName, uint64_t nNid);
 	void *findSymbol(std::string const &modName, std::string const &libName, std::string const &symbolName);
 
 	bool isModuleLoaded(const std::string& modName);
@@ -102,7 +105,13 @@ public:
 	const MODULE_INFO* getEbootModuleInfo() const;
 
 private:
+	// Check if a builtin module is defined
 	bool isBuitinModuleDefined(std::string const& name) const;
+
+	// Check if a module overridability defination is empty(does not contain any
+	// library definations). This function also returns true when the module
+	// overridability does not exist.
+	bool isModuleOVRDDefinationEmpty(std::string const& modName) const;
 	bool isLibraryOverridabilityDefined(std::string const &modName, std::string const &libName) const; 
 
 	bool IsEndFunctionEntry(const SCE_EXPORT_FUNCTION* pFunc);

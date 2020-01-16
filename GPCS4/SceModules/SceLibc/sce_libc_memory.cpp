@@ -25,7 +25,9 @@ void* PS4API scec_calloc(size_t nmemb, size_t size)
 
 void PS4API scec_free(void *ptr)
 {
-	LOG_SCE_TRACE("ptr %p", ptr)
-	return free(ptr);
+	LOG_SCE_DUMMY_IMPL();
+	return;
+	//LOG_SCE_TRACE("ptr %p", ptr)
+	//return free(ptr);
 }
 

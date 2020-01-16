@@ -4,20 +4,27 @@
 #include "Platform/UtilMemory.h"
 #include <cstring>
 
-int PS4API sceKernelAllocateDirectMemory(sceoff_t searchStart, sceoff_t searchEnd, 
-	size_t len, size_t alignment, int memoryType, sceoff_t *physAddrOut)
+// Note:
+// Direct memory address is supposed to be within 0x000000FFFFFFFFFF
+static uint64_t baseDirectMemory = 0x400000;
+
+int PS4API sceKernelAllocateDirectMemory(sce_off_t searchStart, sce_off_t searchEnd,
+	size_t len, size_t alignment, int memoryType, sce_off_t *physAddrOut)
 {
 	LOG_SCE_DUMMY_IMPL();
-	*physAddrOut = (sceoff_t)UtilMemory::VMMapEx(NULL, len, UtilMemory::VMPF_READ_WRITE, UtilMemory::VMAT_RESERVE_COMMIT);
+	*physAddrOut = (uint64_t)baseDirectMemory;
 	return SCE_OK;
 }
 
 
-int PS4API sceKernelMapDirectMemory(void **addr, size_t len, int prot, int flags, 
-	sceoff_t directMemoryStart, size_t maxPageSize)
+int PS4API sceKernelMapDirectMemory(void **addr, size_t len, int prot, int flags,
+	sce_off_t directMemoryStart, size_t maxPageSize)
 {
 	LOG_SCE_DUMMY_IMPL();
-	*addr = (void*)directMemoryStart;
+	auto address = (void*)(sce_off_t)UtilMemory::VMMapEx((void*)baseDirectMemory, len,
+		UtilMemory::VMPF_READ_WRITE, UtilMemory::VMAT_RESERVE_COMMIT);
+	baseDirectMemory += len;
+	*addr = address;
 	return SCE_OK;
 }
 
@@ -30,15 +37,15 @@ size_t PS4API sceKernelGetDirectMemorySize(void)
 }
 
 
-int PS4API sceKernelReleaseDirectMemory(sceoff_t start, size_t len)
+int PS4API sceKernelReleaseDirectMemory(sce_off_t start, size_t len)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
 }
 
 
-int PS4API sceKernelGetDirectMemoryType(sceoff_t start, int *memoryType, 
-	sceoff_t *regionStartOut, sceoff_t *regionEndOut)
+int PS4API sceKernelGetDirectMemoryType(sce_off_t start, int *memoryType, 
+	sce_off_t *regionStartOut, sce_off_t *regionEndOut)
 {
 	LOG_SCE_DUMMY_IMPL();
 	*memoryType = SCE_KERNEL_WB_GARLIC;
@@ -63,7 +70,7 @@ int PS4API sceKernelIsStack(void)
 
 int PS4API sceKernelMapNamedDirectMemory(void **addr, size_t len, 
 	int prot, int flags, 
-	sceoff_t directMemoryStart, size_t alignment, 
+	sce_off_t directMemoryStart, size_t alignment, 
 	const char *name)
 {
 	LOG_SCE_DUMMY_IMPL();
@@ -112,7 +119,7 @@ int PS4API sceKernelQueryMemoryProtection(void)
 int PS4API sceKernelReserveVirtualRange(void **addr, size_t len, int flags, size_t alignment)
 {
 	LOG_SCE_DUMMY_IMPL();
-	*addr = new byte[1024 * 1024 * 256];
+	*addr = new uint8_t[1024 * 1024 * 256];
 	return SCE_OK;
 }
 
@@ -142,7 +149,7 @@ int PS4API sceKernelMapFlexibleMemory(void **addrInOut, size_t len, int prot, in
 			break;
 		}
 
-		if (flags & SCE_KERNEL_MAP_FIXED && !util::isAligned((uint64)*addrInOut, (size_t)SCE_LOGICAL_PAGE_SIZE))
+		if (flags & SCE_KERNEL_MAP_FIXED && !util::isAligned((uint64_t)*addrInOut, (size_t)SCE_LOGICAL_PAGE_SIZE))
 		{
 			err = SCE_KERNEL_ERROR_EINVAL;
 			break;

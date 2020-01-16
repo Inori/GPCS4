@@ -86,31 +86,32 @@ typedef uint16_t SceKernelMode;
 #define SCE_KERNEL_O_DIRECTORY     O_DIRECTORY
 
 
-typedef uint32_t		__scedev_t;	/* device number */
-typedef	__sce_ino_t		sceino_t;		/* inode number */
-typedef	__scemode_t		scemode_t;		/* permissions */
-typedef	__scenlink_t	scenlink_t;	/* link count */
-typedef	__sceuid_t		sceuid_t;		/* user id */
-typedef	__scegid_t		scegid_t;		/* group id */
-typedef	__sceblkcnt_t	sceblkcnt_t;
-typedef	__sceblksize_t	sceblksize_t;
-typedef	__scefflags_t	scefflags_t;	/* file flags */
+typedef uint32_t		__sce_dev_t;	/* device number */
+typedef	__sce_ino_t		sce_ino_t;		/* inode number */
+typedef	__sce_mode_t	sce_mode_t;		/* permissions */
+typedef __sce_nlink_t	sce_nlink_t;       /* link count */
+typedef __sce_uid_t		sce_uid_t;               /* user id */
+typedef __sce_gid_t		sce_gid_t;           /* group id */
+typedef __sce_blkcnt_t	sce_blkcnt_t;
+typedef __sce_blksize_t	sce_blksize_t;
+typedef __sce_fflags_t	sce_fflags_t; /* file flags */
 
-struct sce_stat {
-	__scedev_t   st_dev;		/* inode's device */
-	sceino_t	  st_ino;		/* inode's number */
-	scemode_t	  st_mode;		/* inode protection mode */
-	scenlink_t	  st_nlink;		/* number of hard links */
-	sceuid_t	  st_uid;		/* user ID of the file's owner */
-	scegid_t	  st_gid;		/* group ID of the file's group */
-	__scedev_t   st_rdev;		/* device type */
+struct sce_stat 
+{
+	__sce_dev_t   st_dev;		/* inode's device */
+	sce_ino_t	  st_ino;		/* inode's number */
+	sce_mode_t	  st_mode;		/* inode protection mode */
+	sce_nlink_t	  st_nlink;		/* number of hard links */
+	sce_uid_t	  st_uid;		/* user ID of the file's owner */
+	sce_gid_t	  st_gid;		/* group ID of the file's group */
+	__sce_dev_t   st_rdev;		/* device type */
 	struct	sce_timespec st_atim;	/* time of last access */
 	struct	sce_timespec st_mtim;	/* time of last data modification */
 	struct	sce_timespec st_ctim;	/* time of last file status change */
-	sceoff_t	  st_size;		/* file size, in bytes */
-	sceblkcnt_t st_blocks;		/* blocks allocated for file */
-	sceblksize_t st_blksize;		/* optimal blocksize for I/O */
-	scefflags_t  st_flags;		/* user defined flags for file */
+	sce_off_t	  st_size;		/* file size, in bytes */
+	sce_blkcnt_t  st_blocks;		/* blocks allocated for file */
+	sce_blksize_t st_blksize;		/* optimal blocksize for I/O */
+	sce_fflags_t  st_flags;		/* user defined flags for file */
 	uint32_t st_gen;		/* file generation number */
 	int32_t st_lspare;
 	struct sce_timespec st_birthtim;	/* time of file creation */
@@ -133,12 +134,13 @@ typedef struct sce_stat SceKernelStat;
 #define SCE_KERNEL_DT_DIR          4
 #define SCE_KERNEL_DT_REG          8
 
-struct sce_dirent {
+struct sce_dirent 
+{
 	uint32_t d_fileno;		/* file number of entry */
 	uint16_t d_reclen;		/* length of this record */
 	uint8_t  d_type; 		/* file type, see below */
 	uint8_t  d_namlen;		/* length of string in d_name */
-	char	d_name[SCE_MAX_PATH + 1];	/* name must be no longer than this */
+	char	 d_name[SCE_MAX_PATH + 1];	/* name must be no longer than this */
 };
 
 typedef struct sce_dirent SceKernelDirent;

@@ -10,9 +10,9 @@ namespace UtilHardware
 #include <Windows.h>
 #undef WIN32_LEAN_AND_MEAN
 
-uint64 GetTscFrequency()
+uint64_t GetTscFrequency()
 {
-	uint64 nFreq = 0;
+	uint64_t nFreq = 0;
 	do 
 	{
 		LARGE_INTEGER nFrequency;

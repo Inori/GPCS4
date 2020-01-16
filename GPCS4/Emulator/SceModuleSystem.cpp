@@ -75,11 +75,17 @@ bool CSceModuleSystem::isLibraryOverridable(std::string const &modName,
 			break;
 		}
 
-		if (isLibraryOverridabilityDefined(modName, libName) == false)
+		if (isModuleOVRDDefinationEmpty(modName))
 		{
 			// If no library overridability defined for a overridable module,
 			// All libraries in the module are overridable.
 			retVal = true;
+			break;
+		}
+
+		if (isLibraryOverridabilityDefined(modName, libName) == false)
+		{
+			retVal = false;
 			break;
 		}
 
@@ -107,7 +113,7 @@ bool CSceModuleSystem::isFunctionOverridable(std::string const &modName,
 			break;
 		}
 
-		if (isLibraryOverridabilityDefined(modName, libName) == false)
+		if (isModuleOVRDDefinationEmpty(modName))
 		{
 			retVal = true;
 			break;
@@ -137,6 +143,28 @@ bool CSceModuleSystem::isFunctionOverridable(std::string const &modName,
 bool CSceModuleSystem::isBuitinModuleDefined(std::string const& name) const
 {
 	return util::contains(m_builtinModules, name);
+}
+
+bool CSceModuleSystem::isModuleOVRDDefinationEmpty(std::string const& modName) const
+{
+	bool ret = false;
+	do
+	{
+		if (!util::contains(m_overridableModules, modName))
+		{
+			ret = true;
+			break;
+		}
+		
+		if (m_overridableModules.at(modName).libraries.empty())
+		{
+			ret = true;
+			break;
+		}
+
+	} while (false);
+
+	return ret;
 }
 
 bool CSceModuleSystem::isLibraryOverridabilityDefined(std::string const& modName,
@@ -199,7 +227,7 @@ bool CSceModuleSystem::registerBuiltinModule(const SCE_EXPORT_MODULE &stModule)
 			while (!IsEndFunctionEntry(pFunc))
 			{
 				nidMap.insert(
-					std::make_pair((uint64)pFunc->nNid, (void *)pFunc->pFunction));
+					std::make_pair((uint64_t)pFunc->nNid, (void *)pFunc->pFunction));
 				nameMap.insert(std::make_pair(std::string(pFunc->szFunctionName),
 											  (void *)pFunc->pFunction));
 				++pFunc;
@@ -352,7 +380,7 @@ bool CSceModuleSystem::getMemoryMappedModule(std::string const &modName,
 
 void *CSceModuleSystem::findFunction(const std::string &strModName,
 									 const std::string &strLibName,
-									 uint64 nNid)
+									 uint64_t nNid)
 {
 	void *pFunction = NULL;
 	do
@@ -374,6 +402,17 @@ void *CSceModuleSystem::findFunction(const std::string &strModName,
 		NidFuncMap::iterator iter_func = nidMap.find(nNid);
 		if (iter_func == nidMap.end())
 		{
+			// TODO: This is for experimental only. When a NID is not found,
+			// we attempt to traversal all libs in the module to find that nid.
+			//for (auto libIt : iter_mod->second)
+			//{
+			//	auto nidIter = libIt.second.find(nNid);
+			//	if (nidIter != libIt.second.end())
+			//	{
+			//		pFunction = nidIter->second;
+			//		break;
+			//	}
+			//}
 			break;
 		}
 
@@ -508,7 +547,7 @@ bool CSceModuleSystem::setLibraryOverridability(const std::string &modName,
 			mr.libraries.insert(std::make_pair(libName, lr));
 		}
 
-		mr.libraries.at(modName).overrideable = ovrd;
+		mr.libraries.at(libName).overrideable = ovrd;
 
 	} while (false);
 
@@ -549,7 +588,7 @@ bool CSceModuleSystem::setFunctionOverridability(const std::string &modName,
 			mr.libraries.insert(std::make_pair(libName, lr));
 		}
 
-		auto &lr = mr.libraries.at(modName);
+		auto &lr = mr.libraries.at(libName);
 		if (ovrd)
 		{
 			if (lr.mode == LibraryRecord::OverridingPolicy::AllowList &&

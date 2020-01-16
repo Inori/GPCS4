@@ -282,7 +282,7 @@ bool AssembleHelper::patchTLSInstruction(void* code)
 			break;
 		}
 
-		uint nPatchedLen = getPatchLen((byte*)code, sizeof(JMP_CODE_HEAD));
+		uint32_t nPatchedLen = getPatchLen((uint8_t*)code, sizeof(JMP_CODE_HEAD));
 		if (!nPatchedLen)
 		{
 			break;
@@ -290,17 +290,17 @@ bool AssembleHelper::patchTLSInstruction(void* code)
 
 		// first, build foot jmp code
 		JMP_CODE_FOOT jmpFoot;
-		jmpFoot.nJmpVal = (uint64)((byte*)code + nPatchedLen);
-		uint nMovFsLen  = 0;
+		jmpFoot.nJmpVal = (uint64_t)((uint8_t*)code + nPatchedLen);
+		uint32_t nMovFsLen  = 0;
 		int64_t fsOffset  = 0;
 		getMovFsInfo(code, nMovFsLen, fsOffset);
 
 		// delete mov rax, fs:[0]
 		// go straight to next instruction
-		byte* pMovNext    = (byte*)code + nMovFsLen;
-		uint nMovLeftLen  = nPatchedLen - nMovFsLen;
-		uint nFootCodeLen = nMovLeftLen + sizeof(jmpFoot);
-		byte* pFootCode   = (byte*)UtilMemory::VMMap(nFootCodeLen, UtilMemory::VMPF_READ_WRITE_EXECUTE);
+		uint8_t* pMovNext    = (uint8_t*)code + nMovFsLen;
+		uint32_t nMovLeftLen  = nPatchedLen - nMovFsLen;
+		uint32_t nFootCodeLen = nMovLeftLen + sizeof(jmpFoot);
+		uint8_t* pFootCode   = (uint8_t*)UtilMemory::VMMap(nFootCodeLen, UtilMemory::VMPF_READ_WRITE_EXECUTE);
 		if (!pFootCode)
 		{
 			break;
@@ -311,11 +311,11 @@ bool AssembleHelper::patchTLSInstruction(void* code)
 
 		// second, build head jmp code
 		JMP_CODE_HEAD jmpHead;
-		jmpHead.nPushVal = (uint)((uint64)pFootCode & 0xFFFFFFFF);
-		jmpHead.nMovVal  = (uint)((uint64)pFootCode >> 32);
+		jmpHead.nPushVal = (uint32_t)((uint64_t)pFootCode & 0xFFFFFFFF);
+		jmpHead.nMovVal  = (uint32_t)((uint64_t)pFootCode >> 32);
 
 		// In asm file.
-		// jmpHead.nJmpVal  = (uint64)GetTlsDataStub;
+		// jmpHead.nJmpVal  = (uint64_t)GetTlsDataStub;
 
 		// make game code writable
 		if (!UtilMemory::VMProtect(code, sizeof(jmpHead), UtilMemory::VMPF_READ_WRITE_EXECUTE))
@@ -344,9 +344,9 @@ void AssembleHelper::printInst(ZydisDecodedInstruction& inst)
 	LOG_DEBUG("instruction: %s", szBuffer);
 }
 
-uint32_t AssembleHelper::getPatchLen(byte* code, uint32_t oldLen)
+uint32_t AssembleHelper::getPatchLen(uint8_t* code, uint32_t oldLen)
 {
-	uint sumLen = 0;
+	uint32_t sumLen = 0;
 	ZydisDecodedInstruction instruction;
 	while (sumLen < oldLen)
 	{
@@ -469,7 +469,7 @@ long __stdcall TLSManagerWin::VEHExceptionHandler(void* exceptionArg)
 		s_asmHelper.getMovFsInfo(pExcptAddr, instLen, fsOffset);
 		
 		pExceptionInfo->ContextRecord->Rip += instLen;
-		pExceptionInfo->ContextRecord->Rax = reinterpret_cast<uint_ptr>(tlsMgrWin->readFSRegister(fsOffset));
+		pExceptionInfo->ContextRecord->Rax = reinterpret_cast<uintptr_t>(tlsMgrWin->readFSRegister(fsOffset));
 
 		nRet = EXCEPTION_CONTINUE_EXECUTION;
 	} while (false);

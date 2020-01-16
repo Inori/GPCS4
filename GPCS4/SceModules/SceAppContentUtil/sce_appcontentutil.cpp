@@ -46,5 +46,10 @@ int PS4API sceAppContentInitialize(void)
 }
 
 
-
+int PS4API sceAppContentAppParamGetInt(SceAppContentAppParamId paramId, int32_t *value)
+{
+	LOG_FIXME("Not implemented");
+	*value = 0;
+	return SCE_OK;
+}
 

@@ -5,6 +5,6 @@ namespace UtilTime
 {;
 
 // microseconds
-void MicroSleep(uint ms);
+void MicroSleep(uint32_t ms);
 
 }
