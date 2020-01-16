@@ -101,13 +101,6 @@ int PS4API sceFiosFHWriteSync(void)
 }
 
 
-bool PS4API sceFiosFileExistsSync(const SceFiosOpAttr *pAttr, const char *pPath)
-{
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
-}
-
-
 int PS4API sceFiosFileGetSizeSync(void)
 {
 	LOG_FIXME("Not implemented");
