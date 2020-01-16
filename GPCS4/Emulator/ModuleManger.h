@@ -15,6 +15,9 @@ public:
 
 	bool isNativeModuleLoaded(std::string const& modName);
 	bool getNativeModule(std::string const& modName, MemoryMappedModule** modOut);
+	std::vector<MemoryMappedModule>& getNativeModules();
+
+	const std::vector<MemoryMappedModule>& getNativeModules() const;
 
 private:
 	std::vector<std::string> m_builtinModules;

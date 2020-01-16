@@ -47,4 +47,13 @@ bool ModuleManager::getNativeModule(std::string const& modName,
 	return ret;
 }
 
+std::vector<MemoryMappedModule>& ModuleManager::getNativeModules()
+{
+	return m_nativeModules;
+}
+const std::vector<MemoryMappedModule>& ModuleManager::getNativeModules() const
+{
+	return m_nativeModules;
+}
+
 

@@ -6,19 +6,19 @@ class SymbolManager
 public:
 	const void *findNativeSymbol(std::string const &modName,
 								 std::string const &libName,
-								 uint64_t nid);
+								 uint64_t nid) const;
 
 	const void *findNativeSymbol(std::string const &modName,
 		                   std::string const &libName,
-		                   std::string const &symbName);
+		                   std::string const &symbName) const;
 
 	const void *findBuiltinSymbol(std::string const &modName,
 		                    std::string const &libName,
-                            uint64_t nid);
+                            uint64_t nid) const;
 
 	const void *findBuiltinSymbol(std::string const &modName,
 		                    std::string const &libName,
-                            std::string const &name);
+                            std::string const &name) const;
 
 	bool registerNativeSymbol(std::string const &modName,
 		                      std::string const &libName,
@@ -52,7 +52,7 @@ private:
 	const void *findSymbolGeneric(Table &table,
 		                    std::string const &modName,
 		                    std::string const &libName,
-		                    KeyType nid)
+		                    KeyType nid) const
 	{
 		auto &tab = table;
 		const void *address = nullptr;
@@ -67,7 +67,7 @@ private:
 			}
 
 			auto libIter = modIter->second.find(libName);
-			if (libIter == modIter->second.find(libName))
+			if (libIter == modIter->second.end())
 			{
 				address = nullptr;
 				break;

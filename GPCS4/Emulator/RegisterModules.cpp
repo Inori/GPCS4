@@ -2,7 +2,6 @@
 #include "SceModuleSystem.h"
 #include "sce_modules.h"
 
-using OVRDPolicy = CSceModuleSystem::LibraryRecord::OverridingPolicy;
 
 #define REGISTER_MODULE(name)                                                                  \
 	if (!pModuleSystem->registerBuiltinModule(name))                                           \
@@ -10,53 +9,6 @@ using OVRDPolicy = CSceModuleSystem::LibraryRecord::OverridingPolicy;
 		LOG_ERR("Register module failed: %s", name.szModuleName ? name.szModuleName : "null"); \
 		break;                                                                                 \
 	}
-
-#define USE_NATIVE_MODULE(name)                                    \
-	if (!pModuleSystem->setModuleOverridability(name, true))       \
-	{                                                              \
-		LOG_ERR("Fail to set overridability for module %s", name); \
-		break;                                                     \
-	}\
-
-
-// Define a builtin function preference list.
-// The linker will use builtin functions in this list over native functions in firmware modules.
-#define BUILTIN_LIST_BEGIN(mod, lib)                                                    \
-	if (!pModuleSystem->setLibraryOverridability(mod, lib, true, OVRDPolicy::DisallowList)) \
-	{                                                                                   \
-		LOG_ERR("Fail to begin builtin list for library %s", lib);                      \
-		break;                                                                          \
-	}
-
-#define USE_BUILTIN_FUNCTION(mod, lib, nid)                              \
-	if (!pModuleSystem->setFunctionOverridability(mod, lib, nid, false)) \
-	{                                                                    \
-		LOG_ERR("Fail to add function in builtin list %llx", nid);       \
-		break;                                                           \
-	}
-
-#define BUILTIN_LIST_END()
-
-
-// Define a native function preference list.
-// The linker will use native functions (in firmware modules.) in this list over builtin functions we HLEed in SceModules.
-#define NATIVE_LIST_BEGIN(mod, lib)                                                  \
-	if (!pModuleSystem->setLibraryOverridability(mod, lib, true, OVRDPolicy::AllowList)) \
-	{                                                                                \
-		LOG_ERR("Fail to set overridability for library %s", lib);                   \
-		break;                                                                       \
-	}
-
-#define USE_NATIVE_FUNCTION(mod, lib, nid)                              \
-	if (!pModuleSystem->setFunctionOverridability(mod, lib, nid, true)) \
-	{                                                                   \
-		LOG_ERR("Fail to add function in native list %llx", nid);       \
-		break;                                                          \
-	}
-
-#define NATIVE_LIST_END()
-
-			
 
 bool CEmulator::registerLibC(CSceModuleSystem* pModuleSystem)
 {
@@ -98,23 +50,7 @@ bool CEmulator::registerLibC(CSceModuleSystem* pModuleSystem)
 				0x94A10DD8879B809DULL  // longjmp
 			 });
 
-		BUILTIN_LIST_BEGIN("libc", "libc");
-		USE_BUILTIN_FUNCTION("libc", "libc", 0xC5E60EE2EEEEC89DULL);  // fopen
-		USE_BUILTIN_FUNCTION("libc", "libc", 0xAD0155057A7F0B18ULL);  // fseek
-		USE_BUILTIN_FUNCTION("libc", "libc", 0x41ACF2F0B9974EFCULL);  // ftell
-		USE_BUILTIN_FUNCTION("libc", "libc", 0x95B07E52566A546DULL);  // fread
-		USE_BUILTIN_FUNCTION("libc", "libc", 0xBA874B632522A76DULL);  // fclose
-		USE_BUILTIN_FUNCTION("libc", "libc", 0x8105FEE060D08E93ULL);  // malloc
-		USE_BUILTIN_FUNCTION("libc", "libc", 0x63B689D6EC9D3CCAULL);  // realloc
-		USE_BUILTIN_FUNCTION("libc", "libc", 0xD97E5A8058CAC4C7ULL);  // calloc
-		USE_BUILTIN_FUNCTION("libc", "libc", 0xB4886CAA3D2AB051ULL);  // free
-		USE_BUILTIN_FUNCTION("libc", "libc", 0x5CA45E82C1691299ULL);  // catchReturnFromMain
-		USE_BUILTIN_FUNCTION("libc", "libc", 0xB8C7A2D56F6EC8DAULL);  // exit
-		USE_BUILTIN_FUNCTION("libc", "libc", 0xC0B9459301BD51C4ULL);  // time
-		USE_BUILTIN_FUNCTION("libc", "libc", 0x80D435576BDF5C31ULL);  // setjmp
-		USE_BUILTIN_FUNCTION("libc", "libc", 0x94A10DD8879B809DULL);  // longjmp
-		BUILTIN_LIST_END();
-
+		policyManager.declareModule("libSceLibcInternal");
 		ret  = true;
 	}while(false);
 	return ret;
@@ -149,16 +85,18 @@ bool CEmulator::registerLibKernel(CSceModuleSystem* pModuleSystem)
 				0x581EBA7AFBBC6EC5  // sceKernelGetCompiledSdkVersion
 			 });
 
-		NATIVE_LIST_BEGIN("libkernel", "libkernel");
-		USE_NATIVE_FUNCTION("libkernel", "libkernel", 0xF41703CA43E6A352);  // __error
-		USE_NATIVE_FUNCTION("libkernel", "libkernel", 0x581EBA7AFBBC6EC5);  // sceKernelGetCompiledSdkVersion
-		NATIVE_LIST_END();
+		/*
+		 * Defines policy for libSceLibcInternal
+		 *
+		 * We load all of its symbols
+		 */
+		policyManager
+			.declareModule("libSceLibcInternal").withDefault(Policy::UseNative);
 
 		ret  = true;
 	}while(false);
 	return ret;
 }
-
 
 bool CEmulator::registerModules()
 {
@@ -217,10 +155,6 @@ bool CEmulator::registerModules()
 		REGISTER_MODULE(g_ExpModuleSceVideoOut);
 		REGISTER_MODULE(g_ExpModuleSceVideoRecording);
 
-		//////////////////////////////////////////////////////////////////////////
-		USE_NATIVE_MODULE("libSceLibcInternal");
-
-		//////////////////////////////////////////////////////////////////////////
 		if (!registerLibKernel(pModuleSystem))
 		{
 			break;
@@ -230,6 +164,26 @@ bool CEmulator::registerModules()
 		{
 			break;
 		}
+
+		// Yes, the policy is testable now, although we should not put the 
+		// test code here
+		auto testPolicy = [&]() {
+			auto pm = pModuleSystem->getPolicyManager();
+
+			auto p1 = pm.getSymbolPolicy("libc", "libc", 0xC5E60EE2EEEEC89DULL);
+			LOG_ASSERT(p1 == Policy::UseBuiltin, "policy error");
+
+			auto p2 = pm.getSymbolPolicy("libkernel", "libkernel", 0xF41703CA43E6A352);
+			LOG_ASSERT(p2 == Policy::UseNative, "policy error2");
+
+			auto p3 = pm.getSymbolPolicy("libSceNgs2", "libSceNgs2", 0xDE908D6D5335D540);
+			LOG_ASSERT(p3 == Policy::UseNative, "policy error3");
+
+			auto p4 = pm.getSymbolPolicy("libSceLibcInternal", "libSceLibcInternal", 0x80D435576BDF5C31);
+			LOG_ASSERT(p4 == Policy::UseNative, "policy error4");
+		};
+
+		testPolicy();
 
 		bRet = true;
 	} while (false);

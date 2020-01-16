@@ -2,28 +2,28 @@
 
 const void *SymbolManager::findNativeSymbol(std::string const &modName,
 	                                   std::string const &libName,
-	                                   uint64_t nid)
+	                                   uint64_t nid) const
 {
 	return findSymbolGeneric(m_nativeModuleSymbolNidDir, modName, libName, nid);
 }
 
 const void* SymbolManager::findNativeSymbol(std::string const& modName,
 									  std::string const& libName,
-									  std::string const& symbName)
+									  std::string const& symbName) const
 {
 	return findSymbolGeneric(m_nativeModuleSymbolNameDir, modName, libName, symbName);
 }
 
 const void* SymbolManager::findBuiltinSymbol(std::string const& modName,
-									   std::string const& libName,
-									   uint64_t nid)
+											 std::string const& libName,
+											 uint64_t nid) const
 {
 	return findSymbolGeneric(m_builtinModuleSymbolNidDir, modName, libName, nid);
 }
 
-const void* SymbolManager::findBuiltinSymbol(std::string const& modName,
-									   std::string const& libName,
-									   std::string const& name)
+const void* SymbolManager::findBuiltinSymbol(std::string const& modName, 
+											 std::string const& libName,
+											 std::string const& name) const
 {
 	return findSymbolGeneric(m_builtinModuleSymbolNameDir, modName, libName, name);
 }
