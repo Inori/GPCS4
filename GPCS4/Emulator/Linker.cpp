@@ -232,7 +232,7 @@ void* CLinker::getSymbolAddress(std::string const& modName, std::string const& l
 	{
 		pointer = symbolManager.findBuiltinSymbol(modName, libName, symbName);
 	}
-	else
+	else // Policy::UseNative
 	{
 		pointer = symbolManager.findNativeSymbol(modName, libName, symbName);
 	}

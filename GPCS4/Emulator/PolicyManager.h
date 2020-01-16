@@ -56,17 +56,54 @@ public:
 	using ModulePolicyEntry = std::pair<std::string, ModulePolicy>;
 	PolicyManager(ModuleManager& modMgr);
 
+	/**
+	 * @brief Retireves the policy of a module
+	 * 
+	 * @param modName module name
+	 * @return Policy 
+	 */
 	Policy getModulePolicy(std::string const &modName) const;
 
+	/**
+	 * @brief Retrieves the policy of a symbol
+	 * 
+	 * @param modName module name
+	 * @param libName library name
+	 * @param nid symbol NID
+	 * @return Policy 
+	 */
 	Policy getSymbolPolicy(std::string const &modName,
 	                      std::string const &libName,
                           uint64_t nid) const;
 
+	/**
+	 * @brief Retrieves the policy of a symbol
+	 * 
+	 * @param modName module name
+	 * @param libName library name
+	 * @param name symbol name
+	 * @return Policy 
+	 */
 	Policy getSymbolPolicy(std::string const &modName,
 	                      std::string const &libName,
                           std::string const& name) const;
+
+	/**
+	 * @brief Checks if a native module is loadable.
+	 * 
+	 * @param modName module name
+	 * @return true if the module if loadable
+	 * @return false if the module is not loadable
+	 */
+	bool isModuleLoadable(std::string const &modName) const;
 	
-	ModulePolicyAdder addModule(std::string const &name);
+	/**
+	 * @brief Declares policy for a module
+	 * 
+	 * @param name module name
+	 * @return ModulePolicyAdder 
+	 */
+	ModulePolicyAdder declareModule(std::string const &name);
 
 private:
 	const Policy m_defaultPolicy = Policy::UseBuiltin;
@@ -85,7 +122,7 @@ public:
 	LibrarySymbolExcluder(ModulePolicy &mp, LibraryPolicy &lp) :
 		m_policy{ lp }, m_modPolicy{ mp }{};
 
-	LibrayNameAdder exclude(std::initializer_list<uint64_t> nids);
+	LibrayNameAdder except(std::initializer_list<uint64_t> nids);
 private:
 	LibraryPolicy &m_policy;
 	ModulePolicy &m_modPolicy;
@@ -110,7 +147,7 @@ public:
 	LibrayNameAdder(ModulePolicy &mp):
 		m_modPolicy{mp} {}
 
-	LibraryPolicyAdder addLibrary(std::string const &name);
+	LibraryPolicyAdder declareSubLibrary(std::string const &name);
 
 private:
 	ModulePolicy &m_modPolicy;
@@ -122,7 +159,7 @@ public:
 	ModulePolicyAdder(ModulePolicy &mp):
 		m_modPolicy{ mp } {}
 
-	LibrayNameAdder with(Policy policy);
+	LibrayNameAdder withDefault(Policy policy);
 
 private:
 	ModulePolicy &m_modPolicy;

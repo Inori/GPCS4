@@ -133,6 +133,38 @@ PolicyManager::PolicyManager(ModuleManager& modMgr):
 {
 }
 
+bool PolicyManager::isModuleLoadable(std::string const &modName) const
+{
+	bool ret = false;
+	do 
+	{
+		if (m_useNativeImplsWhenBuiltinModuleNotDefined &&
+		 !m_modManager.isBuiltinModuleDefined(modName))
+		{
+			ret = true;
+			break;
+		}
+
+		if (m_defaultPolicy == Policy::UseNative)
+		{
+			ret = true;
+		}
+		else
+		{
+			if (util::contains(m_modPolicyTable, modName))
+			{
+				ret = true;
+			}
+			else
+			{
+				ret = false;
+			}
+		}
+
+	} while(false);
+
+	return ret;
+}
 
 Policy PolicyManager::getModulePolicy(std::string const& modName) const
 {
@@ -192,7 +224,7 @@ Policy PolicyManager::getSymbolPolicy(std::string const &modName,
 		auto found = modIter->second.getLibraryPolicy(libName, &libPolicy);
 		if (!found)
 		{
-			ret = m_defaultPolicy;
+			ret = getModulePolicy(modName);
 			break;
 		}
 
@@ -240,21 +272,21 @@ Policy PolicyManager::getSymbolPolicy(std::string const& modName, std::string co
 }
 
 
-ModulePolicyAdder PolicyManager::addModule(std::string const & name)
+ModulePolicyAdder PolicyManager::declareModule(std::string const & name)
 {
 	m_modPolicyTable.emplace(std::make_pair(name, ModulePolicy{}));
 	return { m_modPolicyTable.at(name) };
 }
 
 
-LibrayNameAdder ModulePolicyAdder::with(Policy policy)
+LibrayNameAdder ModulePolicyAdder::withDefault(Policy policy)
 {
 	m_modPolicy.setPolicy(policy);
 	return { m_modPolicy };
 }
 
 
-LibraryPolicyAdder LibrayNameAdder::addLibrary(std::string const & name)
+LibraryPolicyAdder LibrayNameAdder::declareSubLibrary(std::string const & name)
 {
 	auto &lp = m_modPolicy.addLibraryPolicy(name, LibraryPolicy{});
 	return { m_modPolicy, lp };
@@ -268,7 +300,7 @@ LibrarySymbolExcluder LibraryPolicyAdder::with(Policy policy)
 }
 
 
-LibrayNameAdder LibrarySymbolExcluder::exclude(std::initializer_list<uint64_t> nids)
+LibrayNameAdder LibrarySymbolExcluder::except(std::initializer_list<uint64_t> nids)
 {
 	for (auto nid : nids)
 	{

@@ -37,7 +37,7 @@ bool ModuleLoader::loadModule(std::string const &fileName,
 		mod.outputUnresolvedSymbols("unresolved_HLE.txt");
 #endif // MODSYS_OUTPUT_NOT_IMPLEMENTED_HLE
 
-		retVal = m_modSystem.registerMemoryMappedModule(mod.fileName, std::move(mod));
+		retVal = m_modSystem.registerNativeModule(mod.fileName, std::move(mod));
 		if (!retVal)
 		{
 			LOG_ERR("Failed to register module: %s", mod.fileName.c_str());
@@ -86,7 +86,7 @@ bool ModuleLoader::loadModuleFromFile(std::string const &fileName,
 			break;
 		}
 
-		bool isLoaded = m_modSystem.isMemoryMappedModuleLoaded(mod->fileName);
+		bool isLoaded = m_modSystem.isNativeModuleLoaded(mod->fileName);
 		if (isLoaded)
 		{
 			LOG_DEBUG("module %s has already been loaded", mod->fileName.c_str());
@@ -194,7 +194,7 @@ bool ModuleLoader::loadDependencies()
 
 		if (!exist)
 		{
-			retVal = m_modSystem.registerMemoryMappedModule(mod.fileName, std::move(mod));
+			retVal = m_modSystem.registerNativeModule(mod.fileName, std::move(mod));
 			if (!retVal)
 			{
 				LOG_ERR("Failed to register module: %s", mod.fileName.c_str());
@@ -288,7 +288,7 @@ bool ModuleLoader::registerSymbol(MemoryMappedModule const &mod,
 			break;
 		}
 
-		retVal = m_modSystem.registerNativeFunction(modName, libName, nid, pointer);
+		retVal = m_modSystem.registerNativeSymbol(modName, libName, nid, pointer);
 		if (!retVal)
 		{
 			break;
@@ -307,7 +307,7 @@ bool ModuleLoader::registerSymbol(MemoryMappedModule const &mod, size_t idx)
 
 	if (info->isEncoded)
 	{
-		m_modSystem.registerNativeFunction(info->moduleName, info->libraryName, info->nid,
+		m_modSystem.registerNativeSymbol(info->moduleName, info->libraryName, info->nid,
 									 reinterpret_cast<void *>(info->address));
 	}
 	else

@@ -69,8 +69,18 @@ bool CEmulator::registerLibC(CSceModuleSystem* pModuleSystem)
 		}
 		auto& policyManager = pModuleSystem->getPolicyManager();
 
-		policyManager.addModule("libc").with(Policy::UseNative)
-			.addLibrary("libc").with(Policy::UseNative).exclude
+		/** 
+		 * Defines policy for libc.
+		 * 
+		 * The default policy for this module is Policy::UseBuitlin,
+		 * which means when a sub-library of libc is not defined, 
+		 * it applies the Policy::UseBuiltin by default. 
+		 * 
+		 * The libc sub-library uses implementations from native modules
+		 * except the symbols listed below.
+		 */
+		policyManager.declareModule("libc").withDefault(Policy::UseBuiltin)
+			.declareSubLibrary("libc").with(Policy::UseNative).except
 			({ 
 				0xC5E60EE2EEEEC89DULL, // fopen
 				0xAD0155057A7F0B18ULL, // fssek
@@ -87,7 +97,6 @@ bool CEmulator::registerLibC(CSceModuleSystem* pModuleSystem)
 				0x80D435576BDF5C31ULL, // setjmp
 				0x94A10DD8879B809DULL  // longjmp
 			 });
-
 
 		BUILTIN_LIST_BEGIN("libc", "libc");
 		USE_BUILTIN_FUNCTION("libc", "libc", 0xC5E60EE2EEEEC89DULL);  // fopen
@@ -123,8 +132,18 @@ bool CEmulator::registerLibKernel(CSceModuleSystem* pModuleSystem)
 
 		auto& policyManager = pModuleSystem->getPolicyManager();
 
-		policyManager.addModule("libkernel").with(Policy::UseNative)
-			.addLibrary("libkernel").with(Policy::UseBuiltin).exclude
+		/** 
+		 * Defines policy for libkernel.
+		 * 
+		 * The default policy for this module is Policy::UseBuitlin,
+		 * which means when a sub-library of libkernel is not defined, 
+		 * it applies the Policy::UseBuiltin policy by default. 
+		 * 
+		 * The libc sub-library uses implementations from builtin modules
+		 * except the symbols listed below.
+		 */
+		policyManager.declareModule("libkernel").withDefault(Policy::UseBuiltin)
+			.declareSubLibrary("libkernel").with(Policy::UseBuiltin).except
 			({ 
 				0xF41703CA43E6A352, // __error
 				0x581EBA7AFBBC6EC5  // sceKernelGetCompiledSdkVersion
