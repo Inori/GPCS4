@@ -28,7 +28,7 @@ struct SceSaveDataParam
 	char detail[SCE_SAVE_DATA_DETAIL_MAXSIZE];
 	uint32_t userParam;
 	int : 32;
-	scetime_t mtime;
+	sce_time_t mtime;
 	uint8_t reserved[32];
 };
 
@@ -44,7 +44,7 @@ struct SceSaveDataMemoryData
 {
 	void* buf;
 	size_t bufSize;
-	sceoff_t offset;
+	sce_off_t offset;
 	uint8_t reserved[40];
 };
 

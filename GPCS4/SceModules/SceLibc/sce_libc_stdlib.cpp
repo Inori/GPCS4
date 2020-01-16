@@ -104,7 +104,7 @@ int PS4API scec_rand(void)
 }
 
 
-scetime_t PS4API scec_time(scetime_t* pt)
+sce_time_t PS4API scec_time(sce_time_t* pt)
 {
 	LOG_SCE_TRACE("pt %p", pt);
 	return time(pt);

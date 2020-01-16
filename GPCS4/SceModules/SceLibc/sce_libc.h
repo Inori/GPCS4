@@ -126,7 +126,7 @@ int PS4API scec_catchReturnFromMain(void);
 
 int PS4API scec_cbrt(void);
 
-scediv_t PS4API scec_div(int numerator, int denominator);
+sce_div_t PS4API scec_div(int numerator, int denominator);
 
 int PS4API scec_erf(void);
 
@@ -304,7 +304,7 @@ int PS4API scec_tanf(void);
 
 int PS4API scec_tanh(void);
 
-scetime_t PS4API scec_time(scetime_t* pt);
+sce_time_t PS4API scec_time(sce_time_t* pt);
 
 int PS4API scec_vsnprintf(char * s, size_t n, const char * format, void* arg);
 

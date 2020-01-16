@@ -46,7 +46,7 @@ uint64_t PS4API sceKernelReadTsc(void)
 // library: libScePosix
 //////////////////////////////////////////////////////////////////////////
 
-int PS4API scek_clock_gettime(sceclockid_t clk_id, struct sce_timespec * tp)
+int PS4API scek_clock_gettime(sce_clockid_t clk_id, struct sce_timespec * tp)
 {
 	//LOG_SCE_TRACE("id %d tp %p", clk_id, tp);
 	// TODO:
@@ -76,7 +76,7 @@ int PS4API scek_nanosleep(void)
 }
 
 
-int PS4API scek_usleep(sceuseconds_t microsecond)
+int PS4API scek_usleep(sce_useconds_t microsecond)
 {
 	LOG_SCE_TRACE("micro second %d", microsecond);
 	UtilTime::MicroSleep(microsecond);

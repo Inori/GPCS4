@@ -154,7 +154,7 @@ ssize_t PS4API sceKernelWrite(int d, const void *buf, size_t nbytes)
 }
 
 
-sceoff_t PS4API sceKernelLseek(int fildes, sceoff_t offset, int whence)
+sce_off_t PS4API sceKernelLseek(int fildes, sce_off_t offset, int whence)
 {
 	LOG_SCE_TRACE("fd %d off %d where %d", fildes, offset, whence);
 	int fd = g_fdSlots[fildes].fd;
@@ -186,9 +186,9 @@ int PS4API sceKernelClose(int d)
 }
 
 
-inline scemode_t getSceFileMode(uint16_t oldMode)
+inline sce_mode_t getSceFileMode(uint16_t oldMode)
 {
-	scemode_t sceMode = 0;
+	sce_mode_t sceMode = 0;
 	if (oldMode & _S_IREAD)
 	{
 		sceMode = SCE_KERNEL_S_IRU;

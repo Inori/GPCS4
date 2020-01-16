@@ -8,8 +8,8 @@
 // Direct memory address is supposed to be within 0x000000FFFFFFFFFF
 static uint64_t baseDirectMemory = 0x400000;
 
-int PS4API sceKernelAllocateDirectMemory(sceoff_t searchStart, sceoff_t searchEnd,
-	size_t len, size_t alignment, int memoryType, sceoff_t *physAddrOut)
+int PS4API sceKernelAllocateDirectMemory(sce_off_t searchStart, sce_off_t searchEnd,
+	size_t len, size_t alignment, int memoryType, sce_off_t *physAddrOut)
 {
 	LOG_SCE_DUMMY_IMPL();
 	*physAddrOut = (uint64_t)baseDirectMemory;
@@ -18,10 +18,10 @@ int PS4API sceKernelAllocateDirectMemory(sceoff_t searchStart, sceoff_t searchEn
 
 
 int PS4API sceKernelMapDirectMemory(void **addr, size_t len, int prot, int flags,
-	sceoff_t directMemoryStart, size_t maxPageSize)
+	sce_off_t directMemoryStart, size_t maxPageSize)
 {
 	LOG_SCE_DUMMY_IMPL();
-	auto address = (void*)(sceoff_t)UtilMemory::VMMapEx((void*)baseDirectMemory, len,
+	auto address = (void*)(sce_off_t)UtilMemory::VMMapEx((void*)baseDirectMemory, len,
 		UtilMemory::VMPF_READ_WRITE, UtilMemory::VMAT_RESERVE_COMMIT);
 	baseDirectMemory += len;
 	*addr = address;
@@ -37,15 +37,15 @@ size_t PS4API sceKernelGetDirectMemorySize(void)
 }
 
 
-int PS4API sceKernelReleaseDirectMemory(sceoff_t start, size_t len)
+int PS4API sceKernelReleaseDirectMemory(sce_off_t start, size_t len)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
 }
 
 
-int PS4API sceKernelGetDirectMemoryType(sceoff_t start, int *memoryType, 
-	sceoff_t *regionStartOut, sceoff_t *regionEndOut)
+int PS4API sceKernelGetDirectMemoryType(sce_off_t start, int *memoryType, 
+	sce_off_t *regionStartOut, sce_off_t *regionEndOut)
 {
 	LOG_SCE_DUMMY_IMPL();
 	*memoryType = SCE_KERNEL_WB_GARLIC;
@@ -70,7 +70,7 @@ int PS4API sceKernelIsStack(void)
 
 int PS4API sceKernelMapNamedDirectMemory(void **addr, size_t len, 
 	int prot, int flags, 
-	sceoff_t directMemoryStart, size_t alignment, 
+	sce_off_t directMemoryStart, size_t alignment, 
 	const char *name)
 {
 	LOG_SCE_DUMMY_IMPL();

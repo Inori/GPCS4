@@ -54,7 +54,7 @@ typedef struct
 {
 	void	 *start;
 	void	 *end;
-	sceoff_t	  offset;
+	sce_off_t	  offset;
 	int	  protection;
 	int	  memoryType;
 	unsigned  isFlexibleMemory : 1;
