@@ -1,7 +1,6 @@
 #pragma once
 
 #include "GPCS4Common.h"
-#include <sys/types.h>
 
 #define SCE_SAVE_DATA_TITLE_MAXSIZE (128)
 
@@ -29,7 +28,7 @@ struct SceSaveDataParam
 	char detail[SCE_SAVE_DATA_DETAIL_MAXSIZE];
 	uint32_t userParam;
 	int : 32;
-	time_t mtime;
+	scetime_t mtime;
 	uint8_t reserved[32];
 };
 
@@ -45,7 +44,7 @@ struct SceSaveDataMemoryData
 {
 	void* buf;
 	size_t bufSize;
-	off_t offset;
+	sceoff_t offset;
 	uint8_t reserved[40];
 };
 
