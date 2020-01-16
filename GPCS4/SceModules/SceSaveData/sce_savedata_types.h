@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GPCS4Common.h"
-
+#include <sys/types.h>
 
 #define SCE_SAVE_DATA_TITLE_MAXSIZE (128)
 

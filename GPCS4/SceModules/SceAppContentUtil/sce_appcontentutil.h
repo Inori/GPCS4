@@ -19,7 +19,7 @@ extern const SCE_EXPORT_MODULE g_ExpModuleSceAppContentUtil;
 // The codebase is generated using GenerateCode.py
 // You may need to modify the code manually to fit development needs
 
-
+typedef uint32_t SceAppContentAppParamId;
 
 //////////////////////////////////////////////////////////////////////////
 // library: libSceAppContent
@@ -40,5 +40,5 @@ int PS4API sceAppContentGetAddcontInfoList(void);
 int PS4API sceAppContentInitialize(void);
 
 
-
+int PS4API sceAppContentAppParamGetInt(SceAppContentAppParamId paramId, int32_t *value);
 

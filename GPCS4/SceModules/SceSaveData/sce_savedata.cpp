@@ -1,5 +1,6 @@
 #include "sce_savedata.h"
 
+#include <cstring>
 
 // Note:
 // The codebase is generated using GenerateCode.py
