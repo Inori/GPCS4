@@ -818,7 +818,7 @@ void GnmCmdStream::onPrepareFlipOrEopInterrupt(PPM4_TYPE_3_HEADER pm4Hdr, uint32
 	switch (hint)
 	{
 	case OP_HINT_PREPARE_FLIP_VOID:
-		LOG_FIXME("Not implemented.");
+		m_cb->prepareFlip();
 		break;
 	case OP_HINT_PREPARE_FLIP_LABEL:
 		m_cb->prepareFlip(labelAddr, value);

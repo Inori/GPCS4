@@ -76,7 +76,7 @@ public:
 	//virtual uint64_t pause(uint32_t reservedDWs) = 0;
 	//virtual void popMarker() = 0;
 	//virtual void prefetchIntoL2(void *dataAddr, uint32_t sizeInBytes) = 0;
-	//virtual void prepareFlip() = 0;
+	virtual void prepareFlip() = 0;
 	virtual void prepareFlip(void *labelAddr, uint32_t value) = 0;
 	//virtual void prepareFlipWithEopInterrupt(EndOfPipeEventType eventType, CacheAction cacheAction) = 0;
 	virtual void prepareFlipWithEopInterrupt(EndOfPipeEventType eventType, void *labelAddr, uint32_t value ,CacheAction cacheAction) = 0;

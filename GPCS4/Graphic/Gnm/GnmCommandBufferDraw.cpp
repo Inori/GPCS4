@@ -40,6 +40,12 @@ void GnmCommandBufferDraw::initializeDefaultHardwareState()
 	m_context->beginRecording(m_cmd);
 }
 
+
+void GnmCommandBufferDraw::prepareFlip()
+{
+	m_context->endRecording();
+}
+
 // Last call of a frame.
 void GnmCommandBufferDraw::prepareFlip(void *labelAddr, uint32_t value)
 {
