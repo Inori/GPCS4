@@ -10,7 +10,7 @@
 #pragma once
 
 #include "sce_module_common.h"
-
+#include "sce_appcontentutil_types.h"
 
 extern const SCE_EXPORT_MODULE g_ExpModuleSceAppContentUtil;
 
@@ -19,7 +19,7 @@ extern const SCE_EXPORT_MODULE g_ExpModuleSceAppContentUtil;
 // The codebase is generated using GenerateCode.py
 // You may need to modify the code manually to fit development needs
 
-typedef uint32_t SceAppContentAppParamId;
+
 
 //////////////////////////////////////////////////////////////////////////
 // library: libSceAppContent

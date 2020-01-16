@@ -874,6 +874,9 @@
     <ClInclude Include="SceModules\SceSaveData\sce_savedata_types.h">
       <Filter>SceModules\SceSaveData</Filter>
     </ClInclude>
+    <ClInclude Include="SceModules\SceAppContentUtil\sce_appcontentutil_types.h">
+      <Filter>SceModules\SceAppContentUtil</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
