@@ -246,6 +246,17 @@ void GveContex::bindResourceView(uint32_t regSlot,
 	m_flags.set(GveContextFlag::GpDirtyResources);
 }
 
+void GveContex::drawAuto(
+	uint32_t vertexCount, 
+	uint32_t instanceCount, 
+	uint32_t firstVertex, 
+	uint32_t firstInstance)
+{
+	commitGraphicsState();
+
+	m_cmd->cmdDraw(vertexCount, instanceCount, firstVertex, firstInstance);
+}
+
 void GveContex::drawIndex(
 	uint32_t                indexCount,
 	uint32_t                instanceCount,
@@ -507,12 +518,20 @@ void GveContex::updateVertexBindings()
 
 void GveContex::updateIndexBinding()
 {
-	VkBuffer indexBuffer = m_state.vi.indexBuffer.handle();
-	VkDeviceSize offset = m_state.vi.indexBuffer.offset();
-	VkIndexType type = m_state.vi.indexType;
-	m_cmd->cmdBindIndexBuffer(indexBuffer, offset, type);
+	do 
+	{
+		if (!m_state.vi.indexBuffer.isValid())
+		{
+			break;
+		}
 
-	m_flags.clr(GveContextFlag::GpDirtyIndexBuffer);
+		VkBuffer indexBuffer = m_state.vi.indexBuffer.handle();
+		VkDeviceSize offset  = m_state.vi.indexBuffer.offset();
+		VkIndexType type     = m_state.vi.indexType;
+		m_cmd->cmdBindIndexBuffer(indexBuffer, offset, type);
+
+		m_flags.clr(GveContextFlag::GpDirtyIndexBuffer);
+	} while (false);
 }
 
 template <VkPipelineBindPoint BindPoint>

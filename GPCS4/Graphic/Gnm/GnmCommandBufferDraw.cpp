@@ -342,7 +342,7 @@ void GnmCommandBufferDraw::setIndexSize(IndexSize indexSize, CachePolicy cachePo
 
 void GnmCommandBufferDraw::dispatch(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+
 }
 
 void GnmCommandBufferDraw::setPrimitiveType(PrimitiveType primType)
@@ -388,11 +388,21 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr)
 
 void GnmCommandBufferDraw::drawIndexAuto(uint32_t indexCount, DrawModifier modifier)
 {
+	commitVsStage();
+	commitPsStage();
+
+	// TODO:
+	// This is a dummy state.
+	auto msInfo = GveMultisampleInfo(VK_SAMPLE_COUNT_1_BIT, VK_FALSE, 0.0, 0, VK_FALSE, VK_FALSE);
+	m_context->setMultiSampleState(msInfo);
+
+	m_context->drawAuto(indexCount, 1, 0, 0);
 }
 
 void GnmCommandBufferDraw::drawIndexAuto(uint32_t indexCount)
 {
-
+	DrawModifier mod = { 0 };
+	drawIndexAuto(indexCount, mod);
 }
 
 void GnmCommandBufferDraw::setEmbeddedVsShader(EmbeddedVsShader shaderId, uint32_t shaderModifier)

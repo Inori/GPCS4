@@ -92,6 +92,12 @@ public:
 		const RcPtr<GveImageView>& imageView, 
 		const RcPtr<GveBufferView>& bufferView);
 
+	void drawAuto(
+		uint32_t vertexCount,
+		uint32_t instanceCount,
+		uint32_t firstVertex,
+		uint32_t firstInstance);
+
 	void drawIndex(
 		uint32_t                indexCount,
 		uint32_t                instanceCount,
