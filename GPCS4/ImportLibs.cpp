@@ -10,6 +10,10 @@
 
 
 #ifdef GPCS4_WINDOWS
+
+#pragma comment(lib, "../3rdParty/SDL2/lib/x64/SDL2main.lib")
+#pragma comment(lib, "../3rdParty/SDL2/lib/x64/SDL2.lib")
+
 #ifdef _DEBUG
 
 #pragma comment(lib, "../3rdParty/pthreads4w/libpthreadVC3d.lib")

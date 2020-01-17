@@ -538,11 +538,11 @@
     <IncludePath>$(ProjectDir);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)3rdParty;$(ProjectDir)SceModules;$(ProjectDir)Common;$(ProjectDir)Util;$(ProjectDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)3rdParty;$(SolutionDir)3rdParty/SDL2/include;$(ProjectDir)SceModules;$(ProjectDir)Common;$(ProjectDir)Util;$(ProjectDir);$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)3rdParty;$(ProjectDir)SceModules;$(ProjectDir)Common;$(ProjectDir)Util;$(ProjectDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)3rdParty;$(SolutionDir)3rdParty/SDL2/include;$(ProjectDir)SceModules;$(ProjectDir)Common;$(ProjectDir)Util;$(ProjectDir);$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Label="LLVM" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

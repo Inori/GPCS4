@@ -2,9 +2,15 @@
 #include "GameThread.h"
 #include "SceModuleSystem.h"
 
-CEmulator::CEmulator() {}
+#include <SDL.h>
 
-CEmulator::~CEmulator() {}
+CEmulator::CEmulator() {
+	SDL_Init(SDL_INIT_EVERYTHING); // TODO: check errors
+}
+
+CEmulator::~CEmulator() {
+	SDL_Quit();
+}
 
 bool CEmulator::Init()
 {
@@ -64,13 +70,18 @@ bool CEmulator::Run(MemoryMappedModule const &mod)
 			break;
 		}
 
-		// block the emulator's thread
-		if (!oMainThread.Join(NULL))
-		{
-			break;
+		SDL_Event e;
+		bool run = true;
+		while (run) {
+			while (SDL_PollEvent(&e) != 0) {
+				if (e.type == SDL_QUIT) {
+					run = false;
+				}
+			}
+			// TODO: dispatch event from keyboard and pad
 		}
 
-	retVal = true;
+		retVal = true;
 	} while (false);
 
 	return retVal;
