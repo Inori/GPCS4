@@ -195,7 +195,7 @@ void GnmCmdStream::processPM4Type3(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	// Legacy packets used in old SDKs.
 	case IT_DRAW_INDEX_AUTO:
 	case IT_DISPATCH_DIRECT:
-		onOpLegacy(pm4Hdr, itBody);
+		onGnmLegacy(pm4Hdr, itBody);
 		break;
 
 	// The following opcode types are not used by Gnm
@@ -813,7 +813,7 @@ void GnmCmdStream::onGnmPrivate(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	}
 }
 
-void GnmCmdStream::onOpLegacy(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
+void GnmCmdStream::onGnmLegacy(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 {
 	// Some gnm call implementations are different in old SDK libs.
 	// They will fill pm4 packets themselves directly,
