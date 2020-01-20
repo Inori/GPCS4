@@ -27,11 +27,11 @@ public:
 	bool Run(MemoryMappedModule const &mod);
 
 private:
-	bool RegisterModules();
+	bool registerModules();
 
 	static void PS4API LastExitHandler(void);
 private:
-	CEbootObject m_oEboot;
+	//CEbootObject m_oEboot;
 	std::shared_ptr<CLinker> m_pLinker;
 };
 

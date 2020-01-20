@@ -1,7 +1,7 @@
 #include "GCNAnalyzer.h"
 #include "GCNDecoder.h"
 #include "GCNParser/ParserSI.h"
-#include "BitHelper.h"
+#include "UtilBit.h"
 
 namespace pssl
 {;

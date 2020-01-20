@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GveCommon.h"
-#include "SyncHelper.h"
+#include "UtilSync.h"
 #include "GveLimit.h"
 #include "GveHash.h"
 #include <mutex>

@@ -179,6 +179,9 @@
     <Filter Include="Source Files\Graphic\Pssl\GCNParser">
       <UniqueIdentifier>{e6dace8b-4b96-441c-8035-feff4e14a70b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Util">
+      <UniqueIdentifier>{4451038b-f42d-4af5-b678-870a988e8194}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SceModules\SceLibc\sce_libc.h">
@@ -358,14 +361,8 @@
     <ClInclude Include="Common\GPCS4Types.h">
       <Filter>Source Files\Common</Filter>
     </ClInclude>
-    <ClInclude Include="Common\MacroHelper.h">
-      <Filter>Source Files\Common</Filter>
-    </ClInclude>
     <ClInclude Include="Emulator\SceModuleSystem.h">
       <Filter>Source Files\Emulator</Filter>
-    </ClInclude>
-    <ClInclude Include="Common\Singleton.h">
-      <Filter>Source Files\Common</Filter>
     </ClInclude>
     <ClInclude Include="SceModules\SceLibkernel\sce_kernel_scepthread.h">
       <Filter>SceModules\SceLibkernel</Filter>
@@ -441,9 +438,6 @@
     </ClInclude>
     <ClInclude Include="SceModules\SceIme\sce_ime_error.h">
       <Filter>SceModules\SceIme</Filter>
-    </ClInclude>
-    <ClInclude Include="Common\ReferenceCount.h">
-      <Filter>Source Files\Common</Filter>
     </ClInclude>
     <ClInclude Include="SceModules\SceUserService\sce_userservice_error.h">
       <Filter>SceModules\SceUserService</Filter>
@@ -537,12 +531,6 @@
     </ClInclude>
     <ClInclude Include="Graphic\SpirV\SpirvCodeBuffer.h">
       <Filter>Source Files\Graphic\SpirV</Filter>
-    </ClInclude>
-    <ClInclude Include="Common\BitHelper.h">
-      <Filter>Source Files\Common</Filter>
-    </ClInclude>
-    <ClInclude Include="Common\LikelyHelper.h">
-      <Filter>Source Files\Common</Filter>
     </ClInclude>
     <ClInclude Include="Graphic\Pssl\GCNParser\DeviceInfo.h">
       <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
@@ -742,9 +730,6 @@
     <ClInclude Include="Graphic\Gnm\GnmSampler.h">
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClInclude>
-    <ClInclude Include="Common\FlagHelper.h">
-      <Filter>Source Files\Common</Filter>
-    </ClInclude>
     <ClInclude Include="Graphic\Gve\GveLimit.h">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClInclude>
@@ -774,9 +759,6 @@
     </ClInclude>
     <ClInclude Include="Graphic\Gve\GvePipelineManager.h">
       <Filter>Source Files\Graphic\Gve</Filter>
-    </ClInclude>
-    <ClInclude Include="Common\SyncHelper.h">
-      <Filter>Source Files\Common</Filter>
     </ClInclude>
     <ClInclude Include="Graphic\Gve\GveDescriptor.h">
       <Filter>Source Files\Graphic\Gve</Filter>
@@ -846,6 +828,33 @@
     </ClInclude>
     <ClInclude Include="Graphic\Pssl\GCNInstructionIterator.h">
       <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\IntelliSenseClang.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\UtilBit.h">
+      <Filter>Source Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\UtilFlag.h">
+      <Filter>Source Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\UtilLikely.h">
+      <Filter>Source Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\UtilMath.h">
+      <Filter>Source Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\UtilRc.h">
+      <Filter>Source Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\UtilSingleton.h">
+      <Filter>Source Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\UtilSync.h">
+      <Filter>Source Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\UtilInclude.h">
+      <Filter>Source Files\Util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,5 +1,5 @@
 #include "GnmCmdStream.h"
-#include "BitHelper.h"
+#include "UtilBit.h"
 #include "GnmGfx9MePm4Packets.h"
 
 
@@ -415,10 +415,10 @@ void GnmCmdStream::onEventWriteEop(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	// TODO:
 	// this is a GPU relative address lacking of the highest byte (masked by 0xFFFFFFFFF8 or 0xFFFFFFFFFC)
 	// I'm not sure this relative to what, maybe to the command buffer.
-	uint64_t relaGpuAddr = BUILD_QWORD(eopPacket->addressHi, eopPacket->addressLo);
-	void* gpuAddr = GNM_GPU_ABS_ADDR(pm4Hdr, relaGpuAddr);
+	uint64_t relaGpuAddr = util::buildUint64(eopPacket->addressHi, eopPacket->addressLo);
+	void* gpuAddr        = util::gnmGpuAbsAddr(pm4Hdr, reinterpret_cast<void*>(relaGpuAddr));
 
-	uint64_t immValue = BUILD_QWORD(eopPacket->dataHi, eopPacket->dataLo);
+	uint64_t immValue   = util::buildUint64(eopPacket->dataHi, eopPacket->dataLo);
 	uint8_t cacheAction = (eopPacket->ordinal2 >> 12) & 0x3F;
 
 	if (eopPacket->intSel)

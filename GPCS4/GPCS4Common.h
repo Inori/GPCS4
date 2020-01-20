@@ -1,11 +1,11 @@
 #pragma once
 
 #include "GPCS4Config.h"
-#include "Common/GPCS4Types.h"
-#include "Common/GPCS4Log.h"
-#include "Common/MacroHelper.h"
-#include "Common/ReferenceCount.h"
-
+#include "IntelliSenseClang.h"
+#include "GPCS4Types.h"
+#include "GPCS4Log.h"
+#include "UtilRc.h"
+#include "UtilMath.h"
 
 #define PS4API __attribute__((sysv_abi))
 

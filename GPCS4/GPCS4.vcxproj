@@ -21,15 +21,9 @@
   <ItemGroup>
     <ClInclude Include="Algorithm\sha1.h" />
     <ClInclude Include="Algorithm\Sha1Hash.h" />
-    <ClInclude Include="Common\FlagHelper.h" />
     <ClInclude Include="Common\GPCS4Log.h" />
     <ClInclude Include="Common\GPCS4Types.h" />
-    <ClInclude Include="Common\MacroHelper.h" />
-    <ClInclude Include="Common\ReferenceCount.h" />
-    <ClInclude Include="Common\Singleton.h" />
-    <ClInclude Include="Common\BitHelper.h" />
-    <ClInclude Include="Common\LikelyHelper.h" />
-    <ClInclude Include="Common\SyncHelper.h" />
+    <ClInclude Include="Common\IntelliSenseClang.h" />
     <ClInclude Include="elf-sce.h" />
     <ClInclude Include="Emulator\Emulator.h" />
     <ClInclude Include="Emulator\GameThread.h" />
@@ -241,6 +235,14 @@
     <ClInclude Include="SceModules\sce_modules.h" />
     <ClInclude Include="SceModules\sce_module_common.h" />
     <ClInclude Include="SceModules\sce_types.h" />
+    <ClInclude Include="Util\UtilBit.h" />
+    <ClInclude Include="Util\UtilFlag.h" />
+    <ClInclude Include="Util\UtilInclude.h" />
+    <ClInclude Include="Util\UtilLikely.h" />
+    <ClInclude Include="Util\UtilMath.h" />
+    <ClInclude Include="Util\UtilRc.h" />
+    <ClInclude Include="Util\UtilSingleton.h" />
+    <ClInclude Include="Util\UtilSync.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Algorithm\sha1.c" />
@@ -521,11 +523,11 @@
     <IncludePath>$(ProjectDir);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)3rdParty;$(ProjectDir)SceModules;$(ProjectDir)Common;$(ProjectDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)3rdParty;$(ProjectDir)SceModules;$(ProjectDir)Common;$(ProjectDir)Util;$(ProjectDir);$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)3rdParty;$(ProjectDir)SceModules;$(ProjectDir)Common;$(ProjectDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)3rdParty;$(ProjectDir)SceModules;$(ProjectDir)Common;$(ProjectDir)Util;$(ProjectDir);$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Label="LLVM" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

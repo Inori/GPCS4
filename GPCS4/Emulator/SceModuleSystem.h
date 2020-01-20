@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GPCS4Common.h"
-#include "Singleton.h"
+#include "UtilSingleton.h"
 #include "Module.h"
 #include <string>
 #include <unordered_map>
@@ -17,13 +17,13 @@ class CSceModuleSystem final : public Singleton<CSceModuleSystem>
 public:
 	struct LibraryRecord
 	{
-		enum class Mode
+		enum class OverridingPolicy
 		{
-			Disallow,
-			Allow,
+			DisallowList,
+			AllowList,
 		};
 
-		Mode mode;
+		OverridingPolicy mode;
 		bool overrideable;
 		std::unordered_map<uint64_t, bool> functions;
 	};
@@ -54,6 +54,7 @@ private:
 	typedef std::unordered_map<std::string, size_t> SceModuleNameIndexMap;
 
 public:
+	void clearModules();
 
 	bool RegisterModule(const SCE_EXPORT_MODULE& stModule);
 
@@ -64,8 +65,6 @@ public:
 						std::string const &symbolName,
 						void *p);
 
-	// I use rvalue reference here to express "sink" semantics, which means the container would take ownership
-	// of the object after registeration and the original one would no longer be valid.
 	bool registerMemoryMappedModule(std::string const &modName, MemoryMappedModule &&mod);
 
 	bool isMemoryMappedModuleLoaded(std::string const &modName);
@@ -88,7 +87,7 @@ public:
 	bool setLibraryOverridability(const std::string &modName,
 								  const std::string &libName,
 								  bool isOverridable,
-								  LibraryRecord::Mode mode = LibraryRecord::Mode::Disallow);
+								  LibraryRecord::OverridingPolicy mode = LibraryRecord::OverridingPolicy::DisallowList);
 
 	bool setFunctionOverridability(const std::string &modName,
 								 const std::string &libName,
@@ -96,38 +95,29 @@ public:
 
 	bool addAllowedFile(std::string const &fileName);
 	bool isFileAllowedToLoad(std::string const &fileName);
-	bool decodeEncodedName(std::string const &strEncName, uint *nModuleId, uint *nLibraryId, uint64_t *nNid);
 
 	bool isModuleOverridable(std::string const &modName) const;
 	bool isLibraryOverridable(std::string const &modName, std::string const &libName) const;
 	bool isFunctionOverridable(std::string const &modName, std::string const &libName, uint64_t nid) const;
 
 private:
-	bool decodeValue(std::string const &strEnc, uint64_t &val);
 	bool IsEndFunctionEntry(const SCE_EXPORT_FUNCTION* pFunc);
 	bool IsEndLibraryEntry(const SCE_EXPORT_LIBRARY* pLib);
 
 	bool isLibraryLoadable(std::string const &modName, std::string const &libName);
 	bool isFunctionLoadable(std::string const &modName,std::string const &libName, uint64_t nid);
 
-
-private:
-
-	SceModuleMapNid m_umpModuleMapNid;
-	SceModuleMapName m_umpModuleMapName;
-
-	SceOverridableMapNid m_overridableModules;
-	//SceMappedModuleMap m_mappedModules;
-
-	SceAllowedFileMap m_allowedFiles;
-
-	SceMappedModuleList m_mappedModules;
-	SceModuleNameIndexMap m_mappedModuleNameIndexMap;
-
-private:
 	CSceModuleSystem();
 	~CSceModuleSystem();
 	CSceModuleSystem(const CSceModuleSystem&);
-	CSceModuleSystem& operator = (const CSceModuleSystem&);
+	CSceModuleSystem& operator = (const CSceModuleSystem&) = delete;
+
+private:
+	SceModuleMapNid m_umpModuleMapNid;
+	SceModuleMapName m_umpModuleMapName;
+	SceOverridableMapNid m_overridableModules;
+	SceAllowedFileMap m_allowedFiles;
+	SceMappedModuleList m_mappedModules;
+	SceModuleNameIndexMap m_mappedModuleNameIndexMap;
 };
 

@@ -422,7 +422,7 @@ int PS4API scePthreadSetaffinity(ScePthread thread, const SceKernelCpumask mask)
 	// should limit cpu count according to running machine
 	for (int i = 0; i != SCE_KERNEL_CPU_MAX; ++i)
 	{
-		if (BIT_IS_SET(mask, i))
+		if (util::isBitSet(mask, i))
 		{
 			CPU_SET(i, &cpuset);
 		}

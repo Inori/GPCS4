@@ -1,6 +1,7 @@
 #include "GveImage.h"
 #include "GveDevice.h"
 #include "GveUtil.h"
+#include "UtilMath.h"
 
 namespace gve
 {;
@@ -63,8 +64,8 @@ GveImage::GveImage(
 
 	if (info.tiling != VK_IMAGE_TILING_LINEAR)
 	{
-		memReq.memoryRequirements.size = ALIGN_ROUND(memReq.memoryRequirements.size, memAlloc->bufferImageGranularity());
-		memReq.memoryRequirements.alignment = ALIGN_ROUND(memReq.memoryRequirements.alignment, memAlloc->bufferImageGranularity());
+		memReq.memoryRequirements.size      = ::util::alignRound(memReq.memoryRequirements.size, memAlloc->bufferImageGranularity());
+		memReq.memoryRequirements.alignment = ::util::alignRound(memReq.memoryRequirements.alignment, memAlloc->bufferImageGranularity());
 	}
 
 	// Use high memory priority for GPU-writable resources

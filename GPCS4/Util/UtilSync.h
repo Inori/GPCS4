@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GPCS4Common.h"
+#include <atomic>
 #include <thread>
 
 /**

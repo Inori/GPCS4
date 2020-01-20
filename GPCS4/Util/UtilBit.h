@@ -1,13 +1,14 @@
 #pragma once
 
+#include "GPCS4Common.h"
+#include "UtilLikely.h"
+
 #ifndef _MSC_VER
 #include <x86intrin.h>
 #else
 #include <intrin.h>
 #endif
 
-#include "GPCS4Common.h"
-#include "LikelyHelper.h"
 
 namespace bit {
   
