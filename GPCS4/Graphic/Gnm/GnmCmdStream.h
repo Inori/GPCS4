@@ -67,7 +67,7 @@ private:
 	// Private
 	void onGnmPrivate(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody);
 	// Legacy packets used in old SDKs.
-	void onOpLegacy(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody);
+	void onGnmLegacy(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody);
 
 	// Parsing methods
 	void onPrepareFlipOrEopInterrupt(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody);
