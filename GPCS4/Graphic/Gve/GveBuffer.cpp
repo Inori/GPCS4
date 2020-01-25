@@ -151,7 +151,7 @@ GveBufferSlice::~GveBufferSlice()
 }
 
 
-bool GveBufferSlice::isValid() const
+bool GveBufferSlice::defined() const
 {
 	return m_buffer != nullptr;
 }

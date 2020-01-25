@@ -363,21 +363,17 @@ void GnmCommandBufferDraw::setPrimitiveType(PrimitiveType primType)
 
 void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr, DrawModifier modifier)
 {
-	do 
-	{
-		bindIndexBuffer(indexAddr, indexCount);
+	bindIndexBuffer(indexAddr, indexCount);
 
-		commitVsStage();
-		commitPsStage();
+	commitVsStage();
+	commitPsStage();
 
-		// TODO:
-		// This is a dummy state.
-		auto msInfo = GveMultisampleInfo(VK_SAMPLE_COUNT_1_BIT, VK_FALSE, 0.0, 0, VK_FALSE, VK_FALSE);
-		m_context->setMultiSampleState(msInfo);
+	// TODO:
+	// This is a dummy state.
+	auto msInfo = GveMultisampleInfo(VK_SAMPLE_COUNT_1_BIT, VK_FALSE, 0.0, 0, VK_FALSE, VK_FALSE);
+	m_context->setMultiSampleState(msInfo);
 
-		m_context->drawIndex(indexCount, 1, 0, 0, 0);
-
-	} while (false);
+	m_context->drawIndex(indexCount, 1, 0, 0, 0);
 }
 
 void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr)

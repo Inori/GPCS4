@@ -1,10 +1,12 @@
 #include "sce_libkernel.h"
 #include "sce_pthread_common.h"
 #include "sce_kernel_scepthread.h"
-#include <utility>
+#include "MapSlot.h"
+
 #include "Platform/PlatformUtils.h"
 #include "Emulator/TLSHandler.h"
-#include "MapSlot.h"
+
+#include <utility>
 
 
 //////////////////////////////////////////////////////////////////////////

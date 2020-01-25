@@ -75,7 +75,7 @@ public:
 	GveBufferSlice(const RcPtr<GveBuffer>& buffer);
 	~GveBufferSlice();
 
-	bool isValid() const;
+	bool defined() const;
 
 	RcPtr<GveBuffer> buffer();
 

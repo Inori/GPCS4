@@ -501,7 +501,7 @@ void GveContex::updateVertexBindings()
 	for (const auto& buffer : m_state.vi.vertexBuffers)
 	{
 		// break on first invalid buffer
-		if (!buffer.isValid())
+		if (!buffer.defined())
 		{
 			break;
 		}
@@ -520,7 +520,7 @@ void GveContex::updateIndexBinding()
 {
 	do 
 	{
-		if (!m_state.vi.indexBuffer.isValid())
+		if (!m_state.vi.indexBuffer.defined())
 		{
 			break;
 		}
