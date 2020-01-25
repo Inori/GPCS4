@@ -936,17 +936,21 @@ void GnmCmdStream::onSetViewport(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 void GnmCmdStream::onSetRenderTarget(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 {
 	PPM4ME_SET_CONTEXT_REG setCtxPacket = (PPM4ME_SET_CONTEXT_REG)pm4Hdr;
-	uint32_t packetLenDw = PM4_LENGTH_DW(pm4Hdr->u32All);
-	if (packetLenDw == 0x10)
+
+	uint32_t offset = setCtxPacket->bitfields2.reg_offset - 0x318;
+	bool isValidRt  = (offset % 15 == 0);
+
+	if (isValidRt)
 	{
 		uint32_t rtSlot = (setCtxPacket->bitfields2.reg_offset - 0x318) / 15;
 
 		RenderTarget target;
-		std::memcpy(&target.m_regs[0], &itBody[1], 0x20);  // 0x20 == sizeof(ymm)
-		std::memcpy(&target.m_regs[6], &itBody[7], 0x20);
+		std::memcpy(&target.m_regs[0], &itBody[1], sizeof(uint32_t) * setCtxPacket->header.count);  
 
-		uint32_t nopOp = itBody[15];  // not used, just for reference
-		uint32_t packWidthHeight = itBody[16];
+		// Get the next nop packet, which is used to hold width and height information.
+		auto nopPacket                              = getNextPm4(pm4Hdr);
+		uint32_t* nopBody                           = reinterpret_cast<uint32_t*>(nopPacket) + 1;
+		uint32_t packWidthHeight                    = nopBody[0];
 		target.m_regs[RenderTarget::kCbWidthHeight] = packWidthHeight;
 
 		m_cb->setRenderTarget(rtSlot, &target);
@@ -954,14 +958,11 @@ void GnmCmdStream::onSetRenderTarget(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody
 		// Skip the nop packet
 		m_skipPm4Count = 1;
 	}
-	else if (packetLenDw == 0x03)
-	{
-		uint32_t rtSlot = (setCtxPacket->bitfields2.reg_offset - 0x31C) / 15;
-		m_cb->setRenderTarget(rtSlot, nullptr);
-	}
 	else
 	{
-		LOG_ERR("error set render target packet length %d", packetLenDw);
+		// The game may set an empty render target.
+		uint32_t rtSlot = (setCtxPacket->bitfields2.reg_offset - 0x31C) / 15;
+		m_cb->setRenderTarget(rtSlot, nullptr);
 	}
 }
 

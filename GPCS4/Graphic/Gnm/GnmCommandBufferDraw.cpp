@@ -189,6 +189,7 @@ void GnmCommandBufferDraw::setRenderTarget(uint32_t rtSlot, RenderTarget const *
 	{
 		if (!target)
 		{
+			LOG_WARN("set null render target.")
 			break;
 		}
 
