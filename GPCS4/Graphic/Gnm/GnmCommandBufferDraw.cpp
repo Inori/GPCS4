@@ -374,7 +374,7 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 	auto msInfo = GveMultisampleInfo(VK_SAMPLE_COUNT_1_BIT, VK_FALSE, 0.0, 0, VK_FALSE, VK_FALSE);
 	m_context->setMultiSampleState(msInfo);
 
-	m_context->drawIndex(indexCount, 1, 0, 0, 0);
+	m_context->drawIndexed(indexCount, 1, 0, 0, 0);
 }
 
 void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr)
@@ -393,7 +393,7 @@ void GnmCommandBufferDraw::drawIndexAuto(uint32_t indexCount, DrawModifier modif
 	auto msInfo = GveMultisampleInfo(VK_SAMPLE_COUNT_1_BIT, VK_FALSE, 0.0, 0, VK_FALSE, VK_FALSE);
 	m_context->setMultiSampleState(msInfo);
 
-	m_context->drawAuto(indexCount, 1, 0, 0);
+	m_context->draw(indexCount, 1, 0, 0);
 }
 
 void GnmCommandBufferDraw::drawIndexAuto(uint32_t indexCount)
