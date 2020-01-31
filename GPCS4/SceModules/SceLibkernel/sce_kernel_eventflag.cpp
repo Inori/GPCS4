@@ -2,6 +2,7 @@
 #include "sce_kernel_eventflag.h"
 #include "SceEventFlag.h"
 
+LOG_CHANNEL(SceModules.SceLibkernel.eventflag);
 
 int PS4API sceKernelCreateEventFlag(SceKernelEventFlag *ef, const char *pName, uint32_t attr, 
 	uint64_t initPattern, const SceKernelEventFlagOptParam *pOptParam)

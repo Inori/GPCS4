@@ -14,6 +14,7 @@
 
 #endif  // MODSYS_DISABLE_MAPPER_LOG_DEBUG
 
+LOG_CHANNEL(Loader.ELFMapper);
 
 bool ELFMapper::loadFile(std::string const &filePath, MemoryMappedModule *mod)
 {

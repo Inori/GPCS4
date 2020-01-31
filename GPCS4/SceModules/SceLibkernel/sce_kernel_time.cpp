@@ -2,6 +2,8 @@
 #include "Platform/PlatformUtils.h"
 #include <ctime>
 
+LOG_CHANNEL(SceModules.SceLibkernel.time);
+
 uint64_t PS4API sceKernelGetProcessTime(void)
 {
 	LOG_SCE_DUMMY_IMPL();

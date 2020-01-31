@@ -5,6 +5,8 @@
 #include <set>
 #include <array>
 
+LOG_CHANNEL(Graphic.Gve.GvePhysicalDevice);
+
 namespace gve
 {;
 

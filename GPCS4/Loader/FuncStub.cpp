@@ -1,6 +1,8 @@
 #include "FuncStub.h"
 #include "Platform/UtilDebug.h"
 
+LOG_CHANNEL(Loader.FuncStub);
+
 static void logFunc(const char *log) 
 {
 	LOG_TRACE(log); 

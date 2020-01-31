@@ -1,6 +1,7 @@
 #include "GveDescriptor.h"
 #include "GveDevice.h"
 
+LOG_CHANNEL(Graphic.Gve.GveDescriptor);
 
 namespace gve
 {;

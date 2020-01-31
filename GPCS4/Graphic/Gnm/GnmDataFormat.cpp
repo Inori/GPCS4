@@ -1,5 +1,6 @@
 #include "GnmDataFormat.h"
 
+LOG_CHANNEL(Graphic.Gnm.GnmDataFormat);
 
 const char* dataFormatName(DataFormat dataFmt)
 {

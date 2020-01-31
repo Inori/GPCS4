@@ -2,6 +2,7 @@
 #include "UtilBit.h"
 #include "GnmGfx9MePm4Packets.h"
 
+LOG_CHANNEL(Graphic.Gnm.GnmCmdStream);
 
 const uint32_t c_stageBases[kShaderStageCount] = { 0x2E40, 0x2C0C, 0x2C4C, 0x2C8C, 0x2CCC, 0x2D0C, 0x2D4C };
 

@@ -1,5 +1,7 @@
 #include "sce_libc.h"
 
+LOG_CHANNEL(SceModules.SceLibc.stdio);
+
 // TODO:
 // stdin stdout stderr shouldn't be functions
 // these are global varables

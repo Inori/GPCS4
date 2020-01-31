@@ -6,10 +6,11 @@
 #include <memory>
 #include <cmath>
 
+LOG_CHANNEL(GPCS4Main);
 
 int main(int argc, char *argv[])
 {
-	initLogging();
+	GPCS4Log::Init(argc, argv);
 
 	LOG_DEBUG("enter main function.");
 
@@ -17,7 +18,7 @@ int main(int argc, char *argv[])
 	int nRet                             = -1;
 	do
 	{
-		if (argc != 2)
+		if (argc < 2)
 		{
 			printf("usage %s eboot.bin\n", argv[0]);
 			break;

@@ -4,6 +4,7 @@
 #include "../Gve/GveShader.h"
 #include "Platform/UtilFile.h"
 
+LOG_CHANNEL(Graphic.Pssl.PsslShaderModule);
 
 namespace pssl
 {;

@@ -6,6 +6,7 @@
 #include <fstream>
 #include <algorithm>
 
+LOG_CHANNEL(Module);
 
 const MODULE_INFO &MemoryMappedModule::getModuleInfo() const { return m_moduleInfo; }
 MODULE_INFO &MemoryMappedModule::getModuleInfo() { return m_moduleInfo; }

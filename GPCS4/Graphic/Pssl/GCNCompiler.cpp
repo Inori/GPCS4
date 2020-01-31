@@ -5,6 +5,8 @@
 
 #include <array>
 
+LOG_CHANNEL(Graphic.Pssl.GCNCompiler);
+
 namespace pssl
 {;
 

@@ -4,6 +4,8 @@
 
 #include <iostream>
 
+LOG_CHANNEL(Graphic.Gve.GveInstance);
+
 namespace gve
 {;
 

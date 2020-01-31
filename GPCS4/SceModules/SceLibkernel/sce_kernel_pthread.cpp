@@ -3,6 +3,7 @@
 //#include "pthreads4w/pthread.h"
 #include "MapSlot.h"
 
+LOG_CHANNEL(SceModules.SceLibkernel.pthread);
 
 int pthreadErrorToSceError(int perror);
 

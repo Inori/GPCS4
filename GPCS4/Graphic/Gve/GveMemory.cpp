@@ -2,6 +2,7 @@
 #include "GvePhysicalDevice.h"
 #include "GveDevice.h"
 
+LOG_CHANNEL(Graphic.Gve.GveMemory);
 
 namespace gve
 {;

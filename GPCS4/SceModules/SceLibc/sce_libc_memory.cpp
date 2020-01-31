@@ -1,5 +1,6 @@
 #include "sce_libc.h"
 
+LOG_CHANNEL(SceModules.SceLibc.memory);
 
 void* PS4API scec_malloc(size_t size)
 {

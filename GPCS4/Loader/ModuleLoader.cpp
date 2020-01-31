@@ -2,6 +2,8 @@
 
 #include "Platform/PlatformUtils.h"
 
+LOG_CHANNEL(Loader.ModuleLoader);
+
 #define ADD_BLACK_MODULE(name) (name".sprx")
 
 const std::set<std::string> ModuleLoader::m_moduleInitBlackList = 

@@ -1,5 +1,7 @@
 #include "GnmConvertor.h"
 
+LOG_CHANNEL(Graphic.Gnm.GnmConvertor);
+
 namespace cvt
 {;
 

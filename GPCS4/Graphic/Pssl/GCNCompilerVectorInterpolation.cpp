@@ -1,5 +1,7 @@
 #include "GCNCompiler.h"
 
+LOG_CHANNEL(Graphic.Pssl.GCNCompilerVectorInterpolation);
+
 namespace pssl
 {;
 

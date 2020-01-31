@@ -1,5 +1,6 @@
 #include "GCNCompiler.h"
 
+LOG_CHANNEL(Graphic.Pssl.GCNCompilerScalarMemory);
 
 namespace pssl
 {;

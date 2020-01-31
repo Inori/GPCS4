@@ -6,6 +6,8 @@
 
 #include <functional>
 
+LOG_CHANNEL(SceModules.SceLibkernel.SceEventFlag);
+
 CSceEventFlag::CSceEventFlag(const std::string& name, uint32_t attr, uint64_t initPattern) :
 	m_attr(attr),
 	m_name(name),
