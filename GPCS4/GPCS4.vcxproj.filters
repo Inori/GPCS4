@@ -877,6 +877,9 @@
     <ClInclude Include="SceModules\SceAppContentUtil\sce_appcontentutil_types.h">
       <Filter>SceModules\SceAppContentUtil</Filter>
     </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GnmTiler.h">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1535,6 +1538,12 @@
     </ClCompile>
     <ClCompile Include="SceModules\SceLibkernel\sce_kernel_tls.cpp">
       <Filter>SceModules\SceLibkernel</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gnm\GnmGpuAddress.cpp">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gnm\GnmTiler.cpp">
+      <Filter>Source Files\Graphic\Gnm</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -24,6 +24,7 @@
     <ClInclude Include="Common\GPCS4Log.h" />
     <ClInclude Include="Common\GPCS4Types.h" />
     <ClInclude Include="Common\IntelliSenseClang.h" />
+    <ClInclude Include="Graphic\Gnm\GnmTiler.h" />
     <ClInclude Include="Loader\elf-sce.h" />
     <ClInclude Include="Emulator\Emulator.h" />
     <ClInclude Include="Emulator\GameThread.h" />
@@ -270,7 +271,9 @@
     <ClCompile Include="Graphic\Gnm\GnmCommandBufferDummy.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmConvertor.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmDataFormat.cpp" />
+    <ClCompile Include="Graphic\Gnm\GnmGpuAddress.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmOpCode.cpp" />
+    <ClCompile Include="Graphic\Gnm\GnmTiler.cpp" />
     <ClCompile Include="Graphic\GraphicShared.cpp" />
     <ClCompile Include="Graphic\Gve\GveBuffer.cpp" />
     <ClCompile Include="Graphic\Gve\GveCmdList.cpp" />
