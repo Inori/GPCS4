@@ -551,6 +551,7 @@ void GCNCompiler::emitDclImmConstBuffer(const GcnResourceBuffer& res)
 	// set the ArrayStride to 16 no matter what type the element is.
 	// This is std140 standard, but what we should use is std430
 	// We should specify the correct stride, for a float array, it's sizeof(float) == 4 .
+	// This will trigger a validation warning.
 	m_module.decorateArrayStride(arrayId, 4);
 
 	// spirv-cross doesn't support buffer block expressed as any of std430, std140 and etc.

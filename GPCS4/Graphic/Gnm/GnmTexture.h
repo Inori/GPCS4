@@ -26,6 +26,7 @@ public:
 
 	SizeAlign getSizeAlign(void) const
 	{
+		LOG_FIXME("delete hardcode, implement this according to IDA.");
 		// TODO:
 		// Fix this according to IDA
 		SizeAlign result;
