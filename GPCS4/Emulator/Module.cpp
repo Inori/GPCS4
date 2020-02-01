@@ -270,8 +270,8 @@ bool MemoryMappedModule::decodeSymbol(std::string const &strEncName,
 		auto &nLibraryId = *libId;
 		auto &nNid       = *funcNid;
 
-		std::vector<std::string> vtNameParts;
-		if (!UtilString::Split(strEncName, '#', vtNameParts))
+		std::vector<std::string> vtNameParts = UtilString::Split(strEncName, '#');
+		if (vtNameParts.empty())
 		{
 			break;
 		}

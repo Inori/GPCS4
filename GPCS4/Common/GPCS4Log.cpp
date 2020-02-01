@@ -4,13 +4,17 @@
 
 #include "GPCS4Log.h"
 
+#include "Platform/UtilString.h"
+
 #include <cstdio>
-#include <cxxopts/cxxopts.hpp>
 #include <memory>
+#include <cxxopts/cxxopts.hpp>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/msvc_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
+
+#define LOG_STR_BUFFER_LEN 2000
 
 #ifdef GPCS4_WINDOWS
 
@@ -29,42 +33,13 @@ void showMessageBox(const char* title, const char* message)
 
 #endif  //GPCS4_WINDOWS
 
-#define LOG_STR_BUFFER_LEN 2000
 
-namespace GPCS4Log
-{
-
-std::vector<std::string> Split(const std::string& str, const std::string d = ".")
-{
-	std::vector<std::string> ret;
-	size_t prev = 0;
-	size_t pos  = 0;
-	while ((pos = str.find(d, pos)) != std::string::npos)
-	{
-		ret.push_back(str.substr(prev, pos - prev));
-		prev = (pos += d.size());
-	}
-	ret.push_back(str.substr(prev));
-
-	return ret;
-}
-std::string Concat(const std::vector<std::string>& ss, const std::string d = ".")
-{
-	std::string ret;
-	for (size_t i = 0; i < ss.size(); ++i)
-	{
-		if (i > 0)
-		{
-			ret += d;
-		}
-		ret += ss[i];
-	}
-	return ret;
-}
+namespace logsys
+{;
 
 static std::unique_ptr<spdlog::logger> g_logger;
 
-void Init(int argc, char** argv)
+void init(const cxxopts::ParseResult& optResult)
 {
 	/// Init spdlog
 
@@ -87,21 +62,12 @@ void Init(int argc, char** argv)
 
 	//g_logger->flush_on(spdlog::level::trace); // I/O cost
 
+
 	/// Init log channel
-	cxxopts::Options opts("LogSystem", "Logger system opts");
-	opts.add_options()
 
-		("D,debug-channel", "Enable debug channel", cxxopts::value<std::vector<std::string>>())
-
-			("L,list-channels", "List debug channel")
-
-		;
-
-	auto rslt = opts.parse(argc, argv);
-
-	if (rslt.count("D"))
+	if (optResult.count("D"))
 	{
-		auto ls = rslt["D"].as<std::vector<std::string>>();
+		auto ls = optResult["D"].as<std::vector<std::string>>();
 
 		for (auto&& s : ls)
 		{
@@ -111,7 +77,7 @@ void Init(int argc, char** argv)
 			}
 		}
 	}
-	else if (rslt.count("L"))
+	else if (optResult.count("L"))
 	{
 		for (auto&& p : ChannelContainer::get()->getChannels())
 		{
@@ -129,7 +95,7 @@ void Init(int argc, char** argv)
 
 void Channel::print(Level nLevel, const char* szFunction, const char* szSourcePath, int nLine, const char* szFormat, ...)
 {
-	if (!m_bEnabled)
+	if (!m_enabled)
 	{
 		return;
 	}
@@ -165,9 +131,10 @@ void Channel::print(Level nLevel, const char* szFunction, const char* szSourcePa
 		break;
 	}
 }
+
 void Channel::assert_(const char* szExpression, const char* szFunction, const char* szSourcePath, int nLine, const char* szFormat, ...)
 {
-	if (!m_bEnabled)
+	if (!m_enabled)
 	{
 		// just always enable assert
 	}
@@ -192,24 +159,26 @@ void Channel::assert_(const char* szExpression, const char* szFunction, const ch
 }
 
 Channel::Channel(const std::string& n) :
-	m_vsChannelName(Split(n)), m_bEnabled(false)
+	m_channelNameList(UtilString::Split(n, '.')),
+	m_enabled(false)
 {
 	auto cc = ChannelContainer::get();
 	cc->add(this);
 }
+
 void Channel::checkSig(const std::string& n)
 {
 	if (n == "ALL")
 	{
-		m_bEnabled = true;
+		m_enabled = true;
 		return;
 	}
-	m_bEnabled = false;
+	m_enabled = false;
 
-	auto up = Split(n);
-	for (size_t i = 0; i < up.size() && i < m_vsChannelName.size(); ++i)
+	auto up = UtilString::Split(n, '.');
+	for (size_t i = 0; i < up.size() && i < m_channelNameList.size(); ++i)
 	{
-		if (up[i] != m_vsChannelName[i])
+		if (up[i] != m_channelNameList[i])
 		{
 			return;
 		}
@@ -217,31 +186,37 @@ void Channel::checkSig(const std::string& n)
 
 	// Cmd args enable "Solar.Earth"
 	// If this name is "Solar.Earth.Asia", should enable
-	if (up.size() <= m_vsChannelName.size())
+	if (up.size() <= m_channelNameList.size())
 	{
-		m_bEnabled = true;
+		m_enabled = true;
 	}
 }
+
 std::string Channel::getName()
 {
-	return Concat(m_vsChannelName);
+	return UtilString::Concat(m_channelNameList, ".");
 }
+
+///
 
 void ChannelContainer::add(Channel* ch)
 {
-	m_vpChannels.push_back(ch);
+	m_channels.push_back(ch);
 }
+
 ChannelContainer* ChannelContainer::get()
 {
 	static ChannelContainer cc;
 	return &cc;
 }
+
 std::vector<Channel*>& ChannelContainer::getChannels()
 {
-	return m_vpChannels;
+	return m_channels;
 }
+
 ChannelContainer::ChannelContainer()
 {
 }
 
-}  // namespace GPCS4Log
+}  // namespace log
