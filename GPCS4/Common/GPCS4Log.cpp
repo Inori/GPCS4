@@ -56,8 +56,8 @@ void initSpdLog()
 	file_sink->set_pattern("[%t][%^%l%$]%v");
 
 	//g_logger.reset(new spdlog::logger("GPCS4", { console_sink, msvc_sink }));
-	g_logger.reset(new spdlog::logger("GPCS4", { msvc_sink, file_sink, console_sink }));
-	//g_logger.reset(new spdlog::logger("GPCS4", { msvc_sink }));
+	//g_logger.reset(new spdlog::logger("GPCS4", { msvc_sink, file_sink, console_sink }));
+	g_logger.reset(new spdlog::logger("GPCS4", { msvc_sink }));
 	g_logger->set_level(spdlog::level::trace);  // message showing filter
 
 	//g_logger->flush_on(spdlog::level::trace); // I/O cost
@@ -117,25 +117,25 @@ void Channel::print(Level nLevel, const char* szFunction, const char* szSourcePa
 	switch (nLevel)
 	{
 	case Level::kDebug:
-		g_logger->debug("[{}]{}({}): {}", getName(), szFunction, nLine, szTempStr);
+		g_logger->debug("{}({}): {}", szFunction, nLine, szTempStr);
 		break;
 	case Level::kTrace:
-		g_logger->trace("[{}]{}({}): {}", getName(), szFunction, nLine, szTempStr);
+		g_logger->trace("{}({}): {}", szFunction, nLine, szTempStr);
 		break;
 	case Level::kFixme:
-		g_logger->warn("[{}]<FIXME>{}({}): {}", getName(), szFunction, nLine, szTempStr);
+		g_logger->warn("<FIXME>{}({}): {}", szFunction, nLine, szTempStr);
 		break;
 	case Level::kWarning:
-		g_logger->warn("[{}]{}({}): {}", getName(), szFunction, nLine, szTempStr);
+		g_logger->warn("{}({}): {}", szFunction, nLine, szTempStr);
 		break;
 	case Level::kError:
-		g_logger->error("[{}]{}({}): {}", getName(), szFunction, nLine, szTempStr);
+		g_logger->error("{}({}): {}", szFunction, nLine, szTempStr);
 		break;
 	case Level::kSceTrace:
-		g_logger->trace("[{}]<SCE>{}({}): {}", getName(), szFunction, nLine, szTempStr);
+		g_logger->trace("<SCE>{}({}): {}", szFunction, nLine, szTempStr);
 		break;
 	case Level::kSceGraphic:
-		g_logger->trace("[{}]<GRAPH>{}({}): {}", getName(), szFunction, nLine, szTempStr);
+		g_logger->trace("<GRAPH>{}({}): {}", szFunction, nLine, szTempStr);
 		break;
 	}
 }
@@ -178,6 +178,12 @@ void Channel::checkSig(const std::string& n)
 {
 	do 
 	{
+		if (m_enabled)
+		{
+			// Already enabled, shouldn't be disabled again. 
+			break;
+		}
+
 		if (n == "ALL")
 		{
 			m_enabled = true;
@@ -208,7 +214,6 @@ void Channel::checkSig(const std::string& n)
 			m_enabled = true;
 		}
 	} while (false);
-
 }
 
 std::string Channel::getName()
