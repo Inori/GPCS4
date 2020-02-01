@@ -1,6 +1,8 @@
 #include "sce_libc.h"
 #include "Platform/PlatformUtils.h"
 
+LOG_CHANNEL(SceModules.SceLibc.file);
+
 FILE* PS4API scec_fopen(const char *pathname, const char *mode)
 {
 	LOG_SCE_TRACE("fname %s mode %s", pathname, mode);

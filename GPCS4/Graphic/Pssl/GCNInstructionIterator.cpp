@@ -1,6 +1,8 @@
 #include "GCNInstructionIterator.h"
 #include "GCNParser/ParserSI.h"
 
+LOG_CHANNEL(Graphic.Pssl.GCNInstructionIterator);
+
 namespace pssl
 {;
 

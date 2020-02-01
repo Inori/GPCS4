@@ -1,6 +1,8 @@
 #include "GveRenderPass.h"
 #include "GveDevice.h"
 
+LOG_CHANNEL(Graphic.Gve.GveRenderPass);
+
 namespace gve
 {;
 

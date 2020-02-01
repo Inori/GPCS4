@@ -4,6 +4,8 @@
 // x86_64 max instruction length
 #define X64_INSTRUCTION_LEN_MAX 15
 
+LOG_CHANNEL(Emulator.TLSHandler);
+
 thread_local void* TLSManager::t_fsbase = nullptr;
 
 TLSManager::TLSManager()

@@ -1,6 +1,7 @@
 #include "sce_libkernel.h"
 #include "SceSemaphore.h"
 
+LOG_CHANNEL(SceModules.SceLibkernel.semaphore);
 
 int PS4API sceKernelCreateSema(SceKernelSema *sem, const char *name, 
 	uint32_t attr, int init, int max, const SceKernelSemaOptParam *opt)

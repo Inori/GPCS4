@@ -4,6 +4,8 @@
 #include "Platform/UtilMemory.h"
 #include <cstring>
 
+LOG_CHANNEL(SceModules.SceLibkernel.memory);
+
 // Note:
 // Direct memory address is supposed to be within 0x000000FFFFFFFFFF
 static uint64_t baseDirectMemory = 0x400000;

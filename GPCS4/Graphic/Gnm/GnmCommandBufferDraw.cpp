@@ -16,6 +16,8 @@
 
 #include <algorithm>
 
+LOG_CHANNEL(Graphic.Gnm.GnmCommandBufferDraw);
+
 using namespace gve;
 using namespace pssl;
 

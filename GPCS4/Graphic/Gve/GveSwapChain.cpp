@@ -7,6 +7,8 @@
 
 #include <algorithm>
 
+LOG_CHANNEL(Graphic.Gve.GveSwapChain);
+
 namespace gve
 {;
 

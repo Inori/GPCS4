@@ -1,5 +1,7 @@
 #include "sce_gnmdriver.h"
 
+LOG_CHANNEL(SceModules.SceDriver.GnmEQEvent);
+
 int PS4API sceGnmAddEqEvent(void)
 {
 	LOG_SCE_GRAPHIC("Not implemented");

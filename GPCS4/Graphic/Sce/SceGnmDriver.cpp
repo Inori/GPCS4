@@ -13,6 +13,8 @@
 #include "../Gve/GveCmdList.h"
 #include "../Gve/GveImage.h"
 
+LOG_CHANNEL(Graphic.Sce.SceGnmDriver);
+
 namespace sce
 {;
 

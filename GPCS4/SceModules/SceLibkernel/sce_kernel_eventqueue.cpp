@@ -1,6 +1,8 @@
 #include "sce_libkernel.h"
 #include "Platform/UtilTime.h"
 
+LOG_CHANNEL(SceModules.SceLibkernel.eventqueue);
+
 int PS4API sceKernelCreateEqueue(SceKernelEqueue *eq, const char *name)
 {
 	LOG_SCE_GRAPHIC("eq %p, name %s", eq, name);

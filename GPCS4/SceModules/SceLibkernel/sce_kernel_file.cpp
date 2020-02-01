@@ -6,6 +6,8 @@
 #include <fcntl.h>
 #include <cstdio>
 
+LOG_CHANNEL(SceModules.SceLibkernel.file);
+
 // this will be more friendly on linux....
 
 #ifdef GPCS4_WINDOWS

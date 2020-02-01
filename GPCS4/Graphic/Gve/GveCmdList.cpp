@@ -1,6 +1,8 @@
 #include "GveCmdList.h"
 #include "GvePhysicalDevice.h"
 
+LOG_CHANNEL(Graphic.Gve.GveCmdList);
+
 namespace gve
 {;
 

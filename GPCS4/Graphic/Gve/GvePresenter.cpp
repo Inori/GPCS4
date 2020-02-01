@@ -3,6 +3,8 @@
 #include "GveSwapChain.h"
 #include "GveCmdList.h"
 
+LOG_CHANNEL(Graphic.Gve.GvePresenter);
+
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
 namespace gve

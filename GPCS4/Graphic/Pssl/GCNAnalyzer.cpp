@@ -3,6 +3,8 @@
 #include "GCNParser/ParserSI.h"
 #include "UtilBit.h"
 
+LOG_CHANNEL(Graphic.Pssl.GCNAnalyzer);
+
 namespace pssl
 {;
 

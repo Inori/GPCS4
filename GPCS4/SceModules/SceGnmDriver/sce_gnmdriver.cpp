@@ -5,8 +5,7 @@
 // The codebase is generated using GenerateCode.py
 // You may need to modify the code manually to fit development needs
 
-
-
+LOG_CHANNEL(SceModules.SceGnmDriver);
 
 //////////////////////////////////////////////////////////////////////////
 // library: libSceGnmDriver

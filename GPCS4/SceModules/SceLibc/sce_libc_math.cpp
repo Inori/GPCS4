@@ -1,6 +1,8 @@
 #include "sce_libc.h"
 #include <cmath>
 
+LOG_CHANNEL(SceModules.SceLibc.math);
+
 // declarations in this file can be found in FreeBSD 9, math.h and ymath.h
 
 

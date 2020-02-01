@@ -2,6 +2,8 @@
 #include "UtilString.h"
 #include <algorithm>
 
+LOG_CHANNEL(Platform.UtilPath);
+
 namespace UtilPath
 {
 ;

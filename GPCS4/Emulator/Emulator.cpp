@@ -2,6 +2,8 @@
 #include "GameThread.h"
 #include "SceModuleSystem.h"
 
+LOG_CHANNEL(Emulator);
+
 CEmulator::CEmulator() {}
 
 CEmulator::~CEmulator() {}

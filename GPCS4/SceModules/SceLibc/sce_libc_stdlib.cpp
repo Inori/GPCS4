@@ -1,6 +1,7 @@
 #include "sce_libc.h"
 #include <ctime>
 
+LOG_CHANNEL(SceModules.SceLibc.stdlib);
 
 //////////////////////////////////////////////////////////////////////////
 // This is the very first function a game calls

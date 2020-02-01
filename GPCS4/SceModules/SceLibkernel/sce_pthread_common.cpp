@@ -2,6 +2,7 @@
 #include "sce_libkernel.h"
 #include "Emulator/TLSHandler.h"
 
+LOG_CHANNEL(SceModules.SceLibkernel.pthreadcommon);
 
 MapSlot<pthread_t, isEmptyPthread, isEqualPthread> g_threadSlot(SCE_THREAD_COUNT_MAX);
 
@@ -28,7 +29,6 @@ void* newThreadWrapper(void* arg)
 			break;
 		}
 
-		
 		ScePthread tid = scePthreadSelf();
 		LOG_DEBUG("new sce thread created %d", tid);
 

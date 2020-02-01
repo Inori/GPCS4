@@ -1,5 +1,7 @@
 #include "UtilMemory.h"
 
+LOG_CHANNEL(Platform.UtilMemory);
+
 namespace UtilMemory
 {;
 

@@ -1,6 +1,8 @@
 #include "ScePad.h"
 #include "sce_errors.h"
 
+LOG_CHANNEL(SceModules.ScePad);
+
 SceInputController::~SceInputController()
 {
 }
