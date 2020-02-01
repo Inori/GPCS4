@@ -698,6 +698,9 @@ void GnmCommandBufferDraw::bindImmResource(const PsslShaderResource& res)
 		VkDeviceSize imageBufferSize = tsharp->getSizeAlign().m_size;
 		void* data                   = util::gnmGpuAbsAddr((void*)res.resource, tsharp->getBaseAddress());
 
+		// TODO:
+		// Untiling textures on CPU is not effective, we should do this using compute shader.
+		// But that would be a challenging job.
 		void* untiledData = malloc(imageBufferSize);
 
 		GpuAddress::TilingParameters tp;

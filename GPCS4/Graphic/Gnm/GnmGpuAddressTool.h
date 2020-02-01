@@ -20,4 +20,6 @@ uint32_t getMicroTileThickness(ArrayMode arrayMode);
 
 ArrayMode degradeLargeThickArrayMode(ArrayMode oldArrayMode, uint32_t bitsPerElement);
 
+uint32_t fastIntLog2(uint32_t i);
+
 }  // namespace GpuAddress

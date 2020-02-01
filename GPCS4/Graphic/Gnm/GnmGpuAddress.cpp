@@ -143,11 +143,6 @@ int32_t getAltPipeConfig(PipeConfig* outAltPipeConfig, TileMode tileMode)
 	return kStatusSuccess;
 }
 
-inline static uint32_t fastIntLog2(uint32_t i)
-{
-	return 31 - __builtin_clz(i | 1);
-}
-
 int32_t computeSurfaceMacroTileMode(MacroTileMode* outMacroTileMode, TileMode tileMode,
 										   uint32_t bitsPerElement, uint32_t numFragmentsPerPixel)
 {

@@ -3,6 +3,7 @@
 #include "GnmCommon.h"
 #include "GnmConstant.h"
 #include "GnmTiler.h"
+#include "GnmStructure.h"
 
 namespace GpuAddress
 {;
@@ -74,6 +75,11 @@ int32_t computeSurfaceMacroTileMode(
 int32_t computeSurfaceInfo(
 	SurfaceInfo* infoOut, 
 	const TilingParameters* tp);
+
+int32_t computeTotalTiledTextureSize(
+	uint64_t* outSize, 
+	AlignmentType* outAlign, 
+	const GnmTexture* texture);
 
 int32_t adjustTileMode(
 	GpuMode minGpuMode, 

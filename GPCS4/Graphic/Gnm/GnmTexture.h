@@ -26,12 +26,16 @@ public:
 
 	SizeAlign getSizeAlign(void) const
 	{
-		LOG_FIXME("delete hardcode, implement this according to IDA.");
-		// TODO:
-		// Fix this according to IDA
-		SizeAlign result;
-		result.m_size = getWidth() * getHeight() * 4;
-		result.m_align = 0;
+		uint64_t size       = 0;
+		AlignmentType align = 0;
+		auto status         = GpuAddress::computeTotalTiledTextureSize(&size, &align, this);
+
+		SizeAlign result = {0};
+		if (status == GpuAddress::kStatusSuccess)
+		{
+			result.m_size  = size;
+			result.m_align = align;
+		}
 		return result;
 	}
 

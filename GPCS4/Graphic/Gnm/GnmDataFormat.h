@@ -43,6 +43,10 @@ union DataFormat
 
 	StencilFormat getStencilFormat(void) const;
 
+	uint32_t getTotalBytesPerElement(void) const;
+
+	bool isBlockCompressedFormat(void) const;
+
 private:
 	static constexpr int s_bitsPerElement[] = 
 	{

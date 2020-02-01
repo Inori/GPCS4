@@ -159,4 +159,9 @@ ArrayMode degradeLargeThickArrayMode(ArrayMode oldArrayMode, uint32_t bitsPerEle
 	return oldArrayMode;
 }
 
+uint32_t fastIntLog2(uint32_t i)
+{
+	return 31 - __builtin_clz(i | 1);
+}
+
 }  // namespace GpuAddress

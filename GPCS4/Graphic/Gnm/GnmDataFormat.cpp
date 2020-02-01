@@ -338,6 +338,16 @@ StencilFormat DataFormat::getStencilFormat(void) const
 	return static_cast<StencilFormat>(m_bits.m_surfaceFormat == kSurfaceFormat8);
 }
 
+uint32_t DataFormat::getTotalBytesPerElement(void) const
+{
+	return getTotalBitsPerElement() / 8;
+}
+
+bool DataFormat::isBlockCompressedFormat(void) const
+{
+	return (m_bits.m_surfaceFormat >= kSurfaceFormatBc1) && (m_bits.m_surfaceFormat <= kSurfaceFormatBc7);
+}
+
 bool DataFormat::operator==(const DataFormat& other) const
 {
 	return m_asInt == other.m_asInt;
