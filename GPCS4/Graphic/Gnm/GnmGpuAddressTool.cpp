@@ -1,6 +1,8 @@
 #include "GnmGpuAddressTool.h"
 #include "GnmGpuAddress.h"
 
+LOG_CHANNEL(Graphic.Gnm.GpuAddress);
+
 namespace GpuAddress
 {;
 

@@ -7,6 +7,8 @@
 
 #include <algorithm>
 
+LOG_CHANNEL(Graphic.Gnm.GpuAddress);
+
 namespace GpuAddress
 {;
 
