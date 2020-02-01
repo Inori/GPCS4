@@ -6,7 +6,7 @@
 #include <cxxopts/cxxopts.hpp>
 #include <memory>
 
-LOG_CHANNEL(main);
+LOG_CHANNEL(Main);
 
 cxxopts::ParseResult processCommandLine(int argc, char* argv[])
 {
@@ -40,13 +40,13 @@ int main(int argc, char *argv[])
 	{
 		auto optResult = processCommandLine(argc, argv);
 
+		// Initialize log system.
+		logsys::init(optResult);
+
 		if (!optResult["E"].count())
 		{
 			break;
 		}
-
-		// Initialize log system.
-		logsys::init(optResult);
 
 		// Initialize the whole emulator.
 
