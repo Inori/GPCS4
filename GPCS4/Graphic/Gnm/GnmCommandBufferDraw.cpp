@@ -4,6 +4,7 @@
 #include "GnmTexture.h"
 #include "GnmSampler.h"
 #include "GnmConvertor.h"
+#include "GnmGpuAddress.h"
 
 #include "../Gve/GveCmdList.h"
 #include "../Gve/GveShader.h"
@@ -696,7 +697,16 @@ void GnmCommandBufferDraw::bindImmResource(const PsslShaderResource& res)
 
 		VkDeviceSize imageBufferSize = tsharp->getSizeAlign().m_size;
 		void* data                   = util::gnmGpuAbsAddr((void*)res.resource, tsharp->getBaseAddress());
-		m_context->updateImage(texture, 0, imageBufferSize, data);
+
+		void* untiledData = malloc(imageBufferSize);
+
+		GpuAddress::TilingParameters tp;
+		tp.initFromTexture(tsharp, 0, 0);
+		GpuAddress::detileSurface(untiledData, data, &tp);
+
+		m_context->updateImage(texture, 0, imageBufferSize, untiledData);
+
+		free(untiledData);
 
 		GveImageViewCreateInfo viewInfo;
 		viewInfo.type = VK_IMAGE_VIEW_TYPE_2D;

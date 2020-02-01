@@ -2,13 +2,22 @@
 
 #include "GnmCommon.h"
 #include "GnmConstant.h"
+#include "GnmTiler.h"
 
 namespace GpuAddress
 {;
 
-class TilingParameters;
-
 //////////////////////////////////////////////////////////////////////////
+
+constexpr uint32_t kDramRowSize         = 0x400;
+constexpr uint32_t kNumLogicalBanks     = 16;
+constexpr uint32_t kPipeInterleaveBytes = 256;
+constexpr uint32_t kBankInterleave      = 1;
+constexpr uint32_t kMicroTileWidth      = 8;
+constexpr uint32_t kMicroTileHeight     = 8;
+constexpr uint32_t kNumMicroTilePixels  = kMicroTileWidth * kMicroTileHeight;
+constexpr uint32_t kCmaskCacheBits      = 0x400;
+constexpr uint32_t kHtileCacheBits      = 0x4000;
 
 enum Status
 {
@@ -25,6 +34,11 @@ struct SurfaceRegion
 	uint32_t m_right;
 	uint32_t m_bottom;
 	uint32_t m_back;
+
+	bool operator==(const SurfaceRegion& other)
+	{
+		return !std::memcmp(this, &other, sizeof(SurfaceRegion));
+	}
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -37,11 +51,35 @@ int32_t getAltNumBanks(
 	uint32_t bitsPerElement, 
 	uint32_t numFragmentsPerPixel);
 
+int32_t getArrayMode(
+	ArrayMode* outArrayMode, 
+	TileMode tileMode);
+
 int32_t getNumBanks(
 	NumBanks* outNumBanks, 
 	TileMode tileMode,
 	uint32_t bitsPerElement, 
 	uint32_t numFragmentsPerPixel);
+
+int32_t getMicroTileMode(
+	MicroTileMode* outMicroTileMode, 
+	TileMode tileMode);
+
+int32_t computeSurfaceMacroTileMode(
+	MacroTileMode* outMacroTileMode, 
+	TileMode tileMode,					
+	uint32_t bitsPerElement, 
+	uint32_t numFragmentsPerPixel);
+
+int32_t computeSurfaceInfo(
+	SurfaceInfo* infoOut, 
+	const TilingParameters* tp);
+
+int32_t adjustTileMode(
+	GpuMode minGpuMode, 
+	TileMode* outTileMode, 
+	TileMode oldTileMode, 
+	ArrayMode newArrayMode);
 
 int32_t detileSurface(
 	void* outUntiledPixels, 

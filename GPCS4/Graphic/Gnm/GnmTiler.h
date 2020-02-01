@@ -3,11 +3,12 @@
 #include "GnmCommon.h"
 #include "GnmConstant.h"
 
+class GnmTexture;
+
 namespace GpuAddress
 {;
 
 struct SurfaceRegion;
-class GnmTexture;
 
 union SurfaceFlags 
 {
@@ -32,6 +33,28 @@ union SurfaceFlags
 	};
 
 	uint32_t m_value;
+};
+
+class SurfaceInfo
+{
+public:
+	uint32_t m_pitch;
+	uint32_t m_height;
+	uint32_t m_depth;
+	uint8_t m_reserved[4];
+	uint64_t m_surfaceSize;
+	ArrayMode m_arrayMode;
+	uint32_t m_baseAlign;
+	uint32_t m_pitchAlign;
+	uint32_t m_heightAlign;
+	uint32_t m_depthAlign;
+	uint32_t m_bitsPerElement;
+	struct
+	{
+		uint16_t m_isTexCompatible : 1;
+		uint16_t m_unused : 15;
+	};
+	TileMode m_tileMode;
 };
 
 class TilingParameters
@@ -87,6 +110,10 @@ public:
 	int32_t detileSurface(void* outUntiledPixels, const void* tiledPixels);
 
 	int32_t detileSurfaceRegion(void* outUntiledPixels, const void* tiledPixels, const SurfaceRegion* srcRegion, uint32_t destPitch, uint32_t destSlicePitch);
+
+	int32_t getTiledElementByteOffset(uint64_t* outTiledByteOffset, uint32_t x, uint32_t y, uint32_t z) const;
+
+	int32_t getTiledElementBitOffset(uint64_t* outTiledBitOffset, uint32_t x, uint32_t y, uint32_t z) const;
 
 private:
 	MicroTileMode m_microTileMode;

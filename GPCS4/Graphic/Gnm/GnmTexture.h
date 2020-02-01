@@ -230,7 +230,11 @@ public:
 
 	uint8_t getTileSwizzleMask(void) const
 	{
+		// TODO:
+		// Complete this function.
 
+		// For Base mode or MacroTile, mask is always 0.
+		return 0;
 	}
 
 	uint32_t getMetadataAddress256ByteBlocks() const
@@ -265,7 +269,8 @@ public:
 
 	GpuMode getMinimumGpuMode(void) const
 	{
-
+		// IDA
+		return static_cast<GpuMode>(*((uint8_t*)this + 27) & 1);
 	}
 
 	union

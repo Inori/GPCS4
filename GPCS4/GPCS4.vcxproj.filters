@@ -880,6 +880,12 @@
     <ClInclude Include="Graphic\Gnm\GnmTiler.h">
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GnmGpuAddressTool.h">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GnmTilerSSE2.h">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1543,6 +1549,9 @@
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClCompile>
     <ClCompile Include="Graphic\Gnm\GnmTiler.cpp">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gnm\GnmGpuAddressTool.cpp">
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClCompile>
   </ItemGroup>

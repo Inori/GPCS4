@@ -37,6 +37,13 @@ void LogAssert(const char* szExpression, const char* szFunction, const char* szS
 #define LOG_ERR(format, ...)	_LOG_PRINT_(LogLevel::kError, format, __VA_ARGS__);
 // critical error, log then pop up a window then exit process
 #define LOG_ASSERT(expr, format, ...)	_LOG_ASSERT_(expr, format, __VA_ARGS__)
+// LOG_ASSERT, when condition not hit, return retval
+#define LOG_ASSERT_RETURN(expr, retval, format, ...) \
+	{                                                \
+		_LOG_ASSERT_(expr, format, __VA_ARGS__);     \
+		if (!(expr)) { return (retval); }            \
+	}
+
 
 #define LOG_DEBUG_IF(expr, format, ...)	_LOG_IF_(expr, LogLevel::kDebug, format, __VA_ARGS__)
 #define LOG_TRACE_IF(expr, format, ...)	_LOG_IF_(expr, LogLevel::kTrace, format, __VA_ARGS__)
@@ -72,6 +79,7 @@ void LogAssert(const char* szExpression, const char* szFunction, const char* szS
 #define LOG_WARN(format, ...)
 #define LOG_ERR(format, ...)
 #define LOG_ASSERT(expression, format, ...) 
+#define LOG_ASSERT_RETURN(expr, retval, format, ...)
 
 #define LOG_DEBUG_IF(format, ...)
 #define LOG_TRACE_IF(format, ...)
