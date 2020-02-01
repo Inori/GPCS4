@@ -5,20 +5,30 @@
 
 #include <cxxopts/cxxopts.hpp>
 #include <memory>
-#include <cmath>
 
 LOG_CHANNEL(main);
 
 cxxopts::ParseResult processCommandLine(int argc, char* argv[])
 {
 	cxxopts::Options opts("GPCS4", "PlayStation 4 Emulator");
-
+	opts.allow_unrecognised_options();
 	opts.add_options()
-		("E,eboot", "Set main executable", cxxopts::value<std::string>())
-		("D,debug-channel", "Enable debug channel", cxxopts::value<std::vector<std::string>>())
-		("L,list-channels", "List debug channel");
+		("E,eboot", "Set main executable. The folder where GPCS4.exe located will be mapped to app0.", cxxopts::value<std::string>())
+		("D,debug-channel", "Enable debug channel. 'ALL' for all channels.", cxxopts::value<std::vector<std::string>>())
+		("L,list-channels", "List debug channel.")
+		("H,help", "Print help message.")
+		;
 
-	return opts.parse(argc, argv);
+	auto optResult = opts.parse(argc, argv);
+
+	if (optResult.count("H"))
+	{
+		auto helpString = opts.help();
+		printf("%s\n", helpString.c_str());
+		exit(-1);
+	}
+
+	return optResult;
 }
 
 int main(int argc, char *argv[])
@@ -30,11 +40,10 @@ int main(int argc, char *argv[])
 	{
 		auto optResult = processCommandLine(argc, argv);
 
-		if (!optResult.count("E"))
+		if (!optResult["E"].count())
 		{
 			break;
 		}
-		auto eboot = optResult["E"].as<std::string>();
 
 		// Initialize log system.
 		logsys::init(optResult);
@@ -56,6 +65,7 @@ int main(int argc, char *argv[])
 		CLinker linker      = {*CSceModuleSystem::GetInstance()};
 		ModuleLoader loader = { *CSceModuleSystem::GetInstance(), linker };
 
+		auto eboot                      = optResult["E"].as<std::string>();
 		MemoryMappedModule *ebootModule = nullptr;
 		if (!loader.loadModule(eboot, &ebootModule))
 		{

@@ -29,7 +29,6 @@ void* newThreadWrapper(void* arg)
 			break;
 		}
 
-		
 		ScePthread tid = scePthreadSelf();
 		LOG_DEBUG("new sce thread created %d", tid);
 

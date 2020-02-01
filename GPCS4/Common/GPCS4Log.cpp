@@ -39,7 +39,7 @@ namespace logsys
 
 static std::unique_ptr<spdlog::logger> g_logger;
 
-void init(const cxxopts::ParseResult& optResult)
+void initSpdLog()
 {
 	/// Init spdlog
 
@@ -61,8 +61,10 @@ void init(const cxxopts::ParseResult& optResult)
 	g_logger->set_level(spdlog::level::trace);  // message showing filter
 
 	//g_logger->flush_on(spdlog::level::trace); // I/O cost
+}
 
-
+void initLogChannel(const cxxopts::ParseResult& optResult)
+{
 	/// Init log channel
 
 	if (optResult.count("D"))
@@ -84,13 +86,19 @@ void init(const cxxopts::ParseResult& optResult)
 			printf("%s\n", p->getName().c_str());
 		}
 	}
-	else
-	{
-		for (auto&& p : ChannelContainer::get()->getChannels())
-		{
-			p->checkSig("ALL");
-		}
-	}
+	//else
+	//{
+	//	for (auto&& p : ChannelContainer::get()->getChannels())
+	//	{
+	//		p->checkSig("ALL");
+	//	}
+	//}
+}
+
+void init(const cxxopts::ParseResult& optResult)
+{
+	initSpdLog();
+	initLogChannel(optResult);
 }
 
 void Channel::print(Level nLevel, const char* szFunction, const char* szSourcePath, int nLine, const char* szFormat, ...)
@@ -168,28 +176,39 @@ Channel::Channel(const std::string& n) :
 
 void Channel::checkSig(const std::string& n)
 {
-	if (n == "ALL")
+	do 
 	{
-		m_enabled = true;
-		return;
-	}
-	m_enabled = false;
-
-	auto up = UtilString::Split(n, '.');
-	for (size_t i = 0; i < up.size() && i < m_channelNameList.size(); ++i)
-	{
-		if (up[i] != m_channelNameList[i])
+		if (n == "ALL")
 		{
-			return;
+			m_enabled = true;
+			break;
 		}
-	}
+		m_enabled = false;
 
-	// Cmd args enable "Solar.Earth"
-	// If this name is "Solar.Earth.Asia", should enable
-	if (up.size() <= m_channelNameList.size())
-	{
-		m_enabled = true;
-	}
+		bool notMatch = false;
+		auto up = UtilString::Split(n, '.');
+		for (size_t i = 0; i < up.size() && i < m_channelNameList.size(); ++i)
+		{
+			if (up[i] != m_channelNameList[i])
+			{
+				notMatch = true;
+				break;
+			}
+		}
+
+		if (notMatch)
+		{
+			break;
+		}
+
+		// Cmd args enable "Solar.Earth"
+		// If this name is "Solar.Earth.Asia", should enable
+		if (up.size() <= m_channelNameList.size())
+		{
+			m_enabled = true;
+		}
+	} while (false);
+
 }
 
 std::string Channel::getName()

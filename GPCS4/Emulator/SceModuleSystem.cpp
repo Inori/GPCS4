@@ -3,7 +3,7 @@
 #include "Util/UtilContainer.h"
 #include "sce_modules.h"
 
-LOG_CHANNEL(Emulator.SceModuleSystem);
+LOG_CHANNEL(Emulator);
 
 CSceModuleSystem::CSceModuleSystem() {}
 

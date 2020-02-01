@@ -2,7 +2,7 @@
 #include "SceModuleSystem.h"
 #include "sce_modules.h"
 
-LOG_CHANNEL(Emulator.RegisterModules);
+LOG_CHANNEL(Emulator);
 
 using Policy = CSceModuleSystem::LibraryRecord::OverridingPolicy;
 
