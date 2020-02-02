@@ -13,15 +13,19 @@ cxxopts::ParseResult processCommandLine(int argc, char* argv[])
 	cxxopts::Options opts("GPCS4", "PlayStation 4 Emulator");
 	opts.allow_unrecognised_options();
 	opts.add_options()
-		("E,eboot", "Set main executable. The folder where GPCS4.exe located will be mapped to app0.", cxxopts::value<std::string>())
+		("E,eboot", "Set main executable. The folder where GPCS4.exe located will be mapped to /app0.", cxxopts::value<std::string>())
 		("D,debug-channel", "Enable debug channel. 'ALL' for all channels.", cxxopts::value<std::vector<std::string>>())
-		("L,list-channels", "List debug channel.")
+		("L,list-channels", "List debug channels.")
 		("H,help", "Print help message.")
 		;
 
-	auto optResult = opts.parse(argc, argv);
+	// Backup arg count,
+	// because cxxopts will change argc value internally,
+	// which I think is a bad design.
+	const uint32_t argCount = argc;
 
-	if (optResult.count("H"))
+	auto optResult          = opts.parse(argc, argv);
+	if (optResult.count("H") || argCount < 2)
 	{
 		auto helpString = opts.help();
 		printf("%s\n", helpString.c_str());

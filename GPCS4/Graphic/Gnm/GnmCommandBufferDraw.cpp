@@ -642,7 +642,11 @@ bool GnmCommandBufferDraw::bindVertexBuffer(uint32_t bindingId, const GnmBuffer&
 		buffInfo.size = bufferSize;
 		buffInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 
-		uint64_t key = algo::MurmurHash64A(&vsharp, sizeof(GnmBuffer));
+		// TODO:
+		// Just hashing vsharp as the key is not correct theoretically,
+		// because the buffer content themselves could be different 
+		// while still using the same vsharp.
+		uint64_t key = algo::MurmurHash(&vsharp, sizeof(GnmBuffer));
 		LOG_DEBUG("vbo key %llx size %d", key, bufferSize);
 
 		auto vertexBuffer = m_device->createOrGetBufferVsharp(buffInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, key);
