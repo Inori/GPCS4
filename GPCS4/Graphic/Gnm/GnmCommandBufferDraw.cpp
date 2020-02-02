@@ -417,7 +417,7 @@ void GnmCommandBufferDraw::updatePsShader(const pssl::PsStageRegisters *psRegs)
 
 void GnmCommandBufferDraw::updateVsShader(const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier)
 {
-	
+	m_vsContext.code = vsRegs->getCodeAddress();
 }
 
 #define SHADER_DEBUG_BREAK(mod, hash) \
@@ -700,18 +700,26 @@ void GnmCommandBufferDraw::bindImmResource(const PsslShaderResource& res)
 		VkDeviceSize imageBufferSize = tsharp->getSizeAlign().m_size;
 		void* data                   = util::gnmGpuAbsAddr((void*)res.resource, tsharp->getBaseAddress());
 
-		// TODO:
-		// Untiling textures on CPU is not effective, we should do this using compute shader.
-		// But that would be a challenging job.
-		void* untiledData = malloc(imageBufferSize);
+		auto tileMode = tsharp->getTileMode();
+		if (tileMode == kTileModeDisplay_LinearAligned)
+		{
+			m_context->updateImage(texture, 0, imageBufferSize, data);
+		}
+		else
+		{
+			// TODO:
+			// Untiling textures on CPU is not effective, we should do this using compute shader.
+			// But that would be a challenging job.
+			void* untiledData = malloc(imageBufferSize);
 
-		GpuAddress::TilingParameters tp;
-		tp.initFromTexture(tsharp, 0, 0);
-		GpuAddress::detileSurface(untiledData, data, &tp);
+			GpuAddress::TilingParameters tp;
+			tp.initFromTexture(tsharp, 0, 0);
+			GpuAddress::detileSurface(untiledData, data, &tp);
 
-		m_context->updateImage(texture, 0, imageBufferSize, untiledData);
+			m_context->updateImage(texture, 0, imageBufferSize, untiledData);
 
-		free(untiledData);
+			free(untiledData);
+		}
 
 		GveImageViewCreateInfo viewInfo;
 		viewInfo.type = VK_IMAGE_VIEW_TYPE_2D;

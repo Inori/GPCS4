@@ -750,13 +750,13 @@ void GnmCmdStream::onGnmPrivate(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	case OP_PRIV_UPDATE_PS_SHADER:
 	{
 		GnmCmdPSShader* param = (GnmCmdPSShader*)pm4Hdr;
-		m_cb->setPsShader(&param->psRegs);
+		m_cb->updatePsShader(&param->psRegs);
 	}
 		break;
 	case OP_PRIV_UPDATE_VS_SHADER:
 	{
 		GnmCmdVSShader* param = (GnmCmdVSShader*)pm4Hdr;
-		m_cb->setVsShader(&param->vsRegs, param->modifier);
+		m_cb->updateVsShader(&param->vsRegs, param->modifier);
 	}
 		break;
 	case OP_PRIV_SET_VGT_CONTROL:
