@@ -299,8 +299,7 @@ void GveContex::copyBufferToImage(
 	region.imageOffset                     = { 0, 0, 0 };
 	region.imageExtent                     = { width, height, 1 };
 
-	vkCmdCopyBufferToImage(commandBuffer, srcBuffer.handle(), dstImage->handle(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
-
+	m_cmd->cmdCopyBufferToImage(commandBuffer, srcBuffer.handle(), dstImage->handle(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 	auto queues = m_device->queues();
 	m_cmd->cmdEndSingleTimeCommands(commandBuffer, queues.graphics.queueHandle);
 }

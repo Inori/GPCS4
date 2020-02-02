@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Algorithm\MurmurHash2.h" />
     <ClInclude Include="Algorithm\sha1.h" />
     <ClInclude Include="Algorithm\Sha1Hash.h" />
     <ClInclude Include="Common\GPCS4Log.h" />
@@ -255,6 +256,7 @@
     <ClInclude Include="Util\UtilSync.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Algorithm\MurmurHash2.cpp" />
     <ClCompile Include="Algorithm\sha1.c" />
     <ClCompile Include="Algorithm\Sha1Hash.cpp" />
     <ClCompile Include="Common\GPCS4Log.cpp" />

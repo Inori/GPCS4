@@ -886,6 +886,9 @@
     <ClInclude Include="Graphic\Gnm\GnmTilerSSE2.h">
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClInclude>
+    <ClInclude Include="Algorithm\MurmurHash2.h">
+      <Filter>Source Files\Algorithm</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1553,6 +1556,9 @@
     </ClCompile>
     <ClCompile Include="Graphic\Gnm\GnmGpuAddressTool.cpp">
       <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClCompile>
+    <ClCompile Include="Algorithm\MurmurHash2.cpp">
+      <Filter>Source Files\Algorithm</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

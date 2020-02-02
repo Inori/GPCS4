@@ -6,6 +6,8 @@
 #include "GnmConvertor.h"
 #include "GnmGpuAddress.h"
 
+#include "Algorithm/MurmurHash2.h"
+
 #include "../Gve/GveCmdList.h"
 #include "../Gve/GveShader.h"
 #include "../Gve/GveBuffer.h"
@@ -631,13 +633,17 @@ bool GnmCommandBufferDraw::bindVertexBuffer(uint32_t bindingId, const GnmBuffer&
 			break;
 		}
 
+		bool isSwizzled         = vsharp.isSwizzled();
+		LOG_ASSERT(isSwizzled == false, "do not support swizzled buffer currently.");
+
 		VkDeviceSize bufferSize = vsharp.getSize();
 
 		GveBufferCreateInfo buffInfo = {};
 		buffInfo.size = bufferSize;
 		buffInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 
-		uint64_t key = reinterpret_cast<uint64_t>(vtxData);
+		uint64_t key = algo::MurmurHash64A(&vsharp, sizeof(GnmBuffer));
+		LOG_DEBUG("vbo key %llx size %d", key, bufferSize);
 
 		auto vertexBuffer = m_device->createOrGetBufferVsharp(buffInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, key);
 		m_context->updateBuffer(vertexBuffer, 0, bufferSize, vtxData);
