@@ -19,14 +19,12 @@ SceVideoOut::SceVideoOut(uint32_t width, uint32_t height):
 
 	glfwSetWindowSizeCallback(m_window, windowResizeCallback);
 	glfwSetFramebufferSizeCallback(m_window, framebufferResizeCallback);
+
+	//glfwSetInputMode(m_window, GLFW_STICKY_KEYS, GLFW_TRUE);
 }
 
 SceVideoOut::~SceVideoOut()
 {
-	if (m_windowSurface)
-	{
-		
-	}
 	glfwDestroyWindow(m_window);
 	glfwTerminate();
 }
@@ -39,6 +37,11 @@ uint32_t SceVideoOut::width()
 uint32_t SceVideoOut::height()
 {
 	return m_height;
+}
+
+GLFWwindow* SceVideoOut::getWindowHandle()
+{
+	return m_window;
 }
 
 void SceVideoOut::getWindowSize(uint32_t& width, uint32_t& height)

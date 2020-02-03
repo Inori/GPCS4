@@ -6,6 +6,7 @@
 
 #include <memory>
 
+class GLFWwindow;
 
 class SceInputController
 {
@@ -45,7 +46,7 @@ public:
 	virtual int readState(ScePadData* data) override;
 
 private:
-
+	GLFWwindow* m_window = nullptr;
 };
 
 
