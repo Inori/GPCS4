@@ -28,6 +28,7 @@
     <ClInclude Include="Graphic\Gnm\GnmGpuAddressTool.h" />
     <ClInclude Include="Graphic\Gnm\GnmTiler.h" />
     <ClInclude Include="Graphic\Gnm\GnmTilerSSE2.h" />
+    <ClInclude Include="Graphic\Gve\GveRecycler.h" />
     <ClInclude Include="Loader\elf-sce.h" />
     <ClInclude Include="Emulator\Emulator.h" />
     <ClInclude Include="Emulator\GameThread.h" />

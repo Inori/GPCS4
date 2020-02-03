@@ -633,6 +633,17 @@ VkDescriptorSet GveContex::allocateDescriptorSet(VkDescriptorSetLayout layout)
 	}
 		
 	VkDescriptorSet set = m_descPool->alloc(layout);
+
+	if (set == VK_NULL_HANDLE) 
+	{
+		// The old descriptor pool is full, we trace it
+		// and create a new one.
+		m_cmd->trackDescriptorPool(std::move(m_descPool));
+
+		m_descPool = m_device->createDescriptorPool();
+		set        = m_descPool->alloc(layout);
+	}
+
 	return set;
 }
 
