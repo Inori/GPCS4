@@ -1,5 +1,6 @@
 #include "ScePad.h"
 #include "sce_errors.h"
+#include "sce_pad_error.h"
 
 #include "Platform/UtilProcess.h"
 
@@ -14,7 +15,6 @@ LOG_CHANNEL(SceModules.ScePad);
 SceInputController::~SceInputController()
 {
 }
-
 
 
 SceGamepad::SceGamepad()
@@ -34,6 +34,26 @@ int SceGamepad::read(ScePadData* data, int32_t num)
 
 int SceGamepad::readState(ScePadData* data)
 {
+}
+
+int SceGamepad::getInformation(ScePadControllerInformation* info)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+int SceGamepad::setLightBar(int32_t handle, const ScePadLightBarParam* pParam)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+int SceGamepad::resetLightBar(int32_t handle)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+int SceGamepad::setVibration(int32_t handle, const ScePadVibrationParam* pParam)
+{
+	throw std::logic_error("The method or operation is not implemented.");
 }
 
 SceKeyboard::SceKeyboard()
@@ -119,6 +139,48 @@ int SceKeyboard::readState(ScePadData* data)
 	return SCE_OK;
 }
 
+int SceKeyboard::getInformation(ScePadControllerInformation* info)
+{
+	int ret = SCE_PAD_ERROR_INVALID_ARG;
+	do 
+	{
+		if (!info)
+		{
+			break;
+		}
+
+		memset(info, 0, sizeof(ScePadControllerInformation));
+		info->touchPadInfo.pixelDensity = 1;
+		info->touchPadInfo.resolution.x = 256;
+		info->touchPadInfo.resolution.y = 256;
+		info->stickInfo.deadZoneLeft    = 250;
+		info->stickInfo.deadZoneRight   = 250;
+
+		info->connectionType = SCE_PAD_CONNECTION_TYPE_LOCAL;
+		info->connectedCount = 1;
+		info->connected      = true;
+		info->deviceClass    = SCE_PAD_DEVICE_CLASS_STANDARD;
+
+		ret = SCE_OK;
+	} while (false);
+	return ret;
+}
+
+int SceKeyboard::setLightBar(int32_t handle, const ScePadLightBarParam* pParam)
+{
+	return SCE_OK;
+}
+
+int SceKeyboard::resetLightBar(int32_t handle)
+{
+	return SCE_OK;
+}
+
+int SceKeyboard::setVibration(int32_t handle, const ScePadVibrationParam* pParam)
+{
+	return SCE_OK;
+}
+
 ScePad::ScePad(SceUserServiceUserId userId, int32_t type, int32_t index):
 	m_userId(userId),
 	m_type(type),
@@ -152,5 +214,25 @@ int ScePad::read(ScePadData* data, int32_t num)
 int ScePad::readState(ScePadData* data)
 {
 	return m_controller->readState(data);
+}
+
+int ScePad::getInformation(ScePadControllerInformation* info)
+{
+	return m_controller->getInformation(info);
+}
+
+int ScePad::setLightBar(int32_t handle, const ScePadLightBarParam* pParam)
+{
+	return m_controller->setLightBar(handle, pParam);
+}
+
+int ScePad::resetLightBar(int32_t handle)
+{
+	return m_controller->resetLightBar(handle);
+}
+
+int ScePad::setVibration(int32_t handle, const ScePadVibrationParam* pParam)
+{
+	return m_controller->setVibration(handle, pParam);
 }
 
