@@ -8,7 +8,7 @@ The only reason I start this project is learning 3D graphics, nothing serious.
 ## Latest progress
 
 ![WAD Demo](https://github.com/Inori/ImageHost/blob/master/GPCS4/wad_demo.gif)  
-First comercial game support, *We are Doomed*. Thanks our developers.  
+First commercial game support, *We are Doomed*. Thanks for our developers.  
 It's not playable now, since the FPS is very low, because there's no optimizations at all currently.  
 GPCS4 will recompile all shaders, untiling all textures and upload all buffers every frame, making it less efficient.  
 Besides, there're still some problems on game pad emulation.  
