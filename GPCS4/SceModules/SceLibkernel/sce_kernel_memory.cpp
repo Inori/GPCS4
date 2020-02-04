@@ -6,15 +6,11 @@
 
 LOG_CHANNEL(SceModules.SceLibkernel.memory);
 
-// Note:
-// Direct memory address is supposed to be within 0x000000FFFFFFFFFF
-static uint64_t baseDirectMemory = 0x400000;
-
 int PS4API sceKernelAllocateDirectMemory(sce_off_t searchStart, sce_off_t searchEnd,
 	size_t len, size_t alignment, int memoryType, sce_off_t *physAddrOut)
 {
 	LOG_SCE_DUMMY_IMPL();
-	*physAddrOut = (uint64_t)baseDirectMemory;
+	*physAddrOut = (uint64_t)UtilMemory::VMAllocateDirect();
 	return SCE_OK;
 }
 
@@ -23,11 +19,8 @@ int PS4API sceKernelMapDirectMemory(void **addr, size_t len, int prot, int flags
 	sce_off_t directMemoryStart, size_t maxPageSize)
 {
 	LOG_SCE_DUMMY_IMPL();
-	auto address = (void*)(sce_off_t)UtilMemory::VMMapEx((void*)baseDirectMemory, len,
-		UtilMemory::VMPF_READ_WRITE, UtilMemory::VMAT_RESERVE_COMMIT);
-	baseDirectMemory += len;
-	*addr = address;
-	return SCE_OK;
+	*addr = UtilMemory::VMMapDirect(len, prot, UtilMemory::VMAT_RESERVE_COMMIT);
+	return *addr == nullptr ? SCE_KERNEL_ERROR_ENOMEM : SCE_OK;
 }
 
 
@@ -111,10 +104,10 @@ int PS4API sceKernelMunmap(void)
 }
 
 
-int PS4API sceKernelQueryMemoryProtection(void)
+int PS4API sceKernelQueryMemoryProtection(void* addr, void** start, void** end, uint32_t* prot)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("%p", addr);
+	return UtilMemory::VMQueryProtection(addr, start, end, prot);
 }
 
 
@@ -160,8 +153,7 @@ int PS4API sceKernelMapFlexibleMemory(void **addrInOut, size_t len, int prot, in
 		// TODO:
 		// 1. we should use the correct flag and protection type
 		// 2. maybe we should fix memory range
-		void* pAddr = UtilMemory::VMMapEx(*addrInOut, len,
-			UtilMemory::VMPF_READ_WRITE, UtilMemory::VMAT_RESERVE_COMMIT);
+		void* pAddr = UtilMemory::VMMapFlexible(*addrInOut, len, UtilMemory::VMPF_READ_WRITE);
 		if (!pAddr)
 		{
 			err = SCE_KERNEL_ERROR_ENOMEM;

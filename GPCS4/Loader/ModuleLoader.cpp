@@ -9,7 +9,7 @@ LOG_CHANNEL(Loader.ModuleLoader);
 const std::set<std::string> ModuleLoader::m_moduleInitBlackList = 
 {
 	ADD_BLACK_MODULE("libSceNpScoreRanking"),
-	ADD_BLACK_MODULE("libSceAppContent")
+	ADD_BLACK_MODULE("libSceAppContent"),
 };
 
 ModuleLoader::ModuleLoader(CSceModuleSystem &modSystem,

@@ -141,7 +141,7 @@ int CSceEventFlag::Wait(uint64_t bitPattern, uint32_t mode, uint64_t* pResultPat
 // implement this
 int CSceEventFlag::Poll(uint64_t bitPattern, uint32_t mode, uint64_t* pResultPat)
 {
-	throw std::logic_error("not implemented");
+	//throw std::logic_error("not implemented");
 	return SCE_KERNEL_ERROR_ESRCH;
 }
 

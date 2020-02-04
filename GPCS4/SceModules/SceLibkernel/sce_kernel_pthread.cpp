@@ -155,6 +155,12 @@ ScePthread PS4API scek_pthread_self(void)
 	return scePthreadSelf();
 }
 
+void PS4API scek_pthread_exit(void *value_ptr)
+{
+	LOG_SCE_TRACE("");
+	scePthreadExit(value_ptr);
+}
+
 
 int PS4API scek_pthread_setschedparam(void)
 {

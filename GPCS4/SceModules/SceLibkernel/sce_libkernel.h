@@ -78,6 +78,9 @@ int PS4API sceKernelCreateEqueue(SceKernelEqueue *eq, const char *name);
 int PS4API sceKernelCreateEventFlag(SceKernelEventFlag *ef, const char *pName, uint32_t attr, uint64_t initPattern, const SceKernelEventFlagOptParam *pOptParam);
 
 
+int PS4API sceKernelPollEventFlag(SceKernelEventFlag ef, uint64_t bitPattern, uint32_t waitMode, uint64_t* pResultPat);
+
+
 int PS4API sceKernelCreateSema(SceKernelSema *sem, const char *name, uint32_t attr, int init, int max, const SceKernelSemaOptParam *opt);
 
 
@@ -354,13 +357,16 @@ int PS4API sceKernelMtypeprotect(void);
 int PS4API sceKernelMunmap(void);
 
 
-int PS4API sceKernelQueryMemoryProtection(void);
+int PS4API sceKernelQueryMemoryProtection(void* addr, void** start, void** end, uint32_t* prot);
 
 
 int PS4API sceKernelReserveVirtualRange(void **addr, size_t len, int flags, size_t alignment);
 
 
-int PS4API sceKernelSetPrtAperture(void);
+int PS4API sceKernelGetPrtAperture(int apertureId, void **addr, size_t *len);
+
+
+int PS4API sceKernelSetPrtAperture(int apertureId, void *addr, size_t len);
 
 
 int PS4API sceKernelSetVirtualRangeName(void* start, size_t len, const char *name);
@@ -586,6 +592,5 @@ int PS4API scek_getpid(void);
 int PS4API scek_getppid(void);
 
 
-int PS4API sceKernelPollEventFlag(SceKernelEventFlag ef, uint64_t bitPattern, uint32_t waitMode, uint64_t* pResultPat);
-
+void PS4API scek_pthread_exit(void *value_ptr);
 

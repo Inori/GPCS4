@@ -10,6 +10,8 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+#include <stdexcept>
+
 LOG_CHANNEL(SceModules.ScePad);
 
 SceInputController::~SceInputController()

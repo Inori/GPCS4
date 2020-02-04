@@ -302,7 +302,7 @@ bool AssembleHelper::patchTLSInstruction(void* code)
 		uint8_t* pMovNext    = (uint8_t*)code + nMovFsLen;
 		uint32_t nMovLeftLen  = nPatchedLen - nMovFsLen;
 		uint32_t nFootCodeLen = nMovLeftLen + sizeof(jmpFoot);
-		uint8_t* pFootCode   = (uint8_t*)UtilMemory::VMMap(nFootCodeLen, UtilMemory::VMPF_READ_WRITE_EXECUTE);
+		uint8_t* pFootCode   = (uint8_t*)UtilMemory::VMMapFlexible(nullptr, nFootCodeLen, UtilMemory::VMPF_READ_WRITE_EXEC);
 		if (!pFootCode)
 		{
 			break;
@@ -320,7 +320,7 @@ bool AssembleHelper::patchTLSInstruction(void* code)
 		// jmpHead.nJmpVal  = (uint64_t)GetTlsDataStub;
 
 		// make game code writable
-		if (!UtilMemory::VMProtect(code, sizeof(jmpHead), UtilMemory::VMPF_READ_WRITE_EXECUTE))
+		if (!UtilMemory::VMProtect(code, sizeof(jmpHead), UtilMemory::VMPF_READ_WRITE_EXEC))
 		{
 			break;
 		}

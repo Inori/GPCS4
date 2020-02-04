@@ -105,13 +105,14 @@ bool CEmulator::registerLibKernel(CSceModuleSystem* pModuleSystem)
 		NATIVE_LIST_BEGIN("libkernel", "libkernel");
 		USE_NATIVE_FUNCTION("libkernel", "libkernel", 0xF41703CA43E6A352);  // __error
 		USE_NATIVE_FUNCTION("libkernel", "libkernel", 0x581EBA7AFBBC6EC5);  // sceKernelGetCompiledSdkVersion
+		USE_NATIVE_FUNCTION("libkernel", "libkernel", 0x8E1FBC5E22B82DE1);  // sceKernelIsAddressSanitizerEnabled
+		USE_NATIVE_FUNCTION("libkernel", "libkernel", 0x0F8CA56B7BF1E2D6);  // sceKernelError
 		NATIVE_LIST_END();
 
 		ret  = true;
 	}while(false);
 	return ret;
 }
-
 
 bool CEmulator::registerModules()
 {
@@ -172,6 +173,7 @@ bool CEmulator::registerModules()
 
 		//////////////////////////////////////////////////////////////////////////
 		USE_NATIVE_MODULE("libSceLibcInternal");
+		USE_NATIVE_MODULE("libSceNpCommon");
 
 		//////////////////////////////////////////////////////////////////////////
 		if (!registerLibKernel(pModuleSystem))

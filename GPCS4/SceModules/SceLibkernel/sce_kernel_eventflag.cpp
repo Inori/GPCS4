@@ -54,3 +54,9 @@ int PS4API sceKernelWaitEventFlag(SceKernelEventFlag ef,
 	//LOG_SCE_TRACE("ef %p bitpat %x mode %x timo %p", ef, bitPattern, waitMode, pTimeout);
 	return ((CSceEventFlag*)ef)->Wait(bitPattern, waitMode, pResultPat, pTimeout);
 }
+
+int PS4API sceKernelPollEventFlag(SceKernelEventFlag ef, uint64_t bitPattern, uint32_t waitMode, uint64_t* pResultPat)
+{
+	LOG_SCE_DUMMY_IMPL();
+	return ((CSceEventFlag*)ef)->Poll(bitPattern, waitMode, pResultPat);
+}

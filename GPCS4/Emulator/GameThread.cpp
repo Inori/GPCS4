@@ -4,24 +4,12 @@
 
 #define PS4_MAIN_THREAD_STACK_SIZE (1024 * 1024 * 5)
 
-CGameThread::CGameThread(void* pFunc, void* pArg):
-	m_pFunc(pFunc),
-	m_pUserArg(pArg)
-{
-
-}
-
-CGameThread::CGameThread(void* pFunc, void* pArg1, void* pArg2):
+CGameThread::CGameThread(void* pFunc, void* pArg1, PFUNC_ExitFunction pArg2):
 m_pFunc(pFunc),
 m_pUserArg(pArg1),
 m_pUserArg2(pArg2)
 {
 
-}
-
-CGameThread::~CGameThread()
-{
-	
 }
 
 bool CGameThread::Start()
@@ -115,25 +103,13 @@ void* CGameThread::RunGameThread(CGameThread* pThis)
 			break;
 		}
 
-		if (pThis->m_pUserArg2 == NULL)  // likely
-		{
-			pRet = EntryOneParam(pEntry, pThis->m_pUserArg);
-		}
-		else
-		{
-			pRet = EntryTwoParam(pEntry, pThis->m_pUserArg, pThis->m_pUserArg2);
-		}
+		pRet = EntryTwoParam(pEntry, pThis->m_pUserArg, pThis->m_pUserArg2);
 
 	} while (false);
 	return pRet;
 }
 
-void* CGameThread::EntryOneParam(void* pFunc, void* pArg)
+void* CGameThread::EntryTwoParam(void* pFunc, void* pArg1, PFUNC_ExitFunction pExitFunction)
 {
-	return ((PFUNC_GameTheadEntry)pFunc)(pArg);
-}
-
-void* CGameThread::EntryTwoParam(void* pFunc, void* pArg1, void* pArg2)
-{
-	return ((PFUNC_GameTheadEntryTwoParam)pFunc)(pArg1, pArg2);
+	return ((PFUNC_GameTheadEntry)pFunc)(pArg1, pExitFunction);
 }
