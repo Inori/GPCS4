@@ -74,5 +74,25 @@ int PS4API sceNpScoreRecordScoreAsync(void)
 }
 
 
+int PS4API sceNpScoreGetFriendsRanking(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceNpScoreGetRankingByNpId(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceNpScoreGetRankingByRange(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
 
 
