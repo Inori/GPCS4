@@ -1,6 +1,8 @@
 #include "UtilMemory.h"
+#include "sce_errors.h"
 
 #include <vector>
+#include <algorithm>
 
 LOG_CHANNEL(Platform.UtilMemory);
 
@@ -16,15 +18,31 @@ namespace UtilMemory
 // Note:
 // Direct memory address is supposed to be within 0x000000FFFFFFFFFF
 #define DIRECT_MEMORY_HIGH 0x000000FFFFFFFFFFull
-static uint64_t baseDirectMemory = 0x400000;
+// TODO:
+// Access to this should be thread safe
+static uintptr_t g_baseDirectMemory = 0x400000;
 
-struct MemoryRange {
-	uint64_t start;
-	uint64_t end;
+struct MemoryRange 
+{
+	uintptr_t start;
+	uintptr_t end;
 	uint32_t protection;
 };
 
-static std::vector<MemoryRange> ranges;
+// TODO:
+// Access to this should be thread safe
+static std::vector<MemoryRange> g_memRanges;
+
+inline std::vector<MemoryRange>::iterator findMemoryRange(void* addr)
+{
+	std::vector<MemoryRange>::iterator iter = std::find_if(g_memRanges.begin(), g_memRanges.end(), 
+		[=](const MemoryRange& range) 
+		{
+			uintptr_t a = reinterpret_cast<uintptr_t>(addr);
+			return (a >= range.start && a < range.end);
+		});
+	return iter;
+}
 
 inline uint32_t GetProtectFlag(uint32_t nOldFlag)
 {
@@ -82,8 +100,14 @@ void* VMMapFlexible(void *addrIn, size_t nSize, uint32_t nProtectFlag)
 	{
 		pAddr = VirtualAlloc(addrIn, nSize, MEM_RESERVE | MEM_COMMIT, GetProtectFlag(nProtectFlag));
 
-		MemoryRange range{ (uint64_t)pAddr, nSize + (uint64_t)pAddr, nProtectFlag };
-		ranges.emplace_back(range);
+		MemoryRange range 
+		{ 
+			reinterpret_cast<uintptr_t>(pAddr), 
+			reinterpret_cast<uintptr_t>(pAddr)  + nSize, 
+			nProtectFlag 
+		};
+
+		g_memRanges.emplace_back(range);
 	} while (false);
 	return pAddr;
 }
@@ -93,7 +117,7 @@ void* VMMapDirect(size_t nSize, uint32_t nProtectFlag, uint32_t nType)
 	void* pAddr = nullptr;
 	do
 	{
-		uint64_t temp = baseDirectMemory;
+		uintptr_t temp = g_baseDirectMemory;
 		do
 		{
 			pAddr = VirtualAlloc((void*)temp, nSize, GetTypeFlag(nType), GetProtectFlag(nProtectFlag));
@@ -105,10 +129,15 @@ void* VMMapDirect(size_t nSize, uint32_t nProtectFlag, uint32_t nType)
 			break; // Unable to allocate memory
 		}
 
-		baseDirectMemory = nSize + (uint64_t)pAddr;
+		g_baseDirectMemory = nSize + reinterpret_cast<uintptr_t>(pAddr);
 
-		MemoryRange range{ (uint64_t)pAddr, nSize + (uint64_t)pAddr, nProtectFlag };
-		ranges.emplace_back(range);
+		MemoryRange range
+		{
+			reinterpret_cast<uintptr_t>(pAddr),
+			reinterpret_cast<uintptr_t>(pAddr) + nSize,
+			nProtectFlag
+		};
+		g_memRanges.emplace_back(range);
 
 	} while (false);
 	return pAddr;
@@ -116,13 +145,20 @@ void* VMMapDirect(size_t nSize, uint32_t nProtectFlag, uint32_t nType)
 
 void* VMAllocateDirect() 
 {
-	return (void*)baseDirectMemory;
+	return (void*)g_baseDirectMemory;
 }
 
 void VMUnMap(void* pAddr, size_t nSize)
 {
 	VirtualFree(pAddr, nSize, MEM_RELEASE);
-	// TODO: remove from ranges[]
+
+	auto iter = findMemoryRange(pAddr);
+	if (iter != g_memRanges.end())
+	{
+		g_memRanges.erase(iter);
+	}
+
+	LOG_WARN_IF(iter == g_memRanges.end(), "can not find range for %p", pAddr);
 }
 
 bool VMProtect(void* pAddr, size_t nSize, uint32_t nProtectFlag)
@@ -133,20 +169,21 @@ bool VMProtect(void* pAddr, size_t nSize, uint32_t nProtectFlag)
 
 int VMQueryProtection(void* addr, void** start, void** end, uint32_t* prot)
 {
-	int bRet = -1;
-	do {
-		uint64_t a = (uint64_t)addr;
-		for (const auto& range : ranges)
+	int bRet = SCE_ERROR_UNKNOWN;
+	do 
+	{
+		auto iter = findMemoryRange(addr);
+		if (iter == g_memRanges.end())
 		{
-			if (a >= range.start && a < range.end)
-			{
-				*start = (void*)range.start;
-				*end = (void*)range.end;
-				*prot = range.protection;
-				bRet = 0;
-				break;
-			}
+			LOG_WARN("can not find range for %p", addr);
+			break;
 		}
+
+		*start = reinterpret_cast<void*>(iter->start);
+		*end   = reinterpret_cast<void*>(iter->end);
+		*prot  = iter->protection;
+
+		bRet = SCE_OK;
 	} while (false);
 	return bRet;
 }

@@ -7,7 +7,7 @@ class CGameThread
 {
 public:
 	typedef void (PS4API *PFUNC_ExitFunction)();
-	CGameThread(void* pFunc, void* pArg1, PFUNC_ExitFunction pArg2);  //mainly used for main thread
+	CGameThread(void* pFunc, void* pArg1, PFUNC_ExitFunction pExitFunc);  //mainly used for main thread
 	~CGameThread() = default;
 
 	bool Start();
@@ -16,7 +16,7 @@ public:
 
 	bool Cancel();
 private:
-	typedef void* (PS4API *PFUNC_GameTheadEntry)(void* pArg1, PFUNC_ExitFunction pArg2);
+	typedef void* (PS4API *PFUNC_GameTheadEntry)(void* pArg, PFUNC_ExitFunction pExit);
 
 	struct PTHREAD_START_PARAM
 	{
@@ -26,15 +26,13 @@ private:
 private:
 	static void* ThreadFunc(void* pArg);
 	static void* RunGameThread(CGameThread* pThis);
-#ifdef GPCS4_WINDOWS
-	__declspec(dllexport)
-#endif // GPCS4_WINDOWS
-	static void* EntryTwoParam(void* pFunc, void* pArg1, PFUNC_ExitFunction pExitFunction);
+	// PS4EXPORT makes it easy to be found in IDA
+	PS4EXPORT static void* EntryStart(void* pFunc, void* pArg, PFUNC_ExitFunction pExitFunction);
 private:
 	pthread_t m_nTid;
 	void* m_pFunc;
 	void* m_pUserArg;
-	PFUNC_ExitFunction m_pUserArg2;
+	PFUNC_ExitFunction m_pExitFunc;
 	std::unique_ptr<PTHREAD_START_PARAM> m_pStartParam;
 };
 

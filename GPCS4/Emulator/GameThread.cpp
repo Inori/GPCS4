@@ -4,10 +4,10 @@
 
 #define PS4_MAIN_THREAD_STACK_SIZE (1024 * 1024 * 5)
 
-CGameThread::CGameThread(void* pFunc, void* pArg1, PFUNC_ExitFunction pArg2):
-m_pFunc(pFunc),
-m_pUserArg(pArg1),
-m_pUserArg2(pArg2)
+CGameThread::CGameThread(void* pFunc, void* pArg1, PFUNC_ExitFunction pExitFunc) :
+	m_pFunc(pFunc),
+	m_pUserArg(pArg1),
+	m_pExitFunc(pExitFunc)
 {
 
 }
@@ -103,13 +103,13 @@ void* CGameThread::RunGameThread(CGameThread* pThis)
 			break;
 		}
 
-		pRet = EntryTwoParam(pEntry, pThis->m_pUserArg, pThis->m_pUserArg2);
+		pRet = EntryStart(pEntry, pThis->m_pUserArg, pThis->m_pExitFunc);
 
 	} while (false);
 	return pRet;
 }
 
-void* CGameThread::EntryTwoParam(void* pFunc, void* pArg1, PFUNC_ExitFunction pExitFunction)
+void* CGameThread::EntryStart(void* pFunc, void* pArg, PFUNC_ExitFunction pExitFunction)
 {
-	return ((PFUNC_GameTheadEntry)pFunc)(pArg1, pExitFunction);
+	return ((PFUNC_GameTheadEntry)pFunc)(pArg, pExitFunction);
 }
