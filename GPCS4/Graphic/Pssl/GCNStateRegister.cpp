@@ -38,7 +38,7 @@ SpirvRegisterPointer SpirvRegisterU64::high()
 	{
 		m_high = mapAccessPtr(RegType::REG64_HIGH);
 		std::string name = m_name + "_hi";
-		m_module->setDebugName(m_low.id, name.c_str());
+		m_module->setDebugName(m_high.id, name.c_str());
 	}
 	return m_high;
 }
@@ -97,7 +97,8 @@ SpirvRegisterPointer SpirvRegisterU64::mapAccessPtr(RegType type)
 		result.type.ccount          = 1;
 
 		const uint32_t resultTypeId = m_compiler->getPointerTypeId({ result.type, spv::StorageClass::StorageClassPrivate });
-		uint32_t index              = type == RegType::REG64_LOW ? 0 : 1;
+		uint32_t index              = type == RegType::REG64_LOW ? 
+									  m_module->constu32(0) : m_module->constu32(1);
 		result.id                   = m_module->opAccessChain(resultTypeId, m_vec2Ptr.id, 1, &index);
 	}
 	else
