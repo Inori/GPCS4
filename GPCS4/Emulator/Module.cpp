@@ -304,11 +304,7 @@ bool MemoryMappedModule::decodeSymbol(std::string const &strEncName,
 bool MemoryMappedModule::isEncodedSymbol(std::string const &symbolName) const
 {
 	bool retVal = false;
-	if (symbolName.length() != 15)
-	{
-		retVal = false;
-	}
-	else if (symbolName[11] != '#' || symbolName[13] != '#')
+	if (symbolName[11] != '#' || symbolName[13] != '#')
 	{
 		retVal = false;
 	}
