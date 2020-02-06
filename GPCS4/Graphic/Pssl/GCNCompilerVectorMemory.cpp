@@ -37,7 +37,6 @@ void GCNCompiler::emitVectorMemory(GCNInstruction& ins)
 	}
 }
 
-
 void GCNCompiler::emitVectorMemBufNoFmt(GCNInstruction& ins)
 {
 	LOG_PSSL_UNHANDLED_INST();

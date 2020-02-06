@@ -117,13 +117,13 @@ private:
     /// -----------------------------------------------------------------------------------------------
     static VOPInstruction::Encoding GetInstructionType(Instruction::instruction64bit hexInstruction);
 
-	static Instruction::InstructionClass GetSIVOP1Class(SIVOP1Instruction::VOP1_OP op);
+	static const GCNInstructionFormat& GetSIVOP1Meta(SIVOP1Instruction::VOP1_OP op);
 
-	static Instruction::InstructionClass GetSIVOP2Class(SIVOP2Instruction::VOP2_OP op);
+	static const GCNInstructionFormat& GetSIVOP2Meta(SIVOP2Instruction::VOP2_OP op);
 
-	static Instruction::InstructionClass GetSIVOPCClass(SIVOPCInstruction::VOPC_OP op);
+	static const GCNInstructionFormat& GetSIVOPCMeta(SIVOPCInstruction::VOPC_OP op);
 
-	static Instruction::InstructionClass GetSIVOP3Class(SIVOP3Instruction::VOP3_OP op);
+	static const GCNInstructionFormat& GetSIVOP3Meta(SIVOP3Instruction::VOP3_OP op);
 
 	// Some special instructions use literal constants even 
 	// without having a literal const src or dst.

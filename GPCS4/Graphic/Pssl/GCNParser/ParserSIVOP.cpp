@@ -162,10 +162,10 @@ ParserSI::kaStatus ParserSIVOP::Parse(GDT_HW_GENERATION hwGen, Instruction::inst
             SIVOP1Instruction::VOP1_OP op1 = static_cast<SIVOP1Instruction::VOP1_OP>(hexInstTem);
 			unsigned int vdstRidx = 0;
 			SIVOP1Instruction::VDST vdst = GetVDST(hexInstruction, vdstRidx, VOPInstruction::Encoding_VOP1);
-			Instruction::InstructionClass insCls = GetSIVOP1Class(op1);
+			auto& meta                     = GetSIVOP1Meta(op1);
 
 			hasLiteral = (src0 == SIVOP1Instruction::SRCLiteralConst) || IsLiteralConstInstruction(op1);
-            instruction = std::make_unique<SIVOP1Instruction>(src0, vdst, ridx0, vdstRidx, 32, encoding, op1, insCls);
+			instruction = std::make_unique<SIVOP1Instruction>(src0, vdst, ridx0, vdstRidx, 32, encoding, op1, meta.insClass, meta.operandType);
             retStatus = ParserSI::Status_SUCCESS;
         }
         else if (VOPInstruction::Encoding_VOP2 == encoding)
@@ -176,10 +176,10 @@ ParserSI::kaStatus ParserSIVOP::Parse(GDT_HW_GENERATION hwGen, Instruction::inst
 			unsigned int vidx1 = 0 ,vdstRidx = 0;;
 			VOPInstruction::VSRC vsrc1 = GetVSRC1(hexInstruction, vidx1);
 			SIVOP1Instruction::VDST vdst = GetVDST(hexInstruction, vdstRidx, VOPInstruction::Encoding_VOP2);
-			Instruction::InstructionClass insCls = GetSIVOP2Class(op2);
+			auto& meta                   = GetSIVOP2Meta(op2);
 		
 			hasLiteral = (src0 == SIVOP1Instruction::SRCLiteralConst) || IsLiteralConstInstruction(op2);
-			instruction = std::make_unique<SIVOP2Instruction>(src0, vsrc1, vdst, ridx0, vidx1, vdstRidx, 32, encoding, op2, insCls);
+			instruction = std::make_unique<SIVOP2Instruction>(src0, vsrc1, vdst, ridx0, vidx1, vdstRidx, 32, encoding, op2, meta.insClass, meta.operandType);
             retStatus = ParserSI::Status_SUCCESS;
         }
 
@@ -190,10 +190,10 @@ ParserSI::kaStatus ParserSIVOP::Parse(GDT_HW_GENERATION hwGen, Instruction::inst
             SIVOPCInstruction::VOPC_OP opc = static_cast<SIVOPCInstruction::VOPC_OP>(hexInstTem);
 			unsigned int vidx1 = 0;
 			VOPInstruction::VSRC vsrc1 = GetVSRC1(hexInstruction, vidx1);
-			Instruction::InstructionClass insCls = GetSIVOPCClass(opc);
+			auto& meta                     = GetSIVOPCMeta(opc);
 
 			hasLiteral = (src0 == SIVOPCInstruction::SRCLiteralConst) || IsLiteralConstInstruction(opc);
-            instruction = std::make_unique<SIVOPCInstruction>(src0, vsrc1, ridx0, vidx1, 32, opc, encoding, insCls);
+			instruction = std::make_unique<SIVOPCInstruction>(src0, vsrc1, ridx0, vidx1, 32, opc, encoding, meta.insClass, meta.operandType);
             retStatus = ParserSI::Status_SUCCESS;
         }
     }
@@ -305,14 +305,14 @@ ParserSIVOP::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexIns
 			VOPInstruction::ABS abs = GetABS(hexInstruction);
 			VOPInstruction::CLMP clmp = GetCLMP(hexInstruction);
 
-			Instruction::InstructionClass insCls = GetSIVOP3Class(op3);
+			auto& meta = GetSIVOP3Meta(op3);
 
             instruction = std::make_unique<SIVOP3Instruction>(src0, src1, src2,
 				vdst, sdst,
 				ridx0, ridx1, ridx2,
 				vdstRidx, sdstRidx,
 				clmp, abs, neg, omod,
-				64, op3, encoding, insCls);
+				64, op3, encoding, meta.insClass, meta.operandType);
             retStatus =  ParserSI::Status_SUCCESS;
         }
     }
@@ -378,24 +378,24 @@ ParserSIVOP::GetInstructionType(Instruction::instruction64bit hexInstruction)
     return VOPInstruction::Encoding_Illegal;
 }
 
-Instruction::InstructionClass ParserSIVOP::GetSIVOP1Class(SIVOP1Instruction::VOP1_OP op)
+const GCNInstructionFormat& ParserSIVOP::GetSIVOP1Meta(SIVOP1Instruction::VOP1_OP op)
 {
-	return g_instructionFormatMapVOP1[op].insClass;
+	return g_instructionFormatMapVOP1[op];
 }
 
-Instruction::InstructionClass ParserSIVOP::GetSIVOP2Class(SIVOP2Instruction::VOP2_OP op)
+const GCNInstructionFormat& ParserSIVOP::GetSIVOP2Meta(SIVOP2Instruction::VOP2_OP op)
 {
-	return g_instructionFormatMapVOP2[op].insClass;
+	return g_instructionFormatMapVOP2[op];
 }
 
-Instruction::InstructionClass ParserSIVOP::GetSIVOPCClass(SIVOPCInstruction::VOPC_OP op)
+const GCNInstructionFormat& ParserSIVOP::GetSIVOPCMeta(SIVOPCInstruction::VOPC_OP op)
 {
-	return g_instructionFormatMapVOPC[op].insClass;
+	return g_instructionFormatMapVOPC[op];
 }
 
-Instruction::InstructionClass ParserSIVOP::GetSIVOP3Class(SIVOP3Instruction::VOP3_OP op)
+const GCNInstructionFormat& ParserSIVOP::GetSIVOP3Meta(SIVOP3Instruction::VOP3_OP op)
 {
-	return g_instructionFormatMapVOP3[op].insClass;
+	return g_instructionFormatMapVOP3[op];
 }
 
 bool ParserSIVOP::IsLiteralConstInstruction(uint32_t op)

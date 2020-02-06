@@ -1,9 +1,11 @@
 #pragma once
 
-#include "GPCS4Common.h"
+#include "PsslCommon.h"
 
 namespace pssl
 {;
+
+constexpr uint32_t InvalidSpvId = 0;
 
 enum class SpirvGprType : uint32_t
 {
@@ -11,12 +13,6 @@ enum class SpirvGprType : uint32_t
 	Vector = 1,
 };
 
-enum class SpirvResourceType : uint32_t
-{
-	VSharp = 0,  // V#
-	TSharp = 1,  // T#
-	SSharp = 2   // S#
-};
 
 /**
  * \brief Scalar value type

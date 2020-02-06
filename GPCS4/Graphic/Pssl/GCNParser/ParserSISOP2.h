@@ -85,7 +85,8 @@ private:
     /// \returns                   An OP.
     static G9SOP2Instruction::OP GetG9SOP2Op(Instruction::instruction32bit hexInstruction);
 
-	static Instruction::InstructionClass GetSISOP2Class(SISOP2Instruction::OP op);
+	static const GCNInstructionFormat& GetSISOP2Meta(SISOP2Instruction::OP op);
+
 };
 
 #endif //__PARSERSISOP2_H

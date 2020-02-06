@@ -40,6 +40,29 @@ void GCNCompiler::emitFlowControl(GCNInstruction& ins)
 	}
 }
 
+void GCNCompiler::emitBranchLabelTry()
+{
+	do
+	{
+		auto iter = m_branchLabels.find(m_programCounter);
+		if (iter == m_branchLabels.end())
+		{
+			break;
+		}
+
+		uint32_t& labelId = iter->second;
+
+		// A label can occur before or after s_branch_xxx instruction.
+		// If before, labelId should be InvalidSpvId, then we allocate a new id for it.
+		// If after, labelId should be already set by s_branch_xxx instruction handler.
+		if (labelId == InvalidSpvId)
+		{
+			labelId = m_module.allocateId();
+		}
+
+		m_module.opLabel(labelId);
+	} while (false);
+}
 
 void GCNCompiler::emitScalarProgFlow(GCNInstruction& ins)
 {
@@ -137,6 +160,7 @@ void GCNCompiler::emitScalarProgFlowPC(GCNInstruction& ins)
 		LOG_PSSL_UNHANDLED_INST();
 		break;
 	default:
+		LOG_PSSL_UNHANDLED_INST();
 		break;
 	}
 }
@@ -163,38 +187,60 @@ void GCNCompiler::emitScalarProgFlowBranch(GCNInstruction& ins)
 		trueLabelId = m_module.allocateId();
 	}
 
-	// TODO:
-	// implement condition
-	uint32_t condition = 0;
+	const uint32_t boolTypeId = getScalarTypeId(SpirvScalarType::Bool);
+
+	bool isUnconditional = false;
+	uint32_t conditionId = 0;
 
 	switch (op)
 	{
 	case SISOPPInstruction::S_BRANCH:
-		m_module.opBranch(trueLabelId);
-		break;
-	case SISOPPInstruction::S_CBRANCH_SCC0:
 	{
-		uint32_t falseLabelId = m_module.allocateId();
-		m_module.opBranchConditional(condition, trueLabelId, falseLabelId);
-		m_module.opLabel(falseLabelId);
+		m_module.opBranch(trueLabelId);
+		isUnconditional = true;
 	}
 		break;
+	case SISOPPInstruction::S_CBRANCH_SCC0:
+		conditionId = m_module.opLogicalNot(boolTypeId, m_statusRegs.sccz.id);
+		break;
 	case SISOPPInstruction::S_CBRANCH_SCC1:
+		conditionId = m_statusRegs.sccz.id;
+		break;
 	case SISOPPInstruction::S_CBRANCH_VCCZ:
+		conditionId = emitRegisterZeroTest(
+						  emitValueLoad(m_statusRegs.vcc.low()),
+						  SpirvZeroTest::TestZ).id;
+		break;
 	case SISOPPInstruction::S_CBRANCH_VCCNZ:
+		conditionId = emitRegisterZeroTest(
+						  emitValueLoad(m_statusRegs.vcc.low()),
+						  SpirvZeroTest::TestNz).id;
+		break;
 	case SISOPPInstruction::S_CBRANCH_EXECZ:
+		conditionId = emitRegisterZeroTest(
+						  emitValueLoad(m_statusRegs.exec.low()),
+						  SpirvZeroTest::TestZ).id;
+		break;
 	case SISOPPInstruction::S_CBRANCH_EXECNZ:
+		conditionId = emitRegisterZeroTest(
+						  emitValueLoad(m_statusRegs.exec.low()),
+						  SpirvZeroTest::TestNz).id;
+		break;
 	case SISOPPInstruction::S_CBRANCH_CDBGSYS:
 	case SISOPPInstruction::S_CBRANCH_CDBGUSER:
 	case SISOPPInstruction::S_CBRANCH_CDBGSYS_OR_USER:
 	case SISOPPInstruction::S_CBRANCH_CDBGSYS_AND_USER:
-		LOG_PSSL_UNHANDLED_INST();
-		break;
 	default:
 		LOG_ERR("error branch instruction %x", op);
 		break;
 	}
 
+	if (!isUnconditional)
+	{
+		uint32_t falseLabelId = m_module.allocateId();
+		m_module.opBranchConditional(conditionId, trueLabelId, falseLabelId);
+		m_module.opLabel(falseLabelId);
+	}
 }
 
 void GCNCompiler::emitScalarSync(GCNInstruction& ins)

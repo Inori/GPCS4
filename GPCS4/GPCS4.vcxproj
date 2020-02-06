@@ -129,8 +129,11 @@
     <ClInclude Include="Graphic\Pssl\GCNParser\VOPInstruction.h" />
     <ClInclude Include="Graphic\Pssl\GCNCompiler.h" />
     <ClInclude Include="Graphic\Pssl\GCNDecoder.h" />
+    <ClInclude Include="Graphic\Pssl\GCNSpirvTypes.h" />
+    <ClInclude Include="Graphic\Pssl\GCNStateRegister.h" />
     <ClInclude Include="Graphic\Pssl\PsslBindingCalculator.h" />
     <ClInclude Include="Graphic\Pssl\PsslCommon.h" />
+    <ClInclude Include="Graphic\Pssl\PsslContants.h" />
     <ClInclude Include="Graphic\Pssl\PsslEnums.h" />
     <ClInclude Include="Graphic\Pssl\PsslFetchShader.h" />
     <ClInclude Include="Graphic\Pssl\PsslKey.h" />
@@ -322,6 +325,7 @@
     <ClCompile Include="Graphic\Pssl\GCNParser\ParserSIVOP.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNCompiler.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNDecoder.cpp" />
+    <ClCompile Include="Graphic\Pssl\GCNStateRegister.cpp" />
     <ClCompile Include="Graphic\Pssl\PsslFetchShader.cpp" />
     <ClCompile Include="Graphic\Pssl\PsslKey.cpp" />
     <ClCompile Include="Graphic\Pssl\PsslPsUsageTable.cpp" />

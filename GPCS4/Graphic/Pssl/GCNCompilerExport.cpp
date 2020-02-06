@@ -25,31 +25,94 @@ void GCNCompiler::emitExp(GCNInstruction& ins)
 	}
 }
 
-void GCNCompiler::emitExpVS(GCNInstruction& ins)
+SpirvRegisterValue GCNCompiler::emitExpSrcLoadCompr(GCNInstruction& ins)
 {
 	auto inst = asInst<EXPInstruction>(ins);
+	auto en   = inst->GetEn();
 
-	EXPInstruction::TGT expTgt = inst->GetTGT();
+	GcnRegMask writeMask(en);
 
-	auto en = inst->GetEn();
+	std::vector<SpirvRegisterValue> components;
+	for (uint32_t i = 0; i != 2; ++i)
+	{
+		if (!writeMask[i * 2])
+		{
+			continue;
+		}
+
+		uint32_t regIdx = inst->GetVSRC(i);
+		auto v2fpValue  = emitUnpackFloat16(emitVgprLoad(regIdx));
+		components.push_back(v2fpValue);
+	}
+
+	// Src vector to be exported.
+	SpirvRegisterValue result;
+	if (components.size())
+	{
+		result = components.size() == 1 ? 
+			components[0] : 
+			emitRegisterConcat(components[0], components[1]);
+	}
+	else
+	{
+		result.type.ctype  = SpirvScalarType::Unknown;
+		result.type.ccount = 0;
+		result.id          = InvalidSpvId;
+	}
+
+	return result;
+}
+
+SpirvRegisterValue GCNCompiler::emitExpSrcLoadNoCompr(GCNInstruction& ins)
+{
+	auto inst = asInst<EXPInstruction>(ins);
+	auto en   = inst->GetEn();
+
 	GcnRegMask writeMask(en);
 
 	std::vector<uint32_t> indices;
 	for (uint32_t i = 0; i != 4; ++i)
 	{
-		if (writeMask[i])
+		if (!writeMask[i])
 		{
-			uint32_t regIdx = inst->GetVSRC(i);
-			indices.push_back(emitVgprLoad(regIdx).id);
+			continue;
 		}
+
+		uint32_t regIdx = inst->GetVSRC(i);
+		indices.push_back(emitVgprLoad(regIdx).id);
 	}
 
 	// Src vector to be exported.
-	SpirvRegisterValue src;
-	src.type.ctype = SpirvScalarType::Float32;
-	src.type.ccount = writeMask.popCount();
-	src.id = m_module.opCompositeConstruct(getVectorTypeId(src.type), 
-		indices.size(), indices.data());
+	SpirvRegisterValue result;
+	if (indices.size())
+	{
+		result.type.ctype  = SpirvScalarType::Float32;
+		result.type.ccount = writeMask.popCount();
+		result.id          = m_module.opCompositeConstruct(getVectorTypeId(result.type),
+                                                  indices.size(), indices.data());
+	}
+	else
+	{
+		result.type.ctype  = SpirvScalarType::Unknown;
+		result.type.ccount = 0;
+		result.id          = InvalidSpvId;
+	}
+
+	return result;
+}
+
+void GCNCompiler::emitExpVS(GCNInstruction& ins)
+{
+	auto inst = asInst<EXPInstruction>(ins);
+
+	EXPInstruction::TGT expTgt = inst->GetTGT();
+	bool isCompressed          = inst->GetCOMPR();
+	auto en                    = inst->GetEn();
+
+	// Src vector to be exported.
+	auto src = !isCompressed ? 
+		emitExpSrcLoadNoCompr(ins) : 
+		emitExpSrcLoadCompr(ins);
 
 	// Dst vector to export to.
 	SpirvRegisterPointer dst;
@@ -70,16 +133,14 @@ void GCNCompiler::emitExpVS(GCNInstruction& ins)
 	}
 		break;
 	case EXPInstruction::TGTExpParamMin ... EXPInstruction::TGTExpParamMax:
-	{
 		dst = m_vs.vsOutputs[expTgt];
-	}
 		break;
 	default:
 		break;
 	}
 
 	// Store
-	emitValueStore(dst, src, writeMask);
+	emitValueStore(dst, src, en);
 }
 
 void GCNCompiler::emitExpPS(GCNInstruction& ins)
@@ -90,50 +151,9 @@ void GCNCompiler::emitExpPS(GCNInstruction& ins)
 	bool isCompressed = inst->GetCOMPR();
 	auto en = inst->GetEn();
 
-	// Src vector to be exported.
-	SpirvRegisterValue src;
-	// TODO:
-	// Currently, I found whether exp is compressed or not, 
-	// the 'en' field holds the right value, 
-	// e.g, if compressed, '[1:0]' bits will be '11'
-	// but I'm not sure if this will be true forever.
-	GcnRegMask writeMask(en);
-	if (isCompressed)
-	{
-		std::vector<SpirvRegisterValue> components;
-		for (uint32_t i = 0; i != 2; ++i)
-		{
-			if (writeMask[i * 2])
-			{
-				uint32_t regIdx = inst->GetVSRC(i);
-				auto v2fpValue = emitUnpackFloat16(emitVgprLoad(regIdx));
-				//auto v2fpValue = emitUnpackFloat16({ SpirvScalarType::Uint32, 1, m_vgprs[regIdx].id });
-				components.push_back(v2fpValue);
-			}
-		}
-		
-		src = components.size() == 1 ?
-			components[0] :
-			emitRegisterConcat(components[0], components[1]);
-	}
-	else
-	{
-		std::vector<uint32_t> indices;
-		for (uint32_t i = 0; i != 4; ++i)
-		{
-			if (writeMask[i])
-			{
-				uint32_t regIdx = inst->GetVSRC(i);
-				indices.push_back(m_vgprs[regIdx].id);
-			}
-		}
-
-		src.type.ctype = SpirvScalarType::Float32;
-		src.type.ccount = writeMask.popCount();
-
-		uint32_t typeId = getVectorTypeId(src.type);
-		src.id = m_module.opCompositeConstruct(typeId, indices.size(), indices.data());
-	}
+	auto src = isCompressed ? 
+		emitExpSrcLoadCompr(ins) : 
+		emitExpSrcLoadNoCompr(ins);
 
 	// Dst vector to export to.
 	SpirvRegisterPointer dst;
@@ -150,8 +170,16 @@ void GCNCompiler::emitExpPS(GCNInstruction& ins)
 		break;
 	}
 
-	// Store
-	emitValueStore(dst, src, writeMask);
+	if (src.id != InvalidSpvId)
+	{
+		// Store
+		emitValueStore(dst, src, en);
+	}
+	else
+	{
+		// same as "discard"
+		m_module.opKill();
+	}
 }
 
 }  // namespace pssl

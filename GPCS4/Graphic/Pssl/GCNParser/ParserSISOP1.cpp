@@ -120,10 +120,11 @@ Instruction::InstructionCategory ParserSISOP1::GetSIOPCategory(SISOP1Instruction
 	return Instruction::ScalarALU;
 }
 
-Instruction::InstructionClass ParserSISOP1::GetSIOPClass(SISOP1Instruction::OP op)
+const GCNInstructionFormat& ParserSISOP1::GetSISOP1Meta(SISOP1Instruction::OP op)
 {
-	return g_instructionFormatMapSOP1[op].insClass;
+	return g_instructionFormatMapSOP1[op];
 }
+
 
 ParserSI::kaStatus ParserSISOP1::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, std::unique_ptr<Instruction>& instruction, bool& hasLiteral)
 {
@@ -138,8 +139,8 @@ ParserSI::kaStatus ParserSISOP1::Parse(GDT_HW_GENERATION hwGen, Instruction::ins
     {
         SISOP1Instruction::OP op = GetSISOP1Op(hexInstruction);
 		Instruction::InstructionCategory insCat = GetSIOPCategory(op);
-		Instruction::InstructionClass insClass = GetSIOPClass(op);
-        instruction = std::make_unique<SISOP1Instruction>(ssrc0, op, sdst, ridx0, sdstRidx1, insCat, insClass);
+		auto& meta = GetSISOP1Meta(op);
+		instruction = std::make_unique<SISOP1Instruction>(ssrc0, op, sdst, ridx0, sdstRidx1, insCat, meta.insClass, meta.operandType);
     }
     else if (hwGen == GDT_HW_GENERATION_VOLCANICISLAND)
     {
