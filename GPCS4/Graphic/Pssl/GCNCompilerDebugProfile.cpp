@@ -1,5 +1,7 @@
 #include "GCNCompiler.h"
 
+LOG_CHANNEL(Graphic.Pssl.GCNCompilerDebugProfile);
+
 namespace pssl
 {;
 
@@ -26,7 +28,7 @@ void GCNCompiler::emitDbgProf(GCNInstruction& ins)
 		// The manual tells that 
 		// this instruction writes the 32-bit contents of M0 to the thread-trace stream.
 		// Currently I just lot it
-		LOG_DEBUG("S_TTRACEDATA value %X", m_stateRegs.m0);
+		// LOG_DEBUG("S_TTRACEDATA value %X", m_stateRegs.m0);
 	}
 		break;
 	default:

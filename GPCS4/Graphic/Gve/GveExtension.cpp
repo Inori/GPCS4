@@ -1,5 +1,7 @@
 #include "GveExtension.h"
 
+LOG_CHANNEL(Graphic.Gve.GveExtension);
+
 namespace gve
 {;
 

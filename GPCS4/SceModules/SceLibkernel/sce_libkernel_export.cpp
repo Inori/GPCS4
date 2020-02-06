@@ -14,6 +14,8 @@ static const SCE_EXPORT_FUNCTION g_pSceLibkernel_libkernel_FunctionTable[] =
 	{ 0xBCD7B5C387622C2B, "__tls_get_addr", (void*)__tls_get_addr },
 	{ 0x91BC385071D2632D, "__pthread_cxa_finalize", (void*)__pthread_cxa_finalize },
 	{ 0x171559A81000EE4B, "_write", (void*)scek__write },
+	{ 0xe9cdeb09513f7d35, "_open", (void*)scek__open },
+	{ 0xecdc2082b589e5c0, "__sys_regmgr_call", (void*)scek___sys_regmgr_call },
 	{ 0xAD35F0EB9C662C80, "sceKernelAllocateDirectMemory", (void*)sceKernelAllocateDirectMemory },
 	{ 0x4018BB1C22B4DE1C, "sceKernelClockGettime", (void*)sceKernelClockGettime },
 	{ 0x50AD939760D6527B, "sceKernelClose", (void*)sceKernelClose },
@@ -113,6 +115,7 @@ static const SCE_EXPORT_FUNCTION g_pSceLibkernel_libkernel_FunctionTable[] =
 	{ 0x71091EF54B8140E9, "sceKernelMunmap", (void*)sceKernelMunmap },
 	{ 0x58571F2F697389DA, "sceKernelQueryMemoryProtection", (void*)sceKernelQueryMemoryProtection },
 	{ 0xEE8C6FDCF3C2BA6A, "sceKernelReserveVirtualRange", (void*)sceKernelReserveVirtualRange },
+	{ 0x2F4BF61A8E633AE3, "sceKernelGetPrtAperture", (void*)sceKernelGetPrtAperture },
 	{ 0x068858AFF17BFE2B, "sceKernelSetPrtAperture", (void*)sceKernelSetPrtAperture },
 	{ 0x0C6306DC9B21AD95, "sceKernelSetVirtualRangeName", (void*)sceKernelSetVirtualRangeName },
 	{ 0x5E3A28B22C3E5CF2, "sceKernelUuidCreate", (void*)sceKernelUuidCreate },
@@ -127,8 +130,23 @@ static const SCE_EXPORT_FUNCTION g_pSceLibkernel_libkernel_FunctionTable[] =
 	{ 0xBA9A15AF330715E1, "scePthreadMutexTrylock", (void*)scePthreadMutexTrylock },
 	{ 0xA084454E3A082DB8, "scePthreadSetschedparam", (void*)scePthreadSetschedparam },
 	{ 0xF81CD7624A9878B1, "scePthreadSetspecific", (void*)scePthreadSetspecific },
+	{ 0xc755fbe9aad83315, "scePthreadAttrGet", (void*)scePthreadAttrGet },
+	{ 0xf3eb39073663c528, "scePthreadAttrGetaffinity", (void*)scePthreadAttrGetaffinity },
 	{ 0x1E82D558D6A70417, "getpid", (void*)scek_getpid },
 	{ 0x7BAA2F068F59BC97, "getppid", (void*)scek_getppid },
+	{ 0xf65be3e438c76620, "sceKernelPollEventFlag", (void*)sceKernelPollEventFlag },
+	{ 0xacd856cfe96f38c5, "_sceKernelSetThreadDtors", (void*)_sceKernelSetThreadDtors },
+	{ 0xa41ff2199da743da, "_sceKernelSetThreadAtexitCount", (void*)_sceKernelSetThreadAtexitCount },
+	{ 0x5a109cd70dc48522, "_sceKernelSetThreadAtexitReport", (void*)_sceKernelSetThreadAtexitReport },
+	{ 0xf79f6aadaccf22b8, "sceKernelGetProcParam", (void*)sceKernelGetProcParam },
+	{ 0xfa0f943fc3f27e6a, "sceKernelGetProcessType", (void*)sceKernelGetProcessType },
+	{ 0xcc4ff05c86632e83, "sceKernelDebugRaiseExceptionOnReleaseMode", (void*)sceKernelDebugRaiseExceptionOnReleaseMode },
+	{ 0x38c0d128a019f08e, "sceKernelDebugRaiseException", (void*)sceKernelDebugRaiseException },
+	{ 0xa7911c41e11e2401, "_sceKernelRtldSetApplicationHeapAPI", (void*)_sceKernelRtldSetApplicationHeapAPI },
+	{ 0xa72e8bf2389500df, "sceKernelGetSanitizerMallocReplaceExternal", (void*)sceKernelGetSanitizerMallocReplaceExternal },
+	{ 0x6e7671620005780d, "sceKernelGetSanitizerNewReplaceExternal", (void*)sceKernelGetSanitizerNewReplaceExternal },
+	{ 0x128B51F1ADC049FE, "pthread_self", (void*)scek_pthread_self },
+	{ 0x41CB5E4706EC9D5D, "usleep", (void*)scek_usleep },
 	SCE_FUNCTION_ENTRY_END
 };
 
@@ -137,6 +155,18 @@ static const SCE_EXPORT_FUNCTION g_pSceLibkernel_libSceCoredump_FunctionTable[] 
 	{ 0xF985F4CFF19448DC, "sceCoredumpAttachMemoryRegion", (void*)sceCoredumpAttachMemoryRegion },
 	{ 0xF332D27C47D6E405, "sceCoredumpRegisterCoredumpHandler", (void*)sceCoredumpRegisterCoredumpHandler },
 	{ 0x0DB6E48FA60759DA, "sceCoredumpWriteUserData", (void*)sceCoredumpWriteUserData },
+	SCE_FUNCTION_ENTRY_END
+};
+
+static const SCE_EXPORT_FUNCTION g_pSceLibkernel_libSceCoredump_debug_FunctionTable[] =
+{
+	{ 0x1B8DB43F6E693796, "sceCoredumpDebugTriggerCoredump", (void *)sceCoredumpDebugTriggerCoredump },
+	SCE_FUNCTION_ENTRY_END
+};
+
+static const SCE_EXPORT_FUNCTION g_pSceLibkernel_libSceOpenPsId_FunctionTable[] =
+{
+	{ 0x0CB39172BA14A9B7, "sceKernelGetOpenPsId", (void *)sceKernelGetOpenPsId },
 	SCE_FUNCTION_ENTRY_END
 };
 
@@ -178,6 +208,7 @@ static const SCE_EXPORT_FUNCTION g_pSceLibkernel_libScePosix_FunctionTable[] =
 	{ 0x602579746181702A, "sem_wait", (void*)scek_sem_wait },
 	{ 0x7D939E64838498BC, "send", (void*)scek_send },
 	{ 0x4D4BA2612DA413CB, "shutdown", (void*)scek_shutdown },
+	{ 0x149AD3E4BB940405, "pthread_exit", (void*)scek_pthread_exit },
 	SCE_FUNCTION_ENTRY_END
 };
 
@@ -185,7 +216,9 @@ static const SCE_EXPORT_LIBRARY g_pSceLibkernel_LibTable[] =
 {
 	{ "libkernel", g_pSceLibkernel_libkernel_FunctionTable },
 	{ "libSceCoredump", g_pSceLibkernel_libSceCoredump_FunctionTable },
+	{ "libSceCoredump_debug", g_pSceLibkernel_libSceCoredump_debug_FunctionTable },
 	{ "libScePosix", g_pSceLibkernel_libScePosix_FunctionTable },
+	{ "libSceOpenPsId", g_pSceLibkernel_libSceOpenPsId_FunctionTable },
 	SCE_LIBRARY_ENTRY_END
 };
 

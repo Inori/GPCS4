@@ -2,6 +2,8 @@
 #include "Platform/PlatformUtils.h"
 #include <ctime>
 
+LOG_CHANNEL(SceModules.SceLibkernel.time);
+
 uint64_t PS4API sceKernelGetProcessTime(void)
 {
 	LOG_SCE_DUMMY_IMPL();
@@ -19,7 +21,7 @@ uint64_t PS4API sceKernelGetProcessTimeCounter(void)
 
 uint64_t PS4API sceKernelGetProcessTimeCounterFrequency(void)
 {
-	uint64 nFreq = UtilProcess::GetProcessTimeFrequency();
+	uint64_t nFreq = UtilProcess::GetProcessTimeFrequency();
 	LOG_SCE_TRACE("process time frequency %lld", nFreq);
 	return nFreq;
 }
@@ -46,13 +48,14 @@ uint64_t PS4API sceKernelReadTsc(void)
 // library: libScePosix
 //////////////////////////////////////////////////////////////////////////
 
-int PS4API scek_clock_gettime(sceclockid_t clk_id, struct sce_timespec * tp)
+int PS4API scek_clock_gettime(sce_clockid_t clk_id, struct sce_timespec * tp)
 {
 	//LOG_SCE_TRACE("id %d tp %p", clk_id, tp);
 	// TODO:
 	// TIME_UTC is CLOCK_REALTIME,
 	// we need CLOCK_MONOTONIC
 	struct timespec ts;
+	memset(tp, 0, sizeof(*tp));
 	timespec_get(&ts, TIME_UTC);
 	tp->tv_sec = ts.tv_sec;
 	tp->tv_nsec = ts.tv_nsec;
@@ -75,7 +78,7 @@ int PS4API scek_nanosleep(void)
 }
 
 
-int PS4API scek_usleep(sceuseconds_t microsecond)
+int PS4API scek_usleep(sce_useconds_t microsecond)
 {
 	LOG_SCE_TRACE("micro second %d", microsecond);
 	UtilTime::MicroSleep(microsecond);

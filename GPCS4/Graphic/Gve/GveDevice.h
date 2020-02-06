@@ -3,6 +3,7 @@
 #include "GveCommon.h"
 #include "GveDeviceInfo.h"
 #include "GveResourceObjects.h"
+#include "GveRecycler.h"
 
 namespace sce
 {
@@ -39,6 +40,8 @@ struct GveDeviceQueueSet
 class GveDevice : public RcObject
 {
 	friend class GveContex;
+	friend class GveDescriptorPoolTracker;
+
 public:
 	GveDevice(VkDevice device, const RcPtr<GvePhysicalDevice>& phyDevice);
 	~GveDevice();
@@ -58,6 +61,8 @@ public:
 	RcPtr<GveContex> createContext();
 
 	RcPtr<GveDescriptorPool> createDescriptorPool();
+
+
 
 	/// Buffer
 	
@@ -109,6 +114,9 @@ public:
 	void GCSharpResource();
 
 private:
+	void recycleDescriptorPool(const RcPtr<GveDescriptorPool>& pool);
+
+private:
 	void initQueues();
 
 private:
@@ -119,6 +127,8 @@ private:
 	GveDeviceInfo  m_properties;
 
 	GveResourceObjects m_resObjects;
+
+	GveRecycler<GveDescriptorPool, 16> m_recycledDescriptorPools;
 	
 };
 

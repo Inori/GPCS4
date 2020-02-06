@@ -84,7 +84,7 @@ private:
 
 	static Instruction::InstructionCategory GetSIOPCategory(SISOP1Instruction::OP op);
 
-	static Instruction::InstructionClass GetSIOPClass(SISOP1Instruction::OP op);
+	const GCNInstructionFormat& GetSISOP1Meta(SISOP1Instruction::OP op);
 };
 
 #endif //__PARSERSISOP1_H

@@ -3,7 +3,7 @@
 #include "Graphic/Sce/SceVideoOut.h"
 #include "Graphic/Sce/SceGnmDriver.h"
 
-
+LOG_CHANNEL(SceModules.SceDriver.GnmSubmit);
 
 int PS4API sceGnmAreSubmitsAllowed(void)
 {

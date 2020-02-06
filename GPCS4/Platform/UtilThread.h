@@ -5,7 +5,7 @@
 namespace UtilThread
 {;
 
-uint64 GetThreadId(void);
+uint64_t GetThreadId(void);
 
 void ThreadYield();
 

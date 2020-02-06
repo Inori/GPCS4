@@ -126,7 +126,7 @@ int PS4API scec_catchReturnFromMain(void);
 
 int PS4API scec_cbrt(void);
 
-scediv_t PS4API scec_div(int numerator, int denominator);
+sce_div_t PS4API scec_div(int numerator, int denominator);
 
 int PS4API scec_erf(void);
 
@@ -180,6 +180,8 @@ int PS4API scec_longjmp(void);
 
 void* PS4API scec_malloc(size_t size);
 
+void* PS4API scec_calloc(size_t nmemb, size_t size);
+
 int PS4API scec_mblen(void);
 
 int PS4API scec_mbsrtowcs(void);
@@ -218,7 +220,7 @@ void PS4API scec_qsort(void *base, size_t nmemb, size_t size, int(PS4API *compar
 
 int PS4API scec_rand(void);
 
-int PS4API scec_realloc(void);
+void* PS4API scec_realloc(void *ptr, size_t size);
 
 int PS4API scec_sceLibcMspaceCalloc(void);
 
@@ -302,7 +304,7 @@ int PS4API scec_tanf(void);
 
 int PS4API scec_tanh(void);
 
-scetime_t PS4API scec_time(scetime_t* pt);
+sce_time_t PS4API scec_time(sce_time_t* pt);
 
 int PS4API scec_vsnprintf(char * s, size_t n, const char * format, void* arg);
 

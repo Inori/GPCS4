@@ -4,24 +4,12 @@
 
 #define PS4_MAIN_THREAD_STACK_SIZE (1024 * 1024 * 5)
 
-CGameThread::CGameThread(void* pFunc, void* pArg):
+CGameThread::CGameThread(void* pFunc, void* pArg1, PFUNC_ExitFunction pExitFunc) :
 	m_pFunc(pFunc),
-	m_pUserArg(pArg)
+	m_pUserArg(pArg1),
+	m_pExitFunc(pExitFunc)
 {
 
-}
-
-CGameThread::CGameThread(void* pFunc, void* pArg1, void* pArg2):
-m_pFunc(pFunc),
-m_pUserArg(pArg1),
-m_pUserArg2(pArg2)
-{
-
-}
-
-CGameThread::~CGameThread()
-{
-	
 }
 
 bool CGameThread::Start()
@@ -92,23 +80,16 @@ void* CGameThread::ThreadFunc(void* pArg)
 			break;
 		}
 
-#ifdef GPCS4_WINDOWS
-		CTLSHandlerWin::NotifyThreadCreate(UtilThread::GetThreadId());
-#else
-#endif
-
 		void* pRet = RunGameThread(pThis);
 
-#ifdef GPCS4_WINDOWS
-		CTLSHandlerWin::NotifyThreadExit(UtilThread::GetThreadId());
-#else
-#endif	
+		TLSManager* tlsMgr = TLSManager::GetInstance();
+		tlsMgr->notifyThreadExit();
 
 		pthread_exit(pRet);
 
 		nRet = 0;
 	} while (false);
-	return (void*)(uint64)nRet;
+	return (void*)(uint64_t)nRet;
 }
 
 void* CGameThread::RunGameThread(CGameThread* pThis)
@@ -122,25 +103,13 @@ void* CGameThread::RunGameThread(CGameThread* pThis)
 			break;
 		}
 
-		if (pThis->m_pUserArg2 == NULL)  // likely
-		{
-			pRet = EntryOneParam(pEntry, pThis->m_pUserArg);
-		}
-		else
-		{
-			pRet = EntryTwoParam(pEntry, pThis->m_pUserArg, pThis->m_pUserArg2);
-		}
+		pRet = EntryStart(pEntry, pThis->m_pUserArg, pThis->m_pExitFunc);
 
 	} while (false);
 	return pRet;
 }
 
-void* CGameThread::EntryOneParam(void* pFunc, void* pArg)
+void* CGameThread::EntryStart(void* pFunc, void* pArg, PFUNC_ExitFunction pExitFunction)
 {
-	return ((PFUNC_GameTheadEntry)pFunc)(pArg);
-}
-
-void* CGameThread::EntryTwoParam(void* pFunc, void* pArg1, void* pArg2)
-{
-	return ((PFUNC_GameTheadEntryTwoParam)pFunc)(pArg1, pArg2);
+	return ((PFUNC_GameTheadEntry)pFunc)(pArg, pExitFunction);
 }

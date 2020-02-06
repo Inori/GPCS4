@@ -5,7 +5,7 @@
 // The codebase is generated using GenerateCode.py
 // You may need to modify the code manually to fit development needs
 
-
+LOG_CHANNEL(SceModules.SceNpScore);
 
 //////////////////////////////////////////////////////////////////////////
 // library: libSceNpScore
@@ -13,8 +13,8 @@
 
 int PS4API sceNpScoreCreateNpTitleCtx(void)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_DUMMY_IMPL();
+	return 1;
 }
 
 
@@ -73,6 +73,26 @@ int PS4API sceNpScoreRecordScoreAsync(void)
 	return SCE_OK;
 }
 
+
+int PS4API sceNpScoreGetFriendsRanking(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceNpScoreGetRankingByNpId(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceNpScoreGetRankingByRange(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
 
 
 

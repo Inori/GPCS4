@@ -2,6 +2,7 @@
 #include "UtilBit.h"
 #include "GnmGfx9MePm4Packets.h"
 
+LOG_CHANNEL(Graphic.Gnm.GnmCmdStream);
 
 const uint32_t c_stageBases[kShaderStageCount] = { 0x2E40, 0x2C0C, 0x2C4C, 0x2C8C, 0x2CCC, 0x2D0C, 0x2D4C };
 
@@ -67,7 +68,7 @@ bool GnmCmdStream::processCommandBuffer(uint32_t* commandBuffer, uint32_t comman
 			}
 
 			PPM4_HEADER nextPm4Hdr = getNextNPm4(pm4Hdr, processedPm4Count);
-			uint32_t processedLength = reinterpret_cast<ulong_ptr>(nextPm4Hdr) - reinterpret_cast<ulong_ptr>(pm4Hdr);
+			uint32_t processedLength = reinterpret_cast<uintptr_t>(nextPm4Hdr) - reinterpret_cast<uintptr_t>(pm4Hdr);
 			pm4Hdr = nextPm4Hdr;
 			processedCmdSize += processedLength;
 		}
@@ -191,12 +192,19 @@ void GnmCmdStream::processPM4Type3(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	case IT_GNM_PRIVATE:
 		onGnmPrivate(pm4Hdr, itBody);
 		break;
+
+	// Legacy packets used in old SDKs.
+	case IT_DRAW_INDEX_AUTO:
+	case IT_DISPATCH_DIRECT:
+		onGnmLegacy(pm4Hdr, itBody);
+		break;
+
 	// The following opcode types are not used by Gnm
+
 	// TODO:
 	// There maybe still some opcodes belongs to Gnm that is not found.
 	// We should find all and place them above.
 	case IT_CLEAR_STATE:
-	case IT_DISPATCH_DIRECT:
 	case IT_DISPATCH_INDIRECT:
 	case IT_INDIRECT_BUFFER_END:
 	case IT_INDIRECT_BUFFER_CNST_END:
@@ -210,7 +218,6 @@ void GnmCmdStream::processPM4Type3(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	case IT_DRAW_INDEX_2:
 	case IT_CONTEXT_CONTROL:
 	case IT_DRAW_INDIRECT_MULTI:
-	case IT_DRAW_INDEX_AUTO:
 	case IT_DRAW_INDEX_MULTI_AUTO:
 	case IT_INDIRECT_BUFFER_PRIV:
 	case IT_INDIRECT_BUFFER_CNST:
@@ -617,7 +624,7 @@ void GnmCmdStream::onSetShReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 
 		if (pm4Hdr->count == 2)  // 2 for a pointer type size
 		{
-			void* gpuAddr = (void*)*(uint64_t*)(itBody + 1);
+			void* gpuAddr = reinterpret_cast<void*>(*(uint64_t*)(itBody + 1));
 			m_cb->setPointerInUserData(stage, startSlot, gpuAddr);
 		}
 	}
@@ -743,13 +750,13 @@ void GnmCmdStream::onGnmPrivate(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	case OP_PRIV_UPDATE_PS_SHADER:
 	{
 		GnmCmdPSShader* param = (GnmCmdPSShader*)pm4Hdr;
-		m_cb->setPsShader(&param->psRegs);
+		m_cb->updatePsShader(&param->psRegs);
 	}
 		break;
 	case OP_PRIV_UPDATE_VS_SHADER:
 	{
 		GnmCmdVSShader* param = (GnmCmdVSShader*)pm4Hdr;
-		m_cb->setVsShader(&param->vsRegs, param->modifier);
+		m_cb->updateVsShader(&param->vsRegs, param->modifier);
 	}
 		break;
 	case OP_PRIV_SET_VGT_CONTROL:
@@ -807,6 +814,37 @@ void GnmCmdStream::onGnmPrivate(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	}
 }
 
+void GnmCmdStream::onGnmLegacy(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
+{
+	// Some gnm call implementations are different in old SDK libs.
+	// They will fill pm4 packets themselves directly,
+	// instead of calling gnm driver functions, like newer SDKs do.
+	// Thus we miss the chance to fill private packets in command buffer.
+	// So we have to handle these kinds of packets here.
+
+	IT_OpCodeType opcode = (IT_OpCodeType)pm4Hdr->opcode;
+	switch (opcode)
+	{
+	case IT_DISPATCH_DIRECT:
+	{
+		uint32_t threadGroupX = itBody[0];
+		uint32_t threadGroupY = itBody[1];
+		uint32_t threadGroupZ = itBody[2];
+		m_cb->dispatch(threadGroupX, threadGroupY, threadGroupZ);
+	}
+		break;
+	case IT_DRAW_INDEX_AUTO:
+	{
+		uint32_t indexCount = itBody[0];
+		m_cb->drawIndexAuto(indexCount);
+	}
+		break;
+	default:
+		LOG_FIXME("legacy opcode not handled %X", opcode);
+		break;
+	}
+}
+
 void GnmCmdStream::onPrepareFlipOrEopInterrupt(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 {
 	uint32_t hint = itBody[0];
@@ -818,7 +856,7 @@ void GnmCmdStream::onPrepareFlipOrEopInterrupt(PPM4_TYPE_3_HEADER pm4Hdr, uint32
 	switch (hint)
 	{
 	case OP_HINT_PREPARE_FLIP_VOID:
-		LOG_FIXME("Not implemented.");
+		m_cb->prepareFlip();
 		break;
 	case OP_HINT_PREPARE_FLIP_LABEL:
 		m_cb->prepareFlip(labelAddr, value);
@@ -899,17 +937,21 @@ void GnmCmdStream::onSetViewport(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 void GnmCmdStream::onSetRenderTarget(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 {
 	PPM4ME_SET_CONTEXT_REG setCtxPacket = (PPM4ME_SET_CONTEXT_REG)pm4Hdr;
-	uint32_t packetLenDw = PM4_LENGTH_DW(pm4Hdr->u32All);
-	if (packetLenDw == 0x10)
+
+	uint32_t offset = setCtxPacket->bitfields2.reg_offset - 0x318;
+	bool isValidRt  = (offset % 15 == 0);
+
+	if (isValidRt)
 	{
 		uint32_t rtSlot = (setCtxPacket->bitfields2.reg_offset - 0x318) / 15;
 
 		RenderTarget target;
-		std::memcpy(&target.m_regs[0], &itBody[1], 0x20);  // 0x20 == sizeof(ymm)
-		std::memcpy(&target.m_regs[6], &itBody[7], 0x20);
+		std::memcpy(&target.m_regs[0], &itBody[1], sizeof(uint32_t) * setCtxPacket->header.count);  
 
-		uint32_t nopOp = itBody[15];  // not used, just for reference
-		uint32_t packWidthHeight = itBody[16];
+		// Get the next nop packet, which is used to hold width and height information.
+		auto nopPacket                              = getNextPm4(pm4Hdr);
+		uint32_t* nopBody                           = reinterpret_cast<uint32_t*>(nopPacket) + 1;
+		uint32_t packWidthHeight                    = nopBody[0];
 		target.m_regs[RenderTarget::kCbWidthHeight] = packWidthHeight;
 
 		m_cb->setRenderTarget(rtSlot, &target);
@@ -917,14 +959,11 @@ void GnmCmdStream::onSetRenderTarget(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody
 		// Skip the nop packet
 		m_skipPm4Count = 1;
 	}
-	else if (packetLenDw == 0x03)
-	{
-		uint32_t rtSlot = (setCtxPacket->bitfields2.reg_offset - 0x31C) / 15;
-		m_cb->setRenderTarget(rtSlot, nullptr);
-	}
 	else
 	{
-		LOG_ERR("error set render target packet length %d", packetLenDw);
+		// The game may set an empty render target.
+		uint32_t rtSlot = (setCtxPacket->bitfields2.reg_offset - 0x31C) / 15;
+		m_cb->setRenderTarget(rtSlot, nullptr);
 	}
 }
 

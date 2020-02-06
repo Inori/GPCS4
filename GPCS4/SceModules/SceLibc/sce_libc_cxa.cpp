@@ -2,6 +2,7 @@
 #include <mutex>
 #include "pthreads4w/pthread.h"
 
+LOG_CHANNEL(SceModules.SceLibc.cxa);
 
 // at least 32
 // currently give a large value to prevent atexit failed
@@ -24,7 +25,7 @@ struct CAX_EXIT_HANDLER_INFO
 struct CXA_EXIT_HANDLER_ARRAY
 {
 	std::mutex mutex;
-	uint count;
+	uint32_t count;
 	CAX_EXIT_HANDLER_INFO handler_array[SCE_CXA_EXIT_HANDLER_MAX];
 };
 
@@ -102,7 +103,7 @@ int PS4API scec___cxa_atexit(pfunc_cxa_exit_handler func, void * arg, void * dso
 			break;
 		}
 
-		uint& idx = g_cxa_exit_handlers.count;
+		uint32_t& idx = g_cxa_exit_handlers.count;
 		g_cxa_exit_handlers.handler_array[idx].exit_handler = func;
 		g_cxa_exit_handlers.handler_array[idx].dso_handler = dso_handle;
 		g_cxa_exit_handlers.handler_array[idx].arg = arg;

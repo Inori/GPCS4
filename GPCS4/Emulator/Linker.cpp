@@ -4,11 +4,13 @@
 #include "Loader/FuncStub.h"
 #include "Platform/PlatformUtils.h"
 
+LOG_CHANNEL(Linker);
+
 CLinker::CLinker() : m_modSystem{*CSceModuleSystem::GetInstance()} {}
 
 bool CLinker::ResolveSymbol(const std::string &strModName,
 							const std::string &strLibName,
-							uint64 nNid,
+							uint64_t nNid,
 							void **ppAddress) const
 {
 	bool bRet = false;
@@ -19,7 +21,7 @@ bool CLinker::ResolveSymbol(const std::string &strModName,
 			break;
 		}
 
-		void *pFunc = CSceModuleSystem::GetInstance()->FindFunction(
+		void *pFunc = CSceModuleSystem::GetInstance()->findFunction(
 			strModName, strLibName, nNid);
 		if (!pFunc)
 		{
@@ -62,69 +64,107 @@ bool CLinker::resolveSymbol(MemoryMappedModule const &mod,
 		if (!info->isEncoded)
 		{
 			address = m_modSystem.findSymbol(info->moduleName, info->libraryName,
-								   info->moduleName);
+								   info->symbolName);
 		}
 		else
 		{
-			address = m_modSystem.FindFunction(info->moduleName, info->libraryName,
+			address = m_modSystem.findFunction(info->moduleName, info->libraryName,
 											   info->nid);
 
+			// overridden == true, means the function is native
 			overridden = m_modSystem.isFunctionOverridable(info->moduleName,
 														  info->libraryName,
 														  info->nid);
 		}
 
-		if (address == nullptr)
-		{
-			LOG_ERR("fail to resolve symbol: %s from %s for module %s",
-					name.c_str(), info->moduleName.c_str(), mod.fileName.c_str());
-		}
+		LOG_ERR_IF(address == nullptr, "fail to resolve symbol: %s from %s for module %s",
+				   name.c_str(), info->moduleName.c_str(), mod.fileName.c_str());
 
-		if (!overridden && address != nullptr || !USE_FUNCTION_STUBS)
+#ifdef MODSYS_STUB_DISABLE
+
+		if (!address)
 		{
+			break;
+		}
+		*addrOut = reinterpret_cast<uint64_t>(address);
+
+#else // MODSYS_STUB_DISABLE
+
+		if (address != nullptr && !overridden)
+		{
+			// builtin function
 			*addrOut = reinterpret_cast<uint64_t>(address);
 		}
-		else if (LOG_UNKNOWN_FUNCTION_ONLY && address != nullptr)
+		else if (address != nullptr && overridden)
 		{
-			*addrOut  = reinterpret_cast<uint64_t>(address);
+			// native function
+
+#ifdef MODSYS_STUB_ON_NATIVE
+			*addrOut = reinterpret_cast<uint64_t>(generateStubFunction(info, address));
+#else  // MODSYS_STUB_ON_NATIVE
+			*addrOut = reinterpret_cast<uint64_t>(address);
+#endif  // MODSYS_STUB_ON_NATIVE
+
 		}
-		else // Use function stub 
+		else
 		{
-			const char *formatString = nullptr;
+			// unknown function
 
-			if (address == nullptr)
-			{
-				// NOTE: Something is wrong with va_args and u64 values, so print NID as 2 u32
-				formatString =
-					"Unknown Function nid 0x%08x%08x (\"%s\") from lib:%s is called at 0x%08x";
-			}
-			else
-			{
-				formatString =
-					"Function nid 0x%08x%08x from lib:%s is called";
-			}
+#ifdef MODSYS_STUB_ON_UNKNOWN
+			*addrOut = reinterpret_cast<uint64_t>(generateStubFunction(info, address));
+#else   // MODSYS_STUB_ON_UNKNOWN
+			*addrOut = reinterpret_cast<uint64_t>(address);
+#endif  // MODSYS_STUB_ON_UNKNOWN
 
-			auto nidString = info->symbolName.substr(0, 11);
-
-			auto msg = UtilString::Format(formatString,
-										  info->nid >> 32,
-										  info->nid,
-										  nidString.c_str(),
-										  info->libraryName.c_str());
-
-			auto stubMgr  = GetFuncStubManager();
-			auto stubAddr = address == nullptr? 
-								stubMgr->generateUnknown(msg):
-								stubMgr->generate(msg, address);
-
-			*addrOut = reinterpret_cast<uint64_t>(stubAddr);
 		}
+
+
+#endif  // MODSYS_STUB_DISABLE
 
 		retVal = true;
 	} while (false);
 
 	return retVal;
 }
+
+
+void* CLinker::generateStubFunction(const SymbolInfo* sybInfo, void* oldFunc) const
+{
+	void* stubFunc = nullptr;
+	do 
+	{
+		const char* formatString = nullptr;
+
+		if (oldFunc == nullptr)
+		{
+			// NOTE: Something is wrong with va_args and u64 values, so print NID as 2 u32
+			formatString =
+				"Unknown Function nid 0x%08x%08x (\"%s\") from lib:%s is called";
+		}
+		else
+		{
+			formatString =
+				"Function nid 0x%08x%08x (\"%s\") from lib:%s is called at %p";
+		}
+
+		auto nidString = sybInfo->symbolName.substr(0, 11);
+
+		auto msg = UtilString::Format(formatString,
+									  sybInfo->nid >> 32,
+									  sybInfo->nid,
+									  nidString.c_str(),
+									  sybInfo->libraryName.c_str(),
+									  oldFunc);
+
+		auto stubMgr  = GetFuncStubManager();
+		stubFunc      = oldFunc == nullptr ? 
+			stubMgr->generateUnknown(msg) : 
+			stubMgr->generate(msg, oldFunc);
+
+	} while (false);
+	return stubFunc;
+}
+
 
 bool CLinker::relocateModules()
 {
@@ -168,11 +208,11 @@ bool CLinker::relocateRela(MemoryMappedModule &mod)
 
 		auto &info = mod.getModuleInfo();
 
-		byte *pImageBase         = info.pCodeAddr;
-		byte *pStrTab            = info.pStrTab;
+		uint8_t *pImageBase         = info.pCodeAddr;
+		uint8_t *pStrTab            = info.pStrTab;
 		Elf64_Sym *pSymTab       = (Elf64_Sym *)info.pSymTab;
 		Elf64_Rela *pRelaEntries = (Elf64_Rela *)info.pRela;
-		for (uint i = 0; i != info.nRelaCount; ++i)
+		for (uint32_t i = 0; i != info.nRelaCount; ++i)
 		{
 			Elf64_Rela *pRela = &pRelaEntries[i];
 			auto nType        = ELF64_R_TYPE(pRela->r_info);
@@ -183,7 +223,6 @@ bool CLinker::relocateRela(MemoryMappedModule &mod)
 			case R_X86_64_NONE:
 			case R_X86_64_PC32:
 			case R_X86_64_COPY:
-			case R_X86_64_GLOB_DAT:
 			case R_X86_64_TPOFF64:
 			case R_X86_64_TPOFF32:
 			case R_X86_64_DTPMOD64:
@@ -194,15 +233,15 @@ bool CLinker::relocateRela(MemoryMappedModule &mod)
 			{
 				Elf64_Sym &symbol = pSymTab[nSymIdx];
 				auto nBinding     = ELF64_ST_BIND(symbol.st_info);
-				uint64 nSymVal    = 0;
+				uint64_t nSymVal    = 0;
 
 				if (nBinding == STB_LOCAL)
 				{
-					nSymVal = (uint64)(pImageBase + symbol.st_value);
+					nSymVal = (uint64_t)(pImageBase + symbol.st_value);
 				}
 				else if (nBinding == STB_GLOBAL || nBinding == STB_WEAK)
 				{
-					char *pName = (char *)&pStrTab[symbol.st_name];
+					auto pName = (const char *)&pStrTab[symbol.st_name];
 					//LOG_DEBUG("RELA symbol: %s", pName);
 					if (!resolveSymbol(mod, pName, &nSymVal))
 					{
@@ -215,14 +254,31 @@ bool CLinker::relocateRela(MemoryMappedModule &mod)
 					LOG_ERR("invalid sym bingding %d", nBinding);
 				}
 
-				*(uint64 *)&pImageBase[pRela->r_offset] =
+				*(uint64_t *)&pImageBase[pRela->r_offset] =
+					nSymVal + pRela->r_addend;
+			}
+			break;
+			case R_X86_64_GLOB_DAT:
+			{
+				Elf64_Sym& symbol = pSymTab[nSymIdx];
+				auto nBinding     = ELF64_ST_BIND(symbol.st_info);
+				uint64_t nSymVal    = 0;
+				auto pName       = (const char*)&pStrTab[symbol.st_name];
+				//LOG_DEBUG("RELA symbol: %s", pName);
+				if (!resolveSymbol(mod, pName, &nSymVal))
+				{
+					*(uint64_t*)&pImageBase[pRela->r_offset] = 0;
+					LOG_ERR("can not get symbol address.");
+					break;
+				}
+				*(uint64_t*)&pImageBase[pRela->r_offset] =
 					nSymVal + pRela->r_addend;
 			}
 			break;
 			case R_X86_64_RELATIVE:
 			{
-				*(uint64 *)&pImageBase[pRela->r_offset] =
-					(uint64)(pImageBase + pRela->r_addend);
+				*(uint64_t *)&pImageBase[pRela->r_offset] =
+					(uint64_t)(pImageBase + pRela->r_addend);
 			}
 			break;
 			default:
@@ -250,13 +306,13 @@ bool CLinker::relocatePltRela(MemoryMappedModule &mod)
 			break;
 		}
 
-		byte *pImageBase         = info.pCodeAddr;
-		byte *pStrTab            = info.pStrTab;
+		uint8_t *pImageBase         = info.pCodeAddr;
+		uint8_t *pStrTab            = info.pStrTab;
 		Elf64_Sym *pSymTab       = (Elf64_Sym *)info.pSymTab;
 		Elf64_Rela *pRelaEntries = (Elf64_Rela *)info.pPltRela;
 
-		LOG_DEBUG("PLT RELA count: %d", info.nPltRelaCount);
-		for (uint i = 0; i != info.nPltRelaCount; ++i)
+		LOG_DEBUG("PLT RELA count: %d, for library: %s", info.nPltRelaCount, mod.fileName.c_str());
+		for (uint32_t i = 0; i != info.nPltRelaCount; ++i)
 		{
 			Elf64_Rela *pRela = &pRelaEntries[i];
 			auto nType        = ELF64_R_TYPE(pRela->r_info);
@@ -268,11 +324,11 @@ bool CLinker::relocatePltRela(MemoryMappedModule &mod)
 			{
 				Elf64_Sym &symbol = pSymTab[nSymIdx];
 				auto nBinding     = ELF64_ST_BIND(symbol.st_info);
-				uint64 nSymVal    = 0;
+				uint64_t nSymVal    = 0;
 
 				if (nBinding == STB_LOCAL)
 				{
-					nSymVal = (uint64)(pImageBase + symbol.st_value);
+					nSymVal = (uint64_t)(pImageBase + symbol.st_value);
 				}
 				else if (nBinding == STB_GLOBAL || nBinding == STB_WEAK)
 				{
@@ -289,7 +345,7 @@ bool CLinker::relocatePltRela(MemoryMappedModule &mod)
 					LOG_ERR("invalid sym bingding %d", nBinding);
 				}
 
-				*(uint64 *)&pImageBase[pRela->r_offset] = nSymVal;
+				*(uint64_t *)&pImageBase[pRela->r_offset] = nSymVal;
 			}
 			break;
 			default:

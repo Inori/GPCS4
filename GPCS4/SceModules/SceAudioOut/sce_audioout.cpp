@@ -5,7 +5,7 @@
 // The codebase is generated using GenerateCode.py
 // You may need to modify the code manually to fit development needs
 
-
+LOG_CHANNEL(SceModules.SceAudioOut);
 
 //////////////////////////////////////////////////////////////////////////
 // library: libSceAudioOut
@@ -45,14 +45,14 @@ int PS4API sceAudioOutGetPortState(int32_t handle, SceAudioOutPortState *state)
 
 int PS4API sceAudioOutOutput(void)
 {
-	//LOG_FIXME("Not implemented");
+	LOG_FIXME("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceAudioOutOutputs(void)
 {
-	//LOG_FIXME("Not implemented");
+	LOG_FIXME("Not implemented");
 	return SCE_OK;
 }
 

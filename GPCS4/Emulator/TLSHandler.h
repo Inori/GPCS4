@@ -3,101 +3,182 @@
 #include "GPCS4Common.h"
 #include "UtilSingleton.h"
 #include "zydis/Zydis.h"
+
+#include <array>
+#include <mutex>
 #include <vector>
 
+// TLS index and module id for the main executable.
+constexpr uint32_t TLS_MODULE_ID_MAIN = 1;
 
-class CTLSHandler
+// TLS types:
+// 1.TLS variable locally defined and used within an executable
+// 2.TLS variable externally defined in a shared object but used in a executable
+// 3.TLS variable locally defined in a shared object and used in the same shared object
+// 4.TLS variable externally defined in a shared object and used in an arbitrary shared object
+//
+// Relocation types:
+// R_X86_64_TPOFF64
+// R_X86_64_DTPOFF64
+// R_X86_64_DTPMOD64
+
+// TODO:
+// To fully support all TLS types, the above TLS types and relocation types
+// should be all implemented.
+// Currently, only type 1 TLS is supported.
+
+struct TLSBlock
 {
-public:
-	CTLSHandler();
-	virtual ~CTLSHandler();
-
-	virtual bool initialize(void *pTls, uint initSize, uint totalSize) = 0;
-
-	static void NotifyThreadCreate(uint nTid);
-
-	static void NotifyThreadExit(uint nTid);
-
-protected:
-	struct TCB
-	{
-		void* pSegBase;
-		ulong_ptr* pDTV;
-	};
-
-protected:
-	static void InitZydis();
-	static void PrintInst(ZydisDecodedInstruction& inst);
-	static bool IsTlsAccess(void* pCode);
-	static uint GetPatchLen(byte* pCode, uint nOldLen);
-	static uint GetMovFsLen(void* pCode);
-	static bool PatchTLSInstruction(void* pCode);
-	//
-	static bool BuildTLSBackup(void* pTls, uint nInitSize, uint nTotalSize);
-	static void* AllocateTLS();
-	static void FreeTLS(TCB* pTcb);
-protected:
-	static ZydisDecoder s_oDecoder;
-	static ZydisFormatter s_oFormatter;
-	// build tls backup on install,
-	// whenever a new thread created,
-	// we just copy this backup
-	static std::vector<byte> s_vtTlsImageBackup;
-	static thread_local TCB* t_pTcbRecord;
-private:
-
+	// TLS segment address in loaded module.
+	void* address = nullptr;
+	// initialized TLS data size
+	uint32_t initSize = 0;
+	// total TLS data size (initialized + uninitialized)
+	uint32_t totalSize = 0;
+	// alignment
+	uint32_t align = 0;
+	// tls index == module id
+	uint32_t index = 0;
+	// Dynamically-loaded modules here don¡¯t mean any dynamic shared objects,
+	// they only refer to the shared objects that are loaded by explicitly calling dlopen
+	bool isDynamic = false;
+	// TLS image offset at TCB block
+	uint32_t offset;
 };
 
+// The TLSManager implementation is based on FreeBSD 9.0 stable.
+// https://github.com/freebsd/freebsd/blob/stable/9/libexec/rtld-elf/rtld_tls.h
+// https://github.com/freebsd/freebsd/blob/stable/9/libexec/rtld-elf/rtld.c#L4305
+// And with the help of this post.
+// https://chao-tic.github.io/blog/2018/12/25/tls
 
-//////////////////////////////////////////////////////////////////////////
-// Windows tls implementation
+class TLSManagerWin;
+class TLSManagerLinux;
 
+#ifdef GPCS4_WINDOWS
+using TLSSingletonBase = Singleton<TLSManagerWin>;
+#else   // GPCS4_WINDOWS
+using TLSSingletonBase = Singleton<TLSManagerLinux>;
+#endif  // GPCS4_WINDOWS
+
+class TLSManager : public TLSSingletonBase
+{
+private:
+	union DTV
+	{
+		void* pointer;
+		uintptr_t counter;
+	};
+
+	struct TCB
+	{
+		void* segbase;
+		void* dtv;
+	};
+
+	using TLSImage = std::vector<uint8_t>;
+
+public:
+	TLSManager();
+	virtual ~TLSManager();
+
+	virtual bool install() = 0;
+
+	virtual void uninstall() = 0;
+
+	void registerTLSBlock(const TLSBlock& block);
+
+	void unregisterTLSBlock(const TLSBlock& block);
+
+	void* tlsGetAddr(uint32_t moduleId, uint32_t offset);
+
+	void notifyThreadExit();
+
+protected:
+	void* allocateTLS();
+	void freeTLS(void* tls);
+
+	void* readFSRegister(int32_t offset);
+
+private:
+	void backupTLSImage(std::vector<uint8_t>& image, const TLSBlock& block);
+
+	size_t calculateStaticTLSSize();
+	void allocateTLSOffset(TLSBlock& block);
+
+protected:
+	// emulated fs register
+	static thread_local void* t_fsbase;
+
+private:
+	std::vector<std::pair<TLSBlock, TLSImage>> m_TLSImages;
+	std::mutex m_mutex;
+};
+
+class AssembleHelper
+{
+public:
+	AssembleHelper();
+	~AssembleHelper();
+
+	bool isTlsAccess(void* code);
+
+	void getMovFsInfo(void* code, uint32_t& instLen, int64_t& fsOffset);
+
+	bool patchTLSInstruction(void* code);
+
+private:
+	void initZydis();
+
+	void printInst(ZydisDecodedInstruction& inst);
+
+	uint32_t getPatchLen(uint8_t* code, uint32_t oldLen);
+
+private:
+	ZydisDecoder m_decoder;
+	ZydisFormatter m_formatter;
+};
 
 #ifdef GPCS4_WINDOWS
 
-class CTLSHandlerWin : public CTLSHandler
+class TLSManagerWin : public TLSManager
 {
+	friend class Singleton<TLSManagerWin>;
+
 public:
-	CTLSHandlerWin();
-	virtual ~CTLSHandlerWin();
+	virtual bool install();
 
-	static bool Install(void* pTls, uint nInitSize, uint nTotalSize);
-	virtual bool initialize(void *pTls, uint initSize, uint totalSize);
-
-	static void Uninstall();
-
+	virtual void uninstall();
 
 private:
-	static long __stdcall VEHExceptionHandler(void* pExceptionArg);
+	static long __stdcall VEHExceptionHandler(void* exceptionArg);
 
 private:
+	static void* s_vehHandler;
+	static AssembleHelper s_asmHelper;
 
-	static void* s_pVEHHandle;
-	
+private:
+	TLSManagerWin();
+	virtual ~TLSManagerWin();
+	TLSManagerWin(const TLSManagerWin&) = delete;
+	TLSManagerWin& operator=(const TLSManagerWin&) = delete;
 };
 
+#else  // GPCS4_WINDOWS
 
-#else
-
-// on linux, the system provide us a syscall "sys_arch"
-// to change the fs register.
-// maybe there's a more native way to handle TLS,
-// but I suggest using the same way as windows,
-// that is make fs segment access raising an exception,
-// then catch the exception and patch the code
-// for two reason:
-// 1. the emulator itself use C++11's "thread_local" feature,
-// which make use of fs register
-// 2. keep the code consistency, we don't need to create a new framework
-
-class CTLSHandlerLinux : public CTLSHandler
+class TLSManagerLinux : public TLSManager
 {
+	friend class Singleton<TLSManagerLinux>;
+
 public:
-	CTLSHandlerLinux();
-	virtual ~CTLSHandlerLinux();
-
 private:
-
+	TLSManagerLinux();
+	virtual ~TLSManagerLinux();
+	TLSManagerLinux(const TLSManagerLinux&) = delete;
+	TLSManagerLinux& operator=(const TLSManagerLinux&) = delete;
 };
 
-#endif  //GPCS4_WINDOWS
+#endif  // GPCS4_WINDOWS
+
+bool installTLSManager();
+void uninstallTLSManager();

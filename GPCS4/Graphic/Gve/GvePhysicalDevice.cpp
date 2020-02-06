@@ -5,6 +5,8 @@
 #include <set>
 #include <array>
 
+LOG_CHANNEL(Graphic.Gve.GvePhysicalDevice);
+
 namespace gve
 {;
 
@@ -198,6 +200,16 @@ VkPhysicalDeviceMemoryProperties GvePhysicalDevice::memoryProperties() const
 	return memoryProperties;
 }
 
+GveDeviceFeatures GvePhysicalDevice::getDeviceFeatures()
+{
+	GveDeviceFeatures supported = features();
+	GveDeviceFeatures enabled = {};
+
+	enabled.core.features.samplerAnisotropy = VK_TRUE;
+	enabled.core.features.shaderInt64       = supported.core.features.shaderInt64;
+	return enabled;
+}
+
 RcPtr<gve::GveDevice> GvePhysicalDevice::createLogicalDevice()
 {
 	RcPtr<GveDevice> createdDevice;
@@ -236,15 +248,14 @@ RcPtr<gve::GveDevice> GvePhysicalDevice::createLogicalDevice()
 		queueCreateInfo.queueCount = 1;
 		queueCreateInfo.pQueuePriorities = &queuePriority;
 
-		VkPhysicalDeviceFeatures deviceFeatures = {};
-		deviceFeatures.samplerAnisotropy = VK_TRUE;
+		GveDeviceFeatures features = getDeviceFeatures();
 
 		VkDeviceCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 
 		createInfo.queueCreateInfoCount = 1;
 		createInfo.pQueueCreateInfos = &queueCreateInfo;
-		createInfo.pEnabledFeatures = &deviceFeatures;
+		createInfo.pEnabledFeatures = &features.core.features;
 		createInfo.enabledExtensionCount = extensionNameList.count();
 		createInfo.ppEnabledExtensionNames = extensionNameList.names();
 
@@ -286,5 +297,6 @@ uint32_t GvePhysicalDevice::findQueueFamily(VkQueueFlags mask, VkQueueFlags flag
 
 	return index;
 }
+
 
 } // namespace gve

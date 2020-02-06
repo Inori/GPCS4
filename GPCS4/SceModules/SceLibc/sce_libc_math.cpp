@@ -1,6 +1,8 @@
 #include "sce_libc.h"
 #include <cmath>
 
+LOG_CHANNEL(SceModules.SceLibc.math);
+
 // declarations in this file can be found in FreeBSD 9, math.h and ymath.h
 
 
@@ -144,11 +146,11 @@ int PS4API scec_atanh(void)
 }
 
 
-scediv_t PS4API scec_div(int numerator, int denominator)
+sce_div_t PS4API scec_div(int numerator, int denominator)
 {
 	LOG_SCE_TRACE("numerator %d denominator %d", numerator, denominator);
 	div_t res = div(numerator, denominator);
-	scediv_t ret;
+	sce_div_t ret;
 	ret.quot = res.quot;
 	ret.rem = res.rem;
 	return ret;

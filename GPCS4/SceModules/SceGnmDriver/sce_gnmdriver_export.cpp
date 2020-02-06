@@ -123,6 +123,14 @@ static const SCE_EXPORT_FUNCTION g_pSceGnmDriver_libSceGnmDriver_FunctionTable[]
 	{ 0xAD3215D759CC42E3, "sceGnmValidateOnSubmitEnabled", (void*)sceGnmValidateOnSubmitEnabled },
 	{ 0x30131AE8416EE0AA, "sceGnmValidateResetState", (void*)sceGnmValidateResetState },
 	{ 0x43BB7854460B69F2, "sceGnmValidationRegisterMemoryCheckCallback", (void*)sceGnmValidationRegisterMemoryCheckCallback },
+	{ 0xD07DAF0586D32C72, "sceGnmDrawInitDefaultHardwareState200", (void*)sceGnmDrawInitDefaultHardwareState200 },
+	{ 0x29796D9C2C042474, "sceGnmSetCsShader", (void*)sceGnmSetCsShader },
+	{ 0x6D055DE58CC26A5D, "sceGnmSetPsShader", (void*)sceGnmSetPsShader },
+	{ 0xE0C811C3F6D53505, "sceGnmUpdatePsShader", (void*)sceGnmUpdatePsShader },
+	{ 0x8823BCD38660CDD0, "sceGnmValidateCommandBuffers", (void*)sceGnmValidateCommandBuffers },
+	{ 0xC5E4CB7F154840EE, "sceRazorCaptureCommandBuffersOnlyImmediate", (void*)sceRazorCaptureCommandBuffersOnlyImmediate },
+	{ 0xF6D84C9FEB81D62B, "sceRazorCaptureCommandBuffersOnlySinceLastFlip", (void*)sceRazorCaptureCommandBuffersOnlySinceLastFlip },
+	{ 0xE1415A81895FB803, "sceRazorCaptureSinceLastFlip", (void*)sceRazorCaptureSinceLastFlip },
 	SCE_FUNCTION_ENTRY_END
 };
 

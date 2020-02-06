@@ -1,18 +1,21 @@
 #pragma once
 
 #include "GPCS4Common.h"
+#include "ELFMapper.h"
+
 #include "Emulator/ModuleSystemCommon.h"
 #include "Emulator/Linker.h"
 #include "Emulator/SceModuleSystem.h"
 #include "Emulator/TLSHandler.h"
-#include "ELFMapper.h"
 
 #include <queue>
+#include <set>
+#include <string>
 
 class ModuleLoader
 {
 public:
-	ModuleLoader(CSceModuleSystem &modSystem, CLinker &linker, CTLSHandler &tlsHandler);
+	ModuleLoader(CSceModuleSystem &modSystem, CLinker &linker);
 	bool loadModule(std::string const &fileName, MemoryMappedModule **mod);
 private:
 	bool loadModuleFromFile(std::string const &fileName,
@@ -30,9 +33,12 @@ private:
 	bool registerSymbol(MemoryMappedModule const &mod, size_t idx);
 	bool initializeModules();
 
+private:
 	std::queue<std::string> m_filesToLoad;
 	CSceModuleSystem &m_modSystem;
-	CTLSHandler &m_tlsHandler;
 	CLinker &m_linker;
 	ELFMapper m_mapper;
+
+	// init_proc of modules in this black list will not be called.
+	const static std::set<std::string> m_moduleInitBlackList;
 };

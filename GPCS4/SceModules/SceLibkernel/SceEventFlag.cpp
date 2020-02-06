@@ -6,7 +6,9 @@
 
 #include <functional>
 
-CSceEventFlag::CSceEventFlag(const std::string& name, uint attr, uint64 initPattern) :
+LOG_CHANNEL(SceModules.SceLibkernel.SceEventFlag);
+
+CSceEventFlag::CSceEventFlag(const std::string& name, uint32_t attr, uint64_t initPattern) :
 	m_attr(attr),
 	m_name(name),
 	m_bitPattern(initPattern),
@@ -20,7 +22,7 @@ CSceEventFlag::~CSceEventFlag()
 	std::lock_guard lock(m_mutex);
 }
 
-int CSceEventFlag::Set(uint64 bitPattern)
+int CSceEventFlag::Set(uint64_t bitPattern)
 {
 	std::lock_guard lock(m_mutex);
 	m_bitPattern |= bitPattern;
@@ -35,7 +37,7 @@ int CSceEventFlag::Set(uint64 bitPattern)
 	return SCE_OK;
 }
 
-int CSceEventFlag::Wait(uint64 bitPattern, uint mode, uint64* pResultPat, SceKernelUseconds* pTimeout)
+int CSceEventFlag::Wait(uint64_t bitPattern, uint32_t mode, uint64_t* pResultPat, SceKernelUseconds* pTimeout)
 {
 	int err = SCE_KERNEL_ERROR_ESRCH;
 	bool condMet = false;
@@ -137,7 +139,15 @@ int CSceEventFlag::Wait(uint64 bitPattern, uint mode, uint64* pResultPat, SceKer
 
 // TODO:
 // implement this
-int CSceEventFlag::Poll(uint64 bitPattern, uint mode, uint64* pResultPat)
+int CSceEventFlag::Poll(uint64_t bitPattern, uint32_t mode, uint64_t* pResultPat)
+{
+	//throw std::logic_error("not implemented");
+	return SCE_KERNEL_ERROR_ESRCH;
+}
+
+// TODO:
+// implement this
+int CSceEventFlag::Clear(uint64_t bitPattern)
 {
 	throw std::logic_error("not implemented");
 	return SCE_KERNEL_ERROR_ESRCH;
@@ -145,21 +155,13 @@ int CSceEventFlag::Poll(uint64 bitPattern, uint mode, uint64* pResultPat)
 
 // TODO:
 // implement this
-int CSceEventFlag::Clear(uint64 bitPattern)
+int CSceEventFlag::Cancel(uint64_t setPattern, int* pNumWaitThreads)
 {
 	throw std::logic_error("not implemented");
 	return SCE_KERNEL_ERROR_ESRCH;
 }
 
-// TODO:
-// implement this
-int CSceEventFlag::Cancel(uint64 setPattern, int* pNumWaitThreads)
-{
-	throw std::logic_error("not implemented");
-	return SCE_KERNEL_ERROR_ESRCH;
-}
-
-bool CSceEventFlag::IsConditionMet(uint mode, uint64 bitPattern)
+bool CSceEventFlag::IsConditionMet(uint32_t mode, uint64_t bitPattern)
 {
 	bool bMet = false;
 	if (mode & SCE_KERNEL_EVF_WAITMODE_AND)

@@ -13,6 +13,8 @@
 #include "../Gve/GveCmdList.h"
 #include "../Gve/GveImage.h"
 
+LOG_CHANNEL(Graphic.Sce.SceGnmDriver);
+
 namespace sce
 {;
 
@@ -86,6 +88,9 @@ int SceGnmDriver::submitAndFlipCommandBuffers(uint32_t count,
 		auto cmdList = cmdParser->getCommandBuffer()->getCmdList();
 
 		m_presenter->present(cmdList);
+		// TODO:
+		// This should be done asynchronously
+		cmdList->reset();
 
 		err = SCE_OK;
 	} while (false);

@@ -10,7 +10,7 @@
 #pragma once
 
 #include "sce_module_common.h"
-
+#include "sce_fios2_types.h"
 
 extern const SCE_EXPORT_MODULE g_ExpModuleSceFios2;
 
@@ -34,7 +34,7 @@ int PS4API sceFiosDeleteSync(void);
 int PS4API sceFiosDirectoryCreateSync(void);
 
 
-int PS4API sceFiosDirectoryExistsSync(void);
+bool PS4API sceFiosDirectoryExistsSync(const SceFiosOpAttr *pAttr, const char *pPath);
 
 
 int PS4API sceFiosFHCloseSync(void);
@@ -55,7 +55,7 @@ int PS4API sceFiosFHStatSync(void);
 int PS4API sceFiosFHWriteSync(void);
 
 
-int PS4API sceFiosFileExistsSync(void);
+bool PS4API sceFiosFileExistsSync(const SceFiosOpAttr *pAttr, const char *pPath);
 
 
 int PS4API sceFiosFileGetSizeSync(void);

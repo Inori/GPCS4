@@ -1,11 +1,11 @@
 #pragma once
 
-typedef unsigned int        SceKernelUseconds;
+typedef unsigned int SceKernelUseconds;
 
-typedef struct _SceKernelSemaOptParam {
+struct SceKernelSemaOptParam
+{
 	size_t	size;
-} SceKernelSemaOptParam;
-
+};
 
 typedef void* SceKernelSema;
 

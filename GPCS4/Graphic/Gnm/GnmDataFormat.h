@@ -10,7 +10,7 @@ union DataFormat
 	class
 	{
 	public:
-		uint32_t   m_surfaceFormat : 8;
+		uint32_t   m_surfaceFormat : 8;  // SurfaceFormat
 		uint32_t   m_channelType : 4;
 		uint32_t   m_channelX : 3;
 		uint32_t   m_channelY : 3;
@@ -20,118 +20,32 @@ union DataFormat
 	} m_bits;
 	uint32_t m_asInt;
 
-	static DataFormat build(SurfaceFormat surfFmt, TextureChannelType channelType,
+	static DataFormat build(
+		SurfaceFormat surfFmt, 
+		TextureChannelType channelType,
 		TextureChannel chanX = kTextureChannelX,
 		TextureChannel chanY = kTextureChannelY,
 		TextureChannel chanZ = kTextureChannelZ,
-		TextureChannel chanW = kTextureChannelW)
-	{
-		DataFormat result{};
-		result.m_bits.m_surfaceFormat = surfFmt;
-		result.m_bits.m_channelType = channelType;
-		result.m_bits.m_channelX = chanX;
-		result.m_bits.m_channelY = chanY;
-		result.m_bits.m_channelZ = chanZ;
-		result.m_bits.m_channelW = chanW;
-		result.m_bits.m_unused = 0;
+		TextureChannel chanW = kTextureChannelW);
 
-		return result;
-	}
+	static DataFormat build(
+		RenderTargetFormat rtFmt, 
+		RenderTargetChannelType rtChannelType, 
+		RenderTargetChannelOrder channelOrder);
 
-	bool operator ==(const DataFormat& other) const
-	{
-		return m_asInt == other.m_asInt;
-	}
+	bool operator==(const DataFormat& other) const;
 
-	static DataFormat build(RenderTargetFormat rtFmt, RenderTargetChannelType rtChannelType, RenderTargetChannelOrder channelOrder)
-	{
-		const uint32_t channelCountTab[kRenderTargetFormatX24_8_32 + 1] = 
-		{
-			0,1,1,2,1,2,3,3,4,4,4,2,4,0,4,0,3,4,4,4,2,2,3
-		};
+	uint32_t getTotalBitsPerElement() const;
 
-		uint32_t channelCount = channelCountTab[rtFmt];
+	uint32_t getTexelsPerElement(void) const;
 
-		DataFormat result = { {0} };
-		result.m_bits.m_surfaceFormat = rtFmt;
-		result.m_bits.m_channelType = rtChannelType;
+	ZFormat getZFormat(void) const;
 
-		switch (channelOrder)
-		{
-		case kRenderTargetChannelOrderStandard:
-		{
-			switch (channelCount)
-			{
-			case 4: result.m_bits.m_channelW = kTextureChannelW;
-			case 3: result.m_bits.m_channelZ = kTextureChannelZ;
-			case 2: result.m_bits.m_channelY = kTextureChannelY;
-			case 1: result.m_bits.m_channelX = kTextureChannelX;
-			}
-		}
-			break;
-		case kRenderTargetChannelOrderAlt:
-		{
-			switch (channelCount)
-			{
-			case 1: { result.m_bits.m_channelX = kTextureChannelY; } break;
-			case 2: { result.m_bits.m_channelX = kTextureChannelX; result.m_bits.m_channelY = kTextureChannelW; } break;
-			case 3: { result.m_bits.m_channelX = kTextureChannelX; result.m_bits.m_channelY = kTextureChannelY; result.m_bits.m_channelZ = kTextureChannelW; } break;
-			case 4: { result.m_bits.m_channelX = kTextureChannelZ; result.m_bits.m_channelY = kTextureChannelY; result.m_bits.m_channelZ = kTextureChannelX; result.m_bits.m_channelW = kTextureChannelW; } break;
-			}
-		}
-			break;
-		case kRenderTargetChannelOrderReversed:
-		{
-			switch (channelCount)
-			{
-			case 1: { result.m_bits.m_channelX = kTextureChannelZ; } break;
-			case 2: { result.m_bits.m_channelX = kTextureChannelY; result.m_bits.m_channelY = kTextureChannelX; } break;
-			case 3: { result.m_bits.m_channelX = kTextureChannelZ; result.m_bits.m_channelY = kTextureChannelY; result.m_bits.m_channelZ = kTextureChannelX; } break;
-			case 4: { result.m_bits.m_channelX = kTextureChannelW; result.m_bits.m_channelY = kTextureChannelZ; result.m_bits.m_channelZ = kTextureChannelY; result.m_bits.m_channelW = kTextureChannelX; } break;
-			}
-		}
-			break;
-		case kRenderTargetChannelOrderAltReversed:
-		{
-			switch (channelCount)
-			{
-			case 1: { result.m_bits.m_channelX = kTextureChannelW; } break;
-			case 2: { result.m_bits.m_channelX = kTextureChannelW; result.m_bits.m_channelY = kTextureChannelX; } break;
-			case 3: { result.m_bits.m_channelX = kTextureChannelW; result.m_bits.m_channelY = kTextureChannelY; result.m_bits.m_channelZ = kTextureChannelX; } break;
-			case 4: { result.m_bits.m_channelX = kTextureChannelW; result.m_bits.m_channelY = kTextureChannelX; result.m_bits.m_channelZ = kTextureChannelY; result.m_bits.m_channelW = kTextureChannelZ; } break;
-			}
-		}
-			break;
-		}
+	StencilFormat getStencilFormat(void) const;
 
-		return result;
-	}
+	uint32_t getTotalBytesPerElement(void) const;
 
-	// From IDA
-	uint32_t getTotalBitsPerElement() const
-	{
-		// TODO:
-		// Make it more beautiful, not just copy from ida.
-		uint32_t surfFmt = m_bits.m_surfaceFormat;
-		uint32_t result = 0LL;
-		if ((unsigned int)surfFmt <= 0x3C)
-		{
-			uint32_t v3 = 16;
-			if ((unsigned __int8)(surfFmt - 35) >= 7u)
-			{
-				if ((unsigned __int8)(surfFmt - 59) > 1u)
-				{
-					v3 = 1;
-				}
-				else
-				{
-					v3 = 8;
-				}
-			}
-			result = (unsigned int)(s_bitsPerElement[surfFmt] * v3);
-		}
-		return result;
-	}
+	bool isBlockCompressedFormat(void) const;
 
 private:
 	static constexpr int s_bitsPerElement[] = 

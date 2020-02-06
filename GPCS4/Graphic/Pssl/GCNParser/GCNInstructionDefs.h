@@ -20,9 +20,13 @@
 
 struct GCNInstructionFormat
 {
+	// From GPU Shader Core ISA manual
 	Instruction::InstructionClass insClass;
+	// Instruction operand's bit width
+	Instruction::OperandType operandType;
+
 	// TODO:
-	// Maybe we will add some other useful staffs here, like oprand, encoding, category ...
+	// Add other meta data if needed.
 };
 
 

@@ -29,7 +29,7 @@ extern const SCE_EXPORT_MODULE g_ExpModuleScePad;
 int PS4API scePadClose(int32_t handle);
 
 
-int PS4API scePadGetControllerInformation(void);
+int PS4API scePadGetControllerInformation(int32_t handle, ScePadControllerInformation* pInfo);
 
 
 int PS4API scePadGetHandle(SceUserServiceUserId userId, int32_t type, int32_t index);
@@ -44,16 +44,16 @@ int PS4API scePadOpen(SceUserServiceUserId userId, int32_t type, int32_t index, 
 int PS4API scePadReadState(int32_t handle, ScePadData *pData);
 
 
-int PS4API scePadResetLightBar(void);
+int PS4API scePadResetLightBar(int32_t handle);
 
 
-int PS4API scePadSetLightBar(void);
+int PS4API scePadSetLightBar(int32_t handle, const ScePadLightBarParam *pParam);
 
 
 int PS4API scePadSetMotionSensorState(void);
 
 
-int PS4API scePadSetVibration(void);
+int PS4API scePadSetVibration(int32_t handle, const ScePadVibrationParam *pParam);
 
 
 int PS4API scePadRead(int32_t handle, ScePadData *pData, int32_t num);

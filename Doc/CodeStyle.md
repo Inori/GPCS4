@@ -40,7 +40,7 @@ And based on the above Sony's style, we add the following extra rules, to make o
 2. Use `do {} while(false)` pattern in functions that are complex and/or going to be complex.  
    e.g. functions which have more than one `if` statement.  
 
-   The advantage of this pattern is that, it can help us to find the most important part of one function more easily.  
+   The advantage of this pattern is that, it can help us to find the most important part of one function more easily, this is called *Guard Clauses*  
    Help us not to forget resource freeing.  
    And this will force the code to grow vertically, not to expend horizontally, thus easy to understand and modify.  
 

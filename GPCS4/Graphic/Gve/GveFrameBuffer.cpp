@@ -1,6 +1,7 @@
 #include "GveFrameBuffer.h"
 #include "GveDevice.h"
 
+LOG_CHANNEL(Graphic.Gve.GveFrameBuffer);
 
 namespace gve
 {;

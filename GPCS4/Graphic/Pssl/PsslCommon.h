@@ -2,6 +2,7 @@
 
 #include "GPCS4Common.h"
 #include <vulkan/vulkan.h>
+#include "../SpirV/spirv.hpp"
 
 #ifdef GPCS4_DEBUG
 

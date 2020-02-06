@@ -1,5 +1,7 @@
 #include "FuncStub.h"
-#include <cassert>
+#include "Platform/UtilDebug.h"
+
+LOG_CHANNEL(Loader.FuncStub);
 
 static void logFunc(const char *log) 
 {
@@ -7,7 +9,11 @@ static void logFunc(const char *log)
 }
 
 // Trap the debugger when an unresolved function is called.
-static void trapDebugger() { assert(false); }
+static int PS4API trapDebugger()
+{
+	UtilDebug::debugBreakPoint();
+	return -1;
+}
 
 // TODO: For safety sake, all the non-volatile registers should be saved, but I only save
 // rcx, rdx, r8, r9, r10, r11 for convenience.
@@ -41,8 +47,8 @@ JitFunctionPool::JitFunctionPool(size_t funcSize, size_t funcNum) :
 	m_funcSize{ util::alignRound(funcSize, (size_t)16) }, m_funcNum{ funcNum }, m_index{ 0 }
 {
 	m_totalSize = m_funcSize * funcNum;
-	auto memory = UtilMemory::VMMap(m_totalSize,
-                                 UtilMemory::VMPF_READ | UtilMemory::VMPF_EXECUTE);
+	auto memory = UtilMemory::VMMapFlexible(nullptr, m_totalSize,
+                                 UtilMemory::VMPF_CPU_READ | UtilMemory::VMPF_CPU_EXEC);
 
 	m_memory.reset(reinterpret_cast<uint8_t *>(memory));
 }

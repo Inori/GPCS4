@@ -52,5 +52,14 @@ int PS4API sceNpScorePollAsync(void);
 int PS4API sceNpScoreRecordScoreAsync(void);
 
 
+int PS4API sceNpScoreGetFriendsRanking(void);
+
+
+int PS4API sceNpScoreGetRankingByNpId(void);
+
+
+int PS4API sceNpScoreGetRankingByRange(void);
+
+
 
 

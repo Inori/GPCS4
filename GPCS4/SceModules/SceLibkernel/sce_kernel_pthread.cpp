@@ -3,6 +3,7 @@
 //#include "pthreads4w/pthread.h"
 #include "MapSlot.h"
 
+LOG_CHANNEL(SceModules.SceLibkernel.pthread);
 
 int pthreadErrorToSceError(int perror);
 
@@ -147,11 +148,17 @@ int PS4API scek_pthread_mutexattr_settype(void)
 	return SCE_OK;
 }
 
-
-int PS4API scek_pthread_self(void)
+// For PS4 system, ScePthread and pthread_t are same.
+ScePthread PS4API scek_pthread_self(void)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("");
+	return scePthreadSelf();
+}
+
+void PS4API scek_pthread_exit(void *value_ptr)
+{
+	LOG_SCE_TRACE("");
+	scePthreadExit(value_ptr);
 }
 
 

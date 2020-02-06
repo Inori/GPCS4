@@ -30,6 +30,8 @@ public:
 
 	uint32_t height();
 
+	GLFWwindow* getWindowHandle();
+
 	void getWindowSize(uint32_t& width, uint32_t& height);
 
 	void getFramebufferSize(uint32_t& width, uint32_t& height);

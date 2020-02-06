@@ -4,6 +4,7 @@
 #include <cstring>
 #include <cstdarg>
 
+LOG_CHANNEL(SceModules.SceLibc.string);
 
 int PS4API scec_mblen(void)
 {

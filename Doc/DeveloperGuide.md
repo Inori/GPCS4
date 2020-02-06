@@ -23,7 +23,7 @@ Follow the steps:
 3. Extract `lib` from [your download](https://pastebin.com/bUxckm3y) to `Debug` folder where GPCS4.exe output.
 4. Open properties window of GPCS4 project in Visual Studio, switch to Debugging tab,  
 set `Woring Directory` to `$(OutDir)`  
-set `Command Arguments` to the name of the main elf/bin, ie. `basic_quad.elf`.   
+set `Command Arguments` according to the help message, ie. `-E eboot.bin`.   
 Note you don't need to specify the full path because the `Woring Directory` has been set to the folder the elf/bin locate.
 5. Build the `x64 Debug` version and press F5.
 

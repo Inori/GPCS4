@@ -1,6 +1,7 @@
 #include "GveBuffer.h"
 #include "GveDevice.h"
 
+LOG_CHANNEL(Graphic.Gve.GveBuffer);
 
 namespace gve
 {;
@@ -151,7 +152,7 @@ GveBufferSlice::~GveBufferSlice()
 }
 
 
-bool GveBufferSlice::isValid() const
+bool GveBufferSlice::defined() const
 {
 	return m_buffer != nullptr;
 }

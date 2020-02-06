@@ -1,5 +1,6 @@
 #include "sce_libc.h"
 
+LOG_CHANNEL(SceModules.SceLibc.sce);
 
 int PS4API scec_sceLibcMspaceCalloc(void)
 {
