@@ -80,42 +80,42 @@ int SceKeyboard::readState(ScePadData* data)
 	// Just quick and dirty implement currently. :)
 
 	uint32_t buttons = 0;
-	if (glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS)
+	if (glfwGetKey(m_window, GLFW_KEY_T) == GLFW_PRESS)
 	{
 		buttons |= SCE_PAD_BUTTON_UP;
 	}
 
-	if (glfwGetKey(m_window, GLFW_KEY_S) == GLFW_PRESS)
+	if (glfwGetKey(m_window, GLFW_KEY_G) == GLFW_PRESS)
 	{
 		buttons |= SCE_PAD_BUTTON_DOWN;
 	}
 
-	if (glfwGetKey(m_window, GLFW_KEY_A) == GLFW_PRESS)
+	if (glfwGetKey(m_window, GLFW_KEY_F) == GLFW_PRESS)
 	{
 		buttons |= SCE_PAD_BUTTON_LEFT;
 	}
 
-	if (glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS)
+	if (glfwGetKey(m_window, GLFW_KEY_H) == GLFW_PRESS)
 	{
 		buttons |= SCE_PAD_BUTTON_RIGHT;
 	}
 
-	if (glfwGetKey(m_window, GLFW_KEY_UP) == GLFW_PRESS)
+	if (glfwGetKey(m_window, GLFW_KEY_I) == GLFW_PRESS)
 	{
 		buttons |= SCE_PAD_BUTTON_TRIANGLE;
 	}
 
-	if (glfwGetKey(m_window, GLFW_KEY_DOWN) == GLFW_PRESS)
+	if (glfwGetKey(m_window, GLFW_KEY_K) == GLFW_PRESS)
 	{
 		buttons |= SCE_PAD_BUTTON_CROSS;
 	}
 
-	if (glfwGetKey(m_window, GLFW_KEY_LEFT) == GLFW_PRESS)
+	if (glfwGetKey(m_window, GLFW_KEY_J) == GLFW_PRESS)
 	{
 		buttons |= SCE_PAD_BUTTON_SQUARE;
 	}
 
-	if (glfwGetKey(m_window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+	if (glfwGetKey(m_window, GLFW_KEY_L) == GLFW_PRESS)
 	{
 		buttons |= SCE_PAD_BUTTON_CIRCLE;
 	}
@@ -132,11 +132,65 @@ int SceKeyboard::readState(ScePadData* data)
 
 	LOG_DEBUG_IF(buttons != 0, "pad buttons %08X", buttons);
 
+
+
+
+
+	ScePadAnalogStick leftStick = {0x80,0x80};
+
+	if (glfwGetKey(m_window, GLFW_KEY_A) == GLFW_PRESS) 
+	{
+		leftStick.x += -127;
+	}
+
+	if (glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS) 
+	{
+		leftStick.x += 127;
+	}
+
+	if (glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS) 
+	{
+		leftStick.y += -127;
+	}
+
+	if (glfwGetKey(m_window, GLFW_KEY_S) == GLFW_PRESS) 
+	{
+		leftStick.y += 127;
+	}
+
+
+	ScePadAnalogStick rightStick = {0x80,0x80};
+
+	if (glfwGetKey(m_window, GLFW_KEY_LEFT) == GLFW_PRESS) 
+	{
+		rightStick.x += -127;
+	}
+
+	if (glfwGetKey(m_window, GLFW_KEY_RIGHT) == GLFW_PRESS) 
+	{
+		rightStick.x += 127;
+	}
+
+	if (glfwGetKey(m_window, GLFW_KEY_UP) == GLFW_PRESS) 
+	{
+		rightStick.y += -127;
+	}
+
+	if (glfwGetKey(m_window, GLFW_KEY_DOWN) == GLFW_PRESS) 
+	{
+		rightStick.y += 127;
+	}
+
+
+
+
 	memset(data, 0, sizeof(ScePadData));
 	data->connected      = true;
 	data->connectedCount = 1;
 	data->timestamp      = UtilProcess::GetProcessTimeCounter();
 	data->buttons        = buttons;
+	data->leftStick      = leftStick;
+	data->rightStick     = rightStick;
 
 	return SCE_OK;
 }
@@ -155,8 +209,8 @@ int SceKeyboard::getInformation(ScePadControllerInformation* info)
 		info->touchPadInfo.pixelDensity = 1;
 		info->touchPadInfo.resolution.x = 256;
 		info->touchPadInfo.resolution.y = 256;
-		info->stickInfo.deadZoneLeft    = 250;
-		info->stickInfo.deadZoneRight   = 250;
+		info->stickInfo.deadZoneLeft    = 2;
+		info->stickInfo.deadZoneRight   = 2;
 
 		info->connectionType = SCE_PAD_CONNECTION_TYPE_LOCAL;
 		info->connectedCount = 1;
