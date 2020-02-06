@@ -9,27 +9,27 @@
 class CSceEventFlag
 {
 public:
-	CSceEventFlag(const std::string& name, uint attr, uint64 initPattern);
+	CSceEventFlag(const std::string& name, uint32_t attr, uint64_t initPattern);
 	~CSceEventFlag();
 
-	int Set(uint64 bitPattern);
+	int Set(uint64_t bitPattern);
 
-	int Wait(uint64 bitPattern, uint mode, uint64* pResultPat, SceKernelUseconds* pTimeout);
+	int Wait(uint64_t bitPattern, uint32_t mode, uint64_t* pResultPat, SceKernelUseconds* pTimeout);
 
-	int Poll(uint64 bitPattern, uint mode, uint64* pResultPat);
+	int Poll(uint64_t bitPattern, uint32_t mode, uint64_t* pResultPat);
 
-	int Clear(uint64 bitPattern);
+	int Clear(uint64_t bitPattern);
 
-	int Cancel(uint64 setPattern, int* pNumWaitThreads);
+	int Cancel(uint64_t setPattern, int* pNumWaitThreads);
 
 private:
-	bool IsConditionMet(uint mode, uint64 bitPattern);
+	bool IsConditionMet(uint32_t mode, uint64_t bitPattern);
 	bool IsSingleMode();
 
 private:
-	uint m_attr;
+	uint32_t m_attr;
 	std::string m_name;
-	uint64 m_bitPattern;
+	uint64_t m_bitPattern;
 	std::mutex m_mutex;
 	std::condition_variable m_cond;
 	bool m_anyWaiting;

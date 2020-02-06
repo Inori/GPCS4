@@ -1,5 +1,7 @@
 #include "GCNCompiler.h"
 
+LOG_CHANNEL(Graphic.Pssl.GCNCompilerVectorMemory);
+
 namespace pssl
 {;
 

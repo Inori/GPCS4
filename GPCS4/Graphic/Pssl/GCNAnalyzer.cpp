@@ -5,6 +5,8 @@
 #include "GCNParser/ParserSI.h"
 
 
+LOG_CHANNEL(Graphic.Pssl.GCNAnalyzer);
+
 namespace pssl
 {;
 

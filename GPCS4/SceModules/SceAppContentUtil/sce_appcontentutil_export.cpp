@@ -13,6 +13,7 @@ static const SCE_EXPORT_FUNCTION g_pSceAppContentUtil_libSceAppContent_FunctionT
 	{ 0xDEB1D6695FF5282E, "sceAppContentAddcontUnmount", (void*)sceAppContentAddcontUnmount },
 	{ 0xC6777C049CC0C669, "sceAppContentGetAddcontInfoList", (void*)sceAppContentGetAddcontInfoList },
 	{ 0x47D940F363AB68DB, "sceAppContentInitialize", (void*)sceAppContentInitialize },
+	{ 0xf7d6fcd88297a47e, "sceAppContentAppParamGetInt", (void*)sceAppContentAppParamGetInt },
 	SCE_FUNCTION_ENTRY_END
 };
 

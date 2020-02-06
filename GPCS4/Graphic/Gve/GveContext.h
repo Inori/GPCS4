@@ -92,7 +92,13 @@ public:
 		const RcPtr<GveImageView>& imageView, 
 		const RcPtr<GveBufferView>& bufferView);
 
-	void drawIndex(
+	void draw(
+		uint32_t vertexCount,
+		uint32_t instanceCount,
+		uint32_t firstVertex,
+		uint32_t firstInstance);
+
+	void drawIndexed(
 		uint32_t                indexCount,
 		uint32_t                instanceCount,
 		uint32_t                firstIndex,
@@ -129,26 +135,29 @@ private:
 	void updateIndexBinding();
 
 	template <VkPipelineBindPoint BindPoint>
-	void updateShaderResources();
+	void updateShaderResources(
+		const GvePipelineLayout* pipelineLayout,
+		VkDescriptorSet& set);
 
 	template <VkPipelineBindPoint BindPoint>
-	void updateDescriptorLayout(const GvePipelineLayout* layout, VkDescriptorSet set);
-	void updateGraphicsDescriptorLayout();
-	void updateComputeDescriptorLayout();
+	void updateShaderDescriptorSetBinding(const GvePipelineLayout* layout, VkDescriptorSet set);
 
+	VkDescriptorSet allocateDescriptorSet(VkDescriptorSetLayout layout);
+
+	template <bool Indexed, bool Indirect>
+	void commitGraphicsState();
+	void updateGraphicsShaderResources();
 	void updateGraphicsPipeline();
 	void updateGraphicsPipelineStates();
-	
-	void updateComputePipeline();
-	void updateComputePipelineStates();
 
 	void updateDynamicState();
-
-	void commitGraphicsState();
-
-	void commitComputeState();
-
 	void updateRenderPassOps(const GveRenderTargets& rts, GveRenderPassOps& ops);
+
+	
+	void commitComputeState();
+	void updateComputeDescriptorLayout();
+	void updateComputePipeline();
+	void updateComputePipelineStates();
 
 private:
 	RcPtr<GveDevice> m_device;

@@ -2,6 +2,8 @@
 #include "GCNParser/SOP1Instruction.h"
 #include "Platform/UtilString.h"
 
+LOG_CHANNEL(Graphic.Pssl.GCNCompilerScalarALU);
+
 namespace pssl
 {;
 

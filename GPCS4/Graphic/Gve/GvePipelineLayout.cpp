@@ -1,6 +1,8 @@
 #include "GvePipelineLayout.h"
 #include "GveDevice.h"
 
+LOG_CHANNEL(Graphic.Gve.GvePipelineLayout);
+
 namespace gve
 {;
 

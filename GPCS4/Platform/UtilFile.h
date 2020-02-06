@@ -15,7 +15,7 @@ std::vector<uint8_t> LoadFile(const std::string& strFilename);
 
 bool StoreFile(const std::string& strFilename, const std::vector<uint8_t>& vtData);
 
-bool StoreFile(const std::string& strFilename, const uint8_t* pBuffer, uint32_t nSize);
+bool StoreFile(const std::string& strFilename, const void* pBuffer, uint32_t nSize);
 
 struct FileCloser
 {

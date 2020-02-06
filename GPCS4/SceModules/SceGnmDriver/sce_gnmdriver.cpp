@@ -5,8 +5,7 @@
 // The codebase is generated using GenerateCode.py
 // You may need to modify the code manually to fit development needs
 
-
-
+LOG_CHANNEL(SceModules.SceGnmDriver);
 
 //////////////////////////////////////////////////////////////////////////
 // library: libSceGnmDriver
@@ -161,12 +160,12 @@ int PS4API sceGnmGetTheTessellationFactorRingBufferBaseAddress(void)
 }
 
 
-
-
-int PS4API sceGnmIsUserPaEnabled(void)
+bool PS4API sceGnmIsUserPaEnabled(void)
 {
-	LOG_SCE_GRAPHIC("Not implemented");
-	return SCE_OK;
+	// Checks if performance counters are available
+	bool paEnable = false;
+	LOG_SCE_GRAPHIC("user pa enable %d", paEnable);
+	return paEnable;
 }
 
 
@@ -223,17 +222,17 @@ int PS4API sceGnmMapComputeQueue(uint32_t globalPipeId, uint32_t queueId,
 			break;
 		}
 
-		if ((ulong_ptr)ringBaseAddr % 256 != 0)
+		if ((uintptr_t)ringBaseAddr % 256 != 0)
 		{
 			break;
 		}
 
-		if ((ulong_ptr)readPtrAddr % 4 != 0)
+		if ((uintptr_t)readPtrAddr % 4 != 0)
 		{
 			break;
 		}
 
-		*(sceoff_t*)readPtrAddr = 0;
+		*(sce_off_t*)readPtrAddr = 0;
 
 		vqueueId = 0x567;
 	} while (false);
@@ -321,182 +320,207 @@ int PS4API _import_75EC17C39AE82ECD(void)
 
 int PS4API sceGnmFindResourcesPublic(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceGnmGetOwnerName(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceGnmGetResourceBaseAddressAndSizeInBytes(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceGnmGetResourceName(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceGnmGetResourceShaderGuid(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceGnmGetResourceType(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceGnmGetResourceUserData(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceGnmQueryResourceRegistrationUserMemoryRequirements(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceGnmRegisterGdsResource(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceGnmRegisterOwner(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceGnmRegisterResource(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceGnmSetResourceRegistrationUserMemory(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceGnmSetResourceUserData(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceGnmUnregisterAllResourcesForOwner(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceGnmUnregisterOwnerAndResources(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceGnmUnregisterResource(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API _import_060337B772EF70D9(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceGnmValidateDisableDiagnostics(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceGnmValidateDispatchCommandBuffers(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceGnmValidateDrawCommandBuffers(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceGnmValidateGetDiagnosticInfo(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceGnmValidateGetDiagnostics(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceGnmValidateGetVersion(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceGnmValidateOnSubmitEnabled(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceGnmValidateResetState(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 
 
 int PS4API sceGnmValidationRegisterMemoryCheckCallback(void)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_GRAPHIC("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceGnmValidateCommandBuffers(void)
+{
+	LOG_SCE_GRAPHIC("Not implemented");
+	return SCE_OK;
+}
+
+int PS4API sceRazorCaptureCommandBuffersOnlyImmediate(void)
+{
+	LOG_SCE_GRAPHIC("Not implemented");
+	return SCE_OK;
+}
+
+int PS4API sceRazorCaptureCommandBuffersOnlySinceLastFlip(void)
+{
+	LOG_SCE_GRAPHIC("Not implemented");
+	return SCE_OK;
+}
+
+int PS4API sceRazorCaptureSinceLastFlip(void)
+{
+	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;
 }
 

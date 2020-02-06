@@ -12,12 +12,15 @@ namespace UtilMemory
 
 enum VM_PROTECT_FLAG
 {
-	VMPF_NOACCESS	=		0x00000001,
-	VMPF_READ		=		0x00000010,
-	VMPF_WRITE		=		0x00000100,
-	VMPF_EXECUTE	=		0x00001000,
-	VMPF_READ_WRITE	=		VMPF_READ | VMPF_WRITE,
-	VMPF_READ_WRITE_EXECUTE = VMPF_READ | VMPF_WRITE | VMPF_EXECUTE
+	VMPF_NOACCESS	=		0x00000000,
+	VMPF_CPU_READ	=		0x00000001,
+	VMPF_CPU_WRITE	=		0x00000002,
+	VMPF_CPU_EXEC	=		0x00000004,
+	VMPF_READ_WRITE	=		VMPF_CPU_READ | VMPF_CPU_WRITE,
+	VMPF_READ_WRITE_EXEC =	VMPF_CPU_READ | VMPF_CPU_WRITE | VMPF_CPU_EXEC,
+	VMPF_GPU_READ	=		0x00000010,
+	VMPF_GPU_WRITE	=		0x00000020,
+	VMPF_GPU_RW		=		VMPF_GPU_READ | VMPF_GPU_WRITE,
 };
 
 enum VM_ALLOCATION_TYPE
@@ -27,13 +30,17 @@ enum VM_ALLOCATION_TYPE
 	VMAT_RESERVE_COMMIT = VMAT_RESERVE | VMAT_COMMIT
 };
 
-void* VMMap(size_t nSize, uint nProtectFlag);
+void* VMMapFlexible(void *addrIn, size_t nSize, uint32_t nProtectFlag);
 
-void* VMMapEx(void* pAddr, size_t nSize, uint nProtectFlag, uint nType);
+void* VMMapDirect(size_t nSize, uint32_t nProtectFlag, uint32_t nType);
+
+void* VMAllocateDirect(/*TODO: use parameters*/);
 
 void VMUnMap(void* pAddr, size_t nSize);
 
-bool VMProtect(void* pAddr, size_t nSize, uint nProtectFlag);
+bool VMProtect(void* pAddr, size_t nSize, uint32_t nProtectFlag);
+
+int VMQueryProtection(void* addr, void** start, void** end, uint32_t* prot);
 
 struct MemoryUnMapper
 {
@@ -46,6 +53,6 @@ struct MemoryUnMapper
 	}
 };
 
-typedef std::unique_ptr<byte, MemoryUnMapper> memory_uptr;
+typedef std::unique_ptr<uint8_t, MemoryUnMapper> memory_uptr;
 
 }

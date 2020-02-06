@@ -7,6 +7,8 @@
 
 #include <array>
 
+LOG_CHANNEL(Graphic.Pssl.GCNCompiler);
+
 namespace pssl
 {;
 
@@ -468,6 +470,13 @@ void GCNCompiler::emitGprInitialize()
 	s12.id          = emitNewVariable({ s12.type, spv::StorageClassPrivate },
                              UtilString::Format("s%d", 12));
 	m_sgprs.emplace(12, s12);
+
+	SpirvRegisterPointer s16;
+	s16.type.ctype  = SpirvScalarType::Float32;
+	s16.type.ccount = 1;
+	s16.id          = emitNewVariable({ s16.type, spv::StorageClassPrivate },
+                             UtilString::Format("s%d", 16));
+	m_sgprs.emplace(16, s16);
 }
 
 void GCNCompiler::emitStatusRegInitialize()
@@ -565,7 +574,12 @@ void GCNCompiler::emitDclImmConstBuffer(const GcnShaderResourceInstance& res)
 	// set the ArrayStride to 16 no matter what type the element is.
 	// This is std140 standard, but what we should use is std430
 	// We should specify the correct stride, for a float array, it's sizeof(float) == 4 .
+	// This will trigger a validation warning.
 	m_module.decorateArrayStride(arrayId, 4);
+
+	// spirv-cross doesn't support buffer block expressed as any of std430, std140 and etc.
+	// to use spirv-cross to view the output spv file, enable this and disable above line.
+	// m_module.decorateArrayStride(arrayId, 16);
 
 	uint32_t uboStuctId = m_module.defStructTypeUnique(1, &arrayId);
 	m_module.decorateBlock(uboStuctId);

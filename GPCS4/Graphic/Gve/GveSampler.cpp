@@ -1,6 +1,8 @@
 #include "GveSampler.h"
 #include "GveDevice.h"
 
+LOG_CHANNEL(Graphic.Gve.GveSampler);
+
 namespace gve
 {;
 

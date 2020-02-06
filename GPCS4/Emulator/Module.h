@@ -13,48 +13,51 @@
 struct MODULE_INFO
 {
 	void *pEntryPoint;
+	void *pInitProc; // pointer to .init_proc()
+	void *pProcParam;
 
 	// virtual memory
-	byte *pMappedAddr;
-	uint nMappedSize;
+	uint8_t *pMappedAddr;
+	uint32_t nMappedSize;
 
 	// loadable segments
-	byte *pCodeAddr;
-	uint nCodeSize;
+	uint8_t *pCodeAddr;
+	uint32_t nCodeSize;
 
-	byte *pDataAddr;
-	uint nDataSize;
+	uint8_t *pDataAddr;
+	uint32_t nDataSize;
 
-	byte *pTlsAddr;
-	uint nTlsInitSize; // initialized tls data size
-	uint nTlsSize;     // whole tls data size, including nTlsInitSize
+	uint8_t *pTlsAddr;
+	uint32_t nTlsInitSize; // initialized tls data size
+	uint32_t nTlsSize;     // whole tls data size, including nTlsInitSize
+	uint32_t nTlsAlign;
 
 	// the following segments do not have vaddr or memsz in phdr (at least in
 	// GOW4), so we don't have to load them into virtual memory, just record
 	// it's pointer in file memory
-	byte *pDynamic;
-	uint nDynamicSize;
+	uint8_t *pDynamic;
+	uint32_t nDynamicSize;
 
-	byte *pSceDynLib;
-	uint nSceDynLibSize;
+	uint8_t *pSceDynLib;
+	uint32_t nSceDynLibSize;
 
-	byte *pRela;
-	uint nRelaCount;
-	byte *pPltRela;
-	uint nPltRelaCount;
-	uint nPltRelType;
+	uint8_t *pRela;
+	uint32_t nRelaCount;
+	uint8_t *pPltRela;
+	uint32_t nPltRelaCount;
+	uint32_t nPltRelType;
 
-	byte *pSymTab;
-	uint nSymTabSize;
+	uint8_t *pSymTab;
+	uint32_t nSymTabSize;
 
-	byte *pStrTab;
-	uint nStrTabSize;
+	uint8_t *pStrTab;
+	uint32_t nStrTabSize;
 
-	byte *pSceComment;
-	uint nSceCommentSize;
+	uint8_t *pSceComment;
+	uint32_t nSceCommentSize;
 
-	byte *pSceLibVersion;
-	uint nSceLibVersionSize;
+	uint8_t *pSceLibVersion;
+	uint32_t nSceLibVersionSize;
 };
 
 struct IMPORT_MODULE
@@ -135,7 +138,7 @@ struct MemoryMappedModule
 	friend ELFMapper;
 
 public:
-	typedef int PS4API (*intialize_func)(size_t argc, void *argv, void *term);
+	typedef int PS4API (*init_proc)(size_t argc, void* argv[], int (*post_init)(size_t argc, void* argv[]));
 	std::string fileName;
 
 	const FileList &getNeededFiles() const;
@@ -164,7 +167,7 @@ public:
 				   SymbolInfo const **symbolInfo) const;
 	bool getSymbol(size_t index, SymbolInfo const **symbolInfo) const;
 
-	bool getTLSInfo(void **pTls, uint *initSIze, uint *totalSize) const;
+	bool getTLSInfo(void** pTls, uint32_t* initSIze, uint32_t* totalSize, uint32_t* align) const;
 	void *getEntryPoint() const;
 
 	bool getImportSymbols(SymbolList *symbols) const;
@@ -191,8 +194,8 @@ private:
 	bool decodeValue(std::string const &encodedStr, uint64_t &value) const;
 
 	bool decodeSymbol(std::string const &strEncName,
-					  uint *modId,
-					  uint *libId,
+					  uint32_t *modId,
+					  uint32_t *libId,
 					  uint64_t *funcNid) const;
 
 private:

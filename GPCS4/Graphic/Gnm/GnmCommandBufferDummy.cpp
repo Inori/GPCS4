@@ -41,6 +41,11 @@ void GnmCommandBufferDummy::prepareFlip(void *labelAddr, uint32_t value)
 	*(uint32_t*)labelAddr = value;
 }
 
+void GnmCommandBufferDummy::prepareFlip()
+{
+	
+}
+
 void GnmCommandBufferDummy::prepareFlipWithEopInterrupt(EndOfPipeEventType eventType, void *labelAddr, uint32_t value, CacheAction cacheAction)
 {
 	*(uint32_t*)labelAddr = value;
@@ -189,4 +194,9 @@ void GnmCommandBufferDummy::writeAtEndOfPipe(EndOfPipeEventType eventType, Event
 void GnmCommandBufferDummy::writeAtEndOfPipeWithInterrupt(EndOfPipeEventType eventType, EventWriteDest dstSelector, void *dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy cachePolicy)
 {
 	emuWriteGpuLabel(srcSelector, dstGpuAddr, immValue);
+}
+
+void GnmCommandBufferDummy::dispatch(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ)
+{
+	
 }

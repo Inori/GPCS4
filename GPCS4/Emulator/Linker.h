@@ -13,7 +13,7 @@ public:
 
 	bool ResolveSymbol(const std::string &strModName,
 					   const std::string &strLibName,
-					   uint64 nNid,
+					   uint64_t nNid,
 					   void **ppAddress) const;
 
 	bool resolveSymbol(MemoryMappedModule const &mod,
@@ -26,5 +26,8 @@ private:
 	bool relocateModule(MemoryMappedModule &mod);
 	bool relocateRela(MemoryMappedModule &mod);
 	bool relocatePltRela(MemoryMappedModule &mod);
+	void* generateStubFunction(const SymbolInfo* sybInfo, void* oldFunc) const;
+
+private:
 	CSceModuleSystem &m_modSystem;
 };

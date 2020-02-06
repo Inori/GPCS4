@@ -17,6 +17,7 @@
 #include "sce_kernel_memory.h"
 #include "sce_kernel_eventqueue.h"
 #include "sce_kernel_eventflag.h"
+#include "sce_kernel_tls.h"
 
 
 extern const SCE_EXPORT_MODULE g_ExpModuleSceLibkernel;
@@ -32,7 +33,7 @@ extern const SCE_EXPORT_MODULE g_ExpModuleSceLibkernel;
 // library: libkernel
 //////////////////////////////////////////////////////////////////////////
 
-int PS4API __error(void);
+int* PS4API __error(void);
 
 
 int PS4API __stack_chk_fail(void);
@@ -41,7 +42,7 @@ int PS4API __stack_chk_fail(void);
 int PS4API __stack_chk_guard(void);
 
 
-int PS4API __tls_get_addr(void);
+void* PS4API __tls_get_addr(tls_index *ti);
 
 
 int PS4API __pthread_cxa_finalize(void);
@@ -50,7 +51,19 @@ int PS4API __pthread_cxa_finalize(void);
 int PS4API scek__write(int fd, const void* buf, size_t size);
 
 
-int PS4API sceKernelAllocateDirectMemory(sceoff_t searchStart, sceoff_t searchEnd, size_t len, size_t alignment, int memoryType, sceoff_t *physAddrOut);
+int PS4API _sceKernelSetThreadDtors(void);
+
+
+int PS4API _sceKernelSetThreadAtexitCount(void);
+
+
+int PS4API _sceKernelSetThreadAtexitReport(void);
+
+
+void *PS4API sceKernelGetProcParam(uint64_t p1, uint64_t p2);
+
+
+int PS4API sceKernelAllocateDirectMemory(sce_off_t searchStart, sce_off_t searchEnd, size_t len, size_t alignment, int memoryType, sce_off_t *physAddrOut);
 
 
 int PS4API sceKernelClockGettime(void);
@@ -63,6 +76,9 @@ int PS4API sceKernelCreateEqueue(SceKernelEqueue *eq, const char *name);
 
 
 int PS4API sceKernelCreateEventFlag(SceKernelEventFlag *ef, const char *pName, uint32_t attr, uint64_t initPattern, const SceKernelEventFlagOptParam *pOptParam);
+
+
+int PS4API sceKernelPollEventFlag(SceKernelEventFlag ef, uint64_t bitPattern, uint32_t waitMode, uint64_t* pResultPat);
 
 
 int PS4API sceKernelCreateSema(SceKernelSema *sem, const char *name, uint32_t attr, int init, int max, const SceKernelSemaOptParam *opt);
@@ -110,10 +126,10 @@ int PS4API sceKernelGetdents(int fd, char *buf, int nbytes);
 int PS4API sceKernelIsNeoMode(void);
 
 
-sceoff_t PS4API sceKernelLseek(int fildes, sceoff_t offset, int whence);
+sce_off_t PS4API sceKernelLseek(int fildes, sce_off_t offset, int whence);
 
 
-int PS4API sceKernelMapDirectMemory(void **addr, size_t len, int prot, int flags, sceoff_t directMemoryStart, size_t maxPageSize);
+int PS4API sceKernelMapDirectMemory(void **addr, size_t len, int prot, int flags, sce_off_t directMemoryStart, size_t maxPageSize);
 
 
 int PS4API sceKernelMapFlexibleMemory(void **addrInOut, size_t len, int prot, int flags);
@@ -137,7 +153,7 @@ ssize_t PS4API sceKernelRead(int d, void *buf, size_t nbytes);
 uint64_t PS4API sceKernelReadTsc(void);
 
 
-int PS4API sceKernelReleaseDirectMemory(sceoff_t start, size_t len);
+int PS4API sceKernelReleaseDirectMemory(sce_off_t start, size_t len);
 
 
 int PS4API sceKernelReleaseFlexibleMemory(void);
@@ -308,7 +324,7 @@ int PS4API sceKernelCheckedReleaseDirectMemory(void);
 int PS4API sceKernelDlsym(void);
 
 
-int PS4API sceKernelGetDirectMemoryType(sceoff_t start, int *memoryType, sceoff_t *regionStartOut, sceoff_t *regionEndOut);
+int PS4API sceKernelGetDirectMemoryType(sce_off_t start, int *memoryType, sce_off_t *regionStartOut, sce_off_t *regionEndOut);
 
 
 int PS4API sceKernelGetGPI(void);
@@ -326,10 +342,10 @@ int PS4API sceKernelIsStack(void);
 int PS4API sceKernelLoadStartModule(void);
 
 
-int PS4API sceKernelMapNamedDirectMemory(void **addr, size_t len, int prot, int flags, sceoff_t directMemoryStart, size_t alignment, const char *name);
+int PS4API sceKernelMapNamedDirectMemory(void **addr, size_t len, int prot, int flags, sce_off_t directMemoryStart, size_t alignment, const char *name);
 
 
-int PS4API sceKernelMapNamedFlexibleMemory(void);
+int PS4API sceKernelMapNamedFlexibleMemory(void** addrInOut, size_t len, int prot, int flags, const char* name);
 
 
 int PS4API sceKernelMprotect(void);
@@ -341,13 +357,16 @@ int PS4API sceKernelMtypeprotect(void);
 int PS4API sceKernelMunmap(void);
 
 
-int PS4API sceKernelQueryMemoryProtection(void);
+int PS4API sceKernelQueryMemoryProtection(void* addr, void** start, void** end, uint32_t* prot);
 
 
 int PS4API sceKernelReserveVirtualRange(void **addr, size_t len, int flags, size_t alignment);
 
 
-int PS4API sceKernelSetPrtAperture(void);
+int PS4API sceKernelGetPrtAperture(int apertureId, void **addr, size_t *len);
+
+
+int PS4API sceKernelSetPrtAperture(int apertureId, void *addr, size_t len);
 
 
 int PS4API sceKernelSetVirtualRangeName(void* start, size_t len, const char *name);
@@ -377,6 +396,12 @@ int PS4API scePthreadGetspecific(void);
 int PS4API scePthreadKeyCreate(void);
 
 
+int PS4API scePthreadAttrGet(ScePthread thread, ScePthreadAttr* attr);
+
+
+int PS4API scePthreadAttrGetaffinity(ScePthread thread, SceKernelCpumask* mask);
+
+
 int PS4API scePthreadMutexTimedlock(void);
 
 
@@ -387,6 +412,31 @@ int PS4API scePthreadSetschedparam(void);
 
 
 int PS4API scePthreadSetspecific(void);
+
+
+void PS4API sceKernelDebugRaiseExceptionOnReleaseMode(uint32_t error_code, uint32_t param);
+
+
+void PS4NORETURN PS4API sceKernelDebugRaiseException(uint32_t error_code, uint32_t param);
+
+
+void PS4API _sceKernelRtldSetApplicationHeapAPI(void* heap_api);
+
+
+bool PS4API sceKernelGetSanitizerMallocReplaceExternal();
+
+
+bool PS4API sceKernelGetSanitizerNewReplaceExternal();
+
+
+int PS4API scek___sys_regmgr_call(void);
+
+
+int PS4API scek__open(const char* path, int flags, SceKernelMode mode);
+
+
+int PS4API sceKernelGetProcessType(int pid);
+
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -403,12 +453,27 @@ int PS4API sceCoredumpWriteUserData(void);
 
 
 
+//////////////////////////////////////////////////////////////////////////
+// library: libSceCoredump_debug
+//////////////////////////////////////////////////////////////////////////
+
+int PS4API sceCoredumpDebugTriggerCoredump(void);
+
+
+
+//////////////////////////////////////////////////////////////////////////
+// library: libSceOpenPsId
+//////////////////////////////////////////////////////////////////////////
+
+int PS4API sceKernelGetOpenPsId(void);
+
+
 
 //////////////////////////////////////////////////////////////////////////
 // library: libScePosix
 //////////////////////////////////////////////////////////////////////////
 
-int PS4API scek_clock_gettime(sceclockid_t clk_id, struct sce_timespec * tp);
+int PS4API scek_clock_gettime(sce_clockid_t clk_id, struct sce_timespec * tp);
 
 
 int PS4API scek_gettimeofday(void);
@@ -470,13 +535,13 @@ int PS4API scek_pthread_mutexattr_init(void);
 int PS4API scek_pthread_mutexattr_settype(void);
 
 
-int PS4API scek_pthread_self(void);
+ScePthread PS4API scek_pthread_self(void);
 
 
 int PS4API scek_sched_yield(void);
 
 
-int PS4API scek_usleep(sceuseconds_t microsecond);
+int PS4API scek_usleep(sce_useconds_t microsecond);
 
 
 int PS4API scek_close(void);
@@ -527,5 +592,5 @@ int PS4API scek_getpid(void);
 int PS4API scek_getppid(void);
 
 
-
+void PS4API scek_pthread_exit(void *value_ptr);
 

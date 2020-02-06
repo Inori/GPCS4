@@ -76,7 +76,14 @@ RcPtr<GveContex> GveDevice::createContext()
 
 RcPtr<GveDescriptorPool> GveDevice::createDescriptorPool()
 {
-	return new GveDescriptorPool(this);
+	RcPtr<GveDescriptorPool> pool = m_recycledDescriptorPools.retrieveObject();
+
+	if (pool == nullptr)
+	{
+		pool = new GveDescriptorPool(this);
+	}
+
+	return pool;
 }
 
 RcPtr<GveBuffer> GveDevice::createBuffer(const GveBufferCreateInfo& info, VkMemoryPropertyFlags memoryType)
@@ -142,6 +149,11 @@ void GveDevice::freeSamplerSsharp(uint64_t key)
 void GveDevice::GCSharpResource()
 {
 	return m_resObjects.resourceManager().GC();
+}
+
+void GveDevice::recycleDescriptorPool(const RcPtr<GveDescriptorPool>& pool)
+{
+	m_recycledDescriptorPools.returnObject(pool);
 }
 
 void GveDevice::initQueues()

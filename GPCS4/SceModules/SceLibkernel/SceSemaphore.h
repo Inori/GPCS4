@@ -11,7 +11,7 @@
 class CSceSemaphore
 {
 public:
-	CSceSemaphore(const std::string& name, int initCount, int maxCount, uint mode);
+	CSceSemaphore(const std::string& name, int initCount, int maxCount, uint32_t mode);
 	~CSceSemaphore();
 
 	int Signal(int count);
@@ -19,9 +19,9 @@ public:
 	int Poll(int count);
 
 	// microseconds
-	int Wait(int count, uint* pTimeOut);
+	int Wait(int count, uint32_t* pTimeOut);
 
-	int Cancel(int setCount, uint* pNumWaitThreads);
+	int Cancel(int setCount, uint32_t* pNumWaitThreads);
 
 
 private:

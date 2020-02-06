@@ -76,7 +76,7 @@ struct TSharpBuffer
 	uint64_t dst_sel_w		: 3;
 	uint64_t base_level		: 4;
 	uint64_t last_level		: 4;
-	uint64_t tiling_idx		: 5;
+	uint64_t tiling_idx		: 5;  // TileMode
 	uint64_t pow2pad		: 1;
 	uint64_t mtype_msb		: 1;
 	uint64_t reserved0		: 1;

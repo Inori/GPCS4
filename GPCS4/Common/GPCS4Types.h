@@ -4,13 +4,12 @@
 
 #include <cstdint>
 
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long ulong;
-typedef unsigned long long uint64;
-typedef unsigned long long ulong_ptr;
-typedef unsigned long long uint_ptr;
+// Note:
+// The compiler shipped with PS4 SDK 
+// treat "long" as 8 bytes width, 
+// but the compiler used to compile GPCS4 (clang-cl) treat it as 4 bytes.
+// So we need to take care when we declare PS4 structures and function signature:
+// if there's a "long", we should use "ps4_long" instead.
 
-
-typedef long long int_ptr;
+typedef int64_t ps4_long;
+typedef uint64_t ps4_ulong;

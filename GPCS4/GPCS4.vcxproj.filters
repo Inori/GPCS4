@@ -346,9 +346,6 @@
     <ClInclude Include="Loader\elf.h">
       <Filter>Source Files\Loader</Filter>
     </ClInclude>
-    <ClInclude Include="elf-sce.h">
-      <Filter>Source Files\Loader</Filter>
-    </ClInclude>
     <ClInclude Include="Emulator\Emulator.h">
       <Filter>Source Files\Emulator</Filter>
     </ClInclude>
@@ -864,6 +861,48 @@
     </ClInclude>
     <ClInclude Include="Graphic\Pssl\PsslContants.h">
       <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClInclude>
+    <ClInclude Include="Loader\elf-sce.h">
+      <Filter>Source Files\Loader</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform\UtilDebug.h">
+      <Filter>Source Files\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceLibkernel\sce_kernel_tls.h">
+      <Filter>SceModules\SceLibkernel</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\UtilContainer.h">
+      <Filter>Source Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceUserService\user_service_defs.h">
+      <Filter>SceModules\SceUserService</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceFios2\sce_fios2_types.h">
+      <Filter>SceModules\SceFios2</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceSaveData\sce_savedata_types.h">
+      <Filter>SceModules\SceSaveData</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceAppContentUtil\sce_appcontentutil_types.h">
+      <Filter>SceModules\SceAppContentUtil</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GnmTiler.h">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GnmGpuAddressTool.h">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GnmTilerSSE2.h">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Algorithm\MurmurHash2.h">
+      <Filter>Source Files\Algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gve\GveRecycler.h">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\GPCS4Decoration.h">
+      <Filter>Source Files\Common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1521,10 +1560,28 @@
     <ClCompile Include="Graphic\Gnm\GnmCommandBufferDraw.cpp">
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClCompile>
+    <ClCompile Include="Platform\UtilDebug.cpp">
+      <Filter>Source Files\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceLibkernel\sce_kernel_tls.cpp">
+      <Filter>SceModules\SceLibkernel</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gnm\GnmGpuAddress.cpp">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gnm\GnmTiler.cpp">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gnm\GnmGpuAddressTool.cpp">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClCompile>
+    <ClCompile Include="Algorithm\MurmurHash2.cpp">
+      <Filter>Source Files\Algorithm</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="Emulator\TLSStub.asm">
+    <Text Include="Emulator\TLSStub.asm">
       <Filter>Source Files\Emulator</Filter>
-    </MASM>
+    </Text>
   </ItemGroup>
 </Project>

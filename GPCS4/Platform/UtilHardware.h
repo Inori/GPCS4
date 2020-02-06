@@ -7,7 +7,7 @@ namespace UtilHardware
 {;
 
 
-uint64 GetTscFrequency();
+uint64_t GetTscFrequency();
 
 
 }

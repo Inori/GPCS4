@@ -17,19 +17,19 @@ public:
 	{
 	}
 
-	uint IncRef() 
+	uint32_t IncRef() 
 	{
 		return ++m_nRefCount;
 	}
 
-	uint DecRef()
+	uint32_t DecRef()
 	{
 		return --m_nRefCount;
 	}
 
 private:
 
-	std::atomic<uint> m_nRefCount;
+	std::atomic<uint32_t> m_nRefCount;
 };
 
 

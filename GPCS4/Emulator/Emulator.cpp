@@ -2,6 +2,8 @@
 #include "GameThread.h"
 #include "SceModuleSystem.h"
 
+LOG_CHANNEL(Emulator);
+
 CEmulator::CEmulator() {}
 
 CEmulator::~CEmulator() {}
@@ -25,7 +27,6 @@ bool CEmulator::Init()
 
 void CEmulator::Unit()
 {
-	CTLSHandlerWin::Uninstall();
 	auto modManager = CSceModuleSystem::GetInstance();
 	modManager->clearModules();
 }
@@ -49,14 +50,16 @@ bool CEmulator::Run(MemoryMappedModule const &mod)
 			break;
 		}
 
-		const int nEnvNum    = 0x10;
-		uint64 pEnv[nEnvNum] = {0xDEADBEE1, 0xDEADBEE2, 0xDEADBEE3, 0xDEADBEE4,
-								0xDEADBEE5, 0xDEADBEE6, 0xDEADBEE7, 0xDEADBEE8,
-								0xDEADBEE9, 0xDEADBEEA};
+		struct PS4StartupParams 
+		{
+			uint64_t argc = 1;
+			const char *argv[1] = { "eboot.bin" };
+		};
+
+		PS4StartupParams startupParams;
 
 		LOG_DEBUG("run into eboot.");
-		CGameThread oMainThread(entryPoint, pEnv,
-								(void *)CEmulator::LastExitHandler);
+		CGameThread oMainThread(entryPoint, &startupParams, CEmulator::LastExitHandler);
 		if (!oMainThread.Start())
 		{
 			break;

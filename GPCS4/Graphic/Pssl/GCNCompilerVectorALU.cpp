@@ -2,6 +2,8 @@
 
 #include "Platform/UtilString.h"
 
+LOG_CHANNEL(Graphic.Pssl.GCNCompilerVectorALU);
+
 namespace pssl
 {
 ;

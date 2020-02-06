@@ -3,6 +3,8 @@
 #include "GveUtil.h"
 #include "UtilMath.h"
 
+LOG_CHANNEL(Graphic.Gve.GveImage);
+
 namespace gve
 {;
 

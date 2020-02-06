@@ -6,6 +6,8 @@
 #include <fcntl.h>
 #include <cstdio>
 
+LOG_CHANNEL(SceModules.SceLibkernel.file);
+
 // this will be more friendly on linux....
 
 #ifdef GPCS4_WINDOWS
@@ -109,7 +111,7 @@ int PS4API sceKernelOpen(const char *path, int flags, SceKernelMode mode)
 			LOG_WARN("open dir failed %s", path);
 			hasError = true;
 		}
-		g_fdSlots[idx].fd = (ulong_ptr)dir;
+		g_fdSlots[idx].fd = (uintptr_t)dir;
 		g_fdSlots[idx].type = FD_TYPE_DIRECTORY;
 
 	}
@@ -154,7 +156,7 @@ ssize_t PS4API sceKernelWrite(int d, const void *buf, size_t nbytes)
 }
 
 
-sceoff_t PS4API sceKernelLseek(int fildes, sceoff_t offset, int whence)
+sce_off_t PS4API sceKernelLseek(int fildes, sce_off_t offset, int whence)
 {
 	LOG_SCE_TRACE("fd %d off %d where %d", fildes, offset, whence);
 	int fd = g_fdSlots[fildes].fd;
@@ -186,9 +188,9 @@ int PS4API sceKernelClose(int d)
 }
 
 
-inline scemode_t getSceFileMode(ushort oldMode)
+inline sce_mode_t getSceFileMode(uint16_t oldMode)
 {
-	scemode_t sceMode = 0;
+	sce_mode_t sceMode = 0;
 	if (oldMode & _S_IREAD)
 	{
 		sceMode = SCE_KERNEL_S_IRU;
@@ -295,9 +297,9 @@ int PS4API sceKernelFtruncate(void)
 	return SCE_OK;
 }
 
-inline byte getSceFileType(dirent* ent)
+inline uint8_t getSceFileType(dirent* ent)
 {
-	byte type = SCE_KERNEL_DT_UNKNOWN;
+	uint8_t type = SCE_KERNEL_DT_UNKNOWN;
 	if ( (ent->d_namlen == 1 && !strncmp(ent->d_name, ".", 1)) ||
 		 (ent->d_namlen == 2 && !strncmp(ent->d_name, ".", 2)) )
 	{
@@ -394,4 +396,13 @@ int PS4API sceKernelUnlink(void)
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
 }
+
+
+int PS4API scek__open(const char* path, int flags, SceKernelMode mode)
+{
+	LOG_DEBUG("'%s', 0x%x, 0x%x)", path, flags, mode);
+	int fd = _open(path, flags, mode);
+	return fd;
+}
+
 

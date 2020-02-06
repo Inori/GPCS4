@@ -70,6 +70,7 @@ public:
 	virtual void drawIndexAuto(uint32_t indexCount, DrawModifier modifier) override;
 	virtual void drawIndexAuto(uint32_t indexCount) override;
 
+	virtual void prepareFlip() override;
 	virtual void prepareFlip(void *labelAddr, uint32_t value) override;
 	virtual void prepareFlipWithEopInterrupt(EndOfPipeEventType eventType,
 		void *labelAddr, uint32_t value,
@@ -110,6 +111,10 @@ public:
 	virtual void setActiveShaderStages(ActiveShaderStages activeStages) override;
 
 	virtual void setIndexSize(IndexSize indexSize, CachePolicy cachePolicy) override;
+
+
+
+	virtual void dispatch(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ) override;
 
 private:
 	

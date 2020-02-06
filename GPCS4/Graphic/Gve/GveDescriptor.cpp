@@ -1,6 +1,7 @@
 #include "GveDescriptor.h"
 #include "GveDevice.h"
 
+LOG_CHANNEL(Graphic.Gve.GveDescriptor);
 
 namespace gve
 {;
@@ -49,9 +50,10 @@ VkDescriptorSet GveDescriptorPool::alloc(VkDescriptorSetLayout layout)
 		info.descriptorPool = m_pool;
 		info.descriptorSetCount = 1;
 		info.pSetLayouts = &layout;
-
-		if (vkAllocateDescriptorSets(*m_device, &info, &set) != VK_SUCCESS)
+		VkResult result = vkAllocateDescriptorSets(*m_device, &info, &set);
+		if (result != VK_SUCCESS)
 		{
+			LOG_ERR("allocate descriptor set failed, error %d", result);
 			break;
 		}
 
@@ -63,6 +65,34 @@ VkDescriptorSet GveDescriptorPool::alloc(VkDescriptorSetLayout layout)
 void GveDescriptorPool::reset()
 {
 	vkResetDescriptorPool(*m_device, m_pool, 0);
+}
+
+///
+
+GveDescriptorPoolTracker::GveDescriptorPoolTracker(GveDevice* device):
+	m_device(device)
+{
+}
+
+GveDescriptorPoolTracker::~GveDescriptorPoolTracker()
+{
+}
+
+
+void GveDescriptorPoolTracker::trackDescriptorPool(RcPtr<GveDescriptorPool>&& pool)
+{
+	m_pools.push_back(std::move(pool));
+}
+
+void GveDescriptorPoolTracker::reset()
+{
+	for (const auto& pool : m_pools)
+	{
+		pool->reset();
+		m_device->recycleDescriptorPool(pool);
+	}
+
+	m_pools.clear();
 }
 
 }  // namespace gve

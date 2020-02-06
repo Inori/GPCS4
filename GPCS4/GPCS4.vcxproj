@@ -19,12 +19,18 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Algorithm\MurmurHash2.h" />
     <ClInclude Include="Algorithm\sha1.h" />
     <ClInclude Include="Algorithm\Sha1Hash.h" />
+    <ClInclude Include="Common\GPCS4Decoration.h" />
     <ClInclude Include="Common\GPCS4Log.h" />
     <ClInclude Include="Common\GPCS4Types.h" />
     <ClInclude Include="Common\IntelliSenseClang.h" />
-    <ClInclude Include="elf-sce.h" />
+    <ClInclude Include="Graphic\Gnm\GnmGpuAddressTool.h" />
+    <ClInclude Include="Graphic\Gnm\GnmTiler.h" />
+    <ClInclude Include="Graphic\Gnm\GnmTilerSSE2.h" />
+    <ClInclude Include="Graphic\Gve\GveRecycler.h" />
+    <ClInclude Include="Loader\elf-sce.h" />
     <ClInclude Include="Emulator\Emulator.h" />
     <ClInclude Include="Emulator\GameThread.h" />
     <ClInclude Include="Emulator\Linker.h" />
@@ -158,6 +164,7 @@
     <ClInclude Include="Loader\FuncStub.h" />
     <ClInclude Include="Loader\ModuleLoader.h" />
     <ClInclude Include="Platform\PlatformUtils.h" />
+    <ClInclude Include="Platform\UtilDebug.h" />
     <ClInclude Include="Platform\UtilFile.h" />
     <ClInclude Include="Platform\UtilHardware.h" />
     <ClInclude Include="Platform\UtilMemory.h" />
@@ -170,6 +177,7 @@
     <ClInclude Include="SceModules\SceAjm\sce_ajm.h" />
     <ClInclude Include="SceModules\SceAjm\sce_ajm_types.h" />
     <ClInclude Include="SceModules\SceAppContentUtil\sce_appcontentutil.h" />
+    <ClInclude Include="SceModules\SceAppContentUtil\sce_appcontentutil_types.h" />
     <ClInclude Include="SceModules\SceAudio3d\sce_audio3d.h" />
     <ClInclude Include="SceModules\SceAudioOut\sce_audioout.h" />
     <ClInclude Include="SceModules\SceAudioOut\sce_audioout_types.h" />
@@ -177,6 +185,7 @@
     <ClInclude Include="SceModules\SceErrorDialog\sce_errordialog.h" />
     <ClInclude Include="SceModules\SceFiber\sce_fiber.h" />
     <ClInclude Include="SceModules\SceFios2\sce_fios2.h" />
+    <ClInclude Include="SceModules\SceFios2\sce_fios2_types.h" />
     <ClInclude Include="SceModules\SceGameLiveStreaming\sce_gamelivestreaming.h" />
     <ClInclude Include="SceModules\SceGnmDriver\sce_gnmdriver.h" />
     <ClInclude Include="SceModules\SceHttp\sce_http.h" />
@@ -193,6 +202,7 @@
     <ClInclude Include="SceModules\SceLibkernel\sce_kernel_file.h" />
     <ClInclude Include="SceModules\SceLibkernel\sce_kernel_memory.h" />
     <ClInclude Include="SceModules\SceLibkernel\sce_kernel_scepthread.h" />
+    <ClInclude Include="SceModules\SceLibkernel\sce_kernel_tls.h" />
     <ClInclude Include="SceModules\SceLibkernel\sce_kernel_types.h" />
     <ClInclude Include="SceModules\SceLibkernel\sce_libkernel.h" />
     <ClInclude Include="SceModules\SceLibkernel\sce_pthread_common.h" />
@@ -221,6 +231,7 @@
     <ClInclude Include="SceModules\SceRudp\sce_rudp.h" />
     <ClInclude Include="SceModules\SceSaveDataDialog\sce_savedatadialog.h" />
     <ClInclude Include="SceModules\SceSaveData\sce_savedata.h" />
+    <ClInclude Include="SceModules\SceSaveData\sce_savedata_types.h" />
     <ClInclude Include="SceModules\SceScreenShot\sce_screenshot.h" />
     <ClInclude Include="SceModules\SceSsl\sce_ssl.h" />
     <ClInclude Include="SceModules\SceSysmodule\sce_sysmodule.h" />
@@ -229,6 +240,7 @@
     <ClInclude Include="SceModules\SceUserService\sce_userservice.h" />
     <ClInclude Include="SceModules\SceUserService\sce_userservice_error.h" />
     <ClInclude Include="SceModules\SceUserService\sce_userservice_types.h" />
+    <ClInclude Include="SceModules\SceUserService\user_service_defs.h" />
     <ClInclude Include="SceModules\SceVideoOut\sce_videoout.h" />
     <ClInclude Include="SceModules\SceVideoOut\sce_videoout_types.h" />
     <ClInclude Include="SceModules\SceVideoRecording\sce_videorecording.h" />
@@ -239,6 +251,7 @@
     <ClInclude Include="SceModules\sce_module_common.h" />
     <ClInclude Include="SceModules\sce_types.h" />
     <ClInclude Include="Util\UtilBit.h" />
+    <ClInclude Include="Util\UtilContainer.h" />
     <ClInclude Include="Util\UtilFlag.h" />
     <ClInclude Include="Util\UtilInclude.h" />
     <ClInclude Include="Util\UtilLikely.h" />
@@ -248,6 +261,7 @@
     <ClInclude Include="Util\UtilSync.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Algorithm\MurmurHash2.cpp" />
     <ClCompile Include="Algorithm\sha1.c" />
     <ClCompile Include="Algorithm\Sha1Hash.cpp" />
     <ClCompile Include="Common\GPCS4Log.cpp" />
@@ -266,7 +280,10 @@
     <ClCompile Include="Graphic\Gnm\GnmCommandBufferDummy.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmConvertor.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmDataFormat.cpp" />
+    <ClCompile Include="Graphic\Gnm\GnmGpuAddress.cpp" />
+    <ClCompile Include="Graphic\Gnm\GnmGpuAddressTool.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmOpCode.cpp" />
+    <ClCompile Include="Graphic\Gnm\GnmTiler.cpp" />
     <ClCompile Include="Graphic\GraphicShared.cpp" />
     <ClCompile Include="Graphic\Gve\GveBuffer.cpp" />
     <ClCompile Include="Graphic\Gve\GveCmdList.cpp" />
@@ -342,6 +359,7 @@
     <ClCompile Include="Loader\ELFMapper.cpp" />
     <ClCompile Include="Loader\FuncStub.cpp" />
     <ClCompile Include="Loader\ModuleLoader.cpp" />
+    <ClCompile Include="Platform\UtilDebug.cpp" />
     <ClCompile Include="Platform\UtilFile.cpp" />
     <ClCompile Include="Platform\UtilHardware.cpp" />
     <ClCompile Include="Platform\UtilMemory.cpp" />
@@ -396,7 +414,6 @@
     <ClCompile Include="SceModules\SceLibc\sce_libc_stdio.cpp" />
     <ClCompile Include="SceModules\SceLibc\sce_libc_stdlib.cpp" />
     <ClCompile Include="SceModules\SceLibc\sce_libc_string.cpp" />
-    <MASM Include="Emulator\TLSStub.asm" />
     <ClCompile Include="SceModules\SceLibkernel\SceEventFlag.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\SceSemaphore.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\sce_kernel_eventflag.cpp" />
@@ -407,6 +424,7 @@
     <ClCompile Include="SceModules\SceLibkernel\sce_kernel_scepthread.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\sce_kernel_semaphore.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\sce_kernel_time.cpp" />
+    <ClCompile Include="SceModules\SceLibkernel\sce_kernel_tls.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\sce_libkernel.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\sce_libkernel_export.cpp" />
     <ClCompile Include="SceModules\SceLibkernel\sce_pthread_common.cpp" />
@@ -467,6 +485,13 @@
     <ClCompile Include="SceModules\SceVideoOut\sce_videoout_export.cpp" />
     <ClCompile Include="SceModules\SceVideoRecording\sce_videorecording.cpp" />
     <ClCompile Include="SceModules\SceVideoRecording\sce_videorecording_export.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Emulator\TLSStub.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Text>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

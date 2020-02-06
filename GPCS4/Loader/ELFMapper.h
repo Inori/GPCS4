@@ -21,12 +21,14 @@ public:
 	bool validateHeader();
 	bool parseSegmentHeaders();
 	bool parseDynamicSection();
-	bool mapImageIntoMemroy();
+	bool mapImageIntoMemory();
 	bool parseSymbols();
 
+	void *getProcParam() const;
+
 private:
-	bool prepareTables(Elf64_Dyn const &entry, uint index);
-	bool parseSingleDynEntry(Elf64_Dyn const &entry, uint index);
+	bool prepareTables(Elf64_Dyn const &entry, uint32_t index);
+	bool parseSingleDynEntry(Elf64_Dyn const &entry, uint32_t index);
 	size_t calculateTotalLoadableSize();
 	bool isSegmentLoadable(Elf64_Phdr const &hdr);
 

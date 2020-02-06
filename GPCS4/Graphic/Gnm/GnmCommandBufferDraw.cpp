@@ -5,6 +5,9 @@
 #include "GnmTexture.h"
 #include "GnmSampler.h"
 #include "GnmConvertor.h"
+#include "GnmGpuAddress.h"
+
+#include "Algorithm/MurmurHash2.h"
 
 #include "../Gve/GveCmdList.h"
 #include "../Gve/GveShader.h"
@@ -15,6 +18,8 @@
 #include "../Pssl/PsslShaderModule.h"
 
 #include <algorithm>
+
+LOG_CHANNEL(Graphic.Gnm.GnmCommandBufferDraw);
 
 using namespace gve;
 using namespace pssl;
@@ -39,6 +44,12 @@ void GnmCommandBufferDraw::initializeDefaultHardwareState()
 {
 	clearUserDataSlots();
 	m_context->beginRecording(m_cmd);
+}
+
+
+void GnmCommandBufferDraw::prepareFlip()
+{
+	m_context->endRecording();
 }
 
 // Last call of a frame.
@@ -184,6 +195,7 @@ void GnmCommandBufferDraw::setRenderTarget(uint32_t rtSlot, RenderTarget const *
 	{
 		if (!target)
 		{
+			LOG_WARN("set null render target.")
 			break;
 		}
 
@@ -215,6 +227,11 @@ void GnmCommandBufferDraw::setDepthRenderTarget(DepthRenderTarget const *depthTa
 		if (!m_depthTarget)
 		{
 			m_depthTarget = getDepthTarget(depthTarget);
+		}
+
+		if (!m_depthTarget)
+		{
+			break;
 		}
 
 		// TODO:
@@ -335,6 +352,11 @@ void GnmCommandBufferDraw::setIndexSize(IndexSize indexSize, CachePolicy cachePo
 	m_indexType = cvt::convertIndexSize(indexSize);
 }
 
+void GnmCommandBufferDraw::dispatch(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ)
+{
+
+}
+
 void GnmCommandBufferDraw::setPrimitiveType(PrimitiveType primType)
 {
 	do 
@@ -353,21 +375,17 @@ void GnmCommandBufferDraw::setPrimitiveType(PrimitiveType primType)
 
 void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr, DrawModifier modifier)
 {
-	do 
-	{
-		bindIndexBuffer(indexAddr, indexCount);
+	bindIndexBuffer(indexAddr, indexCount);
 
-		commitVsStage();
-		commitPsStage();
+	commitVsStage();
+	commitPsStage();
 
-		// TODO:
-		// This is a dummy state.
-		auto msInfo = GveMultisampleInfo(VK_SAMPLE_COUNT_1_BIT, VK_FALSE, 0.0, 0, VK_FALSE, VK_FALSE);
-		m_context->setMultiSampleState(msInfo);
+	// TODO:
+	// This is a dummy state.
+	auto msInfo = GveMultisampleInfo(VK_SAMPLE_COUNT_1_BIT, VK_FALSE, 0.0, 0, VK_FALSE, VK_FALSE);
+	m_context->setMultiSampleState(msInfo);
 
-		m_context->drawIndex(indexCount, 1, 0, 0, 0);
-
-	} while (false);
+	m_context->drawIndexed(indexCount, 1, 0, 0, 0);
 }
 
 void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr)
@@ -378,11 +396,21 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr)
 
 void GnmCommandBufferDraw::drawIndexAuto(uint32_t indexCount, DrawModifier modifier)
 {
+	commitVsStage();
+	commitPsStage();
+
+	// TODO:
+	// This is a dummy state.
+	auto msInfo = GveMultisampleInfo(VK_SAMPLE_COUNT_1_BIT, VK_FALSE, 0.0, 0, VK_FALSE, VK_FALSE);
+	m_context->setMultiSampleState(msInfo);
+
+	m_context->draw(indexCount, 1, 0, 0);
 }
 
 void GnmCommandBufferDraw::drawIndexAuto(uint32_t indexCount)
 {
-
+	DrawModifier mod = { 0 };
+	drawIndexAuto(indexCount, mod);
 }
 
 void GnmCommandBufferDraw::setEmbeddedVsShader(EmbeddedVsShader shaderId, uint32_t shaderModifier)
@@ -397,7 +425,7 @@ void GnmCommandBufferDraw::updatePsShader(const pssl::PsStageRegisters *psRegs)
 
 void GnmCommandBufferDraw::updateVsShader(const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier)
 {
-	
+	m_vsContext.code = vsRegs->getCodeAddress();
 }
 
 #define SHADER_DEBUG_BREAK(mod, hash) \
@@ -613,13 +641,21 @@ bool GnmCommandBufferDraw::bindVertexBuffer(uint32_t bindingId, const GnmBuffer&
 			break;
 		}
 
+		bool isSwizzled         = vsharp.isSwizzled();
+		LOG_ASSERT(isSwizzled == false, "do not support swizzled buffer currently.");
+
 		VkDeviceSize bufferSize = vsharp.getSize();
 
 		GveBufferCreateInfo buffInfo = {};
 		buffInfo.size = bufferSize;
 		buffInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 
-		uint64_t key = reinterpret_cast<uint64_t>(vtxData);
+		// TODO:
+		// Just hashing vsharp as the key is not correct theoretically,
+		// because the buffer content themselves could be different 
+		// while still using the same vsharp.
+		uint64_t key = algo::MurmurHash(&vsharp, sizeof(GnmBuffer));
+		LOG_DEBUG("vbo key %llx size %d", key, bufferSize);
 
 		auto vertexBuffer = m_device->createOrGetBufferVsharp(buffInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, key);
 		m_context->updateBuffer(vertexBuffer, 0, bufferSize, vtxData);
@@ -681,7 +717,27 @@ void GnmCommandBufferDraw::bindImmResource(const PsslShaderResource& res)
 
 		VkDeviceSize imageBufferSize = tsharp->getSizeAlign().m_size;
 		void* data                   = util::gnmGpuAbsAddr((void*)res.resource, tsharp->getBaseAddress());
-		m_context->updateImage(texture, 0, imageBufferSize, data);
+
+		auto tileMode = tsharp->getTileMode();
+		if (tileMode == kTileModeDisplay_LinearAligned)
+		{
+			m_context->updateImage(texture, 0, imageBufferSize, data);
+		}
+		else
+		{
+			// TODO:
+			// Untiling textures on CPU is not effective, we should do this using compute shader.
+			// But that would be a challenging job.
+			void* untiledData = malloc(imageBufferSize);
+
+			GpuAddress::TilingParameters tp;
+			tp.initFromTexture(tsharp, 0, 0);
+			GpuAddress::detileSurface(untiledData, data, &tp);
+
+			m_context->updateImage(texture, 0, imageBufferSize, untiledData);
+
+			free(untiledData);
+		}
 
 		GveImageViewCreateInfo viewInfo;
 		viewInfo.type = VK_IMAGE_VIEW_TYPE_2D;
@@ -805,9 +861,23 @@ RcPtr<gve::GveImageView> GnmCommandBufferDraw::getDepthTarget(const DepthRenderT
 			break;
 		}
 
+		ZFormat zfmt = depthTarget->getZFormat();
+		if (zfmt == kZFormatInvalid)
+		{
+			// kZFormatInvalid is used to disable Z buffer
+			break;
+		}
+
+		VkFormat format = cvt::convertZFormatToVkFormat(zfmt);  // TODO: Should check format support
+		if (format == VK_FORMAT_UNDEFINED)
+		{
+			LOG_WARN("unknown zformat %d", depthTarget->getZFormat());
+			break;
+		}
+
 		GveImageCreateInfo imgInfo = {};
 		imgInfo.type = VK_IMAGE_TYPE_2D;
-		imgInfo.format = cvt::convertZFormatToVkFormat(depthTarget->getZFormat());  // TODO: Should check format support
+		imgInfo.format             = format;
 		imgInfo.flags = 0;
 		imgInfo.sampleCount = VK_SAMPLE_COUNT_1_BIT;
 		imgInfo.extent.width = depthTarget->getWidth();

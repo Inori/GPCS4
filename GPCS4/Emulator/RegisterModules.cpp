@@ -2,42 +2,117 @@
 #include "SceModuleSystem.h"
 #include "sce_modules.h"
 
+LOG_CHANNEL(Emulator);
 
-#define REGISTER_MODULE(name) \
-if (!pModuleSystem->RegisterModule(name))\
-{\
-	LOG_ERR("Register module failed: %s", name.szModuleName ? name.szModuleName : "null" );\
-	break;\
-}
+using Policy = CSceModuleSystem::LibraryRecord::OverridingPolicy;
 
-#define ALLOW_MODULE_OVERRIDE(name) \
-if(!pModuleSystem->setModuleOverridability(name, true)) \
-{\
-	LOG_ERR("Fail to set overridability for module %s", name);\
-	break;\
-}\
+#define REGISTER_MODULE(name)                                                                  \
+	if (!pModuleSystem->registerBuiltinModule(name))                                           \
+	{                                                                                          \
+		LOG_ERR("Register module failed: %s", name.szModuleName ? name.szModuleName : "null"); \
+		break;                                                                                 \
+	}
 
-#define ALLOW_LIBRARY_OVERRIDE(mod, lib, policy) \
-if(!pModuleSystem->setLibraryOverridability(mod, lib, true, policy))\
-{\
-	LOG_ERR("Fail to set overridability for library %s", lib);\
-	break;\
-}\
+#define USE_NATIVE_MODULE(name)                                    \
+	if (!pModuleSystem->setModuleOverridability(name, true))       \
+	{                                                              \
+		LOG_ERR("Fail to set overridability for module %s", name); \
+		break;                                                     \
+	}\
 
-#define ALLOW_FUNCTION_OVERRIDE(mod, lib, nid) \
-if (!pModuleSystem->setFunctionOverridability(mod, lib, nid, true)) \
-{\
-	LOG_ERR("Fail to set overridability for library %llx", nid);\
-	break;\
-}
 
-#define DISALLOW_FUNCTION_OVERRIDE(mod, lib, nid) \
-if (!pModuleSystem->setFunctionOverridability(mod, lib, nid, false)) \
-{\
-	LOG_ERR("Fail to set overridability for library %llx", nid);\
-	break;\
-}
+// Define a builtin function preference list.
+// The linker will use builtin functions in this list over native functions in firmware modules.
+#define BUILTIN_LIST_BEGIN(mod, lib)                                                    \
+	if (!pModuleSystem->setLibraryOverridability(mod, lib, true, Policy::DisallowList)) \
+	{                                                                                   \
+		LOG_ERR("Fail to begin builtin list for library %s", lib);                      \
+		break;                                                                          \
+	}
+
+#define USE_BUILTIN_FUNCTION(mod, lib, nid)                              \
+	if (!pModuleSystem->setFunctionOverridability(mod, lib, nid, false)) \
+	{                                                                    \
+		LOG_ERR("Fail to add function in builtin list %llx", nid);       \
+		break;                                                           \
+	}
+
+#define BUILTIN_LIST_END()
+
+
+// Define a native function preference list.
+// The linker will use native functions (in firmware modules.) in this list over builtin functions we HLEed in SceModules.
+#define NATIVE_LIST_BEGIN(mod, lib)                                                  \
+	if (!pModuleSystem->setLibraryOverridability(mod, lib, true, Policy::AllowList)) \
+	{                                                                                \
+		LOG_ERR("Fail to set overridability for library %s", lib);                   \
+		break;                                                                       \
+	}
+
+#define USE_NATIVE_FUNCTION(mod, lib, nid)                              \
+	if (!pModuleSystem->setFunctionOverridability(mod, lib, nid, true)) \
+	{                                                                   \
+		LOG_ERR("Fail to add function in native list %llx", nid);       \
+		break;                                                          \
+	}
+
+#define NATIVE_LIST_END()
+
 			
+
+bool CEmulator::registerLibC(CSceModuleSystem* pModuleSystem)
+{
+	bool ret = false;
+	do
+	{
+		if (!pModuleSystem)
+		{
+			break;
+		}
+
+		BUILTIN_LIST_BEGIN("libc", "libc");
+		USE_BUILTIN_FUNCTION("libc", "libc", 0xC5E60EE2EEEEC89DULL);  // fopen
+		USE_BUILTIN_FUNCTION("libc", "libc", 0xAD0155057A7F0B18ULL);  // fseek
+		USE_BUILTIN_FUNCTION("libc", "libc", 0x41ACF2F0B9974EFCULL);  // ftell
+		USE_BUILTIN_FUNCTION("libc", "libc", 0x95B07E52566A546DULL);  // fread
+		USE_BUILTIN_FUNCTION("libc", "libc", 0xBA874B632522A76DULL);  // fclose
+		USE_BUILTIN_FUNCTION("libc", "libc", 0x8105FEE060D08E93ULL);  // malloc
+		USE_BUILTIN_FUNCTION("libc", "libc", 0x63B689D6EC9D3CCAULL);  // realloc
+		USE_BUILTIN_FUNCTION("libc", "libc", 0xD97E5A8058CAC4C7ULL);  // calloc
+		USE_BUILTIN_FUNCTION("libc", "libc", 0xB4886CAA3D2AB051ULL);  // free
+		USE_BUILTIN_FUNCTION("libc", "libc", 0x5CA45E82C1691299ULL);  // catchReturnFromMain
+		USE_BUILTIN_FUNCTION("libc", "libc", 0xB8C7A2D56F6EC8DAULL);  // exit
+		USE_BUILTIN_FUNCTION("libc", "libc", 0xC0B9459301BD51C4ULL);  // time
+		USE_BUILTIN_FUNCTION("libc", "libc", 0x80D435576BDF5C31ULL);  // setjmp
+		USE_BUILTIN_FUNCTION("libc", "libc", 0x94A10DD8879B809DULL);  // longjmp
+		BUILTIN_LIST_END();
+
+		ret  = true;
+	}while(false);
+	return ret;
+}
+
+bool CEmulator::registerLibKernel(CSceModuleSystem* pModuleSystem)
+{
+	bool ret = false;
+	do
+	{
+		if (!pModuleSystem)
+		{
+			break;
+		}
+
+		NATIVE_LIST_BEGIN("libkernel", "libkernel");
+		USE_NATIVE_FUNCTION("libkernel", "libkernel", 0xF41703CA43E6A352);  // __error
+		USE_NATIVE_FUNCTION("libkernel", "libkernel", 0x581EBA7AFBBC6EC5);  // sceKernelGetCompiledSdkVersion
+		USE_NATIVE_FUNCTION("libkernel", "libkernel", 0x8E1FBC5E22B82DE1);  // sceKernelIsAddressSanitizerEnabled
+		USE_NATIVE_FUNCTION("libkernel", "libkernel", 0x0F8CA56B7BF1E2D6);  // sceKernelError
+		NATIVE_LIST_END();
+
+		ret  = true;
+	}while(false);
+	return ret;
+}
 
 bool CEmulator::registerModules()
 {
@@ -96,34 +171,21 @@ bool CEmulator::registerModules()
 		REGISTER_MODULE(g_ExpModuleSceVideoOut);
 		REGISTER_MODULE(g_ExpModuleSceVideoRecording);
 
-		using Policy = CSceModuleSystem::LibraryRecord::OverridingPolicy;
+		//////////////////////////////////////////////////////////////////////////
+		USE_NATIVE_MODULE("libSceLibcInternal");
+		USE_NATIVE_MODULE("libSceNpCommon");
 
-		ALLOW_MODULE_OVERRIDE("libSceLibcInternal");
+		//////////////////////////////////////////////////////////////////////////
+		if (!registerLibKernel(pModuleSystem))
+		{
+			break;
+		}
 
-		ALLOW_LIBRARY_OVERRIDE("libkernel", "libkernel", Policy::AllowList);
-		ALLOW_FUNCTION_OVERRIDE("libkernel", "libkernel", 0xF41703CA43E6A352);
+		if (!registerLibC(pModuleSystem))
+		{
+			break;
+		}
 
-		ALLOW_LIBRARY_OVERRIDE("libc", "libc", Policy::DisallowList);
-		// fopen
-		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 14260101637949278365ULL);
-		// fseek
-		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 12466338725556587288ULL);
-		// ftell
-		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 4732424424179322620ULL);
-		// fread
-		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 10786259999654564973ULL);
-		// fclose
-		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 13440794502107408237ULL);
-		// malloc
-		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 9297117245426667155ULL);
-		// free
-		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 13008767002086125649ULL);
-		// catchReturnFromMain
-		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 0x5CA45E82C1691299ULL);
-		// exit
-		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 0xB8C7A2D56F6EC8DAULL);
-		// time
-		DISALLOW_FUNCTION_OVERRIDE("libc", "libc", 0xC0B9459301BD51C4ULL);
 		bRet = true;
 	} while (false);
 	return bRet;

@@ -5,6 +5,8 @@
 
 #include <mutex>
 
+LOG_CHANNEL(Graphic.Gve.GveGraphicsPipeline);
+
 namespace gve
 {;
 
