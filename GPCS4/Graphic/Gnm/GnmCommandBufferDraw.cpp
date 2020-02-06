@@ -228,6 +228,11 @@ void GnmCommandBufferDraw::setDepthRenderTarget(DepthRenderTarget const *depthTa
 			m_depthTarget = getDepthTarget(depthTarget);
 		}
 
+		if (!m_depthTarget)
+		{
+			break;
+		}
+
 		// TODO:
 		// More checks
 		if (m_depthTarget->getWidth() != depthTarget->getWidth() || 
@@ -853,9 +858,23 @@ RcPtr<gve::GveImageView> GnmCommandBufferDraw::getDepthTarget(const DepthRenderT
 			break;
 		}
 
+		ZFormat zfmt = depthTarget->getZFormat();
+		if (zfmt == kZFormatInvalid)
+		{
+			// kZFormatInvalid is used to disable Z buffer
+			break;
+		}
+
+		VkFormat format = cvt::convertZFormatToVkFormat(zfmt);  // TODO: Should check format support
+		if (format == VK_FORMAT_UNDEFINED)
+		{
+			LOG_WARN("unknown zformat %d", depthTarget->getZFormat());
+			break;
+		}
+
 		GveImageCreateInfo imgInfo = {};
 		imgInfo.type = VK_IMAGE_TYPE_2D;
-		imgInfo.format = cvt::convertZFormatToVkFormat(depthTarget->getZFormat());  // TODO: Should check format support
+		imgInfo.format             = format;
 		imgInfo.flags = 0;
 		imgInfo.sampleCount = VK_SAMPLE_COUNT_1_BIT;
 		imgInfo.extent.width = depthTarget->getWidth();
