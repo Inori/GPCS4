@@ -60,6 +60,7 @@ private:
 	void queryDeviceFeatures();
 	void queryDeviceQueues();
 	uint32_t findQueueFamily(VkQueueFlags mask, VkQueueFlags flags);
+	GveDeviceFeatures getDeviceFeatures();
 
 private:
 	GveInstance* m_instance;
