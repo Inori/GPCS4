@@ -1,26 +1,27 @@
 # GPCS4
 
-A Playstation 4 emulator just begin.  
-A project for fun, and technical research.  
+A Playstation 4 emulator which was just started.  
+A project done for fun, and for technical research.  
 
-The only reason I start this project is learning 3D graphics, nothing serious.
+The only reason I have started this project is for learning 3D graphics; I don't intend
+it to become a serious application.
 
 ## Latest progress
 
 ![WAD Demo](https://github.com/Inori/ImageHost/blob/master/GPCS4/wad_demo.gif)  
-First commercial game support, *We are Doomed*. Thanks for our developers.  
-It's not playable now, since the FPS is very low, because there's no optimizations at all currently.  
-GPCS4 will recompile all shaders, untiling all textures and upload all buffers every frame, making it less efficient.  
-Besides, there're still some problems on game pad emulation.  
-Will improve these things step by step.
+First commercial game support, *We are Doomed*. Thanks to our developers.  
+It's not playable now, since the FPS is very low, because there are currently no optimizations.  
+GPCS4 will recompile all the shaders, untiling all the textures and upload all the buffers every frame, making it less efficient.  
+Besides, there are still some problems in the game pad emulation.  
+We will try to resolve these issues incrementally.
 
 ![Basic Quad](https://github.com/Inori/ImageHost/blob/master/GPCS4/basic_quad.gif)  
-First correct image rendered, although this is a 2D image demo, it's actuall rendered in 3D pipeline.  
-There're still some hardcode test code, but with more design, and most important, this time with our shader translator, no hand write shaders anymore.  
+First correct image rendered, although this is a 2D image demo, it's actually rendered in a 3D pipeline.  
+There is still some hard-coded test code, but with more design, and most importantly, using our shader translator. There won't be any hand-written shaders anymore.  
 Next I'll focus on Nier and improve the graphics implementation.
 
 ![Nier Demo](https://github.com/Inori/ImageHost/blob/master/GPCS4/nier_logo.gif)  
-This is a privious running result of Nier:Automata, not correct though, I'll improve it.
+This is a previous running result of Nier:Automata. It is not correct yet, and I'll try to improve it.
 
 ## Roadmap
 
@@ -35,23 +36,23 @@ This is a privious running result of Nier:Automata, not correct though, I'll imp
 
 * ### Hardware
     * Audio
-        > Just begin.
+        > Just started.
     * Gamepad
         > Basic implementation.
 
 * ### System
     * Dynamic linker
-        > TLS support is not complete yet, maybe some other initialization functions either.
+        > TLS support is not complete yet, and possibly neither are some other initialization functions.
     * System resource management, ie. Thread, virtual memory, synchronize object, file, clock.
-        > For functions which don not require system resource (ie. math functions),  
+        > For functions which do not require system resource (e.g: math functions),  
         we'll use the system libraries directly.  
-        For others, we implement those one by one.
+        For others, we will try to implement them, one by one.
 
 ## Join
 
-Read our [Developer Guide](https://github.com/Inori/GPCS4/blob/master/Doc/DeveloperGuide.md)
+Read our [Developer's Guide](https://github.com/Inori/GPCS4/blob/master/Doc/DeveloperGuide.md)
 
-For more details you could join our discord server to contact with me, or if you are used to Tencent QQ/TIM, just join our group. Here you can get more resources which are very usefull for developing.
+For more details you could join our discord server to contact me, or if you are used to Tencent QQ/TIM, just join our group. There you can get more resources which are useful for contributing.
 
 Discord: [GPCS4](https://discord.gg/PXrUxtk)  
 Tencent QQ/TIM Group Number: <a target="_blank" href="//shang.qq.com/wpa/qunwpa?idkey=aacc9b682acbb7e7463c256cb76ce3fb0f7ba8a584d1561e7eeffe227e14e602">470865218</a>
@@ -59,7 +60,7 @@ Tencent QQ/TIM Group Number: <a target="_blank" href="//shang.qq.com/wpa/qunwpa?
 
 
 ## Build
-To run or develop GPCS4, a CPU supporting AVX512 together with a graphics card supporting Vulkan are required.  
+To run or develop GPCS4, a CPU supporting AVX512 as well as a graphics card supporting Vulkan are required.  
 Currently, only Windows build is supported.  
 
 Visual Studio 2017  
@@ -67,15 +68,11 @@ Visual Studio 2017
 [LLVM Compiler Toolchain Extension](https://marketplace.visualstudio.com/items?itemName=LLVMExtensions.llvm-toolchain)  
 [LunarG Vulkan SDK](https://vulkan.lunarg.com/)
 
-For more details, see [Developer Guide](https://github.com/Inori/GPCS4/blob/master/Doc/DeveloperGuide.md)
+For more details, see the [Developer's Guide](https://github.com/Inori/GPCS4/blob/master/Doc/DeveloperGuide.md)
 ## Credits
 [DXVK](https://github.com/doitsujin/dxvk)  
 [uplift](https://github.com/idc/uplift)
 
 ## License
 [GPL-3.0](https://github.com/Inori/GPCS4/blob/master/LICENSE)  
-
-
-
-
 
