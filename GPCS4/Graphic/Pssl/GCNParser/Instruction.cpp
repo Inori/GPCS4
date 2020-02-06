@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <sstream>
 
+LOG_CHANNEL(Graphic.Pssl.GCNParser);
+
 Instruction::Instruction(
 	unsigned int instructionWidth, 
 	InstructionCategory instructionFormatKind, 
