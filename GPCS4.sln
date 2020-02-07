@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Zydis", "3rdParty\zydis\msv
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glfw", "3rdParty\glfw\src\glfw.vcxproj", "{816CCC89-8D3A-364F-ABC2-F7CCB4D4F289}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rtaudio", "3rdParty\rtaudio\msvc\rtaudio.vcxproj", "{1BE55B0D-EB4C-4DC3-91CA-CDF291307215}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -51,6 +53,14 @@ Global
 		{816CCC89-8D3A-364F-ABC2-F7CCB4D4F289}.Release|x64.ActiveCfg = Release|x64
 		{816CCC89-8D3A-364F-ABC2-F7CCB4D4F289}.Release|x64.Build.0 = Release|x64
 		{816CCC89-8D3A-364F-ABC2-F7CCB4D4F289}.Release|x86.ActiveCfg = Release|x64
+		{1BE55B0D-EB4C-4DC3-91CA-CDF291307215}.Debug|x64.ActiveCfg = Debug|x64
+		{1BE55B0D-EB4C-4DC3-91CA-CDF291307215}.Debug|x64.Build.0 = Debug|x64
+		{1BE55B0D-EB4C-4DC3-91CA-CDF291307215}.Debug|x86.ActiveCfg = Debug|Win32
+		{1BE55B0D-EB4C-4DC3-91CA-CDF291307215}.Debug|x86.Build.0 = Debug|Win32
+		{1BE55B0D-EB4C-4DC3-91CA-CDF291307215}.Release|x64.ActiveCfg = Release|x64
+		{1BE55B0D-EB4C-4DC3-91CA-CDF291307215}.Release|x64.Build.0 = Release|x64
+		{1BE55B0D-EB4C-4DC3-91CA-CDF291307215}.Release|x86.ActiveCfg = Release|Win32
+		{1BE55B0D-EB4C-4DC3-91CA-CDF291307215}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -59,6 +69,7 @@ Global
 		{2087B455-A614-448B-A9A8-232D3683F6A2} = {11B1CACA-EDF7-42ED-A8F1-00E838068164}
 		{88A23124-5640-35A0-B890-311D7A67A7D2} = {11B1CACA-EDF7-42ED-A8F1-00E838068164}
 		{816CCC89-8D3A-364F-ABC2-F7CCB4D4F289} = {11B1CACA-EDF7-42ED-A8F1-00E838068164}
+		{1BE55B0D-EB4C-4DC3-91CA-CDF291307215} = {11B1CACA-EDF7-42ED-A8F1-00E838068164}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {259C27E1-8167-4FAE-99A5-5CE574A9732B}

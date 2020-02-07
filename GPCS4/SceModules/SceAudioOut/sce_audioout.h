@@ -19,7 +19,18 @@ extern const SCE_EXPORT_MODULE g_ExpModuleSceAudioOut;
 // The codebase is generated using GenerateCode.py
 // You may need to modify the code manually to fit development needs
 
+#define SCE_AUDIO_OUT_PARAM_FORMAT_S16_MONO     0
+#define SCE_AUDIO_OUT_PARAM_FORMAT_S16_STEREO   1
+#define SCE_AUDIO_OUT_PARAM_FORMAT_S16_8CH      2
+#define SCE_AUDIO_OUT_PARAM_FORMAT_FLOAT_MONO   3
+#define SCE_AUDIO_OUT_PARAM_FORMAT_FLOAT_STEREO 4
+#define SCE_AUDIO_OUT_PARAM_FORMAT_FLOAT_8CH    5
 
+#define SCE_AUDIO_OUT_PARAM_FORMAT_S16_8CH_STD   6
+#define SCE_AUDIO_OUT_PARAM_FORMAT_FLOAT_8CH_STD 7
+
+#define SCE_AUDIO_OUT_PARAM_FORMAT_MASK  0x000000FF
+#define SCE_AUDIO_OUT_PARAM_FORMAT_SHIFT 0
 
 //////////////////////////////////////////////////////////////////////////
 // library: libSceAudioOut

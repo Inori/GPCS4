@@ -173,12 +173,14 @@
     <ClInclude Include="Platform\UtilString.h" />
     <ClInclude Include="Platform\UtilThread.h" />
     <ClInclude Include="Platform\UtilTime.h" />
+    <ClInclude Include="SceModules\BlockingQueue.h" />
     <ClInclude Include="SceModules\MapSlot.h" />
     <ClInclude Include="SceModules\SceAjm\sce_ajm.h" />
     <ClInclude Include="SceModules\SceAjm\sce_ajm_types.h" />
     <ClInclude Include="SceModules\SceAppContentUtil\sce_appcontentutil.h" />
     <ClInclude Include="SceModules\SceAppContentUtil\sce_appcontentutil_types.h" />
     <ClInclude Include="SceModules\SceAudio3d\sce_audio3d.h" />
+    <ClInclude Include="SceModules\SceAudioOut\AudioOut.h" />
     <ClInclude Include="SceModules\SceAudioOut\sce_audioout.h" />
     <ClInclude Include="SceModules\SceAudioOut\sce_audioout_types.h" />
     <ClInclude Include="SceModules\SceCommonDialog\sce_commondialog.h" />
@@ -374,6 +376,7 @@
     <ClCompile Include="SceModules\SceAppContentUtil\sce_appcontentutil_export.cpp" />
     <ClCompile Include="SceModules\SceAudio3d\sce_audio3d.cpp" />
     <ClCompile Include="SceModules\SceAudio3d\sce_audio3d_export.cpp" />
+    <ClCompile Include="SceModules\SceAudioOut\AudioOut.cpp" />
     <ClCompile Include="SceModules\SceAudioOut\sce_audioout.cpp" />
     <ClCompile Include="SceModules\SceAudioOut\sce_audioout_export.cpp" />
     <ClCompile Include="SceModules\SceCommonDialog\sce_commondialog.cpp" />

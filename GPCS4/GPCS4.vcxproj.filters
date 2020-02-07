@@ -904,6 +904,12 @@
     <ClInclude Include="Common\GPCS4Decoration.h">
       <Filter>Source Files\Common</Filter>
     </ClInclude>
+    <ClInclude Include="SceModules\SceAudioOut\AudioOut.h">
+      <Filter>SceModules\SceAudioOut</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\BlockingQueue.h">
+      <Filter>SceModules</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1577,6 +1583,9 @@
     </ClCompile>
     <ClCompile Include="Algorithm\MurmurHash2.cpp">
       <Filter>Source Files\Algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceAudioOut\AudioOut.cpp">
+      <Filter>SceModules\SceAudioOut</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
