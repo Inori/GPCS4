@@ -19,6 +19,7 @@ GveDevice::GveDevice(VkDevice device, const RcPtr<GvePhysicalDevice>& phyDevice)
 	m_device(device),
 	m_phyDevice(phyDevice),
 	m_properties(phyDevice->devicePropertiesExt()),
+	m_memAllocator(this),
 	m_resObjects(this)
 {
 	initQueues();
@@ -86,69 +87,29 @@ RcPtr<GveDescriptorPool> GveDevice::createDescriptorPool()
 	return pool;
 }
 
+GveSharpResourceManager& GveDevice::getSharpResManager()
+{
+	return m_resObjects.getSharpResManager();
+}
+
 RcPtr<GveBuffer> GveDevice::createBuffer(const GveBufferCreateInfo& info, VkMemoryPropertyFlags memoryType)
 {
-	return m_resObjects.resourceManager().createBuffer(info, memoryType);
-}
-
-RcPtr<GveBuffer> GveDevice::createOrGetBufferVsharp(const GveBufferCreateInfo& info, VkMemoryPropertyFlags memoryType, uint64_t key)
-{
-	return m_resObjects.resourceManager().createBufferVsharp(info, memoryType, key);
-}
-
-void GveDevice::freeBufferVsharp(uint64_t key)
-{
-	return m_resObjects.resourceManager().freeBufferVsharp(key);
+	return new GveBuffer(this, info, &m_memAllocator, memoryType);
 }
 
 RcPtr<GveImage> GveDevice::createImage(const GveImageCreateInfo& info, VkMemoryPropertyFlags memoryType)
 {
-	return m_resObjects.resourceManager().createImage(info, memoryType);
-}
-
-RcPtr<GveImage> GveDevice::createOrGetImageTsharp(const GveImageCreateInfo& info, VkMemoryPropertyFlags memoryType, uint64_t key)
-{
-	return m_resObjects.resourceManager().createImageTsharp(info, memoryType, key);
-}
-
-void GveDevice::freeImageTsharp(uint64_t key)
-{
-	return m_resObjects.resourceManager().freeImageTsharp(key);
+	return new GveImage(this, info, &m_memAllocator, memoryType);
 }
 
 RcPtr<GveImageView> GveDevice::createImageView(const RcPtr<GveImage>& image, const GveImageViewCreateInfo& createInfo)
 {
-	return m_resObjects.resourceManager().createImageView(image, createInfo);
-}
-
-RcPtr<GveImageView> GveDevice::createOrGetImageViewTsharp(const RcPtr<GveImage>& image, const GveImageViewCreateInfo& createInfo, uint64_t key)
-{
-	return m_resObjects.resourceManager().createImageViewTsharp(image, createInfo, key);
-}
-
-void GveDevice::freeImageViewTsharp(uint64_t key)
-{
-	return m_resObjects.resourceManager().freeImageViewTsharp(key);
+	return new GveImageView(this, createInfo, image);
 }
 
 RcPtr<GveSampler> GveDevice::createSampler(const GveSamplerCreateInfo& info)
 {
-	return m_resObjects.resourceManager().createSampler(info);
-}
-
-RcPtr<GveSampler> GveDevice::createOrGetSamplerSsharp(const GveSamplerCreateInfo& info, uint64_t key)
-{
-	return m_resObjects.resourceManager().createSamplerSsharp(info, key);
-}
-
-void GveDevice::freeSamplerSsharp(uint64_t key)
-{
-	return m_resObjects.resourceManager().freeSamplerSsharp(key);
-}
-
-void GveDevice::GCSharpResource()
-{
-	return m_resObjects.resourceManager().GC();
+	return new GveSampler(this, info);
 }
 
 void GveDevice::recycleDescriptorPool(const RcPtr<GveDescriptorPool>& pool)

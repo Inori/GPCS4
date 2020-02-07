@@ -2,8 +2,8 @@
 
 #include "GveCommon.h"
 #include "GvePipelineManager.h"
+#include "GveSharpResourceManager.h"
 #include "GveRenderPass.h"
-#include "GveResourceManager.h"
 #include "GveDescriptor.h"
 #include "GveMemory.h"
 
@@ -21,17 +21,16 @@ public:
 
 	GvePipelineManager& pipelineManager();
 
-	GveResourceManager& resourceManager();
-
 	GveRenderPassPool& renderPassPool();
+
+	GveSharpResourceManager& getSharpResManager();
 
 private:
 	GveDevice* m_device;
 
-	GveMemoryAllocator m_memAllocator;
 	GvePipelineManager m_pipelineMgr;
-	GveResourceManager m_resourceMgr;
 	GveRenderPassPool m_renderPassPool;
+	GveSharpResourceManager m_sharpResMgr;
 };
 
 }  // namespace gve
