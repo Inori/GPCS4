@@ -31,6 +31,19 @@ uint32_t PS4API sceGnmDrawInitDefaultHardwareState200(uint32_t* cmdBuffer, uint6
 	return initCmdSize;
 }
 
+
+uint32_t PS4API sceGnmDrawInitDefaultHardwareState175(uint32_t* cmdBuffer, uint64_t numDwords)
+{
+	LOG_SCE_GRAPHIC("cmdbuff %p numDwords %d", cmdBuffer, numDwords);
+	const uint32_t initCmdSize = sizeof(GnmCmdDrawInitDefaultHardwareState) / sizeof(uint32_t);
+	assert(numDwords >= initCmdSize);
+	GnmCmdDrawInitDefaultHardwareState* initParam = (GnmCmdDrawInitDefaultHardwareState*)cmdBuffer;
+	initParam->opcode = PM4_HEADER_BUILD(initCmdSize, IT_GNM_PRIVATE, OP_PRIV_INITIALIZE_DEFAULT_HARDWARE_STATE);
+	memset(initParam->reserved, 0, sizeof(initParam->reserved) * sizeof(uint32_t));
+	return initCmdSize;
+}
+
+
 // called in waitUntilSafeForRendering
 int PS4API sceGnmInsertWaitFlipDone(uint32_t* cmdBuffer, uint32_t numDwords, int videoOutHandle, uint32_t displayBufferIndex)
 {
