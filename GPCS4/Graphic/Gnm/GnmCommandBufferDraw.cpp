@@ -7,14 +7,13 @@
 #include "GnmConvertor.h"
 #include "GnmGpuAddress.h"
 
-#include "Algorithm/MurmurHash2.h"
-
 #include "../Gve/GveCmdList.h"
 #include "../Gve/GveShader.h"
 #include "../Gve/GveBuffer.h"
 #include "../Gve/GveImage.h"
 #include "../Gve/GveSampler.h"
 #include "../Gve/GveContext.h"
+#include "../Gve/GveSharpResourceManager.h"
 #include "../Pssl/PsslShaderModule.h"
 
 #include <algorithm>
@@ -29,7 +28,8 @@ GnmCommandBufferDraw::GnmCommandBufferDraw(
 	const RcPtr<gve::GveImageView>& defaultColorTarget):
 	GnmCommandBuffer(device),
 	m_defaultColorTarget(defaultColorTarget),
-	m_depthTarget(nullptr)
+	m_depthTarget(nullptr),
+	m_sharpRes(device->getSharpResManager())
 {
 
 }
@@ -535,8 +535,10 @@ void GnmCommandBufferDraw::bindIndexBuffer(const void* indexAddr, uint32_t index
 		info.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
 
 		uint64_t key = reinterpret_cast<uint64_t>(indexAddr);
-		auto indexBuffer = m_device->createOrGetBufferVsharp(info, 
-			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, key);
+		auto indexBuffer = m_sharpRes.createOrGetIndexBuffer(
+			info,								 
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+			indexAddr);
 
 		m_context->updateBuffer(indexBuffer, 0, indexBufferSize, indexAddr);
 
@@ -564,10 +566,10 @@ void GnmCommandBufferDraw::bindImmConstBuffer(const PsslShaderResource& res)
 		info.size = bufferSize;
 		info.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
 
-		uint64_t key = reinterpret_cast<uint64_t>(buffer->getBaseAddress());
-
-		auto uniformBuffer = m_device->createOrGetBufferVsharp(info, 
-			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, key);
+		auto uniformBuffer = m_sharpRes.createOrGetBufferVsharp(
+			info, 
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
+			buffer->getVsharp());
 		
 		m_context->updateBuffer(uniformBuffer, 0, bufferSize, buffer->getBaseAddress());
 
@@ -650,14 +652,10 @@ bool GnmCommandBufferDraw::bindVertexBuffer(uint32_t bindingId, const GnmBuffer&
 		buffInfo.size = bufferSize;
 		buffInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 
-		// TODO:
-		// Just hashing vsharp as the key is not correct theoretically,
-		// because the buffer content themselves could be different 
-		// while still using the same vsharp.
-		uint64_t key = algo::MurmurHash(&vsharp, sizeof(GnmBuffer));
-		LOG_DEBUG("vbo key %llx size %d", key, bufferSize);
-
-		auto vertexBuffer = m_device->createOrGetBufferVsharp(buffInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, key);
+		auto vertexBuffer = m_sharpRes.createOrGetBufferVsharp(
+			buffInfo, 
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
+			vsharp.getVsharp());
 		m_context->updateBuffer(vertexBuffer, 0, bufferSize, vtxData);
 
 		uint32_t stride = vsharp.getStride();
@@ -712,8 +710,10 @@ void GnmCommandBufferDraw::bindImmResource(const PsslShaderResource& res)
 		imgInfo.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 		imgInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
-		uint64_t key = reinterpret_cast<uint64_t>(tsharp->getBaseAddress());
-		auto texture = m_device->createOrGetImageTsharp(imgInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, key);
+		auto texture = m_sharpRes.createOrGetImageTsharp(
+			imgInfo, 
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
+			tsharp->getTsharp());
 
 		VkDeviceSize imageBufferSize = tsharp->getSizeAlign().m_size;
 		void* data                   = util::gnmGpuAbsAddr((void*)res.resource, tsharp->getBaseAddress());
@@ -740,11 +740,11 @@ void GnmCommandBufferDraw::bindImmResource(const PsslShaderResource& res)
 		}
 
 		GveImageViewCreateInfo viewInfo;
-		viewInfo.type = VK_IMAGE_VIEW_TYPE_2D;
+		viewInfo.type   = VK_IMAGE_VIEW_TYPE_2D;
 		viewInfo.format = imgInfo.format;
-		viewInfo.usage = imgInfo.usage;
+		viewInfo.usage  = imgInfo.usage;
 		viewInfo.aspect = VK_IMAGE_ASPECT_COLOR_BIT;
-		auto texView = m_device->createOrGetImageViewTsharp(texture, viewInfo, key);
+		auto texView    = m_sharpRes.createOrGetImageViewTsharp(texture, viewInfo, tsharp->getTsharp());
 
 		uint32_t regSlot = computeResBinding(PixelShader, res.startRegister);
 		m_context->bindResourceView(regSlot, texView, nullptr);
@@ -767,7 +767,7 @@ void GnmCommandBufferDraw::bindSampler(const PsslShaderResource& res)
 		// TODO:
 		// Fill info
 		GveSamplerCreateInfo info;
-		auto sampler = m_device->createOrGetSamplerSsharp(info, key);
+		auto sampler = m_sharpRes.createOrGetSamplerSsharp(info, ssharp->getSsharp());
 
 		uint32_t regSlot = computeSamplerBinding(PixelShader, res.startRegister);
 		m_context->bindSampler(regSlot, sampler);

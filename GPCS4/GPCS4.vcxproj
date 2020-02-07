@@ -30,6 +30,7 @@
     <ClInclude Include="Graphic\Gnm\GnmTiler.h" />
     <ClInclude Include="Graphic\Gnm\GnmTilerSSE2.h" />
     <ClInclude Include="Graphic\Gve\GveRecycler.h" />
+    <ClInclude Include="Graphic\Gve\GveSharpResourceManager.h" />
     <ClInclude Include="Loader\elf-sce.h" />
     <ClInclude Include="Emulator\Emulator.h" />
     <ClInclude Include="Emulator\GameThread.h" />
@@ -86,7 +87,6 @@
     <ClInclude Include="Graphic\Gve\GvePhysicalDevice.h" />
     <ClInclude Include="Graphic\Gve\GvePresenter.h" />
     <ClInclude Include="Graphic\Gve\GveRenderPass.h" />
-    <ClInclude Include="Graphic\Gve\GveResourceManager.h" />
     <ClInclude Include="Graphic\Gve\GveResourceObjects.h" />
     <ClInclude Include="Graphic\Gve\GveSampler.h" />
     <ClInclude Include="Graphic\Gve\GveShader.h" />
@@ -305,10 +305,10 @@
     <ClCompile Include="Graphic\Gve\GvePresenter.cpp" />
     <ClCompile Include="Graphic\Gve\GveRenderPass.cpp" />
     <ClCompile Include="Graphic\Gve\GvePipelineState.cpp" />
-    <ClCompile Include="Graphic\Gve\GveResourceManager.cpp" />
     <ClCompile Include="Graphic\Gve\GveResourceObjects.cpp" />
     <ClCompile Include="Graphic\Gve\GveSampler.cpp" />
     <ClCompile Include="Graphic\Gve\GveShader.cpp" />
+    <ClCompile Include="Graphic\Gve\GveSharpResourceManager.cpp" />
     <ClCompile Include="Graphic\Gve\GveStaging.cpp" />
     <ClCompile Include="Graphic\Gve\GveSwapChain.cpp" />
     <ClCompile Include="Graphic\Gve\GveUtil.cpp" />

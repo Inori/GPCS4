@@ -1,6 +1,5 @@
 #include "GnmCommandBuffer.h"
 #include "../Gve/GveContext.h"
-#include "../Gve/GveResourceManager.h"
 #include "../Gve/GveCmdList.h"
 #include "../Gve/GveDevice.h"
 
