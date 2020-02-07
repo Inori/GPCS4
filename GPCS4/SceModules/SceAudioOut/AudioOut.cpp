@@ -233,10 +233,12 @@ int32_t AudioOut::audioOutput(const void* ptr)
 	{
 		if (m_audioOutContext->streamOpenFlag == false)
 		{
-			rc = rtaudio_start_stream(m_audioOutContext->audioHandle);
-			if (rc != 0)
+			rtaudio_start_stream(m_audioOutContext->audioHandle);
+			if (rtaudio_error(m_audioOutContext->audioHandle) != nullptr)
 			{
-				m_audioOutContext->lastError = rc;
+				m_audioOutContext->lastError = -1;
+				rc                           = -1;
+
 				break;	
 			}
 		}

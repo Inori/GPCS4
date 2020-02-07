@@ -32,11 +32,12 @@ extern const SCE_EXPORT_MODULE g_ExpModuleSceAudioOut;
 #define SCE_AUDIO_OUT_PARAM_FORMAT_MASK  0x000000FF
 #define SCE_AUDIO_OUT_PARAM_FORMAT_SHIFT 0
 
+#define SCE_AUDIO_OUT_ERROR_TRANS_EVENT -2144993262
 //////////////////////////////////////////////////////////////////////////
 // library: libSceAudioOut
 //////////////////////////////////////////////////////////////////////////
 
-int PS4API sceAudioOutClose(int32_t handle);
+int32_t PS4API sceAudioOutClose(int32_t handle);
 
 
 int PS4API sceAudioOutGetPortState(int32_t handle, SceAudioOutPortState *state);
@@ -45,10 +46,10 @@ int PS4API sceAudioOutGetPortState(int32_t handle, SceAudioOutPortState *state);
 int PS4API sceAudioOutInit(void);
 
 
-int PS4API sceAudioOutOpen(SceUserServiceUserId userId, int32_t type, int32_t index, uint32_t len, uint32_t freq, uint32_t param);
+int32_t PS4API sceAudioOutOpen(SceUserServiceUserId userId, int32_t type, int32_t index, uint32_t len, uint32_t freq, uint32_t param);
 
 
-int PS4API sceAudioOutOutput(void);
+int32_t PS4API sceAudioOutOutput(int32_t handle, const void *p);
 
 
 int PS4API sceAudioOutOutputs(void);
