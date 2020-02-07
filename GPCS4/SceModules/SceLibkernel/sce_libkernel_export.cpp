@@ -134,6 +134,8 @@ static const SCE_EXPORT_FUNCTION g_pSceLibkernel_libkernel_FunctionTable[] =
 	{ 0xf3eb39073663c528, "scePthreadAttrGetaffinity", (void*)scePthreadAttrGetaffinity },
 	{ 0x1E82D558D6A70417, "getpid", (void*)scek_getpid },
 	{ 0x7BAA2F068F59BC97, "getppid", (void*)scek_getppid },
+	{ 0x42E2586762951864, "shm_open", (void*)scek_shm_open },
+	{ 0xB4F5AC6CE5063BC9, "shm_unlink", (void*)scek_shm_unlink },
 	{ 0xf65be3e438c76620, "sceKernelPollEventFlag", (void*)sceKernelPollEventFlag },
 	{ 0xacd856cfe96f38c5, "_sceKernelSetThreadDtors", (void*)_sceKernelSetThreadDtors },
 	{ 0xa41ff2199da743da, "_sceKernelSetThreadAtexitCount", (void*)_sceKernelSetThreadAtexitCount },

@@ -133,7 +133,7 @@ int SceKeyboard::readState(ScePadData* data)
 
 
 
-	ScePadAnalogButtons analogButtons = {0,0,2,2};
+	ScePadAnalogButtons analogButtons = {0,0,{2,2}};
 
 	if (glfwGetKey(m_window, GLFW_KEY_Q) == GLFW_PRESS)
 	{

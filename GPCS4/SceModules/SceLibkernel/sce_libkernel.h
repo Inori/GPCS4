@@ -592,5 +592,11 @@ int PS4API scek_getpid(void);
 int PS4API scek_getppid(void);
 
 
+int PS4API scek_shm_open(const char *name, int oflag, SceKernelMode mode);
+
+
+int PS4API scek_shm_unlink(const char *name);
+
+
 void PS4API scek_pthread_exit(void *value_ptr);
 

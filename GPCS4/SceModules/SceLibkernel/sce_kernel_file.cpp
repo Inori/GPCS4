@@ -405,4 +405,18 @@ int PS4API scek__open(const char* path, int flags, SceKernelMode mode)
 	return fd;
 }
 
+int PS4API scek_shm_open(const char *name, int oflag, SceKernelMode mode)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API scek_shm_unlink(const char *name)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
 
