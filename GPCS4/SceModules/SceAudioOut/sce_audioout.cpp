@@ -26,9 +26,31 @@ int PS4API sceAudioOutInit(void)
 
 int32_t PS4API sceAudioOutOpen(SceUserServiceUserId userId, int32_t type, int32_t index, uint32_t len, uint32_t freq, uint32_t param)
 {
-	auto audioOut = std::make_unique<AudioOut>(userId, type, index, len, freq, param);
-	auto slotId = g_AudioSlots.GetEmptySlotIndex();
-	g_AudioSlots.SetItemAt(slotId, std::move(audioOut));
+	LOG_DEBUG("sceAudioOutOpen() userId: %d type: %d index: %d len: %d freq: %d param: %d",
+			  userId,
+			  type,
+			  index,
+			  len,
+			  freq,
+			  param);
+
+	int32_t slotId = 0;
+
+	do
+	{
+		auto audioOut = std::make_unique<AudioOut>(userId, type, index, len, freq, param);
+
+		auto err = audioOut->getLastError();
+		if (err != 0)
+		{
+			slotId = SCE_AUDIO_OUT_ERROR_TRANS_EVENT;
+			break;
+		}
+
+		slotId = g_AudioSlots.GetEmptySlotIndex();
+		g_AudioSlots.SetItemAt(slotId, std::move(audioOut));
+
+	} while (false);
 
 	return slotId;
 }
