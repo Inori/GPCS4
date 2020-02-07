@@ -130,6 +130,44 @@ int SceKeyboard::readState(ScePadData* data)
 		buttons |= SCE_PAD_BUTTON_OPTIONS;
 	}
 
+
+
+
+	ScePadAnalogButtons analogButtons = {0,0,2,2};
+
+	if (glfwGetKey(m_window, GLFW_KEY_Q) == GLFW_PRESS)
+	{
+		buttons |= SCE_PAD_BUTTON_L1;
+	}
+
+	if (glfwGetKey(m_window, GLFW_KEY_E) == GLFW_PRESS)
+	{
+		buttons |= SCE_PAD_BUTTON_L2;
+		analogButtons.l2 = 255;
+	}
+
+	if (glfwGetKey(m_window, GLFW_KEY_X) == GLFW_PRESS)
+	{
+		buttons |= SCE_PAD_BUTTON_L3;
+	}
+
+
+	if (glfwGetKey(m_window, GLFW_KEY_U) == GLFW_PRESS)
+	{
+		buttons |= SCE_PAD_BUTTON_R1;
+	}
+
+	if (glfwGetKey(m_window, GLFW_KEY_O) == GLFW_PRESS)
+	{
+		buttons |= SCE_PAD_BUTTON_R2;
+		analogButtons.r2 = 255;
+	}
+
+	if (glfwGetKey(m_window, GLFW_KEY_M) == GLFW_PRESS)
+	{
+		buttons |= SCE_PAD_BUTTON_R3;
+	}
+
 	LOG_DEBUG_IF(buttons != 0, "pad buttons %08X", buttons);
 
 
@@ -186,6 +224,7 @@ int SceKeyboard::readState(ScePadData* data)
 	data->buttons        = buttons;
 	data->leftStick      = leftStick;
 	data->rightStick     = rightStick;
+	data->analogButtons  = analogButtons;
 
 	return SCE_OK;
 }
