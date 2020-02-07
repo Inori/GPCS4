@@ -133,9 +133,6 @@ int SceKeyboard::readState(ScePadData* data)
 	LOG_DEBUG_IF(buttons != 0, "pad buttons %08X", buttons);
 
 
-
-
-
 	ScePadAnalogStick leftStick = {0x80,0x80};
 
 	if (glfwGetKey(m_window, GLFW_KEY_A) == GLFW_PRESS) 
@@ -180,8 +177,6 @@ int SceKeyboard::readState(ScePadData* data)
 	{
 		rightStick.y += 127;
 	}
-
-
 
 
 	memset(data, 0, sizeof(ScePadData));
