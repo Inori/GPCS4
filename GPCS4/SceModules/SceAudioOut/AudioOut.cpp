@@ -241,12 +241,13 @@ int32_t AudioOut::audioOutput(const void* ptr)
 
 				break;	
 			}
+			m_audioOutContext->streamOpenFlag = true;
 		}
 
 		if (ptr == nullptr)
 		{
 			std::unique_lock<std::mutex> lock { m_audioOutContext->mutex };
-			m_audioOutContext->condDone.wait(lock, [&] { m_audioOutContext->doneFlag; });
+			m_audioOutContext->condDone.wait(lock, [=] { return m_audioOutContext->doneFlag; });
 			break;
 		}
 
@@ -256,12 +257,12 @@ int32_t AudioOut::audioOutput(const void* ptr)
 
 		auto step = m_audioOutContext->supportedArgs.bytesConsumesPerSample;
 
-		for (uint32_t i = 0; i < step; i++)
+		for (uint32_t i = 0; i < numSlices; i++)
 		{
 			std::unique_lock<std::mutex> lock{ m_audioOutContext->mutex };
 			m_audioOutContext->doneFlag = false;
 			m_audioOutContext->queue.push(dataPtr + i * step);
-			m_audioOutContext->condDone.wait(lock, [&] { m_audioOutContext->doneFlag; });
+			m_audioOutContext->condDone.wait(lock, [=] { return m_audioOutContext->doneFlag; });
 		}
 
 	} while (false);
