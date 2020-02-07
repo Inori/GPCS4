@@ -374,8 +374,7 @@ void GCNCompiler::emitVectorThreadMask(GCNInstruction& ins)
 	switch (op)
 	{
 	case SIVOP3Instruction::V3_CNDMASK_B32:
-		LOG_PSSL_UNHANDLED_INST();
-		break;
+		LOG_ASSERT(static_cast<Instruction::OperandSRC>(src2) == Instruction::OperandSRC::SRCVccLo, "V3_CNDMASK_B32 smask not vcc.");
 	case SIVOP2Instruction::V_CNDMASK_B32:
 	{
 		auto condVal = emitValueLoad(m_statusRegs.vcc.low());
@@ -458,10 +457,32 @@ void GCNCompiler::emitVectorFpArith32(GCNInstruction& ins)
 									m_module.opFMul(fpTypeId, spvSrc0.id, spvSrc1.id));
 	}
 		break;
+	case SIVOP2Instruction::V_MADMK_F32:
+	{
+		float constVal   = *reinterpret_cast<float*>(&ins.literalConst);
+		uint32_t constId = m_module.constf32(constVal);
+		dstVal.id        = m_module.opFAdd(fpTypeId,
+                                    spvSrc1.id,
+                                    m_module.opFMul(fpTypeId, spvSrc0.id, constId));
+	}
+		break;
 	case SIVOP3Instruction::V3_ADD_F32:
 	case SIVOP2Instruction::V_ADD_F32:
 	{
 		dstVal.id = m_module.opFAdd(fpTypeId, spvSrc0.id, spvSrc1.id);
+	}
+		break;
+	case SIVOP3Instruction::V3_FMA_F32:
+	{
+		dstVal.id = m_module.opFAdd(fpTypeId,
+									spvSrc2.id,
+									m_module.opFMul(fpTypeId, spvSrc0.id, spvSrc1.id));
+	}
+		break;
+	case SIVOP2Instruction::V_SUBREV_F32:
+	case SIVOP3Instruction::V3_SUBREV_F32:
+	{
+		dstVal.id = m_module.opFSub(fpTypeId, spvSrc1.id, spvSrc0.id);
 	}
 		break;
 	default:

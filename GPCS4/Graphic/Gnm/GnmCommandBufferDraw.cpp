@@ -473,7 +473,7 @@ void GnmCommandBufferDraw::commitPsStage()
 		LOG_DEBUG("pixel shader hash %llX", psModule.key().toUint64());
 		psModule.defineShaderInput(m_psContext.userDataSlotTable);
 
-		SHADER_DEBUG_BREAK(psModule, 0xF3FAB76ECBEAABD2);
+		SHADER_DEBUG_BREAK(psModule, 0x1C3E9BEC02B89E0E);
 
 		m_psContext.shader = psModule.compile();
 
