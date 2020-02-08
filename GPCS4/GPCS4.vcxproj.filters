@@ -883,6 +883,9 @@
     <ClInclude Include="SceModules\SceAppContentUtil\sce_appcontentutil_types.h">
       <Filter>SceModules\SceAppContentUtil</Filter>
     </ClInclude>
+    <ClInclude Include="SceModules\SceAppContentUtil\sce_appcontentutil_error.h">
+      <Filter>SceModules\SceAppContentUtil</Filter>
+    </ClInclude>
     <ClInclude Include="Graphic\Gnm\GnmTiler.h">
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClInclude>
@@ -1574,9 +1577,6 @@
     </ClCompile>
     <ClCompile Include="Algorithm\MurmurHash2.cpp">
       <Filter>Source Files\Algorithm</Filter>
-    </ClCompile>
-    <ClCompile Include="SceModules\SceAppContentUtil\sce_appcontentutil_error.h">
-      <Filter>SceModules\SceAppContentUtil</Filter>
     </ClCompile>
     <ClCompile Include="Graphic\Gve\GveSharpResourceManager.cpp">
       <Filter>Source Files\Graphic\Gve</Filter>
