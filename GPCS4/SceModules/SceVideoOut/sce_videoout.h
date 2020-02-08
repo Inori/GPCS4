@@ -38,6 +38,9 @@ int PS4API sceVideoOutOpen(SceUserServiceUserId userId, int32_t type, int32_t in
 int PS4API sceVideoOutRegisterBuffers(int32_t handle, int32_t startIndex, void * const *addresses, int32_t bufferNum, const SceVideoOutBufferAttribute *attribute);
 
 
+int PS4API sceVideoOutRegisterStereoBuffers(int32_t handle, int32_t startIndex, const SceVideoOutStereoBuffers *buffers, int32_t bufferNum, const SceVideoOutBufferAttribute *attribute);
+
+
 int PS4API sceVideoOutSetBufferAttribute(SceVideoOutBufferAttribute *attribute, uint32_t pixelFormat, uint32_t tilingMode, uint32_t aspectRatio,	uint32_t width, uint32_t height, uint32_t pitchInPixel);
 
 

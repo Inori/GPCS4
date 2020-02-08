@@ -88,6 +88,13 @@ int PS4API sceNpPollAsync(void)
 }
 
 
+int PS4API sceNpRegisterGamePresenceCallback(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
 int PS4API sceNpRegisterNpReachabilityStateCallback(void)
 {
 	LOG_FIXME("Not implemented");
