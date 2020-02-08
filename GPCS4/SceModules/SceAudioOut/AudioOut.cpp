@@ -5,6 +5,26 @@
 #include <mutex>
 #include <condition_variable>
 #include <algorithm>
+#include <string>
+
+// #define DUMP_AUDIO
+#ifdef DUMP_AUDIO
+class AudioDumper
+{
+public:
+	AudioDumper(std::string filename)
+	{
+		m_file = fopen(filename.c_str(), "wb");
+	}
+
+	void dumpAudio(const uint8_t *ptr, size_t size)
+	{
+		fwrite(ptr, size, 1, m_file);
+	}
+private:
+	FILE* m_file;
+};
+#endif
 
 struct AudioOutContext
 {
@@ -41,11 +61,20 @@ struct AudioOutContext
 	bool streamOpenFlag = false;
 	int lastError = 0;
 	
+	#ifdef DUMP_AUDIO
+	AudioDumper audioDumper;
+	AudioOutContext() :
+		queue{ 1 }, audioDumper{ "audiodump.raw" }
+	{
+		audioHandle = rtaudio_create(RTAUDIO_API_UNSPECIFIED);
+	}
+	#else
 	AudioOutContext() :
 		queue {1}
 	{
 		audioHandle = rtaudio_create(RTAUDIO_API_UNSPECIFIED);
 	}
+	#endif
 
 	~AudioOutContext()
 	{
@@ -59,6 +88,7 @@ struct AudioProperties
 	uint32_t bytesPerSample;
 	uint32_t audioFormat;
 };
+
 
 static AudioProperties getAudioProperties(uint32_t param)
 {
@@ -254,6 +284,12 @@ int32_t AudioOut::audioOutput(const void* ptr)
 		auto dataPtr = reinterpret_cast<const uint8_t*>(ptr);
 		auto numSlices = 
 			m_audioOutContext->requestedArgs.numChannels / m_audioOutContext->supportedArgs.numChannels;
+
+#ifdef DUMP_AUDIO
+			m_audioOutContext
+				->audioDumper
+				.dumpAudio(dataPtr, m_audioOutContext->requestedArgs.bytesConsumesPerSample);
+#endif
 
 		auto step = m_audioOutContext->supportedArgs.bytesConsumesPerSample;
 
