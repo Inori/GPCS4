@@ -58,6 +58,9 @@ int PS4API sceNpNotifyPlusFeature(void);
 int PS4API sceNpPollAsync(void);
 
 
+int PS4API sceNpRegisterGamePresenceCallback(void);
+
+
 int PS4API sceNpRegisterNpReachabilityStateCallback(void);
 
 
