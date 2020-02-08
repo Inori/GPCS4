@@ -371,6 +371,7 @@
     <ClCompile Include="SceModules\SceAjm\sce_ajm.cpp" />
     <ClCompile Include="SceModules\SceAjm\sce_ajm_export.cpp" />
     <ClCompile Include="SceModules\SceAppContentUtil\sce_appcontentutil.cpp" />
+    <ClCompile Include="SceModules\SceAppContentUtil\sce_appcontentutil_error.h" />
     <ClCompile Include="SceModules\SceAppContentUtil\sce_appcontentutil_export.cpp" />
     <ClCompile Include="SceModules\SceAudio3d\sce_audio3d.cpp" />
     <ClCompile Include="SceModules\SceAudio3d\sce_audio3d_export.cpp" />

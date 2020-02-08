@@ -1578,6 +1578,9 @@
     <ClCompile Include="Algorithm\MurmurHash2.cpp">
       <Filter>Source Files\Algorithm</Filter>
     </ClCompile>
+    <ClCompile Include="SceModules\SceAppContentUtil\sce_appcontentutil_error.h">
+      <Filter>SceModules\SceAppContentUtil</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Emulator\TLSStub.asm">
