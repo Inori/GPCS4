@@ -883,9 +883,6 @@
     <ClInclude Include="SceModules\SceAppContentUtil\sce_appcontentutil_types.h">
       <Filter>SceModules\SceAppContentUtil</Filter>
     </ClInclude>
-    <ClInclude Include="SceModules\SceAppContentUtil\sce_appcontentutil_error.h">
-      <Filter>SceModules\SceAppContentUtil</Filter>
-    </ClInclude>
     <ClInclude Include="Graphic\Gnm\GnmTiler.h">
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClInclude>
@@ -906,6 +903,9 @@
     </ClInclude>
     <ClInclude Include="Graphic\Gve\GveSharpResourceManager.h">
       <Filter>Source Files\Graphic\Gve</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\SceAppContentUtil\sce_appcontentutil_error.h">
+      <Filter>SceModules\SceAppContentUtil</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

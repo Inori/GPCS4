@@ -19,6 +19,7 @@ static const SCE_EXPORT_FUNCTION g_pSceNpManager_libSceNpManager_FunctionTable[]
 	{ 0x8A5C0B338CCE9AEE, "sceNpGetParentalControlInfo", (void*)sceNpGetParentalControlInfo },
 	{ 0x19AC6BA7711663F3, "sceNpNotifyPlusFeature", (void*)sceNpNotifyPlusFeature },
 	{ 0xBAA70F24B58BD3C3, "sceNpPollAsync", (void*)sceNpPollAsync },
+	{ 0xB8526968A341023E, "sceNpRegisterGamePresenceCallback", (void*)sceNpRegisterGamePresenceCallback },
 	{ 0x870E4A36A0007A5B, "sceNpRegisterNpReachabilityStateCallback", (void*)sceNpRegisterNpReachabilityStateCallback },
 	{ 0x1889880A787E6E80, "sceNpRegisterPlusEventCallback", (void*)sceNpRegisterPlusEventCallback },
 	{ 0x55F45298F9A3F10F, "sceNpRegisterStateCallback", (void*)sceNpRegisterStateCallback },

@@ -25,6 +25,9 @@ extern const SCE_EXPORT_MODULE g_ExpModuleSceNetCtl;
 // library: libSceNetCtl
 //////////////////////////////////////////////////////////////////////////
 
+int PS4API sceNetCtlInit(void);
+
+
 int PS4API sceNetCtlCheckCallback(void);
 
 

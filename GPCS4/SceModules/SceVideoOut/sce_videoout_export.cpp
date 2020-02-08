@@ -12,6 +12,7 @@ static const SCE_EXPORT_FUNCTION g_pSceVideoOut_libSceVideoOut_FunctionTable[] =
 	{ 0xEA43E78F9D53EB66, "sceVideoOutGetResolutionStatus", (void*)sceVideoOutGetResolutionStatus },
 	{ 0x529DFA3D393AF3B1, "sceVideoOutOpen", (void*)sceVideoOutOpen },
 	{ 0xC37058FAD0048906, "sceVideoOutRegisterBuffers", (void*)sceVideoOutRegisterBuffers },
+	{ 0x9424C23A88116E4D, "sceVideoOutRegisterStereoBuffers", (void*)sceVideoOutRegisterStereoBuffers },
 	{ 0x8BAFEC47DD56B7FE, "sceVideoOutSetBufferAttribute", (void*)sceVideoOutSetBufferAttribute },
 	{ 0x0818AEE26084D430, "sceVideoOutSetFlipRate", (void*)sceVideoOutSetFlipRate },
 	{ 0x1D7CE32BDC88DF49, "sceVideoOutAddFlipEvent", (void*)sceVideoOutAddFlipEvent },
