@@ -177,7 +177,6 @@
     <ClInclude Include="SceModules\SceAjm\sce_ajm.h" />
     <ClInclude Include="SceModules\SceAjm\sce_ajm_types.h" />
     <ClInclude Include="SceModules\SceAppContentUtil\sce_appcontentutil.h" />
-	<ClInclude Include="SceModules\SceAppContentUtil\sce_appcontentutil_error.h" />
     <ClInclude Include="SceModules\SceAppContentUtil\sce_appcontentutil_types.h" />
     <ClInclude Include="SceModules\SceAudio3d\sce_audio3d.h" />
     <ClInclude Include="SceModules\SceAudioOut\sce_audioout.h" />
@@ -372,6 +371,7 @@
     <ClCompile Include="SceModules\SceAjm\sce_ajm.cpp" />
     <ClCompile Include="SceModules\SceAjm\sce_ajm_export.cpp" />
     <ClCompile Include="SceModules\SceAppContentUtil\sce_appcontentutil.cpp" />
+    <ClCompile Include="SceModules\SceAppContentUtil\sce_appcontentutil_error.h" />
     <ClCompile Include="SceModules\SceAppContentUtil\sce_appcontentutil_export.cpp" />
     <ClCompile Include="SceModules\SceAudio3d\sce_audio3d.cpp" />
     <ClCompile Include="SceModules\SceAudio3d\sce_audio3d_export.cpp" />
