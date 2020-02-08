@@ -485,6 +485,12 @@ void GCNCompiler::emitVectorFpArith32(GCNInstruction& ins)
 		dstVal.id = m_module.opFSub(fpTypeId, spvSrc1.id, spvSrc0.id);
 	}
 		break;
+	case SIVOP2Instruction::V_SUB_F32:
+	case SIVOP3Instruction::V3_SUB_F32:
+	{
+		dstVal.id = m_module.opFSub(fpTypeId, spvSrc0.id, spvSrc1.id);
+	}
+	break;
 	default:
 		LOG_PSSL_UNHANDLED_INST();
 		break;
@@ -594,6 +600,9 @@ void GCNCompiler::emitVectorFpCmp32(GCNInstruction& ins)
 		break;
 	case SIVOPCInstruction::V_CMP_GE_F32:
 		dstValue.id = m_module.opFOrdGreaterThanEqual(typeId, spvSrc0.id, spvSrc1.id);
+		break;
+	case SIVOPCInstruction::V_CMP_LE_F32:
+		dstValue.id = m_module.opFOrdLessThanEqual(typeId, spvSrc0.id, spvSrc1.id);
 		break;
 	default:
 		LOG_PSSL_UNHANDLED_INST();
