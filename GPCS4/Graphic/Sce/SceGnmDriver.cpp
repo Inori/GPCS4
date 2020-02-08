@@ -84,6 +84,11 @@ int SceGnmDriver::submitAndFlipCommandBuffers(uint32_t count,
 		}
 	
 		auto cmdList = cmdParser->getCommandBuffer()->getCmdList();
+		if (!cmdList)
+		{
+			// cmdList is null when GPCS4_NO_GRAPHICS defined
+			break;
+		}
 
 		m_presenter->present(cmdList);
 		// TODO:
