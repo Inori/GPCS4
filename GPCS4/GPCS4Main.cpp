@@ -6,8 +6,6 @@
 #include <cxxopts/cxxopts.hpp>
 #include <memory>
 
-#include "SceModules/SceAudioOut/sce_audioout.h"
-
 LOG_CHANNEL(Main);
 
 cxxopts::ParseResult processCommandLine(int argc, char* argv[])
@@ -42,8 +40,6 @@ int main(int argc, char *argv[])
 {
 	std::unique_ptr<CEmulator> pEmulator = std::make_unique<CEmulator>();
 	int nRet = -1;
-
-	//audioTest();
 
 	do
 	{

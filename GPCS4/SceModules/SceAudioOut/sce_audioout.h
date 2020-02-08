@@ -57,9 +57,4 @@ int PS4API sceAudioOutOutputs(void);
 
 int PS4API sceAudioOutSetVolume(void);
 
-// TODO: Remove this function when audio part is done.
-void audioTest();
-
-
-
 

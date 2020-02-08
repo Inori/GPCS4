@@ -105,39 +105,5 @@ int PS4API sceAudioOutSetVolume(void)
 	return SCE_OK;
 }
 
-// TODO: Remove this function when audio part is done.
-void audioTest()
-{
-	const int numAudioChans    = 8;
-	const int sampleSize       = 2;
-	const uint32_t granularity = 256;
-	const uint32_t sampleRate  = 48000;
-
-	FILE* p = fopen("bgm.raw", "rb");
-
-	sceAudioOutInit();
-	auto ad = sceAudioOutOpen(0, 0, 0, granularity, sampleRate, SCE_AUDIO_OUT_PARAM_FORMAT_S16_8CH);
-
-	bool endFlag = false;
-
-	while (!endFlag)
-	{
-		uint8_t buffer[8192];
-		auto count = fread(buffer, numAudioChans * sampleSize, granularity, p);
-		if (count < 256)
-		{
-			size_t numBytes  = (256 - count) * numAudioChans * sampleSize;
-			size_t startByte = count * numAudioChans * sampleSize;
-			memset(buffer + startByte, 0, numBytes);
-			endFlag = true;
-		}
-
-		sceAudioOutOutput(ad, buffer);
-	}
-
-	sceAudioOutOutput(ad, nullptr);
-	sceAudioOutClose(ad);
-}
-
 
 

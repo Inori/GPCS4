@@ -12,7 +12,7 @@
 class AudioDumper
 {
 public:
-	AudioDumper(std::string filename)
+	AudioDumper(std::string const &filename)
 	{
 		m_file = fopen(filename.c_str(), "wb");
 	}
