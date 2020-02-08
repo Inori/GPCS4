@@ -70,9 +70,9 @@ RcPtr<GveCmdList> GveDevice::createCmdList()
 	return new GveCmdList(this);
 }
 
-RcPtr<GveContex> GveDevice::createContext()
+RcPtr<GveContext> GveDevice::createContext()
 {
-	return new GveContex(this);
+	return new GveContext(this);
 }
 
 RcPtr<GveDescriptorPool> GveDevice::createDescriptorPool()
