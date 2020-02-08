@@ -8,9 +8,21 @@
 ## Build GPCS4:
 Follow the steps:
 1. Checkout a proper branch.
+
 2. Close your Visual Studio first, install the 3 components listed on the github page.
+
 3. Restart Visual Studio, select `X64 Debug` build. Build 3rdParty libraries first, then GPCS4.
+
 4. If you still can't build, try to change clang or vulkan sdk version. My clang version is 9.0.0.0 and vulkan sdk version is 1.1.121.2. Other versions are not tested.
+
+If you are using **VS2019** and can't build the project: 
+
+1. install *Windows SDK v10.0.17763.0* , *MSVCv141*, *MSVCv142* and *CLANG-cl* (you can find it in Visual Studio Installer)
+2. For every project set **Windows SDK Version**  in Properties to *v10.0.17763.0*
+3. For every project in *3rd Party* set **Platform toolset** in Properties to *Visual Studio 2017 (141)*
+4. For *GPCS4* set **Platform toolset** in Properties to *LLVM (clang-cl)*
+5. Set up include and library directories in GPCS4 Properties properly (if you cant build due to a lot of "can't include cstdint can't include time ..." errors)
+6. try to build all 3rd Party libraries first, then GPCS4
 
 
 ## Run demos/games:
