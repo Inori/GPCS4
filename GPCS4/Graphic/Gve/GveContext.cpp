@@ -17,7 +17,7 @@
 namespace gve
 {;
 
-GveContex::GveContex(const RcPtr<GveDevice>& device) :
+GveContext::GveContext(const RcPtr<GveDevice>& device) :
 	m_device(device),
 	m_objects(&m_device->m_resObjects),
 	m_cmd(nullptr),
@@ -26,11 +26,11 @@ GveContex::GveContex(const RcPtr<GveDevice>& device) :
 {
 }
 
-GveContex::~GveContex()
+GveContext::~GveContext()
 {
 }
 
-void GveContex::beginRecording(const RcPtr<GveCmdList>& commandBuffer)
+void GveContext::beginRecording(const RcPtr<GveCmdList>& commandBuffer)
 {
 	m_cmd = commandBuffer;
 
@@ -64,7 +64,7 @@ void GveContex::beginRecording(const RcPtr<GveCmdList>& commandBuffer)
 		GveContextFlag::DirtyDrawBuffer);
 }
 
-RcPtr<GveCmdList> GveContex::endRecording()
+RcPtr<GveCmdList> GveContext::endRecording()
 {
 	endRenderPass();
 
@@ -75,12 +75,12 @@ RcPtr<GveCmdList> GveContex::endRecording()
 	return std::exchange(m_cmd, nullptr);
 }
 
-void GveContex::setViewport(const VkViewport& viewport, const VkRect2D& scissorRect)
+void GveContext::setViewport(const VkViewport& viewport, const VkRect2D& scissorRect)
 {
 	setViewports(1, &viewport, &scissorRect);
 }
 
-void GveContex::setViewports(uint32_t viewportCount, const VkViewport* viewports, const VkRect2D* scissorRects)
+void GveContext::setViewports(uint32_t viewportCount, const VkViewport* viewports, const VkRect2D* scissorRects)
 {
 	auto& vp = m_state.dy.vp;
 	if (viewportCount != vp.count)
@@ -98,43 +98,43 @@ void GveContex::setViewports(uint32_t viewportCount, const VkViewport* viewports
 	m_flags.set(GveContextFlag::GpDirtyViewport);
 }
 
-void GveContex::setVertexInputLayout(const GveVertexInputInfo& viState)
+void GveContext::setVertexInputLayout(const GveVertexInputInfo& viState)
 {
 	m_state.gp.states.vi = viState;
 	m_flags.set(GveContextFlag::GpDirtyPipelineState);
 }
 
-void GveContex::setInputAssemblyState(const GveInputAssemblyInfo& iaState)
+void GveContext::setInputAssemblyState(const GveInputAssemblyInfo& iaState)
 {
 	m_state.gp.states.ia = iaState;
 	m_flags.set(GveContextFlag::GpDirtyPipelineState);
 }
 
-void GveContex::setRasterizerState(const GveRasterizationInfo& rsState)
+void GveContext::setRasterizerState(const GveRasterizationInfo& rsState)
 {
 	m_state.gp.states.rs = rsState;
 	m_flags.set(GveContextFlag::GpDirtyPipelineState);
 }
 
-void GveContex::setMultiSampleState(const GveMultisampleInfo& msState)
+void GveContext::setMultiSampleState(const GveMultisampleInfo& msState)
 {
 	m_state.gp.states.ms = msState;
 	m_flags.set(GveContextFlag::GpDirtyPipelineState);
 }
 
-void GveContex::setDepthStencilState(const GveDepthStencilInfo& dsState)
+void GveContext::setDepthStencilState(const GveDepthStencilInfo& dsState)
 {
 	m_state.gp.states.ds = dsState;
 	m_flags.set(GveContextFlag::GpDirtyPipelineState);
 }
 
-void GveContex::setColorBlendState(const GveColorBlendInfo& blendCtl)
+void GveContext::setColorBlendState(const GveColorBlendInfo& blendCtl)
 {
 	m_state.gp.states.cb = blendCtl;
 	m_flags.set(GveContextFlag::GpDirtyPipelineState);
 }
 
-void GveContex::bindRenderTargets(const GveAttachment* color, uint32_t count)
+void GveContext::bindRenderTargets(const GveAttachment* color, uint32_t count)
 {
 	do
 	{
@@ -154,7 +154,7 @@ void GveContex::bindRenderTargets(const GveAttachment* color, uint32_t count)
 	} while (false);
 }
 
-void GveContex::bindDepthRenderTarget(const GveAttachment& depth)
+void GveContext::bindDepthRenderTarget(const GveAttachment& depth)
 {
 	do
 	{
@@ -169,7 +169,7 @@ void GveContex::bindDepthRenderTarget(const GveAttachment& depth)
 	} while (false);
 }
 
-void GveContex::bindShader(VkShaderStageFlagBits stage, const RcPtr<GveShader>& shader)
+void GveContext::bindShader(VkShaderStageFlagBits stage, const RcPtr<GveShader>& shader)
 {
 	RcPtr<GveShader>* shaderStage;
 
@@ -203,7 +203,7 @@ void GveContex::bindShader(VkShaderStageFlagBits stage, const RcPtr<GveShader>& 
 	}
 }
 
-void GveContex::bindIndexBuffer(const GveBufferSlice& buffer, VkIndexType indexType)
+void GveContext::bindIndexBuffer(const GveBufferSlice& buffer, VkIndexType indexType)
 {
 	m_state.vi.indexBuffer = buffer;
 	m_state.vi.indexType   = indexType;
@@ -211,7 +211,7 @@ void GveContex::bindIndexBuffer(const GveBufferSlice& buffer, VkIndexType indexT
 	m_flags.set(GveContextFlag::GpDirtyIndexBuffer);
 }
 
-void GveContex::bindVertexBuffer(uint32_t binding, const GveBufferSlice& buffer, uint32_t stride)
+void GveContext::bindVertexBuffer(uint32_t binding, const GveBufferSlice& buffer, uint32_t stride)
 {
 	m_state.vi.vertexBuffers[binding] = buffer;
 	m_state.vi.vertexStrides[binding] = stride;
@@ -219,13 +219,13 @@ void GveContex::bindVertexBuffer(uint32_t binding, const GveBufferSlice& buffer,
 	m_flags.set(GveContextFlag::GpDirtyVertexBuffers);
 }
 
-void GveContex::bindSampler(uint32_t regSlot, const RcPtr<GveSampler>& sampler)
+void GveContext::bindSampler(uint32_t regSlot, const RcPtr<GveSampler>& sampler)
 {
 	m_res[regSlot].sampler = sampler;
 	m_flags.set(GveContextFlag::GpDirtyResources);
 }
 
-void GveContex::bindResourceBuffer(uint32_t regSlot, const GveBufferSlice& buffer)
+void GveContext::bindResourceBuffer(uint32_t regSlot, const GveBufferSlice& buffer)
 {
 	m_res[regSlot].buffer = buffer;
 	m_flags.set(GveContextFlag::GpDirtyResources);
@@ -236,7 +236,7 @@ void GveContex::bindResourceBuffer(uint32_t regSlot, const GveBufferSlice& buffe
 	m_flags.set(GveContextFlag::GpDirtyDescriptorBinding);
 }
 
-void GveContex::bindResourceView(uint32_t regSlot,
+void GveContext::bindResourceView(uint32_t regSlot,
 								 const RcPtr<GveImageView>& imageView,
 								 const RcPtr<GveBufferView>& bufferView)
 {
@@ -245,7 +245,7 @@ void GveContex::bindResourceView(uint32_t regSlot,
 	m_flags.set(GveContextFlag::GpDirtyResources);
 }
 
-void GveContex::draw(
+void GveContext::draw(
 	uint32_t vertexCount,
 	uint32_t instanceCount,
 	uint32_t firstVertex,
@@ -256,7 +256,7 @@ void GveContex::draw(
 	m_cmd->cmdDraw(vertexCount, instanceCount, firstVertex, firstInstance);
 }
 
-void GveContex::drawIndexed(
+void GveContext::drawIndexed(
 	uint32_t indexCount,
 	uint32_t instanceCount,
 	uint32_t firstIndex,
@@ -268,7 +268,7 @@ void GveContex::drawIndexed(
 	m_cmd->cmdDrawIndexed(indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 }
 
-void GveContex::copyBuffer(GveBufferSlice& dstBuffer, GveBufferSlice& srcBuffer, VkDeviceSize size)
+void GveContext::copyBuffer(GveBufferSlice& dstBuffer, GveBufferSlice& srcBuffer, VkDeviceSize size)
 {
 	VkCommandBuffer commandBuffer = m_cmd->cmdBeginSingleTimeCommands();
 
@@ -281,7 +281,7 @@ void GveContex::copyBuffer(GveBufferSlice& dstBuffer, GveBufferSlice& srcBuffer,
 	m_cmd->cmdEndSingleTimeCommands(commandBuffer, queues.graphics.queueHandle);
 }
 
-void GveContex::copyBufferToImage(
+void GveContext::copyBufferToImage(
 	const RcPtr<GveImage>& dstImage,
 	GveBufferSlice& srcBuffer,
 	uint32_t width, uint32_t height)
@@ -304,7 +304,7 @@ void GveContex::copyBufferToImage(
 	m_cmd->cmdEndSingleTimeCommands(commandBuffer, queues.graphics.queueHandle);
 }
 
-void GveContex::updateBuffer(const RcPtr<GveBuffer>& buffer,
+void GveContext::updateBuffer(const RcPtr<GveBuffer>& buffer,
 							 VkDeviceSize offset, VkDeviceSize size, const void* data)
 {
 	do
@@ -333,7 +333,7 @@ void GveContex::updateBuffer(const RcPtr<GveBuffer>& buffer,
 	} while (false);
 }
 
-void GveContex::updateImage(const RcPtr<GveImage>& image,
+void GveContext::updateImage(const RcPtr<GveImage>& image,
 							VkDeviceSize offset, VkDeviceSize size, const void* data)
 {
 	auto stagingSlice = m_stagingAlloc->alloc(size, CACHE_LINE_SIZE);
@@ -346,7 +346,7 @@ void GveContex::updateImage(const RcPtr<GveImage>& image,
 	transitionImageLayout(image->handle(), image->getFormat(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, image->info().layout);
 }
 
-void GveContex::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout)
+void GveContext::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout)
 {
 	VkCommandBuffer commandBuffer = m_cmd->cmdBeginSingleTimeCommands();
 
@@ -399,7 +399,7 @@ void GveContex::transitionImageLayout(VkImage image, VkFormat format, VkImageLay
 	m_cmd->cmdEndSingleTimeCommands(commandBuffer, queues.graphics.queueHandle);
 }
 
-void GveContex::updateFrameBuffer()
+void GveContext::updateFrameBuffer()
 {
 	do
 	{
@@ -415,7 +415,7 @@ void GveContex::updateFrameBuffer()
 	m_flags.clr(GveContextFlag::GpDirtyFramebuffer);
 }
 
-void GveContex::updateRenderPassOps(const GveRenderTargets& rts, GveRenderPassOps& ops)
+void GveContext::updateRenderPassOps(const GveRenderTargets& rts, GveRenderPassOps& ops)
 {
 	for (uint32_t i = 0; i != MaxNumRenderTargets; ++i)
 	{
@@ -444,7 +444,7 @@ void GveContex::updateRenderPassOps(const GveRenderTargets& rts, GveRenderPassOp
 	ops.barrier.dstAccess = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 }
 
-void GveContex::beginRenderPass()
+void GveContext::beginRenderPass()
 {
 	updateRenderPassOps(m_state.om.renderTargets, m_state.om.omInfo.ops);
 
@@ -474,7 +474,7 @@ void GveContex::beginRenderPass()
 	m_flags.set(GveContextFlag::GpRenderPassBound);
 }
 
-void GveContex::endRenderPass()
+void GveContext::endRenderPass()
 {
 	do
 	{
@@ -488,7 +488,7 @@ void GveContex::endRenderPass()
 	} while (false);
 }
 
-void GveContex::updateVertexBindings()
+void GveContext::updateVertexBindings()
 {
 	VkDeviceSize bindingCount = 0;
 	std::array<VkBuffer, MaxNumVertexBindings> buffers;
@@ -511,7 +511,7 @@ void GveContex::updateVertexBindings()
 	m_flags.clr(GveContextFlag::GpDirtyVertexBuffers);
 }
 
-void GveContex::updateIndexBinding()
+void GveContext::updateIndexBinding()
 {
 	do
 	{
@@ -530,7 +530,7 @@ void GveContex::updateIndexBinding()
 }
 
 template <VkPipelineBindPoint BindPoint>
-void GveContex::updateShaderResources(const GvePipelineLayout* pipelineLayout, VkDescriptorSet& set)
+void GveContext::updateShaderResources(const GvePipelineLayout* pipelineLayout, VkDescriptorSet& set)
 {
 
 	uint32_t bindingCount = pipelineLayout->bindingCount();
@@ -618,14 +618,14 @@ void GveContex::updateShaderResources(const GvePipelineLayout* pipelineLayout, V
 }
 
 template <VkPipelineBindPoint BindPoint>
-void GveContex::updateShaderDescriptorSetBinding(const GvePipelineLayout* layout, VkDescriptorSet set)
+void GveContext::updateShaderDescriptorSetBinding(const GvePipelineLayout* layout, VkDescriptorSet set)
 {
 	VkPipelineLayout pipelineLayout = layout->pipelineLayout();
 
 	m_cmd->cmdBindDescriptorSet(BindPoint, pipelineLayout, set, 0, nullptr);
 }
 
-VkDescriptorSet GveContex::allocateDescriptorSet(VkDescriptorSetLayout layout)
+VkDescriptorSet GveContext::allocateDescriptorSet(VkDescriptorSetLayout layout)
 {
 	if (m_descPool == nullptr)
 	{
@@ -647,7 +647,7 @@ VkDescriptorSet GveContex::allocateDescriptorSet(VkDescriptorSetLayout layout)
 	return set;
 }
 
-void GveContex::updateGraphicsShaderResources()
+void GveContext::updateGraphicsShaderResources()
 {
 	if (m_flags.test(GveContextFlag::GpDirtyResources))
 	{
@@ -664,19 +664,19 @@ void GveContex::updateGraphicsShaderResources()
 				GveContextFlag::GpDirtyDescriptorBinding);
 }
 
-void GveContex::updateComputeDescriptorLayout()
+void GveContext::updateComputeDescriptorLayout()
 {
 	m_flags.clr(GveContextFlag::CpDirtyDescriptorBinding);
 }
 
-void GveContex::updateGraphicsPipeline()
+void GveContext::updateGraphicsPipeline()
 {
 	// Descriptor layout is bound with shaders
 	m_state.gp.pipeline = m_objects->pipelineManager().getGraphicsPipeline(m_state.gp.shaders);
 	m_flags.clr(GveContextFlag::GpDirtyPipeline);
 }
 
-void GveContex::updateGraphicsPipelineStates()
+void GveContext::updateGraphicsPipelineStates()
 {
 	GveRenderPass* renderPass = m_state.om.framebuffer->getRenderPass();
 	m_gpCtx.pipeline          = m_state.gp.pipeline->getPipelineHandle(m_state.gp.states, *renderPass);
@@ -686,15 +686,15 @@ void GveContex::updateGraphicsPipelineStates()
 	m_flags.clr(GveContextFlag::GpDirtyPipelineState);
 }
 
-void GveContex::updateComputePipeline()
+void GveContext::updateComputePipeline()
 {
 }
 
-void GveContex::updateComputePipelineStates()
+void GveContext::updateComputePipelineStates()
 {
 }
 
-void GveContex::updateDynamicState()
+void GveContext::updateDynamicState()
 {
 	if (m_flags.test(GveContextFlag::GpDirtyViewport))
 	{
@@ -710,7 +710,7 @@ void GveContex::updateDynamicState()
 }
 
 template <bool Indexed, bool Indirect>
-void GveContex::commitGraphicsState()
+void GveContext::commitGraphicsState()
 {
 	if (m_flags.test(GveContextFlag::GpDirtyPipeline))
 	{
@@ -759,7 +759,7 @@ void GveContex::commitGraphicsState()
 	}
 }
 
-void GveContex::commitComputeState()
+void GveContext::commitComputeState()
 {
 }
 

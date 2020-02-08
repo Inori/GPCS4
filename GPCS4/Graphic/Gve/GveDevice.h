@@ -20,7 +20,7 @@ class GveDescriptorPool;
 class GveBuffer;
 class GveImage;
 class GveSwapChain;
-class GveContex;
+class GveContext;
 class GveFrameBuffer;
 class GvePhysicalDevice;
 
@@ -39,7 +39,7 @@ struct GveDeviceQueueSet
 
 class GveDevice : public RcObject
 {
-	friend class GveContex;
+	friend class GveContext;
 	friend class GveDescriptorPoolTracker;
 
 public:
@@ -58,7 +58,7 @@ public:
 
 	RcPtr<GveCmdList> createCmdList();
 
-	RcPtr<GveContex> createContext();
+	RcPtr<GveContext> createContext();
 
 	RcPtr<GveDescriptorPool> createDescriptorPool();
 
