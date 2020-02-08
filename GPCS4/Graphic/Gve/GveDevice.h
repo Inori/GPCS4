@@ -14,15 +14,21 @@ namespace gve
 {;
 
 struct GveRenderTargets;
+struct GveImageCreateInfo;
+struct GveImageViewCreateInfo;
+struct GveSamplerCreateInfo;
 
 class GveCmdList;
 class GveDescriptorPool;
 class GveBuffer;
 class GveImage;
+class GveImageView;
+class GveSampler;
 class GveSwapChain;
 class GveContex;
 class GveFrameBuffer;
 class GvePhysicalDevice;
+class GveSharpResourceManager;
 
 struct GveDeviceQueue 
 {
@@ -62,56 +68,18 @@ public:
 
 	RcPtr<GveDescriptorPool> createDescriptorPool();
 
-
+	GveSharpResourceManager& getSharpResManager();
 
 	/// Buffer
-	
-	RcPtr<GveBuffer> createBuffer(
-		const GveBufferCreateInfo&	info, 
-		VkMemoryPropertyFlags		memoryType);
-
-	RcPtr<GveBuffer> createOrGetBufferVsharp(
-		const GveBufferCreateInfo&	info,
-		VkMemoryPropertyFlags		memoryType,
-		uint64_t					key);
-
-	void freeBufferVsharp(uint64_t key);
+	RcPtr<GveBuffer> createBuffer(const GveBufferCreateInfo& info, VkMemoryPropertyFlags memoryType);
 
 	/// Image
+	RcPtr<GveImage> createImage(const GveImageCreateInfo& info, VkMemoryPropertyFlags memoryType);
 
-	RcPtr<GveImage> createImage(
-		const GveImageCreateInfo&	info, 
-		VkMemoryPropertyFlags		memoryType);
-
-	RcPtr<GveImage> createOrGetImageTsharp(
-		const GveImageCreateInfo&	info,
-		VkMemoryPropertyFlags		memoryType,
-		uint64_t					key);
-
-	void freeImageTsharp(uint64_t key);
-	
-	RcPtr<GveImageView> createImageView(
-		const RcPtr<GveImage>&            image,
-		const GveImageViewCreateInfo&     createInfo);
-
-	RcPtr<GveImageView> createOrGetImageViewTsharp(
-		const RcPtr<GveImage>&            image,
-		const GveImageViewCreateInfo&     createInfo,
-		uint64_t						  key);
-
-	void freeImageViewTsharp(uint64_t key);
+	RcPtr<GveImageView> createImageView(const RcPtr<GveImage>& image, const GveImageViewCreateInfo& createInfo);
 
 	/// Sampler
-
 	RcPtr<GveSampler> createSampler(const GveSamplerCreateInfo& info);
-
-	RcPtr<GveSampler> createOrGetSamplerSsharp(
-		const GveSamplerCreateInfo&		info, 
-		uint64_t						key);
-
-	void freeSamplerSsharp(uint64_t key);
-
-	void GCSharpResource();
 
 private:
 	void recycleDescriptorPool(const RcPtr<GveDescriptorPool>& pool);
@@ -126,6 +94,7 @@ private:
 	GveDeviceQueueSet m_queues;
 	GveDeviceInfo  m_properties;
 
+	GveMemoryAllocator m_memAllocator;
 	GveResourceObjects m_resObjects;
 
 	GveRecycler<GveDescriptorPool, 16> m_recycledDescriptorPools;

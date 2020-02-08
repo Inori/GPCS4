@@ -30,7 +30,7 @@ For example:
    }
    ```
 
-<br><br>
+---
 
 And based on the above Sony's style, we add the following extra rules, to make our code more clean and easy to maintain.
 
@@ -40,9 +40,10 @@ And based on the above Sony's style, we add the following extra rules, to make o
 2. Use `do {} while(false)` pattern in functions that are complex and/or going to be complex.  
    e.g. functions which have more than one `if` statement.  
 
-   The advantage of this pattern is that, it can help us to find the most important part of one function more easily, this is called *Guard Clauses*  
-   Help us not to forget resource freeing.  
-   And this will force the code to grow vertically, not to expend horizontally, thus easy to understand and modify.  
+   Many people don't used to this pattern, but over the years, I only see one disadvantage of it, that is: when there's a loop in the function and you want to directly return the function within the loop, you need to define an extra flag variable to store whether or not the return condition was met. But with this only disadvantage, it brings many good things:
+   1. First and most important, this pattern force the code grows vertically, not to expend horizontally and nested again and again, because when condition not match, you just break. This way the code is more easier to read and maintain.  
+   2. "One function one return" together with "do while false" makes sure, the function only has one exist point, thus you can release any resources right before the return, thus reduing things you need to remember in your mind, and remember things as less as possible is good for programming. I know there is RAII for C++, but you wouldn't like use RAII on all resources, that would require more extra code.
+   3. It also helps people to figure out the most important part of a function, this is called *Guard Clauses*. Once you are used to it, you know what appears at the begining of a functions is just some bad condition checks which is less important, saving time again.
 
     For examp;e:
     ```
@@ -88,24 +89,32 @@ And based on the above Sony's style, we add the following extra rules, to make o
 
    You can use `break` or `continue` to cancel nested code, or write a new function if necessary.
    
-   For example:
+   For example:  
 
+   ---
    Recommended:
    ```
    if (!isFileExist(fileName))
    {
       break;
    }
-   file = createFile(fileName);
+   if (isFileBroken(fileName))
+   {
+      break;
+   }
+   auto result = processFile(fileName);
    ```
    Discouraged:
    ```
-   if (!isFileExist(fileName))
+   if (isFileExist(fileName))
    {
-      file = createFile(fileName);
+      if (!isFileBroken(fileName))
+      {
+         auto result = processFile(fileName);
+      }
    }
    ```
-
+   ---
    Recommended:
    ```
     for (int i = 0; i != count; ++i)
@@ -136,7 +145,7 @@ And based on the above Sony's style, we add the following extra rules, to make o
         }
     }
    ```
-
+   ---
    Recommended:
    ```
     void processOneItem(Item* item);

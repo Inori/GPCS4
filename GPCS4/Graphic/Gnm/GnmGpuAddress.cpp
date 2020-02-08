@@ -379,6 +379,92 @@ int32_t computeSurfaceInfo(SurfaceInfo* infoOut, const TilingParameters* tp)
 
 	switch (arrayMode)
 	{
+	case kArrayModeLinearGeneral:
+	case kArrayModeLinearAligned:
+	{
+		// Compute alignment
+		if (arrayMode == kArrayModeLinearGeneral)
+		{
+			infoOut->m_baseAlign   = (bitsPerElement > 8) ? (bitsPerElement + 7) / 8 : 1;
+			infoOut->m_pitchAlign  = 1;
+			infoOut->m_heightAlign = 1;
+		}
+		else if (arrayMode == kArrayModeLinearAligned)
+		{
+			infoOut->m_baseAlign   = kPipeInterleaveBytes;
+			infoOut->m_pitchAlign  = std::max(8UL, 64UL / ((bitsPerElement + 7) / 8UL));
+			infoOut->m_heightAlign = 1;
+		}
+
+		infoOut->m_depthAlign = thickness;
+
+		uint32_t outPitch  = (tpTemp.m_mipLevel == 0 && tpTemp.m_baseTiledPitch > 0) ? requestedPitch : tpTemp.m_linearWidth;
+		uint32_t outHeight = tpTemp.m_linearHeight;
+		uint32_t outDepth  = tpTemp.m_linearDepth;
+		// Pad dimensions -- AddrLib::PadDimensions()
+		// TODO: re-expand X and Y before pitch/height alignment? Otherwise, these can get pretty huge.
+		if (tpTemp.m_mipLevel > 0 && tpTemp.m_surfaceFlags.m_cube)
+		{
+			numDimensionsToPad = (tpTemp.m_linearDepth > 1) ? 3 : 2;  // pad cubemap sub-levels when we treat it as a 3d texture
+		}
+		if (numDimensionsToPad == 0)
+			numDimensionsToPad = 3;
+		LOG_ASSERT_RETURN(isPowerOfTwo(infoOut->m_pitchAlign), kStatusInternalTilingError, "pitchAlign (%u) must be a power of two.", infoOut->m_pitchAlign);
+		outPitch = (outPitch + infoOut->m_pitchAlign - 1) & ~(infoOut->m_pitchAlign - 1);
+		if (numDimensionsToPad > 1)
+		{
+			LOG_ASSERT_RETURN(isPowerOfTwo(infoOut->m_heightAlign), kStatusInternalTilingError, "heightAlign (%u) must be a power of two.", infoOut->m_heightAlign);
+			outHeight = (outHeight + infoOut->m_heightAlign - 1) & ~(infoOut->m_heightAlign - 1);
+		}
+		if (numDimensionsToPad > 2 || thickness > 1)
+		{
+			// For cubemap single-face, we do not pad slices.
+			// If we pad it, the slice number should be set to 6 and current mip level > 1
+			if (tpTemp.m_surfaceFlags.m_cube)  // && (1 || surfInfoTemp.flags.cubeAsArray))
+				outDepth = nextPowerOfTwo(outDepth);
+			// Normal 3D textures or 2D arrays or cubemaps have a thick mode?
+			if (thickness > 1)
+			{
+				LOG_ASSERT_RETURN(isPowerOfTwo(infoOut->m_depthAlign), kStatusInternalTilingError, "depthAlign (%u) must be a power of two.", infoOut->m_depthAlign);
+				outDepth = (outDepth + infoOut->m_depthAlign - 1) & ~(infoOut->m_depthAlign - 1);
+			}
+		}
+
+		// Hardware-specific size adjustment
+		uint64_t sliceSizeBytes = 0;
+		if (arrayMode == kArrayModeLinearGeneral)
+		{
+			sliceSizeBytes = (static_cast<uint64_t>(outPitch) * (outHeight)*bitsPerElement * tpTemp.m_numFragmentsPerPixel + 7) / 8;
+		}
+		else if (arrayMode == kArrayModeLinearAligned)
+		{
+			uint32_t pitch                   = outPitch;
+			uint32_t height                  = outHeight;
+			uint32_t pixelsPerPipeInterleave = kPipeInterleaveBytes / ((bitsPerElement + 7) / 8);
+			uint32_t sliceAlignInPixel       = pixelsPerPipeInterleave < 64 ? 64 : pixelsPerPipeInterleave;
+			LOG_ASSERT_RETURN(tpTemp.m_numFragmentsPerPixel == 1, kStatusInvalidArgument, "numFragmentsPerPixel (%u) must be 1 for linear surfaces.", tpTemp.m_numFragmentsPerPixel);
+			uint64_t pixelsPerSlice = static_cast<uint64_t>(pitch) * height * tpTemp.m_numFragmentsPerPixel;
+			while (pixelsPerSlice % sliceAlignInPixel)
+			{
+				pitch += infoOut->m_pitchAlign;
+				pixelsPerSlice = static_cast<uint64_t>(pitch) * height * tpTemp.m_numFragmentsPerPixel;
+			}
+			outPitch             = pitch;
+			uint32_t heightAlign = 1;
+			while ((pitch * heightAlign) % sliceAlignInPixel)
+			{
+				heightAlign++;
+			}
+			infoOut->m_heightAlign = heightAlign;
+			sliceSizeBytes         = (pixelsPerSlice * bitsPerElement + 7) / 8;
+		}
+		infoOut->m_pitch       = outPitch;
+		infoOut->m_height      = outHeight;
+		infoOut->m_depth       = outDepth;
+		infoOut->m_surfaceSize = sliceSizeBytes * outDepth;
+		infoOut->m_arrayMode   = arrayMode;
+	}
+		break;
 	case kArrayMode1dTiledThin:
 	case kArrayMode1dTiledThick:
 	{
@@ -521,9 +607,7 @@ int32_t computeSurfaceInfo(SurfaceInfo* infoOut, const TilingParameters* tp)
 		infoOut->m_surfaceSize = logicalSliceSizeBytes * outDepth;
 		infoOut->m_arrayMode   = arrayMode;
 	}
-	break;
-	case kArrayModeLinearGeneral:
-	case kArrayModeLinearAligned:
+		break;
 	case kArrayMode2dTiledThin:
 	case kArrayMode2dTiledThick:
 	case kArrayMode2dTiledXThick:
@@ -536,6 +620,7 @@ int32_t computeSurfaceInfo(SurfaceInfo* infoOut, const TilingParameters* tp)
 	case kArrayMode2dTiledThickPrt:
 	case kArrayMode3dTiledThinPrt:
 	case kArrayMode3dTiledThickPrt:
+		LOG_ASSERT(false, "macro tile mode not supported yet.");
 	default:
 		LOG_ERR("Invalid arrayMode (0x%02X).", arrayMode);
 		return kStatusInvalidArgument;

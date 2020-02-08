@@ -751,9 +751,6 @@
     <ClInclude Include="Graphic\Gve\GveGraphicsPipeline.h">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClInclude>
-    <ClInclude Include="Graphic\Gve\GveResourceManager.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClInclude>
     <ClInclude Include="Graphic\Gve\GvePipelineManager.h">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClInclude>
@@ -903,6 +900,9 @@
     </ClInclude>
     <ClInclude Include="Common\GPCS4Decoration.h">
       <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gve\GveSharpResourceManager.h">
+      <Filter>Source Files\Graphic\Gve</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1497,9 +1497,6 @@
     <ClCompile Include="Graphic\Gve\GveGraphicsPipeline.cpp">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClCompile>
-    <ClCompile Include="Graphic\Gve\GveResourceManager.cpp">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClCompile>
     <ClCompile Include="Graphic\Gve\GvePipelineManager.cpp">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClCompile>
@@ -1580,6 +1577,9 @@
     </ClCompile>
     <ClCompile Include="SceModules\SceAppContentUtil\sce_appcontentutil_error.h">
       <Filter>SceModules\SceAppContentUtil</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gve\GveSharpResourceManager.cpp">
+      <Filter>Source Files\Graphic\Gve</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

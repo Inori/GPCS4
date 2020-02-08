@@ -7,8 +7,6 @@
 #include "../Gnm/GnmCommandBufferDummy.h"
 #include "../Gve/GveInstance.h"
 #include "../Gve/GveSwapChain.h"
-#include "../Gve/GvePipelineManager.h"
-#include "../Gve/GveResourceManager.h"
 #include "../Gve/GvePresenter.h"
 #include "../Gve/GveCmdList.h"
 #include "../Gve/GveImage.h"

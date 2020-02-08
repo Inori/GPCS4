@@ -24,6 +24,11 @@ public:
 		kNumSqImgRsrcRegisters
 	};
 
+	const TSharpBuffer& getTsharp() const
+	{
+		return m_tsharp;
+	}
+
 	SizeAlign getSizeAlign(void) const
 	{
 		uint64_t size       = 0;

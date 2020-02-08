@@ -8,7 +8,6 @@
 #include "GveImage.h"
 #include "GvePipelineManager.h"
 #include "GveRenderPass.h"
-#include "GveResourceManager.h"
 #include "GveResourceObjects.h"
 #include "GveSampler.h"
 #include "GveShader.h"
