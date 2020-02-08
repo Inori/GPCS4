@@ -183,7 +183,7 @@ static int outputCallBack(void* outputBuffer,
 		else
 		{
 			std::copy(buffer,
-					  buffer + ctx->supportedArgs.bytesConsumesPerSample,
+					  buffer + ctx->requestedArgs.bytesConsumesPerSample,
 					  reinterpret_cast<uint8_t*>(outputBuffer));
 			rc = 0;
 		}
@@ -226,8 +226,7 @@ AudioOut::AudioOut(SceUserServiceUserId userId,
 	auto devInfo = rtaudio_get_device_info(m_audioOutContext->audioHandle, devId);
 
 	// supported parameters
-	m_audioOutContext->supportedArgs.numChannels = std::min(devInfo.output_channels,
-															audioProps.nChannels);
+	m_audioOutContext->supportedArgs.numChannels = devInfo.output_channels;
 
 	m_audioOutContext->supportedArgs.bytesConsumesPerSample =
 		m_audioOutContext->supportedArgs.numChannels 
@@ -238,7 +237,7 @@ AudioOut::AudioOut(SceUserServiceUserId userId,
 	rtaudio_stream_parameters_t streamParam;
 	streamParam.device_id = devId;
 	streamParam.first_channel = 0;
-	streamParam.num_channels  = m_audioOutContext->supportedArgs.numChannels;
+	streamParam.num_channels  = m_audioOutContext->requestedArgs.numChannels;
 
 	unsigned int bufferFrameSize = static_cast<unsigned int>(m_audioOutContext->apiParams.len);
 	m_audioOutContext->lastError =
@@ -282,8 +281,6 @@ int32_t AudioOut::audioOutput(const void* ptr)
 		}
 
 		auto dataPtr = reinterpret_cast<const uint8_t*>(ptr);
-		auto numSlices = 
-			m_audioOutContext->requestedArgs.numChannels / m_audioOutContext->supportedArgs.numChannels;
 
 #ifdef DUMP_AUDIO
 			m_audioOutContext
@@ -291,13 +288,10 @@ int32_t AudioOut::audioOutput(const void* ptr)
 				.dumpAudio(dataPtr, m_audioOutContext->requestedArgs.bytesConsumesPerSample);
 #endif
 
-		auto step = m_audioOutContext->supportedArgs.bytesConsumesPerSample;
-
-		for (uint32_t i = 0; i < numSlices; i++)
 		{
 			std::unique_lock<std::mutex> lock{ m_audioOutContext->mutex };
 			m_audioOutContext->doneFlag = false;
-			m_audioOutContext->queue.push(dataPtr + i * step);
+			m_audioOutContext->queue.push(dataPtr);
 			m_audioOutContext->condDone.wait(lock, [=] { return m_audioOutContext->doneFlag; });
 		}
 
