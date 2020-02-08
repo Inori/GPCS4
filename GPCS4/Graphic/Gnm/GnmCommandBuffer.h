@@ -12,7 +12,7 @@ namespace gve
 {;
 class GveDevice;
 class GveCmdList;
-class GveContex;
+class GveContext;
 }  // namespace gve
 
 class GnmCommandBuffer
@@ -337,7 +337,7 @@ protected:
 protected:
 	RcPtr<gve::GveDevice> m_device;
 	RcPtr<gve::GveCmdList> m_cmd;
-	RcPtr<gve::GveContex> m_context;
+	RcPtr<gve::GveContext> m_context;
 	
 private:
 
