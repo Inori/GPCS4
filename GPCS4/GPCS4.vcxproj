@@ -19,14 +19,21 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Algorithm\MurmurHash2.h" />
     <ClInclude Include="Algorithm\sha1.h" />
     <ClInclude Include="Algorithm\Sha1Hash.h" />
+    <ClInclude Include="Common\GPCS4Decoration.h" />
     <ClInclude Include="Common\GPCS4Log.h" />
     <ClInclude Include="Common\GPCS4Types.h" />
     <ClInclude Include="Common\IntelliSenseClang.h" />
     <ClInclude Include="Emulator\ModuleManger.h" />
     <ClInclude Include="Emulator\PolicyManager.h" />
     <ClInclude Include="Emulator\SymbolManager.h" />
+    <ClInclude Include="Graphic\Gnm\GnmGpuAddressTool.h" />
+    <ClInclude Include="Graphic\Gnm\GnmTiler.h" />
+    <ClInclude Include="Graphic\Gnm\GnmTilerSSE2.h" />
+    <ClInclude Include="Graphic\Gve\GveRecycler.h" />
+    <ClInclude Include="Graphic\Gve\GveSharpResourceManager.h" />
     <ClInclude Include="Loader\elf-sce.h" />
     <ClInclude Include="Emulator\Emulator.h" />
     <ClInclude Include="Emulator\GameThread.h" />
@@ -83,7 +90,6 @@
     <ClInclude Include="Graphic\Gve\GvePhysicalDevice.h" />
     <ClInclude Include="Graphic\Gve\GvePresenter.h" />
     <ClInclude Include="Graphic\Gve\GveRenderPass.h" />
-    <ClInclude Include="Graphic\Gve\GveResourceManager.h" />
     <ClInclude Include="Graphic\Gve\GveResourceObjects.h" />
     <ClInclude Include="Graphic\Gve\GveSampler.h" />
     <ClInclude Include="Graphic\Gve\GveShader.h" />
@@ -132,8 +138,11 @@
     <ClInclude Include="Graphic\Pssl\GCNParser\VOPInstruction.h" />
     <ClInclude Include="Graphic\Pssl\GCNCompiler.h" />
     <ClInclude Include="Graphic\Pssl\GCNDecoder.h" />
+    <ClInclude Include="Graphic\Pssl\GCNSpirvTypes.h" />
+    <ClInclude Include="Graphic\Pssl\GCNStateRegister.h" />
     <ClInclude Include="Graphic\Pssl\PsslBindingCalculator.h" />
     <ClInclude Include="Graphic\Pssl\PsslCommon.h" />
+    <ClInclude Include="Graphic\Pssl\PsslContants.h" />
     <ClInclude Include="Graphic\Pssl\PsslEnums.h" />
     <ClInclude Include="Graphic\Pssl\PsslFetchShader.h" />
     <ClInclude Include="Graphic\Pssl\PsslKey.h" />
@@ -171,6 +180,8 @@
     <ClInclude Include="SceModules\SceAjm\sce_ajm.h" />
     <ClInclude Include="SceModules\SceAjm\sce_ajm_types.h" />
     <ClInclude Include="SceModules\SceAppContentUtil\sce_appcontentutil.h" />
+    <ClInclude Include="SceModules\SceAppContentUtil\sce_appcontentutil_error.h" />
+    <ClInclude Include="SceModules\SceAppContentUtil\sce_appcontentutil_types.h" />
     <ClInclude Include="SceModules\SceAudio3d\sce_audio3d.h" />
     <ClInclude Include="SceModules\SceAudioOut\sce_audioout.h" />
     <ClInclude Include="SceModules\SceAudioOut\sce_audioout_types.h" />
@@ -224,6 +235,7 @@
     <ClInclude Include="SceModules\SceRudp\sce_rudp.h" />
     <ClInclude Include="SceModules\SceSaveDataDialog\sce_savedatadialog.h" />
     <ClInclude Include="SceModules\SceSaveData\sce_savedata.h" />
+    <ClInclude Include="SceModules\SceSaveData\sce_savedata_types.h" />
     <ClInclude Include="SceModules\SceScreenShot\sce_screenshot.h" />
     <ClInclude Include="SceModules\SceSsl\sce_ssl.h" />
     <ClInclude Include="SceModules\SceSysmodule\sce_sysmodule.h" />
@@ -253,6 +265,7 @@
     <ClInclude Include="Util\UtilSync.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Algorithm\MurmurHash2.cpp" />
     <ClCompile Include="Algorithm\sha1.c" />
     <ClCompile Include="Algorithm\Sha1Hash.cpp" />
     <ClCompile Include="Common\GPCS4Log.cpp" />
@@ -274,7 +287,10 @@
     <ClCompile Include="Graphic\Gnm\GnmCommandBufferDummy.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmConvertor.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmDataFormat.cpp" />
+    <ClCompile Include="Graphic\Gnm\GnmGpuAddress.cpp" />
+    <ClCompile Include="Graphic\Gnm\GnmGpuAddressTool.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmOpCode.cpp" />
+    <ClCompile Include="Graphic\Gnm\GnmTiler.cpp" />
     <ClCompile Include="Graphic\GraphicShared.cpp" />
     <ClCompile Include="Graphic\Gve\GveBuffer.cpp" />
     <ClCompile Include="Graphic\Gve\GveCmdList.cpp" />
@@ -296,10 +312,10 @@
     <ClCompile Include="Graphic\Gve\GvePresenter.cpp" />
     <ClCompile Include="Graphic\Gve\GveRenderPass.cpp" />
     <ClCompile Include="Graphic\Gve\GvePipelineState.cpp" />
-    <ClCompile Include="Graphic\Gve\GveResourceManager.cpp" />
     <ClCompile Include="Graphic\Gve\GveResourceObjects.cpp" />
     <ClCompile Include="Graphic\Gve\GveSampler.cpp" />
     <ClCompile Include="Graphic\Gve\GveShader.cpp" />
+    <ClCompile Include="Graphic\Gve\GveSharpResourceManager.cpp" />
     <ClCompile Include="Graphic\Gve\GveStaging.cpp" />
     <ClCompile Include="Graphic\Gve\GveSwapChain.cpp" />
     <ClCompile Include="Graphic\Gve\GveUtil.cpp" />
@@ -333,6 +349,7 @@
     <ClCompile Include="Graphic\Pssl\GCNParser\ParserSIVOP.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNCompiler.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNDecoder.cpp" />
+    <ClCompile Include="Graphic\Pssl\GCNStateRegister.cpp" />
     <ClCompile Include="Graphic\Pssl\PsslFetchShader.cpp" />
     <ClCompile Include="Graphic\Pssl\PsslKey.cpp" />
     <ClCompile Include="Graphic\Pssl\PsslPsUsageTable.cpp" />

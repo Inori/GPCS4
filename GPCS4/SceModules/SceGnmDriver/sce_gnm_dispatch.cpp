@@ -2,6 +2,8 @@
 #include "Graphic/Gnm/GnmOpCode.h"
 #include <cassert>
 
+LOG_CHANNEL(SceModules.SceGnmDriver.GnmDispatch);
+
 uint32_t PS4API sceGnmDispatchInitDefaultHardwareState(uint32_t* cmdBuffer, uint32_t numDwords)
 {
 	LOG_SCE_GRAPHIC("cmdbuff %p numDwords %d", cmdBuffer, numDwords);

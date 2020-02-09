@@ -6,7 +6,7 @@
 // The codebase is generated using GenerateCode.py
 // You may need to modify the code manually to fit development needs
 
-
+LOG_CHANNEL(SceModules.SceLibkernel);
 
 //////////////////////////////////////////////////////////////////////////
 // library: libkernel
@@ -124,8 +124,16 @@ int PS4API sceKernelLoadStartModule(void)
 }
 
 
+int PS4API sceKernelGetPrtAperture(int apertureId, void **addr, size_t *len)
+{
+	LOG_SCE_DUMMY_IMPL();
+	*addr = nullptr;
+	*len = 0;
+	return SCE_OK;
+}
 
-int PS4API sceKernelSetPrtAperture(void)
+
+int PS4API sceKernelSetPrtAperture(int apertureId, void *addr, size_t len)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
@@ -373,11 +381,5 @@ int PS4API scek_getppid(void)
 	return pid;
 }
 
-
-int PS4API sceKernelPollEventFlag(SceKernelEventFlag ef, uint64_t bitPattern, uint32_t waitMode, uint64_t* pResultPat)
-{
-	LOG_SCE_DUMMY_IMPL();
-	return 0;
-}
 
 

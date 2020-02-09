@@ -1,5 +1,6 @@
 #include "GCNDecoder.h"
 
+LOG_CHANNEL(Graphic.Pssl.GCNDecoder);
 
 namespace pssl
 {;

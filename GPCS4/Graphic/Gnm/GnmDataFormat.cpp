@@ -1,5 +1,6 @@
 #include "GnmDataFormat.h"
 
+LOG_CHANNEL(Graphic.Gnm.GnmDataFormat);
 
 const char* dataFormatName(DataFormat dataFmt)
 {
@@ -146,4 +147,209 @@ const char* dataFormatName(DataFormat dataFmt)
 		fmtName = nullptr;
 	}
 	return fmtName;
+}
+
+DataFormat DataFormat::build(SurfaceFormat surfFmt, TextureChannelType channelType, TextureChannel chanX /*= kTextureChannelX*/, TextureChannel chanY /*= kTextureChannelY*/, TextureChannel chanZ /*= kTextureChannelZ*/, TextureChannel chanW /*= kTextureChannelW*/)
+{
+	DataFormat result{};
+	result.m_bits.m_surfaceFormat = surfFmt;
+	result.m_bits.m_channelType   = channelType;
+	result.m_bits.m_channelX      = chanX;
+	result.m_bits.m_channelY      = chanY;
+	result.m_bits.m_channelZ      = chanZ;
+	result.m_bits.m_channelW      = chanW;
+	result.m_bits.m_unused        = 0;
+
+	return result;
+}
+
+DataFormat DataFormat::build(RenderTargetFormat rtFmt, RenderTargetChannelType rtChannelType, RenderTargetChannelOrder channelOrder)
+{
+	const uint32_t channelCountTab[kRenderTargetFormatX24_8_32 + 1] = {
+		0, 1, 1, 2, 1, 2, 3, 3, 4, 4, 4, 2, 4, 0, 4, 0, 3, 4, 4, 4, 2, 2, 3
+	};
+
+	uint32_t channelCount = channelCountTab[rtFmt];
+
+	DataFormat result             = { { 0 } };
+	result.m_bits.m_surfaceFormat = rtFmt;
+	result.m_bits.m_channelType   = rtChannelType;
+
+	switch (channelOrder)
+	{
+	case kRenderTargetChannelOrderStandard:
+	{
+		switch (channelCount)
+		{
+		case 4: result.m_bits.m_channelW = kTextureChannelW;
+		case 3: result.m_bits.m_channelZ = kTextureChannelZ;
+		case 2: result.m_bits.m_channelY = kTextureChannelY;
+		case 1: result.m_bits.m_channelX = kTextureChannelX;
+		}
+	}
+	break;
+	case kRenderTargetChannelOrderAlt:
+	{
+		switch (channelCount)
+		{
+		case 1:
+		{
+			result.m_bits.m_channelX = kTextureChannelY;
+		}
+		break;
+		case 2:
+		{
+			result.m_bits.m_channelX = kTextureChannelX;
+			result.m_bits.m_channelY = kTextureChannelW;
+		}
+		break;
+		case 3:
+		{
+			result.m_bits.m_channelX = kTextureChannelX;
+			result.m_bits.m_channelY = kTextureChannelY;
+			result.m_bits.m_channelZ = kTextureChannelW;
+		}
+		break;
+		case 4:
+		{
+			result.m_bits.m_channelX = kTextureChannelZ;
+			result.m_bits.m_channelY = kTextureChannelY;
+			result.m_bits.m_channelZ = kTextureChannelX;
+			result.m_bits.m_channelW = kTextureChannelW;
+		}
+		break;
+		}
+	}
+	break;
+	case kRenderTargetChannelOrderReversed:
+	{
+		switch (channelCount)
+		{
+		case 1:
+		{
+			result.m_bits.m_channelX = kTextureChannelZ;
+		}
+		break;
+		case 2:
+		{
+			result.m_bits.m_channelX = kTextureChannelY;
+			result.m_bits.m_channelY = kTextureChannelX;
+		}
+		break;
+		case 3:
+		{
+			result.m_bits.m_channelX = kTextureChannelZ;
+			result.m_bits.m_channelY = kTextureChannelY;
+			result.m_bits.m_channelZ = kTextureChannelX;
+		}
+		break;
+		case 4:
+		{
+			result.m_bits.m_channelX = kTextureChannelW;
+			result.m_bits.m_channelY = kTextureChannelZ;
+			result.m_bits.m_channelZ = kTextureChannelY;
+			result.m_bits.m_channelW = kTextureChannelX;
+		}
+		break;
+		}
+	}
+	break;
+	case kRenderTargetChannelOrderAltReversed:
+	{
+		switch (channelCount)
+		{
+		case 1:
+		{
+			result.m_bits.m_channelX = kTextureChannelW;
+		}
+		break;
+		case 2:
+		{
+			result.m_bits.m_channelX = kTextureChannelW;
+			result.m_bits.m_channelY = kTextureChannelX;
+		}
+		break;
+		case 3:
+		{
+			result.m_bits.m_channelX = kTextureChannelW;
+			result.m_bits.m_channelY = kTextureChannelY;
+			result.m_bits.m_channelZ = kTextureChannelX;
+		}
+		break;
+		case 4:
+		{
+			result.m_bits.m_channelX = kTextureChannelW;
+			result.m_bits.m_channelY = kTextureChannelX;
+			result.m_bits.m_channelZ = kTextureChannelY;
+			result.m_bits.m_channelW = kTextureChannelZ;
+		}
+		break;
+		}
+	}
+	break;
+	}
+
+	return result;
+}
+
+uint32_t DataFormat::getTotalBitsPerElement() const
+{
+	uint32_t surfFmt = m_bits.m_surfaceFormat;
+	uint32_t result  = 0LL;
+	if ((unsigned int)surfFmt <= kSurfaceFormat1Reversed)
+	{
+		uint32_t texelsPerElement = getTexelsPerElement();
+		result = (unsigned int)(s_bitsPerElement[surfFmt] * texelsPerElement);
+	}
+	return result;
+}
+
+uint32_t DataFormat::getTexelsPerElement(void) const
+{
+	uint32_t result = 0;
+
+	if (m_bits.m_surfaceFormat >= kSurfaceFormatBc1 && m_bits.m_surfaceFormat <= kSurfaceFormatBc7)
+	{
+		result = 16;
+	}
+	else if (m_bits.m_surfaceFormat >= kSurfaceFormat1)
+	{
+		result = 8;
+	}
+	else
+	{
+		result = 1;
+	}
+
+	return result;
+}
+
+ZFormat DataFormat::getZFormat(void) const
+{
+	ZFormat fmt = kZFormat32Float;
+	if (m_bits.m_surfaceFormat != kSurfaceFormat32)
+	{
+		fmt = kZFormat16;
+	}
+	return fmt;
+}
+
+StencilFormat DataFormat::getStencilFormat(void) const
+{
+	return static_cast<StencilFormat>(m_bits.m_surfaceFormat == kSurfaceFormat8);
+}
+
+uint32_t DataFormat::getTotalBytesPerElement(void) const
+{
+	return getTotalBitsPerElement() / 8;
+}
+
+bool DataFormat::isBlockCompressedFormat(void) const
+{
+	return (m_bits.m_surfaceFormat >= kSurfaceFormatBc1) && (m_bits.m_surfaceFormat <= kSurfaceFormatBc7);
+}
+
+bool DataFormat::operator==(const DataFormat& other) const
+{
+	return m_asInt == other.m_asInt;
 }

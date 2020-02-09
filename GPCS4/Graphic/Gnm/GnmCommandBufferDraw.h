@@ -12,6 +12,7 @@ namespace gve
 {;
 class GveShader;
 class GveImageView;
+class GveSharpResourceManager;
 }  // namespace gve
 
 class GnmBuffer;
@@ -37,7 +38,7 @@ class GnmCommandBufferDraw : public GnmCommandBuffer
 	using VertexInputSemantic = pssl::VertexInputSemantic;
 public:
 	GnmCommandBufferDraw(
-		const RcPtr<gve::GveDevice>&     evice,
+		const RcPtr<gve::GveDevice>&     device,
 		const RcPtr<gve::GveImageView>&  defaultColorTarget
 	);
 
@@ -70,6 +71,7 @@ public:
 	virtual void drawIndexAuto(uint32_t indexCount, DrawModifier modifier) override;
 	virtual void drawIndexAuto(uint32_t indexCount) override;
 
+	virtual void prepareFlip() override;
 	virtual void prepareFlip(void *labelAddr, uint32_t value) override;
 	virtual void prepareFlipWithEopInterrupt(EndOfPipeEventType eventType,
 		void *labelAddr, uint32_t value,
@@ -111,6 +113,8 @@ public:
 
 	virtual void setIndexSize(IndexSize indexSize, CachePolicy cachePolicy) override;
 
+	virtual void dispatch(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ) override;
+
 private:
 	
 
@@ -146,6 +150,7 @@ private:
 	// Image view from swapchain, this is the default render target view.
 	RcPtr<gve::GveImageView> m_defaultColorTarget;
 	RcPtr<gve::GveImageView> m_depthTarget;
+	gve::GveSharpResourceManager& m_sharpRes;
 
 	GnmShaderContext m_vsContext;
 	GnmShaderContext m_psContext;

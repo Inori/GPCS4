@@ -5,6 +5,10 @@
 
 #include <unordered_map>
 
+struct VSharpBuffer;
+struct TSharpBuffer;
+struct SSharpBuffer;
+
 namespace gve
 {;
 
@@ -24,26 +28,21 @@ class GveSampler;
 // PS4 Gnm doesn't have explicit APIs to allocate/free GPU resources.
 // We need to create/destroy gpu resource while parsing command buffers.
 
-class GveResourceManager
+class GveSharpResourceManager
 {
 public:
-	GveResourceManager(GveDevice* device,
-		GveMemoryAllocator* memAlloc);
-	~GveResourceManager();
+	GveSharpResourceManager(GveDevice* device);
 
+	~GveSharpResourceManager();
 
 	/// Buffer
 
-	/**
-	 * \brief Create a normal buffer
-	 *
-	 * ie. A staging buffer,
-	 * For this type of buffer, we know exactly when it will be released,
-	 * so we don't need to hold a reference.
-	 */
-	RcPtr<GveBuffer> createBuffer(
-		const GveBufferCreateInfo&	info,
-		VkMemoryPropertyFlags		memoryType);
+	RcPtr<GveBuffer> createOrGetIndexBuffer(
+		const GveBufferCreateInfo& info,
+		VkMemoryPropertyFlags memoryType,
+		const void* address);
+
+	void freeIndexBuffer(const void* address);
 
 	/**
 	 * \brief Create a buffer correspond to a V# buffer
@@ -51,29 +50,19 @@ public:
 	 * For this type of buffer, we don't know when it will be released,
 	 * so we need to hold a reference count inside the GveResourceManager class
 	 */
-	RcPtr<GveBuffer> createBufferVsharp(
+	RcPtr<GveBuffer> createOrGetBufferVsharp(
 		const GveBufferCreateInfo&	info,
 		VkMemoryPropertyFlags		memoryType,
-		uint64_t					key);
+		const VSharpBuffer&			vsharp);
 
 	/**
 	 * \brief Free a buffer
 	 *
 	 * Free a buffer created with createBufferVsharp
 	 */
-	void freeBufferVsharp(uint64_t key);
+	void freeBufferVsharp(const VSharpBuffer& vsharp);
 
 	/// Image
-
-	/**
-	 * \brief Create a normal image
-	 *
-	 * For this type of image, we know exactly when it will be released,
-	 * so we don't need to hold a reference.
-	 */
-	RcPtr<GveImage> createImage(
-		const GveImageCreateInfo&	info,
-		VkMemoryPropertyFlags		memoryType);
 
 	/**
 	 * \brief Create a image correspond to a T# buffer
@@ -81,40 +70,28 @@ public:
 	 * For this type of buffer, we don't know when it will be released,
 	 * so we need to hold a reference count inside the GveResourceManager class
 	 */
-	RcPtr<GveImage> createImageTsharp(
+	RcPtr<GveImage> createOrGetImageTsharp(
 		const GveImageCreateInfo&	info,
 		VkMemoryPropertyFlags		memoryType,
-		uint64_t					key);
+		const TSharpBuffer&			tsharp);
 
 	/**
 	 * \brief Free a image
 	 *
 	 * Free a image created with createImageTsharp
 	 */
-	void freeImageTsharp(uint64_t key);
+	void freeImageTsharp(const TSharpBuffer& tsharp);
 
 	/// Image View
 
-	RcPtr<GveImageView> createImageView(
-		const RcPtr<GveImage>&            image,
-		const GveImageViewCreateInfo&     createInfo);
-
-	RcPtr<GveImageView> createImageViewTsharp(
+	RcPtr<GveImageView> createOrGetImageViewTsharp(
 		const RcPtr<GveImage>&            image,
 		const GveImageViewCreateInfo&     createInfo,
-		uint64_t						  key);
+		const TSharpBuffer&				  tsharp);
 
-	void freeImageViewTsharp(uint64_t key);
+	void freeImageViewTsharp(const TSharpBuffer& tsharp);
 
 	/// Sampler
-
-	/**
-	 * \brief Create a normal sampler
-	 *
-	 * For this type of sampler, we know exactly when it will be released,
-	 * so we don't need to hold a reference.
-	 */
-	RcPtr<GveSampler> createSampler(const GveSamplerCreateInfo& info);
 
 	/**
 	 * \brief Create a sampler correspond to a S# buffer
@@ -122,16 +99,16 @@ public:
 	 * For this type of sampler, we don't know when it will be released,
 	 * so we need to hold a reference count inside the GveResourceManager class
 	 */
-	RcPtr<GveSampler> createSamplerSsharp(
+	RcPtr<GveSampler> createOrGetSamplerSsharp(
 		const GveSamplerCreateInfo&		info,
-		uint64_t						key);
+		const SSharpBuffer&				ssharp);
 
 	/**
 	 * \brief Free a sampler
 	 *
 	 * Free a sampler created with createSamplerSsharp
 	 */
-	void freeSamplerSsharp(uint64_t key);
+	void freeSamplerSsharp(const SSharpBuffer& ssharp);
 
 	/**
 	 * \brief Garbage collect
@@ -140,9 +117,16 @@ public:
 	void GC();
 
 private:
-	GveDevice* m_device;
+	template <typename T>
+	uint64_t calculateKey(const T& sharp);
 
-	GveMemoryAllocator* m_memAllocator;
+	RcPtr<gve::GveBuffer> createOrGetBuffer(
+		const GveBufferCreateInfo& info, 
+		VkMemoryPropertyFlags memoryType, 
+		uint64_t key);
+
+private:
+	GveDevice* m_device;
 
 	std::unordered_map<uint64_t, RcPtr<GveBuffer>> m_buffers;
 	std::unordered_map<uint64_t, RcPtr<GveImage>> m_images;

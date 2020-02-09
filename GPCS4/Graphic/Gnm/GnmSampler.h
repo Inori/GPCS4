@@ -18,6 +18,11 @@ public:
 		kNumSqImgSampRegisters
 	};
 
+	const SSharpBuffer& getSsharp() const
+	{
+		return m_ssharp;
+	}
+
 	WrapMode getWrapModeX() const
 	{
 		return (WrapMode)SCE_GNM_GET_FIELD(m_regs[kSqImgSampWord0], SQ_IMG_SAMP_WORD0, CLAMP_X);
@@ -116,7 +121,7 @@ public:
 	union
 	{
 		uint32_t m_regs[4];
-		SSharpBuffer ssharp;
+		SSharpBuffer m_ssharp;
 	};
 	
 

@@ -6,7 +6,7 @@
 // The codebase is generated using GenerateCode.py
 // You may need to modify the code manually to fit development needs
 
-
+LOG_CHANNEL(SceModules.SceSystemService);
 
 //////////////////////////////////////////////////////////////////////////
 // library: libSceSystemService
@@ -97,10 +97,23 @@ int PS4API sceSystemServiceReceiveEvent(void)
 }
 
 
-int PS4API sceSystemServiceGetDisplaySafeAreaInfo(void)
+int PS4API sceSystemServiceGetDisplaySafeAreaInfo(SceSystemServiceDisplaySafeAreaInfo* info)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("info %p", info);
+	int ret = SCE_ERROR_UNKNOWN;
+	do
+	{
+		if (!info)
+		{
+			ret = SCE_SYSTEM_SERVICE_ERROR_PARAMETER;
+			break;
+		}
+
+		info->ratio = 1.0;
+
+		ret = SCE_OK;
+	} while (false);
+	return ret;
 }
 
 

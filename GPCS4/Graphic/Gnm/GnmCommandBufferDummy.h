@@ -29,6 +29,9 @@ public:
 
 	virtual void initializeDefaultHardwareState() override;
 
+	
+	virtual void prepareFlip() override;
+
 
 	virtual void prepareFlip(void *labelAddr, uint32_t value) override;
 
@@ -121,6 +124,9 @@ public:
 
 
 	virtual void writeAtEndOfPipeWithInterrupt(EndOfPipeEventType eventType, EventWriteDest dstSelector, void *dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy cachePolicy) override;
+
+
+	virtual void dispatch(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ) override;
 
 private:
 

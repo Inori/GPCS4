@@ -65,8 +65,10 @@ public:
 
     /// ctor
     SOPKInstruction(SIMM16 simm16, SDST sdst, unsigned int simm16Ridx, unsigned int sdstRidx,
-		InstructionCategory insCat = ScalarALU, InstructionClass insClass = InstructionClassUnknown):
-		Instruction(SOPKInstructionWidth, insCat, InstructionSet_SOPK, insClass),
+		InstructionCategory insCat = ScalarALU, 
+		InstructionClass insClass = InstructionClassUnknown, 
+		OperandType operandType = TypeNone) :
+		Instruction(SOPKInstructionWidth, insCat, InstructionSet_SOPK, insClass, operandType),
         m_simm16(simm16), m_simm16Ridx(simm16Ridx), m_sdst(sdst), m_sdstRidx(sdstRidx) { }
 
     /// dtor
@@ -151,7 +153,15 @@ public:
     OP GetOp() const { return m_op; }
 
     /// ctor
-    SISOPKInstruction(SIMM16 simm16, OP op, SDST sdst, unsigned int simm16Ridx, unsigned int sdstRidx): SOPKInstruction(simm16, sdst, simm16Ridx, sdstRidx), m_op(op) { }
+    SISOPKInstruction(
+		SIMM16 simm16, OP op, SDST sdst, unsigned int simm16Ridx, unsigned int sdstRidx,
+		InstructionClass insClass    = InstructionClassUnknown,
+		OperandType operandType = TypeNone) : 
+		SOPKInstruction(simm16, sdst, simm16Ridx, sdstRidx, 
+			Instruction::ScalarALU, 
+			insClass, 
+			operandType),
+		m_op(op) { }
 
 private:
     /// SOPK operation.

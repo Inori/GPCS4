@@ -2,6 +2,7 @@
 #include "GveDevice.h"
 #include "Platform/UtilFile.h"
 
+LOG_CHANNEL(Graphic.Gve.GveShader);
 
 namespace gve
 {;

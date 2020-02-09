@@ -9,7 +9,7 @@ namespace gve
 class GveCmdList : public RcObject
 {
 public:
-	GveCmdList(const RcPtr<GveDevice>& device);
+	GveCmdList(GveDevice* device);
 	~GveCmdList();
 
 	VkCommandBuffer execBufferHandle() const;
@@ -28,6 +28,13 @@ public:
 	 * the command list completes execution.
 	 */
 	void reset();
+
+	void trackDescriptorPool(RcPtr<GveDescriptorPool>&& pool)
+	{
+		m_descriptorPoolTracker.trackDescriptorPool(std::move(pool));
+	}
+
+	///
 
 	void updateDescriptorSets(
 		uint32_t  descriptorWriteCount,
@@ -657,9 +664,12 @@ private:
 	bool initCommandBuffer();
 
 private:
-	RcPtr<GveDevice> m_device;
+	GveDevice* m_device;
+
 	VkCommandPool m_pool = VK_NULL_HANDLE;
 	VkCommandBuffer m_execBuffer = VK_NULL_HANDLE;
+
+	GveDescriptorPoolTracker m_descriptorPoolTracker;
 };
 
 

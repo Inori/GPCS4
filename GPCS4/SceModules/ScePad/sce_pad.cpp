@@ -6,7 +6,7 @@
 // The codebase is generated using GenerateCode.py
 // You may need to modify the code manually to fit development needs
 
-
+LOG_CHANNEL(SceModules.ScePad);
 
 //////////////////////////////////////////////////////////////////////////
 // library: libScePad
@@ -17,10 +17,10 @@ MapSlot<ScePad*> g_padSlot(SCE_PAD_COUNT_MAX);
 
 //////////////////////////////////////////////////////////////////////////
 
-int PS4API scePadGetControllerInformation(void)
+int PS4API scePadGetControllerInformation(int32_t handle, ScePadControllerInformation *pInfo)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("handle %d info %p", handle, pInfo);
+	return g_padSlot[handle]->getInformation(pInfo);
 }
 
 
@@ -131,19 +131,18 @@ int PS4API scePadReadState(int32_t handle, ScePadData *pData)
 }
 
 
-int PS4API scePadResetLightBar(void)
+int PS4API scePadSetLightBar(int32_t handle, const ScePadLightBarParam *pParam)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("handle %d", handle);
+	return g_padSlot[handle]->setLightBar(handle, pParam);
 }
 
 
-int PS4API scePadSetLightBar(void)
+int PS4API scePadResetLightBar(int32_t handle)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("handle %d", handle);
+	return g_padSlot[handle]->resetLightBar(handle);
 }
-
 
 int PS4API scePadSetMotionSensorState(void) 
 {
@@ -152,10 +151,10 @@ int PS4API scePadSetMotionSensorState(void)
 }
 
 
-int PS4API scePadSetVibration(void)
+int PS4API scePadSetVibration(int32_t handle, const ScePadVibrationParam *pParam)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("handle %d", handle);
+	return g_padSlot[handle]->setVibration(handle, pParam);
 }
 
 

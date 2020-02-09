@@ -1,5 +1,7 @@
 #include "GnmConvertor.h"
 
+LOG_CHANNEL(Graphic.Gnm.GnmConvertor);
+
 namespace cvt
 {;
 
@@ -92,7 +94,7 @@ VkFormat convertDataFormatToVkFormat(DataFormat dataFormat)
 		{ kDataFormatR8Uint, VK_FORMAT_R8_UINT },
 		{ kDataFormatR8Snorm, VK_FORMAT_R8_SNORM },
 		{ kDataFormatR8Sint, VK_FORMAT_R8_SINT },
-		//{ kDataFormatA8Unorm, VK_FORMAT_A8_UNORM },
+		{ kDataFormatA8Unorm, VK_FORMAT_R8_UNORM },
 		//{ kDataFormatR1Unorm, VK_FORMAT_R1_UNORM },
 		//{ kDataFormatL1Unorm, VK_FORMAT_L1_UNORM },
 		//{ kDataFormatA1Unorm, VK_FORMAT_A1_UNORM },

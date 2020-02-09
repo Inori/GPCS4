@@ -253,6 +253,31 @@ const int NO_LABEL = -1;
 			InstructionClassCount
 		};
 
+		enum OperandType
+		{
+			TypeNone,
+			TypeB8,
+			TypeB16,
+			TypeB32,
+			TypeB64,
+			TypeB96,
+			TypeB128,
+			TypeF16,
+			TypeF32,
+			TypeF64,
+			TypeU8,
+			TypeU16,
+			TypeU24,
+			TypeU32,
+			TypeU64,
+			TypeI4,
+			TypeI8,
+			TypeI16,
+			TypeI24,
+			TypeI32,
+			TypeI64,
+		};
+
         /// 32 bit instructions
         typedef uint32_t instruction32bit;
 
@@ -264,7 +289,11 @@ const int NO_LABEL = -1;
         //
 
         /// ctor
-        Instruction(unsigned int instructionWidth, InstructionCategory instructionFormatKind, InstructionSet instructionFormat, InstructionClass instructionClass = InstructionClassUnknown);
+        Instruction(unsigned int instructionWidth, 
+			InstructionCategory instructionFormatKind, 
+			InstructionSet instructionFormat, 
+			InstructionClass instructionClass = InstructionClassUnknown,
+			OperandType instructionOperandType = TypeNone);
 
         /// dtor
         virtual ~Instruction() {}
@@ -289,14 +318,22 @@ const int NO_LABEL = -1;
 		/// \brief Description: Get Instruction`s class type
 		/// \return InstructionClass
 		/// -----------------------------------------------------------------------------------------------
-		InstructionClass GetInstructionClass() const { return m_instructionClass; }
+		InstructionClass GetInstructionClass() const;
+
+		/// -----------------------------------------------------------------------------------------------
+		/// \brief Name:        GetInstructionOperandWidth
+		/// \brief Description: Get Instruction operand's width,
+		///						e.g. xxx_b32 is 32, xxx_i64 is 64
+		/// \return Instruction operand's width
+		/// -----------------------------------------------------------------------------------------------
+		OperandType GetInstructionOperandType() const;
 
         /// -----------------------------------------------------------------------------------------------
         /// \brief Name:        GetInstructionFormat
         /// \brief Description: Get Instruction`s Format
         /// \return InstructionSet
         /// -----------------------------------------------------------------------------------------------
-        InstructionSet GetInstructionFormat() const { return m_instructionFormat; }
+		InstructionSet GetInstructionFormat() const { return m_instructionFormat; }
 
 	protected:
 		//
@@ -316,6 +353,8 @@ const int NO_LABEL = -1;
 
 		/// Instruction`s class
 		InstructionClass m_instructionClass;
+
+		OperandType m_instructionOperandType;
     };
 
 

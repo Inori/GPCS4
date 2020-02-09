@@ -4,6 +4,8 @@
 #include "Loader/FuncStub.h"
 #include "Platform/PlatformUtils.h"
 
+LOG_CHANNEL(Linker);
+
 CLinker::CLinker() : m_modSystem{*CSceModuleSystem::GetInstance()} {}
 
 // resolveSymbol always returns true

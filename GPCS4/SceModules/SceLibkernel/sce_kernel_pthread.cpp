@@ -3,6 +3,7 @@
 //#include "pthreads4w/pthread.h"
 #include "MapSlot.h"
 
+LOG_CHANNEL(SceModules.SceLibkernel.pthread);
 
 int pthreadErrorToSceError(int perror);
 
@@ -152,6 +153,12 @@ ScePthread PS4API scek_pthread_self(void)
 {
 	LOG_SCE_TRACE("");
 	return scePthreadSelf();
+}
+
+void PS4API scek_pthread_exit(void *value_ptr)
+{
+	LOG_SCE_TRACE("");
+	scePthreadExit(value_ptr);
 }
 
 

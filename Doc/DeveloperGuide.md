@@ -23,7 +23,7 @@ Follow the steps:
 3. Extract `lib` from [your download](https://pastebin.com/bUxckm3y) to `Debug` folder where GPCS4.exe output.
 4. Open properties window of GPCS4 project in Visual Studio, switch to Debugging tab,  
 set `Woring Directory` to `$(OutDir)`  
-set `Command Arguments` to the name of the main elf/bin, ie. `basic_quad.elf`.   
+set `Command Arguments` according to the help message, ie. `-E eboot.bin`.   
 Note you don't need to specify the full path because the `Woring Directory` has been set to the folder the elf/bin locate.
 5. Build the `x64 Debug` version and press F5.
 
@@ -39,13 +39,15 @@ Read our [code style document](https://github.com/Inori/GPCS4/blob/master/Doc/Co
 ***Make sure you have enough free time to do this job. Don't just have a brief period of enthusiasm. This is the most important part.***
 
 Note, before you write any code, read our [code style document](https://github.com/Inori/GPCS4/blob/master/Doc/CodeStyle.md) carefully, code which do not follow the style will not be accepted.  
-Also, you can take the existing code as example.
+Also, you can take the existing code as examples.
 
 Follow the steps:
-1. Read the roadmap on the main page, select a part which you're insterested in. Or if you're not sure, see [Issues](https://github.com/Inori/GPCS4/issues) or [Trello](https://trello.com/b/4kZu97F5/gpcs4) cards.
-2. Build GPCS4 following the above steps.
-3. Download all the files here, these are all you need to develop GPCS4.  
+1. Build GPCS4 following the above steps.
+2. Download all the files here, these are all you need to develop GPCS4.  
     https://pastebin.com/bUxckm3y
-4. Run a demo or game you like, find why it crashes/doesn't work.
-5. Then you know what to do next.
+3. Read the roadmap on the main page, select a part which you're insterested in. Basically, you have 3 ways to get started with the project:  
+     - Pick an issue from github's issues page.  
+     - Pick a TODO from [Trello](https://trello.com/b/4kZu97F5/gpcs4) cards.  
+     - Or If you are skilled enough, try to run a game or demo you like, see why it doesn't work or missing any features, then focus on what you're really interested in.  
+4. Then you know what to do next.
 

@@ -6,6 +6,8 @@
 #include <fcntl.h>
 #include <cstdio>
 
+LOG_CHANNEL(SceModules.SceLibkernel.file);
+
 // this will be more friendly on linux....
 
 #ifdef GPCS4_WINDOWS
@@ -154,7 +156,7 @@ ssize_t PS4API sceKernelWrite(int d, const void *buf, size_t nbytes)
 }
 
 
-sceoff_t PS4API sceKernelLseek(int fildes, sceoff_t offset, int whence)
+sce_off_t PS4API sceKernelLseek(int fildes, sce_off_t offset, int whence)
 {
 	LOG_SCE_TRACE("fd %d off %d where %d", fildes, offset, whence);
 	int fd = g_fdSlots[fildes].fd;
@@ -186,9 +188,9 @@ int PS4API sceKernelClose(int d)
 }
 
 
-inline scemode_t getSceFileMode(uint16_t oldMode)
+inline sce_mode_t getSceFileMode(uint16_t oldMode)
 {
-	scemode_t sceMode = 0;
+	sce_mode_t sceMode = 0;
 	if (oldMode & _S_IREAD)
 	{
 		sceMode = SCE_KERNEL_S_IRU;
@@ -402,5 +404,19 @@ int PS4API scek__open(const char* path, int flags, SceKernelMode mode)
 	int fd = _open(path, flags, mode);
 	return fd;
 }
+
+int PS4API scek_shm_open(const char *name, int oflag, SceKernelMode mode)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API scek_shm_unlink(const char *name)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
 
 

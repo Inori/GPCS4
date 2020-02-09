@@ -12,7 +12,7 @@ namespace gve
 {;
 class GveDevice;
 class GveCmdList;
-class GveContex;
+class GveContext;
 }  // namespace gve
 
 class GnmCommandBuffer
@@ -38,7 +38,7 @@ public:
 	//virtual void disableGsMode() = 0;
 	//virtual void disableOrderedAppendAllocationCounter(uint32_t oaCounterIndex) = 0;
 	//virtual void dispatchDraw(PrimitiveType primType, uint32_t indexOffset, uint32_t primGroupIndexCount, uint32_t primGroupThreshold, uint32_t pollIntervalThreshold, DispatchDrawMode dispatchDrawMode, uint32_t sgprVrbLoc, DrawModifier modifier) = 0;
-	//virtual void dispatch(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ) = 0;
+	virtual void dispatch(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ) = 0;
 	//virtual void dispatchWithOrderedAppend(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ, DispatchOrderedAppendMode orderedAppendMode) = 0;
 	//virtual void dmaData(DmaDataDst	dstSel, uint64_t dst, DmaDataSrc srcSel, uint64_t srcOrData, uint32_t numBytes, DmaDataBlockingMode isBlocking) = 0;
 	virtual void drawIndexAuto(uint32_t indexCount, DrawModifier modifier) = 0;
@@ -76,7 +76,7 @@ public:
 	//virtual uint64_t pause(uint32_t reservedDWs) = 0;
 	//virtual void popMarker() = 0;
 	//virtual void prefetchIntoL2(void *dataAddr, uint32_t sizeInBytes) = 0;
-	//virtual void prepareFlip() = 0;
+	virtual void prepareFlip() = 0;
 	virtual void prepareFlip(void *labelAddr, uint32_t value) = 0;
 	//virtual void prepareFlipWithEopInterrupt(EndOfPipeEventType eventType, CacheAction cacheAction) = 0;
 	virtual void prepareFlipWithEopInterrupt(EndOfPipeEventType eventType, void *labelAddr, uint32_t value ,CacheAction cacheAction) = 0;
@@ -337,7 +337,7 @@ protected:
 protected:
 	RcPtr<gve::GveDevice> m_device;
 	RcPtr<gve::GveCmdList> m_cmd;
-	RcPtr<gve::GveContex> m_context;
+	RcPtr<gve::GveContext> m_context;
 	
 private:
 

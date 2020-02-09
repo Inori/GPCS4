@@ -19,6 +19,11 @@ public:
 		kNumSqBufRsrcRegisters
 	};
 
+	const VSharpBuffer& getVsharp() const
+	{
+		return m_vsharp;
+	}
+
 	ResourceMemoryType getResourceMemoryType() const
 	{
 		// TODO

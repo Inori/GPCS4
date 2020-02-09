@@ -5,7 +5,7 @@
 // The codebase is generated using GenerateCode.py
 // You may need to modify the code manually to fit development needs
 
-
+LOG_CHANNEL(SceModules.SceNpManager);
 
 //////////////////////////////////////////////////////////////////////////
 // library: libSceNpManager
@@ -82,6 +82,13 @@ int PS4API sceNpNotifyPlusFeature(void)
 
 
 int PS4API sceNpPollAsync(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceNpRegisterGamePresenceCallback(void)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;

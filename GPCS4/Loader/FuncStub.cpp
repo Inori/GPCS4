@@ -1,6 +1,8 @@
 #include "FuncStub.h"
 #include "Platform/UtilDebug.h"
 
+LOG_CHANNEL(Loader.FuncStub);
+
 static void logFunc(const char *log) 
 {
 	LOG_TRACE(log); 
@@ -45,8 +47,8 @@ JitFunctionPool::JitFunctionPool(size_t funcSize, size_t funcNum) :
 	m_funcSize{ util::alignRound(funcSize, (size_t)16) }, m_funcNum{ funcNum }, m_index{ 0 }
 {
 	m_totalSize = m_funcSize * funcNum;
-	auto memory = UtilMemory::VMMap(m_totalSize,
-                                 UtilMemory::VMPF_READ | UtilMemory::VMPF_EXECUTE);
+	auto memory = UtilMemory::VMMapFlexible(nullptr, m_totalSize,
+                                 UtilMemory::VMPF_CPU_READ | UtilMemory::VMPF_CPU_EXEC);
 
 	m_memory.reset(reinterpret_cast<uint8_t *>(memory));
 }

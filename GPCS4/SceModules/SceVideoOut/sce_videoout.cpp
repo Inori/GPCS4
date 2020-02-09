@@ -8,7 +8,7 @@
 // The codebase is generated using GenerateCode.py
 // You may need to modify the code manually to fit development needs
 
-
+LOG_CHANNEL(SceModules.SceVideoOut);
 
 //////////////////////////////////////////////////////////////////////////
 // library: libSceVideoOut
@@ -123,6 +123,38 @@ int PS4API sceVideoOutRegisterBuffers(int32_t handle, int32_t startIndex, void *
 	int32_t bufferNum, const SceVideoOutBufferAttribute *attribute)
 {
 	LOG_SCE_GRAPHIC("handle %d addr %p num %d attr %p", handle, addresses, bufferNum, attribute);
+	int ret = SCE_GNM_ERROR_UNKNOWN;
+	do 
+	{
+		std::shared_ptr<sce::SceVideoOut> videoOut = getVideoOut(handle);
+		std::shared_ptr<sce::SceGnmDriver> gnmDriver = getGnmDriver(handle);
+
+		if (!videoOut || !gnmDriver)
+		{
+			break;
+		}
+
+		// Maybe need more params, such as attribute...
+		if (!videoOut->registerBuffers(startIndex, bufferNum))
+		{
+			break;
+		}
+		
+		if (!gnmDriver->initDriver(bufferNum))
+		{
+			break;
+		}
+		
+		ret = SCE_OK;
+	} while (false);
+	return ret;
+}
+
+
+int PS4API sceVideoOutRegisterStereoBuffers(int32_t handle, int32_t startIndex, const SceVideoOutStereoBuffers *buffers,
+	int32_t bufferNum, const SceVideoOutBufferAttribute *attribute)
+{
+	LOG_SCE_GRAPHIC("handle %d buffers %p num %d attr %p", handle, buffers, bufferNum, attribute);
 	int ret = SCE_GNM_ERROR_UNKNOWN;
 	do 
 	{

@@ -40,7 +40,7 @@ std::vector<uint8_t> LoadFile(const std::string& strFilename)
 	return vtData;
 }
 
-bool StoreFile(const std::string& strFilename, const uint8_t* pBuffer, uint32_t nSize)
+bool StoreFile(const std::string& strFilename, const void* pBuffer, uint32_t nSize)
 {
 	bool bRet = false;
 	do

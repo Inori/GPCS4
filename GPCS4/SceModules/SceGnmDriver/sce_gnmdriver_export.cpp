@@ -124,6 +124,7 @@ static const SCE_EXPORT_FUNCTION g_pSceGnmDriver_libSceGnmDriver_FunctionTable[]
 	{ 0x30131AE8416EE0AA, "sceGnmValidateResetState", (void*)sceGnmValidateResetState },
 	{ 0x43BB7854460B69F2, "sceGnmValidationRegisterMemoryCheckCallback", (void*)sceGnmValidationRegisterMemoryCheckCallback },
 	{ 0xD07DAF0586D32C72, "sceGnmDrawInitDefaultHardwareState200", (void*)sceGnmDrawInitDefaultHardwareState200 },
+	{ 0x4219F245EB5E2753, "sceGnmDrawInitDefaultHardwareState175", (void*)sceGnmDrawInitDefaultHardwareState175 },
 	{ 0x29796D9C2C042474, "sceGnmSetCsShader", (void*)sceGnmSetCsShader },
 	{ 0x6D055DE58CC26A5D, "sceGnmSetPsShader", (void*)sceGnmSetPsShader },
 	{ 0xE0C811C3F6D53505, "sceGnmUpdatePsShader", (void*)sceGnmUpdatePsShader },

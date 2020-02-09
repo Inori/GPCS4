@@ -6,9 +6,9 @@ namespace UtilString
 {;
 
 
-bool Split(const std::string& strToSplit, char cDelimeter, std::vector<std::string>& vtStrValue)
+std::vector<std::string> Split(const std::string& strToSplit, char cDelimeter)
 {
-	bool bRet = false;
+	std::vector<std::string> result;
 	do 
 	{
 		if (strToSplit.empty())
@@ -20,19 +20,32 @@ bool Split(const std::string& strToSplit, char cDelimeter, std::vector<std::stri
 		std::string item;
 		while (std::getline(ss, item, cDelimeter))
 		{
-			vtStrValue.push_back(item);
+			result.push_back(item);
 		}
 
 		if (item.empty())
 		{
-			vtStrValue.push_back(item);
+			result.push_back(item);
 		}
 
-		bRet = true;
 	} while (false);
-	return bRet;
+	return result;
 }
 
+
+std::string Concat(const std::vector<std::string>& ss, const std::string d)
+{
+	std::string ret;
+	for (size_t i = 0; i < ss.size(); ++i)
+	{
+		if (i > 0)
+		{
+			ret += d;
+		}
+		ret += ss[i];
+	}
+	return ret;
+}
 
 std::string Format(const char* pFormat, ...)
 {

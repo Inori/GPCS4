@@ -1,6 +1,8 @@
 #include "sce_libc.h"
 #include "Platform/PlatformUtils.h"
 
+LOG_CHANNEL(SceModules.SceLibc.file);
+
 FILE* PS4API scec_fopen(const char *pathname, const char *mode)
 {
 	LOG_SCE_TRACE("fname %s mode %s", pathname, mode);
@@ -17,7 +19,7 @@ int PS4API scec_fseek(FILE *stream, long offset, int whence)
 
 size_t PS4API scec_fread(void *ptr, size_t size, size_t nmemb, FILE *stream)
 {
-	LOG_SCE_TRACE("fp %p size %d", stream, size);
+	LOG_SCE_TRACE("fp %p size %zu", stream, size * nmemb);
 	return fread(ptr, size, nmemb, stream);
 }
 
@@ -31,8 +33,9 @@ size_t PS4API scec_fwrite(const void *ptr, size_t size, size_t nmemb, FILE* stre
 
 long PS4API scec_ftell(FILE *stream)
 {
-	LOG_SCE_TRACE("fp %p", stream);
-	return ftell(stream);
+	sce_off_t off = ftell(stream);
+	LOG_SCE_TRACE("fp (%p) = %zu", stream, off);
+	return off;
 }
 
 

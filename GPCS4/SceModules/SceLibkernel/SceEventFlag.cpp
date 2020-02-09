@@ -6,6 +6,8 @@
 
 #include <functional>
 
+LOG_CHANNEL(SceModules.SceLibkernel.SceEventFlag);
+
 CSceEventFlag::CSceEventFlag(const std::string& name, uint32_t attr, uint64_t initPattern) :
 	m_attr(attr),
 	m_name(name),
@@ -139,7 +141,7 @@ int CSceEventFlag::Wait(uint64_t bitPattern, uint32_t mode, uint64_t* pResultPat
 // implement this
 int CSceEventFlag::Poll(uint64_t bitPattern, uint32_t mode, uint64_t* pResultPat)
 {
-	throw std::logic_error("not implemented");
+	//throw std::logic_error("not implemented");
 	return SCE_KERNEL_ERROR_ESRCH;
 }
 

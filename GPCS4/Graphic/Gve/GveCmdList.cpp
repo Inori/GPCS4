@@ -1,12 +1,15 @@
 #include "GveCmdList.h"
 #include "GvePhysicalDevice.h"
 
+LOG_CHANNEL(Graphic.Gve.GveCmdList);
+
 namespace gve
 {;
 
 
-GveCmdList::GveCmdList(const RcPtr<GveDevice>& device):
-	m_device(device)
+GveCmdList::GveCmdList(GveDevice* device):
+	m_device(device),
+	m_descriptorPoolTracker(device)
 {
 	bool success = initCommandBuffer();
 	LOG_ASSERT(success, "init command buffer failed.");
@@ -87,7 +90,7 @@ void GveCmdList::endRecording()
 
 void GveCmdList::reset()
 {
-
+	m_descriptorPoolTracker.reset();
 }
 
 }  // namespace gve

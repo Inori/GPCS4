@@ -17,6 +17,9 @@ static const SCE_EXPORT_FUNCTION g_pSceNpScore_libSceNpScore_FunctionTable[] =
 	{ 0xAD2866A971F0A101, "sceNpScoreGetRankingByRangeAsync", (void*)sceNpScoreGetRankingByRangeAsync },
 	{ 0x9B50DF351B2D9124, "sceNpScorePollAsync", (void*)sceNpScorePollAsync },
 	{ 0x00D26CB0FCF7998D, "sceNpScoreRecordScoreAsync", (void*)sceNpScoreRecordScoreAsync },
+	{ 0xF24B88CD4C3ABAD4, "sceNpScoreGetFriendsRanking", (void*)sceNpScoreGetFriendsRanking },
+	{ 0xF66644828884ABA6, "sceNpScoreGetRankingByNpId", (void*)sceNpScoreGetRankingByNpId },
+	{ 0x2811F10E3CA4FE30, "sceNpScoreGetRankingByRange", (void*)sceNpScoreGetRankingByRange },
 	SCE_FUNCTION_ENTRY_END
 };
 

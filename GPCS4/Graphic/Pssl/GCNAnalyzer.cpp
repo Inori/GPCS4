@@ -1,7 +1,11 @@
 #include "GCNAnalyzer.h"
 #include "GCNDecoder.h"
-#include "GCNParser/ParserSI.h"
 #include "UtilBit.h"
+#include "GCNEnums.h"
+#include "GCNParser/ParserSI.h"
+
+
+LOG_CHANNEL(Graphic.Pssl.GCNAnalyzer);
 
 namespace pssl
 {;

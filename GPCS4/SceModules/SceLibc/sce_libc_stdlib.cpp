@@ -1,6 +1,7 @@
 #include "sce_libc.h"
 #include <ctime>
 
+LOG_CHANNEL(SceModules.SceLibc.stdlib);
 
 //////////////////////////////////////////////////////////////////////////
 // This is the very first function a game calls
@@ -104,7 +105,7 @@ int PS4API scec_rand(void)
 }
 
 
-scetime_t PS4API scec_time(scetime_t* pt)
+sce_time_t PS4API scec_time(sce_time_t* pt)
 {
 	LOG_SCE_TRACE("pt %p", pt);
 	return time(pt);

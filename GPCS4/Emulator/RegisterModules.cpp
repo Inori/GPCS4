@@ -2,6 +2,8 @@
 #include "SceModuleSystem.h"
 #include "sce_modules.h"
 
+LOG_CHANNEL(Emulator);
+
 
 #define REGISTER_MODULE(name)                                                                  \
 	if (!pModuleSystem->registerBuiltinModule(name))                                           \
@@ -10,7 +12,7 @@
 		break;                                                                                 \
 	}
 
-bool CEmulator::registerLibC(CSceModuleSystem* pModuleSystem)
+static bool registerLibC(CSceModuleSystem* pModuleSystem)
 {
 	bool ret = false;
 	do
@@ -58,12 +60,13 @@ bool CEmulator::registerLibC(CSceModuleSystem* pModuleSystem)
 		policyManager
 			.declareModule("libSceLibcInternal").withDefault(Policy::UseNative);
 
+
 		ret  = true;
 	}while(false);
 	return ret;
 }
 
-bool CEmulator::registerLibKernel(CSceModuleSystem* pModuleSystem)
+static bool registerLibKernel(CSceModuleSystem* pModuleSystem)
 {
 	bool ret = false;
 	do
@@ -97,6 +100,29 @@ bool CEmulator::registerLibKernel(CSceModuleSystem* pModuleSystem)
 	}while(false);
 	return ret;
 }
+
+static bool registerOtherModules(CSceModuleSystem *pModuleSystem)
+{
+	bool ret = false;
+
+	do
+	{
+		if (!pModuleSystem)
+		{
+			break;
+		}
+
+		auto& policyManager = pModuleSystem->getPolicyManager();
+
+		policyManager
+			.declareModule("libSceNpCommon").withDefault(Policy::UseNative);
+
+		ret = true;
+	} while (false);
+
+	return ret;
+}
+
 
 bool CEmulator::registerModules()
 {
@@ -155,12 +181,18 @@ bool CEmulator::registerModules()
 		REGISTER_MODULE(g_ExpModuleSceVideoOut);
 		REGISTER_MODULE(g_ExpModuleSceVideoRecording);
 
+		//USE_NATIVE_MODULE("libSceNpCommon");
 		if (!registerLibKernel(pModuleSystem))
 		{
 			break;
 		}
 
 		if (!registerLibC(pModuleSystem))
+		{
+			break;
+		}
+
+		if (!registerOtherModules(pModuleSystem))
 		{
 			break;
 		}

@@ -1,6 +1,8 @@
 #include "PsslSbReader.h"
 #include <ostream>
 
+LOG_CHANNEL(Graphic.Pssl.PsslSbReader);
+
 namespace pssl
 {;
 

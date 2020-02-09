@@ -2,11 +2,14 @@
 
 #include "Platform/PlatformUtils.h"
 
-#define ADD_BLACK_MODULE(name) (name".sprx"),
+LOG_CHANNEL(Loader.ModuleLoader);
+
+#define ADD_BLACK_MODULE(name) (name".sprx")
 
 const std::set<std::string> ModuleLoader::m_moduleInitBlackList = 
 {
-	ADD_BLACK_MODULE("libSceNpScoreRanking")
+	ADD_BLACK_MODULE("libSceNpScoreRanking"),
+	ADD_BLACK_MODULE("libSceAppContent"),
 };
 
 ModuleLoader::ModuleLoader(CSceModuleSystem &modSystem,

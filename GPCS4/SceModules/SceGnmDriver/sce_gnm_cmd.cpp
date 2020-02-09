@@ -3,6 +3,7 @@
 #include "Graphic/Gnm/GnmStructure.h"
 #include <cassert>
 
+LOG_CHANNEL(SceModules.SceGnmDriver.GnmCmd);
 
 // this file place functions used by both DrawCommandBuffer and DispatchCommandBuffer
 

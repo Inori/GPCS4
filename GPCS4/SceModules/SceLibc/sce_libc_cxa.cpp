@@ -2,6 +2,7 @@
 #include <mutex>
 #include "pthreads4w/pthread.h"
 
+LOG_CHANNEL(SceModules.SceLibc.cxa);
 
 // at least 32
 // currently give a large value to prevent atexit failed

@@ -1,5 +1,7 @@
 #include "GCNCompiler.h"
 
+LOG_CHANNEL(Graphic.Pssl.GCNCompilerVectorMemory);
+
 namespace pssl
 {;
 
@@ -36,7 +38,6 @@ void GCNCompiler::emitVectorMemory(GCNInstruction& ins)
 		break;
 	}
 }
-
 
 void GCNCompiler::emitVectorMemBufNoFmt(GCNInstruction& ins)
 {

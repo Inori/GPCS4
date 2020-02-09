@@ -27,6 +27,13 @@ typedef struct SceVideoOutBufferAttribute {
 } SceVideoOutBufferAttribute;
 
 
+struct SceVideoOutStereoBuffers 
+{
+	void *left;
+	void *right;
+};
+
+
 typedef enum SceVideoOutBufferAttributeOption {
 	SCE_VIDEO_OUT_BUFFER_ATTRIBUTE_OPTION_NONE = 0,
 	SCE_VIDEO_OUT_BUFFER_ATTRIBUTE_OPTION_VR = 7,

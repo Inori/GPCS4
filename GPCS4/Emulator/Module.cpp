@@ -6,6 +6,7 @@
 #include <fstream>
 #include <algorithm>
 
+LOG_CHANNEL(Module);
 
 const MODULE_INFO &NativeModule::getModuleInfo() const { return m_moduleInfo; }
 MODULE_INFO &NativeModule::getModuleInfo() { return m_moduleInfo; }
@@ -269,8 +270,8 @@ bool NativeModule::decodeSymbol(std::string const &strEncName,
 		auto &nLibraryId = *libId;
 		auto &nNid       = *funcNid;
 
-		std::vector<std::string> vtNameParts;
-		if (!UtilString::Split(strEncName, '#', vtNameParts))
+		std::vector<std::string> vtNameParts = UtilString::Split(strEncName, '#');
+		if (vtNameParts.empty())
 		{
 			break;
 		}

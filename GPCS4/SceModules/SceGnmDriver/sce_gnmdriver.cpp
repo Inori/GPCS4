@@ -5,8 +5,7 @@
 // The codebase is generated using GenerateCode.py
 // You may need to modify the code manually to fit development needs
 
-
-
+LOG_CHANNEL(SceModules.SceGnmDriver);
 
 //////////////////////////////////////////////////////////////////////////
 // library: libSceGnmDriver
@@ -233,7 +232,7 @@ int PS4API sceGnmMapComputeQueue(uint32_t globalPipeId, uint32_t queueId,
 			break;
 		}
 
-		*(sceoff_t*)readPtrAddr = 0;
+		*(sce_off_t*)readPtrAddr = 0;
 
 		vqueueId = 0x567;
 	} while (false);
