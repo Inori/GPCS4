@@ -26,6 +26,9 @@
     <ClInclude Include="Common\GPCS4Log.h" />
     <ClInclude Include="Common\GPCS4Types.h" />
     <ClInclude Include="Common\IntelliSenseClang.h" />
+    <ClInclude Include="Emulator\ModuleManger.h" />
+    <ClInclude Include="Emulator\PolicyManager.h" />
+    <ClInclude Include="Emulator\SymbolManager.h" />
     <ClInclude Include="Graphic\Gnm\GnmGpuAddressTool.h" />
     <ClInclude Include="Graphic\Gnm\GnmTiler.h" />
     <ClInclude Include="Graphic\Gnm\GnmTilerSSE2.h" />
@@ -272,8 +275,11 @@
     <ClCompile Include="Emulator\GameThread.cpp" />
     <ClCompile Include="Emulator\Linker.cpp" />
     <ClCompile Include="Emulator\Module.cpp" />
+    <ClCompile Include="Emulator\ModuleManger.cpp" />
+    <ClCompile Include="Emulator\PolicyManager.cpp" />
     <ClCompile Include="Emulator\RegisterModules.cpp" />
     <ClCompile Include="Emulator\SceModuleSystem.cpp" />
+    <ClCompile Include="Emulator\SymbolManager.cpp" />
     <ClCompile Include="Emulator\TLSHandler.cpp" />
     <ClCompile Include="GPCS4Main.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmCmdStream.cpp" />
