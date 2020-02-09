@@ -89,6 +89,11 @@ public:
 		(*this)[i] = item;
 	}
 
+	void SetItemAt(const uint32_t i, T&& item)
+	{
+		(*this)[i] = std::move(item);
+	}
+
 	T& operator[](const uint32_t i)
 	{
 		std::lock_guard<std::mutex> lock(m_mutex);
