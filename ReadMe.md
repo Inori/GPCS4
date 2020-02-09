@@ -30,7 +30,7 @@ This is a previous running result of Nier:Automata. It is not correct yet, and I
         > Parsing PM4 command buffers and some other formats to recover the original Gnm calls.  
         Still a lot of work.
     * [Vulkan backend](https://github.com/Inori/GPCS4/tree/master/GPCS4/Graphic/Gve)
-        
+      
         > Translate Gnm calls into vulkan calls. Far from complete.
     * [Shader recompiler](https://github.com/Inori/GPCS4/tree/master/GPCS4/Graphic/Pssl)
     
@@ -38,7 +38,7 @@ This is a previous running result of Nier:Automata. It is not correct yet, and I
     
 * ### Hardware
     * Audio
-        
+      
         > Just started.
     * Gamepad
     
@@ -46,7 +46,7 @@ This is a previous running result of Nier:Automata. It is not correct yet, and I
     
 * ### System
     * Dynamic linker
-        
+      
         > TLS support is not complete yet, and possibly neither are some other initialization functions.
     * System resource management, ie. Thread, virtual memory, synchronize object, file, clock.
         > For functions which do not require system resource (e.g: math functions),  
@@ -65,7 +65,7 @@ Tencent QQ/TIM Group Number: <a target="_blank" href="//shang.qq.com/wpa/qunwpa?
 
 
 ## Build
-To run or develop GPCS4 it is required to have graphics card with Vulkan support and CPU with SSE4.2 instruction set
+To run or develop GPCS4 it is required to have graphics card with Vulkan support and CPU with AVX instruction set
 Currently, only Windows build is supported.  
 
 Visual Studio 2017  
