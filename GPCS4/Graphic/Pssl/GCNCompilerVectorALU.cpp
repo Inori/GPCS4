@@ -96,12 +96,10 @@ void GCNCompiler::emitVectorALU(GCNInstruction& ins)
 	}
 }
 
-std::vector<SpirvRegisterValue> GCNCompiler::emitVop3InputModifier(
+void GCNCompiler::emitVop3InputModifier(
 	const GCNInstruction& ins,
-	const std::vector<SpirvRegisterValue>& values)
+	const std::vector<std::reference_wrapper<SpirvRegisterValue>>& values)
 {
-	std::vector<SpirvRegisterValue> result(values);
-
 	auto inst = asInst<SIVOP3Instruction>(ins);
 
 	uint32_t neg = inst->GetNEG();
@@ -113,7 +111,7 @@ std::vector<SpirvRegisterValue> GCNCompiler::emitVop3InputModifier(
 		{
 			if (abs & (1 << i))
 			{
-				result[i] = emitRegisterAbsolute(result[i]);
+				values[i].get() = emitRegisterAbsolute(values[i]);
 			}
 		}
 	}
@@ -124,15 +122,13 @@ std::vector<SpirvRegisterValue> GCNCompiler::emitVop3InputModifier(
 		{
 			if (neg & (1 << i))
 			{
-				result[i] = emitRegisterNegate(result[i]);
+				values[i].get() = emitRegisterNegate(values[i]);
 			}
 		}
 	}
-
-	return result;
 }
 
-SpirvRegisterValue GCNCompiler::emitVop3OutputModifier(const GCNInstruction& ins, SpirvRegisterValue value)
+SpirvRegisterValue GCNCompiler::emitVop3OutputModifier(const GCNInstruction& ins, const SpirvRegisterValue& value)
 {
 	SpirvRegisterValue result = value;
 
@@ -313,18 +309,35 @@ void GCNCompiler::emitVectorRegMov(GCNInstruction& ins)
 	uint32_t didx = 0;
 	getVopOperands(ins, &dst, &didx, &src, &sidx);
 
+	auto spvSrc = emitLoadScalarOperand(src, sidx, ins.literalConst, SpirvScalarType::Uint32);
+
+	bool isVop3 = isVop3Encoding(ins);
+	if (isVop3)
+	{
+		emitVop3InputModifier(ins, { spvSrc });
+	}
+
+	SpirvRegisterValue dstVal;
+
 	switch (op)
 	{
 	case SIVOP1Instruction::V_MOV_B32:
+	case SIVOP3Instruction::V3_MOV_B32:
 	{
-		auto value = emitLoadScalarOperand(src, sidx, ins.literalConst, SpirvScalarType::Uint32);
-		emitStoreVectorOperand(didx, value);
+		dstVal = spvSrc;
 	}
-	break;
+		break;
 	default:
 		LOG_PSSL_UNHANDLED_INST();
 		break;
 	}
+
+	if (isVop3)
+	{
+		dstVal = emitVop3OutputModifier(ins, dstVal);
+	}
+
+	emitStoreVectorOperand(didx, dstVal);
 }
 
 void GCNCompiler::emitVectorLane(GCNInstruction& ins)
@@ -420,6 +433,12 @@ void GCNCompiler::emitVectorFpArith32(GCNInstruction& ins)
 		spvSrc2 = emitLoadScalarOperand(src2, src2RIdx, ins.literalConst);
 	}
 
+	bool isVop3 = isVop3Encoding(ins);
+	if (isVop3)
+	{
+		emitVop3InputModifier(ins, { spvSrc0, spvSrc1, spvSrc2 });
+	}
+
 	SpirvRegisterValue dstVal;
 	dstVal.type.ctype  = SpirvScalarType::Float32;
 	dstVal.type.ccount = 1;
@@ -490,10 +509,21 @@ void GCNCompiler::emitVectorFpArith32(GCNInstruction& ins)
 	{
 		dstVal.id = m_module.opFSub(fpTypeId, spvSrc0.id, spvSrc1.id);
 	}
-	break;
+		break;
+	case SIVOP2Instruction::V_MAX_F32:
+	case SIVOP3Instruction::V3_MAX_F32:
+	{
+		dstVal.id = m_module.opNMax(fpTypeId, spvSrc0.id, spvSrc1.id);
+	}
+		break;
 	default:
 		LOG_PSSL_UNHANDLED_INST();
 		break;
+	}
+
+	if (isVop3)
+	{
+		dstVal = emitVop3OutputModifier(ins, dstVal);
 	}
 
 	emitStoreVectorOperand(dstRIdx, dstVal);
@@ -506,7 +536,52 @@ void GCNCompiler::emitVectorFpRound32(GCNInstruction& ins)
 
 void GCNCompiler::emitVectorFpField32(GCNInstruction& ins)
 {
-	LOG_PSSL_UNHANDLED_INST();
+	uint32_t op       = getVopOpcode(ins);
+	uint32_t src0     = 0;
+	uint32_t src1     = 0;
+	uint32_t src2     = 0;
+	uint32_t dst      = 0;
+	uint32_t src0RIdx = 0;
+	uint32_t src1RIdx = 0;
+	uint32_t src2RIdx = 0;
+	uint32_t dstRIdx  = 0;
+	getVopOperands(ins, &dst, &dstRIdx, &src0, &src0RIdx, &src1, &src1RIdx, &src2, &src2RIdx);
+
+	uint32_t fpTypeId = getScalarTypeId(SpirvScalarType::Float32);
+
+	SpirvRegisterValue spvSrc0 = emitLoadScalarOperand(src0, src0RIdx, ins.literalConst);
+	SpirvRegisterValue spvSrc1 = emitLoadVopSrc1(ins, src1, src1RIdx);
+	SpirvRegisterValue spvSrc2;
+
+	if (isVop3Encoding(ins))
+	{
+		// Only VOP3 has SRC2
+		spvSrc2 = emitLoadScalarOperand(src2, src2RIdx, ins.literalConst);
+	}
+
+	bool isVop3 = isVop3Encoding(ins);
+	if (isVop3)
+	{
+		emitVop3InputModifier(ins, { spvSrc0, spvSrc1, spvSrc2 });
+	}
+
+	SpirvRegisterValue dstVal;
+	dstVal.type.ctype  = SpirvScalarType::Float32;
+	dstVal.type.ccount = 1;
+
+	switch (op)
+	{
+	default:
+		LOG_PSSL_UNHANDLED_INST();
+		break;
+	}
+
+	if (isVop3)
+	{
+		dstVal = emitVop3OutputModifier(ins, dstVal);
+	}
+
+	emitStoreVectorOperand(dstRIdx, dstVal);
 }
 
 void GCNCompiler::emitVectorFpTran32(GCNInstruction& ins)
@@ -530,8 +605,7 @@ void GCNCompiler::emitVectorFpTran32(GCNInstruction& ins)
 	bool isVop3 = isVop3Encoding(ins);
 	if (isVop3)
 	{
-		auto srcGroup = emitVop3InputModifier(ins, { spvSrc0 });
-		spvSrc0       = srcGroup[0];
+		emitVop3InputModifier(ins, { spvSrc0 });
 	}
 
 	switch (op)
@@ -547,6 +621,16 @@ void GCNCompiler::emitVectorFpTran32(GCNInstruction& ins)
 	case SIVOP1Instruction::V_RCP_F32:
 	case SIVOP3Instruction::V3_RCP_F32:
 		dstValue.id = m_module.opFDiv(typeId, m_module.constf32(1.0f), spvSrc0.id);
+		break;
+	case SIVOP1Instruction::V_RSQ_F32:
+	case SIVOP3Instruction::V3_RSQ_F32:
+		dstValue.id = m_module.opFDiv(typeId,
+									m_module.constf32(1.0),
+									m_module.opSqrt(typeId, spvSrc0.id));
+		break;
+	case SIVOP1Instruction::V_SQRT_F32:
+	case SIVOP3Instruction::V3_SQRT_F32:
+		dstValue.id = m_module.opSqrt(typeId, spvSrc0.id);
 		break;
 	default:
 		LOG_PSSL_UNHANDLED_INST();
@@ -579,9 +663,7 @@ void GCNCompiler::emitVectorFpCmp32(GCNInstruction& ins)
 	bool isVop3 = isVop3Encoding(ins);
 	if (isVop3)
 	{
-		auto srcGroup = emitVop3InputModifier(ins, { spvSrc0, spvSrc1 });
-		spvSrc0       = srcGroup[0];
-		spvSrc1       = srcGroup[1];
+		emitVop3InputModifier(ins, { spvSrc0, spvSrc1 });
 	}
 
 	SpirvRegisterValue dstValue;

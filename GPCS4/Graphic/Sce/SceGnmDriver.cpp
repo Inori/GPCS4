@@ -86,6 +86,11 @@ int SceGnmDriver::submitAndFlipCommandBuffers(uint32_t count,
 		}
 	
 		auto cmdList = cmdParser->getCommandBuffer()->getCmdList();
+		if (!cmdList)
+		{
+			err = SCE_OK;
+			break;
+		}
 
 		m_presenter->present(cmdList);
 		// TODO:

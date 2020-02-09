@@ -248,10 +248,14 @@ private:
 
 	///////////////////////////
 	// VOP3 modifiers
-	std::vector<SpirvRegisterValue> emitVop3InputModifier(
+	void emitVop3InputModifier(
 		const GCNInstruction& ins,
-		const std::vector<SpirvRegisterValue>& values);
-	SpirvRegisterValue emitVop3OutputModifier(const GCNInstruction& ins, SpirvRegisterValue value);
+		const std::vector < std::reference_wrapper<SpirvRegisterValue> > & values);
+
+	SpirvRegisterValue emitVop3OutputModifier(
+		const GCNInstruction& ins, 
+		const SpirvRegisterValue& value);
+
 	SpirvRegisterValue emitLoadVopSrc1(
 		const GCNInstruction& ins,
 		uint32_t srcOperand,

@@ -26,4 +26,3 @@
 // useful when developing non-graphics parts of GPCS4
 // #define GPCS4_NO_GRAPHICS 1
 
-
