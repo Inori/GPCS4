@@ -21,12 +21,12 @@ ModuleLoader::ModuleLoader(CSceModuleSystem &modSystem,
 }
 
 bool ModuleLoader::loadModule(std::string const &fileName,
-							  MemoryMappedModule **modOut)
+							  NativeModule **modOut)
 {
 	bool retVal = false;
 	do
 	{
-		MemoryMappedModule mod = {};
+		NativeModule mod = {};
 
 		bool exist = false;
 		retVal = loadModuleFromFile(fileName, &mod, &exist);
@@ -40,7 +40,7 @@ bool ModuleLoader::loadModule(std::string const &fileName,
 		mod.outputUnresolvedSymbols("unresolved_HLE.txt");
 #endif // MODSYS_OUTPUT_NOT_IMPLEMENTED_HLE
 
-		retVal = m_modSystem.registerMemoryMappedModule(mod.fileName, std::move(mod));
+		retVal = m_modSystem.registerNativeModule(mod.fileName, std::move(mod));
 		if (!retVal)
 		{
 			LOG_ERR("Failed to register module: %s", mod.fileName.c_str());
@@ -65,7 +65,7 @@ bool ModuleLoader::loadModule(std::string const &fileName,
 			break;
 		}
 
-		*modOut = &(m_modSystem.getMemoryMappedModules()[0]);
+		*modOut = &(m_modSystem.getAllNativeModules()[0]);
 		retVal  = true;
 	} while (false);
 
@@ -73,7 +73,7 @@ bool ModuleLoader::loadModule(std::string const &fileName,
 }
 
 bool ModuleLoader::loadModuleFromFile(std::string const &fileName,
-									  MemoryMappedModule *mod,
+									  NativeModule *mod,
 									  bool *exist)
 {
 	LOG_ASSERT(mod != nullptr, "mod is nullpointer");
@@ -89,7 +89,7 @@ bool ModuleLoader::loadModuleFromFile(std::string const &fileName,
 			break;
 		}
 
-		bool isLoaded = m_modSystem.isMemoryMappedModuleLoaded(mod->fileName);
+		bool isLoaded = m_modSystem.isNativeModuleLoaded(mod->fileName);
 		if (isLoaded)
 		{
 			LOG_DEBUG("module %s has already been loaded", mod->fileName.c_str());
@@ -181,7 +181,7 @@ bool ModuleLoader::loadDependencies()
 		}
 
 		bool exist = false;
-		auto mod = MemoryMappedModule{};
+		auto mod = NativeModule{};
 		retVal   = loadModuleFromFile(path, &mod, &exist);
 		if (!retVal)
 		{
@@ -197,7 +197,7 @@ bool ModuleLoader::loadDependencies()
 
 		if (!exist)
 		{
-			retVal = m_modSystem.registerMemoryMappedModule(mod.fileName, std::move(mod));
+			retVal = m_modSystem.registerNativeModule(mod.fileName, std::move(mod));
 			if (!retVal)
 			{
 				LOG_ERR("Failed to register module: %s", mod.fileName.c_str());
@@ -209,7 +209,7 @@ bool ModuleLoader::loadDependencies()
 	return retVal || moduleNotFoundIgnore;
 }
 
-bool ModuleLoader::addDepedenciesToLoad(MemoryMappedModule const &mod)
+bool ModuleLoader::addDepedenciesToLoad(NativeModule const &mod)
 {
 	for (auto const &file : mod.getNeededFiles())
 	{
@@ -274,7 +274,7 @@ bool ModuleLoader::mapFilePathToModuleName(std::string const &filePath,
 	return retVal;
 }
 
-bool ModuleLoader::registerSymbol(MemoryMappedModule const &mod,
+bool ModuleLoader::registerSymbol(NativeModule const &mod,
 								  std::string const &encName,
 								  void *pointer)
 {
@@ -291,7 +291,7 @@ bool ModuleLoader::registerSymbol(MemoryMappedModule const &mod,
 			break;
 		}
 
-		retVal = m_modSystem.registerNativeFunction(modName, libName, nid, pointer);
+		retVal = m_modSystem.registerNativeSymbol(modName, libName, nid, pointer);
 		if (!retVal)
 		{
 			break;
@@ -303,21 +303,21 @@ bool ModuleLoader::registerSymbol(MemoryMappedModule const &mod,
 	return retVal;
 }
 
-bool ModuleLoader::registerSymbol(MemoryMappedModule const &mod, size_t idx)
+bool ModuleLoader::registerSymbol(NativeModule const &mod, size_t idx)
 {
 	const SymbolInfo *info = nullptr;
 	mod.getSymbol(idx, &info);
 
 	if (info->isEncoded)
 	{
-		m_modSystem.registerNativeFunction(info->moduleName, info->libraryName, info->nid,
+		m_modSystem.registerNativeSymbol(info->moduleName, info->libraryName, info->nid,
 									 reinterpret_cast<void *>(info->address));
 	}
 	else
 	{
-		m_modSystem.registerSymbol(info->moduleName, info->libraryName,
-								   info->symbolName,
-								   reinterpret_cast<void *>(info->address));
+		m_modSystem.registerNativeSymbol(info->moduleName, info->libraryName,
+										 info->symbolName,
+										 reinterpret_cast<void *>(info->address));
 	}
 
 	return true;
@@ -326,7 +326,7 @@ bool ModuleLoader::registerSymbol(MemoryMappedModule const &mod, size_t idx)
 
 bool ModuleLoader::initializeModules()
 {
-	auto &mods  = m_modSystem.getMemoryMappedModules();
+	auto &mods  = m_modSystem.getAllNativeModules();
 	bool retVal = true;
 
 	auto tlsManager = TLSManager::GetInstance();

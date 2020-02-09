@@ -8,35 +8,8 @@ LOG_CHANNEL(Linker);
 
 CLinker::CLinker() : m_modSystem{*CSceModuleSystem::GetInstance()} {}
 
-bool CLinker::ResolveSymbol(const std::string &strModName,
-							const std::string &strLibName,
-							uint64_t nNid,
-							void **ppAddress) const
-{
-	bool bRet = false;
-	do
-	{
-		if (!ppAddress)
-		{
-			break;
-		}
-
-		void *pFunc = CSceModuleSystem::GetInstance()->findFunction(
-			strModName, strLibName, nNid);
-		if (!pFunc)
-		{
-			break;
-		}
-
-		*ppAddress = pFunc;
-
-		bRet = true;
-	} while (false);
-	return bRet;
-}
-
 // resolveSymbol always returns true
-bool CLinker::resolveSymbol(MemoryMappedModule const &mod,
+bool CLinker::resolveSymbol(NativeModule const &mod,
 							std::string const &name,
 							uint64_t *addrOut) const
 {
@@ -45,8 +18,8 @@ bool CLinker::resolveSymbol(MemoryMappedModule const &mod,
 	do
 	{
 		const SymbolInfo *info = nullptr;
-		void *address          = nullptr;
-		bool overridden         = false;
+		void *address    = nullptr;
+		bool useNative   = false;
 
 		if (addrOut == nullptr)
 		{
@@ -63,22 +36,33 @@ bool CLinker::resolveSymbol(MemoryMappedModule const &mod,
 
 		if (!info->isEncoded)
 		{
-			address = m_modSystem.findSymbol(info->moduleName, info->libraryName,
-								   info->symbolName);
+			address = getSymbolAddress(info->moduleName,
+									   info->libraryName,
+									   info->symbolName);
+
+			auto policy = m_modSystem.getSymbolPolicy(info->moduleName,
+													  info->libraryName,
+													  info->symbolName);
+
+			useNative  = (policy == Policy::UseNative);
 		}
 		else
 		{
-			address = m_modSystem.findFunction(info->moduleName, info->libraryName,
-											   info->nid);
+			address = getSymbolAddress(info->moduleName,
+									   info->libraryName,
+									   info->nid);
 
-			// overridden == true, means the function is native
-			overridden = m_modSystem.isFunctionOverridable(info->moduleName,
-														  info->libraryName,
-														  info->nid);
+			auto policy = m_modSystem.getSymbolPolicy(info->moduleName,
+													  info->libraryName,
+													  info->nid);
+
+			useNative  = (policy == Policy::UseNative);
 		}
 
-		LOG_ERR_IF(address == nullptr, "fail to resolve symbol: %s from %s for module %s",
-				   name.c_str(), info->moduleName.c_str(), mod.fileName.c_str());
+		const char* source = useNative? "NATIVE":"BUILTIN";
+
+		LOG_ERR_IF(address == nullptr, "fail to resolve symbol: %s[%s] from %s for module %s",
+				   name.c_str(), source, info->moduleName.c_str(), mod.fileName.c_str());
 
 #ifdef MODSYS_STUB_DISABLE
 
@@ -90,12 +74,12 @@ bool CLinker::resolveSymbol(MemoryMappedModule const &mod,
 
 #else // MODSYS_STUB_DISABLE
 
-		if (address != nullptr && !overridden)
+		if (address != nullptr && !useNative)
 		{
 			// builtin function
 			*addrOut = reinterpret_cast<uint64_t>(address);
 		}
-		else if (address != nullptr && overridden)
+		else if (address != nullptr && useNative)
 		{
 			// native function
 
@@ -168,7 +152,7 @@ void* CLinker::generateStubFunction(const SymbolInfo* sybInfo, void* oldFunc) co
 
 bool CLinker::relocateModules()
 {
-	auto &mods  = m_modSystem.getMemoryMappedModules();
+	auto &mods  = m_modSystem.getAllNativeModules();
 	bool retVal = false;
 
 	for (auto &mod : mods)
@@ -184,7 +168,33 @@ bool CLinker::relocateModules()
 	return retVal;
 }
 
-bool CLinker::relocateModule(MemoryMappedModule &mod)
+void* CLinker::getSymbolAddress(std::string const& modName,
+								std::string const& libName,
+							    uint64_t nid) const
+{
+	auto pointer = m_modSystem.getSymbolAddress(modName, libName, nid);
+	return const_cast<void*>(pointer);
+}
+
+void* CLinker::getSymbolAddress(std::string const& modName, std::string const& libName, std::string const& symbName) const
+{
+	auto symbolManager = m_modSystem.getSymbolManager();
+	auto policy = m_modSystem.getSymbolPolicy(modName, libName, symbName);
+	const void* pointer = nullptr;
+
+	if (policy == Policy::UseBuiltin)
+	{
+		pointer = symbolManager.findBuiltinSymbol(modName, libName, symbName);
+	}
+	else // Policy::UseNative
+	{
+		pointer = symbolManager.findNativeSymbol(modName, libName, symbName);
+	}
+
+	return const_cast<void*>(pointer);
+}
+
+bool CLinker::relocateModule(NativeModule& mod)
 {
 	bool retVal = false;
 
@@ -196,7 +206,7 @@ bool CLinker::relocateModule(MemoryMappedModule &mod)
 	return retVal;
 }
 
-bool CLinker::relocateRela(MemoryMappedModule &mod)
+bool CLinker::relocateRela(NativeModule &mod)
 {
 	bool retVal = false;
 	do
@@ -293,7 +303,7 @@ bool CLinker::relocateRela(MemoryMappedModule &mod)
 	return retVal;
 }
 
-bool CLinker::relocatePltRela(MemoryMappedModule &mod)
+bool CLinker::relocatePltRela(NativeModule &mod)
 {
 	bool bRet = false;
 	do

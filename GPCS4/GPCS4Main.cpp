@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
 		ModuleLoader loader = { *CSceModuleSystem::GetInstance(), linker };
 
 		auto eboot                      = optResult["E"].as<std::string>();
-		MemoryMappedModule *ebootModule = nullptr;
+		NativeModule *ebootModule = nullptr;
 		if (!loader.loadModule(eboot, &ebootModule))
 		{
 			break;

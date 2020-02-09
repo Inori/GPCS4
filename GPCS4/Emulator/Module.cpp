@@ -8,40 +8,40 @@
 
 LOG_CHANNEL(Module);
 
-const MODULE_INFO &MemoryMappedModule::getModuleInfo() const { return m_moduleInfo; }
-MODULE_INFO &MemoryMappedModule::getModuleInfo() { return m_moduleInfo; }
+const MODULE_INFO &NativeModule::getModuleInfo() const { return m_moduleInfo; }
+MODULE_INFO &NativeModule::getModuleInfo() { return m_moduleInfo; }
 
-const ByteArray &MemoryMappedModule::getFileMemory() const { return m_fileMemory; }
-ByteArray &MemoryMappedModule::getFileMemory() { return m_fileMemory; }
+const ByteArray &NativeModule::getFileMemory() const { return m_fileMemory; }
+ByteArray &NativeModule::getFileMemory() { return m_fileMemory; }
 
-bool MemoryMappedModule::isModule() const
+bool NativeModule::isModule() const
 {
 	return m_elfHeader->e_type == ET_SCE_DYNAMIC ? true : false;
 }
 
-const FileList &MemoryMappedModule::getNeededFiles() const { return m_neededFiles; }
+const FileList &NativeModule::getNeededFiles() const { return m_neededFiles; }
 
-const std::vector<size_t> &MemoryMappedModule::getExportSymbols() const
+const std::vector<size_t> &NativeModule::getExportSymbols() const
 {
 	return m_exportSymbols;
 }
 
-std::vector<size_t> &MemoryMappedModule::getExportSymbols()
+std::vector<size_t> &NativeModule::getExportSymbols()
 {
 	return m_exportSymbols;
 }
 
-const UtilMemory::memory_uptr &MemoryMappedModule::getMappedMemory() const
+const UtilMemory::memory_uptr &NativeModule::getMappedMemory() const
 {
 	return m_mappedMemory;
 }
 
-UtilMemory::memory_uptr &MemoryMappedModule::getMappedMemory()
+UtilMemory::memory_uptr &NativeModule::getMappedMemory()
 {
 	return m_mappedMemory;
 }
 
-bool MemoryMappedModule::getImportSymbolInfo(std::string const &encSymbol,
+bool NativeModule::getImportSymbolInfo(std::string const &encSymbol,
 											 std::string *modName,
 											 std::string *libName,
 											 uint64_t *nid) const
@@ -50,7 +50,7 @@ bool MemoryMappedModule::getImportSymbolInfo(std::string const &encSymbol,
 						 libName, nid);
 }
 
-bool MemoryMappedModule::getExportSymbolInfo(std::string const &encSymbol,
+bool NativeModule::getExportSymbolInfo(std::string const &encSymbol,
 											 std::string *modName,
 											 std::string *libName,
 											 uint64_t *nid) const
@@ -59,7 +59,7 @@ bool MemoryMappedModule::getExportSymbolInfo(std::string const &encSymbol,
 						 libName, nid);
 }
 
-bool MemoryMappedModule::getSymbol(std::string const &encName,
+bool NativeModule::getSymbol(std::string const &encName,
 								   SymbolInfo const **symbolInfo) const
 {
 	bool retVal = false;
@@ -77,7 +77,7 @@ bool MemoryMappedModule::getSymbol(std::string const &encName,
 	return retVal;
 }
 
-bool MemoryMappedModule::getSymbolInfo(std::string const &encSymbol,
+bool NativeModule::getSymbolInfo(std::string const &encSymbol,
 									   ModuleList const &mods,
 									   LibraryList const &libs,
 									   std::string *modName,
@@ -132,7 +132,7 @@ bool MemoryMappedModule::getSymbolInfo(std::string const &encSymbol,
 	return retVal;
 }
 
-bool MemoryMappedModule::getModNameFromId(uint64_t id,
+bool NativeModule::getModNameFromId(uint64_t id,
 										  ModuleList const &mods,
 										  std::string *modName) const
 {
@@ -161,7 +161,7 @@ bool MemoryMappedModule::getModNameFromId(uint64_t id,
 	return retVal;
 }
 
-bool MemoryMappedModule::getLibNameFromId(uint64_t id,
+bool NativeModule::getLibNameFromId(uint64_t id,
 										  LibraryList const &libs,
 										  std::string *libName) const
 {
@@ -191,7 +191,7 @@ bool MemoryMappedModule::getLibNameFromId(uint64_t id,
 	return retVal;
 }
 
-bool MemoryMappedModule::decodeValue(std::string const &encodedStr,
+bool NativeModule::decodeValue(std::string const &encodedStr,
 									 uint64_t &value) const
 {
 	bool bRet = false;
@@ -252,7 +252,7 @@ bool MemoryMappedModule::decodeValue(std::string const &encodedStr,
 	return bRet;
 }
 
-bool MemoryMappedModule::decodeSymbol(std::string const &strEncName,
+bool NativeModule::decodeSymbol(std::string const &strEncName,
 									  uint32_t *modId,
 									  uint32_t *libId,
 									  uint64_t *funcNid) const
@@ -301,7 +301,7 @@ bool MemoryMappedModule::decodeSymbol(std::string const &strEncName,
 	return bRet;
 }
 
-bool MemoryMappedModule::isEncodedSymbol(std::string const &symbolName) const
+bool NativeModule::isEncodedSymbol(std::string const &symbolName) const
 {
 	bool retVal = false;
 	if (symbolName.length() != 15)
@@ -320,7 +320,7 @@ bool MemoryMappedModule::isEncodedSymbol(std::string const &symbolName) const
 	return retVal;
 }
 
-int MemoryMappedModule::initialize()
+int NativeModule::initialize()
 {
 	int retVal = 0;
 
@@ -336,7 +336,7 @@ int MemoryMappedModule::initialize()
 	return retVal;
 }
 
-bool MemoryMappedModule::getTLSInfo(void **pTls,
+bool NativeModule::getTLSInfo(void **pTls,
 									uint32_t *initSize,
 									uint32_t *totalSize,
 									uint32_t *align) const
@@ -361,9 +361,9 @@ bool MemoryMappedModule::getTLSInfo(void **pTls,
 	return retVal;
 }
 
-void *MemoryMappedModule::getEntryPoint() const { return m_moduleInfo.pEntryPoint; }
+void *NativeModule::getEntryPoint() const { return m_moduleInfo.pEntryPoint; }
 
-bool MemoryMappedModule::getSymbol(size_t index, SymbolInfo const **symbolInfo) const
+bool NativeModule::getSymbol(size_t index, SymbolInfo const **symbolInfo) const
 {
 	bool retVal = false;
 	if (index > m_symbols.size() - 1)
@@ -379,7 +379,7 @@ bool MemoryMappedModule::getSymbol(size_t index, SymbolInfo const **symbolInfo) 
 	return retVal;
 }
 
-bool MemoryMappedModule::getImportSymbols(SymbolList *importSymbols) const
+bool NativeModule::getImportSymbols(SymbolList *importSymbols) const
 {
 	LOG_ASSERT(importSymbols != nullptr, "%s", "null pointer error");
 
@@ -391,7 +391,7 @@ bool MemoryMappedModule::getImportSymbols(SymbolList *importSymbols) const
 	return true;
 }
 
-bool MemoryMappedModule::getExportSymbols(SymbolList *exportSymbols) const
+bool NativeModule::getExportSymbols(SymbolList *exportSymbols) const
 {
 	LOG_ASSERT(exportSymbols != nullptr, "%s", "null pointer error");
 
@@ -403,7 +403,7 @@ bool MemoryMappedModule::getExportSymbols(SymbolList *exportSymbols) const
 	return true;
 }
 
-bool MemoryMappedModule::getUnresolvedSymbols(SymbolList *symbolList) const
+bool NativeModule::getUnresolvedSymbols(SymbolList *symbolList) const
 {
 	LOG_ASSERT(symbolList != nullptr, "%s", "null pointer error");
 	auto modSystem = CSceModuleSystem::GetInstance();
@@ -411,9 +411,9 @@ bool MemoryMappedModule::getUnresolvedSymbols(SymbolList *symbolList) const
 	for (auto index : m_importSymbols)
 	{
 		auto &symbol = m_symbols[index];
-		auto addr = modSystem->findFunction(symbol.moduleName,
-											symbol.libraryName,
-											symbol.nid);
+		auto addr = modSystem->getSymbolAddress(symbol.moduleName,
+												symbol.libraryName,
+												symbol.nid);
 		if (addr == nullptr)
 		{
 			symbolList->emplace_back(symbol);
@@ -423,7 +423,7 @@ bool MemoryMappedModule::getUnresolvedSymbols(SymbolList *symbolList) const
 	return true;
 }
 
-bool MemoryMappedModule::outputUnresolvedSymbols(std::string const &fileName) const
+bool NativeModule::outputUnresolvedSymbols(std::string const &fileName) const
 {
 	bool retVal = false;
 	do
