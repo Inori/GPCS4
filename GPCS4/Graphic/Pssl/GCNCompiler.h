@@ -183,16 +183,20 @@ private:
 
 	/////////////////////////////////////////////////////////
 	SpirvRegisterValue emitValueLoad(const SpirvRegisterPointer& reg);
-	SpirvRegisterValue emitSgprLoad(uint32_t index);
-	SpirvRegisterValue emitVgprLoad(uint32_t index);
+	SpirvRegisterValue emitSgprLoad(uint32_t index, SpirvScalarType dstType = SpirvScalarType::Unknown);
+	SpirvRegisterValue emitVgprLoad(uint32_t index, SpirvScalarType dstType = SpirvScalarType::Unknown);
 
 	void emitValueStore(
-		const SpirvRegisterPointer &ptr,
-		const SpirvRegisterValue &src,
-		const GcnRegMask &writeMask);
+		const SpirvRegisterPointer& ptr,
+		const SpirvRegisterValue& src,
+		const GcnRegMask& writeMask);
 	void emitSgprStore(uint32_t dstIdx, const SpirvRegisterValue& srcReg);
-	void emitSgprArrayStore(uint32_t startIdx, const SpirvRegisterValue* values, uint32_t count);
 	void emitVgprStore(uint32_t dstIdx, const SpirvRegisterValue& srcReg);
+
+	void emitUpdateSgprType(uint32_t sidx, SpirvScalarType dstType);
+	void emitUpdateVgprType(uint32_t vidx, SpirvScalarType dstType);
+
+	void emitSgprArrayStore(uint32_t startIdx, const SpirvRegisterValue* values, uint32_t count);
 	void emitVgprArrayStore(uint32_t startIdx, const SpirvRegisterValue* values, uint32_t count);
 	// Store a vector to continuous vgprs
 	void emitVgprVectorStore(uint32_t startIdx, const SpirvRegisterValue& srcVec, const GcnRegMask& writeMask);
@@ -202,16 +206,17 @@ private:
 	SpirvRegisterValue emitSgprPairLoad(uint32_t firstIndex);
 	void emitSgprPairStore(uint32_t firstIndex, const SpirvRegisterValue& srcReg);
 	
+	SpirvRegisterValue emitLiteralConstLoad(uint32_t value, SpirvScalarType dstType);
 	/////////////////////////////////////////
 	// Operands manipulation methods
 	SpirvRegisterValue emitLoadScalarOperand(
 		uint32_t srcOperand, 
 		uint32_t regIndex, 
-		uint32_t literalConst = 0,
-		SpirvScalarType dstType = SpirvScalarType::Float32);
+		SpirvScalarType dstType,
+		uint32_t literalConst = 0);
 	SpirvRegisterValue emitLoadVectorOperand(
 		uint32_t index,
-		SpirvScalarType dstType = SpirvScalarType::Float32);
+		SpirvScalarType dstType);
 
 	void emitStoreScalarOperand(uint32_t dstOperand, uint32_t regIndex, const SpirvRegisterValue& srcReg);
 	void emitStoreVectorOperand(uint32_t dstIndex, const SpirvRegisterValue& srcReg);
@@ -260,7 +265,7 @@ private:
 		const GCNInstruction& ins,
 		uint32_t srcOperand,
 		uint32_t regIndex,
-		SpirvScalarType dstType = SpirvScalarType::Float32);
+		SpirvScalarType dstType);
 
 	////////////////////////////////
 	// Pointer manipulation methods
@@ -301,8 +306,9 @@ private:
 
 	/////////////////////////////////////////
 	// Generic register manipulation methods
-	SpirvRegisterValue emitRegisterBitcast(
-		SpirvRegisterValue       srcValue,
+	template <typename SpirvType>
+	SpirvType emitRegisterBitcast(
+		SpirvType                srcValue,
 		SpirvScalarType          dstType);
 
 	SpirvRegisterValue emitRegisterSwizzle(
@@ -513,6 +519,8 @@ private:
 		uint32_t* src0, uint32_t* src0Ridx,
 		uint32_t* src1 = nullptr, uint32_t* src1Ridx = nullptr,
 		int64_t* imm = nullptr);
+
+	const char* getTypeName(SpirvScalarType type);
 
 private:
 	////////////////////////////////////////////////////

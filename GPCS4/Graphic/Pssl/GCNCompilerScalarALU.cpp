@@ -167,7 +167,7 @@ void GCNCompiler::emitScalarMov(GCNInstruction& ins)
 	{
 	case SISOP1Instruction::S_MOV_B32:
 	{
-		auto value = emitLoadScalarOperand(ssrc, sidx, ins.literalConst, SpirvScalarType::Uint32);
+		auto value = emitLoadScalarOperand(ssrc, sidx, SpirvScalarType::Unknown, ins.literalConst);
 		emitStoreScalarOperand(sdst, didx, value);
 	}
 		break;
@@ -221,12 +221,12 @@ void GCNCompiler::emitScalarBitLogic(GCNInstruction& ins)
 
 	LOG_ASSERT(dstType == SpirvScalarType::Uint32 || dstType == SpirvScalarType::Uint64, "error operand type");
 
-	SpirvRegisterValue spvSrc0 = emitLoadScalarOperand(src0, src0Ridx, ins.literalConst, dstType);
+	SpirvRegisterValue spvSrc0 = emitLoadScalarOperand(src0, src0Ridx, dstType, ins.literalConst);
 	SpirvRegisterValue spvSrc1;
 	if (ins.instruction->GetInstructionFormat() == Instruction::InstructionSet_SOP2)
 	{
 		// Only SOP2 has ssrc1
-		spvSrc1 = emitLoadScalarOperand(src1, src1Ridx, ins.literalConst, dstType);
+		spvSrc1 = emitLoadScalarOperand(src1, src1Ridx, dstType, ins.literalConst);
 	}
 
 	SpirvRegisterValue dstVal;

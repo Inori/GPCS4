@@ -23,7 +23,6 @@ GCNCompiler::GCNCompiler(
 	m_programInfo(progInfo),
 	m_analysis(&analysis),
 	m_shaderInput(shaderInput),
-	m_statusRegs(this),
 	m_branchLabels(m_analysis->branchLabels)
 {
 	// Declare an entry point ID. We'll need it during the
@@ -505,6 +504,9 @@ void GCNCompiler::emitDclShaderResource(const GcnShaderResourceInstance& res)
 	case kShaderInputUsageImmSampler:
 		emitDclImmSampler(res);
 		break;
+	case kShaderInputUsageImmVertexBuffer:
+		// just used to pass warning
+		break;
 	default:
 		LOG_WARN("unknown shader resource type found %d", res.usageType);
 		break;
@@ -679,6 +681,9 @@ void GCNCompiler::emitDclImmResource(const GcnShaderResourceInstance& res)
 	m_resourceSlots.push_back({ bindingId, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE });
 }
 
+// TODO:
+// Wrap these using template.
+
 SpirvRegisterValue GCNCompiler::emitValueLoad(const SpirvRegisterPointer& reg)
 {
 	uint32_t varId = m_module.opLoad(
@@ -687,14 +692,60 @@ SpirvRegisterValue GCNCompiler::emitValueLoad(const SpirvRegisterPointer& reg)
 	return SpirvRegisterValue(reg.type, varId);
 }
 
-SpirvRegisterValue GCNCompiler::emitSgprLoad(uint32_t index)
+SpirvRegisterValue GCNCompiler::emitSgprLoad(uint32_t index, SpirvScalarType dstType /*= SpirvScalarType::Unknown*/)
 {
-	return emitValueLoad(m_sgprs[index]);
+	auto& sgpr = m_sgprs[index];
+	if (dstType != SpirvScalarType::Unknown && dstType != sgpr.type.ctype)
+	{
+		emitUpdateSgprType(index, dstType);
+	}
+	return emitValueLoad(sgpr);
 }
 
-SpirvRegisterValue GCNCompiler::emitVgprLoad(uint32_t index)
+SpirvRegisterValue GCNCompiler::emitVgprLoad(uint32_t index, SpirvScalarType dstType /*= SpirvScalarType::Unknown*/)
 {
-	return emitValueLoad(m_vgprs[index]);
+	auto& vgpr = m_vgprs[index];
+	if (dstType != SpirvScalarType::Unknown && dstType != vgpr.type.ctype)
+	{
+		emitUpdateVgprType(index, dstType);
+	}
+	return emitValueLoad(vgpr);
+}
+
+void GCNCompiler::emitUpdateSgprType(uint32_t sidx, SpirvScalarType dstType)
+{
+	LOG_ASSERT(!isDoubleWordType(dstType), "wide type not supported yet.");
+	do 
+	{
+		auto& sgpr = m_sgprs[sidx];
+
+		if (sgpr.type.ctype == dstType)
+		{
+			break;
+		}
+
+		sgpr = emitRegisterBitcast(sgpr, dstType);
+		const char* debugName = UtilString::Format("s%d_%s", sidx, getTypeName(dstType)).c_str();
+		m_module.setDebugName(sgpr.id, debugName);
+	} while (false);
+}
+
+void GCNCompiler::emitUpdateVgprType(uint32_t vidx, SpirvScalarType dstType)
+{
+	LOG_ASSERT(!isDoubleWordType(dstType), "wide type not supported yet.");
+	do 
+	{
+		auto& vgpr = m_vgprs[vidx];
+
+		if (vgpr.type.ctype == dstType)
+		{
+			break;
+		}
+
+		vgpr = emitRegisterBitcast(vgpr, dstType);
+		const char* debugName = UtilString::Format("v%d_%s", vidx, getTypeName(dstType)).c_str();
+		m_module.setDebugName(vgpr.id, debugName);
+	} while (false);
 }
 
 void GCNCompiler::emitValueStore(
@@ -743,6 +794,12 @@ void GCNCompiler::emitSgprStore(uint32_t dstIdx,
 		sgpr.id   = emitNewVariable({ sgpr.type, spv::StorageClassPrivate },
                                   UtilString::Format("s%d", dstIdx));
 	}
+
+	if (sgpr.type.ctype != srcReg.type.ctype)
+	{
+		emitUpdateSgprType(dstIdx, srcReg.type.ctype);
+	}
+
 	emitValueStore(sgpr, srcReg, 1);
 }
 
@@ -765,6 +822,12 @@ void GCNCompiler::emitVgprStore(uint32_t dstIdx,
 		vgpr.id   = emitNewVariable({ vgpr.type, spv::StorageClassPrivate },
                                   UtilString::Format("v%d", dstIdx));
 	}
+
+	if (vgpr.type.ctype != srcReg.type.ctype)
+	{
+		emitUpdateVgprType(dstIdx, srcReg.type.ctype);
+	}
+
 	emitValueStore(vgpr, srcReg, 1);
 }
 
@@ -802,8 +865,8 @@ SpirvRegisterValue GCNCompiler::emitSgprPairLoad(uint32_t firstIndex)
 	// The type of a SGPR pair will be only Uint64
 
 	// Load the higher and lower sgpr
-	auto high = emitRegisterBitcast(emitSgprLoad(firstIndex), SpirvScalarType::Uint32);
-	auto low  = emitRegisterBitcast(emitSgprLoad(firstIndex + 1), SpirvScalarType::Uint32);
+	auto high = emitSgprLoad(firstIndex, SpirvScalarType::Uint32);
+	auto low  = emitSgprLoad(firstIndex + 1, SpirvScalarType::Uint32);
 
 	// Convert the two Uint32 to a vec2
 	auto vec2U32 = emitRegisterConcat(high, low);
@@ -839,11 +902,35 @@ void GCNCompiler::emitSgprPairStore(uint32_t firstIndex, const SpirvRegisterValu
 	emitSgprStore(firstIndex + 1, low);
 }
 
+SpirvRegisterValue GCNCompiler::emitLiteralConstLoad(uint32_t value, SpirvScalarType dstType)
+{
+	SpirvRegisterValue result;
+	result.type.ctype  = dstType;
+	result.type.ccount = 1;
+	switch (dstType)
+	{
+	case SpirvScalarType::Unknown:
+	case SpirvScalarType::Uint32:
+		result.id = m_module.constu32(value);
+		break;
+	case SpirvScalarType::Sint32:
+		result.id = m_module.consti32(*reinterpret_cast<int32_t*>(&value));
+		break;
+	case SpirvScalarType::Float32:
+		result.id = m_module.constf32(*reinterpret_cast<float*>(&value));
+		break;
+	default:
+		LOG_ERR("wrong literal const type %d", dstType);
+		break;
+	}
+	return result;
+}
+
 // Used with with 7 bits SDST, 8 bits SSRC or 9 bits SRC
 // See table "SDST, SSRC and SRC Operands" in section 3.1 of GPU Shader Core ISA manual
 SpirvRegisterValue GCNCompiler::emitLoadScalarOperand(
 	uint32_t srcOperand, uint32_t regIndex,
-	uint32_t literalConst /*= 0*/, SpirvScalarType dstType /*= SpirvScalarType::Float32*/)
+	SpirvScalarType dstType, uint32_t literalConst /*= 0*/ )
 {
 	Instruction::OperandSRC src = static_cast<Instruction::OperandSRC>(srcOperand);
 	SpirvRegisterValue operand;
@@ -852,27 +939,23 @@ SpirvRegisterValue GCNCompiler::emitLoadScalarOperand(
 	{
 	case Instruction::OperandSRC::SRCScalarGPRMin ... Instruction::OperandSRC::SRCScalarGPRMax:
 		operand = dstType != SpirvScalarType::Uint64 ? 
-			emitSgprLoad(regIndex) :
+			emitSgprLoad(regIndex, dstType) :
 			emitSgprPairLoad(regIndex);
 		break;
 	case Instruction::OperandSRC::SRCVccLo:
-		operand = emitValueLoad(dstType == SpirvScalarType::Uint32 ?
-			m_statusRegs.vcc.low() : 
-			m_statusRegs.vcc.value());
+		operand = emitValueLoad(m_statusRegs.vcc);
 		break;
 	case Instruction::OperandSRC::SRCVccHi:
-		operand = emitValueLoad(m_statusRegs.vcc.high());
+		operand = emitValueLoad(m_statusRegs.vcc_hi);
 		break;
 	case Instruction::OperandSRC::SRCM0:
 		operand = emitValueLoad(m_statusRegs.m0);
 		break;
 	case Instruction::OperandSRC::SRCExecLo:
-		operand = emitValueLoad(dstType == SpirvScalarType::Uint32 ?
-			m_statusRegs.exec.low() : 
-			m_statusRegs.exec.value());
+		operand = emitValueLoad(m_statusRegs.exec);
 		break;
 	case Instruction::OperandSRC::SRCExecHi:
-		operand = emitValueLoad(m_statusRegs.exec.high());
+		operand = emitValueLoad(m_statusRegs.exec_hi);
 		break;
 	case Instruction::OperandSRC::SRCConstZero:
 	case Instruction::OperandSRC::SRCSignedConstIntPosMin ... Instruction::OperandSRC::SRCSignedConstIntPosMax:
@@ -888,27 +971,20 @@ SpirvRegisterValue GCNCompiler::emitLoadScalarOperand(
 		break;
 	case Instruction::OperandSRC::SRCSCC:
 		//operand = emitValueLoad(m_statusRegs.scc);
+		LOG_ASSERT(false, "scc load not supported yet.");
 		break;
 	case Instruction::OperandSRC::SRCLdsDirect:
 		break;
 	case Instruction::OperandSRC::SRCLiteralConst:
-	{
-		uint32_t constId = m_module.constu32(literalConst);
-		operand          = SpirvRegisterValue(SpirvScalarType::Uint32, 1, constId);
-	}
-	break;
+		operand = emitLiteralConstLoad(literalConst, dstType);
+		break;
 	// For 9 bits SRC operand
 	case Instruction::OperandSRC::SRCVectorGPRMin ... Instruction::OperandSRC::SRCVectorGPRMax:
-		operand = emitVgprLoad(regIndex);
+		operand = emitVgprLoad(regIndex, dstType);
 		break;
 	default:
 		LOG_ERR("error operand range %d", (uint32_t)srcOperand);
 		break;
-	}
-
-	if (operand.type.ctype != dstType)
-	{
-		operand = emitRegisterBitcast(operand, dstType);
 	}
 
 	return operand;
@@ -917,16 +993,9 @@ SpirvRegisterValue GCNCompiler::emitLoadScalarOperand(
 // Used with 8 bits VSRC/VDST
 // for 9 bits SRC, call emitLoadScalarOperand instead
 // See table "VSRC and VDST Operands" in section 3.1 of GPU Shader Core ISA manual
-SpirvRegisterValue GCNCompiler::emitLoadVectorOperand(uint32_t index, SpirvScalarType dstType /*= SpirvScalarType::Float32*/)
+SpirvRegisterValue GCNCompiler::emitLoadVectorOperand(uint32_t index, SpirvScalarType dstType)
 {
-	SpirvRegisterValue operand = emitVgprLoad(index);
-
-	if (operand.type.ctype != dstType)
-	{
-		operand = emitRegisterBitcast(operand, dstType);
-	}
-
-	return operand;
+	return emitVgprLoad(index, dstType);
 }
 
 // Used with 7 bits SDST
@@ -942,28 +1011,18 @@ void GCNCompiler::emitStoreScalarOperand(uint32_t dstOperand, uint32_t regIndex,
 			emitSgprStore(regIndex, srcReg) : 
 			emitSgprPairStore(regIndex, srcReg);
 	}
-	break;
+		break;
 	case Instruction::OperandSDST::SDSTVccLo:
-	{
-		auto dstReg = srcReg.type.ctype == SpirvScalarType::Uint32 ?
-			m_statusRegs.vcc.low() : 
-			m_statusRegs.vcc.value();
-		emitValueStore(dstReg, srcReg, 1);
-	}
-	break;
+		emitValueStore(m_statusRegs.vcc, srcReg, 1);
+		break;
 	case Instruction::OperandSDST::SDSTVccHi:
-		emitValueStore(m_statusRegs.vcc.high(), srcReg, 1);
+		emitValueStore(m_statusRegs.vcc_hi, srcReg, 1);
 		break;
 	case Instruction::OperandSDST::SDSTExecLo:
-	{
-		auto dstReg = srcReg.type.ctype == SpirvScalarType::Uint32 ?
-			m_statusRegs.exec.low() : 
-			m_statusRegs.exec.value();
-		emitValueStore(dstReg, srcReg, 1);
-	}
-	break;
+		emitValueStore(m_statusRegs.exec, srcReg, 1);
+		break;
 	case Instruction::OperandSDST::SDSTExecHi:
-		emitValueStore(m_statusRegs.exec.high(), srcReg, 1);
+		emitValueStore(m_statusRegs.exec_hi, srcReg, 1);
 		break;
 	case Instruction::OperandSDST::SDSTM0:
 		emitValueStore(m_statusRegs.m0, srcReg, 1);
@@ -1209,14 +1268,15 @@ pssl::SpirvRegisterValue GCNCompiler::emitBuildConstVecf64(double xy, double zw,
 	return result;
 }
 
-SpirvRegisterValue GCNCompiler::emitRegisterBitcast(SpirvRegisterValue srcValue, SpirvScalarType dstType)
+template <typename SpirvType>
+SpirvType GCNCompiler::emitRegisterBitcast(SpirvType srcValue, SpirvScalarType dstType)
 {
 	SpirvScalarType srcType = srcValue.type.ctype;
 
 	if (srcType == dstType)
 		return srcValue;
 
-	SpirvRegisterValue result;
+	SpirvType result;
 	result.type.ctype = dstType;
 	result.type.ccount = srcValue.type.ccount;
 
@@ -1567,6 +1627,22 @@ SpirvScalarType GCNCompiler::getScalarType(Instruction::OperandType operandType)
 		break;
 	}
 	return resultType;
+}
+
+const char* GCNCompiler::getTypeName(SpirvScalarType type)
+{
+	const char* name = nullptr;
+	switch (type)
+	{
+	case SpirvScalarType::Uint32: name = "uint";	break;
+	case SpirvScalarType::Uint64: name = "ulong";	break;
+	case SpirvScalarType::Sint32: name = "int";		break;
+	case SpirvScalarType::Sint64: name = "long";	break;
+	case SpirvScalarType::Float32:name = "float";	break;
+	case SpirvScalarType::Float64:name = "float64";	break;
+	case SpirvScalarType::Bool:	  name = "bool";	break;
+	}
+	return name;
 }
 
 }  // namespace pssl
