@@ -91,22 +91,7 @@ int PS4API scek_pthread_join(void)
 int PS4API scek_pthread_mutex_init(pthread_mutex_t *mutex, const pthread_mutexattr_t *attr)
 {
 	LOG_SCE_TRACE("mutex %p attr %p", mutex, attr);
-	auto ret = 0;
-	if (attr == nullptr)
-	{
-		// If attr is nullptr then default will be used which is PTHREAD_MUTEX_ERRORCHECK on PS4
-		// so we make sure we set PTHREAD_MUTEX_ERRORCHECK here to match behaviour.
-		pthread_mutexattr_t errorCheckMutexAttr;
-		pthread_mutexattr_init(&errorCheckMutexAttr);
-		pthread_mutexattr_settype(&errorCheckMutexAttr, PTHREAD_MUTEX_ERRORCHECK);
-		ret = pthread_mutex_init((pthread_mutex_t*)mutex, &errorCheckMutexAttr);
-		pthread_mutexattr_destroy(&errorCheckMutexAttr);
-	}
-	else
-	{
-		ret = pthread_mutex_init(mutex, attr);
-	}
-	return ret;
+	return scePthreadMutexInit(mutex, attr, nullptr);
 }
 
 
