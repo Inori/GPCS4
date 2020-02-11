@@ -118,7 +118,7 @@ int PS4API sceKernelOpen(const char *path, int flags, SceKernelMode mode)
 	else
 	{
 		LOG_ASSERT((flags == SCE_KERNEL_O_RDONLY), "not supported flag.");
-		LOG_ASSERT((mode == SCE_KERNEL_S_IRU), "not supported mode.");
+		LOG_ASSERT((mode == SCE_KERNEL_S_IRU) || ((mode == SCE_KERNEL_S_INONE) && ((flags & SCE_KERNEL_O_CREAT) == 0)), "not supported mode.");
 
 		int fd = _open(pcPath.c_str(), _O_RDONLY | _O_BINARY, _S_IREAD);
 		if (fd == -1)

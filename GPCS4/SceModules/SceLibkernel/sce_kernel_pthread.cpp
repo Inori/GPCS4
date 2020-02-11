@@ -5,7 +5,7 @@
 
 LOG_CHANNEL(SceModules.SceLibkernel.pthread);
 
-int pthreadErrorToSceError(int perror);
+int sceMutexAttrTypeToPthreadType(int type);
 
 int PS4API scek_pthread_cond_init(pthread_cond_t *cond, const pthread_condattr_t *attr)
 {
@@ -91,8 +91,7 @@ int PS4API scek_pthread_join(void)
 int PS4API scek_pthread_mutex_init(pthread_mutex_t *mutex, const pthread_mutexattr_t *attr)
 {
 	LOG_SCE_TRACE("mutex %p attr %p", mutex, attr);
-	auto ret =  pthread_mutex_init(mutex, attr);
-	return ret;
+	return scePthreadMutexInit(mutex, attr, nullptr);
 }
 
 
@@ -135,17 +134,19 @@ int PS4API scek_pthread_mutexattr_destroy(void)
 }
 
 
-int PS4API scek_pthread_mutexattr_init(void)
+int PS4API scek_pthread_mutexattr_init(pthread_mutexattr_t * attr)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("attr %p", attr);
+	int err = pthread_mutexattr_init(attr);
+	return err;
 }
 
-
-int PS4API scek_pthread_mutexattr_settype(void)
+int PS4API scek_pthread_mutexattr_settype(pthread_mutexattr_t* attr, int type)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("attr %p type %d", attr, type);
+	int ptype = sceMutexAttrTypeToPthreadType(type);
+	int err = pthread_mutexattr_settype((pthread_mutexattr_t*)attr, ptype);
+	return err;
 }
 
 // For PS4 system, ScePthread and pthread_t are same.
