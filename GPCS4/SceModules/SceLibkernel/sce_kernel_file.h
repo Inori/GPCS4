@@ -38,6 +38,8 @@ typedef uint16_t SceKernelMode;
 #define	SCE_S_ISVTX	 0001000		/* save swapped text even after use */
 
 // open mode
+#define SCE_KERNEL_S_INONE         0
+
 #define SCE_KERNEL_S_IRUSR         (SCE_S_IRUSR | SCE_S_IRGRP | SCE_S_IROTH | SCE_S_IXUSR | \
 									SCE_S_IXGRP | SCE_S_IXOTH)
 #define SCE_KERNEL_S_IWUSR         (SCE_S_IWUSR | SCE_S_IWGRP | SCE_S_IWOTH | SCE_S_IXUSR | \
@@ -48,8 +50,6 @@ typedef uint16_t SceKernelMode;
 #define SCE_KERNEL_S_IRWU          (SCE_KERNEL_S_IRUSR | SCE_KERNEL_S_IWUSR)
 // read
 #define SCE_KERNEL_S_IRU           (SCE_KERNEL_S_IRUSR)
-
-#define SCE_KERNEL_S_INONE         0
 
 #define SCE_KERNEL_S_IFMT          SCE_S_IFMT
 #define SCE_KERNEL_S_IFDIR         SCE_S_IFDIR
