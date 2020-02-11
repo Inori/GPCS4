@@ -127,6 +127,8 @@ public:
 
 	bool patchTLSInstruction(void* code);
 
+	void printInstruction(void* code);
+
 private:
 	void initZydis();
 
