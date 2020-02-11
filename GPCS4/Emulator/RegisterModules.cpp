@@ -91,8 +91,10 @@ static bool registerLibKernel(CSceModuleSystem* pModuleSystem)
 		policyManager.declareModule("libkernel").withDefault(Policy::UseBuiltin)
 			.declareSubLibrary("libkernel").with(Policy::UseBuiltin).except
 			({ 
-				0xF41703CA43E6A352, // __error
-				0x581EBA7AFBBC6EC5  // sceKernelGetCompiledSdkVersion
+				0xF41703CA43E6A352,  // __error
+				0x581EBA7AFBBC6EC5,  // sceKernelGetCompiledSdkVersion
+				0x8E1FBC5E22B82DE1,  // sceKernelIsAddressSanitizerEnabled
+				0x0F8CA56B7BF1E2D6,  // sceKernelError
 			 });
 
 
@@ -197,25 +199,25 @@ bool CEmulator::registerModules()
 			break;
 		}
 
-		// Yes, the policy is testable now, although we should not put the 
-		// test code here
-		auto testPolicy = [&]() {
-			auto pm = pModuleSystem->getPolicyManager();
+		// Yes, the policy is testable now
 
-			auto p1 = pm.getSymbolPolicy("libc", "libc", 0xC5E60EE2EEEEC89DULL);
-			LOG_ASSERT(p1 == Policy::UseBuiltin, "policy error");
+		//auto testPolicy = [&]() {
+		//	auto pm = pModuleSystem->getPolicyManager();
 
-			auto p2 = pm.getSymbolPolicy("libkernel", "libkernel", 0xF41703CA43E6A352);
-			LOG_ASSERT(p2 == Policy::UseNative, "policy error2");
+		//	auto p1 = pm.getSymbolPolicy("libc", "libc", 0xC5E60EE2EEEEC89DULL);
+		//	LOG_ASSERT(p1 == Policy::UseBuiltin, "policy error");
 
-			auto p3 = pm.getSymbolPolicy("libSceNgs2", "libSceNgs2", 0xDE908D6D5335D540);
-			LOG_ASSERT(p3 == Policy::UseNative, "policy error3");
+		//	auto p2 = pm.getSymbolPolicy("libkernel", "libkernel", 0xF41703CA43E6A352);
+		//	LOG_ASSERT(p2 == Policy::UseNative, "policy error2");
 
-			auto p4 = pm.getSymbolPolicy("libSceLibcInternal", "libSceLibcInternal", 0x80D435576BDF5C31);
-			LOG_ASSERT(p4 == Policy::UseNative, "policy error4");
-		};
+		//	auto p3 = pm.getSymbolPolicy("libSceNgs2", "libSceNgs2", 0xDE908D6D5335D540);
+		//	LOG_ASSERT(p3 == Policy::UseNative, "policy error3");
 
-		testPolicy();
+		//	auto p4 = pm.getSymbolPolicy("libSceLibcInternal", "libSceLibcInternal", 0x80D435576BDF5C31);
+		//	LOG_ASSERT(p4 == Policy::UseNative, "policy error4");
+		//};
+
+		//testPolicy();
 
 		bRet = true;
 	} while (false);
