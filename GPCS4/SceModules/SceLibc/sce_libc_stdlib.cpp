@@ -1,5 +1,6 @@
 #include "sce_libc.h"
 #include <ctime>
+#include <signal.h>
 
 LOG_CHANNEL(SceModules.SceLibc.stdlib);
 

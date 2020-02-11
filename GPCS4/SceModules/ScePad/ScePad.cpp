@@ -11,6 +11,7 @@
 #include <GLFW/glfw3.h>
 
 #include <stdexcept>
+#include <cstring>
 
 LOG_CHANNEL(SceModules.ScePad);
 

@@ -14,7 +14,7 @@
 
 
 // Windows compile
-#define GPCS4_WINDOWS 1
+// #define GPCS4_WINDOWS 1
 
 
 // Linux compile

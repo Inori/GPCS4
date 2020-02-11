@@ -1,5 +1,5 @@
 #include "sce_libkernel.h"
-#include "pthreads4w/pthread.h"
+#include "pthread.h"
 #include "Platform/PlatformUtils.h"
 #include "Emulator/SceModuleSystem.h"
 // Note:

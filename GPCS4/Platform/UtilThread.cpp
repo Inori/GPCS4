@@ -1,7 +1,5 @@
 #include "UtilThread.h"
 
-namespace UtilThread
-{;
 
 #ifdef GPCS4_WINDOWS
 
@@ -9,6 +7,15 @@ namespace UtilThread
 #include <Windows.h>
 #undef WIN32_LEAN_AND_MEAN
 
+#elif defined(GPCS4_LINUX)
+#include <unistd.h>
+#include <sys/syscall.h>
+#endif
+
+namespace UtilThread
+{;
+
+#ifdef GPCS4_WINDOWS
 
 uint64_t GetThreadId(void)
 {
@@ -23,10 +30,10 @@ void ThreadYield()
 
 #elif defined(GPCS4_LINUX)
 
-#include <sys/types.h>
 uint64_t GetThreadId(void)
 {
-	return gettid();
+	//return gettid();
+	return syscall(SYS_gettid);
 }
 
 

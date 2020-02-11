@@ -1,6 +1,7 @@
 #include "GnmCmdStream.h"
 #include "UtilBit.h"
 #include "GnmGfx9MePm4Packets.h"
+#include <cstring>
 
 LOG_CHANNEL(Graphic.Gnm.GnmCmdStream);
 
@@ -946,7 +947,7 @@ void GnmCmdStream::onSetRenderTarget(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody
 		uint32_t rtSlot = (setCtxPacket->bitfields2.reg_offset - 0x318) / 15;
 
 		RenderTarget target;
-		std::memcpy(&target.m_regs[0], &itBody[1], sizeof(uint32_t) * setCtxPacket->header.count);  
+		::memcpy(&target.m_regs[0], &itBody[1], sizeof(uint32_t) * setCtxPacket->header.count);  
 
 		// Get the next nop packet, which is used to hold width and height information.
 		auto nopPacket                              = getNextPm4(pm4Hdr);
@@ -974,7 +975,7 @@ void GnmCmdStream::onSetDepthRenderTarget(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* i
 	{
 		DepthRenderTarget target;
 
-		std::memcpy(&target.m_regs[0], &itBody[2], 0x20);
+		::memcpy(&target.m_regs[0], &itBody[2], 0x20);
 
 		target.m_regs[11] = itBody[11];
 		target.m_regs[8] = itBody[14];

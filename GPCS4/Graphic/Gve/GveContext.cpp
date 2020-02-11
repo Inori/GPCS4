@@ -12,6 +12,7 @@
 #include "GveSampler.h"
 #include "GveShader.h"
 #include "GveStaging.h"
+#include <cstring>
 
 namespace gve
 {;
@@ -147,7 +148,7 @@ void GveContext::bindRenderTargets(const GveAttachment* color, uint32_t count)
 			break;
 		}
 
-		std::memcpy(m_state.om.renderTargets.color, color, sizeof(GveAttachment) * count);
+		::memcpy(m_state.om.renderTargets.color, color, sizeof(GveAttachment) * count);
 		m_flags.set(GveContextFlag::GpDirtyFramebuffer);
 
 	} while (false);
@@ -318,7 +319,7 @@ void GveContext::updateBuffer(const RcPtr<GveBuffer>& buffer,
 			auto stagingSlice = m_stagingAlloc->alloc(size, CACHE_LINE_SIZE);
 
 			void* stagingData = stagingSlice.mapPtr(0);
-			std::memcpy(stagingData, data, size);
+			::memcpy(stagingData, data, size);
 
 			auto dstSlice = GveBufferSlice(buffer, offset, size);
 			copyBuffer(dstSlice, stagingSlice, size);
@@ -326,7 +327,7 @@ void GveContext::updateBuffer(const RcPtr<GveBuffer>& buffer,
 		else
 		{
 			void* bufferData = buffer->mapPtr(offset);
-			std::memcpy(bufferData, data, size);
+			::memcpy(bufferData, data, size);
 		}
 
 	} while (false);
@@ -338,7 +339,7 @@ void GveContext::updateImage(const RcPtr<GveImage>& image,
 	auto stagingSlice = m_stagingAlloc->alloc(size, CACHE_LINE_SIZE);
 
 	void* stagingData = stagingSlice.mapPtr(0);
-	std::memcpy(stagingData, data, size);
+	::memcpy(stagingData, data, size);
 
 	transitionImageLayout(image->handle(), image->getFormat(), image->info().initialLayout, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 	copyBufferToImage(image, stagingSlice, image->getWidth(), image->getHeight());

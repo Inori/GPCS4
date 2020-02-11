@@ -1,4 +1,5 @@
 #include "GvePipelineState.h"
+#include <cstring>
 
 namespace gve
 {;
@@ -561,7 +562,7 @@ void GveColorBlendInfo::addAttachment(GveColorBlendAttachment attachment)
 
 void GveColorBlendInfo::setBlendConstants(float constants[4])
 {
-	std::memcpy(m_blendConstants, constants, sizeof(float) * 4);
+	::memcpy(m_blendConstants, constants, sizeof(float) * 4);
 }
 
 void GveColorBlendInfo::clear()
@@ -609,7 +610,7 @@ bool GveColorBlendInfo::operator==(const GveColorBlendInfo& other) const
 {
 	return (m_asDword1 == other.m_asDword1) &&
 		(m_attachments == other.m_attachments) &&
-		(!std::memcmp(m_blendConstants, other.m_blendConstants, sizeof(float) * 4));
+		(!::memcmp(m_blendConstants, other.m_blendConstants, sizeof(float) * 4));
 }
 
 std::ostream& operator << (std::ostream& out, const GveGraphicsPipelineStateInfo& state)

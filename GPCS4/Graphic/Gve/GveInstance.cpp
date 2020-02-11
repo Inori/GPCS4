@@ -3,6 +3,7 @@
 #include "GveSwapChain.h"
 
 #include <iostream>
+#include <cstring>
 
 LOG_CHANNEL(Graphic.Gve.GveInstance);
 

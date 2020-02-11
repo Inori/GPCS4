@@ -1,6 +1,6 @@
 #pragma once
 #include "sce_libkernel.h"
-#include "pthreads4w/pthread.h"
+#include "pthread.h"
 #include "MapSlot.h"
 
 struct SCE_THREAD_PARAM

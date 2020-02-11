@@ -2,7 +2,9 @@
 #include "sce_kernel_file.h"
 #include "MapSlot.h"
 #include "Platform/UtilPath.h"
-#include <io.h>
+//#include <io.h>
+#include <unistd.h>
+#include <sys/io.h>
 #include <fcntl.h>
 #include <cstdio>
 

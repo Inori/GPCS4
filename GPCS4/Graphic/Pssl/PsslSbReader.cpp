@@ -1,5 +1,6 @@
 #include "PsslSbReader.h"
 #include <ostream>
+#include <cstring>
 
 LOG_CHANNEL(Graphic.Pssl.PsslSbReader);
 
@@ -31,7 +32,7 @@ std::string PsslSbReader::readString()
 void PsslSbReader::read(void* dst, size_t n)
 {
 	LOG_ASSERT((m_pos + n <= m_size), "Unexpected end of file %d", n);
-	std::memcpy(dst, m_data + m_pos, n);
+	::memcpy(dst, m_data + m_pos, n);
 	m_pos += n;
 }
 

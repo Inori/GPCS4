@@ -1,4 +1,5 @@
 #include "UtilDebug.h"
+#include <signal.h>
 
 namespace UtilDebug
 {;

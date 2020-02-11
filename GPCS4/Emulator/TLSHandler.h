@@ -2,7 +2,7 @@
 
 #include "GPCS4Common.h"
 #include "UtilSingleton.h"
-#include "zydis/Zydis.h"
+#include "Zydis/Zydis.h"
 
 #include <array>
 #include <mutex>
@@ -171,6 +171,9 @@ class TLSManagerLinux : public TLSManager
 	friend class Singleton<TLSManagerLinux>;
 
 public:
+	virtual bool install() { return true; }
+
+	virtual void uninstall() {  }
 private:
 	TLSManagerLinux();
 	virtual ~TLSManagerLinux();

@@ -1,4 +1,6 @@
 #include "PsslProgramInfo.h"
+#include <cstring>
+#include <climits>
 
 #define SHADER_BINARY_INFO_SIG "OrbShdr"
 #define SHADER_BINARY_INFO_SEARCH_MAX (1024 * 1024 * 5)
@@ -115,10 +117,10 @@ bool PsslProgramInfo::initBinaryInfo(const uint8_t* code)
 		const uint32_t sigLen = sizeof(m_shaderBinaryInfo.signature);
 		for (uint32_t i = 0; i != SHADER_BINARY_INFO_SEARCH_MAX; ++i)
 		{
-			if (!std::memcmp(&code[i], SHADER_BINARY_INFO_SIG, sigLen))
+			if (!::memcmp(&code[i], SHADER_BINARY_INFO_SIG, sigLen))
 			{
 				info = (ShaderBinaryInfo*)&code[i];
-				memcpy(&m_shaderBinaryInfo, info, sizeof(m_shaderBinaryInfo));
+				::memcpy(&m_shaderBinaryInfo, info, sizeof(m_shaderBinaryInfo));
 				ret = true;
 				break;
 			}

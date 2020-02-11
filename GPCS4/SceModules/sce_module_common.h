@@ -5,6 +5,7 @@
 #include "sce_types.h"
 #include "sce_errors.h"
 
+#include <cstring>
 
 struct SCE_EXPORT_FUNCTION
 {

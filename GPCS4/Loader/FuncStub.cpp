@@ -1,5 +1,6 @@
 #include "FuncStub.h"
 #include "Platform/UtilDebug.h"
+#include <cstring>
 
 LOG_CHANNEL(Loader.FuncStub);
 

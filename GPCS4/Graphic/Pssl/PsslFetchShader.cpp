@@ -1,4 +1,5 @@
 #include "PsslFetchShader.h"
+#include <climits>
 
 namespace pssl
 {;

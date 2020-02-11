@@ -4,6 +4,10 @@
 #include <cstring>
 #include <cstdarg>
 
+#define vsprintf_s vsnprintf
+#define sprintf_s snprintf
+
+
 LOG_CHANNEL(SceModules.SceLibc.string);
 
 int PS4API scec_mblen(void)
@@ -23,7 +27,8 @@ int PS4API scec_mbsrtowcs(void)
 errno_t PS4API scec_mbstowcs_s(size_t * retval, wchar_t * dst, rsize_t dstsz, const char * src, rsize_t len)
 {
 	LOG_SCE_TRACE("retv %p dst %p dstsz %d src %p len %d", retval, dst, dstsz, src, len);
-	return mbstowcs_s(retval, dst, dstsz, src, len);
+	//return mbstowcs_s(retval, dst, dstsz, src, len);
+	return mbstowcs(dst, src, len); //UNSAFE
 }
 
 
@@ -95,6 +100,7 @@ PS4API scec_sprintf(char *str, const char *format, ...)
 
 #elif defined(GPCS4_LINUX)
 	// on linux, this can be implemented more friendly.
+	char buffer[3000];
 	va_list arg_list;
 
 	va_start(arg_list, format);
@@ -128,12 +134,18 @@ scec_sprintf_s(char *buffer, size_t sizeOfBuffer, const char *format, ...)
 
 #elif defined(GPCS4_LINUX)
 	// on linux, this can be implemented more friendly.
-	va_list arg_list;
+	//va_list arg_list;
 
-	va_start(arg_list, format);
-	int ret = vsprintf_s(buffer, sizeOfBuffer, format, arg_list);
-	va_end(arg_list);
-	return ret;
+	//va_start(arg_list, format);
+	//int ret = vsprintf_s(buffer, sizeOfBuffer, format, arg_list);
+	//va_end(arg_list);
+	//return ret;
+
+	//../GPCS4/SceModules/SceLibc/sce_libc_string.cpp:137:2: error: non-ASM statement in naked function is not supported
+	//        va_list arg_list;
+	//        ^
+
+	// Damn it.
 #endif
 
 }
@@ -188,7 +200,9 @@ char* PS4API scec_strcat(char *dest, const char *src)
 errno_t PS4API scec_strcat_s(char *dest, rsize_t destsz, const char *src)
 {
 	LOG_SCE_TRACE("dst %p dstsize %x src %p", dest, destsz, src);
-	return strcat_s(dest, destsz, src);
+	//return strcat_s(dest, destsz, src);
+	strcat(dest, src);
+	return SCE_OK;
 }
 
 
@@ -216,7 +230,9 @@ char* PS4API scec_strcpy(char * dst, const char * src)
 errno_t PS4API scec_strcpy_s(char *dest, rsize_t dest_size, const char *src)
 {
 	LOG_SCE_TRACE("dst %p dst_sz %x src %p", dest, dest_size, src);
-	return strcpy_s(dest, dest_size, src);
+	//return strcpy_s(dest, dest_size, src);
+	memcpy(dest, src, dest_size);
+	return SCE_OK;
 }
 
 
@@ -254,14 +270,17 @@ void* PS4API scec_strncpy(char *dest, const char *src, size_t n)
 errno_t PS4API scec_strncpy_s(char* dest, rsize_t destsz, const char* src, rsize_t count)
 {
 	LOG_SCE_TRACE("dest %p dstsz %d src %p count %d", dest, destsz, src, count);
-	return strncpy_s(dest, destsz, src, count);
+	//return strncpy_s(dest, destsz, src, count);
+	memcpy(dest, src, (count < destsz) ? count : destsz);
+	return SCE_OK;
 }
 
 
 size_t PS4API scec_strnlen_s(const char *str, size_t strsz)
 {
 	LOG_SCE_TRACE("str %p sz %d", str, strsz);
-	return strnlen_s(str, strsz);
+	//return strnlen_s(str, strsz);
+	return strlen(str); // UNSAFE
 }
 
 
@@ -359,7 +378,9 @@ int PS4API scec_wcscmp(void)
 errno_t PS4API scec_wcscpy_s(wchar_t * dest, rsize_t destsz, const wchar_t * src)
 {
 	LOG_SCE_TRACE("dest %p sz %d src %p", dest, destsz, src);
-	return wcscpy_s(dest, destsz, src);
+	//return wcscpy_s(dest, destsz, src);
+	memcpy(dest, src, destsz * sizeof(wchar_t));
+	return SCE_OK;
 }
 
 

@@ -4,6 +4,7 @@
 #include "GnmConstant.h"
 #include "GnmTiler.h"
 #include "GnmStructure.h"
+#include <cstring>
 
 namespace GpuAddress
 {;
@@ -38,7 +39,7 @@ struct SurfaceRegion
 
 	bool operator==(const SurfaceRegion& other)
 	{
-		return !std::memcmp(this, &other, sizeof(SurfaceRegion));
+		return !::memcmp(this, &other, sizeof(SurfaceRegion));
 	}
 };
 

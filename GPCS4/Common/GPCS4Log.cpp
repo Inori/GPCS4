@@ -27,9 +27,14 @@ void showMessageBox(const char* title, const char* message)
 
 #else
 
+#define vsprintf_s vsnprintf
+#define sprintf_s snprintf
+
 void showMessageBox(const char* title, const char* message)
 {
 }
+
+void __debugbreak() { ::abort(); }
 
 #endif  //GPCS4_WINDOWS
 
@@ -47,9 +52,9 @@ void initSpdLog()
 	console_sink->set_level(spdlog::level::trace);  // message generating filter
 	console_sink->set_pattern("[%t][%^%l%$]%v");
 
-	auto msvc_sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
-	msvc_sink->set_level(spdlog::level::trace);  // message generating filter
-	msvc_sink->set_pattern("[%t][%^%l%$]%v");
+	//auto msvc_sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
+	//msvc_sink->set_level(spdlog::level::trace);  // message generating filter
+	//msvc_sink->set_pattern("[%t][%^%l%$]%v");
 
 	auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("GPCS4.log", true);
 	file_sink->set_level(spdlog::level::trace);
@@ -57,7 +62,8 @@ void initSpdLog()
 
 	//g_logger.reset(new spdlog::logger("GPCS4", { console_sink, msvc_sink }));
 	//g_logger.reset(new spdlog::logger("GPCS4", { msvc_sink, file_sink, console_sink }));
-	g_logger.reset(new spdlog::logger("GPCS4", { msvc_sink }));
+	//g_logger.reset(new spdlog::logger("GPCS4", { msvc_sink }));
+	g_logger.reset(new spdlog::logger("GPCS4", { console_sink }));
 	g_logger->set_level(spdlog::level::trace);  // message showing filter
 
 	//g_logger->flush_on(spdlog::level::trace); // I/O cost
@@ -159,7 +165,7 @@ void Channel::assert_(const char* szExpression, const char* szFunction, const ch
 
 	showMessageBox("Assertion Fail", szMsgBoxStr);
 
-#ifdef GPCS4_DEBUG
+#if (defined GPCS4_DEBUG) && (defined GPCS4_WINDOWS)
 	::__debugbreak();
 #else
 	exit(-1);

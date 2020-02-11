@@ -105,3 +105,4 @@ typedef int64_t ssize_t;
 
 typedef int SceUserServiceUserId;
 
+typedef int errno_t;

@@ -97,7 +97,7 @@ public:
 	T& operator[](const uint32_t i)
 	{
 		std::lock_guard<std::mutex> lock(m_mutex);
-		LOG_ASSERT((i < m_vtArray.size()), "index exceed max item size %d/%d", i, m_vtArray.size());
+		//LOG_ASSERT((i < m_vtArray.size()), "index exceed max item size %d/%d", i, m_vtArray.size());
 		return m_vtArray[i];
 	}
 

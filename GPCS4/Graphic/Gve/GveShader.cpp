@@ -2,6 +2,8 @@
 #include "GveDevice.h"
 #include "Platform/UtilFile.h"
 
+#define sprintf_s snprintf
+
 LOG_CHANNEL(Graphic.Gve.GveShader);
 
 namespace gve

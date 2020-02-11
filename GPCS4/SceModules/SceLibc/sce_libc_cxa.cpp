@@ -1,6 +1,6 @@
 #include "sce_libc.h"
 #include <mutex>
-#include "pthreads4w/pthread.h"
+#include "pthread.h"
 
 LOG_CHANNEL(SceModules.SceLibc.cxa);
 

@@ -344,7 +344,7 @@ int PS4API scePthreadAttrSetinheritsched(ScePthreadAttr *attr, int inheritSched)
 	return pthreadErrorToSceError(err);
 }
 
-#ifdef GPCS4_WINDOWS
+//#ifdef GPCS4_WINDOWS
 // we need to map
 // 256 -> 700 > 767
 // to
@@ -374,7 +374,7 @@ int scePriorityToPthreadPriority(int oldPriority)
 	return newPriority;
 }
 
-#endif
+//#endif
 
 int PS4API scePthreadAttrSetschedparam(ScePthreadAttr *attr, const SceKernelSchedParam *param)
 {

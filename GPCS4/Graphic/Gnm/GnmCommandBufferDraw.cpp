@@ -17,6 +17,7 @@
 #include "../Pssl/PsslShaderModule.h"
 
 #include <algorithm>
+#include <climits>
 
 LOG_CHANNEL(Graphic.Gnm.GnmCommandBufferDraw);
 

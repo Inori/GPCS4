@@ -1,6 +1,6 @@
 #pragma once
-#include "pthreads4w/pthread.h"
-#include "pthreads4w/sched.h"
+#include "pthread.h"
+#include "sched.h"
 
 
 // pthread to sce pthread

@@ -19,5 +19,5 @@
 #ifdef GPCS4_WINDOWS
 #define PS4EXPORT __declspec(dllexport)
 #else   // GPCS4_WINDOWS
-#define PS4EXPORT __attribute__((dllexport))
+#define PS4EXPORT [[gnu::visibility("default")]]
 #endif  // GPCS4_WINDOWS

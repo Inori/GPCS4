@@ -140,7 +140,7 @@ void* TLSManager::allocateTLS()
 		{
 			void* dst = reinterpret_cast<uint8_t*>(tcbSegbase) - imgPair.first.offset;
 			// copy tls image backup to new allocated memory bound to current thread.
-			std::memcpy(dst, imgPair.second.data(), imgPair.second.size());
+			::memcpy(dst, imgPair.second.data(), imgPair.second.size());
 			// update dtv array
 			dtv[imgPair.first.index + 1].pointer = dst;
 		}
