@@ -152,7 +152,21 @@ int PS4API scePthreadMutexInit(ScePthreadMutex *mutex, const ScePthreadMutexattr
 	{
 		LOG_FIXME("set name is not supported yet.")
 	}
-	int err = pthread_mutex_init((pthread_mutex_t*)mutex, (pthread_mutexattr_t*)attr);
+	int err = 0;
+	if (attr == nullptr)
+	{
+		// If attr is nullptr then default will be used which is PTHREAD_MUTEX_ERRORCHECK on PS4
+		// so we make sure we set PTHREAD_MUTEX_ERRORCHECK here to match behaviour.
+		pthread_mutexattr_t errorCheckMutexAttr;
+		pthread_mutexattr_init(&errorCheckMutexAttr);
+		pthread_mutexattr_settype(&errorCheckMutexAttr, PTHREAD_MUTEX_ERRORCHECK);
+		err = pthread_mutex_init((pthread_mutex_t*)mutex, &errorCheckMutexAttr);
+		pthread_mutexattr_destroy(&errorCheckMutexAttr);
+	}
+	else
+	{
+		err = pthread_mutex_init((pthread_mutex_t*)mutex, (pthread_mutexattr_t*)attr);
+	}
 	return pthreadErrorToSceError(err);
 }
 
