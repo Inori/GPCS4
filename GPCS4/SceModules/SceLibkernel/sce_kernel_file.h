@@ -49,6 +49,8 @@ typedef uint16_t SceKernelMode;
 // read
 #define SCE_KERNEL_S_IRU           (SCE_KERNEL_S_IRUSR)
 
+#define SCE_KERNEL_S_INONE         0
+
 #define SCE_KERNEL_S_IFMT          SCE_S_IFMT
 #define SCE_KERNEL_S_IFDIR         SCE_S_IFDIR
 #define SCE_KERNEL_S_IFREG         SCE_S_IFREG
