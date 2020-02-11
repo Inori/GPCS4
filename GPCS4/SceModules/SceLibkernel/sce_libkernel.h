@@ -438,7 +438,7 @@ int PS4API scek__open(const char* path, int flags, SceKernelMode mode);
 int PS4API sceKernelGetProcessType(int pid);
 
 
-
+int PS4API sceKernelIsAddressSanitizerEnabled(void);
 //////////////////////////////////////////////////////////////////////////
 // library: libSceCoredump
 //////////////////////////////////////////////////////////////////////////

@@ -172,3 +172,9 @@ int PS4API sceKernelReleaseFlexibleMemory(void)
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
 }
+
+int PS4API sceKernelIsAddressSanitizerEnabled(void)
+{
+	LOG_FIXME("Not implemented");
+	return 0;
+}
