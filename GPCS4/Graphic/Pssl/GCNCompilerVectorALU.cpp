@@ -674,32 +674,36 @@ void GCNCompiler::emitVectorFpCmp32(GCNInstruction& ins)
 		emitVop3InputModifier(ins, { spvSrc0, spvSrc1 });
 	}
 
-	SpirvRegisterValue dstValue;
-	dstValue.type.ctype  = SpirvScalarType::Bool;
-	dstValue.type.ccount = 1;
-
-	const uint32_t typeId = getVectorTypeId(dstValue.type);
-
+	const uint32_t typeId = getScalarTypeId(SpirvScalarType::Bool);
+	uint32_t conditionId  = InvalidSpvId;
 	// For VectorFpCmp32 class, VOPC and VOP3 instructions use same opcode values,
 	// ie. SIVOPCInstruction::V_CMP_LT_F32 == SIVOP3Instruction::V3_CMP_LT_F32 ,
 	// so we don't need to switch both cases.
 	switch (op)
 	{
 	case SIVOPCInstruction::V_CMP_LT_F32:
-		dstValue.id = m_module.opFOrdLessThan(typeId, spvSrc0.id, spvSrc1.id);
+		conditionId = m_module.opFOrdLessThan(typeId, spvSrc0.id, spvSrc1.id);
 		break;
 	case SIVOPCInstruction::V_CMP_GE_F32:
-		dstValue.id = m_module.opFOrdGreaterThanEqual(typeId, spvSrc0.id, spvSrc1.id);
+		conditionId = m_module.opFOrdGreaterThanEqual(typeId, spvSrc0.id, spvSrc1.id);
 		break;
 	case SIVOPCInstruction::V_CMP_LE_F32:
-		dstValue.id = m_module.opFOrdLessThanEqual(typeId, spvSrc0.id, spvSrc1.id);
+		conditionId = m_module.opFOrdLessThanEqual(typeId, spvSrc0.id, spvSrc1.id);
 		break;
 	default:
 		LOG_PSSL_UNHANDLED_INST();
 		break;
 	}
 
-	// V_CMP_X output are all uint types
+	SpirvRegisterValue dstValue;
+	dstValue.type.ctype       = SpirvScalarType::Uint32;
+	dstValue.type.ccount      = 1;
+
+	const uint32_t uintTypeId = getVectorTypeId(dstValue.type);
+	dstValue.id               = m_module.opSelect(uintTypeId, conditionId,
+												  m_module.constu32(1), m_module.constu32(0));
+
+	// V_CMP_X output are all uint types, no output modifier
 
 	if (!isVop3)
 	{

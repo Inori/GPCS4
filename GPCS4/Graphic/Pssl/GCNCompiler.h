@@ -239,7 +239,7 @@ private:
 	uint32_t emitNewVariable(
 		const SpirvRegisterInfo& info,
 		const std::string& name = "",
-		std::optional<uint32_t> initValue = std::nullopt);
+		std::optional<uint32_t> initValueId = std::nullopt);
 
 	uint32_t emitNewBuiltinVariable(
 		const SpirvRegisterInfo& info,
@@ -306,9 +306,8 @@ private:
 
 	/////////////////////////////////////////
 	// Generic register manipulation methods
-	template <typename SpirvType>
-	SpirvType emitRegisterBitcast(
-		SpirvType                srcValue,
+	SpirvRegisterValue emitRegisterBitcast(
+		SpirvRegisterValue		 srcValue,
 		SpirvScalarType          dstType);
 
 	SpirvRegisterValue emitRegisterSwizzle(
@@ -345,7 +344,7 @@ private:
 
 	SpirvRegisterValue emitRegisterMaskBits(
 		SpirvRegisterValue       value,
-		uint32_t                mask);
+		uint32_t                 mask);
 
 	// load a vector's composite,
 	// 0 - x, 1 - y, 2 - z, 3 - w
@@ -353,6 +352,10 @@ private:
 		const SpirvRegisterPointer&		srcVec,
 		uint32_t						compIndex,
 		spv::StorageClass				storageClass = spv::StorageClassPrivate);
+
+	SpirvRegisterPointer emitRegisterPointerBitcast(
+		SpirvRegisterPointer		srcPtr,
+		const SpirvRegisterInfo&	dstInfo);
 
 	/////////////////////////////////////////////////////////
 	// Category handlers
