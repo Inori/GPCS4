@@ -36,7 +36,7 @@ This is a previous running result of Nier:Automata. It is not correct yet, and I
 
 * ### Hardware
     * Audio
-        > Just started.
+        > Basic implementation.
     * Gamepad
         > Basic implementation.
 
