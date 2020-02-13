@@ -16,21 +16,21 @@ class ModuleLoader
 {
 public:
 	ModuleLoader(CSceModuleSystem &modSystem, CLinker &linker);
-	bool loadModule(std::string const &fileName, MemoryMappedModule **mod);
+	bool loadModule(std::string const &fileName, NativeModule **mod);
 private:
 	bool loadModuleFromFile(std::string const &fileName,
-							MemoryMappedModule *mod,
+							NativeModule *mod,
 							bool *exist);
 	bool loadDependencies();
-	bool addDepedenciesToLoad(MemoryMappedModule const &mod);
+	bool addDepedenciesToLoad(NativeModule const &mod);
 	bool mapModuleNameToFilePath(std::string const &modName, std::string *path);
 	bool mapFilePathToModuleName(std::string const &filePath,
 								 std::string *modName);
 
-	bool registerSymbol(MemoryMappedModule const &mod,
+	bool registerSymbol(NativeModule const &mod,
 						std::string const &encName,
 						void *pointer);
-	bool registerSymbol(MemoryMappedModule const &mod, size_t idx);
+	bool registerSymbol(NativeModule const &mod, size_t idx);
 	bool initializeModules();
 
 private:

@@ -31,7 +31,7 @@ void CEmulator::Unit()
 	modManager->clearModules();
 }
 
-bool CEmulator::Run(MemoryMappedModule const &mod)
+bool CEmulator::Run(NativeModule const &mod)
 {
 	bool retVal = false;
 

@@ -35,6 +35,7 @@ cxxopts::ParseResult processCommandLine(int argc, char* argv[])
 	return optResult;
 }
 
+
 int main(int argc, char *argv[])
 {
 	std::unique_ptr<CEmulator> pEmulator = std::make_unique<CEmulator>();
@@ -70,7 +71,7 @@ int main(int argc, char *argv[])
 		ModuleLoader loader = { *CSceModuleSystem::GetInstance(), linker };
 
 		auto eboot                      = optResult["E"].as<std::string>();
-		MemoryMappedModule *ebootModule = nullptr;
+		NativeModule *ebootModule = nullptr;
 		if (!loader.loadModule(eboot, &ebootModule))
 		{
 			break;

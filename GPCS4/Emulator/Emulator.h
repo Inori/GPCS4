@@ -20,21 +20,13 @@ public:
 
 	void Unit();
 
-	bool LoadEboot(const std::string& strEbtPath);
-
-	bool Run();
-
-	bool Run(MemoryMappedModule const &mod);
+	bool Run(NativeModule const &mod);
 
 private:
 	bool registerModules();
 
-	bool registerLibC(CSceModuleSystem* pModuleSystem);
-	bool registerLibKernel(CSceModuleSystem* pModuleSystem);
-
 	static void PS4API LastExitHandler(void);
 private:
-	//CEbootObject m_oEboot;
 	std::shared_ptr<CLinker> m_pLinker;
 };
 

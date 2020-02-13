@@ -907,6 +907,21 @@
     <ClInclude Include="SceModules\SceAppContentUtil\sce_appcontentutil_error.h">
       <Filter>SceModules\SceAppContentUtil</Filter>
     </ClInclude>
+    <ClInclude Include="SceModules\SceAudioOut\AudioOut.h">
+      <Filter>SceModules\SceAudioOut</Filter>
+    </ClInclude>
+    <ClInclude Include="SceModules\BlockingQueue.h">
+      <Filter>SceModules</Filter>
+    </ClInclude>
+    <ClInclude Include="Emulator\PolicyManager.h">
+      <Filter>Source Files\Emulator</Filter>
+    </ClInclude>
+    <ClInclude Include="Emulator\SymbolManager.h">
+      <Filter>Source Files\Emulator</Filter>
+    </ClInclude>
+    <ClInclude Include="Emulator\ModuleManger.h">
+      <Filter>Source Files\Emulator</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1580,6 +1595,18 @@
     </ClCompile>
     <ClCompile Include="Graphic\Gve\GveSharpResourceManager.cpp">
       <Filter>Source Files\Graphic\Gve</Filter>
+    </ClCompile>
+    <ClCompile Include="SceModules\SceAudioOut\AudioOut.cpp">
+      <Filter>SceModules\SceAudioOut</Filter>
+    </ClCompile>
+    <ClCompile Include="Emulator\PolicyManager.cpp">
+      <Filter>Source Files\Emulator</Filter>
+    </ClCompile>
+    <ClCompile Include="Emulator\SymbolManager.cpp">
+      <Filter>Source Files\Emulator</Filter>
+    </ClCompile>
+    <ClCompile Include="Emulator\ModuleManger.cpp">
+      <Filter>Source Files\Emulator</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

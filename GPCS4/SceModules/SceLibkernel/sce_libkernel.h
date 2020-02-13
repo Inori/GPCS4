@@ -438,7 +438,7 @@ int PS4API scek__open(const char* path, int flags, SceKernelMode mode);
 int PS4API sceKernelGetProcessType(int pid);
 
 
-
+int PS4API sceKernelIsAddressSanitizerEnabled(void);
 //////////////////////////////////////////////////////////////////////////
 // library: libSceCoredump
 //////////////////////////////////////////////////////////////////////////
@@ -529,10 +529,10 @@ int PS4API scek_pthread_mutex_unlock(pthread_mutex_t* mtx);
 int PS4API scek_pthread_mutexattr_destroy(void);
 
 
-int PS4API scek_pthread_mutexattr_init(void);
+int PS4API scek_pthread_mutexattr_init(pthread_mutexattr_t * attr);
 
 
-int PS4API scek_pthread_mutexattr_settype(void);
+int PS4API scek_pthread_mutexattr_settype(pthread_mutexattr_t* attr, int type);
 
 
 ScePthread PS4API scek_pthread_self(void);

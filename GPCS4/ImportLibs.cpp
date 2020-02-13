@@ -15,12 +15,14 @@
 #pragma comment(lib, "../3rdParty/pthreads4w/libpthreadVC3d.lib")
 #pragma comment(lib, "../3rdParty/zydis/Zydisd.lib")
 #pragma comment(lib, "../3rdParty/glfw/glfw3d.lib")
+#pragma comment(lib, "../3rdParty/rtaudio/rtaudiod.lib")
 
 #else
 
 #pragma comment(lib, "../3rdParty/pthreads4w/libpthreadVC3.lib")
 #pragma comment(lib, "../3rdParty/zydis/Zydis.lib")
 #pragma comment(lib, "../3rdParty/glfw/glfw3.lib")
+#pragma comment(lib, "../3rdParty/rtaudio/rtaudio.lib")
 
 #endif  //_DEBUG
 #endif  //GPCS4_WINDOWS

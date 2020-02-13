@@ -26,6 +26,9 @@
     <ClInclude Include="Common\GPCS4Log.h" />
     <ClInclude Include="Common\GPCS4Types.h" />
     <ClInclude Include="Common\IntelliSenseClang.h" />
+    <ClInclude Include="Emulator\ModuleManger.h" />
+    <ClInclude Include="Emulator\PolicyManager.h" />
+    <ClInclude Include="Emulator\SymbolManager.h" />
     <ClInclude Include="Graphic\Gnm\GnmGpuAddressTool.h" />
     <ClInclude Include="Graphic\Gnm\GnmTiler.h" />
     <ClInclude Include="Graphic\Gnm\GnmTilerSSE2.h" />
@@ -173,6 +176,7 @@
     <ClInclude Include="Platform\UtilString.h" />
     <ClInclude Include="Platform\UtilThread.h" />
     <ClInclude Include="Platform\UtilTime.h" />
+    <ClInclude Include="SceModules\BlockingQueue.h" />
     <ClInclude Include="SceModules\MapSlot.h" />
     <ClInclude Include="SceModules\SceAjm\sce_ajm.h" />
     <ClInclude Include="SceModules\SceAjm\sce_ajm_types.h" />
@@ -180,6 +184,7 @@
     <ClInclude Include="SceModules\SceAppContentUtil\sce_appcontentutil_error.h" />
     <ClInclude Include="SceModules\SceAppContentUtil\sce_appcontentutil_types.h" />
     <ClInclude Include="SceModules\SceAudio3d\sce_audio3d.h" />
+    <ClInclude Include="SceModules\SceAudioOut\AudioOut.h" />
     <ClInclude Include="SceModules\SceAudioOut\sce_audioout.h" />
     <ClInclude Include="SceModules\SceAudioOut\sce_audioout_types.h" />
     <ClInclude Include="SceModules\SceCommonDialog\sce_commondialog.h" />
@@ -270,8 +275,11 @@
     <ClCompile Include="Emulator\GameThread.cpp" />
     <ClCompile Include="Emulator\Linker.cpp" />
     <ClCompile Include="Emulator\Module.cpp" />
+    <ClCompile Include="Emulator\ModuleManger.cpp" />
+    <ClCompile Include="Emulator\PolicyManager.cpp" />
     <ClCompile Include="Emulator\RegisterModules.cpp" />
     <ClCompile Include="Emulator\SceModuleSystem.cpp" />
+    <ClCompile Include="Emulator\SymbolManager.cpp" />
     <ClCompile Include="Emulator\TLSHandler.cpp" />
     <ClCompile Include="GPCS4Main.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmCmdStream.cpp" />
@@ -375,6 +383,7 @@
     <ClCompile Include="SceModules\SceAppContentUtil\sce_appcontentutil_export.cpp" />
     <ClCompile Include="SceModules\SceAudio3d\sce_audio3d.cpp" />
     <ClCompile Include="SceModules\SceAudio3d\sce_audio3d_export.cpp" />
+    <ClCompile Include="SceModules\SceAudioOut\AudioOut.cpp" />
     <ClCompile Include="SceModules\SceAudioOut\sce_audioout.cpp" />
     <ClCompile Include="SceModules\SceAudioOut\sce_audioout_export.cpp" />
     <ClCompile Include="SceModules\SceCommonDialog\sce_commondialog.cpp" />
@@ -588,7 +597,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
-      <AdditionalDependencies>vulkan-1.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ksuser.lib;mfplat.lib;mfuuid.lib;wmcodecdspuuid.lib;vulkan-1.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <AdditionalLibraryDirectories>$(VULKAN_SDK)\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
@@ -626,7 +635,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
-      <AdditionalDependencies>vulkan-1.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ksuser.lib;mfplat.lib;mfuuid.lib;wmcodecdspuuid.lib;vulkan-1.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(VULKAN_SDK)\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>

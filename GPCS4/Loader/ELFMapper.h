@@ -17,7 +17,7 @@ public:
 	ELFMapper(ELFMapper const &) = delete;
 	void operator=(ELFMapper const &) = delete;
 
-	bool loadFile(std::string const &filePath, MemoryMappedModule *mod);
+	bool loadFile(std::string const &filePath, NativeModule *mod);
 	bool validateHeader();
 	bool parseSegmentHeaders();
 	bool parseDynamicSection();
@@ -36,5 +36,5 @@ private:
 	bool mapSecReloSegment(Elf64_Phdr const &phdr);
 	bool mapDataSegment(Elf64_Phdr const &phdr);
 
-	MemoryMappedModule *m_moduleData;
+	NativeModule *m_moduleData;
 };

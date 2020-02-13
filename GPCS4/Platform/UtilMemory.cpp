@@ -152,13 +152,17 @@ void VMUnMap(void* pAddr, size_t nSize)
 {
 	VirtualFree(pAddr, nSize, MEM_RELEASE);
 
-	auto iter = findMemoryRange(pAddr);
-	if (iter != g_memRanges.end())
+	do 
 	{
-		g_memRanges.erase(iter);
-	}
+		auto iter = findMemoryRange(pAddr);
+		if (iter == g_memRanges.end())
+		{
+			LOG_WARN("can not find range for %p", pAddr);
+			break;
+		}
 
-	LOG_WARN_IF(iter == g_memRanges.end(), "can not find range for %p", pAddr);
+		g_memRanges.erase(iter);
+	} while (false);
 }
 
 bool VMProtect(void* pAddr, size_t nSize, uint32_t nProtectFlag)

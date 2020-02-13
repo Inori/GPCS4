@@ -233,10 +233,6 @@ bool AssembleHelper::isTlsAccess(void* code)
 
 		LOG_ASSERT(instruction.raw.disp.value == 0, "only support mov rax, fs:[0x0000000000000000] currently.");
 
-#ifdef GPCS4_DEBUG
-		printInst(instruction);
-#endif
-
 		ret = true;
 	} while (false);
 	return ret;
@@ -330,6 +326,14 @@ bool AssembleHelper::patchTLSInstruction(void* code)
 		ret = true;
 	} while (false);
 	return ret;
+}
+
+void AssembleHelper::printInstruction(void* code)
+{
+	ZydisDecodedInstruction instruction;
+	ZydisDecoderDecodeBuffer(&m_decoder, code,
+							 X64_INSTRUCTION_LEN_MAX, (ZydisU64)code, &instruction);
+	printInst(instruction);
 }
 
 void AssembleHelper::initZydis()
@@ -434,6 +438,13 @@ long __stdcall TLSManagerWin::VEHExceptionHandler(void* exceptionArg)
 	long nRet                          = EXCEPTION_CONTINUE_SEARCH;
 	do
 	{
+		void* pExcptAddr = pExceptionInfo->ExceptionRecord->ExceptionAddress;
+
+#ifdef GPCS4_DEBUG
+		// Useful for viewing random crash instructions.
+		s_asmHelper.printInstruction(pExcptAddr);
+#endif // GPCS4_DEBUG
+
 		if (pExceptionInfo->ExceptionRecord->ExceptionCode != EXCEPTION_ACCESS_VIOLATION)
 		{
 			break;
@@ -442,7 +453,6 @@ long __stdcall TLSManagerWin::VEHExceptionHandler(void* exceptionArg)
 		LOG_DEBUG("exception code %x addr %p",
 				  pExceptionInfo->ExceptionRecord->ExceptionCode, pExceptionInfo->ExceptionRecord->ExceptionAddress);
 
-		void* pExcptAddr = pExceptionInfo->ExceptionRecord->ExceptionAddress;
 		if (!s_asmHelper.isTlsAccess(pExcptAddr))
 		{
 			LOG_ERR("unknown exception raised at %p", pExcptAddr);

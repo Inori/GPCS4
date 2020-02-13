@@ -133,7 +133,7 @@ using SymbolAddrMap      = std::map<std::string, void *>;
 using ByteArray          = std::vector<uint8_t>;
 
 class ELFMapper;
-struct MemoryMappedModule
+struct NativeModule
 {
 	friend ELFMapper;
 
