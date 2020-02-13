@@ -1,0 +1,59 @@
+version: '{build}'
+skip_branch_with_pr: true
+image: Visual Studio 2017
+configuration:
+- Release
+- Debug
+platform: x64
+shallow_clone: true
+environment:
+  VULKAN_SDK: C:\VulkanSDK\1.1.121.2
+  VULKAN_SDK_URL: https://sdk.lunarg.com/sdk/download/1.1.121.2/windows/VulkanSDK-1.1.121.2-Installer.exe
+  VULKAN_SDK_SHA: fbe6cb0cc1bad566a4d828fb894baea3bce2cc77c292d5ed087591ff9f9c4e98
+cache: vulkan-sdk.exe -> appveyor.yml
+
+before_build:
+- ps: |
+    # Copied from https://github.com/RPCS3/rpcs3/appveyour.yml
+    $VULKAN_SDK_URLS = @(
+            $env:VULKAN_SDK_URL;
+            "$($env:VULKAN_SDK_URL)?Human=true";
+        )
+        if (!(test-path vulkan-sdk.exe))
+        {
+            foreach ($url in $VULKAN_SDK_URLS) {
+                irm $url -outfile vulkan-sdk.exe
+                if ($env:VULKAN_SDK_SHA -eq $(Get-FileHash .\vulkan-sdk.exe).Hash)
+                {
+                    echo "Successfully downloaded and verified vulkan-sdk.exe!"
+                    break
+                }
+                else
+                {
+                    echo "Invalid file hash, Vulkan SDK Setup was possibly tampered with, retrying with a different mirror..."
+                }
+            }
+        }
+        .\vulkan-sdk.exe /S
+    # Copied from https://github.com/RPCS3/rpcs3/appveyour.yml
+
+build:
+  project: GPCS4.sln
+  parallel: true
+  verbosity: normal
+test: off
+
+on_success:
+- ps: |
+    ${env:BRANCH_NAME} = ${env:APPVEYOR_REPO_BRANCH}
+    ${env:COMMIT_NAME} = ${env:APPVEYOR_REPO_COMMIT}
+    ${env:COMMIT_NAME} = ${env:COMMIT_NAME}.Remove(7)
+    ${env:COMMIT_DATE} = ${env:APPVEYOR_REPO_COMMIT_TIMESTAMP}
+    ${env:COMMIT_SHORTDATE} = ${env:COMMIT_DATE}.Remove(10)
+    
+    If ($env:configuration -eq 'Release') {
+    7z a -m0=LZMA2 -mx9 .\GPCS4_${env:BRANCH_NAME}_${env:COMMIT_NAME}_${env:COMMIT_SHORTDATE}_${env:CONFIGURATION}_${env:PLATFORM}.7z ${env:CONFIGURATION}\*.exe }
+    If ($env:configuration -eq 'Debug') {
+    7z a -m0=LZMA2 -mx9 .\GPCS4_${env:BRANCH_NAME}_${env:COMMIT_NAME}_${env:COMMIT_SHORTDATE}_${env:CONFIGURATION}_${env:PLATFORM}.7z ${env:CONFIGURATION}\*.exe
+    7z u .\GPCS4_${env:BRANCH_NAME}_${env:COMMIT_NAME}_${env:COMMIT_SHORTDATE}_${env:CONFIGURATION}_${env:PLATFORM}.7z ${env:CONFIGURATION}\*.pdb }
+    Get-ChildItem .\*.7z | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
