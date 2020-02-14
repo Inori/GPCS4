@@ -53,7 +53,7 @@ VkFormat convertDataFormatToVkFormat(DataFormat dataFormat)
 		{ kDataFormatR32G32Float, VK_FORMAT_R32G32_SFLOAT },
 		{ kDataFormatR32G32Uint, VK_FORMAT_R32G32_UINT },
 		{ kDataFormatR32G32Sint, VK_FORMAT_R32G32_SINT },
-		//{ kDataFormatR11G11B10Float, VK_FORMAT_R11G11B10_FLOAT },
+		{ kDataFormatR11G11B10Float, VK_FORMAT_B10G11R11_UFLOAT_PACK32 },  // ------ Not sure.
 		{ kDataFormatR8G8B8A8Unorm, VK_FORMAT_R8G8B8A8_UNORM },
 		//{ kDataFormatR8G8B8X8Unorm, VK_FORMAT_R8G8B8X8_UNORM },
 		{ kDataFormatR8G8B8A8UnormSrgb, VK_FORMAT_R8G8B8A8_SRGB },

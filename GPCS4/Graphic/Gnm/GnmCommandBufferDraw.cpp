@@ -429,10 +429,10 @@ void GnmCommandBufferDraw::updateVsShader(const pssl::VsStageRegisters *vsRegs, 
 }
 
 #define SHADER_DEBUG_BREAK(mod, hash) \
-if (mod.key().toUint64() == hash) \
-{\
-	__debugbreak();\
-}
+	if (mod.key().toUint64() == hash) \
+	{                                 \
+		__debugbreak();               \
+	}
 
 void GnmCommandBufferDraw::commitVsStage()
 {
