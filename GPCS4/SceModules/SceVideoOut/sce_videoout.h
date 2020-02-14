@@ -65,7 +65,7 @@ int PS4API sceVideoOutGetDeviceCapabilityInfo_(void);
 int PS4API sceVideoOutGetEventData(void);
 
 
-int PS4API sceVideoOutGetFlipStatus(void);
+int PS4API sceVideoOutGetFlipStatus(int32_t handle, SceVideoOutFlipStatus *status); 
 
 
 int PS4API sceVideoOutIsFlipPending(void);

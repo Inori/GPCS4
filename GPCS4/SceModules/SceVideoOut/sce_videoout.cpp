@@ -225,9 +225,15 @@ int PS4API sceVideoOutGetEventData(void)
 }
 
 
-int PS4API sceVideoOutGetFlipStatus(void)
+int PS4API sceVideoOutGetFlipStatus(int32_t handle, SceVideoOutFlipStatus *status)
 {
-	LOG_SCE_GRAPHIC("Not implemented");
+	LOG_SCE_GRAPHIC("Dummy Implementation");
+
+	static uint64_t sCount = 1;
+
+	*status = {};
+	status->count = sCount++;
+
 	return SCE_OK;
 }
 
