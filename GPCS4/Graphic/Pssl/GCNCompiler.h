@@ -170,7 +170,9 @@ private:
 	void emitDclPixelInput();
 	void emitDclPixelOutput();
 
-	void emitGprInitialize();
+	void emitGprInitializeVS();
+	void emitGprInitializePS();
+
 	void emitStatusRegInitialize();
 	// For all shader types
 	void emitDclShaderResource(const GcnShaderResourceInstance& res);

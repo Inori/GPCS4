@@ -156,7 +156,7 @@ void GCNCompiler::emitVsInit()
 
 	m_module.enableExtension("SPV_KHR_shader_draw_parameters");
 
-	emitGprInitialize();
+	emitGprInitializeVS();
 	emitStatusRegInitialize();
 	emitDclVertexInput();
 	emitDclVertexOutput();
@@ -201,7 +201,7 @@ void GCNCompiler::emitPsInit()
 	m_ps.functionId = m_module.allocateId();
 	m_module.setDebugName(m_ps.functionId, "psMain");
 
-	emitGprInitialize();
+	emitGprInitializePS();
 	emitStatusRegInitialize();
 	emitDclPixelInput();
 	emitDclPixelOutput();
@@ -453,7 +453,22 @@ void GCNCompiler::emitDclPixelOutput()
 	}
 }
 
-void GCNCompiler::emitGprInitialize()
+void GCNCompiler::emitGprInitializeVS()
+{
+	// VGPRs
+
+	// v0 is the index of current vertex within vertex buffer
+	SpirvRegisterPointer v0;
+	v0.type.ctype  = SpirvScalarType::Sint32;
+	v0.type.ccount = 1;
+	v0.id          = emitNewVariable({ v0.type, spv::StorageClassInput }, "gl_VertexIndex");
+
+	m_module.decorateBuiltIn(v0.id, spv::BuiltInVertexIndex);
+	m_entryPointInterfaces.push_back(v0.id);
+	m_vgprs.emplace(0, v0);
+}
+
+void GCNCompiler::emitGprInitializePS()
 {
 	// TODO:
 	// For sgprs and vgprs, we should initialize them
