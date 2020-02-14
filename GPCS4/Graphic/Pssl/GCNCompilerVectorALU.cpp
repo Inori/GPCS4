@@ -334,12 +334,93 @@ void GCNCompiler::emitVectorLane(GCNInstruction& ins)
 
 void GCNCompiler::emitVectorBitLogic(GCNInstruction& ins)
 {
-	LOG_PSSL_UNHANDLED_INST();
+	uint32_t op       = getVopOpcode(ins);
+	uint32_t src0     = 0;
+	uint32_t src1     = 0;
+	uint32_t src2     = 0;
+	uint32_t dst      = 0;
+	uint32_t src0RIdx = 0;
+	uint32_t src1RIdx = 0;
+	uint32_t src2RIdx = 0;
+	uint32_t dstRIdx  = 0;
+	getVopOperands(ins, &dst, &dstRIdx, &src0, &src0RIdx, &src1, &src1RIdx, &src2, &src2RIdx);
+
+	uint32_t b32TypeId = getScalarTypeId(SpirvScalarType::Uint32);
+
+	SpirvRegisterValue spvSrc0 = emitLoadScalarOperand(src0, src0RIdx, ins.literalConst, SpirvScalarType::Uint32);
+	SpirvRegisterValue spvSrc1 = emitLoadVopSrc1(ins, src1, src1RIdx, SpirvScalarType::Uint32);
+	SpirvRegisterValue spvSrc2;
+
+	if (isVop3Encoding(ins))
+	{
+		// Only VOP3 has SRC2
+		spvSrc2 = emitLoadScalarOperand(src2, src2RIdx, ins.literalConst, SpirvScalarType::Uint32);
+	}
+
+	SpirvRegisterValue dstVal;
+	dstVal.type.ctype  = SpirvScalarType::Uint32;
+	dstVal.type.ccount = 1;
+
+	switch (op)
+	{
+	case SIVOP2Instruction::V_AND_B32:
+	case SIVOP3Instruction::V3_AND_B32:
+	{
+		dstVal.id = m_module.opBitwiseAnd(b32TypeId, spvSrc0.id, spvSrc1.id);
+	}
+		break;
+	default:
+		LOG_PSSL_UNHANDLED_INST();
+		break;
+	}
+
+	emitStoreVectorOperand(dstRIdx, dstVal);
 }
 
 void GCNCompiler::emitVectorBitField32(GCNInstruction& ins)
 {
-	LOG_PSSL_UNHANDLED_INST();
+	uint32_t op       = getVopOpcode(ins);
+	uint32_t src0     = 0;
+	uint32_t src1     = 0;
+	uint32_t src2     = 0;
+	uint32_t dst      = 0;
+	uint32_t src0RIdx = 0;
+	uint32_t src1RIdx = 0;
+	uint32_t src2RIdx = 0;
+	uint32_t dstRIdx  = 0;
+	getVopOperands(ins, &dst, &dstRIdx, &src0, &src0RIdx, &src1, &src1RIdx, &src2, &src2RIdx);
+
+	uint32_t b32TypeId = getScalarTypeId(SpirvScalarType::Uint32);
+
+	SpirvRegisterValue spvSrc0 = emitLoadScalarOperand(src0, src0RIdx, ins.literalConst, SpirvScalarType::Uint32);
+	SpirvRegisterValue spvSrc1 = emitLoadVopSrc1(ins, src1, src1RIdx, SpirvScalarType::Uint32);
+	SpirvRegisterValue spvSrc2;
+
+	if (isVop3Encoding(ins))
+	{
+		// Only VOP3 has SRC2
+		spvSrc2 = emitLoadScalarOperand(src2, src2RIdx, ins.literalConst, SpirvScalarType::Uint32);
+	}
+
+	SpirvRegisterValue dstVal;
+	dstVal.type.ctype  = SpirvScalarType::Uint32;
+	dstVal.type.ccount = 1;
+
+	switch (op)
+	{
+	case SIVOP3Instruction::V3_BFE_U32:
+	{
+		auto count     = m_module.opBitFieldUExtract(b32TypeId, spvSrc2.id, m_module.constu32(0), m_module.constu32(4));
+		auto offset    = m_module.opBitFieldUExtract(b32TypeId, spvSrc1.id, m_module.constu32(0), m_module.constu32(4));
+		dstVal.id      = m_module.opBitFieldUExtract(b32TypeId, spvSrc0.id, offset, count);
+	}
+		break;
+	default:
+		LOG_PSSL_UNHANDLED_INST();
+		break;
+	}
+
+	emitStoreVectorOperand(dstRIdx, dstVal);
 }
 
 void GCNCompiler::emitVectorThreadMask(GCNInstruction& ins)
@@ -648,7 +729,7 @@ void GCNCompiler::emitVectorConv(GCNInstruction& ins)
 	uint32_t dstRIdx  = 0;
 	getVopOperands(ins, &dst, &dstRIdx, &src0, &src0RIdx, &src1, &src1RIdx);
 
-	auto value0 = emitLoadScalarOperand(src0, src0RIdx, ins.literalConst);
+	auto spvSrc0 = emitLoadScalarOperand(src0, src0RIdx, ins.literalConst);
 
 	SpirvRegisterValue dstValue;
 
@@ -658,16 +739,24 @@ void GCNCompiler::emitVectorConv(GCNInstruction& ins)
 	{
 		auto value1 = emitLoadVectorOperand(src1RIdx);
 		dstValue    = emitPackFloat16(
-            emitRegisterConcat(value0, value1));
+            emitRegisterConcat(spvSrc0, value1));
 	}
-	break;
+		break;
 	case SIVOP3Instruction::V3_CVT_PKRTZ_F16_F32:
 	{
 		auto value1 = emitLoadScalarOperand(src1, src1RIdx, ins.literalConst);
 		dstValue    = emitPackFloat16(
-            emitRegisterConcat(value0, value1));
+            emitRegisterConcat(spvSrc0, value1));
 	}
-	break;
+		break;
+	case SIVOP1Instruction::V_CVT_F32_U32:
+	case SIVOP3Instruction::V3_CVT_F32_U32:
+	{
+		dstValue.type.ctype = SpirvScalarType::Float32;
+		dstValue.type.ccount = 1;
+		dstValue.id  = m_module.opConvertUtoF(getScalarTypeId(SpirvScalarType::Float32), spvSrc0.id);
+	}
+		break;
 	default:
 		LOG_PSSL_UNHANDLED_INST();
 		break;
