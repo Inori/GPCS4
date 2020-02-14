@@ -26,6 +26,19 @@ typedef struct SceVideoOutBufferAttribute {
 	uint64_t _reserved1;
 } SceVideoOutBufferAttribute;
 
+typedef struct SceVideoOutFlipStatus
+{
+	uint64_t count;
+	uint64_t processTime;
+	uint64_t tsc;
+	int64_t flipArg;
+	uint64_t submitTsc;
+	uint64_t _reserved0;
+	int32_t gcQueueNum;
+	int32_t flipPendingNum;
+	int32_t currentBuffer;
+	uint32_t _reserved1;
+} SceVideoOutFlipStatus;
 
 struct SceVideoOutStereoBuffers 
 {
