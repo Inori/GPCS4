@@ -193,6 +193,8 @@ private:
 	void emitSgprStore(uint32_t dstIdx, const SpirvRegisterValue& srcReg);
 	void emitVgprStore(uint32_t dstIdx, const SpirvRegisterValue& srcReg);
 
+	// A SGPR or VGPR register can be treated as different types in different
+	// instructions, we need to cast it to proper type.
 	void emitUpdateSgprType(uint32_t sidx, SpirvScalarType dstType);
 	void emitUpdateVgprType(uint32_t vidx, SpirvScalarType dstType);
 
@@ -352,10 +354,6 @@ private:
 		const SpirvRegisterPointer&		srcVec,
 		uint32_t						compIndex,
 		spv::StorageClass				storageClass = spv::StorageClassPrivate);
-
-	SpirvRegisterPointer emitRegisterPointerBitcast(
-		SpirvRegisterPointer		srcPtr,
-		const SpirvRegisterInfo&	dstInfo);
 
 	/////////////////////////////////////////////////////////
 	// Category handlers

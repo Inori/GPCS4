@@ -12,9 +12,9 @@ LOG_CHANNEL(Graphic.Pssl.GCNCompiler);
 namespace pssl
 {;
 
-constexpr uint32_t PerVertex_Position = 0;
-constexpr uint32_t PerVertex_CullDist = 1;
-constexpr uint32_t PerVertex_ClipDist = 2;
+constexpr uint32_t kPerVertexPosition = 0;
+constexpr uint32_t kPerVertexCullDist = 1;
+constexpr uint32_t kPerVertexClipDist = 2;
 
 GCNCompiler::GCNCompiler(
 	const PsslProgramInfo& progInfo,
@@ -463,6 +463,13 @@ void GCNCompiler::emitGprInitialize()
 	//
 	// Currently I just create which I use.
 
+	SpirvRegisterPointer s0;
+	s0.type.ctype   = SpirvScalarType::Uint32;
+	s0.type.ccount = 1;
+	s0.id           = emitNewVariable({ s0.type, spv::StorageClassPrivate },
+                             UtilString::Format("s%d", 0));
+	m_sgprs.emplace(0, s0);
+
 	SpirvRegisterPointer s12;
 	s12.type.ctype  = SpirvScalarType::Float32;
 	s12.type.ccount = 1;
@@ -769,14 +776,18 @@ void GCNCompiler::emitUpdateSgprType(uint32_t sidx, SpirvScalarType dstType)
 		}
 
 		LOG_ASSERT(sgpr.type.ctype != SpirvScalarType::Unknown, "sgpr s%d not initialized.", sidx);
-		SpirvRegisterInfo dstTypeInfo;
-		dstTypeInfo.atype.alength = 0;
-		dstTypeInfo.atype.vtype.ctype = dstType;
-		dstTypeInfo.atype.vtype.ccount = 1;
-		dstTypeInfo.sclass             = spv::StorageClassPrivate;
-		sgpr                           = emitRegisterPointerBitcast(sgpr, dstTypeInfo);
+		SpirvRegisterValue value = emitValueLoad(sgpr);
+		SpirvRegisterValue castedValue = emitRegisterBitcast(value, dstType);
+
 		auto debugName = UtilString::Format("s%d_%s", sidx, getTypeName(dstType));
-		m_module.setDebugName(sgpr.id, debugName.c_str());
+		SpirvRegisterPointer newSgpr;
+		newSgpr.type.ctype  = dstType;
+		newSgpr.type.ccount = 1;
+		newSgpr.id          = emitNewVariable({ newSgpr.type, spv::StorageClassPrivate }, debugName);
+		
+		emitValueStore(newSgpr, castedValue, 1);
+
+		sgpr = newSgpr;
 	} while (false);
 }
 
@@ -793,14 +804,19 @@ void GCNCompiler::emitUpdateVgprType(uint32_t vidx, SpirvScalarType dstType)
 		}
 
 		LOG_ASSERT(vgpr.type.ctype != SpirvScalarType::Unknown, "vgpr v%d not initialized.", vidx);
-		SpirvRegisterInfo dstTypeInfo;
-		dstTypeInfo.atype.alength      = 0;
-		dstTypeInfo.atype.vtype.ctype  = dstType;
-		dstTypeInfo.atype.vtype.ccount = 1;
-		dstTypeInfo.sclass             = spv::StorageClassPrivate;
-		vgpr                           = emitRegisterPointerBitcast(vgpr, dstTypeInfo);
+
+		SpirvRegisterValue value       = emitValueLoad(vgpr);
+		SpirvRegisterValue castedValue = emitRegisterBitcast(value, dstType);
+
 		auto debugName = UtilString::Format("v%d_%s", vidx, getTypeName(dstType));
-		m_module.setDebugName(vgpr.id, debugName.c_str());
+		SpirvRegisterPointer newVgpr;
+		newVgpr.type.ctype  = dstType;
+		newVgpr.type.ccount = 1;
+		newVgpr.id          = emitNewVariable({ newVgpr.type, spv::StorageClassPrivate }, debugName);
+
+		emitValueStore(newVgpr, castedValue, 1);
+
+		vgpr = newVgpr;
 	} while (false);
 }
 
@@ -1570,33 +1586,6 @@ SpirvRegisterValue GCNCompiler::emitRegisterComponentLoad(
 }
 
 
-SpirvRegisterPointer GCNCompiler::emitRegisterPointerBitcast(
-	SpirvRegisterPointer srcPtr, 
-	const SpirvRegisterInfo& dstInfo)
-{
-	LOG_ASSERT(dstInfo.atype.alength == 0, "only support vector type currently.");
-
-	SpirvScalarType srcType = srcPtr.type.ctype;
-	SpirvScalarType dstType = dstInfo.atype.vtype.ctype;
-
-	if (srcType == dstType)
-		return srcPtr;
-
-	SpirvRegisterPointer result;
-	result.type.ctype  = dstType;
-	result.type.ccount = dstInfo.atype.vtype.ccount;
-
-	if (isDoubleWordType(srcType))
-		result.type.ccount *= 2;
-	if (isDoubleWordType(dstType))
-		result.type.ccount /= 2;
-
-	result.id = m_module.opBitcast(
-		getPointerTypeId(dstInfo),
-		srcPtr.id);
-	return result;
-}
-
 uint32_t GCNCompiler::getPerVertexBlockId()
 {
 	// Should be:
@@ -1613,20 +1602,20 @@ uint32_t GCNCompiler::getPerVertexBlockId()
 	//     uint32_t t_f32_a4 = m_module.defArrayType(t_f32, m_module.constu32(4));
 
 	std::array<uint32_t, 1> members;
-	members[PerVertex_Position] = t_f32_v4;
+	members[kPerVertexPosition] = t_f32_v4;
 	//     members[PerVertex_CullDist] = t_f32_a4;
 	//     members[PerVertex_ClipDist] = t_f32_a4;
 
 	uint32_t typeId = m_module.defStructTypeUnique(
 		members.size(), members.data());
 
-	m_module.memberDecorateBuiltIn(typeId, PerVertex_Position, spv::BuiltInPosition);
+	m_module.memberDecorateBuiltIn(typeId, kPerVertexPosition, spv::BuiltInPosition);
 	//     m_module.memberDecorateBuiltIn(typeId, PerVertex_CullDist, spv::BuiltInCullDistance);
 	//     m_module.memberDecorateBuiltIn(typeId, PerVertex_ClipDist, spv::BuiltInClipDistance);
 	m_module.decorateBlock(typeId);
 
 	m_module.setDebugName(typeId, "gl_PerVertex");
-	m_module.setDebugMemberName(typeId, PerVertex_Position, "gl_Position");
+	m_module.setDebugMemberName(typeId, kPerVertexPosition, "gl_Position");
 	//     m_module.setDebugMemberName(typeId, PerVertex_CullDist, "cull_dist");
 	//     m_module.setDebugMemberName(typeId, PerVertex_ClipDist, "clip_dist");
 	return typeId;
