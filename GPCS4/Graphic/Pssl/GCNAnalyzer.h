@@ -24,7 +24,7 @@ struct GcnAnalysisInfo
 	std::vector<GcnExportInfo> expParams;
 
 	// should be equal to the paired vertex shader's export params count
-	uint32_t vinterpAttrCount; 
+	uint32_t vinterpAttrCount = 0; 
 
 	// key:target address
 	// value : spirv label id
