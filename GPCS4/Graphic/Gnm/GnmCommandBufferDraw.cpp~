@@ -16,6 +16,8 @@
 
 #include <algorithm>
 
+LOG_CHANNEL(Graphic.Gnm.GnmCommandBufferDraw);
+
 using namespace gve;
 using namespace pssl;
 
@@ -39,6 +41,11 @@ void GnmCommandBufferDraw::initializeDefaultHardwareState()
 {
 	clearUserDataSlots();
 	// m_context->beginRecording(m_cmd);
+}
+
+void GnmCommandBufferDraw::prepareFlip()
+{
+	// m_context->endRecording();
 }
 
 // Last call of a frame.
@@ -335,6 +342,10 @@ void GnmCommandBufferDraw::setIndexSize(IndexSize indexSize, CachePolicy cachePo
 	m_indexType = cvt::convertIndexSize(indexSize);
 }
 
+void GnmCommandBufferDraw::dispatch(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ)
+{
+}
+
 void GnmCommandBufferDraw::setPrimitiveType(PrimitiveType primType)
 {
 	do 
@@ -462,7 +473,7 @@ void GnmCommandBufferDraw::commitPsStage()
 		LOG_DEBUG("pixel shader hash %llX", psModule.key().toUint64());
 		psModule.defineShaderInput(m_psContext.userDataSlotTable);
 
-		SHADER_DEBUG_BREAK(psModule, 0xF3FAB76ECBEAABD2);
+		SHADER_DEBUG_BREAK(psModule, 0x1C3E9BEC02B89E0E);
 
 		m_psContext.shader = psModule.compile();
 

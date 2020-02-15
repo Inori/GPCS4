@@ -671,3 +671,29 @@ enum PipeConfig
 	kPipeConfigP8_32x32_16x16 = 0x0000000c,
 	kPipeConfigP16 = 0x00000012,
 };
+
+// For GpuAddress
+
+enum BankWidth
+{
+	kBankWidth1 = 0x00000000,
+	kBankWidth2 = 0x00000001,
+	kBankWidth4 = 0x00000002,
+	kBankWidth8 = 0x00000003,
+};
+
+enum BankHeight
+{
+	kBankHeight1 = 0x00000000,
+	kBankHeight2 = 0x00000001,
+	kBankHeight4 = 0x00000002,
+	kBankHeight8 = 0x00000003,
+};
+
+enum MacroTileAspect
+{
+	kMacroTileAspect1 = 0x00000000,
+	kMacroTileAspect2 = 0x00000001,
+	kMacroTileAspect4 = 0x00000002,
+	kMacroTileAspect8 = 0x00000003,
+};

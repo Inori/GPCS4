@@ -20,10 +20,9 @@
 // Linux compile
 // #define GPCS4_LINUX 1
 
-
+ 
 // Graphics switch
 // Define this will turn off graphics output,
 // useful when developing non-graphics parts of GPCS4
 // #define GPCS4_NO_GRAPHICS 1
-
 

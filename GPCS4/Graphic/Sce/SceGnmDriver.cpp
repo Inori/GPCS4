@@ -87,6 +87,7 @@ int SceGnmDriver::submitAndFlipCommandBuffers(uint32_t count,
 		if (!cmdList)
 		{
 			// cmdList is null when GPCS4_NO_GRAPHICS defined
+			err = SCE_OK;
 			break;
 		}
 

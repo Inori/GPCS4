@@ -42,6 +42,12 @@ https://github.com/shuffle2/elfstuff
 Flipping the Vulkan viewport  
 https://www.saschawillems.de/blog/2019/03/29/flipping-the-vulkan-viewport/
 
+Barriers In Vulkan : They Are Not That Difficult  
+https://cpp-rendering.io/barriers-vulkan-not-difficult/
+
+Leveraging asynchronous queues for concurrent execution  
+https://gpuopen.com/concurrent-execution-asynchronous-queues/
+
 
 
 

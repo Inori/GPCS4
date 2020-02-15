@@ -210,22 +210,22 @@ void GCNCompiler::emitScalarProgFlowBranch(GCNInstruction& ins)
 		break;
 	case SISOPPInstruction::S_CBRANCH_VCCZ:
 		conditionId = emitRegisterZeroTest(
-						  emitValueLoad(m_statusRegs.vcc.low()),
+						  emitValueLoad(m_statusRegs.vcc),
 						  SpirvZeroTest::TestZ).id;
 		break;
 	case SISOPPInstruction::S_CBRANCH_VCCNZ:
 		conditionId = emitRegisterZeroTest(
-						  emitValueLoad(m_statusRegs.vcc.low()),
+						  emitValueLoad(m_statusRegs.vcc),
 						  SpirvZeroTest::TestNz).id;
 		break;
 	case SISOPPInstruction::S_CBRANCH_EXECZ:
 		conditionId = emitRegisterZeroTest(
-						  emitValueLoad(m_statusRegs.exec.low()),
+						  emitValueLoad(m_statusRegs.exec),
 						  SpirvZeroTest::TestZ).id;
 		break;
 	case SISOPPInstruction::S_CBRANCH_EXECNZ:
 		conditionId = emitRegisterZeroTest(
-						  emitValueLoad(m_statusRegs.exec.low()),
+						  emitValueLoad(m_statusRegs.exec),
 						  SpirvZeroTest::TestNz).id;
 		break;
 	case SISOPPInstruction::S_CBRANCH_CDBGSYS:
@@ -233,7 +233,7 @@ void GCNCompiler::emitScalarProgFlowBranch(GCNInstruction& ins)
 	case SISOPPInstruction::S_CBRANCH_CDBGSYS_OR_USER:
 	case SISOPPInstruction::S_CBRANCH_CDBGSYS_AND_USER:
 	default:
-		LOG_ERR("error branch instruction %x", op);
+		LOG_PSSL_UNHANDLED_INST();
 		break;
 	}
 

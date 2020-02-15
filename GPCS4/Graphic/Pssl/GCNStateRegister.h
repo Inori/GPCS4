@@ -59,17 +59,27 @@ private:
 
 
 // For all status registers related to thread,
-// we assume we are running on 0's thread, the thread mask is always 1.
+// we always assume we are running on 0's thread, thread_id = 1.
 // ie. exec will be initialized to 1.
 struct GcnStateRegister
 {
-	GcnStateRegister(GCNCompiler* compiler):
-		vcc(compiler, "vcc"),
-		exec(compiler, "exec", 1)
-	{}
+	//	GcnStateRegister(GCNCompiler* compiler):
+	//		vcc(compiler, "vcc"),
+	//		exec(compiler, "exec", 1)
+	//	{}
+	//
+	//	SpirvRegisterU64 vcc;
+	//	SpirvRegisterU64 exec;
 
-	SpirvRegisterU64 vcc;
-	SpirvRegisterU64 exec;
+	// Based on above, a 32 bits uint value is enough to hold state information,
+	// thus we treat vcc and vcc_lo as the same register
+	// of type Uint32, and vcc_hi as another.
+	SpirvRegisterPointer vcc;  // for both vcc and vcc_lo
+	SpirvRegisterPointer vcc_hi;
+
+	// Same for exec.
+	SpirvRegisterPointer exec;  // for both exec and exec_lo
+	SpirvRegisterPointer exec_hi;
 
 	//SpirvRegisterPointer scc;
 	SpirvRegisterPointer m0;

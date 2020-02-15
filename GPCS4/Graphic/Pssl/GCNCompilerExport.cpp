@@ -79,7 +79,7 @@ SpirvRegisterValue GCNCompiler::emitExpSrcLoadNoCompr(GCNInstruction& ins)
 		}
 
 		uint32_t regIdx = inst->GetVSRC(i);
-		indices.push_back(emitLoadVectorOperand(regIdx).id);
+		indices.push_back(emitLoadVectorOperand(regIdx, SpirvScalarType::Float32).id);
 	}
 
 	// Src vector to be exported.
