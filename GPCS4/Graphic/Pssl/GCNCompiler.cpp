@@ -155,9 +155,8 @@ void GCNCompiler::emitVsInit()
 	m_module.enableCapability(spv::CapabilityDrawParameters);
 
 	m_module.enableExtension("SPV_KHR_shader_draw_parameters");
-
-	emitGprInitializeVS();
-	emitStatusRegInitialize();
+	
+	emitDclStatusRegisters();
 	emitDclVertexInput();
 	emitDclVertexOutput();
 	emitDclShaderResourceUD();
@@ -178,6 +177,9 @@ void GCNCompiler::emitVsInit()
 	m_module.opFunctionCall(
 		m_module.defVoidType(),
 		m_vs.fsFunctionId, 0, nullptr);
+
+	// Some initialization steps need to place in function block.
+	emitGprInitializeVS();
 }
 
 void GCNCompiler::emitHsInit()
@@ -201,8 +203,7 @@ void GCNCompiler::emitPsInit()
 	m_ps.functionId = m_module.allocateId();
 	m_module.setDebugName(m_ps.functionId, "psMain");
 
-	emitGprInitializePS();
-	emitStatusRegInitialize();
+	emitDclStatusRegisters();
 	emitDclPixelInput();
 	emitDclPixelOutput();
 	emitDclShaderResourceUD();
@@ -213,6 +214,9 @@ void GCNCompiler::emitPsInit()
 		m_module.defFunctionType(
 			m_module.defVoidType(), 0, nullptr));
 	this->emitFunctionLabel();
+
+	// Some initialization steps need to place in function block.
+	emitGprInitializePS();
 }
 
 void GCNCompiler::emitCsInit()
@@ -461,10 +465,17 @@ void GCNCompiler::emitGprInitializeVS()
 	SpirvRegisterPointer v0;
 	v0.type.ctype  = SpirvScalarType::Sint32;
 	v0.type.ccount = 1;
-	v0.id          = emitNewVariable({ v0.type, spv::StorageClassInput }, "gl_VertexIndex");
 
-	m_module.decorateBuiltIn(v0.id, spv::BuiltInVertexIndex);
-	m_entryPointInterfaces.push_back(v0.id);
+	// Declare gl_VertexIndex
+	uint32_t vtxIdxId = emitNewVariable({ v0.type, spv::StorageClassInput }, "gl_VertexIndex");
+	m_module.decorateBuiltIn(vtxIdxId, spv::BuiltInVertexIndex);
+	m_entryPointInterfaces.push_back(vtxIdxId);
+
+	// The builtin gl_VertexIndex is read only, but v0 is writable.
+	// Thus we need to make a copy instead of write gl_VertexIndex in 0 slot directly.
+	v0.id              = emitNewVariable({ v0.type, spv::StorageClassPrivate }, "v0");
+	m_module.opCopyMemory(v0.id, vtxIdxId);
+
 	m_vgprs.emplace(0, v0);
 }
 
@@ -494,7 +505,7 @@ void GCNCompiler::emitGprInitializePS()
 	m_sgprs.emplace(16, s16);
 }
 
-void GCNCompiler::emitStatusRegInitialize()
+void GCNCompiler::emitDclStatusRegisters()
 {
 	SpirvVectorType u32Type;
 	u32Type.ctype  = SpirvScalarType::Uint32;

@@ -3298,7 +3298,31 @@ namespace pssl {
   }
   
     
-  void SpirvModule::opReturn() {
+uint32_t SpirvModule::opCopyObject(
+			uint32_t				resultType, 
+			uint32_t				operand)
+{
+    uint32_t resultId = this->allocateId();
+
+	m_code.putIns(spv::OpCopyObject, 4);
+	m_code.putWord(resultType);
+	m_code.putWord(resultId);
+	m_code.putWord(operand);
+
+	return resultId;
+}
+
+void SpirvModule::opCopyMemory(
+			uint32_t		targetId, 
+			uint32_t		sourceId)
+{
+	m_code.putIns(spv::OpCopyMemory, 3);
+	m_code.putWord(targetId);
+	m_code.putWord(sourceId);
+}
+
+void SpirvModule::opReturn()
+  {
     m_code.putIns (spv::OpReturn, 1);
   }
   
