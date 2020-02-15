@@ -171,10 +171,10 @@ SpirvRegisterValue GCNCompiler::emitVop3OutputModifier(const GCNInstruction& ins
 }
 
 SpirvRegisterValue GCNCompiler::emitLoadVopSrc1(
-	const GCNInstruction& ins,
-	uint32_t srcOperand,
-	uint32_t regIndex,
-	SpirvScalarType dstType)
+	const GCNInstruction&	ins,
+	uint32_t				srcOperand,
+	uint32_t				regIndex,
+	SpirvScalarType			dstType)
 {
 	// For VOP encodings, there will be 2 types of SRC1:
 	// VOP2 and VOPC use 8bits VSRC1
@@ -359,14 +359,14 @@ void GCNCompiler::emitVectorBitLogic(GCNInstruction& ins)
 
 	uint32_t b32TypeId = getScalarTypeId(SpirvScalarType::Uint32);
 
-	SpirvRegisterValue spvSrc0 = emitLoadScalarOperand(src0, src0RIdx, ins.literalConst, SpirvScalarType::Uint32);
+	SpirvRegisterValue spvSrc0 = emitLoadScalarOperand(src0, src0RIdx, SpirvScalarType::Uint32, ins.literalConst);
 	SpirvRegisterValue spvSrc1 = emitLoadVopSrc1(ins, src1, src1RIdx, SpirvScalarType::Uint32);
 	SpirvRegisterValue spvSrc2;
 
 	if (isVop3Encoding(ins))
 	{
 		// Only VOP3 has SRC2
-		spvSrc2 = emitLoadScalarOperand(src2, src2RIdx, ins.literalConst, SpirvScalarType::Uint32);
+		spvSrc2 = emitLoadScalarOperand(src2, src2RIdx, SpirvScalarType::Uint32, ins.literalConst);
 	}
 
 	SpirvRegisterValue dstVal;
@@ -404,14 +404,14 @@ void GCNCompiler::emitVectorBitField32(GCNInstruction& ins)
 
 	uint32_t b32TypeId = getScalarTypeId(SpirvScalarType::Uint32);
 
-	SpirvRegisterValue spvSrc0 = emitLoadScalarOperand(src0, src0RIdx, ins.literalConst, SpirvScalarType::Uint32);
+	SpirvRegisterValue spvSrc0 = emitLoadScalarOperand(src0, src0RIdx, SpirvScalarType::Uint32, ins.literalConst);
 	SpirvRegisterValue spvSrc1 = emitLoadVopSrc1(ins, src1, src1RIdx, SpirvScalarType::Uint32);
 	SpirvRegisterValue spvSrc2;
 
 	if (isVop3Encoding(ins))
 	{
 		// Only VOP3 has SRC2
-		spvSrc2 = emitLoadScalarOperand(src2, src2RIdx, ins.literalConst, SpirvScalarType::Uint32);
+		spvSrc2 = emitLoadScalarOperand(src2, src2RIdx, SpirvScalarType::Uint32, ins.literalConst);
 	}
 
 	SpirvRegisterValue dstVal;
@@ -424,7 +424,7 @@ void GCNCompiler::emitVectorBitField32(GCNInstruction& ins)
 	{
 		auto count     = m_module.opBitFieldUExtract(b32TypeId, spvSrc2.id, m_module.constu32(0), m_module.constu32(4));
 		auto offset    = m_module.opBitFieldUExtract(b32TypeId, spvSrc1.id, m_module.constu32(0), m_module.constu32(4));
-		dstVal.id      = m_module.opBitFieldUExtract(b32TypeId, spvSrc0.id, offset, count);
+		dstVal.id      = m_module.opBitFieldUExtract(b32TypeId, spvSrc0.id, offset, count);  // TODO: Not sure
 	}
 		break;
 	default:
@@ -850,29 +850,22 @@ void GCNCompiler::emitVectorConv(GCNInstruction& ins)
 	uint32_t dstRIdx  = 0;
 	getVopOperands(ins, &dst, &dstRIdx, &src0, &src0RIdx, &src1, &src1RIdx);
 
-	auto spvSrc0 = emitLoadScalarOperand(src0, src0RIdx, ins.literalConst);
-
 	SpirvRegisterValue dstValue;
-
 	switch (op)
 	{
 	case SIVOP2Instruction::V_CVT_PKRTZ_F16_F32:
-	{
-		auto value1 = emitLoadVectorOperand(src1RIdx, SpirvScalarType::Float32);
-		dstValue    = emitPackFloat16(
-            emitRegisterConcat(spvSrc0, value1));
-	}
-		break;
 	case SIVOP3Instruction::V3_CVT_PKRTZ_F16_F32:
 	{
-		auto value1 = emitLoadScalarOperand(src1, src1RIdx, SpirvScalarType::Float32, ins.literalConst);
+		auto spvSrc0 = emitLoadVopSrc1(ins, src0, src0RIdx, SpirvScalarType::Float32);
+		auto spvSrc1 = emitLoadVectorOperand(src1RIdx, SpirvScalarType::Float32);
 		dstValue    = emitPackFloat16(
-            emitRegisterConcat(spvSrc0, value1));
+            emitRegisterConcat(spvSrc0, spvSrc1));
 	}
 		break;
 	case SIVOP1Instruction::V_CVT_F32_U32:
 	case SIVOP3Instruction::V3_CVT_F32_U32:
 	{
+		auto spvSrc0         = emitLoadVopSrc1(ins, src0, src0RIdx, SpirvScalarType::Float32);
 		dstValue.type.ctype = SpirvScalarType::Float32;
 		dstValue.type.ccount = 1;
 		dstValue.id  = m_module.opConvertUtoF(getScalarTypeId(SpirvScalarType::Float32), spvSrc0.id);
