@@ -902,7 +902,7 @@ void GCNCompiler::emitVectorConv(GCNInstruction& ins)
 	case SIVOP1Instruction::V_CVT_F32_U32:
 	case SIVOP3Instruction::V3_CVT_F32_U32:
 	{
-		auto spvSrc0         = emitLoadScalarOperand(src0, src0RIdx, SpirvScalarType::Float32, ins.literalConst);
+		auto spvSrc0         = emitLoadScalarOperand(src0, src0RIdx, SpirvScalarType::Uint32, ins.literalConst);
 		dstValue.type.ctype  = SpirvScalarType::Float32;
 		dstValue.type.ccount = 1;
 		dstValue.id          = m_module.opConvertUtoF(getScalarTypeId(SpirvScalarType::Float32), spvSrc0.id);
@@ -911,7 +911,7 @@ void GCNCompiler::emitVectorConv(GCNInstruction& ins)
 	case SIVOP1Instruction::V_CVT_F32_I32:
 	case SIVOP3Instruction::V3_CVT_F32_I32:
 	{
-		auto spvSrc0         = emitLoadScalarOperand(src0, src0RIdx, SpirvScalarType::Float32, ins.literalConst);
+		auto spvSrc0         = emitLoadScalarOperand(src0, src0RIdx, SpirvScalarType::Sint32, ins.literalConst);
 		dstValue.type.ctype  = SpirvScalarType::Float32;
 		dstValue.type.ccount = 1;
 		dstValue.id          = m_module.opConvertStoF(getScalarTypeId(SpirvScalarType::Float32), spvSrc0.id);
