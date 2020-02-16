@@ -429,19 +429,23 @@ void GnmCommandBufferDraw::updateVsShader(const pssl::VsStageRegisters *vsRegs, 
 }
 
 #define SHADER_DEBUG_BREAK(mod, hash) \
-if (mod.key().toUint64() == hash) \
-{\
-	__debugbreak();\
-}
+	if (mod.key().toUint64() == hash) \
+	{                                 \
+		__debugbreak();               \
+	}
 
 void GnmCommandBufferDraw::commitVsStage()
 {
 	do
 	{
-		uint32_t* fsCode = getFetchShaderCode(m_vsContext);
-		LOG_ASSERT(fsCode != nullptr, "can not find fetch shader code.");
+		PsslShaderModule vsModule((const uint32_t*)m_vsContext.code);
 
-		PsslShaderModule vsModule((const uint32_t*)m_vsContext.code, fsCode);
+		uint32_t* fsCode = getFetchShaderCode(m_vsContext);
+		if (fsCode)
+		{
+			vsModule.defineFetchShader(fsCode);
+		}
+
 		LOG_DEBUG("vertex shader hash %llX", vsModule.key().toUint64());
 		vsModule.defineShaderInput(m_vsContext.userDataSlotTable);
 

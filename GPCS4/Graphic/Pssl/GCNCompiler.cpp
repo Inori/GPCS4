@@ -12,9 +12,9 @@ LOG_CHANNEL(Graphic.Pssl.GCNCompiler);
 namespace pssl
 {;
 
-constexpr uint32_t PerVertex_Position = 0;
-constexpr uint32_t PerVertex_CullDist = 1;
-constexpr uint32_t PerVertex_ClipDist = 2;
+constexpr uint32_t kPerVertexPosition = 0;
+constexpr uint32_t kPerVertexCullDist = 1;
+constexpr uint32_t kPerVertexClipDist = 2;
 
 GCNCompiler::GCNCompiler(
 	const PsslProgramInfo& progInfo,
@@ -23,7 +23,6 @@ GCNCompiler::GCNCompiler(
 	m_programInfo(progInfo),
 	m_analysis(&analysis),
 	m_shaderInput(shaderInput),
-	m_statusRegs(this),
 	m_branchLabels(m_analysis->branchLabels)
 {
 	// Declare an entry point ID. We'll need it during the
@@ -155,9 +154,8 @@ void GCNCompiler::emitVsInit()
 	m_module.enableCapability(spv::CapabilityDrawParameters);
 
 	m_module.enableExtension("SPV_KHR_shader_draw_parameters");
-
-	emitGprInitialize();
-	emitStatusRegInitialize();
+	
+	emitDclStatusRegisters();
 	emitDclVertexInput();
 	emitDclVertexOutput();
 	emitDclShaderResourceUD();
@@ -178,6 +176,9 @@ void GCNCompiler::emitVsInit()
 	m_module.opFunctionCall(
 		m_module.defVoidType(),
 		m_vs.fsFunctionId, 0, nullptr);
+
+	// Some initialization steps need to place in function block.
+	emitGprInitializeVS();
 }
 
 void GCNCompiler::emitHsInit()
@@ -201,8 +202,7 @@ void GCNCompiler::emitPsInit()
 	m_ps.functionId = m_module.allocateId();
 	m_module.setDebugName(m_ps.functionId, "psMain");
 
-	emitGprInitialize();
-	emitStatusRegInitialize();
+	emitDclStatusRegisters();
 	emitDclPixelInput();
 	emitDclPixelOutput();
 	emitDclShaderResourceUD();
@@ -213,6 +213,9 @@ void GCNCompiler::emitPsInit()
 		m_module.defFunctionType(
 			m_module.defVoidType(), 0, nullptr));
 	this->emitFunctionLabel();
+
+	// Some initialization steps need to place in function block.
+	emitGprInitializePS();
 }
 
 void GCNCompiler::emitCsInit()
@@ -453,7 +456,29 @@ void GCNCompiler::emitDclPixelOutput()
 	}
 }
 
-void GCNCompiler::emitGprInitialize()
+void GCNCompiler::emitGprInitializeVS()
+{
+	// VGPRs
+
+	// v0 is the index of current vertex within vertex buffer
+	SpirvRegisterPointer v0;
+	v0.type.ctype  = SpirvScalarType::Sint32;
+	v0.type.ccount = 1;
+
+	// Declare gl_VertexIndex
+	uint32_t vtxIdxId = emitNewVariable({ v0.type, spv::StorageClassInput }, "gl_VertexIndex");
+	m_module.decorateBuiltIn(vtxIdxId, spv::BuiltInVertexIndex);
+	m_entryPointInterfaces.push_back(vtxIdxId);
+
+	// The builtin gl_VertexIndex is read only, but v0 is writable.
+	// Thus we need to make a copy instead of write gl_VertexIndex in 0 slot directly.
+	v0.id              = emitNewVariable({ v0.type, spv::StorageClassPrivate }, "v0");
+	m_module.opCopyMemory(v0.id, vtxIdxId);
+
+	m_vgprs.emplace(0, v0);
+}
+
+void GCNCompiler::emitGprInitializePS()
 {
 	// TODO:
 	// For sgprs and vgprs, we should initialize them
@@ -463,6 +488,13 @@ void GCNCompiler::emitGprInitialize()
 	// the 16 user data registers.
 	//
 	// Currently I just create which I use.
+
+	SpirvRegisterPointer s0;
+	s0.type.ctype   = SpirvScalarType::Uint32;
+	s0.type.ccount = 1;
+	s0.id           = emitNewVariable({ s0.type, spv::StorageClassPrivate },
+                             UtilString::Format("s%d", 0));
+	m_sgprs.emplace(0, s0);
 
 	SpirvRegisterPointer s12;
 	s12.type.ctype  = SpirvScalarType::Float32;
@@ -479,7 +511,7 @@ void GCNCompiler::emitGprInitialize()
 	m_sgprs.emplace(16, s16);
 }
 
-void GCNCompiler::emitStatusRegInitialize()
+void GCNCompiler::emitDclStatusRegisters()
 {
 	SpirvVectorType u32Type;
 	u32Type.ctype  = SpirvScalarType::Uint32;
@@ -490,6 +522,16 @@ void GCNCompiler::emitStatusRegInitialize()
 
 	//m_statusRegs.scc.type = u32Type;
 	//m_statusRegs.scc.id   = emitNewVariable({ u32Type, spv::StorageClass::StorageClassPrivate }, "scc");
+
+	m_statusRegs.vcc.type = u32Type;
+	m_statusRegs.vcc.id   = emitNewVariable({ u32Type, spv::StorageClass::StorageClassPrivate }, "vcc");
+
+	m_statusRegs.vcc_hi.type = u32Type;
+	m_statusRegs.vcc_hi.id   = emitNewVariable({ u32Type, spv::StorageClass::StorageClassPrivate }, "vcc_hi");
+
+	// we assume thread_id = 1, so exec initialized to 1
+	m_statusRegs.exec.type = u32Type;
+	m_statusRegs.exec.id   = emitNewVariable({ u32Type, spv::StorageClass::StorageClassPrivate }, "exec", m_module.constu32(1));
 }
 
 void GCNCompiler::emitDclShaderResource(const GcnShaderResourceInstance& res)
@@ -504,6 +546,9 @@ void GCNCompiler::emitDclShaderResource(const GcnShaderResourceInstance& res)
 		break;
 	case kShaderInputUsageImmSampler:
 		emitDclImmSampler(res);
+		break;
+	case kShaderInputUsageImmVertexBuffer:
+		// just used to pass warning
 		break;
 	default:
 		LOG_WARN("unknown shader resource type found %d", res.usageType);
@@ -679,6 +724,9 @@ void GCNCompiler::emitDclImmResource(const GcnShaderResourceInstance& res)
 	m_resourceSlots.push_back({ bindingId, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE });
 }
 
+// TODO:
+// Wrap these using template.
+
 SpirvRegisterValue GCNCompiler::emitValueLoad(const SpirvRegisterPointer& reg)
 {
 	uint32_t varId = m_module.opLoad(
@@ -687,14 +735,115 @@ SpirvRegisterValue GCNCompiler::emitValueLoad(const SpirvRegisterPointer& reg)
 	return SpirvRegisterValue(reg.type, varId);
 }
 
-SpirvRegisterValue GCNCompiler::emitSgprLoad(uint32_t index)
+SpirvRegisterValue GCNCompiler::emitSgprLoad(uint32_t index, SpirvScalarType dstType /*= SpirvScalarType::Unknown*/)
 {
-	return emitValueLoad(m_sgprs[index]);
+	SpirvRegisterValue result;
+	do 
+	{
+		auto& sgpr = m_sgprs[index];
+
+		if (sgpr.id == InvalidSpvId)
+		{
+			// Some instructions will specify 0 as one of their SRCs,
+			// here 0 can be treated as both s0 and an empty src.
+			// An empty src means the instruction doesn't use this src, e.g. SRC2 for v3_mac_f32.
+			// In such case, we shouldn't do anything.
+			LOG_WARN("try to load uninitialized sgpr s%d", index);
+			break;
+		}
+
+		if (dstType != SpirvScalarType::Unknown && dstType != sgpr.type.ctype)
+		{
+			emitUpdateSgprType(index, dstType);
+		}
+
+		result = emitValueLoad(sgpr);
+
+	} while (false);
+	return result;
 }
 
-SpirvRegisterValue GCNCompiler::emitVgprLoad(uint32_t index)
+SpirvRegisterValue GCNCompiler::emitVgprLoad(uint32_t index, SpirvScalarType dstType /*= SpirvScalarType::Unknown*/)
 {
-	return emitValueLoad(m_vgprs[index]);
+	SpirvRegisterValue result;
+	do 
+	{
+		auto& vgpr = m_vgprs[index];
+
+		if (vgpr.id == InvalidSpvId)
+		{
+			// Some instructions will specify 0 as one of their SRCs,
+			// here 0 can be treated as both v0 and an empty src.
+			// An empty src means the instruction doesn't use this src, e.g. SRC2 for v3_mac_f32.
+			// In such case, we shouldn't do anything.
+			LOG_WARN("try to load uninitialized vgpr v%d", index);
+			break;
+		}
+
+		if (dstType != SpirvScalarType::Unknown && dstType != vgpr.type.ctype)
+		{
+			emitUpdateVgprType(index, dstType);
+		}
+		result = emitValueLoad(vgpr);
+	} while (false);
+	return result;
+}
+
+void GCNCompiler::emitUpdateSgprType(uint32_t sidx, SpirvScalarType dstType)
+{
+	LOG_ASSERT(!isDoubleWordType(dstType), "wide type not supported yet.");
+	do 
+	{
+		auto& sgpr = m_sgprs[sidx];
+
+		if (sgpr.type.ctype == dstType)
+		{
+			break;
+		}
+
+		LOG_ASSERT(sgpr.type.ctype != SpirvScalarType::Unknown, "sgpr s%d not initialized.", sidx);
+		SpirvRegisterValue value = emitValueLoad(sgpr);
+		SpirvRegisterValue castedValue = emitRegisterBitcast(value, dstType);
+
+		auto debugName = UtilString::Format("s%d_%s", sidx, getTypeName(dstType));
+		SpirvRegisterPointer newSgpr;
+		newSgpr.type.ctype  = dstType;
+		newSgpr.type.ccount = 1;
+		newSgpr.id          = emitNewVariable({ newSgpr.type, spv::StorageClassPrivate }, debugName);
+		
+		emitValueStore(newSgpr, castedValue, 1);
+
+		sgpr = newSgpr;
+	} while (false);
+}
+
+void GCNCompiler::emitUpdateVgprType(uint32_t vidx, SpirvScalarType dstType)
+{
+	LOG_ASSERT(!isDoubleWordType(dstType), "wide type not supported yet.");
+	do 
+	{
+		auto& vgpr = m_vgprs[vidx];
+
+		if (vgpr.type.ctype == dstType)
+		{
+			break;
+		}
+
+		LOG_ASSERT(vgpr.type.ctype != SpirvScalarType::Unknown, "vgpr v%d not initialized.", vidx);
+
+		SpirvRegisterValue value       = emitValueLoad(vgpr);
+		SpirvRegisterValue castedValue = emitRegisterBitcast(value, dstType);
+
+		auto debugName = UtilString::Format("v%d_%s", vidx, getTypeName(dstType));
+		SpirvRegisterPointer newVgpr;
+		newVgpr.type.ctype  = dstType;
+		newVgpr.type.ccount = 1;
+		newVgpr.id          = emitNewVariable({ newVgpr.type, spv::StorageClassPrivate }, debugName);
+
+		emitValueStore(newVgpr, castedValue, 1);
+
+		vgpr = newVgpr;
+	} while (false);
 }
 
 void GCNCompiler::emitValueStore(
@@ -743,6 +892,12 @@ void GCNCompiler::emitSgprStore(uint32_t dstIdx,
 		sgpr.id   = emitNewVariable({ sgpr.type, spv::StorageClassPrivate },
                                   UtilString::Format("s%d", dstIdx));
 	}
+
+	if (sgpr.type.ctype != srcReg.type.ctype)
+	{
+		emitUpdateSgprType(dstIdx, srcReg.type.ctype);
+	}
+
 	emitValueStore(sgpr, srcReg, 1);
 }
 
@@ -765,6 +920,12 @@ void GCNCompiler::emitVgprStore(uint32_t dstIdx,
 		vgpr.id   = emitNewVariable({ vgpr.type, spv::StorageClassPrivate },
                                   UtilString::Format("v%d", dstIdx));
 	}
+
+	if (vgpr.type.ctype != srcReg.type.ctype)
+	{
+		emitUpdateVgprType(dstIdx, srcReg.type.ctype);
+	}
+
 	emitValueStore(vgpr, srcReg, 1);
 }
 
@@ -802,8 +963,8 @@ SpirvRegisterValue GCNCompiler::emitSgprPairLoad(uint32_t firstIndex)
 	// The type of a SGPR pair will be only Uint64
 
 	// Load the higher and lower sgpr
-	auto high = emitRegisterBitcast(emitSgprLoad(firstIndex), SpirvScalarType::Uint32);
-	auto low  = emitRegisterBitcast(emitSgprLoad(firstIndex + 1), SpirvScalarType::Uint32);
+	auto high = emitSgprLoad(firstIndex, SpirvScalarType::Uint32);
+	auto low  = emitSgprLoad(firstIndex + 1, SpirvScalarType::Uint32);
 
 	// Convert the two Uint32 to a vec2
 	auto vec2U32 = emitRegisterConcat(high, low);
@@ -839,11 +1000,41 @@ void GCNCompiler::emitSgprPairStore(uint32_t firstIndex, const SpirvRegisterValu
 	emitSgprStore(firstIndex + 1, low);
 }
 
+SpirvRegisterValue GCNCompiler::emitLiteralConstLoad(uint32_t value, SpirvScalarType dstType)
+{
+	// For mov instructions, there's no type specified (Unknown)
+	// in such case we use Uint32
+	if (dstType == SpirvScalarType::Unknown)
+	{
+		dstType = SpirvScalarType::Uint32;
+	}
+
+	SpirvRegisterValue result;
+	result.type.ctype  = dstType;
+	result.type.ccount = 1;
+	switch (dstType)
+	{
+	case SpirvScalarType::Uint32:
+		result.id = m_module.constu32(value);
+		break;
+	case SpirvScalarType::Sint32:
+		result.id = m_module.consti32(*reinterpret_cast<int32_t*>(&value));
+		break;
+	case SpirvScalarType::Float32:
+		result.id = m_module.constf32(*reinterpret_cast<float*>(&value));
+		break;
+	default:
+		LOG_ERR("wrong literal const type %d", dstType);
+		break;
+	}
+	return result;
+}
+
 // Used with with 7 bits SDST, 8 bits SSRC or 9 bits SRC
 // See table "SDST, SSRC and SRC Operands" in section 3.1 of GPU Shader Core ISA manual
 SpirvRegisterValue GCNCompiler::emitLoadScalarOperand(
 	uint32_t srcOperand, uint32_t regIndex,
-	uint32_t literalConst /*= 0*/, SpirvScalarType dstType /*= SpirvScalarType::Float32*/)
+	SpirvScalarType dstType, uint32_t literalConst /*= 0*/ )
 {
 	Instruction::OperandSRC src = static_cast<Instruction::OperandSRC>(srcOperand);
 	SpirvRegisterValue operand;
@@ -852,27 +1043,23 @@ SpirvRegisterValue GCNCompiler::emitLoadScalarOperand(
 	{
 	case Instruction::OperandSRC::SRCScalarGPRMin ... Instruction::OperandSRC::SRCScalarGPRMax:
 		operand = dstType != SpirvScalarType::Uint64 ? 
-			emitSgprLoad(regIndex) :
+			emitSgprLoad(regIndex, dstType) :
 			emitSgprPairLoad(regIndex);
 		break;
 	case Instruction::OperandSRC::SRCVccLo:
-		operand = emitValueLoad(dstType == SpirvScalarType::Uint32 ?
-			m_statusRegs.vcc.low() : 
-			m_statusRegs.vcc.value());
+		operand = emitValueLoad(m_statusRegs.vcc);
 		break;
 	case Instruction::OperandSRC::SRCVccHi:
-		operand = emitValueLoad(m_statusRegs.vcc.high());
+		operand = emitValueLoad(m_statusRegs.vcc_hi);
 		break;
 	case Instruction::OperandSRC::SRCM0:
 		operand = emitValueLoad(m_statusRegs.m0);
 		break;
 	case Instruction::OperandSRC::SRCExecLo:
-		operand = emitValueLoad(dstType == SpirvScalarType::Uint32 ?
-			m_statusRegs.exec.low() : 
-			m_statusRegs.exec.value());
+		operand = emitValueLoad(m_statusRegs.exec);
 		break;
 	case Instruction::OperandSRC::SRCExecHi:
-		operand = emitValueLoad(m_statusRegs.exec.high());
+		operand = emitValueLoad(m_statusRegs.exec_hi);
 		break;
 	case Instruction::OperandSRC::SRCConstZero:
 	case Instruction::OperandSRC::SRCSignedConstIntPosMin ... Instruction::OperandSRC::SRCSignedConstIntPosMax:
@@ -888,27 +1075,20 @@ SpirvRegisterValue GCNCompiler::emitLoadScalarOperand(
 		break;
 	case Instruction::OperandSRC::SRCSCC:
 		//operand = emitValueLoad(m_statusRegs.scc);
+		LOG_ASSERT(false, "scc load not supported yet.");
 		break;
 	case Instruction::OperandSRC::SRCLdsDirect:
 		break;
 	case Instruction::OperandSRC::SRCLiteralConst:
-	{
-		uint32_t constId = m_module.constu32(literalConst);
-		operand          = SpirvRegisterValue(SpirvScalarType::Uint32, 1, constId);
-	}
-	break;
+		operand = emitLiteralConstLoad(literalConst, dstType);
+		break;
 	// For 9 bits SRC operand
 	case Instruction::OperandSRC::SRCVectorGPRMin ... Instruction::OperandSRC::SRCVectorGPRMax:
-		operand = emitVgprLoad(regIndex);
+		operand = emitVgprLoad(regIndex, dstType);
 		break;
 	default:
 		LOG_ERR("error operand range %d", (uint32_t)srcOperand);
 		break;
-	}
-
-	if (operand.type.ctype != dstType)
-	{
-		operand = emitRegisterBitcast(operand, dstType);
 	}
 
 	return operand;
@@ -917,16 +1097,9 @@ SpirvRegisterValue GCNCompiler::emitLoadScalarOperand(
 // Used with 8 bits VSRC/VDST
 // for 9 bits SRC, call emitLoadScalarOperand instead
 // See table "VSRC and VDST Operands" in section 3.1 of GPU Shader Core ISA manual
-SpirvRegisterValue GCNCompiler::emitLoadVectorOperand(uint32_t index, SpirvScalarType dstType /*= SpirvScalarType::Float32*/)
+SpirvRegisterValue GCNCompiler::emitLoadVectorOperand(uint32_t index, SpirvScalarType dstType)
 {
-	SpirvRegisterValue operand = emitVgprLoad(index);
-
-	if (operand.type.ctype != dstType)
-	{
-		operand = emitRegisterBitcast(operand, dstType);
-	}
-
-	return operand;
+	return emitVgprLoad(index, dstType);
 }
 
 // Used with 7 bits SDST
@@ -942,28 +1115,18 @@ void GCNCompiler::emitStoreScalarOperand(uint32_t dstOperand, uint32_t regIndex,
 			emitSgprStore(regIndex, srcReg) : 
 			emitSgprPairStore(regIndex, srcReg);
 	}
-	break;
+		break;
 	case Instruction::OperandSDST::SDSTVccLo:
-	{
-		auto dstReg = srcReg.type.ctype == SpirvScalarType::Uint32 ?
-			m_statusRegs.vcc.low() : 
-			m_statusRegs.vcc.value();
-		emitValueStore(dstReg, srcReg, 1);
-	}
-	break;
+		emitValueStore(m_statusRegs.vcc, srcReg, 1);
+		break;
 	case Instruction::OperandSDST::SDSTVccHi:
-		emitValueStore(m_statusRegs.vcc.high(), srcReg, 1);
+		emitValueStore(m_statusRegs.vcc_hi, srcReg, 1);
 		break;
 	case Instruction::OperandSDST::SDSTExecLo:
-	{
-		auto dstReg = srcReg.type.ctype == SpirvScalarType::Uint32 ?
-			m_statusRegs.exec.low() : 
-			m_statusRegs.exec.value();
-		emitValueStore(dstReg, srcReg, 1);
-	}
-	break;
+		emitValueStore(m_statusRegs.exec, srcReg, 1);
+		break;
 	case Instruction::OperandSDST::SDSTExecHi:
-		emitValueStore(m_statusRegs.exec.high(), srcReg, 1);
+		emitValueStore(m_statusRegs.exec_hi, srcReg, 1);
 		break;
 	case Instruction::OperandSDST::SDSTM0:
 		emitValueStore(m_statusRegs.m0, srcReg, 1);
@@ -1075,17 +1238,17 @@ pssl::SpirvRegisterValue GCNCompiler::emitUnpackFloat16(const SpirvRegisterValue
 uint32_t GCNCompiler::emitNewVariable(
 	const SpirvRegisterInfo& info,
 	const std::string& name /* = "" */,
-	std::optional<uint32_t> initValue /*= std::nullopt*/)
+	std::optional<uint32_t> initValueId /*= std::nullopt*/)
 {
 	const uint32_t ptrTypeId = getPointerTypeId(info);
 	uint32_t varId           = InvalidSpvId;
-	if (!initValue.has_value())
+	if (!initValueId.has_value())
 	{
 		varId = m_module.newVar(ptrTypeId, info.sclass);
 	}
 	else
 	{
-		varId = m_module.newVarInit(ptrTypeId, info.sclass, initValue.value());
+		varId = m_module.newVarInit(ptrTypeId, info.sclass, initValueId.value());
 	}
 
 	if (!name.empty())
@@ -1465,20 +1628,20 @@ uint32_t GCNCompiler::getPerVertexBlockId()
 	//     uint32_t t_f32_a4 = m_module.defArrayType(t_f32, m_module.constu32(4));
 
 	std::array<uint32_t, 1> members;
-	members[PerVertex_Position] = t_f32_v4;
+	members[kPerVertexPosition] = t_f32_v4;
 	//     members[PerVertex_CullDist] = t_f32_a4;
 	//     members[PerVertex_ClipDist] = t_f32_a4;
 
 	uint32_t typeId = m_module.defStructTypeUnique(
 		members.size(), members.data());
 
-	m_module.memberDecorateBuiltIn(typeId, PerVertex_Position, spv::BuiltInPosition);
+	m_module.memberDecorateBuiltIn(typeId, kPerVertexPosition, spv::BuiltInPosition);
 	//     m_module.memberDecorateBuiltIn(typeId, PerVertex_CullDist, spv::BuiltInCullDistance);
 	//     m_module.memberDecorateBuiltIn(typeId, PerVertex_ClipDist, spv::BuiltInClipDistance);
 	m_module.decorateBlock(typeId);
 
 	m_module.setDebugName(typeId, "gl_PerVertex");
-	m_module.setDebugMemberName(typeId, PerVertex_Position, "gl_Position");
+	m_module.setDebugMemberName(typeId, kPerVertexPosition, "gl_Position");
 	//     m_module.setDebugMemberName(typeId, PerVertex_CullDist, "cull_dist");
 	//     m_module.setDebugMemberName(typeId, PerVertex_ClipDist, "clip_dist");
 	return typeId;
@@ -1567,6 +1730,22 @@ SpirvScalarType GCNCompiler::getScalarType(Instruction::OperandType operandType)
 		break;
 	}
 	return resultType;
+}
+
+const char* GCNCompiler::getTypeName(SpirvScalarType type)
+{
+	const char* name = nullptr;
+	switch (type)
+	{
+	case SpirvScalarType::Uint32: name = "uint";	break;
+	case SpirvScalarType::Uint64: name = "ulong";	break;
+	case SpirvScalarType::Sint32: name = "int";		break;
+	case SpirvScalarType::Sint64: name = "long";	break;
+	case SpirvScalarType::Float32:name = "float";	break;
+	case SpirvScalarType::Float64:name = "float64";	break;
+	case SpirvScalarType::Bool:	  name = "bool";	break;
+	}
+	return name;
 }
 
 }  // namespace pssl

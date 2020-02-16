@@ -70,7 +70,14 @@ SceKeyboard::~SceKeyboard()
 
 int SceKeyboard::read(ScePadData* data, int32_t num)
 {
-	
+	// 2020/2/14 13:03 UTC  DummyCatz: Retro City RamPage calls this
+	// function, but it is not implemented and pops illegal instruction.
+	// I just make a dummy implemention for it in order to continue running.
+	LOG_SCE_DUMMY_IMPL();
+	*data = {};
+	data->connected = true;
+
+	return SCE_OK;
 }
 
 
@@ -131,9 +138,7 @@ int SceKeyboard::readState(ScePadData* data)
 	}
 
 
-
-
-	ScePadAnalogButtons analogButtons = {0,0,{2,2}};
+	ScePadAnalogButtons analogButtons = {0, 0, { 2, 2 } };
 
 	if (glfwGetKey(m_window, GLFW_KEY_Q) == GLFW_PRESS)
 	{

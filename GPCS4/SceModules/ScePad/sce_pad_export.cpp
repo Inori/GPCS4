@@ -19,6 +19,7 @@ static const SCE_EXPORT_FUNCTION g_pScePad_libScePad_FunctionTable[] =
 	{ 0x72556F2F86439EDC, "scePadSetMotionSensorState", (void*)scePadSetMotionSensorState },
 	{ 0xC8556739D1B1BD96, "scePadSetVibration", (void*)scePadSetVibration },
 	{ 0xAB570735F1B270B2, "scePadRead", (void*)scePadRead },
+	{ 0xbc32cca092dd7bc2, "scePadSetTiltCorrectionState", (void*)scePadSetTiltCorrectionState },
 	SCE_FUNCTION_ENTRY_END
 };
 

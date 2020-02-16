@@ -145,14 +145,56 @@ int32_t getAltPipeConfig(PipeConfig* outAltPipeConfig, TileMode tileMode)
 	return kStatusSuccess;
 }
 
+int32_t getAllMacroTileData(TileMode tileMode, uint32_t bitsPerElement, uint32_t numFragmentsPerPixel,
+											 BankWidth* outBankWidth, BankHeight* outBankHeight, MacroTileAspect* outMacroTileAspect,
+											 NumBanks* outNumBanks)
+{
+	MacroTileMode macroTileMode;
+	int32_t status = computeSurfaceMacroTileMode(&macroTileMode, tileMode, bitsPerElement, numFragmentsPerPixel);
+	if (status == kStatusSuccess)
+	{
+		uint32_t mtmReg = g_macroTileModeDefaultsAsInts[macroTileMode];
+		if (outBankWidth)
+			*outBankWidth = (BankWidth)SCE_GNM_GET_FIELD(mtmReg, GB_MACROTILE_MODE0, BANK_WIDTH);
+		if (outBankHeight)
+			*outBankHeight = (BankHeight)SCE_GNM_GET_FIELD(mtmReg, GB_MACROTILE_MODE0, BANK_HEIGHT);
+		if (outMacroTileAspect)
+			*outMacroTileAspect = (MacroTileAspect)SCE_GNM_GET_FIELD(mtmReg, GB_MACROTILE_MODE0, MACRO_TILE_ASPECT);
+		if (outNumBanks)
+			*outNumBanks = (NumBanks)SCE_GNM_GET_FIELD(mtmReg, GB_MACROTILE_MODE0, NUM_BANKS);
+	}
+	return status;
+}
+
+int32_t getAllAltMacroTileData(TileMode tileMode, uint32_t bitsPerElement, uint32_t numFragmentsPerPixel,
+												BankWidth* outBankWidth, BankHeight* outAltBankHeight, MacroTileAspect* outAltMacroTileAspect,
+												NumBanks* outAltNumBanks)
+{
+	MacroTileMode macroTileMode;
+	int32_t status = computeSurfaceMacroTileMode(&macroTileMode, tileMode, bitsPerElement, numFragmentsPerPixel);
+	if (status == kStatusSuccess)
+	{
+		uint32_t mtmReg = g_macroTileModeDefaultsAsInts[macroTileMode];
+		if (outBankWidth)
+			*outBankWidth = (BankWidth)SCE_GNM_GET_FIELD(mtmReg, GB_MACROTILE_MODE0, BANK_WIDTH);
+		if (outAltBankHeight)
+			*outAltBankHeight = (BankHeight)SCE_GNM_GET_FIELD(mtmReg, GB_MACROTILE_MODE0, ALT_BANK_HEIGHT);
+		if (outAltMacroTileAspect)
+			*outAltMacroTileAspect = (MacroTileAspect)SCE_GNM_GET_FIELD(mtmReg, GB_MACROTILE_MODE0, ALT_MACRO_TILE_ASPECT);
+		if (outAltNumBanks)
+			*outAltNumBanks = (NumBanks)SCE_GNM_GET_FIELD(mtmReg, GB_MACROTILE_MODE0, ALT_NUM_BANKS);
+	}
+	return status;
+}
+
 int32_t computeSurfaceMacroTileMode(MacroTileMode* outMacroTileMode, TileMode tileMode,
 										   uint32_t bitsPerElement, uint32_t numFragmentsPerPixel)
 {
-	int32_t status = -1;
+	int32_t status = kStatusInvalidArgument;
 	do
 	{
 		ArrayMode arrayMode;
-		int32_t status = getArrayMode(&arrayMode, tileMode);
+		status = getArrayMode(&arrayMode, tileMode);
 		if (status != kStatusSuccess)
 		{
 			break;
@@ -174,6 +216,8 @@ int32_t computeSurfaceMacroTileMode(MacroTileMode* outMacroTileMode, TileMode ti
 		uint32_t tileBytes      = std::min(tileSplitC, numFragmentsPerPixel * tileBytes1x);
 		uint32_t mtmIndex       = fastIntLog2(tileBytes / 64);
 		*outMacroTileMode       = (MacroTileMode)(isPartiallyResidentTexture(arrayMode) ? (mtmIndex + 8) : mtmIndex);
+
+		status = kStatusSuccess;
 	} while (false);
 	return status;
 }
@@ -470,7 +514,7 @@ int32_t computeSurfaceInfo(SurfaceInfo* infoOut, const TilingParameters* tp)
 	{
 		// skip this check when jumping here from other code
 		LOG_ASSERT_RETURN(tpTemp.m_numFragmentsPerPixel == 1, kStatusInvalidArgument, "numFragmentsPerPixel (%u) must be 1 for 1D-tiled surfaces surfaces.", tpTemp.m_numFragmentsPerPixel);
-
+LABEL_MICRO_TILE:
 		thickness = getMicroTileThickness(arrayMode);
 		// MSAA surfaces must be 2D tiled
 
@@ -620,7 +664,318 @@ int32_t computeSurfaceInfo(SurfaceInfo* infoOut, const TilingParameters* tp)
 	case kArrayMode2dTiledThickPrt:
 	case kArrayMode3dTiledThinPrt:
 	case kArrayMode3dTiledThickPrt:
-		LOG_ASSERT(false, "macro tile mode not supported yet.");
+	{
+LABEL_MACRO_TILE:
+		ArrayMode originalArrayMode = arrayMode;  // this may change!
+		thickness                        = getMicroTileThickness(arrayMode);
+		uint32_t sliceAlignBytes         = 1;
+		uint32_t outPitch                = (tpTemp.m_mipLevel == 0 && tpTemp.m_baseTiledPitch > 0) ? requestedPitch : tpTemp.m_linearWidth;
+		uint32_t outHeight               = tpTemp.m_linearHeight;
+		uint32_t outDepth                = tpTemp.m_linearDepth;
+
+		// Extract macro-tile parameters.
+		TileSplit tileSplitHW;
+		status = getTileSplit(&tileSplitHW, tpTemp.m_tileMode);
+		LOG_ASSERT_RETURN(status == kStatusSuccess, status, "getTileSplit() failed for tileMode=0x%08X", tpTemp.m_tileMode);
+		SampleSplit sampleSplitHW;
+		status = getSampleSplit(&sampleSplitHW, tpTemp.m_tileMode);
+		LOG_ASSERT_RETURN(status == kStatusSuccess, status, "getSampleSplit() failed for tileMode=0x%08X", tpTemp.m_tileMode);
+		BankWidth bankWidthHW;
+		BankHeight bankHeightHW;
+		MacroTileAspect macroAspectHW;
+		NumBanks numBanksHW;
+		if (tpTemp.m_minGpuMode == kGpuModeNeo)
+		{
+			status = getAllAltMacroTileData(tpTemp.m_tileMode, bitsPerElement, tpTemp.m_numFragmentsPerPixel,
+											&bankWidthHW, &bankHeightHW, &macroAspectHW, &numBanksHW);
+			LOG_ASSERT_RETURN(status == kStatusSuccess, status, "getAllAltMacroTileData() failed for tileMode=0x%08X", tpTemp.m_tileMode);
+		}
+		else
+		{
+			status = getAllMacroTileData(tpTemp.m_tileMode, bitsPerElement, tpTemp.m_numFragmentsPerPixel,
+										 &bankWidthHW, &bankHeightHW, &macroAspectHW, &numBanksHW);
+			LOG_ASSERT_RETURN(status == kStatusSuccess, status, "getAllMacroTileData() failed for tileMode=0x%08X", tpTemp.m_tileMode);
+		}
+		status = getMicroTileMode(&microTileMode, tpTemp.m_tileMode);
+		LOG_ASSERT_RETURN(status == kStatusSuccess, status, "getMicroTileMode() failed for tileMode=0x%08X", tpTemp.m_tileMode);
+		// Convert to human-readable values
+		uint32_t numBanks    = 2 << numBanksHW;
+		uint32_t macroAspect = 1 << macroAspectHW;
+		uint32_t tileBytes1x = (thickness * bitsPerElement * kMicroTileWidth * kMicroTileHeight + 7) / 8;
+		uint32_t sampleSplit = 1 << sampleSplitHW;
+		uint32_t tileSplit   = (microTileMode == kMicroTileModeDepth)
+								 ? (64 << tileSplitHW)                         // depth modes store the tile split bytes directly
+								 : std::max(256U, sampleSplit * tileBytes1x);  // other modes store a sample split multiplier
+		uint32_t tileSplitC = std::min(kDramRowSize, tileSplit);
+		uint32_t bankWidth  = 1 << bankWidthHW;
+		uint32_t bankHeight = 1 << bankHeightHW;
+		// sanity-check/adjust macro-tile parameters
+		// We could probably skip this step, since we assume there's nothing invalid in the TileMode table
+		LOG_ASSERT_RETURN(numBanks >= macroAspect, kStatusInternalTilingError, "expected numBanks (%u) >= macroAspect (%u).", numBanks, macroAspect);
+		//			LOG_ASSERT_RETURN(tileSplitC <= kDramRowSize, kStatusInternalTilingError, "expected tileSplitC (%d) <= DRAM row size (%d).", tileSplitC, kDramRowSize);
+		LOG_ASSERT_RETURN(numPipes * numBanks >= 4, kStatusInternalTilingError, "expected %u*numBanks (%u) >= 4.", numPipes, numBanks);
+		// align bank height
+		uint32_t tileSize        = std::min(tileSplitC, (thickness * bitsPerElement * tpTemp.m_numFragmentsPerPixel * kMicroTileWidth * kMicroTileHeight + 7) / 8);
+		uint32_t bankHeightAlign = std::max(1U, kPipeInterleaveBytes * kBankInterleave / (tileSize * bankWidth));
+		LOG_ASSERT_RETURN(isPowerOfTwo(bankHeightAlign), kStatusInternalTilingError, "Expected bankHeightAlign (%u) to be a power of two.", bankHeightAlign);
+		bankHeight = (bankHeight + bankHeightAlign - 1) & ~(bankHeightAlign - 1);
+		// align macro tile aspect ratio. This restriction is only for mipmaps (where numValuesPerElement must be 1)
+		if (tpTemp.m_numFragmentsPerPixel == 1)
+		{
+			uint32_t macroAspectAlign = std::max(1U, kPipeInterleaveBytes * kBankInterleave / (tileSize * numPipes * bankWidth));
+			LOG_ASSERT_RETURN(isPowerOfTwo(macroAspectAlign), kStatusInternalTilingError, "Expected macroAspectAlign (%u) to be a power of two.", macroAspectAlign);
+			macroAspect = (macroAspect + macroAspectAlign - 1) & ~(macroAspectAlign - 1);
+		}
+		// Reduce bankHeight/bankWidth if needed & possible
+		if (tileSize * bankWidth * bankHeight > kDramRowSize)
+		{
+			bool stillGreater = true;
+			// Try reducing bankWidth first
+			if (stillGreater && bankWidth > 1)
+			{
+				while (stillGreater && bankWidth > 0)
+				{
+					bankWidth >>= 1;
+					if (bankWidth == 0)
+					{
+						bankWidth = 1;
+						break;
+					}
+					stillGreater = tileSize * bankWidth * bankHeight > kDramRowSize;
+				}
+
+				// Recalculate bankHeight and ratio
+				bankHeightAlign = std::max(1U, kPipeInterleaveBytes * kBankInterleave / (tileSize * bankWidth));
+				LOG_ASSERT_RETURN(isPowerOfTwo(bankHeightAlign), kStatusInternalTilingError, "Expected bankHeightAlign (%u) to be a power of two.", bankHeightAlign);
+				LOG_ASSERT_RETURN((bankHeight % bankHeightAlign) == 0, kStatusInternalTilingError, "bankHeight (%u) must be a multiple of bankHeightAlign (%u).", bankHeight, bankHeightAlign);  // can't increase bankHeight, so just assert
+				//bankHeight = (bankHeight + bankHeightAlign-1) & ~(bankHeightAlign-1);
+				if (tpTemp.m_numFragmentsPerPixel == 1)
+				{
+					uint32_t macroAspectAlign = std::max(1U, kPipeInterleaveBytes * kBankInterleave / (tileSize * numPipes * bankWidth));
+					LOG_ASSERT_RETURN(isPowerOfTwo(macroAspectAlign), kStatusInternalTilingError, "macroAspectAlign (%u) must be a power of two.", macroAspectAlign);
+					macroAspect = (macroAspect + macroAspectAlign - 1) & ~(macroAspectAlign - 1);
+				}
+			}
+			// Early quit bankHeight degradation for 64-bit z buffer
+			if (tpTemp.m_surfaceFlags.m_depthTarget && bitsPerElement >= 64)
+				stillGreater = false;
+			// Try reducing bankHeight
+			if (stillGreater && bankHeight > bankHeightAlign)
+			{
+				while (stillGreater && bankHeight > bankHeightAlign)
+				{
+					bankHeight >>= 1;
+					if (bankHeight < bankHeightAlign)
+					{
+						bankHeight = bankHeightAlign;
+						break;
+					}
+					stillGreater = tileSize * bankWidth * bankHeight > kDramRowSize;
+				}
+			}
+		}
+		// The required granularity for pitch is the macro tile width
+		uint32_t macroTileWidth = kMicroTileWidth * bankWidth * numPipes * macroAspect;
+		infoOut->m_pitchAlign   = macroTileWidth;
+		//if (tpTemp.m_surfaceFlags.m_display && tpTemp.m_mipLevel == 0 /*|| infoTemp.m_flags.m_overlay*/)
+		//	infoOut->m_pitchAlign = (infoOut->m_pitchAlign + 31) & ~31;
+		// The required granularity for height is the macro tile height
+		uint32_t macroTileHeight = kMicroTileHeight * bankHeight * numBanks / macroAspect;
+		infoOut->m_heightAlign   = macroTileHeight;
+		// The required granularity for numSlices is the micro tile thickness
+		infoOut->m_depthAlign = thickness;
+		// Compute base alignment
+		infoOut->m_baseAlign = numPipes * bankWidth * numBanks * bankHeight * tileSize;
+
+		bool isPrt = arrayMode == kArrayModeTiledThinPrt ||
+					 arrayMode == kArrayMode2dTiledThinPrt ||
+					 arrayMode == kArrayModeTiledThickPrt ||
+					 arrayMode == kArrayMode2dTiledThickPrt ||
+					 arrayMode == kArrayMode3dTiledThinPrt ||
+					 arrayMode == kArrayMode3dTiledThickPrt;
+		if (tpTemp.m_mipLevel == 0 && isPrt /* && family==SI */)
+		{
+			const uint32_t prtTileSize = 0x10000;
+			uint32_t macroTileSize     = macroTileWidth * macroTileHeight * tpTemp.m_numFragmentsPerPixel * bitsPerElement / 8;
+			if (macroTileSize < prtTileSize)
+			{
+				uint32_t numMacroTiles = prtTileSize / macroTileSize;
+				LOG_ASSERT_RETURN((prtTileSize % macroTileSize) == 0, kStatusInternalTilingError, "Internal consistency check failed: PRT tile size %u is not evenly divisible by macro tile size %u", prtTileSize, macroTileSize);
+				infoOut->m_pitchAlign *= numMacroTiles;
+				infoOut->m_baseAlign *= numMacroTiles;
+			}
+		}
+
+		LOG_ASSERT_RETURN(kBankInterleave * kPipeInterleaveBytes <= std::min(tileSplitC, tileSize) * bankWidth * bankHeight, kStatusInternalTilingError, "Internal consistency check failed: macro tile size is too large.");
+		LOG_ASSERT_RETURN(kBankInterleave * kPipeInterleaveBytes <= std::min(tileSplitC, tileSize) * bankWidth * macroAspect * numPipes, kStatusInternalTilingError, "Internal consistency check failed: macro tile width is too large.");
+
+		// Find correct array mode for mip levels
+		if (tpTemp.m_mipLevel > 0)
+		{
+			// Adjust the array mode
+			// Compute the size of a slice
+			uint64_t bytesPerSlice = static_cast<uint64_t>(outPitch) * outHeight * bitsPerElement * tpTemp.m_numFragmentsPerPixel + 7;
+			bytesPerSlice /= 8;  // bits to bytes
+			uint32_t interleaveSize = kPipeInterleaveBytes * kBankInterleave;
+			uint32_t bytesPerTile   = kNumMicroTilePixels * thickness * nextPowerOfTwo(bitsPerElement) * tpTemp.m_numFragmentsPerPixel + 7;
+			bytesPerTile /= 8;  // bits to bytes
+			// CI doesn't do this; left commented as a landmark when comparing to reference impl.
+			/*
+				if (infoTemp.m_numSlices < thickness)
+				{
+					// Degrade thick mode to thin mode, to avoid wasting too much space.
+				}
+				*/
+			if (bytesPerTile > tileSplitC)
+				bytesPerTile = tileSplitC;
+			uint32_t threshold1 = bytesPerTile * numPipes * bankWidth * macroAspect;
+			uint32_t threshold2 = bytesPerTile * bankWidth * bankHeight;
+			// Reduce the array mode from 2D/3D to 1D in the following conditions
+			bool downgradeToMicroTile = false;
+			switch (arrayMode)
+			{
+			case kArrayMode2dTiledThin:
+			case kArrayMode3dTiledThin:
+			case kArrayModeTiledThinPrt:
+			case kArrayMode2dTiledThinPrt:
+			case kArrayMode3dTiledThinPrt:
+				if (outPitch < infoOut->m_pitchAlign ||
+					outHeight < infoOut->m_heightAlign ||
+					interleaveSize > threshold1 ||
+					interleaveSize > threshold2)
+				{
+					arrayMode            = kArrayMode1dTiledThin;
+					downgradeToMicroTile = true;
+				}
+				break;
+			case kArrayMode2dTiledThick:
+			case kArrayMode3dTiledThick:
+			case kArrayMode2dTiledXThick:
+			case kArrayMode3dTiledXThick:
+			case kArrayModeTiledThickPrt:
+			case kArrayMode2dTiledThickPrt:
+			case kArrayMode3dTiledThickPrt:
+				if (outPitch < infoOut->m_pitchAlign || outHeight < infoOut->m_heightAlign)
+				{
+					arrayMode            = kArrayMode1dTiledThick;
+					downgradeToMicroTile = true;
+				}
+				break;
+			default:
+				break;  // 1d/linear modes pass through unchanged
+			}
+
+			// Depending on how the array mode changed, jump to a different path of this function
+			if (downgradeToMicroTile)
+				goto LABEL_MICRO_TILE;
+			else if (thickness != getMicroTileThickness(arrayMode))
+				goto LABEL_MACRO_TILE;
+		}
+		if (arrayMode != originalArrayMode)
+		{
+			goto LABEL_MACRO_TILE;
+		}
+
+		// Pad dimensions -- AddrLib::PadDimensions()
+		if (tpTemp.m_mipLevel > 0 && tpTemp.m_surfaceFlags.m_cube)
+		{
+			numDimensionsToPad = (tpTemp.m_linearDepth > 1) ? 3 : 2;  // pad cubemap sub-levels when we treat it as a 3d texture
+		}
+		if (numDimensionsToPad == 0)
+			numDimensionsToPad = 3;
+		LOG_ASSERT_RETURN(isPowerOfTwo(infoOut->m_pitchAlign), kStatusInternalTilingError, "pitchAlign (%u) must be a power of two.", infoOut->m_pitchAlign);
+		outPitch = (outPitch + infoOut->m_pitchAlign - 1) & ~(infoOut->m_pitchAlign - 1);
+		if (numDimensionsToPad > 1)
+		{
+			LOG_ASSERT_RETURN(isPowerOfTwo(infoOut->m_heightAlign), kStatusInternalTilingError, "heightAlign (%u) must be a power of two.", infoOut->m_heightAlign);
+			outHeight = (outHeight + infoOut->m_heightAlign - 1) & ~(infoOut->m_heightAlign - 1);
+		}
+		if (numDimensionsToPad > 2 || thickness > 1)
+		{
+			// For cubemap single-face, we do not pad slices.
+			// If we pad it, the slice number should be set to 6 and current mip level > 1
+			if (tpTemp.m_surfaceFlags.m_cube)  // && (1 || surfInfoTemp.flags.cubeAsArray))
+				outDepth = nextPowerOfTwo(outDepth);
+			// Normal 3D textures or 2D arrays or cubemaps have a thick mode?
+			if (thickness > 1)
+			{
+				LOG_ASSERT_RETURN(isPowerOfTwo(infoOut->m_depthAlign), kStatusInternalTilingError, "depthAlign (%u) must be a power of two.", infoOut->m_depthAlign);
+				outDepth = (outDepth + infoOut->m_depthAlign - 1) & ~(infoOut->m_depthAlign - 1);
+			}
+		}
+		// DCC-compatible MSAA surfaces require additional pitch padding.
+		const bool dccCompatible = (microTileMode != kMicroTileModeDepth) && (tpTemp.m_minGpuMode >= kGpuModeNeo);
+		if (dccCompatible && tpTemp.m_numFragmentsPerPixel > 1 && tpTemp.m_mipLevel == 0 && isMacroTiled(arrayMode))
+		{
+			SampleSplit sampleSplitHW;
+			TileSplit tileSplitHW;
+			GpuAddress::getSampleSplit(&sampleSplitHW, tpTemp.m_tileMode);
+			GpuAddress::getTileSplit(&tileSplitHW, tpTemp.m_tileMode);
+			uint32_t tileBytes1x = (thickness * bitsPerElement * kMicroTileWidth * kMicroTileHeight + 7) / 8;
+			uint32_t sampleSplit = 1 << sampleSplitHW;
+			uint32_t tileSplit   = (microTileMode == kMicroTileModeDepth)
+									 ? (64 << tileSplitHW)                         // depth modes store the tile split bytes directly
+									 : std::max(256U, sampleSplit * tileBytes1x);  // other modes store a sample split multiplier
+			uint32_t tileSplitBytes = std::min(kDramRowSize, tileSplit);
+
+			uint32_t tileSizePerFragment = (bitsPerElement * kMicroTileWidth * kMicroTileHeight + 7) / 8;
+			uint32_t fragmentsPerSplit   = tileSplitBytes / tileSizePerFragment;
+			if (fragmentsPerSplit < tpTemp.m_numFragmentsPerPixel)
+			{
+				uint32_t dccFastClearByteAlign = numPipes * kPipeInterleaveBytes * 256;
+				uint32_t bytesPerSplit         = (outPitch * outHeight * bitsPerElement * fragmentsPerSplit + 7) / 8;
+				LOG_ASSERT(isPowerOfTwo(dccFastClearByteAlign), "dccFastClearByteAlign is supposed to be a power of two...");
+				if (0 != (bytesPerSplit & (dccFastClearByteAlign - 1)))
+				{
+					uint32_t dccFastClearPixelAlign = dccFastClearByteAlign / ((bitsPerElement + 7) / 8) / fragmentsPerSplit;
+					uint32_t macroTilePixelAlign    = infoOut->m_pitchAlign * infoOut->m_heightAlign;
+					if (dccFastClearPixelAlign >= macroTilePixelAlign &&
+						(dccFastClearPixelAlign % macroTilePixelAlign) == 0)
+					{
+						uint32_t dccFastClearPitchAlignInMacroTile = dccFastClearPixelAlign / macroTilePixelAlign;
+						uint32_t heightInMacroTile                 = outHeight / infoOut->m_heightAlign;
+						while (heightInMacroTile > 1 &&
+							   (heightInMacroTile % 2) == 0 &&
+							   dccFastClearPitchAlignInMacroTile > 1 &&
+							   (dccFastClearPitchAlignInMacroTile % 2) == 0)
+						{
+							heightInMacroTile >>= 1;
+							dccFastClearPitchAlignInMacroTile >>= 1;
+						}
+						uint32_t dccFastClearPitchAlignInPixels = infoOut->m_pitchAlign * dccFastClearPitchAlignInMacroTile;
+						if (isPowerOfTwo(dccFastClearPitchAlignInPixels))
+						{
+							outPitch = (outPitch + dccFastClearPitchAlignInPixels - 1) & ~(dccFastClearPitchAlignInPixels - 1);
+						}
+						else
+						{
+							outPitch += (dccFastClearPitchAlignInPixels - 1);
+							outPitch /= dccFastClearPitchAlignInPixels;
+							outPitch *= dccFastClearPitchAlignInPixels;
+						}
+					}
+				}
+			}
+		}
+
+		// Compute size of a slice
+		uint64_t bytesPerSlice = static_cast<uint64_t>(outPitch) * outHeight * nextPowerOfTwo(bitsPerElement) * tpTemp.m_numFragmentsPerPixel + 7;
+		bytesPerSlice /= 8;  // bits to bytes;
+		// Pad height until the slice slice meets the alignment requirements
+		while (bytesPerSlice & (sliceAlignBytes - 1))
+		{
+			outHeight += infoOut->m_heightAlign;
+			bytesPerSlice = static_cast<uint64_t>(outPitch) * outHeight * nextPowerOfTwo(bitsPerElement) * tpTemp.m_numFragmentsPerPixel + 7;
+			bytesPerSlice /= 8;  // bits to bytes;
+		}
+		// Output!
+		infoOut->m_pitch       = outPitch;
+		infoOut->m_height      = outHeight;
+		infoOut->m_depth       = outDepth;
+		infoOut->m_surfaceSize = bytesPerSlice * outDepth;
+		infoOut->m_arrayMode   = arrayMode;
+	}
+		break;
 	default:
 		LOG_ERR("Invalid arrayMode (0x%02X).", arrayMode);
 		return kStatusInvalidArgument;

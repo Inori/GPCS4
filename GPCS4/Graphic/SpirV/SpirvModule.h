@@ -1141,6 +1141,14 @@ namespace pssl {
             uint32_t                resultType,
             uint32_t                sourceCount,
       const SpirvPhiLabel*          sourceLabels);
+
+	uint32_t opCopyObject(
+			uint32_t				resultType,
+			uint32_t				operand);
+
+	void opCopyMemory(
+			uint32_t				targetId,
+			uint32_t				sourceId);
     
     void opReturn();
     

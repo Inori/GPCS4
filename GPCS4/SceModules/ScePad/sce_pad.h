@@ -58,6 +58,8 @@ int PS4API scePadSetVibration(int32_t handle, const ScePadVibrationParam *pParam
 
 int PS4API scePadRead(int32_t handle, ScePadData *pData, int32_t num);
 
+int PS4API scePadSetTiltCorrectionState(int32_t handle, bool bEnable);
+
 
 
 

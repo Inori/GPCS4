@@ -24,15 +24,13 @@ class PsslShaderModule
 public:
 	PsslShaderModule(const uint32_t* code);
 
-	PsslShaderModule(
-		const uint32_t* code, 
-		const uint32_t* fsCode);
-
 	~PsslShaderModule();
 
 	std::vector<VertexInputSemantic> vsInputSemantic();
 
 	std::vector<InputUsageSlot> inputUsageSlots();
+
+	void defineFetchShader(const uint32_t* fsCode);
 
 	void defineShaderInput(const std::vector<PsslShaderResource>& shaderInputTab);
 

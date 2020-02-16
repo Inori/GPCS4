@@ -65,12 +65,6 @@ PsslShaderModule::PsslShaderModule(const uint32_t* code) :
 #endif  // GPCS4_DUMP_SHADER
 }
 
-PsslShaderModule::PsslShaderModule(const uint32_t* code, const uint32_t* fsCode) :
-	PsslShaderModule(code)
-{
-	parseFetchShader(fsCode);
-}
-
 PsslShaderModule::~PsslShaderModule()
 {
 }
@@ -527,6 +521,11 @@ void PsslShaderModule::runCompiler(GCNCompiler& compiler, GCNCodeSlice slice)
 std::vector<InputUsageSlot> PsslShaderModule::inputUsageSlots()
 {
 	return m_progInfo.inputUsageSlot();
+}
+
+void PsslShaderModule::defineFetchShader(const uint32_t* fsCode)
+{
+	parseFetchShader(fsCode);
 }
 
 void PsslShaderModule::defineShaderInput(const std::vector<PsslShaderResource>& shaderInputTab)
