@@ -381,12 +381,6 @@ void GCNCompiler::emitVectorBitLogic(GCNInstruction& ins)
 		dstVal.id = m_module.opBitwiseAnd(b32TypeId, spvSrc0.id, spvSrc1.id);
 	}
 	break;
-	case SIVOP2Instruction::V_LSHLREV_B32:
-	{
-		dstVal.id = m_module.opShiftLeftLogical(b32TypeId, spvSrc1.id,
-												m_module.opBitwiseAnd(b32TypeId, spvSrc0.id, m_module.constu32(0b11111)));
-	}
-	break;
 	default:
 		LOG_PSSL_UNHANDLED_INST();
 		break;
@@ -433,6 +427,13 @@ void GCNCompiler::emitVectorBitField32(GCNInstruction& ins)
 		dstVal.id      = m_module.opBitFieldUExtract(b32TypeId, spvSrc0.id, offset, count);  // TODO: Not sure
 	}
 		break;
+	case SIVOP2Instruction::V_LSHLREV_B32:
+	case SIVOP3Instruction::V3_LSHLREV_B32:
+	{
+		dstVal.id = m_module.opShiftLeftLogical(b32TypeId, spvSrc1.id,
+												m_module.opBitwiseAnd(b32TypeId, spvSrc0.id, m_module.constu32(0b11111)));
+	}
+	break;
 	default:
 		LOG_PSSL_UNHANDLED_INST();
 		break;

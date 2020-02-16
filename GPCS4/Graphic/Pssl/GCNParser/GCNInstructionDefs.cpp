@@ -269,7 +269,7 @@ std::unordered_map<SIVOP2Instruction::VOP2_OP, GCNInstructionFormat> g_instructi
 	{ SIVOP2Instruction::V_ASHR_I32, { Instruction::InstructionClassUnknown, Instruction::TypeI32 } },
 	{ SIVOP2Instruction::V_ASHRREV_I32, { Instruction::InstructionClassUnknown, Instruction::TypeI32 } },
 	{ SIVOP2Instruction::V_LSHL_B32, { Instruction::InstructionClassUnknown, Instruction::TypeB32 } },
-	{ SIVOP2Instruction::V_LSHLREV_B32, { Instruction::VectorBitLogic, Instruction::TypeB32 } },
+	{ SIVOP2Instruction::V_LSHLREV_B32, { Instruction::VectorBitField32, Instruction::TypeB32 } },
 	{ SIVOP2Instruction::V_AND_B32, { Instruction::VectorBitLogic, Instruction::TypeB32 } },
 	{ SIVOP2Instruction::V_OR_B32, { Instruction::VectorBitLogic, Instruction::TypeB32 } },
 	{ SIVOP2Instruction::V_XOR_B32, { Instruction::VectorBitLogic, Instruction::TypeB32 } },
