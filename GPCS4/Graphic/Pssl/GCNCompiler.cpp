@@ -173,9 +173,12 @@ void GCNCompiler::emitVsInit()
 
 	emitFunctionLabel();
 
-	m_module.opFunctionCall(
-		m_module.defVoidType(),
-		m_vs.fsFunctionId, 0, nullptr);
+	if (m_shaderInput.vsInputSemantics.has_value())
+	{
+		m_module.opFunctionCall(
+			m_module.defVoidType(),
+			m_vs.fsFunctionId, 0, nullptr);
+	}
 
 	// Some initialization steps need to place in function block.
 	emitGprInitializeVS();
