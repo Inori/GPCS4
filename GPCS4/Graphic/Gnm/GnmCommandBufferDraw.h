@@ -22,7 +22,7 @@ struct GnmShaderContext
 {
 	using UDSTVector = std::vector<pssl::PsslShaderResource>;
 	//
-	void*                  code    = nullptr;
+	const void*            code    = nullptr;
 	RcPtr<gve::GveShader>  shader  = nullptr;
 	UDSTVector             userDataSlotTable;
 };
