@@ -58,3 +58,5 @@ int PS4API sceAudioOutOutputs(void);
 int PS4API sceAudioOutSetVolume(void);
 
 
+int PS4API sceAudioOutInitIpmiGetSession(void);
+

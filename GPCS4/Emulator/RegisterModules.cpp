@@ -37,7 +37,14 @@ static bool registerLibC(CSceModuleSystem* pModuleSystem)
 			.declareSubLibrary("libc").with(Policy::UseNative).except
 			({ 
 				0xC5E60EE2EEEEC89DULL, // fopen
-				0xAD0155057A7F0B18ULL, // fssek
+				0xAD0155057A7F0B18ULL, // fseek
+				0x40C1722E8A8DC488ULL, // setvbuf
+				0x48796DEC484EB6A0ULL, // fgetpos
+				0x2F170453E202BBC5ULL, // feof
+				0x004B85DC5D9FF130ULL, // fgetc
+				0x007C7284DF7A772EULL, // ferror
+				0x29D3FF9D42E9B86CULL, // fgets
+				0x8245A09F4A7501F5ULL, // freopen
 				0x41ACF2F0B9974EFCULL, // ftell
 				0x95B07E52566A546DULL, // fread
 				0xBA874B632522A76DULL, // fclose

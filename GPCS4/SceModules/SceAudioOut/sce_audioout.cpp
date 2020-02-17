@@ -106,4 +106,10 @@ int PS4API sceAudioOutSetVolume(void)
 }
 
 
+int PS4API sceAudioOutInitIpmiGetSession(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
 

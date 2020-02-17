@@ -33,6 +33,10 @@ int PS4API sceUserServiceGetInitialUser(SceUserServiceUserId *userId);
 
 int PS4API sceUserServiceInitialize(const SceUserServiceInitializeParams *initParams);
 
+
+int PS4API sceUserServiceInitialize2( void );
+
+
 int PS4API sceUserServiceGetLoginUserIdList(SceUserServiceLoginUserIdList* userIdList);
 
 

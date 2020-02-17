@@ -10,6 +10,7 @@ static const SCE_EXPORT_FUNCTION g_pSceScreenShot_libSceScreenShot_FunctionTable
 {
 	{ 0xB4861FD16E554E2F, "sceScreenShotDisable", (void*)sceScreenShotDisable },
 	{ 0xDB1C54B6E0BF4731, "sceScreenShotEnable", (void*)sceScreenShotEnable },
+	{ 0xef7590e098f49c92, "sceScreenShotSetOverlayImageWithOrigin", (void*)sceScreenShotSetOverlayImageWithOrigin },
 	SCE_FUNCTION_ENTRY_END
 };
 

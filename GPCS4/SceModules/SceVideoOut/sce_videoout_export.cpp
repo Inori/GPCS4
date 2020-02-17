@@ -28,6 +28,7 @@ static const SCE_EXPORT_FUNCTION g_pSceVideoOut_libSceVideoOut_FunctionTable[] =
 	{ 0x20E7601E508653F9, "sceVideoOutSubmitChangeBufferAttribute", (void*)sceVideoOutSubmitChangeBufferAttribute },
 	{ 0x538E8DC0E889A72B, "sceVideoOutSubmitFlip", (void*)sceVideoOutSubmitFlip },
 	{ 0x8FA45A01495A2EFD, "sceVideoOutWaitVblank", (void*)sceVideoOutWaitVblank },
+	{ 0xd456412b2f0778d5, "sceVideoOutGetVblankStatus", (void*)sceVideoOutGetVblankStatus },
 	SCE_FUNCTION_ENTRY_END
 };
 

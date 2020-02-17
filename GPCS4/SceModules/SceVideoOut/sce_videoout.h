@@ -85,3 +85,6 @@ int PS4API sceVideoOutSubmitFlip(void);
 
 int PS4API sceVideoOutWaitVblank(void);
 
+
+int PS4API sceVideoOutGetVblankStatus(void);
+
