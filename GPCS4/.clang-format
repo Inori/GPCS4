@@ -6,6 +6,9 @@ AlignConsecutiveMacros: true
 AllowAllArgumentsOnNextLine: false
 AllowShortFunctionsOnASingleLine: None
 
+AlignConsecutiveDeclarations: true
+BinPackParameters: false
+
 AlwaysBreakTemplateDeclarations: Yes
 BreakBeforeBraces: Allman
 BreakConstructorInitializers: AfterColon
