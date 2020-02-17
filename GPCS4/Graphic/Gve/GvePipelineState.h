@@ -190,7 +190,7 @@ class GveRasterizationInfo
 
 public:
 
-	GveRasterizationInfo() = default;
+	GveRasterizationInfo();
 
 	GveRasterizationInfo(
 		VkBool32              depthClipEnable,
@@ -434,7 +434,7 @@ private:
 class GveColorBlendInfo
 {
 public:
-	GveColorBlendInfo() = default;
+	GveColorBlendInfo();
 	GveColorBlendInfo(
 		VkBool32 logicOpEnable,
 		VkLogicOp logicOp);

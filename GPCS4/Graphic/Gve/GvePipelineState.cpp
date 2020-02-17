@@ -245,7 +245,17 @@ GveRasterizationInfo::GveRasterizationInfo(
 	m_frontFace(uint32_t(frontFace)),
 	m_reserved(0)
 {
+}
 
+GveRasterizationInfo::GveRasterizationInfo() :
+	m_depthClipEnable(0),
+	m_depthBiasEnable(0),
+	m_rasterizerDiscardEnable(uint32_t(0)),
+	m_polygonMode(VK_POLYGON_MODE_FILL),
+	m_cullMode(VK_CULL_MODE_NONE),
+	m_frontFace(VK_FRONT_FACE_COUNTER_CLOCKWISE),
+	m_reserved(0)
+{
 }
 
 VkBool32 GveRasterizationInfo::depthClipEnable() const
@@ -552,6 +562,13 @@ GveColorBlendInfo::GveColorBlendInfo(VkBool32 logicOpEnable, VkLogicOp logicOp):
 	m_reserved(0)
 {
 
+}
+
+GveColorBlendInfo::GveColorBlendInfo() :
+	m_logicOp(0),
+	m_logicOpEnable(0),
+	m_reserved(0)
+{
 }
 
 void GveColorBlendInfo::addAttachment(GveColorBlendAttachment attachment)

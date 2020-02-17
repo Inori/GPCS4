@@ -505,7 +505,8 @@ void GveContext::updateVertexBindings()
 		++bindingCount;
 	}
 
-	m_cmd->cmdBindVertexBuffers(0, bindingCount, buffers.data(), offsets.data());
+	if (bindingCount > 0)
+		m_cmd->cmdBindVertexBuffers(0, bindingCount, buffers.data(), offsets.data());
 
 	m_flags.clr(GveContextFlag::GpDirtyVertexBuffers);
 }
