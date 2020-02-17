@@ -380,7 +380,7 @@ void GCNCompiler::emitVectorBitLogic(GCNInstruction& ins)
 	{
 		dstVal.id = m_module.opBitwiseAnd(b32TypeId, spvSrc0.id, spvSrc1.id);
 	}
-		break;
+	break;
 	default:
 		LOG_PSSL_UNHANDLED_INST();
 		break;
@@ -427,6 +427,13 @@ void GCNCompiler::emitVectorBitField32(GCNInstruction& ins)
 		dstVal.id      = m_module.opBitFieldUExtract(b32TypeId, spvSrc0.id, offset, count);  // TODO: Not sure
 	}
 		break;
+	case SIVOP2Instruction::V_LSHLREV_B32:
+	case SIVOP3Instruction::V3_LSHLREV_B32:
+	{
+		dstVal.id = m_module.opShiftLeftLogical(b32TypeId, spvSrc1.id,
+												m_module.opBitwiseAnd(b32TypeId, spvSrc0.id, m_module.constu32(0b11111)));
+	}
+	break;
 	default:
 		LOG_PSSL_UNHANDLED_INST();
 		break;
@@ -821,7 +828,38 @@ void GCNCompiler::emitVectorFpCmp64(GCNInstruction& ins)
 
 void GCNCompiler::emitVectorIntArith32(GCNInstruction& ins)
 {
-	LOG_PSSL_UNHANDLED_INST();
+	auto op = getVopOpcode(ins);
+
+	uint32_t src0     = 0;
+	uint32_t src1     = 0;
+	uint32_t vdst     = 0;
+	uint32_t src0Ridx = 0;
+	uint32_t src1Ridx = 0;
+	uint32_t vdstRidx = 0;
+	getVopOperands(ins, &vdst, &vdstRidx, &src0, &src0Ridx, &src1, &src1Ridx);
+
+	auto spvSrc0 = emitLoadScalarOperand(src0, src0Ridx, SpirvScalarType::Sint32, ins.literalConst);
+	auto spvSrc1 = emitLoadScalarOperand(src0, src0Ridx, SpirvScalarType::Sint32, ins.literalConst);
+
+	SpirvRegisterValue dstValue;
+	dstValue.type.ctype  = SpirvScalarType::Sint32;
+	dstValue.type.ccount = 1;
+
+	const uint32_t i32TypeId = getScalarTypeId(SpirvScalarType::Sint32);
+
+	switch (op)
+	{
+	case SIVOP2Instruction::V_ADD_I32:
+	{
+		dstValue.id = m_module.opIAdd(i32TypeId, spvSrc0.id, spvSrc1.id);
+	}
+	break;
+	default:
+		LOG_PSSL_UNHANDLED_INST();
+		break;
+	}
+
+	emitStoreVectorOperand(vdstRidx, dstValue);
 }
 
 void GCNCompiler::emitVectorIntArith64(GCNInstruction& ins)
@@ -858,19 +896,28 @@ void GCNCompiler::emitVectorConv(GCNInstruction& ins)
 	{
 		auto spvSrc0 = emitLoadScalarOperand(src0, src0RIdx, SpirvScalarType::Float32, ins.literalConst);
 		auto spvSrc1 = emitLoadVopSrc1(ins, src1, src1RIdx, SpirvScalarType::Float32);
-		dstValue    = emitPackFloat16(
+		dstValue     = emitPackFloat16(
             emitRegisterConcat(spvSrc0, spvSrc1));
 	}
-		break;
+	break;
 	case SIVOP1Instruction::V_CVT_F32_U32:
 	case SIVOP3Instruction::V3_CVT_F32_U32:
 	{
-		auto spvSrc0         = emitLoadScalarOperand(src0, src0RIdx, SpirvScalarType::Float32, ins.literalConst);
-		dstValue.type.ctype = SpirvScalarType::Float32;
+		auto spvSrc0         = emitLoadScalarOperand(src0, src0RIdx, SpirvScalarType::Uint32, ins.literalConst);
+		dstValue.type.ctype  = SpirvScalarType::Float32;
 		dstValue.type.ccount = 1;
-		dstValue.id  = m_module.opConvertUtoF(getScalarTypeId(SpirvScalarType::Float32), spvSrc0.id);
+		dstValue.id          = m_module.opConvertUtoF(getScalarTypeId(SpirvScalarType::Float32), spvSrc0.id);
 	}
-		break;
+	break;
+	case SIVOP1Instruction::V_CVT_F32_I32:
+	case SIVOP3Instruction::V3_CVT_F32_I32:
+	{
+		auto spvSrc0         = emitLoadScalarOperand(src0, src0RIdx, SpirvScalarType::Sint32, ins.literalConst);
+		dstValue.type.ctype  = SpirvScalarType::Float32;
+		dstValue.type.ccount = 1;
+		dstValue.id          = m_module.opConvertStoF(getScalarTypeId(SpirvScalarType::Float32), spvSrc0.id);
+	}
+	break;
 	default:
 		LOG_PSSL_UNHANDLED_INST();
 		break;

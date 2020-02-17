@@ -5,6 +5,7 @@
 #include "GnmConstant.h"
 
 #include "../Pssl/PsslShaderStructure.h"
+#include "../Pssl/PsslEnums.h"
 
 #include <vector>
 
@@ -21,7 +22,7 @@ struct GnmShaderContext
 {
 	using UDSTVector = std::vector<pssl::PsslShaderResource>;
 	//
-	void*                  code    = nullptr;
+	const void*            code    = nullptr;
 	RcPtr<gve::GveShader>  shader  = nullptr;
 	UDSTVector             userDataSlotTable;
 };
@@ -134,7 +135,7 @@ private:
 	void commitPsStage();
 
 	void bindIndexBuffer(const void* indexAddr, uint32_t indexCount);
-	void bindImmConstBuffer(const PsslShaderResource& res);
+	void bindImmConstBuffer(const PsslShaderResource& res, pssl::PsslProgramType prgType);
 	bool bindVertexBuffer(uint32_t bindingId, const GnmBuffer& vsharp);
 	void setVertexInputLayout(
 		const PsslShaderResource& res,

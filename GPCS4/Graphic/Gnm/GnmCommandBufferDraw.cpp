@@ -415,7 +415,17 @@ void GnmCommandBufferDraw::drawIndexAuto(uint32_t indexCount)
 
 void GnmCommandBufferDraw::setEmbeddedVsShader(EmbeddedVsShader shaderId, uint32_t shaderModifier)
 {
-	
+	const static uint8_t embeddedVsShaderFullScreen[] = 
+	{
+		0xFF, 0x03, 0xEB, 0xBE, 0x07, 0x00, 0x00, 0x00, 0x81, 0x00, 0x02, 0x36, 0x81, 0x02, 0x02, 0x34,
+		0xC2, 0x00, 0x00, 0x36, 0xC1, 0x02, 0x02, 0x4A, 0xC1, 0x00, 0x00, 0x4A, 0x01, 0x0B, 0x02, 0x7E,
+		0x00, 0x0B, 0x00, 0x7E, 0x80, 0x02, 0x04, 0x7E, 0xF2, 0x02, 0x06, 0x7E, 0xCF, 0x08, 0x00, 0xF8,
+		0x01, 0x00, 0x02, 0x03, 0x0F, 0x02, 0x00, 0xF8, 0x03, 0x03, 0x03, 0x03, 0x00, 0x00, 0x81, 0xBF,
+		0x4F, 0x72, 0x62, 0x53, 0x68, 0x64, 0x72, 0x07, 0x47, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x9F, 0xC2, 0xF8, 0x47, 0xCF, 0xA5, 0x2D, 0x9B, 0x7D, 0x5B, 0x7C, 0xFF, 0x17, 0x00, 0x00, 0x00
+	};
+	LOG_ASSERT(shaderId == kEmbeddedVsShaderFullScreen, "invalid shader id %d", shaderId);
+	m_vsContext.code = reinterpret_cast<const void*>(embeddedVsShaderFullScreen);
 }
 
 void GnmCommandBufferDraw::updatePsShader(const pssl::PsStageRegisters *psRegs)
@@ -465,7 +475,7 @@ void GnmCommandBufferDraw::commitVsStage()
 			switch (inputSlot.usageType)
 			{
 			case kShaderInputUsageImmConstBuffer:
-				bindImmConstBuffer(*iter);
+				bindImmConstBuffer(*iter, VertexShader);
 				break;
 			case kShaderInputUsagePtrVertexBufferTable:
 			{
@@ -512,6 +522,9 @@ void GnmCommandBufferDraw::commitPsStage()
 			case kShaderInputUsageImmSampler:
 				bindSampler(*iter);
 				break;
+			case kShaderInputUsageImmConstBuffer:
+				bindImmConstBuffer(*iter, PixelShader);
+				break;
 			default:
 				LOG_WARN("unsupported input usage %d", inputSlot.usageType);
 				break;
@@ -551,7 +564,7 @@ void GnmCommandBufferDraw::bindIndexBuffer(const void* indexAddr, uint32_t index
 	} while (false);
 }
 
-void GnmCommandBufferDraw::bindImmConstBuffer(const PsslShaderResource& res)
+void GnmCommandBufferDraw::bindImmConstBuffer(const PsslShaderResource& res, PsslProgramType prgType)
 {
 	// TODO:
 	// For buffers allocated directly from gnm command buffer,
@@ -577,7 +590,7 @@ void GnmCommandBufferDraw::bindImmConstBuffer(const PsslShaderResource& res)
 		
 		m_context->updateBuffer(uniformBuffer, 0, bufferSize, buffer->getBaseAddress());
 
-		uint32_t regSlot = computeConstantBufferBinding(VertexShader, res.startRegister);
+		uint32_t regSlot = computeConstantBufferBinding(prgType, res.startRegister);
 		m_context->bindResourceBuffer(regSlot, uniformBuffer);
 
 	} while (false);
