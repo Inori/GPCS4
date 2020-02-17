@@ -15,6 +15,7 @@ static const SCE_EXPORT_FUNCTION g_pSceAudioOut_libSceAudioOut_FunctionTable[] =
 	{ 0x40E42D6DE0EAB13E, "sceAudioOutOutput", (void*)sceAudioOutOutput },
 	{ 0xC373DD6924D2C061, "sceAudioOutOutputs", (void*)sceAudioOutOutputs },
 	{ 0x6FEB8057CF489711, "sceAudioOutSetVolume", (void*)sceAudioOutSetVolume },
+	{ 0x9f5e8a768c67be5d, "sceAudioOutInitIpmiGetSession", (void*)sceAudioOutInitIpmiGetSession },
 	SCE_FUNCTION_ENTRY_END
 };
 

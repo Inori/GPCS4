@@ -66,7 +66,7 @@ void *PS4API sceKernelGetProcParam(uint64_t p1, uint64_t p2);
 int PS4API sceKernelAllocateDirectMemory(sce_off_t searchStart, sce_off_t searchEnd, size_t len, size_t alignment, int memoryType, sce_off_t *physAddrOut);
 
 
-int PS4API sceKernelClockGettime(void);
+int PS4API sceKernelClockGettime(sce_clockid_t clk_id, struct sce_timespec * tp);
 
 
 int PS4API sceKernelClose(int d);

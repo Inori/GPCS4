@@ -279,3 +279,10 @@ int PS4API sceVideoOutWaitVblank(void)
 	return SCE_OK;
 }
 
+
+int PS4API sceVideoOutGetVblankStatus( void )
+{
+	LOG_SCE_GRAPHIC("Not implemented");
+	return SCE_OK;
+}
+

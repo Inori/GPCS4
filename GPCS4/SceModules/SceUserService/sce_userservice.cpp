@@ -19,6 +19,13 @@ int PS4API sceUserServiceInitialize(const SceUserServiceInitializeParams *initPa
 }
 
 
+int PS4API sceUserServiceInitialize2( void )
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
 int PS4API sceUserServiceTerminate(void)
 {
 	LOG_FIXME("Not implemented");

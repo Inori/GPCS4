@@ -51,10 +51,9 @@ int PS4API _sceKernelSetThreadAtexitReport()
 	return SCE_OK;
 }
 
-int PS4API sceKernelClockGettime(void)
+int PS4API sceKernelClockGettime(sce_clockid_t clk_id, struct sce_timespec * tp)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	return scek_clock_gettime(clk_id, tp);
 }
 
 int PS4API sceKernelGetCpumode(void)

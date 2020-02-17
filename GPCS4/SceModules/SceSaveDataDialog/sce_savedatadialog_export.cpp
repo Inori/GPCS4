@@ -12,6 +12,8 @@ static const SCE_EXPORT_FUNCTION g_pSceSaveDataDialog_libSceSaveDataDialog_Funct
 	{ 0xE2D3E1B0FE85A432, "sceSaveDataDialogOpen", (void*)sceSaveDataDialogOpen },
 	{ 0x62E1F6140EDACEA4, "sceSaveDataDialogTerminate", (void*)sceSaveDataDialogTerminate },
 	{ 0x28ADC1760D5158AD, "sceSaveDataDialogUpdateStatus", (void*)sceSaveDataDialogUpdateStatus },
+	{ 0xc84889feaaabe828, "sceSaveDataDialogGetResult", (void*)sceSaveDataDialogGetResult },
+	{ 0x85acb509f4e62f20, "sceSaveDataDialogProgressBarSetValue", (void*)sceSaveDataDialogProgressBarSetValue },
 	SCE_FUNCTION_ENTRY_END
 };
 

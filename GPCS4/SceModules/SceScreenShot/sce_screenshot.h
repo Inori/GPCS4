@@ -31,5 +31,5 @@ int PS4API sceScreenShotDisable(void);
 int PS4API sceScreenShotEnable(void);
 
 
-
+int PS4API sceScreenShotSetOverlayImageWithOrigin(void);
 

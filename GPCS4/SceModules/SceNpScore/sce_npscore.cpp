@@ -18,6 +18,13 @@ int PS4API sceNpScoreCreateNpTitleCtx(void)
 }
 
 
+int PS4API sceNpScoreCreateNpTitleCtxA(void)
+{
+	LOG_SCE_DUMMY_IMPL();
+	return 1;
+}
+
+
 int PS4API sceNpScoreCreateRequest(void)
 {
 	LOG_FIXME("Not implemented");

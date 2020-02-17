@@ -40,6 +40,13 @@ int PS4API sceSaveDataInitialize3(void)
 }
 
 
+int PS4API sceSaveDataMount(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
 int PS4API sceSaveDataMount2(void)
 {
 	LOG_FIXME("Not implemented");

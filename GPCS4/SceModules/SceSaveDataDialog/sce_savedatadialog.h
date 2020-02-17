@@ -37,5 +37,8 @@ int PS4API sceSaveDataDialogTerminate(void);
 int PS4API sceSaveDataDialogUpdateStatus(void);
 
 
+int PS4API sceSaveDataDialogGetResult(void);
 
+
+int PS4API sceSaveDataDialogProgressBarSetValue(void);
 
