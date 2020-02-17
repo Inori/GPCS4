@@ -945,14 +945,14 @@ void GnmCmdStream::onSetRenderTarget(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody
 	{
 		uint32_t rtSlot = (setCtxPacket->bitfields2.reg_offset - 0x318) / 15;
 
-		RenderTarget target;
+		GnmRenderTarget target;
 		std::memcpy(&target.m_regs[0], &itBody[1], sizeof(uint32_t) * setCtxPacket->header.count);  
 
 		// Get the next nop packet, which is used to hold width and height information.
 		auto nopPacket                              = getNextPm4(pm4Hdr);
 		uint32_t* nopBody                           = reinterpret_cast<uint32_t*>(nopPacket) + 1;
 		uint32_t packWidthHeight                    = nopBody[0];
-		target.m_regs[RenderTarget::kCbWidthHeight] = packWidthHeight;
+		target.m_regs[GnmRenderTarget::kCbWidthHeight] = packWidthHeight;
 
 		m_cb->setRenderTarget(rtSlot, &target);
 

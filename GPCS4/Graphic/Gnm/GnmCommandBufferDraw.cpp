@@ -189,7 +189,7 @@ void GnmCommandBufferDraw::setHardwareScreenOffset(uint32_t offsetX, uint32_t of
 
 }
 
-void GnmCommandBufferDraw::setRenderTarget(uint32_t rtSlot, RenderTarget const *target)
+void GnmCommandBufferDraw::setRenderTarget(uint32_t rtSlot, GnmRenderTarget const *target)
 {
 	do 
 	{

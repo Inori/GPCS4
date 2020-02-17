@@ -19,7 +19,7 @@ union RenderTargetInitFlags
 	int32_t asInt;
 };
 
-class RenderTarget
+class GnmRenderTarget
 {
 public:
 	enum

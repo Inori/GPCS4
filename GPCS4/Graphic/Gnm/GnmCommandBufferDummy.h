@@ -78,7 +78,7 @@ public:
 	virtual void setPsShader(const pssl::PsStageRegisters *psRegs) override;
 
 
-	virtual void setRenderTarget(uint32_t rtSlot, RenderTarget const *target) override;
+	virtual void setRenderTarget(uint32_t rtSlot, GnmRenderTarget const *target) override;
 
 
 	virtual void setRenderTargetMask(uint32_t mask) override;

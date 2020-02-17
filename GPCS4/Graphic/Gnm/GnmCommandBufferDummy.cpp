@@ -116,7 +116,7 @@ void GnmCommandBufferDummy::setPsShader(const pssl::PsStageRegisters *psRegs)
 	
 }
 
-void GnmCommandBufferDummy::setRenderTarget(uint32_t rtSlot, RenderTarget const *target)
+void GnmCommandBufferDummy::setRenderTarget(uint32_t rtSlot, GnmRenderTarget const *target)
 {
 	
 }

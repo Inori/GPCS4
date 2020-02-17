@@ -97,7 +97,7 @@ public:
 
 	virtual void setHardwareScreenOffset(uint32_t offsetX, uint32_t offsetY) override;
 
-	virtual void setRenderTarget(uint32_t rtSlot, RenderTarget const *target) override;
+	virtual void setRenderTarget(uint32_t rtSlot, GnmRenderTarget const *target) override;
 
 	virtual void setDepthRenderTarget(DepthRenderTarget const *depthTarget) override;
 
