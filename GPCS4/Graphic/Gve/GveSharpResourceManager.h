@@ -37,12 +37,14 @@ public:
 
 	/// Buffer
 
-	RcPtr<GveBuffer> createOrGetIndexBuffer(
+	RcPtr<GveBuffer> createIndexBuffer(
 		const GveBufferCreateInfo& info,
 		VkMemoryPropertyFlags memoryType,
 		const void* address);
 
-	void freeIndexBuffer(const void* address);
+	RcPtr<GveBuffer> getIndexBuffer(const void* address);
+
+	void releaseIndexBuffer(const void* address);
 
 	/**
 	 * \brief Create a buffer correspond to a V# buffer
@@ -50,17 +52,19 @@ public:
 	 * For this type of buffer, we don't know when it will be released,
 	 * so we need to hold a reference count inside the GveResourceManager class
 	 */
-	RcPtr<GveBuffer> createOrGetBufferVsharp(
+	RcPtr<GveBuffer> createBufferVsharp(
 		const GveBufferCreateInfo&	info,
 		VkMemoryPropertyFlags		memoryType,
 		const VSharpBuffer&			vsharp);
 
+	RcPtr<GveBuffer> getBufferVsharp(const VSharpBuffer& vsharp);
+
 	/**
-	 * \brief Free a buffer
+	 * \brief Release a buffer
 	 *
-	 * Free a buffer created with createBufferVsharp
+	 * Release a buffer created with createBufferVsharp
 	 */
-	void freeBufferVsharp(const VSharpBuffer& vsharp);
+	void releaseBufferVsharp(const VSharpBuffer& vsharp);
 
 	/// Image
 
@@ -70,26 +74,30 @@ public:
 	 * For this type of buffer, we don't know when it will be released,
 	 * so we need to hold a reference count inside the GveResourceManager class
 	 */
-	RcPtr<GveImage> createOrGetImageTsharp(
+	RcPtr<GveImage> createImageTsharp(
 		const GveImageCreateInfo&	info,
 		VkMemoryPropertyFlags		memoryType,
 		const TSharpBuffer&			tsharp);
 
+	RcPtr<GveImage> getImageTsharp(const TSharpBuffer& tsharp);
+
 	/**
-	 * \brief Free a image
+	 * \brief Release a image
 	 *
-	 * Free a image created with createImageTsharp
+	 * Release a image created with createImageTsharp
 	 */
-	void freeImageTsharp(const TSharpBuffer& tsharp);
+	void releaseImageTsharp(const TSharpBuffer& tsharp);
 
 	/// Image View
 
-	RcPtr<GveImageView> createOrGetImageViewTsharp(
+	RcPtr<GveImageView> createImageViewTsharp(
 		const RcPtr<GveImage>&            image,
 		const GveImageViewCreateInfo&     createInfo,
 		const TSharpBuffer&				  tsharp);
 
-	void freeImageViewTsharp(const TSharpBuffer& tsharp);
+	RcPtr<GveImageView> getImageViewTsharp(const TSharpBuffer& tsharp);
+
+	void releaseImageViewTsharp(const TSharpBuffer& tsharp);
 
 	/// Sampler
 
@@ -99,31 +107,32 @@ public:
 	 * For this type of sampler, we don't know when it will be released,
 	 * so we need to hold a reference count inside the GveResourceManager class
 	 */
-	RcPtr<GveSampler> createOrGetSamplerSsharp(
+	RcPtr<GveSampler> createSamplerSsharp(
 		const GveSamplerCreateInfo&		info,
 		const SSharpBuffer&				ssharp);
 
+	RcPtr<GveSampler> getSamplerSsharp(const SSharpBuffer& ssharp);
 	/**
-	 * \brief Free a sampler
+	 * \brief Release a sampler
 	 *
-	 * Free a sampler created with createSamplerSsharp
+	 * Release a sampler created with createSamplerSsharp
 	 */
-	void freeSamplerSsharp(const SSharpBuffer& ssharp);
+	void releaseSamplerSsharp(const SSharpBuffer& ssharp);
 
 	/**
 	 * \brief Garbage collect
 	 *
 	 */
-	void GC();
+	void gc();
 
 private:
 	template <typename T>
 	uint64_t calculateKey(const T& sharp);
 
-	RcPtr<gve::GveBuffer> createOrGetBuffer(
-		const GveBufferCreateInfo& info, 
-		VkMemoryPropertyFlags memoryType, 
-		uint64_t key);
+	RcPtr<gve::GveBuffer> createBuffer(
+		const GveBufferCreateInfo& info,
+		VkMemoryPropertyFlags      memoryType,
+		uint64_t                   key);
 
 private:
 	GveDevice* m_device;

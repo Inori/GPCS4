@@ -552,11 +552,15 @@ void GnmCommandBufferDraw::bindIndexBuffer(const void* indexAddr, uint32_t index
 		info.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
 
 		uint64_t key = reinterpret_cast<uint64_t>(indexAddr);
-		auto indexBuffer = m_sharpRes.createOrGetIndexBuffer(
-			info,								 
-			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-			indexAddr);
-
+		auto     indexBuffer = m_sharpRes.getIndexBuffer(indexAddr);
+		if (!indexBuffer)
+		{
+			indexBuffer = m_sharpRes.createIndexBuffer(
+				info,
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+				indexAddr);
+		}
+		
 		m_context->updateBuffer(indexBuffer, 0, indexBufferSize, indexAddr);
 
 		m_context->bindIndexBuffer(indexBuffer, m_indexType);
@@ -583,11 +587,15 @@ void GnmCommandBufferDraw::bindImmConstBuffer(const PsslShaderResource& res, Pss
 		info.size = bufferSize;
 		info.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
 
-		auto uniformBuffer = m_sharpRes.createOrGetBufferVsharp(
-			info, 
-			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
-			buffer->getVsharp());
-		
+		auto uniformBuffer = m_sharpRes.getBufferVsharp(buffer->getVsharp());
+		if (!uniformBuffer)
+		{
+			uniformBuffer = m_sharpRes.createBufferVsharp(
+				info,
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+				buffer->getVsharp());
+		}
+
 		m_context->updateBuffer(uniformBuffer, 0, bufferSize, buffer->getBaseAddress());
 
 		uint32_t regSlot = computeConstantBufferBinding(prgType, res.startRegister);
@@ -669,10 +677,15 @@ bool GnmCommandBufferDraw::bindVertexBuffer(uint32_t bindingId, const GnmBuffer&
 		buffInfo.size = bufferSize;
 		buffInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 
-		auto vertexBuffer = m_sharpRes.createOrGetBufferVsharp(
-			buffInfo, 
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
-			vsharp.getVsharp());
+		auto vertexBuffer = m_sharpRes.getBufferVsharp(vsharp.getVsharp());
+		if (!vertexBuffer)
+		{
+			vertexBuffer = m_sharpRes.createBufferVsharp(
+				buffInfo,
+				VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+				vsharp.getVsharp());
+		}
+
 		m_context->updateBuffer(vertexBuffer, 0, bufferSize, vtxData);
 
 		uint32_t stride = vsharp.getStride();
@@ -727,11 +740,15 @@ void GnmCommandBufferDraw::bindImmResource(const PsslShaderResource& res)
 		imgInfo.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 		imgInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
-		auto texture = m_sharpRes.createOrGetImageTsharp(
-			imgInfo, 
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
-			tsharp->getTsharp());
-
+		auto texture = m_sharpRes.getImageTsharp(tsharp->getTsharp());
+		if (!texture)
+		{
+			texture = m_sharpRes.createImageTsharp(
+				imgInfo,
+				VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+				tsharp->getTsharp());
+		}
+		
 		VkDeviceSize imageBufferSize = tsharp->getSizeAlign().m_size;
 		void* data                   = util::gnmGpuAbsAddr((void*)res.resource, tsharp->getBaseAddress());
 
@@ -761,8 +778,11 @@ void GnmCommandBufferDraw::bindImmResource(const PsslShaderResource& res)
 		viewInfo.format = imgInfo.format;
 		viewInfo.usage  = imgInfo.usage;
 		viewInfo.aspect = VK_IMAGE_ASPECT_COLOR_BIT;
-		auto texView    = m_sharpRes.createOrGetImageViewTsharp(texture, viewInfo, tsharp->getTsharp());
-
+		auto texView    = m_sharpRes.getImageViewTsharp(tsharp->getTsharp());
+		if (!texView)
+		{
+			texView = m_sharpRes.createImageViewTsharp(texture, viewInfo, tsharp->getTsharp());
+		}
 		uint32_t regSlot = computeResBinding(PixelShader, res.startRegister);
 		m_context->bindResourceView(regSlot, texView, nullptr);
 
@@ -784,7 +804,11 @@ void GnmCommandBufferDraw::bindSampler(const PsslShaderResource& res)
 		// TODO:
 		// Fill info
 		GveSamplerCreateInfo info;
-		auto sampler = m_sharpRes.createOrGetSamplerSsharp(info, ssharp->getSsharp());
+		auto                 sampler = m_sharpRes.getSamplerSsharp(ssharp->getSsharp());
+		if (!sampler)
+		{
+			sampler = m_sharpRes.createSamplerSsharp(info, ssharp->getSsharp());
+		}
 
 		uint32_t regSlot = computeSamplerBinding(PixelShader, res.startRegister);
 		m_context->bindSampler(regSlot, sampler);

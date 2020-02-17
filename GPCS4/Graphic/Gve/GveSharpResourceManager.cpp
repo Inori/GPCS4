@@ -19,16 +19,26 @@ GveSharpResourceManager::GveSharpResourceManager(GveDevice* device):
 
 GveSharpResourceManager::~GveSharpResourceManager()
 {
-	GC();
+	gc();
 }
 
-RcPtr<gve::GveBuffer> GveSharpResourceManager::createOrGetIndexBuffer(const GveBufferCreateInfo& info, VkMemoryPropertyFlags memoryType, const void* address)
+RcPtr<gve::GveBuffer> GveSharpResourceManager::createIndexBuffer(
+	const GveBufferCreateInfo& info,
+	VkMemoryPropertyFlags      memoryType,
+	const void*                address)
 {
 	uint64_t key = reinterpret_cast<uint64_t>(address);
-	return createOrGetBuffer(info, memoryType, key);
+	return createBuffer(info, memoryType, key);
 }
 
-void GveSharpResourceManager::freeIndexBuffer(const void* address)
+RcPtr<gve::GveBuffer> GveSharpResourceManager::getIndexBuffer(const void* address)
+{
+	uint64_t key = reinterpret_cast<uint64_t>(address);
+	auto     iter = m_buffers.find(key);
+	return iter != m_buffers.end() ? iter->second : nullptr;
+}
+
+void GveSharpResourceManager::releaseIndexBuffer(const void* address)
 {
 	uint64_t key = reinterpret_cast<uint64_t>(address);
 	m_buffers.erase(key);
@@ -38,117 +48,113 @@ template <typename T>
 uint64_t gve::GveSharpResourceManager::calculateKey(const T& sharp)
 {
 	// TODO:
-	// Just hashing vsharp as the key is not correct theoretically,
+	// Just hashing sharp as the key is not correct theoretically,
 	// because the buffer content themselves could be different
-	// while still using the same vsharp.
+	// while still using the same sharp.
 	return algo::MurmurHash(&sharp, sizeof(T));
 }
 
-RcPtr<gve::GveBuffer> GveSharpResourceManager::createOrGetBuffer(const GveBufferCreateInfo& info, VkMemoryPropertyFlags memoryType, uint64_t key)
+RcPtr<gve::GveBuffer> GveSharpResourceManager::createBuffer(
+	const GveBufferCreateInfo& info,
+	VkMemoryPropertyFlags      memoryType,
+	uint64_t                   key)
 {
-	RcPtr<GveBuffer> bufferPtr;
-	
-	auto iter    = m_buffers.find(key);
-	if (iter == m_buffers.end())
-	{
-		auto buffer = m_device->createBuffer(info, memoryType);
-		auto pair   = m_buffers.emplace(key, buffer);
-		bufferPtr   = pair.first->second;
-	}
-	else
-	{
-		bufferPtr = iter->second;
-	}
-	return bufferPtr;
+	auto buffer = m_device->createBuffer(info, memoryType);
+	m_buffers.emplace(key, buffer);
+	return buffer;
 }
 
-RcPtr<gve::GveBuffer> GveSharpResourceManager::createOrGetBufferVsharp(const GveBufferCreateInfo& info, VkMemoryPropertyFlags memoryType, const VSharpBuffer& vsharp)
+RcPtr<gve::GveBuffer> GveSharpResourceManager::createBufferVsharp(
+	const GveBufferCreateInfo& info,
+	VkMemoryPropertyFlags      memoryType,
+	const VSharpBuffer&        vsharp)
 {
 	uint64_t key = calculateKey(vsharp);
-	return createOrGetBuffer(info, memoryType, key);
+	return createBuffer(info, memoryType, key);
 }
 
+RcPtr<gve::GveBuffer> GveSharpResourceManager::getBufferVsharp(const VSharpBuffer& vsharp)
+{
+	uint64_t key  = calculateKey(vsharp);
+	auto     iter = m_buffers.find(key);
+	return iter != m_buffers.end() ? iter->second : nullptr;
+}
 
-
-void GveSharpResourceManager::freeBufferVsharp(const VSharpBuffer& vsharp)
+void GveSharpResourceManager::releaseBufferVsharp(const VSharpBuffer& vsharp)
 {
 	uint64_t key = calculateKey(vsharp);
 	m_buffers.erase(key);
 }
 
-RcPtr<gve::GveImage> GveSharpResourceManager::createOrGetImageTsharp(const GveImageCreateInfo& info, VkMemoryPropertyFlags memoryType, const TSharpBuffer& tsharp)
+RcPtr<gve::GveImage> GveSharpResourceManager::createImageTsharp(const GveImageCreateInfo& info, VkMemoryPropertyFlags memoryType, const TSharpBuffer& tsharp)
 {
-	RcPtr<GveImage> imagePtr;
-	uint64_t key = calculateKey(tsharp);
-	auto iter = m_images.find(key);
-	if (iter == m_images.end())
-	{
-		auto image = m_device->createImage(info, memoryType);
-		auto pair  = m_images.emplace(key, image);
-		imagePtr   = pair.first->second;
-	}
-	else
-	{
-		imagePtr = iter->second;
-	}
-	return imagePtr;
+	uint64_t key   = calculateKey(tsharp);
+	auto     image = m_device->createImage(info, memoryType);
+	m_images.emplace(key, image);
+	return image;
 }
 
-void GveSharpResourceManager::freeImageTsharp(const TSharpBuffer& tsharp)
+RcPtr<gve::GveImage> GveSharpResourceManager::getImageTsharp(const TSharpBuffer& tsharp)
+{
+	uint64_t key  = calculateKey(tsharp);
+	auto     iter = m_images.find(key);
+	return iter != m_images.end() ? iter->second : nullptr;
+}
+
+void GveSharpResourceManager::releaseImageTsharp(const TSharpBuffer& tsharp)
 {
 	uint64_t key = calculateKey(tsharp);
 	m_images.erase(key);
 }
 
-RcPtr<gve::GveImageView> GveSharpResourceManager::createOrGetImageViewTsharp(const RcPtr<GveImage>& image, const GveImageViewCreateInfo& createInfo, const TSharpBuffer& tsharp)
+RcPtr<gve::GveImageView> GveSharpResourceManager::createImageViewTsharp(
+	const RcPtr<GveImage>&        image,
+	const GveImageViewCreateInfo& createInfo,
+	const TSharpBuffer&           tsharp)
 {
-	RcPtr<GveImageView> imageViewPtr;
-	uint64_t key = calculateKey(tsharp);
-	auto iter = m_imageViews.find(key);
-	if (iter == m_imageViews.end())
-	{
-		auto imageView = m_device->createImageView(image, createInfo);
-		auto pair      = m_imageViews.emplace(key, imageView);
-		imageViewPtr   = pair.first->second;
-	}
-	else
-	{
-		imageViewPtr = iter->second;
-	}
-	return imageViewPtr;
+	uint64_t key       = calculateKey(tsharp);
+	auto     imageView = m_device->createImageView(image, createInfo);
+	m_imageViews.emplace(key, imageView);
+	return imageView;
 }
 
-void GveSharpResourceManager::freeImageViewTsharp(const TSharpBuffer& tsharp)
+RcPtr<gve::GveImageView> GveSharpResourceManager::getImageViewTsharp(const TSharpBuffer& tsharp)
+{
+	uint64_t key  = calculateKey(tsharp);
+	auto     iter = m_imageViews.find(key);
+	return iter != m_imageViews.end() ? iter->second : nullptr;
+}
+
+void GveSharpResourceManager::releaseImageViewTsharp(const TSharpBuffer& tsharp)
 {
 	uint64_t key = calculateKey(tsharp);
 	m_imageViews.erase(key);
 }
 
-RcPtr<gve::GveSampler> GveSharpResourceManager::createOrGetSamplerSsharp(const GveSamplerCreateInfo& info, const SSharpBuffer& ssharp)
+RcPtr<gve::GveSampler> GveSharpResourceManager::createSamplerSsharp(
+	const GveSamplerCreateInfo& info,
+	const SSharpBuffer&         ssharp)
 {
-	RcPtr<GveSampler> samplerPtr;
-	uint64_t key = calculateKey(ssharp);
-	auto iter = m_samplers.find(key);
-	if (iter == m_samplers.end())
-	{
-		auto sampler = m_device->createSampler(info);
-		auto pair    = m_samplers.emplace(key, sampler);
-		samplerPtr   = pair.first->second;
-	}
-	else
-	{
-		samplerPtr = iter->second;
-	}
-	return samplerPtr;
+	uint64_t key     = calculateKey(ssharp);
+	auto     sampler = m_device->createSampler(info);
+	m_samplers.emplace(key, sampler);
+	return sampler;
 }
 
-void GveSharpResourceManager::freeSamplerSsharp(const SSharpBuffer& ssharp)
+RcPtr<gve::GveSampler> GveSharpResourceManager::getSamplerSsharp(const SSharpBuffer& ssharp)
+{
+	uint64_t key  = calculateKey(ssharp);
+	auto     iter = m_samplers.find(key);
+	return iter != m_samplers.end() ? iter->second : nullptr;
+}
+
+void GveSharpResourceManager::releaseSamplerSsharp(const SSharpBuffer& ssharp)
 {
 	uint64_t key = calculateKey(ssharp);
 	m_samplers.erase(key);
 }
 
-void GveSharpResourceManager::GC()
+void GveSharpResourceManager::gc()
 {
 	m_buffers.clear();
 	m_imageViews.clear();
