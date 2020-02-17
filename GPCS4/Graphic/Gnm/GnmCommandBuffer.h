@@ -39,7 +39,7 @@ public:
 	//virtual void disableOrderedAppendAllocationCounter(uint32_t oaCounterIndex) = 0;
 	//virtual void dispatchDraw(PrimitiveType primType, uint32_t indexOffset, uint32_t primGroupIndexCount, uint32_t primGroupThreshold, uint32_t pollIntervalThreshold, DispatchDrawMode dispatchDrawMode, uint32_t sgprVrbLoc, DrawModifier modifier) = 0;
 	virtual void dispatch(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ) = 0;
-	//virtual void dispatchWithOrderedAppend(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ, DispatchOrderedAppendMode orderedAppendMode) = 0;
+	virtual void dispatchWithOrderedAppend(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ, DispatchOrderedAppendMode orderedAppendMode) = 0;
 	//virtual void dmaData(DmaDataDst	dstSel, uint64_t dst, DmaDataSrc srcSel, uint64_t srcOrData, uint32_t numBytes, DmaDataBlockingMode isBlocking) = 0;
 	virtual void drawIndexAuto(uint32_t indexCount, DrawModifier modifier) = 0;
 	virtual void drawIndexAuto(uint32_t indexCount) = 0;
@@ -140,7 +140,7 @@ public:
 	//virtual void setComputeResourceManagement(ShaderEngine engine, uint16_t mask) = 0;
 	//virtual void setComputeScratchSize(uint32_t maxNumWaves, uint32_t num1KByteChunksPerWave) = 0;
 	//virtual void setComputeShaderControl(uint32_t wavesPerSh, uint32_t threadgroupsPerCu, uint32_t lockThreshold) = 0;
-	//virtual void setCsShader(const CsStageRegisters *csRegs, uint32_t shaderModifier) = 0;
+	virtual void setCsShader(const pssl::CsStageRegisters* csRegs, uint32_t shaderModifier) = 0;
 	//virtual void setDbCountControl(DbCountControlPerfectZPassCounts perfectZPassCounts, uint32_t log2SampleRate) = 0;
 	//virtual void setDbRenderControl(DbRenderControl reg) = 0;
 	//virtual void setDepthBoundsRange(float depthBoundsMin, float depthBoundsMax) = 0;
@@ -246,8 +246,8 @@ public:
 	//virtual void waitForGraphicsWrites(uint32_t baseAddr256, uint32_t sizeIn256ByteBlocks, uint32_t targetMask, CacheAction cacheAction, uint32_t extendedCacheMask,
 	//	StallCommandBufferParserMode commandBufferStallMode) = 0;
 	//virtual void waitForSetupDispatchDrawKickRingBuffer(uint32_t krbCount, uint32_t gdsDwOffsetKrb, uint32_t gdsDwOffsetKrbCounters, void *addrIrb, uint32_t sizeofIrbInBytes) = 0;
-	//virtual void waitOnAddress(void *gpuAddr, uint32_t mask, WaitCompareFunc compareFunc, uint32_t refValue) = 0;
-	//virtual void waitOnAddressAndStallCommandBufferParser(void *gpuAddr, uint32_t mask, uint32_t refValue) = 0;
+	virtual void waitOnAddress(void *gpuAddr, uint32_t mask, WaitCompareFunc compareFunc, uint32_t refValue) = 0;
+	virtual void waitOnAddressAndStallCommandBufferParser(void *gpuAddr, uint32_t mask, uint32_t refValue) = 0;
 	//virtual void waitOnCe() = 0;
 	//virtual void waitOnRegister(uint16_t gpuReg, uint32_t mask, WaitCompareFunc compareFunc, uint32_t refValue) = 0;
 	//virtual void waitSemaphore(uint64_t* semAddr, SemaphoreWaitBehavior behavior) = 0;

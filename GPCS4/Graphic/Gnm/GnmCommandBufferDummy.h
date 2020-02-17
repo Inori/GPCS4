@@ -128,6 +128,18 @@ public:
 
 	virtual void dispatch(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ) override;
 
+
+	virtual void waitOnAddress(void* gpuAddr, uint32_t mask, WaitCompareFunc compareFunc, uint32_t refValue) override;
+
+
+	virtual void waitOnAddressAndStallCommandBufferParser(void* gpuAddr, uint32_t mask, uint32_t refValue) override;
+
+
+virtual void dispatchWithOrderedAppend(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ, DispatchOrderedAppendMode orderedAppendMode) override;
+
+
+virtual void setCsShader(const pssl::CsStageRegisters* csRegs, uint32_t shaderModifier) override;
+
 private:
 
 };

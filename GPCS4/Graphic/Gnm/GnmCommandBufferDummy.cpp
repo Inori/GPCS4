@@ -200,3 +200,23 @@ void GnmCommandBufferDummy::dispatch(uint32_t threadGroupX, uint32_t threadGroup
 {
 	
 }
+
+void GnmCommandBufferDummy::waitOnAddress(void* gpuAddr, uint32_t mask, WaitCompareFunc compareFunc, uint32_t refValue)
+{
+	
+}
+
+void GnmCommandBufferDummy::waitOnAddressAndStallCommandBufferParser(void* gpuAddr, uint32_t mask, uint32_t refValue)
+{
+	
+}
+
+void GnmCommandBufferDummy::dispatchWithOrderedAppend(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ, DispatchOrderedAppendMode orderedAppendMode)
+{
+	
+}
+
+void GnmCommandBufferDummy::setCsShader(const pssl::CsStageRegisters* csRegs, uint32_t shaderModifier)
+{
+	
+}

@@ -2,6 +2,21 @@
 #include "UtilBit.h"
 #include "GnmGfx9MePm4Packets.h"
 
+// *******
+// Important Note:
+// *******
+//
+// When parsing a PM4 packet, consider to cast PM4 packet to proper structure type
+// defined in GnmGfx9MePm4Packets.h first, if there's no proper definition, 
+// see si_ci_vi_merged_pm4defs.h next.
+//
+// But also note, some structures are defined better in GnmGfx9MePm4Packets.h,
+// others are better in si_ci_vi_merged_pm4defs.h.
+// We'd better see both, and then choose the best version.
+// 
+// If it's in si_ci_vi_merged_pm4defs.h, please copy it to GnmGfx9MePm4Packets.h and reformat code style.
+
+
 LOG_CHANNEL(Graphic.Gnm.GnmCmdStream);
 
 const uint32_t c_stageBases[kShaderStageCount] = { 0x2E40, 0x2C0C, 0x2C4C, 0x2C8C, 0x2CCC, 0x2D0C, 0x2D4C };
@@ -390,7 +405,23 @@ void GnmCmdStream::onMemSemaphore(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 
 void GnmCmdStream::onWaitRegMem(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 {
+	PPM4ME_WAIT_REG_MEM packet = (PPM4ME_WAIT_REG_MEM)pm4Hdr;
 
+	void* gpuAddr = reinterpret_cast<void*>(util::buildUint64(packet->pollAddressHi, packet->pollAddressLo));
+	switch (packet->engine)
+	{
+	case engine_sel__me_wait_reg_mem__me:
+		m_cb->waitOnAddress(gpuAddr, packet->mask, (WaitCompareFunc)packet->function, packet->reference);
+		break;
+	case engine_sel__me_wait_reg_mem__pfp:
+		m_cb->waitOnAddressAndStallCommandBufferParser(gpuAddr, packet->mask, packet->reference);
+		break;
+	case engine_sel__me_wait_reg_mem__ce:
+		LOG_FIXME("Not implemented.");
+		break;
+	default:
+		break;
+	}
 }
 
 void GnmCmdStream::onIndirectBuffer(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
@@ -735,6 +766,12 @@ void GnmCmdStream::onGnmPrivate(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 		m_cb->setPsShader(&param->psRegs);
 	}
 		break;
+	case OP_PRIV_SET_CS_SHADER:
+	{
+		GnmCmdCSShader* param = (GnmCmdCSShader*)pm4Hdr;
+		m_cb->setCsShader(&param->csRegs, param->modifier);
+	}
+		break;
 	case OP_PRIV_SET_ES_SHADER:
 		break;
 	case OP_PRIV_SET_GS_SHADER:
@@ -803,9 +840,19 @@ void GnmCmdStream::onGnmPrivate(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 		break;
 	case OP_PRIV_SET_MARKER:
 		break;
-	case OP_PRIV_SET_CS_SHADER:
-		break;
 	case OP_PRIV_DISPATCH_DIRECT:
+	{
+		GnmCmdDispatchDirect*     param = (GnmCmdDispatchDirect*)pm4Hdr;
+		DispatchOrderedAppendMode mode  = (DispatchOrderedAppendMode)bit::extract(param->pred, 3, 4);
+		if (mode == kDispatchOrderedAppendModeDisabled)
+		{
+			m_cb->dispatch(param->threadGroupX, param->threadGroupY, param->threadGroupZ);
+		}
+		else
+		{
+			m_cb->dispatchWithOrderedAppend(param->threadGroupX, param->threadGroupY, param->threadGroupZ, mode);
+		}
+	}
 		break;
 	case OP_PRIV_DISPATCH_INDIRECT:
 		break;

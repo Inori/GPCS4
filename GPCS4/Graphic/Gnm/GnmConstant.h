@@ -614,7 +614,16 @@ enum MicroTileMode
 	kMicroTileModeThick = 0x00000004,
 };
 
-
+enum WaitCompareFunc
+{
+	kWaitCompareFuncAlways       = 0x00000000,
+	kWaitCompareFuncLess         = 0x00000001,
+	kWaitCompareFuncLessEqual    = 0x00000002,
+	kWaitCompareFuncEqual        = 0x00000003,
+	kWaitCompareFuncNotEqual     = 0x00000004,
+	kWaitCompareFuncGreaterEqual = 0x00000005,
+	kWaitCompareFuncGreater      = 0x00000006,
+};
 
 // Internal usage
 

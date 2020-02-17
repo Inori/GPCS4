@@ -357,6 +357,26 @@ void GnmCommandBufferDraw::dispatch(uint32_t threadGroupX, uint32_t threadGroupY
 
 }
 
+void GnmCommandBufferDraw::waitOnAddress(void* gpuAddr, uint32_t mask, WaitCompareFunc compareFunc, uint32_t refValue)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void GnmCommandBufferDraw::waitOnAddressAndStallCommandBufferParser(void* gpuAddr, uint32_t mask, uint32_t refValue)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void GnmCommandBufferDraw::dispatchWithOrderedAppend(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ, DispatchOrderedAppendMode orderedAppendMode)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void GnmCommandBufferDraw::setCsShader(const pssl::CsStageRegisters* csRegs, uint32_t shaderModifier)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
 void GnmCommandBufferDraw::setPrimitiveType(PrimitiveType primType)
 {
 	do 

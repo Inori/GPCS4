@@ -2381,7 +2381,9 @@ enum ME_WAIT_REG_MEM_cache_policy_enum {
 };
 
 enum ME_WAIT_REG_MEM_engine_sel_enum {
-    engine_sel__me_wait_reg_mem__micro_engine                              =  0,
+	engine_sel__me_wait_reg_mem__me  = 0,
+	engine_sel__me_wait_reg_mem__pfp = 1,
+	engine_sel__me_wait_reg_mem__ce  = 2,
 };
 
 enum ME_WAIT_REG_MEM_function_enum {
@@ -2407,72 +2409,67 @@ enum ME_WAIT_REG_MEM_operation_enum {
 
 typedef struct PM4_ME_WAIT_REG_MEM
 {
-    union
-    {
-        PM4_ME_TYPE_3_HEADER                     header;
-        uint32_t                               ordinal1;
-    };
+	union 
+	{
+		PM4_TYPE_3_HEADER header;  ///< header
+		unsigned int      ordinal1;
+	};
 
-    union
-    {
-        struct
-        {
-            ME_WAIT_REG_MEM_function_enum      function : 3;
-            uint32_t                          reserved1 : 1;
-            ME_WAIT_REG_MEM_mem_space_enum    mem_space : 2;
-            ME_WAIT_REG_MEM_operation_enum    operation : 2;
-            ME_WAIT_REG_MEM_engine_sel_enum  engine_sel : 2;
-            uint32_t                          reserved2 : 15;
-            ME_WAIT_REG_MEM_cache_policy_enum cache_policy__GFX10 : 2;
-            uint32_t                          reserved3 : 5;
-        } bitfields2;
-        uint32_t                               ordinal2;
-    };
+	union 
+	{
+		struct
+		{
+			ME_WAIT_REG_MEM_function_enum		function : 3;           ///< function. WAIT_REG_MEM_FUNC_XXXX
+			unsigned int						reserved1 : 1;          ///< reserved
+			ME_WAIT_REG_MEM_mem_space_enum		memSpace : 2;           ///< memory space (0 = register, 1 = memory, 2=TC/L2, 3 = reserved)
+			ME_WAIT_REG_MEM_operation_enum		operation__CI : 2;      ///< operation:
+																		///<    00: WAIT_REG_MEM - Wait on Masked Register/Memory value to equal reference value.
+																		///<    01: WR_WAIT_WR_REG (PFP only)
+																		///<            Writes REFERENCE value to POLL_ADDRESS_LO
+																		///<            Waits for REFERENCE = POLL_ADDRESS_HI
+																		///<            Write REFERENCE to POLL_ADDRESS_HI.
+			ME_WAIT_REG_MEM_engine_sel_enum		engine : 2;             ///< 0 = ME, 1 = PFP, 2 = CE
+			unsigned int						uncached__VI : 1;       ///< When set the memory read will always use MTYPE 3 (uncached)
+																		///  Only applies when executed on MEC (ACE).
+																		///  WAIT_REG_MEM on PFP or ME are always uncached.
+			unsigned int						reserved2 : 13;         ///< reserved
+			unsigned int						atc__CI : 1;            ///< ATC steting for MC read transactions
+			ME_WAIT_REG_MEM_cache_policy_enum	cachePolicy__CI : 2;    ///< Reserved for future use of CACHE_POLICY
+			unsigned int						volatile__CI : 1;       ///< Reserved for future use of VOLATILE
+			unsigned int						reserved3 : 4;          ///< reserved
+		};
+		unsigned int ordinal2;
+	};
 
-    union
-    {
-        struct
-        {
-            uint32_t                          reserved1 : 2;
-            uint32_t                   mem_poll_addr_lo : 30;
-        } bitfields3a;
-        struct
-        {
-            uint32_t                      reg_poll_addr : 18;
-            uint32_t                          reserved1 : 14;
-        } bitfields3b;
-        struct
-        {
-            uint32_t                    reg_write_addr1 : 18;
-            uint32_t                          reserved1 : 14;
-        } bitfields3c;
-        uint32_t                               ordinal3;
-    };
+	union 
+	{
+		unsigned int pollAddressLo;  ///< lower portion of Address to poll or register offset
+		unsigned int ordinal3;
+	};
 
-    union
-    {
-        struct
-        {
-            uint32_t                    reg_write_addr2 : 18;
-            uint32_t                          reserved1 : 14;
-        } bitfields4;
-        uint32_t                       mem_poll_addr_hi;
-        uint32_t                               ordinal4;
-    };
+	union 
+	{
+		unsigned int pollAddressHi;  ///< high portion of Address to poll, dont care for regs
+		unsigned int ordinal4;
+	};
 
-    uint32_t                                  reference;
+	union 
+	{
+		unsigned int reference;  ///< reference value
+		unsigned int ordinal5;
+	};
 
-    uint32_t                                       mask;
+	union 
+	{
+		unsigned int mask;  ///< mask for comparison
+		unsigned int ordinal6;
+	};
 
-    union
-    {
-        struct
-        {
-            uint32_t                      poll_interval : 16;
-            uint32_t                          reserved1 : 16;
-        } bitfields7;
-        uint32_t                               ordinal7;
-    };
+	union 
+	{
+		unsigned int pollInterval;  ///< interval to wait when issuing new poll requests
+		unsigned int ordinal7;
+	};
 
 } PM4ME_WAIT_REG_MEM, *PPM4ME_WAIT_REG_MEM;
 
