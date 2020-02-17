@@ -14,34 +14,28 @@ namespace UtilPath
 #include <Windows.h>
 #undef WIN32_LEAN_AND_MEAN
 
-std::string GetExePath()
+std::string GetWorkingDirPath()
 {
-	std::string strExePath;
+	std::string workingDir;
 	do
 	{
-		HMODULE hModule = GetModuleHandleW(NULL);
-		if (!hModule)
-		{
-			break;
-		}
 		CHAR szPath[MAX_PATH];
-		if (!GetModuleFileNameA(hModule, szPath, MAX_PATH))
+		if (!GetCurrentDirectory(MAX_PATH, szPath))
 		{
 			break;
 		}
-		strExePath.assign(szPath);
-		strExePath = strExePath.substr(0, strExePath.find_last_of('\\') + 1);
-
+		workingDir.assign(szPath);
+		workingDir += "\\";
 	} while (false);
-	return strExePath;
+	return workingDir;
 }
 
 std::string PS4PathToPCPath(const std::string &strPs4Path)
 {
 	std::string strPcPath = strPs4Path;
 	std::replace(strPcPath.begin(), strPcPath.end(), '/', '\\');
-	std::string strExePath = GetExePath();
-	strPcPath = UtilString::ReplaceAll(strPcPath, "\\app0\\", strExePath);
+	std::string strWorkingDirPath = GetWorkingDirPath();
+	strPcPath                     = UtilString::ReplaceAll(strPcPath, "\\app0\\", strWorkingDirPath);
 	return strPcPath;
 }
 
