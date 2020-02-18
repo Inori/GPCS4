@@ -1,9 +1,11 @@
 #include "GnmCommandBufferDummy.h"
 
 #include "../Gve/GveDevice.h"
+#include "../Gve/GveContext.h"
+#include "../Gve/GveSwapChain.h"
 
 GnmCommandBufferDummy::GnmCommandBufferDummy():
-	GnmCommandBuffer(nullptr)
+	GnmCommandBuffer(nullptr, nullptr, nullptr, nullptr)
 {
 }
 

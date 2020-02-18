@@ -45,11 +45,6 @@ GveDeviceQueueSet GveDevice::queues() const
 	return m_queues;
 }
 
-RcPtr<GveSwapChain> GveDevice::createSwapchain(std::shared_ptr<sce::SceVideoOut>& videoOut, uint32_t displayBufferCount)
-{
-	return new GveSwapChain(this, videoOut, displayBufferCount);
-}
-
 RcPtr<GveFrameBuffer> GveDevice::createFrameBuffer(const GveRenderTargets& renderTargets)
 {
 	auto rpFormat = GveFrameBuffer::getRenderPassFormat(renderTargets);

@@ -135,12 +135,12 @@ int PS4API sceVideoOutRegisterBuffers(int32_t handle, int32_t startIndex, void *
 		}
 
 		// Maybe need more params, such as attribute...
-		if (!videoOut->registerBuffers(startIndex, bufferNum))
+		if (!videoOut->registeDisplayrBuffers(startIndex, addresses, bufferNum))
 		{
 			break;
 		}
 		
-		if (!gnmDriver->initDriver(bufferNum))
+		if (!gnmDriver->createSwapchain(bufferNum))
 		{
 			break;
 		}
@@ -167,12 +167,12 @@ int PS4API sceVideoOutRegisterStereoBuffers(int32_t handle, int32_t startIndex, 
 		}
 
 		// Maybe need more params, such as attribute...
-		if (!videoOut->registerBuffers(startIndex, bufferNum))
+		if (!videoOut->registeDisplayrBuffers(startIndex, bufferNum, TODO))
 		{
 			break;
 		}
 		
-		if (!gnmDriver->initDriver(bufferNum))
+		if (!gnmDriver->createSwapchain(bufferNum))
 		{
 			break;
 		}

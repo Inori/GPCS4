@@ -13,6 +13,7 @@
 #include "../Gve/GveImage.h"
 #include "../Gve/GveSampler.h"
 #include "../Gve/GveContext.h"
+#include "../Gve/GveSwapChain.h"
 #include "../Gve/GveSharpResourceManager.h"
 #include "../Pssl/PsslShaderModule.h"
 
@@ -24,16 +25,15 @@ using namespace gve;
 using namespace pssl;
 
 GnmCommandBufferDraw::GnmCommandBufferDraw(
-	const RcPtr<GveDevice>& device,
-	const RcPtr<gve::GveImageView>& defaultColorTarget):
-	GnmCommandBuffer(device),
-	m_defaultColorTarget(defaultColorTarget),
-	m_depthTarget(nullptr),
+	const RcPtr<gve::GveDevice>&             device,
+	const RcPtr<gve::GveContext>&            context,
+	const RcPtr<gve::GveSwapChain>&          swapchain,
+	const std::shared_ptr<sce::SceVideoOut>& videoOut) :
+	GnmCommandBuffer(device, context, swapchain, videoOut),
 	m_sharpRes(device->getSharpResManager())
 {
-
+	m_context->beginRecording(m_device->createCmdList());
 }
-
 
 GnmCommandBufferDraw::~GnmCommandBufferDraw()
 {
@@ -43,27 +43,26 @@ GnmCommandBufferDraw::~GnmCommandBufferDraw()
 void GnmCommandBufferDraw::initializeDefaultHardwareState()
 {
 	clearUserDataSlots();
-	m_context->beginRecording(m_cmd);
 }
 
 
 void GnmCommandBufferDraw::prepareFlip()
 {
-	m_context->endRecording();
+	m_cmdList = m_context->endRecording();
 }
 
 // Last call of a frame.
 void GnmCommandBufferDraw::prepareFlip(void *labelAddr, uint32_t value)
 {
 	*(uint32_t*)labelAddr = value;
-	m_context->endRecording();
+	m_cmdList             = m_context->endRecording();
 }
 
 // Last call of a frame, with interrupt.
 void GnmCommandBufferDraw::prepareFlipWithEopInterrupt(EndOfPipeEventType eventType, void *labelAddr, uint32_t value, CacheAction cacheAction)
 {
 	*(uint32_t*)labelAddr = value;
-	m_context->endRecording();
+	m_cmdList             = m_context->endRecording();
 }
 
 void GnmCommandBufferDraw::setPsShaderUsage(const uint32_t *inputTable, uint32_t numItems)
@@ -208,7 +207,7 @@ void GnmCommandBufferDraw::setRenderTarget(uint32_t rtSlot, GnmRenderTarget cons
 		// and support extra render target,
 		// but currently I just use the default one.
 		GveAttachment colorTarget;
-		colorTarget.view = m_defaultColorTarget;
+		colorTarget.view = m_swapchain->getImageView(m_displayBufferIndex);
 		colorTarget.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 		m_context->bindRenderTargets(&colorTarget, 1);
 	} while (false);
@@ -219,35 +218,35 @@ void GnmCommandBufferDraw::setDepthRenderTarget(DepthRenderTarget const *depthTa
 {
 	do 
 	{
-		if (!depthTarget)
-		{
-			break;
-		}
+		//if (!depthTarget)
+		//{
+		//	break;
+		//}
 
-		if (!m_depthTarget)
-		{
-			m_depthTarget = getDepthTarget(depthTarget);
-		}
+		//if (!m_depthTarget)
+		//{
+		//	m_depthTarget = getDepthTarget(depthTarget);
+		//}
 
-		if (!m_depthTarget)
-		{
-			break;
-		}
+		//if (!m_depthTarget)
+		//{
+		//	break;
+		//}
 
-		// TODO:
-		// More checks
-		if (m_depthTarget->getWidth() != depthTarget->getWidth() || 
-			m_depthTarget->getHeight() != depthTarget->getHeight())
-		{
-			// Depth buffer changed, we need to create a new one.
-			m_depthTarget = getDepthTarget(depthTarget);
-		}
+		//// TODO:
+		//// More checks
+		//if (m_depthTarget->getWidth() != depthTarget->getWidth() || 
+		//	m_depthTarget->getHeight() != depthTarget->getHeight())
+		//{
+		//	// Depth buffer changed, we need to create a new one.
+		//	m_depthTarget = getDepthTarget(depthTarget);
+		//}
 
 
-		GveAttachment depthAttach;
-		depthAttach.view = m_depthTarget;
-		depthAttach.layout = m_depthTarget->imageInfo().layout;
-		m_context->bindDepthRenderTarget(depthAttach);
+		//GveAttachment depthAttach;
+		//depthAttach.view = m_depthTarget;
+		//depthAttach.layout = m_depthTarget->imageInfo().layout;
+		//m_context->bindDepthRenderTarget(depthAttach);
 
 	} while (false);
 }
@@ -379,7 +378,7 @@ void GnmCommandBufferDraw::setCsShader(const pssl::CsStageRegisters* csRegs, uin
 
 void GnmCommandBufferDraw::flushShaderCachesAndWait(CacheAction cacheAction, uint32_t extendedCacheMask, StallCommandBufferParserMode commandBufferStallMode)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	//throw std::logic_error("The method or operation is not implemented.");
 }
 
 void GnmCommandBufferDraw::setDbRenderControl(DbRenderControl reg)

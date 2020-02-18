@@ -29,29 +29,9 @@ SceVideoOut::~SceVideoOut()
 	glfwTerminate();
 }
 
-uint32_t SceVideoOut::width()
-{
-	return m_width;
-}
-
-uint32_t SceVideoOut::height()
-{
-	return m_height;
-}
-
 GLFWwindow* SceVideoOut::getWindowHandle()
 {
 	return m_window;
-}
-
-void SceVideoOut::getWindowSize(uint32_t& width, uint32_t& height)
-{
-	glfwGetWindowSize(m_window, (int*)&width, (int*)&height);
-}
-
-void SceVideoOut::getFramebufferSize(uint32_t& width, uint32_t& height)
-{
-	glfwGetFramebufferSize(m_window, (int*)&width, (int*)&height);
 }
 
 VkSurfaceKHR SceVideoOut::createSurface(VkInstance instance)
@@ -82,15 +62,36 @@ std::vector<const char*> SceVideoOut::getExtensions()
 	return extensions;
 }
 
-bool SceVideoOut::registerBuffers(uint32_t startIndex, uint32_t bufferNum)
+VideoOutSizeInfo SceVideoOut::getSizeInfo()
+{
+	VideoOutSizeInfo result = {};
+
+	glfwGetWindowSize(m_window, (int*)&result.windowWidth, (int*)&result.windowHeight);
+	glfwGetFramebufferSize(m_window, (int*)&result.frameWidth, (int*)&result.frameHeight);
+
+	return result;
+}
+
+bool SceVideoOut::registeDisplayrBuffers(uint32_t startIndex, void* const* addresses, uint32_t bufferNum)
 {
 	bool bRet = false;
 	do
 	{
-		
-		bRet  = true;
-	}while(false);
+		if (!addresses || !bufferNum)
+		{
+			break;
+		}
+
+		m_displayBuffers.assign(addresses, addresses + bufferNum);
+
+		bRet = true;
+	} while (false);
 	return bRet;
+}
+
+const void* SceVideoOut::retrieveDisplayBuffer(uint32_t index)
+{
+	return m_displayBuffers[index];
 }
 
 void SceVideoOut::setFlipRate(uint32_t rate)

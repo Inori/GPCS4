@@ -1,14 +1,22 @@
 #include "GnmCommandBuffer.h"
+
+#include "../Gve/GveDevice.h"
 #include "../Gve/GveContext.h"
 #include "../Gve/GveCmdList.h"
-#include "../Gve/GveDevice.h"
+#include "../Gve/GveSwapChain.h"
 
 #include "Platform/PlatformUtils.h"
 
-GnmCommandBuffer::GnmCommandBuffer(const RcPtr<gve::GveDevice>& device):
+GnmCommandBuffer::GnmCommandBuffer(
+	const RcPtr<gve::GveDevice>&             device,
+	const RcPtr<gve::GveContext>&            context,
+	const RcPtr<gve::GveSwapChain>&          swapchain,
+	const std::shared_ptr<sce::SceVideoOut>& videoOut):
 	m_device(device),
-	m_cmd(m_device ? m_device->createCmdList() : nullptr),
-	m_context(m_device ? m_device->createContext() : nullptr)
+	m_context(context),
+	m_swapchain(swapchain),
+	m_videoOut(videoOut),
+	m_cmdList(nullptr)
 {
 }
 
@@ -16,9 +24,14 @@ GnmCommandBuffer::~GnmCommandBuffer()
 {
 }
 
-RcPtr<gve::GveCmdList> GnmCommandBuffer::getCmdList()
+void GnmCommandBuffer::recordBegin(uint32_t displayBufferIndex)
 {
-	return m_cmd;
+	m_displayBufferIndex = displayBufferIndex;
+}
+
+RcPtr<gve::GveCmdList> GnmCommandBuffer::recordEnd()
+{
+	return m_cmdList;
 }
 
 void GnmCommandBuffer::emuWriteGpuLabel(EventWriteSource selector, void* label, uint64_t value)

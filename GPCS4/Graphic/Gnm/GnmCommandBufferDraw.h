@@ -3,29 +3,12 @@
 #include "GnmCommon.h"
 #include "GnmCommandBuffer.h"
 #include "GnmConstant.h"
-
-#include "../Pssl/PsslShaderStructure.h"
-#include "../Pssl/PsslEnums.h"
+#include "GnmContext.h"
 
 #include <vector>
 
-namespace gve
-{;
-class GveShader;
-class GveImageView;
-class GveSharpResourceManager;
-}  // namespace gve
-
+//
 class GnmBuffer;
-
-struct GnmShaderContext
-{
-	using UDSTVector = std::vector<pssl::PsslShaderResource>;
-	//
-	const void*            code    = nullptr;
-	RcPtr<gve::GveShader>  shader  = nullptr;
-	UDSTVector             userDataSlotTable;
-};
 
 
 // This class is designed for graphics development,
@@ -39,8 +22,10 @@ class GnmCommandBufferDraw : public GnmCommandBuffer
 	using VertexInputSemantic = pssl::VertexInputSemantic;
 public:
 	GnmCommandBufferDraw(
-		const RcPtr<gve::GveDevice>&     device,
-		const RcPtr<gve::GveImageView>&  defaultColorTarget
+		const RcPtr<gve::GveDevice>&             device,
+		const RcPtr<gve::GveContext>&            context,
+		const RcPtr<gve::GveSwapChain>&          swapchain,
+		const std::shared_ptr<sce::SceVideoOut>& videoOut
 	);
 
 	virtual ~GnmCommandBufferDraw();
@@ -146,7 +131,6 @@ public:
 
 private:
 	
-
 	uint32_t* getFetchShaderCode(const GnmShaderContext& vsCtx);
 
 	void setUserDataSlots(ShaderStage stage, uint32_t startSlot, 
@@ -176,9 +160,6 @@ private:
 
 private:
 
-	// Image view from swapchain, this is the default render target view.
-	RcPtr<gve::GveImageView> m_defaultColorTarget;
-	RcPtr<gve::GveImageView> m_depthTarget;
 	gve::GveSharpResourceManager& m_sharpRes;
 
 	GnmShaderContext m_vsContext;

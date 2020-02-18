@@ -1,7 +1,8 @@
 #pragma once
 
-#include "GPCS4Common.h"
+#include "SceCommon.h"
 #include "SceVideoOut.h"
+
 #include <memory>
 
 namespace gve
@@ -11,6 +12,7 @@ class GvePhysicalDevice;
 class GveDevice;
 class GveSwapChain;
 class GvePresenter;
+class GveContext;
 }  // namespace gve
 
 class GnmCmdStream;
@@ -24,11 +26,10 @@ class SceVideoOut;
 
 class SceGnmDriver
 {
+	friend class SceVideoOut;
 public:
 	SceGnmDriver(std::shared_ptr<SceVideoOut>& videoOut);
 	~SceGnmDriver();
-
-	bool initDriver(uint32_t bufferNum);
 
 	int submitCommandBuffers(uint32_t count,
 		void *dcbGpuAddrs[], uint32_t *dcbSizesInBytes,
@@ -44,18 +45,24 @@ public:
 
 private:
 
-	void createCommandParsers(uint32_t count);
+	bool initGnmDriver();
+
+	bool initGraphics();
+
+	bool initCompute();
+
 
 private:
 	std::shared_ptr<SceVideoOut> m_videoOut;
-	std::vector<std::unique_ptr<GnmCmdStream>> m_commandParsers;
-	std::vector<std::shared_ptr<GnmCommandBuffer>> m_commandBuffers;
 
-	RcPtr<gve::GveInstance> m_instance;
+	RcPtr<gve::GveInstance>       m_instance;
 	RcPtr<gve::GvePhysicalDevice> m_physDevice;
-	RcPtr<gve::GveDevice> m_device;
-	RcPtr<gve::GveSwapChain> m_swapchain;
-	std::unique_ptr<gve::GvePresenter> m_presenter;
+	RcPtr<gve::GveDevice>         m_device;
+	RcPtr<gve::GveSwapChain>      m_swapchain;
+	RcPtr<gve::GveContext>        m_context;
+
+	std::unique_ptr<GnmCmdStream>     m_commandParser;
+	std::unique_ptr<GnmCommandBuffer> m_graphicsCmdBuffer;
 };
 
 }  //sce

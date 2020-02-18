@@ -21,15 +21,19 @@ LOG_CHANNEL(Graphic.Gnm.GnmCmdStream);
 
 const uint32_t c_stageBases[kShaderStageCount] = { 0x2E40, 0x2C0C, 0x2C4C, 0x2C8C, 0x2CCC, 0x2D0C, 0x2D4C };
 
-GnmCmdStream::GnmCmdStream(std::shared_ptr<GnmCommandBuffer>& cb):
-	m_cb(cb)
+GnmCmdStream::GnmCmdStream():
+	m_cb(nullptr)
 {
-
 }
 
 GnmCmdStream::~GnmCmdStream()
 {
 
+}
+
+void GnmCmdStream::attachCommandBuffer(GnmCommandBuffer* commandBuffer)
+{
+	m_cb = commandBuffer;
 }
 
 bool GnmCmdStream::processCommandBuffer(uint32_t* commandBuffer, uint32_t commandSize)
@@ -95,11 +99,6 @@ bool GnmCmdStream::processCommandBuffer(uint32_t* commandBuffer, uint32_t comman
 	m_flipPacketDone = false;
 
 	return bRet;
-}
-
-std::shared_ptr<GnmCommandBuffer> GnmCmdStream::getCommandBuffer()
-{
-	return m_cb;
 }
 
 void GnmCmdStream::processPM4Type0(PPM4_TYPE_0_HEADER pm4Hdr, uint32_t* regDataX)

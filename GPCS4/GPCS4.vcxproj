@@ -29,11 +29,15 @@
     <ClInclude Include="Emulator\ModuleManger.h" />
     <ClInclude Include="Emulator\PolicyManager.h" />
     <ClInclude Include="Emulator\SymbolManager.h" />
+    <ClInclude Include="Graphic\Gnm\GnmContext.h" />
     <ClInclude Include="Graphic\Gnm\GnmGpuAddressTool.h" />
     <ClInclude Include="Graphic\Gnm\GnmTiler.h" />
     <ClInclude Include="Graphic\Gnm\GnmTilerSSE2.h" />
     <ClInclude Include="Graphic\Gve\GveRecycler.h" />
     <ClInclude Include="Graphic\Gve\GveSharpResourceManager.h" />
+    <ClInclude Include="Graphic\Sce\SceCommon.h" />
+    <ClInclude Include="Graphic\Sce\ScePresenter.h" />
+    <ClInclude Include="Graphic\Sce\SceGpuQueue.h" />
     <ClInclude Include="Loader\elf-sce.h" />
     <ClInclude Include="Emulator\Emulator.h" />
     <ClInclude Include="Emulator\GameThread.h" />
@@ -88,13 +92,11 @@
     <ClInclude Include="Graphic\Gve\GveInstance.h" />
     <ClInclude Include="Graphic\Gve\GveMemory.h" />
     <ClInclude Include="Graphic\Gve\GvePhysicalDevice.h" />
-    <ClInclude Include="Graphic\Gve\GvePresenter.h" />
     <ClInclude Include="Graphic\Gve\GveRenderPass.h" />
     <ClInclude Include="Graphic\Gve\GveResourceObjects.h" />
     <ClInclude Include="Graphic\Gve\GveSampler.h" />
     <ClInclude Include="Graphic\Gve\GveShader.h" />
     <ClInclude Include="Graphic\Gve\GveStaging.h" />
-    <ClInclude Include="Graphic\Gve\GveSwapChain.h" />
     <ClInclude Include="Graphic\Gve\GveUtil.h" />
     <ClInclude Include="Graphic\Gve\GveVkLayers.h" />
     <ClInclude Include="Graphic\Pssl\GCNAnalyzer.h" />
@@ -311,7 +313,6 @@
     <ClCompile Include="Graphic\Gve\GvePhysicalDevice.cpp" />
     <ClCompile Include="Graphic\Gve\GvePipelineLayout.cpp" />
     <ClCompile Include="Graphic\Gve\GvePipelineManager.cpp" />
-    <ClCompile Include="Graphic\Gve\GvePresenter.cpp" />
     <ClCompile Include="Graphic\Gve\GveRenderPass.cpp" />
     <ClCompile Include="Graphic\Gve\GvePipelineState.cpp" />
     <ClCompile Include="Graphic\Gve\GveResourceObjects.cpp" />
@@ -319,7 +320,6 @@
     <ClCompile Include="Graphic\Gve\GveShader.cpp" />
     <ClCompile Include="Graphic\Gve\GveSharpResourceManager.cpp" />
     <ClCompile Include="Graphic\Gve\GveStaging.cpp" />
-    <ClCompile Include="Graphic\Gve\GveSwapChain.cpp" />
     <ClCompile Include="Graphic\Gve\GveUtil.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNAnalyzer.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNCompilerDataShare.cpp" />
@@ -359,6 +359,7 @@
     <ClCompile Include="Graphic\Pssl\PsslProgramInfo.cpp" />
     <ClCompile Include="Graphic\Pssl\PsslShaderModule.cpp" />
     <ClCompile Include="Graphic\Sce\SceGnmDriver.cpp" />
+    <ClCompile Include="Graphic\Sce\ScePresenter.cpp" />
     <ClCompile Include="Graphic\Sce\SceVideoOut.cpp" />
     <ClCompile Include="Graphic\SpirV\SpirvCodeBuffer.cpp" />
     <ClCompile Include="Graphic\SpirV\SpirvCompression.cpp" />

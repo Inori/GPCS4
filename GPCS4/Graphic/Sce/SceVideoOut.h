@@ -1,7 +1,6 @@
 #pragma once
 
-#include "GPCS4Common.h"
-#include "../Gve/GveCommon.h"
+#include "SceCommon.h"
 #include <vector>
 
 class GLFWwindow;
@@ -19,6 +18,17 @@ const uint32_t kVideoOutDefaultWidth = 1920;
 const uint32_t kVideoOutDefaultHeight = 1080;
 
 
+struct VideoOutSizeInfo
+{
+	// Runtime size
+	uint32_t windowWidth;
+	uint32_t windowHeight;
+
+	// Frame Buffer size
+	uint32_t frameWidth;
+	uint32_t frameHeight;
+};
+
 
 class SceVideoOut
 {
@@ -26,29 +36,29 @@ public:
 	SceVideoOut(uint32_t width, uint32_t height);
 	~SceVideoOut();
 
-	uint32_t width();
-
-	uint32_t height();
-
 	GLFWwindow* getWindowHandle();
 
-	void getWindowSize(uint32_t& width, uint32_t& height);
+	std::vector<const char*> getExtensions();
 
-	void getFramebufferSize(uint32_t& width, uint32_t& height);
+	VideoOutSizeInfo getSizeInfo();
+
+
+	bool registeDisplayrBuffers(uint32_t startIndex, void* const* addresses, uint32_t bufferNum);
+
+	const void*  retrieveDisplayBuffer(uint32_t index);
+
+
+	void setFlipRate(uint32_t rate);
+
+	uint32_t     getFlipRate() const;
+
+
+	void         processEvents();
+
 
 	VkSurfaceKHR createSurface(VkInstance instance);
 
 	void destroySurface(VkInstance instance);
-
-	std::vector<const char*> getExtensions();
-
-	bool registerBuffers(uint32_t startIndex, uint32_t bufferNum);
-
-	void setFlipRate(uint32_t rate);
-
-	uint32_t getFlipRate() const;
-
-	void processEvents();
 
 private:
 	static void windowResizeCallback(GLFWwindow* window, int width, int height);
@@ -65,6 +75,8 @@ private:
 	bool m_framebufferResized = false;
 
 	uint32_t m_flipRate = 60;
+
+	std::vector<const void*> m_displayBuffers;
 };
 
 } // sce

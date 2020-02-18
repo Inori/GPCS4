@@ -7,21 +7,37 @@
 #include "GnmRenderTarget.h"
 #include "GnmDepthRenderTarget.h"
 
+#include <memory>
 
 namespace gve
 {;
 class GveDevice;
 class GveCmdList;
 class GveContext;
+class GveSwapChain;
 }  // namespace gve
+
+namespace sce
+{;
+class SceVideoOut;
+}  // namespace sce
+
 
 class GnmCommandBuffer
 {
 public:
-	GnmCommandBuffer(const RcPtr<gve::GveDevice>& device);
+	GnmCommandBuffer(
+		const RcPtr<gve::GveDevice>&             device,
+		const RcPtr<gve::GveContext>&            context,
+		const RcPtr<gve::GveSwapChain>&          swapchain,
+		const std::shared_ptr<sce::SceVideoOut>& videoOut);
+
 	virtual ~GnmCommandBuffer();
 
-	RcPtr<gve::GveCmdList> getCmdList();
+	virtual void recordBegin(uint32_t displayBufferIndex);
+
+	virtual RcPtr<gve::GveCmdList> recordEnd();
+
 	// Implement these one by one...
 
 	// Note:
@@ -335,10 +351,14 @@ protected:
 	void emuWriteGpuLabel(EventWriteSource selector, void* label, uint64_t value);
 
 protected:
-	RcPtr<gve::GveDevice> m_device;
-	RcPtr<gve::GveCmdList> m_cmd;
-	RcPtr<gve::GveContext> m_context;
-	
+	RcPtr<gve::GveDevice>                 m_device;
+	RcPtr<gve::GveContext>                m_context;
+	RcPtr<gve::GveSwapChain>              m_swapchain;
+	std::shared_ptr<sce::SceVideoOut>     m_videoOut;
+
+	uint32_t m_displayBufferIndex = 0;
+	RcPtr<gve::GveCmdList> m_cmdList;
+
 private:
 
 };
