@@ -63,6 +63,7 @@ private:
 	void onDispatchDrawPreambleGfx09(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody);
 	void onDispatchDrawGfx09(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody);
 	void onGetLodStatsGfx09(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody);
+	void onReleaseMem(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody);
 
 	// Private
 	void onGnmPrivate(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody);

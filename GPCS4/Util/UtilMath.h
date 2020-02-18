@@ -32,10 +32,8 @@ inline uint64_t buildUint64(uint32_t high, uint32_t low)
 	return (uint64_t)(high) << 32 | low;
 }
 
-// TODO:
-// Some addresses in some gnm structures are GPU relative,
-// I'm not sure they are relative to what,
-// maybe relative to the garlic memory base address.
+// Garlic memory address is supposed to be within 0x000000FFFFFFFFFF
+// in this case, gnmGpuAbsAddr actually does nothing
 inline void* gnmGpuAbsAddr(void* refAddr, void* relaAddr)
 {
 	return reinterpret_cast<void*>(((uintptr_t)(refAddr)&0x0000FF0000000000) | (uintptr_t)(relaAddr));

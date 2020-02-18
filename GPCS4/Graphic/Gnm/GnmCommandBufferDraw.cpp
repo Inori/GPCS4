@@ -377,6 +377,56 @@ void GnmCommandBufferDraw::setCsShader(const pssl::CsStageRegisters* csRegs, uin
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
+void GnmCommandBufferDraw::flushShaderCachesAndWait(CacheAction cacheAction, uint32_t extendedCacheMask, StallCommandBufferParserMode commandBufferStallMode)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void GnmCommandBufferDraw::setDbRenderControl(DbRenderControl reg)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void GnmCommandBufferDraw::setDepthClearValue(float clearValue)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void GnmCommandBufferDraw::setStencilClearValue(uint8_t clearValue)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void GnmCommandBufferDraw::waitForGraphicsWrites(uint32_t baseAddr256, uint32_t sizeIn256ByteBlocks, uint32_t targetMask, CacheAction cacheAction, uint32_t extendedCacheMask, StallCommandBufferParserMode commandBufferStallMode)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void GnmCommandBufferDraw::writeAtEndOfShader(EndOfShaderEventType eventType, void* dstGpuAddr, uint32_t immValue)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void GnmCommandBufferDraw::writeDataInline(void* dstGpuAddr, const void* data, uint32_t sizeInDwords, WriteDataConfirmMode writeConfirm)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void GnmCommandBufferDraw::writeDataInlineThroughL2(void* dstGpuAddr, const void* data, uint32_t sizeInDwords, CachePolicy cachePolicy, WriteDataConfirmMode writeConfirm)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void GnmCommandBufferDraw::writeReleaseMemEventWithInterrupt(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void GnmCommandBufferDraw::writeReleaseMemEvent(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
 void GnmCommandBufferDraw::setPrimitiveType(PrimitiveType primType)
 {
 	do 

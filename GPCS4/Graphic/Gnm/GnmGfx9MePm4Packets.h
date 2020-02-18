@@ -116,6 +116,68 @@ typedef struct PM4_ME_EVENT_WRITE_EOP
 } PM4_ME_EVENT_WRITE_EOP, *PPM4_ME_EVENT_WRITE_EOP;
 
 
+enum EVENT_WRITE_EOS_index_enum
+{
+	event_write_eos_index_csdone_psdone = 6
+};
+
+enum EVENT_WRITE_EOS_cmd_store_enum
+{
+	event_write_eos_cmd_store_append_count_to_memory = 0,
+	event_write_eos_cmd_store_gds_data_to_memory     = 1,
+	event_write_eos_cmd_store_32bit_data_to_memory   = 2,
+};
+
+typedef struct PM4_ME_EVENT_WRITE_EOS
+{
+	union 
+	{
+		PM4_TYPE_3_HEADER header;  ///< header
+		unsigned int      ordinal1;
+	};
+
+	union 
+	{
+		struct
+		{
+			unsigned int eventType : 6;   ///< event type written to VGT_EVENT_INITIATOR
+			unsigned int reserved1 : 2;   ///< reserved
+			unsigned int eventIndex : 4;  ///< event index
+			unsigned int reserved2 : 20;  ///< reserved
+		};
+		unsigned int ordinal2;
+	};
+
+	union 
+	{
+		unsigned int addressLo;  ///< low bits of address, must be 4 byte aligned
+		unsigned int ordinal3;
+	};
+
+	union 
+	{
+		struct
+		{
+			unsigned int addressHi : 16;  ///< high bits of address
+			unsigned int reserved3 : 13;  ///< reserved
+			unsigned int command : 3;     ///< command EVENT_WRITE_EOS_cmd_store_enum
+		};
+		unsigned int ordinal4;
+	};
+
+	union 
+	{
+		struct
+		{
+			unsigned int gdsIndex : 16;  ///< indexed offset into GDS partition
+			unsigned int size : 16;      ///< number of DWs to read from the GDS
+		};
+		unsigned int data;  ///< fence value that will be written to memory when event occurs
+		unsigned int ordinal5;
+	};
+} PM4_ME_EVENT_WRITE_EOS, *PPM4_ME_EVENT_WRITE_EOS;
+
+
 //--------------------ACQUIRE_MEM--------------------
 enum ME_ACQUIRE_MEM_engine_sel_enum {
     engine_sel__me_acquire_mem__micro_engine                               =  1,
@@ -1897,85 +1959,63 @@ typedef struct PM4_ME_RELEASE_MEM__GFX09
             uint32_t                         event_type : 6;
             uint32_t                          reserved1 : 2;
             ME_RELEASE_MEM_event_index_enum event_index : 4;
-            uint32_t                tcl1_vol_action_ena : 1;
-            uint32_t                  tc_vol_action_ena : 1;
-            uint32_t                          reserved2 : 1;
-            uint32_t                   tc_wb_action_ena : 1;
-            uint32_t                    tcl1_action_ena : 1;
-            uint32_t                      tc_action_ena : 1;
+			uint32_t                       cache_action : 6;
             uint32_t                          reserved3 : 1;
             uint32_t                   tc_nc_action_ena : 1;
             uint32_t                   tc_wc_action_ena : 1;
             uint32_t                   tc_md_action_ena : 1;
             uint32_t                          reserved4 : 3;
             ME_RELEASE_MEM_cache_policy_enum cache_policy : 2;
-            uint32_t                          reserved5 : 1;
+			uint32_t                         volatile__CI : 1;
             uint32_t                            execute : 1;
-            uint32_t                          reserved6 : 3;
-        } bitfields2;
+            uint32_t                          reserved5 : 3;
+        };
         uint32_t                               ordinal2;
     };
 
-    union
-    {
-        struct
-        {
-            uint32_t                          reserved1 : 16;
-            ME_RELEASE_MEM_dst_sel_enum         dst_sel : 2;
-            uint32_t                          reserved2 : 6;
-            ME_RELEASE_MEM_int_sel_enum         int_sel : 3;
-            uint32_t                          reserved3 : 2;
-            ME_RELEASE_MEM_data_sel_enum       data_sel : 3;
-        } bitfields3;
-        uint32_t                               ordinal3;
-    };
+    union 
+	{
+		struct
+		{
+			uint32_t     reserved6 : 16;  ///< reserved
+			uint32_t     dstSel : 2;      ///< destination select
+			uint32_t     reserved7 : 6;   ///< reserved
+			uint32_t     intSel : 3;      ///< selects interrupt action for end-of-pipe
+			uint32_t     reserved8 : 2;   ///< reserved
+			uint32_t     dataSel : 3;     ///< selects source of data
+		};
+		uint32_t ordinal3;
+	};
 
-    union
-    {
-        struct
-        {
-            uint32_t                          reserved1 : 2;
-            uint32_t                     address_lo_32b : 30;
-        } bitfields4a;
-        struct
-        {
-            uint32_t                          reserved1 : 3;
-            uint32_t                     address_lo_64b : 29;
-        } bitfields4b;
-        uint32_t                             reserved12;
-        uint32_t                               ordinal4;
-    };
+	union
+	{
+		uint32_t addressLo;  ///< low bits of address
+		uint32_t ordinal4;
+	};
 
-    union
-    {
-        uint32_t                             address_hi;
-        uint32_t                             reserved13;
-        uint32_t                               ordinal5;
-    };
+	union
+	{
+		uint32_t addressHi;  ///< high bits of address
+		uint32_t ordinal5;
+	};
 
-    union
-    {
-        struct
-        {
-            uint32_t                          dw_offset : 16;
-            uint32_t                         num_dwords : 16;
-        } bitfields6;
-        uint32_t                                data_lo;
-        uint32_t                            cmp_data_lo;
-        uint32_t                             reserved14;
-        uint32_t                               ordinal6;
-    };
+	union 
+	{
+		struct
+		{
+			uint32_t gdsIndex : 16;   ///< Byte offset into GDS to copy from
+			uint32_t numDwords : 16;  ///< Number of DWORDS of GDS to copy
+		};
+		uint32_t dataLo;  ///< value that will be written to memory when event occurs
+		uint32_t ordinal6;
+	};
 
-    union
-    {
-        uint32_t                                data_hi;
-        uint32_t                            cmp_data_hi;
-        uint32_t                             reserved15;
-        uint32_t                             reserved16;
-        uint32_t                               ordinal7;
-    };
+	union 
+	{
+		uint32_t dataHi;  ///< value that will be written to memory when event occurs
+		uint32_t ordinal7;
+	};
 
-    uint32_t                                  int_ctxid;
 
 } PM4ME_RELEASE_MEM__GFX09, *PPM4ME_RELEASE_MEM__GFX09;
 
@@ -2619,46 +2659,44 @@ typedef struct PM4_ME_WRITE_DATA
         uint32_t                               ordinal1;
     };
 
-    union
-    {
-        struct
-        {
-            uint32_t                          reserved1 : 8;
-            ME_WRITE_DATA_dst_sel_enum          dst_sel : 4;
-            uint32_t                          reserved2 : 4;
-            ME_WRITE_DATA_addr_incr_enum      addr_incr : 1;
-            uint32_t                          reserved3 : 2;
-            uint32_t                          resume_vf : 1;
-            ME_WRITE_DATA_wr_confirm_enum    wr_confirm : 1;
-            uint32_t                          reserved4 : 4;
-            ME_WRITE_DATA_cache_policy_enum cache_policy : 2;
-            uint32_t                          reserved5 : 3;
-            ME_WRITE_DATA_engine_sel_enum    engine_sel : 2;
-        } bitfields2;
-        uint32_t                               ordinal2;
-    };
+	union 
+	{
+		struct
+		{
+			uint32_t                        reserved1 : 8;
+			ME_WRITE_DATA_dst_sel_enum      dstSel : 4;  ///< destination select
+			uint32_t                        reserved2 : 4;
+			ME_WRITE_DATA_addr_incr_enum    wrOneAddr : 1;  ///< Increment or not increment address
+			uint32_t                        reserved3 : 2;
+			uint32_t                        resumeVf : 1;
+			ME_WRITE_DATA_wr_confirm_enum   wrConfirm : 1;  ///< Wait or not wait for confirmation
+			uint32_t                        reserved4 : 3;
+			uint32_t                        atc__CI : 1;
+			ME_WRITE_DATA_cache_policy_enum cachePolicy__CI : 2;  ///< Cache olicy settings for write requests to the TCL2
+			uint32_t                        volatile__CI : 1;     ///< Volatile setting for write requests to the TCL2
+			uint32_t                        reserved5 : 2;
+			ME_WRITE_DATA_engine_sel_enum   engineSel : 2;  ///< engine select
+		};
+		unsigned int ordinal2;
+	};
 
-    union
-    {
-        struct
-        {
-            uint32_t                     dst_mmreg_addr : 18;
-            uint32_t                          reserved1 : 14;
-        } bitfields3a;
-        struct
-        {
-            uint32_t                       dst_gds_addr : 16;
-            uint32_t                          reserved1 : 16;
-        } bitfields3b;
-        struct
-        {
-            uint32_t                          reserved1 : 2;
-            uint32_t                    dst_mem_addr_lo : 30;
-        } bitfields3c;
-        uint32_t                               ordinal3;
-    };
+	union 
+	{
+		unsigned int dstAddrLo;
+		unsigned int ordinal3;
+	};
 
-    uint32_t                            dst_mem_addr_hi;
+	union 
+	{
+		unsigned int dstAddrHi;
+		unsigned int ordinal4;
+	};
+
+	// This is a variable length packet. So, based on size in header, the layout following this
+	// looks as follows
+	// unsigned int data1;
+	// ...
+	// unsigned int dataN;
 
 } PM4ME_WRITE_DATA, *PPM4ME_WRITE_DATA;
 

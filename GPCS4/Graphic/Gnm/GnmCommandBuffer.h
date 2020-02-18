@@ -66,7 +66,7 @@ public:
 	//	uint32_t esVerticesPerSubGroup, uint32_t gsInputPrimitivesPerSubGroup) = 0;
 	//virtual void enableOrderedAppendAllocationCounter(uint32_t oaCounterIndex, uint32_t gdsDwOffsetOfCounter, ShaderStage stage, uint32_t oaOpIndex, uint32_t spaceInAllocationUnits) = 0;
 	//virtual void fillAndResume(uint64_t holeAddr, void *commandStream, uint32_t sizeInDW) = 0;
-	//virtual void flushShaderCachesAndWait(CacheAction cacheAction, uint32_t extendedCacheMask, StallCommandBufferParserMode commandBufferStallMode) = 0;
+	virtual void flushShaderCachesAndWait(CacheAction cacheAction, uint32_t extendedCacheMask, StallCommandBufferParserMode commandBufferStallMode) = 0;
 	//virtual void flushStreamout() = 0;
 	//virtual void incrementDeCounter() = 0;
 	virtual void initializeDefaultHardwareState() = 0;
@@ -142,9 +142,9 @@ public:
 	//virtual void setComputeShaderControl(uint32_t wavesPerSh, uint32_t threadgroupsPerCu, uint32_t lockThreshold) = 0;
 	virtual void setCsShader(const pssl::CsStageRegisters* csRegs, uint32_t shaderModifier) = 0;
 	//virtual void setDbCountControl(DbCountControlPerfectZPassCounts perfectZPassCounts, uint32_t log2SampleRate) = 0;
-	//virtual void setDbRenderControl(DbRenderControl reg) = 0;
+	virtual void setDbRenderControl(DbRenderControl reg) = 0;
 	//virtual void setDepthBoundsRange(float depthBoundsMin, float depthBoundsMax) = 0;
-	//virtual void setDepthClearValue(float clearValue) = 0;
+	virtual void setDepthClearValue(float clearValue) = 0;
 	//virtual void setDepthEqaaControl(DepthEqaaControl depthEqaa) = 0;
 	virtual void setDepthRenderTarget(DepthRenderTarget const *depthTarget) = 0;
 	virtual void setDepthStencilControl(DepthStencilControl depthStencilControl) = 0;
@@ -206,7 +206,7 @@ public:
 	//virtual void setScanModeControl(ScanModeControlAa msaa, ScanModeControlViewportScissor viewportScissor) = 0;
 	virtual void setScreenScissor(int32_t left, int32_t top, int32_t right, int32_t bottom) = 0;
 	virtual void setSsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const SSharpBuffer *sampler) = 0;
-	//virtual void setStencilClearValue(uint8_t clearValue) = 0;
+	virtual void setStencilClearValue(uint8_t clearValue) = 0;
 	//virtual void setStencil(StencilControl stencilControl) = 0;
 	//virtual void setStencilSeparate(StencilControl front, StencilControl back) = 0;
 	//virtual void setStencilOpControl(StencilOpControl stencilControl) = 0;
@@ -243,8 +243,8 @@ public:
 	//virtual void updateHsShader(const HsStageRegisters *hsRegs, const TessellationRegisters *tessRegs) = 0;
 	virtual void updatePsShader(const pssl::PsStageRegisters *psRegs) = 0;
 	virtual void updateVsShader(const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier) = 0;
-	//virtual void waitForGraphicsWrites(uint32_t baseAddr256, uint32_t sizeIn256ByteBlocks, uint32_t targetMask, CacheAction cacheAction, uint32_t extendedCacheMask,
-	//	StallCommandBufferParserMode commandBufferStallMode) = 0;
+	virtual void waitForGraphicsWrites(uint32_t baseAddr256, uint32_t sizeIn256ByteBlocks, uint32_t targetMask, CacheAction cacheAction, uint32_t extendedCacheMask,
+		StallCommandBufferParserMode commandBufferStallMode) = 0;
 	//virtual void waitForSetupDispatchDrawKickRingBuffer(uint32_t krbCount, uint32_t gdsDwOffsetKrb, uint32_t gdsDwOffsetKrbCounters, void *addrIrb, uint32_t sizeofIrbInBytes) = 0;
 	virtual void waitOnAddress(void *gpuAddr, uint32_t mask, WaitCompareFunc compareFunc, uint32_t refValue) = 0;
 	virtual void waitOnAddressAndStallCommandBufferParser(void *gpuAddr, uint32_t mask, uint32_t refValue) = 0;
@@ -261,9 +261,9 @@ public:
 		EventWriteDest dstSelector, void *dstGpuAddr,
 		EventWriteSource srcSelector, uint64_t immValue,
 		CacheAction cacheAction, CachePolicy cachePolicy) = 0;
-	//virtual void writeAtEndOfShader(EndOfShaderEventType eventType, void *dstGpuAddr, uint32_t immValue) = 0;
-	//virtual void writeDataInline(void *dstGpuAddr, const void *data, uint32_t sizeInDwords, WriteDataConfirmMode writeConfirm) = 0;
-	//virtual void writeDataInlineThroughL2(void *dstGpuAddr, const void *data, uint32_t sizeInDwords, CachePolicy cachePolicy, WriteDataConfirmMode writeConfirm) = 0;
+	virtual void writeAtEndOfShader(EndOfShaderEventType eventType, void *dstGpuAddr, uint32_t immValue) = 0;
+	virtual void writeDataInline(void *dstGpuAddr, const void *data, uint32_t sizeInDwords, WriteDataConfirmMode writeConfirm) = 0;
+	virtual void writeDataInlineThroughL2(void *dstGpuAddr, const void *data, uint32_t sizeInDwords, CachePolicy cachePolicy, WriteDataConfirmMode writeConfirm) = 0;
 	//virtual void writeEventStats(EventStats eventStats, void *dstGpuAddr) = 0;
 	//virtual void writeOcclusionQuery(OcclusionQueryOp queryOp, OcclusionQueryResults *queryResults) = 0;
 	//virtual void writeStreamoutBufferOffset(StreamoutBufferId buffer, uint32_t offset) = 0;
@@ -281,14 +281,14 @@ public:
 	//virtual void setupDispatchDrawKickRingBuffer(uint32_t krbCount, uint32_t gdsDwOffsetKrb, uint32_t gdsDwOffsetKrbCounters) = 0;
 	//virtual void dispatchDraw(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ, DispatchOrderedAppendMode orderedAppendMode, uint32_t sgprKrbLoc) = 0;
 	//virtual void triggerReleaseMemEventInterrupt(ReleaseMemEventType eventType, CacheAction cacheAction) = 0;
-	//virtual void writeReleaseMemEventWithInterrupt(ReleaseMemEventType eventType,
-	//	EventWriteDest dstSelector, void *dstGpuAddr,
-	//	EventWriteSource srcSelector, uint64_t immValue,
-	//	CacheAction cacheAction, CachePolicy writePolicy) = 0;
-	//virtual void writeReleaseMemEvent(ReleaseMemEventType eventType,
-	//	EventWriteDest dstSelector, void *dstGpuAddr,
-	//	EventWriteSource srcSelector, uint64_t immValue,
-	//	CacheAction cacheAction, CachePolicy writePolicy) = 0;
+	virtual void writeReleaseMemEventWithInterrupt(ReleaseMemEventType eventType,
+		EventWriteDest dstSelector, void *dstGpuAddr,
+		EventWriteSource srcSelector, uint64_t immValue,
+		CacheAction cacheAction, CachePolicy writePolicy) = 0;
+	virtual void writeReleaseMemEvent(ReleaseMemEventType eventType,
+		EventWriteDest dstSelector, void *dstGpuAddr,
+		EventWriteSource srcSelector, uint64_t immValue,
+		CacheAction cacheAction, CachePolicy writePolicy) = 0;
 	//virtual void insertDingDongMarker() = 0;
 	//virtual void pushDispatchDrawAcbSubmitMarker() = 0;
 	//virtual void setQueuePriority(uint32_t queueId, uint32_t priority) = 0;

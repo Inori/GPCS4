@@ -220,3 +220,53 @@ void GnmCommandBufferDummy::setCsShader(const pssl::CsStageRegisters* csRegs, ui
 {
 	
 }
+
+void GnmCommandBufferDummy::flushShaderCachesAndWait(CacheAction cacheAction, uint32_t extendedCacheMask, StallCommandBufferParserMode commandBufferStallMode)
+{
+	
+}
+
+void GnmCommandBufferDummy::setDbRenderControl(DbRenderControl reg)
+{
+	
+}
+
+void GnmCommandBufferDummy::setDepthClearValue(float clearValue)
+{
+	
+}
+
+void GnmCommandBufferDummy::setStencilClearValue(uint8_t clearValue)
+{
+	
+}
+
+void GnmCommandBufferDummy::waitForGraphicsWrites(uint32_t baseAddr256, uint32_t sizeIn256ByteBlocks, uint32_t targetMask, CacheAction cacheAction, uint32_t extendedCacheMask, StallCommandBufferParserMode commandBufferStallMode)
+{
+	
+}
+
+void GnmCommandBufferDummy::writeAtEndOfShader(EndOfShaderEventType eventType, void* dstGpuAddr, uint32_t immValue)
+{
+	
+}
+
+void GnmCommandBufferDummy::writeDataInline(void* dstGpuAddr, const void* data, uint32_t sizeInDwords, WriteDataConfirmMode writeConfirm)
+{
+	
+}
+
+void GnmCommandBufferDummy::writeDataInlineThroughL2(void* dstGpuAddr, const void* data, uint32_t sizeInDwords, CachePolicy cachePolicy, WriteDataConfirmMode writeConfirm)
+{
+	
+}
+
+void GnmCommandBufferDummy::writeReleaseMemEventWithInterrupt(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy)
+{
+	
+}
+
+void GnmCommandBufferDummy::writeReleaseMemEvent(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy)
+{
+	
+}
