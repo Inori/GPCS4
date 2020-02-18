@@ -213,6 +213,29 @@ inline sce_mode_t getSceFileMode(uint16_t oldMode)
 }
 
 
+int PS4API scek_fstat(int fd, SceKernelStat *sb)
+{
+	LOG_SCE_TRACE("fd %d sb %p", fd, sb);
+
+	struct stat stat;
+	int ret = fstat(fd, &stat);
+	sb->st_mode = getSceFileMode(stat.st_mode);
+	sb->st_size = stat.st_size;
+	if (stat.st_mode & _S_IFMT & _S_IFDIR)
+	{
+		// TODO
+		sb->st_blocks = 0; // UtilPath::FileCountInDirectory(pcPath);
+		sb->st_blksize = sizeof(SceKernelDirent);
+	}
+	else
+	{
+		sb->st_blocks = stat.st_size / SSD_BLOCK_SIZE + (stat.st_size % SSD_BLOCK_SIZE) ? 1 : 0;
+		sb->st_blksize = SSD_BLOCK_SIZE;
+	}
+	return ret;
+}
+
+
 int PS4API sceKernelStat(const char *path, SceKernelStat *sb)
 {
 	LOG_SCE_TRACE("path %s sb %p", path, sb);
@@ -407,8 +430,8 @@ int PS4API scek__open(const char* path, int flags, SceKernelMode mode)
 
 int PS4API scek_shm_open(const char *name, int oflag, SceKernelMode mode)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_DEBUG("'%s', 0x%x, 0x%x)", name, oflag, mode);
+	return -1;
 }
 
 

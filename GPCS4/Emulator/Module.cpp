@@ -331,6 +331,9 @@ int NativeModule::initialize()
 		retVal    = init(0, 0, nullptr);
 
 		LOG_DEBUG("(%s) .init_proc() end. result = 0x%x", fileName.c_str(), retVal);
+#ifdef GPCS4_DEBUG
+		retVal = 0; // Ignore initializing modules on debug build
+#endif // GPCS4_DEBUG
 	}
 
 	return retVal;

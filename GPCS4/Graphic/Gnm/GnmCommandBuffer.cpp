@@ -33,6 +33,9 @@ void GnmCommandBuffer::emuWriteGpuLabel(EventWriteSource selector, void* label, 
 	}
 	else
 	{
-		*(uint64_t*)label = UtilProcess::GetProcessTimeCounter();
+		if (label != NULL)
+		{
+			*(uint64_t*)label = UtilProcess::GetProcessTimeCounter();
+		}
 	}
 }

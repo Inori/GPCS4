@@ -12,6 +12,12 @@ LOG_CHANNEL(SceModules.SceLibkernel);
 // library: libkernel
 //////////////////////////////////////////////////////////////////////////
 
+int PS4API scek_get_authinfo(void) 
+{
+	LOG_FIXME("Not implemented");
+	return 0;
+}
+
 int* PS4API __error(void)
 {
 	LOG_SCE_DUMMY_IMPL();
@@ -45,16 +51,13 @@ int PS4API _sceKernelSetThreadAtexitCount()
 	return SCE_OK;
 }
 
+
 int PS4API _sceKernelSetThreadAtexitReport()
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
 }
 
-int PS4API sceKernelClockGettime(sce_clockid_t clk_id, struct sce_timespec * tp)
-{
-	return scek_clock_gettime(clk_id, tp);
-}
 
 int PS4API sceKernelGetCpumode(void)
 {
@@ -225,6 +228,18 @@ int PS4API sceKernelGetProcessType(int pid)
 	return SCE_OK;
 }
 
+int PS4API sceKernelGetCurrentCpu(void)
+{
+	LOG_FIXME("Not implemented");
+	return 0;
+}
+
+
+PS4API int scek_socket(int domain, int type, int protocol)
+{
+	LOG_FIXME("Not implemented");
+	return -1;
+}
 
 //////////////////////////////////////////////////////////////////////////
 // library: libSceCoredump

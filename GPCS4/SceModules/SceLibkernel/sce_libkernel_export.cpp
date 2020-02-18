@@ -8,6 +8,7 @@
 
 static const SCE_EXPORT_FUNCTION g_pSceLibkernel_libkernel_FunctionTable[] =
 {
+	{ 0x8A031E7E9E1202FD, "get_authinfo", (void*)scek_get_authinfo },
 	{ 0xF41703CA43E6A352, "__error", (void*)__error },
 	{ 0x3AEDE22F569BBE78, "__stack_chk_fail", (void*)__stack_chk_fail },
 	{ 0x7FBB8EC58F663355, "__stack_chk_guard", (void*)__stack_chk_guard },
@@ -150,6 +151,10 @@ static const SCE_EXPORT_FUNCTION g_pSceLibkernel_libkernel_FunctionTable[] =
 	{ 0x128B51F1ADC049FE, "pthread_self", (void*)scek_pthread_self },
 	{ 0x41CB5E4706EC9D5D, "usleep", (void*)scek_usleep },
 	{ 0x8E1FBC5E22B82DE1, "sceKernelIsAddressSanitizerEnabled", (void*)sceKernelIsAddressSanitizerEnabled },
+	{ 0x8345530717C9CAED, "sceKernelGetCurrentCpu", (void*)sceKernelGetCurrentCpu },
+	{ 0x9AA40C875CCF3D3F, "fstat", (void*)scek_fstat },
+	{ 0x04F13DB3DBD0417A, "mmap", (void*)scek_mmap },
+	{ 0x4D4FDDF4F7C81CF3, "socket", (void*)scek_socket },
 	SCE_FUNCTION_ENTRY_END
 };
 
@@ -212,6 +217,7 @@ static const SCE_EXPORT_FUNCTION g_pSceLibkernel_libScePosix_FunctionTable[] =
 	{ 0x7D939E64838498BC, "send", (void*)scek_send },
 	{ 0x4D4BA2612DA413CB, "shutdown", (void*)scek_shutdown },
 	{ 0x149AD3E4BB940405, "pthread_exit", (void*)scek_pthread_exit },
+	{ 0xC2E0ABA081A3B768, "open", (void*)sceKernelOpen },
 	SCE_FUNCTION_ENTRY_END
 };
 

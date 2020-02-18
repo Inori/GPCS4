@@ -33,6 +33,10 @@ extern const SCE_EXPORT_MODULE g_ExpModuleSceLibkernel;
 // library: libkernel
 //////////////////////////////////////////////////////////////////////////
 
+
+int PS4API scek_get_authinfo(void);
+
+
 int* PS4API __error(void);
 
 
@@ -439,6 +443,20 @@ int PS4API sceKernelGetProcessType(int pid);
 
 
 int PS4API sceKernelIsAddressSanitizerEnabled(void);
+
+
+int PS4API sceKernelGetCurrentCpu(void);
+
+
+int PS4API scek_fstat(int fd, SceKernelStat *sb);
+
+
+void* PS4API scek_mmap(void* start, size_t length, uint32_t prot, uint32_t flags, int fd, int64_t offset);
+
+
+int PS4API scek_socket(int domain, int type, int protocol);
+
+
 //////////////////////////////////////////////////////////////////////////
 // library: libSceCoredump
 //////////////////////////////////////////////////////////////////////////

@@ -88,6 +88,7 @@ int PS4API sceSaveDataGetEventResult(void)
 	return SCE_OK;
 }
 
+
 uint8_t g_saveDataMemory[0x1000] = { 0 };
 
 int PS4API sceSaveDataGetSaveDataMemory(const SceUserServiceUserId userId, void* buf, const size_t bufSize, const uint64_t offset)

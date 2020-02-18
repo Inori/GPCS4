@@ -5,9 +5,10 @@ LOG_CHANNEL(SceModules.SceLibc.file);
 
 FILE* PS4API scec_fopen(const char *pathname, const char *mode)
 {
-	LOG_SCE_TRACE("fname %s mode %s", pathname, mode);
 	auto pcPath = UtilPath::PS4PathToPCPath(pathname);
-	return fopen(pcPath.c_str(), mode);
+	FILE* f = fopen(pcPath.c_str(), mode);
+	LOG_SCE_TRACE("(fname '%s' mode '%s') = %p", pathname, mode, f);
+	return f;
 }
 
 int PS4API scec_fseek(FILE *stream, long offset, int whence)
