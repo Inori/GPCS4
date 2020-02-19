@@ -1,4 +1,8 @@
 #include "SceVideoOut.h"
+#include "SceGnmDriver.h"
+
+#include "../GraphicShared.h"
+#include "../Gve/GveInstance.h"
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -25,6 +29,7 @@ SceVideoOut::SceVideoOut(uint32_t width, uint32_t height):
 
 SceVideoOut::~SceVideoOut()
 {
+	destroySurface();
 	glfwDestroyWindow(m_window);
 	glfwTerminate();
 }
@@ -34,19 +39,23 @@ GLFWwindow* SceVideoOut::getWindowHandle()
 	return m_window;
 }
 
-VkSurfaceKHR SceVideoOut::createSurface(VkInstance instance)
+VkSurfaceKHR SceVideoOut::getWindowSurface()
 {
 	if (m_windowSurface == VK_NULL_HANDLE)
 	{
+		auto       gnmDriver = getGnmDriver(SCE_VIDEO_HANDLE_MAIN);
+		VkInstance instance  = *gnmDriver->m_instance;
 		glfwCreateWindowSurface(instance, m_window, nullptr, &m_windowSurface);
 	}
 	return m_windowSurface;
 }
 
-void SceVideoOut::destroySurface(VkInstance instance)
+void SceVideoOut::destroySurface()
 {
 	if (m_windowSurface)
 	{
+		auto gnmDriver = getGnmDriver(SCE_VIDEO_HANDLE_MAIN);
+		VkInstance instance  = *gnmDriver->m_instance;
 		vkDestroySurfaceKHR(instance, m_windowSurface, nullptr);
 		m_windowSurface = VK_NULL_HANDLE;
 	}
@@ -62,9 +71,9 @@ std::vector<const char*> SceVideoOut::getExtensions()
 	return extensions;
 }
 
-VideoOutSizeInfo SceVideoOut::getSizeInfo()
+SceVideoOutSizeInfo SceVideoOut::getSize()
 {
-	VideoOutSizeInfo result = {};
+	SceVideoOutSizeInfo result = {};
 
 	glfwGetWindowSize(m_window, (int*)&result.windowWidth, (int*)&result.windowHeight);
 	glfwGetFramebufferSize(m_window, (int*)&result.frameWidth, (int*)&result.frameHeight);
@@ -72,7 +81,7 @@ VideoOutSizeInfo SceVideoOut::getSizeInfo()
 	return result;
 }
 
-bool SceVideoOut::registeDisplayrBuffers(uint32_t startIndex, void* const* addresses, uint32_t bufferNum)
+bool SceVideoOut::registerDisplayrBuffers(uint32_t startIndex, void* const* addresses, uint32_t bufferNum)
 {
 	bool bRet = false;
 	do

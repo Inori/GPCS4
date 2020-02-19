@@ -35,6 +35,7 @@ struct GveDeviceInfo
 struct GveDeviceFeatures 
 {
 	VkPhysicalDeviceFeatures2KHR                              core;
+	VkPhysicalDeviceShaderDrawParametersFeatures              shaderDrawParameters;
 	VkPhysicalDeviceConditionalRenderingFeaturesEXT           extConditionalRendering;
 	VkPhysicalDeviceDepthClipEnableFeaturesEXT                extDepthClipEnable;
 	VkPhysicalDeviceHostQueryResetFeaturesEXT                 extHostQueryReset;

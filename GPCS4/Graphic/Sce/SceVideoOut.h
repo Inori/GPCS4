@@ -18,7 +18,7 @@ const uint32_t kVideoOutDefaultWidth = 1920;
 const uint32_t kVideoOutDefaultHeight = 1080;
 
 
-struct VideoOutSizeInfo
+struct SceVideoOutSizeInfo
 {
 	// Runtime size
 	uint32_t windowWidth;
@@ -38,31 +38,26 @@ public:
 
 	GLFWwindow* getWindowHandle();
 
+	void processEvents();
+
 	std::vector<const char*> getExtensions();
 
-	VideoOutSizeInfo getSizeInfo();
+	SceVideoOutSizeInfo getSize();
 
+	VkSurfaceKHR getWindowSurface();
 
-	bool registeDisplayrBuffers(uint32_t startIndex, void* const* addresses, uint32_t bufferNum);
+	bool registerDisplayrBuffers(uint32_t startIndex, void* const* addresses, uint32_t bufferNum);
 
-	const void*  retrieveDisplayBuffer(uint32_t index);
-
+	const void* retrieveDisplayBuffer(uint32_t index);
 
 	void setFlipRate(uint32_t rate);
 
-	uint32_t     getFlipRate() const;
-
-
-	void         processEvents();
-
-
-	VkSurfaceKHR createSurface(VkInstance instance);
-
-	void destroySurface(VkInstance instance);
+	uint32_t getFlipRate() const;
 
 private:
 	static void windowResizeCallback(GLFWwindow* window, int width, int height);
 	static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
+	void        destroySurface();
 
 private:
 

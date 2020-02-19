@@ -25,12 +25,10 @@ using namespace gve;
 using namespace pssl;
 
 GnmCommandBufferDraw::GnmCommandBufferDraw(
-	const RcPtr<gve::GveDevice>&             device,
-	const RcPtr<gve::GveContext>&            context,
-	const RcPtr<gve::GveSwapChain>&          swapchain,
-	const std::shared_ptr<sce::SceVideoOut>& videoOut) :
-	GnmCommandBuffer(device, context, swapchain, videoOut),
-	m_sharpRes(device->getSharpResManager())
+	const sce::SceGpuQueueDevice& device,
+	const RcPtr<gve::GveContext>& context) :
+	GnmCommandBuffer(device, context),
+	m_sharpRes(m_device->getSharpResManager())
 {
 	m_context->beginRecording(m_device->createCmdList());
 }

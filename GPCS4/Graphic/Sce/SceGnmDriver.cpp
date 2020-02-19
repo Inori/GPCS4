@@ -1,4 +1,5 @@
 #include "SceGnmDriver.h"
+#include "ScePresenter.h"
 #include "sce_errors.h"
 
 #include "../GraphicShared.h"
@@ -6,8 +7,7 @@
 #include "../Gnm/GnmCommandBufferDraw.h"
 #include "../Gnm/GnmCommandBufferDummy.h"
 #include "../Gve/GveInstance.h"
-#include "../Gve/GveSwapChain.h"
-#include "../Gve/GvePresenter.h"
+#include "../Gve/GvePhysicalDevice.h"
 #include "../Gve/GveCmdList.h"
 #include "../Gve/GveImage.h"
 
@@ -22,12 +22,12 @@ const int MAX_FRAMES_IN_FLIGHT = 2;
 SceGnmDriver::SceGnmDriver(std::shared_ptr<SceVideoOut>& videoOut):
 	m_videoOut(videoOut)
 {
-
+	bool success = initGnmDriver();
+	LOG_ASSERT(success == true, "init Gnm Driver failed.");
 }
 
 SceGnmDriver::~SceGnmDriver()
 {
-	m_videoOut->destroySurface(*m_instance);
 }
 
 bool SceGnmDriver::initGnmDriver()
@@ -45,31 +45,20 @@ bool SceGnmDriver::initGnmDriver()
 		}
 
 		// Physical device
-		VkSurfaceKHR windowSurface = m_videoOut->createSurface(*m_instance);
-		m_physDevice               = m_instance->pickPhysicalDevice(windowSurface);
-		if (!m_physDevice)
+		VkSurfaceKHR windowSurface = m_videoOut->getWindowSurface();
+		auto         phyDevices    = m_instance->enumPhysicalDevices();
+		if (!pickPhysicalDevice(phyDevices, windowSurface))
 		{
 			LOG_ERR("pick physical device failed.");
 			break;
 		}
 		
 		// Logical device
-		m_device = m_physDevice->createLogicalDevice();
+		auto featuresToEnable = getRequiredFeatures(m_physDevice);
+		m_device = m_physDevice->createLogicalDevice(featuresToEnable);
 		if (!m_device)
 		{
 			LOG_ERR("create logical device failed.");
-			break;
-		}
-
-		if (!initGraphics())
-		{
-			LOG_ERR("initialize graphics environment failed.");
-			break;
-		}
-
-		if (!initCompute())
-		{
-			LOG_ERR("initialize compute environment failed.");
 			break;
 		}
 
@@ -78,35 +67,84 @@ bool SceGnmDriver::initGnmDriver()
 	return ret;
 }
 
-bool SceGnmDriver::initGraphics()
+bool SceGnmDriver::pickPhysicalDevice(
+	const std::vector<RcPtr<gve::GvePhysicalDevice>>& devices,
+	VkSurfaceKHR                                      surface)
 {
 	bool ret = false;
 	do
 	{
-		m_context = m_device->createContext();
-		if (!m_context)
+		bool found = false;
+		for (auto& device : devices)
+		{
+			if (!isDeviceSuitable(device, surface))
+			{
+				continue;
+			}
+
+			m_physDevice = device;
+			found = true;
+			break;
+		}
+
+		if (!found)
 		{
 			break;
 		}
 
-		m_commandParser = std::make_unique<GnmCmdStream>();
-
-		m_graphicsCmdBuffer = std::make_unique<GnmCommandBufferDraw>();
 		ret  = true;
 	}while(false);
 	return ret;
 }
 
-bool SceGnmDriver::initCompute()
+bool SceGnmDriver::isDeviceSuitable(const RcPtr<gve::GvePhysicalDevice>& device,
+									VkSurfaceKHR                         surface)
 {
+	bool ret = false;
+	do
+	{
+		if (!device)
+		{
+			break;
+		}
+
+		auto requiredFeatures = getRequiredFeatures(device);
+		if (!device->checkFeatureSupport(requiredFeatures))
+		{
+			break;
+		}
+
+		if (!checkPresentSupport(device, surface))
+		{
+			break;
+		}
+
+		ret  = true;
+	}while(false);
+	return ret;
 }
 
-bool SceGnmDriver::createSwapchain(uint32_t bufferNum)
+GveDeviceFeatures SceGnmDriver::getRequiredFeatures(const RcPtr<gve::GvePhysicalDevice>& device)
 {
-	// Swap chain
-	m_swapchain = m_device->createSwapchain(m_videoOut, bufferNum);
+	GveDeviceFeatures required   = {};
+	auto              supported      = device->features();
 
-	return true;
+	// Set all required features to be enabled here.
+
+	required.core.features.samplerAnisotropy = supported.core.features.samplerAnisotropy;
+	required.core.features.shaderInt64       = VK_TRUE;
+
+	return required;
+}
+
+bool SceGnmDriver::checkPresentSupport(const RcPtr<gve::GvePhysicalDevice>& device, VkSurfaceKHR surface)
+{
+	VkBool32 presentSupport = false;
+	auto     queueFamilies  = device->findQueueFamilies();
+	// TODO:
+	// Currently, I only support graphics queue with present support.
+	vkGetPhysicalDeviceSurfaceSupportKHR(*device, queueFamilies.graphics, surface, &presentSupport);
+	return presentSupport;
 }
 
 int SceGnmDriver::submitCommandBuffers(uint32_t count, 
@@ -162,6 +200,38 @@ int SceGnmDriver::sceGnmSubmitDone(void)
 {
 	m_videoOut->processEvents();
 	return SCE_OK;
+}
+
+bool SceGnmDriver::createPresenter(uint32_t imageCount)
+{
+	bool ret = false;
+	do
+	{
+		if (!imageCount)
+		{
+			break;
+		}
+
+		auto deviceQueue = m_device->queues();
+		auto sizeInfo    = m_videoOut->getSize();
+
+		PresenterDesc desc      = {};
+		desc.windowSurface      = m_videoOut->getWindowSurface();
+		desc.presentQueue       = deviceQueue.graphics.queueHandle;
+		desc.imageExtent.width  = sizeInfo.frameWidth;
+		desc.imageExtent.height = sizeInfo.frameHeight;
+		desc.imageCount         = imageCount;
+		desc.fullScreen         = false;
+
+		m_presenter = std::make_shared<ScePresenter>(m_device, desc);
+		if (!m_presenter)
+		{
+			break;
+		}
+
+		ret  = true;
+	}while(false);
+	return ret;
 }
 
 }  //sce

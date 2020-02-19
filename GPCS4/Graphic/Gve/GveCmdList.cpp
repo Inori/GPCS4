@@ -1,4 +1,5 @@
 #include "GveCmdList.h"
+
 #include "GvePhysicalDevice.h"
 
 LOG_CHANNEL(Graphic.Gve.GveCmdList);
@@ -6,91 +7,219 @@ LOG_CHANNEL(Graphic.Gve.GveCmdList);
 namespace gve
 {;
 
-
-GveCmdList::GveCmdList(GveDevice* device):
+GveCmdList::GveCmdList(
+	GveDevice*      device,
+	GvePipelineType type) :
 	m_device(device),
 	m_descriptorPoolTracker(device)
 {
-	bool success = initCommandBuffer();
+	bool success = createCommandBuffer(type);
 	LOG_ASSERT(success, "init command buffer failed.");
 }
 
 GveCmdList::~GveCmdList()
 {
-	vkDestroyCommandPool(*m_device, m_pool, nullptr);
+	destroyCommandBuffers();
 }
 
-VkCommandBuffer GveCmdList::execBufferHandle() const
-{
-	return m_execBuffer;
-}
-
-bool GveCmdList::initCommandBuffer()
+bool GveCmdList::createCommandBuffer(GvePipelineType type)
 {
 	bool ret = false;
 	do
 	{
-		auto phyDevice = m_device->physicalDevice();
-		GvePhysicalDeviceQueueFamilies families = phyDevice->findQueueFamilies();
+		auto                           phyDevice = m_device->physicalDevice();
+		GvePhysicalDeviceQueueFamilies families  = phyDevice->findQueueFamilies();
+
+		VkFenceCreateInfo fenceInfo;
+		fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+		fenceInfo.pNext = nullptr;
+		fenceInfo.flags = 0;
+		if (vkCreateFence(*m_device, &fenceInfo, nullptr, &m_fence) != VK_SUCCESS)
+		{
+			LOG_ERR("Failed to create fence");
+			break;
+		}
+			
+		uint32_t execQueueFamily = type == GvePipelineType::Graphics ? 
+			families.graphics : families.compute;
 
 		VkCommandPoolCreateInfo poolInfo = {};
-		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-		poolInfo.queueFamilyIndex = families.graphicsFamily;
-		if (vkCreateCommandPool(*m_device, &poolInfo, nullptr, &m_pool) != VK_SUCCESS)
+		poolInfo.sType                   = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+		poolInfo.queueFamilyIndex        = execQueueFamily;
+		if (vkCreateCommandPool(*m_device, &poolInfo, nullptr, &m_execPool) != VK_SUCCESS)
 		{
-			LOG_ERR("failed to create graphics command pool!");
+			LOG_ERR("create command pool failed.");
 			break;
 		}
 
-		VkCommandBufferAllocateInfo allocInfo = {};
-		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfo.commandPool = m_pool;
-		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandBufferCount = 1;
+		if (m_device->hasDedicatedTransferQueue())
+		{
+			VkCommandPoolCreateInfo poolInfo = {};
+			poolInfo.sType                   = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+			poolInfo.queueFamilyIndex        = families.transfer;
+			if (vkCreateCommandPool(*m_device, &poolInfo, nullptr, &m_transferPool) != VK_SUCCESS)
+			{
+				LOG_ERR("create command pool failed.");
+				break;
+			}
+		}
 
-		if (vkAllocateCommandBuffers(*m_device, &allocInfo, &m_execBuffer) != VK_SUCCESS)
+		VkCommandBufferAllocateInfo allocInfo = {};
+		allocInfo.sType                       = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		allocInfo.commandPool                 = m_execPool;
+		allocInfo.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		allocInfo.commandBufferCount          = 1;
+
+		VkCommandBufferAllocateInfo allocInfoDma;
+		allocInfoDma.sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		allocInfoDma.pNext            = nullptr;
+		allocInfoDma.commandPool        = m_transferPool ? m_transferPool : m_execPool;
+		allocInfoDma.level            = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		allocInfoDma.commandBufferCount = 1;
+
+		if (vkAllocateCommandBuffers(*m_device, &allocInfo, &m_execBuffer) != VK_SUCCESS ||
+			vkAllocateCommandBuffers(*m_device, &allocInfo, &m_initBuffer) != VK_SUCCESS ||
+			vkAllocateCommandBuffers(*m_device, &allocInfoDma, &m_sdmaBuffer) != VK_SUCCESS)
 		{
 			LOG_ERR("failed to allocate command buffers!");
 			break;
 		}
 
-		ret = true;
-	} while (false);
+		if (m_device->hasDedicatedTransferQueue())
+		{
+			VkSemaphoreCreateInfo semInfo;
+			semInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+			semInfo.pNext = nullptr;
+			semInfo.flags = 0;
+			if (vkCreateSemaphore(*m_device, &semInfo, nullptr, &m_sdmaSemaphore) != VK_SUCCESS)
+			{
+				break;
+			}
+		}
+
+		ret  = true;
+	}while(false);
 	return ret;
 }
 
+void GveCmdList::destroyCommandBuffers()
+{
+	reset();
+
+	if (m_execPool)
+	{
+		vkDestroyCommandPool(*m_device, m_execPool, nullptr);
+		m_execPool = VK_NULL_HANDLE;
+	}
+
+	if (m_transferPool)
+	{
+		vkDestroyCommandPool(*m_device, m_transferPool, nullptr);
+		m_transferPool = VK_NULL_HANDLE;
+	}
+
+	vkDestroySemaphore(*m_device, m_sdmaSemaphore, nullptr);
+	m_sdmaSemaphore = VK_NULL_HANDLE;
+	vkDestroyFence(*m_device, m_fence, nullptr);
+	m_fence = VK_NULL_HANDLE;
+}
+
+
 void GveCmdList::beginRecording()
 {
-	do 
+	do
 	{
-		if (vkResetCommandPool(*m_device, m_pool, 0) != VK_SUCCESS)
+		if ((m_execPool != VK_NULL_HANDLE && vkResetCommandPool(*m_device, m_execPool, 0) != VK_SUCCESS) ||
+			(m_transferPool != VK_NULL_HANDLE && vkResetCommandPool(*m_device, m_transferPool, 0) != VK_SUCCESS))
 		{
 			LOG_ERR("reset command pool failed.");
 			break;
 		}
 
 		VkCommandBufferBeginInfo info;
-		info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		info.pNext = nullptr;
-		info.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+		info.sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		info.pNext            = nullptr;
+		info.flags            = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 		info.pInheritanceInfo = nullptr;
-		if (vkBeginCommandBuffer(m_execBuffer, &info) != VK_SUCCESS)
+
+		if (vkBeginCommandBuffer(m_execBuffer, &info) != VK_SUCCESS ||
+			vkBeginCommandBuffer(m_initBuffer, &info) != VK_SUCCESS ||
+			vkBeginCommandBuffer(m_sdmaBuffer, &info) != VK_SUCCESS)
 		{
 			LOG_ERR("begin command buffer failed.");
 			break;
 		}
 
+		if (vkResetFences(*m_device, 1, &m_fence) != VK_SUCCESS)
+		{
+			break;
+		}
+
+		// Unconditionally mark the exec buffer as used. There
+		// is virtually no use case where this isn't correct.
+		m_cmdTypeUsed = GveCmdType::ExecBuffer;
 	} while (false);
 }
+
 
 void GveCmdList::endRecording()
 {
 	vkEndCommandBuffer(m_execBuffer);
+	vkEndCommandBuffer(m_initBuffer);
+	vkEndCommandBuffer(m_sdmaBuffer);
+}
+
+
+VkResult GveCmdList::submit(VkSemaphore waitSemaphore, VkSemaphore wakeSemaphore)
+{
+
+}
+
+VkResult GveCmdList::synchronize()
+{
+	vkWaitForFences(*m_device, 1, &m_fence, VK_FALSE, UINT64_MAX);
 }
 
 void GveCmdList::reset()
 {
 	m_descriptorPoolTracker.reset();
+}
+
+VkResult GveCmdList::submitToQueue(
+	VkQueue                   queue,
+	VkFence                   fence,
+	const GveQueueSubmission& info)
+{
+	VkSubmitInfo submitInfo;
+	submitInfo.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submitInfo.pNext                = nullptr;
+	submitInfo.waitSemaphoreCount   = info.waitCount;
+	submitInfo.pWaitSemaphores      = info.waitSync;
+	submitInfo.pWaitDstStageMask    = info.waitMask;
+	submitInfo.commandBufferCount   = info.cmdBufferCount;
+	submitInfo.pCommandBuffers      = info.cmdBuffers;
+	submitInfo.signalSemaphoreCount = info.wakeCount;
+	submitInfo.pSignalSemaphores    = info.wakeSync;
+
+	return vkQueueSubmit(queue, 1, &submitInfo, fence);
+}
+
+VkCommandBuffer GveCmdList::selectCmdBuffer(GveCmdType cmdType) const
+{
+	VkCommandBuffer cmdBuffer = VK_NULL_HANDLE;
+	if (cmdType == GveCmdType::ExecBuffer)
+	{
+		cmdBuffer = m_execBuffer;
+	}
+	else if (cmdType == GveCmdType::InitBuffer)
+	{
+		cmdBuffer = m_initBuffer;
+	}
+	else if (cmdType == GveCmdType::SdmaBuffer)
+	{
+		cmdBuffer = m_sdmaBuffer;
+	}
+	return cmdBuffer;
 }
 
 }  // namespace gve

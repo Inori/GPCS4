@@ -3,20 +3,26 @@
 #include "../Gve/GveDevice.h"
 #include "../Gve/GveContext.h"
 #include "../Gve/GveCmdList.h"
-#include "../Gve/GveSwapChain.h"
+
+#include "../Sce/SceVideoOut.h"
+#include "../Sce/ScePresenter.h"
+#include "../Sce/SceGpuQueue.h"
+
 
 #include "Platform/PlatformUtils.h"
 
 GnmCommandBuffer::GnmCommandBuffer(
-	const RcPtr<gve::GveDevice>&             device,
-	const RcPtr<gve::GveContext>&            context,
-	const RcPtr<gve::GveSwapChain>&          swapchain,
-	const std::shared_ptr<sce::SceVideoOut>& videoOut):
-	m_device(device),
+	const sce::SceGpuQueueDevice& device,
+	const RcPtr<gve::GveContext>& context) :
+	m_device(device.device),
 	m_context(context),
-	m_swapchain(swapchain),
-	m_videoOut(videoOut),
+	m_presenter(device.presenter),
+	m_videoOut(device.videoOut),
 	m_cmdList(nullptr)
+{
+}
+
+GnmCommandBuffer::GnmCommandBuffer(const sce::SceGpuQueueDevice& device, const RcPtr<gve::GveContext>& context)
 {
 }
 

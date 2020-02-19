@@ -66,6 +66,7 @@ struct PresenterSync
 	VkSemaphore present;
 };
 
+
 struct SwapChainSupportDetails
 {
 	VkSurfaceCapabilitiesKHR        capabilities;

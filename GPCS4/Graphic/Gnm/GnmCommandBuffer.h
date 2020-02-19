@@ -14,12 +14,11 @@ namespace gve
 class GveDevice;
 class GveCmdList;
 class GveContext;
-class GveSwapChain;
 }  // namespace gve
 
 namespace sce
 {;
-class SceVideoOut;
+struct SceGpuQueueDevice;
 }  // namespace sce
 
 
@@ -27,10 +26,8 @@ class GnmCommandBuffer
 {
 public:
 	GnmCommandBuffer(
-		const RcPtr<gve::GveDevice>&             device,
-		const RcPtr<gve::GveContext>&            context,
-		const RcPtr<gve::GveSwapChain>&          swapchain,
-		const std::shared_ptr<sce::SceVideoOut>& videoOut);
+		const sce::SceGpuQueueDevice& device,
+		const RcPtr<gve::GveContext>& context);
 
 	virtual ~GnmCommandBuffer();
 
@@ -351,12 +348,13 @@ protected:
 	void emuWriteGpuLabel(EventWriteSource selector, void* label, uint64_t value);
 
 protected:
-	RcPtr<gve::GveDevice>                 m_device;
-	RcPtr<gve::GveContext>                m_context;
-	RcPtr<gve::GveSwapChain>              m_swapchain;
-	std::shared_ptr<sce::SceVideoOut>     m_videoOut;
+	RcPtr<gve::GveDevice>              m_device;
+	RcPtr<gve::GveContext>             m_context;
+	std::shared_ptr<sce::ScePresenter> m_presenter;
+	std::shared_ptr<sce::SceVideoOut>  m_videoOut;
 
 	uint32_t m_displayBufferIndex = 0;
+
 	RcPtr<gve::GveCmdList> m_cmdList;
 
 private:

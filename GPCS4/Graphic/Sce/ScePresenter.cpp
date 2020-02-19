@@ -44,10 +44,13 @@ VkResult ScePresenter::acquireNextImage(VkSemaphore signal, VkFence fence, uint3
 	VkResult status;
 	do
 	{
-		if (fence != VK_NULL_HANDLE && 
-		   ((status = vkResetFences(*m_device, 1, &fence)) != VK_SUCCESS) )
+		if (fence != VK_NULL_HANDLE)
 		{
-			break;
+			status = vkResetFences(*m_device, 1, &fence);
+			if (status != VK_SUCCESS)
+			{
+				break;
+			}
 		}
 
 		status = vkAcquireNextImageKHR(

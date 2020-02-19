@@ -3,6 +3,8 @@
 #include "SceCommon.h"
 #include "SceVideoOut.h"
 
+#include "../Gve/GveDeviceInfo.h"
+
 #include <memory>
 
 namespace gve
@@ -10,9 +12,7 @@ namespace gve
 class GveInstance;
 class GvePhysicalDevice;
 class GveDevice;
-class GveSwapChain;
 class GvePresenter;
-class GveContext;
 }  // namespace gve
 
 class GnmCmdStream;
@@ -22,6 +22,7 @@ namespace sce
 {;
 
 class SceVideoOut;
+class ScePresenter;
 
 
 class SceGnmDriver
@@ -43,14 +44,26 @@ public:
 
 	int sceGnmSubmitDone(void);
 
+	bool createPresenter(uint32_t imageCount);
+
 private:
 
 	bool initGnmDriver();
 
-	bool initGraphics();
+	bool pickPhysicalDevice(
+		const std::vector<RcPtr<gve::GvePhysicalDevice>>& devices,
+		VkSurfaceKHR                                      surface);
 
-	bool initCompute();
+	bool isDeviceSuitable(
+		const RcPtr<gve::GvePhysicalDevice>& device,
+		VkSurfaceKHR                         surface);
 
+	gve::GveDeviceFeatures getRequiredFeatures(
+		const RcPtr<gve::GvePhysicalDevice>& device);
+
+	bool checkPresentSupport(
+		const RcPtr<gve::GvePhysicalDevice>& device,
+		VkSurfaceKHR                         surface);
 
 private:
 	std::shared_ptr<SceVideoOut> m_videoOut;
@@ -61,8 +74,7 @@ private:
 	RcPtr<gve::GveSwapChain>      m_swapchain;
 	RcPtr<gve::GveContext>        m_context;
 
-	std::unique_ptr<GnmCmdStream>     m_commandParser;
-	std::unique_ptr<GnmCommandBuffer> m_graphicsCmdBuffer;
+	std::shared_ptr<ScePresenter> m_presenter;
 };
 
 }  //sce

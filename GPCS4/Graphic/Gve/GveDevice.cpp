@@ -4,7 +4,6 @@
 #include "GveBuffer.h"
 #include "GveImage.h"
 #include "GveSampler.h"
-#include "GveSwapChain.h"
 #include "GveContext.h"
 #include "GveFrameBuffer.h"
 #include "GvePhysicalDevice.h"
@@ -107,6 +106,16 @@ RcPtr<GveSampler> GveDevice::createSampler(const GveSamplerCreateInfo& info)
 	return new GveSampler(this, info);
 }
 
+bool GveDevice::hasDedicatedComputeQueue() const
+{
+	return m_queues.compute.queueFamily != m_queues.graphics.queueFamily;
+}
+
+bool GveDevice::hasDedicatedTransferQueue() const
+{
+	return m_queues.transfer.queueFamily != m_queues.graphics.queueFamily;
+}
+
 void GveDevice::recycleDescriptorPool(const RcPtr<GveDescriptorPool>& pool)
 {
 	m_recycledDescriptorPools.returnObject(pool);
@@ -115,10 +124,19 @@ void GveDevice::recycleDescriptorPool(const RcPtr<GveDescriptorPool>& pool)
 void GveDevice::initQueues()
 {
 	GvePhysicalDeviceQueueFamilies families = m_phyDevice->findQueueFamilies();
-	GveDeviceQueue& graphicQueue = m_queues.graphics;
-	graphicQueue.queueFamily = families.graphicsFamily;
-	graphicQueue.queueIndex = 0;
-	vkGetDeviceQueue(m_device, families.graphicsFamily, graphicQueue.queueIndex, &graphicQueue.queueHandle);
+
+	m_queues.graphics = getQueue(families.graphics, 0);
+	m_queues.compute  = getQueue(families.compute, 0);
+	m_queues.transfer = getQueue(families.transfer, 0);
+}
+
+GveDeviceQueue GveDevice::getQueue(uint32_t family, uint32_t index)
+{
+	GveDeviceQueue queue = {};
+	queue.queueFamily    = family;
+	queue.queueIndex     = index;
+	vkGetDeviceQueue(m_device, queue.queueFamily, queue.queueIndex, &queue.queueHandle);
+	return queue;
 }
 
 } // namespace gve

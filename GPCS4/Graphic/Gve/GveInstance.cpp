@@ -1,6 +1,5 @@
 #include "GveInstance.h"
 #include "GveVkLayers.h"
-#include "GveSwapChain.h"
 
 #include <iostream>
 
@@ -17,8 +16,6 @@ GveInstance::GveInstance(const std::vector<const char*>& requiredExtensions)
 #ifdef GVE_VALIDATION_LAYERS_ENABLE
 	setupDebugMessenger();
 #endif // GVE_VALIDATION_LAYERS_ENABLE
-
-	enumPhysicalDevices();
 }
 
 GveInstance::~GveInstance()
@@ -36,39 +33,24 @@ GveInstance::operator VkInstance() const
 	return m_instance;
 }
 
-RcPtr<GvePhysicalDevice> GveInstance::pickPhysicalDevice(VkSurfaceKHR windowSurface)
+std::vector<RcPtr<GvePhysicalDevice>> GveInstance::enumPhysicalDevices()
 {
-	RcPtr<GvePhysicalDevice> phyDevice;
-	do
+	std::vector<RcPtr<GvePhysicalDevice>> phyDevices;
+
+	uint32_t deviceCount = 0;
+	vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr);
+
+	LOG_ASSERT(deviceCount != 0, "0 physical device count.");
+
+	std::vector<VkPhysicalDevice> vkDevices(deviceCount);
+	vkEnumeratePhysicalDevices(m_instance, &deviceCount, vkDevices.data());
+
+	phyDevices.reserve(deviceCount);
+	for (auto& device : vkDevices)
 	{
-		if (!m_instance)
-		{
-			break;
-		}
-
-		for (const auto& device : m_phyDevices)
-		{
-			if (isDeviceSuitable(device, windowSurface))
-			{
-				phyDevice = device;
-				break;
-			}
-		}
-
-	} while (false);
-	return phyDevice;
-}
-
-bool GveInstance::isDeviceSuitable(const RcPtr<GvePhysicalDevice>& device, VkSurfaceKHR windowSurface)
-{
-	bool swapChainAdequate = false;
-
-	SwapChainSupportDetails swapChainSupport = GveSwapChain::querySwapChainSupport(*device, windowSurface);
-	swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
-
-	const VkPhysicalDeviceFeatures& supportedFeatures = device->features().core.features;
-
-	return swapChainAdequate && supportedFeatures.samplerAnisotropy;
+		phyDevices.push_back(new GvePhysicalDevice(this, device));
+	}
+	return phyDevices;
 }
 
 void GveInstance::createInstance(const std::vector<const char*>& requiredExtensions)
@@ -132,7 +114,7 @@ void GveInstance::createInstance(const std::vector<const char*>& requiredExtensi
 void GveInstance::setupDebugMessenger()
 {
 #ifdef GVE_VALIDATION_LAYERS_ENABLE
-	do 
+	do
 	{
 		VkDebugUtilsMessengerCreateInfoEXT createInfo;
 		populateDebugMessengerCreateInfo(createInfo);
@@ -143,9 +125,6 @@ void GveInstance::setupDebugMessenger()
 			break;
 		}
 	} while (false);
-
-#else // GVE_VALIDATION_LAYERS_ENABLE
-	return;
 #endif // GVE_VALIDATION_LAYERS_ENABLE
 }
 
@@ -230,22 +209,6 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GveInstance::debugCallback(VkDebugUtilsMessageSev
 	return VK_FALSE;
 }
 
-void GveInstance::enumPhysicalDevices()
-{
-	uint32_t deviceCount = 0;
-	vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr);
-
-	LOG_ASSERT(deviceCount != 0, "0 physical device count.");
-
-	std::vector<VkPhysicalDevice> vkDevices(deviceCount);
-	vkEnumeratePhysicalDevices(m_instance, &deviceCount, vkDevices.data());
-
-	m_phyDevices.reserve(deviceCount);
-	for (auto& device : vkDevices)
-	{
-		m_phyDevices.push_back(new GvePhysicalDevice(this, device));
-	}
-}
 
 RcPtr<gve::GveInstance> gveCreateInstance(const std::vector<const char*>& requiredExtensions)
 {

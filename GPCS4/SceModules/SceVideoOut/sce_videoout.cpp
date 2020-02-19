@@ -62,13 +62,14 @@ int PS4API sceVideoOutGetResolutionStatus(int32_t handle, SceVideoOutResolutionS
 
 	std::shared_ptr<sce::SceVideoOut> videoOut = getVideoOut(handle);
 
-	status->fullWidth = videoOut->width();
-	status->fullHeight = videoOut->height();
-	status->paneWidth = videoOut->width();
-	status->paneHeight = videoOut->height();
-	status->refreshRate = SCE_VIDEO_OUT_REFRESH_RATE_59_94HZ;
+	auto sizeInfo            = videoOut->getSize();
+	status->fullWidth        = sizeInfo.windowWidth;
+	status->fullHeight       = sizeInfo.windowHeight;
+	status->paneWidth        = sizeInfo.windowWidth;
+	status->paneHeight       = sizeInfo.windowHeight;
+	status->refreshRate      = SCE_VIDEO_OUT_REFRESH_RATE_59_94HZ;
 	status->screenSizeInInch = 32;
-	status->flags = SCE_VIDEO_OUT_RESOLUTION_STATUS_FLAGS_OUTPUT_IN_USE;
+	status->flags            = SCE_VIDEO_OUT_RESOLUTION_STATUS_FLAGS_OUTPUT_IN_USE;
 	return SCE_OK;
 }
 
@@ -135,12 +136,12 @@ int PS4API sceVideoOutRegisterBuffers(int32_t handle, int32_t startIndex, void *
 		}
 
 		// Maybe need more params, such as attribute...
-		if (!videoOut->registeDisplayrBuffers(startIndex, addresses, bufferNum))
+		if (!videoOut->registerDisplayrBuffers(startIndex, addresses, bufferNum))
 		{
 			break;
 		}
 		
-		if (!gnmDriver->createSwapchain(bufferNum))
+		if (!gnmDriver->createPresenter(bufferNum))
 		{
 			break;
 		}
@@ -167,12 +168,12 @@ int PS4API sceVideoOutRegisterStereoBuffers(int32_t handle, int32_t startIndex, 
 		}
 
 		// Maybe need more params, such as attribute...
-		if (!videoOut->registeDisplayrBuffers(startIndex, bufferNum, TODO))
+		if (!videoOut->registerDisplayrBuffers(startIndex, nullptr, bufferNum))
 		{
 			break;
 		}
 		
-		if (!gnmDriver->createSwapchain(bufferNum))
+		if (!gnmDriver->createPresenter(bufferNum))
 		{
 			break;
 		}

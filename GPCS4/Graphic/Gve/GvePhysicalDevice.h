@@ -26,7 +26,9 @@ enum class GveGpuVendor : uint16_t
 
 struct GvePhysicalDeviceQueueFamilies
 {
-	uint32_t graphicsFamily;
+	uint32_t graphics;
+	uint32_t compute;
+	uint32_t transfer;
 };
 
 
@@ -37,12 +39,12 @@ public:
 	~GvePhysicalDevice();
 
 	operator VkPhysicalDevice() const;
-
+	 
 	GveInstance* instance() const;
 
 	GvePhysicalDeviceQueueFamilies findQueueFamilies();
 
-	std::vector<VkExtensionProperties> getAvailableExtensions();
+	std::vector<VkExtensionProperties> availableExtensions();
 
 	const GveDeviceFeatures& features() const;
 
@@ -52,7 +54,9 @@ public:
 
 	VkPhysicalDeviceMemoryProperties memoryProperties() const;
 
-	RcPtr<GveDevice> createLogicalDevice();
+	bool checkFeatureSupport(const GveDeviceFeatures& required) const;
+
+	RcPtr<GveDevice> createLogicalDevice(const GveDeviceFeatures& features);
 
 private:
 	void queryExtensions();
@@ -60,7 +64,8 @@ private:
 	void queryDeviceFeatures();
 	void queryDeviceQueues();
 	uint32_t findQueueFamily(VkQueueFlags mask, VkQueueFlags flags);
-	GveDeviceFeatures getDeviceFeatures();
+	
+	void populateQueueCreateInfos(std::vector<VkDeviceQueueCreateInfo>& queueInfos);
 
 private:
 	GveInstance* m_instance;

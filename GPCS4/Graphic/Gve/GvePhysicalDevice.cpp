@@ -39,11 +39,34 @@ GveInstance* GvePhysicalDevice::instance() const
 GvePhysicalDeviceQueueFamilies GvePhysicalDevice::findQueueFamilies()
 {
 	uint32_t graphicsQueue = findQueueFamily(
+		VK_QUEUE_GRAPHICS_BIT,
+		VK_QUEUE_GRAPHICS_BIT);
+
+	// Dedicated queue for compute
+	uint32_t computeQueue = findQueueFamily(
 		VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT,
-		VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT);
+		VK_QUEUE_COMPUTE_BIT);
+
+	// Dedicated queue for transfer
+	uint32_t transferQueue = findQueueFamily(
+		VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT,
+		VK_QUEUE_TRANSFER_BIT);
+
+	if (computeQueue == VK_QUEUE_FAMILY_IGNORED)
+	{
+		computeQueue = graphicsQueue;
+	}
+
+	if (transferQueue == VK_QUEUE_FAMILY_IGNORED)
+	{
+		transferQueue = graphicsQueue;
+	}
 
 	GvePhysicalDeviceQueueFamilies queueFamilies;
-	queueFamilies.graphicsFamily = graphicsQueue;
+	queueFamilies.graphics = graphicsQueue;
+	queueFamilies.compute  = computeQueue;
+	queueFamilies.transfer = transferQueue;
+
 	return queueFamilies;
 }
 
@@ -113,19 +136,19 @@ void GvePhysicalDevice::queryDeviceFeatures()
 	m_deviceFeatures.core.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2_KHR;
 	m_deviceFeatures.core.pNext = nullptr;
 
-	//if (m_deviceExtensions.supports(VK_EXT_CONDITIONAL_RENDERING_EXTENSION_NAME)) 
+	//if (m_deviceExtensions.supports(VK_EXT_CONDITIONAL_RENDERING_EXTENSION_NAME))
 	//{
 	//	m_deviceFeatures.extConditionalRendering.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CONDITIONAL_RENDERING_FEATURES_EXT;
 	//	m_deviceFeatures.extConditionalRendering.pNext = std::exchange(m_deviceFeatures.core.pNext, &m_deviceFeatures.extConditionalRendering);
 	//}
 
-	//if (m_deviceExtensions.supports(VK_EXT_DEPTH_CLIP_ENABLE_EXTENSION_NAME)) 
+	//if (m_deviceExtensions.supports(VK_EXT_DEPTH_CLIP_ENABLE_EXTENSION_NAME))
 	//{
 	//	m_deviceFeatures.extDepthClipEnable.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLIP_ENABLE_FEATURES_EXT;
 	//	m_deviceFeatures.extDepthClipEnable.pNext = std::exchange(m_deviceFeatures.core.pNext, &m_deviceFeatures.extDepthClipEnable);
 	//}
 
-	//if (m_deviceExtensions.supports(VK_EXT_HOST_QUERY_RESET_EXTENSION_NAME)) 
+	//if (m_deviceExtensions.supports(VK_EXT_HOST_QUERY_RESET_EXTENSION_NAME))
 	//{
 	//	m_deviceFeatures.extHostQueryReset.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_QUERY_RESET_FEATURES_EXT;
 	//	m_deviceFeatures.extHostQueryReset.pNext = std::exchange(m_deviceFeatures.core.pNext, &m_deviceFeatures.extHostQueryReset);
@@ -167,7 +190,7 @@ void GvePhysicalDevice::queryDeviceQueues()
 	vkGetPhysicalDeviceQueueFamilyProperties(m_device, &queueFamilyCount, m_queueFamilyProps.data());
 }
 
-std::vector<VkExtensionProperties> GvePhysicalDevice::getAvailableExtensions()
+std::vector<VkExtensionProperties> GvePhysicalDevice::availableExtensions()
 {
 	uint32_t extensionCount;
 	vkEnumerateDeviceExtensionProperties(m_device, nullptr, &extensionCount, nullptr);
@@ -200,17 +223,173 @@ VkPhysicalDeviceMemoryProperties GvePhysicalDevice::memoryProperties() const
 	return memoryProperties;
 }
 
-GveDeviceFeatures GvePhysicalDevice::getDeviceFeatures()
+bool GvePhysicalDevice::checkFeatureSupport(const GveDeviceFeatures& required) const
 {
-	GveDeviceFeatures supported = features();
-	GveDeviceFeatures enabled = {};
-
-	enabled.core.features.samplerAnisotropy = VK_TRUE;
-	enabled.core.features.shaderInt64       = supported.core.features.shaderInt64;
-	return enabled;
+	return (m_deviceFeatures.core.features.robustBufferAccess
+		|| !required.core.features.robustBufferAccess)
+		&& (m_deviceFeatures.core.features.fullDrawIndexUint32
+			|| !required.core.features.fullDrawIndexUint32)
+		&& (m_deviceFeatures.core.features.imageCubeArray
+			|| !required.core.features.imageCubeArray)
+		&& (m_deviceFeatures.core.features.independentBlend
+			|| !required.core.features.independentBlend)
+		&& (m_deviceFeatures.core.features.geometryShader
+			|| !required.core.features.geometryShader)
+		&& (m_deviceFeatures.core.features.tessellationShader
+			|| !required.core.features.tessellationShader)
+		&& (m_deviceFeatures.core.features.sampleRateShading
+			|| !required.core.features.sampleRateShading)
+		&& (m_deviceFeatures.core.features.dualSrcBlend
+			|| !required.core.features.dualSrcBlend)
+		&& (m_deviceFeatures.core.features.logicOp
+			|| !required.core.features.logicOp)
+		&& (m_deviceFeatures.core.features.multiDrawIndirect
+			|| !required.core.features.multiDrawIndirect)
+		&& (m_deviceFeatures.core.features.drawIndirectFirstInstance
+			|| !required.core.features.drawIndirectFirstInstance)
+		&& (m_deviceFeatures.core.features.depthClamp
+			|| !required.core.features.depthClamp)
+		&& (m_deviceFeatures.core.features.depthBiasClamp
+			|| !required.core.features.depthBiasClamp)
+		&& (m_deviceFeatures.core.features.fillModeNonSolid
+			|| !required.core.features.fillModeNonSolid)
+		&& (m_deviceFeatures.core.features.depthBounds
+			|| !required.core.features.depthBounds)
+		&& (m_deviceFeatures.core.features.wideLines
+			|| !required.core.features.wideLines)
+		&& (m_deviceFeatures.core.features.largePoints
+			|| !required.core.features.largePoints)
+		&& (m_deviceFeatures.core.features.alphaToOne
+			|| !required.core.features.alphaToOne)
+		&& (m_deviceFeatures.core.features.multiViewport
+			|| !required.core.features.multiViewport)
+		&& (m_deviceFeatures.core.features.samplerAnisotropy
+			|| !required.core.features.samplerAnisotropy)
+		&& (m_deviceFeatures.core.features.textureCompressionETC2
+			|| !required.core.features.textureCompressionETC2)
+		&& (m_deviceFeatures.core.features.textureCompressionASTC_LDR
+			|| !required.core.features.textureCompressionASTC_LDR)
+		&& (m_deviceFeatures.core.features.textureCompressionBC
+			|| !required.core.features.textureCompressionBC)
+		&& (m_deviceFeatures.core.features.occlusionQueryPrecise
+			|| !required.core.features.occlusionQueryPrecise)
+		&& (m_deviceFeatures.core.features.pipelineStatisticsQuery
+			|| !required.core.features.pipelineStatisticsQuery)
+		&& (m_deviceFeatures.core.features.vertexPipelineStoresAndAtomics
+			|| !required.core.features.vertexPipelineStoresAndAtomics)
+		&& (m_deviceFeatures.core.features.fragmentStoresAndAtomics
+			|| !required.core.features.fragmentStoresAndAtomics)
+		&& (m_deviceFeatures.core.features.shaderTessellationAndGeometryPointSize
+			|| !required.core.features.shaderTessellationAndGeometryPointSize)
+		&& (m_deviceFeatures.core.features.shaderImageGatherExtended
+			|| !required.core.features.shaderImageGatherExtended)
+		&& (m_deviceFeatures.core.features.shaderStorageImageExtendedFormats
+			|| !required.core.features.shaderStorageImageExtendedFormats)
+		&& (m_deviceFeatures.core.features.shaderStorageImageMultisample
+			|| !required.core.features.shaderStorageImageMultisample)
+		&& (m_deviceFeatures.core.features.shaderStorageImageReadWithoutFormat
+			|| !required.core.features.shaderStorageImageReadWithoutFormat)
+		&& (m_deviceFeatures.core.features.shaderStorageImageWriteWithoutFormat
+			|| !required.core.features.shaderStorageImageWriteWithoutFormat)
+		&& (m_deviceFeatures.core.features.shaderUniformBufferArrayDynamicIndexing
+			|| !required.core.features.shaderUniformBufferArrayDynamicIndexing)
+		&& (m_deviceFeatures.core.features.shaderSampledImageArrayDynamicIndexing
+			|| !required.core.features.shaderSampledImageArrayDynamicIndexing)
+		&& (m_deviceFeatures.core.features.shaderStorageBufferArrayDynamicIndexing
+			|| !required.core.features.shaderStorageBufferArrayDynamicIndexing)
+		&& (m_deviceFeatures.core.features.shaderStorageImageArrayDynamicIndexing
+			|| !required.core.features.shaderStorageImageArrayDynamicIndexing)
+		&& (m_deviceFeatures.core.features.shaderClipDistance
+			|| !required.core.features.shaderClipDistance)
+		&& (m_deviceFeatures.core.features.shaderCullDistance
+			|| !required.core.features.shaderCullDistance)
+		&& (m_deviceFeatures.core.features.shaderFloat64
+			|| !required.core.features.shaderFloat64)
+		&& (m_deviceFeatures.core.features.shaderInt64
+			|| !required.core.features.shaderInt64)
+		&& (m_deviceFeatures.core.features.shaderInt16
+			|| !required.core.features.shaderInt16)
+		&& (m_deviceFeatures.core.features.shaderResourceResidency
+			|| !required.core.features.shaderResourceResidency)
+		&& (m_deviceFeatures.core.features.shaderResourceMinLod
+			|| !required.core.features.shaderResourceMinLod)
+		&& (m_deviceFeatures.core.features.sparseBinding
+			|| !required.core.features.sparseBinding)
+		&& (m_deviceFeatures.core.features.sparseResidencyBuffer
+			|| !required.core.features.sparseResidencyBuffer)
+		&& (m_deviceFeatures.core.features.sparseResidencyImage2D
+			|| !required.core.features.sparseResidencyImage2D)
+		&& (m_deviceFeatures.core.features.sparseResidencyImage3D
+			|| !required.core.features.sparseResidencyImage3D)
+		&& (m_deviceFeatures.core.features.sparseResidency2Samples
+			|| !required.core.features.sparseResidency2Samples)
+		&& (m_deviceFeatures.core.features.sparseResidency4Samples
+			|| !required.core.features.sparseResidency4Samples)
+		&& (m_deviceFeatures.core.features.sparseResidency8Samples
+			|| !required.core.features.sparseResidency8Samples)
+		&& (m_deviceFeatures.core.features.sparseResidency16Samples
+			|| !required.core.features.sparseResidency16Samples)
+		&& (m_deviceFeatures.core.features.sparseResidencyAliased
+			|| !required.core.features.sparseResidencyAliased)
+		&& (m_deviceFeatures.core.features.variableMultisampleRate
+			|| !required.core.features.variableMultisampleRate)
+		&& (m_deviceFeatures.core.features.inheritedQueries
+			|| !required.core.features.inheritedQueries)
+		&& (m_deviceFeatures.shaderDrawParameters.shaderDrawParameters
+			|| !required.shaderDrawParameters.shaderDrawParameters)
+		&& (m_deviceFeatures.extConditionalRendering.conditionalRendering
+			|| !required.extConditionalRendering.conditionalRendering)
+		&& (m_deviceFeatures.extDepthClipEnable.depthClipEnable
+			|| !required.extDepthClipEnable.depthClipEnable)
+		&& (m_deviceFeatures.extHostQueryReset.hostQueryReset
+			|| !required.extHostQueryReset.hostQueryReset)
+		&& (m_deviceFeatures.extMemoryPriority.memoryPriority
+			|| !required.extMemoryPriority.memoryPriority)
+		&& (m_deviceFeatures.extTransformFeedback.transformFeedback
+			|| !required.extTransformFeedback.transformFeedback)
+		&& (m_deviceFeatures.extVertexAttributeDivisor.vertexAttributeInstanceRateDivisor
+			|| !required.extVertexAttributeDivisor.vertexAttributeInstanceRateDivisor)
+		&& (m_deviceFeatures.extVertexAttributeDivisor.vertexAttributeInstanceRateZeroDivisor
+			|| !required.extVertexAttributeDivisor.vertexAttributeInstanceRateZeroDivisor);
 }
 
-RcPtr<gve::GveDevice> GvePhysicalDevice::createLogicalDevice()
+void GvePhysicalDevice::populateQueueCreateInfos(std::vector<VkDeviceQueueCreateInfo>& queueInfos)
+{
+	float                          queuePriority = 1.0f;
+	GvePhysicalDeviceQueueFamilies queueFamilies = findQueueFamilies();
+
+	VkDeviceQueueCreateInfo queueInfo = {};
+	queueInfo.sType                   = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+	queueInfo.queueFamilyIndex        = queueFamilies.graphics;
+	queueInfo.queueCount              = 1;
+	queueInfo.pQueuePriorities        = &queuePriority;
+	queueInfos.push_back(queueInfo);
+
+	if (queueFamilies.compute != queueFamilies.graphics)
+	{
+		// If compute family index differs, we need an additional queue create info for the compute queue
+		VkDeviceQueueCreateInfo queueInfo = {};
+		queueInfo.sType                   = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		queueInfo.queueFamilyIndex        = queueFamilies.compute;
+		queueInfo.queueCount              = 1;
+		queueInfo.pQueuePriorities        = &queuePriority;
+		queueInfos.push_back(queueInfo);
+	}
+
+	if ((queueFamilies.transfer != queueFamilies.graphics) &&
+		(queueFamilies.transfer != queueFamilies.compute))
+	{
+		// If compute family index differs, we need an additional queue create info for the compute queue
+		VkDeviceQueueCreateInfo queueInfo = {};
+		queueInfo.sType                   = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		queueInfo.queueFamilyIndex        = queueFamilies.transfer;
+		queueInfo.queueCount              = 1;
+		queueInfo.pQueuePriorities        = &queuePriority;
+		queueInfos.push_back(queueInfo);
+	}
+}
+
+RcPtr<gve::GveDevice> GvePhysicalDevice::createLogicalDevice(const GveDeviceFeatures& features)
 {
 	RcPtr<GveDevice> createdDevice;
 	do 
@@ -238,30 +417,20 @@ RcPtr<gve::GveDevice> GvePhysicalDevice::createLogicalDevice()
 		extensionsEnabled.merge(m_extraExtensions);
 		GveNameList extensionNameList = extensionsEnabled.toNameList();
 
-		// TODO:
-		// We should check whether the present queue is the same as graphic queue.
-		float queuePriority = 1.0f;
-		GvePhysicalDeviceQueueFamilies queueFamilies = findQueueFamilies();
-		VkDeviceQueueCreateInfo queueCreateInfo = {};
-		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-		queueCreateInfo.queueFamilyIndex = queueFamilies.graphicsFamily;
-		queueCreateInfo.queueCount = 1;
-		queueCreateInfo.pQueuePriorities = &queuePriority;
+		std::vector<VkDeviceQueueCreateInfo> queueInfos;
+		populateQueueCreateInfos(queueInfos);
 
-		GveDeviceFeatures features = getDeviceFeatures();
-
-		VkDeviceCreateInfo createInfo = {};
-		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-
-		createInfo.queueCreateInfoCount = 1;
-		createInfo.pQueueCreateInfos = &queueCreateInfo;
-		createInfo.pEnabledFeatures = &features.core.features;
-		createInfo.enabledExtensionCount = extensionNameList.count();
+		VkDeviceCreateInfo createInfo      = {};
+		createInfo.sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+		createInfo.pQueueCreateInfos       = queueInfos.data();
+		createInfo.queueCreateInfoCount    = queueInfos.size();
+		createInfo.pEnabledFeatures        = &features.core.features;
+		createInfo.enabledExtensionCount   = extensionNameList.count();
 		createInfo.ppEnabledExtensionNames = extensionNameList.names();
 
 #ifdef GVE_VALIDATION_LAYERS_ENABLE
 
-		createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+		createInfo.enabledLayerCount   = static_cast<uint32_t>(validationLayers.size());
 		createInfo.ppEnabledLayerNames = validationLayers.data();
 
 #else  // GVE_VALIDATION_LAYERS_ENABLE

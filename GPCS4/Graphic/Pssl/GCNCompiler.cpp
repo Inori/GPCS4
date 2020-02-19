@@ -1,9 +1,9 @@
 #include "GCNCompiler.h"
 
 #include "PsslBindingCalculator.h"
+#include "UtilString.h"
 
 #include "../Gnm/GnmSharpBuffer.h"
-#include "Platform/UtilString.h"
 
 #include <array>
 

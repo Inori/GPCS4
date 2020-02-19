@@ -12,20 +12,18 @@ class GveInstance : public RcObject
 {
 public:
 	GveInstance(const std::vector<const char*>& requiredExtensions);
+
 	~GveInstance();
 
 	operator VkInstance() const;
 
-	RcPtr<GvePhysicalDevice> pickPhysicalDevice(VkSurfaceKHR windowSurface);
+	std::vector<RcPtr<GvePhysicalDevice>> enumPhysicalDevices();
 
 private:
 
 	void createInstance(const std::vector<const char*>& requiredExtensions);
 
-
-
 	void setupDebugMessenger();
-
 	bool checkValidationLayerSupport();
 	void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 
@@ -41,14 +39,8 @@ private:
 		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
 		void* pUserData);
 
-
-	void enumPhysicalDevices();
-	bool isDeviceSuitable(const RcPtr<GvePhysicalDevice>& device, VkSurfaceKHR windowSurface);
-
 private:
 	VkInstance m_instance = VK_NULL_HANDLE;
-
-	std::vector<RcPtr<GvePhysicalDevice>> m_phyDevices;
 
 #ifdef GVE_VALIDATION_LAYERS_ENABLE
 	VkDebugUtilsMessengerEXT m_debugMessenger = VK_NULL_HANDLE;

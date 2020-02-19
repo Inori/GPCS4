@@ -40,8 +40,9 @@ struct GveDeviceQueue
 struct GveDeviceQueueSet 
 {
 	GveDeviceQueue graphics;
+	GveDeviceQueue compute;
+	GveDeviceQueue transfer;
 };
-
 
 class GveDevice : public RcObject
 {
@@ -57,8 +58,6 @@ public:
 	RcPtr<GvePhysicalDevice> physicalDevice() const;
 
 	GveDeviceQueueSet queues() const;
-
-	RcPtr<GveSwapChain> createSwapchain(std::shared_ptr<sce::SceVideoOut>& videoOut, uint32_t displayBufferCount);
 
 	RcPtr<GveFrameBuffer> createFrameBuffer(const GveRenderTargets& renderTargets);
 
@@ -81,11 +80,16 @@ public:
 	/// Sampler
 	RcPtr<GveSampler> createSampler(const GveSamplerCreateInfo& info);
 
+	bool hasDedicatedComputeQueue() const;
+
+	bool hasDedicatedTransferQueue() const;
+
 private:
 	void recycleDescriptorPool(const RcPtr<GveDescriptorPool>& pool);
 
 private:
 	void initQueues();
+	GveDeviceQueue getQueue(uint32_t family, uint32_t index);
 
 private:
 	VkDevice m_device;

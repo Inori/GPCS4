@@ -2,32 +2,68 @@
 
 #include "GveCommon.h"
 #include "GveDevice.h"
+#include "GveEnums.h"
 
 namespace gve
 {;
 
+/**
+ * \brief Command buffer flags
+ * 
+ * A set of flags used to specify which of
+ * the command buffers need to be submitted.
+ */
+enum class GveCmdType
+{
+	ExecBuffer = 0,
+	InitBuffer = 1,
+	SdmaBuffer = 2,
+};
+
+using GveCmdTypeFlags = Flags<GveCmdType>;
+
+
+/**
+ * \brief Queue submission info
+ *
+ * Convenience struct that holds data for
+ * actual command submissions. Internal use
+ * only, array sizes are based on need.
+ */
+struct GveQueueSubmission
+{
+	uint32_t             waitCount;
+	VkSemaphore          waitSync[2];
+	VkPipelineStageFlags waitMask[2];
+	uint32_t             wakeCount;
+	VkSemaphore          wakeSync[2];
+	uint32_t             cmdBufferCount;
+	VkCommandBuffer      cmdBuffers[4];
+};
+
+
 class GveCmdList : public RcObject
 {
 public:
-	GveCmdList(GveDevice* device);
-	~GveCmdList();
+	GveCmdList(
+		GveDevice*      device,
+		GvePipelineType type);
 
-	VkCommandBuffer execBufferHandle() const;
+	~GveCmdList();
 
 	void beginRecording();
 
 	void endRecording();
 
+	VkResult submit(
+		VkSemaphore waitSemaphore,
+		VkSemaphore wakeSemaphore);
 
-	/**
-	 * \brief Resets the command list
-	 *
-	 * Resets the internal command buffer of the command list and
-	 * marks all tracked resources as unused. When submitting the
-	 * command list to the device, this method will be called once
-	 * the command list completes execution.
-	 */
+	VkResult synchronize();
+
 	void reset();
+
+	///
 
 	void trackDescriptorPool(RcPtr<GveDescriptorPool>&& pool)
 	{
@@ -228,17 +264,17 @@ public:
 	VkCommandBuffer cmdBeginSingleTimeCommands()
 	{
 		VkCommandBufferAllocateInfo allocInfo = {};
-		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandPool = m_pool;
-		allocInfo.commandBufferCount = 1;
+		allocInfo.sType                       = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		allocInfo.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		allocInfo.commandPool                 = m_execPool;
+		allocInfo.commandBufferCount          = 1;
 
 		VkCommandBuffer commandBuffer;
 		vkAllocateCommandBuffers(*m_device, &allocInfo, &commandBuffer);
 
 		VkCommandBufferBeginInfo beginInfo = {};
-		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+		beginInfo.sType                    = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		beginInfo.flags                    = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
 		vkBeginCommandBuffer(commandBuffer, &beginInfo);
 
@@ -249,15 +285,15 @@ public:
 	{
 		vkEndCommandBuffer(commandBuffer);
 
-		VkSubmitInfo submitInfo = {};
-		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		VkSubmitInfo submitInfo       = {};
+		submitInfo.sType              = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &commandBuffer;
+		submitInfo.pCommandBuffers    = &commandBuffer;
 
 		vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
 		vkQueueWaitIdle(queue);
 
-		vkFreeCommandBuffers(*m_device, m_pool, 1, &commandBuffer);
+		vkFreeCommandBuffers(*m_device, m_execPool, 1, &commandBuffer);
 	}
 
 	void cmdCopyBuffer(
@@ -661,13 +697,32 @@ public:
 
 
 private:
-	bool initCommandBuffer();
+	bool createCommandBuffer(GvePipelineType type);
+
+	void destroyCommandBuffers();
+
+	VkResult submitToQueue(
+		VkQueue                   queue,
+		VkFence                   fence,
+		const GveQueueSubmission& info);
+
+	VkCommandBuffer selectCmdBuffer(GveCmdType cmdType) const;
 
 private:
 	GveDevice* m_device;
 
-	VkCommandPool m_pool = VK_NULL_HANDLE;
+	VkFence m_fence = VK_NULL_HANDLE;
+
+	VkCommandPool m_execPool     = VK_NULL_HANDLE;
+	VkCommandPool m_transferPool = VK_NULL_HANDLE;
+
 	VkCommandBuffer m_execBuffer = VK_NULL_HANDLE;
+	VkCommandBuffer m_initBuffer = VK_NULL_HANDLE;
+	VkCommandBuffer m_sdmaBuffer = VK_NULL_HANDLE;
+
+	VkSemaphore m_sdmaSemaphore = VK_NULL_HANDLE;
+
+	GveCmdTypeFlags m_cmdTypeUsed = 0;
 
 	GveDescriptorPoolTracker m_descriptorPoolTracker;
 };
