@@ -244,6 +244,9 @@ bool SceGnmDriver::createGraphicsQueue(uint32_t imageCount)
 		auto deviceQueue = m_device->queues();
 		auto sizeInfo    = m_videoOut->getSize();
 
+		// Create presenter first.
+		// The graphics queue need to access swapchain image as render target
+		// during record.
 		PresenterDesc desc      = {};
 		desc.windowSurface      = m_videoOut->getWindowSurface(*m_instance);
 		desc.presentQueue       = deviceQueue.graphics.queueHandle;
