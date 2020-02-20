@@ -24,7 +24,7 @@ public:
 
 	void attachCommandBuffer(GnmCommandBuffer* commandBuffer);
 
-	bool processCommandBuffer(uint32_t* commandBuffer, uint32_t commandSize);
+	bool processCommandBuffer(const void* commandBuffer, uint32_t commandSize);
 
 private:
 	

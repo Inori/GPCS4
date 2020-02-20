@@ -919,9 +919,6 @@
     <ClInclude Include="Graphic\Sce\SceCommon.h">
       <Filter>Source Files\Graphic\Sce</Filter>
     </ClInclude>
-    <ClInclude Include="Graphic\Sce\ScePresenter.h">
-      <Filter>Source Files\Graphic\Sce</Filter>
-    </ClInclude>
     <ClInclude Include="Graphic\Sce\SceGpuQueue.h">
       <Filter>Source Files\Graphic\Sce</Filter>
     </ClInclude>
@@ -929,6 +926,9 @@
       <Filter>Source Files\Util</Filter>
     </ClInclude>
     <ClInclude Include="Graphic\Gve\GveEnums.h">
+      <Filter>Source Files\Graphic\Gve</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gve\GvePresenter.h">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1608,14 +1608,14 @@
     <ClCompile Include="Emulator\ModuleManger.cpp">
       <Filter>Source Files\Emulator</Filter>
     </ClCompile>
-    <ClCompile Include="Graphic\Sce\ScePresenter.cpp">
-      <Filter>Source Files\Graphic\Sce</Filter>
-    </ClCompile>
     <ClCompile Include="Util\UtilString.cpp">
       <Filter>Source Files\Util</Filter>
     </ClCompile>
     <ClCompile Include="Graphic\Sce\SceGpuQueue.cpp">
       <Filter>Source Files\Graphic\Sce</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gve\GvePresenter.cpp">
+      <Filter>Source Files\Graphic\Gve</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

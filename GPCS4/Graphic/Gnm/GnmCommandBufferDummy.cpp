@@ -2,7 +2,9 @@
 
 #include "../Gve/GveDevice.h"
 #include "../Gve/GveContext.h"
+#include "../Gve/GvePresenter.h"
 #include "../Sce/SceGpuQueue.h"
+
 
 GnmCommandBufferDummy::GnmCommandBufferDummy():
 	GnmCommandBuffer( {nullptr, nullptr, nullptr}, nullptr)

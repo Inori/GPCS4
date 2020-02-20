@@ -56,6 +56,9 @@ public:
 
 	RcPtr<GveCmdList> endRecording();
 
+
+	///
+
 	void setViewport(const VkViewport& viewport, const VkRect2D& scissorRect);
 
 	void setViewports(uint32_t viewportCount,

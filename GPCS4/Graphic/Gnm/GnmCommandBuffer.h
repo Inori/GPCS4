@@ -14,11 +14,13 @@ namespace gve
 class GveDevice;
 class GveCmdList;
 class GveContext;
+class GvePresenter;
 }  // namespace gve
 
 namespace sce
 {;
 struct SceGpuQueueDevice;
+class SceVideoOut;
 }  // namespace sce
 
 
@@ -348,10 +350,10 @@ protected:
 	void emuWriteGpuLabel(EventWriteSource selector, void* label, uint64_t value);
 
 protected:
-	RcPtr<gve::GveDevice>              m_device;
-	RcPtr<gve::GveContext>             m_context;
-	std::shared_ptr<sce::ScePresenter> m_presenter;
-	std::shared_ptr<sce::SceVideoOut>  m_videoOut;
+	RcPtr<gve::GveDevice>             m_device;
+	RcPtr<gve::GveContext>            m_context;
+	RcPtr<gve::GvePresenter>          m_presenter;
+	std::shared_ptr<sce::SceVideoOut> m_videoOut;
 
 	uint32_t m_displayBufferIndex = 0;
 

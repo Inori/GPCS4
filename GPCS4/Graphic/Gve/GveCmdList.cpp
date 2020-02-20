@@ -11,9 +11,10 @@ GveCmdList::GveCmdList(
 	GveDevice*      device,
 	GvePipelineType type) :
 	m_device(device),
+	m_pipelineType(type),
 	m_descriptorPoolTracker(device)
 {
-	bool success = createCommandBuffer(type);
+	bool success = createCommandBuffer();
 	LOG_ASSERT(success, "init command buffer failed.");
 }
 
@@ -22,7 +23,7 @@ GveCmdList::~GveCmdList()
 	destroyCommandBuffers();
 }
 
-bool GveCmdList::createCommandBuffer(GvePipelineType type)
+bool GveCmdList::createCommandBuffer()
 {
 	bool ret = false;
 	do
@@ -39,8 +40,9 @@ bool GveCmdList::createCommandBuffer(GvePipelineType type)
 			LOG_ERR("Failed to create fence");
 			break;
 		}
-			
-		uint32_t execQueueFamily = type == GvePipelineType::Graphics ? 
+		
+		// m_execPool can be allocated from either graphics queue or compute queue
+		uint32_t execQueueFamily = m_pipelineType == GvePipelineType::Graphics ? 
 			families.graphics : families.compute;
 
 		VkCommandPoolCreateInfo poolInfo = {};
@@ -71,10 +73,10 @@ bool GveCmdList::createCommandBuffer(GvePipelineType type)
 		allocInfo.commandBufferCount          = 1;
 
 		VkCommandBufferAllocateInfo allocInfoDma;
-		allocInfoDma.sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfoDma.pNext            = nullptr;
+		allocInfoDma.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		allocInfoDma.pNext              = nullptr;
 		allocInfoDma.commandPool        = m_transferPool ? m_transferPool : m_execPool;
-		allocInfoDma.level            = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		allocInfoDma.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		allocInfoDma.commandBufferCount = 1;
 
 		if (vkAllocateCommandBuffers(*m_device, &allocInfo, &m_execBuffer) != VK_SUCCESS ||
@@ -170,9 +172,33 @@ void GveCmdList::endRecording()
 }
 
 
-VkResult GveCmdList::submit(VkSemaphore waitSemaphore, VkSemaphore wakeSemaphore)
+VkResult GveCmdList::submit(VkSemaphore wait, VkSemaphore wake)
 {
+	GveQueueSubmission submission = {};
 
+	if (m_cmdTypeUsed.test(GveCmdType::ExecBuffer))
+	{
+		submission.cmdBuffers[submission.cmdBufferCount++] = m_execBuffer;
+	}
+
+	if (wait != VK_NULL_HANDLE)
+	{
+		submission.waitSync[submission.waitCount] = wait;
+		submission.waitMask[submission.waitCount] = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+		++submission.waitCount;
+	}
+
+	if (wake != VK_NULL_HANDLE)
+	{
+		submission.wakeSync[submission.wakeCount++] = wake;
+	}
+
+	GveDeviceQueueSet queues      = m_device->queues();
+	VkQueue           submitQueue = m_pipelineType == GvePipelineType::Graphics ?
+		queues.graphics.queueHandle : 
+		queues.compute.queueHandle;
+
+	return submitToQueue(submitQueue, m_fence, submission);
 }
 
 VkResult GveCmdList::synchronize()

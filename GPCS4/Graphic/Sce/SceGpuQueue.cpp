@@ -5,6 +5,12 @@
 #include "../Gnm/GnmCommandBufferDispatch.h"
 #include "../Gve/GveDevice.h"
 #include "../Gve/GveContext.h"
+#include "../Gve/GveCmdList.h"
+#include "../Gve/GvePresenter.h"
+
+LOG_CHANNEL(Graphic.Sce.SceGpuQueue);
+
+using namespace gve;
 
 namespace sce
 {;
@@ -21,8 +27,44 @@ SceGpuQueue::~SceGpuQueue()
 {
 }
 
-void SceGpuQueue::submit(void* cmd, uint32_t size)
+
+bool SceGpuQueue::record(const SceGpuCommand& cmd, uint32_t displayBufferIndex)
 {
+	m_cmdProcesser->recordBegin(displayBufferIndex);
+
+	bool result = m_cmdParser->processCommandBuffer(cmd.buffer, cmd.size);
+	LOG_ERR_IF(result == false, "process command buffer failed.");
+
+	m_cmdList = m_cmdProcesser->recordEnd();
+
+	return result;
+}
+
+VkResult SceGpuQueue::synchronize()
+{
+	return m_cmdList->synchronize();
+}
+
+bool SceGpuQueue::submit(const SceGpuSync& sync)
+{
+	bool ret = false;
+	do 
+	{
+		if (!m_cmdList)
+		{
+			break;
+		}
+
+		GveSubmitInfo submission = {};
+		submission.cmdList       = std::exchange(m_cmdList, nullptr);
+		submission.waitSync      = sync.wait;
+		submission.wakeSync      = sync.wake;
+
+		m_device.device->submitCommandList(submission);
+
+		ret = true;
+	} while (false);
+	return ret;
 }
 
 void SceGpuQueue::createQueue(SceQueueType type)

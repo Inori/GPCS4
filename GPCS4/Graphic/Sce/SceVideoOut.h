@@ -44,6 +44,13 @@ public:
 
 	SceVideoOutSizeInfo getSize();
 
+	/**
+	 * \brief Get the window surface
+	 * 
+	 * This will be used to create swapchain.
+	 * This must be called after VkInstance created.
+	 * \returns The window surface
+	 */
 	VkSurfaceKHR getWindowSurface();
 
 	bool registerDisplayrBuffers(uint32_t startIndex, void* const* addresses, uint32_t bufferNum);

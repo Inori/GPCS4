@@ -13,7 +13,7 @@
 #include "../Gve/GveImage.h"
 #include "../Gve/GveSampler.h"
 #include "../Gve/GveContext.h"
-#include "../Gve/GveSwapChain.h"
+#include "../Gve/GvePresenter.h"
 #include "../Gve/GveSharpResourceManager.h"
 #include "../Pssl/PsslShaderModule.h"
 
@@ -30,7 +30,7 @@ GnmCommandBufferDraw::GnmCommandBufferDraw(
 	GnmCommandBuffer(device, context),
 	m_sharpRes(m_device->getSharpResManager())
 {
-	m_context->beginRecording(m_device->createCmdList());
+	
 }
 
 GnmCommandBufferDraw::~GnmCommandBufferDraw()
@@ -40,6 +40,10 @@ GnmCommandBufferDraw::~GnmCommandBufferDraw()
 // First call of a frame.
 void GnmCommandBufferDraw::initializeDefaultHardwareState()
 {
+	m_context->beginRecording(
+		m_device->createCmdList(GvePipelineType::Graphics)
+	);
+
 	clearUserDataSlots();
 }
 
@@ -204,9 +208,10 @@ void GnmCommandBufferDraw::setRenderTarget(uint32_t rtSlot, GnmRenderTarget cons
 		// we should check whether "target" is the display buffer or not
 		// and support extra render target,
 		// but currently I just use the default one.
-		GveAttachment colorTarget;
-		colorTarget.view = m_swapchain->getImageView(m_displayBufferIndex);
-		colorTarget.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		GveAttachment colorTarget = {};
+		auto          image       = m_presenter->getImage(m_displayBufferIndex);
+		colorTarget.view          = image.view;
+		colorTarget.layout        = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 		m_context->bindRenderTargets(&colorTarget, 1);
 	} while (false);
 

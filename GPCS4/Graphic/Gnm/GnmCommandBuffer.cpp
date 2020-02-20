@@ -3,9 +3,8 @@
 #include "../Gve/GveDevice.h"
 #include "../Gve/GveContext.h"
 #include "../Gve/GveCmdList.h"
-
+#include "../Gve/GvePresenter.h"
 #include "../Sce/SceVideoOut.h"
-#include "../Sce/ScePresenter.h"
 #include "../Sce/SceGpuQueue.h"
 
 
@@ -22,10 +21,6 @@ GnmCommandBuffer::GnmCommandBuffer(
 {
 }
 
-GnmCommandBuffer::GnmCommandBuffer(const sce::SceGpuQueueDevice& device, const RcPtr<gve::GveContext>& context)
-{
-}
-
 GnmCommandBuffer::~GnmCommandBuffer()
 {
 }
@@ -37,7 +32,7 @@ void GnmCommandBuffer::recordBegin(uint32_t displayBufferIndex)
 
 RcPtr<gve::GveCmdList> GnmCommandBuffer::recordEnd()
 {
-	return m_cmdList;
+	return std::exchange(m_cmdList, nullptr);
 }
 
 void GnmCommandBuffer::emuWriteGpuLabel(EventWriteSource selector, void* label, uint64_t value)

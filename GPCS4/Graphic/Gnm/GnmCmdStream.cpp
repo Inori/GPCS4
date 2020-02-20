@@ -36,7 +36,7 @@ void GnmCmdStream::attachCommandBuffer(GnmCommandBuffer* commandBuffer)
 	m_cb = commandBuffer;
 }
 
-bool GnmCmdStream::processCommandBuffer(uint32_t* commandBuffer, uint32_t commandSize)
+bool GnmCmdStream::processCommandBuffer(const void* commandBuffer, uint32_t commandSize)
 {
 	bool bRet = false;
 	do
@@ -46,8 +46,9 @@ bool GnmCmdStream::processCommandBuffer(uint32_t* commandBuffer, uint32_t comman
 		// it's likely because there are some GnmDriver functions not implemented,
 		// so no proper private packets being inserted into the command buffer.
 
-		uint32_t processedCmdSize = 0;
-		PPM4_HEADER pm4Hdr = reinterpret_cast<PPM4_HEADER>(commandBuffer);
+		const PM4_HEADER* pm4Hdr           = reinterpret_cast<const PM4_HEADER*>(commandBuffer);
+		uint32_t          processedCmdSize = 0;
+		
 		while (processedCmdSize < commandSize)
 		{
 			uint32_t pm4Type = pm4Hdr->type;
@@ -86,7 +87,7 @@ bool GnmCmdStream::processCommandBuffer(uint32_t* commandBuffer, uint32_t comman
 				m_skipPm4Count = 0;
 			}
 
-			PPM4_HEADER nextPm4Hdr = getNextNPm4(pm4Hdr, processedPm4Count);
+			const PM4_HEADER* nextPm4Hdr = getNextNPm4(pm4Hdr, processedPm4Count);
 			uint32_t processedLength = reinterpret_cast<uintptr_t>(nextPm4Hdr) - reinterpret_cast<uintptr_t>(pm4Hdr);
 			pm4Hdr = nextPm4Hdr;
 			processedCmdSize += processedLength;

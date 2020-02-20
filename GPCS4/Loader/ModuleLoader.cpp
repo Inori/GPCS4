@@ -1,5 +1,6 @@
 #include "ModuleLoader.h"
 
+#include "UtilString.h"
 #include "Platform/PlatformUtils.h"
 
 LOG_CHANNEL(Loader.ModuleLoader);

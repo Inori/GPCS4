@@ -1,8 +1,9 @@
 #include "Linker.h"
 #include "ModuleSystemCommon.h"
 #include "SceModuleSystem.h"
+#include "UtilString.h"
 #include "Loader/FuncStub.h"
-#include "Platform/PlatformUtils.h"
+
 
 LOG_CHANNEL(Linker);
 

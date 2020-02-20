@@ -1,18 +1,16 @@
 #pragma once
 
-#include "SceCommon.h"
+#include "GveCommon.h"
 
 namespace gve
-{
-;
+{;
+
 class GveDevice;
-}  // namespace gve
+class GveImage;
+class GveImageView;
+class GvePresenter;
 
-namespace sce
-{
-;
-
-/**
+	/**
  * \brief Presenter description
  * 
  * Contains the desired properties of
@@ -47,8 +45,8 @@ struct PresenterInfo
  */
 struct PresenterImage
 {
-	VkImage     image = VK_NULL_HANDLE;
-	VkImageView view  = VK_NULL_HANDLE;
+	RcPtr<GveImage>     image;
+	RcPtr<GveImageView> view;
 };
 
 /**
@@ -74,12 +72,25 @@ struct SwapChainSupportDetails
 	std::vector<VkPresentModeKHR>   presentModes;
 };
 
-class ScePresenter
+/**
+  * \brief Present information
+  * 
+  * Used to pass present information to the device.
+  */
+struct GvePresentInfo
+{
+	RcPtr<GvePresenter> presenter;
+	VkSemaphore         waitSync;
+};
+
+
+
+class GvePresenter : public RcObject
 {
 public:
-	ScePresenter(const RcPtr<gve::GveDevice>& device,
+	GvePresenter(const RcPtr<gve::GveDevice>& device,
 				 const PresenterDesc&         desc);
-	~ScePresenter();
+	~GvePresenter();
 
 	/**
      * \brief Actual presenter info
@@ -181,7 +192,7 @@ private:
 	void destroySwapchain();
 
 private:
-	RcPtr<gve::GveDevice> m_device;
+	RcPtr<GveDevice> m_device;
 
 	VkSwapchainKHR              m_swapchain = VK_NULL_HANDLE;
 	PresenterInfo               m_info;
@@ -193,4 +204,4 @@ private:
 	uint32_t m_imageIndex = 0;
 };
 
-}  // namespace sce
+}  // namespace gve

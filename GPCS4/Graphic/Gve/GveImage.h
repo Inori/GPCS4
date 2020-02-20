@@ -66,6 +66,19 @@ struct GveImageViewCreateInfo
 
 	/// Subresources to use in the view
 	VkImageAspectFlags aspect = 0;
+
+	uint32_t minLevel  = 0;
+	uint32_t numLevels = 0;
+	uint32_t minLayer  = 0;
+	uint32_t numLayers = 0;
+
+	/// Component mapping. Defaults to identity.
+	VkComponentMapping swizzle = {
+		VK_COMPONENT_SWIZZLE_IDENTITY,
+		VK_COMPONENT_SWIZZLE_IDENTITY,
+		VK_COMPONENT_SWIZZLE_IDENTITY,
+		VK_COMPONENT_SWIZZLE_IDENTITY,
+	};
 };
 
 
@@ -81,9 +94,9 @@ public:
 	// Creates image object from existing image
 	// Typically implementation-managed, like swapchain image.
 	GveImage(
-		const RcPtr<GveDevice>&    device,
-		const GveImageCreateInfo&  info,
-		VkImage               image);
+		const RcPtr<GveDevice>&   device,
+		const GveImageCreateInfo& info,
+		VkImage                   image);
 
 	~GveImage();
 
@@ -115,9 +128,9 @@ private:
 class GveImageView : public GveGpuResource
 {
 public:
-	GveImageView(const RcPtr<GveDevice>& device,
-		const GveImageViewCreateInfo& createInfo,
-		const RcPtr<GveImage>& image);
+	GveImageView(const RcPtr<GveDevice>&       device,
+				 const GveImageViewCreateInfo& createInfo,
+				 const RcPtr<GveImage>&        image);
 	~GveImageView();
 
 	VkImageView handle() const;

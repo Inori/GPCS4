@@ -197,16 +197,7 @@ int PS4API sceGnmDingDongForWorkload(void)
 }
 
 
-// Note:
-// it seems that nier:automata use an old version of this function
-// and it has 5 params and the vqueueId is the return value.
-
-//int PS4API sceGnmMapComputeQueue(uint32_t *vqueueId, 
-//	uint32_t globalPipeId, uint32_t queueId, 
-//	void *ringBaseAddr, uint32_t ringSizeInDW, void *readPtrAddr)
-
-int PS4API sceGnmMapComputeQueue(uint32_t globalPipeId, uint32_t queueId,
-	void *ringBaseAddr, uint32_t ringSizeInDW, void *readPtrAddr)
+int PS4API sceGnmMapComputeQueue(uint32_t globalPipeId, uint32_t queueId, void* ringBaseAddr, uint32_t ringSizeInDW, void* readPtrAddr)
 {
 	LOG_SCE_GRAPHIC("");
 	int vqueueId = 0;

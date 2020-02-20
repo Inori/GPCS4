@@ -1,5 +1,5 @@
 #include "SceGnmDriver.h"
-#include "ScePresenter.h"
+#include "SceGpuQueue.h"
 #include "sce_errors.h"
 
 #include "../GraphicShared.h"
@@ -10,14 +10,14 @@
 #include "../Gve/GvePhysicalDevice.h"
 #include "../Gve/GveCmdList.h"
 #include "../Gve/GveImage.h"
+#include "../Gve/GvePresenter.h"
 
 LOG_CHANNEL(Graphic.Sce.SceGnmDriver);
 
+using namespace gve;
+
 namespace sce
 {;
-
-using namespace gve;
-const int MAX_FRAMES_IN_FLIGHT = 2;
 
 SceGnmDriver::SceGnmDriver(std::shared_ptr<SceVideoOut>& videoOut):
 	m_videoOut(videoOut)
@@ -61,6 +61,13 @@ bool SceGnmDriver::initGnmDriver()
 			LOG_ERR("create logical device failed.");
 			break;
 		}
+
+		// Create the only graphics queue.
+		SceGpuQueueDevice gfxDevice = {};
+		gfxDevice.device            = m_device;
+		gfxDevice.presenter         = m_presenter;
+		gfxDevice.videoOut          = m_videoOut;
+		m_graphicsQueue             = std::make_unique<SceGpuQueue>(gfxDevice, SceQueueType::Graphics);
 
 		ret = true;
 	} while (false);
@@ -129,7 +136,7 @@ GveDeviceFeatures SceGnmDriver::getRequiredFeatures(const RcPtr<gve::GvePhysical
 	GveDeviceFeatures required   = {};
 	auto              supported      = device->features();
 
-	// Set all required features to be enabled here.
+	// Setup all required features to be enabled here.
 
 	required.core.features.samplerAnisotropy = supported.core.features.samplerAnisotropy;
 	required.core.features.shaderInt64       = VK_TRUE;
@@ -146,6 +153,7 @@ bool SceGnmDriver::checkPresentSupport(const RcPtr<gve::GvePhysicalDevice>& devi
 	vkGetPhysicalDeviceSurfaceSupportKHR(*device, queueFamilies.graphics, surface, &presentSupport);
 	return presentSupport;
 }
+
 
 int SceGnmDriver::submitCommandBuffers(uint32_t count, 
 	void *dcbGpuAddrs[], uint32_t *dcbSizesInBytes,
@@ -169,31 +177,55 @@ int SceGnmDriver::submitAndFlipCommandBuffers(uint32_t count,
 	// We just emulate the GPU, parsing and executing one command buffer per call.
 	
 	// TODO:
-	// For future development, we could try to record vulkan command buffer asynchronously,
+	// For real PS4 system, the submit call is asynchronous.
+	// Thus future development, we should record vulkan command buffer asynchronously too,
 	// reducing time period of the submit call.
 
-	int err = SCE_GNM_ERROR_UNKNOWN;
+	LOG_ASSERT(count == 1, "Currently only support 1 cmdbuff at one call.");
+
+	SceGpuCommand cmd = {};
+	cmd.buffer        = dcbGpuAddrs[0];
+	cmd.size          = dcbSizesInBytes[0];
+	m_graphicsQueue->record(cmd, displayBufferIndex);
+
+	submitPresent();
+
+	return SCE_OK;
+}
+
+void SceGnmDriver::submitPresent()
+{
 	do 
 	{
-		LOG_ASSERT(count == 1, "Currently only support 1 cmdbuff at one call.");
+		PresenterSync presentSync = m_presenter->getSyncObjects();
 
-		auto& cmdParser = m_commandParsers[displayBufferIndex];
-		if (!cmdParser->processCommandBuffer((uint32_t*)dcbGpuAddrs[0], dcbSizesInBytes[0]))
+		VkResult status = m_graphicsQueue->synchronize();
+		if (status != VK_SUCCESS)
 		{
 			break;
 		}
-	
-		auto cmdList = cmdParser->getCommandBuffer()->getCmdList();
-		if (!cmdList)
+
+		uint32_t imageIndex = 0;
+		status     = m_presenter->acquireNextImage(presentSync.acquire, VK_NULL_HANDLE, imageIndex);
+		if (status != VK_SUCCESS)
 		{
-			// cmdList is null when GPCS4_NO_GRAPHICS defined
-			err = SCE_OK;
 			break;
 		}
 
-		err = SCE_OK;
+		SceGpuSync gpuSync = {};
+		gpuSync.wait       = presentSync.acquire;
+		gpuSync.wake       = presentSync.present;
+		if (!m_graphicsQueue->submit(gpuSync))
+		{
+			break;
+		}
+		
+		GvePresentInfo presentation;
+		presentation.presenter = m_presenter;
+		presentation.waitSync  = gpuSync.wake;
+		m_device->presentImage(presentation);
+
 	} while (false);
-	return err;
 }
 
 int SceGnmDriver::sceGnmSubmitDone(void)
@@ -223,7 +255,7 @@ bool SceGnmDriver::createPresenter(uint32_t imageCount)
 		desc.imageCount         = imageCount;
 		desc.fullScreen         = false;
 
-		m_presenter = std::make_shared<ScePresenter>(m_device, desc);
+		m_presenter = new GvePresenter(m_device, desc);
 		if (!m_presenter)
 		{
 			break;
@@ -232,6 +264,18 @@ bool SceGnmDriver::createPresenter(uint32_t imageCount)
 		ret  = true;
 	}while(false);
 	return ret;
+}
+
+uint32_t SceGnmDriver::mapComputeQueue(uint32_t pipeId,
+									   uint32_t queueId,
+									   void*    ringBaseAddr,
+									   uint32_t ringSizeInDW,
+									   void*    readPtrAddr)
+{
+}
+
+void SceGnmDriver::unmapComputeQueue(uint32_t vqueueId)
+{
 }
 
 }  //sce

@@ -7,6 +7,7 @@
 #include "GveContext.h"
 #include "GveFrameBuffer.h"
 #include "GvePhysicalDevice.h"
+#include "GvePresenter.h"
 
 #include "../Sce/SceVideoOut.h"
 
@@ -59,9 +60,14 @@ RcPtr<GveFrameBuffer> GveDevice::createFrameBuffer(const GveRenderTargets& rende
 	return new GveFrameBuffer(this, renderTargets, renderPass, defaultSize);
 }
 
-RcPtr<GveCmdList> GveDevice::createCmdList()
+RcPtr<GveCmdList> GveDevice::createCmdList(GvePipelineType pipelineType)
 {
-	return new GveCmdList(this);
+	RcPtr<GveCmdList> cmdList = m_recycledCmdLists.retrieveObject();
+	if (cmdList == nullptr)
+	{
+		cmdList = new GveCmdList(this, pipelineType);
+	}
+	return cmdList;
 }
 
 RcPtr<GveContext> GveDevice::createContext()
@@ -72,12 +78,10 @@ RcPtr<GveContext> GveDevice::createContext()
 RcPtr<GveDescriptorPool> GveDevice::createDescriptorPool()
 {
 	RcPtr<GveDescriptorPool> pool = m_recycledDescriptorPools.retrieveObject();
-
 	if (pool == nullptr)
 	{
 		pool = new GveDescriptorPool(this);
 	}
-
 	return pool;
 }
 
@@ -106,6 +110,26 @@ RcPtr<GveSampler> GveDevice::createSampler(const GveSamplerCreateInfo& info)
 	return new GveSampler(this, info);
 }
 
+void GveDevice::submitCommandList(const GveSubmitInfo& submission)
+{
+	// TODO:
+	// Implement a queue to handle cmdlist submission asynchronously.
+	auto& cmdList = submission.cmdList;
+
+	cmdList->submit(submission.waitSync, submission.wakeSync);
+	cmdList->reset();
+
+	recycleCommandList(cmdList);
+}
+
+void GveDevice::presentImage(const GvePresentInfo& presentation)
+{
+	// TODO:
+	// Implement a queue to handle present asynchronously.
+	auto& presenter = presentation.presenter;
+	presenter->presentImage(presentation.waitSync);
+}
+
 bool GveDevice::hasDedicatedComputeQueue() const
 {
 	return m_queues.compute.queueFamily != m_queues.graphics.queueFamily;
@@ -119,6 +143,11 @@ bool GveDevice::hasDedicatedTransferQueue() const
 void GveDevice::recycleDescriptorPool(const RcPtr<GveDescriptorPool>& pool)
 {
 	m_recycledDescriptorPools.returnObject(pool);
+}
+
+void GveDevice::recycleCommandList(const RcPtr<GveCmdList>& cmdList)
+{
+	m_recycledCmdLists.returnObject(cmdList);
 }
 
 void GveDevice::initQueues()

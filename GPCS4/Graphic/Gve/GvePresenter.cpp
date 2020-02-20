@@ -1,45 +1,46 @@
-#include "ScePresenter.h"
+#include "GvePresenter.h"
+#include "GveDevice.h"
+#include "GvePhysicalDevice.h"
+#include "GveImage.h"
 #include "UtilMath.h"
 #include "UtilString.h"
 
-#include "../Gve/GveDevice.h"
-#include "../Gve/GvePhysicalDevice.h"
+
 
 LOG_CHANNEL(Graphic.Sce.ScePresenter);
 
-namespace sce
+namespace gve
 {;
 
-
-ScePresenter::ScePresenter(
+GvePresenter::GvePresenter(
 	const RcPtr<gve::GveDevice>& device,
 	const PresenterDesc&         desc):
 	m_presentQueue(desc.presentQueue)
 {
 }
 
-ScePresenter::~ScePresenter()
+GvePresenter::~GvePresenter()
 {
 	destroySwapchain();
 }
 
-PresenterInfo ScePresenter::info() const
+PresenterInfo GvePresenter::info() const
 {
 	return m_info;
 }
 
 
-PresenterSync ScePresenter::getSyncObjects() const
+PresenterSync GvePresenter::getSyncObjects() const
 {
 	return m_syncObjects[m_frameIndex];
 }
 
-PresenterImage ScePresenter::getImage(uint32_t index) const
+PresenterImage GvePresenter::getImage(uint32_t index) const
 {
 	return m_images[index];
 }
 
-VkResult ScePresenter::acquireNextImage(VkSemaphore signal, VkFence fence, uint32_t& index)
+VkResult GvePresenter::acquireNextImage(VkSemaphore signal, VkFence fence, uint32_t& index)
 {
 	VkResult status;
 	do
@@ -75,12 +76,12 @@ VkResult ScePresenter::acquireNextImage(VkSemaphore signal, VkFence fence, uint3
 	return status;
 }
 
-VkResult ScePresenter::waitForFence(VkFence fence)
+VkResult GvePresenter::waitForFence(VkFence fence)
 {
 	vkWaitForFences(*m_device, 1, &fence, VK_FALSE, UINT64_MAX);
 }
 
-VkResult ScePresenter::presentImage(VkSemaphore wait)
+VkResult GvePresenter::presentImage(VkSemaphore wait)
 {
 	VkPresentInfoKHR info;
 	info.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -95,7 +96,7 @@ VkResult ScePresenter::presentImage(VkSemaphore wait)
 	return vkQueuePresentKHR(m_presentQueue, &info);
 }
 
-VkResult ScePresenter::recreateSwapChain(const PresenterDesc& desc)
+VkResult GvePresenter::recreateSwapChain(const PresenterDesc& desc)
 {
 	VkResult result = VK_RESULT_MAX_ENUM;
 	do 
@@ -170,7 +171,7 @@ VkResult ScePresenter::recreateSwapChain(const PresenterDesc& desc)
 	return result;
 }
 
-bool ScePresenter::initImages()
+bool GvePresenter::initImages()
 {
 	bool ret = false;
 	do 
@@ -187,39 +188,39 @@ bool ScePresenter::initImages()
 		images.resize(imageCount);
 		vkGetSwapchainImagesKHR(*m_device, m_swapchain, &imageCount, images.data());
 
-		bool hasError = false;
-		for (uint32_t i = 0; i != imageCount; ++i)
+		GveImageCreateInfo imageInfo;
+		imageInfo.type        = VK_IMAGE_TYPE_2D;
+		imageInfo.format      = m_info.format.format;
+		imageInfo.flags       = 0;
+		imageInfo.sampleCount = VK_SAMPLE_COUNT_1_BIT;
+		imageInfo.extent      = { m_info.imageExtent.width, m_info.imageExtent.height, 1 };
+		imageInfo.numLayers   = 1;
+		imageInfo.mipLevels   = 1;
+		imageInfo.usage       = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+		imageInfo.stages      = 0;
+		imageInfo.access      = 0;
+		imageInfo.tiling      = VK_IMAGE_TILING_OPTIMAL;
+		imageInfo.layout      = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+		GveImageViewCreateInfo viewInfo;
+		viewInfo.type      = VK_IMAGE_VIEW_TYPE_2D;
+		viewInfo.format    = m_info.format.format;
+		viewInfo.usage     = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+		viewInfo.aspect    = VK_IMAGE_ASPECT_COLOR_BIT;
+		viewInfo.minLevel  = 0;
+		viewInfo.numLevels = 1;
+		viewInfo.minLayer  = 0;
+		viewInfo.numLayers = 1;
+
+		for (uint32_t i = 0; i < m_info.imageCount; ++i)
 		{
-			m_images[i].image = images[i];
+			VkImage imageHandle = images[i];
 
-			VkImageViewCreateInfo viewInfo = {};
-			viewInfo.sType                 = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-			viewInfo.pNext                 = nullptr;
-			viewInfo.flags                 = 0;
-			viewInfo.image                 = images[i];
-			viewInfo.viewType              = VK_IMAGE_VIEW_TYPE_2D;
-			viewInfo.format                = m_info.format.format;
-			viewInfo.components            = VkComponentMapping{
-                VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY,
-                VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY
-			};
-			viewInfo.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
-			viewInfo.subresourceRange.baseMipLevel   = 0;
-			viewInfo.subresourceRange.levelCount     = 1;
-			viewInfo.subresourceRange.baseArrayLayer = 0;
-			viewInfo.subresourceRange.layerCount     = 1;
+			m_images[i].image = new GveImage(
+				m_device, imageInfo, imageHandle);
 
-			VkResult result = vkCreateImageView(*m_device, &viewInfo, nullptr, &m_images[i].view);
-			if (result != VK_SUCCESS)
-			{
-				hasError = true;
-				break;
-			}
-		}
-
-		if (hasError)
-		{
-			break;
+			m_images[i].view = new GveImageView(
+				m_device, viewInfo, m_images[i].image);
 		}
 
 		ret = true;
@@ -227,7 +228,7 @@ bool ScePresenter::initImages()
 	return ret;
 }
 
-bool ScePresenter::initSyncObjects()
+bool GvePresenter::initSyncObjects()
 {
 	bool ret = false;
 	do
@@ -279,7 +280,7 @@ bool ScePresenter::initSyncObjects()
 	return ret;
 }
 
-SwapChainSupportDetails ScePresenter::querySwapChainSupport(VkPhysicalDevice device, const PresenterDesc& desc)
+SwapChainSupportDetails GvePresenter::querySwapChainSupport(VkPhysicalDevice device, const PresenterDesc& desc)
 {
 	SwapChainSupportDetails details;
 	do 
@@ -313,7 +314,7 @@ SwapChainSupportDetails ScePresenter::querySwapChainSupport(VkPhysicalDevice dev
 	return details;
 }
 
-VkSurfaceFormatKHR ScePresenter::pickFormat(const SwapChainSupportDetails& details)
+VkSurfaceFormatKHR GvePresenter::pickFormat(const SwapChainSupportDetails& details)
 {
 	VkSurfaceFormatKHR format = {};
 	do 
@@ -338,7 +339,7 @@ VkSurfaceFormatKHR ScePresenter::pickFormat(const SwapChainSupportDetails& detai
 	return format;
 }
 
-VkPresentModeKHR ScePresenter::pickPresentMode(const SwapChainSupportDetails& details)
+VkPresentModeKHR GvePresenter::pickPresentMode(const SwapChainSupportDetails& details)
 {
 	VkPresentModeKHR mode = {};
 	do 
@@ -362,7 +363,7 @@ VkPresentModeKHR ScePresenter::pickPresentMode(const SwapChainSupportDetails& de
 	return mode;
 }
 
-VkExtent2D ScePresenter::pickImageExtent(const SwapChainSupportDetails& details, VkExtent2D desired)
+VkExtent2D GvePresenter::pickImageExtent(const SwapChainSupportDetails& details, VkExtent2D desired)
 {
 	VkExtent2D extent = {};
 	do
@@ -382,20 +383,15 @@ VkExtent2D ScePresenter::pickImageExtent(const SwapChainSupportDetails& details,
 	return extent;
 }
 
-uint32_t ScePresenter::pickImageCount(const SwapChainSupportDetails& details, uint32_t desired)
+uint32_t GvePresenter::pickImageCount(const SwapChainSupportDetails& details, uint32_t desired)
 {
 	const VkSurfaceCapabilitiesKHR& caps  = details.capabilities;
 	uint32_t count = util::clamp(desired, caps.minImageCount, caps.maxImageCount);
 	return count;
 }
 
-void ScePresenter::destroySwapchain()
+void GvePresenter::destroySwapchain()
 {
-	for (const auto& img : m_images)
-	{
-		vkDestroyImageView(*m_device, img.view, nullptr);
-	}
-	
 	for (const auto& sem : m_syncObjects)
 	{
 		vkDestroyFence(*m_device, sem.fence, nullptr);
@@ -411,4 +407,4 @@ void ScePresenter::destroySwapchain()
 	m_swapchain = VK_NULL_HANDLE;
 }
 
-}  // namespace sce
+}  // namespace gve
