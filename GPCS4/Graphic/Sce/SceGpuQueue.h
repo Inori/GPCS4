@@ -39,10 +39,11 @@ struct SceGpuCommand
 	uint32_t    size   = 0;
 };
 
-struct SceGpuSync
+struct SceGpuSubmission
 {
-	VkSemaphore wait;
-	VkSemaphore wake;
+	RcPtr<gve::GveCmdList> cmdList;
+	VkSemaphore            wait;
+	VkSemaphore            wake;
 };
 
 class SceGpuQueue
@@ -56,30 +57,22 @@ public:
 	/**
 	 * \brief Record command buffer.
 	 * 
-	 * Convert Gnm command buffer to vulkan command buffer.
+	 * Convert Gnm command buffer to Gve command list.
 	 * \param cmd Gnm command buffer.
 	 * \param displayBufferIndex Current display buffer index, 
 	 *                           using to index render target.
-	 * \returns bool
+	 * \returns The Gve command list recorded.
 	 */
-	bool record(const SceGpuCommand& cmd, uint32_t displayBufferIndex);
+	RcPtr<gve::GveCmdList> record(
+		const SceGpuCommand& cmd,
+		uint32_t             displayBufferIndex);
 
 	/**
 	 * \brief Submit vulkan command list.
 	 * 
 	 * \param sync synchronization objects to wait and signal.
-	 * \returns bool
 	 */
-	bool submit(const SceGpuSync& sync);
-
-	/**
-	 * \brief Synchronize command buffer.
-	 * 
-	 * Wait command buffer submit finish.
-	 * This must be called after submit, or will block CPU.
-	 * \returns VkResult
-	 */
-	VkResult synchronize();
+	void submit(const SceGpuSubmission& submission);
 
 private:
 	void createQueue(SceQueueType type);
@@ -90,7 +83,6 @@ private:
 
 	std::unique_ptr<GnmCmdStream>     m_cmdParser;
 	std::unique_ptr<GnmCommandBuffer> m_cmdProcesser;
-	RcPtr<gve::GveCmdList>            m_cmdList;
 };
 
 

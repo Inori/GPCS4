@@ -14,6 +14,7 @@ class GveInstance;
 class GvePhysicalDevice;
 class GveDevice;
 class GvePresenter;
+class GveCmdList;
 }  // namespace gve
 
 class GnmCmdStream;
@@ -84,7 +85,7 @@ private:
 		const RcPtr<gve::GvePhysicalDevice>& device,
 		VkSurfaceKHR                         surface);
 
-	void submitPresent();
+	void submitPresent(const RcPtr<gve::GveCmdList>& cmdList);
 
 private:
 	std::shared_ptr<SceVideoOut> m_videoOut;

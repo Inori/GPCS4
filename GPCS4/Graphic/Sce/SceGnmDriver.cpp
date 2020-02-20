@@ -179,17 +179,22 @@ int SceGnmDriver::submitAndFlipCommandBuffers(uint32_t count,
 	SceGpuCommand cmd = {};
 	cmd.buffer        = dcbGpuAddrs[0];
 	cmd.size          = dcbSizesInBytes[0];
-	m_graphicsQueue->record(cmd, displayBufferIndex);
+	auto cmdList = m_graphicsQueue->record(cmd, displayBufferIndex);
 
-	submitPresent();
+	submitPresent(cmdList);
 
 	return SCE_OK;
 }
 
-void SceGnmDriver::submitPresent()
+void SceGnmDriver::submitPresent(const RcPtr<gve::GveCmdList>& cmdList)
 {
 	do 
 	{
+		if (!cmdList)
+		{
+			break;
+		}
+
 		PresenterSync presentSync = m_presenter->getSyncObjects();
 
 		uint32_t imageIndex = 0;
@@ -199,21 +204,19 @@ void SceGnmDriver::submitPresent()
 			break;
 		}
 
-		SceGpuSync gpuSync = {};
-		gpuSync.wait       = presentSync.acquire;
-		gpuSync.wake       = presentSync.present;
-		if (!m_graphicsQueue->submit(gpuSync))
-		{
-			break;
-		}
+		SceGpuSubmission gpuSubmission = {};
+		gpuSubmission.cmdList          = cmdList;
+		gpuSubmission.wait             = presentSync.acquire;
+		gpuSubmission.wake             = presentSync.present;
+		m_graphicsQueue->submit(gpuSubmission);
 		
 		GvePresentInfo presentation;
 		presentation.presenter = m_presenter;
-		presentation.waitSync  = gpuSync.wake;
+		presentation.waitSync  = gpuSubmission.wake;
 		m_device->presentImage(presentation);
 
 		// Wait for command buffer submit finish.
-		status = m_graphicsQueue->synchronize();
+		status = cmdList->synchronize();
 		if (status != VK_SUCCESS)
 		{
 			break;

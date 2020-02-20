@@ -28,43 +28,26 @@ SceGpuQueue::~SceGpuQueue()
 }
 
 
-bool SceGpuQueue::record(const SceGpuCommand& cmd, uint32_t displayBufferIndex)
+RcPtr<gve::GveCmdList> SceGpuQueue::record(
+	const SceGpuCommand& cmd,
+	uint32_t             displayBufferIndex)
 {
 	m_cmdProcesser->recordBegin(displayBufferIndex);
 
 	bool result = m_cmdParser->processCommandBuffer(cmd.buffer, cmd.size);
 	LOG_ERR_IF(result == false, "process command buffer failed.");
 
-	m_cmdList = m_cmdProcesser->recordEnd();
-
-	return result;
+	return m_cmdProcesser->recordEnd();
 }
 
-VkResult SceGpuQueue::synchronize()
+void SceGpuQueue::submit(const SceGpuSubmission& submission)
 {
-	return m_cmdList->synchronize();
-}
+	GveSubmitInfo submitInfo = {};
+	submitInfo.cmdList       = submission.cmdList;
+	submitInfo.waitSync      = submission.wait;
+	submitInfo.wakeSync      = submission.wake;
 
-bool SceGpuQueue::submit(const SceGpuSync& sync)
-{
-	bool ret = false;
-	do 
-	{
-		if (!m_cmdList)
-		{
-			break;
-		}
-
-		GveSubmitInfo submission = {};
-		submission.cmdList       = m_cmdList;
-		submission.waitSync      = sync.wait;
-		submission.wakeSync      = sync.wake;
-
-		m_device.device->submitCommandList(submission);
-
-		ret = true;
-	} while (false);
-	return ret;
+	m_device.device->submitCommandList(submitInfo);
 }
 
 void SceGpuQueue::createQueue(SceQueueType type)

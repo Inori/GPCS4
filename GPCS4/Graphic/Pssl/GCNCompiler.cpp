@@ -1191,6 +1191,9 @@ SpirvRegisterValue GCNCompiler::emitInlineConstantInteger(Instruction::OperandSR
 	switch (src)
 	{
 	case Instruction::OperandSRC::SRCConstZero:
+		// Sometimes 0 is used in float point instructions, like V_MAX_F32
+		// After translate to spirv, this will raise a validation layer error.
+		// This could be safely ignored.
 		value = 0;
 		break;
 	case Instruction::OperandSRC::SRCSignedConstIntPosMin ... Instruction::OperandSRC::SRCSignedConstIntPosMax:
