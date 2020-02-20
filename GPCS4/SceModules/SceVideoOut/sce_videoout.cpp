@@ -141,7 +141,7 @@ int PS4API sceVideoOutRegisterBuffers(int32_t handle, int32_t startIndex, void *
 			break;
 		}
 		
-		if (!gnmDriver->createPresenter(bufferNum))
+		if (!gnmDriver->createGraphicsQueue(bufferNum))
 		{
 			break;
 		}
@@ -173,7 +173,7 @@ int PS4API sceVideoOutRegisterStereoBuffers(int32_t handle, int32_t startIndex, 
 			break;
 		}
 		
-		if (!gnmDriver->createPresenter(bufferNum))
+		if (!gnmDriver->createGraphicsQueue(bufferNum))
 		{
 			break;
 		}

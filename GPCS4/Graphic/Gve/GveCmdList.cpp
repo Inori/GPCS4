@@ -203,7 +203,7 @@ VkResult GveCmdList::submit(VkSemaphore wait, VkSemaphore wake)
 
 VkResult GveCmdList::synchronize()
 {
-	vkWaitForFences(*m_device, 1, &m_fence, VK_FALSE, UINT64_MAX);
+	return vkWaitForFences(*m_device, 1, &m_fence, VK_FALSE, UINT64_MAX);
 }
 
 void GveCmdList::reset()

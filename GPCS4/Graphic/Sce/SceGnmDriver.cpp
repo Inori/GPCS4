@@ -45,7 +45,7 @@ bool SceGnmDriver::initGnmDriver()
 		}
 
 		// Physical device
-		VkSurfaceKHR windowSurface = m_videoOut->getWindowSurface();
+		VkSurfaceKHR windowSurface = m_videoOut->getWindowSurface(*m_instance);
 		auto         phyDevices    = m_instance->enumPhysicalDevices();
 		if (!pickPhysicalDevice(phyDevices, windowSurface))
 		{
@@ -61,13 +61,6 @@ bool SceGnmDriver::initGnmDriver()
 			LOG_ERR("create logical device failed.");
 			break;
 		}
-
-		// Create the only graphics queue.
-		SceGpuQueueDevice gfxDevice = {};
-		gfxDevice.device            = m_device;
-		gfxDevice.presenter         = m_presenter;
-		gfxDevice.videoOut          = m_videoOut;
-		m_graphicsQueue             = std::make_unique<SceGpuQueue>(gfxDevice, SceQueueType::Graphics);
 
 		ret = true;
 	} while (false);
@@ -199,14 +192,8 @@ void SceGnmDriver::submitPresent()
 	{
 		PresenterSync presentSync = m_presenter->getSyncObjects();
 
-		VkResult status = m_graphicsQueue->synchronize();
-		if (status != VK_SUCCESS)
-		{
-			break;
-		}
-
 		uint32_t imageIndex = 0;
-		status     = m_presenter->acquireNextImage(presentSync.acquire, VK_NULL_HANDLE, imageIndex);
+		VkResult status      = m_presenter->acquireNextImage(presentSync.acquire, VK_NULL_HANDLE, imageIndex);
 		if (status != VK_SUCCESS)
 		{
 			break;
@@ -225,6 +212,13 @@ void SceGnmDriver::submitPresent()
 		presentation.waitSync  = gpuSync.wake;
 		m_device->presentImage(presentation);
 
+		// Wait for command buffer submit finish.
+		status = m_graphicsQueue->synchronize();
+		if (status != VK_SUCCESS)
+		{
+			break;
+		}
+
 	} while (false);
 }
 
@@ -234,7 +228,7 @@ int SceGnmDriver::sceGnmSubmitDone(void)
 	return SCE_OK;
 }
 
-bool SceGnmDriver::createPresenter(uint32_t imageCount)
+bool SceGnmDriver::createGraphicsQueue(uint32_t imageCount)
 {
 	bool ret = false;
 	do
@@ -248,7 +242,7 @@ bool SceGnmDriver::createPresenter(uint32_t imageCount)
 		auto sizeInfo    = m_videoOut->getSize();
 
 		PresenterDesc desc      = {};
-		desc.windowSurface      = m_videoOut->getWindowSurface();
+		desc.windowSurface      = m_videoOut->getWindowSurface(*m_instance);
 		desc.presentQueue       = deviceQueue.graphics.queueHandle;
 		desc.imageExtent.width  = sizeInfo.frameWidth;
 		desc.imageExtent.height = sizeInfo.frameHeight;
@@ -260,6 +254,13 @@ bool SceGnmDriver::createPresenter(uint32_t imageCount)
 		{
 			break;
 		}
+
+		// Create the only graphics queue.
+		SceGpuQueueDevice gfxDevice = {};
+		gfxDevice.device            = m_device;
+		gfxDevice.presenter         = m_presenter;
+		gfxDevice.videoOut          = m_videoOut;
+		m_graphicsQueue             = std::make_unique<SceGpuQueue>(gfxDevice, SceQueueType::Graphics);
 
 		ret  = true;
 	}while(false);

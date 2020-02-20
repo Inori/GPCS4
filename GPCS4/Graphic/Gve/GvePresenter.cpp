@@ -14,9 +14,11 @@ namespace gve
 
 GvePresenter::GvePresenter(
 	const RcPtr<gve::GveDevice>& device,
-	const PresenterDesc&         desc):
+	const PresenterDesc&         desc) :
+	m_device(device),
 	m_presentQueue(desc.presentQueue)
 {
+	recreateSwapChain(desc);
 }
 
 GvePresenter::~GvePresenter()
@@ -211,6 +213,8 @@ bool GvePresenter::initImages()
 		viewInfo.numLevels = 1;
 		viewInfo.minLayer  = 0;
 		viewInfo.numLayers = 1;
+
+		m_images.resize(imageCount);
 
 		for (uint32_t i = 0; i < m_info.imageCount; ++i)
 		{

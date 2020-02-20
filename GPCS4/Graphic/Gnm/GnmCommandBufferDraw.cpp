@@ -221,35 +221,36 @@ void GnmCommandBufferDraw::setDepthRenderTarget(DepthRenderTarget const *depthTa
 {
 	do 
 	{
-		//if (!depthTarget)
-		//{
-		//	break;
-		//}
+		static RcPtr<GveImageView> s_depthTarget;
+		if (!depthTarget)
+		{
+			break;
+		}
 
-		//if (!m_depthTarget)
-		//{
-		//	m_depthTarget = getDepthTarget(depthTarget);
-		//}
+		if (!s_depthTarget)
+		{
+			s_depthTarget = getDepthTarget(depthTarget);
+		}
 
-		//if (!m_depthTarget)
-		//{
-		//	break;
-		//}
+		if (!s_depthTarget)
+		{
+			break;
+		}
 
-		//// TODO:
-		//// More checks
-		//if (m_depthTarget->getWidth() != depthTarget->getWidth() || 
-		//	m_depthTarget->getHeight() != depthTarget->getHeight())
-		//{
-		//	// Depth buffer changed, we need to create a new one.
-		//	m_depthTarget = getDepthTarget(depthTarget);
-		//}
+		// TODO:
+		// More checks
+		if (s_depthTarget->getWidth() != depthTarget->getWidth() || 
+			s_depthTarget->getHeight() != depthTarget->getHeight())
+		{
+			// Depth buffer changed, we need to create a new one.
+			s_depthTarget = getDepthTarget(depthTarget);
+		}
 
 
-		//GveAttachment depthAttach;
-		//depthAttach.view = m_depthTarget;
-		//depthAttach.layout = m_depthTarget->imageInfo().layout;
-		//m_context->bindDepthRenderTarget(depthAttach);
+		GveAttachment depthAttach;
+		depthAttach.view = s_depthTarget;
+		depthAttach.layout = s_depthTarget->imageInfo().layout;
+		m_context->bindDepthRenderTarget(depthAttach);
 
 	} while (false);
 }

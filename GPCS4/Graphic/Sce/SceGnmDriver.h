@@ -9,8 +9,7 @@
 #include <memory>
 
 namespace gve
-{
-;
+{;
 class GveInstance;
 class GvePhysicalDevice;
 class GveDevice;
@@ -38,7 +37,7 @@ public:
 	SceGnmDriver(std::shared_ptr<SceVideoOut>& videoOut);
 	~SceGnmDriver();
 
-	bool createPresenter(uint32_t imageCount);
+	bool createGraphicsQueue(uint32_t imageCount);
 
 	uint32_t mapComputeQueue(
 		uint32_t pipeId,

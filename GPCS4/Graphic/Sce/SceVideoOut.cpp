@@ -39,24 +39,21 @@ GLFWwindow* SceVideoOut::getWindowHandle()
 	return m_window;
 }
 
-VkSurfaceKHR SceVideoOut::getWindowSurface()
+VkSurfaceKHR SceVideoOut::getWindowSurface(VkInstance instance)
 {
 	if (m_windowSurface == VK_NULL_HANDLE)
 	{
-		auto       gnmDriver = getGnmDriver(SCE_VIDEO_HANDLE_MAIN);
-		VkInstance instance  = *gnmDriver->m_instance;
-		glfwCreateWindowSurface(instance, m_window, nullptr, &m_windowSurface);
+		m_instance = instance;
+		glfwCreateWindowSurface(m_instance, m_window, nullptr, &m_windowSurface);
 	}
 	return m_windowSurface;
 }
 
 void SceVideoOut::destroySurface()
 {
-	if (m_windowSurface)
+	if (m_windowSurface && m_instance)
 	{
-		auto gnmDriver = getGnmDriver(SCE_VIDEO_HANDLE_MAIN);
-		VkInstance instance  = *gnmDriver->m_instance;
-		vkDestroySurfaceKHR(instance, m_windowSurface, nullptr);
+		vkDestroySurfaceKHR(m_instance, m_windowSurface, nullptr);
 		m_windowSurface = VK_NULL_HANDLE;
 	}
 }

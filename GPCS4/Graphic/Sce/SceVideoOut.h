@@ -48,10 +48,9 @@ public:
 	 * \brief Get the window surface
 	 * 
 	 * This will be used to create swapchain.
-	 * This must be called after VkInstance created.
 	 * \returns The window surface
 	 */
-	VkSurfaceKHR getWindowSurface();
+	VkSurfaceKHR getWindowSurface(VkInstance instance);
 
 	bool registerDisplayrBuffers(uint32_t startIndex, void* const* addresses, uint32_t bufferNum);
 
@@ -73,8 +72,9 @@ private:
 	uint32_t m_width;
 	uint32_t m_height;
 
-	VkSurfaceKHR m_windowSurface = VK_NULL_HANDLE;
-	bool m_framebufferResized = false;
+	VkSurfaceKHR m_windowSurface      = VK_NULL_HANDLE;
+	VkInstance   m_instance           = VK_NULL_HANDLE;
+	bool         m_framebufferResized = false;
 
 	uint32_t m_flipRate = 60;
 

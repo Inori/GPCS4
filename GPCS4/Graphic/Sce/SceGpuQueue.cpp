@@ -56,7 +56,7 @@ bool SceGpuQueue::submit(const SceGpuSync& sync)
 		}
 
 		GveSubmitInfo submission = {};
-		submission.cmdList       = std::exchange(m_cmdList, nullptr);
+		submission.cmdList       = m_cmdList;
 		submission.waitSync      = sync.wait;
 		submission.wakeSync      = sync.wake;
 
