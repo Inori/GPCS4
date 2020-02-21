@@ -478,7 +478,7 @@ void GCNCompiler::emitGprInitializeVS()
 	v0.id              = emitNewVariable({ v0.type, spv::StorageClassPrivate }, "v0");
 	m_module.opCopyMemory(v0.id, vtxIdxId);
 
-	m_vgprs.emplace(0, v0);
+	m_vgprs[0] = v0;
 }
 
 void GCNCompiler::emitGprInitializePS()
@@ -493,25 +493,25 @@ void GCNCompiler::emitGprInitializePS()
 	// Currently I just create which I use.
 
 	SpirvRegisterPointer s0;
-	s0.type.ctype   = SpirvScalarType::Uint32;
+	s0.type.ctype  = SpirvScalarType::Uint32;
 	s0.type.ccount = 1;
-	s0.id           = emitNewVariable({ s0.type, spv::StorageClassPrivate },
-                             UtilString::Format("s%d", 0));
-	m_sgprs.emplace(0, s0);
+	s0.id          = emitNewVariable({ s0.type, spv::StorageClassPrivate },
+                            UtilString::Format("s%d", 0));
+	m_sgprs[0]     = s0;
 
 	SpirvRegisterPointer s12;
 	s12.type.ctype  = SpirvScalarType::Float32;
 	s12.type.ccount = 1;
 	s12.id          = emitNewVariable({ s12.type, spv::StorageClassPrivate },
                              UtilString::Format("s%d", 12));
-	m_sgprs.emplace(12, s12);
+	m_sgprs[12]     = s12;
 
 	SpirvRegisterPointer s16;
 	s16.type.ctype  = SpirvScalarType::Float32;
 	s16.type.ccount = 1;
 	s16.id          = emitNewVariable({ s16.type, spv::StorageClassPrivate },
                              UtilString::Format("s%d", 16));
-	m_sgprs.emplace(16, s16);
+	m_sgprs[16]     = s16;
 }
 
 void GCNCompiler::emitDclStatusRegisters()

@@ -547,14 +547,13 @@ private:
 	////////////////////////////////////////////////////
 	// Per-vertex input and output blocks. Depending on
 	// the shader stage, these may be declared as arrays.
-	uint32_t m_perVertexIn = 0;
+	uint32_t m_perVertexIn  = 0;
 	uint32_t m_perVertexOut = 0;
 
 	//////////////////////////////////////////////
 	// Function state tracking. Required in order
 	// to properly end functions in some cases.
 	bool m_insideFunction = false;
-
 
 	///////////////////////////////////
 	// Shader-specific data structures
@@ -568,10 +567,8 @@ private:
 
 	///////////////////////////////////
 	// Gcn register to spir-v variable map
-	// gcn register index -- spirv register
-	std::map<uint32_t, SpirvRegisterPointer> m_sgprs;
-	std::map<uint32_t, SpirvRegisterPointer> m_vgprs;
-
+	std::array<SpirvRegisterPointer, GcnMaxSgprCount> m_sgprs;
+	std::array<SpirvRegisterPointer, GcnMaxVgprCount> m_vgprs;
 	///////////////////////////////////
 	// Resources
 
