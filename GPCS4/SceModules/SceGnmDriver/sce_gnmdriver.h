@@ -56,7 +56,7 @@ int PS4API sceGnmDeleteEqEvent(void);
 int PS4API sceGnmDestroyWorkloadStream(void);
 
 
-int PS4API sceGnmDingDong(uint32_t vqueueId, uint32_t nextStartOffsetInDw);
+void PS4API sceGnmDingDong(uint32_t vqueueId, uint32_t nextStartOffsetInDw);
 
 
 int PS4API sceGnmDingDongForWorkload(void);
@@ -281,7 +281,7 @@ int PS4API sceGnmSubmitCommandBuffersForWorkload(void);
 int PS4API sceGnmSubmitDone(void);
 
 
-int PS4API sceGnmUnmapComputeQueue(void);
+void PS4API sceGnmUnmapComputeQueue(uint32_t vqueueId);
 
 
 int PS4API sceGnmUpdateGsShader(void);

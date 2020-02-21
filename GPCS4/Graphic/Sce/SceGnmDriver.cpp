@@ -2,6 +2,8 @@
 #include "SceGpuQueue.h"
 #include "sce_errors.h"
 
+#include "UtilMath.h"
+
 #include "../GraphicShared.h"
 #include "../Gnm/GnmCmdStream.h"
 #include "../Gnm/GnmCommandBufferDraw.h"
@@ -279,9 +281,77 @@ uint32_t SceGnmDriver::mapComputeQueue(uint32_t pipeId,
 									   uint32_t ringSizeInDW,
 									   void*    readPtrAddr)
 {
+	int  vqueueId = SCE_GNM_ERROR_UNKNOWN;
+	do
+	{
+		if (pipeId >= kMaxPipeId)
+		{
+			vqueueId = SCE_GNM_ERROR_COMPUTEQUEUE_INVALID_PIPE_ID;
+			break;
+		}
+
+		if (queueId >= kMaxQueueId)
+		{
+			vqueueId = SCE_GNM_ERROR_COMPUTEQUEUE_INVALID_QUEUE_ID;
+			break;
+		}
+
+		if ((uintptr_t)ringBaseAddr % 256 != 0)
+		{
+			vqueueId = SCE_GNM_ERROR_COMPUTEQUEUE_INVALID_RING_BASE_ADDR;
+			break;
+		}
+
+		if (!util::isPowerOfTwo(ringSizeInDW))
+		{
+			vqueueId = SCE_GNM_ERROR_COMPUTEQUEUE_INVALID_RING_SIZE;
+			break;
+		}
+
+		if ((uintptr_t)readPtrAddr % 4 != 0)
+		{
+			vqueueId = SCE_GNM_ERROR_COMPUTEQUEUE_INVALID_READ_PTR_ADDR;
+			break;
+		}
+
+		*(uint32_t*)readPtrAddr = 0;
+
+		vqueueId = pipeId * kMaxPipeId + queueId;
+		if (vqueueId >= kMaxComputeQueueCount)
+		{
+			LOG_ERR("vqueueId is larger than max queue count.");
+			break;
+		}
+
+		SceGpuQueueDevice cptDevice = {};
+		cptDevice.device            = m_device;
+		cptDevice.presenter         = nullptr;
+		cptDevice.videoOut          = nullptr;
+		m_computeQueues[vqueueId]   = std::make_unique<SceGpuQueue>(cptDevice, SceQueueType::Compute);
+		
+	} while (false);
+
+	return vqueueId;
 }
 
 void SceGnmDriver::unmapComputeQueue(uint32_t vqueueId)
+{
+	do 
+	{
+		if (vqueueId >= kMaxComputeQueueCount)
+		{
+			LOG_ERR("vqueueId is larger than max queue count.");
+			break;
+		}
+
+		m_computeQueues[vqueueId].reset();
+
+	} while (false);
+}
+
+void SceGnmDriver::dingDong(
+	uint32_t vqueueId, 
+	uint32_t nextStartOffsetInDw)
 {
 }
 

@@ -38,17 +38,11 @@ public:
 	SceGnmDriver(std::shared_ptr<SceVideoOut>& videoOut);
 	~SceGnmDriver();
 
+	/// Graphics
+
 	bool createGraphicsQueue(uint32_t imageCount);
 
-	uint32_t mapComputeQueue(
-		uint32_t pipeId,
-		uint32_t queueId,
-		void*    ringBaseAddr,
-		uint32_t ringSizeInDW,
-		void*    readPtrAddr);
-
-	void unmapComputeQueue(uint32_t vqueueId);
-
+	
 	int submitCommandBuffers(uint32_t  count,
 							 void*     dcbGpuAddrs[],
 							 uint32_t* dcbSizesInBytes,
@@ -66,6 +60,21 @@ public:
 									int64_t   flipArg);
 
 	int sceGnmSubmitDone(void);
+
+	/// Compute
+
+	uint32_t mapComputeQueue(
+		uint32_t pipeId,
+		uint32_t queueId,
+		void*    ringBaseAddr,
+		uint32_t ringSizeInDW,
+		void*    readPtrAddr);
+
+	void unmapComputeQueue(uint32_t vqueueId);
+
+	void dingDong(
+		uint32_t vqueueId,
+		uint32_t nextStartOffsetInDw);
 
 private:
 	bool initGnmDriver();

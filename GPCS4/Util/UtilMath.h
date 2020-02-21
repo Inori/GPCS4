@@ -37,6 +37,11 @@ inline bool isBitSet(T value, uint32_t pos)
 	return value & (1 << pos);
 }
 
+inline bool isPowerOfTwo(uint32_t value)
+{
+	return (value > 0) && ((value & (value - 1)) == 0);
+}
+
 inline uint64_t buildUint64(uint32_t high, uint32_t low)
 {
 	return (uint64_t)(high) << 32 | low;
