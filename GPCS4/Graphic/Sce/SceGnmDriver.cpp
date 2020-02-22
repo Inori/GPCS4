@@ -217,13 +217,6 @@ void SceGnmDriver::submitPresent(const RcPtr<gve::GveCmdList>& cmdList)
 		presentation.waitSync  = gpuSubmission.wake;
 		m_device->presentImage(presentation);
 
-		// Wait for command buffer submit finish.
-		status = cmdList->synchronize();
-		if (status != VK_SUCCESS)
-		{
-			break;
-		}
-
 	} while (false);
 }
 

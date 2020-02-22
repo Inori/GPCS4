@@ -321,36 +321,36 @@ public:
 	}
 
 	void cmdCopyBuffer(
-		GveCmdType          cmdBuffer,
+		GveCmdType          cmdType,
 		VkBuffer            srcBuffer,
 		VkBuffer            dstBuffer,
 		uint32_t            regionCount,
 		const VkBufferCopy* pRegions)
 	{
-		m_cmdTypeUsed.set(cmdBuffer);
+		m_cmdTypeUsed.set(cmdType);
 
-		vkCmdCopyBuffer(selectCmdBuffer(cmdBuffer),
+		vkCmdCopyBuffer(selectCmdBuffer(cmdType),
 						srcBuffer, dstBuffer,
 						regionCount, pRegions);
 	}
 
 	void cmdCopyBufferToImage(
-		GveCmdType               cmdBuffer,
+		GveCmdType               cmdType,
 		VkBuffer                 srcBuffer,
 		VkImage                  dstImage,
 		VkImageLayout            dstImageLayout,
 		uint32_t                 regionCount,
 		const VkBufferImageCopy* pRegions)
 	{
-		m_cmdTypeUsed.set(cmdBuffer);
+		m_cmdTypeUsed.set(cmdType);
 
-		vkCmdCopyBufferToImage(selectCmdBuffer(cmdBuffer),
+		vkCmdCopyBufferToImage(selectCmdBuffer(cmdType),
 							   srcBuffer, dstImage, dstImageLayout,
 							   regionCount, pRegions);
 	}
 
 	void cmdCopyImage(
-		GveCmdType         cmdBuffer,
+		GveCmdType         cmdType,
 		VkImage            srcImage,
 		VkImageLayout      srcImageLayout,
 		VkImage            dstImage,
@@ -358,25 +358,25 @@ public:
 		uint32_t           regionCount,
 		const VkImageCopy* pRegions)
 	{
-		m_cmdTypeUsed.set(cmdBuffer);
+		m_cmdTypeUsed.set(cmdType);
 
-		vkCmdCopyImage(selectCmdBuffer(cmdBuffer),
+		vkCmdCopyImage(selectCmdBuffer(cmdType),
 					   srcImage, srcImageLayout,
 					   dstImage, dstImageLayout,
 					   regionCount, pRegions);
 	}
 
 	void cmdCopyImageToBuffer(
-		GveCmdType               cmdBuffer,
+		GveCmdType               cmdType,
 		VkImage                  srcImage,
 		VkImageLayout            srcImageLayout,
 		VkBuffer                 dstBuffer,
 		uint32_t                 regionCount,
 		const VkBufferImageCopy* pRegions)
 	{
-		m_cmdTypeUsed.set(cmdBuffer);
+		m_cmdTypeUsed.set(cmdType);
 
-		vkCmdCopyImageToBuffer(selectCmdBuffer(cmdBuffer),
+		vkCmdCopyImageToBuffer(selectCmdBuffer(cmdType),
 							   srcImage, srcImageLayout, dstBuffer,
 							   regionCount, pRegions);
 	}
@@ -534,7 +534,7 @@ public:
 	}
 
 	void cmdPipelineBarrier(
-		GveCmdType                   cmdBuffer,
+		GveCmdType                   cmdType,
 		VkPipelineStageFlags         srcStageMask,
 		VkPipelineStageFlags         dstStageMask,
 		VkDependencyFlags            dependencyFlags,
@@ -545,9 +545,9 @@ public:
 		uint32_t                     imageMemoryBarrierCount,
 		const VkImageMemoryBarrier*  pImageMemoryBarriers)
 	{
-		m_cmdTypeUsed.set(cmdBuffer);
+		m_cmdTypeUsed.set(cmdType);
 
-		vkCmdPipelineBarrier(selectCmdBuffer(cmdBuffer),
+		vkCmdPipelineBarrier(selectCmdBuffer(cmdType),
 							 srcStageMask, dstStageMask, dependencyFlags,
 							 memoryBarrierCount, pMemoryBarriers,
 							 bufferMemoryBarrierCount, pBufferMemoryBarriers,
@@ -616,15 +616,15 @@ public:
 	}
 
 	void cmdUpdateBuffer(
-		GveCmdType   cmdBuffer,
+		GveCmdType   cmdType,
 		VkBuffer     dstBuffer,
 		VkDeviceSize dstOffset,
 		VkDeviceSize dataSize,
 		const void*  pData)
 	{
-		m_cmdTypeUsed.set(cmdBuffer);
+		m_cmdTypeUsed.set(cmdType);
 
-		vkCmdUpdateBuffer(selectCmdBuffer(cmdBuffer),
+		vkCmdUpdateBuffer(selectCmdBuffer(cmdType),
 						  dstBuffer, dstOffset, dataSize, pData);
 	}
 

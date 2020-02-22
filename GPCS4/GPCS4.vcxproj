@@ -37,6 +37,7 @@
     <ClInclude Include="Graphic\Gve\GvePresenter.h" />
     <ClInclude Include="Graphic\Gve\GveRecycler.h" />
     <ClInclude Include="Graphic\Gve\GveSharpResourceManager.h" />
+    <ClInclude Include="Graphic\Gve\GveSubmissionQueue.h" />
     <ClInclude Include="Graphic\Sce\SceCommon.h" />
     <ClInclude Include="Graphic\Sce\SceGpuQueue.h" />
     <ClInclude Include="Loader\elf-sce.h" />
@@ -322,6 +323,7 @@
     <ClCompile Include="Graphic\Gve\GveShader.cpp" />
     <ClCompile Include="Graphic\Gve\GveSharpResourceManager.cpp" />
     <ClCompile Include="Graphic\Gve\GveStaging.cpp" />
+    <ClCompile Include="Graphic\Gve\GveSubmissionQueue.cpp" />
     <ClCompile Include="Graphic\Gve\GveUtil.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNAnalyzer.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNCompilerDataShare.cpp" />
