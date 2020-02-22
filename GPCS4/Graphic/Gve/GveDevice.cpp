@@ -20,7 +20,8 @@ GveDevice::GveDevice(VkDevice device, const RcPtr<GvePhysicalDevice>& phyDevice)
 	m_phyDevice(phyDevice),
 	m_properties(phyDevice->devicePropertiesExt()),
 	m_memAllocator(this),
-	m_resObjects(this)
+	m_resObjects(this),
+	m_submissionQueue(this)
 {
 	initQueues();
 }
@@ -112,27 +113,12 @@ RcPtr<GveSampler> GveDevice::createSampler(const GveSamplerCreateInfo& info)
 
 void GveDevice::submitCommandList(const GveSubmitInfo& submission)
 {
-	// TODO:
-	// Implement a queue to handle cmdlist submission asynchronously.
-	auto& cmdList = submission.cmdList;
-
-	cmdList->submit(submission.waitSync, submission.wakeSync);
-	cmdList->reset();
-
-	recycleCommandList(cmdList);
+	m_submissionQueue.submit(submission);
 }
 
 void GveDevice::presentImage(const GvePresentInfo& presentation)
 {
-	// TODO:
-	// Implement a queue to handle present asynchronously.
-	auto& presenter = presentation.presenter;
-	presenter->presentImage(presentation.waitSync);
-}
-
-bool GveDevice::hasDedicatedComputeQueue() const
-{
-	return m_queues.compute.queueFamily != m_queues.graphics.queueFamily;
+	m_submissionQueue.present(presentation);
 }
 
 bool GveDevice::hasDedicatedTransferQueue() const

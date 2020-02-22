@@ -38,9 +38,10 @@ GveInstance* GvePhysicalDevice::instance() const
 
 GvePhysicalDeviceQueueFamilies GvePhysicalDevice::findQueueFamilies()
 {
+	// The default graphics queue should also support compute.
 	uint32_t graphicsQueue = findQueueFamily(
-		VK_QUEUE_GRAPHICS_BIT,
-		VK_QUEUE_GRAPHICS_BIT);
+		VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT,
+		VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT);
 
 	// Dedicated queue for compute
 	uint32_t computeQueue = findQueueFamily(
@@ -52,10 +53,9 @@ GvePhysicalDeviceQueueFamilies GvePhysicalDevice::findQueueFamilies()
 		VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT,
 		VK_QUEUE_TRANSFER_BIT);
 
-	if (computeQueue == VK_QUEUE_FAMILY_IGNORED)
-	{
-		computeQueue = graphicsQueue;
-	}
+	// The hardware which GPCS4 runs on is supposed to be
+	// more powerful than PS4, so here we only use dedicated compute queue for now.
+	LOG_ASSERT(computeQueue != VK_QUEUE_FAMILY_IGNORED, "the GPU doesn't support dedicated compute queue.");
 
 	if (transferQueue == VK_QUEUE_FAMILY_IGNORED)
 	{

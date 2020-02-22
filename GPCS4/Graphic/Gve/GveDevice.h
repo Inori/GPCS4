@@ -5,11 +5,8 @@
 #include "GveResourceObjects.h"
 #include "GveRecycler.h"
 #include "GveEnums.h"
+#include "GveSubmissionQueue.h"
 
-namespace sce
-{
-	class SceVideoOut;
-}
 
 namespace gve
 {;
@@ -50,6 +47,7 @@ class GveDevice : public RcObject
 {
 	friend class GveContext;
 	friend class GveDescriptorPoolTracker;
+	friend class GveSubmissionQueue;
 
 public:
 	GveDevice(VkDevice device, const RcPtr<GvePhysicalDevice>& phyDevice);
@@ -85,8 +83,6 @@ public:
 
 	void presentImage(const GvePresentInfo& presentation);
 
-	bool hasDedicatedComputeQueue() const;
-
 	bool hasDedicatedTransferQueue() const;
 
 private:
@@ -106,6 +102,8 @@ private:
 
 	GveMemoryAllocator m_memAllocator;
 	GveResourceObjects m_resObjects;
+
+	GveSubmissionQueue m_submissionQueue;
 
 	GveRecycler<GveDescriptorPool, 16> m_recycledDescriptorPools;
 	GveRecycler<GveCmdList, 16>        m_recycledCmdLists;
