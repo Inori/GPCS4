@@ -53,6 +53,7 @@ void GnmCommandBufferDraw::prepareFlip()
 {
 	m_context->endRecording();
 	clearUserDataSlots();
+	m_recordBegin = false;
 }
 
 // Last call of a frame.
@@ -61,6 +62,7 @@ void GnmCommandBufferDraw::prepareFlip(void *labelAddr, uint32_t value)
 	*(uint32_t*)labelAddr = value;
 	m_context->endRecording();
 	clearUserDataSlots();
+	m_recordBegin = false;
 }
 
 // Last call of a frame, with interrupt.
@@ -69,6 +71,7 @@ void GnmCommandBufferDraw::prepareFlipWithEopInterrupt(EndOfPipeEventType eventT
 	*(uint32_t*)labelAddr = value;
 	m_context->endRecording();
 	clearUserDataSlots();
+	m_recordBegin = false;
 }
 
 void GnmCommandBufferDraw::setPsShaderUsage(const uint32_t *inputTable, uint32_t numItems)
@@ -456,6 +459,7 @@ void GnmCommandBufferDraw::commitVsStage()
 		if (!m_recordBegin)
 		{
 			m_context->beginRecording(m_cmd);
+			m_recordBegin = true;
 		}
 
 		PsslShaderModule vsModule((const uint32_t*)m_vsContext.code);
