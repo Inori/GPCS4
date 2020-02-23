@@ -1,4 +1,5 @@
 #include "GveFrameBuffer.h"
+
 #include "GveDevice.h"
 
 LOG_CHANNEL(Graphic.Gve.GveFrameBuffer);
@@ -6,10 +7,10 @@ LOG_CHANNEL(Graphic.Gve.GveFrameBuffer);
 namespace gve
 {;
 
-GveFrameBuffer::GveFrameBuffer(const RcPtr<GveDevice>& device, 
-	const GveRenderTargets& renderTargets, 
-	GveRenderPass* renderPass, 
-	const GveFramebufferSize& defaultSize):
+GveFrameBuffer::GveFrameBuffer(const RcPtr<GveDevice>&   device,
+							   const GveRenderTargets&   renderTargets,
+							   GveRenderPass*            renderPass,
+							   const GveFramebufferSize& defaultSize) :
 	m_device(device),
 	m_renderTargets(renderTargets),
 	m_renderPass(renderPass)
@@ -46,15 +47,15 @@ VkRenderPass GveFrameBuffer::getRenderPassHandle(const GveRenderPassOps& ops) co
 VkExtent2D GveFrameBuffer::getRenderExtent() const
 {
 	VkExtent2D extent = {};
-	extent.width = m_renderSize.width;
-	extent.height = m_renderSize.height;
+	extent.width      = m_renderSize.width;
+	extent.height     = m_renderSize.height;
 	return extent;
 }
 
 bool GveFrameBuffer::matchColorTargets(const GveAttachment* color, uint32_t count)
 {
 	bool match = true;
-	do 
+	do
 	{
 		if (!color || !count)
 		{
@@ -77,7 +78,7 @@ bool GveFrameBuffer::matchColorTargets(const GveAttachment* color, uint32_t coun
 
 bool GveFrameBuffer::matchDepthTarget(const GveAttachment& depth)
 {
-	return (m_renderTargets.depth.view == depth.view) && 
+	return (m_renderTargets.depth.view == depth.view) &&
 		   (m_renderTargets.depth.layout == depth.layout);
 }
 
@@ -91,21 +92,21 @@ GveRenderPassFormat GveFrameBuffer::getRenderPassFormat(const GveRenderTargets& 
 {
 	GveRenderPassFormat format = {};
 
-	for (uint32_t i = 0; i < MaxNumRenderTargets; i++) 
+	for (uint32_t i = 0; i < MaxNumRenderTargets; i++)
 	{
-		if (renderTargets.color[i].view == nullptr) 
+		if (renderTargets.color[i].view == nullptr)
 		{
 			continue;
 		}
 
-		format.sampleCount = renderTargets.color[i].view->imageInfo().sampleCount;
+		format.sampleCount     = renderTargets.color[i].view->imageInfo().sampleCount;
 		format.color[i].format = renderTargets.color[i].view->info().format;
 		format.color[i].layout = renderTargets.color[i].layout;
 	}
 
-	if (renderTargets.depth.view != nullptr) 
+	if (renderTargets.depth.view != nullptr)
 	{
-		format.sampleCount = renderTargets.depth.view->imageInfo().sampleCount;
+		format.sampleCount  = renderTargets.depth.view->imageInfo().sampleCount;
 		format.depth.format = renderTargets.depth.view->info().format;
 		format.depth.layout = renderTargets.depth.layout;
 	}
@@ -113,9 +114,9 @@ GveRenderPassFormat GveFrameBuffer::getRenderPassFormat(const GveRenderTargets& 
 	return format;
 }
 
-bool GveFrameBuffer::createFrameBuffer(const GveRenderTargets& renderTargets, 
-	GveRenderPass* renderPass, 
-	const GveFramebufferSize& defaultSize)
+bool GveFrameBuffer::createFrameBuffer(const GveRenderTargets&   renderTargets,
+									   GveRenderPass*            renderPass,
+									   const GveFramebufferSize& defaultSize)
 {
 	bool ret = false;
 	do
@@ -128,7 +129,7 @@ bool GveFrameBuffer::createFrameBuffer(const GveRenderTargets& renderTargets,
 		m_renderSize = computeRenderSize(defaultSize);
 
 		std::array<VkImageView, MaxNumRenderTargets + 1> attachmentViews;
-		
+
 		for (uint32_t i = 0; i != MaxNumRenderTargets; ++i)
 		{
 			if (renderTargets.color[i].view == nullptr)
@@ -137,33 +138,33 @@ bool GveFrameBuffer::createFrameBuffer(const GveRenderTargets& renderTargets,
 			}
 
 			attachmentViews[m_attachmentCount] = renderTargets.color[i].view->handle();
-			m_attachments[m_attachmentCount] = &renderTargets.color[i];
+			m_attachments[m_attachmentCount]   = &renderTargets.color[i];
 			++m_attachmentCount;
 		}
 
 		if (renderTargets.depth.view != nullptr)
 		{
 			attachmentViews[m_attachmentCount] = renderTargets.depth.view->handle();
-			m_attachments[m_attachmentCount] = &renderTargets.depth;
+			m_attachments[m_attachmentCount]   = &renderTargets.depth;
 			++m_attachmentCount;
 		}
 
 		VkFramebufferCreateInfo framebufferInfo = {};
-		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-		framebufferInfo.renderPass = m_renderPass->getDefaultHandle();
-		framebufferInfo.pAttachments = attachmentViews.data();
-		framebufferInfo.attachmentCount = m_attachmentCount;
-		framebufferInfo.width = m_renderSize.width;
-		framebufferInfo.height = m_renderSize.height;
-		framebufferInfo.layers = m_renderSize.layers;
+		framebufferInfo.sType                   = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+		framebufferInfo.renderPass              = m_renderPass->getDefaultHandle();
+		framebufferInfo.pAttachments            = attachmentViews.data();
+		framebufferInfo.attachmentCount         = m_attachmentCount;
+		framebufferInfo.width                   = m_renderSize.width;
+		framebufferInfo.height                  = m_renderSize.height;
+		framebufferInfo.layers                  = m_renderSize.layers;
 
 		if (vkCreateFramebuffer(*m_device, &framebufferInfo, nullptr, &m_frameBuffer) != VK_SUCCESS)
 		{
 			LOG_ERR("failed to create framebuffer!");
 			break;
 		}
-		ret  = true;
-	}while(false);
+		ret = true;
+	} while (false);
 	return ret;
 }
 
@@ -173,25 +174,25 @@ GveFramebufferSize GveFrameBuffer::computeRenderSize(const GveFramebufferSize& d
 	// expect it to work, so we'll compute the minimum size
 	GveFramebufferSize minSize = defaultSize;
 
-	if (m_renderTargets.depth.view != nullptr) 
+	if (m_renderTargets.depth.view != nullptr)
 	{
 		GveFramebufferSize depthSize = getRenderTargetSize(m_renderTargets.depth.view);
-		minSize.width = std::min(minSize.width, depthSize.width);
-		minSize.height = std::min(minSize.height, depthSize.height);
-		minSize.layers = std::min(minSize.layers, depthSize.layers);
+		minSize.width                = std::min(minSize.width, depthSize.width);
+		minSize.height               = std::min(minSize.height, depthSize.height);
+		minSize.layers               = std::min(minSize.layers, depthSize.layers);
 	}
 
-	for (uint32_t i = 0; i < MaxNumRenderTargets; i++) 
+	for (uint32_t i = 0; i < MaxNumRenderTargets; i++)
 	{
-		if (m_renderTargets.color[i].view == nullptr) 
+		if (m_renderTargets.color[i].view == nullptr)
 		{
 			continue;
 		}
 
 		GveFramebufferSize colorSize = getRenderTargetSize(m_renderTargets.color[i].view);
-		minSize.width = std::min(minSize.width, colorSize.width);
-		minSize.height = std::min(minSize.height, colorSize.height);
-		minSize.layers = std::min(minSize.layers, colorSize.layers);
+		minSize.width                = std::min(minSize.width, colorSize.width);
+		minSize.height               = std::min(minSize.height, colorSize.height);
+		minSize.layers               = std::min(minSize.layers, colorSize.layers);
 	}
 
 	return minSize;
@@ -204,4 +205,4 @@ GveFramebufferSize GveFrameBuffer::getRenderTargetSize(const RcPtr<GveImageView>
 	return GveFramebufferSize{ extent.width, extent.height, layers };
 }
 
-} // namespace gve
+}  // namespace gve

@@ -269,6 +269,7 @@ void GveContext::drawIndexed(
 
 void GveContext::copyBuffer(GveBufferSlice& dstBuffer, GveBufferSlice& srcBuffer, VkDeviceSize size)
 {
+	// Copy commands must be recorded outside of a render pass instance.
 	VkCommandBuffer commandBuffer = m_cmd->cmdBeginSingleTimeCommands();
 
 	// TODO:

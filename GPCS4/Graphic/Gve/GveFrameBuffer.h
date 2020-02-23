@@ -55,10 +55,10 @@ struct GveRenderTargets
 class GveFrameBuffer : public RcObject
 {
 public:
-	GveFrameBuffer(const RcPtr<GveDevice>& device, 
-		const GveRenderTargets& renderTargets,
-		GveRenderPass* renderPass,
-		const GveFramebufferSize& defaultSize);
+	GveFrameBuffer(const RcPtr<GveDevice>&   device,
+				   const GveRenderTargets&   renderTargets,
+				   GveRenderPass*            renderPass,
+				   const GveFramebufferSize& defaultSize);
 	~GveFrameBuffer();
 
 	VkFramebuffer handle() const;
@@ -80,8 +80,9 @@ public:
 	static GveRenderPassFormat getRenderPassFormat(const GveRenderTargets& renderTargets);
 
 private:
-	bool createFrameBuffer(const GveRenderTargets& renderTargets,
-		GveRenderPass* renderPass,
+	bool createFrameBuffer(
+		const GveRenderTargets&   renderTargets,
+		GveRenderPass*            renderPass,
 		const GveFramebufferSize& defaultSize);
 
 	GveFramebufferSize computeRenderSize(
@@ -93,9 +94,9 @@ private:
 private:
 	RcPtr<GveDevice> m_device;
 	GveRenderTargets m_renderTargets;
-	GveRenderPass* m_renderPass;
+	GveRenderPass*   m_renderPass;
 
-	VkFramebuffer m_frameBuffer = VK_NULL_HANDLE;
+	VkFramebuffer      m_frameBuffer = VK_NULL_HANDLE;
 	GveFramebufferSize m_renderSize;
 
 	uint32_t                                                  m_attachmentCount = 0;

@@ -40,19 +40,22 @@ struct GveGraphicsPipelineShaders
 class GveGraphicsPipelineInstance
 {
 public:
-	GveGraphicsPipelineInstance(VkPipeline pipeline, 
-		const GveGraphicsPipelineStateInfo& state, 
-		const GveRenderPass& rp);
+	GveGraphicsPipelineInstance(
+		VkPipeline                          pipeline,
+		const GveGraphicsPipelineStateInfo& state,
+		const GveRenderPass&                rp);
 	~GveGraphicsPipelineInstance();
 
 	VkPipeline pipeline();
 
-	bool isCompatible(const GveGraphicsPipelineStateInfo& state, const GveRenderPass& rp) const;
+	bool isCompatible(
+		const GveGraphicsPipelineStateInfo& state,
+		const GveRenderPass&                rp) const;
 
 private:
-	VkPipeline m_pipeline;
+	VkPipeline                   m_pipeline;
 	GveGraphicsPipelineStateInfo m_state;
-	const GveRenderPass* m_renderPass;
+	const GveRenderPass*         m_renderPass;
 };
 
 ///
@@ -60,27 +63,33 @@ private:
 class GveGraphicsPipeline
 {
 public:
-	GveGraphicsPipeline(GvePipelineManager* pipeMgr, 
+	GveGraphicsPipeline(
+		GvePipelineManager*               pipeMgr,
 		const GveGraphicsPipelineShaders& shaders);
 	~GveGraphicsPipeline();
 
-	VkPipeline getPipelineHandle(const GveGraphicsPipelineStateInfo& state, const GveRenderPass& rp);
+	VkPipeline getPipelineHandle(
+		const GveGraphicsPipelineStateInfo& state,
+		const GveRenderPass&                rp);
 
 	GvePipelineLayout* getLayout() const;
 
 private:
-	GveGraphicsPipelineInstance* findInstance(const GveGraphicsPipelineStateInfo& state, const GveRenderPass& rp);
-	GveGraphicsPipelineInstance* createInstance(const GveGraphicsPipelineStateInfo& state, const GveRenderPass& rp);
-	
+	GveGraphicsPipelineInstance* findInstance(
+		const GveGraphicsPipelineStateInfo& state,
+		const GveRenderPass&                rp);
+	GveGraphicsPipelineInstance* createInstance(
+		const GveGraphicsPipelineStateInfo& state,
+		const GveRenderPass&                rp);
+
 private:
-	
-	GvePipelineManager* m_pipelineManager;
+	GvePipelineManager*        m_pipelineManager;
 	GveGraphicsPipelineShaders m_shaders;
 
 	GveDescriptorSlotMap m_resSlotMap;
-	GvePipelineLayout* m_layout;
+	GvePipelineLayout*   m_layout;
 
-	Spinlock m_mutex;
+	Spinlock                                 m_mutex;
 	std::vector<GveGraphicsPipelineInstance> m_pipelines;
 };
 
