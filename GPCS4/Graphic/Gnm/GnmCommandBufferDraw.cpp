@@ -40,16 +40,19 @@ GnmCommandBufferDraw::~GnmCommandBufferDraw()
 }
 
 // First call of a frame.
+// Note:
+// This function is not necessary to call explicitly at the beginning of every frame.
 void GnmCommandBufferDraw::initializeDefaultHardwareState()
 {
-	clearUserDataSlots();
 	m_context->beginRecording(m_cmd);
+	m_recordBegin = true;
 }
 
 
 void GnmCommandBufferDraw::prepareFlip()
 {
 	m_context->endRecording();
+	clearUserDataSlots();
 }
 
 // Last call of a frame.
@@ -57,6 +60,7 @@ void GnmCommandBufferDraw::prepareFlip(void *labelAddr, uint32_t value)
 {
 	*(uint32_t*)labelAddr = value;
 	m_context->endRecording();
+	clearUserDataSlots();
 }
 
 // Last call of a frame, with interrupt.
@@ -64,6 +68,7 @@ void GnmCommandBufferDraw::prepareFlipWithEopInterrupt(EndOfPipeEventType eventT
 {
 	*(uint32_t*)labelAddr = value;
 	m_context->endRecording();
+	clearUserDataSlots();
 }
 
 void GnmCommandBufferDraw::setPsShaderUsage(const uint32_t *inputTable, uint32_t numItems)
@@ -448,6 +453,11 @@ void GnmCommandBufferDraw::commitVsStage()
 {
 	do
 	{
+		if (!m_recordBegin)
+		{
+			m_context->beginRecording(m_cmd);
+		}
+
 		PsslShaderModule vsModule((const uint32_t*)m_vsContext.code);
 
 		uint32_t* fsCode = getFetchShaderCode(m_vsContext);

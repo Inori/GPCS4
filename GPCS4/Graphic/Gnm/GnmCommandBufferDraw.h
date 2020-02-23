@@ -157,6 +157,7 @@ private:
 	GnmShaderContext m_psContext;
 
 	VkIndexType m_indexType = VK_INDEX_TYPE_UINT16;
+	bool m_recordBegin      = false;
 
 };
 
