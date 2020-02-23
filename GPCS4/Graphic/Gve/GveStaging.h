@@ -10,10 +10,10 @@ namespace gve
 class GveDevice;
 
 
-class GveStagingBufferAllocator
+class GveStagingBufferAllocator : public RcObject
 {
-	const VkDeviceSize MaxBufferSize = 1024 * 1024 * 32;  // 32MB
-	const uint32_t MaxBufferCount = 2;
+	const VkDeviceSize MaxBufferSize  = 1024 * 1024 * 32;  // 32MB
+	const uint32_t     MaxBufferCount = 2;
 
 public:
 	GveStagingBufferAllocator(const RcPtr<GveDevice>& device);

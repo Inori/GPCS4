@@ -64,8 +64,7 @@ public:
 	void setViewports(uint32_t viewportCount,
 		const VkViewport* viewports, const VkRect2D* scissorRects);
 
-	// alias for vertex input state
-	void setVertexInputLayout(const GveVertexInputInfo& viState);
+	void setVertexInputState(const GveVertexInputInfo& viState);
 
 	void setInputAssemblyState(const GveInputAssemblyInfo& iaState);
 
@@ -108,62 +107,164 @@ public:
 		uint32_t                vertexOffset,
 		uint32_t                firstInstance);
 
-	void copyBuffer(GveBufferSlice& dstBuffer, GveBufferSlice& srcBuffer, VkDeviceSize size);
+	/**
+     * \brief Copies data from one buffer to another
+     * 
+     * \param [in] dstBuffer Destination buffer
+     * \param [in] dstOffset Destination data offset
+     * \param [in] srcBuffer Source buffer
+     * \param [in] srcOffset Source data offset
+     * \param [in] numBytes Number of bytes to copy
+     */
+	void copyBuffer(
+		const RcPtr<GveBuffer>& dstBuffer,
+		VkDeviceSize            dstOffset,
+		const RcPtr<GveBuffer>& srcBuffer,
+		VkDeviceSize            srcOffset,
+		VkDeviceSize            numBytes);
 
+	/**
+     * \brief Copies data from a buffer to an image
+     * 
+     * \param [in] dstImage Destination image
+     * \param [in] dstSubresource Destination subresource
+     * \param [in] dstOffset Destination area offset
+     * \param [in] dstExtent Destination area size
+     * \param [in] srcBuffer Source buffer
+     * \param [in] srcOffset Source offset, in bytes
+     * \param [in] srcExtent Source data extent
+     */
 	void copyBufferToImage(
-		const RcPtr<GveImage>& dstImage,
-		GveBufferSlice&        srcBuffer,
-		uint32_t               width, 
-		uint32_t               height);
+		const RcPtr<GveImage>&   dstImage,
+		VkImageSubresourceLayers dstSubresource,
+		VkOffset3D               dstOffset,
+		VkExtent3D               dstExtent,
+		const RcPtr<GveBuffer>&  srcBuffer,
+		VkDeviceSize             srcOffset,
+		VkExtent2D               srcExtent);
 
-	void updateBuffer(const RcPtr<GveBuffer>& buffer, 
-		VkDeviceSize offset, VkDeviceSize size, const void* data);
+	/**
+     * \brief Updates a buffer
+     * 
+     * Copies data from the host into a buffer.
+     * \param [in] buffer Destination buffer
+     * \param [in] offset Offset of sub range to update
+     * \param [in] size Length of sub range to update
+     * \param [in] data Data to upload
+     */
+	void updateBuffer(
+		const RcPtr<GveBuffer>& buffer,
+		VkDeviceSize            offset,
+		VkDeviceSize            size,
+		const void*             data);
 
-	void updateImage(const RcPtr<GveImage>& image,
-		VkDeviceSize offset, VkDeviceSize size, const void* data);
+	/**
+     * \brief Updates an image
+     * 
+     * Copies data from the host into an image.
+     * \param [in] image Destination image
+     * \param [in] subsresources Image subresources to update
+     * \param [in] imageOffset Offset of the image area to update
+     * \param [in] imageExtent Size of the image area to update
+     * \param [in] data Source data
+     * \param [in] size Source data size
+     */
+	void updateImage(
+		const RcPtr<GveImage>&          image,
+		const VkImageSubresourceLayers& subresources,
+		VkOffset3D                      imageOffset,
+		VkExtent3D                      imageExtent,
+		const void*                     data,
+		VkDeviceSize                    size);
 
-	void transitionImageLayout(VkImage image, VkFormat format, 
-		VkImageLayout oldLayout, VkImageLayout newLayout);
+	/**
+     * \brief Uses transfer queue to initialize buffer
+     * 
+     * Only safe to use if the buffer is not in use by the GPU.
+     * \param [in] buffer The buffer to initialize
+     * \param [in] data The data to copy to the buffer
+     */
+	void uploadBuffer(
+		const RcPtr<GveBuffer>& buffer,
+		const void*             data);
+
+	/**
+     * \brief Uses transfer queue to initialize image
+     * 
+     * Only safe to use if the image is not in use by the GPU.
+     * \param [in] image The image to initialize
+     * \param [in] subresources Subresources to initialize
+     * \param [in] data Source data
+     * \param [in] pitchPerRow Row pitch of the source data
+     * \param [in] pitchPerLayer Layer pitch of the source data
+     */
+	void uploadImage(
+		const RcPtr<GveImage>&          image,
+		const VkImageSubresourceLayers& subresources,
+		const void*                     data,
+		VkDeviceSize                    pitchPerRow,
+		VkDeviceSize                    pitchPerLayer);
+    
 
 private:
 
 	void updateFrameBuffer();
 
-	void beginRenderPass();
-	
-	void endRenderPass();
-
 	void updateVertexBindings();
 
 	void updateIndexBinding();
 
-	template <VkPipelineBindPoint BindPoint>
-	void updateShaderResources(
-		const GvePipelineLayout* pipelineLayout,
-		VkDescriptorSet& set);
+	void updateDynamicState();
 
-	template <VkPipelineBindPoint BindPoint>
-	void updateShaderDescriptorSetBinding(const GvePipelineLayout* layout, VkDescriptorSet set);
+	void updateRenderPassOps(
+		const GveRenderTargets& rts,
+		GveRenderPassOps&       ops);
 
 	VkDescriptorSet allocateDescriptorSet(VkDescriptorSetLayout layout);
 
+	template <VkPipelineBindPoint BindPoint>
+	void updateShaderResources(
+		const GvePipelineLayout* pipelineLayout,
+		VkDescriptorSet&         set);
+
+	template <VkPipelineBindPoint BindPoint>
+	void updateShaderDescriptorSetBinding(
+		const GvePipelineLayout* layout,
+		VkDescriptorSet          set);
+
+	/// Graphics
 	template <bool Indexed, bool Indirect>
 	void commitGraphicsState();
 	void updateGraphicsShaderResources();
 	void updateGraphicsPipeline();
 	void updateGraphicsPipelineStates();
-
-	void updateDynamicState();
-	void updateRenderPassOps(const GveRenderTargets& rts, GveRenderPassOps& ops);
-
-	
+	/// Compute
 	void commitComputeState();
 	void updateComputeDescriptorLayout();
 	void updateComputePipeline();
 	void updateComputePipelineStates();
 
+	void enterRenderPassScope();
+	void leaveRenderPassScope();
+
+	void renderPassBindFramebuffer();
+	void renderPassUnbindFramebuffer();
+
+	/// Helpers
+	void transitionImageLayout(
+		VkImage              image,
+		VkPipelineStageFlags srcStage,
+		VkPipelineStageFlags dstStage,
+		VkAccessFlags        srcAccess,
+		VkAccessFlags        dstAccess,
+		VkImageLayout        oldLayout,
+		VkImageLayout        newLayout);
+
+	// Should be only used for debugging purpose.
+	void fullPipelineBarrier();
+
 private:
-	RcPtr<GveDevice> m_device;
+	RcPtr<GveDevice>    m_device;
 	GveResourceObjects* m_objects;
 
 	RcPtr<GveCmdList> m_cmd;

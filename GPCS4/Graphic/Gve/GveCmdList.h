@@ -90,7 +90,7 @@ public:
 	// Currently I use single time command buffer to submit
 	// copy commands, which is not efficient, we should batch
 	// these operations and submit them once.
-
+	/*
 	VkCommandBuffer cmdBeginSingleTimeCommands()
 	{
 		VkCommandBufferAllocateInfo allocInfo = {};
@@ -150,7 +150,7 @@ public:
 							   srcBuffer, dstImage, dstImageLayout,
 							   regionCount, pRegions);
 	}
-
+	*/
 	///
 
 	void updateDescriptorSets(

@@ -239,8 +239,9 @@ void GnmCommandBufferDraw::setDepthRenderTarget(DepthRenderTarget const *depthTa
 
 		// TODO:
 		// More checks
-		if (s_depthTarget->getWidth() != depthTarget->getWidth() || 
-			s_depthTarget->getHeight() != depthTarget->getHeight())
+		auto depthInfo = s_depthTarget->imageInfo();
+		if (depthInfo.extent.width != depthTarget->getWidth() || 
+			depthInfo.extent.height != depthTarget->getHeight())
 		{
 			// Depth buffer changed, we need to create a new one.
 			s_depthTarget = getDepthTarget(depthTarget);
@@ -621,8 +622,10 @@ void GnmCommandBufferDraw::bindIndexBuffer(const void* indexAddr, uint32_t index
 		VkDeviceSize indexBufferSize = perIndexSize * indexCount;
 
 		GveBufferCreateInfo info = {};
-		info.size = indexBufferSize;
-		info.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+		info.size                = indexBufferSize;
+		info.usage               = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+		info.stages              = VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
+		info.access              = VK_ACCESS_INDEX_READ_BIT;
 
 		uint64_t key = reinterpret_cast<uint64_t>(indexAddr);
 		auto     indexBuffer = m_sharpRes.getIndexBuffer(indexAddr);
@@ -655,10 +658,14 @@ void GnmCommandBufferDraw::bindImmConstBuffer(const PsslShaderResource& res, Pss
 			break;
 		}
 
-		VkDeviceSize bufferSize = buffer->getSize();
-		GveBufferCreateInfo info = {};
-		info.size = bufferSize;
-		info.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+		VkDeviceSize        bufferSize = buffer->getSize();
+		GveBufferCreateInfo info       = {};
+		info.size                      = bufferSize;
+		info.usage                     = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+		info.stages                    = prgType == VertexShader ? 
+			VK_PIPELINE_STAGE_VERTEX_SHADER_BIT :
+			VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+		info.access                    = VK_ACCESS_UNIFORM_READ_BIT;
 
 		auto uniformBuffer = m_sharpRes.getBufferVsharp(buffer->getVsharp());
 		if (!uniformBuffer)
@@ -713,7 +720,7 @@ void GnmCommandBufferDraw::setVertexInputLayout(const PsslShaderResource& res, c
 			viInfo.addAttribute(attr);
 		}
 
-		m_context->setVertexInputLayout(viInfo);
+		m_context->setVertexInputState(viInfo);
 	} while (false);
 }
 
@@ -747,8 +754,10 @@ bool GnmCommandBufferDraw::bindVertexBuffer(uint32_t bindingId, const GnmBuffer&
 		VkDeviceSize bufferSize = vsharp.getSize();
 
 		GveBufferCreateInfo buffInfo = {};
-		buffInfo.size = bufferSize;
-		buffInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+		buffInfo.size                = bufferSize;
+		buffInfo.usage               = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+		buffInfo.stages              = VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
+		buffInfo.access              = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
 
 		auto vertexBuffer = m_sharpRes.getBufferVsharp(vsharp.getVsharp());
 		if (!vertexBuffer)
@@ -828,7 +837,9 @@ void GnmCommandBufferDraw::bindImmResource(const PsslShaderResource& res)
 		auto tileMode = tsharp->getTileMode();
 		if (tileMode == kTileModeDisplay_LinearAligned)
 		{
-			m_context->updateImage(texture, 0, imageBufferSize, data);
+			VkImageSubresourceLayers subRes = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+			VkOffset3D               offset = { 0, 0, 0 };
+			m_context->updateImage(texture, subRes, offset, imgInfo.extent, data, imageBufferSize);
 		}
 		else
 		{
@@ -841,7 +852,9 @@ void GnmCommandBufferDraw::bindImmResource(const PsslShaderResource& res)
 			tp.initFromTexture(tsharp, 0, 0);
 			GpuAddress::detileSurface(untiledData, data, &tp);
 
-			m_context->updateImage(texture, 0, imageBufferSize, untiledData);
+			VkImageSubresourceLayers subRes = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+			VkOffset3D               offset = { 0, 0, 0 };
+			m_context->updateImage(texture, subRes, offset, imgInfo.extent, data, imageBufferSize);
 
 			free(untiledData);
 		}

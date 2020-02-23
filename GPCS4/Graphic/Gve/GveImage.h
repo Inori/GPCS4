@@ -104,22 +104,15 @@ public:
 
 	const GveImageCreateInfo& info() const;
 
-	uint32_t getWidth() const;
-
-	uint32_t getHeight() const;
-
-	VkFormat getFormat() const;
-
-	VkImageLayout getLayout() const;
+	VkImageLayout pickLayout(VkImageLayout target) const;
 
 
 private:
-	RcPtr<GveDevice> m_device;
+	RcPtr<GveDevice>   m_device;
 	GveImageCreateInfo m_info;
 
-	VkImage m_image = VK_NULL_HANDLE;
+	VkImage   m_image = VK_NULL_HANDLE;
 	GveMemory m_memory;
-
 };
 
 
@@ -139,10 +132,6 @@ public:
 
 	const GveImageViewCreateInfo& info() const;
 
-	uint32_t getWidth() const;
-
-	uint32_t getHeight() const;
-
 	const GveImageCreateInfo& imageInfo() const;
 
 	GveDescriptorInfo getDescriptor(VkImageViewType type, VkImageLayout layout) const;
@@ -150,9 +139,9 @@ public:
 	VkExtent3D mipLevelExtent(uint32_t mipLevel) const;
 
 private:
-	RcPtr<GveDevice> m_device;
+	RcPtr<GveDevice>       m_device;
 	GveImageViewCreateInfo m_info;
-	RcPtr<GveImage> m_image;
+	RcPtr<GveImage>        m_image;
 
 	VkImageView m_imageView;
 };

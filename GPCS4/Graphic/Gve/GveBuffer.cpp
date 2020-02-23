@@ -6,20 +6,20 @@ LOG_CHANNEL(Graphic.Gve.GveBuffer);
 namespace gve
 {;
 
-GveBuffer::GveBuffer(const RcPtr<GveDevice>& device, 
-	const GveBufferCreateInfo& createInfo,
-	GveMemoryAllocator*  memAlloc,
-	VkMemoryPropertyFlags memFlags):
+GveBuffer::GveBuffer(const RcPtr<GveDevice>&    device,
+					 const GveBufferCreateInfo& createInfo,
+					 GveMemoryAllocator*        memAlloc,
+					 VkMemoryPropertyFlags      memFlags) :
 	m_device(device),
 	m_info(createInfo),
 	m_memAlloc(memAlloc),
 	m_memFlags(memFlags)
 {
 	VkBufferCreateInfo bufferInfo = {};
-	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-	bufferInfo.size = createInfo.size;
-	bufferInfo.usage = createInfo.usage;
-	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	bufferInfo.sType              = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+	bufferInfo.size               = createInfo.size;
+	bufferInfo.usage              = createInfo.usage;
+	bufferInfo.sharingMode        = VK_SHARING_MODE_EXCLUSIVE;
 
 	createBuffer(bufferInfo);
 
@@ -35,11 +35,6 @@ GveBuffer::~GveBuffer()
 }
 
 
-VkBuffer GveBuffer::handle() const
-{
-	return m_buffer;
-}
-
 VkDeviceSize GveBuffer::length() const
 {
 	return m_info.size;
@@ -50,12 +45,12 @@ const GveBufferCreateInfo& GveBuffer::info() const
 	return m_info;
 }
 
-const GveBufferSliceWeak& GveBuffer::sliceWeak()
+const GveBufferSliceWeak& GveBuffer::slice()
 {
 	return m_slice;
 }
 
-GveBufferSliceWeak GveBuffer::sliceWeak(VkDeviceSize offset, VkDeviceSize length)
+GveBufferSliceWeak GveBuffer::slice(VkDeviceSize offset, VkDeviceSize length)
 {
 	GveBufferSliceWeak result;
 	result.buffer = m_slice.buffer;
@@ -157,14 +152,14 @@ bool GveBufferSlice::defined() const
 	return m_buffer != nullptr;
 }
 
-RcPtr<GveBuffer> GveBufferSlice::buffer()
+RcPtr<GveBuffer> GveBufferSlice::buffer() const
 {
 	return m_buffer;
 }
 
-VkBuffer GveBufferSlice::handle() const
+GveBufferSliceWeak GveBufferSlice::slice() const
 {
-	return m_buffer->handle();
+	return m_buffer->slice(m_offset, m_length);
 }
 
 VkDeviceSize GveBufferSlice::offset() const
@@ -182,10 +177,6 @@ void* GveBufferSlice::mapPtr(VkDeviceSize offset) const
 	return m_buffer != nullptr ? m_buffer->mapPtr(m_offset + offset) : nullptr;
 }
 
-GveBufferSlice GveBufferSlice::fromBuffer(const RcPtr<GveBuffer>& buffer)
-{
-	return GveBufferSlice(buffer);
-}
 
 ///
 

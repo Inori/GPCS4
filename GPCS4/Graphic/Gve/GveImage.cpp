@@ -115,24 +115,14 @@ const GveImageCreateInfo& GveImage::info() const
 	return m_info;
 }
 
-uint32_t GveImage::getWidth() const
+VkImageLayout GveImage::pickLayout(VkImageLayout target) const
 {
-	return m_info.extent.width;
-}
-
-uint32_t GveImage::getHeight() const
-{
-	return m_info.extent.height;
-}
-
-VkFormat GveImage::getFormat() const
-{
-	return m_info.format;
-}
-
-VkImageLayout GveImage::getLayout() const
-{
-	return m_info.layout;
+	VkImageLayout layout = target;
+	if (m_info.layout == VK_IMAGE_LAYOUT_GENERAL)
+	{
+		layout = m_info.layout;
+	}
+	return layout;
 }
 
 ///
@@ -150,7 +140,7 @@ GveImageView::GveImageView(const RcPtr<GveDevice>& device,
 		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 		viewInfo.image = m_image->handle();
 		viewInfo.viewType = createInfo.type;
-		viewInfo.format = m_image->getFormat();
+		viewInfo.format = m_image->info().format;
 		viewInfo.subresourceRange.aspectMask = createInfo.aspect;
 		viewInfo.subresourceRange.baseMipLevel = 0;
 		viewInfo.subresourceRange.levelCount = 1;
@@ -172,16 +162,6 @@ GveImageView::~GveImageView()
 const GveImageViewCreateInfo& GveImageView::info() const
 {
 	return m_info;
-}
-
-uint32_t GveImageView::getWidth() const
-{
-	return m_image->getWidth();
-}
-
-uint32_t GveImageView::getHeight() const
-{
-	return m_image->getHeight();
 }
 
 VkImageView GveImageView::handle() const

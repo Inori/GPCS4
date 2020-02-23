@@ -25,7 +25,7 @@ GveBufferSlice GveStagingBufferAllocator::alloc(VkDeviceSize size, VkDeviceSize 
 		if (size > MaxBufferSize)
 		{
 			auto buffer = createBuffer(size);
-			slice = GveBufferSlice::fromBuffer(buffer);
+			slice = GveBufferSlice(buffer);
 			break;
 		}
 
@@ -84,10 +84,11 @@ void GveStagingBufferAllocator::trim()
 RcPtr<GveBuffer> GveStagingBufferAllocator::createBuffer(VkDeviceSize size)
 {
 	GveBufferCreateInfo info;
-	info.size = size;
+	info.size  = size;
 	info.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
 
-	return m_device->createBuffer(info, 
+	return m_device->createBuffer(
+		info,
 		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 }
 

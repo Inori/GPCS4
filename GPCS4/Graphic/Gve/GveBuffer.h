@@ -13,18 +13,28 @@ class GveDevice;
 
 struct GveBufferCreateInfo
 {
+	// Size of the buffer, in bytes
 	VkDeviceSize size;
+
+	// Buffer usage flags
 	VkBufferUsageFlags usage;
+
+	// Pipeline stages that can access
+	// the contents of the buffer.
+	VkPipelineStageFlags stages;
+
+	// Allowed access patterns
+	VkAccessFlags access;
 };
 
 
 // Convenient when we don't want to hold a reference 
 struct GveBufferSliceWeak
 {
-	VkBuffer buffer = VK_NULL_HANDLE;
+	VkBuffer     buffer = VK_NULL_HANDLE;
 	VkDeviceSize offset = 0;
 	VkDeviceSize length = 0;
-	void* mapPtr = nullptr;
+	void*        mapPtr = nullptr;
 };
 
 
@@ -32,22 +42,20 @@ class GveBuffer : public GveGpuResource
 {
 public:
 
-	GveBuffer(const RcPtr<GveDevice>& device,
-		const GveBufferCreateInfo& createInfo,
-		GveMemoryAllocator*  memAlloc,
-		VkMemoryPropertyFlags memFlags);
+	GveBuffer(const RcPtr<GveDevice>&    device,
+			  const GveBufferCreateInfo& createInfo,
+			  GveMemoryAllocator*        memAlloc,
+			  VkMemoryPropertyFlags      memFlags);
 
 	~GveBuffer();
-
-	VkBuffer handle() const;
 
 	VkDeviceSize length() const;
 
 	const GveBufferCreateInfo& info() const;
 
-	const GveBufferSliceWeak& sliceWeak();
+	const GveBufferSliceWeak& slice();
 
-	GveBufferSliceWeak sliceWeak(VkDeviceSize offset, VkDeviceSize length);
+	GveBufferSliceWeak slice(VkDeviceSize offset, VkDeviceSize length);
 
 	void* mapPtr(VkDeviceSize offset) const;
 
@@ -77,9 +85,9 @@ public:
 
 	bool defined() const;
 
-	RcPtr<GveBuffer> buffer();
+	RcPtr<GveBuffer> buffer() const;
 
-	VkBuffer handle() const;
+	GveBufferSliceWeak slice() const;
 
 	VkDeviceSize offset() const;
 
@@ -87,12 +95,10 @@ public:
 
 	void* mapPtr(VkDeviceSize offset) const;
 
-	static GveBufferSlice fromBuffer(const RcPtr<GveBuffer>& buffer);
-
 private:
 	RcPtr<GveBuffer> m_buffer;
-	VkDeviceSize m_offset;
-	VkDeviceSize m_length;
+	VkDeviceSize     m_offset;
+	VkDeviceSize     m_length;
 };
 
 

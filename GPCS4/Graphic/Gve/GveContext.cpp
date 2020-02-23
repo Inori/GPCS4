@@ -65,11 +65,11 @@ void GveContext::beginRecording(const RcPtr<GveCmdList>& commandBuffer)
 
 RcPtr<GveCmdList> GveContext::endRecording()
 {
-	endRenderPass();
+	renderPassUnbindFramebuffer();
 
 	m_cmd->endRecording();
 
-	m_stagingAlloc->trim();
+	// m_stagingAlloc->trim();
 
 	return std::exchange(m_cmd, nullptr);
 }
@@ -97,7 +97,7 @@ void GveContext::setViewports(uint32_t viewportCount, const VkViewport* viewport
 	m_flags.set(GveContextFlag::GpDirtyViewport);
 }
 
-void GveContext::setVertexInputLayout(const GveVertexInputInfo& viState)
+void GveContext::setVertexInputState(const GveVertexInputInfo& viState)
 {
 	m_state.gp.states.vi = viState;
 	m_flags.set(GveContextFlag::GpDirtyPipelineState);
@@ -267,89 +267,145 @@ void GveContext::drawIndexed(
 	m_cmd->cmdDrawIndexed(indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 }
 
-void GveContext::copyBuffer(GveBufferSlice& dstBuffer, GveBufferSlice& srcBuffer, VkDeviceSize size)
-{
-	// Copy commands must be recorded outside of a render pass instance.
-	VkCommandBuffer commandBuffer = m_cmd->cmdBeginSingleTimeCommands();
 
-	// TODO:
-	// setup region correctly
-	VkBufferCopy copyRegion = { 0 };
-	copyRegion.size         = size;
-	m_cmd->cmdCopyBuffer(commandBuffer, srcBuffer.handle(), dstBuffer.handle(), 1, &copyRegion);
-	auto queues = m_device->queues();
-	m_cmd->cmdEndSingleTimeCommands(commandBuffer, queues.graphics.queueHandle);
+void GveContext::copyBuffer(
+	const RcPtr<GveBuffer>& dstBuffer,
+	VkDeviceSize            dstOffset,
+	const RcPtr<GveBuffer>& srcBuffer,
+	VkDeviceSize            srcOffset,
+	VkDeviceSize            numBytes)
+{
+	leaveRenderPassScope();
+	
+	auto         srcSlice = srcBuffer->slice();
+	auto         dstSlice = dstBuffer->slice();
+
+	VkBufferCopy region = { 0 };
+	region.srcOffset    = srcOffset;
+	region.dstOffset    = dstOffset;
+	region.size         = numBytes;
+	m_cmd->cmdCopyBuffer(GveCmdType::ExecBuffer, srcSlice.buffer, dstSlice.buffer, 1, &region);
+
+	auto            buffInfo = dstBuffer->info();
+	VkMemoryBarrier barrier = {};
+	barrier.sType           = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
+	barrier.pNext           = nullptr;
+	barrier.srcAccessMask   = VK_ACCESS_TRANSFER_WRITE_BIT;
+	barrier.dstAccessMask    = buffInfo.access;
+
+	//m_cmd->cmdPipelineBarrier(
+	//	GveCmdType::ExecBuffer,
+	//	VK_PIPELINE_STAGE_TRANSFER_BIT, buffInfo.stages,
+	//	0,
+	//	1, &barrier,
+	//	0, nullptr,
+	//	0, nullptr);
+
+	fullPipelineBarrier();
 }
 
 void GveContext::copyBufferToImage(
-	const RcPtr<GveImage>& dstImage,
-	GveBufferSlice& srcBuffer,
-	uint32_t width, uint32_t height)
+	const RcPtr<GveImage>&   dstImage,
+	VkImageSubresourceLayers dstSubresource,
+	VkOffset3D               dstOffset,
+	VkExtent3D               dstExtent,
+	const RcPtr<GveBuffer>&  srcBuffer,
+	VkDeviceSize             srcOffset,
+	VkExtent2D               srcExtent)
 {
-	VkCommandBuffer commandBuffer = m_cmd->cmdBeginSingleTimeCommands();
+	leaveRenderPassScope();
 
-	VkBufferImageCopy region               = {};
-	region.bufferOffset                    = srcBuffer.offset();
-	region.bufferRowLength                 = 0;
-	region.bufferImageHeight               = 0;
-	region.imageSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
-	region.imageSubresource.mipLevel       = 0;
-	region.imageSubresource.baseArrayLayer = 0;
-	region.imageSubresource.layerCount     = 1;
-	region.imageOffset                     = { 0, 0, 0 };
-	region.imageExtent                     = { width, height, 1 };
+	VkBufferImageCopy region = {};
+	region.bufferOffset      = srcOffset;
+	region.bufferRowLength   = srcExtent.width;
+	region.bufferImageHeight = srcExtent.height;
+	region.imageSubresource  = dstSubresource;
+	region.imageOffset       = dstOffset;
+	region.imageExtent       = dstExtent;
 
-	m_cmd->cmdCopyBufferToImage(commandBuffer, srcBuffer.handle(), dstImage->handle(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
-	auto queues = m_device->queues();
-	m_cmd->cmdEndSingleTimeCommands(commandBuffer, queues.graphics.queueHandle);
+	auto srcSlice = srcBuffer->slice();
+	VkImageLayout dstImageLayoutTransfer = dstImage->pickLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+	m_cmd->cmdCopyBufferToImage(GveCmdType::ExecBuffer, srcSlice.buffer, dstImage->handle(), dstImageLayoutTransfer, 1, &region);
 }
 
 void GveContext::updateBuffer(const RcPtr<GveBuffer>& buffer,
-							 VkDeviceSize offset, VkDeviceSize size, const void* data)
+							  VkDeviceSize            offset,
+							  VkDeviceSize            size,
+							  const void*             data)
 {
-	do
-	{
-		if (!data)
-		{
-			break;
-		}
+	leaveRenderPassScope();
 
-		if (buffer->info().usage & VK_BUFFER_USAGE_TRANSFER_DST_BIT)
-		{
-			auto stagingSlice = m_stagingAlloc->alloc(size, CACHE_LINE_SIZE);
-
-			void* stagingData = stagingSlice.mapPtr(0);
-			std::memcpy(stagingData, data, size);
-
-			auto dstSlice = GveBufferSlice(buffer, offset, size);
-			copyBuffer(dstSlice, stagingSlice, size);
-		}
-		else
-		{
-			void* bufferData = buffer->mapPtr(offset);
-			std::memcpy(bufferData, data, size);
-		}
-
-	} while (false);
-}
-
-void GveContext::updateImage(const RcPtr<GveImage>& image,
-							VkDeviceSize offset, VkDeviceSize size, const void* data)
-{
-	auto stagingSlice = m_stagingAlloc->alloc(size, CACHE_LINE_SIZE);
-
-	void* stagingData = stagingSlice.mapPtr(0);
+	auto  stagingSlice = m_stagingAlloc->alloc(size, CACHE_LINE_SIZE);
+	void* stagingData  = stagingSlice.mapPtr(0);
 	std::memcpy(stagingData, data, size);
 
-	transitionImageLayout(image->handle(), image->getFormat(), image->info().initialLayout, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-	copyBufferToImage(image, stagingSlice, image->getWidth(), image->getHeight());
-	transitionImageLayout(image->handle(), image->getFormat(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, image->info().layout);
+	copyBuffer(buffer, offset, stagingSlice.buffer(), 0, size);
 }
 
-void GveContext::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout)
+void GveContext::updateImage(
+	const RcPtr<GveImage>&          image,
+	const VkImageSubresourceLayers& subresources,
+	VkOffset3D                      imageOffset,
+	VkExtent3D                      imageExtent,
+	const void*                     data,
+	VkDeviceSize                    size)
 {
-	VkCommandBuffer commandBuffer = m_cmd->cmdBeginSingleTimeCommands();
+	leaveRenderPassScope();
 
+	auto  stagingSlice = m_stagingAlloc->alloc(size, CACHE_LINE_SIZE);
+	void* stagingData  = stagingSlice.mapPtr(0);
+	std::memcpy(stagingData, data, size);
+
+	auto          imgInfo   = image->info();
+
+	VkImageLayout transferLayout = image->pickLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+	// Note:
+	// From dxvk, the initial layout can be VK_IMAGE_LAYOUT_UNDEFINED 
+	// only when the subresources covers the entire image.
+	// But from vulkan spec, it seems the old layout can be 
+	// VK_IMAGE_LAYOUT_UNDEFINED at any chance as long as we don't 
+	// care the initial content.
+
+	transitionImageLayout(image->handle(),
+						  VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
+						  0, VK_ACCESS_TRANSFER_WRITE_BIT,
+						  VK_IMAGE_LAYOUT_UNDEFINED, transferLayout);
+
+	VkExtent2D copyExtent = { 0, 0 };
+	copyBufferToImage(image, subresources, imageOffset, imageExtent,
+					  stagingSlice.buffer(), stagingSlice.offset(), copyExtent);
+
+	transitionImageLayout(image->handle(),
+						  VK_PIPELINE_STAGE_TRANSFER_BIT, imgInfo.stages,
+						  VK_ACCESS_TRANSFER_WRITE_BIT, imgInfo.access,
+						  transferLayout, imgInfo.layout);
+}
+
+void GveContext::uploadBuffer(
+	const RcPtr<GveBuffer>& buffer,
+	const void*             data)
+{
+}
+
+void GveContext::uploadImage(
+	const RcPtr<GveImage>&          image,
+	const VkImageSubresourceLayers& subresources,
+	const void*                     data,
+	VkDeviceSize                    pitchPerRow,
+	VkDeviceSize                    pitchPerLayer)
+{
+}
+
+void GveContext::transitionImageLayout(
+	VkImage              image,
+	VkPipelineStageFlags srcStage,
+	VkPipelineStageFlags dstStage,
+	VkAccessFlags        srcAccess,
+	VkAccessFlags        dstAccess,
+	VkImageLayout        oldLayout,
+	VkImageLayout        newLayout)
+{
 	VkImageMemoryBarrier barrier            = {};
 	barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
 	barrier.oldLayout                       = oldLayout;
@@ -362,41 +418,65 @@ void GveContext::transitionImageLayout(VkImage image, VkFormat format, VkImageLa
 	barrier.subresourceRange.levelCount     = 1;
 	barrier.subresourceRange.baseArrayLayer = 0;
 	barrier.subresourceRange.layerCount     = 1;
+	barrier.srcAccessMask                   = srcAccess;
+	barrier.dstAccessMask                   = dstAccess;
 
-	VkPipelineStageFlags sourceStage;
-	VkPipelineStageFlags destinationStage;
-
-	if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
-	{
-		barrier.srcAccessMask = 0;
-		barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-
-		sourceStage      = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-		destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-	}
-	else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
-	{
-		barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-		barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-
-		sourceStage      = VK_PIPELINE_STAGE_TRANSFER_BIT;
-		destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-	}
-	else
-	{
-		throw std::invalid_argument("unsupported layout transition!");
-	}
-
-	vkCmdPipelineBarrier(
-		commandBuffer,
-		sourceStage, destinationStage,
-		0,
-		0, nullptr,
-		0, nullptr,
+	m_cmd->cmdPipelineBarrier(
+		GveCmdType::ExecBuffer,
+		srcStage, dstStage, 
+		0, 
+		0, nullptr, 
+		0, nullptr, 
 		1, &barrier);
+}
 
-	auto queues = m_device->queues();
-	m_cmd->cmdEndSingleTimeCommands(commandBuffer, queues.graphics.queueHandle);
+void GveContext::fullPipelineBarrier()
+{
+
+	VkAccessFlags fullpipeSrcAccessMask = VK_ACCESS_INDIRECT_COMMAND_READ_BIT |
+										  VK_ACCESS_INDEX_READ_BIT |
+										  VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT |
+										  VK_ACCESS_UNIFORM_READ_BIT |
+										  VK_ACCESS_INPUT_ATTACHMENT_READ_BIT |
+										  VK_ACCESS_SHADER_READ_BIT |
+										  VK_ACCESS_SHADER_WRITE_BIT |
+										  VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
+										  VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
+										  VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT |
+										  VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
+										  VK_ACCESS_TRANSFER_READ_BIT |
+										  VK_ACCESS_TRANSFER_WRITE_BIT |
+										  VK_ACCESS_HOST_READ_BIT |
+										  VK_ACCESS_HOST_WRITE_BIT;
+	VkAccessFlags fullpipeDstAccessMask = VK_ACCESS_INDIRECT_COMMAND_READ_BIT |
+										  VK_ACCESS_INDEX_READ_BIT |
+										  VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT |
+										  VK_ACCESS_UNIFORM_READ_BIT |
+										  VK_ACCESS_INPUT_ATTACHMENT_READ_BIT |
+										  VK_ACCESS_SHADER_READ_BIT |
+										  VK_ACCESS_SHADER_WRITE_BIT |
+										  VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
+										  VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
+										  VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT |
+										  VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
+										  VK_ACCESS_TRANSFER_READ_BIT |
+										  VK_ACCESS_TRANSFER_WRITE_BIT |
+										  VK_ACCESS_HOST_READ_BIT |
+										  VK_ACCESS_HOST_WRITE_BIT;
+
+	VkMemoryBarrier barrier = {};
+	barrier.sType           = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
+	barrier.pNext           = nullptr;
+	barrier.srcAccessMask   = fullpipeSrcAccessMask;
+	barrier.dstAccessMask   = fullpipeDstAccessMask;
+
+	m_cmd->cmdPipelineBarrier(
+		GveCmdType::ExecBuffer,
+		VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+		0,
+		1, &barrier,
+		0, nullptr,
+		0, nullptr);
 }
 
 void GveContext::updateFrameBuffer()
@@ -444,7 +524,7 @@ void GveContext::updateRenderPassOps(const GveRenderTargets& rts, GveRenderPassO
 	ops.barrier.dstAccess = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 }
 
-void GveContext::beginRenderPass()
+void GveContext::renderPassBindFramebuffer()
 {
 	updateRenderPassOps(m_state.om.renderTargets, m_state.om.omInfo.ops);
 
@@ -474,7 +554,7 @@ void GveContext::beginRenderPass()
 	m_flags.set(GveContextFlag::GpRenderPassBound);
 }
 
-void GveContext::endRenderPass()
+void GveContext::renderPassUnbindFramebuffer()
 {
 	do
 	{
@@ -501,7 +581,7 @@ void GveContext::updateVertexBindings()
 			break;
 		}
 
-		buffers[bindingCount] = buffer.handle();
+		buffers[bindingCount] = buffer.buffer()->slice().buffer;
 		offsets[bindingCount] = buffer.offset();
 		++bindingCount;
 	}
@@ -520,7 +600,7 @@ void GveContext::updateIndexBinding()
 			break;
 		}
 
-		VkBuffer indexBuffer = m_state.vi.indexBuffer.handle();
+		VkBuffer indexBuffer = m_state.vi.indexBuffer.buffer()->slice().buffer;
 		VkDeviceSize offset  = m_state.vi.indexBuffer.offset();
 		VkIndexType type     = m_state.vi.indexType;
 		m_cmd->cmdBindIndexBuffer(indexBuffer, offset, type);
@@ -556,7 +636,7 @@ void GveContext::updateShaderResources(const GvePipelineLayout* pipelineLayout, 
 		case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
 		{
 			VkDescriptorBufferInfo bufferInfo = {};
-			bufferInfo.buffer                 = res.buffer.handle();
+			bufferInfo.buffer                 = res.buffer.slice().buffer;
 			bufferInfo.offset                 = res.buffer.offset();
 			bufferInfo.range                  = res.buffer.length();
 
@@ -694,6 +774,22 @@ void GveContext::updateComputePipelineStates()
 {
 }
 
+void GveContext::enterRenderPassScope()
+{
+	if (!m_flags.test(GveContextFlag::GpRenderPassBound))
+	{
+		renderPassBindFramebuffer();
+	}
+}
+
+void GveContext::leaveRenderPassScope()
+{
+	if (m_flags.test(GveContextFlag::GpRenderPassBound))
+	{
+		renderPassUnbindFramebuffer();
+	}
+}
+
 void GveContext::updateDynamicState()
 {
 	if (m_flags.test(GveContextFlag::GpDirtyViewport))
@@ -712,11 +808,6 @@ void GveContext::updateDynamicState()
 template <bool Indexed, bool Indirect>
 void GveContext::commitGraphicsState()
 {
-	if (m_flags.test(GveContextFlag::GpDirtyPipeline))
-	{
-		updateGraphicsPipeline();
-	}
-
 	if (m_flags.test(GveContextFlag::GpDirtyFramebuffer))
 	{
 		updateFrameBuffer();
@@ -724,7 +815,12 @@ void GveContext::commitGraphicsState()
 
 	if (!m_flags.test(GveContextFlag::GpRenderPassBound))
 	{
-		beginRenderPass();
+		enterRenderPassScope();
+	}
+
+	if (m_flags.test(GveContextFlag::GpDirtyPipeline))
+	{
+		updateGraphicsPipeline();
 	}
 
 	if (m_flags.test(GveContextFlag::GpDirtyVertexBuffers))
