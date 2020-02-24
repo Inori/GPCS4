@@ -314,7 +314,13 @@ class GveMultisampleInfo
 {
 public:
 
-	GveMultisampleInfo() = default;
+	GveMultisampleInfo():
+		m_sampleCount(0),
+		m_enableAlphaToCoverage(0),
+		m_reserved(0),
+		m_sampleMask(0)
+	{
+	}
 
 	GveMultisampleInfo(
 		VkSampleCountFlags sampleCount,

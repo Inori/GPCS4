@@ -455,11 +455,6 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 	commitVsStage();
 	commitPsStage();
 
-	// TODO:
-	// This is a dummy state.
-	auto msInfo = GveMultisampleInfo(VK_SAMPLE_COUNT_1_BIT, 0, VK_FALSE);
-	m_context->setMultiSampleState(msInfo);
-
 	m_context->drawIndexed(indexCount, 1, 0, 0, 0);
 }
 
@@ -473,11 +468,6 @@ void GnmCommandBufferDraw::drawIndexAuto(uint32_t indexCount, DrawModifier modif
 {
 	commitVsStage();
 	commitPsStage();
-
-	// TODO:
-	// This is a dummy state.
-	auto msInfo = GveMultisampleInfo(VK_SAMPLE_COUNT_1_BIT, 0, VK_FALSE);
-	m_context->setMultiSampleState(msInfo);
 
 	m_context->draw(indexCount, 1, 0, 0);
 }
