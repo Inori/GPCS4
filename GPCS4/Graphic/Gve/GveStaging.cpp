@@ -24,8 +24,7 @@ GveBufferSlice GveStagingBufferAllocator::alloc(VkDeviceSize size, VkDeviceSize 
 	{
 		if (size > MaxBufferSize)
 		{
-			auto buffer = createBuffer(size);
-			slice = GveBufferSlice(buffer);
+			slice = GveBufferSlice(createBuffer(size));
 			break;
 		}
 
@@ -34,12 +33,13 @@ GveBufferSlice GveStagingBufferAllocator::alloc(VkDeviceSize size, VkDeviceSize 
 			m_buffer = createBuffer(MaxBufferSize);
 		}
 
-		if (!m_buffer->isInUse())
+		if (!m_buffer->busy())
 		{
+			// If buffer not in use, we can safely go to start.
 			m_offset = 0;
 		}
 
-		m_offset = util::alignRound(m_offset, align);
+		m_offset = util::align(m_offset, align);
 
 		// If this is true, m_buffer must be in use,
 		// we need to find another buffer, either in cache or a new one
@@ -47,16 +47,16 @@ GveBufferSlice GveStagingBufferAllocator::alloc(VkDeviceSize size, VkDeviceSize 
 		{
 			m_offset = 0;
 
-			if (m_cacheBuffers.size() < MaxBufferCount)
+			if (m_bufferCache.size() < MaxBufferCount)
 			{
 				// Save the buffer being used, for future use.
-				m_cacheBuffers.push(std::move(m_buffer));
+				m_bufferCache.push(std::move(m_buffer));
 			}
 
-			if (!m_cacheBuffers.front()->isInUse())
+			if (!m_bufferCache.front()->busy())
 			{
-				m_buffer = std::move(m_cacheBuffers.front());
-				m_cacheBuffers.pop();
+				m_buffer = std::move(m_bufferCache.front());
+				m_bufferCache.pop();
 			}
 			else
 			{
@@ -65,7 +65,7 @@ GveBufferSlice GveStagingBufferAllocator::alloc(VkDeviceSize size, VkDeviceSize 
 		}
 
 		slice = GveBufferSlice(m_buffer, m_offset, size);
-		m_offset = util::alignRound(m_offset + size, align);
+		m_offset = util::align(m_offset + size, align);
 
 	} while (false);
 	return slice;
@@ -75,17 +75,19 @@ void GveStagingBufferAllocator::trim()
 {
 	m_buffer = nullptr;
 
-	while (!m_cacheBuffers.empty())
+	while (!m_bufferCache.empty())
 	{
-		m_cacheBuffers.pop();
+		m_bufferCache.pop();
 	}
 }
 
 RcPtr<GveBuffer> GveStagingBufferAllocator::createBuffer(VkDeviceSize size)
 {
 	GveBufferCreateInfo info;
-	info.size  = size;
-	info.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+	info.size   = size;
+	info.usage  = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+	info.stages = VK_PIPELINE_STAGE_TRANSFER_BIT;
+	info.access = VK_ACCESS_TRANSFER_READ_BIT;
 
 	return m_device->createBuffer(
 		info,

@@ -269,9 +269,8 @@ private:
 
 	RcPtr<GveCmdList> m_cmd;
 
-	RcPtr<GveDescriptorPool> m_descPool;
-
-	std::unique_ptr<GveStagingBufferAllocator> m_stagingAlloc;
+	RcPtr<GveDescriptorPool>         m_descPool;
+	RcPtr<GveStagingBufferAllocator> m_staging;
 
 	GveContextFlags m_flags;
 	GveContextState m_state;

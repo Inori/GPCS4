@@ -3,6 +3,7 @@
 #include "GveCommon.h"
 #include "GveDevice.h"
 #include "GveEnums.h"
+#include "GveLifetime.h"
 
 namespace gve
 {;
@@ -84,73 +85,11 @@ public:
 		m_descriptorPoolTracker.trackDescriptorPool(std::move(pool));
 	}
 
-	/// These are temporary methods, need to delete in future
-
-	// TODO:
-	// Currently I use single time command buffer to submit
-	// copy commands, which is not efficient, we should batch
-	// these operations and submit them once.
-	/*
-	VkCommandBuffer cmdBeginSingleTimeCommands()
+	void trackResource(RcPtr<GveGpuResource> rc)
 	{
-		VkCommandBufferAllocateInfo allocInfo = {};
-		allocInfo.sType                       = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfo.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandPool                 = m_execPool;
-		allocInfo.commandBufferCount          = 1;
-
-		VkCommandBuffer commandBuffer;
-		vkAllocateCommandBuffers(*m_device, &allocInfo, &commandBuffer);
-
-		VkCommandBufferBeginInfo beginInfo = {};
-		beginInfo.sType                    = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		beginInfo.flags                    = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-		vkBeginCommandBuffer(commandBuffer, &beginInfo);
-
-		return commandBuffer;
+		m_resourceTracker.trackResource(std::move((rc)));
 	}
 
-	void cmdEndSingleTimeCommands(VkCommandBuffer commandBuffer, VkQueue queue)
-	{
-		vkEndCommandBuffer(commandBuffer);
-
-		VkSubmitInfo submitInfo       = {};
-		submitInfo.sType              = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers    = &commandBuffer;
-
-		vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
-		vkQueueWaitIdle(queue);
-
-		vkFreeCommandBuffers(*m_device, m_execPool, 1, &commandBuffer);
-	}
-
-	void cmdCopyBuffer(
-		VkCommandBuffer     cmdBuffer,
-		VkBuffer            srcBuffer,
-		VkBuffer            dstBuffer,
-		uint32_t            regionCount,
-		const VkBufferCopy* pRegions)
-	{
-		vkCmdCopyBuffer(cmdBuffer,
-						srcBuffer, dstBuffer,
-						regionCount, pRegions);
-	}
-
-	void cmdCopyBufferToImage(
-		VkCommandBuffer          cmdBuffer,
-		VkBuffer                 srcBuffer,
-		VkImage                  dstImage,
-		VkImageLayout            dstImageLayout,
-		uint32_t                 regionCount,
-		const VkBufferImageCopy* pRegions)
-	{
-		vkCmdCopyBufferToImage(cmdBuffer,
-							   srcBuffer, dstImage, dstImageLayout,
-							   regionCount, pRegions);
-	}
-	*/
 	///
 
 	void updateDescriptorSets(
@@ -726,6 +665,7 @@ private:
 	GveCmdTypeFlags m_cmdTypeUsed = 0;
 
 	GveDescriptorPoolTracker m_descriptorPoolTracker;
+	GveLifetimeTracker       m_resourceTracker;
 };
 
 

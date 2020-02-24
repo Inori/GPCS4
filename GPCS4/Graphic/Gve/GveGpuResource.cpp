@@ -7,7 +7,7 @@ GveGpuResource::~GveGpuResource()
 {
 }
 
-bool GveGpuResource::isInUse() const
+bool GveGpuResource::busy() const
 {
 	return m_useCount.load() != 0;
 }

@@ -29,7 +29,7 @@ struct GveBufferCreateInfo
 
 
 // Convenient when we don't want to hold a reference 
-struct GveBufferSliceWeak
+struct GveBufferSliceHandle
 {
 	VkBuffer     buffer = VK_NULL_HANDLE;
 	VkDeviceSize offset = 0;
@@ -53,9 +53,9 @@ public:
 
 	const GveBufferCreateInfo& info() const;
 
-	const GveBufferSliceWeak& slice();
+	const GveBufferSliceHandle& slice();
 
-	GveBufferSliceWeak slice(VkDeviceSize offset, VkDeviceSize length);
+	GveBufferSliceHandle slice(VkDeviceSize offset, VkDeviceSize length);
 
 	void* mapPtr(VkDeviceSize offset) const;
 
@@ -71,7 +71,7 @@ private:
 
 	VkBuffer m_buffer = VK_NULL_HANDLE;
 	GveMemory m_memory;
-	GveBufferSliceWeak m_slice;
+	GveBufferSliceHandle m_slice;
 };
 
 
@@ -79,15 +79,21 @@ class GveBufferSlice
 {
 public:
 	GveBufferSlice();
-	GveBufferSlice(const RcPtr<GveBuffer>& buffer, VkDeviceSize offset, VkDeviceSize length);
+
+	GveBufferSlice(
+		const RcPtr<GveBuffer>& buffer,
+		VkDeviceSize            offset,
+		VkDeviceSize            length);
+
 	GveBufferSlice(const RcPtr<GveBuffer>& buffer);
+
 	~GveBufferSlice();
 
 	bool defined() const;
 
 	RcPtr<GveBuffer> buffer() const;
 
-	GveBufferSliceWeak slice() const;
+	GveBufferSliceHandle getHandle() const;
 
 	VkDeviceSize offset() const;
 

@@ -16,7 +16,7 @@ public:
 	
 	virtual ~GveGpuResource();
 
-	bool isInUse() const;
+	bool busy() const;
 
 	void acquire();
 

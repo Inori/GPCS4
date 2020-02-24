@@ -209,6 +209,7 @@ VkResult GveCmdList::synchronize()
 void GveCmdList::reset()
 {
 	m_descriptorPoolTracker.reset();
+	m_resourceTracker.reset();
 }
 
 VkResult GveCmdList::submitToQueue(

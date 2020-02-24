@@ -26,7 +26,7 @@ inline T alignDown(T size, U align)
 }
 
 template <typename T, typename U = T>
-inline T alignRound(T size, U align)
+inline T align(T size, U align)
 {
 	return (size + align - 1) & ~(align - 1);
 }

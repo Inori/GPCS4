@@ -21,7 +21,7 @@ GveContext::GveContext(const RcPtr<GveDevice>& device) :
 	m_objects(&m_device->m_resObjects),
 	m_cmd(nullptr),
 	m_descPool(nullptr),
-	m_stagingAlloc(std::make_unique<GveStagingBufferAllocator>(device))
+	m_staging(new GveStagingBufferAllocator(device))
 {
 }
 
@@ -68,8 +68,6 @@ RcPtr<GveCmdList> GveContext::endRecording()
 	renderPassUnbindFramebuffer();
 
 	m_cmd->endRecording();
-
-	// m_stagingAlloc->trim();
 
 	return std::exchange(m_cmd, nullptr);
 }
@@ -286,22 +284,8 @@ void GveContext::copyBuffer(
 	region.size         = numBytes;
 	m_cmd->cmdCopyBuffer(GveCmdType::ExecBuffer, srcSlice.buffer, dstSlice.buffer, 1, &region);
 
-	auto            buffInfo = dstBuffer->info();
-	VkMemoryBarrier barrier = {};
-	barrier.sType           = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
-	barrier.pNext           = nullptr;
-	barrier.srcAccessMask   = VK_ACCESS_TRANSFER_WRITE_BIT;
-	barrier.dstAccessMask    = buffInfo.access;
-
-	//m_cmd->cmdPipelineBarrier(
-	//	GveCmdType::ExecBuffer,
-	//	VK_PIPELINE_STAGE_TRANSFER_BIT, buffInfo.stages,
-	//	0,
-	//	1, &barrier,
-	//	0, nullptr,
-	//	0, nullptr);
-
-	fullPipelineBarrier();
+	// Not sure if we need a barrier here....
+	//fullPipelineBarrier();
 }
 
 void GveContext::copyBufferToImage(
@@ -335,11 +319,13 @@ void GveContext::updateBuffer(const RcPtr<GveBuffer>& buffer,
 {
 	leaveRenderPassScope();
 
-	auto  stagingSlice = m_stagingAlloc->alloc(size, CACHE_LINE_SIZE);
+	auto  stagingSlice = m_staging->alloc(size, CACHE_LINE_SIZE);
 	void* stagingData  = stagingSlice.mapPtr(0);
 	std::memcpy(stagingData, data, size);
 
-	copyBuffer(buffer, offset, stagingSlice.buffer(), 0, size);
+	copyBuffer(buffer, offset, stagingSlice.buffer(), stagingSlice.offset(), size);
+
+	m_cmd->trackResource(stagingSlice.buffer());
 }
 
 void GveContext::updateImage(
@@ -352,7 +338,7 @@ void GveContext::updateImage(
 {
 	leaveRenderPassScope();
 
-	auto  stagingSlice = m_stagingAlloc->alloc(size, CACHE_LINE_SIZE);
+	auto  stagingSlice = m_staging->alloc(size, CACHE_LINE_SIZE);
 	void* stagingData  = stagingSlice.mapPtr(0);
 	std::memcpy(stagingData, data, size);
 
@@ -380,6 +366,8 @@ void GveContext::updateImage(
 						  VK_PIPELINE_STAGE_TRANSFER_BIT, imgInfo.stages,
 						  VK_ACCESS_TRANSFER_WRITE_BIT, imgInfo.access,
 						  transferLayout, imgInfo.layout);
+
+	m_cmd->trackResource(stagingSlice.buffer());
 }
 
 void GveContext::uploadBuffer(
@@ -636,7 +624,7 @@ void GveContext::updateShaderResources(const GvePipelineLayout* pipelineLayout, 
 		case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
 		{
 			VkDescriptorBufferInfo bufferInfo = {};
-			bufferInfo.buffer                 = res.buffer.slice().buffer;
+			bufferInfo.buffer                 = res.buffer.getHandle().buffer;
 			bufferInfo.offset                 = res.buffer.offset();
 			bufferInfo.range                  = res.buffer.length();
 

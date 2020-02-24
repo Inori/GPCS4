@@ -18,7 +18,7 @@ TLSManager::~TLSManager()
 
 void TLSManager::backupTLSImage(std::vector<uint8_t>& image, const TLSBlock& block)
 {
-	size_t algnedSize = util::alignRound(block.totalSize, block.align);
+	size_t algnedSize = util::align(block.totalSize, block.align);
 	image.resize(algnedSize);
 	memcpy(image.data(), block.address, block.initSize);
 
@@ -35,7 +35,7 @@ size_t TLSManager::calculateStaticTLSSize()
 		{
 			continue;
 		}
-		size += util::alignRound(imgPair.first.totalSize, imgPair.first.align);
+		size += util::align(imgPair.first.totalSize, imgPair.first.align);
 	}
 	return size;
 }
@@ -47,12 +47,12 @@ void TLSManager::allocateTLSOffset(TLSBlock& block)
 	uint32_t offset = 0;
 	if (block.index == TLS_MODULE_ID_MAIN)
 	{
-		offset = util::alignRound(block.totalSize, block.align);
+		offset = util::align(block.totalSize, block.align);
 	}
 	else
 	{
 		uint32_t lastTLSOffset = calculateStaticTLSSize();
-		offset                 = lastTLSOffset + util::alignRound(block.totalSize, block.align);
+		offset                 = lastTLSOffset + util::align(block.totalSize, block.align);
 	}
 
 	block.offset = offset;

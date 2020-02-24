@@ -16,7 +16,8 @@ class GveStagingBufferAllocator : public RcObject
 	const uint32_t     MaxBufferCount = 2;
 
 public:
-	GveStagingBufferAllocator(const RcPtr<GveDevice>& device);
+	GveStagingBufferAllocator(
+		const RcPtr<GveDevice>& device);
 	~GveStagingBufferAllocator();
 
 	GveBufferSlice alloc(VkDeviceSize size, VkDeviceSize align);
@@ -32,7 +33,7 @@ private:
 	RcPtr<GveBuffer> m_buffer;
 	VkDeviceSize     m_offset = 0;
 
-	std::queue<RcPtr<GveBuffer>> m_cacheBuffers;
+	std::queue<RcPtr<GveBuffer>> m_bufferCache;
 };
 
 }  // namespace gve

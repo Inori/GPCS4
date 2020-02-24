@@ -45,14 +45,14 @@ const GveBufferCreateInfo& GveBuffer::info() const
 	return m_info;
 }
 
-const GveBufferSliceWeak& GveBuffer::slice()
+const GveBufferSliceHandle& GveBuffer::slice()
 {
 	return m_slice;
 }
 
-GveBufferSliceWeak GveBuffer::slice(VkDeviceSize offset, VkDeviceSize length)
+GveBufferSliceHandle GveBuffer::slice(VkDeviceSize offset, VkDeviceSize length)
 {
-	GveBufferSliceWeak result;
+	GveBufferSliceHandle result;
 	result.buffer = m_slice.buffer;
 	result.offset = m_slice.offset + offset;
 	result.length = length;
@@ -121,25 +121,23 @@ void GveBuffer::createBuffer(const VkBufferCreateInfo& info)
 
 ///
 
-GveBufferSlice::GveBufferSlice(const RcPtr<GveBuffer>& buffer, 
-	VkDeviceSize offset, VkDeviceSize length):
+GveBufferSlice::GveBufferSlice(const RcPtr<GveBuffer>& buffer,
+							   VkDeviceSize            offset,
+							   VkDeviceSize            length) :
 	m_buffer(buffer),
 	m_offset(offset),
 	m_length(length)
 {
-
 }
 
-GveBufferSlice::GveBufferSlice(const RcPtr<GveBuffer>& buffer):
+GveBufferSlice::GveBufferSlice(const RcPtr<GveBuffer>& buffer) :
 	GveBufferSlice(buffer, 0, buffer->length())
 {
-
 }
 
-GveBufferSlice::GveBufferSlice():
+GveBufferSlice::GveBufferSlice() :
 	GveBufferSlice(nullptr, 0, 0)
 {
-
 }
 
 GveBufferSlice::~GveBufferSlice()
@@ -157,7 +155,7 @@ RcPtr<GveBuffer> GveBufferSlice::buffer() const
 	return m_buffer;
 }
 
-GveBufferSliceWeak GveBufferSlice::slice() const
+GveBufferSliceHandle GveBufferSlice::getHandle() const
 {
 	return m_buffer->slice(m_offset, m_length);
 }
