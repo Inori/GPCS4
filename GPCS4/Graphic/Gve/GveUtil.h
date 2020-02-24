@@ -22,4 +22,23 @@ inline VkExtent3D computeMipLevelExtent(VkExtent3D size, uint32_t level)
 	return size;
 }
 
+inline uint32_t getComponentIndex(
+	VkComponentSwizzle component,
+	uint32_t           identity)
+{
+	switch (component)
+	{
+	case VK_COMPONENT_SWIZZLE_R:
+		return 0;
+	case VK_COMPONENT_SWIZZLE_G:
+		return 1;
+	case VK_COMPONENT_SWIZZLE_B:
+		return 2;
+	case VK_COMPONENT_SWIZZLE_A:
+		return 3;
+	default:
+		return identity; /* identity, zero, one */
+	}
+}
+
 }  // namespace gve

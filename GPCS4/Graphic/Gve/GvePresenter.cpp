@@ -380,8 +380,8 @@ VkExtent2D GvePresenter::pickImageExtent(const SwapChainSupportDetails& details,
 			break;
 		}
 
-		extent.width  = util::clamp(desired.width, caps.minImageExtent.width, caps.maxImageExtent.width);
-		extent.height = util::clamp(desired.height, caps.minImageExtent.height, caps.maxImageExtent.height);
+		extent.width  = ::util::clamp(desired.width, caps.minImageExtent.width, caps.maxImageExtent.width);
+		extent.height = ::util::clamp(desired.height, caps.minImageExtent.height, caps.maxImageExtent.height);
 
 	} while (false);
 	return extent;
@@ -390,7 +390,7 @@ VkExtent2D GvePresenter::pickImageExtent(const SwapChainSupportDetails& details,
 uint32_t GvePresenter::pickImageCount(const SwapChainSupportDetails& details, uint32_t desired)
 {
 	const VkSurfaceCapabilitiesKHR& caps  = details.capabilities;
-	uint32_t count = util::clamp(desired, caps.minImageCount, caps.maxImageCount);
+	uint32_t                        count = ::util::clamp(desired, caps.minImageCount, caps.maxImageCount);
 	return count;
 }
 

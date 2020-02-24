@@ -338,7 +338,8 @@ void GnmCommandBufferDraw::setPrimitiveSetup(PrimitiveSetup primSetup)
 			VK_FALSE,
 			polyMode,
 			cullMode,
-			frontFace
+			frontFace,
+			VK_SAMPLE_COUNT_1_BIT
 		);
 
 		m_context->setRasterizerState(rsInfo);
@@ -456,7 +457,7 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr,
 
 	// TODO:
 	// This is a dummy state.
-	auto msInfo = GveMultisampleInfo(VK_SAMPLE_COUNT_1_BIT, VK_FALSE, 0.0, 0, VK_FALSE, VK_FALSE);
+	auto msInfo = GveMultisampleInfo(VK_SAMPLE_COUNT_1_BIT, 0, VK_FALSE);
 	m_context->setMultiSampleState(msInfo);
 
 	m_context->drawIndexed(indexCount, 1, 0, 0, 0);
@@ -475,7 +476,7 @@ void GnmCommandBufferDraw::drawIndexAuto(uint32_t indexCount, DrawModifier modif
 
 	// TODO:
 	// This is a dummy state.
-	auto msInfo = GveMultisampleInfo(VK_SAMPLE_COUNT_1_BIT, VK_FALSE, 0.0, 0, VK_FALSE, VK_FALSE);
+	auto msInfo = GveMultisampleInfo(VK_SAMPLE_COUNT_1_BIT, 0, VK_FALSE);
 	m_context->setMultiSampleState(msInfo);
 
 	m_context->draw(indexCount, 1, 0, 0);
@@ -832,7 +833,7 @@ void GnmCommandBufferDraw::bindImmResource(const PsslShaderResource& res)
 		}
 		
 		VkDeviceSize imageBufferSize = tsharp->getSizeAlign().m_size;
-		void* data                   = util::gnmGpuAbsAddr((void*)res.resource, tsharp->getBaseAddress());
+		void* data                   = ::util::gnmGpuAbsAddr((void*)res.resource, tsharp->getBaseAddress());
 
 		auto tileMode = tsharp->getTileMode();
 		if (tileMode == kTileModeDisplay_LinearAligned)

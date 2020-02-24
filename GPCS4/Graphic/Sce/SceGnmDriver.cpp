@@ -295,7 +295,7 @@ uint32_t SceGnmDriver::mapComputeQueue(uint32_t pipeId,
 			break;
 		}
 
-		if (!util::isPowerOfTwo(ringSizeInDW))
+		if (!::util::isPowerOfTwo(ringSizeInDW))
 		{
 			vqueueId = SCE_GNM_ERROR_COMPUTEQUEUE_INVALID_RING_SIZE;
 			break;

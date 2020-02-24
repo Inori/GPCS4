@@ -124,7 +124,7 @@ GveGraphicsPipelineInstance* GveGraphicsPipeline::createInstance(const GveGraphi
 		auto vpState = state.dy.viewportState();
 		auto iaState = state.ia.state();
 		auto rsState = state.rs.state();
-		auto msState = state.ms.state();
+		auto msState = state.ms.state(VkSampleCountFlagBits(state.rs.sampleCount()), VK_FALSE, 0.0);
 		auto dsState = state.ds.state();
 
 		VkGraphicsPipelineCreateInfo pipelineInfo = {};

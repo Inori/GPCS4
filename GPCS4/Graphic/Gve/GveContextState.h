@@ -62,25 +62,25 @@ struct GveOutputMergerInfo
 
 struct GveOutputMergerState
 {
-	GveOutputMergerInfo omInfo;
-	GveRenderTargets renderTargets;
+	GveOutputMergerInfo   omInfo;
+	GveRenderTargets      renderTargets;
 	RcPtr<GveFrameBuffer> framebuffer = nullptr;
 };
 
 struct GveVertexInputState
 {
-	GveBufferSlice   indexBuffer;
-	VkIndexType      indexType = VK_INDEX_TYPE_UINT32;
+	GveBufferSlice indexBuffer;
+	VkIndexType    indexType = VK_INDEX_TYPE_UINT32;
 
-	std::array<GveBufferSlice,   MaxNumVertexBindings> vertexBuffers = { };
-	std::array<uint32_t,         MaxNumVertexBindings> vertexStrides = { };
+	std::array<GveBufferSlice, MaxNumVertexBindings> vertexBuffers = {};
+	std::array<uint32_t, MaxNumVertexBindings>       vertexStrides = {};
 };
 
 struct GveViewPortState
 {
-	uint32_t count;
+	uint32_t                                count;
 	std::array<VkViewport, MaxNumViewports> viewports;
-	std::array<VkRect2D,   MaxNumViewports> scissors;
+	std::array<VkRect2D, MaxNumViewports>   scissors;
 };
 
 struct GveDynamicState
@@ -104,12 +104,12 @@ struct GveComputePipelineState
 //////////////////////////////////////////////////////////////////////////
 struct GveContextState
 {
-	GveVertexInputState		vi;
-	GveDynamicState         dy;
-	GveOutputMergerState	om;
+	GveVertexInputState  vi;
+	GveDynamicState      dy;
+	GveOutputMergerState om;
 
-	GveGraphicsPipelineState	gp;
-	GveComputePipelineState		cp;
+	GveGraphicsPipelineState gp;
+	GveComputePipelineState  cp;
 };
 
 
