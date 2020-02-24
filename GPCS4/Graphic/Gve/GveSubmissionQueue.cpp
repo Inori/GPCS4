@@ -9,8 +9,7 @@ namespace gve
 
 
 GveSubmissionQueue::GveSubmissionQueue(GveDevice* device):
-	m_device(device),
-	m_cmdList(nullptr)
+	m_device(device)
 {
 }
 
@@ -20,8 +19,9 @@ GveSubmissionQueue::~GveSubmissionQueue()
 
 void GveSubmissionQueue::submit(const GveSubmitInfo& submission)
 {
-	m_cmdList = submission.cmdList;
-	m_cmdList->submit(submission.waitSync, submission.wakeSync);
+	auto& cmdList = submission.cmdList;
+	cmdList->submit(submission.waitSync, submission.wakeSync);
+	m_submitQueue.push(std::move(cmdList));
 }
 
 void GveSubmissionQueue::present(const GvePresentInfo& presentation)
@@ -35,19 +35,22 @@ void GveSubmissionQueue::present(const GvePresentInfo& presentation)
 			break;
 		}
 
+		auto cmdList = m_submitQueue.front();
+		m_submitQueue.pop();
+
 		// Wait for command buffer submit finish.
-		status = m_cmdList->synchronize();
+		status = cmdList->synchronize();
 		if (status != VK_SUCCESS)
 		{
 			break;
 		}
 
 		// After submit done, reset cmdlist to release resource.
-		m_cmdList->reset();
+		cmdList->reset();
 
 		// Finally, recycle the cmdlist for next use.
 		// Here we release the ownership of m_cmdList to emulate item poped from queue.
-		m_device->recycleCommandList(std::exchange(m_cmdList, nullptr));
+		m_device->recycleCommandList(std::exchange(cmdList, nullptr));
 
 	} while (false);
 }

@@ -2,6 +2,8 @@
 
 #include "GveCommon.h"
 
+#include <queue>
+
 namespace gve
 {;
 
@@ -31,8 +33,8 @@ public:
 	void present(const GvePresentInfo& presentation);
 
 private:
-	GveDevice*        m_device;
-	RcPtr<GveCmdList> m_cmdList;
+	GveDevice*                    m_device;
+	std::queue<RcPtr<GveCmdList>> m_submitQueue;
 };
 
 
