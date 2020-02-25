@@ -279,9 +279,6 @@ VkPrimitiveTopology convertPrimitiveTypeToTopology(PrimitiveType primType)
 		//case kPrimitiveTypeQuadList: topology = ; break;
 		//case kPrimitiveTypeQuadStrip: topology = ; break;
 		//case kPrimitiveTypePolygon: topology = ; break;
-	default:
-		LOG_WARN("Unsupported PrimitiveType {}", primType);
-		topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 	}
 	return topology;
 }
