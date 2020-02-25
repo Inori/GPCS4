@@ -226,7 +226,15 @@ class GveRasterizationInfo
 
 public:
 
-	GveRasterizationInfo() = default;
+	GveRasterizationInfo() :
+		m_depthClipEnable(0),
+		m_depthBiasEnable(0),
+		m_polygonMode(VK_POLYGON_MODE_FILL),
+		m_cullMode(VK_CULL_MODE_NONE),
+		m_frontFace(VK_FRONT_FACE_COUNTER_CLOCKWISE),
+		m_reserved(0)
+	{
+	}
 
 	GveRasterizationInfo(
 		VkBool32           depthClipEnable,
@@ -673,7 +681,15 @@ private:
 class GveColorBlendInfo
 {
 public:
-	GveColorBlendInfo() = default;
+	GveColorBlendInfo() :
+		m_enableLogicOp(0),
+		m_logicOp(0),
+		m_attachmentCount(0),
+		m_swizzleCount(0),
+		m_reserved(0)
+	{
+	}
+
 	GveColorBlendInfo(
 		VkBool32  logicOpEnable,
 		VkLogicOp logicOp) :
