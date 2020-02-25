@@ -31,6 +31,7 @@
     <ClInclude Include="Emulator\SymbolManager.h" />
     <ClInclude Include="Graphic\Gnm\GnmContext.h" />
     <ClInclude Include="Graphic\Gnm\GnmGpuAddressTool.h" />
+    <ClInclude Include="Graphic\Gnm\GnmShaderMeta.h" />
     <ClInclude Include="Graphic\Gnm\GnmTiler.h" />
     <ClInclude Include="Graphic\Gnm\GnmTilerSSE2.h" />
     <ClInclude Include="Graphic\Gve\GveEnums.h" />
@@ -296,6 +297,7 @@
     <ClCompile Include="Graphic\Gnm\GnmGpuAddress.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmGpuAddressTool.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmOpCode.cpp" />
+    <ClCompile Include="Graphic\Gnm\GnmShaderMeta.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmTiler.cpp" />
     <ClCompile Include="Graphic\GraphicShared.cpp" />
     <ClCompile Include="Graphic\Gve\GveBuffer.cpp" />

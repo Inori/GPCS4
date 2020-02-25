@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GnmCommon.h"
+#include "GnmShaderMeta.h"
 
 #include "../Pssl/PsslEnums.h"
 #include "../Pssl/PsslShaderStructure.h"
@@ -15,9 +16,8 @@ class GveSharpResourceManager;
 
 struct GnmShaderContext
 {
-	using UDSTVector = std::vector<pssl::PsslShaderResource>;
-	//
-	const void*           code   = nullptr;
-	RcPtr<gve::GveShader> shader = nullptr;
-	UDSTVector            userDataSlotTable;
+	const void*                           code   = nullptr;
+	RcPtr<gve::GveShader>                 shader = nullptr;
+	std::vector<pssl::PsslShaderResource> userDataSlotTable;
+	GnmShaderMeta                         meta;
 };

@@ -612,6 +612,10 @@ void GCNCompiler::emitDclImmConstBuffer(const GcnShaderResourceInstance& res)
 	// but I just choose the UBO way first due to performance reason. Maybe need to change in the future.
 
 	const VSharpBuffer* vsharpBuffer = reinterpret_cast<const VSharpBuffer*>(res.res.resource);
+	// TODO:
+	// For constant buffer size, here I take the runtime value directly,
+	// but in fact, the value could be changed during runtime theoretically.
+	// We should use shader specialization constants instead in the future.
 	uint32_t arraySize               = vsharpBuffer->stride * vsharpBuffer->num_records / sizeof(uint32_t);
 
 	uint32_t arrayId = m_module.defArrayTypeUnique(

@@ -136,13 +136,17 @@ private:
 
 	void clearUserDataSlots();
 
-	void insertUniqueUserDataSlot(GnmShaderContext::UDSTVector& container, uint32_t startSlot, pssl::PsslShaderResource& shaderRes);
+	void insertUniqueUserDataSlot(
+		std::vector<pssl::PsslShaderResource>& container,
+		uint32_t                               startSlot,
+		pssl::PsslShaderResource&              shaderRes);
 
 	RcPtr<gve::GveImageView> getDepthTarget(const DepthRenderTarget* depthTarget);
 
 	// Stages setup
 	void commitVsStage();
 	void commitPsStage();
+	void commitCsStage();
 
 	void bindIndexBuffer(const void* indexAddr, uint32_t indexCount);
 	void bindImmConstBuffer(const PsslShaderResource& res, pssl::PsslProgramType prgType);
@@ -162,6 +166,7 @@ private:
 
 	GnmShaderContext m_vsContext;
 	GnmShaderContext m_psContext;
+	GnmShaderContext m_csContext;
 
 	VkIndexType m_indexType = VK_INDEX_TYPE_UINT16;
 

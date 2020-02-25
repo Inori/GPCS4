@@ -170,6 +170,9 @@ private:
 	void emitDclPixelInput();
 	void emitDclPixelOutput();
 
+	// TODO:
+	// For SGPRs and some VGPRs maybe,
+	// we should use specialization constants
 	void emitGprInitializeVS();
 	void emitGprInitializePS();
 

@@ -359,7 +359,12 @@ void GnmCommandBufferDraw::setIndexSize(IndexSize indexSize, CachePolicy cachePo
 
 void GnmCommandBufferDraw::dispatch(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ)
 {
+	dispatchWithOrderedAppend(threadGroupX, threadGroupY, threadGroupZ, kDispatchOrderedAppendModeDisabled);
+}
 
+void GnmCommandBufferDraw::dispatchWithOrderedAppend(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ, DispatchOrderedAppendMode orderedAppendMode)
+{
+	commitCsStage();
 }
 
 void GnmCommandBufferDraw::waitOnAddress(void* gpuAddr, uint32_t mask, WaitCompareFunc compareFunc, uint32_t refValue)
@@ -372,14 +377,12 @@ void GnmCommandBufferDraw::waitOnAddressAndStallCommandBufferParser(void* gpuAdd
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
-void GnmCommandBufferDraw::dispatchWithOrderedAppend(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ, DispatchOrderedAppendMode orderedAppendMode)
-{
-	throw std::logic_error("The method or operation is not implemented.");
-}
+
 
 void GnmCommandBufferDraw::setCsShader(const pssl::CsStageRegisters* csRegs, uint32_t shaderModifier)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	m_csContext.code = csRegs->getCodeAddress();
+	shader::parseShaderRegCs(csRegs, m_csContext.meta.cs);
 }
 
 void GnmCommandBufferDraw::flushShaderCachesAndWait(CacheAction cacheAction, uint32_t extendedCacheMask, StallCommandBufferParserMode commandBufferStallMode)
@@ -597,6 +600,20 @@ void GnmCommandBufferDraw::commitPsStage()
 		}
 
 		m_context->bindShader(VK_SHADER_STAGE_FRAGMENT_BIT, m_psContext.shader);
+	} while (false);
+}
+
+void GnmCommandBufferDraw::commitCsStage()
+{
+	do 
+	{
+		PsslShaderModule csModule((const uint32_t*)m_csContext.code);
+		LOG_DEBUG("compute shader hash %llX", csModule.key().toUint64());
+
+		csModule.defineShaderInput(m_csContext.userDataSlotTable);
+
+		m_csContext.shader = csModule.compile();
+
 	} while (false);
 }
 
@@ -951,7 +968,7 @@ void GnmCommandBufferDraw::clearUserDataSlots()
 	m_psContext.userDataSlotTable.clear();
 }
 
-void GnmCommandBufferDraw::insertUniqueUserDataSlot(GnmShaderContext::UDSTVector& container, uint32_t startSlot, pssl::PsslShaderResource& shaderRes)
+void GnmCommandBufferDraw::insertUniqueUserDataSlot(std::vector<pssl::PsslShaderResource>& container, uint32_t startSlot, pssl::PsslShaderResource& shaderRes)
 {
 	auto pred = [startSlot](const pssl::PsslShaderResource& item)
 	{

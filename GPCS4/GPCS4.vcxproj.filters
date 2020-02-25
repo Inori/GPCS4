@@ -934,6 +934,9 @@
     <ClInclude Include="Graphic\Gve\GveSubmissionQueue.h">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GnmShaderMeta.h">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1622,6 +1625,9 @@
     </ClCompile>
     <ClCompile Include="Graphic\Gve\GveSubmissionQueue.cpp">
       <Filter>Source Files\Graphic\Gve</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gnm\GnmShaderMeta.cpp">
+      <Filter>Source Files\Graphic\Gnm</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
