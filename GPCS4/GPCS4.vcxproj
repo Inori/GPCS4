@@ -39,6 +39,7 @@
     <ClInclude Include="Graphic\Gve\GveRecycler.h" />
     <ClInclude Include="Graphic\Gve\GveSharpResourceManager.h" />
     <ClInclude Include="Graphic\Gve\GveSubmissionQueue.h" />
+    <ClInclude Include="Graphic\Pssl\PsslShaderRegFields.h" />
     <ClInclude Include="Graphic\Sce\SceCommon.h" />
     <ClInclude Include="Graphic\Sce\SceGpuQueue.h" />
     <ClInclude Include="Loader\elf-sce.h" />

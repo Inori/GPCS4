@@ -21,7 +21,7 @@ def MacroToStruct(src, dst):
                 if bit_count_sum < 32:
                     bit_reserved = 32 - bit_count_sum
                     dst.write('\tuint32_t {}\t:\t{};\n'.format('reserved', bit_reserved))
-                dst.write('}\n\n')
+                dst.write('};\n\n')
                 struct_start = False
                 struct_valid = False
                 bit_count_sum = 0
@@ -29,7 +29,7 @@ def MacroToStruct(src, dst):
 
         # filter some registers which we currently don't use.
         # change the filter at your needs for future development.
-        if not reg_name.startswith('SPI_SHADER_PGM'):
+        if not reg_name.startswith('SPI_SHADER_PGM') and not reg_name.startswith('COMPUTE_PGM'):
             continue
 
         print(reg_name)
