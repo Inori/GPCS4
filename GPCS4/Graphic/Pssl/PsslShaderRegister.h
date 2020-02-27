@@ -1,7 +1,7 @@
 #pragma once
 
 #include "PsslCommon.h"
-#include "PsslShaderRegFields.h"
+#include "PsslShaderRegField.h"
 
 namespace pssl
 {;

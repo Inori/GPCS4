@@ -937,7 +937,7 @@
     <ClInclude Include="Graphic\Gnm\GnmShaderMeta.h">
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClInclude>
-    <ClInclude Include="Graphic\Pssl\PsslShaderRegFields.h">
+    <ClInclude Include="Graphic\Pssl\PsslShaderRegField.h">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClInclude>
   </ItemGroup>

@@ -63,7 +63,7 @@ def MacroToStruct(src, dst):
 
 def main():
     src = open('gc_9_2_1_sh_mask.h', 'r')
-    dst = open('PsslShaderRegFields.h', 'w')
+    dst = open('PsslShaderRegField.h', 'w')
 
     dst.write('// Note:' + '\n')
     dst.write('// ' + 'The code is auto-generated using {}'.format(os.path.basename(__file__)) + '\n')
