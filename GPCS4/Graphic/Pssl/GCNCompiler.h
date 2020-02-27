@@ -524,7 +524,7 @@ private:
 		uint32_t* sdst, uint32_t* sdstRidx,
 		uint32_t* src0, uint32_t* src0Ridx,
 		uint32_t* src1 = nullptr, uint32_t* src1Ridx = nullptr,
-		int64_t* imm = nullptr);
+		int16_t* imm = nullptr);
 
 	const char* getTypeName(SpirvScalarType type);
 
