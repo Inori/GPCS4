@@ -27,6 +27,7 @@ static const SCE_EXPORT_FUNCTION g_pSceSaveData_libSceSaveData_FunctionTable[] =
 	{ 0x664661B2408F5C5C, "sceSaveDataInitialize", (void*)sceSaveDataInitialize },
 	{ 0x8776144735C64954, "sceSaveDataSetSaveDataMemory", (void*)sceSaveDataSetSaveDataMemory },
 	{ 0xBFB00000CA342F3E, "sceSaveDataSetupSaveDataMemory", (void*)sceSaveDataSetupSaveDataMemory },
+	{ 0xDF61D0010770336A, "sceSaveDataMount", (void*)sceSaveDataMount},
 	SCE_FUNCTION_ENTRY_END
 };
 

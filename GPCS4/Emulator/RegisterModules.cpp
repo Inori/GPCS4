@@ -67,7 +67,6 @@ static bool registerLibC(CSceModuleSystem* pModuleSystem)
 		policyManager
 			.declareModule("libSceLibcInternal").withDefault(Policy::UseNative);
 
-
 		ret  = true;
 	}while(false);
 	return ret;
@@ -98,10 +97,11 @@ static bool registerLibKernel(CSceModuleSystem* pModuleSystem)
 		policyManager.declareModule("libkernel").withDefault(Policy::UseBuiltin)
 			.declareSubLibrary("libkernel").with(Policy::UseBuiltin).except
 			({ 
-				0xF41703CA43E6A352,  // __error
 				0x581EBA7AFBBC6EC5,  // sceKernelGetCompiledSdkVersion
 				0x8E1FBC5E22B82DE1,  // sceKernelIsAddressSanitizerEnabled
 				0x0F8CA56B7BF1E2D6,  // sceKernelError
+				0x7FBB8EC58F663355,  // __stack_chk_guard
+				0x2467D330139D509A,  // sceKernelGetFsSandboxRandomWord
 			 });
 
 
@@ -125,7 +125,12 @@ static bool registerOtherModules(CSceModuleSystem *pModuleSystem)
 
 		policyManager
 			.declareModule("libSceNpCommon").withDefault(Policy::UseNative);
-
+		policyManager.declareModule("libSceFios2").withDefault(Policy::UseNative);
+		policyManager.declareModule("libSceRtc").withDefault(Policy::UseBuiltin)
+			.declareSubLibrary("libSceRtc").with(Policy::UseBuiltin).except
+			({
+				0x9A7FED7F84221739,  // sceRtcTickAddMinutes
+			});
 		ret = true;
 	} while (false);
 

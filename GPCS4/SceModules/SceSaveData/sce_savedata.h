@@ -82,6 +82,6 @@ int PS4API sceSaveDataSetParam(void);
 int PS4API sceSaveDataGetEventResult(void);
 
 
-
+int PS4API sceSaveDataMount(void);
 
 

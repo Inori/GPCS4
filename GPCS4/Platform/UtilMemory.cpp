@@ -93,6 +93,26 @@ inline uint32_t GetTypeFlag(uint32_t nOldFlag)
 	return nNewFlag;
 }
 
+void* VMMapAligned(size_t nSize, uint32_t nProtectFlag, int align)
+{
+#ifndef GPCS4_DEBUG
+	align = 0x1000; // use default alignment on release build
+#endif
+	void* pAlignedAddr = NULL;
+	do
+	{
+		void* pAddr = VirtualAlloc(nullptr, nSize, MEM_RESERVE | MEM_COMMIT, GetProtectFlag(nProtectFlag));
+		uintptr_t temp = ((uintptr_t)pAddr + (align - 1)) & ~(align - 1);
+		do {
+			pAlignedAddr = VirtualAlloc((void*)temp, nSize, MEM_RESERVE | MEM_COMMIT,
+				GetProtectFlag(nProtectFlag));
+			temp += align;
+		} while (pAlignedAddr == nullptr);
+		VirtualFree(pAddr, nSize, MEM_RELEASE);
+	} while (false);
+	return pAlignedAddr;
+}
+
 void* VMMapFlexible(void *addrIn, size_t nSize, uint32_t nProtectFlag)
 {
 	void* pAddr = NULL;
@@ -102,7 +122,7 @@ void* VMMapFlexible(void *addrIn, size_t nSize, uint32_t nProtectFlag)
 
 		MemoryRange range 
 		{ 
-			reinterpret_cast<uintptr_t>(pAddr), 
+			reinterpret_cast<uintptr_t>(pAddr),
 			reinterpret_cast<uintptr_t>(pAddr)  + nSize, 
 			nProtectFlag 
 		};
@@ -146,6 +166,12 @@ void* VMMapDirect(size_t nSize, uint32_t nProtectFlag, uint32_t nType)
 void* VMAllocateDirect() 
 {
 	return (void*)g_baseDirectMemory;
+}
+
+void* VMMap(void* start, size_t nSize, uint32_t nProtectFlag, uint32_t flags, int fd, int64_t offset)
+{
+	// TODO: implement this right
+	return malloc(nSize);
 }
 
 void VMUnMap(void* pAddr, size_t nSize)
