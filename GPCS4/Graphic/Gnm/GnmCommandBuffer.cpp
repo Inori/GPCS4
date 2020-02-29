@@ -23,19 +23,25 @@ RcPtr<gve::GveCmdList> GnmCommandBuffer::getCmdList()
 
 void GnmCommandBuffer::emuWriteGpuLabel(EventWriteSource selector, void* label, uint64_t value)
 {
-	if (selector == kEventWriteSource32BitsImmediate)
+	do 
 	{
-		*(uint32_t*)label = value;
-	}
-	else if (selector == kEventWriteSource64BitsImmediate)
-	{
-		*(uint64_t*)label = value;
-	}
-	else
-	{
-		if (label != NULL)
+		if (!label)
+		{
+			break;
+		}
+
+		if (selector == kEventWriteSource32BitsImmediate)
+		{
+			*(uint32_t*)label = value;
+		}
+		else if (selector == kEventWriteSource64BitsImmediate)
+		{
+			*(uint64_t*)label = value;
+		}
+		else
 		{
 			*(uint64_t*)label = UtilProcess::GetProcessTimeCounter();
 		}
-	}
+
+	} while (false);
 }
