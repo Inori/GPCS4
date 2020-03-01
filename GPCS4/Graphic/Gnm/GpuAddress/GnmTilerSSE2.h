@@ -1,6 +1,7 @@
 #pragma once
 
-#include "GnmCommon.h"
+#include "../GnmCommon.h"
+
 #include <intrin.h>
 
 namespace GpuAddress

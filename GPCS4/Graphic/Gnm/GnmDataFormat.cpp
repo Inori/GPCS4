@@ -171,7 +171,7 @@ DataFormat DataFormat::build(RenderTargetFormat rtFmt, RenderTargetChannelType r
 
 	uint32_t channelCount = channelCountTab[rtFmt];
 
-	DataFormat result             = { { 0 } };
+	DataFormat result             = { { { 0 } } };
 	result.m_bits.m_surfaceFormat = rtFmt;
 	result.m_bits.m_channelType   = rtChannelType;
 
@@ -347,6 +347,20 @@ uint32_t DataFormat::getTotalBytesPerElement(void) const
 bool DataFormat::isBlockCompressedFormat(void) const
 {
 	return (m_bits.m_surfaceFormat >= kSurfaceFormatBc1) && (m_bits.m_surfaceFormat <= kSurfaceFormatBc7);
+}
+
+SurfaceFormat DataFormat::getSurfaceFormat(void) const
+{
+	return (SurfaceFormat)m_bits.m_surfaceFormat;
+}
+
+TextureChannelType DataFormat::getTextureChannelType() const
+{
+	return (TextureChannelType)m_bits.m_channelType;
+}
+
+uint32_t DataFormat::getNumComponents(void) const
+{
 }
 
 bool DataFormat::operator==(const DataFormat& other) const

@@ -5,7 +5,8 @@
 #include "GnmTexture.h"
 #include "GnmSampler.h"
 #include "GnmConvertor.h"
-#include "GnmGpuAddress.h"
+
+#include "GpuAddress/GnmGpuAddress.h"
 
 #include "../Gve/GveCmdList.h"
 #include "../Gve/GveShader.h"

@@ -1,9 +1,10 @@
 #pragma once
 
-#include "GnmCommon.h"
-#include "GnmConstant.h"
 #include "GnmTiler.h"
-#include "GnmStructure.h"
+
+#include "../GnmCommon.h"
+#include "../GnmConstant.h"
+#include "../GnmStructure.h"
 
 namespace GpuAddress
 {;

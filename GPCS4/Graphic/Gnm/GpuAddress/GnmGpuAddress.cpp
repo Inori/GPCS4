@@ -1,9 +1,8 @@
 #include "GnmGpuAddress.h"
-
-#include "GnmRegInfo.h"
-#include "GnmTexture.h"
-
 #include "GnmGpuAddressTool.h"
+
+#include "../GnmRegInfo.h"
+#include "../GnmTexture.h"
 
 #include <algorithm>
 

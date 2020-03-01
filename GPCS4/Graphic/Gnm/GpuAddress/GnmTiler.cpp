@@ -1,9 +1,10 @@
 #include "GnmTiler.h"
 #include "GnmGpuAddress.h"
 #include "GnmGpuAddressTool.h"
-#include "GnmDataFormat.h"
-#include "GnmTexture.h"
 #include "GnmTilerSSE2.h"
+
+#include "../GnmDataFormat.h"
+#include "../GnmTexture.h"
 
 #include <algorithm>
 

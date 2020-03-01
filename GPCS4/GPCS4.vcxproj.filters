@@ -182,6 +182,9 @@
     <Filter Include="Source Files\Emulator">
       <UniqueIdentifier>{9a707c88-79d8-4c96-ad6c-658b1e5f496c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Graphic\Gnm\GpuAddress">
+      <UniqueIdentifier>{075615a8-2ae5-4754-831f-c7761e099ef5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SceModules\SceLibc\sce_libc.h">
@@ -751,9 +754,6 @@
     <ClInclude Include="Graphic\Gve\GveDescriptor.h">
       <Filter>Source Files\Graphic\Gve</Filter>
     </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GnmGpuAddress.h">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClInclude>
     <ClInclude Include="Loader\FuncStub.h">
       <Filter>Source Files\Loader</Filter>
     </ClInclude>
@@ -874,15 +874,6 @@
     <ClInclude Include="SceModules\SceAppContentUtil\sce_appcontentutil_types.h">
       <Filter>SceModules\SceAppContentUtil</Filter>
     </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GnmTiler.h">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GnmGpuAddressTool.h">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GnmTilerSSE2.h">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClInclude>
     <ClInclude Include="Algorithm\MurmurHash2.h">
       <Filter>Source Files\Algorithm</Filter>
     </ClInclude>
@@ -939,6 +930,24 @@
     </ClInclude>
     <ClInclude Include="Graphic\Pssl\PsslShaderRegField.h">
       <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GpuAddress\GnmDataFormatCodec.h">
+      <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GpuAddress\GnmFloatPoint.h">
+      <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GpuAddress\GnmGpuAddress.h">
+      <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GpuAddress\GnmGpuAddressTool.h">
+      <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GpuAddress\GnmTiler.h">
+      <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GpuAddress\GnmTilerSSE2.h">
+      <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1590,15 +1599,6 @@
     <ClCompile Include="SceModules\SceLibkernel\sce_kernel_tls.cpp">
       <Filter>SceModules\SceLibkernel</Filter>
     </ClCompile>
-    <ClCompile Include="Graphic\Gnm\GnmGpuAddress.cpp">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gnm\GnmTiler.cpp">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gnm\GnmGpuAddressTool.cpp">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClCompile>
     <ClCompile Include="Algorithm\MurmurHash2.cpp">
       <Filter>Source Files\Algorithm</Filter>
     </ClCompile>
@@ -1631,6 +1631,21 @@
     </ClCompile>
     <ClCompile Include="Graphic\Gnm\GnmShaderMeta.cpp">
       <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gnm\GpuAddress\GnmDataFormatCodec.cpp">
+      <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gnm\GpuAddress\GnmFloatPoint.cpp">
+      <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gnm\GpuAddress\GnmGpuAddress.cpp">
+      <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gnm\GpuAddress\GnmGpuAddressTool.cpp">
+      <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gnm\GpuAddress\GnmTiler.cpp">
+      <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

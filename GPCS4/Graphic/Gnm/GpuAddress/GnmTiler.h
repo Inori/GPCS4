@@ -1,7 +1,7 @@
 #pragma once
 
-#include "GnmCommon.h"
-#include "GnmConstant.h"
+#include "../GnmCommon.h"
+#include "../GnmConstant.h"
 
 class GnmTexture;
 
