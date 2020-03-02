@@ -213,7 +213,7 @@ void GnmCommandBufferDraw::setRenderTarget(uint32_t rtSlot, GnmRenderTarget cons
 		auto          image       = m_presenter->getImage(m_displayBufferIndex);
 		colorTarget.view          = image.view;
 		colorTarget.layout        = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-		m_context->bindRenderTargets(&colorTarget, 1);
+		m_state.om.renderTargets.color[rtSlot] = colorTarget;
 	} while (false);
 
 }
@@ -249,10 +249,10 @@ void GnmCommandBufferDraw::setDepthRenderTarget(DepthRenderTarget const *depthTa
 		}
 
 
-		GveAttachment depthAttach;
-		depthAttach.view = s_depthTarget;
-		depthAttach.layout = s_depthTarget->imageInfo().layout;
-		m_context->bindDepthRenderTarget(depthAttach);
+		GveAttachment depthTarget;
+		depthTarget.view = s_depthTarget;
+		depthTarget.layout = s_depthTarget->imageInfo().layout;
+		m_state.om.renderTargets.depth = depthTarget;
 
 	} while (false);
 }
@@ -454,6 +454,7 @@ void GnmCommandBufferDraw::setPrimitiveType(PrimitiveType primType)
 
 void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr, DrawModifier modifier)
 {
+	bindFrameBuffer();
 	bindIndexBuffer(indexAddr, indexCount);
 
 	commitVsStage();
@@ -470,6 +471,8 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr)
 
 void GnmCommandBufferDraw::drawIndexAuto(uint32_t indexCount, DrawModifier modifier)
 {
+	bindFrameBuffer();
+
 	commitVsStage();
 	commitPsStage();
 
@@ -616,6 +619,11 @@ void GnmCommandBufferDraw::commitCsStage()
 		m_csContext.shader = csModule.compile();
 
 	} while (false);
+}
+
+void GnmCommandBufferDraw::bindFrameBuffer()
+{
+	m_context->bindRenderTargets(m_state.om.renderTargets);
 }
 
 void GnmCommandBufferDraw::bindIndexBuffer(const void* indexAddr, uint32_t indexCount)

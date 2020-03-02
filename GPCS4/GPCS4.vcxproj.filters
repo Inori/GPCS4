@@ -904,9 +904,6 @@
     <ClInclude Include="Emulator\ModuleManger.h">
       <Filter>Source Files\Emulator</Filter>
     </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GnmContext.h">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClInclude>
     <ClInclude Include="Graphic\Sce\SceCommon.h">
       <Filter>Source Files\Graphic\Sce</Filter>
     </ClInclude>
@@ -948,6 +945,9 @@
     </ClInclude>
     <ClInclude Include="Graphic\Gnm\GpuAddress\GnmTilerSSE2.h">
       <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GnmContextState.h">
+      <Filter>Source Files\Graphic\Gnm</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

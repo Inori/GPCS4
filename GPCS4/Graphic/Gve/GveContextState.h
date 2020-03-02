@@ -55,16 +55,14 @@ enum class GveContextFlag : uint32_t
 using GveContextFlags = Flags<GveContextFlag>;
 
 //////////////////////////////////////////////////////////////////////////
-struct GveOutputMergerInfo
-{
-	GveRenderPassOps ops;
-};
 
 struct GveOutputMergerState
 {
-	GveOutputMergerInfo   omInfo;
+	GveRenderPassOps      passOps;
 	GveRenderTargets      renderTargets;
 	RcPtr<GveFrameBuffer> framebuffer = nullptr;
+
+	std::array<VkClearValue, MaxNumRenderTargets> clearValues = {};
 };
 
 struct GveVertexInputState

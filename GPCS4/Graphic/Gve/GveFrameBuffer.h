@@ -61,28 +61,109 @@ public:
 				   const GveFramebufferSize& defaultSize);
 	~GveFrameBuffer();
 
+	/**
+     * \brief Framebuffer handle
+     * \returns VkFramebuffer handle
+     */
 	VkFramebuffer handle() const;
 
-	GveRenderPass* getRenderPass() const;
+	/**
+	 * \brief Get FrameBuffer size
+	 * 
+	 * \returns GveFramebufferSize
+	 */
+	const GveFramebufferSize& size() const;
 
+	/**
+     * \brief Retrieves default render pass handle
+     * 
+     * Retrieves the render pass handle that was used
+     * to create the Vulkan framebuffer object with,
+     * and that should be used to create pipelines.
+     * \returns The default render pass handle
+     */
 	VkRenderPass getDefaultRenderPassHandle() const;
 
+	/**
+     * \brief Retrieves render pass
+     * \returns Render pass reference
+     */
+	GveRenderPass* getRenderPass() const;
+
+	/**
+     * \brief Retrieves render pass handle
+     * 
+     * Retrieves a render pass handle that can
+     * be used to begin a render pass instance.
+     * \param [in] ops Render pass ops
+     * \returns The render pass handle
+     */
 	VkRenderPass getRenderPassHandle(const GveRenderPassOps& ops) const;
 
-	VkExtent2D getRenderExtent() const;
+	/**
+     * \brief Depth-stencil target
+     * \returns Depth-stencil target
+     */
+	const GveAttachment& getDepthTarget() const;
 
-	bool matchColorTargets(const GveAttachment* color, uint32_t count);
+	/**
+     * \brief Color target
+     * 
+     * \param [in] id Target Index
+     * \returns The color target
+     */
+	const GveAttachment& getColorTarget(uint32_t id) const;
 
-	bool matchDepthTarget(const GveAttachment& depth);
+	/**
+     * \brief Number of framebuffer attachment
+     * \returns Total attachment count
+     */
+	uint32_t numAttachments() const;
 
-	bool matchRenderTargets(const GveRenderTargets& renderTargets);
+	/**
+     * \brief Retrieves attachment by index
+     * 
+     * \param [in] id Framebuffer attachment ID
+     * \returns The framebuffer attachment
+     */
+	const GveAttachment& getAttachment(uint32_t id) const;
+
+	/**
+     * \brief Finds attachment index by view
+     * 
+     * Color attachments start at 0
+     * \param [in] view Image view
+     * \returns Attachment index
+     */
+	int32_t findAttachment(const RcPtr<GveImageView>& view) const;
+
+	/**
+     * \brief Checks whether the framebuffer's targets match
+     * 
+     * \param [in] renderTargets Render targets to check
+     * \returns \c true if the render targets are the same
+     *          as the ones used for this framebuffer object.
+     */
+	bool matchTargets(const GveRenderTargets& renderTargets) const;
+
+
+	/**
+     * \brief Checks whether view and framebuffer sizes match
+     *
+     * Tests whether the size of the framebuffer is the same
+     * as the size of one of its views. This may be \c false
+     * when mixing attachments with mismatched dimensions.
+     * \param [in] view Image view to test
+     * \returns \c true if \c view has the same size as
+     *          the framebuffer.
+     */
+	bool isFullSize(const RcPtr<GveImageView>& view) const;
+
 
 	static GveRenderPassFormat getRenderPassFormat(const GveRenderTargets& renderTargets);
 
 private:
 	bool createFrameBuffer(
-		const GveRenderTargets&   renderTargets,
-		GveRenderPass*            renderPass,
 		const GveFramebufferSize& defaultSize);
 
 	GveFramebufferSize computeRenderSize(
@@ -90,6 +171,10 @@ private:
 
 	GveFramebufferSize getRenderTargetSize(
 		const RcPtr<GveImageView>& renderTarget) const;
+
+	bool matchColors(const GveAttachment* color, uint32_t count) const;
+
+	bool matchDepthStencil(const GveAttachment& depthStencil) const;
 
 private:
 	RcPtr<GveDevice> m_device;

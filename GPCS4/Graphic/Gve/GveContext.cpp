@@ -14,7 +14,8 @@
 #include "GveStaging.h"
 
 namespace gve
-{;
+{
+;
 
 GveContext::GveContext(const RcPtr<GveDevice>& device) :
 	m_device(device),
@@ -131,39 +132,17 @@ void GveContext::setColorBlendState(const GveColorBlendInfo& blendCtl)
 	m_flags.set(GveContextFlag::GpDirtyPipelineState);
 }
 
-void GveContext::bindRenderTargets(const GveAttachment* color, uint32_t count)
+void GveContext::bindRenderTargets(const GveRenderTargets& renderTargets)
 {
-	do
+	if (!m_state.om.framebuffer || !m_state.om.framebuffer->matchTargets(renderTargets))
 	{
-		if (!color || !count)
-		{
-			break;
-		}
-
-		if (m_state.om.framebuffer && m_state.om.framebuffer->matchColorTargets(color, count))
-		{
-			break;
-		}
-
-		std::memcpy(m_state.om.renderTargets.color, color, sizeof(GveAttachment) * count);
+		m_state.om.renderTargets = renderTargets;
 		m_flags.set(GveContextFlag::GpDirtyFramebuffer);
-
-	} while (false);
-}
-
-void GveContext::bindDepthRenderTarget(const GveAttachment& depth)
-{
-	do
+	}
+	else
 	{
-		if (m_state.om.framebuffer && m_state.om.framebuffer->matchDepthTarget(depth))
-		{
-			break;
-		}
-
-		m_state.om.renderTargets.depth = depth;
-		m_flags.set(GveContextFlag::GpDirtyFramebuffer);
-
-	} while (false);
+		m_flags.clr(GveContextFlag::GpDirtyFramebuffer);
+	}
 }
 
 void GveContext::bindShader(VkShaderStageFlagBits stage, const RcPtr<GveShader>& shader)
@@ -172,8 +151,12 @@ void GveContext::bindShader(VkShaderStageFlagBits stage, const RcPtr<GveShader>&
 
 	switch (stage)
 	{
-	case VK_SHADER_STAGE_VERTEX_BIT:					shaderStage = &m_state.gp.shaders.vs;  break;
-	case VK_SHADER_STAGE_FRAGMENT_BIT:					shaderStage = &m_state.gp.shaders.fs;  break;
+	case VK_SHADER_STAGE_VERTEX_BIT:
+		shaderStage = &m_state.gp.shaders.vs;
+		break;
+	case VK_SHADER_STAGE_FRAGMENT_BIT:
+		shaderStage = &m_state.gp.shaders.fs;
+		break;
 	//case VK_SHADER_STAGE_COMPUTE_BIT:                 shaderStage = &m_state.cp.shaders.cs;  break;
 	//case VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT:    shaderStage = &m_state.gp.shaders.tcs; break;
 	//case VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT: shaderStage = &m_state.gp.shaders.tes; break;
@@ -233,9 +216,9 @@ void GveContext::bindResourceBuffer(uint32_t regSlot, const GveBufferSlice& buff
 	m_flags.set(GveContextFlag::GpDirtyDescriptorBinding);
 }
 
-void GveContext::bindResourceView(uint32_t regSlot,
-								 const RcPtr<GveImageView>& imageView,
-								 const RcPtr<GveBufferView>& bufferView)
+void GveContext::bindResourceView(uint32_t                    regSlot,
+								  const RcPtr<GveImageView>&  imageView,
+								  const RcPtr<GveBufferView>& bufferView)
 {
 	m_res[regSlot].imageView  = imageView;
 	m_res[regSlot].bufferView = bufferView;
@@ -265,6 +248,163 @@ void GveContext::drawIndexed(
 	m_cmd->cmdDrawIndexed(indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 }
 
+void GveContext::clearRenderTarget(
+	const RcPtr<GveImageView>& targetView,
+	VkImageAspectFlags         clearAspects,
+	const VkClearValue&        clearValue)
+{
+	updateFrameBuffer();
+
+	const auto& tgtImgInfo = targetView->imageInfo();
+
+	// Prepare attachment ops
+	GveColorAttachmentOps colorOp = {};
+	colorOp.loadOp                = VK_ATTACHMENT_LOAD_OP_LOAD;
+	colorOp.loadLayout            = targetView->imageInfo().layout;
+	colorOp.storeOp               = VK_ATTACHMENT_STORE_OP_STORE;
+	colorOp.storeLayout           = targetView->imageInfo().layout;
+
+	GveDepthAttachmentOps depthOp = {};
+	depthOp.loadOpD               = VK_ATTACHMENT_LOAD_OP_LOAD;
+	depthOp.loadOpS               = VK_ATTACHMENT_LOAD_OP_LOAD;
+	depthOp.loadLayout            = targetView->imageInfo().layout;
+	depthOp.storeOpD              = VK_ATTACHMENT_STORE_OP_STORE;
+	depthOp.storeOpS              = VK_ATTACHMENT_STORE_OP_STORE;
+	depthOp.storeLayout           = targetView->imageInfo().layout;
+
+	if (clearAspects & VK_IMAGE_ASPECT_COLOR_BIT)
+	{
+		colorOp.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	}
+
+	if (clearAspects & VK_IMAGE_ASPECT_DEPTH_BIT)
+	{
+		depthOp.loadOpD = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	}
+
+	if (clearAspects & VK_IMAGE_ASPECT_STENCIL_BIT)
+	{
+		depthOp.loadOpS = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	}
+
+	if (clearAspects == targetView->info().aspect &&
+		tgtImgInfo.type != VK_IMAGE_TYPE_3D)
+	{
+		colorOp.loadLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		depthOp.loadLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	}
+
+	int32_t attachmentIndex = -1;
+	// Only image which covers the entire framebuffer
+	// can be cleared using render pass
+	if (m_state.om.framebuffer->isFullSize(targetView))
+	{
+		attachmentIndex = m_state.om.framebuffer->findAttachment(targetView);
+	}
+
+	if (attachmentIndex >= 0)
+	{
+		// If the target to be cleared is one of the framebuffer's attachment
+
+		if (m_flags.test(GveContextFlag::GpRenderPassBound))
+		{
+			// If we are already in a render pass scope,
+			// perform the clear by simply emit a clear attachment command.
+
+			// For color images,
+			// the attachment index for the current subpass is
+			// equal to the render pass attachment index.
+			VkClearAttachment clearInfo = {};
+			clearInfo.aspectMask        = clearAspects;
+			clearInfo.colorAttachment   = attachmentIndex;
+			clearInfo.clearValue        = clearValue;
+
+			VkClearRect clearRect        = {};
+			clearRect.rect.offset.x      = 0;
+			clearRect.rect.offset.y      = 0;
+			clearRect.rect.extent.width  = tgtImgInfo.extent.width;
+			clearRect.rect.extent.height = tgtImgInfo.extent.height;
+			clearRect.baseArrayLayer     = 0;
+			clearRect.layerCount         = tgtImgInfo.numLayers;
+
+			m_cmd->cmdClearAttachments(1, &clearInfo, 1, &clearRect);
+		}
+		else
+		{
+			// If we are not in a render pass scope,
+			// perform the clear upon next render pass begin.
+			if (clearAspects & VK_IMAGE_ASPECT_COLOR_BIT)
+			{
+				m_state.om.passOps.colorOps[attachmentIndex].loadOp  = colorOp.loadOp;
+				m_state.om.passOps.colorOps[attachmentIndex].storeOp = colorOp.storeOp;
+			}
+			if (clearAspects & VK_IMAGE_ASPECT_DEPTH_BIT)
+			{
+				m_state.om.passOps.depthOps.loadOpD  = depthOp.loadOpD;
+				m_state.om.passOps.depthOps.storeOpD = depthOp.storeOpD;
+			}
+			if (clearAspects & VK_IMAGE_ASPECT_STENCIL_BIT)
+			{
+				m_state.om.passOps.depthOps.loadOpS  = depthOp.loadOpS;
+				m_state.om.passOps.depthOps.storeOpS = depthOp.storeOpS;
+			}
+
+			// TODO:
+			// Here dxvk also set the image layout, I don't know why, will see.
+
+			m_state.om.clearValues[attachmentIndex] = clearValue;
+		}
+	}
+	else
+	{
+		// If the target to clear is not in current framebuffer,
+		// we create a temporary framebuffer,
+		// then still use render pass to perform the clear.
+		leaveRenderPassScope();
+
+		GveRenderTargets     attachments = {};
+		GveRenderPassOps     ops         = {};
+		VkAccessFlags        srcAccess   = {};
+		VkPipelineStageFlags srcStages   = {};
+
+		if (clearAspects & VK_IMAGE_ASPECT_COLOR_BIT)
+		{
+			attachments.color[0].view   = targetView;
+			attachments.color[0].layout = tgtImgInfo.layout;
+
+			ops.colorOps[0] = colorOp;
+
+			srcAccess = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+			srcStages = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		}
+		else
+		{
+			attachments.depth.view   = targetView;
+			attachments.depth.layout = tgtImgInfo.layout;
+
+			ops.depthOps = depthOp;
+
+			srcAccess = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+			srcStages = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+		}
+
+		auto framebuffer = m_device->createFrameBuffer(attachments);
+		renderPassBindFramebuffer(framebuffer, ops, 1, &clearValue);
+
+		renderPassUnbindFramebuffer();
+
+		VkMemoryBarrier barrier = {};
+		barrier.sType           = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
+		barrier.srcAccessMask   = srcAccess;
+		m_cmd->cmdPipelineBarrier(
+			GveCmdType::ExecBuffer,
+			srcStages, tgtImgInfo.stages,
+			0,
+			1, &barrier,
+			0, nullptr,
+			0, nullptr);
+	}
+}
 
 void GveContext::copyBuffer(
 	const RcPtr<GveBuffer>& dstBuffer,
@@ -274,9 +414,9 @@ void GveContext::copyBuffer(
 	VkDeviceSize            numBytes)
 {
 	leaveRenderPassScope();
-	
-	auto         srcSlice = srcBuffer->slice();
-	auto         dstSlice = dstBuffer->slice();
+
+	auto srcSlice = srcBuffer->slice();
+	auto dstSlice = dstBuffer->slice();
 
 	VkBufferCopy region = { 0 };
 	region.srcOffset    = srcOffset;
@@ -307,7 +447,7 @@ void GveContext::copyBufferToImage(
 	region.imageOffset       = dstOffset;
 	region.imageExtent       = dstExtent;
 
-	auto srcSlice = srcBuffer->slice();
+	auto          srcSlice               = srcBuffer->slice();
 	VkImageLayout dstImageLayoutTransfer = dstImage->pickLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 	m_cmd->cmdCopyBufferToImage(GveCmdType::ExecBuffer, srcSlice.buffer, dstImage->handle(), dstImageLayoutTransfer, 1, &region);
 }
@@ -342,15 +482,15 @@ void GveContext::updateImage(
 	void* stagingData  = stagingSlice.mapPtr(0);
 	std::memcpy(stagingData, data, size);
 
-	auto          imgInfo   = image->info();
+	auto imgInfo = image->info();
 
 	VkImageLayout transferLayout = image->pickLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
 	// Note:
-	// From dxvk, the initial layout can be VK_IMAGE_LAYOUT_UNDEFINED 
+	// From dxvk, the initial layout can be VK_IMAGE_LAYOUT_UNDEFINED
 	// only when the subresources covers the entire image.
-	// But from vulkan spec, it seems the old layout can be 
-	// VK_IMAGE_LAYOUT_UNDEFINED at any chance as long as we don't 
+	// But from vulkan spec, it seems the old layout can be
+	// VK_IMAGE_LAYOUT_UNDEFINED at any chance as long as we don't
 	// care the initial content.
 
 	transitionImageLayout(image->handle(),
@@ -411,15 +551,16 @@ void GveContext::transitionImageLayout(
 
 	m_cmd->cmdPipelineBarrier(
 		GveCmdType::ExecBuffer,
-		srcStage, dstStage, 
-		0, 
-		0, nullptr, 
-		0, nullptr, 
+		srcStage, dstStage,
+		0,
+		0, nullptr,
+		0, nullptr,
 		1, &barrier);
 }
 
 void GveContext::fullPipelineBarrier()
 {
+	// This should be only used for debugging purpose.
 
 	VkAccessFlags fullpipeSrcAccessMask = VK_ACCESS_INDIRECT_COMMAND_READ_BIT |
 										  VK_ACCESS_INDEX_READ_BIT |
@@ -471,16 +612,20 @@ void GveContext::updateFrameBuffer()
 {
 	do
 	{
-		if (m_state.om.framebuffer && m_state.om.framebuffer->matchRenderTargets(m_state.om.renderTargets))
+		if (!m_flags.test(GveContextFlag::GpDirtyFramebuffer))
 		{
 			break;
 		}
 
+		leaveRenderPassScope();
+
 		m_state.om.framebuffer = m_device->createFrameBuffer(m_state.om.renderTargets);
 
+		m_flags.clr(GveContextFlag::GpDirtyFramebuffer);
+		// If the framebuffer is updated, then the render pass has changed,
+		// thus we need to recompile pipeline.
+		m_flags.set(GveContextFlag::GpDirtyPipelineState);
 	} while (false);
-
-	m_flags.clr(GveContextFlag::GpDirtyFramebuffer);
 }
 
 void GveContext::updateRenderPassOps(const GveRenderTargets& rts, GveRenderPassOps& ops)
@@ -512,54 +657,37 @@ void GveContext::updateRenderPassOps(const GveRenderTargets& rts, GveRenderPassO
 	ops.barrier.dstAccess = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 }
 
-void GveContext::renderPassBindFramebuffer()
+void GveContext::renderPassBindFramebuffer(const RcPtr<GveFrameBuffer>& framebuffer,
+										   const GveRenderPassOps&      ops,
+										   uint32_t                     clearValueCount,
+										   const VkClearValue*          clearValues)
 {
-	updateRenderPassOps(m_state.om.renderTargets, m_state.om.omInfo.ops);
+	VkRenderPass renderPass = framebuffer->getRenderPassHandle(ops);
 
-	auto& framebuffer       = m_state.om.framebuffer;
-	VkRenderPass renderPass = framebuffer->getRenderPassHandle(m_state.om.omInfo.ops);
+	GveFramebufferSize    fbSize            = framebuffer->size();
+	VkRenderPassBeginInfo renderPassInfo    = {};
+	renderPassInfo.sType                    = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	renderPassInfo.renderPass               = renderPass;
+	renderPassInfo.framebuffer              = framebuffer->handle();
+	renderPassInfo.renderArea.offset        = { 0, 0 };
+	renderPassInfo.renderArea.extent.width  = fbSize.width;
+	renderPassInfo.renderArea.extent.height = fbSize.height;
 
-	VkExtent2D extend = framebuffer->getRenderExtent();
-
-	VkRenderPassBeginInfo renderPassInfo = {};
-	renderPassInfo.sType                 = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	renderPassInfo.renderPass            = renderPass;
-	renderPassInfo.framebuffer           = framebuffer->handle();
-	renderPassInfo.renderArea.offset     = { 0, 0 };
-	renderPassInfo.renderArea.extent     = extend;
-
-	// TODO:
-	// Set clear value according to gnm
-	std::array<VkClearValue, 2> clearValues = {};
-	clearValues[0].color                    = { { 0.0f, 0.0f, 0.0f, 1.0f } };
-	clearValues[1].depthStencil             = { 1.0f, 0 };
-
-	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-	renderPassInfo.pClearValues    = clearValues.data();
+	renderPassInfo.clearValueCount = clearValueCount;
+	renderPassInfo.pClearValues    = clearValues;
 
 	m_cmd->cmdBeginRenderPass(&renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-	m_flags.set(GveContextFlag::GpRenderPassBound);
 }
 
 void GveContext::renderPassUnbindFramebuffer()
 {
-	do
-	{
-		if (!m_flags.test(GveContextFlag::GpRenderPassBound))
-		{
-			break;
-		}
-
-		m_cmd->cmdEndRenderPass();
-		m_flags.clr(GveContextFlag::GpRenderPassBound);
-	} while (false);
+	m_cmd->cmdEndRenderPass();
 }
 
 void GveContext::updateVertexBindings()
 {
-	VkDeviceSize bindingCount = 0;
-	std::array<VkBuffer, MaxNumVertexBindings> buffers;
+	VkDeviceSize                                   bindingCount = 0;
+	std::array<VkBuffer, MaxNumVertexBindings>     buffers;
 	std::array<VkDeviceSize, MaxNumVertexBindings> offsets;
 	for (const auto& buffer : m_state.vi.vertexBuffers)
 	{
@@ -588,9 +716,9 @@ void GveContext::updateIndexBinding()
 			break;
 		}
 
-		VkBuffer indexBuffer = m_state.vi.indexBuffer.buffer()->slice().buffer;
-		VkDeviceSize offset  = m_state.vi.indexBuffer.offset();
-		VkIndexType type     = m_state.vi.indexType;
+		VkBuffer     indexBuffer = m_state.vi.indexBuffer.buffer()->slice().buffer;
+		VkDeviceSize offset      = m_state.vi.indexBuffer.offset();
+		VkIndexType  type        = m_state.vi.indexType;
 		m_cmd->cmdBindIndexBuffer(indexBuffer, offset, type);
 
 		m_flags.clr(GveContextFlag::GpDirtyIndexBuffer);
@@ -601,7 +729,7 @@ template <VkPipelineBindPoint BindPoint>
 void GveContext::updateShaderResources(const GvePipelineLayout* pipelineLayout, VkDescriptorSet& set)
 {
 
-	uint32_t bindingCount = pipelineLayout->bindingCount();
+	uint32_t                          bindingCount = pipelineLayout->bindingCount();
 	std::vector<VkWriteDescriptorSet> descriptorWrites;
 
 	if (bindingCount != 0)
@@ -615,9 +743,9 @@ void GveContext::updateShaderResources(const GvePipelineLayout* pipelineLayout, 
 
 	for (uint32_t i = 0; i != bindingCount; ++i)
 	{
-		auto binding     = pipelineLayout->binding(i);
+		auto     binding = pipelineLayout->binding(i);
 		uint32_t regSlot = binding.resSlot.regSlot;
-		auto res         = m_res[regSlot];
+		auto     res     = m_res[regSlot];
 
 		switch (binding.resSlot.type)
 		{
@@ -638,7 +766,7 @@ void GveContext::updateShaderResources(const GvePipelineLayout* pipelineLayout, 
 			writeSet.pBufferInfo          = &bufferInfo;
 			descriptorWrites.push_back(writeSet);
 		}
-			break;
+		break;
 		case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
 		{
 			VkDescriptorImageInfo imageInfo = {};
@@ -656,7 +784,7 @@ void GveContext::updateShaderResources(const GvePipelineLayout* pipelineLayout, 
 			writeSet.pImageInfo           = &imageInfo;
 			descriptorWrites.push_back(writeSet);
 		}
-			break;
+		break;
 		case VK_DESCRIPTOR_TYPE_SAMPLER:
 		{
 			VkDescriptorImageInfo imageInfo = {};
@@ -674,7 +802,7 @@ void GveContext::updateShaderResources(const GvePipelineLayout* pipelineLayout, 
 			writeSet.pImageInfo           = &imageInfo;
 			descriptorWrites.push_back(writeSet);
 		}
-			break;
+		break;
 		default:
 			break;
 		}
@@ -699,10 +827,10 @@ VkDescriptorSet GveContext::allocateDescriptorSet(VkDescriptorSetLayout layout)
 	{
 		m_descPool = m_device->createDescriptorPool();
 	}
-		
+
 	VkDescriptorSet set = m_descPool->alloc(layout);
 
-	if (set == VK_NULL_HANDLE) 
+	if (set == VK_NULL_HANDLE)
 	{
 		// The old descriptor pool is full, we trace it
 		// and create a new one.
@@ -720,7 +848,7 @@ void GveContext::updateGraphicsShaderResources()
 	if (m_flags.test(GveContextFlag::GpDirtyResources))
 	{
 		updateShaderResources<VK_PIPELINE_BIND_POINT_GRAPHICS>(
-			m_state.gp.pipeline->getLayout(), 
+			m_state.gp.pipeline->getLayout(),
 			m_gpCtx.descSet);
 	}
 
@@ -766,7 +894,12 @@ void GveContext::enterRenderPassScope()
 {
 	if (!m_flags.test(GveContextFlag::GpRenderPassBound))
 	{
-		renderPassBindFramebuffer();
+		renderPassBindFramebuffer(
+			m_state.om.framebuffer,
+			m_state.om.passOps,
+			m_state.om.clearValues.size(),
+			m_state.om.clearValues.data());
+		m_flags.set(GveContextFlag::GpRenderPassBound);
 	}
 }
 
@@ -775,6 +908,7 @@ void GveContext::leaveRenderPassScope()
 	if (m_flags.test(GveContextFlag::GpRenderPassBound))
 	{
 		renderPassUnbindFramebuffer();
+		m_flags.clr(GveContextFlag::GpRenderPassBound);
 	}
 }
 
@@ -798,6 +932,12 @@ void GveContext::commitGraphicsState()
 {
 	if (m_flags.test(GveContextFlag::GpDirtyFramebuffer))
 	{
+		// TODO:
+		// Temporary solution
+		m_state.om.clearValues[0].color        = { .float32 = { 0.0f, 0.0f, 0.0f, 1.0f } };
+		m_state.om.clearValues[1].depthStencil = { 1.0f, 0 };
+		updateRenderPassOps(m_state.om.renderTargets, m_state.om.passOps);
+
 		updateFrameBuffer();
 	}
 

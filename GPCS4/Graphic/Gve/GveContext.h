@@ -76,9 +76,7 @@ public:
 
 	void setColorBlendState(const GveColorBlendInfo& blendCtl);
 
-	void bindRenderTargets(const GveAttachment* color, uint32_t count);
-
-	void bindDepthRenderTarget(const GveAttachment& depth);
+	void bindRenderTargets(const GveRenderTargets& renderTargets);
 
 	void bindShader(VkShaderStageFlagBits stage, const RcPtr<GveShader>& shader);
 
@@ -107,6 +105,19 @@ public:
 		uint32_t                vertexOffset,
 		uint32_t                firstInstance);
 
+	/**
+	 * \brief Clear render target
+	 *
+	 * Both depth and color target are supported.
+	 * \param targetView Render target image view
+	 * \param value Clear value
+	 * \returns void
+	 */
+	void clearRenderTarget(
+		const RcPtr<GveImageView>& targetView,
+		VkImageAspectFlags         clearAspects,
+		const VkClearValue&        clearValue);
+	 
 	/**
      * \brief Copies data from one buffer to another
      * 
@@ -142,6 +153,7 @@ public:
 		const RcPtr<GveBuffer>&  srcBuffer,
 		VkDeviceSize             srcOffset,
 		VkExtent2D               srcExtent);
+
 
 	/**
      * \brief Updates a buffer
@@ -247,7 +259,10 @@ private:
 	void enterRenderPassScope();
 	void leaveRenderPassScope();
 
-	void renderPassBindFramebuffer();
+	void renderPassBindFramebuffer(const RcPtr<GveFrameBuffer>& framebuffer,
+								   const GveRenderPassOps&      ops,
+								   uint32_t                     clearValueCount,
+								   const VkClearValue*          clearValues);
 	void renderPassUnbindFramebuffer();
 
 	/// Helpers

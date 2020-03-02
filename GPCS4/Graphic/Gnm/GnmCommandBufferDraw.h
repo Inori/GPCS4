@@ -3,7 +3,7 @@
 #include "GnmCommon.h"
 #include "GnmCommandBuffer.h"
 #include "GnmConstant.h"
-#include "GnmContext.h"
+#include "GnmContextState.h"
 
 #include <vector>
 
@@ -148,6 +148,7 @@ private:
 	void commitPsStage();
 	void commitCsStage();
 
+	void bindFrameBuffer();
 	void bindIndexBuffer(const void* indexAddr, uint32_t indexCount);
 	void bindImmConstBuffer(const PsslShaderResource& res, pssl::PsslProgramType prgType);
 	bool bindVertexBuffer(uint32_t bindingId, const GnmBuffer& vsharp);
@@ -164,6 +165,7 @@ private:
 
 	gve::GveSharpResourceManager& m_sharpRes;
 
+	GnmContextState  m_state;
 	GnmShaderContext m_vsContext;
 	GnmShaderContext m_psContext;
 	GnmShaderContext m_csContext;

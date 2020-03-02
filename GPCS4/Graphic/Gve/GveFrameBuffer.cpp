@@ -15,7 +15,7 @@ GveFrameBuffer::GveFrameBuffer(const RcPtr<GveDevice>&   device,
 	m_renderTargets(renderTargets),
 	m_renderPass(renderPass)
 {
-	bool ret = createFrameBuffer(renderTargets, renderPass, defaultSize);
+	bool ret = createFrameBuffer(defaultSize);
 	LOG_ASSERT(ret == true, "create framebuffer failed.");
 }
 
@@ -24,9 +24,66 @@ GveFrameBuffer::~GveFrameBuffer()
 	vkDestroyFramebuffer(*m_device, m_frameBuffer, nullptr);
 }
 
+bool GveFrameBuffer::createFrameBuffer(const GveFramebufferSize& defaultSize)
+{
+	bool ret = false;
+	do
+	{
+		if (!m_renderPass)
+		{
+			break;
+		}
+
+		m_renderSize = computeRenderSize(defaultSize);
+
+		std::array<VkImageView, MaxNumRenderTargets + 1> attachmentViews;
+
+		for (uint32_t i = 0; i != MaxNumRenderTargets; ++i)
+		{
+			if (m_renderTargets.color[i].view == nullptr)
+			{
+				continue;
+			}
+
+			attachmentViews[m_attachmentCount] = m_renderTargets.color[i].view->handle();
+			m_attachments[m_attachmentCount]   = &m_renderTargets.color[i];
+			++m_attachmentCount;
+		}
+
+		if (m_renderTargets.depth.view != nullptr)
+		{
+			attachmentViews[m_attachmentCount] = m_renderTargets.depth.view->handle();
+			m_attachments[m_attachmentCount]   = &m_renderTargets.depth;
+			++m_attachmentCount;
+		}
+
+		VkFramebufferCreateInfo framebufferInfo = {};
+		framebufferInfo.sType                   = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+		framebufferInfo.renderPass              = m_renderPass->getDefaultHandle();
+		framebufferInfo.pAttachments            = attachmentViews.data();
+		framebufferInfo.attachmentCount         = m_attachmentCount;
+		framebufferInfo.width                   = m_renderSize.width;
+		framebufferInfo.height                  = m_renderSize.height;
+		framebufferInfo.layers                  = m_renderSize.layers;
+
+		if (vkCreateFramebuffer(*m_device, &framebufferInfo, nullptr, &m_frameBuffer) != VK_SUCCESS)
+		{
+			LOG_ERR("failed to create framebuffer!");
+			break;
+		}
+		ret = true;
+	} while (false);
+	return ret;
+}
+
 VkFramebuffer GveFrameBuffer::handle() const
 {
 	return m_frameBuffer;
+}
+
+const GveFramebufferSize& GveFrameBuffer::size() const
+{
+	return m_renderSize;
 }
 
 GveRenderPass* GveFrameBuffer::getRenderPass() const
@@ -44,48 +101,75 @@ VkRenderPass GveFrameBuffer::getRenderPassHandle(const GveRenderPassOps& ops) co
 	return m_renderPass->getHandle(ops);
 }
 
-VkExtent2D GveFrameBuffer::getRenderExtent() const
+uint32_t GveFrameBuffer::numAttachments() const
 {
-	VkExtent2D extent = {};
-	extent.width      = m_renderSize.width;
-	extent.height     = m_renderSize.height;
-	return extent;
+	return m_attachmentCount;
 }
 
-bool GveFrameBuffer::matchColorTargets(const GveAttachment* color, uint32_t count)
+int32_t GveFrameBuffer::findAttachment(const RcPtr<GveImageView>& view) const
 {
-	bool match = true;
-	do
+	int32_t attachmentIndex = -1;
+
+	for (int32_t i = 0; i != m_attachmentCount; ++i)
 	{
-		if (!color || !count)
+		if (m_attachments[i]->view != view)
 		{
-			break;
+			continue;
 		}
 
-		for (uint32_t i = 0; i != count; ++i)
-		{
-			if (m_renderTargets.color[i].view != color[i].view ||
-				m_renderTargets.color[i].layout != color[i].layout)
-			{
-				match = false;
-				break;
-			}
-		}
+		attachmentIndex = i;
+		break;
+	}
 
-	} while (false);
-	return match;
+	return attachmentIndex;
 }
 
-bool GveFrameBuffer::matchDepthTarget(const GveAttachment& depth)
+bool GveFrameBuffer::matchTargets(const GveRenderTargets& renderTargets) const
 {
-	return (m_renderTargets.depth.view == depth.view) &&
-		   (m_renderTargets.depth.layout == depth.layout);
+	return matchColors(renderTargets.color, MaxNumRenderTargets) &&
+		   matchDepthStencil(renderTargets.depth);
 }
 
-bool GveFrameBuffer::matchRenderTargets(const GveRenderTargets& renderTargets)
+bool GveFrameBuffer::matchColors(const GveAttachment* color, uint32_t count) const
 {
-	return matchColorTargets(renderTargets.color, MaxNumRenderTargets) &&
-		   matchDepthTarget(renderTargets.depth);
+	bool eq = true; 
+	for (uint32_t i = 0; i < count; i++)
+	{
+		eq &=
+			m_renderTargets.color[i].view == color[i].view &&
+			m_renderTargets.color[i].layout == color[i].layout;
+	}
+	return eq;
+}
+
+bool GveFrameBuffer::matchDepthStencil(const GveAttachment& depthStencil) const
+{
+	bool eq =
+		m_renderTargets.depth.view == depthStencil.view &&
+		m_renderTargets.depth.layout == depthStencil.layout;
+	return eq;
+}
+
+bool GveFrameBuffer::isFullSize(const RcPtr<GveImageView>& view) const
+{
+	return m_renderSize.width == view->mipLevelExtent(0).width && 
+		m_renderSize.height == view->mipLevelExtent(0).height && 
+		m_renderSize.layers == view->info().numLayers;
+}
+
+const GveAttachment& GveFrameBuffer::getAttachment(uint32_t id) const
+{
+	return *m_attachments[id];
+}
+
+const GveAttachment& GveFrameBuffer::getColorTarget(uint32_t id) const
+{
+	return m_renderTargets.color[id];
+}
+
+const GveAttachment& GveFrameBuffer::getDepthTarget() const
+{
+	return m_renderTargets.depth;
 }
 
 GveRenderPassFormat GveFrameBuffer::getRenderPassFormat(const GveRenderTargets& renderTargets)
@@ -112,60 +196,6 @@ GveRenderPassFormat GveFrameBuffer::getRenderPassFormat(const GveRenderTargets& 
 	}
 
 	return format;
-}
-
-bool GveFrameBuffer::createFrameBuffer(const GveRenderTargets&   renderTargets,
-									   GveRenderPass*            renderPass,
-									   const GveFramebufferSize& defaultSize)
-{
-	bool ret = false;
-	do
-	{
-		if (!renderPass)
-		{
-			break;
-		}
-
-		m_renderSize = computeRenderSize(defaultSize);
-
-		std::array<VkImageView, MaxNumRenderTargets + 1> attachmentViews;
-
-		for (uint32_t i = 0; i != MaxNumRenderTargets; ++i)
-		{
-			if (renderTargets.color[i].view == nullptr)
-			{
-				continue;
-			}
-
-			attachmentViews[m_attachmentCount] = renderTargets.color[i].view->handle();
-			m_attachments[m_attachmentCount]   = &renderTargets.color[i];
-			++m_attachmentCount;
-		}
-
-		if (renderTargets.depth.view != nullptr)
-		{
-			attachmentViews[m_attachmentCount] = renderTargets.depth.view->handle();
-			m_attachments[m_attachmentCount]   = &renderTargets.depth;
-			++m_attachmentCount;
-		}
-
-		VkFramebufferCreateInfo framebufferInfo = {};
-		framebufferInfo.sType                   = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-		framebufferInfo.renderPass              = m_renderPass->getDefaultHandle();
-		framebufferInfo.pAttachments            = attachmentViews.data();
-		framebufferInfo.attachmentCount         = m_attachmentCount;
-		framebufferInfo.width                   = m_renderSize.width;
-		framebufferInfo.height                  = m_renderSize.height;
-		framebufferInfo.layers                  = m_renderSize.layers;
-
-		if (vkCreateFramebuffer(*m_device, &framebufferInfo, nullptr, &m_frameBuffer) != VK_SUCCESS)
-		{
-			LOG_ERR("failed to create framebuffer!");
-			break;
-		}
-		ret = true;
-	} while (false);
-	return ret;
 }
 
 GveFramebufferSize GveFrameBuffer::computeRenderSize(const GveFramebufferSize& defaultSize) const
@@ -204,5 +234,6 @@ GveFramebufferSize GveFrameBuffer::getRenderTargetSize(const RcPtr<GveImageView>
 	auto layers = renderTarget->imageInfo().numLayers;
 	return GveFramebufferSize{ extent.width, extent.height, layers };
 }
+
 
 }  // namespace gve

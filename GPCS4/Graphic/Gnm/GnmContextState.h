@@ -3,6 +3,7 @@
 #include "GnmCommon.h"
 #include "GnmShaderMeta.h"
 
+#include "../Gve/GveContextState.h"
 #include "../Pssl/PsslEnums.h"
 #include "../Pssl/PsslShaderStructure.h"
 
@@ -20,4 +21,17 @@ struct GnmShaderContext
 	RcPtr<gve::GveShader>                 shader = nullptr;
 	std::vector<pssl::PsslShaderResource> userDataSlotTable;
 	GnmShaderMeta                         meta;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+struct GnmOutputMergerState
+{
+	gve::GveRenderTargets renderTargets;
+};
+
+
+struct GnmContextState
+{
+	GnmOutputMergerState om;
 };
