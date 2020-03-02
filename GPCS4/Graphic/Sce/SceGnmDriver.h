@@ -87,7 +87,7 @@ private:
 		const RcPtr<gve::GvePhysicalDevice>& device,
 		VkSurfaceKHR                         surface);
 
-	gve::GveDeviceFeatures getRequiredFeatures(
+	gve::GveDeviceFeatures getEnableFeatures(
 		const RcPtr<gve::GvePhysicalDevice>& device);
 
 	bool checkPresentSupport(
