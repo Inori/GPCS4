@@ -238,6 +238,7 @@ int sceMutexAttrTypeToPthreadType(int sceType)
 		break;
 	case SCE_PTHREAD_MUTEX_ADAPTIVE_NP:
 		pthreadType = PTHREAD_MUTEX_ADAPTIVE_NP;
+		break;
 	default:
 		LOG_ERR("not supported mutex attr type %d", sceType);
 		break;
