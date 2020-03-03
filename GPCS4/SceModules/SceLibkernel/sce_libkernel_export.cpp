@@ -155,6 +155,7 @@ static const SCE_EXPORT_FUNCTION g_pSceLibkernel_libkernel_FunctionTable[] =
 	{ 0x9AA40C875CCF3D3F, "fstat", (void*)scek_fstat },
 	{ 0x04F13DB3DBD0417A, "mmap", (void*)scek_mmap },
 	{ 0x4D4FDDF4F7C81CF3, "socket", (void*)scek_socket },
+	{ 0xDCFB55EA9DD0357E, "scePthreadEqual", (void*)scePthreadEqual },
 	SCE_FUNCTION_ENTRY_END
 };
 
@@ -214,6 +215,7 @@ static const SCE_EXPORT_FUNCTION g_pSceLibkernel_libScePosix_FunctionTable[] =
 	{ 0x20A3FCB72A744149, "sem_post", (void*)scek_sem_post },
 	{ 0xC39207CAF6A183FA, "sem_timedwait", (void*)scek_sem_timedwait },
 	{ 0x602579746181702A, "sem_wait", (void*)scek_sem_wait },
+	{ 0x06AF8B455FCDE879, "sem_getvalue", (void*)scek_sem_getvalue },
 	{ 0x7D939E64838498BC, "send", (void*)scek_send },
 	{ 0x4D4BA2612DA413CB, "shutdown", (void*)scek_shutdown },
 	{ 0x149AD3E4BB940405, "pthread_exit", (void*)scek_pthread_exit },

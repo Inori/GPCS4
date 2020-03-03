@@ -34,8 +34,9 @@
 // this should be decreased as direct memory being alloced
 // but currently we use fixed size
 // 
-// always 2GB
-#define  SCE_KERNEL_MAIN_DMEM_SIZE (1024 * 1024 * 1024 * 2ULL)
+// always 0x180000000 bytes
+#define  SCE_KERNEL_MAIN_DMEM_SIZE 0x180000000u
+
 
 // memory types
 typedef enum 

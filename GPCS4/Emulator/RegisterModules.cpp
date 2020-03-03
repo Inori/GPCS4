@@ -102,6 +102,7 @@ static bool registerLibKernel(CSceModuleSystem* pModuleSystem)
 				0x0F8CA56B7BF1E2D6,  // sceKernelError
 				0x7FBB8EC58F663355,  // __stack_chk_guard
 				0x2467D330139D509A,  // sceKernelGetFsSandboxRandomWord
+				0xDCFB55EA9DD0357E,  // scePthreadEqual
 			 });
 
 

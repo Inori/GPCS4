@@ -338,17 +338,19 @@ int PS4API scek_sem_destroy(void)
 }
 
 
-int PS4API scek_sem_init(void)
+int PS4API scek_sem_init(sem_t* sem, int pshared, unsigned int value)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	int iRet = sem_init(sem, pshared, value);
+	LOG_SCE_TRACE("sem = %p, pshared = %d, value = %d, ret = %d", sem, pshared, value, iRet);
+	return iRet;
 }
 
 
-int PS4API scek_sem_post(void)
+int PS4API scek_sem_post(sem_t* sem)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	int iRet = sem_post(sem);
+	LOG_SCE_TRACE("sem = %p, ret = %d", sem, iRet);
+	return iRet;
 }
 
 
@@ -359,12 +361,20 @@ int PS4API scek_sem_timedwait(void)
 }
 
 
-int PS4API scek_sem_wait(void)
+int PS4API scek_sem_wait(sem_t* sem)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	int iRet = sem_wait(sem);
+	LOG_SCE_TRACE("sem = %p, ret = %d", sem, iRet);
+	return iRet;
 }
 
+
+int PS4API scek_sem_getvalue(sem_t* sem, int* sval)
+{
+	int iRet = sem_getvalue(sem, sval);
+	LOG_SCE_TRACE("sem = %p, sval = %p, ret = %d", sem, sval, iRet);
+	return iRet;
+}
 
 int PS4API scek_send(void)
 {
