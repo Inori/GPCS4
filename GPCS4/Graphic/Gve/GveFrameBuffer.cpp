@@ -212,7 +212,7 @@ GveFramebufferSize GveFrameBuffer::computeRenderSize(const GveFramebufferSize& d
 		minSize.layers               = std::min(minSize.layers, depthSize.layers);
 	}
 
-	for (uint32_t i = 0; i < MaxNumRenderTargets; i++)
+	for (uint32_t i = 0; i < MaxNumRenderTargets; ++i)
 	{
 		if (m_renderTargets.color[i].view == nullptr)
 		{

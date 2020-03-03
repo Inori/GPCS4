@@ -165,13 +165,8 @@ private:
 
 	gve::GveSharpResourceManager& m_sharpRes;
 
-	GnmContextState  m_state;
-	GnmShaderContext m_vsContext;
-	GnmShaderContext m_psContext;
-	GnmShaderContext m_csContext;
-
-	VkIndexType m_indexType = VK_INDEX_TYPE_UINT16;
-
+	GnmContextState               m_state;
+	GnmShaderContextGroup         m_shaderContext;
 };
 
 

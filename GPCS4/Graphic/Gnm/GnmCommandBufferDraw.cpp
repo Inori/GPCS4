@@ -109,12 +109,12 @@ void GnmCommandBufferDraw::setViewport(uint32_t viewportId, float dmin, float dm
 
 void GnmCommandBufferDraw::setPsShader(const pssl::PsStageRegisters *psRegs)
 {
-	m_psContext.code = psRegs->getCodeAddress();
+	m_shaderContext.ps.code = psRegs->getCodeAddress();
 }
 
 void GnmCommandBufferDraw::setVsShader(const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier)
 {
-	m_vsContext.code = vsRegs->getCodeAddress();
+	m_shaderContext.vs.code = vsRegs->getCodeAddress();
 }
 
 void GnmCommandBufferDraw::setVgtControl(uint8_t primGroupSizeMinusOne, WdSwitchOnlyOnEopMode wdSwitchOnlyOnEopMode, VgtPartialVsWaveMode partialVsWaveMode)
@@ -214,6 +214,7 @@ void GnmCommandBufferDraw::setRenderTarget(uint32_t rtSlot, GnmRenderTarget cons
 		colorTarget.view          = image.view;
 		colorTarget.layout        = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 		m_state.om.renderTargets.color[rtSlot] = colorTarget;
+
 	} while (false);
 
 }
@@ -355,7 +356,7 @@ void GnmCommandBufferDraw::setActiveShaderStages(ActiveShaderStages activeStages
 
 void GnmCommandBufferDraw::setIndexSize(IndexSize indexSize, CachePolicy cachePolicy)
 {
-	m_indexType = cvt::convertIndexSize(indexSize);
+	m_state.ia.indexType = cvt::convertIndexSize(indexSize);
 }
 
 void GnmCommandBufferDraw::dispatch(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ)
@@ -382,8 +383,8 @@ void GnmCommandBufferDraw::waitOnAddressAndStallCommandBufferParser(void* gpuAdd
 
 void GnmCommandBufferDraw::setCsShader(const pssl::CsStageRegisters* csRegs, uint32_t shaderModifier)
 {
-	m_csContext.code = csRegs->getCodeAddress();
-	shader::parseShaderRegCs(csRegs, m_csContext.meta.cs);
+	m_shaderContext.cs.code = csRegs->getCodeAddress();
+	shader::parseShaderRegCs(csRegs, m_shaderContext.cs.meta.cs);
 }
 
 void GnmCommandBufferDraw::flushShaderCachesAndWait(CacheAction cacheAction, uint32_t extendedCacheMask, StallCommandBufferParserMode commandBufferStallMode)
@@ -393,12 +394,12 @@ void GnmCommandBufferDraw::flushShaderCachesAndWait(CacheAction cacheAction, uin
 
 void GnmCommandBufferDraw::setDbRenderControl(DbRenderControl reg)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	// throw std::logic_error("The method or operation is not implemented.");
 }
 
 void GnmCommandBufferDraw::setDepthClearValue(float clearValue)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	// throw std::logic_error("The method or operation is not implemented.");
 }
 
 void GnmCommandBufferDraw::setStencilClearValue(uint8_t clearValue)
@@ -413,12 +414,12 @@ void GnmCommandBufferDraw::waitForGraphicsWrites(uint32_t baseAddr256, uint32_t 
 
 void GnmCommandBufferDraw::writeAtEndOfShader(EndOfShaderEventType eventType, void* dstGpuAddr, uint32_t immValue)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	// throw std::logic_error("The method or operation is not implemented.");
 }
 
 void GnmCommandBufferDraw::writeDataInline(void* dstGpuAddr, const void* data, uint32_t sizeInDwords, WriteDataConfirmMode writeConfirm)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	// throw std::logic_error("The method or operation is not implemented.");
 }
 
 void GnmCommandBufferDraw::writeDataInlineThroughL2(void* dstGpuAddr, const void* data, uint32_t sizeInDwords, CachePolicy cachePolicy, WriteDataConfirmMode writeConfirm)
@@ -497,7 +498,7 @@ void GnmCommandBufferDraw::setEmbeddedVsShader(EmbeddedVsShader shaderId, uint32
 		0x9F, 0xC2, 0xF8, 0x47, 0xCF, 0xA5, 0x2D, 0x9B, 0x7D, 0x5B, 0x7C, 0xFF, 0x17, 0x00, 0x00, 0x00
 	};
 	LOG_ASSERT(shaderId == kEmbeddedVsShaderFullScreen, "invalid shader id %d", shaderId);
-	m_vsContext.code = reinterpret_cast<const void*>(embeddedVsShaderFullScreen);
+	m_shaderContext.vs.code = reinterpret_cast<const void*>(embeddedVsShaderFullScreen);
 }
 
 void GnmCommandBufferDraw::updatePsShader(const pssl::PsStageRegisters *psRegs)
@@ -507,7 +508,7 @@ void GnmCommandBufferDraw::updatePsShader(const pssl::PsStageRegisters *psRegs)
 
 void GnmCommandBufferDraw::updateVsShader(const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier)
 {
-	m_vsContext.code = vsRegs->getCodeAddress();
+	m_shaderContext.vs.code = vsRegs->getCodeAddress();
 }
 
 #define SHADER_DEBUG_BREAK(mod, hash) \
@@ -520,18 +521,18 @@ void GnmCommandBufferDraw::commitVsStage()
 {
 	do
 	{
-		PsslShaderModule vsModule((const uint32_t*)m_vsContext.code);
+		PsslShaderModule vsModule((const uint32_t*)m_shaderContext.vs.code);
 
-		uint32_t* fsCode = getFetchShaderCode(m_vsContext);
+		uint32_t* fsCode = getFetchShaderCode(m_shaderContext.vs);
 		if (fsCode)
 		{
 			vsModule.defineFetchShader(fsCode);
 		}
 
 		LOG_DEBUG("vertex shader hash %llX", vsModule.key().toUint64());
-		vsModule.defineShaderInput(m_vsContext.userDataSlotTable);
+		vsModule.defineShaderInput(m_shaderContext.vs.userDataSlotTable);
 
-		m_vsContext.shader = vsModule.compile();
+		m_shaderContext.vs.shader = vsModule.compile();
 
 		auto vsInputUsageSlots = vsModule.inputUsageSlots();
 		for (const auto& inputSlot : vsInputUsageSlots)
@@ -541,7 +542,7 @@ void GnmCommandBufferDraw::commitVsStage()
 			{
 				return inputSlot.startRegister == item.startRegister;
 			};
-			auto iter = std::find_if(m_vsContext.userDataSlotTable.begin(), m_vsContext.userDataSlotTable.end(), pred);
+			auto iter = std::find_if(m_shaderContext.vs.userDataSlotTable.begin(), m_shaderContext.vs.userDataSlotTable.end(), pred);
 
 			// Bind shader resources
 			switch (inputSlot.usageType)
@@ -561,7 +562,7 @@ void GnmCommandBufferDraw::commitVsStage()
 			}
 		}
 
-		m_context->bindShader(VK_SHADER_STAGE_VERTEX_BIT, m_vsContext.shader);
+		m_context->bindShader(VK_SHADER_STAGE_VERTEX_BIT, m_shaderContext.vs.shader);
 	} while (false);
 }
 
@@ -569,11 +570,11 @@ void GnmCommandBufferDraw::commitPsStage()
 {
 	do 
 	{
-		PsslShaderModule psModule((const uint32_t*)m_psContext.code);
+		PsslShaderModule psModule((const uint32_t*)m_shaderContext.ps.code);
 		LOG_DEBUG("pixel shader hash %llX", psModule.key().toUint64());
-		psModule.defineShaderInput(m_psContext.userDataSlotTable);
+		psModule.defineShaderInput(m_shaderContext.ps.userDataSlotTable);
 
-		m_psContext.shader = psModule.compile();
+		m_shaderContext.ps.shader = psModule.compile();
 
 		auto psInputUsageSlots = psModule.inputUsageSlots();
 		for (const auto& inputSlot : psInputUsageSlots)
@@ -583,7 +584,7 @@ void GnmCommandBufferDraw::commitPsStage()
 			{
 				return inputSlot.startRegister == item.startRegister;
 			};
-			auto iter = std::find_if(m_psContext.userDataSlotTable.begin(), m_psContext.userDataSlotTable.end(), pred);
+			auto iter = std::find_if(m_shaderContext.ps.userDataSlotTable.begin(), m_shaderContext.ps.userDataSlotTable.end(), pred);
 
 			// Bind shader resources
 			switch (inputSlot.usageType)
@@ -603,7 +604,7 @@ void GnmCommandBufferDraw::commitPsStage()
 			}
 		}
 
-		m_context->bindShader(VK_SHADER_STAGE_FRAGMENT_BIT, m_psContext.shader);
+		m_context->bindShader(VK_SHADER_STAGE_FRAGMENT_BIT, m_shaderContext.ps.shader);
 	} while (false);
 }
 
@@ -611,12 +612,20 @@ void GnmCommandBufferDraw::commitCsStage()
 {
 	do 
 	{
-		PsslShaderModule csModule((const uint32_t*)m_csContext.code);
+		PsslShaderModule csModule((const uint32_t*)m_shaderContext.cs.code);
 		LOG_DEBUG("compute shader hash %llX", csModule.key().toUint64());
 
-		csModule.defineShaderInput(m_csContext.userDataSlotTable);
+		if (csModule.key().toUint64() == 0x8C25642DB09D8E59)
+		{
+			auto tgtView = m_presenter->getImage(m_displayBufferIndex).view;
+			VkClearValue clearValue = { 0.5f, 0.5f, 0.5f, 1 };
+			//m_context->clearRenderTarget(tgtView, VK_IMAGE_ASPECT_COLOR_BIT, clearValue);
+			break;
+		}
+		
+		csModule.defineShaderInput(m_shaderContext.cs.userDataSlotTable);
 
-		m_csContext.shader = csModule.compile();
+		m_shaderContext.cs.shader = csModule.compile();
 
 	} while (false);
 }
@@ -635,7 +644,9 @@ void GnmCommandBufferDraw::bindIndexBuffer(const void* indexAddr, uint32_t index
 			break;
 		}
 
-		uint32_t perIndexSize = m_indexType == VK_INDEX_TYPE_UINT16 ? sizeof(uint16_t) : sizeof(uint32_t);
+		uint32_t perIndexSize = m_state.ia.indexType == VK_INDEX_TYPE_UINT16 ? 
+			sizeof(uint16_t) : 
+			sizeof(uint32_t);
 		VkDeviceSize indexBufferSize = perIndexSize * indexCount;
 
 		GveBufferCreateInfo info = {};
@@ -656,7 +667,7 @@ void GnmCommandBufferDraw::bindIndexBuffer(const void* indexAddr, uint32_t index
 		
 		m_context->updateBuffer(indexBuffer, 0, indexBufferSize, indexAddr);
 
-		m_context->bindIndexBuffer(indexBuffer, m_indexType);
+		m_context->bindIndexBuffer(indexBuffer, m_state.ia.indexType);
 
 	} while (false);
 }
@@ -959,10 +970,10 @@ void GnmCommandBufferDraw::setUserDataSlots(ShaderStage stage, uint32_t startSlo
 		switch (stage)
 		{
 		case kShaderStageVs:
-			insertUniqueUserDataSlot(m_vsContext.userDataSlotTable, startSlot, shaderRes);
+			insertUniqueUserDataSlot(m_shaderContext.vs.userDataSlotTable, startSlot, shaderRes);
 			break;
 		case kShaderStagePs:
-			insertUniqueUserDataSlot(m_psContext.userDataSlotTable, startSlot, shaderRes);
+			insertUniqueUserDataSlot(m_shaderContext.ps.userDataSlotTable, startSlot, shaderRes);
 			break;
 		default:
 			break;
@@ -973,8 +984,9 @@ void GnmCommandBufferDraw::setUserDataSlots(ShaderStage stage, uint32_t startSlo
 
 void GnmCommandBufferDraw::clearUserDataSlots()
 {
-	m_vsContext.userDataSlotTable.clear();
-	m_psContext.userDataSlotTable.clear();
+	m_shaderContext.vs.userDataSlotTable.clear();
+	m_shaderContext.ps.userDataSlotTable.clear();
+	m_shaderContext.cs.userDataSlotTable.clear();
 }
 
 void GnmCommandBufferDraw::insertUniqueUserDataSlot(std::vector<pssl::PsslShaderResource>& container, uint32_t startSlot, pssl::PsslShaderResource& shaderRes)
