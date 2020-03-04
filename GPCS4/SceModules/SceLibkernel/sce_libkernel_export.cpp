@@ -156,6 +156,8 @@ static const SCE_EXPORT_FUNCTION g_pSceLibkernel_libkernel_FunctionTable[] =
 	{ 0x04F13DB3DBD0417A, "mmap", (void*)scek_mmap },
 	{ 0x4D4FDDF4F7C81CF3, "socket", (void*)scek_socket },
 	{ 0xDCFB55EA9DD0357E, "scePthreadEqual", (void*)scePthreadEqual },
+	{ 0x108FF9FE396AD9D1, "scePthreadGetthreadid", (void*)scePthreadGetthreadid },
+	{ 0xFABDEB305C08B55E, "sceKernelPread", (void*)sceKernelPread },
 	SCE_FUNCTION_ENTRY_END
 };
 

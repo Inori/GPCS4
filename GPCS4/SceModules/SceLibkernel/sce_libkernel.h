@@ -19,8 +19,6 @@
 #include "sce_kernel_eventflag.h"
 #include "sce_kernel_tls.h"
 
-#include <semaphore.h>
-
 extern const SCE_EXPORT_MODULE g_ExpModuleSceLibkernel;
 
 
@@ -624,5 +622,12 @@ void PS4API scek_pthread_exit(void *value_ptr);
 
 
 int PS4API scePthreadEqual(ScePthread thread1, ScePthread thread2);
+
+
+pthread_t PS4API scePthreadGetthreadid();
+
+
+ssize_t PS4API sceKernelPread(int d, void* buf, size_t nbytes, off_t offset);
+
 
 

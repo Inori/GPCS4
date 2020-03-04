@@ -732,3 +732,9 @@ int PS4API scePthreadEqual(ScePthread thread1, ScePthread thread2)
 	}
 	return iRet;
 }
+
+pthread_t PS4API scePthreadGetthreadid()
+{
+	LOG_SCE_TRACE("");
+	return pthread_self();
+}

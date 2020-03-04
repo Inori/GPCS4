@@ -34,6 +34,9 @@ int PS4API sceNpCheckCallback(void);
 int PS4API sceNpCheckNpAvailability(void);
 
 
+int PS4API sceNpCheckNpAvailabilityA(void);
+
+
 int PS4API sceNpCheckPlus(void);
 
 

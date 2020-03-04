@@ -1,7 +1,7 @@
 #pragma once
 #include "pthreads4w/pthread.h"
 #include "pthreads4w/sched.h"
-
+#include "pthreads4w/semaphore.h"
 
 // pthread to sce pthread
 // Note:
