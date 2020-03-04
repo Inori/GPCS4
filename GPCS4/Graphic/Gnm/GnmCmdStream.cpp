@@ -1,6 +1,10 @@
 #include "GnmCmdStream.h"
 #include "UtilBit.h"
 #include "GnmGfx9MePm4Packets.h"
+#include "GnmBuffer.h"
+#include "GnmTexture.h"
+#include "GnmSampler.h"
+#include "../Pssl/PsslShaderRegister.h"
 
 // *******
 // Important Note:
@@ -700,13 +704,13 @@ void GnmCmdStream::onSetShReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 		switch (m_lastHint)
 		{
 		case OP_HINT_SET_VSHARP_IN_USER_DATA:
-			m_cb->setVsharpInUserData(stage, startSlot, (const VSharpBuffer*)gpuAddr);
+			m_cb->setVsharpInUserData(stage, startSlot, (const GnmBuffer*)gpuAddr);
 			break;
 		case OP_HINT_SET_TSHARP_IN_USER_DATA:
-			m_cb->setTsharpInUserData(stage, startSlot, (const TSharpBuffer*)gpuAddr);
+			m_cb->setTsharpInUserData(stage, startSlot, (const GnmTexture*)gpuAddr);
 			break;
 		case OP_HINT_SET_SSHARP_IN_USER_DATA:
-			m_cb->setSsharpInUserData(stage, startSlot, (const SSharpBuffer*)gpuAddr);
+			m_cb->setSsharpInUserData(stage, startSlot, (const GnmSampler*)gpuAddr);
 			break;
 		case OP_HINT_SET_USER_DATA_REGION:
 			m_cb->setUserDataRegion(stage, startSlot, &itBody[1], pm4Hdr->count);
@@ -884,7 +888,7 @@ void GnmCmdStream::onGnmPrivate(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	case OP_PRIV_SET_VGT_CONTROL:
 	{
 		GnmCmdVgtControl* param = (GnmCmdVgtControl*)pm4Hdr;
-		m_cb->setVgtControl(param->primGroupSizeMinusOne, 
+		m_cb->setVgtControlForNeo(param->primGroupSizeMinusOne, 
 			(WdSwitchOnlyOnEopMode)param->wdSwitchOnlyOnEopMode, 
 			(VgtPartialVsWaveMode)param->partialVsWaveMode);
 	}

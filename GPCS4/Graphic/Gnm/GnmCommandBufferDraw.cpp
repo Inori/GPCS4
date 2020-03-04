@@ -38,1038 +38,273 @@ GnmCommandBufferDraw::~GnmCommandBufferDraw()
 {
 }
 
-// First call of a frame.
 void GnmCommandBufferDraw::initializeDefaultHardwareState()
-{
-	m_context->beginRecording(
-		m_device->createCmdList(GvePipelineType::Graphics)
-	);
-
-	clearUserDataSlots();
-}
-
-
-void GnmCommandBufferDraw::prepareFlip()
-{
-	m_cmdList = m_context->endRecording();
-}
-
-// Last call of a frame.
-void GnmCommandBufferDraw::prepareFlip(void *labelAddr, uint32_t value)
-{
-	*(uint32_t*)labelAddr = value;
-	m_cmdList             = m_context->endRecording();
-}
-
-// Last call of a frame, with interrupt.
-void GnmCommandBufferDraw::prepareFlipWithEopInterrupt(EndOfPipeEventType eventType, void *labelAddr, uint32_t value, CacheAction cacheAction)
-{
-	*(uint32_t*)labelAddr = value;
-	m_cmdList             = m_context->endRecording();
-}
-
-void GnmCommandBufferDraw::setPsShaderUsage(const uint32_t *inputTable, uint32_t numItems)
-{
-
-}
-
-void GnmCommandBufferDraw::setViewport(uint32_t viewportId, float dmin, float dmax, const float scale[3], const float offset[3])
-{
-	// The viewport's origin in Gnm is in the lower left of the screen,
-	// with Y pointing up.
-	// In Vulkan the origin is in the top left of the screen,
-	// with Y pointing downwards.
-	// We need to flip the viewport of gnm to adapt to vulkan.
-	//
-	// Note, this is going to work with VK_KHR_Maintenance1 extension enabled,
-	// which is the default of Vulkan 1.1.
-	// And we must use dynamic viewport state (vkCmdSetViewport), or negative viewport height won't work.
-
-	float width = scale[0] / 0.5f;
-	float height = -scale[1] / 0.5f;
-	float left = offset[0] - scale[0];
-	float top = offset[1] + scale[1];
-
-	VkViewport viewport;
-	viewport.x = left;
-	viewport.y = top + height;
-	viewport.width = width;
-	viewport.height = -height;
-	viewport.minDepth = dmin;
-	viewport.maxDepth = dmax;
-
-	VkRect2D scissor;
-	scissor.offset.x = 0;
-	scissor.offset.y = 0;
-	scissor.extent.width = width;
-	scissor.extent.height = height;
-
-	m_context->setViewport(viewport, scissor);
-}
-
-void GnmCommandBufferDraw::setPsShader(const pssl::PsStageRegisters *psRegs)
-{
-	m_shaderContext.ps.code = psRegs->getCodeAddress();
-}
-
-void GnmCommandBufferDraw::setVsShader(const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier)
-{
-	m_shaderContext.vs.code = vsRegs->getCodeAddress();
-}
-
-void GnmCommandBufferDraw::setVgtControl(uint8_t primGroupSizeMinusOne, WdSwitchOnlyOnEopMode wdSwitchOnlyOnEopMode, VgtPartialVsWaveMode partialVsWaveMode)
 {
 	
 }
 
-void GnmCommandBufferDraw::setVsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const VSharpBuffer *buffer)
+void GnmCommandBufferDraw::setViewportTransformControl(ViewportTransformControl vportControl)
 {
-	setUserDataSlots(stage, startUserDataSlot, (uint32_t*)buffer, sizeof(VSharpBuffer)/sizeof(uint32_t));
+	
 }
 
-void GnmCommandBufferDraw::setTsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const TSharpBuffer *tex)
+void GnmCommandBufferDraw::setPrimitiveSetup(PrimitiveSetup reg)
 {
-	setUserDataSlots(stage, startUserDataSlot, (uint32_t*)tex, sizeof(TSharpBuffer) / sizeof(uint32_t));
+	
 }
 
-void GnmCommandBufferDraw::setSsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const SSharpBuffer *sampler)
+void GnmCommandBufferDraw::setScreenScissor(int32_t left, int32_t top, int32_t right, int32_t bottom)
 {
-	setUserDataSlots(stage, startUserDataSlot, (uint32_t*)sampler, sizeof(SSharpBuffer) / sizeof(uint32_t));
+	
 }
 
-void GnmCommandBufferDraw::setPointerInUserData(ShaderStage stage, uint32_t startUserDataSlot, void *gpuAddr)
+void GnmCommandBufferDraw::setViewport(uint32_t viewportId, float dmin, float dmax, const float scale[3], const float offset[3])
 {
-	setUserDataSlots(stage, startUserDataSlot, (uint32_t*)gpuAddr, sizeof(void*) / sizeof(uint32_t));
+	
 }
 
-void GnmCommandBufferDraw::setUserDataRegion(ShaderStage stage, uint32_t startUserDataSlot, const uint32_t *userData, uint32_t numDwords)
+void GnmCommandBufferDraw::setHardwareScreenOffset(uint32_t offsetX, uint32_t offsetY)
 {
-	setUserDataSlots(stage, startUserDataSlot, userData, numDwords);
+	
 }
 
+void GnmCommandBufferDraw::setGuardBands(float horzClip, float vertClip, float horzDiscard, float vertDiscard)
+{
+	
+}
 
-void GnmCommandBufferDraw::writeAtEndOfPipe(EndOfPipeEventType eventType, 
-	EventWriteDest dstSelector, void *dstGpuAddr, 
-	EventWriteSource srcSelector, uint64_t immValue, 
-	CacheAction cacheAction, CachePolicy cachePolicy)
+void GnmCommandBufferDraw::setPsShaderUsage(const uint32_t* inputTable, uint32_t numItems)
+{
+	
+}
+
+void GnmCommandBufferDraw::setActiveShaderStages(ActiveShaderStages activeStages)
+{
+	
+}
+
+void GnmCommandBufferDraw::setPsShader(const pssl::PsStageRegisters* psRegs)
+{
+	
+}
+
+void GnmCommandBufferDraw::updatePsShader(const pssl::PsStageRegisters* psRegs)
+{
+	
+}
+
+void GnmCommandBufferDraw::setVsShader(const pssl::VsStageRegisters* vsRegs, uint32_t shaderModifier)
+{
+	
+}
+
+void GnmCommandBufferDraw::setEmbeddedVsShader(EmbeddedVsShader shaderId, uint32_t shaderModifier)
+{
+	
+}
+
+void GnmCommandBufferDraw::updateVsShader(const pssl::VsStageRegisters* vsRegs, uint32_t shaderModifier)
+{
+	
+}
+
+void GnmCommandBufferDraw::setVsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const GnmBuffer* buffer)
+{
+	
+}
+
+void GnmCommandBufferDraw::setTsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const GnmTexture* tex)
+{
+	
+}
+
+void GnmCommandBufferDraw::setSsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const GnmSampler* sampler)
+{
+	
+}
+
+void GnmCommandBufferDraw::setPointerInUserData(ShaderStage stage, uint32_t startUserDataSlot, void* gpuAddr)
+{
+	
+}
+
+void GnmCommandBufferDraw::setUserDataRegion(ShaderStage stage, uint32_t startUserDataSlot, const uint32_t* userData, uint32_t numDwords)
+{
+	
+}
+
+void GnmCommandBufferDraw::setRenderTarget(uint32_t rtSlot, GnmRenderTarget const* target)
+{
+	
+}
+
+void GnmCommandBufferDraw::setDepthRenderTarget(DepthRenderTarget const* depthTarget)
+{
+	
+}
+
+void GnmCommandBufferDraw::setDepthClearValue(float clearValue)
+{
+	
+}
+
+void GnmCommandBufferDraw::setStencilClearValue(uint8_t clearValue)
+{
+	
+}
+
+void GnmCommandBufferDraw::setRenderTargetMask(uint32_t mask)
+{
+	
+}
+
+void GnmCommandBufferDraw::setBlendControl(uint32_t rtSlot, BlendControl blendControl)
+{
+	
+}
+
+void GnmCommandBufferDraw::setDepthStencilControl(DepthStencilControl depthControl)
+{
+	
+}
+
+void GnmCommandBufferDraw::setDbRenderControl(DbRenderControl reg)
+{
+	
+}
+
+void GnmCommandBufferDraw::setVgtControl(uint8_t primGroupSizeMinusOne)
+{
+	
+}
+
+void GnmCommandBufferDraw::setPrimitiveType(PrimitiveType primType)
+{
+	
+}
+
+void GnmCommandBufferDraw::setIndexSize(IndexSize indexSize, CachePolicy cachePolicy)
+{
+	
+}
+
+void GnmCommandBufferDraw::drawIndexAuto(uint32_t indexCount, DrawModifier modifier)
+{
+	
+}
+
+void GnmCommandBufferDraw::drawIndexAuto(uint32_t indexCount)
+{
+	
+}
+
+void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void* indexAddr, DrawModifier modifier)
+{
+	
+}
+
+void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void* indexAddr)
+{
+	
+}
+
+void GnmCommandBufferDraw::dispatch(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ)
+{
+	
+}
+
+void GnmCommandBufferDraw::dispatchWithOrderedAppend(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ, DispatchOrderedAppendMode orderedAppendMode)
+{
+	
+}
+
+void GnmCommandBufferDraw::writeDataInline(void* dstGpuAddr, const void* data, uint32_t sizeInDwords, WriteDataConfirmMode writeConfirm)
+{
+	
+}
+
+void GnmCommandBufferDraw::writeDataInlineThroughL2(void* dstGpuAddr, const void* data, uint32_t sizeInDwords, CachePolicy cachePolicy, WriteDataConfirmMode writeConfirm)
+{
+	
+}
+
+void GnmCommandBufferDraw::writeAtEndOfPipe(EndOfPipeEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy cachePolicy)
 {
 	emuWriteGpuLabel(srcSelector, dstGpuAddr, immValue);
 }
 
-void GnmCommandBufferDraw::writeAtEndOfPipeWithInterrupt(EndOfPipeEventType eventType, 
-	EventWriteDest dstSelector, void *dstGpuAddr, 
-	EventWriteSource srcSelector, uint64_t immValue, 
-	CacheAction cacheAction, CachePolicy cachePolicy)
+void GnmCommandBufferDraw::writeAtEndOfPipeWithInterrupt(EndOfPipeEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy cachePolicy)
 {
 	emuWriteGpuLabel(srcSelector, dstGpuAddr, immValue);
 }
 
+void GnmCommandBufferDraw::writeAtEndOfShader(EndOfShaderEventType eventType, void* dstGpuAddr, uint32_t immValue)
+{
+	
+}
+
+void GnmCommandBufferDraw::waitOnAddress(void* gpuAddr, uint32_t mask, WaitCompareFunc compareFunc, uint32_t refValue)
+{
+	
+}
+
+void GnmCommandBufferDraw::waitOnAddressAndStallCommandBufferParser(void* gpuAddr, uint32_t mask, uint32_t refValue)
+{
+	
+}
+
+void GnmCommandBufferDraw::waitForGraphicsWrites(uint32_t baseAddr256, uint32_t sizeIn256ByteBlocks, uint32_t targetMask, CacheAction cacheAction, uint32_t extendedCacheMask, StallCommandBufferParserMode commandBufferStallMode)
+{
+	
+}
+
+void GnmCommandBufferDraw::flushShaderCachesAndWait(CacheAction cacheAction, uint32_t extendedCacheMask, StallCommandBufferParserMode commandBufferStallMode)
+{
+	
+}
 
 void GnmCommandBufferDraw::waitUntilSafeForRendering(uint32_t videoOutHandle, uint32_t displayBufferIndex)
 {
 	
 }
 
-
-void GnmCommandBufferDraw::setViewportTransformControl(ViewportTransformControl vportControl)
-{
-
-}
-
-void GnmCommandBufferDraw::setScreenScissor(int32_t left, int32_t top, int32_t right, int32_t bottom)
-{
-
-}
-
-void GnmCommandBufferDraw::setGuardBands(float horzClip, float vertClip, float horzDiscard, float vertDiscard)
-{
-
-}
-
-void GnmCommandBufferDraw::setHardwareScreenOffset(uint32_t offsetX, uint32_t offsetY)
-{
-
-}
-
-void GnmCommandBufferDraw::setRenderTarget(uint32_t rtSlot, GnmRenderTarget const *target)
-{
-	do 
-	{
-		if (!target)
-		{
-			LOG_WARN("set null render target.")
-			break;
-		}
-
-		LOG_ASSERT(rtSlot == 0, "only support one render target at 0");
-
-		// TODO:
-		// For future development, a game may use "render to texture" technique,
-		// and set a render target which is not a swapchain image.
-		// we should check whether "target" is the display buffer or not
-		// and support extra render target,
-		// but currently I just use the default one.
-		GveAttachment colorTarget = {};
-		auto          image       = m_presenter->getImage(m_displayBufferIndex);
-		colorTarget.view          = image.view;
-		colorTarget.layout        = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-		m_state.om.renderTargets.color[rtSlot] = colorTarget;
-
-	} while (false);
-
-}
-
-void GnmCommandBufferDraw::setDepthRenderTarget(DepthRenderTarget const *depthTarget)
-{
-	do 
-	{
-		static RcPtr<GveImageView> s_depthTarget;
-		if (!depthTarget)
-		{
-			break;
-		}
-
-		if (!s_depthTarget)
-		{
-			s_depthTarget = getDepthTarget(depthTarget);
-		}
-
-		if (!s_depthTarget)
-		{
-			break;
-		}
-
-		// TODO:
-		// More checks
-		auto depthInfo = s_depthTarget->imageInfo();
-		if (depthInfo.extent.width != depthTarget->getWidth() || 
-			depthInfo.extent.height != depthTarget->getHeight())
-		{
-			// Depth buffer changed, we need to create a new one.
-			s_depthTarget = getDepthTarget(depthTarget);
-		}
-
-
-		GveAttachment depthTarget;
-		depthTarget.view = s_depthTarget;
-		depthTarget.layout = s_depthTarget->imageInfo().layout;
-		m_state.om.renderTargets.depth = depthTarget;
-
-	} while (false);
-}
-
-void GnmCommandBufferDraw::setRenderTargetMask(uint32_t mask)
-{
-
-}
-
-void GnmCommandBufferDraw::setDepthStencilControl(DepthStencilControl depthStencilControl)
-{
-	do 
-	{
-		VkCompareOp depthCmpOp = cvt::convertCompareFunc(depthStencilControl.getDepthControlZCompareFunction());
-
-		GveDepthStencilOp frontOp;
-		GveDepthStencilOp backOp;
-
-		LOG_ASSERT(depthStencilControl.stencilEnable == false, "stencil test not supported yet.");
-
-		auto dsInfo = GveDepthStencilInfo(
-			depthStencilControl.depthEnable,
-			depthStencilControl.zWrite,
-			depthStencilControl.depthBoundsEnable,
-			depthStencilControl.stencilEnable,
-			depthCmpOp,
-			frontOp,
-			backOp);
-
-		m_context->setDepthStencilState(dsInfo);
-
-	} while (false);
-}
-
-void GnmCommandBufferDraw::setBlendControl(uint32_t rtSlot, BlendControl blendControl)
-{
-	do 
-	{
-		// LOG_ASSERT(rtSlot == 0, "only support 0 rtSlot");
-
-		auto cbInfo = GveColorBlendInfo(
-			VK_FALSE,
-			VK_LOGIC_OP_COPY
-		);
-
-		VkBlendFactor colorSrcFactor = cvt::convertBlendMultiplierToFactor(blendControl.getColorEquationSourceMultiplier());
-		VkBlendFactor colorDstFactor = cvt::convertBlendMultiplierToFactor(blendControl.getColorEquationDestinationMultiplier());
-		VkBlendOp colorBlendOp = cvt::convertBlendFuncToOp(blendControl.getColorEquationBlendFunction());
-
-		VkBlendFactor alphaSrcFactor = cvt::convertBlendMultiplierToFactor(blendControl.getAlphaEquationSourceMultiplier());
-		VkBlendFactor alphaDstFactor = cvt::convertBlendMultiplierToFactor(blendControl.getAlphaEquationDestinationMultiplier());
-		VkBlendOp alphaBlendOp = cvt::convertBlendFuncToOp(blendControl.getAlphaEquationBlendFunction());
-
-		VkColorComponentFlags colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-
-		auto colorAttach = GveColorBlendAttachment(
-			blendControl.getBlendEnable(),
-			colorSrcFactor,
-			colorDstFactor,
-			colorBlendOp,
-			alphaSrcFactor,
-			alphaDstFactor,
-			alphaBlendOp,
-			colorWriteMask
-		);
-
-		cbInfo.addAttachment(colorAttach);
-
-		m_context->setColorBlendState(cbInfo);
-	} while (false);
-}
-
-void GnmCommandBufferDraw::setPrimitiveSetup(PrimitiveSetup primSetup)
-{
-	do 
-	{
-		VkFrontFace frontFace = primSetup.getFrontFace() == kPrimitiveSetupFrontFaceCcw ? 
-			VK_FRONT_FACE_COUNTER_CLOCKWISE : VK_FRONT_FACE_CLOCKWISE;
-		VkPolygonMode polyMode = cvt::convertPolygonMode(primSetup.getPolygonModeFront());
-		VkCullModeFlags cullMode = cvt::convertCullMode(primSetup.getCullFace());
-
-		auto rsInfo = GveRasterizationInfo(
-			VK_FALSE,
-			VK_FALSE,
-			polyMode,
-			cullMode,
-			frontFace,
-			VK_SAMPLE_COUNT_1_BIT
-		);
-
-		m_context->setRasterizerState(rsInfo);
-
-	} while (false);
-}
-
-void GnmCommandBufferDraw::setActiveShaderStages(ActiveShaderStages activeStages)
-{
-
-}
-
-void GnmCommandBufferDraw::setIndexSize(IndexSize indexSize, CachePolicy cachePolicy)
-{
-	m_state.ia.indexType = cvt::convertIndexSize(indexSize);
-}
-
-void GnmCommandBufferDraw::dispatch(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ)
-{
-	dispatchWithOrderedAppend(threadGroupX, threadGroupY, threadGroupZ, kDispatchOrderedAppendModeDisabled);
-}
-
-void GnmCommandBufferDraw::dispatchWithOrderedAppend(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ, DispatchOrderedAppendMode orderedAppendMode)
-{
-	commitCsStage();
-}
-
-void GnmCommandBufferDraw::waitOnAddress(void* gpuAddr, uint32_t mask, WaitCompareFunc compareFunc, uint32_t refValue)
-{
-	throw std::logic_error("The method or operation is not implemented.");
-}
-
-void GnmCommandBufferDraw::waitOnAddressAndStallCommandBufferParser(void* gpuAddr, uint32_t mask, uint32_t refValue)
-{
-	throw std::logic_error("The method or operation is not implemented.");
-}
-
-
-
-void GnmCommandBufferDraw::setCsShader(const pssl::CsStageRegisters* csRegs, uint32_t shaderModifier)
-{
-	m_shaderContext.cs.code = csRegs->getCodeAddress();
-	shader::parseShaderRegCs(csRegs, m_shaderContext.cs.meta.cs);
-}
-
-void GnmCommandBufferDraw::flushShaderCachesAndWait(CacheAction cacheAction, uint32_t extendedCacheMask, StallCommandBufferParserMode commandBufferStallMode)
-{
-	//throw std::logic_error("The method or operation is not implemented.");
-}
-
-void GnmCommandBufferDraw::setDbRenderControl(DbRenderControl reg)
-{
-	// throw std::logic_error("The method or operation is not implemented.");
-}
-
-void GnmCommandBufferDraw::setDepthClearValue(float clearValue)
-{
-	// throw std::logic_error("The method or operation is not implemented.");
-}
-
-void GnmCommandBufferDraw::setStencilClearValue(uint8_t clearValue)
-{
-	throw std::logic_error("The method or operation is not implemented.");
-}
-
-void GnmCommandBufferDraw::waitForGraphicsWrites(uint32_t baseAddr256, uint32_t sizeIn256ByteBlocks, uint32_t targetMask, CacheAction cacheAction, uint32_t extendedCacheMask, StallCommandBufferParserMode commandBufferStallMode)
-{
-	throw std::logic_error("The method or operation is not implemented.");
-}
-
-void GnmCommandBufferDraw::writeAtEndOfShader(EndOfShaderEventType eventType, void* dstGpuAddr, uint32_t immValue)
-{
-	// throw std::logic_error("The method or operation is not implemented.");
-}
-
-void GnmCommandBufferDraw::writeDataInline(void* dstGpuAddr, const void* data, uint32_t sizeInDwords, WriteDataConfirmMode writeConfirm)
-{
-	// throw std::logic_error("The method or operation is not implemented.");
-}
-
-void GnmCommandBufferDraw::writeDataInlineThroughL2(void* dstGpuAddr, const void* data, uint32_t sizeInDwords, CachePolicy cachePolicy, WriteDataConfirmMode writeConfirm)
-{
-	throw std::logic_error("The method or operation is not implemented.");
-}
-
-void GnmCommandBufferDraw::writeReleaseMemEventWithInterrupt(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy)
-{
-	throw std::logic_error("The method or operation is not implemented.");
-}
-
-void GnmCommandBufferDraw::writeReleaseMemEvent(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy)
-{
-	throw std::logic_error("The method or operation is not implemented.");
-}
-
-void GnmCommandBufferDraw::setPrimitiveType(PrimitiveType primType)
-{
-	do 
-	{
-		VkPrimitiveTopology topology = cvt::convertPrimitiveTypeToTopology(primType);
-
-		auto isInfo = GveInputAssemblyInfo(
-			topology,
-			VK_FALSE,
-			0
-		);
-
-		m_context->setInputAssemblyState(isInfo);
-	} while (false);
-}
-
-void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr, DrawModifier modifier)
-{
-	bindFrameBuffer();
-	bindIndexBuffer(indexAddr, indexCount);
-
-	commitVsStage();
-	commitPsStage();
-
-	m_context->drawIndexed(indexCount, 1, 0, 0, 0);
-}
-
-void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void *indexAddr)
-{
-	DrawModifier mod = { 0 };
-	drawIndex(indexCount, indexAddr, mod);
-}
-
-void GnmCommandBufferDraw::drawIndexAuto(uint32_t indexCount, DrawModifier modifier)
-{
-	bindFrameBuffer();
-
-	commitVsStage();
-	commitPsStage();
-
-	m_context->draw(indexCount, 1, 0, 0);
-}
-
-void GnmCommandBufferDraw::drawIndexAuto(uint32_t indexCount)
-{
-	DrawModifier mod = { 0 };
-	drawIndexAuto(indexCount, mod);
-}
-
-void GnmCommandBufferDraw::setEmbeddedVsShader(EmbeddedVsShader shaderId, uint32_t shaderModifier)
-{
-	const static uint8_t embeddedVsShaderFullScreen[] = 
-	{
-		0xFF, 0x03, 0xEB, 0xBE, 0x07, 0x00, 0x00, 0x00, 0x81, 0x00, 0x02, 0x36, 0x81, 0x02, 0x02, 0x34,
-		0xC2, 0x00, 0x00, 0x36, 0xC1, 0x02, 0x02, 0x4A, 0xC1, 0x00, 0x00, 0x4A, 0x01, 0x0B, 0x02, 0x7E,
-		0x00, 0x0B, 0x00, 0x7E, 0x80, 0x02, 0x04, 0x7E, 0xF2, 0x02, 0x06, 0x7E, 0xCF, 0x08, 0x00, 0xF8,
-		0x01, 0x00, 0x02, 0x03, 0x0F, 0x02, 0x00, 0xF8, 0x03, 0x03, 0x03, 0x03, 0x00, 0x00, 0x81, 0xBF,
-		0x4F, 0x72, 0x62, 0x53, 0x68, 0x64, 0x72, 0x07, 0x47, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-		0x9F, 0xC2, 0xF8, 0x47, 0xCF, 0xA5, 0x2D, 0x9B, 0x7D, 0x5B, 0x7C, 0xFF, 0x17, 0x00, 0x00, 0x00
-	};
-	LOG_ASSERT(shaderId == kEmbeddedVsShaderFullScreen, "invalid shader id %d", shaderId);
-	m_shaderContext.vs.code = reinterpret_cast<const void*>(embeddedVsShaderFullScreen);
-}
-
-void GnmCommandBufferDraw::updatePsShader(const pssl::PsStageRegisters *psRegs)
+void GnmCommandBufferDraw::prepareFlip()
 {
 	
 }
 
-void GnmCommandBufferDraw::updateVsShader(const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier)
+void GnmCommandBufferDraw::prepareFlip(void* labelAddr, uint32_t value)
 {
-	m_shaderContext.vs.code = vsRegs->getCodeAddress();
+	*(uint32_t*)labelAddr = value;
 }
 
-#define SHADER_DEBUG_BREAK(mod, hash) \
-	if (mod.key().toUint64() == hash) \
-	{                                 \
-		__debugbreak();               \
-	}
-
-void GnmCommandBufferDraw::commitVsStage()
+void GnmCommandBufferDraw::prepareFlipWithEopInterrupt(EndOfPipeEventType eventType, CacheAction cacheAction)
 {
-	do
-	{
-		PsslShaderModule vsModule((const uint32_t*)m_shaderContext.vs.code);
-
-		uint32_t* fsCode = getFetchShaderCode(m_shaderContext.vs);
-		if (fsCode)
-		{
-			vsModule.defineFetchShader(fsCode);
-		}
-
-		LOG_DEBUG("vertex shader hash %llX", vsModule.key().toUint64());
-		vsModule.defineShaderInput(m_shaderContext.vs.userDataSlotTable);
-
-		m_shaderContext.vs.shader = vsModule.compile();
-
-		auto vsInputUsageSlots = vsModule.inputUsageSlots();
-		for (const auto& inputSlot : vsInputUsageSlots)
-		{
-			// Find shader res in current slot
-			auto pred = [&inputSlot](const auto& item)
-			{
-				return inputSlot.startRegister == item.startRegister;
-			};
-			auto iter = std::find_if(m_shaderContext.vs.userDataSlotTable.begin(), m_shaderContext.vs.userDataSlotTable.end(), pred);
-
-			// Bind shader resources
-			switch (inputSlot.usageType)
-			{
-			case kShaderInputUsageImmConstBuffer:
-				bindImmConstBuffer(*iter, VertexShader);
-				break;
-			case kShaderInputUsagePtrVertexBufferTable:
-			{
-				setVertexInputLayout(*iter, vsModule.vsInputSemantic());
-				bindVertexBuffers(*iter, vsModule.vsInputSemantic());
-			}
-				break;
-			default:
-				LOG_WARN("unsupported input usage %d", inputSlot.usageType);
-				break;
-			}
-		}
-
-		m_context->bindShader(VK_SHADER_STAGE_VERTEX_BIT, m_shaderContext.vs.shader);
-	} while (false);
+	
 }
 
-void GnmCommandBufferDraw::commitPsStage()
+void GnmCommandBufferDraw::prepareFlipWithEopInterrupt(EndOfPipeEventType eventType, void* labelAddr, uint32_t value, CacheAction cacheAction)
 {
-	do 
-	{
-		PsslShaderModule psModule((const uint32_t*)m_shaderContext.ps.code);
-		LOG_DEBUG("pixel shader hash %llX", psModule.key().toUint64());
-		psModule.defineShaderInput(m_shaderContext.ps.userDataSlotTable);
-
-		m_shaderContext.ps.shader = psModule.compile();
-
-		auto psInputUsageSlots = psModule.inputUsageSlots();
-		for (const auto& inputSlot : psInputUsageSlots)
-		{
-			// Find shader res in current slot
-			auto pred = [&inputSlot](const auto& item)
-			{
-				return inputSlot.startRegister == item.startRegister;
-			};
-			auto iter = std::find_if(m_shaderContext.ps.userDataSlotTable.begin(), m_shaderContext.ps.userDataSlotTable.end(), pred);
-
-			// Bind shader resources
-			switch (inputSlot.usageType)
-			{
-			case kShaderInputUsageImmResource:
-				bindImmResource(*iter);
-				break;
-			case kShaderInputUsageImmSampler:
-				bindSampler(*iter);
-				break;
-			case kShaderInputUsageImmConstBuffer:
-				bindImmConstBuffer(*iter, PixelShader);
-				break;
-			default:
-				LOG_WARN("unsupported input usage %d", inputSlot.usageType);
-				break;
-			}
-		}
-
-		m_context->bindShader(VK_SHADER_STAGE_FRAGMENT_BIT, m_shaderContext.ps.shader);
-	} while (false);
+	*(uint32_t*)labelAddr = value;
 }
 
-void GnmCommandBufferDraw::commitCsStage()
+void GnmCommandBufferDraw::setCsShader(const pssl::CsStageRegisters* computeData, uint32_t shaderModifier)
 {
-	do 
-	{
-		PsslShaderModule csModule((const uint32_t*)m_shaderContext.cs.code);
-		LOG_DEBUG("compute shader hash %llX", csModule.key().toUint64());
-
-		if (csModule.key().toUint64() == 0x8C25642DB09D8E59)
-		{
-			auto tgtView = m_presenter->getImage(m_displayBufferIndex).view;
-			VkClearValue clearValue = { 0.5f, 0.5f, 0.5f, 1 };
-			//m_context->clearRenderTarget(tgtView, VK_IMAGE_ASPECT_COLOR_BIT, clearValue);
-			break;
-		}
-		
-		csModule.defineShaderInput(m_shaderContext.cs.userDataSlotTable);
-
-		m_shaderContext.cs.shader = csModule.compile();
-
-	} while (false);
+	
 }
 
-void GnmCommandBufferDraw::bindFrameBuffer()
+void GnmCommandBufferDraw::writeReleaseMemEventWithInterrupt(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy)
 {
-	m_context->bindRenderTargets(m_state.om.renderTargets);
+	
 }
 
-void GnmCommandBufferDraw::bindIndexBuffer(const void* indexAddr, uint32_t indexCount)
+void GnmCommandBufferDraw::writeReleaseMemEvent(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy)
 {
-	do 
-	{
-		if (!indexAddr || !indexCount)
-		{
-			break;
-		}
-
-		uint32_t perIndexSize = m_state.ia.indexType == VK_INDEX_TYPE_UINT16 ? 
-			sizeof(uint16_t) : 
-			sizeof(uint32_t);
-		VkDeviceSize indexBufferSize = perIndexSize * indexCount;
-
-		GveBufferCreateInfo info = {};
-		info.size                = indexBufferSize;
-		info.usage               = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-		info.stages              = VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
-		info.access              = VK_ACCESS_INDEX_READ_BIT;
-
-		uint64_t key = reinterpret_cast<uint64_t>(indexAddr);
-		auto     indexBuffer = m_sharpRes.getIndexBuffer(indexAddr);
-		if (!indexBuffer)
-		{
-			indexBuffer = m_sharpRes.createIndexBuffer(
-				info,
-				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-				indexAddr);
-		}
-		
-		m_context->updateBuffer(indexBuffer, 0, indexBufferSize, indexAddr);
-
-		m_context->bindIndexBuffer(indexBuffer, m_state.ia.indexType);
-
-	} while (false);
+	
 }
 
-void GnmCommandBufferDraw::bindImmConstBuffer(const PsslShaderResource& res, PsslProgramType prgType)
+void GnmCommandBufferDraw::setVgtControlForNeo(uint8_t primGroupSizeMinusOne, WdSwitchOnlyOnEopMode wdSwitchOnlyOnEopMode, VgtPartialVsWaveMode partialVsWaveMode)
 {
-	// TODO:
-	// For buffers allocated directly from gnm command buffer,
-	// we should implement "allocateFromCommandBuffer",
-	// and use push constants instead of UBOs.
-	do 
-	{
-		const GnmBuffer* buffer = reinterpret_cast<const GnmBuffer*>(res.resource);
-		if (!buffer)
-		{
-			break;
-		}
-
-		VkDeviceSize        bufferSize = buffer->getSize();
-		GveBufferCreateInfo info       = {};
-		info.size                      = bufferSize;
-		info.usage                     = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-		info.stages                    = prgType == VertexShader ? 
-			VK_PIPELINE_STAGE_VERTEX_SHADER_BIT :
-			VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-		info.access                    = VK_ACCESS_UNIFORM_READ_BIT;
-
-		auto uniformBuffer = m_sharpRes.getBufferVsharp(buffer->getVsharp());
-		if (!uniformBuffer)
-		{
-			uniformBuffer = m_sharpRes.createBufferVsharp(
-				info,
-				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-				buffer->getVsharp());
-		}
-
-		m_context->updateBuffer(uniformBuffer, 0, bufferSize, buffer->getBaseAddress());
-
-		uint32_t regSlot = computeConstantBufferBinding(prgType, res.startRegister);
-		m_context->bindResourceBuffer(regSlot, uniformBuffer);
-
-	} while (false);
-
+	
 }
 
-void GnmCommandBufferDraw::setVertexInputLayout(const PsslShaderResource& res, const std::vector<VertexInputSemantic>& inputSemantics)
-{
-	do
-	{
-		const GnmBuffer* vertexTable = reinterpret_cast<const GnmBuffer*>(res.resource);
-		if (!vertexTable)
-		{
-			break;
-		}
-
-		// TODO:
-		// For some games, ie. Nier:Automata, vertex attributes are not stored
-		// in a single vertex buffer area, so in this case we need to use multiple vertex
-		// bindings. But for other games, all vertex attributes are within the same memory area,
-		// in this case, we only need one vertex binding.
-		// Currently I only support the first case, we need to check whether these attributes 
-		// are in same memory area or not.
-
-		uint32_t bindingCount = inputSemantics.size();
-		GveVertexInputInfo viInfo = {};
-
-		uint32_t location = 0;
-		for (uint32_t i = 0; i != bindingCount; ++i)
-		{
-			const GnmBuffer& vsharp = vertexTable[i];
-
-			uint32_t stride = vsharp.getStride();
-			auto binding = GveVertexBinding(i, stride, VK_VERTEX_INPUT_RATE_VERTEX, 0);
-			viInfo.addBinding(binding);
-
-			VkFormat vtxFmt = cvt::convertDataFormatToVkFormat(vsharp.getDataFormat());
-			auto attr = GveVertexAttribute(location++, i, vtxFmt, 0);
-			viInfo.addAttribute(attr);
-		}
-
-		m_context->setVertexInputState(viInfo);
-	} while (false);
-}
-
-bool GnmCommandBufferDraw::bindVertexBuffer(uint32_t bindingId, const GnmBuffer& vsharp)
-{
-	bool ret = false;
-	do
-	{
-		// TODO:
-		// There's a critical problem here, probably the most critical one for the whole GPCS4 project:
-		// Because of the uniform memory architecture of PSS4 hardware,
-		// We don't know when to update or release a GPU resource.
-		// Because PS4 use the same memory chip for both CPU and GPU,
-		// A PS4 game treat GPU buffers just as normal CPU memories, and manage them
-		// using in-game memory pool, which doesn't export explicit interface for us.
-		// That makes us impossible to detect buffer update and release.
-		//
-		// We may need to develop some heuristic strategies to deal with this problem.
-		// Currently I just update GPU buffer every time it gets bound and don't release any of them.
-
-		void* vtxData = vsharp.getBaseAddress();
-		if (!vtxData)
-		{
-			LOG_WARN("empty vertex data");
-			break;
-		}
-
-		bool isSwizzled         = vsharp.isSwizzled();
-		LOG_ASSERT(isSwizzled == false, "do not support swizzled buffer currently.");
-
-		VkDeviceSize bufferSize = vsharp.getSize();
-
-		GveBufferCreateInfo buffInfo = {};
-		buffInfo.size                = bufferSize;
-		buffInfo.usage               = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-		buffInfo.stages              = VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
-		buffInfo.access              = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
-
-		auto vertexBuffer = m_sharpRes.getBufferVsharp(vsharp.getVsharp());
-		if (!vertexBuffer)
-		{
-			vertexBuffer = m_sharpRes.createBufferVsharp(
-				buffInfo,
-				VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-				vsharp.getVsharp());
-		}
-
-		m_context->updateBuffer(vertexBuffer, 0, bufferSize, vtxData);
-
-		uint32_t stride = vsharp.getStride();
-		m_context->bindVertexBuffer(bindingId, GveBufferSlice(vertexBuffer, 0, bufferSize), stride);
-	} while (false);
-	return ret;
-}
-
-void GnmCommandBufferDraw::bindVertexBuffers(const PsslShaderResource& res, const std::vector<VertexInputSemantic>& inputSemantics)
-{
-	do 
-	{
-		const GnmBuffer* vertexTable = reinterpret_cast<const GnmBuffer*>(res.resource);
-		if (!vertexTable)
-		{
-			break;
-		}
-
-		uint32_t bindingCount = inputSemantics.size();
-		for (uint32_t i = 0; i != bindingCount; ++i)
-		{
-			const GnmBuffer& vsharp = vertexTable[i];
-			bindVertexBuffer(i, vsharp);
-		}
-	} while (false);
-}
-
-void GnmCommandBufferDraw::bindImmResource(const PsslShaderResource& res)
-{
-	do 
-	{
-		const GnmTexture* tsharp = reinterpret_cast<const GnmTexture*>(res.resource);
-		if (!tsharp)
-		{
-			break;
-		}
-
-		GveImageCreateInfo imgInfo = {};
-		imgInfo.type = VK_IMAGE_TYPE_2D;
-		imgInfo.format = cvt::convertDataFormatToVkFormat(tsharp->getDataFormat());
-		imgInfo.flags = 0;
-		imgInfo.sampleCount = VK_SAMPLE_COUNT_1_BIT;
-		imgInfo.extent.width = tsharp->getWidth();
-		imgInfo.extent.height = tsharp->getHeight();
-		imgInfo.extent.depth = tsharp->getDepth();
-		imgInfo.numLayers = 1;
-		imgInfo.mipLevels = 1;
-		imgInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
-		imgInfo.stages = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-		imgInfo.access = VK_ACCESS_SHADER_READ_BIT;
-		imgInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-		imgInfo.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		imgInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-
-		auto texture = m_sharpRes.getImageTsharp(tsharp->getTsharp());
-		if (!texture)
-		{
-			texture = m_sharpRes.createImageTsharp(
-				imgInfo,
-				VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-				tsharp->getTsharp());
-		}
-		
-		VkDeviceSize imageBufferSize = tsharp->getSizeAlign().m_size;
-		void* data                   = ::util::gnmGpuAbsAddr((void*)res.resource, tsharp->getBaseAddress());
-
-		auto tileMode = tsharp->getTileMode();
-		if (tileMode == kTileModeDisplay_LinearAligned)
-		{
-			VkImageSubresourceLayers subRes = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-			VkOffset3D               offset = { 0, 0, 0 };
-			m_context->updateImage(texture, subRes, offset, imgInfo.extent, data, imageBufferSize);
-		}
-		else
-		{
-			// TODO:
-			// Untiling textures on CPU is not effective, we should do this using compute shader.
-			// But that would be a challenging job.
-			void* untiledData = malloc(imageBufferSize);
-
-			GpuAddress::TilingParameters tp;
-			tp.initFromTexture(tsharp, 0, 0);
-			GpuAddress::detileSurface(untiledData, data, &tp);
-
-			VkImageSubresourceLayers subRes = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-			VkOffset3D               offset = { 0, 0, 0 };
-			m_context->updateImage(texture, subRes, offset, imgInfo.extent, data, imageBufferSize);
-
-			free(untiledData);
-		}
-
-		GveImageViewCreateInfo viewInfo;
-		viewInfo.type   = VK_IMAGE_VIEW_TYPE_2D;
-		viewInfo.format = imgInfo.format;
-		viewInfo.usage  = imgInfo.usage;
-		viewInfo.aspect = VK_IMAGE_ASPECT_COLOR_BIT;
-		auto texView    = m_sharpRes.getImageViewTsharp(tsharp->getTsharp());
-		if (!texView)
-		{
-			texView = m_sharpRes.createImageViewTsharp(texture, viewInfo, tsharp->getTsharp());
-		}
-		uint32_t regSlot = computeResBinding(PixelShader, res.startRegister);
-		m_context->bindResourceView(regSlot, texView, nullptr);
-
-	} while (false);
-}
-
-void GnmCommandBufferDraw::bindSampler(const PsslShaderResource& res)
-{
-	do 
-	{
-		const GnmSampler* ssharp = reinterpret_cast<const GnmSampler*>(res.resource);
-		if (!ssharp)
-		{
-			break;
-		}
-
-		uint64_t key = (uint64_t)ssharp->m_regs[0] | (uint64_t)ssharp->m_regs[1] << 32;
-
-		// TODO:
-		// Fill info
-		GveSamplerCreateInfo info;
-		auto                 sampler = m_sharpRes.getSamplerSsharp(ssharp->getSsharp());
-		if (!sampler)
-		{
-			sampler = m_sharpRes.createSamplerSsharp(info, ssharp->getSsharp());
-		}
-
-		uint32_t regSlot = computeSamplerBinding(PixelShader, res.startRegister);
-		m_context->bindSampler(regSlot, sampler);
-
-	} while (false);
-}
-
-uint32_t* GnmCommandBufferDraw::getFetchShaderCode(const GnmShaderContext& vsCtx)
-{
-	uint32_t* fsCode = nullptr;
-	do 
-	{
-		uint32_t fsStartReg = pssl::getFetchShaderStartRegister((const uint8_t*)vsCtx.code);
-		if (fsStartReg == UINT_MAX)
-		{
-			break;
-		}
-
-		for (const auto& res : vsCtx.userDataSlotTable)
-		{
-			if (res.startRegister != fsStartReg)
-			{
-				continue;
-			}
-
-			fsCode = (uint32_t*)res.resource;
-			break;
-		}
-
-	} while (false);
-	return fsCode;
-}
-
-void GnmCommandBufferDraw::setUserDataSlots(ShaderStage stage, uint32_t startSlot, const uint32_t* data, uint32_t numDwords)
-{
-	do 
-	{
-		if (!data || !numDwords)
-		{
-			break;
-		}
-
-		pssl::PsslShaderResource shaderRes = { startSlot, data, numDwords };
-
-		switch (stage)
-		{
-		case kShaderStageVs:
-			insertUniqueUserDataSlot(m_shaderContext.vs.userDataSlotTable, startSlot, shaderRes);
-			break;
-		case kShaderStagePs:
-			insertUniqueUserDataSlot(m_shaderContext.ps.userDataSlotTable, startSlot, shaderRes);
-			break;
-		default:
-			break;
-		}
-
-	} while (false);
-}
-
-void GnmCommandBufferDraw::clearUserDataSlots()
-{
-	m_shaderContext.vs.userDataSlotTable.clear();
-	m_shaderContext.ps.userDataSlotTable.clear();
-	m_shaderContext.cs.userDataSlotTable.clear();
-}
-
-void GnmCommandBufferDraw::insertUniqueUserDataSlot(std::vector<pssl::PsslShaderResource>& container, uint32_t startSlot, pssl::PsslShaderResource& shaderRes)
-{
-	auto pred = [startSlot](const pssl::PsslShaderResource& item)
-	{
-		return item.startRegister == startSlot;
-	};
-
-	auto iter = std::find_if(container.begin(), container.end(), pred);
-	if (iter == container.end())
-	{
-		container.push_back(shaderRes);
-	}
-	else
-	{
-		*iter = shaderRes;
-	}
-}
-
-RcPtr<gve::GveImageView> GnmCommandBufferDraw::getDepthTarget(const DepthRenderTarget* depthTarget)
-{
-	RcPtr<gve::GveImageView> depthImgView = nullptr;
-	do 
-	{
-		if (!depthTarget)
-		{
-			break;
-		}
-
-		ZFormat zfmt = depthTarget->getZFormat();
-		if (zfmt == kZFormatInvalid)
-		{
-			// kZFormatInvalid is used to disable Z buffer
-			break;
-		}
-
-		VkFormat format = cvt::convertZFormatToVkFormat(zfmt);  // TODO: Should check format support
-		if (format == VK_FORMAT_UNDEFINED)
-		{
-			LOG_WARN("unknown zformat %d", depthTarget->getZFormat());
-			break;
-		}
-
-		GveImageCreateInfo imgInfo = {};
-		imgInfo.type = VK_IMAGE_TYPE_2D;
-		imgInfo.format             = format;
-		imgInfo.flags = 0;
-		imgInfo.sampleCount = VK_SAMPLE_COUNT_1_BIT;
-		imgInfo.extent.width = depthTarget->getWidth();
-		imgInfo.extent.height = depthTarget->getHeight();
-		imgInfo.extent.depth = 1;
-		imgInfo.numLayers = 1;
-		imgInfo.mipLevels = 1;
-		imgInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-		imgInfo.stages = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
-		imgInfo.access = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-		imgInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-		imgInfo.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-		imgInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-
-		//uint64_t key = reinterpret_cast<uint64_t>(depthTarget->getZReadAddress());
-		//auto depthImage = m_device->createOrGetImageTsharp(imgInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, key);
-		auto depthImage = m_device->createImage(imgInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-		if (!depthImage)
-		{
-			LOG_ERR("create depth image failed.");
-			break;
-		}
-
-		GveImageViewCreateInfo viewInfo = {};
-		viewInfo.type = VK_IMAGE_VIEW_TYPE_2D;
-		viewInfo.format = imgInfo.format;
-		viewInfo.usage = imgInfo.usage;
-		viewInfo.aspect = VK_IMAGE_ASPECT_DEPTH_BIT;
-		//depthImgView = m_device->createOrGetImageViewTsharp(depthImage, viewInfo, key);
-		depthImgView = m_device->createImageView(depthImage, viewInfo);
-		if (!depthImgView)
-		{
-			LOG_ERR("create depth image view failed.");
-			break;
-		}
-
-	} while (false);
-	return depthImgView;
-}
