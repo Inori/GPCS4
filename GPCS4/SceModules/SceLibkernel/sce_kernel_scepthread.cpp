@@ -728,6 +728,7 @@ int PS4API scePthreadEqual(ScePthread thread1, ScePthread thread2)
 	int iRet = scek_pthread_equal(thread1, thread2);
 	if (iRet)
 	{
+		// Convert pthread result to sce result, from Ida.
 		iRet = iRet - 0x7FFE0000;
 	}
 	return iRet;
