@@ -7,8 +7,7 @@ namespace gve
 GveResourceObjects::GveResourceObjects(GveDevice* device) :
 	m_device(device),
 	m_pipelineMgr(m_device),
-	m_renderPassPool(m_device),
-	m_sharpResMgr(device)
+	m_renderPassPool(m_device)
 {
 
 }
@@ -27,9 +26,5 @@ GveRenderPassPool& GveResourceObjects::renderPassPool()
 	return m_renderPassPool;
 }
 
-GveSharpResourceManager& GveResourceObjects::getSharpResManager()
-{
-	return m_sharpResMgr;
-}
 
 }  // namespace gve

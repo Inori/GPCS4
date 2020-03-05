@@ -134,7 +134,7 @@ public:
 	// virtual void setUserData(ShaderStage stage, uint32_t userDataSlot, uint32_t data) = 0;
 	virtual void setUserDataRegion(ShaderStage stage, uint32_t startUserDataSlot, const uint32_t *userData, uint32_t numDwords) = 0;
 	virtual void setRenderTarget(uint32_t rtSlot, GnmRenderTarget const *target) = 0;
-	virtual void setDepthRenderTarget(DepthRenderTarget const *depthTarget) = 0;
+	virtual void setDepthRenderTarget(GnmDepthRenderTarget const *depthTarget) = 0;
 	virtual void setDepthClearValue(float clearValue) = 0;
 	virtual void setStencilClearValue(uint8_t clearValue) = 0;
 	virtual void setRenderTargetMask(uint32_t mask) = 0;

@@ -69,7 +69,7 @@ public:
 
 	virtual void setRenderTarget(uint32_t rtSlot, GnmRenderTarget const* target) override;
 
-	virtual void setDepthRenderTarget(DepthRenderTarget const* depthTarget) override;
+	virtual void setDepthRenderTarget(GnmDepthRenderTarget const* depthTarget) override;
 
 	virtual void setDepthClearValue(float clearValue) override;
 
@@ -143,10 +143,8 @@ private:
 
 private:
 
-	gve::GveSharpResourceManager& m_sharpRes;
-
 	GnmContextState               m_state;
-	GnmShaderContextGroup         m_shaderContext;
+	GnmShaderContextGroup         m_shaderCtx;
 };
 
 

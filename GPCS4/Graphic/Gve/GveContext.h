@@ -21,7 +21,6 @@ class GveImage;
 class GveImageView;
 class GveSampler;
 class GvePipelineManager;
-class GveSharpResourceManager;
 class GveRenderPass;
 class GveResourceObjects;
 class GveDescriptorPool;

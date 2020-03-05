@@ -16,7 +16,7 @@ union DepthRenderTargetInitFlags
 	int32_t asInt;
 };
 
-class DepthRenderTarget
+class GnmDepthRenderTarget
 {
 public:
 	enum

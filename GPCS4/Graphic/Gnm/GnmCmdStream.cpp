@@ -1108,7 +1108,7 @@ void GnmCmdStream::onSetDepthRenderTarget(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* i
 	PPM4ME_SET_CONTEXT_REG nextPacket = (PPM4ME_SET_CONTEXT_REG)getNextPm4(pm4Hdr);
 	if (nextPacket->bitfields2.reg_offset == 15)
 	{
-		DepthRenderTarget target;
+		GnmDepthRenderTarget target;
 
 		std::memcpy(&target.m_regs[0], &itBody[2], 0x20);
 

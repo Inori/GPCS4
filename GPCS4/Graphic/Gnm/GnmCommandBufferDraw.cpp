@@ -10,12 +10,8 @@
 
 #include "../Gve/GveCmdList.h"
 #include "../Gve/GveShader.h"
-#include "../Gve/GveBuffer.h"
-#include "../Gve/GveImage.h"
-#include "../Gve/GveSampler.h"
 #include "../Gve/GveContext.h"
 #include "../Gve/GvePresenter.h"
-#include "../Gve/GveSharpResourceManager.h"
 #include "../Pssl/PsslShaderModule.h"
 
 #include <algorithm>
@@ -28,8 +24,7 @@ using namespace pssl;
 GnmCommandBufferDraw::GnmCommandBufferDraw(
 	const sce::SceGpuQueueDevice& device,
 	const RcPtr<gve::GveContext>& context) :
-	GnmCommandBuffer(device, context),
-	m_sharpRes(m_device->getSharpResManager())
+	GnmCommandBuffer(device, context)
 {
 	
 }
@@ -138,7 +133,7 @@ void GnmCommandBufferDraw::setRenderTarget(uint32_t rtSlot, GnmRenderTarget cons
 	
 }
 
-void GnmCommandBufferDraw::setDepthRenderTarget(DepthRenderTarget const* depthTarget)
+void GnmCommandBufferDraw::setDepthRenderTarget(GnmDepthRenderTarget const* depthTarget)
 {
 	
 }

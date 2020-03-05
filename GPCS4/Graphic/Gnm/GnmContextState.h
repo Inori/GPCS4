@@ -11,7 +11,6 @@ namespace gve
 {;
 class GveShader;
 class GveImageView;
-class GveSharpResourceManager;
 }  // namespace gve
 
 
@@ -77,8 +76,7 @@ struct GnmOutputMergerState
 	gve::GveRenderTargets renderTargets = {};
 };
 
-
-struct GnmContextState
+struct GnmGraphicsContextState
 {
 	GnmInputAssemblerState ia;
 	GnmVertexShaderState   vs;
@@ -89,4 +87,15 @@ struct GnmContextState
 	GnmRasterizationState  rs;
 	GnmPixelShaderState    ps;
 	GnmOutputMergerState   om;
+};
+
+struct GnmComputeContextState
+{
+	uint32_t placeHolder;
+};
+
+struct GnmContextState
+{
+	GnmGraphicsContextState gp;
+	GnmComputeContextState  cp;
 };

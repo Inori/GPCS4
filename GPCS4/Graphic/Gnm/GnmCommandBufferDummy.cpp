@@ -115,7 +115,7 @@ void GnmCommandBufferDummy::setRenderTarget(uint32_t rtSlot, GnmRenderTarget con
 	
 }
 
-void GnmCommandBufferDummy::setDepthRenderTarget(DepthRenderTarget const* depthTarget)
+void GnmCommandBufferDummy::setDepthRenderTarget(GnmDepthRenderTarget const* depthTarget)
 {
 	
 }

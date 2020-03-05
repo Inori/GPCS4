@@ -27,7 +27,6 @@ class GveSampler;
 class GveContext;
 class GveFrameBuffer;
 class GvePhysicalDevice;
-class GveSharpResourceManager;
 
 struct GveDeviceQueue 
 {
@@ -66,8 +65,6 @@ public:
 	RcPtr<GveContext> createContext();
 
 	RcPtr<GveDescriptorPool> createDescriptorPool();
-
-	GveSharpResourceManager& getSharpResManager();
 
 	/// Resource creation methods.
 

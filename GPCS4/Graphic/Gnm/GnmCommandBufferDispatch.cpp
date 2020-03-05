@@ -114,7 +114,7 @@ void GnmCommandBufferDispatch::setRenderTarget(uint32_t rtSlot, GnmRenderTarget 
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
-void GnmCommandBufferDispatch::setDepthRenderTarget(DepthRenderTarget const* depthTarget)
+void GnmCommandBufferDispatch::setDepthRenderTarget(GnmDepthRenderTarget const* depthTarget)
 {
 	throw std::logic_error("The method or operation is not implemented.");
 }

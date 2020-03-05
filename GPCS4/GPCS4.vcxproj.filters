@@ -883,9 +883,6 @@
     <ClInclude Include="Common\GPCS4Decoration.h">
       <Filter>Source Files\Common</Filter>
     </ClInclude>
-    <ClInclude Include="Graphic\Gve\GveSharpResourceManager.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClInclude>
     <ClInclude Include="SceModules\SceAppContentUtil\sce_appcontentutil_error.h">
       <Filter>SceModules\SceAppContentUtil</Filter>
     </ClInclude>
@@ -947,6 +944,9 @@
       <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
     </ClInclude>
     <ClInclude Include="Graphic\Gnm\GnmContextState.h">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GnmResourceFactory.h">
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1602,9 +1602,6 @@
     <ClCompile Include="Algorithm\MurmurHash2.cpp">
       <Filter>Source Files\Algorithm</Filter>
     </ClCompile>
-    <ClCompile Include="Graphic\Gve\GveSharpResourceManager.cpp">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClCompile>
     <ClCompile Include="SceModules\SceAudioOut\AudioOut.cpp">
       <Filter>SceModules\SceAudioOut</Filter>
     </ClCompile>
@@ -1646,6 +1643,9 @@
     </ClCompile>
     <ClCompile Include="Graphic\Gnm\GpuAddress\GnmTiler.cpp">
       <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gnm\GnmResourceFactory.cpp">
+      <Filter>Source Files\Graphic\Gnm</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

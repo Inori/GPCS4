@@ -86,11 +86,6 @@ RcPtr<GveDescriptorPool> GveDevice::createDescriptorPool()
 	return pool;
 }
 
-GveSharpResourceManager& GveDevice::getSharpResManager()
-{
-	return m_resObjects.getSharpResManager();
-}
-
 RcPtr<GveBuffer> GveDevice::createBuffer(const GveBufferCreateInfo& info, VkMemoryPropertyFlags memoryType)
 {
 	return new GveBuffer(this, info, &m_memAllocator, memoryType);
