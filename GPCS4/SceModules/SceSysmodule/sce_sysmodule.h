@@ -180,5 +180,5 @@ int PS4API sceSysmoduleLoadModule(uint16_t id);
 int PS4API sceSysmoduleUnloadModule(uint16_t id);
 
 
-
+int PS4API sceSysmoduleLoadModuleInternalWithArg(void);
 

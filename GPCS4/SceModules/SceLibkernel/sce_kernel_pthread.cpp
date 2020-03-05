@@ -74,10 +74,10 @@ int PS4API scek_pthread_create(ScePthread *thread, const pthread_attr_t *attr,  
 }
 
 
-int PS4API scek_pthread_equal(void)
+int PS4API scek_pthread_equal(ScePthread thread1, ScePthread thread2)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("thread1 = %zu, thread2 = %zu", thread1, thread2);
+	return thread1 == thread2;
 }
 
 

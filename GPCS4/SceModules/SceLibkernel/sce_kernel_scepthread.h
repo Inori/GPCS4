@@ -1,7 +1,7 @@
 #pragma once
 #include "pthreads4w/pthread.h"
 #include "pthreads4w/sched.h"
-
+#include "pthreads4w/semaphore.h"
 
 // pthread to sce pthread
 // Note:
@@ -28,7 +28,7 @@ typedef enum ScePthreadMutextype
 	SCE_PTHREAD_MUTEX_ERRORCHECK = 1,
 	SCE_PTHREAD_MUTEX_RECURSIVE = 2,
 	SCE_PTHREAD_MUTEX_NORMAL = 3,	
-	SCE_PTHREAD_MUTEX_ADAPTIVE = 4,
+	SCE_PTHREAD_MUTEX_ADAPTIVE_NP = 4,
 	SCE_PTHREAD_MUTEX_TYPE_MAX
 } ScePthreadMutextype;
 

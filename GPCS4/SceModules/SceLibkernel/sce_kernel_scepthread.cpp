@@ -236,6 +236,9 @@ int sceMutexAttrTypeToPthreadType(int sceType)
 	case SCE_PTHREAD_MUTEX_NORMAL:
 		pthreadType = PTHREAD_MUTEX_NORMAL;
 		break;
+	case SCE_PTHREAD_MUTEX_ADAPTIVE_NP:
+		pthreadType = PTHREAD_MUTEX_ADAPTIVE_NP;
+		break;
 	default:
 		LOG_ERR("not supported mutex attr type %d", sceType);
 		break;
@@ -719,4 +722,20 @@ int PS4API scePthreadKeyCreate(void)
 }
 
 
+int PS4API scePthreadEqual(ScePthread thread1, ScePthread thread2)
+{
+	LOG_SCE_TRACE("thread1 = %zu, thread2 = %zu", thread1, thread2);
+	int iRet = scek_pthread_equal(thread1, thread2);
+	if (iRet)
+	{
+		// Convert pthread result to sce result, from Ida.
+		iRet = iRet - 0x7FFE0000;
+	}
+	return iRet;
+}
 
+pthread_t PS4API scePthreadGetthreadid()
+{
+	LOG_SCE_TRACE("");
+	return pthread_self();
+}

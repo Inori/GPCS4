@@ -19,7 +19,6 @@
 #include "sce_kernel_eventflag.h"
 #include "sce_kernel_tls.h"
 
-
 extern const SCE_EXPORT_MODULE g_ExpModuleSceLibkernel;
 
 
@@ -523,13 +522,14 @@ int PS4API scek_pthread_create(ScePthread *thread,
 							   void *args);
 
 
-int PS4API scek_pthread_equal(void);
+int PS4API scek_pthread_equal(ScePthread thread1, ScePthread thread2);
 
 
 int PS4API scek_pthread_join(void);
 
 
 int PS4API scek_pthread_mutex_destroy(pthread_mutex_t *mutex);
+
 
 int PS4API scek_pthread_mutex_init(pthread_mutex_t *mutex,
 								   const pthread_mutexattr_t *attr);
@@ -586,17 +586,19 @@ int PS4API scek_select(void);
 int PS4API scek_sem_destroy(void);
 
 
-int PS4API scek_sem_init(void);
+int PS4API scek_sem_init(sem_t* sem, int pshared, unsigned int value);
 
 
-int PS4API scek_sem_post(void);
+int PS4API scek_sem_post(sem_t* sem);
 
 
 int PS4API scek_sem_timedwait(void);
 
 
-int PS4API scek_sem_wait(void);
+int PS4API scek_sem_wait(sem_t* sem);
 
+
+int PS4API scek_sem_getvalue(sem_t* sem, int* sval);
 
 int PS4API scek_send(void);
 
@@ -617,4 +619,15 @@ int PS4API scek_shm_unlink(const char *name);
 
 
 void PS4API scek_pthread_exit(void *value_ptr);
+
+
+int PS4API scePthreadEqual(ScePthread thread1, ScePthread thread2);
+
+
+pthread_t PS4API scePthreadGetthreadid();
+
+
+ssize_t PS4API sceKernelPread(int d, void* buf, size_t nbytes, off_t offset);
+
+
 

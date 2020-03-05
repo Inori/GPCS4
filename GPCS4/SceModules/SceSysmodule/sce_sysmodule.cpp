@@ -210,5 +210,9 @@ int PS4API sceSysmoduleUnloadModule(uint16_t id)
 }
 
 
-
+int PS4API sceSysmoduleLoadModuleInternalWithArg(void)
+{
+	LOG_FIXME("Not Impemented");
+	return SCE_OK;
+}
 
