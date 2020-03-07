@@ -446,9 +446,9 @@ ssize_t PS4API sceKernelPread(int d, void* buf, size_t nbytes, off_t offset)
 {
 	LOG_SCE_TRACE("fd %d, buf %p, nbytes %lu, offset %d", d, buf, nbytes, offset);
 	// The read/write position pointer for the file will not move
-	auto off = lseek(d, 0, SEEK_CUR);
-	lseek(d, offset, SEEK_SET);
-	auto ret = read(d, buf, nbytes);
-	lseek(d, off, SEEK_SET);
+	auto off = _lseek(d, 0, SEEK_CUR);
+	_lseek(d, offset, SEEK_SET);
+	auto ret = _read(d, buf, nbytes);
+	_lseek(d, off, SEEK_SET);
 	return ret;
 }
