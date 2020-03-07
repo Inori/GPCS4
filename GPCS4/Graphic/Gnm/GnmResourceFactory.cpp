@@ -37,20 +37,20 @@ RcPtr<GveBuffer> GnmResourceFactory::grabIndex(const GnmIndexBuffer& desc)
 	return grabResource(entry, m_bufferMap, create);
 }
 
-RcPtr<GveBuffer> GnmResourceFactory::grabBuffer(const GnmBuffer& desc)
+RcPtr<gve::GveBuffer> GnmResourceFactory::grabBuffer(const GnmBufferCreateInfo& desc)
 {
 	GnmResourceEntry entry = {};
-	entry.memory           = desc.getBaseAddress();
-	entry.size             = desc.getSize();
+	entry.memory           = desc.buffer->getBaseAddress();
+	entry.size             = desc.buffer->getSize();
 	auto create            = [this, &desc]() { return createBuffer(desc); };
 	return grabResource(entry, m_bufferMap, create);
 }
 
-GnmCombinedImageView GnmResourceFactory::grabImage(const GnmTexture& desc)
+GnmCombinedImageView GnmResourceFactory::grabImage(const GnmTextureCreateInfo& desc)
 {
 	GnmResourceEntry entry = {};
-	entry.memory           = desc.getBaseAddress();
-	entry.size             = desc.getSizeAlign().m_size;
+	entry.memory           = desc.texture->getBaseAddress();
+	entry.size             = desc.texture->getSizeAlign().m_size;
 	auto create            = [this, &desc]() { return createImage(desc); };
 	return grabResource(entry, m_imageMap, create);
 }
@@ -128,11 +128,11 @@ RcPtr<gve::GveBuffer> GnmResourceFactory::createIndex(const GnmIndexBuffer& desc
 {
 }
 
-RcPtr<gve::GveBuffer> GnmResourceFactory::createBuffer(const GnmBuffer& desc)
+RcPtr<gve::GveBuffer> GnmResourceFactory::createBuffer(const GnmBufferCreateInfo& desc)
 {
 }
 
-GnmCombinedImageView GnmResourceFactory::createImage(const GnmTexture& desc)
+GnmCombinedImageView GnmResourceFactory::createImage(const GnmTextureCreateInfo& desc)
 {
 }
 

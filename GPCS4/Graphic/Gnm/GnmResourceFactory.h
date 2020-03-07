@@ -39,6 +39,31 @@ struct GnmIndexBuffer
 };
 
 /**
+ * \brief Buffer create information
+ *
+ * We need input usage type to create proper
+ * vulkan buffers.
+ */
+struct GnmBufferCreateInfo
+{
+	const GnmBuffer* buffer;
+	uint8_t          inputUsage;  // ShaderInputUsageType
+};
+
+/**
+ * \brief Texture create information
+ *
+ * We need input usage type to create proper
+ * vulkan textures.
+ */
+struct GnmTextureCreateInfo
+{
+	const GnmTexture* texture;
+	uint8_t           inputUsage;  // ShaderInputUsageType
+};
+
+
+/**
  * \brief Combined image and image view.
  *
  * Gnm doesn't have explicit image view,
@@ -97,9 +122,9 @@ public:
 
 	RcPtr<gve::GveBuffer> grabIndex(const GnmIndexBuffer& desc);
 
-	RcPtr<gve::GveBuffer> grabBuffer(const GnmBuffer& desc);
+	RcPtr<gve::GveBuffer> grabBuffer(const GnmBufferCreateInfo& desc);
 
-	GnmCombinedImageView grabImage(const GnmTexture& desc);
+	GnmCombinedImageView grabImage(const GnmTextureCreateInfo& desc);
 
 	GnmCombinedImageView grabRenderTarget(const GnmRenderTarget& desc);
 
@@ -119,9 +144,9 @@ private:
 
 	RcPtr<gve::GveBuffer> createIndex(const GnmIndexBuffer& desc);
 
-	RcPtr<gve::GveBuffer> createBuffer(const GnmBuffer& desc);
+	RcPtr<gve::GveBuffer> createBuffer(const GnmBufferCreateInfo& desc);
 
-	GnmCombinedImageView createImage(const GnmTexture& desc);
+	GnmCombinedImageView createImage(const GnmTextureCreateInfo& desc);
 
 	GnmCombinedImageView createRenderTarget(const GnmRenderTarget& desc);
 
