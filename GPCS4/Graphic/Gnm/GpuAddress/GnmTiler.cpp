@@ -1757,6 +1757,55 @@ int32_t TilingParameters::initFromTexture(const GnmTexture* texture, uint32_t mi
 	return status;
 }
 
+int32_t TilingParameters::initFromRenderTarget(const GnmRenderTarget* target, uint32_t arraySlice)
+{
+	/*
+	LOG_ASSERT_RETURN(target != 0, kStatusInvalidArgument, "target must not be NULL.");
+	LOG_ASSERT_RETURN(arraySlice <= target->getLastArraySliceIndex(), kStatusInvalidArgument, "arraySlice (%u) is out of range for target; last slice is %u", arraySlice, target->getLastArraySliceIndex());
+	m_tileMode             = target->getTileMode();  // see below, though
+	m_minGpuMode           = target->getMinimumGpuMode();
+	DataFormat dataFormat  = target->getDataFormat();
+	m_bitsPerFragment      = dataFormat.getTotalBitsPerElement() / dataFormat.getTexelsPerElement();
+	m_isBlockCompressed    = (dataFormat.getTexelsPerElement() > 1);
+	m_tileSwizzleMask      = target->getTileSwizzleMask();
+	m_linearWidth          = target->getWidth();
+	m_linearHeight         = target->getHeight();
+	m_linearDepth          = 1;
+	m_numFragmentsPerPixel = 1 << target->getNumFragments();
+	m_baseTiledPitch       = target->getPitch();
+	m_mipLevel             = 0;  // unused for render targets
+	m_arraySlice           = arraySlice;
+	MicroTileMode microTileMode;
+	int32_t       status = getMicroTileMode(&microTileMode, target->getTileMode());
+	if (status != kStatusSuccess)
+		return status;
+	status = getFlagsForSurfaceType(m_minGpuMode, &m_surfaceFlags, (microTileMode == kMicroTileModeDisplay) ? kSurfaceTypeColorTargetDisplayable : kSurfaceTypeColorTarget, kSurfaceMipmapDisable);
+	if (m_minGpuMode == kGpuModeNeo)
+	{
+		bool         independentDccBlocks     = SCE_GNM_GET_FIELD(target->m_regs[RenderTarget::kCbColorDccControl], CB_COLOR0_DCC_CONTROL, INDEPENDENT_64B_BLOCKS) != 0;              // [vi]
+		DccBlockSize maxUncompressedBlockSize = (DccBlockSize)SCE_GNM_GET_FIELD(target->m_regs[RenderTarget::kCbColorDccControl], CB_COLOR0_DCC_CONTROL, MAX_COMPRESSED_BLOCK_SIZE);  // [vi]
+		bool         isDccEnabled             = target->getDccCompressionEnable();
+		if (isDccEnabled && (!independentDccBlocks || maxUncompressedBlockSize > kDccBlockSize64))
+			m_surfaceFlags.m_texCompatible = 0;
+		else
+			m_surfaceFlags.m_texCompatible = 1;
+	}
+	if (status != kStatusSuccess)
+		return status;
+
+	// Use computeSurfaceInfo() to determine what array mode we REALLY need to use, since it's occasionally not the one the Texture uses.
+	// (e.g. for a 2D-tiled texture, the smaller mip levels will implicitly use a 1D array mode to cut down on wasted padding space)
+	SurfaceInfo surfInfoOut = { 0 };
+	status                  = computeSurfaceInfo(&surfInfoOut, this);
+	if (status != kStatusSuccess)
+		return status;
+	status = adjustTileMode(m_minGpuMode, &m_tileMode, m_tileMode, surfInfoOut.m_arrayMode);
+	if (status != kStatusSuccess)
+		return status;
+	return kStatusSuccess;
+	*/
+}
+
 int32_t detileSurface(void* outUntiledPixels, const void* tiledPixels, const TilingParameters* tp)
 {
 	SurfaceRegion srcRegion;

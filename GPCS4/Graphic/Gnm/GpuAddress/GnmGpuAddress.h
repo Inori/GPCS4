@@ -6,6 +6,7 @@
 #include "../GnmConstant.h"
 #include "../GnmStructure.h"
 
+
 namespace GpuAddress
 {;
 
@@ -42,6 +43,7 @@ struct SurfaceRegion
 		return !std::memcmp(this, &other, sizeof(SurfaceRegion));
 	}
 };
+
 
 //////////////////////////////////////////////////////////////////////////
 

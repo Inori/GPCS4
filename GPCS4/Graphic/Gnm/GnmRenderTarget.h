@@ -4,6 +4,7 @@
 #include "GnmRegInfo.h"
 #include "GnmConstant.h"
 #include "GnmDataFormat.h"
+#include "GpuAddress/GnmGpuAddress.h"
 
 union RenderTargetInitFlags
 {
@@ -43,6 +44,19 @@ public:
 		kNumCbRegisters
 	};
 
+	SizeAlign getColorSizeAlign(void) const
+	{
+		// TODO:
+		// For render target which represents display buffer, we don't need the buffer size,
+		// since we use swapchain image instead.
+		// but for other render targets, e.g. G-Buffers, the size maybe required,
+		// better to implement this.
+
+		SizeAlign sizeAlign = {};
+		sizeAlign.m_size    = 0;  // Note: this should be equal to SceVideoOut::calculateBufferSize
+		sizeAlign.m_align   = 64;
+		return sizeAlign;
+	}
 
 	uint32_t getWidth() const
 	{

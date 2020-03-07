@@ -3,6 +3,7 @@
 #include "GnmCommon.h"
 #include "GnmRegInfo.h"
 #include "GnmConstant.h"
+#include "GnmStructure.h"
 
 
 union DepthRenderTargetInitFlags
@@ -35,6 +36,21 @@ public:
 		kDbDepthInfo = 11,
 		kNumDbRegisters
 	};
+
+	SizeAlign getZSizeAlign(void) const
+	{
+
+	}
+
+	SizeAlign getStencilSizeAlign(void) const
+	{
+
+	}
+
+	SizeAlign getHtileSizeAlign(void) const
+	{
+
+	}
 
 	uint32_t getPitchDiv8Minus1() const
 	{

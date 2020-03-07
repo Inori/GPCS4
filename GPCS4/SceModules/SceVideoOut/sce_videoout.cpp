@@ -136,7 +136,7 @@ int PS4API sceVideoOutRegisterBuffers(int32_t handle, int32_t startIndex, void *
 		}
 
 		// Maybe need more params, such as attribute...
-		if (!videoOut->registerDisplayrBuffers(startIndex, addresses, bufferNum))
+		if (!videoOut->registerDisplayrBuffers(startIndex, addresses, bufferNum, attribute))
 		{
 			break;
 		}
@@ -168,7 +168,7 @@ int PS4API sceVideoOutRegisterStereoBuffers(int32_t handle, int32_t startIndex, 
 		}
 
 		// Maybe need more params, such as attribute...
-		if (!videoOut->registerDisplayrBuffers(startIndex, nullptr, bufferNum))
+		if (!videoOut->registerDisplayrBuffers(startIndex, nullptr, bufferNum, attribute))
 		{
 			break;
 		}

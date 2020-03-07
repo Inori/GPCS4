@@ -3,6 +3,7 @@
 
 #include "../GraphicShared.h"
 #include "../Gve/GveInstance.h"
+#include "../../SceModules/SceVideoOut/sce_videoout_types.h"
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -78,7 +79,11 @@ SceVideoOutSizeInfo SceVideoOut::getSize()
 	return result;
 }
 
-bool SceVideoOut::registerDisplayrBuffers(uint32_t startIndex, void* const* addresses, uint32_t bufferNum)
+bool SceVideoOut::registerDisplayrBuffers(
+	uint32_t                          startIndex,
+	void* const*                      addresses,
+	uint32_t                          bufferNum,
+	const SceVideoOutBufferAttribute* attribute)
 {
 	bool bRet = false;
 	do
@@ -88,14 +93,30 @@ bool SceVideoOut::registerDisplayrBuffers(uint32_t startIndex, void* const* addr
 			break;
 		}
 
-		m_displayBuffers.assign(addresses, addresses + bufferNum);
+		SceDisplayBuffer buffer = {};
+		buffer.format           = attribute->pixelFormat;
+		buffer.tile             = attribute->tilingMode;
+		buffer.width            = attribute->width;
+		buffer.height           = attribute->height;
+		buffer.size             = calculateBufferSize(attribute);
+
+		for (uint32_t i = 0; i != bufferNum; ++i)
+		{
+			buffer.address = addresses[i];
+			m_displayBuffers.emplace_back(buffer);
+		}
 
 		bRet = true;
 	} while (false);
 	return bRet;
 }
 
-const void* SceVideoOut::retrieveDisplayBuffer(uint32_t index)
+uint32_t SceVideoOut::numDisplayBuffer()
+{
+	return m_displayBuffers.size();
+}
+
+sce::SceDisplayBuffer SceVideoOut::getDisplayBuffer(uint32_t index)
 {
 	return m_displayBuffers[index];
 }
@@ -127,6 +148,16 @@ void SceVideoOut::framebufferResizeCallback(GLFWwindow* window, int width, int h
 {
 	auto videoOut = reinterpret_cast<SceVideoOut*>(glfwGetWindowUserPointer(window));
 	videoOut->m_framebufferResized = true;
+}
+
+uint32_t SceVideoOut::calculateBufferSize(const SceVideoOutBufferAttribute* attribute)
+{
+	// TODO:
+	// Implement size
+
+	// Note: 
+	// The returned size must be equal with GnmRenderTarget::getColorSizeAlign
+	return 0;  
 }
 
 } // sce

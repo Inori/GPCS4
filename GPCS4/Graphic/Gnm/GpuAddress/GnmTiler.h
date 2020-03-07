@@ -4,6 +4,7 @@
 #include "../GnmConstant.h"
 
 class GnmTexture;
+class GnmRenderTarget;
 
 namespace GpuAddress
 {;
@@ -61,7 +62,7 @@ class TilingParameters
 {
 public:
 	TileMode m_tileMode;
-	GpuMode m_minGpuMode;
+	GpuMode  m_minGpuMode;
 
 	uint32_t m_linearWidth;
 	uint32_t m_linearHeight;
@@ -69,16 +70,17 @@ public:
 	uint32_t m_numFragmentsPerPixel;
 	uint32_t m_baseTiledPitch;
 
-	uint32_t m_mipLevel;
-	uint32_t m_arraySlice;
+	uint32_t     m_mipLevel;
+	uint32_t     m_arraySlice;
 	SurfaceFlags m_surfaceFlags;
-	uint32_t m_bitsPerFragment;
-	bool m_isBlockCompressed;
-	uint8_t m_tileSwizzleMask;
+	uint32_t     m_bitsPerFragment;
+	bool         m_isBlockCompressed;
+	uint8_t      m_tileSwizzleMask;
 
 	int32_t initFromTexture(const GnmTexture* texture, uint32_t mipLevel, uint32_t arraySlice);
-};
 
+	int32_t initFromRenderTarget(const GnmRenderTarget* target, uint32_t arraySlice);
+};
 
 class Tiler
 {
