@@ -46,8 +46,9 @@ struct GnmIndexBuffer
  */
 struct GnmBufferCreateInfo
 {
-	const GnmBuffer* buffer;
-	uint8_t          inputUsage;  // ShaderInputUsageType
+	const GnmBuffer*     buffer;
+	VkPipelineStageFlags stages;
+	uint8_t              usageType;  // ShaderInputUsageType
 };
 
 /**
@@ -58,8 +59,9 @@ struct GnmBufferCreateInfo
  */
 struct GnmTextureCreateInfo
 {
-	const GnmTexture* texture;
-	uint8_t           inputUsage;  // ShaderInputUsageType
+	const GnmTexture*    texture;
+	VkPipelineStageFlags stages;
+	uint8_t              usageType;  // ShaderInputUsageType
 };
 
 

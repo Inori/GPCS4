@@ -10,10 +10,17 @@ VkFormat convertZFormatToVkFormat(ZFormat zfmt)
 	VkFormat format = VK_FORMAT_UNDEFINED;
 	switch (zfmt)
 	{
-	case kZFormatInvalid: format = VK_FORMAT_UNDEFINED; break;
-		// seems there's no half float point image format.
-	case kZFormat16: format = VK_FORMAT_D16_UNORM; break;
-	case kZFormat32Float: format = VK_FORMAT_D32_SFLOAT; break;
+	case kZFormatInvalid: 
+		format = VK_FORMAT_UNDEFINED; 
+		break;
+	case kZFormat16: 
+		// seems there's no half float point image format in vulkan.
+		LOG_WARN("half float z format detected.");
+		format = VK_FORMAT_D16_UNORM; 
+		break;
+	case kZFormat32Float: 
+		format = VK_FORMAT_D32_SFLOAT; 
+		break;
 	}
 	return format;
 }

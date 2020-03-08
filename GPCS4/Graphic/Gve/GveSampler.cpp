@@ -6,28 +6,33 @@ LOG_CHANNEL(Graphic.Gve.GveSampler);
 namespace gve
 {;
 
-GveSampler::GveSampler(const RcPtr<GveDevice>& device, const GveSamplerCreateInfo& createInfo):
+GveSampler::GveSampler(
+	const RcPtr<GveDevice>&     device,
+	const GveSamplerCreateInfo& info) :
 	m_device(device),
-	m_info(createInfo)
+	m_info(info)
 {
 	do 
 	{
-		// TODO:
-		// Create sampler according to createInfo
-		VkSamplerCreateInfo samplerInfo = {};
-		samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-		samplerInfo.magFilter = VK_FILTER_LINEAR;
-		samplerInfo.minFilter = VK_FILTER_LINEAR;
-		samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-		samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-		samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-		samplerInfo.anisotropyEnable = VK_TRUE;
-		samplerInfo.maxAnisotropy = 16;
-		samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-		samplerInfo.unnormalizedCoordinates = VK_FALSE;
-		samplerInfo.compareEnable = VK_FALSE;
-		samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-		samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+		VkSamplerCreateInfo samplerInfo;
+		samplerInfo.sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+		samplerInfo.pNext                   = nullptr;
+		samplerInfo.flags                   = 0;
+		samplerInfo.magFilter               = info.magFilter;
+		samplerInfo.minFilter               = info.minFilter;
+		samplerInfo.mipmapMode              = info.mipmapMode;
+		samplerInfo.addressModeU            = info.addressModeU;
+		samplerInfo.addressModeV            = info.addressModeV;
+		samplerInfo.addressModeW            = info.addressModeW;
+		samplerInfo.mipLodBias              = info.mipmapLodBias;
+		samplerInfo.anisotropyEnable        = info.useAnisotropy;
+		samplerInfo.maxAnisotropy           = info.maxAnisotropy;
+		samplerInfo.compareEnable           = info.compareToDepth;
+		samplerInfo.compareOp               = info.compareOp;
+		samplerInfo.minLod                  = info.mipmapLodMin;
+		samplerInfo.maxLod                  = info.mipmapLodMax;
+		samplerInfo.borderColor             = info.borderColor;
+		samplerInfo.unnormalizedCoordinates = info.usePixelCoord;
 
 		if (vkCreateSampler(*m_device, &samplerInfo, nullptr, &m_sampler) != VK_SUCCESS)
 		{
