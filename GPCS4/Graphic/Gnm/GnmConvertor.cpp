@@ -221,7 +221,7 @@ VkCullModeFlags convertCullMode(PrimitiveSetupCullFaceMode cullMode)
 	return mode;
 }
 
-VkBlendFactor convertBlendMultiplierToFactor(BlendMultiplier blendMul)
+VkBlendFactor convertBlendMultiplierToVkFactor(BlendMultiplier blendMul)
 {
 	VkBlendFactor factor;
 	switch (blendMul)
@@ -249,7 +249,7 @@ VkBlendFactor convertBlendMultiplierToFactor(BlendMultiplier blendMul)
 	return factor;
 }
 
-VkBlendOp convertBlendFuncToOp(BlendFunc func)
+VkBlendOp convertBlendFuncToVkOp(BlendFunc func)
 {
 	VkBlendOp op;
 	switch (func)
@@ -263,7 +263,7 @@ VkBlendOp convertBlendFuncToOp(BlendFunc func)
 	return op;
 }
 
-VkPrimitiveTopology convertPrimitiveTypeToTopology(PrimitiveType primType)
+VkPrimitiveTopology convertPrimitiveTypeToVkTopology(PrimitiveType primType)
 {
 	VkPrimitiveTopology topology;
 	switch (primType)

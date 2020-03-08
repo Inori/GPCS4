@@ -24,7 +24,7 @@ using namespace gve;
 using namespace sce;
 using namespace pssl;
 
-GnmResourceFactory::GnmResourceFactory(sce::SceGpuQueueDevice* device) :
+GnmResourceFactory::GnmResourceFactory(const sce::SceGpuQueueDevice* device) :
 	m_device(device)
 {
 	collectRenderTargets();
@@ -240,6 +240,11 @@ GnmCombinedImageView GnmResourceFactory::createImage(const GnmTextureCreateInfo&
 GnmCombinedImageView GnmResourceFactory::createRenderTarget(const GnmRenderTarget& desc)
 {
 	// TODO:
+	// For future development, a game may use "render to texture" technique,
+	// and set a render target which is not a swapchain image.
+	// we should check whether "target" is the display buffer or not
+	// and support extra render target,
+	// but currently I just use the default one.
 	LOG_FIXME("Not implemented.");
 }
 

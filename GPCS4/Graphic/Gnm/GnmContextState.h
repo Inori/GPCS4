@@ -4,6 +4,7 @@
 #include "GnmShaderMeta.h"
 
 #include "../Gve/GveContextState.h"
+#include "../Gve/GveLimit.h"
 #include "../Pssl/PsslEnums.h"
 #include "../Pssl/PsslShaderStructure.h"
 
@@ -74,6 +75,9 @@ struct GnmPixelShaderState
 struct GnmOutputMergerState
 {
 	gve::GveRenderTargets renderTargets = {};
+
+	std::array<VkClearColorValue, gve::MaxNumRenderTargets> colorClearValues = {};
+	VkClearDepthStencilValue                                depthClearValue  = {};
 };
 
 struct GnmGraphicsContextState

@@ -12,8 +12,8 @@ namespace pssl
 
 enum FetchShaderInstancingMode
 {
-	kFetchShaderUseVertexIndex = 0x0,
-	kFetchShaderUseInstanceId = 0x1,
+	kFetchShaderUseVertexIndex             = 0x0,
+	kFetchShaderUseInstanceId              = 0x1,
 	kFetchShaderUseInstanceIdOverStepRate0 = 0x2,
 	kFetchShaderUseInstanceIdOverStepRate1 = 0x3,
 };
@@ -21,25 +21,24 @@ enum FetchShaderInstancingMode
 struct FetchShaderBuildState
 {
 
-	uint16_t                         fetchShaderBufferSize;
-	uint16_t						 fetchShaderFlags;
-	uint8_t						     firstFreeSgpr;
-	uint8_t                          vsharpSlotCount;
-	uint32_t                         shaderModifier;
+	uint16_t fetchShaderBufferSize;
+	uint16_t fetchShaderFlags;
+	uint8_t  firstFreeSgpr;
+	uint8_t  vsharpSlotCount;
+	uint32_t shaderModifier;
 
 	std::vector<FetchShaderInstancingMode> fetchShaderInstancingData;
 
 	// From the SC:
-	uint8_t							 vertexBaseUsgpr;
-	uint8_t							 instanceBaseUsgpr;
+	uint8_t vertexBaseUsgpr;
+	uint8_t instanceBaseUsgpr;
 
 	std::vector<VertexInputSemantic> inputSemantics;
-	std::vector<InputUsageSlot>		 inputUsageSlots;
+	std::vector<InputUsageSlot>      inputUsageSlots;
 
 	// Semantic Remap Table
-	std::vector<uint32_t>			 semanticsRemapTable;
+	std::vector<uint32_t> semanticsRemapTable;
 };
-
 
 /**
  * \brief Shader resource buffer
@@ -48,11 +47,10 @@ struct FetchShaderBuildState
  */
 struct PsslShaderResource
 {
-	uint32_t startRegister = 0;  // Start sgpr register index or EUD index
-	const void* resource = nullptr;  // Will be cast to proper buffer type when interpreted.
-	uint32_t sizeDwords = 0;
+	uint32_t    startRegister = 0;        // Start sgpr register index or EUD index
+	const void* resource      = nullptr;  // Will be cast to proper buffer type when interpreted.
+	uint32_t    sizeDwords    = 0;
 };
-
 
 /**
  * \brief A single shader input resource.
@@ -62,7 +60,7 @@ struct PsslShaderResource
 struct GcnShaderResourceInstance
 {
 	ShaderInputUsageType usageType;
-	PsslShaderResource res;
+	PsslShaderResource   res;
 };
 
 /**

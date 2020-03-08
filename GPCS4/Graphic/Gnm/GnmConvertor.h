@@ -19,11 +19,11 @@ VkPolygonMode convertPolygonMode(PrimitiveSetupPolygonMode polyMode);
 
 VkCullModeFlags convertCullMode(PrimitiveSetupCullFaceMode cullMode);
 
-VkBlendFactor convertBlendMultiplierToFactor(BlendMultiplier blendMul);
+VkBlendFactor convertBlendMultiplierToVkFactor(BlendMultiplier blendMul);
 
-VkBlendOp convertBlendFuncToOp(BlendFunc func);
+VkBlendOp convertBlendFuncToVkOp(BlendFunc func);
 
-VkPrimitiveTopology convertPrimitiveTypeToTopology(PrimitiveType primType);
+VkPrimitiveTopology convertPrimitiveTypeToVkTopology(PrimitiveType primType);
 
 VkIndexType convertIndexSize(IndexSize indexSize);
 

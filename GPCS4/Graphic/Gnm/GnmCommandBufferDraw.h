@@ -4,6 +4,7 @@
 #include "GnmCommandBuffer.h"
 #include "GnmConstant.h"
 #include "GnmContextState.h"
+#include "GnmResourceFactory.h"
 
 #include <vector>
 
@@ -20,6 +21,7 @@ class GnmCommandBufferDraw : public GnmCommandBuffer
 {
 	using PsslShaderResource = pssl::PsslShaderResource;
 	using VertexInputSemantic = pssl::VertexInputSemantic;
+
 public:
 	GnmCommandBufferDraw(
 		const sce::SceGpuQueueDevice& device,
@@ -139,12 +141,33 @@ public:
 
 private:
 	
+	// Stages setup
+	void commitVsStage();
+	void commitPsStage();
+	void commitGraphicsStages();
 
+	void commitCsStage();
+	void commitComputeStages();
+
+
+	void clearRenderState();
+
+	void setUserDataSlots(
+		ShaderStage     stage,
+		uint32_t        startSlot,
+		const uint32_t* data,
+		uint32_t        numDwords);
+
+	void insertUniqueUserDataSlot(
+		std::vector<pssl::PsslShaderResource>& container,
+		uint32_t                               startSlot,
+		pssl::PsslShaderResource&              shaderRes);
 
 private:
 
 	GnmContextState               m_state;
-	GnmShaderContextGroup         m_shaderCtx;
+	GnmShaderContextGroup         m_shaders;
+	GnmResourceFactory            m_factory;
 };
 
 

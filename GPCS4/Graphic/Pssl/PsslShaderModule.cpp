@@ -95,25 +95,25 @@ RcPtr<gve::GveShader> PsslShaderModule::compile()
 }
 
 std::vector<GcnShaderResourceInstance> 
-PsslShaderModule::linearlizeShaderResources(const GcnShaderResources& nestedResources)
+PsslShaderModule::flattenShaderResources(const GcnShaderResources& nestedResources)
 {
-	std::vector<GcnShaderResourceInstance> linearResourceTable;
+	std::vector<GcnShaderResourceInstance> flatResourceTable;
 
-	linearResourceTable.insert(linearResourceTable.begin(),
+	flatResourceTable.insert(flatResourceTable.begin(),
 		nestedResources.ud.begin(), nestedResources.ud.end());
 
 	if (nestedResources.eud.has_value())
 	{
 		for (const auto& eudRes : nestedResources.eud->resources)
 		{
-			linearResourceTable.emplace_back(eudRes.second);
+			flatResourceTable.emplace_back(eudRes.second);
 		}
 	}
 
 	// TODO:
 	// SRT support
 
-	return linearResourceTable;
+	return flatResourceTable;
 }
 
 void PsslShaderModule::parseFetchShader(const uint32_t* fsCode)

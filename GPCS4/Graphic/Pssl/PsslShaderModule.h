@@ -26,22 +26,22 @@ public:
 
 	~PsslShaderModule();
 
-	std::vector<VertexInputSemantic> vsInputSemantic();
-
-	std::vector<InputUsageSlot> inputUsageSlots();
-
 	void defineFetchShader(const uint32_t* fsCode);
 
 	void defineShaderInput(const std::vector<PsslShaderResource>& shaderInputTab);
 
 	const GcnShaderResources& getShaderResources();
 
+	std::vector<VertexInputSemantic> vsInputSemantic();
+
+	std::vector<InputUsageSlot> inputUsageSlots();
+
 	PsslKey key();
 
 	RcPtr<gve::GveShader> compile();
 
-	static std::vector<GcnShaderResourceInstance> 
-		linearlizeShaderResources(const GcnShaderResources& nestedResources);
+	static std::vector<GcnShaderResourceInstance>
+	flattenShaderResources(const GcnShaderResources& nestedResources);
 
 private:
 

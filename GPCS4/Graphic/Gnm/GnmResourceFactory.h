@@ -117,7 +117,7 @@ struct GnmResourceHash
 class GnmResourceFactory
 {
 public:
-	GnmResourceFactory(sce::SceGpuQueueDevice* device);
+	GnmResourceFactory(const sce::SceGpuQueueDevice* device);
 	~GnmResourceFactory();
 
 	/// Get or create resources.
@@ -157,7 +157,7 @@ private:
 	RcPtr<gve::GveSampler> createSampler(const GnmSampler& desc);
 
 private:
-	sce::SceGpuQueueDevice* m_device;
+	const sce::SceGpuQueueDevice* m_device;
 
 	std::unordered_map<GnmResourceEntry, RcPtr<gve::GveBuffer>, GnmResourceHash>  m_bufferMap;
 	std::unordered_map<GnmResourceEntry, GnmCombinedImageView, GnmResourceHash>   m_imageMap;
