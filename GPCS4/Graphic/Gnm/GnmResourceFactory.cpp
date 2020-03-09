@@ -170,7 +170,7 @@ RcPtr<GveBuffer> GnmResourceFactory::createBuffer(const GnmBufferCreateInfo& des
 	case pssl::kShaderInputUsageImmVertexBuffer:
 	{
 		usage  = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-		access = VK_ACCESS_INDEX_READ_BIT;
+		access = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
 	}
 	break;
 	case pssl::kShaderInputUsageImmRwResource:
