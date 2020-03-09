@@ -5,10 +5,13 @@
 #include "GveDescriptor.h"
 #include "GveGpuResource.h"
 
+
 namespace gve
 {;
 
+struct GveFormatInfo;
 class GveDevice;
+
 
 struct GveImageCreateInfo
 {
@@ -103,6 +106,8 @@ public:
 	VkImage handle() const;
 
 	const GveImageCreateInfo& info() const;
+
+	const GveFormatInfo* formatInfo() const;
 
 	VkImageLayout pickLayout(VkImageLayout target) const;
 

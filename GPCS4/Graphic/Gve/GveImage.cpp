@@ -1,6 +1,7 @@
 #include "GveImage.h"
 #include "GveDevice.h"
 #include "GveUtil.h"
+#include "GveFormat.h"
 #include "UtilMath.h"
 
 LOG_CHANNEL(Graphic.Gve.GveImage);
@@ -113,6 +114,11 @@ VkImage GveImage::handle() const
 const GveImageCreateInfo& GveImage::info() const
 {
 	return m_info;
+}
+
+const GveFormatInfo* GveImage::formatInfo() const
+{
+	return imageFormatInfo(m_info.format);
 }
 
 VkImageLayout GveImage::pickLayout(VkImageLayout target) const
