@@ -12,6 +12,7 @@
 #include "GveSampler.h"
 #include "GveShader.h"
 #include "GveStaging.h"
+#include "GveFormat.h"
 
 namespace gve
 {
@@ -474,15 +475,25 @@ void GveContext::updateImage(
 	VkOffset3D                      imageOffset,
 	VkExtent3D                      imageExtent,
 	const void*                     data,
-	VkDeviceSize                    size)
+	VkDeviceSize                    pitchPerRow,
+	VkDeviceSize                    pitchPerLayer)
 {
 	leaveRenderPassScope();
 
-	auto  stagingSlice = m_staging->alloc(size, CACHE_LINE_SIZE);
-	void* stagingData  = stagingSlice.mapPtr(0);
-	std::memcpy(stagingData, data, size);
+	auto imgInfo    = image->info();
+	auto formatInfo = image->formatInfo();
+	
+	uint32_t imageSize     = util::computeImageDataSize(imgInfo.format, imgInfo.extent);
+	auto     stagingSlice  = m_staging->alloc(imageSize, CACHE_LINE_SIZE);
+	auto     stagingHandle = stagingSlice.getHandle();
 
-	auto imgInfo = image->info();
+	auto blockCount = util::computeBlockCount(imgInfo.extent, formatInfo->blockSize);
+	util::packImageData(
+		stagingHandle.mapPtr,
+		data, blockCount,
+		formatInfo->elementSize,
+		pitchPerRow,
+		pitchPerLayer);
 
 	VkImageLayout transferLayout = image->pickLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
@@ -514,6 +525,9 @@ void GveContext::uploadBuffer(
 	const RcPtr<GveBuffer>& buffer,
 	const void*             data)
 {
+	// TODO:
+	// Use transfer queue to upload data
+	updateBuffer(buffer, 0, buffer->length(), data);
 }
 
 void GveContext::uploadImage(
@@ -523,6 +537,10 @@ void GveContext::uploadImage(
 	VkDeviceSize                    pitchPerRow,
 	VkDeviceSize                    pitchPerLayer)
 {
+	auto imgInfo = image->info();
+	// TODO:
+	// Use transfer queue to upload data
+	updateImage(image, subresources, { 0, 0, 0 }, imgInfo.extent, data, pitchPerRow, pitchPerLayer);
 }
 
 void GveContext::transitionImageLayout(

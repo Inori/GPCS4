@@ -18,25 +18,13 @@ class GveImageView;
 class GveSampler;
 }  // namespace gve
 
+struct GnmIndexBuffer;
 class GnmBuffer;
 class GnmTexture;
 class GnmSampler;
 class GnmRenderTarget;
 class GnmDepthRenderTarget;
 
-/**
- * \brief Index Buffer Descriptor
- *
- * Since there's no dedicated Index Buffer Descriptor in Gnm,
- * we create one.
- */
-struct GnmIndexBuffer
-{
-	const void* buffer = nullptr;
-	VkIndexType type   = VK_INDEX_TYPE_UINT16;
-	uint32_t    count  = 0;
-	uint32_t    size   = 0;
-};
 
 /**
  * \brief Buffer create information
@@ -122,17 +110,29 @@ public:
 
 	/// Get or create resources.
 
-	RcPtr<gve::GveBuffer> grabIndex(const GnmIndexBuffer& desc);
+	RcPtr<gve::GveBuffer> grabIndex(
+		const GnmIndexBuffer& desc,
+		bool*                 create = nullptr);
 
-	RcPtr<gve::GveBuffer> grabBuffer(const GnmBufferCreateInfo& desc);
+	RcPtr<gve::GveBuffer> grabBuffer(
+		const GnmBufferCreateInfo& desc,
+		bool*                      create = nullptr);
 
-	GnmCombinedImageView grabImage(const GnmTextureCreateInfo& desc);
+	GnmCombinedImageView grabImage(
+		const GnmTextureCreateInfo& desc,
+		bool*                       create = nullptr);
 
-	GnmCombinedImageView grabRenderTarget(const GnmRenderTarget& desc);
+	GnmCombinedImageView grabRenderTarget(
+		const GnmRenderTarget& desc,
+		bool*                  create = nullptr);
 
-	GnmCombinedImageView grabDepthRenderTarget(const GnmDepthRenderTarget& desc);
+	GnmCombinedImageView grabDepthRenderTarget(
+		const GnmDepthRenderTarget& desc,
+		bool*                       create = nullptr);
 
-	RcPtr<gve::GveSampler> grabSampler(const GnmSampler& desc);
+	RcPtr<gve::GveSampler> grabSampler(
+		const GnmSampler& desc,
+		bool*             create = nullptr);
 
 private:
 	
@@ -140,7 +140,8 @@ private:
 	typename MapType::mapped_type grabResource(
 		const GnmResourceEntry&                        entry,
 		MapType&                                       map,
-		std::function<typename MapType::mapped_type()> create);
+		std::function<typename MapType::mapped_type()> createFunc,
+		bool*                                          create);
 
 	void collectRenderTargets();
 

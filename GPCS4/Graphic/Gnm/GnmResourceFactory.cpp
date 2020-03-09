@@ -34,77 +34,87 @@ GnmResourceFactory::~GnmResourceFactory()
 {
 }
 
-RcPtr<GveBuffer> GnmResourceFactory::grabIndex(const GnmIndexBuffer& desc)
+RcPtr<GveBuffer> GnmResourceFactory::grabIndex(const GnmIndexBuffer& desc, bool* create /*= nullptr*/)
 {
 	GnmResourceEntry entry = {};
 	entry.memory           = desc.buffer;
 	entry.size             = desc.size;
-	auto create            = [this, &desc]() { return createIndex(desc); };
-	return grabResource(entry, m_bufferMap, create);
+	auto createFunc        = [this, &desc]() { return createIndex(desc); };
+	return grabResource(entry, m_bufferMap, createFunc, create);
 }
 
-RcPtr<gve::GveBuffer> GnmResourceFactory::grabBuffer(const GnmBufferCreateInfo& desc)
+RcPtr<GveBuffer> GnmResourceFactory::grabBuffer(const GnmBufferCreateInfo& desc, bool* create /*= nullptr*/)
 {
 	GnmResourceEntry entry = {};
 	entry.memory           = desc.buffer->getBaseAddress();
 	entry.size             = desc.buffer->getSize();
-	auto create            = [this, &desc]() { return createBuffer(desc); };
-	return grabResource(entry, m_bufferMap, create);
+	auto createFunc        = [this, &desc]() { return createBuffer(desc); };
+	return grabResource(entry, m_bufferMap, createFunc, create);
 }
 
-GnmCombinedImageView GnmResourceFactory::grabImage(const GnmTextureCreateInfo& desc)
+GnmCombinedImageView GnmResourceFactory::grabImage(const GnmTextureCreateInfo& desc, bool* create /*= nullptr*/)
 {
 	GnmResourceEntry entry = {};
 	entry.memory           = desc.texture->getBaseAddress();
 	entry.size             = desc.texture->getSizeAlign().m_size;
-	auto create            = [this, &desc]() { return createImage(desc); };
-	return grabResource(entry, m_imageMap, create);
+	auto createFunc        = [this, &desc]() { return createImage(desc); };
+	return grabResource(entry, m_imageMap, createFunc, create);
 }
 
-GnmCombinedImageView GnmResourceFactory::grabRenderTarget(const GnmRenderTarget& desc)
+GnmCombinedImageView GnmResourceFactory::grabRenderTarget(const GnmRenderTarget& desc, bool* create /*= nullptr*/)
 {
 	GnmResourceEntry entry = {};
 	entry.memory           = desc.getBaseAddress();
 	entry.size             = desc.getColorSizeAlign().m_size;
-	auto create            = [this, &desc]() { return createRenderTarget(desc); };
-	return grabResource(entry, m_imageMap, create);
+	auto createFunc        = [this, &desc]() { return createRenderTarget(desc); };
+	return grabResource(entry, m_imageMap, createFunc, create);
 }
 
-GnmCombinedImageView GnmResourceFactory::grabDepthRenderTarget(const GnmDepthRenderTarget& desc)
+GnmCombinedImageView GnmResourceFactory::grabDepthRenderTarget(const GnmDepthRenderTarget& desc, bool* create /*= nullptr*/)
 {
 	GnmResourceEntry entry = {};
 	entry.memory           = desc.getZReadAddress();
 	entry.size             = desc.getZSizeAlign().m_size;
-	auto create            = [this, &desc]() { return createDepthRenderTarget(desc); };
-	return grabResource(entry, m_imageMap, create);
+	auto createFunc        = [this, &desc]() { return createDepthRenderTarget(desc); };
+	return grabResource(entry, m_imageMap, createFunc, create);
 }
 
-RcPtr<GveSampler> GnmResourceFactory::grabSampler(const GnmSampler& desc)
+RcPtr<GveSampler> GnmResourceFactory::grabSampler(const GnmSampler& desc, bool* create /*= nullptr*/)
 {
 	uint64_t         hash  = algo::MurmurHash(desc.m_regs, sizeof(desc.m_regs));
 	GnmResourceEntry entry = {};
 	entry.memory           = reinterpret_cast<const void*>(bit::extract(hash, 32, 63));
 	entry.size             = static_cast<uint32_t>(bit::extract(hash, 0, 31));
-	auto create            = [this, &desc]() { return createSampler(desc); };
-	return grabResource(entry, m_samplerMap, create);
+	auto createFunc        = [this, &desc]() { return createSampler(desc); };
+	return grabResource(entry, m_samplerMap, createFunc, create);
 }
 
 template <typename MapType>
 typename MapType::mapped_type GnmResourceFactory::grabResource(
 	const GnmResourceEntry&                        entry,
 	MapType&                                       map,
-	std::function<typename MapType::mapped_type()> create)
+	std::function<typename MapType::mapped_type()> createFunc,
+	bool*                                          create)
 {
 	typename MapType::mapped_type resource = {};
+
+	bool isNew = false;
 	auto                          iter     = map.find(entry);
 	if (iter != map.end())
 	{
 		resource = iter->second;
+		isNew = false;
 	}
 	else
 	{
-		resource = create();
+		resource = createFunc();
 		map.insert(std::make_pair(entry, resource));
+		isNew = true;
+	}
+
+	if (create)
+	{
+		*create = isNew;
 	}
 	return resource;
 }

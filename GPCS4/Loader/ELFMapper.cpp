@@ -30,37 +30,14 @@ bool ELFMapper::loadFile(std::string const &filePath, NativeModule *mod)
 		}
 
 		m_moduleData = mod;
-		file.reset(fopen(filePath.c_str(), "rb"));
 
-		if (file == nullptr)
+		if (!UtilFile::LoadFile(filePath, mod->m_fileMemory))
 		{
-			LOG_ERR("fail to open file %s", filePath.c_str());
-			break;
-		}
-
-		fseek(file.get(), 0, SEEK_END);
-		size_t fileSize = 0;
-
-		long pos = ftell(file.get());
-		if (pos == -1)
-		{
-			LOG_ERR("fail to get file size");
-			break;
-		}
-
-		fileSize = static_cast<size_t>(pos);
-		mod->m_fileMemory.resize(fileSize);
-
-		fseek(file.get(), 0, SEEK_SET);
-		size_t numOfBytes = fread(&mod->m_fileMemory[0], fileSize, 1, file.get());
-		if (numOfBytes != 1)
-		{
-			LOG_ERR("fail to read file");
+			LOG_ERR("failed to load file %s", filePath.c_str());
 			break;
 		}
 
 		retVal = true;
-
 	} while (false);
 	return retVal;
 }

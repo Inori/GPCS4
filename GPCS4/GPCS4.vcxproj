@@ -39,6 +39,7 @@
     <ClInclude Include="Graphic\Gnm\GpuAddress\GnmTiler.h" />
     <ClInclude Include="Graphic\Gnm\GpuAddress\GnmTilerSSE2.h" />
     <ClInclude Include="Graphic\Gve\GveEnums.h" />
+    <ClInclude Include="Graphic\Gve\GveFormat.h" />
     <ClInclude Include="Graphic\Gve\GvePresenter.h" />
     <ClInclude Include="Graphic\Gve\GveRecycler.h" />
     <ClInclude Include="Graphic\Gve\GveSubmissionQueue.h" />
@@ -313,6 +314,7 @@
     <ClCompile Include="Graphic\Gve\GveDescriptor.cpp" />
     <ClCompile Include="Graphic\Gve\GveDevice.cpp" />
     <ClCompile Include="Graphic\Gve\GveExtension.cpp" />
+    <ClCompile Include="Graphic\Gve\GveFormat.cpp" />
     <ClCompile Include="Graphic\Gve\GveFrameBuffer.cpp" />
     <ClCompile Include="Graphic\Gve\GveGpuResource.cpp" />
     <ClCompile Include="Graphic\Gve\GveGraphicsPipeline.cpp" />
@@ -538,7 +540,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>llvm</PlatformToolset>
+    <PlatformToolset>ClangCL</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">

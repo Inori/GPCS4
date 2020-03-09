@@ -105,12 +105,12 @@ RcPtr<gve::GveShader> GCNCompiler::finalize()
 {
 	switch (m_programInfo.shaderType())
 	{
-	case VertexShader:		emitVsFinalize(); break;
-	case HullShader:		emitHsFinalize(); break;
-	case DomainShader:		emitDsFinalize(); break;
-	case GeometryShader:	emitGsFinalize(); break;
-	case PixelShader:		emitPsFinalize(); break;
-	case ComputeShader:		emitCsFinalize(); break;
+	case PsslProgramType::VertexShader:		emitVsFinalize(); break;
+	case PsslProgramType::HullShader:		emitHsFinalize(); break;
+	case PsslProgramType::DomainShader:		emitDsFinalize(); break;
+	case PsslProgramType::GeometryShader:	emitGsFinalize(); break;
+	case PsslProgramType::PixelShader:		emitPsFinalize(); break;
+	case PsslProgramType::ComputeShader:		emitCsFinalize(); break;
 	}
 
 	// Declare the entry point, we now have all the
@@ -138,12 +138,12 @@ void GCNCompiler::emitInit()
 	// etc. Each shader type has its own peculiarities.
 	switch (m_programInfo.shaderType())
 	{
-	case VertexShader:		emitVsInit(); break;
-	case HullShader:		emitHsInit(); break;
-	case DomainShader:		emitDsInit(); break;
-	case GeometryShader:	emitGsInit(); break;
-	case PixelShader:		emitPsInit(); break;
-	case ComputeShader:		emitCsInit(); break;
+	case PsslProgramType::VertexShader:		emitVsInit(); break;
+	case PsslProgramType::HullShader:		emitHsInit(); break;
+	case PsslProgramType::DomainShader:		emitDsInit(); break;
+	case PsslProgramType::GeometryShader:	emitGsInit(); break;
+	case PsslProgramType::PixelShader:		emitPsInit(); break;
+	case PsslProgramType::ComputeShader:		emitCsInit(); break;
 	}
 }
 
@@ -1275,7 +1275,7 @@ uint32_t GCNCompiler::emitNewBuiltinVariable(const SpirvRegisterInfo& info, spv:
 	m_module.setDebugName(varId, name);
 	m_module.decorateBuiltIn(varId, builtIn);
 
-	if (m_programInfo.shaderType() == PixelShader
+	if (m_programInfo.shaderType() == PsslProgramType::PixelShader
 		&& info.atype.vtype.ctype != SpirvScalarType::Float32
 		&& info.atype.vtype.ctype != SpirvScalarType::Bool
 		&& info.sclass == spv::StorageClassInput)

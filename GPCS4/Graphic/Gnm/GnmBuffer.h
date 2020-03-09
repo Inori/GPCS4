@@ -6,6 +6,20 @@
 #include "GnmDataFormat.h"
 #include "GnmSharpBuffer.h"
 
+/**
+ * \brief Index Buffer Descriptor
+ *
+ * Since there's no dedicated Index Buffer Descriptor in Gnm,
+ * we create one.
+ */
+struct GnmIndexBuffer
+{
+	const void* buffer = nullptr;
+	VkIndexType type   = VK_INDEX_TYPE_UINT16;
+	uint32_t    count  = 0;
+	uint32_t    size   = 0;
+};
+
 class GnmBuffer
 {
 public:

@@ -127,7 +127,7 @@ void PsslShaderModule::parseFetchShader(const uint32_t* fsCode)
 	extractInputSemantic(fsShader);
 
 #ifdef PSSL_DUMP_SHADER
-	dumpShader(FetchShader, (const uint8_t*)fsCode, fsShader.m_codeLengthDw * sizeof(uint32_t));
+	dumpShader(PsslProgramType::FetchShader, (const uint8_t*)fsCode, fsShader.m_codeLengthDw * sizeof(uint32_t));
 #endif  // GPCS4_DUMP_SHADER
 }
 
@@ -465,25 +465,25 @@ void PsslShaderModule::dumpShader(PsslProgramType type, const uint8_t* code, uin
 
 	switch (type)
 	{
-	case pssl::PixelShader:
+	case pssl::PsslProgramType::PixelShader:
 		format = "%016llX.ps.bin";
 		break;
-	case pssl::VertexShader:
+	case pssl::PsslProgramType::VertexShader:
 		format = "%016llX.vs.bin";
 		break;
-	case pssl::GeometryShader:
+	case pssl::PsslProgramType::GeometryShader:
 		format = "%016llX.gs.bin";
 		break;
-	case pssl::HullShader:
+	case pssl::PsslProgramType::HullShader:
 		format = "%016llX.hs.bin";
 		break;
-	case pssl::DomainShader:
+	case pssl::PsslProgramType::DomainShader:
 		format = "%016llX.ds.bin";
 		break;
-	case pssl::ComputeShader:
+	case pssl::PsslProgramType::ComputeShader:
 		format = "%016llX.cs.bin";
 		break;
-	case pssl::FetchShader:
+	case pssl::PsslProgramType::FetchShader:
 		format = "%016llX.fs.bin";
 		break;
 	default:

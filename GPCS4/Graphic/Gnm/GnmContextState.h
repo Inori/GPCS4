@@ -2,11 +2,14 @@
 
 #include "GnmCommon.h"
 #include "GnmShaderMeta.h"
+#include "GnmBuffer.h"
 
 #include "../Gve/GveContextState.h"
 #include "../Gve/GveLimit.h"
 #include "../Pssl/PsslEnums.h"
+#include "../Pssl/PsslShaderModule.h"
 #include "../Pssl/PsslShaderStructure.h"
+
 
 namespace gve
 {;
@@ -18,7 +21,7 @@ class GveImageView;
 struct GnmShaderContext
 {
 	const void*                           code   = nullptr;
-	RcPtr<gve::GveShader>                 shader = nullptr;
+	RcPtr<pssl::PsslShaderModule>         shader = nullptr;
 	std::vector<pssl::PsslShaderResource> userDataSlotTable;
 	GnmShaderMeta                         meta;
 };
@@ -34,7 +37,7 @@ struct GnmShaderContextGroup
 
 struct GnmInputAssemblerState
 {
-	VkIndexType indexType = VK_INDEX_TYPE_UINT16;
+	GnmIndexBuffer indexBuffer;
 };
 
 struct GnmVertexShaderState

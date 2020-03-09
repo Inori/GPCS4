@@ -19,7 +19,7 @@ class GCNCompiler;
 class GCNAnalyzer;
 
 
-class PsslShaderModule
+class PsslShaderModule : public RcObject
 {
 public:
 	PsslShaderModule(const uint32_t* code);

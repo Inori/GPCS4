@@ -14,10 +14,10 @@ void GCNCompiler::emitExp(GCNInstruction& ins)
 	auto shaderType = m_programInfo.shaderType();
 	switch (shaderType)
 	{
-	case pssl::VertexShader:
+	case pssl::PsslProgramType::VertexShader:
 		emitExpVS(ins);
 		break;
-	case pssl::PixelShader:
+	case pssl::PsslProgramType::PixelShader:
 		emitExpPS(ins);
 		break;
 	default:

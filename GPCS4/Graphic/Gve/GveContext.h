@@ -186,7 +186,8 @@ public:
 		VkOffset3D                      imageOffset,
 		VkExtent3D                      imageExtent,
 		const void*                     data,
-		VkDeviceSize                    size);
+		VkDeviceSize                    pitchPerRow,
+		VkDeviceSize                    pitchPerLayer);
 
 	/**
      * \brief Uses transfer queue to initialize buffer

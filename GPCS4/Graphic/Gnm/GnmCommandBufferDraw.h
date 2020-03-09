@@ -19,8 +19,9 @@ class GnmBuffer;
 
 class GnmCommandBufferDraw : public GnmCommandBuffer
 {
-	using PsslShaderResource = pssl::PsslShaderResource;
-	using VertexInputSemantic = pssl::VertexInputSemantic;
+	using PsslShaderResource        = pssl::PsslShaderResource;
+	using GcnShaderResourceInstance = pssl::GcnShaderResourceInstance;
+	using VertexInputSemantic       = pssl::VertexInputSemantic;
 
 public:
 	GnmCommandBufferDraw(
@@ -29,7 +30,6 @@ public:
 	);
 
 	virtual ~GnmCommandBufferDraw();
-
 
 	virtual void initializeDefaultHardwareState() override;
 
@@ -141,7 +141,7 @@ public:
 
 private:
 	
-	// Stages setup
+	// Stage setup methods
 	void commitVsStage();
 	void commitPsStage();
 	template <bool Indexed, bool Indirect>
@@ -150,7 +150,32 @@ private:
 	void commitCsStage();
 	void commitComputeStages();
 
+	// Resource binding methods
+	void bindFramebuffer();
 
+	void bindIndexBuffer();
+
+	void setVertexInputLayout(
+		const PsslShaderResource& res);
+
+	void bindVertexBuffer(
+		uint32_t         bindingId,
+		const GnmBuffer& vsharp);
+	void bindVertexBuffers(const PsslShaderResource& res);
+
+	void bindImmConstBuffer(
+		pssl::PsslProgramType     shaderType,
+		const PsslShaderResource& res);
+
+	void bindImmResource(const PsslShaderResource& res);
+
+	void bindSampler(const PsslShaderResource& res);
+
+	void bindShaderResources(
+		pssl::PsslProgramType                               shaderType,
+		const std::vector<GcnShaderResourceInstance>& resources);
+
+	//
 	void clearRenderState();
 
 	void setUserDataSlots(
@@ -160,9 +185,15 @@ private:
 		uint32_t        numDwords);
 
 	void insertUniqueUserDataSlot(
-		std::vector<pssl::PsslShaderResource>& container,
-		uint32_t                               startSlot,
-		pssl::PsslShaderResource&              shaderRes);
+		std::vector<PsslShaderResource>& container,
+		uint32_t                         startSlot,
+		pssl::PsslShaderResource&        shaderRes);
+
+	const uint32_t* findFetchShaderCode(const GnmShaderContext& shdrCtx);
+
+	const PsslShaderResource findShaderResource(
+		const std::vector<GcnShaderResourceInstance>& resources,
+		pssl::ShaderInputUsageType                    type);
 
 private:
 
