@@ -429,10 +429,8 @@ void GnmCommandBufferDraw::bindFramebuffer()
 	m_context->bindRenderTargets(m_state.gp.om.renderTargets);
 }
 
-void GnmCommandBufferDraw::setVertexInputLayout(const PsslShaderResource& res)
+void GnmCommandBufferDraw::setVertexInputLayout(const std::vector<PsslShaderResource>& attributes)
 {
-	const GnmBuffer* vertexTable = reinterpret_cast<const GnmBuffer*>(res.resource);
-
 	// TODO:
 	// For some games, ie. Nier:Automata, vertex attributes are not stored
 	// in a single vertex buffer area, so in this case we need to use multiple vertex
@@ -440,20 +438,20 @@ void GnmCommandBufferDraw::setVertexInputLayout(const PsslShaderResource& res)
 	// in this case, we only need one vertex binding.
 	// Currently I only support the first case, we need to check whether these attributes
 	// are in same memory area or not.
-	auto               inputSemantics = m_shaders.vs.shader->vsInputSemantic();
-	uint32_t           bindingCount   = inputSemantics.size();
-	GveVertexInputInfo viInfo         = {};
 
-	uint32_t location = 0;
+	GveVertexInputInfo viInfo       = {};
+	uint32_t           location     = 0;
+
+	uint32_t bindingCount = attributes.size();
 	for (uint32_t i = 0; i != bindingCount; ++i)
 	{
-		const GnmBuffer& vsharp = vertexTable[i];
+		const GnmBuffer* vsharp = reinterpret_cast<const GnmBuffer*>(attributes[i].resource);
 
-		uint32_t stride  = vsharp.getStride();
+		uint32_t stride  = vsharp->getStride();
 		auto     binding = GveVertexBinding(i, stride, VK_VERTEX_INPUT_RATE_VERTEX, 0);
 		viInfo.addBinding(binding);
 
-		VkFormat vtxFmt = cvt::convertDataFormatToVkFormat(vsharp.getDataFormat());
+		VkFormat vtxFmt = cvt::convertDataFormatToVkFormat(vsharp->getDataFormat());
 		auto     attr   = GveVertexAttribute(location++, i, vtxFmt, 0);
 		viInfo.addAttribute(attr);
 	}
@@ -643,11 +641,11 @@ void GnmCommandBufferDraw::commitVsStage()
 	auto shaderResources = PsslShaderModule::flattenShaderResources(nestedResources);
 
 	// Set vertex input layout
-	auto vertexResource = findShaderResource(shaderResources, kShaderInputUsageImmVertexBuffer);
+	auto vertexAttributes = extractVertexAttributes(shaderResources);
 	// Some shaders doesn't have vertex input, we need to check
-	if (vertexResource.resource)
+	if (vertexAttributes.size())
 	{
-		setVertexInputLayout(vertexResource);
+		setVertexInputLayout(vertexAttributes);
 	}
 	
 	// Bind all resources which the shader uses.
@@ -808,5 +806,22 @@ const PsslShaderResource GnmCommandBufferDraw::findShaderResource(
 	}
 
 	return result;
+}
+
+std::vector<PsslShaderResource> GnmCommandBufferDraw::extractVertexAttributes(
+	const std::vector<GcnShaderResourceInstance>& resources)
+{
+	std::vector<PsslShaderResource> vertexAttributes;
+
+	for (const auto& res : resources)
+	{
+		if (res.usageType != kShaderInputUsageImmVertexBuffer)
+		{
+			continue;
+		}
+
+		vertexAttributes.push_back(res.res);
+	}
+	return vertexAttributes;
 }
 

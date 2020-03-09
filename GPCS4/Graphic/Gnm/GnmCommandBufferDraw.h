@@ -156,7 +156,7 @@ private:
 	void bindIndexBuffer();
 
 	void setVertexInputLayout(
-		const PsslShaderResource& res);
+		const std::vector<PsslShaderResource>& attributes);
 
 	void bindVertexBuffer(const PsslShaderResource& res);
 
@@ -188,10 +188,13 @@ private:
 
 	const uint32_t* findFetchShaderCode(const GnmShaderContext& shdrCtx);
 
+	// Find resource from flat shader resources.
 	const PsslShaderResource findShaderResource(
 		const std::vector<GcnShaderResourceInstance>& resources,
 		pssl::ShaderInputUsageType                    type);
 
+	std::vector<PsslShaderResource> extractVertexAttributes(
+		const std::vector<GcnShaderResourceInstance>& resources);
 private:
 
 	GnmContextState               m_state;
