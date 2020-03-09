@@ -820,7 +820,7 @@ std::vector<PsslShaderResource> GnmCommandBufferDraw::extractVertexAttributes(
 			continue;
 		}
 
-		vertexAttributes.push_back(res.res);
+		vertexAttributes.emplace_back(res.res);
 	}
 	return vertexAttributes;
 }
