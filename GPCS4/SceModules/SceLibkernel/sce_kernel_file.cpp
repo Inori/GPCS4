@@ -117,10 +117,24 @@ int PS4API sceKernelOpen(const char *path, int flags, SceKernelMode mode)
 	}
 	else
 	{
-		LOG_ASSERT((flags == SCE_KERNEL_O_RDONLY), "not supported flag.");
-		LOG_ASSERT((mode == SCE_KERNEL_S_IRU) || ((mode == SCE_KERNEL_S_INONE) && ((flags & SCE_KERNEL_O_CREAT) == 0)), "not supported mode.");
+		LOG_ASSERT((flags == SCE_KERNEL_O_RDONLY || flags & SCE_KERNEL_O_TRUNC), "not supported flag.");
+		LOG_ASSERT((mode == SCE_KERNEL_S_IRU) || ((mode == SCE_KERNEL_S_INONE) && ((flags & SCE_KERNEL_O_CREAT) == 0)) || ((mode == SCE_KERNEL_S_IRWU) && ((flags & SCE_KERNEL_O_TRUNC))), "not supported mode.");
 
-		int fd = _open(pcPath.c_str(), _O_RDONLY | _O_BINARY, _S_IREAD);
+		int oflag;
+		int pmode;
+		
+		if (flags & SCE_KERNEL_O_TRUNC) 
+		{
+			oflag = _O_CREAT | _O_TRUNC | _O_BINARY;
+			pmode = _S_IREAD | _S_IWRITE;
+		}
+		else 
+		{
+			oflag = _O_RDONLY | _O_BINARY;
+			pmode = _S_IREAD;
+		}
+
+		int fd = _open(pcPath.c_str(), oflag, pmode);
 		if (fd == -1)
 		{
 			LOG_WARN("open file failed %s", path);

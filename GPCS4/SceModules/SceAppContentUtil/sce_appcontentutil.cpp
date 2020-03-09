@@ -95,3 +95,9 @@ int PS4API sceAppContentAppParamGetInt(SceAppContentAppParamId paramId, int32_t 
 	return ret;
 }
 
+
+int PS4API sceAppContentTemporaryDataMount2(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
