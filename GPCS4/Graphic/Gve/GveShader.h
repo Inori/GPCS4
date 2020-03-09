@@ -29,7 +29,7 @@ public:
 
 	VkShaderStageFlagBits stage() const;
 
-	void fillResourceSlots(GveDescriptorSlotMap& slotMap) const;
+	void defineResourceSlots(GveDescriptorSlotMap& slotMap) const;
 
 	GveShaderModule createShaderModule(const GveDevice*            device,
 									   const GveDescriptorSlotMap& slotMap);

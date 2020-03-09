@@ -28,7 +28,7 @@ VkShaderStageFlagBits GveShader::stage() const
 	return m_stage;
 }
 
-void GveShader::fillResourceSlots(GveDescriptorSlotMap& slotMap) const
+void GveShader::defineResourceSlots(GveDescriptorSlotMap& slotMap) const
 {
 	for (const auto& slot : m_slots)
 	{
