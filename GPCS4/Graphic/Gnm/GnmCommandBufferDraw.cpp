@@ -306,27 +306,36 @@ void GnmCommandBufferDraw::setIndexSize(IndexSize indexSize, CachePolicy cachePo
 
 void GnmCommandBufferDraw::drawIndexAuto(uint32_t indexCount, DrawModifier modifier)
 {
-	
+	commitGraphicsStages<false, false>();
+
+	// TODO:
+	// Is indexCount == vertexCount ?
+	uint32_t vertexCount = indexCount;
+
+	m_context->draw(vertexCount, 1, 0, 0);
 }
 
 void GnmCommandBufferDraw::drawIndexAuto(uint32_t indexCount)
 {
-	
+	DrawModifier modifier = {};
+	drawIndexAuto(indexCount, modifier);
 }
 
 void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void* indexAddr, DrawModifier modifier)
 {
-	
+	commitGraphicsStages<true, false>();
+	m_context->drawIndexed(indexCount, 1, 0, 0, 0);
 }
 
 void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void* indexAddr)
 {
-	
+	DrawModifier modifier = {};
+	drawIndex(indexCount, indexAddr, modifier);
 }
 
 void GnmCommandBufferDraw::dispatch(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ)
 {
-	
+	dispatchWithOrderedAppend(threadGroupX, threadGroupY, threadGroupZ, kDispatchOrderedAppendModeDisabled);
 }
 
 void GnmCommandBufferDraw::dispatchWithOrderedAppend(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ, DispatchOrderedAppendMode orderedAppendMode)
@@ -435,6 +444,7 @@ void GnmCommandBufferDraw::commitPsStage()
 {
 }
 
+template <bool Indexed, bool Indirect>
 void GnmCommandBufferDraw::commitGraphicsStages()
 {
 }

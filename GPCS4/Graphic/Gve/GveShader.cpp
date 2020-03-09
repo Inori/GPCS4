@@ -7,10 +7,10 @@ LOG_CHANNEL(Graphic.Gve.GveShader);
 namespace gve
 {;
 
-GveShader::GveShader(VkShaderStageFlagBits stage, 
-	SpirvCodeBuffer code,
-	const PsslKey& key,
-	std::vector<GveResourceSlot>&& resSlots):
+GveShader::GveShader(VkShaderStageFlagBits          stage,
+					 SpirvCodeBuffer                code,
+					 const PsslKey&                 key,
+					 std::vector<GveResourceSlot>&& resSlots) :
 	m_stage(stage),
 	m_code(code),
 	m_key(key),

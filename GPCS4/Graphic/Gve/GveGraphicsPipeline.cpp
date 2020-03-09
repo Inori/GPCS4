@@ -41,8 +41,8 @@ GveGraphicsPipeline::GveGraphicsPipeline(GvePipelineManager* pipeMgr, const GveG
 	m_pipelineManager(pipeMgr),
 	m_shaders(shaders)
 {
-	shaders.vs->fillResourceSlots(m_resSlotMap);
-	shaders.fs->fillResourceSlots(m_resSlotMap);
+	shaders.vs->defineResourceSlots(m_resSlotMap);
+	shaders.fs->defineResourceSlots(m_resSlotMap);
 
 	m_layout = new GvePipelineLayout(pipeMgr->m_device, m_resSlotMap, VK_PIPELINE_BIND_POINT_GRAPHICS);
 }

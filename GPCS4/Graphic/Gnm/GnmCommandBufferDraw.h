@@ -144,6 +144,7 @@ private:
 	// Stages setup
 	void commitVsStage();
 	void commitPsStage();
+	template <bool Indexed, bool Indirect>
 	void commitGraphicsStages();
 
 	void commitCsStage();
