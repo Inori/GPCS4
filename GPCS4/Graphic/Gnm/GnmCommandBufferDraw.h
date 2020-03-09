@@ -158,10 +158,7 @@ private:
 	void setVertexInputLayout(
 		const PsslShaderResource& res);
 
-	void bindVertexBuffer(
-		uint32_t         bindingId,
-		const GnmBuffer& vsharp);
-	void bindVertexBuffers(const PsslShaderResource& res);
+	void bindVertexBuffer(const PsslShaderResource& res);
 
 	void bindImmConstBuffer(
 		pssl::PsslProgramType     shaderType,

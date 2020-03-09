@@ -471,7 +471,7 @@ void GnmCommandBufferDraw::bindIndexBuffer()
 	m_context->bindIndexBuffer(indexBuffer, indexDesc.type);
 }
 
-void GnmCommandBufferDraw::bindVertexBuffer(uint32_t bindingId, const GnmBuffer& vsharp)
+void GnmCommandBufferDraw::bindVertexBuffer(const PsslShaderResource& res)
 {
 	// TODO:
 	// There's a critical problem here, probably the most critical one for the whole GPCS4 project:
@@ -485,34 +485,26 @@ void GnmCommandBufferDraw::bindVertexBuffer(uint32_t bindingId, const GnmBuffer&
 	// We may need to develop some heuristic strategies to deal with this problem.
 	// Currently I just update GPU buffer every time it gets bound and don't release any of them.
 
-	void* vtxData = vsharp.getBaseAddress();
+	const GnmBuffer* vsharp  = reinterpret_cast<const GnmBuffer*>(res.resource);
+	void*            vtxData = vsharp->getBaseAddress();
 
-	bool isSwizzled = vsharp.isSwizzled();
+	bool isSwizzled = vsharp->isSwizzled();
 	LOG_ASSERT(isSwizzled == false, "do not support swizzled buffer currently.");
 
-	VkDeviceSize bufferSize = vsharp.getSize();
+	VkDeviceSize bufferSize = vsharp->getSize();
 
 	GnmBufferCreateInfo info = {};
-	info.buffer              = &vsharp;
+	info.buffer              = vsharp;
 	info.stages              = VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
 	info.usageType           = kShaderInputUsageImmVertexBuffer;
 	auto vertexBuffer        = m_factory.grabBuffer(info);
 
 	m_context->updateBuffer(vertexBuffer, 0, bufferSize, vtxData);
 
-	uint32_t stride = vsharp.getStride();
-	m_context->bindVertexBuffer(bindingId, GveBufferSlice(vertexBuffer, 0, bufferSize), stride);
-}
-
-void GnmCommandBufferDraw::bindVertexBuffers(const PsslShaderResource& res)
-{
-	const GnmBuffer* vertexTable  = reinterpret_cast<const GnmBuffer*>(res.resource);
-	uint32_t         bindingCount = m_shaders.vs.shader->vsInputSemantic().size();
-	for (uint32_t i = 0; i != bindingCount; ++i)
-	{
-		const GnmBuffer& vsharp = vertexTable[i];
-		bindVertexBuffer(i, vsharp);
-	}
+	uint32_t stride = vsharp->getStride();
+	// startRegister act as binding id for vertex buffers,
+	// it is set in PsslShaderModule::parseResPtrTable
+	m_context->bindVertexBuffer(res.startRegister, GveBufferSlice(vertexBuffer, 0, bufferSize), stride);
 }
 
 void GnmCommandBufferDraw::bindImmConstBuffer(pssl::PsslProgramType shaderType, const PsslShaderResource& res)
@@ -623,7 +615,7 @@ void GnmCommandBufferDraw::bindShaderResources(
 			bindImmConstBuffer(shaderType, res.res);
 			break;
 		case pssl::kShaderInputUsageImmVertexBuffer:
-			bindVertexBuffers(res.res);
+			bindVertexBuffer(res.res);
 			break;
 		case pssl::kShaderInputUsageImmRwResource:
 		default:

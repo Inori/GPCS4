@@ -363,14 +363,14 @@ void PsslShaderModule::parseResPtrTable()
 			// Support Es Ls and Cs.
 			for (auto& sematic : m_vsInputSemantic)
 			{
-				uint32_t semanticIndex = sematic.semantic;
+				uint32_t bindingId = sematic.semantic;
 
 				GcnShaderResourceInstance res = {};
 				// Convert to imm type.
 				res.usageType         = kShaderInputUsageImmVertexBuffer;
-				// startRegister is not meaningful for vertex buffer inputs, just give it a random value.
-				res.res.startRegister = semanticIndex;
-				res.res.resource      = &vertexBufferTable[semanticIndex * kDwordSizeVertexBuffer];
+				// startRegister act as binding id for vertex buffers
+				res.res.startRegister = bindingId;
+				res.res.resource      = &vertexBufferTable[bindingId * kDwordSizeVertexBuffer];
 				res.res.sizeDwords    = kDwordSizeVertexBuffer;
 
 				m_shaderResources.ud.push_back(res);

@@ -22,6 +22,8 @@ public:
 		RenderTargetChannelType  rtChannelType,
 		RenderTargetChannelOrder channelOrder);
 
+	static DataFormat build(ZFormat zFmt);
+
 	bool operator==(const DataFormat& other) const;
 
 	uint32_t getTotalBitsPerElement() const;

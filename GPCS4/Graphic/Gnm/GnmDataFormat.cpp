@@ -292,6 +292,21 @@ DataFormat DataFormat::build(RenderTargetFormat rtFmt, RenderTargetChannelType r
 	return result;
 }
 
+DataFormat DataFormat::build(ZFormat zFmt)
+{
+	DataFormat result;
+	uint8_t  depthFormats[] = { 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0 };
+	uint32_t channelTypes[] = { 0, 0, 0, 7 };
+
+	result.m_bits.m_surfaceFormat = depthFormats[zFmt * 4];
+	result.m_bits.m_channelType   = channelTypes[zFmt];
+	result.m_bits.m_channelX      = kTextureChannelX;
+	result.m_bits.m_channelY      = kTextureChannelX;
+	result.m_bits.m_channelZ      = kTextureChannelX;
+	result.m_bits.m_channelW      = kTextureChannelX;
+	return result;
+}
+
 uint32_t DataFormat::getTotalBitsPerElement() const
 {
 	uint32_t surfFmt = m_bits.m_surfaceFormat;
