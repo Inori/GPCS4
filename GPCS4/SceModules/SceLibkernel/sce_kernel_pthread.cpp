@@ -186,7 +186,8 @@ void * PS4API scek_pthread_getspecific(pthread_key_t key)
 
 int PS4API scek_pthread_key_create(pthread_key_t *key, void(*destructor)(void*))
 {
-	LOG_FIXME("key %p destructor address %p", key, destructor);
+	LOG_SCE_DUMMY_IMPL();
+	LOG_DEBUG("key %p destructor address %p", key, destructor);
 	//int err = pthread_key_create(key, destructor);
 	return SCE_OK;
 }
