@@ -461,8 +461,8 @@ void GveContext::updateBuffer(const RcPtr<GveBuffer>& buffer,
 	leaveRenderPassScope();
 
 	auto  stagingSlice = m_staging->alloc(size, CACHE_LINE_SIZE);
-	void* stagingData  = stagingSlice.mapPtr(0);
-	std::memcpy(stagingData, data, size);
+	auto stagingHandle = stagingSlice.getHandle();
+	std::memcpy(stagingHandle.mapPtr, data, size);
 
 	copyBuffer(buffer, offset, stagingSlice.buffer(), stagingSlice.offset(), size);
 
@@ -487,13 +487,14 @@ void GveContext::updateImage(
 	auto     stagingSlice  = m_staging->alloc(imageSize, CACHE_LINE_SIZE);
 	auto     stagingHandle = stagingSlice.getHandle();
 
-	auto blockCount = util::computeBlockCount(imgInfo.extent, formatInfo->blockSize);
-	util::packImageData(
-		stagingHandle.mapPtr,
-		data, blockCount,
-		formatInfo->elementSize,
-		pitchPerRow,
-		pitchPerLayer);
+	std::memcpy(stagingHandle.mapPtr, data, imageSize);
+	//auto blockCount = util::computeBlockCount(imgInfo.extent, formatInfo->blockSize);
+	//util::packImageData(
+	//	stagingHandle.mapPtr,
+	//	data, blockCount,
+	//	formatInfo->elementSize,
+	//	pitchPerRow,
+	//	pitchPerLayer);
 
 	VkImageLayout transferLayout = image->pickLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
