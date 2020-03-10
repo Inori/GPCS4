@@ -43,3 +43,4 @@ int PS4API sceAppContentInitialize(const SceAppContentInitParam *initParam, SceA
 
 int PS4API sceAppContentAppParamGetInt(SceAppContentAppParamId paramId, int32_t *value);
 
+int PS4API sceAppContentTemporaryDataMount2(void);

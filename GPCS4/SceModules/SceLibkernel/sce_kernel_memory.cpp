@@ -104,6 +104,14 @@ int PS4API sceKernelMunmap(void)
 }
 
 
+int PS4API sceKernelMlock(const void *addr, size_t len)
+{
+	LOG_SCE_DUMMY_IMPL();
+	LOG_DEBUG("addr %p len %zd", addr, len);
+	return SCE_OK;
+}
+
+
 int PS4API sceKernelQueryMemoryProtection(void* addr, void** start, void** end, uint32_t* prot)
 {
 	LOG_SCE_TRACE("%p", addr);

@@ -241,6 +241,16 @@ PS4API int scek_socket(int domain, int type, int protocol)
 	return -1;
 }
 
+
+int PS4API scek___sys_ipmimgr_call(uint32_t op, uint32_t handle, uint32_t* result, void* args_buffer, size_t args_size, uint64_t cookie)
+{
+	LOG_SCE_TRACE("ipmimgr_call: %u, %u, %p, %p, %I64x, %I64x\n", op, handle, result, args_buffer, args_size, cookie);
+
+	*result = 0;
+
+	return SCE_OK;
+}
+
 //////////////////////////////////////////////////////////////////////////
 // library: libSceCoredump
 //////////////////////////////////////////////////////////////////////////

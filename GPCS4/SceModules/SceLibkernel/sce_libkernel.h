@@ -360,6 +360,9 @@ int PS4API sceKernelMtypeprotect(void);
 int PS4API sceKernelMunmap(void);
 
 
+int PS4API sceKernelMlock(const void *addr, size_t len);
+
+
 int PS4API sceKernelQueryMemoryProtection(void* addr, void** start, void** end, uint32_t* prot);
 
 
@@ -454,6 +457,9 @@ void* PS4API scek_mmap(void* start, size_t length, uint32_t prot, uint32_t flags
 
 
 int PS4API scek_socket(int domain, int type, int protocol);
+
+
+int PS4API scek___sys_ipmimgr_call(uint32_t op, uint32_t handle, uint32_t* result, void* args_buffer, size_t args_size, uint64_t cookie);
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -571,10 +577,13 @@ int PS4API scek_connect(void);
 int PS4API scek_pthread_setschedparam(void);
 
 
+int PS4API scek_pthread_setspecific(pthread_key_t key, const void *value);
+
+
 void * PS4API scek_pthread_getspecific(pthread_key_t key);
 
 
-int PS4API scek_pthread_key_create(void);
+int PS4API scek_pthread_key_create(pthread_key_t *key, void(*destructor)(void*));
 
 
 int PS4API scek_recv(void);

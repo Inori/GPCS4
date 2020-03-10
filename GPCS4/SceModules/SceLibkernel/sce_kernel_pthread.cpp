@@ -169,6 +169,13 @@ int PS4API scek_pthread_setschedparam(void)
 	return SCE_OK;
 }
 
+int PS4API scek_pthread_setspecific(pthread_key_t key, const void *value)
+{
+	LOG_SCE_DUMMY_IMPL();
+	LOG_DEBUG("key %p value %p", key, value);
+	//int err = pthread_setspecific(key, value);
+	return SCE_OK;
+}
 
 void * PS4API scek_pthread_getspecific(pthread_key_t key) 
 {
@@ -177,8 +184,10 @@ void * PS4API scek_pthread_getspecific(pthread_key_t key)
 }
 
 
-int PS4API scek_pthread_key_create(void)
+int PS4API scek_pthread_key_create(pthread_key_t *key, void(*destructor)(void*))
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_DUMMY_IMPL();
+	LOG_DEBUG("key %p destructor address %p", key, destructor);
+	//int err = pthread_key_create(key, destructor);
 	return SCE_OK;
 }
