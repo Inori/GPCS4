@@ -106,7 +106,8 @@ int PS4API sceKernelMunmap(void)
 
 int PS4API sceKernelMlock(const void *addr, size_t len)
 {
-	LOG_FIXME("addr %p len %zd", addr, len);
+	LOG_SCE_DUMMY_IMPL();
+	LOG_DEBUG("addr %p len %zd", addr, len);
 	return SCE_OK;
 }
 
