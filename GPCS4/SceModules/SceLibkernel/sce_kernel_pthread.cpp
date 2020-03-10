@@ -171,7 +171,8 @@ int PS4API scek_pthread_setschedparam(void)
 
 int PS4API scek_pthread_setspecific(pthread_key_t key, const void *value)
 {
-	LOG_FIXME("key %p value %p", key, value);
+	LOG_SCE_DUMMY_IMPL();
+	LOG_DEBUG("key %p value %p", key, value);
 	//int err = pthread_setspecific(key, value);
 	return SCE_OK;
 }
