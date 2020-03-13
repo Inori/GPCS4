@@ -705,8 +705,9 @@ void GnmCommandBufferDraw::clearRenderTargetHack(GnmShaderResourceList& shaderRe
 	// Because like I said above, the memory content of the render target image will be
 	// treated as a normal uint32 array, and descripted by V# (GnmBuffer),
 	// not by T# (GnmTexture) anymore, thus we lost all the image format information.
-	// And even worse, the shader will use some constant buffers generated from the
-	// original render target image.
+	// And even worse, the shader will use a constant buffer generated using the
+	// original render target image, and we don't know the structure definition of 
+	// the constant buffer obviously. (well, we do if we hard-code it.)
 	// So as a conclusion, this compute shader is useless for us.
 
 	// Extract the resource which hold the encoded color value using to clear the target.
@@ -717,7 +718,7 @@ void GnmCommandBufferDraw::clearRenderTargetHack(GnmShaderResourceList& shaderRe
 	// Extract the resource which re-represents the color target.
 	auto             destRes    = findShaderResource(shaderResources, kShaderInputUsageImmRwResource);
 	const GnmBuffer* destBuffer = reinterpret_cast<const GnmBuffer*>(destRes.resource);
-	// The color buffer to clear should hold the same memory block as the render target,
+	// The buffer to clear should hold the same memory block as the render target image,
 	// so we find the actual GnmRenderTarget by memory address
 	void*                  destMemory = destBuffer->getBaseAddress();
 	const GnmRenderTarget* target     = findRenderTarget(destMemory);
@@ -731,6 +732,9 @@ void GnmCommandBufferDraw::clearRenderTargetHack(GnmShaderResourceList& shaderRe
 	uint32_t encodeValues[4] = { 0 };
 	std::memcpy(encodeValues, sourceMemory, sourceSize);
 
+	// Note:
+	// The decoded float value is not exactly equal to the original value
+	// the game set, e.g. 0.5 will become 0.496093750
 	GpuAddress::Reg32 reg[4] = {};
 	GpuAddress::dataFormatDecoder(reg, encodeValues, target->getDataFormat());
 
