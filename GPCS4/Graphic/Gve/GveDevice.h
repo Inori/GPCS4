@@ -49,7 +49,9 @@ class GveDevice : public RcObject
 	friend class GveSubmissionQueue;
 
 public:
-	GveDevice(VkDevice device, const RcPtr<GvePhysicalDevice>& phyDevice);
+	GveDevice(
+		VkDevice                        device,
+		const RcPtr<GvePhysicalDevice>& phyDevice);
 	~GveDevice();
 
 	operator VkDevice() const;
@@ -57,6 +59,10 @@ public:
 	RcPtr<GvePhysicalDevice> physicalDevice() const;
 
 	GveDeviceQueueSet queues() const;
+
+	const GveDeviceFeatures& features() const;
+
+	VkPipelineStageFlags getShaderPipelineStages() const;
 
 	RcPtr<GveFrameBuffer> createFrameBuffer(const GveRenderTargets& renderTargets);
 

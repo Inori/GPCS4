@@ -228,9 +228,9 @@ private:
 
 	void updateDynamicState();
 
-	void updateRenderPassOps(
-		const GveRenderTargets& rts,
-		GveRenderPassOps&       ops);
+	void resetRenderPassOps(
+		const GveRenderTargets& renderTargets,
+		GveRenderPassOps&       renderPassOps);
 
 	VkDescriptorSet allocateDescriptorSet(VkDescriptorSetLayout layout);
 

@@ -36,6 +36,12 @@ public:
 		kNumDbRegisters
 	};
 
+	GnmDepthRenderTarget& operator=(const GnmDepthRenderTarget& other)
+	{
+		std::memcpy(m_regs, other.m_regs, sizeof(m_regs));
+		return *this;
+	}
+
 	SizeAlign getZSizeAlign(void) const
 	{
 		// TODO:

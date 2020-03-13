@@ -23,8 +23,6 @@ union Reg32
 	int32_t  i;
 };
 
-
-
 void dataFormatDecoder(
 	Reg32* __restrict			dest,
 	const uint32_t* __restrict	src,

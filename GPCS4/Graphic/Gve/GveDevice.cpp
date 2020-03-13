@@ -15,7 +15,9 @@ namespace gve
 {;
 
 
-GveDevice::GveDevice(VkDevice device, const RcPtr<GvePhysicalDevice>& phyDevice):
+GveDevice::GveDevice(
+	VkDevice                        device,
+	const RcPtr<GvePhysicalDevice>& phyDevice) :
 	m_device(device),
 	m_phyDevice(phyDevice),
 	m_properties(phyDevice->devicePropertiesExt()),
@@ -44,6 +46,34 @@ RcPtr<GvePhysicalDevice> GveDevice::physicalDevice() const
 GveDeviceQueueSet GveDevice::queues() const
 {
 	return m_queues;
+}
+
+const GveDeviceFeatures& GveDevice::features() const
+{
+	return m_phyDevice->features();
+}
+
+VkPipelineStageFlags GveDevice::getShaderPipelineStages() const
+{
+	VkPipelineStageFlags result = 
+		VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT | 
+		VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | 
+		VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+
+	auto& features = m_phyDevice->features();
+	if (features.core.features.geometryShader)
+	{
+		result |= VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT;
+	}
+		
+	if (features.core.features.tessellationShader)
+	{
+		result |= 
+			VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT | 
+			VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT;
+	}
+
+	return result;
 }
 
 RcPtr<GveFrameBuffer> GveDevice::createFrameBuffer(const GveRenderTargets& renderTargets)

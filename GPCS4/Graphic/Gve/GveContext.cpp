@@ -135,9 +135,12 @@ void GveContext::setColorBlendState(const GveColorBlendInfo& blendCtl)
 
 void GveContext::bindRenderTargets(const GveRenderTargets& renderTargets)
 {
+	m_state.om.renderTargets = renderTargets;
+
+	resetRenderPassOps(renderTargets, m_state.om.renderPassOps);
+
 	if (!m_state.om.framebuffer || !m_state.om.framebuffer->matchTargets(renderTargets))
 	{
-		m_state.om.renderTargets = renderTargets;
 		m_flags.set(GveContextFlag::GpDirtyFramebuffer);
 	}
 	else
@@ -336,24 +339,24 @@ void GveContext::clearRenderTarget(
 			// perform the clear upon next render pass begin.
 			if (clearAspects & VK_IMAGE_ASPECT_COLOR_BIT)
 			{
-				m_state.om.passOps.colorOps[attachmentIndex].loadOp  = colorOp.loadOp;
-				m_state.om.passOps.colorOps[attachmentIndex].storeOp = colorOp.storeOp;
+				m_state.om.renderPassOps.colorOps[attachmentIndex] = colorOp;
 			}
 			if (clearAspects & VK_IMAGE_ASPECT_DEPTH_BIT)
 			{
-				m_state.om.passOps.depthOps.loadOpD  = depthOp.loadOpD;
-				m_state.om.passOps.depthOps.storeOpD = depthOp.storeOpD;
+				m_state.om.renderPassOps.depthOps.loadOpD  = depthOp.loadOpD;
+				m_state.om.renderPassOps.depthOps.storeOpD = depthOp.storeOpD;
 			}
 			if (clearAspects & VK_IMAGE_ASPECT_STENCIL_BIT)
 			{
-				m_state.om.passOps.depthOps.loadOpS  = depthOp.loadOpS;
-				m_state.om.passOps.depthOps.storeOpS = depthOp.storeOpS;
+				m_state.om.renderPassOps.depthOps.loadOpS  = depthOp.loadOpS;
+				m_state.om.renderPassOps.depthOps.storeOpS = depthOp.storeOpS;
 			}
 
 			// TODO:
 			// Here dxvk also set the image layout, I don't know why, will see.
 
 			m_state.om.clearValues[attachmentIndex] = clearValue;
+			m_flags.set(GveContextFlag::GpClearRenderTargets);
 		}
 	}
 	else
@@ -640,6 +643,16 @@ void GveContext::updateFrameBuffer()
 
 		m_state.om.framebuffer = m_device->createFrameBuffer(m_state.om.renderTargets);
 
+		// Temp for debug:
+		m_state.om.clearValues[1].depthStencil = { 1.0f, 0 };
+		m_state.om.renderPassOps.depthOps.loadOpD = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		m_state.om.renderPassOps.depthOps.loadOpS = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		m_state.om.renderPassOps.depthOps.loadLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		m_state.om.renderPassOps.depthOps.storeOpD   = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		m_state.om.renderPassOps.depthOps.storeOpS   = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		m_state.om.renderPassOps.depthOps.storeLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+
 		m_flags.clr(GveContextFlag::GpDirtyFramebuffer);
 		// If the framebuffer is updated, then the render pass has changed,
 		// thus we need to recompile pipeline.
@@ -647,33 +660,83 @@ void GveContext::updateFrameBuffer()
 	} while (false);
 }
 
-void GveContext::updateRenderPassOps(const GveRenderTargets& rts, GveRenderPassOps& ops)
+void GveContext::resetRenderPassOps(
+	const GveRenderTargets& renderTargets,
+	GveRenderPassOps&       renderPassOps)
 {
-	for (uint32_t i = 0; i != MaxNumRenderTargets; ++i)
+	VkPipelineStageFlags shaderStages =
+		m_device->getShaderPipelineStages() 
+		& ~VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+
+	renderPassOps.barrier.srcStages = 
+		shaderStages | 
+		VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT | 
+		VK_PIPELINE_STAGE_VERTEX_INPUT_BIT |
+		VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT |
+		VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT | 
+		VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT |
+		VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+
+	renderPassOps.barrier.srcAccess = 
+		VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | 
+		VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
+		VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | 
+		VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT | 
+		VK_ACCESS_INDIRECT_COMMAND_READ_BIT | 
+		VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT | 
+		VK_ACCESS_INDEX_READ_BIT |
+		VK_ACCESS_UNIFORM_READ_BIT |
+		VK_ACCESS_SHADER_READ_BIT |
+		VK_ACCESS_SHADER_WRITE_BIT;
+
+	if (m_device->features().extTransformFeedback.transformFeedback)
 	{
-		if (rts.color[i].view == nullptr)
+		renderPassOps.barrier.srcStages |= 
+			VK_PIPELINE_STAGE_TRANSFORM_FEEDBACK_BIT_EXT;
+		renderPassOps.barrier.srcAccess |= 
+			VK_ACCESS_TRANSFORM_FEEDBACK_WRITE_BIT_EXT | 
+			VK_ACCESS_TRANSFORM_FEEDBACK_COUNTER_READ_BIT_EXT | 
+			VK_ACCESS_TRANSFORM_FEEDBACK_COUNTER_WRITE_BIT_EXT;
+	}
+
+	renderPassOps.barrier.dstStages = 
+		VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+	renderPassOps.barrier.dstAccess = 
+		renderPassOps.barrier.srcAccess |
+		VK_ACCESS_TRANSFER_READ_BIT | 
+		VK_ACCESS_TRANSFER_WRITE_BIT;
+
+	renderPassOps.depthOps = renderTargets.depth.view != nullptr ? 
+	GveDepthAttachmentOps
+	{
+		VK_ATTACHMENT_LOAD_OP_LOAD,
+		VK_ATTACHMENT_LOAD_OP_LOAD,
+		renderTargets.depth.view->imageInfo().layout,
+		VK_ATTACHMENT_STORE_OP_STORE,
+		VK_ATTACHMENT_STORE_OP_STORE,
+		renderTargets.depth.view->imageInfo().layout
+	}
+	: GveDepthAttachmentOps{};
+
+	for (uint32_t i = 0; i < MaxNumRenderTargets; i++)
+	{
+		renderPassOps.colorOps[i] = renderTargets.color[i].view != nullptr ? 
+		GveColorAttachmentOps
 		{
-			continue;
+			VK_ATTACHMENT_LOAD_OP_LOAD,
+			renderTargets.color[i].view->imageInfo().layout,
+			VK_ATTACHMENT_STORE_OP_STORE,
+			renderTargets.color[i].view->imageInfo().layout
 		}
-
-		ops.colorOps[i].loadOp      = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		ops.colorOps[i].loadLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
-		ops.colorOps[i].storeOp     = VK_ATTACHMENT_STORE_OP_STORE;
-		ops.colorOps[i].storeLayout = rts.color[i].view->imageInfo().layout;
+		: GveColorAttachmentOps{};
 	}
 
-	if (rts.depth.view != nullptr)
+	// TODO provide a sane alternative for this
+	if (renderPassOps.colorOps[0].loadLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
 	{
-		ops.depthOps.loadOpD     = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		ops.depthOps.loadLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
-		ops.depthOps.storeOpD    = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		ops.depthOps.storeLayout = rts.depth.layout;
+		renderPassOps.colorOps[0].loadOp     = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		renderPassOps.colorOps[0].loadLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 	}
-
-	ops.barrier.srcStages = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-	ops.barrier.srcAccess = 0;
-	ops.barrier.dstStages = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-	ops.barrier.dstAccess = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 }
 
 void GveContext::renderPassBindFramebuffer(const RcPtr<GveFrameBuffer>& framebuffer,
@@ -915,9 +978,19 @@ void GveContext::enterRenderPassScope()
 	{
 		renderPassBindFramebuffer(
 			m_state.om.framebuffer,
-			m_state.om.passOps,
+			m_state.om.renderPassOps,
 			m_state.om.clearValues.size(),
 			m_state.om.clearValues.data());
+
+		// If there's a clear render target call issued
+		// before this, the renderpass ops will be set to
+		// clear state, we don't want to discard image contents 
+		// if we have to reenter the current render pass,
+		// so here we reset the renderpass ops.
+		resetRenderPassOps(
+			m_state.om.renderTargets,
+			m_state.om.renderPassOps);
+
 		m_flags.set(GveContextFlag::GpRenderPassBound);
 	}
 }
@@ -951,12 +1024,6 @@ void GveContext::commitGraphicsState()
 {
 	if (m_flags.test(GveContextFlag::GpDirtyFramebuffer))
 	{
-		// TODO:
-		// Temporary solution
-		m_state.om.clearValues[0].color        = { .float32 = { 0.0f, 0.0f, 0.0f, 1.0f } };
-		m_state.om.clearValues[1].depthStencil = { 1.0f, 0 };
-		updateRenderPassOps(m_state.om.renderTargets, m_state.om.passOps);
-
 		updateFrameBuffer();
 	}
 

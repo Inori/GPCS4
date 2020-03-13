@@ -1,8 +1,8 @@
 #pragma once
 
+#include "GnmBuffer.h"
 #include "GnmCommon.h"
 #include "GnmShaderMeta.h"
-#include "GnmBuffer.h"
 
 #include "../Gve/GveContextState.h"
 #include "../Gve/GveLimit.h"
@@ -10,13 +10,12 @@
 #include "../Pssl/PsslShaderModule.h"
 #include "../Pssl/PsslShaderStructure.h"
 
-
 namespace gve
-{;
+{
+;
 class GveShader;
 class GveImageView;
 }  // namespace gve
-
 
 struct GnmShaderContext
 {
@@ -77,7 +76,9 @@ struct GnmPixelShaderState
 
 struct GnmOutputMergerState
 {
-	gve::GveRenderTargets renderTargets = {};
+	gve::GveRenderTargets                                 renderTargets = {};
+	std::array<GnmRenderTarget, gve::MaxNumRenderTargets> colorTargets  = {};
+	GnmDepthRenderTarget                                  depthTarget   = {};
 
 	std::array<VkClearColorValue, gve::MaxNumRenderTargets> colorClearValues = {};
 	VkClearDepthStencilValue                                depthClearValue  = {};

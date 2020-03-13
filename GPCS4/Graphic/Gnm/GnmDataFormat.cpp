@@ -173,7 +173,14 @@ DataFormat DataFormat::build(RenderTargetFormat rtFmt, RenderTargetChannelType r
 
 	DataFormat result             = { { { 0 } } };
 	result.m_bits.m_surfaceFormat = rtFmt;
-	result.m_bits.m_channelType   = rtChannelType;
+
+	// From IDA
+	TextureChannelType channelType = kTextureChannelTypeSrgb;
+	if (rtChannelType != kRenderTargetChannelTypeSrgb)
+	{
+		channelType = static_cast<TextureChannelType>(rtChannelType & 0xF);
+	}
+	result.m_bits.m_channelType = channelType;
 
 	switch (channelOrder)
 	{
@@ -376,6 +383,25 @@ TextureChannelType DataFormat::getTextureChannelType() const
 
 uint32_t DataFormat::getNumComponents(void) const
 {
+	// From IDA
+	constexpr const int numComponentsPerElement[] = 
+	{
+		0, 1, 1, 2, 1, 2, 3, 3,
+		4, 4, 4, 2, 4, 3, 4, -1,
+		3, 4, 4, 4, 2, 2, 2, -1,
+		-1, -1, -1, -1, -1, -1, -1, -1,
+		3, 3, 3, 4, 4, 4, 1, 2,
+		3, 4, -1, -1, 2, 2, 2, 2,
+		2, 2, 2, 2, 2, 2, 2, 2,
+		2, 2, 3, 1, 1
+	};
+
+	uint32_t numComponents = 0;
+	if (m_bits.m_surfaceFormat <= kSurfaceFormat1Reversed)
+	{
+		numComponents = static_cast<uint32_t>(numComponentsPerElement[m_bits.m_surfaceFormat]);
+	}
+	return numComponents;
 }
 
 bool DataFormat::operator==(const DataFormat& other) const

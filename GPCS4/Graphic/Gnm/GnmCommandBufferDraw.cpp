@@ -190,6 +190,9 @@ void GnmCommandBufferDraw::setRenderTarget(uint32_t rtSlot, GnmRenderTarget cons
 	colorTarget.view                          = image.view;
 	colorTarget.layout                        = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 	m_state.gp.om.renderTargets.color[rtSlot] = colorTarget;
+
+	m_state.gp.om.colorTargets[rtSlot] = *target;
+	
 }
 
 void GnmCommandBufferDraw::setDepthRenderTarget(GnmDepthRenderTarget const* depthTarget)
@@ -200,6 +203,8 @@ void GnmCommandBufferDraw::setDepthRenderTarget(GnmDepthRenderTarget const* dept
 	depthAttachment.view              = depthImage.view;
 	depthAttachment.layout            = depthImage.view->imageInfo().layout;
 	m_state.gp.om.renderTargets.depth = depthAttachment;
+
+	m_state.gp.om.depthTarget = *depthTarget;
 }
 
 void GnmCommandBufferDraw::setDepthClearValue(float clearValue)
@@ -595,8 +600,8 @@ void GnmCommandBufferDraw::bindSampler(const PsslShaderResource& res)
 }
 
 void GnmCommandBufferDraw::bindShaderResources(
-	PsslProgramType                               shaderType,
-	const std::vector<GcnShaderResourceInstance>& resources)
+	PsslProgramType              shaderType,
+	const GnmShaderResourceList& resources)
 {
 	for (const auto& res : resources)
 	{
@@ -622,6 +627,7 @@ void GnmCommandBufferDraw::bindShaderResources(
 		}
 	}
 }
+
 
 void GnmCommandBufferDraw::commitVsStage()
 {
@@ -686,10 +692,64 @@ void GnmCommandBufferDraw::commitGraphicsStages()
 
 	commitVsStage();
 	commitPsStage();
+	commitCsStage();
+}
+
+void GnmCommandBufferDraw::clearRenderTargetHack(GnmShaderResourceList& shaderResources)
+{
+	// HACK:
+	// This special compute shader is used by Gnmx Toolkit to clear render target.
+	// It simply treats the render target image as an uint32 array, and fill values in the array.
+	//
+	// But why we need a hack?
+	// Because like I said above, the memory content of the render target image will be
+	// treated as a normal uint32 array, and descripted by V# (GnmBuffer),
+	// not by T# (GnmTexture) anymore, thus we lost all the image format information.
+	// And even worse, the shader will use some constant buffers generated from the
+	// original render target image.
+	// So as a conclusion, this compute shader is useless for us.
+
+	// Extract the resource which hold the encoded color value using to clear the target.
+	auto             sourceRes    = findShaderResource(shaderResources, kShaderInputUsageImmResource);
+	const GnmBuffer* sourceBuffer = reinterpret_cast<const GnmBuffer*>(sourceRes.resource);
+	void*            sourceMemory = sourceBuffer->getBaseAddress();
+	uint32_t         sourceSize   = sourceBuffer->getSize();
+	// Extract the resource which re-represents the color target.
+	auto             destRes    = findShaderResource(shaderResources, kShaderInputUsageImmRwResource);
+	const GnmBuffer* destBuffer = reinterpret_cast<const GnmBuffer*>(destRes.resource);
+	// The color buffer to clear should hold the same memory block as the render target,
+	// so we find the actual GnmRenderTarget by memory address
+	void*                  destMemory = destBuffer->getBaseAddress();
+	const GnmRenderTarget* target     = findRenderTarget(destMemory);
+
+	LOG_ASSERT(target != nullptr, "can not find render target");
+
+	// Gnmx Toolkit encodes the RGBA color value which the game provides
+	// to a encoded value according to the render target's data format.
+	// It's likely a tiled value, so we have to decode it to recover the
+	// original RGBA value.
+	uint32_t encodeValues[4] = { 0 };
+	std::memcpy(encodeValues, sourceMemory, sourceSize);
+
+	GpuAddress::Reg32 reg[4] = {};
+	GpuAddress::dataFormatDecoder(reg, encodeValues, target->getDataFormat());
+
+	auto image = m_factory.grabRenderTarget(*target);
+	m_context->clearRenderTarget(image.view, VK_IMAGE_ASPECT_COLOR_BIT, *reinterpret_cast<VkClearValue*>(reg));
 }
 
 void GnmCommandBufferDraw::commitCsStage()
 {
+	m_shaders.cs.shader = new PsslShaderModule((const uint32_t*)m_shaders.cs.code);
+	m_shaders.cs.shader->defineShaderInput(m_shaders.cs.userDataSlotTable);
+	auto nestedResources = m_shaders.cs.shader->getShaderResources();
+	auto shaderResources = PsslShaderModule::flattenShaderResources(nestedResources);
+
+	// Hack
+	if (m_shaders.cs.shader->key().toUint64() == 0x8C25642DB09D8E59)
+	{
+		clearRenderTargetHack(shaderResources);
+	}
 }
 
 void GnmCommandBufferDraw::commitComputeStages()
@@ -791,8 +851,8 @@ const uint32_t* GnmCommandBufferDraw::findFetchShaderCode(const GnmShaderContext
 }
 
 const PsslShaderResource GnmCommandBufferDraw::findShaderResource(
-	const std::vector<GcnShaderResourceInstance>& resources,
-	ShaderInputUsageType                          type)
+	const GnmShaderResourceList& resources,
+	ShaderInputUsageType         type)
 {
 	PsslShaderResource result = {};
 
@@ -808,8 +868,23 @@ const PsslShaderResource GnmCommandBufferDraw::findShaderResource(
 	return result;
 }
 
-std::vector<PsslShaderResource> GnmCommandBufferDraw::extractVertexAttributes(
-	const std::vector<GcnShaderResourceInstance>& resources)
+const GnmRenderTarget* GnmCommandBufferDraw::findRenderTarget(void* address)
+{
+	auto matchAddress = [address](const GnmRenderTarget& target) 
+	{
+		return address == target.getBaseAddress();
+	};
+
+	auto iter = std::find_if(
+		m_state.gp.om.colorTargets.begin(),
+		m_state.gp.om.colorTargets.end(),
+		matchAddress);
+
+	return (iter != m_state.gp.om.colorTargets.end() ?
+		&*iter : nullptr);
+}
+
+std::vector<PsslShaderResource> GnmCommandBufferDraw::extractVertexAttributes(const GnmShaderResourceList& resources)
 {
 	std::vector<PsslShaderResource> vertexAttributes;
 

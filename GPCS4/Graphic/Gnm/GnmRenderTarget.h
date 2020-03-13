@@ -44,6 +44,12 @@ public:
 		kNumCbRegisters
 	};
 
+	GnmRenderTarget& operator = (const GnmRenderTarget& other)
+	{
+		std::memcpy(m_regs, other.m_regs, sizeof(m_regs));
+		return *this;
+	}
+
 	SizeAlign getColorSizeAlign(void) const
 	{
 		// TODO:

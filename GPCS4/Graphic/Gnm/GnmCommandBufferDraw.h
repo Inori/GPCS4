@@ -22,6 +22,7 @@ class GnmCommandBufferDraw : public GnmCommandBuffer
 	using PsslShaderResource        = pssl::PsslShaderResource;
 	using GcnShaderResourceInstance = pssl::GcnShaderResourceInstance;
 	using VertexInputSemantic       = pssl::VertexInputSemantic;
+	using GnmShaderResourceList	    = std::vector<GcnShaderResourceInstance>;
 
 public:
 	GnmCommandBufferDraw(
@@ -169,10 +170,13 @@ private:
 	void bindSampler(const PsslShaderResource& res);
 
 	void bindShaderResources(
-		pssl::PsslProgramType                               shaderType,
-		const std::vector<GcnShaderResourceInstance>& resources);
+		pssl::PsslProgramType        shaderType,
+		const GnmShaderResourceList& resources);
 
 	//
+	void clearRenderTargetHack(
+		GnmShaderResourceList& shaderResources);
+
 	void clearRenderState();
 
 	void setUserDataSlots(
@@ -186,15 +190,18 @@ private:
 		uint32_t                         startSlot,
 		pssl::PsslShaderResource&        shaderRes);
 
-	const uint32_t* findFetchShaderCode(const GnmShaderContext& shdrCtx);
+	const uint32_t* findFetchShaderCode(
+		const GnmShaderContext& shdrCtx);
 
 	// Find resource from flat shader resources.
 	const PsslShaderResource findShaderResource(
-		const std::vector<GcnShaderResourceInstance>& resources,
-		pssl::ShaderInputUsageType                    type);
+		const GnmShaderResourceList&  resources,
+		pssl::ShaderInputUsageType type);
 
-	std::vector<PsslShaderResource> extractVertexAttributes(
-		const std::vector<GcnShaderResourceInstance>& resources);
+	const GnmRenderTarget* findRenderTarget(void* address);
+
+	std::vector<PsslShaderResource> extractVertexAttributes(const GnmShaderResourceList& resources);
+
 private:
 
 	GnmContextState               m_state;

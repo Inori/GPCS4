@@ -120,8 +120,10 @@ GveDeviceFeatures SceGnmDriver::getEnableFeatures(const RcPtr<gve::GvePhysicalDe
 
 	// Setup all required features to be enabled here.
 
-	required.core.features.samplerAnisotropy = supported.core.features.samplerAnisotropy;
-	required.core.features.shaderInt64       = VK_TRUE;
+	required.core.features.samplerAnisotropy  = supported.core.features.samplerAnisotropy;
+	required.core.features.shaderInt64        = VK_TRUE;
+	required.core.features.geometryShader     = supported.core.features.geometryShader;
+	required.core.features.tessellationShader = supported.core.features.tessellationShader;
 
 	return required;
 }
