@@ -1,0 +1,66 @@
+//------------------------------------------------
+//--- 010 Editor v3.0 Script File
+//
+// Author:   Asuka
+// Revision: 1.0
+// Purpose:  Defines a template for
+//    parsing AMD PM4 packet queue.
+// Changes:  
+// 1.0: 
+//   - Initial version.
+//------------------------------------------------
+
+int i, origfile, newfile, start, size, col, writeHeader;
+
+// Determine range to copy
+if( GetSelSize() == 0 )
+{
+    start = 0;
+    size  = FileSize();
+}
+else 
+{
+    start = GetSelStart(); 
+    size  = GetSelSize();
+}
+
+// Create a new file for writing data
+origfile = GetFileNum();
+newfile  = FileNew();
+FileSelect( origfile );
+
+// Convert each int to hex
+int sizeInDwords = size/sizeof(unsigned int);
+FPrintf( newfile, "unsigned int table[%d] =\r\n{\r\n      ",  sizeInDwords);
+
+col = 0;
+writeHeader = false;
+for( i = 0; i < sizeInDwords; i++ )
+{
+    // Write header at the beginning of the file
+    if( writeHeader )
+    {
+        FPrintf( newfile, "      " );
+        writeHeader = false;
+    }
+
+    // Write int converted to hex
+    if( col > 0 )
+        FPrintf( newfile, ", " );
+    FPrintf( newfile, "%d", ReadUInt(start + i * sizeof(unsigned int)) );
+
+    // Write end of line every 8 bytes
+    if( ++col == 8 ) 
+    {
+        FPrintf( newfile, ", \r\n" ); 
+        writeHeader = true;
+        col = 0;
+    }
+}
+FPrintf( newfile, "\n};" );
+// Copy to clipboard and close the file
+FileSelect( newfile );
+SetSelection( 0, FileSize() );
+CutToClipboard();
+FileClose();
+FileSelect( origfile );
