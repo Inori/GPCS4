@@ -24,6 +24,9 @@ using namespace sce;
 using namespace gve;
 using namespace pssl;
 
+	// The compute shader using to clear color render target
+constexpr uint64_t ShaderHashClearRT = 0x8C25642DB09D8E59;
+
 GnmCommandBufferDraw::GnmCommandBufferDraw(
 	const SceGpuQueueDevice& device,
 	const RcPtr<GveContext>& context) :
@@ -742,6 +745,7 @@ void GnmCommandBufferDraw::clearRenderTargetHack(GnmShaderResourceList& shaderRe
 	m_context->clearRenderTarget(image.view, VK_IMAGE_ASPECT_COLOR_BIT, *reinterpret_cast<VkClearValue*>(reg));
 }
 
+
 void GnmCommandBufferDraw::commitCsStage()
 {
 	m_shaders.cs.shader = new PsslShaderModule((const uint32_t*)m_shaders.cs.code);
@@ -750,7 +754,7 @@ void GnmCommandBufferDraw::commitCsStage()
 	auto shaderResources = PsslShaderModule::flattenShaderResources(nestedResources);
 
 	// Hack
-	if (m_shaders.cs.shader->key().toUint64() == 0x8C25642DB09D8E59)
+	if (m_shaders.cs.shader->key().toUint64() == ShaderHashClearRT)
 	{
 		clearRenderTargetHack(shaderResources);
 	}
