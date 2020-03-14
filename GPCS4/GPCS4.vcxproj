@@ -584,10 +584,10 @@
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Label="LLVM" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClangClAdditionalOptions>-Wno-unused-variable -Wno-unused-private-field -Wno-switch -Wno-return-type -Wno-unused-function -Wno-return-type</ClangClAdditionalOptions>
+    <ClangClAdditionalOptions>-Wno-unused-variable -Wno-unused-private-field -Wno-switch -Wno-return-type -Wno-unused-function -Wno-return-type /showFilenames</ClangClAdditionalOptions>
   </PropertyGroup>
   <PropertyGroup Label="LLVM" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ClangClAdditionalOptions>-flto=thin -Wno-unused-variable -Wno-unused-private-field -Wno-switch -Wno-unused-function -Wno-return-type</ClangClAdditionalOptions>
+    <ClangClAdditionalOptions>-Wno-unused-variable -Wno-unused-private-field -Wno-switch -Wno-unused-function -Wno-return-type -flto=thin /showFilenames</ClangClAdditionalOptions>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -608,6 +608,7 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(VULKAN_SDK)\Include;$(SolutionDir)GPCS4;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GPCS4_DEBUG;__PTW32_STATIC_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
@@ -638,7 +639,6 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
