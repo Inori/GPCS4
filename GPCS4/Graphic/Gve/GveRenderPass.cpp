@@ -175,6 +175,10 @@ VkRenderPass GveRenderPass::createRenderPass(const GveRenderPassOps& ops)
 		std::array<VkSubpassDependency, 3> subpassDeps;
 		uint32_t                           subpassDepCount = 0;
 
+		// A Subpass Self-dependency is required if
+		// we call vkCmdPipelineBarrier inside a renderpass
+		// scope.
+
 		if (ops.barrier.srcStages & (
 			VK_PIPELINE_STAGE_TRANSFORM_FEEDBACK_BIT_EXT |
 			VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT |
@@ -206,9 +210,12 @@ VkRenderPass GveRenderPass::createRenderPass(const GveRenderPassOps& ops)
 
 		if (ops.barrier.srcStages && ops.barrier.dstStages) 
 		{
+			// If there is no subpass dependency from VK_SUBPASS_EXTERNAL to the first subpass that uses an
+			// attachment, then an implicit subpass dependency exists from VK_SUBPASS_EXTERNAL to the first
+			// subpass it is used in
 			subpassDeps[subpassDepCount++] = 
 			{
-			  VK_SUBPASS_EXTERNAL, 0,
+			  0, VK_SUBPASS_EXTERNAL,
 			  ops.barrier.srcStages,
 			  ops.barrier.dstStages,
 			  ops.barrier.srcAccess,
