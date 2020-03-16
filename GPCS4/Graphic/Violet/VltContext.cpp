@@ -644,13 +644,13 @@ void VltContext::updateFrameBuffer()
 		m_state.om.framebuffer = m_device->createFrameBuffer(m_state.om.renderTargets);
 
 		// Temp for debug:
-		m_state.om.clearValues[1].depthStencil = { 1.0f, 0 };
-		m_state.om.renderPassOps.depthOps.loadOpD = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		m_state.om.renderPassOps.depthOps.loadOpS = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		m_state.om.renderPassOps.depthOps.loadLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		m_state.om.renderPassOps.depthOps.storeOpD   = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		m_state.om.renderPassOps.depthOps.storeOpS   = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		m_state.om.renderPassOps.depthOps.storeLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		//m_state.om.clearValues[1].depthStencil = { 1.0f, 0 };
+		//m_state.om.renderPassOps.depthOps.loadOpD = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		//m_state.om.renderPassOps.depthOps.loadOpS = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		//m_state.om.renderPassOps.depthOps.loadLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		//m_state.om.renderPassOps.depthOps.storeOpD   = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		//m_state.om.renderPassOps.depthOps.storeOpS   = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		//m_state.om.renderPassOps.depthOps.storeLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
 
 		m_flags.clr(VltContextFlag::GpDirtyFramebuffer);
@@ -784,8 +784,11 @@ void VltContext::updateVertexBindings()
 		++bindingCount;
 	}
 
-	m_cmd->cmdBindVertexBuffers(0, bindingCount, buffers.data(), offsets.data());
-
+	if (bindingCount)
+	{
+		m_cmd->cmdBindVertexBuffers(0, bindingCount, buffers.data(), offsets.data());
+	}
+	
 	m_flags.clr(VltContextFlag::GpDirtyVertexBuffers);
 }
 
