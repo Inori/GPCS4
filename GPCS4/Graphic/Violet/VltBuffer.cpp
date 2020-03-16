@@ -66,7 +66,6 @@ void* VltBuffer::mapPtr(VkDeviceSize offset) const
 }
 
 
-
 void VltBuffer::createBuffer(const VkBufferCreateInfo& info)
 {
 	do 

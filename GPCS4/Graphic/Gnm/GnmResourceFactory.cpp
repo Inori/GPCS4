@@ -239,6 +239,8 @@ GnmCombinedImageView GnmResourceFactory::createImage(const GnmTextureCreateInfo&
 	viewInfo.format                 = imgInfo.format;
 	viewInfo.usage                  = imgInfo.usage;
 	viewInfo.aspect                 = VK_IMAGE_ASPECT_COLOR_BIT;
+	viewInfo.numLayers              = imgInfo.numLayers;
+	viewInfo.numLevels              = imgInfo.mipLevels;
 	auto view                       = m_device->device->createImageView(image, viewInfo);
 
 	GnmCombinedImageView imageView = {};
@@ -309,6 +311,8 @@ GnmCombinedImageView GnmResourceFactory::createDepthRenderTarget(const GnmDepthR
 		viewInfo.format                 = imgInfo.format;
 		viewInfo.usage                  = imgInfo.usage;
 		viewInfo.aspect                 = VK_IMAGE_ASPECT_DEPTH_BIT;
+		viewInfo.numLayers              = imgInfo.numLayers;
+		viewInfo.numLevels              = imgInfo.mipLevels;
 		auto view                       = m_device->device->createImageView(image, viewInfo);
 		if (!view)
 		{
