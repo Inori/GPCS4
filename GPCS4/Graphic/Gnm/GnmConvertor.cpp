@@ -286,6 +286,10 @@ VkPrimitiveTopology convertPrimitiveTypeToVkTopology(PrimitiveType primType)
 		//case kPrimitiveTypeQuadList: topology = ; break;
 		//case kPrimitiveTypeQuadStrip: topology = ; break;
 		//case kPrimitiveTypePolygon: topology = ; break;
+	default:
+		topology = VK_PRIMITIVE_TOPOLOGY_MAX_ENUM;
+		LOG_ERR("unsupported PrimitiveType %d", primType);
+		break;
 	}
 	return topology;
 }

@@ -291,6 +291,15 @@ void GnmCommandBufferDraw::setPrimitiveType(PrimitiveType primType)
 {
 	VkPrimitiveTopology topology = cvt::convertPrimitiveTypeToVkTopology(primType);
 
+	// TODO:
+	// This is a temporary solution, mainly for embedded vertex shader.
+	// For a primitive type which is not supported by vulkan natively,
+	// we need to find a workaround.
+	if (topology == VK_PRIMITIVE_TOPOLOGY_MAX_ENUM)
+	{
+		topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+	}
+
 	auto isInfo = VltInputAssemblyInfo(
 		topology,
 		VK_FALSE,
@@ -694,7 +703,7 @@ void GnmCommandBufferDraw::commitPsStage()
 	auto shaderResources = PsslShaderModule::flattenShaderResources(nestedResources);
 
 	// Bind all resources which the shader uses.
-	bindShaderResources(PsslProgramType::VertexShader, shaderResources);
+	bindShaderResources(PsslProgramType::PixelShader, shaderResources);
 
 	m_context->bindShader(
 		VK_SHADER_STAGE_FRAGMENT_BIT,
