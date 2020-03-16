@@ -3,19 +3,19 @@
 #include "SceCommon.h"
 #include "SceVideoOut.h"
 
-#include "../Gve/GveDeviceInfo.h"
+#include "../Violet/VltDeviceInfo.h"
 
 #include <array>
 #include <memory>
 
-namespace gve
+namespace vlt
 {;
-class GveInstance;
-class GvePhysicalDevice;
-class GveDevice;
-class GvePresenter;
-class GveCmdList;
-}  // namespace gve
+class VltInstance;
+class VltPhysicalDevice;
+class VltDevice;
+class VltPresenter;
+class VltCmdList;
+}  // namespace vlt
 
 class GnmCmdStream;
 class GnmCommandBuffer;
@@ -80,29 +80,29 @@ private:
 	bool initGnmDriver();
 
 	bool pickPhysicalDevice(
-		const std::vector<RcPtr<gve::GvePhysicalDevice>>& devices,
+		const std::vector<RcPtr<vlt::VltPhysicalDevice>>& devices,
 		VkSurfaceKHR                                      surface);
 
 	bool isDeviceSuitable(
-		const RcPtr<gve::GvePhysicalDevice>& device,
+		const RcPtr<vlt::VltPhysicalDevice>& device,
 		VkSurfaceKHR                         surface);
 
-	gve::GveDeviceFeatures getEnableFeatures(
-		const RcPtr<gve::GvePhysicalDevice>& device);
+	vlt::VltDeviceFeatures getEnableFeatures(
+		const RcPtr<vlt::VltPhysicalDevice>& device);
 
 	bool checkPresentSupport(
-		const RcPtr<gve::GvePhysicalDevice>& device,
+		const RcPtr<vlt::VltPhysicalDevice>& device,
 		VkSurfaceKHR                         surface);
 
-	void submitPresent(const RcPtr<gve::GveCmdList>& cmdList);
+	void submitPresent(const RcPtr<vlt::VltCmdList>& cmdList);
 
 private:
 	std::shared_ptr<SceVideoOut> m_videoOut;
 
-	RcPtr<gve::GveInstance>       m_instance;
-	RcPtr<gve::GvePhysicalDevice> m_physDevice;
-	RcPtr<gve::GveDevice>         m_device;
-	RcPtr<gve::GvePresenter>      m_presenter;
+	RcPtr<vlt::VltInstance>       m_instance;
+	RcPtr<vlt::VltPhysicalDevice> m_physDevice;
+	RcPtr<vlt::VltDevice>         m_device;
+	RcPtr<vlt::VltPresenter>      m_presenter;
 
 	std::unique_ptr<SceGpuQueue>                                    m_graphicsQueue;
 	std::array<std::unique_ptr<SceGpuQueue>, kMaxComputeQueueCount> m_computeQueues;

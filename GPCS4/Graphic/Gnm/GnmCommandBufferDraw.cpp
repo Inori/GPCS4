@@ -7,13 +7,13 @@
 #include "GnmTexture.h"
 #include "GpuAddress/GnmGpuAddress.h"
 
-#include "../Gve/GveSampler.h"
-#include "../Gve/GveImage.h"
-#include "../Gve/GveBuffer.h"
-#include "../Gve/GveCmdList.h"
-#include "../Gve/GveContext.h"
-#include "../Gve/GvePresenter.h"
-#include "../Gve/GveShader.h"
+#include "../Violet/VltSampler.h"
+#include "../Violet/VltImage.h"
+#include "../Violet/VltBuffer.h"
+#include "../Violet/VltCmdList.h"
+#include "../Violet/VltContext.h"
+#include "../Violet/VltPresenter.h"
+#include "../Violet/VltShader.h"
 #include "../Pssl/PsslShaderModule.h"
 
 #include <algorithm>
@@ -21,7 +21,7 @@
 LOG_CHANNEL(Graphic.Gnm.GnmCommandBufferDraw);
 
 using namespace sce;
-using namespace gve;
+using namespace vlt;
 using namespace pssl;
 
 	// The compute shader using to clear color render target
@@ -29,7 +29,7 @@ constexpr uint64_t ShaderHashClearRT = 0x8C25642DB09D8E59;
 
 GnmCommandBufferDraw::GnmCommandBufferDraw(
 	const SceGpuQueueDevice& device,
-	const RcPtr<GveContext>& context) :
+	const RcPtr<VltContext>& context) :
 	GnmCommandBuffer(device, context),
 	m_factory(&device)
 {
@@ -42,7 +42,7 @@ GnmCommandBufferDraw::~GnmCommandBufferDraw()
 void GnmCommandBufferDraw::initializeDefaultHardwareState()
 {
 	m_context->beginRecording(
-		m_device->createCmdList(GvePipelineType::Graphics));
+		m_device->createCmdList(VltPipelineType::Graphics));
 
 	clearRenderState();
 }
@@ -57,7 +57,7 @@ void GnmCommandBufferDraw::setPrimitiveSetup(PrimitiveSetup reg)
 	VkPolygonMode   polyMode  = cvt::convertPolygonMode(reg.getPolygonModeFront());
 	VkCullModeFlags cullMode  = cvt::convertCullMode(reg.getCullFace());
 
-	auto rsInfo = GveRasterizationInfo(
+	auto rsInfo = VltRasterizationInfo(
 		VK_FALSE,
 		VK_FALSE,
 		polyMode,
@@ -189,7 +189,7 @@ void GnmCommandBufferDraw::setRenderTarget(uint32_t rtSlot, GnmRenderTarget cons
 
 	auto image = m_factory.grabRenderTarget(*target);
 
-	GveAttachment colorTarget                 = {};
+	VltAttachment colorTarget                 = {};
 	colorTarget.view                          = image.view;
 	colorTarget.layout                        = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 	m_state.gp.om.renderTargets.color[rtSlot] = colorTarget;
@@ -202,7 +202,7 @@ void GnmCommandBufferDraw::setDepthRenderTarget(GnmDepthRenderTarget const* dept
 {
 	auto depthImage = m_factory.grabDepthRenderTarget(*depthTarget);
 
-	GveAttachment depthAttachment     = {};
+	VltAttachment depthAttachment     = {};
 	depthAttachment.view              = depthImage.view;
 	depthAttachment.layout            = depthImage.view->imageInfo().layout;
 	m_state.gp.om.renderTargets.depth = depthAttachment;
@@ -226,7 +226,7 @@ void GnmCommandBufferDraw::setRenderTargetMask(uint32_t mask)
 
 void GnmCommandBufferDraw::setBlendControl(uint32_t rtSlot, BlendControl blendControl)
 {
-	auto cbInfo = GveColorBlendInfo(
+	auto cbInfo = VltColorBlendInfo(
 		VK_FALSE,
 		VK_LOGIC_OP_COPY);
 
@@ -240,7 +240,7 @@ void GnmCommandBufferDraw::setBlendControl(uint32_t rtSlot, BlendControl blendCo
 
 	VkColorComponentFlags colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 
-	auto colorAttach = GveColorBlendAttachment(
+	auto colorAttach = VltColorBlendAttachment(
 		blendControl.getBlendEnable(),
 		colorSrcFactor,
 		colorDstFactor,
@@ -259,12 +259,12 @@ void GnmCommandBufferDraw::setDepthStencilControl(DepthStencilControl depthContr
 {
 	VkCompareOp depthCmpOp = cvt::convertCompareFunc(depthControl.getDepthControlZCompareFunction());
 
-	GveDepthStencilOp frontOp;
-	GveDepthStencilOp backOp;
+	VltDepthStencilOp frontOp;
+	VltDepthStencilOp backOp;
 
 	LOG_ASSERT(depthControl.stencilEnable == false, "stencil test not supported yet.");
 
-	auto dsInfo = GveDepthStencilInfo(
+	auto dsInfo = VltDepthStencilInfo(
 		depthControl.depthEnable,
 		depthControl.zWrite,
 		depthControl.depthBoundsEnable,
@@ -288,7 +288,7 @@ void GnmCommandBufferDraw::setPrimitiveType(PrimitiveType primType)
 {
 	VkPrimitiveTopology topology = cvt::convertPrimitiveTypeToVkTopology(primType);
 
-	auto isInfo = GveInputAssemblyInfo(
+	auto isInfo = VltInputAssemblyInfo(
 		topology,
 		VK_FALSE,
 		0);
@@ -447,7 +447,7 @@ void GnmCommandBufferDraw::setVertexInputLayout(const std::vector<PsslShaderReso
 	// Currently I only support the first case, we need to check whether these attributes
 	// are in same memory area or not.
 
-	GveVertexInputInfo viInfo       = {};
+	VltVertexInputInfo viInfo       = {};
 	uint32_t           location     = 0;
 
 	uint32_t bindingCount = attributes.size();
@@ -456,11 +456,11 @@ void GnmCommandBufferDraw::setVertexInputLayout(const std::vector<PsslShaderReso
 		const GnmBuffer* vsharp = reinterpret_cast<const GnmBuffer*>(attributes[i].resource);
 
 		uint32_t stride  = vsharp->getStride();
-		auto     binding = GveVertexBinding(i, stride, VK_VERTEX_INPUT_RATE_VERTEX, 0);
+		auto     binding = VltVertexBinding(i, stride, VK_VERTEX_INPUT_RATE_VERTEX, 0);
 		viInfo.addBinding(binding);
 
 		VkFormat vtxFmt = cvt::convertDataFormatToVkFormat(vsharp->getDataFormat());
-		auto     attr   = GveVertexAttribute(location++, i, vtxFmt, 0);
+		auto     attr   = VltVertexAttribute(location++, i, vtxFmt, 0);
 		viInfo.addAttribute(attr);
 	}
 
@@ -510,7 +510,7 @@ void GnmCommandBufferDraw::bindVertexBuffer(const PsslShaderResource& res)
 	uint32_t stride = vsharp->getStride();
 	// startRegister act as binding id for vertex buffers,
 	// it is set in PsslShaderModule::parseResPtrTable
-	m_context->bindVertexBuffer(res.startRegister, GveBufferSlice(vertexBuffer, 0, bufferSize), stride);
+	m_context->bindVertexBuffer(res.startRegister, VltBufferSlice(vertexBuffer, 0, bufferSize), stride);
 }
 
 void GnmCommandBufferDraw::bindImmConstBuffer(pssl::PsslProgramType shaderType, const PsslShaderResource& res)

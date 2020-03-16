@@ -101,7 +101,7 @@ void GCNCompiler::compileInstruction(GCNInstruction& ins)
 	}
 }
 
-RcPtr<gve::GveShader> GCNCompiler::finalize()
+RcPtr<vlt::VltShader> GCNCompiler::finalize()
 {
 	switch (m_programInfo.shaderType())
 	{
@@ -121,7 +121,7 @@ RcPtr<gve::GveShader> GCNCompiler::finalize()
 						   m_entryPointInterfaces.data());
 	m_module.setDebugName(m_entryPointId, "main");
 
-	return new gve::GveShader(
+	return new vlt::VltShader(
 		m_programInfo.shaderStage(),
 		m_module.compile(),
 		m_programInfo.key(),
@@ -646,7 +646,7 @@ void GCNCompiler::emitDclImmConstBuffer(const GcnShaderResourceInstance& res)
 
 	// Note:
 	// The calculated bindingId is not "correct", it's a dummy value.
-	// We'll remap binding id before compiling pipeline in GveShader class.
+	// We'll remap binding id before compiling pipeline in VltShader class.
 	uint32_t bindingId = computeConstantBufferBinding(m_programInfo.shaderType(), res.res.startRegister);
 	m_module.decorateBinding(m_vs.m_uboId, bindingId);
 

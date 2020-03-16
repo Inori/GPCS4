@@ -1,9 +1,9 @@
 #include "GnmCommandBuffer.h"
 
-#include "../Gve/GveDevice.h"
-#include "../Gve/GveContext.h"
-#include "../Gve/GveCmdList.h"
-#include "../Gve/GvePresenter.h"
+#include "../Violet/VltDevice.h"
+#include "../Violet/VltContext.h"
+#include "../Violet/VltCmdList.h"
+#include "../Violet/VltPresenter.h"
 #include "../Sce/SceVideoOut.h"
 #include "../Sce/SceGpuQueue.h"
 
@@ -12,7 +12,7 @@
 
 GnmCommandBuffer::GnmCommandBuffer(
 	const sce::SceGpuQueueDevice& device,
-	const RcPtr<gve::GveContext>& context) :
+	const RcPtr<vlt::VltContext>& context) :
 	m_device(device.device),
 	m_context(context),
 	m_presenter(device.presenter),
@@ -30,7 +30,7 @@ void GnmCommandBuffer::recordBegin(uint32_t displayBufferIndex)
 	m_displayBufferIndex = displayBufferIndex;
 }
 
-RcPtr<gve::GveCmdList> GnmCommandBuffer::recordEnd()
+RcPtr<vlt::VltCmdList> GnmCommandBuffer::recordEnd()
 {
 	return std::exchange(m_cmdList, nullptr);
 }

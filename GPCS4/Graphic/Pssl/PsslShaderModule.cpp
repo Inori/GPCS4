@@ -5,7 +5,7 @@
 #include "GCNCompiler.h"
 
 #include "Platform/UtilFile.h"
-#include "../Gve/GveShader.h"
+#include "../Violet/VltShader.h"
 
 LOG_CHANNEL(Graphic.Pssl.PsslShaderModule);
 
@@ -69,7 +69,7 @@ PsslShaderModule::~PsslShaderModule()
 {
 }
 
-RcPtr<gve::GveShader> PsslShaderModule::compile()
+RcPtr<vlt::VltShader> PsslShaderModule::compile()
 {
 	const uint32_t* codeEnd = m_code + m_progInfo.codeSizeDwords();
 	GCNCodeSlice codeSlice(m_code, codeEnd);

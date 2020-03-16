@@ -2,7 +2,7 @@
 #include "SceGnmDriver.h"
 
 #include "../GraphicShared.h"
-#include "../Gve/GveInstance.h"
+#include "../Violet/VltInstance.h"
 #include "../../SceModules/SceVideoOut/sce_videoout_types.h"
 
 #define GLFW_INCLUDE_VULKAN

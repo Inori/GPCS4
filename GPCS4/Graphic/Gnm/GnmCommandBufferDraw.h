@@ -14,8 +14,8 @@ class GnmBuffer;
 
 // This class is designed for graphics development,
 // no reverse engining knowledge should be required.
-// It's responsible for mapping Gnm input/structures to Gve input/structures,
-// and convert Gnm calls into Gve calls.
+// It's responsible for mapping Gnm input/structures to Violet input/structures,
+// and convert Gnm calls into Violet calls.
 
 class GnmCommandBufferDraw : public GnmCommandBuffer
 {
@@ -27,7 +27,7 @@ class GnmCommandBufferDraw : public GnmCommandBuffer
 public:
 	GnmCommandBufferDraw(
 		const sce::SceGpuQueueDevice& device,
-		const RcPtr<gve::GveContext>& context
+		const RcPtr<vlt::VltContext>& context
 	);
 
 	virtual ~GnmCommandBufferDraw();

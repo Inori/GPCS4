@@ -10,13 +10,13 @@ namespace sce
 struct SceGpuQueueDevice;
 }  // namespace sce
 
-namespace gve
+namespace vlt
 {;
-class GveBuffer;
-class GveImage;
-class GveImageView;
-class GveSampler;
-}  // namespace gve
+class VltBuffer;
+class VltImage;
+class VltImageView;
+class VltSampler;
+}  // namespace vlt
 
 struct GnmIndexBuffer;
 class GnmBuffer;
@@ -64,8 +64,8 @@ struct GnmTextureCreateInfo
  */
 struct GnmCombinedImageView
 {
-	RcPtr<gve::GveImage>     image = nullptr;
-	RcPtr<gve::GveImageView> view  = nullptr;
+	RcPtr<vlt::VltImage>     image = nullptr;
+	RcPtr<vlt::VltImageView> view  = nullptr;
 };
 
 /**
@@ -110,11 +110,11 @@ public:
 
 	/// Get or create resources.
 
-	RcPtr<gve::GveBuffer> grabIndex(
+	RcPtr<vlt::VltBuffer> grabIndex(
 		const GnmIndexBuffer& desc,
 		bool*                 create = nullptr);
 
-	RcPtr<gve::GveBuffer> grabBuffer(
+	RcPtr<vlt::VltBuffer> grabBuffer(
 		const GnmBufferCreateInfo& desc,
 		bool*                      create = nullptr);
 
@@ -130,7 +130,7 @@ public:
 		const GnmDepthRenderTarget& desc,
 		bool*                       create = nullptr);
 
-	RcPtr<gve::GveSampler> grabSampler(
+	RcPtr<vlt::VltSampler> grabSampler(
 		const GnmSampler& desc,
 		bool*             create = nullptr);
 
@@ -145,9 +145,9 @@ private:
 
 	void collectRenderTargets();
 
-	RcPtr<gve::GveBuffer> createIndex(const GnmIndexBuffer& desc);
+	RcPtr<vlt::VltBuffer> createIndex(const GnmIndexBuffer& desc);
 
-	RcPtr<gve::GveBuffer> createBuffer(const GnmBufferCreateInfo& desc);
+	RcPtr<vlt::VltBuffer> createBuffer(const GnmBufferCreateInfo& desc);
 
 	GnmCombinedImageView createImage(const GnmTextureCreateInfo& desc);
 
@@ -155,14 +155,14 @@ private:
 
 	GnmCombinedImageView createDepthRenderTarget(const GnmDepthRenderTarget& desc);
 
-	RcPtr<gve::GveSampler> createSampler(const GnmSampler& desc);
+	RcPtr<vlt::VltSampler> createSampler(const GnmSampler& desc);
 
 private:
 	const sce::SceGpuQueueDevice* m_device;
 
-	std::unordered_map<GnmResourceEntry, RcPtr<gve::GveBuffer>, GnmResourceHash>  m_bufferMap;
+	std::unordered_map<GnmResourceEntry, RcPtr<vlt::VltBuffer>, GnmResourceHash>  m_bufferMap;
 	std::unordered_map<GnmResourceEntry, GnmCombinedImageView, GnmResourceHash>   m_imageMap;
-	std::unordered_map<GnmResourceEntry, RcPtr<gve::GveSampler>, GnmResourceHash> m_samplerMap;
+	std::unordered_map<GnmResourceEntry, RcPtr<vlt::VltSampler>, GnmResourceHash> m_samplerMap;
 };
 
 

@@ -8,7 +8,7 @@ class GnmCommandBufferDispatch : public GnmCommandBuffer
 public:
 	GnmCommandBufferDispatch(
 		const sce::SceGpuQueueDevice& device,
-		const RcPtr<gve::GveContext>& context
+		const RcPtr<vlt::VltContext>& context
 	);
 
 	virtual ~GnmCommandBufferDispatch();

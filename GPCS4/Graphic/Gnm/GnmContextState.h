@@ -4,18 +4,18 @@
 #include "GnmCommon.h"
 #include "GnmShaderMeta.h"
 
-#include "../Gve/GveContextState.h"
-#include "../Gve/GveLimit.h"
+#include "../Violet/VltContextState.h"
+#include "../Violet/VltLimit.h"
 #include "../Pssl/PsslEnums.h"
 #include "../Pssl/PsslShaderModule.h"
 #include "../Pssl/PsslShaderStructure.h"
 
-namespace gve
+namespace vlt
 {
 ;
-class GveShader;
-class GveImageView;
-}  // namespace gve
+class VltShader;
+class VltImageView;
+}  // namespace vlt
 
 struct GnmShaderContext
 {
@@ -76,11 +76,11 @@ struct GnmPixelShaderState
 
 struct GnmOutputMergerState
 {
-	gve::GveRenderTargets                                 renderTargets = {};
-	std::array<GnmRenderTarget, gve::MaxNumRenderTargets> colorTargets  = {};
+	vlt::VltRenderTargets                                 renderTargets = {};
+	std::array<GnmRenderTarget, vlt::MaxNumRenderTargets> colorTargets  = {};
 	GnmDepthRenderTarget                                  depthTarget   = {};
 
-	std::array<VkClearColorValue, gve::MaxNumRenderTargets> colorClearValues = {};
+	std::array<VkClearColorValue, vlt::MaxNumRenderTargets> colorClearValues = {};
 	VkClearDepthStencilValue                                depthClearValue  = {};
 };
 

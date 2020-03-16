@@ -26,8 +26,8 @@
 #include "GCNParser/EXPInstruction.h"
 #include "GCNParser/VOPInstruction.h"
 
-#include "../Gve/GveShader.h"
-#include "../Gve/GvePipelineLayout.h"
+#include "../Violet/VltShader.h"
+#include "../Violet/VltPipelineLayout.h"
 #include "../SpirV/SpirvModule.h"
 
 #include <optional>
@@ -127,7 +127,7 @@ public:
 
 	virtual void processInstruction(GCNInstruction& ins);
 
-	RcPtr<gve::GveShader> finalize();
+	RcPtr<vlt::VltShader> finalize();
 
 private:
 
@@ -576,7 +576,7 @@ private:
 	// Resources
 
 	// Used to record shader resource this shader declared using InputUsageSlot
-	std::vector<gve::GveResourceSlot> m_resourceSlots;
+	std::vector<vlt::VltResourceSlot> m_resourceSlots;
 
 	///////////////////////////////////
 	// Control flow

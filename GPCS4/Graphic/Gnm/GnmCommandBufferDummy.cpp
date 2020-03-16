@@ -1,8 +1,8 @@
 #include "GnmCommandBufferDummy.h"
 
-#include "../Gve/GveDevice.h"
-#include "../Gve/GveContext.h"
-#include "../Gve/GvePresenter.h"
+#include "../Violet/VltDevice.h"
+#include "../Violet/VltContext.h"
+#include "../Violet/VltPresenter.h"
 #include "../Sce/SceGpuQueue.h"
 
 

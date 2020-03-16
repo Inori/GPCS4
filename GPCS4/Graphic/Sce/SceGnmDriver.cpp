@@ -8,15 +8,15 @@
 #include "../Gnm/GnmCommandBufferDraw.h"
 #include "../Gnm/GnmCommandBufferDummy.h"
 #include "../GraphicShared.h"
-#include "../Gve/GveCmdList.h"
-#include "../Gve/GveImage.h"
-#include "../Gve/GveInstance.h"
-#include "../Gve/GvePhysicalDevice.h"
-#include "../Gve/GvePresenter.h"
+#include "../Violet/VltCmdList.h"
+#include "../Violet/VltImage.h"
+#include "../Violet/VltInstance.h"
+#include "../Violet/VltPhysicalDevice.h"
+#include "../Violet/VltPresenter.h"
 
 LOG_CHANNEL(Graphic.Sce.SceGnmDriver);
 
-using namespace gve;
+using namespace vlt;
 
 namespace sce
 {
@@ -40,7 +40,7 @@ bool SceGnmDriver::initGnmDriver()
 	{
 		// Instance
 		auto extensions = m_videoOut->getExtensions();
-		m_instance      = gveCreateInstance(extensions);
+		m_instance      = violetCreateInstance(extensions);
 		if (!m_instance)
 		{
 			LOG_ERR("create vulkan instance failed.");
@@ -71,7 +71,7 @@ bool SceGnmDriver::initGnmDriver()
 }
 
 bool SceGnmDriver::pickPhysicalDevice(
-	const std::vector<RcPtr<gve::GvePhysicalDevice>>& devices,
+	const std::vector<RcPtr<vlt::VltPhysicalDevice>>& devices,
 	VkSurfaceKHR                                      surface)
 {
 	auto iter = std::find_if(devices.begin(), devices.end(), 
@@ -86,7 +86,7 @@ bool SceGnmDriver::pickPhysicalDevice(
 	return found;
 }
 
-bool SceGnmDriver::isDeviceSuitable(const RcPtr<gve::GvePhysicalDevice>& device,
+bool SceGnmDriver::isDeviceSuitable(const RcPtr<vlt::VltPhysicalDevice>& device,
 									VkSurfaceKHR                         surface)
 {
 	bool ret = false;
@@ -113,9 +113,9 @@ bool SceGnmDriver::isDeviceSuitable(const RcPtr<gve::GvePhysicalDevice>& device,
 	return ret;
 }
 
-GveDeviceFeatures SceGnmDriver::getEnableFeatures(const RcPtr<gve::GvePhysicalDevice>& device)
+VltDeviceFeatures SceGnmDriver::getEnableFeatures(const RcPtr<vlt::VltPhysicalDevice>& device)
 {
-	GveDeviceFeatures required  = {};
+	VltDeviceFeatures required  = {};
 	auto              supported = device->features();
 
 	// Setup all required features to be enabled here.
@@ -128,7 +128,7 @@ GveDeviceFeatures SceGnmDriver::getEnableFeatures(const RcPtr<gve::GvePhysicalDe
 	return required;
 }
 
-bool SceGnmDriver::checkPresentSupport(const RcPtr<gve::GvePhysicalDevice>& device, VkSurfaceKHR surface)
+bool SceGnmDriver::checkPresentSupport(const RcPtr<vlt::VltPhysicalDevice>& device, VkSurfaceKHR surface)
 {
 	VkBool32 presentSupport = false;
 	auto     queueFamilies  = device->findQueueFamilies();
@@ -182,7 +182,7 @@ int SceGnmDriver::submitAndFlipCommandBuffers(uint32_t  count,
 	return SCE_OK;
 }
 
-void SceGnmDriver::submitPresent(const RcPtr<gve::GveCmdList>& cmdList)
+void SceGnmDriver::submitPresent(const RcPtr<vlt::VltCmdList>& cmdList)
 {
 	do
 	{
@@ -206,7 +206,7 @@ void SceGnmDriver::submitPresent(const RcPtr<gve::GveCmdList>& cmdList)
 		gpuSubmission.wake             = presentSync.present;
 		m_graphicsQueue->submit(gpuSubmission);
 
-		GvePresentInfo presentation;
+		VltPresentInfo presentation;
 		presentation.presenter = m_presenter;
 		presentation.waitSync  = gpuSubmission.wake;
 		m_device->presentImage(presentation);
@@ -244,7 +244,7 @@ bool SceGnmDriver::createGraphicsQueue(uint32_t imageCount)
 		desc.imageCount         = imageCount;
 		desc.fullScreen         = false;
 
-		m_presenter = new GvePresenter(m_device, desc);
+		m_presenter = new VltPresenter(m_device, desc);
 		if (!m_presenter)
 		{
 			break;

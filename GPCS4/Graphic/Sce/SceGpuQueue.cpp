@@ -3,14 +3,14 @@
 #include "../Gnm/GnmCmdStream.h"
 #include "../Gnm/GnmCommandBufferDraw.h"
 #include "../Gnm/GnmCommandBufferDispatch.h"
-#include "../Gve/GveDevice.h"
-#include "../Gve/GveContext.h"
-#include "../Gve/GveCmdList.h"
-#include "../Gve/GvePresenter.h"
+#include "../Violet/VltDevice.h"
+#include "../Violet/VltContext.h"
+#include "../Violet/VltCmdList.h"
+#include "../Violet/VltPresenter.h"
 
 LOG_CHANNEL(Graphic.Sce.SceGpuQueue);
 
-using namespace gve;
+using namespace vlt;
 
 namespace sce
 {;
@@ -28,7 +28,7 @@ SceGpuQueue::~SceGpuQueue()
 }
 
 
-RcPtr<gve::GveCmdList> SceGpuQueue::record(
+RcPtr<vlt::VltCmdList> SceGpuQueue::record(
 	const SceGpuCommand& cmd,
 	uint32_t             displayBufferIndex)
 {
@@ -42,7 +42,7 @@ RcPtr<gve::GveCmdList> SceGpuQueue::record(
 
 void SceGpuQueue::submit(const SceGpuSubmission& submission)
 {
-	GveSubmitInfo submitInfo = {};
+	VltSubmitInfo submitInfo = {};
 	submitInfo.cmdList       = submission.cmdList;
 	submitInfo.waitSync      = submission.wait;
 	submitInfo.wakeSync      = submission.wake;

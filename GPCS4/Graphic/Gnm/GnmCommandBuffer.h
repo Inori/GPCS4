@@ -8,13 +8,13 @@
 
 #include <memory>
 
-namespace gve
+namespace vlt
 {;
-class GveDevice;
-class GveCmdList;
-class GveContext;
-class GvePresenter;
-}  // namespace gve
+class VltDevice;
+class VltCmdList;
+class VltContext;
+class VltPresenter;
+}  // namespace vlt
 
 namespace sce
 {;
@@ -33,13 +33,13 @@ class GnmCommandBuffer
 public:
 	GnmCommandBuffer(
 		const sce::SceGpuQueueDevice& device,
-		const RcPtr<gve::GveContext>& context);
+		const RcPtr<vlt::VltContext>& context);
 
 	virtual ~GnmCommandBuffer();
 
 	virtual void recordBegin(uint32_t displayBufferIndex);
 
-	virtual RcPtr<gve::GveCmdList> recordEnd();
+	virtual RcPtr<vlt::VltCmdList> recordEnd();
 
 	// Implement these one by one...
 
@@ -412,14 +412,14 @@ protected:
 	void emuWriteGpuLabel(EventWriteSource selector, void* label, uint64_t value);
 
 protected:
-	RcPtr<gve::GveDevice>             m_device;
-	RcPtr<gve::GveContext>            m_context;
-	RcPtr<gve::GvePresenter>          m_presenter;
+	RcPtr<vlt::VltDevice>             m_device;
+	RcPtr<vlt::VltContext>            m_context;
+	RcPtr<vlt::VltPresenter>          m_presenter;
 	std::shared_ptr<sce::SceVideoOut> m_videoOut;
 
 	uint32_t m_displayBufferIndex = 0;
 
-	RcPtr<gve::GveCmdList> m_cmdList;
+	RcPtr<vlt::VltCmdList> m_cmdList;
 
 private:
 

@@ -4,13 +4,13 @@
 
 #include <memory>
 
-namespace gve
+namespace vlt
 {;
-class GveDevice;
-class GveContext;
-class GvePresenter;
-class GveCmdList;
-}  // namespace gve
+class VltDevice;
+class VltContext;
+class VltPresenter;
+class VltCmdList;
+}  // namespace vlt
 
 class GnmCmdStream;
 class GnmCommandBuffer;
@@ -28,8 +28,8 @@ enum class SceQueueType
 
 struct SceGpuQueueDevice
 {
-	RcPtr<gve::GveDevice>        device;
-	RcPtr<gve::GvePresenter>     presenter;
+	RcPtr<vlt::VltDevice>        device;
+	RcPtr<vlt::VltPresenter>     presenter;
 	std::shared_ptr<SceVideoOut> videoOut;
 };
 
@@ -41,7 +41,7 @@ struct SceGpuCommand
 
 struct SceGpuSubmission
 {
-	RcPtr<gve::GveCmdList> cmdList;
+	RcPtr<vlt::VltCmdList> cmdList;
 	VkSemaphore            wait;
 	VkSemaphore            wake;
 };
@@ -57,13 +57,13 @@ public:
 	/**
 	 * \brief Record command buffer.
 	 * 
-	 * Convert Gnm command buffer to Gve command list.
+	 * Convert Gnm command buffer to Violet command list.
 	 * \param cmd Gnm command buffer.
 	 * \param displayBufferIndex Current display buffer index, 
 	 *                           using to index render target.
-	 * \returns The Gve command list recorded.
+	 * \returns The Violet command list recorded.
 	 */
-	RcPtr<gve::GveCmdList> record(
+	RcPtr<vlt::VltCmdList> record(
 		const SceGpuCommand& cmd,
 		uint32_t             displayBufferIndex);
 
@@ -79,7 +79,7 @@ private:
 
 private:
 	SceGpuQueueDevice      m_device;
-	RcPtr<gve::GveContext> m_context;
+	RcPtr<vlt::VltContext> m_context;
 
 	std::unique_ptr<GnmCmdStream>     m_cmdParser;
 	std::unique_ptr<GnmCommandBuffer> m_cmdProcesser;

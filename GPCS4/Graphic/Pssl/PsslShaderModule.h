@@ -5,10 +5,10 @@
 #include "PsslShaderStructure.h"
 #include "GCNDecoder.h"
 
-namespace gve
+namespace vlt
 {;
-class GveShader;
-}  // namespace gve
+class VltShader;
+}  // namespace vlt
 
 namespace pssl
 {;
@@ -38,7 +38,7 @@ public:
 
 	PsslKey key();
 
-	RcPtr<gve::GveShader> compile();
+	RcPtr<vlt::VltShader> compile();
 
 	static std::vector<GcnShaderResourceInstance>
 	flattenShaderResources(const GcnShaderResources& nestedResources);

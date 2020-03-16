@@ -1,11 +1,11 @@
 #include "GnmCommandBufferDispatch.h"
 
-#include "../Gve/GveDevice.h"
-#include "../Gve/GveContext.h"
+#include "../Violet/VltDevice.h"
+#include "../Violet/VltContext.h"
 
 GnmCommandBufferDispatch::GnmCommandBufferDispatch(
 	const sce::SceGpuQueueDevice& device,
-	const RcPtr<gve::GveContext>& context) :
+	const RcPtr<vlt::VltContext>& context) :
 	GnmCommandBuffer(device, context)
 {
 }

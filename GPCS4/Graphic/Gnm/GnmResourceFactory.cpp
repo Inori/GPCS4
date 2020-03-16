@@ -8,11 +8,11 @@
 #include "GnmTexture.h"
 #include "UtilBit.h"
 
-#include "../Gve/GveBuffer.h"
-#include "../Gve/GveDevice.h"
-#include "../Gve/GveImage.h"
-#include "../Gve/GvePresenter.h"
-#include "../Gve/GveSampler.h"
+#include "../Violet/VltBuffer.h"
+#include "../Violet/VltDevice.h"
+#include "../Violet/VltImage.h"
+#include "../Violet/VltPresenter.h"
+#include "../Violet/VltSampler.h"
 #include "../Pssl/PsslShaderFileBinary.h"
 #include "../Sce/SceGpuQueue.h"
 #include "../Sce/SceVideoOut.h"
@@ -20,7 +20,7 @@
 
 LOG_CHANNEL(Graphic.Gnm.GnmResourceFactory);
 
-using namespace gve;
+using namespace vlt;
 using namespace sce;
 using namespace pssl;
 
@@ -34,7 +34,7 @@ GnmResourceFactory::~GnmResourceFactory()
 {
 }
 
-RcPtr<GveBuffer> GnmResourceFactory::grabIndex(const GnmIndexBuffer& desc, bool* create /*= nullptr*/)
+RcPtr<VltBuffer> GnmResourceFactory::grabIndex(const GnmIndexBuffer& desc, bool* create /*= nullptr*/)
 {
 	GnmResourceEntry entry = {};
 	entry.memory           = desc.buffer;
@@ -43,7 +43,7 @@ RcPtr<GveBuffer> GnmResourceFactory::grabIndex(const GnmIndexBuffer& desc, bool*
 	return grabResource(entry, m_bufferMap, createFunc, create);
 }
 
-RcPtr<GveBuffer> GnmResourceFactory::grabBuffer(const GnmBufferCreateInfo& desc, bool* create /*= nullptr*/)
+RcPtr<VltBuffer> GnmResourceFactory::grabBuffer(const GnmBufferCreateInfo& desc, bool* create /*= nullptr*/)
 {
 	GnmResourceEntry entry = {};
 	entry.memory           = desc.buffer->getBaseAddress();
@@ -79,7 +79,7 @@ GnmCombinedImageView GnmResourceFactory::grabDepthRenderTarget(const GnmDepthRen
 	return grabResource(entry, m_imageMap, createFunc, create);
 }
 
-RcPtr<GveSampler> GnmResourceFactory::grabSampler(const GnmSampler& desc, bool* create /*= nullptr*/)
+RcPtr<VltSampler> GnmResourceFactory::grabSampler(const GnmSampler& desc, bool* create /*= nullptr*/)
 {
 	uint64_t         hash  = algo::MurmurHash(desc.m_regs, sizeof(desc.m_regs));
 	GnmResourceEntry entry = {};
@@ -140,9 +140,9 @@ void GnmResourceFactory::collectRenderTargets()
 	}
 }
 
-RcPtr<GveBuffer> GnmResourceFactory::createIndex(const GnmIndexBuffer& desc)
+RcPtr<VltBuffer> GnmResourceFactory::createIndex(const GnmIndexBuffer& desc)
 {
-	GveBufferCreateInfo info = {};
+	VltBufferCreateInfo info = {};
 	info.size                = desc.size;
 	info.usage               = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
 	info.stages              = VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
@@ -153,7 +153,7 @@ RcPtr<GveBuffer> GnmResourceFactory::createIndex(const GnmIndexBuffer& desc)
 		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 }
 
-RcPtr<GveBuffer> GnmResourceFactory::createBuffer(const GnmBufferCreateInfo& desc)
+RcPtr<VltBuffer> GnmResourceFactory::createBuffer(const GnmBufferCreateInfo& desc)
 {
 	VkBufferUsageFlags usage  = {};
 	VkAccessFlags      access = {};
@@ -180,7 +180,7 @@ RcPtr<GveBuffer> GnmResourceFactory::createBuffer(const GnmBufferCreateInfo& des
 		break;
 	}
 
-	GveBufferCreateInfo info = {};
+	VltBufferCreateInfo info = {};
 	info.size                = desc.buffer->getSize();
 	info.usage               = usage | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 	info.stages              = desc.stages;
@@ -216,7 +216,7 @@ GnmCombinedImageView GnmResourceFactory::createImage(const GnmTextureCreateInfo&
 
 	// TODO:
 	// Fill these details from desc.
-	GveImageCreateInfo imgInfo = {};
+	VltImageCreateInfo imgInfo = {};
 	imgInfo.type               = VK_IMAGE_TYPE_2D;
 	imgInfo.format             = format;
 	imgInfo.flags              = 0;
@@ -234,7 +234,7 @@ GnmCombinedImageView GnmResourceFactory::createImage(const GnmTextureCreateInfo&
 	imgInfo.initialLayout      = VK_IMAGE_LAYOUT_UNDEFINED;
 	auto image                 = m_device->device->createImage(imgInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-	GveImageViewCreateInfo viewInfo = {};
+	VltImageViewCreateInfo viewInfo = {};
 	viewInfo.type                   = VK_IMAGE_VIEW_TYPE_2D;
 	viewInfo.format                 = imgInfo.format;
 	viewInfo.usage                  = imgInfo.usage;
@@ -280,7 +280,7 @@ GnmCombinedImageView GnmResourceFactory::createDepthRenderTarget(const GnmDepthR
 
 		// TODO:
 		// Fill these details from desc.
-		GveImageCreateInfo imgInfo = {};
+		VltImageCreateInfo imgInfo = {};
 		imgInfo.type               = VK_IMAGE_TYPE_2D;
 		imgInfo.format             = format;
 		imgInfo.flags              = 0;
@@ -304,7 +304,7 @@ GnmCombinedImageView GnmResourceFactory::createDepthRenderTarget(const GnmDepthR
 			break;
 		}
 
-		GveImageViewCreateInfo viewInfo = {};
+		VltImageViewCreateInfo viewInfo = {};
 		viewInfo.type                   = VK_IMAGE_VIEW_TYPE_2D;
 		viewInfo.format                 = imgInfo.format;
 		viewInfo.usage                  = imgInfo.usage;
@@ -323,11 +323,11 @@ GnmCombinedImageView GnmResourceFactory::createDepthRenderTarget(const GnmDepthR
 	return depthImage;
 }
 
-RcPtr<GveSampler> GnmResourceFactory::createSampler(const GnmSampler& desc)
+RcPtr<VltSampler> GnmResourceFactory::createSampler(const GnmSampler& desc)
 {
 	// TODO:
 	// Set create info according to desc.
-	GveSamplerCreateInfo info = {};
+	VltSamplerCreateInfo info = {};
 	info.magFilter            = VK_FILTER_LINEAR;
 	info.minFilter            = VK_FILTER_LINEAR;
 	info.mipmapMode           = VK_SAMPLER_MIPMAP_MODE_LINEAR;
