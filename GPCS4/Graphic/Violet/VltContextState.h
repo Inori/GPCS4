@@ -8,8 +8,6 @@
 namespace vlt
 {;
 	
-
-
 /**
  * \brief Graphics pipeline state flags
  *

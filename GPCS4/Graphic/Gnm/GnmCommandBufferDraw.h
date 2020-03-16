@@ -151,8 +151,15 @@ private:
 	void commitCsStage();
 	void commitComputeStages();
 
+	void clearRenderState();
+
+	void clearColorTargetHack(
+		GnmShaderResourceList& shaderResources);
+	void clearDepthTarget();
+
+	
 	// Resource binding methods
-	void bindFramebuffer();
+	void bindRenderTargets();
 
 	void bindIndexBuffer();
 
@@ -174,10 +181,6 @@ private:
 		const GnmShaderResourceList& resources);
 
 	//
-	void clearRenderTargetHack(
-		GnmShaderResourceList& shaderResources);
-
-	void clearRenderState();
 
 	void setUserDataSlots(
 		ShaderStage     stage,
@@ -200,13 +203,15 @@ private:
 
 	const GnmRenderTarget* findRenderTarget(void* address);
 
-	std::vector<PsslShaderResource> extractVertexAttributes(const GnmShaderResourceList& resources);
+	std::vector<PsslShaderResource> extractVertexAttributes(
+		const GnmShaderResourceList& resources);
 
 private:
 
 	GnmContextState               m_state;
 	GnmShaderContextGroup         m_shaders;
 	GnmResourceFactory            m_factory;
+	GnmContexFlags                m_flags;
 };
 
 

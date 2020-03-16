@@ -7,14 +7,14 @@
 #include "GnmTexture.h"
 #include "GpuAddress/GnmGpuAddress.h"
 
-#include "../Violet/VltSampler.h"
-#include "../Violet/VltImage.h"
+#include "../Pssl/PsslShaderModule.h"
 #include "../Violet/VltBuffer.h"
 #include "../Violet/VltCmdList.h"
 #include "../Violet/VltContext.h"
+#include "../Violet/VltImage.h"
 #include "../Violet/VltPresenter.h"
+#include "../Violet/VltSampler.h"
 #include "../Violet/VltShader.h"
-#include "../Pssl/PsslShaderModule.h"
 
 #include <algorithm>
 
@@ -24,7 +24,7 @@ using namespace sce;
 using namespace vlt;
 using namespace pssl;
 
-	// The compute shader using to clear color render target
+// The compute shader using to clear color render target
 constexpr uint64_t ShaderHashClearRT = 0x8C25642DB09D8E59;
 
 GnmCommandBufferDraw::GnmCommandBufferDraw(
@@ -195,7 +195,7 @@ void GnmCommandBufferDraw::setRenderTarget(uint32_t rtSlot, GnmRenderTarget cons
 	m_state.gp.om.renderTargets.color[rtSlot] = colorTarget;
 
 	m_state.gp.om.colorTargets[rtSlot] = *target;
-	
+	m_flags.set(GnmContexFlag::GpDirtyRenderTarget);
 }
 
 void GnmCommandBufferDraw::setDepthRenderTarget(GnmDepthRenderTarget const* depthTarget)
@@ -208,16 +208,19 @@ void GnmCommandBufferDraw::setDepthRenderTarget(GnmDepthRenderTarget const* dept
 	m_state.gp.om.renderTargets.depth = depthAttachment;
 
 	m_state.gp.om.depthTarget = *depthTarget;
+	m_flags.set(GnmContexFlag::GpDirtyRenderTarget);
 }
 
 void GnmCommandBufferDraw::setDepthClearValue(float clearValue)
 {
-	m_state.gp.om.depthClearValue.depth = clearValue;
+	m_state.gp.om.depthClearValue.depthStencil.depth = clearValue;
+
+	m_flags.set(GnmContexFlag::GpClearDepthTarget);
 }
 
 void GnmCommandBufferDraw::setStencilClearValue(uint8_t clearValue)
 {
-	m_state.gp.om.depthClearValue.stencil = clearValue;
+	m_state.gp.om.depthClearValue.depthStencil.stencil = clearValue;
 }
 
 void GnmCommandBufferDraw::setRenderTargetMask(uint32_t mask)
@@ -325,9 +328,7 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void* indexAddr,
 {
 	m_state.gp.ia.indexBuffer.buffer = indexAddr;
 	m_state.gp.ia.indexBuffer.count  = indexCount;
-	uint32_t elementSize             = m_state.gp.ia.indexBuffer.type == VK_INDEX_TYPE_UINT16 ? 
-		sizeof(uint16_t) : 
-		sizeof(uint32_t);
+	uint32_t elementSize             = m_state.gp.ia.indexBuffer.type == VK_INDEX_TYPE_UINT16 ? sizeof(uint16_t) : sizeof(uint32_t);
 	m_state.gp.ia.indexBuffer.size   = elementSize * indexCount;
 
 	commitGraphicsStages<true, false>();
@@ -417,7 +418,7 @@ void GnmCommandBufferDraw::prepareFlipWithEopInterrupt(EndOfPipeEventType eventT
 void GnmCommandBufferDraw::setCsShader(const CsStageRegisters* computeData, uint32_t shaderModifier)
 {
 	m_shaders.cs.code = computeData->getCodeAddress();
-	shader::parseShaderRegCs(computeData, m_shaders.cs.meta.cs);
+	shader::parseShaderRegCs(computeData, m_shaders.cs.meta);
 }
 
 void GnmCommandBufferDraw::writeReleaseMemEventWithInterrupt(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy)
@@ -432,9 +433,19 @@ void GnmCommandBufferDraw::setVgtControlForNeo(uint8_t primGroupSizeMinusOne, Wd
 {
 }
 
-void GnmCommandBufferDraw::bindFramebuffer()
+void GnmCommandBufferDraw::bindRenderTargets()
 {
-	m_context->bindRenderTargets(m_state.gp.om.renderTargets);
+	do
+	{
+		if (!m_flags.test(GnmContexFlag::GpDirtyRenderTarget))
+		{
+			break;
+		}
+
+		m_context->bindRenderTargets(m_state.gp.om.renderTargets);
+
+		m_flags.clr(GnmContexFlag::GpDirtyRenderTarget);
+	} while (false);
 }
 
 void GnmCommandBufferDraw::setVertexInputLayout(const std::vector<PsslShaderResource>& attributes)
@@ -447,8 +458,8 @@ void GnmCommandBufferDraw::setVertexInputLayout(const std::vector<PsslShaderReso
 	// Currently I only support the first case, we need to check whether these attributes
 	// are in same memory area or not.
 
-	VltVertexInputInfo viInfo       = {};
-	uint32_t           location     = 0;
+	VltVertexInputInfo viInfo   = {};
+	uint32_t           location = 0;
 
 	uint32_t bindingCount = attributes.size();
 	for (uint32_t i = 0; i != bindingCount; ++i)
@@ -520,10 +531,18 @@ void GnmCommandBufferDraw::bindImmConstBuffer(pssl::PsslProgramType shaderType, 
 	VkPipelineStageFlags stage = {};
 	switch (shaderType)
 	{
-	case pssl::PsslProgramType::PixelShader:	stage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT; break;
-	case pssl::PsslProgramType::VertexShader:	stage = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT; break;
-	case pssl::PsslProgramType::ComputeShader:	stage = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT; break;
-	default: LOG_ERR("unsupported shader type %d", shaderType); break;
+	case pssl::PsslProgramType::PixelShader:
+		stage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+		break;
+	case pssl::PsslProgramType::VertexShader:
+		stage = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
+		break;
+	case pssl::PsslProgramType::ComputeShader:
+		stage = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+		break;
+	default:
+		LOG_ERR("unsupported shader type %d", shaderType);
+		break;
 	}
 
 	GnmBufferCreateInfo info = {};
@@ -563,8 +582,8 @@ void GnmCommandBufferDraw::bindImmResource(const PsslShaderResource& res)
 		VkOffset3D               offset = { 0, 0, 0 };
 		m_context->updateImage(
 			image.image, subRes,
-			offset, imgInfo.extent, 
-			data, 
+			offset, imgInfo.extent,
+			data,
 			pitchPerRow, pitchPerLayer);
 	}
 	else
@@ -581,9 +600,9 @@ void GnmCommandBufferDraw::bindImmResource(const PsslShaderResource& res)
 		VkImageSubresourceLayers subRes = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
 		VkOffset3D               offset = { 0, 0, 0 };
 		m_context->updateImage(
-			image.image, subRes, 
-			offset, imgInfo.extent, 
-			data, 
+			image.image, subRes,
+			offset, imgInfo.extent,
+			data,
 			pitchPerRow, pitchPerLayer);
 
 		free(untiledData);
@@ -631,7 +650,6 @@ void GnmCommandBufferDraw::bindShaderResources(
 	}
 }
 
-
 void GnmCommandBufferDraw::commitVsStage()
 {
 	m_shaders.vs.shader = new PsslShaderModule((const uint32_t*)m_shaders.vs.code);
@@ -656,7 +674,7 @@ void GnmCommandBufferDraw::commitVsStage()
 	{
 		setVertexInputLayout(vertexAttributes);
 	}
-	
+
 	// Bind all resources which the shader uses.
 	bindShaderResources(PsslProgramType::VertexShader, shaderResources);
 
@@ -686,9 +704,17 @@ void GnmCommandBufferDraw::commitPsStage()
 template <bool Indexed, bool Indirect>
 void GnmCommandBufferDraw::commitGraphicsStages()
 {
-	bindFramebuffer();
+	if (m_flags.test(GnmContexFlag::GpDirtyRenderTarget))
+	{
+		bindRenderTargets();
+	}
 
-	if (Indexed)
+	if (m_flags.test(GnmContexFlag::GpClearDepthTarget))
+	{
+		clearDepthTarget();
+	}
+
+	if constexpr (Indexed)
 	{
 		bindIndexBuffer();
 	}
@@ -698,7 +724,7 @@ void GnmCommandBufferDraw::commitGraphicsStages()
 	commitCsStage();
 }
 
-void GnmCommandBufferDraw::clearRenderTargetHack(GnmShaderResourceList& shaderResources)
+void GnmCommandBufferDraw::clearColorTargetHack(GnmShaderResourceList& shaderResources)
 {
 	// HACK:
 	// This special compute shader is used by Gnmx Toolkit to clear render target.
@@ -709,7 +735,7 @@ void GnmCommandBufferDraw::clearRenderTargetHack(GnmShaderResourceList& shaderRe
 	// treated as a normal uint32 array, and descripted by V# (GnmBuffer),
 	// not by T# (GnmTexture) anymore, thus we lost all the image format information.
 	// And even worse, the shader will use a constant buffer generated using the
-	// original render target image, and we don't know the structure definition of 
+	// original render target image, and we don't know the structure definition of
 	// the constant buffer obviously. (well, we do if we hard-code it.)
 	// So as a conclusion, this compute shader is useless for us.
 
@@ -726,7 +752,7 @@ void GnmCommandBufferDraw::clearRenderTargetHack(GnmShaderResourceList& shaderRe
 	void*                  destMemory = destBuffer->getBaseAddress();
 	const GnmRenderTarget* target     = findRenderTarget(destMemory);
 
-	LOG_ASSERT(target != nullptr, "can not find render target");
+	LOG_ASSERT(target != nullptr, "the render target to clear is not bound previously.");
 
 	// Gnmx Toolkit encodes the RGBA color value which the game provides
 	// to a encoded value according to the render target's data format.
@@ -741,10 +767,13 @@ void GnmCommandBufferDraw::clearRenderTargetHack(GnmShaderResourceList& shaderRe
 	GpuAddress::Reg32 reg[4] = {};
 	GpuAddress::dataFormatDecoder(reg, encodeValues, target->getDataFormat());
 
-	auto image = m_factory.grabRenderTarget(*target);
-	m_context->clearRenderTarget(image.view, VK_IMAGE_ASPECT_COLOR_BIT, *reinterpret_cast<VkClearValue*>(reg));
+	// Do the clear
+	auto targetImage = m_factory.grabRenderTarget(*target);
+	m_context->clearRenderTarget(
+		targetImage.view,
+		VK_IMAGE_ASPECT_COLOR_BIT,
+		*reinterpret_cast<VkClearValue*>(reg));
 }
-
 
 void GnmCommandBufferDraw::commitCsStage()
 {
@@ -756,7 +785,7 @@ void GnmCommandBufferDraw::commitCsStage()
 	// Hack
 	if (m_shaders.cs.shader->key().toUint64() == ShaderHashClearRT)
 	{
-		clearRenderTargetHack(shaderResources);
+		clearColorTargetHack(shaderResources);
 	}
 }
 
@@ -764,8 +793,21 @@ void GnmCommandBufferDraw::commitComputeStages()
 {
 }
 
+void GnmCommandBufferDraw::clearDepthTarget()
+{
+	auto depthImage = m_factory.grabDepthRenderTarget(m_state.gp.om.depthTarget);
+	m_context->clearRenderTarget(depthImage.view, VK_IMAGE_ASPECT_DEPTH_BIT, m_state.gp.om.depthClearValue);
+	m_flags.clr(GnmContexFlag::GpClearDepthTarget);
+}
+
 void GnmCommandBufferDraw::clearRenderState()
 {
+	m_flags.clr(
+		GnmContexFlag::GpClearDepthTarget);
+
+	m_flags.set(
+		GnmContexFlag::GpDirtyRenderTarget);
+
 	m_state   = GnmContextState();
 	m_shaders = GnmShaderContextGroup();
 }
@@ -878,8 +920,7 @@ const PsslShaderResource GnmCommandBufferDraw::findShaderResource(
 
 const GnmRenderTarget* GnmCommandBufferDraw::findRenderTarget(void* address)
 {
-	auto matchAddress = [address](const GnmRenderTarget& target) 
-	{
+	auto matchAddress = [address](const GnmRenderTarget& target) {
 		return address == target.getBaseAddress();
 	};
 
@@ -888,8 +929,9 @@ const GnmRenderTarget* GnmCommandBufferDraw::findRenderTarget(void* address)
 		m_state.gp.om.colorTargets.end(),
 		matchAddress);
 
-	return (iter != m_state.gp.om.colorTargets.end() ?
-		&*iter : nullptr);
+	auto target = iter != m_state.gp.om.colorTargets.end() ? 
+		&*iter : nullptr;
+	return target;
 }
 
 std::vector<PsslShaderResource> GnmCommandBufferDraw::extractVertexAttributes(const GnmShaderResourceList& resources)
@@ -907,4 +949,3 @@ std::vector<PsslShaderResource> GnmCommandBufferDraw::extractVertexAttributes(co
 	}
 	return vertexAttributes;
 }
-

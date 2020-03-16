@@ -10,6 +10,10 @@ struct PsStageRegisters;
 struct CsStageRegisters;
 }  // namespace pssl
 
+/// We may use these meta information to initialize
+/// some shader properties and specialization constants
+
+
 struct GnmShaderMetaVs
 {
 	uint32_t userSgprCount;
@@ -27,15 +31,6 @@ struct GnmShaderMetaCs
 	uint32_t threadGroupX;
 	uint32_t threadGroupY;
 	uint32_t threadGroupZ;
-};
-
-// We may use these meta information to initialize
-// some shader properties and specialization constants
-union GnmShaderMeta 
-{
-	GnmShaderMetaVs vs;
-	GnmShaderMetaPs ps;
-	GnmShaderMetaCs cs;
 };
 
 
