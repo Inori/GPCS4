@@ -46,14 +46,31 @@ VkPipelineVertexInputStateCreateInfo VltVertexInputInfo::state(
 }
 
 
-void VltColorBlendInfo::addAttachment(const VltColorBlendAttachment& attachment)
+void VltColorBlendInfo::setBlendMode(
+	uint32_t attachment,
+	const VltColorBlendAttachment& blendMode)
 {
-	m_attachments[m_attachmentCount++] = attachment;
+	m_attachments[attachment] = blendMode;
 }
 
-void VltColorBlendInfo::addSwizzle(VltColorBlendAttachmentSwizzle& swizzle)
+void VltColorBlendInfo::setSwizzle(
+	uint32_t                        attachment,
+	VltColorBlendAttachmentSwizzle& swizzle)
 {
-	m_swizzles[m_swizzleCount++] = swizzle;
+	m_swizzles[attachment] = swizzle;
+}
+
+void VltColorBlendInfo::setColorWriteMask(
+	uint32_t              attachment,
+	VkColorComponentFlags writeMask)
+{
+	m_attachments[attachment].setColorWriteMask(writeMask);
+}
+
+void VltColorBlendInfo::setLogicalOp(VkBool32 enable, VkLogicOp op)
+{
+	m_enableLogicOp = enable;
+	m_logicOp       = op;
 }
 
 void VltColorBlendInfo::setBlendConstants(float constants[4])
@@ -70,7 +87,7 @@ VkPipelineColorBlendStateCreateInfo VltColorBlendInfo::state(
 	state.logicOp                             = VkLogicOp(m_logicOp);
 
 	attachmentStates.clear();
-	attachmentStates.resize(m_attachmentCount);
+	attachmentStates.resize(VltLimits::MaxNumRenderTargets);
 	std::generate(attachmentStates.begin(), attachmentStates.end(), [n = 0, this]() mutable
 	{
 		return m_attachments[n++].state();

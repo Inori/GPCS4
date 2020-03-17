@@ -3,22 +3,20 @@
 #include "GnmBuffer.h"
 #include "GnmCommon.h"
 #include "GnmShaderMeta.h"
-
 #include "UtilFlag.h"
 
-#include "../Violet/VltContextState.h"
-#include "../Violet/VltLimit.h"
 #include "../Pssl/PsslEnums.h"
 #include "../Pssl/PsslShaderModule.h"
 #include "../Pssl/PsslShaderStructure.h"
-
+#include "../Violet/VltContextState.h"
+#include "../Violet/VltLimit.h"
 
 namespace vlt
-{;
+{
+;
 class VltShader;
 class VltImageView;
 }  // namespace vlt
-
 
 //////////////////////////////////////////////////////////////////////////
 /**
@@ -37,13 +35,12 @@ class VltImageView;
  */
 enum class GnmContexFlag : uint32_t
 {
-	GpClearDepthTarget,			///< There is pending depth clear operation.
+	GpClearDepthTarget,  ///< There is pending depth clear operation.
 
-	GpDirtyRenderTarget,		///< RenderTarget is out of data. Here RenderTarget includes both color and depth target.
+	GpDirtyRenderTarget,  ///< RenderTarget is out of data. Here RenderTarget includes both color and depth target.
 };
 
 using GnmContexFlags = Flags<GnmContexFlag>;
-
 
 //////////////////////////////////////////////////////////////////////////
 struct GnmShaderContext
@@ -119,6 +116,7 @@ struct GnmPixelShaderState
 
 struct GnmOutputMergerState
 {
+	vlt::VltColorBlendInfo                                blendControl  = {};
 	vlt::VltRenderTargets                                 renderTargets = {};
 	std::array<GnmRenderTarget, vlt::MaxNumRenderTargets> colorTargets  = {};
 

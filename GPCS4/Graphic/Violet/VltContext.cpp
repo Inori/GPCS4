@@ -352,8 +352,19 @@ void VltContext::clearRenderTarget(
 				m_state.om.renderPassOps.depthOps.storeOpS = depthOp.storeOpS;
 			}
 
-			// TODO:
-			// Here dxvk also set the image layout, I don't know why, will see.
+		    if (clearAspects & (VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT))
+			{
+				m_state.om.renderPassOps.depthOps.loadLayout  = depthOp.loadLayout;
+				m_state.om.renderPassOps.depthOps.storeLayout = depthOp.storeLayout;
+
+				// If both depth and stencil are to be cleared, the entire buffer
+				// can be safely cleared.
+				if (m_state.om.renderPassOps.depthOps.loadOpD == VK_ATTACHMENT_LOAD_OP_CLEAR &&
+					m_state.om.renderPassOps.depthOps.loadOpS == VK_ATTACHMENT_LOAD_OP_CLEAR)
+				{
+					m_state.om.renderPassOps.depthOps.loadLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+				}
+			}
 
 			m_state.om.clearValues[attachmentIndex] = clearValue;
 			m_flags.set(VltContextFlag::GpClearRenderTargets);
@@ -642,16 +653,6 @@ void VltContext::updateFrameBuffer()
 		leaveRenderPassScope();
 
 		m_state.om.framebuffer = m_device->createFrameBuffer(m_state.om.renderTargets);
-
-		// Temp for debug:
-		//m_state.om.clearValues[1].depthStencil = { 1.0f, 0 };
-		//m_state.om.renderPassOps.depthOps.loadOpD = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		//m_state.om.renderPassOps.depthOps.loadOpS = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		//m_state.om.renderPassOps.depthOps.loadLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		//m_state.om.renderPassOps.depthOps.storeOpD   = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		//m_state.om.renderPassOps.depthOps.storeOpS   = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		//m_state.om.renderPassOps.depthOps.storeLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
 
 		m_flags.clr(VltContextFlag::GpDirtyFramebuffer);
 		// If the framebuffer is updated, then the render pass has changed,

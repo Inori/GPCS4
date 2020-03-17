@@ -99,53 +99,51 @@ VkRenderPass VltRenderPass::createRenderPass(const VltRenderPassOps& ops)
 
 		VkAttachmentReference                                  depthRef;
 		std::array<VkAttachmentReference, MaxNumRenderTargets> colorRef;
-		uint32_t colorRefCount = 0;
 
 		// Render passes may not require the previous
 		// contents of the attachments to be preserved.
-		for (uint32_t i = 0; i < MaxNumRenderTargets; i++) 
+		for (uint32_t i = 0; i < MaxNumRenderTargets; i++)
 		{
-			if (m_format.color[i].format != VK_FORMAT_UNDEFINED) 
+			if (m_format.color[i].format != VK_FORMAT_UNDEFINED)
 			{
 				VkAttachmentDescription desc;
-				desc.flags = 0;
-				desc.format = m_format.color[i].format;
-				desc.samples = m_format.sampleCount;
-				desc.loadOp = ops.colorOps[i].loadOp;
-				desc.storeOp = ops.colorOps[i].storeOp;
-				desc.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+				desc.flags          = 0;
+				desc.format         = m_format.color[i].format;
+				desc.samples        = m_format.sampleCount;
+				desc.loadOp         = ops.colorOps[i].loadOp;
+				desc.storeOp        = ops.colorOps[i].storeOp;
+				desc.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 				desc.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-				desc.initialLayout = ops.colorOps[i].loadLayout;
-				desc.finalLayout = ops.colorOps[i].storeLayout;
+				desc.initialLayout  = ops.colorOps[i].loadLayout;
+				desc.finalLayout    = ops.colorOps[i].storeLayout;
 
 				colorRef[i].attachment = attachments.size();
-				colorRef[i].layout = m_format.color[i].layout;
-				++colorRefCount;
+				colorRef[i].layout     = m_format.color[i].layout;
 
 				attachments.push_back(desc);
 			}
-			else 
+			else
 			{
 				colorRef[i].attachment = VK_ATTACHMENT_UNUSED;
-				colorRef[i].layout = VK_IMAGE_LAYOUT_UNDEFINED;
+				colorRef[i].layout     = VK_IMAGE_LAYOUT_UNDEFINED;
 			}
 		}
 
 		if (m_format.depth.format != VK_FORMAT_UNDEFINED) 
 		{
 			VkAttachmentDescription desc;
-			desc.flags = 0;
-			desc.format = m_format.depth.format;
-			desc.samples = m_format.sampleCount;
-			desc.loadOp = ops.depthOps.loadOpD;
-			desc.storeOp = ops.depthOps.storeOpD;
-			desc.stencilLoadOp = ops.depthOps.loadOpS;
+			desc.flags          = 0;
+			desc.format         = m_format.depth.format;
+			desc.samples        = m_format.sampleCount;
+			desc.loadOp         = ops.depthOps.loadOpD;
+			desc.storeOp        = ops.depthOps.storeOpD;
+			desc.stencilLoadOp  = ops.depthOps.loadOpS;
 			desc.stencilStoreOp = ops.depthOps.storeOpS;
-			desc.initialLayout = ops.depthOps.loadLayout;
-			desc.finalLayout = ops.depthOps.storeLayout;
+			desc.initialLayout  = ops.depthOps.loadLayout;
+			desc.finalLayout    = ops.depthOps.storeLayout;
 
 			depthRef.attachment = attachments.size();
-			depthRef.layout = m_format.depth.layout;
+			depthRef.layout     = m_format.depth.layout;
 
 			attachments.push_back(desc);
 		}
@@ -156,16 +154,16 @@ VkRenderPass VltRenderPass::createRenderPass(const VltRenderPassOps& ops)
 		}
 
 		VkSubpassDescription subpass;
-		subpass.flags = 0;
-		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-		subpass.inputAttachmentCount = 0;
-		subpass.pInputAttachments = nullptr;
-		subpass.colorAttachmentCount = colorRefCount;
-		subpass.pColorAttachments = colorRef.data();
-		subpass.pResolveAttachments = nullptr;
+		subpass.flags                   = 0;
+		subpass.pipelineBindPoint       = VK_PIPELINE_BIND_POINT_GRAPHICS;
+		subpass.inputAttachmentCount    = 0;
+		subpass.pInputAttachments       = nullptr;
+		subpass.colorAttachmentCount    = colorRef.size();
+		subpass.pColorAttachments       = colorRef.data();
+		subpass.pResolveAttachments     = nullptr;
 		subpass.pDepthStencilAttachment = &depthRef;
 		subpass.preserveAttachmentCount = 0;
-		subpass.pPreserveAttachments = nullptr;
+		subpass.pPreserveAttachments    = nullptr;
 
 		if (m_format.depth.format == VK_FORMAT_UNDEFINED)
 		{
@@ -224,15 +222,15 @@ VkRenderPass VltRenderPass::createRenderPass(const VltRenderPassOps& ops)
 		}
 
 		VkRenderPassCreateInfo info;
-		info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-		info.pNext = nullptr;
-		info.flags = 0;
+		info.sType           = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+		info.pNext           = nullptr;
+		info.flags           = 0;
 		info.attachmentCount = attachments.size();
-		info.pAttachments = attachments.data();
-		info.subpassCount = 1;
-		info.pSubpasses = &subpass;
+		info.pAttachments    = attachments.data();
+		info.subpassCount    = 1;
+		info.pSubpasses      = &subpass;
 		info.dependencyCount = subpassDepCount;
-		info.pDependencies = subpassDepCount ? subpassDeps.data() : nullptr;
+		info.pDependencies   = subpassDepCount ? subpassDeps.data() : nullptr;
 
 		if (vkCreateRenderPass(*m_device, &info, nullptr, &renderPass) != VK_SUCCESS) 
 		{

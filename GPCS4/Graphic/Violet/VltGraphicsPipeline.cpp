@@ -104,14 +104,14 @@ VltGraphicsPipelineInstance* VltGraphicsPipeline::createInstance(const VltGraphi
 	do 
 	{
 		auto vsModule = m_shaders.vs->createShaderModule(m_pipelineManager->m_device, m_resSlotMap);
-		auto vsStage = vsModule.stageInfo(nullptr);
+		auto vsStage  = vsModule.stageInfo(nullptr);
 
 		auto fsModule = m_shaders.fs->createShaderModule(m_pipelineManager->m_device, m_resSlotMap);
-		auto fsStage = fsModule.stageInfo(nullptr);
+		auto fsStage  = fsModule.stageInfo(nullptr);
 
 		VkPipelineShaderStageCreateInfo shaderStages[] = { vsStage, fsStage };
 
-		std::vector<VkVertexInputBindingDescription> vertexBindings;
+		std::vector<VkVertexInputBindingDescription>   vertexBindings;
 		std::vector<VkVertexInputAttributeDescription> vertexAttributes;
 		auto viState = state.vi.state(vertexBindings, vertexAttributes);
 
@@ -128,23 +128,23 @@ VltGraphicsPipelineInstance* VltGraphicsPipeline::createInstance(const VltGraphi
 		auto dsState = state.ds.state();
 
 		VkGraphicsPipelineCreateInfo pipelineInfo = {};
-		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-		pipelineInfo.stageCount = 2;
-		pipelineInfo.pStages = shaderStages;
-		pipelineInfo.pVertexInputState = &viState;
-		pipelineInfo.pInputAssemblyState = &iaState;
-		pipelineInfo.pViewportState = &vpState;
-		pipelineInfo.pRasterizationState = &rsState;
-		pipelineInfo.pMultisampleState = &msState;
-		pipelineInfo.pDepthStencilState = &dsState;
-		pipelineInfo.pColorBlendState = &cbState;
-		pipelineInfo.pDynamicState = &dyState;
-		pipelineInfo.layout = m_layout->pipelineLayout();
-		pipelineInfo.renderPass = rp.getDefaultHandle();
-		pipelineInfo.subpass = 0;
-		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+		pipelineInfo.sType                        = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+		pipelineInfo.stageCount                   = 2;
+		pipelineInfo.pStages                      = shaderStages;
+		pipelineInfo.pVertexInputState            = &viState;
+		pipelineInfo.pInputAssemblyState          = &iaState;
+		pipelineInfo.pViewportState               = &vpState;
+		pipelineInfo.pRasterizationState          = &rsState;
+		pipelineInfo.pMultisampleState            = &msState;
+		pipelineInfo.pDepthStencilState           = &dsState;
+		pipelineInfo.pColorBlendState             = &cbState;
+		pipelineInfo.pDynamicState                = &dyState;
+		pipelineInfo.layout                       = m_layout->pipelineLayout();
+		pipelineInfo.renderPass                   = rp.getDefaultHandle();
+		pipelineInfo.subpass                      = 0;
+		pipelineInfo.basePipelineHandle           = VK_NULL_HANDLE;
 
-		VkDevice device = *(m_pipelineManager->m_device);
+		VkDevice   device   = *(m_pipelineManager->m_device);
 		VkPipeline pipeline = VK_NULL_HANDLE;
 		if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline) != VK_SUCCESS)
 		{

@@ -4,6 +4,9 @@
 #include "GnmConstant.h"
 #include "GnmDataFormat.h"
 
+#include "../Violet/VltLimit.h"
+
+#include <array>
 
 // enumeration/constant/format value converters
 namespace cvt
@@ -27,6 +30,7 @@ VkPrimitiveTopology convertPrimitiveTypeToVkTopology(PrimitiveType primType);
 
 VkIndexType convertIndexSize(IndexSize indexSize);
 
-
+std::array<VkColorComponentFlags, vlt::VltLimits::MaxNumRenderTargets>
+convertRrenderTargetMask(uint32_t mask);
 
 }  // namespace convertor

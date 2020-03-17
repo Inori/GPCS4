@@ -214,8 +214,6 @@ void GnmCommandBufferDraw::setDepthRenderTarget(GnmDepthRenderTarget const* dept
 void GnmCommandBufferDraw::setDepthClearValue(float clearValue)
 {
 	m_state.gp.om.depthClearValue.depthStencil.depth = clearValue;
-
-	m_flags.set(GnmContexFlag::GpClearDepthTarget);
 }
 
 void GnmCommandBufferDraw::setStencilClearValue(uint8_t clearValue)
@@ -225,14 +223,17 @@ void GnmCommandBufferDraw::setStencilClearValue(uint8_t clearValue)
 
 void GnmCommandBufferDraw::setRenderTargetMask(uint32_t mask)
 {
+	auto writeMasks = cvt::convertRrenderTargetMask(mask);
+	for (uint32_t attachment = 0; attachment != writeMasks.size(); ++attachment)
+	{
+		m_state.gp.om.blendControl.setColorWriteMask(
+			attachment, 
+			writeMasks[attachment]);
+	}
 }
 
 void GnmCommandBufferDraw::setBlendControl(uint32_t rtSlot, BlendControl blendControl)
 {
-	auto cbInfo = VltColorBlendInfo(
-		VK_FALSE,
-		VK_LOGIC_OP_COPY);
-
 	VkBlendFactor colorSrcFactor = cvt::convertBlendMultiplierToVkFactor(blendControl.getColorEquationSourceMultiplier());
 	VkBlendFactor colorDstFactor = cvt::convertBlendMultiplierToVkFactor(blendControl.getColorEquationDestinationMultiplier());
 	VkBlendOp     colorBlendOp   = cvt::convertBlendFuncToVkOp(blendControl.getColorEquationBlendFunction());
@@ -241,9 +242,14 @@ void GnmCommandBufferDraw::setBlendControl(uint32_t rtSlot, BlendControl blendCo
 	VkBlendFactor alphaDstFactor = cvt::convertBlendMultiplierToVkFactor(blendControl.getAlphaEquationDestinationMultiplier());
 	VkBlendOp     alphaBlendOp   = cvt::convertBlendFuncToVkOp(blendControl.getAlphaEquationBlendFunction());
 
-	VkColorComponentFlags colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-
-	auto colorAttach = VltColorBlendAttachment(
+	const VkColorComponentFlags fullMask =
+		VK_COLOR_COMPONENT_R_BIT |
+		VK_COLOR_COMPONENT_G_BIT |
+		VK_COLOR_COMPONENT_B_BIT |
+		VK_COLOR_COMPONENT_A_BIT;
+	// Here we set color write mask to fullMask.
+	// A correct mask value should be set through setRenderTargetMask call.
+	auto colorBlendMode = VltColorBlendAttachment(
 		blendControl.getBlendEnable(),
 		colorSrcFactor,
 		colorDstFactor,
@@ -251,11 +257,10 @@ void GnmCommandBufferDraw::setBlendControl(uint32_t rtSlot, BlendControl blendCo
 		alphaSrcFactor,
 		alphaDstFactor,
 		alphaBlendOp,
-		colorWriteMask);
+		fullMask);  
+		
 
-	cbInfo.addAttachment(colorAttach);
-
-	m_context->setColorBlendState(cbInfo);
+	m_state.gp.om.blendControl.setBlendMode(rtSlot, colorBlendMode);
 }
 
 void GnmCommandBufferDraw::setDepthStencilControl(DepthStencilControl depthControl)
@@ -281,6 +286,14 @@ void GnmCommandBufferDraw::setDepthStencilControl(DepthStencilControl depthContr
 
 void GnmCommandBufferDraw::setDbRenderControl(DbRenderControl reg)
 {
+	if (reg.getDepthClearEnable())
+	{
+		m_flags.set(GnmContexFlag::GpClearDepthTarget);
+	}
+	else
+	{
+		m_flags.clr(GnmContexFlag::GpClearDepthTarget);
+	}
 }
 
 void GnmCommandBufferDraw::setVgtControl(uint8_t primGroupSizeMinusOne)
@@ -339,6 +352,10 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void* indexAddr,
 	m_state.gp.ia.indexBuffer.count  = indexCount;
 	uint32_t elementSize             = m_state.gp.ia.indexBuffer.type == VK_INDEX_TYPE_UINT16 ? sizeof(uint16_t) : sizeof(uint32_t);
 	m_state.gp.ia.indexBuffer.size   = elementSize * indexCount;
+
+	// TODO:
+	// Temp for debug
+	m_context->setColorBlendState(m_state.gp.om.blendControl);
 
 	commitGraphicsStages<true, false>();
 
@@ -452,6 +469,9 @@ void GnmCommandBufferDraw::bindRenderTargets()
 		}
 
 		m_context->bindRenderTargets(m_state.gp.om.renderTargets);
+
+		m_state.gp.om.blendControl.setLogicalOp(VK_FALSE, VK_LOGIC_OP_COPY);
+		m_context->setColorBlendState(m_state.gp.om.blendControl);
 
 		m_flags.clr(GnmContexFlag::GpDirtyRenderTarget);
 	} while (false);

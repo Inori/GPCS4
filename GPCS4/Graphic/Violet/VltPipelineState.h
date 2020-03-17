@@ -1,46 +1,46 @@
 #pragma once
 
-#include "VltCommon.h"
 #include "UtilFlag.h"
+#include "VltBuffer.h"
+#include "VltCommon.h"
 #include "VltLimit.h"
 #include "VltUtil.h"
-#include "VltBuffer.h"
 
 #include <array>
 #include <iostream>
 
 namespace vlt
-{;
+{
+;
 
-// Structures defined here are aiming to be stored in file 
+// Structures defined here are aiming to be stored in file
 // to index pipeline cache for future use.
 // A "GvXyzInfo" class stands for a "VkPipelineXyzStateCreateInfo"
 // during pipeline creation.
 
-
 //////////////////////////////////////////////////////////////////////////
 //Graphics pipeline state
 //////////////////////////////////////////////////////////////////////////
-class VltVertexAttribute 
+class VltVertexAttribute
 {
 
 public:
-
 	VltVertexAttribute() = default;
 
 	VltVertexAttribute(
 		uint32_t location,
 		uint32_t binding,
 		VkFormat format,
-		uint32_t offset):
+		uint32_t offset) :
 		m_location(uint32_t(location)),
 		m_binding(uint32_t(binding)),
 		m_format(uint32_t(format)),
 		m_offset(uint32_t(offset)),
 		m_reserved(0)
-		{}
+	{
+	}
 
-    uint32_t location() const
+	uint32_t location() const
 	{
 		return m_location;
 	}
@@ -71,19 +71,17 @@ public:
 	}
 
 private:
-	uint32_t m_location		: 5;
-	uint32_t m_binding		: 5;
-	uint32_t m_format		: 7;
-	uint32_t m_offset		: 11;
-	uint32_t m_reserved		: 4;
+	uint32_t m_location : 5;
+	uint32_t m_binding : 5;
+	uint32_t m_format : 7;
+	uint32_t m_offset : 11;
+	uint32_t m_reserved : 4;
 };
 
-
-class VltVertexBinding 
+class VltVertexBinding
 {
 
 public:
-
 	VltVertexBinding() = default;
 
 	VltVertexBinding(
@@ -99,7 +97,7 @@ public:
 	{
 	}
 
-    uint32_t binding() const
+	uint32_t binding() const
 	{
 		return m_binding;
 	}
@@ -134,13 +132,12 @@ public:
 	}
 
 private:
-	uint32_t m_binding		: 5;
-	uint32_t m_stride		: 12;
-	uint32_t m_inputRate	: 1;
-	uint32_t m_reserved		: 14;
+	uint32_t m_binding : 5;
+	uint32_t m_stride : 12;
+	uint32_t m_inputRate : 1;
+	uint32_t m_reserved : 14;
 	uint32_t m_divisor;
 };
-
 
 // Vertex input state
 class VltVertexInputInfo
@@ -157,20 +154,17 @@ public:
 		std::vector<VkVertexInputAttributeDescription>& attributes) const;
 
 private:
-	
 	std::array<VltVertexBinding, MaxNumVertexBindings>     m_bindings;
 	std::array<VltVertexAttribute, MaxNumVertexAttributes> m_attributes;
 	uint8_t                                                m_bindingCount   = 0;
 	uint8_t                                                m_attributeCount = 0;
 };
 
-
 // Input assembly state.
-class VltInputAssemblyInfo 
+class VltInputAssemblyInfo
 {
 
 public:
-
 	VltInputAssemblyInfo() = default;
 
 	VltInputAssemblyInfo(
@@ -184,7 +178,7 @@ public:
 	{
 	}
 
-    VkPrimitiveTopology primitiveTopology() const
+	VkPrimitiveTopology primitiveTopology() const
 	{
 		return m_primitiveTopology <= VK_PRIMITIVE_TOPOLOGY_PATCH_LIST
 				   ? VkPrimitiveTopology(m_primitiveTopology)
@@ -219,19 +213,18 @@ private:
 	uint16_t m_reserved : 5;
 };
 
-
 // Rasterization state
-class VltRasterizationInfo 
+class VltRasterizationInfo
 {
 
 public:
-
 	VltRasterizationInfo() :
 		m_depthClipEnable(0),
 		m_depthBiasEnable(0),
 		m_polygonMode(VK_POLYGON_MODE_FILL),
 		m_cullMode(VK_CULL_MODE_NONE),
 		m_frontFace(VK_FRONT_FACE_COUNTER_CLOCKWISE),
+		m_sampleCount(VK_SAMPLE_COUNT_1_BIT),
 		m_reserved(0)
 	{
 	}
@@ -253,7 +246,7 @@ public:
 	{
 	}
 
-    VkBool32 depthClipEnable() const
+	VkBool32 depthClipEnable() const
 	{
 		return VkBool32(m_depthClipEnable);
 	}
@@ -316,13 +309,11 @@ private:
 	float m_lineWidth               = 1.0;
 };
 
-
 // Multisample state
-class VltMultisampleInfo 
+class VltMultisampleInfo
 {
 public:
-
-	VltMultisampleInfo():
+	VltMultisampleInfo() :
 		m_sampleCount(0),
 		m_enableAlphaToCoverage(0),
 		m_reserved(0),
@@ -340,8 +331,8 @@ public:
 		m_sampleMask(uint16_t(sampleMask))
 	{
 	}
-	
-    VkSampleCountFlags sampleCount() const
+
+	VkSampleCountFlags sampleCount() const
 	{
 		return VkSampleCountFlags(m_sampleCount);
 	}
@@ -366,8 +357,7 @@ public:
 		VkBool32              sampleShadingEnable,
 		float                 minSampleShading) const
 	{
-		VkSampleCountFlagBits                sampleCount = m_sampleCount ? 
-			VkSampleCountFlagBits(m_sampleCount) : rsSampleCount;
+		VkSampleCountFlagBits                sampleCount = m_sampleCount ? VkSampleCountFlagBits(m_sampleCount) : rsSampleCount;
 		VkPipelineMultisampleStateCreateInfo state       = {};
 		state.sType                                      = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
 		state.pNext                                      = nullptr;
@@ -390,15 +380,12 @@ private:
 	uint16_t m_enableAlphaToCoverage : 1;
 	uint16_t m_reserved : 10;
 	uint16_t m_sampleMask;
-
 };
 
-
-class VltDepthStencilOp 
+class VltDepthStencilOp
 {
 
 public:
-
 	VltDepthStencilOp() = default;
 
 	VltDepthStencilOp(VkStencilOpState state) :
@@ -436,11 +423,10 @@ private:
 };
 
 // Depth stencil state
-class VltDepthStencilInfo 
+class VltDepthStencilInfo
 {
 
 public:
-
 	VltDepthStencilInfo() = default;
 
 	VltDepthStencilInfo(
@@ -462,7 +448,7 @@ public:
 	{
 	}
 
-    VkBool32 enableDepthTest() const
+	VkBool32 enableDepthTest() const
 	{
 		return VkBool32(m_enableDepthTest);
 	}
@@ -528,12 +514,10 @@ private:
 	float m_maxDepthBounds = 0.0;
 };
 
-
-class VltColorBlendAttachment 
+class VltColorBlendAttachment
 {
 
 public:
-
 	VltColorBlendAttachment() = default;
 
 	VltColorBlendAttachment(
@@ -557,7 +541,7 @@ public:
 	{
 	}
 
-    VkBool32 blendEnable() const
+	VkBool32 blendEnable() const
 	{
 		return m_blendEnable;
 	}
@@ -595,6 +579,11 @@ public:
 	VkColorComponentFlags colorWriteMask() const
 	{
 		return VkColorComponentFlags(m_colorWriteMask);
+	}
+
+	void setColorWriteMask(VkColorComponentFlags writeMask)
+	{
+		m_colorWriteMask = writeMask;
 	}
 
 	VkPipelineColorBlendAttachmentState state() const
@@ -676,7 +665,6 @@ private:
 	}
 };
 
-
 // Color blend state, aka Output merger state
 class VltColorBlendInfo
 {
@@ -684,8 +672,6 @@ public:
 	VltColorBlendInfo() :
 		m_enableLogicOp(0),
 		m_logicOp(0),
-		m_attachmentCount(0),
-		m_swizzleCount(0),
 		m_reserved(0)
 	{
 	}
@@ -695,19 +681,29 @@ public:
 		VkLogicOp logicOp) :
 		m_enableLogicOp(uint16_t(logicOpEnable)),
 		m_logicOp(uint16_t(logicOp)),
-		m_attachmentCount(0),
-		m_swizzleCount(0),
 		m_reserved(0)
 	{
 	}
 
-	void addAttachment(const VltColorBlendAttachment& attachment);
+	void setBlendMode(
+		uint32_t attachment,
+		const VltColorBlendAttachment& blendMode);
 
-	void addSwizzle(VltColorBlendAttachmentSwizzle& swizzle);
+	void setSwizzle(
+		uint32_t                        attachment,
+		VltColorBlendAttachmentSwizzle& swizzle);
+
+	void setColorWriteMask(
+		uint32_t              attachment,
+		VkColorComponentFlags writeMask);
+
+	void setLogicalOp(
+		VkBool32  enable,
+		VkLogicOp op);
 
 	void setBlendConstants(float constants[4]);
 
-    VkBool32 enableLogicOp() const
+	VkBool32 enableLogicOp() const
 	{
 		return VkBool32(m_enableLogicOp);
 	}
@@ -716,23 +712,20 @@ public:
 	{
 		return VkLogicOp(m_logicOp);
 	}
-	
+
 	VkPipelineColorBlendStateCreateInfo state(
 		std::vector<VkPipelineColorBlendAttachmentState>& attachmentStates) const;
 
 private:
-	uint16_t m_enableLogicOp	: 1;
-	uint16_t m_logicOp			: 4;
-	uint16_t m_attachmentCount	: 4;
-	uint16_t m_swizzleCount		: 4;
-	uint16_t m_reserved			: 3;
+	uint8_t m_enableLogicOp : 1;
+	uint8_t m_logicOp : 4;
+	uint8_t m_reserved : 3;
 
-	std::array<VltColorBlendAttachment, MaxNumRenderTargets>        m_attachments;
-	std::array<VltColorBlendAttachmentSwizzle, MaxNumRenderTargets> m_swizzles;
+	std::array<VltColorBlendAttachment, MaxNumRenderTargets>        m_attachments = {};
+	std::array<VltColorBlendAttachmentSwizzle, MaxNumRenderTargets> m_swizzles    = {};
 
 	float m_blendConstants[4] = { 0.0 };
 };
-
 
 // Specialization constant state
 struct VltSpecConstantInfo
@@ -740,10 +733,9 @@ struct VltSpecConstantInfo
 	uint32_t specConstants[MaxNumSpecConstants];
 };
 
-
 // Dynamic states, including:
 // Viewport state
-// 
+//
 class VltDynamicStateInfo
 {
 public:
@@ -759,25 +751,22 @@ private:
 	uint8_t m_viewportCount = 0;
 };
 
-
 //////////////////////////////////////////////////////////////////////////
 //Compoute pipeline state
 //////////////////////////////////////////////////////////////////////////
-
-
 
 //////////////////////////////////////////////////////////////////////////
 // This is used to create graphics pipeline and pipeline cache.
 struct PS4ALIGN(32) VltGraphicsPipelineStateInfo
 {
-	VltVertexInputInfo        vi;
-	VltInputAssemblyInfo      ia;
-	VltDynamicStateInfo       dy;  // TODO: Not sure if we can place a dynamic state here
-	VltRasterizationInfo      rs;
-	VltMultisampleInfo        ms;
-	VltDepthStencilInfo       ds;
-	VltColorBlendInfo         cb;
-	VltSpecConstantInfo       sc;
+	VltVertexInputInfo   vi;
+	VltInputAssemblyInfo ia;
+	VltDynamicStateInfo  dy;  // TODO: Not sure if we can place a dynamic state here
+	VltRasterizationInfo rs;
+	VltMultisampleInfo   ms;
+	VltDepthStencilInfo  ds;
+	VltColorBlendInfo    cb;
+	VltSpecConstantInfo  sc;
 
 	VltGraphicsPipelineStateInfo& operator=(const VltGraphicsPipelineStateInfo& other)
 	{
@@ -795,10 +784,9 @@ struct PS4ALIGN(32) VltGraphicsPipelineStateInfo
 		return !bit::bcmpeq(this, &other);
 	}
 
-	friend std::ostream& operator << (std::ostream& out, const VltGraphicsPipelineStateInfo& state);
-	friend std::istream& operator >> (std::istream& in, VltGraphicsPipelineStateInfo& state);
+	friend std::ostream& operator<<(std::ostream& out, const VltGraphicsPipelineStateInfo& state);
+	friend std::istream& operator>>(std::istream& in, VltGraphicsPipelineStateInfo& state);
 };
-
 
 struct VltComputePipelineStateInfo
 {
@@ -806,5 +794,4 @@ struct VltComputePipelineStateInfo
 	uint32_t placeHolder;
 };
 
-
-}
+}  // namespace vlt

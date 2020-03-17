@@ -152,7 +152,8 @@ bool VltFrameBuffer::matchDepthStencil(const VltAttachment& depthStencil) const
 
 bool VltFrameBuffer::isFullSize(const RcPtr<VltImageView>& view) const
 {
-	return m_renderSize.width == view->mipLevelExtent(0).width && 
+	return 
+		m_renderSize.width == view->mipLevelExtent(0).width && 
 		m_renderSize.height == view->mipLevelExtent(0).height && 
 		m_renderSize.layers == view->info().numLayers;
 }
