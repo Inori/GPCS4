@@ -103,7 +103,7 @@ void GnmCommandBufferDraw::setViewport(uint32_t viewportId, float dmin, float dm
 	scissor.extent.width  = width;
 	scissor.extent.height = height;
 
-	m_context->setViewport(viewport, scissor);
+	m_context->setViewports(1, &viewport, &scissor);
 }
 
 void GnmCommandBufferDraw::setHardwareScreenOffset(uint32_t offsetX, uint32_t offsetY)
@@ -226,9 +226,7 @@ void GnmCommandBufferDraw::setRenderTargetMask(uint32_t mask)
 	auto writeMasks = cvt::convertRrenderTargetMask(mask);
 	for (uint32_t attachment = 0; attachment != writeMasks.size(); ++attachment)
 	{
-		m_state.gp.om.blendControl.setColorWriteMask(
-			attachment, 
-			writeMasks[attachment]);
+		m_context->setBlendMask(attachment, writeMasks[attachment]);
 	}
 }
 
@@ -242,11 +240,6 @@ void GnmCommandBufferDraw::setBlendControl(uint32_t rtSlot, BlendControl blendCo
 	VkBlendFactor alphaDstFactor = cvt::convertBlendMultiplierToVkFactor(blendControl.getAlphaEquationDestinationMultiplier());
 	VkBlendOp     alphaBlendOp   = cvt::convertBlendFuncToVkOp(blendControl.getAlphaEquationBlendFunction());
 
-	const VkColorComponentFlags fullMask =
-		VK_COLOR_COMPONENT_R_BIT |
-		VK_COLOR_COMPONENT_G_BIT |
-		VK_COLOR_COMPONENT_B_BIT |
-		VK_COLOR_COMPONENT_A_BIT;
 	// Here we set color write mask to fullMask.
 	// A correct mask value should be set through setRenderTargetMask call.
 	auto colorBlendMode = VltColorBlendAttachment(
@@ -256,11 +249,9 @@ void GnmCommandBufferDraw::setBlendControl(uint32_t rtSlot, BlendControl blendCo
 		colorBlendOp,
 		alphaSrcFactor,
 		alphaDstFactor,
-		alphaBlendOp,
-		fullMask);  
+		alphaBlendOp);
 		
-
-	m_state.gp.om.blendControl.setBlendMode(rtSlot, colorBlendMode);
+	m_context->setBlendMode(rtSlot, colorBlendMode);
 }
 
 void GnmCommandBufferDraw::setDepthStencilControl(DepthStencilControl depthControl)
@@ -352,10 +343,6 @@ void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void* indexAddr,
 	m_state.gp.ia.indexBuffer.count  = indexCount;
 	uint32_t elementSize             = m_state.gp.ia.indexBuffer.type == VK_INDEX_TYPE_UINT16 ? sizeof(uint16_t) : sizeof(uint32_t);
 	m_state.gp.ia.indexBuffer.size   = elementSize * indexCount;
-
-	// TODO:
-	// Temp for debug
-	m_context->setColorBlendState(m_state.gp.om.blendControl);
 
 	commitGraphicsStages<true, false>();
 
@@ -470,9 +457,6 @@ void GnmCommandBufferDraw::bindRenderTargets()
 
 		m_context->bindRenderTargets(m_state.gp.om.renderTargets);
 
-		m_state.gp.om.blendControl.setLogicalOp(VK_FALSE, VK_LOGIC_OP_COPY);
-		m_context->setColorBlendState(m_state.gp.om.blendControl);
-
 		m_flags.clr(GnmContexFlag::GpDirtyRenderTarget);
 	} while (false);
 }
@@ -487,7 +471,9 @@ void GnmCommandBufferDraw::setVertexInputLayout(const std::vector<PsslShaderReso
 	// Currently I only support the first case, we need to check whether these attributes
 	// are in same memory area or not.
 
-	VltVertexInputInfo viInfo   = {};
+	std::vector<VltVertexBinding>   vertexBindings;
+	std::vector<VltVertexAttribute> vertexAttributes;
+
 	uint32_t           location = 0;
 
 	uint32_t bindingCount = attributes.size();
@@ -497,14 +483,18 @@ void GnmCommandBufferDraw::setVertexInputLayout(const std::vector<PsslShaderReso
 
 		uint32_t stride  = vsharp->getStride();
 		auto     binding = VltVertexBinding(i, stride, VK_VERTEX_INPUT_RATE_VERTEX, 0);
-		viInfo.addBinding(binding);
+		vertexBindings.emplace_back(binding);
 
 		VkFormat vtxFmt = cvt::convertDataFormatToVkFormat(vsharp->getDataFormat());
 		auto     attr   = VltVertexAttribute(location++, i, vtxFmt, 0);
-		viInfo.addAttribute(attr);
+		vertexAttributes.emplace_back(attr);
 	}
 
-	m_context->setVertexInputState(viInfo);
+	m_context->setInputLayout(
+		vertexBindings.size(),
+		vertexBindings.data(),
+		vertexAttributes.size(),
+		vertexAttributes.data());
 }
 
 void GnmCommandBufferDraw::bindIndexBuffer()

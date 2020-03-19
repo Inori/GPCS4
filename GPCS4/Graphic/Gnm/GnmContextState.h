@@ -116,7 +116,6 @@ struct GnmPixelShaderState
 
 struct GnmOutputMergerState
 {
-	vlt::VltColorBlendInfo                                blendControl  = {};
 	vlt::VltRenderTargets                                 renderTargets = {};
 	std::array<GnmRenderTarget, vlt::MaxNumRenderTargets> colorTargets  = {};
 

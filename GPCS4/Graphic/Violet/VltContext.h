@@ -51,45 +51,79 @@ public:
 	VltContext(const RcPtr<VltDevice>& device);
 	~VltContext();
 
-	void beginRecording(const RcPtr<VltCmdList>& commandBuffer);
+	void beginRecording(
+		const RcPtr<VltCmdList>& commandBuffer);
 
 	RcPtr<VltCmdList> endRecording();
 
+	///< Pipeline state setting methods.
 
-	///
+	void setViewports(
+		uint32_t          viewportCount,
+		const VkViewport* viewports,
+		const VkRect2D*   scissorRects);
 
-	void setViewport(const VkViewport& viewport, const VkRect2D& scissorRect);
+	void setInputLayout(
+		uint32_t                  bindingCount,
+		const VltVertexBinding*   bindings,
+		uint32_t                  attributeCount,
+		const VltVertexAttribute* attributes);
 
-	void setViewports(uint32_t viewportCount,
-		const VkViewport* viewports, const VkRect2D* scissorRects);
+	void setInputAssemblyState(
+		const VltInputAssemblyInfo& iaState);
 
-	void setVertexInputState(const VltVertexInputInfo& viState);
+	void setRasterizerState(
+		const VltRasterizationInfo& rsState);
 
-	void setInputAssemblyState(const VltInputAssemblyInfo& iaState);
+	void setMultiSampleState(
+		const VltMultisampleInfo& msState);
 
-	void setRasterizerState(const VltRasterizationInfo& rsState);
+	void setDepthStencilState(
+		const VltDepthStencilInfo& dsState);
 
-	void setMultiSampleState(const VltMultisampleInfo& msState);
+	void setLogicOpState(
+		const VltLogicOp& lo);
 
-	void setDepthStencilState(const VltDepthStencilInfo& dsState);
+	void setBlendMode(
+		uint32_t                       attachment,
+		const VltColorBlendAttachment& blendMode);
 
-	void setColorBlendState(const VltColorBlendInfo& blendCtl);
+	void setBlendMask(
+		uint32_t                     attachment,
+		const VkColorComponentFlags& colorMask);
 
-	void bindRenderTargets(const VltRenderTargets& renderTargets);
+	/// Resource binding methods.
 
-	void bindShader(VkShaderStageFlagBits stage, const RcPtr<VltShader>& shader);
+	void bindRenderTargets(
+		const VltRenderTargets& renderTargets);
 
-	void bindIndexBuffer(const VltBufferSlice& buffer, VkIndexType indexType);
+	void bindShader(
+		VkShaderStageFlagBits   stage,
+		const RcPtr<VltShader>& shader);
 
-	void bindVertexBuffer(uint32_t binding, const VltBufferSlice& buffer, uint32_t stride);
+	void bindIndexBuffer(
+		const VltBufferSlice& buffer,
+		VkIndexType           indexType);
 
-	void bindSampler(uint32_t regSlot, const RcPtr<VltSampler>& sampler);
+	void bindVertexBuffer(
+		uint32_t              binding,
+		const VltBufferSlice& buffer,
+		uint32_t              stride);
 
-	void bindResourceBuffer(uint32_t regSlot, const VltBufferSlice& buffer);
+	void bindSampler(
+		uint32_t                 regSlot,
+		const RcPtr<VltSampler>& sampler);
 
-	void bindResourceView(uint32_t regSlot, 
-		const RcPtr<VltImageView>& imageView, 
+	void bindResourceBuffer(
+		uint32_t              regSlot,
+		const VltBufferSlice& buffer);
+
+	void bindResourceView(
+		uint32_t                    regSlot,
+		const RcPtr<VltImageView>&  imageView,
 		const RcPtr<VltBufferView>& bufferView);
+
+	///< Draw calls
 
 	void draw(
 		uint32_t vertexCount,
@@ -103,6 +137,8 @@ public:
 		uint32_t                firstIndex,
 		uint32_t                vertexOffset,
 		uint32_t                firstInstance);
+
+	///< Resource updating methods.
 
 	/**
 	 * \brief Clear render target

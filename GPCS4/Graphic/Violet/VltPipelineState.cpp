@@ -3,17 +3,6 @@
 namespace vlt
 {;
 
-
-void VltVertexInputInfo::addBinding(const VltVertexBinding& binding)
-{
-	m_bindings[m_bindingCount++] = binding;
-}
-
-void VltVertexInputInfo::addAttribute(const VltVertexAttribute& attr)
-{
-	m_attributes[m_attributeCount++] = attr;
-}
-
 VkPipelineVertexInputStateCreateInfo VltVertexInputInfo::state(
 	std::vector<VkVertexInputBindingDescription>&   bindings,
 	std::vector<VkVertexInputAttributeDescription>& attributes) const
@@ -45,52 +34,20 @@ VkPipelineVertexInputStateCreateInfo VltVertexInputInfo::state(
 	return info;
 }
 
-
-void VltColorBlendInfo::setBlendMode(
-	uint32_t attachment,
-	const VltColorBlendAttachment& blendMode)
-{
-	m_attachments[attachment] = blendMode;
-}
-
-void VltColorBlendInfo::setSwizzle(
-	uint32_t                        attachment,
-	VltColorBlendAttachmentSwizzle& swizzle)
-{
-	m_swizzles[attachment] = swizzle;
-}
-
-void VltColorBlendInfo::setColorWriteMask(
-	uint32_t              attachment,
-	VkColorComponentFlags writeMask)
-{
-	m_attachments[attachment].setColorWriteMask(writeMask);
-}
-
-void VltColorBlendInfo::setLogicalOp(VkBool32 enable, VkLogicOp op)
-{
-	m_enableLogicOp = enable;
-	m_logicOp       = op;
-}
-
-void VltColorBlendInfo::setBlendConstants(float constants[4])
-{
-	std::memcpy(m_blendConstants, constants, sizeof(float) * 4);
-}
-
 VkPipelineColorBlendStateCreateInfo VltColorBlendInfo::state(
 	std::vector<VkPipelineColorBlendAttachmentState>& attachmentStates) const
 {
 	VkPipelineColorBlendStateCreateInfo state = {};
 	state.sType                               = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-	state.logicOpEnable                       = VkBool32(m_enableLogicOp);
-	state.logicOp                             = VkLogicOp(m_logicOp);
+	state.logicOpEnable                       = m_logicOp.enableLogicOp();
+	state.logicOp                             = m_logicOp.logicOp();
 
 	attachmentStates.clear();
 	attachmentStates.resize(VltLimits::MaxNumRenderTargets);
 	std::generate(attachmentStates.begin(), attachmentStates.end(), [n = 0, this]() mutable
 	{
-		return m_attachments[n++].state();
+		uint32_t idx = n++;
+		return m_attachments[idx].state(m_colorMasks[idx]);
 	});
 
 	state.attachmentCount = attachmentStates.size();
@@ -101,11 +58,6 @@ VkPipelineColorBlendStateCreateInfo VltColorBlendInfo::state(
 	state.blendConstants[2] = m_blendConstants[2];
 	state.blendConstants[3] = m_blendConstants[3];
 	return state;
-}
-
-void VltDynamicStateInfo::setViewportCount(uint8_t count)
-{
-	m_viewportCount = count;
 }
 
 VkPipelineViewportStateCreateInfo VltDynamicStateInfo::viewportState() const

@@ -145,9 +145,37 @@ class VltVertexInputInfo
 public:
 	VltVertexInputInfo() = default;
 
-	void addBinding(const VltVertexBinding& binding);
+	uint32_t bindingCount() const
+	{
+		return m_bindingCount;
+	}
 
-	void addAttribute(const VltVertexAttribute& attr);
+	uint32_t attributeCount() const
+	{
+		return m_attributeCount;
+	}
+
+	void setBinding(
+		uint32_t                id,
+		const VltVertexBinding& binding)
+	{
+		m_bindings[id] = binding;
+	}
+
+	void setAttribute(
+		uint32_t                  id,
+		const VltVertexAttribute& attribute)
+	{
+		m_attributes[id] = attribute;
+	}
+
+	void setInputCount(
+		uint32_t bindingCount,
+		uint32_t attributeCount)
+	{
+		m_bindingCount = bindingCount;
+		m_attributeCount = attributeCount;
+	}
 
 	VkPipelineVertexInputStateCreateInfo state(
 		std::vector<VkVertexInputBindingDescription>&   bindings,
@@ -527,8 +555,7 @@ public:
 		VkBlendOp             colorBlendOp,
 		VkBlendFactor         srcAlphaBlendFactor,
 		VkBlendFactor         dstAlphaBlendFactor,
-		VkBlendOp             alphaBlendOp,
-		VkColorComponentFlags colorWriteMask) :
+		VkBlendOp             alphaBlendOp) :
 		m_blendEnable(uint32_t(blendEnable)),
 		m_srcColorBlendFactor(uint32_t(srcColorBlendFactor)),
 		m_dstColorBlendFactor(uint32_t(dstColorBlendFactor)),
@@ -536,7 +563,6 @@ public:
 		m_srcAlphaBlendFactor(uint32_t(srcAlphaBlendFactor)),
 		m_dstAlphaBlendFactor(uint32_t(dstAlphaBlendFactor)),
 		m_alphaBlendOp(uint32_t(alphaBlendOp)),
-		m_colorWriteMask(uint32_t(colorWriteMask)),
 		m_reserved(0)
 	{
 	}
@@ -576,17 +602,7 @@ public:
 		return VkBlendOp(m_alphaBlendOp);
 	}
 
-	VkColorComponentFlags colorWriteMask() const
-	{
-		return VkColorComponentFlags(m_colorWriteMask);
-	}
-
-	void setColorWriteMask(VkColorComponentFlags writeMask)
-	{
-		m_colorWriteMask = writeMask;
-	}
-
-	VkPipelineColorBlendAttachmentState state() const
+	VkPipelineColorBlendAttachmentState state(VkColorComponentFlags colorMask) const
 	{
 		VkPipelineColorBlendAttachmentState result;
 		result.blendEnable         = VkBool32(m_blendEnable);
@@ -596,7 +612,7 @@ public:
 		result.srcAlphaBlendFactor = VkBlendFactor(m_srcAlphaBlendFactor);
 		result.dstAlphaBlendFactor = VkBlendFactor(m_dstAlphaBlendFactor);
 		result.alphaBlendOp        = VkBlendOp(m_alphaBlendOp);
-		result.colorWriteMask      = VkColorComponentFlags(m_colorWriteMask);
+		result.colorWriteMask      = colorMask;
 		return result;
 	}
 
@@ -608,8 +624,7 @@ private:
 	uint32_t m_srcAlphaBlendFactor : 5;
 	uint32_t m_dstAlphaBlendFactor : 5;
 	uint32_t m_alphaBlendOp : 3;
-	uint32_t m_colorWriteMask : 4;
-	uint32_t m_reserved : 1;
+	uint32_t m_reserved : 5;
 };
 
 class VltColorBlendAttachmentSwizzle
@@ -665,43 +680,22 @@ private:
 	}
 };
 
-// Color blend state, aka Output merger state
-class VltColorBlendInfo
+class VltLogicOp
 {
 public:
-	VltColorBlendInfo() :
-		m_enableLogicOp(0),
-		m_logicOp(0),
-		m_reserved(0)
+	VltLogicOp():
+		m_enableLogicOp(VK_FALSE),
+		m_logicOp(VK_LOGIC_OP_COPY)
 	{
 	}
 
-	VltColorBlendInfo(
-		VkBool32  logicOpEnable,
-		VkLogicOp logicOp) :
-		m_enableLogicOp(uint16_t(logicOpEnable)),
-		m_logicOp(uint16_t(logicOp)),
-		m_reserved(0)
-	{
-	}
-
-	void setBlendMode(
-		uint32_t attachment,
-		const VltColorBlendAttachment& blendMode);
-
-	void setSwizzle(
-		uint32_t                        attachment,
-		VltColorBlendAttachmentSwizzle& swizzle);
-
-	void setColorWriteMask(
-		uint32_t              attachment,
-		VkColorComponentFlags writeMask);
-
-	void setLogicalOp(
+	VltLogicOp(
 		VkBool32  enable,
-		VkLogicOp op);
-
-	void setBlendConstants(float constants[4]);
+		VkLogicOp lo) :
+		m_enableLogicOp(enable),
+		m_logicOp(lo)
+	{
+	}
 
 	VkBool32 enableLogicOp() const
 	{
@@ -713,15 +707,69 @@ public:
 		return VkLogicOp(m_logicOp);
 	}
 
-	VkPipelineColorBlendStateCreateInfo state(
-		std::vector<VkPipelineColorBlendAttachmentState>& attachmentStates) const;
-
 private:
 	uint8_t m_enableLogicOp : 1;
 	uint8_t m_logicOp : 4;
 	uint8_t m_reserved : 3;
+};
 
+
+// Color blend state, aka Output merger state
+class VltColorBlendInfo
+{
+public:
+	VltColorBlendInfo() = default;
+
+	void setBlendMode(
+		uint32_t attachment,
+		const VltColorBlendAttachment& blendMode)
+	{
+		m_attachments[attachment] = blendMode;
+	}
+
+	void setSwizzle(
+		uint32_t                        attachment,
+		VltColorBlendAttachmentSwizzle& swizzle)
+	{
+		m_swizzles[attachment] = swizzle;
+	}
+
+	void setColorWriteMask(
+		uint32_t              attachment,
+		VkColorComponentFlags colorMask)
+	{
+		m_colorMasks[attachment] = colorMask;
+	}
+
+	void setLogicalOp(
+		VltLogicOp lo)
+	{
+		m_logicOp = lo;
+	}
+
+	void setBlendConstants(float constants[4])
+	{
+		std::memcpy(m_blendConstants, constants, sizeof(float) * 4);
+	}
+
+	VkBool32 enableLogicOp() const
+	{
+		return m_logicOp.enableLogicOp();
+	}
+
+	VkLogicOp logicOp() const
+	{
+		return m_logicOp.logicOp();
+	}
+
+	VkPipelineColorBlendStateCreateInfo state(
+		std::vector<VkPipelineColorBlendAttachmentState>& attachmentStates) const;
+
+private:
+
+	VltLogicOp                                                      m_logicOp     = {};
 	std::array<VltColorBlendAttachment, MaxNumRenderTargets>        m_attachments = {};
+	std::array<VkColorComponentFlags, MaxNumRenderTargets>          m_colorMasks  = {};
 	std::array<VltColorBlendAttachmentSwizzle, MaxNumRenderTargets> m_swizzles    = {};
 
 	float m_blendConstants[4] = { 0.0 };
@@ -741,7 +789,10 @@ class VltDynamicStateInfo
 public:
 	VltDynamicStateInfo() = default;
 
-	void setViewportCount(uint8_t count);
+	void setViewportCount(uint8_t count)
+	{
+		m_viewportCount = count;
+	}
 
 	VkPipelineViewportStateCreateInfo viewportState() const;
 

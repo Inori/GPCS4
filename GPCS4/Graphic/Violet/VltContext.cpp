@@ -74,11 +74,6 @@ RcPtr<VltCmdList> VltContext::endRecording()
 	return std::exchange(m_cmd, nullptr);
 }
 
-void VltContext::setViewport(const VkViewport& viewport, const VkRect2D& scissorRect)
-{
-	setViewports(1, &viewport, &scissorRect);
-}
-
 void VltContext::setViewports(uint32_t viewportCount, const VkViewport* viewports, const VkRect2D* scissorRects)
 {
 	auto& vp = m_state.dy.vp;
@@ -97,10 +92,38 @@ void VltContext::setViewports(uint32_t viewportCount, const VkViewport* viewport
 	m_flags.set(VltContextFlag::GpDirtyViewport);
 }
 
-void VltContext::setVertexInputState(const VltVertexInputInfo& viState)
+void VltContext::setInputLayout(
+	uint32_t                  bindingCount,
+	const VltVertexBinding*   bindings,
+	uint32_t                  attributeCount,
+	const VltVertexAttribute* attributes)
 {
-	m_state.gp.states.vi = viState;
-	m_flags.set(VltContextFlag::GpDirtyPipelineState);
+	m_flags.set(
+		VltContextFlag::GpDirtyPipelineState,
+		VltContextFlag::GpDirtyVertexBuffers);
+
+	for (uint32_t i = 0; i < bindingCount; i++)
+	{
+		m_state.gp.states.vi.setBinding(i, bindings[i]);
+	}
+
+	for (uint32_t i = 0; i < attributeCount; i++)
+	{
+		m_state.gp.states.vi.setAttribute(i, attributes[i]);
+	}
+	
+	// Clear bindings
+	for (uint32_t i = bindingCount; i < m_state.gp.states.vi.bindingCount(); i++)
+	{
+		m_state.gp.states.vi.setBinding(i, VltVertexBinding());
+	}
+	// Clear attributes
+	for (uint32_t i = attributeCount; i < m_state.gp.states.vi.attributeCount(); i++)
+	{
+		m_state.gp.states.vi.setAttribute(i, VltVertexAttribute());
+	}
+
+	m_state.gp.states.vi.setInputCount(bindingCount, attributeCount);
 }
 
 void VltContext::setInputAssemblyState(const VltInputAssemblyInfo& iaState)
@@ -127,9 +150,25 @@ void VltContext::setDepthStencilState(const VltDepthStencilInfo& dsState)
 	m_flags.set(VltContextFlag::GpDirtyPipelineState);
 }
 
-void VltContext::setColorBlendState(const VltColorBlendInfo& blendCtl)
+void VltContext::setLogicOpState(const VltLogicOp& lo)
 {
-	m_state.gp.states.cb = blendCtl;
+	m_state.gp.states.cb.setLogicalOp(lo);
+	m_flags.set(VltContextFlag::GpDirtyPipelineState);
+}
+
+void VltContext::setBlendMode(
+	uint32_t                       attachment,
+	const VltColorBlendAttachment& blendMode)
+{
+	m_state.gp.states.cb.setBlendMode(attachment, blendMode);
+	m_flags.set(VltContextFlag::GpDirtyPipelineState);
+}
+
+void VltContext::setBlendMask(
+	uint32_t                     attachment,
+	const VkColorComponentFlags& colorMask)
+{
+	m_state.gp.states.cb.setColorWriteMask(attachment, colorMask);
 	m_flags.set(VltContextFlag::GpDirtyPipelineState);
 }
 
