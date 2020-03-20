@@ -26,9 +26,11 @@ namespace sce
 class SceVideoOut;
 class SceGpuQueue;
 
-constexpr uint32_t kMaxPipeId            = 7;  // Some doc say it should be 7, others say it should be 3. Fuck that.
-constexpr uint32_t kMaxQueueId           = 8;
-constexpr uint32_t kMaxComputeQueueCount = kMaxPipeId * kMaxQueueId;
+// Valid vqueue id should be positive value.
+constexpr uint32_t VQueueIdBegin        = 1;
+constexpr uint32_t MaxPipeId            = 7;  // Some docs say it should be 7, others say it should be 3. Fuck that.
+constexpr uint32_t MaxQueueId           = 8;
+constexpr uint32_t MaxComputeQueueCount = MaxPipeId * MaxQueueId;
 
 class SceGnmDriver
 {
@@ -104,8 +106,8 @@ private:
 	RcPtr<vlt::VltDevice>         m_device;
 	RcPtr<vlt::VltPresenter>      m_presenter;
 
-	std::unique_ptr<SceGpuQueue>                                    m_graphicsQueue;
-	std::array<std::unique_ptr<SceGpuQueue>, kMaxComputeQueueCount> m_computeQueues;
+	std::unique_ptr<SceGpuQueue>                                   m_graphicsQueue;
+	std::array<std::unique_ptr<SceGpuQueue>, MaxComputeQueueCount> m_computeQueues;
 };
 
 }  // namespace sce

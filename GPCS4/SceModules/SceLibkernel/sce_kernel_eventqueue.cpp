@@ -28,6 +28,6 @@ int PS4API sceKernelWaitEqueue(SceKernelEqueue eq, SceKernelEvent *ev,
 		*out = 1;
 	}
 
-	UtilTime::MicroSleep(10000);
+	UtilTime::MicroSleep(1000);
 	return SCE_OK;
 }

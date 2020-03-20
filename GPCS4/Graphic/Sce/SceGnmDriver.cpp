@@ -280,13 +280,13 @@ uint32_t SceGnmDriver::mapComputeQueue(uint32_t pipeId,
 	int vqueueId = SCE_GNM_ERROR_UNKNOWN;
 	do
 	{
-		if (pipeId >= kMaxPipeId)
+		if (pipeId >= MaxPipeId)
 		{
 			vqueueId = SCE_GNM_ERROR_COMPUTEQUEUE_INVALID_PIPE_ID;
 			break;
 		}
 
-		if (queueId >= kMaxQueueId)
+		if (queueId >= MaxQueueId)
 		{
 			vqueueId = SCE_GNM_ERROR_COMPUTEQUEUE_INVALID_QUEUE_ID;
 			break;
@@ -312,8 +312,8 @@ uint32_t SceGnmDriver::mapComputeQueue(uint32_t pipeId,
 
 		*(uint32_t*)readPtrAddr = 0;
 
-		vqueueId = pipeId * kMaxPipeId + queueId;
-		if (vqueueId >= kMaxComputeQueueCount)
+		vqueueId = VQueueIdBegin + pipeId * MaxPipeId + queueId;
+		if (vqueueId >= MaxComputeQueueCount)
 		{
 			LOG_ERR("vqueueId is larger than max queue count.");
 			break;
@@ -323,7 +323,9 @@ uint32_t SceGnmDriver::mapComputeQueue(uint32_t pipeId,
 		cptDevice.device            = m_device;
 		cptDevice.presenter         = nullptr;
 		cptDevice.videoOut          = nullptr;
-		m_computeQueues[vqueueId]   = std::make_unique<SceGpuQueue>(cptDevice, SceQueueType::Compute);
+
+		uint32_t vqueueIndex        = vqueueId - VQueueIdBegin;
+		m_computeQueues[vqueueIndex] = std::make_unique<SceGpuQueue>(cptDevice, SceQueueType::Compute);
 
 	} while (false);
 
@@ -334,13 +336,14 @@ void SceGnmDriver::unmapComputeQueue(uint32_t vqueueId)
 {
 	do
 	{
-		if (vqueueId >= kMaxComputeQueueCount)
+		if (vqueueId >= MaxComputeQueueCount)
 		{
 			LOG_ERR("vqueueId is larger than max queue count.");
 			break;
 		}
 
-		m_computeQueues[vqueueId].reset();
+		uint32_t vqueueIndex = vqueueId - VQueueIdBegin;
+		m_computeQueues[vqueueIndex].reset();
 
 	} while (false);
 }
