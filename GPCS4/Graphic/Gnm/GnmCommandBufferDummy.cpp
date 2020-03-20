@@ -207,12 +207,12 @@ void GnmCommandBufferDummy::writeDataInlineThroughL2(void* dstGpuAddr, const voi
 
 void GnmCommandBufferDummy::writeAtEndOfPipe(EndOfPipeEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy cachePolicy)
 {
-	
+	emuWriteGpuLabel(srcSelector, dstGpuAddr, immValue);
 }
 
 void GnmCommandBufferDummy::writeAtEndOfPipeWithInterrupt(EndOfPipeEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy cachePolicy)
 {
-	
+	emuWriteGpuLabel(srcSelector, dstGpuAddr, immValue);
 }
 
 void GnmCommandBufferDummy::writeAtEndOfShader(EndOfShaderEventType eventType, void* dstGpuAddr, uint32_t immValue)
