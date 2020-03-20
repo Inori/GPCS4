@@ -64,8 +64,8 @@ This module will only call functions in `Viole` module.
 
 #### 5. Viole
 This is the vulkan engine.  
-The name Violet comes from Violet Evergarden.
-It is the abstraction layer of vulkan. Most of vulkan objects will be wrapped into Viole classes for convenience.  
+The name Violet comes from Violet Evergarden.  
+It is the abstraction layer of vulkan. Most of vulkan objects will be wrapped into Violet classes for convenience.  
 It will maintain vulkan render states, pipelines, optimizations and so on.
 
 #### 6. Pssl
