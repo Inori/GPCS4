@@ -19,8 +19,7 @@ LOG_CHANNEL(Graphic.Sce.SceGnmDriver);
 using namespace vlt;
 
 namespace sce
-{
-;
+{;
 
 SceGnmDriver::SceGnmDriver(std::shared_ptr<SceVideoOut>& videoOut) :
 	m_videoOut(videoOut)
@@ -31,6 +30,16 @@ SceGnmDriver::SceGnmDriver(std::shared_ptr<SceVideoOut>& videoOut) :
 
 SceGnmDriver::~SceGnmDriver()
 {
+	// TODO:
+	// Correct the reference count maintenance, thus we don't
+	// need to handle release order manually.
+	// e.g. wrap VkSurfaceKHR in a class with reference count
+
+	m_graphicsQueue.reset();
+	// Release Presenter before VideoOut
+	m_presenter = nullptr;
+	// Release VideoOut before GnmDriver.
+	m_videoOut.reset();
 }
 
 bool SceGnmDriver::initGnmDriver()

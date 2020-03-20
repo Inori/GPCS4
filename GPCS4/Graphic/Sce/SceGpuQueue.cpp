@@ -3,6 +3,7 @@
 #include "../Gnm/GnmCmdStream.h"
 #include "../Gnm/GnmCommandBufferDraw.h"
 #include "../Gnm/GnmCommandBufferDispatch.h"
+#include "../Gnm/GnmCommandBufferDummy.h"
 #include "../Violet/VltDevice.h"
 #include "../Violet/VltContext.h"
 #include "../Violet/VltCmdList.h"
@@ -63,6 +64,10 @@ void SceGpuQueue::createQueue(SceQueueType type)
 	{
 		m_cmdProcesser = std::make_unique<GnmCommandBufferDispatch>(m_device, m_context);
 	}
+
+#ifdef GPCS4_NO_GRAPHICS
+	m_cmdProcesser = std::make_unique<GnmCommandBufferDummy>();
+#endif
 	
 	m_cmdParser->attachCommandBuffer(m_cmdProcesser.get());
 }

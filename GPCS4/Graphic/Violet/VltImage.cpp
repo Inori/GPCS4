@@ -33,7 +33,7 @@ VltImage::VltImage(
 	info.samples = VK_SAMPLE_COUNT_1_BIT;
 	info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-	if (vkCreateImage(*device, &info, nullptr, &m_image) != VK_SUCCESS)
+	if (vkCreateImage(*device, &info, nullptr, &m_image.image) != VK_SUCCESS)
 	{
 		LOG_ERR("create image failed.");
 	}
@@ -54,14 +54,14 @@ VltImage::VltImage(
 
 	VkImageMemoryRequirementsInfo2 memReqInfo;
 	memReqInfo.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_REQUIREMENTS_INFO_2_KHR;
-	memReqInfo.image = m_image;
+	memReqInfo.image = m_image.image;
 	memReqInfo.pNext = VK_NULL_HANDLE;
 
 	VkMemoryDedicatedAllocateInfoKHR dedMemoryAllocInfo;
 	dedMemoryAllocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO_KHR;
 	dedMemoryAllocInfo.pNext = VK_NULL_HANDLE;
 	dedMemoryAllocInfo.buffer = VK_NULL_HANDLE;
-	dedMemoryAllocInfo.image = m_image;
+	dedMemoryAllocInfo.image  = m_image.image;
 
 	vkGetImageMemoryRequirements2(*device, &memReqInfo, &memReq);
 
@@ -80,11 +80,11 @@ VltImage::VltImage(
 	float priority = isGpuWritable ? 1.0f : 0.5f;
 
 	// Ask driver whether we should be using a dedicated allocation
-	m_memory = memAlloc->alloc(&memReq.memoryRequirements,
+	m_image.memory = memAlloc->alloc(&memReq.memoryRequirements,
 		dedicatedRequirements, dedMemoryAllocInfo, memFlags, priority);
 
 	// Try to bind the allocated memory slice to the image
-	if (vkBindImageMemory(*device, m_image, m_memory.memory(), m_memory.offset()) != VK_SUCCESS)
+	if (vkBindImageMemory(*device, m_image.image, m_image.memory.memory(), m_image.memory.offset()) != VK_SUCCESS)
 	{
 		LOG_ERR("DxvkImage::DxvkImage: Failed to bind device memory");
 	}
@@ -95,20 +95,22 @@ VltImage::VltImage(
 	const VltImageCreateInfo& info,
 	VkImage image):
 	m_device(device),
-	m_info(info),
-	m_image(image)
+	m_info(info)
 {
-
+	m_image.image = image;
 }
 
 VltImage::~VltImage()
 {
-	vkDestroyImage(*m_device, m_image, nullptr);
+	if (m_image.memory.memory() != VK_NULL_HANDLE)
+	{
+		vkDestroyImage(*m_device, m_image.image, nullptr);
+	}
 }
 
 VkImage VltImage::handle() const
 {
-	return m_image;
+	return m_image.image;
 }
 
 const VltImageCreateInfo& VltImage::info() const
@@ -163,6 +165,7 @@ VltImageView::VltImageView(const RcPtr<VltDevice>& device,
 
 VltImageView::~VltImageView()
 {
+	vkDestroyImageView(*m_device, m_imageView, nullptr);
 }
 
 const VltImageViewCreateInfo& VltImageView::info() const

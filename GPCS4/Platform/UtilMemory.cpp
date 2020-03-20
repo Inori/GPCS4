@@ -95,8 +95,16 @@ inline uint32_t GetTypeFlag(uint32_t nOldFlag)
 
 void* VMMapAligned(size_t nSize, uint32_t nProtectFlag, int align)
 {
-#ifndef GPCS4_DEBUG
-	align = 0x1000;  // use default alignment on release build
+#ifdef GPCS4_DEBUG
+	// This make it easier to find a function a Ida Pro.
+	// When aligned with debugAlign, the loaded image address
+	// is exactly the same as it in Ida Pro.
+	// For example, without this debug align,
+	// a function address may be 0x00000002b0240e21,
+	// but with this align, you can search for sub_240e21
+	// in Ida directly.
+	const uint32_t debugAlign = 0x10000000;
+	align = debugAlign;
 #endif
 
 	void* pAlignedAddr = nullptr;
@@ -104,7 +112,7 @@ void* VMMapAligned(size_t nSize, uint32_t nProtectFlag, int align)
 	do
 	{
 		pAddr             = VirtualAlloc(nullptr, nSize, MEM_RESERVE | MEM_COMMIT, GetProtectFlag(nProtectFlag));
-		uintptr_t refAddr = util::alignRound((uintptr_t)pAddr, align);
+		uintptr_t refAddr = util::align((uintptr_t)pAddr, align);
 
 		do
 		{

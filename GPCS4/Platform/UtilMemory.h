@@ -8,7 +8,7 @@
 namespace UtilMemory
 {;
 
-
+constexpr uint32_t VM_PAGE_SIZE = 0x1000;
 
 enum VM_PROTECT_FLAG
 {

@@ -36,16 +36,7 @@ int PS4API sceVideoOutClose(int32_t handle)
 	int ret = -1;
 	do 
 	{
-		std::shared_ptr<sce::SceVideoOut> videoOut = getVideoOut(handle);
-		if (videoOut)
-		{
-			videoOut.reset();
-		}
-		std::shared_ptr<sce::SceGnmDriver> gnmDriver = getGnmDriver(handle);
-		if (gnmDriver)
-		{
-			gnmDriver.reset();
-		}
+
 		// clear
 		GfxContext gfxCtx = { nullptr };
 		setGfxContext(handle, gfxCtx);

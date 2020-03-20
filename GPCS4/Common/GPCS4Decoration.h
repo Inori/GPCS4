@@ -15,9 +15,3 @@
 #define PS4UNUSED __attribute__((unused))
 
 #define PS4ALIGN(n) __attribute__((__aligned__(n)))
-
-#ifdef GPCS4_WINDOWS
-#define PS4EXPORT __declspec(dllexport)
-#else   // GPCS4_WINDOWS
-#define PS4EXPORT __attribute__((dllexport))
-#endif  // GPCS4_WINDOWS

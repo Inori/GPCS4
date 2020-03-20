@@ -84,6 +84,15 @@ struct VltImageViewCreateInfo
 	};
 };
 
+/**
+ * \brief Stores an image and its memory slice.
+ */
+struct VltPhysicalImage
+{
+	VkImage   image = VK_NULL_HANDLE;
+	VltMemory memory;
+};
+
 
 class VltImage : public VltGpuResource
 {
@@ -116,8 +125,7 @@ private:
 	RcPtr<VltDevice>   m_device;
 	VltImageCreateInfo m_info;
 
-	VkImage   m_image = VK_NULL_HANDLE;
-	VltMemory m_memory;
+	VltPhysicalImage m_image;
 };
 
 

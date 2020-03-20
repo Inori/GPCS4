@@ -241,7 +241,9 @@ bool ELFMapper::mapImageIntoMemory()
 		}
 
 		uint8_t *buffer = reinterpret_cast<uint8_t *>(UtilMemory::VMMapAligned(
-			totalSize, UtilMemory::VMPF_CPU_READ | UtilMemory::VMPF_CPU_EXEC, 0x10000000));
+			totalSize, 
+			UtilMemory::VMPF_CPU_READ | UtilMemory::VMPF_CPU_EXEC,
+			UtilMemory::VM_PAGE_SIZE));
 
 		if (buffer == nullptr)
 		{

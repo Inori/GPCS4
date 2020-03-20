@@ -181,7 +181,8 @@ int PS4API scePthreadMutexDestroy(ScePthreadMutex *mutex)
 
 int PS4API scePthreadMutexLock(ScePthreadMutex *mutex)
 {
-	LOG_SCE_TRACE("mutex %p", mutex);
+	// Prevent log spamming
+	// LOG_SCE_TRACE("mutex %p", mutex);
 	int err = pthread_mutex_lock((pthread_mutex_t*)mutex);
 	return pthreadErrorToSceError(err);
 }
@@ -189,7 +190,8 @@ int PS4API scePthreadMutexLock(ScePthreadMutex *mutex)
 
 int PS4API scePthreadMutexUnlock(ScePthreadMutex *mutex)
 {
-	LOG_SCE_TRACE("mutex %p", mutex);
+	// Prevent log spamming
+	// LOG_SCE_TRACE("mutex %p", mutex);
 	int err = pthread_mutex_unlock((pthread_mutex_t*)mutex);
 	return pthreadErrorToSceError(err);
 }

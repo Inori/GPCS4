@@ -42,6 +42,8 @@ GLFWwindow* SceVideoOut::getWindowHandle()
 
 VkSurfaceKHR SceVideoOut::getWindowSurface(VkInstance instance)
 {
+	// TODO:
+	// Add VltInstance as a constructor parameter and save it
 	if (m_windowSurface == VK_NULL_HANDLE)
 	{
 		m_instance = instance;

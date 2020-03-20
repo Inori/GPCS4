@@ -26,8 +26,7 @@ private:
 private:
 	static void* ThreadFunc(void* pArg);
 	static void* RunGameThread(CGameThread* pThis);
-	// PS4EXPORT makes it easy to be found in IDA
-	PS4EXPORT static void* EntryStart(void* pFunc, void* pArg, PFUNC_ExitFunction pExitFunction);
+	static void* EntryStart(void* pFunc, void* pArg, PFUNC_ExitFunction pExitFunction);
 private:
 	pthread_t m_nTid;
 	void* m_pFunc;
