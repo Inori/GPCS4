@@ -1,6 +1,6 @@
 #include "GCNCompiler.h"
 
-#include "Platform/UtilString.h"
+#include "UtilString.h"
 
 LOG_CHANNEL(Graphic.Pssl.GCNCompilerVectorALU);
 

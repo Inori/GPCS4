@@ -354,6 +354,12 @@ enum DepthControlZWrite
 	kDepthControlZWriteEnable = 1,
 };
 
+enum DbTileWriteBackPolicy
+{
+	kDbTileWriteBackPolicyCompressionAllowed   = 0,
+	kDbTileWriteBackPolicyCompressionForbidden = 1,
+};
+
 enum CompareFunc
 {
 	kCompareFuncNever = 0x00000000,
@@ -614,8 +620,62 @@ enum MicroTileMode
 	kMicroTileModeThick = 0x00000004,
 };
 
+enum WaitCompareFunc
+{
+	kWaitCompareFuncAlways       = 0x00000000,
+	kWaitCompareFuncLess         = 0x00000001,
+	kWaitCompareFuncLessEqual    = 0x00000002,
+	kWaitCompareFuncEqual        = 0x00000003,
+	kWaitCompareFuncNotEqual     = 0x00000004,
+	kWaitCompareFuncGreaterEqual = 0x00000005,
+	kWaitCompareFuncGreater      = 0x00000006,
+};
 
+enum WriteDataConfirmMode
+{
+	kWriteDataConfirmDisable = 0,
+	kWriteDataConfirmEnable  = 1,
+};
 
+enum EndOfShaderEventType
+{
+	kEosCsDone = 0x0000002f,
+	kEosPsDone = 0x00000030,
+};
+
+enum WaitTargetSlot
+{
+	kWaitTargetSlotCb0 = 0x00000040,
+	kWaitTargetSlotCb1 = 0x00000080,
+	kWaitTargetSlotCb2 = 0x00000100,
+	kWaitTargetSlotCb3 = 0x00000200,
+	kWaitTargetSlotCb4 = 0x00000400,
+	kWaitTargetSlotCb5 = 0x00000800,
+	kWaitTargetSlotCb6 = 0x00001000,
+	kWaitTargetSlotCb7 = 0x00002000,
+	kWaitTargetSlotDb  = 0x00004000,
+
+	kWaitTargetSlotAll = 0x00007FC0
+};
+
+enum ExtendedCacheAction
+{
+	kExtendedCacheActionFlushAndInvalidateCbCache = 0x02000000,
+	kExtendedCacheActionFlushAndInvalidateDbCache = 0x04000000,
+	kExtendedCacheActionInvalidateKCache          = 0x08000000,
+	kExtendedCacheActionInvalidateICache          = 0x20000000,
+};
+
+enum ReleaseMemEventType
+{
+	kReleaseMemEventCsDone = 0x2F,
+
+	kReleaseMemEventFlushCbDbCaches              = 0x04,
+	kReleaseMemEventFlushAndInvalidateCbDbCaches = 0x14,
+	kReleaseMemEventCbDbReadsDone                = 0x28,
+	kReleaseMemEventFlushAndInvalidateDbCache    = 0x2B,
+	kReleaseMemEventFlushAndInvalidateCbCache    = 0x2D,
+};
 // Internal usage
 
 enum NumBanks

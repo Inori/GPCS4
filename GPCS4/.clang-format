@@ -6,6 +6,9 @@ AlignConsecutiveMacros: true
 AllowAllArgumentsOnNextLine: false
 AllowShortFunctionsOnASingleLine: None
 
+AlignConsecutiveDeclarations: true
+BinPackParameters: false
+
 AlwaysBreakTemplateDeclarations: Yes
 BreakBeforeBraces: Allman
 BreakConstructorInitializers: AfterColon
@@ -22,7 +25,7 @@ ColumnLimit: 0
 SortIncludes: true
 IncludeBlocks: Regroup
 IncludeCategories:
-  - Regex:           '^"(\.\.|Platform|Emulator|Graphic|Loader|Algorithm)/'
+  - Regex:           '^"(\.\.|Platform|Emulator|Graphic|Loader|Algorithm|Util)/'
     Priority:        2
   - Regex:           '^(<|"(gtest|gmock|isl|json)/)'
     Priority:        3

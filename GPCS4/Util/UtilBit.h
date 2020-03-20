@@ -87,8 +87,9 @@ namespace bit {
    * \param [in] b Second struct
    * \returns \c true if the structs are equal
    */
-  template<typename T>
-  bool bcmpeq(const T* a, const T* b) {
+  template <typename T>
+  bool bcmpeq(const T* a, const T* b)
+  {
 	  static_assert(alignof(T) >= 16);
 #if defined(__GNUC__) || defined(__clang__) || defined(_MSC_VER)
 	  auto ai = reinterpret_cast<const __m128i*>(a);
@@ -102,7 +103,8 @@ namespace bit {
 #pragma GCC unroll 0
 #endif
 
-	  for (; i < 2 * (sizeof(T) / 32); i += 2) {
+	  for (; i < 2 * (sizeof(T) / 32); i += 2)
+	  {
 		  __m128i eq0 = _mm_cmpeq_epi8(
 			  _mm_load_si128(ai + i),
 			  _mm_load_si128(bi + i));
@@ -116,7 +118,8 @@ namespace bit {
 			  return false;
 	  }
 
-	  for (; i < sizeof(T) / 16; i++) {
+	  for (; i < sizeof(T) / 16; i++)
+	  {
 		  __m128i eq = _mm_cmpeq_epi8(
 			  _mm_load_si128(ai + i),
 			  _mm_load_si128(bi + i));

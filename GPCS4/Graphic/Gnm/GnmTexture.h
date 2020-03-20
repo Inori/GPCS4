@@ -6,7 +6,8 @@
 #include "GnmRegInfo.h"
 #include "GnmDataFormat.h"
 #include "GnmSharpBuffer.h"
-#include "GnmGpuAddress.h"
+
+#include "GpuAddress/GnmGpuAddress.h"
 
 class GnmTexture
 {

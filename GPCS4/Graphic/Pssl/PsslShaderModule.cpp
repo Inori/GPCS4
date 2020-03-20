@@ -5,7 +5,7 @@
 #include "GCNCompiler.h"
 
 #include "Platform/UtilFile.h"
-#include "../Gve/GveShader.h"
+#include "../Violet/VltShader.h"
 
 LOG_CHANNEL(Graphic.Pssl.PsslShaderModule);
 
@@ -69,7 +69,7 @@ PsslShaderModule::~PsslShaderModule()
 {
 }
 
-RcPtr<gve::GveShader> PsslShaderModule::compile()
+RcPtr<vlt::VltShader> PsslShaderModule::compile()
 {
 	const uint32_t* codeEnd = m_code + m_progInfo.codeSizeDwords();
 	GCNCodeSlice codeSlice(m_code, codeEnd);
@@ -95,25 +95,25 @@ RcPtr<gve::GveShader> PsslShaderModule::compile()
 }
 
 std::vector<GcnShaderResourceInstance> 
-PsslShaderModule::linearlizeShaderResources(const GcnShaderResources& nestedResources)
+PsslShaderModule::flattenShaderResources(const GcnShaderResources& nestedResources)
 {
-	std::vector<GcnShaderResourceInstance> linearResourceTable;
+	std::vector<GcnShaderResourceInstance> flatResourceTable;
 
-	linearResourceTable.insert(linearResourceTable.begin(),
+	flatResourceTable.insert(flatResourceTable.begin(),
 		nestedResources.ud.begin(), nestedResources.ud.end());
 
 	if (nestedResources.eud.has_value())
 	{
 		for (const auto& eudRes : nestedResources.eud->resources)
 		{
-			linearResourceTable.emplace_back(eudRes.second);
+			flatResourceTable.emplace_back(eudRes.second);
 		}
 	}
 
 	// TODO:
 	// SRT support
 
-	return linearResourceTable;
+	return flatResourceTable;
 }
 
 void PsslShaderModule::parseFetchShader(const uint32_t* fsCode)
@@ -127,7 +127,7 @@ void PsslShaderModule::parseFetchShader(const uint32_t* fsCode)
 	extractInputSemantic(fsShader);
 
 #ifdef PSSL_DUMP_SHADER
-	dumpShader(FetchShader, (const uint8_t*)fsCode, fsShader.m_codeLengthDw * sizeof(uint32_t));
+	dumpShader(PsslProgramType::FetchShader, (const uint8_t*)fsCode, fsShader.m_codeLengthDw * sizeof(uint32_t));
 #endif  // GPCS4_DUMP_SHADER
 }
 
@@ -363,14 +363,14 @@ void PsslShaderModule::parseResPtrTable()
 			// Support Es Ls and Cs.
 			for (auto& sematic : m_vsInputSemantic)
 			{
-				uint32_t semanticIndex = sematic.semantic;
+				uint32_t bindingId = sematic.semantic;
 
 				GcnShaderResourceInstance res = {};
 				// Convert to imm type.
 				res.usageType         = kShaderInputUsageImmVertexBuffer;
-				// startRegister is not meaningful for vertex buffer inputs, just give it a random value.
-				res.res.startRegister = semanticIndex;
-				res.res.resource      = &vertexBufferTable[semanticIndex * kDwordSizeVertexBuffer];
+				// startRegister act as binding id for vertex buffers
+				res.res.startRegister = bindingId;
+				res.res.resource      = &vertexBufferTable[bindingId * kDwordSizeVertexBuffer];
 				res.res.sizeDwords    = kDwordSizeVertexBuffer;
 
 				m_shaderResources.ud.push_back(res);
@@ -465,25 +465,25 @@ void PsslShaderModule::dumpShader(PsslProgramType type, const uint8_t* code, uin
 
 	switch (type)
 	{
-	case pssl::PixelShader:
+	case pssl::PsslProgramType::PixelShader:
 		format = "%016llX.ps.bin";
 		break;
-	case pssl::VertexShader:
+	case pssl::PsslProgramType::VertexShader:
 		format = "%016llX.vs.bin";
 		break;
-	case pssl::GeometryShader:
+	case pssl::PsslProgramType::GeometryShader:
 		format = "%016llX.gs.bin";
 		break;
-	case pssl::HullShader:
+	case pssl::PsslProgramType::HullShader:
 		format = "%016llX.hs.bin";
 		break;
-	case pssl::DomainShader:
+	case pssl::PsslProgramType::DomainShader:
 		format = "%016llX.ds.bin";
 		break;
-	case pssl::ComputeShader:
+	case pssl::PsslProgramType::ComputeShader:
 		format = "%016llX.cs.bin";
 		break;
-	case pssl::FetchShader:
+	case pssl::PsslProgramType::FetchShader:
 		format = "%016llX.fs.bin";
 		break;
 	default:

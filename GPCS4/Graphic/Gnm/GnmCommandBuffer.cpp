@@ -1,14 +1,23 @@
 #include "GnmCommandBuffer.h"
-#include "../Gve/GveContext.h"
-#include "../Gve/GveCmdList.h"
-#include "../Gve/GveDevice.h"
+
+#include "../Violet/VltDevice.h"
+#include "../Violet/VltContext.h"
+#include "../Violet/VltCmdList.h"
+#include "../Violet/VltPresenter.h"
+#include "../Sce/SceVideoOut.h"
+#include "../Sce/SceGpuQueue.h"
+
 
 #include "Platform/PlatformUtils.h"
 
-GnmCommandBuffer::GnmCommandBuffer(const RcPtr<gve::GveDevice>& device):
-	m_device(device),
-	m_cmd(m_device ? m_device->createCmdList() : nullptr),
-	m_context(m_device ? m_device->createContext() : nullptr)
+GnmCommandBuffer::GnmCommandBuffer(
+	const sce::SceGpuQueueDevice& device,
+	const RcPtr<vlt::VltContext>& context) :
+	m_device(device.device),
+	m_context(context),
+	m_presenter(device.presenter),
+	m_videoOut(device.videoOut),
+	m_cmdList(nullptr)
 {
 }
 
@@ -16,9 +25,14 @@ GnmCommandBuffer::~GnmCommandBuffer()
 {
 }
 
-RcPtr<gve::GveCmdList> GnmCommandBuffer::getCmdList()
+void GnmCommandBuffer::recordBegin(uint32_t displayBufferIndex)
 {
-	return m_cmd;
+	m_displayBufferIndex = displayBufferIndex;
+}
+
+RcPtr<vlt::VltCmdList> GnmCommandBuffer::recordEnd()
+{
+	return std::exchange(m_cmdList, nullptr);
 }
 
 void GnmCommandBuffer::emuWriteGpuLabel(EventWriteSource selector, void* label, uint64_t value)

@@ -161,9 +161,6 @@
     <Filter Include="Source Files\Graphic\Sce">
       <UniqueIdentifier>{70eaff62-ab67-46e2-af21-4b6909ea46dd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Graphic\Gve">
-      <UniqueIdentifier>{8714f22f-65d4-40c8-a2fe-44bf175a49b2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Algorithm">
       <UniqueIdentifier>{cb8dfaa7-aa84-454b-a1ea-ead2594a832f}</UniqueIdentifier>
     </Filter>
@@ -181,6 +178,12 @@
     </Filter>
     <Filter Include="Source Files\Emulator">
       <UniqueIdentifier>{9a707c88-79d8-4c96-ad6c-658b1e5f496c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphic\Gnm\GpuAddress">
+      <UniqueIdentifier>{075615a8-2ae5-4754-831f-c7761e099ef5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphic\Violet">
+      <UniqueIdentifier>{8714f22f-65d4-40c8-a2fe-44bf175a49b2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -331,9 +334,6 @@
     <ClInclude Include="Platform\UtilMemory.h">
       <Filter>Source Files\Platform</Filter>
     </ClInclude>
-    <ClInclude Include="Platform\UtilString.h">
-      <Filter>Source Files\Platform</Filter>
-    </ClInclude>
     <ClInclude Include="GPCS4Config.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -463,18 +463,6 @@
     <ClInclude Include="Graphic\Gnm\GnmCommandBufferDraw.h">
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClInclude>
-    <ClInclude Include="Graphic\Gve\GveDevice.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gve\GveInstance.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gve\GvePhysicalDevice.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gve\GveSwapChain.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClInclude>
     <ClInclude Include="Graphic\Sce\SceGnmDriver.h">
       <Filter>Source Files\Graphic\Sce</Filter>
     </ClInclude>
@@ -510,9 +498,6 @@
     </ClInclude>
     <ClInclude Include="Graphic\Pssl\PsslProgramInfo.h">
       <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gve\GveShader.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
     </ClInclude>
     <ClInclude Include="Graphic\SpirV\SpirvModule.h">
       <Filter>Source Files\Graphic\SpirV</Filter>
@@ -664,21 +649,6 @@
     <ClInclude Include="Platform\UtilFile.h">
       <Filter>Source Files\Platform</Filter>
     </ClInclude>
-    <ClInclude Include="Graphic\Gve\GveCommon.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gve\GveVkLayers.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gve\GveContext.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gve\GveFrameBuffer.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gve\GveRenderPass.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClInclude>
     <ClInclude Include="Emulator\Module.h">
       <Filter>Source Files\Emulator</Filter>
     </ClInclude>
@@ -693,15 +663,6 @@
     </ClInclude>
     <ClInclude Include="Graphic\Pssl\GCNEnums.h">
       <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gve\GveMemory.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gve\GveDeviceInfo.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gve\GveExtension.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
     </ClInclude>
     <ClInclude Include="Graphic\Gnm\GnmRegInfo.h">
       <Filter>Source Files\Graphic\Gnm</Filter>
@@ -727,38 +688,11 @@
     <ClInclude Include="Graphic\Gnm\GnmSampler.h">
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClInclude>
-    <ClInclude Include="Graphic\Gve\GveLimit.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gve\GveBuffer.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gve\GveImage.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gve\GveSampler.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gve\GvePipelineLayout.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClInclude>
     <ClInclude Include="Graphic\Pssl\PsslBindingCalculator.h">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClInclude>
     <ClInclude Include="Graphic\Pssl\PsslCommon.h">
       <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gve\GveGraphicsPipeline.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gve\GvePipelineManager.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gve\GveDescriptor.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GnmGpuAddress.h">
-      <Filter>Source Files\Graphic\Gnm</Filter>
     </ClInclude>
     <ClInclude Include="Loader\FuncStub.h">
       <Filter>Source Files\Loader</Filter>
@@ -766,44 +700,11 @@
     <ClInclude Include="SceModules\SceLibkernel\sce_pthread_common.h">
       <Filter>SceModules\SceLibkernel</Filter>
     </ClInclude>
-    <ClInclude Include="Graphic\Gve\GveResourceObjects.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gve\GveUtil.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gve\GveGpuResource.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gve\GveLifetime.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gve\GveStaging.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gve\GveDebugMarker.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gve\GveCmdList.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gve\GvePipelineState.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gve\GveContextState.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClInclude>
     <ClInclude Include="SceModules\SceMouse\sce_mouse_types.h">
       <Filter>SceModules\SceMouse</Filter>
     </ClInclude>
     <ClInclude Include="Emulator\ModuleSystemCommon.h">
       <Filter>Source Files\Emulator</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gve\GveHash.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gve\GvePresenter.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
     </ClInclude>
     <ClInclude Include="SceModules\ScePad\ScePad.h">
       <Filter>SceModules\ScePad</Filter>
@@ -883,26 +784,11 @@
     <ClInclude Include="SceModules\SceAppContentUtil\sce_appcontentutil_types.h">
       <Filter>SceModules\SceAppContentUtil</Filter>
     </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GnmTiler.h">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GnmGpuAddressTool.h">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GnmTilerSSE2.h">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClInclude>
     <ClInclude Include="Algorithm\MurmurHash2.h">
       <Filter>Source Files\Algorithm</Filter>
     </ClInclude>
-    <ClInclude Include="Graphic\Gve\GveRecycler.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClInclude>
     <ClInclude Include="Common\GPCS4Decoration.h">
       <Filter>Source Files\Common</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gve\GveSharpResourceManager.h">
-      <Filter>Source Files\Graphic\Gve</Filter>
     </ClInclude>
     <ClInclude Include="SceModules\SceAppContentUtil\sce_appcontentutil_error.h">
       <Filter>SceModules\SceAppContentUtil</Filter>
@@ -921,6 +807,150 @@
     </ClInclude>
     <ClInclude Include="Emulator\ModuleManger.h">
       <Filter>Source Files\Emulator</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Sce\SceCommon.h">
+      <Filter>Source Files\Graphic\Sce</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Sce\SceGpuQueue.h">
+      <Filter>Source Files\Graphic\Sce</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\UtilString.h">
+      <Filter>Source Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GnmShaderMeta.h">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Pssl\PsslShaderRegField.h">
+      <Filter>Source Files\Graphic\Pssl</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GpuAddress\GnmDataFormatCodec.h">
+      <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GpuAddress\GnmFloatPoint.h">
+      <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GpuAddress\GnmGpuAddress.h">
+      <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GpuAddress\GnmGpuAddressTool.h">
+      <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GpuAddress\GnmTiler.h">
+      <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GpuAddress\GnmTilerSSE2.h">
+      <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GnmContextState.h">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GnmResourceFactory.h">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltBuffer.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltCmdList.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltCommon.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltContext.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltContextState.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltDebugMarker.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltDescriptor.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltDevice.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltDeviceInfo.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltEnums.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltExtension.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltFormat.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltFrameBuffer.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltGpuResource.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltGraphicsPipeline.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltHash.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltImage.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltInstance.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltLifetime.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltLimit.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltMemory.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltPhysicalDevice.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltPipelineLayout.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltPipelineManager.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltPipelineState.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltPresenter.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltRecycler.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltRenderPass.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltResourceObjects.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltSampler.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltShader.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltStaging.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltSubmissionQueue.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltUtil.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltVkLayers.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -941,9 +971,6 @@
     </ClCompile>
     <ClCompile Include="Emulator\Linker.cpp">
       <Filter>Source Files\Emulator</Filter>
-    </ClCompile>
-    <ClCompile Include="Platform\UtilString.cpp">
-      <Filter>Source Files\Platform</Filter>
     </ClCompile>
     <ClCompile Include="SceModules\SceLibc\sce_libc.cpp">
       <Filter>SceModules\SceLibc</Filter>
@@ -1326,18 +1353,6 @@
     <ClCompile Include="Graphic\Gnm\GnmCommandBuffer.cpp">
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClCompile>
-    <ClCompile Include="Graphic\Gve\GveDevice.cpp">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gve\GveInstance.cpp">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gve\GvePhysicalDevice.cpp">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gve\GveSwapChain.cpp">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClCompile>
     <ClCompile Include="Graphic\Sce\SceGnmDriver.cpp">
       <Filter>Source Files\Graphic\Sce</Filter>
     </ClCompile>
@@ -1364,9 +1379,6 @@
     </ClCompile>
     <ClCompile Include="Graphic\Pssl\PsslProgramInfo.cpp">
       <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gve\GveShader.cpp">
-      <Filter>Source Files\Graphic\Gve</Filter>
     </ClCompile>
     <ClCompile Include="Graphic\SpirV\SpirvModule.cpp">
       <Filter>Source Files\Graphic\SpirV</Filter>
@@ -1473,15 +1485,6 @@
     <ClCompile Include="Graphic\Gnm\GnmOpCode.cpp">
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClCompile>
-    <ClCompile Include="Graphic\Gve\GveContext.cpp">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gve\GveFrameBuffer.cpp">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gve\GveRenderPass.cpp">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClCompile>
     <ClCompile Include="Loader\ELFMapper.cpp">
       <Filter>Source Files\Loader</Filter>
     </ClCompile>
@@ -1494,65 +1497,11 @@
     <ClCompile Include="Graphic\Pssl\GCNAnalyzer.cpp">
       <Filter>Source Files\Graphic\Pssl</Filter>
     </ClCompile>
-    <ClCompile Include="Graphic\Gve\GveMemory.cpp">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gve\GveExtension.cpp">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gve\GveBuffer.cpp">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gve\GveImage.cpp">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gve\GveSampler.cpp">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gve\GvePipelineLayout.cpp">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gve\GveGraphicsPipeline.cpp">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gve\GvePipelineManager.cpp">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gve\GveDescriptor.cpp">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClCompile>
     <ClCompile Include="Loader\FuncStub.cpp">
       <Filter>Source Files\Loader</Filter>
     </ClCompile>
     <ClCompile Include="SceModules\SceLibkernel\sce_pthread_common.cpp">
       <Filter>SceModules\SceLibkernel</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gve\GveResourceObjects.cpp">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gve\GveUtil.cpp">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gve\GveGpuResource.cpp">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gve\GveLifetime.cpp">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gve\GveStaging.cpp">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gve\GveDebugMarker.cpp">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gve\GveCmdList.cpp">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gve\GvePipelineState.cpp">
-      <Filter>Source Files\Graphic\Gve</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gve\GvePresenter.cpp">
-      <Filter>Source Files\Graphic\Gve</Filter>
     </ClCompile>
     <ClCompile Include="Graphic\Gnm\GnmDataFormat.cpp">
       <Filter>Source Files\Graphic\Gnm</Filter>
@@ -1581,20 +1530,8 @@
     <ClCompile Include="SceModules\SceLibkernel\sce_kernel_tls.cpp">
       <Filter>SceModules\SceLibkernel</Filter>
     </ClCompile>
-    <ClCompile Include="Graphic\Gnm\GnmGpuAddress.cpp">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gnm\GnmTiler.cpp">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gnm\GnmGpuAddressTool.cpp">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClCompile>
     <ClCompile Include="Algorithm\MurmurHash2.cpp">
       <Filter>Source Files\Algorithm</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gve\GveSharpResourceManager.cpp">
-      <Filter>Source Files\Graphic\Gve</Filter>
     </ClCompile>
     <ClCompile Include="SceModules\SceAudioOut\AudioOut.cpp">
       <Filter>SceModules\SceAudioOut</Filter>
@@ -1607,6 +1544,114 @@
     </ClCompile>
     <ClCompile Include="Emulator\ModuleManger.cpp">
       <Filter>Source Files\Emulator</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\UtilString.cpp">
+      <Filter>Source Files\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Sce\SceGpuQueue.cpp">
+      <Filter>Source Files\Graphic\Sce</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gnm\GnmShaderMeta.cpp">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gnm\GpuAddress\GnmDataFormatCodec.cpp">
+      <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gnm\GpuAddress\GnmFloatPoint.cpp">
+      <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gnm\GpuAddress\GnmGpuAddress.cpp">
+      <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gnm\GpuAddress\GnmGpuAddressTool.cpp">
+      <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gnm\GpuAddress\GnmTiler.cpp">
+      <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gnm\GnmResourceFactory.cpp">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Violet\VltBuffer.cpp">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Violet\VltCmdList.cpp">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Violet\VltContext.cpp">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Violet\VltDebugMarker.cpp">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Violet\VltDescriptor.cpp">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Violet\VltDevice.cpp">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Violet\VltExtension.cpp">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Violet\VltFormat.cpp">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Violet\VltFrameBuffer.cpp">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Violet\VltGpuResource.cpp">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Violet\VltGraphicsPipeline.cpp">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Violet\VltImage.cpp">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Violet\VltInstance.cpp">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Violet\VltLifetime.cpp">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Violet\VltMemory.cpp">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Violet\VltPhysicalDevice.cpp">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Violet\VltPipelineLayout.cpp">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Violet\VltPipelineManager.cpp">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Violet\VltPipelineState.cpp">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Violet\VltPresenter.cpp">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Violet\VltRenderPass.cpp">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Violet\VltResourceObjects.cpp">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Violet\VltSampler.cpp">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Violet\VltShader.cpp">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Violet\VltStaging.cpp">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Violet\VltSubmissionQueue.cpp">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Violet\VltUtil.cpp">
+      <Filter>Source Files\Graphic\Violet</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

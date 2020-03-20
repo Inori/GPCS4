@@ -171,9 +171,16 @@ DataFormat DataFormat::build(RenderTargetFormat rtFmt, RenderTargetChannelType r
 
 	uint32_t channelCount = channelCountTab[rtFmt];
 
-	DataFormat result             = { { 0 } };
+	DataFormat result             = { { { 0 } } };
 	result.m_bits.m_surfaceFormat = rtFmt;
-	result.m_bits.m_channelType   = rtChannelType;
+
+	// From IDA
+	TextureChannelType channelType = kTextureChannelTypeSrgb;
+	if (rtChannelType != kRenderTargetChannelTypeSrgb)
+	{
+		channelType = static_cast<TextureChannelType>(rtChannelType & 0xF);
+	}
+	result.m_bits.m_channelType = channelType;
 
 	switch (channelOrder)
 	{
@@ -292,6 +299,21 @@ DataFormat DataFormat::build(RenderTargetFormat rtFmt, RenderTargetChannelType r
 	return result;
 }
 
+DataFormat DataFormat::build(ZFormat zFmt)
+{
+	DataFormat result;
+	uint8_t  depthFormats[] = { 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0 };
+	uint32_t channelTypes[] = { 0, 0, 0, 7 };
+
+	result.m_bits.m_surfaceFormat = depthFormats[zFmt * 4];
+	result.m_bits.m_channelType   = channelTypes[zFmt];
+	result.m_bits.m_channelX      = kTextureChannelX;
+	result.m_bits.m_channelY      = kTextureChannelX;
+	result.m_bits.m_channelZ      = kTextureChannelX;
+	result.m_bits.m_channelW      = kTextureChannelX;
+	return result;
+}
+
 uint32_t DataFormat::getTotalBitsPerElement() const
 {
 	uint32_t surfFmt = m_bits.m_surfaceFormat;
@@ -347,6 +369,39 @@ uint32_t DataFormat::getTotalBytesPerElement(void) const
 bool DataFormat::isBlockCompressedFormat(void) const
 {
 	return (m_bits.m_surfaceFormat >= kSurfaceFormatBc1) && (m_bits.m_surfaceFormat <= kSurfaceFormatBc7);
+}
+
+SurfaceFormat DataFormat::getSurfaceFormat(void) const
+{
+	return (SurfaceFormat)m_bits.m_surfaceFormat;
+}
+
+TextureChannelType DataFormat::getTextureChannelType() const
+{
+	return (TextureChannelType)m_bits.m_channelType;
+}
+
+uint32_t DataFormat::getNumComponents(void) const
+{
+	// From IDA
+	constexpr const int numComponentsPerElement[] = 
+	{
+		0, 1, 1, 2, 1, 2, 3, 3,
+		4, 4, 4, 2, 4, 3, 4, -1,
+		3, 4, 4, 4, 2, 2, 2, -1,
+		-1, -1, -1, -1, -1, -1, -1, -1,
+		3, 3, 3, 4, 4, 4, 1, 2,
+		3, 4, -1, -1, 2, 2, 2, 2,
+		2, 2, 2, 2, 2, 2, 2, 2,
+		2, 2, 3, 1, 1
+	};
+
+	uint32_t numComponents = 0;
+	if (m_bits.m_surfaceFormat <= kSurfaceFormat1Reversed)
+	{
+		numComponents = static_cast<uint32_t>(numComponentsPerElement[m_bits.m_surfaceFormat]);
+	}
+	return numComponents;
 }
 
 bool DataFormat::operator==(const DataFormat& other) const

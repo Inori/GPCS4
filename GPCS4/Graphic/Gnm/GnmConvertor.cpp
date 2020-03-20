@@ -1,6 +1,10 @@
 #include "GnmConvertor.h"
 
+#include "UtilBit.h"
+
 LOG_CHANNEL(Graphic.Gnm.GnmConvertor);
+
+using namespace vlt;
 
 namespace cvt
 {;
@@ -10,10 +14,17 @@ VkFormat convertZFormatToVkFormat(ZFormat zfmt)
 	VkFormat format = VK_FORMAT_UNDEFINED;
 	switch (zfmt)
 	{
-	case kZFormatInvalid: format = VK_FORMAT_UNDEFINED; break;
-		// seems there's no half float point image format.
-	case kZFormat16: format = VK_FORMAT_D16_UNORM; break;
-	case kZFormat32Float: format = VK_FORMAT_D32_SFLOAT; break;
+	case kZFormatInvalid: 
+		format = VK_FORMAT_UNDEFINED; 
+		break;
+	case kZFormat16: 
+		// seems there's no half float point image format in vulkan.
+		LOG_WARN("half float z format detected.");
+		format = VK_FORMAT_D16_UNORM; 
+		break;
+	case kZFormat32Float: 
+		format = VK_FORMAT_D32_SFLOAT; 
+		break;
 	}
 	return format;
 }
@@ -194,9 +205,9 @@ VkPolygonMode convertPolygonMode(PrimitiveSetupPolygonMode polyMode)
 	VkPolygonMode mode;
 	switch (polyMode)
 	{
-	case kPrimitiveSetupPolygonModePoint: mode = VK_POLYGON_MODE_POINT; break;
-	case kPrimitiveSetupPolygonModeLine: mode = VK_POLYGON_MODE_LINE; break;
-	case kPrimitiveSetupPolygonModeFill: mode = VK_POLYGON_MODE_FILL; break;
+	case kPrimitiveSetupPolygonModePoint:	mode = VK_POLYGON_MODE_POINT; break;
+	case kPrimitiveSetupPolygonModeLine:	mode = VK_POLYGON_MODE_LINE; break;
+	case kPrimitiveSetupPolygonModeFill:	mode = VK_POLYGON_MODE_FILL; break;
 	}
 	return mode;
 }
@@ -214,35 +225,35 @@ VkCullModeFlags convertCullMode(PrimitiveSetupCullFaceMode cullMode)
 	return mode;
 }
 
-VkBlendFactor convertBlendMultiplierToFactor(BlendMultiplier blendMul)
+VkBlendFactor convertBlendMultiplierToVkFactor(BlendMultiplier blendMul)
 {
-	VkBlendFactor factor;
+	VkBlendFactor factor = {};
 	switch (blendMul)
 	{
-	case kBlendMultiplierZero: factor = VK_BLEND_FACTOR_ZERO; break;
-	case kBlendMultiplierOne: factor = VK_BLEND_FACTOR_ONE; break;
-	case kBlendMultiplierSrcColor: factor = VK_BLEND_FACTOR_SRC_COLOR; break;
-	case kBlendMultiplierOneMinusSrcColor: factor = VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR; break;
-	case kBlendMultiplierSrcAlpha: factor = VK_BLEND_FACTOR_SRC_ALPHA; break;
-	case kBlendMultiplierOneMinusSrcAlpha: factor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA; break;
-	case kBlendMultiplierDestAlpha: factor = VK_BLEND_FACTOR_DST_ALPHA; break;
-	case kBlendMultiplierOneMinusDestAlpha: factor = VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA; break;
-	case kBlendMultiplierDestColor: factor = VK_BLEND_FACTOR_DST_COLOR; break;
-	case kBlendMultiplierOneMinusDestColor: factor = VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR; break;
-	case kBlendMultiplierSrcAlphaSaturate: factor = VK_BLEND_FACTOR_SRC_ALPHA_SATURATE; break;
-	case kBlendMultiplierConstantColor: factor = VK_BLEND_FACTOR_CONSTANT_COLOR; break;
+	case kBlendMultiplierZero:					factor = VK_BLEND_FACTOR_ZERO; break;
+	case kBlendMultiplierOne:					factor = VK_BLEND_FACTOR_ONE; break;
+	case kBlendMultiplierSrcColor:				factor = VK_BLEND_FACTOR_SRC_COLOR; break;
+	case kBlendMultiplierOneMinusSrcColor:		factor = VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR; break;
+	case kBlendMultiplierSrcAlpha:				factor = VK_BLEND_FACTOR_SRC_ALPHA; break;
+	case kBlendMultiplierOneMinusSrcAlpha:		factor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA; break;
+	case kBlendMultiplierDestAlpha:				factor = VK_BLEND_FACTOR_DST_ALPHA; break;
+	case kBlendMultiplierOneMinusDestAlpha:		factor = VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA; break;
+	case kBlendMultiplierDestColor:				factor = VK_BLEND_FACTOR_DST_COLOR; break;
+	case kBlendMultiplierOneMinusDestColor:		factor = VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR; break;
+	case kBlendMultiplierSrcAlphaSaturate:		factor = VK_BLEND_FACTOR_SRC_ALPHA_SATURATE; break;
+	case kBlendMultiplierConstantColor:			factor = VK_BLEND_FACTOR_CONSTANT_COLOR; break;
 	case kBlendMultiplierOneMinusConstantColor: factor = VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR; break;
-	case kBlendMultiplierSrc1Color: factor = VK_BLEND_FACTOR_SRC1_COLOR; break;
-	case kBlendMultiplierInverseSrc1Color: factor = VK_BLEND_FACTOR_ONE_MINUS_SRC1_COLOR; break;
-	case kBlendMultiplierSrc1Alpha: factor = VK_BLEND_FACTOR_SRC1_ALPHA; break;
-	case kBlendMultiplierInverseSrc1Alpha: factor = VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA; break;
-	case kBlendMultiplierConstantAlpha: factor = VK_BLEND_FACTOR_CONSTANT_ALPHA; break;
+	case kBlendMultiplierSrc1Color:				factor = VK_BLEND_FACTOR_SRC1_COLOR; break;
+	case kBlendMultiplierInverseSrc1Color:		factor = VK_BLEND_FACTOR_ONE_MINUS_SRC1_COLOR; break;
+	case kBlendMultiplierSrc1Alpha:				factor = VK_BLEND_FACTOR_SRC1_ALPHA; break;
+	case kBlendMultiplierInverseSrc1Alpha:		factor = VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA; break;
+	case kBlendMultiplierConstantAlpha:			factor = VK_BLEND_FACTOR_CONSTANT_ALPHA; break;
 	case kBlendMultiplierOneMinusConstantAlpha: factor = VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA; break;
 	}
 	return factor;
 }
 
-VkBlendOp convertBlendFuncToOp(BlendFunc func)
+VkBlendOp convertBlendFuncToVkOp(BlendFunc func)
 {
 	VkBlendOp op;
 	switch (func)
@@ -256,7 +267,7 @@ VkBlendOp convertBlendFuncToOp(BlendFunc func)
 	return op;
 }
 
-VkPrimitiveTopology convertPrimitiveTypeToTopology(PrimitiveType primType)
+VkPrimitiveTopology convertPrimitiveTypeToVkTopology(PrimitiveType primType)
 {
 	VkPrimitiveTopology topology;
 	switch (primType)
@@ -279,6 +290,10 @@ VkPrimitiveTopology convertPrimitiveTypeToTopology(PrimitiveType primType)
 		//case kPrimitiveTypeQuadList: topology = ; break;
 		//case kPrimitiveTypeQuadStrip: topology = ; break;
 		//case kPrimitiveTypePolygon: topology = ; break;
+	default:
+		topology = VK_PRIMITIVE_TOPOLOGY_MAX_ENUM;
+		LOG_ERR("unsupported PrimitiveType %d", primType);
+		break;
 	}
 	return topology;
 }
@@ -297,5 +312,25 @@ VkIndexType convertIndexSize(IndexSize indexSize)
 	return indexType;
 }
 
+
+std::array<VkColorComponentFlags, VltLimits::MaxNumRenderTargets> 
+convertRrenderTargetMask(uint32_t mask)
+{
+	std::array<VkColorComponentFlags, VltLimits::MaxNumRenderTargets> result = {};
+
+	const uint32_t bitsPerSlot = 4;
+
+	static_assert(
+		sizeof(uint32_t) * 8 / bitsPerSlot == VltLimits::MaxNumRenderTargets,
+		"render target channel not match.");
+
+	for (uint32_t i = 0; i != VltLimits::MaxNumRenderTargets; ++i)
+	{
+		uint8_t slotMask = (mask >> (i * bitsPerSlot)) & 0xF;
+		result[i]        = static_cast<VkColorComponentFlags>(slotMask);
+	}
+
+	return result;
+}
 
 }  // namespace convertor

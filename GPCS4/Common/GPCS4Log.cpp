@@ -4,7 +4,7 @@
 
 #include "GPCS4Log.h"
 
-#include "Platform/UtilString.h"
+#include "UtilString.h"
 
 #include <cstdio>
 #include <memory>

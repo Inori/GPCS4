@@ -1,9 +1,11 @@
 #pragma once
 
-#include "GPCS4Common.h"
+#include "PsslCommon.h"
+#include "PsslShaderRegField.h"
 
 namespace pssl
 {;
+
 
 struct CsStageRegisters
 {

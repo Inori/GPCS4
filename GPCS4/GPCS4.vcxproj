@@ -29,11 +29,53 @@
     <ClInclude Include="Emulator\ModuleManger.h" />
     <ClInclude Include="Emulator\PolicyManager.h" />
     <ClInclude Include="Emulator\SymbolManager.h" />
-    <ClInclude Include="Graphic\Gnm\GnmGpuAddressTool.h" />
-    <ClInclude Include="Graphic\Gnm\GnmTiler.h" />
-    <ClInclude Include="Graphic\Gnm\GnmTilerSSE2.h" />
-    <ClInclude Include="Graphic\Gve\GveRecycler.h" />
-    <ClInclude Include="Graphic\Gve\GveSharpResourceManager.h" />
+    <ClInclude Include="Graphic\Gnm\GnmContextState.h" />
+    <ClInclude Include="Graphic\Gnm\GnmResourceFactory.h" />
+    <ClInclude Include="Graphic\Gnm\GnmShaderMeta.h" />
+    <ClInclude Include="Graphic\Gnm\GpuAddress\GnmDataFormatCodec.h" />
+    <ClInclude Include="Graphic\Gnm\GpuAddress\GnmFloatPoint.h" />
+    <ClInclude Include="Graphic\Gnm\GpuAddress\GnmGpuAddress.h" />
+    <ClInclude Include="Graphic\Gnm\GpuAddress\GnmGpuAddressTool.h" />
+    <ClInclude Include="Graphic\Gnm\GpuAddress\GnmTiler.h" />
+    <ClInclude Include="Graphic\Gnm\GpuAddress\GnmTilerSSE2.h" />
+    <ClInclude Include="Graphic\Pssl\PsslShaderRegField.h" />
+    <ClInclude Include="Graphic\Sce\SceCommon.h" />
+    <ClInclude Include="Graphic\Sce\SceGpuQueue.h" />
+    <ClInclude Include="Graphic\Violet\VltBuffer.h" />
+    <ClInclude Include="Graphic\Violet\VltCmdList.h" />
+    <ClInclude Include="Graphic\Violet\VltCommon.h" />
+    <ClInclude Include="Graphic\Violet\VltContext.h" />
+    <ClInclude Include="Graphic\Violet\VltContextState.h" />
+    <ClInclude Include="Graphic\Violet\VltDebugMarker.h" />
+    <ClInclude Include="Graphic\Violet\VltDescriptor.h" />
+    <ClInclude Include="Graphic\Violet\VltDevice.h" />
+    <ClInclude Include="Graphic\Violet\VltDeviceInfo.h" />
+    <ClInclude Include="Graphic\Violet\VltEnums.h" />
+    <ClInclude Include="Graphic\Violet\VltExtension.h" />
+    <ClInclude Include="Graphic\Violet\VltFormat.h" />
+    <ClInclude Include="Graphic\Violet\VltFrameBuffer.h" />
+    <ClInclude Include="Graphic\Violet\VltGpuResource.h" />
+    <ClInclude Include="Graphic\Violet\VltGraphicsPipeline.h" />
+    <ClInclude Include="Graphic\Violet\VltHash.h" />
+    <ClInclude Include="Graphic\Violet\VltImage.h" />
+    <ClInclude Include="Graphic\Violet\VltInstance.h" />
+    <ClInclude Include="Graphic\Violet\VltLifetime.h" />
+    <ClInclude Include="Graphic\Violet\VltLimit.h" />
+    <ClInclude Include="Graphic\Violet\VltMemory.h" />
+    <ClInclude Include="Graphic\Violet\VltPhysicalDevice.h" />
+    <ClInclude Include="Graphic\Violet\VltPipelineLayout.h" />
+    <ClInclude Include="Graphic\Violet\VltPipelineManager.h" />
+    <ClInclude Include="Graphic\Violet\VltPipelineState.h" />
+    <ClInclude Include="Graphic\Violet\VltPresenter.h" />
+    <ClInclude Include="Graphic\Violet\VltRecycler.h" />
+    <ClInclude Include="Graphic\Violet\VltRenderPass.h" />
+    <ClInclude Include="Graphic\Violet\VltResourceObjects.h" />
+    <ClInclude Include="Graphic\Violet\VltSampler.h" />
+    <ClInclude Include="Graphic\Violet\VltShader.h" />
+    <ClInclude Include="Graphic\Violet\VltStaging.h" />
+    <ClInclude Include="Graphic\Violet\VltSubmissionQueue.h" />
+    <ClInclude Include="Graphic\Violet\VltUtil.h" />
+    <ClInclude Include="Graphic\Violet\VltVkLayers.h" />
     <ClInclude Include="Loader\elf-sce.h" />
     <ClInclude Include="Emulator\Emulator.h" />
     <ClInclude Include="Emulator\GameThread.h" />
@@ -56,7 +98,6 @@
     <ClInclude Include="Graphic\Gnm\GnmDataFormat.h" />
     <ClInclude Include="Graphic\Gnm\GnmDepthRenderTarget.h" />
     <ClInclude Include="Graphic\Gnm\GnmGfx9MePm4Packets.h" />
-    <ClInclude Include="Graphic\Gnm\GnmGpuAddress.h" />
     <ClInclude Include="Graphic\Gnm\GnmOpCode.h" />
     <ClInclude Include="Graphic\Gnm\GnmRegInfo.h" />
     <ClInclude Include="Graphic\Gnm\GnmRenderTarget.h" />
@@ -65,38 +106,6 @@
     <ClInclude Include="Graphic\Gnm\GnmStructure.h" />
     <ClInclude Include="Graphic\Gnm\GnmTexture.h" />
     <ClInclude Include="Graphic\GraphicShared.h" />
-    <ClInclude Include="Graphic\Gve\GveBuffer.h" />
-    <ClInclude Include="Graphic\Gve\GveCmdList.h" />
-    <ClInclude Include="Graphic\Gve\GveCommon.h" />
-    <ClInclude Include="Graphic\Gve\GveContext.h" />
-    <ClInclude Include="Graphic\Gve\GveContextState.h" />
-    <ClInclude Include="Graphic\Gve\GveDebugMarker.h" />
-    <ClInclude Include="Graphic\Gve\GveDescriptor.h" />
-    <ClInclude Include="Graphic\Gve\GveGpuResource.h" />
-    <ClInclude Include="Graphic\Gve\GveGraphicsPipeline.h" />
-    <ClInclude Include="Graphic\Gve\GveHash.h" />
-    <ClInclude Include="Graphic\Gve\GveImage.h" />
-    <ClInclude Include="Graphic\Gve\GveLifetime.h" />
-    <ClInclude Include="Graphic\Gve\GveLimit.h" />
-    <ClInclude Include="Graphic\Gve\GvePipelineLayout.h" />
-    <ClInclude Include="Graphic\Gve\GvePipelineManager.h" />
-    <ClInclude Include="Graphic\Gve\GvePipelineState.h" />
-    <ClInclude Include="Graphic\Gve\GveDevice.h" />
-    <ClInclude Include="Graphic\Gve\GveDeviceInfo.h" />
-    <ClInclude Include="Graphic\Gve\GveExtension.h" />
-    <ClInclude Include="Graphic\Gve\GveFrameBuffer.h" />
-    <ClInclude Include="Graphic\Gve\GveInstance.h" />
-    <ClInclude Include="Graphic\Gve\GveMemory.h" />
-    <ClInclude Include="Graphic\Gve\GvePhysicalDevice.h" />
-    <ClInclude Include="Graphic\Gve\GvePresenter.h" />
-    <ClInclude Include="Graphic\Gve\GveRenderPass.h" />
-    <ClInclude Include="Graphic\Gve\GveResourceObjects.h" />
-    <ClInclude Include="Graphic\Gve\GveSampler.h" />
-    <ClInclude Include="Graphic\Gve\GveShader.h" />
-    <ClInclude Include="Graphic\Gve\GveStaging.h" />
-    <ClInclude Include="Graphic\Gve\GveSwapChain.h" />
-    <ClInclude Include="Graphic\Gve\GveUtil.h" />
-    <ClInclude Include="Graphic\Gve\GveVkLayers.h" />
     <ClInclude Include="Graphic\Pssl\GCNAnalyzer.h" />
     <ClInclude Include="Graphic\Pssl\GCNEnums.h" />
     <ClInclude Include="Graphic\Pssl\GCNInstructionIterator.h" />
@@ -173,7 +182,6 @@
     <ClInclude Include="Platform\UtilMemory.h" />
     <ClInclude Include="Platform\UtilPath.h" />
     <ClInclude Include="Platform\UtilProcess.h" />
-    <ClInclude Include="Platform\UtilString.h" />
     <ClInclude Include="Platform\UtilThread.h" />
     <ClInclude Include="Platform\UtilTime.h" />
     <ClInclude Include="SceModules\BlockingQueue.h" />
@@ -264,6 +272,7 @@
     <ClInclude Include="Util\UtilMath.h" />
     <ClInclude Include="Util\UtilRc.h" />
     <ClInclude Include="Util\UtilSingleton.h" />
+    <ClInclude Include="Util\UtilString.h" />
     <ClInclude Include="Util\UtilSync.h" />
   </ItemGroup>
   <ItemGroup>
@@ -289,38 +298,15 @@
     <ClCompile Include="Graphic\Gnm\GnmCommandBufferDummy.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmConvertor.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmDataFormat.cpp" />
-    <ClCompile Include="Graphic\Gnm\GnmGpuAddress.cpp" />
-    <ClCompile Include="Graphic\Gnm\GnmGpuAddressTool.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmOpCode.cpp" />
-    <ClCompile Include="Graphic\Gnm\GnmTiler.cpp" />
+    <ClCompile Include="Graphic\Gnm\GnmResourceFactory.cpp" />
+    <ClCompile Include="Graphic\Gnm\GnmShaderMeta.cpp" />
+    <ClCompile Include="Graphic\Gnm\GpuAddress\GnmDataFormatCodec.cpp" />
+    <ClCompile Include="Graphic\Gnm\GpuAddress\GnmFloatPoint.cpp" />
+    <ClCompile Include="Graphic\Gnm\GpuAddress\GnmGpuAddress.cpp" />
+    <ClCompile Include="Graphic\Gnm\GpuAddress\GnmGpuAddressTool.cpp" />
+    <ClCompile Include="Graphic\Gnm\GpuAddress\GnmTiler.cpp" />
     <ClCompile Include="Graphic\GraphicShared.cpp" />
-    <ClCompile Include="Graphic\Gve\GveBuffer.cpp" />
-    <ClCompile Include="Graphic\Gve\GveCmdList.cpp" />
-    <ClCompile Include="Graphic\Gve\GveContext.cpp" />
-    <ClCompile Include="Graphic\Gve\GveDebugMarker.cpp" />
-    <ClCompile Include="Graphic\Gve\GveDescriptor.cpp" />
-    <ClCompile Include="Graphic\Gve\GveDevice.cpp" />
-    <ClCompile Include="Graphic\Gve\GveExtension.cpp" />
-    <ClCompile Include="Graphic\Gve\GveFrameBuffer.cpp" />
-    <ClCompile Include="Graphic\Gve\GveGpuResource.cpp" />
-    <ClCompile Include="Graphic\Gve\GveGraphicsPipeline.cpp" />
-    <ClCompile Include="Graphic\Gve\GveImage.cpp" />
-    <ClCompile Include="Graphic\Gve\GveInstance.cpp" />
-    <ClCompile Include="Graphic\Gve\GveLifetime.cpp" />
-    <ClCompile Include="Graphic\Gve\GveMemory.cpp" />
-    <ClCompile Include="Graphic\Gve\GvePhysicalDevice.cpp" />
-    <ClCompile Include="Graphic\Gve\GvePipelineLayout.cpp" />
-    <ClCompile Include="Graphic\Gve\GvePipelineManager.cpp" />
-    <ClCompile Include="Graphic\Gve\GvePresenter.cpp" />
-    <ClCompile Include="Graphic\Gve\GveRenderPass.cpp" />
-    <ClCompile Include="Graphic\Gve\GvePipelineState.cpp" />
-    <ClCompile Include="Graphic\Gve\GveResourceObjects.cpp" />
-    <ClCompile Include="Graphic\Gve\GveSampler.cpp" />
-    <ClCompile Include="Graphic\Gve\GveShader.cpp" />
-    <ClCompile Include="Graphic\Gve\GveSharpResourceManager.cpp" />
-    <ClCompile Include="Graphic\Gve\GveStaging.cpp" />
-    <ClCompile Include="Graphic\Gve\GveSwapChain.cpp" />
-    <ClCompile Include="Graphic\Gve\GveUtil.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNAnalyzer.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNCompilerDataShare.cpp" />
     <ClCompile Include="Graphic\Pssl\GCNCompilerDebugProfile.cpp" />
@@ -359,10 +345,38 @@
     <ClCompile Include="Graphic\Pssl\PsslProgramInfo.cpp" />
     <ClCompile Include="Graphic\Pssl\PsslShaderModule.cpp" />
     <ClCompile Include="Graphic\Sce\SceGnmDriver.cpp" />
+    <ClCompile Include="Graphic\Sce\SceGpuQueue.cpp" />
     <ClCompile Include="Graphic\Sce\SceVideoOut.cpp" />
     <ClCompile Include="Graphic\SpirV\SpirvCodeBuffer.cpp" />
     <ClCompile Include="Graphic\SpirV\SpirvCompression.cpp" />
     <ClCompile Include="Graphic\SpirV\SpirvModule.cpp" />
+    <ClCompile Include="Graphic\Violet\VltBuffer.cpp" />
+    <ClCompile Include="Graphic\Violet\VltCmdList.cpp" />
+    <ClCompile Include="Graphic\Violet\VltContext.cpp" />
+    <ClCompile Include="Graphic\Violet\VltDebugMarker.cpp" />
+    <ClCompile Include="Graphic\Violet\VltDescriptor.cpp" />
+    <ClCompile Include="Graphic\Violet\VltDevice.cpp" />
+    <ClCompile Include="Graphic\Violet\VltExtension.cpp" />
+    <ClCompile Include="Graphic\Violet\VltFormat.cpp" />
+    <ClCompile Include="Graphic\Violet\VltFrameBuffer.cpp" />
+    <ClCompile Include="Graphic\Violet\VltGpuResource.cpp" />
+    <ClCompile Include="Graphic\Violet\VltGraphicsPipeline.cpp" />
+    <ClCompile Include="Graphic\Violet\VltImage.cpp" />
+    <ClCompile Include="Graphic\Violet\VltInstance.cpp" />
+    <ClCompile Include="Graphic\Violet\VltLifetime.cpp" />
+    <ClCompile Include="Graphic\Violet\VltMemory.cpp" />
+    <ClCompile Include="Graphic\Violet\VltPhysicalDevice.cpp" />
+    <ClCompile Include="Graphic\Violet\VltPipelineLayout.cpp" />
+    <ClCompile Include="Graphic\Violet\VltPipelineManager.cpp" />
+    <ClCompile Include="Graphic\Violet\VltPipelineState.cpp" />
+    <ClCompile Include="Graphic\Violet\VltPresenter.cpp" />
+    <ClCompile Include="Graphic\Violet\VltRenderPass.cpp" />
+    <ClCompile Include="Graphic\Violet\VltResourceObjects.cpp" />
+    <ClCompile Include="Graphic\Violet\VltSampler.cpp" />
+    <ClCompile Include="Graphic\Violet\VltShader.cpp" />
+    <ClCompile Include="Graphic\Violet\VltStaging.cpp" />
+    <ClCompile Include="Graphic\Violet\VltSubmissionQueue.cpp" />
+    <ClCompile Include="Graphic\Violet\VltUtil.cpp" />
     <ClCompile Include="ImportLibs.cpp" />
     <ClCompile Include="Loader\EbootObject.cpp" />
     <ClCompile Include="Loader\ELFMapper.cpp" />
@@ -374,7 +388,6 @@
     <ClCompile Include="Platform\UtilMemory.cpp" />
     <ClCompile Include="Platform\UtilPath.cpp" />
     <ClCompile Include="Platform\UtilProcess.cpp" />
-    <ClCompile Include="Platform\UtilString.cpp" />
     <ClCompile Include="Platform\UtilThread.cpp" />
     <ClCompile Include="Platform\UtilTime.cpp" />
     <ClCompile Include="SceModules\SceAjm\sce_ajm.cpp" />
@@ -495,6 +508,7 @@
     <ClCompile Include="SceModules\SceVideoOut\sce_videoout_export.cpp" />
     <ClCompile Include="SceModules\SceVideoRecording\sce_videorecording.cpp" />
     <ClCompile Include="SceModules\SceVideoRecording\sce_videorecording_export.cpp" />
+    <ClCompile Include="Util\UtilString.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Emulator\TLSStub.asm">
@@ -570,10 +584,10 @@
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Label="LLVM" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClangClAdditionalOptions>-Wno-unused-variable -Wno-unused-private-field -Wno-switch -Wno-return-type -Wno-unused-function -Wno-return-type</ClangClAdditionalOptions>
+    <ClangClAdditionalOptions>-Wno-unused-variable -Wno-unused-private-field -Wno-switch -Wno-return-type -Wno-unused-function -Wno-return-type /showFilenames</ClangClAdditionalOptions>
   </PropertyGroup>
   <PropertyGroup Label="LLVM" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ClangClAdditionalOptions>-flto=thin -Wno-unused-variable -Wno-unused-private-field -Wno-switch -Wno-unused-function -Wno-return-type</ClangClAdditionalOptions>
+    <ClangClAdditionalOptions>-Wno-unused-variable -Wno-unused-private-field -Wno-switch -Wno-unused-function -Wno-return-type -flto=thin /showFilenames</ClangClAdditionalOptions>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -594,6 +608,7 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(VULKAN_SDK)\Include;$(SolutionDir)GPCS4;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GPCS4_DEBUG;__PTW32_STATIC_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
@@ -624,7 +639,6 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>

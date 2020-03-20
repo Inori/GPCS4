@@ -26,8 +26,8 @@
 #include "GCNParser/EXPInstruction.h"
 #include "GCNParser/VOPInstruction.h"
 
-#include "../Gve/GveShader.h"
-#include "../Gve/GvePipelineLayout.h"
+#include "../Violet/VltShader.h"
+#include "../Violet/VltPipelineLayout.h"
 #include "../SpirV/SpirvModule.h"
 
 #include <optional>
@@ -127,7 +127,7 @@ public:
 
 	virtual void processInstruction(GCNInstruction& ins);
 
-	RcPtr<gve::GveShader> finalize();
+	RcPtr<vlt::VltShader> finalize();
 
 private:
 
@@ -170,6 +170,9 @@ private:
 	void emitDclPixelInput();
 	void emitDclPixelOutput();
 
+	// TODO:
+	// For SGPRs and some VGPRs maybe,
+	// we should use specialization constants
 	void emitGprInitializeVS();
 	void emitGprInitializePS();
 
@@ -521,7 +524,7 @@ private:
 		uint32_t* sdst, uint32_t* sdstRidx,
 		uint32_t* src0, uint32_t* src0Ridx,
 		uint32_t* src1 = nullptr, uint32_t* src1Ridx = nullptr,
-		int64_t* imm = nullptr);
+		int16_t* imm = nullptr);
 
 	const char* getTypeName(SpirvScalarType type);
 
@@ -547,14 +550,13 @@ private:
 	////////////////////////////////////////////////////
 	// Per-vertex input and output blocks. Depending on
 	// the shader stage, these may be declared as arrays.
-	uint32_t m_perVertexIn = 0;
+	uint32_t m_perVertexIn  = 0;
 	uint32_t m_perVertexOut = 0;
 
 	//////////////////////////////////////////////
 	// Function state tracking. Required in order
 	// to properly end functions in some cases.
 	bool m_insideFunction = false;
-
 
 	///////////////////////////////////
 	// Shader-specific data structures
@@ -568,15 +570,13 @@ private:
 
 	///////////////////////////////////
 	// Gcn register to spir-v variable map
-	// gcn register index -- spirv register
-	std::map<uint32_t, SpirvRegisterPointer> m_sgprs;
-	std::map<uint32_t, SpirvRegisterPointer> m_vgprs;
-
+	std::array<SpirvRegisterPointer, GcnMaxSgprCount> m_sgprs;
+	std::array<SpirvRegisterPointer, GcnMaxVgprCount> m_vgprs;
 	///////////////////////////////////
 	// Resources
 
 	// Used to record shader resource this shader declared using InputUsageSlot
-	std::vector<gve::GveResourceSlot> m_resourceSlots;
+	std::vector<vlt::VltResourceSlot> m_resourceSlots;
 
 	///////////////////////////////////
 	// Control flow

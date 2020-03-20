@@ -1,104 +1,217 @@
 #include "SceGnmDriver.h"
+
+#include "SceGpuQueue.h"
+#include "UtilMath.h"
 #include "sce_errors.h"
 
-#include "../GraphicShared.h"
 #include "../Gnm/GnmCmdStream.h"
 #include "../Gnm/GnmCommandBufferDraw.h"
 #include "../Gnm/GnmCommandBufferDummy.h"
-#include "../Gve/GveInstance.h"
-#include "../Gve/GveSwapChain.h"
-#include "../Gve/GvePresenter.h"
-#include "../Gve/GveCmdList.h"
-#include "../Gve/GveImage.h"
+#include "../GraphicShared.h"
+#include "../Violet/VltCmdList.h"
+#include "../Violet/VltImage.h"
+#include "../Violet/VltInstance.h"
+#include "../Violet/VltPhysicalDevice.h"
+#include "../Violet/VltPresenter.h"
 
 LOG_CHANNEL(Graphic.Sce.SceGnmDriver);
 
+using namespace vlt;
+
 namespace sce
-{;
+{
+;
 
-using namespace gve;
-const int MAX_FRAMES_IN_FLIGHT = 2;
-
-SceGnmDriver::SceGnmDriver(std::shared_ptr<SceVideoOut>& videoOut):
+SceGnmDriver::SceGnmDriver(std::shared_ptr<SceVideoOut>& videoOut) :
 	m_videoOut(videoOut)
 {
-	// Instance
-	auto extensions = m_videoOut->getExtensions();
-	m_instance = gveCreateInstance(extensions);
-
-	// Physical device
-	VkSurfaceKHR windowSurface = m_videoOut->createSurface(*m_instance);
-	m_physDevice = m_instance->pickPhysicalDevice(windowSurface);
-	LOG_ASSERT(m_physDevice != nullptr, "pick physical device failed.");
-
-	// Logical device
-	m_device = m_physDevice->createLogicalDevice();
-	LOG_ASSERT(m_device != nullptr, "create logical device failed.");
+	bool success = initGnmDriver();
+	LOG_ASSERT(success == true, "init Gnm Driver failed.");
 }
 
 SceGnmDriver::~SceGnmDriver()
 {
-	m_commandBuffers.clear();
-	m_commandParsers.clear();
-
-	m_videoOut->destroySurface(*m_instance);
 }
 
-bool SceGnmDriver::initDriver(uint32_t bufferNum)
+bool SceGnmDriver::initGnmDriver()
 {
-	// Swap chain
-	m_swapchain = m_device->createSwapchain(m_videoOut, bufferNum);
+	bool ret = false;
+	do
+	{
+		// Instance
+		auto extensions = m_videoOut->getExtensions();
+		m_instance      = violetCreateInstance(extensions);
+		if (!m_instance)
+		{
+			LOG_ERR("create vulkan instance failed.");
+			break;
+		}
 
-	m_presenter = std::make_unique<gve::GvePresenter>(m_device.ptr(), m_swapchain.ptr());
+		// Physical device
+		VkSurfaceKHR windowSurface = m_videoOut->getWindowSurface(*m_instance);
+		auto         phyDevices    = m_instance->enumPhysicalDevices();
+		if (!pickPhysicalDevice(phyDevices, windowSurface))
+		{
+			LOG_ERR("pick physical device failed.");
+			break;
+		}
 
-	createCommandParsers(bufferNum);
+		// Logical device
+		auto featuresToEnable = getEnableFeatures(m_physDevice);
+		m_device              = m_physDevice->createLogicalDevice(featuresToEnable);
+		if (!m_device)
+		{
+			LOG_ERR("create logical device failed.");
+			break;
+		}
 
-	return true;
+		ret = true;
+	} while (false);
+	return ret;
 }
 
-int SceGnmDriver::submitCommandBuffers(uint32_t count, 
-	void *dcbGpuAddrs[], uint32_t *dcbSizesInBytes,
-	void *ccbGpuAddrs[], uint32_t *ccbSizesInBytes)
+bool SceGnmDriver::pickPhysicalDevice(
+	const std::vector<RcPtr<vlt::VltPhysicalDevice>>& devices,
+	VkSurfaceKHR                                      surface)
+{
+	auto iter = std::find_if(devices.begin(), devices.end(), 
+		[this, surface](const auto& device) { return isDeviceSuitable(device, surface); });
+
+	bool found = iter != devices.end();
+	if (found)
+	{
+		m_physDevice = *iter;
+	}
+	
+	return found;
+}
+
+bool SceGnmDriver::isDeviceSuitable(const RcPtr<vlt::VltPhysicalDevice>& device,
+									VkSurfaceKHR                         surface)
+{
+	bool ret = false;
+	do
+	{
+		if (!device)
+		{
+			break;
+		}
+
+		auto requiredFeatures = getEnableFeatures(device);
+		if (!device->checkFeatureSupport(requiredFeatures))
+		{
+			break;
+		}
+
+		if (!checkPresentSupport(device, surface))
+		{
+			break;
+		}
+
+		ret = true;
+	} while (false);
+	return ret;
+}
+
+VltDeviceFeatures SceGnmDriver::getEnableFeatures(const RcPtr<vlt::VltPhysicalDevice>& device)
+{
+	VltDeviceFeatures required  = {};
+	auto              supported = device->features();
+
+	// Setup all required features to be enabled here.
+
+	required.core.features.samplerAnisotropy  = supported.core.features.samplerAnisotropy;
+	required.core.features.shaderInt64        = VK_TRUE;
+	required.core.features.geometryShader     = supported.core.features.geometryShader;
+	required.core.features.tessellationShader = supported.core.features.tessellationShader;
+
+	return required;
+}
+
+bool SceGnmDriver::checkPresentSupport(const RcPtr<vlt::VltPhysicalDevice>& device, VkSurfaceKHR surface)
+{
+	VkBool32 presentSupport = false;
+	auto     queueFamilies  = device->findQueueFamilies();
+	// TODO:
+	// Currently, I only support graphics queue with present support.
+	vkGetPhysicalDeviceSurfaceSupportKHR(*device, queueFamilies.graphics, surface, &presentSupport);
+	return presentSupport;
+}
+
+int SceGnmDriver::submitCommandBuffers(uint32_t  count,
+									   void*     dcbGpuAddrs[],
+									   uint32_t* dcbSizesInBytes,
+									   void*     ccbGpuAddrs[],
+									   uint32_t* ccbSizesInBytes)
 {
 	return submitAndFlipCommandBuffers(count,
-		dcbGpuAddrs, dcbSizesInBytes,
-		ccbGpuAddrs, ccbSizesInBytes,
-		SCE_VIDEO_HANDLE_MAIN, 0, 0, 0);
+									   dcbGpuAddrs, dcbSizesInBytes,
+									   ccbGpuAddrs, ccbSizesInBytes,
+									   SCE_VIDEO_HANDLE_MAIN, 0, 0, 0);
 }
 
-int SceGnmDriver::submitAndFlipCommandBuffers(uint32_t count, 
-	void *dcbGpuAddrs[], uint32_t *dcbSizesInBytes,
-	void *ccbGpuAddrs[], uint32_t *ccbSizesInBytes,
-	uint32_t videoOutHandle, uint32_t displayBufferIndex, 
-	uint32_t flipMode, int64_t flipArg)
+int SceGnmDriver::submitAndFlipCommandBuffers(uint32_t  count,
+											  void*     dcbGpuAddrs[],
+											  uint32_t* dcbSizesInBytes,
+											  void*     ccbGpuAddrs[],
+											  uint32_t* ccbSizesInBytes,
+											  uint32_t  videoOutHandle,
+											  uint32_t  displayBufferIndex,
+											  uint32_t  flipMode,
+											  int64_t   flipArg)
 {
-	int err = SCE_GNM_ERROR_UNKNOWN;
-	do 
-	{
-		LOG_ASSERT(count == 1, "Currently only support only 1 cmdbuff.");
+	// There's only one hardware graphics queue for most of modern GPUs, including the one on PS4.
+	// Thus a PS4 game will call submit function to submit command buffers sequentially,
+	// and normally in one same thread.
+	// We just emulate the GPU, parsing and executing one command buffer per call.
 
-		auto& cmdParser = m_commandParsers[displayBufferIndex];
-		if (!cmdParser->processCommandBuffer((uint32_t*)dcbGpuAddrs[0], dcbSizesInBytes[0]))
-		{
-			break;
-		}
-	
-		auto cmdList = cmdParser->getCommandBuffer()->getCmdList();
+	// TODO:
+	// For real PS4 system, the submit call is asynchronous.
+	// Thus future development, we should record vulkan command buffer asynchronously too,
+	// reducing time period of the submit call.
+
+	LOG_ASSERT(count == 1, "Currently only support 1 cmdbuff at one call.");
+
+	SceGpuCommand cmd = {};
+	cmd.buffer        = dcbGpuAddrs[0];
+	cmd.size          = dcbSizesInBytes[0];
+	auto cmdList      = m_graphicsQueue->record(cmd, displayBufferIndex);
+
+	submitPresent(cmdList);
+
+	return SCE_OK;
+}
+
+void SceGnmDriver::submitPresent(const RcPtr<vlt::VltCmdList>& cmdList)
+{
+	do
+	{
 		if (!cmdList)
 		{
-			// cmdList is null when GPCS4_NO_GRAPHICS defined
-			err = SCE_OK;
 			break;
 		}
 
-		m_presenter->present(cmdList);
-		// TODO:
-		// This should be done asynchronously
-		cmdList->reset();
+		PresenterSync presentSync = m_presenter->getSyncObjects();
 
-		err = SCE_OK;
+		uint32_t imageIndex = 0;
+		VkResult status     = m_presenter->acquireNextImage(presentSync.acquire, VK_NULL_HANDLE, imageIndex);
+		if (status != VK_SUCCESS)
+		{
+			break;
+		}
+
+		SceGpuSubmission gpuSubmission = {};
+		gpuSubmission.cmdList          = cmdList;
+		gpuSubmission.wait             = presentSync.acquire;
+		gpuSubmission.wake             = presentSync.present;
+		m_graphicsQueue->submit(gpuSubmission);
+
+		VltPresentInfo presentation;
+		presentation.presenter = m_presenter;
+		presentation.waitSync  = gpuSubmission.wake;
+		m_device->presentImage(presentation);
+
 	} while (false);
-	return err;
 }
 
 int SceGnmDriver::sceGnmSubmitDone(void)
@@ -107,28 +220,126 @@ int SceGnmDriver::sceGnmSubmitDone(void)
 	return SCE_OK;
 }
 
-void SceGnmDriver::createCommandParsers(uint32_t count)
+bool SceGnmDriver::createGraphicsQueue(uint32_t imageCount)
 {
-	// Initialize command buffers and command parsers
-	// according to bufferNum
-	m_commandBuffers.resize(count);
-	for (uint32_t i = 0; i != count; ++i)
+	bool ret = false;
+	do
 	{
-		auto rtImgView = m_swapchain->getImageView(i);
+		if (!imageCount)
+		{
+			break;
+		}
 
-#ifndef GPCS4_NO_GRAPHICS
-		m_commandBuffers[i] = std::make_shared<GnmCommandBufferDraw>(m_device, rtImgView);
-#else
-		m_commandBuffers[i] = std::make_shared<GnmCommandBufferDummy>();
-#endif // GPCS4_NO_GRAPHICS
+		auto deviceQueue = m_device->queues();
+		auto sizeInfo    = m_videoOut->getSize();
 
-	}
-	
-	m_commandParsers.resize(count);
-	for (uint32_t i = 0; i != count; ++i)
-	{
-		m_commandParsers[i] = std::make_unique<GnmCmdStream>(m_commandBuffers[i]);
-	}
+		// Create presenter first.
+		// The graphics queue need to access swapchain image as render target
+		// during record.
+		PresenterDesc desc      = {};
+		desc.windowSurface      = m_videoOut->getWindowSurface(*m_instance);
+		desc.presentQueue       = deviceQueue.graphics.queueHandle;
+		desc.imageExtent.width  = sizeInfo.frameWidth;
+		desc.imageExtent.height = sizeInfo.frameHeight;
+		desc.imageCount         = imageCount;
+		desc.fullScreen         = false;
+
+		m_presenter = new VltPresenter(m_device, desc);
+		if (!m_presenter)
+		{
+			break;
+		}
+
+		// Create the only graphics queue.
+		SceGpuQueueDevice gfxDevice = {};
+		gfxDevice.device            = m_device;
+		gfxDevice.presenter         = m_presenter;
+		gfxDevice.videoOut          = m_videoOut;
+		m_graphicsQueue             = std::make_unique<SceGpuQueue>(gfxDevice, SceQueueType::Graphics);
+
+		ret = true;
+	} while (false);
+	return ret;
 }
 
-}  //sce
+uint32_t SceGnmDriver::mapComputeQueue(uint32_t pipeId,
+									   uint32_t queueId,
+									   void*    ringBaseAddr,
+									   uint32_t ringSizeInDW,
+									   void*    readPtrAddr)
+{
+	int vqueueId = SCE_GNM_ERROR_UNKNOWN;
+	do
+	{
+		if (pipeId >= kMaxPipeId)
+		{
+			vqueueId = SCE_GNM_ERROR_COMPUTEQUEUE_INVALID_PIPE_ID;
+			break;
+		}
+
+		if (queueId >= kMaxQueueId)
+		{
+			vqueueId = SCE_GNM_ERROR_COMPUTEQUEUE_INVALID_QUEUE_ID;
+			break;
+		}
+
+		if ((uintptr_t)ringBaseAddr % 256 != 0)
+		{
+			vqueueId = SCE_GNM_ERROR_COMPUTEQUEUE_INVALID_RING_BASE_ADDR;
+			break;
+		}
+
+		if (!::util::isPowerOfTwo(ringSizeInDW))
+		{
+			vqueueId = SCE_GNM_ERROR_COMPUTEQUEUE_INVALID_RING_SIZE;
+			break;
+		}
+
+		if ((uintptr_t)readPtrAddr % 4 != 0)
+		{
+			vqueueId = SCE_GNM_ERROR_COMPUTEQUEUE_INVALID_READ_PTR_ADDR;
+			break;
+		}
+
+		*(uint32_t*)readPtrAddr = 0;
+
+		vqueueId = pipeId * kMaxPipeId + queueId;
+		if (vqueueId >= kMaxComputeQueueCount)
+		{
+			LOG_ERR("vqueueId is larger than max queue count.");
+			break;
+		}
+
+		SceGpuQueueDevice cptDevice = {};
+		cptDevice.device            = m_device;
+		cptDevice.presenter         = nullptr;
+		cptDevice.videoOut          = nullptr;
+		m_computeQueues[vqueueId]   = std::make_unique<SceGpuQueue>(cptDevice, SceQueueType::Compute);
+
+	} while (false);
+
+	return vqueueId;
+}
+
+void SceGnmDriver::unmapComputeQueue(uint32_t vqueueId)
+{
+	do
+	{
+		if (vqueueId >= kMaxComputeQueueCount)
+		{
+			LOG_ERR("vqueueId is larger than max queue count.");
+			break;
+		}
+
+		m_computeQueues[vqueueId].reset();
+
+	} while (false);
+}
+
+void SceGnmDriver::dingDong(
+	uint32_t vqueueId,
+	uint32_t nextStartOffsetInDw)
+{
+}
+
+}  // namespace sce

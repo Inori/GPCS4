@@ -4,8 +4,6 @@
 #include "GnmOpCode.h"
 #include "GnmCommandBuffer.h"
 
-#include <memory>
-
 // This class takes all the reverse engining work, parsing PM4 packets (aka command buffer),
 // restore the original high level Gnm API calls, and the forward to CnmCommandBufferXXX class,
 // we handle graphic staffs there.
@@ -21,12 +19,12 @@
 class GnmCmdStream
 {
 public:
-	GnmCmdStream(std::shared_ptr<GnmCommandBuffer>& cb);
-	virtual ~GnmCmdStream();
+	GnmCmdStream();
+	~GnmCmdStream();
 
-	bool processCommandBuffer(uint32_t* commandBuffer, uint32_t commandSize);
+	void attachCommandBuffer(GnmCommandBuffer* commandBuffer);
 
-	std::shared_ptr<GnmCommandBuffer> getCommandBuffer();
+	bool processCommandBuffer(const void* commandBuffer, uint32_t commandSize);
 
 private:
 	
@@ -63,6 +61,7 @@ private:
 	void onDispatchDrawPreambleGfx09(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody);
 	void onDispatchDrawGfx09(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody);
 	void onGetLodStatsGfx09(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody);
+	void onReleaseMem(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody);
 
 	// Private
 	void onGnmPrivate(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody);
@@ -97,7 +96,7 @@ private:
 
 
 private:
-	std::shared_ptr<GnmCommandBuffer> m_cb;
+	GnmCommandBuffer* m_cb;
 
 	// Flip packet is the last pm4 packet of a command buffer,
 	// when flip packet had been processed, we end processing command buffer.

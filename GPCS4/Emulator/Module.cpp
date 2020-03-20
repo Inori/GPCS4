@@ -1,5 +1,5 @@
 #include "Module.h"
-#include "Platform/PlatformUtils.h"
+#include "UtilString.h"
 #include "Emulator/SceModuleSystem.h"
 
 #include <spdlog/fmt/fmt.h>

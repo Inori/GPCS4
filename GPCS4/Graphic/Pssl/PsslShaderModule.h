@@ -5,10 +5,10 @@
 #include "PsslShaderStructure.h"
 #include "GCNDecoder.h"
 
-namespace gve
+namespace vlt
 {;
-class GveShader;
-}  // namespace gve
+class VltShader;
+}  // namespace vlt
 
 namespace pssl
 {;
@@ -19,16 +19,12 @@ class GCNCompiler;
 class GCNAnalyzer;
 
 
-class PsslShaderModule
+class PsslShaderModule : public RcObject
 {
 public:
 	PsslShaderModule(const uint32_t* code);
 
 	~PsslShaderModule();
-
-	std::vector<VertexInputSemantic> vsInputSemantic();
-
-	std::vector<InputUsageSlot> inputUsageSlots();
 
 	void defineFetchShader(const uint32_t* fsCode);
 
@@ -36,12 +32,16 @@ public:
 
 	const GcnShaderResources& getShaderResources();
 
+	std::vector<VertexInputSemantic> vsInputSemantic();
+
+	std::vector<InputUsageSlot> inputUsageSlots();
+
 	PsslKey key();
 
-	RcPtr<gve::GveShader> compile();
+	RcPtr<vlt::VltShader> compile();
 
-	static std::vector<GcnShaderResourceInstance> 
-		linearlizeShaderResources(const GcnShaderResources& nestedResources);
+	static std::vector<GcnShaderResourceInstance>
+	flattenShaderResources(const GcnShaderResources& nestedResources);
 
 private:
 

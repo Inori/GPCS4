@@ -174,6 +174,19 @@
 #define mmDB_DEPTH_INFO                                                                  0xA00F
 #define GNM_DB_DEPTH_INFO__PIPE_CONFIG__MASK                                             0x00001f00L //size: 5
 #define GNM_DB_DEPTH_INFO__PIPE_CONFIG__SHIFT                                             8
+#define GNM_DB_DEPTH_INFO__ADDR5_SWIZZLE_MASK__MASK                                       0xf
+#define GNM_DB_DEPTH_INFO__ADDR5_SWIZZLE_MASK__SHIFT                                      0x0
+#define GNM_DB_DEPTH_INFO__ARRAY_MODE__MASK                                               0xf0
+#define GNM_DB_DEPTH_INFO__ARRAY_MODE__SHIFT                                              0x4
+#define GNM_DB_DEPTH_INFO__BANK_WIDTH__MASK                                               0x6000
+#define GNM_DB_DEPTH_INFO__BANK_WIDTH__SHIFT                                              0xd
+#define GNM_DB_DEPTH_INFO__BANK_HEIGHT__MASK                                              0x18000
+#define GNM_DB_DEPTH_INFO__BANK_HEIGHT__SHIFT                                             0xf
+#define GNM_DB_DEPTH_INFO__MACRO_TILE_ASPECT__MASK                                        0x60000
+#define GNM_DB_DEPTH_INFO__MACRO_TILE_ASPECT__SHIFT                                       0x11
+#define GNM_DB_DEPTH_INFO__NUM_BANKS__MASK                                                0x180000
+#define GNM_DB_DEPTH_INFO__NUM_BANKS__SHIFT                                               0x13
+
 
 #define mmDB_Z_INFO                                                                      0xA010
 #define GNM_DB_Z_INFO__FORMAT__MASK                                                      0x00000003L //size: 2
@@ -266,6 +279,16 @@
 #define GNM_CB_COLOR0_INFO__DCC_ENABLE__SHIFT                                            28
 #define GNM_CB_COLOR0_INFO__CMASK_ADDR_TYPE__SHIFT                                       29
 #define GNM_CB_COLOR0_INFO__ALT_TILE_MODE__SHIFT                                         31
+#define GNM_CB_COLOR0_INFO__ENDIAN__MASK                                                 0x3
+#define GNM_CB_COLOR0_INFO__ENDIAN__SHIFT                                                0x0
+#define GNM_CB_COLOR0_INFO__FORMAT__MASK                                                 0x7c
+#define GNM_CB_COLOR0_INFO__FORMAT__SHIFT                                                0x2
+#define GNM_CB_COLOR0_INFO__LINEAR_GENERAL__MASK                                         0x80
+#define GNM_CB_COLOR0_INFO__LINEAR_GENERAL__SHIFT                                        0x7
+#define GNM_CB_COLOR0_INFO__NUMBER_TYPE__MASK                                            0x700
+#define GNM_CB_COLOR0_INFO__NUMBER_TYPE__SHIFT                                           0x8
+#define GNM_CB_COLOR0_INFO__COMP_SWAP__MASK                                              0x1800
+#define GNM_CB_COLOR0_INFO__COMP_SWAP__SHIFT                                             0xb
 
 #define mmCB_COLOR0_ATTRIB                                                               0xA31D
 #define GNM_CB_COLOR0_ATTRIB__TILE_MODE_INDEX__MASK                                      0x0000001fL //size: 5
@@ -278,6 +301,7 @@
 #define GNM_CB_COLOR0_ATTRIB__NUM_SAMPLES__SHIFT                                         12
 #define GNM_CB_COLOR0_ATTRIB__NUM_FRAGMENTS__SHIFT                                       15
 #define GNM_CB_COLOR0_ATTRIB__FORCE_DST_ALPHA_1__SHIFT                                   17
+
 
 #define mmCB_COLOR0_DCC_CONTROL                                                          0xA31E
 #define GNM_CB_COLOR0_DCC_CONTROL__OVERWRITE_COMBINER_DISABLE__MASK                      0x00000001L //size: 1

@@ -1,15 +1,33 @@
 #include "GnmCmdStream.h"
 #include "UtilBit.h"
 #include "GnmGfx9MePm4Packets.h"
+#include "GnmBuffer.h"
+#include "GnmTexture.h"
+#include "GnmSampler.h"
+#include "../Pssl/PsslShaderRegister.h"
+
+// *******
+// Important Note:
+// *******
+//
+// When parsing a PM4 packet, consider to cast PM4 packet to proper structure type
+// defined in GnmGfx9MePm4Packets.h first, if there's no proper definition, 
+// see si_ci_vi_merged_pm4defs.h next.
+//
+// But also note, some structures are defined better in GnmGfx9MePm4Packets.h,
+// others are better in si_ci_vi_merged_pm4defs.h.
+// We'd better see both, and then choose the best version.
+// 
+// If it's in si_ci_vi_merged_pm4defs.h, please copy it to GnmGfx9MePm4Packets.h and reformat code style.
+
 
 LOG_CHANNEL(Graphic.Gnm.GnmCmdStream);
 
 const uint32_t c_stageBases[kShaderStageCount] = { 0x2E40, 0x2C0C, 0x2C4C, 0x2C8C, 0x2CCC, 0x2D0C, 0x2D4C };
 
-GnmCmdStream::GnmCmdStream(std::shared_ptr<GnmCommandBuffer>& cb):
-	m_cb(cb)
+GnmCmdStream::GnmCmdStream():
+	m_cb(nullptr)
 {
-
 }
 
 GnmCmdStream::~GnmCmdStream()
@@ -17,7 +35,12 @@ GnmCmdStream::~GnmCmdStream()
 
 }
 
-bool GnmCmdStream::processCommandBuffer(uint32_t* commandBuffer, uint32_t commandSize)
+void GnmCmdStream::attachCommandBuffer(GnmCommandBuffer* commandBuffer)
+{
+	m_cb = commandBuffer;
+}
+
+bool GnmCmdStream::processCommandBuffer(const void* commandBuffer, uint32_t commandSize)
 {
 	bool bRet = false;
 	do
@@ -27,8 +50,9 @@ bool GnmCmdStream::processCommandBuffer(uint32_t* commandBuffer, uint32_t comman
 		// it's likely because there are some GnmDriver functions not implemented,
 		// so no proper private packets being inserted into the command buffer.
 
-		uint32_t processedCmdSize = 0;
-		PPM4_HEADER pm4Hdr = reinterpret_cast<PPM4_HEADER>(commandBuffer);
+		const PM4_HEADER* pm4Hdr           = reinterpret_cast<const PM4_HEADER*>(commandBuffer);
+		uint32_t          processedCmdSize = 0;
+		
 		while (processedCmdSize < commandSize)
 		{
 			uint32_t pm4Type = pm4Hdr->type;
@@ -67,7 +91,7 @@ bool GnmCmdStream::processCommandBuffer(uint32_t* commandBuffer, uint32_t comman
 				m_skipPm4Count = 0;
 			}
 
-			PPM4_HEADER nextPm4Hdr = getNextNPm4(pm4Hdr, processedPm4Count);
+			const PM4_HEADER* nextPm4Hdr = getNextNPm4(pm4Hdr, processedPm4Count);
 			uint32_t processedLength = reinterpret_cast<uintptr_t>(nextPm4Hdr) - reinterpret_cast<uintptr_t>(pm4Hdr);
 			pm4Hdr = nextPm4Hdr;
 			processedCmdSize += processedLength;
@@ -80,11 +104,6 @@ bool GnmCmdStream::processCommandBuffer(uint32_t* commandBuffer, uint32_t comman
 	m_flipPacketDone = false;
 
 	return bRet;
-}
-
-std::shared_ptr<GnmCommandBuffer> GnmCmdStream::getCommandBuffer()
-{
-	return m_cb;
 }
 
 void GnmCmdStream::processPM4Type0(PPM4_TYPE_0_HEADER pm4Hdr, uint32_t* regDataX)
@@ -187,7 +206,9 @@ void GnmCmdStream::processPM4Type3(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	case IT_GET_LOD_STATS__GFX09:
 		onGetLodStatsGfx09(pm4Hdr, itBody);
 		break;
-
+	case IT_RELEASE_MEM:
+		onReleaseMem(pm4Hdr, itBody);
+		break;
 	// Private handler
 	case IT_GNM_PRIVATE:
 		onGnmPrivate(pm4Hdr, itBody);
@@ -231,7 +252,6 @@ void GnmCmdStream::processPM4Type3(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	case IT_SURFACE_SYNC:
 	case IT_ME_INITIALIZE:
 	case IT_COND_WRITE:
-	case IT_RELEASE_MEM:
 	case IT_PREAMBLE_CNTL:
 	case IT_DRAW_RESERVED0:
 	case IT_DRAW_RESERVED1:
@@ -380,7 +400,23 @@ void GnmCmdStream::onStrmoutBufferUpdate(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* it
 
 void GnmCmdStream::onWriteData(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 {
+	PPM4ME_WRITE_DATA packet = (PPM4ME_WRITE_DATA)pm4Hdr;
+	void*             dstGpuAddr = reinterpret_cast<void*>(util::buildUint64(packet->dstAddrHi, packet->dstAddrLo));
+	const void*       data       = &itBody[3];
+	uint32_t          sizeInDwords = (packet->header.count + 2) - 4;
 
+	switch (packet->dstSel)
+	{
+	case dst_sel__me_write_data__memory:
+		m_cb->writeDataInline(dstGpuAddr, data, sizeInDwords, (WriteDataConfirmMode)packet->wrConfirm);
+		break;
+	case dst_sel__me_write_data__tc_l2:
+		m_cb->writeDataInlineThroughL2(dstGpuAddr, data, sizeInDwords, (CachePolicy)packet->cachePolicy__CI, (WriteDataConfirmMode)packet->wrConfirm);
+		break;
+	default:
+		LOG_FIXME("Not implemented.");
+		break;
+	}
 }
 
 void GnmCmdStream::onMemSemaphore(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
@@ -390,7 +426,23 @@ void GnmCmdStream::onMemSemaphore(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 
 void GnmCmdStream::onWaitRegMem(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 {
+	PPM4ME_WAIT_REG_MEM packet = (PPM4ME_WAIT_REG_MEM)pm4Hdr;
 
+	void* gpuAddr = reinterpret_cast<void*>(util::buildUint64(packet->pollAddressHi, packet->pollAddressLo));
+	switch (packet->engine)
+	{
+	case engine_sel__me_wait_reg_mem__me:
+		m_cb->waitOnAddress(gpuAddr, packet->mask, (WaitCompareFunc)packet->function, packet->reference);
+		break;
+	case engine_sel__me_wait_reg_mem__pfp:
+		m_cb->waitOnAddressAndStallCommandBufferParser(gpuAddr, packet->mask, packet->reference);
+		break;
+	case engine_sel__me_wait_reg_mem__ce:
+		LOG_FIXME("Not implemented.");
+		break;
+	default:
+		break;
+	}
 }
 
 void GnmCmdStream::onIndirectBuffer(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
@@ -446,7 +498,14 @@ void GnmCmdStream::onEventWriteEop(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 
 void GnmCmdStream::onEventWriteEos(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 {
+	PPM4_ME_EVENT_WRITE_EOS packet = (PPM4_ME_EVENT_WRITE_EOS)pm4Hdr;
+	uint64_t                relaGpuAddr = util::buildUint64(packet->addressHi, packet->addressLo);
+	void*                   dstGpuAddr  = util::gnmGpuAbsAddr(pm4Hdr, reinterpret_cast<void*>(relaGpuAddr));
 
+	m_cb->writeAtEndOfShader((EndOfShaderEventType)packet->eventType, dstGpuAddr, packet->data);
+
+	// Skip the next IT_EVENT_WRITE_EOS packet
+	m_skipPm4Count = 1;
 }
 
 void GnmCmdStream::onDmaData(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
@@ -456,7 +515,22 @@ void GnmCmdStream::onDmaData(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 
 void GnmCmdStream::onAcquireMem(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 {
+	PPM4ME_ACQUIRE_MEM__GFX09 packet = (PPM4ME_ACQUIRE_MEM__GFX09)pm4Hdr;
 
+	uint32_t                  value  = packet->ordinal2;
+	StallCommandBufferParserMode stallMode = (StallCommandBufferParserMode)bit::extract(value, 31, 31);
+	uint32_t                     targetMask = bit::extract(value, 0, 14);
+	uint32_t                     extendedCacheMask = bit::extract(value, 24, 29) << 24;
+	uint32_t                     cacheAction       = (bit::extract(value, 22, 23) << 4) | bit::extract(value, 15, 18);
+	uint32_t                     baseAddr256       = packet->coher_base_lo;
+	if (baseAddr256)
+	{
+		m_cb->waitForGraphicsWrites(baseAddr256, packet->coher_size, targetMask, (CacheAction)cacheAction, extendedCacheMask, stallMode);
+	}
+	else
+	{
+		m_cb->flushShaderCachesAndWait((CacheAction)cacheAction, extendedCacheMask, stallMode);
+	}
 }
 
 void GnmCmdStream::onRewind(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
@@ -477,6 +551,13 @@ void GnmCmdStream::onSetContextReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 
 	switch (hint)
 	{
+		case OP_HINT_SET_DB_RENDER_CONTROL:
+		{
+			DbRenderControl drc = {};
+			drc.m_reg           = itBody[1];
+			m_cb->setDbRenderControl(drc);
+		}
+			break;
 		case OP_HINT_SET_PS_SHADER_USAGE:
 		{
 			const uint32_t* inputTable = &itBody[1];
@@ -486,8 +567,8 @@ void GnmCmdStream::onSetContextReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 			break;
 		case OP_HINT_SET_VIEWPORT_TRANSFORM_CONTROL:
 		{
-			ViewportTransformControl vpc = { {0} };
-			vpc.reg = itBody[1];
+			ViewportTransformControl vpc = {};
+			vpc.m_reg = itBody[1];
 			m_cb->setViewportTransformControl(vpc);
 		}
 			break;
@@ -536,14 +617,14 @@ void GnmCmdStream::onSetContextReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 		case OP_HINT_SET_DEPTH_STENCIL_CONTROL:
 		{
 			DepthStencilControl dsc;
-			dsc.reg = itBody[1];
+			dsc.m_reg = itBody[1];
 			m_cb->setDepthStencilControl(dsc);
 		}
 			break;
 		case OP_HINT_SET_PRIMITIVE_SETUP:
 		{
 			PrimitiveSetup primSetupReg;
-			primSetupReg.reg = itBody[1];
+			primSetupReg.m_reg = itBody[1];
 			m_cb->setPrimitiveSetup(primSetupReg);
 		}
 			break;
@@ -551,6 +632,18 @@ void GnmCmdStream::onSetContextReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 		{
 			ActiveShaderStages activeStages = static_cast<ActiveShaderStages>(itBody[1]);
 			m_cb->setActiveShaderStages(activeStages);
+		}
+			break;
+		case OP_HINT_SET_DEPTH_CLEAR_VALUE:
+		{
+			float clearValue = *reinterpret_cast<float*>(&itBody[1]);
+			m_cb->setDepthClearValue(clearValue);
+		}
+			break;
+		case OP_HINT_SET_STENCIL_CLEAR_VALUE:
+		{
+			uint8_t clearValue = static_cast<uint8_t>(itBody[1]);
+			m_cb->setStencilClearValue(clearValue);
 		}
 			break;
 	}
@@ -567,7 +660,7 @@ void GnmCmdStream::onSetContextReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	{
 		uint32_t rtSlot = regOffset - 0x1E0;
 		BlendControl bc;
-		bc.reg = itBody[1];
+		bc.m_reg = itBody[1];
 		m_cb->setBlendControl(rtSlot, bc);
 	}
 
@@ -605,26 +698,30 @@ void GnmCmdStream::onSetShReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 		}
 		uint32_t stageBase = c_stageBases[stage];
 		uint32_t startSlot = shPacket->bitfields2.reg_offset + 0x2C00 - stageBase;
+		void*    gpuAddr   = reinterpret_cast<void*>(*(uint64_t*)(itBody + 1));
 
+		bool isPointer = false;
 		switch (m_lastHint)
 		{
 		case OP_HINT_SET_VSHARP_IN_USER_DATA:
-			LOG_FIXME("Not implemented.");
+			m_cb->setVsharpInUserData(stage, startSlot, (const GnmBuffer*)gpuAddr);
 			break;
 		case OP_HINT_SET_TSHARP_IN_USER_DATA:
-			LOG_FIXME("Not implemented.");
+			m_cb->setTsharpInUserData(stage, startSlot, (const GnmTexture*)gpuAddr);
 			break;
 		case OP_HINT_SET_SSHARP_IN_USER_DATA:
-			LOG_FIXME("Not implemented.");
+			m_cb->setSsharpInUserData(stage, startSlot, (const GnmSampler*)gpuAddr);
 			break;
 		case OP_HINT_SET_USER_DATA_REGION:
 			m_cb->setUserDataRegion(stage, startSlot, &itBody[1], pm4Hdr->count);
 			break;
+		default:
+			isPointer = true;
+			break;
 		}
 
-		if (pm4Hdr->count == 2)  // 2 for a pointer type size
+		if (isPointer && pm4Hdr->count == 2)  // 2 for a pointer type size
 		{
-			void* gpuAddr = reinterpret_cast<void*>(*(uint64_t*)(itBody + 1));
 			m_cb->setPointerInUserData(stage, startSlot, gpuAddr);
 		}
 	}
@@ -698,6 +795,29 @@ void GnmCmdStream::onGetLodStatsGfx09(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBod
 
 }
 
+void GnmCmdStream::onReleaseMem(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
+{
+	PPM4ME_RELEASE_MEM__GFX09 packet = (PPM4ME_RELEASE_MEM__GFX09)pm4Hdr;
+
+	ReleaseMemEventType  eventType = (ReleaseMemEventType)packet->event_type;
+	EventWriteDest       dstSelector = (EventWriteDest)packet->dstSel;
+	void*                dstGpuAddr  = reinterpret_cast<void*>(util::buildUint64(packet->addressHi, packet->addressLo));
+	EventWriteSource     srcSelector = (EventWriteSource)packet->dataSel;
+	uint64_t             immValue    = util::buildUint64(packet->dataHi, packet->dataLo);
+	CacheAction          cacheAction = (CacheAction)packet->cache_action;
+	CachePolicy          writePolicy = (CachePolicy)packet->cache_policy;
+	if (packet->intSel)
+	{
+		m_cb->writeReleaseMemEventWithInterrupt(
+			eventType, dstSelector, dstGpuAddr, srcSelector, immValue, cacheAction, writePolicy);
+	}
+	else
+	{
+		m_cb->writeReleaseMemEvent(
+			eventType, dstSelector, dstGpuAddr, srcSelector, immValue, cacheAction, writePolicy);
+	}
+}
+
 void GnmCmdStream::onGnmPrivate(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 {
 	// Note:
@@ -735,6 +855,12 @@ void GnmCmdStream::onGnmPrivate(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 		m_cb->setPsShader(&param->psRegs);
 	}
 		break;
+	case OP_PRIV_SET_CS_SHADER:
+	{
+		GnmCmdCSShader* param = (GnmCmdCSShader*)pm4Hdr;
+		m_cb->setCsShader(&param->csRegs, param->modifier);
+	}
+		break;
 	case OP_PRIV_SET_ES_SHADER:
 		break;
 	case OP_PRIV_SET_GS_SHADER:
@@ -762,7 +888,7 @@ void GnmCmdStream::onGnmPrivate(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	case OP_PRIV_SET_VGT_CONTROL:
 	{
 		GnmCmdVgtControl* param = (GnmCmdVgtControl*)pm4Hdr;
-		m_cb->setVgtControl(param->primGroupSizeMinusOne, 
+		m_cb->setVgtControlForNeo(param->primGroupSizeMinusOne, 
 			(WdSwitchOnlyOnEopMode)param->wdSwitchOnlyOnEopMode, 
 			(VgtPartialVsWaveMode)param->partialVsWaveMode);
 	}
@@ -803,9 +929,19 @@ void GnmCmdStream::onGnmPrivate(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 		break;
 	case OP_PRIV_SET_MARKER:
 		break;
-	case OP_PRIV_SET_CS_SHADER:
-		break;
 	case OP_PRIV_DISPATCH_DIRECT:
+	{
+		GnmCmdDispatchDirect*     param = (GnmCmdDispatchDirect*)pm4Hdr;
+		DispatchOrderedAppendMode mode  = (DispatchOrderedAppendMode)bit::extract(param->pred, 3, 4);
+		if (mode == kDispatchOrderedAppendModeDisabled)
+		{
+			m_cb->dispatch(param->threadGroupX, param->threadGroupY, param->threadGroupZ);
+		}
+		else
+		{
+			m_cb->dispatchWithOrderedAppend(param->threadGroupX, param->threadGroupY, param->threadGroupZ, mode);
+		}
+	}
 		break;
 	case OP_PRIV_DISPATCH_INDIRECT:
 		break;
@@ -945,14 +1081,14 @@ void GnmCmdStream::onSetRenderTarget(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody
 	{
 		uint32_t rtSlot = (setCtxPacket->bitfields2.reg_offset - 0x318) / 15;
 
-		RenderTarget target;
+		GnmRenderTarget target;
 		std::memcpy(&target.m_regs[0], &itBody[1], sizeof(uint32_t) * setCtxPacket->header.count);  
 
 		// Get the next nop packet, which is used to hold width and height information.
 		auto nopPacket                              = getNextPm4(pm4Hdr);
 		uint32_t* nopBody                           = reinterpret_cast<uint32_t*>(nopPacket) + 1;
 		uint32_t packWidthHeight                    = nopBody[0];
-		target.m_regs[RenderTarget::kCbWidthHeight] = packWidthHeight;
+		target.m_regs[GnmRenderTarget::kCbWidthHeight] = packWidthHeight;
 
 		m_cb->setRenderTarget(rtSlot, &target);
 
@@ -972,7 +1108,7 @@ void GnmCmdStream::onSetDepthRenderTarget(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* i
 	PPM4ME_SET_CONTEXT_REG nextPacket = (PPM4ME_SET_CONTEXT_REG)getNextPm4(pm4Hdr);
 	if (nextPacket->bitfields2.reg_offset == 15)
 	{
-		DepthRenderTarget target;
+		GnmDepthRenderTarget target;
 
 		std::memcpy(&target.m_regs[0], &itBody[2], 0x20);
 

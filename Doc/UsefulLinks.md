@@ -48,6 +48,9 @@ https://cpp-rendering.io/barriers-vulkan-not-difficult/
 Leveraging asynchronous queues for concurrent execution  
 https://gpuopen.com/concurrent-execution-asynchronous-queues/
 
+Synchronization Examples  
+https://github.com/KhronosGroup/Vulkan-Docs/wiki/Synchronization-Examples
+
 
 
 

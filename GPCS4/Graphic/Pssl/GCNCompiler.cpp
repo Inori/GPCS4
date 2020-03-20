@@ -1,9 +1,9 @@
 #include "GCNCompiler.h"
 
 #include "PsslBindingCalculator.h"
+#include "UtilString.h"
 
 #include "../Gnm/GnmSharpBuffer.h"
-#include "Platform/UtilString.h"
 
 #include <array>
 
@@ -101,16 +101,16 @@ void GCNCompiler::compileInstruction(GCNInstruction& ins)
 	}
 }
 
-RcPtr<gve::GveShader> GCNCompiler::finalize()
+RcPtr<vlt::VltShader> GCNCompiler::finalize()
 {
 	switch (m_programInfo.shaderType())
 	{
-	case VertexShader:		emitVsFinalize(); break;
-	case HullShader:		emitHsFinalize(); break;
-	case DomainShader:		emitDsFinalize(); break;
-	case GeometryShader:	emitGsFinalize(); break;
-	case PixelShader:		emitPsFinalize(); break;
-	case ComputeShader:		emitCsFinalize(); break;
+	case PsslProgramType::VertexShader:		emitVsFinalize(); break;
+	case PsslProgramType::HullShader:		emitHsFinalize(); break;
+	case PsslProgramType::DomainShader:		emitDsFinalize(); break;
+	case PsslProgramType::GeometryShader:	emitGsFinalize(); break;
+	case PsslProgramType::PixelShader:		emitPsFinalize(); break;
+	case PsslProgramType::ComputeShader:		emitCsFinalize(); break;
 	}
 
 	// Declare the entry point, we now have all the
@@ -121,7 +121,7 @@ RcPtr<gve::GveShader> GCNCompiler::finalize()
 						   m_entryPointInterfaces.data());
 	m_module.setDebugName(m_entryPointId, "main");
 
-	return new gve::GveShader(
+	return new vlt::VltShader(
 		m_programInfo.shaderStage(),
 		m_module.compile(),
 		m_programInfo.key(),
@@ -138,12 +138,12 @@ void GCNCompiler::emitInit()
 	// etc. Each shader type has its own peculiarities.
 	switch (m_programInfo.shaderType())
 	{
-	case VertexShader:		emitVsInit(); break;
-	case HullShader:		emitHsInit(); break;
-	case DomainShader:		emitDsInit(); break;
-	case GeometryShader:	emitGsInit(); break;
-	case PixelShader:		emitPsInit(); break;
-	case ComputeShader:		emitCsInit(); break;
+	case PsslProgramType::VertexShader:		emitVsInit(); break;
+	case PsslProgramType::HullShader:		emitHsInit(); break;
+	case PsslProgramType::DomainShader:		emitDsInit(); break;
+	case PsslProgramType::GeometryShader:	emitGsInit(); break;
+	case PsslProgramType::PixelShader:		emitPsInit(); break;
+	case PsslProgramType::ComputeShader:		emitCsInit(); break;
 	}
 }
 
@@ -478,7 +478,7 @@ void GCNCompiler::emitGprInitializeVS()
 	v0.id              = emitNewVariable({ v0.type, spv::StorageClassPrivate }, "v0");
 	m_module.opCopyMemory(v0.id, vtxIdxId);
 
-	m_vgprs.emplace(0, v0);
+	m_vgprs[0] = v0;
 }
 
 void GCNCompiler::emitGprInitializePS()
@@ -493,25 +493,25 @@ void GCNCompiler::emitGprInitializePS()
 	// Currently I just create which I use.
 
 	SpirvRegisterPointer s0;
-	s0.type.ctype   = SpirvScalarType::Uint32;
+	s0.type.ctype  = SpirvScalarType::Uint32;
 	s0.type.ccount = 1;
-	s0.id           = emitNewVariable({ s0.type, spv::StorageClassPrivate },
-                             UtilString::Format("s%d", 0));
-	m_sgprs.emplace(0, s0);
+	s0.id          = emitNewVariable({ s0.type, spv::StorageClassPrivate },
+                            UtilString::Format("s%d", 0));
+	m_sgprs[0]     = s0;
 
 	SpirvRegisterPointer s12;
 	s12.type.ctype  = SpirvScalarType::Float32;
 	s12.type.ccount = 1;
 	s12.id          = emitNewVariable({ s12.type, spv::StorageClassPrivate },
                              UtilString::Format("s%d", 12));
-	m_sgprs.emplace(12, s12);
+	m_sgprs[12]     = s12;
 
 	SpirvRegisterPointer s16;
 	s16.type.ctype  = SpirvScalarType::Float32;
 	s16.type.ccount = 1;
 	s16.id          = emitNewVariable({ s16.type, spv::StorageClassPrivate },
                              UtilString::Format("s%d", 16));
-	m_sgprs.emplace(16, s16);
+	m_sgprs[16]     = s16;
 }
 
 void GCNCompiler::emitDclStatusRegisters()
@@ -612,6 +612,10 @@ void GCNCompiler::emitDclImmConstBuffer(const GcnShaderResourceInstance& res)
 	// but I just choose the UBO way first due to performance reason. Maybe need to change in the future.
 
 	const VSharpBuffer* vsharpBuffer = reinterpret_cast<const VSharpBuffer*>(res.res.resource);
+	// TODO:
+	// For constant buffer size, here I take the runtime value directly,
+	// but in fact, the value could be changed during runtime theoretically.
+	// We should use shader specialization constants instead in the future.
 	uint32_t arraySize               = vsharpBuffer->stride * vsharpBuffer->num_records / sizeof(uint32_t);
 
 	uint32_t arrayId = m_module.defArrayTypeUnique(
@@ -642,7 +646,7 @@ void GCNCompiler::emitDclImmConstBuffer(const GcnShaderResourceInstance& res)
 
 	// Note:
 	// The calculated bindingId is not "correct", it's a dummy value.
-	// We'll remap binding id before compiling pipeline in GveShader class.
+	// We'll remap binding id before compiling pipeline in VltShader class.
 	uint32_t bindingId = computeConstantBufferBinding(m_programInfo.shaderType(), res.res.startRegister);
 	m_module.decorateBinding(m_vs.m_uboId, bindingId);
 
@@ -1191,6 +1195,9 @@ SpirvRegisterValue GCNCompiler::emitInlineConstantInteger(Instruction::OperandSR
 	switch (src)
 	{
 	case Instruction::OperandSRC::SRCConstZero:
+		// Sometimes 0 is used in float point instructions, like V_MAX_F32
+		// After translate to spirv, this will raise a validation layer error.
+		// This could be safely ignored.
 		value = 0;
 		break;
 	case Instruction::OperandSRC::SRCSignedConstIntPosMin ... Instruction::OperandSRC::SRCSignedConstIntPosMax:
@@ -1268,7 +1275,7 @@ uint32_t GCNCompiler::emitNewBuiltinVariable(const SpirvRegisterInfo& info, spv:
 	m_module.setDebugName(varId, name);
 	m_module.decorateBuiltIn(varId, builtIn);
 
-	if (m_programInfo.shaderType() == PixelShader
+	if (m_programInfo.shaderType() == PsslProgramType::PixelShader
 		&& info.atype.vtype.ctype != SpirvScalarType::Float32
 		&& info.atype.vtype.ctype != SpirvScalarType::Bool
 		&& info.sclass == spv::StorageClassInput)

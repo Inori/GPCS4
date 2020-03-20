@@ -168,6 +168,13 @@ private:
 
 #else  // GPCS4_WINDOWS
 
+// For linux implementation,
+// we use the same way as we do on windows.
+// That is:
+// use arch_prctl to set fs to a invalid address,
+// this will cause a sigfault upon TLS access,
+// then we handle sigfault in linux's way,
+// and finally, we use the existing code to manage TLS alloc.
 class TLSManagerLinux : public TLSManager
 {
 	friend class Singleton<TLSManagerLinux>;
