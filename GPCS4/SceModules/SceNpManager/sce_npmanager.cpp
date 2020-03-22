@@ -192,6 +192,11 @@ int PS4API sceNpGetAccountLanguageA(void)
 	return SCE_OK;
 }
 
-
+int PS4API sceNpGetState(SceUserServiceUserId userId, SceNpState *state)
+{
+	LOG_FIXME("Not implemented");
+	*state = SCE_NP_STATE_SIGNED_IN;
+	return SCE_OK;
+}
 
 

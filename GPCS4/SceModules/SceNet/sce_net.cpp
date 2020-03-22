@@ -116,7 +116,7 @@ int PS4API sceNetNtohs(void)
 }
 
 
-int PS4API sceNetPoolCreate(void)
+int PS4API sceNetPoolCreate(const char *name, int size, int flags)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;

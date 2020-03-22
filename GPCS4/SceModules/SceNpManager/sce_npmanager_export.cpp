@@ -34,6 +34,7 @@ static const SCE_EXPORT_FUNCTION g_pSceNpManager_libSceNpManager_FunctionTable[]
 	{ 0xAB733B5F304A0B7B, "sceNpGetAccountDateOfBirthA", (void*)sceNpGetAccountDateOfBirthA },
 	{ 0xADB9276948E9A96A, "sceNpGetAccountIdA", (void*)sceNpGetAccountIdA },
 	{ 0x4CF31B808C6FA20D, "sceNpGetAccountLanguageA", (void*)sceNpGetAccountLanguageA },
+	{ 0x7901FB9D63DC0207, "sceNpGetState", (void*)sceNpGetState },
 	SCE_FUNCTION_ENTRY_END
 };
 

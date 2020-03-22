@@ -30,3 +30,11 @@ typedef struct {
 	uint64_t flag;			// SceAudioOutStateFlag (bitwise OR)
 	uint64_t reserved64[2];	// reserved
 } SceAudioOutPortState;
+
+typedef struct
+{
+	int32_t handle;
+	const void *ptr;
+} SceAudioOutOutputParam;
+
+

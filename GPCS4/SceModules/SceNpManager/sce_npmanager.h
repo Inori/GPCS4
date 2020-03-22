@@ -19,7 +19,12 @@ extern const SCE_EXPORT_MODULE g_ExpModuleSceNpManager;
 // The codebase is generated using GenerateCode.py
 // You may need to modify the code manually to fit development needs
 
-
+enum SceNpState 
+{
+    SCE_NP_STATE_UNKNOWN = 0,
+    SCE_NP_STATE_SIGNED_OUT,
+    SCE_NP_STATE_SIGNED_IN
+};
 
 //////////////////////////////////////////////////////////////////////////
 // library: libSceNpManager
@@ -102,6 +107,8 @@ int PS4API sceNpGetAccountIdA(void);
 
 int PS4API sceNpGetAccountLanguageA(void);
 
+
+int PS4API sceNpGetState(SceUserServiceUserId userId, SceNpState *state);
 
 
 

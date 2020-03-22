@@ -52,7 +52,7 @@ int32_t PS4API sceAudioOutOpen(SceUserServiceUserId userId, int32_t type, int32_
 int32_t PS4API sceAudioOutOutput(int32_t handle, const void *p);
 
 
-int PS4API sceAudioOutOutputs(void);
+int PS4API sceAudioOutOutputs(SceAudioOutOutputParam* param, uint32_t count);
 
 
 int PS4API sceAudioOutSetVolume(void);

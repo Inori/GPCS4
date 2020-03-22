@@ -188,12 +188,12 @@ int PS4API sceKernelClose(int d)
 	if (item.type == FD_TYPE_DIRECTORY)
 	{
 		DIR* dir = (DIR*)item.fd;
-		closedir(dir);
+		ret = closedir(dir);
 	}
 	else
 	{
 		int fd = item.fd;
-		_close(fd);
+		ret = _close(fd);
 	}
 
 	g_fdSlots[d] = {0, FD_TYPE_UNKNOWN};

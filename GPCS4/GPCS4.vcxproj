@@ -264,6 +264,7 @@
     <ClInclude Include="SceModules\sce_modules.h" />
     <ClInclude Include="SceModules\sce_module_common.h" />
     <ClInclude Include="SceModules\sce_types.h" />
+    <ClInclude Include="Platform\UtilFiber.h" />
     <ClInclude Include="Util\UtilBit.h" />
     <ClInclude Include="Util\UtilContainer.h" />
     <ClInclude Include="Util\UtilFlag.h" />
@@ -509,6 +510,7 @@
     <ClCompile Include="SceModules\SceVideoRecording\sce_videorecording.cpp" />
     <ClCompile Include="SceModules\SceVideoRecording\sce_videorecording_export.cpp" />
     <ClCompile Include="Util\UtilString.cpp" />
+    <ClCompile Include="Platform\UtilFiber.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Emulator\TLSStub.asm">

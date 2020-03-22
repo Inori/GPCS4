@@ -20,7 +20,7 @@ int PS4API scek_get_authinfo(void)
 
 int* PS4API __error(void)
 {
-	LOG_SCE_DUMMY_IMPL();
+	// LOG_SCE_DUMMY_IMPL(); // remove spam on libfiber sample
 	return  &errno;
 }
 

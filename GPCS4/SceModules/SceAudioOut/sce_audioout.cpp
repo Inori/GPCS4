@@ -92,10 +92,15 @@ int32_t PS4API sceAudioOutOutput(int32_t handle, const void *ptr)
 }
 
 
-int PS4API sceAudioOutOutputs(void)
+int PS4API sceAudioOutOutputs(SceAudioOutOutputParam* param, uint32_t count)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("param %p, count %u", param, count);
+	int rc = SCE_OK;
+	for (auto i = 0; i < count; ++i)
+	{
+		rc |= sceAudioOutOutput(param[i].handle, param[i].ptr);
+	}
+	return rc;
 }
 
 

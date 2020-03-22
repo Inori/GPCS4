@@ -70,7 +70,7 @@ int PS4API sceNetListen(void);
 int PS4API sceNetNtohs(void);
 
 
-int PS4API sceNetPoolCreate(void);
+int PS4API sceNetPoolCreate(const char *name, int size, int flags);
 
 
 int PS4API sceNetPoolDestroy(void);
