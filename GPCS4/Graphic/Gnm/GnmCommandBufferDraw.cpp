@@ -577,7 +577,11 @@ void GnmCommandBufferDraw::bindImmConstBuffer(pssl::PsslProgramType shaderType, 
 	m_context->bindResourceBuffer(regSlot, constBuffer);
 }
 
-void GnmCommandBufferDraw::bindImmResource(const PsslShaderResource& res)
+void GnmCommandBufferDraw::bindImmBuffer(const PsslShaderResource& res)
+{
+}
+
+void GnmCommandBufferDraw::bindImmTexture(const PsslShaderResource& res)
 {
 	const GnmTexture* tsharp = reinterpret_cast<const GnmTexture*>(res.resource);
 
@@ -653,7 +657,16 @@ void GnmCommandBufferDraw::bindShaderResources(
 			bindSampler(res.res);
 			break;
 		case pssl::kShaderInputUsageImmResource:
-			bindImmResource(res.res);
+		{
+			if (res.sharpType == PsslSharpType::VSharp)
+			{
+				bindImmBuffer(res.res);
+			}
+			else
+			{
+				bindImmTexture(res.res);
+			}
+		}
 			break;
 		case pssl::kShaderInputUsageImmConstBuffer:
 			bindImmConstBuffer(shaderType, res.res);
@@ -797,6 +810,8 @@ void GnmCommandBufferDraw::clearColorTargetHack(GnmShaderResourceList& shaderRes
 void GnmCommandBufferDraw::commitCsStage()
 {
 	m_shaders.cs.shader = new PsslShaderModule((const uint32_t*)m_shaders.cs.code);
+	LOG_DEBUG("compute shader hash %llX", m_shaders.cs.shader->key().toUint64());
+
 	m_shaders.cs.shader->defineShaderInput(m_shaders.cs.userDataSlotTable);
 	auto nestedResources = m_shaders.cs.shader->getShaderResources();
 	auto shaderResources = PsslShaderModule::flattenShaderResources(nestedResources);
@@ -805,6 +820,10 @@ void GnmCommandBufferDraw::commitCsStage()
 	if (m_shaders.cs.shader->key().toUint64() == ShaderHashClearRT)
 	{
 		clearColorTargetHack(shaderResources);
+	}
+	else
+	{
+		auto shader = m_shaders.cs.shader->compile();
 	}
 }
 

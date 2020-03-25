@@ -83,8 +83,13 @@ bool SceGnmDriver::pickPhysicalDevice(
 	const std::vector<RcPtr<vlt::VltPhysicalDevice>>& devices,
 	VkSurfaceKHR                                      surface)
 {
-	auto iter = std::find_if(devices.begin(), devices.end(), 
-		[this, surface](const auto& device) { return isDeviceSuitable(device, surface); });
+	auto deviceSuitable = 
+	[this, surface](const auto& device)
+	{ 
+		return isDeviceSuitable(device, surface); 
+	};
+
+	auto iter = std::find_if(devices.begin(), devices.end(), deviceSuitable);
 
 	bool found = iter != devices.end();
 	if (found)

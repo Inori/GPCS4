@@ -40,6 +40,14 @@ struct FetchShaderBuildState
 	std::vector<uint32_t> semanticsRemapTable;
 };
 
+
+enum class PsslSharpType
+{
+	VSharp,  // GnmBuffer
+	TSharp,  // GnmTexture
+	SSharp   // GnmSampler
+};
+
 /**
  * \brief Shader resource buffer
  *
@@ -60,6 +68,7 @@ struct PsslShaderResource
 struct GcnShaderResourceInstance
 {
 	ShaderInputUsageType usageType;
+	PsslSharpType        sharpType;  // Some usage types could be interpreted as either V# or T#, e.g. ImmResource
 	PsslShaderResource   res;
 };
 

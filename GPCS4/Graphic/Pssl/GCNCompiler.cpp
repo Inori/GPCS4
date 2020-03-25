@@ -143,7 +143,7 @@ void GCNCompiler::emitInit()
 	case PsslProgramType::DomainShader:		emitDsInit(); break;
 	case PsslProgramType::GeometryShader:	emitGsInit(); break;
 	case PsslProgramType::PixelShader:		emitPsInit(); break;
-	case PsslProgramType::ComputeShader:		emitCsInit(); break;
+	case PsslProgramType::ComputeShader:	emitCsInit(); break;
 	}
 }
 

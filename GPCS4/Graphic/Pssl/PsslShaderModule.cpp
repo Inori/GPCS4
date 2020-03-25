@@ -16,7 +16,7 @@ const uint32_t kMaxUserDataCount = 16;
 
 const uint8_t PsslShaderModule::m_shaderResourceSizeInDwords[kShaderInputUsageImmDispatchDrawInstances + 1] = 
 {
-	8,  // kShaderInputUsageImmResource
+	8,  // kShaderInputUsageImmResource  -> This is not totally correct, e.g. ImmResource can also be a V#, which is 4 dwords
 	4,  // kShaderInputUsageImmSampler
 	4,  // kShaderInputUsageImmConstBuffer
 	4,  // kShaderInputUsageImmVertexBuffer
@@ -251,7 +251,7 @@ void PsslShaderModule::parseResImm()
 		uint8_t usageType      = slot.usageType;
 		uint32_t startRegister = slot.startRegister;
 
-		// immediate resources, must be within 16 user data regs.
+		// immediate resources, must be within 16 user data regs and not in EUD.
 		switch (usageType)
 		{
 		case kShaderInputUsageImmGdsCounterRange:
@@ -287,11 +287,11 @@ void PsslShaderModule::parseResEud()
 	const auto& inputUsageSlots = m_progInfo.inputUsageSlot();
 
 	// Detect if there's an EUD.
-	auto iter = std::find_if(inputUsageSlots.begin(), inputUsageSlots.end(), 
-	[](const auto& slot)
+	auto matchEUD = [](const auto& slot) 
 	{
 		return slot.usageType == kShaderInputUsagePtrExtendedUserData;
-	});
+	};
+	auto iter = std::find_if(inputUsageSlots.begin(), inputUsageSlots.end(), matchEUD);
 
 	// If there is, initialize it.
 	if (iter != inputUsageSlots.end())
@@ -300,6 +300,7 @@ void PsslShaderModule::parseResEud()
 		m_shaderResources.eud->startRegister = iter->startRegister;
 	}
 
+	// Resources which could either be within 16 user data regs or in EUD.
 	for (auto& slot : inputUsageSlots)
 	{
 		uint8_t usageType      = slot.usageType;
@@ -308,32 +309,51 @@ void PsslShaderModule::parseResEud()
 		bool isInUserData         = startRegister < kMaxUserDataCount;
 		uint16_t eudOffsetInDword = (startRegister >= kMaxUserDataCount) ? (startRegister - kMaxUserDataCount) : 0;
 
+		PsslSharpType sharpType  = {};
+		uint32_t      sizeDwords = 0;
+
 		// below resources can either be inside user data registers or the EUD
 		switch (usageType)
 		{
 		case kShaderInputUsageImmResource:
 		case kShaderInputUsageImmRwResource:
+		{
+			sharpType = slot.resourceType == 0 ? 
+				PsslSharpType::VSharp : PsslSharpType::TSharp;
+			sizeDwords = slot.registerCount == 0 ? 
+				4 : 8;
+		}
+			break;
 		case kShaderInputUsageImmSampler:
+		{
+			sharpType = PsslSharpType::SSharp;
+			sizeDwords = m_shaderResourceSizeInDwords[usageType];
+		}
 		case kShaderInputUsageImmConstBuffer:
 		case kShaderInputUsageImmVertexBuffer:
 		{
-			GcnShaderResourceInstance res  = {};
-			res.usageType          = static_cast<ShaderInputUsageType>(usageType);
-			res.res.startRegister  = startRegister;
-			res.res.sizeDwords     = m_shaderResourceSizeInDwords[usageType];
-			res.res.resource       = isInUserData ? 
-				findShaderResourceInUserData(startRegister) : 
-				findShaderResourceInEUD(eudOffsetInDword);
-			LOG_ASSERT(res.res.resource != nullptr, "can not found imm type resource %d", usageType);
-
-			isInUserData ? 
-			m_shaderResources.ud.push_back(res) : 
-			m_shaderResources.eud->resources.push_back(std::make_pair(eudOffsetInDword, res));
+			sharpType  = PsslSharpType::VSharp;
+			sizeDwords = m_shaderResourceSizeInDwords[usageType];
 		}
 			break;
 		default:
 			break;
 		}
+
+		GcnShaderResourceInstance res = {};
+		res.usageType                 = static_cast<ShaderInputUsageType>(usageType);
+		res.sharpType                 = sharpType;
+		res.res.startRegister         = startRegister;
+		res.res.sizeDwords            = sizeDwords;
+		res.res.resource              = 
+			isInUserData ? 
+			findShaderResourceInUserData(startRegister) : 
+			findShaderResourceInEUD(eudOffsetInDword);
+		LOG_ASSERT(res.res.resource != nullptr, "can not found imm type resource %d", usageType);
+
+		isInUserData ? 
+			m_shaderResources.ud.push_back(res) :
+			m_shaderResources.eud->resources.push_back(std::make_pair(eudOffsetInDword, res));
 	}
 }
 
@@ -367,7 +387,8 @@ void PsslShaderModule::parseResPtrTable()
 
 				GcnShaderResourceInstance res = {};
 				// Convert to imm type.
-				res.usageType         = kShaderInputUsageImmVertexBuffer;
+				res.usageType = kShaderInputUsageImmVertexBuffer;
+				res.sharpType = PsslSharpType::VSharp;
 				// startRegister act as binding id for vertex buffers
 				res.res.startRegister = bindingId;
 				res.res.resource      = &vertexBufferTable[bindingId * kDwordSizeVertexBuffer];
