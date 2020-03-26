@@ -547,26 +547,9 @@ void GnmCommandBufferDraw::bindImmConstBuffer(pssl::PsslProgramType shaderType, 
 {
 	const GnmBuffer* vsharp = reinterpret_cast<const GnmBuffer*>(res.resource);
 
-	VkPipelineStageFlags stage = {};
-	switch (shaderType)
-	{
-	case pssl::PsslProgramType::PixelShader:
-		stage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-		break;
-	case pssl::PsslProgramType::VertexShader:
-		stage = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
-		break;
-	case pssl::PsslProgramType::ComputeShader:
-		stage = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
-		break;
-	default:
-		LOG_ERR("unsupported shader type %d", shaderType);
-		break;
-	}
-
 	GnmBufferCreateInfo info = {};
 	info.buffer              = vsharp;
-	info.stages              = stage;
+	info.stages              = cvt::convertShaderStage(shaderType);
 	info.usageType           = kShaderInputUsageImmConstBuffer;
 	auto constBuffer         = m_factory.grabBuffer(info);
 
@@ -577,11 +560,28 @@ void GnmCommandBufferDraw::bindImmConstBuffer(pssl::PsslProgramType shaderType, 
 	m_context->bindResourceBuffer(regSlot, constBuffer);
 }
 
-void GnmCommandBufferDraw::bindImmBuffer(const PsslShaderResource& res)
+void GnmCommandBufferDraw::bindImmBuffer(
+	pssl::PsslProgramType     shaderType,
+	const PsslShaderResource& res)
 {
+	const GnmBuffer* vsharp = reinterpret_cast<const GnmBuffer*>(res.resource);
+
+	GnmBufferCreateInfo info = {};
+	info.buffer              = vsharp;
+	info.stages              = cvt::convertShaderStage(shaderType);
+	info.usageType           = kShaderInputUsageImmResource;
+	auto dataBuffer          = m_factory.grabBuffer(info);
+
+	VkDeviceSize bufferSize = vsharp->getSize();
+	m_context->updateBuffer(dataBuffer, 0, bufferSize, vsharp->getBaseAddress());
+
+	uint32_t regSlot = computeResBinding(shaderType, res.startRegister);
+	m_context->bindResourceBuffer(regSlot, dataBuffer);
 }
 
-void GnmCommandBufferDraw::bindImmTexture(const PsslShaderResource& res)
+void GnmCommandBufferDraw::bindImmTexture(
+	pssl::PsslProgramType     shaderType,
+	const PsslShaderResource& res)
 {
 	const GnmTexture* tsharp = reinterpret_cast<const GnmTexture*>(res.resource);
 
@@ -635,6 +635,20 @@ void GnmCommandBufferDraw::bindImmTexture(const PsslShaderResource& res)
 	m_context->bindResourceView(regSlot, image.view, nullptr);
 }
 
+void GnmCommandBufferDraw::bindImmResource(
+	PsslProgramType                  shaderType,
+	const GcnShaderResourceInstance& res)
+{
+	if (res.sharpType == PsslSharpType::VSharp)
+	{
+		bindImmBuffer(shaderType, res.res);
+	}
+	else
+	{
+		bindImmTexture(shaderType, res.res);
+	}
+}
+
 void GnmCommandBufferDraw::bindSampler(const PsslShaderResource& res)
 {
 	const GnmSampler* ssharp  = reinterpret_cast<const GnmSampler*>(res.resource);
@@ -657,16 +671,7 @@ void GnmCommandBufferDraw::bindShaderResources(
 			bindSampler(res.res);
 			break;
 		case pssl::kShaderInputUsageImmResource:
-		{
-			if (res.sharpType == PsslSharpType::VSharp)
-			{
-				bindImmBuffer(res.res);
-			}
-			else
-			{
-				bindImmTexture(res.res);
-			}
-		}
+			bindImmResource(shaderType, res);
 			break;
 		case pssl::kShaderInputUsageImmConstBuffer:
 			bindImmConstBuffer(shaderType, res.res);

@@ -166,13 +166,13 @@ RcPtr<VltBuffer> GnmResourceFactory::createBuffer(const GnmBufferCreateInfo& des
 		usage  = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
 		access = VK_ACCESS_UNIFORM_READ_BIT;
 	}
-	break;
+		break;
 	case pssl::kShaderInputUsageImmVertexBuffer:
 	{
 		usage  = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 		access = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
 	}
-	break;
+		break;
 	case pssl::kShaderInputUsageImmRwResource:
 	case pssl::kShaderInputUsageImmResource:
 	default:
