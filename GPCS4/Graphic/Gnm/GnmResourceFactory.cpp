@@ -155,24 +155,28 @@ RcPtr<VltBuffer> GnmResourceFactory::createIndex(const GnmIndexBuffer& desc)
 
 RcPtr<VltBuffer> GnmResourceFactory::createBuffer(const GnmBufferCreateInfo& desc)
 {
-	// +--------------------------------+----------------------------------------------+
-	// |           Gnm Buffer           |                Vulkan Buffer                 |
-	// +--------------------------------+----------------------------------------------+
-	// | VertexBuffer                   | Vertex Buffer                                |
-	// | DataBuffer                     | Uniform Texel Buffer (uniform samplerbuffer) |
-	// | RW_DataBuffer                  | Storage Texel Buffer (uniform imageBuffer)   |
-	// | RegularBuffer/RW_RegularBuffer | Storage Buffer                               |
-	// | ConstantBuffer                 | Uniform Buffer                               |
-	// | ByteBuffer/RW_ByteBuffer       | Storage Buffer                               |
-	// +--------------------------------+----------------------------------------------+
+
+	// +--------------------------------+----------------+
+	// |           Gnm Buffer           | Vulkan Buffer  |
+	// +--------------------------------+----------------+
+	// | VertexBuffer                   | Vertex Buffer  |
+	// | DataBuffer/RW_DataBuffer       | Storage Buffer |
+	// | RegularBuffer/RW_RegularBuffer | Storage Buffer |
+	// | ConstantBuffer                 | Uniform Buffer |
+	// | ByteBuffer/RW_ByteBuffer       | Storage Buffer |
+	// +--------------------------------+----------------+
 
 	// Here is our buffer mapping table.
 	// The table references from:
 	// https://github.com/Microsoft/DirectXShaderCompiler/blob/master/docs/SPIR-V.rst#constanttexturestructuredbyte-buffers
 	//
-	// DataBuffer/RW_DataBuffer is mapped to TBO, 
+	// Theoretically, DataBuffer/RW_DataBuffer should be mapped to TBO (imageBuffer or samplerBuffer in GLSL), 
 	// and is supposed to be accessed by format conversion buffer access instructions in shader code,
 	// like buffer_load_format_xxx and buffer_store_format_xxx.
+	// But we can't distinguish between DataBuffer and RegularBuffer on Gnm side (see Note 1. below)
+	// unless we parse the whole shader code before create buffers,
+	// which will add code complexity. 
+	// So we use SSBO instead, which shouldn't be a matter on performance.
 	// 
 	// While other buffers are mapped to VBO, UBO or SSBO accordingly, 
 	// they are supposed to be accessed by non format conversion instructions,
@@ -215,13 +219,13 @@ RcPtr<VltBuffer> GnmResourceFactory::createBuffer(const GnmBufferCreateInfo& des
 		if (memType == kResourceMemoryTypeRO)
 		{
 			// Read only buffer
-			usage  = VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT;
+			usage  = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
 			access = VK_ACCESS_SHADER_READ_BIT;
 		}
 		else
 		{
 			// Read write buffer
-			usage  = VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT;
+			usage  = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
 			access = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
 		}
 	}
