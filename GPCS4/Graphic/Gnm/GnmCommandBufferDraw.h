@@ -173,11 +173,11 @@ private:
 		const PsslShaderResource& res);
 
 	void bindImmBuffer(
-		pssl::PsslProgramType     shaderType,
-		const PsslShaderResource& res);
+		pssl::PsslProgramType            shaderType,
+		const GcnShaderResourceInstance& res);
 	void bindImmTexture(
-		pssl::PsslProgramType     shaderType,
-		const PsslShaderResource& res);
+		pssl::PsslProgramType            shaderType,
+		const GcnShaderResourceInstance& res);
 	void bindImmResource(
 		pssl::PsslProgramType            shaderType,
 		const GcnShaderResourceInstance& res);

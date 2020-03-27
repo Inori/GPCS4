@@ -561,34 +561,34 @@ void GnmCommandBufferDraw::bindImmConstBuffer(pssl::PsslProgramType shaderType, 
 }
 
 void GnmCommandBufferDraw::bindImmBuffer(
-	pssl::PsslProgramType     shaderType,
-	const PsslShaderResource& res)
+	pssl::PsslProgramType            shaderType,
+	const GcnShaderResourceInstance& res)
 {
-	const GnmBuffer* vsharp = reinterpret_cast<const GnmBuffer*>(res.resource);
+	const GnmBuffer* vsharp = reinterpret_cast<const GnmBuffer*>(res.res.resource);
 
 	GnmBufferCreateInfo info = {};
 	info.buffer              = vsharp;
 	info.stages              = cvt::convertShaderStage(shaderType);
-	info.usageType           = kShaderInputUsageImmResource;
+	info.usageType           = res.usageType;
 	auto dataBuffer          = m_factory.grabBuffer(info);
 
 	VkDeviceSize bufferSize = vsharp->getSize();
 	m_context->updateBuffer(dataBuffer, 0, bufferSize, vsharp->getBaseAddress());
 
-	uint32_t regSlot = computeResBinding(shaderType, res.startRegister);
+	uint32_t regSlot = computeResBinding(shaderType, res.res.startRegister);
 	m_context->bindResourceBuffer(regSlot, dataBuffer);
 }
 
 void GnmCommandBufferDraw::bindImmTexture(
-	pssl::PsslProgramType     shaderType,
-	const PsslShaderResource& res)
+	pssl::PsslProgramType            shaderType,
+	const GcnShaderResourceInstance& res)
 {
-	const GnmTexture* tsharp = reinterpret_cast<const GnmTexture*>(res.resource);
+	const GnmTexture* tsharp = reinterpret_cast<const GnmTexture*>(res.res.resource);
 
 	GnmTextureCreateInfo info = {};
 	info.texture              = tsharp;
-	info.stages               = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-	info.usageType            = kShaderInputUsageImmResource;
+	info.stages               = cvt::convertShaderStage(shaderType);
+	info.usageType            = res.usageType;
 	auto image                = m_factory.grabImage(info);
 
 	auto     imgInfo       = image.image->info();
@@ -631,7 +631,7 @@ void GnmCommandBufferDraw::bindImmTexture(
 		free(untiledData);
 	}
 
-	uint32_t regSlot = computeResBinding(PsslProgramType::PixelShader, res.startRegister);
+	uint32_t regSlot = computeResBinding(PsslProgramType::PixelShader, res.res.startRegister);
 	m_context->bindResourceView(regSlot, image.view, nullptr);
 }
 
@@ -641,11 +641,11 @@ void GnmCommandBufferDraw::bindImmResource(
 {
 	if (res.sharpType == PsslSharpType::VSharp)
 	{
-		bindImmBuffer(shaderType, res.res);
+		bindImmBuffer(shaderType, res);
 	}
 	else
 	{
-		bindImmTexture(shaderType, res.res);
+		bindImmTexture(shaderType, res);
 	}
 }
 

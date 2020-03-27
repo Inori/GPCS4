@@ -155,6 +155,39 @@ RcPtr<VltBuffer> GnmResourceFactory::createIndex(const GnmIndexBuffer& desc)
 
 RcPtr<VltBuffer> GnmResourceFactory::createBuffer(const GnmBufferCreateInfo& desc)
 {
+	// +--------------------------------+----------------------------------------------+
+	// |           Gnm Buffer           |                Vulkan Buffer                 |
+	// +--------------------------------+----------------------------------------------+
+	// | VertexBuffer                   | Vertex Buffer                                |
+	// | DataBuffer                     | Uniform Texel Buffer (uniform samplerbuffer) |
+	// | RW_DataBuffer                  | Storage Texel Buffer (uniform imageBuffer)   |
+	// | RegularBuffer/RW_RegularBuffer | Storage Buffer                               |
+	// | ConstantBuffer                 | Uniform Buffer                               |
+	// | ByteBuffer/RW_ByteBuffer       | Storage Buffer                               |
+	// +--------------------------------+----------------------------------------------+
+
+	// Here is our buffer mapping table.
+	// The table references from:
+	// https://github.com/Microsoft/DirectXShaderCompiler/blob/master/docs/SPIR-V.rst#constanttexturestructuredbyte-buffers
+	//
+	// DataBuffer/RW_DataBuffer is mapped to TBO, 
+	// and is supposed to be accessed by format conversion buffer access instructions in shader code,
+	// like buffer_load_format_xxx and buffer_store_format_xxx.
+	// 
+	// While other buffers are mapped to VBO, UBO or SSBO accordingly, 
+	// they are supposed to be accessed by non format conversion instructions,
+	// like buffer_load_xxx or buffer_atomic_xxx or etc.
+	//
+	// Note:
+	// 1. A DataBuffer with DataFormat set to kDataFormatR32Float is the same type
+	// as a RegularBuffer with stride set to 4.
+	// In such case, it's legal to initialize a RegularBuffer on Gnm side then
+	// declare it as a DataBuffer in shader code.
+	// 
+	// 2. It's legal to initialize a Buffer with RW memory type (e.g. kResourceMemoryTypeGC) on Gnm side
+	// while declare it as a RO Buffer in shader code, as long as the shader doesn't
+	// write to the buffer.
+
 	VkBufferUsageFlags usage  = {};
 	VkAccessFlags      access = {};
 
@@ -173,8 +206,26 @@ RcPtr<VltBuffer> GnmResourceFactory::createBuffer(const GnmBufferCreateInfo& des
 		access = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
 	}
 		break;
-	case pssl::kShaderInputUsageImmRwResource:
 	case pssl::kShaderInputUsageImmResource:
+	case pssl::kShaderInputUsageImmRwResource:
+	{
+		ResourceMemoryType memType = desc.buffer->getResourceMemoryType();
+		LOG_ASSERT(memType == kResourceMemoryTypeGC || memType == kResourceMemoryTypeRO, "unsupported buffer memory type %d", memType);
+
+		if (memType == kResourceMemoryTypeRO)
+		{
+			// Read only buffer
+			usage  = VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT;
+			access = VK_ACCESS_SHADER_READ_BIT;
+		}
+		else
+		{
+			// Read write buffer
+			usage  = VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT;
+			access = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
+		}
+	}
+		break;
 	default:
 		LOG_ASSERT(false, "unsupported buffer usage type %d", inputUsageType);
 		break;
