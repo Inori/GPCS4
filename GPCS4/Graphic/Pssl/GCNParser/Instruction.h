@@ -165,7 +165,12 @@ const int NO_LABEL = -1;
             InstructionsCategoriesCount
         };
 
-		/// Instruction`s format kinds
+		/// Instruction classes
+		/// These definitions names are from section names of
+		/// GPU Shader Core ISA manual.
+		/// e.g.
+		/// ScalarArith   -- 5.1.1. Arithmetic Operations
+		/// VectorFpCmp32 -- 5.2.11. 32-bit Floating Point Comparison
 		enum InstructionClass
 		{
 			InstructionClassUnknown,

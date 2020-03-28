@@ -552,7 +552,7 @@ std::unordered_map<SIVOP3Instruction::VOP3_OP, GCNInstructionFormat> g_instructi
 	{ SIVOP3Instruction::V3_MAC_LEGACY_F32, { Instruction::InstructionClassUnknown, Instruction::TypeF32 } },
 	{ SIVOP3Instruction::V3_MUL_LEGACY_F32, { Instruction::InstructionClassUnknown, Instruction::TypeF32 } },
 	{ SIVOP3Instruction::V3_MUL_F32, { Instruction::VectorFpArith32, Instruction::TypeF32 } },
-	{ SIVOP3Instruction::V3_MUL_I32_I24, { Instruction::InstructionClassUnknown, Instruction::TypeI32I24 } },
+	{ SIVOP3Instruction::V3_MUL_I32_I24, { Instruction::VectorIntArith32, Instruction::TypeI32I24 } },
 	{ SIVOP3Instruction::V3_MUL_HI_I32_I24, { Instruction::InstructionClassUnknown, Instruction::TypeI32I24 } },
 	{ SIVOP3Instruction::V3_MUL_U32_U24, { Instruction::InstructionClassUnknown, Instruction::TypeU32U24 } },
 	{ SIVOP3Instruction::V3_MUL_HI_U32_U24, { Instruction::InstructionClassUnknown, Instruction::TypeU32U24 } },
