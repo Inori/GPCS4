@@ -91,6 +91,11 @@ VISOPCInstruction::OP ParserSISOPC::GetVISOPCOp(Instruction::instruction32bit he
     }
 }
 
+const GCNInstructionFormat& ParserSISOPC::GetSISOPCMeta(SISOPCInstruction::OP op)
+{
+	return g_instructionFormatMapSOPC[op];
+}
+
 ParserSI::kaStatus ParserSISOPC::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, std::unique_ptr<Instruction>& instruction, bool& hasLiteral)
 {
     unsigned int ridx0 = 0, ridx1 = 0;
@@ -102,7 +107,8 @@ ParserSI::kaStatus ParserSISOPC::Parse(GDT_HW_GENERATION hwGen, Instruction::ins
     if ((hwGen == GDT_HW_GENERATION_SEAISLAND) || (hwGen == GDT_HW_GENERATION_SOUTHERNISLAND))
     {
         SISOPCInstruction::OP op = GetSISOPCOp(hexInstruction);
-        instruction = std::make_unique<SISOPCInstruction>(ssrc0, ssrc1, op, ridx0, ridx1);
+		auto meta = GetSISOPCMeta(op);
+        instruction = std::make_unique<SISOPCInstruction>(ssrc0, ssrc1, op, ridx0, ridx1, meta.insClass);
     }
     else
     {
