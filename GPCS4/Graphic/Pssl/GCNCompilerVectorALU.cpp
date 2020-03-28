@@ -481,7 +481,7 @@ void GCNCompiler::emitVectorThreadMask(GCNInstruction& ins)
 		LOG_ASSERT(static_cast<Instruction::OperandSRC>(src2) == Instruction::OperandSRC::SRCVccLo, "V3_CNDMASK_B32 smask not vcc.");
 	case SIVOP2Instruction::V_CNDMASK_B32:
 	{
-		auto condVal   = emitValueLoad(m_statusRegs.vcc);
+		auto condVal   = emitValueLoad(m_stateRegs.vcc.lo);
 		auto condition = emitRegisterZeroTest(condVal, SpirvZeroTest::TestNz);
 		dstVal.id      = m_module.opSelect(typeId, condition.id, spvSrc1.id, spvSrc0.id);
 	}
@@ -610,6 +610,12 @@ void GCNCompiler::emitVectorFpArith32(GCNInstruction& ins)
 	case SIVOP3Instruction::V3_MAX_F32:
 	{
 		dstVal.id = m_module.opNMax(fpTypeId, spvSrc0.id, spvSrc1.id);
+	}
+		break;
+	case SIVOP2Instruction::V_MIN_F32:
+	case SIVOP3Instruction::V3_MIN_F32:
+	{
+		dstVal.id = m_module.opNMin(fpTypeId, spvSrc0.id, spvSrc1.id);
 	}
 		break;
 	default:
@@ -778,6 +784,9 @@ void GCNCompiler::emitVectorFpCmp32(GCNInstruction& ins)
 	case SIVOPCInstruction::V_CMP_LE_F32:
 		conditionId = m_module.opFOrdLessThanEqual(typeId, spvSrc0.id, spvSrc1.id);
 		break;
+	case SIVOPCInstruction::V_CMP_NEQ_F32:
+		conditionId = m_module.opFOrdNotEqual(typeId, spvSrc0.id, spvSrc1.id);
+		break;
 	default:
 		LOG_PSSL_UNHANDLED_INST();
 		break;
@@ -916,6 +925,15 @@ void GCNCompiler::emitVectorConv(GCNInstruction& ins)
 		dstValue.type.ctype  = SpirvScalarType::Float32;
 		dstValue.type.ccount = 1;
 		dstValue.id          = m_module.opConvertStoF(getScalarTypeId(SpirvScalarType::Float32), spvSrc0.id);
+	}
+	break;
+	case SIVOP1Instruction::V_CVT_U32_F32:
+	case SIVOP3Instruction::V3_CVT_U32_F32:
+	{
+		auto spvSrc0         = emitLoadScalarOperand(src0, src0RIdx, SpirvScalarType::Float32, ins.literalConst);
+		dstValue.type.ctype  = SpirvScalarType::Uint32;
+		dstValue.type.ccount = 1;
+		dstValue.id          = m_module.opConvertFtoU(getScalarTypeId(SpirvScalarType::Uint32), spvSrc0.id);
 	}
 	break;
 	default:

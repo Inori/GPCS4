@@ -203,29 +203,29 @@ void GCNCompiler::emitScalarProgFlowBranch(GCNInstruction& ins)
 	}
 		break;
 	case SISOPPInstruction::S_CBRANCH_SCC0:
-		conditionId = m_module.opLogicalNot(boolTypeId, m_statusRegs.sccz.id);
+		conditionId = m_module.opLogicalNot(boolTypeId, m_stateRegs.sccz.id);
 		break;
 	case SISOPPInstruction::S_CBRANCH_SCC1:
-		conditionId = m_statusRegs.sccz.id;
+		conditionId = m_stateRegs.sccz.id;
 		break;
 	case SISOPPInstruction::S_CBRANCH_VCCZ:
 		conditionId = emitRegisterZeroTest(
-						  emitValueLoad(m_statusRegs.vcc),
+						  emitValueLoad(m_stateRegs.vcc.lo),
 						  SpirvZeroTest::TestZ).id;
 		break;
 	case SISOPPInstruction::S_CBRANCH_VCCNZ:
 		conditionId = emitRegisterZeroTest(
-						  emitValueLoad(m_statusRegs.vcc),
+						  emitValueLoad(m_stateRegs.vcc.lo),
 						  SpirvZeroTest::TestNz).id;
 		break;
 	case SISOPPInstruction::S_CBRANCH_EXECZ:
 		conditionId = emitRegisterZeroTest(
-						  emitValueLoad(m_statusRegs.exec),
+						  emitValueLoad(m_stateRegs.exec.lo),
 						  SpirvZeroTest::TestZ).id;
 		break;
 	case SISOPPInstruction::S_CBRANCH_EXECNZ:
 		conditionId = emitRegisterZeroTest(
-						  emitValueLoad(m_statusRegs.exec),
+						  emitValueLoad(m_stateRegs.exec.lo),
 						  SpirvZeroTest::TestNz).id;
 		break;
 	case SISOPPInstruction::S_CBRANCH_CDBGSYS:
