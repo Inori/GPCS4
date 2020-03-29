@@ -176,7 +176,7 @@ private:
 	void emitGprInitializeVS();
 	void emitGprInitializePS();
 
-	void emitDclStatusRegisters();
+	void emitDclStateRegisters();
 	// For all shader types
 	void emitDclShaderResource(const GcnShaderResourceInstance& res);
 	void emitDclShaderResourceUD();
@@ -270,8 +270,11 @@ private:
 		uint32_t                  dstIndex,
 		const SpirvRegisterValue& srcReg);
 
-	SpirvRegisterValue emitInlineConstantFloat(Instruction::OperandSRC src);
-	SpirvRegisterValue emitInlineConstantInteger(Instruction::OperandSRC src);
+	SpirvRegisterValue emitInlineConstantFloat(
+		Instruction::OperandSRC src);
+	SpirvRegisterValue emitInlineConstantInteger(
+		Instruction::OperandSRC src,
+		uint32_t                regIndex);
 
 
 	///////////////////////////////////////
@@ -405,6 +408,9 @@ private:
 	SpirvRegisterValue emitRegisterMaskBits(
 		SpirvRegisterValue       value,
 		uint32_t                 mask);
+
+	SpirvRegisterValue emitRegisterFlipSign(
+		SpirvRegisterValue value);
 
 	/////////////////////////////////////////////////////////
 	// Category handlers

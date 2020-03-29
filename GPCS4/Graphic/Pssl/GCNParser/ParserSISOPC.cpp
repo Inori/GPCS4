@@ -16,7 +16,7 @@
 /// Local:
 #include "ParserSISOPC.h"
 
-SOPCInstruction::SSRC ParserSISOPC::GetSSRC(Instruction::instruction32bit hexInstruction, unsigned int&, unsigned int idxSSRC)
+SOPCInstruction::SSRC ParserSISOPC::GetSSRC(Instruction::instruction32bit hexInstruction, unsigned int& ridx, unsigned int idxSSRC)
 {
     SOPCInstruction::SSRC ssrc = (SOPCInstruction::SSRC)0;
 
@@ -42,13 +42,14 @@ SOPCInstruction::SSRC ParserSISOPC::GetSSRC(Instruction::instruction32bit hexIns
     { \
         return SOPCInstruction::SSRC##FIELD; \
     }
-    //GENERIC_INSTRUCTION_FIELDS_1(ssrc, ridx);
+    GENERIC_INSTRUCTION_FIELDS_1(ssrc, ridx);
 #undef X
 #undef X_RANGE
 
-#define X_RANGE(FIELD_MIN,FIELD_MAX,FIELD,IN)\
+#define X_RANGE(FIELD_MIN, FIELD_MAX, FIELD, IN, VAL)\
     if ((IN >= SOPCInstruction::SSRC##FIELD_MIN) && (IN <= SOPCInstruction::SSRC##FIELD_MAX)) \
     { \
+        VAL = IN; \
         return SOPCInstruction::SSRC##FIELD; \
     }
 #define X(FIELD,IN) \
@@ -56,8 +57,8 @@ SOPCInstruction::SSRC ParserSISOPC::GetSSRC(Instruction::instruction32bit hexIns
     { \
         return SOPCInstruction::SSRC##FIELD; \
     }
-    SCALAR_INSTRUCTION_FIELDS(ssrc);
-    GENERIC_INSTRUCTION_FIELDS_2(ssrc);
+	SCALAR_INSTRUCTION_FIELDS(ssrc, ridx);
+	GENERIC_INSTRUCTION_FIELDS_2(ssrc, ridx);
 #undef X
 #undef X_RANGE
     return SOPCInstruction::SSRCIllegal;

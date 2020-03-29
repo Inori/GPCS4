@@ -3,6 +3,8 @@
 
 #include "../SpirV/SpirvModule.h"
 
+LOG_CHANNEL(Graphic.Pssl.GcnStateRegister);
+
 namespace pssl
 {;
 
@@ -34,6 +36,31 @@ SpirvRegisterValue GcnStateRegister::load(SpirvModule& module) const
 	result.type.ccount = 1;
 	result.id          = uint64Id;
 	return result;
+}
+
+void GcnStateRegister::store(
+	SpirvModule&              module,
+	const SpirvRegisterValue& value) const
+{
+	LOG_ASSERT(value.type.ctype == SpirvScalarType::Uint64, "value must be Uint64.");
+
+	// Define type ids
+	uint32_t uintTypeId  = module.defIntType(32, 0);
+	uint32_t uint2TypeId = module.defVectorType(uintTypeId, 2);
+
+	// Cast to uint2
+	auto uint2Id = module.opBitcast(
+		uint2TypeId,
+		value.id);
+
+	// Access high and low part of the Uint64
+	uint32_t index  = 0;
+	uint32_t lowId  = module.opCompositeExtract(uintTypeId, uint2Id, 1, &index);
+	index           = 1;
+	uint32_t highId = module.opCompositeExtract(uintTypeId, uint2Id, 1, &index);
+	// Store
+	module.opStore(lo.id, lowId);
+	module.opStore(hi.id, highId);
 }
 
 }  // namespace pssl

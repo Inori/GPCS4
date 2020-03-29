@@ -34,9 +34,10 @@ SOP1Instruction::SSRC ParserSISOP1::GetSSRC0(Instruction::instruction32bit hexIn
 #undef X
 #undef X_RANGE
 
-#define X_RANGE(FIELD_MIN,FIELD_MAX,FIELD,IN)\
+#define X_RANGE(FIELD_MIN,FIELD_MAX,FIELD,IN,VAL)\
     if ((IN >= SOP1Instruction::SSRC##FIELD_MIN) && (IN <= SOP1Instruction::SSRC##FIELD_MAX)) \
     { \
+		VAL = IN; \
         return SOP1Instruction::SSRC##FIELD; \
     }
 #define X(FIELD,IN) \
@@ -44,8 +45,8 @@ SOP1Instruction::SSRC ParserSISOP1::GetSSRC0(Instruction::instruction32bit hexIn
     { \
         return SOP1Instruction::SSRC##FIELD; \
     }
-    SCALAR_INSTRUCTION_FIELDS(ssrc);
-    GENERIC_INSTRUCTION_FIELDS_2(ssrc);
+    SCALAR_INSTRUCTION_FIELDS(ssrc, ridx);
+	GENERIC_INSTRUCTION_FIELDS_2(ssrc, ridx);
 #undef X
 #undef X_RANGE
     return SOP1Instruction::SSRCIllegal;

@@ -217,12 +217,18 @@ void GCNCompiler::emitScalarArith(GCNInstruction& ins)
 
 	switch (op)
 	{
+	case SISOP2Instruction::S_ADD_I32:
+		dstVal.id = m_module.opIAdd(typeId, spvSrc0.id, spvSrc1.id);
+		break;
 	default:
 		LOG_PSSL_UNHANDLED_INST();
 		break;
 	}
 
 	emitStoreScalarOperand(sdst, sdstRidx, dstVal);
+
+	// TODO:
+	// Update scc
 }
 
 void GCNCompiler::emitScalarAbs(GCNInstruction& ins)
@@ -282,6 +288,13 @@ void GCNCompiler::emitScalarBitLogic(GCNInstruction& ins)
 										  spvSrc0.id,
 										  m_module.opNot(typeId, spvSrc1.id));
 		break;
+	case SISOP2Instruction::S_OR_B64:
+		dstVal.id = m_module.opBitwiseOr(typeId, spvSrc0.id, spvSrc1.id);
+		break;
+	case SISOP2Instruction::S_NOR_B64:
+		dstVal.id = m_module.opNot(typeId, 
+			m_module.opBitwiseOr(typeId, spvSrc0.id, spvSrc1.id));
+		break;
 	default:
 		LOG_PSSL_UNHANDLED_INST();
 		break;
@@ -314,7 +327,44 @@ void GCNCompiler::emitScalarConv(GCNInstruction& ins)
 
 void GCNCompiler::emitScalarExecMask(GCNInstruction& ins)
 {
-	LOG_PSSL_UNHANDLED_INST();
+	uint32_t op = getSopOpcode(ins);
+
+	uint32_t sdst;
+	uint32_t src0;
+	uint32_t sdstRidx;
+	uint32_t src0Ridx;
+	getSopOperands(ins, &sdst, &sdstRidx, &src0, &src0Ridx);
+
+	auto       opType  = ins.instruction->GetInstructionOperandType();
+	const auto dstType = getScalarType(opType);
+
+	SpirvRegisterValue spvSrc0 = emitLoadScalarOperand(src0, src0Ridx, dstType, ins.literalConst);
+
+	SpirvRegisterValue dstVal;
+	dstVal.type.ctype  = dstType;  // Should be Uint64
+	dstVal.type.ccount = 1;
+
+	const uint32_t typeId = getVectorTypeId(dstVal.type);
+
+	// Save exec
+	auto exec = m_stateRegs.exec.load(m_module);
+	emitStoreScalarOperand(sdst, sdstRidx, exec);
+
+	// Perform mask operations
+	switch (op)
+	{
+	case SISOP1Instruction::S_AND_SAVEEXEC_B64:
+		dstVal.id = m_module.opBitwiseAnd(typeId, spvSrc0.id, exec.id);
+		break;
+	default:
+		LOG_PSSL_UNHANDLED_INST();
+		break;
+	}
+
+	// Update exec
+	m_stateRegs.exec.store(m_module, dstVal);
+	// Update sccz.
+	m_stateRegs.sccz = emitRegisterZeroTest(dstVal, SpirvZeroTest::TestNz);
 }
 
 void GCNCompiler::emitScalarQuadMask(GCNInstruction& ins)

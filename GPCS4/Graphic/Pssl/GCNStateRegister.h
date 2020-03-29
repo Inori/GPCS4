@@ -16,7 +16,13 @@ struct GcnStateRegister
 	SpirvRegisterPointer hi;
 
 	// Load the state register as Uint64
-	SpirvRegisterValue load(SpirvModule& module) const;
+	SpirvRegisterValue load(
+		SpirvModule& module) const;
+
+	// Store a Uint64 value to the state register
+	void store(
+		SpirvModule&              module,
+		const SpirvRegisterValue& value) const;
 };
 
 
@@ -29,7 +35,6 @@ struct GcnStateRegisters
 
 	GcnStateRegister exec;
 
-	//SpirvRegisterPointer scc;
 	SpirvRegisterPointer m0;
 
 	// spirv condition

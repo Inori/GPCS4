@@ -38,18 +38,18 @@ const int NO_LABEL = -1;
     X(ExecLo,in) \
     X(ExecHi,in) \
 
-#define GENERIC_INSTRUCTION_FIELDS_2(in) \
-    X_RANGE(Reserved209,Reserved239,Reserved,in) \
-    X_RANGE(Reserved248,Reserved250,Reserved,in) \
+#define GENERIC_INSTRUCTION_FIELDS_2(in, val) \
+    X_RANGE(Reserved209, Reserved239, Reserved, in, val) \
+    X_RANGE(Reserved248, Reserved250, Reserved, in, val) \
     X(VCCZ,in)\
     X(EXECZ,in)\
     X(SCC,in) \
-    X_RANGE(LdsDirect,LdsDirect,Reserved,in) \
+    X_RANGE(LdsDirect, LdsDirect, Reserved, in, val) \
 
-#define SCALAR_INSTRUCTION_FIELDS(in) \
+#define SCALAR_INSTRUCTION_FIELDS(in, val) \
     X(ConstZero,in) \
-    X_RANGE(SignedConstIntPosMin,SignedConstIntPosMax,SignedConstIntPos,in) \
-    X_RANGE(SignedConstIntNegMin,SignedConstIntNegMax,SignedConstIntNeg,in) \
+    X_RANGE(SignedConstIntPosMin, SignedConstIntPosMax, SignedConstIntPos, in, val) \
+    X_RANGE(SignedConstIntNegMin, SignedConstIntNegMax, SignedConstIntNeg, in, val) \
     X(ConstFloatPos_0_5,in) \
     X(ConstFloatNeg_0_5,in) \
     X(ConstFloatPos_1_0,in) \

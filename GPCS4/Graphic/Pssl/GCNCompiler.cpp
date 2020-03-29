@@ -180,7 +180,7 @@ void GCNCompiler::emitVsInit()
 
 	m_module.enableExtension("SPV_KHR_shader_draw_parameters");
 
-	emitDclStatusRegisters();
+	emitDclStateRegisters();
 	emitDclVertexInput();
 	emitDclVertexOutput();
 	emitDclShaderResourceUD();
@@ -230,7 +230,7 @@ void GCNCompiler::emitPsInit()
 	m_ps.functionId = m_module.allocateId();
 	m_module.setDebugName(m_ps.functionId, "psMain");
 
-	emitDclStatusRegisters();
+	emitDclStateRegisters();
 	emitDclPixelInput();
 	emitDclPixelOutput();
 	emitDclShaderResourceUD();
@@ -538,7 +538,7 @@ void GCNCompiler::emitGprInitializePS()
 	m_sgprs[16]     = s16;
 }
 
-void GCNCompiler::emitDclStatusRegisters()
+void GCNCompiler::emitDclStateRegisters()
 {
 	SpirvVectorType u32Type;
 	u32Type.ctype  = SpirvScalarType::Uint32;
@@ -546,9 +546,6 @@ void GCNCompiler::emitDclStatusRegisters()
 
 	m_stateRegs.m0.type = u32Type;
 	m_stateRegs.m0.id   = emitNewVariable({ u32Type, spv::StorageClass::StorageClassPrivate }, "m0");
-
-	//m_statusRegs.scc.type = u32Type;
-	//m_statusRegs.scc.id   = emitNewVariable({ u32Type, spv::StorageClass::StorageClassPrivate }, "scc");
 
 	m_stateRegs.vcc.lo.type = u32Type;
 	m_stateRegs.vcc.lo.id   = emitNewVariable({ u32Type, spv::StorageClass::StorageClassPrivate }, "vcc_lo");
@@ -1086,27 +1083,25 @@ void GCNCompiler::emitStateRegisterStore(
 	const GcnStateRegister&   reg,
 	const SpirvRegisterValue& src)
 {
-	LOG_ASSERT(src.type.ccount == 1 && 
-			  (src.type.ctype == SpirvScalarType::Uint32 || src.type.ctype == SpirvScalarType::Uint64),
-			   "value store to state regeister should be either Uint32 or Uint64.");
-
-	if (src.type.ctype == SpirvScalarType::Uint32)
+	SpirvRegisterValue value = src;
+	if (src.type.ctype == SpirvScalarType::Sint32 ||
+		src.type.ctype == SpirvScalarType::Sint64)
 	{
-		emitValueStore(reg.lo, src, 1);
+		value = emitRegisterFlipSign(value);
+	}
+
+	LOG_ASSERT(value.type.ccount == 1 &&
+			  (value.type.ctype == SpirvScalarType::Uint32 ||
+			   value.type.ctype == SpirvScalarType::Uint64),
+			   "value store to state regeister should be either Uint32 or Uint64.");
+	
+	if (value.type.ctype == SpirvScalarType::Uint32)
+	{
+		emitValueStore(reg.lo, value, 1);
 	}
 	else
 	{
-		uint32_t uintTypeId = getScalarTypeId(SpirvScalarType::Uint32);
-		auto uint2Id = emitRegisterBitcast(src, SpirvScalarType::Uint32);
-
-		// Access high and low part of the Uint64
-		uint32_t index = 0;
-		uint32_t lowId  = m_module.opCompositeExtract(uintTypeId, uint2Id.id, 1, &index);
-		index  = 1;
-		uint32_t highId = m_module.opCompositeExtract(uintTypeId, uint2Id.id, 1, &index);
-		// Store
-		m_module.opStore(reg.lo.id, lowId);
-		m_module.opStore(reg.hi.id, highId);
+		reg.store(m_module, value);
 	}
 }
 
@@ -1143,7 +1138,7 @@ SpirvRegisterValue GCNCompiler::emitLoadScalarOperand(
 	case Instruction::OperandSRC::SRCConstZero:
 	case Instruction::OperandSRC::SRCSignedConstIntPosMin ... Instruction::OperandSRC::SRCSignedConstIntPosMax:
 	case Instruction::OperandSRC::SRCSignedConstIntNegMin ... Instruction::OperandSRC::SRCSignedConstIntNegMax:
-		operand = emitInlineConstantInteger(src);
+		operand = emitInlineConstantInteger(src, regIndex);
 		break;
 	case Instruction::OperandSRC::SRCConstFloatPos_0_5... Instruction::OperandSRC::SRCConstFloatNeg_4_0:
 		operand = emitInlineConstantFloat(src);
@@ -1254,15 +1249,15 @@ SpirvRegisterValue GCNCompiler::emitInlineConstantFloat(Instruction::OperandSRC 
 	case Instruction::OperandSRC::SRCConstFloatNeg_4_0:
 		value = -4.0;
 		break;
-	default:
-		break;
 	}
 
 	uint32_t valueId = m_module.constf32(value);
 	return SpirvRegisterValue(SpirvScalarType::Float32, 1, valueId);
 }
 
-SpirvRegisterValue GCNCompiler::emitInlineConstantInteger(Instruction::OperandSRC src)
+SpirvRegisterValue GCNCompiler::emitInlineConstantInteger(
+	Instruction::OperandSRC src,
+	uint32_t                regIndex)
 {
 	int32_t value = 0;
 	switch (src)
@@ -1274,10 +1269,10 @@ SpirvRegisterValue GCNCompiler::emitInlineConstantInteger(Instruction::OperandSR
 		value = 0;
 		break;
 	case Instruction::OperandSRC::SRCSignedConstIntPosMin... Instruction::OperandSRC::SRCSignedConstIntPosMax:
-		value = (int32_t)src - 128;
+		value = (int32_t)regIndex - 128;
 		break;
 	case Instruction::OperandSRC::SRCSignedConstIntNegMin... Instruction::OperandSRC::SRCSignedConstIntNegMax:
-		value = 192 - (int32_t)src;
+		value = 192 - (int32_t)regIndex;
 		break;
 	default:
 		break;
@@ -1695,6 +1690,42 @@ SpirvRegisterValue GCNCompiler::emitRegisterMaskBits(SpirvRegisterValue value, u
 	result.id   = m_module.opBitwiseAnd(
         getVectorTypeId(result.type),
         value.id, maskVector.id);
+	return result;
+}
+
+SpirvRegisterValue GCNCompiler::emitRegisterFlipSign(SpirvRegisterValue value)
+{
+	SpirvRegisterValue result;
+	result.type.ccount = value.type.ccount;
+
+	if (value.type.ctype == SpirvScalarType::Uint32)
+	{
+		result.type.ctype = SpirvScalarType::Sint32;
+		result.id         = m_module.opSatConvertUToS(
+			getVectorTypeId(result.type),
+			value.id);
+	}
+	else if (value.type.ctype == SpirvScalarType::Sint32)
+	{
+		result.type.ctype = SpirvScalarType::Uint32;
+		result.id         = m_module.opSatConvertSToU(
+            getVectorTypeId(result.type),
+            value.id);
+	}
+	else if (value.type.ctype == SpirvScalarType::Uint64)
+	{
+		result.type.ctype = SpirvScalarType::Sint64;
+		result.id         = m_module.opSatConvertUToS(
+            getVectorTypeId(result.type),
+            value.id);
+	}
+	else if (value.type.ctype == SpirvScalarType::Sint64)
+	{
+		result.type.ctype = SpirvScalarType::Uint64;
+		result.id         = m_module.opSatConvertSToU(
+            getVectorTypeId(result.type),
+            value.id);
+	}
 	return result;
 }
 

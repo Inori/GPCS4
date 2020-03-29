@@ -34,9 +34,10 @@ SOPKInstruction::SIMM16 ParserSISOPK::GetSIMM16(Instruction::instruction32bit he
 #undef X
 #undef X_RANGE
 
-#define X_RANGE(FIELD_MIN,FIELD_MAX,FIELD,IN)\
+#define X_RANGE(FIELD_MIN, FIELD_MAX, FIELD, IN, VAL)\
     if ((IN >= SOPKInstruction::SIMM16##FIELD_MIN) && (IN <= SOPKInstruction::SIMM16##FIELD_MAX)) \
     { \
+        VAL = IN; \
         return SOPKInstruction::SIMM16##FIELD; \
     }
 #define X(FIELD,IN) \
@@ -44,8 +45,8 @@ SOPKInstruction::SIMM16 ParserSISOPK::GetSIMM16(Instruction::instruction32bit he
     { \
         return SOPKInstruction::SIMM16##FIELD; \
     }
-    SCALAR_INSTRUCTION_FIELDS(simm16);
-    GENERIC_INSTRUCTION_FIELDS_2(simm16);
+    SCALAR_INSTRUCTION_FIELDS(simm16, ridx);
+	GENERIC_INSTRUCTION_FIELDS_2(simm16, ridx);
 #undef X
 #undef X_RANGE
     return SOPKInstruction::SIMM16Illegal;
