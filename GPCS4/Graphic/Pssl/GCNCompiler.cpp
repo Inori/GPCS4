@@ -1885,6 +1885,9 @@ bool GCNCompiler::isDoubleWordType(SpirvScalarType type) const
 SpirvScalarType GCNCompiler::getScalarType(Instruction::OperandType operandType)
 {
 	SpirvScalarType resultType = SpirvScalarType::Unknown;
+
+	// For double type operand, we take the destination type.
+	// e.g. TypeI32I24 -> Sint32
 	switch (operandType)
 	{
 	case Instruction::TypeB32:
@@ -1902,6 +1905,7 @@ SpirvScalarType GCNCompiler::getScalarType(Instruction::OperandType operandType)
 		resultType = SpirvScalarType::Float64;
 		break;
 	case Instruction::TypeI32:
+	case Instruction::TypeI32I24:
 		resultType = SpirvScalarType::Sint32;
 		break;
 	case Instruction::TypeI64:

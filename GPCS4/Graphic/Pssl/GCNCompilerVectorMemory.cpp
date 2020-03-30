@@ -46,7 +46,47 @@ void GCNCompiler::emitVectorMemBufNoFmt(GCNInstruction& ins)
 
 void GCNCompiler::emitVectorMemBufFmt(GCNInstruction& ins)
 {
-	LOG_PSSL_UNHANDLED_INST();
+	auto encoding = ins.instruction->GetInstructionFormat();
+	if (encoding == Instruction::InstructionSet_MUBUF)
+	{
+		emitVectorMemBufFmtNoTyped(ins);
+	}
+	else // MTBUF
+	{
+		// Typed
+		emitVectorMemBufFmtTyped(ins);
+	}
+}
+
+void GCNCompiler::emitVectorMemBufFmtNoTyped(GCNInstruction& ins)
+{
+	auto inst = asInst<SIMUBUFInstruction>(ins);
+
+	auto op = inst->GetOp();
+
+	switch (op)
+	{
+	case SIMUBUFInstruction::BUFFER_LOAD_FORMAT_X:
+	case SIMUBUFInstruction::BUFFER_LOAD_FORMAT_XY:
+	case SIMUBUFInstruction::BUFFER_LOAD_FORMAT_XYZ:
+	case SIMUBUFInstruction::BUFFER_LOAD_FORMAT_XYZW:
+		// TODO:
+		break;
+	case SIMUBUFInstruction::BUFFER_STORE_FORMAT_X:
+	case SIMUBUFInstruction::BUFFER_STORE_FORMAT_XY:
+	case SIMUBUFInstruction::BUFFER_STORE_FORMAT_XYZ:
+	case SIMUBUFInstruction::BUFFER_STORE_FORMAT_XYZW:
+		LOG_PSSL_UNHANDLED_INST();
+		break;
+	default:
+		LOG_PSSL_UNHANDLED_INST();
+		break;
+	}
+}
+
+void GCNCompiler::emitVectorMemBufFmtTyped(GCNInstruction& ins)
+{
+	auto inst = asInst<SIMTBUFInstruction>(ins);
 }
 
 void GCNCompiler::emitVectorMemImgNoSmp(GCNInstruction& ins)

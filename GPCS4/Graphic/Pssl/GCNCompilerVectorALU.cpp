@@ -394,6 +394,7 @@ void GCNCompiler::emitVectorBitLogic(GCNInstruction& ins)
 	emitStoreVectorOperand(dstRIdx, dstVal);
 }
 
+
 void GCNCompiler::emitVectorBitField32(GCNInstruction& ins)
 {
 	uint32_t op       = getVopOpcode(ins);
@@ -434,11 +435,14 @@ void GCNCompiler::emitVectorBitField32(GCNInstruction& ins)
 		break;
 	case SIVOP2Instruction::V_LSHLREV_B32:
 	case SIVOP3Instruction::V3_LSHLREV_B32:
-	{
 		dstVal.id = m_module.opShiftLeftLogical(b32TypeId, spvSrc1.id,
 												m_module.opBitwiseAnd(b32TypeId, spvSrc0.id, m_module.constu32(0b11111)));
-	}
-	break;
+		break;
+	case SIVOP2Instruction::V_LSHRREV_B32:
+	case SIVOP3Instruction::V3_LSHRREV_B32:
+		dstVal.id = m_module.opShiftRightLogical(b32TypeId, spvSrc1.id,
+												m_module.opBitwiseAnd(b32TypeId, spvSrc0.id, m_module.constu32(0b11111)));
+		break;
 	default:
 		LOG_PSSL_UNHANDLED_INST();
 		break;
@@ -846,21 +850,32 @@ void GCNCompiler::emitVectorIntArith32(GCNInstruction& ins)
 
 	uint32_t src0     = 0;
 	uint32_t src1     = 0;
+	uint32_t src2     = 0;
 	uint32_t vdst     = 0;
 	uint32_t src0Ridx = 0;
 	uint32_t src1Ridx = 0;
+	uint32_t src2Ridx = 0;
 	uint32_t vdstRidx = 0;
-	getVopOperands(ins, &vdst, &vdstRidx, &src0, &src0Ridx, &src1, &src1Ridx);
+	getVopOperands(ins, &vdst, &vdstRidx, &src0, &src0Ridx, &src1, &src1Ridx, &src2, &src2Ridx);
 
 	SpirvScalarType opType    = getScalarType(ins.instruction->GetInstructionOperandType());
-	const uint32_t  i32TypeId = getScalarTypeId(opType);
+	// Uint32 or Sint32
+	const uint32_t  i32TypeId = getScalarTypeId(opType);  
 
-	auto            spvSrc0 = emitLoadScalarOperand(src0, src0Ridx, opType, ins.literalConst);
-	auto            spvSrc1 = emitLoadScalarOperand(src0, src0Ridx, opType, ins.literalConst);
+	SpirvRegisterValue spvSrc0 = emitLoadScalarOperand(src0, src0Ridx, opType, ins.literalConst);
+	SpirvRegisterValue spvSrc1 = emitLoadVopSrc1(ins, src1, src1Ridx, opType);
+	SpirvRegisterValue spvSrc2;
+
+	bool isVop3 = isVop3Encoding(ins);
+	if (isVop3)
+	{
+		spvSrc2 = emitLoadScalarOperand(src2, src2Ridx, opType, ins.literalConst);
+	}
 
 	SpirvRegisterValue dstValue;
 	dstValue.type.ctype  = opType;
 	dstValue.type.ccount = 1;
+
 
 	switch (op)
 	{
@@ -868,9 +883,32 @@ void GCNCompiler::emitVectorIntArith32(GCNInstruction& ins)
 	case SIVOP3Instruction::V3_ADD_I32:
 		dstValue.id = m_module.opIAdd(i32TypeId, spvSrc0.id, spvSrc1.id);
 		break;
+	case SIVOP2Instruction::V_SUB_I32:
+	case SIVOP3Instruction::V3_SUB_I32:
+		dstValue.id = m_module.opISub(i32TypeId, spvSrc0.id, spvSrc1.id);
+		break;
 	case SIVOP2Instruction::V_SUBREV_I32:
 	case SIVOP3Instruction::V3_SUBREV_I32:
 		dstValue.id = m_module.opISub(i32TypeId, spvSrc1.id, spvSrc0.id);
+		break;
+	case SIVOP3Instruction::V3_MUL_LO_I32:
+		dstValue.id = m_module.opIMul(i32TypeId, spvSrc0.id, spvSrc1.id);
+		break;
+	case SIVOP3Instruction::V3_MAD_I32_I24:
+	{
+		uint32_t arg0Id = m_module.opBitwiseAnd(i32TypeId, spvSrc0.id, m_module.constu32(0x00FFFFFF));
+		uint32_t arg1Id = m_module.opBitwiseAnd(i32TypeId, spvSrc1.id, m_module.constu32(0x00FFFFFF));
+		uint32_t mulId  = m_module.opIMul(i32TypeId, arg0Id, arg1Id);
+		dstValue.id     = m_module.opIAdd(i32TypeId, mulId, spvSrc2.id);
+	}
+		break;
+	case SIVOP2Instruction::V_MUL_I32_I24:
+	case SIVOP3Instruction::V3_MUL_I32_I24:
+	{
+		uint32_t arg0Id = m_module.opBitwiseAnd(i32TypeId, spvSrc0.id, m_module.constu32(0x00FFFFFF));
+		uint32_t arg1Id = m_module.opBitwiseAnd(i32TypeId, spvSrc1.id, m_module.constu32(0x00FFFFFF));
+		dstValue.id = m_module.opIMul(i32TypeId, arg0Id, arg1Id);
+	}
 		break;
 	default:
 		LOG_PSSL_UNHANDLED_INST();
@@ -906,6 +944,7 @@ void GCNCompiler::emitVectorIntCmp32(GCNInstruction& ins)
 
 	const uint32_t typeId      = getScalarTypeId(SpirvScalarType::Bool);
 	uint32_t       conditionId = InvalidSpvId;
+	bool           writeExec   = false;
 	// For VectorIntCmp32 class, VOPC and VOP3 instructions use same opcode values,
 	// ie. SIVOPCInstruction::V_CMP_LE_U32 == SIVOP3Instruction::V3_CMP_LE_U32 ,
 	// so we don't need to switch both cases.
@@ -916,6 +955,12 @@ void GCNCompiler::emitVectorIntCmp32(GCNInstruction& ins)
 		break;
 	case SIVOPCInstruction::V_CMP_GT_I32:
 		conditionId = m_module.opSGreaterThan(typeId, spvSrc0.id, spvSrc1.id);
+		break;
+	case SIVOPCInstruction::V_CMPX_NE_U32:
+	{
+		conditionId = m_module.opINotEqual(typeId, spvSrc0.id, spvSrc1.id);
+		writeExec = true;
+	}
 		break;
 	default:
 		LOG_PSSL_UNHANDLED_INST();
@@ -937,6 +982,13 @@ void GCNCompiler::emitVectorIntCmp32(GCNInstruction& ins)
 		// 32-bit VOPC encoding requires sdst to be VCC, vsrc1 to be a VGPR, and no input modifiers.
 		vdst = static_cast<uint32_t>(Instruction::OperandSDST::SDSTVccLo);
 	}
+
+	if (writeExec)
+	{
+		uint32_t execOprand = static_cast<uint32_t>(Instruction::OperandSDST::SDSTExecLo);
+		emitStoreScalarOperand(execOprand, 0, dstValue);
+	}
+
 	emitStoreScalarOperand(vdst, vdstRidx, dstValue);
 }
 
@@ -1010,7 +1062,51 @@ void GCNCompiler::emitVectorFpGraph32(GCNInstruction& ins)
 
 void GCNCompiler::emitVectorIntGraph(GCNInstruction& ins)
 {
-	LOG_PSSL_UNHANDLED_INST();
+	auto op = getVopOpcode(ins);
+
+	uint32_t src0     = 0;
+	uint32_t src1     = 0;
+	uint32_t src2     = 0;
+	uint32_t vdst     = 0;
+	uint32_t src0Ridx = 0;
+	uint32_t src1Ridx = 0;
+	uint32_t src2Ridx = 0;
+	uint32_t vdstRidx = 0;
+	getVopOperands(ins, &vdst, &vdstRidx, &src0, &src0Ridx, &src1, &src1Ridx, &src2, &src2Ridx);
+
+	SpirvScalarType opType  = getScalarType(ins.instruction->GetInstructionOperandType());
+	const uint32_t  typeId  = getScalarTypeId(opType);
+
+	auto            spvSrc0 = emitLoadScalarOperand(src0, src0Ridx, opType, ins.literalConst);
+	auto            spvSrc1 = emitLoadVopSrc1(ins, src1, src1Ridx, opType);
+	auto            spvSrc2 = emitLoadScalarOperand(src2, src2Ridx, opType, ins.literalConst);
+
+	
+	SpirvRegisterValue dstValue;
+	dstValue.type.ctype  = opType;
+	dstValue.type.ccount = 1;
+
+	switch (op)
+	{
+	case SIVOP3Instruction::V3_SAD_U32:
+	{
+		// TODO:
+		// Do we have a better way?
+		uint32_t conditionId = m_module.opUGreaterThan(
+			getScalarTypeId(SpirvScalarType::Bool),
+			spvSrc0.id, spvSrc1.id);
+		uint32_t absDiffId = m_module.opSelect(typeId, conditionId,
+											   m_module.opISub(typeId, spvSrc0.id, spvSrc1.id),
+											   m_module.opISub(typeId, spvSrc1.id, spvSrc0.id));
+		dstValue.id        = m_module.opIAdd(typeId, absDiffId, spvSrc2.id);
+	}
+		break;
+	default:
+		LOG_PSSL_UNHANDLED_INST();
+		break;
+	}
+
+	emitStoreVectorOperand(vdstRidx, dstValue);
 }
 
 void GCNCompiler::emitVectorMisc(GCNInstruction& ins)

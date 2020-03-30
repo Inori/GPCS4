@@ -514,6 +514,8 @@ private:
 	void emitDbgProf(GCNInstruction& ins);
 
 	// Extra dispatch functions
+	void emitVectorMemBufFmtNoTyped(GCNInstruction& ins);
+	void emitVectorMemBufFmtTyped(GCNInstruction& ins);
 
 	void emitScalarProgFlowPC(GCNInstruction& ins);
 	void emitScalarProgFlowBranch(GCNInstruction& ins);
