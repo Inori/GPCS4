@@ -113,8 +113,9 @@ void GCNCompiler::emitVectorMemImgSmp(GCNInstruction& ins)
 	{
 	case SIMIMGInstruction::IMAGE_SAMPLE_L:
 	{
-		auto u = emitVgprLoad(uvReg);
-		auto v = emitVgprLoad(uvReg + 1);
+		auto u = emitGprLoad<SpirvGprType::Vector>(uvReg);
+		auto v = emitGprLoad<SpirvGprType::Vector>(uvReg + 1);
+
 		std::array<uint32_t, 2> uvComponents = { u.id, v.id };
 		uint32_t typeId = getVectorTypeId({ SpirvScalarType::Float32, 2 });
 		uint32_t uvId = m_module.opCompositeConstruct(typeId, uvComponents.size(), uvComponents.data());

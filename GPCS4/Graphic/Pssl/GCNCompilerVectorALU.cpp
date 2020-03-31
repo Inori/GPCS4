@@ -433,6 +433,11 @@ void GCNCompiler::emitVectorBitField32(GCNInstruction& ins)
 		dstVal.id      = m_module.opBitFieldUExtract(b32TypeId, spvSrc0.id, offset, count);  // TODO: Not sure
 	}
 		break;
+	case SIVOP2Instruction::V_LSHR_B32:
+	case SIVOP3Instruction::V3_LSHR_B32:
+		dstVal.id = m_module.opShiftRightLogical(b32TypeId, spvSrc0.id,
+												 m_module.opBitwiseAnd(b32TypeId, spvSrc1.id, m_module.constu32(0b11111)));
+		break;
 	case SIVOP2Instruction::V_LSHLREV_B32:
 	case SIVOP3Instruction::V3_LSHLREV_B32:
 		dstVal.id = m_module.opShiftLeftLogical(b32TypeId, spvSrc1.id,
@@ -442,6 +447,11 @@ void GCNCompiler::emitVectorBitField32(GCNInstruction& ins)
 	case SIVOP3Instruction::V3_LSHRREV_B32:
 		dstVal.id = m_module.opShiftRightLogical(b32TypeId, spvSrc1.id,
 												m_module.opBitwiseAnd(b32TypeId, spvSrc0.id, m_module.constu32(0b11111)));
+		break;
+	case SIVOP2Instruction::V_ASHRREV_I32:
+	case SIVOP3Instruction::V3_ASHRREV_I32:
+		dstVal.id = m_module.opShiftRightArithmetic(b32TypeId, spvSrc1.id,
+												 m_module.opBitwiseAnd(b32TypeId, spvSrc0.id, m_module.constu32(0b11111)));
 		break;
 	default:
 		LOG_PSSL_UNHANDLED_INST();
@@ -895,6 +905,7 @@ void GCNCompiler::emitVectorIntArith32(GCNInstruction& ins)
 		dstValue.id = m_module.opIMul(i32TypeId, spvSrc0.id, spvSrc1.id);
 		break;
 	case SIVOP3Instruction::V3_MAD_I32_I24:
+	case SIVOP3Instruction::V3_MAD_U32_U24:
 	{
 		uint32_t arg0Id = m_module.opBitwiseAnd(i32TypeId, spvSrc0.id, m_module.constu32(0x00FFFFFF));
 		uint32_t arg1Id = m_module.opBitwiseAnd(i32TypeId, spvSrc1.id, m_module.constu32(0x00FFFFFF));
@@ -952,6 +963,12 @@ void GCNCompiler::emitVectorIntCmp32(GCNInstruction& ins)
 	{
 	case SIVOPCInstruction::V_CMP_LE_U32:
 		conditionId = m_module.opULessThanEqual(typeId, spvSrc0.id, spvSrc1.id);
+		break;
+	case SIVOPCInstruction::V_CMP_NE_U32:
+		conditionId = m_module.opINotEqual(typeId, spvSrc0.id, spvSrc1.id);
+		break;
+	case SIVOPCInstruction::V_CMP_EQ_I32:
+		conditionId = m_module.opIEqual(typeId, spvSrc0.id, spvSrc1.id);
 		break;
 	case SIVOPCInstruction::V_CMP_GT_I32:
 		conditionId = m_module.opSGreaterThan(typeId, spvSrc0.id, spvSrc1.id);

@@ -39,7 +39,8 @@ typedef enum ScePthreadMutextype
 #define SCE_PTHREAD_PRIO_PROTECT        2
 
 
-typedef enum ScePthreadRwlocktype {
+typedef enum ScePthreadRwlocktype 
+{
 	SCE_PTHREAD_RWLOCK_NORMAL = 1,
 	SCE_PTHREAD_RWLOCK_PREFER_READER = 2,
 	SCE_PTHREAD_RWLOCK_TYPE_MAX
@@ -64,7 +65,8 @@ typedef uint64_t	SceKernelCpumask;
 #define SCE_PTHREAD_INHERIT_SCHED       0x4
 
 
-struct sce_sched_param {
+struct sce_sched_param 
+{
 	int     sched_priority;
 };
 

@@ -752,8 +752,6 @@ void GCNCompiler::emitDclImmResource(const GcnShaderResourceInstance& res)
 	m_resourceSlots.push_back({ bindingId, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE });
 }
 
-// TODO:
-// Wrap these using template.
 
 SpirvRegisterValue GCNCompiler::emitValueLoad(const SpirvRegisterPointer& reg)
 {
@@ -763,114 +761,91 @@ SpirvRegisterValue GCNCompiler::emitValueLoad(const SpirvRegisterPointer& reg)
 	return SpirvRegisterValue(reg.type, varId);
 }
 
-SpirvRegisterValue GCNCompiler::emitSgprLoad(uint32_t index, SpirvScalarType dstType /*= SpirvScalarType::Unknown*/)
+template <SpirvGprType GprType>
+SpirvRegisterValue GCNCompiler::emitGprLoad(
+	uint32_t        index,
+	SpirvScalarType dstType /*= SpirvScalarType::Unknown*/)
 {
 	SpirvRegisterValue result;
 	do
 	{
-		auto& sgpr = m_sgprs[index];
+		auto& gpr = GprType == SpirvGprType::Scalar ? 
+			m_sgprs[index] : m_vgprs[index];
 
-		if (sgpr.id == InvalidSpvId)
+		if (gpr.id == InvalidSpvId)
 		{
 			// Some instructions will specify 0 as one of their SRCs,
-			// here 0 can be treated as both s0 and an empty src.
+			// here 0 can be treated as both s0/v0 and an empty src.
 			// An empty src means the instruction doesn't use this src, e.g. SRC2 for v3_mac_f32.
 			// In such case, we shouldn't do anything.
-			LOG_WARN("try to load uninitialized sgpr s%d", index);
+			LOG_WARN("try to load uninitialized gpr s%d", index);
 			break;
 		}
 
-		if (dstType != SpirvScalarType::Unknown && dstType != sgpr.type.ctype)
+		if (dstType != SpirvScalarType::Unknown && dstType != gpr.type.ctype)
 		{
-			emitUpdateSgprType(index, dstType);
+			emitUpdateGprType<GprType>(index, dstType);
 		}
 
-		result = emitValueLoad(sgpr);
+		result = emitValueLoad(gpr);
 
 	} while (false);
 	return result;
 }
 
-SpirvRegisterValue GCNCompiler::emitVgprLoad(uint32_t index, SpirvScalarType dstType /*= SpirvScalarType::Unknown*/)
+template <SpirvGprType GprType>
+void pssl::GCNCompiler::emitUpdateGprType(
+	uint32_t        index,
+	SpirvScalarType dstType)
 {
-	SpirvRegisterValue result;
+	// A SGPR or VGPR register can be treated as different types in different
+	// instructions, we need to cast it to proper type.
+
+	LOG_ASSERT(!isDoubleWordType(dstType), "wide type not supported.");
+
 	do
 	{
-		auto& vgpr = m_vgprs[index];
+		auto& gpr      = GprType == SpirvGprType::Scalar ?
+			m_sgprs[index] : m_vgprs[index];
+		auto& gprCache = GprType == SpirvGprType::Scalar ? 
+			m_gprCache.sgpr : m_gprCache.vgpr;
 
-		if (vgpr.id == InvalidSpvId)
-		{
-			// Some instructions will specify 0 as one of their SRCs,
-			// here 0 can be treated as both v0 and an empty src.
-			// An empty src means the instruction doesn't use this src, e.g. SRC2 for v3_mac_f32.
-			// In such case, we shouldn't do anything.
-			LOG_WARN("try to load uninitialized vgpr v%d", index);
-			break;
-		}
-
-		if (dstType != SpirvScalarType::Unknown && dstType != vgpr.type.ctype)
-		{
-			emitUpdateVgprType(index, dstType);
-		}
-		result = emitValueLoad(vgpr);
-	} while (false);
-	return result;
-}
-
-void GCNCompiler::emitUpdateSgprType(uint32_t sidx, SpirvScalarType dstType)
-{
-	LOG_ASSERT(!isDoubleWordType(dstType), "wide type not supported yet.");
-	do
-	{
-		auto& sgpr = m_sgprs[sidx];
-
-		if (sgpr.type.ctype == dstType)
+		if (gpr.type.ctype == dstType)
 		{
 			break;
 		}
 
-		LOG_ASSERT(sgpr.type.ctype != SpirvScalarType::Unknown, "sgpr s%d not initialized.", sidx);
-		SpirvRegisterValue value       = emitValueLoad(sgpr);
+		LOG_ASSERT(gpr.type.ctype != SpirvScalarType::Unknown, "gpr %d not initialized.", index);
+
+		SpirvRegisterValue value       = emitValueLoad(gpr);
 		SpirvRegisterValue castedValue = emitRegisterBitcast(value, dstType);
 
-		auto                 debugName = UtilString::Format("s%d_%s", sidx, getTypeName(dstType));
-		SpirvRegisterPointer newSgpr;
-		newSgpr.type.ctype  = dstType;
-		newSgpr.type.ccount = 1;
-		newSgpr.id          = emitNewVariable({ newSgpr.type, spv::StorageClassPrivate }, debugName);
+		SpirvRegisterPointer newGpr;
+		newGpr.type.ctype  = dstType;
+		newGpr.type.ccount = 1;
 
-		emitValueStore(newSgpr, castedValue, 1);
-
-		sgpr = newSgpr;
-	} while (false);
-}
-
-void GCNCompiler::emitUpdateVgprType(uint32_t vidx, SpirvScalarType dstType)
-{
-	LOG_ASSERT(!isDoubleWordType(dstType), "wide type not supported yet.");
-	do
-	{
-		auto& vgpr = m_vgprs[vidx];
-
-		if (vgpr.type.ctype == dstType)
+		GcnGprTypeEntry typeKey;
+		typeKey.index = index;
+		typeKey.type  = dstType;
+		auto iter     = gprCache.find(typeKey);
+		if (iter != gprCache.end())
 		{
-			break;
+			newGpr.id = iter->second;
+		}
+		else
+		{
+			const char* fmtString = GprType == SpirvGprType::Scalar ?
+				"s%d_%s" : "v%d_%s";
+			auto        debugName = UtilString::Format(fmtString, index, getTypeName(dstType));
+			uint32_t    newId     = emitNewVariable({ newGpr.type, spv::StorageClassPrivate }, debugName);
+			newGpr.id             = newId;
+
+			gprCache.insert(std::make_pair(typeKey, newId));
 		}
 
-		LOG_ASSERT(vgpr.type.ctype != SpirvScalarType::Unknown, "vgpr v%d not initialized.", vidx);
+		emitValueStore(newGpr, castedValue, 1);
 
-		SpirvRegisterValue value       = emitValueLoad(vgpr);
-		SpirvRegisterValue castedValue = emitRegisterBitcast(value, dstType);
-
-		auto                 debugName = UtilString::Format("v%d_%s", vidx, getTypeName(dstType));
-		SpirvRegisterPointer newVgpr;
-		newVgpr.type.ctype  = dstType;
-		newVgpr.type.ccount = 1;
-		newVgpr.id          = emitNewVariable({ newVgpr.type, spv::StorageClassPrivate }, debugName);
-
-		emitValueStore(newVgpr, castedValue, 1);
-
-		vgpr = newVgpr;
+		gpr = newGpr;
 	} while (false);
 }
 
@@ -910,23 +885,36 @@ void GCNCompiler::emitValueStore(
 	}
 }
 
-void GCNCompiler::emitSgprStore(uint32_t                  dstIdx,
-								const SpirvRegisterValue& srcReg)
+template <SpirvGprType GprType>
+void GCNCompiler::emitGprStore(
+	uint32_t                  index,
+	const SpirvRegisterValue& value)
 {
-	auto& sgpr = m_sgprs[dstIdx];
-	if (sgpr.id == InvalidSpvId)  // Not initialized
+	auto& gpr      = GprType == SpirvGprType::Scalar ? 
+		m_sgprs[index] : m_vgprs[index];
+	auto& gprCache = GprType == SpirvGprType::Scalar ? 
+		m_gprCache.sgpr : m_gprCache.vgpr;
+
+	if (gpr.id == InvalidSpvId)  // Not initialized
 	{
-		sgpr.type = srcReg.type;
-		sgpr.id   = emitNewVariable({ sgpr.type, spv::StorageClassPrivate },
-                                  UtilString::Format("s%d", dstIdx));
+		gpr.type              = value.type;
+		const char* fmtString = GprType == SpirvGprType::Scalar ? 
+			"s%d" : "v%d";
+		gpr.id                = emitNewVariable({ gpr.type, spv::StorageClassPrivate },
+								 UtilString::Format(fmtString, index));
+		// Store the first type variable.
+		GcnGprTypeEntry typeKey;
+		typeKey.index = index;
+		typeKey.type  = value.type.ctype;
+		gprCache.insert(std::make_pair(typeKey, gpr.id));
 	}
 
-	if (sgpr.type.ctype != srcReg.type.ctype)
+	if (gpr.type.ctype != value.type.ctype)
 	{
-		emitUpdateSgprType(dstIdx, srcReg.type.ctype);
+		emitUpdateGprType<SpirvGprType::Scalar>(index, value.type.ctype);
 	}
 
-	emitValueStore(sgpr, srcReg, 1);
+	emitValueStore(gpr, value, 1);
 }
 
 void GCNCompiler::emitSgprArrayStore(uint32_t                  startIdx,
@@ -935,28 +923,10 @@ void GCNCompiler::emitSgprArrayStore(uint32_t                  startIdx,
 {
 	for (uint32_t i = 0; i != count; ++i)
 	{
-		emitSgprStore(startIdx + i, values[i]);
+		emitGprStore<SpirvGprType::Scalar>(startIdx + i, values[i]);
 	}
 }
 
-void GCNCompiler::emitVgprStore(uint32_t                  dstIdx,
-								const SpirvRegisterValue& srcReg)
-{
-	auto& vgpr = m_vgprs[dstIdx];
-	if (vgpr.id == InvalidSpvId)  // Not initialized
-	{
-		vgpr.type = srcReg.type;
-		vgpr.id   = emitNewVariable({ vgpr.type, spv::StorageClassPrivate },
-                                  UtilString::Format("v%d", dstIdx));
-	}
-
-	if (vgpr.type.ctype != srcReg.type.ctype)
-	{
-		emitUpdateVgprType(dstIdx, srcReg.type.ctype);
-	}
-
-	emitValueStore(vgpr, srcReg, 1);
-}
 
 void GCNCompiler::emitVgprArrayStore(uint32_t                  startIdx,
 									 const SpirvRegisterValue* values,
@@ -964,7 +934,7 @@ void GCNCompiler::emitVgprArrayStore(uint32_t                  startIdx,
 {
 	for (uint32_t i = 0; i != count; ++i)
 	{
-		emitVgprStore(startIdx + i, values[i]);
+		emitGprStore<SpirvGprType::Vector>(startIdx + i, values[i]);
 	}
 }
 
@@ -984,7 +954,7 @@ void GCNCompiler::emitVgprVectorStore(uint32_t startIdx, const SpirvRegisterValu
 		value.type.ccount = 1;
 		value.id          = m_module.opCompositeExtract(fpTypeId, srcVec.id, 1, &i);
 
-		emitVgprStore(startIdx + i, value);
+		emitGprStore<SpirvGprType::Vector>(startIdx + i, value);
 	}
 }
 
@@ -993,8 +963,8 @@ SpirvRegisterValue GCNCompiler::emitSgprPairLoad(uint32_t firstIndex)
 	// The type of a SGPR pair will be only Uint64
 
 	// Load the higher and lower sgpr
-	auto high = emitSgprLoad(firstIndex, SpirvScalarType::Uint32);
-	auto low  = emitSgprLoad(firstIndex + 1, SpirvScalarType::Uint32);
+	auto high = emitGprLoad<SpirvGprType::Scalar>(firstIndex, SpirvScalarType::Uint32);
+	auto low  = emitGprLoad<SpirvGprType::Scalar>(firstIndex + 1, SpirvScalarType::Uint32);
 
 	// Convert the two Uint32 to a vec2
 	auto vec2U32 = emitRegisterConcat(high, low);
@@ -1027,8 +997,8 @@ void GCNCompiler::emitSgprPairStore(uint32_t firstIndex, const SpirvRegisterValu
 	high.id = m_module.opCompositeExtract(u32TypeId, vec2U32.id, 1, &index);
 
 	// Store
-	emitSgprStore(firstIndex, high);
-	emitSgprStore(firstIndex + 1, low);
+	emitGprStore<SpirvGprType::Scalar>(firstIndex, high);
+	emitGprStore<SpirvGprType::Scalar>(firstIndex + 1, low);
 }
 
 SpirvRegisterValue GCNCompiler::emitLiteralConstLoad(uint32_t value, SpirvScalarType dstType)
@@ -1117,7 +1087,7 @@ SpirvRegisterValue GCNCompiler::emitLoadScalarOperand(
 	{
 	case Instruction::OperandSRC::SRCScalarGPRMin ... Instruction::OperandSRC::SRCScalarGPRMax:
 		operand = dstType != SpirvScalarType::Uint64 ? 
-			emitSgprLoad(regIndex, dstType) : 
+			emitGprLoad<SpirvGprType::Scalar>(regIndex, dstType) : 
 			emitSgprPairLoad(regIndex);
 		break;
 	case Instruction::OperandSRC::SRCVccLo:
@@ -1158,7 +1128,7 @@ SpirvRegisterValue GCNCompiler::emitLoadScalarOperand(
 		break;
 	// For 9 bits SRC operand
 	case Instruction::OperandSRC::SRCVectorGPRMin ... Instruction::OperandSRC::SRCVectorGPRMax:
-		operand = emitVgprLoad(regIndex, dstType);
+		operand = emitGprLoad<SpirvGprType::Vector>(regIndex, dstType);
 		break;
 	default:
 		LOG_ERR("error operand range %d", (uint32_t)srcOperand);
@@ -1174,7 +1144,7 @@ SpirvRegisterValue GCNCompiler::emitLoadScalarOperand(
 SpirvRegisterValue GCNCompiler::emitLoadVectorOperand(uint32_t index, SpirvScalarType dstType)
 {
 	LOG_ASSERT(!isDoubleWordType(dstType), "only support 32 bits VGPR load");
-	return emitVgprLoad(index, dstType);
+	return emitGprLoad<SpirvGprType::Vector>(index, dstType);
 }
 
 // Used with 7 bits SDST
@@ -1186,9 +1156,17 @@ void GCNCompiler::emitStoreScalarOperand(uint32_t dstOperand, uint32_t regIndex,
 	{
 	case Instruction::OperandSDST::SDSTScalarGPRMin ... Instruction::OperandSDST::SDSTScalarGPRMax:
 	{
-		srcReg.type.ctype != SpirvScalarType::Uint64 ? 
-			emitSgprStore(regIndex, srcReg) : 
+		if (srcReg.type.ctype != SpirvScalarType::Uint64)
+		{
+			emitGprStore<SpirvGprType::Scalar>(regIndex, srcReg);
+		}
+		else
+		{
 			emitSgprPairStore(regIndex, srcReg);
+		}
+		//srcReg.type.ctype != SpirvScalarType::Uint64 ? 
+		//	emitGprStore<SpirvGprType::Scalar>(regIndex, srcReg) : 
+		//	emitSgprPairStore(regIndex, srcReg);
 	}
 		break;
 	case Instruction::OperandSDST::SDSTVccLo:
@@ -1217,7 +1195,7 @@ void GCNCompiler::emitStoreScalarOperand(uint32_t dstOperand, uint32_t regIndex,
 // See table "VSRC and VDST Operands" in section 3.1 of GPU Shader Core ISA manual
 void GCNCompiler::emitStoreVectorOperand(uint32_t dstIndex, const SpirvRegisterValue& srcReg)
 {
-	emitVgprStore(dstIndex, srcReg);
+	emitGprStore<SpirvGprType::Vector>(dstIndex, srcReg);
 }
 
 SpirvRegisterValue GCNCompiler::emitInlineConstantFloat(Instruction::OperandSRC src)

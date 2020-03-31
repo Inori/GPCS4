@@ -1,53 +1,52 @@
 #pragma once
 
-#include "PsslCommon.h"
-#include "PsslProgramInfo.h"
-#include "PsslFetchShader.h"
-#include "PsslShaderFileBinary.h"
-#include "PsslShaderStructure.h"
-#include "GCNInstruction.h"
 #include "GCNAnalyzer.h"
 #include "GCNDecoder.h"
 #include "GCNEnums.h"
-#include "GCNStateRegister.h"
-#include "GCNSpirvTypes.h"
-
-#include "GCNParser/SMRDInstruction.h"
-#include "GCNParser/SOPPInstruction.h"
-#include "GCNParser/SOPCInstruction.h"
-#include "GCNParser/SOP1Instruction.h"
-#include "GCNParser/SOPKInstruction.h"
-#include "GCNParser/SOP2Instruction.h"
-#include "GCNParser/VINTRPInstruction.h"
+#include "GCNInstruction.h"
 #include "GCNParser/DSInstruction.h"
-#include "GCNParser/MUBUFInstruction.h"
-#include "GCNParser/MTBUFInstruction.h"
-#include "GCNParser/MIMGInstruction.h"
 #include "GCNParser/EXPInstruction.h"
+#include "GCNParser/MIMGInstruction.h"
+#include "GCNParser/MTBUFInstruction.h"
+#include "GCNParser/MUBUFInstruction.h"
+#include "GCNParser/SMRDInstruction.h"
+#include "GCNParser/SOP1Instruction.h"
+#include "GCNParser/SOP2Instruction.h"
+#include "GCNParser/SOPCInstruction.h"
+#include "GCNParser/SOPKInstruction.h"
+#include "GCNParser/SOPPInstruction.h"
+#include "GCNParser/VINTRPInstruction.h"
 #include "GCNParser/VOPInstruction.h"
+#include "GCNSpirvTypes.h"
+#include "GCNStateRegister.h"
+#include "PsslCommon.h"
+#include "PsslFetchShader.h"
+#include "PsslProgramInfo.h"
+#include "PsslShaderFileBinary.h"
+#include "PsslShaderStructure.h"
 
-#include "../Violet/VltShader.h"
-#include "../Violet/VltPipelineLayout.h"
 #include "../SpirV/SpirvModule.h"
+#include "../Violet/VltPipelineLayout.h"
+#include "../Violet/VltShader.h"
 
-#include <optional>
-#include <map>
 #include <array>
+#include <map>
+#include <optional>
 
 namespace pssl
-{;
+{
+;
 
 constexpr size_t GcnMaxSgprCount = 104;
 constexpr size_t GcnMaxVgprCount = 256;
 
-
 /**
  * \brief Vertex shader-specific structure
  */
-struct GcnCompilerVsPart 
+struct GcnCompilerVsPart
 {
 	spv::Id mainFunctionId = 0;
-	spv::Id fsFunctionId = 0;
+	spv::Id fsFunctionId   = 0;
 	// semantic -- spirv id
 	std::map<uint32_t, SpirvRegisterPointer> vsInputs;
 	// exp target -- spirv id
@@ -63,11 +62,10 @@ struct GcnCompilerVsPart
 	uint32_t m_uboId = 0;
 };
 
-
 /**
  * \brief Pixel shader-specific structure
  */
-struct GcnCompilerPsPart 
+struct GcnCompilerPsPart
 {
 	spv::Id functionId = 0;
 	// attr index -- spirv id
@@ -80,11 +78,10 @@ struct GcnCompilerPsPart
 	std::array<SpirvTexture, GcnMaxSgprCount> textures;
 };
 
-
 /**
  * \brief Compute shader-specific structure
  */
-struct GcnCompilerCsPart 
+struct GcnCompilerCsPart
 {
 	spv::Id functionId = 0;
 
@@ -92,10 +89,43 @@ struct GcnCompilerCsPart
 	uint32_t workgroupSizeY = 0;
 	uint32_t workgroupSizeZ = 0;
 
-	uint32_t builtinGlobalInvocationId = 0;
-	uint32_t builtinLocalInvocationId = 0;
+	uint32_t builtinGlobalInvocationId   = 0;
+	uint32_t builtinLocalInvocationId    = 0;
 	uint32_t builtinLocalInvocationIndex = 0;
-	uint32_t builtinWorkgroupId = 0;
+	uint32_t builtinWorkgroupId          = 0;
+};
+
+
+struct GcnGprTypeEntry
+{
+	uint32_t        index;
+	SpirvScalarType type;
+
+	bool operator==(const GcnGprTypeEntry& other) const
+	{
+		return index == other.index && type == other.type;
+	}
+};
+
+struct GcnGprTypeHash
+{
+	std::size_t operator()(GcnGprTypeEntry const& entry) const noexcept
+	{
+		return size_t(entry.type) << 32 | entry.index;
+	}
+};
+
+/**
+ * \brief SGPR and VGPR type cache
+ *
+ * Stores the same GPR with different types.
+ */
+struct GcnGprTypeCache
+{
+	std::unordered_map<GcnGprTypeEntry, uint32_t, 
+		GcnGprTypeHash> sgpr;
+	std::unordered_map<GcnGprTypeEntry, uint32_t,
+		GcnGprTypeHash> vgpr;
 };
 
 /**
@@ -108,21 +138,20 @@ struct GcnCompilerCsPart
 
 struct GcnShaderInput
 {
-	GcnShaderResources								shaderResources;
-	std::optional<std::vector<VertexInputSemantic>>	vsInputSemantics;
-	std::optional<std::vector<PixelInputSemantic>>	psInputSemantics;
+	GcnShaderResources                              shaderResources;
+	std::optional<std::vector<VertexInputSemantic>> vsInputSemantics;
+	std::optional<std::vector<PixelInputSemantic>>  psInputSemantics;
 };
-
 
 class GCNCompiler : public GCNInstructionIterator
 {
 	friend class SpirvRegisterU64;
-public:
 
+public:
 	GCNCompiler(
 		const PsslProgramInfo& progInfo,
 		const GcnAnalysisInfo& analysis,
-		const GcnShaderInput& shaderInput);
+		const GcnShaderInput&  shaderInput);
 	~GCNCompiler();
 
 	virtual void processInstruction(GCNInstruction& ins);
@@ -130,7 +159,6 @@ public:
 	RcPtr<vlt::VltShader> finalize();
 
 private:
-
 	void compileInstruction(GCNInstruction& ins);
 
 	void emitInit();
@@ -153,9 +181,9 @@ private:
 	void emitCsFinalize();
 
 	void emitFunctionBegin(
-		uint32_t                entryPoint,
-		uint32_t                returnType,
-		uint32_t                funcType);
+		uint32_t entryPoint,
+		uint32_t returnType,
+		uint32_t funcType);
 
 	void emitFunctionEnd();
 
@@ -190,31 +218,24 @@ private:
 	SpirvRegisterValue emitValueLoad(
 		const SpirvRegisterPointer& reg);
 
-	SpirvRegisterValue emitSgprLoad(
-		uint32_t        index,
-		SpirvScalarType dstType = SpirvScalarType::Unknown);
-	SpirvRegisterValue emitVgprLoad(
-		uint32_t        index,
-		SpirvScalarType dstType = SpirvScalarType::Unknown);
-
 	void emitValueStore(
 		const SpirvRegisterPointer& ptr,
 		const SpirvRegisterValue&   src,
 		const GcnRegMask&           writeMask);
-	void emitSgprStore(
-		uint32_t                  dstIdx,
-		const SpirvRegisterValue& srcReg);
-	void emitVgprStore(
-		uint32_t                  dstIdx,
-		const SpirvRegisterValue& srcReg);
 
-	// A SGPR or VGPR register can be treated as different types in different
-	// instructions, we need to cast it to proper type.
-	void emitUpdateSgprType(
-		uint32_t        sidx,
-		SpirvScalarType dstType);
-	void emitUpdateVgprType(
-		uint32_t        vidx,
+	template <SpirvGprType GprType>
+	SpirvRegisterValue emitGprLoad(
+		uint32_t        index,
+		SpirvScalarType dstType = SpirvScalarType::Unknown);
+
+	template <SpirvGprType GprType>
+	void emitGprStore(
+		uint32_t                  index,
+		const SpirvRegisterValue& value);
+
+	template <SpirvGprType GprType>
+	void emitUpdateGprType(
+		uint32_t        index,
 		SpirvScalarType dstType);
 
 	void emitSgprArrayStore(
@@ -230,7 +251,7 @@ private:
 		uint32_t                  startIdx,
 		const SpirvRegisterValue& srcVec,
 		const GcnRegMask&         writeMask);
-	
+
 	// Load/Store sgpr pairs as Uint64 type
 	// e.g. s[2:3]
 	SpirvRegisterValue emitSgprPairLoad(
@@ -276,12 +297,11 @@ private:
 		Instruction::OperandSRC src,
 		uint32_t                regIndex);
 
-
 	///////////////////////////////////////
 	// Image register manipulation methods
 	uint32_t emitLoadSampledImage(
-		const SpirvTexture&     textureResource,
-		const SpirvSampler&     samplerResource);
+		const SpirvTexture& textureResource,
+		const SpirvSampler& samplerResource);
 
 	SpirvRegisterValue emitPackFloat16(const SpirvRegisterValue& v2floatVec);
 	SpirvRegisterValue emitUnpackFloat16(const SpirvRegisterValue& uiVec);
@@ -297,7 +317,6 @@ private:
 		const SpirvRegisterInfo& info,
 		spv::BuiltIn             builtIn,
 		const char*              name);
-
 
 	///////////////////////////
 	// Control Flow methods
@@ -342,72 +361,72 @@ private:
 	// generate constant vectors that store the same
 	// value in each component.
 	SpirvRegisterValue emitBuildConstVecf32(
-		float                   x,
-		float                   y,
-		float                   z,
-		float                   w,
-		const GcnRegMask&       writeMask);
+		float             x,
+		float             y,
+		float             z,
+		float             w,
+		const GcnRegMask& writeMask);
 
 	SpirvRegisterValue emitBuildConstVecu32(
-		uint32_t                x,
-		uint32_t                y,
-		uint32_t                z,
-		uint32_t                w,
-		const GcnRegMask&       writeMask);
+		uint32_t          x,
+		uint32_t          y,
+		uint32_t          z,
+		uint32_t          w,
+		const GcnRegMask& writeMask);
 
 	SpirvRegisterValue emitBuildConstVeci32(
-		int32_t                 x,
-		int32_t                 y,
-		int32_t                 z,
-		int32_t                 w,
-		const GcnRegMask&       writeMask);
+		int32_t           x,
+		int32_t           y,
+		int32_t           z,
+		int32_t           w,
+		const GcnRegMask& writeMask);
 
 	SpirvRegisterValue emitBuildConstVecf64(
-		double                  xy,
-		double                  zw,
-		const GcnRegMask&       writeMask);
+		double            xy,
+		double            zw,
+		const GcnRegMask& writeMask);
 
 	/////////////////////////////////////////
 	// Generic register manipulation methods
 	SpirvRegisterValue emitRegisterBitcast(
-		SpirvRegisterValue		 srcValue,
-		SpirvScalarType          dstType);
+		SpirvRegisterValue srcValue,
+		SpirvScalarType    dstType);
 
 	SpirvRegisterValue emitRegisterSwizzle(
-		SpirvRegisterValue     value,
-		GcnRegSwizzle          swizzle,
-		GcnRegMask             writeMask);
+		SpirvRegisterValue value,
+		GcnRegSwizzle      swizzle,
+		GcnRegMask         writeMask);
 
 	SpirvRegisterValue emitRegisterExtract(
-		SpirvRegisterValue     value,
-		GcnRegMask             mask);
+		SpirvRegisterValue value,
+		GcnRegMask         mask);
 
 	SpirvRegisterValue emitRegisterInsert(
-		SpirvRegisterValue     dstValue,
-		SpirvRegisterValue     srcValue,
-		GcnRegMask             srcMask);
+		SpirvRegisterValue dstValue,
+		SpirvRegisterValue srcValue,
+		GcnRegMask         srcMask);
 
 	SpirvRegisterValue emitRegisterConcat(
-		SpirvRegisterValue       value1,
-		SpirvRegisterValue       value2);
+		SpirvRegisterValue value1,
+		SpirvRegisterValue value2);
 
 	SpirvRegisterValue emitRegisterExtend(
-		SpirvRegisterValue      value,
-		uint32_t                size);
+		SpirvRegisterValue value,
+		uint32_t           size);
 
 	SpirvRegisterValue emitRegisterAbsolute(
-		SpirvRegisterValue       value);
+		SpirvRegisterValue value);
 
 	SpirvRegisterValue emitRegisterNegate(
-		SpirvRegisterValue       value);
+		SpirvRegisterValue value);
 
 	SpirvRegisterValue emitRegisterZeroTest(
-		SpirvRegisterValue       value,
-		SpirvZeroTest            test);
+		SpirvRegisterValue value,
+		SpirvZeroTest      test);
 
 	SpirvRegisterValue emitRegisterMaskBits(
-		SpirvRegisterValue       value,
-		uint32_t                 mask);
+		SpirvRegisterValue value,
+		uint32_t           mask);
 
 	SpirvRegisterValue emitRegisterFlipSign(
 		SpirvRegisterValue value);
@@ -522,13 +541,13 @@ private:
 
 	SpirvRegisterValue emitExpSrcLoadCompr(GCNInstruction& ins);
 	SpirvRegisterValue emitExpSrcLoadNoCompr(GCNInstruction& ins);
-	void emitExpVS(GCNInstruction& ins);
-	void emitExpPS(GCNInstruction& ins);
+	void               emitExpVS(GCNInstruction& ins);
+	void               emitExpPS(GCNInstruction& ins);
 
 	void emitScalarMemBufferLoad(
-		uint32_t bufferId, 
-		uint32_t dstRegStart, 
-		uint32_t dstRegCount, 
+		uint32_t bufferId,
+		uint32_t dstRegStart,
+		uint32_t dstRegCount,
 		uint32_t offsetDw);
 
 	/////////////////////////////////////////////////////////
@@ -568,20 +587,28 @@ private:
 
 	void getVopOperands(
 		GCNInstruction& ins,
-		uint32_t* vdst, uint32_t* vdstRidx,
-		uint32_t* src0, uint32_t* src0Ridx,
-		uint32_t* src1 = nullptr, uint32_t* src1Ridx = nullptr,
-		uint32_t* src2 = nullptr, uint32_t* src2Ridx = nullptr,
-		uint32_t* sdst = nullptr, uint32_t* sdstRidx = nullptr);
+		uint32_t*       vdst,
+		uint32_t*       vdstRidx,
+		uint32_t*       src0,
+		uint32_t*       src0Ridx,
+		uint32_t*       src1     = nullptr,
+		uint32_t*       src1Ridx = nullptr,
+		uint32_t*       src2     = nullptr,
+		uint32_t*       src2Ridx = nullptr,
+		uint32_t*       sdst     = nullptr,
+		uint32_t*       sdstRidx = nullptr);
 
 	uint32_t getSopOpcode(const GCNInstruction& ins);
 
 	void getSopOperands(
 		const GCNInstruction& ins,
-		uint32_t* sdst, uint32_t* sdstRidx,
-		uint32_t* src0, uint32_t* src0Ridx,
-		uint32_t* src1 = nullptr, uint32_t* src1Ridx = nullptr,
-		int16_t* imm = nullptr);
+		uint32_t*             sdst,
+		uint32_t*             sdstRidx,
+		uint32_t*             src0,
+		uint32_t*             src0Ridx,
+		uint32_t*             src1     = nullptr,
+		uint32_t*             src1Ridx = nullptr,
+		int16_t*              imm      = nullptr);
 
 	const char* getTypeName(SpirvScalarType type);
 
@@ -629,6 +656,10 @@ private:
 	// Gcn register to spir-v variable map
 	std::array<SpirvRegisterPointer, GcnMaxSgprCount> m_sgprs;
 	std::array<SpirvRegisterPointer, GcnMaxVgprCount> m_vgprs;
+
+	// GPR cache
+	GcnGprTypeCache m_gprCache;
+
 	///////////////////////////////////
 	// Resources
 
@@ -638,8 +669,6 @@ private:
 	///////////////////////////////////
 	// Control flow
 	std::unordered_map<uint32_t, uint32_t> m_branchLabels;
-
 };
 
-
-} // namespace pssl
+}  // namespace pssl
