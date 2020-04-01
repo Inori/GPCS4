@@ -83,8 +83,8 @@ RcPtr<VltSampler> GnmResourceFactory::grabSampler(const GnmSampler& desc, bool* 
 {
 	uint64_t         hash  = algo::MurmurHash(desc.m_regs, sizeof(desc.m_regs));
 	GnmResourceEntry entry = {};
-	entry.memory           = reinterpret_cast<const void*>(bit::extract(hash, 32, 63));
-	entry.size             = static_cast<uint32_t>(bit::extract(hash, 0, 31));
+	entry.memory           = reinterpret_cast<const void*>(bit::extract(hash, 63, 32));
+	entry.size             = static_cast<uint32_t>(bit::extract(hash, 31, 0));
 	auto createFunc        = [this, &desc]() { return createSampler(desc); };
 	return grabResource(entry, m_samplerMap, createFunc, create);
 }

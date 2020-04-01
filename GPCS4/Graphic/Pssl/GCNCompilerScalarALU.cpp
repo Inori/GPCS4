@@ -220,6 +220,9 @@ void GCNCompiler::emitScalarArith(GCNInstruction& ins)
 	case SISOP2Instruction::S_ADD_I32:
 		dstVal.id = m_module.opIAdd(typeId, spvSrc0.id, spvSrc1.id);
 		break;
+	case SISOP2Instruction::S_MUL_I32:
+		dstVal.id = m_module.opIMul(typeId, spvSrc0.id, spvSrc1.id);
+		break;
 	default:
 		LOG_PSSL_UNHANDLED_INST();
 		break;
@@ -280,6 +283,7 @@ void GCNCompiler::emitScalarBitLogic(GCNInstruction& ins)
 
 	switch (op)
 	{
+	case SISOP2Instruction::S_AND_B32:
 	case SISOP2Instruction::S_AND_B64:
 		dstVal.id = m_module.opBitwiseAnd(typeId, spvSrc0.id, spvSrc1.id);
 		break;
@@ -312,7 +316,53 @@ void GCNCompiler::emitScalarBitLogic(GCNInstruction& ins)
 
 void GCNCompiler::emitScalarBitManip(GCNInstruction& ins)
 {
-	LOG_PSSL_UNHANDLED_INST();
+	uint32_t op = getSopOpcode(ins);
+
+	uint32_t sdst;
+	uint32_t src0;
+	uint32_t src1;
+	uint32_t sdstRidx;
+	uint32_t src0Ridx;
+	uint32_t src1Ridx;
+	getSopOperands(ins, &sdst, &sdstRidx, &src0, &src0Ridx, &src1, &src1Ridx);
+
+	auto       opType  = ins.instruction->GetInstructionOperandType();
+	const auto dstType = getScalarType(opType);
+
+	SpirvRegisterValue spvSrc0 = emitLoadScalarOperand(src0, src0Ridx, dstType, ins.literalConst);
+	SpirvRegisterValue spvSrc1;
+	if (ins.instruction->GetInstructionFormat() == Instruction::InstructionSet_SOP2)
+	{
+		// Only SOP2 has ssrc1
+		spvSrc1 = emitLoadScalarOperand(src1, src1Ridx, dstType, ins.literalConst);
+	}
+
+	SpirvRegisterValue dstVal;
+	dstVal.type.ctype  = dstType;
+	dstVal.type.ccount = 1;
+
+	const uint32_t typeId = getVectorTypeId(dstVal.type);
+
+	switch (op)
+	{
+	case SISOP2Instruction::S_LSHR_B32:
+		dstVal.id = m_module.opShiftRightLogical(typeId,
+												 spvSrc0.id,
+												 m_module.opBitwiseAnd(typeId, spvSrc1.id, m_module.constu32(0b11111)));
+		break;
+	default:
+		LOG_PSSL_UNHANDLED_INST();
+		break;
+	}
+
+	// Update scc.
+	// TODO:
+	// Many scalar ALU instructions will update scc on real GPU hardware, not only ScalarBitLogic ones.
+	// And implementation of flag register update strategy is a world wide challenge in binary translation domain.
+	// Here I only update scc for ScalarBitLogic instructions, and see if this will work.
+	m_stateRegs.sccz = emitRegisterZeroTest(dstVal, SpirvZeroTest::TestNz);
+
+	emitStoreScalarOperand(sdst, sdstRidx, dstVal);
 }
 
 void GCNCompiler::emitScalarBitField(GCNInstruction& ins)

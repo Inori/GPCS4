@@ -778,7 +778,8 @@ SpirvRegisterValue GCNCompiler::emitGprLoad(
 			// here 0 can be treated as both s0/v0 and an empty src.
 			// An empty src means the instruction doesn't use this src, e.g. SRC2 for v3_mac_f32.
 			// In such case, we shouldn't do anything.
-			LOG_WARN("try to load uninitialized gpr s%d", index);
+			LOG_WARN("try to load uninitialized gpr %s%d", 
+				GprType == SpirvGprType::Scalar ? "s":"v", index);
 			break;
 		}
 
@@ -815,7 +816,8 @@ void pssl::GCNCompiler::emitUpdateGprType(
 			break;
 		}
 
-		LOG_ASSERT(gpr.type.ctype != SpirvScalarType::Unknown, "gpr %d not initialized.", index);
+		LOG_ASSERT(gpr.type.ctype != SpirvScalarType::Unknown, "%s%d not initialized.", 
+			GprType == SpirvGprType::Scalar ? "s":"v", index);
 
 		SpirvRegisterValue value       = emitValueLoad(gpr);
 		SpirvRegisterValue castedValue = emitRegisterBitcast(value, dstType);
@@ -911,7 +913,7 @@ void GCNCompiler::emitGprStore(
 
 	if (gpr.type.ctype != value.type.ctype)
 	{
-		emitUpdateGprType<SpirvGprType::Scalar>(index, value.type.ctype);
+		emitUpdateGprType<GprType>(index, value.type.ctype);
 	}
 
 	emitValueStore(gpr, value, 1);
@@ -938,7 +940,10 @@ void GCNCompiler::emitVgprArrayStore(uint32_t                  startIdx,
 	}
 }
 
-void GCNCompiler::emitVgprVectorStore(uint32_t startIdx, const SpirvRegisterValue& srcVec, const GcnRegMask& writeMask)
+void GCNCompiler::emitVgprVectorStore(
+	uint32_t                  startIdx,
+	const SpirvRegisterValue& srcVec,
+	const GcnRegMask&         writeMask)
 {
 	uint32_t componentCount = writeMask.popCount();
 	uint32_t fpTypeId       = getScalarTypeId(SpirvScalarType::Float32);
@@ -1870,6 +1875,7 @@ SpirvScalarType GCNCompiler::getScalarType(Instruction::OperandType operandType)
 	{
 	case Instruction::TypeB32:
 	case Instruction::TypeU32:
+	case Instruction::TypeU32U24:
 		resultType = SpirvScalarType::Uint32;
 		break;
 	case Instruction::TypeB64:
