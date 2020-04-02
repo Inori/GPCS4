@@ -548,7 +548,9 @@ private:
 		uint32_t bufferId,
 		uint32_t dstRegStart,
 		uint32_t dstRegCount,
-		uint32_t offsetDw);
+		bool     imm,
+		uint32_t offset,
+		uint32_t literal);
 
 	/////////////////////////////////////////////////////////
 

@@ -109,7 +109,7 @@ ParserSI::kaStatus ParserSISOPC::Parse(GDT_HW_GENERATION hwGen, Instruction::ins
     {
         SISOPCInstruction::OP op = GetSISOPCOp(hexInstruction);
 		auto meta = GetSISOPCMeta(op);
-        instruction = std::make_unique<SISOPCInstruction>(ssrc0, ssrc1, op, ridx0, ridx1, meta.insClass);
+		instruction = std::make_unique<SISOPCInstruction>(ssrc0, ssrc1, op, ridx0, ridx1, meta.insClass, meta.operandType);
     }
     else
     {

@@ -203,10 +203,10 @@ void GCNCompiler::emitScalarProgFlowBranch(GCNInstruction& ins)
 	}
 		break;
 	case SISOPPInstruction::S_CBRANCH_SCC0:
-		conditionId = m_module.opLogicalNot(boolTypeId, m_stateRegs.sccz.id);
+		conditionId = m_module.opLogicalNot(boolTypeId, m_stateRegs.scc.id);
 		break;
 	case SISOPPInstruction::S_CBRANCH_SCC1:
-		conditionId = m_stateRegs.sccz.id;
+		conditionId = m_stateRegs.scc.id;
 		break;
 	case SISOPPInstruction::S_CBRANCH_VCCZ:
 		conditionId = emitRegisterZeroTest(

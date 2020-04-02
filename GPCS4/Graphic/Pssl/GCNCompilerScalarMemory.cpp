@@ -31,20 +31,53 @@ void GCNCompiler::emitScalarMemBufferLoad(
 	uint32_t bufferId, 
 	uint32_t dstRegStart, 
 	uint32_t dstRegCount,
-	uint32_t offsetDw)
+	bool     imm,
+	uint32_t offset,
+	uint32_t literal)
 {
 	// Load dwords into sgprs from buffer object.
 
+	// TODO:
+	// We need to detect the value type specified by the V# from which
+	// we declare the constant buffer.
+	// Here I just use float.
 	uint32_t uniformFloatPtrId = m_module.defFloatPointerType(32, spv::StorageClassUniform);
+	uint32_t uintTypeId        = getScalarTypeId(SpirvScalarType::Uint32);
+
+	uint32_t offsetInDwordsId = 0;
+	if (!imm)
+	{
+		auto value = emitLoadScalarOperand(
+			static_cast<uint32_t>(Instruction::OperandSRC::SRCScalarGPR), 
+			offset, 
+			SpirvScalarType::Uint32,
+			literal);
+		
+		uint32_t offsetInBytesId = m_module.opBitwiseAnd(uintTypeId, 
+			value.id, m_module.constu32(~0x3));
+		offsetInDwordsId         = m_module.opShiftRightLogical(uintTypeId, 
+			offsetInBytesId, m_module.constu32(2));
+	}
 
 	std::vector<SpirvRegisterValue> valueArray;
 
 	for (uint32_t i = 0; i != dstRegCount; ++i)
 	{
-		uint32_t dwordOffset            = offsetDw + i;
-		uint32_t offsetId               = m_module.constu32(dwordOffset);
-		std::array<uint32_t, 2> indices = { m_module.constu32(0), offsetId };
-		uint32_t srcId                  = m_module.opAccessChain(
+		uint32_t offsetId = 0;
+		if (imm)
+		{
+			uint32_t dwordOffset = offset + i;
+			offsetId             = m_module.constu32(dwordOffset);
+		}
+		else
+		{
+			offsetId = m_module.opIAdd(
+				uintTypeId, 
+				offsetInDwordsId, 
+				m_module.constu32(i));
+		}
+		std::array<uint32_t, 2> indices     = { m_module.constu32(0), offsetId };
+		uint32_t                srcId       = m_module.opAccessChain(
             uniformFloatPtrId,
             m_vs.m_uboId,
             indices.size(), indices.data());
@@ -65,9 +98,9 @@ void GCNCompiler::emitScalarMemRd(GCNInstruction& ins)
 	uint32_t srcStartReg = inst->GetSbase();
 
 	uint32_t imm    = inst->GetImm();
-	LOG_ASSERT(imm == true, "not support SGPR offset yet.");
-
-	uint32_t offsetDw = inst->GetOffset();
+	// When imm is true, offset is the dword offset of the buffer,
+	// when imm is false, offset is SGPR index or SRCLiteralConst
+	uint32_t offset = inst->GetOffset();
 
 	switch (op)
 	{
@@ -83,7 +116,7 @@ void GCNCompiler::emitScalarMemRd(GCNInstruction& ins)
 		LOG_ASSERT(m_shaderInput.shaderResources.eud.has_value() &&
 				   srcStartReg == m_shaderInput.shaderResources.eud->startRegister,
 				   "only support load EUD currently.");
-		emitDclShaderResourceEUD(dstStartReg, offsetDw);
+		emitDclShaderResourceEUD(dstStartReg, offset);
 	}
 		break;
 	case SISMRDInstruction::S_BUFFER_LOAD_DWORD:
@@ -93,7 +126,9 @@ void GCNCompiler::emitScalarMemRd(GCNInstruction& ins)
 	case SISMRDInstruction::S_BUFFER_LOAD_DWORDX16:
 	{
 		uint32_t regCount = 2 << ((uint32_t)op - 10 + 1);
-		emitScalarMemBufferLoad(m_vs.m_uboId, dstStartReg, regCount, offsetDw);
+		emitScalarMemBufferLoad(m_vs.m_uboId, 
+			dstStartReg, regCount,
+			imm, offset, ins.literalConst);
 	}
 		break;
 	default:

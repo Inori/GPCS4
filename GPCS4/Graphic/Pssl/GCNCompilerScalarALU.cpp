@@ -241,7 +241,47 @@ void GCNCompiler::emitScalarAbs(GCNInstruction& ins)
 
 void GCNCompiler::emitScalarCmp(GCNInstruction& ins)
 {
-	LOG_PSSL_UNHANDLED_INST();
+	uint32_t op = getSopOpcode(ins);
+
+	uint32_t sdst;
+	uint32_t src0;
+	uint32_t src1;
+	uint32_t sdstRidx;
+	uint32_t src0Ridx;
+	uint32_t src1Ridx;
+	int16_t  imm;
+	getSopOperands(ins, &sdst, &sdstRidx, &src0, &src0Ridx, &src1, &src1Ridx, &imm);
+
+	auto       opType  = ins.instruction->GetInstructionOperandType();
+	const auto dstType = getScalarType(opType);
+
+	SpirvRegisterValue spvSrc0 = emitLoadScalarOperand(src0, src0Ridx, dstType, ins.literalConst);
+	SpirvRegisterValue spvSrc1;
+	if (ins.instruction->GetInstructionFormat() == Instruction::InstructionSet_SOP2)
+	{
+		// Only SOP2 has ssrc1
+		spvSrc1 = emitLoadScalarOperand(src1, src1Ridx, dstType, ins.literalConst);
+	}
+
+	SpirvRegisterValue condValue;
+	condValue.type.ctype  = SpirvScalarType::Bool;
+	condValue.type.ccount = 1;
+
+	const uint32_t boolTypeId = getVectorTypeId(condValue.type);
+
+	switch (op)
+	{
+	case SISOPCInstruction::S_CMP_EQ_I32:
+		condValue.id = m_module.opIEqual(boolTypeId,
+			spvSrc0.id, spvSrc1.id);
+		break;
+	default:
+		LOG_PSSL_UNHANDLED_INST();
+		break;
+	}
+
+	// Update scc.
+	m_stateRegs.scc = condValue;
 }
 
 void GCNCompiler::emitScalarSelect(GCNInstruction& ins)
@@ -251,7 +291,6 @@ void GCNCompiler::emitScalarSelect(GCNInstruction& ins)
 
 void GCNCompiler::emitScalarBitLogic(GCNInstruction& ins)
 {
-	
 	uint32_t op = getSopOpcode(ins);
 
 	uint32_t sdst;
@@ -309,7 +348,7 @@ void GCNCompiler::emitScalarBitLogic(GCNInstruction& ins)
 	// Many scalar ALU instructions will update scc on real GPU hardware, not only ScalarBitLogic ones.
 	// And implementation of flag register update strategy is a world wide challenge in binary translation domain.
 	// Here I only update scc for ScalarBitLogic instructions, and see if this will work.
-	m_stateRegs.sccz = emitRegisterZeroTest(dstVal, SpirvZeroTest::TestNz);
+	m_stateRegs.scc = emitRegisterZeroTest(dstVal, SpirvZeroTest::TestNz);
 
 	emitStoreScalarOperand(sdst, sdstRidx, dstVal);
 }
@@ -360,7 +399,7 @@ void GCNCompiler::emitScalarBitManip(GCNInstruction& ins)
 	// Many scalar ALU instructions will update scc on real GPU hardware, not only ScalarBitLogic ones.
 	// And implementation of flag register update strategy is a world wide challenge in binary translation domain.
 	// Here I only update scc for ScalarBitLogic instructions, and see if this will work.
-	m_stateRegs.sccz = emitRegisterZeroTest(dstVal, SpirvZeroTest::TestNz);
+	m_stateRegs.scc = emitRegisterZeroTest(dstVal, SpirvZeroTest::TestNz);
 
 	emitStoreScalarOperand(sdst, sdstRidx, dstVal);
 }
@@ -414,7 +453,7 @@ void GCNCompiler::emitScalarExecMask(GCNInstruction& ins)
 	// Update exec
 	m_stateRegs.exec.store(m_module, dstVal);
 	// Update sccz.
-	m_stateRegs.sccz = emitRegisterZeroTest(dstVal, SpirvZeroTest::TestNz);
+	m_stateRegs.scc = emitRegisterZeroTest(dstVal, SpirvZeroTest::TestNz);
 }
 
 void GCNCompiler::emitScalarQuadMask(GCNInstruction& ins)

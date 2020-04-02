@@ -37,8 +37,11 @@ struct GcnStateRegisters
 
 	SpirvRegisterPointer m0;
 
-	// spirv condition
-	SpirvRegisterValue sccz;  // There's no hardware sccz, branch instruction detect if scc is 0 or 1
+	// Spirv condition register, 
+	// since I didn't find any instructions 
+	// which will load/store scc directly,
+	// I treat scc as bool type.
+	SpirvRegisterValue scc;
 };
 
 
