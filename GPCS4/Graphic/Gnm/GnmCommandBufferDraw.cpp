@@ -27,6 +27,13 @@ using namespace pssl;
 // The compute shader using to clear color render target
 constexpr uint64_t ShaderHashClearRT = 0x8C25642DB09D8E59;
 
+// Use this to break on a shader you want to debug.
+#define SHADER_DEBUG_BREAK(mod, hash)  \
+	if (mod->key().toUint64() == hash) \
+	{                                  \
+		__debugbreak();                \
+	}
+
 GnmCommandBufferDraw::GnmCommandBufferDraw(
 	const SceGpuQueueDevice& device,
 	const RcPtr<VltContext>& context) :
@@ -727,6 +734,8 @@ void GnmCommandBufferDraw::commitPsStage()
 	LOG_DEBUG("pixel shader hash %llX", m_shaders.ps.shader->key().toUint64());
 	m_shaders.ps.shader->defineShaderInput(m_shaders.ps.userDataSlotTable);
 
+	SHADER_DEBUG_BREAK(m_shaders.ps.shader, 0x2C6C5C88E0F9FA34);
+	
 	auto nestedResources = m_shaders.ps.shader->getShaderResources();
 	auto shaderResources = PsslShaderModule::flattenShaderResources(nestedResources);
 

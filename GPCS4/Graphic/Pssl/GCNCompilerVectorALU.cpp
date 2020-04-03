@@ -803,6 +803,9 @@ void GCNCompiler::emitVectorFpCmp32(GCNInstruction& ins)
 	case SIVOPCInstruction::V_CMP_LE_F32:
 		conditionId = m_module.opFOrdLessThanEqual(typeId, spvSrc0.id, spvSrc1.id);
 		break;
+	case SIVOPCInstruction::V_CMP_EQ_F32:
+		conditionId = m_module.opFOrdEqual(typeId, spvSrc0.id, spvSrc1.id);
+		break;
 	case SIVOPCInstruction::V_CMP_NEQ_F32:
 		conditionId = m_module.opFOrdNotEqual(typeId, spvSrc0.id, spvSrc1.id);
 		break;
