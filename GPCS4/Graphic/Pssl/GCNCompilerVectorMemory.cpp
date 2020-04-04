@@ -87,6 +87,26 @@ void GCNCompiler::emitVectorMemBufFmtNoTyped(GCNInstruction& ins)
 void GCNCompiler::emitVectorMemBufFmtTyped(GCNInstruction& ins)
 {
 	auto inst = asInst<SIMTBUFInstruction>(ins);
+	auto op   = inst->GetOp();
+
+	switch (op)
+	{
+	case SIMTBUFInstruction::TBUFFER_LOAD_FORMAT_X:
+	case SIMTBUFInstruction::TBUFFER_LOAD_FORMAT_XY:
+	case SIMTBUFInstruction::TBUFFER_LOAD_FORMAT_XYZ:
+	case SIMTBUFInstruction::TBUFFER_LOAD_FORMAT_XYZW:
+		// TODO:
+		break;
+	case SIMTBUFInstruction::TBUFFER_STORE_FORMAT_X:
+	case SIMTBUFInstruction::TBUFFER_STORE_FORMAT_XY:
+	case SIMTBUFInstruction::TBUFFER_STORE_FORMAT_XYZ:
+	case SIMTBUFInstruction::TBUFFER_STORE_FORMAT_XYZW:
+		LOG_PSSL_UNHANDLED_INST();
+		break;
+	default:
+		LOG_PSSL_UNHANDLED_INST();
+		break;
+	}
 }
 
 void GCNCompiler::emitVectorMemImgNoSmp(GCNInstruction& ins)

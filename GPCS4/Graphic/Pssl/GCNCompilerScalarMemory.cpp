@@ -41,8 +41,9 @@ void GCNCompiler::emitScalarMemBufferLoad(
 	// We need to detect the value type specified by the V# from which
 	// we declare the constant buffer.
 	// Here I just use float.
-	uint32_t uniformFloatPtrId = m_module.defFloatPointerType(32, spv::StorageClassUniform);
-	uint32_t uintTypeId        = getScalarTypeId(SpirvScalarType::Uint32);
+	
+	uint32_t typeId    = getScalarTypeId(SpirvScalarType::Uint32);
+	uint32_t ptrTypeId = m_module.defPointerType(typeId, spv::StorageClassUniform);
 
 	uint32_t offsetInDwordsId = 0;
 	if (!imm)
@@ -53,9 +54,9 @@ void GCNCompiler::emitScalarMemBufferLoad(
 			SpirvScalarType::Uint32,
 			literal);
 		
-		uint32_t offsetInBytesId = m_module.opBitwiseAnd(uintTypeId, 
+		uint32_t offsetInBytesId = m_module.opBitwiseAnd(typeId, 
 			value.id, m_module.constu32(~0x3));
-		offsetInDwordsId         = m_module.opShiftRightLogical(uintTypeId, 
+		offsetInDwordsId         = m_module.opShiftRightLogical(typeId, 
 			offsetInBytesId, m_module.constu32(2));
 	}
 
@@ -72,17 +73,24 @@ void GCNCompiler::emitScalarMemBufferLoad(
 		else
 		{
 			offsetId = m_module.opIAdd(
-				uintTypeId, 
+				typeId, 
 				offsetInDwordsId, 
 				m_module.constu32(i));
 		}
-		std::array<uint32_t, 2> indices     = { m_module.constu32(0), offsetId };
+
+		std::array<uint32_t, 2> indices = { m_module.constu32(0), offsetId };
 		uint32_t                srcId   = m_module.opAccessChain(
-            uniformFloatPtrId,
+            ptrTypeId,
             bufferId,
             indices.size(), indices.data());
-		auto value = emitValueLoad({ SpirvScalarType::Float32, 1, srcId });
-		valueArray.emplace_back(SpirvScalarType::Float32, 1, value.id);
+
+		SpirvRegisterPointer elementPtr;
+		elementPtr.type.ctype  = SpirvScalarType::Uint32;
+		elementPtr.type.ccount = 1;
+		elementPtr.id          = srcId;
+		auto value             = emitValueLoad(elementPtr);
+
+		valueArray.emplace_back(value);
 	}
 
 	emitSgprArrayStore(dstRegStart, valueArray.data(), valueArray.size());

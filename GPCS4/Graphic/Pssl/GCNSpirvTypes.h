@@ -81,8 +81,9 @@ struct SpirvRegisterInfo
 	{
 	}
 
-	SpirvRegisterInfo(SpirvScalarType type,
-					  uint32_t count, uint32_t alen,
+	SpirvRegisterInfo(SpirvScalarType   type,
+					  uint32_t          count,
+					  uint32_t          alen,
 					  spv::StorageClass cls) :
 		atype(type, count, alen),
 		sclass(cls)

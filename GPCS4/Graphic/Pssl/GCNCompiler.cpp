@@ -714,9 +714,52 @@ void GCNCompiler::emitDclImmSampler(const GcnShaderResourceInstance& res)
 	m_resourceSlots.push_back({ bindingId, VK_DESCRIPTOR_TYPE_SAMPLER });
 }
 
-void GCNCompiler::emitDclImmResource(const GcnShaderResourceInstance& res)
+void GCNCompiler::emitDclImmBuffer(const GcnShaderResourceInstance& res)
 {
+	const VSharpBuffer* vsharpBuffer = reinterpret_cast<const VSharpBuffer*>(res.res.resource);
 
+
+	uint32_t elemType   = getScalarTypeId(SpirvScalarType::Uint32);
+	uint32_t arrayType  = m_module.defRuntimeArrayTypeUnique(elemType);
+	uint32_t structType = m_module.defStructTypeUnique(1, &arrayType);
+	uint32_t ptrType    = m_module.defPointerType(structType, spv::StorageClassUniform);
+
+	uint32_t resTypeId = m_module.defPointerType(elemType, spv::StorageClassUniform);
+	uint32_t varId     = m_module.newVar(ptrType, spv::StorageClassUniform);
+
+	m_module.decorateArrayStride(arrayType, sizeof(uint32_t));
+	m_module.decorate(structType, spv::DecorationBufferBlock);
+	m_module.memberDecorateOffset(structType, 0, 0);
+
+	m_module.setDebugName(structType,"StorageBufferObject");
+	m_module.setDebugMemberName(structType, 0, "data");
+
+	// TODO:
+	// Detect if the buffer is writable
+	//if (!isUav)
+	//{
+	//	m_module.decorate(varId, spv::DecorationNonWritable);
+	//}
+
+	// Note:
+	// The calculated bindingId is not "correct", it's a dummy value.
+	// We'll remap binding id before compiling pipeline in VltShader class.
+	uint32_t bindingId = computeConstantBufferBinding(m_programInfo.shaderType(), res.res.startRegister);
+
+	m_module.decorateDescriptorSet(varId, 0);
+	m_module.decorateBinding(varId, bindingId);
+
+	m_module.setDebugName(varId, "sbo");
+
+	SpirvRegularBuffer regularBuffer;
+	regularBuffer.varId                        = varId;
+	m_regularBuffers.at(res.res.startRegister) = regularBuffer;
+
+	m_resourceSlots.push_back({ bindingId, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER });
+}
+
+void GCNCompiler::emitDclImmTexture(const GcnShaderResourceInstance& res)
+{
 	const uint32_t registerId = res.res.startRegister;
 
 	const TSharpBuffer* tsharpBuffer = reinterpret_cast<const TSharpBuffer*>(res.res.resource);
@@ -756,6 +799,18 @@ void GCNCompiler::emitDclImmResource(const GcnShaderResourceInstance& res)
 	m_textures.at(registerId) = texture;
 
 	m_resourceSlots.push_back({ bindingId, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE });
+}
+
+void GCNCompiler::emitDclImmResource(const GcnShaderResourceInstance& res)
+{
+	if (res.sharpType == PsslSharpType::TSharp)
+	{
+		emitDclImmTexture(res);
+	}
+	else
+	{
+		emitDclImmBuffer(res);
+	}
 }
 
 

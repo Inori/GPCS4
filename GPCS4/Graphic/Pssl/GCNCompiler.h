@@ -199,6 +199,8 @@ private:
 
 	void emitDclImmConstBuffer(const GcnShaderResourceInstance& res);
 	void emitDclImmSampler(const GcnShaderResourceInstance& res);
+	void emitDclImmBuffer(const GcnShaderResourceInstance& res);
+	void emitDclImmTexture(const GcnShaderResourceInstance& res);
 	void emitDclImmResource(const GcnShaderResourceInstance& res);
 
 	/////////////////////////////////////////////////////////
