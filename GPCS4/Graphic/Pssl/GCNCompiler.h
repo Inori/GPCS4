@@ -51,15 +51,6 @@ struct GcnCompilerVsPart
 	std::map<uint32_t, SpirvRegisterPointer> vsInputs;
 	// exp target -- spirv id
 	std::map<uint32_t, SpirvRegisterPointer> vsOutputs;
-
-	// Uniform Buffer Object Id
-	// TODO:
-	// Currently I see only one block of uniform buffer memory being used
-	// even if multiple uniform variables declared.
-	// So I only declare one member variable.
-	// If multiple blocks of uniform buffer are found in the future
-	// change this to a std::vector or something convinient.
-	uint32_t m_uboId = 0;
 };
 
 /**
@@ -72,10 +63,6 @@ struct GcnCompilerPsPart
 	std::map<uint32_t, SpirvRegisterPointer> psInputs;
 	// exp target -- spirv id
 	std::map<uint32_t, SpirvRegisterPointer> psOutputs;
-	// start register index -- sampler
-	std::array<SpirvSampler, GcnMaxSgprCount> samplers;
-	// start register index -- texture
-	std::array<SpirvTexture, GcnMaxSgprCount> textures;
 };
 
 /**
@@ -649,6 +636,14 @@ private:
 	GcnCompilerVsPart m_vs;
 	GcnCompilerPsPart m_ps;
 	GcnCompilerCsPart m_cs;
+
+	//////////////////////////////////////////////////////
+	// Shader resource variables. These provide access to
+	// constant buffers, samplers, textures, and storage buffers.
+	std::array<SpirvConstantBuffer, GcnMaxSgprCount> m_constantBuffers;
+	std::array<SpirvSampler, GcnMaxSgprCount>        m_samplers;
+	std::array<SpirvTexture, GcnMaxSgprCount>        m_textures;
+	std::array<SpirvRegularBuffer, GcnMaxSgprCount>  m_regularBuffers;
 
 	///////////////////////////////////
 	// State registers

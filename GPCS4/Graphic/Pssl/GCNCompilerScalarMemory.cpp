@@ -77,9 +77,9 @@ void GCNCompiler::emitScalarMemBufferLoad(
 				m_module.constu32(i));
 		}
 		std::array<uint32_t, 2> indices     = { m_module.constu32(0), offsetId };
-		uint32_t                srcId       = m_module.opAccessChain(
+		uint32_t                srcId   = m_module.opAccessChain(
             uniformFloatPtrId,
-            m_vs.m_uboId,
+            bufferId,
             indices.size(), indices.data());
 		auto value = emitValueLoad({ SpirvScalarType::Float32, 1, srcId });
 		valueArray.emplace_back(SpirvScalarType::Float32, 1, value.id);
@@ -126,9 +126,10 @@ void GCNCompiler::emitScalarMemRd(GCNInstruction& ins)
 	case SISMRDInstruction::S_BUFFER_LOAD_DWORDX16:
 	{
 		uint32_t regCount = 2 << ((uint32_t)op - 10 + 1);
-		emitScalarMemBufferLoad(m_vs.m_uboId, 
-			dstStartReg, regCount,
-			imm, offset, ins.literalConst);
+		uint32_t bufferId = m_constantBuffers.at(srcStartReg).varId;
+		emitScalarMemBufferLoad(bufferId,
+								dstStartReg, regCount,
+								imm, offset, ins.literalConst);
 	}
 		break;
 	default:

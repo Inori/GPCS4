@@ -183,6 +183,18 @@ struct SpirvGprArray
 };
 
 /**
+ * \brief Constant buffer binding
+ * 
+ * Stores information required to
+ * access a constant buffer.
+ */
+struct SpirvConstantBuffer
+{
+	uint32_t varId = 0;
+	uint32_t size  = 0;
+};
+
+/**
  * \brief Sampler binding
  *
  * Stores a sampler variable that can be
@@ -207,9 +219,9 @@ struct SpirvImageInfo
 };
 
 /**
- * \brief Shader resource binding
+ * \brief Shader texture binding
  *
- * Stores a resource variable
+ * Stores a texture variable
  * and associated type IDs.
  */
 struct SpirvTexture
@@ -218,5 +230,19 @@ struct SpirvTexture
 	uint32_t varId       = 0;
 	uint32_t imageTypeId = 0;
 };
+
+
+/**
+ * \brief Regular buffer binding
+ *
+ * Stores a storage buffer 
+ * and associated information,
+ * corresponding to Gnm's RegularBuffer.
+ */
+struct SpirvRegularBuffer
+{
+	uint32_t       varId       = 0;
+};
+
 
 }  // namespace pssl

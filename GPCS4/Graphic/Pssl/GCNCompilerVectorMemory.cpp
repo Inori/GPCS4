@@ -106,8 +106,8 @@ void GCNCompiler::emitVectorMemImgSmp(GCNInstruction& ins)
 	uint32_t sampReg = inst->GetSSAMP() * 4;
 	uint32_t texReg = inst->GetSRSRC() * 4;
 	
-	auto& sampler = m_ps.samplers.at(sampReg);
-	auto& texture = m_ps.textures.at(texReg);
+	auto& sampler = m_samplers.at(sampReg);
+	auto& texture = m_textures.at(texReg);
 
 	switch (op)
 	{

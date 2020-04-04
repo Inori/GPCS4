@@ -54,9 +54,9 @@ uint32_t VltDescriptorSlotMap::getBindingId(VkShaderStageFlagBits stage, uint32_
 
 ///
 VltPipelineLayout::VltPipelineLayout(
-	const RcPtr<VltDevice>& device,
+	const RcPtr<VltDevice>&     device,
 	const VltDescriptorSlotMap& slotMap,
-	VkPipelineBindPoint pipelineBindPoint) :
+	VkPipelineBindPoint         pipelineBindPoint) :
 	m_device(device),
 	m_bindingSlots(slotMap.bindingCount())
 {

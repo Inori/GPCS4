@@ -637,7 +637,8 @@ void GCNCompiler::emitDclImmConstBuffer(const GcnShaderResourceInstance& res)
 	// For constant buffer size, here I take the runtime value directly,
 	// but in fact, the value could be changed during runtime theoretically.
 	// We should use shader specialization constants instead in the future.
-	uint32_t arraySize = vsharpBuffer->stride * vsharpBuffer->num_records / sizeof(uint32_t);
+	uint32_t bufferSize = vsharpBuffer->stride * vsharpBuffer->num_records;
+	uint32_t arraySize  = bufferSize / sizeof(uint32_t);
 
 	uint32_t arrayId = m_module.defArrayTypeUnique(
 		m_module.defFloatType(32),
@@ -661,17 +662,22 @@ void GCNCompiler::emitDclImmConstBuffer(const GcnShaderResourceInstance& res)
 	m_module.setDebugMemberName(uboStuctId, 0, "data");
 
 	uint32_t uboPtrId = m_module.defPointerType(uboStuctId, spv::StorageClassUniform);
-	m_vs.m_uboId      = m_module.newVar(uboPtrId, spv::StorageClassUniform);
+	uint32_t uboId    = m_module.newVar(uboPtrId, spv::StorageClassUniform);
 
-	m_module.decorateDescriptorSet(m_vs.m_uboId, 0);
+	m_module.decorateDescriptorSet(uboId, 0);
 
 	// Note:
 	// The calculated bindingId is not "correct", it's a dummy value.
 	// We'll remap binding id before compiling pipeline in VltShader class.
 	uint32_t bindingId = computeConstantBufferBinding(m_programInfo.shaderType(), res.res.startRegister);
-	m_module.decorateBinding(m_vs.m_uboId, bindingId);
+	m_module.decorateBinding(uboId, bindingId);
 
-	m_module.setDebugName(m_vs.m_uboId, "ubo");
+	m_module.setDebugName(uboId, "ubo");
+
+	SpirvConstantBuffer constBuffer;
+	constBuffer.varId = uboId;
+	constBuffer.size  = bufferSize;
+	m_constantBuffers.at(res.res.startRegister) = constBuffer;
 
 	m_resourceSlots.push_back({ bindingId, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER });
 }
@@ -701,9 +707,9 @@ void GCNCompiler::emitDclImmSampler(const GcnShaderResourceInstance& res)
 	m_module.decorateBinding(varId, bindingId);
 
 	SpirvSampler sampler;
-	sampler.varId               = varId;
-	sampler.typeId              = samplerType;
-	m_ps.samplers.at(samplerId) = sampler;
+	sampler.varId            = varId;
+	sampler.typeId           = samplerType;
+	m_samplers.at(samplerId) = sampler;
 
 	m_resourceSlots.push_back({ bindingId, VK_DESCRIPTOR_TYPE_SAMPLER });
 }
@@ -744,10 +750,10 @@ void GCNCompiler::emitDclImmResource(const GcnShaderResourceInstance& res)
 	m_module.decorateBinding(varId, bindingId);
 
 	SpirvTexture texture;
-	texture.imageInfo            = typeInfo;
-	texture.varId                = varId;
-	texture.imageTypeId          = imageTypeId;
-	m_ps.textures.at(registerId) = texture;
+	texture.imageInfo         = typeInfo;
+	texture.varId             = varId;
+	texture.imageTypeId       = imageTypeId;
+	m_textures.at(registerId) = texture;
 
 	m_resourceSlots.push_back({ bindingId, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE });
 }
