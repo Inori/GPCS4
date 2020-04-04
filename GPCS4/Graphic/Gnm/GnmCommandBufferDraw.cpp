@@ -696,55 +696,71 @@ void GnmCommandBufferDraw::bindShaderResources(
 
 void GnmCommandBufferDraw::commitVsStage()
 {
-	m_shaders.vs.shader = new PsslShaderModule((const uint32_t*)m_shaders.vs.code);
-
-	const uint32_t* fsCode = findFetchShaderCode(m_shaders.vs);
-	// Some vs shaders doesn't have fetch shader, we need to check.
-	if (fsCode)
+	do 
 	{
-		m_shaders.vs.shader->defineFetchShader(fsCode);
-	}
+		if (!m_shaders.vs.code)
+		{
+			break;
+		}
 
-	LOG_DEBUG("vertex shader hash %llX", m_shaders.vs.shader->key().toUint64());
-	m_shaders.vs.shader->defineShaderInput(m_shaders.vs.userDataSlotTable);
+		m_shaders.vs.shader = new PsslShaderModule((const uint32_t*)m_shaders.vs.code);
 
-	auto nestedResources = m_shaders.vs.shader->getShaderResources();
-	auto shaderResources = PsslShaderModule::flattenShaderResources(nestedResources);
+		const uint32_t* fsCode = findFetchShaderCode(m_shaders.vs);
+		// Some vs shaders doesn't have fetch shader, we need to check.
+		if (fsCode)
+		{
+			m_shaders.vs.shader->defineFetchShader(fsCode);
+		}
 
-	// Set vertex input layout
-	auto vertexAttributes = extractVertexAttributes(shaderResources);
-	// Some shaders doesn't have vertex input, we need to check
-	if (vertexAttributes.size())
-	{
-		setVertexInputLayout(vertexAttributes);
-	}
+		LOG_DEBUG("vertex shader hash %llX", m_shaders.vs.shader->key().toUint64());
+		m_shaders.vs.shader->defineShaderInput(m_shaders.vs.userDataSlotTable);
 
-	// Bind all resources which the shader uses.
-	bindShaderResources(PsslProgramType::VertexShader, shaderResources);
+		auto nestedResources = m_shaders.vs.shader->getShaderResources();
+		auto shaderResources = PsslShaderModule::flattenShaderResources(nestedResources);
 
-	m_context->bindShader(
-		VK_SHADER_STAGE_VERTEX_BIT,
-		m_shaders.vs.shader->compile());
+		// Set vertex input layout
+		auto vertexAttributes = extractVertexAttributes(shaderResources);
+		// Some shaders doesn't have vertex input, we need to check
+		if (vertexAttributes.size())
+		{
+			setVertexInputLayout(vertexAttributes);
+		}
+
+		// Bind all resources which the shader uses.
+		bindShaderResources(PsslProgramType::VertexShader, shaderResources);
+
+		m_context->bindShader(
+			VK_SHADER_STAGE_VERTEX_BIT,
+			m_shaders.vs.shader->compile());
+	} while (false);
 }
 
 void GnmCommandBufferDraw::commitPsStage()
 {
-	m_shaders.ps.shader = new PsslShaderModule((const uint32_t*)m_shaders.ps.code);
+	do 
+	{
+		if (!m_shaders.ps.code)
+		{
+			break;
+		}
 
-	LOG_DEBUG("pixel shader hash %llX", m_shaders.ps.shader->key().toUint64());
-	m_shaders.ps.shader->defineShaderInput(m_shaders.ps.userDataSlotTable);
+		m_shaders.ps.shader = new PsslShaderModule((const uint32_t*)m_shaders.ps.code);
 
-	SHADER_DEBUG_BREAK(m_shaders.ps.shader, 0x2C6C5C88E0F9FA34);
-	
-	auto nestedResources = m_shaders.ps.shader->getShaderResources();
-	auto shaderResources = PsslShaderModule::flattenShaderResources(nestedResources);
+		LOG_DEBUG("pixel shader hash %llX", m_shaders.ps.shader->key().toUint64());
+		m_shaders.ps.shader->defineShaderInput(m_shaders.ps.userDataSlotTable);
 
-	// Bind all resources which the shader uses.
-	bindShaderResources(PsslProgramType::PixelShader, shaderResources);
+		SHADER_DEBUG_BREAK(m_shaders.ps.shader, 0x2C6C5C88E0F9FA34);
 
-	m_context->bindShader(
-		VK_SHADER_STAGE_FRAGMENT_BIT,
-		m_shaders.ps.shader->compile());
+		auto nestedResources = m_shaders.ps.shader->getShaderResources();
+		auto shaderResources = PsslShaderModule::flattenShaderResources(nestedResources);
+
+		// Bind all resources which the shader uses.
+		bindShaderResources(PsslProgramType::PixelShader, shaderResources);
+
+		m_context->bindShader(
+			VK_SHADER_STAGE_FRAGMENT_BIT,
+			m_shaders.ps.shader->compile());
+	} while (false);
 }
 
 template <bool Indexed, bool Indirect>
@@ -768,6 +784,8 @@ void GnmCommandBufferDraw::commitGraphicsStages()
 	commitVsStage();
 	commitPsStage();
 	commitCsStage();
+
+	clearShaderContext();
 }
 
 void GnmCommandBufferDraw::clearColorTargetHack(GnmShaderResourceList& shaderResources)
@@ -823,26 +841,39 @@ void GnmCommandBufferDraw::clearColorTargetHack(GnmShaderResourceList& shaderRes
 
 void GnmCommandBufferDraw::commitCsStage()
 {
-	m_shaders.cs.shader = new PsslShaderModule((const uint32_t*)m_shaders.cs.code);
-	LOG_DEBUG("compute shader hash %llX", m_shaders.cs.shader->key().toUint64());
-
-	m_shaders.cs.shader->defineShaderInput(m_shaders.cs.userDataSlotTable);
-	auto nestedResources = m_shaders.cs.shader->getShaderResources();
-	auto shaderResources = PsslShaderModule::flattenShaderResources(nestedResources);
-
-	// Hack
-	if (m_shaders.cs.shader->key().toUint64() == ShaderHashClearRT)
+	do 
 	{
-		clearColorTargetHack(shaderResources);
-	}
-	else
-	{
-		auto shader = m_shaders.cs.shader->compile();
-	}
+		if (!m_shaders.cs.code)
+		{
+			break;
+		}
+
+		m_shaders.cs.shader = new PsslShaderModule((const uint32_t*)m_shaders.cs.code);
+		LOG_DEBUG("compute shader hash %llX", m_shaders.cs.shader->key().toUint64());
+
+		m_shaders.cs.shader->defineShaderInput(m_shaders.cs.userDataSlotTable);
+		auto nestedResources = m_shaders.cs.shader->getShaderResources();
+		auto shaderResources = PsslShaderModule::flattenShaderResources(nestedResources);
+
+		// Hack
+		if (m_shaders.cs.shader->key().toUint64() == ShaderHashClearRT)
+		{
+			clearColorTargetHack(shaderResources);
+		}
+		else
+		{
+			auto shader = m_shaders.cs.shader->compile();
+		}
+	} while (false);
 }
 
 void GnmCommandBufferDraw::commitComputeStages()
 {
+}
+
+void GnmCommandBufferDraw::clearShaderContext()
+{
+	m_shaders = GnmShaderContextGroup();
 }
 
 void GnmCommandBufferDraw::clearDepthTarget()
@@ -861,7 +892,8 @@ void GnmCommandBufferDraw::clearRenderState()
 		GnmContexFlag::GpDirtyRenderTarget);
 
 	m_state   = GnmContextState();
-	m_shaders = GnmShaderContextGroup();
+
+	clearShaderContext();
 }
 
 void GnmCommandBufferDraw::setUserDataSlots(

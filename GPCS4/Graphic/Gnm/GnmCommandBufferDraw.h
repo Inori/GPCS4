@@ -151,6 +151,7 @@ private:
 	void commitCsStage();
 	void commitComputeStages();
 
+	void clearShaderContext();
 	void clearRenderState();
 
 	void clearColorTargetHack(
