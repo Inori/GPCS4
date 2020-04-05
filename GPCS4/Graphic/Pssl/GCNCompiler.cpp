@@ -1926,6 +1926,31 @@ bool GCNCompiler::isDoubleWordType(SpirvScalarType type) const
 	return type == SpirvScalarType::Sint64 || type == SpirvScalarType::Uint64 || type == SpirvScalarType::Float64;
 }
 
+uint32_t GCNCompiler::findResourceBufferId(uint32_t regIndex)
+{
+	uint32_t bufferId = InvalidSpvId;
+
+	do 
+	{
+		SpirvConstantBuffer& constBuffer = m_constantBuffers.at(regIndex);
+		bufferId                         = constBuffer.varId;
+		if (bufferId != InvalidSpvId)
+		{
+			break;
+		}
+
+		SpirvRegularBuffer& regularBuffer = m_regularBuffers.at(regIndex);
+		bufferId                          = regularBuffer.varId;
+		if (bufferId != InvalidSpvId)
+		{
+			break;
+		}
+
+	} while (false);
+	
+	return bufferId;
+}
+
 SpirvScalarType GCNCompiler::getScalarType(Instruction::OperandType operandType)
 {
 	SpirvScalarType resultType = SpirvScalarType::Unknown;

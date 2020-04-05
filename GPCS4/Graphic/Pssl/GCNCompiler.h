@@ -522,7 +522,7 @@ private:
 	void emitDbgProf(GCNInstruction& ins);
 
 	// Extra dispatch functions
-	void emitVectorMemBufFmtNoTyped(GCNInstruction& ins);
+	void emitVectorMemBufFmtUntyped(GCNInstruction& ins);
 	void emitVectorMemBufFmtTyped(GCNInstruction& ins);
 
 	void emitScalarProgFlowPC(GCNInstruction& ins);
@@ -540,6 +540,8 @@ private:
 		bool     imm,
 		uint32_t offset,
 		uint32_t literal);
+
+	void emitVectorMemBufferLoad(GCNInstruction& ins);
 
 	/////////////////////////////////////////////////////////
 
@@ -564,6 +566,8 @@ private:
 
 	bool isDoubleWordType(
 		SpirvScalarType type) const;
+
+	uint32_t findResourceBufferId(uint32_t regIndex);
 
 	bool isVop3Encoding(
 		const GCNInstruction& ins);

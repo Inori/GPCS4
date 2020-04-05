@@ -39,6 +39,98 @@ void GCNCompiler::emitVectorMemory(GCNInstruction& ins)
 	}
 }
 
+
+void GCNCompiler::emitVectorMemBufferLoad(GCNInstruction& ins)
+{
+	uint32_t op      = 0;
+	uint32_t idxen   = 0;
+	uint32_t offen   = 0;
+	uint32_t offset  = 0;
+	uint32_t soffset = 0;
+	uint32_t idxReg  = 0;
+	uint32_t dstReg  = 0;
+
+	if (ins.instruction->GetInstructionFormat() == Instruction::InstructionSet_MUBUF)
+	{
+		auto inst = asInst<SIMUBUFInstruction>(ins);
+		op      = inst->GetOp();
+		idxen   = inst->GetIDXEN();
+		offen   = inst->GetOFFEN();
+		offset  = inst->GetOFFSET();
+		soffset = inst->GetSOFFSET();
+		idxReg  = inst->GetVADDR();
+		dstReg  = inst->GetVDATA();
+	}
+	else
+	{
+		auto inst = asInst<SIMTBUFInstruction>(ins);
+		op        = inst->GetOp();
+		idxen     = inst->GetIDXEN();
+		offen     = inst->GetOFFEN();
+		offset    = inst->GetOFFSET();
+		soffset   = inst->GetSOFFSET();
+		idxReg    = inst->GetVADDR();
+		dstReg    = inst->GetVDATA();
+	}
+
+	LOG_ASSERT(idxen == 1, "only support indexed load.");
+	LOG_ASSERT(offset == 0, "do not support imm offset yet.");
+	LOG_ASSERT(soffset == 128, "only support 0 const SGPR offset");
+
+	uint32_t typeId    = getScalarTypeId(SpirvScalarType::Uint32);
+	uint32_t ptrTypeId = m_module.defPointerType(typeId, spv::StorageClassUniform);
+
+	SpirvRegisterValue indexVal = emitGprLoad<SpirvGprType::Vector>(idxReg);
+
+	uint32_t vgprOffsetId = 0;
+	if (offen)
+	{
+		SpirvRegisterValue offsetVal = emitGprLoad<SpirvGprType::Vector>(idxReg + 1);
+		vgprOffsetId                   = m_module.opUDiv(typeId, offsetVal.id, m_module.constu32(4));
+	}
+
+	uint32_t bufferId  = findResourceBufferId(dstReg);
+
+	uint32_t                        dstRegCount = static_cast<uint32_t>(op) + 1;
+	std::vector<SpirvRegisterValue> valueArray;
+
+	// Note:
+	// The index value is in units of stride.
+
+	// TODO:
+	// Here I hardcode the stride to 16.
+	// We should take the real stride value from V#,
+	// and since the value can be changed at runtime,
+	// it's better to use a shader specialization constant.
+	uint32_t recordId = m_module.opIMul(typeId, m_module.constu32(4), indexVal.id);
+
+	for (uint32_t i = 0; i != dstRegCount; ++i)
+	{
+		uint32_t offsetId = m_module.opIAdd(typeId, recordId, m_module.constu32(i));
+
+		if (offen)
+		{
+			offsetId = m_module.opIAdd(typeId, offsetId, vgprOffsetId);
+		}
+
+		std::array<uint32_t, 2> indices = { m_module.constu32(0), offsetId };
+		uint32_t                srcId   = m_module.opAccessChain(
+            ptrTypeId,
+            bufferId,
+            indices.size(), indices.data());
+
+		SpirvRegisterPointer element;
+		element.type.ctype  = SpirvScalarType::Uint32;
+		element.type.ccount = 1;
+		element.id          = srcId;
+		auto value          = emitValueLoad(element);
+
+		valueArray.emplace_back(value);
+	}
+
+	emitVgprArrayStore(dstReg, valueArray.data(), valueArray.size());
+}
+
 void GCNCompiler::emitVectorMemBufNoFmt(GCNInstruction& ins)
 {
 	LOG_PSSL_UNHANDLED_INST();
@@ -49,7 +141,7 @@ void GCNCompiler::emitVectorMemBufFmt(GCNInstruction& ins)
 	auto encoding = ins.instruction->GetInstructionFormat();
 	if (encoding == Instruction::InstructionSet_MUBUF)
 	{
-		emitVectorMemBufFmtNoTyped(ins);
+		emitVectorMemBufFmtUntyped(ins);
 	}
 	else // MTBUF
 	{
@@ -58,7 +150,7 @@ void GCNCompiler::emitVectorMemBufFmt(GCNInstruction& ins)
 	}
 }
 
-void GCNCompiler::emitVectorMemBufFmtNoTyped(GCNInstruction& ins)
+void GCNCompiler::emitVectorMemBufFmtUntyped(GCNInstruction& ins)
 {
 	auto inst = asInst<SIMUBUFInstruction>(ins);
 
@@ -70,7 +162,7 @@ void GCNCompiler::emitVectorMemBufFmtNoTyped(GCNInstruction& ins)
 	case SIMUBUFInstruction::BUFFER_LOAD_FORMAT_XY:
 	case SIMUBUFInstruction::BUFFER_LOAD_FORMAT_XYZ:
 	case SIMUBUFInstruction::BUFFER_LOAD_FORMAT_XYZW:
-		// TODO:
+		emitVectorMemBufferLoad(ins);
 		break;
 	case SIMUBUFInstruction::BUFFER_STORE_FORMAT_X:
 	case SIMUBUFInstruction::BUFFER_STORE_FORMAT_XY:
@@ -95,7 +187,7 @@ void GCNCompiler::emitVectorMemBufFmtTyped(GCNInstruction& ins)
 	case SIMTBUFInstruction::TBUFFER_LOAD_FORMAT_XY:
 	case SIMTBUFInstruction::TBUFFER_LOAD_FORMAT_XYZ:
 	case SIMTBUFInstruction::TBUFFER_LOAD_FORMAT_XYZW:
-		// TODO:
+		emitVectorMemBufferLoad(ins);
 		break;
 	case SIMTBUFInstruction::TBUFFER_STORE_FORMAT_X:
 	case SIMTBUFInstruction::TBUFFER_STORE_FORMAT_XY:
