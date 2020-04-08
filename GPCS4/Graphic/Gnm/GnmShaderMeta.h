@@ -2,7 +2,6 @@
 
 #include "GnmCommon.h"
 
-
 namespace pssl
 {;
 struct VsStageRegisters;
@@ -22,6 +21,7 @@ struct GnmShaderMetaVs
 struct GnmShaderMetaPs
 {
 	uint32_t userSgprCount;
+	uint32_t spiPsInputAddr;
 };
 
 struct GnmShaderMetaCs

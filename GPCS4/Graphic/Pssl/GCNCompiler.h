@@ -45,8 +45,14 @@ constexpr size_t GcnMaxVgprCount = 256;
  */
 struct GcnCompilerVsPart
 {
-	spv::Id mainFunctionId = 0;
-	spv::Id fsFunctionId   = 0;
+	uint32_t mainFunctionId = 0;
+	uint32_t fsFunctionId   = 0;
+
+	uint32_t builtinVertexId     = 0;
+	uint32_t builtinInstanceId   = 0;
+	uint32_t builtinBaseVertex   = 0;
+	uint32_t builtinBaseInstance = 0;
+
 	// semantic -- spirv id
 	std::map<uint32_t, SpirvRegisterPointer> vsInputs;
 	// exp target -- spirv id
@@ -58,7 +64,22 @@ struct GcnCompilerVsPart
  */
 struct GcnCompilerPsPart
 {
-	spv::Id functionId = 0;
+	uint32_t functionId = 0;
+
+	uint32_t builtinFragCoord     = 0;
+	uint32_t builtinDepth         = 0;
+	uint32_t builtinStencilRef    = 0;
+	uint32_t builtinIsFrontFace   = 0;
+	uint32_t builtinSampleId      = 0;
+	uint32_t builtinSampleMaskIn  = 0;
+	uint32_t builtinSampleMaskOut = 0;
+	uint32_t builtinLayer         = 0;
+	uint32_t builtinViewportId    = 0;
+
+	uint32_t builtinLaneId = 0;
+	uint32_t killState     = 0;
+
+	uint32_t specRsSampleCount = 0;
 	// attr index -- spirv id
 	std::map<uint32_t, SpirvRegisterPointer> psInputs;
 	// exp target -- spirv id
@@ -70,7 +91,7 @@ struct GcnCompilerPsPart
  */
 struct GcnCompilerCsPart
 {
-	spv::Id functionId = 0;
+	uint32_t functionId = 0;
 
 	uint32_t workgroupSizeX = 0;
 	uint32_t workgroupSizeY = 0;
@@ -203,6 +224,14 @@ private:
 	void emitDclImmTexture(const GcnShaderResourceInstance& res);
 	void emitDclImmResource(const GcnShaderResourceInstance& res);
 
+	SpirvRegisterValue emitVsSystemValueLoad(
+		SpirvSystemValue sv,
+		GcnRegMask       mask);
+
+	SpirvRegisterValue emitPsSystemValueLoad(
+		SpirvSystemValue sv,
+		GcnRegMask       mask);
+
 	/////////////////////////////////////////////////////////
 	SpirvRegisterValue emitValueLoad(
 		const SpirvRegisterPointer& reg);
@@ -221,6 +250,22 @@ private:
 	void emitGprStore(
 		uint32_t                  index,
 		const SpirvRegisterValue& value);
+
+	template <SpirvGprType GprType>
+	SpirvRegisterPointer emitGprCreate(
+		uint32_t                index,
+		SpirvScalarType         type,
+		std::optional<uint32_t> initId = std::nullopt);
+
+	SpirvRegisterPointer emitVgprCreate(
+		uint32_t                index,
+		SpirvScalarType         type,
+		std::optional<uint32_t> initId = std::nullopt);
+
+	SpirvRegisterPointer emitSgprCreate(
+		uint32_t                index,
+		SpirvScalarType         type,
+		std::optional<uint32_t> initId = std::nullopt);
 
 	template <SpirvGprType GprType>
 	void emitUpdateGprType(
@@ -332,17 +377,17 @@ private:
 	SpirvRegisterPointer emitVectorAccess(
 		SpirvRegisterPointer pointer,
 		spv::StorageClass    sclass,
-		uint32_t             index);
+		GcnRegMask           mask);
 
 	SpirvRegisterValue emitVectorLoad(
 		SpirvRegisterPointer pointer,
 		spv::StorageClass    sclass,
-		uint32_t             index);
+		GcnRegMask           mask);
 
 	void emitVectorStore(
 		SpirvRegisterPointer pointer,
 		spv::StorageClass    sclass,
-		uint32_t             index,
+		GcnRegMask           mask,
 		SpirvRegisterValue   value);
 
 	////////////////////////////////////////////////
@@ -632,6 +677,12 @@ private:
 	uint32_t m_perVertexIn  = 0;
 	uint32_t m_perVertexOut = 0;
 
+	uint32_t m_clipDistances = 0;
+	uint32_t m_cullDistances = 0;
+
+	uint32_t m_primitiveIdIn  = 0;
+	uint32_t m_primitiveIdOut = 0;
+
 	//////////////////////////////////////////////
 	// Function state tracking. Required in order
 	// to properly end functions in some cases.
@@ -673,5 +724,6 @@ private:
 	// Control flow
 	std::unordered_map<uint32_t, uint32_t> m_branchLabels;
 };
+
 
 }  // namespace pssl

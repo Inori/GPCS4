@@ -132,6 +132,7 @@ void GnmCommandBufferDraw::setActiveShaderStages(ActiveShaderStages activeStages
 void GnmCommandBufferDraw::setPsShader(const PsStageRegisters* psRegs)
 {
 	m_shaders.ps.code = psRegs->getCodeAddress();
+	shader::parseShaderRegPs(psRegs, m_shaders.ps.meta);
 }
 
 void GnmCommandBufferDraw::updatePsShader(const PsStageRegisters* psRegs)

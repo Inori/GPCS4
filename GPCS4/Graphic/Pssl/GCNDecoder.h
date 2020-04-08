@@ -68,7 +68,7 @@ public:
 		return n[m_mask & 0xF];
 	}
 
-	uint32_t firstSet() const 
+	uint32_t firstComponent() const
 	{
 		const uint8_t n[16] = { 4, 0, 1, 0, 2, 0, 1, 0,
 								3, 0, 1, 0, 2, 0, 1, 0 };

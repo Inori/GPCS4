@@ -16,7 +16,9 @@ void parseShaderRegVs(const pssl::VsStageRegisters* reg, GnmShaderMetaVs& meta)
 void parseShaderRegPs(const pssl::PsStageRegisters* reg, GnmShaderMetaPs& meta)
 {
 	const SPI_SHADER_PGM_RSRC2_PS* rsrc2 = reinterpret_cast<const SPI_SHADER_PGM_RSRC2_PS*>(&reg->spiShaderPgmRsrc2Ps);
+	const SPI_PS_INPUT_ADDR*       addr  = reinterpret_cast<const SPI_PS_INPUT_ADDR*>(&reg->spiPsInputAddr);
 	meta.userSgprCount                   = rsrc2->user_sgpr;
+	meta.spiPsInputAddr                  = *reinterpret_cast<const uint32_t*>(addr);
 }
 
 void parseShaderRegCs(const pssl::CsStageRegisters* reg, GnmShaderMetaCs& meta)

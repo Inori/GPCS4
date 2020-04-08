@@ -33,7 +33,10 @@ void GCNCompiler::emitVectorInterpFpCache(GCNInstruction& ins)
 		// we just copy the already interpolated input value
 		// to the dst vgpr.
 		const auto& input = m_ps.psInputs[attr];
-		dstValue          = emitVectorLoad(input, spv::StorageClassInput, chan);
+		dstValue          = emitVectorLoad(
+            input,
+            spv::StorageClassInput,
+            GcnRegMask::select(chan));
 		
 	}
 		break;
