@@ -56,7 +56,10 @@ const uint8_t PsslShaderModule::m_shaderResourceSizeInDwords[kShaderInputUsageIm
 	1,  // kShaderInputUsageImmDispatchDrawInstances
 };
 
-PsslShaderModule::PsslShaderModule(const uint32_t* code) :
+PsslShaderModule::PsslShaderModule(
+	const PsslShaderMeta& meta,
+	const uint32_t* code) :
+	m_meta(meta),
 	m_code(code),
 	m_progInfo((const uint8_t*)code)
 {
@@ -81,6 +84,7 @@ RcPtr<vlt::VltShader> PsslShaderModule::compile()
 
 	// Generate input
 	GcnShaderInput shaderInput;
+	shaderInput.meta            = m_meta;
 	shaderInput.shaderResources = getShaderResources();
 	if (!m_vsInputSemantic.empty())
 	{

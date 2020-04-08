@@ -52,17 +52,17 @@ struct GnmShaderContext
 
 struct GnmShaderContextVS : public GnmShaderContext
 {
-	GnmShaderMetaVs meta;
+	pssl::PsslShaderMetaVs meta;
 };
 
 struct GnmShaderContextPS : public GnmShaderContext
 {
-	GnmShaderMetaPs meta;
+	pssl::PsslShaderMetaPs meta;
 };
 
 struct GnmShaderContextCS : public GnmShaderContext
 {
-	GnmShaderMetaCs meta;
+	pssl::PsslShaderMetaCs meta;
 };
 
 struct GnmShaderContextGroup

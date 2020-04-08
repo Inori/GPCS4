@@ -41,6 +41,52 @@ struct FetchShaderBuildState
 };
 
 
+
+// A complete PSSL shader binary file
+// output by PSSL shader compiler directly
+// contains some meta data,
+// including user_sgpr_count, user_sgpr_usage, ps_persp_center_en
+// and resource declaration information and so on.
+//
+// But during shader binding, the runtime will
+// rip these meta data fields out, leaving only
+// the instruction field and input slot field.
+// These meta data are then encoded into XXStageRegisters.
+//
+// Hence we need to decode these register values,
+// recover the original meta info at our needs,
+// e.g. to initialize shader SGPRs and VGPRs.
+
+struct PsslShaderMetaVs
+{
+	uint32_t userSgprCount;
+};
+
+struct PsslShaderMetaPs
+{
+	uint32_t userSgprCount;
+	// Used to initialize VGPRs for pixel shader,
+	// see ISA manual.
+	uint32_t spiPsInputAddr;
+};
+
+struct PsslShaderMetaCs
+{
+	uint32_t userSgprCount;
+
+	uint32_t threadGroupX;
+	uint32_t threadGroupY;
+	uint32_t threadGroupZ;
+};
+
+union PsslShaderMeta 
+{
+	PsslShaderMetaVs vs;
+	PsslShaderMetaPs ps;
+	PsslShaderMetaCs cs;
+};
+
+
 enum class PsslSharpType
 {
 	VSharp,  // GnmBuffer

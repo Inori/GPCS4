@@ -1,6 +1,7 @@
 #include "GCNCompiler.h"
 
 #include "PsslBindingCalculator.h"
+#include "PsslShaderRegField.h"
 #include "UtilString.h"
 
 #include "../Gnm/GnmSharpBuffer.h"
@@ -507,16 +508,117 @@ void GCNCompiler::emitGprInitializeVS()
 
 void GCNCompiler::emitGprInitializePS()
 {
-	// TODO:
 	// For sgprs and vgprs, we should initialize them
 	// following the ISA manual:
 	// 7. Appendix: GPR Allocation and Initialization
 	// e.g. We could declare another uniform buffer to hold
 	// the 16 user data registers.
 	//
-	// Currently I just create which I use.
 
 	/// VGPR
+	const SPI_PS_INPUT_ADDR* spiPsInputAddr = 
+		reinterpret_cast<const SPI_PS_INPUT_ADDR*>(&m_shaderInput.meta.ps.spiPsInputAddr);
+
+	// TODO:
+	// Currently I just create some dummy registers.
+
+	uint32_t vindex = 0;
+	if (spiPsInputAddr->persp_sample_ena)
+	{
+		m_vgprs[vindex] = emitVgprCreate(vindex, SpirvScalarType::Float32);
+		++vindex;
+		m_vgprs[vindex] = emitVgprCreate(vindex, SpirvScalarType::Float32);
+		++vindex;
+	}
+	if (spiPsInputAddr->persp_center_ena)
+	{
+		m_vgprs[vindex] = emitVgprCreate(vindex, SpirvScalarType::Float32);
+		++vindex;
+		m_vgprs[vindex] = emitVgprCreate(vindex, SpirvScalarType::Float32);
+		++vindex;
+	}
+	if (spiPsInputAddr->persp_centroid_ena)
+	{
+		m_vgprs[vindex] = emitVgprCreate(vindex, SpirvScalarType::Float32);
+		++vindex;
+		m_vgprs[vindex] = emitVgprCreate(vindex, SpirvScalarType::Float32);
+		++vindex;
+	}
+	if (spiPsInputAddr->persp_pull_model_ena)
+	{
+		m_vgprs[vindex] = emitVgprCreate(vindex, SpirvScalarType::Float32);
+		++vindex;
+		m_vgprs[vindex] = emitVgprCreate(vindex, SpirvScalarType::Float32);
+		++vindex;
+		m_vgprs[vindex] = emitVgprCreate(vindex, SpirvScalarType::Float32);
+		++vindex;
+	}
+	if (spiPsInputAddr->linear_sample_ena)
+	{
+		m_vgprs[vindex] = emitVgprCreate(vindex, SpirvScalarType::Float32);
+		++vindex;
+		m_vgprs[vindex] = emitVgprCreate(vindex, SpirvScalarType::Float32);
+		++vindex;
+	}
+	if (spiPsInputAddr->linear_center_ena)
+	{
+		m_vgprs[vindex] = emitVgprCreate(vindex, SpirvScalarType::Float32);
+		++vindex;
+		m_vgprs[vindex] = emitVgprCreate(vindex, SpirvScalarType::Float32);
+		++vindex;
+	}
+	if (spiPsInputAddr->linear_centroid_ena)
+	{
+		m_vgprs[vindex] = emitVgprCreate(vindex, SpirvScalarType::Float32);
+		++vindex;
+		m_vgprs[vindex] = emitVgprCreate(vindex, SpirvScalarType::Float32);
+		++vindex;
+	}
+
+	SpirvRegisterValue fragCoord;
+	if (spiPsInputAddr->pos_x_float_ena || 
+		spiPsInputAddr->pos_y_float_ena || 
+		spiPsInputAddr->pos_z_float_ena || 
+		spiPsInputAddr->pos_w_float_ena)
+	{
+		fragCoord = emitPsSystemValueLoad(SpirvSystemValue::Position, GcnRegMask::firstN(4));
+	}
+	if (spiPsInputAddr->pos_x_float_ena)
+	{
+		auto posX       = emitRegisterExtract(fragCoord, GcnRegMask::select(0));
+		m_vgprs[vindex] = emitVgprCreate(vindex, SpirvScalarType::Float32, posX.id);
+		++vindex;
+	}
+	if (spiPsInputAddr->pos_y_float_ena)
+	{
+		auto posY       = emitRegisterExtract(fragCoord, GcnRegMask::select(1));
+		m_vgprs[vindex] = emitVgprCreate(vindex, SpirvScalarType::Float32, posY.id);
+		++vindex;
+	}
+	if (spiPsInputAddr->pos_z_float_ena)
+	{
+		auto posZ       = emitRegisterExtract(fragCoord, GcnRegMask::select(2));
+		m_vgprs[vindex] = emitVgprCreate(vindex, SpirvScalarType::Float32, posZ.id);
+		++vindex;
+	}
+	if (spiPsInputAddr->pos_w_float_ena)
+	{
+		auto posW       = emitRegisterExtract(fragCoord, GcnRegMask::select(3));
+		m_vgprs[vindex] = emitVgprCreate(vindex, SpirvScalarType::Float32, posW.id);
+		++vindex;
+	}
+	if (spiPsInputAddr->front_face_ena)
+	{
+	}
+	if (spiPsInputAddr->ancillary_ena)
+	{
+	}
+	if (spiPsInputAddr->sample_coverage_ena)
+	{
+	}
+	if (spiPsInputAddr->pos_fixed_pt_ena)
+	{
+	}
 
 	/// SGPR
 	m_sgprs[0]  = emitSgprCreate(0, SpirvScalarType::Uint32);

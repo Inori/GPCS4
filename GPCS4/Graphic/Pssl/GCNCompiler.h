@@ -146,6 +146,7 @@ struct GcnGprTypeCache
 
 struct GcnShaderInput
 {
+	PsslShaderMeta                                  meta;
 	GcnShaderResources                              shaderResources;
 	std::optional<std::vector<VertexInputSemantic>> vsInputSemantics;
 	std::optional<std::vector<PixelInputSemantic>>  psInputSemantics;

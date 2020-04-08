@@ -5,6 +5,7 @@
 #include "PsslShaderStructure.h"
 #include "GCNDecoder.h"
 
+
 namespace vlt
 {;
 class VltShader;
@@ -22,7 +23,9 @@ class GCNAnalyzer;
 class PsslShaderModule : public RcObject
 {
 public:
-	PsslShaderModule(const uint32_t* code);
+	PsslShaderModule(
+		const PsslShaderMeta& meta,
+		const uint32_t*       code);
 
 	~PsslShaderModule();
 
@@ -67,6 +70,7 @@ private:
 	// Debug only
 	void dumpShader(PsslProgramType type, const uint8_t* code, uint32_t size);
 private:
+	PsslShaderMeta  m_meta;
 	const uint32_t* m_code;
 
 	PsslProgramInfo m_progInfo;

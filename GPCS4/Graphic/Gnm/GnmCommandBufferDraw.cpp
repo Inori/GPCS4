@@ -704,7 +704,9 @@ void GnmCommandBufferDraw::commitVsStage()
 			break;
 		}
 
-		m_shaders.vs.shader = new PsslShaderModule((const uint32_t*)m_shaders.vs.code);
+		m_shaders.vs.shader = new PsslShaderModule(
+			m_shaders.vs.meta,
+			(const uint32_t*)m_shaders.vs.code);
 
 		const uint32_t* fsCode = findFetchShaderCode(m_shaders.vs);
 		// Some vs shaders doesn't have fetch shader, we need to check.
