@@ -463,8 +463,6 @@ private:
 		SpirvRegisterValue value,
 		uint32_t           mask);
 
-	SpirvRegisterValue emitRegisterFlipSign(
-		SpirvRegisterValue value);
 
 	/////////////////////////////////////////////////////////
 	// Category handlers

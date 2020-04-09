@@ -705,7 +705,7 @@ void GnmCommandBufferDraw::commitVsStage()
 		}
 
 		m_shaders.vs.shader = new PsslShaderModule(
-			m_shaders.vs.meta,
+			{.vs = m_shaders.vs.meta},
 			(const uint32_t*)m_shaders.vs.code);
 
 		const uint32_t* fsCode = findFetchShaderCode(m_shaders.vs);
@@ -747,7 +747,9 @@ void GnmCommandBufferDraw::commitPsStage()
 			break;
 		}
 
-		m_shaders.ps.shader = new PsslShaderModule((const uint32_t*)m_shaders.ps.code);
+		m_shaders.ps.shader = new PsslShaderModule(
+			{ .ps = m_shaders.ps.meta },
+			(const uint32_t*)m_shaders.ps.code);
 
 		LOG_DEBUG("pixel shader hash %llX", m_shaders.ps.shader->key().toUint64());
 		m_shaders.ps.shader->defineShaderInput(m_shaders.ps.userDataSlotTable);
@@ -851,7 +853,9 @@ void GnmCommandBufferDraw::commitCsStage()
 			break;
 		}
 
-		m_shaders.cs.shader = new PsslShaderModule((const uint32_t*)m_shaders.cs.code);
+		m_shaders.cs.shader = new PsslShaderModule(
+			{ .cs = m_shaders.cs.meta }, 
+			(const uint32_t*)m_shaders.cs.code);
 		LOG_DEBUG("compute shader hash %llX", m_shaders.cs.shader->key().toUint64());
 
 		m_shaders.cs.shader->defineShaderInput(m_shaders.cs.userDataSlotTable);

@@ -1317,8 +1317,12 @@ SpirvRegisterPointer pssl::GCNCompiler::emitGprCreate(
 
 	result.id = emitNewVariable(
 		{ result.type, spv::StorageClassPrivate },
-		UtilString::Format(fmtString, index),
-		initId);
+		UtilString::Format(fmtString, index));
+
+	if (initId.has_value())
+	{
+		m_module.opStore(result.id, initId.value());
+	}
 
 	return result;
 }
@@ -1465,7 +1469,10 @@ void GCNCompiler::emitStateRegisterStore(
 	if (src.type.ctype == SpirvScalarType::Sint32 ||
 		src.type.ctype == SpirvScalarType::Sint64)
 	{
-		value = emitRegisterFlipSign(value);
+		value = emitRegisterBitcast(
+			value, 
+			src.type.ctype == SpirvScalarType::Sint32 ? 
+			SpirvScalarType::Uint32 : SpirvScalarType::Uint64);
 	}
 
 	LOG_ASSERT(value.type.ccount == 1 &&
@@ -1562,17 +1569,9 @@ void GCNCompiler::emitStoreScalarOperand(uint32_t dstOperand, uint32_t regIndex,
 	{
 	case Instruction::OperandSDST::SDSTScalarGPRMin... Instruction::OperandSDST::SDSTScalarGPRMax:
 	{
-		if (srcReg.type.ctype != SpirvScalarType::Uint64)
-		{
-			emitGprStore<SpirvGprType::Scalar>(regIndex, srcReg);
-		}
-		else
-		{
+		srcReg.type.ctype != SpirvScalarType::Uint64 ?
+			emitGprStore<SpirvGprType::Scalar>(regIndex, srcReg) :
 			emitSgprPairStore(regIndex, srcReg);
-		}
-		//srcReg.type.ctype != SpirvScalarType::Uint64 ?
-		//	emitGprStore<SpirvGprType::Scalar>(regIndex, srcReg) :
-		//	emitSgprPairStore(regIndex, srcReg);
 	}
 	break;
 	case Instruction::OperandSDST::SDSTVccLo:
@@ -2074,42 +2073,6 @@ SpirvRegisterValue GCNCompiler::emitRegisterMaskBits(SpirvRegisterValue value, u
 	result.id   = m_module.opBitwiseAnd(
         getVectorTypeId(result.type),
         value.id, maskVector.id);
-	return result;
-}
-
-SpirvRegisterValue GCNCompiler::emitRegisterFlipSign(SpirvRegisterValue value)
-{
-	SpirvRegisterValue result;
-	result.type.ccount = value.type.ccount;
-
-	if (value.type.ctype == SpirvScalarType::Uint32)
-	{
-		result.type.ctype = SpirvScalarType::Sint32;
-		result.id         = m_module.opSatConvertUToS(
-            getVectorTypeId(result.type),
-            value.id);
-	}
-	else if (value.type.ctype == SpirvScalarType::Sint32)
-	{
-		result.type.ctype = SpirvScalarType::Uint32;
-		result.id         = m_module.opSatConvertSToU(
-            getVectorTypeId(result.type),
-            value.id);
-	}
-	else if (value.type.ctype == SpirvScalarType::Uint64)
-	{
-		result.type.ctype = SpirvScalarType::Sint64;
-		result.id         = m_module.opSatConvertUToS(
-            getVectorTypeId(result.type),
-            value.id);
-	}
-	else if (value.type.ctype == SpirvScalarType::Sint64)
-	{
-		result.type.ctype = SpirvScalarType::Uint64;
-		result.id         = m_module.opSatConvertSToU(
-            getVectorTypeId(result.type),
-            value.id);
-	}
 	return result;
 }
 

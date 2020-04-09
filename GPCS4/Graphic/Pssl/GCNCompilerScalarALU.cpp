@@ -257,7 +257,8 @@ void GCNCompiler::emitScalarCmp(GCNInstruction& ins)
 
 	SpirvRegisterValue spvSrc0 = emitLoadScalarOperand(src0, src0Ridx, dstType, ins.literalConst);
 	SpirvRegisterValue spvSrc1;
-	if (ins.instruction->GetInstructionFormat() == Instruction::InstructionSet_SOP2)
+	if (ins.instruction->GetInstructionFormat() == Instruction::InstructionSet_SOP2 ||
+		ins.instruction->GetInstructionFormat() == Instruction::InstructionSet_SOPC)
 	{
 		// Only SOP2 has ssrc1
 		spvSrc1 = emitLoadScalarOperand(src1, src1Ridx, dstType, ins.literalConst);

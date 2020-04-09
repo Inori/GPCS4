@@ -988,12 +988,12 @@ void GCNCompiler::emitVectorIntCmp32(GCNInstruction& ins)
 	}
 
 	SpirvRegisterValue dstValue;
-	dstValue.type.ctype  = SpirvScalarType::Uint32;
+	dstValue.type.ctype  = SpirvScalarType::Uint64;
 	dstValue.type.ccount = 1;
 
 	const uint32_t uintTypeId = getVectorTypeId(dstValue.type);
 	dstValue.id               = m_module.opSelect(uintTypeId, conditionId,
-                                    m_module.constu32(1), m_module.constu32(0));
+                                    m_module.constu64(1), m_module.constu64(0));
 
 	// V_CMP_X output are all uint types, no output modifier
 	bool isVop3 = isVop3Encoding(ins);
