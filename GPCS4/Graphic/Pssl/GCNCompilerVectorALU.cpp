@@ -314,7 +314,8 @@ void GCNCompiler::emitVectorRegMov(GCNInstruction& ins)
 	uint32_t didx = 0;
 	getVopOperands(ins, &dst, &didx, &src, &sidx);
 
-	auto spvSrc = emitLoadScalarOperand(src, sidx, SpirvScalarType::Unknown, ins.literalConst);
+	SpirvScalarType type   = getScalarType(ins.instruction->GetInstructionOperandType());
+	auto            spvSrc = emitLoadScalarOperand(src, sidx, type, ins.literalConst);
 
 	bool isVop3 = isVop3Encoding(ins);
 	if (isVop3 && spvSrc.type.ctype == SpirvScalarType::Float32)
@@ -428,9 +429,9 @@ void GCNCompiler::emitVectorBitField32(GCNInstruction& ins)
 	{
 	case SIVOP3Instruction::V3_BFE_U32:
 	{
-		auto count     = m_module.opBitFieldUExtract(b32TypeId, spvSrc2.id, m_module.constu32(0), m_module.constu32(4));
-		auto offset    = m_module.opBitFieldUExtract(b32TypeId, spvSrc1.id, m_module.constu32(0), m_module.constu32(4));
-		dstVal.id      = m_module.opBitFieldUExtract(b32TypeId, spvSrc0.id, offset, count);  // TODO: Not sure
+		uint32_t count  = m_module.opIAdd(b32TypeId, spvSrc2.id, m_module.constu32(0x1F));
+		uint32_t offset = m_module.opIAdd(b32TypeId, spvSrc1.id, m_module.constu32(0x1F));
+		dstVal.id       = m_module.opBitFieldUExtract(b32TypeId, spvSrc0.id, offset, count);
 	}
 		break;
 	case SIVOP2Instruction::V_LSHR_B32:
@@ -474,10 +475,9 @@ void GCNCompiler::emitVectorThreadMask(GCNInstruction& ins)
 	uint32_t dstRIdx  = 0;
 	getVopOperands(ins, &dst, &dstRIdx, &src0, &src0RIdx, &src1, &src1RIdx, &src2, &src2RIdx);
 
-	
-
-	SpirvRegisterValue spvSrc0 = emitLoadScalarOperand(src0, src0RIdx, SpirvScalarType::Unknown, ins.literalConst);
-	SpirvRegisterValue spvSrc1 = emitLoadVopSrc1(ins, src1, src1RIdx, SpirvScalarType::Unknown);
+	SpirvScalarType    type    = getScalarType(ins.instruction->GetInstructionOperandType());
+	SpirvRegisterValue spvSrc0 = emitLoadScalarOperand(src0, src0RIdx, type, ins.literalConst);
+	SpirvRegisterValue spvSrc1 = emitLoadVopSrc1(ins, src1, src1RIdx, type);
 	SpirvRegisterValue spvSrc2;
 	
 	uint32_t typeId = getScalarTypeId(spvSrc0.type.ctype);
@@ -486,7 +486,7 @@ void GCNCompiler::emitVectorThreadMask(GCNInstruction& ins)
 	if (isVop3)
 	{
 		// Only VOP3 has SRC2
-		spvSrc2 = emitLoadScalarOperand(src2, src2RIdx, SpirvScalarType::Unknown, ins.literalConst);
+		spvSrc2 = emitLoadScalarOperand(src2, src2RIdx, type, ins.literalConst);
 		emitVop3InputModifier(ins, { spvSrc0, spvSrc1, spvSrc2 });
 	}
 

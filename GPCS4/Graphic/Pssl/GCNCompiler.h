@@ -330,7 +330,8 @@ private:
 		Instruction::OperandSRC src);
 	SpirvRegisterValue emitInlineConstantInteger(
 		Instruction::OperandSRC src,
-		uint32_t                regIndex);
+		uint32_t                regIndex,
+		SpirvScalarType         dstType);
 
 	///////////////////////////////////////
 	// Image register manipulation methods
@@ -686,6 +687,12 @@ private:
 	// Function state tracking. Required in order
 	// to properly end functions in some cases.
 	bool m_insideFunction = false;
+
+	// Control Flow Block state tracking.
+	// A block start with OpLabel and 
+	// end with termination instruction.
+	// See spir-v manual for details.
+	bool m_insideBlock = false;
 
 	///////////////////////////////////
 	// Shader-specific data structures

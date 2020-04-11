@@ -180,6 +180,7 @@ void GCNCompiler::emitExpPS(GCNInstruction& ins)
 	{
 		// same as "discard"
 		m_module.opKill();
+		m_insideBlock = false;
 	}
 }
 

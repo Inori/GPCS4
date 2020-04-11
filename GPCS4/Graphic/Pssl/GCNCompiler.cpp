@@ -11,8 +11,7 @@
 LOG_CHANNEL(Graphic.Pssl.GCNCompiler);
 
 namespace pssl
-{
-;
+{;
 
 constexpr uint32_t kPerVertexPosition = 0;
 constexpr uint32_t kPerVertexCullDist = 1;
@@ -25,7 +24,7 @@ GCNCompiler::GCNCompiler(
 	m_programInfo(progInfo),
 	m_analysis(&analysis),
 	m_shaderInput(shaderInput),
-	m_branchLabels(m_analysis->branchLabels)
+	m_branchLabels(std::move(m_analysis->branchLabels))
 {
 	// Declare an entry point ID. We'll need it during the
 	// initialization phase where the execution mode is set.
@@ -255,13 +254,9 @@ void GCNCompiler::emitVsFinalize()
 {
 	this->emitMainFunctionBegin();
 
-	//emitInputSetup();
-
 	m_module.opFunctionCall(
 		m_module.defVoidType(),
 		m_vs.mainFunctionId, 0, nullptr);
-
-	//emitOutputSetup();
 
 	this->emitFunctionEnd();
 }
@@ -306,13 +301,17 @@ void GCNCompiler::emitFunctionBegin(uint32_t entryPoint, uint32_t returnType, ui
 
 void GCNCompiler::emitFunctionEnd()
 {
-	if (m_insideFunction)
+	if (m_insideBlock)
 	{
 		m_module.opReturn();
-		m_module.functionEnd();
+		m_insideBlock = false;
 	}
 
-	m_insideFunction = false;
+	if (m_insideFunction)
+	{
+		m_module.functionEnd();
+		m_insideFunction = false;
+	}
 }
 
 void GCNCompiler::emitMainFunctionBegin()
@@ -329,6 +328,7 @@ void GCNCompiler::emitMainFunctionBegin()
 void GCNCompiler::emitFunctionLabel()
 {
 	m_module.opLabel(m_module.allocateId());
+	m_insideBlock = true;
 }
 
 void GCNCompiler::emitDclVertexInput()
@@ -729,7 +729,7 @@ void GCNCompiler::emitDclImmConstBuffer(const GcnShaderResourceInstance& res)
 	uint32_t arraySize  = bufferSize / sizeof(uint32_t);
 
 	uint32_t arrayId = m_module.defArrayTypeUnique(
-		m_module.defFloatType(32),
+		getScalarTypeId(SpirvScalarType::Uint32),
 		m_module.constu32(arraySize));
 
 	// It seems the official glsl compiler(glslangValidator.exe) always
@@ -1449,14 +1449,15 @@ SpirvRegisterValue GCNCompiler::emitStateRegisterLoad(
 	const std::string&      name /*= ""*/)
 {
 	SpirvRegisterValue result;
-	if (dstType == SpirvScalarType::Uint32)
-	{
-		result = emitValueLoad(reg.lo);
-	}
-	else
+	if (isDoubleWordType(dstType))
 	{
 		result = reg.load(m_module);
 		m_module.setDebugName(result.id, name.c_str());
+	}
+	else
+	{
+		result = emitValueLoad(reg.lo);
+		result = emitRegisterBitcast(result, dstType);
 	}
 	return result;
 }
@@ -1501,7 +1502,9 @@ SpirvRegisterValue GCNCompiler::emitLoadScalarOperand(
 	switch (src)
 	{
 	case Instruction::OperandSRC::SRCScalarGPRMin... Instruction::OperandSRC::SRCScalarGPRMax:
-		operand = dstType != SpirvScalarType::Uint64 ? emitGprLoad<SpirvGprType::Scalar>(regIndex, dstType) : emitSgprPairLoad(regIndex);
+		operand = !isDoubleWordType(dstType) ?
+			emitGprLoad<SpirvGprType::Scalar>(regIndex, dstType) : 
+			emitSgprPairLoad(regIndex);
 		break;
 	case Instruction::OperandSRC::SRCVccLo:
 		operand = emitStateRegisterLoad(m_stateRegs.vcc, dstType, "vcc");
@@ -1521,7 +1524,7 @@ SpirvRegisterValue GCNCompiler::emitLoadScalarOperand(
 	case Instruction::OperandSRC::SRCConstZero:
 	case Instruction::OperandSRC::SRCSignedConstIntPosMin... Instruction::OperandSRC::SRCSignedConstIntPosMax:
 	case Instruction::OperandSRC::SRCSignedConstIntNegMin... Instruction::OperandSRC::SRCSignedConstIntNegMax:
-		operand = emitInlineConstantInteger(src, regIndex);
+		operand = emitInlineConstantInteger(src, regIndex, dstType);
 		break;
 	case Instruction::OperandSRC::SRCConstFloatPos_0_5... Instruction::OperandSRC::SRCConstFloatNeg_4_0:
 		operand = emitInlineConstantFloat(src);
@@ -1640,7 +1643,8 @@ SpirvRegisterValue GCNCompiler::emitInlineConstantFloat(Instruction::OperandSRC 
 
 SpirvRegisterValue GCNCompiler::emitInlineConstantInteger(
 	Instruction::OperandSRC src,
-	uint32_t                regIndex)
+	uint32_t                regIndex,
+	SpirvScalarType         dstType)
 {
 	int32_t value = 0;
 	switch (src)
@@ -1662,7 +1666,9 @@ SpirvRegisterValue GCNCompiler::emitInlineConstantInteger(
 	}
 
 	uint32_t valueId = m_module.consti32(value);
-	return SpirvRegisterValue(SpirvScalarType::Sint32, 1, valueId);
+	auto     intVal   = SpirvRegisterValue(SpirvScalarType::Sint32, 1, valueId);
+	//return emitRegisterBitcast(intVal, dstType);
+	return intVal;
 }
 
 uint32_t GCNCompiler::emitLoadSampledImage(const SpirvTexture& textureResource, const SpirvSampler& samplerResource)
@@ -2054,7 +2060,12 @@ SpirvRegisterValue GCNCompiler::emitRegisterZeroTest(SpirvRegisterValue value, S
 	result.type.ctype  = SpirvScalarType::Bool;
 	result.type.ccount = 1;
 
-	const uint32_t zeroId = m_module.constu32(0u);
+	LOG_ASSERT(value.type.ctype == SpirvScalarType::Uint32 || value.type.ctype == SpirvScalarType::Uint64,
+			   "value to perform zero test should only be Uint32 or Uint64.");
+
+	const uint32_t zeroId = value.type.ctype == SpirvScalarType::Uint32 ? 
+		m_module.constu32(0u) : 
+		m_module.constu64(0u);
 	const uint32_t typeId = getVectorTypeId(result.type);
 
 	result.id = test == SpirvZeroTest::TestZ
