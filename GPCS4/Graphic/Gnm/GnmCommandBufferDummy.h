@@ -123,6 +123,8 @@ public:
 
 	virtual void waitForGraphicsWrites(uint32_t baseAddr256, uint32_t sizeIn256ByteBlocks, uint32_t targetMask, CacheAction cacheAction, uint32_t extendedCacheMask, StallCommandBufferParserMode commandBufferStallMode) override;
 
+	virtual void setDepthStencilDisable() override;
+
 private:
 
 };

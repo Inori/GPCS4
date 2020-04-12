@@ -235,6 +235,11 @@ void GnmCommandBufferDummy::waitForGraphicsWrites(uint32_t baseAddr256, uint32_t
 	
 }
 
+void GnmCommandBufferDummy::setDepthStencilDisable()
+{
+	
+}
+
 void GnmCommandBufferDummy::flushShaderCachesAndWait(CacheAction cacheAction, uint32_t extendedCacheMask, StallCommandBufferParserMode commandBufferStallMode)
 {
 	

@@ -616,9 +616,17 @@ void GnmCmdStream::onSetContextReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 			break;
 		case OP_HINT_SET_DEPTH_STENCIL_CONTROL:
 		{
-			DepthStencilControl dsc;
-			dsc.m_reg = itBody[1];
-			m_cb->setDepthStencilControl(dsc);
+			uint32_t            reg = itBody[1];
+			if (reg)
+			{
+				DepthStencilControl dsc;
+				dsc.m_reg = reg;
+				m_cb->setDepthStencilControl(dsc);
+			}
+			else
+			{
+				m_cb->setDepthStencilDisable();
+			}
 		}
 			break;
 		case OP_HINT_SET_PRIMITIVE_SETUP:

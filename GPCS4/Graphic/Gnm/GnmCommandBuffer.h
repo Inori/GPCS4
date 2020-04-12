@@ -147,7 +147,7 @@ public:
 	// virtual void setHtileStencil1(HtileStencilControl htileStencilControl) = 0;
 	// virtual void setCbControl(CbMode mode, RasterOp op) = 0;
 	virtual void setDepthStencilControl(DepthStencilControl depthControl) = 0;
-	// virtual void setDepthStencilDisable() = 0;
+	virtual void setDepthStencilDisable() = 0;
 	// virtual void setDepthBoundsRange(float depthBoundsMin, float depthBoundsMax) = 0;
 	// virtual void setStencilOpControl(StencilOpControl stencilControl) = 0;
 	virtual void setDbRenderControl(DbRenderControl reg) = 0;

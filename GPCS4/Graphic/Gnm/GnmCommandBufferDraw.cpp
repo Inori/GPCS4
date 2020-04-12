@@ -283,6 +283,13 @@ void GnmCommandBufferDraw::setDepthStencilControl(DepthStencilControl depthContr
 	m_context->setDepthStencilState(dsInfo);
 }
 
+void GnmCommandBufferDraw::setDepthStencilDisable()
+{
+	auto dsInfo = VltDepthStencilInfo();
+
+	m_context->setDepthStencilState(dsInfo);
+}
+
 void GnmCommandBufferDraw::setDbRenderControl(DbRenderControl reg)
 {
 	if (reg.getDepthClearEnable())
