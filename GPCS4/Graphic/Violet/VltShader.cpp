@@ -74,7 +74,8 @@ void VltShader::generateBindingIdOffsets(SpirvCodeBuffer& code)
 	{
 		if (ins.opCode() == spv::OpDecorate) 
 		{
-			if (ins.arg(2) == spv::DecorationBinding || ins.arg(2) == spv::DecorationSpecId)
+			if (ins.arg(2) == spv::DecorationBinding || 
+				ins.arg(2) == spv::DecorationSpecId)
 			{
 				m_bindingIdOffsets.push_back(ins.offset() + 3);
 			}

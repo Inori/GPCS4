@@ -496,7 +496,7 @@ void GCNCompiler::emitGprInitializeVS()
 	// v0 is the index of current vertex within vertex buffer
 	SpirvRegisterPointer v0 = emitVgprCreate(
 		0,
-		SpirvScalarType::Sint32,
+		SpirvScalarType::Uint32,
 		vertexIndex.id);
 
 	m_vgprs[0] = v0;
@@ -831,7 +831,7 @@ void GCNCompiler::emitDclImmBuffer(const GcnShaderResourceInstance& res)
 	// Note:
 	// The calculated bindingId is not "correct", it's a dummy value.
 	// We'll remap binding id before compiling pipeline in VltShader class.
-	uint32_t bindingId = computeConstantBufferBinding(m_programInfo.shaderType(), res.res.startRegister);
+	uint32_t bindingId = computeResBinding(m_programInfo.shaderType(), res.res.startRegister);
 
 	m_module.decorateDescriptorSet(varId, 0);
 	m_module.decorateBinding(varId, bindingId);

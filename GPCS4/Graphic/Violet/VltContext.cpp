@@ -856,6 +856,8 @@ void VltContext::updateShaderResources(const VltPipelineLayout* pipelineLayout, 
 
 	uint32_t                          bindingCount = pipelineLayout->bindingCount();
 	std::vector<VkWriteDescriptorSet> descriptorWrites;
+	std::array<VkDescriptorBufferInfo, MaxNumActiveBindings> bufferInfos;
+	std::array<VkDescriptorImageInfo, MaxNumActiveBindings>  imageInfos;
 
 	if (bindingCount != 0)
 	{
@@ -865,6 +867,9 @@ void VltContext::updateShaderResources(const VltPipelineLayout* pipelineLayout, 
 	{
 		set = VK_NULL_HANDLE;
 	}
+
+	// TODO:
+	// Update descriptor set using template
 
 	for (uint32_t i = 0; i != bindingCount; ++i)
 	{
@@ -880,6 +885,7 @@ void VltContext::updateShaderResources(const VltPipelineLayout* pipelineLayout, 
 			bufferInfo.buffer                 = res.buffer.getHandle().buffer;
 			bufferInfo.offset                 = res.buffer.offset();
 			bufferInfo.range                  = res.buffer.length();
+			bufferInfos[i]                    = bufferInfo;
 
 			VkWriteDescriptorSet writeSet = {};
 			writeSet.sType                = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -888,7 +894,26 @@ void VltContext::updateShaderResources(const VltPipelineLayout* pipelineLayout, 
 			writeSet.dstArrayElement      = 0;
 			writeSet.descriptorType       = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 			writeSet.descriptorCount      = 1;
-			writeSet.pBufferInfo          = &bufferInfo;
+			writeSet.pBufferInfo          = &bufferInfos[i];
+			descriptorWrites.push_back(writeSet);
+		}
+		break;
+		case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+		{
+			VkDescriptorBufferInfo bufferInfo = {};
+			bufferInfo.buffer                 = res.buffer.getHandle().buffer;
+			bufferInfo.offset                 = res.buffer.offset();
+			bufferInfo.range                  = res.buffer.length();
+			bufferInfos[i]                    = bufferInfo;
+
+			VkWriteDescriptorSet writeSet = {};
+			writeSet.sType                = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			writeSet.dstSet               = set;
+			writeSet.dstBinding           = i;
+			writeSet.dstArrayElement      = 0;
+			writeSet.descriptorType       = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			writeSet.descriptorCount      = 1;
+			writeSet.pBufferInfo          = &bufferInfos[i];
 			descriptorWrites.push_back(writeSet);
 		}
 		break;
@@ -898,6 +923,7 @@ void VltContext::updateShaderResources(const VltPipelineLayout* pipelineLayout, 
 			imageInfo.imageLayout           = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 			imageInfo.imageView             = res.imageView->handle();
 			imageInfo.sampler               = nullptr;
+			imageInfos[i]                   = imageInfo;
 
 			VkWriteDescriptorSet writeSet = {};
 			writeSet.sType                = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -906,7 +932,7 @@ void VltContext::updateShaderResources(const VltPipelineLayout* pipelineLayout, 
 			writeSet.dstArrayElement      = 0;
 			writeSet.descriptorType       = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
 			writeSet.descriptorCount      = 1;
-			writeSet.pImageInfo           = &imageInfo;
+			writeSet.pImageInfo           = &imageInfos[i];
 			descriptorWrites.push_back(writeSet);
 		}
 		break;
@@ -916,6 +942,7 @@ void VltContext::updateShaderResources(const VltPipelineLayout* pipelineLayout, 
 			imageInfo.imageLayout           = VK_IMAGE_LAYOUT_UNDEFINED;
 			imageInfo.imageView             = VK_NULL_HANDLE;
 			imageInfo.sampler               = res.sampler->handle();
+			imageInfos[i]                   = imageInfo;
 
 			VkWriteDescriptorSet writeSet = {};
 			writeSet.sType                = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -924,7 +951,7 @@ void VltContext::updateShaderResources(const VltPipelineLayout* pipelineLayout, 
 			writeSet.dstArrayElement      = 0;
 			writeSet.descriptorType       = VK_DESCRIPTOR_TYPE_SAMPLER;
 			writeSet.descriptorCount      = 1;
-			writeSet.pImageInfo           = &imageInfo;
+			writeSet.pImageInfo           = &imageInfos[i];
 			descriptorWrites.push_back(writeSet);
 		}
 		break;
