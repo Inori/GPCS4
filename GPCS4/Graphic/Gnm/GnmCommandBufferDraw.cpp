@@ -60,7 +60,9 @@ void GnmCommandBufferDraw::setViewportTransformControl(ViewportTransformControl 
 
 void GnmCommandBufferDraw::setPrimitiveSetup(PrimitiveSetup reg)
 {
-	VkFrontFace     frontFace = reg.getFrontFace() == kPrimitiveSetupFrontFaceCcw ? VK_FRONT_FACE_COUNTER_CLOCKWISE : VK_FRONT_FACE_CLOCKWISE;
+	VkFrontFace     frontFace = reg.getFrontFace() == kPrimitiveSetupFrontFaceCcw ? 
+		VK_FRONT_FACE_COUNTER_CLOCKWISE : 
+		VK_FRONT_FACE_CLOCKWISE;
 	VkPolygonMode   polyMode  = cvt::convertPolygonMode(reg.getPolygonModeFront());
 	VkCullModeFlags cullMode  = cvt::convertCullMode(reg.getCullFace());
 
@@ -159,6 +161,16 @@ void GnmCommandBufferDraw::setEmbeddedVsShader(EmbeddedVsShader shaderId, uint32
 	};
 
 	m_shaders.vs.code = reinterpret_cast<const void*>(embeddedVsShaderFullScreen);
+
+	auto rsInfo = VltRasterizationInfo(
+		VK_FALSE,
+		VK_FALSE,
+		VK_POLYGON_MODE_FILL,
+		VK_CULL_MODE_BACK_BIT,
+		VK_FRONT_FACE_COUNTER_CLOCKWISE,
+		VK_SAMPLE_COUNT_1_BIT);
+
+	m_context->setRasterizerState(rsInfo);
 }
 
 void GnmCommandBufferDraw::updateVsShader(const VsStageRegisters* vsRegs, uint32_t shaderModifier)

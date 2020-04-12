@@ -962,15 +962,21 @@ void VltContext::updateShaderResources(const VltPipelineLayout* pipelineLayout, 
 
 	// TODO:
 	// Use vkUpdateDescriptorSetWithTemplate
-	m_cmd->updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data());
+	if (descriptorWrites.size())
+	{
+		m_cmd->updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data());
+	}
 }
 
 template <VkPipelineBindPoint BindPoint>
 void VltContext::updateShaderDescriptorSetBinding(const VltPipelineLayout* layout, VkDescriptorSet set)
 {
-	VkPipelineLayout pipelineLayout = layout->pipelineLayout();
+	if (set != VK_NULL_HANDLE)
+	{
+		VkPipelineLayout pipelineLayout = layout->pipelineLayout();
 
-	m_cmd->cmdBindDescriptorSet(BindPoint, pipelineLayout, set, 0, nullptr);
+		m_cmd->cmdBindDescriptorSet(BindPoint, pipelineLayout, set, 0, nullptr);
+	}
 }
 
 VkDescriptorSet VltContext::allocateDescriptorSet(VkDescriptorSetLayout layout)
