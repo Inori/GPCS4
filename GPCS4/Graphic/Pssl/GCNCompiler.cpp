@@ -500,7 +500,6 @@ void GCNCompiler::emitGprInitializeVS()
 		vertexIndex.id);
 
 	m_vgprs[0] = v0;
-	m_entryPointInterfaces.push_back(vertexIndex.id);
 
 	/// SGPR
 	// TODO:
@@ -1732,7 +1731,10 @@ uint32_t GCNCompiler::emitNewBuiltinVariable(const SpirvRegisterInfo& info, spv:
 	m_module.setDebugName(varId, name);
 	m_module.decorateBuiltIn(varId, builtIn);
 
-	if (m_programInfo.shaderType() == PsslProgramType::PixelShader && info.atype.vtype.ctype != SpirvScalarType::Float32 && info.atype.vtype.ctype != SpirvScalarType::Bool && info.sclass == spv::StorageClassInput)
+	if (m_programInfo.shaderType() == PsslProgramType::PixelShader && 
+		info.atype.vtype.ctype != SpirvScalarType::Float32 && 
+		info.atype.vtype.ctype != SpirvScalarType::Bool && 
+		info.sclass == spv::StorageClassInput)
 	{
 		m_module.decorate(varId, spv::DecorationFlat);
 	}

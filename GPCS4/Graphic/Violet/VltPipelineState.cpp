@@ -77,9 +77,10 @@ VkPipelineDynamicStateCreateInfo VltDynamicStateInfo::state(std::vector<VkDynami
 {
 	VkPipelineDynamicStateCreateInfo state = {};
 
-	dynStates.reserve(2);
+	dynStates.reserve(3);
 	dynStates.push_back(VK_DYNAMIC_STATE_VIEWPORT);
 	dynStates.push_back(VK_DYNAMIC_STATE_SCISSOR);
+	dynStates.push_back(VK_DYNAMIC_STATE_DEPTH_BOUNDS);
 
 	state.sType             = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
 	state.pNext             = nullptr;

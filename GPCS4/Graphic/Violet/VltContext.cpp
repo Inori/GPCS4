@@ -76,7 +76,7 @@ RcPtr<VltCmdList> VltContext::endRecording()
 
 void VltContext::setViewports(uint32_t viewportCount, const VkViewport* viewports, const VkRect2D* scissorRects)
 {
-	auto& vp = m_state.dy.vp;
+	auto& vp = m_state.dy.viewport;
 	if (viewportCount != vp.count)
 	{
 		m_flags.set(VltContextFlag::GpDirtyPipelineState);
@@ -146,8 +146,25 @@ void VltContext::setMultiSampleState(const VltMultisampleInfo& msState)
 
 void VltContext::setDepthStencilState(const VltDepthStencilInfo& dsState)
 {
+	VkBool32 depthBoundsEnable = m_state.gp.states.ds.enableDepthBoundsTest();
 	m_state.gp.states.ds = dsState;
+	m_state.gp.states.ds.setEnableDepthBoundsTest(depthBoundsEnable);
 	m_flags.set(VltContextFlag::GpDirtyPipelineState);
+}
+
+void VltContext::setDepthBounds(VltDepthBounds depthBounds)
+{
+	if (m_state.dy.depthBounds != depthBounds)
+	{
+		m_state.dy.depthBounds = depthBounds;
+		m_flags.set(VltContextFlag::GpDirtyDepthBounds);
+	}
+
+	if (m_state.gp.states.ds.enableDepthBoundsTest() != depthBounds.enableDepthBounds)
+	{
+		m_state.gp.states.ds.setEnableDepthBoundsTest(depthBounds.enableDepthBounds);
+		m_flags.set(VltContextFlag::GpDirtyPipelineState);
+	}
 }
 
 void VltContext::setLogicOpState(const VltLogicOp& lo)
@@ -856,8 +873,8 @@ void VltContext::updateShaderResources(const VltPipelineLayout* pipelineLayout, 
 
 	uint32_t                          bindingCount = pipelineLayout->bindingCount();
 	std::vector<VkWriteDescriptorSet> descriptorWrites;
-	std::array<VkDescriptorBufferInfo, MaxNumActiveBindings> bufferInfos;
-	std::array<VkDescriptorImageInfo, MaxNumActiveBindings>  imageInfos;
+	std::array<VkDescriptorBufferInfo, MaxNumActiveBindings> bufferInfos = {};
+	std::array<VkDescriptorImageInfo, MaxNumActiveBindings>  imageInfos = {};
 
 	if (bindingCount != 0)
 	{
@@ -1084,7 +1101,7 @@ void VltContext::updateDynamicState()
 {
 	if (m_flags.test(VltContextFlag::GpDirtyViewport))
 	{
-		const auto& vp = m_state.dy.vp;
+		const auto& vp = m_state.dy.viewport;
 
 		m_cmd->cmdSetViewport(0, vp.count, vp.viewports.data());
 		m_cmd->cmdSetScissor(0, vp.count, vp.scissors.data());
@@ -1092,6 +1109,14 @@ void VltContext::updateDynamicState()
 		// Update viewport count, this will be used to create pipeline.
 		m_state.gp.states.dy.setViewportCount(vp.count);
 		m_flags.clr(VltContextFlag::GpDirtyViewport);
+	}
+
+	if (m_flags.test(VltContextFlag::GpDirtyDepthBounds))
+	{
+		VltDepthBounds& db = m_state.dy.depthBounds;
+		m_cmd->cmdSetDepthBounds(db.minDepthBounds, db.maxDepthBounds);
+
+		m_flags.clr(VltContextFlag::GpDirtyDepthBounds);
 	}
 }
 

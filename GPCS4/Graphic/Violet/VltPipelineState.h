@@ -521,9 +521,6 @@ public:
 		state.front = m_frontOp.state();
 		state.back  = m_backOp.state();
 
-		state.minDepthBounds = m_minDepthBounds;
-		state.maxDepthBounds = m_maxDepthBounds;
-
 		return state;
 	}
 
@@ -537,9 +534,6 @@ private:
 
 	VltDepthStencilOp m_frontOp;
 	VltDepthStencilOp m_backOp;
-	// TODO:
-	float m_minDepthBounds = 0.0;
-	float m_maxDepthBounds = 0.0;
 };
 
 class VltColorBlendAttachment

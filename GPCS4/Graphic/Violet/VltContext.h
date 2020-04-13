@@ -81,6 +81,9 @@ public:
 	void setDepthStencilState(
 		const VltDepthStencilInfo& dsState);
 
+	void setDepthBounds(
+		VltDepthBounds depthBounds);
+
 	void setLogicOpState(
 		const VltLogicOp& lo);
 
@@ -324,7 +327,7 @@ private:
 	RcPtr<VltStagingBufferAllocator> m_staging;
 
 	VltContextFlags m_flags;
-	VltContextState m_state;
+	VltContextState m_state = {};
 
 	VltPipelineContext m_gpCtx;
 	VltPipelineContext m_cpCtx;

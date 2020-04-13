@@ -151,14 +151,16 @@ void GnmCommandBufferDraw::setEmbeddedVsShader(EmbeddedVsShader shaderId, uint32
 {
 	LOG_ASSERT(shaderId == kEmbeddedVsShaderFullScreen, "invalid shader id %d", shaderId);
 
-	// This the original gnm embedded shader.
+	// This is the original gnm embedded shader.
 	// It outputs vertex:
 	// 0  (-1.0, -1.0, 0.0, 1.0)
 	// 1  (1.0, -1.0, 0.0, 1.0)
 	// 2  (-1.0, 1.0, 0.0, 1.0)
 	// And treated it as a rectangle list,
 	// this will only cover the bottom-left triangle
-	// of the whole screen.
+	// of the screen, since vulkan doesn't
+	// support rect list vertex data, and we
+	// have to use triangle list.
 
 	//const static uint8_t embeddedVsShaderFullScreen[] = {
 	//	0xFF, 0x03, 0xEB, 0xBE, 0x07, 0x00, 0x00, 0x00, 0x81, 0x00, 0x02, 0x36, 0x81, 0x02, 0x02, 0x34,
@@ -169,15 +171,21 @@ void GnmCommandBufferDraw::setEmbeddedVsShader(EmbeddedVsShader shaderId, uint32
 	//	0x9F, 0xC2, 0xF8, 0x47, 0xCF, 0xA5, 0x2D, 0x9B, 0x7D, 0x5B, 0x7C, 0xFF, 0x17, 0x00, 0x00, 0x00
 	//};
 
-	// This is our replace version.
+	// This is our replaced version.
 	// It outputs vertex:
 	// 0  (-1.0, -1.0, 0.0, 1.0)
 	// 1  (-1.0, 3.0, 0.0, 1.0)
-	// 0  (3.0, -1.0, 0.0, 1.0)
+	// 2  (3.0, -1.0, 0.0, 1.0)
 	// We treated it as triangle list,
 	// and this way we cover the whole screen.
 
-	// Source code:
+	// Note:
+	// The generated vertex data is in clockwise,
+	// thus we must make sure the front face is
+	// VK_FRONT_FACE_CLOCKWISE. And if culling is enabled,
+	// it must be VK_CULL_MODE_BACK_BIT.
+
+	// Source code
 	/*
 	struct VS_OUTPUT
 	{
@@ -344,10 +352,34 @@ void GnmCommandBufferDraw::setDbRenderControl(DbRenderControl reg)
 {
 	if (reg.getDepthClearEnable())
 	{
+		// Gnm provide a way to overwrite the depth value
+		// outputted from pixel shader no matter what the original
+		// value is.
+		// That is enable depth clear using setDbRenderControl
+		// and set the clear value using setDepthClearValue.
+		//
+		// While vulkan provide us a different way to achieve this,
+		// when depth bounds test is enabled and the test fails,
+		// the sample¡¯s coverage bit is cleared in the fragment.
+		// So we set minDepthBounds to 1.0 and maxDepthBounds to 0.0
+		// to ensure the depth bounds test must fail.
+		// and then set the clear value using VltContext::clearRenderTarget
+		VltDepthBounds depthBounds;
+		depthBounds.enableDepthBounds = VK_TRUE;
+		depthBounds.minDepthBounds    = 1.0;
+		depthBounds.maxDepthBounds    = 0.0;
+		m_context->setDepthBounds(depthBounds);
+
 		m_flags.set(GnmContexFlag::GpClearDepthTarget);
 	}
 	else
 	{
+		VltDepthBounds depthBounds;
+		depthBounds.enableDepthBounds = VK_FALSE;
+		depthBounds.minDepthBounds    = 0.0;
+		depthBounds.maxDepthBounds    = 1.0;
+		m_context->setDepthBounds(depthBounds);
+
 		m_flags.clr(GnmContexFlag::GpClearDepthTarget);
 	}
 }

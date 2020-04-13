@@ -72,16 +72,38 @@ struct VltVertexInputState
 	std::array<uint32_t, MaxNumVertexBindings>       vertexStrides = {};
 };
 
-struct VltViewPortState
+struct VltViewPort
 {
-	uint32_t                                count;
+	uint32_t                                count = 0;
 	std::array<VkViewport, MaxNumViewports> viewports;
 	std::array<VkRect2D, MaxNumViewports>   scissors;
 };
 
+struct VltDepthBounds
+{
+	VkBool32 enableDepthBounds = VK_FALSE;
+	float    minDepthBounds    = 0.0;
+	float    maxDepthBounds    = 1.0;
+
+	bool operator==(const VltDepthBounds& other) const
+	{
+		return enableDepthBounds == other.enableDepthBounds && 
+			minDepthBounds == other.minDepthBounds && 
+			maxDepthBounds == other.maxDepthBounds;
+	}
+
+	bool operator!=(const VltDepthBounds& other) const
+	{
+		return enableDepthBounds != other.enableDepthBounds || 
+			minDepthBounds != other.minDepthBounds || 
+			maxDepthBounds != other.maxDepthBounds;
+	}
+};
+
 struct VltDynamicState
 {
-	VltViewPortState vp;
+	VltViewPort    viewport;
+	VltDepthBounds depthBounds;
 };
 
 //////////////////////////////////////////////////////////////////////////
