@@ -643,7 +643,7 @@ void GCNCompiler::emitDclStateRegisters()
 	m_stateRegs.exec.lo.type = u32Type;
 	m_stateRegs.exec.lo.id   = emitNewVariable({ u32Type, spv::StorageClass::StorageClassPrivate }, "exec_lo", m_module.constu32(1));
 	m_stateRegs.exec.hi.type = u32Type;
-	m_stateRegs.exec.hi.id   = emitNewVariable({ u32Type, spv::StorageClass::StorageClassPrivate }, "exec_hi");
+	m_stateRegs.exec.hi.id   = emitNewVariable({ u32Type, spv::StorageClass::StorageClassPrivate }, "exec_hi", m_module.constu32(0));
 }
 
 void GCNCompiler::emitDclShaderResource(const GcnShaderResourceInstance& res)
@@ -1193,7 +1193,32 @@ void pssl::GCNCompiler::emitUpdateGprType(
 				   GprType == SpirvGprType::Scalar ? "s" : "v", index);
 
 		SpirvRegisterValue value       = emitValueLoad(gpr);
-		SpirvRegisterValue castedValue = emitRegisterBitcast(value, dstType);
+		SpirvRegisterValue castedValue;
+		//castedValue.type.ccount = 1;
+		//castedValue.type.ctype  = dstType;
+		//const uint32_t typeId   = getVectorTypeId(castedValue.type);
+		//if (dstType == SpirvScalarType::Float32 && value.type.ctype == SpirvScalarType::Sint32)
+		//{
+		//	castedValue.id = m_module.opConvertStoF(typeId, value.id);
+		//}
+		//else if (dstType == SpirvScalarType::Float32 && value.type.ctype == SpirvScalarType::Uint32)
+		//{
+		//	castedValue.id = m_module.opConvertUtoF(typeId, value.id);
+		//}
+		//else if (dstType == SpirvScalarType::Uint32 && value.type.ctype == SpirvScalarType::Float32)
+		//{
+		//	castedValue.id = m_module.opConvertFtoU(typeId, value.id);
+		//}
+		//else if (dstType == SpirvScalarType::Sint32 && value.type.ctype == SpirvScalarType::Float32)
+		//{
+		//	castedValue.id = m_module.opConvertFtoS(typeId, value.id);
+		//}
+		//else
+		//{
+		//	castedValue = emitRegisterBitcast(value, dstType);
+		//}
+
+		castedValue = emitRegisterBitcast(value, dstType);
 
 		SpirvRegisterPointer newGpr;
 		newGpr.type.ctype  = dstType;
@@ -1664,10 +1689,30 @@ SpirvRegisterValue GCNCompiler::emitInlineConstantInteger(
 		break;
 	}
 
-	uint32_t valueId = m_module.consti32(value);
-	auto     intVal   = SpirvRegisterValue(SpirvScalarType::Sint32, 1, valueId);
-	//return emitRegisterBitcast(intVal, dstType);
-	return intVal;
+	LOG_ASSERT(dstType != SpirvScalarType::Unknown, "do not support unknown type.");
+	uint32_t valueId = InvalidSpvId;
+	switch (dstType)
+	{
+	case pssl::SpirvScalarType::Uint32:
+		valueId = m_module.constu32(value);
+		break;
+	case pssl::SpirvScalarType::Uint64:
+		valueId = m_module.constu64(value);
+		break;
+	case pssl::SpirvScalarType::Sint32:
+		valueId = m_module.consti32(value);
+		break;
+	case pssl::SpirvScalarType::Sint64:
+		valueId = m_module.consti64(value);
+		break;
+	case pssl::SpirvScalarType::Float32:
+		valueId = m_module.constf32(value);
+		break;
+	case pssl::SpirvScalarType::Float64:
+		valueId = m_module.constf64(value);
+		break;
+	}
+	return SpirvRegisterValue(dstType, 1, valueId);
 }
 
 uint32_t GCNCompiler::emitLoadSampledImage(const SpirvTexture& textureResource, const SpirvSampler& samplerResource)
