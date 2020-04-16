@@ -634,7 +634,7 @@ void GCNCompiler::emitVectorFpArith32(GCNInstruction& ins)
 	case SIVOP2Instruction::V_MIN_F32:
 	case SIVOP3Instruction::V3_MIN_F32:
 	{
-		dstVal.id = m_module.opNMin(fpTypeId, spvSrc0.id, spvSrc1.id);
+		dstVal.id = m_module.opFMin(fpTypeId, spvSrc0.id, spvSrc1.id);
 	}
 		break;
 	default:

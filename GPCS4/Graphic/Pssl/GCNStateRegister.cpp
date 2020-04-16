@@ -21,7 +21,7 @@ SpirvRegisterValue GcnStateRegister::load(SpirvModule& module) const
 	uint32_t highId = module.opLoad(uintTypeId, hi.id);
 
 	// Concat low and high part, build a uint2 vector
-	std::array<uint32_t, 2> ids = { { highId, lowId } };
+	std::array<uint32_t, 2> ids = { { lowId, highId } };
 	uint32_t uint2Id = module.opCompositeConstruct(
 		uint2TypeId,
 		ids.size(), ids.data());
