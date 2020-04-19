@@ -178,7 +178,7 @@ void GCNCompiler::emitExpPS(GCNInstruction& ins)
 	}
 	else
 	{
-		// same as "discard"
+		// discard
 		m_module.opKill();
 		m_insideBlock = false;
 	}

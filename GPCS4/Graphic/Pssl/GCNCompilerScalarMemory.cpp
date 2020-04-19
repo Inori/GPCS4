@@ -133,7 +133,7 @@ void GCNCompiler::emitScalarMemRd(GCNInstruction& ins)
 	case SISMRDInstruction::S_BUFFER_LOAD_DWORDX8:
 	case SISMRDInstruction::S_BUFFER_LOAD_DWORDX16:
 	{
-		uint32_t regCount = 2 << ((uint32_t)op - 10 + 1);
+		uint32_t regCount = 1 << ((uint32_t)op - 8);
 		uint32_t bufferId = m_constantBuffers.at(srcStartReg).varId;
 		emitScalarMemBufferLoad(bufferId,
 								dstStartReg, regCount,

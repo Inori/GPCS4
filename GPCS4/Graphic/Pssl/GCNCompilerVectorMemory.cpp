@@ -49,6 +49,7 @@ void GCNCompiler::emitVectorMemBufferLoad(GCNInstruction& ins)
 	uint32_t soffset = 0;
 	uint32_t idxReg  = 0;
 	uint32_t dstReg  = 0;
+	uint32_t vsharpReg = 0;
 
 	if (ins.instruction->GetInstructionFormat() == Instruction::InstructionSet_MUBUF)
 	{
@@ -60,6 +61,7 @@ void GCNCompiler::emitVectorMemBufferLoad(GCNInstruction& ins)
 		soffset = inst->GetSOFFSET();
 		idxReg  = inst->GetVADDR();
 		dstReg  = inst->GetVDATA();
+		vsharpReg = inst->GetSRSRC() * 4;  // In unit of 4-GPR
 	}
 	else
 	{
@@ -71,6 +73,7 @@ void GCNCompiler::emitVectorMemBufferLoad(GCNInstruction& ins)
 		soffset   = inst->GetSOFFSET();
 		idxReg    = inst->GetVADDR();
 		dstReg    = inst->GetVDATA();
+		vsharpReg = inst->GetSRSRC() * 4; // In unit of 4-GPR
 	}
 
 	LOG_ASSERT(idxen == 1, "only support indexed load.");
@@ -89,7 +92,8 @@ void GCNCompiler::emitVectorMemBufferLoad(GCNInstruction& ins)
 		vgprOffsetId                   = m_module.opUDiv(typeId, offsetVal.id, m_module.constu32(4));
 	}
 
-	uint32_t bufferId  = findResourceBufferId(dstReg);
+	uint32_t bufferId = findResourceBufferId(vsharpReg);
+	LOG_ASSERT(bufferId != InvalidSpvId, "buffer not found at reg %d", vsharpReg);
 
 	uint32_t                        dstRegCount = static_cast<uint32_t>(op) + 1;
 	std::vector<SpirvRegisterValue> valueArray;
@@ -97,13 +101,7 @@ void GCNCompiler::emitVectorMemBufferLoad(GCNInstruction& ins)
 	// Note:
 	// The index value is in units of stride.
 
-	// TODO:
-	// Here I hardcode the stride to 16.
-	// We should take the real stride value from V#,
-	// and since the value can be changed at runtime,
-	// it's better to use a shader specialization constant.
-	uint32_t recordId = m_module.opIMul(typeId, m_module.constu32(4), indexVal.id);
-
+	uint32_t recordId = indexVal.id; 
 	for (uint32_t i = 0; i != dstRegCount; ++i)
 	{
 		uint32_t offsetId = m_module.opIAdd(typeId, recordId, m_module.constu32(i));
