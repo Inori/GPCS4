@@ -1163,7 +1163,8 @@ SpirvRegisterValue GCNCompiler::emitGprLoad(
 
 		result = emitValueLoad(gpr);
 
-		if (dstType != SpirvScalarType::Float32)
+		if (dstType != SpirvScalarType::Float32 || 
+			gpr.type.ctype != SpirvScalarType::Float32)
 		{
 			result = emitRegisterBitcast(result, dstType);
 		}

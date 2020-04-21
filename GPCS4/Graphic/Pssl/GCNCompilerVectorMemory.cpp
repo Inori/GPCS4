@@ -223,8 +223,8 @@ void GCNCompiler::emitVectorMemImgSmp(GCNInstruction& ins)
 	{
 	case SIMIMGInstruction::IMAGE_SAMPLE_L:
 	{
-		auto u = emitGprLoad<SpirvGprType::Vector>(uvReg, SpirvScalarType::Uint32);
-		auto v = emitGprLoad<SpirvGprType::Vector>(uvReg + 1, SpirvScalarType::Uint32);
+		auto u = emitGprLoad<SpirvGprType::Vector>(uvReg, SpirvScalarType::Float32);
+		auto v = emitGprLoad<SpirvGprType::Vector>(uvReg + 1, SpirvScalarType::Float32);
 
 		std::array<uint32_t, 2> uvComponents = { u.id, v.id };
 		uint32_t typeId = getVectorTypeId({ SpirvScalarType::Float32, 2 });
@@ -236,7 +236,7 @@ void GCNCompiler::emitVectorMemImgSmp(GCNInstruction& ins)
 		colorValue.type.ccount = 4; 
 		uint32_t resultTypeId = getVectorTypeId(colorValue.type);
 		colorValue.id = m_module.opImageSampleImplicitLod(resultTypeId, sampledImageId, uvId, { 0 });
-		emitVgprVectorStore(dstReg, colorValue, 0x0F);
+		emitVgprVectorStore(dstReg, colorValue, GcnRegMask::firstN(4));
 	}
 		break;
 	default:
