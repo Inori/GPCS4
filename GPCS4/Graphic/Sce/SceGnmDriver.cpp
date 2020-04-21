@@ -111,6 +111,14 @@ bool SceGnmDriver::isDeviceSuitable(const RcPtr<vlt::VltPhysicalDevice>& device,
 			break;
 		}
 
+		// Force select the discrete GPU on dual GPU platform.
+		// This is required for RenderDoc to work properly.
+		auto props = device->deviceProperties();
+		if (props.deviceType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+		{
+			break;
+		}
+
 		auto requiredFeatures = getEnableFeatures(device);
 		if (!device->checkFeatureSupport(requiredFeatures))
 		{
