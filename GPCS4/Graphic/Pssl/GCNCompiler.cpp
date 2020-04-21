@@ -736,11 +736,11 @@ void GCNCompiler::emitDclImmConstBuffer(const GcnShaderResourceInstance& res)
 	// This is std140 standard, but what we should use is std430
 	// We should specify the correct stride, for a float array, it's sizeof(float) == 4 .
 	// This will trigger a validation warning.
-	m_module.decorateArrayStride(arrayId, 4);
+	// m_module.decorateArrayStride(arrayId, 4);
 
 	// spirv-cross doesn't support buffer block expressed as any of std430, std140 and etc.
 	// to use spirv-cross to view the output spv file, enable this and disable above line.
-	// m_module.decorateArrayStride(arrayId, 16);
+	m_module.decorateArrayStride(arrayId, 16);
 
 	uint32_t uboStuctId = m_module.defStructTypeUnique(1, &arrayId);
 	m_module.decorateBlock(uboStuctId);
@@ -1140,11 +1140,14 @@ SpirvRegisterValue GCNCompiler::emitValueLoad(const SpirvRegisterPointer& reg)
 template <SpirvGprType GprType>
 SpirvRegisterValue GCNCompiler::emitGprLoad(
 	uint32_t        index,
-	SpirvScalarType dstType /*= SpirvScalarType::Unknown*/)
+	SpirvScalarType dstType)
 {
 	SpirvRegisterValue result;
 	do
 	{
+		LOG_ASSERT(dstType != SpirvScalarType::Unknown, "shouldn't load unknown type.");
+		LOG_ASSERT(!isDoubleWordType(dstType), "shouldn't load double word type here.");
+
 		auto& gpr = GprType == SpirvGprType::Scalar ? m_sgprs[index] : m_vgprs[index];
 
 		if (gpr.id == InvalidSpvId)
@@ -1158,94 +1161,15 @@ SpirvRegisterValue GCNCompiler::emitGprLoad(
 			break;
 		}
 
-		if (dstType != SpirvScalarType::Unknown && dstType != gpr.type.ctype)
-		{
-			emitUpdateGprType<GprType>(index, dstType);
-		}
-
 		result = emitValueLoad(gpr);
+
+		if (dstType != SpirvScalarType::Float32)
+		{
+			result = emitRegisterBitcast(result, dstType);
+		}
 
 	} while (false);
 	return result;
-}
-
-template <SpirvGprType GprType>
-void pssl::GCNCompiler::emitUpdateGprType(
-	uint32_t        index,
-	SpirvScalarType dstType)
-{
-	// A SGPR or VGPR register can be treated as different types in different
-	// instructions, we need to cast it to proper type.
-
-	LOG_ASSERT(!isDoubleWordType(dstType), "wide type not supported.");
-
-	do
-	{
-		auto& gpr      = GprType == SpirvGprType::Scalar ? m_sgprs[index] : m_vgprs[index];
-		auto& gprCache = GprType == SpirvGprType::Scalar ? m_gprCache.sgpr : m_gprCache.vgpr;
-
-		if (gpr.type.ctype == dstType)
-		{
-			break;
-		}
-
-		LOG_ASSERT(gpr.type.ctype != SpirvScalarType::Unknown, "%s%d not initialized.",
-				   GprType == SpirvGprType::Scalar ? "s" : "v", index);
-
-		SpirvRegisterValue value       = emitValueLoad(gpr);
-		SpirvRegisterValue castedValue;
-		//castedValue.type.ccount = 1;
-		//castedValue.type.ctype  = dstType;
-		//const uint32_t typeId   = getVectorTypeId(castedValue.type);
-		//if (dstType == SpirvScalarType::Float32 && value.type.ctype == SpirvScalarType::Sint32)
-		//{
-		//	castedValue.id = m_module.opConvertStoF(typeId, value.id);
-		//}
-		//else if (dstType == SpirvScalarType::Float32 && value.type.ctype == SpirvScalarType::Uint32)
-		//{
-		//	castedValue.id = m_module.opConvertUtoF(typeId, value.id);
-		//}
-		//else if (dstType == SpirvScalarType::Uint32 && value.type.ctype == SpirvScalarType::Float32)
-		//{
-		//	castedValue.id = m_module.opConvertFtoU(typeId, value.id);
-		//}
-		//else if (dstType == SpirvScalarType::Sint32 && value.type.ctype == SpirvScalarType::Float32)
-		//{
-		//	castedValue.id = m_module.opConvertFtoS(typeId, value.id);
-		//}
-		//else
-		//{
-		//	castedValue = emitRegisterBitcast(value, dstType);
-		//}
-
-		castedValue = emitRegisterBitcast(value, dstType);
-
-		SpirvRegisterPointer newGpr;
-		newGpr.type.ctype  = dstType;
-		newGpr.type.ccount = 1;
-
-		GcnGprTypeEntry typeKey;
-		typeKey.index = index;
-		typeKey.type  = dstType;
-		auto iter     = gprCache.find(typeKey);
-		if (iter != gprCache.end())
-		{
-			newGpr.id = iter->second;
-		}
-		else
-		{
-			const char* fmtString = GprType == SpirvGprType::Scalar ? "s%d_%s" : "v%d_%s";
-			auto        debugName = UtilString::Format(fmtString, index, getTypeName(dstType));
-			uint32_t    newId     = emitNewVariable({ newGpr.type, spv::StorageClassPrivate }, debugName);
-			newGpr.id             = newId;
-
-			gprCache.insert(std::make_pair(typeKey, newId));
-		}
-
-		emitValueStore(newGpr, castedValue, 1);
-
-		gpr = newGpr;
-	} while (false);
 }
 
 void GCNCompiler::emitValueStore(
@@ -1289,25 +1213,21 @@ void GCNCompiler::emitGprStore(
 	uint32_t                  index,
 	const SpirvRegisterValue& value)
 {
-	auto& gpr      = GprType == SpirvGprType::Scalar ? m_sgprs[index] : m_vgprs[index];
-	auto& gprCache = GprType == SpirvGprType::Scalar ? m_gprCache.sgpr : m_gprCache.vgpr;
+	auto& gpr = GprType == SpirvGprType::Scalar ? m_sgprs[index] : m_vgprs[index];
 
 	if (gpr.id == InvalidSpvId)  // Not initialized
 	{
-		gpr = emitGprCreate<GprType>(index, value.type.ctype);
-		// Store the first type variable.
-		GcnGprTypeEntry typeKey;
-		typeKey.index = index;
-		typeKey.type  = value.type.ctype;
-		gprCache.insert(std::make_pair(typeKey, gpr.id));
+		// We use float variable to hold all registers.
+		gpr = emitGprCreate<GprType>(index, SpirvScalarType::Float32);
 	}
 
-	if (gpr.type.ctype != value.type.ctype)
+	SpirvRegisterValue srcVal = value;
+	if (value.type.ctype != SpirvScalarType::Float32)
 	{
-		emitUpdateGprType<GprType>(index, value.type.ctype);
+		srcVal = emitRegisterBitcast(value, SpirvScalarType::Float32);
 	}
 
-	emitValueStore(gpr, value, 1);
+	emitValueStore(gpr, srcVal, GcnRegMask::select(0));
 }
 
 SpirvRegisterPointer GCNCompiler::emitVgprCreate(
@@ -1724,7 +1644,7 @@ uint32_t GCNCompiler::emitLoadSampledImage(const SpirvTexture& textureResource, 
 								   m_module.opLoad(samplerResource.typeId, samplerResource.varId));
 }
 
-pssl::SpirvRegisterValue GCNCompiler::emitPackFloat16(const SpirvRegisterValue& v2floatVec)
+SpirvRegisterValue GCNCompiler::emitPackFloat16(const SpirvRegisterValue& v2floatVec)
 {
 	SpirvRegisterValue result;
 	result.type.ctype  = SpirvScalarType::Uint32;
@@ -1735,7 +1655,7 @@ pssl::SpirvRegisterValue GCNCompiler::emitPackFloat16(const SpirvRegisterValue& 
 	return result;
 }
 
-pssl::SpirvRegisterValue GCNCompiler::emitUnpackFloat16(const SpirvRegisterValue& uiVec)
+SpirvRegisterValue GCNCompiler::emitUnpackFloat16(const SpirvRegisterValue& uiVec)
 {
 	SpirvRegisterValue result;
 	result.type.ctype  = SpirvScalarType::Float32;

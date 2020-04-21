@@ -83,12 +83,12 @@ void GCNCompiler::emitVectorMemBufferLoad(GCNInstruction& ins)
 	uint32_t typeId    = getScalarTypeId(SpirvScalarType::Uint32);
 	uint32_t ptrTypeId = m_module.defPointerType(typeId, spv::StorageClassUniform);
 
-	SpirvRegisterValue indexVal = emitGprLoad<SpirvGprType::Vector>(idxReg);
+	SpirvRegisterValue indexVal = emitGprLoad<SpirvGprType::Vector>(idxReg, SpirvScalarType::Uint32);
 
 	uint32_t vgprOffsetId = 0;
 	if (offen)
 	{
-		SpirvRegisterValue offsetVal = emitGprLoad<SpirvGprType::Vector>(idxReg + 1);
+		SpirvRegisterValue offsetVal = emitGprLoad<SpirvGprType::Vector>(idxReg + 1, SpirvScalarType::Uint32);
 		vgprOffsetId                   = m_module.opUDiv(typeId, offsetVal.id, m_module.constu32(4));
 	}
 
@@ -223,8 +223,8 @@ void GCNCompiler::emitVectorMemImgSmp(GCNInstruction& ins)
 	{
 	case SIMIMGInstruction::IMAGE_SAMPLE_L:
 	{
-		auto u = emitGprLoad<SpirvGprType::Vector>(uvReg);
-		auto v = emitGprLoad<SpirvGprType::Vector>(uvReg + 1);
+		auto u = emitGprLoad<SpirvGprType::Vector>(uvReg, SpirvScalarType::Uint32);
+		auto v = emitGprLoad<SpirvGprType::Vector>(uvReg + 1, SpirvScalarType::Uint32);
 
 		std::array<uint32_t, 2> uvComponents = { u.id, v.id };
 		uint32_t typeId = getVectorTypeId({ SpirvScalarType::Float32, 2 });

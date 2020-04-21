@@ -104,38 +104,6 @@ struct GcnCompilerCsPart
 };
 
 
-struct GcnGprTypeEntry
-{
-	uint32_t        index;
-	SpirvScalarType type;
-
-	bool operator==(const GcnGprTypeEntry& other) const
-	{
-		return index == other.index && type == other.type;
-	}
-};
-
-struct GcnGprTypeHash
-{
-	std::size_t operator()(GcnGprTypeEntry const& entry) const noexcept
-	{
-		return size_t(entry.type) << 32 | entry.index;
-	}
-};
-
-/**
- * \brief SGPR and VGPR type cache
- *
- * Stores the same GPR with different types.
- */
-struct GcnGprTypeCache
-{
-	std::unordered_map<GcnGprTypeEntry, uint32_t, 
-		GcnGprTypeHash> sgpr;
-	std::unordered_map<GcnGprTypeEntry, uint32_t,
-		GcnGprTypeHash> vgpr;
-};
-
 /**
  * \brief Shader input information
  * 
@@ -245,7 +213,7 @@ private:
 	template <SpirvGprType GprType>
 	SpirvRegisterValue emitGprLoad(
 		uint32_t        index,
-		SpirvScalarType dstType = SpirvScalarType::Unknown);
+		SpirvScalarType dstType);
 
 	template <SpirvGprType GprType>
 	void emitGprStore(
@@ -267,11 +235,6 @@ private:
 		uint32_t                index,
 		SpirvScalarType         type,
 		std::optional<uint32_t> initId = std::nullopt);
-
-	template <SpirvGprType GprType>
-	void emitUpdateGprType(
-		uint32_t        index,
-		SpirvScalarType dstType);
 
 	void emitSgprArrayStore(
 		uint32_t                  startIdx,
@@ -716,9 +679,6 @@ private:
 	// Gcn register to spir-v variable map
 	std::array<SpirvRegisterPointer, GcnMaxSgprCount> m_sgprs;
 	std::array<SpirvRegisterPointer, GcnMaxVgprCount> m_vgprs;
-
-	// GPR cache
-	GcnGprTypeCache m_gprCache;
 
 	///////////////////////////////////
 	// Resources
