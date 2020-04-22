@@ -89,7 +89,7 @@ void GCNCompiler::emitVectorMemBufferLoad(GCNInstruction& ins)
 	if (offen)
 	{
 		SpirvRegisterValue offsetVal = emitGprLoad<SpirvGprType::Vector>(idxReg + 1, SpirvScalarType::Uint32);
-		vgprOffsetId                   = m_module.opUDiv(typeId, offsetVal.id, m_module.constu32(4));
+		vgprOffsetId                 = m_module.opUDiv(typeId, offsetVal.id, m_module.constu32(4));
 	}
 
 	uint32_t bufferId = findResourceBufferId(vsharpReg);
@@ -101,7 +101,13 @@ void GCNCompiler::emitVectorMemBufferLoad(GCNInstruction& ins)
 	// Note:
 	// The index value is in units of stride.
 
-	uint32_t recordId = indexVal.id; 
+	uint32_t recordId = indexVal.id;
+
+	if (offen)
+	{
+		recordId = m_module.opIMul(typeId, m_module.constu32(4), indexVal.id);
+	}
+
 	for (uint32_t i = 0; i != dstRegCount; ++i)
 	{
 		uint32_t offsetId = m_module.opIAdd(typeId, recordId, m_module.constu32(i));
@@ -109,6 +115,7 @@ void GCNCompiler::emitVectorMemBufferLoad(GCNInstruction& ins)
 		if (offen)
 		{
 			offsetId = m_module.opIAdd(typeId, offsetId, vgprOffsetId);
+			
 		}
 
 		std::array<uint32_t, 2> indices = { m_module.constu32(0), offsetId };
