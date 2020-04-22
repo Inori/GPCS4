@@ -620,7 +620,7 @@ void GCNCompiler::emitGprInitializePS()
 	}
 
 	/// SGPR
-	m_sgprs[0]  = emitSgprCreate(0, SpirvScalarType::Uint32);
+	m_sgprs[0]  = emitSgprCreate(0, SpirvScalarType::Float32);
 	m_sgprs[12] = emitSgprCreate(12, SpirvScalarType::Float32);
 	m_sgprs[16] = emitSgprCreate(16, SpirvScalarType::Float32);
 }

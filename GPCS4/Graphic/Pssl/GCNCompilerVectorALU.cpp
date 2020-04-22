@@ -429,8 +429,8 @@ void GCNCompiler::emitVectorBitField32(GCNInstruction& ins)
 	{
 	case SIVOP3Instruction::V3_BFE_U32:
 	{
-		uint32_t count  = m_module.opIAdd(b32TypeId, spvSrc2.id, m_module.constu32(0x1F));
-		uint32_t offset = m_module.opIAdd(b32TypeId, spvSrc1.id, m_module.constu32(0x1F));
+		uint32_t count  = m_module.opBitwiseAnd(b32TypeId, spvSrc2.id, m_module.constu32(0x1F));
+		uint32_t offset = m_module.opBitwiseAnd(b32TypeId, spvSrc1.id, m_module.constu32(0x1F));
 		dstVal.id       = m_module.opBitFieldUExtract(b32TypeId, spvSrc0.id, offset, count);
 	}
 		break;
