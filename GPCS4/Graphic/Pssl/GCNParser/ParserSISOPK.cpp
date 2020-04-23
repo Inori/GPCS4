@@ -108,6 +108,11 @@ SOPKInstruction::SDST ParserSISOPK::GetSDST(Instruction::instruction32bit hexIns
     return SOPKInstruction::SDSTIllegal;
 }
 
+const GCNInstructionFormat& ParserSISOPK::GetSISOPKMeta(SISOPKInstruction::OP op)
+{
+	return g_instructionFormatMapSOPK[op];
+}
+
 ParserSI::kaStatus ParserSISOPK::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, std::unique_ptr<Instruction>& instruction, bool& hasLiteral)
 {
     kaStatus status = Status_SUCCESS;
@@ -121,7 +126,8 @@ ParserSI::kaStatus ParserSISOPK::Parse(GDT_HW_GENERATION hwGen, Instruction::ins
         case GDT_HW_GENERATION_SOUTHERNISLAND:
         {
             SISOPKInstruction::OP op = GetSISOPKOp(hexInstruction);
-            instruction = std::make_unique<SISOPKInstruction>(simm16, op, sdst, simm16Ridx, sdstRidx);
+			auto meta = GetSISOPKMeta(op);
+			instruction = std::make_unique<SISOPKInstruction>(simm16, op, sdst, simm16Ridx, sdstRidx, meta.insClass, meta.operandType);
 			hasLiteral = (op == SISOPKInstruction::S_SETREG_IMM32_B32);
             break;
         }

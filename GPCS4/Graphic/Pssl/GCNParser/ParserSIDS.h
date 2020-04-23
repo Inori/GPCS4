@@ -108,6 +108,8 @@ private:
     /// \param[in]  hexInstruction  The 64 bit hexadecimal instruction.
     /// \returns                   An VDST.
     static DSInstruction::VDST GetVDST(Instruction::instruction64bit);
+
+	static const GCNInstructionFormat& GetSIDSMeta(SIDSInstruction::OP op);
 };
 
 #endif //__PARSERSIDS_H

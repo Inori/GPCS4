@@ -81,11 +81,11 @@ ParserSIMUBUF::GetSIOpMUBUF(Instruction::instruction64bit hexInstruction, Instru
         instKind = Instruction::VectorMemory;
     }
 
-    if ((op > SIMUBUFInstruction::BUFFER_LOAD_DWORDX4 && op < SIMUBUFInstruction::BUFFER_STORE_BYTE)
-        || (op > SIMUBUFInstruction::BUFFER_STORE_BYTE && op < SIMUBUFInstruction::BUFFER_STORE_SHORT)
-        || (op > SIMUBUFInstruction::BUFFER_STORE_SHORT && op < SIMUBUFInstruction::BUFFER_STORE_DWORD)
-        || (op > SIMUBUFInstruction::BUFFER_STORE_DWORDX4 && op < SIMUBUFInstruction::BUFFER_ATOMIC_SWAP)
-        || (op > SIMUBUFInstruction::BUFFER_ATOMIC_FMAX && op < SIMUBUFInstruction::BUFFER_ATOMIC_SWAP_X2)
+    if ((op > SIMUBUFInstruction::BUFFER_LOAD_DWORDX3 && op < SIMUBUFInstruction::BUFFER_STORE_BYTE)
+        || (op > SIMUBUFInstruction::BUFFER_STORE_BYTE && op < SIMUBUFInstruction::BUFFER_STORE_SHORT) 
+		|| (op > SIMUBUFInstruction::BUFFER_STORE_SHORT && op < SIMUBUFInstruction::BUFFER_STORE_DWORD) 
+		|| (op > SIMUBUFInstruction::BUFFER_STORE_DWORDX3 && op < SIMUBUFInstruction::BUFFER_ATOMIC_SWAP) 
+		|| (op > SIMUBUFInstruction::BUFFER_ATOMIC_FMAX && op < SIMUBUFInstruction::BUFFER_ATOMIC_SWAP_X2)
         || (op > SIMUBUFInstruction::BUFFER_ATOMIC_FMAX_X2 && op < SIMUBUFInstruction::BUFFER_WBINVL1_SC)
         || (op >= SIMUBUFInstruction::BUFFER_RESERVED))
     {

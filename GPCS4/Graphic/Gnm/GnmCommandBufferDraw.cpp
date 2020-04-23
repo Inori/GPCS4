@@ -459,6 +459,7 @@ void GnmCommandBufferDraw::dispatch(uint32_t threadGroupX, uint32_t threadGroupY
 
 void GnmCommandBufferDraw::dispatchWithOrderedAppend(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ, DispatchOrderedAppendMode orderedAppendMode)
 {
+	commitComputeStages();
 }
 
 void GnmCommandBufferDraw::writeDataInline(void* dstGpuAddr, const void* data, uint32_t sizeInDwords, WriteDataConfirmMode writeConfirm)
@@ -965,6 +966,8 @@ void GnmCommandBufferDraw::commitCsStage()
 
 void GnmCommandBufferDraw::commitComputeStages()
 {
+	commitCsStage();
+	clearShaderContext();
 }
 
 void GnmCommandBufferDraw::clearShaderContext()

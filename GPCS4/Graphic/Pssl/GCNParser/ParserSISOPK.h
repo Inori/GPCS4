@@ -81,6 +81,8 @@ private:
     /// \param[in]  ridx           register value ,relevant only if SDST is ScalarGPR or SSRC ScalarTtmp.
     /// \returns                   A SDST.
     static SOPKInstruction::SDST GetSDST(Instruction::instruction32bit hexInstruction, unsigned int& ridx);
+
+	static const GCNInstructionFormat& GetSISOPKMeta(SISOPKInstruction::OP op);
 };
 
 #endif //__PARSERSISOPK_H
