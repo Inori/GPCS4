@@ -7,6 +7,22 @@ using namespace pssl;
 namespace shader
 {;
 
+// A complete PSSL shader binary file
+// output by PSSL shader compiler directly
+// contains some meta data,
+// including user_sgpr_count, user_sgpr_usage, ps_persp_center_en
+// and resource declaration information and so on.
+//
+// But during shader binding, the runtime will
+// rip these meta data fields out, leaving only
+// the instruction field and input slot field.
+// These meta data are then encoded into XXStageRegisters.
+//
+// Hence we need to decode these register values,
+// recover the original meta info at our needs,
+// e.g. to initialize shader SGPRs and VGPRs.
+
+
 void parseShaderRegVs(const pssl::VsStageRegisters* reg, PsslShaderMetaVs& meta)
 {
 	const SPI_SHADER_PGM_RSRC2_VS* rsrc2 = reinterpret_cast<const SPI_SHADER_PGM_RSRC2_VS*>(&reg->spiShaderPgmRsrc2Vs);
@@ -25,6 +41,7 @@ void parseShaderRegCs(const pssl::CsStageRegisters* reg, PsslShaderMetaCs& meta)
 {
 	const COMPUTE_PGM_RSRC2* rsrc2 = reinterpret_cast<const COMPUTE_PGM_RSRC2*>(&reg->computePgmRsrc2);
 	meta.userSgprCount             = rsrc2->user_sgpr;
+	meta.ldsSize                   = rsrc2->lds_size;
 	meta.threadGroupX              = reg->computeNumThreadX;
 	meta.threadGroupY              = reg->computeNumThreadY;
 	meta.threadGroupZ              = reg->computeNumThreadZ;

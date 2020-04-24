@@ -148,29 +148,18 @@ void GCNCompiler::emitInit()
 	m_module.enableCapability(spv::CapabilityImageQuery);
 
 	emitDclStateRegisters();
+	emitDclShaderResourceUD();
 
 	// Initialize the shader module with capabilities
 	// etc. Each shader type has its own peculiarities.
 	switch (m_programInfo.shaderType())
 	{
-	case PsslProgramType::VertexShader:
-		emitVsInit();
-		break;
-	case PsslProgramType::HullShader:
-		emitHsInit();
-		break;
-	case PsslProgramType::DomainShader:
-		emitDsInit();
-		break;
-	case PsslProgramType::GeometryShader:
-		emitGsInit();
-		break;
-	case PsslProgramType::PixelShader:
-		emitPsInit();
-		break;
-	case PsslProgramType::ComputeShader:
-		emitCsInit();
-		break;
+	case PsslProgramType::VertexShader:		emitVsInit();	break;
+	case PsslProgramType::HullShader:		emitHsInit();	break;
+	case PsslProgramType::DomainShader:		emitDsInit();	break;
+	case PsslProgramType::GeometryShader:	emitGsInit();	break;
+	case PsslProgramType::PixelShader:		emitPsInit();	break;
+	case PsslProgramType::ComputeShader:	emitCsInit();	break;
 	}
 }
 
@@ -184,7 +173,6 @@ void GCNCompiler::emitVsInit()
 
 	emitDclVertexInput();
 	emitDclVertexOutput();
-	emitDclShaderResourceUD();
 	emitEmuFetchShader();
 
 	// Main function of the vertex shader
@@ -233,7 +221,6 @@ void GCNCompiler::emitPsInit()
 
 	emitDclPixelInput();
 	emitDclPixelOutput();
-	emitDclShaderResourceUD();
 
 	this->emitFunctionBegin(
 		m_ps.functionId,
@@ -253,6 +240,7 @@ void GCNCompiler::emitCsInit()
 	m_module.setDebugName(m_cs.functionId, "csMain");
 
 	emitDclThreadGroup();
+	emitDclThreadGroupSharedMemory();
 
 	this->emitFunctionBegin(
 		m_cs.functionId,
@@ -934,6 +922,25 @@ void GCNCompiler::emitDclThreadGroup()
 						  m_cs.workgroupSizeX,
 						  m_cs.workgroupSizeY,
 						  m_cs.workgroupSizeZ);
+}
+
+void GCNCompiler::emitDclThreadGroupSharedMemory()
+{
+	// Declare LDS data.
+
+	// We use uint array to represent LDS data.
+	const uint32_t elementStride = sizeof(uint32_t);
+	const uint32_t elementCount  = m_shaderInput.meta.cs.ldsSize / elementStride;
+
+	SpirvRegisterInfo varInfo;
+	varInfo.atype.vtype.ctype  = SpirvScalarType::Uint32;
+	varInfo.atype.vtype.ccount = 1;
+	varInfo.atype.alength     = elementCount;
+	varInfo.sclass           = spv::StorageClassWorkgroup;
+
+	m_cs.ldsId = emitNewVariable(varInfo);
+
+	m_module.setDebugName(m_cs.ldsId, "lds");
 }
 
 SpirvRegisterValue GCNCompiler::emitVsSystemValueLoad(

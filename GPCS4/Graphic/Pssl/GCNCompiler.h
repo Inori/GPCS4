@@ -101,6 +101,8 @@ struct GcnCompilerCsPart
 	uint32_t builtinLocalInvocationId    = 0;
 	uint32_t builtinLocalInvocationIndex = 0;
 	uint32_t builtinWorkgroupId          = 0;
+
+	uint32_t ldsId = 0;
 };
 
 
@@ -168,12 +170,16 @@ private:
 
 	void emitFunctionLabel();
 
+	// VS
 	void emitDclVertexInput();
 	void emitDclVertexOutput();
 	void emitEmuFetchShader();
-
+	// PS
 	void emitDclPixelInput();
 	void emitDclPixelOutput();
+	// CS
+	void emitDclThreadGroup();
+	void emitDclThreadGroupSharedMemory();
 
 	// TODO:
 	// For SGPRs and some VGPRs maybe,
@@ -182,6 +188,7 @@ private:
 	void emitGprInitializePS();
 	void emitGprInitializeCS();
 
+	// For all shader types
 	void emitDclStateRegisters();
 	
 	void emitDclShaderResource(const GcnShaderResourceInstance& res);
@@ -194,7 +201,7 @@ private:
 	void emitDclImmTexture(const GcnShaderResourceInstance& res);
 	void emitDclImmResource(const GcnShaderResourceInstance& res);
 
-	void emitDclThreadGroup();
+	
 
 	SpirvRegisterValue emitVsSystemValueLoad(
 		SpirvSystemValue sv,

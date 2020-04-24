@@ -25,7 +25,7 @@ struct SpirvVectorType
 	}
 
 	SpirvScalarType ctype;
-	uint32_t ccount;
+	uint32_t        ccount;
 };
 
 /**
@@ -54,7 +54,7 @@ struct SpirvArrayType
 	}
 
 	SpirvVectorType vtype;
-	uint32_t alength;
+	uint32_t        alength;
 };
 
 /**
@@ -90,7 +90,7 @@ struct SpirvRegisterInfo
 	{
 	}
 
-	SpirvArrayType atype;
+	SpirvArrayType    atype;
 	spv::StorageClass sclass;
 };
 
