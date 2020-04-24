@@ -147,6 +147,8 @@ void GCNCompiler::emitInit()
 	m_module.enableCapability(spv::CapabilityShader);
 	m_module.enableCapability(spv::CapabilityImageQuery);
 
+	emitDclStateRegisters();
+
 	// Initialize the shader module with capabilities
 	// etc. Each shader type has its own peculiarities.
 	switch (m_programInfo.shaderType())
@@ -180,7 +182,6 @@ void GCNCompiler::emitVsInit()
 
 	m_module.enableExtension("SPV_KHR_shader_draw_parameters");
 
-	emitDclStateRegisters();
 	emitDclVertexInput();
 	emitDclVertexOutput();
 	emitDclShaderResourceUD();
@@ -230,7 +231,6 @@ void GCNCompiler::emitPsInit()
 	m_ps.functionId = m_module.allocateId();
 	m_module.setDebugName(m_ps.functionId, "psMain");
 
-	emitDclStateRegisters();
 	emitDclPixelInput();
 	emitDclPixelOutput();
 	emitDclShaderResourceUD();
@@ -248,6 +248,20 @@ void GCNCompiler::emitPsInit()
 
 void GCNCompiler::emitCsInit()
 {
+	// Main function of the compute shader
+	m_cs.functionId = m_module.allocateId();
+	m_module.setDebugName(m_cs.functionId, "csMain");
+
+	emitDclThreadGroup();
+
+	this->emitFunctionBegin(
+		m_cs.functionId,
+		m_module.defVoidType(),
+		m_module.defFunctionType(
+			m_module.defVoidType(), 0, nullptr));
+	this->emitFunctionLabel();
+
+	emitGprInitializeCS();
 }
 
 void GCNCompiler::emitVsFinalize()
@@ -286,6 +300,13 @@ void GCNCompiler::emitPsFinalize()
 
 void GCNCompiler::emitCsFinalize()
 {
+	this->emitMainFunctionBegin();
+
+	m_module.opFunctionCall(
+		m_module.defVoidType(),
+		m_cs.functionId, 0, nullptr);
+
+	this->emitFunctionEnd();
 }
 
 void GCNCompiler::emitFunctionBegin(uint32_t entryPoint, uint32_t returnType, uint32_t funcType)
@@ -625,6 +646,10 @@ void GCNCompiler::emitGprInitializePS()
 	m_sgprs[16] = emitSgprCreate(16, SpirvScalarType::Float32);
 }
 
+void GCNCompiler::emitGprInitializeCS()
+{
+}
+
 void GCNCompiler::emitDclStateRegisters()
 {
 	SpirvVectorType u32Type;
@@ -899,6 +924,18 @@ void GCNCompiler::emitDclImmResource(const GcnShaderResourceInstance& res)
 	}
 }
 
+void GCNCompiler::emitDclThreadGroup()
+{
+	m_cs.workgroupSizeX = m_shaderInput.meta.cs.threadGroupX;
+	m_cs.workgroupSizeY = m_shaderInput.meta.cs.threadGroupY;
+	m_cs.workgroupSizeZ = m_shaderInput.meta.cs.threadGroupZ;
+
+	m_module.setLocalSize(m_entryPointId,
+						  m_cs.workgroupSizeX,
+						  m_cs.workgroupSizeY,
+						  m_cs.workgroupSizeZ);
+}
+
 SpirvRegisterValue GCNCompiler::emitVsSystemValueLoad(
 	SpirvSystemValue sv,
 	GcnRegMask       mask)
@@ -1126,6 +1163,86 @@ SpirvRegisterValue GCNCompiler::emitPsSystemValueLoad(
 		LOG_ASSERT(false, "Unhandled PS SV input: ", sv);
 		break;
 	}
+	return result;
+}
+
+SpirvRegisterValue GCNCompiler::emitCsSystemValueLoad(
+	SpirvSystemValue sv,
+	GcnRegMask       mask)
+{
+	SpirvRegisterValue result;
+
+	switch (sv)
+	{
+	case SpirvSystemValue::ThreadId:
+	{
+		if (m_cs.builtinGlobalInvocationId == 0)
+		{
+			m_cs.builtinGlobalInvocationId = 
+				emitNewBuiltinVariable({ { SpirvScalarType::Uint32, 3, 0 },
+										 spv::StorageClassInput },
+									   spv::BuiltInGlobalInvocationId,
+									   "gl_GlobalInvocationID");
+		}
+
+		result.type.ctype  = SpirvScalarType::Uint32;
+		result.type.ccount = 3;
+		result.id          = m_cs.builtinGlobalInvocationId;
+	}
+		break;
+	case SpirvSystemValue::ThreadGroupId:
+	{
+		if (m_cs.builtinWorkgroupId == 0)
+		{
+			m_cs.builtinWorkgroupId =
+				emitNewBuiltinVariable({ { SpirvScalarType::Uint32, 3, 0 },
+										 spv::StorageClassInput },
+									   spv::BuiltInWorkgroupId,
+									   "gl_WorkGroupID");
+		}
+
+		result.type.ctype  = SpirvScalarType::Uint32;
+		result.type.ccount = 3;
+		result.id          = m_cs.builtinWorkgroupId;
+	}
+		break;
+	case SpirvSystemValue::ThreadIdInGroup:
+	{
+		if (m_cs.builtinLocalInvocationId == 0)
+		{
+			m_cs.builtinLocalInvocationId = 
+				emitNewBuiltinVariable({ { SpirvScalarType::Uint32, 3, 0 },
+										 spv::StorageClassInput },
+									   spv::BuiltInLocalInvocationId,
+									   "gl_LocalInvocationID");
+		}
+
+		result.type.ctype  = SpirvScalarType::Uint32;
+		result.type.ccount = 3;
+		result.id          = m_cs.builtinLocalInvocationId;
+	}
+		break;
+	case SpirvSystemValue::ThreadIndexInGroup:
+	{
+		if (m_cs.builtinLocalInvocationIndex == 0)
+		{
+			m_cs.builtinLocalInvocationIndex =
+				emitNewBuiltinVariable({ { SpirvScalarType::Uint32, 1, 0 },
+										 spv::StorageClassInput },
+									   spv::BuiltInLocalInvocationIndex,
+									   "gl_LocalInvocationIndex");
+		}
+
+		result.type.ctype  = SpirvScalarType::Uint32;
+		result.type.ccount = 1;
+		result.id          = m_cs.builtinLocalInvocationIndex;
+	}
+		break;
+	default:
+		LOG_ASSERT(false, "Unhandled CS SV input: ", sv);
+		break;
+	}
+
 	return result;
 }
 
@@ -1690,7 +1807,10 @@ uint32_t GCNCompiler::emitNewVariable(
 	return varId;
 }
 
-uint32_t GCNCompiler::emitNewBuiltinVariable(const SpirvRegisterInfo& info, spv::BuiltIn builtIn, const char* name)
+uint32_t GCNCompiler::emitNewBuiltinVariable(
+	const SpirvRegisterInfo& info,
+	spv::BuiltIn             builtIn,
+	const char*              name)
 {
 	const uint32_t varId = emitNewVariable(info);
 

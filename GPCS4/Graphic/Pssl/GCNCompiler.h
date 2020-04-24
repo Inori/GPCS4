@@ -180,9 +180,10 @@ private:
 	// we should use specialization constants
 	void emitGprInitializeVS();
 	void emitGprInitializePS();
+	void emitGprInitializeCS();
 
 	void emitDclStateRegisters();
-	// For all shader types
+	
 	void emitDclShaderResource(const GcnShaderResourceInstance& res);
 	void emitDclShaderResourceUD();
 	void emitDclShaderResourceEUD(uint32_t dstRegIndex, uint32_t eudOffsetDw);
@@ -193,11 +194,17 @@ private:
 	void emitDclImmTexture(const GcnShaderResourceInstance& res);
 	void emitDclImmResource(const GcnShaderResourceInstance& res);
 
+	void emitDclThreadGroup();
+
 	SpirvRegisterValue emitVsSystemValueLoad(
 		SpirvSystemValue sv,
 		GcnRegMask       mask);
 
 	SpirvRegisterValue emitPsSystemValueLoad(
+		SpirvSystemValue sv,
+		GcnRegMask       mask);
+
+	SpirvRegisterValue emitCsSystemValueLoad(
 		SpirvSystemValue sv,
 		GcnRegMask       mask);
 
