@@ -115,7 +115,6 @@ void GCNCompiler::emitVectorMemBufferLoad(GCNInstruction& ins)
 		if (offen)
 		{
 			offsetId = m_module.opIAdd(typeId, offsetId, vgprOffsetId);
-			
 		}
 
 		std::array<uint32_t, 2> indices = { m_module.constu32(0), offsetId };

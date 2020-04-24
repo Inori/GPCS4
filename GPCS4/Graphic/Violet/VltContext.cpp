@@ -441,7 +441,7 @@ void VltContext::clearRenderTarget(
 		if (clearAspects & VK_IMAGE_ASPECT_COLOR_BIT)
 		{
 			attachments.color[0].view   = targetView;
-			attachments.color[0].layout = tgtImgInfo.layout;
+			attachments.color[0].layout = targetView->pickLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
 			ops.colorOps[0] = colorOp;
 
@@ -451,7 +451,7 @@ void VltContext::clearRenderTarget(
 		else
 		{
 			attachments.depth.view   = targetView;
-			attachments.depth.layout = tgtImgInfo.layout;
+			attachments.depth.layout = targetView->pickLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
 			ops.depthOps = depthOp;
 
@@ -469,7 +469,7 @@ void VltContext::clearRenderTarget(
 		barrier.srcAccessMask   = srcAccess;
 		m_cmd->cmdPipelineBarrier(
 			VltCmdType::ExecBuffer,
-			srcStages, tgtImgInfo.stages,
+			srcStages, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
 			0,
 			1, &barrier,
 			0, nullptr,
@@ -816,6 +816,14 @@ void VltContext::renderPassBindFramebuffer(const RcPtr<VltFrameBuffer>& framebuf
 	renderPassInfo.pClearValues    = clearValues;
 
 	m_cmd->cmdBeginRenderPass(&renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+	m_cmd->trackResource(framebuffer);
+
+	for (uint32_t i = 0; i < framebuffer->numAttachments(); i++)
+	{
+		m_cmd->trackResource(framebuffer->getAttachment(i).view);
+		m_cmd->trackResource(framebuffer->getAttachment(i).view->image());
+	}
 }
 
 void VltContext::renderPassUnbindFramebuffer()

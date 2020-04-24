@@ -141,7 +141,7 @@ public:
 
 	VkImageView handle() const;
 
-	RcPtr<VltImage> getImage();
+	const RcPtr<VltImage>& image() const; 
 
 	const VltImageViewCreateInfo& info() const;
 
@@ -150,6 +150,8 @@ public:
 	VltDescriptorInfo getDescriptor(VkImageViewType type, VkImageLayout layout) const;
 
 	VkExtent3D mipLevelExtent(uint32_t mipLevel) const;
+
+	VkImageLayout pickLayout(VkImageLayout target) const;
 
 private:
 	RcPtr<VltDevice>       m_device;

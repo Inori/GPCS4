@@ -878,7 +878,6 @@ void GnmCommandBufferDraw::commitGraphicsStages()
 
 	commitVsStage();
 	commitPsStage();
-	commitCsStage();
 
 	clearShaderContext();
 }
@@ -990,7 +989,7 @@ void GnmCommandBufferDraw::clearRenderState()
 	m_flags.set(
 		GnmContexFlag::GpDirtyRenderTarget);
 
-	m_state   = GnmContextState();
+	m_state = GnmContextState();
 
 	clearShaderContext();
 }
