@@ -102,7 +102,7 @@ struct GcnCompilerCsPart
 	uint32_t builtinLocalInvocationIndex = 0;
 	uint32_t builtinWorkgroupId          = 0;
 
-	uint32_t ldsId = 0;
+	SpirvRegisterPointer lds = {};
 };
 
 

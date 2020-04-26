@@ -938,9 +938,10 @@ void GCNCompiler::emitDclThreadGroupSharedMemory()
 	varInfo.atype.alength     = elementCount;
 	varInfo.sclass           = spv::StorageClassWorkgroup;
 
-	m_cs.ldsId = emitNewVariable(varInfo);
-
-	m_module.setDebugName(m_cs.ldsId, "lds");
+	m_cs.lds.type = varInfo.atype.vtype;
+	m_cs.lds.id   = emitNewVariable(varInfo);
+	
+	m_module.setDebugName(m_cs.lds.id, "lds");
 }
 
 SpirvRegisterValue GCNCompiler::emitVsSystemValueLoad(
