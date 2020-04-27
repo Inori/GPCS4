@@ -96,9 +96,9 @@ void GCNCompiler::emitDsIdxWr(GCNInstruction& ins)
 	SpirvRegisterValue spvIndex = emitLoadVectorOperand(vbindex, SpirvScalarType::Uint32);
 	SpirvRegisterValue spvOffset0 = emitLoadVectorOperand(offset0, SpirvScalarType::Uint32);
 
-	const uint32_t     u32TypeId     = getScalarTypeId(SpirvScalarType::Uint32);
+	const uint32_t     u32TypeId = getScalarTypeId(SpirvScalarType::Uint32);
 	// We treat LDS memory as uint array, so divide by 4.
-	uint32_t           recordIndexId = m_module.opUDiv(u32TypeId,
+	uint32_t           indexId = m_module.opUDiv(u32TypeId,
                                              m_module.opIAdd(u32TypeId, spvIndex.id, spvOffset0.id),
                                              m_module.constu32(sizeof(uint32_t)));
 	SpirvRegisterValue spvSrc00, spvSrc01;
@@ -128,11 +128,23 @@ void GCNCompiler::emitDsIdxWr(GCNInstruction& ins)
 		LOG_PSSL_UNHANDLED_INST();
 		break;
 	case SIDSInstruction::DS_WRITE_B32:
-		emitVectorStore(m_cs.lds, spv::StorageClassWorkgroup, GcnRegMask::select(0), spvSrc00);
+	{
+		SpirvRegisterPointer element = 
+			emitArrayAccess(m_cs.lds, spv::StorageClassWorkgroup, indexId);
+		m_module.opStore(element.id, spvSrc00.id);
+	}
 		break;
 	case SIDSInstruction::DS_WRITE_B64:
-		emitVectorStore(m_cs.lds, spv::StorageClassWorkgroup, GcnRegMask::select(0), spvSrc00);
-		emitVectorStore(m_cs.lds, spv::StorageClassWorkgroup, GcnRegMask::select(0), spvSrc00);
+	{
+		SpirvRegisterPointer element0 =
+			emitArrayAccess(m_cs.lds, spv::StorageClassWorkgroup, indexId);
+		SpirvRegisterPointer element1 =
+			emitArrayAccess(m_cs.lds, spv::StorageClassWorkgroup, 
+				m_module.opIAdd(u32TypeId, indexId, m_module.constu32(1)) );
+
+		m_module.opStore(element0.id, spvSrc00.id);
+		m_module.opStore(element1.id, spvSrc01.id);
+	}
 		break;
 	default:
 		LOG_PSSL_UNHANDLED_INST();

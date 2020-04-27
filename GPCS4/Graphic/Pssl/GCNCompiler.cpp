@@ -2183,22 +2183,31 @@ SpirvRegisterValue GCNCompiler::emitRegisterMaskBits(SpirvRegisterValue value, u
 	return result;
 }
 
+
+SpirvRegisterPointer GCNCompiler::emitArrayAccess(
+	SpirvRegisterPointer pointer,
+	spv::StorageClass    sclass,
+	uint32_t             index)
+{
+	uint32_t ptrTypeId = m_module.defPointerType(
+		getVectorTypeId(pointer.type), sclass);
+
+	SpirvRegisterPointer result;
+	result.type = pointer.type;
+	result.id   = m_module.opAccessChain(
+        ptrTypeId, pointer.id, 1, &index);
+	return result;
+}
+
+
 SpirvRegisterPointer GCNCompiler::emitVectorAccess(
 	SpirvRegisterPointer pointer,
 	spv::StorageClass    sclass,
 	GcnRegMask           mask)
 {
 	LOG_ASSERT(mask.popCount() == 1, "only one component is supposed.");
-	uint32_t ptrTypeId = m_module.defPointerType(
-		getVectorTypeId(pointer.type), sclass);
-
-	uint32_t compositeIndexId = m_module.constu32(mask.firstComponent());
-
-	SpirvRegisterPointer result;
-	result.type = pointer.type;
-	result.id   = m_module.opAccessChain(
-        ptrTypeId, pointer.id, 1, &compositeIndexId);
-	return result;
+	uint32_t composite = m_module.constu32(mask.firstComponent());
+	return emitArrayAccess(pointer, sclass, composite);
 }
 
 SpirvRegisterValue GCNCompiler::emitVectorLoad(

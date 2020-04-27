@@ -967,20 +967,20 @@ void GCNCompiler::emitVectorIntCmp32(GCNInstruction& ins)
 	case SIVOPCInstruction::V_CMP_LE_U32:
 		conditionId = m_module.opULessThanEqual(typeId, spvSrc0.id, spvSrc1.id);
 		break;
+	case SIVOPCInstruction::V_CMPX_NE_U32:
+		writeExec = true;
 	case SIVOPCInstruction::V_CMP_NE_U32:
 		conditionId = m_module.opINotEqual(typeId, spvSrc0.id, spvSrc1.id);
 		break;
 	case SIVOPCInstruction::V_CMP_EQ_I32:
 		conditionId = m_module.opIEqual(typeId, spvSrc0.id, spvSrc1.id);
 		break;
-	case SIVOPCInstruction::V_CMP_GT_I32:
-		conditionId = m_module.opSGreaterThan(typeId, spvSrc0.id, spvSrc1.id);
-		break;
-	case SIVOPCInstruction::V_CMPX_NE_U32:
-	{
-		conditionId = m_module.opINotEqual(typeId, spvSrc0.id, spvSrc1.id);
+	case SIVOPCInstruction::V_CMPX_GT_I32:
+	case SIVOPCInstruction::V_CMPX_GT_U32:
 		writeExec = true;
-	}
+	case SIVOPCInstruction::V_CMP_GT_I32:
+	case SIVOPCInstruction::V_CMP_GT_U32:
+		conditionId = m_module.opSGreaterThan(typeId, spvSrc0.id, spvSrc1.id);
 		break;
 	default:
 		LOG_PSSL_UNHANDLED_INST();

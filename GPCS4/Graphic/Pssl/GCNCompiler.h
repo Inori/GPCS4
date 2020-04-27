@@ -102,7 +102,7 @@ struct GcnCompilerCsPart
 	uint32_t builtinLocalInvocationIndex = 0;
 	uint32_t builtinWorkgroupId          = 0;
 
-	SpirvRegisterPointer lds = {};
+	SpirvRegisterPointer lds;
 };
 
 
@@ -353,6 +353,11 @@ private:
 
 	////////////////////////////////
 	// Pointer manipulation methods
+	SpirvRegisterPointer emitArrayAccess(
+		SpirvRegisterPointer pointer,
+		spv::StorageClass    sclass,
+		uint32_t             index);
+
 	SpirvRegisterPointer emitVectorAccess(
 		SpirvRegisterPointer pointer,
 		spv::StorageClass    sclass,
