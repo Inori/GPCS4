@@ -569,6 +569,7 @@ private:
 		uint32_t literal);
 
 	void emitVectorMemBufferLoad(GCNInstruction& ins);
+	void emitVectorMemBufferStore(GCNInstruction& ins);
 
 	/////////////////////////////////////////////////////////
 

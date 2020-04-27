@@ -135,9 +135,118 @@ void GCNCompiler::emitVectorMemBufferLoad(GCNInstruction& ins)
 	emitVgprArrayStore(dstReg, valueArray.data(), valueArray.size());
 }
 
+void GCNCompiler::emitVectorMemBufferStore(GCNInstruction& ins)
+{
+	uint32_t op        = 0;
+	uint32_t idxen     = 0;
+	uint32_t offen     = 0;
+	uint32_t offset    = 0;
+	uint32_t soffset   = 0;
+	uint32_t idxReg    = 0;
+	uint32_t srcReg    = 0;
+	uint32_t vsharpReg = 0;
+
+	if (ins.instruction->GetInstructionFormat() == Instruction::InstructionSet_MUBUF)
+	{
+		auto inst = asInst<SIMUBUFInstruction>(ins);
+		op        = inst->GetOp();
+		idxen     = inst->GetIDXEN();
+		offen     = inst->GetOFFEN();
+		offset    = inst->GetOFFSET();
+		soffset   = inst->GetSOFFSET();
+		idxReg    = inst->GetVADDR();
+		srcReg    = inst->GetVDATA();
+		vsharpReg = inst->GetSRSRC() * 4;  // In unit of 4-GPR
+	}
+
+	LOG_ASSERT(idxen == 1, "only support indexed load.");
+	LOG_ASSERT(offen == 0, "do not support offen.");
+	LOG_ASSERT(soffset == 128, "only support 0 const SGPR offset");
+
+	uint32_t typeId    = getScalarTypeId(SpirvScalarType::Uint32);
+	uint32_t ptrTypeId = m_module.defPointerType(typeId, spv::StorageClassUniform);
+	
+	// Note:
+	// The index value is in units of stride.
+	SpirvRegisterValue spvIndex = emitGprLoad<SpirvGprType::Vector>(idxReg, SpirvScalarType::Uint32);
+	uint32_t offsetId = m_module.constu32(offset);
+
+	// TODO:
+	// Currently assume stride from V# is 4.
+	const uint32_t stride = 4;
+	uint32_t recordId = m_module.opUDiv(
+		typeId, 
+		m_module.opIAdd(
+			typeId, 
+			offsetId, 
+			m_module.opIMul(
+				typeId, 
+				spvIndex.id, 
+				m_module.constu32(stride))),
+        m_module.constu32(stride));
+
+	uint32_t bufferId = findResourceBufferId(vsharpReg);
+	LOG_ASSERT(bufferId != InvalidSpvId, "buffer not found at reg %d", vsharpReg);
+
+	uint32_t storeCount  = 0;
+	if (op != SIMUBUFInstruction::BUFFER_STORE_DWORDX3)
+	{
+		storeCount = 1 << (op - 28);
+	}
+	else
+	{
+		storeCount = 3;
+	}
+
+	for (uint32_t i = 0; i != storeCount; ++i)
+	{
+		SpirvRegisterValue value = emitLoadVectorOperand(srcReg + i, SpirvScalarType::Uint32);
+
+		std::array<uint32_t, 2> indices = { m_module.constu32(0), recordId };
+		uint32_t                element   = m_module.opAccessChain(
+            ptrTypeId,
+            bufferId,
+            indices.size(), indices.data());
+
+		m_module.opStore(element, value.id);
+	}
+}
+
+
 void GCNCompiler::emitVectorMemBufNoFmt(GCNInstruction& ins)
 {
-	LOG_PSSL_UNHANDLED_INST();
+	auto inst = asInst<SIMUBUFInstruction>(ins);
+
+	auto op = inst->GetOp();
+
+	switch (op)
+	{
+	case SIMUBUFInstruction::BUFFER_LOAD_UBYTE:
+	case SIMUBUFInstruction::BUFFER_LOAD_SBYTE:
+	case SIMUBUFInstruction::BUFFER_LOAD_USHORT:
+	case SIMUBUFInstruction::BUFFER_LOAD_SSHORT:
+		LOG_PSSL_UNHANDLED_INST();
+		break;
+	case SIMUBUFInstruction::BUFFER_LOAD_DWORD:
+	case SIMUBUFInstruction::BUFFER_LOAD_DWORDX2:
+	case SIMUBUFInstruction::BUFFER_LOAD_DWORDX4:
+	case SIMUBUFInstruction::BUFFER_LOAD_DWORDX3:
+		LOG_PSSL_UNHANDLED_INST();
+		break;
+	case SIMUBUFInstruction::BUFFER_STORE_BYTE:
+	case SIMUBUFInstruction::BUFFER_STORE_SHORT:
+		LOG_PSSL_UNHANDLED_INST();
+		break;
+	case SIMUBUFInstruction::BUFFER_STORE_DWORD:
+	case SIMUBUFInstruction::BUFFER_STORE_DWORDX2:
+	case SIMUBUFInstruction::BUFFER_STORE_DWORDX4:
+	case SIMUBUFInstruction::BUFFER_STORE_DWORDX3:
+		emitVectorMemBufferStore(ins);
+		break;
+	default:
+		LOG_PSSL_UNHANDLED_INST();
+		break;
+	}
 }
 
 void GCNCompiler::emitVectorMemBufFmt(GCNInstruction& ins)

@@ -964,6 +964,7 @@ void GCNCompiler::emitVectorIntCmp32(GCNInstruction& ins)
 	// so we don't need to switch both cases.
 	switch (op)
 	{
+	case SIVOPCInstruction::V_CMP_LE_I32:
 	case SIVOPCInstruction::V_CMP_LE_U32:
 		conditionId = m_module.opULessThanEqual(typeId, spvSrc0.id, spvSrc1.id);
 		break;
