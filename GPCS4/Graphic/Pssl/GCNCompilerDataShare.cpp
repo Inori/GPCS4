@@ -78,7 +78,102 @@ void GCNCompiler::emitDataShare(GCNInstruction& ins)
 
 void GCNCompiler::emitDsIdxRd(GCNInstruction& ins)
 {
-	LOG_PSSL_UNHANDLED_INST();
+	auto inst = asInst<SIDSInstruction>(ins);
+	auto op   = inst->GetOp();
+
+	uint32_t gds = inst->GetGDS();
+	LOG_ASSERT(gds == 0, "do not support gds yet.");
+
+	uint32_t vbindex = inst->GetADDR();
+	uint32_t offset0 = inst->GetOFFSET(0);
+	uint32_t offset1 = inst->GetOFFSET(1);
+	uint32_t src0    = inst->GetDATA(0);
+	uint32_t src1    = inst->GetDATA(1);
+
+	SpirvRegisterValue spvIndex   = emitLoadVectorOperand(vbindex, SpirvScalarType::Uint32);
+	SpirvRegisterValue spvOffset0 = emitLoadVectorOperand(offset0, SpirvScalarType::Uint32);
+
+	const uint32_t u32TypeId = getScalarTypeId(SpirvScalarType::Uint32);
+
+	uint32_t           indexId0, indexId1;
+	SpirvRegisterValue spvSrc00, spvSrc01;
+
+	switch (op)
+	{
+	case SIDSInstruction::DS_READ_B32:
+	case SIDSInstruction::DS_READ_B64:
+		// We treat LDS memory as uint array, so divide by 4.
+		indexId0 = m_module.opUDiv(u32TypeId,
+								   m_module.opIAdd(u32TypeId, spvIndex.id, spvOffset0.id),
+								   m_module.constu32(4));
+		break;
+	case SIDSInstruction::DS_READ2_B32:
+	{
+		SpirvRegisterValue spvOffset1 = emitLoadVectorOperand(offset1, SpirvScalarType::Uint32);
+		// For dual ds read, offset is unit of OpDataSize
+		uint32_t regionAddr0 = m_module.opIAdd(
+			u32TypeId,
+			spvIndex.id,
+			m_module.opIMul(u32TypeId, spvOffset0.id,m_module.constu32(4)));
+
+		indexId0 = m_module.opUDiv(u32TypeId,
+								   regionAddr0,
+								   m_module.constu32(4));
+
+		uint32_t regionAddr1 = m_module.opIAdd(
+			u32TypeId,
+			spvIndex.id,
+			m_module.opIMul(u32TypeId, spvOffset1.id, m_module.constu32(4)));
+
+		indexId1 = m_module.opUDiv(u32TypeId,
+								   regionAddr1,
+								   m_module.constu32(4));
+	}
+		break;
+	default:
+		LOG_PSSL_UNHANDLED_INST();
+		break;
+	}
+
+	switch (op)
+	{
+	case SIDSInstruction::DS_READ_B32:
+	{
+		auto     element = emitArrayAccess(m_cs.lds, spv::StorageClassWorkgroup, indexId0);
+		uint32_t value   = m_module.opLoad(u32TypeId, element.id);
+		emitStoreVectorOperand(src0, { SpirvScalarType::Uint32, 1, value });
+	}
+		break;
+	case SIDSInstruction::DS_READ_B64:
+	{
+		indexId1          = m_module.opIAdd(u32TypeId, indexId0, m_module.constu32(1));
+		auto     element0 = emitArrayAccess(m_cs.lds, spv::StorageClassWorkgroup, indexId0);
+		auto     element1 = emitArrayAccess(m_cs.lds, spv::StorageClassWorkgroup, indexId1);
+
+		uint32_t value0 = m_module.opLoad(u32TypeId, element0.id);
+		uint32_t value1 = m_module.opLoad(u32TypeId, element1.id);
+
+		emitStoreVectorOperand(src0, { SpirvScalarType::Uint32, 1, value0 });
+		emitStoreVectorOperand(src0 + 1, { SpirvScalarType::Uint32, 1, value1 });
+	}
+		break;
+	case SIDSInstruction::DS_READ2_B32:
+	{
+		auto element0 = emitArrayAccess(m_cs.lds, spv::StorageClassWorkgroup, indexId0);
+		auto element1 = emitArrayAccess(m_cs.lds, spv::StorageClassWorkgroup, indexId1);
+
+		uint32_t value0 = m_module.opLoad(u32TypeId, element0.id);
+		uint32_t value1 = m_module.opLoad(u32TypeId, element1.id);
+
+		emitStoreVectorOperand(src0, { SpirvScalarType::Uint32, 1, value0 });
+		emitStoreVectorOperand(src1, { SpirvScalarType::Uint32, 1, value1 });
+	}
+		break;
+	default:
+		LOG_PSSL_UNHANDLED_INST();
+		break;
+	}
+
 }
 
 void GCNCompiler::emitDsIdxWr(GCNInstruction& ins)

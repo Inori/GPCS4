@@ -156,13 +156,30 @@ void GCNCompiler::getSopOperands(
 
 void GCNCompiler::emitScalarMov(GCNInstruction& ins)
 {
-	auto inst = asInst<SISOP1Instruction>(ins);
-	auto op = inst->GetOp();
+	auto encoding = ins.instruction->GetInstructionFormat();
+	switch (encoding)
+	{
+	case Instruction::InstructionSet_SOP1:
+		emitScalarMovSOP1(ins);
+		break;
+	case Instruction::InstructionSet_SOPK:
+		emitScalarMovSOPK(ins);
+		break;
+	default:
+		LOG_PSSL_UNHANDLED_INST();
+		break;
+	}
+}
 
-	auto sdst = inst->GetSDST();
-	auto sidx = inst->GetSRidx();
-	auto ssrc = inst->GetSSRC0();
-	auto didx = inst->GetSDSTRidx();
+void GCNCompiler::emitScalarMovSOP1(GCNInstruction& ins)
+{
+	auto inst = asInst<SISOP1Instruction>(ins);
+	auto op   = inst->GetOp();
+
+	auto sdst   = inst->GetSDST();
+	auto sidx   = inst->GetSRidx();
+	auto ssrc   = inst->GetSSRC0();
+	auto didx   = inst->GetSDSTRidx();
 	auto opType = inst->GetInstructionOperandType();
 
 	SpirvScalarType loadType = getScalarType(opType);
@@ -173,6 +190,35 @@ void GCNCompiler::emitScalarMov(GCNInstruction& ins)
 	case SISOP1Instruction::S_MOV_B32:
 		break;
 	case SISOP1Instruction::S_MOV_B64:
+		break;
+	default:
+		LOG_PSSL_UNHANDLED_INST();
+		break;
+	}
+
+	emitStoreScalarOperand(sdst, didx, value);
+}
+
+void GCNCompiler::emitScalarMovSOPK(GCNInstruction& ins)
+{
+	auto inst = asInst<SISOPKInstruction>(ins);
+	auto op   = inst->GetOp();
+
+	auto sdst   = inst->GetSDST();
+	auto didx   = inst->GetSDSTRidx();
+	auto simm   = inst->GetSIMM16Ridx();
+	auto opType = inst->GetInstructionOperandType();
+
+	SpirvScalarType loadType = getScalarType(opType);
+
+	SpirvRegisterValue value;
+	value.type.ctype = loadType;
+	value.type.ccount = 1;
+	
+	switch (op)
+	{
+	case SISOPKInstruction::S_MOVK_I32:
+		value.id = m_module.consti32(simm);
 		break;
 	default:
 		LOG_PSSL_UNHANDLED_INST();

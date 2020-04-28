@@ -968,6 +968,10 @@ void GCNCompiler::emitVectorIntCmp32(GCNInstruction& ins)
 	case SIVOPCInstruction::V_CMP_LE_U32:
 		conditionId = m_module.opULessThanEqual(typeId, spvSrc0.id, spvSrc1.id);
 		break;
+	case SIVOPCInstruction::V_CMP_LT_I32:
+	case SIVOPCInstruction::V_CMP_LT_U32:
+		conditionId = m_module.opULessThan(typeId, spvSrc0.id, spvSrc1.id);
+		break;
 	case SIVOPCInstruction::V_CMPX_NE_U32:
 		writeExec = true;
 	case SIVOPCInstruction::V_CMP_NE_U32:

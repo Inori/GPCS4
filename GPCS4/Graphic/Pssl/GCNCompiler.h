@@ -571,6 +571,9 @@ private:
 	void emitVectorMemBufferLoad(GCNInstruction& ins);
 	void emitVectorMemBufferStore(GCNInstruction& ins);
 
+	void emitScalarMovSOP1(GCNInstruction& ins);
+	void emitScalarMovSOPK(GCNInstruction& ins);
+
 	/////////////////////////////////////////////////////////
 
 	///////////////////////////
