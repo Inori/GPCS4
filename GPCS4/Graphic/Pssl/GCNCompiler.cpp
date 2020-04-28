@@ -667,6 +667,7 @@ void GCNCompiler::emitDclShaderResource(const GcnShaderResourceInstance& res)
 		emitDclImmConstBuffer(res);
 		break;
 	case kShaderInputUsageImmResource:
+	case kShaderInputUsageImmRwResource:
 		emitDclImmResource(res);
 		break;
 	case kShaderInputUsageImmSampler:

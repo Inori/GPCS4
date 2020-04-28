@@ -947,6 +947,8 @@ void GnmCommandBufferDraw::commitCsStage()
 			(const uint32_t*)m_shaders.cs.code);
 		LOG_DEBUG("compute shader hash %llX", m_shaders.cs.shader->key().toUint64());
 
+		SHADER_DEBUG_BREAK(m_shaders.cs.shader, 0xAF20AC1F702451D8);
+
 		m_shaders.cs.shader->defineShaderInput(m_shaders.cs.userDataSlotTable);
 		auto nestedResources = m_shaders.cs.shader->getShaderResources();
 		auto shaderResources = PsslShaderModule::flattenShaderResources(nestedResources);
