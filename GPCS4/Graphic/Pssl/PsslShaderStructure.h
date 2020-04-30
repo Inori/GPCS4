@@ -60,13 +60,15 @@ struct PsslShaderMetaCs
 {
 	uint32_t userSgprCount;
 	uint32_t ldsSize;
+	uint32_t computePgmRsrc2;
 
 	uint32_t threadGroupX;
 	uint32_t threadGroupY;
 	uint32_t threadGroupZ;
 };
 
-union PsslShaderMeta {
+union PsslShaderMeta 
+{
 	PsslShaderMetaVs vs;
 	PsslShaderMetaPs ps;
 	PsslShaderMetaCs cs;

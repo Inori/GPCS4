@@ -41,7 +41,13 @@ void parseShaderRegCs(const pssl::CsStageRegisters* reg, PsslShaderMetaCs& meta)
 {
 	const COMPUTE_PGM_RSRC2* rsrc2 = reinterpret_cast<const COMPUTE_PGM_RSRC2*>(&reg->computePgmRsrc2);
 	meta.userSgprCount             = rsrc2->user_sgpr;
-	meta.ldsSize                   = rsrc2->lds_size;
+
+	// LDS is allocated in 128 dword blocks for SEA ISLANDS AMDGPU.
+	const uint32_t ldsAlignShift = 9;
+	meta.ldsSize                 = rsrc2->lds_size << ldsAlignShift;
+
+	meta.computePgmRsrc2 = reg->computePgmRsrc2;
+
 	meta.threadGroupX              = reg->computeNumThreadX;
 	meta.threadGroupY              = reg->computeNumThreadY;
 	meta.threadGroupZ              = reg->computeNumThreadZ;

@@ -637,8 +637,77 @@ void GCNCompiler::emitGprInitializePS()
 
 void GCNCompiler::emitGprInitializeCS()
 {
+	const COMPUTE_PGM_RSRC2* computePgmRsrc2 =
+		reinterpret_cast<const COMPUTE_PGM_RSRC2*>(&m_shaderInput.meta.cs.computePgmRsrc2);
+
+	/// VGPR
+	uint32_t vindex = 0;
+
+	SpirvRegisterValue threadId = emitCsSystemValueLoad(SpirvSystemValue::ThreadId, 0);
+
+	auto tidX = emitRegisterBitcast(
+		emitRegisterExtract(threadId, GcnRegMask::select(0)),
+		SpirvScalarType::Float32);
+	m_vgprs[vindex] = emitVgprCreate(vindex, SpirvScalarType::Float32, tidX.id);
+	++vindex;
+
+	if (computePgmRsrc2->tidig_comp_cnt >= 1)
+	{
+		auto tidY = emitRegisterBitcast(
+			emitRegisterExtract(threadId, GcnRegMask::select(1)),
+			SpirvScalarType::Float32);
+		m_vgprs[vindex] = emitVgprCreate(vindex, SpirvScalarType::Float32, tidY.id);
+		++vindex;
+	}
+	if (computePgmRsrc2->tidig_comp_cnt >= 2)
+	{
+		auto tidZ = emitRegisterBitcast(
+			emitRegisterExtract(threadId, GcnRegMask::select(1)),
+			SpirvScalarType::Float32);
+		m_vgprs[vindex] = emitVgprCreate(vindex, SpirvScalarType::Float32, tidZ.id);
+		++vindex;
+	}
+
 	/// SGPR
 	emitInitUserDataRegisters(m_shaderInput.meta.cs.userSgprCount);
+
+	uint32_t sindex = m_shaderInput.meta.cs.userSgprCount;
+
+	SpirvRegisterValue groupId;
+	if (computePgmRsrc2->tgid_x_en || computePgmRsrc2->tgid_x_en || computePgmRsrc2->tgid_x_en)
+	{
+		groupId = emitCsSystemValueLoad(SpirvSystemValue::ThreadGroupId, 0);
+	}
+	if (computePgmRsrc2->tgid_x_en)
+	{
+		auto tgidX = emitRegisterBitcast(
+			emitRegisterExtract(groupId, GcnRegMask::select(0)), 
+			SpirvScalarType::Float32);
+		m_sgprs[sindex] = emitSgprCreate(sindex, SpirvScalarType::Float32, tgidX.id);
+		++sindex;
+	}
+	if (computePgmRsrc2->tgid_y_en)
+	{
+		auto tgidY = emitRegisterBitcast(
+			emitRegisterExtract(groupId, GcnRegMask::select(1)),
+			SpirvScalarType::Float32);
+		m_sgprs[sindex] = emitSgprCreate(sindex, SpirvScalarType::Float32, tgidY.id);
+		++sindex;
+	}
+	if (computePgmRsrc2->tgid_z_en)
+	{
+		auto tgidZ = emitRegisterBitcast(
+			emitRegisterExtract(groupId, GcnRegMask::select(2)),
+			SpirvScalarType::Float32);
+		m_sgprs[sindex] = emitSgprCreate(sindex, SpirvScalarType::Float32, tgidZ.id);
+		++sindex;
+	}
+	if (computePgmRsrc2->tg_size_en)
+	{
+	}
+	if (computePgmRsrc2->scratch_en)
+	{
+	}
 }
 
 void GCNCompiler::emitInitUserDataRegisters(uint32_t count)
