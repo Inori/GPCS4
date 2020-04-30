@@ -511,7 +511,7 @@ void GCNCompiler::emitGprInitializeVS()
 	m_vgprs[0] = v0;
 
 	/// SGPR
-	// TODO:
+	emitInitUserDataRegisters(m_shaderInput.meta.vs.userSgprCount);
 }
 
 void GCNCompiler::emitGprInitializePS()
@@ -629,13 +629,34 @@ void GCNCompiler::emitGprInitializePS()
 	}
 
 	/// SGPR
-	m_sgprs[0]  = emitSgprCreate(0, SpirvScalarType::Float32);
-	m_sgprs[12] = emitSgprCreate(12, SpirvScalarType::Float32);
+	emitInitUserDataRegisters(m_shaderInput.meta.ps.userSgprCount);
+	// TODO:
+	// For temp
 	m_sgprs[16] = emitSgprCreate(16, SpirvScalarType::Float32);
 }
 
 void GCNCompiler::emitGprInitializeCS()
 {
+	/// SGPR
+	emitInitUserDataRegisters(m_shaderInput.meta.cs.userSgprCount);
+}
+
+void GCNCompiler::emitInitUserDataRegisters(uint32_t count)
+{
+	for (uint32_t i = 0; i != count; ++i)
+	{
+		uint32_t regValue = m_shaderInput.userSgpr.at(i);
+
+		SpirvRegisterValue spvValue;
+		spvValue.type.ctype  = SpirvScalarType::Uint32;
+		spvValue.type.ccount = 1;
+		spvValue.id          = m_module.constu32(regValue);
+
+		// We use float type to hold all registers, so cast uint register
+		// value to float
+		spvValue   = emitRegisterBitcast(spvValue, SpirvScalarType::Float32);
+		m_sgprs[i] = emitVgprCreate(i, SpirvScalarType::Float32, spvValue.id);
+	}
 }
 
 void GCNCompiler::emitDclStateRegisters()

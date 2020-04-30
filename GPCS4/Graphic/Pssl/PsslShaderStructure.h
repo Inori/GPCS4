@@ -3,12 +3,15 @@
 #include "PsslShaderFileBinary.h"
 #include "PsslShaderRegister.h"
 
-#include <vector>
+#include <array>
 #include <optional>
+#include <vector>
 
 namespace pssl
-{;
+{
+;
 
+constexpr size_t GcnMaxUserSgprCount = 16;
 
 enum FetchShaderInstancingMode
 {
@@ -40,7 +43,6 @@ struct FetchShaderBuildState
 	std::vector<uint32_t> semanticsRemapTable;
 };
 
-
 struct PsslShaderMetaVs
 {
 	uint32_t userSgprCount;
@@ -64,13 +66,11 @@ struct PsslShaderMetaCs
 	uint32_t threadGroupZ;
 };
 
-union PsslShaderMeta 
-{
+union PsslShaderMeta {
 	PsslShaderMetaVs vs;
 	PsslShaderMetaPs ps;
 	PsslShaderMetaCs cs;
 };
-
 
 enum class PsslSharpType
 {
@@ -90,6 +90,8 @@ struct PsslShaderResource
 	const void* resource      = nullptr;  // Will be cast to proper buffer type when interpreted.
 	uint32_t    sizeDwords    = 0;
 };
+
+using PsslShaderResourceTable = std::vector<PsslShaderResource>;
 
 /**
  * \brief A single shader input resource.
@@ -146,5 +148,26 @@ struct GcnShaderResources
 	std::optional<GcnShaderResourceSRT> srt = std::nullopt;
 };
 
+/**
+ * \brief Shader input information
+ * 
+ * Convenience struct to prevent too many parameters
+ * in GCNCompiler's constructor.
+ *
+ */
 
-}  // pssl
+using GcnUserDataRegister = std::array<uint32_t, GcnMaxUserSgprCount>;
+
+struct GcnShaderInput
+{
+	PsslShaderMeta     meta;
+	GcnShaderResources shaderResources;
+	// TODO:
+	// For the 16 user data registers, we should
+	// use specialization constants, because these
+	// values could be changed during runtime.
+	GcnUserDataRegister                             userSgpr         = {};
+	std::optional<std::vector<VertexInputSemantic>> vsInputSemantics = {};
+};
+
+}  // namespace pssl

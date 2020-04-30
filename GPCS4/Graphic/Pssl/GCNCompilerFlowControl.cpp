@@ -267,7 +267,16 @@ void GCNCompiler::emitScalarSync(GCNInstruction& ins)
 	switch (op)
 	{
 	case SISOPPInstruction::S_BARRIER:
-		LOG_PSSL_UNHANDLED_INST();
+		// TODO:
+		// I found it's hard to detect whether a s_barrier
+		// instruction stands for SharedMemoryBarrierSync() or ThreadGroupMemoryBarrierSync()
+		// so here I use a global control barrier,
+		// this may need to improve.
+		m_module.opControlBarrier(
+			m_module.constu32(spv::ScopeWorkgroup),
+			m_module.constu32(spv::ScopeWorkgroup),
+			m_module.constu32(spv::MemorySemanticsWorkgroupMemoryMask | spv::MemorySemanticsAcquireReleaseMask)
+		);
 		break;
 	case SISOPPInstruction::S_WAITCNT:
 		// pass

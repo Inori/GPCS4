@@ -83,39 +83,49 @@ void GCNCompiler::emitVectorMemBufferLoad(GCNInstruction& ins)
 	uint32_t typeId    = getScalarTypeId(SpirvScalarType::Uint32);
 	uint32_t ptrTypeId = m_module.defPointerType(typeId, spv::StorageClassUniform);
 
-	SpirvRegisterValue indexVal = emitGprLoad<SpirvGprType::Vector>(idxReg, SpirvScalarType::Uint32);
-
-	uint32_t vgprOffsetId = 0;
-	if (offen)
-	{
-		SpirvRegisterValue offsetVal = emitGprLoad<SpirvGprType::Vector>(idxReg + 1, SpirvScalarType::Uint32);
-		vgprOffsetId                 = m_module.opUDiv(typeId, offsetVal.id, m_module.constu32(4));
-	}
+	SpirvRegisterValue spvIndex = emitGprLoad<SpirvGprType::Vector>(idxReg, SpirvScalarType::Uint32);
 
 	uint32_t bufferId = findResourceBufferId(vsharpReg);
 	LOG_ASSERT(bufferId != InvalidSpvId, "buffer not found at reg %d", vsharpReg);
 
-	uint32_t                        dstRegCount = static_cast<uint32_t>(op) + 1;
-	std::vector<SpirvRegisterValue> valueArray;
+	uint32_t dstRegCount = 0;
+	if (op <= 3)
+	{
+		dstRegCount = static_cast<uint32_t>(op) + 1;
+	}
+	else if (op >= 12 && op <= 14)
+	{
+		dstRegCount = 1 << (op - 12);
+	}
+	else if (op == 15)
+	{
+		dstRegCount = 3;
+	}
 
+	LOG_ASSERT(dstRegCount != 0, "error dst register count.");
+	
 	// Note:
 	// The index value is in units of stride.
 
-	uint32_t recordId = indexVal.id;
-
+	const uint32_t stride = 4;
+	uint32_t regionAddr = m_module.opIMul(typeId, spvIndex.id, m_module.constu32(stride));
 	if (offen)
 	{
-		recordId = m_module.opIMul(typeId, m_module.constu32(4), indexVal.id);
+		SpirvRegisterValue spvOffset = emitGprLoad<SpirvGprType::Vector>(idxReg + 1, SpirvScalarType::Uint32);
+		regionAddr                   = m_module.opIAdd(typeId, spvOffset.id, regionAddr);
 	}
+	uint32_t recordId = m_module.opUDiv(typeId, regionAddr, m_module.constu32(stride));
+	
+	if (offen)
+	{
+		recordId = regionAddr;
+	}
+
+	std::vector<SpirvRegisterValue> valueArray;
 
 	for (uint32_t i = 0; i != dstRegCount; ++i)
 	{
 		uint32_t offsetId = m_module.opIAdd(typeId, recordId, m_module.constu32(i));
-
-		if (offen)
-		{
-			offsetId = m_module.opIAdd(typeId, offsetId, vgprOffsetId);
-		}
 
 		std::array<uint32_t, 2> indices = { m_module.constu32(0), offsetId };
 		uint32_t                srcId   = m_module.opAccessChain(
@@ -231,7 +241,7 @@ void GCNCompiler::emitVectorMemBufNoFmt(GCNInstruction& ins)
 	case SIMUBUFInstruction::BUFFER_LOAD_DWORDX2:
 	case SIMUBUFInstruction::BUFFER_LOAD_DWORDX4:
 	case SIMUBUFInstruction::BUFFER_LOAD_DWORDX3:
-		LOG_PSSL_UNHANDLED_INST();
+		emitVectorMemBufferLoad(ins);
 		break;
 	case SIMUBUFInstruction::BUFFER_STORE_BYTE:
 	case SIMUBUFInstruction::BUFFER_STORE_SHORT:

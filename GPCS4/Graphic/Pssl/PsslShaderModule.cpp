@@ -85,6 +85,7 @@ RcPtr<vlt::VltShader> PsslShaderModule::compile()
 	// Generate input
 	GcnShaderInput shaderInput;
 	shaderInput.meta            = m_meta;
+	shaderInput.userSgpr        = populateUserSgpr();
 	shaderInput.shaderResources = getShaderResources();
 	if (!m_vsInputSemantic.empty())
 	{
@@ -189,6 +190,21 @@ void PsslShaderModule::extractInputSemantic(PsslFetchShader& fsShader)
 			++semanIdx;
 		}
 	} while (false);
+}
+
+GcnUserDataRegister PsslShaderModule::populateUserSgpr()
+{
+	GcnUserDataRegister result;
+	for (const auto& res : m_shaderInputTable)
+	{
+		const uint32_t* regs = reinterpret_cast<const uint32_t*>(res.resource);
+		for (uint32_t i = 0; i != res.sizeDwords; ++i)
+		{
+			uint32_t slot = res.startRegister + i;
+			result.at(slot) = regs[i];
+		}
+	}
+	return result;
 }
 
 const void* PsslShaderModule::findShaderResourceInUserData(uint32_t startRegister)
@@ -553,10 +569,17 @@ void PsslShaderModule::defineFetchShader(const uint32_t* fsCode)
 	parseFetchShader(fsCode);
 }
 
-void PsslShaderModule::defineShaderInput(const std::vector<PsslShaderResource>& shaderInputTab)
+void PsslShaderModule::defineShaderInput(
+	const PsslShaderResourceTable& shaderInputTab)
 {
-	// store the table, delay parse it when really needed.
+	// store the table, delay parsing it when really needed.
 	m_shaderInputTable.assign(shaderInputTab.cbegin(), shaderInputTab.cend());
+	// sort the table by start register, so we can fill the user data register slot easier
+	auto resLess = [](const PsslShaderResource& a, const PsslShaderResource& b) 
+	{
+		return a.startRegister < b.startRegister;
+	};
+	std::sort(m_shaderInputTable.begin(), m_shaderInputTable.end(), resLess);
 }
 
 const GcnShaderResources& PsslShaderModule::getShaderResources()

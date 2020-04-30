@@ -34,8 +34,8 @@
 #include <optional>
 
 namespace pssl
-{
-;
+{;
+
 
 constexpr size_t GcnMaxSgprCount = 104;
 constexpr size_t GcnMaxVgprCount = 256;
@@ -106,22 +106,6 @@ struct GcnCompilerCsPart
 };
 
 
-/**
- * \brief Shader input information
- * 
- * Convenience struct to prevent too many parameters
- * in GCNCompiler's constructor.
- *
- */
-
-struct GcnShaderInput
-{
-	PsslShaderMeta                                  meta;
-	GcnShaderResources                              shaderResources;
-	std::optional<std::vector<VertexInputSemantic>> vsInputSemantics;
-	std::optional<std::vector<PixelInputSemantic>>  psInputSemantics;
-};
-
 class GCNCompiler : public GCNInstructionIterator
 {
 	friend class SpirvRegisterU64;
@@ -189,6 +173,7 @@ private:
 	void emitGprInitializeCS();
 
 	// For all shader types
+	void emitInitUserDataRegisters(uint32_t count);
 	void emitDclStateRegisters();
 	
 	void emitDclShaderResource(const GcnShaderResourceInstance& res);

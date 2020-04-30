@@ -15,10 +15,8 @@ namespace pssl
 {;
 
 struct PsslFetchShader;
-
 class GCNCompiler;
 class GCNAnalyzer;
-
 
 class PsslShaderModule : public RcObject
 {
@@ -31,7 +29,8 @@ public:
 
 	void defineFetchShader(const uint32_t* fsCode);
 
-	void defineShaderInput(const std::vector<PsslShaderResource>& shaderInputTab);
+	void defineShaderInput(
+		const PsslShaderResourceTable& shaderInputTab);
 
 	const GcnShaderResources& getShaderResources();
 
@@ -56,6 +55,7 @@ private:
 	void parseFetchShader(const uint32_t* fsCode);
 	void decodeFetchShader(GCNCodeSlice slice, PsslFetchShader& fsShader);
 	void extractInputSemantic(PsslFetchShader& fsShader);
+	GcnUserDataRegister populateUserSgpr();
 
 	const void* findShaderResourceInUserData(uint32_t startRegister);
 	const void* findShaderResourceInEUD(uint32_t eudOffsetInDword);
@@ -78,7 +78,7 @@ private:
 	std::vector<VertexInputSemantic> m_vsInputSemantic;
 
 	// Shader input backup received from the game.
-	std::vector<PsslShaderResource> m_shaderInputTable;
+	PsslShaderResourceTable m_shaderInputTable;
 
 	// shader input contains SRT, EUD and other Table type resources,
 	// we need to parse the shader input slots 

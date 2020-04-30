@@ -91,7 +91,7 @@ void GCNCompiler::emitDsIdxRd(GCNInstruction& ins)
 	uint32_t src1    = inst->GetDATA(1);
 
 	SpirvRegisterValue spvIndex   = emitLoadVectorOperand(vbindex, SpirvScalarType::Uint32);
-	SpirvRegisterValue spvOffset0 = emitLoadVectorOperand(offset0, SpirvScalarType::Uint32);
+	uint32_t           offset0Id = m_module.constu32(offset0);
 
 	const uint32_t u32TypeId = getScalarTypeId(SpirvScalarType::Uint32);
 
@@ -104,17 +104,17 @@ void GCNCompiler::emitDsIdxRd(GCNInstruction& ins)
 	case SIDSInstruction::DS_READ_B64:
 		// We treat LDS memory as uint array, so divide by 4.
 		indexId0 = m_module.opUDiv(u32TypeId,
-								   m_module.opIAdd(u32TypeId, spvIndex.id, spvOffset0.id),
+								   m_module.opIAdd(u32TypeId, spvIndex.id, offset0Id),
 								   m_module.constu32(4));
 		break;
 	case SIDSInstruction::DS_READ2_B32:
 	{
-		SpirvRegisterValue spvOffset1 = emitLoadVectorOperand(offset1, SpirvScalarType::Uint32);
+		uint32_t offset1Id = m_module.constu32(offset1);
 		// For dual ds read, offset is unit of OpDataSize
 		uint32_t regionAddr0 = m_module.opIAdd(
 			u32TypeId,
 			spvIndex.id,
-			m_module.opIMul(u32TypeId, spvOffset0.id,m_module.constu32(4)));
+			m_module.opIMul(u32TypeId, offset0Id, m_module.constu32(4)));
 
 		indexId0 = m_module.opUDiv(u32TypeId,
 								   regionAddr0,
@@ -123,7 +123,7 @@ void GCNCompiler::emitDsIdxRd(GCNInstruction& ins)
 		uint32_t regionAddr1 = m_module.opIAdd(
 			u32TypeId,
 			spvIndex.id,
-			m_module.opIMul(u32TypeId, spvOffset1.id, m_module.constu32(4)));
+			m_module.opIMul(u32TypeId, offset1Id, m_module.constu32(4)));
 
 		indexId1 = m_module.opUDiv(u32TypeId,
 								   regionAddr1,
