@@ -1,6 +1,6 @@
 version: '{build}'
 skip_branch_with_pr: true
-image: Visual Studio 2017
+image: Visual Studio 2019
 configuration:
 - Debug
 - Release
@@ -14,7 +14,7 @@ cache: vulkan-sdk.exe -> appveyor.yml
 
 before_build:
 - ps: |
-    # Copied from https://github.com/RPCS3/rpcs3/appveyour.yml
+    # Copied from https://github.com/RPCS3/rpcs3/blob/96185af64f5e0c894e9344a4bc05e99d0fe2d07d/appveyor.yml
     $VULKAN_SDK_URLS = @(
             $env:VULKAN_SDK_URL;
             "$($env:VULKAN_SDK_URL)?Human=true";
@@ -35,7 +35,7 @@ before_build:
             }
         }
         .\vulkan-sdk.exe /S
-    # Copied from https://github.com/RPCS3/rpcs3/appveyour.yml
+    # Copied from https://github.com/RPCS3/rpcs3/blob/96185af64f5e0c894e9344a4bc05e99d0fe2d07d/appveyor.yml
 
 build:
   project: GPCS4.sln
