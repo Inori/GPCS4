@@ -104,51 +104,51 @@ void VltContext::setInputLayout(
 
 	for (uint32_t i = 0; i < bindingCount; i++)
 	{
-		m_state.gp.states.vi.setBinding(i, bindings[i]);
+		m_state.gp.state.vi.setBinding(i, bindings[i]);
 	}
 
 	for (uint32_t i = 0; i < attributeCount; i++)
 	{
-		m_state.gp.states.vi.setAttribute(i, attributes[i]);
+		m_state.gp.state.vi.setAttribute(i, attributes[i]);
 	}
 	
 	// Clear bindings
-	for (uint32_t i = bindingCount; i < m_state.gp.states.vi.bindingCount(); i++)
+	for (uint32_t i = bindingCount; i < m_state.gp.state.vi.bindingCount(); i++)
 	{
-		m_state.gp.states.vi.setBinding(i, VltVertexBinding());
+		m_state.gp.state.vi.setBinding(i, VltVertexBinding());
 	}
 	// Clear attributes
-	for (uint32_t i = attributeCount; i < m_state.gp.states.vi.attributeCount(); i++)
+	for (uint32_t i = attributeCount; i < m_state.gp.state.vi.attributeCount(); i++)
 	{
-		m_state.gp.states.vi.setAttribute(i, VltVertexAttribute());
+		m_state.gp.state.vi.setAttribute(i, VltVertexAttribute());
 	}
 
-	m_state.gp.states.vi.setInputCount(bindingCount, attributeCount);
+	m_state.gp.state.vi.setInputCount(bindingCount, attributeCount);
 }
 
 void VltContext::setInputAssemblyState(const VltInputAssemblyInfo& iaState)
 {
-	m_state.gp.states.ia = iaState;
+	m_state.gp.state.ia = iaState;
 	m_flags.set(VltContextFlag::GpDirtyPipelineState);
 }
 
 void VltContext::setRasterizerState(const VltRasterizationInfo& rsState)
 {
-	m_state.gp.states.rs = rsState;
+	m_state.gp.state.rs = rsState;
 	m_flags.set(VltContextFlag::GpDirtyPipelineState);
 }
 
 void VltContext::setMultiSampleState(const VltMultisampleInfo& msState)
 {
-	m_state.gp.states.ms = msState;
+	m_state.gp.state.ms = msState;
 	m_flags.set(VltContextFlag::GpDirtyPipelineState);
 }
 
 void VltContext::setDepthStencilState(const VltDepthStencilInfo& dsState)
 {
-	VkBool32 depthBoundsEnable = m_state.gp.states.ds.enableDepthBoundsTest();
-	m_state.gp.states.ds = dsState;
-	m_state.gp.states.ds.setEnableDepthBoundsTest(depthBoundsEnable);
+	VkBool32 depthBoundsEnable = m_state.gp.state.ds.enableDepthBoundsTest();
+	m_state.gp.state.ds = dsState;
+	m_state.gp.state.ds.setEnableDepthBoundsTest(depthBoundsEnable);
 	m_flags.set(VltContextFlag::GpDirtyPipelineState);
 }
 
@@ -160,16 +160,16 @@ void VltContext::setDepthBounds(VltDepthBounds depthBounds)
 		m_flags.set(VltContextFlag::GpDirtyDepthBounds);
 	}
 
-	if (m_state.gp.states.ds.enableDepthBoundsTest() != depthBounds.enableDepthBounds)
+	if (m_state.gp.state.ds.enableDepthBoundsTest() != depthBounds.enableDepthBounds)
 	{
-		m_state.gp.states.ds.setEnableDepthBoundsTest(depthBounds.enableDepthBounds);
+		m_state.gp.state.ds.setEnableDepthBoundsTest(depthBounds.enableDepthBounds);
 		m_flags.set(VltContextFlag::GpDirtyPipelineState);
 	}
 }
 
 void VltContext::setLogicOpState(const VltLogicOp& lo)
 {
-	m_state.gp.states.cb.setLogicalOp(lo);
+	m_state.gp.state.cb.setLogicalOp(lo);
 	m_flags.set(VltContextFlag::GpDirtyPipelineState);
 }
 
@@ -177,7 +177,7 @@ void VltContext::setBlendMode(
 	uint32_t                       attachment,
 	const VltColorBlendAttachment& blendMode)
 {
-	m_state.gp.states.cb.setBlendMode(attachment, blendMode);
+	m_state.gp.state.cb.setBlendMode(attachment, blendMode);
 	m_flags.set(VltContextFlag::GpDirtyPipelineState);
 }
 
@@ -185,7 +185,7 @@ void VltContext::setBlendMask(
 	uint32_t                     attachment,
 	const VkColorComponentFlags& colorMask)
 {
-	m_state.gp.states.cb.setColorWriteMask(attachment, colorMask);
+	m_state.gp.state.cb.setColorWriteMask(attachment, colorMask);
 	m_flags.set(VltContextFlag::GpDirtyPipelineState);
 }
 
@@ -211,13 +211,9 @@ void VltContext::bindShader(VkShaderStageFlagBits stage, const RcPtr<VltShader>&
 
 	switch (stage)
 	{
-	case VK_SHADER_STAGE_VERTEX_BIT:
-		shaderStage = &m_state.gp.shaders.vs;
-		break;
-	case VK_SHADER_STAGE_FRAGMENT_BIT:
-		shaderStage = &m_state.gp.shaders.fs;
-		break;
-	//case VK_SHADER_STAGE_COMPUTE_BIT:                 shaderStage = &m_state.cp.shaders.cs;  break;
+	case VK_SHADER_STAGE_VERTEX_BIT:	shaderStage = &m_state.gp.shaders.vs;	break;
+	case VK_SHADER_STAGE_FRAGMENT_BIT:	shaderStage = &m_state.gp.shaders.fs;	break;
+	case VK_SHADER_STAGE_COMPUTE_BIT:	shaderStage = &m_state.cp.shaders.cs;	break;
 	//case VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT:    shaderStage = &m_state.gp.shaders.tcs; break;
 	//case VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT: shaderStage = &m_state.gp.shaders.tes; break;
 	//case VK_SHADER_STAGE_GEOMETRY_BIT:                shaderStage = &m_state.gp.shaders.gs;  break;
@@ -887,13 +883,16 @@ void VltContext::updateIndexBinding()
 }
 
 template <VkPipelineBindPoint BindPoint>
-void VltContext::updateShaderResources(const VltPipelineLayout* pipelineLayout, VkDescriptorSet& set)
+void VltContext::updateShaderResources(const VltPipelineLayout* pipelineLayout)
 {
 
 	uint32_t                          bindingCount = pipelineLayout->bindingCount();
 	std::vector<VkWriteDescriptorSet> descriptorWrites;
 	std::array<VkDescriptorBufferInfo, MaxNumActiveBindings> bufferInfos = {};
 	std::array<VkDescriptorImageInfo, MaxNumActiveBindings>  imageInfos = {};
+
+	auto& set = BindPoint == VK_PIPELINE_BIND_POINT_GRAPHICS ? 
+		m_gpCtx.descriptorSet : m_cpCtx.descriptorSet;
 
 	if (bindingCount != 0)
 	{
@@ -1042,13 +1041,12 @@ void VltContext::updateGraphicsShaderResources()
 	if (m_flags.test(VltContextFlag::GpDirtyResources))
 	{
 		updateShaderResources<VK_PIPELINE_BIND_POINT_GRAPHICS>(
-			m_state.gp.pipeline->getLayout(),
-			m_gpCtx.descSet);
+			m_state.gp.pipeline->layout());
 	}
 
 	updateShaderDescriptorSetBinding<VK_PIPELINE_BIND_POINT_GRAPHICS>(
-		m_state.gp.pipeline->getLayout(),
-		m_gpCtx.descSet);
+		m_state.gp.pipeline->layout(),
+		m_gpCtx.descriptorSet);
 
 	m_flags.clr(VltContextFlag::GpDirtyResources,
 				VltContextFlag::GpDirtyDescriptorBinding);
@@ -1057,7 +1055,7 @@ void VltContext::updateGraphicsShaderResources()
 bool VltContext::updateGraphicsPipeline()
 {
 	// Descriptor layout is bound with shaders
-	m_state.gp.pipeline = m_objects->pipelineManager().getGraphicsPipeline(m_state.gp.shaders);
+	m_state.gp.pipeline = m_objects->pipelineManager().createGraphicsPipeline(m_state.gp.shaders);
 	m_flags.clr(VltContextFlag::GpDirtyPipeline);
 
 	return true;
@@ -1066,7 +1064,7 @@ bool VltContext::updateGraphicsPipeline()
 bool VltContext::updateGraphicsPipelineState()
 {
 	VltRenderPass* renderPass = m_state.om.framebuffer->getRenderPass();
-	m_gpCtx.pipeline          = m_state.gp.pipeline->getPipelineHandle(m_state.gp.states, *renderPass);
+	m_gpCtx.pipeline          = m_state.gp.pipeline->getPipelineHandle(m_state.gp.state, *renderPass);
 
 	m_cmd->cmdBindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, m_gpCtx.pipeline);
 
@@ -1077,12 +1075,20 @@ bool VltContext::updateGraphicsPipelineState()
 
 bool VltContext::updateComputePipeline()
 {
-
+	m_state.cp.pipeline = m_objects->pipelineManager().createComputePipeline(m_state.cp.shaders);
+	m_flags.clr(VltContextFlag::CpDirtyPipeline);
 	return true;
 }
 
 bool VltContext::updateComputePipelineState()
 {
+	m_cpCtx.pipeline = m_state.cp.pipeline->getPipelineHandle(m_state.cp.state);
+
+	m_cmd->cmdBindPipeline(VK_PIPELINE_BIND_POINT_COMPUTE, m_cpCtx.pipeline);
+
+	m_flags.clr(VltContextFlag::CpDirtyPipelineState);
+
+	return true;
 }
 
 void VltContext::enterRenderPassScope()
@@ -1127,7 +1133,7 @@ void VltContext::updateDynamicState()
 		m_cmd->cmdSetScissor(0, vp.count, vp.scissors.data());
 
 		// Update viewport count, this will be used to create pipeline.
-		m_state.gp.states.dy.setViewportCount(vp.count);
+		m_state.gp.state.dy.setViewportCount(vp.count);
 		m_flags.clr(VltContextFlag::GpDirtyViewport);
 	}
 
@@ -1221,6 +1227,18 @@ bool VltContext::commitComputeState()
 
 void VltContext::updateComputeShaderResources()
 {
+	if (m_flags.test(VltContextFlag::CpDirtyResources))
+	{
+		updateShaderResources<VK_PIPELINE_BIND_POINT_COMPUTE>(
+			m_state.cp.pipeline->layout());
+	}
+
+	updateShaderDescriptorSetBinding<VK_PIPELINE_BIND_POINT_COMPUTE>(
+		m_state.cp.pipeline->layout(),
+		m_cpCtx.descriptorSet);
+
+	m_flags.clr(VltContextFlag::CpDirtyResources,
+				VltContextFlag::CpDirtyDescriptorBinding);
 }
 
 }  // namespace vlt

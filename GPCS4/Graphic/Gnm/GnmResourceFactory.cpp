@@ -219,13 +219,13 @@ RcPtr<VltBuffer> GnmResourceFactory::createBuffer(const GnmBufferCreateInfo& des
 		if (memType == kResourceMemoryTypeRO)
 		{
 			// Read only buffer
-			usage  = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+			usage  = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 			access = VK_ACCESS_SHADER_READ_BIT;
 		}
 		else
 		{
 			// Read write buffer
-			usage  = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+			usage  = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 			access = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
 		}
 	}

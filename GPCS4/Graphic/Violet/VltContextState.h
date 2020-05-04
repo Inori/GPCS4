@@ -3,6 +3,7 @@
 #include "VltCommon.h"
 #include "VltFrameBuffer.h"
 #include "VltGraphicsPipeline.h"
+#include "VltComputePipeline.h"
 
 
 namespace vlt
@@ -110,13 +111,15 @@ struct VltDynamicState
 struct VltGraphicsPipelineState
 {
 	VltGraphicsPipelineShaders   shaders;
-	VltGraphicsPipelineStateInfo states;
+	VltGraphicsPipelineStateInfo state;
 	VltGraphicsPipeline*         pipeline = nullptr;
 };
 
 struct VltComputePipelineState
 {
+	VltComputePipelineShaders   shaders;
 	VltComputePipelineStateInfo state;
+	VltComputePipeline*         pipeline = nullptr;
 };
 
 //////////////////////////////////////////////////////////////////////////

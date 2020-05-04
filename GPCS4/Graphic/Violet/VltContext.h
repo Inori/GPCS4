@@ -37,8 +37,8 @@ struct VltShaderResourceSlot
 
 struct VltPipelineContext
 {
-	VkPipeline pipeline = VK_NULL_HANDLE;
-	VkDescriptorSet descSet = VK_NULL_HANDLE;
+	VkPipeline      pipeline      = VK_NULL_HANDLE;
+	VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
 };
 
 
@@ -280,8 +280,7 @@ private:
 
 	template <VkPipelineBindPoint BindPoint>
 	void updateShaderResources(
-		const VltPipelineLayout* pipelineLayout,
-		VkDescriptorSet&         set);
+		const VltPipelineLayout* pipelineLayout);
 
 	template <VkPipelineBindPoint BindPoint>
 	void updateShaderDescriptorSetBinding(

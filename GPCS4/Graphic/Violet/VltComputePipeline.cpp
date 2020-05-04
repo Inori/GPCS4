@@ -15,7 +15,7 @@ VltComputePipeline::VltComputePipeline(
 	m_pipeMgr(pipeMgr),
 	m_shaders(std::move(shaders))
 {
-	shaders.cs->defineResourceSlots(m_slotMap);
+	m_shaders.cs->defineResourceSlots(m_slotMap);
 
 	m_layout = new VltPipelineLayout(
 		pipeMgr->m_device,

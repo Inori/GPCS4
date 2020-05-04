@@ -18,7 +18,11 @@ public:
 	VltPipelineManager(VltDevice* device);
 	~VltPipelineManager();
 
-	VltGraphicsPipeline* getGraphicsPipeline(const VltGraphicsPipelineShaders& shaders);
+	VltGraphicsPipeline* createGraphicsPipeline(
+		const VltGraphicsPipelineShaders& shaders);
+
+	VltComputePipeline* createComputePipeline(
+		const VltComputePipelineShaders& shaders);
 
 private:
 	VltDevice* m_device;

@@ -72,7 +72,7 @@ public:
 		const VltGraphicsPipelineStateInfo& state,
 		const VltRenderPass&                rp);
 
-	VltPipelineLayout* getLayout() const;
+	VltPipelineLayout* layout() const;
 
 private:
 	VltGraphicsPipelineInstance* createInstance(

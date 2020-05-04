@@ -630,8 +630,16 @@ void GCNCompiler::emitGprInitializePS()
 
 	/// SGPR
 	emitInitUserDataRegisters(m_shaderInput.meta.ps.userSgprCount);
+
+	uint32_t sindex = m_shaderInput.meta.ps.userSgprCount;
 	// TODO:
 	// For temp
+
+	// This should be s_ps_state.
+	// I'm not sure what it is.
+	m_sgprs[sindex] = emitSgprCreate(sindex, SpirvScalarType::Float32);
+	++sindex;
+
 	m_sgprs[16] = emitSgprCreate(16, SpirvScalarType::Float32);
 }
 
@@ -840,11 +848,11 @@ void GCNCompiler::emitDclImmConstBuffer(const GcnShaderResourceInstance& res)
 	// This is std140 standard, but what we should use is std430
 	// We should specify the correct stride, for a float array, it's sizeof(float) == 4 .
 	// This will trigger a validation warning.
-	// m_module.decorateArrayStride(arrayId, 4);
+	m_module.decorateArrayStride(arrayId, 4);
 
 	// spirv-cross doesn't support buffer block expressed as any of std430, std140 and etc.
 	// to use spirv-cross to view the output spv file, enable this and disable above line.
-	m_module.decorateArrayStride(arrayId, 16);
+	// m_module.decorateArrayStride(arrayId, 16);
 
 	uint32_t uboStuctId = m_module.defStructTypeUnique(1, &arrayId);
 	m_module.decorateBlock(uboStuctId);
@@ -1284,9 +1292,11 @@ SpirvRegisterValue GCNCompiler::emitCsSystemValueLoad(
 									   "gl_GlobalInvocationID");
 		}
 
-		result.type.ctype  = SpirvScalarType::Uint32;
-		result.type.ccount = 3;
-		result.id          = m_cs.builtinGlobalInvocationId;
+		SpirvRegisterPointer ptr;
+		ptr.type.ctype  = SpirvScalarType::Uint32;
+		ptr.type.ccount = 3;
+		ptr.id          = m_cs.builtinGlobalInvocationId;
+		result          = emitValueLoad(ptr);
 	}
 		break;
 	case SpirvSystemValue::ThreadGroupId:
@@ -1300,9 +1310,11 @@ SpirvRegisterValue GCNCompiler::emitCsSystemValueLoad(
 									   "gl_WorkGroupID");
 		}
 
-		result.type.ctype  = SpirvScalarType::Uint32;
-		result.type.ccount = 3;
-		result.id          = m_cs.builtinWorkgroupId;
+		SpirvRegisterPointer ptr;
+		ptr.type.ctype  = SpirvScalarType::Uint32;
+		ptr.type.ccount = 3;
+		ptr.id          = m_cs.builtinWorkgroupId;
+		result          = emitValueLoad(ptr);
 	}
 		break;
 	case SpirvSystemValue::ThreadIdInGroup:
@@ -1316,9 +1328,11 @@ SpirvRegisterValue GCNCompiler::emitCsSystemValueLoad(
 									   "gl_LocalInvocationID");
 		}
 
-		result.type.ctype  = SpirvScalarType::Uint32;
-		result.type.ccount = 3;
-		result.id          = m_cs.builtinLocalInvocationId;
+		SpirvRegisterPointer ptr;
+		ptr.type.ctype  = SpirvScalarType::Uint32;
+		ptr.type.ccount = 3;
+		ptr.id          = m_cs.builtinLocalInvocationId;
+		result          = emitValueLoad(ptr);
 	}
 		break;
 	case SpirvSystemValue::ThreadIndexInGroup:
@@ -1332,9 +1346,11 @@ SpirvRegisterValue GCNCompiler::emitCsSystemValueLoad(
 									   "gl_LocalInvocationIndex");
 		}
 
-		result.type.ctype  = SpirvScalarType::Uint32;
-		result.type.ccount = 1;
-		result.id          = m_cs.builtinLocalInvocationIndex;
+		SpirvRegisterPointer ptr;
+		ptr.type.ctype  = SpirvScalarType::Uint32;
+		ptr.type.ccount = 1;
+		ptr.id          = m_cs.builtinLocalInvocationIndex;
+		result          = emitValueLoad(ptr);
 	}
 		break;
 	default:

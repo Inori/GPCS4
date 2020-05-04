@@ -88,7 +88,7 @@ VkPipeline VltGraphicsPipeline::getPipelineHandle(
 	return pipeline;
 }
 
-VltPipelineLayout* VltGraphicsPipeline::getLayout() const
+VltPipelineLayout* VltGraphicsPipeline::layout() const
 {
 	return m_layout.ptr();
 }
