@@ -461,7 +461,11 @@ void GnmCommandBufferDraw::dispatchWithOrderedAppend(uint32_t threadGroupX, uint
 {
 	commitComputeStages();
 
-	m_context->dispatch(threadGroupX, threadGroupY, threadGroupZ);
+	if (m_flags.test(GnmContexFlag::CpPendingDispatch))
+	{
+		m_context->dispatch(threadGroupX, threadGroupY, threadGroupZ);
+		m_flags.clr(GnmContexFlag::CpPendingDispatch);
+	}
 }
 
 void GnmCommandBufferDraw::writeDataInline(void* dstGpuAddr, const void* data, uint32_t sizeInDwords, WriteDataConfirmMode writeConfirm)
@@ -968,6 +972,8 @@ void GnmCommandBufferDraw::commitCsStage()
 			m_context->bindShader(
 				VK_SHADER_STAGE_COMPUTE_BIT,
 				m_shaders.cs.shader->compile());
+
+			m_flags.set(GnmContexFlag::CpPendingDispatch);
 		}
 	} while (false);
 }
@@ -993,7 +999,8 @@ void GnmCommandBufferDraw::clearDepthTarget()
 void GnmCommandBufferDraw::clearRenderState()
 {
 	m_flags.clr(
-		GnmContexFlag::GpClearDepthTarget);
+		GnmContexFlag::GpClearDepthTarget,
+		GnmContexFlag::CpPendingDispatch);
 
 	m_flags.set(
 		GnmContexFlag::GpDirtyRenderTarget);

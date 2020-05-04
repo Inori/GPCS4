@@ -35,9 +35,11 @@ class VltImageView;
  */
 enum class GnmContexFlag : uint32_t
 {
-	GpClearDepthTarget,  ///< There is pending depth clear operation.
+	GpClearDepthTarget,   ///< There is pending depth clear operation.
 
 	GpDirtyRenderTarget,  ///< RenderTarget is out of data. Here RenderTarget includes both color and depth target.
+
+	CpPendingDispatch,    ///< A dispatch call is pending.
 };
 
 using GnmContexFlags = Flags<GnmContexFlag>;
