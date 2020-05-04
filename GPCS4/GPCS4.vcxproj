@@ -44,6 +44,7 @@
     <ClInclude Include="Graphic\Violet\VltBuffer.h" />
     <ClInclude Include="Graphic\Violet\VltCmdList.h" />
     <ClInclude Include="Graphic\Violet\VltCommon.h" />
+    <ClInclude Include="Graphic\Violet\VltComputePipeline.h" />
     <ClInclude Include="Graphic\Violet\VltContext.h" />
     <ClInclude Include="Graphic\Violet\VltContextState.h" />
     <ClInclude Include="Graphic\Violet\VltDebugMarker.h" />
@@ -352,6 +353,7 @@
     <ClCompile Include="Graphic\SpirV\SpirvModule.cpp" />
     <ClCompile Include="Graphic\Violet\VltBuffer.cpp" />
     <ClCompile Include="Graphic\Violet\VltCmdList.cpp" />
+    <ClCompile Include="Graphic\Violet\VltComputePipeline.cpp" />
     <ClCompile Include="Graphic\Violet\VltContext.cpp" />
     <ClCompile Include="Graphic\Violet\VltDebugMarker.cpp" />
     <ClCompile Include="Graphic\Violet\VltDescriptor.cpp" />

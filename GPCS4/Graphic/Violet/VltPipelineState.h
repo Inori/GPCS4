@@ -802,7 +802,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 // This is used to create graphics pipeline and pipeline cache.
-struct PS4ALIGN(32) VltGraphicsPipelineStateInfo
+struct alignas(32) VltGraphicsPipelineStateInfo
 {
 	VltVertexInputInfo   vi;
 	VltInputAssemblyInfo ia;
@@ -833,10 +833,20 @@ struct PS4ALIGN(32) VltGraphicsPipelineStateInfo
 	friend std::istream& operator>>(std::istream& in, VltGraphicsPipelineStateInfo& state);
 };
 
-struct VltComputePipelineStateInfo
+struct alignas(32) VltComputePipelineStateInfo
 {
 	// TODO:
-	uint32_t placeHolder;
+	uint32_t placeHolder = 0;
+
+	bool operator==(const VltComputePipelineStateInfo& other) const
+	{
+		return bit::bcmpeq(this, &other);
+	}
+
+	bool operator!=(const VltComputePipelineStateInfo& other) const
+	{
+		return !bit::bcmpeq(this, &other);
+	}
 };
 
 }  // namespace vlt

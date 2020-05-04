@@ -724,7 +724,7 @@ void GCNCompiler::emitInitUserDataRegisters(uint32_t count)
 		// We use float type to hold all registers, so cast uint register
 		// value to float
 		spvValue   = emitRegisterBitcast(spvValue, SpirvScalarType::Float32);
-		m_sgprs[i] = emitVgprCreate(i, SpirvScalarType::Float32, spvValue.id);
+		m_sgprs[i] = emitSgprCreate(i, SpirvScalarType::Float32, spvValue.id);
 	}
 }
 
@@ -840,11 +840,11 @@ void GCNCompiler::emitDclImmConstBuffer(const GcnShaderResourceInstance& res)
 	// This is std140 standard, but what we should use is std430
 	// We should specify the correct stride, for a float array, it's sizeof(float) == 4 .
 	// This will trigger a validation warning.
-	m_module.decorateArrayStride(arrayId, 4);
+	// m_module.decorateArrayStride(arrayId, 4);
 
 	// spirv-cross doesn't support buffer block expressed as any of std430, std140 and etc.
 	// to use spirv-cross to view the output spv file, enable this and disable above line.
-	// m_module.decorateArrayStride(arrayId, 16);
+	m_module.decorateArrayStride(arrayId, 16);
 
 	uint32_t uboStuctId = m_module.defStructTypeUnique(1, &arrayId);
 	m_module.decorateBlock(uboStuctId);

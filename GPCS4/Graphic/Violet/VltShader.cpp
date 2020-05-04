@@ -36,7 +36,9 @@ void VltShader::defineResourceSlots(VltDescriptorSlotMap& slotMap) const
 	}
 }
 
-VltShaderModule VltShader::createShaderModule(const VltDevice* device, const VltDescriptorSlotMap& slotMap)
+VltShaderModule VltShader::createShaderModule(
+	const VltDevice*            device,
+	const VltDescriptorSlotMap& slotMap)
 {
 	SpirvCodeBuffer spirvCode = m_code.decompress();
 

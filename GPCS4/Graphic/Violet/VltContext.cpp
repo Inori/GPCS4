@@ -308,6 +308,17 @@ void VltContext::drawIndexed(
 	m_cmd->cmdDrawIndexed(indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 }
 
+void VltContext::dispatch(
+	uint32_t x, 
+	uint32_t y, 
+	uint32_t z)
+{
+	if (commitComputeState())
+	{
+		m_cmd->cmdDispatch(x, y, z);
+	}
+}
+
 void VltContext::clearRenderTarget(
 	const RcPtr<VltImageView>& targetView,
 	VkImageAspectFlags         clearAspects,
@@ -1043,19 +1054,16 @@ void VltContext::updateGraphicsShaderResources()
 				VltContextFlag::GpDirtyDescriptorBinding);
 }
 
-void VltContext::updateComputeDescriptorLayout()
-{
-	m_flags.clr(VltContextFlag::CpDirtyDescriptorBinding);
-}
-
-void VltContext::updateGraphicsPipeline()
+bool VltContext::updateGraphicsPipeline()
 {
 	// Descriptor layout is bound with shaders
 	m_state.gp.pipeline = m_objects->pipelineManager().getGraphicsPipeline(m_state.gp.shaders);
 	m_flags.clr(VltContextFlag::GpDirtyPipeline);
+
+	return true;
 }
 
-void VltContext::updateGraphicsPipelineStates()
+bool VltContext::updateGraphicsPipelineState()
 {
 	VltRenderPass* renderPass = m_state.om.framebuffer->getRenderPass();
 	m_gpCtx.pipeline          = m_state.gp.pipeline->getPipelineHandle(m_state.gp.states, *renderPass);
@@ -1063,13 +1071,17 @@ void VltContext::updateGraphicsPipelineStates()
 	m_cmd->cmdBindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, m_gpCtx.pipeline);
 
 	m_flags.clr(VltContextFlag::GpDirtyPipelineState);
+
+	return true;
 }
 
-void VltContext::updateComputePipeline()
+bool VltContext::updateComputePipeline()
 {
+
+	return true;
 }
 
-void VltContext::updateComputePipelineStates()
+bool VltContext::updateComputePipelineState()
 {
 }
 
@@ -1129,7 +1141,7 @@ void VltContext::updateDynamicState()
 }
 
 template <bool Indexed, bool Indirect>
-void VltContext::commitGraphicsState()
+bool VltContext::commitGraphicsState()
 {
 	if (m_flags.test(VltContextFlag::GpDirtyFramebuffer))
 	{
@@ -1174,11 +1186,40 @@ void VltContext::commitGraphicsState()
 
 	if (m_flags.test(VltContextFlag::GpDirtyPipelineState))
 	{
-		updateGraphicsPipelineStates();
+		updateGraphicsPipelineState();
 	}
+
+	return true;
 }
 
-void VltContext::commitComputeState()
+bool VltContext::commitComputeState()
+{
+	if (m_flags.test(VltContextFlag::GpRenderPassBound))
+	{
+		leaveRenderPassScope();
+	}
+
+	if (m_flags.test(VltContextFlag::CpDirtyPipeline))
+	{
+		updateComputePipeline();
+	}
+
+	if (m_flags.any(
+		VltContextFlag::CpDirtyResources,
+		VltContextFlag::CpDirtyDescriptorBinding))
+	{
+		updateComputeShaderResources();
+	}
+		
+	if (m_flags.test(VltContextFlag::CpDirtyPipelineState))
+	{
+		updateComputePipelineState();
+	}
+
+	return true;
+}
+
+void VltContext::updateComputeShaderResources()
 {
 }
 

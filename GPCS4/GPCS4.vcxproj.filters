@@ -952,6 +952,9 @@
     <ClInclude Include="Graphic\Violet\VltVkLayers.h">
       <Filter>Source Files\Graphic\Violet</Filter>
     </ClInclude>
+    <ClInclude Include="Graphic\Violet\VltComputePipeline.h">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1651,6 +1654,9 @@
       <Filter>Source Files\Graphic\Violet</Filter>
     </ClCompile>
     <ClCompile Include="Graphic\Violet\VltUtil.cpp">
+      <Filter>Source Files\Graphic\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Violet\VltComputePipeline.cpp">
       <Filter>Source Files\Graphic\Violet</Filter>
     </ClCompile>
   </ItemGroup>
