@@ -460,6 +460,8 @@ void GnmCommandBufferDraw::dispatch(uint32_t threadGroupX, uint32_t threadGroupY
 void GnmCommandBufferDraw::dispatchWithOrderedAppend(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ, DispatchOrderedAppendMode orderedAppendMode)
 {
 	commitComputeStages();
+
+	m_context->dispatch(threadGroupX, threadGroupY, threadGroupZ);
 }
 
 void GnmCommandBufferDraw::writeDataInline(void* dstGpuAddr, const void* data, uint32_t sizeInDwords, WriteDataConfirmMode writeConfirm)
@@ -768,6 +770,7 @@ void GnmCommandBufferDraw::bindShaderResources(
 		case pssl::kShaderInputUsageImmSampler:
 			bindSampler(res.res);
 			break;
+		case pssl::kShaderInputUsageImmRwResource:
 		case pssl::kShaderInputUsageImmResource:
 			bindImmResource(shaderType, res);
 			break;
@@ -777,9 +780,8 @@ void GnmCommandBufferDraw::bindShaderResources(
 		case pssl::kShaderInputUsageImmVertexBuffer:
 			bindVertexBuffer(res.res);
 			break;
-		case pssl::kShaderInputUsageImmRwResource:
 		default:
-			LOG_ERR("unsupported resource type %d", type);
+			LOG_WARN("unsupported resource type %d", type);
 			break;
 		}
 	}
@@ -844,7 +846,7 @@ void GnmCommandBufferDraw::commitPsStage()
 		LOG_DEBUG("pixel shader hash %llX", m_shaders.ps.shader->key().toUint64());
 		m_shaders.ps.shader->defineShaderInput(m_shaders.ps.userDataSlotTable);
 
-		//SHADER_DEBUG_BREAK(m_shaders.ps.shader, 0xAB97D172C647AFE9);
+		// SHADER_DEBUG_BREAK(m_shaders.ps.shader, 0xAB97D172C647AFE9);
 
 		auto nestedResources = m_shaders.ps.shader->getShaderResources();
 		auto shaderResources = PsslShaderModule::flattenShaderResources(nestedResources);
@@ -947,7 +949,7 @@ void GnmCommandBufferDraw::commitCsStage()
 			(const uint32_t*)m_shaders.cs.code);
 		LOG_DEBUG("compute shader hash %llX", m_shaders.cs.shader->key().toUint64());
 
-		SHADER_DEBUG_BREAK(m_shaders.cs.shader, 0xAF20AC1F702451D8);
+		// SHADER_DEBUG_BREAK(m_shaders.cs.shader, 0xAF20AC1F702451D8);
 
 		m_shaders.cs.shader->defineShaderInput(m_shaders.cs.userDataSlotTable);
 		auto nestedResources = m_shaders.cs.shader->getShaderResources();
@@ -960,7 +962,12 @@ void GnmCommandBufferDraw::commitCsStage()
 		}
 		else
 		{
-			auto shader = m_shaders.cs.shader->compile();
+			// Bind all resources which the shader uses.
+			bindShaderResources(PsslProgramType::ComputeShader, shaderResources);
+
+			m_context->bindShader(
+				VK_SHADER_STAGE_COMPUTE_BIT,
+				m_shaders.cs.shader->compile());
 		}
 	} while (false);
 }
