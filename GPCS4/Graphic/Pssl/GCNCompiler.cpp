@@ -1843,29 +1843,35 @@ SpirvRegisterValue GCNCompiler::emitInlineConstantInteger(
 	}
 
 	LOG_ASSERT(dstType != SpirvScalarType::Unknown, "do not support unknown type.");
-	uint32_t valueId = InvalidSpvId;
-	switch (dstType)
-	{
-	case pssl::SpirvScalarType::Uint32:
-		valueId = m_module.constu32(value);
-		break;
-	case pssl::SpirvScalarType::Uint64:
-		valueId = m_module.constu64(value);
-		break;
-	case pssl::SpirvScalarType::Sint32:
-		valueId = m_module.consti32(value);
-		break;
-	case pssl::SpirvScalarType::Sint64:
-		valueId = m_module.consti64(value);
-		break;
-	case pssl::SpirvScalarType::Float32:
-		valueId = m_module.constf32(value);
-		break;
-	case pssl::SpirvScalarType::Float64:
-		valueId = m_module.constf64(value);
-		break;
-	}
-	return SpirvRegisterValue(dstType, 1, valueId);
+	//uint32_t valueId = InvalidSpvId;
+	//switch (dstType)
+	//{
+	//case pssl::SpirvScalarType::Uint32:
+	//	valueId = m_module.constu32(value);
+	//	break;
+	//case pssl::SpirvScalarType::Uint64:
+	//	valueId = m_module.constu64(value);
+	//	break;
+	//case pssl::SpirvScalarType::Sint32:
+	//	valueId = m_module.consti32(value);
+	//	break;
+	//case pssl::SpirvScalarType::Sint64:
+	//	valueId = m_module.consti64(value);
+	//	break;
+	//case pssl::SpirvScalarType::Float32:
+	//	valueId = m_module.constf32(value);
+	//	break;
+	//case pssl::SpirvScalarType::Float64:
+	//	valueId = m_module.constf64(value);
+	//	break;
+	//}
+	//return SpirvRegisterValue(dstType, 1, valueId);
+
+	SpirvRegisterValue result;
+	result.type.ccount = 1;
+	result.type.ctype  = SpirvScalarType::Sint32;
+	result.id          = m_module.consti32(value);
+	return result;
 }
 
 uint32_t GCNCompiler::emitLoadSampledImage(const SpirvTexture& textureResource, const SpirvSampler& samplerResource)

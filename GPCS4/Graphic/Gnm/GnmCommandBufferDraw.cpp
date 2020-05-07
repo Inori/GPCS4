@@ -16,6 +16,8 @@
 #include "../Violet/VltSampler.h"
 #include "../Violet/VltShader.h"
 
+#include "../Platform/UtilFile.h"
+
 #include <algorithm>
 
 LOG_CHANNEL(Graphic.Gnm.GnmCommandBufferDraw);
@@ -969,9 +971,13 @@ void GnmCommandBufferDraw::commitCsStage()
 			// Bind all resources which the shader uses.
 			bindShaderResources(PsslProgramType::ComputeShader, shaderResources);
 
+			RcPtr<VltShader> computeShader = m_shaders.cs.shader->compile();
+			auto newShader = UtilFile::LoadFile("comp.spv");
+			computeShader->replaceCode(newShader);
+
 			m_context->bindShader(
 				VK_SHADER_STAGE_COMPUTE_BIT,
-				m_shaders.cs.shader->compile());
+				computeShader);
 
 			m_flags.set(GnmContexFlag::CpPendingDispatch);
 		}

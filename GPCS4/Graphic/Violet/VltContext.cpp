@@ -312,6 +312,15 @@ void VltContext::dispatch(
 	if (commitComputeState())
 	{
 		m_cmd->cmdDispatch(x, y, z);
+
+		VkMemoryBarrier barrier = {};
+		barrier.sType           = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
+		barrier.pNext           = nullptr;
+		barrier.srcAccessMask   = VK_ACCESS_SHADER_WRITE_BIT;
+		barrier.dstAccessMask   = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
+
+		m_cmd->cmdPipelineBarrier(VltCmdType::ExecBuffer, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
+								  0, 1, &barrier, 0, nullptr, 0, nullptr);
 	}
 }
 

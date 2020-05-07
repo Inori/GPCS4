@@ -86,6 +86,8 @@ VkPipeline VltComputePipeline::createPipeline(
 	VkPipeline pipeline = VK_NULL_HANDLE;
 	do 
 	{
+		VkDevice device = *(m_pipeMgr->m_device);
+
 		auto csm = m_shaders.cs->createShaderModule(m_pipeMgr->m_device, m_slotMap);
 
 		VkComputePipelineCreateInfo info;
@@ -97,7 +99,6 @@ VkPipeline VltComputePipeline::createPipeline(
 		info.basePipelineHandle = VK_NULL_HANDLE;
 		info.basePipelineIndex  = -1;
 
-		VkDevice device = *(m_pipeMgr->m_device);
 		if (vkCreateComputePipelines(device, VK_NULL_HANDLE, 1, &info, nullptr, &pipeline) != VK_SUCCESS)
 		{
 			LOG_ERR("failed to create compute pipeline!");
