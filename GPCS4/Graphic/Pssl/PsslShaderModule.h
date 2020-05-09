@@ -32,7 +32,7 @@ public:
 	void defineShaderInput(
 		const PsslShaderResourceTable& shaderInputTab);
 
-	const GcnShaderResources& getShaderResources();
+	const GcnShaderResourceDeclaration& getShaderResourceDeclaration();
 
 	std::vector<VertexInputSemantic> vsInputSemantic();
 
@@ -43,7 +43,7 @@ public:
 	RcPtr<vlt::VltShader> compile();
 
 	static std::vector<GcnShaderResourceInstance>
-	flattenShaderResources(const GcnShaderResources& nestedResources);
+	flattenShaderResources(const GcnShaderResourceDeclaration& nestedResources);
 
 private:
 
@@ -67,6 +67,8 @@ private:
 	void parseResPtrTable();
 	bool checkUnhandledRes();
 
+	void parseVertexInputAttribute(const InputUsageSlot& vertexSlot);
+
 	// Debug only
 	void dumpShader(PsslProgramType type, const uint8_t* code, uint32_t size);
 private:
@@ -83,7 +85,7 @@ private:
 	// shader input contains SRT, EUD and other Table type resources,
 	// we need to parse the shader input slots 
 	// and extract these resource definitions from the tables.
-	GcnShaderResources m_shaderResources;
+	GcnShaderResourceDeclaration m_shaderResourceDcl;
 
 	const uint32_t* m_eudTable       = nullptr;
 

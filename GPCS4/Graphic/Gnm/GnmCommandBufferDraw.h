@@ -167,9 +167,13 @@ private:
 	void bindIndexBuffer();
 
 	void setVertexInputLayout(
-		const std::vector<PsslShaderResource>& attributes);
+		const pssl::GcnVertexInputAttributeTable& iat);
 
-	void bindVertexBuffer(const PsslShaderResource& res);
+	void bindVertexInput(
+		const pssl::GcnVertexInputAttributeTable& iat);
+
+	void bindVertexBuffer(
+		const pssl::GcnVertexInputAttribute& attr);
 
 	void bindImmConstBuffer(
 		pssl::PsslProgramType     shaderType,
@@ -214,8 +218,8 @@ private:
 
 	const GnmRenderTarget* findRenderTarget(void* address);
 
-	std::vector<PsslShaderResource> extractVertexAttributes(
-		const GnmShaderResourceList& resources);
+	bool isSingleVertexBuffer(
+		const pssl::GcnVertexInputAttributeTable& iat);
 
 private:
 

@@ -19,6 +19,7 @@
 #include "../Platform/UtilFile.h"
 
 #include <algorithm>
+#include <functional>
 
 LOG_CHANNEL(Graphic.Gnm.GnmCommandBufferDraw);
 
@@ -567,40 +568,81 @@ void GnmCommandBufferDraw::bindRenderTargets()
 	} while (false);
 }
 
-void GnmCommandBufferDraw::setVertexInputLayout(const std::vector<PsslShaderResource>& attributes)
+void GnmCommandBufferDraw::setVertexInputLayout(
+	const pssl::GcnVertexInputAttributeTable& iat)
 {
-	// TODO:
 	// For some games, ie. Nier:Automata, vertex attributes are not stored
-	// in a single vertex buffer area, so in this case we need to use multiple vertex
-	// bindings. But for other games, all vertex attributes are within the same memory area,
+	// in a single vertex buffer area, so in such case we need to use multiple vertex
+	// bindings. 
+	// But for other games, all vertex attributes are within the same memory area,
 	// in this case, we only need one vertex binding.
-	// Currently I only support the first case, we need to check whether these attributes
-	// are in same memory area or not.
 
-	std::vector<VltVertexBinding>   vertexBindings;
-	std::vector<VltVertexAttribute> vertexAttributes;
+	uint32_t bindingCount   = 0;
+	uint32_t attributeCount = 0;
 
-	uint32_t           location = 0;
+	std::array<VltVertexBinding, MaxNumVertexBindings>     bindings;
+	std::array<VltVertexAttribute, MaxNumVertexAttributes> attributes;
 
-	uint32_t bindingCount = attributes.size();
-	for (uint32_t i = 0; i != bindingCount; ++i)
+	attributeCount = iat.size();
+
+	if (isSingleVertexBuffer(iat))
 	{
-		const GnmBuffer* vsharp = reinterpret_cast<const GnmBuffer*>(attributes[i].resource);
+		const GnmBuffer* firstVsharp = reinterpret_cast<const GnmBuffer*>(iat[0].vsharp);
+		uint32_t         stride      = firstVsharp->getStride();
 
-		uint32_t stride  = vsharp->getStride();
-		auto     binding = VltVertexBinding(i, stride, VK_VERTEX_INPUT_RATE_VERTEX, 0);
-		vertexBindings.emplace_back(binding);
+		bindingCount             = 1;
+		VltVertexBinding binding = VltVertexBinding(0, stride, VK_VERTEX_INPUT_RATE_VERTEX, 0);
+		bindings.at(0)           = binding;
 
-		VkFormat vtxFmt = cvt::convertDataFormatToVkFormat(vsharp->getDataFormat());
-		auto     attr   = VltVertexAttribute(location++, i, vtxFmt, 0);
-		vertexAttributes.emplace_back(attr);
+		uint8_t* startAddress = reinterpret_cast<uint8_t*>(firstVsharp->getBaseAddress());
+
+		for (uint32_t i = 0; i != attributeCount; ++i)
+		{
+			const GnmBuffer* vsharp = reinterpret_cast<const GnmBuffer*>(iat[i].vsharp);
+
+			uint8_t* bufferAddress = reinterpret_cast<uint8_t*>(vsharp->getBaseAddress());
+			uint32_t offset        = bufferAddress - startAddress;
+			VkFormat format        = cvt::convertDataFormatToVkFormat(vsharp->getDataFormat());
+			auto     attr          = VltVertexAttribute(i, 0, format, offset);
+			attributes.at(i)       = attr;
+		}
+	}
+	else
+	{
+		bindingCount = iat.size();
+		for (uint32_t i = 0; i != attributeCount; ++i)
+		{
+			const GnmBuffer* vsharp = reinterpret_cast<const GnmBuffer*>(iat[i].vsharp);
+
+			uint32_t stride  = vsharp->getStride();
+			auto     binding = VltVertexBinding(i, stride, VK_VERTEX_INPUT_RATE_VERTEX, 0);
+			bindings.at(i)   = binding;
+
+			VkFormat vtxFmt  = cvt::convertDataFormatToVkFormat(vsharp->getDataFormat());
+			auto     attr    = VltVertexAttribute(i, i, vtxFmt, 0);
+			attributes.at(i) = attr;
+		}
 	}
 
 	m_context->setInputLayout(
-		vertexBindings.size(),
-		vertexBindings.data(),
-		vertexAttributes.size(),
-		vertexAttributes.data());
+		bindingCount,
+		bindings.data(),
+		attributeCount,
+		attributes.data());
+}
+
+void GnmCommandBufferDraw::bindVertexInput(
+	const pssl::GcnVertexInputAttributeTable& iat)
+{
+	setVertexInputLayout(iat);
+
+	uint32_t bindingCount = isSingleVertexBuffer(iat) ?
+		1 : iat.size();
+
+	for (uint32_t i = 0; i != bindingCount; ++i)
+	{
+		bindVertexBuffer(iat[i]);
+	}
 }
 
 void GnmCommandBufferDraw::bindIndexBuffer()
@@ -613,7 +655,8 @@ void GnmCommandBufferDraw::bindIndexBuffer()
 	m_context->bindIndexBuffer(indexBuffer, indexDesc.type);
 }
 
-void GnmCommandBufferDraw::bindVertexBuffer(const PsslShaderResource& res)
+void GnmCommandBufferDraw::bindVertexBuffer(
+	const GcnVertexInputAttribute& attr)
 {
 	// TODO:
 	// There's a critical problem here, probably the most critical one for the whole GPCS4 project:
@@ -627,7 +670,7 @@ void GnmCommandBufferDraw::bindVertexBuffer(const PsslShaderResource& res)
 	// We may need to develop some heuristic strategies to deal with this problem.
 	// Currently I just update GPU buffer every time it gets bound and don't release any of them.
 
-	const GnmBuffer* vsharp  = reinterpret_cast<const GnmBuffer*>(res.resource);
+	const GnmBuffer* vsharp  = reinterpret_cast<const GnmBuffer*>(attr.vsharp);
 	void*            vtxData = vsharp->getBaseAddress();
 
 	bool isSwizzled = vsharp->isSwizzled();
@@ -644,9 +687,8 @@ void GnmCommandBufferDraw::bindVertexBuffer(const PsslShaderResource& res)
 	m_context->updateBuffer(vertexBuffer, 0, bufferSize, vtxData);
 
 	uint32_t stride = vsharp->getStride();
-	// startRegister act as binding id for vertex buffers,
-	// it is set in PsslShaderModule::parseResPtrTable
-	m_context->bindVertexBuffer(res.startRegister, VltBufferSlice(vertexBuffer, 0, bufferSize), stride);
+	m_context->bindVertexBuffer(attr.bindingId, 
+		VltBufferSlice(vertexBuffer, 0, bufferSize), stride);
 }
 
 void GnmCommandBufferDraw::bindImmConstBuffer(pssl::PsslProgramType shaderType, const PsslShaderResource& res)
@@ -783,9 +825,6 @@ void GnmCommandBufferDraw::bindShaderResources(
 		case pssl::kShaderInputUsageImmConstBuffer:
 			bindImmConstBuffer(shaderType, res.res);
 			break;
-		case pssl::kShaderInputUsageImmVertexBuffer:
-			bindVertexBuffer(res.res);
-			break;
 		default:
 			LOG_WARN("unsupported resource type %d", type);
 			break;
@@ -816,19 +855,17 @@ void GnmCommandBufferDraw::commitVsStage()
 		LOG_DEBUG("vertex shader hash %llX", m_shaders.vs.shader->key().toUint64());
 		m_shaders.vs.shader->defineShaderInput(m_shaders.vs.userDataSlotTable);
 
-		auto nestedResources = m_shaders.vs.shader->getShaderResources();
-		auto shaderResources = PsslShaderModule::flattenShaderResources(nestedResources);
+		auto shaderResourcesDcl = m_shaders.vs.shader->getShaderResourceDeclaration();
+		auto bindingResources = PsslShaderModule::flattenShaderResources(shaderResourcesDcl);
 
-		// Set vertex input layout
-		auto vertexAttributes = extractVertexAttributes(shaderResources);
-		// Some shaders doesn't have vertex input, we need to check
-		if (vertexAttributes.size())
+		// Bind Vertex input
+		if (shaderResourcesDcl.iat.has_value())
 		{
-			setVertexInputLayout(vertexAttributes);
+			bindVertexInput(shaderResourcesDcl.iat.value());
 		}
 
 		// Bind all resources which the shader uses.
-		bindShaderResources(PsslProgramType::VertexShader, shaderResources);
+		bindShaderResources(PsslProgramType::VertexShader, bindingResources);
 
 		m_context->bindShader(
 			VK_SHADER_STAGE_VERTEX_BIT,
@@ -854,11 +891,11 @@ void GnmCommandBufferDraw::commitPsStage()
 
 		// SHADER_DEBUG_BREAK(m_shaders.ps.shader, 0xAB97D172C647AFE9);
 
-		auto nestedResources = m_shaders.ps.shader->getShaderResources();
-		auto shaderResources = PsslShaderModule::flattenShaderResources(nestedResources);
+		auto shaderResourcesDcl = m_shaders.ps.shader->getShaderResourceDeclaration();
+		auto bindingResources   = PsslShaderModule::flattenShaderResources(shaderResourcesDcl);
 
 		// Bind all resources which the shader uses.
-		bindShaderResources(PsslProgramType::PixelShader, shaderResources);
+		bindShaderResources(PsslProgramType::PixelShader, bindingResources);
 
 		m_context->bindShader(
 			VK_SHADER_STAGE_FRAGMENT_BIT,
@@ -958,7 +995,7 @@ void GnmCommandBufferDraw::commitCsStage()
 		// SHADER_DEBUG_BREAK(m_shaders.cs.shader, 0xAF20AC1F702451D8);
 
 		m_shaders.cs.shader->defineShaderInput(m_shaders.cs.userDataSlotTable);
-		auto nestedResources = m_shaders.cs.shader->getShaderResources();
+		auto nestedResources = m_shaders.cs.shader->getShaderResourceDeclaration();
 		auto shaderResources = PsslShaderModule::flattenShaderResources(nestedResources);
 
 		// Hack
@@ -1138,18 +1175,30 @@ const GnmRenderTarget* GnmCommandBufferDraw::findRenderTarget(void* address)
 	return target;
 }
 
-std::vector<PsslShaderResource> GnmCommandBufferDraw::extractVertexAttributes(const GnmShaderResourceList& resources)
+bool GnmCommandBufferDraw::isSingleVertexBuffer(const pssl::GcnVertexInputAttributeTable& iat)
 {
-	std::vector<PsslShaderResource> vertexAttributes;
+	const GnmBuffer* firstVsharp = reinterpret_cast<const GnmBuffer*>(iat[0].vsharp);
+	uint32_t         stride      = firstVsharp->getStride();
+	
+	uintptr_t firstStart = reinterpret_cast<uintptr_t>(firstVsharp->getBaseAddress());
+	uintptr_t firstEnd   = firstStart + stride;
 
-	for (const auto& res : resources)
+	bool single = true;
+	// If the first record start address of all the left attributes are within
+	// the first attribute record, we think the vertex input uses a single
+	// vertex buffer.
+	uint32_t attrCount = iat.size();
+	for (uint32_t i = 1; i != attrCount; ++i)
 	{
-		if (res.usageType != kShaderInputUsageImmVertexBuffer)
+		const GnmBuffer* vsharp = reinterpret_cast<const GnmBuffer*>(iat[i].vsharp);
+		uintptr_t        start  = reinterpret_cast<uintptr_t>(vsharp->getBaseAddress());
+		if (start < firstStart || start > firstEnd)
 		{
-			continue;
+			single = false;
+			break;
 		}
-
-		vertexAttributes.emplace_back(res.res);
 	}
-	return vertexAttributes;
+
+	return single;
 }
+

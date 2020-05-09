@@ -8,8 +8,7 @@
 #include <vector>
 
 namespace pssl
-{
-;
+{;
 
 constexpr size_t GcnMaxUserSgprCount = 16;
 
@@ -108,6 +107,18 @@ struct GcnShaderResourceInstance
 };
 
 /**
+ * \brief Vertex input attribute
+ *
+ */
+struct GcnVertexInputAttribute
+{
+	uint32_t    bindingId = 0;
+	const void* vsharp    = nullptr;
+};
+
+using GcnVertexInputAttributeTable = std::vector<GcnVertexInputAttribute>;
+
+/**
  * \brief Resources in EUD.
  */
 struct GcnShaderResourceEUD
@@ -136,10 +147,13 @@ struct GcnShaderResourceSRT
  * including resources in EUD and SRT.
  */
 
-struct GcnShaderResources
+struct GcnShaderResourceDeclaration
 {
 	// Resources in 16 User Data Registers.
 	std::vector<GcnShaderResourceInstance> ud;
+
+	// Vertex attributes
+	std::optional<GcnVertexInputAttributeTable> iat = std::nullopt;
 
 	// EUD resources
 	std::optional<GcnShaderResourceEUD> eud = std::nullopt;
@@ -163,7 +177,7 @@ using GcnUserDataRegister = std::array<uint32_t, GcnMaxUserSgprCount>;
 struct GcnShaderInput
 {
 	PsslShaderMeta     meta;
-	GcnShaderResources shaderResources;
+	GcnShaderResourceDeclaration shaderResources;
 	// TODO:
 	// For the 16 user data registers, we should
 	// use specialization constants, because these

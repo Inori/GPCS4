@@ -12,8 +12,7 @@
 #include "../Violet/VltLimit.h"
 
 namespace vlt
-{
-;
+{;
 class VltShader;
 class VltImageView;
 }  // namespace vlt
@@ -49,7 +48,7 @@ struct GnmShaderContext
 {
 	const void*                           code   = nullptr;
 	RcPtr<pssl::PsslShaderModule>         shader = nullptr;
-	std::vector<pssl::PsslShaderResource> userDataSlotTable;
+	pssl::PsslShaderResourceTable         userDataSlotTable;
 };
 
 struct GnmShaderContextVS : public GnmShaderContext

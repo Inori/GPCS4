@@ -86,7 +86,7 @@ RcPtr<vlt::VltShader> PsslShaderModule::compile()
 	GcnShaderInput shaderInput;
 	shaderInput.meta            = m_meta;
 	shaderInput.userSgpr        = populateUserSgpr();
-	shaderInput.shaderResources = getShaderResources();
+	shaderInput.shaderResources = getShaderResourceDeclaration();
 	if (!m_vsInputSemantic.empty())
 	{
 		shaderInput.vsInputSemantics = m_vsInputSemantic;
@@ -100,7 +100,7 @@ RcPtr<vlt::VltShader> PsslShaderModule::compile()
 }
 
 std::vector<GcnShaderResourceInstance> 
-PsslShaderModule::flattenShaderResources(const GcnShaderResources& nestedResources)
+PsslShaderModule::flattenShaderResources(const GcnShaderResourceDeclaration& nestedResources)
 {
 	std::vector<GcnShaderResourceInstance> flatResourceTable;
 
@@ -290,7 +290,7 @@ void PsslShaderModule::parseResImm()
 			res.res.resource       = findShaderResourceInUserData(slot.startRegister);
 			LOG_ASSERT(res.res.resource != nullptr, "can not found imm type resource %d", usageType);
 
-			m_shaderResources.ud.push_back(res);
+			m_shaderResourceDcl.ud.push_back(res);
 		}
 			break;
 		case kShaderInputUsageImmShaderResourceTable:
@@ -316,8 +316,8 @@ void PsslShaderModule::parseResEud()
 	// If there is, initialize it.
 	if (iter != inputUsageSlots.end())
 	{
-		m_shaderResources.eud                = std::make_optional<GcnShaderResourceEUD>();
-		m_shaderResources.eud->startRegister = iter->startRegister;
+		m_shaderResourceDcl.eud                = std::make_optional<GcnShaderResourceEUD>();
+		m_shaderResourceDcl.eud->startRegister = iter->startRegister;
 	}
 
 	// Resources which could either be within 16 user data regs or in EUD.
@@ -372,8 +372,8 @@ void PsslShaderModule::parseResEud()
 		LOG_ASSERT(res.res.resource != nullptr, "can not found imm type resource %d", usageType);
 
 		isInUserData ? 
-			m_shaderResources.ud.push_back(res) :
-			m_shaderResources.eud->resources.push_back(std::make_pair(eudOffsetInDword, res));
+			m_shaderResourceDcl.ud.push_back(res) :
+			m_shaderResourceDcl.eud->resources.push_back(std::make_pair(eudOffsetInDword, res));
 	}
 }
 
@@ -395,28 +395,7 @@ void PsslShaderModule::parseResPtrTable()
 			LOG_ASSERT(false, "not supported yet.");
 			break;
 		case kShaderInputUsagePtrVertexBufferTable:
-		{
-			const uint32_t* vertexBufferTable = reinterpret_cast<const uint32_t*>(findShaderResourceInUserData(startRegister));
-			LOG_ASSERT(vertexBufferTable != nullptr, "can not find vertex buffer table.");
-
-			// TODO:
-			// Support Es Ls and Cs.
-			for (auto& sematic : m_vsInputSemantic)
-			{
-				uint32_t bindingId = sematic.semantic;
-
-				GcnShaderResourceInstance res = {};
-				// Convert to imm type.
-				res.usageType = kShaderInputUsageImmVertexBuffer;
-				res.sharpType = PsslSharpType::VSharp;
-				// startRegister act as binding id for vertex buffers
-				res.res.startRegister = bindingId;
-				res.res.resource      = &vertexBufferTable[bindingId * kDwordSizeVertexBuffer];
-				res.res.sizeDwords    = kDwordSizeVertexBuffer;
-
-				m_shaderResources.ud.push_back(res);
-			}
-		}
+			parseVertexInputAttribute(slot);
 			break;
 		default:
 			break;
@@ -467,6 +446,32 @@ bool PsslShaderModule::checkUnhandledRes()
 	}
 	
 	return allHandled;
+}
+
+void PsslShaderModule::parseVertexInputAttribute(const InputUsageSlot& vertexSlot)
+{
+	uint32_t startRegister = vertexSlot.startRegister;
+
+	const uint32_t* vertexBufferTable = reinterpret_cast<const uint32_t*>(findShaderResourceInUserData(startRegister));
+	LOG_ASSERT(vertexBufferTable != nullptr, "can not find vertex buffer table.");
+
+	if (!m_vsInputSemantic.empty())
+	{
+		m_shaderResourceDcl.iat = std::make_optional<GcnVertexInputAttributeTable>();
+		m_shaderResourceDcl.iat->reserve(m_vsInputSemantic.size());
+	}
+
+	// TODO:
+	// Support Es Ls and Cs.
+	for (auto& sematic : m_vsInputSemantic)
+	{
+		uint32_t bindingId = sematic.semantic;
+
+		GcnVertexInputAttribute ia = {};
+		ia.bindingId               = bindingId;
+		ia.vsharp                  = &vertexBufferTable[bindingId * kDwordSizeVertexBuffer];
+		m_shaderResourceDcl.iat->emplace_back(ia);
+	}
 }
 
 const uint32_t* PsslShaderModule::findShaderResourceByType(ShaderInputUsageType usageType)
@@ -582,11 +587,11 @@ void PsslShaderModule::defineShaderInput(
 	std::sort(m_shaderInputTable.begin(), m_shaderInputTable.end(), resLess);
 }
 
-const GcnShaderResources& PsslShaderModule::getShaderResources()
+const GcnShaderResourceDeclaration& PsslShaderModule::getShaderResourceDeclaration()
 {
 	do
 	{
-		if (!m_shaderResources.ud.empty())
+		if (!m_shaderResourceDcl.ud.empty())
 		{
 			// already parsed
 			break;
@@ -598,7 +603,7 @@ const GcnShaderResources& PsslShaderModule::getShaderResources()
 		}
 
 	} while (false);
-	return m_shaderResources;
+	return m_shaderResourceDcl;
 }
 
 PsslKey PsslShaderModule::key()
