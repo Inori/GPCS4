@@ -148,7 +148,7 @@ private:
 
 	RcPtr<VltPipelineLayout> m_layout;
 
-	Spinlock                                m_mutex;
+	sync::Spinlock                          m_mutex;
 	std::vector<VltComputePipelineInstance> m_pipelines;
 };
 

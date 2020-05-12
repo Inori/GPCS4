@@ -4,6 +4,9 @@
 #include <atomic>
 #include <thread>
 
+namespace sync
+{;
+
 /**
  * \brief Spin lock
  *
@@ -11,38 +14,41 @@
  * protect data structures for a short duration
  * in case the structure is not likely contested.
  */
-class Spinlock 
+class Spinlock
 {
 
 public:
-
-	Spinlock() { }
-	~Spinlock() { }
+	Spinlock()
+	{
+	}
+	~Spinlock()
+	{
+	}
 
 	Spinlock(const Spinlock&) = delete;
-	Spinlock& operator = (const Spinlock&) = delete;
+	Spinlock& operator=(const Spinlock&) = delete;
 
-	void lock() 
+	void lock()
 	{
 		while (!this->try_lock())
 		{
 			std::this_thread::yield();
 		}
-			
 	}
 
-	void unlock() 
+	void unlock()
 	{
 		m_lock.store(0, std::memory_order_release);
 	}
 
-	bool try_lock() 
+	bool try_lock()
 	{
 		return !m_lock.load() && !m_lock.exchange(1, std::memory_order_acquire);
 	}
 
 private:
-
 	std::atomic<uint32_t> m_lock = { 0 };
-
 };
+
+}  // namespace sync
+

@@ -95,7 +95,7 @@ private:
 	VltDescriptorSlotMap     m_slotMap;
 	RcPtr<VltPipelineLayout> m_layout;
 
-	Spinlock                                 m_mutex;
+	sync::Spinlock                           m_mutex;
 	std::vector<VltGraphicsPipelineInstance> m_pipelines;
 };
 

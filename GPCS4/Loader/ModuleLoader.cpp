@@ -240,7 +240,7 @@ bool ModuleLoader::mapModuleNameToFilePath(std::string const &modName,
 			break;
 		}
 
-		auto outName = UtilString::Format("lib\\%s.sprx", fileName.c_str());
+		auto outName = str::format("lib\\%s.sprx", fileName.c_str());
 
 		*path  = std::move(outName);
 		retVal = true;

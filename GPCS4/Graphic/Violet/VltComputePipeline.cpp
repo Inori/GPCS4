@@ -38,7 +38,7 @@ VkPipeline VltComputePipeline::getPipelineHandle(
 
 	do
 	{
-		std::lock_guard<Spinlock> lock(m_mutex);
+		std::lock_guard<sync::Spinlock> lock(m_mutex);
 
 		auto instance = findInstance(state);
 		if (instance)

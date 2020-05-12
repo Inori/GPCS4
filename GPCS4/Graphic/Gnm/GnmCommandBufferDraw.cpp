@@ -684,7 +684,7 @@ void GnmCommandBufferDraw::bindVertexBuffer(
 	info.usageType           = kShaderInputUsageImmVertexBuffer;
 	auto vertexBuffer        = m_factory.grabBuffer(info);
 
-	m_context->updateBuffer(vertexBuffer, 0, bufferSize, vtxData);
+	//m_context->updateBuffer(vertexBuffer, 0, bufferSize, vtxData);
 
 	uint32_t stride = vsharp->getStride();
 	m_context->bindVertexBuffer(attr.bindingId, 
@@ -721,7 +721,13 @@ void GnmCommandBufferDraw::bindImmBuffer(
 	auto dataBuffer          = m_factory.grabBuffer(info);
 
 	VkDeviceSize bufferSize = vsharp->getSize();
-	m_context->updateBuffer(dataBuffer, 0, bufferSize, vsharp->getBaseAddress());
+	
+	bool updated = false;
+	if (!updated)
+	{
+		m_context->updateBuffer(dataBuffer, 0, bufferSize, vsharp->getBaseAddress());
+		updated = true;
+	}
 
 	uint32_t regSlot = computeResBinding(shaderType, res.res.startRegister);
 	m_context->bindResourceBuffer(regSlot, dataBuffer);

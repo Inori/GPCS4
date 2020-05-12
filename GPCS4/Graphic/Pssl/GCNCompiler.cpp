@@ -353,7 +353,7 @@ void GCNCompiler::emitDclVertexInput()
 		{
 			SpirvRegisterInfo info(SpirvScalarType::Float32, inputSemantic.sizeInElements, 0, spv::StorageClassInput);
 			uint32_t          inputId = emitNewVariable(info,
-                                               UtilString::Format("inParam%d", inputSemantic.semantic));
+                                               str::format("inParam%d", inputSemantic.semantic));
 
 			// Use semantic index for location, so vulkan code need to match.
 			m_module.decorateLocation(inputId, inputSemantic.semantic);
@@ -393,7 +393,7 @@ void GCNCompiler::emitDclVertexOutput()
 			SpirvRegisterInfo info(SpirvScalarType::Float32, expInfo.regIndices.size(),
 								   0, spv::StorageClassOutput);
 			uint32_t          outputId = emitNewVariable(info,
-                                                UtilString::Format("outParam%d", outLocation));
+                                                str::format("outParam%d", outLocation));
 
 			m_module.decorateLocation(outputId, outLocation);
 
@@ -433,7 +433,7 @@ void GCNCompiler::emitEmuFetchShader()
 				SpirvRegisterInfo info(SpirvScalarType::Float32, 1,
 									   0, spv::StorageClassPrivate);
 				uint32_t          vgprId = emitNewVariable(info,
-                                                  UtilString::Format("v%d", vgprIdx));
+                                                  str::format("v%d", vgprIdx));
 
 				auto& input = m_vs.vsInputs[inputSemantic.semantic];
 
@@ -463,7 +463,7 @@ void GCNCompiler::emitDclPixelInput()
 		SpirvRegisterInfo info(SpirvScalarType::Float32, 4,
 							   0, spv::StorageClassInput);
 		uint32_t          inputId = emitNewVariable(info,
-                                           UtilString::Format("inParam%d", i));
+                                           str::format("inParam%d", i));
 
 		m_module.decorateLocation(inputId, i);
 
@@ -487,7 +487,7 @@ void GCNCompiler::emitDclPixelOutput()
 		SpirvRegisterInfo info(SpirvScalarType::Float32, componentCount,
 							   0, spv::StorageClassOutput);
 		uint32_t          outputId = emitNewVariable(info,
-                                            UtilString::Format("outParam%d", i));
+                                            str::format("outParam%d", i));
 
 		m_module.decorateLocation(outputId, i);
 
@@ -898,7 +898,7 @@ void GCNCompiler::emitDclImmSampler(const GcnShaderResourceInstance& res)
 	const uint32_t varId = m_module.newVar(samplerPtrType,
 										   spv::StorageClassUniformConstant);
 	m_module.setDebugName(varId,
-						  UtilString::Format("sampler%d", samplerId).c_str());
+						  str::format("sampler%d", samplerId).c_str());
 
 	m_module.decorateDescriptorSet(varId, 0);
 
@@ -983,7 +983,7 @@ void GCNCompiler::emitDclImmTexture(const GcnShaderResourceInstance& res)
 										   spv::StorageClassUniformConstant);
 
 	m_module.setDebugName(varId,
-						  UtilString::Format("texture%d", registerId).c_str());
+						  str::format("texture%d", registerId).c_str());
 
 	m_module.decorateDescriptorSet(varId, 0);
 
@@ -1494,7 +1494,7 @@ SpirvRegisterPointer pssl::GCNCompiler::emitGprCreate(
 
 	result.id = emitNewVariable(
 		{ result.type, spv::StorageClassPrivate },
-		UtilString::Format(fmtString, index));
+		str::format(fmtString, index));
 
 	if (initId.has_value())
 	{

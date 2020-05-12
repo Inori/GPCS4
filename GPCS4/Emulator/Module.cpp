@@ -270,7 +270,7 @@ bool NativeModule::decodeSymbol(std::string const &strEncName,
 		auto &nLibraryId = *libId;
 		auto &nNid       = *funcNid;
 
-		std::vector<std::string> vtNameParts = UtilString::Split(strEncName, '#');
+		std::vector<std::string> vtNameParts = str::split(strEncName, '#');
 		if (vtNameParts.empty())
 		{
 			break;
