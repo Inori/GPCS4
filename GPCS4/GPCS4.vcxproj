@@ -178,6 +178,7 @@
     <ClInclude Include="Loader\ModuleLoader.h" />
     <ClInclude Include="Platform\PlatformUtils.h" />
     <ClInclude Include="Platform\UtilDebug.h" />
+    <ClInclude Include="Platform\UtilException.h" />
     <ClInclude Include="Platform\UtilFile.h" />
     <ClInclude Include="Platform\UtilHardware.h" />
     <ClInclude Include="Platform\UtilMemory.h" />
@@ -385,6 +386,7 @@
     <ClCompile Include="Loader\FuncStub.cpp" />
     <ClCompile Include="Loader\ModuleLoader.cpp" />
     <ClCompile Include="Platform\UtilDebug.cpp" />
+    <ClCompile Include="Platform\UtilException.cpp" />
     <ClCompile Include="Platform\UtilFile.cpp" />
     <ClCompile Include="Platform\UtilHardware.cpp" />
     <ClCompile Include="Platform\UtilMemory.cpp" />
