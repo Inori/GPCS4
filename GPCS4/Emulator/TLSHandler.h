@@ -116,8 +116,8 @@ public:
 
 private:
 
-	static UtilException::EXCEPTION_ACTION exceptionHandler(
-		UtilException::EXCEPTION_INFORMATION* Info, void* Context);
+	static UtilException::ExceptionAction exceptionHandler(
+		UtilException::ExceptionRecord* record, void* param);
 
 	void* allocateTLS();
 	void freeTLS(void* tls);

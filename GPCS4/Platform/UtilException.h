@@ -7,14 +7,14 @@ namespace UtilException
 {;
 
 
-enum class EXCEPTION_ACTION
+enum class ExceptionAction
 {
 	CONTINUE_SEARCH    = 0,
 	CONTINUE_EXECUTION = -1
 };
 
 
-enum EXCEPTION_CODE
+enum ExceptionCode
 {
 	EXCEPTION_ACCESS_VIOLATION         = 0xC0000005L,
 	EXCEPTION_DATATYPE_MISALIGNMENT    = 0x80000002L,
@@ -47,7 +47,7 @@ enum EXCEPTION_CODE
  * Extend this struct as development needs.
  */
 
-struct EXCEPTION_CONTEXT
+struct ExceptionContext
 {
 	//
 	// Integer registers.
@@ -78,7 +78,7 @@ struct EXCEPTION_CONTEXT
 };
 
 
-enum EXCEPTION_ACCESS
+enum ExceptionAccess
 {
 	EXCEPTION_READ = 0,
 	EXCEPTION_WRITE = 1,
@@ -90,18 +90,18 @@ enum EXCEPTION_ACCESS
  *
  * For details, see EXCEPTION_RECORD from MSDN
  */
-struct EXCEPTION_META
+struct ExceptionInformation
 {
-	EXCEPTION_ACCESS Access;
-	uint64_t         VirtualAddress;
+	ExceptionAccess access;
+	uint64_t        virtualAddress;
 };
 
 
-struct EXCEPTION_INFORMATION
+struct ExceptionRecord
 {
-	EXCEPTION_CODE        Code;
-	EXCEPTION_CONTEXT     Context;
-	EXCEPTION_META        Meta;
+	ExceptionCode        code;
+	ExceptionContext     context;
+	ExceptionInformation info;
 };
 
 
@@ -110,18 +110,18 @@ struct EXCEPTION_INFORMATION
  *
  * return value is 
  */
-typedef EXCEPTION_ACTION (*EXCEPTION_CALLBACK)(EXCEPTION_INFORMATION* Info, void* Context);
+typedef ExceptionAction (*ExceptionCallback)(ExceptionRecord* record, void* param);
 
-struct EXCEPTION_HANDLER
+struct ExceptionHandler
 {
-	EXCEPTION_CALLBACK Callback;
-	void*              Context;
+	ExceptionCallback callback;
+	void*             param;
 };
 
 
-bool AddExceptionHandler(const EXCEPTION_HANDLER& Handler);
+bool addExceptionHandler(const ExceptionHandler& handler);
 
-bool RemoveExceptionHandler(const EXCEPTION_HANDLER& Handler);
+bool removeExceptionHandler(const ExceptionHandler& handler);
 
 
 	

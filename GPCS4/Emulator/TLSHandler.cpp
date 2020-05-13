@@ -18,18 +18,18 @@ TLSManager::~TLSManager()
 
 bool TLSManager::install()
 {
-	UtilException::EXCEPTION_HANDLER handler;
-	handler.Callback = &exceptionHandler;
-	handler.Context  = this;
-	return UtilException::AddExceptionHandler(handler);
+	UtilException::ExceptionHandler handler;
+	handler.callback = &exceptionHandler;
+	handler.param  = this;
+	return UtilException::addExceptionHandler(handler);
 }
 
 void TLSManager::uninstall()
 {
-	UtilException::EXCEPTION_HANDLER handler;
-	handler.Callback = &exceptionHandler;
-	handler.Context  = this;
-	UtilException::RemoveExceptionHandler(handler);
+	UtilException::ExceptionHandler handler;
+	handler.callback = &exceptionHandler;
+	handler.param  = this;
+	UtilException::removeExceptionHandler(handler);
 }
 
 void TLSManager::backupTLSImage(std::vector<uint8_t>& image, const TLSBlock& block)
@@ -128,15 +128,15 @@ void TLSManager::notifyThreadExit()
 	freeTLS(t_fsbase);
 }
 
-UtilException::EXCEPTION_ACTION TLSManager::exceptionHandler(
-	UtilException::EXCEPTION_INFORMATION* Info,
-	void*                                 Context)
+UtilException::ExceptionAction TLSManager::exceptionHandler(
+	UtilException::ExceptionRecord* record,
+	void*                           param)
 {
-	UtilException::EXCEPTION_ACTION action = UtilException::EXCEPTION_ACTION::CONTINUE_SEARCH;
-	TLSManager*                     pthis  = reinterpret_cast<TLSManager*>(Context);
+	UtilException::ExceptionAction action = UtilException::ExceptionAction::CONTINUE_SEARCH;
+	TLSManager*                    pthis  = reinterpret_cast<TLSManager*>(param);
 	do
 	{
-		void* excptAddr = reinterpret_cast<void*>(Info->Context.Rip);
+		void* excptAddr = reinterpret_cast<void*>(record->context.Rip);
 
 		if (!pthis || !excptAddr)
 		{
@@ -149,12 +149,12 @@ UtilException::EXCEPTION_ACTION TLSManager::exceptionHandler(
 		asmHelper.printInstruction(excptAddr);
 #endif  // GPCS4_DEBUG
 
-		if (Info->Code != UtilException::EXCEPTION_ACCESS_VIOLATION)
+		if (record->code != UtilException::EXCEPTION_ACCESS_VIOLATION)
 		{
 			break;
 		}
 
-		LOG_DEBUG("exception code %x addr %p", Info->Code, excptAddr);
+		LOG_DEBUG("exception code %x addr %p", record->code, excptAddr);
 
 		if (!asmHelper.isTlsAccess(excptAddr))
 		{
@@ -181,10 +181,10 @@ UtilException::EXCEPTION_ACTION TLSManager::exceptionHandler(
 		int64_t  fsOffset = 0;
 		asmHelper.getMovFsInfo(excptAddr, instLen, fsOffset);
 
-		Info->Context.Rip += instLen;
-		Info->Context.Rax = reinterpret_cast<uintptr_t>(pthis->readFSRegister(fsOffset));
+		record->context.Rip += instLen;
+		record->context.Rax = reinterpret_cast<uintptr_t>(pthis->readFSRegister(fsOffset));
 
-		action = UtilException::EXCEPTION_ACTION::CONTINUE_EXECUTION;
+		action = UtilException::ExceptionAction::CONTINUE_EXECUTION;
 	} while (false);
 	return action;
 }

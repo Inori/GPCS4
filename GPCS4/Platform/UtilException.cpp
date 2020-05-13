@@ -9,8 +9,8 @@
 namespace UtilException
 {;
 
-sync::Spinlock                 g_handlerMutex;
-std::vector<EXCEPTION_HANDLER> g_handlerArray;
+sync::Spinlock                g_handlerMutex;
+std::vector<ExceptionHandler> g_handlerArray;
 
 #ifdef GPCS4_WINDOWS
 
@@ -19,88 +19,88 @@ std::vector<EXCEPTION_HANDLER> g_handlerArray;
 static void* g_vehHandler = nullptr;
 
 
-void ConvertExceptionPtoI(EXCEPTION_INFORMATION& Out, PEXCEPTION_POINTERS In)
+void convertExceptionPtoR(ExceptionRecord& out, PEXCEPTION_POINTERS in)
 {
-	Out.Code = static_cast<EXCEPTION_CODE>(In->ExceptionRecord->ExceptionCode);
+	out.code = static_cast<ExceptionCode>(in->ExceptionRecord->ExceptionCode);
 	
-	Out.Context.Rax = In->ContextRecord->Rax;
-	Out.Context.Rcx = In->ContextRecord->Rcx;
-	Out.Context.Rdx = In->ContextRecord->Rdx;
-	Out.Context.Rbx = In->ContextRecord->Rbx;
-	Out.Context.Rsp = In->ContextRecord->Rsp;
-	Out.Context.Rbp = In->ContextRecord->Rbp;
-	Out.Context.Rsi = In->ContextRecord->Rsi;
-	Out.Context.Rdi = In->ContextRecord->Rdi;
-	Out.Context.R8  = In->ContextRecord->R8;
-	Out.Context.R9  = In->ContextRecord->R9;
-	Out.Context.R10 = In->ContextRecord->R10;
-	Out.Context.R11 = In->ContextRecord->R11;
-	Out.Context.R12 = In->ContextRecord->R12;
-	Out.Context.R13 = In->ContextRecord->R13;
-	Out.Context.R14 = In->ContextRecord->R14;
-	Out.Context.R15 = In->ContextRecord->R15;
+	out.context.Rax = in->ContextRecord->Rax;
+	out.context.Rcx = in->ContextRecord->Rcx;
+	out.context.Rdx = in->ContextRecord->Rdx;
+	out.context.Rbx = in->ContextRecord->Rbx;
+	out.context.Rsp = in->ContextRecord->Rsp;
+	out.context.Rbp = in->ContextRecord->Rbp;
+	out.context.Rsi = in->ContextRecord->Rsi;
+	out.context.Rdi = in->ContextRecord->Rdi;
+	out.context.R8  = in->ContextRecord->R8;
+	out.context.R9  = in->ContextRecord->R9;
+	out.context.R10 = in->ContextRecord->R10;
+	out.context.R11 = in->ContextRecord->R11;
+	out.context.R12 = in->ContextRecord->R12;
+	out.context.R13 = in->ContextRecord->R13;
+	out.context.R14 = in->ContextRecord->R14;
+	out.context.R15 = in->ContextRecord->R15;
 
-	Out.Context.Rip = In->ContextRecord->Rip;
+	out.context.Rip = in->ContextRecord->Rip;
 
-	if (In->ExceptionRecord->ExceptionCode == EXCEPTION_ACCESS_VIOLATION ||
-		In->ExceptionRecord->ExceptionCode == EXCEPTION_IN_PAGE_ERROR)
+	if (in->ExceptionRecord->ExceptionCode == EXCEPTION_ACCESS_VIOLATION ||
+		in->ExceptionRecord->ExceptionCode == EXCEPTION_IN_PAGE_ERROR)
 	{
-		Out.Meta.Access         = static_cast<EXCEPTION_ACCESS>(In->ExceptionRecord->ExceptionInformation[0]);
-		Out.Meta.VirtualAddress = In->ExceptionRecord->ExceptionInformation[1];
+		out.info.access         = static_cast<ExceptionAccess>(in->ExceptionRecord->ExceptionInformation[0]);
+		out.info.virtualAddress = in->ExceptionRecord->ExceptionInformation[1];
 	}
 }
 
-void ConvertExceptionItoP(PEXCEPTION_POINTERS Out, EXCEPTION_INFORMATION& In)
+void convertExceptionRtoP(PEXCEPTION_POINTERS out, ExceptionRecord& in)
 {
-	Out->ContextRecord->Rax = In.Context.Rax;
-	Out->ContextRecord->Rcx = In.Context.Rcx;
-	Out->ContextRecord->Rdx = In.Context.Rdx;
-	Out->ContextRecord->Rbx = In.Context.Rbx;
-	Out->ContextRecord->Rsp = In.Context.Rsp;
-	Out->ContextRecord->Rbp = In.Context.Rbp;
-	Out->ContextRecord->Rsi = In.Context.Rsi;
-	Out->ContextRecord->Rdi = In.Context.Rdi;
-	Out->ContextRecord->R8  = In.Context.R8;
-	Out->ContextRecord->R9  = In.Context.R9;
-	Out->ContextRecord->R10 = In.Context.R10;
-	Out->ContextRecord->R11 = In.Context.R11;
-	Out->ContextRecord->R12 = In.Context.R12;
-	Out->ContextRecord->R13 = In.Context.R13;
-	Out->ContextRecord->R14 = In.Context.R14;
-	Out->ContextRecord->R15 = In.Context.R15;
+	out->ContextRecord->Rax = in.context.Rax;
+	out->ContextRecord->Rcx = in.context.Rcx;
+	out->ContextRecord->Rdx = in.context.Rdx;
+	out->ContextRecord->Rbx = in.context.Rbx;
+	out->ContextRecord->Rsp = in.context.Rsp;
+	out->ContextRecord->Rbp = in.context.Rbp;
+	out->ContextRecord->Rsi = in.context.Rsi;
+	out->ContextRecord->Rdi = in.context.Rdi;
+	out->ContextRecord->R8  = in.context.R8;
+	out->ContextRecord->R9  = in.context.R9;
+	out->ContextRecord->R10 = in.context.R10;
+	out->ContextRecord->R11 = in.context.R11;
+	out->ContextRecord->R12 = in.context.R12;
+	out->ContextRecord->R13 = in.context.R13;
+	out->ContextRecord->R14 = in.context.R14;
+	out->ContextRecord->R15 = in.context.R15;
 
-	Out->ContextRecord->Rip = In.Context.Rip;
+	out->ContextRecord->Rip = in.context.Rip;
 }
 
 long __stdcall VEHExceptionHandler(void* exceptionArg)
 {
 	std::lock_guard lock(g_handlerMutex);
 
-	PEXCEPTION_POINTERS ExceptionPointers = (PEXCEPTION_POINTERS)exceptionArg;
-	EXCEPTION_ACTION    action;
+	PEXCEPTION_POINTERS exceptionPointers = (PEXCEPTION_POINTERS)exceptionArg;
+	ExceptionAction     action            = ExceptionAction::CONTINUE_SEARCH;
 
 	do 
 	{
-		EXCEPTION_INFORMATION ExceptionInfo = {};
-		ConvertExceptionPtoI(ExceptionInfo, ExceptionPointers);
+		ExceptionRecord exceptionRecord = {};
+		convertExceptionPtoR(exceptionRecord, exceptionPointers);
 
 		for (auto& handler : g_handlerArray)
 		{
-			action = handler.Callback(&ExceptionInfo, handler.Context);
-			if (action != EXCEPTION_ACTION::CONTINUE_SEARCH)
+			action = handler.callback(&exceptionRecord, handler.param);
+			if (action != ExceptionAction::CONTINUE_SEARCH)
 			{
 				break;
 			}
 		}
 
-		ConvertExceptionItoP(ExceptionPointers, ExceptionInfo);
+		convertExceptionRtoP(exceptionPointers, exceptionRecord);
 		
 	} while (false);
 
 	return static_cast<long>(action);
 }
 
-bool InstallVEH()
+bool installVEH()
 {
 	bool ret = false;
 	do
@@ -123,7 +123,7 @@ bool InstallVEH()
 	return ret;
 }
 
-void UninstallVEH()
+void uninstallVEH()
 {
 	if (g_vehHandler)
 	{
@@ -132,47 +132,47 @@ void UninstallVEH()
 	}
 }
 
-bool AddExceptionHandler(const EXCEPTION_HANDLER& Handler)
+bool addExceptionHandler(const ExceptionHandler& handler)
 {
 	std::lock_guard lock(g_handlerMutex);
 	bool            ret = false;
 	do 
 	{
-		if (!Handler.Callback)
+		if (!handler.callback)
 		{
 			break;
 		}
 
 		if (g_handlerArray.empty())
 		{
-			if (!InstallVEH())
+			if (!installVEH())
 			{
 				break;
 			}
 		}
 
-		g_handlerArray.emplace_back(Handler);
+		g_handlerArray.emplace_back(handler);
 
 		ret = true;
 	} while (false);
 	return ret;
 }
 
-bool RemoveExceptionHandler(const EXCEPTION_HANDLER& Handler)
+bool removeExceptionHandler(const ExceptionHandler& handler)
 {
 	std::lock_guard lock(g_handlerMutex);
 	bool            ret = false;
 	do
 	{
-		if (!Handler.Callback)
+		if (!handler.callback)
 		{
 			break;
 		}
 
-		auto equalHandler = [&Handler](const EXCEPTION_HANDLER& item) 
+		auto equalHandler = [&handler](const ExceptionHandler& item) 
 		{
-			return Handler.Callback == item.Callback &&
-				   Handler.Context == item.Context;
+			return handler.callback == item.callback &&
+				   handler.param == item.param;
 		};
 
 		auto iter = std::find_if(g_handlerArray.begin(), g_handlerArray.end(), equalHandler);
@@ -185,7 +185,7 @@ bool RemoveExceptionHandler(const EXCEPTION_HANDLER& Handler)
 
 		if (g_handlerArray.empty())
 		{
-			UninstallVEH();
+			uninstallVEH();
 		}
 
 		ret = true;
@@ -197,11 +197,11 @@ bool RemoveExceptionHandler(const EXCEPTION_HANDLER& Handler)
 
 #include <signal.h>
 
-void AddExceptionHandler(const EXCEPTION_HANDLER* Handler)
+void addExceptionHandler(const ExceptionHandler* Handler)
 {
 }
 
-void RemoveExceptionHandler(const EXCEPTION_HANDLER* Handler)
+void removeExceptionHandler(const ExceptionHandler* Handler)
 {
 }
 
