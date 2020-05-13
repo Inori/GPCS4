@@ -844,9 +844,6 @@
     <ClInclude Include="Graphic\Gnm\GnmContextState.h">
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GnmResourceFactory.h">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClInclude>
     <ClInclude Include="Graphic\Violet\VltBuffer.h">
       <Filter>Source Files\Graphic\Violet</Filter>
     </ClInclude>
@@ -957,6 +954,9 @@
     </ClInclude>
     <ClInclude Include="Platform\UtilException.h">
       <Filter>Source Files\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GnmMemoryMonitor.h">
+      <Filter>Source Files\Graphic\Gnm</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1575,9 +1575,6 @@
     <ClCompile Include="Graphic\Gnm\GpuAddress\GnmTiler.cpp">
       <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
     </ClCompile>
-    <ClCompile Include="Graphic\Gnm\GnmResourceFactory.cpp">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClCompile>
     <ClCompile Include="Graphic\Violet\VltBuffer.cpp">
       <Filter>Source Files\Graphic\Violet</Filter>
     </ClCompile>
@@ -1664,6 +1661,9 @@
     </ClCompile>
     <ClCompile Include="Platform\UtilException.cpp">
       <Filter>Source Files\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gnm\GnmMemoryMonitor.cpp">
+      <Filter>Source Files\Graphic\Gnm</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
