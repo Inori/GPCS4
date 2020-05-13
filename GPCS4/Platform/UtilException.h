@@ -119,9 +119,9 @@ struct EXCEPTION_HANDLER
 };
 
 
-void AddExceptionHandler(const EXCEPTION_HANDLER& Handler);
+bool AddExceptionHandler(const EXCEPTION_HANDLER& Handler);
 
-void RemoveExceptionHandler(const EXCEPTION_HANDLER& Handler);
+bool RemoveExceptionHandler(const EXCEPTION_HANDLER& Handler);
 
 
 	

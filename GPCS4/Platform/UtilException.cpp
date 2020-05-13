@@ -132,9 +132,10 @@ void UninstallVEH()
 	}
 }
 
-void AddExceptionHandler(const EXCEPTION_HANDLER& Handler)
+bool AddExceptionHandler(const EXCEPTION_HANDLER& Handler)
 {
 	std::lock_guard lock(g_handlerMutex);
+	bool            ret = false;
 	do 
 	{
 		if (!Handler.Callback)
@@ -144,18 +145,23 @@ void AddExceptionHandler(const EXCEPTION_HANDLER& Handler)
 
 		if (g_handlerArray.empty())
 		{
-			InstallVEH();
+			if (!InstallVEH())
+			{
+				break;
+			}
 		}
 
 		g_handlerArray.emplace_back(Handler);
 
+		ret = true;
 	} while (false);
+	return ret;
 }
 
-void RemoveExceptionHandler(const EXCEPTION_HANDLER& Handler)
+bool RemoveExceptionHandler(const EXCEPTION_HANDLER& Handler)
 {
 	std::lock_guard lock(g_handlerMutex);
-
+	bool            ret = false;
 	do
 	{
 		if (!Handler.Callback)
@@ -182,7 +188,9 @@ void RemoveExceptionHandler(const EXCEPTION_HANDLER& Handler)
 			UninstallVEH();
 		}
 
+		ret = true;
 	} while (false);
+	return ret;
 }
 
 #else
