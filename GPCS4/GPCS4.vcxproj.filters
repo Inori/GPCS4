@@ -955,6 +955,9 @@
     <ClInclude Include="Platform\UtilException.h">
       <Filter>Source Files\Platform</Filter>
     </ClInclude>
+    <ClInclude Include="Util\SortedList.h">
+      <Filter>Source Files\Util</Filter>
+    </ClInclude>
     <ClInclude Include="Graphic\Gnm\GnmMemoryMonitor.h">
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClInclude>

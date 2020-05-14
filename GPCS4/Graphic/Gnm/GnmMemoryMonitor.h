@@ -11,6 +11,3 @@ struct GnmMemoryRange
 	void* start;
 	void* end;
 };
-
-
-class 
