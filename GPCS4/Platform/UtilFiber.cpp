@@ -17,7 +17,7 @@ struct FiberStruct
 };
 
 
-void FiberFunc(void* arg)
+static void FiberFunc(void* arg)
 {
 	auto fs = static_cast<FiberStruct*>(arg);
 	fs->fiber->entry(fs->fiber->argOnInitialize, fs->argOnRun);

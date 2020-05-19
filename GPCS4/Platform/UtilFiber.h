@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SceModules/SceFiber/sce_fiber.h"
+#include <cstdint>
 
 struct SceFiber;
 
