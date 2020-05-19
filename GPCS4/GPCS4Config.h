@@ -14,15 +14,15 @@
 
 
 // Windows compile
-#define GPCS4_WINDOWS 1
+#define GPCS4_WINDOWS
 
 
 // Linux compile
-// #define GPCS4_LINUX 1
+// #define GPCS4_LINUX
 
  
 // Graphics switch
 // Define this will turn off graphics output,
 // useful when developing non-graphics parts of GPCS4
-// #define GPCS4_NO_GRAPHICS 1
+// #define GPCS4_NO_GRAPHICS
 

@@ -16,7 +16,7 @@
 /// Local:
 #include "ParserSISOPC.h"
 
-SOPCInstruction::SSRC ParserSISOPC::GetSSRC(Instruction::instruction32bit hexInstruction, unsigned int&, unsigned int idxSSRC)
+SOPCInstruction::SSRC ParserSISOPC::GetSSRC(Instruction::instruction32bit hexInstruction, unsigned int& ridx, unsigned int idxSSRC)
 {
     SOPCInstruction::SSRC ssrc = (SOPCInstruction::SSRC)0;
 
@@ -42,13 +42,14 @@ SOPCInstruction::SSRC ParserSISOPC::GetSSRC(Instruction::instruction32bit hexIns
     { \
         return SOPCInstruction::SSRC##FIELD; \
     }
-    //GENERIC_INSTRUCTION_FIELDS_1(ssrc, ridx);
+    GENERIC_INSTRUCTION_FIELDS_1(ssrc, ridx);
 #undef X
 #undef X_RANGE
 
-#define X_RANGE(FIELD_MIN,FIELD_MAX,FIELD,IN)\
+#define X_RANGE(FIELD_MIN, FIELD_MAX, FIELD, IN, VAL)\
     if ((IN >= SOPCInstruction::SSRC##FIELD_MIN) && (IN <= SOPCInstruction::SSRC##FIELD_MAX)) \
     { \
+        VAL = IN; \
         return SOPCInstruction::SSRC##FIELD; \
     }
 #define X(FIELD,IN) \
@@ -56,8 +57,8 @@ SOPCInstruction::SSRC ParserSISOPC::GetSSRC(Instruction::instruction32bit hexIns
     { \
         return SOPCInstruction::SSRC##FIELD; \
     }
-    SCALAR_INSTRUCTION_FIELDS(ssrc);
-    GENERIC_INSTRUCTION_FIELDS_2(ssrc);
+	SCALAR_INSTRUCTION_FIELDS(ssrc, ridx);
+	GENERIC_INSTRUCTION_FIELDS_2(ssrc, ridx);
 #undef X
 #undef X_RANGE
     return SOPCInstruction::SSRCIllegal;
@@ -91,6 +92,11 @@ VISOPCInstruction::OP ParserSISOPC::GetVISOPCOp(Instruction::instruction32bit he
     }
 }
 
+const GCNInstructionFormat& ParserSISOPC::GetSISOPCMeta(SISOPCInstruction::OP op)
+{
+	return g_instructionFormatMapSOPC[op];
+}
+
 ParserSI::kaStatus ParserSISOPC::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, std::unique_ptr<Instruction>& instruction, bool& hasLiteral)
 {
     unsigned int ridx0 = 0, ridx1 = 0;
@@ -102,7 +108,8 @@ ParserSI::kaStatus ParserSISOPC::Parse(GDT_HW_GENERATION hwGen, Instruction::ins
     if ((hwGen == GDT_HW_GENERATION_SEAISLAND) || (hwGen == GDT_HW_GENERATION_SOUTHERNISLAND))
     {
         SISOPCInstruction::OP op = GetSISOPCOp(hexInstruction);
-        instruction = std::make_unique<SISOPCInstruction>(ssrc0, ssrc1, op, ridx0, ridx1);
+		auto meta = GetSISOPCMeta(op);
+		instruction = std::make_unique<SISOPCInstruction>(ssrc0, ssrc1, op, ridx0, ridx1, meta.insClass, meta.operandType);
     }
     else
     {

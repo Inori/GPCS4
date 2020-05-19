@@ -32,6 +32,13 @@ int PS4API sceNpCheckNpAvailability(void)
 }
 
 
+int PS4API sceNpCheckNpAvailabilityA(void)
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
 int PS4API sceNpCheckPlus(void)
 {
 	LOG_FIXME("Not implemented");

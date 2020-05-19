@@ -9,6 +9,7 @@
 static const SCE_EXPORT_FUNCTION g_pSceNpScore_libSceNpScore_FunctionTable[] =
 {
 	{ 0x2A7340D53120B412, "sceNpScoreCreateNpTitleCtx", (void*)sceNpScoreCreateNpTitleCtx },
+	{ 0x1969d640d5d91f93, "sceNpScoreCreateNpTitleCtxA", (void*)sceNpScoreCreateNpTitleCtxA },
 	{ 0x816F2ACA362B51B9, "sceNpScoreCreateRequest", (void*)sceNpScoreCreateRequest },
 	{ 0x1B4A44F91342C1F9, "sceNpScoreDeleteNpTitleCtx", (void*)sceNpScoreDeleteNpTitleCtx },
 	{ 0x74AF3F4A061FEABE, "sceNpScoreDeleteRequest", (void*)sceNpScoreDeleteRequest },

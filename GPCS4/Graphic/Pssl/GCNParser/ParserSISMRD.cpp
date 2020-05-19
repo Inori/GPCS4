@@ -18,7 +18,7 @@
 #include "ParserSISMRD.h"
 
 
-char ParserSISMRD::GetOffset(Instruction::instruction32bit hexInstruction)
+unsigned char ParserSISMRD::GetOffset(Instruction::instruction32bit hexInstruction)
 {
     EXTRACT_INSTRUCTION32_FIELD(hexInstruction, SI, SMRD, offset, OFFSET, 0);
     RETURN_EXTRACT_INSTRUCTION(offset);

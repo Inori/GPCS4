@@ -79,12 +79,12 @@ VkShaderStageFlagBits PsslProgramInfo::shaderStage() const
 {
 	switch (m_type) 
 	{
-		case PixelShader: return VK_SHADER_STAGE_FRAGMENT_BIT;
-		case VertexShader: return VK_SHADER_STAGE_VERTEX_BIT;
-		case GeometryShader: return VK_SHADER_STAGE_GEOMETRY_BIT;
-		case HullShader: return VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
-		case DomainShader: return VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
-		case ComputeShader: return VK_SHADER_STAGE_COMPUTE_BIT;
+		case PsslProgramType::PixelShader: return VK_SHADER_STAGE_FRAGMENT_BIT;
+		case PsslProgramType::VertexShader: return VK_SHADER_STAGE_VERTEX_BIT;
+		case PsslProgramType::GeometryShader: return VK_SHADER_STAGE_GEOMETRY_BIT;
+		case PsslProgramType::HullShader: return VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
+		case PsslProgramType::DomainShader: return VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
+		case PsslProgramType::ComputeShader: return VK_SHADER_STAGE_COMPUTE_BIT;
 	}
 }
 
@@ -92,12 +92,12 @@ spv::ExecutionModel PsslProgramInfo::executionModel() const
 {
 	switch (m_type) 
 	{
-		case PixelShader: return spv::ExecutionModelFragment;
-		case VertexShader: return spv::ExecutionModelVertex;
-		case GeometryShader: return spv::ExecutionModelGeometry;
-		case HullShader: return spv::ExecutionModelTessellationControl;
-		case DomainShader: return spv::ExecutionModelTessellationEvaluation;
-		case ComputeShader: return spv::ExecutionModelGLCompute;
+		case PsslProgramType::PixelShader: return spv::ExecutionModelFragment;
+		case PsslProgramType::VertexShader: return spv::ExecutionModelVertex;
+		case PsslProgramType::GeometryShader: return spv::ExecutionModelGeometry;
+		case PsslProgramType::HullShader: return spv::ExecutionModelTessellationControl;
+		case PsslProgramType::DomainShader: return spv::ExecutionModelTessellationEvaluation;
+		case PsslProgramType::ComputeShader: return spv::ExecutionModelGLCompute;
 	}
 }
 
@@ -143,26 +143,26 @@ bool PsslProgramInfo::initBinaryInfo(const uint8_t* code)
 
 bool PsslProgramInfo::initShaderType()
 {
-	m_type = ShaderTypeCount;
+	m_type = PsslProgramType::ShaderTypeCount;
 	switch (m_shaderBinaryInfo.type)
 	{
 	case kShaderTypePs:
-		m_type = PixelShader;
+		m_type = PsslProgramType::PixelShader;
 		break;
 	case kShaderTypeVsVs:
-		m_type = VertexShader;
+		m_type = PsslProgramType::VertexShader;
 		break;
 	case kShaderTypeCs:
-		m_type = ComputeShader;
+		m_type = PsslProgramType::ComputeShader;
 		break;
 	case kShaderTypeGs:
-		m_type = GeometryShader;
+		m_type = PsslProgramType::GeometryShader;
 		break;
 	case kShaderTypeHs:
-		m_type = HullShader;
+		m_type = PsslProgramType::HullShader;
 		break;
 	case kShaderTypeDsVs:
-		m_type = DomainShader;
+		m_type = PsslProgramType::DomainShader;
 		break;
 	case kShaderTypeVsEs:
 	case kShaderTypeVsLs:
@@ -172,7 +172,7 @@ bool PsslProgramInfo::initShaderType()
 		LOG_ERR("Error shader type %d", m_shaderBinaryInfo.type);
 		break;
 	}
-	return (m_type != ShaderTypeCount);
+	return (m_type != PsslProgramType::ShaderTypeCount);
 }
 
 uint32_t getFetchShaderStartRegister(const PsslProgramInfo& progInfo)

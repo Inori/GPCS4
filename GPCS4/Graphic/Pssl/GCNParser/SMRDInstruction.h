@@ -28,7 +28,7 @@ public:
 #undef X_INIT
 #undef X
 
-    typedef char OFFSET;
+    typedef unsigned char  OFFSET;
     typedef bool IMM;
     typedef unsigned char SBASE;
 private:

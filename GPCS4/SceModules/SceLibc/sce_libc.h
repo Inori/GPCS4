@@ -144,9 +144,9 @@ float PS4API scec_expf(float x);
 
 int PS4API scec_fclose(FILE *stream);
 
-int PS4API scec_feof(void);
+int PS4API scec_feof(FILE * stream);
 
-int PS4API scec_fgetc(void);
+int PS4API scec_fgetc(FILE* stream);
 
 int PS4API scec_fmod(void);
 
@@ -161,6 +161,8 @@ int PS4API scec_fputc(int c, FILE *stream);
 int PS4API scec_fputs(void);
 
 size_t PS4API scec_fread(void *ptr, size_t size, size_t nmemb, FILE *stream);
+
+int PS4API scec_fgetpos(FILE* stream, fpos_t* pos);
 
 void PS4API scec_free(void *ptr);
 
@@ -342,13 +344,13 @@ int PS4API scec__ZSt11_Xbad_allocv(void);
 
 int PS4API scec__ZSt7nothrow(void);
 
-int PS4API scec_ferror(void);
+int PS4API scec_ferror(FILE* stream);
 
 int PS4API scec_fflush(void);
 
-int PS4API scec_fgets(void);
+char* PS4API scec_fgets(char* str, int num, FILE * stream);
 
-int PS4API scec_freopen(void);
+FILE* PS4API scec_freopen(const char * filename, const char * mode, FILE * stream);
 
 int PS4API scec_getc(void);
 

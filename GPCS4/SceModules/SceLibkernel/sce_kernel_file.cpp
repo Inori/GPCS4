@@ -117,10 +117,24 @@ int PS4API sceKernelOpen(const char *path, int flags, SceKernelMode mode)
 	}
 	else
 	{
-		LOG_ASSERT((flags == SCE_KERNEL_O_RDONLY), "not supported flag.");
-		LOG_ASSERT((mode == SCE_KERNEL_S_IRU) || ((mode == SCE_KERNEL_S_INONE) && ((flags & SCE_KERNEL_O_CREAT) == 0)), "not supported mode.");
+		LOG_ASSERT((flags == SCE_KERNEL_O_RDONLY || flags & SCE_KERNEL_O_TRUNC), "not supported flag.");
+		LOG_ASSERT((mode == SCE_KERNEL_S_IRU) || ((mode == SCE_KERNEL_S_INONE) && ((flags & SCE_KERNEL_O_CREAT) == 0)) || ((mode == SCE_KERNEL_S_IRWU) && ((flags & SCE_KERNEL_O_TRUNC))), "not supported mode.");
 
-		int fd = _open(pcPath.c_str(), _O_RDONLY | _O_BINARY, _S_IREAD);
+		int oflag;
+		int pmode;
+		
+		if (flags & SCE_KERNEL_O_TRUNC) 
+		{
+			oflag = _O_CREAT | _O_TRUNC | _O_BINARY;
+			pmode = _S_IREAD | _S_IWRITE;
+		}
+		else 
+		{
+			oflag = _O_RDONLY | _O_BINARY;
+			pmode = _S_IREAD;
+		}
+
+		int fd = _open(pcPath.c_str(), oflag, pmode);
 		if (fd == -1)
 		{
 			LOG_WARN("open file failed %s", path);
@@ -210,6 +224,29 @@ inline sce_mode_t getSceFileMode(uint16_t oldMode)
 		sceMode |= SCE_KERNEL_S_IFDIR;
 	}
 	return sceMode;
+}
+
+
+int PS4API scek_fstat(int fd, SceKernelStat *sb)
+{
+	LOG_SCE_TRACE("fd %d sb %p", fd, sb);
+
+	struct stat stat;
+	int ret = fstat(fd, &stat);
+	sb->st_mode = getSceFileMode(stat.st_mode);
+	sb->st_size = stat.st_size;
+	if (stat.st_mode & _S_IFMT & _S_IFDIR)
+	{
+		// TODO
+		sb->st_blocks = 0; // UtilPath::FileCountInDirectory(pcPath);
+		sb->st_blksize = sizeof(SceKernelDirent);
+	}
+	else
+	{
+		sb->st_blocks = stat.st_size / SSD_BLOCK_SIZE + (stat.st_size % SSD_BLOCK_SIZE) ? 1 : 0;
+		sb->st_blksize = SSD_BLOCK_SIZE;
+	}
+	return ret;
 }
 
 
@@ -400,15 +437,15 @@ int PS4API sceKernelUnlink(void)
 
 int PS4API scek__open(const char* path, int flags, SceKernelMode mode)
 {
-	LOG_DEBUG("'%s', 0x%x, 0x%x)", path, flags, mode);
+	LOG_SCE_TRACE("'%s', 0x%x, 0x%x", path, flags, mode);
 	int fd = _open(path, flags, mode);
 	return fd;
 }
 
 int PS4API scek_shm_open(const char *name, int oflag, SceKernelMode mode)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("'%s', 0x%x, 0x%x", name, oflag, mode);
+	return -1;
 }
 
 
@@ -419,4 +456,13 @@ int PS4API scek_shm_unlink(const char *name)
 }
 
 
-
+ssize_t PS4API sceKernelPread(int d, void* buf, size_t nbytes, off_t offset) 
+{
+	LOG_SCE_TRACE("fd %d, buf %p, nbytes %lu, offset %d", d, buf, nbytes, offset);
+	// The read/write position pointer for the file will not move
+	auto off = _lseek(d, 0, SEEK_CUR);
+	_lseek(d, offset, SEEK_SET);
+	auto ret = _read(d, buf, nbytes);
+	_lseek(d, off, SEEK_SET);
+	return ret;
+}

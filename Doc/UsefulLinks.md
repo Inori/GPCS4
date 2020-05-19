@@ -48,6 +48,12 @@ https://cpp-rendering.io/barriers-vulkan-not-difficult/
 Leveraging asynchronous queues for concurrent execution  
 https://gpuopen.com/concurrent-execution-asynchronous-queues/
 
+Synchronization Examples  
+https://github.com/KhronosGroup/Vulkan-Docs/wiki/Synchronization-Examples
+
+Official HLSL to SPIR-V Feature Mapping Manual  
+https://github.com/Microsoft/DirectXShaderCompiler/blob/master/docs/SPIR-V.rst
+
 
 
 

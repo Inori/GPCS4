@@ -1,12 +1,12 @@
 #pragma once
 
 #include "GnmCommon.h"
-#include "GnmRegInfo.h"
 #include "GnmConstant.h"
+#include "GnmRegInfo.h"
+#include "GnmStructure.h"
+#include "GpuAddress/GnmGpuAddress.h"
 
-
-union DepthRenderTargetInitFlags
-{
+union DepthRenderTargetInitFlags {
 	struct
 	{
 		uint32_t enableHtileAcceleration : 1;
@@ -16,25 +16,46 @@ union DepthRenderTargetInitFlags
 	int32_t asInt;
 };
 
-class DepthRenderTarget
+class GnmDepthRenderTarget
 {
 public:
 	enum
 	{
-		kDbZInfo = 0,
-		kDbStencilInfo = 1,
-		kDbZReadBase = 2,
-		kDbStencilReadBase = 3,
-		kDbZWriteBase = 4,
+		kDbZInfo            = 0,
+		kDbStencilInfo      = 1,
+		kDbZReadBase        = 2,
+		kDbStencilReadBase  = 3,
+		kDbZWriteBase       = 4,
 		kDbStencilWriteBase = 5,
-		kDbDepthSize = 6,
-		kDbDepthSlice = 7,
-		kDbDepthView = 8,
-		kDbHtileDataBase = 9,
-		kDbHtileSurface = 10,
-		kDbDepthInfo = 11,
+		kDbDepthSize        = 6,
+		kDbDepthSlice       = 7,
+		kDbDepthView        = 8,
+		kDbHtileDataBase    = 9,
+		kDbHtileSurface     = 10,
+		kDbDepthInfo        = 11,
 		kNumDbRegisters
 	};
+
+	GnmDepthRenderTarget& operator=(const GnmDepthRenderTarget& other)
+	{
+		std::memcpy(m_regs, other.m_regs, sizeof(m_regs));
+		return *this;
+	}
+
+	SizeAlign getZSizeAlign(void) const
+	{
+		// TODO:
+		SizeAlign sizeAlign = {};
+		return sizeAlign;
+	}
+
+	SizeAlign getStencilSizeAlign(void) const
+	{
+	}
+
+	SizeAlign getHtileSizeAlign(void) const
+	{
+	}
 
 	uint32_t getPitchDiv8Minus1() const
 	{
@@ -73,7 +94,7 @@ public:
 
 	NumFragments getNumFragments() const
 	{
-		return (NumFragments)SCE_GNM_GET_FIELD(m_regs[kDbZInfo], DB_Z_INFO, NUM_SAMPLES); // See illuminating comment in setNumFragments()
+		return (NumFragments)SCE_GNM_GET_FIELD(m_regs[kDbZInfo], DB_Z_INFO, NUM_SAMPLES);  // See illuminating comment in setNumFragments()
 	}
 
 	GpuMode getMinimumGpuMode(void) const
@@ -86,19 +107,46 @@ public:
 		return SCE_GNM_GET_FIELD(m_regs[kDbHtileDataBase], DB_HTILE_DATA_BASE, BASE_256B);
 	}
 
-	void *getHtileAddress() const
+	void* getHtileAddress() const
 	{
-		return (void *)(uintptr_t(getHtileAddress256ByteBlocks()) << 8);
+		return (void*)(uintptr_t(getHtileAddress256ByteBlocks()) << 8);
 	}
 
 	uint32_t getZReadAddress256ByteBlocks() const
 	{
-		// TODO:
+		// From IDA.
+		uint32_t base     = SCE_GNM_GET_FIELD(m_regs[kDbZReadBase], DB_Z_READ_BASE, BASE_256B);
+		ZFormat  zfmt     = (ZFormat)SCE_GNM_GET_FIELD(m_regs[kDbZInfo], DB_Z_INFO, FORMAT);
+		TileMode tileMode = (TileMode)SCE_GNM_GET_FIELD(m_regs[kDbZInfo], DB_Z_INFO, TILE_MODE_INDEX);
+
+		if (zfmt && GpuAddress::isMacroTiled(tileMode))
+		{
+			DataFormat dataFormat     = DataFormat::build(zfmt);
+			uint32_t   bitsPerElement = dataFormat.getTotalBitsPerElement();
+			uint32_t   numSamples     = 1 << SCE_GNM_GET_FIELD(m_regs[kDbZInfo], DB_Z_INFO, NUM_SAMPLES);
+
+			NumBanks numBanks = {};
+			uint32_t shift    = 0;
+
+			PipeConfig pipeConfig = (PipeConfig)SCE_GNM_GET_FIELD(m_regs[kDbDepthInfo], DB_DEPTH_INFO, PIPE_CONFIG);
+			if (pipeConfig == kPipeConfigP16)
+			{
+				GpuAddress::getAltNumBanks(&numBanks, tileMode, bitsPerElement, numSamples);
+				shift = 4;
+			}
+			else
+			{
+				GpuAddress::getNumBanks(&numBanks, tileMode, bitsPerElement, numSamples);
+				shift = 3;
+			}
+			base &= ~(((1 << (numBanks + 1)) - 1) << shift);
+		}
+		return base;
 	}
 
-	void *getZReadAddress() const
+	void* getZReadAddress() const
 	{
-		return (void *)(uintptr_t(getZReadAddress256ByteBlocks()) << 8);
+		return (void*)(uintptr_t(getZReadAddress256ByteBlocks()) << 8);
 	}
 
 	uint32_t getStencilReadAddress256ByteBlocks() const
@@ -106,9 +154,9 @@ public:
 		// TODO:
 	}
 
-	void *getStencilReadAddress() const
+	void* getStencilReadAddress() const
 	{
-		return (void *)(uintptr_t(getStencilReadAddress256ByteBlocks()) << 8);
+		return (void*)(uintptr_t(getStencilReadAddress256ByteBlocks()) << 8);
 	}
 
 	uint32_t m_regs[13];

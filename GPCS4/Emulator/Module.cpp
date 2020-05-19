@@ -1,5 +1,5 @@
 #include "Module.h"
-#include "Platform/PlatformUtils.h"
+#include "UtilString.h"
 #include "Emulator/SceModuleSystem.h"
 
 #include <spdlog/fmt/fmt.h>
@@ -270,7 +270,7 @@ bool NativeModule::decodeSymbol(std::string const &strEncName,
 		auto &nLibraryId = *libId;
 		auto &nNid       = *funcNid;
 
-		std::vector<std::string> vtNameParts = UtilString::Split(strEncName, '#');
+		std::vector<std::string> vtNameParts = str::split(strEncName, '#');
 		if (vtNameParts.empty())
 		{
 			break;
@@ -331,6 +331,11 @@ int NativeModule::initialize()
 		retVal    = init(0, 0, nullptr);
 
 		LOG_DEBUG("(%s) .init_proc() end. result = 0x%x", fileName.c_str(), retVal);
+
+#ifdef GPCS4_DEBUG
+		retVal = 0; // Ignore initializing modules on debug build
+#endif // GPCS4_DEBUG
+
 	}
 
 	return retVal;

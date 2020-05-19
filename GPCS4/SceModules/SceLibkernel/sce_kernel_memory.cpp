@@ -104,6 +104,14 @@ int PS4API sceKernelMunmap(void)
 }
 
 
+int PS4API sceKernelMlock(const void *addr, size_t len)
+{
+	LOG_SCE_DUMMY_IMPL();
+	LOG_DEBUG("addr %p len %zd", addr, len);
+	return SCE_OK;
+}
+
+
 int PS4API sceKernelQueryMemoryProtection(void* addr, void** start, void** end, uint32_t* prot)
 {
 	LOG_SCE_TRACE("%p", addr);
@@ -177,4 +185,12 @@ int PS4API sceKernelIsAddressSanitizerEnabled(void)
 {
 	LOG_FIXME("Not implemented");
 	return 0;
+}
+
+
+void* PS4API scek_mmap(void* start, size_t length, uint32_t prot, uint32_t flags, int fd, int64_t offset) 
+{
+	auto addr = UtilMemory::VMMap(start, length, prot, flags, fd, offset);
+	LOG_SCE_TRACE("%p, 0x%lx, 0x%x, 0x%x, %d, %ld = %p", start, length, prot, flags, fd, offset, addr);
+	return addr;
 }

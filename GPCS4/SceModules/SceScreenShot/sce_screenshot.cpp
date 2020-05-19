@@ -25,5 +25,12 @@ int PS4API sceScreenShotEnable(void)
 }
 
 
+int PS4API sceScreenShotSetOverlayImageWithOrigin( void )
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
 
 

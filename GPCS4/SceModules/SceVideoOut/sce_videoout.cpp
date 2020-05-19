@@ -36,16 +36,7 @@ int PS4API sceVideoOutClose(int32_t handle)
 	int ret = -1;
 	do 
 	{
-		std::shared_ptr<sce::SceVideoOut> videoOut = getVideoOut(handle);
-		if (videoOut)
-		{
-			videoOut.reset();
-		}
-		std::shared_ptr<sce::SceGnmDriver> gnmDriver = getGnmDriver(handle);
-		if (gnmDriver)
-		{
-			gnmDriver.reset();
-		}
+
 		// clear
 		GfxContext gfxCtx = { nullptr };
 		setGfxContext(handle, gfxCtx);
@@ -62,13 +53,14 @@ int PS4API sceVideoOutGetResolutionStatus(int32_t handle, SceVideoOutResolutionS
 
 	std::shared_ptr<sce::SceVideoOut> videoOut = getVideoOut(handle);
 
-	status->fullWidth = videoOut->width();
-	status->fullHeight = videoOut->height();
-	status->paneWidth = videoOut->width();
-	status->paneHeight = videoOut->height();
-	status->refreshRate = SCE_VIDEO_OUT_REFRESH_RATE_59_94HZ;
+	auto sizeInfo            = videoOut->getSize();
+	status->fullWidth        = sizeInfo.windowWidth;
+	status->fullHeight       = sizeInfo.windowHeight;
+	status->paneWidth        = sizeInfo.windowWidth;
+	status->paneHeight       = sizeInfo.windowHeight;
+	status->refreshRate      = SCE_VIDEO_OUT_REFRESH_RATE_59_94HZ;
 	status->screenSizeInInch = 32;
-	status->flags = SCE_VIDEO_OUT_RESOLUTION_STATUS_FLAGS_OUTPUT_IN_USE;
+	status->flags            = SCE_VIDEO_OUT_RESOLUTION_STATUS_FLAGS_OUTPUT_IN_USE;
 	return SCE_OK;
 }
 
@@ -135,12 +127,12 @@ int PS4API sceVideoOutRegisterBuffers(int32_t handle, int32_t startIndex, void *
 		}
 
 		// Maybe need more params, such as attribute...
-		if (!videoOut->registerBuffers(startIndex, bufferNum))
+		if (!videoOut->registerDisplayrBuffers(startIndex, addresses, bufferNum, attribute))
 		{
 			break;
 		}
 		
-		if (!gnmDriver->initDriver(bufferNum))
+		if (!gnmDriver->createGraphicsQueue(bufferNum))
 		{
 			break;
 		}
@@ -167,12 +159,12 @@ int PS4API sceVideoOutRegisterStereoBuffers(int32_t handle, int32_t startIndex, 
 		}
 
 		// Maybe need more params, such as attribute...
-		if (!videoOut->registerBuffers(startIndex, bufferNum))
+		if (!videoOut->registerDisplayrBuffers(startIndex, nullptr, bufferNum, attribute))
 		{
 			break;
 		}
 		
-		if (!gnmDriver->initDriver(bufferNum))
+		if (!gnmDriver->createGraphicsQueue(bufferNum))
 		{
 			break;
 		}
@@ -274,6 +266,13 @@ int PS4API sceVideoOutSubmitFlip(void)
 
 
 int PS4API sceVideoOutWaitVblank(void)
+{
+	LOG_SCE_GRAPHIC("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceVideoOutGetVblankStatus( void )
 {
 	LOG_SCE_GRAPHIC("Not implemented");
 	return SCE_OK;

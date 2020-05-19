@@ -39,5 +39,19 @@ int PS4API sceSaveDataDialogUpdateStatus(void)
 }
 
 
+int PS4API sceSaveDataDialogGetResult( void )
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
+int PS4API sceSaveDataDialogProgressBarSetValue( void )
+{
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+}
+
+
 
 

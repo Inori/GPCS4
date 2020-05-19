@@ -1,7 +1,7 @@
 #pragma once
 #include "pthreads4w/pthread.h"
 #include "pthreads4w/sched.h"
-
+#include "pthreads4w/semaphore.h"
 
 // pthread to sce pthread
 // Note:
@@ -28,7 +28,7 @@ typedef enum ScePthreadMutextype
 	SCE_PTHREAD_MUTEX_ERRORCHECK = 1,
 	SCE_PTHREAD_MUTEX_RECURSIVE = 2,
 	SCE_PTHREAD_MUTEX_NORMAL = 3,	
-	SCE_PTHREAD_MUTEX_ADAPTIVE = 4,
+	SCE_PTHREAD_MUTEX_ADAPTIVE_NP = 4,
 	SCE_PTHREAD_MUTEX_TYPE_MAX
 } ScePthreadMutextype;
 
@@ -39,7 +39,8 @@ typedef enum ScePthreadMutextype
 #define SCE_PTHREAD_PRIO_PROTECT        2
 
 
-typedef enum ScePthreadRwlocktype {
+typedef enum ScePthreadRwlocktype 
+{
 	SCE_PTHREAD_RWLOCK_NORMAL = 1,
 	SCE_PTHREAD_RWLOCK_PREFER_READER = 2,
 	SCE_PTHREAD_RWLOCK_TYPE_MAX
@@ -64,7 +65,8 @@ typedef uint64_t	SceKernelCpumask;
 #define SCE_PTHREAD_INHERIT_SCHED       0x4
 
 
-struct sce_sched_param {
+struct sce_sched_param 
+{
 	int     sched_priority;
 };
 

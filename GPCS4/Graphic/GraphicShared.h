@@ -54,13 +54,13 @@ inline GfxContext* getGfxContext(int videoHandle)
 	return ctx;
 }
 
-inline std::shared_ptr<sce::SceVideoOut> getVideoOut(int videoHandle)
+inline std::shared_ptr<sce::SceVideoOut> getVideoOut(int videoHandle = SCE_VIDEO_HANDLE_MAIN)
 {
 	GfxContext* ctx = getGfxContext(videoHandle);
 	return ctx ? ctx->videoOut : NULL;
 }
 
-inline std::shared_ptr<sce::SceGnmDriver> getGnmDriver(int videoHandle)
+inline std::shared_ptr<sce::SceGnmDriver> getGnmDriver(int videoHandle = SCE_VIDEO_HANDLE_MAIN)
 {
 	GfxContext* ctx = getGfxContext(videoHandle);
 	return ctx ? ctx->gnmDriver : NULL;

@@ -29,8 +29,8 @@ struct VSharpBuffer
 	uint32_t dst_sel_z : 3;
 	uint32_t dst_sel_w : 3;
 
-	uint32_t nfmt			: 3;  // numeric data type (float, int, бн)
-	uint32_t dfmt			: 4;  // # of fields, size of each field. Note: dfmt=0 (invalid) is a special case that will disable buffer access via vector memory ops.
+	uint32_t nfmt			: 3;  // TextureChannelType
+	uint32_t dfmt			: 4;  // SurfaceFormat. Note: dfmt=0 (invalid) is a special case that will disable buffer access via vector memory ops.
 	uint32_t element_size	: 2;  // 2, 4, 8, or 16 bytes. Used for swizzled buffer addressing
 	uint32_t index_stride	: 2;  // 8, 16, 32, or 64. Used for swizzled buffer addressing
 	uint32_t addtid_en		: 1;  // add thread id to the index for addr calc

@@ -1,4 +1,9 @@
 #include "SceVideoOut.h"
+#include "SceGnmDriver.h"
+
+#include "../GraphicShared.h"
+#include "../Violet/VltInstance.h"
+#include "../../SceModules/SceVideoOut/sce_videoout_types.h"
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -25,18 +30,9 @@ SceVideoOut::SceVideoOut(uint32_t width, uint32_t height):
 
 SceVideoOut::~SceVideoOut()
 {
+	destroySurface();
 	glfwDestroyWindow(m_window);
 	glfwTerminate();
-}
-
-uint32_t SceVideoOut::width()
-{
-	return m_width;
-}
-
-uint32_t SceVideoOut::height()
-{
-	return m_height;
 }
 
 GLFWwindow* SceVideoOut::getWindowHandle()
@@ -44,30 +40,23 @@ GLFWwindow* SceVideoOut::getWindowHandle()
 	return m_window;
 }
 
-void SceVideoOut::getWindowSize(uint32_t& width, uint32_t& height)
+VkSurfaceKHR SceVideoOut::getWindowSurface(VkInstance instance)
 {
-	glfwGetWindowSize(m_window, (int*)&width, (int*)&height);
-}
-
-void SceVideoOut::getFramebufferSize(uint32_t& width, uint32_t& height)
-{
-	glfwGetFramebufferSize(m_window, (int*)&width, (int*)&height);
-}
-
-VkSurfaceKHR SceVideoOut::createSurface(VkInstance instance)
-{
+	// TODO:
+	// Add VltInstance as a constructor parameter and save it
 	if (m_windowSurface == VK_NULL_HANDLE)
 	{
-		glfwCreateWindowSurface(instance, m_window, nullptr, &m_windowSurface);
+		m_instance = instance;
+		glfwCreateWindowSurface(m_instance, m_window, nullptr, &m_windowSurface);
 	}
 	return m_windowSurface;
 }
 
-void SceVideoOut::destroySurface(VkInstance instance)
+void SceVideoOut::destroySurface()
 {
-	if (m_windowSurface)
+	if (m_windowSurface && m_instance)
 	{
-		vkDestroySurfaceKHR(instance, m_windowSurface, nullptr);
+		vkDestroySurfaceKHR(m_instance, m_windowSurface, nullptr);
 		m_windowSurface = VK_NULL_HANDLE;
 	}
 }
@@ -82,15 +71,56 @@ std::vector<const char*> SceVideoOut::getExtensions()
 	return extensions;
 }
 
-bool SceVideoOut::registerBuffers(uint32_t startIndex, uint32_t bufferNum)
+SceVideoOutSizeInfo SceVideoOut::getSize()
+{
+	SceVideoOutSizeInfo result = {};
+
+	glfwGetWindowSize(m_window, (int*)&result.windowWidth, (int*)&result.windowHeight);
+	glfwGetFramebufferSize(m_window, (int*)&result.frameWidth, (int*)&result.frameHeight);
+
+	return result;
+}
+
+bool SceVideoOut::registerDisplayrBuffers(
+	uint32_t                          startIndex,
+	void* const*                      addresses,
+	uint32_t                          bufferNum,
+	const SceVideoOutBufferAttribute* attribute)
 {
 	bool bRet = false;
 	do
 	{
-		
-		bRet  = true;
-	}while(false);
+		if (!addresses || !bufferNum)
+		{
+			break;
+		}
+
+		SceDisplayBuffer buffer = {};
+		buffer.format           = attribute->pixelFormat;
+		buffer.tile             = attribute->tilingMode;
+		buffer.width            = attribute->width;
+		buffer.height           = attribute->height;
+		buffer.size             = calculateBufferSize(attribute);
+
+		for (uint32_t i = 0; i != bufferNum; ++i)
+		{
+			buffer.address = addresses[i];
+			m_displayBuffers.emplace_back(buffer);
+		}
+
+		bRet = true;
+	} while (false);
 	return bRet;
+}
+
+uint32_t SceVideoOut::numDisplayBuffer()
+{
+	return m_displayBuffers.size();
+}
+
+sce::SceDisplayBuffer SceVideoOut::getDisplayBuffer(uint32_t index)
+{
+	return m_displayBuffers[index];
 }
 
 void SceVideoOut::setFlipRate(uint32_t rate)
@@ -120,6 +150,16 @@ void SceVideoOut::framebufferResizeCallback(GLFWwindow* window, int width, int h
 {
 	auto videoOut = reinterpret_cast<SceVideoOut*>(glfwGetWindowUserPointer(window));
 	videoOut->m_framebufferResized = true;
+}
+
+uint32_t SceVideoOut::calculateBufferSize(const SceVideoOutBufferAttribute* attribute)
+{
+	// TODO:
+	// Implement size
+
+	// Note: 
+	// The returned size must be equal with GnmRenderTarget::getColorSizeAlign
+	return 0;  
 }
 
 } // sce

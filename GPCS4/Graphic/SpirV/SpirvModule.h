@@ -250,10 +250,6 @@ namespace pssl {
     
     uint32_t defFloatType(
             uint32_t                width);
-
-	uint32_t defFloatPointerType(
-			uint32_t				width, 
-			spv::StorageClass		storageClass);
     
     uint32_t defVectorType(
             uint32_t                elementType,
@@ -542,6 +538,14 @@ namespace pssl {
     uint32_t opConvertUtoF(
             uint32_t                resultType,
             uint32_t                operand);
+
+	uint32_t opSatConvertSToU(
+			uint32_t				resultType,
+		    uint32_t				operand);
+
+	uint32_t opSatConvertUToS(
+	    	uint32_t				resultType,
+			uint32_t				operand);
     
     uint32_t opCompositeConstruct(
             uint32_t                resultType,

@@ -5,9 +5,10 @@ LOG_CHANNEL(SceModules.SceLibc.file);
 
 FILE* PS4API scec_fopen(const char *pathname, const char *mode)
 {
-	LOG_SCE_TRACE("fname %s mode %s", pathname, mode);
 	auto pcPath = UtilPath::PS4PathToPCPath(pathname);
-	return fopen(pcPath.c_str(), mode);
+	FILE* fp = fopen(pcPath.c_str(), mode);
+	LOG_SCE_TRACE("(fname '%s' mode '%s') = %p", pathname, mode, fp);
+	return fp;
 }
 
 int PS4API scec_fseek(FILE *stream, long offset, int whence)
@@ -21,6 +22,12 @@ size_t PS4API scec_fread(void *ptr, size_t size, size_t nmemb, FILE *stream)
 {
 	LOG_SCE_TRACE("fp %p size %zu", stream, size * nmemb);
 	return fread(ptr, size, nmemb, stream);
+}
+
+int PS4API scec_fgetpos( FILE* stream, fpos_t* pos )
+{
+	LOG_SCE_TRACE("fp %p pos %p", stream, pos);
+	return fgetpos(stream, pos);
 }
 
 
@@ -42,21 +49,31 @@ long PS4API scec_ftell(FILE *stream)
 int PS4API scec_fclose(FILE *stream)
 {
 	LOG_SCE_TRACE("fp %p", stream);
-	return fclose(stream);
+	int ret = 0;
+	do
+	{
+		if (stream == nullptr)
+		{
+			break;
+		}
+
+		ret = fclose(stream);
+	} while (false);
+	return ret;
 }
 
 
-int PS4API scec_feof(void)
+int PS4API scec_feof(FILE * stream)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("fp %p", stream);
+	return feof(stream);
 }
 
 
-int PS4API scec_fgetc(void)
+int PS4API scec_fgetc(FILE * stream)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("fp %p", stream);
+	return fgetc(stream);
 }
 
 
@@ -85,17 +102,15 @@ int PS4API scec_fputs(void)
 
 int PS4API scec_setvbuf(FILE *stream, char *buf, int mode, size_t size)
 {
-	//LOG_SCE_TRACE("file %p buff %p mode %x size %x", stream, buf, mode, size);
-	//return setvbuf(stream, buf, mode, size);
-	LOG_SCE_DUMMY_IMPL();
-	return 0;
+	LOG_SCE_TRACE("file %p buff %p mode %x size %x", stream, buf, mode, size);
+	return setvbuf(stream, buf, mode, size);
 }
 
 
-int PS4API scec_ferror(void)
+int PS4API scec_ferror(FILE* stream)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("fp %p", stream);
+	return ferror(stream);
 }
 
 
@@ -106,15 +121,14 @@ int PS4API scec_fflush(void)
 }
 
 
-int PS4API scec_fgets(void)
+char* PS4API scec_fgets(char * str, int num, FILE * stream)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	return fgets(str, num, stream);
 }
 
 
-int PS4API scec_freopen(void)
+FILE* PS4API scec_freopen(const char * filename, const char * mode, FILE * stream)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("filename %s, mode %s, fp %p", filename, mode, stream );
+	return freopen(filename, mode, stream);
 }

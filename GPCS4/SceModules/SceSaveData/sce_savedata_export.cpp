@@ -12,6 +12,7 @@ static const SCE_EXPORT_FUNCTION g_pSceSaveData_libSceSaveData_FunctionTable[] =
 	{ 0x7722219D7ABFD123, "sceSaveDataDirNameSearch", (void*)sceSaveDataDirNameSearch },
 	{ 0x5E0BD2B88767325C, "sceSaveDataGetParam", (void*)sceSaveDataGetParam },
 	{ 0x4F2C2B14A0A82C66, "sceSaveDataInitialize3", (void*)sceSaveDataInitialize3 },
+	{ 0xdf61d0010770336a, "sceSaveDataMount", (void*)sceSaveDataMount },
 	{ 0xD33E393C81FE48D2, "sceSaveDataMount2", (void*)sceSaveDataMount2 },
 	{ 0x73CF18CB9E0CC74C, "sceSaveDataSaveIcon", (void*)sceSaveDataSaveIcon },
 	{ 0xF39CEE97FFDE197B, "sceSaveDataSetParam", (void*)sceSaveDataSetParam },
@@ -26,6 +27,7 @@ static const SCE_EXPORT_FUNCTION g_pSceSaveData_libSceSaveData_FunctionTable[] =
 	{ 0x664661B2408F5C5C, "sceSaveDataInitialize", (void*)sceSaveDataInitialize },
 	{ 0x8776144735C64954, "sceSaveDataSetSaveDataMemory", (void*)sceSaveDataSetSaveDataMemory },
 	{ 0xBFB00000CA342F3E, "sceSaveDataSetupSaveDataMemory", (void*)sceSaveDataSetupSaveDataMemory },
+	{ 0xDF61D0010770336A, "sceSaveDataMount", (void*)sceSaveDataMount},
 	SCE_FUNCTION_ENTRY_END
 };
 

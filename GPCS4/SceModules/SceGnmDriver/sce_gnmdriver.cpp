@@ -1,5 +1,8 @@
 #include "sce_gnmdriver.h"
 
+#include "../Graphic/GraphicShared.h"
+#include "../Graphic/Sce/SceGnmDriver.h"
+
 
 // Note:
 // The codebase is generated using GenerateCode.py
@@ -183,10 +186,11 @@ int PS4API sceGnmLogicalCuMaskToPhysicalCuMask(void)
 }
 
 
-int PS4API sceGnmDingDong(uint32_t vqueueId, uint32_t nextStartOffsetInDw)
+void PS4API sceGnmDingDong(uint32_t vqueueId, uint32_t nextStartOffsetInDw)
 {
-	LOG_SCE_GRAPHIC("Not implemented");
-	return SCE_OK;
+	LOG_SCE_GRAPHIC("vqueueId %d nextStartOffsetInDw %d", vqueueId, nextStartOffsetInDw);
+	auto gnmDriver = getGnmDriver();
+	gnmDriver->dingDong(vqueueId, nextStartOffsetInDw);
 }
 
 
@@ -197,54 +201,26 @@ int PS4API sceGnmDingDongForWorkload(void)
 }
 
 
-// Note:
-// it seems that nier:automata use an old version of this function
-// and it has 5 params and the vqueueId is the return value.
-
-//int PS4API sceGnmMapComputeQueue(uint32_t *vqueueId, 
-//	uint32_t globalPipeId, uint32_t queueId, 
-//	void *ringBaseAddr, uint32_t ringSizeInDW, void *readPtrAddr)
-
-int PS4API sceGnmMapComputeQueue(uint32_t globalPipeId, uint32_t queueId,
-	void *ringBaseAddr, uint32_t ringSizeInDW, void *readPtrAddr)
+int PS4API sceGnmMapComputeQueue(uint32_t globalPipeId, uint32_t queueId, void* ringBaseAddr, uint32_t ringSizeInDW, void* readPtrAddr)
 {
-	LOG_SCE_GRAPHIC("");
-	int vqueueId = 0;
-	do 
-	{
-		if (globalPipeId >= 7)
-		{
-			break;
-		}
+	LOG_SCE_GRAPHIC("pipeId %d queueId %d ringBase %p ringSizeDW %d readPtr %p",
+		globalPipeId, queueId, ringBaseAddr, ringSizeInDW, readPtrAddr);
 
-		if (queueId >= 8)
-		{
-			break;
-		}
-
-		if ((uintptr_t)ringBaseAddr % 256 != 0)
-		{
-			break;
-		}
-
-		if ((uintptr_t)readPtrAddr % 4 != 0)
-		{
-			break;
-		}
-
-		*(sce_off_t*)readPtrAddr = 0;
-
-		vqueueId = 0x567;
-	} while (false);
-
-	return vqueueId;
+	auto gnmDriver = getGnmDriver();
+	return gnmDriver->mapComputeQueue(
+		globalPipeId,
+		queueId,
+		ringBaseAddr,
+		ringSizeInDW,
+		readPtrAddr);
 }
 
 
-int PS4API sceGnmUnmapComputeQueue(void)
+void PS4API sceGnmUnmapComputeQueue(uint32_t vqueueId)
 {
-	LOG_SCE_GRAPHIC("Not implemented");
-	return SCE_OK;
+	LOG_SCE_GRAPHIC("vqueueId %d", vqueueId);
+	auto gnmDriver = getGnmDriver();
+	gnmDriver->unmapComputeQueue(vqueueId);
 }
 
 

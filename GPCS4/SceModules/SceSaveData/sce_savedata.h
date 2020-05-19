@@ -64,6 +64,9 @@ int PS4API sceSaveDataDirNameSearch(void);
 int PS4API sceSaveDataGetParam(void);
 
 
+int PS4API sceSaveDataMount(void);
+
+
 int PS4API sceSaveDataMount2(void);
 
 
@@ -79,6 +82,6 @@ int PS4API sceSaveDataSetParam(void);
 int PS4API sceSaveDataGetEventResult(void);
 
 
-
+int PS4API sceSaveDataMount(void);
 
 

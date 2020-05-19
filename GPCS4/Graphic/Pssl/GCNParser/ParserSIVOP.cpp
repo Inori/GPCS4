@@ -34,9 +34,10 @@ VOPInstruction::SRC ParserSIVOP::GetSRC(Instruction::instruction64bit hexInstruc
 #undef X
 #undef X_RANGE
 
-#define X_RANGE(FIELD_MIN,FIELD_MAX,FIELD,IN)\
+#define X_RANGE(FIELD_MIN, FIELD_MAX, FIELD, IN, VAL)\
     if ((IN >= VOPInstruction::SRC##FIELD_MIN) && (IN <= VOPInstruction::SRC##FIELD_MAX)) \
     { \
+        VAL = IN; \
         return VOPInstruction::SRC##FIELD; \
     }
 #define X(FIELD,IN) \
@@ -44,8 +45,8 @@ VOPInstruction::SRC ParserSIVOP::GetSRC(Instruction::instruction64bit hexInstruc
     { \
         return VOPInstruction::SRC##FIELD; \
     }
-	SCALAR_INSTRUCTION_FIELDS(src);
-	GENERIC_INSTRUCTION_FIELDS_2(src);
+	SCALAR_INSTRUCTION_FIELDS(src, ridx);
+	GENERIC_INSTRUCTION_FIELDS_2(src, ridx);
 #undef X
 #undef X_RANGE
 

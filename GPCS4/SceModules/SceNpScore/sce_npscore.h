@@ -28,6 +28,9 @@ extern const SCE_EXPORT_MODULE g_ExpModuleSceNpScore;
 int PS4API sceNpScoreCreateNpTitleCtx(void);
 
 
+int PS4API sceNpScoreCreateNpTitleCtxA(void);
+
+
 int PS4API sceNpScoreCreateRequest(void);
 
 

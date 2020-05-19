@@ -1,5 +1,6 @@
 #include "ModuleLoader.h"
 
+#include "UtilString.h"
 #include "Platform/PlatformUtils.h"
 
 LOG_CHANNEL(Loader.ModuleLoader);
@@ -11,6 +12,7 @@ const std::set<std::string> ModuleLoader::m_moduleInitBlackList =
 	ADD_BLACK_MODULE("libSceNpScoreRanking"),
 	ADD_BLACK_MODULE("libSceAppContent"),
 	ADD_BLACK_MODULE("libSceDipsw"),
+	ADD_BLACK_MODULE("libSceAudioIn"),
 };
 
 ModuleLoader::ModuleLoader(CSceModuleSystem &modSystem,
@@ -238,7 +240,7 @@ bool ModuleLoader::mapModuleNameToFilePath(std::string const &modName,
 			break;
 		}
 
-		auto outName = UtilString::Format("lib\\%s.sprx", fileName.c_str());
+		auto outName = str::format("lib\\%s.sprx", fileName.c_str());
 
 		*path  = std::move(outName);
 		retVal = true;

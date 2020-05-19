@@ -1,6 +1,6 @@
 #include "UtilMemory.h"
 #include "sce_errors.h"
-
+#include "UtilMath.h"
 #include <vector>
 #include <algorithm>
 
@@ -93,6 +93,43 @@ inline uint32_t GetTypeFlag(uint32_t nOldFlag)
 	return nNewFlag;
 }
 
+void* VMMapAligned(size_t nSize, uint32_t nProtectFlag, int align)
+{
+#ifdef GPCS4_DEBUG
+	// This make it easier to find a function a Ida Pro.
+	// When aligned with debugAlign, the loaded image address
+	// is exactly the same as it in Ida Pro.
+	// For example, without this debug align,
+	// a function address may be 0x00000002b0240e21,
+	// but with this align, you can search for sub_240e21
+	// in Ida directly.
+	const uint32_t debugAlign = 0x10000000;
+	align = debugAlign;
+#endif
+
+	void* pAlignedAddr = nullptr;
+	void* pAddr        = nullptr;
+	do
+	{
+		pAddr             = VirtualAlloc(nullptr, nSize, MEM_RESERVE | MEM_COMMIT, GetProtectFlag(nProtectFlag));
+		uintptr_t refAddr = util::align((uintptr_t)pAddr, align);
+
+		do
+		{
+			pAlignedAddr = VirtualAlloc((void*)refAddr, nSize, MEM_RESERVE | MEM_COMMIT, GetProtectFlag(nProtectFlag));
+			refAddr += align;
+		} while (pAlignedAddr == nullptr);
+
+	} while (false);
+
+	if (pAddr)
+	{
+		VirtualFree(pAddr, nSize, MEM_RELEASE);
+	}
+
+	return pAlignedAddr;
+}
+
 void* VMMapFlexible(void *addrIn, size_t nSize, uint32_t nProtectFlag)
 {
 	void* pAddr = NULL;
@@ -102,8 +139,8 @@ void* VMMapFlexible(void *addrIn, size_t nSize, uint32_t nProtectFlag)
 
 		MemoryRange range 
 		{ 
-			reinterpret_cast<uintptr_t>(pAddr), 
-			reinterpret_cast<uintptr_t>(pAddr)  + nSize, 
+			reinterpret_cast<uintptr_t>(pAddr),
+			reinterpret_cast<uintptr_t>(pAddr) + nSize, 
 			nProtectFlag 
 		};
 
@@ -146,6 +183,11 @@ void* VMMapDirect(size_t nSize, uint32_t nProtectFlag, uint32_t nType)
 void* VMAllocateDirect() 
 {
 	return (void*)g_baseDirectMemory;
+}
+
+void* VMMap(void* start, size_t nSize, uint32_t nProtectFlag, uint32_t flags, int fd, int64_t offset)
+{
+	return VirtualAlloc(nullptr, nSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 }
 
 void VMUnMap(void* pAddr, size_t nSize)

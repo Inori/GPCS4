@@ -14,10 +14,10 @@ void GCNCompiler::emitExp(GCNInstruction& ins)
 	auto shaderType = m_programInfo.shaderType();
 	switch (shaderType)
 	{
-	case pssl::VertexShader:
+	case pssl::PsslProgramType::VertexShader:
 		emitExpVS(ins);
 		break;
-	case pssl::PixelShader:
+	case pssl::PsslProgramType::PixelShader:
 		emitExpPS(ins);
 		break;
 	default:
@@ -40,8 +40,9 @@ SpirvRegisterValue GCNCompiler::emitExpSrcLoadCompr(GCNInstruction& ins)
 			continue;
 		}
 
-		uint32_t regIdx = inst->GetVSRC(i);
-		auto v2fpValue  = emitUnpackFloat16(emitVgprLoad(regIdx));
+		uint32_t regIdx    = inst->GetVSRC(i);
+		auto v2fpValue = emitUnpackFloat16(
+            emitGprLoad<SpirvGprType::Vector>(regIdx, SpirvScalarType::Uint32));
 		components.push_back(v2fpValue);
 	}
 
@@ -177,8 +178,9 @@ void GCNCompiler::emitExpPS(GCNInstruction& ins)
 	}
 	else
 	{
-		// same as "discard"
+		// discard
 		m_module.opKill();
+		m_insideBlock = false;
 	}
 }
 

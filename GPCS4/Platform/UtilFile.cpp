@@ -14,7 +14,7 @@ bool LoadFile(const std::string& strFilename, std::vector<uint8_t>& vtData)
 			break;
 		}
 
-		std::ifstream fin(strFilename, std::ofstream::in | std::ofstream::ate | std::ofstream::binary);
+		std::ifstream fin(strFilename, std::ifstream::in | std::ifstream::ate | std::ifstream::binary);
 		if (!fin.is_open())
 		{
 			break;
@@ -50,7 +50,7 @@ bool StoreFile(const std::string& strFilename, const void* pBuffer, uint32_t nSi
 			break;
 		}
 
-		std::ofstream fout(strFilename, std::ofstream::out | std::ofstream::binary);
+		std::ofstream fout(strFilename, std::ofstream::out | std::ofstream::binary | std::ofstream::trunc);
 		if (!fout.is_open())
 		{
 			break;

@@ -186,6 +186,7 @@ static const SCE_EXPORT_FUNCTION g_pSceLibc_libc_FunctionTable[] =
 	{ 0x0C31C6D5AEBEDEAD, "roundf", (void*)scec_roundf },
 	{ 0x5CA45E82C1691299, "catchReturnFromMain", (void*)scec___catchReturnFromMain },
 	{ 0xD97E5A8058CAC4C7, "calloc", (void*)scec_calloc },
+	{ 0x48796DEC484EB6A0, "fgetpos", (void*)scec_fgetpos },
 	SCE_FUNCTION_ENTRY_END
 };
 
