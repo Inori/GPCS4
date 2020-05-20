@@ -272,9 +272,15 @@ int PS4API sceVideoOutWaitVblank(void)
 }
 
 
-int PS4API sceVideoOutGetVblankStatus( void )
+int PS4API sceVideoOutGetVblankStatus(int32_t handle, SceVideoOutVblankStatus *status)
 {
-	LOG_SCE_GRAPHIC("Not implemented");
+	LOG_SCE_GRAPHIC("Dummy Implementation");
+
+	static uint64_t sCount = 1;
+
+	*status = {};
+	status->count = sCount++;
+
 	return SCE_OK;
 }
 

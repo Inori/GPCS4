@@ -42,6 +42,18 @@ struct SceVideoOutFlipStatus
 	uint32_t _reserved1;
 };
 
+
+struct SceVideoOutVblankStatus 
+{
+	uint64_t count;
+	uint64_t processTime;
+	uint64_t tsc;
+	uint64_t _reserved[1];
+	uint8_t flags;
+	uint8_t pad1[7];
+};
+
+
 struct SceVideoOutStereoBuffers 
 {
 	void *left;
