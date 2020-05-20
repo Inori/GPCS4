@@ -955,10 +955,13 @@
     <ClInclude Include="Platform\UtilException.h">
       <Filter>Source Files\Platform</Filter>
     </ClInclude>
-    <ClInclude Include="Util\SortedList.h">
-      <Filter>Source Files\Util</Filter>
-    </ClInclude>
     <ClInclude Include="Graphic\Gnm\GnmMemoryMonitor.h">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GnmResourceMemory.h">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GnmBufferCache.h">
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1666,6 +1669,12 @@
       <Filter>Source Files\Platform</Filter>
     </ClCompile>
     <ClCompile Include="Graphic\Gnm\GnmMemoryMonitor.cpp">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gnm\GnmResourceMemory.cpp">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gnm\GnmBufferCache.cpp">
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClCompile>
   </ItemGroup>

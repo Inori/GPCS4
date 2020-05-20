@@ -29,8 +29,10 @@
     <ClInclude Include="Emulator\ModuleManger.h" />
     <ClInclude Include="Emulator\PolicyManager.h" />
     <ClInclude Include="Emulator\SymbolManager.h" />
+    <ClInclude Include="Graphic\Gnm\GnmBufferCache.h" />
     <ClInclude Include="Graphic\Gnm\GnmContextState.h" />
     <ClInclude Include="Graphic\Gnm\GnmMemoryMonitor.h" />
+    <ClInclude Include="Graphic\Gnm\GnmResourceMemory.h" />
     <ClInclude Include="Graphic\Gnm\GnmShaderMeta.h" />
     <ClInclude Include="Graphic\Gnm\GpuAddress\GnmDataFormatCodec.h" />
     <ClInclude Include="Graphic\Gnm\GpuAddress\GnmFloatPoint.h" />
@@ -266,7 +268,6 @@
     <ClInclude Include="SceModules\sce_modules.h" />
     <ClInclude Include="SceModules\sce_module_common.h" />
     <ClInclude Include="SceModules\sce_types.h" />
-    <ClInclude Include="Util\SortedList.h" />
     <ClInclude Include="Util\UtilBit.h" />
     <ClInclude Include="Util\UtilContainer.h" />
     <ClInclude Include="Util\UtilFlag.h" />
@@ -294,6 +295,7 @@
     <ClCompile Include="Emulator\SymbolManager.cpp" />
     <ClCompile Include="Emulator\TLSHandler.cpp" />
     <ClCompile Include="GPCS4Main.cpp" />
+    <ClCompile Include="Graphic\Gnm\GnmBufferCache.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmCmdStream.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmCommandBuffer.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmCommandBufferDispatch.cpp" />
@@ -303,6 +305,7 @@
     <ClCompile Include="Graphic\Gnm\GnmDataFormat.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmMemoryMonitor.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmOpCode.cpp" />
+    <ClCompile Include="Graphic\Gnm\GnmResourceMemory.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmShaderMeta.cpp" />
     <ClCompile Include="Graphic\Gnm\GpuAddress\GnmDataFormatCodec.cpp" />
     <ClCompile Include="Graphic\Gnm\GpuAddress\GnmFloatPoint.cpp" />
