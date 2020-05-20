@@ -57,6 +57,8 @@ public:
 	SceKeyboard();
 	virtual ~SceKeyboard();
 
+	virtual void init();
+
 	virtual int read(ScePadData* data, int32_t num) override;
 
 	virtual int readState(ScePadData* data) override;

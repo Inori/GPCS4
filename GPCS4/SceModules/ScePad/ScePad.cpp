@@ -60,13 +60,23 @@ int SceGamepad::setVibration(int32_t handle, const ScePadVibrationParam* pParam)
 
 SceKeyboard::SceKeyboard()
 {
-	auto videoOut = getVideoOut(SCE_VIDEO_HANDLE_MAIN);
-	m_window      = videoOut->getWindowHandle();
+	init();
 }
 
 SceKeyboard::~SceKeyboard()
 {
 }
+
+
+void SceKeyboard::init() 
+{
+	auto videoOut = getVideoOut(SCE_VIDEO_HANDLE_MAIN);
+	if (videoOut != nullptr)
+	{
+		m_window = videoOut->getWindowHandle();
+	}
+}
+
 
 int SceKeyboard::read(ScePadData* data, int32_t num)
 {
@@ -74,6 +84,12 @@ int SceKeyboard::read(ScePadData* data, int32_t num)
 	// function, but it is not implemented and pops illegal instruction.
 	// I just make a dummy implemention for it in order to continue running.
 	LOG_SCE_DUMMY_IMPL();
+
+	if (m_window == nullptr) 
+	{
+		init();
+	}
+
 	*data = {};
 	data->connected = true;
 
@@ -85,6 +101,11 @@ int SceKeyboard::readState(ScePadData* data)
 {
 	// TODO:
 	// Just quick and dirty implement currently. :)
+
+	if (m_window == nullptr) 
+	{
+		init();
+	}
 
 	uint32_t buttons = 0;
 	if (glfwGetKey(m_window, GLFW_KEY_T) == GLFW_PRESS)
