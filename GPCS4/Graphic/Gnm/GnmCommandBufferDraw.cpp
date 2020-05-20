@@ -684,7 +684,7 @@ void GnmCommandBufferDraw::bindVertexBuffer(
 	info.usageType           = kShaderInputUsageImmVertexBuffer;
 	auto vertexBuffer        = m_factory.grabBuffer(info);
 
-	//m_context->updateBuffer(vertexBuffer, 0, bufferSize, vtxData);
+	m_context->updateBuffer(vertexBuffer, 0, bufferSize, vtxData);
 
 	uint32_t stride = vsharp->getStride();
 	m_context->bindVertexBuffer(attr.bindingId, 
