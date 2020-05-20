@@ -29,6 +29,7 @@ extern const SCE_EXPORT_MODULE g_ExpModuleSceLibc;
 
 typedef void(*pfunc_cxa_exit_handler)(void*);
 typedef void(*pfunc_exit_handler)(void);
+typedef int jmp_buf[18];
 
 
 //////////////////////////////////////////////////////////////////////////

@@ -33,6 +33,8 @@ extern const SCE_EXPORT_MODULE g_ExpModuleSceAudioOut;
 #define SCE_AUDIO_OUT_PARAM_FORMAT_SHIFT 0
 
 #define SCE_AUDIO_OUT_ERROR_TRANS_EVENT -2144993262
+#define SCE_AUDIO_OUT_ERROR_INVALID_PORT -2144993277
+
 //////////////////////////////////////////////////////////////////////////
 // library: libSceAudioOut
 //////////////////////////////////////////////////////////////////////////
@@ -52,7 +54,7 @@ int32_t PS4API sceAudioOutOpen(SceUserServiceUserId userId, int32_t type, int32_
 int32_t PS4API sceAudioOutOutput(int32_t handle, const void *p);
 
 
-int PS4API sceAudioOutOutputs(void);
+int PS4API sceAudioOutOutputs(SceAudioOutOutputParam *param, uint32_t num);
 
 
 int PS4API sceAudioOutSetVolume(void);

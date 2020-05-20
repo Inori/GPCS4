@@ -116,8 +116,9 @@ int PS4API scec_catchReturnFromMain(void)
 
 int PS4API scec_setjmp(void)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("");
+	int ret =_setjmp();
+	return ret;
 }
 
 

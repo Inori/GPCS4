@@ -92,10 +92,30 @@ int32_t PS4API sceAudioOutOutput(int32_t handle, const void *ptr)
 }
 
 
-int PS4API sceAudioOutOutputs(void)
+int PS4API sceAudioOutOutputs(SceAudioOutOutputParam *param, uint32_t num)
 {
-	LOG_FIXME("Not implemented");
-	return SCE_OK;
+	LOG_SCE_TRACE("num %d", num);
+
+	int rc = SCE_OK;
+
+	for (int i = 0; i < num; i++) 
+	{
+		auto& audioOut = g_AudioSlots.GetItemAt(param[i].handle);
+		if (!audioOut) 
+		{
+			rc = SCE_AUDIO_OUT_ERROR_INVALID_PORT;
+			break;
+		}
+		rc = audioOut->audioOutput(param[i].ptr);
+		if (rc != 0)
+		{
+			rc = SCE_AUDIO_OUT_ERROR_TRANS_EVENT;
+			break;
+		}
+		rc = num;
+	}
+
+	return rc;
 }
 
 

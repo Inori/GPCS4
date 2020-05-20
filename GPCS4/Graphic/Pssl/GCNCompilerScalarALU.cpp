@@ -322,6 +322,10 @@ void GCNCompiler::emitScalarCmp(GCNInstruction& ins)
 		condValue.id = m_module.opIEqual(boolTypeId,
 			spvSrc0.id, spvSrc1.id);
 		break;
+	case SISOPCInstruction::S_CMP_LG_U32:
+		condValue.id = m_module.opINotEqual(boolTypeId,
+			spvSrc0.id, spvSrc1.id);
+		break;
 	default:
 		LOG_PSSL_UNHANDLED_INST();
 		break;
