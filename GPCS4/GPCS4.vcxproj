@@ -30,10 +30,12 @@
     <ClInclude Include="Emulator\PolicyManager.h" />
     <ClInclude Include="Emulator\SymbolManager.h" />
     <ClInclude Include="Graphic\Gnm\GnmBufferCache.h" />
+    <ClInclude Include="Graphic\Gnm\GnmCacheManager.h" />
     <ClInclude Include="Graphic\Gnm\GnmContextState.h" />
     <ClInclude Include="Graphic\Gnm\GnmMemoryMonitor.h" />
     <ClInclude Include="Graphic\Gnm\GnmResourceMemory.h" />
     <ClInclude Include="Graphic\Gnm\GnmShaderMeta.h" />
+    <ClInclude Include="Graphic\Gnm\GnmTextureCache.h" />
     <ClInclude Include="Graphic\Gnm\GpuAddress\GnmDataFormatCodec.h" />
     <ClInclude Include="Graphic\Gnm\GpuAddress\GnmFloatPoint.h" />
     <ClInclude Include="Graphic\Gnm\GpuAddress\GnmGpuAddress.h" />
@@ -296,6 +298,7 @@
     <ClCompile Include="Emulator\TLSHandler.cpp" />
     <ClCompile Include="GPCS4Main.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmBufferCache.cpp" />
+    <ClCompile Include="Graphic\Gnm\GnmCacheManager.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmCmdStream.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmCommandBuffer.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmCommandBufferDispatch.cpp" />
@@ -307,6 +310,7 @@
     <ClCompile Include="Graphic\Gnm\GnmOpCode.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmResourceMemory.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmShaderMeta.cpp" />
+    <ClCompile Include="Graphic\Gnm\GnmTextureCache.cpp" />
     <ClCompile Include="Graphic\Gnm\GpuAddress\GnmDataFormatCodec.cpp" />
     <ClCompile Include="Graphic\Gnm\GpuAddress\GnmFloatPoint.cpp" />
     <ClCompile Include="Graphic\Gnm\GpuAddress\GnmGpuAddress.cpp" />
@@ -548,13 +552,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>llvm</PlatformToolset>
+    <PlatformToolset>ClangCL</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>llvm</PlatformToolset>
+    <PlatformToolset>ClangCL</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
