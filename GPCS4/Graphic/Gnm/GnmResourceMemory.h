@@ -32,14 +32,21 @@ class GnmResourceMemory
 	constexpr static uint32_t ForceUpdateCount = 10;
 
 public:
+	GnmResourceMemory();
 	GnmResourceMemory(void* start, uint32_t size, GnmMemoryFlag flag);
 	~GnmResourceMemory();
 
 	const GnmMemoryRange& range() const;
 
+	void setRange(const GnmMemoryRange& range);
+
 	GnmMemoryAccess access() const;
 
 	void setAccess(GnmMemoryAccess access);
+
+	GnmMemoryFlag flag() const;
+
+	void setFlag(GnmMemoryFlag flag);
 
 	bool forceUpdate();
 

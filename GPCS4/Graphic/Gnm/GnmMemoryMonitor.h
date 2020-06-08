@@ -9,7 +9,7 @@
 
 struct GnmResourceMemoryCompare
 {
-	using is_transparent = void;  
+	using is_transparent = void;
 								
 	bool operator()(GnmResourceMemory const& lhs, GnmResourceMemory const& rhs) const
 	{
@@ -20,7 +20,7 @@ struct GnmResourceMemoryCompare
 			   reinterpret_cast<uintptr_t>(lRange.end) < reinterpret_cast<uintptr_t>(rRange.end);
 	}
 
-	bool operator()(void* address, GnmResourceMemory const& block) const
+	bool operator()(const void* const address, GnmResourceMemory const& block) const
 	{
 		const auto& range = block.range();
 		return reinterpret_cast<uintptr_t>(address) >= reinterpret_cast<uintptr_t>(range.start) &&
