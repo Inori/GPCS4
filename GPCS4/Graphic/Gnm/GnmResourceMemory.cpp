@@ -1,6 +1,7 @@
 #include "GnmResourceMemory.h"
 
-GnmResourceMemory::GnmResourceMemory(void* start, uint32_t size) :
+GnmResourceMemory::GnmResourceMemory(void* start, uint32_t size, GnmMemoryFlag flag) :
+	m_flag(flag),
 	m_access(GnmMemoryAccess::None),
 	m_accessCount(0)
 {
@@ -35,6 +36,6 @@ bool GnmResourceMemory::forceUpdate()
 
 void GnmResourceMemory::reset()
 {
-	m_access = GnmMemoryAccess::None;
+	m_access      = GnmMemoryAccess::None;
 	m_accessCount = 0;
 }
