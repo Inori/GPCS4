@@ -1,5 +1,6 @@
 #include "GnmSamplerCache.h"
-#include "GnmMemoryMonitor.h"
+
+#include "../Violet/VltSampler.h"
 
 #include "../Violet/VltSampler.h"
 
