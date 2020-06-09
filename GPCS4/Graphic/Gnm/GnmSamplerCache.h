@@ -16,6 +16,11 @@ class VltSampler;
 class GnmMemoryMonitor;
 class GnmSampler;
 
+struct GnmSammplerInstance
+{
+	RcPtr<vlt::VltSampler> sampler   = nullptr;
+	uint32_t               idleCount = 0;
+};
 
 class GnmSamplerCache
 {

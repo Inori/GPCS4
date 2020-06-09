@@ -33,9 +33,9 @@ struct GnmBufferCreateInfo
 
 struct GnmBufferInstance
 {
-	RcPtr<vlt::VltBuffer> m_buffer    = nullptr;
-	uint32_t              m_idleCount = 0;
-	GnmResourceMemory     m_memory;
+	RcPtr<vlt::VltBuffer> buffer    = nullptr;
+	uint32_t              idleCount = 0;
+	GnmResourceMemory     memory;
 };
 
 

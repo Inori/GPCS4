@@ -970,6 +970,9 @@
     <ClInclude Include="Graphic\Gnm\GnmCacheManager.h">
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GnmSamplerCache.h">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1687,6 +1690,9 @@
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClCompile>
     <ClCompile Include="Graphic\Gnm\GnmCacheManager.cpp">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gnm\GnmSamplerCache.cpp">
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClCompile>
   </ItemGroup>

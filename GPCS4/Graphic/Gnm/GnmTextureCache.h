@@ -32,10 +32,10 @@ struct GnmTextureCreateInfo
 
 struct GnmTextureInstance
 {
-	RcPtr<vlt::VltImage>     image       = nullptr;
-	RcPtr<vlt::VltImageView> view        = nullptr;
-	uint32_t                 m_idleCount = 0;
-	GnmResourceMemory        m_memory;
+	RcPtr<vlt::VltImage>     image     = nullptr;
+	RcPtr<vlt::VltImageView> view      = nullptr;
+	uint32_t                 idleCount = 0;
+	GnmResourceMemory        memory;
 };
 
 class GnmTextureCache
