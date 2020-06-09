@@ -1,5 +1,9 @@
 #include "GnmCacheManager.h"
 
+#include "../Violet/VltBuffer.h"
+#include "../Violet/VltImage.h"
+#include "../Violet/VltSampler.h"
+
 GnmCacheManager::GnmCacheManager(sce::SceGpuQueueDevice* device) :
 	m_device(device),
 	m_monitor(),
