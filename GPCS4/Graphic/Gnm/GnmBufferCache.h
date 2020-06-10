@@ -3,6 +3,8 @@
 #include "GnmCommon.h"
 #include "GnmResourceMemory.h"
 
+#include <unordered_map>
+
 namespace sce
 {;
 struct SceGpuQueueDevice;
@@ -27,7 +29,8 @@ struct GnmBufferCreateInfo
 {
 	const GnmBuffer*     buffer;
 	VkPipelineStageFlags stages;
-	uint8_t              usageType;  // ShaderInputUsageType
+	VkBufferUsageFlags   usage;
+	uint8_t              inputUsageType;  // ShaderInputUsageType
 };
 
 
@@ -46,8 +49,23 @@ public:
 				   GnmMemoryMonitor*       monitor);
 	~GnmBufferCache();
 
+	GnmBufferInstance grabBuffer(const GnmBufferCreateInfo& desc);
+
+	void flush(const GnmMemoryRange& range);
+
+	void invalidate(const GnmMemoryRange& range);
+
+private:
+
+
+	GnmBufferInstance createBuffer(const GnmBufferCreateInfo& desc);
+
 private:
 	sce::SceGpuQueueDevice* m_device;
 	GnmMemoryMonitor*       m_monitor;
+
+	std::unordered_map<
+		GnmMemoryRange, GnmBufferInstance,
+		GnmMemoryHash> m_bufferMap;
 };
 

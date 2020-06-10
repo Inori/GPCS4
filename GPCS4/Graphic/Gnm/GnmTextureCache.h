@@ -3,6 +3,8 @@
 #include "GnmCommon.h"
 #include "GnmResourceMemory.h"
 
+#include <unordered_map>
+
 namespace sce
 {;
 struct SceGpuQueueDevice;
@@ -48,5 +50,10 @@ public:
 private:
 	sce::SceGpuQueueDevice* m_device;
 	GnmMemoryMonitor*       m_monitor;
+
+	std::unordered_map<
+		GnmMemoryRange,
+		GnmTextureInstance,
+		GnmMemoryHash> m_bufferMap;
 };
 

@@ -5,12 +5,10 @@ GnmResourceMemory::GnmResourceMemory()
 }
 
 GnmResourceMemory::GnmResourceMemory(void* start, uint32_t size, GnmMemoryFlag flag) :
-	m_flag(flag),
-	m_access(GnmMemoryAccess::None),
-	m_accessCount(0)
+	m_flag(flag)
 {
 	m_range.start = start;
-	m_range.end   = reinterpret_cast<uint8_t*>(start) + size;
+	m_range.size  = size;
 }
 
 GnmResourceMemory::~GnmResourceMemory()
@@ -46,6 +44,16 @@ GnmMemoryFlag GnmResourceMemory::flag() const
 void GnmResourceMemory::setFlag(GnmMemoryFlag flag)
 {
 	m_flag = flag;
+}
+
+bool GnmResourceMemory::pendingSync() const
+{
+	return m_pendingSync;
+}
+
+void GnmResourceMemory::setPendingSync(bool sync)
+{
+	m_pendingSync = sync;
 }
 
 bool GnmResourceMemory::forceUpdate()

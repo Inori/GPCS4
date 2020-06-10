@@ -1,21 +1,22 @@
 #include "GnmMemoryMonitor.h"
 
 
-GnmMemoryMonitor::GnmMemoryMonitor()
+GnmMemoryMonitor::GnmMemoryMonitor(const GnmMemoryCallback& callback):
+	m_callback(callback)
 {
-	install();
+	 install();
 }
 
 GnmMemoryMonitor::~GnmMemoryMonitor()
 {
 }
 
-void GnmMemoryMonitor::traceMemory(GnmResourceMemory& block)
+void GnmMemoryMonitor::traceMemory(GnmMemoryRange& block)
 {
 	m_blockRecords.insert(block);
 }
 
-void GnmMemoryMonitor::untraceMemory(GnmResourceMemory& block)
+void GnmMemoryMonitor::untraceMemory(GnmMemoryRange& block)
 {
 	m_blockRecords.erase(block);
 }

@@ -5,6 +5,8 @@
 #include "GnmTextureCache.h"
 #include "GnmSamplerCache.h"
 
+#include <memory>
+
 namespace sce
 {;
 struct SceGpuQueueDevice;
@@ -17,6 +19,10 @@ public:
 	GnmCacheManager(sce::SceGpuQueueDevice* device);
 	~GnmCacheManager();
 
+private:
+	void onMemoryRead(const GnmMemoryRange& range);
+
+	void onMemoryWrite(const GnmMemoryRange& range);
 
 private:
 	sce::SceGpuQueueDevice* m_device;

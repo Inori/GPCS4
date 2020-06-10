@@ -23,8 +23,23 @@ enum class GnmMemoryAccess : uint32_t
 
 struct GnmMemoryRange
 {
-	void* start = nullptr;
-	void* end   = nullptr;
+	void*  start = nullptr;
+	size_t size  = 0;
+
+	bool operator==(const GnmMemoryRange& other) const
+	{
+		return start == other.start &&
+			   size == other.size;
+	}
+};
+
+struct GnmMemoryHash
+{
+	std::size_t operator()(GnmMemoryRange const& range) const noexcept
+	{
+		// return reinterpret_cast<size_t>(range.start) << 32 | static_cast<size_t>(range.size);
+		return reinterpret_cast<size_t>(range.start);
+	}
 };
 
 class GnmResourceMemory
@@ -33,7 +48,10 @@ class GnmResourceMemory
 
 public:
 	GnmResourceMemory();
-	GnmResourceMemory(void* start, uint32_t size, GnmMemoryFlag flag);
+	GnmResourceMemory(
+		void*         start,
+		uint32_t      size,
+		GnmMemoryFlag flag);
 	~GnmResourceMemory();
 
 	const GnmMemoryRange& range() const;
@@ -48,6 +66,10 @@ public:
 
 	void setFlag(GnmMemoryFlag flag);
 
+	bool pendingSync() const;
+
+	void setPendingSync(bool sync);
+
 	bool forceUpdate();
 
 	void reset();
@@ -55,6 +77,7 @@ public:
 private:
 	GnmMemoryRange  m_range;
 	GnmMemoryFlag   m_flag;
-	GnmMemoryAccess m_access;
-	uint32_t        m_accessCount;
+	GnmMemoryAccess m_access      = GnmMemoryAccess::None;
+	uint32_t        m_accessCount = 0;
+	bool            m_pendingSync = false;
 };

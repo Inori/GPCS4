@@ -6,7 +6,11 @@
 
 GnmCacheManager::GnmCacheManager(sce::SceGpuQueueDevice* device) :
 	m_device(device),
-	m_monitor(),
+	m_monitor(
+		{ 
+			[this](const GnmMemoryRange& range) { onMemoryRead(range); },
+			[this](const GnmMemoryRange& range) { onMemoryWrite(range); }
+		}),
 	m_bufferCache(m_device, &m_monitor),
 	m_textureCache(m_device, &m_monitor),
 	m_samplerCache(m_device, &m_monitor)
@@ -14,6 +18,14 @@ GnmCacheManager::GnmCacheManager(sce::SceGpuQueueDevice* device) :
 }
 
 GnmCacheManager::~GnmCacheManager()
+{
+}
+
+void GnmCacheManager::onMemoryRead(const GnmMemoryRange& range)
+{
+}
+
+void GnmCacheManager::onMemoryWrite(const GnmMemoryRange& range)
 {
 }
 
