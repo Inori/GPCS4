@@ -27,10 +27,9 @@ class GnmBuffer;
  */
 struct GnmBufferCreateInfo
 {
-	const GnmBuffer*     buffer;
-	VkPipelineStageFlags stages;
-	VkBufferUsageFlags   usage;
-	uint8_t              inputUsageType;  // ShaderInputUsageType
+	const GnmBuffer*      buffer;
+	VkPipelineStageFlags  stages;
+	VkBufferUsageFlagBits usage;
 };
 
 
@@ -56,7 +55,6 @@ public:
 	void invalidate(const GnmMemoryRange& range);
 
 private:
-
 
 	GnmBufferInstance createBuffer(const GnmBufferCreateInfo& desc);
 

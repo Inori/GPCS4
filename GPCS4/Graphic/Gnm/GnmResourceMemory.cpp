@@ -4,16 +4,21 @@ GnmResourceMemory::GnmResourceMemory()
 {
 }
 
-GnmResourceMemory::GnmResourceMemory(void* start, uint32_t size, GnmMemoryFlag flag) :
-	m_flag(flag)
+GnmResourceMemory::GnmResourceMemory(
+	void*            start,
+	uint32_t         size,
+	GnmMemoryProtect prot) :
+	m_protect(prot)
 {
 	m_range.start = start;
 	m_range.size  = size;
 }
 
-GnmResourceMemory::GnmResourceMemory(const GnmMemoryRange& range, GnmMemoryFlag flag):
+GnmResourceMemory::GnmResourceMemory(
+	const GnmMemoryRange& range,
+	GnmMemoryProtect      prot) :
 	m_range(range),
-	m_flag(flag)
+	m_protect(prot)
 {
 }
 
@@ -42,14 +47,14 @@ void GnmResourceMemory::setAccess(GnmMemoryAccess access)
 	++m_accessCount;
 }
 
-GnmMemoryFlag GnmResourceMemory::flag() const
+GnmMemoryProtect GnmResourceMemory::protect() const
 {
-	return m_flag;
+	return m_protect;
 }
 
-void GnmResourceMemory::setFlag(GnmMemoryFlag flag)
+void GnmResourceMemory::setProtect(GnmMemoryProtect prot)
 {
-	m_flag = flag;
+	m_protect = prot;
 }
 
 bool GnmResourceMemory::pendingSync() const

@@ -98,8 +98,8 @@ GnmBufferInstance GnmBufferCache::createBuffer(const GnmBufferCreateInfo& desc)
 	// while declare it as a RO Buffer in shader code, as long as the shader doesn't
 	// write to the buffer.
 
-	VkBufferUsageFlags usage  = {};
-	VkAccessFlags      access = {};
+	VkBufferUsageFlagBits usage  = desc.usage;
+	VkAccessFlags         access = {};
 
 	GnmMemoryRange range = {};
 	range.start          = desc.buffer->getBaseAddress();
@@ -110,6 +110,36 @@ GnmBufferInstance GnmBufferCache::createBuffer(const GnmBufferCreateInfo& desc)
 	ResourceMemoryType memType = desc.buffer->getResourceMemoryType();
 	LOG_ASSERT(memType == kResourceMemoryTypeGC || memType == kResourceMemoryTypeRO, 
 		"unsupported buffer memory type %d", memType);
+
+	switch (usage)
+	{
+	case VK_BUFFER_USAGE_INDEX_BUFFER_BIT:
+		access = VK_ACCESS_INDEX_READ_BIT;
+		break;
+	case VK_BUFFER_USAGE_VERTEX_BUFFER_BIT:
+		access = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
+		break;
+	case VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT:
+		access = VK_ACCESS_UNIFORM_READ_BIT;
+		break;
+	case VK_BUFFER_USAGE_STORAGE_BUFFER_BIT:
+		break;
+	case VK_BUFFER_USAGE_TRANSFER_SRC_BIT:
+	case VK_BUFFER_USAGE_TRANSFER_DST_BIT:
+	case VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT:
+	case VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT:
+	case VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT:
+	case VK_BUFFER_USAGE_TRANSFORM_FEEDBACK_BUFFER_BIT_EXT:
+	case VK_BUFFER_USAGE_TRANSFORM_FEEDBACK_COUNTER_BUFFER_BIT_EXT:
+	case VK_BUFFER_USAGE_CONDITIONAL_RENDERING_BIT_EXT:
+	case VK_BUFFER_USAGE_RAY_TRACING_BIT_NV:
+	case VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT_EXT:
+	case VK_BUFFER_USAGE_FLAG_BITS_MAX_ENUM:
+		LOG_ERR("not supported usage %d", usage);
+		break;
+	default:
+		break;
+	}
 
 	ShaderInputUsageType inputUsageType = static_cast<ShaderInputUsageType>(desc.inputUsageType);
 	switch (inputUsageType)
@@ -155,17 +185,12 @@ GnmBufferInstance GnmBufferCache::createBuffer(const GnmBufferCreateInfo& desc)
 	info.access              = access;
 
 	GnmBufferInstance buffer = {};
-
 	buffer.buffer = m_device->device->createBuffer(info, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 	buffer.idleCount = 0;
+	buffer.memory = GnmResourceMemory(
+		range,
+		memType == kResourceMemoryTypeRO ? GnmMemoryProtect::GpuReadOnly : GnmMemoryProtect::GpuReadWrite);
 
-	GnmMemoryFlag flag = GnmMemoryFlag(GnmMemoryAttribute::GpuRead);
-	if (memType == kResourceMemoryTypeGC)
-	{
-		flag.set(GnmMemoryAttribute::GpuWrite);
-	}
-
-	buffer.memory = GnmResourceMemory(range, flag);
 	// We need to sync the buffer memory upon creation.
 	buffer.memory.setPendingSync(true);
 	return buffer;

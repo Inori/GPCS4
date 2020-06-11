@@ -3,14 +3,11 @@
 #include "GnmCommon.h"
 #include "UtilFlag.h"
 
-enum class GnmMemoryAttribute : uint32_t
+enum class GnmMemoryProtect : uint32_t
 {
-	GpuRead,
-	GpuWrite,
+	GpuReadOnly,
+	GpuReadWrite,
 };
-
-using GnmMemoryFlag = Flags<GnmMemoryAttribute>;
-
 
 enum class GnmMemoryAccess : uint32_t
 {
@@ -52,13 +49,13 @@ public:
 	GnmResourceMemory();
 
 	GnmResourceMemory(
-		void*         start,
-		uint32_t      size,
-		GnmMemoryFlag flag);
+		void*            start,
+		uint32_t         size,
+		GnmMemoryProtect prot);
 
 	GnmResourceMemory(
 		const GnmMemoryRange& range,
-		GnmMemoryFlag         flag);
+		GnmMemoryProtect      prot);
 
 	~GnmResourceMemory();
 
@@ -70,9 +67,9 @@ public:
 
 	void setAccess(GnmMemoryAccess access);
 
-	GnmMemoryFlag flag() const;
+	GnmMemoryProtect protect() const;
 
-	void setFlag(GnmMemoryFlag flag);
+	void setProtect(GnmMemoryProtect prot);
 
 	bool pendingSync() const;
 
@@ -83,9 +80,9 @@ public:
 	void reset();
 
 private:
-	GnmMemoryRange  m_range;
-	GnmMemoryFlag   m_flag;
-	GnmMemoryAccess m_access      = GnmMemoryAccess::None;
-	uint32_t        m_accessCount = 0;
-	bool            m_pendingSync = false;
+	GnmMemoryRange   m_range;
+	GnmMemoryProtect m_protect;
+	GnmMemoryAccess  m_access      = GnmMemoryAccess::None;
+	uint32_t         m_accessCount = 0;
+	bool             m_pendingSync = false;
 };
