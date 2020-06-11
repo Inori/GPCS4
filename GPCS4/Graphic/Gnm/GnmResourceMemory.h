@@ -7,8 +7,6 @@ enum class GnmMemoryAttribute : uint32_t
 {
 	GpuRead,
 	GpuWrite,
-	CpuRead,
-	CpuWrite
 };
 
 using GnmMemoryFlag = Flags<GnmMemoryAttribute>;
@@ -42,16 +40,26 @@ struct GnmMemoryHash
 	}
 };
 
+/**
+ * \brief GPU resource memory
+ * 
+ */
 class GnmResourceMemory
 {
 	constexpr static uint32_t ForceUpdateCount = 10;
 
 public:
 	GnmResourceMemory();
+
 	GnmResourceMemory(
 		void*         start,
 		uint32_t      size,
 		GnmMemoryFlag flag);
+
+	GnmResourceMemory(
+		const GnmMemoryRange& range,
+		GnmMemoryFlag         flag);
+
 	~GnmResourceMemory();
 
 	const GnmMemoryRange& range() const;

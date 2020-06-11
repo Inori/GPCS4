@@ -37,8 +37,6 @@ GnmBufferInstance GnmBufferCache::grabBuffer(const GnmBufferCreateInfo& desc)
 	if (iter == m_bufferMap.end())
 	{
 		buffer = createBuffer(desc);
-		// We need to sync the buffer memory upon creation.
-		buffer.memory.setPendingSync(true);
 	}
 	else
 	{
@@ -66,6 +64,7 @@ GnmBufferInstance GnmBufferCache::createBuffer(const GnmBufferCreateInfo& desc)
 	// +--------------------------------+----------------+
 	// |           Gnm Buffer           | Vulkan Buffer  |
 	// +--------------------------------+----------------+
+	// | IndexBuffer                    | Index Buffer   |
 	// | VertexBuffer                   | Vertex Buffer  |
 	// | DataBuffer/RW_DataBuffer       | Storage Buffer |
 	// | RegularBuffer/RW_RegularBuffer | Storage Buffer |
@@ -102,6 +101,16 @@ GnmBufferInstance GnmBufferCache::createBuffer(const GnmBufferCreateInfo& desc)
 	VkBufferUsageFlags usage  = {};
 	VkAccessFlags      access = {};
 
+	GnmMemoryRange range = {};
+	range.start          = desc.buffer->getBaseAddress();
+	range.size           = desc.buffer->getSize();
+
+	// TODO:
+	// Is this reliable to detect if the memory is read-write or read-only?
+	ResourceMemoryType memType = desc.buffer->getResourceMemoryType();
+	LOG_ASSERT(memType == kResourceMemoryTypeGC || memType == kResourceMemoryTypeRO, 
+		"unsupported buffer memory type %d", memType);
+
 	ShaderInputUsageType inputUsageType = static_cast<ShaderInputUsageType>(desc.inputUsageType);
 	switch (inputUsageType)
 	{
@@ -110,19 +119,16 @@ GnmBufferInstance GnmBufferCache::createBuffer(const GnmBufferCreateInfo& desc)
 		usage  = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
 		access = VK_ACCESS_UNIFORM_READ_BIT;
 	}
-	break;
+		break;
 	case pssl::kShaderInputUsageImmVertexBuffer:
 	{
 		usage  = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 		access = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
 	}
-	break;
+		break;
 	case pssl::kShaderInputUsageImmResource:
 	case pssl::kShaderInputUsageImmRwResource:
 	{
-		ResourceMemoryType memType = desc.buffer->getResourceMemoryType();
-		LOG_ASSERT(memType == kResourceMemoryTypeGC || memType == kResourceMemoryTypeRO, "unsupported buffer memory type %d", memType);
-
 		if (memType == kResourceMemoryTypeRO)
 		{
 			// Read only buffer
@@ -136,17 +142,31 @@ GnmBufferInstance GnmBufferCache::createBuffer(const GnmBufferCreateInfo& desc)
 			access = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
 		}
 	}
-	break;
+		break;
 	default:
 		LOG_ASSERT(false, "unsupported buffer usage type %d", inputUsageType);
 		break;
 	}
 
 	VltBufferCreateInfo info = {};
-	info.size                = desc.buffer->getSize();
+	info.size                = range.size;
 	info.usage               = usage | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 	info.stages              = desc.stages;
 	info.access              = access;
 
-	return m_device->device->createBuffer(info, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+	GnmBufferInstance buffer = {};
+
+	buffer.buffer = m_device->device->createBuffer(info, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+	buffer.idleCount = 0;
+
+	GnmMemoryFlag flag = GnmMemoryFlag(GnmMemoryAttribute::GpuRead);
+	if (memType == kResourceMemoryTypeGC)
+	{
+		flag.set(GnmMemoryAttribute::GpuWrite);
+	}
+
+	buffer.memory = GnmResourceMemory(range, flag);
+	// We need to sync the buffer memory upon creation.
+	buffer.memory.setPendingSync(true);
+	return buffer;
 }

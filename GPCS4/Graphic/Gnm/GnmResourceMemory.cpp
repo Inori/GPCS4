@@ -11,6 +11,12 @@ GnmResourceMemory::GnmResourceMemory(void* start, uint32_t size, GnmMemoryFlag f
 	m_range.size  = size;
 }
 
+GnmResourceMemory::GnmResourceMemory(const GnmMemoryRange& range, GnmMemoryFlag flag):
+	m_range(range),
+	m_flag(flag)
+{
+}
+
 GnmResourceMemory::~GnmResourceMemory()
 {
 }
