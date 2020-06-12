@@ -29,7 +29,7 @@ struct GnmBufferCreateInfo
 {
 	const GnmBuffer*      buffer;
 	VkPipelineStageFlags  stages;
-	VkBufferUsageFlagBits usage;
+	VkBufferUsageFlags    usage;
 };
 
 
@@ -48,7 +48,7 @@ public:
 				   GnmMemoryMonitor*       monitor);
 	~GnmBufferCache();
 
-	GnmBufferInstance grabBuffer(const GnmBufferCreateInfo& desc);
+	GnmBufferInstance* grabBuffer(const GnmBufferCreateInfo& desc);
 
 	void flush(const GnmMemoryRange& range);
 
@@ -56,7 +56,9 @@ public:
 
 private:
 
-	GnmBufferInstance createBuffer(const GnmBufferCreateInfo& desc);
+	GnmBufferInstance* createBuffer(
+		const GnmBufferCreateInfo& desc);
+
 
 private:
 	sce::SceGpuQueueDevice* m_device;

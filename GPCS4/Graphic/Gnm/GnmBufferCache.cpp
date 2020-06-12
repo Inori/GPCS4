@@ -25,9 +25,9 @@ GnmBufferCache::~GnmBufferCache()
 }
 
 
-GnmBufferInstance GnmBufferCache::grabBuffer(const GnmBufferCreateInfo& desc)
+GnmBufferInstance* GnmBufferCache::grabBuffer(const GnmBufferCreateInfo& desc)
 {
-	GnmBufferInstance buffer;
+	GnmBufferInstance* buffer = nullptr;
 
 	GnmMemoryRange range = {};
 	range.start          = desc.buffer->getBaseAddress();
@@ -40,10 +40,10 @@ GnmBufferInstance GnmBufferCache::grabBuffer(const GnmBufferCreateInfo& desc)
 	}
 	else
 	{
-		buffer = iter->second;
+		buffer = &iter->second;
 	}
 
-	if (buffer.memory.pendingSync())
+	if (buffer->memory.pendingSync())
 	{
 		flush(range);
 	}
@@ -59,7 +59,7 @@ void GnmBufferCache::invalidate(const GnmMemoryRange& range)
 {
 }
 
-GnmBufferInstance GnmBufferCache::createBuffer(const GnmBufferCreateInfo& desc)
+GnmBufferInstance* GnmBufferCache::createBuffer(const GnmBufferCreateInfo& desc)
 {
 	// +--------------------------------+----------------+
 	// |           Gnm Buffer           | Vulkan Buffer  |
@@ -98,8 +98,8 @@ GnmBufferInstance GnmBufferCache::createBuffer(const GnmBufferCreateInfo& desc)
 	// while declare it as a RO Buffer in shader code, as long as the shader doesn't
 	// write to the buffer.
 
-	VkBufferUsageFlagBits usage  = desc.usage;
-	VkAccessFlags         access = {};
+	VkBufferUsageFlags usage  = desc.usage;
+	VkAccessFlags      access = {};
 
 	GnmMemoryRange range = {};
 	range.start          = desc.buffer->getBaseAddress();
@@ -111,71 +111,26 @@ GnmBufferInstance GnmBufferCache::createBuffer(const GnmBufferCreateInfo& desc)
 	LOG_ASSERT(memType == kResourceMemoryTypeGC || memType == kResourceMemoryTypeRO, 
 		"unsupported buffer memory type %d", memType);
 
-	switch (usage)
+	if (usage & VK_BUFFER_USAGE_INDEX_BUFFER_BIT)
 	{
-	case VK_BUFFER_USAGE_INDEX_BUFFER_BIT:
-		access = VK_ACCESS_INDEX_READ_BIT;
-		break;
-	case VK_BUFFER_USAGE_VERTEX_BUFFER_BIT:
-		access = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
-		break;
-	case VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT:
-		access = VK_ACCESS_UNIFORM_READ_BIT;
-		break;
-	case VK_BUFFER_USAGE_STORAGE_BUFFER_BIT:
-		break;
-	case VK_BUFFER_USAGE_TRANSFER_SRC_BIT:
-	case VK_BUFFER_USAGE_TRANSFER_DST_BIT:
-	case VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT:
-	case VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT:
-	case VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT:
-	case VK_BUFFER_USAGE_TRANSFORM_FEEDBACK_BUFFER_BIT_EXT:
-	case VK_BUFFER_USAGE_TRANSFORM_FEEDBACK_COUNTER_BUFFER_BIT_EXT:
-	case VK_BUFFER_USAGE_CONDITIONAL_RENDERING_BIT_EXT:
-	case VK_BUFFER_USAGE_RAY_TRACING_BIT_NV:
-	case VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT_EXT:
-	case VK_BUFFER_USAGE_FLAG_BITS_MAX_ENUM:
-		LOG_ERR("not supported usage %d", usage);
-		break;
-	default:
-		break;
+		access |= VK_ACCESS_INDEX_READ_BIT;
 	}
-
-	ShaderInputUsageType inputUsageType = static_cast<ShaderInputUsageType>(desc.inputUsageType);
-	switch (inputUsageType)
+	if (usage & VK_BUFFER_USAGE_VERTEX_BUFFER_BIT)
 	{
-	case pssl::kShaderInputUsageImmConstBuffer:
-	{
-		usage  = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-		access = VK_ACCESS_UNIFORM_READ_BIT;
+		access |= VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
 	}
-		break;
-	case pssl::kShaderInputUsageImmVertexBuffer:
+	if (usage & VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
 	{
-		usage  = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-		access = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
+		access |= VK_ACCESS_UNIFORM_READ_BIT;
 	}
-		break;
-	case pssl::kShaderInputUsageImmResource:
-	case pssl::kShaderInputUsageImmRwResource:
+	if (usage & VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)
 	{
-		if (memType == kResourceMemoryTypeRO)
-		{
-			// Read only buffer
-			usage  = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-			access = VK_ACCESS_SHADER_READ_BIT;
-		}
-		else
-		{
-			// Read write buffer
-			usage  = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-			access = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
-		}
+		access |= VK_ACCESS_SHADER_READ_BIT;
 	}
-		break;
-	default:
-		LOG_ASSERT(false, "unsupported buffer usage type %d", inputUsageType);
-		break;
+	// GPU read-write memory
+	if (memType == kResourceMemoryTypeGC)
+	{
+		access |= VK_ACCESS_SHADER_WRITE_BIT;
 	}
 
 	VltBufferCreateInfo info = {};
@@ -185,13 +140,15 @@ GnmBufferInstance GnmBufferCache::createBuffer(const GnmBufferCreateInfo& desc)
 	info.access              = access;
 
 	GnmBufferInstance buffer = {};
-	buffer.buffer = m_device->device->createBuffer(info, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-	buffer.idleCount = 0;
-	buffer.memory = GnmResourceMemory(
-		range,
-		memType == kResourceMemoryTypeRO ? GnmMemoryProtect::GpuReadOnly : GnmMemoryProtect::GpuReadWrite);
+	buffer.buffer            = m_device->device->createBuffer(info, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+	buffer.idleCount         = 0;
+	buffer.memory            = GnmResourceMemory(
+        range,
+        memType == kResourceMemoryTypeRO ? GnmMemoryProtect::GpuReadOnly : GnmMemoryProtect::GpuReadWrite);
 
 	// We need to sync the buffer memory upon creation.
 	buffer.memory.setPendingSync(true);
-	return buffer;
+
+	auto [iter, inserted] = m_bufferMap.emplace(std::make_pair(range, buffer));
+	return &iter->second;
 }
