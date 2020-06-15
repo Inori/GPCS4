@@ -11,4 +11,5 @@ GnmTextureCache::GnmTextureCache(sce::SceGpuQueueDevice* device,
 
 GnmTextureCache::~GnmTextureCache()
 {
+
 }

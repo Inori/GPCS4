@@ -18,6 +18,8 @@ class VltImageView;
 
 class GnmMemoryMonitor;
 class GnmTexture;
+class GnmRenderTarget;
+class GnmDepthRenderTarget;
 
 /**
  * \brief Texture create information
@@ -27,7 +29,13 @@ class GnmTexture;
  */
 struct GnmTextureCreateInfo
 {
-	const GnmTexture*    texture;
+	union
+	{
+		const GnmTexture*           texture;
+		const GnmRenderTarget*      renderTarget;
+		const GnmDepthRenderTarget* depthRenderTarget;
+	};
+	
 	VkPipelineStageFlags stages;
 	uint8_t              usageType;  // ShaderInputUsageType
 };
