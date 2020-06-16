@@ -35,9 +35,9 @@ struct GnmTextureCreateInfo
 		const GnmRenderTarget*      renderTarget;
 		const GnmDepthRenderTarget* depthRenderTarget;
 	};
-	
+
 	VkPipelineStageFlags stages;
-	uint8_t              usageType;  // ShaderInputUsageType
+	bool                 isWritable;
 };
 
 struct GnmTextureInstance
@@ -55,6 +55,17 @@ public:
 					GnmMemoryMonitor*       monitor);
 	~GnmTextureCache();
 
+	GnmTextureInstance* grabTexture(const GnmTextureCreateInfo& desc);
+
+	void flush(const GnmMemoryRange& range);
+
+	void invalidate(const GnmMemoryRange& range);
+
+private:
+	void                collectRenderTargets();
+	GnmMemoryRange      extractMemoryRange(const GnmTextureCreateInfo& desc);
+	GnmTextureInstance  createTexture(const GnmTextureCreateInfo& desc);
+
 private:
 	sce::SceGpuQueueDevice* m_device;
 	GnmMemoryMonitor*       m_monitor;
@@ -62,6 +73,6 @@ private:
 	std::unordered_map<
 		GnmMemoryRange,
 		GnmTextureInstance,
-		GnmMemoryHash> m_bufferMap;
+		GnmMemoryHash> m_textureMap;
 };
 

@@ -36,7 +36,9 @@ GnmBufferInstance* GnmBufferCache::grabBuffer(const GnmBufferCreateInfo& desc)
 	auto iter = m_bufferMap.find(range);
 	if (iter == m_bufferMap.end())
 	{
-		buffer = createBuffer(desc);
+		auto instance = createBuffer(desc);
+		auto [iter, inserted] = m_bufferMap.emplace(std::make_pair(range, instance));
+		buffer = &iter->second;
 	}
 	else
 	{
@@ -59,7 +61,7 @@ void GnmBufferCache::invalidate(const GnmMemoryRange& range)
 {
 }
 
-GnmBufferInstance* GnmBufferCache::createBuffer(const GnmBufferCreateInfo& desc)
+GnmBufferInstance GnmBufferCache::createBuffer(const GnmBufferCreateInfo& desc)
 {
 	// +--------------------------------+----------------+
 	// |           Gnm Buffer           | Vulkan Buffer  |
@@ -149,6 +151,5 @@ GnmBufferInstance* GnmBufferCache::createBuffer(const GnmBufferCreateInfo& desc)
 	// We need to sync the buffer memory upon creation.
 	buffer.memory.setPendingSync(true);
 
-	auto [iter, inserted] = m_bufferMap.emplace(std::make_pair(range, buffer));
-	return &iter->second;
+	return buffer;
 }

@@ -56,7 +56,7 @@ public:
 
 private:
 
-	GnmBufferInstance* createBuffer(
+	GnmBufferInstance createBuffer(
 		const GnmBufferCreateInfo& desc);
 
 
