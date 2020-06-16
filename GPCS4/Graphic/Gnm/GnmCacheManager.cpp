@@ -4,15 +4,15 @@
 #include "../Violet/VltImage.h"
 #include "../Violet/VltSampler.h"
 
-GnmCacheManager::GnmCacheManager(sce::SceGpuQueueDevice* device) :
+GnmCacheManager::GnmCacheManager(sce::SceGpuQueueDevice* device,
+								 vlt::VltContext*        context) :
 	m_device(device),
+	m_context(context),
 	m_monitor(
-		{ 
-			[this](const GnmMemoryRange& range) { onMemoryRead(range); },
-			[this](const GnmMemoryRange& range) { onMemoryWrite(range); }
-		}),
-	m_bufferCache(m_device, &m_monitor),
-	m_textureCache(m_device, &m_monitor),
+		{ [this](const GnmMemoryRange& range) { onMemoryRead(range); },
+		  [this](const GnmMemoryRange& range) { onMemoryWrite(range); } }),
+	m_bufferCache(m_device, m_context, &m_monitor),
+	m_textureCache(m_device, m_context, &m_monitor),
 	m_samplerCache(m_device)
 {
 }

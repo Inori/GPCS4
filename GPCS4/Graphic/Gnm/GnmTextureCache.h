@@ -14,6 +14,7 @@ namespace vlt
 {;
 class VltImage;
 class VltImageView;
+class VltContext;
 }  // namespace vlt
 
 class GnmMemoryMonitor;
@@ -52,6 +53,7 @@ class GnmTextureCache
 {
 public:
 	GnmTextureCache(sce::SceGpuQueueDevice* device,
+					vlt::VltContext*        context,
 					GnmMemoryMonitor*       monitor);
 	~GnmTextureCache();
 
@@ -68,6 +70,7 @@ private:
 
 private:
 	sce::SceGpuQueueDevice* m_device;
+	vlt::VltContext*        m_context;
 	GnmMemoryMonitor*       m_monitor;
 
 	std::unordered_map<

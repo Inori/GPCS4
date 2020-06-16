@@ -12,11 +12,17 @@ namespace sce
 struct SceGpuQueueDevice;
 }  // namespace sce
 
+namespace vlt
+{;
+class VltContext;
+}  // namespace vlt
+
 
 class GnmCacheManager
 {
 public:
-	GnmCacheManager(sce::SceGpuQueueDevice* device);
+	GnmCacheManager(sce::SceGpuQueueDevice* device,
+					vlt::VltContext*        context);
 	~GnmCacheManager();
 
 	/**
@@ -50,6 +56,7 @@ private:
 
 private:
 	sce::SceGpuQueueDevice* m_device;
+	vlt::VltContext*        m_context;
 	GnmMemoryMonitor        m_monitor;
 	GnmBufferCache          m_bufferCache;
 	GnmTextureCache         m_textureCache;

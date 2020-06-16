@@ -6,6 +6,7 @@
 #include "GnmConvertor.h"
 
 #include "../Violet/VltDevice.h"
+#include "../Violet/VltContext.h"
 #include "../Violet/VltImage.h"
 #include "../Violet/VltPresenter.h"
 #include "../Sce/SceGpuQueue.h"
@@ -18,8 +19,10 @@ using namespace sce;
 using namespace pssl;
 
 GnmTextureCache::GnmTextureCache(sce::SceGpuQueueDevice* device,
+								 vlt::VltContext*        context,
 								 GnmMemoryMonitor*       monitor) :
 	m_device(device),
+	m_context(context),
 	m_monitor(monitor)
 {
 	collectRenderTargets();

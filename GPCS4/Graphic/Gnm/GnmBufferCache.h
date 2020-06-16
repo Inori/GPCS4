@@ -13,6 +13,7 @@ struct SceGpuQueueDevice;
 namespace vlt
 {;
 class VltBuffer;
+class VltContext;
 }  // namespace vlt
 
 class GnmMemoryMonitor;
@@ -45,6 +46,7 @@ class GnmBufferCache
 {
 public:
 	GnmBufferCache(sce::SceGpuQueueDevice* device,
+				   vlt::VltContext*        context,
 				   GnmMemoryMonitor*       monitor);
 	~GnmBufferCache();
 
@@ -62,6 +64,7 @@ private:
 
 private:
 	sce::SceGpuQueueDevice* m_device;
+	vlt::VltContext*        m_context;
 	GnmMemoryMonitor*       m_monitor;
 
 	std::unordered_map<

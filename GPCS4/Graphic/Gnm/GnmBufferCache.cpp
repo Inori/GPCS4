@@ -4,6 +4,7 @@
 
 #include "../Violet/VltBuffer.h"
 #include "../Violet/VltDevice.h"
+#include "../Violet/VltContext.h"
 #include "../Sce/SceGpuQueue.h"
 #include "../Pssl/PsslShaderFileBinary.h"
 
@@ -14,8 +15,10 @@ using namespace sce;
 using namespace pssl;
 
 GnmBufferCache::GnmBufferCache(sce::SceGpuQueueDevice* device,
+							   vlt::VltContext*        context,
 							   GnmMemoryMonitor*       monitor) :
 	m_device(device),
+	m_context(context),
 	m_monitor(monitor)
 {
 }
