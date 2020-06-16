@@ -3,6 +3,8 @@
 #include "GnmCommon.h"
 #include "GnmResourceMemory.h"
 
+#include <unordered_map>
+
 namespace sce
 {;
 struct SceGpuQueueDevice;
@@ -16,6 +18,11 @@ class VltSampler;
 class GnmMemoryMonitor;
 class GnmSampler;
 
+struct GnmSamplerCreateInfo
+{
+	const GnmSampler* sampler;
+};
+
 struct GnmSammplerInstance
 {
 	RcPtr<vlt::VltSampler> sampler   = nullptr;
@@ -25,13 +32,21 @@ struct GnmSammplerInstance
 class GnmSamplerCache
 {
 public:
-	GnmSamplerCache(sce::SceGpuQueueDevice* device,
-					GnmMemoryMonitor*       monitor);
+	GnmSamplerCache(sce::SceGpuQueueDevice* device);
 	~GnmSamplerCache();
+
+	GnmSammplerInstance* grabSampler(const GnmSamplerCreateInfo& desc);
+
+private:
+	GnmSammplerInstance createSampler(const GnmSamplerCreateInfo& desc);
 
 private:
 	sce::SceGpuQueueDevice* m_device;
-	GnmMemoryMonitor*       m_monitor;
+
+	std::unordered_map<
+		GnmMemoryRange,
+		GnmSammplerInstance,
+		GnmMemoryHash> m_samplerMap;
 };
 
 
