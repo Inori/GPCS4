@@ -19,6 +19,30 @@ public:
 	GnmCacheManager(sce::SceGpuQueueDevice* device);
 	~GnmCacheManager();
 
+	/**
+	 * \brief Get or create a buffer object.
+	 * 
+	 * \param desc Buffer create information.
+	 * \returns GnmBufferInstance*
+	 */
+	GnmBufferInstance* grabBuffer(const GnmBufferCreateInfo& desc);
+
+	/**
+	 * \brief Get or create a texture object.
+	 * 
+	 * \param desc Texture create information.
+	 * \returns GnmBufferInstance*
+	 */
+	GnmTextureInstance* grabTexture(const GnmTextureCreateInfo& desc);
+
+	/**
+	 * \brief Get or create a sampler object.
+	 * 
+	 * \param desc Sampler create information.
+	 * \returns GnmBufferInstance*
+	 */
+	GnmSammplerInstance* grabSampler(const GnmSamplerCreateInfo& desc);
+
 private:
 	void onMemoryRead(const GnmMemoryRange& range);
 

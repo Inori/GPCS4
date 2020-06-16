@@ -21,11 +21,30 @@ GnmCacheManager::~GnmCacheManager()
 {
 }
 
+GnmBufferInstance* GnmCacheManager::grabBuffer(const GnmBufferCreateInfo& desc)
+{
+	return m_bufferCache.grabBuffer(desc);
+}
+
+GnmTextureInstance* GnmCacheManager::grabTexture(const GnmTextureCreateInfo& desc)
+{
+	return m_textureCache.grabTexture(desc);
+}
+
+GnmSammplerInstance* GnmCacheManager::grabSampler(const GnmSamplerCreateInfo& desc)
+{
+	return m_samplerCache.grabSampler(desc);
+}
+
 void GnmCacheManager::onMemoryRead(const GnmMemoryRange& range)
 {
+	m_bufferCache.flush(range);
+	m_textureCache.flush(range);
 }
 
 void GnmCacheManager::onMemoryWrite(const GnmMemoryRange& range)
 {
+	m_bufferCache.invalidate(range);
+	m_textureCache.invalidate(range);
 }
 
