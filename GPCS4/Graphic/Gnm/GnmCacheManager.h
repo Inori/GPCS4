@@ -21,8 +21,8 @@ class VltContext;
 class GnmCacheManager
 {
 public:
-	GnmCacheManager(sce::SceGpuQueueDevice* device,
-					vlt::VltContext*        context);
+	GnmCacheManager(const sce::SceGpuQueueDevice* device,
+					vlt::VltContext*              context);
 	~GnmCacheManager();
 
 	/**
@@ -55,11 +55,11 @@ private:
 	void onMemoryWrite(const GnmMemoryRange& range);
 
 private:
-	sce::SceGpuQueueDevice* m_device;
-	vlt::VltContext*        m_context;
-	GnmMemoryMonitor        m_monitor;
-	GnmBufferCache          m_bufferCache;
-	GnmTextureCache         m_textureCache;
-	GnmSamplerCache         m_samplerCache;
+	const sce::SceGpuQueueDevice* m_device;
+	vlt::VltContext*              m_context;
+	GnmMemoryMonitor              m_monitor;
+	GnmBufferCache                m_bufferCache;
+	GnmTextureCache               m_textureCache;
+	GnmSamplerCache               m_samplerCache;
 };
 

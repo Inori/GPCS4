@@ -40,7 +40,8 @@ constexpr uint64_t ShaderHashClearRT = 0x8C25642DB09D8E59;
 GnmCommandBufferDraw::GnmCommandBufferDraw(
 	const SceGpuQueueDevice& device,
 	const RcPtr<VltContext>& context) :
-	GnmCommandBuffer(device, context)
+	GnmCommandBuffer(device, context),
+	m_cache(&device, context.ptr())
 {
 }
 
@@ -255,10 +256,15 @@ void GnmCommandBufferDraw::setRenderTarget(uint32_t rtSlot, GnmRenderTarget cons
 {
 	LOG_ASSERT(rtSlot == 0, "only support one render target at 0");
 
-	//auto image = m_factory.grabRenderTarget(*target);
+	GnmTextureCreateInfo info = {};
+	info.renderTarget         = target;
+	info.stages               = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	info.isGpuWritable        = true;
+
+	auto texture = m_cache.grabTexture(info);
 
 	VltAttachment colorTarget                 = {};
-	//colorTarget.view                          = image.view;
+	colorTarget.view                          = texture->view;
 	colorTarget.layout                        = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 	m_state.gp.om.renderTargets.color[rtSlot] = colorTarget;
 
@@ -268,11 +274,16 @@ void GnmCommandBufferDraw::setRenderTarget(uint32_t rtSlot, GnmRenderTarget cons
 
 void GnmCommandBufferDraw::setDepthRenderTarget(GnmDepthRenderTarget const* depthTarget)
 {
-	//auto depthImage = m_factory.grabDepthRenderTarget(*depthTarget);
+	GnmTextureCreateInfo info = {};
+	info.depthRenderTarget    = depthTarget;
+	info.stages               = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+	info.isGpuWritable        = true;
+
+	auto depthTexture = m_cache.grabTexture(info);
 
 	VltAttachment depthAttachment     = {};
-	//depthAttachment.view              = depthImage.view;
-	//depthAttachment.layout            = depthImage.view->imageInfo().layout;
+	depthAttachment.view              = depthTexture->view;
+	depthAttachment.layout            = depthTexture->view->imageInfo().layout;
 	m_state.gp.om.renderTargets.depth = depthAttachment;
 
 	m_state.gp.om.depthTarget = *depthTarget;
@@ -646,12 +657,17 @@ void GnmCommandBufferDraw::bindVertexInput(
 
 void GnmCommandBufferDraw::bindIndexBuffer()
 {
-	const auto& indexDesc   = m_state.gp.ia.indexBuffer;
-	//auto        indexBuffer = m_factory.grabIndex(indexDesc);
+	auto& indexDesc = m_state.gp.ia.indexBuffer;
+	GnmBufferCreateInfo info = {};
+	info.index               = &indexDesc;
+	info.stages              = VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
+	info.usage               = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
 
-	//m_context->updateBuffer(indexBuffer, 0, indexDesc.size, indexDesc.buffer);
+	auto indexBuffer = m_cache.grabBuffer(info);
 
-	//m_context->bindIndexBuffer(indexBuffer, indexDesc.type);
+	m_context->updateBuffer(indexBuffer->buffer, 0, indexDesc.size, indexDesc.buffer);
+
+	m_context->bindIndexBuffer(indexBuffer->buffer, indexDesc.type);
 }
 
 void GnmCommandBufferDraw::bindVertexBuffer(
@@ -677,34 +693,36 @@ void GnmCommandBufferDraw::bindVertexBuffer(
 
 	VkDeviceSize bufferSize = vsharp->getSize();
 
-	//GnmBufferCreateInfo info = {};
-	//info.buffer              = vsharp;
-	//info.stages              = VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
-	//info.usageType           = kShaderInputUsageImmVertexBuffer;
-	//auto vertexBuffer        = m_factory.grabBuffer(info);
+	GnmBufferCreateInfo info = {};
+	info.buffer              = vsharp;
+	info.stages              = VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
+	info.usage               = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 
-	//m_context->updateBuffer(vertexBuffer, 0, bufferSize, vtxData);
+	auto vertexBuffer = m_cache.grabBuffer(info);
 
-	//uint32_t stride = vsharp->getStride();
-	//m_context->bindVertexBuffer(attr.bindingId, 
-	//	VltBufferSlice(vertexBuffer, 0, bufferSize), stride);
+	m_context->updateBuffer(vertexBuffer->buffer, 0, bufferSize, vtxData);
+
+	uint32_t stride = vsharp->getStride();
+	m_context->bindVertexBuffer(attr.bindingId,
+								VltBufferSlice(vertexBuffer->buffer, 0, bufferSize), stride);
 }
 
 void GnmCommandBufferDraw::bindImmConstBuffer(pssl::PsslProgramType shaderType, const PsslShaderResource& res)
 {
 	const GnmBuffer* vsharp = reinterpret_cast<const GnmBuffer*>(res.resource);
 
-	//GnmBufferCreateInfo info = {};
-	//info.buffer              = vsharp;
-	//info.stages              = cvt::convertShaderStage(shaderType);
-	//info.usageType           = kShaderInputUsageImmConstBuffer;
-	//auto constBuffer         = m_factory.grabBuffer(info);
+	GnmBufferCreateInfo info = {};
+	info.buffer              = vsharp;
+	info.stages              = cvt::convertShaderStage(shaderType);
+	info.usage               = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
 
-	//VkDeviceSize bufferSize = vsharp->getSize();
-	//m_context->updateBuffer(constBuffer, 0, bufferSize, vsharp->getBaseAddress());
+	auto constBuffer = m_cache.grabBuffer(info);
 
-	//uint32_t regSlot = computeConstantBufferBinding(shaderType, res.startRegister);
-	//m_context->bindResourceBuffer(regSlot, constBuffer);
+	VkDeviceSize bufferSize = vsharp->getSize();
+	m_context->updateBuffer(constBuffer->buffer, 0, bufferSize, vsharp->getBaseAddress());
+
+	uint32_t regSlot = computeConstantBufferBinding(shaderType, res.startRegister);
+	m_context->bindResourceBuffer(regSlot, constBuffer->buffer);
 }
 
 void GnmCommandBufferDraw::bindImmBuffer(
@@ -713,23 +731,19 @@ void GnmCommandBufferDraw::bindImmBuffer(
 {
 	const GnmBuffer* vsharp = reinterpret_cast<const GnmBuffer*>(res.res.resource);
 
-	//GnmBufferCreateInfo info = {};
-	//info.buffer              = vsharp;
-	//info.stages              = cvt::convertShaderStage(shaderType);
-	//info.usageType           = res.usageType;
-	//auto dataBuffer          = m_factory.grabBuffer(info);
+	GnmBufferCreateInfo info = {};
+	info.buffer              = vsharp;
+	info.stages              = cvt::convertShaderStage(shaderType);
+	info.usage               = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 
-	//VkDeviceSize bufferSize = vsharp->getSize();
-	//
-	//bool updated = false;
-	//if (!updated)
-	//{
-	//	m_context->updateBuffer(dataBuffer, 0, bufferSize, vsharp->getBaseAddress());
-	//	updated = true;
-	//}
+	auto dataBuffer = m_cache.grabBuffer(info);
 
-	//uint32_t regSlot = computeResBinding(shaderType, res.res.startRegister);
-	//m_context->bindResourceBuffer(regSlot, dataBuffer);
+	VkDeviceSize bufferSize = vsharp->getSize();
+
+	m_context->updateBuffer(dataBuffer->buffer, 0, bufferSize, vsharp->getBaseAddress());
+
+	uint32_t regSlot = computeResBinding(shaderType, res.res.startRegister);
+	m_context->bindResourceBuffer(regSlot, dataBuffer->buffer);
 }
 
 void GnmCommandBufferDraw::bindImmTexture(
@@ -738,54 +752,55 @@ void GnmCommandBufferDraw::bindImmTexture(
 {
 	const GnmTexture* tsharp = reinterpret_cast<const GnmTexture*>(res.res.resource);
 
-	//GnmTextureCreateInfo info = {};
-	//info.texture              = tsharp;
-	//info.stages               = cvt::convertShaderStage(shaderType);
-	//info.usageType            = res.usageType;
-	//auto image                = m_factory.grabImage(info);
+	GnmTextureCreateInfo info = {};
+	info.texture              = tsharp;
+	info.stages               = cvt::convertShaderStage(shaderType);
+	info.isGpuWritable        = false;
 
-	//auto     imgInfo       = image.image->info();
-	//uint32_t pitchPerRow   = tsharp->getPitch();
-	//uint32_t pitchPerLayer = pitchPerRow * tsharp->getHeight();
+	auto image = m_cache.grabTexture(info);
 
-	//VkDeviceSize imageBufferSize = tsharp->getSizeAlign().m_size;
-	//void*        data            = tsharp->getBaseAddress();
+	auto     imgInfo       = image->image->info();
+	uint32_t pitchPerRow   = tsharp->getPitch();
+	uint32_t pitchPerLayer = pitchPerRow * tsharp->getHeight();
 
-	//auto tileMode = tsharp->getTileMode();
-	//if (tileMode == kTileModeDisplay_LinearAligned)
-	//{
-	//	VkImageSubresourceLayers subRes = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-	//	VkOffset3D               offset = { 0, 0, 0 };
-	//	m_context->updateImage(
-	//		image.image, subRes,
-	//		offset, imgInfo.extent,
-	//		data,
-	//		pitchPerRow, pitchPerLayer);
-	//}
-	//else
-	//{
-	//	// TODO:
-	//	// Untiling textures on CPU is not effective, we should do this using compute shader.
-	//	// But that would be a challenging job.
-	//	void* untiledData = malloc(imageBufferSize);
+	VkDeviceSize imageBufferSize = tsharp->getSizeAlign().m_size;
+	void*        data            = tsharp->getBaseAddress();
 
-	//	GpuAddress::TilingParameters tp;
-	//	tp.initFromTexture(tsharp, 0, 0);
-	//	GpuAddress::detileSurface(untiledData, data, &tp);
+	auto tileMode = tsharp->getTileMode();
+	if (tileMode == kTileModeDisplay_LinearAligned)
+	{
+		VkImageSubresourceLayers subRes = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+		VkOffset3D               offset = { 0, 0, 0 };
+		m_context->updateImage(
+			image->image, subRes,
+			offset, imgInfo.extent,
+			data,
+			pitchPerRow, pitchPerLayer);
+	}
+	else
+	{
+		// TODO:
+		// Untiling textures on CPU is not effective, we should do this using compute shader.
+		// But that would be a challenging job.
+		void* untiledData = malloc(imageBufferSize);
 
-	//	VkImageSubresourceLayers subRes = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-	//	VkOffset3D               offset = { 0, 0, 0 };
-	//	m_context->updateImage(
-	//		image.image, subRes,
-	//		offset, imgInfo.extent,
-	//		data,
-	//		pitchPerRow, pitchPerLayer);
+		GpuAddress::TilingParameters tp;
+		tp.initFromTexture(tsharp, 0, 0);
+		GpuAddress::detileSurface(untiledData, data, &tp);
 
-	//	free(untiledData);
-	//}
+		VkImageSubresourceLayers subRes = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+		VkOffset3D               offset = { 0, 0, 0 };
+		m_context->updateImage(
+			image->image, subRes,
+			offset, imgInfo.extent,
+			data,
+			pitchPerRow, pitchPerLayer);
 
-	//uint32_t regSlot = computeResBinding(PsslProgramType::PixelShader, res.res.startRegister);
-	//m_context->bindResourceView(regSlot, image.view, nullptr);
+		free(untiledData);
+	}
+
+	uint32_t regSlot = computeResBinding(PsslProgramType::PixelShader, res.res.startRegister);
+	m_context->bindResourceView(regSlot, image->view, nullptr);
 }
 
 void GnmCommandBufferDraw::bindImmResource(
@@ -804,11 +819,13 @@ void GnmCommandBufferDraw::bindImmResource(
 
 void GnmCommandBufferDraw::bindSampler(const PsslShaderResource& res)
 {
-	//const GnmSampler* ssharp  = reinterpret_cast<const GnmSampler*>(res.resource);
-	//auto              sampler = m_factory.grabSampler(*ssharp);
+	const GnmSampler*    ssharp = reinterpret_cast<const GnmSampler*>(res.resource);
+	GnmSamplerCreateInfo info   = {};
+	info.sampler                = ssharp;
+	auto sampler                = m_cache.grabSampler(info);
 
-	//uint32_t regSlot = computeSamplerBinding(PsslProgramType::PixelShader, res.startRegister);
-	//m_context->bindSampler(regSlot, sampler);
+	uint32_t regSlot = computeSamplerBinding(PsslProgramType::PixelShader, res.startRegister);
+	m_context->bindSampler(regSlot, sampler->sampler);
 }
 
 void GnmCommandBufferDraw::bindShaderResources(
@@ -976,11 +993,15 @@ void GnmCommandBufferDraw::clearColorTargetHack(GnmShaderResourceList& shaderRes
 	GpuAddress::dataFormatDecoder(reg, encodeValues, target->getDataFormat());
 
 	// Do the clear
-	//auto targetImage = m_factory.grabRenderTarget(*target);
-	//m_context->clearRenderTarget(
-	//	targetImage.view,
-	//	VK_IMAGE_ASPECT_COLOR_BIT,
-	//	*reinterpret_cast<VkClearValue*>(reg));
+	GnmTextureCreateInfo info = {};
+	info.renderTarget         = target;
+	info.stages               = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	info.isGpuWritable        = true;
+	auto targetImage          = m_cache.grabTexture(info);
+	m_context->clearRenderTarget(
+		targetImage->view,
+		VK_IMAGE_ASPECT_COLOR_BIT,
+		*reinterpret_cast<VkClearValue*>(reg));
 }
 
 void GnmCommandBufferDraw::commitCsStage()
@@ -1039,9 +1060,14 @@ void GnmCommandBufferDraw::clearShaderContext()
 
 void GnmCommandBufferDraw::clearDepthTarget()
 {
-	//auto depthImage = m_factory.grabDepthRenderTarget(m_state.gp.om.depthTarget);
-	//m_context->clearRenderTarget(depthImage.view, VK_IMAGE_ASPECT_DEPTH_BIT, m_state.gp.om.depthClearValue);
-	//m_flags.clr(GnmContexFlag::GpClearDepthTarget);
+	GnmTextureCreateInfo info = {};
+	info.depthRenderTarget    = &m_state.gp.om.depthTarget;
+	info.stages               = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+	info.isGpuWritable        = true;
+
+	auto depthImage = m_cache.grabTexture(info);
+	m_context->clearRenderTarget(depthImage->view, VK_IMAGE_ASPECT_DEPTH_BIT, m_state.gp.om.depthClearValue);
+	m_flags.clr(GnmContexFlag::GpClearDepthTarget);
 }
 
 void GnmCommandBufferDraw::clearRenderState()

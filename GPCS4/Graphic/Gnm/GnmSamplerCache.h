@@ -25,14 +25,14 @@ struct GnmSamplerCreateInfo
 
 struct GnmSammplerInstance
 {
-	RcPtr<vlt::VltSampler> sampler   = nullptr;
+	RcPtr<vlt::VltSampler> sampler;
 	uint32_t               idleCount = 0;
 };
 
 class GnmSamplerCache
 {
 public:
-	GnmSamplerCache(sce::SceGpuQueueDevice* device);
+	GnmSamplerCache(const sce::SceGpuQueueDevice* device);
 	~GnmSamplerCache();
 
 	GnmSammplerInstance* grabSampler(const GnmSamplerCreateInfo& desc);
@@ -41,7 +41,7 @@ private:
 	GnmSammplerInstance createSampler(const GnmSamplerCreateInfo& desc);
 
 private:
-	sce::SceGpuQueueDevice* m_device;
+	const sce::SceGpuQueueDevice* m_device;
 
 	std::unordered_map<
 		GnmMemoryRange,

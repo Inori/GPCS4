@@ -18,9 +18,9 @@ using namespace vlt;
 using namespace sce;
 using namespace pssl;
 
-GnmTextureCache::GnmTextureCache(sce::SceGpuQueueDevice* device,
-								 vlt::VltContext*        context,
-								 GnmMemoryMonitor*       monitor) :
+GnmTextureCache::GnmTextureCache(const sce::SceGpuQueueDevice* device,
+								 vlt::VltContext*              context,
+								 GnmMemoryMonitor*             monitor) :
 	m_device(device),
 	m_context(context),
 	m_monitor(monitor)
@@ -200,7 +200,7 @@ GnmTextureInstance GnmTextureCache::createTexture(const GnmTextureCreateInfo& de
 		texture.view               = view;
 		texture.memory             = GnmResourceMemory(
             range,
-            desc.isWritable ? GnmMemoryProtect::GpuReadWrite : GnmMemoryProtect::GpuReadOnly);
+            desc.isGpuWritable ? GnmMemoryProtect::GpuReadWrite : GnmMemoryProtect::GpuReadOnly);
 
 		// We need to sync the texture memory upon creation.
 		texture.memory.setPendingSync(true);

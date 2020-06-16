@@ -10,7 +10,7 @@
 using namespace vlt;
 using namespace sce;
 
-GnmSamplerCache::GnmSamplerCache(sce::SceGpuQueueDevice* device) :
+GnmSamplerCache::GnmSamplerCache(const sce::SceGpuQueueDevice* device) :
 	m_device(device)
 {
 }

@@ -38,7 +38,7 @@ struct GnmTextureCreateInfo
 	};
 
 	VkPipelineStageFlags stages;
-	bool                 isWritable;
+	bool                 isGpuWritable;
 };
 
 struct GnmTextureInstance
@@ -52,9 +52,9 @@ struct GnmTextureInstance
 class GnmTextureCache
 {
 public:
-	GnmTextureCache(sce::SceGpuQueueDevice* device,
-					vlt::VltContext*        context,
-					GnmMemoryMonitor*       monitor);
+	GnmTextureCache(const sce::SceGpuQueueDevice* device,
+					vlt::VltContext*              context,
+					GnmMemoryMonitor*             monitor);
 	~GnmTextureCache();
 
 	GnmTextureInstance* grabTexture(const GnmTextureCreateInfo& desc);
@@ -69,9 +69,9 @@ private:
 	GnmTextureInstance  createTexture(const GnmTextureCreateInfo& desc);
 
 private:
-	sce::SceGpuQueueDevice* m_device;
-	vlt::VltContext*        m_context;
-	GnmMemoryMonitor*       m_monitor;
+	const sce::SceGpuQueueDevice* m_device;
+	vlt::VltContext*              m_context;
+	GnmMemoryMonitor*             m_monitor;
 
 	std::unordered_map<
 		GnmMemoryRange,

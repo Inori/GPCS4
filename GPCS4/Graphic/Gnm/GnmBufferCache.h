@@ -18,6 +18,7 @@ class VltContext;
 
 class GnmMemoryMonitor;
 class GnmBuffer;
+struct GnmIndexBuffer;
 
 
 /**
@@ -28,7 +29,12 @@ class GnmBuffer;
  */
 struct GnmBufferCreateInfo
 {
-	const GnmBuffer*      buffer;
+	union
+	{
+		const GnmBuffer*      buffer;
+		const GnmIndexBuffer* index;
+	};
+	
 	VkPipelineStageFlags  stages;
 	VkBufferUsageFlags    usage;
 };
@@ -45,9 +51,9 @@ struct GnmBufferInstance
 class GnmBufferCache
 {
 public:
-	GnmBufferCache(sce::SceGpuQueueDevice* device,
-				   vlt::VltContext*        context,
-				   GnmMemoryMonitor*       monitor);
+	GnmBufferCache(const sce::SceGpuQueueDevice* device,
+				   vlt::VltContext*              context,
+				   GnmMemoryMonitor*             monitor);
 	~GnmBufferCache();
 
 	GnmBufferInstance* grabBuffer(const GnmBufferCreateInfo& desc);
@@ -58,14 +64,17 @@ public:
 
 private:
 
+	GnmMemoryRange extractMemoryRange(
+		const GnmBufferCreateInfo& desc);
+
 	GnmBufferInstance createBuffer(
 		const GnmBufferCreateInfo& desc);
 
 
 private:
-	sce::SceGpuQueueDevice* m_device;
-	vlt::VltContext*        m_context;
-	GnmMemoryMonitor*       m_monitor;
+	const sce::SceGpuQueueDevice* m_device;
+	vlt::VltContext*              m_context;
+	GnmMemoryMonitor*             m_monitor;
 
 	std::unordered_map<
 		GnmMemoryRange, GnmBufferInstance,

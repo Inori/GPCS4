@@ -14,9 +14,9 @@ using namespace vlt;
 using namespace sce;
 using namespace pssl;
 
-GnmBufferCache::GnmBufferCache(sce::SceGpuQueueDevice* device,
-							   vlt::VltContext*        context,
-							   GnmMemoryMonitor*       monitor) :
+GnmBufferCache::GnmBufferCache(const sce::SceGpuQueueDevice* device,
+							   vlt::VltContext*              context,
+							   GnmMemoryMonitor*             monitor) :
 	m_device(device),
 	m_context(context),
 	m_monitor(monitor)
@@ -32,9 +32,7 @@ GnmBufferInstance* GnmBufferCache::grabBuffer(const GnmBufferCreateInfo& desc)
 {
 	GnmBufferInstance* buffer = nullptr;
 
-	GnmMemoryRange range = {};
-	range.start          = desc.buffer->getBaseAddress();
-	range.size           = desc.buffer->getSize();
+	auto range = extractMemoryRange(desc);
 
 	auto iter = m_bufferMap.find(range);
 	if (iter == m_bufferMap.end())
@@ -62,6 +60,22 @@ void GnmBufferCache::flush(const GnmMemoryRange& range)
 
 void GnmBufferCache::invalidate(const GnmMemoryRange& range)
 {
+}
+
+GnmMemoryRange GnmBufferCache::extractMemoryRange(const GnmBufferCreateInfo& desc)
+{
+	GnmMemoryRange range = {};
+	if (desc.usage & VK_BUFFER_USAGE_INDEX_BUFFER_BIT)
+	{
+		range.start = const_cast<void*>(desc.index->buffer);
+		range.size  = desc.index->size;
+	}
+	else
+	{
+		range.start = desc.buffer->getBaseAddress();
+		range.size  = desc.buffer->getSize();
+	}
+	return range;
 }
 
 GnmBufferInstance GnmBufferCache::createBuffer(const GnmBufferCreateInfo& desc)
@@ -106,9 +120,7 @@ GnmBufferInstance GnmBufferCache::createBuffer(const GnmBufferCreateInfo& desc)
 	VkBufferUsageFlags usage  = desc.usage;
 	VkAccessFlags      access = {};
 
-	GnmMemoryRange range = {};
-	range.start          = desc.buffer->getBaseAddress();
-	range.size           = desc.buffer->getSize();
+	auto range = extractMemoryRange(desc);
 
 	// TODO:
 	// Is this reliable to detect if the memory is read-write or read-only?
