@@ -49,6 +49,11 @@ public:
 	 */
 	GnmSammplerInstance* grabSampler(const GnmSamplerCreateInfo& desc);
 
+	/**
+	 * \brief Sync Gnm memory to vulkan resource objects
+	 */
+	void sync();
+
 private:
 	void onMemoryRead(const GnmMemoryRange& range);
 

@@ -53,7 +53,7 @@ GnmTextureInstance* GnmTextureCache::grabTexture(const GnmTextureCreateInfo& des
 
 	if (texture->memory.pendingSync())
 	{
-		flush(range);
+		upload(*texture);
 	}
 
 	return texture;
@@ -61,12 +61,25 @@ GnmTextureInstance* GnmTextureCache::grabTexture(const GnmTextureCreateInfo& des
 
 void GnmTextureCache::flush(const GnmMemoryRange& range)
 {
+	// Flush memory from Vulkan object to it's backing Gnm CPU memory.
 }
 
 void GnmTextureCache::invalidate(const GnmMemoryRange& range)
 {
+	// Mark the vulkan object as invalid
 }
 
+
+void GnmTextureCache::sync()
+{
+	for (auto& [range, texture] : m_textureMap)
+	{
+		if (texture.memory.pendingSync())
+		{
+			upload(texture);
+		}
+	}
+}
 
 GnmMemoryRange GnmTextureCache::extractMemoryRange(const GnmTextureCreateInfo& desc)
 {
@@ -214,6 +227,11 @@ GnmTextureInstance GnmTextureCache::createTexture(const GnmTextureCreateInfo& de
 	} while (false);
 
 	return texture;
+}
+
+void GnmTextureCache::upload(GnmTextureInstance& texture)
+{
+	texture.memory.setPendingSync(false);
 }
 
 void GnmTextureCache::collectRenderTargets()

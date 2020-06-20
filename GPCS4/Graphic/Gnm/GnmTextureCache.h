@@ -63,10 +63,13 @@ public:
 
 	void invalidate(const GnmMemoryRange& range);
 
+	void sync();
+
 private:
 	void                collectRenderTargets();
 	GnmMemoryRange      extractMemoryRange(const GnmTextureCreateInfo& desc);
 	GnmTextureInstance  createTexture(const GnmTextureCreateInfo& desc);
+	void                upload(GnmTextureInstance& texture);
 
 private:
 	const sce::SceGpuQueueDevice* m_device;

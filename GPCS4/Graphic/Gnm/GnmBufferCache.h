@@ -62,6 +62,8 @@ public:
 
 	void invalidate(const GnmMemoryRange& range);
 
+	void sync();
+
 private:
 
 	GnmMemoryRange extractMemoryRange(
@@ -70,6 +72,7 @@ private:
 	GnmBufferInstance createBuffer(
 		const GnmBufferCreateInfo& desc);
 
+	void upload(GnmBufferInstance& buffer);
 
 private:
 	const sce::SceGpuQueueDevice* m_device;

@@ -664,9 +664,6 @@ void GnmCommandBufferDraw::bindIndexBuffer()
 	info.usage               = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
 
 	auto indexBuffer = m_cache.grabBuffer(info);
-
-	m_context->updateBuffer(indexBuffer->buffer, 0, indexDesc.size, indexDesc.buffer);
-
 	m_context->bindIndexBuffer(indexBuffer->buffer, indexDesc.type);
 }
 
@@ -737,10 +734,6 @@ void GnmCommandBufferDraw::bindImmBuffer(
 	info.usage               = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 
 	auto dataBuffer = m_cache.grabBuffer(info);
-
-	VkDeviceSize bufferSize = vsharp->getSize();
-
-	m_context->updateBuffer(dataBuffer->buffer, 0, bufferSize, vsharp->getBaseAddress());
 
 	uint32_t regSlot = computeResBinding(shaderType, res.res.startRegister);
 	m_context->bindResourceBuffer(regSlot, dataBuffer->buffer);

@@ -48,7 +48,7 @@ GnmBufferInstance* GnmBufferCache::grabBuffer(const GnmBufferCreateInfo& desc)
 
 	if (buffer->memory.pendingSync())
 	{
-		flush(range);
+		upload(*buffer);
 	}
 
 	return buffer;
@@ -56,10 +56,24 @@ GnmBufferInstance* GnmBufferCache::grabBuffer(const GnmBufferCreateInfo& desc)
 
 void GnmBufferCache::flush(const GnmMemoryRange& range)
 {
+	// Flush memory from Vulkan object to it's backing Gnm CPU memory.
 }
 
 void GnmBufferCache::invalidate(const GnmMemoryRange& range)
 {
+	// Mark the vulkan object as invalid
+	
+}
+
+void GnmBufferCache::sync()
+{
+	for (auto& [range, buffer] : m_bufferMap)
+	{
+		if (buffer.memory.pendingSync())
+		{
+			upload(buffer);
+		}
+	}
 }
 
 GnmMemoryRange GnmBufferCache::extractMemoryRange(const GnmBufferCreateInfo& desc)
@@ -169,4 +183,14 @@ GnmBufferInstance GnmBufferCache::createBuffer(const GnmBufferCreateInfo& desc)
 	buffer.memory.setPendingSync(true);
 
 	return buffer;
+}
+
+void GnmBufferCache::upload(GnmBufferInstance& buffer)
+{
+	const auto&  memory     = buffer.memory.range();
+	VkDeviceSize bufferSize = memory.size;
+
+	m_context->updateBuffer(buffer.buffer, 0, bufferSize, memory.start);
+
+	buffer.memory.setPendingSync(false);
 }

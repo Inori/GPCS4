@@ -37,6 +37,10 @@ GnmSammplerInstance* GnmCacheManager::grabSampler(const GnmSamplerCreateInfo& de
 	return m_samplerCache.grabSampler(desc);
 }
 
+void GnmCacheManager::sync()
+{
+}
+
 void GnmCacheManager::onMemoryRead(const GnmMemoryRange& range)
 {
 	m_bufferCache.flush(range);
