@@ -125,12 +125,11 @@ GnmBufferInstance GnmBufferCache::createBuffer(const GnmBufferCreateInfo& desc)
 	// TODO:
 	// Is this reliable to detect if the memory is read-write or read-only?
 	ResourceMemoryType memType = desc.buffer->getResourceMemoryType();
-	LOG_ASSERT(memType == kResourceMemoryTypeGC || memType == kResourceMemoryTypeRO, 
-		"unsupported buffer memory type %d", memType);
 
 	if (usage & VK_BUFFER_USAGE_INDEX_BUFFER_BIT)
 	{
 		access |= VK_ACCESS_INDEX_READ_BIT;
+		memType = kResourceMemoryTypeRO;
 	}
 	if (usage & VK_BUFFER_USAGE_VERTEX_BUFFER_BIT)
 	{
@@ -149,6 +148,9 @@ GnmBufferInstance GnmBufferCache::createBuffer(const GnmBufferCreateInfo& desc)
 	{
 		access |= VK_ACCESS_SHADER_WRITE_BIT;
 	}
+
+	LOG_ASSERT(memType == kResourceMemoryTypeGC || memType == kResourceMemoryTypeRO,
+			   "unsupported buffer memory type %d", memType);
 
 	VltBufferCreateInfo info = {};
 	info.size                = range.size;
