@@ -106,6 +106,7 @@ GnmTextureInstance GnmTextureCache::createTexture(const GnmTextureCreateInfo& de
 	VkImageUsageFlags usage  = {};
 	VkAccessFlags     access = {};
 	VkImageLayout     layout = {};
+	VkExtent3D        extent = {};
 
 	do 
 	{
@@ -126,6 +127,10 @@ GnmTextureInstance GnmTextureCache::createTexture(const GnmTextureCreateInfo& de
 			usage  = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 			access = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 			layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+			extent.width  = desc.depthRenderTarget->getWidth();
+			extent.height = desc.depthRenderTarget->getHeight();
+			extent.depth  = 1;
 		}
 		else if (desc.stages & VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT)
 		{
@@ -146,6 +151,10 @@ GnmTextureInstance GnmTextureCache::createTexture(const GnmTextureCreateInfo& de
 			usage  = VK_IMAGE_USAGE_SAMPLED_BIT;
 			access = VK_ACCESS_SHADER_READ_BIT;
 			layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+			extent.width  = desc.texture->getWidth();
+			extent.height = desc.texture->getHeight();
+			extent.depth  = desc.texture->getDepth();
 		}
 
 		if (format == VK_FORMAT_UNDEFINED)
@@ -161,9 +170,7 @@ GnmTextureInstance GnmTextureCache::createTexture(const GnmTextureCreateInfo& de
 		imgInfo.format             = format;
 		imgInfo.flags              = 0;
 		imgInfo.sampleCount        = VK_SAMPLE_COUNT_1_BIT;
-		imgInfo.extent.width       = desc.texture->getWidth();
-		imgInfo.extent.height      = desc.texture->getHeight();
-		imgInfo.extent.depth       = desc.texture->getDepth();
+		imgInfo.extent             = extent;
 		imgInfo.numLayers          = 1;
 		imgInfo.mipLevels          = 1;
 		imgInfo.usage              = usage | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
