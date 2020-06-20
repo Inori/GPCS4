@@ -131,6 +131,8 @@ GnmBufferInstance GnmBufferCache::createBuffer(const GnmBufferCreateInfo& desc)
 	// while declare it as a RO Buffer in shader code, as long as the shader doesn't
 	// write to the buffer.
 
+	GnmBufferInstance buffer = {};
+
 	VkBufferUsageFlags usage  = desc.usage;
 	VkAccessFlags      access = {};
 
@@ -140,10 +142,13 @@ GnmBufferInstance GnmBufferCache::createBuffer(const GnmBufferCreateInfo& desc)
 	// Is this reliable to detect if the memory is read-write or read-only?
 	ResourceMemoryType memType = desc.buffer->getResourceMemoryType();
 
+	bool isIndexBuffer = false;
+
 	if (usage & VK_BUFFER_USAGE_INDEX_BUFFER_BIT)
 	{
 		access |= VK_ACCESS_INDEX_READ_BIT;
 		memType = kResourceMemoryTypeRO;
+		isIndexBuffer = true;
 	}
 	if (usage & VK_BUFFER_USAGE_VERTEX_BUFFER_BIT)
 	{
@@ -172,12 +177,20 @@ GnmBufferInstance GnmBufferCache::createBuffer(const GnmBufferCreateInfo& desc)
 	info.stages              = desc.stages;
 	info.access              = access;
 
-	GnmBufferInstance buffer = {};
 	buffer.buffer            = m_device->device->createBuffer(info, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 	buffer.idleCount         = 0;
 	buffer.memory            = GnmResourceMemory(
         range,
         memType == kResourceMemoryTypeRO ? GnmMemoryProtect::GpuReadOnly : GnmMemoryProtect::GpuReadWrite);
+
+	if (isIndexBuffer)
+	{
+		std::memcpy(&buffer.isharp, desc.index, sizeof(GnmIndexBuffer));
+	}
+	else
+	{
+		std::memcpy(&buffer.vsharp, desc.buffer, sizeof(GnmBuffer));
+	}
 
 	// We need to sync the buffer memory upon creation.
 	buffer.memory.setPendingSync(true);

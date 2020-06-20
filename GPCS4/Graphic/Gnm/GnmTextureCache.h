@@ -2,6 +2,9 @@
 
 #include "GnmCommon.h"
 #include "GnmResourceMemory.h"
+#include "GnmTexture.h"
+#include "GnmRenderTarget.h"
+#include "GnmDepthRenderTarget.h"
 
 #include <unordered_map>
 
@@ -18,9 +21,18 @@ class VltContext;
 }  // namespace vlt
 
 class GnmMemoryMonitor;
-class GnmTexture;
-class GnmRenderTarget;
-class GnmDepthRenderTarget;
+
+/**
+ * \brief Gnm texture type
+ *
+ * Each type has it's own descriptor.
+ */
+enum class GnmTextureType : uint32_t
+{
+	Texture,
+	RenderTarget,
+	DepthRenderTarget
+};
 
 /**
  * \brief Texture create information
@@ -37,6 +49,7 @@ struct GnmTextureCreateInfo
 		const GnmDepthRenderTarget* depthRenderTarget;
 	};
 
+	GnmTextureType       type;
 	VkPipelineStageFlags stages;
 	bool                 isGpuWritable;
 };
@@ -47,6 +60,14 @@ struct GnmTextureInstance
 	RcPtr<vlt::VltImageView> view      = nullptr;
 	uint32_t                 idleCount = 0;
 	GnmResourceMemory        memory;
+	GnmTextureType           type;
+	
+	union
+	{
+		GnmTexture           tsharp;
+		GnmRenderTarget      tsharpRT;
+		GnmDepthRenderTarget tsharpDRT;
+	};
 };
 
 class GnmTextureCache

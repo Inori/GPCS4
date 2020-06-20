@@ -2,6 +2,7 @@
 
 #include "GnmCommon.h"
 #include "GnmResourceMemory.h"
+#include "GnmBuffer.h"
 
 #include <unordered_map>
 
@@ -17,8 +18,6 @@ class VltContext;
 }  // namespace vlt
 
 class GnmMemoryMonitor;
-class GnmBuffer;
-struct GnmIndexBuffer;
 
 
 /**
@@ -45,6 +44,12 @@ struct GnmBufferInstance
 	RcPtr<vlt::VltBuffer> buffer    = nullptr;
 	uint32_t              idleCount = 0;
 	GnmResourceMemory     memory;
+
+	union
+	{
+		GnmBuffer      vsharp;
+		GnmIndexBuffer isharp;
+	};
 };
 
 

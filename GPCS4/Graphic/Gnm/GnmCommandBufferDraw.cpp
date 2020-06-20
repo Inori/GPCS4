@@ -752,46 +752,6 @@ void GnmCommandBufferDraw::bindImmTexture(
 
 	auto image = m_cache.grabTexture(info);
 
-	auto     imgInfo       = image->image->info();
-	uint32_t pitchPerRow   = tsharp->getPitch();
-	uint32_t pitchPerLayer = pitchPerRow * tsharp->getHeight();
-
-	VkDeviceSize imageBufferSize = tsharp->getSizeAlign().m_size;
-	void*        data            = tsharp->getBaseAddress();
-
-	auto tileMode = tsharp->getTileMode();
-	if (tileMode == kTileModeDisplay_LinearAligned)
-	{
-		VkImageSubresourceLayers subRes = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-		VkOffset3D               offset = { 0, 0, 0 };
-		m_context->updateImage(
-			image->image, subRes,
-			offset, imgInfo.extent,
-			data,
-			pitchPerRow, pitchPerLayer);
-	}
-	else
-	{
-		// TODO:
-		// Untiling textures on CPU is not effective, we should do this using compute shader.
-		// But that would be a challenging job.
-		void* untiledData = malloc(imageBufferSize);
-
-		GpuAddress::TilingParameters tp;
-		tp.initFromTexture(tsharp, 0, 0);
-		GpuAddress::detileSurface(untiledData, data, &tp);
-
-		VkImageSubresourceLayers subRes = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-		VkOffset3D               offset = { 0, 0, 0 };
-		m_context->updateImage(
-			image->image, subRes,
-			offset, imgInfo.extent,
-			data,
-			pitchPerRow, pitchPerLayer);
-
-		free(untiledData);
-	}
-
 	uint32_t regSlot = computeResBinding(PsslProgramType::PixelShader, res.res.startRegister);
 	m_context->bindResourceView(regSlot, image->view, nullptr);
 }
