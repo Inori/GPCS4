@@ -173,6 +173,9 @@ GnmTextureInstance GnmTextureCache::createTexture(const GnmTextureCreateInfo& de
 			extent.depth  = desc.texture->getDepth();
 
 			std::memcpy(&texture.tsharp, desc.texture, sizeof(GnmTexture));
+
+			// We need to sync the texture memory upon creation.
+			texture.memory.setPendingSync(true);
 		}
 
 		if (format == VK_FORMAT_UNDEFINED)
@@ -227,8 +230,6 @@ GnmTextureInstance GnmTextureCache::createTexture(const GnmTextureCreateInfo& de
             range,
             desc.isGpuWritable ? GnmMemoryProtect::GpuReadWrite : GnmMemoryProtect::GpuReadOnly);
 
-		// We need to sync the texture memory upon creation.
-		texture.memory.setPendingSync(true);
 	} while (false);
 
 	return texture;
@@ -236,17 +237,18 @@ GnmTextureInstance GnmTextureCache::createTexture(const GnmTextureCreateInfo& de
 
 void GnmTextureCache::upload(GnmTextureInstance& texture)
 {
-	auto&    image         = texture.image;
+	auto&       image  = texture.image;
+	const auto& tsharp = texture.tsharp;
 
 	auto     imgInfo       = image->info();
-	uint32_t pitchPerRow   = tsharp->getPitch();
-	uint32_t pitchPerLayer = pitchPerRow * tsharp->getHeight();
+	uint32_t pitchPerRow   = tsharp.getPitch();
+	uint32_t pitchPerLayer = pitchPerRow * tsharp.getHeight();
 
 	auto&        memory          = texture.memory.range();
 	VkDeviceSize imageBufferSize = memory.size;
 	void*        data            = memory.start;
 
-	auto tileMode = tsharp->getTileMode();
+	auto tileMode = tsharp.getTileMode();
 	if (tileMode == kTileModeDisplay_LinearAligned)
 	{
 		VkImageSubresourceLayers subRes = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
@@ -265,7 +267,7 @@ void GnmTextureCache::upload(GnmTextureInstance& texture)
 		void* untiledData = malloc(imageBufferSize);
 
 		GpuAddress::TilingParameters tp;
-		tp.initFromTexture(tsharp, 0, 0);
+		tp.initFromTexture(&tsharp, 0, 0);
 		GpuAddress::detileSurface(untiledData, data, &tp);
 
 		VkImageSubresourceLayers subRes = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
