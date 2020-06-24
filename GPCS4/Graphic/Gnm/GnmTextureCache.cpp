@@ -123,6 +123,11 @@ GnmTextureInstance GnmTextureCache::createTexture(const GnmTextureCreateInfo& de
 
 	do 
 	{
+		GnmMemoryRange range = extractMemoryRange(desc);
+		texture.memory = GnmResourceMemory(
+			range,
+			desc.isGpuWritable ? GnmMemoryProtect::GpuReadWrite : GnmMemoryProtect::GpuReadOnly);
+
 		if (desc.stages & VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT ||
 			desc.stages & VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT)
 		{
@@ -222,13 +227,8 @@ GnmTextureInstance GnmTextureCache::createTexture(const GnmTextureCreateInfo& de
 			break;
 		}
 
-		GnmMemoryRange range = extractMemoryRange(desc);
-
 		texture.image              = image;
 		texture.view               = view;
-		texture.memory             = GnmResourceMemory(
-            range,
-            desc.isGpuWritable ? GnmMemoryProtect::GpuReadWrite : GnmMemoryProtect::GpuReadOnly);
 
 	} while (false);
 
