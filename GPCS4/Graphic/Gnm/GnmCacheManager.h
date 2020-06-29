@@ -55,9 +55,9 @@ public:
 	void sync();
 
 private:
-	void onMemoryRead(const GnmMemoryRange& range);
+	void onMemoryRead(const GnmResourceMemory& block);
 
-	void onMemoryWrite(const GnmMemoryRange& range);
+	void onMemoryWrite(const GnmResourceMemory& block);
 
 private:
 	const sce::SceGpuQueueDevice* m_device;

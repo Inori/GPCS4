@@ -4,6 +4,7 @@
 #include "GnmRenderTarget.h"
 #include "GnmDepthRenderTarget.h"
 #include "GnmConvertor.h"
+#include "GnmMemoryMonitor.h"
 
 #include "../Violet/VltDevice.h"
 #include "../Violet/VltContext.h"
@@ -43,7 +44,11 @@ GnmTextureInstance* GnmTextureCache::grabTexture(const GnmTextureCreateInfo& des
 	if (iter == m_textureMap.end())
 	{
 		auto instance = createTexture(desc);
+		// Save texture instance
 		auto [iter, inserted] = m_textureMap.emplace(std::make_pair(range, instance));
+		// Trace memory access
+		m_monitor->traceMemory(instance.memory);
+
 		texture = &iter->second;
 	}
 	else

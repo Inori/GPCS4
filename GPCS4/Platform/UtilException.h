@@ -6,6 +6,7 @@
 namespace UtilException
 {;
 
+constexpr uint32_t GnmPageSize = 0x1000;
 
 enum class ExceptionAction
 {

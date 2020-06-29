@@ -209,8 +209,9 @@ void VMUnMap(void* pAddr, size_t nSize)
 
 bool VMProtect(void* pAddr, size_t nSize, uint32_t nProtectFlag)
 {
-	LOG_FIXME("Not Implemented.");
-	return  true;
+	DWORD newProtect = GetProtectFlag(nProtectFlag);
+	DWORD oldProtect = 0;
+	return VirtualProtect(pAddr, nSize, newProtect, &oldProtect);
 }
 
 int VMQueryProtection(void* addr, void** start, void** end, uint32_t* prot)

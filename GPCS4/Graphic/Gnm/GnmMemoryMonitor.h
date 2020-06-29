@@ -11,15 +11,18 @@
 struct GnmMemoryCompare
 {
 	using is_transparent = void;
-								
-	bool operator()(GnmMemoryRange const& lhs, GnmMemoryRange const& rhs) const
+
+	bool operator()(GnmResourceMemory const& lhs, GnmResourceMemory const& rhs) const
 	{
 		// lRange and rRange is supposed to be not overlapped.
-		return reinterpret_cast<uintptr_t>(lhs.start) < reinterpret_cast<uintptr_t>(lhs.start);
+		auto lRange = lhs.range();
+		auto rRange = rhs.range();
+		return reinterpret_cast<uintptr_t>(lRange.start) < reinterpret_cast<uintptr_t>(rRange.start);
 	}
 
-	bool operator()(const void* const address, GnmMemoryRange const& range) const
+	bool operator()(const void* const address, GnmResourceMemory const& block) const
 	{
+		auto range = block.range();
 		return reinterpret_cast<uintptr_t>(address) >= reinterpret_cast<uintptr_t>(range.start) &&
 			   reinterpret_cast<uintptr_t>(address) < reinterpret_cast<uintptr_t>(range.start) + range.size;
 	}
@@ -27,32 +30,39 @@ struct GnmMemoryCompare
 
 struct GnmMemoryCallback
 {
-	using MemoryAccessFunction = std::function<void(const GnmMemoryRange& range)>;
+	using MemoryAccessFunction = std::function<void(const GnmResourceMemory& range)>;
 	MemoryAccessFunction read;
 	MemoryAccessFunction write;
 };
 
 class GnmMemoryMonitor
 {
+	using MemoryBlockSet = std::set<std::reference_wrapper<GnmResourceMemory>, GnmMemoryCompare>;
+
 public:
 	GnmMemoryMonitor(const GnmMemoryCallback& callback);
 	~GnmMemoryMonitor();
 
-	void traceMemory(GnmMemoryRange& block);
+	void traceMemory(GnmResourceMemory& block);
 
-	void untraceMemory(GnmMemoryRange& block);
+	void untraceMemory(GnmResourceMemory& block);
 
 private:
 	void install();
 
+	void monitor(GnmResourceMemory& block);
+	void neglect(GnmResourceMemory& block);
+
+	GnmMemoryRange getMonitorRange(GnmMemoryRange& block);
+
 	static UtilException::ExceptionAction
 	exceptionCallbackStatic(UtilException::ExceptionRecord* record, void* param);
 
-	static UtilException::ExceptionAction
+	UtilException::ExceptionAction
 	exceptionCallback(UtilException::ExceptionRecord* record);
 
 private:
-	std::set<std::reference_wrapper<GnmMemoryRange>, GnmMemoryCompare> m_blockRecords;
-	GnmMemoryCallback                                                  m_callback;
+	MemoryBlockSet    m_blockRecords;
+	GnmMemoryCallback m_callback;
 };
 

@@ -697,7 +697,7 @@ void GnmCommandBufferDraw::bindVertexBuffer(
 
 	auto vertexBuffer = m_cache.grabBuffer(info);
 
-	m_context->updateBuffer(vertexBuffer->buffer, 0, bufferSize, vtxData);
+	// m_context->updateBuffer(vertexBuffer->buffer, 0, bufferSize, vtxData);
 
 	uint32_t stride = vsharp->getStride();
 	m_context->bindVertexBuffer(attr.bindingId,
@@ -714,9 +714,6 @@ void GnmCommandBufferDraw::bindImmConstBuffer(pssl::PsslProgramType shaderType, 
 	info.usage               = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
 
 	auto constBuffer = m_cache.grabBuffer(info);
-
-	VkDeviceSize bufferSize = vsharp->getSize();
-	m_context->updateBuffer(constBuffer->buffer, 0, bufferSize, vsharp->getBaseAddress());
 
 	uint32_t regSlot = computeConstantBufferBinding(shaderType, res.startRegister);
 	m_context->bindResourceBuffer(regSlot, constBuffer->buffer);

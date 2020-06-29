@@ -9,8 +9,9 @@ GnmCacheManager::GnmCacheManager(const sce::SceGpuQueueDevice* device,
 	m_device(device),
 	m_context(context),
 	m_monitor(
-		{ [this](const GnmMemoryRange& range) { onMemoryRead(range); },
-		  [this](const GnmMemoryRange& range) { onMemoryWrite(range); } 
+		{ 
+			[this](const GnmResourceMemory& range) { onMemoryRead(range); },
+			[this](const GnmResourceMemory& range) { onMemoryWrite(range); } 
 		}),
 	m_bufferCache(m_device, m_context, &m_monitor),
 	m_textureCache(m_device, m_context, &m_monitor),
@@ -41,15 +42,15 @@ void GnmCacheManager::sync()
 {
 }
 
-void GnmCacheManager::onMemoryRead(const GnmMemoryRange& range)
+void GnmCacheManager::onMemoryRead(const GnmResourceMemory& block)
 {
-	m_bufferCache.flush(range);
-	m_textureCache.flush(range);
+	m_bufferCache.flush(block.range());
+	m_textureCache.flush(block.range());
 }
 
-void GnmCacheManager::onMemoryWrite(const GnmMemoryRange& range)
+void GnmCacheManager::onMemoryWrite(const GnmResourceMemory& block)
 {
-	m_bufferCache.invalidate(range);
-	m_textureCache.invalidate(range);
+	m_bufferCache.invalidate(block.range());
+	m_textureCache.invalidate(block.range());
 }
 

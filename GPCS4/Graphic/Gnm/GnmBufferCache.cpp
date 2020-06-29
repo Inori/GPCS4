@@ -1,6 +1,7 @@
 #include "GnmBufferCache.h"
 
 #include "GnmBuffer.h"
+#include "GnmMemoryMonitor.h"
 
 #include "../Violet/VltBuffer.h"
 #include "../Violet/VltDevice.h"
@@ -38,7 +39,12 @@ GnmBufferInstance* GnmBufferCache::grabBuffer(const GnmBufferCreateInfo& desc)
 	if (iter == m_bufferMap.end())
 	{
 		auto instance = createBuffer(desc);
+
+		// Save buffer instance
 		auto [iter, inserted] = m_bufferMap.emplace(std::make_pair(range, instance));
+		// Trace memory access
+		m_monitor->traceMemory(instance.memory);
+
 		buffer = &iter->second;
 	}
 	else
