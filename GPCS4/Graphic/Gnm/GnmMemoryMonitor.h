@@ -20,11 +20,16 @@ struct GnmMemoryCompare
 		return reinterpret_cast<uintptr_t>(lRange.start) < reinterpret_cast<uintptr_t>(rRange.start);
 	}
 
-	bool operator()(const void* const address, GnmResourceMemory const& block) const
+	bool operator()(const void* address, GnmResourceMemory const& block) const
 	{
 		auto range = block.range();
-		return reinterpret_cast<uintptr_t>(address) >= reinterpret_cast<uintptr_t>(range.start) &&
-			   reinterpret_cast<uintptr_t>(address) < reinterpret_cast<uintptr_t>(range.start) + range.size;
+		return reinterpret_cast<uintptr_t>(address) < reinterpret_cast<uintptr_t>(range.start);
+	}
+
+	bool operator()(GnmResourceMemory const& block, const void* address) const
+	{
+		auto range = block.range();
+		return reinterpret_cast<uintptr_t>(range.start) < reinterpret_cast<uintptr_t>(address);
 	}
 };
 
@@ -53,16 +58,25 @@ private:
 	void monitor(GnmResourceMemory& block);
 	void neglect(GnmResourceMemory& block);
 
-	GnmMemoryRange getMonitorRange(GnmMemoryRange& block);
+	GnmMemoryRange getMonitorRange(const GnmMemoryRange& block);
 
-	static UtilException::ExceptionAction
-	exceptionCallbackStatic(UtilException::ExceptionRecord* record, void* param);
+	void pendSingleStep(UtilException::ExceptionRecord* record);
+	
+	UtilException::ExceptionAction
+	onMemoryAccess(UtilException::ExceptionRecord* record);
+
+	UtilException::ExceptionAction
+	onSingleStep(UtilException::ExceptionRecord* record);
 
 	UtilException::ExceptionAction
 	exceptionCallback(UtilException::ExceptionRecord* record);
 
+	static UtilException::ExceptionAction
+	exceptionCallbackStatic(UtilException::ExceptionRecord* record, void* param);
+
 private:
 	MemoryBlockSet    m_blockRecords;
 	GnmMemoryCallback m_callback;
+	thread_local static uint32_t m_lastProtect;
 };
 

@@ -207,11 +207,16 @@ void VMUnMap(void* pAddr, size_t nSize)
 	} while (false);
 }
 
-bool VMProtect(void* pAddr, size_t nSize, uint32_t nProtectFlag)
+bool VMProtect(void* pAddr, size_t nSize, uint32_t nProtectFlag, uint32_t* pOldProtectFlag /*= nullptr*/)
 {
 	DWORD newProtect = GetProtectFlag(nProtectFlag);
 	DWORD oldProtect = 0;
-	return VirtualProtect(pAddr, nSize, newProtect, &oldProtect);
+	BOOL  bRet       = VirtualProtect(pAddr, nSize, newProtect, &oldProtect);
+	if (pOldProtectFlag)
+	{
+		*pOldProtectFlag = oldProtect;
+	}
+	return bRet;
 }
 
 int VMQueryProtection(void* addr, void** start, void** end, uint32_t* prot)
