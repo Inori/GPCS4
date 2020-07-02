@@ -2,6 +2,12 @@
 
 #include "UtilMemory.h"
 
+LOG_CHANNEL(Graphic.Gnm.GnmMemoryMonitor);
+
+thread_local size_t GnmMemoryMonitor::m_lastPage = 0;
+
+thread_local uint32_t GnmMemoryMonitor::m_lastProtect = 0;
+
 GnmMemoryMonitor::GnmMemoryMonitor(const GnmMemoryCallback& callback):
 	m_callback(callback)
 {
@@ -80,8 +86,37 @@ GnmMemoryRange GnmMemoryMonitor::getMonitorRange(const GnmMemoryRange& block)
 	return result;
 }
 
+inline void GnmMemoryMonitor::setTrapFlag(UtilException::ExceptionRecord* record)
+{
+	// TF, Trap flag (single step)
+	record->context.EFlags |= (1 << 8);
+}
+
 void GnmMemoryMonitor::pendSingleStep(UtilException::ExceptionRecord* record)
 {
+	do 
+	{
+		// Unprotect the page containing the accessed memory address.
+		m_lastPage = util::alignUp(
+            record->info.virtualAddress, UtilException::GnmPageSize);
+
+		uint32_t lastProtect = 0;
+		UtilMemory::VMProtect(reinterpret_cast<void*>(m_lastPage),
+							  UtilException::GnmPageSize,
+							  UtilMemory::VMPF_READ_WRITE,
+							  &lastProtect);
+		m_lastProtect = lastProtect;
+
+		// Set TF, after the exception handler return,
+		// the game will execute a single instruction,
+		// which is the one causing the exception previously,
+		// but this time it won't raise a memory access
+		// exception anymore since we have unprotected the memory above,
+		// instead, it will trigger a single step exception which will
+		// be handled by us in "onSingleStep".
+		setTrapFlag(record);
+
+	} while (false);
 }
 
 UtilException::ExceptionAction GnmMemoryMonitor::onMemoryAccess(UtilException::ExceptionRecord* record)
@@ -89,6 +124,7 @@ UtilException::ExceptionAction GnmMemoryMonitor::onMemoryAccess(UtilException::E
 	do 
 	{
 		void* address = reinterpret_cast<void*>(record->info.virtualAddress);
+		LOG_DEBUG("exception memory %p", address);
 
 		auto iter = m_blockRecords.find(address);
 		if (iter != m_blockRecords.end())
@@ -97,6 +133,10 @@ UtilException::ExceptionAction GnmMemoryMonitor::onMemoryAccess(UtilException::E
 
 			// We already know the memory is accessed and it's access type,
 			// so we don't need to monitor the memory anymore.
+
+			// TODO:
+			// There is a bug here, if the game read then write, or write then read
+			// the memory, we'll miss the second access if we call neglect here.
 			neglect(block);
 
 			auto  access = record->info.access;
@@ -118,10 +158,22 @@ UtilException::ExceptionAction GnmMemoryMonitor::onMemoryAccess(UtilException::E
 			pendSingleStep(record);
 		}
 	} while (false);
+
+	// We have unprotected the memory, go to re-execute the instruction
+	return UtilException::ExceptionAction::CONTINUE_EXECUTION;
 }
 
 UtilException::ExceptionAction GnmMemoryMonitor::onSingleStep(UtilException::ExceptionRecord* record)
 {
+	LOG_DEBUG("exception inst %p", record->context.Rip);
+
+	UtilMemory::VMProtect(reinterpret_cast<void*>(m_lastPage),
+						  UtilException::GnmPageSize,
+						  m_lastProtect);
+
+	// When a single step exception occurred, the instruction itself has be executed.
+	// So we just continue to the next instruction.
+	return UtilException::ExceptionAction::CONTINUE_EXECUTION;
 }
 
 UtilException::ExceptionAction GnmMemoryMonitor::exceptionCallback(UtilException::ExceptionRecord* record)
@@ -157,3 +209,5 @@ UtilException::ExceptionAction GnmMemoryMonitor::exceptionCallbackStatic(UtilExc
 	GnmMemoryMonitor* pthis = reinterpret_cast<GnmMemoryMonitor*>(param);
 	return pthis->exceptionCallback(record);
 }
+
+

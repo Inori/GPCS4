@@ -76,6 +76,11 @@ struct ExceptionContext
 	//
 
 	uint64_t Rip;
+
+	//
+	// Processor flags.
+	//
+	uint32_t EFlags;
 };
 
 

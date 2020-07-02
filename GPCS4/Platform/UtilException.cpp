@@ -39,8 +39,10 @@ void convertExceptionPtoR(ExceptionRecord& out, PEXCEPTION_POINTERS in)
 	out.context.R13 = in->ContextRecord->R13;
 	out.context.R14 = in->ContextRecord->R14;
 	out.context.R15 = in->ContextRecord->R15;
-
+	
 	out.context.Rip = in->ContextRecord->Rip;
+
+	out.context.EFlags = in->ContextRecord->EFlags;
 
 	if (in->ExceptionRecord->ExceptionCode == EXCEPTION_ACCESS_VIOLATION ||
 		in->ExceptionRecord->ExceptionCode == EXCEPTION_IN_PAGE_ERROR)
@@ -70,6 +72,8 @@ void convertExceptionRtoP(PEXCEPTION_POINTERS out, ExceptionRecord& in)
 	out->ContextRecord->R15 = in.context.R15;
 
 	out->ContextRecord->Rip = in.context.Rip;
+
+	out->ContextRecord->EFlags = in.context.EFlags;
 }
 
 long __stdcall VEHExceptionHandler(void* exceptionArg)

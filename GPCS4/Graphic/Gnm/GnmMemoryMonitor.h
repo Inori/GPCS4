@@ -61,6 +61,8 @@ private:
 	GnmMemoryRange getMonitorRange(const GnmMemoryRange& block);
 
 	void pendSingleStep(UtilException::ExceptionRecord* record);
+
+	inline void setTrapFlag(UtilException::ExceptionRecord* record);
 	
 	UtilException::ExceptionAction
 	onMemoryAccess(UtilException::ExceptionRecord* record);
@@ -77,6 +79,8 @@ private:
 private:
 	MemoryBlockSet    m_blockRecords;
 	GnmMemoryCallback m_callback;
+
+	thread_local static size_t   m_lastPage;
 	thread_local static uint32_t m_lastProtect;
 };
 

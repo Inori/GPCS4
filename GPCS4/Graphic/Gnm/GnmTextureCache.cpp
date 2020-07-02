@@ -46,10 +46,11 @@ GnmTextureInstance* GnmTextureCache::grabTexture(const GnmTextureCreateInfo& des
 		auto instance = createTexture(desc);
 		// Save texture instance
 		auto [iter, inserted] = m_textureMap.emplace(std::make_pair(range, instance));
-		// Trace memory access
-		m_monitor->traceMemory(instance.memory);
-
+		
 		texture = &iter->second;
+
+		// Trace memory access
+		m_monitor->traceMemory(texture->memory);
 	}
 	else
 	{

@@ -44,6 +44,7 @@ inline std::vector<MemoryRange>::iterator findMemoryRange(void* addr)
 	return iter;
 }
 
+// GPCS4 flag to Windows flag
 inline uint32_t GetProtectFlag(uint32_t nOldFlag)
 {
 	uint32_t nNewFlag = 0;
@@ -68,6 +69,39 @@ inline uint32_t GetProtectFlag(uint32_t nOldFlag)
 		if (nOldFlag & VMPF_CPU_EXEC)
 		{
 			nNewFlag = PAGE_EXECUTE_READWRITE;
+		}
+
+	} while (false);
+	return nNewFlag;
+}
+
+// Windows flag to GPCS4 flag
+inline uint32_t RecoverProtectFlag(uint32_t nOldFlag)
+{
+	uint32_t nNewFlag = 0;
+	do
+	{
+		if (nOldFlag & PAGE_NOACCESS)
+		{
+			nNewFlag = VMPF_NOACCESS;
+			break;
+		}
+
+		if (nOldFlag & PAGE_READONLY)
+		{
+			nNewFlag |= VMPF_CPU_READ;
+		}
+
+		if (nOldFlag & PAGE_READWRITE)
+		{
+			nNewFlag |= VMPF_CPU_WRITE;
+		}
+
+		if ((nOldFlag & PAGE_EXECUTE) ||
+			(nOldFlag & PAGE_EXECUTE_READ) ||
+			(nOldFlag & PAGE_EXECUTE_READWRITE))
+		{
+			nNewFlag |= VMPF_CPU_EXEC;
 		}
 
 	} while (false);
@@ -214,7 +248,7 @@ bool VMProtect(void* pAddr, size_t nSize, uint32_t nProtectFlag, uint32_t* pOldP
 	BOOL  bRet       = VirtualProtect(pAddr, nSize, newProtect, &oldProtect);
 	if (pOldProtectFlag)
 	{
-		*pOldProtectFlag = oldProtect;
+		*pOldProtectFlag = RecoverProtectFlag(oldProtect);
 	}
 	return bRet;
 }

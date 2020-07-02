@@ -42,10 +42,11 @@ GnmBufferInstance* GnmBufferCache::grabBuffer(const GnmBufferCreateInfo& desc)
 
 		// Save buffer instance
 		auto [iter, inserted] = m_bufferMap.emplace(std::make_pair(range, instance));
-		// Trace memory access
-		m_monitor->traceMemory(instance.memory);
 
 		buffer = &iter->second;
+
+		// Trace memory access
+		m_monitor->traceMemory(buffer->memory);
 	}
 	else
 	{
