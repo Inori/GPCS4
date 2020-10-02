@@ -7,6 +7,8 @@
 #include "Platform/UtilFile.h"
 #include "../Violet/VltShader.h"
 
+#include <algorithm>
+
 LOG_CHANNEL(Graphic.Pssl.PsslShaderModule);
 
 namespace pssl

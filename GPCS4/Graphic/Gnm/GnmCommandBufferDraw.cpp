@@ -861,7 +861,7 @@ void GnmCommandBufferDraw::commitPsStage()
 		LOG_DEBUG("pixel shader hash %llX", m_shaders.ps.shader->key().toUint64());
 		m_shaders.ps.shader->defineShaderInput(m_shaders.ps.userDataSlotTable);
 
-		// SHADER_DEBUG_BREAK(m_shaders.ps.shader, 0xAB97D172C647AFE9);
+		SHADER_DEBUG_BREAK(m_shaders.ps.shader, 0xBD968B5C34D0567F);
 
 		auto shaderResourcesDcl = m_shaders.ps.shader->getShaderResourceDeclaration();
 		auto bindingResources   = PsslShaderModule::flattenShaderResources(shaderResourcesDcl);
