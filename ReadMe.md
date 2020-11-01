@@ -1,6 +1,6 @@
 # GPCS4
 
-A Playstation 4 emulator which was just started.  
+A PlayStation 4 emulator which was just started.  
 A project done for fun, and for technical research.  
 
 The only reason I have started this project is for learning 3D graphics; I don't intend
