@@ -111,9 +111,15 @@ using
  * termination" in some configurations), and there's no
  * point to optimizing this routine anyway
  */
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && !defined(__clang__)
+
 # pragma optimize("g", off)
 # pragma warning( disable : 4748 )
+
+#else
+
+__attribute__((optnone))
+
 #endif
 
 #if ! defined (__MINGW32__) || (defined (__MSVCRT__) && ! defined (__DMC__))
@@ -312,7 +318,7 @@ __ptw32_threadStart (void *vthreadParms)
 /*
  * Reset optimization
  */
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && !defined(__clang__)
 # pragma optimize("", on)
 #endif
 
