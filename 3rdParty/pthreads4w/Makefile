@@ -23,7 +23,7 @@ SMALL_STATIC_STAMPS		= pthreadVCE$(PTW32_VER).small_static_stamp pthreadVSE$(PTW
 						  pthreadVC$(PTW32_VER).small_static_stamp pthreadVCE$(PTW32_VER_DEBUG).small_static_stamp \
 						  pthreadVSE$(PTW32_VER_DEBUG).small_static_stamp pthreadVC$(PTW32_VER_DEBUG).small_static_stamp
 
-CC	= cl /errorReport:none /nologo
+CC	= clang-cl /errorReport:none /nologo
 CPPFLAGS = /I. /DHAVE_CONFIG_H
 XCFLAGS = 
 CFLAGS	= /W3 /O2 /Ob2 $(XCFLAGS)
