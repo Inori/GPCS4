@@ -45,7 +45,10 @@
 // application build
 // since we only use static libs
 // we define it here for convenience
-#define  __PTW32_STATIC_LIB
+#ifndef __PTW32_STATIC_LIB
+#define __PTW32_STATIC_LIB 1
+#endif
+
 
 
 
