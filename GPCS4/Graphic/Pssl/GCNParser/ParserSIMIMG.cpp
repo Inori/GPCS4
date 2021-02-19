@@ -85,13 +85,16 @@ ParserSIMIMG::GetOpSIMIMG(Instruction::instruction64bit hexInstruction, Instruct
         instKind = Instruction::VectorMemory;
     }
 
-    if ((op > SIMIMGInstruction::IMAGE_LOAD_MIP_PCK_SGN && op < SIMIMGInstruction::IMAGE_STORE) //TODO refactor this is always false!!!
-        || (op > SIMIMGInstruction::IMAGE_STORE_MIP_PCK && op < SIMIMGInstruction::IMAGE_GET_RESINFO)
-        || (op > SIMIMGInstruction::IMAGE_GATHER4_C_CL && op < SIMIMGInstruction::IMAGE_GATHER4_C_L)
-        || (op > SIMIMGInstruction::IMAGE_GATHER4_CL_O && op < SIMIMGInstruction::IMAGE_GATHER4_L_O)
-        || (op > SIMIMGInstruction::IMAGE_GATHER4_C_CL_O && op < SIMIMGInstruction::IMAGE_GATHER4_C_L_O)
-        || (op > SIMIMGInstruction::IMAGE_GET_LOD && op < SIMIMGInstruction::IMAGE_SAMPLE_CD)
-        || (op >= SIMIMGInstruction::IMAGE_RESERVED))
+    if (
+        //TODO refactor these are always false!!!
+        //(op > SIMIMGInstruction::IMAGE_LOAD_MIP_PCK_SGN && op < SIMIMGInstruction::IMAGE_STORE) 
+        //|| (op > SIMIMGInstruction::IMAGE_STORE_MIP_PCK && op < SIMIMGInstruction::IMAGE_GET_RESINFO)
+        //|| (op > SIMIMGInstruction::IMAGE_GATHER4_C_CL && op < SIMIMGInstruction::IMAGE_GATHER4_C_L)
+        //|| (op > SIMIMGInstruction::IMAGE_GATHER4_CL_O && op < SIMIMGInstruction::IMAGE_GATHER4_L_O)
+        //|| (op > SIMIMGInstruction::IMAGE_GATHER4_C_CL_O && op < SIMIMGInstruction::IMAGE_GATHER4_C_L_O)
+        //|| (op > SIMIMGInstruction::IMAGE_GET_LOD && op < SIMIMGInstruction::IMAGE_SAMPLE_CD)
+        //|| 
+        (op >= SIMIMGInstruction::IMAGE_RESERVED))
     {
         return SIMIMGInstruction::IMAGE_RESERVED;
     }
