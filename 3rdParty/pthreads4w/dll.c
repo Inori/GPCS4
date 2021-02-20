@@ -155,7 +155,7 @@ static int on_process_exit(void)
 __attribute__((section(".ctors"), used)) static int (*gcc_ctor)(void) = on_process_init;
 __attribute__((section(".dtors"), used)) static int (*gcc_dtor)(void) = on_process_exit;
 
-#elif defined(_MSC_VER) && !defined(__clang__)
+#elif defined(_MSC_VER)
 
 #  if _MSC_VER >= 1400 /* MSVC8+ */
 #    pragma section(".CRT$XCU", long, read)
