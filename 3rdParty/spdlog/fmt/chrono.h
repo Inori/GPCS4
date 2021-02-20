@@ -5,7 +5,7 @@
 
 #pragma once
 //
-// include bundled or external copy of fmtlib's ostream support
+// include bundled or external copy of fmtlib's chrono support
 //
 
 #if !defined(SPDLOG_FMT_EXTERNAL)
@@ -14,7 +14,7 @@
 #define FMT_HEADER_ONLY
 #endif
 #endif
-#include <spdlog/fmt/bundled/ostream.h>
+#include <spdlog/fmt/bundled/chrono.h>
 #else
-#include <fmt/ostream.h>
+#include <fmt/chrono.h>
 #endif

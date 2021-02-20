@@ -8,6 +8,10 @@
 #include <spdlog/sinks/sink.h>
 #include <cstdio>
 
+#ifdef _WIN32
+#include <spdlog/details/windows_include.h>
+#endif
+
 namespace spdlog {
 
 namespace sinks {
@@ -19,8 +23,12 @@ public:
     using mutex_t = typename ConsoleMutex::mutex_t;
     explicit stdout_sink_base(FILE *file);
     ~stdout_sink_base() override = default;
+
     stdout_sink_base(const stdout_sink_base &other) = delete;
+    stdout_sink_base(stdout_sink_base &&other) = delete;
+
     stdout_sink_base &operator=(const stdout_sink_base &other) = delete;
+    stdout_sink_base &operator=(stdout_sink_base &&other) = delete;
 
     void log(const details::log_msg &msg) override;
     void flush() override;
@@ -32,6 +40,9 @@ protected:
     mutex_t &mutex_;
     FILE *file_;
     std::unique_ptr<spdlog::formatter> formatter_;
+#ifdef _WIN32
+    HANDLE handle_;    
+#endif // WIN32
 };
 
 template<typename ConsoleMutex>
