@@ -124,12 +124,18 @@ typedef int foo;
  * implement.h) does the job in a portable manner.
  */
 
+#if defined(__clang__)
+__attribute__((constructor))
+#endif /* defined(__clang__) */
 static int on_process_init(void)
 {
     pthread_win32_process_attach_np ();
     return 0;
 }
 
+#if defined(__clang__)
+__attribute__((destructor))
+#endif /* defined(__clang__) */
 static int on_process_exit(void)
 {
     pthread_win32_thread_detach_np  ();
@@ -137,10 +143,20 @@ static int on_process_exit(void)
     return 0;
 }
 
+
+// Note:
+// clang-cl can't recognize the following code,
+// so we need to choose the traditional way by using
+// __attribute__((constructor)) and __attribute__((destructor))
+
+
 #if defined(__GNUC__)
+
 __attribute__((section(".ctors"), used)) static int (*gcc_ctor)(void) = on_process_init;
 __attribute__((section(".dtors"), used)) static int (*gcc_dtor)(void) = on_process_exit;
-#elif defined(_MSC_VER)
+
+#elif defined(_MSC_VER) && !defined(__clang__)
+
 #  if _MSC_VER >= 1400 /* MSVC8+ */
 #    pragma section(".CRT$XCU", long, read)
 #    pragma section(".CRT$XPU", long, read)
@@ -153,7 +169,8 @@ static int (*msc_ctor)(void) = on_process_init;
 static int (*msc_dtor)(void) = on_process_exit;
 #    pragma data_seg() /* reset data segment */
 #  endif
-#endif
+
+#endif /* defined(__GNUC__) */
 
 #endif /* defined(__MINGW32__) || defined(_MSC_VER) */
 
