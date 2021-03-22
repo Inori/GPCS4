@@ -44,6 +44,7 @@
     <ClInclude Include="Graphic\Violet\VltBuffer.h" />
     <ClInclude Include="Graphic\Violet\VltCmdList.h" />
     <ClInclude Include="Graphic\Violet\VltCommon.h" />
+    <ClInclude Include="Graphic\Violet\VltComputePipeline.h" />
     <ClInclude Include="Graphic\Violet\VltContext.h" />
     <ClInclude Include="Graphic\Violet\VltContextState.h" />
     <ClInclude Include="Graphic\Violet\VltDebugMarker.h" />
@@ -177,6 +178,7 @@
     <ClInclude Include="Loader\ModuleLoader.h" />
     <ClInclude Include="Platform\PlatformUtils.h" />
     <ClInclude Include="Platform\UtilDebug.h" />
+    <ClInclude Include="Platform\UtilException.h" />
     <ClInclude Include="Platform\UtilFile.h" />
     <ClInclude Include="Platform\UtilHardware.h" />
     <ClInclude Include="Platform\UtilMemory.h" />
@@ -352,6 +354,7 @@
     <ClCompile Include="Graphic\SpirV\SpirvModule.cpp" />
     <ClCompile Include="Graphic\Violet\VltBuffer.cpp" />
     <ClCompile Include="Graphic\Violet\VltCmdList.cpp" />
+    <ClCompile Include="Graphic\Violet\VltComputePipeline.cpp" />
     <ClCompile Include="Graphic\Violet\VltContext.cpp" />
     <ClCompile Include="Graphic\Violet\VltDebugMarker.cpp" />
     <ClCompile Include="Graphic\Violet\VltDescriptor.cpp" />
@@ -383,6 +386,7 @@
     <ClCompile Include="Loader\FuncStub.cpp" />
     <ClCompile Include="Loader\ModuleLoader.cpp" />
     <ClCompile Include="Platform\UtilDebug.cpp" />
+    <ClCompile Include="Platform\UtilException.cpp" />
     <ClCompile Include="Platform\UtilFile.cpp" />
     <ClCompile Include="Platform\UtilHardware.cpp" />
     <ClCompile Include="Platform\UtilMemory.cpp" />
@@ -576,11 +580,11 @@
     <IncludePath>$(ProjectDir);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)3rdParty;$(ProjectDir)SceModules;$(ProjectDir)Common;$(ProjectDir)Util;$(ProjectDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)3rdParty;$(ProjectDir)SceModules;$(ProjectDir)Common;$(ProjectDir)Util;$(ProjectDir)Platform;$(ProjectDir);$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)3rdParty;$(ProjectDir)SceModules;$(ProjectDir)Common;$(ProjectDir)Util;$(ProjectDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)3rdParty;$(ProjectDir)SceModules;$(ProjectDir)Common;$(ProjectDir)Util;$(ProjectDir)Platform;$(ProjectDir);$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Label="LLVM" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

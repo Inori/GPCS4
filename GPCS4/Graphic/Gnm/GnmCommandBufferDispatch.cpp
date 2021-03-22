@@ -234,6 +234,11 @@ void GnmCommandBufferDispatch::waitForGraphicsWrites(uint32_t baseAddr256, uint3
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
+void GnmCommandBufferDispatch::setDepthStencilDisable()
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
 void GnmCommandBufferDispatch::flushShaderCachesAndWait(CacheAction cacheAction, uint32_t extendedCacheMask, StallCommandBufferParserMode commandBufferStallMode)
 {
 	throw std::logic_error("The method or operation is not implemented.");

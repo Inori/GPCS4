@@ -2,6 +2,7 @@
 
 #include "GPCS4Common.h"
 #include "UtilSingleton.h"
+#include "UtilException.h"
 #include "zydis/Zydis.h"
 
 #include <array>
@@ -26,6 +27,35 @@ constexpr uint32_t TLS_MODULE_ID_MAIN = 1;
 // To fully support all TLS types, the above TLS types and relocation types
 // should be all implemented.
 // Currently, only type 1 TLS is supported.
+
+
+
+class AssembleHelper
+{
+public:
+	AssembleHelper();
+	~AssembleHelper();
+
+	bool isTlsAccess(void* code);
+
+	void getMovFsInfo(void* code, uint32_t& instLen, int64_t& fsOffset);
+
+	bool patchTLSInstruction(void* code);
+
+	void printInstruction(void* code);
+
+private:
+	void initZydis();
+
+	void printInst(ZydisDecodedInstruction& inst);
+
+	uint32_t getPatchLen(uint8_t* code, uint32_t oldLen);
+
+private:
+	ZydisDecoder   m_decoder;
+	ZydisFormatter m_formatter;
+};
+
 
 struct TLSBlock
 {
@@ -52,17 +82,10 @@ struct TLSBlock
 // And with the help of this post.
 // https://chao-tic.github.io/blog/2018/12/25/tls
 
-class TLSManagerWin;
-class TLSManagerLinux;
-
-#ifdef GPCS4_WINDOWS
-using TLSSingletonBase = Singleton<TLSManagerWin>;
-#else   // GPCS4_WINDOWS
-using TLSSingletonBase = Singleton<TLSManagerLinux>;
-#endif  // GPCS4_WINDOWS
-
-class TLSManager : public TLSSingletonBase
+class TLSManager : public Singleton<TLSManager>
 {
+	friend class Singleton<TLSManager>;
+
 private:
 	union DTV
 	{
@@ -79,12 +102,9 @@ private:
 	using TLSImage = std::vector<uint8_t>;
 
 public:
-	TLSManager();
-	virtual ~TLSManager();
+	bool install();
 
-	virtual bool install() = 0;
-
-	virtual void uninstall() = 0;
+	void uninstall();
 
 	void registerTLSBlock(const TLSBlock& block);
 
@@ -94,100 +114,38 @@ public:
 
 	void notifyThreadExit();
 
-protected:
+private:
+
+	static UtilException::EXCEPTION_ACTION exceptionHandler(
+		UtilException::EXCEPTION_INFORMATION* Info, void* Context);
+
 	void* allocateTLS();
 	void freeTLS(void* tls);
 
 	void* readFSRegister(int32_t offset);
 
-private:
 	void backupTLSImage(std::vector<uint8_t>& image, const TLSBlock& block);
 
 	size_t calculateStaticTLSSize();
 	void allocateTLSOffset(TLSBlock& block);
 
-protected:
+private:
+	TLSManager();
+	~TLSManager();
+
+private:
 	// emulated fs register
 	static thread_local void* t_fsbase;
 
 private:
 	std::vector<std::pair<TLSBlock, TLSImage>> m_TLSImages;
-	std::mutex m_mutex;
+	std::mutex                                 m_mutex;
+	AssembleHelper                             m_asmHelper;
 };
 
-class AssembleHelper
-{
-public:
-	AssembleHelper();
-	~AssembleHelper();
 
-	bool isTlsAccess(void* code);
-
-	void getMovFsInfo(void* code, uint32_t& instLen, int64_t& fsOffset);
-
-	bool patchTLSInstruction(void* code);
-
-	void printInstruction(void* code);
-
-private:
-	void initZydis();
-
-	void printInst(ZydisDecodedInstruction& inst);
-
-	uint32_t getPatchLen(uint8_t* code, uint32_t oldLen);
-
-private:
-	ZydisDecoder m_decoder;
-	ZydisFormatter m_formatter;
-};
-
-#ifdef GPCS4_WINDOWS
-
-class TLSManagerWin : public TLSManager
-{
-	friend class Singleton<TLSManagerWin>;
-
-public:
-	virtual bool install();
-
-	virtual void uninstall();
-
-private:
-	static long __stdcall VEHExceptionHandler(void* exceptionArg);
-
-private:
-	static void* s_vehHandler;
-	static AssembleHelper s_asmHelper;
-
-private:
-	TLSManagerWin();
-	virtual ~TLSManagerWin();
-	TLSManagerWin(const TLSManagerWin&) = delete;
-	TLSManagerWin& operator=(const TLSManagerWin&) = delete;
-};
-
-#else  // GPCS4_WINDOWS
-
-// For linux implementation,
-// we use the same way as we do on windows.
-// That is:
-// use arch_prctl to set fs to a invalid address,
-// this will cause a sigfault upon TLS access,
-// then we handle sigfault in linux's way,
-// and finally, we use the existing code to manage TLS alloc.
-class TLSManagerLinux : public TLSManager
-{
-	friend class Singleton<TLSManagerLinux>;
-
-public:
-private:
-	TLSManagerLinux();
-	virtual ~TLSManagerLinux();
-	TLSManagerLinux(const TLSManagerLinux&) = delete;
-	TLSManagerLinux& operator=(const TLSManagerLinux&) = delete;
-};
-
-#endif  // GPCS4_WINDOWS
+///
 
 bool installTLSManager();
+
 void uninstallTLSManager();

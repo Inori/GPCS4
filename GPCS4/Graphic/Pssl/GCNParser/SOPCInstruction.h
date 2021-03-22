@@ -68,7 +68,7 @@ public:
     SSRC GetSSRC0() const { return m_ssrc0; }
 
     /// Get the SSRC1 [15:8]
-    SSRC GetSSRC1() const { return m_ssrc0; }
+    SSRC GetSSRC1() const { return m_ssrc1; }
 
     /// Get the (scalar) register`s index.
     /// Note : Relevant only if m_ssrc == ScalarGPR or m_ssrc == ScalarTtmp

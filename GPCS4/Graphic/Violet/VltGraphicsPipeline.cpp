@@ -10,21 +10,20 @@ LOG_CHANNEL(Graphic.Violet.VltGraphicsPipeline);
 namespace vlt
 {;
 
-VltGraphicsPipelineInstance::VltGraphicsPipelineInstance(VkPipeline pipeline,
-	const VltGraphicsPipelineStateInfo& state,
-	const VltRenderPass& rp) :
+VltGraphicsPipelineInstance::VltGraphicsPipelineInstance(VkPipeline                          pipeline,
+														 const VltGraphicsPipelineStateInfo& state,
+														 const VltRenderPass&                rp) :
 	m_pipeline(pipeline),
 	m_state(state),
 	m_renderPass(&rp)
 {
-
 }
 
 VltGraphicsPipelineInstance::~VltGraphicsPipelineInstance()
 {
 }
 
-VkPipeline VltGraphicsPipelineInstance::pipeline()
+VkPipeline VltGraphicsPipelineInstance::pipeline() const
 {
 	return m_pipeline;
 }
@@ -37,28 +36,39 @@ bool VltGraphicsPipelineInstance::isCompatible(const VltGraphicsPipelineStateInf
 ///
 
 
-VltGraphicsPipeline::VltGraphicsPipeline(VltPipelineManager* pipeMgr, const VltGraphicsPipelineShaders& shaders):
+VltGraphicsPipeline::VltGraphicsPipeline(
+	VltPipelineManager*               pipeMgr,
+	const VltGraphicsPipelineShaders& shaders) :
 	m_pipelineManager(pipeMgr),
 	m_shaders(shaders)
 {
-	shaders.vs->defineResourceSlots(m_resSlotMap);
-	shaders.fs->defineResourceSlots(m_resSlotMap);
+	shaders.fs->defineResourceSlots(m_slotMap);
+	shaders.vs->defineResourceSlots(m_slotMap);
 
-	m_layout = new VltPipelineLayout(pipeMgr->m_device, m_resSlotMap, VK_PIPELINE_BIND_POINT_GRAPHICS);
+	m_layout = new VltPipelineLayout(
+		pipeMgr->m_device,
+		m_slotMap,
+		VK_PIPELINE_BIND_POINT_GRAPHICS);
 }
 
 VltGraphicsPipeline::~VltGraphicsPipeline()
 {
+	for (const auto& instance : m_pipelines)
+	{
+		destroyPipeline(instance.pipeline());
+	}
 }
 
 
-VkPipeline VltGraphicsPipeline::getPipelineHandle(const VltGraphicsPipelineStateInfo& state, const VltRenderPass& rp)
+VkPipeline VltGraphicsPipeline::getPipelineHandle(
+	const VltGraphicsPipelineStateInfo& state,
+	const VltRenderPass&                rp)
 {
 	VkPipeline pipeline = VK_NULL_HANDLE;
 	
 	do 
 	{
-		std::lock_guard<Spinlock> lock(m_mutex);
+		std::lock_guard<sync::Spinlock> lock(m_mutex);
 
 		auto instance = findInstance(state, rp);
 		if (instance)
@@ -78,9 +88,17 @@ VkPipeline VltGraphicsPipeline::getPipelineHandle(const VltGraphicsPipelineState
 	return pipeline;
 }
 
-VltPipelineLayout* VltGraphicsPipeline::getLayout() const
+VltPipelineLayout* VltGraphicsPipeline::layout() const
 {
-	return m_layout;
+	return m_layout.ptr();
+}
+
+VltGraphicsPipelineInstance* VltGraphicsPipeline::createInstance(
+	const VltGraphicsPipelineStateInfo& state,
+	const VltRenderPass&                rp)
+{
+	VkPipeline pipeline = createPipeline(state, rp);
+	return &m_pipelines.emplace_back(pipeline, state, rp);
 }
 
 VltGraphicsPipelineInstance* VltGraphicsPipeline::findInstance(const VltGraphicsPipelineStateInfo& state, const VltRenderPass& rp)
@@ -97,29 +115,30 @@ VltGraphicsPipelineInstance* VltGraphicsPipeline::findInstance(const VltGraphics
 	return instance;
 }
 
-
-VltGraphicsPipelineInstance* VltGraphicsPipeline::createInstance(const VltGraphicsPipelineStateInfo& state, const VltRenderPass& rp)
+VkPipeline VltGraphicsPipeline::createPipeline(
+	const VltGraphicsPipelineStateInfo& state, 
+	const VltRenderPass& rp)
 {
-	VltGraphicsPipelineInstance* instance = nullptr;
-	do 
+	VkPipeline pipeline = VK_NULL_HANDLE;
+	do
 	{
-		auto vsModule = m_shaders.vs->createShaderModule(m_pipelineManager->m_device, m_resSlotMap);
+		auto vsModule = m_shaders.vs->createShaderModule(m_pipelineManager->m_device, m_slotMap);
 		auto vsStage  = vsModule.stageInfo(nullptr);
 
-		auto fsModule = m_shaders.fs->createShaderModule(m_pipelineManager->m_device, m_resSlotMap);
+		auto fsModule = m_shaders.fs->createShaderModule(m_pipelineManager->m_device, m_slotMap);
 		auto fsStage  = fsModule.stageInfo(nullptr);
 
 		VkPipelineShaderStageCreateInfo shaderStages[] = { vsStage, fsStage };
 
 		std::vector<VkVertexInputBindingDescription>   vertexBindings;
 		std::vector<VkVertexInputAttributeDescription> vertexAttributes;
-		auto viState = state.vi.state(vertexBindings, vertexAttributes);
+		auto                                           viState = state.vi.state(vertexBindings, vertexAttributes);
 
 		std::vector<VkPipelineColorBlendAttachmentState> colorAttachments;
-		auto cbState = state.cb.state(colorAttachments);
+		auto                                             cbState = state.cb.state(colorAttachments);
 
 		std::vector<VkDynamicState> dynStateArray;
-		auto dyState = state.dy.state(dynStateArray);
+		auto                        dyState = state.dy.state(dynStateArray);
 
 		auto vpState = state.dy.viewportState();
 		auto iaState = state.ia.state();
@@ -144,19 +163,23 @@ VltGraphicsPipelineInstance* VltGraphicsPipeline::createInstance(const VltGraphi
 		pipelineInfo.subpass                      = 0;
 		pipelineInfo.basePipelineHandle           = VK_NULL_HANDLE;
 
-		VkDevice   device   = *(m_pipelineManager->m_device);
-		VkPipeline pipeline = VK_NULL_HANDLE;
+		VkDevice device = *(m_pipelineManager->m_device);
+		
 		if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline) != VK_SUCCESS)
 		{
 			LOG_ERR("failed to create graphics pipeline!");
 			break;
 		}
 
-		m_pipelines.emplace_back(pipeline, state, rp);
-		instance = &m_pipelines.back();
-		
 	} while (false);
-	return instance;
+	return pipeline;
+}
+
+
+void VltGraphicsPipeline::destroyPipeline(VkPipeline pipeline) const
+{
+	VkDevice device = *(m_pipelineManager->m_device);
+	vkDestroyPipeline(device, pipeline, nullptr);
 }
 
 }  // namespace vlt

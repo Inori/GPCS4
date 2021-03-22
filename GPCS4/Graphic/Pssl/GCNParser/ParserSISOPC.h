@@ -72,6 +72,8 @@ private:
     /// \param[in]  hexInstruction  The 32 bit hexadecimal instruction.
     /// \returns                   An OP.
     static VISOPCInstruction::OP GetVISOPCOp(Instruction::instruction32bit hexInstruction);
+
+	const GCNInstructionFormat& GetSISOPCMeta(SISOPCInstruction::OP op);
 };
 
 #endif //__PARSERSISOPC_H

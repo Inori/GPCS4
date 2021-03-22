@@ -4,6 +4,7 @@
 #include "GnmConstant.h"
 #include "GnmDataFormat.h"
 
+#include "../Pssl/PsslEnums.h"
 #include "../Violet/VltLimit.h"
 
 #include <array>
@@ -32,5 +33,7 @@ VkIndexType convertIndexSize(IndexSize indexSize);
 
 std::array<VkColorComponentFlags, vlt::VltLimits::MaxNumRenderTargets>
 convertRrenderTargetMask(uint32_t mask);
+
+VkPipelineStageFlagBits convertShaderStage(pssl::PsslProgramType type);
 
 }  // namespace convertor

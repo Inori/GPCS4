@@ -60,9 +60,9 @@ class VltPipelineLayout : public RcObject
 public:
 
 	VltPipelineLayout(
-		const RcPtr<VltDevice>& device,
+		const RcPtr<VltDevice>&     device,
 		const VltDescriptorSlotMap& slotMap,
-		VkPipelineBindPoint pipelineBindPoint);
+		VkPipelineBindPoint         pipelineBindPoint);
 
 	~VltPipelineLayout();
 

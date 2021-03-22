@@ -205,8 +205,8 @@ void GCNAnalyzer::getExportInfo(GCNInstruction& ins)
 	{
 		uint8_t en = inst->GetEn();
 		mask = GcnRegMask(
-			bit::extract<uint8_t>(en, 0, 1),
-			bit::extract<uint8_t>(en, 2, 3),
+            bit::extract<uint8_t>(en, 1, 0),
+            bit::extract<uint8_t>(en, 3, 2),
 			false,
 			false
 		);

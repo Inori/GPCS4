@@ -76,7 +76,7 @@ RcPtr<VltCmdList> VltContext::endRecording()
 
 void VltContext::setViewports(uint32_t viewportCount, const VkViewport* viewports, const VkRect2D* scissorRects)
 {
-	auto& vp = m_state.dy.vp;
+	auto& vp = m_state.dy.viewport;
 	if (viewportCount != vp.count)
 	{
 		m_flags.set(VltContextFlag::GpDirtyPipelineState);
@@ -104,55 +104,72 @@ void VltContext::setInputLayout(
 
 	for (uint32_t i = 0; i < bindingCount; i++)
 	{
-		m_state.gp.states.vi.setBinding(i, bindings[i]);
+		m_state.gp.state.vi.setBinding(i, bindings[i]);
 	}
 
 	for (uint32_t i = 0; i < attributeCount; i++)
 	{
-		m_state.gp.states.vi.setAttribute(i, attributes[i]);
+		m_state.gp.state.vi.setAttribute(i, attributes[i]);
 	}
 	
 	// Clear bindings
-	for (uint32_t i = bindingCount; i < m_state.gp.states.vi.bindingCount(); i++)
+	for (uint32_t i = bindingCount; i < m_state.gp.state.vi.bindingCount(); i++)
 	{
-		m_state.gp.states.vi.setBinding(i, VltVertexBinding());
+		m_state.gp.state.vi.setBinding(i, VltVertexBinding());
 	}
 	// Clear attributes
-	for (uint32_t i = attributeCount; i < m_state.gp.states.vi.attributeCount(); i++)
+	for (uint32_t i = attributeCount; i < m_state.gp.state.vi.attributeCount(); i++)
 	{
-		m_state.gp.states.vi.setAttribute(i, VltVertexAttribute());
+		m_state.gp.state.vi.setAttribute(i, VltVertexAttribute());
 	}
 
-	m_state.gp.states.vi.setInputCount(bindingCount, attributeCount);
+	m_state.gp.state.vi.setInputCount(bindingCount, attributeCount);
 }
 
 void VltContext::setInputAssemblyState(const VltInputAssemblyInfo& iaState)
 {
-	m_state.gp.states.ia = iaState;
+	m_state.gp.state.ia = iaState;
 	m_flags.set(VltContextFlag::GpDirtyPipelineState);
 }
 
 void VltContext::setRasterizerState(const VltRasterizationInfo& rsState)
 {
-	m_state.gp.states.rs = rsState;
+	m_state.gp.state.rs = rsState;
 	m_flags.set(VltContextFlag::GpDirtyPipelineState);
 }
 
 void VltContext::setMultiSampleState(const VltMultisampleInfo& msState)
 {
-	m_state.gp.states.ms = msState;
+	m_state.gp.state.ms = msState;
 	m_flags.set(VltContextFlag::GpDirtyPipelineState);
 }
 
 void VltContext::setDepthStencilState(const VltDepthStencilInfo& dsState)
 {
-	m_state.gp.states.ds = dsState;
+	VkBool32 depthBoundsEnable = m_state.gp.state.ds.enableDepthBoundsTest();
+	m_state.gp.state.ds = dsState;
+	m_state.gp.state.ds.setEnableDepthBoundsTest(depthBoundsEnable);
 	m_flags.set(VltContextFlag::GpDirtyPipelineState);
+}
+
+void VltContext::setDepthBounds(VltDepthBounds depthBounds)
+{
+	if (m_state.dy.depthBounds != depthBounds)
+	{
+		m_state.dy.depthBounds = depthBounds;
+		m_flags.set(VltContextFlag::GpDirtyDepthBounds);
+	}
+
+	if (m_state.gp.state.ds.enableDepthBoundsTest() != depthBounds.enableDepthBounds)
+	{
+		m_state.gp.state.ds.setEnableDepthBoundsTest(depthBounds.enableDepthBounds);
+		m_flags.set(VltContextFlag::GpDirtyPipelineState);
+	}
 }
 
 void VltContext::setLogicOpState(const VltLogicOp& lo)
 {
-	m_state.gp.states.cb.setLogicalOp(lo);
+	m_state.gp.state.cb.setLogicalOp(lo);
 	m_flags.set(VltContextFlag::GpDirtyPipelineState);
 }
 
@@ -160,7 +177,7 @@ void VltContext::setBlendMode(
 	uint32_t                       attachment,
 	const VltColorBlendAttachment& blendMode)
 {
-	m_state.gp.states.cb.setBlendMode(attachment, blendMode);
+	m_state.gp.state.cb.setBlendMode(attachment, blendMode);
 	m_flags.set(VltContextFlag::GpDirtyPipelineState);
 }
 
@@ -168,7 +185,7 @@ void VltContext::setBlendMask(
 	uint32_t                     attachment,
 	const VkColorComponentFlags& colorMask)
 {
-	m_state.gp.states.cb.setColorWriteMask(attachment, colorMask);
+	m_state.gp.state.cb.setColorWriteMask(attachment, colorMask);
 	m_flags.set(VltContextFlag::GpDirtyPipelineState);
 }
 
@@ -194,13 +211,9 @@ void VltContext::bindShader(VkShaderStageFlagBits stage, const RcPtr<VltShader>&
 
 	switch (stage)
 	{
-	case VK_SHADER_STAGE_VERTEX_BIT:
-		shaderStage = &m_state.gp.shaders.vs;
-		break;
-	case VK_SHADER_STAGE_FRAGMENT_BIT:
-		shaderStage = &m_state.gp.shaders.fs;
-		break;
-	//case VK_SHADER_STAGE_COMPUTE_BIT:                 shaderStage = &m_state.cp.shaders.cs;  break;
+	case VK_SHADER_STAGE_VERTEX_BIT:	shaderStage = &m_state.gp.shaders.vs;	break;
+	case VK_SHADER_STAGE_FRAGMENT_BIT:	shaderStage = &m_state.gp.shaders.fs;	break;
+	case VK_SHADER_STAGE_COMPUTE_BIT:	shaderStage = &m_state.cp.shaders.cs;	break;
 	//case VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT:    shaderStage = &m_state.gp.shaders.tcs; break;
 	//case VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT: shaderStage = &m_state.gp.shaders.tes; break;
 	//case VK_SHADER_STAGE_GEOMETRY_BIT:                shaderStage = &m_state.gp.shaders.gs;  break;
@@ -289,6 +302,26 @@ void VltContext::drawIndexed(
 	commitGraphicsState<true, false>();
 
 	m_cmd->cmdDrawIndexed(indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+}
+
+void VltContext::dispatch(
+	uint32_t x, 
+	uint32_t y, 
+	uint32_t z)
+{
+	if (commitComputeState())
+	{
+		m_cmd->cmdDispatch(x, y, z);
+
+		VkMemoryBarrier barrier = {};
+		barrier.sType           = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
+		barrier.pNext           = nullptr;
+		barrier.srcAccessMask   = VK_ACCESS_SHADER_WRITE_BIT;
+		barrier.dstAccessMask   = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
+
+		m_cmd->cmdPipelineBarrier(VltCmdType::ExecBuffer, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
+								  0, 1, &barrier, 0, nullptr, 0, nullptr);
+	}
 }
 
 void VltContext::clearRenderTarget(
@@ -424,7 +457,7 @@ void VltContext::clearRenderTarget(
 		if (clearAspects & VK_IMAGE_ASPECT_COLOR_BIT)
 		{
 			attachments.color[0].view   = targetView;
-			attachments.color[0].layout = tgtImgInfo.layout;
+			attachments.color[0].layout = targetView->pickLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
 			ops.colorOps[0] = colorOp;
 
@@ -434,7 +467,7 @@ void VltContext::clearRenderTarget(
 		else
 		{
 			attachments.depth.view   = targetView;
-			attachments.depth.layout = tgtImgInfo.layout;
+			attachments.depth.layout = targetView->pickLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
 			ops.depthOps = depthOp;
 
@@ -452,7 +485,7 @@ void VltContext::clearRenderTarget(
 		barrier.srcAccessMask   = srcAccess;
 		m_cmd->cmdPipelineBarrier(
 			VltCmdType::ExecBuffer,
-			srcStages, tgtImgInfo.stages,
+			srcStages, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
 			0,
 			1, &barrier,
 			0, nullptr,
@@ -799,6 +832,14 @@ void VltContext::renderPassBindFramebuffer(const RcPtr<VltFrameBuffer>& framebuf
 	renderPassInfo.pClearValues    = clearValues;
 
 	m_cmd->cmdBeginRenderPass(&renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+	m_cmd->trackResource(framebuffer);
+
+	for (uint32_t i = 0; i < framebuffer->numAttachments(); i++)
+	{
+		m_cmd->trackResource(framebuffer->getAttachment(i).view);
+		m_cmd->trackResource(framebuffer->getAttachment(i).view->image());
+	}
 }
 
 void VltContext::renderPassUnbindFramebuffer()
@@ -851,11 +892,16 @@ void VltContext::updateIndexBinding()
 }
 
 template <VkPipelineBindPoint BindPoint>
-void VltContext::updateShaderResources(const VltPipelineLayout* pipelineLayout, VkDescriptorSet& set)
+void VltContext::updateShaderResources(const VltPipelineLayout* pipelineLayout)
 {
 
 	uint32_t                          bindingCount = pipelineLayout->bindingCount();
 	std::vector<VkWriteDescriptorSet> descriptorWrites;
+	std::array<VkDescriptorBufferInfo, MaxNumActiveBindings> bufferInfos = {};
+	std::array<VkDescriptorImageInfo, MaxNumActiveBindings>  imageInfos = {};
+
+	auto& set = BindPoint == VK_PIPELINE_BIND_POINT_GRAPHICS ? 
+		m_gpCtx.descriptorSet : m_cpCtx.descriptorSet;
 
 	if (bindingCount != 0)
 	{
@@ -865,6 +911,9 @@ void VltContext::updateShaderResources(const VltPipelineLayout* pipelineLayout, 
 	{
 		set = VK_NULL_HANDLE;
 	}
+
+	// TODO:
+	// Update descriptor set using template
 
 	for (uint32_t i = 0; i != bindingCount; ++i)
 	{
@@ -880,6 +929,7 @@ void VltContext::updateShaderResources(const VltPipelineLayout* pipelineLayout, 
 			bufferInfo.buffer                 = res.buffer.getHandle().buffer;
 			bufferInfo.offset                 = res.buffer.offset();
 			bufferInfo.range                  = res.buffer.length();
+			bufferInfos[i]                    = bufferInfo;
 
 			VkWriteDescriptorSet writeSet = {};
 			writeSet.sType                = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -888,7 +938,26 @@ void VltContext::updateShaderResources(const VltPipelineLayout* pipelineLayout, 
 			writeSet.dstArrayElement      = 0;
 			writeSet.descriptorType       = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 			writeSet.descriptorCount      = 1;
-			writeSet.pBufferInfo          = &bufferInfo;
+			writeSet.pBufferInfo          = &bufferInfos[i];
+			descriptorWrites.push_back(writeSet);
+		}
+		break;
+		case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+		{
+			VkDescriptorBufferInfo bufferInfo = {};
+			bufferInfo.buffer                 = res.buffer.getHandle().buffer;
+			bufferInfo.offset                 = res.buffer.offset();
+			bufferInfo.range                  = res.buffer.length();
+			bufferInfos[i]                    = bufferInfo;
+
+			VkWriteDescriptorSet writeSet = {};
+			writeSet.sType                = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			writeSet.dstSet               = set;
+			writeSet.dstBinding           = i;
+			writeSet.dstArrayElement      = 0;
+			writeSet.descriptorType       = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			writeSet.descriptorCount      = 1;
+			writeSet.pBufferInfo          = &bufferInfos[i];
 			descriptorWrites.push_back(writeSet);
 		}
 		break;
@@ -898,6 +967,7 @@ void VltContext::updateShaderResources(const VltPipelineLayout* pipelineLayout, 
 			imageInfo.imageLayout           = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 			imageInfo.imageView             = res.imageView->handle();
 			imageInfo.sampler               = nullptr;
+			imageInfos[i]                   = imageInfo;
 
 			VkWriteDescriptorSet writeSet = {};
 			writeSet.sType                = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -906,7 +976,7 @@ void VltContext::updateShaderResources(const VltPipelineLayout* pipelineLayout, 
 			writeSet.dstArrayElement      = 0;
 			writeSet.descriptorType       = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
 			writeSet.descriptorCount      = 1;
-			writeSet.pImageInfo           = &imageInfo;
+			writeSet.pImageInfo           = &imageInfos[i];
 			descriptorWrites.push_back(writeSet);
 		}
 		break;
@@ -916,6 +986,7 @@ void VltContext::updateShaderResources(const VltPipelineLayout* pipelineLayout, 
 			imageInfo.imageLayout           = VK_IMAGE_LAYOUT_UNDEFINED;
 			imageInfo.imageView             = VK_NULL_HANDLE;
 			imageInfo.sampler               = res.sampler->handle();
+			imageInfos[i]                   = imageInfo;
 
 			VkWriteDescriptorSet writeSet = {};
 			writeSet.sType                = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -924,7 +995,7 @@ void VltContext::updateShaderResources(const VltPipelineLayout* pipelineLayout, 
 			writeSet.dstArrayElement      = 0;
 			writeSet.descriptorType       = VK_DESCRIPTOR_TYPE_SAMPLER;
 			writeSet.descriptorCount      = 1;
-			writeSet.pImageInfo           = &imageInfo;
+			writeSet.pImageInfo           = &imageInfos[i];
 			descriptorWrites.push_back(writeSet);
 		}
 		break;
@@ -935,15 +1006,21 @@ void VltContext::updateShaderResources(const VltPipelineLayout* pipelineLayout, 
 
 	// TODO:
 	// Use vkUpdateDescriptorSetWithTemplate
-	m_cmd->updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data());
+	if (descriptorWrites.size())
+	{
+		m_cmd->updateDescriptorSets(descriptorWrites.size(), descriptorWrites.data());
+	}
 }
 
 template <VkPipelineBindPoint BindPoint>
 void VltContext::updateShaderDescriptorSetBinding(const VltPipelineLayout* layout, VkDescriptorSet set)
 {
-	VkPipelineLayout pipelineLayout = layout->pipelineLayout();
+	if (set != VK_NULL_HANDLE)
+	{
+		VkPipelineLayout pipelineLayout = layout->pipelineLayout();
 
-	m_cmd->cmdBindDescriptorSet(BindPoint, pipelineLayout, set, 0, nullptr);
+		m_cmd->cmdBindDescriptorSet(BindPoint, pipelineLayout, set, 0, nullptr);
+	}
 }
 
 VkDescriptorSet VltContext::allocateDescriptorSet(VkDescriptorSetLayout layout)
@@ -973,46 +1050,54 @@ void VltContext::updateGraphicsShaderResources()
 	if (m_flags.test(VltContextFlag::GpDirtyResources))
 	{
 		updateShaderResources<VK_PIPELINE_BIND_POINT_GRAPHICS>(
-			m_state.gp.pipeline->getLayout(),
-			m_gpCtx.descSet);
+			m_state.gp.pipeline->layout());
 	}
 
 	updateShaderDescriptorSetBinding<VK_PIPELINE_BIND_POINT_GRAPHICS>(
-		m_state.gp.pipeline->getLayout(),
-		m_gpCtx.descSet);
+		m_state.gp.pipeline->layout(),
+		m_gpCtx.descriptorSet);
 
 	m_flags.clr(VltContextFlag::GpDirtyResources,
 				VltContextFlag::GpDirtyDescriptorBinding);
 }
 
-void VltContext::updateComputeDescriptorLayout()
-{
-	m_flags.clr(VltContextFlag::CpDirtyDescriptorBinding);
-}
-
-void VltContext::updateGraphicsPipeline()
+bool VltContext::updateGraphicsPipeline()
 {
 	// Descriptor layout is bound with shaders
-	m_state.gp.pipeline = m_objects->pipelineManager().getGraphicsPipeline(m_state.gp.shaders);
+	m_state.gp.pipeline = m_objects->pipelineManager().createGraphicsPipeline(m_state.gp.shaders);
 	m_flags.clr(VltContextFlag::GpDirtyPipeline);
+
+	return true;
 }
 
-void VltContext::updateGraphicsPipelineStates()
+bool VltContext::updateGraphicsPipelineState()
 {
 	VltRenderPass* renderPass = m_state.om.framebuffer->getRenderPass();
-	m_gpCtx.pipeline          = m_state.gp.pipeline->getPipelineHandle(m_state.gp.states, *renderPass);
+	m_gpCtx.pipeline          = m_state.gp.pipeline->getPipelineHandle(m_state.gp.state, *renderPass);
 
 	m_cmd->cmdBindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, m_gpCtx.pipeline);
 
 	m_flags.clr(VltContextFlag::GpDirtyPipelineState);
+
+	return true;
 }
 
-void VltContext::updateComputePipeline()
+bool VltContext::updateComputePipeline()
 {
+	m_state.cp.pipeline = m_objects->pipelineManager().createComputePipeline(m_state.cp.shaders);
+	m_flags.clr(VltContextFlag::CpDirtyPipeline);
+	return true;
 }
 
-void VltContext::updateComputePipelineStates()
+bool VltContext::updateComputePipelineState()
 {
+	m_cpCtx.pipeline = m_state.cp.pipeline->getPipelineHandle(m_state.cp.state);
+
+	m_cmd->cmdBindPipeline(VK_PIPELINE_BIND_POINT_COMPUTE, m_cpCtx.pipeline);
+
+	m_flags.clr(VltContextFlag::CpDirtyPipelineState);
+
+	return true;
 }
 
 void VltContext::enterRenderPassScope()
@@ -1051,19 +1136,27 @@ void VltContext::updateDynamicState()
 {
 	if (m_flags.test(VltContextFlag::GpDirtyViewport))
 	{
-		const auto& vp = m_state.dy.vp;
+		const auto& vp = m_state.dy.viewport;
 
 		m_cmd->cmdSetViewport(0, vp.count, vp.viewports.data());
 		m_cmd->cmdSetScissor(0, vp.count, vp.scissors.data());
 
 		// Update viewport count, this will be used to create pipeline.
-		m_state.gp.states.dy.setViewportCount(vp.count);
+		m_state.gp.state.dy.setViewportCount(vp.count);
 		m_flags.clr(VltContextFlag::GpDirtyViewport);
+	}
+
+	if (m_flags.test(VltContextFlag::GpDirtyDepthBounds))
+	{
+		VltDepthBounds& db = m_state.dy.depthBounds;
+		m_cmd->cmdSetDepthBounds(db.minDepthBounds, db.maxDepthBounds);
+
+		m_flags.clr(VltContextFlag::GpDirtyDepthBounds);
 	}
 }
 
 template <bool Indexed, bool Indirect>
-void VltContext::commitGraphicsState()
+bool VltContext::commitGraphicsState()
 {
 	if (m_flags.test(VltContextFlag::GpDirtyFramebuffer))
 	{
@@ -1108,12 +1201,53 @@ void VltContext::commitGraphicsState()
 
 	if (m_flags.test(VltContextFlag::GpDirtyPipelineState))
 	{
-		updateGraphicsPipelineStates();
+		updateGraphicsPipelineState();
 	}
+
+	return true;
 }
 
-void VltContext::commitComputeState()
+bool VltContext::commitComputeState()
 {
+	if (m_flags.test(VltContextFlag::GpRenderPassBound))
+	{
+		leaveRenderPassScope();
+	}
+
+	if (m_flags.test(VltContextFlag::CpDirtyPipeline))
+	{
+		updateComputePipeline();
+	}
+
+	if (m_flags.any(
+		VltContextFlag::CpDirtyResources,
+		VltContextFlag::CpDirtyDescriptorBinding))
+	{
+		updateComputeShaderResources();
+	}
+		
+	if (m_flags.test(VltContextFlag::CpDirtyPipelineState))
+	{
+		updateComputePipelineState();
+	}
+
+	return true;
+}
+
+void VltContext::updateComputeShaderResources()
+{
+	if (m_flags.test(VltContextFlag::CpDirtyResources))
+	{
+		updateShaderResources<VK_PIPELINE_BIND_POINT_COMPUTE>(
+			m_state.cp.pipeline->layout());
+	}
+
+	updateShaderDescriptorSetBinding<VK_PIPELINE_BIND_POINT_COMPUTE>(
+		m_state.cp.pipeline->layout(),
+		m_cpCtx.descriptorSet);
+
+	m_flags.clr(VltContextFlag::CpDirtyResources,
+				VltContextFlag::CpDirtyDescriptorBinding);
 }
 
 }  // namespace vlt

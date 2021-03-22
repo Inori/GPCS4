@@ -2,9 +2,11 @@
 
 #include "UtilBit.h"
 
+
 LOG_CHANNEL(Graphic.Gnm.GnmConvertor);
 
 using namespace vlt;
+using namespace pssl;
 
 namespace cvt
 {;
@@ -331,6 +333,30 @@ convertRrenderTargetMask(uint32_t mask)
 	}
 
 	return result;
+}
+
+VkPipelineStageFlagBits convertShaderStage(pssl::PsslProgramType type)
+{
+	VkPipelineStageFlagBits stage = {};
+	switch (type)
+	{
+	case pssl::PsslProgramType::PixelShader:
+		stage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+		break;
+	case pssl::PsslProgramType::VertexShader:
+		stage = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
+		break;
+	case pssl::PsslProgramType::GeometryShader:
+		stage = VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT;
+		break;
+	case pssl::PsslProgramType::ComputeShader:
+		stage = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+		break;
+	default:
+		LOG_ERR("unsupported shader type %d", type);
+		break;
+	}
+	return stage;
 }
 
 }  // namespace convertor

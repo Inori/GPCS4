@@ -62,7 +62,14 @@ void GCNCompiler::emitBranchLabelTry()
 			labelId = m_module.allocateId();
 		}
 
+		// Only terminate the block when inside.
+		if (m_insideBlock)
+		{
+			m_module.opBranch(labelId);
+		}
+		
 		m_module.opLabel(labelId);
+		m_insideBlock = true;
 	} while (false);
 }
 
@@ -110,7 +117,13 @@ void GCNCompiler::emitScalarProgFlow(GCNInstruction& ins)
 		switch (op)
 		{
 		case SISOPPInstruction::S_ENDPGM:
-			emitFunctionEnd();
+		{
+			if (m_insideBlock)
+			{
+				m_module.opReturn();
+				m_insideBlock = false;
+			}
+		}
 			break;
 		case SISOPPInstruction::S_BRANCH:
 		case SISOPPInstruction::S_CBRANCH_SCC0:
@@ -149,7 +162,7 @@ void GCNCompiler::emitScalarProgFlowPC(GCNInstruction& ins)
 		if (sidx == 0 && sidx == didx)
 		{
 			// s_swappc_b64  s[0:1], s[0:1]
-			// call fetch shader, since we've emulated fetch shader with a fetch_vs function
+			// call fetch shader, since we've emulated fetch shader with a vsFetch function
 			// we ignore this
 			LOG_DEBUG("call fetch shader.");
 		}
@@ -191,7 +204,7 @@ void GCNCompiler::emitScalarProgFlowBranch(GCNInstruction& ins)
 
 	const uint32_t boolTypeId = getScalarTypeId(SpirvScalarType::Bool);
 
-	bool isUnconditional = false;
+	bool isConditional = true;
 	uint32_t conditionId = 0;
 
 	switch (op)
@@ -199,33 +212,33 @@ void GCNCompiler::emitScalarProgFlowBranch(GCNInstruction& ins)
 	case SISOPPInstruction::S_BRANCH:
 	{
 		m_module.opBranch(trueLabelId);
-		isUnconditional = true;
+		isConditional = false;
 	}
 		break;
 	case SISOPPInstruction::S_CBRANCH_SCC0:
-		conditionId = m_module.opLogicalNot(boolTypeId, m_statusRegs.sccz.id);
+		conditionId = m_module.opLogicalNot(boolTypeId, m_stateRegs.scc.id);
 		break;
 	case SISOPPInstruction::S_CBRANCH_SCC1:
-		conditionId = m_statusRegs.sccz.id;
+		conditionId = m_stateRegs.scc.id;
 		break;
 	case SISOPPInstruction::S_CBRANCH_VCCZ:
 		conditionId = emitRegisterZeroTest(
-						  emitValueLoad(m_statusRegs.vcc),
+						  emitValueLoad(m_stateRegs.vcc.lo),
 						  SpirvZeroTest::TestZ).id;
 		break;
 	case SISOPPInstruction::S_CBRANCH_VCCNZ:
 		conditionId = emitRegisterZeroTest(
-						  emitValueLoad(m_statusRegs.vcc),
+						  emitValueLoad(m_stateRegs.vcc.lo),
 						  SpirvZeroTest::TestNz).id;
 		break;
 	case SISOPPInstruction::S_CBRANCH_EXECZ:
 		conditionId = emitRegisterZeroTest(
-						  emitValueLoad(m_statusRegs.exec),
+						  emitValueLoad(m_stateRegs.exec.lo),
 						  SpirvZeroTest::TestZ).id;
 		break;
 	case SISOPPInstruction::S_CBRANCH_EXECNZ:
 		conditionId = emitRegisterZeroTest(
-						  emitValueLoad(m_statusRegs.exec),
+						  emitValueLoad(m_stateRegs.exec.lo),
 						  SpirvZeroTest::TestNz).id;
 		break;
 	case SISOPPInstruction::S_CBRANCH_CDBGSYS:
@@ -237,12 +250,14 @@ void GCNCompiler::emitScalarProgFlowBranch(GCNInstruction& ins)
 		break;
 	}
 
-	if (!isUnconditional)
+	if (isConditional)
 	{
 		uint32_t falseLabelId = m_module.allocateId();
 		m_module.opBranchConditional(conditionId, trueLabelId, falseLabelId);
 		m_module.opLabel(falseLabelId);
 	}
+
+	m_insideBlock = isConditional;
 }
 
 void GCNCompiler::emitScalarSync(GCNInstruction& ins)
@@ -252,7 +267,16 @@ void GCNCompiler::emitScalarSync(GCNInstruction& ins)
 	switch (op)
 	{
 	case SISOPPInstruction::S_BARRIER:
-		LOG_PSSL_UNHANDLED_INST();
+		// TODO:
+		// I found it's hard to detect whether a s_barrier
+		// instruction stands for SharedMemoryBarrierSync() or ThreadGroupMemoryBarrierSync()
+		// so here I use a global control barrier,
+		// this may need to improve.
+		m_module.opControlBarrier(
+			m_module.constu32(spv::ScopeWorkgroup),
+			m_module.constu32(spv::ScopeWorkgroup),
+			m_module.constu32(spv::MemorySemanticsWorkgroupMemoryMask | spv::MemorySemanticsAcquireReleaseMask)
+		);
 		break;
 	case SISOPPInstruction::S_WAITCNT:
 		// pass

@@ -14,7 +14,7 @@ VltPipelineManager::~VltPipelineManager()
 }
 
 
-VltGraphicsPipeline* VltPipelineManager::getGraphicsPipeline(const VltGraphicsPipelineShaders& shaders)
+VltGraphicsPipeline* VltPipelineManager::createGraphicsPipeline(const VltGraphicsPipelineShaders& shaders)
 {
 	VltGraphicsPipeline* pipeline = nullptr;
 
@@ -31,6 +31,28 @@ VltGraphicsPipeline* VltPipelineManager::getGraphicsPipeline(const VltGraphicsPi
 			std::tuple(this, shaders));
 		pipeline = &pair.first->second;
 		
+	}
+	return pipeline;
+}
+
+
+VltComputePipeline* VltPipelineManager::createComputePipeline(
+	const VltComputePipelineShaders& shaders)
+{
+	VltComputePipeline* pipeline = nullptr;
+
+	auto iter = m_computePipelines.find(shaders);
+	if (iter != m_computePipelines.end())
+	{
+		pipeline = &iter->second;
+	}
+	else
+	{
+		auto pair = m_computePipelines.emplace(
+			std::piecewise_construct,
+			std::tuple(shaders),
+			std::tuple(this, shaders));
+		pipeline = &pair.first->second;
 	}
 	return pipeline;
 }

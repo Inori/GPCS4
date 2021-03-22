@@ -40,5 +40,25 @@ enum class SpirvZeroTest : uint32_t
 };
 
 
+enum class SpirvSystemValue : uint32_t
+{
+	None,
+	Position,
+	ClipDistance,
+	CullDistance,
+	RenderTargetId,
+	ViewportId,
+	VertexId,
+	PrimitiveId,
+	InstanceId,
+	IsFrontFace,
+	SampleIndex,
+	ThreadId,
+	ThreadGroupId,
+	ThreadIdInGroup,
+	ThreadIndexInGroup,
+};
+
+
 }  // namespace pssl
 

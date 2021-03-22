@@ -33,7 +33,7 @@ std::string PsslKey::toString() const
 {
 	// TODO:
 	// More meaningful name
-	return UtilString::Format("%llX", m_key);
+	return str::format("%llX", m_key);
 }
 
 PsslKey& PsslKey::operator=(const PsslKey& other)

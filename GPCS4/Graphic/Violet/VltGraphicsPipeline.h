@@ -23,11 +23,11 @@ struct VltGraphicsPipelineShaders
 
 	bool operator == (const VltGraphicsPipelineShaders& other) const
 	{
-		return *vs == *other.vs &&
-			*fs == *other.fs;
+		return vs == other.vs &&
+			fs == other.fs;
 	}
 
-	VltHashState hash() const
+	size_t hash() const
 	{
 		VltHashState hash;
 		hash.add(vs->key().toUint64());
@@ -46,7 +46,7 @@ public:
 		const VltRenderPass&                rp);
 	~VltGraphicsPipelineInstance();
 
-	VkPipeline pipeline();
+	VkPipeline pipeline() const;
 
 	bool isCompatible(
 		const VltGraphicsPipelineStateInfo& state,
@@ -72,24 +72,30 @@ public:
 		const VltGraphicsPipelineStateInfo& state,
 		const VltRenderPass&                rp);
 
-	VltPipelineLayout* getLayout() const;
+	VltPipelineLayout* layout() const;
 
 private:
-	VltGraphicsPipelineInstance* findInstance(
-		const VltGraphicsPipelineStateInfo& state,
-		const VltRenderPass&                rp);
 	VltGraphicsPipelineInstance* createInstance(
 		const VltGraphicsPipelineStateInfo& state,
 		const VltRenderPass&                rp);
+
+	VltGraphicsPipelineInstance* findInstance(
+		const VltGraphicsPipelineStateInfo& state,
+		const VltRenderPass&                rp);
+
+	VkPipeline createPipeline(const VltGraphicsPipelineStateInfo& state,
+							  const VltRenderPass&                rp);
+
+	void destroyPipeline(VkPipeline pipeline) const;
 
 private:
 	VltPipelineManager*        m_pipelineManager;
 	VltGraphicsPipelineShaders m_shaders;
 
-	VltDescriptorSlotMap m_resSlotMap;
-	VltPipelineLayout*   m_layout;
+	VltDescriptorSlotMap     m_slotMap;
+	RcPtr<VltPipelineLayout> m_layout;
 
-	Spinlock                                 m_mutex;
+	sync::Spinlock                           m_mutex;
 	std::vector<VltGraphicsPipelineInstance> m_pipelines;
 };
 

@@ -35,7 +35,7 @@ std::string PS4PathToPCPath(const std::string &strPs4Path)
 	std::string strPcPath = strPs4Path;
 	std::replace(strPcPath.begin(), strPcPath.end(), '/', '\\');
 	std::string strWorkingDirPath = GetWorkingDirPath();
-	strPcPath                     = UtilString::ReplaceAll(strPcPath, "\\app0\\", strWorkingDirPath);
+	strPcPath                     = str::replaceAll(strPcPath, "\\app0\\", strWorkingDirPath);
 	return strPcPath;
 }
 

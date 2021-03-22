@@ -3,12 +3,14 @@
 #include "PsslShaderFileBinary.h"
 #include "PsslShaderRegister.h"
 
-#include <vector>
+#include <array>
 #include <optional>
+#include <vector>
 
 namespace pssl
 {;
 
+constexpr size_t GcnMaxUserSgprCount = 16;
 
 enum FetchShaderInstancingMode
 {
@@ -40,6 +42,44 @@ struct FetchShaderBuildState
 	std::vector<uint32_t> semanticsRemapTable;
 };
 
+struct PsslShaderMetaVs
+{
+	uint32_t userSgprCount;
+};
+
+struct PsslShaderMetaPs
+{
+	uint32_t userSgprCount;
+	// Used to initialize VGPRs for pixel shader,
+	// see ISA manual.
+	uint32_t spiPsInputAddr;
+};
+
+struct PsslShaderMetaCs
+{
+	uint32_t userSgprCount;
+	uint32_t ldsSize;
+	uint32_t computePgmRsrc2;
+
+	uint32_t threadGroupX;
+	uint32_t threadGroupY;
+	uint32_t threadGroupZ;
+};
+
+union PsslShaderMeta 
+{
+	PsslShaderMetaVs vs;
+	PsslShaderMetaPs ps;
+	PsslShaderMetaCs cs;
+};
+
+enum class PsslSharpType
+{
+	VSharp,  // GnmBuffer
+	TSharp,  // GnmTexture
+	SSharp   // GnmSampler
+};
+
 /**
  * \brief Shader resource buffer
  *
@@ -52,6 +92,8 @@ struct PsslShaderResource
 	uint32_t    sizeDwords    = 0;
 };
 
+using PsslShaderResourceTable = std::vector<PsslShaderResource>;
+
 /**
  * \brief A single shader input resource.
  *
@@ -60,8 +102,21 @@ struct PsslShaderResource
 struct GcnShaderResourceInstance
 {
 	ShaderInputUsageType usageType;
+	PsslSharpType        sharpType;  // Some usage types could be interpreted as either V# or T#, e.g. ImmResource
 	PsslShaderResource   res;
 };
+
+/**
+ * \brief Vertex input attribute
+ *
+ */
+struct GcnVertexInputAttribute
+{
+	uint32_t    bindingId = 0;
+	const void* vsharp    = nullptr;
+};
+
+using GcnVertexInputAttributeTable = std::vector<GcnVertexInputAttribute>;
 
 /**
  * \brief Resources in EUD.
@@ -92,10 +147,13 @@ struct GcnShaderResourceSRT
  * including resources in EUD and SRT.
  */
 
-struct GcnShaderResources
+struct GcnShaderResourceDeclaration
 {
 	// Resources in 16 User Data Registers.
 	std::vector<GcnShaderResourceInstance> ud;
+
+	// Vertex attributes
+	std::optional<GcnVertexInputAttributeTable> iat = std::nullopt;
 
 	// EUD resources
 	std::optional<GcnShaderResourceEUD> eud = std::nullopt;
@@ -106,5 +164,26 @@ struct GcnShaderResources
 	std::optional<GcnShaderResourceSRT> srt = std::nullopt;
 };
 
+/**
+ * \brief Shader input information
+ * 
+ * Convenience struct to prevent too many parameters
+ * in GCNCompiler's constructor.
+ *
+ */
 
-}  // pssl
+using GcnUserDataRegister = std::array<uint32_t, GcnMaxUserSgprCount>;
+
+struct GcnShaderInput
+{
+	PsslShaderMeta     meta;
+	GcnShaderResourceDeclaration shaderResources;
+	// TODO:
+	// For the 16 user data registers, we should
+	// use specialization constants, because these
+	// values could be changed during runtime.
+	GcnUserDataRegister                             userSgpr         = {};
+	std::optional<std::vector<VertexInputSemantic>> vsInputSemantics = {};
+};
+
+}  // namespace pssl

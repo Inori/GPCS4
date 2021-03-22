@@ -140,6 +140,8 @@ public:
 
 	virtual void waitForGraphicsWrites(uint32_t baseAddr256, uint32_t sizeIn256ByteBlocks, uint32_t targetMask, CacheAction cacheAction, uint32_t extendedCacheMask, StallCommandBufferParserMode commandBufferStallMode) override;
 
+	virtual void setDepthStencilDisable() override;
+
 private:
 	
 	// Stage setup methods
@@ -151,6 +153,7 @@ private:
 	void commitCsStage();
 	void commitComputeStages();
 
+	void clearShaderContext();
 	void clearRenderState();
 
 	void clearColorTargetHack(
@@ -164,15 +167,27 @@ private:
 	void bindIndexBuffer();
 
 	void setVertexInputLayout(
-		const std::vector<PsslShaderResource>& attributes);
+		const pssl::GcnVertexInputAttributeTable& iat);
 
-	void bindVertexBuffer(const PsslShaderResource& res);
+	void bindVertexInput(
+		const pssl::GcnVertexInputAttributeTable& iat);
+
+	void bindVertexBuffer(
+		const pssl::GcnVertexInputAttribute& attr);
 
 	void bindImmConstBuffer(
 		pssl::PsslProgramType     shaderType,
 		const PsslShaderResource& res);
 
-	void bindImmResource(const PsslShaderResource& res);
+	void bindImmBuffer(
+		pssl::PsslProgramType            shaderType,
+		const GcnShaderResourceInstance& res);
+	void bindImmTexture(
+		pssl::PsslProgramType            shaderType,
+		const GcnShaderResourceInstance& res);
+	void bindImmResource(
+		pssl::PsslProgramType            shaderType,
+		const GcnShaderResourceInstance& res);
 
 	void bindSampler(const PsslShaderResource& res);
 
@@ -203,8 +218,8 @@ private:
 
 	const GnmRenderTarget* findRenderTarget(void* address);
 
-	std::vector<PsslShaderResource> extractVertexAttributes(
-		const GnmShaderResourceList& resources);
+	bool isSingleVertexBuffer(
+		const pssl::GcnVertexInputAttributeTable& iat);
 
 private:
 

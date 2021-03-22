@@ -2,11 +2,11 @@
 #include <cstdarg>
 #include <sstream>
 
-namespace UtilString
+namespace str
 {;
 
 
-std::vector<std::string> Split(const std::string& strToSplit, char cDelimeter)
+std::vector<std::string> split(const std::string& strToSplit, char cDelimeter)
 {
 	std::vector<std::string> result;
 	do 
@@ -33,7 +33,7 @@ std::vector<std::string> Split(const std::string& strToSplit, char cDelimeter)
 }
 
 
-std::string Concat(const std::vector<std::string>& ss, const std::string d)
+std::string concat(const std::vector<std::string>& ss, const std::string d)
 {
 	std::string ret;
 	for (size_t i = 0; i < ss.size(); ++i)
@@ -47,7 +47,7 @@ std::string Concat(const std::vector<std::string>& ss, const std::string d)
 	return ret;
 }
 
-std::string Format(const char* pFormat, ...)
+std::string format(const char* pFormat, ...)
 {
 	std::string strDst;
 	static char szTemp[0x1000] = { 0 };
@@ -75,7 +75,7 @@ std::string Format(const char* pFormat, ...)
 	return strDst;
 }
 
-std::string ReplaceAll(const std::string& cstr, const std::string& from, const std::string& to) 
+std::string replaceAll(const std::string& cstr, const std::string& from, const std::string& to) 
 {
 	std::string str = cstr;
 	size_t start_pos = 0;

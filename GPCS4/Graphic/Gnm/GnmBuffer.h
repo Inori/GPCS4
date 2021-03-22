@@ -40,7 +40,8 @@ public:
 
 	ResourceMemoryType getResourceMemoryType() const
 	{
-		// TODO
+		// From IDA
+		return static_cast<ResourceMemoryType>(m_vsharp.mtype_L1s << 5 | m_vsharp.mtype << 2 | m_vsharp.mtype_L2);
 	}
 
 	void *getBaseAddress() const

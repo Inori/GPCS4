@@ -66,7 +66,7 @@ VkRenderPass VltRenderPass::getHandle(const VltRenderPassOps& ops)
 	VkRenderPass rp = VK_NULL_HANDLE;
 	do 
 	{
-		std::lock_guard<Spinlock> lock(m_mutex);
+		std::lock_guard<sync::Spinlock> lock(m_mutex);
 
 		for (const auto& i : m_instances)
 		{

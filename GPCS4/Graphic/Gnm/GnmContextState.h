@@ -12,8 +12,7 @@
 #include "../Violet/VltLimit.h"
 
 namespace vlt
-{
-;
+{;
 class VltShader;
 class VltImageView;
 }  // namespace vlt
@@ -35,9 +34,11 @@ class VltImageView;
  */
 enum class GnmContexFlag : uint32_t
 {
-	GpClearDepthTarget,  ///< There is pending depth clear operation.
+	GpClearDepthTarget,   ///< There is pending depth clear operation.
 
 	GpDirtyRenderTarget,  ///< RenderTarget is out of data. Here RenderTarget includes both color and depth target.
+
+	CpPendingDispatch,    ///< A dispatch call is pending.
 };
 
 using GnmContexFlags = Flags<GnmContexFlag>;
@@ -47,22 +48,22 @@ struct GnmShaderContext
 {
 	const void*                           code   = nullptr;
 	RcPtr<pssl::PsslShaderModule>         shader = nullptr;
-	std::vector<pssl::PsslShaderResource> userDataSlotTable;
+	pssl::PsslShaderResourceTable         userDataSlotTable;
 };
 
 struct GnmShaderContextVS : public GnmShaderContext
 {
-	GnmShaderMetaVs meta;
+	pssl::PsslShaderMetaVs meta;
 };
 
 struct GnmShaderContextPS : public GnmShaderContext
 {
-	GnmShaderMetaPs meta;
+	pssl::PsslShaderMetaPs meta;
 };
 
 struct GnmShaderContextCS : public GnmShaderContext
 {
-	GnmShaderMetaCs meta;
+	pssl::PsslShaderMetaCs meta;
 };
 
 struct GnmShaderContextGroup

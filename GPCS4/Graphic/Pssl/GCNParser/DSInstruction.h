@@ -57,9 +57,9 @@ public:
     //
 
     /// ctor
-    DSInstruction(OFFSET offset0, OFFSET offset1, GDS isGDS, ADDR addr, DATA data0, DATA data1, VDST vdst,
-		InstructionClass insClass = InstructionClassUnknown):
-		Instruction(DSInstructionWidth, Instruction::DataShare, InstructionSet_DS, insClass),
+	DSInstruction(OFFSET offset0, OFFSET offset1, GDS isGDS, ADDR addr, DATA data0, DATA data1, VDST vdst, 
+		InstructionClass insClass = InstructionClassUnknown, OperandType instructionOperandType = Instruction::TypeNone) :
+		Instruction(DSInstructionWidth, Instruction::DataShare, InstructionSet_DS, insClass, instructionOperandType),
         m_offset0(offset0), m_offset1(offset1), m_isGDS(isGDS), m_addr(addr), m_data0(data0), m_data1(data1), m_vdst(vdst) { }
 
     /// dtor
@@ -603,7 +603,10 @@ public:
         return iRet;
     }
 
-    SIDSInstruction(OFFSET offset0, OFFSET offset1, GDS isGDS, OP op, ADDR addr, DATA data0, DATA data1, VDST vdst): DSInstruction(offset0, offset1, isGDS, addr, data0, data1, vdst), m_op(op)
+    SIDSInstruction(OFFSET offset0, OFFSET offset1, GDS isGDS, OP op, ADDR addr, DATA data0, DATA data1, VDST vdst,
+		InstructionClass insClass, OperandType instructionOperandType) :
+		DSInstruction(offset0, offset1, isGDS, addr, data0, data1, vdst, insClass, instructionOperandType), 
+		m_op(op)
     { }
 
     /// Get the OP [27:23]

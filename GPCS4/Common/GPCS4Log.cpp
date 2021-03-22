@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 #define SPDLOG_NO_NAME
 #define SPDLOG_NO_ATOMIC_LEVELS
@@ -167,7 +168,7 @@ void Channel::assert_(const char* szExpression, const char* szFunction, const ch
 }
 
 Channel::Channel(const std::string& n) :
-	m_channelNameList(UtilString::Split(n, '.')),
+	m_channelNameList(str::split(n, '.')),
 	m_enabled(false)
 {
 	auto cc = ChannelContainer::get();
@@ -192,7 +193,7 @@ void Channel::checkSig(const std::string& n)
 		m_enabled = false;
 
 		bool notMatch = false;
-		auto up = UtilString::Split(n, '.');
+		auto up = str::split(n, '.');
 		for (size_t i = 0; i < up.size() && i < m_channelNameList.size(); ++i)
 		{
 			if (up[i] != m_channelNameList[i])
@@ -218,7 +219,7 @@ void Channel::checkSig(const std::string& n)
 
 std::string Channel::getName()
 {
-	return UtilString::Concat(m_channelNameList, ".");
+	return str::concat(m_channelNameList, ".");
 }
 
 ///

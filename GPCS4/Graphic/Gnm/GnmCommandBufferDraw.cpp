@@ -16,7 +16,10 @@
 #include "../Violet/VltSampler.h"
 #include "../Violet/VltShader.h"
 
+#include "../Platform/UtilFile.h"
+
 #include <algorithm>
+#include <functional>
 
 LOG_CHANNEL(Graphic.Gnm.GnmCommandBufferDraw);
 
@@ -26,6 +29,13 @@ using namespace pssl;
 
 // The compute shader using to clear color render target
 constexpr uint64_t ShaderHashClearRT = 0x8C25642DB09D8E59;
+
+// Use this to break on a shader you want to debug.
+#define SHADER_DEBUG_BREAK(mod, hash)  \
+	if (mod->key().toUint64() == hash) \
+	{                                  \
+		__debugbreak();                \
+	}
 
 GnmCommandBufferDraw::GnmCommandBufferDraw(
 	const SceGpuQueueDevice& device,
@@ -53,7 +63,9 @@ void GnmCommandBufferDraw::setViewportTransformControl(ViewportTransformControl 
 
 void GnmCommandBufferDraw::setPrimitiveSetup(PrimitiveSetup reg)
 {
-	VkFrontFace     frontFace = reg.getFrontFace() == kPrimitiveSetupFrontFaceCcw ? VK_FRONT_FACE_COUNTER_CLOCKWISE : VK_FRONT_FACE_CLOCKWISE;
+	VkFrontFace     frontFace = reg.getFrontFace() == kPrimitiveSetupFrontFaceCcw ? 
+		VK_FRONT_FACE_COUNTER_CLOCKWISE : 
+		VK_FRONT_FACE_CLOCKWISE;
 	VkPolygonMode   polyMode  = cvt::convertPolygonMode(reg.getPolygonModeFront());
 	VkCullModeFlags cullMode  = cvt::convertCullMode(reg.getCullFace());
 
@@ -125,6 +137,7 @@ void GnmCommandBufferDraw::setActiveShaderStages(ActiveShaderStages activeStages
 void GnmCommandBufferDraw::setPsShader(const PsStageRegisters* psRegs)
 {
 	m_shaders.ps.code = psRegs->getCodeAddress();
+	shader::parseShaderRegPs(psRegs, m_shaders.ps.meta);
 }
 
 void GnmCommandBufferDraw::updatePsShader(const PsStageRegisters* psRegs)
@@ -141,13 +154,69 @@ void GnmCommandBufferDraw::setEmbeddedVsShader(EmbeddedVsShader shaderId, uint32
 {
 	LOG_ASSERT(shaderId == kEmbeddedVsShaderFullScreen, "invalid shader id %d", shaderId);
 
+	// This is the original gnm embedded shader.
+	// It outputs vertex:
+	// 0  (-1.0, -1.0, 0.0, 1.0)
+	// 1  (1.0, -1.0, 0.0, 1.0)
+	// 2  (-1.0, 1.0, 0.0, 1.0)
+	// And treated it as a rectangle list,
+	// this will only cover the bottom-left triangle
+	// of the screen, since vulkan doesn't
+	// support rect list vertex data, and we
+	// have to use triangle list.
+
+	//const static uint8_t embeddedVsShaderFullScreen[] = {
+	//	0xFF, 0x03, 0xEB, 0xBE, 0x07, 0x00, 0x00, 0x00, 0x81, 0x00, 0x02, 0x36, 0x81, 0x02, 0x02, 0x34,
+	//	0xC2, 0x00, 0x00, 0x36, 0xC1, 0x02, 0x02, 0x4A, 0xC1, 0x00, 0x00, 0x4A, 0x01, 0x0B, 0x02, 0x7E,
+	//	0x00, 0x0B, 0x00, 0x7E, 0x80, 0x02, 0x04, 0x7E, 0xF2, 0x02, 0x06, 0x7E, 0xCF, 0x08, 0x00, 0xF8,
+	//	0x01, 0x00, 0x02, 0x03, 0x0F, 0x02, 0x00, 0xF8, 0x03, 0x03, 0x03, 0x03, 0x00, 0x00, 0x81, 0xBF,
+	//	0x4F, 0x72, 0x62, 0x53, 0x68, 0x64, 0x72, 0x07, 0x47, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	//	0x9F, 0xC2, 0xF8, 0x47, 0xCF, 0xA5, 0x2D, 0x9B, 0x7D, 0x5B, 0x7C, 0xFF, 0x17, 0x00, 0x00, 0x00
+	//};
+
+	// This is our replaced version.
+	// It outputs vertex:
+	// 0  (-1.0, -1.0, 0.0, 1.0)
+	// 1  (-1.0, 3.0, 0.0, 1.0)
+	// 2  (3.0, -1.0, 0.0, 1.0)
+	// We treated it as triangle list,
+	// and this way we cover the whole screen.
+
+	// Note:
+	// The generated vertex data is in clockwise,
+	// thus we must make sure the front face is
+	// VK_FRONT_FACE_CLOCKWISE. And if culling is enabled,
+	// it must be VK_CULL_MODE_BACK_BIT.
+
+	// Source code
+	/*
+	struct VS_OUTPUT
+	{
+		float4 vPosition  :  S_POSITION;
+		float2 vTexcoord  :  TEXCOORD0;
+	};
+
+	VS_OUTPUT main(uint VertexId:S_VERTEX_ID)
+	{
+		VS_OUTPUT Output;
+
+		Output.vTexcoord = float2(
+		float(VertexId & 2),
+		float(VertexId & 1) * 2.0);
+    
+		Output.vPosition = float4(-1.0 + 2.0 * Output.vTexcoord, 0.0, 1.0);
+		return Output;
+	}
+	*/
+
 	const static uint8_t embeddedVsShaderFullScreen[] = {
-		0xFF, 0x03, 0xEB, 0xBE, 0x07, 0x00, 0x00, 0x00, 0x81, 0x00, 0x02, 0x36, 0x81, 0x02, 0x02, 0x34,
-		0xC2, 0x00, 0x00, 0x36, 0xC1, 0x02, 0x02, 0x4A, 0xC1, 0x00, 0x00, 0x4A, 0x01, 0x0B, 0x02, 0x7E,
-		0x00, 0x0B, 0x00, 0x7E, 0x80, 0x02, 0x04, 0x7E, 0xF2, 0x02, 0x06, 0x7E, 0xCF, 0x08, 0x00, 0xF8,
-		0x01, 0x00, 0x02, 0x03, 0x0F, 0x02, 0x00, 0xF8, 0x03, 0x03, 0x03, 0x03, 0x00, 0x00, 0x81, 0xBF,
-		0x4F, 0x72, 0x62, 0x53, 0x68, 0x64, 0x72, 0x07, 0x47, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-		0x9F, 0xC2, 0xF8, 0x47, 0xCF, 0xA5, 0x2D, 0x9B, 0x7D, 0x5B, 0x7C, 0xFF, 0x17, 0x00, 0x00, 0x00
+		0xFF, 0x03, 0xEB, 0xBE, 0x09, 0x00, 0x00, 0x00, 0x81, 0x00, 0x02, 0x36, 0x82, 0x00, 0x00, 0x36,
+		0x00, 0x0D, 0x00, 0x7E, 0x01, 0x0D, 0x04, 0x7E, 0x03, 0x00, 0x82, 0xD2, 0xF4, 0x00, 0xCE, 0x03,
+		0x04, 0x00, 0x82, 0xD2, 0xF6, 0x04, 0xCE, 0x03, 0x80, 0x02, 0x02, 0x7E, 0xF2, 0x02, 0x0A, 0x7E,
+		0xCF, 0x08, 0x00, 0xF8, 0x03, 0x04, 0x01, 0x05, 0xF4, 0x04, 0x04, 0x10, 0x0F, 0x02, 0x00, 0xF8,
+		0x00, 0x02, 0x01, 0x01, 0x00, 0x00, 0x81, 0xBF, 0x02, 0x03, 0x00, 0x00, 0x1C, 0x61, 0x6D, 0x04,
+		0x4F, 0x72, 0x62, 0x53, 0x68, 0x64, 0x72, 0x07, 0x45, 0x48, 0x00, 0x00, 0x02, 0x00, 0x08, 0x05,
+		0x61, 0xDE, 0xE7, 0xD1, 0x00, 0x00, 0x00, 0x00, 0x98, 0xE5, 0xCA, 0xB9
 	};
 
 	m_shaders.vs.code = reinterpret_cast<const void*>(embeddedVsShaderFullScreen);
@@ -275,14 +344,45 @@ void GnmCommandBufferDraw::setDepthStencilControl(DepthStencilControl depthContr
 	m_context->setDepthStencilState(dsInfo);
 }
 
+void GnmCommandBufferDraw::setDepthStencilDisable()
+{
+	auto dsInfo = VltDepthStencilInfo();
+
+	m_context->setDepthStencilState(dsInfo);
+}
+
 void GnmCommandBufferDraw::setDbRenderControl(DbRenderControl reg)
 {
 	if (reg.getDepthClearEnable())
 	{
+		// Gnm provide a way to overwrite the depth value
+		// outputted from pixel shader no matter what the original
+		// value is.
+		// That is enable depth clear using setDbRenderControl
+		// and set the clear value using setDepthClearValue.
+		//
+		// While vulkan provide us a different way to achieve this,
+		// when depth bounds test is enabled and the test fails,
+		// the sample¡¯s coverage bit is cleared in the fragment.
+		// So we set minDepthBounds to 1.0 and maxDepthBounds to 0.0
+		// to ensure the depth bounds test must fail.
+		// and then set the clear value using VltContext::clearRenderTarget
+		VltDepthBounds depthBounds;
+		depthBounds.enableDepthBounds = VK_TRUE;
+		depthBounds.minDepthBounds    = 1.0;
+		depthBounds.maxDepthBounds    = 0.0;
+		m_context->setDepthBounds(depthBounds);
+
 		m_flags.set(GnmContexFlag::GpClearDepthTarget);
 	}
 	else
 	{
+		VltDepthBounds depthBounds;
+		depthBounds.enableDepthBounds = VK_FALSE;
+		depthBounds.minDepthBounds    = 0.0;
+		depthBounds.maxDepthBounds    = 1.0;
+		m_context->setDepthBounds(depthBounds);
+
 		m_flags.clr(GnmContexFlag::GpClearDepthTarget);
 	}
 }
@@ -362,6 +462,13 @@ void GnmCommandBufferDraw::dispatch(uint32_t threadGroupX, uint32_t threadGroupY
 
 void GnmCommandBufferDraw::dispatchWithOrderedAppend(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ, DispatchOrderedAppendMode orderedAppendMode)
 {
+	commitComputeStages();
+
+	if (m_flags.test(GnmContexFlag::CpPendingDispatch))
+	{
+		m_context->dispatch(threadGroupX, threadGroupY, threadGroupZ);
+		m_flags.clr(GnmContexFlag::CpPendingDispatch);
+	}
 }
 
 void GnmCommandBufferDraw::writeDataInline(void* dstGpuAddr, const void* data, uint32_t sizeInDwords, WriteDataConfirmMode writeConfirm)
@@ -461,40 +568,81 @@ void GnmCommandBufferDraw::bindRenderTargets()
 	} while (false);
 }
 
-void GnmCommandBufferDraw::setVertexInputLayout(const std::vector<PsslShaderResource>& attributes)
+void GnmCommandBufferDraw::setVertexInputLayout(
+	const pssl::GcnVertexInputAttributeTable& iat)
 {
-	// TODO:
 	// For some games, ie. Nier:Automata, vertex attributes are not stored
-	// in a single vertex buffer area, so in this case we need to use multiple vertex
-	// bindings. But for other games, all vertex attributes are within the same memory area,
+	// in a single vertex buffer area, so in such case we need to use multiple vertex
+	// bindings. 
+	// But for other games, all vertex attributes are within the same memory area,
 	// in this case, we only need one vertex binding.
-	// Currently I only support the first case, we need to check whether these attributes
-	// are in same memory area or not.
 
-	std::vector<VltVertexBinding>   vertexBindings;
-	std::vector<VltVertexAttribute> vertexAttributes;
+	uint32_t bindingCount   = 0;
+	uint32_t attributeCount = 0;
 
-	uint32_t           location = 0;
+	std::array<VltVertexBinding, MaxNumVertexBindings>     bindings;
+	std::array<VltVertexAttribute, MaxNumVertexAttributes> attributes;
 
-	uint32_t bindingCount = attributes.size();
-	for (uint32_t i = 0; i != bindingCount; ++i)
+	attributeCount = iat.size();
+
+	if (isSingleVertexBuffer(iat))
 	{
-		const GnmBuffer* vsharp = reinterpret_cast<const GnmBuffer*>(attributes[i].resource);
+		const GnmBuffer* firstVsharp = reinterpret_cast<const GnmBuffer*>(iat[0].vsharp);
+		uint32_t         stride      = firstVsharp->getStride();
 
-		uint32_t stride  = vsharp->getStride();
-		auto     binding = VltVertexBinding(i, stride, VK_VERTEX_INPUT_RATE_VERTEX, 0);
-		vertexBindings.emplace_back(binding);
+		bindingCount             = 1;
+		VltVertexBinding binding = VltVertexBinding(0, stride, VK_VERTEX_INPUT_RATE_VERTEX, 0);
+		bindings.at(0)           = binding;
 
-		VkFormat vtxFmt = cvt::convertDataFormatToVkFormat(vsharp->getDataFormat());
-		auto     attr   = VltVertexAttribute(location++, i, vtxFmt, 0);
-		vertexAttributes.emplace_back(attr);
+		uint8_t* startAddress = reinterpret_cast<uint8_t*>(firstVsharp->getBaseAddress());
+
+		for (uint32_t i = 0; i != attributeCount; ++i)
+		{
+			const GnmBuffer* vsharp = reinterpret_cast<const GnmBuffer*>(iat[i].vsharp);
+
+			uint8_t* bufferAddress = reinterpret_cast<uint8_t*>(vsharp->getBaseAddress());
+			uint32_t offset        = bufferAddress - startAddress;
+			VkFormat format        = cvt::convertDataFormatToVkFormat(vsharp->getDataFormat());
+			auto     attr          = VltVertexAttribute(i, 0, format, offset);
+			attributes.at(i)       = attr;
+		}
+	}
+	else
+	{
+		bindingCount = iat.size();
+		for (uint32_t i = 0; i != attributeCount; ++i)
+		{
+			const GnmBuffer* vsharp = reinterpret_cast<const GnmBuffer*>(iat[i].vsharp);
+
+			uint32_t stride  = vsharp->getStride();
+			auto     binding = VltVertexBinding(i, stride, VK_VERTEX_INPUT_RATE_VERTEX, 0);
+			bindings.at(i)   = binding;
+
+			VkFormat vtxFmt  = cvt::convertDataFormatToVkFormat(vsharp->getDataFormat());
+			auto     attr    = VltVertexAttribute(i, i, vtxFmt, 0);
+			attributes.at(i) = attr;
+		}
 	}
 
 	m_context->setInputLayout(
-		vertexBindings.size(),
-		vertexBindings.data(),
-		vertexAttributes.size(),
-		vertexAttributes.data());
+		bindingCount,
+		bindings.data(),
+		attributeCount,
+		attributes.data());
+}
+
+void GnmCommandBufferDraw::bindVertexInput(
+	const pssl::GcnVertexInputAttributeTable& iat)
+{
+	setVertexInputLayout(iat);
+
+	uint32_t bindingCount = isSingleVertexBuffer(iat) ?
+		1 : iat.size();
+
+	for (uint32_t i = 0; i != bindingCount; ++i)
+	{
+		bindVertexBuffer(iat[i]);
+	}
 }
 
 void GnmCommandBufferDraw::bindIndexBuffer()
@@ -507,7 +655,8 @@ void GnmCommandBufferDraw::bindIndexBuffer()
 	m_context->bindIndexBuffer(indexBuffer, indexDesc.type);
 }
 
-void GnmCommandBufferDraw::bindVertexBuffer(const PsslShaderResource& res)
+void GnmCommandBufferDraw::bindVertexBuffer(
+	const GcnVertexInputAttribute& attr)
 {
 	// TODO:
 	// There's a critical problem here, probably the most critical one for the whole GPCS4 project:
@@ -521,7 +670,7 @@ void GnmCommandBufferDraw::bindVertexBuffer(const PsslShaderResource& res)
 	// We may need to develop some heuristic strategies to deal with this problem.
 	// Currently I just update GPU buffer every time it gets bound and don't release any of them.
 
-	const GnmBuffer* vsharp  = reinterpret_cast<const GnmBuffer*>(res.resource);
+	const GnmBuffer* vsharp  = reinterpret_cast<const GnmBuffer*>(attr.vsharp);
 	void*            vtxData = vsharp->getBaseAddress();
 
 	bool isSwizzled = vsharp->isSwizzled();
@@ -538,35 +687,17 @@ void GnmCommandBufferDraw::bindVertexBuffer(const PsslShaderResource& res)
 	m_context->updateBuffer(vertexBuffer, 0, bufferSize, vtxData);
 
 	uint32_t stride = vsharp->getStride();
-	// startRegister act as binding id for vertex buffers,
-	// it is set in PsslShaderModule::parseResPtrTable
-	m_context->bindVertexBuffer(res.startRegister, VltBufferSlice(vertexBuffer, 0, bufferSize), stride);
+	m_context->bindVertexBuffer(attr.bindingId, 
+		VltBufferSlice(vertexBuffer, 0, bufferSize), stride);
 }
 
 void GnmCommandBufferDraw::bindImmConstBuffer(pssl::PsslProgramType shaderType, const PsslShaderResource& res)
 {
 	const GnmBuffer* vsharp = reinterpret_cast<const GnmBuffer*>(res.resource);
 
-	VkPipelineStageFlags stage = {};
-	switch (shaderType)
-	{
-	case pssl::PsslProgramType::PixelShader:
-		stage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-		break;
-	case pssl::PsslProgramType::VertexShader:
-		stage = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
-		break;
-	case pssl::PsslProgramType::ComputeShader:
-		stage = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
-		break;
-	default:
-		LOG_ERR("unsupported shader type %d", shaderType);
-		break;
-	}
-
 	GnmBufferCreateInfo info = {};
 	info.buffer              = vsharp;
-	info.stages              = stage;
+	info.stages              = cvt::convertShaderStage(shaderType);
 	info.usageType           = kShaderInputUsageImmConstBuffer;
 	auto constBuffer         = m_factory.grabBuffer(info);
 
@@ -577,14 +708,41 @@ void GnmCommandBufferDraw::bindImmConstBuffer(pssl::PsslProgramType shaderType, 
 	m_context->bindResourceBuffer(regSlot, constBuffer);
 }
 
-void GnmCommandBufferDraw::bindImmResource(const PsslShaderResource& res)
+void GnmCommandBufferDraw::bindImmBuffer(
+	pssl::PsslProgramType            shaderType,
+	const GcnShaderResourceInstance& res)
 {
-	const GnmTexture* tsharp = reinterpret_cast<const GnmTexture*>(res.resource);
+	const GnmBuffer* vsharp = reinterpret_cast<const GnmBuffer*>(res.res.resource);
+
+	GnmBufferCreateInfo info = {};
+	info.buffer              = vsharp;
+	info.stages              = cvt::convertShaderStage(shaderType);
+	info.usageType           = res.usageType;
+	auto dataBuffer          = m_factory.grabBuffer(info);
+
+	VkDeviceSize bufferSize = vsharp->getSize();
+	
+	bool updated = false;
+	if (!updated)
+	{
+		m_context->updateBuffer(dataBuffer, 0, bufferSize, vsharp->getBaseAddress());
+		updated = true;
+	}
+
+	uint32_t regSlot = computeResBinding(shaderType, res.res.startRegister);
+	m_context->bindResourceBuffer(regSlot, dataBuffer);
+}
+
+void GnmCommandBufferDraw::bindImmTexture(
+	pssl::PsslProgramType            shaderType,
+	const GcnShaderResourceInstance& res)
+{
+	const GnmTexture* tsharp = reinterpret_cast<const GnmTexture*>(res.res.resource);
 
 	GnmTextureCreateInfo info = {};
 	info.texture              = tsharp;
-	info.stages               = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-	info.usageType            = kShaderInputUsageImmResource;
+	info.stages               = cvt::convertShaderStage(shaderType);
+	info.usageType            = res.usageType;
 	auto image                = m_factory.grabImage(info);
 
 	auto     imgInfo       = image.image->info();
@@ -627,8 +785,22 @@ void GnmCommandBufferDraw::bindImmResource(const PsslShaderResource& res)
 		free(untiledData);
 	}
 
-	uint32_t regSlot = computeResBinding(PsslProgramType::PixelShader, res.startRegister);
+	uint32_t regSlot = computeResBinding(PsslProgramType::PixelShader, res.res.startRegister);
 	m_context->bindResourceView(regSlot, image.view, nullptr);
+}
+
+void GnmCommandBufferDraw::bindImmResource(
+	PsslProgramType                  shaderType,
+	const GcnShaderResourceInstance& res)
+{
+	if (res.sharpType == PsslSharpType::VSharp)
+	{
+		bindImmBuffer(shaderType, res);
+	}
+	else
+	{
+		bindImmTexture(shaderType, res);
+	}
 }
 
 void GnmCommandBufferDraw::bindSampler(const PsslShaderResource& res)
@@ -652,18 +824,15 @@ void GnmCommandBufferDraw::bindShaderResources(
 		case pssl::kShaderInputUsageImmSampler:
 			bindSampler(res.res);
 			break;
+		case pssl::kShaderInputUsageImmRwResource:
 		case pssl::kShaderInputUsageImmResource:
-			bindImmResource(res.res);
+			bindImmResource(shaderType, res);
 			break;
 		case pssl::kShaderInputUsageImmConstBuffer:
 			bindImmConstBuffer(shaderType, res.res);
 			break;
-		case pssl::kShaderInputUsageImmVertexBuffer:
-			bindVertexBuffer(res.res);
-			break;
-		case pssl::kShaderInputUsageImmRwResource:
 		default:
-			LOG_ERR("unsupported resource type %d", type);
+			LOG_WARN("unsupported resource type %d", type);
 			break;
 		}
 	}
@@ -671,53 +840,73 @@ void GnmCommandBufferDraw::bindShaderResources(
 
 void GnmCommandBufferDraw::commitVsStage()
 {
-	m_shaders.vs.shader = new PsslShaderModule((const uint32_t*)m_shaders.vs.code);
-
-	const uint32_t* fsCode = findFetchShaderCode(m_shaders.vs);
-	// Some vs shaders doesn't have fetch shader, we need to check.
-	if (fsCode)
+	do 
 	{
-		m_shaders.vs.shader->defineFetchShader(fsCode);
-	}
+		if (!m_shaders.vs.code)
+		{
+			break;
+		}
 
-	LOG_DEBUG("vertex shader hash %llX", m_shaders.vs.shader->key().toUint64());
-	m_shaders.vs.shader->defineShaderInput(m_shaders.vs.userDataSlotTable);
+		m_shaders.vs.shader = new PsslShaderModule(
+			{.vs = m_shaders.vs.meta},
+			(const uint32_t*)m_shaders.vs.code);
 
-	auto nestedResources = m_shaders.vs.shader->getShaderResources();
-	auto shaderResources = PsslShaderModule::flattenShaderResources(nestedResources);
+		const uint32_t* fsCode = findFetchShaderCode(m_shaders.vs);
+		// Some vs shaders doesn't have fetch shader, we need to check.
+		if (fsCode)
+		{
+			m_shaders.vs.shader->defineFetchShader(fsCode);
+		}
 
-	// Set vertex input layout
-	auto vertexAttributes = extractVertexAttributes(shaderResources);
-	// Some shaders doesn't have vertex input, we need to check
-	if (vertexAttributes.size())
-	{
-		setVertexInputLayout(vertexAttributes);
-	}
+		LOG_DEBUG("vertex shader hash %llX", m_shaders.vs.shader->key().toUint64());
+		m_shaders.vs.shader->defineShaderInput(m_shaders.vs.userDataSlotTable);
 
-	// Bind all resources which the shader uses.
-	bindShaderResources(PsslProgramType::VertexShader, shaderResources);
+		auto shaderResourcesDcl = m_shaders.vs.shader->getShaderResourceDeclaration();
+		auto bindingResources = PsslShaderModule::flattenShaderResources(shaderResourcesDcl);
 
-	m_context->bindShader(
-		VK_SHADER_STAGE_VERTEX_BIT,
-		m_shaders.vs.shader->compile());
+		// Bind Vertex input
+		if (shaderResourcesDcl.iat.has_value())
+		{
+			bindVertexInput(shaderResourcesDcl.iat.value());
+		}
+
+		// Bind all resources which the shader uses.
+		bindShaderResources(PsslProgramType::VertexShader, bindingResources);
+
+		m_context->bindShader(
+			VK_SHADER_STAGE_VERTEX_BIT,
+			m_shaders.vs.shader->compile());
+	} while (false);
 }
 
 void GnmCommandBufferDraw::commitPsStage()
 {
-	m_shaders.ps.shader = new PsslShaderModule((const uint32_t*)m_shaders.ps.code);
+	do 
+	{
+		if (!m_shaders.ps.code)
+		{
+			break;
+		}
 
-	LOG_DEBUG("pixel shader hash %llX", m_shaders.ps.shader->key().toUint64());
-	m_shaders.ps.shader->defineShaderInput(m_shaders.ps.userDataSlotTable);
+		m_shaders.ps.shader = new PsslShaderModule(
+			{ .ps = m_shaders.ps.meta },
+			(const uint32_t*)m_shaders.ps.code);
 
-	auto nestedResources = m_shaders.ps.shader->getShaderResources();
-	auto shaderResources = PsslShaderModule::flattenShaderResources(nestedResources);
+		LOG_DEBUG("pixel shader hash %llX", m_shaders.ps.shader->key().toUint64());
+		m_shaders.ps.shader->defineShaderInput(m_shaders.ps.userDataSlotTable);
 
-	// Bind all resources which the shader uses.
-	bindShaderResources(PsslProgramType::PixelShader, shaderResources);
+		// SHADER_DEBUG_BREAK(m_shaders.ps.shader, 0xAB97D172C647AFE9);
 
-	m_context->bindShader(
-		VK_SHADER_STAGE_FRAGMENT_BIT,
-		m_shaders.ps.shader->compile());
+		auto shaderResourcesDcl = m_shaders.ps.shader->getShaderResourceDeclaration();
+		auto bindingResources   = PsslShaderModule::flattenShaderResources(shaderResourcesDcl);
+
+		// Bind all resources which the shader uses.
+		bindShaderResources(PsslProgramType::PixelShader, bindingResources);
+
+		m_context->bindShader(
+			VK_SHADER_STAGE_FRAGMENT_BIT,
+			m_shaders.ps.shader->compile());
+	} while (false);
 }
 
 template <bool Indexed, bool Indirect>
@@ -740,7 +929,8 @@ void GnmCommandBufferDraw::commitGraphicsStages()
 
 	commitVsStage();
 	commitPsStage();
-	commitCsStage();
+
+	clearShaderContext();
 }
 
 void GnmCommandBufferDraw::clearColorTargetHack(GnmShaderResourceList& shaderResources)
@@ -796,20 +986,56 @@ void GnmCommandBufferDraw::clearColorTargetHack(GnmShaderResourceList& shaderRes
 
 void GnmCommandBufferDraw::commitCsStage()
 {
-	m_shaders.cs.shader = new PsslShaderModule((const uint32_t*)m_shaders.cs.code);
-	m_shaders.cs.shader->defineShaderInput(m_shaders.cs.userDataSlotTable);
-	auto nestedResources = m_shaders.cs.shader->getShaderResources();
-	auto shaderResources = PsslShaderModule::flattenShaderResources(nestedResources);
-
-	// Hack
-	if (m_shaders.cs.shader->key().toUint64() == ShaderHashClearRT)
+	do 
 	{
-		clearColorTargetHack(shaderResources);
-	}
+		if (!m_shaders.cs.code)
+		{
+			break;
+		}
+
+		m_shaders.cs.shader = new PsslShaderModule(
+			{ .cs = m_shaders.cs.meta }, 
+			(const uint32_t*)m_shaders.cs.code);
+		LOG_DEBUG("compute shader hash %llX", m_shaders.cs.shader->key().toUint64());
+
+		// SHADER_DEBUG_BREAK(m_shaders.cs.shader, 0xAF20AC1F702451D8);
+
+		m_shaders.cs.shader->defineShaderInput(m_shaders.cs.userDataSlotTable);
+		auto nestedResources = m_shaders.cs.shader->getShaderResourceDeclaration();
+		auto shaderResources = PsslShaderModule::flattenShaderResources(nestedResources);
+
+		// Hack
+		if (m_shaders.cs.shader->key().toUint64() == ShaderHashClearRT)
+		{
+			clearColorTargetHack(shaderResources);
+		}
+		else
+		{
+			// Bind all resources which the shader uses.
+			bindShaderResources(PsslProgramType::ComputeShader, shaderResources);
+
+			RcPtr<VltShader> computeShader = m_shaders.cs.shader->compile();
+			auto newShader = UtilFile::LoadFile("comp.spv");
+			computeShader->replaceCode(newShader);
+
+			m_context->bindShader(
+				VK_SHADER_STAGE_COMPUTE_BIT,
+				computeShader);
+
+			m_flags.set(GnmContexFlag::CpPendingDispatch);
+		}
+	} while (false);
 }
 
 void GnmCommandBufferDraw::commitComputeStages()
 {
+	commitCsStage();
+	clearShaderContext();
+}
+
+void GnmCommandBufferDraw::clearShaderContext()
+{
+	m_shaders = GnmShaderContextGroup();
 }
 
 void GnmCommandBufferDraw::clearDepthTarget()
@@ -822,13 +1048,15 @@ void GnmCommandBufferDraw::clearDepthTarget()
 void GnmCommandBufferDraw::clearRenderState()
 {
 	m_flags.clr(
-		GnmContexFlag::GpClearDepthTarget);
+		GnmContexFlag::GpClearDepthTarget,
+		GnmContexFlag::CpPendingDispatch);
 
 	m_flags.set(
 		GnmContexFlag::GpDirtyRenderTarget);
 
-	m_state   = GnmContextState();
-	m_shaders = GnmShaderContextGroup();
+	m_state = GnmContextState();
+
+	clearShaderContext();
 }
 
 void GnmCommandBufferDraw::setUserDataSlots(
@@ -953,18 +1181,30 @@ const GnmRenderTarget* GnmCommandBufferDraw::findRenderTarget(void* address)
 	return target;
 }
 
-std::vector<PsslShaderResource> GnmCommandBufferDraw::extractVertexAttributes(const GnmShaderResourceList& resources)
+bool GnmCommandBufferDraw::isSingleVertexBuffer(const pssl::GcnVertexInputAttributeTable& iat)
 {
-	std::vector<PsslShaderResource> vertexAttributes;
+	const GnmBuffer* firstVsharp = reinterpret_cast<const GnmBuffer*>(iat[0].vsharp);
+	uint32_t         stride      = firstVsharp->getStride();
+	
+	uintptr_t firstStart = reinterpret_cast<uintptr_t>(firstVsharp->getBaseAddress());
+	uintptr_t firstEnd   = firstStart + stride;
 
-	for (const auto& res : resources)
+	bool single = true;
+	// If the first record start address of all the left attributes are within
+	// the first attribute record, we think the vertex input uses a single
+	// vertex buffer.
+	uint32_t attrCount = iat.size();
+	for (uint32_t i = 1; i != attrCount; ++i)
 	{
-		if (res.usageType != kShaderInputUsageImmVertexBuffer)
+		const GnmBuffer* vsharp = reinterpret_cast<const GnmBuffer*>(iat[i].vsharp);
+		uintptr_t        start  = reinterpret_cast<uintptr_t>(vsharp->getBaseAddress());
+		if (start < firstStart || start > firstEnd)
 		{
-			continue;
+			single = false;
+			break;
 		}
-
-		vertexAttributes.emplace_back(res.res);
 	}
-	return vertexAttributes;
+
+	return single;
 }
+

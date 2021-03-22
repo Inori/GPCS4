@@ -67,6 +67,48 @@ struct SPI_SHADER_PGM_RSRC2_PS
 	uint32_t reserved : 3;
 };
 
+struct SPI_PS_INPUT_ENA
+{
+	uint32_t persp_sample_ena : 1;
+	uint32_t persp_center_ena : 1;
+	uint32_t persp_centroid_ena : 1;
+	uint32_t persp_pull_model_ena : 1;
+	uint32_t linear_sample_ena : 1;
+	uint32_t linear_center_ena : 1;
+	uint32_t linear_centroid_ena : 1;
+	uint32_t line_stipple_tex_ena : 1;
+	uint32_t pos_x_float_ena : 1;
+	uint32_t pos_y_float_ena : 1;
+	uint32_t pos_z_float_ena : 1;
+	uint32_t pos_w_float_ena : 1;
+	uint32_t front_face_ena : 1;
+	uint32_t ancillary_ena : 1;
+	uint32_t sample_coverage_ena : 1;
+	uint32_t pos_fixed_pt_ena : 1;
+	uint32_t reserved : 16;
+};
+
+struct SPI_PS_INPUT_ADDR
+{
+	uint32_t persp_sample_ena : 1;
+	uint32_t persp_center_ena : 1;
+	uint32_t persp_centroid_ena : 1;
+	uint32_t persp_pull_model_ena : 1;
+	uint32_t linear_sample_ena : 1;
+	uint32_t linear_center_ena : 1;
+	uint32_t linear_centroid_ena : 1;
+	uint32_t line_stipple_tex_ena : 1;
+	uint32_t pos_x_float_ena : 1;
+	uint32_t pos_y_float_ena : 1;
+	uint32_t pos_z_float_ena : 1;
+	uint32_t pos_w_float_ena : 1;
+	uint32_t front_face_ena : 1;
+	uint32_t ancillary_ena : 1;
+	uint32_t sample_coverage_ena : 1;
+	uint32_t pos_fixed_pt_ena : 1;
+	uint32_t reserved : 16;
+};
+
 struct SPI_SHADER_PGM_RSRC3_VS
 {
 	uint32_t cu_en : 16;
