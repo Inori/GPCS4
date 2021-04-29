@@ -12,6 +12,7 @@
  * in case the structure is not likely contested.
  */
 
+// detect x86
 #ifdef _M_X64
 #define __UTIL_SYNC_X86__ 1
 #elif _M_IX86
@@ -20,20 +21,27 @@
 #define __UTIL_SYNC_X86__ 1
 #elif __i386
 #define __UTIL_SYNC_X86__ 1
+#else
+// none of the above
+#define __UTIL_SYNC_UNKNOWN_ARCH__ 1
+#endif
+
+#ifdef __UTIL_SYNC_UNKNOWN_ARCH__
+#error "unsupported platform"
 #endif
 
 #ifdef __UTIL_SYNC_X86__
-void pause() {
-    //https://software.intel.com/content/www/us/en/develop/articles/benefitting-power-and-performance-sleep-loops.html
-    //https://www.felixcloutier.com/x86/pause
+//https://software.intel.com/content/www/us/en/develop/articles/benefitting-power-and-performance-sleep-loops.html
+//https://www.felixcloutier.com/x86/pause
 #ifdef _MSC_VER
-    __asm pause
-#else
-    asm volatile("pause");
+#include <intrin.h>
 #endif
-}
-#else
 void pause() {
+#ifdef _MSC_VER
+    _mm_pause();
+#else
+    __builtin_ia32_pause();
+#endif
 }
 #endif
 
