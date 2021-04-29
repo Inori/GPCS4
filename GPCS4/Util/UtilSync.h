@@ -61,5 +61,5 @@ public:
     }
 
 private:
-    std::atomic<uint32_t> m_lock = {0};
+    std::atomic<uint32_t> m_lock{};
 };
