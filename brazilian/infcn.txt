@@ -1,0 +1,2 @@
+Esse repositório feito para gpcs4 
+BASH 
