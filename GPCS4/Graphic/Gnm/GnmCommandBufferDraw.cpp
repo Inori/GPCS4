@@ -40,8 +40,7 @@ constexpr uint64_t ShaderHashClearRT = 0x8C25642DB09D8E59;
 GnmCommandBufferDraw::GnmCommandBufferDraw(
 	const SceGpuQueueDevice& device,
 	const RcPtr<VltContext>& context) :
-	GnmCommandBuffer(device, context),
-	m_cache(&device, context.ptr())
+	GnmCommandBuffer(device, context)
 {
 }
 
