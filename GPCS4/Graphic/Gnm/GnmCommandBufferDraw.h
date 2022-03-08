@@ -4,6 +4,7 @@
 #include "GnmCommandBuffer.h"
 #include "GnmConstant.h"
 #include "GnmContextState.h"
+#include "GnmResourceFactory.h"
 
 #include <vector>
 
@@ -224,6 +225,7 @@ private:
 
 	GnmContextState               m_state;
 	GnmShaderContextGroup         m_shaders;
+	GnmResourceFactory            m_factory;
 	GnmContexFlags                m_flags;
 };
 

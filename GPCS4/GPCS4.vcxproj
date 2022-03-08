@@ -30,6 +30,7 @@
     <ClInclude Include="Emulator\PolicyManager.h" />
     <ClInclude Include="Emulator\SymbolManager.h" />
     <ClInclude Include="Graphic\Gnm\GnmContextState.h" />
+    <ClInclude Include="Graphic\Gnm\GnmResourceFactory.h" />
     <ClInclude Include="Graphic\Gnm\GnmShaderMeta.h" />
     <ClInclude Include="Graphic\Gnm\GpuAddress\GnmDataFormatCodec.h" />
     <ClInclude Include="Graphic\Gnm\GpuAddress\GnmFloatPoint.h" />
@@ -300,6 +301,7 @@
     <ClCompile Include="Graphic\Gnm\GnmConvertor.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmDataFormat.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmOpCode.cpp" />
+    <ClCompile Include="Graphic\Gnm\GnmResourceFactory.cpp" />
     <ClCompile Include="Graphic\Gnm\GnmShaderMeta.cpp" />
     <ClCompile Include="Graphic\Gnm\GpuAddress\GnmDataFormatCodec.cpp" />
     <ClCompile Include="Graphic\Gnm\GpuAddress\GnmFloatPoint.cpp" />

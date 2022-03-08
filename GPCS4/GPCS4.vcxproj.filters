@@ -955,6 +955,9 @@
     <ClInclude Include="Platform\UtilException.h">
       <Filter>Source Files\Platform</Filter>
     </ClInclude>
+    <ClInclude Include="Graphic\Gnm\GnmResourceFactory.h">
+      <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1658,6 +1661,9 @@
     </ClCompile>
     <ClCompile Include="Platform\UtilException.cpp">
       <Filter>Source Files\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic\Gnm\GnmResourceFactory.cpp">
+      <Filter>Source Files\Graphic\Gnm</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
