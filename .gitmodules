@@ -1,0 +1,3 @@
+[submodule "3rdParty/tinydbr"]
+	path = 3rdParty/tinydbr
+	url = https://github.com/Inori/TinyDBR.git
