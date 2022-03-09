@@ -196,8 +196,8 @@ private:
 	VltRenderPassFormat		m_format;
 	VkRenderPass            m_default;
 
-	Spinlock				m_mutex;
-	std::vector<Instance>   m_instances;
+	sync::Spinlock        m_mutex;
+	std::vector<Instance> m_instances;
 };
 
 

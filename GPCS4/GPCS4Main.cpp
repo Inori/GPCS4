@@ -13,7 +13,7 @@ cxxopts::ParseResult processCommandLine(int argc, char* argv[])
 	cxxopts::Options opts("GPCS4", "PlayStation 4 Emulator");
 	opts.allow_unrecognised_options();
 	opts.add_options()
-		("E,eboot", "Set main executable. The folder where GPCS4.exe located will be mapped to /app0.", cxxopts::value<std::string>())
+		("E,eboot", "Set main executable. The current working directory will be mapped to /app0.", cxxopts::value<std::string>())
 		("D,debug-channel", "Enable debug channel. 'ALL' for all channels.", cxxopts::value<std::vector<std::string>>())
 		("L,list-channels", "List debug channels.")
 		("H,help", "Print help message.")

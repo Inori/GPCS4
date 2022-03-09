@@ -16,6 +16,22 @@ TLSManager::~TLSManager()
 {
 }
 
+bool TLSManager::install()
+{
+	UtilException::ExceptionHandler handler;
+	handler.callback = &exceptionHandler;
+	handler.param  = this;
+	return UtilException::addExceptionHandler(handler);
+}
+
+void TLSManager::uninstall()
+{
+	UtilException::ExceptionHandler handler;
+	handler.callback = &exceptionHandler;
+	handler.param  = this;
+	UtilException::removeExceptionHandler(handler);
+}
+
 void TLSManager::backupTLSImage(std::vector<uint8_t>& image, const TLSBlock& block)
 {
 	size_t algnedSize = util::align(block.totalSize, block.align);
@@ -110,6 +126,67 @@ void* TLSManager::tlsGetAddr(uint32_t moduleId, uint32_t offset)
 void TLSManager::notifyThreadExit()
 {
 	freeTLS(t_fsbase);
+}
+
+UtilException::ExceptionAction TLSManager::exceptionHandler(
+	UtilException::ExceptionRecord* record,
+	void*                           param)
+{
+	UtilException::ExceptionAction action = UtilException::ExceptionAction::CONTINUE_SEARCH;
+	TLSManager*                    pthis  = reinterpret_cast<TLSManager*>(param);
+	do
+	{
+		void* excptAddr = reinterpret_cast<void*>(record->context.Rip);
+
+		if (!pthis || !excptAddr)
+		{
+			break;
+		}
+
+		auto& asmHelper = pthis->m_asmHelper;
+#ifdef GPCS4_DEBUG
+		// Useful for viewing random crash instructions.
+		asmHelper.printInstruction(excptAddr);
+#endif  // GPCS4_DEBUG
+
+		if (record->code != UtilException::EXCEPTION_ACCESS_VIOLATION)
+		{
+			break;
+		}
+
+		LOG_DEBUG("exception code %x addr %p", record->code, excptAddr);
+
+		if (!asmHelper.isTlsAccess(excptAddr))
+		{
+			LOG_ERR("unknown exception raised at %p", excptAddr);
+			break;
+		}
+
+		// I firstly tried to make a simple hook to the tls access instruction,
+		// hoping there's no rip-relative instruction around,
+		// but soon I found I was wrong, rip-relative instructions are everywhere
+		// thus I need to do relocation...
+		// fuck that.
+		// let's get rid of that shit and focus on more important things
+		// current implementation will raise an exception on every tls access
+		// which is not efficient
+		// I'll fix this soon or later
+		//if (!PatchTLSInstruction(pExcptAddr))
+		//{
+		//	LOG_ERR("patch tls instruction failed.");
+		//	break;
+		//}
+
+		uint32_t instLen  = 0;
+		int64_t  fsOffset = 0;
+		asmHelper.getMovFsInfo(excptAddr, instLen, fsOffset);
+
+		record->context.Rip += instLen;
+		record->context.Rax = reinterpret_cast<uintptr_t>(pthis->readFSRegister(fsOffset));
+
+		action = UtilException::ExceptionAction::CONTINUE_EXECUTION;
+	} while (false);
+	return action;
 }
 
 void* TLSManager::allocateTLS()
@@ -382,124 +459,6 @@ uint32_t AssembleHelper::getPatchLen(uint8_t* code, uint32_t oldLen)
 	}
 	return sumLen;
 }
-
-#ifdef GPCS4_WINDOWS
-
-#include <Windows.h>
-
-void* TLSManagerWin::s_vehHandler = nullptr;
-
-AssembleHelper TLSManagerWin::s_asmHelper;
-
-TLSManagerWin::TLSManagerWin()
-{
-}
-
-TLSManagerWin::~TLSManagerWin()
-{
-}
-
-
-bool TLSManagerWin::install()
-{
-	bool ret = false;
-	do
-	{
-		if (s_vehHandler)
-		{
-			ret = true;
-			break;
-		}
-
-		s_vehHandler = AddVectoredExceptionHandler(TRUE,
-												   (PVECTORED_EXCEPTION_HANDLER)TLSManagerWin::VEHExceptionHandler);
-		if (!s_vehHandler)
-		{
-			break;
-		}
-
-		ret = true;
-	} while (false);
-	return ret;
-}
-
-void TLSManagerWin::uninstall()
-{
-	if (s_vehHandler)
-	{
-		RemoveVectoredExceptionHandler(s_vehHandler);
-		s_vehHandler = nullptr;
-	}
-}
-
-long __stdcall TLSManagerWin::VEHExceptionHandler(void* exceptionArg)
-{
-	PEXCEPTION_POINTERS pExceptionInfo = (PEXCEPTION_POINTERS)exceptionArg;
-	long nRet                          = EXCEPTION_CONTINUE_SEARCH;
-	do
-	{
-		void* pExcptAddr = pExceptionInfo->ExceptionRecord->ExceptionAddress;
-
-#ifdef GPCS4_DEBUG
-		// Useful for viewing random crash instructions.
-		s_asmHelper.printInstruction(pExcptAddr);
-#endif // GPCS4_DEBUG
-
-		if (pExceptionInfo->ExceptionRecord->ExceptionCode != EXCEPTION_ACCESS_VIOLATION)
-		{
-			break;
-		}
-
-		LOG_DEBUG("exception code %x addr %p",
-				  pExceptionInfo->ExceptionRecord->ExceptionCode, pExceptionInfo->ExceptionRecord->ExceptionAddress);
-
-		if (!s_asmHelper.isTlsAccess(pExcptAddr))
-		{
-			LOG_ERR("unknown exception raised at %p", pExcptAddr);
-			break;
-		}
-
-		// I firstly tried to make a simple hook to the tls access instruction,
-		// hoping there's no rip-relative instruction around,
-		// but soon I found I was wrong, rip-relative instructions are everywhere
-		// thus I need to do relocation...
-		// fuck that.
-		// let's get rid of that shit and focus on more important things
-		// current implementation will raise an exception on every tls access
-		// which is not efficient
-		// I'll fix this soon or later
-		//if (!PatchTLSInstruction(pExcptAddr))
-		//{
-		//	LOG_ERR("patch tls instruction failed.");
-		//	break;
-		//}
-
-		TLSManagerWin* tlsMgrWin = TLSManagerWin::GetInstance();
-
-		uint32_t instLen = 0;
-		int64_t fsOffset = 0;
-		s_asmHelper.getMovFsInfo(pExcptAddr, instLen, fsOffset);
-		
-		pExceptionInfo->ContextRecord->Rip += instLen;
-		pExceptionInfo->ContextRecord->Rax = reinterpret_cast<uintptr_t>(tlsMgrWin->readFSRegister(fsOffset));
-
-		nRet = EXCEPTION_CONTINUE_EXECUTION;
-	} while (false);
-	return nRet;
-}
-
-#else  // GPCS4_WINDOWS
-
-TLSManagerLinux::TLSManagerLinux()
-{
-}
-
-TLSManagerLinux::~TLSManagerLinux()
-{
-}
-
-#endif  // GPCS4_WINDOWS
-
 
 bool installTLSManager()
 {

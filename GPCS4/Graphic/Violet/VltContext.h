@@ -37,8 +37,8 @@ struct VltShaderResourceSlot
 
 struct VltPipelineContext
 {
-	VkPipeline pipeline = VK_NULL_HANDLE;
-	VkDescriptorSet descSet = VK_NULL_HANDLE;
+	VkPipeline      pipeline      = VK_NULL_HANDLE;
+	VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
 };
 
 
@@ -80,6 +80,9 @@ public:
 
 	void setDepthStencilState(
 		const VltDepthStencilInfo& dsState);
+
+	void setDepthBounds(
+		VltDepthBounds depthBounds);
 
 	void setLogicOpState(
 		const VltLogicOp& lo);
@@ -132,11 +135,16 @@ public:
 		uint32_t firstInstance);
 
 	void drawIndexed(
-		uint32_t                indexCount,
-		uint32_t                instanceCount,
-		uint32_t                firstIndex,
-		uint32_t                vertexOffset,
-		uint32_t                firstInstance);
+		uint32_t indexCount,
+		uint32_t instanceCount,
+		uint32_t firstIndex,
+		uint32_t vertexOffset,
+		uint32_t firstInstance);
+
+	void dispatch(
+		uint32_t x,
+		uint32_t y,
+		uint32_t z);
 
 	///< Resource updating methods.
 
@@ -272,8 +280,7 @@ private:
 
 	template <VkPipelineBindPoint BindPoint>
 	void updateShaderResources(
-		const VltPipelineLayout* pipelineLayout,
-		VkDescriptorSet&         set);
+		const VltPipelineLayout* pipelineLayout);
 
 	template <VkPipelineBindPoint BindPoint>
 	void updateShaderDescriptorSetBinding(
@@ -282,16 +289,19 @@ private:
 
 	/// Graphics
 	template <bool Indexed, bool Indirect>
-	void commitGraphicsState();
+	bool commitGraphicsState();
 	void updateGraphicsShaderResources();
-	void updateGraphicsPipeline();
-	void updateGraphicsPipelineStates();
-	/// Compute
-	void commitComputeState();
-	void updateComputeDescriptorLayout();
-	void updateComputePipeline();
-	void updateComputePipelineStates();
+	bool updateGraphicsPipeline();
+	bool updateGraphicsPipelineState();
 
+	/// Compute
+	bool commitComputeState();
+	void updateComputeShaderResources();
+	bool updateComputePipeline();
+	bool updateComputePipelineState();
+
+
+	/// 
 	void enterRenderPassScope();
 	void leaveRenderPassScope();
 
@@ -324,7 +334,7 @@ private:
 	RcPtr<VltStagingBufferAllocator> m_staging;
 
 	VltContextFlags m_flags;
-	VltContextState m_state;
+	VltContextState m_state = {};
 
 	VltPipelineContext m_gpCtx;
 	VltPipelineContext m_cpCtx;

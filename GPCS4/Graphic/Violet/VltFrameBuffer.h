@@ -52,7 +52,7 @@ struct VltRenderTargets
 };
 
 
-class VltFrameBuffer : public RcObject
+class VltFrameBuffer : public VltGpuResource
 {
 public:
 	VltFrameBuffer(const RcPtr<VltDevice>&   device,

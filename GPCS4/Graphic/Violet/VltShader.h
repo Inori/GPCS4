@@ -36,9 +36,29 @@ public:
 
 	PsslKey key();
 
-	void dumpShader() const;
-
 	bool operator==(const VltShader& other);
+
+	/**
+	 * \brief Replace shader bytecode content
+	 * 
+	 * Only used for debugging purpose.
+	 *
+	 * Note:
+	 * The caller must make sure, the replaced shader
+	 * code shares the same interface with the original shader.
+	 **
+	 * \param code New shader bytecode.
+	 * \returns void
+	 */
+	void replaceCode(const std::vector<uint8_t>& code);
+
+	/**
+	 * \brief Dump shader to file
+	 * 
+	 * Only used for debugging purpose.
+	 * \returns void
+	 */
+	void dumpShader() const;
 
 private:
 	void generateBindingIdOffsets(SpirvCodeBuffer& code);
@@ -50,6 +70,8 @@ private:
 	PsslKey                      m_key;
 	std::vector<uint32_t>        m_bindingIdOffsets;
 	std::vector<VltResourceSlot> m_slots;
+
+	SpirvCodeBuffer				 m_debugCode;
 };
 
 

@@ -117,6 +117,11 @@ ParserSIDS::GetVDST(Instruction::instruction64bit hexInstruction)
     RETURN_EXTRACT_INSTRUCTION(vdst);
 }
 
+const GCNInstructionFormat& ParserSIDS::GetSIDSMeta(SIDSInstruction::OP op)
+{
+	return g_instructionFormatMapDS[op];
+}
+
 ParserSI::kaStatus
 ParserSIDS::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInstruction, std::unique_ptr<Instruction>& instruction)
 {
@@ -132,7 +137,8 @@ ParserSIDS::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction64bit hexInst
     if ((hwGen == GDT_HW_GENERATION_SEAISLAND) || (hwGen == GDT_HW_GENERATION_SOUTHERNISLAND))
     {
         SIDSInstruction::OP op = GetSIDSOp(hexInstruction);
-        instruction = std::make_unique<SIDSInstruction>(offset0, offset1, gds, op, addr, data0, data1, vdst);
+		auto meta = GetSIDSMeta(op);
+		instruction  = std::make_unique<SIDSInstruction>(offset0, offset1, gds, op, addr, data0, data1, vdst, meta.insClass, meta.operandType);
     }
     else if (hwGen == GDT_HW_GENERATION_VOLCANICISLAND)
     {

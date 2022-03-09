@@ -379,7 +379,7 @@ void GnmCmdStream::onIndexType(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	bool notCachePolicyBypass = bit::extract(value, 10, 10);
 	if (notCachePolicyBypass)
 	{
-		policy = static_cast<CachePolicy>(bit::extract(value, 6, 7));
+		policy = static_cast<CachePolicy>(bit::extract(value, 7, 6));
 	}
 	else
 	{
@@ -517,11 +517,11 @@ void GnmCmdStream::onAcquireMem(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 {
 	PPM4ME_ACQUIRE_MEM__GFX09 packet = (PPM4ME_ACQUIRE_MEM__GFX09)pm4Hdr;
 
-	uint32_t                  value  = packet->ordinal2;
-	StallCommandBufferParserMode stallMode = (StallCommandBufferParserMode)bit::extract(value, 31, 31);
-	uint32_t                     targetMask = bit::extract(value, 0, 14);
-	uint32_t                     extendedCacheMask = bit::extract(value, 24, 29) << 24;
-	uint32_t                     cacheAction       = (bit::extract(value, 22, 23) << 4) | bit::extract(value, 15, 18);
+	uint32_t                     value             = packet->ordinal2;
+	StallCommandBufferParserMode stallMode         = (StallCommandBufferParserMode)bit::extract(value, 31, 31);
+	uint32_t                     targetMask        = bit::extract(value, 14, 0);
+	uint32_t                     extendedCacheMask = bit::extract(value, 29, 24) << 24;
+	uint32_t                     cacheAction       = (bit::extract(value, 23, 22) << 4) | bit::extract(value, 18, 15);
 	uint32_t                     baseAddr256       = packet->coher_base_lo;
 	if (baseAddr256)
 	{
@@ -574,17 +574,17 @@ void GnmCmdStream::onSetContextReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 			break;
 		case OP_HINT_SET_SCREEN_SCISSOR:
 		{
-			int32_t left = bit::extract(itBody[1], 0, 15);
-			int32_t top = bit::extract(itBody[1], 16, 31);
-			int32_t right = bit::extract(itBody[2], 0, 15);
-			int32_t bottom = bit::extract(itBody[2], 16, 31);
+			int32_t left   = bit::extract(itBody[1], 15, 0);
+			int32_t top    = bit::extract(itBody[1], 31, 16);
+			int32_t right  = bit::extract(itBody[2], 15, 0);
+			int32_t bottom = bit::extract(itBody[2], 31, 16);
 			m_cb->setScreenScissor(left, top, right, bottom);
 		}
 			break;
 		case OP_HINT_SET_HARDWARE_SCREEN_OFFSET:
 		{
-			uint32_t offsetX = bit::extract(itBody[1], 0, 15);
-			uint32_t offsetY = bit::extract(itBody[1], 16, 31);
+			uint32_t offsetX = bit::extract(itBody[1], 15, 0);
+			uint32_t offsetY = bit::extract(itBody[1], 31, 16);
 			m_cb->setHardwareScreenOffset(offsetX, offsetY);
 		}
 			break;
@@ -616,9 +616,17 @@ void GnmCmdStream::onSetContextReg(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 			break;
 		case OP_HINT_SET_DEPTH_STENCIL_CONTROL:
 		{
-			DepthStencilControl dsc;
-			dsc.m_reg = itBody[1];
-			m_cb->setDepthStencilControl(dsc);
+			uint32_t            reg = itBody[1];
+			if (reg)
+			{
+				DepthStencilControl dsc;
+				dsc.m_reg = reg;
+				m_cb->setDepthStencilControl(dsc);
+			}
+			else
+			{
+				m_cb->setDepthStencilDisable();
+			}
 		}
 			break;
 		case OP_HINT_SET_PRIMITIVE_SETUP:
@@ -932,7 +940,7 @@ void GnmCmdStream::onGnmPrivate(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	case OP_PRIV_DISPATCH_DIRECT:
 	{
 		GnmCmdDispatchDirect*     param = (GnmCmdDispatchDirect*)pm4Hdr;
-		DispatchOrderedAppendMode mode  = (DispatchOrderedAppendMode)bit::extract(param->pred, 3, 4);
+		DispatchOrderedAppendMode mode  = (DispatchOrderedAppendMode)bit::extract(param->pred, 4, 3);
 		if (mode == kDispatchOrderedAppendModeDisabled)
 		{
 			m_cb->dispatch(param->threadGroupX, param->threadGroupY, param->threadGroupZ);

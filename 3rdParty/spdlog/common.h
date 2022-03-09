@@ -15,25 +15,23 @@
 #include <type_traits>
 #include <functional>
 
-#ifdef _WIN32
-#ifndef NOMINMAX
-#define NOMINMAX // prevent windows redefining min/max
-#endif
-
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-
-#include <windows.h>
-#endif //_WIN32
-
 #ifdef SPDLOG_COMPILED_LIB
 #undef SPDLOG_HEADER_ONLY
-#define SPDLOG_INLINE
+#if defined(_WIN32) && defined(SPDLOG_SHARED_LIB)
+#ifdef spdlog_EXPORTS
+#define SPDLOG_API __declspec(dllexport)
 #else
+#define SPDLOG_API __declspec(dllimport)
+#endif
+#else // !defined(_WIN32) || !defined(SPDLOG_SHARED_LIB)
+#define SPDLOG_API
+#endif
+#define SPDLOG_INLINE
+#else // !defined(SPDLOG_COMPILED_LIB)
+#define SPDLOG_API
 #define SPDLOG_HEADER_ONLY
 #define SPDLOG_INLINE inline
-#endif
+#endif // #ifdef SPDLOG_COMPILED_LIB
 
 #include <spdlog/fmt/fmt.h>
 
@@ -147,6 +145,7 @@ enum level_enum
     err = SPDLOG_LEVEL_ERROR,
     critical = SPDLOG_LEVEL_CRITICAL,
     off = SPDLOG_LEVEL_OFF,
+    n_levels
 };
 
 #if !defined(SPDLOG_LEVEL_NAMES)
@@ -164,11 +163,10 @@ enum level_enum
     }
 #endif
 
-string_view_t &to_string_view(spdlog::level::level_enum l) SPDLOG_NOEXCEPT;
-const char *to_short_c_str(spdlog::level::level_enum l) SPDLOG_NOEXCEPT;
-spdlog::level::level_enum from_str(const std::string &name) SPDLOG_NOEXCEPT;
+SPDLOG_API string_view_t &to_string_view(spdlog::level::level_enum l) SPDLOG_NOEXCEPT;
+SPDLOG_API const char *to_short_c_str(spdlog::level::level_enum l) SPDLOG_NOEXCEPT;
+SPDLOG_API spdlog::level::level_enum from_str(const std::string &name) SPDLOG_NOEXCEPT;
 
-using level_hasher = std::hash<int>;
 } // namespace level
 
 //
@@ -194,7 +192,7 @@ enum class pattern_time_type
 //
 // Log exception
 //
-class spdlog_ex : public std::exception
+class SPDLOG_API spdlog_ex : public std::exception
 {
 public:
     explicit spdlog_ex(std::string msg);
@@ -204,6 +202,9 @@ public:
 private:
     std::string msg_;
 };
+
+SPDLOG_API void throw_spdlog_ex(const std::string &msg, int last_errno);
+SPDLOG_API void throw_spdlog_ex(std::string msg);
 
 struct source_loc
 {
@@ -230,14 +231,13 @@ namespace details {
 using std::make_unique;
 #else
 template<typename T, typename... Args>
-std::unique_ptr<T> make_unique(Args &&... args)
+std::unique_ptr<T> make_unique(Args &&...args)
 {
     static_assert(!std::is_array<T>::value, "arrays not supported");
     return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
 }
 #endif
 } // namespace details
-
 } // namespace spdlog
 
 #ifdef SPDLOG_HEADER_ONLY

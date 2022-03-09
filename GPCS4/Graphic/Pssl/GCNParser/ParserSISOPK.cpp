@@ -34,9 +34,10 @@ SOPKInstruction::SIMM16 ParserSISOPK::GetSIMM16(Instruction::instruction32bit he
 #undef X
 #undef X_RANGE
 
-#define X_RANGE(FIELD_MIN,FIELD_MAX,FIELD,IN)\
+#define X_RANGE(FIELD_MIN, FIELD_MAX, FIELD, IN, VAL)\
     if ((IN >= SOPKInstruction::SIMM16##FIELD_MIN) && (IN <= SOPKInstruction::SIMM16##FIELD_MAX)) \
     { \
+        VAL = IN; \
         return SOPKInstruction::SIMM16##FIELD; \
     }
 #define X(FIELD,IN) \
@@ -44,8 +45,8 @@ SOPKInstruction::SIMM16 ParserSISOPK::GetSIMM16(Instruction::instruction32bit he
     { \
         return SOPKInstruction::SIMM16##FIELD; \
     }
-    SCALAR_INSTRUCTION_FIELDS(simm16);
-    GENERIC_INSTRUCTION_FIELDS_2(simm16);
+    SCALAR_INSTRUCTION_FIELDS(simm16, ridx);
+	GENERIC_INSTRUCTION_FIELDS_2(simm16, ridx);
 #undef X
 #undef X_RANGE
     return SOPKInstruction::SIMM16Illegal;
@@ -107,6 +108,11 @@ SOPKInstruction::SDST ParserSISOPK::GetSDST(Instruction::instruction32bit hexIns
     return SOPKInstruction::SDSTIllegal;
 }
 
+const GCNInstructionFormat& ParserSISOPK::GetSISOPKMeta(SISOPKInstruction::OP op)
+{
+	return g_instructionFormatMapSOPK[op];
+}
+
 ParserSI::kaStatus ParserSISOPK::Parse(GDT_HW_GENERATION hwGen, Instruction::instruction32bit hexInstruction, std::unique_ptr<Instruction>& instruction, bool& hasLiteral)
 {
     kaStatus status = Status_SUCCESS;
@@ -120,7 +126,8 @@ ParserSI::kaStatus ParserSISOPK::Parse(GDT_HW_GENERATION hwGen, Instruction::ins
         case GDT_HW_GENERATION_SOUTHERNISLAND:
         {
             SISOPKInstruction::OP op = GetSISOPKOp(hexInstruction);
-            instruction = std::make_unique<SISOPKInstruction>(simm16, op, sdst, simm16Ridx, sdstRidx);
+			auto meta = GetSISOPKMeta(op);
+			instruction = std::make_unique<SISOPKInstruction>(simm16, op, sdst, simm16Ridx, sdstRidx, meta.insClass, meta.operandType);
 			hasLiteral = (op == SISOPKInstruction::S_SETREG_IMM32_B32);
             break;
         }

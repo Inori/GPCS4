@@ -178,7 +178,7 @@ VkImageView VltImageView::handle() const
 	return m_imageView;
 }
 
-RcPtr<vlt::VltImage> VltImageView::getImage()
+const RcPtr<VltImage>& VltImageView::image() const
 {
 	return m_image;
 }
@@ -203,6 +203,11 @@ VltDescriptorInfo VltImageView::getDescriptor(VkImageViewType type, VkImageLayou
 VkExtent3D VltImageView::mipLevelExtent(uint32_t mipLevel) const
 {
 	return util::computeMipLevelExtent(m_image->info().extent, mipLevel);
+}
+
+VkImageLayout VltImageView::pickLayout(VkImageLayout target) const
+{
+	return m_image->pickLayout(target);
 }
 
 }  // namespace vlt

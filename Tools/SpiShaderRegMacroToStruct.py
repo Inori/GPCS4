@@ -29,7 +29,7 @@ def MacroToStruct(src, dst):
 
         # filter some registers which we currently don't use.
         # change the filter at your needs for future development.
-        if not reg_name.startswith('SPI_SHADER_PGM') and not reg_name.startswith('COMPUTE_PGM'):
+        if not reg_name.startswith('SPI_'):
             continue
 
         print(reg_name)
@@ -38,6 +38,9 @@ def MacroToStruct(src, dst):
             dst.write('struct ' + reg_name + '\n{\n')
 
         line = line[8:-1]
+        if not line:
+            continue
+
         parts = line.split(' ')
         pair = [x for x in parts if x != '']
         field_name = pair[0]

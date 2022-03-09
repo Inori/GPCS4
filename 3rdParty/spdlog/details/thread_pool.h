@@ -79,7 +79,7 @@ struct async_msg : log_msg_buffer
     {}
 };
 
-class thread_pool
+class SPDLOG_API thread_pool
 {
 public:
     using item_type = async_msg;
@@ -97,6 +97,7 @@ public:
     void post_log(async_logger_ptr &&worker_ptr, const details::log_msg &msg, async_overflow_policy overflow_policy);
     void post_flush(async_logger_ptr &&worker_ptr, async_overflow_policy overflow_policy);
     size_t overrun_counter();
+    size_t queue_size();
 
 private:
     q_type q_;

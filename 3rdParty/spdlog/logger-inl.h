@@ -9,7 +9,7 @@
 
 #include <spdlog/sinks/sink.h>
 #include <spdlog/details/backtracer.h>
-#include <spdlog/details/pattern_formatter.h>
+#include <spdlog/pattern_formatter.h>
 
 #include <cstdio>
 
@@ -89,6 +89,7 @@ SPDLOG_INLINE void logger::set_formatter(std::unique_ptr<formatter> f)
         {
             // last element - we can be move it.
             (*it)->set_formatter(std::move(f));
+            break; // to prevent clang-tidy warning
         }
         else
         {
@@ -246,7 +247,11 @@ SPDLOG_INLINE void logger::err_handler_(const std::string &msg)
         auto tm_time = details::os::localtime(system_clock::to_time_t(now));
         char date_buf[64];
         std::strftime(date_buf, sizeof(date_buf), "%Y-%m-%d %H:%M:%S", &tm_time);
-        fprintf(stderr, "[*** LOG ERROR #%04zu ***] [%s] [%s] {%s}\n", err_counter, date_buf, name().c_str(), msg.c_str());
+#if defined(USING_R) && defined(R_R_H) // if in R environment
+        REprintf("[*** LOG ERROR #%04zu ***] [%s] [%s] {%s}\n", err_counter, date_buf, name().c_str(), msg.c_str());
+#else
+        std::fprintf(stderr, "[*** LOG ERROR #%04zu ***] [%s] [%s] {%s}\n", err_counter, date_buf, name().c_str(), msg.c_str());
+#endif
     }
 }
 } // namespace spdlog

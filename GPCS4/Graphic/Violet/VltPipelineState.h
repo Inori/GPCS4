@@ -521,9 +521,6 @@ public:
 		state.front = m_frontOp.state();
 		state.back  = m_backOp.state();
 
-		state.minDepthBounds = m_minDepthBounds;
-		state.maxDepthBounds = m_maxDepthBounds;
-
 		return state;
 	}
 
@@ -537,9 +534,6 @@ private:
 
 	VltDepthStencilOp m_frontOp;
 	VltDepthStencilOp m_backOp;
-	// TODO:
-	float m_minDepthBounds = 0.0;
-	float m_maxDepthBounds = 0.0;
 };
 
 class VltColorBlendAttachment
@@ -808,7 +802,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 // This is used to create graphics pipeline and pipeline cache.
-struct PS4ALIGN(32) VltGraphicsPipelineStateInfo
+struct alignas(32) VltGraphicsPipelineStateInfo
 {
 	VltVertexInputInfo   vi;
 	VltInputAssemblyInfo ia;
@@ -839,10 +833,20 @@ struct PS4ALIGN(32) VltGraphicsPipelineStateInfo
 	friend std::istream& operator>>(std::istream& in, VltGraphicsPipelineStateInfo& state);
 };
 
-struct VltComputePipelineStateInfo
+struct alignas(32) VltComputePipelineStateInfo
 {
 	// TODO:
-	uint32_t placeHolder;
+	uint32_t placeHolder = 0;
+
+	bool operator==(const VltComputePipelineStateInfo& other) const
+	{
+		return bit::bcmpeq(this, &other);
+	}
+
+	bool operator!=(const VltComputePipelineStateInfo& other) const
+	{
+		return !bit::bcmpeq(this, &other);
+	}
 };
 
 }  // namespace vlt

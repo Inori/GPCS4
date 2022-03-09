@@ -21,7 +21,7 @@ enum PsslBindingIndex : uint32_t
 	PsslSamplerBindingCount = 16,
 
 	PsslResourceBindingIndex = PsslSamplerBindingIndex + PsslSamplerBindingCount,
-	PsslResourceBindingCount = 16,
+	PsslResourceBindingCount = 128,
 
 	PsslStageBindingCount = PsslConstBufBindingCount + 
 							PsslSamplerBindingCount + 

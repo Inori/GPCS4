@@ -587,13 +587,7 @@ namespace pssl {
     return this->defType(spv::OpTypeFloat,
       args.size(), args.data());
   }
-  
-  uint32_t SpirvModule::defFloatPointerType(
-	  uint32_t width, 
-	  spv::StorageClass storageClass) {
-	  uint32_t fpType = this->defFloatType(width);
-	  return this->defPointerType(fpType, storageClass);
-  }
+
 
   uint32_t SpirvModule::defVectorType(
           uint32_t                elementType,
@@ -1434,6 +1428,30 @@ namespace pssl {
   }
   
   
+  uint32_t SpirvModule::opSatConvertSToU(
+	  uint32_t resultType,
+	  uint32_t operand) {
+	  uint32_t resultId = this->allocateId();
+
+	  m_code.putIns(spv::OpSatConvertSToU, 4);
+	  m_code.putWord(resultType);
+	  m_code.putWord(resultId);
+	  m_code.putWord(operand);
+	  return resultId;
+  }
+
+  uint32_t SpirvModule::opSatConvertUToS(
+	  uint32_t resultType,
+	  uint32_t operand) {
+	  uint32_t resultId = this->allocateId();
+
+	  m_code.putIns(spv::OpSatConvertUToS, 4);
+	  m_code.putWord(resultType);
+	  m_code.putWord(resultId);
+	  m_code.putWord(operand);
+	  return resultId;
+  }
+
   uint32_t SpirvModule::opCompositeConstruct(
           uint32_t                resultType,
           uint32_t                valueCount,
@@ -3477,5 +3495,7 @@ void SpirvModule::opReturn()
         m_code.putWord(op.sMinLod);
     }
   }
-  
-}
+
+
+
+  }

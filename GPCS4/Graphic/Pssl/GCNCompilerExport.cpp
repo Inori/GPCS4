@@ -40,8 +40,9 @@ SpirvRegisterValue GCNCompiler::emitExpSrcLoadCompr(GCNInstruction& ins)
 			continue;
 		}
 
-		uint32_t regIdx = inst->GetVSRC(i);
-		auto v2fpValue  = emitUnpackFloat16(emitVgprLoad(regIdx));
+		uint32_t regIdx    = inst->GetVSRC(i);
+		auto v2fpValue = emitUnpackFloat16(
+            emitGprLoad<SpirvGprType::Vector>(regIdx, SpirvScalarType::Uint32));
 		components.push_back(v2fpValue);
 	}
 
@@ -177,8 +178,9 @@ void GCNCompiler::emitExpPS(GCNInstruction& ins)
 	}
 	else
 	{
-		// same as "discard"
+		// discard
 		m_module.opKill();
+		m_insideBlock = false;
 	}
 }
 

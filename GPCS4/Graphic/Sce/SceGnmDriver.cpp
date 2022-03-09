@@ -83,8 +83,13 @@ bool SceGnmDriver::pickPhysicalDevice(
 	const std::vector<RcPtr<vlt::VltPhysicalDevice>>& devices,
 	VkSurfaceKHR                                      surface)
 {
-	auto iter = std::find_if(devices.begin(), devices.end(), 
-		[this, surface](const auto& device) { return isDeviceSuitable(device, surface); });
+	auto deviceSuitable = 
+	[this, surface](const auto& device)
+	{ 
+		return isDeviceSuitable(device, surface); 
+	};
+
+	auto iter = std::find_if(devices.begin(), devices.end(), deviceSuitable);
 
 	bool found = iter != devices.end();
 	if (found)
@@ -102,6 +107,14 @@ bool SceGnmDriver::isDeviceSuitable(const RcPtr<vlt::VltPhysicalDevice>& device,
 	do
 	{
 		if (!device)
+		{
+			break;
+		}
+
+		// Force select the discrete GPU on dual GPU platform.
+		// This is required for RenderDoc to work properly.
+		auto props = device->deviceProperties();
+		if (props.deviceType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
 		{
 			break;
 		}
@@ -129,10 +142,12 @@ VltDeviceFeatures SceGnmDriver::getEnableFeatures(const RcPtr<vlt::VltPhysicalDe
 
 	// Setup all required features to be enabled here.
 
-	required.core.features.samplerAnisotropy  = supported.core.features.samplerAnisotropy;
-	required.core.features.shaderInt64        = VK_TRUE;
-	required.core.features.geometryShader     = supported.core.features.geometryShader;
-	required.core.features.tessellationShader = supported.core.features.tessellationShader;
+	required.core.features.samplerAnisotropy        = supported.core.features.samplerAnisotropy;
+	required.core.features.shaderInt64              = VK_TRUE;
+	required.core.features.depthBounds              = VK_TRUE;
+	required.core.features.fragmentStoresAndAtomics = VK_TRUE;
+	required.core.features.geometryShader           = supported.core.features.geometryShader;
+	required.core.features.tessellationShader       = supported.core.features.tessellationShader;
 
 	return required;
 }

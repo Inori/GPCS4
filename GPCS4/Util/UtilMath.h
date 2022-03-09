@@ -22,13 +22,19 @@ inline bool isAligned(T size, U align)
 template <typename T, typename U = T>
 inline T alignDown(T size, U align)
 {
-	return ((size / align) + ((size % align) ? 1 : 0)) * align;
+	return ((size / static_cast<T>(align)) + ((size % static_cast<T>(align)) ? 1 : 0)) * static_cast<T>(align);
+}
+
+template <typename T, typename U = T>
+inline T alignUp(T size, U align)
+{
+	return (size / static_cast<T>(align)) * static_cast<T>(align);
 }
 
 template <typename T, typename U = T>
 inline T align(T size, U align)
 {
-	return (size + align - 1) & ~(align - 1);
+	return (size + static_cast<T>(align) - 1) & ~(static_cast<T>(align) - 1);
 }
 
 template <typename T>
@@ -47,8 +53,11 @@ inline uint64_t buildUint64(uint32_t high, uint32_t low)
 	return (uint64_t)(high) << 32 | low;
 }
 
+// TODO:
+// Delete this.
 // Garlic memory address is supposed to be within 0x000000FFFFFFFFFF
 // in this case, gnmGpuAbsAddr actually does nothing
+
 inline void* gnmGpuAbsAddr(void* refAddr, void* relaAddr)
 {
 	return reinterpret_cast<void*>(((uintptr_t)(refAddr)&0x0000FF0000000000) | (uintptr_t)(relaAddr));

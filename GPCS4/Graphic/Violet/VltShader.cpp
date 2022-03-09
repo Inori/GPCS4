@@ -36,7 +36,9 @@ void VltShader::defineResourceSlots(VltDescriptorSlotMap& slotMap) const
 	}
 }
 
-VltShaderModule VltShader::createShaderModule(const VltDevice* device, const VltDescriptorSlotMap& slotMap)
+VltShaderModule VltShader::createShaderModule(
+	const VltDevice*            device,
+	const VltDescriptorSlotMap& slotMap)
 {
 	SpirvCodeBuffer spirvCode = m_code.decompress();
 
@@ -54,6 +56,11 @@ VltShaderModule VltShader::createShaderModule(const VltDevice* device, const Vlt
 #ifdef VLT_DUMP_SHADER
 	dumpShader(spirvCode);
 #endif // VLT_DUMP_SHADER
+
+	if (m_debugCode.size())
+	{
+		spirvCode = m_debugCode;
+	}
 
 	return VltShaderModule(device, this, spirvCode);
 }
@@ -74,7 +81,8 @@ void VltShader::generateBindingIdOffsets(SpirvCodeBuffer& code)
 	{
 		if (ins.opCode() == spv::OpDecorate) 
 		{
-			if (ins.arg(2) == spv::DecorationBinding || ins.arg(2) == spv::DecorationSpecId)
+			if (ins.arg(2) == spv::DecorationBinding || 
+				ins.arg(2) == spv::DecorationSpecId)
 			{
 				m_bindingIdOffsets.push_back(ins.offset() + 3);
 			}
@@ -116,6 +124,12 @@ void VltShader::dumpShader(const SpirvCodeBuffer& code) const
 	UtilFile::StoreFile(filename, (uint8_t*)code.data(), code.size());
 }
 
+void VltShader::replaceCode(const std::vector<uint8_t>& code)
+{
+	SpirvCodeBuffer buffer(code.size() / sizeof(uint32_t), reinterpret_cast<const uint32_t*>(code.data()));
+	m_debugCode.append(buffer);
+}
+
 void VltShader::dumpShader() const
 {
 	// Note:
@@ -124,7 +138,6 @@ void VltShader::dumpShader() const
 	auto code = m_code.decompress();
 	dumpShader(code);
 }
-
 ///
 
 VltShaderModule::VltShaderModule():
@@ -134,11 +147,11 @@ VltShaderModule::VltShaderModule():
 }
 
 VltShaderModule::VltShaderModule(
-	const VltDevice* device,
-	const RcPtr<VltShader>& shader,
-	const pssl::SpirvCodeBuffer& code):
+	const VltDevice*             device,
+	const RcPtr<VltShader>&      shader,
+	const pssl::SpirvCodeBuffer& code) :
 	m_device(device),
-	m_stage() 
+	m_stage()
 {
 	m_stage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	m_stage.pNext = nullptr;
@@ -179,5 +192,6 @@ VltShaderModule& VltShaderModule::operator = (VltShaderModule&& other)
 	other.m_stage = VkPipelineShaderStageCreateInfo();
 	return *this;
 }
+
 
 }  // namespace vlt

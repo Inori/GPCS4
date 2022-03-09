@@ -156,32 +156,76 @@ void GCNCompiler::getSopOperands(
 
 void GCNCompiler::emitScalarMov(GCNInstruction& ins)
 {
-	auto inst = asInst<SISOP1Instruction>(ins);
-	auto op = inst->GetOp();
-
-	auto sdst = inst->GetSDST();
-	auto sidx = inst->GetSRidx();
-	auto ssrc = inst->GetSSRC0();
-	auto didx = inst->GetSDSTRidx();
-
-	switch (op)
+	auto encoding = ins.instruction->GetInstructionFormat();
+	switch (encoding)
 	{
-	case SISOP1Instruction::S_MOV_B32:
-	{
-		auto value = emitLoadScalarOperand(ssrc, sidx, SpirvScalarType::Unknown, ins.literalConst);
-		emitStoreScalarOperand(sdst, didx, value);
-	}
+	case Instruction::InstructionSet_SOP1:
+		emitScalarMovSOP1(ins);
 		break;
-	case SISOP1Instruction::S_MOV_B64:
-	{
-		// TODO:
-		// I only find 's_mov_b64 vcc, exec' currently, just pass
-	}
+	case Instruction::InstructionSet_SOPK:
+		emitScalarMovSOPK(ins);
 		break;
 	default:
 		LOG_PSSL_UNHANDLED_INST();
 		break;
 	}
+}
+
+void GCNCompiler::emitScalarMovSOP1(GCNInstruction& ins)
+{
+	auto inst = asInst<SISOP1Instruction>(ins);
+	auto op   = inst->GetOp();
+
+	auto sdst   = inst->GetSDST();
+	auto sidx   = inst->GetSRidx();
+	auto ssrc   = inst->GetSSRC0();
+	auto didx   = inst->GetSDSTRidx();
+	auto opType = inst->GetInstructionOperandType();
+
+	SpirvScalarType loadType = getScalarType(opType);
+	auto            value    = emitLoadScalarOperand(ssrc, sidx, loadType, ins.literalConst);
+
+	switch (op)
+	{
+	case SISOP1Instruction::S_MOV_B32:
+		break;
+	case SISOP1Instruction::S_MOV_B64:
+		break;
+	default:
+		LOG_PSSL_UNHANDLED_INST();
+		break;
+	}
+
+	emitStoreScalarOperand(sdst, didx, value);
+}
+
+void GCNCompiler::emitScalarMovSOPK(GCNInstruction& ins)
+{
+	auto inst = asInst<SISOPKInstruction>(ins);
+	auto op   = inst->GetOp();
+
+	auto sdst   = inst->GetSDST();
+	auto didx   = inst->GetSDSTRidx();
+	auto simm   = inst->GetSIMM16Ridx();
+	auto opType = inst->GetInstructionOperandType();
+
+	SpirvScalarType loadType = getScalarType(opType);
+
+	SpirvRegisterValue value;
+	value.type.ctype = loadType;
+	value.type.ccount = 1;
+	
+	switch (op)
+	{
+	case SISOPKInstruction::S_MOVK_I32:
+		value.id = m_module.consti32(simm);
+		break;
+	default:
+		LOG_PSSL_UNHANDLED_INST();
+		break;
+	}
+
+	emitStoreScalarOperand(sdst, didx, value);
 }
 
 void GCNCompiler::emitScalarArith(GCNInstruction& ins)
@@ -219,12 +263,21 @@ void GCNCompiler::emitScalarArith(GCNInstruction& ins)
 
 	switch (op)
 	{
+	case SISOP2Instruction::S_ADD_I32:
+		dstVal.id = m_module.opIAdd(typeId, spvSrc0.id, spvSrc1.id);
+		break;
+	case SISOP2Instruction::S_MUL_I32:
+		dstVal.id = m_module.opIMul(typeId, spvSrc0.id, spvSrc1.id);
+		break;
 	default:
 		LOG_PSSL_UNHANDLED_INST();
 		break;
 	}
 
 	emitStoreScalarOperand(sdst, sdstRidx, dstVal);
+
+	// TODO:
+	// Update scc
 }
 
 void GCNCompiler::emitScalarAbs(GCNInstruction& ins)
@@ -234,17 +287,91 @@ void GCNCompiler::emitScalarAbs(GCNInstruction& ins)
 
 void GCNCompiler::emitScalarCmp(GCNInstruction& ins)
 {
-	LOG_PSSL_UNHANDLED_INST();
+	uint32_t op = getSopOpcode(ins);
+
+	uint32_t sdst;
+	uint32_t src0;
+	uint32_t src1;
+	uint32_t sdstRidx;
+	uint32_t src0Ridx;
+	uint32_t src1Ridx;
+	int16_t  imm;
+	getSopOperands(ins, &sdst, &sdstRidx, &src0, &src0Ridx, &src1, &src1Ridx, &imm);
+
+	auto       opType  = ins.instruction->GetInstructionOperandType();
+	const auto dstType = getScalarType(opType);
+
+	SpirvRegisterValue spvSrc0 = emitLoadScalarOperand(src0, src0Ridx, dstType, ins.literalConst);
+	SpirvRegisterValue spvSrc1;
+	if (ins.instruction->GetInstructionFormat() == Instruction::InstructionSet_SOP2 ||
+		ins.instruction->GetInstructionFormat() == Instruction::InstructionSet_SOPC)
+	{
+		// Only SOP2 has ssrc1
+		spvSrc1 = emitLoadScalarOperand(src1, src1Ridx, dstType, ins.literalConst);
+	}
+
+	SpirvRegisterValue condValue;
+	condValue.type.ctype  = SpirvScalarType::Bool;
+	condValue.type.ccount = 1;
+
+	const uint32_t boolTypeId = getVectorTypeId(condValue.type);
+
+	switch (op)
+	{
+	case SISOPCInstruction::S_CMP_EQ_I32:
+		condValue.id = m_module.opIEqual(boolTypeId,
+			spvSrc0.id, spvSrc1.id);
+		break;
+	default:
+		LOG_PSSL_UNHANDLED_INST();
+		break;
+	}
+
+	// Update scc.
+	m_stateRegs.scc = condValue;
 }
 
 void GCNCompiler::emitScalarSelect(GCNInstruction& ins)
 {
-	LOG_PSSL_UNHANDLED_INST();
+	uint32_t op = getSopOpcode(ins);
+
+	uint32_t sdst;
+	uint32_t src0;
+	uint32_t src1;
+	uint32_t sdstRidx;
+	uint32_t src0Ridx;
+	uint32_t src1Ridx;
+	getSopOperands(ins, &sdst, &sdstRidx, &src0, &src0Ridx, &src1, &src1Ridx);
+
+	auto       opType  = ins.instruction->GetInstructionOperandType();
+	const auto dstType = getScalarType(opType);
+
+	SpirvRegisterValue spvSrc0 = emitLoadScalarOperand(src0, src0Ridx, dstType, ins.literalConst);
+	SpirvRegisterValue spvSrc1 = emitLoadScalarOperand(src1, src1Ridx, dstType, ins.literalConst);
+
+	SpirvRegisterValue dstValue;
+	dstValue.type.ctype  = dstType;
+	dstValue.type.ccount = 1;
+
+	const uint32_t dstTypeId = getVectorTypeId(dstValue.type);
+
+	switch (op)
+	{
+	case SISOP2Instruction::S_CSELECT_B32:
+	case SISOP2Instruction::S_CSELECT_B64:
+		dstValue.id = m_module.opSelect(dstTypeId,
+			m_stateRegs.scc.id, spvSrc0.id, spvSrc1.id);
+		break;
+	default:
+		LOG_PSSL_UNHANDLED_INST();
+		break;
+	}
+
+	emitStoreScalarOperand(sdst, sdstRidx, dstValue);
 }
 
 void GCNCompiler::emitScalarBitLogic(GCNInstruction& ins)
 {
-	
 	uint32_t op = getSopOpcode(ins);
 
 	uint32_t sdst;
@@ -276,6 +403,7 @@ void GCNCompiler::emitScalarBitLogic(GCNInstruction& ins)
 
 	switch (op)
 	{
+	case SISOP2Instruction::S_AND_B32:
 	case SISOP2Instruction::S_AND_B64:
 		dstVal.id = m_module.opBitwiseAnd(typeId, spvSrc0.id, spvSrc1.id);
 		break;
@@ -283,6 +411,13 @@ void GCNCompiler::emitScalarBitLogic(GCNInstruction& ins)
 		dstVal.id = m_module.opBitwiseAnd(typeId,
 										  spvSrc0.id,
 										  m_module.opNot(typeId, spvSrc1.id));
+		break;
+	case SISOP2Instruction::S_OR_B64:
+		dstVal.id = m_module.opBitwiseOr(typeId, spvSrc0.id, spvSrc1.id);
+		break;
+	case SISOP2Instruction::S_NOR_B64:
+		dstVal.id = m_module.opNot(typeId, 
+			m_module.opBitwiseOr(typeId, spvSrc0.id, spvSrc1.id));
 		break;
 	default:
 		LOG_PSSL_UNHANDLED_INST();
@@ -294,19 +429,116 @@ void GCNCompiler::emitScalarBitLogic(GCNInstruction& ins)
 	// Many scalar ALU instructions will update scc on real GPU hardware, not only ScalarBitLogic ones.
 	// And implementation of flag register update strategy is a world wide challenge in binary translation domain.
 	// Here I only update scc for ScalarBitLogic instructions, and see if this will work.
-	m_statusRegs.sccz = emitRegisterZeroTest(dstVal, SpirvZeroTest::TestNz);
+	m_stateRegs.scc = emitRegisterZeroTest(dstVal, SpirvZeroTest::TestNz);
 
 	emitStoreScalarOperand(sdst, sdstRidx, dstVal);
 }
 
 void GCNCompiler::emitScalarBitManip(GCNInstruction& ins)
 {
-	LOG_PSSL_UNHANDLED_INST();
+	uint32_t op = getSopOpcode(ins);
+
+	uint32_t sdst;
+	uint32_t src0;
+	uint32_t src1;
+	uint32_t sdstRidx;
+	uint32_t src0Ridx;
+	uint32_t src1Ridx;
+	getSopOperands(ins, &sdst, &sdstRidx, &src0, &src0Ridx, &src1, &src1Ridx);
+
+	auto       opType  = ins.instruction->GetInstructionOperandType();
+	const auto dstType = getScalarType(opType);
+
+	SpirvRegisterValue spvSrc0 = emitLoadScalarOperand(src0, src0Ridx, dstType, ins.literalConst);
+	SpirvRegisterValue spvSrc1;
+	if (ins.instruction->GetInstructionFormat() == Instruction::InstructionSet_SOP2)
+	{
+		// Only SOP2 has ssrc1
+		spvSrc1 = emitLoadScalarOperand(src1, src1Ridx, dstType, ins.literalConst);
+	}
+
+	SpirvRegisterValue dstVal;
+	dstVal.type.ctype  = dstType;
+	dstVal.type.ccount = 1;
+
+	const uint32_t typeId = getVectorTypeId(dstVal.type);
+
+	switch (op)
+	{
+	case SISOP2Instruction::S_LSHR_B32:
+		dstVal.id = m_module.opShiftRightLogical(typeId,
+												 spvSrc0.id,
+												 m_module.opBitwiseAnd(typeId, spvSrc1.id, m_module.constu32(0b11111)));
+		break;
+	default:
+		LOG_PSSL_UNHANDLED_INST();
+		break;
+	}
+
+	// Update scc.
+	// TODO:
+	// Many scalar ALU instructions will update scc on real GPU hardware, not only ScalarBitLogic ones.
+	// And implementation of flag register update strategy is a world wide challenge in binary translation domain.
+	// Here I only update scc for ScalarBitLogic instructions, and see if this will work.
+	m_stateRegs.scc = emitRegisterZeroTest(dstVal, SpirvZeroTest::TestNz);
+
+	emitStoreScalarOperand(sdst, sdstRidx, dstVal);
 }
 
 void GCNCompiler::emitScalarBitField(GCNInstruction& ins)
 {
-	LOG_PSSL_UNHANDLED_INST();
+	uint32_t op = getSopOpcode(ins);
+
+	uint32_t sdst;
+	uint32_t src0;
+	uint32_t src1;
+	uint32_t sdstRidx;
+	uint32_t src0Ridx;
+	uint32_t src1Ridx;
+	getSopOperands(ins, &sdst, &sdstRidx, &src0, &src0Ridx, &src1, &src1Ridx);
+
+	auto       opType  = ins.instruction->GetInstructionOperandType();
+	const auto dstType = getScalarType(opType);
+
+	SpirvRegisterValue spvSrc0 = emitLoadScalarOperand(src0, src0Ridx, dstType, ins.literalConst);
+	SpirvRegisterValue spvSrc1;
+	if (ins.instruction->GetInstructionFormat() == Instruction::InstructionSet_SOP2)
+	{
+		// Only SOP2 has ssrc1
+		spvSrc1 = emitLoadScalarOperand(src1, src1Ridx, dstType, ins.literalConst);
+	}
+
+	SpirvRegisterValue dstVal;
+	dstVal.type.ctype  = dstType;
+	dstVal.type.ccount = 1;
+
+	const uint32_t typeId = getVectorTypeId(dstVal.type);
+
+	switch (op)
+	{
+	case SISOP2Instruction::S_BFE_U32:
+	{
+		uint32_t offsetId = m_module.opBitwiseAnd(typeId, spvSrc1.id, 
+			m_module.constu32(0b11111));
+		uint32_t widthId  = m_module.opBitFieldUExtract(typeId, spvSrc1.id, 
+			m_module.constu32(16), m_module.constu32(7));
+		dstVal.id         = m_module.opBitFieldUExtract(typeId,
+                                                spvSrc0.id, offsetId, widthId);
+	}
+		break;
+	default:
+		LOG_PSSL_UNHANDLED_INST();
+		break;
+	}
+
+	// Update scc.
+	// TODO:
+	// Many scalar ALU instructions will update scc on real GPU hardware, not only ScalarBitLogic ones.
+	// And implementation of flag register update strategy is a world wide challenge in binary translation domain.
+	// Here I only update scc for ScalarBitLogic instructions, and see if this will work.
+	m_stateRegs.scc = emitRegisterZeroTest(dstVal, SpirvZeroTest::TestNz);
+
+	emitStoreScalarOperand(sdst, sdstRidx, dstVal);
 }
 
 void GCNCompiler::emitScalarConv(GCNInstruction& ins)
@@ -316,7 +548,44 @@ void GCNCompiler::emitScalarConv(GCNInstruction& ins)
 
 void GCNCompiler::emitScalarExecMask(GCNInstruction& ins)
 {
-	LOG_PSSL_UNHANDLED_INST();
+	uint32_t op = getSopOpcode(ins);
+
+	uint32_t sdst;
+	uint32_t src0;
+	uint32_t sdstRidx;
+	uint32_t src0Ridx;
+	getSopOperands(ins, &sdst, &sdstRidx, &src0, &src0Ridx);
+
+	auto       opType  = ins.instruction->GetInstructionOperandType();
+	const auto dstType = getScalarType(opType);
+
+	SpirvRegisterValue spvSrc0 = emitLoadScalarOperand(src0, src0Ridx, dstType, ins.literalConst);
+
+	SpirvRegisterValue dstVal;
+	dstVal.type.ctype  = dstType;  // Should be Uint64
+	dstVal.type.ccount = 1;
+
+	const uint32_t typeId = getVectorTypeId(dstVal.type);
+
+	// Save exec
+	auto exec = m_stateRegs.exec.load(m_module);
+	emitStoreScalarOperand(sdst, sdstRidx, exec);
+
+	// Perform mask operations
+	switch (op)
+	{
+	case SISOP1Instruction::S_AND_SAVEEXEC_B64:
+		dstVal.id = m_module.opBitwiseAnd(typeId, spvSrc0.id, exec.id);
+		break;
+	default:
+		LOG_PSSL_UNHANDLED_INST();
+		break;
+	}
+
+	// Update exec
+	m_stateRegs.exec.store(m_module, dstVal);
+	// Update sccz.
+	m_stateRegs.scc = emitRegisterZeroTest(dstVal, SpirvZeroTest::TestNz);
 }
 
 void GCNCompiler::emitScalarQuadMask(GCNInstruction& ins)

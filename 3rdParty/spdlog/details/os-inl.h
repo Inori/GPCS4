@@ -23,16 +23,9 @@
 
 #ifdef _WIN32
 
-#ifndef NOMINMAX
-#define NOMINMAX // prevent windows redefining min/max
-#endif
-
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
 #include <io.h>      // _get_osfhandle and _isatty support
 #include <process.h> //  _get_pid support
-#include <windows.h>
+#include <spdlog/details/windows_include.h>
 
 #ifdef __MINGW32__
 #include <share.h>
@@ -126,23 +119,6 @@ SPDLOG_INLINE std::tm gmtime() SPDLOG_NOEXCEPT
     return gmtime(now_t);
 }
 
-#ifdef SPDLOG_PREVENT_CHILD_FD
-SPDLOG_INLINE void prevent_child_fd(FILE *f)
-{
-#ifdef _WIN32
-    auto file_handle = reinterpret_cast<HANDLE>(_get_osfhandle(::_fileno(f)));
-    if (!::SetHandleInformation(file_handle, HANDLE_FLAG_INHERIT, 0))
-        SPDLOG_THROW(spdlog_ex("SetHandleInformation failed", errno));
-#else
-    auto fd = ::fileno(f);
-    if (::fcntl(fd, F_SETFD, FD_CLOEXEC) == -1)
-    {
-        SPDLOG_THROW(spdlog_ex("fcntl with FD_CLOEXEC failed", errno));
-    }
-#endif
-}
-#endif // SPDLOG_PREVENT_CHILD_FD
-
 // fopen_s on non windows for writing
 SPDLOG_INLINE bool fopen_s(FILE **fp, const filename_t &filename, const filename_t &mode)
 {
@@ -152,17 +128,35 @@ SPDLOG_INLINE bool fopen_s(FILE **fp, const filename_t &filename, const filename
 #else
     *fp = ::_fsopen((filename.c_str()), mode.c_str(), _SH_DENYNO);
 #endif
-#else // unix
-    *fp = ::fopen((filename.c_str()), mode.c_str());
-#endif
-
-#ifdef SPDLOG_PREVENT_CHILD_FD
-    //  prevent child processes from inheriting log file descriptors
+#if defined(SPDLOG_PREVENT_CHILD_FD)
     if (*fp != nullptr)
     {
-        prevent_child_fd(*fp);
+        auto file_handle = reinterpret_cast<HANDLE>(_get_osfhandle(::_fileno(*fp)));
+        if (!::SetHandleInformation(file_handle, HANDLE_FLAG_INHERIT, 0))
+        {
+            ::fclose(*fp);
+            *fp = nullptr;
+        }
     }
 #endif
+#else // unix
+#if defined(SPDLOG_PREVENT_CHILD_FD)
+    const int mode_flag = mode == SPDLOG_FILENAME_T("ab") ? O_APPEND : O_TRUNC;
+    const int fd = ::open((filename.c_str()), O_CREAT | O_WRONLY | O_CLOEXEC | mode_flag, mode_t(0644));
+    if (fd == -1)
+    {
+        return false;
+    }
+    *fp = ::fdopen(fd, mode.c_str());
+    if (*fp == nullptr)
+    {
+        ::close(fd);
+    }
+#else
+    *fp = ::fopen((filename.c_str()), mode.c_str());
+#endif
+#endif
+
     return *fp == nullptr;
 }
 
@@ -210,7 +204,7 @@ SPDLOG_INLINE size_t filesize(FILE *f)
 {
     if (f == nullptr)
     {
-        SPDLOG_THROW(spdlog_ex("Failed getting file size. fd is null"));
+        throw_spdlog_ex("Failed getting file size. fd is null");
     }
 #if defined(_WIN32) && !defined(__CYGWIN__)
     int fd = ::_fileno(f);
@@ -230,7 +224,12 @@ SPDLOG_INLINE size_t filesize(FILE *f)
 #endif
 
 #else // unix
+// OpenBSD doesn't compile with :: before the fileno(..)
+#if defined(__OpenBSD__)
+    int fd = fileno(f);
+#else
     int fd = ::fileno(f);
+#endif
 // 64 bits(but not in osx or cygwin, where fstat64 is deprecated)
 #if (defined(__linux__) || defined(__sun) || defined(_AIX)) && (defined(__LP64__) || defined(_LP64))
     struct stat64 st;
@@ -246,7 +245,8 @@ SPDLOG_INLINE size_t filesize(FILE *f)
     }
 #endif
 #endif
-    SPDLOG_THROW(spdlog_ex("Failed getting file size from fd", errno));
+    throw_spdlog_ex("Failed getting file size from fd", errno);
+    return 0; // will not be reached.
 }
 
 // Return utc offset in minutes or throw spdlog_ex on failure
@@ -262,7 +262,7 @@ SPDLOG_INLINE int utc_minutes_offset(const std::tm &tm)
     auto rv = ::GetDynamicTimeZoneInformation(&tzinfo);
 #endif
     if (rv == TIME_ZONE_ID_INVALID)
-        SPDLOG_THROW(spdlog::spdlog_ex("Failed getting timezone info. ", errno));
+        throw_spdlog_ex("Failed getting timezone info. ", errno);
 
     int offset = -tzinfo.Bias;
     if (tm.tm_isdst)
@@ -391,13 +391,13 @@ SPDLOG_INLINE int pid() SPDLOG_NOEXCEPT
 }
 
 // Determine if the terminal supports colors
-// Source: https://github.com/agauniyal/rang/
+// Based on: https://github.com/agauniyal/rang/
 SPDLOG_INLINE bool is_color_terminal() SPDLOG_NOEXCEPT
 {
 #ifdef _WIN32
     return true;
 #else
-    static constexpr std::array<const char *, 14> Terms = {
+    static constexpr std::array<const char *, 14> terms = {
         {"ansi", "color", "console", "cygwin", "gnome", "konsole", "kterm", "linux", "msys", "putty", "rxvt", "screen", "vt100", "xterm"}};
 
     const char *env_p = std::getenv("TERM");
@@ -407,12 +407,12 @@ SPDLOG_INLINE bool is_color_terminal() SPDLOG_NOEXCEPT
     }
 
     static const bool result =
-        std::any_of(std::begin(Terms), std::end(Terms), [&](const char *term) { return std::strstr(env_p, term) != nullptr; });
+        std::any_of(terms.begin(), terms.end(), [&](const char *term) { return std::strstr(env_p, term) != nullptr; });
     return result;
 #endif
 }
 
-// Detrmine if the terminal attached
+// Determine if the terminal attached
 // Source: https://github.com/agauniyal/rang/
 SPDLOG_INLINE bool in_terminal(FILE *file) SPDLOG_NOEXCEPT
 {
@@ -429,7 +429,7 @@ SPDLOG_INLINE void wstr_to_utf8buf(wstring_view_t wstr, memory_buf_t &target)
 {
     if (wstr.size() > static_cast<size_t>((std::numeric_limits<int>::max)()))
     {
-        SPDLOG_THROW(spdlog::spdlog_ex("UTF-16 string is too big to be converted to UTF-8"));
+        throw_spdlog_ex("UTF-16 string is too big to be converted to UTF-8");
     }
 
     int wstr_size = static_cast<int>(wstr.size());
@@ -457,12 +457,12 @@ SPDLOG_INLINE void wstr_to_utf8buf(wstring_view_t wstr, memory_buf_t &target)
         }
     }
 
-    SPDLOG_THROW(spdlog::spdlog_ex(fmt::format("WideCharToMultiByte failed. Last error: {}", ::GetLastError())));
+    throw_spdlog_ex(fmt::format("WideCharToMultiByte failed. Last error: {}", ::GetLastError()));
 }
 #endif // (defined(SPDLOG_WCHAR_TO_UTF8_SUPPORT) || defined(SPDLOG_WCHAR_FILENAMES)) && defined(_WIN32)
 
 // return true on success
-SPDLOG_INLINE bool mkdir_(const filename_t &path)
+static SPDLOG_INLINE bool mkdir_(const filename_t &path)
 {
 #ifdef _WIN32
 #ifdef SPDLOG_WCHAR_FILENAMES
@@ -529,6 +529,24 @@ SPDLOG_INLINE filename_t dir_name(filename_t path)
 #endif
     auto pos = path.find_last_of(folder_sep);
     return pos != filename_t::npos ? path.substr(0, pos) : filename_t{};
+}
+
+std::string SPDLOG_INLINE getenv(const char *field)
+{
+
+#if defined(_MSC_VER)
+#if defined(__cplusplus_winrt)
+    return std::string{}; // not supported under uwp
+#else
+    size_t len = 0;
+    char buf[128];
+    bool ok = ::getenv_s(&len, buf, sizeof(buf), field) == 0;
+    return ok ? buf : std::string{};
+#endif
+#else // revert to getenv
+    char *buf = ::getenv(field);
+    return buf ? buf : std::string{};
+#endif
 }
 
 } // namespace os

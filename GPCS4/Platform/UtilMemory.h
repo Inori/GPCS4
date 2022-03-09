@@ -42,7 +42,7 @@ void* VMAllocateDirect(/*TODO: use parameters*/);
 
 void VMUnMap(void* pAddr, size_t nSize);
 
-bool VMProtect(void* pAddr, size_t nSize, uint32_t nProtectFlag);
+bool VMProtect(void* pAddr, size_t nSize, uint32_t nProtectFlag, uint32_t* pOldProtectFlag = nullptr);
 
 int VMQueryProtection(void* addr, void** start, void** end, uint32_t* prot);
 
