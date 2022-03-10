@@ -45,14 +45,14 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(ProjectDir);$(SolutionDir)3rdParty;$(SolutionDir)3rdParty\xbyak;$(SolutionDir)3rdParty\zydis\dependencies\zycore\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(SolutionDir)3rdParty\xbyak;$(SolutionDir)3rdParty\zydis\include;$(SolutionDir)3rdParty\zydis\dependencies\zycore\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)3rdParty\zydis\;$(LibraryPath)</LibraryPath>
     <OutDir>$(ProjectDir)</OutDir>
     <TargetName>$(ProjectName)d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(ProjectDir);$(SolutionDir)3rdParty;$(SolutionDir)3rdParty\xbyak;$(SolutionDir)3rdParty\zydis\dependencies\zycore\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(SolutionDir)3rdParty\xbyak;$(SolutionDir)3rdParty\zydis\include;$(SolutionDir)3rdParty\zydis\dependencies\zycore\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)3rdParty\zydis\;$(LibraryPath)</LibraryPath>
     <OutDir>$(ProjectDir)</OutDir>
   </PropertyGroup>
