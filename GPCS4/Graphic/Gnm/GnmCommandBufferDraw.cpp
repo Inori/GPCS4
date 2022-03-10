@@ -17,6 +17,7 @@
 #include "../Violet/VltShader.h"
 
 #include "../Platform/UtilFile.h"
+#include "../Platform/UtilDebug.h"
 
 #include <algorithm>
 #include <functional>
@@ -34,7 +35,7 @@ constexpr uint64_t ShaderHashClearRT = 0x8C25642DB09D8E59;
 #define SHADER_DEBUG_BREAK(mod, hash)  \
 	if (mod->key().toUint64() == hash) \
 	{                                  \
-		__debugbreak();                \
+		UtilDebug::debugBreakPoint();                \
 	}
 
 GnmCommandBufferDraw::GnmCommandBufferDraw(

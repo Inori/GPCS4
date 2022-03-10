@@ -2,6 +2,8 @@
 
 #include "../GnmCommon.h"
 
+#undef SNAN
+
 namespace GpuAddress
 {;
 

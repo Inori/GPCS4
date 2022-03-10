@@ -12,6 +12,9 @@ void debugBreakPoint()
 
 #else
 
+//this header defines SIGTRAP
+#include <signal.h>
+
 void debugBreakPoint()
 {
 	raise(SIGTRAP);

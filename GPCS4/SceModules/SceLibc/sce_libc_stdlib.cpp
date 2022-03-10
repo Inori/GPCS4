@@ -1,6 +1,10 @@
 #include "sce_libc.h"
 #include <ctime>
 
+#ifdef GPCS4_LINUX
+#include <signal.h>
+#endif //GPCS4_LINUX
+
 LOG_CHANNEL(SceModules.SceLibc.stdlib);
 
 //////////////////////////////////////////////////////////////////////////

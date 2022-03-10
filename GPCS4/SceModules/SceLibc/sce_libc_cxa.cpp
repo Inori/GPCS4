@@ -1,6 +1,10 @@
 #include "sce_libc.h"
 #include <mutex>
+#ifdef GPCS4_WINDOWS
 #include "pthreads4w/pthread.h"
+#else //GPCS4_WINDOWS
+#include "pthread.h"
+#endif //GPCS4_WINDOWS
 
 LOG_CHANNEL(SceModules.SceLibc.cxa);
 

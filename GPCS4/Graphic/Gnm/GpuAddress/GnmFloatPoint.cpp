@@ -1,6 +1,7 @@
 #include "GnmFloatPoint.h"
 
 #include <algorithm>
+#include <cmath>
 
 namespace GpuAddress
 {;

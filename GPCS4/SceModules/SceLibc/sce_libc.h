@@ -254,7 +254,11 @@ int PS4API scec_snprintf(void);
 
 int PS4API scec_sprintf(char *str, const char *format, ...);
 
-int PS4API PS4NAKED scec_sprintf_s(char *buffer, size_t sizeOfBuffer, const char *format, ...);
+int PS4API 
+#ifdef GPCS4_WINDOWS
+PS4NAKED
+#endif //GPCS4_WINDOWS
+scec_sprintf_s(char *buffer, size_t sizeOfBuffer, const char *format, ...);
 
 int PS4API scec_sscanf(void);
 

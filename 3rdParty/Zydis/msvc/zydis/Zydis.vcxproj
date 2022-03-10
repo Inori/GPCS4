@@ -137,7 +137,7 @@
       <AdditionalOptions>/Gw </AdditionalOptions>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DiagnosticsFormat>Caret</DiagnosticsFormat>
-      <AdditionalIncludeDirectories>$(SolutionDir)3rdParty/;$(SolutionDir)3rdParty/zydis/src;$(SolutionDir)3rdParty/zydis/msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdParty/;$(SolutionDir)3rdParty/Zydis/src;$(SolutionDir)3rdParty/Zydis/msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <OmitDefaultLibName>true</OmitDefaultLibName>
@@ -161,7 +161,7 @@
       <PreprocessorDefinitions>ZYDIS_STATIC_DEFINE;ZYDIS_EXPORTS;_LIB;WIN32;_WIN64;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DiagnosticsFormat>Caret</DiagnosticsFormat>
       <AdditionalOptions>/Gw </AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)3rdParty/;$(SolutionDir)3rdParty/zydis/src;$(SolutionDir)3rdParty/zydis/msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdParty/;$(SolutionDir)3rdParty/Zydis/src;$(SolutionDir)3rdParty/Zydis/msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OmitFramePointers>true</OmitFramePointers>
       <OmitDefaultLibName>true</OmitDefaultLibName>
       <WarningLevel>Level3</WarningLevel>

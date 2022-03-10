@@ -2,7 +2,11 @@
 
 #include "../GnmCommon.h"
 
+#ifdef GPCS4_WINDOWS
 #include <intrin.h>
+#else //GPCS4_WINDOWS
+#include <x86intrin.h>
+#endif //GPCS4_WINDOWS
 
 namespace GpuAddress
 {;

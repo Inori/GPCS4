@@ -85,7 +85,7 @@ PS4API
 #ifdef GPCS4_WINDOWS
 PS4NAKED
 #endif // GPCS4_WINDOWS
-PS4API scec_sprintf(char *str, const char *format, ...)
+PS4API scec_sprintf(char *buffer, const char *format, ...)
 {
 	//LOG_SCE_TRACE("buffer %p %x %p", buffer, sizeOfBuffer, format);
 

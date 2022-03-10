@@ -1,7 +1,13 @@
 #pragma once
+#ifdef GPCS4_WINDOWS
 #include "pthreads4w/pthread.h"
 #include "pthreads4w/sched.h"
 #include "pthreads4w/semaphore.h"
+#else //GPCS4_WINDOWS
+#include "pthread.h"
+#include "sched.h"
+#include "semaphore.h"
+#endif //GPCS4_WINDOWS
 
 // pthread to sce pthread
 // Note:
