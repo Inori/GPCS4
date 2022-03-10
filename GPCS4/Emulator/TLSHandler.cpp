@@ -16,6 +16,9 @@ TLSManager::~TLSManager()
 
 bool TLSManager::install()
 {
+	// TODO:
+	// since now we have TinyDBR, we can just rewrite the tls access instruction,
+	// no exceptions are needed.
 	UtilException::ExceptionHandler handler;
 	handler.callback = &exceptionHandler;
 	handler.param  = this;
