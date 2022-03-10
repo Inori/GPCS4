@@ -1,0 +1,178 @@
+
+ModRM 
+==================
+
+
+mov rbx, [rcx + 0x40]
+-----------------------
+
+pushfq
+pushaq
+lea rdx, [rcx + 0x40]
+
+# we use rbp to save rsp value
+# this is safe because both Windows x64 ABI and SystemV x64 ABI 
+# guarantees rbp must be saved and restored by a function that uses them
+mov rbp, rsp
+
+sub rsp, 0x20
+and rsp, 0xFFFFFFFFFFFFFFF0
+
+mov rcx, this
+mov r8, 8
+mov r9, rbx
+mov rax, OnMemoryRead
+call rax
+
+mov rsp, rbp
+popaq
+popfq
+
+mov rbx, [rcx + 0x40]
+
+
+
+
+
+
+and [rcx + 0x40], rbx 
+-----------------------
+
+pushfq
+pushaq
+lea rdx, [rcx + 0x40]
+
+# we use rbp to save rsp value
+# this is safe because both Windows x64 ABI and SystemV x64 ABI 
+# guarantees rbp must be saved and restored by a function that uses them
+mov rbp, rsp
+
+sub rsp, 0x20
+and rsp, 0xFFFFFFFFFFFFFFF0
+
+mov rcx, this
+mov r8, 8
+mov rax, OnMemoryRead
+call rax
+
+mov rsp, rbp
+popaq
+popfq
+
+
+push r15  # r15 is free reg which the instruction doesn't use, including hidden operands.
+lea r15, [rcx + 0x40]
+mov [rcx + 0x40], rbx  # execute original insturction before callback
+
+
+pushfq
+pushaq
+mov rdx, r15
+
+# we use rbp to save rsp value
+# this is safe because both Windows x64 ABI and SystemV x64 ABI 
+# guarantees rbp must be saved and restored by a function that uses them
+mov rbp, rsp
+
+sub rsp, 0x20
+and rsp, 0xFFFFFFFFFFFFFFF0
+
+mov rcx, this
+mov r8, 8
+mov rax, OnMemoryWrite
+call rax
+
+mov rsp, rbp
+popaq
+popfq
+
+pop r15
+
+
+
+
+
+
+
+
+
+rep movsd
+==================
+
+
+
+pushfq
+pushaq
+mov rbp, rsp
+
+sub rsp, 0x20
+and rsp, 0xFFFFFFFFFFFFFFF0
+
+mov r15, rcx
+shl r15, 2          # 1 for w, 2 for d, 3 for q
+
+
+pushfq
+pop rax
+bt rax, 0x0A        # DF
+jnc label           # if CF=0
+
+sub rsi, r15
+
+label:
+
+mov rcx, this
+mov rdx, rsi
+mov r8, r15
+mov rax, OnMemoryRead
+call rax
+
+mov rsp, rbp
+popaq
+popfq
+
+
+
+push r15
+mov r15, rcx
+rep movsd
+
+
+
+pushfq
+pushaq
+mov rbp, rsp
+
+sub rsp, 0x20
+and rsp, 0xFFFFFFFFFFFFFFF0
+
+sub r15, rcx
+shl r15, 2          # 1 for w, 2 for d, 3 for q
+
+pushfq
+pop rax
+bt rax, 0x0A        # DF
+jc label           # if CF=1
+
+sub rdi, r15
+
+label:
+
+mov rcx, this
+mov rdx, rdi
+mov r8, r15
+mov rax, OnMemoryWrite
+call rax
+
+mov rsp, rbp
+popaq
+popfq
+pop r15
+
+
+
+
+
+      
+vpgatherdd  ymm19{k1},dword ptr [rax+ymm2]
+62 E2 7D 29 90 1C 10

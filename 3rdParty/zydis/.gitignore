@@ -90,7 +90,15 @@ build*
 *.opensdf
 *.VC.db
 *.VC.opendb
+msvc/**/*.user
 msvc/**/obj/
 msvc/**/bin/
 
 doc/html
+
+.vscode
+.idea
+cmake-build-debug
+!tests/cases/*.out
+*.pyc
+/amalgamated-dist

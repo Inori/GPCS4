@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{8f9832fc-1414-4d81-b003-33dff4b2f7cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\windows">
+      <UniqueIdentifier>{32411f08-95d7-4b93-8968-82481ea2eb30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\arch">
+      <UniqueIdentifier>{54174657-5e77-46aa-96ad-6e73fc4b89fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\arch\x86">
+      <UniqueIdentifier>{07f12266-7b6f-43c0-ad66-279c9d4b8331}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="windows\executor.cpp">
+      <Filter>Source Files\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\winunwind.cpp">
+      <Filter>Source Files\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="common.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tinydbr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="arch\x86\x86_assembler.cpp">
+      <Filter>Source Files\arch\x86</Filter>
+    </ClCompile>
+    <ClCompile Include="arch\x86\x86_helpers.cpp">
+      <Filter>Source Files\arch\x86</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\dllnotify.cpp">
+      <Filter>Source Files\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\api_helper.cpp">
+      <Filter>Source Files\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="arch\x86\x86_memory_monitor.cpp">
+      <Filter>Source Files\arch\x86</Filter>
+    </ClCompile>
+    <ClCompile Include="memory_monitor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="windows\executor.h">
+      <Filter>Source Files\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\winunwind.h">
+      <Filter>Source Files\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="assembler.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="common.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="instruction.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="unwind.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tinydbr.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="arch\x86\reg.h">
+      <Filter>Source Files\arch\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="arch\x86\x86_assembler.h">
+      <Filter>Source Files\arch\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="arch\x86\x86_helpers.h">
+      <Filter>Source Files\arch\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\dllnotify.h">
+      <Filter>Source Files\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\api_helper.h">
+      <Filter>Source Files\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="memory_monitor.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="arch\x86\x86_memory_monitor.h">
+      <Filter>Source Files\arch\x86</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

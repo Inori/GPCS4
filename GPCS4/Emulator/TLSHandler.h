@@ -47,7 +47,7 @@ public:
 private:
 	void initZydis();
 
-	void printInst(ZydisDecodedInstruction& inst);
+	void printInst(ZydisDecodedInstruction& inst, ZydisDecodedOperand* operands);
 
 	uint32_t getPatchLen(uint8_t* code, uint32_t oldLen);
 

@@ -1,8 +1,6 @@
 #include "TLSHandler.h"
 #include "Platform/UtilMemory.h"
 #include "Util/UtilMath.h"
-// x86_64 max instruction length
-#define X64_INSTRUCTION_LEN_MAX 15
 
 LOG_CHANNEL(Emulator.TLSHandler);
 
@@ -277,9 +275,11 @@ bool AssembleHelper::isTlsAccess(void* code)
 		}
 
 		ZydisDecodedInstruction instruction;
-		ZydisStatus status = ZydisDecoderDecodeBuffer(&m_decoder, code,
-													  X64_INSTRUCTION_LEN_MAX, (ZydisU64)code, &instruction);
-		if (!ZYDIS_SUCCESS(status))
+		ZydisDecodedOperand     operands[ZYDIS_MAX_OPERAND_COUNT_VISIBLE];
+		ZyanStatus              status = ZydisDecoderDecodeFull(&m_decoder, code, ZYDIS_MAX_INSTRUCTION_LENGTH,
+                                                   &instruction, operands, ZYDIS_MAX_OPERAND_COUNT_VISIBLE,
+                                                   ZYDIS_DFLAG_VISIBLE_OPERANDS_ONLY);
+		if (!ZYAN_SUCCESS(status))
 		{
 			LOG_ERR("decode instruction failed at %p", code);
 			break;
@@ -291,7 +291,7 @@ bool AssembleHelper::isTlsAccess(void* code)
 			break;
 		}
 
-		if (instruction.operandCount != 2)
+		if (instruction.operand_count_visible != 2)
 		{
 			break;
 		}
@@ -302,8 +302,8 @@ bool AssembleHelper::isTlsAccess(void* code)
 		// so currently we only support
 		// mov rax, fs:[0x0000000000000000]
 		// this should be easy to extend to other cases
-		if (instruction.operands[0].reg.value != ZYDIS_REGISTER_RAX ||
-			instruction.operands[1].mem.segment != ZYDIS_REGISTER_FS)
+		if (operands[0].reg.value != ZYDIS_REGISTER_RAX ||
+			operands[1].mem.segment != ZYDIS_REGISTER_FS)
 		{
 			break;
 		}
@@ -318,8 +318,9 @@ bool AssembleHelper::isTlsAccess(void* code)
 void AssembleHelper::getMovFsInfo(void* code, uint32_t& instLen, int64_t& fsOffset)
 {
 	ZydisDecodedInstruction instruction;
-	ZydisDecoderDecodeBuffer(&m_decoder, code,
-							 X64_INSTRUCTION_LEN_MAX, (ZydisU64)code, &instruction);
+	ZydisDecoderContext     context;
+	ZydisDecoderDecodeInstruction(&m_decoder, &context, 
+		code, ZYDIS_MAX_INSTRUCTION_LENGTH, &instruction);
 	instLen  = instruction.length;
 	fsOffset = instruction.raw.disp.value;
 }
@@ -408,22 +409,25 @@ bool AssembleHelper::patchTLSInstruction(void* code)
 void AssembleHelper::printInstruction(void* code)
 {
 	ZydisDecodedInstruction instruction;
-	ZydisDecoderDecodeBuffer(&m_decoder, code,
-							 X64_INSTRUCTION_LEN_MAX, (ZydisU64)code, &instruction);
-	printInst(instruction);
+	ZydisDecodedOperand     operands[ZYDIS_MAX_OPERAND_COUNT_VISIBLE];
+	ZydisDecoderDecodeFull(&m_decoder, code, ZYDIS_MAX_INSTRUCTION_LENGTH,
+						   &instruction, operands, ZYDIS_MAX_OPERAND_COUNT_VISIBLE,
+						   ZYDIS_DFLAG_VISIBLE_OPERANDS_ONLY);
+	printInst(instruction, operands);
 }
 
 void AssembleHelper::initZydis()
 {
-	ZydisDecoderInit(&m_decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64);
+	ZydisDecoderInit(&m_decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_STACK_WIDTH_64);
 	ZydisFormatterInit(&m_formatter, ZYDIS_FORMATTER_STYLE_INTEL);
 }
 
-void AssembleHelper::printInst(ZydisDecodedInstruction& inst)
+void AssembleHelper::printInst(ZydisDecodedInstruction& inst, ZydisDecodedOperand* operands)
 {
 	const int bufLen = 256;
-	char szBuffer[bufLen];
-	ZydisFormatterFormatInstruction(&m_formatter, &inst, szBuffer, sizeof(szBuffer));
+	char      szBuffer[bufLen];
+	ZydisFormatterFormatInstruction(&m_formatter, &inst, operands,
+									inst.operand_count_visible, szBuffer, sizeof(szBuffer), 0);
 	LOG_DEBUG("instruction: %s", szBuffer);
 }
 
@@ -433,16 +437,19 @@ uint32_t AssembleHelper::getPatchLen(uint8_t* code, uint32_t oldLen)
 	ZydisDecodedInstruction instruction;
 	while (sumLen < oldLen)
 	{
-		ZydisStatus status = ZydisDecoderDecodeBuffer(&m_decoder, code,
-													  X64_INSTRUCTION_LEN_MAX, (ZydisU64)code, &instruction);
-		if (!ZYDIS_SUCCESS(status))
+		ZydisDecodedInstruction instruction;
+		ZydisDecodedOperand     operands[ZYDIS_MAX_OPERAND_COUNT_VISIBLE];
+		ZyanStatus              status = ZydisDecoderDecodeFull(&m_decoder, code, ZYDIS_MAX_INSTRUCTION_LENGTH,
+                                                   &instruction, operands, ZYDIS_MAX_OPERAND_COUNT_VISIBLE,
+                                                   ZYDIS_DFLAG_VISIBLE_OPERANDS_ONLY);
+		if (!ZYAN_SUCCESS(status))
 		{
 			LOG_ERR("decode instruction failed at %p", code);
 			break;
 		}
 
 #ifdef GPCS4_DEBUG
-		printInst(instruction);
+		printInst(instruction, operands);
 #endif
 		// TODO:
 		// if patched instruction contains position relative ones

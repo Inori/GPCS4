@@ -31,55 +31,18 @@
 /* ============================================================================================== */
 
 /* ---------------------------------------------------------------------------------------------- */
-/* Forward declarations                                                                           */
-/* ---------------------------------------------------------------------------------------------- */
-
-/**
- * @brief   Contains all operand-definitions.
- */
-extern const ZydisOperandDefinition operandDefinitions[];
-
-/* ---------------------------------------------------------------------------------------------- */
-
-/**
- * @brief   Contains all instruction-definitions with @c DEFAULT encoding.
- */
-extern const ZydisInstructionDefinitionDEFAULT instructionDefinitionsDEFAULT[];
-
-/**
- * @brief   Contains all instruction-definitions with @c 3DNOW encoding.
- */
-extern const ZydisInstructionDefinition3DNOW instructionDefinitions3DNOW[];
-
-/**
- * @brief   Contains all instruction-definitions with @c XOP encoding.
- */
-extern const ZydisInstructionDefinitionXOP instructionDefinitionsXOP[];
-
-/**
- * @brief   Contains all instruction-definitions with @c VEX encoding.
- */
-extern const ZydisInstructionDefinitionVEX instructionDefinitionsVEX[];
-
-#ifndef ZYDIS_DISABLE_EVEX
-/**
- * @brief   Contains all instruction-definitions with @c EVEX encoding.
- */
-extern const ZydisInstructionDefinitionEVEX instructionDefinitionsEVEX[];
-#endif
-
-#ifndef ZYDIS_DISABLE_MVEX
-/**
- * @brief   Contains all instruction-definitions with @c MVEX encoding.
- */
-extern const ZydisInstructionDefinitionMVEX instructionDefinitionsMVEX[];
-#endif
-
-/* ---------------------------------------------------------------------------------------------- */
 /* Instruction definitions                                                                        */
 /* ---------------------------------------------------------------------------------------------- */
 
+#ifdef ZYDIS_MINIMAL_MODE
+#   define ZYDIS_NOTMIN(x)
+#else
+#   define ZYDIS_NOTMIN(x) , x
+#endif
+
 #include <Generated/InstructionDefinitions.inc>
+
+#undef ZYDIS_NOTMIN
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Operand definitions                                                                            */
@@ -108,35 +71,35 @@ extern const ZydisInstructionDefinitionMVEX instructionDefinitionsMVEX[];
 /* Instruction definition                                                                         */
 /* ---------------------------------------------------------------------------------------------- */
 
-void ZydisGetInstructionDefinition(ZydisInstructionEncoding encoding, ZydisU16 id,
+void ZydisGetInstructionDefinition(ZydisInstructionEncoding encoding, ZyanU16 id,
     const ZydisInstructionDefinition** definition)
 {
     switch (encoding)
     {
-    case ZYDIS_INSTRUCTION_ENCODING_DEFAULT:
-        *definition = (ZydisInstructionDefinition*)&instructionDefinitionsDEFAULT[id];
+    case ZYDIS_INSTRUCTION_ENCODING_LEGACY:
+        *definition = (ZydisInstructionDefinition*)&ISTR_DEFINITIONS_LEGACY[id];
         break;
     case ZYDIS_INSTRUCTION_ENCODING_3DNOW:
-        *definition = (ZydisInstructionDefinition*)&instructionDefinitions3DNOW[id];
+        *definition = (ZydisInstructionDefinition*)&ISTR_DEFINITIONS_3DNOW[id];
         break;
     case ZYDIS_INSTRUCTION_ENCODING_XOP:
-        *definition = (ZydisInstructionDefinition*)&instructionDefinitionsXOP[id];
+        *definition = (ZydisInstructionDefinition*)&ISTR_DEFINITIONS_XOP[id];
         break;
     case ZYDIS_INSTRUCTION_ENCODING_VEX:
-        *definition = (ZydisInstructionDefinition*)&instructionDefinitionsVEX[id];
+        *definition = (ZydisInstructionDefinition*)&ISTR_DEFINITIONS_VEX[id];
         break;
-#ifndef ZYDIS_DISABLE_EVEX
+#ifndef ZYDIS_DISABLE_AVX512
     case ZYDIS_INSTRUCTION_ENCODING_EVEX:
-        *definition = (ZydisInstructionDefinition*)&instructionDefinitionsEVEX[id];
+        *definition = (ZydisInstructionDefinition*)&ISTR_DEFINITIONS_EVEX[id];
         break;
 #endif
-#ifndef ZYDIS_DISABLE_MVEX
+#ifndef ZYDIS_DISABLE_KNC
     case ZYDIS_INSTRUCTION_ENCODING_MVEX:
-        *definition = (ZydisInstructionDefinition*)&instructionDefinitionsMVEX[id];
+        *definition = (ZydisInstructionDefinition*)&ISTR_DEFINITIONS_MVEX[id];
         break;
 #endif
     default:
-        ZYDIS_UNREACHABLE;
+        ZYAN_UNREACHABLE;
     }
 }
 
@@ -144,23 +107,24 @@ void ZydisGetInstructionDefinition(ZydisInstructionEncoding encoding, ZydisU16 i
 /* Operand definition                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZydisU8 ZydisGetOperandDefinitions(const ZydisInstructionDefinition* definition,
-    const ZydisOperandDefinition** operand)
+#ifndef ZYDIS_MINIMAL_MODE
+const ZydisOperandDefinition* ZydisGetOperandDefinitions(
+    const ZydisInstructionDefinition* definition)
 {
-    if (definition->operandCount == 0)
+    if (definition->operand_count == 0)
     {
-        *operand = ZYDIS_NULL;
-        return 0;
+        return ZYAN_NULL;
     }
-    ZYDIS_ASSERT(definition->operandReference != 0xFFFF);
-    *operand = &operandDefinitions[definition->operandReference];
-    return definition->operandCount;
+    ZYAN_ASSERT(definition->operand_reference != 0xFFFF);
+    return &OPERAND_DEFINITIONS[definition->operand_reference];
 }
+#endif
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Element info                                                                                   */
 /* ---------------------------------------------------------------------------------------------- */
 
+#ifndef ZYDIS_MINIMAL_MODE
 void ZydisGetElementInfo(ZydisInternalElementType element, ZydisElementType* type,
     ZydisElementSize* size)
 {
@@ -168,7 +132,7 @@ void ZydisGetElementInfo(ZydisInternalElementType element, ZydisElementType* typ
     {
         ZydisElementType type;
         ZydisElementSize size;
-    } lookup[21] =
+    } lookup[ZYDIS_IELEMENT_TYPE_MAX_VALUE + 1] =
     {
         { ZYDIS_ELEMENT_TYPE_INVALID  ,   0 },
         { ZYDIS_ELEMENT_TYPE_INVALID  ,   0 },
@@ -187,28 +151,35 @@ void ZydisGetElementInfo(ZydisInternalElementType element, ZydisElementType* typ
         { ZYDIS_ELEMENT_TYPE_UINT     , 128 },
         { ZYDIS_ELEMENT_TYPE_UINT     , 256 },
         { ZYDIS_ELEMENT_TYPE_FLOAT16  ,  16 },
+        { ZYDIS_ELEMENT_TYPE_FLOAT16  ,  32 }, // TODO: Should indicate 2 float16 elements
         { ZYDIS_ELEMENT_TYPE_FLOAT32  ,  32 },
         { ZYDIS_ELEMENT_TYPE_FLOAT64  ,  64 },
         { ZYDIS_ELEMENT_TYPE_FLOAT80  ,  80 },
-        { ZYDIS_ELEMENT_TYPE_LONGBCD  ,  80 }
+        { ZYDIS_ELEMENT_TYPE_LONGBCD  ,  80 },
+        { ZYDIS_ELEMENT_TYPE_CC       ,   3 },
+        { ZYDIS_ELEMENT_TYPE_CC       ,   5 }
     };
 
-    ZYDIS_ASSERT(element < ZYDIS_ARRAY_SIZE(lookup));
+    ZYAN_ASSERT(element < ZYAN_ARRAY_LENGTH(lookup));
 
     *type = lookup[element].type;
     *size = lookup[element].size;
 }
+#endif
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Accessed CPU flags                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
 
-void ZydisGetAccessedFlags(const ZydisInstructionDefinition* definition,
-    const ZydisAccessedFlags** flags)
+#ifndef ZYDIS_MINIMAL_MODE
+ZyanBool ZydisGetAccessedFlags(const ZydisInstructionDefinition* definition,
+    const ZydisDefinitionAccessedFlags** flags)
 {
-    ZYDIS_ASSERT(definition->flagsReference < ZYDIS_ARRAY_SIZE(accessedFlags));
-    *flags = &accessedFlags[definition->flagsReference];
+    ZYAN_ASSERT(definition->flags_reference < ZYAN_ARRAY_LENGTH(ACCESSED_FLAGS));
+    *flags = &ACCESSED_FLAGS[definition->flags_reference];
+    return (definition->flags_reference != 0);
 }
+#endif
 
 /* ---------------------------------------------------------------------------------------------- */
 

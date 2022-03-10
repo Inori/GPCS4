@@ -33,20 +33,20 @@
 
 const char* ZydisMnemonicGetString(ZydisMnemonic mnemonic)
 {
-    if (mnemonic >= ZYDIS_ARRAY_SIZE(zydisMnemonicStrings))
+    if ((ZyanUSize)mnemonic >= ZYAN_ARRAY_LENGTH(STR_MNEMONIC))
     {
-        return ZYDIS_NULL;
+        return ZYAN_NULL;
     }
-    return (const char*)zydisMnemonicStrings[mnemonic].buffer;
+    return (const char*)STR_MNEMONIC[mnemonic].data;
 }
 
-const ZydisStaticString* ZydisMnemonicGetStaticString(ZydisMnemonic mnemonic)
+const ZydisShortString* ZydisMnemonicGetStringWrapped(ZydisMnemonic mnemonic)
 {
-    if (mnemonic >= ZYDIS_ARRAY_SIZE(zydisMnemonicStrings))
+    if ((ZyanUSize)mnemonic >= ZYAN_ARRAY_LENGTH(STR_MNEMONIC))
     {
-        return ZYDIS_NULL;
+        return ZYAN_NULL;
     }
-    return &zydisMnemonicStrings[mnemonic];
+    return &STR_MNEMONIC[mnemonic];
 }
 
 /* ============================================================================================== */
