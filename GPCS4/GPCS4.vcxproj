@@ -168,6 +168,7 @@
     <ClInclude Include="Loader\ELFMapper.h" />
     <ClInclude Include="Loader\FuncStub.h" />
     <ClInclude Include="Loader\ModuleLoader.h" />
+    <ClInclude Include="MemoryController.h" />
     <ClInclude Include="Platform\PlatformUtils.h" />
     <ClInclude Include="Platform\UtilDebug.h" />
     <ClInclude Include="Platform\UtilException.h" />
@@ -377,6 +378,7 @@
     <ClCompile Include="Loader\ELFMapper.cpp" />
     <ClCompile Include="Loader\FuncStub.cpp" />
     <ClCompile Include="Loader\ModuleLoader.cpp" />
+    <ClCompile Include="MemoryController.cpp" />
     <ClCompile Include="Platform\UtilDebug.cpp" />
     <ClCompile Include="Platform\UtilException.cpp" />
     <ClCompile Include="Platform\UtilFile.cpp" />

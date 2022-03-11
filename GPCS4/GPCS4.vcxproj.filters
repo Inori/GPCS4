@@ -958,6 +958,9 @@
     <ClInclude Include="Graphic\Gnm\GnmResourceFactory.h">
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClInclude>
+    <ClInclude Include="MemoryController.h">
+      <Filter>Source Files\Emulator</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1664,6 +1667,9 @@
     </ClCompile>
     <ClCompile Include="Graphic\Gnm\GnmResourceFactory.cpp">
       <Filter>Source Files\Graphic\Gnm</Filter>
+    </ClCompile>
+    <ClCompile Include="MemoryController.cpp">
+      <Filter>Source Files\Emulator</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
