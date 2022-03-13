@@ -29,13 +29,33 @@
 #define SCE_KERNEL_MAP_NO_COALESCE	0x400000
 
 
+// Total physical memory size on chip
+// The application program can use a total of 5056 MiB(5568 MiB in NEO mode) physical memory
+#define SCE_KERNEL_PHYSICAL_MEMORY_SIZE (5568 * 1024 * 1024)
+// If there is no specification, 448 MiB will be assigned as flexible memory
+#define SCE_KERNEL_FLEXIBLE_MEMORY_SIZE (448 * 1024 * 1024)
 // direct memory size
-// TODO:
-// this should be decreased as direct memory being alloced
-// but currently we use fixed size
-// 
-// always 0x180000000 bytes
-#define  SCE_KERNEL_MAIN_DMEM_SIZE 0x180000000u
+#define SCE_KERNEL_MAIN_DMEM_SIZE \
+	(SCE_KERNEL_PHYSICAL_MEMORY_SIZE - SCE_KERNEL_FLEXIBLE_MEMORY_SIZE)
+
+// the memory address space which the target game process can use
+// must be within 
+// SCE_KERNEL_APP_MAP_AREA_START_ADDR and SCE_KERNEL_APP_MAP_AREA_END_ADDR
+// or
+// SCE_KERNEL_SYS_MANAGE_AREA_START_ADDR and SCE_KERNEL_SYS_MANAGE_AREA_END_ADDR
+
+// system managed area
+#define SCE_KERNEL_SYS_MANAGE_AREA_START_ADDR 0x400000UL
+#define SCE_KERNEL_SYS_MANAGE_AREA_END_ADDR   0x7ffffc000UL
+#define SCE_KERNEL_SYS_MANAGE_AREA_SIZE \
+	(SCE_KERNEL_SYS_MANAGE_AREA_END_ADDR - SCE_KERNEL_SYS_MANAGE_AREA_START_ADDR)
+
+// user area
+#define SCE_KERNEL_APP_MAP_AREA_START_ADDR 0x1000000000UL
+#define SCE_KERNEL_APP_MAP_AREA_END_ADDR   0xfc00000000UL
+#define SCE_KERNEL_APP_MAP_AREA_SIZE \
+	(SCE_KERNEL_APP_MAP_AREA_END_ADDR - SCE_KERNEL_APP_MAP_AREA_START_ADDR)
+
 
 
 // memory types
@@ -53,11 +73,11 @@ typedef enum
 
 typedef struct
 {
-	void	 *start;
-	void	 *end;
-	sce_off_t	  offset;
-	int	  protection;
-	int	  memoryType;
+	void*     start;
+	void*     end;
+	sce_off_t offset;
+	int       protection;
+	int       memoryType;
 	unsigned  isFlexibleMemory : 1;
 	unsigned  isDirectMemory : 1;
 	unsigned  isStack : 1;
