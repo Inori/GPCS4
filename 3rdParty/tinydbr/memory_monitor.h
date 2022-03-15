@@ -8,6 +8,10 @@ enum MonitorFlag : uint64_t
 	IgnoreCode        = 1 << 0,  // e.g. call [0x1234], jmp [0x1234]
 	IgnoreStack       = 1 << 1,  // e.g. mov rax, [rsp + 0x8]
 	IgnoreRipRelative = 1 << 2,  // e.g. mov rax, [rip + 0x8]
+
+								 // save processor extended states, e.g. xmm, ymm, fpu, mxcsr
+								 // before call into user callback.
+	SaveExtendedState = 1 << 3,  // this is a very costive operation which will slow down the program severely
 };
 
 typedef uint64_t MonitorFlags;
