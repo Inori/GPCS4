@@ -18,6 +18,7 @@
     <ClInclude Include="Common\GPCS4Log.h" />
     <ClInclude Include="Common\GPCS4Types.h" />
     <ClInclude Include="Common\IntelliSenseClang.h" />
+    <ClInclude Include="Emulator\Memory.h" />
     <ClInclude Include="Emulator\ModuleManger.h" />
     <ClInclude Include="Emulator\PolicyManager.h" />
     <ClInclude Include="Emulator\SymbolManager.h" />
@@ -168,7 +169,6 @@
     <ClInclude Include="Loader\ELFMapper.h" />
     <ClInclude Include="Loader\FuncStub.h" />
     <ClInclude Include="Loader\ModuleLoader.h" />
-    <ClInclude Include="MemoryController.h" />
     <ClInclude Include="Platform\PlatformUtils.h" />
     <ClInclude Include="Platform\UtilDebug.h" />
     <ClInclude Include="Platform\UtilException.h" />
@@ -278,6 +278,7 @@
     <ClCompile Include="Emulator\Emulator.cpp" />
     <ClCompile Include="Emulator\GameThread.cpp" />
     <ClCompile Include="Emulator\Linker.cpp" />
+    <ClCompile Include="Emulator\Memory.cpp" />
     <ClCompile Include="Emulator\Module.cpp" />
     <ClCompile Include="Emulator\ModuleManger.cpp" />
     <ClCompile Include="Emulator\PolicyManager.cpp" />
@@ -378,7 +379,6 @@
     <ClCompile Include="Loader\ELFMapper.cpp" />
     <ClCompile Include="Loader\FuncStub.cpp" />
     <ClCompile Include="Loader\ModuleLoader.cpp" />
-    <ClCompile Include="MemoryController.cpp" />
     <ClCompile Include="Platform\UtilDebug.cpp" />
     <ClCompile Include="Platform\UtilException.cpp" />
     <ClCompile Include="Platform\UtilFile.cpp" />

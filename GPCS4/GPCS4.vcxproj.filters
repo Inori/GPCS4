@@ -958,7 +958,7 @@
     <ClInclude Include="Graphic\Gnm\GnmResourceFactory.h">
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClInclude>
-    <ClInclude Include="MemoryController.h">
+    <ClInclude Include="Emulator\Memory.h">
       <Filter>Source Files\Emulator</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1668,7 +1668,7 @@
     <ClCompile Include="Graphic\Gnm\GnmResourceFactory.cpp">
       <Filter>Source Files\Graphic\Gnm</Filter>
     </ClCompile>
-    <ClCompile Include="MemoryController.cpp">
+    <ClCompile Include="Emulator\Memory.cpp">
       <Filter>Source Files\Emulator</Filter>
     </ClCompile>
   </ItemGroup>
