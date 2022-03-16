@@ -440,7 +440,7 @@ void X86MemoryMonitor::EmitGatherScatterElementAccess(
 
 		if (info.disp != 0)
 		{
-			a.adc(xbk_index_reg, info.disp);
+			a.add(xbk_index_reg, info.disp);
 		}
 
 		// everything is done
