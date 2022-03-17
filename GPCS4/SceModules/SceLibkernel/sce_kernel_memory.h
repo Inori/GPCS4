@@ -31,9 +31,9 @@
 
 // Total physical memory size on chip
 // The application program can use a total of 5056 MiB(5568 MiB in NEO mode) physical memory
-#define SCE_KERNEL_PHYSICAL_MEMORY_SIZE (5568 * 1024 * 1024)
+#define SCE_KERNEL_PHYSICAL_MEMORY_SIZE (5568 * 1024 * 1024ULL)
 // If there is no specification, 448 MiB will be assigned as flexible memory
-#define SCE_KERNEL_FLEXIBLE_MEMORY_SIZE (448 * 1024 * 1024)
+#define SCE_KERNEL_FLEXIBLE_MEMORY_SIZE (448 * 1024 * 1024ULL)
 // direct memory size
 #define SCE_KERNEL_MAIN_DMEM_SIZE \
 	(SCE_KERNEL_PHYSICAL_MEMORY_SIZE - SCE_KERNEL_FLEXIBLE_MEMORY_SIZE)
