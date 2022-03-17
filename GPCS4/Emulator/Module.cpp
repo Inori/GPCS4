@@ -31,12 +31,12 @@ std::vector<size_t> &NativeModule::getExportSymbols()
 	return m_exportSymbols;
 }
 
-const UtilMemory::memory_uptr &NativeModule::getMappedMemory() const
+const UtilMemory::memory_ptr &NativeModule::getMappedMemory() const
 {
 	return m_mappedMemory;
 }
 
-UtilMemory::memory_uptr &NativeModule::getMappedMemory()
+UtilMemory::memory_ptr &NativeModule::getMappedMemory()
 {
 	return m_mappedMemory;
 }

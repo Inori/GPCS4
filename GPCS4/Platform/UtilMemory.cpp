@@ -1,13 +1,11 @@
 #include "UtilMemory.h"
-#include "sce_errors.h"
-#include "UtilMath.h"
-#include <vector>
-#include <algorithm>
 
 LOG_CHANNEL(Platform.UtilMemory);
 
 namespace UtilMemory
 {;
+
+
 
 #ifdef GPCS4_WINDOWS
 
@@ -15,53 +13,24 @@ namespace UtilMemory
 #include <Windows.h>
 #undef WIN32_LEAN_AND_MEAN
 
-// Note:
-// Direct memory address is supposed to be within 0x000000FFFFFFFFFF
-#define DIRECT_MEMORY_HIGH 0x000000FFFFFFFFFFull
-// TODO:
-// Access to this should be thread safe
-static uintptr_t g_baseDirectMemory = 0x400000;
-
-struct MemoryRange 
-{
-	uintptr_t start;
-	uintptr_t end;
-	uint32_t protection;
-};
-
-// TODO:
-// Access to this should be thread safe
-static std::vector<MemoryRange> g_memRanges;
-
-inline std::vector<MemoryRange>::iterator findMemoryRange(void* addr)
-{
-	std::vector<MemoryRange>::iterator iter = std::find_if(g_memRanges.begin(), g_memRanges.end(), 
-		[=](const MemoryRange& range) 
-		{
-			uintptr_t a = reinterpret_cast<uintptr_t>(addr);
-			return (a >= range.start && a < range.end);
-		});
-	return iter;
-}
-
 // GPCS4 flag to Windows flag
-inline uint32_t GetProtectFlag(uint32_t nOldFlag)
+inline uint32_t GetProtectFlag(VM_PROTECT_FLAG nOldFlag)
 {
 	uint32_t nNewFlag = 0;
-	do 
+	do
 	{
 		if (nOldFlag & VMPF_NOACCESS)
 		{
-			nNewFlag |= PAGE_NOACCESS;
+			nNewFlag = PAGE_NOACCESS;
 			break;
 		}
 
-		if ((nOldFlag & VMPF_CPU_READ) || (nOldFlag & VMPF_GPU_READ))
+		if (nOldFlag & VMPF_CPU_READ)
 		{
 			nNewFlag = PAGE_READONLY;
 		}
 
-		if ((nOldFlag & VMPF_CPU_WRITE) || (nOldFlag & VMPF_GPU_WRITE))
+		if (nOldFlag & VMPF_CPU_WRITE)
 		{
 			nNewFlag = PAGE_READWRITE;
 		}
@@ -76,7 +45,7 @@ inline uint32_t GetProtectFlag(uint32_t nOldFlag)
 }
 
 // Windows flag to GPCS4 flag
-inline uint32_t RecoverProtectFlag(uint32_t nOldFlag)
+inline VM_PROTECT_FLAG RecoverProtectFlag(uint32_t nOldFlag)
 {
 	uint32_t nNewFlag = 0;
 	do
@@ -105,10 +74,10 @@ inline uint32_t RecoverProtectFlag(uint32_t nOldFlag)
 		}
 
 	} while (false);
-	return nNewFlag;
+	return static_cast<VM_PROTECT_FLAG>(nNewFlag);
 }
 
-inline uint32_t GetTypeFlag(uint32_t nOldFlag)
+inline uint32_t GetTypeFlag(VM_ALLOCATION_TYPE nOldFlag)
 {
 	uint32_t nNewFlag = 0;
 	do
@@ -127,8 +96,19 @@ inline uint32_t GetTypeFlag(uint32_t nOldFlag)
 	return nNewFlag;
 }
 
-void* VMMapAligned(size_t nSize, uint32_t nProtectFlag, int align)
+void* VMAllocate(void* pAddress, size_t nSize, 
+	VM_ALLOCATION_TYPE nType, VM_PROTECT_FLAG nProtect)
 {
+	DWORD dwType = GetTypeFlag(nType);
+	DWORD dwProtect = GetProtectFlag(nProtect);
+
+	return VirtualAlloc(pAddress, nSize, dwType, dwProtect);
+}
+
+void* VMAllocateAlign(void* pAddress, size_t nSize, size_t nAlign, 
+	VM_ALLOCATION_TYPE nType, VM_PROTECT_FLAG nProtect)
+{
+
 #ifdef GPCS4_DEBUG
 	// This make it easier to find a function a Ida Pro.
 	// When aligned with debugAlign, the loaded image address
@@ -138,140 +118,56 @@ void* VMMapAligned(size_t nSize, uint32_t nProtectFlag, int align)
 	// but with this align, you can search for sub_240e21
 	// in Ida directly.
 	const uint32_t debugAlign = 0x10000000;
-	align = debugAlign;
+	nAlign                    = debugAlign;
 #endif
 
 	void* pAlignedAddr = nullptr;
-	void* pAddr        = nullptr;
 	do
 	{
-		pAddr             = VirtualAlloc(nullptr, nSize, MEM_RESERVE | MEM_COMMIT, GetProtectFlag(nProtectFlag));
-		uintptr_t refAddr = util::align((uintptr_t)pAddr, align);
+		DWORD     dwProtect = GetProtectFlag(nProtect);
+		void*     pAddr     = VirtualAlloc(nullptr, nSize, MEM_RESERVE, dwProtect);
+		uintptr_t pRefAddr  = util::align((uintptr_t)pAddr, nAlign);
+
+		if (pAddr)
+		{
+			VirtualFree(pAddr, 0, MEM_RELEASE);
+		}
+		else
+		{
+			break;
+		}
 
 		do
 		{
-			pAlignedAddr = VirtualAlloc((void*)refAddr, nSize, MEM_RESERVE | MEM_COMMIT, GetProtectFlag(nProtectFlag));
-			refAddr += align;
+			pAlignedAddr = VirtualAlloc((void*)pRefAddr, nSize, MEM_RESERVE | MEM_COMMIT, dwProtect);
+			pRefAddr += nAlign;
 		} while (pAlignedAddr == nullptr);
 
 	} while (false);
 
-	if (pAddr)
-	{
-		VirtualFree(pAddr, nSize, MEM_RELEASE);
-	}
-
 	return pAlignedAddr;
+
 }
 
-void* VMMapFlexible(void *addrIn, size_t nSize, uint32_t nProtectFlag)
+void VMFree(void* pAddress)
 {
-	void* pAddr = NULL;
-	do 
+	// MSDN:
+	// If the dwFreeType parameter is MEM_RELEASE, this parameter(dwSize) must be 0(zero).
+	// The function frees the entire region that is reserved in the initial allocation call to VirtualAlloc.
+	VirtualFree(pAddress, 0, MEM_RELEASE);
+}
+
+bool VMProtect(void* pAddress, size_t nSize, 
+	VM_PROTECT_FLAG nNewProtect, VM_PROTECT_FLAG* pOldProtect)
+{
+	DWORD dwNewProtect = GetProtectFlag(nNewProtect);
+	DWORD dwOldProtect = 0;
+	BOOL  bSuc         = VirtualProtect(pAddress, nSize, dwNewProtect, &dwOldProtect);
+	if (pOldProtect)
 	{
-		pAddr = VirtualAlloc(addrIn, nSize, MEM_RESERVE | MEM_COMMIT, GetProtectFlag(nProtectFlag));
-
-		MemoryRange range 
-		{ 
-			reinterpret_cast<uintptr_t>(pAddr),
-			reinterpret_cast<uintptr_t>(pAddr) + nSize, 
-			nProtectFlag 
-		};
-
-		g_memRanges.emplace_back(range);
-	} while (false);
-	return pAddr;
-}
-
-void* VMMapDirect(size_t nSize, uint32_t nProtectFlag, uint32_t nType)
-{
-	void* pAddr = nullptr;
-	do
-	{
-		uintptr_t temp = g_baseDirectMemory;
-		do
-		{
-			pAddr = VirtualAlloc((void*)temp, nSize, GetTypeFlag(nType), GetProtectFlag(nProtectFlag));
-			temp += 0x1000;
-		} while (pAddr == nullptr && (temp + nSize) <= DIRECT_MEMORY_HIGH);
-
-		if (pAddr == nullptr)
-		{
-			break; // Unable to allocate memory
-		}
-
-		g_baseDirectMemory = nSize + reinterpret_cast<uintptr_t>(pAddr);
-
-		MemoryRange range
-		{
-			reinterpret_cast<uintptr_t>(pAddr),
-			reinterpret_cast<uintptr_t>(pAddr) + nSize,
-			nProtectFlag
-		};
-		g_memRanges.emplace_back(range);
-
-	} while (false);
-	return pAddr;
-}
-
-void* VMAllocateDirect() 
-{
-	return (void*)g_baseDirectMemory;
-}
-
-void* VMMap(void* start, size_t nSize, uint32_t nProtectFlag, uint32_t flags, int fd, int64_t offset)
-{
-	return VirtualAlloc(nullptr, nSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-}
-
-void VMUnMap(void* pAddr, size_t nSize)
-{
-	VirtualFree(pAddr, nSize, MEM_RELEASE);
-
-	do 
-	{
-		auto iter = findMemoryRange(pAddr);
-		if (iter == g_memRanges.end())
-		{
-			LOG_WARN("can not find range for %p", pAddr);
-			break;
-		}
-
-		g_memRanges.erase(iter);
-	} while (false);
-}
-
-bool VMProtect(void* pAddr, size_t nSize, uint32_t nProtectFlag, uint32_t* pOldProtectFlag /*= nullptr*/)
-{
-	DWORD newProtect = GetProtectFlag(nProtectFlag);
-	DWORD oldProtect = 0;
-	BOOL  bRet       = VirtualProtect(pAddr, nSize, newProtect, &oldProtect);
-	if (pOldProtectFlag)
-	{
-		*pOldProtectFlag = RecoverProtectFlag(oldProtect);
+		*pOldProtect = RecoverProtectFlag(dwOldProtect);
 	}
-	return bRet;
-}
-
-int VMQueryProtection(void* addr, void** start, void** end, uint32_t* prot)
-{
-	int bRet = SCE_ERROR_UNKNOWN;
-	do 
-	{
-		auto iter = findMemoryRange(addr);
-		if (iter == g_memRanges.end())
-		{
-			LOG_WARN("can not find range for %p", addr);
-			break;
-		}
-
-		*start = reinterpret_cast<void*>(iter->start);
-		*end   = reinterpret_cast<void*>(iter->end);
-		*prot  = iter->protection;
-
-		bRet = SCE_OK;
-	} while (false);
-	return bRet;
+	return bSuc;
 }
 
 #elif defined(GPCS4_LINUX)
@@ -279,4 +175,5 @@ int VMQueryProtection(void* addr, void** start, void** end, uint32_t* prot)
 //TODO: Other platform implementation 
 
 #endif  //GPCS4_WINDOWS
+
 }

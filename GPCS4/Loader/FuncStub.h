@@ -15,7 +15,7 @@ public:
 	uint8_t *getFunctionMemory(size_t index);
 
 private:
-	UtilMemory::memory_uptr m_memory;
+	UtilMemory::memory_ptr m_memory;
 	const size_t m_funcSize;
 	size_t m_funcNum;
 	size_t m_totalSize;
