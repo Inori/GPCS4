@@ -3,11 +3,6 @@
 //
 #define SCE_PHYSICAL_PAGE_SIZE	4096
 
-// logical page is commonly used in ps4 dev
-// it consists of four physical pages 
-#define SCE_LOGICAL_PAGE_SIZE	(SCE_PHYSICAL_PAGE_SIZE * 4)
-
-
 
 // memory map protections
 #define	SCE_KERNEL_PROT_CPU_READ  0x01
@@ -19,7 +14,9 @@
 #define SCE_KERNEL_PROT_GPU_WRITE 0x20
 #define SCE_KERNEL_PROT_GPU_RW	  0x30
 #define SCE_KERNEL_PROT_GPU_ALL	  0x30
+
 #define SCE_KERNEL_PAGE_SIZE	  16384
+#define SCE_LOGICAL_PAGE_SIZE	  SCE_KERNEL_PAGE_SIZE
 
 
 // memory map flags
