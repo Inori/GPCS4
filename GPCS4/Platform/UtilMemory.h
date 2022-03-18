@@ -10,7 +10,7 @@
 // instead, they should be used by emulator code.
 // For HLE use, see Memory.h
 
-namespace UtilMemory
+namespace umemory
 {;
 
 constexpr uint32_t VM_PAGE_SIZE = 0x1000;
@@ -33,6 +33,20 @@ enum VM_ALLOCATION_TYPE
 	VMAT_RESERVE_COMMIT = VMAT_RESERVE | VMAT_COMMIT
 };
 
+enum VM_REGION_STATE
+{
+	VMRS_FREE,
+	VMRS_COMMIT,
+	VMRS_RESERVE,
+};
+
+struct MemoryInformation
+{
+	void*           pRegionStart;
+	size_t          nRegionSize;
+	VM_REGION_STATE nRegionState;
+	VM_PROTECT_FLAG nRegionProtect;
+};
 
 void* VMAllocate(void* pAddress, size_t nSize, 
 	VM_ALLOCATION_TYPE nType, VM_PROTECT_FLAG nProtect);
@@ -45,6 +59,7 @@ void VMFree(void* pAddress);
 bool VMProtect(void* pAddress, size_t nSize, 
 	VM_PROTECT_FLAG nNewProtect, VM_PROTECT_FLAG* pOldProtect);
 
+bool VMQuery(void* pAddress, MemoryInformation* pInfo);
 
 struct MemoryUnMapper
 {

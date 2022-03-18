@@ -144,8 +144,8 @@ public:
 	const FileList &getNeededFiles() const;
 	const std::vector<size_t> &getExportSymbols() const;
 	std::vector<size_t> &getExportSymbols();
-	const UtilMemory::memory_ptr &getMappedMemory() const;
-	UtilMemory::memory_ptr &getMappedMemory();
+	const umemory::memory_ptr &getMappedMemory() const;
+	umemory::memory_ptr &getMappedMemory();
 	const MODULE_INFO &getModuleInfo() const;
 	MODULE_INFO &getModuleInfo();
 	const ByteArray &getFileMemory() const;
@@ -212,7 +212,7 @@ private:
 	std::vector<size_t> m_exportSymbols;
 	std::vector<size_t> m_importSymbols;
 
-	UtilMemory::memory_ptr m_mappedMemory;
+	umemory::memory_ptr m_mappedMemory;
 	size_t m_mappedSize;
 	ByteArray m_fileMemory;
 

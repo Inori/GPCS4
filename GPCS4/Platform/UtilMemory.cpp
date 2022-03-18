@@ -2,7 +2,7 @@
 
 LOG_CHANNEL(Platform.UtilMemory);
 
-namespace UtilMemory
+namespace umemory
 {;
 
 
@@ -77,6 +77,24 @@ inline VM_PROTECT_FLAG RecoverProtectFlag(uint32_t nOldFlag)
 	return static_cast<VM_PROTECT_FLAG>(nNewFlag);
 }
 
+VM_REGION_STATE GetRegionState(uint32_t nOldState)
+{
+	VM_REGION_STATE nNewState;
+	if (nOldState == MEM_COMMIT)
+	{
+		nNewState = VMRS_COMMIT;
+	}
+	else if (nOldState == MEM_RESERVE)
+	{
+		nNewState = VMRS_RESERVE;
+	}
+	else if (nOldState == MEM_FREE)
+	{
+		nNewState = VMRS_FREE;
+	}
+	return nNewState;
+}
+
 inline uint32_t GetTypeFlag(VM_ALLOCATION_TYPE nOldFlag)
 {
 	uint32_t nNewFlag = 0;
@@ -125,7 +143,7 @@ void* VMAllocateAlign(void* pAddress, size_t nSize, size_t nAlign,
 	do
 	{
 		DWORD     dwProtect = GetProtectFlag(nProtect);
-		void*     pAddr     = VirtualAlloc(nullptr, nSize, MEM_RESERVE, dwProtect);
+		void*     pAddr     = VirtualAlloc(pAddress, nSize, MEM_RESERVE, dwProtect);
 		uintptr_t pRefAddr  = util::align((uintptr_t)pAddr, nAlign);
 
 		if (pAddr)
@@ -169,6 +187,27 @@ bool VMProtect(void* pAddress, size_t nSize,
 	}
 	return bSuc;
 }
+
+bool VMQuery(void* pAddress, MemoryInformation* pInfo)
+{
+	bool ret = false;
+	do 
+	{
+		MEMORY_BASIC_INFORMATION mbi = {};
+		if (VirtualQuery(pAddress, &mbi, sizeof(mbi)) == 0)
+		{
+			break;
+		}
+
+		pInfo->pRegionStart   = mbi.BaseAddress;
+		pInfo->nRegionSize    = mbi.RegionSize;
+		pInfo->nRegionState   = GetRegionState(mbi.State);
+		pInfo->nRegionProtect = RecoverProtectFlag(mbi.Protect);
+
+	} while (false);
+	return ret;
+}
+
 
 #elif defined(GPCS4_LINUX)
 
