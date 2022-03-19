@@ -149,29 +149,11 @@
     <Filter Include="SceModules\SceJobManager">
       <UniqueIdentifier>{569e8466-32c7-451b-ba57-e408f98537b5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Graphic">
-      <UniqueIdentifier>{23ae136e-2909-4dc4-ac7c-a05b48eb5e30}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Graphic\Gnm">
-      <UniqueIdentifier>{c17c385d-eecd-4fea-80d6-b98d03d57992}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Loader">
       <UniqueIdentifier>{1efb0e78-5d38-4f60-9d20-ca8fff9febef}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Graphic\Sce">
-      <UniqueIdentifier>{70eaff62-ab67-46e2-af21-4b6909ea46dd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Algorithm">
       <UniqueIdentifier>{cb8dfaa7-aa84-454b-a1ea-ead2594a832f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Graphic\Pssl">
-      <UniqueIdentifier>{14ee293f-1109-4eb5-9d47-bb00adbe680a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Graphic\SpirV">
-      <UniqueIdentifier>{c103d6e7-d505-4adc-9124-c4a42be325dc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Graphic\Pssl\GCNParser">
-      <UniqueIdentifier>{e6dace8b-4b96-441c-8035-feff4e14a70b}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Util">
       <UniqueIdentifier>{4451038b-f42d-4af5-b678-870a988e8194}</UniqueIdentifier>
@@ -179,10 +161,28 @@
     <Filter Include="Source Files\Emulator">
       <UniqueIdentifier>{9a707c88-79d8-4c96-ad6c-658b1e5f496c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Graphic\Gnm\GpuAddress">
+    <Filter Include="Source Files\Graphics">
+      <UniqueIdentifier>{23ae136e-2909-4dc4-ac7c-a05b48eb5e30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\Gnm">
+      <UniqueIdentifier>{c17c385d-eecd-4fea-80d6-b98d03d57992}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\Gnm\GpuAddress">
       <UniqueIdentifier>{075615a8-2ae5-4754-831f-c7761e099ef5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Graphic\Violet">
+    <Filter Include="Source Files\Graphics\Sce">
+      <UniqueIdentifier>{70eaff62-ab67-46e2-af21-4b6909ea46dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\Pssl">
+      <UniqueIdentifier>{14ee293f-1109-4eb5-9d47-bb00adbe680a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\Pssl\GCNParser">
+      <UniqueIdentifier>{e6dace8b-4b96-441c-8035-feff4e14a70b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\SpirV">
+      <UniqueIdentifier>{c103d6e7-d505-4adc-9124-c4a42be325dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\Violet">
       <UniqueIdentifier>{8714f22f-65d4-40c8-a2fe-44bf175a49b2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
