@@ -439,212 +439,14 @@
     <ClInclude Include="SceModules\SceUserService\sce_userservice_error.h">
       <Filter>SceModules\SceUserService</Filter>
     </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GnmOpCode.h">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GnmStructure.h">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GnmConstant.h">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GnmCmdStream.h">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\GraphicShared.h">
-      <Filter>Source Files\Graphic</Filter>
-    </ClInclude>
     <ClInclude Include="SceModules\sce_gnm_error.h">
       <Filter>SceModules</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GnmCommandBuffer.h">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GnmCommandBufferDraw.h">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Sce\SceGnmDriver.h">
-      <Filter>Source Files\Graphic\Sce</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Sce\SceVideoOut.h">
-      <Filter>Source Files\Graphic\Sce</Filter>
     </ClInclude>
     <ClInclude Include="Algorithm\sha1.h">
       <Filter>Source Files\Algorithm</Filter>
     </ClInclude>
     <ClInclude Include="Algorithm\Sha1Hash.h">
       <Filter>Source Files\Algorithm</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\PsslFetchShader.h">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\PsslSbReader.h">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\PsslPsUsageTable.h">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\PsslShaderRegister.h">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\PsslShaderFileBinary.h">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\PsslShaderStructure.h">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\PsslKey.h">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\PsslProgramInfo.h">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\SpirV\SpirvModule.h">
-      <Filter>Source Files\Graphic\SpirV</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\SpirV\SpirvInstruction.h">
-      <Filter>Source Files\Graphic\SpirV</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\SpirV\SpirvInclude.h">
-      <Filter>Source Files\Graphic\SpirV</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\SpirV\SpirvCompression.h">
-      <Filter>Source Files\Graphic\SpirV</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\SpirV\SpirvCodeBuffer.h">
-      <Filter>Source Files\Graphic\SpirV</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\DeviceInfo.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\DSInstruction.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\EXPInstruction.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\GCNParser.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\GenericInstructionFields1.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\GenericInstructionFields2.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\Instruction.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\MIMGInstruction.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\MTBUFInstruction.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\MUBUFInstruction.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\ParserFLAT.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSI.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSIDS.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSIEXP.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSIMIMG.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSIMTBUF.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSIMUBUF.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSISMRD.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSISOP1.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSISOP2.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSISOPC.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSISOPK.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSISOPP.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSIVINTRP.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\ParserSIVOP.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\rgaCliDefs.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\ScalarInstructionFields.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\SMRDInstruction.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\SOP1Instruction.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\SOP2Instruction.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\SOPCInstruction.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\SOPKInstruction.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\SOPPInstruction.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\VINTRPInstruction.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\VOPInstruction.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNCompiler.h">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNDecoder.h">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNInstruction.h">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNParser\GCNInstructionDefs.h">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\PsslEnums.h">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\PsslShaderModule.h">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GnmSharpBuffer.h">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GnmCommandBufferDispatch.h">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GnmGfx9MePm4Packets.h">
-      <Filter>Source Files\Graphic\Gnm</Filter>
     </ClInclude>
     <ClInclude Include="Platform\UtilFile.h">
       <Filter>Source Files\Platform</Filter>
@@ -657,42 +459,6 @@
     </ClInclude>
     <ClInclude Include="Loader\ModuleLoader.h">
       <Filter>Source Files\Loader</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNAnalyzer.h">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNEnums.h">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GnmRegInfo.h">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GnmRenderTarget.h">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GnmDepthRenderTarget.h">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GnmCommon.h">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GnmDataFormat.h">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GnmBuffer.h">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GnmTexture.h">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GnmSampler.h">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\PsslBindingCalculator.h">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\PsslCommon.h">
-      <Filter>Source Files\Graphic\Pssl</Filter>
     </ClInclude>
     <ClInclude Include="Loader\FuncStub.h">
       <Filter>Source Files\Loader</Filter>
@@ -714,15 +480,6 @@
     </ClInclude>
     <ClInclude Include="SceModules\ScePad\sce_pad_error.h">
       <Filter>SceModules\ScePad</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GnmConvertor.h">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GnmCommandBufferDummy.h">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNInstructionIterator.h">
-      <Filter>Source Files\Graphic\Pssl</Filter>
     </ClInclude>
     <ClInclude Include="Common\IntelliSenseClang.h">
       <Filter>Source Files\Common</Filter>
@@ -750,15 +507,6 @@
     </ClInclude>
     <ClInclude Include="Util\UtilInclude.h">
       <Filter>Source Files\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNStateRegister.h">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\GCNSpirvTypes.h">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\PsslContants.h">
-      <Filter>Source Files\Graphic\Pssl</Filter>
     </ClInclude>
     <ClInclude Include="Loader\elf-sce.h">
       <Filter>Source Files\Loader</Filter>
@@ -808,155 +556,11 @@
     <ClInclude Include="Emulator\ModuleManger.h">
       <Filter>Source Files\Emulator</Filter>
     </ClInclude>
-    <ClInclude Include="Graphic\Sce\SceCommon.h">
-      <Filter>Source Files\Graphic\Sce</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Sce\SceGpuQueue.h">
-      <Filter>Source Files\Graphic\Sce</Filter>
-    </ClInclude>
     <ClInclude Include="Util\UtilString.h">
       <Filter>Source Files\Util</Filter>
     </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GnmShaderMeta.h">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Pssl\PsslShaderRegField.h">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GpuAddress\GnmDataFormatCodec.h">
-      <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GpuAddress\GnmFloatPoint.h">
-      <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GpuAddress\GnmGpuAddress.h">
-      <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GpuAddress\GnmGpuAddressTool.h">
-      <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GpuAddress\GnmTiler.h">
-      <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GpuAddress\GnmTilerSSE2.h">
-      <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GnmContextState.h">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltBuffer.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltCmdList.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltCommon.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltContext.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltContextState.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltDebugMarker.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltDescriptor.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltDevice.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltDeviceInfo.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltEnums.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltExtension.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltFormat.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltFrameBuffer.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltGpuResource.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltGraphicsPipeline.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltHash.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltImage.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltInstance.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltLifetime.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltLimit.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltMemory.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltPhysicalDevice.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltPipelineLayout.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltPipelineManager.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltPipelineState.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltPresenter.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltRecycler.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltRenderPass.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltResourceObjects.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltSampler.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltShader.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltStaging.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltSubmissionQueue.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltUtil.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltVkLayers.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Violet\VltComputePipeline.h">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClInclude>
     <ClInclude Include="Platform\UtilException.h">
       <Filter>Source Files\Platform</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphic\Gnm\GnmResourceFactory.h">
-      <Filter>Source Files\Graphic\Gnm</Filter>
     </ClInclude>
     <ClInclude Include="Emulator\Memory.h">
       <Filter>Source Files\Emulator</Filter>
@@ -1353,146 +957,14 @@
     <ClCompile Include="SceModules\SceGnmDriver\sce_gnm_eqevent.cpp">
       <Filter>SceModules\SceGnmDriver</Filter>
     </ClCompile>
-    <ClCompile Include="Graphic\Gnm\GnmCmdStream.cpp">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\GraphicShared.cpp">
-      <Filter>Source Files\Graphic</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gnm\GnmCommandBuffer.cpp">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Sce\SceGnmDriver.cpp">
-      <Filter>Source Files\Graphic\Sce</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Sce\SceVideoOut.cpp">
-      <Filter>Source Files\Graphic\Sce</Filter>
-    </ClCompile>
     <ClCompile Include="Algorithm\sha1.c">
       <Filter>Source Files\Algorithm</Filter>
     </ClCompile>
     <ClCompile Include="Algorithm\Sha1Hash.cpp">
       <Filter>Source Files\Algorithm</Filter>
     </ClCompile>
-    <ClCompile Include="Graphic\Pssl\PsslFetchShader.cpp">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\PsslSbReader.cpp">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\PsslPsUsageTable.cpp">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\PsslKey.cpp">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\PsslProgramInfo.cpp">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\SpirV\SpirvModule.cpp">
-      <Filter>Source Files\Graphic\SpirV</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\SpirV\SpirvCompression.cpp">
-      <Filter>Source Files\Graphic\SpirV</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\SpirV\SpirvCodeBuffer.cpp">
-      <Filter>Source Files\Graphic\SpirV</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\GCNParser\GCNParser.cpp">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\GCNParser\Instruction.cpp">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSI.cpp">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSIDS.cpp">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSIEXP.cpp">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSIMIMG.cpp">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSIMTBUF.cpp">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSIMUBUF.cpp">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSISMRD.cpp">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSISOP1.cpp">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSISOP2.cpp">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSISOPC.cpp">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSISOPK.cpp">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSISOPP.cpp">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSIVINTRP.cpp">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\GCNParser\ParserSIVOP.cpp">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\GCNCompiler.cpp">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\GCNDecoder.cpp">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\GCNParser\GCNInstructionDefs.cpp">
-      <Filter>Source Files\Graphic\Pssl\GCNParser</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\GCNCompilerScalarALU.cpp">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\GCNCompilerScalarMemory.cpp">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\GCNCompilerVectorALU.cpp">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\GCNCompilerVectorMemory.cpp">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\GCNCompilerFlowControl.cpp">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\GCNCompilerDataShare.cpp">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\GCNCompilerVectorInterpolation.cpp">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\GCNCompilerExport.cpp">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\GCNCompilerDebugProfile.cpp">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\PsslShaderModule.cpp">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gnm\GnmCommandBufferDispatch.cpp">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClCompile>
     <ClCompile Include="Platform\UtilFile.cpp">
       <Filter>Source Files\Platform</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gnm\GnmOpCode.cpp">
-      <Filter>Source Files\Graphic\Gnm</Filter>
     </ClCompile>
     <ClCompile Include="Loader\ELFMapper.cpp">
       <Filter>Source Files\Loader</Filter>
@@ -1503,35 +975,14 @@
     <ClCompile Include="Emulator\Module.cpp">
       <Filter>Source Files\Emulator</Filter>
     </ClCompile>
-    <ClCompile Include="Graphic\Pssl\GCNAnalyzer.cpp">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClCompile>
     <ClCompile Include="Loader\FuncStub.cpp">
       <Filter>Source Files\Loader</Filter>
     </ClCompile>
     <ClCompile Include="SceModules\SceLibkernel\sce_pthread_common.cpp">
       <Filter>SceModules\SceLibkernel</Filter>
     </ClCompile>
-    <ClCompile Include="Graphic\Gnm\GnmDataFormat.cpp">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClCompile>
     <ClCompile Include="SceModules\ScePad\ScePad.cpp">
       <Filter>SceModules\ScePad</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gnm\GnmConvertor.cpp">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gnm\GnmCommandBufferDummy.cpp">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\GCNInstructionIterator.cpp">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Pssl\GCNStateRegister.cpp">
-      <Filter>Source Files\Graphic\Pssl</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gnm\GnmCommandBufferDraw.cpp">
-      <Filter>Source Files\Graphic\Gnm</Filter>
     </ClCompile>
     <ClCompile Include="Platform\UtilDebug.cpp">
       <Filter>Source Files\Platform</Filter>
@@ -1557,116 +1008,8 @@
     <ClCompile Include="Util\UtilString.cpp">
       <Filter>Source Files\Util</Filter>
     </ClCompile>
-    <ClCompile Include="Graphic\Sce\SceGpuQueue.cpp">
-      <Filter>Source Files\Graphic\Sce</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gnm\GnmShaderMeta.cpp">
-      <Filter>Source Files\Graphic\Gnm</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gnm\GpuAddress\GnmDataFormatCodec.cpp">
-      <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gnm\GpuAddress\GnmFloatPoint.cpp">
-      <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gnm\GpuAddress\GnmGpuAddress.cpp">
-      <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gnm\GpuAddress\GnmGpuAddressTool.cpp">
-      <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gnm\GpuAddress\GnmTiler.cpp">
-      <Filter>Source Files\Graphic\Gnm\GpuAddress</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Violet\VltBuffer.cpp">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Violet\VltCmdList.cpp">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Violet\VltContext.cpp">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Violet\VltDebugMarker.cpp">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Violet\VltDescriptor.cpp">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Violet\VltDevice.cpp">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Violet\VltExtension.cpp">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Violet\VltFormat.cpp">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Violet\VltFrameBuffer.cpp">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Violet\VltGpuResource.cpp">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Violet\VltGraphicsPipeline.cpp">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Violet\VltImage.cpp">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Violet\VltInstance.cpp">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Violet\VltLifetime.cpp">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Violet\VltMemory.cpp">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Violet\VltPhysicalDevice.cpp">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Violet\VltPipelineLayout.cpp">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Violet\VltPipelineManager.cpp">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Violet\VltPipelineState.cpp">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Violet\VltPresenter.cpp">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Violet\VltRenderPass.cpp">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Violet\VltResourceObjects.cpp">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Violet\VltSampler.cpp">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Violet\VltShader.cpp">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Violet\VltStaging.cpp">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Violet\VltSubmissionQueue.cpp">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Violet\VltUtil.cpp">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Violet\VltComputePipeline.cpp">
-      <Filter>Source Files\Graphic\Violet</Filter>
-    </ClCompile>
     <ClCompile Include="Platform\UtilException.cpp">
       <Filter>Source Files\Platform</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphic\Gnm\GnmResourceFactory.cpp">
-      <Filter>Source Files\Graphic\Gnm</Filter>
     </ClCompile>
     <ClCompile Include="Emulator\Memory.cpp">
       <Filter>Source Files\Emulator</Filter>
