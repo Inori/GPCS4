@@ -1,4 +1,5 @@
 #include <cstring>
+#include <array>
 
 #include "SpirvModule.h"
 

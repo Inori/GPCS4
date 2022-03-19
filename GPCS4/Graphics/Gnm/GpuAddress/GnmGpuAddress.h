@@ -6,6 +6,7 @@
 
 #include "Gnm/GnmConstant.h"
 #include "Gnm/GnmDataFormat.h"
+#include "Gnm/GnmStructure.h"
 
 #include <cstring>
 

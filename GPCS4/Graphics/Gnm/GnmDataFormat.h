@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GnmCommon.h"
-#include "GnmConstants.h"
+#include "GnmConstant.h"
 
 #include <unordered_map>
 

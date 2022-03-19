@@ -10,8 +10,8 @@
 #pragma once
 
 #include "sce_module_common.h"
-#include "Graphic/Gnm/GnmConstant.h"
-#include "Graphic/Gnm/GnmStructure.h"
+#include "Gnm/GnmConstant.h"
+#include "Gnm/GnmStructure.h"
 
 extern const SCE_EXPORT_MODULE g_ExpModuleSceGnmDriver;
 
@@ -90,7 +90,7 @@ int PS4API sceGnmDrawIndexAuto(uint32_t* cmdBuffer, uint32_t numDwords,
 
 int PS4API sceGnmDrawIndexIndirect(uint32_t* cmdBuffer, uint32_t numDwords,
 	uint32_t dataOffsetInBytes,
-	ShaderStage stage,
+	sce::Gnm::ShaderStage stage,
 	uint8_t vertexOffsetUserSgpr,
 	uint8_t instanceOffsetUserSgpr,
 	uint32_t pred);
@@ -230,7 +230,7 @@ int PS4API sceGnmSetCsShaderWithModifier(uint32_t* cmdBuffer, uint32_t numDwords
 int PS4API sceGnmSetEmbeddedPsShader(uint32_t* cmdBuffer, uint32_t numDwords);
 
 
-int PS4API sceGnmSetEmbeddedVsShader(uint32_t* cmdBuffer, uint32_t numDwords, EmbeddedVsShader shaderId, uint32_t shaderModifier);
+int PS4API sceGnmSetEmbeddedVsShader(uint32_t* cmdBuffer, uint32_t numDwords, sce::Gnm::EmbeddedVsShader shaderId, uint32_t shaderModifier);
 
 
 int PS4API sceGnmSetEsShader(uint32_t* cmdBuffer, uint32_t numDwords);
@@ -251,10 +251,8 @@ int PS4API sceGnmSetLsShader(uint32_t* cmdBuffer, uint32_t numDwords);
 int PS4API sceGnmSetPsShader350(uint32_t* cmdBuffer, uint32_t numDwords, const pssl::PsStageRegisters *psRegs);
 
 
-int PS4API sceGnmSetVgtControl(uint32_t* cmdBuffer, uint32_t numDwords,
-	uint8_t primGroupSizeMinusOne,
-	VgtPartialVsWaveMode partialVsWaveMode,
-	WdSwitchOnlyOnEopMode wdSwitchOnlyOnEopMode);
+int PS4API sceGnmSetVgtControl(uint32_t* cmdBuffer, uint32_t numDwords, uint8_t primGroupSizeMinusOne, 
+	sce::Gnm::VgtPartialVsWaveMode partialVsWaveMode, sce::Gnm::WdSwitchOnlyOnEopMode wdSwitchOnlyOnEopMode);
 
 
 int PS4API sceGnmSetVsShader(uint32_t* cmdBuffer, uint32_t numDwords, const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier);
