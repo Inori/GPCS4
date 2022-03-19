@@ -15,10 +15,10 @@ namespace sce
 {
 	namespace Gnm
 	{
-		class DepthRenderTarget; // gnm/depthtarget.h
-		class Texture; // gnm/texture.h
-		class RenderTarget; // gnm/rendertarget.h
-		class SizeAlign; // gnm/gpumem.h
+		class DepthRenderTarget;  // gnm/depthtarget.h
+		class Texture;            // gnm/texture.h
+		class RenderTarget;       // gnm/rendertarget.h
+		struct SizeAlign;         // gnm/gpumem.h
 	}
 
 	/** @brief The namespace for the GpuAddress library.
