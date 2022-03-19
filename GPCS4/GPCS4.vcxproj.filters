@@ -634,6 +634,12 @@
     <ClInclude Include="Graphics\SpirV\SpirvModule.h">
       <Filter>Source Files\Graphics\SpirV</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\VirtualGPU.h">
+      <Filter>Source Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Emulator\VirtualCPU.h">
+      <Filter>Source Files\Emulator</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1112,6 +1118,12 @@
     </ClCompile>
     <ClCompile Include="Graphics\SpirV\SpirvModule.cpp">
       <Filter>Source Files\Graphics\SpirV</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\VirtualGPU.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Emulator\VirtualCPU.cpp">
+      <Filter>Source Files\Emulator</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -22,6 +22,7 @@
     <ClInclude Include="Emulator\ModuleManger.h" />
     <ClInclude Include="Emulator\PolicyManager.h" />
     <ClInclude Include="Emulator\SymbolManager.h" />
+    <ClInclude Include="Emulator\VirtualCPU.h" />
     <ClInclude Include="Graphics\Gnm\GnmCommon.h" />
     <ClInclude Include="Graphics\Gnm\GnmConstant.h" />
     <ClInclude Include="Graphics\Gnm\GnmDataFormat.h" />
@@ -45,6 +46,7 @@
     <ClInclude Include="Graphics\SpirV\SpirvIInstruction.h" />
     <ClInclude Include="Graphics\SpirV\SpirvInclude.h" />
     <ClInclude Include="Graphics\SpirV\SpirvModule.h" />
+    <ClInclude Include="Graphics\VirtualGPU.h" />
     <ClInclude Include="Loader\elf-sce.h" />
     <ClInclude Include="Emulator\Emulator.h" />
     <ClInclude Include="Emulator\GameThread.h" />
@@ -177,6 +179,7 @@
     <ClCompile Include="Emulator\SceModuleSystem.cpp" />
     <ClCompile Include="Emulator\SymbolManager.cpp" />
     <ClCompile Include="Emulator\TLSHandler.cpp" />
+    <ClCompile Include="Emulator\VirtualCPU.cpp" />
     <ClCompile Include="GPCS4Main.cpp" />
     <ClCompile Include="Graphics\Gnm\GnmDataFormat.cpp" />
     <ClCompile Include="Graphics\Gnm\GnmOpCode.cpp" />
@@ -188,6 +191,7 @@
     <ClCompile Include="Graphics\SpirV\SpirvCodeBuffer.cpp" />
     <ClCompile Include="Graphics\SpirV\SpirvCompression.cpp" />
     <ClCompile Include="Graphics\SpirV\SpirvModule.cpp" />
+    <ClCompile Include="Graphics\VirtualGPU.cpp" />
     <ClCompile Include="ImportLibs.cpp" />
     <ClCompile Include="Loader\EbootObject.cpp" />
     <ClCompile Include="Loader\ELFMapper.cpp" />
