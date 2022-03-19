@@ -1,5 +1,7 @@
 #pragma once
 
+#include "sce_types.h"
+
 //
 #define SCE_PHYSICAL_PAGE_SIZE	4096
 

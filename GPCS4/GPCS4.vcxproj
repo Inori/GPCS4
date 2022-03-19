@@ -22,6 +22,29 @@
     <ClInclude Include="Emulator\ModuleManger.h" />
     <ClInclude Include="Emulator\PolicyManager.h" />
     <ClInclude Include="Emulator\SymbolManager.h" />
+    <ClInclude Include="Graphics\Gnm\GnmCommon.h" />
+    <ClInclude Include="Graphics\Gnm\GnmConstant.h" />
+    <ClInclude Include="Graphics\Gnm\GnmDataFormat.h" />
+    <ClInclude Include="Graphics\Gnm\GnmError.h" />
+    <ClInclude Include="Graphics\Gnm\GnmOpCode.h" />
+    <ClInclude Include="Graphics\Gnm\GnmRegInfo.h" />
+    <ClInclude Include="Graphics\Gnm\GnmStructure.h" />
+    <ClInclude Include="Graphics\Gnm\GpuAddress\GnmErrorGen.h" />
+    <ClInclude Include="Graphics\Gnm\GpuAddress\GnmGpuAddress.h" />
+    <ClInclude Include="Graphics\Gnm\GpuAddress\GnmGpuAddressCommon.h" />
+    <ClInclude Include="Graphics\Gnm\GpuAddress\GnmGpuAddressInternal.h" />
+    <ClInclude Include="Graphics\Gnm\GpuAddress\GnmMetadata.h" />
+    <ClInclude Include="Graphics\Gnm\GpuAddress\GnmRegsinfo.h" />
+    <ClInclude Include="Graphics\Gnm\GpuAddress\GnmRegsinfoPrivate.h" />
+    <ClInclude Include="Graphics\Gnm\GpuAddress\GnmTilerSSE2.h" />
+    <ClInclude Include="Graphics\SpirV\GLSL.std.450.h" />
+    <ClInclude Include="Graphics\SpirV\GLSL.std.450.hpp" />
+    <ClInclude Include="Graphics\SpirV\spirv.hpp" />
+    <ClInclude Include="Graphics\SpirV\SpirvCodeBuffer.h" />
+    <ClInclude Include="Graphics\SpirV\SpirvCompression.h" />
+    <ClInclude Include="Graphics\SpirV\SpirvIInstruction.h" />
+    <ClInclude Include="Graphics\SpirV\SpirvInclude.h" />
+    <ClInclude Include="Graphics\SpirV\SpirvModule.h" />
     <ClInclude Include="Loader\elf-sce.h" />
     <ClInclude Include="Emulator\Emulator.h" />
     <ClInclude Include="Emulator\GameThread.h" />
@@ -155,6 +178,16 @@
     <ClCompile Include="Emulator\SymbolManager.cpp" />
     <ClCompile Include="Emulator\TLSHandler.cpp" />
     <ClCompile Include="GPCS4Main.cpp" />
+    <ClCompile Include="Graphics\Gnm\GnmDataFormat.cpp" />
+    <ClCompile Include="Graphics\Gnm\GnmOpCode.cpp" />
+    <ClCompile Include="Graphics\Gnm\GpuAddress\GnmGpuAddress.cpp" />
+    <ClCompile Include="Graphics\Gnm\GpuAddress\GnmGpuAddressInternal.cpp" />
+    <ClCompile Include="Graphics\Gnm\GpuAddress\GnmSwizzler.cpp" />
+    <ClCompile Include="Graphics\Gnm\GpuAddress\GnmTilemodes.cpp" />
+    <ClCompile Include="Graphics\Gnm\GpuAddress\GnmTiler.cpp" />
+    <ClCompile Include="Graphics\SpirV\SpirvCodeBuffer.cpp" />
+    <ClCompile Include="Graphics\SpirV\SpirvCompression.cpp" />
+    <ClCompile Include="Graphics\SpirV\SpirvModule.cpp" />
     <ClCompile Include="ImportLibs.cpp" />
     <ClCompile Include="Loader\EbootObject.cpp" />
     <ClCompile Include="Loader\ELFMapper.cpp" />
@@ -332,11 +365,11 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir);$(ProjectDir)Common;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)SceModules;$(SolutionDir)3rdParty;$(SolutionDir)3rdParty\zydis\include;$(SolutionDir)3rdParty\zydis\dependencies\zycore\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(ProjectDir)Common;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)SceModules;$(SolutionDir)3rdParty;$(SolutionDir)3rdParty\zydis\include;$(SolutionDir)3rdParty\zydis\dependencies\zycore\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir);$(ProjectDir)Common;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)SceModules;$(SolutionDir)3rdParty;$(SolutionDir)3rdParty\zydis\include;$(SolutionDir)3rdParty\zydis\dependencies\zycore\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(ProjectDir)Common;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)SceModules;$(SolutionDir)3rdParty;$(SolutionDir)3rdParty\zydis\include;$(SolutionDir)3rdParty\zydis\dependencies\zycore\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Label="LLVM" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

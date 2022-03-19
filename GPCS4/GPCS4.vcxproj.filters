@@ -565,6 +565,75 @@
     <ClInclude Include="Emulator\Memory.h">
       <Filter>Source Files\Emulator</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Gnm\GpuAddress\GnmErrorGen.h">
+      <Filter>Source Files\Graphics\Gnm\GpuAddress</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gnm\GpuAddress\GnmGpuAddress.h">
+      <Filter>Source Files\Graphics\Gnm\GpuAddress</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gnm\GpuAddress\GnmGpuAddressInternal.h">
+      <Filter>Source Files\Graphics\Gnm\GpuAddress</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gnm\GpuAddress\GnmMetadata.h">
+      <Filter>Source Files\Graphics\Gnm\GpuAddress</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gnm\GpuAddress\GnmRegsinfo.h">
+      <Filter>Source Files\Graphics\Gnm\GpuAddress</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gnm\GpuAddress\GnmRegsinfoPrivate.h">
+      <Filter>Source Files\Graphics\Gnm\GpuAddress</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gnm\GpuAddress\GnmTilerSSE2.h">
+      <Filter>Source Files\Graphics\Gnm\GpuAddress</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gnm\GnmConstant.h">
+      <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gnm\GnmError.h">
+      <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gnm\GpuAddress\GnmGpuAddressCommon.h">
+      <Filter>Source Files\Graphics\Gnm\GpuAddress</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gnm\GnmCommon.h">
+      <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gnm\GnmDataFormat.h">
+      <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gnm\GnmStructure.h">
+      <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gnm\GnmOpCode.h">
+      <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gnm\GnmRegInfo.h">
+      <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\SpirV\GLSL.std.450.h">
+      <Filter>Source Files\Graphics\SpirV</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\SpirV\GLSL.std.450.hpp">
+      <Filter>Source Files\Graphics\SpirV</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\SpirV\spirv.hpp">
+      <Filter>Source Files\Graphics\SpirV</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\SpirV\SpirvCodeBuffer.h">
+      <Filter>Source Files\Graphics\SpirV</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\SpirV\SpirvCompression.h">
+      <Filter>Source Files\Graphics\SpirV</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\SpirV\SpirvIInstruction.h">
+      <Filter>Source Files\Graphics\SpirV</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\SpirV\SpirvInclude.h">
+      <Filter>Source Files\Graphics\SpirV</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\SpirV\SpirvModule.h">
+      <Filter>Source Files\Graphics\SpirV</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1013,6 +1082,36 @@
     </ClCompile>
     <ClCompile Include="Emulator\Memory.cpp">
       <Filter>Source Files\Emulator</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Gnm\GpuAddress\GnmGpuAddress.cpp">
+      <Filter>Source Files\Graphics\Gnm\GpuAddress</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Gnm\GpuAddress\GnmGpuAddressInternal.cpp">
+      <Filter>Source Files\Graphics\Gnm\GpuAddress</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Gnm\GpuAddress\GnmSwizzler.cpp">
+      <Filter>Source Files\Graphics\Gnm\GpuAddress</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Gnm\GpuAddress\GnmTilemodes.cpp">
+      <Filter>Source Files\Graphics\Gnm\GpuAddress</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Gnm\GpuAddress\GnmTiler.cpp">
+      <Filter>Source Files\Graphics\Gnm\GpuAddress</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Gnm\GnmDataFormat.cpp">
+      <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Gnm\GnmOpCode.cpp">
+      <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\SpirV\SpirvCodeBuffer.cpp">
+      <Filter>Source Files\Graphics\SpirV</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\SpirV\SpirvCompression.cpp">
+      <Filter>Source Files\Graphics\SpirV</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\SpirV\SpirvModule.cpp">
+      <Filter>Source Files\Graphics\SpirV</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
