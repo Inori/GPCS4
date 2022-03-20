@@ -47,8 +47,8 @@ JitFunctionPool::JitFunctionPool(size_t funcSize, size_t funcNum) :
 	m_funcSize{ util::align(funcSize, (size_t)16) }, m_funcNum{ funcNum }, m_index{ 0 }
 {
 	m_totalSize = m_funcSize * funcNum;
-	auto memory = umemory::VMMapFlexible(nullptr, m_totalSize,
-                                 umemory::VMPF_CPU_READ | umemory::VMPF_CPU_EXEC);
+	auto memory = umemory::VMAllocate(nullptr, m_totalSize,
+									  umemory::VMAT_RESERVE_COMMIT, umemory::VMPF_CPU_RWX);
 
 	m_memory.reset(reinterpret_cast<uint8_t *>(memory));
 }

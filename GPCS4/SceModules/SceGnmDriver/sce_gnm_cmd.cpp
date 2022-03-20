@@ -1,9 +1,11 @@
 #include "sce_gnmdriver.h"
-#include "Graphic/Gnm/GnmOpCode.h"
-#include "Graphic/Gnm/GnmStructure.h"
+#include "Gnm/GnmOpCode.h"
+#include "Gnm/GnmStructure.h"
 #include <cassert>
 
 LOG_CHANNEL(SceModules.SceGnmDriver.GnmCmd);
+
+using namespace sce::Gnm;
 
 // this file place functions used by both DrawCommandBuffer and DispatchCommandBuffer
 

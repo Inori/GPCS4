@@ -101,17 +101,18 @@ private:
 	MemoryBlockList m_memBlocks;
 };
 
-class MemoryController :
-	public MemoryCallback
+class MemoryController : public MemoryCallback
 {
-
 public:
+	MemoryController();
+	virtual ~MemoryController();
+
+
 private:
 	void OnMemoryRead(void* address, size_t size) override;
 
 	void OnMemoryWrite(void* address, size_t size) override;
 
 private:
-	MemoryController();
-	~MemoryController();
+
 };

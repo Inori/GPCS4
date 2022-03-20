@@ -1571,7 +1571,7 @@ namespace sce
 			kTileModeThick_2dXThick                    = 0x00000019, ///< Recommended for volume textures to which pixel shaders will write.
 			kTileModeThick_3dXThick                    = 0x0000001A, ///< Not used; included only for completeness.
 			// Hugely inefficient linear display mode - do not use!
-			// kTileModeDisplay_LinearGeneral             SCE_GNM_API_DEPRECATED_ENUM_MSG("This mode is not supported!") = 0x0000001F, ///< Unsupported; do not use!
+			kTileModeDisplay_LinearGeneral             = 0x0000001F, ///< Unsupported; do not use!
 		} TileMode;
 
 		/** @brief Specifies the pixel ordering within each macro-tile of a render surface.

@@ -163,7 +163,7 @@ namespace sce
 		 * @sa SurfaceFlags
 		 */
 		
-		int32_t getFlagsForSurfaceType(SurfaceFlags *outFlags, SurfaceType surfaceType, SurfaceMipmapMode mipmapMode)
+		inline int32_t getFlagsForSurfaceType(SurfaceFlags* outFlags, SurfaceType surfaceType, SurfaceMipmapMode mipmapMode)
 		{
 			return getFlagsForSurfaceType(Gnm::kGpuModeBase, outFlags, surfaceType, mipmapMode);
 		}
@@ -199,7 +199,7 @@ namespace sce
 		 * @sa Gnm::ArrayMode
 		 */
 		
-		int32_t getArrayModeForSurfaceType(Gnm::ArrayMode *outArrayMode, SurfaceType surfaceType, uint32_t numFragmentsPerPixel)
+		inline int32_t getArrayModeForSurfaceType(Gnm::ArrayMode* outArrayMode, SurfaceType surfaceType, uint32_t numFragmentsPerPixel)
 		{
 			return getArrayModeForSurfaceType(Gnm::kGpuModeBase, outArrayMode, surfaceType, numFragmentsPerPixel);
 		}

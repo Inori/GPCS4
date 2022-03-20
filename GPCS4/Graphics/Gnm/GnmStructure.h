@@ -7,9 +7,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-namespace sce
-{
-namespace Gnm
+namespace sce::Gnm
 {
 
 // Self defined structures.
@@ -536,5 +534,4 @@ struct DrawModifier
 	uint32_t reserved : 29;
 };
 
-}
 }

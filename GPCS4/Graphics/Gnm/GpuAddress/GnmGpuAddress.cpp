@@ -4,6 +4,11 @@
 using namespace sce;
 using namespace sce::GpuAddress;
 
+#include "Gnm/GnmTexture.h"
+#include "Gnm/GnmRenderTarget.h"
+#include "Gnm/GnmDepthRenderTarget.h"
+
+
 #include <algorithm>
 
 LOG_CHANNEL("GpuAddress");
@@ -1452,6 +1457,7 @@ int32_t sce::GpuAddress::computeCmaskInfo(uint64_t *outCmaskSizeBytes, uint32_t 
 		*outCmaskHeight = outHeight;
 	return kStatusSuccess;
 }
+
 int32_t sce::GpuAddress::computeCmaskInfo(uint64_t *outCmaskSizeBytes, uint32_t *outCmaskAlign, uint32_t *outCmaskPitch, uint32_t *outCmaskHeight,
 	uint32_t rtPitch, uint32_t rtHeight, uint32_t rtNumSlices, bool isCmaskLinear) // DEPRECATED
 {

@@ -381,7 +381,7 @@ void* MemoryAllocator::allocateInternal(void* addrIn, size_t len, size_t alignme
 			{
 				reinterpret_cast<size_t>(addrOut),
 				len,
-				prot
+				static_cast<uint32_t>(prot) 
 			};
 			m_memBlocks.emplace_back(block);
 		}
@@ -409,13 +409,6 @@ MemoryAllocator::findMemoryBlock(void* addr)
 	return optResult;
 }
 
-void MemoryController::OnMemoryRead(void* address, size_t size)
-{
-}
-
-void MemoryController::OnMemoryWrite(void* address, size_t size)
-{
-}
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -424,5 +417,13 @@ MemoryController::MemoryController()
 }
 
 MemoryController::~MemoryController()
+{
+}
+
+void MemoryController::OnMemoryRead(void* address, size_t size)
+{
+}
+
+void MemoryController::OnMemoryWrite(void* address, size_t size)
 {
 }

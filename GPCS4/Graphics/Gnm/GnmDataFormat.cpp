@@ -2,9 +2,7 @@
 
 LOG_CHANNEL(Graphic.Gnm.GnmDataFormat);
 
-namespace sce
-{
-namespace Gnm
+namespace sce::Gnm
 {
 
 const char* dataFormatName(DataFormat dataFmt)
@@ -322,6 +320,98 @@ DataFormat DataFormat::build(ZFormat zFmt)
 	return result;
 }
 
+DataFormat DataFormat::build(NumSamples numSamples, NumFragments numFragments)
+{
+	DataFormat result  = {};
+
+	uint32_t fmtType = 0;
+	uint32_t channel = 0;
+
+	fmtType = 0x442C;
+	switch (numFragments | 16 * numSamples)
+	{
+	case 0x10:
+		break;
+	case 0x11:
+		fmtType = 0x442F;
+		break;
+	case 0x20:
+		fmtType = 0x442D;
+		break;
+	case 0x21:
+		fmtType = 0x4430;
+		break;
+	case 0x22:
+		fmtType = 0x4431;
+		break;
+	case 0x30:
+		fmtType = 0x442E;
+		break;
+	case 0x31:
+		fmtType = 0x4433;
+		break;
+	case 0x32:
+		fmtType = 0x4435;
+		break;
+	case 0x33:
+		fmtType = 0x4436;
+		break;
+	case 0x40:
+		fmtType = 0x4432;
+		break;
+	case 0x41:
+		fmtType = 0x4434;
+		break;
+	case 0x42:
+		fmtType = 0x4437;
+		break;
+	case 0x43:
+		fmtType = 0x4438;
+		break;
+	default:
+		fmtType = 0x4400;
+		break;
+	}
+
+	channel = 0x220000;
+	if (numSamples == kNumSamples16)
+	{
+		channel = 0x228000;
+	}
+	
+	result.m_asInt = ((numSamples == kNumSamples16) << 18) | fmtType | (unsigned int)channel;
+	return result;
+}
+
+DataFormat DataFormat::build(StencilFormat sFmt, TextureChannelType channelType)
+{
+	DataFormat result = {};
+	result.m_bits.m_surfaceFormat = (sFmt == kStencil8 ? 
+		sFmt : kStencilInvalid);
+	result.m_bits.m_channelType   = channelType;
+	result.m_bits.m_channelX      = kTextureChannelX;
+	result.m_bits.m_channelY      = kTextureChannelX;
+	result.m_bits.m_channelZ      = kTextureChannelX;
+	result.m_bits.m_channelW      = kTextureChannelX;
+	return result;
+}
+
+uint32_t DataFormat::getBytesPerElement(void) const
+{
+	return getBitsPerElement() * 8;
+}
+
+uint32_t DataFormat::getBitsPerElement(void) const
+{
+	uint32_t surfFmt = m_bits.m_surfaceFormat;
+	uint32_t result  = 0LL;
+	if ((unsigned int)surfFmt <= kSurfaceFormat1Reversed)
+	{
+		result = (unsigned int)(s_bitsPerElement[surfFmt]);
+	}
+	return result;
+}
+
 uint32_t DataFormat::getTotalBitsPerElement() const
 {
 	uint32_t surfFmt = m_bits.m_surfaceFormat;
@@ -415,7 +505,7 @@ bool DataFormat::operator==(const DataFormat& other) const
 {
 	return m_asInt == other.m_asInt;
 }
-}
-}  // namespace sce
+
+}  // namespace sce::Gnm
 
 

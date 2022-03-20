@@ -57,7 +57,7 @@ void* VMAllocateAlign(void* pAddress, size_t nSize, size_t nAlign,
 void VMFree(void* pAddress);
 
 bool VMProtect(void* pAddress, size_t nSize, 
-	VM_PROTECT_FLAG nNewProtect, VM_PROTECT_FLAG* pOldProtect);
+	VM_PROTECT_FLAG nNewProtect, VM_PROTECT_FLAG* pOldProtect = nullptr);
 
 bool VMQuery(void* pAddress, MemoryInformation* pInfo);
 

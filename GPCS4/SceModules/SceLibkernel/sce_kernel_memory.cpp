@@ -10,8 +10,8 @@ int PS4API sceKernelAllocateDirectMemory(sce_off_t searchStart, sce_off_t search
 	size_t len, size_t alignment, int memoryType, sce_off_t *physAddrOut)
 {
 	LOG_SCE_DUMMY_IMPL();
-	*physAddrOut = (uint64_t)umemory::VMAllocateDirect();
-	return SCE_OK;
+	//*physAddrOut = (uint64_t)umemory::VMAllocateDirect();
+	//return SCE_OK;
 }
 
 
@@ -19,8 +19,8 @@ int PS4API sceKernelMapDirectMemory(void **addr, size_t len, int prot, int flags
 	sce_off_t directMemoryStart, size_t maxPageSize)
 {
 	LOG_SCE_DUMMY_IMPL();
-	*addr = umemory::VMMapDirect(len, prot, umemory::VMAT_RESERVE_COMMIT);
-	return *addr == nullptr ? SCE_KERNEL_ERROR_ENOMEM : SCE_OK;
+	//*addr = umemory::VMMapDirect(len, prot, umemory::VMAT_RESERVE_COMMIT);
+	//return *addr == nullptr ? SCE_KERNEL_ERROR_ENOMEM : SCE_OK;
 }
 
 
@@ -115,7 +115,7 @@ int PS4API sceKernelMlock(const void *addr, size_t len)
 int PS4API sceKernelQueryMemoryProtection(void* addr, void** start, void** end, uint32_t* prot)
 {
 	LOG_SCE_TRACE("%p", addr);
-	return umemory::VMQueryProtection(addr, start, end, prot);
+	//return umemory::VMQueryProtection(addr, start, end, prot);
 }
 
 
@@ -143,35 +143,35 @@ int PS4API sceKernelVirtualQuery(const void *addr, int flags, SceKernelVirtualQu
 
 int PS4API sceKernelMapFlexibleMemory(void **addrInOut, size_t len, int prot, int flags)
 {
-	int err = SCE_KERNEL_ERROR_UNKNOWN;
-	do 
-	{
-		if (!addrInOut || !len || !util::isAligned(len, (size_t)SCE_LOGICAL_PAGE_SIZE))
-		{
-			err = SCE_KERNEL_ERROR_EINVAL;
-			break;
-		}
+	//int err = SCE_KERNEL_ERROR_UNKNOWN;
+	//do 
+	//{
+	//	if (!addrInOut || !len || !util::isAligned(len, (size_t)SCE_LOGICAL_PAGE_SIZE))
+	//	{
+	//		err = SCE_KERNEL_ERROR_EINVAL;
+	//		break;
+	//	}
 
-		if (flags & SCE_KERNEL_MAP_FIXED && !util::isAligned((uint64_t)*addrInOut, (size_t)SCE_LOGICAL_PAGE_SIZE))
-		{
-			err = SCE_KERNEL_ERROR_EINVAL;
-			break;
-		}
+	//	if (flags & SCE_KERNEL_MAP_FIXED && !util::isAligned((uint64_t)*addrInOut, (size_t)SCE_LOGICAL_PAGE_SIZE))
+	//	{
+	//		err = SCE_KERNEL_ERROR_EINVAL;
+	//		break;
+	//	}
 
-		// TODO:
-		// 1. we should use the correct flag and protection type
-		// 2. maybe we should fix memory range
-		void* pAddr = umemory::VMMapFlexible(*addrInOut, len, umemory::VMPF_READ_WRITE);
-		if (!pAddr)
-		{
-			err = SCE_KERNEL_ERROR_ENOMEM;
-			break;
-		}
+	//	// TODO:
+	//	// 1. we should use the correct flag and protection type
+	//	// 2. maybe we should fix memory range
+	//	void* pAddr = umemory::VMMapFlexible(*addrInOut, len, umemory::VMPF_READ_WRITE);
+	//	if (!pAddr)
+	//	{
+	//		err = SCE_KERNEL_ERROR_ENOMEM;
+	//		break;
+	//	}
 
-		*addrInOut = pAddr;
-		err = SCE_OK;
-	} while (false);
-	return err;
+	//	*addrInOut = pAddr;
+	//	err = SCE_OK;
+	//} while (false);
+	//return err;
 }
 
 
@@ -190,7 +190,7 @@ int PS4API sceKernelIsAddressSanitizerEnabled(void)
 
 void* PS4API scek_mmap(void* start, size_t length, uint32_t prot, uint32_t flags, int fd, int64_t offset) 
 {
-	auto addr = umemory::VMMap(start, length, prot, flags, fd, offset);
-	LOG_SCE_TRACE("%p, 0x%lx, 0x%x, 0x%x, %d, %ld = %p", start, length, prot, flags, fd, offset, addr);
-	return addr;
+	//auto addr = umemory::VMMap(start, length, prot, flags, fd, offset);
+	//LOG_SCE_TRACE("%p, 0x%lx, 0x%x, 0x%x, %d, %ld = %p", start, length, prot, flags, fd, offset, addr);
+	//return addr;
 }

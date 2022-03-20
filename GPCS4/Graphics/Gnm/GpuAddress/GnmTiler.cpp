@@ -4,6 +4,10 @@
 #include "GnmRegsinfo.h"
 #include "GnmRegsinfoPrivate.h"
 
+#include "Gnm/GnmTexture.h"
+#include "Gnm/GnmRenderTarget.h"
+#include "Gnm/GnmDepthRenderTarget.h"
+
 using namespace sce::GpuAddress;
 using namespace sce;
 
@@ -858,7 +862,10 @@ int32_t sce::GpuAddress::Tiler1d::tileSurfaceRegion(void *outTiledPixels, const 
 				    }
                 }
             for(auto i = 0; i < regions.m_unaligneds; ++i)
-                slowTileOneFragment<Tiler1d>(this, region, regions.m_unaligned[i], 0, sourcePitch, sourceSlicePitch, out_bytes, in_bytes, bytesPerElement);
+			{
+				slowTileOneFragment<Tiler1d>(this, region, regions.m_unaligned[i], 0, sourcePitch, sourceSlicePitch, out_bytes, in_bytes, bytesPerElement);
+			}
+                
         	return kStatusSuccess;
         }
     }

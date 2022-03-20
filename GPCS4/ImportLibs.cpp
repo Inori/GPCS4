@@ -16,6 +16,7 @@
 #pragma comment(lib, "../3rdParty/zydis/Zydisd.lib")
 #pragma comment(lib, "../3rdParty/glfw/glfw3d.lib")
 #pragma comment(lib, "../3rdParty/rtaudio/rtaudiod.lib")
+#pragma comment(lib, "../3rdParty/tinydbr/TinyDBRd.lib")
 
 #else
 
@@ -23,6 +24,7 @@
 #pragma comment(lib, "../3rdParty/zydis/Zydis.lib")
 #pragma comment(lib, "../3rdParty/glfw/glfw3.lib")
 #pragma comment(lib, "../3rdParty/rtaudio/rtaudio.lib")
+#pragma comment(lib, "../3rdParty/tinydbr/TinyDBR.lib")
 
 #endif  //_DEBUG
 #endif  //GPCS4_WINDOWS

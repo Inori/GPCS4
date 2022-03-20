@@ -79,7 +79,7 @@ inline VM_PROTECT_FLAG RecoverProtectFlag(uint32_t nOldFlag)
 
 VM_REGION_STATE GetRegionState(uint32_t nOldState)
 {
-	VM_REGION_STATE nNewState;
+	VM_REGION_STATE nNewState = VMRS_FREE;
 	if (nOldState == MEM_COMMIT)
 	{
 		nNewState = VMRS_COMMIT;

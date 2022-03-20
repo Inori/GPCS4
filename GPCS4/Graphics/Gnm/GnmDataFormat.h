@@ -5,10 +5,7 @@
 
 #include <unordered_map>
 
-namespace sce
-{
-
-namespace Gnm
+namespace sce::Gnm
 {
 
 class DataFormat
@@ -29,7 +26,15 @@ public:
 
 	static DataFormat build(ZFormat zFmt);
 
+	static DataFormat build(StencilFormat sFmt, TextureChannelType channelType);
+
+	static DataFormat build(NumSamples numSamples, NumFragments numFragments);
+
 	bool operator==(const DataFormat& other) const;
+
+	uint32_t getBytesPerElement(void) const;
+
+	uint32_t getBitsPerElement(void) const;
 
 	uint32_t getTotalBitsPerElement() const;
 
@@ -49,11 +54,13 @@ public:
 
 	uint32_t getNumComponents(void) const;
 
+
+
 	union
 	{
 		struct
 		{
-			uint32_t m_surfaceFormat : 8;  // SurfaceFormat
+			uint32_t m_surfaceFormat : 8;  // sce::Gnm::SurfaceFormat
 			uint32_t m_channelType : 4;
 			uint32_t m_channelX : 3;
 			uint32_t m_channelY : 3;
@@ -219,6 +226,6 @@ const DataFormat kDataFormatBc7UnormSrgbNoAlpha = { { { kSurfaceFormatBc7, kText
 const DataFormat kDataFormatBc3UnormRABG = { { { kSurfaceFormatBc3, kTextureChannelTypeUNorm, kTextureChannelX, kTextureChannelW, kTextureChannelZ, kTextureChannelY, 0 } } };
 // Used for debugging purpose
 const char* dataFormatName(DataFormat dataFmt);
-}
+
 
 }

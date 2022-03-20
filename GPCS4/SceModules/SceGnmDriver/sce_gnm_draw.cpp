@@ -1,8 +1,10 @@
 #include "sce_gnmdriver.h"
-#include "Graphic/Gnm/GnmOpCode.h"
+#include "Gnm/GnmOpCode.h"
 #include <cassert>
 
 LOG_CHANNEL(SceModules.SceGnmDriver.GnmDraw);
+
+using namespace sce::Gnm;
 
 // well, it seems that libSceGnmDriverForNeoMode.sprx does nothing but simply fills structs
 // in command buffer during these draw calls, actual work is done in submit calls.

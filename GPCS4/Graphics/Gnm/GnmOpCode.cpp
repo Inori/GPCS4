@@ -1,5 +1,8 @@
 #include "GnmOpCode.h"
 
+namespace sce::Gnm
+{
+
 const char* opcodePrivName(IT_OpCodePriv priv)
 {
 	const char* name = nullptr;
@@ -113,9 +116,9 @@ const char* opcodePrivName(IT_OpCodePriv priv)
 
 const char* opcodeName(uint32_t header)
 {
-	const char* name = nullptr;
-	PPM4_TYPE_3_HEADER hdr = (PPM4_TYPE_3_HEADER)&header;
-	IT_OpCodeType op = (IT_OpCodeType)hdr->opcode;
+	const char*        name = nullptr;
+	PPM4_TYPE_3_HEADER hdr  = (PPM4_TYPE_3_HEADER)&header;
+	IT_OpCodeType      op   = (IT_OpCodeType)hdr->opcode;
 	switch (op)
 	{
 	case IT_NOP:
@@ -206,11 +209,11 @@ const char* opcodeName(uint32_t header)
 		name = "IT_GET_LOD_STATS__GFX09";
 		break;
 	case IT_GNM_PRIVATE:
-		{
-			IT_OpCodePriv priv = PM4_PRIV(header);
-			name = opcodePrivName(priv);
-		}
-		break;
+	{
+		IT_OpCodePriv priv = PM4_PRIV(header);
+		name               = opcodePrivName(priv);
+	}
+	break;
 	///
 	case IT_CLEAR_STATE:
 		name = "IT_CLEAR_STATE";
@@ -482,3 +485,6 @@ const char* opcodeName(uint32_t header)
 	}
 	return name;
 }
+
+
+}  // namespace sce::Gnm

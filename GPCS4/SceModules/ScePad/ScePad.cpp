@@ -4,8 +4,7 @@
 
 #include "Platform/UtilProcess.h"
 
-#include "../../Graphic/GraphicShared.h"
-#include "../../Graphic/Sce/SceVideoOut.h"
+#include "VirtualGPU.h"
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -60,8 +59,9 @@ int SceGamepad::setVibration(int32_t handle, const ScePadVibrationParam* pParam)
 
 SceKeyboard::SceKeyboard()
 {
-	auto videoOut = getVideoOut(SCE_VIDEO_HANDLE_MAIN);
-	m_window      = videoOut->getWindowHandle();
+	//auto videoOut = getVideoOut(SCE_VIDEO_HANDLE_MAIN);
+	//m_window      = videoOut->getWindowHandle();
+	throw std::logic_error("The method or operation is not implemented.");
 }
 
 SceKeyboard::~SceKeyboard()

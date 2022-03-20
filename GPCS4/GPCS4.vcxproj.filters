@@ -640,6 +640,21 @@
     <ClInclude Include="Emulator\VirtualCPU.h">
       <Filter>Source Files\Emulator</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Gnm\GnmRenderTarget.h">
+      <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gnm\GnmBuffer.h">
+      <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gnm\GnmSharpBuffer.h">
+      <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gnm\GnmTexture.h">
+      <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gnm\GnmDepthRenderTarget.h">
+      <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
