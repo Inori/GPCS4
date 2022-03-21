@@ -676,6 +676,21 @@
     <ClInclude Include="Graphics\Gnm\GnmSampler.h">
       <Filter>Source Files\Graphics\Gnm</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Pssl\PsslCommon.h">
+      <Filter>Source Files\Graphics\Pssl</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Pssl\PsslContants.h">
+      <Filter>Source Files\Graphics\Pssl</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Pssl\PsslEnums.h">
+      <Filter>Source Files\Graphics\Pssl</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Pssl\PsslShaderRegField.h">
+      <Filter>Source Files\Graphics\Pssl</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Pssl\PsslShaderRegister.h">
+      <Filter>Source Files\Graphics\Pssl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">

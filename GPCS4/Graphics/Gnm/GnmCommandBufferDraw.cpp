@@ -12,7 +12,7 @@
 
 LOG_CHANNEL(Graphic.Gnm.GnmCommandBufferDraw);
 
-using namespace pssl;
+using namespace sce::pssl;
 
 namespace sce::Gnm
 {

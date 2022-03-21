@@ -1,6 +1,6 @@
 #include "SpirvCompression.h"
 
-namespace pssl
+namespace sce::pssl
 {
 
   SpirvCompressedBuffer::SpirvCompressedBuffer()

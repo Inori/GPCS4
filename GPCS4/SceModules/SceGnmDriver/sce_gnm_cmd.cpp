@@ -5,6 +5,7 @@
 
 LOG_CHANNEL(SceModules.SceGnmDriver.GnmCmd);
 
+using namespace sce;
 using namespace sce::Gnm;
 
 // this file place functions used by both DrawCommandBuffer and DispatchCommandBuffer

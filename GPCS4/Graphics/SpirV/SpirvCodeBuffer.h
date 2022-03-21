@@ -7,7 +7,7 @@
 
 #include "SpirvIInstruction.h"
 
-namespace pssl {
+namespace sce::pssl {
   
   /**
    * \brief SPIR-V code buffer

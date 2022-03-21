@@ -50,6 +50,11 @@
     <ClInclude Include="Graphics\Gnm\GpuAddress\GnmRegsinfo.h" />
     <ClInclude Include="Graphics\Gnm\GpuAddress\GnmRegsinfoPrivate.h" />
     <ClInclude Include="Graphics\Gnm\GpuAddress\GnmTilerSSE2.h" />
+    <ClInclude Include="Graphics\Pssl\PsslCommon.h" />
+    <ClInclude Include="Graphics\Pssl\PsslContants.h" />
+    <ClInclude Include="Graphics\Pssl\PsslEnums.h" />
+    <ClInclude Include="Graphics\Pssl\PsslShaderRegField.h" />
+    <ClInclude Include="Graphics\Pssl\PsslShaderRegister.h" />
     <ClInclude Include="Graphics\SpirV\GLSL.std.450.h" />
     <ClInclude Include="Graphics\SpirV\GLSL.std.450.hpp" />
     <ClInclude Include="Graphics\SpirV\spirv.hpp" />

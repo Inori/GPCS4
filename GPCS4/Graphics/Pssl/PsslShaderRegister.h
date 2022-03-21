@@ -3,8 +3,8 @@
 #include "PsslCommon.h"
 #include "PsslShaderRegField.h"
 
-namespace pssl
-{;
+namespace sce::pssl
+{
 
 
 struct CsStageRegisters

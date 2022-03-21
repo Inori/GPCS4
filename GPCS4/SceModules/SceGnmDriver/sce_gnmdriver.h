@@ -13,6 +13,8 @@
 #include "Gnm/GnmConstant.h"
 #include "Gnm/GnmStructure.h"
 
+using namespace sce;
+
 extern const SCE_EXPORT_MODULE g_ExpModuleSceGnmDriver;
 
 

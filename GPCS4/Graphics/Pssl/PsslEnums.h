@@ -1,7 +1,7 @@
 #pragma once
 
-namespace pssl
-{;
+namespace sce::pssl
+{
 
 
 enum class PsslProgramType

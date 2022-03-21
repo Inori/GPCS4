@@ -5,7 +5,7 @@
 
 #include "SpirvInclude.h"
 
-namespace pssl
+namespace sce::pssl
 {
   
   /**

@@ -2,8 +2,8 @@
 
 #include "PsslCommon.h"
 
-namespace pssl
-{;
+namespace sce::pssl
+{
 	
 // These structure definitions can be found in
 // Radeon Sea Islands 3D/Compute

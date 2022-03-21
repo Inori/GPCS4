@@ -6,7 +6,6 @@
 
 namespace sce::Gnm
 {
-	
 
 
 // This class act as part of a real GPU command processor, that is, process the command buffers.
