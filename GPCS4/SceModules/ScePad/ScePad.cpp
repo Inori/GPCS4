@@ -59,6 +59,11 @@ int SceGamepad::setVibration(int32_t handle, const ScePadVibrationParam* pParam)
 
 SceKeyboard::SceKeyboard()
 {
+	// TODO:
+	// we should seperate input message processing and graphis logic,
+	// on Windows, we can try use DirectInput, 
+	// and on linux, we can just read /dev/input/xxx device with some libraries
+	
 	//auto videoOut = getVideoOut(SCE_VIDEO_HANDLE_MAIN);
 	//m_window      = videoOut->getWindowHandle();
 	throw std::logic_error("The method or operation is not implemented.");
