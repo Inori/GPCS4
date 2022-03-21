@@ -655,6 +655,27 @@
     <ClInclude Include="Graphics\Gnm\GnmDepthRenderTarget.h">
       <Filter>Source Files\Graphics\Gnm</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Gnm\GnmCommandProcessor.h">
+      <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gnm\GnmCommandBuffer.h">
+      <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gnm\GnmCommandBufferDispatch.h">
+      <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gnm\GnmCommandBufferDraw.h">
+      <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gnm\GnmCommandBufferDummy.h">
+      <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gnm\GnmGfx9MePm4Packets.h">
+      <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gnm\GnmSampler.h">
+      <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1139,6 +1160,21 @@
     </ClCompile>
     <ClCompile Include="Emulator\VirtualCPU.cpp">
       <Filter>Source Files\Emulator</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Gnm\GnmCommandProcessor.cpp">
+      <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Gnm\GnmCommandBuffer.cpp">
+      <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Gnm\GnmCommandBufferDispatch.cpp">
+      <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Gnm\GnmCommandBufferDraw.cpp">
+      <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Gnm\GnmCommandBufferDummy.cpp">
+      <Filter>Source Files\Graphics\Gnm</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

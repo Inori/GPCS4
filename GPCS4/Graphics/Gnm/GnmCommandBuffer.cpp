@@ -1,0 +1,42 @@
+#include "GnmCommandBuffer.h"
+
+#include "Platform/PlatformUtils.h"
+
+namespace sce::Gnm
+{
+
+GnmCommandBuffer::GnmCommandBuffer()
+{
+}
+
+GnmCommandBuffer::~GnmCommandBuffer()
+{
+}
+
+
+void GnmCommandBuffer::emuWriteGpuLabel(EventWriteSource selector, void* label, uint64_t value)
+{
+	do 
+	{
+		if (!label)
+		{
+			break;
+		}
+
+		if (selector == kEventWriteSource32BitsImmediate)
+		{
+			*(uint32_t*)label = value;
+		}
+		else if (selector == kEventWriteSource64BitsImmediate)
+		{
+			*(uint64_t*)label = value;
+		}
+		else
+		{
+			*(uint64_t*)label = UtilProcess::GetProcessTimeCounter();
+		}
+
+	} while (false);
+}
+
+}  // namespace sce::Gnm
