@@ -55,6 +55,10 @@
     <ClInclude Include="Graphics\Pssl\PsslEnums.h" />
     <ClInclude Include="Graphics\Pssl\PsslShaderRegField.h" />
     <ClInclude Include="Graphics\Pssl\PsslShaderRegister.h" />
+    <ClInclude Include="Graphics\Sce\SceCommon.h" />
+    <ClInclude Include="Graphics\Sce\SceGnmDriver.h" />
+    <ClInclude Include="Graphics\Sce\SceGpuQueue.h" />
+    <ClInclude Include="Graphics\Sce\SceVideoOut.h" />
     <ClInclude Include="Graphics\SpirV\GLSL.std.450.h" />
     <ClInclude Include="Graphics\SpirV\GLSL.std.450.hpp" />
     <ClInclude Include="Graphics\SpirV\spirv.hpp" />
@@ -210,6 +214,9 @@
     <ClCompile Include="Graphics\Gnm\GpuAddress\GnmSwizzler.cpp" />
     <ClCompile Include="Graphics\Gnm\GpuAddress\GnmTilemodes.cpp" />
     <ClCompile Include="Graphics\Gnm\GpuAddress\GnmTiler.cpp" />
+    <ClCompile Include="Graphics\Sce\SceGnmDriver.cpp" />
+    <ClCompile Include="Graphics\Sce\SceGpuQueue.cpp" />
+    <ClCompile Include="Graphics\Sce\SceVideoOut.cpp" />
     <ClCompile Include="Graphics\SpirV\SpirvCodeBuffer.cpp" />
     <ClCompile Include="Graphics\SpirV\SpirvCompression.cpp" />
     <ClCompile Include="Graphics\SpirV\SpirvModule.cpp" />

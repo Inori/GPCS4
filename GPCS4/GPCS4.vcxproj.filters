@@ -691,6 +691,18 @@
     <ClInclude Include="Graphics\Pssl\PsslShaderRegister.h">
       <Filter>Source Files\Graphics\Pssl</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Sce\SceCommon.h">
+      <Filter>Source Files\Graphics\Sce</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Sce\SceGnmDriver.h">
+      <Filter>Source Files\Graphics\Sce</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Sce\SceGpuQueue.h">
+      <Filter>Source Files\Graphics\Sce</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Sce\SceVideoOut.h">
+      <Filter>Source Files\Graphics\Sce</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1190,6 +1202,15 @@
     </ClCompile>
     <ClCompile Include="Graphics\Gnm\GnmCommandBufferDummy.cpp">
       <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Sce\SceGnmDriver.cpp">
+      <Filter>Source Files\Graphics\Sce</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Sce\SceGpuQueue.cpp">
+      <Filter>Source Files\Graphics\Sce</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Sce\SceVideoOut.cpp">
+      <Filter>Source Files\Graphics\Sce</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
