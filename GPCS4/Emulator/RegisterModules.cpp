@@ -139,7 +139,7 @@ static bool registerOtherModules(CSceModuleSystem *pModuleSystem)
 }
 
 
-bool CEmulator::registerModules()
+bool Emulator::registerModules()
 {
 	bool bRet = false;
 	do 

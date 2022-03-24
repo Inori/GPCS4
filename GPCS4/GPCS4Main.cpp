@@ -38,7 +38,7 @@ cxxopts::ParseResult processCommandLine(int argc, char* argv[])
 
 int main(int argc, char *argv[])
 {
-	std::unique_ptr<CEmulator> pEmulator = std::make_unique<CEmulator>();
+	std::unique_ptr<Emulator> pEmulator = std::make_unique<Emulator>();
 	int nRet = -1;
 
 	do

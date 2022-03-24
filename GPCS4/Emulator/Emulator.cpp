@@ -4,11 +4,11 @@
 
 LOG_CHANNEL(Emulator);
 
-CEmulator::CEmulator() {}
+Emulator::Emulator() {}
 
-CEmulator::~CEmulator() {}
+Emulator::~Emulator() {}
 
-bool CEmulator::Init()
+bool Emulator::Init()
 {
 	bool bRet = false;
 	do
@@ -25,13 +25,13 @@ bool CEmulator::Init()
 	return bRet;
 }
 
-void CEmulator::Unit()
+void Emulator::Unit()
 {
 	auto modManager = CSceModuleSystem::GetInstance();
 	modManager->clearModules();
 }
 
-bool CEmulator::Run(NativeModule const &mod)
+bool Emulator::Run(NativeModule const &mod)
 {
 	bool retVal = false;
 
@@ -59,7 +59,7 @@ bool CEmulator::Run(NativeModule const &mod)
 		PS4StartupParams startupParams;
 
 		LOG_DEBUG("run into eboot.");
-		CGameThread oMainThread(entryPoint, &startupParams, CEmulator::LastExitHandler);
+		CGameThread oMainThread(entryPoint, &startupParams, Emulator::LastExitHandler);
 		if (!oMainThread.Start())
 		{
 			break;
@@ -77,5 +77,5 @@ bool CEmulator::Run(NativeModule const &mod)
 	return retVal;
 }
 
-void PS4API CEmulator::LastExitHandler(void) { LOG_DEBUG("program exit."); }
+void PS4API Emulator::LastExitHandler(void) { LOG_DEBUG("program exit."); }
 

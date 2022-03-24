@@ -10,11 +10,11 @@
 
 typedef void (PS4NORETURN PS4API *PFUNC_EntryPoint)(void* pEnv, void* pfnExitHandler);
 
-class CEmulator
+class Emulator final
 {
 public:
-	CEmulator();
-	~CEmulator();
+	Emulator();
+	~Emulator();
 
 	bool Init();
 

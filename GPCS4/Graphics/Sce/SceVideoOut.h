@@ -9,7 +9,7 @@ struct SceVideoOutBufferAttribute;
 
 namespace sce
 {
-;
+
 
 #define SCE_VIDEO_HANDLE_MAIN 1
 #define SCE_VIDEO_HANDLE_MAX  3
