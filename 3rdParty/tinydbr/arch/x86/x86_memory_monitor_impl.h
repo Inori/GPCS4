@@ -1,7 +1,8 @@
 #pragma once
 
-#include "../../memory_monitor.h"
+#include "../../memory_monitor_impl.h"
 #include <memory>
+#include <array>
 
 namespace Xbyak
 {
@@ -9,7 +10,7 @@ class CodeGenerator;
 }
 
 
-class X86MemoryMonitor : public MemoryMonitor
+class X86MemoryMonitorImpl : public MemoryMonitorImpl
 {
 private:
 	enum class InstructionType
@@ -57,8 +58,8 @@ private:
 	constexpr static size_t ZmmRegWidth     = 64;
 
 public:
-	X86MemoryMonitor(MonitorFlags flags, MemoryCallback* callback);
-	virtual ~X86MemoryMonitor();
+	X86MemoryMonitorImpl(MonitorFlags flags, MemoryCallback* callback);
+	virtual ~X86MemoryMonitorImpl();
 
 protected:
 	InstructionResult InstrumentInstruction(

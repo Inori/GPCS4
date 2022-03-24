@@ -114,9 +114,10 @@
   <ItemGroup>
     <ClCompile Include="arch\x86\x86_assembler.cpp" />
     <ClCompile Include="arch\x86\x86_helpers.cpp" />
-    <ClCompile Include="arch\x86\x86_memory_monitor.cpp" />
+    <ClCompile Include="arch\x86\x86_memory_monitor_impl.cpp" />
     <ClCompile Include="common.cpp" />
     <ClCompile Include="memory_monitor.cpp" />
+    <ClCompile Include="memory_monitor_impl.cpp" />
     <ClCompile Include="tinydbr.cpp" />
     <ClCompile Include="windows\api_helper.cpp" />
     <ClCompile Include="windows\dllnotify.cpp" />
@@ -127,11 +128,13 @@
     <ClInclude Include="arch\x86\reg.h" />
     <ClInclude Include="arch\x86\x86_assembler.h" />
     <ClInclude Include="arch\x86\x86_helpers.h" />
-    <ClInclude Include="arch\x86\x86_memory_monitor.h" />
+    <ClInclude Include="arch\x86\x86_memory_monitor_impl.h" />
     <ClInclude Include="assembler.h" />
     <ClInclude Include="common.h" />
     <ClInclude Include="instruction.h" />
     <ClInclude Include="memory_monitor.h" />
+    <ClInclude Include="memory_monitor_impl.h" />
+    <ClInclude Include="structure.h" />
     <ClInclude Include="tinydbr.h" />
     <ClInclude Include="unwind.h" />
     <ClInclude Include="windows\api_helper.h" />

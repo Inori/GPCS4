@@ -1,25 +1,26 @@
-#include "x86_memory_monitor.h"
+#include "x86_memory_monitor_impl.h"
 #include "x86_helpers.h"
 #include "xbyak.h"
 #include <intrin.h>
+
 
 #ifdef max
 #undef max
 #endif
 
 
-X86MemoryMonitor::X86MemoryMonitor(MonitorFlags flags, MemoryCallback* callback) :
-	MemoryMonitor(flags, callback)
+X86MemoryMonitorImpl::X86MemoryMonitorImpl(MonitorFlags flags, MemoryCallback* callback) :
+	MemoryMonitorImpl(flags, callback)
 {
 	code_generator = std::make_unique<Xbyak::CodeGenerator>(code_buffer.size(), code_buffer.data());
 	DetectAvxInformation();
 }
 
-X86MemoryMonitor::~X86MemoryMonitor()
+X86MemoryMonitorImpl::~X86MemoryMonitorImpl()
 {
 }
 
-X86MemoryMonitor::InstructionType X86MemoryMonitor::GetInstructionType(const Instruction& inst)
+X86MemoryMonitorImpl::InstructionType X86MemoryMonitorImpl::GetInstructionType(const Instruction& inst)
 {
 	InstructionType type = InstructionType::None;
 
@@ -58,7 +59,7 @@ X86MemoryMonitor::InstructionType X86MemoryMonitor::GetInstructionType(const Ins
 	return type;
 }
 
-void X86MemoryMonitor::DetectAvxInformation()
+void X86MemoryMonitorImpl::DetectAvxInformation()
 {
 	bool support_avx    = false;
 	bool support_avx512 = false;
@@ -93,7 +94,7 @@ void X86MemoryMonitor::DetectAvxInformation()
 	avx_info.xsave_frame_size = info[2];
 }
 
-void X86MemoryMonitor::EmitGetMemoryAddress(
+void X86MemoryMonitorImpl::EmitGetMemoryAddress(
 	const Instruction&         inst,
 	Xbyak::CodeGenerator&      a,
 	const ZydisDecodedOperand* mem_operand,
@@ -144,7 +145,7 @@ void X86MemoryMonitor::EmitGetMemoryAddress(
 	}
 }
 
-void X86MemoryMonitor::EmitGetMemoryAddressNormal(
+void X86MemoryMonitorImpl::EmitGetMemoryAddressNormal(
 	const Instruction& inst, Xbyak::CodeGenerator& a, const ZydisDecodedOperand* mem_operand, ZydisRegister dst)
 {
 	using namespace Xbyak::util;
@@ -179,7 +180,7 @@ void X86MemoryMonitor::EmitGetMemoryAddressNormal(
 	a.db(encoded_instruction, encoded_length);
 }
 
-InstructionResult X86MemoryMonitor::EmitExplicitMemoryAccess(
+InstructionResult X86MemoryMonitorImpl::EmitExplicitMemoryAccess(
 	const Instruction& inst, Xbyak::CodeGenerator& a)
 {
 	InstructionResult action = INST_NOTHANDLED;
@@ -213,7 +214,7 @@ InstructionResult X86MemoryMonitor::EmitExplicitMemoryAccess(
 	return action;
 }
 
-ZydisRegister X86MemoryMonitor::EmitPreWrite(
+ZydisRegister X86MemoryMonitorImpl::EmitPreWrite(
 	const Instruction& inst, Xbyak::CodeGenerator& a)
 {
 	using namespace Xbyak::util;
@@ -233,7 +234,7 @@ ZydisRegister X86MemoryMonitor::EmitPreWrite(
 	return addr_reg;
 }
 
-void X86MemoryMonitor::EmitPostWrite(
+void X86MemoryMonitorImpl::EmitPostWrite(
 	const Instruction& inst, Xbyak::CodeGenerator& a, ZydisRegister addr_register)
 {
 	using namespace Xbyak::util;
@@ -241,7 +242,7 @@ void X86MemoryMonitor::EmitPostWrite(
 	a.pop(ZydisRegToXbyakReg(addr_register));
 }
 
-InstructionResult X86MemoryMonitor::EmitXlat(
+InstructionResult X86MemoryMonitorImpl::EmitXlat(
 	const Instruction& inst, Xbyak::CodeGenerator& a)
 {
 	using namespace Xbyak::util;
@@ -260,7 +261,7 @@ InstructionResult X86MemoryMonitor::EmitXlat(
 	// so the size is always 1 byte
 	a.mov(r8d, 1);
 
-	auto func = decltype(&X86MemoryMonitor::OnMemoryRead)(&X86MemoryMonitor::OnMemoryRead);
+	auto func = decltype(&X86MemoryMonitorImpl::OnMemoryRead)(&X86MemoryMonitorImpl::OnMemoryRead);
 	uint64_t callback  = reinterpret_cast<uint64_t>(reinterpret_cast<void*&>(func));
 	// now the parameters are all ready
 	// call the memory access callback
@@ -273,7 +274,7 @@ InstructionResult X86MemoryMonitor::EmitXlat(
 }
 
 // see DynamicRIO: drx_expand_scatter_gather
-InstructionResult X86MemoryMonitor::EmitGatherScatter(const Instruction& inst, Xbyak::CodeGenerator& a)
+InstructionResult X86MemoryMonitorImpl::EmitGatherScatter(const Instruction& inst, Xbyak::CodeGenerator& a)
 {
 	using namespace Xbyak::util;
 
@@ -290,7 +291,7 @@ InstructionResult X86MemoryMonitor::EmitGatherScatter(const Instruction& inst, X
 	return action;
 }
 
-InstructionResult X86MemoryMonitor::EmitGatherScatterEs(
+InstructionResult X86MemoryMonitorImpl::EmitGatherScatterEs(
 	const Instruction& inst, Xbyak::CodeGenerator& a)
 {
 	using namespace Xbyak::util;
@@ -329,7 +330,7 @@ InstructionResult X86MemoryMonitor::EmitGatherScatterEs(
 	return action;
 }
 
-InstructionResult X86MemoryMonitor::EmitGatherScatterNoEs(
+InstructionResult X86MemoryMonitorImpl::EmitGatherScatterNoEs(
 	const Instruction& inst, Xbyak::CodeGenerator& a)
 {
 	using namespace Xbyak::util;
@@ -385,7 +386,7 @@ InstructionResult X86MemoryMonitor::EmitGatherScatterNoEs(
 	return action;
 }
 
-void X86MemoryMonitor::EmitGatherScatterElementAccess(
+void X86MemoryMonitorImpl::EmitGatherScatterElementAccess(
 	const Instruction&       inst,
 	Xbyak::CodeGenerator&    a,
 	const GatherScatterInfo& info,
@@ -397,9 +398,9 @@ void X86MemoryMonitor::EmitGatherScatterElementAccess(
 
 	uint32_t element_count = info.vector_size / std::max(info.index_size, info.value_size);
 
-	auto     read_func  = decltype(&X86MemoryMonitor::OnMemoryRead)(&X86MemoryMonitor::OnMemoryRead);
+	auto     read_func  = decltype(&X86MemoryMonitorImpl::OnMemoryRead)(&X86MemoryMonitorImpl::OnMemoryRead);
 	uint64_t on_read    = reinterpret_cast<uint64_t>(reinterpret_cast<void*&>(read_func));
-	auto     write_func = decltype(&X86MemoryMonitor::OnMemoryWrite)(&X86MemoryMonitor::OnMemoryWrite);
+	auto     write_func = decltype(&X86MemoryMonitorImpl::OnMemoryWrite)(&X86MemoryMonitorImpl::OnMemoryWrite);
 	uint64_t on_write   = reinterpret_cast<uint64_t>(reinterpret_cast<void*&>(write_func));
 
 	// reserve a xmm register and a gpr register
@@ -460,7 +461,7 @@ void X86MemoryMonitor::EmitGatherScatterElementAccess(
 	}
 }
 
-void X86MemoryMonitor::EmitExtractScalarFromVector(
+void X86MemoryMonitorImpl::EmitExtractScalarFromVector(
 	Xbyak::CodeGenerator& a,
 	size_t                element_idx,
 	size_t                element_size,
@@ -547,7 +548,7 @@ void X86MemoryMonitor::EmitExtractScalarFromVector(
 	}
 }
 
-void X86MemoryMonitor::EmitStringRead(
+void X86MemoryMonitorImpl::EmitStringRead(
 	const Instruction& inst, Xbyak::CodeGenerator& a, 
 	const std::vector<ZydisRegister>& src_reg_list)
 {
@@ -579,7 +580,7 @@ void X86MemoryMonitor::EmitStringRead(
 		a.mov(r15, operand_size);
 	}
 	
-	auto     func     = decltype(&X86MemoryMonitor::OnMemoryRead)(&X86MemoryMonitor::OnMemoryRead);
+	auto     func     = decltype(&X86MemoryMonitorImpl::OnMemoryRead)(&X86MemoryMonitorImpl::OnMemoryRead);
 	uint64_t callback = reinterpret_cast<uint64_t>(reinterpret_cast<void*&>(func));
 
 	a.pushfq();
@@ -604,7 +605,7 @@ a.L(label);
 	EmitRestoreContext(a);
 }
 
-void X86MemoryMonitor::EmitStringWrite(
+void X86MemoryMonitorImpl::EmitStringWrite(
 	const Instruction& inst, Xbyak::CodeGenerator& a)
 {
 	using namespace Xbyak::util;
@@ -635,7 +636,7 @@ void X86MemoryMonitor::EmitStringWrite(
 		a.mov(r15, operand_size);
 	}
 
-	auto     func     = decltype(&X86MemoryMonitor::OnMemoryWrite)(&X86MemoryMonitor::OnMemoryWrite);
+	auto     func     = decltype(&X86MemoryMonitorImpl::OnMemoryWrite)(&X86MemoryMonitorImpl::OnMemoryWrite);
 	uint64_t callback = reinterpret_cast<uint64_t>(reinterpret_cast<void*&>(func));
 
 	a.pushfq();
@@ -654,7 +655,7 @@ a.L(label);
 	EmitRestoreContext(a);
 }
 
-void X86MemoryMonitor::GetGatherScatterInfo(const Instruction& inst, GatherScatterInfo* info)
+void X86MemoryMonitorImpl::GetGatherScatterInfo(const Instruction& inst, GatherScatterInfo* info)
 {
 	auto opcode = inst.zinst.instruction.mnemonic;
 	switch (opcode)
@@ -765,7 +766,7 @@ void X86MemoryMonitor::GetGatherScatterInfo(const Instruction& inst, GatherScatt
 	info->scale     = mem_op->mem.scale;
 }
 
-InstructionResult X86MemoryMonitor::EmitStringOp(const Instruction& inst, Xbyak::CodeGenerator& a)
+InstructionResult X86MemoryMonitorImpl::EmitStringOp(const Instruction& inst, Xbyak::CodeGenerator& a)
 {
 	using namespace Xbyak::util;
 
@@ -819,7 +820,7 @@ InstructionResult X86MemoryMonitor::EmitStringOp(const Instruction& inst, Xbyak:
 	return action;
 }
 
-InstructionResult X86MemoryMonitor::EmitMemoryAccess(
+InstructionResult X86MemoryMonitorImpl::EmitMemoryAccess(
 	const Instruction& inst, Xbyak::CodeGenerator& a)
 {
 	InstructionResult action = INST_NOTHANDLED;
@@ -856,7 +857,7 @@ InstructionResult X86MemoryMonitor::EmitMemoryAccess(
 	return action;
 }
 
-void X86MemoryMonitor::EmitMemoryCallback(
+void X86MemoryMonitorImpl::EmitMemoryCallback(
 	const Instruction&         inst,
 	Xbyak::CodeGenerator&      a,
 	bool                       is_write,
@@ -872,14 +873,14 @@ void X86MemoryMonitor::EmitMemoryCallback(
 	{
 		EmitGetMemoryAddress(inst, a, mem_operand, ZYDIS_REGISTER_RDX);
 
-		auto func = decltype(&X86MemoryMonitor::OnMemoryRead)(&X86MemoryMonitor::OnMemoryRead);
+		auto func = decltype(&X86MemoryMonitorImpl::OnMemoryRead)(&X86MemoryMonitorImpl::OnMemoryRead);
 		callback  = reinterpret_cast<uint64_t>(reinterpret_cast<void*&>(func));
 	}
 	else
 	{
 		a.mov(rdx, ZydisRegToXbyakReg(addr_register));
 
-		auto func = decltype(&X86MemoryMonitor::OnMemoryWrite)(&X86MemoryMonitor::OnMemoryWrite);
+		auto func = decltype(&X86MemoryMonitorImpl::OnMemoryWrite)(&X86MemoryMonitorImpl::OnMemoryWrite);
 		callback  = reinterpret_cast<uint64_t>(reinterpret_cast<void*&>(func));
 	}
 
@@ -905,7 +906,7 @@ void X86MemoryMonitor::EmitMemoryCallback(
 // 
 // pushfq
 // pushaq
-void X86MemoryMonitor::EmitSaveContext(Xbyak::CodeGenerator& a)
+void X86MemoryMonitorImpl::EmitSaveContext(Xbyak::CodeGenerator& a)
 {
 	if (m_flags & SaveExtendedState)
 	{
@@ -919,7 +920,7 @@ void X86MemoryMonitor::EmitSaveContext(Xbyak::CodeGenerator& a)
 
 // popaq
 // popfq
-void X86MemoryMonitor::EmitRestoreContext(Xbyak::CodeGenerator& a)
+void X86MemoryMonitorImpl::EmitRestoreContext(Xbyak::CodeGenerator& a)
 {
 	if (m_flags & SaveExtendedState)
 	{
@@ -932,7 +933,7 @@ void X86MemoryMonitor::EmitRestoreContext(Xbyak::CodeGenerator& a)
 }
 
 
-void X86MemoryMonitor::EmitSaveContextEs(Xbyak::CodeGenerator& a)
+void X86MemoryMonitorImpl::EmitSaveContextEs(Xbyak::CodeGenerator& a)
 {
 	using namespace Xbyak::util;
 
@@ -978,7 +979,7 @@ void X86MemoryMonitor::EmitSaveContextEs(Xbyak::CodeGenerator& a)
 	a.db(encoded_instruction, encoded_length);
 }
 
-void X86MemoryMonitor::EmitRestoreContextEs(Xbyak::CodeGenerator& a)
+void X86MemoryMonitorImpl::EmitRestoreContextEs(Xbyak::CodeGenerator& a)
 {
 	using namespace Xbyak::util;
 
@@ -1012,7 +1013,7 @@ void X86MemoryMonitor::EmitRestoreContextEs(Xbyak::CodeGenerator& a)
 	a.popfq();
 }
 
-void X86MemoryMonitor::EmitSaveContextNoEs(Xbyak::CodeGenerator& a)
+void X86MemoryMonitorImpl::EmitSaveContextNoEs(Xbyak::CodeGenerator& a)
 {
 	a.pushfq();
 
@@ -1022,7 +1023,7 @@ void X86MemoryMonitor::EmitSaveContextNoEs(Xbyak::CodeGenerator& a)
 	a.db(encoded_instruction, encoded_length);
 }
 
-void X86MemoryMonitor::EmitRestoreContextNoEs(Xbyak::CodeGenerator& a)
+void X86MemoryMonitorImpl::EmitRestoreContextNoEs(Xbyak::CodeGenerator& a)
 {
 	uint8_t encoded_instruction[32] = { 0 };
 	size_t  encoded_length          = Popaq(
@@ -1032,7 +1033,7 @@ void X86MemoryMonitor::EmitRestoreContextNoEs(Xbyak::CodeGenerator& a)
 	a.popfq();
 }
 
-void X86MemoryMonitor::EmitProlog(Xbyak::CodeGenerator& a)
+void X86MemoryMonitorImpl::EmitProlog(Xbyak::CodeGenerator& a)
 {
 	if (m_flags & SaveExtendedState)
 	{
@@ -1044,7 +1045,7 @@ void X86MemoryMonitor::EmitProlog(Xbyak::CodeGenerator& a)
 	}
 }
 
-void X86MemoryMonitor::EmitEpilog(Xbyak::CodeGenerator& a)
+void X86MemoryMonitorImpl::EmitEpilog(Xbyak::CodeGenerator& a)
 {
 	if (m_flags & SaveExtendedState)
 	{
@@ -1056,7 +1057,7 @@ void X86MemoryMonitor::EmitEpilog(Xbyak::CodeGenerator& a)
 	}
 }
 
-void X86MemoryMonitor::EmitPrologEs(Xbyak::CodeGenerator& a)
+void X86MemoryMonitorImpl::EmitPrologEs(Xbyak::CodeGenerator& a)
 {
 	using namespace Xbyak::util;
 
@@ -1064,14 +1065,14 @@ void X86MemoryMonitor::EmitPrologEs(Xbyak::CodeGenerator& a)
 	a.sub(rsp, ShadowSpaceSize);
 }
 
-void X86MemoryMonitor::EmitEpilogEs(Xbyak::CodeGenerator& a)
+void X86MemoryMonitorImpl::EmitEpilogEs(Xbyak::CodeGenerator& a)
 {
 	using namespace Xbyak::util;
 
 	a.add(rsp, ShadowSpaceSize);
 }
 
-void X86MemoryMonitor::EmitPrologNoEs(Xbyak::CodeGenerator& a)
+void X86MemoryMonitorImpl::EmitPrologNoEs(Xbyak::CodeGenerator& a)
 {
 	using namespace Xbyak::util;
 
@@ -1083,7 +1084,7 @@ void X86MemoryMonitor::EmitPrologNoEs(Xbyak::CodeGenerator& a)
 	a.and_(rsp, static_cast<uint32_t>(~(16 - 1)));
 }
 
-void X86MemoryMonitor::EmitEpilogNoEs(Xbyak::CodeGenerator& a)
+void X86MemoryMonitorImpl::EmitEpilogNoEs(Xbyak::CodeGenerator& a)
 {
 	using namespace Xbyak::util;
 
@@ -1091,7 +1092,7 @@ void X86MemoryMonitor::EmitEpilogNoEs(Xbyak::CodeGenerator& a)
 	a.mov(rsp, rbp);
 }
 
-InstructionResult X86MemoryMonitor::InstrumentInstruction(
+InstructionResult X86MemoryMonitorImpl::InstrumentInstruction(
 	ModuleInfo*  module,
 	Instruction& inst,
 	size_t       bb_address,
@@ -1121,7 +1122,7 @@ InstructionResult X86MemoryMonitor::InstrumentInstruction(
 	return action;
 }
 
-bool X86MemoryMonitor::NeedToHandle(Instruction& inst)
+bool X86MemoryMonitorImpl::NeedToHandle(Instruction& inst)
 {
 	bool need_handle = false;
 	do

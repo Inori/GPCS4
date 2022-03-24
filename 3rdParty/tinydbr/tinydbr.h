@@ -66,6 +66,10 @@ enum InstructionResult
 class TinyDBR : public Executor
 {
 public:
+	TinyDBR() = default;
+
+	virtual ~TinyDBR() = default;
+
 	virtual void Init(const std::vector<TargetModule>& target_modules,
 					  const Options&                   options) override;
 

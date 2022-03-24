@@ -39,8 +39,11 @@
     <ClCompile Include="windows\api_helper.cpp">
       <Filter>Source Files\windows</Filter>
     </ClCompile>
-    <ClCompile Include="arch\x86\x86_memory_monitor.cpp">
+    <ClCompile Include="arch\x86\x86_memory_monitor_impl.cpp">
       <Filter>Source Files\arch\x86</Filter>
+    </ClCompile>
+    <ClCompile Include="memory_monitor_impl.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="memory_monitor.cpp">
       <Filter>Source Files</Filter>
@@ -83,11 +86,17 @@
     <ClInclude Include="windows\api_helper.h">
       <Filter>Source Files\windows</Filter>
     </ClInclude>
+    <ClInclude Include="memory_monitor_impl.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="arch\x86\x86_memory_monitor_impl.h">
+      <Filter>Source Files\arch\x86</Filter>
+    </ClInclude>
     <ClInclude Include="memory_monitor.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="arch\x86\x86_memory_monitor.h">
-      <Filter>Source Files\arch\x86</Filter>
+    <ClInclude Include="structure.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

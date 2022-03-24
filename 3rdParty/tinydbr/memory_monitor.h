@@ -1,7 +1,11 @@
 #pragma once
 
-#include "tinydbr.h"
-#include <array>
+#include <cstdint>
+#include <memory>
+
+#include "structure.h"
+
+class MemoryMonitorImpl;
 
 enum MonitorFlag : uint64_t
 {
@@ -9,13 +13,12 @@ enum MonitorFlag : uint64_t
 	IgnoreStack       = 1 << 1,  // e.g. mov rax, [rsp + 0x8]
 	IgnoreRipRelative = 1 << 2,  // e.g. mov rax, [rip + 0x8]
 
-								 // save processor extended states, e.g. xmm, ymm, fpu, mxcsr
-								 // before call into user callback.
+	// save processor extended states, e.g. xmm, ymm, fpu, mxcsr
+	// before call into user callback.
 	SaveExtendedState = 1 << 3,  // this is a very costive operation which will slow down the program severely
 };
 
 typedef uint64_t MonitorFlags;
-
 
 // Library users should inherit this interface
 class MemoryCallback
@@ -34,29 +37,19 @@ public:
 	virtual void OnMemoryWrite(void* address, size_t size) = 0;
 };
 
-
-
-class MemoryMonitor : public TinyDBR
+class MemoryMonitor
 {
-
 public:
 	MemoryMonitor(MonitorFlags flags, MemoryCallback* callback);
-	virtual ~MemoryMonitor();
+	~MemoryMonitor();
 
-protected:
-	// These functions will be called from generated assemble code.
+	void Init(const std::vector<TargetModule>& target_modules,
+			  const Options&                   options);
 
-	// memory read
-	// this will be called before the read instruction
-	void OnMemoryRead(void* address, size_t size);
+	void Unit();
 
-	// memory write
-	// this will be called after the write instruction
-	void OnMemoryWrite(void* address, size_t size);
-
-protected:
-	MonitorFlags m_flags = 0;
-	MemoryCallback* m_callback;
+private:
+	
+	std::unique_ptr<MemoryMonitorImpl> m_impl;
 };
-
 
