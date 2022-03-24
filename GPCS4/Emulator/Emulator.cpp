@@ -18,8 +18,6 @@ bool Emulator::Init()
 			break;
 		}
 
-		m_pLinker = std::make_shared<CLinker>();
-
 		bRet = true;
 	} while (false);
 	return bRet;

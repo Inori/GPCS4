@@ -1,8 +1,6 @@
 #pragma once
 
 #include "GPCS4Common.h"
-#include "../Loader/EbootObject.h"
-#include "Linker.h"
 #include "TLSHandler.h"
 #include "Module.h"
 
@@ -27,6 +25,5 @@ private:
 
 	static void PS4API LastExitHandler(void);
 private:
-	std::shared_ptr<CLinker> m_pLinker;
 };
 
