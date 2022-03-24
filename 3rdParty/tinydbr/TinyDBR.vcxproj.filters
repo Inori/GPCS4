@@ -48,6 +48,9 @@
     <ClCompile Include="memory_monitor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="memory_callback.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="windows\executor.h">
@@ -96,6 +99,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="structure.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="memory_callback.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

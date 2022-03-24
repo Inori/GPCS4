@@ -1,10 +1,11 @@
 #pragma once
 
 #include "GPCS4Common.h"
-#include "SceLibkernel/sce_kernel_memory.h"
 #include "UtilMemory.h"
 #include "UtilSync.h"
-#include "tinydbr/arch/x86/x86_memory_monitor.h"
+
+#include "SceLibkernel/sce_kernel_memory.h"
+#include "tinydbr/memory_callback.h"
 
 #include <list>
 #include <optional>

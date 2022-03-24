@@ -1,15 +1,15 @@
 #include "memory_monitor.h"
 #include "arch/x86/x86_memory_monitor_impl.h"
 
-MemoryCallback::~MemoryCallback()
-{
-}
-
 //////////////////////////////////////////////////////////////////////////
 
 MemoryMonitor::MemoryMonitor(MonitorFlags flags, MemoryCallback* callback)
 {
+#if defined(__x86_64__) || defined(_M_X64)
 	m_impl = std::make_unique<X86MemoryMonitorImpl>(flags, callback);
+#else
+	// TODO:
+#endif
 }
 
 MemoryMonitor::~MemoryMonitor()

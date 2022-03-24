@@ -17,7 +17,7 @@ struct SCE_EXPORT_MODULE;
 
 class CSceModuleSystem final : public Singleton<CSceModuleSystem>
 {
-	friend class  Singleton<CSceModuleSystem>;
+	friend class Singleton<CSceModuleSystem>;
 
 public:
 	/**

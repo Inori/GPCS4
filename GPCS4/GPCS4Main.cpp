@@ -32,8 +32,7 @@ cxxopts::ParseResult processCommandLine(int argc, char* argv[])
 
 int main(int argc, char* argv[])
 {
-	std::unique_ptr<Emulator> pEmulator = std::make_unique<Emulator>();
-	int                       nRet      = -1;
+	int nRet = -1;
 
 	do
 	{
@@ -51,7 +50,7 @@ int main(int argc, char* argv[])
 
 		LOG_DEBUG("GPCS4 start.");
 
-		if (!pEmulator->Init())
+		if (!TheEmulator().Init())
 		{
 			break;
 		}
@@ -71,13 +70,13 @@ int main(int argc, char* argv[])
 			break;
 		}
 
-		if (!pEmulator->Run(*ebootModule))
+		if (!TheEmulator().Run(*ebootModule))
 		{
 			break;
 		}
 
 		uninstallTLSManager();
-		pEmulator->Unit();
+		TheEmulator().Unit();
 
 		nRet = 0;
 	} while (false);

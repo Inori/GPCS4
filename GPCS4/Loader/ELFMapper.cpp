@@ -100,10 +100,10 @@ bool ELFMapper::parseSegmentHeaders()
 			break;
 		}
 
-		auto &fileMemory     = m_moduleData->m_fileMemory;
-		MODULE_INFO &info    = m_moduleData->m_moduleInfo;
-		uint8_t *pSegmentHeader = fileMemory.data() + m_moduleData->m_elfHeader->e_phoff;
-		uint32_t shCount         = m_moduleData->m_elfHeader->e_phnum;
+		auto&        fileMemory     = m_moduleData->m_fileMemory;
+		MODULE_INFO& info           = m_moduleData->m_moduleInfo;
+		uint8_t*     pSegmentHeader = fileMemory.data() + m_moduleData->m_elfHeader->e_phoff;
+		uint32_t     shCount        = m_moduleData->m_elfHeader->e_phnum;
 
 		m_moduleData->m_segmentHeaders.resize(shCount);
 
