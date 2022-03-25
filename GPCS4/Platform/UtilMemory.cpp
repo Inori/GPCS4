@@ -204,6 +204,7 @@ bool VMQuery(void* pAddress, MemoryInformation* pInfo)
 		pInfo->nRegionState   = GetRegionState(mbi.State);
 		pInfo->nRegionProtect = RecoverProtectFlag(mbi.Protect);
 
+		ret = true;
 	} while (false);
 	return ret;
 }

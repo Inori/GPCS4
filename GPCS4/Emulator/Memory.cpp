@@ -144,14 +144,10 @@ int32_t MemoryAllocator::memoryUnmap(void* addr, size_t len)
 {
 	umemory::VMFree(addr);
 
+	auto iter = findMemoryBlock(addr);
+	if (iter.has_value())
 	{
-		std::lock_guard<sync::Spinlock> guard(m_lock);
-
-		auto iter = findMemoryBlock(addr);
-		if (iter.has_value())
-		{
-			m_memBlocks.erase(*iter);
-		}
+		m_memBlocks.erase(*iter);
 	}
 
 	return SCE_OK;

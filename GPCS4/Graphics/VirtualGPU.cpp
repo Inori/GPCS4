@@ -4,6 +4,8 @@
 #include "sce_errors.h"
 #include "SceUserService/user_service_defs.h"
 
+LOG_CHANNEL(VirtualGPU);
+
 namespace sce
 {
 
@@ -23,8 +25,11 @@ int VirtualGPU::videoOutOpen(SceUserServiceUserId userId, int32_t type, int32_t 
 	const static uint32_t typeIndexTable[SCE_VIDEO_OUT_BUS_TYPE_COUNT] = { 0, 0, 0, 0, 0, 1, 2 };
 	do 
 	{
-		if (userId != SCE_USER_SERVICE_USER_ID_SYSTEM || index != 0)
+		if ((userId != 0 && userId != SCE_USER_SERVICE_USER_ID_SYSTEM) || index != 0)
 		{
+			// Document states that userId must be SCE_USER_SERVICE_USER_ID_SYSTEM
+			// but sample code use 0
+			LOG_WARN("invalid userId %d", userId);
 			result = SCE_VIDEO_OUT_ERROR_INVALID_VALUE;
 			break;
 		}
