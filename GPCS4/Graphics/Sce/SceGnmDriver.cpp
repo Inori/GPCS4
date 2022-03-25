@@ -15,8 +15,7 @@ extern "C" void glfwPollEvents(void);
 namespace sce
 {;
 
-SceGnmDriver::SceGnmDriver(std::shared_ptr<SceVideoOut>& videoOut) :
-	m_videoOut(videoOut)
+SceGnmDriver::SceGnmDriver() 
 {
 	bool success = initGnmDriver();
 	LOG_ASSERT(success == true, "init Gnm Driver failed.");
@@ -32,8 +31,6 @@ SceGnmDriver::~SceGnmDriver()
 	m_graphicsQueue.reset();
 	// Release Presenter before VideoOut
 	// m_presenter = nullptr;
-	// Release VideoOut before GnmDriver.
-	m_videoOut.reset();
 }
 
 bool SceGnmDriver::initGnmDriver()
@@ -57,7 +54,7 @@ int SceGnmDriver::submitCommandBuffers(uint32_t  count,
 	return submitAndFlipCommandBuffers(count,
 									   dcbGpuAddrs, dcbSizesInBytes,
 									   ccbGpuAddrs, ccbSizesInBytes,
-									   SCE_VIDEO_HANDLE_MAIN, 0, 0, 0);
+									   0, 0, 0, 0);
 }
 
 int SceGnmDriver::submitAndFlipCommandBuffers(uint32_t  count,
@@ -124,12 +121,7 @@ int SceGnmDriver::sceGnmSubmitDone(void)
 	// Since we use a window to emulate the hardware display, we need a place
 	// to process the window event.
 	// Currently I didn't find a very good place, so I place it here. 
-	// Need to improve.
-	//
-	// And in theory, the VideoOut emulation shouldn't export event process function.
-	// because a real hardware display doesn't require the game to process display event.
-	// we should find a better way.
-	m_videoOut->display().processEvents();
+	glfwPollEvents();
 	return SCE_OK;
 }
 

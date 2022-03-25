@@ -83,9 +83,14 @@ enum SceVideoOutRefreshRate
 };
 
 
-enum SceVideoOutBusType 
+enum SceVideoOutBusType
 {
-	SCE_VIDEO_OUT_BUS_TYPE_MAIN = 0,
+	SCE_VIDEO_OUT_BUS_TYPE_MAIN                    = 0,
+	SCE_VIDEO_OUT_BUS_TYPE_AUX                     = 5,
+	SCE_VIDEO_OUT_BUS_TYPE_AUX_SOCIAL_SCREEN       = SCE_VIDEO_OUT_BUS_TYPE_AUX,
+	SCE_VIDEO_OUT_BUS_TYPE_AUX_GAME_LIVE_STREAMING = 6,
+
+	SCE_VIDEO_OUT_BUS_TYPE_COUNT,
 };
 
 

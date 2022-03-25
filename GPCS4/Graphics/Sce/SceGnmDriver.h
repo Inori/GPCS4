@@ -1,16 +1,14 @@
 #pragma once
 
 #include "SceCommon.h"
-#include "SceVideoOut.h"
 
 #include <array>
 #include <memory>
 
 
 namespace sce
-{;
+{
 
-class SceVideoOut;
 class SceGpuQueue;
 
 // Valid vqueue id should be positive value.
@@ -21,10 +19,9 @@ constexpr uint32_t MaxComputeQueueCount = MaxPipeId * MaxQueueId;
 
 class SceGnmDriver
 {
-	friend class SceVideoOut;
 
 public:
-	SceGnmDriver(std::shared_ptr<SceVideoOut>& videoOut);
+	SceGnmDriver();
 	~SceGnmDriver();
 
 	/// Graphics
@@ -70,8 +67,6 @@ private:
 	void submitPresent();
 
 private:
-	std::shared_ptr<SceVideoOut> m_videoOut;
-
 	std::unique_ptr<SceGpuQueue>                                   m_graphicsQueue;
 	std::array<std::unique_ptr<SceGpuQueue>, MaxComputeQueueCount> m_computeQueues;
 };

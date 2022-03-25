@@ -1,5 +1,8 @@
 #include "sce_gnmdriver.h"
+#include "Emulator/Emulator.h"
 #include "VirtualGPU.h"
+#include "Sce/SceGnmDriver.h"
+#include "Sce/SceVideoOut.h"
 
 
 // Note:
@@ -187,8 +190,8 @@ int PS4API sceGnmLogicalCuMaskToPhysicalCuMask(void)
 void PS4API sceGnmDingDong(uint32_t vqueueId, uint32_t nextStartOffsetInDw)
 {
 	LOG_SCE_GRAPHIC("vqueueId %d nextStartOffsetInDw %d", vqueueId, nextStartOffsetInDw);
-	//auto gnmDriver = getGnmDriver();
-	//gnmDriver->dingDong(vqueueId, nextStartOffsetInDw);
+	auto& gnmDriver = GPU().gnmDriver();
+	gnmDriver.dingDong(vqueueId, nextStartOffsetInDw);
 }
 
 
@@ -204,21 +207,21 @@ int PS4API sceGnmMapComputeQueue(uint32_t globalPipeId, uint32_t queueId, void* 
 	LOG_SCE_GRAPHIC("pipeId %d queueId %d ringBase %p ringSizeDW %d readPtr %p",
 		globalPipeId, queueId, ringBaseAddr, ringSizeInDW, readPtrAddr);
 
-	//auto gnmDriver = getGnmDriver();
-	//return gnmDriver->mapComputeQueue(
-	//	globalPipeId,
-	//	queueId,
-	//	ringBaseAddr,
-	//	ringSizeInDW,
-	//	readPtrAddr);
+	auto& gnmDriver = GPU().gnmDriver();
+	return gnmDriver.mapComputeQueue(
+		globalPipeId,
+		queueId,
+		ringBaseAddr,
+		ringSizeInDW,
+		readPtrAddr);
 }
 
 
 void PS4API sceGnmUnmapComputeQueue(uint32_t vqueueId)
 {
 	LOG_SCE_GRAPHIC("vqueueId %d", vqueueId);
-	//auto gnmDriver = getGnmDriver();
-	//gnmDriver->unmapComputeQueue(vqueueId);
+	auto& gnmDriver = GPU().gnmDriver();
+	gnmDriver.unmapComputeQueue(vqueueId);
 }
 
 

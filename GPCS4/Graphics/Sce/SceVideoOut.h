@@ -11,9 +11,6 @@ namespace sce
 {
 
 
-#define SCE_VIDEO_HANDLE_MAIN 1
-#define SCE_VIDEO_HANDLE_MAX  3
-
 struct DisplaySize
 {
 	// Runtime size
@@ -22,7 +19,7 @@ struct DisplaySize
 };
 
 /*
-* For a real PS4 hardware, a display is connected to the console,
+* For a real PS4 hardware, a hardware display is connected to the console,
 * for our emulator, we use a window to emulate the display.
 */
 class VirtualDisplay
@@ -38,7 +35,7 @@ public:
 
 	void processEvents();
 
-	DisplaySize getSize();
+	DisplaySize getSize() const;
 
 	/**
 	 * \brief Get the window surface
@@ -87,10 +84,12 @@ struct SceDisplayBuffer
 class SceVideoOut
 {
 public:
-	SceVideoOut();
+	SceVideoOut(int32_t busType, const void* param);
 	~SceVideoOut();
 
-	VirtualDisplay& display();
+	int32_t busType();
+
+	DisplaySize getSize() const;
 
 	bool registerDisplayrBuffers(
 		uint32_t                          startIndex,
@@ -112,6 +111,8 @@ private:
 private:
 	VirtualDisplay m_display;
 
+	// SceVideoOutBusType
+	int32_t  m_busType  = 0;
 	uint32_t m_flipRate = 60;
 
 	std::vector<SceDisplayBuffer> m_displayBuffers;

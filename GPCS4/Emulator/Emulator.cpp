@@ -1,10 +1,18 @@
 #include "Emulator.h"
 #include "GameThread.h"
 #include "SceModuleSystem.h"
+#include "VirtualCPU.h"
+#include "VirtualGPU.h"
+#include "Sce/SceGnmDriver.h"
+#include "Sce/SceVideoOut.h"
 
 LOG_CHANNEL(Emulator);
 
-Emulator::Emulator() {}
+Emulator::Emulator() 
+{
+	m_cpu = std::make_unique<VirtualCPU>();
+	m_gpu = std::make_unique<sce::VirtualGPU>();
+}
 
 Emulator::~Emulator() {}
 
@@ -15,7 +23,7 @@ void Emulator::loadIntoCPU(NativeModule const& mod)
 	// this is true if the target file is dumped by hack tools like
 	// ps4-dumper-vtx
 	CodeBlock block = { modInfo.pCodeAddr, modInfo.nCodeSize };
-	m_cpu.load(block);
+	m_cpu->load(block);
 }
 
 bool Emulator::executeEntry(NativeModule const& mod)
@@ -104,12 +112,12 @@ bool Emulator::Run(NativeModule const &mod)
 
 VirtualCPU& Emulator::CPU()
 {
-	return m_cpu;
+	return *m_cpu;
 }
 
 sce::VirtualGPU& Emulator::GPU()
 {
-	return m_gpu;
+	return *m_gpu;
 }
 
 void PS4API Emulator::LastExitHandler(void) { LOG_DEBUG("program exit."); }

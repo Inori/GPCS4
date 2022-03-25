@@ -2,9 +2,17 @@
 
 #include "GPCS4Common.h"
 #include "Module.h"
-#include "VirtualCPU.h"
-#include "VirtualGPU.h"
 #include "UtilSingleton.h"
+
+#include <memory>
+
+class VirtualCPU;
+
+namespace sce
+{
+class VirtualGPU;
+}  // namespace sce
+
 
 
 typedef void (PS4NORETURN PS4API *PFUNC_EntryPoint)(void* pEnv, void* pfnExitHandler);
@@ -37,8 +45,8 @@ private:
 
 	static void PS4API LastExitHandler(void);
 private:
-	VirtualCPU      m_cpu;
-	sce::VirtualGPU m_gpu;
+	std::unique_ptr<VirtualCPU>      m_cpu;
+	std::unique_ptr<sce::VirtualGPU> m_gpu;
 };
 
 

@@ -38,7 +38,7 @@ void VirtualDisplay::processEvents()
 	glfwPollEvents();
 }
 
-DisplaySize VirtualDisplay::getSize()
+DisplaySize VirtualDisplay::getSize() const
 {
 	DisplaySize result = {};
 	glfwGetWindowSize(m_window, (int*)&result.width, (int*)&result.height);
@@ -66,19 +66,23 @@ void VirtualDisplay::framebufferResizeCallback(GLFWwindow* window, int width, in
 
 //////////////////////////////////////////////////////////////////////////
 
-
-SceVideoOut::SceVideoOut()
+SceVideoOut::SceVideoOut(int32_t busType, const void* param) :
+	m_busType(busType)
 {
-
 }
 
 SceVideoOut::~SceVideoOut()
 {
 }
 
-VirtualDisplay& SceVideoOut::display()
+int32_t SceVideoOut::busType()
 {
-	return m_display;
+	return m_busType;
+}
+
+DisplaySize SceVideoOut::getSize() const
+{
+	return m_display.getSize();
 }
 
 bool SceVideoOut::registerDisplayrBuffers(

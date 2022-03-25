@@ -1,5 +1,8 @@
 #include "sce_videoout.h"
+#include "Emulator/Emulator.h"
 #include "VirtualGPU.h"
+#include "Sce/SceVideoOut.h"
+#include "Sce/SceGnmDriver.h"
 
 #include <cstring>
 // Note:
@@ -19,29 +22,14 @@ int PS4API sceVideoOutOpen(SceUserServiceUserId userId, int32_t type, int32_t in
 {
 	LOG_SCE_GRAPHIC("user id %d", userId);
 	LOG_ASSERT((type == SCE_VIDEO_OUT_BUS_TYPE_MAIN), "not supported videoout type %d", type);
-
-	//GfxContext gfxCtx;
-	//gfxCtx.videoOut =  std::make_shared<sce::SceVideoOut>(sce::kVideoOutDefaultWidth, sce::kVideoOutDefaultHeight);
-	//gfxCtx.gnmDriver = std::make_shared<sce::SceGnmDriver>(gfxCtx.videoOut);
-	//setGfxContext(SCE_VIDEO_HANDLE_MAIN, gfxCtx);
-	//return SCE_VIDEO_HANDLE_MAIN;
+	return GPU().videoOutOpen(userId, type, index, param);
 }
 
 
 int PS4API sceVideoOutClose(int32_t handle)
 {
 	LOG_SCE_GRAPHIC("handle %d", handle);
-	//int ret = -1;
-	//do 
-	//{
-
-	//	// clear
-	//	GfxContext gfxCtx = { nullptr };
-	//	setGfxContext(handle, gfxCtx);
-
-	//	ret = SCE_OK;
-	//} while (false);
-	//return ret;
+	return GPU().videoOutClose(handle);
 }
 
 
@@ -49,46 +37,41 @@ int PS4API sceVideoOutGetResolutionStatus(int32_t handle, SceVideoOutResolutionS
 {
 	LOG_SCE_GRAPHIC("handle %d", handle);
 
-	//std::shared_ptr<sce::SceVideoOut> videoOut = getVideoOut(handle);
+	auto& videoOut = GPU().videoOutGet(handle);
 
-	//auto sizeInfo            = videoOut->getSize();
-	//status->fullWidth        = sizeInfo.windowWidth;
-	//status->fullHeight       = sizeInfo.windowHeight;
-	//status->paneWidth        = sizeInfo.windowWidth;
-	//status->paneHeight       = sizeInfo.windowHeight;
-	//status->refreshRate      = SCE_VIDEO_OUT_REFRESH_RATE_59_94HZ;
-	//status->screenSizeInInch = 32;
-	//status->flags            = SCE_VIDEO_OUT_RESOLUTION_STATUS_FLAGS_OUTPUT_IN_USE;
-	//return SCE_OK;
+	auto sizeInfo            = videoOut.getSize();
+	status->fullWidth        = sizeInfo.width;
+	status->fullHeight       = sizeInfo.height;
+	status->paneWidth        = sizeInfo.width;
+	status->paneHeight       = sizeInfo.height;
+	status->refreshRate      = SCE_VIDEO_OUT_REFRESH_RATE_59_94HZ;
+	status->screenSizeInInch = 32;
+	status->flags            = SCE_VIDEO_OUT_RESOLUTION_STATUS_FLAGS_OUTPUT_IN_USE;
+	return SCE_OK;
 }
 
 
 int PS4API sceVideoOutSetFlipRate(int32_t handle, int32_t rate)
 {
 	LOG_SCE_GRAPHIC("handle %d rate %d", handle, rate);
-	//int ret = SCE_GNM_ERROR_UNKNOWN;
-	//const uint32_t rateTable[3] = { 60, 30, 20 };
-	//do 
-	//{
-	//	if (rate < 0 || rate > 2)
-	//	{
-	//		ret = SCE_VIDEO_OUT_ERROR_INVALID_VALUE;
-	//		break;
-	//	}
+	int            ret          = SCE_GNM_ERROR_UNKNOWN;
+	const uint32_t rateTable[3] = { 60, 30, 20 };
+	do
+	{
+		if (rate < 0 || rate > 2)
+		{
+			ret = SCE_VIDEO_OUT_ERROR_INVALID_VALUE;
+			break;
+		}
 
-	//	std::shared_ptr<sce::SceVideoOut> videoOut = getVideoOut(handle);
-	//	if (!videoOut)
-	//	{
-	//		ret = SCE_VIDEO_OUT_ERROR_INVALID_HANDLE;
-	//		break;
-	//	}
+		auto& videoOut = GPU().videoOutGet(handle);
 
-	//	uint32_t realRate = rateTable[rate];
-	//	videoOut->setFlipRate(realRate);
+		uint32_t realRate = rateTable[rate];
+		videoOut.setFlipRate(realRate);
 
-	//	ret = SCE_OK;
-	//} while (false);
-	//return ret;
+		ret = SCE_OK;
+	} while (false);
+	return ret;
 }
 
 
@@ -113,31 +96,20 @@ int PS4API sceVideoOutRegisterBuffers(int32_t handle, int32_t startIndex, void *
 	int32_t bufferNum, const SceVideoOutBufferAttribute *attribute)
 {
 	LOG_SCE_GRAPHIC("handle %d addr %p num %d attr %p", handle, addresses, bufferNum, attribute);
-	//int ret = SCE_GNM_ERROR_UNKNOWN;
-	//do 
-	//{
-	//	std::shared_ptr<sce::SceVideoOut> videoOut = getVideoOut(handle);
-	//	std::shared_ptr<sce::SceGnmDriver> gnmDriver = getGnmDriver(handle);
+	int ret = SCE_GNM_ERROR_UNKNOWN;
+	do 
+	{
+		auto& videoOut = GPU().videoOutGet(handle);
 
-	//	if (!videoOut || !gnmDriver)
-	//	{
-	//		break;
-	//	}
-
-	//	// Maybe need more params, such as attribute...
-	//	if (!videoOut->registerDisplayrBuffers(startIndex, addresses, bufferNum, attribute))
-	//	{
-	//		break;
-	//	}
-	//	
-	//	if (!gnmDriver->createGraphicsQueue(bufferNum))
-	//	{
-	//		break;
-	//	}
-	//	
-	//	ret = SCE_OK;
-	//} while (false);
-	//return ret;
+		// Maybe need more params, such as attribute...
+		if (!videoOut.registerDisplayrBuffers(startIndex, addresses, bufferNum, attribute))
+		{
+			break;
+		}
+		
+		ret = SCE_OK;
+	} while (false);
+	return ret;
 }
 
 
@@ -145,31 +117,20 @@ int PS4API sceVideoOutRegisterStereoBuffers(int32_t handle, int32_t startIndex, 
 	int32_t bufferNum, const SceVideoOutBufferAttribute *attribute)
 {
 	LOG_SCE_GRAPHIC("handle %d buffers %p num %d attr %p", handle, buffers, bufferNum, attribute);
-	//int ret = SCE_GNM_ERROR_UNKNOWN;
-	//do 
-	//{
-	//	std::shared_ptr<sce::SceVideoOut> videoOut = getVideoOut(handle);
-	//	std::shared_ptr<sce::SceGnmDriver> gnmDriver = getGnmDriver(handle);
+	int ret = SCE_GNM_ERROR_UNKNOWN;
+	do 
+	{
+		auto& videoOut = GPU().videoOutGet(handle);
 
-	//	if (!videoOut || !gnmDriver)
-	//	{
-	//		break;
-	//	}
-
-	//	// Maybe need more params, such as attribute...
-	//	if (!videoOut->registerDisplayrBuffers(startIndex, nullptr, bufferNum, attribute))
-	//	{
-	//		break;
-	//	}
-	//	
-	//	if (!gnmDriver->createGraphicsQueue(bufferNum))
-	//	{
-	//		break;
-	//	}
-	//	
-	//	ret = SCE_OK;
-	//} while (false);
-	//return ret;
+		// Maybe need more params, such as attribute...
+		if (!videoOut.registerDisplayrBuffers(startIndex, nullptr, bufferNum, attribute))
+		{
+			break;
+		}
+		
+		ret = SCE_OK;
+	} while (false);
+	return ret;
 }
 
 
