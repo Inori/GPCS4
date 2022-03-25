@@ -13,6 +13,13 @@ MemoryAllocator::~MemoryAllocator()
 {
 }
 
+int32_t MemoryAllocator::reserveVirtualRange(void** addr, size_t len, int flags, size_t alignment)
+{
+	LOG_DEBUG("not really implemented.");
+	*addr = new uint8_t[1024 * 1024 * 256];
+	return SCE_OK;
+}
+
 // well, should pre allocate flexible memory and 'map' to the given address in this function.
 // but currently we just do the allocation in map
 int32_t MemoryAllocator::mapFlexibleMemory(void** addrInOut, size_t len, int prot, int flags)
@@ -157,7 +164,7 @@ int32_t MemoryAllocator::checkedReleaseDirectMemory(int64_t start, size_t len)
 }
 
 int32_t MemoryAllocator::queryMemoryProtection(
-	void* addr, void** start, void** end, int* prot)
+	void* addr, void** start, void** end, uint32_t* prot)
 {
 	int32_t err = SCE_KERNEL_ERROR_UNKNOWN;
 	do

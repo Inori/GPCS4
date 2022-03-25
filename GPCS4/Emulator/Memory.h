@@ -34,6 +34,12 @@ public:
 
 	// SCE functions
 
+	int32_t reserveVirtualRange(
+		void** addr,
+		size_t len,
+		int    flags,
+		size_t alignment);
+
 	int32_t mapFlexibleMemory(
 		void** addrInOut,
 		size_t len,
@@ -69,10 +75,10 @@ public:
 		size_t  len);
 
 	int32_t queryMemoryProtection(
-		void*  addr,
-		void** start,
-		void** end,
-		int*   prot);
+		void*     addr,
+		void**    start,
+		void**    end,
+		uint32_t* prot);
 
 	// C functions
 

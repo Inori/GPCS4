@@ -357,7 +357,7 @@ int PS4API sceKernelMprotect(void);
 int PS4API sceKernelMtypeprotect(void);
 
 
-int PS4API sceKernelMunmap(void);
+int PS4API sceKernelMunmap(void* addr, size_t len);
 
 
 int PS4API sceKernelMlock(const void *addr, size_t len);
