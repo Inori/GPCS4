@@ -234,7 +234,7 @@ bool ModuleLoader::mapModuleNameToFilePath(std::string const &modName,
 
 	do
 	{
-		retVal = ppath::splitFileName(modName, &fileName, &extension);
+		retVal = plat::splitFileName(modName, &fileName, &extension);
 		if (retVal == false)
 		{
 			break;

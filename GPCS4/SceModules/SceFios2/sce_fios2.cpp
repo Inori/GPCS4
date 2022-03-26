@@ -40,7 +40,7 @@ bool PS4API sceFiosFileExistsSync(const SceFiosOpAttr* pAttr, const char* pPath)
 	LOG_SCE_TRACE("path %s", pPath);
 
 	LOG_ASSERT(pAttr == nullptr, "only support null attr.");
-	auto path = ppath::PS4PathToPCPath(pPath);
+	auto path = plat::PS4PathToPCPath(pPath);
 	bool isDir = std::filesystem::is_directory(path);
 	bool exists = std::filesystem::exists(path);
 	return !isDir && exists;
@@ -52,7 +52,7 @@ bool PS4API sceFiosDirectoryExistsSync(const SceFiosOpAttr *pAttr, const char *p
 	LOG_SCE_TRACE("path %s", pPath);
 
 	LOG_ASSERT(pAttr == nullptr, "only support null attr.");
-	auto path   = ppath::PS4PathToPCPath(pPath);
+	auto path   = plat::PS4PathToPCPath(pPath);
 	bool isDir  = std::filesystem::is_directory(path);
 	bool exists = std::filesystem::exists(path);
 	return isDir && exists;

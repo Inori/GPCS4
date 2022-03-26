@@ -3,7 +3,7 @@
 #include "GPCS4Common.h"
 
 
-namespace pexception
+namespace plat
 {
 
 constexpr uint32_t GnmPageSize = 0x1000;

@@ -3,7 +3,7 @@
 #include "GPCS4Common.h"
 
 
-namespace phardware
+namespace plat
 {
 
 

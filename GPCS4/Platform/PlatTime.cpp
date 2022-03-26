@@ -2,8 +2,8 @@
 #include <thread>
 #include <chrono>
 
-namespace ptime
-{;
+namespace plat
+{
 
 
 void MicroSleep(uint32_t ms)

@@ -18,7 +18,7 @@ LOG_CHANNEL(Loader.ELFMapper);
 
 bool ELFMapper::loadFile(std::string const &filePath, NativeModule *mod)
 {
-	pfile::file_uptr file = {};
+	plat::file_uptr file = {};
 	bool retVal              = false;
 
 	do
@@ -31,7 +31,7 @@ bool ELFMapper::loadFile(std::string const &filePath, NativeModule *mod)
 
 		m_moduleData = mod;
 
-		if (!pfile::LoadFile(filePath, mod->m_fileMemory))
+		if (!plat::LoadFile(filePath, mod->m_fileMemory))
 		{
 			LOG_ERR("failed to load file %s", filePath.c_str());
 			break;
@@ -240,10 +240,10 @@ bool ELFMapper::mapImageIntoMemory()
 			break;
 		}
 
-		uint8_t* buffer = reinterpret_cast<uint8_t*>(pmemory::VMAllocateAlign(
+		uint8_t* buffer = reinterpret_cast<uint8_t*>(plat::VMAllocateAlign(
 			nullptr,
-			totalSize, pmemory::VM_PAGE_SIZE,
-			pmemory::VMAT_RESERVE_COMMIT, pmemory::VMPF_CPU_RWX));
+			totalSize, plat::VM_PAGE_SIZE,
+			plat::VMAT_RESERVE_COMMIT, plat::VMPF_CPU_RWX));
 
 		if (buffer == nullptr)
 		{

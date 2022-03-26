@@ -1,6 +1,6 @@
 #include "PlatDebug.h"
 
-namespace pdebug
+namespace plat
 {
 
 #ifdef GPCS4_WINDOWS

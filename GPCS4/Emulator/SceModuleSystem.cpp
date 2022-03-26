@@ -136,7 +136,7 @@ bool CSceModuleSystem::isFileAllowedToLoad(std::string const &fileName)
 	std::string name      = {};
 	std::string extension = {};
 
-	auto ret = ppath::splitFileName(fileName, &name, &extension);
+	auto ret = plat::splitFileName(fileName, &name, &extension);
 
 	do
 	{

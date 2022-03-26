@@ -32,7 +32,7 @@ void GnmCommandBuffer::emuWriteGpuLabel(EventWriteSource selector, void* label, 
 		}
 		else
 		{
-			*(uint64_t*)label = pprocess::GetProcessTimeCounter();
+			*(uint64_t*)label = plat::GetProcessTimeCounter();
 		}
 
 	} while (false);

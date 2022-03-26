@@ -228,7 +228,7 @@ int SceKeyboard::readState(ScePadData* data)
 	memset(data, 0, sizeof(ScePadData));
 	data->connected      = true;
 	data->connectedCount = 1;
-	data->timestamp      = pprocess::GetProcessTimeCounter();
+	data->timestamp      = plat::GetProcessTimeCounter();
 	data->buttons        = buttons;
 	data->leftStick      = leftStick;
 	data->rightStick     = rightStick;

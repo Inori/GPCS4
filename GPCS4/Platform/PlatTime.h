@@ -1,8 +1,8 @@
 #pragma once
 
 #include "GPCS4Common.h"
-namespace ptime
-{;
+namespace plat
+{
 
 // microseconds
 void MicroSleep(uint32_t ms);

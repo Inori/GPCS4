@@ -96,7 +96,7 @@ public:
 
 private:
 	// convert SCE flags to UtilMemory flags.
-	pmemory::VM_PROTECT_FLAG convertProtectFlags(int sceFlags);
+	plat::VM_PROTECT_FLAG convertProtectFlags(int sceFlags);
 
 	void* allocateInternal(void* addrIn, size_t len, size_t alignment, int prot);
 

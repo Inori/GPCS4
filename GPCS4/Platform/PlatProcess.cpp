@@ -1,7 +1,7 @@
 #include "PlatProcess.h"
 
 
-namespace pprocess
+namespace plat
 {
 
 #ifdef GPCS4_WINDOWS

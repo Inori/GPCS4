@@ -1,7 +1,7 @@
 #include "PlatFile.h"
 #include <fstream>
 
-namespace pfile
+namespace plat
 {;
 
 bool LoadFile(const std::string& strFilename, std::vector<uint8_t>& vtData)

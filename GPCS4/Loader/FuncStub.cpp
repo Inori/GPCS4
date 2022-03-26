@@ -11,7 +11,7 @@ static void logFunc(const char *log)
 // Trap the debugger when an unresolved function is called.
 static int PS4API trapDebugger()
 {
-	pdebug::debugBreakPoint();
+	plat::debugBreakPoint();
 	return -1;
 }
 
@@ -47,8 +47,8 @@ JitFunctionPool::JitFunctionPool(size_t funcSize, size_t funcNum) :
 	m_funcSize{ util::align(funcSize, (size_t)16) }, m_funcNum{ funcNum }, m_index{ 0 }
 {
 	m_totalSize = m_funcSize * funcNum;
-	auto memory = pmemory::VMAllocate(nullptr, m_totalSize,
-									  pmemory::VMAT_RESERVE_COMMIT, pmemory::VMPF_CPU_RWX);
+	auto memory = plat::VMAllocate(nullptr, m_totalSize,
+									  plat::VMAT_RESERVE_COMMIT, plat::VMPF_CPU_RWX);
 
 	m_memory.reset(reinterpret_cast<uint8_t *>(memory));
 }

@@ -116,8 +116,8 @@ public:
 
 private:
 
-	static pexception::ExceptionAction exceptionHandler(
-		pexception::ExceptionRecord* record, void* param);
+	static plat::ExceptionAction exceptionHandler(
+		plat::ExceptionRecord* record, void* param);
 
 	void* allocateTLS();
 	void freeTLS(void* tls);

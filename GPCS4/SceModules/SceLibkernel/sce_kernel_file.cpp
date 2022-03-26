@@ -98,7 +98,7 @@ int PS4API scek__write(int fd, const void* buf, size_t size)
 int PS4API sceKernelOpen(const char *path, int flags, SceKernelMode mode)
 {
 	LOG_SCE_TRACE("path %s flag %x mode %x", path, flags, mode);
-	std::string pcPath = ppath::PS4PathToPCPath(path);
+	std::string pcPath = plat::PS4PathToPCPath(path);
 
 #ifdef GPCS4_WINDOWS
 	int idx = g_fdSlots.GetEmptySlotIndex();
@@ -253,7 +253,7 @@ int PS4API scek_fstat(int fd, SceKernelStat *sb)
 int PS4API sceKernelStat(const char *path, SceKernelStat *sb)
 {
 	LOG_SCE_TRACE("path %s sb %p", path, sb);
-	std::string pcPath = ppath::PS4PathToPCPath(path);
+	std::string pcPath = plat::PS4PathToPCPath(path);
 
 	struct _stat stat;
 	int ret = _stat(pcPath.c_str(), &stat);
@@ -265,7 +265,7 @@ int PS4API sceKernelStat(const char *path, SceKernelStat *sb)
 	//sb->st_birthtim = stat.st_ctime; //?
 	if (stat.st_mode & _S_IFMT & _S_IFDIR)
 	{
-		sb->st_blocks = ppath::FileCountInDirectory(pcPath);
+		sb->st_blocks = plat::FileCountInDirectory(pcPath);
 		sb->st_blksize = sizeof(SceKernelDirent);
 	}
 	else
@@ -297,7 +297,7 @@ int PS4API sceKernelFstat(int fd, SceKernelStat *sb)
 		//sb->st_ctim = stat.st_ctime;
 		sb->st_size = stat.st_size;
 		//sb->st_birthtim = stat.st_ctime; //?
-		sb->st_blocks = ppath::FileCountInDirectory(dir_path);
+		sb->st_blocks = plat::FileCountInDirectory(dir_path);
 		sb->st_blksize = sizeof(SceKernelDirent);
 	}
 	else

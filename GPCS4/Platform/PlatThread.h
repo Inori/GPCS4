@@ -2,8 +2,8 @@
 
 #include "GPCS4Common.h"
 
-namespace pthread
-{;
+namespace plat
+{
 
 uint64_t GetThreadId(void);
 

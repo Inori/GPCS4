@@ -2,7 +2,7 @@
 
 LOG_CHANNEL(Platform.UtilMemory);
 
-namespace pmemory
+namespace plat
 {
 
 

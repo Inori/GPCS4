@@ -2,7 +2,7 @@
 
 #include "GPCS4Common.h"
 
-namespace pprocess
+namespace plat
 {
 
 uint64_t GetProcessTimeCounter();

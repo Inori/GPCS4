@@ -19,18 +19,18 @@ bool TLSManager::install()
 	// TODO:
 	// since now we have TinyDBR, we can just rewrite the tls access instruction,
 	// no exceptions are needed.
-	pexception::ExceptionHandler handler;
+	plat::ExceptionHandler handler;
 	handler.callback = &exceptionHandler;
 	handler.param  = this;
-	return pexception::addExceptionHandler(handler);
+	return plat::addExceptionHandler(handler);
 }
 
 void TLSManager::uninstall()
 {
-	pexception::ExceptionHandler handler;
+	plat::ExceptionHandler handler;
 	handler.callback = &exceptionHandler;
 	handler.param  = this;
-	pexception::removeExceptionHandler(handler);
+	plat::removeExceptionHandler(handler);
 }
 
 void TLSManager::backupTLSImage(std::vector<uint8_t>& image, const TLSBlock& block)
@@ -129,11 +129,11 @@ void TLSManager::notifyThreadExit()
 	freeTLS(t_fsbase);
 }
 
-pexception::ExceptionAction TLSManager::exceptionHandler(
-	pexception::ExceptionRecord* record,
+plat::ExceptionAction TLSManager::exceptionHandler(
+	plat::ExceptionRecord* record,
 	void*                           param)
 {
-	pexception::ExceptionAction action = pexception::ExceptionAction::CONTINUE_SEARCH;
+	plat::ExceptionAction action = plat::ExceptionAction::CONTINUE_SEARCH;
 	TLSManager*                    pthis  = reinterpret_cast<TLSManager*>(param);
 	do
 	{
@@ -150,7 +150,7 @@ pexception::ExceptionAction TLSManager::exceptionHandler(
 		asmHelper.printInstruction(excptAddr);
 #endif  // GPCS4_DEBUG
 
-		if (record->code != pexception::EXCEPTION_ACCESS_VIOLATION)
+		if (record->code != plat::EXCEPTION_ACCESS_VIOLATION)
 		{
 			break;
 		}
@@ -185,7 +185,7 @@ pexception::ExceptionAction TLSManager::exceptionHandler(
 		record->context.Rip += instLen;
 		record->context.Rax = reinterpret_cast<uintptr_t>(pthis->readFSRegister(fsOffset));
 
-		action = pexception::ExceptionAction::CONTINUE_EXECUTION;
+		action = plat::ExceptionAction::CONTINUE_EXECUTION;
 	} while (false);
 	return action;
 }
@@ -379,8 +379,8 @@ bool AssembleHelper::patchTLSInstruction(void* code)
 		uint8_t* pMovNext    = (uint8_t*)code + nMovFsLen;
 		uint32_t nMovLeftLen  = nPatchedLen - nMovFsLen;
 		uint32_t nFootCodeLen = nMovLeftLen + sizeof(jmpFoot);
-		uint8_t* pFootCode    = (uint8_t*)pmemory::VMAllocate(nullptr, nFootCodeLen, 
-			pmemory::VMAT_RESERVE_COMMIT, pmemory::VMPF_CPU_RWX);
+		uint8_t* pFootCode    = (uint8_t*)plat::VMAllocate(nullptr, nFootCodeLen, 
+			plat::VMAT_RESERVE_COMMIT, plat::VMPF_CPU_RWX);
 		if (!pFootCode)
 		{
 			break;
@@ -398,7 +398,7 @@ bool AssembleHelper::patchTLSInstruction(void* code)
 		// jmpHead.nJmpVal  = (uint64_t)GetTlsDataStub;
 
 		// make game code writable
-		if (!pmemory::VMProtect(code, sizeof(jmpHead), pmemory::VMPF_CPU_RWX))
+		if (!plat::VMProtect(code, sizeof(jmpHead), plat::VMPF_CPU_RWX))
 		{
 			break;
 		}

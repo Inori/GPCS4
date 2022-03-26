@@ -5,7 +5,7 @@
 #include <mutex>
 #include <algorithm>
 
-namespace pexception
+namespace plat
 {
 
 sync::Spinlock                g_handlerMutex;

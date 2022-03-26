@@ -4,11 +4,8 @@
 #include <string>
 #include <tuple>
 
-namespace ppath
-{;
-
-
-std::string GetExePath();
+namespace plat
+{
 
 std::string PS4PathToPCPath(const std::string& strPs4Path);
 

@@ -1,6 +1,6 @@
 #include "PlatThread.h"
 
-namespace pthread
+namespace plat
 {;
 
 #ifdef GPCS4_WINDOWS

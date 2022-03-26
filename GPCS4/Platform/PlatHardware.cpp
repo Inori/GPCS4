@@ -1,7 +1,7 @@
 #include "PlatHardware.h"
 
 
-namespace phardware
+namespace plat
 {
 
 #ifdef GPCS4_WINDOWS

@@ -4,9 +4,8 @@
 
 LOG_CHANNEL(Platform.UtilPath);
 
-namespace ppath
+namespace plat
 {
-;
 
 #ifdef GPCS4_WINDOWS
 

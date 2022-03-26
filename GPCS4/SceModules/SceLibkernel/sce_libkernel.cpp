@@ -77,7 +77,7 @@ int PS4API sceKernelIsNeoMode(void)
 int PS4API sceKernelUsleep(SceKernelUseconds microseconds)
 {
 	//LOG_SCE_TRACE("ms %d", microseconds);
-	ptime::MicroSleep(microseconds);
+	plat::MicroSleep(microseconds);
 	return SCE_OK;
 }
 
@@ -188,7 +188,7 @@ int PS4API _sceKernelSetThreadDtors()
 void PS4NORETURN PS4API sceKernelDebugRaiseException(uint32_t error_code, uint32_t param)
 {
 	LOG_SCE_DUMMY_IMPL();
-	pdebug::debugBreakPoint();
+	plat::debugBreakPoint();
 	exit(-1);
 }
 

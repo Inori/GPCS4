@@ -605,7 +605,7 @@ int PS4API scePthreadRename(void)
 void PS4API scePthreadYield(void)
 {
 	LOG_SCE_TRACE("");
-	pthread::ThreadYield();
+	plat::ThreadYield();
 }
 
 

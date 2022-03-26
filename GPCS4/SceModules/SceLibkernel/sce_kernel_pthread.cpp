@@ -3,7 +3,7 @@
 //#include "pthreads4w/pthread.h"
 #include "MapSlot.h"
 
-LOG_CHANNEL(SceModules.SceLibkernel.pthread);
+LOG_CHANNEL(SceModules.SceLibkernel.plat);
 
 int sceMutexAttrTypeToPthreadType(int type);
 
