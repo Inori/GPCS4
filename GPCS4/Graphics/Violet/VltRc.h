@@ -3,7 +3,7 @@
 #include <atomic>
 #include <cstdint>
 
-namespace util
+namespace sce::vlt
 {
 	/**
 	 * \brief Reference-counted object
@@ -13,18 +13,26 @@ namespace util
 
 	public:
 		/**
-     * \brief Increments reference count
-     * \returns New reference count
-     */
+		 * \brief We need a virtual destructor at the top
+		 * of the inherience tree, to let delete father
+		 * pointer correctly call child's destructor
+		 */
+		virtual ~RcObject()
+		{
+		}
+		/**
+		 * \brief Increments reference count
+		 * \returns New reference count
+		 */
 		uint32_t incRef()
 		{
 			return ++m_refCount;
 		}
 
 		/**
-     * \brief Decrements reference count
-     * \returns New reference count
-     */
+		 * \brief Decrements reference count
+		 * \returns New reference count
+		 */
 		uint32_t decRef()
 		{
 			return --m_refCount;

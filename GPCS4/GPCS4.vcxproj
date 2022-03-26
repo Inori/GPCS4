@@ -67,6 +67,29 @@
     <ClInclude Include="Graphics\SpirV\SpirvIInstruction.h" />
     <ClInclude Include="Graphics\SpirV\SpirvInclude.h" />
     <ClInclude Include="Graphics\SpirV\SpirvModule.h" />
+    <ClInclude Include="Graphics\Violet\VltAdapter.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltCommon.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltDeviceFilter.h" />
+    <ClInclude Include="Graphics\Violet\VltDeviceInfo.h" />
+    <ClInclude Include="Graphics\Violet\VltExtension.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltInstance.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltLog.h" />
+    <ClInclude Include="Graphics\Violet\VltRc.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Graphics\VirtualGPU.h" />
     <ClInclude Include="Loader\elf-sce.h" />
     <ClInclude Include="Emulator\Emulator.h" />
@@ -91,6 +114,7 @@
     <ClInclude Include="Platform\PlatMemory.h" />
     <ClInclude Include="Platform\PlatPath.h" />
     <ClInclude Include="Platform\PlatProcess.h" />
+    <ClInclude Include="Platform\PlatString.h" />
     <ClInclude Include="Platform\PlatThread.h" />
     <ClInclude Include="Platform\PlatTime.h" />
     <ClInclude Include="SceModules\BlockingQueue.h" />
@@ -179,7 +203,6 @@
     <ClInclude Include="Util\UtilInclude.h" />
     <ClInclude Include="Util\UtilLikely.h" />
     <ClInclude Include="Util\UtilMath.h" />
-    <ClInclude Include="Util\UtilRc.h" />
     <ClInclude Include="Util\UtilSingleton.h" />
     <ClInclude Include="Util\UtilString.h" />
     <ClInclude Include="Util\UtilSync.h" />
@@ -220,6 +243,20 @@
     <ClCompile Include="Graphics\SpirV\SpirvCodeBuffer.cpp" />
     <ClCompile Include="Graphics\SpirV\SpirvCompression.cpp" />
     <ClCompile Include="Graphics\SpirV\SpirvModule.cpp" />
+    <ClCompile Include="Graphics\Violet\VltAdapter.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Graphics\Violet\VltDeviceFilter.cpp" />
+    <ClCompile Include="Graphics\Violet\VltExtension.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Graphics\Violet\VltInstance.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Graphics\Violet\VltLog.cpp" />
     <ClCompile Include="Graphics\VirtualGPU.cpp" />
     <ClCompile Include="ImportLibs.cpp" />
     <ClCompile Include="Loader\EbootObject.cpp" />
@@ -233,6 +270,7 @@
     <ClCompile Include="Platform\PlatMemory.cpp" />
     <ClCompile Include="Platform\PlatPath.cpp" />
     <ClCompile Include="Platform\PlatProcess.cpp" />
+    <ClCompile Include="Platform\PlatString.cpp" />
     <ClCompile Include="Platform\PlatThread.cpp" />
     <ClCompile Include="Platform\PlatTime.cpp" />
     <ClCompile Include="SceModules\SceAjm\sce_ajm.cpp" />

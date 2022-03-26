@@ -496,9 +496,6 @@
     <ClInclude Include="Util\UtilMath.h">
       <Filter>Source Files\Util</Filter>
     </ClInclude>
-    <ClInclude Include="Util\UtilRc.h">
-      <Filter>Source Files\Util</Filter>
-    </ClInclude>
     <ClInclude Include="Util\UtilSingleton.h">
       <Filter>Source Files\Util</Filter>
     </ClInclude>
@@ -702,6 +699,33 @@
     </ClInclude>
     <ClInclude Include="Graphics\Sce\SceVideoOut.h">
       <Filter>Source Files\Graphics\Sce</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltInstance.h">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltCommon.h">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltRc.h">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltAdapter.h">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltExtension.h">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform\PlatString.h">
+      <Filter>Source Files\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltDeviceFilter.h">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltLog.h">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltDeviceInfo.h">
+      <Filter>Source Files\Graphics\Violet</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1211,6 +1235,24 @@
     </ClCompile>
     <ClCompile Include="Graphics\Sce\SceVideoOut.cpp">
       <Filter>Source Files\Graphics\Sce</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Violet\VltInstance.cpp">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Violet\VltAdapter.cpp">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Violet\VltExtension.cpp">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Platform\PlatString.cpp">
+      <Filter>Source Files\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Violet\VltDeviceFilter.cpp">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Violet\VltLog.cpp">
+      <Filter>Source Files\Graphics\Violet</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

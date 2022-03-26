@@ -4,7 +4,7 @@
 #include "sce_errors.h"
 #include "SceUserService/user_service_defs.h"
 
-LOG_CHANNEL(VirtualGPU);
+LOG_CHANNEL(Graphic.VirtualGPU);
 
 namespace sce
 {

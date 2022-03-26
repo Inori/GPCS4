@@ -1,0 +1,98 @@
+#pragma once
+
+#include "VltCommon.h"
+#include "VltExtension.h"
+
+
+namespace sce::vlt
+{
+	class VltAdapter;
+	/**
+	* \brief DXVK instance
+	* 
+	* Manages a Vulkan instance and stores a list
+	* of adapters. This also provides methods for
+	* device creation.
+	*/
+	class VltInstance : public RcObject
+	{
+
+	public:
+		VltInstance();
+		virtual ~VltInstance();
+
+		/**
+		 * \brief Vulkan instance handle
+		 * \returns The instance handle
+		 */
+		VkInstance handle()
+		{
+			return m_instance;
+		}
+
+		/**
+		 * \brief Number of adapters
+		 * 
+		 * \returns The number of adapters
+		 */
+		size_t adapterCount()
+		{
+			return m_adapters.size();
+		}
+
+		/**
+		 * \brief Retrieves an adapter
+		 * 
+		 * Note that the adapter does not hold
+		 * a hard reference to the instance.
+		 * \param [in] index Adapter index
+		 * \returns The adapter, or \c nullptr.
+		 */
+		Rc<VltAdapter> enumAdapters(
+			uint32_t index) const;
+
+		/**
+		 * \brief Finds adapter by LUID
+		 * 
+		 * \param [in] luid Pointer to LUID
+		 * \returns Matching adapter, if any
+		 */
+		Rc<VltAdapter> findAdapterByLuid(
+			const void* luid) const;
+
+		/**
+		 * \brief Finds adapter by device IDs
+		 * 
+		 * \param [in] vendorId Vendor ID
+		 * \param [in] deviceId Device ID
+		 * \returns Matching adapter, if any
+		 */
+		Rc<VltAdapter> findAdapterByDeviceId(
+			uint16_t vendorId,
+			uint16_t deviceId) const;
+
+		/**
+		 * \brief Enabled instance extensions
+		 * \returns Enabled instance extensions
+		 */
+		const VltInstanceExtensions& extensions() const
+		{
+			return m_extensions;
+		}
+
+	private:
+		VkInstance createInstance();
+
+		std::vector<Rc<VltAdapter>> queryAdapters();
+
+		static void logNameList(const VltNameList& names);
+
+	private:
+		VkInstance            m_instance = VK_NULL_HANDLE;
+		VltInstanceExtensions m_extensions;
+
+		std::vector<Rc<VltAdapter>> m_adapters;
+	};
+
+
+}  // namespace sce::vlt
