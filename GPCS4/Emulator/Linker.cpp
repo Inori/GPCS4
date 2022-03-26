@@ -134,12 +134,12 @@ void* CLinker::generateStubFunction(const SymbolInfo* sybInfo, void* oldFunc) co
 
 		auto nidString = sybInfo->symbolName.substr(0, 11);
 
-		auto msg = str::format(formatString,
-									  sybInfo->nid >> 32,
-									  sybInfo->nid,
-									  nidString.c_str(),
-									  sybInfo->libraryName.c_str(),
-									  oldFunc);
+		auto msg = util::str::format(formatString,
+									 sybInfo->nid >> 32,
+									 sybInfo->nid,
+									 nidString.c_str(),
+									 sybInfo->libraryName.c_str(),
+									 oldFunc);
 
 		auto stubMgr  = GetFuncStubManager();
 		stubFunc      = oldFunc == nullptr ? 

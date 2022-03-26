@@ -1,5 +1,7 @@
 #include "SpirvCompression.h"
 
+using namespace util;
+
 namespace sce::pssl
 {
 

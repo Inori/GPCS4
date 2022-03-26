@@ -20,7 +20,7 @@ VirtualCPU::~VirtualCPU()
 void VirtualCPU::load(CodeBlock block)
 {
 	// Give it a dummy module name.
-	auto shellcodeName = str::format("sce_module_%x", block.code);
+	auto shellcodeName = util::str::format("sce_module_%x", block.code);
 
 	// Init module info.
 	TargetModule virtualModule = {};

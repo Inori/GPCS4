@@ -167,7 +167,7 @@ void Channel::assert_(const char* szExpression, const char* szFunction, const ch
 }
 
 Channel::Channel(const std::string& n) :
-	m_channelNameList(str::split(n, '.')),
+	m_channelNameList(util::str::split(n, '.')),
 	m_enabled(false)
 {
 	auto cc = ChannelContainer::get();
@@ -192,7 +192,7 @@ void Channel::checkSig(const std::string& n)
 		m_enabled = false;
 
 		bool notMatch = false;
-		auto up = str::split(n, '.');
+		auto up       = util::str::split(n, '.');
 		for (size_t i = 0; i < up.size() && i < m_channelNameList.size(); ++i)
 		{
 			if (up[i] != m_channelNameList[i])
@@ -218,7 +218,7 @@ void Channel::checkSig(const std::string& n)
 
 std::string Channel::getName()
 {
-	return str::concat(m_channelNameList, ".");
+	return util::str::concat(m_channelNameList, ".");
 }
 
 ///

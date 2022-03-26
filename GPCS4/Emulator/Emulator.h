@@ -17,9 +17,10 @@ class VirtualGPU;
 
 typedef void (PS4NORETURN PS4API *PFUNC_EntryPoint)(void* pEnv, void* pfnExitHandler);
 
-class Emulator final : public Singleton<Emulator>
+class Emulator final : public util::Singleton<Emulator>
 {
-	friend class Singleton<Emulator>;
+	friend class util::Singleton<Emulator>;
+
 public:
 
 	bool Init();

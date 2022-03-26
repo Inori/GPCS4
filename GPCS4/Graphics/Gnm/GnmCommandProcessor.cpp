@@ -7,6 +7,8 @@
 #include "UtilBit.h"
 #include "Pssl/PsslShaderRegister.h"
 
+using namespace util;
+
 
 LOG_CHANNEL(Graphic.Gnm.GnmCommandProcessor);
 
@@ -481,8 +483,7 @@ void GnmCommandProcessor::onEventWriteEop(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* i
 	// TODO:
 	// this is a GPU relative address lacking of the highest byte (masked by 0xFFFFFFFFF8 or 0xFFFFFFFFFC)
 	// I'm not sure this relative to what, maybe to the command buffer.
-	uint64_t relaGpuAddr = util::buildUint64(eopPacket->addressHi, eopPacket->addressLo);
-	void* gpuAddr        = util::gnmGpuAbsAddr(pm4Hdr, reinterpret_cast<void*>(relaGpuAddr));
+	void* gpuAddr = reinterpret_cast<void*>(util::buildUint64(eopPacket->addressHi, eopPacket->addressLo));
 
 	uint64_t immValue   = util::buildUint64(eopPacket->dataHi, eopPacket->dataLo);
 	uint8_t cacheAction = (eopPacket->ordinal2 >> 12) & 0x3F;
@@ -506,10 +507,9 @@ void GnmCommandProcessor::onEventWriteEop(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* i
 void GnmCommandProcessor::onEventWriteEos(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 {
 	PPM4_ME_EVENT_WRITE_EOS packet = (PPM4_ME_EVENT_WRITE_EOS)pm4Hdr;
-	uint64_t                relaGpuAddr = util::buildUint64(packet->addressHi, packet->addressLo);
-	void*                   dstGpuAddr  = util::gnmGpuAbsAddr(pm4Hdr, reinterpret_cast<void*>(relaGpuAddr));
+	uint64_t                dstGpuAddr = util::buildUint64(packet->addressHi, packet->addressLo);
 
-	m_cb->writeAtEndOfShader((EndOfShaderEventType)packet->eventType, dstGpuAddr, packet->data);
+	m_cb->writeAtEndOfShader((EndOfShaderEventType)packet->eventType, reinterpret_cast<void*>(dstGpuAddr), packet->data);
 
 	// Skip the next IT_EVENT_WRITE_EOS packet
 	m_skipPm4Count = 1;

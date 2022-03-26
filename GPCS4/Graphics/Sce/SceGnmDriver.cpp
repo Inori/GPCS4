@@ -13,7 +13,7 @@ LOG_CHANNEL(Graphic.Sce.SceGnmDriver);
 extern "C" void glfwPollEvents(void);
 
 namespace sce
-{;
+{
 
 SceGnmDriver::SceGnmDriver() 
 {
@@ -74,7 +74,7 @@ int SceGnmDriver::submitAndFlipCommandBuffers(uint32_t  count,
 
 	// TODO:
 	// For real PS4 system, the submit call is asynchronous.
-	// Thus future development, we should record vulkan command buffer asynchronously too,
+	// Thus for future development, we should record vulkan command buffer asynchronously too,
 	// reducing time period of the submit call.
 
 	LOG_ASSERT(count == 1, "Currently only support 1 cmdbuff at one call.");

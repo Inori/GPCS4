@@ -8,7 +8,7 @@
 namespace plat
 {
 
-sync::Spinlock                g_handlerMutex;
+util::sync::Spinlock          g_handlerMutex;
 std::vector<ExceptionHandler> g_handlerArray;
 
 #ifdef GPCS4_WINDOWS

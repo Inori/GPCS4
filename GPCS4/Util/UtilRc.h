@@ -1,159 +1,188 @@
 #pragma once
 
 #include <atomic>
-#include "GPCS4Types.h"
+#include <cstdint>
 
-
-class RcObject 
+namespace util
 {
-
-public:
-	RcObject():
-	m_nRefCount(0)
+	/**
+	 * \brief Reference-counted object
+	 */
+	class RcObject
 	{
-	}
 
-	virtual ~RcObject() 
-	{
-	}
-
-	uint32_t IncRef() 
-	{
-		return ++m_nRefCount;
-	}
-
-	uint32_t DecRef()
-	{
-		return --m_nRefCount;
-	}
-
-private:
-
-	std::atomic<uint32_t> m_nRefCount;
-};
-
-
-
-template<typename T>
-class RcPtr {
-	template<typename Tx>
-	friend class RcPtr;
-public:
-
-	RcPtr() { }
-	RcPtr(std::nullptr_t) { }
-
-	RcPtr(T* object)
-		: m_pObject(object) 
-	{
-		this->IncRef();
-	}
-
-	RcPtr(const RcPtr& other)
-		: m_pObject(other.m_pObject) 
-	{
-		this->IncRef();
-	}
-
-	template<typename Tx>
-	RcPtr(const RcPtr<Tx>& other)
-		: m_pObject(other.m_pObject) 
-	{
-		this->IncRef();
-	}
-
-	RcPtr(RcPtr&& other)
-		: m_pObject(other.m_pObject) 
-	{
-		other.m_pObject = nullptr;
-	}
-
-	template<typename Tx>
-	RcPtr(RcPtr<Tx>&& other)
-		: m_pObject(other.m_pObject)
-	{
-		other.m_pObject = nullptr;
-	}
-
-	RcPtr& operator = (std::nullptr_t) 
-	{
-		this->DecRef();
-		m_pObject = nullptr;
-		return *this;
-	}
-
-	RcPtr& operator = (const RcPtr& other) 
-	{
-		other.IncRef();
-		this->DecRef();
-		m_pObject = other.m_pObject;
-		return *this;
-	}
-
-	template<typename Tx>
-	RcPtr& operator = (const RcPtr<Tx>& other) 
-	{
-		other.IncRef();
-		this->DecRef();
-		m_pObject = other.m_pObject;
-		return *this;
-	}
-
-	RcPtr& operator = (RcPtr&& other) 
-	{
-		this->DecRef();
-		this->m_pObject = other.m_pObject;
-		other.m_pObject = nullptr;
-		return *this;
-	}
-
-	template<typename Tx>
-	RcPtr& operator = (RcPtr<Tx>&& other) 
-	{
-		this->DecRef();
-		this->m_pObject = other.m_pObject;
-		other.m_pObject = nullptr;
-		return *this;
-	}
-
-	~RcPtr() 
-	{
-		this->DecRef();
-	}
-
-	T& operator *  () const { return *m_pObject; }
-	T* operator -> () const { return  m_pObject; }
-	T* ptr() const { return m_pObject; }
-
-	bool operator == (const RcPtr& other) const { return m_pObject == other.m_pObject; }
-	bool operator != (const RcPtr& other) const { return m_pObject != other.m_pObject; }
-
-	bool operator == (std::nullptr_t) const { return m_pObject == nullptr; }
-	bool operator != (std::nullptr_t) const { return m_pObject != nullptr; }
-
-	operator bool() const { return m_pObject != nullptr; }
-
-private:
-
-	T* m_pObject = nullptr;
-
-	void IncRef() const 
-	{
-		if (m_pObject != nullptr)
+	public:
+		/**
+     * \brief Increments reference count
+     * \returns New reference count
+     */
+		uint32_t incRef()
 		{
-			m_pObject->IncRef();
+			return ++m_refCount;
 		}
-	}
 
-	void DecRef() const 
-	{
-		if (m_pObject != nullptr)
+		/**
+     * \brief Decrements reference count
+     * \returns New reference count
+     */
+		uint32_t decRef()
 		{
-			if (m_pObject->DecRef() == 0)
+			return --m_refCount;
+		}
+
+	private:
+		std::atomic<uint32_t> m_refCount = { 0u };
+	};
+
+
+
+	/**
+	 * \brief Pointer for reference-counted objects
+	 * 
+	 * This only requires the given type to implement \c incRef
+	 * and \c decRef methods that adjust the reference count.
+	 * \tparam T Object type
+	 */
+	template <typename T>
+	class Rc
+	{
+		template <typename Tx>
+		friend class Rc;
+
+	public:
+		Rc()
+		{
+		}
+		Rc(std::nullptr_t)
+		{
+		}
+
+		Rc(T* object) :
+			m_object(object)
+		{
+			this->incRef();
+		}
+
+		Rc(const Rc& other) :
+			m_object(other.m_object)
+		{
+			this->incRef();
+		}
+
+		template <typename Tx>
+		Rc(const Rc<Tx>& other) :
+			m_object(other.m_object)
+		{
+			this->incRef();
+		}
+
+		Rc(Rc&& other) :
+			m_object(other.m_object)
+		{
+			other.m_object = nullptr;
+		}
+
+		template <typename Tx>
+		Rc(Rc<Tx>&& other) :
+			m_object(other.m_object)
+		{
+			other.m_object = nullptr;
+		}
+
+		Rc& operator=(std::nullptr_t)
+		{
+			this->decRef();
+			m_object = nullptr;
+			return *this;
+		}
+
+		Rc& operator=(const Rc& other)
+		{
+			other.incRef();
+			this->decRef();
+			m_object = other.m_object;
+			return *this;
+		}
+
+		template <typename Tx>
+		Rc& operator=(const Rc<Tx>& other)
+		{
+			other.incRef();
+			this->decRef();
+			m_object = other.m_object;
+			return *this;
+		}
+
+		Rc& operator=(Rc&& other)
+		{
+			this->decRef();
+			this->m_object = other.m_object;
+			other.m_object = nullptr;
+			return *this;
+		}
+
+		template <typename Tx>
+		Rc& operator=(Rc<Tx>&& other)
+		{
+			this->decRef();
+			this->m_object = other.m_object;
+			other.m_object = nullptr;
+			return *this;
+		}
+
+		~Rc()
+		{
+			this->decRef();
+		}
+
+		T& operator*() const
+		{
+			return *m_object;
+		}
+		T* operator->() const
+		{
+			return m_object;
+		}
+		T* ptr() const
+		{
+			return m_object;
+		}
+
+		bool operator==(const Rc& other) const
+		{
+			return m_object == other.m_object;
+		}
+		bool operator!=(const Rc& other) const
+		{
+			return m_object != other.m_object;
+		}
+
+		bool operator==(std::nullptr_t) const
+		{
+			return m_object == nullptr;
+		}
+		bool operator!=(std::nullptr_t) const
+		{
+			return m_object != nullptr;
+		}
+
+	private:
+		T* m_object = nullptr;
+
+		void incRef() const
+		{
+			if (m_object != nullptr)
+				m_object->incRef();
+		}
+
+		void decRef() const
+		{
+			if (m_object != nullptr)
 			{
-				delete m_pObject;
+				if (m_object->decRef() == 0)
+					delete m_object;
 			}
 		}
-	}
+	};
 
-};
+}  // namespace util

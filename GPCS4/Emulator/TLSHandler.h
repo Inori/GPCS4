@@ -82,9 +82,9 @@ struct TLSBlock
 // And with the help of this post.
 // https://chao-tic.github.io/blog/2018/12/25/tls
 
-class TLSManager : public Singleton<TLSManager>
+class TLSManager : public util::Singleton<TLSManager>
 {
-	friend class Singleton<TLSManager>;
+	friend class util::Singleton<TLSManager>;
 
 private:
 	union DTV

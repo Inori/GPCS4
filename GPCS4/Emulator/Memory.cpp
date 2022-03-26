@@ -381,7 +381,7 @@ void* MemoryAllocator::allocateInternal(void* addrIn, size_t len, size_t alignme
 
 		if (addrOut)
 		{
-			std::lock_guard<sync::Spinlock> guard(m_lock);
+			std::lock_guard<util::sync::Spinlock> guard(m_lock);
 
 			MemoryBlock block = 
 			{
@@ -399,7 +399,7 @@ void* MemoryAllocator::allocateInternal(void* addrIn, size_t len, size_t alignme
 std::optional<MemoryAllocator::MemoryBlockList::iterator>
 MemoryAllocator::findMemoryBlock(void* addr)
 {
-	std::lock_guard<sync::Spinlock> guard(m_lock);
+	std::lock_guard<util::sync::Spinlock> guard(m_lock);
 
 	std::optional<MemoryBlockList::iterator> optResult;
 	auto iter = std::find_if(m_memBlocks.begin(), m_memBlocks.end(),

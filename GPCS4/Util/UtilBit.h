@@ -10,7 +10,7 @@
 #endif
 
 
-namespace bit {
+namespace util::bit {
   
   template<typename T>
   T extract(T value, uint32_t lst, uint32_t fst) {

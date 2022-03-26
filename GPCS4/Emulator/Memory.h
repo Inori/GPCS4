@@ -104,7 +104,7 @@ private:
 	findMemoryBlock(void* addr);
 
 private:
-	sync::Spinlock  m_lock;
+	util::sync::Spinlock m_lock;
 	MemoryBlockList m_memBlocks;
 };
 

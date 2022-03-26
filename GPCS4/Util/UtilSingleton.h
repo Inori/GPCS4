@@ -5,60 +5,63 @@
 #define NULL 0
 #endif
 
-template <typename T> 
-class Singleton 
+namespace util
 {
-public:
-    
-    static T* GetInstance()
-    {
-		if (mInstance == NULL)  //TODO: Double-Check
+	template <typename T>
+	class Singleton
+	{
+	public:
+		static T* GetInstance()
 		{
-			mInstance = new T();			
+			if (mInstance == NULL)  //TODO: Double-Check
+			{
+				mInstance = new T();
+			}
+
+			return mInstance;
 		}
 
-        return mInstance;
-    }
+	protected:
+		Singleton()
+		{
+		}
 
-protected:
+		virtual ~Singleton()
+		{
+			mInstance = NULL;
+		}
 
-    Singleton()
-    {
-    }
+	private:
+		Singleton(const Singleton& source);
+		Singleton& operator=(const Singleton& source);
 
-    virtual ~Singleton()
-    {
-		mInstance = NULL;
-    }
+	private:
+		class Deleter
+		{
+		public:
+			~Deleter();
+		};
 
-private:
+		static T*      mInstance;
+		static Deleter mDeleter;
+	};
 
-    Singleton(const Singleton& source);
-    Singleton& operator = (const Singleton& source);
+	template <typename T>
+	T* Singleton<T>::mInstance = NULL;
 
-private:
-    class Deleter
-    {
-    public:
-        ~Deleter();
-    };
+	template <typename T>
+	Singleton<T>::Deleter::~Deleter()
+	{
+		if (Singleton<T>::mInstance)
+		{
+			delete Singleton<T>::mInstance;
+			Singleton<T>::mInstance = NULL;
+		}
+	}
 
-    static T* mInstance;
-    static Deleter mDeleter;
-};
+}  // namespace util
 
 
-template <typename T> T* Singleton<T>::mInstance = NULL;
-
-template <typename T>
-Singleton<T>::Deleter::~Deleter()
-{
-    if (Singleton<T>::mInstance)
-    {
-        delete Singleton<T>::mInstance;
-        Singleton<T>::mInstance = NULL;
-    }
-}
 
 
 #endif // ! defined SINGLETON_H

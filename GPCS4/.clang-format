@@ -16,6 +16,7 @@ BreakInheritanceList: AfterColon
 Cpp11BracedListStyle: false
 PointerAlignment: Left
 SpacesBeforeTrailingComments: 2
+NamespaceIndentation: All
 
 UseTab: ForContinuationAndIndentation
 IndentWidth: 4
