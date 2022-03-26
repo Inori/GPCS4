@@ -1,8 +1,8 @@
-#include "UtilProcess.h"
+#include "PlatProcess.h"
 
 
-namespace UtilProcess
-{;
+namespace pprocess
+{
 
 #ifdef GPCS4_WINDOWS
 

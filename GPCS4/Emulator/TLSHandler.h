@@ -2,7 +2,7 @@
 
 #include "GPCS4Common.h"
 #include "UtilSingleton.h"
-#include "UtilException.h"
+#include "PlatException.h"
 #include "zydis/Zydis.h"
 
 #include <array>
@@ -116,8 +116,8 @@ public:
 
 private:
 
-	static UtilException::ExceptionAction exceptionHandler(
-		UtilException::ExceptionRecord* record, void* param);
+	static pexception::ExceptionAction exceptionHandler(
+		pexception::ExceptionRecord* record, void* param);
 
 	void* allocateTLS();
 	void freeTLS(void* tls);

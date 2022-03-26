@@ -328,10 +328,10 @@
     <ClInclude Include="SceModules\SceVideoRecording\sce_videorecording.h">
       <Filter>SceModules\SceVideoRecording</Filter>
     </ClInclude>
-    <ClInclude Include="Platform\PlatformUtils.h">
+    <ClInclude Include="Platform\Platform.h">
       <Filter>Source Files\Platform</Filter>
     </ClInclude>
-    <ClInclude Include="Platform\UtilMemory.h">
+    <ClInclude Include="Platform\PlatMemory.h">
       <Filter>Source Files\Platform</Filter>
     </ClInclude>
     <ClInclude Include="GPCS4Config.h">
@@ -373,10 +373,10 @@
     <ClInclude Include="SceModules\SceLibkernel\sce_kernel_memory.h">
       <Filter>SceModules\SceLibkernel</Filter>
     </ClInclude>
-    <ClInclude Include="Platform\UtilThread.h">
+    <ClInclude Include="Platform\PlatThread.h">
       <Filter>Source Files\Platform</Filter>
     </ClInclude>
-    <ClInclude Include="Platform\UtilHardware.h">
+    <ClInclude Include="Platform\PlatHardware.h">
       <Filter>Source Files\Platform</Filter>
     </ClInclude>
     <ClInclude Include="SceModules\SceLibkernel\sce_kernel_file.h">
@@ -391,10 +391,10 @@
     <ClInclude Include="Emulator\TLSHandler.h">
       <Filter>Source Files\Emulator</Filter>
     </ClInclude>
-    <ClInclude Include="Platform\UtilProcess.h">
+    <ClInclude Include="Platform\PlatProcess.h">
       <Filter>Source Files\Platform</Filter>
     </ClInclude>
-    <ClInclude Include="Platform\UtilPath.h">
+    <ClInclude Include="Platform\PlatPath.h">
       <Filter>Source Files\Platform</Filter>
     </ClInclude>
     <ClInclude Include="SceModules\SceUserService\sce_userservice_types.h">
@@ -406,7 +406,7 @@
     <ClInclude Include="SceModules\SceLibkernel\SceSemaphore.h">
       <Filter>SceModules\SceLibkernel</Filter>
     </ClInclude>
-    <ClInclude Include="Platform\UtilTime.h">
+    <ClInclude Include="Platform\PlatTime.h">
       <Filter>Source Files\Platform</Filter>
     </ClInclude>
     <ClInclude Include="SceModules\MapSlot.h">
@@ -448,7 +448,7 @@
     <ClInclude Include="Algorithm\Sha1Hash.h">
       <Filter>Source Files\Algorithm</Filter>
     </ClInclude>
-    <ClInclude Include="Platform\UtilFile.h">
+    <ClInclude Include="Platform\PlatFile.h">
       <Filter>Source Files\Platform</Filter>
     </ClInclude>
     <ClInclude Include="Emulator\Module.h">
@@ -511,7 +511,7 @@
     <ClInclude Include="Loader\elf-sce.h">
       <Filter>Source Files\Loader</Filter>
     </ClInclude>
-    <ClInclude Include="Platform\UtilDebug.h">
+    <ClInclude Include="Platform\PlatDebug.h">
       <Filter>Source Files\Platform</Filter>
     </ClInclude>
     <ClInclude Include="SceModules\SceLibkernel\sce_kernel_tls.h">
@@ -559,7 +559,7 @@
     <ClInclude Include="Util\UtilString.h">
       <Filter>Source Files\Util</Filter>
     </ClInclude>
-    <ClInclude Include="Platform\UtilException.h">
+    <ClInclude Include="Platform\PlatException.h">
       <Filter>Source Files\Platform</Filter>
     </ClInclude>
     <ClInclude Include="Emulator\Memory.h">
@@ -711,7 +711,7 @@
     <ClCompile Include="GPCS4Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Platform\UtilMemory.cpp">
+    <ClCompile Include="Platform\PlatMemory.cpp">
       <Filter>Source Files\Platform</Filter>
     </ClCompile>
     <ClCompile Include="Common\GPCS4Log.cpp">
@@ -1026,10 +1026,10 @@
     <ClCompile Include="SceModules\SceLibkernel\sce_kernel_memory.cpp">
       <Filter>SceModules\SceLibkernel</Filter>
     </ClCompile>
-    <ClCompile Include="Platform\UtilThread.cpp">
+    <ClCompile Include="Platform\PlatThread.cpp">
       <Filter>Source Files\Platform</Filter>
     </ClCompile>
-    <ClCompile Include="Platform\UtilHardware.cpp">
+    <ClCompile Include="Platform\PlatHardware.cpp">
       <Filter>Source Files\Platform</Filter>
     </ClCompile>
     <ClCompile Include="SceModules\SceLibkernel\sce_kernel_file.cpp">
@@ -1050,13 +1050,13 @@
     <ClCompile Include="Emulator\TLSHandler.cpp">
       <Filter>Source Files\Emulator</Filter>
     </ClCompile>
-    <ClCompile Include="Platform\UtilProcess.cpp">
+    <ClCompile Include="Platform\PlatProcess.cpp">
       <Filter>Source Files\Platform</Filter>
     </ClCompile>
     <ClCompile Include="SceModules\SceLibkernel\sce_kernel_time.cpp">
       <Filter>SceModules\SceLibkernel</Filter>
     </ClCompile>
-    <ClCompile Include="Platform\UtilPath.cpp">
+    <ClCompile Include="Platform\PlatPath.cpp">
       <Filter>Source Files\Platform</Filter>
     </ClCompile>
     <ClCompile Include="SceModules\SceLibkernel\SceSemaphore.cpp">
@@ -1065,7 +1065,7 @@
     <ClCompile Include="SceModules\SceLibkernel\sce_kernel_semaphore.cpp">
       <Filter>SceModules\SceLibkernel</Filter>
     </ClCompile>
-    <ClCompile Include="Platform\UtilTime.cpp">
+    <ClCompile Include="Platform\PlatTime.cpp">
       <Filter>Source Files\Platform</Filter>
     </ClCompile>
     <ClCompile Include="SceModules\SceLibkernel\sce_kernel_eventqueue.cpp">
@@ -1101,7 +1101,7 @@
     <ClCompile Include="Algorithm\Sha1Hash.cpp">
       <Filter>Source Files\Algorithm</Filter>
     </ClCompile>
-    <ClCompile Include="Platform\UtilFile.cpp">
+    <ClCompile Include="Platform\PlatFile.cpp">
       <Filter>Source Files\Platform</Filter>
     </ClCompile>
     <ClCompile Include="Loader\ELFMapper.cpp">
@@ -1122,7 +1122,7 @@
     <ClCompile Include="SceModules\ScePad\ScePad.cpp">
       <Filter>SceModules\ScePad</Filter>
     </ClCompile>
-    <ClCompile Include="Platform\UtilDebug.cpp">
+    <ClCompile Include="Platform\PlatDebug.cpp">
       <Filter>Source Files\Platform</Filter>
     </ClCompile>
     <ClCompile Include="SceModules\SceLibkernel\sce_kernel_tls.cpp">
@@ -1146,7 +1146,7 @@
     <ClCompile Include="Util\UtilString.cpp">
       <Filter>Source Files\Util</Filter>
     </ClCompile>
-    <ClCompile Include="Platform\UtilException.cpp">
+    <ClCompile Include="Platform\PlatException.cpp">
       <Filter>Source Files\Platform</Filter>
     </ClCompile>
     <ClCompile Include="Emulator\Memory.cpp">

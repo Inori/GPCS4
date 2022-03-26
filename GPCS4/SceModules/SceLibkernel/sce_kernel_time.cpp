@@ -1,5 +1,5 @@
 #include "sce_libkernel.h"
-#include "Platform/PlatformUtils.h"
+#include "Platform.h"
 #include <ctime>
 
 LOG_CHANNEL(SceModules.SceLibkernel.time);
@@ -13,7 +13,7 @@ uint64_t PS4API sceKernelGetProcessTime(void)
 
 uint64_t PS4API sceKernelGetProcessTimeCounter(void)
 {
-	uint64_t nCount = UtilProcess::GetProcessTimeCounter();
+	uint64_t nCount = pprocess::GetProcessTimeCounter();
 	//LOG_SCE_TRACE("process time counter %lld", nCount);
 	return nCount;
 }
@@ -21,7 +21,7 @@ uint64_t PS4API sceKernelGetProcessTimeCounter(void)
 
 uint64_t PS4API sceKernelGetProcessTimeCounterFrequency(void)
 {
-	uint64_t nFreq = UtilProcess::GetProcessTimeFrequency();
+	uint64_t nFreq = pprocess::GetProcessTimeFrequency();
 	LOG_SCE_TRACE("process time frequency %lld", nFreq);
 	return nFreq;
 }
@@ -29,7 +29,7 @@ uint64_t PS4API sceKernelGetProcessTimeCounterFrequency(void)
 
 uint64_t PS4API sceKernelGetTscFrequency(void)
 {
-	uint64_t nFreq = UtilHardware::GetTscFrequency();
+	uint64_t nFreq = phardware::GetTscFrequency();
 	LOG_SCE_TRACE("freq %llx", nFreq);
 	return nFreq;
 }
@@ -37,7 +37,7 @@ uint64_t PS4API sceKernelGetTscFrequency(void)
 
 uint64_t PS4API sceKernelReadTsc(void)
 {
-	uint64_t nCount = UtilProcess::GetProcessTimeCounter();
+	uint64_t nCount = pprocess::GetProcessTimeCounter();
 	//LOG_SCE_TRACE("tsc %lld", nCount);
 	return nCount;
 }
@@ -87,7 +87,7 @@ int PS4API scek_nanosleep(void)
 int PS4API scek_usleep(sce_useconds_t microsecond)
 {
 	LOG_SCE_TRACE("micro second %d", microsecond);
-	UtilTime::MicroSleep(microsecond);
+	ptime::MicroSleep(microsecond);
 	return 0;
 }
 

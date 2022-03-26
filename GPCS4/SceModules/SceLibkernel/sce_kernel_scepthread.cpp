@@ -3,7 +3,7 @@
 #include "sce_kernel_scepthread.h"
 #include "MapSlot.h"
 
-#include "Platform/PlatformUtils.h"
+#include "Platform.h"
 #include "Emulator/TLSHandler.h"
 
 #include <utility>
@@ -605,7 +605,7 @@ int PS4API scePthreadRename(void)
 void PS4API scePthreadYield(void)
 {
 	LOG_SCE_TRACE("");
-	UtilThread::ThreadYield();
+	pthread::ThreadYield();
 }
 
 

@@ -1,4 +1,5 @@
 #include "sce_libc.h"
+#include "Platform.h"
 #include <ctime>
 
 LOG_CHANNEL(SceModules.SceLibc.stdlib);
@@ -22,11 +23,7 @@ int PS4API scec_atexit(pfunc_exit_handler handler)
 void PS4API scec_exit(int status)
 {
 	LOG_SCE_TRACE("status %d", status);
-#ifdef GPCS4_WINDOWS
-	__debugbreak();
-#else
-	raise(SIGTRAP);
-#endif
+	pdebug::debugBreakPoint();
 	exit(status);
 }
 

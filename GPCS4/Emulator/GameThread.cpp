@@ -1,6 +1,6 @@
 #include "GameThread.h"
 #include "TLSHandler.h"
-#include "Platform/UtilThread.h"
+#include "Platform/PlatThread.h"
 
 #define PS4_MAIN_THREAD_STACK_SIZE (1024 * 1024 * 5)
 

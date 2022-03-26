@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GPCS4Common.h"
-#include "Platform/PlatformUtils.h"
+#include "Platform.h"
 
 #include <vector>
 #include <string>
@@ -15,7 +15,7 @@ public:
 	uint8_t *getFunctionMemory(size_t index);
 
 private:
-	umemory::memory_ptr m_memory;
+	pmemory::memory_ptr m_memory;
 	const size_t m_funcSize;
 	size_t m_funcNum;
 	size_t m_totalSize;

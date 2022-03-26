@@ -5,7 +5,7 @@
 #include "GnmSharpBuffer.h"
 #include "GnmTexture.h"
 #include "GpuAddress/GnmGpuAddress.h"
-#include "Platform/UtilFile.h"
+#include "Platform/PlatFile.h"
 
 #include <algorithm>
 #include <functional>

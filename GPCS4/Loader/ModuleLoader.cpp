@@ -1,7 +1,7 @@
 #include "ModuleLoader.h"
 
 #include "UtilString.h"
-#include "Platform/PlatformUtils.h"
+#include "Platform.h"
 
 LOG_CHANNEL(Loader.ModuleLoader);
 
@@ -234,7 +234,7 @@ bool ModuleLoader::mapModuleNameToFilePath(std::string const &modName,
 
 	do
 	{
-		retVal = UtilPath::splitFileName(modName, &fileName, &extension);
+		retVal = ppath::splitFileName(modName, &fileName, &extension);
 		if (retVal == false)
 		{
 			break;

@@ -10,8 +10,8 @@
 // instead, they should be used by emulator code.
 // For HLE use, see Memory.h
 
-namespace umemory
-{;
+namespace pmemory
+{
 
 constexpr uint32_t VM_PAGE_SIZE = 0x1000;
 

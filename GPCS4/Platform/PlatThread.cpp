@@ -1,6 +1,6 @@
-#include "UtilThread.h"
+#include "PlatThread.h"
 
-namespace UtilThread
+namespace pthread
 {;
 
 #ifdef GPCS4_WINDOWS

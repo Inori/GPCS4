@@ -1,6 +1,6 @@
 #include "sce_libkernel.h"
 #include "pthreads4w/pthread.h"
-#include "Platform/PlatformUtils.h"
+#include "Platform.h"
 #include "Emulator/SceModuleSystem.h"
 // Note:
 // The codebase is generated using GenerateCode.py
@@ -77,7 +77,7 @@ int PS4API sceKernelIsNeoMode(void)
 int PS4API sceKernelUsleep(SceKernelUseconds microseconds)
 {
 	//LOG_SCE_TRACE("ms %d", microseconds);
-	UtilTime::MicroSleep(microseconds);
+	ptime::MicroSleep(microseconds);
 	return SCE_OK;
 }
 
@@ -188,7 +188,7 @@ int PS4API _sceKernelSetThreadDtors()
 void PS4NORETURN PS4API sceKernelDebugRaiseException(uint32_t error_code, uint32_t param)
 {
 	LOG_SCE_DUMMY_IMPL();
-	UtilDebug::debugBreakPoint();
+	pdebug::debugBreakPoint();
 	exit(-1);
 }
 

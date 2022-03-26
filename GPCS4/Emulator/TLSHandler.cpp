@@ -1,6 +1,6 @@
 #include "TLSHandler.h"
-#include "Platform/UtilMemory.h"
-#include "Util/UtilMath.h"
+#include "PlatMemory.h"
+#include "UtilMath.h"
 
 LOG_CHANNEL(Emulator.TLSHandler);
 
@@ -19,18 +19,18 @@ bool TLSManager::install()
 	// TODO:
 	// since now we have TinyDBR, we can just rewrite the tls access instruction,
 	// no exceptions are needed.
-	UtilException::ExceptionHandler handler;
+	pexception::ExceptionHandler handler;
 	handler.callback = &exceptionHandler;
 	handler.param  = this;
-	return UtilException::addExceptionHandler(handler);
+	return pexception::addExceptionHandler(handler);
 }
 
 void TLSManager::uninstall()
 {
-	UtilException::ExceptionHandler handler;
+	pexception::ExceptionHandler handler;
 	handler.callback = &exceptionHandler;
 	handler.param  = this;
-	UtilException::removeExceptionHandler(handler);
+	pexception::removeExceptionHandler(handler);
 }
 
 void TLSManager::backupTLSImage(std::vector<uint8_t>& image, const TLSBlock& block)
@@ -129,11 +129,11 @@ void TLSManager::notifyThreadExit()
 	freeTLS(t_fsbase);
 }
 
-UtilException::ExceptionAction TLSManager::exceptionHandler(
-	UtilException::ExceptionRecord* record,
+pexception::ExceptionAction TLSManager::exceptionHandler(
+	pexception::ExceptionRecord* record,
 	void*                           param)
 {
-	UtilException::ExceptionAction action = UtilException::ExceptionAction::CONTINUE_SEARCH;
+	pexception::ExceptionAction action = pexception::ExceptionAction::CONTINUE_SEARCH;
 	TLSManager*                    pthis  = reinterpret_cast<TLSManager*>(param);
 	do
 	{
@@ -150,7 +150,7 @@ UtilException::ExceptionAction TLSManager::exceptionHandler(
 		asmHelper.printInstruction(excptAddr);
 #endif  // GPCS4_DEBUG
 
-		if (record->code != UtilException::EXCEPTION_ACCESS_VIOLATION)
+		if (record->code != pexception::EXCEPTION_ACCESS_VIOLATION)
 		{
 			break;
 		}
@@ -185,7 +185,7 @@ UtilException::ExceptionAction TLSManager::exceptionHandler(
 		record->context.Rip += instLen;
 		record->context.Rax = reinterpret_cast<uintptr_t>(pthis->readFSRegister(fsOffset));
 
-		action = UtilException::ExceptionAction::CONTINUE_EXECUTION;
+		action = pexception::ExceptionAction::CONTINUE_EXECUTION;
 	} while (false);
 	return action;
 }
@@ -379,8 +379,8 @@ bool AssembleHelper::patchTLSInstruction(void* code)
 		uint8_t* pMovNext    = (uint8_t*)code + nMovFsLen;
 		uint32_t nMovLeftLen  = nPatchedLen - nMovFsLen;
 		uint32_t nFootCodeLen = nMovLeftLen + sizeof(jmpFoot);
-		uint8_t* pFootCode    = (uint8_t*)umemory::VMAllocate(nullptr, nFootCodeLen, 
-			umemory::VMAT_RESERVE_COMMIT, umemory::VMPF_CPU_RWX);
+		uint8_t* pFootCode    = (uint8_t*)pmemory::VMAllocate(nullptr, nFootCodeLen, 
+			pmemory::VMAT_RESERVE_COMMIT, pmemory::VMPF_CPU_RWX);
 		if (!pFootCode)
 		{
 			break;
@@ -398,7 +398,7 @@ bool AssembleHelper::patchTLSInstruction(void* code)
 		// jmpHead.nJmpVal  = (uint64_t)GetTlsDataStub;
 
 		// make game code writable
-		if (!umemory::VMProtect(code, sizeof(jmpHead), umemory::VMPF_CPU_RWX))
+		if (!pmemory::VMProtect(code, sizeof(jmpHead), pmemory::VMPF_CPU_RWX))
 		{
 			break;
 		}

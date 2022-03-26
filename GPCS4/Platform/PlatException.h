@@ -3,8 +3,8 @@
 #include "GPCS4Common.h"
 
 
-namespace UtilException
-{;
+namespace pexception
+{
 
 constexpr uint32_t GnmPageSize = 0x1000;
 

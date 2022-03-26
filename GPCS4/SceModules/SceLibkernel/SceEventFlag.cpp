@@ -1,7 +1,7 @@
 #include "SceEventFlag.h"
 #include "sce_errors.h"
 #include "sce_kernel_eventflag.h"
-#include "Platform/UtilThread.h"
+#include "Platform/PlatThread.h"
 #include <functional>
 
 #include <functional>

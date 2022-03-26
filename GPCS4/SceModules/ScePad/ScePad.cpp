@@ -2,7 +2,7 @@
 #include "sce_errors.h"
 #include "sce_pad_error.h"
 
-#include "Platform/UtilProcess.h"
+#include "Platform/PlatProcess.h"
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -228,7 +228,7 @@ int SceKeyboard::readState(ScePadData* data)
 	memset(data, 0, sizeof(ScePadData));
 	data->connected      = true;
 	data->connectedCount = 1;
-	data->timestamp      = UtilProcess::GetProcessTimeCounter();
+	data->timestamp      = pprocess::GetProcessTimeCounter();
 	data->buttons        = buttons;
 	data->leftStick      = leftStick;
 	data->rightStick     = rightStick;

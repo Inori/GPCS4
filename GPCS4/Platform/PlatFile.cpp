@@ -1,7 +1,7 @@
-#include "UtilFile.h"
+#include "PlatFile.h"
 #include <fstream>
 
-namespace UtilFile
+namespace pfile
 {;
 
 bool LoadFile(const std::string& strFilename, std::vector<uint8_t>& vtData)

@@ -1,5 +1,5 @@
 #include "SceModuleSystem.h"
-#include "Platform/PlatformUtils.h"
+#include "Platform.h"
 #include "Util/UtilContainer.h"
 #include "sce_modules.h"
 
@@ -136,7 +136,7 @@ bool CSceModuleSystem::isFileAllowedToLoad(std::string const &fileName)
 	std::string name      = {};
 	std::string extension = {};
 
-	auto ret = UtilPath::splitFileName(fileName, &name, &extension);
+	auto ret = ppath::splitFileName(fileName, &name, &extension);
 
 	do
 	{

@@ -1,10 +1,10 @@
-#include "UtilPath.h"
+#include "PlatPath.h"
 #include "UtilString.h"
 #include <algorithm>
 
 LOG_CHANNEL(Platform.UtilPath);
 
-namespace UtilPath
+namespace ppath
 {
 ;
 

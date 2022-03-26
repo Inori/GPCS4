@@ -2,7 +2,7 @@
 
 #include "GPCS4Common.h"
 
-namespace UtilThread
+namespace pthread
 {;
 
 uint64_t GetThreadId(void);

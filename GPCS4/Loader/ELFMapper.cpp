@@ -1,7 +1,7 @@
 #include "ELFMapper.h"
 
 #include "Emulator/ModuleSystemCommon.h"
-#include "Platform/PlatformUtils.h"
+#include "Platform.h"
 
 #include <algorithm>
 #include <cassert>
@@ -18,7 +18,7 @@ LOG_CHANNEL(Loader.ELFMapper);
 
 bool ELFMapper::loadFile(std::string const &filePath, NativeModule *mod)
 {
-	UtilFile::file_uptr file = {};
+	pfile::file_uptr file = {};
 	bool retVal              = false;
 
 	do
@@ -31,7 +31,7 @@ bool ELFMapper::loadFile(std::string const &filePath, NativeModule *mod)
 
 		m_moduleData = mod;
 
-		if (!UtilFile::LoadFile(filePath, mod->m_fileMemory))
+		if (!pfile::LoadFile(filePath, mod->m_fileMemory))
 		{
 			LOG_ERR("failed to load file %s", filePath.c_str());
 			break;
@@ -240,10 +240,10 @@ bool ELFMapper::mapImageIntoMemory()
 			break;
 		}
 
-		uint8_t* buffer = reinterpret_cast<uint8_t*>(umemory::VMAllocateAlign(
+		uint8_t* buffer = reinterpret_cast<uint8_t*>(pmemory::VMAllocateAlign(
 			nullptr,
-			totalSize, umemory::VM_PAGE_SIZE,
-			umemory::VMAT_RESERVE_COMMIT, umemory::VMPF_CPU_RWX));
+			totalSize, pmemory::VM_PAGE_SIZE,
+			pmemory::VMAT_RESERVE_COMMIT, pmemory::VMPF_CPU_RWX));
 
 		if (buffer == nullptr)
 		{

@@ -1,8 +1,8 @@
-#include "UtilHardware.h"
+#include "PlatHardware.h"
 
 
-namespace UtilHardware
-{;
+namespace phardware
+{
 
 #ifdef GPCS4_WINDOWS
 

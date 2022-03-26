@@ -1,13 +1,12 @@
-#include "UtilException.h"
-
+#include "PlatException.h"
 #include "UtilSync.h"
 
 #include <vector>
 #include <mutex>
 #include <algorithm>
 
-namespace UtilException
-{;
+namespace pexception
+{
 
 sync::Spinlock                g_handlerMutex;
 std::vector<ExceptionHandler> g_handlerArray;

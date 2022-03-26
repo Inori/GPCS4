@@ -3,8 +3,8 @@
 #include "GPCS4Common.h"
 
 
-namespace UtilHardware
-{;
+namespace phardware
+{
 
 
 uint64_t GetTscFrequency();

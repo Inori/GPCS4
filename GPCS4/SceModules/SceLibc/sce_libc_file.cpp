@@ -1,11 +1,11 @@
 #include "sce_libc.h"
-#include "Platform/PlatformUtils.h"
+#include "Platform.h"
 
 LOG_CHANNEL(SceModules.SceLibc.file);
 
 FILE* PS4API scec_fopen(const char *pathname, const char *mode)
 {
-	auto pcPath = UtilPath::PS4PathToPCPath(pathname);
+	auto pcPath = ppath::PS4PathToPCPath(pathname);
 	FILE* fp = fopen(pcPath.c_str(), mode);
 	LOG_SCE_TRACE("(fname '%s' mode '%s') = %p", pathname, mode, fp);
 	return fp;

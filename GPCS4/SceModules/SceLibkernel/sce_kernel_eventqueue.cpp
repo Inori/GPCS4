@@ -1,5 +1,5 @@
 #include "sce_libkernel.h"
-#include "Platform/UtilTime.h"
+#include "Platform/PlatTime.h"
 
 LOG_CHANNEL(SceModules.SceLibkernel.eventqueue);
 
@@ -28,6 +28,6 @@ int PS4API sceKernelWaitEqueue(SceKernelEqueue eq, SceKernelEvent *ev,
 		*out = 1;
 	}
 
-	UtilTime::MicroSleep(1000);
+	ptime::MicroSleep(1000);
 	return SCE_OK;
 }

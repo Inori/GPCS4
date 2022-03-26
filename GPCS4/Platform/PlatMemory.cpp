@@ -1,9 +1,9 @@
-#include "UtilMemory.h"
+#include "PlatMemory.h"
 
 LOG_CHANNEL(Platform.UtilMemory);
 
-namespace umemory
-{;
+namespace pmemory
+{
 
 
 

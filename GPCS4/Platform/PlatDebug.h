@@ -1,8 +1,8 @@
 #pragma once
 #include "GPCS4Common.h"
 
-namespace UtilDebug
-{;
+namespace pdebug
+{
 
 void debugBreakPoint();
 

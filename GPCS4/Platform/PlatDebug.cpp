@@ -1,7 +1,7 @@
-#include "UtilDebug.h"
+#include "PlatDebug.h"
 
-namespace UtilDebug
-{;
+namespace pdebug
+{
 
 #ifdef GPCS4_WINDOWS
 

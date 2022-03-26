@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GPCS4Common.h"
-#include "UtilMemory.h"
+#include "PlatMemory.h"
 #include "UtilSync.h"
 
 #include "SceLibkernel/sce_kernel_memory.h"
@@ -96,7 +96,7 @@ public:
 
 private:
 	// convert SCE flags to UtilMemory flags.
-	umemory::VM_PROTECT_FLAG convertProtectFlags(int sceFlags);
+	pmemory::VM_PROTECT_FLAG convertProtectFlags(int sceFlags);
 
 	void* allocateInternal(void* addrIn, size_t len, size_t alignment, int prot);
 

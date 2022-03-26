@@ -1,6 +1,5 @@
 #include "GnmCommandBuffer.h"
-
-#include "Platform/PlatformUtils.h"
+#include "PlatProcess.h"
 
 namespace sce::Gnm
 {
@@ -33,7 +32,7 @@ void GnmCommandBuffer::emuWriteGpuLabel(EventWriteSource selector, void* label, 
 		}
 		else
 		{
-			*(uint64_t*)label = UtilProcess::GetProcessTimeCounter();
+			*(uint64_t*)label = pprocess::GetProcessTimeCounter();
 		}
 
 	} while (false);

@@ -142,7 +142,7 @@ int32_t MemoryAllocator::mapDirectMemory(
 
 int32_t MemoryAllocator::memoryUnmap(void* addr, size_t len)
 {
-	umemory::VMFree(addr);
+	pmemory::VMFree(addr);
 
 	auto iter = findMemoryBlock(addr);
 	if (iter.has_value())
@@ -267,22 +267,22 @@ int MemoryAllocator::sce_munmap(void* addr, size_t length)
 	return 0;
 }
 
-umemory::VM_PROTECT_FLAG MemoryAllocator::convertProtectFlags(int sceFlags)
+pmemory::VM_PROTECT_FLAG MemoryAllocator::convertProtectFlags(int sceFlags)
 {
 	uint32_t utlFlags = 0;
 	if ((sceFlags & SCE_KERNEL_PROT_CPU_READ) || (sceFlags & SCE_KERNEL_PROT_GPU_READ))
 	{
-		utlFlags |= umemory::VMPF_CPU_READ;
+		utlFlags |= pmemory::VMPF_CPU_READ;
 	}
 	if ((sceFlags & SCE_KERNEL_PROT_CPU_WRITE) || (sceFlags & SCE_KERNEL_PROT_GPU_WRITE))
 	{
-		utlFlags |= umemory::VMPF_CPU_WRITE;
+		utlFlags |= pmemory::VMPF_CPU_WRITE;
 	}
 	if (sceFlags & SCE_KERNEL_PROT_CPU_EXEC)
 	{
-		utlFlags |= umemory::VMPF_CPU_EXEC;
+		utlFlags |= pmemory::VMPF_CPU_EXEC;
 	}
-	return static_cast<umemory::VM_PROTECT_FLAG>(utlFlags);
+	return static_cast<pmemory::VM_PROTECT_FLAG>(utlFlags);
 }
 
 void* MemoryAllocator::allocateInternal(void* addrIn, size_t len, size_t alignment, int prot)
@@ -311,13 +311,13 @@ void* MemoryAllocator::allocateInternal(void* addrIn, size_t len, size_t alignme
 
 		while (searchAddr < SCE_KERNEL_APP_MAP_AREA_END_ADDR)
 		{
-			umemory::MemoryInformation mi = {};
-			if (!umemory::VMQuery(reinterpret_cast<void*>(searchAddr), &mi))
+			pmemory::MemoryInformation mi = {};
+			if (!pmemory::VMQuery(reinterpret_cast<void*>(searchAddr), &mi))
 			{
 				break;
 			}
 
-			if (mi.nRegionState != umemory::VMRS_FREE)
+			if (mi.nRegionState != pmemory::VMRS_FREE)
 			{
 				searchAddr = reinterpret_cast<size_t>(mi.pRegionStart) + mi.nRegionSize;
 				continue;
@@ -347,7 +347,7 @@ void* MemoryAllocator::allocateInternal(void* addrIn, size_t len, size_t alignme
 			}
 
 			void* retAddress = VMAllocate(reinterpret_cast<void*>(regionAddress), len,
-										  umemory::VMAT_RESERVE_COMMIT, uprot);
+										  pmemory::VMAT_RESERVE_COMMIT, uprot);
 			if (!retAddress)
 			{
 				searchAddr = reinterpret_cast<size_t>(mi.pRegionStart) + mi.nRegionSize;
@@ -373,7 +373,7 @@ void* MemoryAllocator::allocateInternal(void* addrIn, size_t len, size_t alignme
 			if (retAddress)
 			{
 				// unlikely
-				umemory::VMFree(retAddress);
+				pmemory::VMFree(retAddress);
 			}
 
 			searchAddr = reinterpret_cast<size_t>(mi.pRegionStart) + mi.nRegionSize;

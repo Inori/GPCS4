@@ -2,7 +2,7 @@
 
 #include "GPCS4Common.h"
 #include "Loader/elf.h"
-#include "Platform/UtilMemory.h"
+#include "PlatMemory.h"
 
 #include <vector>
 #include <memory>
@@ -144,8 +144,8 @@ public:
 	const FileList &getNeededFiles() const;
 	const std::vector<size_t> &getExportSymbols() const;
 	std::vector<size_t> &getExportSymbols();
-	const umemory::memory_ptr &getMappedMemory() const;
-	umemory::memory_ptr &getMappedMemory();
+	const pmemory::memory_ptr &getMappedMemory() const;
+	pmemory::memory_ptr &getMappedMemory();
 	const MODULE_INFO &getModuleInfo() const;
 	MODULE_INFO &getModuleInfo();
 	const ByteArray &getFileMemory() const;
@@ -212,7 +212,7 @@ private:
 	std::vector<size_t> m_exportSymbols;
 	std::vector<size_t> m_importSymbols;
 
-	umemory::memory_ptr m_mappedMemory;
+	pmemory::memory_ptr m_mappedMemory;
 	size_t m_mappedSize;
 	ByteArray m_fileMemory;
 

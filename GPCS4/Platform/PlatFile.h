@@ -6,7 +6,7 @@
 #include <vector>
 #include <memory>
 
-namespace UtilFile
+namespace pfile
 {;
 
 bool LoadFile(const std::string& strFilename, std::vector<uint8_t>& vtData);

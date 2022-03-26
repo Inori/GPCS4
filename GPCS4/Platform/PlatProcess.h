@@ -2,8 +2,8 @@
 
 #include "GPCS4Common.h"
 
-namespace UtilProcess
-{;
+namespace pprocess
+{
 
 uint64_t GetProcessTimeCounter();
 
