@@ -197,6 +197,9 @@ int32_t MemoryAllocator::queryMemoryProtection(
 	return err;
 }
 
+// TODO:
+// for malloc series functions, we need to implement somewhat memory pool
+// algorithm, Nginx Slab may be a choice.
 void* MemoryAllocator::sce_malloc(size_t size)
 {
 	return allocateInternal(0, size, 0, SCE_KERNEL_PROT_CPU_RW);

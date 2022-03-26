@@ -97,7 +97,7 @@ bool Emulator::Run(NativeModule const &mod)
 			break;
 		}
 
-		loadIntoCPU(mod);
+		// loadIntoCPU(mod);
 
 		if (!executeEntry(mod))
 		{

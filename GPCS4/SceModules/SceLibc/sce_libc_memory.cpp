@@ -19,7 +19,6 @@ void* PS4API scec_realloc(void *ptr, size_t size)
 	auto  p         = allocator.sce_realloc(ptr, size);
 	LOG_SCE_TRACE("ptr %zu size %d, newptr:%p", ptr, size, p);
 	return p;
-
 }
 
 void* PS4API scec_calloc(size_t nmemb, size_t size)
@@ -32,9 +31,8 @@ void* PS4API scec_calloc(size_t nmemb, size_t size)
 
 void PS4API scec_free(void *ptr)
 {
-	LOG_SCE_DUMMY_IMPL();
-	return;
-	//LOG_SCE_TRACE("ptr %p", ptr)
-	//return free(ptr);
+	LOG_SCE_TRACE("ptr %p", ptr)
+	auto& allocator = CPU().allocator();
+	allocator.sce_free(ptr);
 }
 
