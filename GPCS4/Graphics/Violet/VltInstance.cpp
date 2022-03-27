@@ -65,8 +65,11 @@ namespace sce::vlt
 			&insExtensions.khrSurface,
 		} };
 
+		std::vector<const char*> insLayers;
+
 #ifdef VLT_VALIDATION_AND_DEBUG
 		insExtensionList.push_back(&insExtensions.extDebugUtils);
+		insLayers.push_back("VK_LAYER_KHRONOS_validation");
 #endif
 
 		VltNameSet extensionsEnabled;
@@ -101,8 +104,8 @@ namespace sce::vlt
 		info.pNext                   = nullptr;
 		info.flags                   = 0;
 		info.pApplicationInfo        = &appInfo;
-		info.enabledLayerCount       = 0;
-		info.ppEnabledLayerNames     = nullptr;
+		info.enabledLayerCount       = insLayers.size();
+		info.ppEnabledLayerNames     = insLayers.data();
 		info.enabledExtensionCount   = extensionNameList.count();
 		info.ppEnabledExtensionNames = extensionNameList.names();
 
