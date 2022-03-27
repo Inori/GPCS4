@@ -1,4 +1,6 @@
 #include "VltAdapter.h"
+#include "VltDevice.h"
+#include "VltInstance.h"
 
 #include <ios>
 #include <unordered_set>
@@ -455,11 +457,10 @@ namespace sce::vlt
 		if (vr != VK_SUCCESS)
 			Logger::exception("DxvkAdapter: Failed to create device");
 
-		//Rc<VltDevice> result = new VltDevice(instance, this,
-		//									   new vk::DeviceFn(true, instance(), device),
-		//									   devExtensions, enabledFeatures);
-		//result->initResources();
-		//return result;
+		Rc<VltDevice> result = new VltDevice(
+			instance, this, devExtensions, requestFeatures);
+		result->initResources();
+		return result;
 	}
 
 	void VltAdapter::notifyHeapMemoryAlloc(
