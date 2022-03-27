@@ -1,4 +1,5 @@
 #include "VltExtension.h"
+
 #include "UtilString.h"
 
 namespace sce::vlt
@@ -35,7 +36,7 @@ namespace sce::vlt
 	}
 
 	bool VltNameSet::enableExtensions(
-		uint32_t     numExtensions,
+		uint32_t    numExtensions,
 		VltExt**    ppExtensions,
 		VltNameSet& nameSet) const
 	{
@@ -120,7 +121,7 @@ namespace sce::vlt
 	}
 
 	VltNameSet VltNameSet::enumDeviceExtensions(
-		VkPhysicalDevice          device)
+		VkPhysicalDevice device)
 	{
 		uint32_t entryCount = 0;
 		if (vkEnumerateDeviceExtensionProperties(

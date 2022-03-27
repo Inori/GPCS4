@@ -10,11 +10,11 @@ namespace sce::vlt
 {
 
 	/**
-   * \brief Vulkan extension mode
-   * 
-   * Defines whether an extension is
-   * optional, required, or disabled.
-   */
+     * \brief Vulkan extension mode
+     * 
+     * Defines whether an extension is
+     * optional, required, or disabled.
+     */
 	enum class VltExtMode
 	{
 		Disabled,
@@ -24,12 +24,12 @@ namespace sce::vlt
 	};
 
 	/**
-   * \brief Vulkan extension info
-   * 
-   * Stores information for a single extension.
-   * The renderer can use this information to
-   * find out which extensions are enabled.
-   */
+     * \brief Vulkan extension info
+     * 
+     * Stores information for a single extension.
+     * The renderer can use this information to
+     * find out which extensions are enabled.
+     */
 	class VltExt
 	{
 
@@ -43,66 +43,66 @@ namespace sce::vlt
 		}
 
 		/**
-     * \brief Extension name
-     * \returns Extension name
-     */
+         * \brief Extension name
+         * \returns Extension name
+         */
 		const char* name() const
 		{
 			return m_name;
 		}
 
 		/**
-     * \brief Extension mode
-     * \returns Extension mode
-     */
+         * \brief Extension mode
+         * \returns Extension mode
+         */
 		VltExtMode mode() const
 		{
 			return m_mode;
 		}
 
 		/**
-     * \brief Checks whether the extension is enabled
-     * 
-     * If an extension is enabled, the features
-     * provided by the extension can be used.
-     * \returns \c true if the extension is enabled
-     */
+         * \brief Checks whether the extension is enabled
+         * 
+         * If an extension is enabled, the features
+         * provided by the extension can be used.
+         * \returns \c true if the extension is enabled
+         */
 		operator bool() const
 		{
 			return m_revision != 0;
 		}
 
 		/**
-     * \brief Supported revision
-     * \returns Supported revision
-     */
+         * \brief Supported revision
+         * \returns Supported revision
+         */
 		uint32_t revision() const
 		{
 			return m_revision;
 		}
 
 		/**
-     * \brief Changes extension mode
-     * 
-     * In some cases, it may be useful to change the
-     * default mode dynamically after initialization.
-     */
+         * \brief Changes extension mode
+         * 
+         * In some cases, it may be useful to change the
+         * default mode dynamically after initialization.
+         */
 		void setMode(VltExtMode mode)
 		{
 			m_mode = mode;
 		}
 
 		/**
-     * \brief Enables the extension
-     */
+         * \brief Enables the extension
+         */
 		void enable(uint32_t revision)
 		{
 			m_revision = revision;
 		}
 
 		/**
-     * \brief Disables the extension
-     */
+         * \brief Disables the extension
+         */
 		void disable()
 		{
 			m_revision = 0;
@@ -110,54 +110,54 @@ namespace sce::vlt
 
 	private:
 		const char* m_name     = nullptr;
-		VltExtMode m_mode     = VltExtMode::Disabled;
+		VltExtMode  m_mode     = VltExtMode::Disabled;
 		uint32_t    m_revision = 0;
 	};
 
 	/**
-   * \brief Vulkan name list
-   * 
-   * A simple \c vector wrapper that can
-   * be used to build a list of layer and
-   * extension names.
-   */
+     * \brief Vulkan name list
+     * 
+     * A simple \c vector wrapper that can
+     * be used to build a list of layer and
+     * extension names.
+     */
 	class VltNameList
 	{
 
 	public:
 		/**
-     * \brief Adds a name
-     * \param [in] pName The name
-     */
+         * \brief Adds a name
+         * \param [in] pName The name
+         */
 		void add(const char* pName)
 		{
 			m_names.push_back(pName);
 		}
 
 		/**
-     * \brief Number of names
-     * \returns Name count
-     */
+         * \brief Number of names
+         * \returns Name count
+         */
 		uint32_t count() const
 		{
 			return m_names.size();
 		}
 
 		/**
-     * \brief Name list
-     * \returns Name list
-     */
+         * \brief Name list
+         * \returns Name list
+         */
 		const char* const* names() const
 		{
 			return m_names.data();
 		}
 
 		/**
-     * \brief Retrieves a single name
-     * 
-     * \param [in] index Name index
-     * \returns The given name
-     */
+         * \brief Retrieves a single name
+         * 
+         * \param [in] index Name index
+         * \returns The given name
+         */
 		const char* name(uint32_t index) const
 		{
 			return m_names.at(index);
@@ -168,11 +168,11 @@ namespace sce::vlt
 	};
 
 	/**
-   * \brief Vulkan extension set
-   * 
-   * Stores a set of extensions or layers
-   * supported by the Vulkan implementation.
-   */
+     * \brief Vulkan extension set
+     * 
+     * Stores a set of extensions or layers
+     * supported by the Vulkan implementation.
+     */
 	class VltNameSet
 	{
 
@@ -181,88 +181,88 @@ namespace sce::vlt
 		~VltNameSet();
 
 		/**
-     * \brief Adds a name to the set
-     * \param [in] pName Extension name
-     */
+         * \brief Adds a name to the set
+         * \param [in] pName Extension name
+         */
 		void add(
 			const char* pName);
 
 		/**
-     * \brief Merges two name sets
-     * 
-     * Adds all names from the given name set to
-     * this name set, avoiding duplicate entries.
-     * \param [in] names Name set to merge
-     */
+         * \brief Merges two name sets
+         * 
+         * Adds all names from the given name set to
+         * this name set, avoiding duplicate entries.
+         * \param [in] names Name set to merge
+         */
 		void merge(
 			const VltNameSet& names);
 
 		/**
-     * \brief Checks whether an extension is supported
-     * 
-     * \param [in] pName Extension name
-     * \returns Supported revision, or zero
-     */
+         * \brief Checks whether an extension is supported
+         * 
+         * \param [in] pName Extension name
+         * \returns Supported revision, or zero
+         */
 		uint32_t supports(
 			const char* pName) const;
 
 		/**
-     * \brief Enables requested extensions
-     * 
-     * Walks over a set of extensions and enables all
-     * extensions that are supported and not disabled.
-     * This also checks whether all required extensions
-     * could be enabled, and returns \c false otherwise.
-     * \param [in] numExtensions Number of extensions
-     * \param [in] ppExtensions List of extensions
-     * \param [out] nameSet Extension name set
-     * \returns \c true on success
-     */
+         * \brief Enables requested extensions
+         * 
+         * Walks over a set of extensions and enables all
+         * extensions that are supported and not disabled.
+         * This also checks whether all required extensions
+         * could be enabled, and returns \c false otherwise.
+         * \param [in] numExtensions Number of extensions
+         * \param [in] ppExtensions List of extensions
+         * \param [out] nameSet Extension name set
+         * \returns \c true on success
+         */
 		bool enableExtensions(
-			uint32_t     numExtensions,
+			uint32_t    numExtensions,
 			VltExt**    ppExtensions,
 			VltNameSet& nameSet) const;
 
 		/**
-     * \brief Disables given extension
-     *
-     * Removes the given extension from the set
-     * and sets its revision to 0 (i.e. disabled).
-     * \param [in,out] ext Extension to disable
-     */
+         * \brief Disables given extension
+         *
+         * Removes the given extension from the set
+         * and sets its revision to 0 (i.e. disabled).
+         * \param [in,out] ext Extension to disable
+         */
 		void disableExtension(
 			VltExt& ext);
 
 		/**
-     * \brief Creates name list from name set
-     * 
-     * Adds all names contained in the name set
-     * to a name list, which can then be passed
-     * to Vulkan functions.
-     * \returns Name list
-     */
+         * \brief Creates name list from name set
+         * 
+         * Adds all names contained in the name set
+         * to a name list, which can then be passed
+         * to Vulkan functions.
+         * \returns Name list
+         */
 		VltNameList toNameList() const;
 
 		/**
-     * \brief Enumerates instance layers
-     * 
-     * \returns Set of available instance layers
-     */
+         * \brief Enumerates instance layers
+         * 
+         * \returns Set of available instance layers
+         */
 		static VltNameSet enumInstanceLayers();
 
 		/**
-     * \brief Enumerates instance extensions
-     * 
-     * \returns Set of available instance extensions
-     */
+         * \brief Enumerates instance extensions
+         * 
+         * \returns Set of available instance extensions
+         */
 		static VltNameSet enumInstanceExtensions();
 
 		/**
-     * \brief Enumerates device extensions
-     * 
-     * \param [in] device The device to query
-     * \returns Set of available device extensions
-     */
+         * \brief Enumerates device extensions
+         * 
+         * \param [in] device The device to query
+         * \returns Set of available device extensions
+         */
 		static VltNameSet enumDeviceExtensions(
 			VkPhysicalDevice          device);
 
@@ -271,12 +271,12 @@ namespace sce::vlt
 	};
 
 	/**
-   * \brief Device extensions
-   * 
-   * Lists all Vulkan extensions that are potentially
-   * used by DXVK if supported by the implementation.
-   */
-	struct DxvkDeviceExtensions
+     * \brief Device extensions
+     * 
+     * Lists all Vulkan extensions that are potentially
+     * used by DXVK if supported by the implementation.
+     */
+	struct VltDeviceExtensions
 	{
 		VltExt amdMemoryOverallocationBehaviour  = { VK_AMD_MEMORY_OVERALLOCATION_BEHAVIOR_EXTENSION_NAME, VltExtMode::Optional };
 		VltExt amdShaderFragmentMask             = { VK_AMD_SHADER_FRAGMENT_MASK_EXTENSION_NAME, VltExtMode::Optional };
@@ -285,7 +285,7 @@ namespace sce::vlt
 		VltExt extCustomBorderColor              = { VK_EXT_CUSTOM_BORDER_COLOR_EXTENSION_NAME, VltExtMode::Optional };
 		VltExt extDepthClipEnable                = { VK_EXT_DEPTH_CLIP_ENABLE_EXTENSION_NAME, VltExtMode::Optional };
 		VltExt extExtendedDynamicState           = { VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME, VltExtMode::Optional };
-		// This is a Win32 extension, we will handle it from glfw
+		// This is a Win32 specific extension
 		// VltExt extFullScreenExclusive            = { VK_EXT_FULL_SCREEN_EXCLUSIVE_EXTENSION_NAME, VltExtMode::Optional };
 		VltExt extHostQueryReset                 = { VK_EXT_HOST_QUERY_RESET_EXTENSION_NAME, VltExtMode::Optional };
 		VltExt extMemoryBudget                   = { VK_EXT_MEMORY_BUDGET_EXTENSION_NAME, VltExtMode::Passive };
@@ -310,11 +310,11 @@ namespace sce::vlt
 	};
 
 	/**
-   * \brief Instance extensions
-   * 
-   * Lists all Vulkan extensions that are potentially
-   * used by DXVK if supported by the implementation.
-   */
+     * \brief Instance extensions
+     * 
+     * Lists all Vulkan extensions that are potentially
+     * used by DXVK if supported by the implementation.
+     */
 	struct VltInstanceExtensions
 	{
 		VltExt extDebugUtils              = { VK_EXT_DEBUG_UTILS_EXTENSION_NAME, VltExtMode::Optional };

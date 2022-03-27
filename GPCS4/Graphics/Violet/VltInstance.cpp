@@ -65,7 +65,7 @@ namespace sce::vlt
 			&insExtensions.khrSurface,
 		} };
 
-#ifdef GPCS4_DEBUG
+#ifdef VLT_VALIDATION_AND_DEBUG
 		insExtensionList.push_back(&insExtensions.extDebugUtils);
 #endif
 
@@ -76,7 +76,7 @@ namespace sce::vlt
 				insExtensionList.size(),
 				insExtensionList.data(),
 				extensionsEnabled))
-			Logger::assert("DxvkInstance: Failed to create instance");
+			Logger::exception("DxvkInstance: Failed to create instance");
 
 		m_extensions = insExtensions;
 
@@ -92,9 +92,9 @@ namespace sce::vlt
 		appInfo.pNext              = nullptr;
 		appInfo.pApplicationName   = appName.c_str();
 		appInfo.applicationVersion = 0;
-		appInfo.pEngineName        = "DXVK";
-		appInfo.engineVersion      = VK_MAKE_VERSION(1, 10, 0);
-		appInfo.apiVersion         = VK_MAKE_VERSION(1, 1, 0);
+		appInfo.pEngineName        = "Violet";
+		appInfo.engineVersion      = VK_MAKE_VERSION(1, 0, 0);
+		appInfo.apiVersion         = VK_MAKE_VERSION(1, 3, 0);
 
 		VkInstanceCreateInfo info;
 		info.sType                   = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -110,7 +110,7 @@ namespace sce::vlt
 		VkResult   status = vkCreateInstance(&info, nullptr, &result);
 
 		if (status != VK_SUCCESS)
-			Logger::assert("DxvkInstance::createInstance: Failed to create Vulkan 1.1 instance");
+			Logger::exception("DxvkInstance::createInstance: Failed to create Vulkan 1.3 instance");
 
 		return result;
 	}
@@ -119,14 +119,14 @@ namespace sce::vlt
 	{
 		uint32_t numAdapters = 0;
 		if (vkEnumeratePhysicalDevices(m_instance, &numAdapters, nullptr) != VK_SUCCESS)
-			Logger::assert("DxvkInstance::enumAdapters: Failed to enumerate adapters");
+			Logger::exception("DxvkInstance::enumAdapters: Failed to enumerate adapters");
 
 		std::vector<VkPhysicalDevice> adapters(numAdapters);
 		if (vkEnumeratePhysicalDevices(m_instance, &numAdapters, adapters.data()) != VK_SUCCESS)
-			Logger::assert("DxvkInstance::enumAdapters: Failed to enumerate adapters");
+			Logger::exception("DxvkInstance::enumAdapters: Failed to enumerate adapters");
 
 		std::vector<VkPhysicalDeviceProperties> deviceProperties(numAdapters);
-		VltDeviceFilterFlags                   filterFlags = 0;
+		VltDeviceFilterFlags                    filterFlags = 0;
 
 		for (uint32_t i = 0; i < numAdapters; i++)
 		{
@@ -170,8 +170,8 @@ namespace sce::vlt
 
 		if (result.size() == 0)
 		{
-			LOG_WARN("DXVK: No adapters found. Please check your "
-					 "device filter settings and Vulkan setup.");
+			Logger::exception("DXVK: No adapters found. Please check your "
+							  "device filter settings and Vulkan setup.");
 		}
 
 		return result;

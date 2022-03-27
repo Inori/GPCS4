@@ -17,9 +17,9 @@ namespace sce::vlt
 
 	bool VltDeviceFilter::testAdapter(const VkPhysicalDeviceProperties& properties) const
 	{
-		if (properties.apiVersion < VK_MAKE_VERSION(1, 1, 0))
+		if (properties.apiVersion < VK_MAKE_VERSION(1, 3, 0))
 		{
-			Logger::warn(util::str::formatex("Skipping Vulkan 1.0 adapter: ", properties.deviceName));
+			Logger::warn(util::str::formatex("Skipping Vulkan 1.3 adapter: ", properties.deviceName));
 			return false;
 		}
 

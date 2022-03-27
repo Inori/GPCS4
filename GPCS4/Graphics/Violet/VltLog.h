@@ -22,7 +22,7 @@ namespace sce::vlt
 		static void info(const std::string& message);
 		static void warn(const std::string& message);
 		static void err(const std::string& message);
-		static void assert(const std::string& message);
+		static void exception(const std::string& message);
 	};
 
 }  // namespace sce::vlt

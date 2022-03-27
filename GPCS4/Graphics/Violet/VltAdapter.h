@@ -170,14 +170,6 @@ namespace sce::vlt
      */
 		VltAdapterQueueIndices findQueueFamilies() const;
 
-		/**
-     * \brief Tests whether all required features are supported
-     * 
-     * \param [in] features Required device features
-     * \returns \c true if all features are supported
-     */
-		bool checkFeatureSupport(
-			const VltDeviceFeatures& required) const;
 
 		/**
      * \brief Enables extensions for this adapter
@@ -191,16 +183,14 @@ namespace sce::vlt
 			const VltNameSet& extensions);
 
 		/**
-     * \brief Creates a DXVK device
-     * 
-     * Creates a logical device for this adapter.
-     * \param [in] instance Parent instance
-     * \param [in] enabledFeatures Device features
-     * \returns Device handle
-     */
+		 * \brief Creates a DXVK device
+		 * 
+		 * Creates a logical device for this adapter.
+		 * \param [in] instance Parent instance
+		 * \returns Device handle
+		 */
 		Rc<VltDevice> createDevice(
-			const Rc<VltInstance>& instance,
-			VltDeviceFeatures      enabledFeatures);
+			const Rc<VltInstance>& instance);
 
 		/**
      * \brief Registers memory allocation
@@ -225,22 +215,6 @@ namespace sce::vlt
 			VkDeviceSize bytes);
 
 		/**
-     * \brief Tests if the driver matches certain criteria
-     *
-     * \param [in] vendor GPU vendor
-     * \param [in] driver Driver. Ignored when the
-     *    driver properties extension is not supported.
-     * \param [in] minVer Match versions starting with this one
-     * \param [in] maxVer Match versions lower than this one
-     * \returns \c True if the driver matches these criteria
-     */
-		bool matchesDriver(
-			VltGpuVendor  vendor,
-			VkDriverIdKHR driver,
-			uint32_t      minVer,
-			uint32_t      maxVer) const;
-
-		/**
      * \brief Logs DXVK adapter info
      * 
      * May be useful for bug reports
@@ -258,6 +232,26 @@ namespace sce::vlt
 		bool isUnifiedMemoryArchitecture() const;
 
 	private:
+		void initHeapAllocInfo();
+		void queryExtensions();
+		void queryDeviceInfo();
+		void queryDeviceFeatures();
+		void queryDeviceQueues();
+
+		uint32_t findQueueFamily(
+			VkQueueFlags mask,
+			VkQueueFlags flags) const;
+
+		bool checkFeatureSupport(
+			const VltDeviceFeatures& required) const;
+
+		VltDeviceFeatures getRequestFeatures();
+
+		static void logNameList(const VltNameList& names);
+		static void logFeatures(const VltDeviceFeatures& features);
+		static void logQueueFamilies(const VltAdapterQueueIndices& queues);
+
+	private:
 		VkPhysicalDevice m_handle;
 
 		VltNameSet        m_extraExtensions;
@@ -270,20 +264,6 @@ namespace sce::vlt
 		std::vector<VkQueueFamilyProperties> m_queueFamilies;
 
 		std::array<std::atomic<VkDeviceSize>, VK_MAX_MEMORY_HEAPS> m_heapAlloc;
-
-		void initHeapAllocInfo();
-		void queryExtensions();
-		void queryDeviceInfo();
-		void queryDeviceFeatures();
-		void queryDeviceQueues();
-
-		uint32_t findQueueFamily(
-			VkQueueFlags mask,
-			VkQueueFlags flags) const;
-
-		static void logNameList(const VltNameList& names);
-		static void logFeatures(const VltDeviceFeatures& features);
-		static void logQueueFamilies(const VltAdapterQueueIndices& queues);
 	};
 
 }  // namespace sce::vlt

@@ -30,7 +30,7 @@ namespace sce::vlt
 		LOG_ERR(message.c_str());
 	}
 
-	void Logger::assert(const std::string& message)
+	void Logger::exception(const std::string& message)
 	{
 		LOG_ASSERT(false, message.c_str());
 	}

@@ -26,12 +26,12 @@ namespace sce::vlt
 	VltAdapterMemoryInfo VltAdapter::getMemoryHeapInfo() const
 	{
 		VkPhysicalDeviceMemoryBudgetPropertiesEXT memBudget = {};
-		memBudget.sType                                     = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_BUDGET_PROPERTIES_EXT;
-		memBudget.pNext                                     = nullptr;
+		memBudget.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_BUDGET_PROPERTIES_EXT;
+		memBudget.pNext = nullptr;
 
 		VkPhysicalDeviceMemoryProperties2 memProps = {};
-		memProps.sType                             = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2;
-		memProps.pNext                             = m_hasMemoryBudget ? &memBudget : nullptr;
+		memProps.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2;
+		memProps.pNext = m_hasMemoryBudget ? &memBudget : nullptr;
 
 		vkGetPhysicalDeviceMemoryProperties2(m_handle, &memProps);
 
@@ -105,6 +105,7 @@ namespace sce::vlt
 
 		VltAdapterQueueIndices queues;
 		queues.graphics = graphicsQueue;
+		queues.compute  = computeQueue;
 		queues.transfer = transferQueue;
 		return queues;
 	}
@@ -259,41 +260,114 @@ namespace sce::vlt
 		m_extraExtensions.merge(extensions);
 	}
 
-	Rc<VltDevice> VltAdapter::createDevice(
-		const Rc<VltInstance>& instance,
-		VltDeviceFeatures      enabledFeatures)
+	VltDeviceFeatures VltAdapter::getRequestFeatures()
 	{
-		DxvkDeviceExtensions devExtensions;
+		const VltDeviceFeatures& supported = m_deviceFeatures;
+		VltDeviceFeatures        enabled   = {};
 
-		std::array<VltExt*, 28> devExtensionList = { {
-			&devExtensions.amdMemoryOverallocationBehaviour,
-			&devExtensions.amdShaderFragmentMask,
-			&devExtensions.ext4444Formats,
-			&devExtensions.extConservativeRasterization,
-			&devExtensions.extCustomBorderColor,
-			&devExtensions.extDepthClipEnable,
-			&devExtensions.extExtendedDynamicState,
-			// &devExtensions.extFullScreenExclusive,
-			&devExtensions.extHostQueryReset,
+		// Modify and add request features as development goes.
+
+		enabled.core.features.geometryShader                       = VK_TRUE;
+		//enabled.core.features.robustBufferAccess                   = VK_TRUE;
+		//enabled.core.features.shaderStorageImageWriteWithoutFormat = VK_TRUE;
+		//enabled.core.features.depthBounds                          = supported.core.features.depthBounds;
+
+		enabled.shaderDrawParameters.shaderDrawParameters = VK_TRUE;
+
+		enabled.extMemoryPriority.memoryPriority = supported.extMemoryPriority.memoryPriority;
+
+		//enabled.extRobustness2.robustBufferAccess2 = supported.extRobustness2.robustBufferAccess2;
+		//enabled.extRobustness2.robustImageAccess2  = supported.extRobustness2.robustImageAccess2;
+		//enabled.extRobustness2.nullDescriptor      = supported.extRobustness2.nullDescriptor;
+
+		//enabled.extShaderDemoteToHelperInvocation.shaderDemoteToHelperInvocation = supported.extShaderDemoteToHelperInvocation.shaderDemoteToHelperInvocation;
+
+		//enabled.extVertexAttributeDivisor.vertexAttributeInstanceRateDivisor     = supported.extVertexAttributeDivisor.vertexAttributeInstanceRateDivisor;
+		//enabled.extVertexAttributeDivisor.vertexAttributeInstanceRateZeroDivisor = supported.extVertexAttributeDivisor.vertexAttributeInstanceRateZeroDivisor;
+
+		//if (supported.extCustomBorderColor.customBorderColorWithoutFormat)
+		//{
+		//	enabled.extCustomBorderColor.customBorderColors             = VK_TRUE;
+		//	enabled.extCustomBorderColor.customBorderColorWithoutFormat = VK_TRUE;
+		//}
+
+		//enabled.core.features.depthClamp              = VK_TRUE;
+		//enabled.core.features.depthBiasClamp          = VK_TRUE;
+		//enabled.core.features.fillModeNonSolid        = VK_TRUE;
+		//enabled.core.features.pipelineStatisticsQuery = supported.core.features.pipelineStatisticsQuery;
+		//enabled.core.features.sampleRateShading       = VK_TRUE;
+		enabled.core.features.samplerAnisotropy       = supported.core.features.samplerAnisotropy;
+		//enabled.core.features.shaderClipDistance      = VK_TRUE;
+		//enabled.core.features.shaderCullDistance      = VK_TRUE;
+		//enabled.core.features.textureCompressionBC    = VK_TRUE;
+		//enabled.extDepthClipEnable.depthClipEnable    = supported.extDepthClipEnable.depthClipEnable;
+		//enabled.extHostQueryReset.hostQueryReset      = supported.extHostQueryReset.hostQueryReset;
+
+		//enabled.core.features.occlusionQueryPrecise = VK_TRUE;
+
+		//enabled.core.features.independentBlend = VK_TRUE;
+		//enabled.core.features.multiViewport    = VK_TRUE;
+
+		//enabled.core.features.fullDrawIndexUint32       = VK_TRUE;
+		//enabled.core.features.logicOp                   = supported.core.features.logicOp;
+		//enabled.core.features.shaderImageGatherExtended = VK_TRUE;
+		//enabled.core.features.variableMultisampleRate   = supported.core.features.variableMultisampleRate;
+		//enabled.extTransformFeedback.transformFeedback  = VK_TRUE;
+		//enabled.extTransformFeedback.geometryStreams    = VK_TRUE;
+
+		//enabled.core.features.dualSrcBlend   = VK_TRUE;
+		//enabled.core.features.imageCubeArray = VK_TRUE;
+
+		//enabled.core.features.drawIndirectFirstInstance           = VK_TRUE;
+		//enabled.core.features.fragmentStoresAndAtomics            = VK_TRUE;
+		//enabled.core.features.multiDrawIndirect                   = VK_TRUE;
+		enabled.core.features.shaderFloat64						  = VK_TRUE;
+		enabled.core.features.shaderInt64						  = VK_TRUE;
+		//enabled.core.features.shaderStorageImageReadWithoutFormat = supported.core.features.shaderStorageImageReadWithoutFormat;
+		enabled.core.features.tessellationShader                  = VK_TRUE;
+
+		//enabled.core.features.logicOp                        = VK_TRUE;
+		//enabled.core.features.variableMultisampleRate        = VK_TRUE;
+		//enabled.core.features.vertexPipelineStoresAndAtomics = VK_TRUE;
+
+		return enabled;
+	}
+
+
+	Rc<VltDevice> VltAdapter::createDevice(
+		const Rc<VltInstance>& instance)
+	{
+		VltDeviceExtensions devExtensions;
+
+		std::array<VltExt*, 3> devExtensionList = { {
+			//&devExtensions.amdMemoryOverallocationBehaviour,
+			//&devExtensions.amdShaderFragmentMask,
+			//&devExtensions.ext4444Formats,
+			//&devExtensions.extConservativeRasterization,
+			//&devExtensions.extCustomBorderColor,
+			//&devExtensions.extDepthClipEnable,
+			//&devExtensions.extExtendedDynamicState,
+			//&devExtensions.extFullScreenExclusive,
+			//&devExtensions.extHostQueryReset,
 			&devExtensions.extMemoryBudget,
 			&devExtensions.extMemoryPriority,
-			&devExtensions.extRobustness2,
-			&devExtensions.extShaderDemoteToHelperInvocation,
-			&devExtensions.extShaderStencilExport,
-			&devExtensions.extShaderViewportIndexLayer,
-			&devExtensions.extTransformFeedback,
-			&devExtensions.extVertexAttributeDivisor,
-			&devExtensions.khrBufferDeviceAddress,
-			&devExtensions.khrCreateRenderPass2,
-			&devExtensions.khrDepthStencilResolve,
-			&devExtensions.khrDrawIndirectCount,
-			&devExtensions.khrDriverProperties,
-			&devExtensions.khrImageFormatList,
-			&devExtensions.khrSamplerMirrorClampToEdge,
-			&devExtensions.khrShaderFloatControls,
+			//&devExtensions.extRobustness2,
+			//&devExtensions.extShaderDemoteToHelperInvocation,
+			//&devExtensions.extShaderStencilExport,
+			//&devExtensions.extShaderViewportIndexLayer,
+			//&devExtensions.extTransformFeedback,
+			//&devExtensions.extVertexAttributeDivisor,
+			//&devExtensions.khrBufferDeviceAddress,
+			//&devExtensions.khrCreateRenderPass2,
+			//&devExtensions.khrDepthStencilResolve,
+			//&devExtensions.khrDrawIndirectCount,
+			//&devExtensions.khrDriverProperties,
+			//&devExtensions.khrImageFormatList,
+			//&devExtensions.khrSamplerMirrorClampToEdge,
+			//&devExtensions.khrShaderFloatControls,
 			&devExtensions.khrSwapchain,
-			&devExtensions.nvxBinaryImport,
-			&devExtensions.nvxImageViewHandle,
+			//&devExtensions.nvxBinaryImport,
+			//&devExtensions.nvxImageViewHandle,
 		} };
 
 		VltNameSet extensionsEnabled;
@@ -302,17 +376,17 @@ namespace sce::vlt
 				devExtensionList.size(),
 				devExtensionList.data(),
 				extensionsEnabled))
-			Logger::assert("DxvkAdapter: Failed to create device");
+			Logger::exception("DxvkAdapter: request extensions not all supported.");
 
 		// Enable additional extensions if necessary
 		extensionsEnabled.merge(m_extraExtensions);
 		VltNameList extensionNameList = extensionsEnabled.toNameList();
 
-		// Enable additional device features if supported
-		enabledFeatures.extExtendedDynamicState.extendedDynamicState = m_deviceFeatures.extExtendedDynamicState.extendedDynamicState;
-
-		enabledFeatures.ext4444Formats.formatA4B4G4R4 = m_deviceFeatures.ext4444Formats.formatA4B4G4R4;
-		enabledFeatures.ext4444Formats.formatA4R4G4B4 = m_deviceFeatures.ext4444Formats.formatA4R4G4B4;
+		VltDeviceFeatures requestFeatures = getRequestFeatures();
+		if (!checkFeatureSupport(requestFeatures))
+		{
+			Logger::exception("DxvkAdapter: request features not all supported.");
+		}
 
 		Logger::info(util::str::formatex("Device properties:"
 										 "\n  Device name:     : ",
@@ -324,86 +398,20 @@ namespace sce::vlt
 
 		Logger::info("Enabled device extensions:");
 		this->logNameList(extensionNameList);
-		this->logFeatures(enabledFeatures);
+		this->logFeatures(requestFeatures);
 
 		// Create pNext chain for additional device features
-		enabledFeatures.core.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2_KHR;
-		enabledFeatures.core.pNext = nullptr;
+		requestFeatures.core.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2_KHR;
+		requestFeatures.core.pNext = nullptr;
 
-		enabledFeatures.shaderDrawParameters.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DRAW_PARAMETERS_FEATURES;
-		enabledFeatures.shaderDrawParameters.pNext = std::exchange(enabledFeatures.core.pNext, &enabledFeatures.shaderDrawParameters);
-
-		if (devExtensions.ext4444Formats)
-		{
-			enabledFeatures.ext4444Formats.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_4444_FORMATS_FEATURES_EXT;
-			enabledFeatures.ext4444Formats.pNext = std::exchange(enabledFeatures.core.pNext, &enabledFeatures.ext4444Formats);
-		}
-
-		if (devExtensions.extCustomBorderColor)
-		{
-			enabledFeatures.extCustomBorderColor.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_FEATURES_EXT;
-			enabledFeatures.extCustomBorderColor.pNext = std::exchange(enabledFeatures.core.pNext, &enabledFeatures.extCustomBorderColor);
-		}
-
-		if (devExtensions.extDepthClipEnable)
-		{
-			enabledFeatures.extDepthClipEnable.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLIP_ENABLE_FEATURES_EXT;
-			enabledFeatures.extDepthClipEnable.pNext = std::exchange(enabledFeatures.core.pNext, &enabledFeatures.extDepthClipEnable);
-		}
-
-		if (devExtensions.extExtendedDynamicState)
-		{
-			enabledFeatures.extExtendedDynamicState.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_FEATURES_EXT;
-			enabledFeatures.extExtendedDynamicState.pNext = std::exchange(enabledFeatures.core.pNext, &enabledFeatures.extExtendedDynamicState);
-		}
-
-		if (devExtensions.extHostQueryReset)
-		{
-			enabledFeatures.extHostQueryReset.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_QUERY_RESET_FEATURES_EXT;
-			enabledFeatures.extHostQueryReset.pNext = std::exchange(enabledFeatures.core.pNext, &enabledFeatures.extHostQueryReset);
-		}
+		requestFeatures.shaderDrawParameters.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DRAW_PARAMETERS_FEATURES;
+		requestFeatures.shaderDrawParameters.pNext = std::exchange(requestFeatures.core.pNext, &requestFeatures.shaderDrawParameters);
 
 		if (devExtensions.extMemoryPriority)
 		{
-			enabledFeatures.extMemoryPriority.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PRIORITY_FEATURES_EXT;
-			enabledFeatures.extMemoryPriority.pNext = std::exchange(enabledFeatures.core.pNext, &enabledFeatures.extMemoryPriority);
+			requestFeatures.extMemoryPriority.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PRIORITY_FEATURES_EXT;
+			requestFeatures.extMemoryPriority.pNext = std::exchange(requestFeatures.core.pNext, &requestFeatures.extMemoryPriority);
 		}
-
-		if (devExtensions.extShaderDemoteToHelperInvocation)
-		{
-			enabledFeatures.extShaderDemoteToHelperInvocation.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DEMOTE_TO_HELPER_INVOCATION_FEATURES_EXT;
-			enabledFeatures.extShaderDemoteToHelperInvocation.pNext = std::exchange(enabledFeatures.core.pNext, &enabledFeatures.extShaderDemoteToHelperInvocation);
-		}
-
-		if (devExtensions.extRobustness2)
-		{
-			enabledFeatures.extRobustness2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_EXT;
-			enabledFeatures.extRobustness2.pNext = std::exchange(enabledFeatures.core.pNext, &enabledFeatures.extRobustness2);
-		}
-
-		if (devExtensions.extTransformFeedback)
-		{
-			enabledFeatures.extTransformFeedback.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TRANSFORM_FEEDBACK_FEATURES_EXT;
-			enabledFeatures.extTransformFeedback.pNext = std::exchange(enabledFeatures.core.pNext, &enabledFeatures.extTransformFeedback);
-		}
-
-		if (devExtensions.extVertexAttributeDivisor.revision() >= 3)
-		{
-			enabledFeatures.extVertexAttributeDivisor.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES_EXT;
-			enabledFeatures.extVertexAttributeDivisor.pNext = std::exchange(enabledFeatures.core.pNext, &enabledFeatures.extVertexAttributeDivisor);
-		}
-
-		if (devExtensions.khrBufferDeviceAddress)
-		{
-			enabledFeatures.khrBufferDeviceAddress.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES_KHR;
-			enabledFeatures.khrBufferDeviceAddress.pNext = std::exchange(enabledFeatures.core.pNext, &enabledFeatures.khrBufferDeviceAddress);
-		}
-
-		// Report the desired overallocation behaviour to the driver
-		VkDeviceMemoryOverallocationCreateInfoAMD overallocInfo;
-		overallocInfo.sType                  = VK_STRUCTURE_TYPE_DEVICE_MEMORY_OVERALLOCATION_CREATE_INFO_AMD;
-		overallocInfo.pNext                  = nullptr;
-		overallocInfo.overallocationBehavior = VK_MEMORY_OVERALLOCATION_BEHAVIOR_ALLOWED_AMD;
 
 		// Create the requested queues
 		float                                queuePriority = 1.0f;
@@ -413,6 +421,7 @@ namespace sce::vlt
 
 		VltAdapterQueueIndices queueFamilies = findQueueFamilies();
 		queueFamiliySet.insert(queueFamilies.graphics);
+		queueFamiliySet.insert(queueFamilies.compute);
 		queueFamiliySet.insert(queueFamilies.transfer);
 		this->logQueueFamilies(queueFamilies);
 
@@ -430,7 +439,7 @@ namespace sce::vlt
 
 		VkDeviceCreateInfo info;
 		info.sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-		info.pNext                   = enabledFeatures.core.pNext;
+		info.pNext                   = requestFeatures.core.pNext;
 		info.flags                   = 0;
 		info.queueCreateInfoCount    = queueInfos.size();
 		info.pQueueCreateInfos       = queueInfos.data();
@@ -438,16 +447,13 @@ namespace sce::vlt
 		info.ppEnabledLayerNames     = nullptr;
 		info.enabledExtensionCount   = extensionNameList.count();
 		info.ppEnabledExtensionNames = extensionNameList.names();
-		info.pEnabledFeatures        = &enabledFeatures.core.features;
-
-		if (devExtensions.amdMemoryOverallocationBehaviour)
-			overallocInfo.pNext = std::exchange(info.pNext, &overallocInfo);
+		info.pEnabledFeatures        = &requestFeatures.core.features;
 
 		VkDevice device = VK_NULL_HANDLE;
 		VkResult vr     = vkCreateDevice(m_handle, &info, nullptr, &device);
 
 		if (vr != VK_SUCCESS)
-			Logger::assert("DxvkAdapter: Failed to create device");
+			Logger::exception("DxvkAdapter: Failed to create device");
 
 		//Rc<VltDevice> result = new VltDevice(instance, this,
 		//									   new vk::DeviceFn(true, instance(), device),
@@ -470,24 +476,6 @@ namespace sce::vlt
 	{
 		if (!m_hasMemoryBudget)
 			m_heapAlloc[heap] -= bytes;
-	}
-
-	bool VltAdapter::matchesDriver(
-		VltGpuVendor  vendor,
-		VkDriverIdKHR driver,
-		uint32_t      minVer,
-		uint32_t      maxVer) const
-	{
-		bool driverMatches = m_deviceInfo.khrDeviceDriverProperties.driverID
-								 ? driver == m_deviceInfo.khrDeviceDriverProperties.driverID
-								 : vendor == VltGpuVendor(m_deviceInfo.core.properties.vendorID);
-
-		if (minVer)
-			driverMatches &= m_deviceInfo.core.properties.driverVersion >= minVer;
-		if (maxVer)
-			driverMatches &= m_deviceInfo.core.properties.driverVersion < maxVer;
-
-		return driverMatches;
 	}
 
 	void VltAdapter::logAdapterInfo() const
@@ -811,5 +799,6 @@ namespace sce::vlt
 										 "\n  Graphics : ", queues.graphics,
 										 "\n  Transfer : ", queues.transfer));
 	}
+
 
 }  // namespace sce::vlt
