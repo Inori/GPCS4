@@ -1,8 +1,13 @@
 #pragma once
 
-#include "UtilSync.h"
-#include "VltAdapter.h"
 #include "VltCommon.h"
+#include "UtilSync.h"
+#include "VltInstance.h"
+#include "VltAdapter.h"
+#include "VltContext.h"
+#include "VltCmdList.h"
+#include "VltRecycler.h"
+
 
 namespace sce::vlt
 {
@@ -147,6 +152,22 @@ namespace sce::vlt
         */
 		VkPipelineStageFlags getShaderPipelineStages() const;
 
+		    
+		/**
+        * \brief Creates a command list
+        * \returns The command list
+        */
+		Rc<VltCommandList> createCommandList();
+
+		/**
+        * \brief Creates a context
+        * 
+        * Creates a context object that can
+        * be used to record command buffers.
+        * \returns The context object
+        */
+		Rc<VltContext> createContext();
+
 		/**
         * \brief Waits until the device becomes idle
         * 
@@ -158,6 +179,14 @@ namespace sce::vlt
 		void waitForIdle();
 
 	private:
+		void recycleCommandList(
+			const Rc<VltCommandList>& cmdList);
+
+		VltDeviceQueue getQueue(
+			uint32_t family,
+			uint32_t index) const;
+
+	private:
 		VkDevice m_device;
 
 		Rc<VltInstance>     m_instance;
@@ -167,26 +196,9 @@ namespace sce::vlt
 		VltDeviceFeatures m_features;
 		VltDeviceInfo     m_properties;
 
-		// VltObjects         m_objects;
-
-		util::sync::Spinlock m_statLock;
-		//DxvkStatCounters m_statCounters;
-
 		VltDeviceQueueSet m_queues;
 
-		//DxvkRecycler<DxvkCommandList, 16>    m_recycledCommandLists;
-		//DxvkRecycler<DxvkDescriptorPool, 16> m_recycledDescriptorPools;
-
-
-		//void recycleCommandList(
-		//	const Rc<DxvkCommandList>& cmdList);
-
-		//void recycleDescriptorPool(
-		//	const Rc<DxvkDescriptorPool>& pool);
-
-		VltDeviceQueue getQueue(
-			uint32_t family,
-			uint32_t index) const;
+		VltRecycler<VltCommandList, 16> m_recycledCommandLists;
 	};
 
 }  // namespace sce::vlt

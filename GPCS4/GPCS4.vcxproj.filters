@@ -736,6 +736,12 @@
     <ClInclude Include="Platform\PlatVulkan.h">
       <Filter>Source Files\Platform</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltContext.h">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltCmdList.h">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1268,6 +1274,12 @@
     </ClCompile>
     <ClCompile Include="Platform\PlatVulkan.cpp">
       <Filter>Source Files\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Violet\VltContext.cpp">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Violet\VltCmdList.cpp">
+      <Filter>Source Files\Graphics\Violet</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

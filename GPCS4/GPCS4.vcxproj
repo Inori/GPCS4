@@ -71,10 +71,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltCmdList.h" />
     <ClInclude Include="Graphics\Violet\VltCommon.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltContext.h" />
     <ClInclude Include="Graphics\Violet\VltDevice.h" />
     <ClInclude Include="Graphics\Violet\VltDeviceFilter.h" />
     <ClInclude Include="Graphics\Violet\VltDeviceInfo.h" />
@@ -250,6 +252,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Graphics\Violet\VltCmdList.cpp" />
+    <ClCompile Include="Graphics\Violet\VltContext.cpp" />
     <ClCompile Include="Graphics\Violet\VltDevice.cpp" />
     <ClCompile Include="Graphics\Violet\VltDeviceFilter.cpp" />
     <ClCompile Include="Graphics\Violet\VltExtension.cpp">

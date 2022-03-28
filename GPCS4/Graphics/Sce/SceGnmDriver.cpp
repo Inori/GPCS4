@@ -66,13 +66,13 @@ namespace sce
 			// adapters are ranked internally by their power
 			// typically first one is the most powerful GPU in system
 			m_adapter = m_instance->enumAdapters(0);
-			if (!m_adapter)
+			if (m_adapter == nullptr)
 			{
 				break;
 			}
 
 			m_device = m_adapter->createDevice(m_instance);
-			if (!m_device)
+			if (m_device == nullptr)
 			{
 				break;
 			}
@@ -130,16 +130,11 @@ namespace sce
 	{
 		do
 		{
-			//if (!cmdList)
-			//{
-			//	break;
-			//}
-
-			SceGpuSubmission gpuSubmission = {};
+			SceGpuSubmissionSync submissionSync = {};
 			//gpuSubmission.cmdList          = cmdList;
 			//gpuSubmission.wait             = presentSync.acquire;
 			//gpuSubmission.wake             = presentSync.present;
-			m_graphicsQueue->submit(gpuSubmission);
+			m_graphicsQueue->submit(submissionSync);
 
 			//VltPresentInfo presentation;
 			//presentation.presenter = m_presenter;
@@ -158,6 +153,7 @@ namespace sce
 		// Since we use a window to emulate the hardware display, we need a place
 		// to process the window event.
 		// Currently I didn't find a very good place, so I place it here.
+		
 		glfwPollEvents();
 		return SCE_OK;
 	}
@@ -165,8 +161,8 @@ namespace sce
 	void SceGnmDriver::createGraphicsQueue()
 	{
 		// Create the only graphics queue.
-		SceGpuQueueDevice gfxDevice = {};
-		m_graphicsQueue             = std::make_unique<SceGpuQueue>(gfxDevice, SceQueueType::Graphics);
+		m_graphicsQueue = std::make_unique<SceGpuQueue>(
+			m_device.ptr(), SceQueueType::Graphics);
 	}
 
 	uint32_t SceGnmDriver::mapComputeQueue(uint32_t pipeId,
@@ -217,13 +213,9 @@ namespace sce
 				break;
 			}
 
-			SceGpuQueueDevice cptDevice = {};
-			//cptDevice.device            = m_device;
-			//cptDevice.presenter         = nullptr;
-			//cptDevice.videoOut          = nullptr;
-
 			uint32_t vqueueIndex         = vqueueId - VQueueIdBegin;
-			m_computeQueues[vqueueIndex] = std::make_unique<SceGpuQueue>(cptDevice, SceQueueType::Compute);
+			m_computeQueues[vqueueIndex] = std::make_unique<SceGpuQueue>(
+				m_device.ptr(), SceQueueType::Compute);
 
 		} while (false);
 

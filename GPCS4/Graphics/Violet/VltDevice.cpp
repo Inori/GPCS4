@@ -61,16 +61,6 @@ namespace sce::vlt
 			Logger::err("DxvkDevice: waitForIdle: Operation failed");
 	}
 
-	//void VltDevice::recycleCommandList(const Rc<DxvkCommandList>& cmdList)
-	//{
-	//	m_recycledCommandLists.returnObject(cmdList);
-	//}
-
-	//void VltDevice::recycleDescriptorPool(const Rc<DxvkDescriptorPool>& pool)
-	//{
-	//	m_recycledDescriptorPools.returnObject(pool);
-	//}
-
 	VltDeviceQueue VltDevice::getQueue(
 		uint32_t family,
 		uint32_t index) const
@@ -78,6 +68,29 @@ namespace sce::vlt
 		VkQueue queue = VK_NULL_HANDLE;
 		vkGetDeviceQueue(m_device, family, index, &queue);
 		return VltDeviceQueue{ queue, family, index };
+	}
+
+	Rc<VltCommandList> VltDevice::createCommandList()
+	{
+		Rc<VltCommandList> cmdList = m_recycledCommandLists.retrieveObject();
+
+		if (cmdList == nullptr)
+		{
+			cmdList = new VltCommandList(this);
+		}
+		
+		return cmdList;
+	}
+
+	Rc<VltContext> VltDevice::createContext()
+	{
+		return new VltContext(this);
+	}
+
+	void VltDevice::recycleCommandList(
+		const Rc<VltCommandList>& cmdList)
+	{
+		m_recycledCommandLists.returnObject(cmdList);
 	}
 
 }  // namespace sce::vlt

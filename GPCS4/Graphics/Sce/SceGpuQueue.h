@@ -4,79 +4,71 @@
 
 #include <memory>
 
-
 namespace sce
-{;
-
-namespace Gnm
 {
+	namespace vlt
+	{
+		class VltDevice;
+	}  // namespace vlt
 
-class GnmCommandProcessor;
-class GnmCommandBuffer;
+	namespace Gnm
+	{
+		class GnmCommandProcessor;
+		class GnmCommandBuffer;
+	}  // namespace Gnm
 
-}  // namespace Gnm
+	enum class SceQueueType
+	{
+		Graphics = 0,
+		Compute  = 1
+	};
 
-class SceVideoOut;
+	struct SceGpuCommand
+	{
+		const void* buffer = nullptr;
+		uint32_t    size   = 0;
+	};
 
-enum class SceQueueType
-{
-	Graphics = 0,
-	Compute  = 1
-};
+	struct SceGpuSubmissionSync
+	{
+		VkSemaphore wait;
+		VkSemaphore wake;
+	};
 
-struct SceGpuQueueDevice
-{
-	uint32_t placeHolder;
-};
+	class SceGpuQueue
+	{
+	public:
+		SceGpuQueue(
+			vlt::VltDevice* device,
+			SceQueueType    type);
+		~SceGpuQueue();
 
-struct SceGpuCommand
-{
-	const void* buffer = nullptr;
-	uint32_t    size   = 0;
-};
+		/**
+	     * \brief Record command buffer.
+	     * 
+	     * Convert Gnm command buffer to Violet command list.
+	     * \param cmd Gnm command buffer.
+	     * \param displayBufferIndex Current display buffer index, 
+	     *                           using to index render target.
+	     * \returns The Violet command list recorded.
+	     */
+		void record(const SceGpuCommand& cmd);
 
-struct SceGpuSubmission
-{
-	//RcPtr<vlt::VltCmdList> cmdList;
-	VkSemaphore            wait;
-	VkSemaphore            wake;
-};
+		/**
+	     * \brief Submit vulkan command list to device.
+	     * 
+	     * \param sync synchronization objects to wait and signal.
+	     */
+		void submit(const SceGpuSubmissionSync& sync);
 
-class SceGpuQueue
-{
-public:
-	SceGpuQueue(
-		const SceGpuQueueDevice& device,
-		SceQueueType             type);
-	~SceGpuQueue();
+	private:
+		void createQueue(SceQueueType type);
 
-	/**
-	 * \brief Record command buffer.
-	 * 
-	 * Convert Gnm command buffer to Violet command list.
-	 * \param cmd Gnm command buffer.
-	 * \param displayBufferIndex Current display buffer index, 
-	 *                           using to index render target.
-	 * \returns The Violet command list recorded.
-	 */
-	void record(const SceGpuCommand& cmd);
+	private:
+		vlt::VltDevice* m_device;
 
-	/**
-	 * \brief Submit vulkan command list.
-	 * 
-	 * \param sync synchronization objects to wait and signal.
-	 */
-	void submit(const SceGpuSubmission& submission);
-
-private:
-	void createQueue(SceQueueType type);
-
-private:
-	SceGpuQueueDevice      m_device;
-
-	std::unique_ptr<Gnm::GnmCommandProcessor> m_cp;
-	std::unique_ptr<Gnm::GnmCommandBuffer>    m_cmdProducer;
-};
-
+		std::unique_ptr<Gnm::GnmCommandProcessor> m_cp;
+		std::unique_ptr<Gnm::GnmCommandBuffer>    m_cmdProducer;
+	};
 
 }  // namespace sce

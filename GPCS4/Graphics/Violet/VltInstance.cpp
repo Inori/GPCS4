@@ -55,6 +55,7 @@ namespace sce::vlt
 			&insExtensions.khrSurface,
 		} };
 
+		// merge platform extensions
 		auto platformExtensions = getPlatformExtensions();
 		for (auto& ext : platformExtensions)
 		{
