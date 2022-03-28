@@ -2,6 +2,8 @@
 
 #include "SceCommon.h"
 
+#include "Violet/VltRc.h"
+
 #include <memory>
 
 namespace sce
@@ -9,6 +11,7 @@ namespace sce
 	namespace vlt
 	{
 		class VltDevice;
+		class VltCommandList;
 	}  // namespace vlt
 
 	namespace Gnm
@@ -29,8 +32,9 @@ namespace sce
 		uint32_t    size   = 0;
 	};
 
-	struct SceGpuSubmissionSync
+	struct SceGpuSubmission
 	{
+		vlt::Rc<vlt::VltCommandList> cmdList;
 		VkSemaphore wait;
 		VkSemaphore wake;
 	};
@@ -44,7 +48,7 @@ namespace sce
 		~SceGpuQueue();
 
 		/**
-	     * \brief Record command buffer.
+	     * \brief Record command list.
 	     * 
 	     * Convert Gnm command buffer to Violet command list.
 	     * \param cmd Gnm command buffer.
@@ -52,14 +56,15 @@ namespace sce
 	     *                           using to index render target.
 	     * \returns The Violet command list recorded.
 	     */
-		void record(const SceGpuCommand& cmd);
+		vlt::Rc<vlt::VltCommandList>
+			record(const SceGpuCommand& cmd);
 
 		/**
 	     * \brief Submit vulkan command list to device.
 	     * 
 	     * \param sync synchronization objects to wait and signal.
 	     */
-		void submit(const SceGpuSubmissionSync& sync);
+		void submit(const SceGpuSubmission& submission);
 
 	private:
 		void createQueue(SceQueueType type);

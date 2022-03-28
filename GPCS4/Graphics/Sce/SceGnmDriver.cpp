@@ -130,11 +130,11 @@ namespace sce
 	{
 		do
 		{
-			SceGpuSubmissionSync submissionSync = {};
+			SceGpuSubmission submission = {};
 			//gpuSubmission.cmdList          = cmdList;
 			//gpuSubmission.wait             = presentSync.acquire;
 			//gpuSubmission.wake             = presentSync.present;
-			m_graphicsQueue->submit(submissionSync);
+			m_graphicsQueue->submit(submission);
 
 			//VltPresentInfo presentation;
 			//presentation.presenter = m_presenter;

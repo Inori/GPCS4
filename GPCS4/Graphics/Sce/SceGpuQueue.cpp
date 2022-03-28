@@ -5,6 +5,7 @@
 #include "Gnm/GnmCommandBufferDummy.h"
 #include "Gnm/GnmCommandProcessor.h"
 #include "Violet/VltDevice.h"
+#include "Violet/VltCmdList.h"
 
 LOG_CHANNEL(Graphic.Sce.SceGpuQueue);
 
@@ -24,7 +25,8 @@ namespace sce
 	{
 	}
 
-	void SceGpuQueue::record(const SceGpuCommand& cmd)
+	vlt::Rc<vlt::VltCommandList>
+		SceGpuQueue::record(const SceGpuCommand& cmd)
 	{
 		bool result = m_cp->processCommandBuffer(cmd.buffer, cmd.size);
 		LOG_ERR_IF(result == false, "process command buffer failed.");
@@ -32,7 +34,7 @@ namespace sce
 		// return m_cmdProcesser->recordEnd();
 	}
 
-	void SceGpuQueue::submit(const SceGpuSubmissionSync& sync)
+	void SceGpuQueue::submit(const SceGpuSubmission& submission)
 	{
 		//VltSubmitInfo submitInfo = {};
 		//submitInfo.cmdList       = submission.cmdList;
