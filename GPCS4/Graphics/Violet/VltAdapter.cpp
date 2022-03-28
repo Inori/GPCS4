@@ -269,68 +269,15 @@ namespace sce::vlt
 
 		// Modify and add request features as development goes.
 
-		enabled.core.features.geometryShader                       = VK_TRUE;
-		//enabled.core.features.robustBufferAccess                   = VK_TRUE;
-		//enabled.core.features.shaderStorageImageWriteWithoutFormat = VK_TRUE;
-		//enabled.core.features.depthBounds                          = supported.core.features.depthBounds;
+		enabled.core.features.geometryShader     = VK_TRUE;
+		enabled.core.features.samplerAnisotropy  = supported.core.features.samplerAnisotropy;
+		enabled.core.features.shaderFloat64      = VK_TRUE;
+		enabled.core.features.shaderInt64        = VK_TRUE;
+		enabled.core.features.tessellationShader = VK_TRUE;
+		enabled.core.features.logicOp            = VK_TRUE;
 
 		enabled.shaderDrawParameters.shaderDrawParameters = VK_TRUE;
-
-		enabled.extMemoryPriority.memoryPriority = supported.extMemoryPriority.memoryPriority;
-
-		//enabled.extRobustness2.robustBufferAccess2 = supported.extRobustness2.robustBufferAccess2;
-		//enabled.extRobustness2.robustImageAccess2  = supported.extRobustness2.robustImageAccess2;
-		//enabled.extRobustness2.nullDescriptor      = supported.extRobustness2.nullDescriptor;
-
-		//enabled.extShaderDemoteToHelperInvocation.shaderDemoteToHelperInvocation = supported.extShaderDemoteToHelperInvocation.shaderDemoteToHelperInvocation;
-
-		//enabled.extVertexAttributeDivisor.vertexAttributeInstanceRateDivisor     = supported.extVertexAttributeDivisor.vertexAttributeInstanceRateDivisor;
-		//enabled.extVertexAttributeDivisor.vertexAttributeInstanceRateZeroDivisor = supported.extVertexAttributeDivisor.vertexAttributeInstanceRateZeroDivisor;
-
-		//if (supported.extCustomBorderColor.customBorderColorWithoutFormat)
-		//{
-		//	enabled.extCustomBorderColor.customBorderColors             = VK_TRUE;
-		//	enabled.extCustomBorderColor.customBorderColorWithoutFormat = VK_TRUE;
-		//}
-
-		//enabled.core.features.depthClamp              = VK_TRUE;
-		//enabled.core.features.depthBiasClamp          = VK_TRUE;
-		//enabled.core.features.fillModeNonSolid        = VK_TRUE;
-		//enabled.core.features.pipelineStatisticsQuery = supported.core.features.pipelineStatisticsQuery;
-		//enabled.core.features.sampleRateShading       = VK_TRUE;
-		enabled.core.features.samplerAnisotropy       = supported.core.features.samplerAnisotropy;
-		//enabled.core.features.shaderClipDistance      = VK_TRUE;
-		//enabled.core.features.shaderCullDistance      = VK_TRUE;
-		//enabled.core.features.textureCompressionBC    = VK_TRUE;
-		//enabled.extDepthClipEnable.depthClipEnable    = supported.extDepthClipEnable.depthClipEnable;
-		//enabled.extHostQueryReset.hostQueryReset      = supported.extHostQueryReset.hostQueryReset;
-
-		//enabled.core.features.occlusionQueryPrecise = VK_TRUE;
-
-		//enabled.core.features.independentBlend = VK_TRUE;
-		//enabled.core.features.multiViewport    = VK_TRUE;
-
-		//enabled.core.features.fullDrawIndexUint32       = VK_TRUE;
-		//enabled.core.features.logicOp                   = supported.core.features.logicOp;
-		//enabled.core.features.shaderImageGatherExtended = VK_TRUE;
-		//enabled.core.features.variableMultisampleRate   = supported.core.features.variableMultisampleRate;
-		//enabled.extTransformFeedback.transformFeedback  = VK_TRUE;
-		//enabled.extTransformFeedback.geometryStreams    = VK_TRUE;
-
-		//enabled.core.features.dualSrcBlend   = VK_TRUE;
-		//enabled.core.features.imageCubeArray = VK_TRUE;
-
-		//enabled.core.features.drawIndirectFirstInstance           = VK_TRUE;
-		//enabled.core.features.fragmentStoresAndAtomics            = VK_TRUE;
-		//enabled.core.features.multiDrawIndirect                   = VK_TRUE;
-		enabled.core.features.shaderFloat64						  = VK_TRUE;
-		enabled.core.features.shaderInt64						  = VK_TRUE;
-		//enabled.core.features.shaderStorageImageReadWithoutFormat = supported.core.features.shaderStorageImageReadWithoutFormat;
-		enabled.core.features.tessellationShader                  = VK_TRUE;
-
-		//enabled.core.features.logicOp                        = VK_TRUE;
-		//enabled.core.features.variableMultisampleRate        = VK_TRUE;
-		//enabled.core.features.vertexPipelineStoresAndAtomics = VK_TRUE;
+		enabled.extMemoryPriority.memoryPriority          = supported.extMemoryPriority.memoryPriority;
 
 		return enabled;
 	}
@@ -342,34 +289,9 @@ namespace sce::vlt
 		VltDeviceExtensions devExtensions;
 
 		std::array<VltExt*, 3> devExtensionList = { {
-			//&devExtensions.amdMemoryOverallocationBehaviour,
-			//&devExtensions.amdShaderFragmentMask,
-			//&devExtensions.ext4444Formats,
-			//&devExtensions.extConservativeRasterization,
-			//&devExtensions.extCustomBorderColor,
-			//&devExtensions.extDepthClipEnable,
-			//&devExtensions.extExtendedDynamicState,
-			//&devExtensions.extFullScreenExclusive,
-			//&devExtensions.extHostQueryReset,
 			&devExtensions.extMemoryBudget,
 			&devExtensions.extMemoryPriority,
-			//&devExtensions.extRobustness2,
-			//&devExtensions.extShaderDemoteToHelperInvocation,
-			//&devExtensions.extShaderStencilExport,
-			//&devExtensions.extShaderViewportIndexLayer,
-			//&devExtensions.extTransformFeedback,
-			//&devExtensions.extVertexAttributeDivisor,
-			//&devExtensions.khrBufferDeviceAddress,
-			//&devExtensions.khrCreateRenderPass2,
-			//&devExtensions.khrDepthStencilResolve,
-			//&devExtensions.khrDrawIndirectCount,
-			//&devExtensions.khrDriverProperties,
-			//&devExtensions.khrImageFormatList,
-			//&devExtensions.khrSamplerMirrorClampToEdge,
-			//&devExtensions.khrShaderFloatControls,
 			&devExtensions.khrSwapchain,
-			//&devExtensions.nvxBinaryImport,
-			//&devExtensions.nvxImageViewHandle,
 		} };
 
 		VltNameSet extensionsEnabled;
