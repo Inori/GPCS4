@@ -37,6 +37,9 @@ https://github.com/tomhughes/libdwarf
 elfstuff (ELF loader/parser)  
 https://github.com/shuffle2/elfstuff
 
+Pkg/PFS file format
+https://psdevwiki.com/ps4/Package_Files
+https://psdevwiki.com/ps4/PFS
 
 ## Graphics:
 Flipping the Vulkan viewport  
