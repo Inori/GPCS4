@@ -316,9 +316,9 @@ namespace sce::vlt
 										 "\n  Device name:     : ",
 										 m_deviceInfo.core.properties.deviceName,
 										 "\n  Driver version   : ",
-										 VK_VERSION_MAJOR(m_deviceInfo.core.properties.driverVersion), ".",
-										 VK_VERSION_MINOR(m_deviceInfo.core.properties.driverVersion), ".",
-										 VK_VERSION_PATCH(m_deviceInfo.core.properties.driverVersion)));
+										 VK_API_VERSION_MAJOR(m_deviceInfo.core.properties.driverVersion), ".",
+										 VK_API_VERSION_MINOR(m_deviceInfo.core.properties.driverVersion), ".",
+										 VK_API_VERSION_PATCH(m_deviceInfo.core.properties.driverVersion)));
 
 		Logger::info("Enabled device extensions:");
 		this->logNameList(extensionNameList);
