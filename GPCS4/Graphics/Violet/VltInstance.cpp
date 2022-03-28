@@ -30,32 +30,6 @@ namespace sce::vlt
 				   : nullptr;
 	}
 
-	Rc<VltAdapter> VltInstance::findAdapterByLuid(const void* luid) const
-	{
-		for (const auto& adapter : m_adapters)
-		{
-			const auto& props = adapter->devicePropertiesExt().coreDeviceId;
-
-			if (props.deviceLUIDValid && !std::memcmp(luid, props.deviceLUID, VK_LUID_SIZE))
-				return adapter;
-		}
-
-		return nullptr;
-	}
-
-	Rc<VltAdapter> VltInstance::findAdapterByDeviceId(uint16_t vendorId, uint16_t deviceId) const
-	{
-		for (const auto& adapter : m_adapters)
-		{
-			const auto& props = adapter->deviceProperties();
-
-			if (props.vendorID == vendorId && props.deviceID == deviceId)
-				return adapter;
-		}
-
-		return nullptr;
-	}
-
 	VkInstance VltInstance::createInstance()
 	{
 		VltInstanceExtensions insExtensions;

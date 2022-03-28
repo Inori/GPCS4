@@ -51,25 +51,6 @@ namespace sce::vlt
 		Rc<VltAdapter> enumAdapters(
 			uint32_t index) const;
 
-		/**
-		 * \brief Finds adapter by LUID
-		 * 
-		 * \param [in] luid Pointer to LUID
-		 * \returns Matching adapter, if any
-		 */
-		Rc<VltAdapter> findAdapterByLuid(
-			const void* luid) const;
-
-		/**
-		 * \brief Finds adapter by device IDs
-		 * 
-		 * \param [in] vendorId Vendor ID
-		 * \param [in] deviceId Device ID
-		 * \returns Matching adapter, if any
-		 */
-		Rc<VltAdapter> findAdapterByDeviceId(
-			uint16_t vendorId,
-			uint16_t deviceId) const;
 
 		/**
 		 * \brief Enabled instance extensions

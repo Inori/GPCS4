@@ -459,7 +459,6 @@ namespace sce::vlt
 
 		Rc<VltDevice> result = new VltDevice(
 			instance, this, devExtensions, requestFeatures);
-		result->initResources();
 		return result;
 	}
 

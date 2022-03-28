@@ -730,6 +730,9 @@
     <ClInclude Include="Graphics\Violet\VltDevice.h">
       <Filter>Source Files\Graphics\Violet</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltRecycler.h">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
