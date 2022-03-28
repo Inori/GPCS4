@@ -7,8 +7,9 @@
 namespace sce::vlt
 {
 	class VltAdapter;
+
 	/**
-	* \brief DXVK instance
+	* \brief VLT instance
 	* 
 	* Manages a Vulkan instance and stores a list
 	* of adapters. This also provides methods for
@@ -62,6 +63,8 @@ namespace sce::vlt
 		}
 
 	private:
+		std::vector<VltExt> getPlatformExtensions();
+
 		VkInstance createInstance();
 
 		std::vector<Rc<VltAdapter>> queryAdapters();

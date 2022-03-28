@@ -1,6 +1,9 @@
 #include "VltInstance.h"
+
 #include "VltAdapter.h"
 #include "VltDeviceFilter.h"
+
+#include "Platform/PlatVulkan.h"
 
 #include <array>
 
@@ -30,6 +33,19 @@ namespace sce::vlt
 				   : nullptr;
 	}
 
+	std::vector<VltExt> VltInstance::getPlatformExtensions()
+	{
+		std::vector<VltExt> result;
+
+		auto platformExtensions = plat::vulkanGetRequiredInstanceExtensions();
+		for (const auto& ext : platformExtensions)
+		{
+			result.emplace_back(ext, VltExtMode::Required);
+		}
+
+		return result;
+	}
+
 	VkInstance VltInstance::createInstance()
 	{
 		VltInstanceExtensions insExtensions;
@@ -38,6 +54,12 @@ namespace sce::vlt
 			&insExtensions.khrGetSurfaceCapabilities2,
 			&insExtensions.khrSurface,
 		} };
+
+		auto platformExtensions = getPlatformExtensions();
+		for (auto& ext : platformExtensions)
+		{
+			insExtensionList.push_back(&ext);
+		}
 
 		std::vector<const char*> insLayers;
 
@@ -56,7 +78,6 @@ namespace sce::vlt
 			Logger::exception("DxvkInstance: Failed to create instance");
 
 		m_extensions = insExtensions;
-
 		VltNameList extensionNameList = extensionsEnabled.toNameList();
 
 		Logger::info("Enabled instance extensions:");
@@ -159,4 +180,5 @@ namespace sce::vlt
 		for (uint32_t i = 0; i < names.count(); i++)
 			Logger::info(util::str::formatex("  ", names.name(i)));
 	}
+
 }  // namespace sce::vlt

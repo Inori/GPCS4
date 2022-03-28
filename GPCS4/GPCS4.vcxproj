@@ -119,6 +119,7 @@
     <ClInclude Include="Platform\PlatString.h" />
     <ClInclude Include="Platform\PlatThread.h" />
     <ClInclude Include="Platform\PlatTime.h" />
+    <ClInclude Include="Platform\PlatVulkan.h" />
     <ClInclude Include="SceModules\BlockingQueue.h" />
     <ClInclude Include="SceModules\MapSlot.h" />
     <ClInclude Include="SceModules\SceAjm\sce_ajm.h" />
@@ -276,6 +277,7 @@
     <ClCompile Include="Platform\PlatString.cpp" />
     <ClCompile Include="Platform\PlatThread.cpp" />
     <ClCompile Include="Platform\PlatTime.cpp" />
+    <ClCompile Include="Platform\PlatVulkan.cpp" />
     <ClCompile Include="SceModules\SceAjm\sce_ajm.cpp" />
     <ClCompile Include="SceModules\SceAjm\sce_ajm_export.cpp" />
     <ClCompile Include="SceModules\SceAppContentUtil\sce_appcontentutil.cpp" />

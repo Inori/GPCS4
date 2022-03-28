@@ -173,6 +173,10 @@ namespace sce::vlt
 		{
 			return m_object != nullptr;
 		}
+		operator bool() const
+		{
+			return m_object != nullptr;
+		}
 
 	private:
 		T* m_object = nullptr;

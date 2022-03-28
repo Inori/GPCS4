@@ -733,6 +733,9 @@
     <ClInclude Include="Graphics\Violet\VltRecycler.h">
       <Filter>Source Files\Graphics\Violet</Filter>
     </ClInclude>
+    <ClInclude Include="Platform\PlatVulkan.h">
+      <Filter>Source Files\Platform</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1262,6 +1265,9 @@
     </ClCompile>
     <ClCompile Include="Graphics\Violet\VltDevice.cpp">
       <Filter>Source Files\Graphics\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Platform\PlatVulkan.cpp">
+      <Filter>Source Files\Platform</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

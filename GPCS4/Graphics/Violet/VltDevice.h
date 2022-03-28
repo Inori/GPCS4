@@ -45,6 +45,7 @@ namespace sce::vlt
 		VltDevice(
 			const Rc<VltInstance>&     instance,
 			const Rc<VltAdapter>&      adapter,
+			VkDevice                   device,
 			const VltDeviceExtensions& extensions,
 			const VltDeviceFeatures&   features);
 

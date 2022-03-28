@@ -26,7 +26,7 @@ ColumnLimit: 0
 SortIncludes: true
 IncludeBlocks: Regroup
 IncludeCategories:
-  - Regex:           '^"(\.\.|Platform|Emulator|Graphic|Loader|Algorithm|Util)/'
+  - Regex:           '^"(\.\.|Platform|Emulator|Graphic|Loader|Algorithm|Util|Sce|Gnm|Pssl|SpirV|Violet|SceModules)/'
     Priority:        2
   - Regex:           '^(<|"(gtest|gmock|isl|json)/)'
     Priority:        3

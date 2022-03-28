@@ -429,14 +429,14 @@ namespace sce::vlt
 
 		for (uint32_t family : queueFamiliySet)
 		{
-			VkDeviceQueueCreateInfo graphicsQueue;
-			graphicsQueue.sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-			graphicsQueue.pNext            = nullptr;
-			graphicsQueue.flags            = 0;
-			graphicsQueue.queueFamilyIndex = family;
-			graphicsQueue.queueCount       = 1;
-			graphicsQueue.pQueuePriorities = &queuePriority;
-			queueInfos.push_back(graphicsQueue);
+			VkDeviceQueueCreateInfo deviceQueue;
+			deviceQueue.sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+			deviceQueue.pNext            = nullptr;
+			deviceQueue.flags            = 0;
+			deviceQueue.queueFamilyIndex = family;
+			deviceQueue.queueCount       = 1;
+			deviceQueue.pQueuePriorities = &queuePriority;
+			queueInfos.push_back(deviceQueue);
 		}
 
 		VkDeviceCreateInfo info;
@@ -458,7 +458,7 @@ namespace sce::vlt
 			Logger::exception("DxvkAdapter: Failed to create device");
 
 		Rc<VltDevice> result = new VltDevice(
-			instance, this, devExtensions, requestFeatures);
+			instance, this, device, devExtensions, requestFeatures);
 		return result;
 	}
 
@@ -797,6 +797,7 @@ namespace sce::vlt
 	{
 		Logger::info(util::str::formatex("Queue families:",
 										 "\n  Graphics : ", queues.graphics,
+										 "\n  Compute  : ", queues.compute,
 										 "\n  Transfer : ", queues.transfer));
 	}
 

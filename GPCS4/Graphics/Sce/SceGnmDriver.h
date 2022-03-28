@@ -2,73 +2,88 @@
 
 #include "SceCommon.h"
 
+#include "Violet/VltRc.h"
+
 #include <array>
 #include <memory>
-
 
 namespace sce
 {
 
-class SceGpuQueue;
+	namespace vlt
+	{
+		class VltInstance;
+		class VltAdapter;
+		class VltDevice;
+	}  // namespace vlt
 
-// Valid vqueue id should be positive value.
-constexpr uint32_t VQueueIdBegin        = 1;
-constexpr uint32_t MaxPipeId            = 7;  // Some docs say it should be 7, others say it should be 3. Fuck that.
-constexpr uint32_t MaxQueueId           = 8;
-constexpr uint32_t MaxComputeQueueCount = MaxPipeId * MaxQueueId;
+	class SceGpuQueue;
 
-class SceGnmDriver
-{
+	// Valid vqueue id should be positive value.
+	constexpr uint32_t VQueueIdBegin        = 1;
+	constexpr uint32_t MaxPipeId            = 7;  // Some docs say it should be 7, others say it should be 3. Fuck that.
+	constexpr uint32_t MaxQueueId           = 8;
+	constexpr uint32_t MaxComputeQueueCount = MaxPipeId * MaxQueueId;
 
-public:
-	SceGnmDriver();
-	~SceGnmDriver();
+	class SceGnmDriver
+	{
 
-	/// Graphics
-	
-	int submitCommandBuffers(uint32_t  count,
-							 void*     dcbGpuAddrs[],
-							 uint32_t* dcbSizesInBytes,
-							 void*     ccbGpuAddrs[],
-							 uint32_t* ccbSizesInBytes);
+	public:
+		SceGnmDriver();
+		~SceGnmDriver();
 
-	int submitAndFlipCommandBuffers(uint32_t  count,
-									void*     dcbGpuAddrs[],
-									uint32_t* dcbSizesInBytes,
-									void*     ccbGpuAddrs[],
-									uint32_t* ccbSizesInBytes,
-									uint32_t  videoOutHandle,
-									uint32_t  displayBufferIndex,
-									uint32_t  flipMode,
-									int64_t   flipArg);
+		/// Graphics
 
-	int sceGnmSubmitDone(void);
+		int submitCommandBuffers(uint32_t  count,
+								 void*     dcbGpuAddrs[],
+								 uint32_t* dcbSizesInBytes,
+								 void*     ccbGpuAddrs[],
+								 uint32_t* ccbSizesInBytes);
 
-	/// Compute
+		int submitAndFlipCommandBuffers(uint32_t  count,
+										void*     dcbGpuAddrs[],
+										uint32_t* dcbSizesInBytes,
+										void*     ccbGpuAddrs[],
+										uint32_t* ccbSizesInBytes,
+										uint32_t  videoOutHandle,
+										uint32_t  displayBufferIndex,
+										uint32_t  flipMode,
+										int64_t   flipArg);
 
-	uint32_t mapComputeQueue(
-		uint32_t pipeId,
-		uint32_t queueId,
-		void*    ringBaseAddr,
-		uint32_t ringSizeInDW,
-		void*    readPtrAddr);
+		int sceGnmSubmitDone(void);
 
-	void unmapComputeQueue(uint32_t vqueueId);
+		/// Compute
 
-	void dingDong(
-		uint32_t vqueueId,
-		uint32_t nextStartOffsetInDw);
+		uint32_t mapComputeQueue(
+			uint32_t pipeId,
+			uint32_t queueId,
+			void*    ringBaseAddr,
+			uint32_t ringSizeInDW,
+			void*    readPtrAddr);
 
-private:
-	bool initGnmDriver();
+		void unmapComputeQueue(uint32_t vqueueId);
 
-	void createGraphicsQueue();
+		void dingDong(
+			uint32_t vqueueId,
+			uint32_t nextStartOffsetInDw);
 
-	void submitPresent();
+	private:
+		bool initGnmDriver();
 
-private:
-	std::unique_ptr<SceGpuQueue>                                   m_graphicsQueue;
-	std::array<std::unique_ptr<SceGpuQueue>, MaxComputeQueueCount> m_computeQueues;
-};
+		bool initVltDevice();
+
+		void createGraphicsQueue();
+
+		void submitPresent();
+
+	private:
+		vlt::Rc<vlt::VltInstance> m_instance;
+		vlt::Rc<vlt::VltAdapter>  m_adapter;
+		vlt::Rc<vlt::VltDevice>   m_device;
+
+		std::unique_ptr<SceGpuQueue> m_graphicsQueue;
+		std::array<std::unique_ptr<SceGpuQueue>, MaxComputeQueueCount> 
+									 m_computeQueues;
+	};
 
 }  // namespace sce

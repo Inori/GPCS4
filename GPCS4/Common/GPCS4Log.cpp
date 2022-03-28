@@ -14,7 +14,7 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 
-#define LOG_STR_BUFFER_LEN 2000
+#define LOG_STR_BUFFER_LEN 0x2000
 
 #ifdef GPCS4_WINDOWS
 

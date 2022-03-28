@@ -7,8 +7,10 @@ namespace sce::vlt
 	VltDevice::VltDevice(
 		const Rc<VltInstance>&     instance,
 		const Rc<VltAdapter>&      adapter,
+		VkDevice                   device,
 		const VltDeviceExtensions& extensions,
 		const VltDeviceFeatures&   features) :
+		m_device(device),
 		m_instance(instance),
 		m_adapter(adapter),
 		m_extensions(extensions),

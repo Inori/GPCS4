@@ -47,7 +47,7 @@ namespace sce::vlt
 	};
 
 	/**
-     * \brief DXVK adapter
+     * \brief VLT adapter
      * 
      * Corresponds to a physical device in Vulkan. Provides
      * all kinds of information about the device itself and

@@ -19,7 +19,11 @@ namespace sce::vlt
 	{
 		if (properties.apiVersion < VK_MAKE_VERSION(1, 3, 0))
 		{
-			Logger::warn(util::str::formatex("Skipping Vulkan 1.3 adapter: ", properties.deviceName));
+			Logger::warn(util::str::formatex("Skipping Vulkan ",
+				VK_API_VERSION_MAJOR(properties.apiVersion), 
+				".", 
+				VK_API_VERSION_MINOR(properties.apiVersion), 
+				" adapter: ", properties.deviceName));
 			return false;
 		}
 
