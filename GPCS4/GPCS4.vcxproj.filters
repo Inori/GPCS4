@@ -742,6 +742,9 @@
     <ClInclude Include="Graphics\Violet\VltCmdList.h">
       <Filter>Source Files\Graphics\Violet</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltDebugUtil.h">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1279,6 +1282,9 @@
       <Filter>Source Files\Graphics\Violet</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Violet\VltCmdList.cpp">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Violet\VltDebugUtil.cpp">
       <Filter>Source Files\Graphics\Violet</Filter>
     </ClCompile>
   </ItemGroup>

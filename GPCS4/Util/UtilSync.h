@@ -26,7 +26,9 @@ namespace util::sync
 			{
 				_mm_pause();
 				if (fn())
+				{
 					return;
+				}
 			}
 
 			std::this_thread::yield();
