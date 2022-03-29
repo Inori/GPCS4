@@ -38,9 +38,9 @@ elfstuff (ELF loader/parser)
 https://github.com/shuffle2/elfstuff
 
 PKG/PFS file format  
-https://psdevwiki.com/ps4/Package_Files
-https://psdevwiki.com/ps4/PFS
-https://github.com/pearlxcore/PS4-PKG-Tool
+https://psdevwiki.com/ps4/Package_Files  
+https://psdevwiki.com/ps4/PFS  
+https://github.com/pearlxcore/PS4-PKG-Tool  
 
 ## Graphics:
 Flipping the Vulkan viewport  
