@@ -79,12 +79,22 @@ namespace sce::vlt
 
 		/**
          * \brief Tests whether a dedicated transfer queue is available
-         * \returns \c true if an SDMA queue is supported by the device
+         * \returns \c true if an transfer queue is supported by the device
          */
 		bool hasDedicatedTransferQueue() const
 		{
 			return m_queues.transfer.queueHandle != 
                 m_queues.graphics.queueHandle;
+		}
+
+		/**
+         * \brief Tests whether a dedicated compute queue is available
+         * \returns \c true if an compute queue is supported by the device
+         */
+		bool hasDedicatedComputeQueue() const
+		{
+			return m_queues.compute.queueHandle !=
+				   m_queues.graphics.queueHandle;
 		}
 
 		/**

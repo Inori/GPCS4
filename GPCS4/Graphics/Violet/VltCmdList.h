@@ -18,6 +18,7 @@ namespace sce::vlt
 		InitBuffer     = 0,
 		ExecBuffer     = 1,
 		TransferBuffer = 2,
+		ComputeBuffer  = 3,
 	};
 
 	using DxvkCmdBufferFlags = util::Flags<DxvkCmdBuffer>;
@@ -29,7 +30,7 @@ namespace sce::vlt
      * actual command submissions. Internal use
      * only, array sizes are based on need.
      */
-	struct DxvkQueueSubmission
+	struct VltQueueSubmission
 	{
 		uint32_t             waitCount;
 		VkSemaphore          waitSync[2];
@@ -737,14 +738,14 @@ namespace sce::vlt
 			if (cmdBuffer == DxvkCmdBuffer::InitBuffer)
 				return m_initBuffer;
 			if (cmdBuffer == DxvkCmdBuffer::TransferBuffer)
-				return m_sdmaBuffer;
+				return m_transBuffer;
 			return VK_NULL_HANDLE;
 		}
 
 		VkResult submitToQueue(
 			VkQueue                    queue,
 			VkFence                    fence,
-			const DxvkQueueSubmission& info);
+			const VltQueueSubmission& info);
 
 	private:
 		VltDevice* m_device;
@@ -753,12 +754,15 @@ namespace sce::vlt
 
 		VkCommandPool m_graphicsPool = VK_NULL_HANDLE;
 		VkCommandPool m_transferPool = VK_NULL_HANDLE;
+		VkCommandPool m_computePool  = VK_NULL_HANDLE;
 
-		VkCommandBuffer m_execBuffer = VK_NULL_HANDLE;
-		VkCommandBuffer m_initBuffer = VK_NULL_HANDLE;
-		VkCommandBuffer m_sdmaBuffer = VK_NULL_HANDLE;
+		VkCommandBuffer m_execBuffer  = VK_NULL_HANDLE;
+		VkCommandBuffer m_initBuffer  = VK_NULL_HANDLE;
+		VkCommandBuffer m_transBuffer = VK_NULL_HANDLE;
+		VkCommandBuffer m_compBuffer  = VK_NULL_HANDLE;
 
-		VkSemaphore m_sdmaSemaphore = VK_NULL_HANDLE;
+		VkSemaphore m_transSemaphore = VK_NULL_HANDLE;
+		VkSemaphore m_compSemaphore  = VK_NULL_HANDLE;
 
 		DxvkCmdBufferFlags m_cmdBuffersUsed;
 		//DxvkLifetimeTracker       m_resources;
