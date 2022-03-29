@@ -2,6 +2,7 @@
 
 #include "VltCommon.h"
 #include "VltDebugUtil.h"
+#include "VltLifetime.h"
 
 namespace sce::vlt
 {
@@ -13,7 +14,7 @@ namespace sce::vlt
      * A set of flags used to specify which of
      * the command buffers need to be submitted.
      */
-	enum class DxvkCmdBuffer : uint32_t
+	enum class VltCmdBuffer : uint32_t
 	{
 		InitBuffer     = 0,
 		ExecBuffer     = 1,
@@ -21,7 +22,7 @@ namespace sce::vlt
 		ComputeBuffer  = 3,
 	};
 
-	using DxvkCmdBufferFlags = util::Flags<DxvkCmdBuffer>;
+	using VltCmdBufferFlags = util::Flags<VltCmdBuffer>;
 
 	/**
      * \brief Queue submission info
@@ -119,11 +120,11 @@ namespace sce::vlt
          * the device can guarantee that the submission has
          * completed.
          */
-		//template <DxvkAccess Access>
-		//void trackResource(Rc<DxvkResource> rc)
-		//{
-		//	m_resources.trackResource<Access>(std::move(rc));
-		//}
+		template <VltAccess Access>
+		void trackResource(Rc<VltResource> rc)
+		{
+			m_resources.trackResource<Access>(std::move(rc));
+		}
 
 		/**
          * \brief Tracks a descriptor pool
@@ -367,7 +368,7 @@ namespace sce::vlt
 		}
 
 		void cmdCopyBuffer(
-			DxvkCmdBuffer       cmdBuffer,
+			VltCmdBuffer        cmdBuffer,
 			VkBuffer            srcBuffer,
 			VkBuffer            dstBuffer,
 			uint32_t            regionCount,
@@ -381,7 +382,7 @@ namespace sce::vlt
 		}
 
 		void cmdCopyBufferToImage(
-			DxvkCmdBuffer            cmdBuffer,
+			VltCmdBuffer             cmdBuffer,
 			VkBuffer                 srcBuffer,
 			VkImage                  dstImage,
 			VkImageLayout            dstImageLayout,
@@ -396,7 +397,7 @@ namespace sce::vlt
 		}
 
 		void cmdCopyImage(
-			DxvkCmdBuffer      cmdBuffer,
+			VltCmdBuffer       cmdBuffer,
 			VkImage            srcImage,
 			VkImageLayout      srcImageLayout,
 			VkImage            dstImage,
@@ -413,7 +414,7 @@ namespace sce::vlt
 		}
 
 		void cmdCopyImageToBuffer(
-			DxvkCmdBuffer            cmdBuffer,
+			VltCmdBuffer             cmdBuffer,
 			VkImage                  srcImage,
 			VkImageLayout            srcImageLayout,
 			VkBuffer                 dstBuffer,
@@ -570,11 +571,11 @@ namespace sce::vlt
 		}
 
 		void cmdFillBuffer(
-			DxvkCmdBuffer cmdBuffer,
-			VkBuffer      dstBuffer,
-			VkDeviceSize  dstOffset,
-			VkDeviceSize  size,
-			uint32_t      data)
+			VltCmdBuffer cmdBuffer,
+			VkBuffer     dstBuffer,
+			VkDeviceSize dstOffset,
+			VkDeviceSize size,
+			uint32_t     data)
 		{
 			m_cmdBuffersUsed.set(cmdBuffer);
 
@@ -583,7 +584,7 @@ namespace sce::vlt
 		}
 
 		void cmdPipelineBarrier(
-			DxvkCmdBuffer                cmdBuffer,
+			VltCmdBuffer                 cmdBuffer,
 			VkPipelineStageFlags         srcStageMask,
 			VkPipelineStageFlags         dstStageMask,
 			VkDependencyFlags            dependencyFlags,
@@ -624,7 +625,7 @@ namespace sce::vlt
 			uint32_t    firstQuery,
 			uint32_t    queryCount)
 		{
-			m_cmdBuffersUsed.set(DxvkCmdBuffer::InitBuffer);
+			m_cmdBuffersUsed.set(VltCmdBuffer::InitBuffer);
 
 			vkCmdResetQueryPool(m_initBuffer,
 								queryPool, firstQuery, queryCount);
@@ -645,11 +646,11 @@ namespace sce::vlt
 		}
 
 		void cmdUpdateBuffer(
-			DxvkCmdBuffer cmdBuffer,
-			VkBuffer      dstBuffer,
-			VkDeviceSize  dstOffset,
-			VkDeviceSize  dataSize,
-			const void*   pData)
+			VltCmdBuffer cmdBuffer,
+			VkBuffer     dstBuffer,
+			VkDeviceSize dstOffset,
+			VkDeviceSize dataSize,
+			const void*  pData)
 		{
 			m_cmdBuffersUsed.set(cmdBuffer);
 
@@ -731,20 +732,20 @@ namespace sce::vlt
 		void cmdInsertDebugUtilsLabel(VkDebugUtilsLabelEXT* labelInfo);
 
 	private:
-		VkCommandBuffer getCmdBuffer(DxvkCmdBuffer cmdBuffer) const
+		VkCommandBuffer getCmdBuffer(VltCmdBuffer cmdBuffer) const
 		{
-			if (cmdBuffer == DxvkCmdBuffer::ExecBuffer)
+			if (cmdBuffer == VltCmdBuffer::ExecBuffer)
 				return m_execBuffer;
-			if (cmdBuffer == DxvkCmdBuffer::InitBuffer)
+			if (cmdBuffer == VltCmdBuffer::InitBuffer)
 				return m_initBuffer;
-			if (cmdBuffer == DxvkCmdBuffer::TransferBuffer)
+			if (cmdBuffer == VltCmdBuffer::TransferBuffer)
 				return m_transBuffer;
 			return VK_NULL_HANDLE;
 		}
 
 		VkResult submitToQueue(
-			VkQueue                    queue,
-			VkFence                    fence,
+			VkQueue                   queue,
+			VkFence                   fence,
 			const VltQueueSubmission& info);
 
 	private:
@@ -764,8 +765,9 @@ namespace sce::vlt
 		VkSemaphore m_transSemaphore = VK_NULL_HANDLE;
 		VkSemaphore m_compSemaphore  = VK_NULL_HANDLE;
 
-		DxvkCmdBufferFlags m_cmdBuffersUsed;
-		//DxvkLifetimeTracker       m_resources;
+		VltCmdBufferFlags m_cmdBuffersUsed;
+
+		VltLifetimeTracker m_resources;
 		//DxvkDescriptorPoolTracker m_descriptorPoolTracker;
 		//DxvkSignalTracker         m_signalTracker;
 		//DxvkGpuEventTracker       m_gpuEventTracker;

@@ -120,7 +120,7 @@ namespace sce::vlt
 
 		VltQueueSubmission info = VltQueueSubmission();
 
-		if (m_cmdBuffersUsed.test(DxvkCmdBuffer::TransferBuffer))
+		if (m_cmdBuffersUsed.test(VltCmdBuffer::TransferBuffer))
 		{
 			info.cmdBuffers[info.cmdBufferCount++] = m_transBuffer;
 
@@ -139,7 +139,7 @@ namespace sce::vlt
 			}
 		}
 
-		if (m_cmdBuffersUsed.test(DxvkCmdBuffer::ComputeBuffer))
+		if (m_cmdBuffersUsed.test(VltCmdBuffer::ComputeBuffer))
 		{
 			info.cmdBuffers[info.cmdBufferCount++] = m_compBuffer;
 
@@ -158,9 +158,9 @@ namespace sce::vlt
 			}
 		}
 
-		if (m_cmdBuffersUsed.test(DxvkCmdBuffer::InitBuffer))
+		if (m_cmdBuffersUsed.test(VltCmdBuffer::InitBuffer))
 			info.cmdBuffers[info.cmdBufferCount++] = m_initBuffer;
-		if (m_cmdBuffersUsed.test(DxvkCmdBuffer::ExecBuffer))
+		if (m_cmdBuffersUsed.test(VltCmdBuffer::ExecBuffer))
 			info.cmdBuffers[info.cmdBufferCount++] = m_execBuffer;
 
 		if (waitSemaphore)
@@ -209,7 +209,7 @@ namespace sce::vlt
 
 		// Unconditionally mark the exec buffer as used. There
 		// is virtually no use case where this isn't correct.
-		m_cmdBuffersUsed = DxvkCmdBuffer::ExecBuffer;
+		m_cmdBuffersUsed = VltCmdBuffer::ExecBuffer;
 	}
 
 	void VltCommandList::endRecording()
@@ -220,9 +220,9 @@ namespace sce::vlt
 
 	void VltCommandList::reset()
 	{
-		//// Free resources and other objects
-		//// that are no longer in use
-		//m_resources.reset();
+		// Free resources and other objects
+		// that are no longer in use
+		m_resources.reset();
 
 		//// Recycle heavy Vulkan objects
 		//m_descriptorPoolTracker.reset();
@@ -279,7 +279,7 @@ namespace sce::vlt
 		}
 		else
 		{
-			m_cmdBuffersUsed.set(DxvkCmdBuffer::InitBuffer);
+			m_cmdBuffersUsed.set(VltCmdBuffer::InitBuffer);
 
 			vkResetEvent(
 				m_device->handle(), event);
