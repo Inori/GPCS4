@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GPCS4Common.h"
+#include "UtilLikely.h"
 
 #include <atomic>
 #include <thread>
@@ -8,13 +9,37 @@
 namespace util::sync
 {
 
+    /**
+     * \brief Generic spin function
+     *
+     * Blocks calling thread until a condition becomes
+     * \c true, calling \c yield every few iterations.
+     * \param [in] spinCount Number of probes between each yield
+     * \param [in] fn Condition to test
+     */
+	template <typename Fn>
+	void spin(uint32_t spinCount, const Fn& fn)
+	{
+		while (unlikely(!fn()))
+		{
+			for (uint32_t i = 1; i < spinCount; i++)
+			{
+				_mm_pause();
+				if (fn())
+					return;
+			}
+
+			std::this_thread::yield();
+		}
+	}
+
 	/**
-	 * \brief Spin lock
-	 *
-	 * A low-overhead spin lock which can be used to
-	 * protect data structures for a short duration
-	 * in case the structure is not likely contested.
-	 */
+     * \brief Spin lock
+     * 
+     * A low-overhead spin lock which can be used to
+     * protect data structures for a short duration
+     * in case the structure is not likely contested.
+     */
 	class Spinlock
 	{
 
@@ -31,10 +56,7 @@ namespace util::sync
 
 		void lock()
 		{
-			while (!this->try_lock())
-			{
-				std::this_thread::yield();
-			}
+			spin(200, [this] { return try_lock(); });
 		}
 
 		void unlock()
@@ -44,7 +66,8 @@ namespace util::sync
 
 		bool try_lock()
 		{
-			return !m_lock.load() && !m_lock.exchange(1, std::memory_order_acquire);
+			return likely(!m_lock.load()) && 
+				likely(!m_lock.exchange(1, std::memory_order_acquire));
 		}
 
 	private:
