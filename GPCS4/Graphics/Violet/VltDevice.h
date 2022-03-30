@@ -7,6 +7,7 @@
 #include "VltContext.h"
 #include "VltCmdList.h"
 #include "VltRecycler.h"
+#include "VltQueue.h"
 
 
 namespace sce::vlt
@@ -179,6 +180,20 @@ namespace sce::vlt
 		Rc<VltContext> createContext();
 
 		/**
+		 * \brief Submits a command list
+		 * 
+		 * Submits the given command list to the device using
+		 * the given set of optional synchronization primitives.
+		 * \param [in] commandList The command list to submit
+		 * \param [in] waitSync (Optional) Semaphore to wait on
+		 * \param [in] wakeSync (Optional) Semaphore to notify
+		 */
+		void submitCommandList(
+			const Rc<VltCommandList>& commandList,
+			VkSemaphore               waitSync,
+			VkSemaphore               wakeSync);
+
+		/**
         * \brief Waits until the device becomes idle
         * 
         * Waits for the GPU to complete the execution of all
@@ -207,6 +222,8 @@ namespace sce::vlt
 		VltDeviceInfo     m_properties;
 
 		VltDeviceQueueSet m_queues;
+
+		VltSubmissionQueue m_submissionQueue;
 
 		VltRecycler<VltCommandList, 16> m_recycledCommandLists;
 	};

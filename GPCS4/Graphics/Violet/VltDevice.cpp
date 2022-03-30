@@ -15,7 +15,8 @@ namespace sce::vlt
 		m_adapter(adapter),
 		m_extensions(extensions),
 		m_features(features),
-		m_properties(adapter->devicePropertiesExt())
+		m_properties(adapter->devicePropertiesExt()),
+		m_submissionQueue(this)
 	{
 		auto queueFamilies = m_adapter->findQueueFamilies();
 		m_queues.graphics  = getQueue(queueFamilies.graphics, 0);
@@ -91,6 +92,18 @@ namespace sce::vlt
 		const Rc<VltCommandList>& cmdList)
 	{
 		m_recycledCommandLists.returnObject(cmdList);
+	}
+
+	void VltDevice::submitCommandList(
+		const Rc<VltCommandList>& commandList,
+		VkSemaphore               waitSync,
+		VkSemaphore               wakeSync)
+	{
+		VltSubmitInfo submitInfo;
+		submitInfo.cmdList  = commandList;
+		submitInfo.waitSync = waitSync;
+		submitInfo.wakeSync = wakeSync;
+		m_submissionQueue.submit(submitInfo);
 	}
 
 }  // namespace sce::vlt

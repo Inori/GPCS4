@@ -15,7 +15,7 @@ namespace sce::Gnm
 class GnmCommandBufferDummy : public GnmCommandBuffer
 {
 public:
-	GnmCommandBufferDummy();
+	GnmCommandBufferDummy(vlt::VltDevice* device);
 	virtual ~GnmCommandBufferDummy();
 
 	virtual void initializeDefaultHardwareState() override;

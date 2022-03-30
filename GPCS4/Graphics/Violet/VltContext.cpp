@@ -10,4 +10,13 @@ namespace sce::vlt
 	VltContext::~VltContext()
 	{
 	}
+
+	void VltContext::beginRecording(const Rc<VltCommandList>& cmdList)
+	{
+	}
+
+	Rc<VltCommandList> VltContext::endRecording()
+	{
+	}
+
 }  // namespace sce::vlt

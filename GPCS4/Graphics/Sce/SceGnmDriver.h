@@ -15,6 +15,7 @@ namespace sce
 		class VltInstance;
 		class VltAdapter;
 		class VltDevice;
+		class VltCommandList;
 	}  // namespace vlt
 
 	class SceGpuQueue;
@@ -74,7 +75,8 @@ namespace sce
 
 		void createGraphicsQueue();
 
-		void submitPresent();
+		void submitPresent(
+			const vlt::Rc<vlt::VltCommandList>& cmdList);
 
 	private:
 		vlt::Rc<vlt::VltInstance> m_instance;

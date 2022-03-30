@@ -119,21 +119,22 @@ namespace sce
 		SceGpuCommand cmd = {};
 		cmd.buffer        = dcbGpuAddrs[0];
 		cmd.size          = dcbSizesInBytes[0];
-		m_graphicsQueue->record(cmd);
+		auto cmdList = m_graphicsQueue->record(cmd);
 
-		submitPresent();
+		submitPresent(cmdList);
 
 		return SCE_OK;
 	}
 
-	void SceGnmDriver::submitPresent()
+	void SceGnmDriver::submitPresent(
+		const vlt::Rc<vlt::VltCommandList>& cmdList)
 	{
 		do
 		{
 			SceGpuSubmission submission = {};
-			//gpuSubmission.cmdList          = cmdList;
-			//gpuSubmission.wait             = presentSync.acquire;
-			//gpuSubmission.wake             = presentSync.present;
+			submission.cmdList          = cmdList;
+			//submission.wait             = presentSync.acquire;
+			//submission.wake             = presentSync.present;
 			m_graphicsQueue->submit(submission);
 
 			//VltPresentInfo presentation;

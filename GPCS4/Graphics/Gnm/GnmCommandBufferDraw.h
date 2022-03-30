@@ -18,7 +18,7 @@ namespace sce::Gnm
 class GnmCommandBufferDraw : public GnmCommandBuffer
 {
 public:
-	GnmCommandBufferDraw();
+	GnmCommandBufferDraw(vlt::VltDevice* device);
 
 	virtual ~GnmCommandBufferDraw();
 

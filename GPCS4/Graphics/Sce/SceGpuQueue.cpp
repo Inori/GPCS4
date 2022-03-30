@@ -12,6 +12,7 @@ LOG_CHANNEL(Graphic.Sce.SceGpuQueue);
 namespace sce
 {
 	using namespace Gnm;
+	using namespace vlt;
 
 	SceGpuQueue::SceGpuQueue(
 		vlt::VltDevice* device,
@@ -25,23 +26,18 @@ namespace sce
 	{
 	}
 
-	vlt::Rc<vlt::VltCommandList>
-		SceGpuQueue::record(const SceGpuCommand& cmd)
+	Rc<VltCommandList>
+	SceGpuQueue::record(const SceGpuCommand& cmd)
 	{
-		bool result = m_cp->processCommandBuffer(cmd.buffer, cmd.size);
-		LOG_ERR_IF(result == false, "process command buffer failed.");
-
-		// return m_cmdProcesser->recordEnd();
+		return m_cp->processCommandBuffer(cmd.buffer, cmd.size);
 	}
 
 	void SceGpuQueue::submit(const SceGpuSubmission& submission)
 	{
-		//VltSubmitInfo submitInfo = {};
-		//submitInfo.cmdList       = submission.cmdList;
-		//submitInfo.waitSync      = submission.wait;
-		//submitInfo.wakeSync      = submission.wake;
-
-		//m_device.device->submitCommandList(submitInfo);
+		m_device->submitCommandList(
+			submission.cmdList,
+			submission.wait,
+			submission.wake);
 	}
 
 	void SceGpuQueue::createQueue(SceQueueType type)
@@ -50,15 +46,15 @@ namespace sce
 
 		if (type == SceQueueType::Graphics)
 		{
-			m_cmdProducer = std::make_unique<GnmCommandBufferDraw>();
+			m_cmdProducer = std::make_unique<GnmCommandBufferDraw>(m_device);
 		}
 		else
 		{
-			m_cmdProducer = std::make_unique<GnmCommandBufferDispatch>();
+			m_cmdProducer = std::make_unique<GnmCommandBufferDispatch>(m_device);
 		}
 
 #ifdef GPCS4_NO_GRAPHICS
-		m_cmdProducer = std::make_unique<GnmCommandBufferDummy>();
+		m_cmdProducer = std::make_unique<GnmCommandBufferDummy>(m_device);
 #endif
 
 		m_cp->attachCommandBuffer(m_cmdProducer.get());

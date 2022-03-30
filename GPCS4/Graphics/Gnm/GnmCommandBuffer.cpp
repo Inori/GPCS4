@@ -1,41 +1,59 @@
 #include "GnmCommandBuffer.h"
+
 #include "PlatProcess.h"
+
+#include "Violet/VltCmdList.h"
+#include "Violet/VltDevice.h"
 
 namespace sce::Gnm
 {
 
-GnmCommandBuffer::GnmCommandBuffer()
-{
-}
-
-GnmCommandBuffer::~GnmCommandBuffer()
-{
-}
-
-
-void GnmCommandBuffer::emuWriteGpuLabel(EventWriteSource selector, void* label, uint64_t value)
-{
-	do 
+	GnmCommandBuffer::GnmCommandBuffer(vlt::VltDevice* device) :
+		m_device(device)
 	{
-		if (!label)
-		{
-			break;
-		}
+		m_context = m_device->createContext();
+	}
 
-		if (selector == kEventWriteSource32BitsImmediate)
-		{
-			*(uint32_t*)label = value;
-		}
-		else if (selector == kEventWriteSource64BitsImmediate)
-		{
-			*(uint64_t*)label = value;
-		}
-		else
-		{
-			*(uint64_t*)label = plat::GetProcessTimeCounter();
-		}
+	GnmCommandBuffer::~GnmCommandBuffer()
+	{
+	}
 
-	} while (false);
-}
+	void GnmCommandBuffer::beginRecording()
+	{
+		m_context->beginRecording(
+			m_device->createCommandList()
+		);
+	}
+
+	vlt::Rc<vlt::VltCommandList>
+	GnmCommandBuffer::endRecording()
+	{
+		return m_context->endRecording();
+	}
+
+	void GnmCommandBuffer::emuWriteGpuLabel(EventWriteSource selector, void* label, uint64_t value)
+	{
+		do
+		{
+			if (!label)
+			{
+				break;
+			}
+
+			if (selector == kEventWriteSource32BitsImmediate)
+			{
+				*(uint32_t*)label = value;
+			}
+			else if (selector == kEventWriteSource64BitsImmediate)
+			{
+				*(uint64_t*)label = value;
+			}
+			else
+			{
+				*(uint64_t*)label = plat::GetProcessTimeCounter();
+			}
+
+		} while (false);
+	}
 
 }  // namespace sce::Gnm

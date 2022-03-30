@@ -1,13 +1,16 @@
 #include "GnmCommandProcessor.h"
 
-#include "GnmGfx9MePm4Packets.h"
 #include "GnmBuffer.h"
-#include "GnmTexture.h"
+#include "GnmGfx9MePm4Packets.h"
 #include "GnmSampler.h"
+#include "GnmTexture.h"
 #include "UtilBit.h"
+
 #include "Pssl/PsslShaderRegister.h"
+#include "Violet/VltCmdList.h"
 
 using namespace util;
+using namespace sce::vlt;
 
 
 LOG_CHANNEL(Graphic.Gnm.GnmCommandProcessor);
@@ -49,7 +52,7 @@ void GnmCommandProcessor::attachCommandBuffer(GnmCommandBuffer* commandBuffer)
 	m_cb = commandBuffer;
 }
 
-bool GnmCommandProcessor::processCommandBuffer(const void* commandBuffer, uint32_t commandSize)
+bool GnmCommandProcessor::processCmdInternal(const void* commandBuffer, uint32_t commandSize)
 {
 	bool bRet = false;
 	do
@@ -61,7 +64,7 @@ bool GnmCommandProcessor::processCommandBuffer(const void* commandBuffer, uint32
 
 		const PM4_HEADER* pm4Hdr           = reinterpret_cast<const PM4_HEADER*>(commandBuffer);
 		uint32_t          processedCmdSize = 0;
-		
+
 		while (processedCmdSize < commandSize)
 		{
 			uint32_t pm4Type = pm4Hdr->type;
@@ -78,7 +81,7 @@ bool GnmCommandProcessor::processCommandBuffer(const void* commandBuffer, uint32
 				processedCmdSize += sizeof(PPM4_HEADER);
 				continue;
 			}
-				break;
+			break;
 			case PM4_TYPE_3:
 				processPM4Type3((PPM4_TYPE_3_HEADER)pm4Hdr, (uint32_t*)(pm4Hdr + 1));
 				break;
@@ -100,9 +103,9 @@ bool GnmCommandProcessor::processCommandBuffer(const void* commandBuffer, uint32
 				m_skipPm4Count = 0;
 			}
 
-			const PM4_HEADER* nextPm4Hdr = getNextNPm4(pm4Hdr, processedPm4Count);
-			uint32_t processedLength = reinterpret_cast<uintptr_t>(nextPm4Hdr) - reinterpret_cast<uintptr_t>(pm4Hdr);
-			pm4Hdr = nextPm4Hdr;
+			const PM4_HEADER* nextPm4Hdr      = getNextNPm4(pm4Hdr, processedPm4Count);
+			uint32_t          processedLength = reinterpret_cast<uintptr_t>(nextPm4Hdr) - reinterpret_cast<uintptr_t>(pm4Hdr);
+			pm4Hdr                            = nextPm4Hdr;
 			processedCmdSize += processedLength;
 		}
 
@@ -113,6 +116,16 @@ bool GnmCommandProcessor::processCommandBuffer(const void* commandBuffer, uint32
 	m_flipPacketDone = false;
 
 	return bRet;
+}
+
+Rc<VltCommandList> 
+GnmCommandProcessor::processCommandBuffer(const void* commandBuffer, uint32_t commandSize)
+{
+	m_cb->beginRecording();
+
+	processCmdInternal(commandBuffer, commandSize);
+
+	return m_cb->endRecording();
 }
 
 void GnmCommandProcessor::processPM4Type0(PPM4_TYPE_0_HEADER pm4Hdr, uint32_t* regDataX)

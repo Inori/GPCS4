@@ -91,6 +91,7 @@
     </ClInclude>
     <ClInclude Include="Graphics\Violet\VltLifetime.h" />
     <ClInclude Include="Graphics\Violet\VltLog.h" />
+    <ClInclude Include="Graphics\Violet\VltQueue.h" />
     <ClInclude Include="Graphics\Violet\VltRc.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -270,6 +271,7 @@
     </ClCompile>
     <ClCompile Include="Graphics\Violet\VltLifetime.cpp" />
     <ClCompile Include="Graphics\Violet\VltLog.cpp" />
+    <ClCompile Include="Graphics\Violet\VltQueue.cpp" />
     <ClCompile Include="Graphics\Violet\VltResource.cpp" />
     <ClCompile Include="Graphics\VirtualGPU.cpp" />
     <ClCompile Include="ImportLibs.cpp" />
