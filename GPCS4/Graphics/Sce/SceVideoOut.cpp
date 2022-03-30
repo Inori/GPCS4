@@ -41,7 +41,7 @@ void VirtualDisplay::processEvents()
 DisplaySize VirtualDisplay::getSize() const
 {
 	DisplaySize result = {};
-	glfwGetWindowSize(m_window, (int*)&result.width, (int*)&result.height);
+	glfwGetFramebufferSize(m_window, (int*)&result.width, (int*)&result.height);
 	return result;
 }
 

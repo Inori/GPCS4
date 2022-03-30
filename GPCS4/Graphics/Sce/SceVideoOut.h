@@ -13,7 +13,7 @@ namespace sce
 
 struct DisplaySize
 {
-	// Runtime size
+	// Runtime size in pixels
 	uint32_t width;
 	uint32_t height;
 };
