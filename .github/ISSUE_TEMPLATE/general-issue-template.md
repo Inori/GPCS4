@@ -8,4 +8,4 @@ assignees: ''
 ---
 
 Basically, the Issues page only accept program bug report.
-For feature request, suggestions and other questions, go to [Discussions](https://github.com/Inori/GPCS4/discussions) page.
+For feature request, suggestions and other questions, go to Discussions page: https://github.com/Inori/GPCS4/discussions.
