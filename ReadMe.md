@@ -1,10 +1,18 @@
-# GPCS4
+<div align="center">
+   <img width="640" src="https://github.com/Inori/GPCS4/blob/master/Misc/logo.png" alt="logo"></br>
 
+----
+# GPCS4
 A PlayStation 4 emulator which was just started.  
 A project done for fun, and for technical research.  
 
-The only reason I have started this project is for learning 3D graphics; I don't intend
-it to become a serious application.
+
+The only reason I have started this project is for learning 3D graphics.  
+It's not intended to become a serious application.
+</div>
+
+
+
 
 ## Latest progress
 
