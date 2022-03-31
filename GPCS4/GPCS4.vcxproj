@@ -58,6 +58,7 @@
     <ClInclude Include="Graphics\Sce\SceCommon.h" />
     <ClInclude Include="Graphics\Sce\SceGnmDriver.h" />
     <ClInclude Include="Graphics\Sce\SceGpuQueue.h" />
+    <ClInclude Include="Graphics\Sce\ScePresenter.h" />
     <ClInclude Include="Graphics\Sce\SceVideoOut.h" />
     <ClInclude Include="Graphics\SpirV\GLSL.std.450.h" />
     <ClInclude Include="Graphics\SpirV\GLSL.std.450.hpp" />
@@ -85,6 +86,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltFormat.h" />
     <ClInclude Include="Graphics\Violet\VltInstance.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -248,6 +250,7 @@
     <ClCompile Include="Graphics\Gnm\GpuAddress\GnmTiler.cpp" />
     <ClCompile Include="Graphics\Sce\SceGnmDriver.cpp" />
     <ClCompile Include="Graphics\Sce\SceGpuQueue.cpp" />
+    <ClCompile Include="Graphics\Sce\ScePresenter.cpp" />
     <ClCompile Include="Graphics\Sce\SceVideoOut.cpp" />
     <ClCompile Include="Graphics\SpirV\SpirvCodeBuffer.cpp" />
     <ClCompile Include="Graphics\SpirV\SpirvCompression.cpp" />
@@ -265,6 +268,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Graphics\Violet\VltFormat.cpp" />
     <ClCompile Include="Graphics\Violet\VltInstance.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>

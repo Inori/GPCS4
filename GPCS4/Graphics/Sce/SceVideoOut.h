@@ -35,6 +35,13 @@ public:
 
 	void processEvents();
 
+	/**
+	 * \brief Get the window size in pixels
+	 * 
+	 * This can be used to help create
+	 * render target/swapchain.
+	 * \returns The window size
+	 */
 	DisplaySize getSize() const;
 
 	/**

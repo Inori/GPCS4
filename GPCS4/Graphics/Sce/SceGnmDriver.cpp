@@ -119,7 +119,7 @@ namespace sce
 		SceGpuCommand cmd = {};
 		cmd.buffer        = dcbGpuAddrs[0];
 		cmd.size          = dcbSizesInBytes[0];
-		auto cmdList = m_graphicsQueue->record(cmd);
+		auto cmdList      = m_graphicsQueue->record(cmd);
 
 		submitPresent(cmdList);
 
