@@ -71,6 +71,7 @@ Follow the steps:
     https://pastebin.com/bUxckm3y
 3. Read the roadmap on the main page, select a part which you're insterested in. Basically, you have 3 ways to get started with the project:  
      - Pick an issue from github's issues page.  
+     - Search for a TODO in the source files.  
      - Or If you are skilled enough, try to run a game or demo you like, see why it doesn't work or missing any features, then focus on what you're really interested in.  
 4. Then you know what to do next.
 
