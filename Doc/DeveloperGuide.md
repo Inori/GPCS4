@@ -29,7 +29,7 @@ Build steps:
    `void atomic_thread_fence(memory_order);`  
    `void atomic_signal_fence(memory_order);`  
    then comment these two lines
-5. Restart Visual Studio, select `X64 Debug` build. Build 3rdParty libraries one by one, then GPCS4.
+5. Restart Visual Studio, build 3rdParty libraries one by one, then GPCS4.
 6. If you still can't build, try to change clang or vulkan sdk version. My clang version is 12.0.0.0 and vulkan sdk version is 1.3.204.1. Other versions are not tested.
    
    TODO:  
@@ -39,7 +39,7 @@ Build steps:
    And for clang compatible bug, maybe we should find a more flexable solution.
 
 ## Run demos/games:
-Currently, GPCS4 need a path of main elf/bin as input parameter, and will redirect all `app0` access to the current working directory.  
+Currently, GPCS4 need a path of main elf/bin as input parameter, and will redirect all `app0` access to the `Current Working Directory`.  
 ie. `/app0/shader_vv.sb` to `E:\Code\GPCS4\Debug\shader_vv.sb`  
 
 Follow the steps:
@@ -71,7 +71,6 @@ Follow the steps:
     https://pastebin.com/bUxckm3y
 3. Read the roadmap on the main page, select a part which you're insterested in. Basically, you have 3 ways to get started with the project:  
      - Pick an issue from github's issues page.  
-     - Pick a TODO from [Trello](https://trello.com/b/4kZu97F5/gpcs4) cards.  
      - Or If you are skilled enough, try to run a game or demo you like, see why it doesn't work or missing any features, then focus on what you're really interested in.  
 4. Then you know what to do next.
 
