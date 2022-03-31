@@ -71,11 +71,6 @@ Tencent QQ/TIM Group Number: <a target="_blank" href="//shang.qq.com/wpa/qunwpa?
 To run or develop GPCS4, a CPU supporting AVX instruction set as well as a graphics card supporting Vulkan are required.  
 Currently, only Windows build is supported.  
 
-Visual Studio 2017  
-[LLVM/Clang](https://releases.llvm.org/9.0.0/LLVM-9.0.0-win64.exe)  
-[LLVM Compiler Toolchain Extension](https://marketplace.visualstudio.com/items?itemName=LLVMExtensions.llvm-toolchain)  
-[LunarG Vulkan SDK](https://vulkan.lunarg.com/)
-
 For more details, see the [Developer's Guide](https://github.com/Inori/GPCS4/blob/master/Doc/DeveloperGuide.md)
 ## Credits
 [DXVK](https://github.com/doitsujin/dxvk)  

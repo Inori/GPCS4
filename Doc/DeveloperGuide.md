@@ -6,15 +6,40 @@
 3. If you just want to do some simple graphics test, checkout the latest `tag` branch.
 
 ## Build GPCS4:
-Follow the steps:
-1. Checkout a proper branch.
-2. Close your Visual Studio first, install the 3 components listed on the github page.
-3. Restart Visual Studio, select `X64 Debug` build. Build 3rdParty libraries first, then GPCS4.
-4. If you still can't build, try to change clang or vulkan sdk version. My clang version is 9.0.0.0 and vulkan sdk version is 1.1.121.2. Other versions are not tested.
+Build prerequisite:
 
+1. Visual Studio 2019  
+2. [LunarG Vulkan SDK](https://vulkan.lunarg.com/)
+
+Start Visual Studio, select `Tools`->`Get Tools and Features...`, open the Installer window.  
+Make sure `Desktop development with C++` workloads is installed.  
+Then open `Individual components` tab, install `C++ Clang-cl for v142 build tools (x64/x86)` and `C++ Clang Compiler for Windows (12.0.0)`.  
+If you can't find these two components, update your Visual Studio version.
+
+Build steps:
+1. Checkout a proper branch.
+2. Close your Visual Studio first, install Vulkan SDK listed above.
+3. Build `pthreads4w` manually:  
+   Open `x64 Native Tools Command Prompt for VS 2019`,  
+   cd to path: `GPCS4\3rdParty\pthreads4w`  
+   type `nmake VC-static-debug` then `nmake VC-static`  
+4. Fix clang compatible bug:  
+   Open `C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\Llvm\x64\lib\clang\12.0.0\include\stdatomic.h`  
+   search for  
+   `void atomic_thread_fence(memory_order);`  
+   `void atomic_signal_fence(memory_order);`
+   then comment these two lines
+5. Restart Visual Studio, select `X64 Debug` build. Build 3rdParty libraries one by one, then GPCS4.
+6. If you still can't build, try to change clang or vulkan sdk version. My clang version is 12.0.0.0 and vulkan sdk version is 1.3.204.1. Other versions are not tested.
+   
+   TODO:  
+   Step 3 and 4 need to be fixed.  
+   We should be able to build `pthreads4w` directly within Visual Studio.  
+   The environment variable is different between cmd console and visual studio.  
+   And for clang compatible bug, maybe we should find a more flexable solution.
 
 ## Run demos/games:
-Currently, GPCS4 need a path of main elf/bin as input parameter, and will redirect all `app0` access to the folder where GPCS4.exe locate.  
+Currently, GPCS4 need a path of main elf/bin as input parameter, and will redirect all `app0` access to the current working directory.  
 ie. `/app0/shader_vv.sb` to `E:\Code\GPCS4\Debug\shader_vv.sb`  
 
 Follow the steps:
