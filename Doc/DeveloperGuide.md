@@ -27,7 +27,7 @@ Build steps:
    Open `C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\Llvm\x64\lib\clang\12.0.0\include\stdatomic.h`  
    search for  
    `void atomic_thread_fence(memory_order);`  
-   `void atomic_signal_fence(memory_order);`
+   `void atomic_signal_fence(memory_order);`  
    then comment these two lines
 5. Restart Visual Studio, select `X64 Debug` build. Build 3rdParty libraries one by one, then GPCS4.
 6. If you still can't build, try to change clang or vulkan sdk version. My clang version is 12.0.0.0 and vulkan sdk version is 1.3.204.1. Other versions are not tested.
