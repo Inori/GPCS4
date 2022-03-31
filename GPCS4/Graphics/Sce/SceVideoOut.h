@@ -108,6 +108,8 @@ public:
 
 	SceDisplayBuffer getDisplayBuffer(uint32_t index);
 
+	VkSurfaceKHR getSurface(VkInstance instance);
+
 	void setFlipRate(uint32_t rate);
 
 	uint32_t getFlipRate() const;

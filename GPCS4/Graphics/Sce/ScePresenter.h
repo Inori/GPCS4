@@ -82,14 +82,14 @@ namespace sce
      * more complicated aspects of Vulkan's
      * window system integration.
      */
-	class Presenter : public vlt::RcObject
+	class ScePresenter : public vlt::RcObject
 	{
 
 	public:
-		Presenter(const PresenterDevice& device,
-				  const PresenterDesc&   desc);
+		ScePresenter(const PresenterDevice& device,
+					 const PresenterDesc&   desc);
 
-		~Presenter();
+		virtual ~ScePresenter();
 
 		/**
          * \brief Actual presenter info

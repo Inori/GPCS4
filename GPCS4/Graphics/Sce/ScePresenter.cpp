@@ -12,8 +12,8 @@ namespace sce
 {
 	using namespace vlt;
 
-	Presenter::Presenter(const PresenterDevice& device,
-						 const PresenterDesc&   desc) :
+	ScePresenter::ScePresenter(const PresenterDevice& device,
+							   const PresenterDesc&   desc) :
 		m_device(device),
 		m_surface(device.surface)
 	{
@@ -21,22 +21,22 @@ namespace sce
 			Logger::exception("Failed to create swap chain");
 	}
 
-	Presenter::~Presenter()
+	ScePresenter::~ScePresenter()
 	{
 		destroySwapchain();
 	}
 
-	PresenterInfo Presenter::info() const
+	PresenterInfo ScePresenter::info() const
 	{
 		return m_info;
 	}
 
-	PresenterImage Presenter::getImage(uint32_t index) const
+	PresenterImage ScePresenter::getImage(uint32_t index) const
 	{
 		return m_images.at(index);
 	}
 
-	VkResult Presenter::acquireNextImage(PresenterSync& sync, uint32_t& index)
+	VkResult ScePresenter::acquireNextImage(PresenterSync& sync, uint32_t& index)
 	{
 		sync = m_semaphores.at(m_frameIndex);
 
@@ -51,7 +51,7 @@ namespace sce
 		return result;
 	}
 
-	VkResult Presenter::presentImage()
+	VkResult ScePresenter::presentImage()
 	{
 		PresenterSync sync = m_semaphores.at(m_frameIndex);
 
@@ -67,7 +67,7 @@ namespace sce
 		return vkQueuePresentKHR(m_device.queue, &info);
 	}
 
-	VkResult Presenter::recreateSwapChain(const PresenterDesc& desc)
+	VkResult ScePresenter::recreateSwapChain(const PresenterDesc& desc)
 	{
 		if (m_swapchain)
 			destroySwapchain();
@@ -151,7 +151,7 @@ namespace sce
 		return VK_SUCCESS;
 	}
 
-	VkResult Presenter::getSupportedFormats(std::vector<VkSurfaceFormatKHR>& formats, const PresenterDesc& desc)
+	VkResult ScePresenter::getSupportedFormats(std::vector<VkSurfaceFormatKHR>& formats, const PresenterDesc& desc)
 	{
 		uint32_t numFormats = 0;
 
@@ -174,7 +174,7 @@ namespace sce
 		return status;
 	}
 
-	VkResult Presenter::getSupportedPresentModes(std::vector<VkPresentModeKHR>& modes, const PresenterDesc& desc)
+	VkResult ScePresenter::getSupportedPresentModes(std::vector<VkPresentModeKHR>& modes, const PresenterDesc& desc)
 	{
 		uint32_t numModes = 0;
 
@@ -197,7 +197,7 @@ namespace sce
 		return status;
 	}
 
-	VkResult Presenter::getSwapImages(std::vector<VkImage>& images)
+	VkResult ScePresenter::getSwapImages(std::vector<VkImage>& images)
 	{
 		uint32_t imageCount = 0;
 
@@ -213,7 +213,7 @@ namespace sce
 			m_device.device, m_swapchain, &imageCount, images.data());
 	}
 
-	VkSurfaceFormatKHR Presenter::pickFormat(
+	VkSurfaceFormatKHR ScePresenter::pickFormat(
 		uint32_t                  numSupported,
 		const VkSurfaceFormatKHR* pSupported,
 		uint32_t                  numDesired,
@@ -254,7 +254,7 @@ namespace sce
 		return pSupported[0];
 	}
 
-	VkPresentModeKHR Presenter::pickPresentMode(
+	VkPresentModeKHR ScePresenter::pickPresentMode(
 		uint32_t                numSupported,
 		const VkPresentModeKHR* pSupported,
 		uint32_t                numDesired,
@@ -274,7 +274,7 @@ namespace sce
 		return VK_PRESENT_MODE_FIFO_KHR;
 	}
 
-	VkExtent2D Presenter::pickImageExtent(
+	VkExtent2D ScePresenter::pickImageExtent(
 		const VkSurfaceCapabilitiesKHR& caps,
 		VkExtent2D                      desired)
 	{
@@ -287,7 +287,7 @@ namespace sce
 		return actual;
 	}
 
-	uint32_t Presenter::pickImageCount(
+	uint32_t ScePresenter::pickImageCount(
 		const VkSurfaceCapabilitiesKHR& caps,
 		VkPresentModeKHR                presentMode,
 		uint32_t                        desired)
@@ -306,7 +306,7 @@ namespace sce
 		return count;
 	}
 
-	VkResult Presenter::createImageViews()
+	VkResult ScePresenter::createImageViews()
 	{
 		VkResult status = VK_RESULT_MAX_ENUM;
 
@@ -347,7 +347,7 @@ namespace sce
 		return status;
 	}
 
-	VkResult Presenter::createSemaphores()
+	VkResult ScePresenter::createSemaphores()
 	{
 		VkResult status = VK_RESULT_MAX_ENUM;
 		// Create one set of semaphores per swap image
@@ -372,7 +372,7 @@ namespace sce
 		return status;
 	}
 
-	void Presenter::destroySwapchain()
+	void ScePresenter::destroySwapchain()
 	{
 		for (const auto& img : m_images)
 			vkDestroyImageView(m_device.device, img.view, nullptr);

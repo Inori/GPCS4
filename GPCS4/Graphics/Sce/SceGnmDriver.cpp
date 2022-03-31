@@ -1,6 +1,8 @@
 #include "SceGnmDriver.h"
 
+#include "SceVideoOut.h"
 #include "SceGpuQueue.h"
+#include "ScePresenter.h"
 #include "UtilMath.h"
 #include "sce_errors.h"
 
@@ -43,9 +45,9 @@ namespace sce
 		bool ret = false;
 		do
 		{
-			if (!initVltDevice())
+			if (!createVltDevice())
 			{
-				LOG_ERR("init vlt device failed.");
+				LOG_ERR("create vlt device failed.");
 				break;
 			}
 
@@ -56,7 +58,7 @@ namespace sce
 		return ret;
 	}
 
-	bool SceGnmDriver::initVltDevice()
+	bool SceGnmDriver::createVltDevice()
 	{
 		bool ret = false;
 		do
@@ -80,6 +82,21 @@ namespace sce
 			ret = true;
 		}while(false);
 		return ret;
+	}
+
+	void SceGnmDriver::createPresenter(
+		SceVideoOut*         videoOut,
+		const PresenterDesc& desc
+	)
+	{
+		VkInstance      instance = m_device->instance()->handle();
+		PresenterDevice device   = {};
+		device.adapter           = m_adapter->handle();
+		device.device            = m_device->handle();
+		device.queue             = m_device->queues().graphics.queueHandle;
+		device.surface           = videoOut->getSurface(instance);
+
+		m_presenter = new ScePresenter(device, desc);
 	}
 
 	int SceGnmDriver::submitCommandBuffers(uint32_t  count,

@@ -203,7 +203,7 @@ namespace sce::vlt
 			VkDeviceSize bytes);
 
 		/**
-        * \brief Logs DXVK adapter info
+        * \brief Logs VLT adapter info
         * 
         * May be useful for bug reports
         * and general troubleshooting.

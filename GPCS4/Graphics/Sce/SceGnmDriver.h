@@ -18,7 +18,10 @@ namespace sce
 		class VltCommandList;
 	}  // namespace vlt
 
+	class SceVideoOut;
 	class SceGpuQueue;
+	class ScePresenter;
+	struct PresenterDesc;
 
 	// Valid vqueue id should be positive value.
 	constexpr uint32_t VQueueIdBegin        = 1;
@@ -28,6 +31,7 @@ namespace sce
 
 	class SceGnmDriver
 	{
+		friend class SceVideoOut;
 
 	public:
 		SceGnmDriver();
@@ -71,7 +75,11 @@ namespace sce
 	private:
 		bool initGnmDriver();
 
-		bool initVltDevice();
+		bool createVltDevice();
+
+		void createPresenter(
+			SceVideoOut*         videoOut,
+			const PresenterDesc& desc);
 
 		void createGraphicsQueue();
 
@@ -82,10 +90,11 @@ namespace sce
 		vlt::Rc<vlt::VltInstance> m_instance;
 		vlt::Rc<vlt::VltAdapter>  m_adapter;
 		vlt::Rc<vlt::VltDevice>   m_device;
+		vlt::Rc<ScePresenter>     m_presenter;
 
 		std::unique_ptr<SceGpuQueue> m_graphicsQueue;
-		std::array<std::unique_ptr<SceGpuQueue>, MaxComputeQueueCount> 
-									 m_computeQueues;
+		std::array<std::unique_ptr<SceGpuQueue>, MaxComputeQueueCount>
+			m_computeQueues;
 	};
 
 }  // namespace sce
