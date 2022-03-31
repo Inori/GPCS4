@@ -30,14 +30,9 @@ namespace sce
 
 	SceGnmDriver::~SceGnmDriver()
 	{
-		// TODO:
-		// Correct the reference count maintenance, thus we don't
-		// need to handle release order manually.
-		// e.g. wrap VkSurfaceKHR in a class with reference count
+		destroyGpuQueues();
 
-		m_graphicsQueue.reset();
-		// Release Presenter before VideoOut
-		// m_presenter = nullptr;
+		m_presenter = nullptr;
 	}
 
 	bool SceGnmDriver::initGnmDriver()
@@ -262,4 +257,16 @@ namespace sce
 	{
 	}
 
+	void SceGnmDriver::destroyGpuQueues()
+	{
+		m_graphicsQueue.reset();
+
+		for (auto& compQueue : m_computeQueues)
+		{
+			if (compQueue)
+			{
+				compQueue.reset();
+			}
+		}
+	}
 }  // namespace sce

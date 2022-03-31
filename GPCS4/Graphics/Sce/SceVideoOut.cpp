@@ -115,27 +115,33 @@ namespace sce
 				m_displayBuffers.emplace_back(buffer);
 			}
 
-			// It's the time to create vulkan swapchain.
-
-			PresenterDesc desc = {};
-			desc.imageExtent   = { attribute->width, attribute->height };
-			desc.imageCount    = bufferNum;
-
-			// TODO:
-			// use attribute->pixelFormat and convert SceVideoOutPixelFormat to VkSurfaceFormatKHR
-			desc.numFormats            = 1;
-			desc.formats[0].format     = VK_FORMAT_B8G8R8A8_SRGB;
-			desc.formats[0].colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
-
-			desc.numPresentModes = 1;
-			desc.presentModes[0] = VK_PRESENT_MODE_MAILBOX_KHR;
-
-			auto& gnmDriver = GPU().gnmDriver();
-			gnmDriver.createPresenter(this, desc);
+			// It's time to create vulkan swapchain.
+			createPresenter(bufferNum, attribute);
 
 			bRet = true;
 		} while (false);
 		return bRet;
+	}
+	
+	void SceVideoOut::createPresenter(
+		uint32_t bufferNum,
+		const SceVideoOutBufferAttribute* attribute)
+	{
+		PresenterDesc desc = {};
+		desc.imageExtent   = { attribute->width, attribute->height };
+		desc.imageCount    = bufferNum;
+
+		// TODO:
+		// use attribute->pixelFormat and convert SceVideoOutPixelFormat to VkSurfaceFormatKHR
+		desc.numFormats            = 1;
+		desc.formats[0].format     = VK_FORMAT_B8G8R8A8_SRGB;
+		desc.formats[0].colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+
+		desc.numPresentModes = 1;
+		desc.presentModes[0] = VK_PRESENT_MODE_MAILBOX_KHR;
+
+		auto& gnmDriver = GPU().gnmDriver();
+		gnmDriver.createPresenter(this, desc);
 	}
 
 	uint32_t SceVideoOut::numDisplayBuffer()
@@ -172,5 +178,6 @@ namespace sce
 		// The returned size must be equal with GnmRenderTarget::getColorSizeAlign
 		return 0;
 	}
+
 
 }  // namespace sce

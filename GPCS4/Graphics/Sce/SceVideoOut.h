@@ -115,7 +115,11 @@ public:
 	uint32_t getFlipRate() const;
 
 private:
-	uint32_t calculateBufferSize(const SceVideoOutBufferAttribute* attribute);
+	uint32_t calculateBufferSize(
+		const SceVideoOutBufferAttribute* attribute);
+	void createPresenter(
+		uint32_t                          bufferNum,
+		const SceVideoOutBufferAttribute* attribute);
 
 private:
 	VirtualDisplay m_display;

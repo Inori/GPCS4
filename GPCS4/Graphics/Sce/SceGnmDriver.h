@@ -86,6 +86,8 @@ namespace sce
 		void submitPresent(
 			const vlt::Rc<vlt::VltCommandList>& cmdList);
 
+		void destroyGpuQueues();
+
 	private:
 		vlt::Rc<vlt::VltInstance> m_instance;
 		vlt::Rc<vlt::VltAdapter>  m_adapter;
