@@ -9,7 +9,6 @@
 #include "VltRecycler.h"
 #include "VltQueue.h"
 
-
 namespace sce::vlt
 {
 	class VltInstance;
@@ -47,6 +46,8 @@ namespace sce::vlt
      */
 	class VltDevice : public RcObject
 	{
+		friend class VltSubmissionQueue;
+
 	public:
 		VltDevice(
 			const Rc<VltInstance>&     instance,
@@ -192,6 +193,19 @@ namespace sce::vlt
 			const Rc<VltCommandList>& commandList,
 			VkSemaphore               waitSync,
 			VkSemaphore               wakeSync);
+
+		/**
+         * \brief Presents a swap chain image
+         * 
+         * Invokes the presenter's \c presentImage method on
+         * the submission thread. The status of this operation
+         * can be retrieved with \ref waitForSubmission.
+         * \param [in] presenter The presenter
+         * \param [out] status Present status
+         */
+		void presentImage(
+			const Rc<sce::ScePresenter>& presenter,
+			VltSubmitStatus*             status);
 
 		/**
         * \brief Waits until the device becomes idle

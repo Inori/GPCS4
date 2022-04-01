@@ -1,4 +1,6 @@
 #include "VltQueue.h"
+#include "VltDevice.h"
+#include "Sce/ScePresenter.h"
 
 namespace sce::vlt
 {
@@ -19,34 +21,25 @@ namespace sce::vlt
 		m_submitQueue.push(std::move(cmdList));
 	}
 
-	void VltSubmissionQueue::present(const VltPresentInfo& presentation)
+	void VltSubmissionQueue::present(
+		const VltPresentInfo& presentInfo,
+		VltSubmitStatus*      status)
 	{
-		do
-		{
-			//auto&    presenter = presentation.presenter;
-			//VkResult status    = presenter->presentImage(presentation.waitSync);
-			//if (status != VK_SUCCESS)
-			//{
-			//	break;
-			//}
 
-			//auto cmdList = m_submitQueue.front();
-			//m_submitQueue.pop();
+		auto& presenter = presentInfo.presenter;
+		presenter->presentImage();
 
-			//// Wait for command buffer submit finish.
-			//status = cmdList->synchronize();
-			//if (status != VK_SUCCESS)
-			//{
-			//	break;
-			//}
 
-			//// After submit done, reset cmdlist to release resource.
-			//cmdList->reset();
+		auto cmdList = m_submitQueue.front();
+		m_submitQueue.pop();
 
-			//// Finally, recycle the cmdlist for next use.
-			//// Here we release the ownership of m_cmdList to emulate item poped from queue.
-			//m_device->recycleCommandList(std::exchange(cmdList, nullptr));
+		// Wait for command buffer submit finish.
+		cmdList->synchronize();
 
-		} while (false);
+		// After submit done, reset cmdlist to release resource.
+		cmdList->reset();
+
+		// Finally, recycle the cmdlist for next use.
+		m_device->recycleCommandList(cmdList);
 	}
 }  // namespace sce::vlt

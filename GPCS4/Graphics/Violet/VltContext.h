@@ -46,5 +46,7 @@ namespace sce::vlt
 
 	private:
 		VltDevice* m_device;
+
+        Rc<VltCommandList> m_cmd;
 	};
 }  // namespace sce::vlt

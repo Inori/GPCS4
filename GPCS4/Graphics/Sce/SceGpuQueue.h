@@ -8,6 +8,8 @@
 
 namespace sce
 {
+	class ScePresenter;
+
 	namespace vlt
 	{
 		class VltDevice;
@@ -64,7 +66,11 @@ namespace sce
 	     * 
 	     * \param sync synchronization objects to wait and signal.
 	     */
-		void submit(const SceGpuSubmission& submission);
+		void submit(
+			const SceGpuSubmission& submission);
+
+		void present(
+			const vlt::Rc<ScePresenter>& presenter);
 
 	private:
 		void createQueue(SceQueueType type);

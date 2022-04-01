@@ -40,6 +40,12 @@ namespace sce
 			submission.wake);
 	}
 
+	void SceGpuQueue::present(const vlt::Rc<ScePresenter>& presenter)
+	{
+		VltSubmitStatus status = {};
+		m_device->presentImage(presenter, &status);
+	}
+
 	void SceGpuQueue::createQueue(SceQueueType type)
 	{
 		m_cp = std::make_unique<GnmCommandProcessor>();

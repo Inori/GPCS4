@@ -1,5 +1,8 @@
 #include "VltDevice.h"
+
 #include "VltInstance.h"
+
+#include "Sce/ScePresenter.h"
 
 namespace sce::vlt
 {
@@ -104,6 +107,17 @@ namespace sce::vlt
 		submitInfo.waitSync = waitSync;
 		submitInfo.wakeSync = wakeSync;
 		m_submissionQueue.submit(submitInfo);
+	}
+
+	void VltDevice::presentImage(
+		const Rc<sce::ScePresenter>& presenter, 
+		VltSubmitStatus* status)
+	{
+		status->result = VK_NOT_READY;
+
+		VltPresentInfo presentInfo;
+		presentInfo.presenter = presenter;
+		m_submissionQueue.present(presentInfo, status);
 	}
 
 }  // namespace sce::vlt

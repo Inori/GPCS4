@@ -143,16 +143,18 @@ namespace sce
 	{
 		do
 		{
+			PresenterSync sync = {};
+			uint32_t      imageIndex = 0;
+
+			m_presenter->acquireNextImage(sync, imageIndex);
+
 			SceGpuSubmission submission = {};
 			submission.cmdList          = cmdList;
-			//submission.wait             = presentSync.acquire;
-			//submission.wake             = presentSync.present;
+			submission.wait             = sync.acquire;
+			submission.wake             = sync.present;
 			m_graphicsQueue->submit(submission);
 
-			//VltPresentInfo presentation;
-			//presentation.presenter = m_presenter;
-			//presentation.waitSync  = gpuSubmission.wake;
-			//m_device->presentImage(presentation);
+			m_graphicsQueue->present(m_presenter);
 
 		} while (false);
 	}

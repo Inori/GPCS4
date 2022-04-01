@@ -5,56 +5,71 @@
 
 #include <queue>
 
-namespace sce::vlt
+namespace sce
 {
-	/**
-     * \brief Queue submission info
-     * 
-     * Stores parameters used to submit
-     * a command buffer to the device.
-     */
-	struct VltSubmitInfo
+	class ScePresenter;
+
+	namespace vlt
 	{
-		Rc<VltCommandList> cmdList;
-		VkSemaphore        waitSync;
-		VkSemaphore        wakeSync;
-	};
+		/**
+         * \brief Queue submission info
+         * 
+         * Stores parameters used to submit
+         * a command buffer to the device.
+         */
+		struct VltSubmitInfo
+		{
+			Rc<VltCommandList> cmdList;
+			VkSemaphore        waitSync;
+			VkSemaphore        wakeSync;
+		};
 
-	/**
-     * \brief Present info
-     *
-     * Stores parameters used to present
-     * a swap chain image on the device.
-     */
-	struct VltPresentInfo
-	{
-		uint32_t placeHolder;
-	};
+		/**
+         * \brief Present info
+         *
+         * Stores parameters used to present
+         * a swap chain image on the device.
+         */
+		struct VltPresentInfo
+		{
+			Rc<ScePresenter> presenter;
+		};
 
+		/**
+		 * \brief Submission status
+		 * 
+		 * Stores the result of a queue
+		 * submission or a present call.
+		 */
+		struct VltSubmitStatus
+		{
+			std::atomic<VkResult> result = { VK_SUCCESS };
+		};
 
-	/**
-     * \brief A submission queue to submit cmdlist asynchronously.
-     *
-     * TODO:
-     * Currently this is a dummy queue, which uses synchronous submit.
-	 * This exists just for future compatibility when we really need a asynchronous queue.
-	 * Actually it's easy to implement a simple version,
-	 * just use lambda to pack the cmdlist, and then push to std::async
-	 * I didn't do that because synchronous queue is more easy to debug.
-     */
-	class VltSubmissionQueue
-	{
-	public:
-		VltSubmissionQueue(VltDevice* device);
-		~VltSubmissionQueue();
+		/**
+         * \brief A submission queue to submit cmdlist asynchronously.
+         *
+         * TODO:
+         * Currently this is a dummy queue, which uses synchronous submit.
+	     * This exists just for future compatibility when we really need a asynchronous queue.
+	     * I didn't do that because synchronous queue is more easier to debug.
+         */
+		class VltSubmissionQueue
+		{
+		public:
+			VltSubmissionQueue(VltDevice* device);
+			~VltSubmissionQueue();
 
-		void submit(const VltSubmitInfo& submission);
+			void submit(
+				const VltSubmitInfo& submission);
 
-		void present(const VltPresentInfo& presentation);
+			void present(
+				const VltPresentInfo& presentInfo,
+				VltSubmitStatus*      status);
 
-	private:
-		VltDevice*                     m_device;
-		std::queue<Rc<VltCommandList>> m_submitQueue;
-	};
-
-}  // namespace sce::vlt
+		private:
+			VltDevice*                     m_device;
+			std::queue<Rc<VltCommandList>> m_submitQueue;
+		};
+	} // namespace vlt
+}  // namespace sce
