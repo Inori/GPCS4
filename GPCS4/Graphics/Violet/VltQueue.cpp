@@ -25,7 +25,6 @@ namespace sce::vlt
 		const VltPresentInfo& presentInfo,
 		VltSubmitStatus*      status)
 	{
-
 		auto& presenter = presentInfo.presenter;
 		presenter->presentImage();
 

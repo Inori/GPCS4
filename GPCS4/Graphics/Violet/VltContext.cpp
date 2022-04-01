@@ -14,10 +14,12 @@ namespace sce::vlt
 	void VltContext::beginRecording(const Rc<VltCommandList>& cmdList)
 	{
 		m_cmd = cmdList;
+		m_cmd->beginRecording();
 	}
 
 	Rc<VltCommandList> VltContext::endRecording()
 	{
+		m_cmd->endRecording();
 		return std::exchange(m_cmd, nullptr);
 	}
 

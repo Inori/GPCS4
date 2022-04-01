@@ -198,10 +198,15 @@ namespace sce::vlt
 		info.flags            = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 		info.pInheritanceInfo = nullptr;
 
-		if ((m_graphicsPool && vkResetCommandPool(m_device->handle(), m_graphicsPool, 0) != VK_SUCCESS) || (m_transferPool && vkResetCommandPool(m_device->handle(), m_transferPool, 0) != VK_SUCCESS))
+		if ((m_graphicsPool && vkResetCommandPool(m_device->handle(), m_graphicsPool, 0) != VK_SUCCESS) ||
+			(m_transferPool && vkResetCommandPool(m_device->handle(), m_transferPool, 0) != VK_SUCCESS) ||
+			(m_transferPool && vkResetCommandPool(m_device->handle(), m_computePool, 0) != VK_SUCCESS))
 			Logger::err("DxvkCommandList: Failed to reset command buffer");
 
-		if (vkBeginCommandBuffer(m_execBuffer, &info) != VK_SUCCESS || vkBeginCommandBuffer(m_initBuffer, &info) != VK_SUCCESS || vkBeginCommandBuffer(m_transBuffer, &info) != VK_SUCCESS)
+		if (vkBeginCommandBuffer(m_execBuffer, &info) != VK_SUCCESS ||
+			vkBeginCommandBuffer(m_initBuffer, &info) != VK_SUCCESS ||
+			vkBeginCommandBuffer(m_transBuffer, &info) != VK_SUCCESS ||
+			vkBeginCommandBuffer(m_compBuffer, &info) != VK_SUCCESS)
 			Logger::err("DxvkCommandList: Failed to begin command buffer");
 
 		if (vkResetFences(m_device->handle(), 1, &m_fence) != VK_SUCCESS)
@@ -214,7 +219,9 @@ namespace sce::vlt
 
 	void VltCommandList::endRecording()
 	{
-		if (vkEndCommandBuffer(m_execBuffer) != VK_SUCCESS || vkEndCommandBuffer(m_initBuffer) != VK_SUCCESS || vkEndCommandBuffer(m_transBuffer) != VK_SUCCESS)
+		if (vkEndCommandBuffer(m_execBuffer) != VK_SUCCESS || 
+			vkEndCommandBuffer(m_initBuffer) != VK_SUCCESS || 
+			vkEndCommandBuffer(m_transBuffer) != VK_SUCCESS)
 			Logger::err("DxvkCommandList::endRecording: Failed to record command buffer");
 	}
 
