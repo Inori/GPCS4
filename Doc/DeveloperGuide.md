@@ -6,7 +6,7 @@
 3. If you just want to do some simple graphics test, checkout the latest `tag` branch.
 
 ## Build GPCS4:
-Build prerequisite:
+Install prerequisite:
 
 1. Visual Studio 2019  
 2. [LunarG Vulkan SDK](https://vulkan.lunarg.com/)
@@ -34,9 +34,8 @@ Build steps:
    
    TODO:  
    Step 3 and 4 need to be fixed.  
-   We should be able to build `pthreads4w` directly within Visual Studio.  
-   The environment variable is different between cmd console and visual studio.  
-   And for clang compatible bug, maybe we should find a more flexable solution.
+   We should be able to build `pthreads4w` directly within Visual Studio. The environment variable is different between cmd console and visual studio.  
+   And for the [clang compatible bug](https://github.com/llvm/llvm-project/issues/54689), maybe we should find a more flexable solution while waiting for upstream fix.
 
 ## Run demos/games:
 Currently, GPCS4 need a path of main elf/bin as input parameter, and will redirect all `app0` access to the `Current Working Directory`.  
