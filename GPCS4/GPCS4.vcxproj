@@ -72,6 +72,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltBarrier.h" />
+    <ClInclude Include="Graphics\Violet\VltBuffer.h" />
     <ClInclude Include="Graphics\Violet\VltCmdList.h" />
     <ClInclude Include="Graphics\Violet\VltCommon.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
@@ -87,12 +89,14 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Graphics\Violet\VltFormat.h" />
+    <ClInclude Include="Graphics\Violet\VltImage.h" />
     <ClInclude Include="Graphics\Violet\VltInstance.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Graphics\Violet\VltLifetime.h" />
     <ClInclude Include="Graphics\Violet\VltLog.h" />
+    <ClInclude Include="Graphics\Violet\VltMemory.h" />
     <ClInclude Include="Graphics\Violet\VltQueue.h" />
     <ClInclude Include="Graphics\Violet\VltRc.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
@@ -259,6 +263,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Graphics\Violet\VltBarrier.cpp" />
+    <ClCompile Include="Graphics\Violet\VltBuffer.cpp" />
     <ClCompile Include="Graphics\Violet\VltCmdList.cpp" />
     <ClCompile Include="Graphics\Violet\VltContext.cpp" />
     <ClCompile Include="Graphics\Violet\VltDebugUtil.cpp" />
@@ -269,12 +275,14 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Graphics\Violet\VltFormat.cpp" />
+    <ClCompile Include="Graphics\Violet\VltImage.cpp" />
     <ClCompile Include="Graphics\Violet\VltInstance.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Graphics\Violet\VltLifetime.cpp" />
     <ClCompile Include="Graphics\Violet\VltLog.cpp" />
+    <ClCompile Include="Graphics\Violet\VltMemory.cpp" />
     <ClCompile Include="Graphics\Violet\VltQueue.cpp" />
     <ClCompile Include="Graphics\Violet\VltResource.cpp" />
     <ClCompile Include="Graphics\VirtualGPU.cpp" />

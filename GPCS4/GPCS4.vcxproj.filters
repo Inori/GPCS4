@@ -760,6 +760,18 @@
     <ClInclude Include="Graphics\Violet\VltFormat.h">
       <Filter>Source Files\Graphics\Violet</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltBarrier.h">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltBuffer.h">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltImage.h">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltMemory.h">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1315,6 +1327,18 @@
       <Filter>Source Files\Graphics\Sce</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Violet\VltFormat.cpp">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Violet\VltBarrier.cpp">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Violet\VltBuffer.cpp">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Violet\VltImage.cpp">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Violet\VltMemory.cpp">
       <Filter>Source Files\Graphics\Violet</Filter>
     </ClCompile>
   </ItemGroup>
