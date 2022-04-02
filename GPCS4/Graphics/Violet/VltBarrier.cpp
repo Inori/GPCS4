@@ -280,7 +280,12 @@ namespace sce::vlt
 
 	void VltBarrierSet::reset()
 	{
-		m_memBarrier = { VK_STRUCTURE_TYPE_MEMORY_BARRIER_2, nullptr, 0, 0, 0, 0 };
+		m_memBarrier = { VK_STRUCTURE_TYPE_MEMORY_BARRIER_2,
+						 nullptr,
+						 VK_PIPELINE_STAGE_2_NONE,
+						 VK_ACCESS_2_NONE,
+						 VK_PIPELINE_STAGE_2_NONE,
+						 VK_ACCESS_2_NONE };
 
 		m_bufBarriers.resize(0);
 		m_imgBarriers.resize(0);

@@ -117,8 +117,12 @@ namespace sce::vlt
 
 		VltCmdBuffer m_cmdBuffer;
 
-		VkMemoryBarrier2 m_memBarrier = 
-		{ VK_STRUCTURE_TYPE_MEMORY_BARRIER_2, nullptr, 0, 0, 0, 0 };
+		VkMemoryBarrier2 m_memBarrier = { VK_STRUCTURE_TYPE_MEMORY_BARRIER_2,
+										  nullptr,
+										  VK_PIPELINE_STAGE_2_NONE,
+										  VK_ACCESS_2_NONE,
+										  VK_PIPELINE_STAGE_2_NONE,
+										  VK_ACCESS_2_NONE };
 
 		std::vector<VkBufferMemoryBarrier2> m_bufBarriers;
 		std::vector<VkImageMemoryBarrier2>  m_imgBarriers;
