@@ -233,7 +233,9 @@ namespace sce::vlt
 		bool checkFeatureSupport(
 			const VltDeviceFeatures& required) const;
 
-		VltDeviceFeatures getRequestFeatures();
+		void getRequestFeatures(
+			const VltDeviceExtensions& extensions,
+			VltDeviceFeatures&         enabled);
 
 		static void logNameList(const VltNameList& names);
 		static void logFeatures(const VltDeviceFeatures& features);

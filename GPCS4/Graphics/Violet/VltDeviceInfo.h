@@ -37,6 +37,7 @@ namespace sce::vlt
 	struct VltDeviceFeatures
 	{
 		VkPhysicalDeviceFeatures2                                 core;
+		VkPhysicalDeviceVulkan13Features                          vk13;
 		VkPhysicalDeviceShaderDrawParametersFeatures              shaderDrawParameters;
 		VkPhysicalDevice4444FormatsFeaturesEXT                    ext4444Formats;
 		VkPhysicalDeviceCustomBorderColorFeaturesEXT              extCustomBorderColor;

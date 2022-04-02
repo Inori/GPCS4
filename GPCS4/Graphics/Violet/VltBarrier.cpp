@@ -21,6 +21,8 @@ namespace sce::vlt
 		VkPipelineStageFlags2 dstStages,
 		VkAccessFlags2        dstAccess)
 	{
+		// should we use a list of VkMemoryBarrier2 like for buffer and image,
+		// or a single one?
 		m_memBarrier.srcStageMask |= srcStages;
 		m_memBarrier.dstStageMask |= dstStages;
 
@@ -96,6 +98,7 @@ namespace sce::vlt
 		m_imgSlices.push_back({ image.ptr(), subresources, access });
 	}
 
+	
 	//void DxvkBarrierSet::releaseBuffer(
 	//	DxvkBarrierSet&              acquire,
 	//	const DxvkBufferSliceHandle& bufSlice,
@@ -133,7 +136,7 @@ namespace sce::vlt
 	//}
 
 	void VltBarrierSet::releaseImage(
-		VltBarrierSet&                acquire,
+		VltBarrierSet&                 acquire,
 		const Rc<VltImage>&            image,
 		const VkImageSubresourceRange& subresources,
 		uint32_t                       srcQueue,
@@ -155,7 +158,7 @@ namespace sce::vlt
 		barrier.pNext                       = nullptr;
 		barrier.srcStageMask                = srcStages;
 		barrier.srcAccessMask               = srcAccess;
-		barrier.dstStageMask                = 0;
+		barrier.dstStageMask                = VK_PIPELINE_STAGE_2_BOTTOM_OF_PIPE_BIT;
 		barrier.dstAccessMask               = 0;
 		barrier.oldLayout                   = srcLayout;
 		barrier.newLayout                   = dstLayout;
@@ -169,7 +172,7 @@ namespace sce::vlt
 		if (srcQueue == dstQueue)
 			barrier.oldLayout = dstLayout;
 
-		barrier.srcStageMask  = 0;
+		barrier.srcStageMask  = VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT;
 		barrier.srcAccessMask = 0;
 		barrier.dstStageMask  = dstStages;
 		barrier.dstAccessMask = dstAccess;

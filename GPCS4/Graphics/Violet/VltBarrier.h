@@ -43,6 +43,9 @@ namespace sce::vlt
 			VkPipelineStageFlags2          dstStages,
 			VkAccessFlags2                 dstAccess);
 
+		/**
+		 * \brief Queue family ownership transfer
+		 */
 		//void releaseBuffer(
 		//	DxvkBarrierSet&              acquire,
 		//	const DxvkBufferSliceHandle& bufSlice,
@@ -53,8 +56,11 @@ namespace sce::vlt
 		//	VkPipelineStageFlags2         dstStages,
 		//	VkAccessFlags2                dstAccess);
 
+		/**
+         * \brief Queue family ownership transfer
+         */
 		void releaseImage(
-			VltBarrierSet&                acquire,
+			VltBarrierSet&                 acquire,
 			const Rc<VltImage>&            image,
 			const VkImageSubresourceRange& subresources,
 			uint32_t                       srcQueue,

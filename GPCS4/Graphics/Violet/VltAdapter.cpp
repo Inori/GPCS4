@@ -224,6 +224,36 @@ namespace sce::vlt
 					|| !required.core.features.variableMultisampleRate)
 			&& (m_deviceFeatures.core.features.inheritedQueries
 					|| !required.core.features.inheritedQueries)
+			&& (m_deviceFeatures.vk13.robustImageAccess
+					|| !required.vk13.robustImageAccess)
+			&& (m_deviceFeatures.vk13.inlineUniformBlock
+					|| !required.vk13.inlineUniformBlock)
+			&& (m_deviceFeatures.vk13.descriptorBindingInlineUniformBlockUpdateAfterBind
+					|| !required.vk13.descriptorBindingInlineUniformBlockUpdateAfterBind)
+			&& (m_deviceFeatures.vk13.pipelineCreationCacheControl
+					|| !required.vk13.pipelineCreationCacheControl)
+			&& (m_deviceFeatures.vk13.privateData
+					|| !required.vk13.privateData)
+			&& (m_deviceFeatures.vk13.shaderDemoteToHelperInvocation
+					|| !required.vk13.shaderDemoteToHelperInvocation)
+			&& (m_deviceFeatures.vk13.shaderTerminateInvocation
+					|| !required.vk13.shaderTerminateInvocation)
+			&& (m_deviceFeatures.vk13.subgroupSizeControl
+					|| !required.vk13.subgroupSizeControl)
+			&& (m_deviceFeatures.vk13.computeFullSubgroups
+					|| !required.vk13.computeFullSubgroups)
+			&& (m_deviceFeatures.vk13.synchronization2
+					|| !required.vk13.synchronization2)
+			&& (m_deviceFeatures.vk13.textureCompressionASTC_HDR
+					|| !required.vk13.textureCompressionASTC_HDR)
+			&& (m_deviceFeatures.vk13.shaderZeroInitializeWorkgroupMemory
+					|| !required.vk13.shaderZeroInitializeWorkgroupMemory)
+			&& (m_deviceFeatures.vk13.dynamicRendering
+					|| !required.vk13.dynamicRendering)
+			&& (m_deviceFeatures.vk13.shaderIntegerDotProduct
+					|| !required.vk13.shaderIntegerDotProduct)
+			&& (m_deviceFeatures.vk13.maintenance4
+					|| !required.vk13.maintenance4)
 			&& (m_deviceFeatures.shaderDrawParameters.shaderDrawParameters
 					|| !required.shaderDrawParameters.shaderDrawParameters)
 			&& (m_deviceFeatures.ext4444Formats.formatA4R4G4B4
@@ -262,13 +292,16 @@ namespace sce::vlt
 		m_extraExtensions.merge(extensions);
 	}
 
-	VltDeviceFeatures VltAdapter::getRequestFeatures()
+	void VltAdapter::getRequestFeatures(const VltDeviceExtensions& extensions,
+										VltDeviceFeatures&         enabled)
 	{
 		const VltDeviceFeatures& supported = m_deviceFeatures;
-		VltDeviceFeatures        enabled   = {};
 
 		// Modify and add request features as development goes.
 
+		// Create pNext chain for additional device features
+		enabled.core.sType                       = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2_KHR;
+		enabled.core.pNext                       = nullptr;
 		enabled.core.features.geometryShader     = VK_TRUE;
 		enabled.core.features.samplerAnisotropy  = supported.core.features.samplerAnisotropy;
 		enabled.core.features.shaderFloat64      = VK_TRUE;
@@ -276,10 +309,21 @@ namespace sce::vlt
 		enabled.core.features.tessellationShader = VK_TRUE;
 		enabled.core.features.logicOp            = VK_TRUE;
 
-		enabled.shaderDrawParameters.shaderDrawParameters = VK_TRUE;
-		enabled.extMemoryPriority.memoryPriority          = supported.extMemoryPriority.memoryPriority;
+		enabled.vk13.sType            = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
+		enabled.vk13.pNext            = std::exchange(enabled.core.pNext, &enabled.vk13);
+		enabled.vk13.synchronization2 = VK_TRUE;
+		enabled.vk13.dynamicRendering = VK_TRUE;
 
-		return enabled;
+		enabled.shaderDrawParameters.sType                = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DRAW_PARAMETERS_FEATURES;
+		enabled.shaderDrawParameters.pNext                = std::exchange(enabled.core.pNext, &enabled.shaderDrawParameters);
+		enabled.shaderDrawParameters.shaderDrawParameters = VK_TRUE;
+
+		if (extensions.extMemoryPriority)
+		{
+			enabled.extMemoryPriority.sType          = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PRIORITY_FEATURES_EXT;
+			enabled.extMemoryPriority.pNext          = std::exchange(enabled.core.pNext, &enabled.extMemoryPriority);
+			enabled.extMemoryPriority.memoryPriority = supported.extMemoryPriority.memoryPriority;
+		}
 	}
 
 
@@ -306,7 +350,9 @@ namespace sce::vlt
 		extensionsEnabled.merge(m_extraExtensions);
 		VltNameList extensionNameList = extensionsEnabled.toNameList();
 
-		VltDeviceFeatures requestFeatures = getRequestFeatures();
+		VltDeviceFeatures requestFeatures = {};
+		getRequestFeatures(devExtensions, requestFeatures);
+
 		if (!checkFeatureSupport(requestFeatures))
 		{
 			Logger::exception("DxvkAdapter: request features not all supported.");
@@ -323,19 +369,6 @@ namespace sce::vlt
 		Logger::info("Enabled device extensions:");
 		this->logNameList(extensionNameList);
 		this->logFeatures(requestFeatures);
-
-		// Create pNext chain for additional device features
-		requestFeatures.core.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2_KHR;
-		requestFeatures.core.pNext = nullptr;
-
-		requestFeatures.shaderDrawParameters.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DRAW_PARAMETERS_FEATURES;
-		requestFeatures.shaderDrawParameters.pNext = std::exchange(requestFeatures.core.pNext, &requestFeatures.shaderDrawParameters);
-
-		if (devExtensions.extMemoryPriority)
-		{
-			requestFeatures.extMemoryPriority.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PRIORITY_FEATURES_EXT;
-			requestFeatures.extMemoryPriority.pNext = std::exchange(requestFeatures.core.pNext, &requestFeatures.extMemoryPriority);
-		}
 
 		// Create the requested queues
 		float                                queuePriority = 1.0f;
@@ -548,6 +581,9 @@ namespace sce::vlt
 		m_deviceFeatures            = VltDeviceFeatures();
 		m_deviceFeatures.core.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
 		m_deviceFeatures.core.pNext = nullptr;
+
+		m_deviceFeatures.vk13.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
+		m_deviceFeatures.vk13.pNext = std::exchange(m_deviceFeatures.core.pNext, &m_deviceFeatures.vk13);
 
 		m_deviceFeatures.shaderDrawParameters.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DRAW_PARAMETERS_FEATURES;
 		m_deviceFeatures.shaderDrawParameters.pNext = std::exchange(m_deviceFeatures.core.pNext, &m_deviceFeatures.shaderDrawParameters);
