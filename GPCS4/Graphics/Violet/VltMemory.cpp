@@ -426,7 +426,8 @@ namespace sce::vlt
 		VltMemoryFlags                       hints,
 		const VkMemoryDedicatedAllocateInfo* dedAllocInfo)
 	{
-		bool useMemoryPriority = (flags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) && (m_device->features().extMemoryPriority.memoryPriority);
+		bool useMemoryPriority = (flags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) &&
+			(m_device->features().extMemoryPriority.memoryPriority);
 
 		if (type->heap->budget && type->heap->stats.memoryAllocated + size > type->heap->budget)
 			return VltDeviceMemory();

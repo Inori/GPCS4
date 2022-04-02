@@ -351,7 +351,7 @@ namespace sce::vlt
 		VltNameList extensionNameList = extensionsEnabled.toNameList();
 
 		VltDeviceFeatures requestFeatures = {};
-		getRequestFeatures(devExtensions, requestFeatures);
+		this->getRequestFeatures(devExtensions, requestFeatures);
 
 		if (!checkFeatureSupport(requestFeatures))
 		{
