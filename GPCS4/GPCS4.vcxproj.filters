@@ -772,6 +772,12 @@
     <ClInclude Include="Graphics\Violet\VltMemory.h">
       <Filter>Source Files\Graphics\Violet</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltUtil.h">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltDescriptor.h">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1339,6 +1345,12 @@
       <Filter>Source Files\Graphics\Violet</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Violet\VltMemory.cpp">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Violet\VltUtil.cpp">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Violet\VltDescriptor.cpp">
       <Filter>Source Files\Graphics\Violet</Filter>
     </ClCompile>
   </ItemGroup>

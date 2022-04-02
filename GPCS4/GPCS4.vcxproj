@@ -81,6 +81,7 @@
     </ClInclude>
     <ClInclude Include="Graphics\Violet\VltContext.h" />
     <ClInclude Include="Graphics\Violet\VltDebugUtil.h" />
+    <ClInclude Include="Graphics\Violet\VltDescriptor.h" />
     <ClInclude Include="Graphics\Violet\VltDevice.h" />
     <ClInclude Include="Graphics\Violet\VltDeviceFilter.h" />
     <ClInclude Include="Graphics\Violet\VltDeviceInfo.h" />
@@ -104,6 +105,7 @@
     </ClInclude>
     <ClInclude Include="Graphics\Violet\VltRecycler.h" />
     <ClInclude Include="Graphics\Violet\VltResource.h" />
+    <ClInclude Include="Graphics\Violet\VltUtil.h" />
     <ClInclude Include="Graphics\VirtualGPU.h" />
     <ClInclude Include="Loader\elf-sce.h" />
     <ClInclude Include="Emulator\Emulator.h" />
@@ -268,6 +270,7 @@
     <ClCompile Include="Graphics\Violet\VltCmdList.cpp" />
     <ClCompile Include="Graphics\Violet\VltContext.cpp" />
     <ClCompile Include="Graphics\Violet\VltDebugUtil.cpp" />
+    <ClCompile Include="Graphics\Violet\VltDescriptor.cpp" />
     <ClCompile Include="Graphics\Violet\VltDevice.cpp" />
     <ClCompile Include="Graphics\Violet\VltDeviceFilter.cpp" />
     <ClCompile Include="Graphics\Violet\VltExtension.cpp">
@@ -285,6 +288,7 @@
     <ClCompile Include="Graphics\Violet\VltMemory.cpp" />
     <ClCompile Include="Graphics\Violet\VltQueue.cpp" />
     <ClCompile Include="Graphics\Violet\VltResource.cpp" />
+    <ClCompile Include="Graphics\Violet\VltUtil.cpp" />
     <ClCompile Include="Graphics\VirtualGPU.cpp" />
     <ClCompile Include="ImportLibs.cpp" />
     <ClCompile Include="Loader\EbootObject.cpp" />
