@@ -14,58 +14,57 @@ namespace sce::vlt
      * method to record all those barriers into a
      * command buffer at once.
      */
-	class DxvkBarrierSet
+	class VltBarrierSet
 	{
-
 	public:
-		DxvkBarrierSet(VltCmdBuffer cmdBuffer);
-		~DxvkBarrierSet();
+		VltBarrierSet(VltCmdBuffer cmdBuffer);
+		~VltBarrierSet();
 
 		void accessMemory(
-			VkPipelineStageFlags srcStages,
-			VkAccessFlags        srcAccess,
-			VkPipelineStageFlags dstStages,
-			VkAccessFlags        dstAccess);
+			VkPipelineStageFlags2 srcStages,
+			VkAccessFlags2        srcAccess,
+			VkPipelineStageFlags2 dstStages,
+			VkAccessFlags2        dstAccess);
 
 		//void accessBuffer(
 		//	const DxvkBufferSliceHandle& bufSlice,
-		//	VkPipelineStageFlags         srcStages,
-		//	VkAccessFlags                srcAccess,
-		//	VkPipelineStageFlags         dstStages,
-		//	VkAccessFlags                dstAccess);
+		//	VkPipelineStageFlags2         srcStages,
+		//	VkAccessFlags2                srcAccess,
+		//	VkPipelineStageFlags2         dstStages,
+		//	VkAccessFlags2                dstAccess);
 
 		void accessImage(
 			const Rc<VltImage>&            image,
 			const VkImageSubresourceRange& subresources,
 			VkImageLayout                  srcLayout,
-			VkPipelineStageFlags           srcStages,
-			VkAccessFlags                  srcAccess,
+			VkPipelineStageFlags2          srcStages,
+			VkAccessFlags2                 srcAccess,
 			VkImageLayout                  dstLayout,
-			VkPipelineStageFlags           dstStages,
-			VkAccessFlags                  dstAccess);
+			VkPipelineStageFlags2          dstStages,
+			VkAccessFlags2                 dstAccess);
 
 		//void releaseBuffer(
 		//	DxvkBarrierSet&              acquire,
 		//	const DxvkBufferSliceHandle& bufSlice,
 		//	uint32_t                     srcQueue,
-		//	VkPipelineStageFlags         srcStages,
-		//	VkAccessFlags                srcAccess,
+		//	VkPipelineStageFlags2         srcStages,
+		//	VkAccessFlags2                srcAccess,
 		//	uint32_t                     dstQueue,
-		//	VkPipelineStageFlags         dstStages,
-		//	VkAccessFlags                dstAccess);
+		//	VkPipelineStageFlags2         dstStages,
+		//	VkAccessFlags2                dstAccess);
 
 		void releaseImage(
-			DxvkBarrierSet&                acquire,
+			VltBarrierSet&                acquire,
 			const Rc<VltImage>&            image,
 			const VkImageSubresourceRange& subresources,
 			uint32_t                       srcQueue,
 			VkImageLayout                  srcLayout,
-			VkPipelineStageFlags           srcStages,
-			VkAccessFlags                  srcAccess,
+			VkPipelineStageFlags2          srcStages,
+			VkAccessFlags2                 srcAccess,
 			uint32_t                       dstQueue,
 			VkImageLayout                  dstLayout,
-			VkPipelineStageFlags           dstStages,
-			VkAccessFlags                  dstAccess);
+			VkPipelineStageFlags2          dstStages,
+			VkAccessFlags2                 dstAccess);
 
 		//bool isBufferDirty(
 		//	const DxvkBufferSliceHandle& bufSlice,
@@ -83,15 +82,24 @@ namespace sce::vlt
 			const Rc<VltImage>&            image,
 			const VkImageSubresourceRange& imgSubres);
 
-		VkPipelineStageFlags getSrcStages()
+		VkPipelineStageFlags2 getSrcStages()
 		{
-			return m_srcStages;
+			return m_memBarrier.srcStageMask;
 		}
 
 		void recordCommands(
 			const Rc<VltCommandList>& commandList);
 
 		void reset();
+
+	private:
+		VltAccessFlags getAccessTypes(VkAccessFlags2 flags) const;
+
+		bool isBufferOverlaps();
+		bool isImageOverlaps(
+			const VkImageSubresourceRange& lhs,
+			const VkImageSubresourceRange& rhs
+		);
 
 	private:
 		struct BufSlice
@@ -109,18 +117,13 @@ namespace sce::vlt
 
 		VltCmdBuffer m_cmdBuffer;
 
-		VkPipelineStageFlags m_srcStages = 0;
-		VkPipelineStageFlags m_dstStages = 0;
+		VkMemoryBarrier2 m_memBarrier = 
+		{ VK_STRUCTURE_TYPE_MEMORY_BARRIER_2, nullptr, 0, 0, 0, 0 };
 
-		VkAccessFlags m_srcAccess = 0;
-		VkAccessFlags m_dstAccess = 0;
-
-		std::vector<VkBufferMemoryBarrier> m_bufBarriers;
-		std::vector<VkImageMemoryBarrier>  m_imgBarriers;
+		std::vector<VkBufferMemoryBarrier2> m_bufBarriers;
+		std::vector<VkImageMemoryBarrier2>  m_imgBarriers;
 
 		std::vector<BufSlice> m_bufSlices;
 		std::vector<ImgSlice> m_imgSlices;
-
-		VltAccessFlags getAccessTypes(VkAccessFlags flags) const;
 	};
 }  // namespace sce::vlt

@@ -604,6 +604,16 @@ namespace sce::vlt
 								 imageMemoryBarrierCount, pImageMemoryBarriers);
 		}
 
+		void cmdPipelineBarrier2(
+			VltCmdBuffer            cmdBuffer,
+			const VkDependencyInfo* pDependencyInfo)
+		{
+			m_cmdBuffersUsed.set(cmdBuffer);
+
+			vkCmdPipelineBarrier2(getCmdBuffer(cmdBuffer),
+								  pDependencyInfo);
+		}
+
 		void cmdPushConstants(
 			VkPipelineLayout   layout,
 			VkShaderStageFlags stageFlags,
