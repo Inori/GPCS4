@@ -152,7 +152,7 @@ namespace sce
 		 * 
 		 * Only valid when SceResourceType::Buffer is set
 		 */
-		SceBuffer buffer() const
+		const SceBuffer& buffer() const
 		{
 			return m_buffer;
 		}
@@ -168,7 +168,7 @@ namespace sce
 		 * 
 		 * Only valid when SceResourceType::Texture is set
 		 */
-		SceTexture texture() const
+		const SceTexture& texture() const
 		{
 			return m_texture;
 		}
@@ -184,7 +184,7 @@ namespace sce
 		 * 
 		 * Only valid when SceResourceType::RenderTarget is set
 		 */
-		SceRenderTarget renderTarget() const
+		const SceRenderTarget& renderTarget() const
 		{
 			return std::get<SceRenderTarget>(m_target);
 		}
@@ -200,7 +200,7 @@ namespace sce
 		 * 
 		 * Only valid when SceResourceType::DepthRenderTarget is set
 		 */
-		SceDepthRenderTarget depthRenderTarget() const
+		const SceDepthRenderTarget& depthRenderTarget() const
 		{
 			return std::get<SceDepthRenderTarget>(m_target);
 		}
