@@ -94,4 +94,5 @@ namespace sce::vlt
 		std::atomic<uint32_t> m_useCountR = { 0u };
 		std::atomic<uint32_t> m_useCountW = { 0u };
 	};
+
 }  // namespace sce::vlt

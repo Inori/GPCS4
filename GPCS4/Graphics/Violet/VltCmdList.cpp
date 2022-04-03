@@ -234,9 +234,6 @@ namespace sce::vlt
 		//// Recycle heavy Vulkan objects
 		//m_descriptorPoolTracker.reset();
 
-		//// Return buffer memory slices
-		//m_bufferTracker.reset();
-
 		//// Return query and event handles
 		//m_gpuQueryTracker.reset();
 		//m_gpuEventTracker.reset();

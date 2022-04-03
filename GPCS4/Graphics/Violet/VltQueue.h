@@ -33,6 +33,7 @@ namespace sce
 		struct VltPresentInfo
 		{
 			Rc<ScePresenter> presenter;
+			uint32_t         imageIndex;
 		};
 
 		/**

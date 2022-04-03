@@ -99,7 +99,7 @@ namespace sce::vlt
 		void reset();
 
 	private:
-		VltAccessFlags getAccessTypes(VkAccessFlags2 flags) const;
+		
 
 		bool isBufferOverlaps();
 		bool isImageOverlaps(

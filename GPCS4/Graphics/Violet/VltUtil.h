@@ -2,6 +2,7 @@
 
 #include "VltCommon.h"
 #include "VltFormat.h"
+#include "VltResource.h"
 
 namespace sce::vlt::vutil
 {
@@ -529,6 +530,9 @@ namespace sce::vlt::vutil
 
 	bool isDualSourceBlendFactor(
 		VkBlendFactor factor);
+
+	VltAccessFlags getAccessTypes(
+		VkAccessFlags2 flags);
 
 }  // namespace sce::vlt::util
 

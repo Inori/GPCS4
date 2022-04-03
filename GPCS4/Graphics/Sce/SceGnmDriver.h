@@ -84,7 +84,8 @@ namespace sce
 		void createGraphicsQueue();
 
 		void submitPresent(
-			const vlt::Rc<vlt::VltCommandList>& cmdList);
+			const vlt::Rc<vlt::VltCommandList>& cmdList,
+			uint32_t                            imageIndex);
 
 		void destroyGpuQueues();
 

@@ -97,22 +97,6 @@ namespace sce::vlt
 		void endRecording();
 
 		/**
-         * \brief Frees buffer slice
-         * 
-         * After the command buffer execution has finished,
-         * the given buffer slice will be released to the
-         * virtual buffer object so that it can be reused.
-         * \param [in] buffer The virtual buffer object
-         * \param [in] slice The buffer slice handle
-         */
-		//void freeBufferSlice(
-		//	const Rc<DxvkBuffer>&        buffer,
-		//	const DxvkBufferSliceHandle& slice)
-		//{
-		//	m_bufferTracker.freeBufferSlice(buffer, slice);
-		//}
-
-		/**
          * \brief Adds a resource to track
          * 
          * Adds a resource to the internal resource tracker.
@@ -782,8 +766,7 @@ namespace sce::vlt
 		//DxvkSignalTracker         m_signalTracker;
 		//DxvkGpuEventTracker       m_gpuEventTracker;
 		//DxvkGpuQueryTracker       m_gpuQueryTracker;
-		//DxvkBufferTracker         m_bufferTracker;
-
+	
 		VltDebugUtil m_debug;
 	};
 

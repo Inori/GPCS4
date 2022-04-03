@@ -133,13 +133,14 @@ namespace sce
 		cmd.size          = dcbSizesInBytes[0];
 		auto cmdList      = m_graphicsQueue->record(cmd);
 
-		submitPresent(cmdList);
+		submitPresent(cmdList, displayBufferIndex);
 
 		return SCE_OK;
 	}
 
 	void SceGnmDriver::submitPresent(
-		const vlt::Rc<vlt::VltCommandList>& cmdList)
+		const vlt::Rc<vlt::VltCommandList>& cmdList,
+		uint32_t                            imageIndex)
 	{
 		do
 		{
@@ -154,6 +155,8 @@ namespace sce
 			submission.wake             = sync.present;
 			m_graphicsQueue->submit(submission);
 
+			// TODO:
+			// take image index into consideration
 			m_graphicsQueue->present(m_presenter);
 
 		} while (false);

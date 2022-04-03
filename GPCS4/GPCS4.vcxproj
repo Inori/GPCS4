@@ -90,6 +90,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Graphics\Violet\VltFormat.h" />
+    <ClInclude Include="Graphics\Violet\VltHash.h" />
     <ClInclude Include="Graphics\Violet\VltImage.h" />
     <ClInclude Include="Graphics\Violet\VltInstance.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
