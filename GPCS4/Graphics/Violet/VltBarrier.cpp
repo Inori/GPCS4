@@ -31,26 +31,27 @@ namespace sce::vlt
 		m_memBarrier.dstAccessMask |= dstAccess;
 	}
 
-	//void DxvkBarrierSet::accessBuffer(
-	//	const DxvkBufferSliceHandle& bufSlice,
-	//	VkPipelineStageFlags2         srcStages,
-	//	VkAccessFlags2                srcAccess,
-	//	VkPipelineStageFlags2         dstStages,
-	//	VkAccessFlags2                dstAccess)
-	//{
-	//	VltAccessFlags access = this->getAccessTypes(srcAccess);
+	void VltBarrierSet::accessBuffer(
+		const VltBufferSliceHandle& bufSlice,
+		VkPipelineStageFlags2        srcStages,
+		VkAccessFlags2               srcAccess,
+		VkPipelineStageFlags2        dstStages,
+		VkAccessFlags2               dstAccess)
+	{
+		VltAccessFlags access = vutil::getAccessTypes(srcAccess);
 
-	//	if (srcStages == VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT || dstStages == VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT)
-	//		access.set(VltAccess::Write);
+		if (srcStages == VK_PIPELINE_STAGE_2_BOTTOM_OF_PIPE_BIT || 
+			dstStages == VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT)
+			access.set(VltAccess::Write);
 
-	//	m_srcStages |= srcStages;
-	//	m_dstStages |= dstStages;
+		m_memBarrier.srcStageMask |= srcStages;
+		m_memBarrier.dstStageMask |= dstStages;
 
-	//	m_srcAccess |= srcAccess;
-	//	m_dstAccess |= dstAccess;
+		m_memBarrier.srcAccessMask |= srcAccess;
+		m_memBarrier.dstAccessMask |= dstAccess;
 
-	//	m_bufSlices.push_back({ bufSlice, access });
-	//}
+		m_bufSlices.push_back({ bufSlice, access });
+	}
 
 	void VltBarrierSet::accessImage(
 		const Rc<VltImage>&            image,
@@ -100,41 +101,46 @@ namespace sce::vlt
 	}
 
 	
-	//void DxvkBarrierSet::releaseBuffer(
-	//	DxvkBarrierSet&              acquire,
-	//	const DxvkBufferSliceHandle& bufSlice,
-	//	uint32_t                     srcQueue,
-	//	VkPipelineStageFlags2         srcStages,
-	//	VkAccessFlags2                srcAccess,
-	//	uint32_t                     dstQueue,
-	//	VkPipelineStageFlags2         dstStages,
-	//	VkAccessFlags2                dstAccess)
-	//{
-	//	auto& release = *this;
+	void VltBarrierSet::releaseBuffer(
+		VltBarrierSet&              acquire,
+		const VltBufferSliceHandle& bufSlice,
+		uint32_t                     srcQueue,
+		VkPipelineStageFlags2        srcStages,
+		VkAccessFlags2               srcAccess,
+		uint32_t                     dstQueue,
+		VkPipelineStageFlags2        dstStages,
+		VkAccessFlags2               dstAccess)
+	{
+		auto& release = *this;
 
-	//	release.m_srcStages |= srcStages;
-	//	acquire.m_dstStages |= dstStages;
+		release.m_memBarrier.srcStageMask |= srcStages;
+		acquire.m_memBarrier.dstStageMask |= dstStages;
 
-	//	VkBufferMemoryBarrier barrier;
-	//	barrier.sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
-	//	barrier.pNext               = nullptr;
-	//	barrier.srcAccessMask       = srcAccess;
-	//	barrier.dstAccessMask       = 0;
-	//	barrier.srcQueueFamilyIndex = srcQueue;
-	//	barrier.dstQueueFamilyIndex = dstQueue;
-	//	barrier.buffer              = bufSlice.handle;
-	//	barrier.offset              = bufSlice.offset;
-	//	barrier.size                = bufSlice.length;
-	//	release.m_bufBarriers.push_back(barrier);
+		VkBufferMemoryBarrier2 barrier;
+		barrier.sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+		barrier.pNext               = nullptr;
+		barrier.srcStageMask        = srcStages;
+		barrier.srcAccessMask       = srcAccess;
+		barrier.dstStageMask        = VK_PIPELINE_STAGE_2_BOTTOM_OF_PIPE_BIT;
+		barrier.dstAccessMask       = 0;
+		barrier.srcQueueFamilyIndex = srcQueue;
+		barrier.dstQueueFamilyIndex = dstQueue;
+		barrier.buffer              = bufSlice.handle;
+		barrier.offset              = bufSlice.offset;
+		barrier.size                = bufSlice.length;
+		release.m_bufBarriers.push_back(barrier);
 
-	//	barrier.srcAccessMask = 0;
-	//	barrier.dstAccessMask = dstAccess;
-	//	acquire.m_bufBarriers.push_back(barrier);
 
-	//	VltAccessFlags access(VltAccess::Read, VltAccess::Write);
-	//	release.m_bufSlices.push_back({ bufSlice, access });
-	//	acquire.m_bufSlices.push_back({ bufSlice, access });
-	//}
+		barrier.srcStageMask  = VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT;
+		barrier.srcAccessMask = 0;
+		barrier.dstStageMask  = dstStages;
+		barrier.dstAccessMask = dstAccess;
+		acquire.m_bufBarriers.push_back(barrier);
+
+		VltAccessFlags access(VltAccess::Read, VltAccess::Write);
+		release.m_bufSlices.push_back({ bufSlice, access });
+		acquire.m_bufSlices.push_back({ bufSlice, access });
+	}
 
 	void VltBarrierSet::releaseImage(
 		VltBarrierSet&                 acquire,
@@ -184,21 +190,23 @@ namespace sce::vlt
 		acquire.m_imgSlices.push_back({ image.ptr(), subresources, access });
 	}
 
-	//bool DxvkBarrierSet::isBufferDirty(
-	//	const DxvkBufferSliceHandle& bufSlice,
-	//	VltAccessFlags               bufAccess)
-	//{
-	//	bool result = false;
+	bool VltBarrierSet::isBufferDirty(
+		const VltBufferSliceHandle& bufSlice,
+		VltAccessFlags               bufAccess)
+	{
+		bool result = false;
 
-	//	for (uint32_t i = 0; i < m_bufSlices.size() && !result; i++)
-	//	{
-	//		const DxvkBufferSliceHandle& dstSlice = m_bufSlices[i].slice;
+		for (uint32_t i = 0; i < m_bufSlices.size() && !result; i++)
+		{
+			const VltBufferSliceHandle& dstSlice = m_bufSlices[i].slice;
 
-	//		result = (bufSlice.handle == dstSlice.handle) && (bufAccess | m_bufSlices[i].access).test(VltAccess::Write) && (bufSlice.offset + bufSlice.length > dstSlice.offset) && (bufSlice.offset < dstSlice.offset + dstSlice.length);
-	//	}
+			result = (bufSlice.handle == dstSlice.handle) &&
+					 (bufAccess | m_bufSlices[i].access).test(VltAccess::Write) &&
+					 isBufferOverlapped(bufSlice, dstSlice);
+		}
 
-	//	return result;
-	//}
+		return result;
+	}
 
 	bool VltBarrierSet::isImageDirty(
 		const Rc<VltImage>&            image,
@@ -213,27 +221,27 @@ namespace sce::vlt
 
 			result = (image == m_imgSlices[i].image) &&
 					 (imgAccess | m_imgSlices[i].access).test(VltAccess::Write) &&
-					 isImageOverlaps(imgSubres, dstSubres);
+					 isImageOverlapped(imgSubres, dstSubres);
 		}
 
 		return result;
 	}
 
-	//VltAccessFlags DxvkBarrierSet::getBufferAccess(
-	//	const DxvkBufferSliceHandle& bufSlice)
-	//{
-	//	VltAccessFlags access;
+	VltAccessFlags VltBarrierSet::getBufferAccess(
+		const VltBufferSliceHandle& bufSlice)
+	{
+		VltAccessFlags access;
 
-	//	for (uint32_t i = 0; i < m_bufSlices.size(); i++)
-	//	{
-	//		const DxvkBufferSliceHandle& dstSlice = m_bufSlices[i].slice;
+		for (uint32_t i = 0; i < m_bufSlices.size(); i++)
+		{
+			const VltBufferSliceHandle& dstSlice = m_bufSlices[i].slice;
 
-	//		if ((bufSlice.handle == dstSlice.handle) && (bufSlice.offset + bufSlice.length > dstSlice.offset) && (bufSlice.offset < dstSlice.offset + dstSlice.length))
-	//			access = access | m_bufSlices[i].access;
-	//	}
+			if ((bufSlice.handle == dstSlice.handle) && (bufSlice.offset + bufSlice.length > dstSlice.offset) && (bufSlice.offset < dstSlice.offset + dstSlice.length))
+				access = access | m_bufSlices[i].access;
+		}
 
-	//	return access;
-	//}
+		return access;
+	}
 
 	VltAccessFlags VltBarrierSet::getImageAccess(
 		const Rc<VltImage>&            image,
@@ -298,11 +306,15 @@ namespace sce::vlt
 		m_imgSlices.resize(0);
 	}
 
-	bool VltBarrierSet::isBufferOverlaps()
+	bool VltBarrierSet::isBufferOverlapped(
+		const VltBufferSliceHandle& lhs,
+		const VltBufferSliceHandle& rhs)
 	{
+		return (lhs.offset + lhs.length > rhs.offset) &&
+			   (lhs.offset < rhs.offset + rhs.length);
 	}
 
-	bool VltBarrierSet::isImageOverlaps(
+	bool VltBarrierSet::isImageOverlapped(
 		const VkImageSubresourceRange& lhs, 
 		const VkImageSubresourceRange& rhs)
 	{

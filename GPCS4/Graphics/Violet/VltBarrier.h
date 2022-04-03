@@ -1,5 +1,6 @@
 #pragma once
 
+#include "VltBuffer.h"
 #include "VltCmdList.h"
 #include "VltCommon.h"
 
@@ -26,12 +27,12 @@ namespace sce::vlt
 			VkPipelineStageFlags2 dstStages,
 			VkAccessFlags2        dstAccess);
 
-		//void accessBuffer(
-		//	const DxvkBufferSliceHandle& bufSlice,
-		//	VkPipelineStageFlags2         srcStages,
-		//	VkAccessFlags2                srcAccess,
-		//	VkPipelineStageFlags2         dstStages,
-		//	VkAccessFlags2                dstAccess);
+		void accessBuffer(
+			const VltBufferSliceHandle& bufSlice,
+			VkPipelineStageFlags2       srcStages,
+			VkAccessFlags2              srcAccess,
+			VkPipelineStageFlags2       dstStages,
+			VkAccessFlags2              dstAccess);
 
 		void accessImage(
 			const Rc<VltImage>&            image,
@@ -46,15 +47,15 @@ namespace sce::vlt
 		/**
 		 * \brief Queue family ownership transfer
 		 */
-		//void releaseBuffer(
-		//	DxvkBarrierSet&              acquire,
-		//	const DxvkBufferSliceHandle& bufSlice,
-		//	uint32_t                     srcQueue,
-		//	VkPipelineStageFlags2         srcStages,
-		//	VkAccessFlags2                srcAccess,
-		//	uint32_t                     dstQueue,
-		//	VkPipelineStageFlags2         dstStages,
-		//	VkAccessFlags2                dstAccess);
+		void releaseBuffer(
+			VltBarrierSet&              acquire,
+			const VltBufferSliceHandle& bufSlice,
+			uint32_t                    srcQueue,
+			VkPipelineStageFlags2       srcStages,
+			VkAccessFlags2              srcAccess,
+			uint32_t                    dstQueue,
+			VkPipelineStageFlags2       dstStages,
+			VkAccessFlags2              dstAccess);
 
 		/**
          * \brief Queue family ownership transfer
@@ -72,17 +73,17 @@ namespace sce::vlt
 			VkPipelineStageFlags2          dstStages,
 			VkAccessFlags2                 dstAccess);
 
-		//bool isBufferDirty(
-		//	const DxvkBufferSliceHandle& bufSlice,
-		//	VltAccessFlags               bufAccess);
+		bool isBufferDirty(
+			const VltBufferSliceHandle& bufSlice,
+			VltAccessFlags              bufAccess);
 
 		bool isImageDirty(
 			const Rc<VltImage>&            image,
 			const VkImageSubresourceRange& imgSubres,
 			VltAccessFlags                 imgAccess);
 
-		//VltAccessFlags getBufferAccess(
-		//	const DxvkBufferSliceHandle& bufSlice);
+		VltAccessFlags getBufferAccess(
+			const VltBufferSliceHandle& bufSlice);
 
 		VltAccessFlags getImageAccess(
 			const Rc<VltImage>&            image,
@@ -99,19 +100,19 @@ namespace sce::vlt
 		void reset();
 
 	private:
-		
+		bool isBufferOverlapped(
+			const VltBufferSliceHandle& lhs,
+			const VltBufferSliceHandle& rhs);
 
-		bool isBufferOverlaps();
-		bool isImageOverlaps(
+		bool isImageOverlapped(
 			const VkImageSubresourceRange& lhs,
-			const VkImageSubresourceRange& rhs
-		);
+			const VkImageSubresourceRange& rhs);
 
 	private:
 		struct BufSlice
 		{
-			//DxvkBufferSliceHandle slice;
-			VltAccessFlags access;
+			VltBufferSliceHandle slice;
+			VltAccessFlags       access;
 		};
 
 		struct ImgSlice
