@@ -781,7 +781,7 @@
     <ClInclude Include="Graphics\Violet\VltHash.h">
       <Filter>Source Files\Graphics\Violet</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Sce\SceResourceBank.h">
+    <ClInclude Include="Graphics\Sce\SceResourceTracker.h">
       <Filter>Source Files\Graphics\Sce</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1359,7 +1359,7 @@
     <ClCompile Include="Graphics\Violet\VltDescriptor.cpp">
       <Filter>Source Files\Graphics\Violet</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Sce\SceResourceBank.cpp">
+    <ClCompile Include="Graphics\Sce\SceResourceTracker.cpp">
       <Filter>Source Files\Graphics\Sce</Filter>
     </ClCompile>
   </ItemGroup>

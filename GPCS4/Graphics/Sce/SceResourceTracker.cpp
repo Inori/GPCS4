@@ -1,4 +1,4 @@
-#include "SceResourceBank.h"
+#include "SceResourceTracker.h"
 #include "Violet/VltBuffer.h"
 #include "Violet/VltImage.h"
 
@@ -119,15 +119,15 @@ namespace sce
 
 	//////////////////////////////////////////////////////////////////////////
 
-	SceResourceBank::SceResourceBank()
+	SceResourceTracker::SceResourceTracker()
 	{
 	}
 
-	SceResourceBank::~SceResourceBank()
+	SceResourceTracker::~SceResourceTracker()
 	{
 	}
 
-	SceResource* SceResourceBank::find(void* mem)
+	SceResource* SceResourceTracker::find(void* mem)
 	{
 		std::lock_guard<util::sync::Spinlock> guard(m_lock);
 
@@ -148,7 +148,7 @@ namespace sce
 		return result;
 	}
 
-	void SceResourceBank::clear()
+	void SceResourceTracker::reset()
 	{
 		std::lock_guard<util::sync::Spinlock> guard(m_lock);
 

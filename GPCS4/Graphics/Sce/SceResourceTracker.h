@@ -232,13 +232,13 @@ namespace sce
 	 * 
 	 * Use to query vulkan object by Gnm resource memory
 	 */
-	class SceResourceBank
+	class SceResourceTracker
 	{
 		using SceResourceMap = std::map<void*, SceResource>;
 
 	public:
-		SceResourceBank();
-		~SceResourceBank();
+		SceResourceTracker();
+		~SceResourceTracker();
 
 		template <class R>
 		void track(R&& arg)
@@ -251,7 +251,7 @@ namespace sce
 
 		SceResource* find(void* mem);
 
-		void clear();
+		void reset();
 		
 	private:
 		util::sync::Spinlock m_lock;
