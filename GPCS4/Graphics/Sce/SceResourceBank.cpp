@@ -127,7 +127,7 @@ namespace sce
 	{
 	}
 
-	SceResource* SceResourceBank::query(void* mem)
+	SceResource* SceResourceBank::find(void* mem)
 	{
 		std::lock_guard<util::sync::Spinlock> guard(m_lock);
 

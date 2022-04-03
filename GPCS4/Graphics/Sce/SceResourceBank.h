@@ -249,7 +249,7 @@ namespace sce
 			m_resources.emplace(cpuMem, std::forward<R>(arg));
 		}
 
-		SceResource* query(void* mem);
+		SceResource* find(void* mem);
 
 		void clear();
 		
