@@ -48,7 +48,7 @@ namespace sce::vlt
 		vkDestroyBuffer(m_device->handle(), m_buffer.buffer, nullptr);
 	}
 
-	VltBufferHandle VltBuffer::allocBuffer(VkDeviceSize sliceCount) const
+	VltPhysicalBuffer VltBuffer::allocBuffer(VkDeviceSize sliceCount) const
 	{
 		VkBufferCreateInfo info;
 		info.sType                 = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -60,7 +60,7 @@ namespace sce::vlt
 		info.queueFamilyIndexCount = 0;
 		info.pQueueFamilyIndices   = nullptr;
 
-		VltBufferHandle handle;
+		VltPhysicalBuffer handle;
 
 		if (vkCreateBuffer(m_device->handle(),
 						   &info, nullptr, &handle.buffer) != VK_SUCCESS)

@@ -2,293 +2,292 @@
 
 #include "GnmCommon.h"
 #include "GnmConstant.h"
-#include "GnmStructure.h"
-#include "GnmRegInfo.h"
 #include "GnmDataFormat.h"
+#include "GnmRegInfo.h"
 #include "GnmSharpBuffer.h"
-
+#include "GnmStructure.h"
 #include "GpuAddress/GnmGpuAddress.h"
 
 namespace sce::Gnm
 {
 
-class Texture
-{
-public:
-	enum
+	class Texture
 	{
-		kSqImgRsrcWord0 = 0,
-		kSqImgRsrcWord1 = 1,
-		kSqImgRsrcWord2 = 2,
-		kSqImgRsrcWord3 = 3,
-		kSqImgRsrcWord4 = 4,
-		kSqImgRsrcWord5 = 5,
-		kSqImgRsrcWord6 = 6,
-		kSqImgRsrcWord7 = 7,
-		kNumSqImgRsrcRegisters
-	};
-
-	const TSharpBuffer& getTsharp() const
-	{
-		return m_tsharp;
-	}
-
-	SizeAlign getSizeAlign(void) const
-	{
-		uint64_t      size   = 0;
-		AlignmentType align  = 0;
-		auto          status = GpuAddress::computeTotalTiledTextureSize(&size, &align, this);
-
-		SizeAlign result = { 0 };
-		if (status == GpuAddress::kStatusSuccess)
+	public:
+		enum
 		{
-			result.m_size  = size;
-			result.m_align = align;
-		}
-		return result;
-	}
+			kSqImgRsrcWord0 = 0,
+			kSqImgRsrcWord1 = 1,
+			kSqImgRsrcWord2 = 2,
+			kSqImgRsrcWord3 = 3,
+			kSqImgRsrcWord4 = 4,
+			kSqImgRsrcWord5 = 5,
+			kSqImgRsrcWord6 = 6,
+			kSqImgRsrcWord7 = 7,
+			kNumSqImgRsrcRegisters
+		};
 
-	SizeAlign getMetadataSizeAlign(void) const
-	{
-		// TODO
-	}
-
-	uint8_t getMipStatsCounterIndex() const
-	{
-		return (uint8_t)(SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord6], SQ_IMG_RSRC_WORD6, COUNTER_BANK_ID));
-	}
-
-	bool isMipStatsEnabled() const
-	{
-		return SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord6], SQ_IMG_RSRC_WORD6, LOD_HDW_CNT_EN) ? true : false;
-	}
-
-	TextureType getTextureType() const
-	{
-		return (TextureType)SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord3], SQ_IMG_RSRC_WORD3, TYPE);
-	}
-
-	// From IDA
-	uint32_t getBaseAddress256ByteBlocks() const
-	{
-		uint32_t baseAddr256 = 0;
-		TileMode tileMode;
-		uint32_t numFragPerPixel = 0;
-		NumBanks numBanks;
-		uint32_t bitsPerElement = 0;
-
-		DataFormat format = getDataFormat();
-
-		bool isMacroTile = GpuAddress::isMacroTiled((TileMode)m_tsharp.tiling_idx);
-
-		baseAddr256 = m_tsharp.baseaddr256;
-
-		if (isMacroTile)
+		const TSharpBuffer& getTsharp() const
 		{
-			bitsPerElement  = format.getTotalBitsPerElement();
-			tileMode        = (TileMode)m_tsharp.tiling_idx;
-			numFragPerPixel = 1 << m_tsharp.last_level;
-
-			if (m_regs[3] <= 0xDFFFFFFF)
-			{
-				numFragPerPixel = 1;
-			}
-
-			uint8_t shift = 0;
-			if (m_regs[6] & 0x1000000)
-			{
-				GpuAddress::getAltNumBanks(&numBanks, tileMode, bitsPerElement, numFragPerPixel);
-				shift = 4;
-			}
-			else
-			{
-				GpuAddress::getNumBanks(&numBanks, tileMode, bitsPerElement, numFragPerPixel);
-				shift = 3;
-			}
-			baseAddr256 &= ~(((1 << (numBanks + 1)) - 1) << shift);
+			return m_tsharp;
 		}
 
-		return baseAddr256;
-	}
+		SizeAlign getSizeAlign(void) const
+		{
+			uint64_t      size   = 0;
+			AlignmentType align  = 0;
+			auto          status = GpuAddress::computeTotalTiledTextureSize(&size, &align, this);
 
-	void* getBaseAddress() const
-	{
-		return (void*)(uintptr_t(getBaseAddress256ByteBlocks()) << 8);
-	}
+			SizeAlign result = { 0 };
+			if (status == GpuAddress::kStatusSuccess)
+			{
+				result.m_size  = size;
+				result.m_align = align;
+			}
+			return result;
+		}
 
-	SamplerModulationFactor getSamplerModulationFactor(void) const
-	{
-		return (SamplerModulationFactor)SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord2], SQ_IMG_RSRC_WORD2, PERF_MOD);
-	}
+		SizeAlign getMetadataSizeAlign(void) const
+		{
+			// TODO
+		}
 
-	ResourceMemoryType getResourceMemoryType() const
-	{
-	}
+		uint8_t getMipStatsCounterIndex() const
+		{
+			return (uint8_t)(SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord6], SQ_IMG_RSRC_WORD6, COUNTER_BANK_ID));
+		}
 
-	TileMode getTileMode(void) const
-	{
-		return (TileMode)SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord3], SQ_IMG_RSRC_WORD3, TILING_INDEX);
-	}
+		bool isMipStatsEnabled() const
+		{
+			return SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord6], SQ_IMG_RSRC_WORD6, LOD_HDW_CNT_EN) ? true : false;
+		}
 
-	bool getUseAltTileMode(void) const
-	{
-		return SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord6], SQ_IMG_RSRC_WORD6, ALT_TILE_MODE) != 0;  // [vi]
-	}
+		TextureType getTextureType() const
+		{
+			return (TextureType)SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord3], SQ_IMG_RSRC_WORD3, TYPE);
+		}
 
-	uint32_t getMinLodClamp() const
-	{
-		return SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord1], SQ_IMG_RSRC_WORD1, MIN_LOD);
-	}
+		// From IDA
+		uint32_t getBaseAddress256ByteBlocks() const
+		{
+			uint32_t baseAddr256 = 0;
+			TileMode tileMode;
+			uint32_t numFragPerPixel = 0;
+			NumBanks numBanks;
+			uint32_t bitsPerElement = 0;
 
-	uint32_t getPitchMinus1() const
-	{
-		return SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord4], SQ_IMG_RSRC_WORD4, PITCH);
-	}
+			DataFormat format = getDataFormat();
 
-	uint32_t getWidthMinus1() const
-	{
-		return SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord2], SQ_IMG_RSRC_WORD2, WIDTH);
-	}
+			bool isMacroTile = GpuAddress::isMacroTiled((TileMode)m_tsharp.tiling_idx);
 
-	uint32_t getHeightMinus1() const
-	{
-		return SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord2], SQ_IMG_RSRC_WORD2, HEIGHT);
-	}
+			baseAddr256 = m_tsharp.baseaddr256;
 
-	uint32_t getDepthMinus1() const
-	{
-		return SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord4], SQ_IMG_RSRC_WORD4, DEPTH);
-	}
+			if (isMacroTile)
+			{
+				bitsPerElement  = format.getTotalBitsPerElement();
+				tileMode        = (TileMode)m_tsharp.tiling_idx;
+				numFragPerPixel = 1 << m_tsharp.last_level;
 
-	uint32_t getTotalArraySliceCount() const
-	{
-		return (getTextureType() == kTextureType3d) ? 1 : getDepth();
-	}
+				if (m_regs[3] <= 0xDFFFFFFF)
+				{
+					numFragPerPixel = 1;
+				}
 
-	SurfaceFormat getSurfaceFormat() const
-	{
-		return (SurfaceFormat)SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord1], SQ_IMG_RSRC_WORD1, DATA_FORMAT);
-	}
+				uint8_t shift = 0;
+				if (m_regs[6] & 0x1000000)
+				{
+					GpuAddress::getAltNumBanks(&numBanks, tileMode, bitsPerElement, numFragPerPixel);
+					shift = 4;
+				}
+				else
+				{
+					GpuAddress::getNumBanks(&numBanks, tileMode, bitsPerElement, numFragPerPixel);
+					shift = 3;
+				}
+				baseAddr256 &= ~(((1 << (numBanks + 1)) - 1) << shift);
+			}
 
-	TextureChannelType getTextureChannelType() const
-	{
-		return (TextureChannelType)SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord1], SQ_IMG_RSRC_WORD1, NUM_FORMAT);
-	}
+			return baseAddr256;
+		}
 
-	DataFormat getDataFormat() const
-	{
-		return DataFormat::build((SurfaceFormat)m_tsharp.dfmt, (TextureChannelType)m_tsharp.nfmt,
-								 (TextureChannel)m_tsharp.dst_sel_x,
-								 (TextureChannel)m_tsharp.dst_sel_y,
-								 (TextureChannel)m_tsharp.dst_sel_z,
-								 (TextureChannel)m_tsharp.dst_sel_w);
-	}
+		void* getBaseAddress() const
+		{
+			return (void*)(uintptr_t(getBaseAddress256ByteBlocks()) << 8);
+		}
 
-	uint32_t getBaseArraySliceIndex() const
-	{
-		return SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord5], SQ_IMG_RSRC_WORD5, BASE_ARRAY);
-	}
+		SamplerModulationFactor getSamplerModulationFactor(void) const
+		{
+			return (SamplerModulationFactor)SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord2], SQ_IMG_RSRC_WORD2, PERF_MOD);
+		}
 
-	uint32_t getLastArraySliceIndex() const
-	{
-		return SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord5], SQ_IMG_RSRC_WORD5, LAST_ARRAY);  // For cubemaps, must be BASE_ARRAY + (numCubemaps*6)-1
-	}
+		ResourceMemoryType getResourceMemoryType() const
+		{
+		}
 
-	uint32_t getBaseMipLevel() const
-	{
-		return SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord3], SQ_IMG_RSRC_WORD3, BASE_LEVEL);
-	}
+		TileMode getTileMode(void) const
+		{
+			return (TileMode)SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord3], SQ_IMG_RSRC_WORD3, TILING_INDEX);
+		}
 
-	uint32_t getLastMipLevel() const
-	{
-		return (getTextureType() == kTextureType2dMsaa || getTextureType() == kTextureType2dArrayMsaa) ? 0 : SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord3], SQ_IMG_RSRC_WORD3, LAST_LEVEL);
-	}
+		bool getUseAltTileMode(void) const
+		{
+			return SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord6], SQ_IMG_RSRC_WORD6, ALT_TILE_MODE) != 0;  // [vi]
+		}
 
-	bool isPaddedToPow2() const
-	{
-		return SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord3], SQ_IMG_RSRC_WORD3, POW2_PAD) != 0;
-	}
+		uint32_t getMinLodClamp() const
+		{
+			return SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord1], SQ_IMG_RSRC_WORD1, MIN_LOD);
+		}
 
-	NumFragments getNumFragments() const
-	{
-		return (getTextureType() == kTextureType2dMsaa || getTextureType() == kTextureType2dArrayMsaa) ? (NumFragments)SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord3], SQ_IMG_RSRC_WORD3, LAST_LEVEL) : kNumFragments1;
-	}
+		uint32_t getPitchMinus1() const
+		{
+			return SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord4], SQ_IMG_RSRC_WORD4, PITCH);
+		}
 
-	uint32_t getWidth() const
-	{
-		return getWidthMinus1() + 1;
-	}
+		uint32_t getWidthMinus1() const
+		{
+			return SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord2], SQ_IMG_RSRC_WORD2, WIDTH);
+		}
 
-	uint32_t getHeight() const
-	{
-		return getHeightMinus1() + 1;
-	}
+		uint32_t getHeightMinus1() const
+		{
+			return SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord2], SQ_IMG_RSRC_WORD2, HEIGHT);
+		}
 
-	uint32_t getDepth() const
-	{
-		return getDepthMinus1() + 1;
-	}
+		uint32_t getDepthMinus1() const
+		{
+			return SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord4], SQ_IMG_RSRC_WORD4, DEPTH);
+		}
 
-	uint32_t getPitch() const
-	{
-		return (getPitchMinus1() + 1);
-	}
+		uint32_t getTotalArraySliceCount() const
+		{
+			return (getTextureType() == kTextureType3d) ? 1 : getDepth();
+		}
 
-	bool isTexture(void) const
-	{
-		uint32_t textureType = SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord3], SQ_IMG_RSRC_WORD3, TYPE);
-		return ((textureType & 0x8) != 0);  // values of 8-15 represent valid texture types. Anything else is invalid!
-	}
+		SurfaceFormat getSurfaceFormat() const
+		{
+			return (SurfaceFormat)SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord1], SQ_IMG_RSRC_WORD1, DATA_FORMAT);
+		}
 
-	uint8_t getTileSwizzleMask(void) const
-	{
-		// TODO:
-		// Complete this function.
+		TextureChannelType getTextureChannelType() const
+		{
+			return (TextureChannelType)SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord1], SQ_IMG_RSRC_WORD1, NUM_FORMAT);
+		}
 
-		// For Base mode or MacroTile, mask is always 0.
-		return 0;
-	}
+		DataFormat getDataFormat() const
+		{
+			return DataFormat::build((SurfaceFormat)m_tsharp.dfmt, (TextureChannelType)m_tsharp.nfmt,
+									 (TextureChannel)m_tsharp.dst_sel_x,
+									 (TextureChannel)m_tsharp.dst_sel_y,
+									 (TextureChannel)m_tsharp.dst_sel_z,
+									 (TextureChannel)m_tsharp.dst_sel_w);
+		}
 
-	uint32_t getMetadataAddress256ByteBlocks() const
-	{
-		return SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord7], SQ_IMG_RSRC_WORD7, META_DATA_ADDRESS);  // [vi]
-	}
+		uint32_t getBaseArraySliceIndex() const
+		{
+			return SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord5], SQ_IMG_RSRC_WORD5, BASE_ARRAY);
+		}
 
-	void* getMetadataAddress(void) const
-	{
-		return (void*)(uintptr_t(getMetadataAddress256ByteBlocks()) << 8);
-	}
+		uint32_t getLastArraySliceIndex() const
+		{
+			return SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord5], SQ_IMG_RSRC_WORD5, LAST_ARRAY);  // For cubemaps, must be BASE_ARRAY + (numCubemaps*6)-1
+		}
 
-	bool getMetadataCompressionEnable(void) const
-	{
-		return SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord6], SQ_IMG_RSRC_WORD6, COMPRESSION_EN) != 0;  // [vi]
-	}
+		uint32_t getBaseMipLevel() const
+		{
+			return SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord3], SQ_IMG_RSRC_WORD3, BASE_LEVEL);
+		}
 
-	TextureMetadataType getTextureMetadataType(void) const
-	{
-	}
+		uint32_t getLastMipLevel() const
+		{
+			return (getTextureType() == kTextureType2dMsaa || getTextureType() == kTextureType2dArrayMsaa) ? 0 : SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord3], SQ_IMG_RSRC_WORD3, LAST_LEVEL);
+		}
 
-	bool getDccAlphaOnMsb(void) const
-	{
-		return SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord6], SQ_IMG_RSRC_WORD6, ALPHA_IS_ON_MSB) != 0;  // [vi]
-	}
+		bool isPaddedToPow2() const
+		{
+			return SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord3], SQ_IMG_RSRC_WORD3, POW2_PAD) != 0;
+		}
 
-	DccColorTransform getDccColorTransform(void) const
-	{
-		return (DccColorTransform)SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord6], SQ_IMG_RSRC_WORD6, COLOR_TRANSFORM);  // [vi]
-	}
+		NumFragments getNumFragments() const
+		{
+			return (getTextureType() == kTextureType2dMsaa || getTextureType() == kTextureType2dArrayMsaa) ? (NumFragments)SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord3], SQ_IMG_RSRC_WORD3, LAST_LEVEL) : kNumFragments1;
+		}
 
-	GpuMode getMinimumGpuMode(void) const
-	{
-		// IDA
-		return static_cast<GpuMode>(*((uint8_t*)this + 27) & 1);
-	}
+		uint32_t getWidth() const
+		{
+			return getWidthMinus1() + 1;
+		}
 
-	union
-	{
-		uint32_t     m_regs[8];
-		TSharpBuffer m_tsharp;
+		uint32_t getHeight() const
+		{
+			return getHeightMinus1() + 1;
+		}
+
+		uint32_t getDepth() const
+		{
+			return getDepthMinus1() + 1;
+		}
+
+		uint32_t getPitch() const
+		{
+			return (getPitchMinus1() + 1);
+		}
+
+		bool isTexture(void) const
+		{
+			uint32_t textureType = SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord3], SQ_IMG_RSRC_WORD3, TYPE);
+			return ((textureType & 0x8) != 0);  // values of 8-15 represent valid texture types. Anything else is invalid!
+		}
+
+		uint8_t getTileSwizzleMask(void) const
+		{
+			// TODO:
+			// Complete this function.
+
+			// For Base mode or MacroTile, mask is always 0.
+			return 0;
+		}
+
+		uint32_t getMetadataAddress256ByteBlocks() const
+		{
+			return SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord7], SQ_IMG_RSRC_WORD7, META_DATA_ADDRESS);  // [vi]
+		}
+
+		void* getMetadataAddress(void) const
+		{
+			return (void*)(uintptr_t(getMetadataAddress256ByteBlocks()) << 8);
+		}
+
+		bool getMetadataCompressionEnable(void) const
+		{
+			return SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord6], SQ_IMG_RSRC_WORD6, COMPRESSION_EN) != 0;  // [vi]
+		}
+
+		TextureMetadataType getTextureMetadataType(void) const
+		{
+		}
+
+		bool getDccAlphaOnMsb(void) const
+		{
+			return SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord6], SQ_IMG_RSRC_WORD6, ALPHA_IS_ON_MSB) != 0;  // [vi]
+		}
+
+		DccColorTransform getDccColorTransform(void) const
+		{
+			return (DccColorTransform)SCE_GNM_GET_FIELD(m_regs[kSqImgRsrcWord6], SQ_IMG_RSRC_WORD6, COLOR_TRANSFORM);  // [vi]
+		}
+
+		GpuMode getMinimumGpuMode(void) const
+		{
+			// IDA
+			return static_cast<GpuMode>(*((uint8_t*)this + 27) & 1);
+		}
+
+		union
+		{
+			uint32_t     m_regs[8];
+			TSharpBuffer m_tsharp;
+		};
 	};
-};
 
 }  // namespace sce::Gnm

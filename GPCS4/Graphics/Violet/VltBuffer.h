@@ -59,7 +59,7 @@ namespace sce::vlt
      * Stores a Vulkan buffer handle and the
      * memory object that is bound to the buffer.
      */
-	struct VltBufferHandle
+	struct VltPhysicalBuffer
 	{
 		VkBuffer  buffer = VK_NULL_HANDLE;
 		VltMemory memory;
@@ -147,6 +147,16 @@ namespace sce::vlt
 		void* mapPtr(VkDeviceSize offset) const
 		{
 			return reinterpret_cast<char*>(m_physSlice.mapPtr) + offset;
+		}
+
+		/**
+         * \brief Memory size
+         * 
+         * \returns The memory size of the buffer
+         */
+		VkDeviceSize memSize() const
+		{
+			return m_buffer.memory.length();
 		}
 
 		/**
@@ -244,7 +254,7 @@ namespace sce::vlt
 	private:
 		VkDeviceSize computeSliceAlignment() const;
 
-		VltBufferHandle allocBuffer(VkDeviceSize sliceCount) const;
+		VltPhysicalBuffer allocBuffer(VkDeviceSize sliceCount) const;
 
 	private:
 		VltDevice*            m_device;
@@ -252,7 +262,7 @@ namespace sce::vlt
 		VltMemoryAllocator*   m_memAlloc;
 		VkMemoryPropertyFlags m_memFlags;
 
-		VltBufferHandle      m_buffer;
+		VltPhysicalBuffer    m_buffer;
 		VltBufferSliceHandle m_physSlice;
 		uint32_t             m_vertexStride = 0;
 

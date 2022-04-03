@@ -1,230 +1,227 @@
 #pragma once
 
 #include "GnmCommon.h"
-#include "GnmRegInfo.h"
 #include "GnmConstant.h"
 #include "GnmDataFormat.h"
+#include "GnmRegInfo.h"
 #include "GnmStructure.h"
 #include "GpuAddress/GnmGpuAddress.h"
 
 namespace sce::Gnm
 {
 
-union RenderTargetInitFlags
-{
-	struct
+	union RenderTargetInitFlags
 	{
-		uint32_t enableCmaskFastClear : 1;
-		uint32_t enableFmaskCompression : 1;
-		uint32_t enableColorTextureWithoutDecompress : 1;
-		uint32_t enableFmaskTextureWithoutDecompress : 1;
-		uint32_t enableDccCompression : 1;
-		uint32_t reserved : 27;
-	};
-	int32_t asInt;
-};
-
-class RenderTarget
-{
-public:
-	enum
-	{
-		kCbColorBase       = mmCB_COLOR0_BASE - mmCB_COLOR0_BASE,
-		kCbColorPitch      = mmCB_COLOR0_PITCH - mmCB_COLOR0_BASE,
-		kCbColorSlice      = mmCB_COLOR0_SLICE - mmCB_COLOR0_BASE,
-		kCbColorView       = mmCB_COLOR0_VIEW - mmCB_COLOR0_BASE,
-		kCbColorInfo       = mmCB_COLOR0_INFO - mmCB_COLOR0_BASE,
-		kCbColorAttrib     = mmCB_COLOR0_ATTRIB - mmCB_COLOR0_BASE,
-		kCbColorDccControl = mmCB_COLOR0_DCC_CONTROL - mmCB_COLOR0_BASE,
-		kCbColorCmask      = mmCB_COLOR0_CMASK - mmCB_COLOR0_BASE,
-		kCbColorCmaskSlice = mmCB_COLOR0_CMASK_SLICE - mmCB_COLOR0_BASE,
-		kCbColorFmask      = mmCB_COLOR0_FMASK - mmCB_COLOR0_BASE,
-		kCbColorFmaskSlice = mmCB_COLOR0_FMASK_SLICE - mmCB_COLOR0_BASE,
-		kCbColorClearWord0 = mmCB_COLOR0_CLEAR_WORD0 - mmCB_COLOR0_BASE,
-		kCbColorClearWord1 = mmCB_COLOR0_CLEAR_WORD1 - mmCB_COLOR0_BASE,
-		kCbColorDccBase    = mmCB_COLOR0_DCC_BASE - mmCB_COLOR0_BASE,
-		// 14: unused
-		kCbWidthHeight = 15,  // not a GPU register. width in [15:0], height in [31:16].
-		kNumCbRegisters
-	};
-
-	RenderTarget& operator=(const RenderTarget& other)
-	{
-		std::memcpy(m_regs, other.m_regs, sizeof(m_regs));
-		return *this;
-	}
-
-	SizeAlign getColorSizeAlign(void) const
-	{
-		// From IDA
-		SizeAlign result = {};
-
-		GpuAddress::TilingParameters params = {};
-		params.initFromRenderTarget(this, 0);
-
-		GpuAddress::SurfaceInfo info;
-		int32_t                 status = GpuAddress::computeSurfaceInfo(&info, &params);
-		if (status == GpuAddress::kStatusSuccess)
+		struct
 		{
-			result.m_size  = 0;
-			result.m_align = info.m_baseAlign;
-			uint32_t lastSliceIndex = getLastArraySliceIndex();
-			// check if the result exceed uint32 max
-			if ( !((info.m_surfaceSize * (lastSliceIndex + 1)) >> 32) )
-			{
-				result.m_size = info.m_surfaceSize * (lastSliceIndex + 1);
-			}
+			uint32_t enableCmaskFastClear : 1;
+			uint32_t enableFmaskCompression : 1;
+			uint32_t enableColorTextureWithoutDecompress : 1;
+			uint32_t enableFmaskTextureWithoutDecompress : 1;
+			uint32_t enableDccCompression : 1;
+			uint32_t reserved : 27;
+		};
+		int32_t asInt;
+	};
+
+	class RenderTarget
+	{
+	public:
+		enum
+		{
+			kCbColorBase       = mmCB_COLOR0_BASE - mmCB_COLOR0_BASE,
+			kCbColorPitch      = mmCB_COLOR0_PITCH - mmCB_COLOR0_BASE,
+			kCbColorSlice      = mmCB_COLOR0_SLICE - mmCB_COLOR0_BASE,
+			kCbColorView       = mmCB_COLOR0_VIEW - mmCB_COLOR0_BASE,
+			kCbColorInfo       = mmCB_COLOR0_INFO - mmCB_COLOR0_BASE,
+			kCbColorAttrib     = mmCB_COLOR0_ATTRIB - mmCB_COLOR0_BASE,
+			kCbColorDccControl = mmCB_COLOR0_DCC_CONTROL - mmCB_COLOR0_BASE,
+			kCbColorCmask      = mmCB_COLOR0_CMASK - mmCB_COLOR0_BASE,
+			kCbColorCmaskSlice = mmCB_COLOR0_CMASK_SLICE - mmCB_COLOR0_BASE,
+			kCbColorFmask      = mmCB_COLOR0_FMASK - mmCB_COLOR0_BASE,
+			kCbColorFmaskSlice = mmCB_COLOR0_FMASK_SLICE - mmCB_COLOR0_BASE,
+			kCbColorClearWord0 = mmCB_COLOR0_CLEAR_WORD0 - mmCB_COLOR0_BASE,
+			kCbColorClearWord1 = mmCB_COLOR0_CLEAR_WORD1 - mmCB_COLOR0_BASE,
+			kCbColorDccBase    = mmCB_COLOR0_DCC_BASE - mmCB_COLOR0_BASE,
+			// 14: unused
+			kCbWidthHeight = 15,  // not a GPU register. width in [15:0], height in [31:16].
+			kNumCbRegisters
+		};
+
+		RenderTarget& operator=(const RenderTarget& other)
+		{
+			std::memcpy(m_regs, other.m_regs, sizeof(m_regs));
+			return *this;
 		}
 
-		return result;
-	}
+		SizeAlign getColorSizeAlign(void) const
+		{
+			// From IDA
+			SizeAlign result = {};
 
-	uint32_t getWidth() const
-	{
-		return m_regs[kCbWidthHeight] & 0x0000FFFF;
-	}
+			GpuAddress::TilingParameters params = {};
+			params.initFromRenderTarget(this, 0);
 
-	uint32_t getHeight() const
-	{
-		return (m_regs[kCbWidthHeight] >> 16) & 0x0000FFFF;
-	}
+			GpuAddress::SurfaceInfo info;
+			int32_t                 status = GpuAddress::computeSurfaceInfo(&info, &params);
+			if (status == GpuAddress::kStatusSuccess)
+			{
+				result.m_size           = 0;
+				result.m_align          = info.m_baseAlign;
+				uint32_t lastSliceIndex = getLastArraySliceIndex();
+				// check if the result exceed uint32 max
+				if (!((info.m_surfaceSize * (lastSliceIndex + 1)) >> 32))
+				{
+					result.m_size = info.m_surfaceSize * (lastSliceIndex + 1);
+				}
+			}
 
-	uint32_t getPitchDiv8Minus1() const
-	{
-		return SCE_GNM_GET_FIELD(m_regs[kCbColorPitch], CB_COLOR0_PITCH, TILE_MAX);
-	}
+			return result;
+		}
 
-	uint32_t getPitch() const
-	{
-		return (getPitchDiv8Minus1() + 1) * 8;
-	}
+		uint32_t getWidth() const
+		{
+			return m_regs[kCbWidthHeight] & 0x0000FFFF;
+		}
 
-	DataFormat getDataFormat() const
-	{
-		// From IDA
-		return DataFormat::build(
-			(RenderTargetFormat)SCE_GNM_GET_FIELD(m_regs[kCbColorInfo], CB_COLOR0_INFO, FORMAT),
-			(RenderTargetChannelType)SCE_GNM_GET_FIELD(m_regs[kCbColorInfo], CB_COLOR0_INFO, NUMBER_TYPE),
-			(RenderTargetChannelOrder)SCE_GNM_GET_FIELD(m_regs[kCbColorInfo], CB_COLOR0_INFO, COMP_SWAP));
-	}
+		uint32_t getHeight() const
+		{
+			return (m_regs[kCbWidthHeight] >> 16) & 0x0000FFFF;
+		}
 
-	TileMode getTileMode(void) const
-	{
-		return (TileMode)SCE_GNM_GET_FIELD(m_regs[kCbColorAttrib], CB_COLOR0_ATTRIB, TILE_MODE_INDEX);
-	}
+		uint32_t getPitchDiv8Minus1() const
+		{
+			return SCE_GNM_GET_FIELD(m_regs[kCbColorPitch], CB_COLOR0_PITCH, TILE_MAX);
+		}
 
-	NumSamples getNumSamples() const
-	{
-		return (NumSamples)SCE_GNM_GET_FIELD(m_regs[kCbColorAttrib], CB_COLOR0_ATTRIB, NUM_SAMPLES);  // cannot be greater than 4
-	}
+		uint32_t getPitch() const
+		{
+			return (getPitchDiv8Minus1() + 1) * 8;
+		}
 
-	NumFragments getNumFragments() const
-	{
-		return (NumFragments)SCE_GNM_GET_FIELD(m_regs[kCbColorAttrib], CB_COLOR0_ATTRIB, NUM_FRAGMENTS);  // cannot be greater than NUM_SAMPLES
-	}
+		DataFormat getDataFormat() const
+		{
+			// From IDA
+			return DataFormat::build(
+				(RenderTargetFormat)SCE_GNM_GET_FIELD(m_regs[kCbColorInfo], CB_COLOR0_INFO, FORMAT),
+				(RenderTargetChannelType)SCE_GNM_GET_FIELD(m_regs[kCbColorInfo], CB_COLOR0_INFO, NUMBER_TYPE),
+				(RenderTargetChannelOrder)SCE_GNM_GET_FIELD(m_regs[kCbColorInfo], CB_COLOR0_INFO, COMP_SWAP));
+		}
 
-	GpuMode getMinimumGpuMode(void) const
-	{
-		// TODO:
-	}
+		TileMode getTileMode(void) const
+		{
+			return (TileMode)SCE_GNM_GET_FIELD(m_regs[kCbColorAttrib], CB_COLOR0_ATTRIB, TILE_MODE_INDEX);
+		}
 
-	uint32_t getBaseArraySliceIndex() const
-	{
-		return SCE_GNM_GET_FIELD(m_regs[kCbColorView], CB_COLOR0_VIEW, SLICE_START);
-	}
+		NumSamples getNumSamples() const
+		{
+			return (NumSamples)SCE_GNM_GET_FIELD(m_regs[kCbColorAttrib], CB_COLOR0_ATTRIB, NUM_SAMPLES);  // cannot be greater than 4
+		}
 
-	uint32_t getLastArraySliceIndex() const
-	{
-		return SCE_GNM_GET_FIELD(m_regs[kCbColorView], CB_COLOR0_VIEW, SLICE_MAX);
-	}
+		NumFragments getNumFragments() const
+		{
+			return (NumFragments)SCE_GNM_GET_FIELD(m_regs[kCbColorAttrib], CB_COLOR0_ATTRIB, NUM_FRAGMENTS);  // cannot be greater than NUM_SAMPLES
+		}
 
-	bool getUseAltTileMode(void) const
-	{
-		return SCE_GNM_GET_FIELD(m_regs[kCbColorInfo], CB_COLOR0_INFO, ALT_TILE_MODE) != 0;  // [vi]
-	}
+		GpuMode getMinimumGpuMode(void) const
+		{
+			// TODO:
+		}
 
-	TileMode getFmaskTileMode(void) const
-	{
-		return (TileMode)SCE_GNM_GET_FIELD(m_regs[kCbColorAttrib], CB_COLOR0_ATTRIB, FMASK_TILE_MODE_INDEX);
-	}
+		uint32_t getBaseArraySliceIndex() const
+		{
+			return SCE_GNM_GET_FIELD(m_regs[kCbColorView], CB_COLOR0_VIEW, SLICE_START);
+		}
 
-	uint8_t getFmaskTileSwizzleMask(void) const
-	{
-		// TODO:
-	}
+		uint32_t getLastArraySliceIndex() const
+		{
+			return SCE_GNM_GET_FIELD(m_regs[kCbColorView], CB_COLOR0_VIEW, SLICE_MAX);
+		}
 
-	uint8_t getTileSwizzleMask(void) const
-	{
-		// TODO:
-	}
+		bool getUseAltTileMode(void) const
+		{
+			return SCE_GNM_GET_FIELD(m_regs[kCbColorInfo], CB_COLOR0_INFO, ALT_TILE_MODE) != 0;  // [vi]
+		}
 
-	bool getLinearCmask(void) const
-	{
-		// TODO:
-		// implement getGpuMode
-		// currently we assume the game always run in neo mode.
-		
-		//if (sce::Gnm::getGpuMode() == kGpuModeNeo)
+		TileMode getFmaskTileMode(void) const
+		{
+			return (TileMode)SCE_GNM_GET_FIELD(m_regs[kCbColorAttrib], CB_COLOR0_ATTRIB, FMASK_TILE_MODE_INDEX);
+		}
+
+		uint8_t getFmaskTileSwizzleMask(void) const
+		{
+			// TODO:
+		}
+
+		uint8_t getTileSwizzleMask(void) const
+		{
+			// TODO:
+		}
+
+		bool getLinearCmask(void) const
+		{
+			// TODO:
+			// implement getGpuMode
+			// currently we assume the game always run in neo mode.
+
+			//if (sce::Gnm::getGpuMode() == kGpuModeNeo)
 			return SCE_GNM_GET_FIELD(m_regs[kCbColorInfo], CB_COLOR0_INFO, CMASK_ADDR_TYPE) == 1;  // [vi]
-		//else
-			//return SCE_GNM_GET_FIELD(m_regs[kCbColorInfo], CB_COLOR0_INFO, CMASK_IS_LINEAR) == 1;
-	}
-
-	bool getDccCompressionEnable() const
-	{
-		return SCE_GNM_GET_FIELD(m_regs[kCbColorInfo], CB_COLOR0_INFO, DCC_ENABLE) != 0;  // [vi]
-	}
-
-	uint32_t getSliceSizeDiv64Minus1() const
-	{
-		return SCE_GNM_GET_FIELD(m_regs[kCbColorSlice], CB_COLOR0_SLICE, TILE_MAX);
-	}
-
-	uint32_t getSliceSizeInBytes() const
-	{
-		const uint32_t bytesPerElement = getDataFormat().getBytesPerElement();
-		return (getSliceSizeDiv64Minus1() + 1) * 64 * 1 * bytesPerElement * (1 << getNumFragments());
-	}
-
-	uint32_t getBaseAddress256ByteBlocks() const
-	{
-		// From IDA.
-		uint32_t   base       = SCE_GNM_GET_FIELD(m_regs[kCbColorBase], CB_COLOR0_BASE, BASE_256B);
-		DataFormat dataFormat = getDataFormat();
-		TileMode   tileMode   = getTileMode();
-
-		if (dataFormat.m_asInt && GpuAddress::isMacroTiled(tileMode))
-		{
-			uint8_t  alt            = SCE_GNM_GET_FIELD(m_regs[kCbColorInfo], CB_COLOR0_INFO, ALT_TILE_MODE);
-			uint32_t bitsPerElement = dataFormat.getTotalBitsPerElement();
-			uint32_t numFragments   = 1 << SCE_GNM_GET_FIELD(m_regs[kCbColorAttrib], CB_COLOR0_ATTRIB, NUM_FRAGMENTS);
-			NumBanks numBanks       = {};
-			uint32_t shift          = 0;
-			if (alt)
-			{
-				GpuAddress::getAltNumBanks(&numBanks, tileMode, bitsPerElement, numFragments);
-				shift = 4;
-			}
-			else
-			{
-				GpuAddress::getNumBanks(&numBanks, tileMode, bitsPerElement, numFragments);
-				shift = 3;
-			}
-			base &= ~(((1 << (numBanks + 1)) - 1) << shift);
+																								   //else
+																								   //return SCE_GNM_GET_FIELD(m_regs[kCbColorInfo], CB_COLOR0_INFO, CMASK_IS_LINEAR) == 1;
 		}
 
-		return base;
-	}
+		bool getDccCompressionEnable() const
+		{
+			return SCE_GNM_GET_FIELD(m_regs[kCbColorInfo], CB_COLOR0_INFO, DCC_ENABLE) != 0;  // [vi]
+		}
 
-	void* getBaseAddress() const
-	{
-		return (void*)(uintptr_t(getBaseAddress256ByteBlocks()) << 8);
-	}
+		uint32_t getSliceSizeDiv64Minus1() const
+		{
+			return SCE_GNM_GET_FIELD(m_regs[kCbColorSlice], CB_COLOR0_SLICE, TILE_MAX);
+		}
 
-	uint32_t m_regs[16];
-};
+		uint32_t getSliceSizeInBytes() const
+		{
+			const uint32_t bytesPerElement = getDataFormat().getBytesPerElement();
+			return (getSliceSizeDiv64Minus1() + 1) * 64 * 1 * bytesPerElement * (1 << getNumFragments());
+		}
 
-}
+		uint32_t getBaseAddress256ByteBlocks() const
+		{
+			// From IDA.
+			uint32_t   base       = SCE_GNM_GET_FIELD(m_regs[kCbColorBase], CB_COLOR0_BASE, BASE_256B);
+			DataFormat dataFormat = getDataFormat();
+			TileMode   tileMode   = getTileMode();
 
+			if (dataFormat.m_asInt && GpuAddress::isMacroTiled(tileMode))
+			{
+				uint8_t  alt            = SCE_GNM_GET_FIELD(m_regs[kCbColorInfo], CB_COLOR0_INFO, ALT_TILE_MODE);
+				uint32_t bitsPerElement = dataFormat.getTotalBitsPerElement();
+				uint32_t numFragments   = 1 << SCE_GNM_GET_FIELD(m_regs[kCbColorAttrib], CB_COLOR0_ATTRIB, NUM_FRAGMENTS);
+				NumBanks numBanks       = {};
+				uint32_t shift          = 0;
+				if (alt)
+				{
+					GpuAddress::getAltNumBanks(&numBanks, tileMode, bitsPerElement, numFragments);
+					shift = 4;
+				}
+				else
+				{
+					GpuAddress::getNumBanks(&numBanks, tileMode, bitsPerElement, numFragments);
+					shift = 3;
+				}
+				base &= ~(((1 << (numBanks + 1)) - 1) << shift);
+			}
 
+			return base;
+		}
 
+		void* getBaseAddress() const
+		{
+			return (void*)(uintptr_t(getBaseAddress256ByteBlocks()) << 8);
+		}
+
+		uint32_t m_regs[16];
+	};
+
+}  // namespace sce::Gnm
