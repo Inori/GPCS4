@@ -54,8 +54,9 @@ public:
 
 	uint32_t getNumComponents(void) const;
 
+	bool getRenderTargetChannelType(RenderTargetChannelType* outType) const;
 
-
+	bool getRenderTargetChannelOrder(RenderTargetChannelOrder* outOrder) const;
 	union
 	{
 		struct
@@ -77,6 +78,13 @@ private:
 		16, 16, 16, 16, 32, 32, 64, -1, -1, -1, -1, -1, -1, -1, -1, -1,
 		16, 16, 32, 4, 8, 8, 4, 8, 8, 8, -1, -1, 8, 8, 8, 8, 8, 8, 16,
 		16, 32, 32, 32, 64, 64, 8, 16, 1, 1
+	};
+
+	static constexpr int s_numComponentsPerElement[] = {
+		0, 1, 1, 2, 1, 2, 3, 3, 4, 4, 4, 2, 4, 3, 4, -1,
+		3, 4, 4, 4, 2, 2, 2, -1, -1, -1, -1, -1, -1, -1,
+		-1, -1, 3, 3, 3, 4, 4, 4, 1, 2, 3, 4, -1, -1, 2,
+		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 1, 1
 	};
 };
 

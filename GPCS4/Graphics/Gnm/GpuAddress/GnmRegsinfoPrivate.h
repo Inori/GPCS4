@@ -39,8 +39,20 @@
 #define GNM_DB_DEPTH_INFO__PIPE_CONFIG__SHIFT                                             8
 
 #define mmCB_COLOR0_INFO                                                                 0xA31C
-#define GNM_CB_COLOR0_INFO__ALT_TILE_MODE__MASK                                          0x80000000L //size: 1
-#define GNM_CB_COLOR0_INFO__ALT_TILE_MODE__SHIFT                                         31
+#define GNM_CB_COLOR0_INFO__FAST_CLEAR__MASK              0x00002000L  //size: 1
+#define GNM_CB_COLOR0_INFO__COMPRESSION__MASK             0x00004000L  //size: 1
+#define GNM_CB_COLOR0_INFO__CMASK_IS_LINEAR__MASK         0x00080000L  //size: 1
+#define GNM_CB_COLOR0_INFO__FMASK_COMPRESSION_MODE__MASK  0x0C000000L  //size: 2
+#define GNM_CB_COLOR0_INFO__DCC_ENABLE__MASK              0x10000000L  //size: 1
+#define GNM_CB_COLOR0_INFO__CMASK_ADDR_TYPE__MASK         0x60000000L  //size: 2
+#define GNM_CB_COLOR0_INFO__ALT_TILE_MODE__MASK           0x80000000L  //size: 1
+#define GNM_CB_COLOR0_INFO__FAST_CLEAR__SHIFT             13
+#define GNM_CB_COLOR0_INFO__COMPRESSION__SHIFT            14
+#define GNM_CB_COLOR0_INFO__CMASK_IS_LINEAR__SHIFT        19
+#define GNM_CB_COLOR0_INFO__FMASK_COMPRESSION_MODE__SHIFT 26
+#define GNM_CB_COLOR0_INFO__DCC_ENABLE__SHIFT             28
+#define GNM_CB_COLOR0_INFO__CMASK_ADDR_TYPE__SHIFT        29
+#define GNM_CB_COLOR0_INFO__ALT_TILE_MODE__SHIFT          31
 
 #define mmCB_COLOR0_DCC_CONTROL                                                          0xA31E
 #define GNM_CB_COLOR0_DCC_CONTROL__MAX_COMPRESSED_BLOCK_SIZE__MASK                       0x00000060L //size: 2

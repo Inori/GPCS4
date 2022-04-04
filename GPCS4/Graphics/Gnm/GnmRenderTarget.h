@@ -92,9 +92,181 @@ namespace sce::Gnm
 			return *this;
 		}
 
+
+		// NOTE:
+		// This method is only used to track display buffer.
+		// Use this to initialize a render target representing the display buffer.
+		// Do not call it for other use case.
+		//
+		// TODO:
+		// As we are not supposed to call it for other use case.
+		// it is not implement completely and most part of it is just a coppy 
+		// of messy IDA decompiler output, it need to be refactor for human friendly.
+		// 
+		// In most cases, we don't write to a Gnm::RenderTarget, 
+		// we just read it from the game.
+		// 
+
 		int32_t init(const Gnm::RenderTargetSpec* spec)
 		{
+			int32_t error = 0x8EEE00FF;
+			do
+			{
+				if (!spec)
+				{
+					break;
+				}
+
+				memset(this, 0, sizeof(RenderTarget));
+
+				if (GPU().mode() != kGpuModeNeo || spec->m_minGpuMode == kGpuModeNeo)
+				{
+					if (spec->m_minGpuMode == kGpuModeNeo)
+					{
+						m_regs[kCbColorDccControl] = 8;
+					}
+				}
+				else
+				{
+					if (spec->m_flags.enableCmaskFastClear ||
+						spec->m_flags.enableFmaskCompression ||
+						spec->m_flags.enableDccCompression)
+					{
+						break;
+					}
+				}
+
+				uint32_t width  = spec->m_width;
+				uint32_t height = spec->m_height;
+				if (spec->m_flags.enableCmaskFastClear)
+				{
+					width  = (width + 7) & 0xFFFFFFF8;
+					height = (height + 7) & 0xFFFFFFF8;
+				}
+
+				GpuAddress::TilingParameters params   = {};
+				params.m_tileMode                     = spec->m_colorTileModeHint;
+				params.m_minGpuMode                   = spec->m_minGpuMode;
+				params.m_linearWidth                  = width;
+				params.m_linearHeight                 = height;
+				params.m_linearDepth                  = 1;
+				params.m_numFragmentsPerPixel         = 1 << (uint8_t)spec->m_numFragments;
+				params.m_baseTiledPitch               = spec->m_pitch;
+				params.m_mipLevel                     = 0;
+				params.m_arraySlice                   = 0;
+				params.m_surfaceFlags.m_texCompatible = (spec->m_minGpuMode == kGpuModeNeo);
+
+				uint32_t bitsPerElement    = spec->m_colorFormat.getTotalBitsPerElement();
+				uint32_t texelsPerElement  = spec->m_colorFormat.getTexelsPerElement();
+				params.m_bitsPerFragment   = bitsPerElement / texelsPerElement;
+				params.m_isBlockCompressed = texelsPerElement > 1;
+				params.m_tileSwizzleMask   = 0;
+
+				GpuAddress::SurfaceInfo surfaceInfo = {};
+				if (GpuAddress::computeSurfaceInfo(&surfaceInfo, &params) != GpuAddress::kStatusSuccess)
+				{
+					break;
+				}
+
+				m_regs[3] = (m_regs[3] & 0xFF001800) | (((spec->m_numSlices << 13) + 0xFFE000) & 0xFFE000);
+
+				setDataFormat(spec->m_colorFormat);
+
+				m_regs[5] = (m_regs[5] & 0xFFFE0FFF) | ((spec->m_numSamples & 7) << 12) | ((spec->m_numFragments & 3) << 15);
+
+				m_regs[1] = (unsigned int)(m_regs[1] & 0x800FF800) |
+							(((unsigned __int16)(surfaceInfo.m_pitch >> 3) + 0x7FF) & 0x7FF) |
+							(((surfaceInfo.m_pitch >> 3 << 20) + 0x7FF00000) & 0x7FF00000);
+
+				uint32_t v21 = (surfaceInfo.m_pitch * surfaceInfo.m_height >> 6) + 0x3FFFFF;
+				m_regs[2]    = (m_regs[2] & 0xFFC00000) | (v21 & 0x3FFFFF);
+				m_regs[15]   = spec->m_width | (spec->m_height << 16);
+				m_regs[4]    = (m_regs[4] & 0x7FFFFFFF) | ((spec->m_minGpuMode == 1) << 31);
+				m_regs[5]    = (m_regs[5] & 0xFFFFFC00) | (surfaceInfo.m_tileMode & 0x1F) | 32 * (surfaceInfo.m_tileMode & 0x1F);
+
+				if (spec->m_flags.enableCmaskFastClear)
+				{
+					initCmaskForTarget(spec->m_numSlices);
+				}
+				if (spec->m_flags.enableFmaskCompression && spec->m_numSamples > 0)
+				{
+					initFmaskForTarget();
+				}
+
+				if (GPU().mode() == kGpuModeNeo &&
+					(*(uint8_t*)&spec->m_flags & 0x10))
+				{
+					*((uint8_t*)m_regs + 0x13) |= 0x10u;
+					uint32_t bitsPerElement = spec->m_colorFormat.getBitsPerElement();
+
+					uint32_t v25 = (bitsPerElement != 16) + 1;
+					if (bitsPerElement == 8)
+						v25 = 0;
+
+					uint32_t v26 = 4 * v25;
+					uint32_t v27 = 32 * v25;
+					uint32_t v28 = (m_regs[6] & 0xFFFFFF93) | v26;
+
+					if (spec->m_flags.enableColorTextureWithoutDecompress)
+						v27 = 0;
+					uint32_t v29 = v28 | v27;
+					m_regs[6]    = (v29 & 0xFFFFFDFF) | (spec->m_flags.enableColorTextureWithoutDecompress << 7);
+				}
+
+			} while (false);
+			return error;
+		}
+
+		void setDataFormat(DataFormat format)
+		{
+			// From IDA.
+			// 
 			// TODO:
+			// refator these shit.
+
+			int                      v2;  // er13
+			int                      v3;  // er12
+			int                      v4;  // er15
+			RenderTargetChannelOrder order;  // [rsp+0h] [rbp-40h]
+			RenderTargetChannelType  type;  // [rsp+4h] [rbp-3Ch]
+			__int64                  v9;  // [rsp+10h] [rbp-30h]
+
+			bool typeConvertable = format.getRenderTargetChannelType(&type);
+			
+			v2                    = type | kRenderTargetChannelTypeSNorm;
+			v3                    = (uint8_t) - (type < 7) & (uint8_t)(0x43u >> type) & 1;
+			bool orderConvertable = format.getRenderTargetChannelOrder(&order);
+			v4 = 0;
+			if (format.m_bits.m_surfaceFormat <= kSurfaceFormatX24_8_32)
+			{
+				if (format.m_bits.m_surfaceFormat < kSurfaceFormat8_8_8_8)
+				{
+					if (format.m_bits.m_channelType == kTextureChannelTypeSrgb)
+						goto LABEL_10;
+				}
+				else if (format.m_asInt == 13 || format.m_asInt == 15)
+				{
+					goto LABEL_10;
+				}
+				v4 = 0;
+				if (typeConvertable)
+				{
+					v4 = 0;
+					if (orderConvertable)
+						v4 = 4 * format.m_bits.m_surfaceFormat & 0x7C;
+				}
+			}
+		LABEL_10:
+			m_regs[4] =
+				(
+				 ((type & 7) << 8)		|
+				 v4							|
+				 (m_regs[4] & 0xFFFA6083)	|
+				 ((order & 3) << 11)		|
+				 (((uint8_t)v3 & (v2 != 5)) << 15) |
+				 ((v2 == 5) << 16) |
+				 (v3 << 18)
+				) ^ 0x40000;
 		}
 
 		SizeAlign getColorSizeAlign(void) const
@@ -168,7 +340,7 @@ namespace sce::Gnm
 
 		GpuMode getMinimumGpuMode(void) const
 		{
-			// TODO:
+			return (GpuMode)SCE_GNM_GET_FIELD(m_regs[kCbColorInfo], CB_COLOR0_INFO, ALT_TILE_MODE);
 		}
 
 		uint32_t getBaseArraySliceIndex() const
@@ -183,7 +355,7 @@ namespace sce::Gnm
 
 		bool getUseAltTileMode(void) const
 		{
-			return SCE_GNM_GET_FIELD(m_regs[kCbColorInfo], CB_COLOR0_INFO, ALT_TILE_MODE) != 0;  // [vi]
+			return getMinimumGpuMode() != kGpuModeBase;  // [vi]
 		}
 
 		TileMode getFmaskTileMode(void) const
@@ -198,7 +370,41 @@ namespace sce::Gnm
 
 		uint8_t getTileSwizzleMask(void) const
 		{
-			// TODO:
+			// From IDA.
+
+			RenderTargetFormat format =
+				(RenderTargetFormat)SCE_GNM_GET_FIELD(m_regs[kCbColorInfo], CB_COLOR0_INFO, FORMAT);
+			RenderTargetChannelType type =
+				(RenderTargetChannelType)SCE_GNM_GET_FIELD(m_regs[kCbColorInfo], CB_COLOR0_INFO, NUMBER_TYPE);
+			RenderTargetChannelOrder order =
+				(RenderTargetChannelOrder)SCE_GNM_GET_FIELD(m_regs[kCbColorInfo], CB_COLOR0_INFO, COMP_SWAP);
+
+			auto mode       = getMinimumGpuMode();
+			auto dataFormat = DataFormat::build(format, type, order);
+			auto tileMode   = getTileMode();
+
+			if (mode == kGpuModeBase ||
+				dataFormat.getSurfaceFormat() == kSurfaceFormatInvalid ||
+				!GpuAddress::isMacroTiled(tileMode))
+			{
+				return 0;
+			}
+
+			uint32_t numFragments   = 1 << getNumFragments();
+			uint32_t bitsPerElement = dataFormat.getTotalBitsPerElement();
+			NumBanks numBanks       = kNumBanks2;
+			uint8_t  shift          = 0;
+			if (mode != kGpuModeBase)
+			{
+				GpuAddress::getAltNumBanks(&numBanks, tileMode, bitsPerElement, numFragments);
+				shift = 4;
+			}
+			else
+			{
+				GpuAddress::getNumBanks(&numBanks, tileMode, bitsPerElement, numFragments);
+				shift = 3;
+			}
+			return (m_regs[0] & (((1 << (numBanks + 1)) - 1) << shift)) >> 4;
 		}
 
 		bool getLinearCmask(void) const
@@ -234,12 +440,12 @@ namespace sce::Gnm
 
 			if (dataFormat.m_asInt && GpuAddress::isMacroTiled(tileMode))
 			{
-				uint8_t  alt            = SCE_GNM_GET_FIELD(m_regs[kCbColorInfo], CB_COLOR0_INFO, ALT_TILE_MODE);
+				auto     mode           = getMinimumGpuMode();
 				uint32_t bitsPerElement = dataFormat.getTotalBitsPerElement();
-				uint32_t numFragments   = 1 << SCE_GNM_GET_FIELD(m_regs[kCbColorAttrib], CB_COLOR0_ATTRIB, NUM_FRAGMENTS);
+				uint32_t numFragments   = 1 << getNumFragments();
 				NumBanks numBanks       = {};
 				uint32_t shift          = 0;
-				if (alt)
+				if (mode != kGpuModeBase)
 				{
 					GpuAddress::getAltNumBanks(&numBanks, tileMode, bitsPerElement, numFragments);
 					shift = 4;
@@ -261,6 +467,17 @@ namespace sce::Gnm
 		}
 
 		uint32_t m_regs[16];
+
+	private:
+		void initCmaskForTarget(uint32_t numSlice)
+		{
+			// TODO:
+		}
+
+		void initFmaskForTarget()
+		{
+			// TODO:
+		}
 	};
 
 }  // namespace sce::Gnm

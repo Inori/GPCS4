@@ -1,5 +1,7 @@
 #include "GnmDataFormat.h"
 
+#include <intrin.h>
+
 LOG_CHANNEL(Graphic.Gnm.GnmDataFormat);
 
 namespace sce::Gnm
@@ -504,6 +506,184 @@ uint32_t DataFormat::getNumComponents(void) const
 bool DataFormat::operator==(const DataFormat& other) const
 {
 	return m_asInt == other.m_asInt;
+}
+
+bool DataFormat::getRenderTargetChannelType(RenderTargetChannelType* outType) const
+{
+	// From IDA.
+	bool result = false;
+	switch (m_bits.m_channelType)
+	{
+	case 0:
+		result = true;
+		if (outType)
+			*outType = kRenderTargetChannelTypeUNorm;
+		break;
+	case 1:
+		result = true;
+		if (outType)
+			*outType = kRenderTargetChannelTypeSNorm;
+		break;
+	case 4:
+		result = true;
+		if (outType)
+			*outType = kRenderTargetChannelTypeUInt;
+		break;
+	case 5:
+		result = true;
+		if (outType)
+			*outType = kRenderTargetChannelTypeSInt;
+		break;
+	case 7:
+		result = true;
+		if (outType)
+			*outType = kRenderTargetChannelTypeFloat;
+		break;
+	case 9:
+		result = true;
+		if (outType)
+			*outType = kRenderTargetChannelTypeSrgb;
+		break;
+	default:
+		return result;
+	}
+	return result;
+}
+
+bool DataFormat::getRenderTargetChannelOrder(RenderTargetChannelOrder* outOrder) const
+{
+	// From IDA.
+	// 
+	// TODO:
+	// refactor these shit.
+
+	unsigned int*    a1 = (unsigned int*)this;
+	int*             a2 = (int*)outOrder;
+	unsigned int     v2;      // ecx
+	unsigned __int64 v3;      // rax
+	unsigned int     v4;      // edx
+	int              v5;      // er11
+	int              v6;      // er10
+	int              v7;      // er8
+	int              v8;      // er9
+	signed int       v9;      // edi
+	char             result;  // al
+	signed __int64   v11;     // rdi
+	bool             v12;     // dl
+	bool             v13;     // cl
+
+	v2 = *a1;
+	v3 = (unsigned __int8)*a1;
+	if ((unsigned __int8)*a1 > 0x3Cu)
+		return 0;
+	v4 = s_numComponentsPerElement[(unsigned __int8)v2];
+	if (v4 - 1 > 3)
+		return 0;
+	v5 = (v2 >> 12) & 7;
+	v6 = (v2 >> 15) & 7;
+	v7 = (v2 >> 21) & 7;
+	if (v4 == 2)
+	{
+		if (v5 == 4)
+		{
+			v9 = 0;
+			if (v6 == 5)
+				goto LABEL_42;
+		}
+		if (v5 == 4)
+		{
+			v9 = 1;
+			if (v7 == 5)
+				goto LABEL_42;
+		}
+		if (v6 == 4)
+		{
+			v9 = 2;
+			if (v5 == 5)
+				goto LABEL_42;
+		}
+		result = 0;
+		goto LABEL_31;
+	}
+	v8 = (v2 >> 18) & 7;
+	if (v4 == 1)
+	{
+		v9 = 0;
+		if (v5 != 4)
+		{
+			v9 = 1;
+			if (v6 != 4)
+			{
+				v9 = 2;
+				if (v8 != 4)
+				{
+					v9 = 3;
+					if (v7 != 4)
+						return 0;
+				}
+			}
+		}
+		goto LABEL_42;
+	}
+	v11 = 288231505728184512LL;
+	v12 = v5 == 4 && v6 == 5;
+	v13 = v12 && v8 == 6;
+	if (_bittest64(&v11, v3))
+	{
+		v9 = 0;
+		if (v13)
+			goto LABEL_42;
+		v9 = 1;
+		if (v12 && v7 == 6)
+			goto LABEL_42;
+		if (v5 == 6 && v8 == 4)
+		{
+			v9 = 2;
+			if (v6 == 5)
+				goto LABEL_42;
+		}
+		result = 0;
+		if (v5 == 6 && v7 == 4)
+		{
+			v9 = 3;
+			if (v6 == 5)
+				goto LABEL_42;
+		}
+	}
+	else
+	{
+		v9 = 0;
+		if (v13 && v7 == 7)
+			goto LABEL_42;
+		if (v7 == 7 && v5 == 6 && v8 == 4)
+		{
+			v9 = 1;
+			if (v6 == 5)
+				goto LABEL_42;
+		}
+		if (v5 == 7 && v6 == 6 && v7 == 4)
+		{
+			v9 = 2;
+			if (v8 == 5)
+				goto LABEL_42;
+		}
+		result = 0;
+		if (v8 == 7 && v6 == 6)
+		{
+		LABEL_31:
+			if (v7 != 4)
+				return result;
+			v9 = 3;
+			if (v5 != 5)
+				return result;
+		LABEL_42:
+			result = 1;
+			if (a2)
+				*a2 = v9;
+			return result;
+		}
+	}
+	return result;
 }
 
 }  // namespace sce::Gnm

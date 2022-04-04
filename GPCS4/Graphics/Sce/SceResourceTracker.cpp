@@ -99,7 +99,8 @@ namespace sce
 		m_gpuMemory = renderTarget.gpuMemory();
 
 		m_memSize = renderTarget.memorySize();
-		LOG_ASSERT(m_memSize == renderTarget.image->memSize(), "Gnm size not match vlt size");
+		LOG_ASSERT(renderTarget.image->memSize() == 0 ||
+			m_memSize == renderTarget.image->memSize(), "Gnm size not match vlt size");
 	}
 
 	SceResource::SceResource(const SceDepthRenderTarget& depthRenderTarget):

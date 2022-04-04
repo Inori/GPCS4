@@ -173,12 +173,16 @@ namespace sce
 
 		LOG_ASSERT(count == 1, "Currently only support 1 cmdbuff at one call.");
 
+		trackSwapImage(displayBufferIndex);
+
 		SceGpuCommand cmd = {};
 		cmd.buffer        = dcbGpuAddrs[0];
 		cmd.size          = dcbSizesInBytes[0];
 		auto cmdList      = m_graphicsQueue->record(cmd);
 
 		submitPresent(cmdList, displayBufferIndex);
+
+		resetResourceTracker();
 
 		return SCE_OK;
 	}
@@ -322,11 +326,51 @@ namespace sce
 
 	void SceGnmDriver::trackSwapImage(uint32_t index)
 	{
-		auto& tracker = GPU().resourceTracker();
+		auto& tracker   = GPU().resourceTracker();
 		auto& swapImage = m_swapImages[index];
+		auto& info      = swapImage.image->info();
+		auto  gpuMode   = GPU().mode();
 
-		//SceRenderTarget renderTarget = {};
-		//renderTarget.renderTarget.
+		Gnm::TileMode tileMode;
+
+		// This should be ok to set a hard code format.
+		// All the shit we do here is just to give the dummy renderTarget 
+		// a non-zero dummy size, so that it can be find by the resource tracker.
+		// we'll receive the real rendertarget during command buffer process.
+		Gnm::DataFormat format = Gnm::kDataFormatB8G8R8A8UnormSrgb;
+		GpuAddress::computeSurfaceTileMode(
+			gpuMode,                                         // NEO or base
+			&tileMode,                                       // Tile mode pointer
+			GpuAddress::kSurfaceTypeColorTargetDisplayable,  // Surface type
+			format,                                          // Surface format
+			1);                                              // Elements per pixel
+
+		Gnm::RenderTargetSpec spec = {};
+		spec.init();
+		spec.m_width                        = info.extent.width;
+		spec.m_height                       = info.extent.height;
+		spec.m_pitch                        = 0;
+		spec.m_numSlices                    = 1;
+		spec.m_colorFormat                  = format;
+		spec.m_colorTileModeHint            = tileMode;
+		spec.m_minGpuMode                   = gpuMode;
+		spec.m_numSamples                   = Gnm::kNumSamples1;
+		spec.m_numFragments                 = Gnm::kNumFragments1;
+		spec.m_flags.enableCmaskFastClear   = 0;
+		spec.m_flags.enableFmaskCompression = 0;
+
+		SceRenderTarget renderTarget = {};
+		renderTarget.renderTarget.init(&spec);
+		renderTarget.image = swapImage.image;
+		renderTarget.imageView = swapImage.imageView;
+
+		tracker.track(renderTarget);
+	}
+
+	void SceGnmDriver::resetResourceTracker()
+	{
+		auto& tracker = GPU().resourceTracker();
+		tracker.reset();
 	}
 
 }  // namespace sce

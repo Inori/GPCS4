@@ -34,10 +34,23 @@ namespace sce
 
 		SceVideoOut& videoOutGet(int32_t handle);
 
+		/**
+		 * \brief Get SceGnmDriver
+		 */
 		SceGnmDriver& gnmDriver();
 
+		/**
+		 * \brief Get GPU resource tracker.
+		 */
 		SceResourceTracker& resourceTracker();
 
+		/**
+		 * \brief Global GPU mode.
+		 * 
+		 * Any calls from HLE or emulator to
+		 * Gnm::GpuMode getGpuMode(void);
+		 * should be replaced by this mode.
+		 */
 		Gnm::GpuMode mode();
 
 	private:

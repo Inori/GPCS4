@@ -101,6 +101,7 @@ namespace sce
 		void destroyGpuQueues();
 
 		void trackSwapImage(uint32_t index);
+		void resetResourceTracker();
 
 	private:
 		vlt::Rc<vlt::VltInstance> m_instance;
