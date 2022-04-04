@@ -47,9 +47,9 @@ namespace sce
 		/**
 		 * \brief Global GPU mode.
 		 * 
-		 * Any calls from HLE or emulator to
+		 * Equalrant/implementation of 
 		 * Gnm::GpuMode getGpuMode(void);
-		 * should be replaced by this mode.
+		 * 
 		 */
 		Gnm::GpuMode mode();
 

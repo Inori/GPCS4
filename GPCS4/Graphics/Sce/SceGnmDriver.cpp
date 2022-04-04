@@ -173,6 +173,9 @@ namespace sce
 
 		LOG_ASSERT(count == 1, "Currently only support 1 cmdbuff at one call.");
 
+		// track currently display buffer
+		// so that we can find it during command buffer recording
+		// and use it as render target.
 		trackSwapImage(displayBufferIndex);
 
 		SceGpuCommand cmd = {};
@@ -182,6 +185,7 @@ namespace sce
 
 		submitPresent(cmdList, displayBufferIndex);
 
+		// clear resource tracker every frame
 		resetResourceTracker();
 
 		return SCE_OK;
@@ -222,6 +226,10 @@ namespace sce
 		// Currently I didn't find a very good place, so I place it here.
 		
 		glfwPollEvents();
+
+		// TODO:
+		// Execute the Gnm::DrawCommandBuffer::InitializeDefaultHardwareState command.
+
 		return SCE_OK;
 	}
 

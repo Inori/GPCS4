@@ -64,7 +64,13 @@ namespace sce
 		info.pSwapchains        = &m_swapchain;
 		info.pImageIndices      = &m_imageIndex;
 		info.pResults           = nullptr;
-		return vkQueuePresentKHR(m_device.queue, &info);
+
+		VkResult status = vkQueuePresentKHR(m_device.queue, &info);
+
+		m_frameIndex += 1;
+		m_frameIndex %= m_semaphores.size();
+
+		return status;
 	}
 
 	VkResult ScePresenter::recreateSwapChain(const PresenterDesc& desc)

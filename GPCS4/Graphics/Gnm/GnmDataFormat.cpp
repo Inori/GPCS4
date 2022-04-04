@@ -625,7 +625,7 @@ bool DataFormat::getRenderTargetChannelOrder(RenderTargetChannelOrder* outOrder)
 		}
 		goto LABEL_42;
 	}
-	v11 = 288231505728184512LL;
+	v11 = 0x4000107000120C0LL;
 	v12 = v5 == 4 && v6 == 5;
 	v13 = v12 && v8 == 6;
 	if (_bittest64(&v11, v3))
