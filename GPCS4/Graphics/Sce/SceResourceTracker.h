@@ -157,11 +157,7 @@ namespace sce
 			return m_buffer;
 		}
 
-		void setBuffer(const SceBuffer& buffer)
-		{
-			m_buffer = buffer;
-			m_type.set(SceResourceType::Buffer);
-		}
+		void setBuffer(const SceBuffer& buffer);
 
 		/**
 		 * \brief Treat the resource as Texture
@@ -173,11 +169,7 @@ namespace sce
 			return m_texture;
 		}
 
-		void setTexture(const SceTexture& texture)
-		{
-			m_texture = texture;
-			m_type.set(SceResourceType::Texture);
-		}
+		void setTexture(const SceTexture& texture);
 
 		/**
 		 * \brief Treat the resource as RenderTarget
@@ -189,11 +181,7 @@ namespace sce
 			return std::get<SceRenderTarget>(m_target);
 		}
 
-		void setRenderTarget(const SceRenderTarget& renderTarget)
-		{
-			std::get<SceRenderTarget>(m_target) = renderTarget;
-			m_type.set(SceResourceType::RenderTarget);
-		}
+		void setRenderTarget(const SceRenderTarget& renderTarget);
 
 		/**
 		 * \brief Treat the resource as DepthRenderTarget
@@ -205,11 +193,7 @@ namespace sce
 			return std::get<SceDepthRenderTarget>(m_target);
 		}
 
-		void setDepthRenderTarget(const SceDepthRenderTarget& depthTarget)
-		{
-			std::get<SceDepthRenderTarget>(m_target) = depthTarget;
-			m_type.set(SceResourceType::DepthRenderTarget);
-		}
+		void setDepthRenderTarget(const SceDepthRenderTarget& depthTarget);
 
 	private:
 		// vulkan memory
@@ -228,9 +212,11 @@ namespace sce
 
 
 	/**
-	 * \brief Global resource databank.
+	 * \brief Global resource tracker.
 	 * 
-	 * Use to query vulkan object by Gnm resource memory
+	 * Use to query vulkan object by Gnm resource memory.
+	 * It's thread safe.
+	 * 
 	 */
 	class SceResourceTracker
 	{
@@ -240,17 +226,30 @@ namespace sce
 		SceResourceTracker();
 		~SceResourceTracker();
 
-		template <class R>
-		void track(R&& arg)
+		/**
+		 * \brief Track a sce resource type.
+		 */
+		template <class ResType>
+		void track(ResType&& arg)
 		{
 			std::lock_guard<util::sync::Spinlock> guard(m_lock);
 
 			void* cpuMem = arg.cpuMemory();
-			m_resources.emplace(cpuMem, std::forward<R>(arg));
+			m_resources.emplace(cpuMem, std::forward<ResType>(arg));
 		}
 
+		/**
+		 * \brief Find resource object by memory pointer
+		 * 
+		 * The memory is not limited to the start address of a object,
+		 * it can be any address 
+		 * from start to end(not included) within the object memory.
+		 */
 		SceResource* find(void* mem);
 
+		/**
+		 * \brief Clear all information in the tracker
+		 */
 		void reset();
 		
 	private:

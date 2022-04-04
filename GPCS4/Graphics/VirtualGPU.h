@@ -4,42 +4,54 @@
 #include "sce_types.h"
 #include "SceVideoOut/sce_videoout_types.h"
 
-#include <memory>
 #include <array>
+#include <memory>
 
 namespace sce
 {
+	namespace Gnm
+	{
+		enum GpuMode;
+	}  // namespace Gnm
 
-class SceVideoOut;
-class SceGnmDriver;
+	class SceVideoOut;
+	class SceGnmDriver;
+	class SceResourceTracker;
+	
+	class VirtualGPU final
+	{
+		constexpr static uint32_t SceVideoOutPortBase = 0x1000;
+		constexpr static uint32_t SceVideoOutCount    = 3;
 
+	public:
+		VirtualGPU();
+		~VirtualGPU();
 
-class VirtualGPU final
-{
-	constexpr static uint32_t SceVideoOutPortBase = 0x1000;
-	constexpr static uint32_t SceVideoOutCount    = 3;
+		int videoOutOpen(
+			SceUserServiceUserId userId, int32_t type, int32_t index, const void* param);
 
-public:
-	VirtualGPU();
-	~VirtualGPU();
+		int videoOutClose(int32_t handle);
 
-	int videoOutOpen(
-		SceUserServiceUserId userId, int32_t type, int32_t index, const void* param);
+		SceVideoOut& videoOutGet(int32_t handle);
 
-	int videoOutClose(int32_t handle);
+		SceGnmDriver& gnmDriver();
 
-	SceVideoOut& videoOutGet(int32_t handle);
+		SceResourceTracker& resourceTracker();
 
-	SceGnmDriver& gnmDriver();
+		Gnm::GpuMode mode();
 
-private:
-	std::array<std::unique_ptr<SceVideoOut>, SceVideoOutCount> 
-		m_videoOutSlots = {};
+	private:
 
-	std::unique_ptr<SceGnmDriver> m_gnmDriver = nullptr;
-};
+		// it's better to use std::unique_ptr here
+		// but to prevent annoying errors of missing destructor
+		// I use std::shared_ptr instead, that would be no performace
+		// difference here.
+		std::array<std::shared_ptr<SceVideoOut>, SceVideoOutCount>
+			m_videoOutSlots = {};
 
+		std::shared_ptr<SceGnmDriver> m_gnmDriver = nullptr;
 
-
+		std::shared_ptr<SceResourceTracker> m_tracker = nullptr;
+	};
 
 }  // namespace sce

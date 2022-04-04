@@ -6,6 +6,7 @@
 
 #include <array>
 #include <memory>
+#include <vector>
 
 namespace sce
 {
@@ -16,6 +17,8 @@ namespace sce
 		class VltAdapter;
 		class VltDevice;
 		class VltCommandList;
+		class VltImage;
+		class VltImageView;
 	}  // namespace vlt
 
 	class SceVideoOut;
@@ -32,6 +35,12 @@ namespace sce
 	class SceGnmDriver
 	{
 		friend class SceVideoOut;
+
+		struct SwapImage
+		{
+			vlt::Rc<vlt::VltImage>     image;
+			vlt::Rc<vlt::VltImageView> imageView;
+		};
 
 	public:
 		SceGnmDriver();
@@ -81,6 +90,8 @@ namespace sce
 			SceVideoOut*         videoOut,
 			const PresenterDesc& desc);
 
+		void createRenderTargetViews();
+
 		void createGraphicsQueue();
 
 		void submitPresent(
@@ -89,11 +100,15 @@ namespace sce
 
 		void destroyGpuQueues();
 
+		void trackSwapImage(uint32_t index);
+
 	private:
 		vlt::Rc<vlt::VltInstance> m_instance;
 		vlt::Rc<vlt::VltAdapter>  m_adapter;
 		vlt::Rc<vlt::VltDevice>   m_device;
-		vlt::Rc<ScePresenter>     m_presenter;
+
+		vlt::Rc<ScePresenter>  m_presenter;
+		std::vector<SwapImage> m_swapImages;
 
 		std::unique_ptr<SceGpuQueue> m_graphicsQueue;
 		std::array<std::unique_ptr<SceGpuQueue>, MaxComputeQueueCount>

@@ -19,6 +19,7 @@ namespace sce::vlt
 		m_extensions(extensions),
 		m_features(features),
 		m_properties(adapter->devicePropertiesExt()),
+		m_objects(this),
 		m_submissionQueue(this)
 	{
 		auto queueFamilies = m_adapter->findQueueFamilies();
@@ -74,6 +75,41 @@ namespace sce::vlt
 		return VltDeviceQueue{ queue, family, index };
 	}
 
+	Rc<VltBuffer> VltDevice::createBuffer(
+		const VltBufferCreateInfo& createInfo, 
+		VkMemoryPropertyFlags memoryType)
+	{
+		return new VltBuffer(this, createInfo, m_objects.memoryManager(), memoryType);
+	}
+
+	Rc<VltBufferView> VltDevice::createBufferView(
+		const Rc<VltBuffer>& buffer, 
+		const VltBufferViewCreateInfo& createInfo)
+	{
+		return new VltBufferView(this, buffer, createInfo);
+	}
+
+	Rc<VltImage> VltDevice::createImage(
+		const VltImageCreateInfo& createInfo, 
+		VkMemoryPropertyFlags memoryType)
+	{
+		return new VltImage(this, createInfo, m_objects.memoryManager(), memoryType);
+	}
+
+	Rc<VltImage> VltDevice::createImageFromVkImage(
+		const VltImageCreateInfo& createInfo, 
+		VkImage image)
+	{
+		return new VltImage(this, createInfo, image);
+	}
+
+	Rc<VltImageView> VltDevice::createImageView(
+		const Rc<VltImage>& image, 
+		const VltImageViewCreateInfo& createInfo)
+	{
+		return new VltImageView(this, image, createInfo);
+	}
+
 	Rc<VltCommandList> VltDevice::createCommandList()
 	{
 		Rc<VltCommandList> cmdList = m_recycledCommandLists.retrieveObject();
@@ -119,5 +155,7 @@ namespace sce::vlt
 		presentInfo.presenter = presenter;
 		m_submissionQueue.present(presentInfo, status);
 	}
+
+
 
 }  // namespace sce::vlt

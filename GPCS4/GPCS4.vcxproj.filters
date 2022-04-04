@@ -784,6 +784,9 @@
     <ClInclude Include="Graphics\Sce\SceResourceTracker.h">
       <Filter>Source Files\Graphics\Sce</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltObject.h">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">

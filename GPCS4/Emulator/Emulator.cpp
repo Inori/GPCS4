@@ -1,4 +1,5 @@
 #include "Emulator.h"
+#include "Module.h"
 #include "GameThread.h"
 #include "SceModuleSystem.h"
 #include "VirtualCPU.h"
@@ -10,8 +11,8 @@ LOG_CHANNEL(Emulator);
 
 Emulator::Emulator() 
 {
-	m_cpu = std::make_unique<VirtualCPU>();
-	m_gpu = std::make_unique<sce::VirtualGPU>();
+	m_cpu = std::make_shared<VirtualCPU>();
+	m_gpu = std::make_shared<sce::VirtualGPU>();
 }
 
 Emulator::~Emulator() {}

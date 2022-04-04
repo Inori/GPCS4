@@ -6,6 +6,8 @@
 #include "GnmRegInfo.h"
 #include "GnmStructure.h"
 #include "GpuAddress/GnmGpuAddress.h"
+#include "Emulator/Emulator.h"
+#include "VirtualGPU.h"
 
 namespace sce::Gnm
 {
@@ -22,6 +24,42 @@ namespace sce::Gnm
 			uint32_t reserved : 27;
 		};
 		int32_t asInt;
+	};
+
+	class RenderTargetSpec
+	{
+	public:
+		void init(void)
+		{
+			// From IDA
+			m_width             = 0;
+			m_height            = 0;
+			m_pitch             = 0;
+			m_numSlices         = 1;
+			m_colorFormat       = DataFormat::build(kSurfaceFormatInvalid,
+                                              kTextureChannelTypeFloat,
+                                              kTextureChannelConstant0,
+                                              kTextureChannelConstant0,
+                                              kTextureChannelConstant0,
+                                              kTextureChannelConstant0);
+			m_colorTileModeHint = kTileModeDisplay_LinearAligned;
+			m_minGpuMode        = GPU().mode();
+			m_numSlices         = kNumSamples1;
+			m_numFragments      = kNumFragments1;
+			m_flags.asInt       = 0;
+		}
+
+		uint32_t m_width;
+		uint32_t m_height;
+		uint32_t m_pitch;
+
+		uint32_t                   m_numSlices;
+		Gnm::DataFormat            m_colorFormat;
+		Gnm::TileMode              m_colorTileModeHint;
+		Gnm::GpuMode               m_minGpuMode;
+		Gnm::NumSamples            m_numSamples;
+		Gnm::NumFragments          m_numFragments;
+		Gnm::RenderTargetInitFlags m_flags;    
 	};
 
 	class RenderTarget
@@ -52,6 +90,11 @@ namespace sce::Gnm
 		{
 			std::memcpy(m_regs, other.m_regs, sizeof(m_regs));
 			return *this;
+		}
+
+		int32_t init(const Gnm::RenderTargetSpec* spec)
+		{
+			// TODO:
 		}
 
 		SizeAlign getColorSizeAlign(void) const
@@ -160,14 +203,10 @@ namespace sce::Gnm
 
 		bool getLinearCmask(void) const
 		{
-			// TODO:
-			// implement getGpuMode
-			// currently we assume the game always run in neo mode.
-
-			//if (sce::Gnm::getGpuMode() == kGpuModeNeo)
-			return SCE_GNM_GET_FIELD(m_regs[kCbColorInfo], CB_COLOR0_INFO, CMASK_ADDR_TYPE) == 1;  // [vi]
-																								   //else
-																								   //return SCE_GNM_GET_FIELD(m_regs[kCbColorInfo], CB_COLOR0_INFO, CMASK_IS_LINEAR) == 1;
+			if (GPU().mode() == kGpuModeNeo)
+				return SCE_GNM_GET_FIELD(m_regs[kCbColorInfo], CB_COLOR0_INFO, CMASK_ADDR_TYPE) == 1;  // [vi]
+			else
+				return SCE_GNM_GET_FIELD(m_regs[kCbColorInfo], CB_COLOR0_INFO, CMASK_IS_LINEAR) == 1;
 		}
 
 		bool getDccCompressionEnable() const

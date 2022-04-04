@@ -8,6 +8,9 @@
 #include "VltCmdList.h"
 #include "VltRecycler.h"
 #include "VltQueue.h"
+#include "VltBuffer.h"
+#include "VltImage.h"
+#include "VltObject.h"
 
 namespace sce::vlt
 {
@@ -164,7 +167,63 @@ namespace sce::vlt
         */
 		VkPipelineStageFlags getShaderPipelineStages() const;
 
-		    
+		   
+		/**
+         * \brief Creates a buffer object
+         * 
+         * \param [in] createInfo Buffer create info
+         * \param [in] memoryType Memory type flags
+         * \returns The buffer object
+         */
+		Rc<VltBuffer> createBuffer(
+			const VltBufferCreateInfo& createInfo,
+			VkMemoryPropertyFlags      memoryType);
+
+		/**
+         * \brief Creates a buffer view
+         * 
+         * \param [in] buffer The buffer to view
+         * \param [in] createInfo Buffer view properties
+         * \returns The buffer view object
+         */
+		Rc<VltBufferView> createBufferView(
+			const Rc<VltBuffer>&           buffer,
+			const VltBufferViewCreateInfo& createInfo);
+
+		/**
+         * \brief Creates an image object
+         * 
+         * \param [in] createInfo Image create info
+         * \param [in] memoryType Memory type flags
+         * \returns The image object
+         */
+		Rc<VltImage> createImage(
+			const VltImageCreateInfo& createInfo,
+			VkMemoryPropertyFlags     memoryType);
+
+		/**
+         * \brief Creates an image object for an existing VkImage
+         * 
+         * \param [in] createInfo Image create info
+         * \param [in] image Vulkan image to wrap
+         * \returns The image object
+         */
+		Rc<VltImage> createImageFromVkImage(
+			const VltImageCreateInfo& createInfo,
+			VkImage                   image);
+
+		/**
+         * \brief Creates an image view
+         * 
+         * \param [in] image The image to create a view for
+         * \param [in] createInfo Image view create info
+         * \returns The image view
+         */
+		Rc<VltImageView> createImageView(
+			const Rc<VltImage>&           image,
+			const VltImageViewCreateInfo& createInfo);
+
+
 		/**
         * \brief Creates a command list
         * \returns The command list
@@ -234,6 +293,8 @@ namespace sce::vlt
 
 		VltDeviceFeatures m_features;
 		VltDeviceInfo     m_properties;
+
+		VltObjects m_objects;
 
 		VltDeviceQueueSet m_queues;
 

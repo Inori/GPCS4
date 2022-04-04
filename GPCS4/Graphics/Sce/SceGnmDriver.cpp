@@ -1,8 +1,11 @@
 #include "SceGnmDriver.h"
 
+#include "Emulator/Emulator.h"
+#include "VirtualGPU.h"
 #include "SceVideoOut.h"
 #include "SceGpuQueue.h"
 #include "ScePresenter.h"
+#include "SceResourceTracker.h"
 #include "UtilMath.h"
 #include "sce_errors.h"
 
@@ -92,6 +95,48 @@ namespace sce
 		device.surface           = videoOut->getSurface(instance);
 
 		m_presenter = new ScePresenter(device, desc);
+
+		createRenderTargetViews();
+	}
+
+	void SceGnmDriver::createRenderTargetViews()
+	{
+		PresenterInfo info = m_presenter->info();
+
+		m_swapImages.clear();
+		m_swapImages.resize(info.imageCount);
+
+		VltImageCreateInfo imageInfo;
+		imageInfo.type        = VK_IMAGE_TYPE_2D;
+		imageInfo.format      = info.format.format;
+		imageInfo.flags       = 0;
+		imageInfo.sampleCount = VK_SAMPLE_COUNT_1_BIT;
+		imageInfo.extent      = { info.imageExtent.width, info.imageExtent.height, 1 };
+		imageInfo.numLayers   = 1;
+		imageInfo.mipLevels   = 1;
+		imageInfo.usage       = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+		imageInfo.stages      = 0;
+		imageInfo.access      = 0;
+		imageInfo.tiling      = VK_IMAGE_TILING_OPTIMAL;
+		imageInfo.layout      = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+		VltImageViewCreateInfo viewInfo;
+		viewInfo.type      = VK_IMAGE_VIEW_TYPE_2D;
+		viewInfo.format    = info.format.format;
+		viewInfo.usage     = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+		viewInfo.aspect    = VK_IMAGE_ASPECT_COLOR_BIT;
+		viewInfo.minLevel  = 0;
+		viewInfo.numLevels = 1;
+		viewInfo.minLayer  = 0;
+		viewInfo.numLayers = 1;
+
+		for (uint32_t i = 0; i < info.imageCount; i++)
+		{
+			VkImage imageHandle = m_presenter->getImage(i).image;
+
+			m_swapImages[i].image     = m_device->createImageFromVkImage(imageInfo, imageHandle);
+			m_swapImages[i].imageView = m_device->createImageView(m_swapImages[i].image, viewInfo);
+		}
 	}
 
 	int SceGnmDriver::submitCommandBuffers(uint32_t  count,
@@ -145,9 +190,9 @@ namespace sce
 		do
 		{
 			PresenterSync sync = {};
-			uint32_t      imageIndex = 0;
+			uint32_t      presentIndex = 0;
 
-			m_presenter->acquireNextImage(sync, imageIndex);
+			m_presenter->acquireNextImage(sync, presentIndex);
 
 			SceGpuSubmission submission = {};
 			submission.cmdList          = cmdList;
@@ -274,4 +319,14 @@ namespace sce
 			}
 		}
 	}
+
+	void SceGnmDriver::trackSwapImage(uint32_t index)
+	{
+		auto& tracker = GPU().resourceTracker();
+		auto& swapImage = m_swapImages[index];
+
+		//SceRenderTarget renderTarget = {};
+		//renderTarget.renderTarget.
+	}
+
 }  // namespace sce

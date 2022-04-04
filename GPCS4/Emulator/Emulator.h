@@ -1,18 +1,18 @@
 #pragma once
 
 #include "GPCS4Common.h"
-#include "Module.h"
 #include "UtilSingleton.h"
 
 #include <memory>
 
-class VirtualCPU;
 
+class VirtualCPU;
 namespace sce
 {
 class VirtualGPU;
 }  // namespace sce
 
+struct NativeModule;
 
 
 typedef void (PS4NORETURN PS4API *PFUNC_EntryPoint)(void* pEnv, void* pfnExitHandler);
@@ -46,8 +46,8 @@ private:
 
 	static void PS4API LastExitHandler(void);
 private:
-	std::unique_ptr<VirtualCPU>      m_cpu;
-	std::unique_ptr<sce::VirtualGPU> m_gpu;
+	std::shared_ptr<VirtualCPU>      m_cpu;
+	std::shared_ptr<sce::VirtualGPU> m_gpu;
 };
 
 

@@ -117,6 +117,30 @@ namespace sce
 	{
 	}
 
+	void SceResource::setBuffer(const SceBuffer& buffer)
+	{
+		m_buffer = buffer;
+		m_type.set(SceResourceType::Buffer);
+	}
+
+	void SceResource::setTexture(const SceTexture& texture)
+	{
+		m_texture = texture;
+		m_type.set(SceResourceType::Texture);
+	}
+
+	void SceResource::setRenderTarget(const SceRenderTarget& renderTarget)
+	{
+		std::get<SceRenderTarget>(m_target) = renderTarget;
+		m_type.set(SceResourceType::RenderTarget);
+	}
+
+	void SceResource::setDepthRenderTarget(const SceDepthRenderTarget& depthTarget)
+	{
+		std::get<SceDepthRenderTarget>(m_target) = depthTarget;
+		m_type.set(SceResourceType::DepthRenderTarget);
+	}
+
 	//////////////////////////////////////////////////////////////////////////
 
 	SceResourceTracker::SceResourceTracker()

@@ -71,14 +71,14 @@
     <ClInclude Include="Graphics\SpirV\SpirvModule.h" />
     <ClInclude Include="Graphics\Violet\VltAdapter.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Graphics\Violet\VltBarrier.h" />
     <ClInclude Include="Graphics\Violet\VltBuffer.h" />
     <ClInclude Include="Graphics\Violet\VltCmdList.h" />
     <ClInclude Include="Graphics\Violet\VltCommon.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Graphics\Violet\VltContext.h" />
     <ClInclude Include="Graphics\Violet\VltDebugUtil.h" />
@@ -88,22 +88,23 @@
     <ClInclude Include="Graphics\Violet\VltDeviceInfo.h" />
     <ClInclude Include="Graphics\Violet\VltExtension.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Graphics\Violet\VltFormat.h" />
     <ClInclude Include="Graphics\Violet\VltHash.h" />
     <ClInclude Include="Graphics\Violet\VltImage.h" />
     <ClInclude Include="Graphics\Violet\VltInstance.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Graphics\Violet\VltLifetime.h" />
     <ClInclude Include="Graphics\Violet\VltLog.h" />
     <ClInclude Include="Graphics\Violet\VltMemory.h" />
+    <ClInclude Include="Graphics\Violet\VltObject.h" />
     <ClInclude Include="Graphics\Violet\VltQueue.h" />
     <ClInclude Include="Graphics\Violet\VltRc.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Graphics\Violet\VltRecycler.h" />
     <ClInclude Include="Graphics\Violet\VltResource.h" />
@@ -266,7 +267,7 @@
     <ClCompile Include="Graphics\SpirV\SpirvModule.cpp" />
     <ClCompile Include="Graphics\Violet\VltAdapter.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Graphics\Violet\VltBarrier.cpp" />
     <ClCompile Include="Graphics\Violet\VltBuffer.cpp" />
@@ -278,13 +279,13 @@
     <ClCompile Include="Graphics\Violet\VltDeviceFilter.cpp" />
     <ClCompile Include="Graphics\Violet\VltExtension.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Graphics\Violet\VltFormat.cpp" />
     <ClCompile Include="Graphics\Violet\VltImage.cpp" />
     <ClCompile Include="Graphics\Violet\VltInstance.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Graphics\Violet\VltLifetime.cpp" />
     <ClCompile Include="Graphics\Violet\VltLog.cpp" />
@@ -480,10 +481,10 @@
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Label="LLVM" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClangClAdditionalOptions>-Wno-unused-variable -Wno-unused-private-field -Wno-switch -Wno-return-type -Wno-unused-function -Wno-return-type /showFilenames</ClangClAdditionalOptions>
+    <ClangClAdditionalOptions>-Wno-unused-variable -Wno-unused-private-field -Wno-switch -Wno-return-type -Wno-unused-function -Wno-return-type -Wno-microsoft-enum-forward-reference /showFilenames</ClangClAdditionalOptions>
   </PropertyGroup>
   <PropertyGroup Label="LLVM" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ClangClAdditionalOptions>-Wno-unused-variable -Wno-unused-private-field -Wno-switch -Wno-unused-function -Wno-return-type -flto=thin /showFilenames</ClangClAdditionalOptions>
+    <ClangClAdditionalOptions>-Wno-unused-variable -Wno-unused-private-field -Wno-switch -Wno-unused-function -Wno-return-type -flto=thin -Wno-microsoft-enum-forward-reference /showFilenames</ClangClAdditionalOptions>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
