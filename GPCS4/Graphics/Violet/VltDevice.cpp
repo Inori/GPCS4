@@ -127,12 +127,6 @@ namespace sce::vlt
 		return new VltContext(this);
 	}
 
-	void VltDevice::recycleCommandList(
-		const Rc<VltCommandList>& cmdList)
-	{
-		m_recycledCommandLists.returnObject(cmdList);
-	}
-
 	void VltDevice::submitCommandList(
 		const Rc<VltCommandList>& commandList,
 		VkSemaphore               waitSync,
@@ -156,6 +150,17 @@ namespace sce::vlt
 		m_submissionQueue.present(presentInfo, status);
 	}
 
+	void VltDevice::recycleCommandList(
+		const Rc<VltCommandList>& cmdList)
+	{
+		m_recycledCommandLists.returnObject(cmdList);
+	}
+
+	void VltDevice::recycleDescriptorPool(
+		const Rc<VltDescriptorPool>& pool)
+	{
+		m_recycledDescriptorPools.returnObject(pool);
+	}
 
 
 }  // namespace sce::vlt

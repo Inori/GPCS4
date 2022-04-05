@@ -403,7 +403,7 @@ namespace sce::vlt
 		if (shader == nullptr)
 			return VltShaderModule();
 
-		DxvkShaderModuleCreateInfo info;
+		VltShaderModuleCreateInfo info;
 
 		// Fix up fragment shader outputs for dual-source blending
 		if (shader->stage() == VK_SHADER_STAGE_FRAGMENT_BIT)

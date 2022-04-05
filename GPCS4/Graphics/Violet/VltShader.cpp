@@ -47,76 +47,19 @@ namespace sce::vlt
 		delete[] m_data;
 	}
 
-	VltShaderModule::VltShaderModule() :
-		m_device(nullptr), m_stage()
-	{
-	}
-
-	VltShaderModule::VltShaderModule(VltShaderModule&& other) :
-		m_device(other.m_device)
-	{
-		this->m_stage = other.m_stage;
-		other.m_stage = VkPipelineShaderStageCreateInfo();
-	}
-
-	VltShaderModule::VltShaderModule(
-		VltDevice*             device,
-		const Rc<VltShader>&   shader,
-		const SpirvCodeBuffer& code) :
-		m_device(device),
-		m_stage()
-	{
-		m_stage.sType               = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		m_stage.pNext               = nullptr;
-		m_stage.flags               = 0;
-		m_stage.stage               = shader->stage();
-		m_stage.module              = VK_NULL_HANDLE;
-		m_stage.pName               = "main";
-		m_stage.pSpecializationInfo = nullptr;
-
-		VkShaderModuleCreateInfo info;
-		info.sType    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-		info.pNext    = nullptr;
-		info.flags    = 0;
-		info.codeSize = code.size();
-		info.pCode    = code.data();
-
-		if (vkCreateShaderModule(m_device->handle(), &info, nullptr, &m_stage.module) != VK_SUCCESS)
-			Logger::exception("DxvkComputePipeline::DxvkComputePipeline: Failed to create shader module");
-	}
-
-	VltShaderModule::~VltShaderModule()
-	{
-		if (m_device != nullptr)
-		{
-			vkDestroyShaderModule(
-				m_device->handle(), m_stage.module, nullptr);
-		}
-	}
-
-	VltShaderModule& VltShaderModule::operator=(VltShaderModule&& other)
-	{
-		this->m_device = other.m_device;
-		this->m_stage  = other.m_stage;
-		other.m_stage  = VkPipelineShaderStageCreateInfo();
-		return *this;
-	}
-
 	VltShader::VltShader(
-		VkShaderStageFlagBits    stage,
-		uint32_t                 slotCount,
-		const VltResourceSlot*   slotInfos,
-		const VltInterfaceSlots& iface,
-		SpirvCodeBuffer          code,
-		const VltShaderOptions&  options,
-		VltShaderConstData&&     constData) :
+		VkShaderStageFlagBits      stage,
+		const VltResourceSlotList& slots,
+		const VltInterfaceSlots&   iface,
+		pssl::SpirvCodeBuffer      code,
+		const VltShaderOptions&    options,
+		VltShaderConstData&&       constData) :
 		m_stage(stage),
 		m_code(code), m_interface(iface),
 		m_options(options), m_constData(std::move(constData))
 	{
 		// Write back resource slot infos
-		for (uint32_t i = 0; i < slotCount; i++)
-			m_slots.push_back(slotInfos[i]);
+		m_slots = slots;
 
 		// Gather the offsets where the binding IDs
 		// are stored so we can quickly remap them.
@@ -142,19 +85,19 @@ namespace sce::vlt
 			if (ins.opCode() == spv::OpExecutionMode)
 			{
 				if (ins.arg(2) == spv::ExecutionModeStencilRefReplacingEXT)
-					m_flags.set(DxvkShaderFlag::ExportsStencilRef);
+					m_flags.set(VltShaderFlag::ExportsStencilRef);
 
 				if (ins.arg(2) == spv::ExecutionModeXfb)
-					m_flags.set(DxvkShaderFlag::HasTransformFeedback);
+					m_flags.set(VltShaderFlag::HasTransformFeedback);
 			}
 
 			if (ins.opCode() == spv::OpCapability)
 			{
 				if (ins.arg(1) == spv::CapabilitySampleRateShading)
-					m_flags.set(DxvkShaderFlag::HasSampleRateShading);
+					m_flags.set(VltShaderFlag::HasSampleRateShading);
 
 				if (ins.arg(1) == spv::CapabilityShaderViewportIndexLayerEXT)
-					m_flags.set(DxvkShaderFlag::ExportsViewportIndexLayerFromVertexStage);
+					m_flags.set(VltShaderFlag::ExportsViewportIndexLayerFromVertexStage);
 			}
 		}
 	}
@@ -180,7 +123,7 @@ namespace sce::vlt
 	VltShaderModule VltShader::createShaderModule(
 		VltDevice*                        device,
 		const VltDescriptorSlotMapping&   mapping,
-		const DxvkShaderModuleCreateInfo& info)
+		const VltShaderModuleCreateInfo& info)
 	{
 		SpirvCodeBuffer spirvCode = m_code.decompress();
 		uint32_t*       code      = spirvCode.data();
@@ -416,5 +359,61 @@ namespace sce::vlt
 				}
 			}
 		}
+	}
+
+
+	VltShaderModule::VltShaderModule() :
+		m_device(nullptr), m_stage()
+	{
+	}
+
+	VltShaderModule::VltShaderModule(VltShaderModule&& other) :
+		m_device(other.m_device)
+	{
+		this->m_stage = other.m_stage;
+		other.m_stage = VkPipelineShaderStageCreateInfo();
+	}
+
+	VltShaderModule::VltShaderModule(
+		VltDevice*             device,
+		const Rc<VltShader>&   shader,
+		const SpirvCodeBuffer& code) :
+		m_device(device),
+		m_stage()
+	{
+		m_stage.sType               = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		m_stage.pNext               = nullptr;
+		m_stage.flags               = 0;
+		m_stage.stage               = shader->stage();
+		m_stage.module              = VK_NULL_HANDLE;
+		m_stage.pName               = "main";
+		m_stage.pSpecializationInfo = nullptr;
+
+		VkShaderModuleCreateInfo info;
+		info.sType    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+		info.pNext    = nullptr;
+		info.flags    = 0;
+		info.codeSize = code.size();
+		info.pCode    = code.data();
+
+		if (vkCreateShaderModule(m_device->handle(), &info, nullptr, &m_stage.module) != VK_SUCCESS)
+			Logger::exception("DxvkComputePipeline::DxvkComputePipeline: Failed to create shader module");
+	}
+
+	VltShaderModule::~VltShaderModule()
+	{
+		if (m_device != nullptr)
+		{
+			vkDestroyShaderModule(
+				m_device->handle(), m_stage.module, nullptr);
+		}
+	}
+
+	VltShaderModule& VltShaderModule::operator=(VltShaderModule&& other)
+	{
+		this->m_device = other.m_device;
+		this->m_stage  = other.m_stage;
+		other.m_stage  = VkPipelineShaderStageCreateInfo();
+		return *this;
 	}
 }  // namespace sce::vlt

@@ -20,6 +20,7 @@ namespace sce::vlt
 		VkAccessFlags    access;
 	};
 
+	using VltResourceSlotList = std::vector<VltResourceSlot>;
 	/**
      * \brief Shader interface binding
      * 
@@ -27,7 +28,7 @@ namespace sce::vlt
      * Vulkan. DXVK does not use descriptor arrays.
      * Instead, each binding stores one descriptor.
      */
-	struct DxvkDescriptorSlot
+	struct VltDescriptorSlot
 	{
 		uint32_t           slot;    ///< Resource slot index for the context
 		VkDescriptorType   type;    ///< Descriptor type (aka resource type)
@@ -36,6 +37,7 @@ namespace sce::vlt
 		VkAccessFlags      access;  ///< Access flags
 	};
 
+	using VltDescriptorSlotList = std::vector<VltDescriptorSlot>;
 	/**
      * \brief Descriptor slot mapping
      * 
@@ -65,7 +67,7 @@ namespace sce::vlt
          * \brief Descriptor binding infos
          * \returns Descriptor binding infos
          */
-		const DxvkDescriptorSlot* bindingInfos() const
+		const VltDescriptorSlot* bindingInfos() const
 		{
 			return m_descriptorSlots.data();
 		}
@@ -129,8 +131,8 @@ namespace sce::vlt
 			uint32_t storageBuffers);
 
 	private:
-		std::vector<DxvkDescriptorSlot> m_descriptorSlots;
-		VkPushConstantRange             m_pushConstRange = {};
+		VltDescriptorSlotList m_descriptorSlots;
+		VkPushConstantRange   m_pushConstRange = {};
 
 		uint32_t countDescriptors(
 			VkDescriptorType type) const;
@@ -172,7 +174,7 @@ namespace sce::vlt
          * \param [in] id Binding index
          * \returns Resource binding info
          */
-		const DxvkDescriptorSlot& binding(uint32_t id) const
+		const VltDescriptorSlot& binding(uint32_t id) const
 		{
 			return m_bindingSlots[id];
 		}
@@ -181,7 +183,7 @@ namespace sce::vlt
          * \brief Resource binding info
          * \returns Resource binding info
          */
-		const DxvkDescriptorSlot* bindings() const
+		const VltDescriptorSlot* bindings() const
 		{
 			return m_bindingSlots.data();
 		}
@@ -237,7 +239,7 @@ namespace sce::vlt
          * \param [in] id Dynamic binding ID
          * \returns Reference to that binding
          */
-		const DxvkDescriptorSlot& dynamicBinding(uint32_t id) const
+		const VltDescriptorSlot& dynamicBinding(uint32_t id) const
 		{
 			return this->binding(m_dynamicSlots[id]);
 		}
@@ -284,8 +286,8 @@ namespace sce::vlt
 		VkPipelineLayout              m_pipelineLayout      = VK_NULL_HANDLE;
 		VkDescriptorUpdateTemplateKHR m_descriptorTemplate  = VK_NULL_HANDLE;
 
-		std::vector<DxvkDescriptorSlot> m_bindingSlots;
-		std::vector<uint32_t>           m_dynamicSlots;
+		VltDescriptorSlotList m_bindingSlots;
+		std::vector<uint32_t> m_dynamicSlots;
 
 		util::Flags<VkDescriptorType> m_descriptorTypes;
 	};

@@ -26,7 +26,7 @@ namespace sce::vlt
 		}
 		else
 		{
-			DxvkDescriptorSlot slotInfo;
+			VltDescriptorSlot slotInfo;
 			slotInfo.slot   = desc.slot;
 			slotInfo.type   = desc.type;
 			slotInfo.view   = desc.view;

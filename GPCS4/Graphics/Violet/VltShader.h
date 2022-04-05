@@ -22,7 +22,7 @@ namespace sce::vlt
      * shaders do. They need to be filled in by the
      * implementation at pipeline compilation time.
      */
-	enum class DxvkSpecConstantId : uint32_t
+	enum class VltSpecConstantId : uint32_t
 	{
 		/// Special constant ranges that do not count
 		/// towards the spec constant min/max values
@@ -40,7 +40,7 @@ namespace sce::vlt
      * Provides extra information about the features
      * used by a shader.
      */
-	enum DxvkShaderFlag : uint64_t
+	enum VltShaderFlag : uint64_t
 	{
 		HasSampleRateShading,
 		HasTransformFeedback,
@@ -48,7 +48,7 @@ namespace sce::vlt
 		ExportsViewportIndexLayerFromVertexStage,
 	};
 
-	using VltShaderFlags = util::Flags<DxvkShaderFlag>;
+	using VltShaderFlags = util::Flags<VltShaderFlag>;
 
 	/**
      * \brief Shader interface slots
@@ -120,7 +120,7 @@ namespace sce::vlt
 	/**
      * \brief Shader module create info
      */
-	struct DxvkShaderModuleCreateInfo
+	struct VltShaderModuleCreateInfo
 	{
 		bool     fsDualSrcBlend  = false;
 		uint32_t undefinedInputs = 0;
@@ -139,15 +139,14 @@ namespace sce::vlt
 
 	public:
 		VltShader(
-			VkShaderStageFlagBits    stage,
-			uint32_t                 slotCount,
-			const VltResourceSlot*   slotInfos,
-			const VltInterfaceSlots& iface,
-			pssl::SpirvCodeBuffer    code,
-			const VltShaderOptions&  options,
-			VltShaderConstData&&     constData);
+			VkShaderStageFlagBits      stage,
+			const VltResourceSlotList& slots,
+			const VltInterfaceSlots&   iface,
+			pssl::SpirvCodeBuffer      code,
+			const VltShaderOptions&    options,
+			VltShaderConstData&&       constData);
 
-		~VltShader();
+		virtual ~VltShader();
 
 		/**
          * \brief Shader stage
@@ -189,7 +188,7 @@ namespace sce::vlt
 		VltShaderModule createShaderModule(
 			VltDevice*                        device,
 			const VltDescriptorSlotMapping&   mapping,
-			const DxvkShaderModuleCreateInfo& info);
+			const VltShaderModuleCreateInfo& info);
 
 		/**
          * \brief Inter-stage interface slots
@@ -291,14 +290,14 @@ namespace sce::vlt
 		VkShaderStageFlagBits       m_stage;
 		pssl::SpirvCompressedBuffer m_code;
 
-		std::vector<VltResourceSlot> m_slots;
-		std::vector<size_t>          m_idOffsets;
-		VltInterfaceSlots            m_interface;
-		VltShaderFlags               m_flags;
-		VltShaderOptions             m_options;
-		VltShaderConstData           m_constData;
-		VltShaderKey                 m_key;
-		size_t                       m_hash = 0;
+		VltResourceSlotList m_slots;
+		std::vector<size_t> m_idOffsets;
+		VltInterfaceSlots   m_interface;
+		VltShaderFlags      m_flags;
+		VltShaderOptions    m_options;
+		VltShaderConstData  m_constData;
+		VltShaderKey        m_key;
+		size_t              m_hash = 0;
 
 		size_t m_o1IdxOffset = 0;
 		size_t m_o1LocOffset = 0;

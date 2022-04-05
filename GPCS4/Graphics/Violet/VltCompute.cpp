@@ -90,7 +90,7 @@ namespace sce::vlt
 			Logger::debug(util::str::formatex("  cs  : ", m_shaders.cs->debugName()));
 		}
 
-		DxvkShaderModuleCreateInfo moduleInfo;
+		VltShaderModuleCreateInfo moduleInfo;
 		moduleInfo.fsDualSrcBlend = false;
 
 		auto csm = m_shaders.cs->createShaderModule(m_device, m_slotMapping, moduleInfo);

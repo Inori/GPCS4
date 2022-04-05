@@ -50,6 +50,7 @@ namespace sce::vlt
 	class VltDevice : public RcObject
 	{
 		friend class VltSubmissionQueue;
+		friend class VltDescriptorPoolTracker;
 
 	public:
 		VltDevice(
@@ -280,6 +281,9 @@ namespace sce::vlt
 		void recycleCommandList(
 			const Rc<VltCommandList>& cmdList);
 
+		void recycleDescriptorPool(
+			const Rc<VltDescriptorPool>& pool);
+
 		VltDeviceQueue getQueue(
 			uint32_t family,
 			uint32_t index) const;
@@ -301,6 +305,7 @@ namespace sce::vlt
 		VltSubmissionQueue m_submissionQueue;
 
 		VltRecycler<VltCommandList, 16> m_recycledCommandLists;
+		VltRecycler<VltDescriptorPool, 16> m_recycledDescriptorPools;
 	};
 
 }  // namespace sce::vlt
