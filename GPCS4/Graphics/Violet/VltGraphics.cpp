@@ -16,12 +16,12 @@ namespace sce::vlt
 	{
 		if (m_shaders.vs != nullptr)
 			m_shaders.vs->defineResourceSlots(m_slotMapping);
-		if (m_shaders.tcs != nullptr)
-			m_shaders.tcs->defineResourceSlots(m_slotMapping);
-		if (m_shaders.tes != nullptr)
-			m_shaders.tes->defineResourceSlots(m_slotMapping);
-		if (m_shaders.gs != nullptr)
-			m_shaders.gs->defineResourceSlots(m_slotMapping);
+		//if (m_shaders.tcs != nullptr)
+		//	m_shaders.tcs->defineResourceSlots(m_slotMapping);
+		//if (m_shaders.tes != nullptr)
+		//	m_shaders.tes->defineResourceSlots(m_slotMapping);
+		//if (m_shaders.gs != nullptr)
+		//	m_shaders.gs->defineResourceSlots(m_slotMapping);
 		if (m_shaders.fs != nullptr)
 			m_shaders.fs->defineResourceSlots(m_slotMapping);
 
@@ -45,12 +45,12 @@ namespace sce::vlt
 		{
 		case VK_SHADER_STAGE_VERTEX_BIT:
 			return m_shaders.vs;
-		case VK_SHADER_STAGE_GEOMETRY_BIT:
-			return m_shaders.gs;
-		case VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT:
-			return m_shaders.tcs;
-		case VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT:
-			return m_shaders.tes;
+		//case VK_SHADER_STAGE_GEOMETRY_BIT:
+		//	return m_shaders.gs;
+		//case VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT:
+		//	return m_shaders.tcs;
+		//case VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT:
+		//	return m_shaders.tes;
 		case VK_SHADER_STAGE_FRAGMENT_BIT:
 			return m_shaders.fs;
 		default:
@@ -152,25 +152,25 @@ namespace sce::vlt
 			sampleCount = VkSampleCountFlagBits(state.rs.sampleCount());
 
 		auto vsm  = createShaderModule(m_shaders.vs, state);
-		auto tcsm = createShaderModule(m_shaders.tcs, state);
-		auto tesm = createShaderModule(m_shaders.tes, state);
-		auto gsm  = createShaderModule(m_shaders.gs, state);
+		//auto tcsm = createShaderModule(m_shaders.tcs, state);
+		//auto tesm = createShaderModule(m_shaders.tes, state);
+		//auto gsm  = createShaderModule(m_shaders.gs, state);
 		auto fsm  = createShaderModule(m_shaders.fs, state);
 
 		std::vector<VkPipelineShaderStageCreateInfo> stages;
 		if (vsm)
 			stages.push_back(vsm.stageInfo(nullptr));
-		if (tcsm)
-			stages.push_back(tcsm.stageInfo(nullptr));
-		if (tesm)
-			stages.push_back(tesm.stageInfo(nullptr));
-		if (gsm)
-			stages.push_back(gsm.stageInfo(nullptr));
+		//if (tcsm)
+		//	stages.push_back(tcsm.stageInfo(nullptr));
+		//if (tesm)
+		//	stages.push_back(tesm.stageInfo(nullptr));
+		//if (gsm)
+		//	stages.push_back(gsm.stageInfo(nullptr));
 		if (fsm)
 			stages.push_back(fsm.stageInfo(nullptr));
 
 		// Fix up color write masks using the component mappings
-		std::array<VkPipelineColorBlendAttachmentState, MaxNumRenderTargets> omBlendAttachments;
+		std::array<VkPipelineColorBlendAttachmentState, MaxNumRenderTargets> cbBlendAttachments;
 
 		const VkColorComponentFlags fullMask =
 			VK_COLOR_COMPONENT_R_BIT |
@@ -180,36 +180,17 @@ namespace sce::vlt
 
 		for (uint32_t i = 0; i < MaxNumRenderTargets; i++)
 		{
-			omBlendAttachments[i] = state.cbBlend[i].state();
+			cbBlendAttachments[i] = state.cbBlend[i].state();
 
-			if (omBlendAttachments[i].colorWriteMask != fullMask)
+			if (cbBlendAttachments[i].colorWriteMask != fullMask)
 			{
-				omBlendAttachments[i].colorWriteMask = vutil::remapComponentMask(
+				cbBlendAttachments[i].colorWriteMask = vutil::remapComponentMask(
 					state.cbBlend[i].colorWriteMask(), state.cbSwizzle[i].mapping());
 			}
 
 			if ((m_fsOut & (1 << i)) == 0)
-				omBlendAttachments[i].colorWriteMask = 0;
+				cbBlendAttachments[i].colorWriteMask = 0;
 		}
-
-		// Generate per-instance attribute divisors
-		std::array<VkVertexInputBindingDivisorDescriptionEXT, MaxNumVertexBindings> viDivisorDesc;
-		uint32_t                                                                    viDivisorCount = 0;
-
-		for (uint32_t i = 0; i < state.il.bindingCount(); i++)
-		{
-			if (state.ilBindings[i].inputRate() == VK_VERTEX_INPUT_RATE_INSTANCE && state.ilBindings[i].divisor() != 1)
-			{
-				const uint32_t id = viDivisorCount++;
-
-				viDivisorDesc[id].binding = i; /* see below */
-				viDivisorDesc[id].divisor = state.ilBindings[i].divisor();
-			}
-		}
-
-		int32_t rasterizedStream = m_shaders.gs != nullptr
-									   ? m_shaders.gs->shaderOptions().rasterizedStream
-									   : 0;
 
 		// Compact vertex bindings so that we can more easily update vertex buffers
 		std::array<VkVertexInputAttributeDescription, MaxNumVertexAttributes> viAttribs;
@@ -229,27 +210,14 @@ namespace sce::vlt
 			viAttribs[i].binding = viBindingMap[state.ilAttributes[i].binding()];
 		}
 
-		VkPipelineVertexInputDivisorStateCreateInfoEXT viDivisorInfo;
-		viDivisorInfo.sType                     = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO_EXT;
-		viDivisorInfo.pNext                     = nullptr;
-		viDivisorInfo.vertexBindingDivisorCount = viDivisorCount;
-		viDivisorInfo.pVertexBindingDivisors    = viDivisorDesc.data();
-
 		VkPipelineVertexInputStateCreateInfo viInfo;
 		viInfo.sType                           = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-		viInfo.pNext                           = &viDivisorInfo;
+		viInfo.pNext                           = nullptr;
 		viInfo.flags                           = 0;
 		viInfo.vertexBindingDescriptionCount   = state.il.bindingCount();
 		viInfo.pVertexBindingDescriptions      = viBindings.data();
 		viInfo.vertexAttributeDescriptionCount = state.il.attributeCount();
 		viInfo.pVertexAttributeDescriptions    = viAttribs.data();
-
-		if (viDivisorCount == 0)
-			viInfo.pNext = viDivisorInfo.pNext;
-
-		// TODO remove this once the extension is widely supported
-		if (!m_pipeMgr->m_device->features().extVertexAttributeDivisor.vertexAttributeInstanceRateDivisor)
-			viInfo.pNext = viDivisorInfo.pNext;
 
 		VkPipelineInputAssemblyStateCreateInfo iaInfo;
 		iaInfo.sType                  = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -257,12 +225,6 @@ namespace sce::vlt
 		iaInfo.flags                  = 0;
 		iaInfo.topology               = state.ia.primitiveTopology();
 		iaInfo.primitiveRestartEnable = state.ia.primitiveRestart();
-
-		VkPipelineTessellationStateCreateInfo tsInfo;
-		tsInfo.sType              = VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO;
-		tsInfo.pNext              = nullptr;
-		tsInfo.flags              = 0;
-		tsInfo.patchControlPoints = state.ia.patchVertexCount();
 
 		VkPipelineViewportStateCreateInfo vpInfo;
 		vpInfo.sType         = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -272,12 +234,6 @@ namespace sce::vlt
 		vpInfo.pViewports    = nullptr;
 		vpInfo.scissorCount  = state.rs.viewportCount();
 		vpInfo.pScissors     = nullptr;
-
-		VkPipelineRasterizationStateStreamCreateInfoEXT xfbStreamInfo;
-		xfbStreamInfo.sType               = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_STREAM_CREATE_INFO_EXT;
-		xfbStreamInfo.pNext               = nullptr;
-		xfbStreamInfo.flags               = 0;
-		xfbStreamInfo.rasterizationStream = uint32_t(rasterizedStream);
 
 		VkPipelineRasterizationDepthClipStateCreateInfoEXT rsDepthClipInfo;
 		rsDepthClipInfo.sType           = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_DEPTH_CLIP_STATE_CREATE_INFO_EXT;
@@ -290,7 +246,7 @@ namespace sce::vlt
 		rsInfo.pNext                   = &rsDepthClipInfo;
 		rsInfo.flags                   = 0;
 		rsInfo.depthClampEnable        = VK_TRUE;
-		rsInfo.rasterizerDiscardEnable = rasterizedStream < 0;
+		rsInfo.rasterizerDiscardEnable = VK_FALSE;
 		rsInfo.polygonMode             = state.rs.polygonMode();
 		rsInfo.cullMode                = state.rs.cullMode();
 		rsInfo.frontFace               = state.rs.frontFace();
@@ -299,15 +255,6 @@ namespace sce::vlt
 		rsInfo.depthBiasClamp          = 0.0f;
 		rsInfo.depthBiasSlopeFactor    = 0.0f;
 		rsInfo.lineWidth               = 1.0f;
-
-		if (rasterizedStream > 0)
-			rsDepthClipInfo.pNext = &xfbStreamInfo;
-
-		if (!m_pipeMgr->m_device->features().extDepthClipEnable.depthClipEnable)
-		{
-			rsInfo.pNext            = rsDepthClipInfo.pNext;
-			rsInfo.depthClampEnable = !state.rs.depthClipEnable();
-		}
 
 		uint32_t sampleMask = state.ms.sampleMask();
 
@@ -343,7 +290,7 @@ namespace sce::vlt
 		cbInfo.logicOpEnable   = state.cb.enableLogicOp();
 		cbInfo.logicOp         = state.cb.logicOp();
 		cbInfo.attachmentCount = VltLimits::MaxNumRenderTargets;
-		cbInfo.pAttachments    = omBlendAttachments.data();
+		cbInfo.pAttachments    = cbBlendAttachments.data();
 
 		for (uint32_t i = 0; i < 4; i++)
 			cbInfo.blendConstants[i] = 0.0f;
@@ -363,7 +310,7 @@ namespace sce::vlt
 		info.pStages             = stages.data();
 		info.pVertexInputState   = &viInfo;
 		info.pInputAssemblyState = &iaInfo;
-		info.pTessellationState  = &tsInfo;
+		info.pTessellationState  = nullptr;
 		info.pViewportState      = &vpInfo;
 		info.pRasterizationState = &rsInfo;
 		info.pMultisampleState   = &msInfo;
@@ -375,9 +322,6 @@ namespace sce::vlt
 		info.subpass             = 0;
 		info.basePipelineHandle  = VK_NULL_HANDLE;
 		info.basePipelineIndex   = -1;
-
-		if (tsInfo.patchControlPoints == 0)
-			info.pTessellationState = nullptr;
 
 		VkPipeline pipeline = VK_NULL_HANDLE;
 		if (vkCreateGraphicsPipelines(m_device->handle(),
@@ -408,10 +352,11 @@ namespace sce::vlt
 		// Fix up fragment shader outputs for dual-source blending
 		if (shader->stage() == VK_SHADER_STAGE_FRAGMENT_BIT)
 		{
-			info.fsDualSrcBlend = state.cbBlend[0].blendEnable() && (vutil::isDualSourceBlendFactor(state.cbBlend[0].srcColorBlendFactor()) ||
-																	 vutil::isDualSourceBlendFactor(state.cbBlend[0].dstColorBlendFactor()) ||
-																	 vutil::isDualSourceBlendFactor(state.cbBlend[0].srcAlphaBlendFactor()) ||
-																	 vutil::isDualSourceBlendFactor(state.cbBlend[0].dstAlphaBlendFactor()));
+			info.fsDualSrcBlend = state.cbBlend[0].blendEnable() &&
+								  (vutil::isDualSourceBlendFactor(state.cbBlend[0].srcColorBlendFactor()) ||
+								   vutil::isDualSourceBlendFactor(state.cbBlend[0].dstColorBlendFactor()) ||
+								   vutil::isDualSourceBlendFactor(state.cbBlend[0].srcAlphaBlendFactor()) ||
+								   vutil::isDualSourceBlendFactor(state.cbBlend[0].dstAlphaBlendFactor()));
 		}
 
 		// Deal with undefined shader inputs
@@ -425,6 +370,7 @@ namespace sce::vlt
 		}
 		else if (shader->stage() != VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT)
 		{
+			Logger::exception("tessellation shader not supported yet.");
 			auto prevStage = getPrevStageShader(shader->stage());
 			providedInputs = prevStage->interfaceSlots().outputSlots;
 		}
@@ -444,22 +390,22 @@ namespace sce::vlt
 		if (stage == VK_SHADER_STAGE_VERTEX_BIT)
 			return nullptr;
 
-		if (stage == VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT)
-			return m_shaders.tcs;
+		//if (stage == VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT)
+		//	return m_shaders.tcs;
 
 		Rc<VltShader> result = m_shaders.vs;
 
 		if (stage == VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT)
 			return result;
 
-		if (m_shaders.tes != nullptr)
-			result = m_shaders.tes;
+		//if (m_shaders.tes != nullptr)
+		//	result = m_shaders.tes;
 
 		if (stage == VK_SHADER_STAGE_GEOMETRY_BIT)
 			return result;
 
-		if (m_shaders.gs != nullptr)
-			result = m_shaders.gs;
+		//if (m_shaders.gs != nullptr)
+		//	result = m_shaders.gs;
 
 		return result;
 	}
@@ -468,13 +414,13 @@ namespace sce::vlt
 		const VltGraphicsPipelineStateInfo& state) const
 	{
 		// Tessellation shaders and patches must be used together
-		bool hasPatches = state.ia.primitiveTopology() == VK_PRIMITIVE_TOPOLOGY_PATCH_LIST;
+		//bool hasPatches = state.ia.primitiveTopology() == VK_PRIMITIVE_TOPOLOGY_PATCH_LIST;
 
-		bool hasTcs = m_shaders.tcs != nullptr;
-		bool hasTes = m_shaders.tes != nullptr;
+		//bool hasTcs = m_shaders.tcs != nullptr;
+		//bool hasTes = m_shaders.tes != nullptr;
 
-		if (hasPatches != hasTcs || hasPatches != hasTes)
-			return false;
+		//if (hasPatches != hasTcs || hasPatches != hasTes)
+		//	return false;
 
 		// Filter out undefined primitive topologies
 		if (state.ia.primitiveTopology() == VK_PRIMITIVE_TOPOLOGY_MAX_ENUM)
@@ -495,12 +441,12 @@ namespace sce::vlt
 	{
 		if (m_shaders.vs != nullptr)
 			Logger::log(level, util::str::formatex("  vs  : ", m_shaders.vs->debugName()));
-		if (m_shaders.tcs != nullptr)
-			Logger::log(level, util::str::formatex("  tcs : ", m_shaders.tcs->debugName()));
-		if (m_shaders.tes != nullptr)
-			Logger::log(level, util::str::formatex("  tes : ", m_shaders.tes->debugName()));
-		if (m_shaders.gs != nullptr)
-			Logger::log(level, util::str::formatex("  gs  : ", m_shaders.gs->debugName()));
+		//if (m_shaders.tcs != nullptr)
+		//	Logger::log(level, util::str::formatex("  tcs : ", m_shaders.tcs->debugName()));
+		//if (m_shaders.tes != nullptr)
+		//	Logger::log(level, util::str::formatex("  tes : ", m_shaders.tes->debugName()));
+		//if (m_shaders.gs != nullptr)
+		//	Logger::log(level, util::str::formatex("  gs  : ", m_shaders.gs->debugName()));
 		if (m_shaders.fs != nullptr)
 			Logger::log(level, util::str::formatex("  fs  : ", m_shaders.fs->debugName()));
 

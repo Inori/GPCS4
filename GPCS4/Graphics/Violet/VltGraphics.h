@@ -28,17 +28,17 @@ namespace sce::vlt
 	struct VltGraphicsPipelineShaders
 	{
 		Rc<VltShader> vs;
-		Rc<VltShader> tcs;
-		Rc<VltShader> tes;
-		Rc<VltShader> gs;
+		//Rc<VltShader> tcs;
+		//Rc<VltShader> tes;
+		//Rc<VltShader> gs;
 		Rc<VltShader> fs;
 
 		bool eq(const VltGraphicsPipelineShaders& other) const
 		{
 			return vs == other.vs &&
-				   tcs == other.tcs &&
-				   tes == other.tes &&
-				   gs == other.gs &&
+				   //tcs == other.tcs &&
+				   //tes == other.tes &&
+				   //gs == other.gs &&
 				   fs == other.fs;
 		}
 
@@ -46,9 +46,9 @@ namespace sce::vlt
 		{
 			VltHashState state;
 			state.add(VltShader::getHash(vs));
-			state.add(VltShader::getHash(tcs));
-			state.add(VltShader::getHash(tes));
-			state.add(VltShader::getHash(gs));
+			//state.add(VltShader::getHash(tcs));
+			//state.add(VltShader::getHash(tes));
+			//state.add(VltShader::getHash(gs));
 			state.add(VltShader::getHash(fs));
 			return state;
 		}

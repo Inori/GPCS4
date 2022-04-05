@@ -324,6 +324,13 @@ namespace sce::vlt
 			enabled.extMemoryPriority.pNext          = std::exchange(enabled.core.pNext, &enabled.extMemoryPriority);
 			enabled.extMemoryPriority.memoryPriority = supported.extMemoryPriority.memoryPriority;
 		}
+
+		if (extensions.extMemoryPriority)
+		{
+			enabled.extDepthClipEnable.sType           = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLIP_ENABLE_FEATURES_EXT;
+			enabled.extDepthClipEnable.pNext           = std::exchange(enabled.core.pNext, &enabled.extDepthClipEnable);
+			enabled.extDepthClipEnable.depthClipEnable = VK_TRUE;
+		}
 	}
 
 
@@ -332,9 +339,10 @@ namespace sce::vlt
 	{
 		VltDeviceExtensions devExtensions;
 
-		std::array<VltExt*, 3> devExtensionList = { {
+		std::array<VltExt*, 4> devExtensionList = { {
 			&devExtensions.extMemoryBudget,
 			&devExtensions.extMemoryPriority,
+			&devExtensions.extDepthClipEnable,
 			&devExtensions.khrSwapchain,
 		} };
 
