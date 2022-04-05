@@ -59,6 +59,10 @@ Official HLSL to SPIR-V Feature Mapping Manual
 https://github.com/Microsoft/DirectXShaderCompiler/blob/master/docs/SPIR-V.rst
 
 
+Specialization Constants  
+https://gavinkg.github.io/ILearnVulkanFromScratch-CN/mdroot/Vulkan%20%E8%BF%9B%E9%98%B6/%E5%90%91%20Shader%20%E4%BC%A0%E8%BE%93%E6%95%B0%E6%8D%AE/Specialization%20Constants.html  
+
+
 
 
 
