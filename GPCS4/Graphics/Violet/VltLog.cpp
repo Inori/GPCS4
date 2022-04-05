@@ -4,6 +4,15 @@ LOG_CHANNEL(Graphic.Violet);
 
 namespace sce::vlt
 {
+	LogLevel Logger::logLevel()
+	{
+		return LogLevel::Trace;
+	}
+
+	void Logger::log(LogLevel level, const std::string& message)
+	{
+		LOG_DEBUG(message.c_str());
+	}
 
 	void Logger::trace(const std::string& message)
 	{
@@ -34,5 +43,7 @@ namespace sce::vlt
 	{
 		LOG_ASSERT(false, message.c_str());
 	}
+
+
 
 }  // namespace sce::vlt

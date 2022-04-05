@@ -4,7 +4,7 @@
 #include <cstring>
 #include <string>
 
-namespace algo {
+namespace alg {
   
   using Sha1Digest = std::array<uint8_t, 20>;
 

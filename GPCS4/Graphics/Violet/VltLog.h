@@ -17,6 +17,9 @@ namespace sce::vlt
     class Logger
 	{
 	public:
+		static LogLevel logLevel();
+
+		static void log(LogLevel level, const std::string& message);
 		static void trace(const std::string& message);
 		static void debug(const std::string& message);
 		static void info(const std::string& message);

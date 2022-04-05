@@ -2,11 +2,11 @@
 
 #include "GPCS4Common.h"
 
-namespace algo
-{;
+namespace alg
+{
 
-uint64_t MurmurHash(const void* key, int len);
+	uint64_t MurmurHash(const void* key, int len);
 
-uint64_t MurmurHash64A(const void* key, int len, uint64_t seed);
+	uint64_t MurmurHash64A(const void* key, int len, uint64_t seed);
 
-}  // namespace algo
+}  // namespace alg

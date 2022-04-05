@@ -1,7 +1,7 @@
 #include "sha1.h"
 #include "Sha1Hash.h"
 
-namespace algo 
+namespace alg 
 {
   
   std::string Sha1Hash::toString() const 

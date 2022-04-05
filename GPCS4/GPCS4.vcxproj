@@ -74,12 +74,14 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Graphics\Violet\VltBarrier.h" />
+    <ClInclude Include="Graphics\Violet\VltBindMask.h" />
     <ClInclude Include="Graphics\Violet\VltBuffer.h" />
     <ClInclude Include="Graphics\Violet\VltCmdList.h" />
     <ClInclude Include="Graphics\Violet\VltCommon.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltCompute.h" />
     <ClInclude Include="Graphics\Violet\VltContext.h" />
     <ClInclude Include="Graphics\Violet\VltDebugUtil.h" />
     <ClInclude Include="Graphics\Violet\VltDescriptor.h" />
@@ -91,6 +93,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Graphics\Violet\VltFormat.h" />
+    <ClInclude Include="Graphics\Violet\VltGraphics.h" />
     <ClInclude Include="Graphics\Violet\VltHash.h" />
     <ClInclude Include="Graphics\Violet\VltImage.h" />
     <ClInclude Include="Graphics\Violet\VltInstance.h">
@@ -98,9 +101,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Graphics\Violet\VltLifetime.h" />
+    <ClInclude Include="Graphics\Violet\VltLimit.h" />
     <ClInclude Include="Graphics\Violet\VltLog.h" />
     <ClInclude Include="Graphics\Violet\VltMemory.h" />
     <ClInclude Include="Graphics\Violet\VltObject.h" />
+    <ClInclude Include="Graphics\Violet\VltPipeLayout.h" />
+    <ClInclude Include="Graphics\Violet\VltPipeManager.h" />
     <ClInclude Include="Graphics\Violet\VltQueue.h" />
     <ClInclude Include="Graphics\Violet\VltRc.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
@@ -108,6 +114,9 @@
     </ClInclude>
     <ClInclude Include="Graphics\Violet\VltRecycler.h" />
     <ClInclude Include="Graphics\Violet\VltResource.h" />
+    <ClInclude Include="Graphics\Violet\VltShader.h" />
+    <ClInclude Include="Graphics\Violet\VltShaderKey.h" />
+    <ClInclude Include="Graphics\Violet\VltState.h" />
     <ClInclude Include="Graphics\Violet\VltUtil.h" />
     <ClInclude Include="Graphics\VirtualGPU.h" />
     <ClInclude Include="Loader\elf-sce.h" />
@@ -272,6 +281,7 @@
     <ClCompile Include="Graphics\Violet\VltBarrier.cpp" />
     <ClCompile Include="Graphics\Violet\VltBuffer.cpp" />
     <ClCompile Include="Graphics\Violet\VltCmdList.cpp" />
+    <ClCompile Include="Graphics\Violet\VltCompute.cpp" />
     <ClCompile Include="Graphics\Violet\VltContext.cpp" />
     <ClCompile Include="Graphics\Violet\VltDebugUtil.cpp" />
     <ClCompile Include="Graphics\Violet\VltDescriptor.cpp" />
@@ -282,6 +292,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Graphics\Violet\VltFormat.cpp" />
+    <ClCompile Include="Graphics\Violet\VltGraphics.cpp" />
     <ClCompile Include="Graphics\Violet\VltImage.cpp" />
     <ClCompile Include="Graphics\Violet\VltInstance.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
@@ -290,8 +301,12 @@
     <ClCompile Include="Graphics\Violet\VltLifetime.cpp" />
     <ClCompile Include="Graphics\Violet\VltLog.cpp" />
     <ClCompile Include="Graphics\Violet\VltMemory.cpp" />
+    <ClCompile Include="Graphics\Violet\VltPipeLayout.cpp" />
+    <ClCompile Include="Graphics\Violet\VltPipeManager.cpp" />
     <ClCompile Include="Graphics\Violet\VltQueue.cpp" />
     <ClCompile Include="Graphics\Violet\VltResource.cpp" />
+    <ClCompile Include="Graphics\Violet\VltShader.cpp" />
+    <ClCompile Include="Graphics\Violet\VltShaderKey.cpp" />
     <ClCompile Include="Graphics\Violet\VltUtil.cpp" />
     <ClCompile Include="Graphics\VirtualGPU.cpp" />
     <ClCompile Include="ImportLibs.cpp" />
@@ -473,11 +488,11 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir);$(ProjectDir)Common;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)SceModules;$(SolutionDir)3rdParty;$(SolutionDir)3rdParty\zydis\include;$(SolutionDir)3rdParty\zydis\dependencies\zycore\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(ProjectDir)Algorithm;$(ProjectDir)Common;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)SceModules;$(SolutionDir)3rdParty;$(SolutionDir)3rdParty\zydis\include;$(SolutionDir)3rdParty\zydis\dependencies\zycore\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir);$(ProjectDir)Common;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)SceModules;$(SolutionDir)3rdParty;$(SolutionDir)3rdParty\zydis\include;$(SolutionDir)3rdParty\zydis\dependencies\zycore\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(ProjectDir)Algorithm;$(ProjectDir)Common;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)SceModules;$(SolutionDir)3rdParty;$(SolutionDir)3rdParty\zydis\include;$(SolutionDir)3rdParty\zydis\dependencies\zycore\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Label="LLVM" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

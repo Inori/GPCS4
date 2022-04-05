@@ -370,12 +370,18 @@ namespace sce::vlt::vutil
 
 	bool isBlendConstantBlendFactor(VkBlendFactor factor)
 	{
-		return factor == VK_BLEND_FACTOR_CONSTANT_COLOR || factor == VK_BLEND_FACTOR_CONSTANT_ALPHA || factor == VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR || factor == VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA;
+		return factor == VK_BLEND_FACTOR_CONSTANT_COLOR || 
+			factor == VK_BLEND_FACTOR_CONSTANT_ALPHA || 
+			factor == VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR || 
+			factor == VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA;
 	}
 
 	bool isDualSourceBlendFactor(VkBlendFactor factor)
 	{
-		return factor == VK_BLEND_FACTOR_SRC1_COLOR || factor == VK_BLEND_FACTOR_SRC1_ALPHA || factor == VK_BLEND_FACTOR_ONE_MINUS_SRC1_COLOR || factor == VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA;
+		return factor == VK_BLEND_FACTOR_SRC1_COLOR || 
+			factor == VK_BLEND_FACTOR_SRC1_ALPHA || 
+			factor == VK_BLEND_FACTOR_ONE_MINUS_SRC1_COLOR || 
+			factor == VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA;
 	}
 
 	VltAccessFlags getAccessTypes(VkAccessFlags2 flags)
