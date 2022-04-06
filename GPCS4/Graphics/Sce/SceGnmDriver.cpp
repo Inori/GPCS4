@@ -1,6 +1,6 @@
 #include "SceGnmDriver.h"
 
-#include "Emulator/Emulator.h"
+#include "Emulator.h"
 #include "VirtualGPU.h"
 #include "SceVideoOut.h"
 #include "SceGpuQueue.h"
@@ -176,7 +176,7 @@ namespace sce
 		// track currently display buffer
 		// so that we can find it during command buffer recording
 		// and use it as render target.
-		trackSwapImage(displayBufferIndex);
+		trackSwapImage(videoOutHandle, displayBufferIndex);
 
 		SceGpuCommand cmd = {};
 		cmd.buffer        = dcbGpuAddrs[0];
@@ -332,16 +332,18 @@ namespace sce
 		}
 	}
 
-	void SceGnmDriver::trackSwapImage(uint32_t index)
+	void SceGnmDriver::trackSwapImage(uint32_t videoOutHandle, uint32_t index)
 	{
-		auto& tracker   = GPU().resourceTracker();
-		auto& swapImage = m_swapImages[index];
-		auto& info      = swapImage.image->info();
-		auto  gpuMode   = GPU().mode();
+		auto& tracker  = GPU().resourceTracker();
+		auto& videoOut = GPU().videoOutGet(videoOutHandle);
+
+		auto  dispBuffer = videoOut.getDisplayBuffer(index);
+		auto& swapImage  = m_swapImages[index];
+		auto  gpuMode    = GPU().mode();
 
 		Gnm::TileMode tileMode;
-
-		// This should be ok to set a hard code format.
+		// The color format and tile mode should could be calculated from
+		// dispBuffer, but it should be ok to set a hard code format.
 		// All the shit we do here is just to give the dummy renderTarget 
 		// a non-zero dummy size, so that it can be find by the resource tracker.
 		// we'll receive the real rendertarget during command buffer process.
@@ -355,8 +357,8 @@ namespace sce
 
 		Gnm::RenderTargetSpec spec = {};
 		spec.init();
-		spec.m_width                        = info.extent.width;
-		spec.m_height                       = info.extent.height;
+		spec.m_width                        = dispBuffer.width;
+		spec.m_height                       = dispBuffer.height;
 		spec.m_pitch                        = 0;
 		spec.m_numSlices                    = 1;
 		spec.m_colorFormat                  = format;
@@ -369,6 +371,9 @@ namespace sce
 
 		SceRenderTarget renderTarget = {};
 		renderTarget.renderTarget.init(&spec);
+		// color address should be enough, we don't need cmask and fmask
+		renderTarget.renderTarget.setBaseAddress(dispBuffer.address);
+
 		renderTarget.image = swapImage.image;
 		renderTarget.imageView = swapImage.imageView;
 

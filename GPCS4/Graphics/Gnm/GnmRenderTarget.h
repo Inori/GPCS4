@@ -6,7 +6,7 @@
 #include "GnmRegInfo.h"
 #include "GnmStructure.h"
 #include "GpuAddress/GnmGpuAddress.h"
-#include "Emulator/Emulator.h"
+#include "Emulator.h"
 #include "VirtualGPU.h"
 
 namespace sce::Gnm
@@ -294,6 +294,101 @@ namespace sce::Gnm
 			return result;
 		}
 
+		void setBaseAddress256ByteBlocks(uint32_t baseAddr256)
+		{
+			// From IDA
+			auto dataFormat = getDataFormat();
+			auto tileMode   = getTileMode();
+
+			if (dataFormat.getSurfaceFormat() != kSurfaceFormatInvalid &&
+				GpuAddress::isMacroTiled(tileMode))
+			{
+				auto     mode           = getMinimumGpuMode();
+				uint32_t numFragments   = 1 << getNumFragments();
+				uint32_t bitsPerElement = dataFormat.getTotalBitsPerElement();
+				NumBanks numBanks       = kNumBanks2;
+				uint8_t  shift          = 0;
+				if (mode != kGpuModeBase)
+				{
+					GpuAddress::getAltNumBanks(&numBanks, tileMode, bitsPerElement, numFragments);
+					shift = 4;
+				}
+				else
+				{
+					GpuAddress::getNumBanks(&numBanks, tileMode, bitsPerElement, numFragments);
+					shift = 3;
+				}
+
+				baseAddr256 = (baseAddr256 & ~(((1 << (numBanks + 1)) - 1) << shift)) | 
+					          (m_regs[0] & (((1 << (numBanks + 1)) - 1) << shift));
+			}
+
+			m_regs[kCbColorBase] = baseAddr256;
+		}
+
+		void setBaseAddress(void* baseAddr)
+		{
+			// baseAddr must be 256-byte-aligned!
+			return setBaseAddress256ByteBlocks((uint32_t)(uintptr_t(baseAddr) >> 8));
+		}
+
+		void setCmaskAddress256ByteBlocks(uint32_t cmaskAddr256)
+		{
+			SCE_GNM_SET_FIELD(m_regs[kCbColorCmask], CB_COLOR0_CMASK, BASE_256B, cmaskAddr256);
+		}
+
+		void setCmaskAddress(void* cmaskAddr)
+		{
+			// cmaskAddr must be 256-byte-aligned!
+			return setCmaskAddress256ByteBlocks((uint32_t)(uintptr_t(cmaskAddr) >> 8));
+		}
+
+		void setFmaskAddress256ByteBlocks(uint32_t fmaskAddr256)
+		{
+			// From IDA
+			auto numSamples = getNumSamples();
+			auto tileMode   = getFmaskTileMode();
+
+			if (numSamples != kNumSamples1 &&
+				GpuAddress::isMacroTiled(tileMode))
+			{
+				auto     dataFormat     = getDataFormat();
+				auto     mode           = getMinimumGpuMode();
+				uint32_t numFragments   = 1 << getNumFragments();
+				uint32_t bitsPerElement = dataFormat.getTotalBitsPerElement();
+				NumBanks numBanks       = kNumBanks2;
+				uint8_t  shift          = 0;
+				if (mode != kGpuModeBase)
+				{
+					GpuAddress::getAltNumBanks(&numBanks, tileMode, bitsPerElement, numFragments);
+					shift = 4;
+				}
+				else
+				{
+					GpuAddress::getNumBanks(&numBanks, tileMode, bitsPerElement, numFragments);
+					shift = 3;
+				}
+
+				fmaskAddr256 = (fmaskAddr256 & ~(((1 << (numBanks + 1)) - 1) << shift)) | 
+					           (m_regs[9] & (((1 << (numBanks + 1)) - 1) << shift));
+			}
+
+			m_regs[kCbColorFmask] = fmaskAddr256;
+		}
+
+		void setFmaskAddress(void* fmaskAddr)
+		{
+			// fmaskAddr must be 256-byte-aligned!
+			return setFmaskAddress256ByteBlocks((uint32_t)(uintptr_t(fmaskAddr) >> 8));
+		}
+
+		void setAddresses(void* baseAddress, void* cmaskAddress, void* fmaskAddress)
+		{
+			setBaseAddress(baseAddress);
+			setCmaskAddress(cmaskAddress);
+			setFmaskAddress(fmaskAddress);
+		}
+
 		uint32_t getWidth() const
 		{
 			return m_regs[kCbWidthHeight] & 0x0000FFFF;
@@ -372,15 +467,8 @@ namespace sce::Gnm
 		{
 			// From IDA.
 
-			RenderTargetFormat format =
-				(RenderTargetFormat)SCE_GNM_GET_FIELD(m_regs[kCbColorInfo], CB_COLOR0_INFO, FORMAT);
-			RenderTargetChannelType type =
-				(RenderTargetChannelType)SCE_GNM_GET_FIELD(m_regs[kCbColorInfo], CB_COLOR0_INFO, NUMBER_TYPE);
-			RenderTargetChannelOrder order =
-				(RenderTargetChannelOrder)SCE_GNM_GET_FIELD(m_regs[kCbColorInfo], CB_COLOR0_INFO, COMP_SWAP);
-
 			auto mode       = getMinimumGpuMode();
-			auto dataFormat = DataFormat::build(format, type, order);
+			auto dataFormat = getDataFormat();
 			auto tileMode   = getTileMode();
 
 			if (mode == kGpuModeBase ||

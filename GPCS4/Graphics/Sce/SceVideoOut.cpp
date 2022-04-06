@@ -1,11 +1,10 @@
 #include "SceVideoOut.h"
 
+#include "Emulator.h"
 #include "SceGnmDriver.h"
 #include "ScePresenter.h"
 #include "SceVideoOut/sce_videoout_types.h"
 #include "VirtualGPU.h"
-
-#include "Emulator/Emulator.h"
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -103,8 +102,11 @@ namespace sce
 			}
 
 			SceDisplayBuffer buffer = {};
-			buffer.format           = attribute->pixelFormat;
-			buffer.tile             = attribute->tilingMode;
+			buffer.pixelFormat      = attribute->pixelFormat;
+			buffer.tilingMode       = attribute->tilingMode;
+			buffer.aspectRatio      = attribute->aspectRatio;
+			buffer.pitchInPixel     = attribute->pitchInPixel;
+			buffer.option           = attribute->option;
 			buffer.width            = attribute->width;
 			buffer.height           = attribute->height;
 			buffer.size             = calculateBufferSize(attribute);
@@ -122,9 +124,9 @@ namespace sce
 		} while (false);
 		return bRet;
 	}
-	
+
 	void SceVideoOut::createPresenter(
-		uint32_t bufferNum,
+		uint32_t                          bufferNum,
 		const SceVideoOutBufferAttribute* attribute)
 	{
 		PresenterDesc desc = {};
@@ -178,6 +180,5 @@ namespace sce
 		// The returned size must be equal with GnmRenderTarget::getColorSizeAlign
 		return 0;
 	}
-
 
 }  // namespace sce

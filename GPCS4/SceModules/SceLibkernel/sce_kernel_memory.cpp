@@ -1,7 +1,7 @@
 #include "sce_libkernel.h"
 #include "sce_kernel_memory.h"
 #include "UtilMath.h"
-#include "Emulator/Emulator.h"
+#include "Emulator.h"
 #include "Emulator/VirtualCPU.h"
 
 #include <cstring>

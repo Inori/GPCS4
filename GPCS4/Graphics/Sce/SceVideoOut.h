@@ -10,125 +10,127 @@ struct SceVideoOutBufferAttribute;
 namespace sce
 {
 
+	struct DisplaySize
+	{
+		// Runtime size in pixels
+		uint32_t width;
+		uint32_t height;
+	};
 
-struct DisplaySize
-{
-	// Runtime size in pixels
-	uint32_t width;
-	uint32_t height;
-};
+	/*
+     * For a real PS4 hardware, a hardware display is connected to the console,
+     * for our emulator, we use a window to emulate the display.
+     */
+	class VirtualDisplay
+	{
+	private:
+		// emulated display hardware size
+		const uint32_t VirtualDisplayWidth  = 1920;
+		const uint32_t VirtualDisplayHeight = 1080;
 
-/*
-* For a real PS4 hardware, a hardware display is connected to the console,
-* for our emulator, we use a window to emulate the display.
-*/
-class VirtualDisplay
-{
-private:
-	// emulated display hardware size
-	const uint32_t VirtualDisplayWidth  = 1920;
-	const uint32_t VirtualDisplayHeight = 1080;
+	public:
+		VirtualDisplay();
+		~VirtualDisplay();
 
-public:
-	VirtualDisplay();
-	~VirtualDisplay();
+		void processEvents();
 
-	void processEvents();
+		/**
+	     * \brief Get the window size in pixels
+	     * 
+	     * This can be used to help create
+	     * render target/swapchain.
+	     * \returns The window size
+	     */
+		DisplaySize getSize() const;
+
+		/**
+	     * \brief Get the window surface
+	     * 
+	     * This will be used to create swapchain.
+	     * \returns The window surface
+	     */
+		VkSurfaceKHR getWindowSurface(VkInstance instance);
+
+	private:
+		static void windowResizeCallback(
+			GLFWwindow* window,
+			int         width,
+			int         height);
+
+		static void framebufferResizeCallback(
+			GLFWwindow* window,
+			int         width,
+			int         height);
+
+	private:
+		GLFWwindow*  m_window        = nullptr;
+		VkSurfaceKHR m_windowSurface = VK_NULL_HANDLE;
+	};
 
 	/**
-	 * \brief Get the window size in pixels
-	 * 
-	 * This can be used to help create
-	 * render target/swapchain.
-	 * \returns The window size
-	 */
-	DisplaySize getSize() const;
+     * \brief Gnm Display Buffer Descriptor
+     *
+     *  Display buffer information
+     */
+	struct SceDisplayBuffer
+	{
+		void*    address;
+		int32_t  pixelFormat;  // SceVideoOutPixelFormat
+		int32_t  tilingMode;   // SceVideoOutTilingMode
+		int32_t  aspectRatio;  // SceVideoOutAspectRatio
+		uint32_t pitchInPixel;
+		uint32_t option;       // SceVideoOutBufferAttributeOption
+		uint32_t width;
+		uint32_t height;
+		uint32_t size;
+	};
 
-	/**
-	 * \brief Get the window surface
-	 * 
-	 * This will be used to create swapchain.
-	 * \returns The window surface
-	 */
-	VkSurfaceKHR getWindowSurface(VkInstance instance);
+	/*
+     * For a real PS4 hardware, libVideoOut abstract the display hardware connected to the console,
+     * for our emulator, the video out class correspond to a window.
+     */
 
-private:
-	static void windowResizeCallback(
-		GLFWwindow* window,
-		int         width,
-		int         height);
+	class SceVideoOut
+	{
+	public:
+		SceVideoOut(int32_t busType, const void* param);
+		~SceVideoOut();
 
-	static void framebufferResizeCallback(
-		GLFWwindow* window,
-		int         width,
-		int         height);
+		int32_t busType();
 
-private:
-	GLFWwindow*  m_window        = nullptr;
-	VkSurfaceKHR m_windowSurface = VK_NULL_HANDLE;
-};
+		DisplaySize getSize() const;
 
-/**
- * \brief Gnm Display Buffer Descriptor
- *
- *  Display buffer information
- */
-struct SceDisplayBuffer
-{
-	const void* address;
-	int32_t     tile;
-	int32_t     format;
-	uint32_t    width;
-	uint32_t    height;
-	uint32_t    size;
-};
+		bool registerDisplayrBuffers(
+			uint32_t                          startIndex,
+			void* const*                      addresses,
+			uint32_t                          bufferNum,
+			const SceVideoOutBufferAttribute* attribute);
 
-/*
-* For a real PS4 hardware, libVideoOut abstract the display hardware connected to the console,
-* for our emulator, the video out class correspond to a window.
-*/
+		uint32_t numDisplayBuffer();
 
-class SceVideoOut
-{
-public:
-	SceVideoOut(int32_t busType, const void* param);
-	~SceVideoOut();
+		SceDisplayBuffer getDisplayBuffer(uint32_t index);
 
-	int32_t busType();
+		VkSurfaceKHR getSurface(VkInstance instance);
 
-	DisplaySize getSize() const;
+		void setFlipRate(uint32_t rate);
 
-	bool registerDisplayrBuffers(
-		uint32_t                          startIndex,
-		void* const*                      addresses,
-		uint32_t                          bufferNum,
-		const SceVideoOutBufferAttribute* attribute);
+		uint32_t getFlipRate() const;
 
-	uint32_t numDisplayBuffer();
+	private:
+		uint32_t calculateBufferSize(
+			const SceVideoOutBufferAttribute* attribute);
+		void createPresenter(
+			uint32_t                          bufferNum,
+			const SceVideoOutBufferAttribute* attribute);
 
-	SceDisplayBuffer getDisplayBuffer(uint32_t index);
+	private:
+		VirtualDisplay m_display;
 
-	VkSurfaceKHR getSurface(VkInstance instance);
+		// SceVideoOutBusType
+		int32_t  m_busType  = 0;
+		uint32_t m_flipRate = 60;
 
-	void setFlipRate(uint32_t rate);
-
-	uint32_t getFlipRate() const;
-
-private:
-	uint32_t calculateBufferSize(
-		const SceVideoOutBufferAttribute* attribute);
-	void createPresenter(
-		uint32_t                          bufferNum,
-		const SceVideoOutBufferAttribute* attribute);
-
-private:
-	VirtualDisplay m_display;
-
-	// SceVideoOutBusType
-	int32_t  m_busType  = 0;
-	uint32_t m_flipRate = 60;
-
-	std::vector<SceDisplayBuffer> m_displayBuffers;
-};
+		std::vector<SceDisplayBuffer> m_displayBuffers;
+	};
 
 }  // namespace sce

@@ -100,7 +100,9 @@ namespace sce
 
 		void destroyGpuQueues();
 
-		void trackSwapImage(uint32_t index);
+		void trackSwapImage(
+			uint32_t videoOutHandle,
+			uint32_t index);
 		void resetResourceTracker();
 
 	private:

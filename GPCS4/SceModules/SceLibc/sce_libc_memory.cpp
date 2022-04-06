@@ -1,5 +1,5 @@
 #include "sce_libc.h"
-#include "Emulator/Emulator.h"
+#include "Emulator.h"
 #include "Emulator/VirtualCPU.h"
 
 LOG_CHANNEL(SceModules.SceLibc.memory);

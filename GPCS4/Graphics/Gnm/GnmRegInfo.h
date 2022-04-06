@@ -2,8 +2,11 @@
 
 
 #define SCE_GNM_GET_FIELD(src, registername, field) \
-	(((src) & (GNM_ ## registername ## __ ## field ## __MASK)) >> (GNM_ ## registername ## __ ## field ## __SHIFT))
+	(((src) & (GNM_##registername##__##field##__MASK)) >> (GNM_##registername##__##field##__SHIFT))
 
+#define SCE_GNM_SET_FIELD(dest, registername, field, value)        \
+	(dest) = ((dest) & ~(GNM_##registername##__##field##__MASK)) | \
+			 (((value) << GNM_##registername##__##field##__SHIFT) & (GNM_##registername##__##field##__MASK))
 
 #define mmSQ_BUF_RSRC_WORD0                                                              0x23C0
 #define GNM_SQ_BUF_RSRC_WORD0__BASE_ADDRESS__MASK                                        0xffffffffL //size:32

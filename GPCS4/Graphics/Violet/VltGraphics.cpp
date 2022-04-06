@@ -245,7 +245,7 @@ namespace sce::vlt
 		rsInfo.sType                   = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 		rsInfo.pNext                   = &rsDepthClipInfo;
 		rsInfo.flags                   = 0;
-		rsInfo.depthClampEnable        = VK_TRUE;
+		rsInfo.depthClampEnable        = VK_FALSE;
 		rsInfo.rasterizerDiscardEnable = VK_FALSE;
 		rsInfo.polygonMode             = state.rs.polygonMode();
 		rsInfo.cullMode                = state.rs.cullMode();

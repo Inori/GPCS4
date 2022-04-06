@@ -1,12 +1,16 @@
 #include "GnmCommandBufferDraw.h"
 
+#include "Emulator.h"
 #include "GnmBuffer.h"
 #include "GnmSampler.h"
 #include "GnmSharpBuffer.h"
 #include "GnmTexture.h"
 #include "GpuAddress/GnmGpuAddress.h"
+#include "VirtualGPU.h"
 
 #include "Platform/PlatFile.h"
+#include "Sce/SceResourceTracker.h"
+#include "Violet/VltImage.h"
 
 #include <algorithm>
 #include <functional>
@@ -115,6 +119,18 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setRenderTarget(uint32_t rtSlot, RenderTarget const* target)
 	{
+		auto& tracker = GPU().resourceTracker();
+		auto  resource = tracker.find(target->getBaseAddress());
+		if (resource)
+		{
+			// update render target
+			SceRenderTarget rtRes = {};
+			rtRes.image           = resource->renderTarget().image;
+			rtRes.imageView       = resource->renderTarget().imageView;
+			// replace the dummy target with real one
+			rtRes.renderTarget    = *target;
+			resource->setRenderTarget(rtRes);
+		}
 	}
 
 	void GnmCommandBufferDraw::setDepthRenderTarget(DepthRenderTarget const* depthTarget)

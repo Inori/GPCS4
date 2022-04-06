@@ -1,5 +1,5 @@
 #include "sce_videoout.h"
-#include "Emulator/Emulator.h"
+#include "Emulator.h"
 #include "VirtualGPU.h"
 #include "Sce/SceVideoOut.h"
 #include "Sce/SceGnmDriver.h"

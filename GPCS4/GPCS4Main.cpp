@@ -1,4 +1,4 @@
-#include "Emulator/Emulator.h"
+#include "Emulator.h"
 #include "Emulator/SceModuleSystem.h"
 #include "Emulator/TLSHandler.h"
 #include "Loader/ModuleLoader.h"
