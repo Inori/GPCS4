@@ -823,6 +823,9 @@
     <ClInclude Include="Graphics\Violet\VltRenderTarget.h">
       <Filter>Source Files\Graphics\Violet</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Gnm\GnmConverter.h">
+      <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1418,6 +1421,9 @@
     </ClCompile>
     <ClCompile Include="Graphics\Violet\VltShaderKey.cpp">
       <Filter>Source Files\Graphics\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Gnm\GnmConverter.cpp">
+      <Filter>Source Files\Graphics\Gnm</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

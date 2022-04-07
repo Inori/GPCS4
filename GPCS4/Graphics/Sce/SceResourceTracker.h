@@ -230,12 +230,13 @@ namespace sce
 		 * \brief Track a sce resource type.
 		 */
 		template <class ResType>
-		void track(ResType&& arg)
+		std::pair<SceResourceMap::iterator, bool>
+		track(ResType&& arg)
 		{
 			std::lock_guard<util::sync::Spinlock> guard(m_lock);
 
 			void* cpuMem = arg.cpuMemory();
-			m_resources.emplace(cpuMem, std::forward<ResType>(arg));
+			return m_resources.emplace(cpuMem, std::forward<ResType>(arg));
 		}
 
 		/**

@@ -27,11 +27,20 @@ namespace sce
 		VirtualGPU();
 		~VirtualGPU();
 
+		/**
+		 * \brief Implement sceVideoOutOpen
+		 */
 		int videoOutOpen(
 			SceUserServiceUserId userId, int32_t type, int32_t index, const void* param);
 
+		/**
+		 * \brief Implement sceVideoOutClose
+		 */
 		int videoOutClose(int32_t handle);
 
+		/**
+		 * \brief Retrieve video out instance by handle
+		 */
 		SceVideoOut& videoOutGet(int32_t handle);
 
 		/**

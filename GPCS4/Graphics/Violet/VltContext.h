@@ -48,6 +48,25 @@ namespace sce::vlt
          */
 		Rc<VltCommandList> endRecording();
 
+
+        /**
+         * \brief Sets render targets
+         * 
+         * \param [in] slot Slot number
+         * \param [in] targets Render targets to bind
+         */
+		void bindRenderTarget(
+			uint32_t             slot,
+			const VltAttachment& target);
+
+        /**
+         * \brief Sets depth render targets
+         * 
+         * \param [in] targets Render targets to bind
+         */
+		void bindDepthRenderTarget(
+			const VltAttachment& depthTarget);
+
         /**
          * \brief Transforms image subresource layouts
          * 
@@ -61,6 +80,41 @@ namespace sce::vlt
 			const VkImageSubresourceRange& dstSubresources,
 			VkImageLayout                  srcLayout,
 			VkImageLayout                  dstLayout);
+
+        /**
+         * \brief Transforms image subresource layouts
+         */
+		void transformImage(
+			const Rc<VltImage>&            dstImage,
+			const VkImageSubresourceRange& dstSubresources,
+			VkImageLayout                  srcLayout,
+			VkPipelineStageFlags2          srcStages,
+			VkAccessFlags2                 srcAccess,
+			VkImageLayout                  dstLayout,
+			VkPipelineStageFlags2          dstStages,
+			VkAccessFlags2                 dstAccess);
+
+
+        /**
+         * \brief Sets viewports
+         * 
+         * \param [in] viewportCount Number of viewports
+         * \param [in] viewports The viewports
+         * \param [in] scissorRects Schissor rectangles
+         */
+		void setViewports(
+			uint32_t          viewportCount,
+			const VkViewport* viewports);
+
+        /**
+         * \brief Sets viewports
+         * 
+         * \param [in] scissorCount Number of schissor rectangles
+         * \param [in] scissorRects Schissor rectangles
+         */
+		void setScissors(
+			uint32_t        scissorCount,
+			const VkRect2D* scissorRects);
 
 
     private:

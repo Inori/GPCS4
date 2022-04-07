@@ -3,6 +3,8 @@
 #include "VltCommon.h"
 #include "VltLimit.h"
 
+#include <vector>
+
 namespace sce::vlt
 {
 	class VltImageView;

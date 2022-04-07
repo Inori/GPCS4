@@ -35,7 +35,8 @@ namespace sce::vlt
 		GpDirtyDepthBias,          ///< Depth bias has changed
 		GpDirtyDepthBounds,        ///< Depth bounds have changed
 		GpDirtyStencilRef,         ///< Stencil reference has changed
-		GpDirtyViewport,           ///< Viewport state has changed
+		GpDirtyViewport,           ///< Viewport has changed
+		GpDirtyScissor,            ///< Scissor has changed
 		GpDirtyPredicate,          ///< Predicate has changed
 		GpDynamicBlendConstants,   ///< Blend constants are dynamic
 		GpDynamicDepthBias,        ///< Depth bias is dynamic
