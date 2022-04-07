@@ -1,7 +1,13 @@
 #include "sce_libkernel.h"
-#include "pthreads4w/pthread.h"
+
+#include "Emulator.h"
 #include "Platform.h"
-#include "Emulator/SceModuleSystem.h"
+#include "SceModuleSystem.h"
+#include "VirtualGPU.h"
+#include "pthreads4w/pthread.h"
+
+#include "Gnm/GnmConstant.h"
+
 // Note:
 // The codebase is generated using GenerateCode.py
 // You may need to modify the code manually to fit development needs
@@ -66,9 +72,11 @@ int PS4API sceKernelGetCpumode(void)
 }
 
 // Is PS4 Pro
+// This is the underlying implementation of Gnm::getGpuMode();
 int PS4API sceKernelIsNeoMode(void)
 {
-	int isNeoMode = 1;
+	auto mode      = GPU().mode();
+	int  isNeoMode = (mode == sce::Gnm::GpuMode::kGpuModeNeo);
 	LOG_SCE_TRACE("return %d", isNeoMode);
 	return isNeoMode;
 }

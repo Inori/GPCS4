@@ -5,29 +5,26 @@
 
 #include <memory>
 
-
 class VirtualCPU;
 namespace sce
 {
-class VirtualGPU;
+	class VirtualGPU;
 }  // namespace sce
 
 struct NativeModule;
 
-
-typedef void (PS4NORETURN PS4API *PFUNC_EntryPoint)(void* pEnv, void* pfnExitHandler);
+typedef void(PS4NORETURN PS4API* PFUNC_EntryPoint)(void* pEnv, void* pfnExitHandler);
 
 class Emulator final : public util::Singleton<Emulator>
 {
 	friend class util::Singleton<Emulator>;
 
 public:
-
 	bool Init();
 
 	void Unit();
 
-	bool Run(NativeModule const &mod);
+	bool Run(NativeModule const& mod);
 
 	VirtualCPU& CPU();
 
@@ -45,14 +42,13 @@ private:
 	bool executeEntry(NativeModule const& mod);
 
 	static void PS4API LastExitHandler(void);
+
 private:
 	std::shared_ptr<VirtualCPU>      m_cpu;
 	std::shared_ptr<sce::VirtualGPU> m_gpu;
 };
 
-
-
-// for convenience access 
+// for convenience access
 
 inline Emulator& TheEmulator()
 {
