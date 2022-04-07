@@ -14,7 +14,7 @@ namespace sce::vlt
      * A set of flags used to specify which of
      * the command buffers need to be submitted.
      */
-	enum class VltCmdBuffer : uint32_t
+	enum class VltCmdType : uint32_t
 	{
 		InitBuffer     = 0,
 		ExecBuffer     = 1,
@@ -22,7 +22,7 @@ namespace sce::vlt
 		ComputeBuffer  = 3,
 	};
 
-	using VltCmdBufferFlags = util::Flags<VltCmdBuffer>;
+	using VltCmdBufferFlags = util::Flags<VltCmdType>;
 
 	/**
      * \brief Queue submission info
@@ -352,7 +352,7 @@ namespace sce::vlt
 		}
 
 		void cmdCopyBuffer(
-			VltCmdBuffer        cmdBuffer,
+			VltCmdType          cmdBuffer,
 			VkBuffer            srcBuffer,
 			VkBuffer            dstBuffer,
 			uint32_t            regionCount,
@@ -366,7 +366,7 @@ namespace sce::vlt
 		}
 
 		void cmdCopyBufferToImage(
-			VltCmdBuffer             cmdBuffer,
+			VltCmdType               cmdBuffer,
 			VkBuffer                 srcBuffer,
 			VkImage                  dstImage,
 			VkImageLayout            dstImageLayout,
@@ -381,7 +381,7 @@ namespace sce::vlt
 		}
 
 		void cmdCopyImage(
-			VltCmdBuffer       cmdBuffer,
+			VltCmdType         cmdBuffer,
 			VkImage            srcImage,
 			VkImageLayout      srcImageLayout,
 			VkImage            dstImage,
@@ -398,7 +398,7 @@ namespace sce::vlt
 		}
 
 		void cmdCopyImageToBuffer(
-			VltCmdBuffer             cmdBuffer,
+			VltCmdType               cmdBuffer,
 			VkImage                  srcImage,
 			VkImageLayout            srcImageLayout,
 			VkBuffer                 dstBuffer,
@@ -555,7 +555,7 @@ namespace sce::vlt
 		}
 
 		void cmdFillBuffer(
-			VltCmdBuffer cmdBuffer,
+			VltCmdType   cmdBuffer,
 			VkBuffer     dstBuffer,
 			VkDeviceSize dstOffset,
 			VkDeviceSize size,
@@ -568,7 +568,7 @@ namespace sce::vlt
 		}
 
 		void cmdPipelineBarrier(
-			VltCmdBuffer                 cmdBuffer,
+			VltCmdType                   cmdBuffer,
 			VkPipelineStageFlags         srcStageMask,
 			VkPipelineStageFlags         dstStageMask,
 			VkDependencyFlags            dependencyFlags,
@@ -589,7 +589,7 @@ namespace sce::vlt
 		}
 
 		void cmdPipelineBarrier2(
-			VltCmdBuffer            cmdBuffer,
+			VltCmdType              cmdBuffer,
 			const VkDependencyInfo* pDependencyInfo)
 		{
 			m_cmdBuffersUsed.set(cmdBuffer);
@@ -619,7 +619,7 @@ namespace sce::vlt
 			uint32_t    firstQuery,
 			uint32_t    queryCount)
 		{
-			m_cmdBuffersUsed.set(VltCmdBuffer::InitBuffer);
+			m_cmdBuffersUsed.set(VltCmdType::InitBuffer);
 
 			vkCmdResetQueryPool(m_initBuffer,
 								queryPool, firstQuery, queryCount);
@@ -640,7 +640,7 @@ namespace sce::vlt
 		}
 
 		void cmdUpdateBuffer(
-			VltCmdBuffer cmdBuffer,
+			VltCmdType   cmdBuffer,
 			VkBuffer     dstBuffer,
 			VkDeviceSize dstOffset,
 			VkDeviceSize dataSize,
@@ -726,13 +726,13 @@ namespace sce::vlt
 		void cmdInsertDebugUtilsLabel(VkDebugUtilsLabelEXT* labelInfo);
 
 	private:
-		VkCommandBuffer getCmdBuffer(VltCmdBuffer cmdBuffer) const
+		VkCommandBuffer getCmdBuffer(VltCmdType cmdBuffer) const
 		{
-			if (cmdBuffer == VltCmdBuffer::ExecBuffer)
+			if (cmdBuffer == VltCmdType::ExecBuffer)
 				return m_execBuffer;
-			if (cmdBuffer == VltCmdBuffer::InitBuffer)
+			if (cmdBuffer == VltCmdType::InitBuffer)
 				return m_initBuffer;
-			if (cmdBuffer == VltCmdBuffer::TransferBuffer)
+			if (cmdBuffer == VltCmdType::TransferBuffer)
 				return m_transBuffer;
 			return VK_NULL_HANDLE;
 		}
@@ -766,7 +766,7 @@ namespace sce::vlt
 		//DxvkSignalTracker         m_signalTracker;
 		//DxvkGpuEventTracker       m_gpuEventTracker;
 		//DxvkGpuQueryTracker       m_gpuQueryTracker;
-	
+
 		VltDebugUtil m_debug;
 	};
 

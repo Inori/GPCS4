@@ -120,7 +120,7 @@ namespace sce::vlt
 
 		VltQueueSubmission info = VltQueueSubmission();
 
-		if (m_cmdBuffersUsed.test(VltCmdBuffer::TransferBuffer))
+		if (m_cmdBuffersUsed.test(VltCmdType::TransferBuffer))
 		{
 			info.cmdBuffers[info.cmdBufferCount++] = m_transBuffer;
 
@@ -139,7 +139,7 @@ namespace sce::vlt
 			}
 		}
 
-		if (m_cmdBuffersUsed.test(VltCmdBuffer::ComputeBuffer))
+		if (m_cmdBuffersUsed.test(VltCmdType::ComputeBuffer))
 		{
 			info.cmdBuffers[info.cmdBufferCount++] = m_compBuffer;
 
@@ -158,9 +158,9 @@ namespace sce::vlt
 			}
 		}
 
-		if (m_cmdBuffersUsed.test(VltCmdBuffer::InitBuffer))
+		if (m_cmdBuffersUsed.test(VltCmdType::InitBuffer))
 			info.cmdBuffers[info.cmdBufferCount++] = m_initBuffer;
-		if (m_cmdBuffersUsed.test(VltCmdBuffer::ExecBuffer))
+		if (m_cmdBuffersUsed.test(VltCmdType::ExecBuffer))
 			info.cmdBuffers[info.cmdBufferCount++] = m_execBuffer;
 
 		if (waitSemaphore)
@@ -214,13 +214,13 @@ namespace sce::vlt
 
 		// Unconditionally mark the exec buffer as used. There
 		// is virtually no use case where this isn't correct.
-		m_cmdBuffersUsed = VltCmdBuffer::ExecBuffer;
+		m_cmdBuffersUsed = VltCmdType::ExecBuffer;
 	}
 
 	void VltCommandList::endRecording()
 	{
-		if (vkEndCommandBuffer(m_execBuffer) != VK_SUCCESS || 
-			vkEndCommandBuffer(m_initBuffer) != VK_SUCCESS || 
+		if (vkEndCommandBuffer(m_execBuffer) != VK_SUCCESS ||
+			vkEndCommandBuffer(m_initBuffer) != VK_SUCCESS ||
 			vkEndCommandBuffer(m_transBuffer) != VK_SUCCESS)
 			Logger::err("DxvkCommandList::endRecording: Failed to record command buffer");
 	}
@@ -283,7 +283,7 @@ namespace sce::vlt
 		}
 		else
 		{
-			m_cmdBuffersUsed.set(VltCmdBuffer::InitBuffer);
+			m_cmdBuffersUsed.set(VltCmdType::InitBuffer);
 
 			vkResetEvent(
 				m_device->handle(), event);

@@ -185,6 +185,9 @@
     <Filter Include="Source Files\Graphics\Violet">
       <UniqueIdentifier>{8714f22f-65d4-40c8-a2fe-44bf175a49b2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Graphics\Violet\Shaders">
+      <UniqueIdentifier>{e1703805-718f-4377-a265-7de0c49c0dfc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SceModules\SceLibc\sce_libc.h">
@@ -812,6 +815,15 @@
       <Filter>Source Files\Graphics\Violet</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Violet\VltShaderKey.h">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltContextState.h">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltConstantState.h">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltRenderTarget.h">
       <Filter>Source Files\Graphics\Violet</Filter>
     </ClInclude>
   </ItemGroup>

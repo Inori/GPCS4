@@ -18,7 +18,7 @@ namespace sce::vlt
 	class VltBarrierSet
 	{
 	public:
-		VltBarrierSet(VltCmdBuffer cmdBuffer);
+		VltBarrierSet(VltCmdType cmdBuffer);
 		~VltBarrierSet();
 
 		void accessMemory(
@@ -122,7 +122,7 @@ namespace sce::vlt
 			VltAccessFlags          access;
 		};
 
-		VltCmdBuffer m_cmdBuffer;
+		VltCmdType m_cmdBuffer;
 
 		VkMemoryBarrier2 m_memBarrier = { VK_STRUCTURE_TYPE_MEMORY_BARRIER_2,
 										  nullptr,

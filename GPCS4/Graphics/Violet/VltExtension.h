@@ -301,7 +301,6 @@ namespace sce::vlt
 		VltExt khrDepthStencilResolve            = { VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME, VltExtMode::Optional };
 		VltExt khrDrawIndirectCount              = { VK_KHR_DRAW_INDIRECT_COUNT_EXTENSION_NAME, VltExtMode::Optional };
 		VltExt khrDriverProperties               = { VK_KHR_DRIVER_PROPERTIES_EXTENSION_NAME, VltExtMode::Optional };
-		VltExt khrImageFormatList                = { VK_KHR_IMAGE_FORMAT_LIST_EXTENSION_NAME, VltExtMode::Required };
 		VltExt khrSamplerMirrorClampToEdge       = { VK_KHR_SAMPLER_MIRROR_CLAMP_TO_EDGE_EXTENSION_NAME, VltExtMode::Optional };
 		VltExt khrShaderFloatControls            = { VK_KHR_SHADER_FLOAT_CONTROLS_EXTENSION_NAME, VltExtMode::Optional };
 		VltExt khrSwapchain                      = { VK_KHR_SWAPCHAIN_EXTENSION_NAME, VltExtMode::Required };

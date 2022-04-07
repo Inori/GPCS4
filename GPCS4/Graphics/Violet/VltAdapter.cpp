@@ -224,6 +224,124 @@ namespace sce::vlt
 					|| !required.core.features.variableMultisampleRate)
 			&& (m_deviceFeatures.core.features.inheritedQueries
 					|| !required.core.features.inheritedQueries)
+			&& (m_deviceFeatures.vk11.storageBuffer16BitAccess
+                    || !required.vk11.storageBuffer16BitAccess)
+            && (m_deviceFeatures.vk11.uniformAndStorageBuffer16BitAccess
+                    || !required.vk11.uniformAndStorageBuffer16BitAccess)
+            && (m_deviceFeatures.vk11.storagePushConstant16
+                    || !required.vk11.storagePushConstant16)
+            && (m_deviceFeatures.vk11.storageInputOutput16
+                    || !required.vk11.storageInputOutput16)
+            && (m_deviceFeatures.vk11.multiview
+                    || !required.vk11.multiview)
+            && (m_deviceFeatures.vk11.multiviewGeometryShader
+                    || !required.vk11.multiviewGeometryShader)
+            && (m_deviceFeatures.vk11.multiviewTessellationShader
+                    || !required.vk11.multiviewTessellationShader)
+            && (m_deviceFeatures.vk11.variablePointersStorageBuffer
+                    || !required.vk11.variablePointersStorageBuffer)
+            && (m_deviceFeatures.vk11.variablePointers
+                    || !required.vk11.variablePointers)
+            && (m_deviceFeatures.vk11.protectedMemory
+                    || !required.vk11.protectedMemory)
+            && (m_deviceFeatures.vk11.samplerYcbcrConversion
+                    || !required.vk11.samplerYcbcrConversion)
+            && (m_deviceFeatures.vk11.shaderDrawParameters
+                    || !required.vk11.shaderDrawParameters)
+			&& (m_deviceFeatures.vk12.samplerMirrorClampToEdge
+                    || !required.vk12.samplerMirrorClampToEdge)
+            && (m_deviceFeatures.vk12.drawIndirectCount
+                    || !required.vk12.drawIndirectCount)
+            && (m_deviceFeatures.vk12.storageBuffer8BitAccess
+                    || !required.vk12.storageBuffer8BitAccess)
+            && (m_deviceFeatures.vk12.uniformAndStorageBuffer8BitAccess
+                    || !required.vk12.uniformAndStorageBuffer8BitAccess)
+            && (m_deviceFeatures.vk12.storagePushConstant8
+                    || !required.vk12.storagePushConstant8)
+            && (m_deviceFeatures.vk12.shaderBufferInt64Atomics
+                    || !required.vk12.shaderBufferInt64Atomics)
+            && (m_deviceFeatures.vk12.shaderSharedInt64Atomics
+                    || !required.vk12.shaderSharedInt64Atomics)
+            && (m_deviceFeatures.vk12.shaderFloat16
+                    || !required.vk12.shaderFloat16)
+            && (m_deviceFeatures.vk12.shaderInt8
+                    || !required.vk12.shaderInt8)
+            && (m_deviceFeatures.vk12.descriptorIndexing
+                    || !required.vk12.descriptorIndexing)
+            && (m_deviceFeatures.vk12.shaderInputAttachmentArrayDynamicIndexing
+                    || !required.vk12.shaderInputAttachmentArrayDynamicIndexing)
+            && (m_deviceFeatures.vk12.shaderUniformTexelBufferArrayDynamicIndexing
+                    || !required.vk12.shaderUniformTexelBufferArrayDynamicIndexing)
+            && (m_deviceFeatures.vk12.shaderStorageTexelBufferArrayDynamicIndexing
+                    || !required.vk12.shaderStorageTexelBufferArrayDynamicIndexing)
+            && (m_deviceFeatures.vk12.shaderUniformBufferArrayNonUniformIndexing
+                    || !required.vk12.shaderUniformBufferArrayNonUniformIndexing)
+            && (m_deviceFeatures.vk12.shaderSampledImageArrayNonUniformIndexing
+                    || !required.vk12.shaderSampledImageArrayNonUniformIndexing)
+            && (m_deviceFeatures.vk12.shaderStorageBufferArrayNonUniformIndexing
+                    || !required.vk12.shaderStorageBufferArrayNonUniformIndexing)
+            && (m_deviceFeatures.vk12.shaderStorageImageArrayNonUniformIndexing
+                    || !required.vk12.shaderStorageImageArrayNonUniformIndexing)
+            && (m_deviceFeatures.vk12.shaderInputAttachmentArrayNonUniformIndexing
+                    || !required.vk12.shaderInputAttachmentArrayNonUniformIndexing)
+            && (m_deviceFeatures.vk12.shaderUniformTexelBufferArrayNonUniformIndexing
+                    || !required.vk12.shaderUniformTexelBufferArrayNonUniformIndexing)
+            && (m_deviceFeatures.vk12.shaderStorageTexelBufferArrayNonUniformIndexing
+                    || !required.vk12.shaderStorageTexelBufferArrayNonUniformIndexing)
+            && (m_deviceFeatures.vk12.descriptorBindingUniformBufferUpdateAfterBind
+                    || !required.vk12.descriptorBindingUniformBufferUpdateAfterBind)
+            && (m_deviceFeatures.vk12.descriptorBindingSampledImageUpdateAfterBind
+                    || !required.vk12.descriptorBindingSampledImageUpdateAfterBind)
+            && (m_deviceFeatures.vk12.descriptorBindingStorageImageUpdateAfterBind
+                    || !required.vk12.descriptorBindingStorageImageUpdateAfterBind)
+            && (m_deviceFeatures.vk12.descriptorBindingStorageBufferUpdateAfterBind
+                    || !required.vk12.descriptorBindingStorageBufferUpdateAfterBind)
+            && (m_deviceFeatures.vk12.descriptorBindingUniformTexelBufferUpdateAfterBind
+                    || !required.vk12.descriptorBindingUniformTexelBufferUpdateAfterBind)
+            && (m_deviceFeatures.vk12.descriptorBindingStorageTexelBufferUpdateAfterBind
+                    || !required.vk12.descriptorBindingStorageTexelBufferUpdateAfterBind)
+            && (m_deviceFeatures.vk12.descriptorBindingUpdateUnusedWhilePending
+                    || !required.vk12.descriptorBindingUpdateUnusedWhilePending)
+            && (m_deviceFeatures.vk12.descriptorBindingPartiallyBound
+                    || !required.vk12.descriptorBindingPartiallyBound)
+            && (m_deviceFeatures.vk12.descriptorBindingVariableDescriptorCount
+                    || !required.vk12.descriptorBindingVariableDescriptorCount)
+            && (m_deviceFeatures.vk12.runtimeDescriptorArray
+                    || !required.vk12.runtimeDescriptorArray)
+            && (m_deviceFeatures.vk12.samplerFilterMinmax
+                    || !required.vk12.samplerFilterMinmax)
+            && (m_deviceFeatures.vk12.scalarBlockLayout
+                    || !required.vk12.scalarBlockLayout)
+            && (m_deviceFeatures.vk12.imagelessFramebuffer
+                    || !required.vk12.imagelessFramebuffer)
+            && (m_deviceFeatures.vk12.uniformBufferStandardLayout
+                    || !required.vk12.uniformBufferStandardLayout)
+            && (m_deviceFeatures.vk12.shaderSubgroupExtendedTypes
+                    || !required.vk12.shaderSubgroupExtendedTypes)
+            && (m_deviceFeatures.vk12.separateDepthStencilLayouts
+                    || !required.vk12.separateDepthStencilLayouts)
+            && (m_deviceFeatures.vk12.hostQueryReset
+                    || !required.vk12.hostQueryReset)
+            && (m_deviceFeatures.vk12.timelineSemaphore
+                    || !required.vk12.timelineSemaphore)
+            && (m_deviceFeatures.vk12.bufferDeviceAddress
+                    || !required.vk12.bufferDeviceAddress)
+            && (m_deviceFeatures.vk12.bufferDeviceAddressCaptureReplay
+                    || !required.vk12.bufferDeviceAddressCaptureReplay)
+            && (m_deviceFeatures.vk12.bufferDeviceAddressMultiDevice
+                    || !required.vk12.bufferDeviceAddressMultiDevice)
+            && (m_deviceFeatures.vk12.vulkanMemoryModel
+                    || !required.vk12.vulkanMemoryModel)
+            && (m_deviceFeatures.vk12.vulkanMemoryModelDeviceScope
+                    || !required.vk12.vulkanMemoryModelDeviceScope)
+            && (m_deviceFeatures.vk12.vulkanMemoryModelAvailabilityVisibilityChains
+                    || !required.vk12.vulkanMemoryModelAvailabilityVisibilityChains)
+            && (m_deviceFeatures.vk12.shaderOutputViewportIndex
+                    || !required.vk12.shaderOutputViewportIndex)
+            && (m_deviceFeatures.vk12.shaderOutputLayer
+                    || !required.vk12.shaderOutputLayer)
+            && (m_deviceFeatures.vk12.subgroupBroadcastDynamicId
+                    || !required.vk12.subgroupBroadcastDynamicId)
 			&& (m_deviceFeatures.vk13.robustImageAccess
 					|| !required.vk13.robustImageAccess)
 			&& (m_deviceFeatures.vk13.inlineUniformBlock
@@ -254,8 +372,6 @@ namespace sce::vlt
 					|| !required.vk13.shaderIntegerDotProduct)
 			&& (m_deviceFeatures.vk13.maintenance4
 					|| !required.vk13.maintenance4)
-			&& (m_deviceFeatures.shaderDrawParameters.shaderDrawParameters
-					|| !required.shaderDrawParameters.shaderDrawParameters)
 			&& (m_deviceFeatures.ext4444Formats.formatA4R4G4B4
 					|| !required.ext4444Formats.formatA4R4G4B4)
 			&& (m_deviceFeatures.ext4444Formats.formatA4B4G4R4
@@ -309,14 +425,14 @@ namespace sce::vlt
 		enabled.core.features.tessellationShader = VK_TRUE;
 		enabled.core.features.logicOp            = VK_TRUE;
 
+		enabled.vk11.sType                = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES;
+		enabled.vk11.pNext                = std::exchange(enabled.core.pNext, &enabled.vk11);
+		enabled.vk11.shaderDrawParameters = VK_TRUE;
+
 		enabled.vk13.sType            = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
 		enabled.vk13.pNext            = std::exchange(enabled.core.pNext, &enabled.vk13);
 		enabled.vk13.synchronization2 = VK_TRUE;
 		enabled.vk13.dynamicRendering = VK_TRUE;
-
-		enabled.shaderDrawParameters.sType                = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DRAW_PARAMETERS_FEATURES;
-		enabled.shaderDrawParameters.pNext                = std::exchange(enabled.core.pNext, &enabled.shaderDrawParameters);
-		enabled.shaderDrawParameters.shaderDrawParameters = VK_TRUE;
 
 		if (extensions.extMemoryPriority)
 		{
@@ -325,12 +441,13 @@ namespace sce::vlt
 			enabled.extMemoryPriority.memoryPriority = supported.extMemoryPriority.memoryPriority;
 		}
 
-		if (extensions.extMemoryPriority)
+		if (extensions.extDepthClipEnable)
 		{
 			enabled.extDepthClipEnable.sType           = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLIP_ENABLE_FEATURES_EXT;
 			enabled.extDepthClipEnable.pNext           = std::exchange(enabled.core.pNext, &enabled.extDepthClipEnable);
 			enabled.extDepthClipEnable.depthClipEnable = VK_TRUE;
 		}
+
 	}
 
 
@@ -590,11 +707,12 @@ namespace sce::vlt
 		m_deviceFeatures.core.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
 		m_deviceFeatures.core.pNext = nullptr;
 
+		m_deviceFeatures.vk11.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES;
+		m_deviceFeatures.vk11.pNext = std::exchange(m_deviceFeatures.core.pNext, &m_deviceFeatures.vk11);
+		m_deviceFeatures.vk12.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
+		m_deviceFeatures.vk12.pNext = std::exchange(m_deviceFeatures.core.pNext, &m_deviceFeatures.vk12);
 		m_deviceFeatures.vk13.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
 		m_deviceFeatures.vk13.pNext = std::exchange(m_deviceFeatures.core.pNext, &m_deviceFeatures.vk13);
-
-		m_deviceFeatures.shaderDrawParameters.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DRAW_PARAMETERS_FEATURES;
-		m_deviceFeatures.shaderDrawParameters.pNext = std::exchange(m_deviceFeatures.core.pNext, &m_deviceFeatures.shaderDrawParameters);
 
 		if (m_deviceExtensions.supports(VK_EXT_4444_FORMATS_EXTENSION_NAME))
 		{

@@ -82,7 +82,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Graphics\Violet\VltCompute.h" />
+    <ClInclude Include="Graphics\Violet\VltConstantState.h" />
     <ClInclude Include="Graphics\Violet\VltContext.h" />
+    <ClInclude Include="Graphics\Violet\VltContextState.h" />
     <ClInclude Include="Graphics\Violet\VltDebugUtil.h" />
     <ClInclude Include="Graphics\Violet\VltDescriptor.h" />
     <ClInclude Include="Graphics\Violet\VltDevice.h" />
@@ -113,6 +115,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Graphics\Violet\VltRecycler.h" />
+    <ClInclude Include="Graphics\Violet\VltRenderTarget.h" />
     <ClInclude Include="Graphics\Violet\VltResource.h" />
     <ClInclude Include="Graphics\Violet\VltShader.h" />
     <ClInclude Include="Graphics\Violet\VltShaderKey.h" />
