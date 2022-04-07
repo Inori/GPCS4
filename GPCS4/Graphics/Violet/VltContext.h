@@ -2,10 +2,13 @@
 
 #include "VltCommon.h"
 #include "VltCmdList.h"
+#include "VltBarrier.h"
+#include "VltContextState.h"
 
 namespace sce::vlt
 {
 	class VltDevice;
+	class VltImage;
 
 	/**
      * \brief DXVk context
@@ -44,9 +47,37 @@ namespace sce::vlt
          */
 		Rc<VltCommandList> endRecording();
 
+        /**
+         * \brief Transforms image subresource layouts
+         * 
+         * \param [in] dstImage Image to transform
+         * \param [in] dstSubresources Subresources
+         * \param [in] srcLayout Current layout
+         * \param [in] dstLayout Desired layout
+         */
+		void transformImage(
+			const Rc<VltImage>&            dstImage,
+			const VkImageSubresourceRange& dstSubresources,
+			VkImageLayout                  srcLayout,
+			VkImageLayout                  dstLayout);
+
+
+    private:
+		bool updateGraphicsPipeline();
+
+		template <bool Indexed, bool Indirect>
+		bool commitGraphicsState();
+
 	private:
 		VltDevice* m_device;
 
         Rc<VltCommandList> m_cmd;
+
+        VltContextFlags m_flags;
+		VltContextState m_state;
+
+        VltBarrierSet m_execBarriers;
 	};
+
+
 }  // namespace sce::vlt
