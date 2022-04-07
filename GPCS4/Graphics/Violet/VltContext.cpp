@@ -7,6 +7,7 @@ namespace sce::vlt
 {
 	VltContext::VltContext(VltDevice* device) :
 		m_device(device),
+		m_common(&device->m_objects),
 		m_execBarriers(VltCmdType::ExecBuffer)
 	{
 	}
@@ -61,11 +62,32 @@ namespace sce::vlt
 			if (unlikely(!this->updateGraphicsPipeline()))
 				return false;
 		}
+
+		return true;
 	}
 
 	bool VltContext::updateGraphicsPipeline()
 	{
+		m_state.gp.pipeline = lookupGraphicsPipeline(m_state.gp.shaders);
+		if (unlikely(m_state.gp.pipeline == nullptr))
+		{
+			m_state.gp.flags = VltGraphicsPipelineFlags();
+			return false;
+		}
+
 		m_flags.clr(VltContextFlag::GpDirtyPipeline);
+		return true;
+	}
+
+	VltGraphicsPipeline* VltContext::lookupGraphicsPipeline(
+		const VltGraphicsPipelineShaders& shaders)
+	{
+		auto idx = shaders.hash() % m_gpLookupCache.size();
+
+		if (unlikely(!m_gpLookupCache[idx] || !shaders.eq(m_gpLookupCache[idx]->shaders())))
+			m_gpLookupCache[idx] = m_common->pipelineManager().createGraphicsPipeline(shaders);
+
+		return m_gpLookupCache[idx];
 	}
 
 }  // namespace sce::vlt

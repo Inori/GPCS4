@@ -9,6 +9,7 @@ namespace sce::vlt
 {
 	class VltDevice;
 	class VltImage;
+	class VltObjects;
 
 	/**
      * \brief DXVk context
@@ -63,13 +64,17 @@ namespace sce::vlt
 
 
     private:
+		VltGraphicsPipeline* lookupGraphicsPipeline(
+			const VltGraphicsPipelineShaders& shaders);
+
 		bool updateGraphicsPipeline();
 
 		template <bool Indexed, bool Indirect>
 		bool commitGraphicsState();
 
 	private:
-		VltDevice* m_device;
+		VltDevice*  m_device;
+		VltObjects* m_common;
 
         Rc<VltCommandList> m_cmd;
 
@@ -77,6 +82,8 @@ namespace sce::vlt
 		VltContextState m_state;
 
         VltBarrierSet m_execBarriers;
+
+        std::array<VltGraphicsPipeline*, 4096> m_gpLookupCache = {};
 	};
 
 

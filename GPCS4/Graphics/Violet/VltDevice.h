@@ -51,6 +51,7 @@ namespace sce::vlt
 	{
 		friend class VltSubmissionQueue;
 		friend class VltDescriptorPoolTracker;
+		friend class VltContext;
 
 	public:
 		VltDevice(
