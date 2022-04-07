@@ -68,7 +68,7 @@ Tencent QQ/TIM Group Number: <a target="_blank" href="//shang.qq.com/wpa/qunwpa?
 
 
 ## Build
-To run or develop GPCS4, a CPU supporting AVX instruction set as well as a graphics card supporting Vulkan are required.  
+To run or develop GPCS4, a CPU supporting AVX instruction set as well as a graphics card supporting Vulkan 1.3 are required.  
 Currently, only Windows build is supported.  
 
 For more details, see the [Developer's Guide](https://github.com/Inori/GPCS4/blob/master/Doc/DeveloperGuide.md)

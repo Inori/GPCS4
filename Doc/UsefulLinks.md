@@ -46,6 +46,9 @@ https://github.com/pearlxcore/PS4-PKG-Tool
 Flipping the Vulkan viewport  
 https://www.saschawillems.de/blog/2019/03/29/flipping-the-vulkan-viewport/
 
+Rendering a fullscreen quad without buffers  
+https://www.saschawillems.de/blog/2016/08/13/vulkan-tutorial-on-rendering-a-fullscreen-quad-without-buffers/  
+
 Barriers In Vulkan : They Are Not That Difficult  
 https://cpp-rendering.io/barriers-vulkan-not-difficult/
 
