@@ -40,6 +40,29 @@ namespace sce::Gnm
 			return m_vsharp;
 		}
 
+		void initAsDataBuffer(void* baseAddr, DataFormat format, uint32_t numElements)
+		{
+			// From IDA
+			m_regs[3] = 0x20000000;
+			m_regs[0] = static_cast<uint32_t>(reinterpret_cast<size_t>(baseAddr));
+			m_regs[1] = (reinterpret_cast<uint64_t>(baseAddr) >> 32) & 0x0FFF;
+
+			uint32_t bytesPerElement = format.getBytesPerElement();
+			m_regs[1] = (m_regs[1] & 0xC000FFFF) | ((bytesPerElement << 16) & 0x3FFF0000);
+
+			uint32_t v6 = 0;
+			if ((*(uint16_t*)&format & 0x800u) <= 0x7FF && 
+				(uint32_t) *(uint8_t*)&format - 1 <= 0xD)
+			{
+				if ((*(uint16_t*)&format & 0xF00) == 0x700)
+					v6 = (*(uint8_t*)&format & 0xF) << 15;
+				if ((*(uint8_t*)&format & 0xFE) != 6)
+					v6 = (*(uint8_t*)&format & 0xF) << 15;
+			}
+			m_regs[3] = v6 | (m_regs[3] & 0xFFF80000) | (16 * *(uint16_t*)&format & 0x7000) | ((format.m_asInt >> 12) & 0xFFF);
+			m_regs[2] = numElements;
+		}
+
 		ResourceMemoryType getResourceMemoryType() const
 		{
 			// From IDA

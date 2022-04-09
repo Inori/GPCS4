@@ -179,6 +179,38 @@ namespace sce::Gnm
 			rtRes.renderTarget = *target;
 			resource->setRenderTarget(rtRes);
 
+			// Currently, we use vulkan swapchain image directly
+			// as the gnm render target's backend. 
+			// (Maybe we should use a standalone vulkan image then bilt to swapchain in the future)
+			// And swapchain images are in optimal tiling mode.
+			// 
+			// In Gnm, a common way to clear render target
+			// is to treat it as a normal buffer and use compute shader to write the desired
+			// values directly.
+			// 
+			// Hence comes the problem:
+			// we can't write the swapchain images directly by the translated shader because it's not linear.
+			// 
+			// To support this, we use a linear staging buffer as the backend
+			// of the render target buffer and copy the content to swapchain image
+			// at binding time, converting the tiling mode implicitly.
+
+			SceBuffer rtBuffer = {};
+			uint32_t  bufferSize = target->getColorSizeAlign().m_size;
+			uint32_t  numUints   = bufferSize / sizeof(uint32_t);
+			rtBuffer.gnmBuffer.initAsDataBuffer(target->getBaseAddress(), Gnm::kDataFormatR32Uint, numUints);
+
+			VltBufferCreateInfo info;
+			info.size   = bufferSize;
+			info.usage  = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+			info.stages = VK_PIPELINE_STAGE_TRANSFER_BIT;
+			info.access = VK_ACCESS_TRANSFER_READ_BIT;
+
+			rtBuffer.buffer = m_device->createBuffer(info,
+													 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+													 VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+			resource->setBuffer(rtBuffer);
+
 			VltAttachment attachment = 
 			{
 				rtRes.imageView,
@@ -220,8 +252,14 @@ namespace sce::Gnm
 		viewInfo.minLayer  = 0;
 		viewInfo.numLayers = 1;
 
-		depthImage.image = m_device->createImage(
-			imgInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		VltBufferCreateInfo info;
+		info.size   = depthTarget->getZSizeAlign().m_size;
+		info.usage  = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+		info.stages = VK_PIPELINE_STAGE_TRANSFER_BIT;
+		info.access = VK_ACCESS_TRANSFER_READ_BIT;
+
+		depthImage.image     = m_device->createImage(
+            imgInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 		depthImage.imageView = m_device->createImageView(
 			depthImage.image, viewInfo);
 		depthImage.depthRenderTarget = *depthTarget;

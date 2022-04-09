@@ -113,7 +113,7 @@ namespace sce
 		m_memSize = depthRenderTarget.memorySize();
 
 		// we do not check depth image size.
-		// because the corresponding vulkan image must be created 
+		// because the corresponding vulkan image must be created
 		// with VK_IMAGE_TILING_OPTIMAL for a depth format.
 		// the image is in optimized format so that image size is not width * height * bytesPerPixel
 		// in such case the size of a gnm depth image and vulkan depth image will not match
