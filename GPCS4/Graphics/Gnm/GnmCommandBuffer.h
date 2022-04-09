@@ -115,12 +115,12 @@ namespace sce::Gnm
 		virtual void setActiveShaderStages(ActiveShaderStages activeStages)          = 0;
 		// virtual void disableGsMode() = 0;
 		// virtual void enableGsMode(GsMaxOutputPrimitiveDwordSize maxPrimDwordSize) = 0;
-		virtual void setPsShader(const pssl::PsStageRegisters* psRegs) = 0;
+		virtual void setPsShader(const gcn::PsStageRegisters* psRegs) = 0;
 		// virtual void setEmbeddedPsShader(EmbeddedPsShader shaderId) = 0;
-		virtual void updatePsShader(const pssl::PsStageRegisters* psRegs)                          = 0;
-		virtual void setVsShader(const pssl::VsStageRegisters* vsRegs, uint32_t shaderModifier)    = 0;
+		virtual void updatePsShader(const gcn::PsStageRegisters* psRegs)                          = 0;
+		virtual void setVsShader(const gcn::VsStageRegisters* vsRegs, uint32_t shaderModifier)    = 0;
 		virtual void setEmbeddedVsShader(EmbeddedVsShader shaderId, uint32_t shaderModifier)       = 0;
-		virtual void updateVsShader(const pssl::VsStageRegisters* vsRegs, uint32_t shaderModifier) = 0;
+		virtual void updateVsShader(const gcn::VsStageRegisters* vsRegs, uint32_t shaderModifier) = 0;
 		// virtual void setEsShader(const EsStageRegisters *esRegs, uint32_t shaderModifier) = 0;
 		// virtual void setGsShader(const GsStageRegisters *gsRegs) = 0;
 		// virtual void updateGsShader(const GsStageRegisters *gsRegs) = 0;
@@ -370,7 +370,7 @@ namespace sce::Gnm
 
 		/// Dispatch
 
-		virtual void setCsShader(const pssl::CsStageRegisters* computeData, uint32_t shaderModifier) = 0;
+		virtual void setCsShader(const gcn::CsStageRegisters* computeData, uint32_t shaderModifier) = 0;
 		// virtual void setScratchSize(uint32_t maxNumWaves, uint32_t num1KByteChunksPerWave) = 0;
 		// virtual void dispatchIndirect(DispatchIndirectArgs *args) = 0;
 		// virtual void dispatchIndirectWithOrderedAppend(DispatchIndirectArgs *args, DispatchOrderedAppendMode orderedAppendMode) = 0;

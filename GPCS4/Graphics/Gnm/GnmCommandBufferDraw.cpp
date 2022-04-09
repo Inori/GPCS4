@@ -23,7 +23,7 @@
 LOG_CHANNEL(Graphic.Gnm.GnmCommandBufferDraw);
 
 using namespace sce::vlt;
-using namespace sce::pssl;
+using namespace sce::gcn;
 
 namespace sce::Gnm
 {
@@ -116,15 +116,15 @@ namespace sce::Gnm
 	{
 	}
 
-	void GnmCommandBufferDraw::setPsShader(const pssl::PsStageRegisters* psRegs)
+	void GnmCommandBufferDraw::setPsShader(const gcn::PsStageRegisters* psRegs)
 	{
 	}
 
-	void GnmCommandBufferDraw::updatePsShader(const pssl::PsStageRegisters* psRegs)
+	void GnmCommandBufferDraw::updatePsShader(const gcn::PsStageRegisters* psRegs)
 	{
 	}
 
-	void GnmCommandBufferDraw::setVsShader(const pssl::VsStageRegisters* vsRegs, uint32_t shaderModifier)
+	void GnmCommandBufferDraw::setVsShader(const gcn::VsStageRegisters* vsRegs, uint32_t shaderModifier)
 	{
 	}
 
@@ -132,7 +132,7 @@ namespace sce::Gnm
 	{
 	}
 
-	void GnmCommandBufferDraw::updateVsShader(const pssl::VsStageRegisters* vsRegs, uint32_t shaderModifier)
+	void GnmCommandBufferDraw::updateVsShader(const gcn::VsStageRegisters* vsRegs, uint32_t shaderModifier)
 	{
 	}
 
@@ -440,7 +440,7 @@ namespace sce::Gnm
 		*(uint32_t*)labelAddr = value;
 	}
 
-	void GnmCommandBufferDraw::setCsShader(const pssl::CsStageRegisters* computeData, uint32_t shaderModifier)
+	void GnmCommandBufferDraw::setCsShader(const gcn::CsStageRegisters* computeData, uint32_t shaderModifier)
 	{
 	}
 

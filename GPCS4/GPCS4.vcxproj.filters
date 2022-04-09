@@ -173,17 +173,14 @@
     <Filter Include="Source Files\Graphics\Sce">
       <UniqueIdentifier>{70eaff62-ab67-46e2-af21-4b6909ea46dd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Graphics\Pssl">
-      <UniqueIdentifier>{14ee293f-1109-4eb5-9d47-bb00adbe680a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Graphics\Pssl\GCNParser">
-      <UniqueIdentifier>{e6dace8b-4b96-441c-8035-feff4e14a70b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Graphics\SpirV">
       <UniqueIdentifier>{c103d6e7-d505-4adc-9124-c4a42be325dc}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Graphics\Violet">
       <UniqueIdentifier>{8714f22f-65d4-40c8-a2fe-44bf175a49b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\Gcn">
+      <UniqueIdentifier>{14ee293f-1109-4eb5-9d47-bb00adbe680a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -673,21 +670,6 @@
     <ClInclude Include="Graphics\Gnm\GnmSampler.h">
       <Filter>Source Files\Graphics\Gnm</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Pssl\PsslCommon.h">
-      <Filter>Source Files\Graphics\Pssl</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Pssl\PsslContants.h">
-      <Filter>Source Files\Graphics\Pssl</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Pssl\PsslEnums.h">
-      <Filter>Source Files\Graphics\Pssl</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Pssl\PsslShaderRegField.h">
-      <Filter>Source Files\Graphics\Pssl</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Pssl\PsslShaderRegister.h">
-      <Filter>Source Files\Graphics\Pssl</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\Sce\SceCommon.h">
       <Filter>Source Files\Graphics\Sce</Filter>
     </ClInclude>
@@ -825,6 +807,21 @@
     </ClInclude>
     <ClInclude Include="Graphics\Gnm\GnmConverter.h">
       <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gcn\GcnCommon.h">
+      <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gcn\GcnContants.h">
+      <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gcn\GcnEnums.h">
+      <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gcn\GcnShaderRegField.h">
+      <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gcn\GcnShaderRegister.h">
+      <Filter>Source Files\Graphics\Gcn</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

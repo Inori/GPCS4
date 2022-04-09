@@ -234,7 +234,7 @@ int PS4API sceGnmSetLsShader(uint32_t* cmdBuffer, uint32_t numDwords)
 
 
 int PS4API sceGnmSetCsShader(uint32_t* cmdBuffer, uint32_t numDwords, 
-	const pssl::CsStageRegisters *csRegs, uint32_t shaderModifier)
+	const gcn::CsStageRegisters *csRegs, uint32_t shaderModifier)
 {
 	LOG_SCE_GRAPHIC("cmd %p numdw %d vs %p mod %d", cmdBuffer, numDwords, csRegs, shaderModifier);
 
@@ -245,11 +245,11 @@ int PS4API sceGnmSetCsShader(uint32_t* cmdBuffer, uint32_t numDwords,
 	param->modifier       = shaderModifier;
 	if (csRegs != NULL)
 	{
-		memcpy(&param->csRegs, csRegs, sizeof(pssl::CsStageRegisters));
+		memcpy(&param->csRegs, csRegs, sizeof(gcn::CsStageRegisters));
 	}
 	else
 	{
-		memset(&param->csRegs, 0, sizeof(pssl::CsStageRegisters));
+		memset(&param->csRegs, 0, sizeof(gcn::CsStageRegisters));
 	}
 	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
 	return SCE_OK;
@@ -257,7 +257,7 @@ int PS4API sceGnmSetCsShader(uint32_t* cmdBuffer, uint32_t numDwords,
 
 
 int PS4API sceGnmSetVsShader(uint32_t* cmdBuffer, uint32_t numDwords,
-	const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier)
+	const gcn::VsStageRegisters *vsRegs, uint32_t shaderModifier)
 {
 	LOG_SCE_GRAPHIC("cmd %p numdw %d vs %p mod %d", cmdBuffer, numDwords, vsRegs, shaderModifier);
 
@@ -268,11 +268,11 @@ int PS4API sceGnmSetVsShader(uint32_t* cmdBuffer, uint32_t numDwords,
 	param->modifier = shaderModifier;
 	if (vsRegs != NULL)
 	{
-		memcpy(&param->vsRegs, vsRegs, sizeof(pssl::VsStageRegisters));
+		memcpy(&param->vsRegs, vsRegs, sizeof(gcn::VsStageRegisters));
 	}
 	else
 	{
-		memset(&param->vsRegs, 0, sizeof(pssl::VsStageRegisters));
+		memset(&param->vsRegs, 0, sizeof(gcn::VsStageRegisters));
 	}
 	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
 	return SCE_OK;
@@ -280,7 +280,7 @@ int PS4API sceGnmSetVsShader(uint32_t* cmdBuffer, uint32_t numDwords,
 
 
 int PS4API sceGnmSetPsShader350(uint32_t* cmdBuffer, uint32_t numDwords, 
-	const pssl::PsStageRegisters *psRegs)
+	const gcn::PsStageRegisters *psRegs)
 {
 	LOG_SCE_GRAPHIC("cmd %p numdw %d ps %p", cmdBuffer, numDwords, psRegs);
 
@@ -290,11 +290,11 @@ int PS4API sceGnmSetPsShader350(uint32_t* cmdBuffer, uint32_t numDwords,
 	param->opcode = PM4_HEADER_BUILD(paramSize, IT_GNM_PRIVATE, OP_PRIV_SET_PS_SHADER);
 	if (psRegs != NULL)
 	{
-		memcpy(&param->psRegs, psRegs, sizeof(pssl::PsStageRegisters));
+		memcpy(&param->psRegs, psRegs, sizeof(gcn::PsStageRegisters));
 	}
 	else
 	{
-		memset(&param->psRegs, 0, sizeof(pssl::PsStageRegisters));
+		memset(&param->psRegs, 0, sizeof(gcn::PsStageRegisters));
 	}
 	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
 	return SCE_OK;
@@ -302,7 +302,7 @@ int PS4API sceGnmSetPsShader350(uint32_t* cmdBuffer, uint32_t numDwords,
 
 
 int PS4API sceGnmSetPsShader(uint32_t* cmdBuffer, uint32_t numDwords, 
-	const pssl::PsStageRegisters *psRegs)
+	const gcn::PsStageRegisters *psRegs)
 {
 	LOG_SCE_GRAPHIC("cmd %p numdw %d ps %p", cmdBuffer, numDwords, psRegs);
 
@@ -312,11 +312,11 @@ int PS4API sceGnmSetPsShader(uint32_t* cmdBuffer, uint32_t numDwords,
 	param->opcode         = PM4_HEADER_BUILD(paramSize, IT_GNM_PRIVATE, OP_PRIV_SET_PS_SHADER);
 	if (psRegs != NULL)
 	{
-		memcpy(&param->psRegs, psRegs, sizeof(pssl::PsStageRegisters));
+		memcpy(&param->psRegs, psRegs, sizeof(gcn::PsStageRegisters));
 	}
 	else
 	{
-		memset(&param->psRegs, 0, sizeof(pssl::PsStageRegisters));
+		memset(&param->psRegs, 0, sizeof(gcn::PsStageRegisters));
 	}
 	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
 	return SCE_OK;
@@ -356,7 +356,7 @@ int PS4API sceGnmLogicalTcaUnitToPhysical(void)
 
 
 int PS4API sceGnmUpdateVsShader(uint32_t* cmdBuffer, uint32_t numDwords, 
-	const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier)
+	const gcn::VsStageRegisters *vsRegs, uint32_t shaderModifier)
 {
 	LOG_SCE_GRAPHIC("cmd %p numdw %d vs %p mod %d", cmdBuffer, numDwords, vsRegs, shaderModifier);
 
@@ -367,11 +367,11 @@ int PS4API sceGnmUpdateVsShader(uint32_t* cmdBuffer, uint32_t numDwords,
 	param->modifier = shaderModifier;
 	if (vsRegs != NULL)
 	{
-		memcpy(&param->vsRegs, vsRegs, sizeof(pssl::VsStageRegisters));
+		memcpy(&param->vsRegs, vsRegs, sizeof(gcn::VsStageRegisters));
 	}
 	else
 	{
-		memset(&param->vsRegs, 0, sizeof(pssl::VsStageRegisters));
+		memset(&param->vsRegs, 0, sizeof(gcn::VsStageRegisters));
 	}
 	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
 	return SCE_OK;
@@ -379,7 +379,7 @@ int PS4API sceGnmUpdateVsShader(uint32_t* cmdBuffer, uint32_t numDwords,
 
 
 int PS4API sceGnmUpdatePsShader350(uint32_t* cmdBuffer, uint32_t numDwords, 
-	const pssl::PsStageRegisters *psRegs)
+	const gcn::PsStageRegisters *psRegs)
 {
 	LOG_SCE_GRAPHIC("cmd %p numdw %d ps %p", cmdBuffer, numDwords, psRegs);
 
@@ -389,11 +389,11 @@ int PS4API sceGnmUpdatePsShader350(uint32_t* cmdBuffer, uint32_t numDwords,
 	param->opcode = PM4_HEADER_BUILD(paramSize, IT_GNM_PRIVATE, OP_PRIV_SET_PS_SHADER);
 	if (psRegs != NULL)
 	{
-		memcpy(&param->psRegs, psRegs, sizeof(pssl::PsStageRegisters));
+		memcpy(&param->psRegs, psRegs, sizeof(gcn::PsStageRegisters));
 	}
 	else
 	{
-		memset(&param->psRegs, 0, sizeof(pssl::PsStageRegisters));
+		memset(&param->psRegs, 0, sizeof(gcn::PsStageRegisters));
 	}
 	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
 	return SCE_OK;
@@ -401,7 +401,7 @@ int PS4API sceGnmUpdatePsShader350(uint32_t* cmdBuffer, uint32_t numDwords,
 
 
 int PS4API sceGnmUpdatePsShader(uint32_t* cmdBuffer, uint32_t numDwords, 
-	const pssl::PsStageRegisters *psRegs)
+	const gcn::PsStageRegisters *psRegs)
 {
 	LOG_SCE_GRAPHIC("cmd %p numdw %d ps %p", cmdBuffer, numDwords, psRegs);
 
@@ -411,11 +411,11 @@ int PS4API sceGnmUpdatePsShader(uint32_t* cmdBuffer, uint32_t numDwords,
 	param->opcode         = PM4_HEADER_BUILD(paramSize, IT_GNM_PRIVATE, OP_PRIV_SET_PS_SHADER);
 	if (psRegs != NULL)
 	{
-		memcpy(&param->psRegs, psRegs, sizeof(pssl::PsStageRegisters));
+		memcpy(&param->psRegs, psRegs, sizeof(gcn::PsStageRegisters));
 	}
 	else
 	{
-		memset(&param->psRegs, 0, sizeof(pssl::PsStageRegisters));
+		memset(&param->psRegs, 0, sizeof(gcn::PsStageRegisters));
 	}
 	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
 	return SCE_OK;

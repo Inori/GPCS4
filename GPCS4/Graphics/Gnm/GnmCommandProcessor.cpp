@@ -6,7 +6,7 @@
 #include "GnmTexture.h"
 #include "UtilBit.h"
 
-#include "Pssl/PsslShaderRegister.h"
+#include "Gcn/GcnShaderRegister.h"
 #include "Violet/VltCmdList.h"
 
 using namespace util;

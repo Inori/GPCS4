@@ -2,7 +2,7 @@
 
 using namespace util;
 
-namespace sce::pssl
+namespace sce::gcn
 {
 
   SpirvCompressedBuffer::SpirvCompressedBuffer()

@@ -23,6 +23,11 @@
     <ClInclude Include="Emulator\PolicyManager.h" />
     <ClInclude Include="Emulator\SymbolManager.h" />
     <ClInclude Include="Emulator\VirtualCPU.h" />
+    <ClInclude Include="Graphics\Gcn\GcnCommon.h" />
+    <ClInclude Include="Graphics\Gcn\GcnContants.h" />
+    <ClInclude Include="Graphics\Gcn\GcnEnums.h" />
+    <ClInclude Include="Graphics\Gcn\GcnShaderRegField.h" />
+    <ClInclude Include="Graphics\Gcn\GcnShaderRegister.h" />
     <ClInclude Include="Graphics\Gnm\GnmBuffer.h" />
     <ClInclude Include="Graphics\Gnm\GnmCommandBuffer.h" />
     <ClInclude Include="Graphics\Gnm\GnmCommandBufferDispatch.h" />
@@ -51,11 +56,6 @@
     <ClInclude Include="Graphics\Gnm\GpuAddress\GnmRegsinfo.h" />
     <ClInclude Include="Graphics\Gnm\GpuAddress\GnmRegsinfoPrivate.h" />
     <ClInclude Include="Graphics\Gnm\GpuAddress\GnmTilerSSE2.h" />
-    <ClInclude Include="Graphics\Pssl\PsslCommon.h" />
-    <ClInclude Include="Graphics\Pssl\PsslContants.h" />
-    <ClInclude Include="Graphics\Pssl\PsslEnums.h" />
-    <ClInclude Include="Graphics\Pssl\PsslShaderRegField.h" />
-    <ClInclude Include="Graphics\Pssl\PsslShaderRegister.h" />
     <ClInclude Include="Graphics\Sce\SceCommon.h" />
     <ClInclude Include="Graphics\Sce\SceGnmDriver.h" />
     <ClInclude Include="Graphics\Sce\SceGpuQueue.h" />

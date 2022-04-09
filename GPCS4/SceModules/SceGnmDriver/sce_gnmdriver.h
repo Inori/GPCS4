@@ -226,7 +226,7 @@ int PS4API sceGnmResetVgtControl(uint32_t* cmdBuffer, uint32_t numDwords);
 
 
 int PS4API sceGnmSetCsShaderWithModifier(uint32_t* cmdBuffer, uint32_t numDwords,
-	const pssl::CsStageRegisters *csRegs, uint32_t shaderModifier);
+	const gcn::CsStageRegisters *csRegs, uint32_t shaderModifier);
 
 
 int PS4API sceGnmSetEmbeddedPsShader(uint32_t* cmdBuffer, uint32_t numDwords);
@@ -250,14 +250,14 @@ int PS4API sceGnmSetHsShader(uint32_t* cmdBuffer, uint32_t numDwords);
 int PS4API sceGnmSetLsShader(uint32_t* cmdBuffer, uint32_t numDwords);
 
 
-int PS4API sceGnmSetPsShader350(uint32_t* cmdBuffer, uint32_t numDwords, const pssl::PsStageRegisters *psRegs);
+int PS4API sceGnmSetPsShader350(uint32_t* cmdBuffer, uint32_t numDwords, const gcn::PsStageRegisters *psRegs);
 
 
 int PS4API sceGnmSetVgtControl(uint32_t* cmdBuffer, uint32_t numDwords, uint8_t primGroupSizeMinusOne, 
 	sce::Gnm::VgtPartialVsWaveMode partialVsWaveMode, sce::Gnm::WdSwitchOnlyOnEopMode wdSwitchOnlyOnEopMode);
 
 
-int PS4API sceGnmSetVsShader(uint32_t* cmdBuffer, uint32_t numDwords, const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier);
+int PS4API sceGnmSetVsShader(uint32_t* cmdBuffer, uint32_t numDwords, const gcn::VsStageRegisters *vsRegs, uint32_t shaderModifier);
 
 
 int PS4API sceGnmSetWaveLimitMultipliers(void);
@@ -290,10 +290,10 @@ int PS4API sceGnmUpdateGsShader(void);
 int PS4API sceGnmUpdateHsShader(void);
 
 
-int PS4API sceGnmUpdatePsShader350(uint32_t* cmdBuffer, uint32_t numDwords, const pssl::PsStageRegisters *psRegs);
+int PS4API sceGnmUpdatePsShader350(uint32_t* cmdBuffer, uint32_t numDwords, const gcn::PsStageRegisters *psRegs);
 
 
-int PS4API sceGnmUpdateVsShader(uint32_t* cmdBuffer, uint32_t numDwords, const pssl::VsStageRegisters *vsRegs, uint32_t shaderModifier);
+int PS4API sceGnmUpdateVsShader(uint32_t* cmdBuffer, uint32_t numDwords, const gcn::VsStageRegisters *vsRegs, uint32_t shaderModifier);
 
 
 int PS4API sceRazorCaptureImmediate(void);
@@ -392,13 +392,13 @@ int PS4API sceGnmValidateResetState(void);
 int PS4API sceGnmValidationRegisterMemoryCheckCallback(void);
 
 
-int PS4API sceGnmSetCsShader(uint32_t* cmdBuffer, uint32_t numDwords, const pssl::CsStageRegisters *csRegs, uint32_t shaderModifier);
+int PS4API sceGnmSetCsShader(uint32_t* cmdBuffer, uint32_t numDwords, const gcn::CsStageRegisters *csRegs, uint32_t shaderModifier);
 
 
-int PS4API sceGnmSetPsShader(uint32_t* cmdBuffer, uint32_t numDwords, const pssl::PsStageRegisters *psRegs);
+int PS4API sceGnmSetPsShader(uint32_t* cmdBuffer, uint32_t numDwords, const gcn::PsStageRegisters *psRegs);
 
 
-int PS4API sceGnmUpdatePsShader(uint32_t* cmdBuffer, uint32_t numDwords, const pssl::PsStageRegisters *psRegs);
+int PS4API sceGnmUpdatePsShader(uint32_t* cmdBuffer, uint32_t numDwords, const gcn::PsStageRegisters *psRegs);
 
 
 int PS4API sceGnmValidateCommandBuffers(void);

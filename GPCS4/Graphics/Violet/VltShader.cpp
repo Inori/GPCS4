@@ -9,7 +9,7 @@
 
 namespace sce::vlt
 {
-	using namespace pssl;
+	using namespace gcn;
 
 	VltShaderConstData::VltShaderConstData()
 	{
@@ -51,7 +51,7 @@ namespace sce::vlt
 		VkShaderStageFlagBits      stage,
 		const VltResourceSlotList& slots,
 		const VltInterfaceSlots&   iface,
-		pssl::SpirvCodeBuffer      code,
+		gcn::SpirvCodeBuffer      code,
 		const VltShaderOptions&    options,
 		VltShaderConstData&&       constData) :
 		m_stage(stage),

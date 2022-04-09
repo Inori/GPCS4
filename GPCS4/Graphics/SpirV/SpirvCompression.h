@@ -4,7 +4,7 @@
 
 #include "SpirvCodeBuffer.h"
 
-namespace sce::pssl
+namespace sce::gcn
 {
 
   /**

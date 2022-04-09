@@ -7,9 +7,9 @@
 #ifdef GPCS4_DEBUG
 
 // Dump shader to file
-#define PSSL_DUMP_SHADER
+#define GCN_DUMP_SHADER
 
 // Enable some debug features during shader compile
-#define PSSL_COMPILER_DEBUG
+#define GCN_COMPILER_DEBUG
 
 #endif

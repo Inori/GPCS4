@@ -59,17 +59,17 @@ namespace sce::Gnm
 		throw std::logic_error("The method or operation is not implemented.");
 	}
 
-	void GnmCommandBufferDispatch::setPsShader(const pssl::PsStageRegisters* psRegs)
+	void GnmCommandBufferDispatch::setPsShader(const gcn::PsStageRegisters* psRegs)
 	{
 		throw std::logic_error("The method or operation is not implemented.");
 	}
 
-	void GnmCommandBufferDispatch::updatePsShader(const pssl::PsStageRegisters* psRegs)
+	void GnmCommandBufferDispatch::updatePsShader(const gcn::PsStageRegisters* psRegs)
 	{
 		throw std::logic_error("The method or operation is not implemented.");
 	}
 
-	void GnmCommandBufferDispatch::setVsShader(const pssl::VsStageRegisters* vsRegs, uint32_t shaderModifier)
+	void GnmCommandBufferDispatch::setVsShader(const gcn::VsStageRegisters* vsRegs, uint32_t shaderModifier)
 	{
 		throw std::logic_error("The method or operation is not implemented.");
 	}
@@ -79,7 +79,7 @@ namespace sce::Gnm
 		throw std::logic_error("The method or operation is not implemented.");
 	}
 
-	void GnmCommandBufferDispatch::updateVsShader(const pssl::VsStageRegisters* vsRegs, uint32_t shaderModifier)
+	void GnmCommandBufferDispatch::updateVsShader(const gcn::VsStageRegisters* vsRegs, uint32_t shaderModifier)
 	{
 		throw std::logic_error("The method or operation is not implemented.");
 	}
@@ -269,7 +269,7 @@ namespace sce::Gnm
 		throw std::logic_error("The method or operation is not implemented.");
 	}
 
-	void GnmCommandBufferDispatch::setCsShader(const pssl::CsStageRegisters* computeData, uint32_t shaderModifier)
+	void GnmCommandBufferDispatch::setCsShader(const gcn::CsStageRegisters* computeData, uint32_t shaderModifier)
 	{
 		throw std::logic_error("The method or operation is not implemented.");
 	}

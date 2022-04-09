@@ -142,7 +142,7 @@ namespace sce::vlt
 			VkShaderStageFlagBits      stage,
 			const VltResourceSlotList& slots,
 			const VltInterfaceSlots&   iface,
-			pssl::SpirvCodeBuffer      code,
+			gcn::SpirvCodeBuffer      code,
 			const VltShaderOptions&    options,
 			VltShaderConstData&&       constData);
 
@@ -288,7 +288,7 @@ namespace sce::vlt
 
 	private:
 		VkShaderStageFlagBits       m_stage;
-		pssl::SpirvCompressedBuffer m_code;
+		gcn::SpirvCompressedBuffer m_code;
 
 		VltResourceSlotList m_slots;
 		std::vector<size_t> m_idOffsets;
@@ -302,7 +302,7 @@ namespace sce::vlt
 		size_t m_o1IdxOffset = 0;
 		size_t m_o1LocOffset = 0;
 
-		static void eliminateInput(pssl::SpirvCodeBuffer& code, uint32_t location);
+		static void eliminateInput(gcn::SpirvCodeBuffer& code, uint32_t location);
 	};
 
 	/**
@@ -324,7 +324,7 @@ namespace sce::vlt
 		VltShaderModule(
 			VltDevice*                   device,
 			const Rc<VltShader>&         shader,
-			const pssl::SpirvCodeBuffer& code);
+			const gcn::SpirvCodeBuffer& code);
 
 		~VltShaderModule();
 

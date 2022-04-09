@@ -48,15 +48,15 @@ namespace sce::Gnm
 	{
 	}
 
-	void GnmCommandBufferDummy::setPsShader(const pssl::PsStageRegisters* psRegs)
+	void GnmCommandBufferDummy::setPsShader(const gcn::PsStageRegisters* psRegs)
 	{
 	}
 
-	void GnmCommandBufferDummy::updatePsShader(const pssl::PsStageRegisters* psRegs)
+	void GnmCommandBufferDummy::updatePsShader(const gcn::PsStageRegisters* psRegs)
 	{
 	}
 
-	void GnmCommandBufferDummy::setVsShader(const pssl::VsStageRegisters* vsRegs, uint32_t shaderModifier)
+	void GnmCommandBufferDummy::setVsShader(const gcn::VsStageRegisters* vsRegs, uint32_t shaderModifier)
 	{
 	}
 
@@ -64,7 +64,7 @@ namespace sce::Gnm
 	{
 	}
 
-	void GnmCommandBufferDummy::updateVsShader(const pssl::VsStageRegisters* vsRegs, uint32_t shaderModifier)
+	void GnmCommandBufferDummy::updateVsShader(const gcn::VsStageRegisters* vsRegs, uint32_t shaderModifier)
 	{
 	}
 
@@ -220,7 +220,7 @@ namespace sce::Gnm
 		*(uint32_t*)labelAddr = value;
 	}
 
-	void GnmCommandBufferDummy::setCsShader(const pssl::CsStageRegisters* computeData, uint32_t shaderModifier)
+	void GnmCommandBufferDummy::setCsShader(const gcn::CsStageRegisters* computeData, uint32_t shaderModifier)
 	{
 	}
 

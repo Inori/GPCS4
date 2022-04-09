@@ -3,7 +3,7 @@
 #include "GnmCommon.h"
 #include "GnmRegInfo.h"
 
-#include "Pssl/PsslShaderRegister.h"
+#include "Gcn/GcnShaderRegister.h"
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -39,7 +39,7 @@ struct GnmCmdInitToDefaultContextState
 struct GnmCmdVSShader
 {
 	uint32_t               opcode;
-	pssl::VsStageRegisters vsRegs;
+	gcn::VsStageRegisters vsRegs;
 	EmbeddedVsShader       shaderId;
 	uint32_t               modifier;
 	uint32_t               reserved[19];
@@ -48,14 +48,14 @@ struct GnmCmdVSShader
 struct GnmCmdPSShader
 {
 	uint32_t               opcode;
-	pssl::PsStageRegisters psRegs;
+	gcn::PsStageRegisters psRegs;
 	uint32_t               reserved[27];
 };
 
 struct GnmCmdCSShader
 {
 	uint32_t               opcode;
-	pssl::CsStageRegisters csRegs;
+	gcn::CsStageRegisters csRegs;
 	uint32_t               modifier;
 	uint32_t               reserved[16];
 };

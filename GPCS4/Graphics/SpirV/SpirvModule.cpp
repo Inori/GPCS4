@@ -3,7 +3,7 @@
 
 #include "SpirvModule.h"
 
-namespace sce::pssl
+namespace sce::gcn
 {
   
   SpirvModule::SpirvModule(uint32_t version)

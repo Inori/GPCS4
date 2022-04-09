@@ -31,15 +31,15 @@ public:
 
 	virtual void setActiveShaderStages(ActiveShaderStages activeStages) override;
 
-	virtual void setPsShader(const pssl::PsStageRegisters* psRegs) override;
+	virtual void setPsShader(const gcn::PsStageRegisters* psRegs) override;
 
-	virtual void updatePsShader(const pssl::PsStageRegisters* psRegs) override;
+	virtual void updatePsShader(const gcn::PsStageRegisters* psRegs) override;
 
-	virtual void setVsShader(const pssl::VsStageRegisters* vsRegs, uint32_t shaderModifier) override;
+	virtual void setVsShader(const gcn::VsStageRegisters* vsRegs, uint32_t shaderModifier) override;
 
 	virtual void setEmbeddedVsShader(EmbeddedVsShader shaderId, uint32_t shaderModifier) override;
 
-	virtual void updateVsShader(const pssl::VsStageRegisters* vsRegs, uint32_t shaderModifier) override;
+	virtual void updateVsShader(const gcn::VsStageRegisters* vsRegs, uint32_t shaderModifier) override;
 
 	virtual void setVsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Buffer* buffer) override;
 
@@ -111,7 +111,7 @@ public:
 
 	virtual void prepareFlipWithEopInterrupt(EndOfPipeEventType eventType, void* labelAddr, uint32_t value, CacheAction cacheAction) override;
 
-	virtual void setCsShader(const pssl::CsStageRegisters* computeData, uint32_t shaderModifier) override;
+	virtual void setCsShader(const gcn::CsStageRegisters* computeData, uint32_t shaderModifier) override;
 
 	virtual void writeReleaseMemEventWithInterrupt(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy) override;
 
