@@ -1112,13 +1112,14 @@ namespace sce::Gnm
 		{
 			DepthRenderTarget target;
 
-			std::memcpy(&target.m_regs[0], &itBody[2], 0x20);
-
-			target.m_regs[11] = itBody[11];
-			target.m_regs[8]  = itBody[14];
-			target.m_regs[9]  = itBody[17];
-			target.m_regs[10] = itBody[20];
-			target.m_regs[12] = itBody[22];
+			std::memcpy(&target.m_regs[0], &itBody[1], 0x20);
+			
+			uint32_t* cmdptr  = (uint32_t*)pm4Hdr;
+			target.m_regs[11] = cmdptr[12];
+			target.m_regs[8]  = cmdptr[15];
+			target.m_regs[9]  = cmdptr[18];
+			target.m_regs[10] = cmdptr[21];
+			target.m_regs[12] = cmdptr[23];
 
 			m_cb->setDepthRenderTarget(&target);
 			m_skipPm4Count = 5;

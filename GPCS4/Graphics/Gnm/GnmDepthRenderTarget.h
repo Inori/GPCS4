@@ -151,7 +151,34 @@ namespace sce::Gnm
 
 		uint8_t getZReadTileSwizzleMask(void) const
 		{
-			// TODO:
+			// From IDA
+			auto pipeConfig = getPipeConfig();
+			auto zfmt       = getZFormat();
+			auto tileMode   = getTileMode();
+			if (pipeConfig != kPipeConfigP16 ||
+				zfmt == kZFormatInvalid ||
+				!GpuAddress::isMacroTiled(tileMode))
+			{
+				return 0;
+			}
+
+			auto     dataFormat          = DataFormat::build(zfmt);
+			auto     totalBitsPerElement = dataFormat.getTotalBitsPerElement();
+			uint32_t numFragments          = 1 << getNumFragments();
+			uint32_t shift               = 0;
+			NumBanks numBanks            = {};
+			if (pipeConfig == kPipeConfigP16)
+			{
+				GpuAddress::getAltNumBanks(&numBanks, tileMode, totalBitsPerElement, numFragments);
+				shift = 4;
+			}
+			else
+			{
+				GpuAddress::getNumBanks(&numBanks, tileMode, totalBitsPerElement, numFragments);
+				shift = 3;
+			}
+
+			return (this->m_regs[2] & (((1 << (numBanks + 1)) - 1) << shift)) >> 4;
 		}
 
 		uint8_t getStencilReadTileSwizzleMask(void) const
@@ -180,7 +207,7 @@ namespace sce::Gnm
 			{
 				DataFormat dataFormat     = DataFormat::build(zfmt);
 				uint32_t   bitsPerElement = dataFormat.getTotalBitsPerElement();
-				uint32_t   numSamples     = 1 << SCE_GNM_GET_FIELD(m_regs[kDbZInfo], DB_Z_INFO, NUM_SAMPLES);
+				uint32_t   numSamples     = 1 << getNumFragments();
 
 				NumBanks numBanks = {};
 				uint32_t shift    = 0;
