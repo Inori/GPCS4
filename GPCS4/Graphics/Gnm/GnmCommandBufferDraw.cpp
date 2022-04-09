@@ -159,7 +159,7 @@ namespace sce::Gnm
 	void GnmCommandBufferDraw::setRenderTarget(uint32_t rtSlot, RenderTarget const* target)
 	{
 		auto& tracker = GPU().resourceTracker();
-		auto  resource = tracker.find((uint8_t*)target->getBaseAddress());
+		auto  resource = tracker.find(target->getBaseAddress());
 		do 
 		{
 			if (!resource)

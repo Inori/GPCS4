@@ -48,9 +48,26 @@ namespace sce::Gnm
 
 		SizeAlign getZSizeAlign(void) const
 		{
-			// TODO:
-			SizeAlign sizeAlign = {};
-			return sizeAlign;
+			// From IDA
+
+			SizeAlign result = {};
+			auto      zfmt   = getZFormat();
+
+			if (zfmt != kZFormatInvalid)
+			{
+				GpuAddress::TilingParameters params = {};
+				params.initFromDepthSurface(this, 0);
+
+				GpuAddress::SurfaceInfo info = {};
+				if (GpuAddress::computeSurfaceInfo(&info, &params) == GpuAddress::kStatusSuccess)
+				{
+					uint32_t sliceCount = getLastArraySliceIndex() + 1;
+					result.m_size       = sliceCount * info.m_surfaceSize;
+					result.m_align      = info.m_baseAlign;
+				}
+			}
+
+			return result;
 		}
 
 		SizeAlign getStencilSizeAlign(void) const
