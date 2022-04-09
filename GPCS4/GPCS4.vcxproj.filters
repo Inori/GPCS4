@@ -823,6 +823,9 @@
     <ClInclude Include="Graphics\Gcn\GcnShaderRegister.h">
       <Filter>Source Files\Graphics\Gcn</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Gcn\GcnProgramInfo.h">
+      <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1421,6 +1424,9 @@
     </ClCompile>
     <ClCompile Include="Graphics\Gnm\GnmConverter.cpp">
       <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Gcn\GcnProgramInfo.cpp">
+      <Filter>Source Files\Graphics\Gcn</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
