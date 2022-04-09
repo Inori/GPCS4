@@ -111,7 +111,13 @@ namespace sce
 		m_gpuMemory = depthRenderTarget.gpuMemory();
 
 		m_memSize = depthRenderTarget.memorySize();
-		LOG_ASSERT(m_memSize == depthRenderTarget.image->memSize(), "Gnm size not match vlt size");
+
+		// we do not check depth image size.
+		// because the corresponding vulkan image must be created 
+		// with VK_IMAGE_TILING_OPTIMAL for a depth format.
+		// the image is in optimized format so that image size is not width * height * bytesPerPixel
+		// in such case the size of a gnm depth image and vulkan depth image will not match
+		// we assume the game won't access the depth image for CPU side.
 	}
 
 	SceResource::~SceResource()
