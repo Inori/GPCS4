@@ -25,7 +25,9 @@
     <ClInclude Include="Emulator\VirtualCPU.h" />
     <ClInclude Include="Graphics\Gcn\GcnCommon.h" />
     <ClInclude Include="Graphics\Gcn\GcnContants.h" />
-    <ClInclude Include="Graphics\Gcn\GcnEnums.h" />
+    <ClInclude Include="Graphics\Gcn\GcnDecoder.h" />
+    <ClInclude Include="Graphics\Gcn\GcnEnum.h" />
+    <ClInclude Include="Graphics\Gcn\GcnInstruction.h" />
     <ClInclude Include="Graphics\Gcn\GcnProgramInfo.h" />
     <ClInclude Include="Graphics\Gcn\GcnShaderRegField.h" />
     <ClInclude Include="Graphics\Gcn\GcnShaderRegister.h" />
@@ -259,6 +261,8 @@
     <ClCompile Include="Emulator\TLSHandler.cpp" />
     <ClCompile Include="Emulator\VirtualCPU.cpp" />
     <ClCompile Include="GPCS4Main.cpp" />
+    <ClCompile Include="Graphics\Gcn\GcnDecoder.cpp" />
+    <ClCompile Include="Graphics\Gcn\GcnInstruction.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnProgramInfo.cpp" />
     <ClCompile Include="Graphics\Gnm\GnmCommandBuffer.cpp" />
     <ClCompile Include="Graphics\Gnm\GnmCommandBufferDispatch.cpp" />

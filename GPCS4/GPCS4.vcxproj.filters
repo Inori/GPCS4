@@ -814,9 +814,6 @@
     <ClInclude Include="Graphics\Gcn\GcnContants.h">
       <Filter>Source Files\Graphics\Gcn</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Gcn\GcnEnums.h">
-      <Filter>Source Files\Graphics\Gcn</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\Gcn\GcnShaderRegField.h">
       <Filter>Source Files\Graphics\Gcn</Filter>
     </ClInclude>
@@ -824,6 +821,15 @@
       <Filter>Source Files\Graphics\Gcn</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Gcn\GcnProgramInfo.h">
+      <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gcn\GcnDecoder.h">
+      <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gcn\GcnEnum.h">
+      <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gcn\GcnInstruction.h">
       <Filter>Source Files\Graphics\Gcn</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1426,6 +1432,12 @@
       <Filter>Source Files\Graphics\Gnm</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Gcn\GcnProgramInfo.cpp">
+      <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Gcn\GcnDecoder.cpp">
+      <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Gcn\GcnInstruction.cpp">
       <Filter>Source Files\Graphics\Gcn</Filter>
     </ClCompile>
   </ItemGroup>
