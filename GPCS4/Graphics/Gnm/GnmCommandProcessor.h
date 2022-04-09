@@ -89,6 +89,7 @@ namespace sce
 			void onSetRenderTarget(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody);
 			void onSetDepthRenderTarget(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody);
 
+			// Advance to next n PM4 header
 			template <typename HdrType>
 			HdrType getNextNPm4(HdrType thisPm4, uint32_t n)
 			{
@@ -101,6 +102,7 @@ namespace sce
 				return curPm4;
 			}
 
+			// Step to next PM4 header
 			template <typename HdrType>
 			HdrType getNextPm4(HdrType thisPm4)
 			{

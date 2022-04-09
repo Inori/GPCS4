@@ -6,6 +6,11 @@
 
 #include <vector>
 
+namespace sce
+{
+	struct SceDepthRenderTarget;
+}  // namespace sce
+
 namespace sce::Gnm
 {
 
@@ -133,8 +138,10 @@ public:
 	virtual void setDepthStencilDisable() override;
 
 private:
-
-private:
+	void createDepthImage(
+		const DepthRenderTarget* depthTarget,
+		SceDepthRenderTarget&    depthImage);
+ private:
 
 };
 

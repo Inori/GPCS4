@@ -122,6 +122,11 @@ namespace sce::Gnm
 			return getMinimumGpuMode() == kGpuModeNeo && SCE_GNM_GET_FIELD(m_regs[kDbHtileSurface], DB_HTILE_SURFACE, TC_COMPATIBLE);
 		}
 
+		uint32_t getBaseArraySliceIndex() const
+		{
+			return SCE_GNM_GET_FIELD(m_regs[kDbDepthView], DB_DEPTH_VIEW, SLICE_START);
+		}
+
 		uint32_t getLastArraySliceIndex() const
 		{
 			return SCE_GNM_GET_FIELD(m_regs[kDbDepthView], DB_DEPTH_VIEW, SLICE_MAX);

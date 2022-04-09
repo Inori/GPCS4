@@ -159,11 +159,15 @@ namespace sce::Gnm
 	void GnmCommandBufferDraw::setRenderTarget(uint32_t rtSlot, RenderTarget const* target)
 	{
 		auto& tracker = GPU().resourceTracker();
-		auto  resource = tracker.find(target->getBaseAddress());
+		auto  resource = tracker.find((uint8_t*)target->getBaseAddress());
 		do 
 		{
 			if (!resource)
 			{
+				// TODO:
+				// we should create new vulkan image for render target not found.
+				// see setDepthRenderTarget
+				LOG_ERR("can not find render target for slot %d", rtSlot);
 				break;
 			}
 
@@ -181,7 +185,46 @@ namespace sce::Gnm
 				VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
 			};
 			m_context->bindRenderTarget(rtSlot, attachment);
+
 		} while (false);
+	}
+
+	void GnmCommandBufferDraw::createDepthImage(
+		const DepthRenderTarget* depthTarget,
+		SceDepthRenderTarget&    depthImage)
+	{
+		VltImageCreateInfo imgInfo;
+		imgInfo.type          = VK_IMAGE_TYPE_2D;
+		imgInfo.format        = cvt::convertZFormat(depthTarget->getZFormat());
+		imgInfo.flags         = 0;
+		imgInfo.sampleCount   = cvt::convertNumFragments(depthTarget->getNumFragments());  // not really understand..
+		imgInfo.extent.width  = depthTarget->getWidth();
+		imgInfo.extent.height = depthTarget->getHeight();
+		imgInfo.extent.depth  = 1;
+		// NOTE: this slice count is only valid if the array view hasn't changed since initialization!
+		imgInfo.numLayers = depthTarget->getLastArraySliceIndex() - depthTarget->getBaseArraySliceIndex() + 1;
+		imgInfo.mipLevels = 1;
+		imgInfo.usage     = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+		imgInfo.stages    = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+		imgInfo.access    = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+		imgInfo.tiling    = VK_IMAGE_TILING_OPTIMAL;
+		imgInfo.layout    = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL_KHR;
+
+		VltImageViewCreateInfo viewInfo;
+		viewInfo.type      = VK_IMAGE_VIEW_TYPE_2D;
+		viewInfo.format    = imgInfo.format;
+		viewInfo.usage     = imgInfo.usage;
+		viewInfo.aspect    = VK_IMAGE_ASPECT_DEPTH_BIT;
+		viewInfo.minLevel  = 0;
+		viewInfo.numLevels = 1;
+		viewInfo.minLayer  = 0;
+		viewInfo.numLayers = 1;
+
+		depthImage.image = m_device->createImage(
+			imgInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		depthImage.imageView = m_device->createImageView(
+			depthImage.image, viewInfo);
+		depthImage.depthRenderTarget = *depthTarget;
 	}
 
 	void GnmCommandBufferDraw::setDepthRenderTarget(DepthRenderTarget const* depthTarget)
@@ -192,40 +235,11 @@ namespace sce::Gnm
 		{
 			if (!resource)
 			{
+				// create a new depth image and track it
+
 				SceDepthRenderTarget depthResource = {};
+				createDepthImage(depthTarget, depthResource);
 
-				VltImageCreateInfo imgInfo;
-				imgInfo.type          = VK_IMAGE_TYPE_2D;
-				imgInfo.format        = cvt::convertZFormat(depthTarget->getZFormat());
-				imgInfo.flags         = 0;
-				imgInfo.sampleCount   = cvt::convertNumFragments(depthTarget->getNumFragments());  // not really understand..
-				imgInfo.extent.width  = depthTarget->getWidth();
-				imgInfo.extent.height = depthTarget->getHeight();
-				imgInfo.extent.depth  = 1;
-				imgInfo.numLayers     = depthTarget->getLastArraySliceIndex() + 1;
-				imgInfo.mipLevels     = 1;
-				imgInfo.usage         = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-				imgInfo.stages        = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
-				imgInfo.access        = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-				imgInfo.tiling        = VK_IMAGE_TILING_OPTIMAL;
-				imgInfo.layout        = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL_KHR;
-
-				VltImageViewCreateInfo viewInfo;
-				viewInfo.type      = VK_IMAGE_VIEW_TYPE_2D;
-				viewInfo.format    = imgInfo.format;
-				viewInfo.usage     = imgInfo.usage;
-				viewInfo.aspect    = VK_IMAGE_ASPECT_DEPTH_BIT;
-				viewInfo.minLevel  = 0;
-				viewInfo.numLevels = 1;
-				viewInfo.minLayer  = 0;
-				viewInfo.numLayers = 1;
-
-				depthResource.image = m_device->createImage(
-					imgInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-				depthResource.imageView = m_device->createImageView(
-					depthResource.image, viewInfo);
-				depthResource.depthRenderTarget = *depthTarget;
-				
 				auto iter = tracker.track(depthResource).first;
 				resource  = &iter->second;
 			}
@@ -236,6 +250,7 @@ namespace sce::Gnm
 				VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL
 			};
 			m_context->bindDepthRenderTarget(attachment);
+
 		} while (false);
 	}
 

@@ -220,7 +220,10 @@ namespace sce
 	 */
 	class SceResourceTracker
 	{
-		using SceResourceMap = std::map<void*, SceResource>;
+		// use std::greater as the compare function
+		// so that we can find the nearest smaller element 
+		// with a single lower_bound call
+		using SceResourceMap = std::map<void*, SceResource, std::greater<void*>>;
 
 	public:
 		SceResourceTracker();
