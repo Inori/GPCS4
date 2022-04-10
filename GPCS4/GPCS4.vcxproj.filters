@@ -838,6 +838,18 @@
     <ClInclude Include="Graphics\Gcn\GcnHeader.h">
       <Filter>Source Files\Graphics\Gcn</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Gcn\GcnCompiler.h">
+      <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gcn\GcnAnalysis.h">
+      <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gcn\GcnModule.h">
+      <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gcn\GcnFetchShader.h">
+      <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1447,6 +1459,18 @@
       <Filter>Source Files\Graphics\Gcn</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Gcn\GcnHeader.cpp">
+      <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Gcn\GcnCompiler.cpp">
+      <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Gcn\GcnAnalysis.cpp">
+      <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Gcn\GcnModule.cpp">
+      <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Gcn\GcnFetchShader.cpp">
       <Filter>Source Files\Graphics\Gcn</Filter>
     </ClCompile>
   </ItemGroup>

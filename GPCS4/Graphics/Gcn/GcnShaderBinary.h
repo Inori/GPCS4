@@ -28,6 +28,7 @@ namespace sce::gcn
 		uint32_t m_crc32;        // crc32 of shader + this struct, just up till this field
 	};
 
+
 	struct alignas(4) InputUsageSlot
 	{
 		uint8_t m_usageType;      ///< From Gnm::ShaderInputUsageType.
@@ -44,6 +45,48 @@ namespace sce::gcn
 				uint8_t m_chunkMask : 4;      ///< Internal usage data.
 			};
 			uint8_t m_srtSizeInDWordMinusOne;  ///< Size of the SRT data; used for Gnm::kShaderInputUsageImmShaderResourceTable.
+		};
+	};
+
+
+	struct VertexInputSemantic
+	{
+		uint8_t m_semantic;
+		uint8_t m_vgpr;
+		uint8_t m_sizeInElements;
+		uint8_t m_reserved;
+	};
+
+
+	struct VertexExportSemantic
+	{                      // __cplusplus
+		uint8_t m_semantic;      ///< Description to be specified.
+		uint8_t m_outIndex : 5;  ///< Description to be specified.
+		uint8_t m_reserved : 1;
+		uint8_t m_exportF16 : 2;  ///< if (m_exportF16 == 0) this shader exports a 32-bit value to this parameter; if (m_exportF16 & 1) this shader exports a 16-bit float value to the low 16-bits of each channel; if (m_exportF16 & 2) this shader exports a 16-bit float value to the high 16-bits of each channel
+	};
+
+
+	struct PixelInputSemantic
+	{
+		union
+		{
+			struct
+			{
+				uint16_t m_semantic : 8;      ///< The semantic, matched against the semantic value in the VertexExportSemantic table in the VS shader.
+				uint16_t m_defaultValue : 2;  ///< The default value supplied to the shader, if m_semantic is not matched in the VS shader. 0={0,0,0,0}, 1={0,0,0,1.0}, 2={1.0,1.0,1.0,0}, 3={1.0,1.0,1.0,1.0}
+				uint16_t m_isFlatShaded : 1;  ///< if (m_interpF16 == 0) A bitflag that specifies whether the value interpolation is constant in the shader. It is ignored if <c><i>m_isCustom</i></c> is set; otherwise, it  indicates that a shader reads only { P0 } and that some handling of infinite values in the calculation of P1-P0 and P2-P0 can be disabled.
+				uint16_t m_isLinear : 1;      ///< A bitflag that specifies whether the value interpolation is linear in the shader. It is unused by the Gnm runtime.
+				uint16_t m_isCustom : 1;      ///< if (m_interpF16 == 0) A bitflag that specifies whether the value interpolation is custom in the shader. It determines whether hardware subtraction should be disabled, supplying { P0, P1, P2 } to the shader instead of { P0, P1-P0, P2-P0 }.
+				uint16_t m_reserved : 3;      ///< Unused; set to zero.
+			};
+			// NEO mode only:
+			struct
+			{
+				uint16_t : 12;                  ///< Description to be specified.
+				uint16_t m_defaultValueHi : 2;  ///< if (m_interpF16 != 0) indicates the default value supplied to the shader for the upper 16-bits if m_semantic is not matched in the VS shader, and m_defaultValue indicates the default value for the lower 16-bits.
+				uint16_t m_interpF16 : 2;       ///< if (m_interpF16 == 0) this is a 32-bit float or custom value; if (m_interpF16 & 1) the low 16-bits of this parameter expect 16-bit float interpolation and/or default value; if (m_interpF16 & 2) the high 16-bits of this parameter expect 16-bit float interpolation and/or default value
+			};
 		};
 	};
 
