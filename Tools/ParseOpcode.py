@@ -175,6 +175,114 @@ def ParseOpType(op_name):
             dst_type = src_type
     return dst_type, src_type
 
+def GetInstCategory(ins_class):
+    category = ''
+    if ins_class in [
+        'ScalarArith',
+		'ScalarAbs',
+		'ScalarMov',
+		'ScalarCmp',
+		'ScalarSelect',
+		'ScalarBitLogic',
+		'ScalarBitManip',
+		'ScalarBitField',
+		'ScalarConv',
+		'ScalarExecMask',
+		'ScalarQuadMask',]:
+        category = 'ScalarALU'
+    elif ins_class in [
+        'VectorRegMov',
+        'VectorLane',
+        'VectorBitLogic',
+        'VectorBitField32',
+        'VectorThreadMask',
+        'VectorBitField64',
+        'VectorFpArith32',
+        'VectorFpRound32',
+        'VectorFpField32',
+        'VectorFpTran32',
+        'VectorFpCmp32',
+        'VectorFpArith64',
+        'VectorFpRound64',
+        'VectorFpField64',
+        'VectorFpTran64',
+        'VectorFpCmp64',
+        'VectorIntArith32',
+        'VectorIntArith64',
+        'VectorIntCmp32',
+        'VectorIntCmp64',
+        'VectorConv',
+        'VectorFpGraph32',
+        'VectorIntGraph',
+        'VectorMisc',
+    ]:
+        category = 'VectorALU'
+    elif ins_class in [
+        'ScalarProgFlow',
+        'ScalarSync',
+        'ScalarWait',
+        'ScalarCache',
+        'ScalarPrior',
+        'ScalarRegAccess',
+        'ScalarMsg',
+    ]:
+        category = 'FlowControl'
+    elif ins_class in [
+        'ScalarMemRd',
+        'ScalarMemUt',
+    ]:
+        category = 'ScalarMemory'
+    elif ins_class in [
+        'VectorMemBufNoFmt',
+        'VectorMemBufFmt',
+        'VectorMemImgNoSmp',
+        'VectorMemImgSmp',
+        'VectorMemImgUt',
+        'VectorMemL1Cache',
+    ]:
+        category = 'VectorMemory'
+    elif ins_class in [
+        'DsIdxRd',
+        'DsIdxWr',
+        'DsIdxWrXchg',
+        'DsIdxCondXchg',
+        'DsIdxWrap',
+        'DsAtomicArith32',
+        'DsAtomicArith64',
+        'DsAtomicMinMax32',
+        'DsAtomicMinMax64',
+        'DsAtomicCmpSt32',
+        'DsAtomicCmpSt64',
+        'DsAtomicLogic32',
+        'DsAtomicLogic64',
+        'DsAppendCon',
+        'DsDataShareUt',
+        'DsDataShareMisc',
+        'GdsSync',
+        'GdsOrdCnt',
+    ]:
+        category = 'DataShare'
+    elif ins_class in [
+        'VectorInterpFpCache',
+    ]:
+        category = 'VectorInterpolation'
+    elif ins_class in [
+        'Exp',
+    ]:
+        category = 'Export'
+    elif ins_class in [
+        'DbgProf'
+    ]:
+        category = 'DebugProfile'
+    elif ins_class in [
+            'Undefined'
+        ]:
+        category = 'Undefined'
+    else:
+        input('error instruction class')
+
+    return category
+
 
 def WriteOpFormat(op_dic):
     dst = open('OpFormat.cpp', 'w')
@@ -197,6 +305,7 @@ def WriteOpFormat(op_dic):
             cls = inst_info[0]
             src_count = DefaultSrcCountTable[encoding]
             dst_type, src_type = ParseOpType(opcode)
+            category = GetInstCategory(cls)
 
             if 'GCN_SRC_NONE' in mode:
                 src_count = 0
@@ -212,8 +321,8 @@ def WriteOpFormat(op_dic):
             if encoding == 'GCNENC_VOP3' and (value >= 0 and value <= 247):
                 src_count = 2
 
-            code_line = '\t// {} = {}\n\t{{ GcnInstClass::{}, {}, {},\n\t\tGcnNumericType::{}, GcnNumericType::{} }},'.\
-                format(value, opcode, cls, src_count, 1, src_type, dst_type)
+            code_line = '\t// {} = {}\n\t{{ GcnInstClass::{}, GcnInstCategory::{}, {}, {},\n\t\tGcnNumericType::{}, GcnNumericType::{} }},'.\
+                format(value, opcode, cls, category, src_count, 1, src_type, dst_type)
             struct_array[value] = code_line
 
         dst.write('\n'.join(struct_array))

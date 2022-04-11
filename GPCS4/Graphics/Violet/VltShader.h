@@ -142,7 +142,7 @@ namespace sce::vlt
 			VkShaderStageFlagBits      stage,
 			const VltResourceSlotList& slots,
 			const VltInterfaceSlots&   iface,
-			gcn::SpirvCodeBuffer      code,
+			gcn::SpirvCodeBuffer       code,
 			const VltShaderOptions&    options,
 			VltShaderConstData&&       constData);
 

@@ -32,6 +32,7 @@
     <ClInclude Include="Graphics\Gcn\GcnFetchShader.h" />
     <ClInclude Include="Graphics\Gcn\GcnHeader.h" />
     <ClInclude Include="Graphics\Gcn\GcnInstruction.h" />
+    <ClInclude Include="Graphics\Gcn\GcnModInfo.h" />
     <ClInclude Include="Graphics\Gcn\GcnModule.h" />
     <ClInclude Include="Graphics\Gcn\GcnProgramInfo.h" />
     <ClInclude Include="Graphics\Gcn\GcnShaderBinary.h" />
@@ -270,6 +271,15 @@
     <ClCompile Include="GPCS4Main.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnAnalysis.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnCompiler.cpp" />
+    <ClCompile Include="Graphics\Gcn\GcnCompilerDataShare.cpp" />
+    <ClCompile Include="Graphics\Gcn\GcnCompilerDebugProfile.cpp" />
+    <ClCompile Include="Graphics\Gcn\GcnCompilerExport.cpp" />
+    <ClCompile Include="Graphics\Gcn\GcnCompilerFlowControl.cpp" />
+    <ClCompile Include="Graphics\Gcn\GcnCompilerScalarALU.cpp" />
+    <ClCompile Include="Graphics\Gcn\GcnCompilerScalarMemory.cpp" />
+    <ClCompile Include="Graphics\Gcn\GcnCompilerVectorALU.cpp" />
+    <ClCompile Include="Graphics\Gcn\GcnCompilerVectorInterpolation.cpp" />
+    <ClCompile Include="Graphics\Gcn\GcnCompilerVectorMemory.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnDecoder.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnFetchShader.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnHeader.cpp" />
