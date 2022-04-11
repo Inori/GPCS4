@@ -33,8 +33,8 @@ namespace sce::gcn
          * \brief Processes a single instruction
          * \param [in] ins The instruction
          */
-		void processInstruction(
-			const GcnShaderInstruction& ins);
+		virtual void processInstruction(
+			const GcnShaderInstruction& ins) override;
 
 	private:
 		GcnAnalysisInfo* m_analysis = nullptr;
