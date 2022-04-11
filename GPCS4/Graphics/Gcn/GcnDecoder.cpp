@@ -857,104 +857,82 @@ namespace sce::gcn
 
 	///////////////////////////////////////////////////////////////
 
-		inline GcnShaderInstSOP1 gcnInstCastToSOP1(const GcnShaderInstruction& ins)
+	inline void gcnInstCastToSOP1(const GcnShaderInstruction& ins, GcnShaderInstSOP1& result)
 	{
-		GcnShaderInstSOP1 result = {};
-		result.opcode            = ins.opcode;
-		result.length            = ins.length;
-		result.opClass           = ins.opClass;
+		result.opcode  = ins.opcode;
+		result.length  = ins.length;
+		result.opClass = ins.opClass;
 
 		result.ssrc0 = ins.src[0];
 		result.sdst  = ins.dst[0];
-
-		return result;
 	}
 
-	inline GcnShaderInstSOP2 gcnInstCastToSOP2(const GcnShaderInstruction& ins)
+	inline void gcnInstCastToSOP2(const GcnShaderInstruction& ins, GcnShaderInstSOP2& result)
 	{
-		GcnShaderInstSOP2 result = {};
-		result.opcode            = ins.opcode;
-		result.length            = ins.length;
-		result.opClass           = ins.opClass;
+		result.opcode  = ins.opcode;
+		result.length  = ins.length;
+		result.opClass = ins.opClass;
 
 		result.ssrc0 = ins.src[0];
 		result.ssrc1 = ins.src[1];
 		result.sdst  = ins.dst[0];
-
-		return result;
 	}
 
-	inline GcnShaderInstSOPK gcnInstCastToSOPK(const GcnShaderInstruction& ins)
+	inline void gcnInstCastToSOPK(const GcnShaderInstruction& ins, GcnShaderInstSOPK& result)
 	{
-		GcnShaderInstSOPK result = {};
-		result.opcode            = ins.opcode;
-		result.length            = ins.length;
-		result.opClass           = ins.opClass;
+		result.opcode  = ins.opcode;
+		result.length  = ins.length;
+		result.opClass = ins.opClass;
 
 		result.control = ins.control.sopk;
 		result.sdst    = ins.dst[0];
-
-		return result;
 	}
 
-	inline GcnShaderInstSOPC gcnInstCastToSOPC(const GcnShaderInstruction& ins)
+	inline void gcnInstCastToSOPC(const GcnShaderInstruction& ins, GcnShaderInstSOPC& result)
 	{
-		GcnShaderInstSOPC result = {};
-		result.opcode            = ins.opcode;
-		result.length            = ins.length;
-		result.opClass           = ins.opClass;
+		result.opcode  = ins.opcode;
+		result.length  = ins.length;
+		result.opClass = ins.opClass;
 
 		result.ssrc0 = ins.src[0];
 		result.ssrc1 = ins.src[1];
-
-		return result;
 	}
 
-	inline GcnShaderInstSOPP gcnInstCastToSOPP(const GcnShaderInstruction& ins)
+	inline void gcnInstCastToSOPP(const GcnShaderInstruction& ins, GcnShaderInstSOPP& result)
 	{
-		GcnShaderInstSOPP result = {};
-		result.opcode            = ins.opcode;
-		result.length            = ins.length;
-		result.opClass           = ins.opClass;
+		result.opcode  = ins.opcode;
+		result.length  = ins.length;
+		result.opClass = ins.opClass;
 
 		result.control = ins.control.sopp;
-
-		return result;
 	}
 
-	inline GcnShaderInstVOP1 gcnInstCastToVOP1(const GcnShaderInstruction& ins)
+	inline void gcnInstCastToVOP1(const GcnShaderInstruction& ins, GcnShaderInstVOP1& result)
 	{
-		GcnShaderInstVOP1 result = {};
-		result.opcode            = ins.opcode;
-		result.length            = ins.length;
-		result.opClass           = ins.opClass;
+		result.opcode  = ins.opcode;
+		result.length  = ins.length;
+		result.opClass = ins.opClass;
 
 		result.src0 = ins.src[0];
 		result.vdst = ins.dst[0];
-
-		return result;
 	}
 
-	inline GcnShaderInstVOP2 gcnInstCastToVOP2(const GcnShaderInstruction& ins)
+	inline void gcnInstCastToVOP2(const GcnShaderInstruction& ins, GcnShaderInstVOP2& result)
 	{
-		GcnShaderInstVOP2 result = {};
-		result.opcode            = ins.opcode;
-		result.length            = ins.length;
-		result.opClass           = ins.opClass;
+		result.opcode  = ins.opcode;
+		result.length  = ins.length;
+		result.opClass = ins.opClass;
 
 		result.src0  = ins.src[0];
 		result.vsrc1 = ins.src[1];
 		result.vdst  = ins.dst[0];
-
-		return result;
 	}
 
-	inline GcnShaderInstVOP3 gcnInstCastToVOP3(const GcnShaderInstruction& ins)
+	inline void gcnInstCastToVOP3(const GcnShaderInstruction& ins, GcnShaderInstVOP3& result)
 	{
-		GcnShaderInstVOP3 result = {};
-		result.opcode            = ins.opcode;
-		result.length            = ins.length;
-		result.opClass           = ins.opClass;
+		result.opcode  = ins.opcode;
+		result.length  = ins.length;
+		result.opClass = ins.opClass;
 
 		result.control = ins.control.vop3;
 		result.src0    = ins.src[0];
@@ -962,29 +940,23 @@ namespace sce::gcn
 		result.src2    = ins.src[2];
 		result.vdst    = ins.dst[0];
 		result.sdst    = ins.dst[1];
-
-		return result;
 	}
 
-	inline GcnShaderInstVOPC gcnInstCastToVOPC(const GcnShaderInstruction& ins)
+	inline void gcnInstCastToVOPC(const GcnShaderInstruction& ins, GcnShaderInstVOPC& result)
 	{
-		GcnShaderInstVOPC result = {};
-		result.opcode            = ins.opcode;
-		result.length            = ins.length;
-		result.opClass           = ins.opClass;
+		result.opcode  = ins.opcode;
+		result.length  = ins.length;
+		result.opClass = ins.opClass;
 
 		result.src0  = ins.src[0];
 		result.vsrc1 = ins.src[1];
-
-		return result;
 	}
 
-	inline GcnShaderInstSMRD gcnInstCastToSMRD(const GcnShaderInstruction& ins)
+	inline void gcnInstCastToSMRD(const GcnShaderInstruction& ins, GcnShaderInstSMRD& result)
 	{
-		GcnShaderInstSMRD result = {};
-		result.opcode            = ins.opcode;
-		result.length            = ins.length;
-		result.opClass           = ins.opClass;
+		result.opcode  = ins.opcode;
+		result.length  = ins.length;
+		result.opClass = ins.opClass;
 
 		result.control = ins.control.smrd;
 
@@ -1003,102 +975,82 @@ namespace sce::gcn
 
 		result.sbase = ins.src[0];
 		result.sdst  = ins.dst[0];
-
-		return result;
 	}
 
-	inline GcnShaderInstMUBUF gcnInstCastToMUBUF(const GcnShaderInstruction& ins)
+	inline void gcnInstCastToMUBUF(const GcnShaderInstruction& ins, GcnShaderInstMUBUF& result)
 	{
-		GcnShaderInstMUBUF result = {};
-		result.opcode             = ins.opcode;
-		result.length             = ins.length;
-		result.opClass            = ins.opClass;
+		result.opcode  = ins.opcode;
+		result.length  = ins.length;
+		result.opClass = ins.opClass;
 
 		result.control = ins.control.mubuf;
 		result.vaddr   = ins.src[0];
 		result.vdata   = ins.src[1];
 		result.srsrc   = ins.src[2];
 		result.soffset = ins.src[3];
-
-		return result;
 	}
 
-	inline GcnShaderInstMTBUF gcnInstCastToMTBUF(const GcnShaderInstruction& ins)
+	inline void gcnInstCastToMTBUF(const GcnShaderInstruction& ins, GcnShaderInstMTBUF& result)
 	{
-		GcnShaderInstMTBUF result = {};
-		result.opcode             = ins.opcode;
-		result.length             = ins.length;
-		result.opClass            = ins.opClass;
+		result.opcode  = ins.opcode;
+		result.length  = ins.length;
+		result.opClass = ins.opClass;
 
 		result.control = ins.control.mtbuf;
 		result.vaddr   = ins.src[0];
 		result.vdata   = ins.src[1];
 		result.srsrc   = ins.src[2];
 		result.soffset = ins.src[3];
-
-		return result;
 	}
 
-	inline GcnShaderInstMIMG gcnInstCastToMIMG(const GcnShaderInstruction& ins)
+	inline void gcnInstCastToMIMG(const GcnShaderInstruction& ins, GcnShaderInstMIMG& result)
 	{
-		GcnShaderInstMIMG result = {};
-		result.opcode            = ins.opcode;
-		result.length            = ins.length;
-		result.opClass           = ins.opClass;
+		result.opcode  = ins.opcode;
+		result.length  = ins.length;
+		result.opClass = ins.opClass;
 
 		result.control = ins.control.mimg;
 		result.vaddr   = ins.src[0];
 		result.vdata   = ins.src[1];
 		result.srsrc   = ins.src[2];
 		result.ssamp   = ins.src[3];
-
-		return result;
 	}
 
-	inline GcnShaderInstVINTRP gcnInstCastToVINTRP(const GcnShaderInstruction& ins)
+	inline void gcnInstCastToVINTRP(const GcnShaderInstruction& ins, GcnShaderInstVINTRP& result)
 	{
-		GcnShaderInstVINTRP result = {};
-		result.opcode              = ins.opcode;
-		result.length              = ins.length;
-		result.opClass             = ins.opClass;
+		result.opcode  = ins.opcode;
+		result.length  = ins.length;
+		result.opClass = ins.opClass;
 
 		result.control = ins.control.vintrp;
 		result.vsrc    = ins.src[0];
 		result.vdst    = ins.dst[0];
-
-		return result;
 	}
 
-	inline GcnShaderInstDS gcnInstCastToDS(const GcnShaderInstruction& ins)
+	inline void gcnInstCastToDS(const GcnShaderInstruction& ins, GcnShaderInstDS& result)
 	{
-		GcnShaderInstDS result = {};
-		result.opcode          = ins.opcode;
-		result.length          = ins.length;
-		result.opClass         = ins.opClass;
+		result.opcode  = ins.opcode;
+		result.length  = ins.length;
+		result.opClass = ins.opClass;
 
 		result.control = ins.control.ds;
 		result.addr    = ins.src[0];
 		result.data0   = ins.src[1];
 		result.data1   = ins.src[2];
 		result.vdst    = ins.dst[0];
-
-		return result;
 	}
 
-	inline GcnShaderInstEXP gcnInstCastToEXP(const GcnShaderInstruction& ins)
+	inline void gcnInstCastToEXP(const GcnShaderInstruction& ins, GcnShaderInstEXP& result)
 	{
-		GcnShaderInstEXP result = {};
-		result.opcode           = ins.opcode;
-		result.length           = ins.length;
-		result.opClass          = ins.opClass;
+		result.opcode  = ins.opcode;
+		result.length  = ins.length;
+		result.opClass = ins.opClass;
 
 		result.control = ins.control.exp;
 		result.vsrc0   = ins.src[0];
 		result.vsrc1   = ins.src[1];
 		result.vsrc2   = ins.src[2];
 		result.vsrc3   = ins.src[3];
-
-		return result;
 	}
 
 	GcnInstructionVariant gcnInstructionConvert(const GcnShaderInstruction& ins)
@@ -1107,52 +1059,52 @@ namespace sce::gcn
 		switch (ins.encoding)
 		{
 		case GcnInstEncoding::SOP1:
-			result = gcnInstCastToSOP1(ins);
+			gcnInstCastToSOP1(ins, std::get<GcnShaderInstSOP1>(result));
 			break;
 		case GcnInstEncoding::SOPP:
-			result = gcnInstCastToSOPP(ins);
+			gcnInstCastToSOPP(ins, std::get<GcnShaderInstSOPP>(result));
 			break;
 		case GcnInstEncoding::SOPC:
-			result = gcnInstCastToSOPC(ins);
+			gcnInstCastToSOPC(ins, std::get<GcnShaderInstSOPC>(result));
 			break;
 		case GcnInstEncoding::VOP1:
-			result = gcnInstCastToVOP1(ins);
+			gcnInstCastToVOP1(ins, std::get<GcnShaderInstVOP1>(result));
 			break;
 		case GcnInstEncoding::VOPC:
-			result = gcnInstCastToVOPC(ins);
+			gcnInstCastToVOPC(ins, std::get<GcnShaderInstVOPC>(result));
 			break;
 		case GcnInstEncoding::VOP3:
-			result = gcnInstCastToVOP3(ins);
+			gcnInstCastToVOP3(ins, std::get<GcnShaderInstVOP3>(result));
 			break;
 		case GcnInstEncoding::EXP:
-			result = gcnInstCastToEXP(ins);
+			gcnInstCastToEXP(ins, std::get<GcnShaderInstEXP>(result));
 			break;
 		case GcnInstEncoding::VINTRP:
-			result = gcnInstCastToVINTRP(ins);
+			gcnInstCastToVINTRP(ins, std::get<GcnShaderInstVINTRP>(result));
 			break;
 		case GcnInstEncoding::DS:
-			result = gcnInstCastToDS(ins);
+			gcnInstCastToDS(ins, std::get<GcnShaderInstDS>(result));
 			break;
 		case GcnInstEncoding::MUBUF:
-			result = gcnInstCastToMUBUF(ins);
+			gcnInstCastToMUBUF(ins, std::get<GcnShaderInstMUBUF>(result));
 			break;
 		case GcnInstEncoding::MTBUF:
-			result = gcnInstCastToMTBUF(ins);
+			gcnInstCastToMTBUF(ins, std::get<GcnShaderInstMTBUF>(result));
 			break;
 		case GcnInstEncoding::MIMG:
-			result = gcnInstCastToMIMG(ins);
+			gcnInstCastToMIMG(ins, std::get<GcnShaderInstMIMG>(result));
 			break;
 		case GcnInstEncoding::SMRD:
-			result = gcnInstCastToSMRD(ins);
+			gcnInstCastToSMRD(ins, std::get<GcnShaderInstSMRD>(result));
 			break;
 		case GcnInstEncoding::SOPK:
-			result = gcnInstCastToSOPK(ins);
+			gcnInstCastToSOPK(ins, std::get<GcnShaderInstSOPK>(result));
 			break;
 		case GcnInstEncoding::SOP2:
-			result = gcnInstCastToSOP2(ins);
+			gcnInstCastToSOP2(ins, std::get<GcnShaderInstSOP2>(result));
 			break;
 		case GcnInstEncoding::VOP2:
-			result = gcnInstCastToVOP2(ins);
+			gcnInstCastToVOP2(ins, std::get<GcnShaderInstVOP2>(result));
 			break;
 		}
 		return result;
