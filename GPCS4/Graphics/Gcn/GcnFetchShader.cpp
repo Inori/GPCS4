@@ -52,10 +52,12 @@ namespace sce::gcn
 				continue;
 			}
 
+			GcnShaderInstMUBUF mubuf = gcnInstructionAs<GcnShaderInstMUBUF>(ins);
+
 			VertexInputSemantic semantic = { 0 };
 			semantic.m_semantic          = semanticIndex++;
-			semantic.m_vgpr              = ins.src[1].code;
-			semantic.m_sizeInElements    = ins.control.mubuf.count;
+			semantic.m_vgpr              = mubuf.vdata.code;
+			semantic.m_sizeInElements    = mubuf.control.count;
 			semantic.m_reserved          = 0;
 
 			m_vsInputSemanticTable.push_back(semantic);

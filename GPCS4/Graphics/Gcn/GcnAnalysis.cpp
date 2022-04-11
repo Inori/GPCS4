@@ -2,7 +2,9 @@
 
 namespace sce::gcn
 {
-	GcnAnalyzer::GcnAnalyzer(GcnAnalysisInfo& analysis):
+	GcnAnalyzer::GcnAnalyzer(
+		const GcnProgramInfo& programInfo,
+		GcnAnalysisInfo&      analysis) :
 		m_analysis(&analysis)
 	{
 	}

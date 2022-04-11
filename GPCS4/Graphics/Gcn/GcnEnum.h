@@ -2354,6 +2354,29 @@ namespace sce::gcn
 		DbgProf
 	};
 
+	enum class GcnInstCategory : uint32_t
+	{
+		Undefined,
+		/// Scalar ALU Operation
+		ScalarALU,
+		/// Scalar Instruction Memory
+		ScalarMemory,
+		/// Vector ALU Operation
+		VectorALU,
+		/// Vector Instruction Memory Read
+		VectorMemory,
+		/// Scalar Program Flow Control and Special Operations
+		FlowControl,
+		/// LDS and GDS
+		DataShare,
+		/// Vector Interpolation Operations
+		VectorInterpolation,
+		/// Export
+		Export,
+		/// Debug and Profiling Operations
+		DebugProfile,
+	};
+
 	enum class GcnNumericType : uint32_t
 	{
 		Undefined,
@@ -2408,5 +2431,7 @@ namespace sce::gcn
 
 		Undefined = 0xFFFFFFFF,
 	};
+
+
 
 }  // namespace sce::gcn

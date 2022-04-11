@@ -5,6 +5,7 @@
 
 namespace sce::gcn
 {
+	class GcnProgramInfo;
 	struct GcnShaderInstruction;
 
 	struct GcnAnalysisInfo
@@ -12,11 +13,19 @@ namespace sce::gcn
 		uint32_t placeHoder;
 	};
 
+	/**
+	 * \brief GCN shader analyzer
+	 * 
+	 * Pre-collect global information of a shader
+	 * which is not possible to get when stepping a instruction.
+     * The information will later be used by the actual compiler.
+	 */
 	class GcnAnalyzer
 	{
 	public:
 		GcnAnalyzer(
-			GcnAnalysisInfo& analysis);
+			const GcnProgramInfo& programInfo,
+			GcnAnalysisInfo&      analysis);
 		~GcnAnalyzer();
 
 		/**

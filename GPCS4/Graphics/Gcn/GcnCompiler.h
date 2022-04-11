@@ -1,7 +1,6 @@
 #pragma once
 
 #include "GcnCommon.h"
-#include "GcnHeader.h"
 #include "GcnProgramInfo.h"
 #include "Violet/VltRc.h"
 
@@ -14,6 +13,8 @@ namespace sce::vlt
 
 namespace sce::gcn
 {
+
+	class GcnHeader;
 	struct GcnShaderInstruction;
 	struct GcnAnalysisInfo;
 
@@ -27,10 +28,10 @@ namespace sce::gcn
 	{
 	public:
 		GcnCompiler(
-			const std::string&          fileName,
-			const GcnProgramInfo&       programInfo,
-			const GcnAnalysisInfo&      analysis,
-			const std::vector<uint8_t>& code);
+			const std::string&     fileName,
+			const GcnProgramInfo&  programInfo,
+			const GcnHeader&       header,
+			const GcnAnalysisInfo& analysis);
 		~GcnCompiler();
 
 		/**
@@ -48,7 +49,7 @@ namespace sce::gcn
 
 	private:
 		GcnProgramInfo         m_programInfo;
-		GcnHeader              m_header;
+		const GcnHeader*       m_header;
 		const GcnAnalysisInfo* m_analysis;
 	};
 
