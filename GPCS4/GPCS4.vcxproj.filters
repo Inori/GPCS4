@@ -850,6 +850,9 @@
     <ClInclude Include="Graphics\Gcn\GcnFetchShader.h">
       <Filter>Source Files\Graphics\Gcn</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Gcn\GcnShaderKey.h">
+      <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">

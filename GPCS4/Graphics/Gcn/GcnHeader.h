@@ -2,6 +2,7 @@
 
 #include "GcnCommon.h"
 #include "GcnShaderBinary.h"
+#include "GcnShaderKey.h"
 
 #include <vector>
 
@@ -21,6 +22,12 @@ namespace sce::gcn
 		GcnHeader(
 			const std::vector<uint8_t>& shaderCode);
 		~GcnHeader();
+
+		GcnShaderKey key() const
+		{
+			return GcnShaderKey(
+				m_binInfo.m_shaderHash0, m_binInfo.m_crc32);
+		}
 
 		const ShaderBinaryInfo& getShaderBinaryInfo();
 

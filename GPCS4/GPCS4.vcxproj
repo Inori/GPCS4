@@ -35,6 +35,7 @@
     <ClInclude Include="Graphics\Gcn\GcnModule.h" />
     <ClInclude Include="Graphics\Gcn\GcnProgramInfo.h" />
     <ClInclude Include="Graphics\Gcn\GcnShaderBinary.h" />
+    <ClInclude Include="Graphics\Gcn\GcnShaderKey.h" />
     <ClInclude Include="Graphics\Gcn\GcnShaderRegField.h" />
     <ClInclude Include="Graphics\Gcn\GcnShaderRegister.h" />
     <ClInclude Include="Graphics\Gnm\GnmBuffer.h" />
