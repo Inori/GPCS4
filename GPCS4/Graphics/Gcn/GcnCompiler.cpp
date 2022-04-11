@@ -1,5 +1,6 @@
 #include "GcnCompiler.h"
 #include "GcnHeader.h"
+#include "GcnDecoder.h"
 
 LOG_CHANNEL(Graphic.Gcn.GcnCompiler);
 
@@ -42,6 +43,48 @@ namespace sce::gcn
 	void GcnCompiler::processInstruction(
 		const GcnShaderInstruction& ins)
 	{
+		compileInstruction(ins);
+
+		updateProgramCounter(ins);
+	}
+	
+	void GcnCompiler::compileInstruction(
+		const GcnShaderInstruction& ins)
+	{
+		auto catecory = ins.category;
+		switch (catecory)
+		{
+		case GcnInstCategory::ScalarALU:
+			this->emitScalarALU(ins);
+			break;
+		case GcnInstCategory::ScalarMemory:
+			this->emitScalarMemory(ins);
+			break;
+		case GcnInstCategory::VectorALU:
+			this->emitVectorALU(ins);
+			break;
+		case GcnInstCategory::VectorMemory:
+			this->emitVectorMemory(ins);
+			break;
+		case GcnInstCategory::FlowControl:
+			this->emitFlowControl(ins);
+			break;
+		case GcnInstCategory::DataShare:
+			this->emitDataShare(ins);
+			break;
+		case GcnInstCategory::VectorInterpolation:
+			this->emitVectorInterpolation(ins);
+			break;
+		case GcnInstCategory::Export:
+			this->emitExport(ins);
+			break;
+		case GcnInstCategory::DebugProfile:
+			this->emitDebugProfile(ins);
+			break;
+		case GcnInstCategory::Undefined:
+			LOG_GCN_UNHANDLED_INST();
+			break;
+		}
 	}
 
 	Rc<VltShader> GcnCompiler::finalize()

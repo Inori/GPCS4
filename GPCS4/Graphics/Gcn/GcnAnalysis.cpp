@@ -16,6 +16,7 @@ namespace sce::gcn
 	void GcnAnalyzer::processInstruction(
 		const GcnShaderInstruction& ins)
 	{
+		updateProgramCounter(ins);
 	}
 
 }  // namespace sce::gcn

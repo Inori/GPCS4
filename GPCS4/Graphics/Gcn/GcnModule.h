@@ -16,8 +16,7 @@ namespace sce::vlt
 
 namespace sce::gcn
 {
-	class GcnAnalyzer;
-	class GcnCompiler;
+	class GcnInstructionIterator;
 
 	class GcnModule
 	{
@@ -54,13 +53,9 @@ namespace sce::gcn
 
 	private:
 
-		void runAnalyzer(
-			GcnAnalyzer& analyzer,
-			GcnCodeSlice slice) const;
-
-		void runCompiler(
-			GcnCompiler& compiler,
-			GcnCodeSlice slice) const;
+		void runInstructionIterator(
+			GcnInstructionIterator* insIterator,
+			GcnCodeSlice            slice) const;
 
 	private:
 		GcnProgramInfo           m_programInfo;

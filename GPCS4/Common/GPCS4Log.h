@@ -6,57 +6,57 @@
 #include <vector>
 
 namespace cxxopts
-{;
-class ParseResult;
+{
+	class ParseResult;
 }  // namespace cxxopts
 
 namespace logsys
-{;
-
-void init(const cxxopts::ParseResult& optResult);
-
-enum class Level : int
 {
-	kTrace,
-	kDebug,
-	kFixme,
-	kWarning,
-	kError,
-	kSceTrace,
-	kSceGraphic,
-};
 
-class Channel
-{
-public:
-	Channel(const std::string& n);
+	void init(const cxxopts::ParseResult& optResult);
 
-	void print(Level nLevel, const char* szFunction, const char* szSourcePath, int nLine, const char* szFormat, ...);
-	void assert_(const char* szExpression, const char* szFunction, const char* szSourcePath, int nLine, const char* szFormat, ...);
+	enum class Level : int
+	{
+		kTrace,
+		kDebug,
+		kFixme,
+		kWarning,
+		kError,
+		kSceTrace,
+		kSceGraphic,
+	};
 
-	void checkSig(const std::string& n);
-	std::string getName();
+	class Channel
+	{
+	public:
+		Channel(const std::string& n);
 
-private:
-	const std::vector<std::string> m_channelNameList;
-	bool m_enabled;
-};
+		void print(Level nLevel, const char* szFunction, const char* szSourcePath, int nLine, const char* szFormat, ...);
+		void assert_(const char* szExpression, const char* szFunction, const char* szSourcePath, int nLine, const char* szFormat, ...);
 
-class ChannelContainer
-{
-public:
-	void add(Channel* ch);
+		void        checkSig(const std::string& n);
+		std::string getName();
 
-	std::vector<Channel*>& getChannels();
+	private:
+		const std::vector<std::string> m_channelNameList;
+		bool                           m_enabled;
+	};
 
-	static ChannelContainer* get();
+	class ChannelContainer
+	{
+	public:
+		void add(Channel* ch);
 
-private:
-	ChannelContainer();
-	std::vector<Channel*> m_channels;
-};
+		std::vector<Channel*>& getChannels();
 
-}  // namespace log
+		static ChannelContainer* get();
+
+	private:
+		ChannelContainer();
+		std::vector<Channel*> m_channels;
+	};
+
+}  // namespace logsys
 
 //do not use these directly
 #define _LOG_PRINT_(level, format, ...)    __logger_handle.print(level, __FUNCTION__, __FILE__, __LINE__, format, __VA_ARGS__)
@@ -105,11 +105,11 @@ private:
 // just return result which looks correct to let the program go on
 #define LOG_SCE_DUMMY_IMPL() LOG_FIXME("SCE Dummy implemented");
 
-// only used in PSSL module
+// only used in GCN module
 // to indicate there's gcn instruction not translated.
-#define LOG_PSSL_UNHANDLED_INST()                      \
+#define LOG_GCN_UNHANDLED_INST()                       \
 	{                                                  \
-		LOG_FIXME("PSSL Instruction not translated."); \
+		LOG_FIXME("GCN instruction not recompiled.");  \
 		__debugbreak();                                \
 	}
 
@@ -134,6 +134,6 @@ private:
 #define LOG_SCE_TRACE(format, ...)
 #define LOG_SCE_GRAPHIC(format, ...)
 #define LOG_SCE_DUMMY_IMPL()
-#define LOG_PSSL_UNHANDLED_INST()
+#define LOG_GCN_UNHANDLED_INST()
 
 #endif  // GPCS4_DEBUG

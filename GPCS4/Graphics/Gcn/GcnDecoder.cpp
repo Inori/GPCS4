@@ -484,7 +484,7 @@ namespace sce::gcn
 		} while (false);
 
 		// Increase instruction length by 4
-		// if literal constant append.
+		// if literal constant appended.
 		if (hasLiteral)
 		{
 			m_instruction.length += sizeof(uint32_t);

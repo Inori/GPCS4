@@ -32,7 +32,8 @@
     <ClInclude Include="Graphics\Gcn\GcnFetchShader.h" />
     <ClInclude Include="Graphics\Gcn\GcnHeader.h" />
     <ClInclude Include="Graphics\Gcn\GcnInstruction.h" />
-    <ClInclude Include="Graphics\Gcn\GcnModInfo.h" />
+    <ClInclude Include="Graphics\Gcn\GcnInstructionIterator.h" />
+    <ClInclude Include="Graphics\Gcn\GcnModuleInfo.h" />
     <ClInclude Include="Graphics\Gcn\GcnModule.h" />
     <ClInclude Include="Graphics\Gcn\GcnProgramInfo.h" />
     <ClInclude Include="Graphics\Gcn\GcnShaderBinary.h" />
@@ -284,6 +285,7 @@
     <ClCompile Include="Graphics\Gcn\GcnFetchShader.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnHeader.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnInstruction.cpp" />
+    <ClCompile Include="Graphics\Gcn\GcnInstructionIterator.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnModule.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnProgramInfo.cpp" />
     <ClCompile Include="Graphics\Gnm\GnmCommandBuffer.cpp" />

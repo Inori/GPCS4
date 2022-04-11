@@ -32,7 +32,7 @@ namespace sce::gcn
 		GcnAnalyzer analyzer(
 			m_programInfo, analysisInfo);
 
-		this->runAnalyzer(analyzer, codeSlice);
+		this->runInstructionIterator(&analyzer, codeSlice);
 
 		GcnCompiler compiler(
 			m_header.key().name(), 
@@ -40,12 +40,13 @@ namespace sce::gcn
 			m_header,
 			analysisInfo);
 
-		this->runCompiler(compiler, codeSlice);
+		this->runInstructionIterator(&compiler, codeSlice);
 	}
 
-	void GcnModule::runAnalyzer(
-		GcnAnalyzer& analyzer,
-		GcnCodeSlice slice) const
+
+	void GcnModule::runInstructionIterator(
+		GcnInstructionIterator* insIterator,
+		GcnCodeSlice            slice) const
 	{
 		GcnDecodeContext decoder;
 
@@ -53,22 +54,7 @@ namespace sce::gcn
 		{
 			decoder.decodeInstruction(slice);
 
-			analyzer.processInstruction(
-				decoder.getInstruction());
-		}
-	}
-
-	void GcnModule::runCompiler(
-		GcnCompiler& compiler,
-		GcnCodeSlice slice) const
-	{
-		GcnDecodeContext decoder;
-
-		while (!slice.atEnd())
-		{
-			decoder.decodeInstruction(slice);
-
-			compiler.processInstruction(
+			insIterator->processInstruction(
 				decoder.getInstruction());
 		}
 	}
@@ -79,5 +65,7 @@ namespace sce::gcn
 		GcnFetchShader fsShader(code);
 		m_vsInputSemanticTable = fsShader.getVertexInputSemanticTable();
 	}
+
+
 
 }  // namespace sce::gcn

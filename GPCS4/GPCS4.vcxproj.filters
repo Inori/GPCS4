@@ -853,7 +853,10 @@
     <ClInclude Include="Graphics\Gcn\GcnShaderKey.h">
       <Filter>Source Files\Graphics\Gcn</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Gcn\GcnModInfo.h">
+    <ClInclude Include="Graphics\Gcn\GcnModuleInfo.h">
+      <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gcn\GcnInstructionIterator.h">
       <Filter>Source Files\Graphics\Gcn</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1504,6 +1507,9 @@
       <Filter>Source Files\Graphics\Gcn</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Gcn\GcnCompilerVectorMemory.cpp">
+      <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Gcn\GcnInstructionIterator.cpp">
       <Filter>Source Files\Graphics\Gcn</Filter>
     </ClCompile>
   </ItemGroup>

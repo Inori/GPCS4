@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GcnCommon.h"
+#include "GcnInstructionIterator.h"
 
 
 namespace sce::gcn
@@ -20,13 +21,13 @@ namespace sce::gcn
 	 * which is not possible to get when stepping a instruction.
      * The information will later be used by the actual compiler.
 	 */
-	class GcnAnalyzer
+	class GcnAnalyzer : public GcnInstructionIterator
 	{
 	public:
 		GcnAnalyzer(
 			const GcnProgramInfo& programInfo,
 			GcnAnalysisInfo&      analysis);
-		~GcnAnalyzer();
+		virtual ~GcnAnalyzer();
 
 		/**
          * \brief Processes a single instruction
