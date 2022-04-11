@@ -2,6 +2,8 @@
 
 #include "GcnEnum.h"
 
+#include <variant>
+
 namespace sce::gcn
 {
 
@@ -161,6 +163,188 @@ namespace sce::gcn
 
 		GcnInstOperand src[GcnMaxSrcCount];
 		GcnInstOperand dst[GcnMaxDstCount];
+	};
+
+	struct GcnShaderInstSOP1
+	{
+		GcnOpcode           opcode;
+		uint32_t            length;  // in bytes
+		GcnInstClass        opClass;
+
+		GcnInstOperand ssrc0;
+		GcnInstOperand sdst;
+	};
+
+	struct GcnShaderInstSOP2
+	{
+		GcnOpcode           opcode;
+		uint32_t            length;  // in bytes
+		GcnInstClass        opClass;
+
+		GcnInstOperand ssrc0;
+		GcnInstOperand ssrc1;
+		GcnInstOperand sdst;
+	};
+
+	struct GcnShaderInstSOPK
+	{
+		GcnOpcode           opcode;
+		uint32_t            length;  // in bytes
+		GcnInstClass        opClass;
+		GcnInstControlSOPK  control;
+
+		GcnInstOperand sdst;
+	};
+
+	struct GcnShaderInstSOPC
+	{
+		GcnOpcode          opcode;
+		uint32_t           length;  // in bytes
+		GcnInstClass       opClass;
+
+		GcnInstOperand ssrc0;
+		GcnInstOperand ssrc1;
+	};
+
+	struct GcnShaderInstSOPP
+	{
+		GcnOpcode          opcode;
+		uint32_t           length;  // in bytes
+		GcnInstClass       opClass;
+		GcnInstControlSOPP control;
+	};
+
+	struct GcnShaderInstVOP1
+	{
+		GcnOpcode          opcode;
+		uint32_t           length;  // in bytes
+		GcnInstClass       opClass;
+
+		GcnInstOperand src0;
+		GcnInstOperand vdst;
+	};
+
+	struct GcnShaderInstVOP2
+	{
+		GcnOpcode          opcode;
+		uint32_t           length;  // in bytes
+		GcnInstClass       opClass;
+
+		GcnInstOperand src0;
+		GcnInstOperand vsrc1;
+		GcnInstOperand vdst;
+	};
+
+	struct GcnShaderInstVOP3
+	{
+		GcnOpcode          opcode;
+		uint32_t           length;  // in bytes
+		GcnInstClass       opClass;
+		GcnInstControlVOP3 control;
+
+		GcnInstOperand src0;
+		GcnInstOperand src1;
+		GcnInstOperand src2;
+		GcnInstOperand vdst;
+		GcnInstOperand sdst;
+	};
+
+	struct GcnShaderInstVOPC
+	{
+		GcnOpcode          opcode;
+		uint32_t           length;  // in bytes
+		GcnInstClass       opClass;
+
+		GcnInstOperand src0;
+		GcnInstOperand vsrc1;
+	};
+
+	struct GcnShaderInstSMRD
+	{
+		GcnOpcode           opcode;
+		uint32_t            length;  // in bytes
+		GcnInstClass        opClass;
+		GcnInstControlSMRD  control;
+
+		GcnInstOperand offset;
+		GcnInstOperand sbase;
+		GcnInstOperand sdst;
+	};
+
+	struct GcnShaderInstMUBUF
+	{
+		GcnOpcode           opcode;
+		uint32_t            length;  // in bytes
+		GcnInstClass        opClass;
+		GcnInstControlMUBUF control;
+
+		GcnInstOperand vaddr;
+		GcnInstOperand vdata;
+		GcnInstOperand srsrc;
+		GcnInstOperand soffset;
+	};
+
+	struct GcnShaderInstMTBUF
+	{
+		GcnOpcode           opcode;
+		uint32_t            length;  // in bytes
+		GcnInstClass        opClass;
+		GcnInstControlMTBUF control;
+
+		GcnInstOperand vaddr;
+		GcnInstOperand vdata;
+		GcnInstOperand srsrc;
+		GcnInstOperand soffset;
+	};
+
+	struct GcnShaderInstMIMG
+	{
+		GcnOpcode           opcode;
+		uint32_t            length;  // in bytes
+		GcnInstClass        opClass;
+		GcnInstControlMIMG  control;
+
+		GcnInstOperand vaddr;
+		GcnInstOperand vdata;
+		GcnInstOperand srsrc;
+		GcnInstOperand ssamp;
+	};
+
+	struct GcnShaderInstVINTRP
+	{
+		GcnOpcode            opcode;
+		uint32_t             length;  // in bytes
+		GcnInstClass         opClass;
+		GcnInstControlVINTRP control;
+
+		GcnInstOperand vsrc;
+		GcnInstOperand vdst;
+	};
+
+	struct GcnShaderInstDS
+	{
+		GcnOpcode            opcode;
+		uint32_t             length;  // in bytes
+		GcnInstClass         opClass;
+		GcnInstControlDS     control;
+
+		GcnInstOperand addr;
+		GcnInstOperand data0;
+		GcnInstOperand data1;
+		GcnInstOperand vdst;
+	};
+
+	struct GcnShaderInstEXP
+	{
+		GcnOpcode            opcode;
+		uint32_t             length;  // in bytes
+		GcnInstClass         opClass;
+		GcnInstControlEXP    control;
+
+		GcnInstOperand vsrc0;
+		GcnInstOperand vsrc1;
+		GcnInstOperand vsrc2;
+		GcnInstOperand vsrc3;
 	};
 
 	GcnInstFormat gcnInstructionFormat(GcnInstEncoding encoding, uint32_t opcode);

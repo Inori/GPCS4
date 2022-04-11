@@ -570,8 +570,9 @@ namespace sce::gcn
 
 		m_instruction.src[0].field = getOperandField(src0);
 		m_instruction.src[0].code  = src0;
-		m_instruction.src[1].field = GcnOperandField::VectorGPR;
-		m_instruction.src[1].code  = vdst;
+		m_instruction.dst[0].field = GcnOperandField::VectorGPR;
+		m_instruction.dst[0].code  = vdst;
+		m_instruction.dstCount     = 1;
 	}
 
 	void GcnDecodeContext::decodeInstructionVOPC(uint32_t hexInstruction)
@@ -851,6 +852,309 @@ namespace sce::gcn
 		m_instruction.src[3].code  = vsrc3;
 
 		m_instruction.control.exp = *reinterpret_cast<GcnInstControlEXP*>(&hexInstruction);
+	}
+
+	///////////////////////////////////////////////////////////////
+
+		inline GcnShaderInstSOP1 gcnInstCastToSOP1(const GcnShaderInstruction& ins)
+	{
+		GcnShaderInstSOP1 result = {};
+		result.opcode            = ins.opcode;
+		result.length            = ins.length;
+		result.opClass           = ins.opClass;
+
+		result.ssrc0 = ins.src[0];
+		result.sdst  = ins.dst[0];
+
+		return result;
+	}
+
+	inline GcnShaderInstSOP2 gcnInstCastToSOP2(const GcnShaderInstruction& ins)
+	{
+		GcnShaderInstSOP2 result = {};
+		result.opcode            = ins.opcode;
+		result.length            = ins.length;
+		result.opClass           = ins.opClass;
+
+		result.ssrc0 = ins.src[0];
+		result.ssrc1 = ins.src[1];
+		result.sdst  = ins.dst[0];
+
+		return result;
+	}
+
+	inline GcnShaderInstSOPK gcnInstCastToSOPK(const GcnShaderInstruction& ins)
+	{
+		GcnShaderInstSOPK result = {};
+		result.opcode            = ins.opcode;
+		result.length            = ins.length;
+		result.opClass           = ins.opClass;
+
+		result.control = ins.control.sopk;
+		result.sdst    = ins.dst[0];
+
+		return result;
+	}
+
+	inline GcnShaderInstSOPC gcnInstCastToSOPC(const GcnShaderInstruction& ins)
+	{
+		GcnShaderInstSOPC result = {};
+		result.opcode            = ins.opcode;
+		result.length            = ins.length;
+		result.opClass           = ins.opClass;
+
+		result.ssrc0 = ins.src[0];
+		result.ssrc1 = ins.src[1];
+
+		return result;
+	}
+
+	inline GcnShaderInstSOPP gcnInstCastToSOPP(const GcnShaderInstruction& ins)
+	{
+		GcnShaderInstSOPP result = {};
+		result.opcode            = ins.opcode;
+		result.length            = ins.length;
+		result.opClass           = ins.opClass;
+
+		result.control = ins.control.sopp;
+
+		return result;
+	}
+
+	inline GcnShaderInstVOP1 gcnInstCastToVOP1(const GcnShaderInstruction& ins)
+	{
+		GcnShaderInstVOP1 result = {};
+		result.opcode            = ins.opcode;
+		result.length            = ins.length;
+		result.opClass           = ins.opClass;
+
+		result.src0 = ins.src[0];
+		result.vdst = ins.dst[0];
+
+		return result;
+	}
+
+	inline GcnShaderInstVOP2 gcnInstCastToVOP2(const GcnShaderInstruction& ins)
+	{
+		GcnShaderInstVOP2 result = {};
+		result.opcode            = ins.opcode;
+		result.length            = ins.length;
+		result.opClass           = ins.opClass;
+
+		result.src0  = ins.src[0];
+		result.vsrc1 = ins.src[1];
+		result.vdst  = ins.dst[0];
+
+		return result;
+	}
+
+	inline GcnShaderInstVOP3 gcnInstCastToVOP3(const GcnShaderInstruction& ins)
+	{
+		GcnShaderInstVOP3 result = {};
+		result.opcode            = ins.opcode;
+		result.length            = ins.length;
+		result.opClass           = ins.opClass;
+
+		result.control = ins.control.vop3;
+		result.src0    = ins.src[0];
+		result.src1    = ins.src[1];
+		result.src2    = ins.src[2];
+		result.vdst    = ins.dst[0];
+		result.sdst    = ins.dst[1];
+
+		return result;
+	}
+
+	inline GcnShaderInstVOPC gcnInstCastToVOPC(const GcnShaderInstruction& ins)
+	{
+		GcnShaderInstVOPC result = {};
+		result.opcode            = ins.opcode;
+		result.length            = ins.length;
+		result.opClass           = ins.opClass;
+
+		result.src0  = ins.src[0];
+		result.vsrc1 = ins.src[1];
+
+		return result;
+	}
+
+	inline GcnShaderInstSMRD gcnInstCastToSMRD(const GcnShaderInstruction& ins)
+	{
+		GcnShaderInstSMRD result = {};
+		result.opcode            = ins.opcode;
+		result.length            = ins.length;
+		result.opClass           = ins.opClass;
+
+		result.control = ins.control.smrd;
+
+		// TODO:
+		// Not sure how to interpret control.offset when imm is not 1
+		// since I haven't met such an instruction yet.
+		// But when we got one, complete the code then remove this assert.
+		LOG_ASSERT(result.control.imm == 1, "TODO: sgpr offset not supported yet.");
+		if (!result.control.imm)
+		{
+			// TODO:
+			// Maybe not correct.
+			result.offset.field = GcnOperandField::ScalarGPR;
+			result.offset.code  = result.control.offset;
+		}
+
+		result.sbase = ins.src[0];
+		result.sdst  = ins.dst[0];
+
+		return result;
+	}
+
+	inline GcnShaderInstMUBUF gcnInstCastToMUBUF(const GcnShaderInstruction& ins)
+	{
+		GcnShaderInstMUBUF result = {};
+		result.opcode             = ins.opcode;
+		result.length             = ins.length;
+		result.opClass            = ins.opClass;
+
+		result.control = ins.control.mubuf;
+		result.vaddr   = ins.src[0];
+		result.vdata   = ins.src[1];
+		result.srsrc   = ins.src[2];
+		result.soffset = ins.src[3];
+
+		return result;
+	}
+
+	inline GcnShaderInstMTBUF gcnInstCastToMTBUF(const GcnShaderInstruction& ins)
+	{
+		GcnShaderInstMTBUF result = {};
+		result.opcode             = ins.opcode;
+		result.length             = ins.length;
+		result.opClass            = ins.opClass;
+
+		result.control = ins.control.mtbuf;
+		result.vaddr   = ins.src[0];
+		result.vdata   = ins.src[1];
+		result.srsrc   = ins.src[2];
+		result.soffset = ins.src[3];
+
+		return result;
+	}
+
+	inline GcnShaderInstMIMG gcnInstCastToMIMG(const GcnShaderInstruction& ins)
+	{
+		GcnShaderInstMIMG result = {};
+		result.opcode            = ins.opcode;
+		result.length            = ins.length;
+		result.opClass           = ins.opClass;
+
+		result.control = ins.control.mimg;
+		result.vaddr   = ins.src[0];
+		result.vdata   = ins.src[1];
+		result.srsrc   = ins.src[2];
+		result.ssamp   = ins.src[3];
+
+		return result;
+	}
+
+	inline GcnShaderInstVINTRP gcnInstCastToVINTRP(const GcnShaderInstruction& ins)
+	{
+		GcnShaderInstVINTRP result = {};
+		result.opcode              = ins.opcode;
+		result.length              = ins.length;
+		result.opClass             = ins.opClass;
+
+		result.control = ins.control.vintrp;
+		result.vsrc    = ins.src[0];
+		result.vdst    = ins.dst[0];
+
+		return result;
+	}
+
+	inline GcnShaderInstDS gcnInstCastToDS(const GcnShaderInstruction& ins)
+	{
+		GcnShaderInstDS result = {};
+		result.opcode          = ins.opcode;
+		result.length          = ins.length;
+		result.opClass         = ins.opClass;
+
+		result.control = ins.control.ds;
+		result.addr    = ins.src[0];
+		result.data0   = ins.src[1];
+		result.data1   = ins.src[2];
+		result.vdst    = ins.dst[0];
+
+		return result;
+	}
+
+	inline GcnShaderInstEXP gcnInstCastToEXP(const GcnShaderInstruction& ins)
+	{
+		GcnShaderInstEXP result = {};
+		result.opcode           = ins.opcode;
+		result.length           = ins.length;
+		result.opClass          = ins.opClass;
+
+		result.control = ins.control.exp;
+		result.vsrc0   = ins.src[0];
+		result.vsrc1   = ins.src[1];
+		result.vsrc2   = ins.src[2];
+		result.vsrc3   = ins.src[3];
+
+		return result;
+	}
+
+	GcnInstructionVariant gcnInstructionConvert(const GcnShaderInstruction& ins)
+	{
+		GcnInstructionVariant result = {};
+		switch (ins.encoding)
+		{
+		case GcnInstEncoding::SOP1:
+			result = gcnInstCastToSOP1(ins);
+			break;
+		case GcnInstEncoding::SOPP:
+			result = gcnInstCastToSOPP(ins);
+			break;
+		case GcnInstEncoding::SOPC:
+			result = gcnInstCastToSOPC(ins);
+			break;
+		case GcnInstEncoding::VOP1:
+			result = gcnInstCastToVOP1(ins);
+			break;
+		case GcnInstEncoding::VOPC:
+			result = gcnInstCastToVOPC(ins);
+			break;
+		case GcnInstEncoding::VOP3:
+			result = gcnInstCastToVOP3(ins);
+			break;
+		case GcnInstEncoding::EXP:
+			result = gcnInstCastToEXP(ins);
+			break;
+		case GcnInstEncoding::VINTRP:
+			result = gcnInstCastToVINTRP(ins);
+			break;
+		case GcnInstEncoding::DS:
+			result = gcnInstCastToDS(ins);
+			break;
+		case GcnInstEncoding::MUBUF:
+			result = gcnInstCastToMUBUF(ins);
+			break;
+		case GcnInstEncoding::MTBUF:
+			result = gcnInstCastToMTBUF(ins);
+			break;
+		case GcnInstEncoding::MIMG:
+			result = gcnInstCastToMIMG(ins);
+			break;
+		case GcnInstEncoding::SMRD:
+			result = gcnInstCastToSMRD(ins);
+			break;
+		case GcnInstEncoding::SOPK:
+			result = gcnInstCastToSOPK(ins);
+			break;
+		case GcnInstEncoding::SOP2:
+			result = gcnInstCastToSOP2(ins);
+			break;
+		case GcnInstEncoding::VOP2:
+			result = gcnInstCastToVOP2(ins);
+			break;
+		}
+		return result;
 	}
 
 }  // namespace sce::gcn

@@ -16,6 +16,11 @@ namespace sce::gcn
 			m_end(end)
 		{
 		}
+		
+		GcnCodeSlice(
+			const GcnCodeSlice& other) = default;
+
+		~GcnCodeSlice() = default;
 
 		uint32_t at(uint32_t id) const;
 
@@ -93,5 +98,39 @@ namespace sce::gcn
 	private:
 		GcnShaderInstruction m_instruction;
 	};
+
+
+	/**
+	 * \brief Convenient function to convert general instruction into specific encodings
+	 */
+
+	using GcnInstructionVariant =
+		std::variant<
+			GcnShaderInstSOP1,
+			GcnShaderInstSOP2,
+			GcnShaderInstSOPK,
+			GcnShaderInstSOPC,
+			GcnShaderInstSOPP,
+			GcnShaderInstVOP1,
+			GcnShaderInstVOP2,
+			GcnShaderInstVOP3,
+			GcnShaderInstVOPC,
+			GcnShaderInstSMRD,
+			GcnShaderInstMUBUF,
+			GcnShaderInstMTBUF,
+			GcnShaderInstMIMG,
+			GcnShaderInstVINTRP,
+			GcnShaderInstDS,
+			GcnShaderInstEXP>;
+
+	// Do not use this directly, use gcnInstructionAs
+	GcnInstructionVariant gcnInstructionConvert(const GcnShaderInstruction& ins);
+
+	template <typename InsType>
+	static inline const InsType gcnInstructionAs(
+		const GcnShaderInstruction& ins)
+	{
+		return std::get<InsType>(gcnInstructionConvert(inst));
+	}
 
 }  // namespace sce::gcn
