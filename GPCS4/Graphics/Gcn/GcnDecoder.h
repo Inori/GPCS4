@@ -130,7 +130,7 @@ namespace sce::gcn
 	static inline const InsType gcnInstructionAs(
 		const GcnShaderInstruction& ins)
 	{
-		return std::get<InsType>(gcnInstructionConvert(inst));
+		return std::get<InsType>(gcnInstructionConvert(ins));
 	}
 
 }  // namespace sce::gcn

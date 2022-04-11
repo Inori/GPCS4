@@ -334,6 +334,7 @@ namespace sce::gcn
 		GcnInstFormat instFormat = gcnInstructionFormat(encoding, encodingOp);
 
 		m_instruction.opClass  = instFormat.instructionClass;
+		m_instruction.category = instFormat.instructionCategory;
 		m_instruction.encoding = encoding;
 		m_instruction.srcCount = instFormat.srcCount;
 		m_instruction.length   = getEncodingLength(encoding);

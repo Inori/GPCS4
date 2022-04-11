@@ -12,8 +12,8 @@ namespace sce::gcn
 
 	struct GcnInstFormat
 	{
-		// Instruction class
-		GcnInstClass instructionClass = GcnInstClass::Undefined;
+		GcnInstClass    instructionClass    = GcnInstClass::Undefined;
+		GcnInstCategory instructionCategory = GcnInstCategory::Undefined;
 
 		uint32_t srcCount = 0;
 		uint32_t dstCount = 0;
@@ -156,6 +156,7 @@ namespace sce::gcn
 		uint32_t        length;  // in bytes
 		GcnInstEncoding encoding;
 		GcnInstClass    opClass;
+		GcnInstCategory category;
 		GcnInstControl  control;
 
 		uint32_t srcCount;
