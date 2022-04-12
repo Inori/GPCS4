@@ -4,7 +4,7 @@ LOG_CHANNEL(Graphic.Gcn.GcnHeader);
 
 namespace sce::gcn
 {
-	GcnHeader::GcnHeader(const std::vector<uint8_t>& shaderCode)
+	GcnHeader::GcnHeader(const uint8_t* shaderCode)
 	{
 		parseHeader(shaderCode);
 	}
@@ -22,12 +22,9 @@ namespace sce::gcn
 	}
 
 	void GcnHeader::parseHeader(
-		const std::vector<uint8_t>& shaderCode)
+		const uint8_t* shaderCode)
 	{
-		LOG_ASSERT(shaderCode.size() >= 2 * sizeof(uint32_t) + sizeof(ShaderBinaryInfo), 
-			"shader code size too small.");
-
-		const uint32_t* token = reinterpret_cast<const uint32_t*>(shaderCode.data());
+		const uint32_t* token         = reinterpret_cast<const uint32_t*>(shaderCode);
 		const uint32_t  tokenMovVccHi = 0xBEEB03FF;
 
 		// first instruction should be
@@ -44,7 +41,7 @@ namespace sce::gcn
 		int32_t               inputUsageSlotsCount = binaryInfo->m_numInputUsageSlots;
 		InputUsageSlot const* inputUsageSlots      = (InputUsageSlot const*)usageMasks - inputUsageSlotsCount;
 
-		m_inputUsageSlotTable.resize(inputUsageSlotsCount);
+		m_inputUsageSlotTable.reserve(inputUsageSlotsCount);
 		for (uint32_t i = 0; i != inputUsageSlotsCount; ++i)
 		{
 			m_inputUsageSlotTable.emplace_back(inputUsageSlots[i]);

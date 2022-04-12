@@ -67,6 +67,17 @@ namespace sce::vlt
 		void bindDepthRenderTarget(
 			const VltAttachment& depthTarget);
 
+
+        /**
+         * \brief Binds a shader to a given state
+         * 
+         * \param [in] stage Target shader stage
+         * \param [in] shader The shader to bind
+         */
+		void bindShader(
+			VkShaderStageFlagBits stage,
+			const Rc<VltShader>&  shader);
+
         /**
          * \brief Transforms image subresource layouts
          * 

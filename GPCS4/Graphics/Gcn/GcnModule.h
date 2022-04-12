@@ -22,8 +22,8 @@ namespace sce::gcn
 	{
 	public:
 		GcnModule(
-			GcnProgramType              type,
-			const std::vector<uint8_t>& code);
+			GcnProgramType type,
+			const uint8_t* code);
 		~GcnModule();
 
 		/**
@@ -61,7 +61,7 @@ namespace sce::gcn
 		GcnProgramInfo           m_programInfo;
 		GcnHeader                m_header;
 		VertexInputSemanticTable m_vsInputSemanticTable;
-		std::vector<uint8_t>     m_code;
+		const uint8_t*           m_code;
 	};
 
 }  // namespace sce::gcn

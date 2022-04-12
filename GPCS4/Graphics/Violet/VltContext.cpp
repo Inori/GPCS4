@@ -21,6 +21,31 @@ namespace sce::vlt
 	{
 		m_cmd = cmdList;
 		m_cmd->beginRecording();
+
+		// The current state of the internal command buffer is
+		// undefined, so we have to bind and set up everything
+		// before any draw or dispatch command is recorded.
+		m_flags.clr(
+			VltContextFlag::GpRenderingActive,
+			VltContextFlag::GpXfbActive,
+			VltContextFlag::GpClearRenderTargets);
+
+		m_flags.set(
+			VltContextFlag::GpDirtyPipeline,
+			VltContextFlag::GpDirtyPipelineState,
+			VltContextFlag::GpDirtyResources,
+			VltContextFlag::GpDirtyVertexBuffers,
+			VltContextFlag::GpDirtyIndexBuffer,
+			VltContextFlag::GpDirtyXfbBuffers,
+			VltContextFlag::GpDirtyBlendConstants,
+			VltContextFlag::GpDirtyStencilRef,
+			VltContextFlag::GpDirtyViewport,
+			VltContextFlag::GpDirtyDepthBias,
+			VltContextFlag::GpDirtyDepthBounds,
+			VltContextFlag::CpDirtyPipeline,
+			VltContextFlag::CpDirtyPipelineState,
+			VltContextFlag::CpDirtyResources,
+			VltContextFlag::DirtyDrawBuffer);
 	}
 
 	Rc<VltCommandList> VltContext::endRecording()
@@ -181,6 +206,43 @@ namespace sce::vlt
 		}
 
 		m_flags.set(VltContextFlag::GpDirtyScissor);
+	}
+
+	void VltContext::bindShader(
+		VkShaderStageFlagBits stage,
+		const Rc<VltShader>&  shader)
+	{
+		Rc<VltShader>* shaderStage;
+
+		// clang-format off
+		switch (stage) 
+		{
+		  case VK_SHADER_STAGE_VERTEX_BIT:                  shaderStage = &m_state.gp.shaders.vs;  break;
+		  case VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT:    shaderStage = &m_state.gp.shaders.tcs; break;
+		  case VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT: shaderStage = &m_state.gp.shaders.tes; break;
+		  case VK_SHADER_STAGE_GEOMETRY_BIT:                shaderStage = &m_state.gp.shaders.gs;  break;
+		  case VK_SHADER_STAGE_FRAGMENT_BIT:                shaderStage = &m_state.gp.shaders.fs;  break;
+		  case VK_SHADER_STAGE_COMPUTE_BIT:                 shaderStage = &m_state.cp.shaders.cs;  break;
+		  default: return;
+		}
+		// clang-format on
+
+		*shaderStage = shader;
+
+		if (stage == VK_SHADER_STAGE_COMPUTE_BIT)
+		{
+			m_flags.set(
+				VltContextFlag::CpDirtyPipeline,
+				VltContextFlag::CpDirtyPipelineState,
+				VltContextFlag::CpDirtyResources);
+		}
+		else
+		{
+			m_flags.set(
+				VltContextFlag::GpDirtyPipeline,
+				VltContextFlag::GpDirtyPipelineState,
+				VltContextFlag::GpDirtyResources);
+		}
 	}
 
 }  // namespace sce::vlt

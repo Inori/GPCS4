@@ -1,6 +1,7 @@
 #include "GnmCommandBufferDraw.h"
 
 #include "Emulator.h"
+#include "Gcn/GcnModule.h"
 #include "GnmBuffer.h"
 #include "GnmConverter.h"
 #include "GnmSampler.h"
@@ -12,8 +13,8 @@
 #include "Platform/PlatFile.h"
 #include "Sce/SceResourceTracker.h"
 #include "Sce/SceVideoOut.h"
-#include "Violet/VltDevice.h"
 #include "Violet/VltContext.h"
+#include "Violet/VltDevice.h"
 #include "Violet/VltImage.h"
 #include "Violet/VltRenderTarget.h"
 
@@ -442,6 +443,11 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setCsShader(const gcn::CsStageRegisters* computeData, uint32_t shaderModifier)
 	{
+		uint8_t* code         = reinterpret_cast<uint8_t*>(computeData->getCodeAddress());
+		auto     shaderModule = GcnModule(GcnProgramType::ComputeShader, code);
+		m_context->bindShader(
+			shaderModule.programInfo().shaderStage(),
+			shaderModule.compile());
 	}
 
 	void GnmCommandBufferDraw::writeReleaseMemEventWithInterrupt(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy)

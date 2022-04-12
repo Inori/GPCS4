@@ -9,8 +9,8 @@ using namespace sce::vlt;
 namespace sce::gcn
 {
 	GcnModule::GcnModule(
-		GcnProgramType              type,
-		const std::vector<uint8_t>& code) :
+		GcnProgramType type,
+		const uint8_t* code) :
 		m_programInfo(type),
 		m_header(code),
 		m_code(code)
@@ -23,8 +23,8 @@ namespace sce::gcn
 
 	Rc<VltShader> GcnModule::compile() const
 	{
-		const uint32_t* start = reinterpret_cast<const uint32_t*>(m_code.data());
-		const uint32_t* end   = reinterpret_cast<const uint32_t*>(m_code.data() + m_code.size());
+		const uint32_t* start = reinterpret_cast<const uint32_t*>(m_code);
+		const uint32_t* end   = reinterpret_cast<const uint32_t*>(m_code + m_header.length());
 		GcnCodeSlice    codeSlice(start, end);
 
 		GcnAnalysisInfo analysisInfo;
@@ -41,6 +41,8 @@ namespace sce::gcn
 			analysisInfo);
 
 		this->runInstructionIterator(&compiler, codeSlice);
+
+		return compiler.finalize();
 	}
 
 

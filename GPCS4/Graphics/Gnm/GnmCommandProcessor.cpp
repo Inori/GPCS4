@@ -340,6 +340,11 @@ namespace sce::Gnm
 	// opcode, like prepareFlip
 	void GnmCommandProcessor::onNop(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	{
+		// TODO:
+		// Here we should handle allocateFromCommandBuffer and other calls
+		// 
+		// And a better way to handle nop should check the if upper 16 bits of itBody is equal to 0x6875
+		// then dispatch the lower 16 bits
 		uint32_t hint = *itBody;
 		switch (hint)
 		{
