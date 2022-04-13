@@ -26,7 +26,7 @@
     <ClInclude Include="Graphics\Gcn\GcnAnalysis.h" />
     <ClInclude Include="Graphics\Gcn\GcnCommon.h" />
     <ClInclude Include="Graphics\Gcn\GcnCompiler.h" />
-    <ClInclude Include="Graphics\Gcn\GcnContants.h" />
+    <ClInclude Include="Graphics\Gcn\GcnConstants.h" />
     <ClInclude Include="Graphics\Gcn\GcnDecoder.h" />
     <ClInclude Include="Graphics\Gcn\GcnEnum.h" />
     <ClInclude Include="Graphics\Gcn\GcnFetchShader.h" />
@@ -40,6 +40,7 @@
     <ClInclude Include="Graphics\Gcn\GcnShaderKey.h" />
     <ClInclude Include="Graphics\Gcn\GcnShaderRegField.h" />
     <ClInclude Include="Graphics\Gcn\GcnShaderRegister.h" />
+    <ClInclude Include="Graphics\Gcn\GcnUtil.h" />
     <ClInclude Include="Graphics\Gnm\GnmBuffer.h" />
     <ClInclude Include="Graphics\Gnm\GnmCommandBuffer.h" />
     <ClInclude Include="Graphics\Gnm\GnmCommandBufferDispatch.h" />
@@ -108,6 +109,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Graphics\Violet\VltFormat.h" />
+    <ClInclude Include="Graphics\Violet\VltGpuEvent.h" />
     <ClInclude Include="Graphics\Violet\VltGraphics.h" />
     <ClInclude Include="Graphics\Violet\VltHash.h" />
     <ClInclude Include="Graphics\Violet\VltImage.h" />
@@ -327,6 +329,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Graphics\Violet\VltFormat.cpp" />
+    <ClCompile Include="Graphics\Violet\VltGpuEvent.cpp" />
     <ClCompile Include="Graphics\Violet\VltGraphics.cpp" />
     <ClCompile Include="Graphics\Violet\VltImage.cpp" />
     <ClCompile Include="Graphics\Violet\VltInstance.cpp">

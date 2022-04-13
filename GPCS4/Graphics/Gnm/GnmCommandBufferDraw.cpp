@@ -155,13 +155,14 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setUserDataRegion(ShaderStage stage, uint32_t startUserDataSlot, const uint32_t* userData, uint32_t numDwords)
 	{
+		std::memcpy(&m_shaderCtxs[stage].userData[startUserDataSlot], userData, numDwords * sizeof(uint32_t));
 	}
 
 	void GnmCommandBufferDraw::setRenderTarget(uint32_t rtSlot, RenderTarget const* target)
 	{
-		auto& tracker = GPU().resourceTracker();
+		auto& tracker  = GPU().resourceTracker();
 		auto  resource = tracker.find(target->getBaseAddress());
-		do 
+		do
 		{
 			if (!resource)
 			{
@@ -181,22 +182,22 @@ namespace sce::Gnm
 			resource->setRenderTarget(rtRes);
 
 			// Currently, we use vulkan swapchain image directly
-			// as the gnm render target's backend. 
+			// as the gnm render target's backend.
 			// (Maybe we should use a standalone vulkan image then bilt to swapchain in the future)
 			// And swapchain images are in optimal tiling mode.
-			// 
+			//
 			// In Gnm, a common way to clear render target
 			// is to treat it as a normal buffer and use compute shader to write the desired
 			// values directly.
-			// 
+			//
 			// Hence comes the problem:
 			// we can't write the swapchain images directly by the translated shader because it's not linear.
-			// 
+			//
 			// To support this, we use a linear staging buffer as the backend
 			// of the render target buffer and copy the content to swapchain image
 			// at binding time, converting the tiling mode implicitly.
 
-			SceBuffer rtBuffer = {};
+			SceBuffer rtBuffer   = {};
 			uint32_t  bufferSize = target->getColorSizeAlign().m_size;
 			uint32_t  numUints   = bufferSize / sizeof(uint32_t);
 			rtBuffer.gnmBuffer.initAsDataBuffer(target->getBaseAddress(), Gnm::kDataFormatR32Uint, numUints);
@@ -209,11 +210,10 @@ namespace sce::Gnm
 
 			rtBuffer.buffer = m_device->createBuffer(info,
 													 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-													 VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+														 VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 			resource->setBuffer(rtBuffer);
 
-			VltAttachment attachment = 
-			{
+			VltAttachment attachment = {
 				rtRes.imageView,
 				VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
 			};
@@ -259,8 +259,8 @@ namespace sce::Gnm
 		info.stages = VK_PIPELINE_STAGE_TRANSFER_BIT;
 		info.access = VK_ACCESS_TRANSFER_READ_BIT;
 
-		depthImage.image     = m_device->createImage(
-            imgInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		depthImage.image = m_device->createImage(
+			imgInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 		depthImage.imageView = m_device->createImageView(
 			depthImage.image, viewInfo);
 		depthImage.depthRenderTarget = *depthTarget;
@@ -270,7 +270,7 @@ namespace sce::Gnm
 	{
 		auto& tracker  = GPU().resourceTracker();
 		auto  resource = tracker.find(depthTarget->getZReadAddress());
-		do 
+		do
 		{
 			if (!resource)
 			{
@@ -282,9 +282,8 @@ namespace sce::Gnm
 				auto iter = tracker.track(depthResource).first;
 				resource  = &iter->second;
 			}
-			
-			VltAttachment attachment =
-			{
+
+			VltAttachment attachment = {
 				resource->depthRenderTarget().imageView,
 				VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL
 			};

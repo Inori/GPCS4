@@ -811,7 +811,7 @@
     <ClInclude Include="Graphics\Gcn\GcnCommon.h">
       <Filter>Source Files\Graphics\Gcn</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Gcn\GcnContants.h">
+    <ClInclude Include="Graphics\Gcn\GcnConstants.h">
       <Filter>Source Files\Graphics\Gcn</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Gcn\GcnShaderRegField.h">
@@ -858,6 +858,12 @@
     </ClInclude>
     <ClInclude Include="Graphics\Gcn\GcnInstructionIterator.h">
       <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gcn\GcnUtil.h">
+      <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltGpuEvent.h">
+      <Filter>Source Files\Graphics\Violet</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1511,6 +1517,9 @@
     </ClCompile>
     <ClCompile Include="Graphics\Gcn\GcnInstructionIterator.cpp">
       <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Violet\VltGpuEvent.cpp">
+      <Filter>Source Files\Graphics\Violet</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
