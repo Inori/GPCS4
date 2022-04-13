@@ -1,23 +1,20 @@
 #include "GcnHeader.h"
+#include "GcnConstants.h"
+#include "Gnm/GnmConstant.h"
 
 LOG_CHANNEL(Graphic.Gcn.GcnHeader);
+
+using namespace sce::Gnm;
 
 namespace sce::gcn
 {
 	GcnHeader::GcnHeader(const uint8_t* shaderCode)
 	{
 		parseHeader(shaderCode);
+		extractResourceTable();
 	}
 
 	GcnHeader::~GcnHeader()
-	{
-	}
-
-	const ShaderBinaryInfo& GcnHeader::getShaderBinaryInfo()
-	{
-	}
-
-	InputUsageSlotTable GcnHeader::getInputUsageSlotTable()
 	{
 	}
 
@@ -45,6 +42,68 @@ namespace sce::gcn
 		for (uint32_t i = 0; i != inputUsageSlotsCount; ++i)
 		{
 			m_inputUsageSlotTable.emplace_back(inputUsageSlots[i]);
+		}
+	}
+
+	void GcnHeader::extractResourceTable()
+	{
+		m_resourceTable.reserve(m_inputUsageSlotTable.size());
+
+		for (const auto& slot : m_inputUsageSlotTable)
+		{
+			GcnShaderResource res = {};
+
+			res.usage = slot.m_usageType;
+			res.inEud = (slot.m_startRegister > kMaxUserDataCount);
+
+			if (!res.inEud)
+			{
+				res.startRegister = slot.m_startRegister;
+			}
+			else
+			{
+				res.eudOffsetInDwords = kMaxUserDataCount - slot.m_startRegister;
+			}
+
+			bool isVSharp = (slot.m_resourceType == 0);
+
+			switch (slot.m_usageType)
+			{
+			case kShaderInputUsageImmResource:
+			{
+				res.type = isVSharp ? 
+					VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER : VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+				res.sizeInDwords = slot.m_registerCount == 0 ? 4 : 8;
+			}
+				break;
+			case kShaderInputUsageImmRwResource:
+			{
+				res.type = isVSharp ? 
+					VK_DESCRIPTOR_TYPE_STORAGE_BUFFER : VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+				res.sizeInDwords = slot.m_registerCount == 0 ? 4 : 8;
+			}
+				break;
+			case kShaderInputUsageImmConstBuffer:
+			{
+				res.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+				res.sizeInDwords = kDwordSizeConstantBuffer;
+			}
+				break;
+			case kShaderInputUsagePtrExtendedUserData:
+			case kShaderInputUsageSubPtrFetchShader:
+			{
+				// This is not really a resource
+				res.type         = VK_DESCRIPTOR_TYPE_MAX_ENUM;
+				res.sizeInDwords = 2;
+			}
+				break;
+			default:
+				// Checking for non handled input data
+				LOG_ASSERT(false, "Not supported usage type.");
+				break;
+			}
+
+			m_resourceTable.push_back(res);
 		}
 	}
 

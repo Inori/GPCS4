@@ -36,6 +36,15 @@ namespace sce::gcn
 		}
 
 		/**
+		 * \brief Get resources bound to the shader
+		 */
+		const GcnShaderResourceTable& 
+			getResourceTable() const
+		{
+			return m_header.getShaderResourceTable();
+		}
+
+		/**
 		 * \brief Apply fetch shader
 		 * 
 		 * Some shaders need a fetch shader
@@ -62,6 +71,8 @@ namespace sce::gcn
 		GcnHeader                m_header;
 		VertexInputSemanticTable m_vsInputSemanticTable;
 		const uint8_t*           m_code;
+		
+		GcnShaderResourceTable m_resourceTable;
 	};
 
 }  // namespace sce::gcn

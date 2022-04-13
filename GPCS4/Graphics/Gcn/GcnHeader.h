@@ -11,6 +11,34 @@ namespace sce::gcn
 	using InputUsageSlotTable = std::vector<InputUsageSlot>;
 
 	/**
+	 * \brief Represent a resource bound to a GCN shader
+	 */
+	struct GcnShaderResource
+	{
+		VkDescriptorType type;
+
+		// ShaderInputUsageType
+		uint32_t usage;
+
+		// Resource is in User Data Register
+		// or in Extended User Data region.
+		bool             inEud;
+		union
+		{
+			// SGPR index
+			uint32_t startRegister;
+			// Dword offset in EUD
+			uint32_t eudOffsetInDwords;
+		};
+
+		// Register size in dwords
+		uint32_t sizeInDwords;
+	};
+
+	using GcnShaderResourceTable = std::vector<GcnShaderResource>;
+
+
+	/**
 	 * \brief Header information 
 	 *
 	 * Stores header for a shader binary 
@@ -40,17 +68,31 @@ namespace sce::gcn
 			return m_binInfo.m_length;
 		}
 
-		const ShaderBinaryInfo& getShaderBinaryInfo();
+		const ShaderBinaryInfo& getShaderBinaryInfo() const
+		{
+			return m_binInfo;
+		}
 
-		InputUsageSlotTable getInputUsageSlotTable();
+		const InputUsageSlotTable& getInputUsageSlotTable() const
+		{
+			return m_inputUsageSlotTable;
+		}
+
+		const GcnShaderResourceTable& getShaderResourceTable() const
+		{
+			return m_resourceTable;
+		}
 
 	private:
 		void parseHeader(
 			const uint8_t* shaderCode);
 
+		void extractResourceTable();
+
 	private:
-		ShaderBinaryInfo    m_binInfo = {};
-		InputUsageSlotTable m_inputUsageSlotTable;
+		ShaderBinaryInfo       m_binInfo = {};
+		InputUsageSlotTable    m_inputUsageSlotTable;
+		GcnShaderResourceTable m_resourceTable;
 	};
 
 

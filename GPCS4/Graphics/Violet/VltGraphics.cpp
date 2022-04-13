@@ -16,12 +16,12 @@ namespace sce::vlt
 	{
 		if (m_shaders.vs != nullptr)
 			m_shaders.vs->defineResourceSlots(m_slotMapping);
-		//if (m_shaders.tcs != nullptr)
-		//	m_shaders.tcs->defineResourceSlots(m_slotMapping);
-		//if (m_shaders.tes != nullptr)
-		//	m_shaders.tes->defineResourceSlots(m_slotMapping);
-		//if (m_shaders.gs != nullptr)
-		//	m_shaders.gs->defineResourceSlots(m_slotMapping);
+		if (m_shaders.tcs != nullptr)
+			m_shaders.tcs->defineResourceSlots(m_slotMapping);
+		if (m_shaders.tes != nullptr)
+			m_shaders.tes->defineResourceSlots(m_slotMapping);
+		if (m_shaders.gs != nullptr)
+			m_shaders.gs->defineResourceSlots(m_slotMapping);
 		if (m_shaders.fs != nullptr)
 			m_shaders.fs->defineResourceSlots(m_slotMapping);
 
@@ -45,12 +45,12 @@ namespace sce::vlt
 		{
 		case VK_SHADER_STAGE_VERTEX_BIT:
 			return m_shaders.vs;
-		//case VK_SHADER_STAGE_GEOMETRY_BIT:
-		//	return m_shaders.gs;
-		//case VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT:
-		//	return m_shaders.tcs;
-		//case VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT:
-		//	return m_shaders.tes;
+		case VK_SHADER_STAGE_GEOMETRY_BIT:
+			return m_shaders.gs;
+		case VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT:
+			return m_shaders.tcs;
+		case VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT:
+			return m_shaders.tes;
 		case VK_SHADER_STAGE_FRAGMENT_BIT:
 			return m_shaders.fs;
 		default:
@@ -152,20 +152,20 @@ namespace sce::vlt
 			sampleCount = VkSampleCountFlagBits(state.rs.sampleCount());
 
 		auto vsm  = createShaderModule(m_shaders.vs, state);
-		//auto tcsm = createShaderModule(m_shaders.tcs, state);
-		//auto tesm = createShaderModule(m_shaders.tes, state);
-		//auto gsm  = createShaderModule(m_shaders.gs, state);
+		auto tcsm = createShaderModule(m_shaders.tcs, state);
+		auto tesm = createShaderModule(m_shaders.tes, state);
+		auto gsm  = createShaderModule(m_shaders.gs, state);
 		auto fsm  = createShaderModule(m_shaders.fs, state);
 
 		std::vector<VkPipelineShaderStageCreateInfo> stages;
 		if (vsm)
 			stages.push_back(vsm.stageInfo(nullptr));
-		//if (tcsm)
-		//	stages.push_back(tcsm.stageInfo(nullptr));
-		//if (tesm)
-		//	stages.push_back(tesm.stageInfo(nullptr));
-		//if (gsm)
-		//	stages.push_back(gsm.stageInfo(nullptr));
+		if (tcsm)
+			stages.push_back(tcsm.stageInfo(nullptr));
+		if (tesm)
+			stages.push_back(tesm.stageInfo(nullptr));
+		if (gsm)
+			stages.push_back(gsm.stageInfo(nullptr));
 		if (fsm)
 			stages.push_back(fsm.stageInfo(nullptr));
 
@@ -390,22 +390,22 @@ namespace sce::vlt
 		if (stage == VK_SHADER_STAGE_VERTEX_BIT)
 			return nullptr;
 
-		//if (stage == VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT)
-		//	return m_shaders.tcs;
+		if (stage == VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT)
+			return m_shaders.tcs;
 
 		Rc<VltShader> result = m_shaders.vs;
 
 		if (stage == VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT)
 			return result;
 
-		//if (m_shaders.tes != nullptr)
-		//	result = m_shaders.tes;
+		if (m_shaders.tes != nullptr)
+			result = m_shaders.tes;
 
 		if (stage == VK_SHADER_STAGE_GEOMETRY_BIT)
 			return result;
 
-		//if (m_shaders.gs != nullptr)
-		//	result = m_shaders.gs;
+		if (m_shaders.gs != nullptr)
+			result = m_shaders.gs;
 
 		return result;
 	}
@@ -414,13 +414,13 @@ namespace sce::vlt
 		const VltGraphicsPipelineStateInfo& state) const
 	{
 		// Tessellation shaders and patches must be used together
-		//bool hasPatches = state.ia.primitiveTopology() == VK_PRIMITIVE_TOPOLOGY_PATCH_LIST;
+		bool hasPatches = state.ia.primitiveTopology() == VK_PRIMITIVE_TOPOLOGY_PATCH_LIST;
 
-		//bool hasTcs = m_shaders.tcs != nullptr;
-		//bool hasTes = m_shaders.tes != nullptr;
+		bool hasTcs = m_shaders.tcs != nullptr;
+		bool hasTes = m_shaders.tes != nullptr;
 
-		//if (hasPatches != hasTcs || hasPatches != hasTes)
-		//	return false;
+		if (hasPatches != hasTcs || hasPatches != hasTes)
+			return false;
 
 		// Filter out undefined primitive topologies
 		if (state.ia.primitiveTopology() == VK_PRIMITIVE_TOPOLOGY_MAX_ENUM)
@@ -441,12 +441,12 @@ namespace sce::vlt
 	{
 		if (m_shaders.vs != nullptr)
 			Logger::log(level, util::str::formatex("  vs  : ", m_shaders.vs->debugName()));
-		//if (m_shaders.tcs != nullptr)
-		//	Logger::log(level, util::str::formatex("  tcs : ", m_shaders.tcs->debugName()));
-		//if (m_shaders.tes != nullptr)
-		//	Logger::log(level, util::str::formatex("  tes : ", m_shaders.tes->debugName()));
-		//if (m_shaders.gs != nullptr)
-		//	Logger::log(level, util::str::formatex("  gs  : ", m_shaders.gs->debugName()));
+		if (m_shaders.tcs != nullptr)
+			Logger::log(level, util::str::formatex("  tcs : ", m_shaders.tcs->debugName()));
+		if (m_shaders.tes != nullptr)
+			Logger::log(level, util::str::formatex("  tes : ", m_shaders.tes->debugName()));
+		if (m_shaders.gs != nullptr)
+			Logger::log(level, util::str::formatex("  gs  : ", m_shaders.gs->debugName()));
 		if (m_shaders.fs != nullptr)
 			Logger::log(level, util::str::formatex("  fs  : ", m_shaders.fs->debugName()));
 
