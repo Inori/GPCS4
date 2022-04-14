@@ -3,6 +3,7 @@
 #include "VltCommon.h"
 #include "VltDebugUtil.h"
 #include "VltLifetime.h"
+#include "VltSignal.h"
 
 namespace sce::vlt
 {
@@ -151,19 +152,19 @@ namespace sce::vlt
          * \param [in] signal The signal
          * \param [in] value Signal value
          */
-		//void queueSignal(const Rc<sync::Signal>& signal, uint64_t value)
-		//{
-		//	m_signalTracker.add(signal, value);
-		//}
+		void queueSignal(const Rc<util::sync::Signal>& signal, uint64_t value)
+		{
+			m_signalTracker.add(signal, value);
+		}
 
 		/**
          * \brief Notifies resources and signals
          */
-		//void notifyObjects()
-		//{
-		//	m_resources.notify();
-		//	m_signalTracker.notify();
-		//}
+		void notifyObjects()
+		{
+			m_resources.notify();
+			m_signalTracker.notify();
+		}
 
 		/**
          * \brief Resets the command list
@@ -763,7 +764,7 @@ namespace sce::vlt
 
 		VltLifetimeTracker m_resources;
 		//DxvkDescriptorPoolTracker m_descriptorPoolTracker;
-		//DxvkSignalTracker         m_signalTracker;
+		VltSignalTracker   m_signalTracker;
 		//DxvkGpuEventTracker       m_gpuEventTracker;
 		//DxvkGpuQueryTracker       m_gpuQueryTracker;
 

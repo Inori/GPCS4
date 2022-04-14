@@ -227,8 +227,9 @@ namespace sce::vlt
 
 	void VltCommandList::reset()
 	{
-		// Free resources and other objects
-		// that are no longer in use
+		// Signal resources and events to
+		// avoid stalling main thread
+		m_signalTracker.reset();
 		m_resources.reset();
 
 		//// Recycle heavy Vulkan objects
@@ -237,9 +238,6 @@ namespace sce::vlt
 		//// Return query and event handles
 		//m_gpuQueryTracker.reset();
 		//m_gpuEventTracker.reset();
-
-		//// Less important stuff
-		//m_signalTracker.reset();
 	}
 
 	VkResult VltCommandList::submitToQueue(

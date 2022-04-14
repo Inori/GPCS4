@@ -245,4 +245,11 @@ namespace sce::vlt
 		}
 	}
 
+	void VltContext::signal(
+		const Rc<util::sync::Signal>& signal,
+		uint64_t                      value)
+	{
+		m_cmd->queueSignal(signal, value);
+	}
+
 }  // namespace sce::vlt

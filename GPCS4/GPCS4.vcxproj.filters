@@ -865,6 +865,9 @@
     <ClInclude Include="Graphics\Violet\VltGpuEvent.h">
       <Filter>Source Files\Graphics\Violet</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltSignal.h">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1519,6 +1522,9 @@
       <Filter>Source Files\Graphics\Gcn</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Violet\VltGpuEvent.cpp">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Violet\VltSignal.cpp">
       <Filter>Source Files\Graphics\Violet</Filter>
     </ClCompile>
   </ItemGroup>
