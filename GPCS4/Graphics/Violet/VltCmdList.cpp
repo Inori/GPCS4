@@ -237,7 +237,6 @@ namespace sce::vlt
 
 		//// Return query and event handles
 		//m_gpuQueryTracker.reset();
-		//m_gpuEventTracker.reset();
 	}
 
 	VkResult VltCommandList::submitToQueue(

@@ -242,6 +242,12 @@ namespace sce::vlt
 		Rc<VltContext> createContext();
 
 		/**
+         * \brief Creates a GPU event
+         * \returns New GPU event
+         */
+		Rc<VltGpuEvent> createGpuEvent();
+
+		/**
 		 * \brief Submits a command list
 		 * 
 		 * Submits the given command list to the device using

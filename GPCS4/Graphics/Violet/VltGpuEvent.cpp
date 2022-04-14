@@ -5,8 +5,10 @@
 namespace sce::vlt
 {
 
-	VltGpuEvent::VltGpuEvent(VltDevice* device) :
-		m_device(device)
+	VltGpuEvent::VltGpuEvent(VltDevice*        device,
+							 VltGpuEventHandle handle) :
+		m_device(device),
+		m_handle(handle)
 	{
 	}
 
@@ -35,11 +37,21 @@ namespace sce::vlt
 		}
 	}
 
-	VltGpuEventHandle VltGpuEvent::reset(VltGpuEventHandle handle)
+	VkEvent VltGpuEvent::handle() const
 	{
-		vkResetEvent(m_device->handle(), handle.event);
-		return std::exchange(m_handle, handle);
+		return m_handle.event;
 	}
+
+	void VltGpuEvent::signal()
+	{
+		vkSetEvent(m_device->handle(), m_handle.event);
+	}
+
+	void VltGpuEvent::reset()
+	{
+		vkResetEvent(m_device->handle(), m_handle.event);
+	}
+
 
 	VltGpuEventPool::VltGpuEventPool(VltDevice* device) :
 		m_device(device)
@@ -91,26 +103,4 @@ namespace sce::vlt
 		std::lock_guard<util::sync::Spinlock> lock(m_mutex);
 		m_events.push_back(event);
 	}
-
-	VltGpuEventTracker::VltGpuEventTracker()
-	{
-	}
-	VltGpuEventTracker::~VltGpuEventTracker()
-	{
-	}
-
-	void VltGpuEventTracker::trackEvent(VltGpuEventHandle handle)
-	{
-		if (handle.pool && handle.event)
-			m_handles.push_back(handle);
-	}
-
-	void VltGpuEventTracker::reset()
-	{
-		for (const auto& h : m_handles)
-			h.pool->freeEvent(h.event);
-
-		m_handles.clear();
-	}
-
 }  // namespace sce::vlt

@@ -46,8 +46,14 @@ namespace sce::vlt
 	{
 
 	public:
-		VltGpuEvent(VltDevice* device);
+		VltGpuEvent(VltDevice*        device,
+					VltGpuEventHandle handle);
 		~VltGpuEvent();
+
+		/**
+		 * \brief Return vulkan event handle
+		 */
+		VkEvent handle() const;
 
 		/**
          * \brief Retrieves event status
@@ -59,16 +65,15 @@ namespace sce::vlt
 		VltGpuEventStatus test() const;
 
 		/**
-         * \brief Resets event
+		 * \brief Signal event on host side
+		 */
+		void signal();
+
+		/**
+         * \brief Reset event on host side
          * 
-         * Assigns a new Vulkan event to this event
-         * object and replaces the old one. The old
-         * event should be freed as soon as the GPU
-         * stops using it.
-         * \param [in] handle New GPU event handle
-         * \returns Old GPU event handle
          */
-		VltGpuEventHandle reset(VltGpuEventHandle handle);
+		void reset();
 
 	private:
 		VltDevice*        m_device;
@@ -109,37 +114,5 @@ namespace sce::vlt
 		VltDevice*           m_device;
 		util::sync::Spinlock m_mutex;
 		std::vector<VkEvent> m_events;
-	};
-
-	/**
-     * \brief GPU event tracker
-     * 
-     * Stores events currently accessed by the
-     * GPU, and returns them to the event pool
-     * once they are no longer in use.
-     */
-	class VltGpuEventTracker
-	{
-
-	public:
-		VltGpuEventTracker();
-		~VltGpuEventTracker();
-
-		/**
-         * \brief Tracks an event
-         * \param [in] handle Event to track
-         */
-		void trackEvent(VltGpuEventHandle handle);
-
-		/**
-         * \brief Resets event tracker
-         * 
-         * Releases all tracked events back
-         * to the respective event pool
-         */
-		void reset();
-
-	private:
-		std::vector<VltGpuEventHandle> m_handles;
 	};
 }  // namespace sce::vlt

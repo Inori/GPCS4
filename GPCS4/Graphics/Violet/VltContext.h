@@ -10,6 +10,7 @@ namespace sce::vlt
 	class VltDevice;
 	class VltImage;
 	class VltObjects;
+	class VltGpuEvent;
 
 	/**
      * \brief DXVk context
@@ -129,6 +130,22 @@ namespace sce::vlt
 
 
         /**
+         * \brief Signals a GPU event
+         * \param [in] event The event
+         */
+		void signalGpuEvent(
+			const Rc<VltGpuEvent>&  event,
+			const VkDependencyInfo* dependencyInfo);
+
+        /**
+         * \brief Waits a GPU event
+         * \param [in] event The event
+         */
+		void waitGpuEvent(
+			const Rc<VltGpuEvent>&  event,
+			const VkDependencyInfo* dependencyInfo);
+
+        /**
          * \brief Queues a signal
          * 
          * The signal will be notified after all
@@ -143,6 +160,10 @@ namespace sce::vlt
 
 
     private:
+		void beginRendering();
+
+        void endRendering();
+
 		VltGraphicsPipeline* lookupGraphicsPipeline(
 			const VltGraphicsPipelineShaders& shaders);
 

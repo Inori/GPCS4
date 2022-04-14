@@ -126,6 +126,12 @@ namespace sce::vlt
 	{
 		return new VltContext(this);
 	}
+	
+	Rc<VltGpuEvent> VltDevice::createGpuEvent()
+	{
+		auto handle = m_objects.eventPool().allocEvent();
+		return new VltGpuEvent(this, handle);
+	}
 
 	void VltDevice::submitCommandList(
 		const Rc<VltCommandList>& commandList,

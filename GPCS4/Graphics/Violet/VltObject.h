@@ -3,6 +3,7 @@
 #include "VltCommon.h"
 #include "VltMemory.h"
 #include "VltPipeManager.h"
+#include "VltGpuEvent.h"
 
 namespace sce::vlt
 {
@@ -14,8 +15,8 @@ namespace sce::vlt
 		VltObjects(VltDevice* device) :
 			m_device(device),
 			m_memoryManager(device),
-			m_pipelineManager(device)
-		//m_eventPool(device),
+			m_pipelineManager(device),
+			m_eventPool(device)
 		//m_queryPool(device),
 		//m_dummyResources(device)
 		{
@@ -31,10 +32,10 @@ namespace sce::vlt
 			return m_pipelineManager;
 		}
 
-		//DxvkGpuEventPool& eventPool()
-		//{
-		//	return m_eventPool;
-		//}
+		VltGpuEventPool& eventPool()
+		{
+			return m_eventPool;
+		}
 
 		//DxvkGpuQueryPool& queryPool()
 		//{
@@ -51,8 +52,7 @@ namespace sce::vlt
 
 		VltMemoryAllocator m_memoryManager;
 		VltPipelineManager m_pipelineManager;
-
-		//DxvkGpuEventPool m_eventPool;
+		VltGpuEventPool    m_eventPool;
 		//DxvkGpuQueryPool m_queryPool;
 
 		//DxvkUnboundResources m_dummyResources;

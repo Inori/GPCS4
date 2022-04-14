@@ -685,6 +685,21 @@ namespace sce::vlt
 			vkCmdSetEvent(m_execBuffer, event, stages);
 		}
 
+		void cmdSetEvent2(
+			VkEvent                 event,
+			const VkDependencyInfo* dependencyInfo)
+		{
+			vkCmdSetEvent2(m_execBuffer, event, dependencyInfo);
+		}
+
+		void cmdWaitEvents2(
+			uint32_t                eventCount,
+			VkEvent*                events,
+			const VkDependencyInfo* pDependencyInfo)
+		{
+			vkCmdWaitEvents2(m_execBuffer, eventCount, events, pDependencyInfo);
+		}
+
 		void cmdSetScissor(
 			uint32_t        firstScissor,
 			uint32_t        scissorCount,
@@ -719,6 +734,8 @@ namespace sce::vlt
 			vkCmdWriteTimestamp(m_execBuffer,
 								pipelineStage, queryPool, query);
 		}
+
+
 
 		void cmdBeginDebugUtilsLabel(VkDebugUtilsLabelEXT* labelInfo);
 
@@ -765,7 +782,6 @@ namespace sce::vlt
 		VltLifetimeTracker m_resources;
 		//DxvkDescriptorPoolTracker m_descriptorPoolTracker;
 		VltSignalTracker   m_signalTracker;
-		//DxvkGpuEventTracker       m_gpuEventTracker;
 		//DxvkGpuQueryTracker       m_gpuQueryTracker;
 
 		VltDebugUtil m_debug;

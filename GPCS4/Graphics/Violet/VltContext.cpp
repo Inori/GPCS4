@@ -3,6 +3,7 @@
 #include "VltBuffer.h"
 #include "VltDevice.h"
 #include "VltImage.h"
+#include "VltGpuEvent.h"
 
 namespace sce::vlt
 {
@@ -245,11 +246,39 @@ namespace sce::vlt
 		}
 	}
 
+	void VltContext::signalGpuEvent(
+		const Rc<VltGpuEvent>&  event,
+		const VkDependencyInfo* dependencyInfo)
+	{
+		this->endRecording();
+
+		m_cmd->cmdSetEvent2(event->handle(), dependencyInfo);
+
+		m_cmd->trackResource<VltAccess::None>(event);
+	}
+
+	void VltContext::waitGpuEvent(
+		const Rc<VltGpuEvent>&  event,
+		const VkDependencyInfo* dependencyInfo)
+	{
+		VkEvent handle = event->handle();
+		m_cmd->cmdWaitEvents2(1, &handle, dependencyInfo);
+	}
+
 	void VltContext::signal(
 		const Rc<util::sync::Signal>& signal,
 		uint64_t                      value)
 	{
 		m_cmd->queueSignal(signal, value);
 	}
+
+	void VltContext::beginRendering()
+	{
+	}
+
+	void VltContext::endRendering()
+	{
+	}
+
 
 }  // namespace sce::vlt
