@@ -853,7 +853,7 @@
     <ClInclude Include="Graphics\Gcn\GcnShaderKey.h">
       <Filter>Source Files\Graphics\Gcn</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Gcn\GcnModuleInfo.h">
+    <ClInclude Include="Graphics\Gcn\GcnShaderMeta.h">
       <Filter>Source Files\Graphics\Gcn</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Gcn\GcnInstructionIterator.h">
@@ -867,6 +867,9 @@
     </ClInclude>
     <ClInclude Include="Graphics\Violet\VltSignal.h">
       <Filter>Source Files\Graphics\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gnm\GnmResourceFactory.h">
+      <Filter>Source Files\Graphics\Gnm</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1526,6 +1529,9 @@
     </ClCompile>
     <ClCompile Include="Graphics\Violet\VltSignal.cpp">
       <Filter>Source Files\Graphics\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Gnm\GnmResourceFactory.cpp">
+      <Filter>Source Files\Graphics\Gnm</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

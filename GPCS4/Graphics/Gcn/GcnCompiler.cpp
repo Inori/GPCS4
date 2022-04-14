@@ -12,9 +12,11 @@ namespace sce::gcn
 		const std::string&     fileName,
 		const GcnProgramInfo&  programInfo,
 		const GcnHeader&       header,
+		const GcnShaderMeta&   meta,
 		const GcnAnalysisInfo& analysis) :
 		m_programInfo(programInfo),
 		m_header(&header),
+		m_meta(meta),
 		m_analysis(&analysis),
 		m_module(spvVersion(1, 3))
 	{

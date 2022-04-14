@@ -4,14 +4,10 @@
 #include "GnmCommon.h"
 #include "GnmConstant.h"
 #include "Gcn/GcnConstants.h"
+#include "Gcn/GcnShaderMeta.h"
 
 #include <array>
 #include <vector>
-
-namespace sce
-{
-	struct SceDepthRenderTarget;
-}  // namespace sce
 
 namespace sce::Gnm
 {
@@ -20,6 +16,7 @@ namespace sce::Gnm
 	{
 		void*                                        code     = nullptr;
 		std::array<uint32_t, gcn::kMaxUserDataCount> userData = {};
+		gcn::GcnShaderMeta                           meta     = {};
 	};
 
 
@@ -146,9 +143,9 @@ namespace sce::Gnm
 		virtual void setDepthStencilDisable() override;
 
 	private:
-		void createDepthImage(
-			const DepthRenderTarget* depthTarget,
-			SceDepthRenderTarget&    depthImage);
+
+
+		void commitComputeStage();
 
 	private:
 		std::array<GnmShaderContext, kShaderStageCount> m_shaderCtxs;

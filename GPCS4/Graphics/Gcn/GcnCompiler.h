@@ -3,6 +3,7 @@
 #include "GcnCommon.h"
 #include "GcnProgramInfo.h"
 #include "GcnInstructionIterator.h"
+#include "GcnShaderMeta.h"
 
 #include "SpirV/SpirvModule.h"
 #include "Violet/VltRc.h"
@@ -171,6 +172,7 @@ namespace sce::gcn
 			const std::string&     fileName,
 			const GcnProgramInfo&  programInfo,
 			const GcnHeader&       header,
+			const GcnShaderMeta&   meta,
 			const GcnAnalysisInfo& analysis);
 		virtual ~GcnCompiler();
 
@@ -238,6 +240,7 @@ namespace sce::gcn
 	private:
 		GcnProgramInfo         m_programInfo;
 		const GcnHeader*       m_header;
+		GcnShaderMeta          m_meta;
 		const GcnAnalysisInfo* m_analysis;
 		SpirvModule            m_module;
 

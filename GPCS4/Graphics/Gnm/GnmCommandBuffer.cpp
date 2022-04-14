@@ -1,5 +1,6 @@
 #include "GnmCommandBuffer.h"
-
+#include "Emulator.h"
+#include "VirtualGPU.h"
 #include "PlatProcess.h"
 
 #include "Violet/VltCmdList.h"
@@ -9,7 +10,9 @@ namespace sce::Gnm
 {
 
 	GnmCommandBuffer::GnmCommandBuffer(vlt::VltDevice* device) :
-		m_device(device)
+		m_device(device),
+		m_factory(device),
+		m_tracker(GPU().resourceTracker())
 	{
 		m_context = m_device->createContext();
 	}

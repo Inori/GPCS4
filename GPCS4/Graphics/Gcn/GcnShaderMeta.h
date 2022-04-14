@@ -41,10 +41,10 @@ namespace sce::gcn
      */
 	struct GcnXfbInfo
 	{
-		uint32_t     entryCount;
+		uint32_t    entryCount;
 		GcnXfbEntry entries[128];
-		uint32_t     strides[4];
-		int32_t      rasterizedStream;
+		uint32_t    strides[4];
+		int32_t     rasterizedStream;
 	};
 
 	/**
@@ -57,6 +57,29 @@ namespace sce::gcn
 	{
 		GcnTessInfo* tess;
 		GcnXfbInfo*  xfb;
+	};
+
+
+	struct GcnShaderMetaCompute
+	{
+		uint32_t computeNumThreadX;
+		uint32_t computeNumThreadY;
+		uint32_t computeNumThreadZ;
+	};
+
+	/**
+	 * \brief Shader meta information
+	 * 
+	 * Stores some meta information of the compiled
+	 * shader binary file but is ripped while uploading
+	 * to GPU.
+	 * These meta information is provided via StageRegisters
+	 * at runtime.
+	 * 
+	 */
+	union GcnShaderMeta
+	{
+		GcnShaderMetaCompute cs;
 	};
 
 }  // namespace sce::gcn

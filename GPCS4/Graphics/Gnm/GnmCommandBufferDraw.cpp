@@ -1,6 +1,5 @@
 #include "GnmCommandBufferDraw.h"
 
-#include "Emulator.h"
 #include "Gcn/GcnModule.h"
 #include "GnmBuffer.h"
 #include "GnmConverter.h"
@@ -8,7 +7,6 @@
 #include "GnmSharpBuffer.h"
 #include "GnmTexture.h"
 #include "GpuAddress/GnmGpuAddress.h"
-#include "VirtualGPU.h"
 
 #include "Platform/PlatFile.h"
 #include "Sce/SceResourceTracker.h"
@@ -160,8 +158,7 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setRenderTarget(uint32_t rtSlot, RenderTarget const* target)
 	{
-		auto& tracker  = GPU().resourceTracker();
-		auto  resource = tracker.find(target->getBaseAddress());
+		auto  resource = m_tracker.find(target->getBaseAddress());
 		do
 		{
 			if (!resource)
@@ -222,54 +219,9 @@ namespace sce::Gnm
 		} while (false);
 	}
 
-	void GnmCommandBufferDraw::createDepthImage(
-		const DepthRenderTarget* depthTarget,
-		SceDepthRenderTarget&    depthImage)
-	{
-		VltImageCreateInfo imgInfo;
-		imgInfo.type          = VK_IMAGE_TYPE_2D;
-		imgInfo.format        = cvt::convertZFormat(depthTarget->getZFormat());
-		imgInfo.flags         = 0;
-		imgInfo.sampleCount   = cvt::convertNumFragments(depthTarget->getNumFragments());  // not really understand..
-		imgInfo.extent.width  = depthTarget->getWidth();
-		imgInfo.extent.height = depthTarget->getHeight();
-		imgInfo.extent.depth  = 1;
-		// NOTE: this slice count is only valid if the array view hasn't changed since initialization!
-		imgInfo.numLayers = depthTarget->getLastArraySliceIndex() - depthTarget->getBaseArraySliceIndex() + 1;
-		imgInfo.mipLevels = 1;
-		imgInfo.usage     = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-		imgInfo.stages    = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
-		imgInfo.access    = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-		imgInfo.tiling    = VK_IMAGE_TILING_OPTIMAL;
-		imgInfo.layout    = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL_KHR;
-
-		VltImageViewCreateInfo viewInfo;
-		viewInfo.type      = VK_IMAGE_VIEW_TYPE_2D;
-		viewInfo.format    = imgInfo.format;
-		viewInfo.usage     = imgInfo.usage;
-		viewInfo.aspect    = VK_IMAGE_ASPECT_DEPTH_BIT;
-		viewInfo.minLevel  = 0;
-		viewInfo.numLevels = 1;
-		viewInfo.minLayer  = 0;
-		viewInfo.numLayers = 1;
-
-		VltBufferCreateInfo info;
-		info.size   = depthTarget->getZSizeAlign().m_size;
-		info.usage  = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-		info.stages = VK_PIPELINE_STAGE_TRANSFER_BIT;
-		info.access = VK_ACCESS_TRANSFER_READ_BIT;
-
-		depthImage.image = m_device->createImage(
-			imgInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-		depthImage.imageView = m_device->createImageView(
-			depthImage.image, viewInfo);
-		depthImage.depthRenderTarget = *depthTarget;
-	}
-
 	void GnmCommandBufferDraw::setDepthRenderTarget(DepthRenderTarget const* depthTarget)
 	{
-		auto& tracker  = GPU().resourceTracker();
-		auto  resource = tracker.find(depthTarget->getZReadAddress());
+		auto resource = m_tracker.find(depthTarget->getZReadAddress());
 		do
 		{
 			if (!resource)
@@ -277,9 +229,9 @@ namespace sce::Gnm
 				// create a new depth image and track it
 
 				SceDepthRenderTarget depthResource = {};
-				createDepthImage(depthTarget, depthResource);
+				m_factory.createDepthImage(depthTarget, depthResource);
 
-				auto iter = tracker.track(depthResource).first;
+				auto iter = m_tracker.track(depthResource).first;
 				resource  = &iter->second;
 			}
 
@@ -346,6 +298,8 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::dispatch(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ)
 	{
+		commitComputeStage();
+		m_context->dispatch(threadGroupX, threadGroupY, threadGroupZ);
 	}
 
 	void GnmCommandBufferDraw::dispatchWithOrderedAppend(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ, DispatchOrderedAppendMode orderedAppendMode)
@@ -442,11 +396,12 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setCsShader(const gcn::CsStageRegisters* computeData, uint32_t shaderModifier)
 	{
-		uint8_t* code         = reinterpret_cast<uint8_t*>(computeData->getCodeAddress());
-		auto     shaderModule = GcnModule(GcnProgramType::ComputeShader, code);
-		m_context->bindShader(
-			shaderModule.programInfo().shaderStage(),
-			shaderModule.compile());
+		auto& ctx = m_shaderCtxs[kShaderStageCs];
+		ctx.code  = reinterpret_cast<uint8_t*>(computeData->getCodeAddress());
+
+		ctx.meta.cs.computeNumThreadX = computeData->computeNumThreadX;
+		ctx.meta.cs.computeNumThreadY = computeData->computeNumThreadY;
+		ctx.meta.cs.computeNumThreadZ = computeData->computeNumThreadZ;
 	}
 
 	void GnmCommandBufferDraw::writeReleaseMemEventWithInterrupt(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy)
@@ -461,6 +416,23 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setVgtControlForNeo(uint8_t primGroupSizeMinusOne, WdSwitchOnlyOnEopMode wdSwitchOnlyOnEopMode, VgtPartialVsWaveMode partialVsWaveMode)
 	{
+	}
+
+	void GnmCommandBufferDraw::commitComputeStage()
+	{
+		auto& ctx = m_shaderCtxs[kShaderStageCs];
+
+		GcnModule gcnModule(
+			GcnProgramType::ComputeShader,
+			reinterpret_cast<const uint8_t*>(ctx.code));
+
+		auto& resTable = gcnModule.getResourceTable();
+
+
+		// bind the shader
+		m_context->bindShader(
+			VK_SHADER_STAGE_COMPUTE_BIT,
+			gcnModule.compile(ctx.meta));
 	}
 
 }  // namespace sce::Gnm

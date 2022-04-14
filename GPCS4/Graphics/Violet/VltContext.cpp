@@ -69,6 +69,17 @@ namespace sce::vlt
 	{
 		m_state.cb.renderTargets.depth = depthTarget;
 	}
+	
+	void VltContext::dispatch(
+		uint32_t x,
+		uint32_t y,
+		uint32_t z)
+	{
+		if (this->commitComputeState())
+		{
+			m_cmd->cmdDispatch(x, y, z);
+		}
+	}
 
 	void VltContext::transformImage(
 		const Rc<VltImage>&            dstImage,
@@ -280,5 +291,43 @@ namespace sce::vlt
 	{
 	}
 
+
+	bool VltContext::commitComputeState()
+	{
+		if (m_flags.test(VltContextFlag::CpDirtyPipeline))
+		{
+			if (unlikely(!this->updateComputePipeline()))
+				return false;
+		}
+
+		if (m_flags.any(
+				VltContextFlag::CpDirtyResources,
+				VltContextFlag::CpDirtyDescriptorBinding))
+			this->updateComputeShaderResources();
+
+		if (m_flags.test(VltContextFlag::CpDirtyPipelineState))
+		{
+			if (unlikely(!this->updateComputePipelineState()))
+				return false;
+		}
+
+		return true;
+	}
+
+	bool VltContext::updateComputePipeline()
+	{
+	}
+
+	bool VltContext::updateComputePipelineState()
+	{
+	}
+
+	void VltContext::updateComputeShaderResources()
+	{
+	}
+
+	void VltContext::updateGraphicsShaderResources()
+	{
+	}
 
 }  // namespace sce::vlt

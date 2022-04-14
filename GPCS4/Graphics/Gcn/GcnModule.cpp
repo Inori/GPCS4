@@ -21,7 +21,8 @@ namespace sce::gcn
 	{
 	}
 
-	Rc<VltShader> GcnModule::compile() const
+	Rc<VltShader> GcnModule::compile(
+		const GcnShaderMeta& meta) const
 	{
 		const uint32_t* start = reinterpret_cast<const uint32_t*>(m_code);
 		const uint32_t* end   = reinterpret_cast<const uint32_t*>(m_code + m_header.length());
@@ -35,9 +36,10 @@ namespace sce::gcn
 		this->runInstructionIterator(&analyzer, codeSlice);
 
 		GcnCompiler compiler(
-			m_header.key().name(), 
+			m_header.key().name(),
 			m_programInfo,
 			m_header,
+			meta,
 			analysisInfo);
 
 		this->runInstructionIterator(&compiler, codeSlice);

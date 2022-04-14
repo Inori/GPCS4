@@ -79,6 +79,19 @@ namespace sce::vlt
 			VkShaderStageFlagBits stage,
 			const Rc<VltShader>&  shader);
 
+
+        /**
+         * \brief Starts compute jobs
+         * 
+         * \param [in] x Number of threads in X direction
+         * \param [in] y Number of threads in Y direction
+         * \param [in] z Number of threads in Z direction
+         */
+		void dispatch(
+			uint32_t x,
+			uint32_t y,
+			uint32_t z);
+
         /**
          * \brief Transforms image subresource layouts
          * 
@@ -169,8 +182,16 @@ namespace sce::vlt
 
 		bool updateGraphicsPipeline();
 
+		bool updateComputePipeline();
+		bool updateComputePipelineState();
+
+        void updateComputeShaderResources();
+		void updateGraphicsShaderResources();
+
 		template <bool Indexed, bool Indirect>
 		bool commitGraphicsState();
+
+        bool commitComputeState();
 
 	private:
 		VltDevice*  m_device;

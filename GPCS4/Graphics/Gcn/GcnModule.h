@@ -17,6 +17,7 @@ namespace sce::vlt
 namespace sce::gcn
 {
 	class GcnInstructionIterator;
+	union GcnShaderMeta;
 
 	class GcnModule
 	{
@@ -58,7 +59,8 @@ namespace sce::gcn
          * 
          * \returns The compiled shader object
          */
-		vlt::Rc<vlt::VltShader> compile() const;
+		vlt::Rc<vlt::VltShader> compile(
+			const GcnShaderMeta& meta) const;
 
 	private:
 

@@ -5,16 +5,23 @@
 #include "GnmDepthRenderTarget.h"
 #include "GnmRenderTarget.h"
 #include "GnmStructure.h"
+#include "GnmResourceFactory.h"
 #include "Violet/VltRc.h"
 
 #include <memory>
 
-namespace sce::vlt
+
+namespace sce
 {
-	class VltDevice;
-	class VltContext;
-	class VltCommandList;
-}  // namespace sce::vlt
+	class SceResourceTracker;
+
+	namespace vlt
+	{
+		class VltDevice;
+		class VltContext;
+		class VltCommandList;
+	}  // namespace vlt
+}  // namespace sce
 
 
 namespace sce::Gnm
@@ -420,6 +427,8 @@ namespace sce::Gnm
 	protected:
 		vlt::VltDevice*          m_device;
 		vlt::Rc<vlt::VltContext> m_context;
+		GnmResourceFactory       m_factory;
+		SceResourceTracker&      m_tracker;
 	private:
 	};
 
