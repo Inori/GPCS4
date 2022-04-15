@@ -1,12 +1,12 @@
 #include "GnmCommandBufferDraw.h"
 
-#include "Gcn/GcnModule.h"
 #include "GnmBuffer.h"
 #include "GnmConverter.h"
 #include "GnmSampler.h"
 #include "GnmSharpBuffer.h"
 #include "GnmTexture.h"
 #include "GpuAddress/GnmGpuAddress.h"
+
 
 #include "Platform/PlatFile.h"
 #include "Sce/SceResourceTracker.h"
@@ -15,6 +15,7 @@
 #include "Violet/VltDevice.h"
 #include "Violet/VltImage.h"
 #include "Violet/VltRenderTarget.h"
+#include "Gcn/GcnUtil.h"
 
 #include <algorithm>
 #include <functional>
@@ -428,11 +429,110 @@ namespace sce::Gnm
 
 		auto& resTable = gcnModule.getResourceTable();
 
+		// create and bind shader resources
+		bindResource(VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, resTable, ctx.userData);
 
 		// bind the shader
 		m_context->bindShader(
 			VK_SHADER_STAGE_COMPUTE_BIT,
 			gcnModule.compile(ctx.meta));
+	}
+
+	void GnmCommandBufferDraw::bindResource(
+		VkPipelineStageFlags          stage,
+		const GcnShaderResourceTable& table,
+		const UserDataArray&          userData)
+	{
+		uint32_t eudIndex = findEudRegister(table);
+		for (const auto& res : table)
+		{
+			switch (res.type)
+			{
+			case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+			{
+				const Buffer* vsharp = reinterpret_cast<const Buffer*>(findUserData(res, eudIndex, userData));
+
+				SceBuffer           buffer;
+				VltBufferCreateInfo info = {};
+				info.size                = vsharp->getSize();
+				info.usage               = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+				info.stages              = stage;
+				info.access              = VK_ACCESS_UNIFORM_READ_BIT;
+				m_factory.createBuffer(info, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vsharp, buffer);
+				m_tracker.track(buffer);
+
+				m_context->uploadBuffer(buffer.buffer,
+										buffer.gnmBuffer.getBaseAddress());
+
+				uint32_t slot = computeRoResourceBinding(
+					GcnProgramType::ComputeShader, res.startRegister);
+				m_context->bindResourceBuffer(slot, VltBufferSlice(buffer.buffer));
+			}
+				break;
+			case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+			{
+				const Buffer* vsharp = reinterpret_cast<const Buffer*>(findUserData(res, eudIndex, userData));
+
+				SceBuffer           buffer;
+				VltBufferCreateInfo info = {};
+				info.size                = vsharp->getSize();
+				info.usage               = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+				info.stages              = stage;
+				info.access              = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
+				m_factory.createBuffer(info, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vsharp, buffer);
+				m_tracker.track(buffer);
+
+				m_context->uploadBuffer(buffer.buffer,
+										buffer.gnmBuffer.getBaseAddress());
+
+				uint32_t slot = computeRwResourceBinding(
+					GcnProgramType::ComputeShader, res.startRegister);
+				m_context->bindResourceBuffer(slot, VltBufferSlice(buffer.buffer));
+			}
+				break;
+			default:
+				LOG_ASSERT(false, "resource type not supported.");
+				break;
+			}
+		}
+	}
+
+	const uint32_t* GnmCommandBufferDraw::findUserData(
+		const gcn::GcnShaderResource& res,
+		uint32_t                      eudIndex,
+		const UserDataArray&          userData)
+	{
+		const uint32_t* registerData = nullptr;
+		if (!res.inEud)
+		{
+			registerData = &userData[res.startRegister];
+		}
+		else
+		{
+			const uint32_t* eudTable = &userData[eudIndex];
+			registerData             = &eudTable[res.eudOffsetInDwords];
+		}
+		return registerData;
+	}
+
+	uint32_t GnmCommandBufferDraw::findEudRegister(
+		const GcnShaderResourceTable& table)
+	{
+		// try to find EUD
+		uint32_t eudIndex = 0;
+		auto     iter     = std::find_if(table.begin(), table.end(),
+                                 [](const GcnShaderResource& res)
+                                 {
+                                     return res.usage == kShaderInputUsagePtrExtendedUserData;
+                                 });
+		if (iter != table.end())
+		{
+			eudIndex = iter->startRegister;
+		}
+
+		// it's ok to return 0 when EUD is not found
+		// since we won't use EUD index when it's not appear
+		return eudIndex;
 	}
 
 }  // namespace sce::Gnm

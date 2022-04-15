@@ -4,6 +4,7 @@
 #include "VltCmdList.h"
 #include "VltBarrier.h"
 #include "VltContextState.h"
+#include "VltStaging.h"
 
 namespace sce::vlt
 {
@@ -11,6 +12,21 @@ namespace sce::vlt
 	class VltImage;
 	class VltObjects;
 	class VltGpuEvent;
+
+	/**
+     * \brief Bound shader resources
+     * 
+     * Stores the resources bound to a binding
+     * slot in DXVK. These are used to create
+     * descriptor sets.
+     */
+	struct VltShaderResourceSlot
+	{
+		// Rc<VltSampler>  sampler;
+		Rc<VltImageView>  imageView;
+		Rc<VltBufferView> bufferView;
+		VltBufferSlice    bufferSlice;
+	};
 
 	/**
      * \brief DXVk context
@@ -70,6 +86,16 @@ namespace sce::vlt
 
 
         /**
+         * \brief Binds buffer as a shader resource
+         * 
+         * Can be used for uniform and storage buffers.
+         * \param [in] slot Resource binding slot
+         * \param [in] buffer Buffer to bind
+         */
+		void bindResourceBuffer(
+			uint32_t              slot,
+			const VltBufferSlice& buffer);
+        /**
          * \brief Binds a shader to a given state
          * 
          * \param [in] stage Target shader stage
@@ -91,6 +117,35 @@ namespace sce::vlt
 			uint32_t x,
 			uint32_t y,
 			uint32_t z);
+
+
+        /**
+         * \brief Uses transfer queue to initialize buffer
+         * 
+         * Only safe to use if the buffer is not in use by the GPU.
+         * \param [in] buffer The buffer to initialize
+         * \param [in] data The data to copy to the buffer
+         */
+		void uploadBuffer(
+			const Rc<VltBuffer>& buffer,
+			const void*          data);
+
+        /**
+         * \brief Uses transfer queue to initialize image
+         * 
+         * Only safe to use if the image is not in use by the GPU.
+         * \param [in] image The image to initialize
+         * \param [in] subresources Subresources to initialize
+         * \param [in] data Source data
+         * \param [in] pitchPerRow Row pitch of the source data
+         * \param [in] pitchPerLayer Layer pitch of the source data
+         */
+		void uploadImage(
+			const Rc<VltImage>&             image,
+			const VkImageSubresourceLayers& subresources,
+			const void*                     data,
+			VkDeviceSize                    pitchPerRow,
+			VkDeviceSize                    pitchPerLayer);
 
         /**
          * \brief Transforms image subresource layouts
@@ -203,8 +258,15 @@ namespace sce::vlt
 		VltContextState m_state;
 
         VltBarrierSet m_execBarriers;
+		VltBarrierSet m_transBarriers;
+		VltBarrierSet m_initBarriers;
+		VltBarrierSet m_transAcquires;
+		
 
-        std::array<VltGraphicsPipeline*, 4096> m_gpLookupCache = {};
+        std::array<VltShaderResourceSlot, MaxNumResourceSlots> m_rc            = {};
+		std::array<VltGraphicsPipeline*, 4096>                 m_gpLookupCache = {};
+
+        VltStagingDataAlloc m_staging;
 	};
 
 

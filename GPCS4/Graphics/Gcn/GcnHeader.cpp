@@ -53,16 +53,13 @@ namespace sce::gcn
 		{
 			GcnShaderResource res = {};
 
-			res.usage = slot.m_usageType;
-			res.inEud = (slot.m_startRegister > kMaxUserDataCount);
+			res.usage         = slot.m_usageType;
+			res.inEud         = (slot.m_startRegister > kMaxUserDataCount);
+			res.startRegister = slot.m_startRegister;
 
-			if (!res.inEud)
+			if (res.inEud)
 			{
-				res.startRegister = slot.m_startRegister;
-			}
-			else
-			{
-				res.eudOffsetInDwords = kMaxUserDataCount - slot.m_startRegister;
+				res.eudOffsetInDwords = slot.m_startRegister - kMaxUserDataCount;
 			}
 
 			bool isVSharp = (slot.m_resourceType == 0);

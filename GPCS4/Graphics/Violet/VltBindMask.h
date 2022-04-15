@@ -146,19 +146,4 @@ namespace sce::vlt
 
 	using VltBindingMask = VltBindingSet<MaxNumActiveBindings>;
 
-	/**
-     * \brief Bound shader resources
-     * 
-     * Stores the resources bound to a binding
-     * slot in DXVK. These are used to create
-     * descriptor sets.
-     */
-	//struct DxvkShaderResourceSlot
-	//{
-	//	Rc<DxvkSampler>    sampler;
-	//	Rc<DxvkImageView>  imageView;
-	//	Rc<DxvkBufferView> bufferView;
-	//	DxvkBufferSlice    bufferSlice;
-	//};
-
 }  // namespace sce::vlt

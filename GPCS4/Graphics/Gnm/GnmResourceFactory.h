@@ -4,15 +4,18 @@
 
 namespace sce
 {
+	class SceBuffer;
 	class SceDepthRenderTarget;
 
 	namespace vlt
 	{
 		class VltDevice;
+		struct VltBufferCreateInfo;
 	}  // namespace vlt
 
 	namespace Gnm
 	{
+		class Buffer;
 		class DepthRenderTarget;
 
 
@@ -22,7 +25,13 @@ namespace sce
 			GnmResourceFactory(vlt::VltDevice* device);
 			~GnmResourceFactory();
 
-			void createDepthImage(
+			bool createBuffer(
+				const vlt::VltBufferCreateInfo& createinfo,
+				VkMemoryPropertyFlags           memoryType,
+				const Buffer*                   buffer,
+				SceBuffer&                      sceBuffer);
+
+			bool createDepthImage(
 				const DepthRenderTarget* depthTarget,
 				SceDepthRenderTarget&    depthImage);
 

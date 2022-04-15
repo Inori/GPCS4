@@ -5,23 +5,25 @@
 #include "GnmConstant.h"
 #include "Gcn/GcnConstants.h"
 #include "Gcn/GcnShaderMeta.h"
+#include "Gcn/GcnModule.h"
 
 #include <array>
 #include <vector>
 
+
 namespace sce::Gnm
 {
-
+	using UserDataArray = std::array<uint32_t, gcn::kMaxUserDataCount>;
 	struct GnmShaderContext
 	{
-		void*                                        code     = nullptr;
-		std::array<uint32_t, gcn::kMaxUserDataCount> userData = {};
-		gcn::GcnShaderMeta                           meta     = {};
+		void*              code     = nullptr;
+		UserDataArray      userData = {};
+		gcn::GcnShaderMeta meta     = {};
 	};
 
 
 	// This class is designed for graphics development,
-	// no reverse engining knowledge should be required.
+	// no reverse engineering knowledge should be required.
 	// It's responsible for mapping Gnm input/structures to Violet input/structures,
 	// and convert Gnm calls into Violet calls.
 
@@ -144,6 +146,18 @@ namespace sce::Gnm
 
 	private:
 
+		uint32_t findEudRegister(
+			const gcn::GcnShaderResourceTable& table);
+
+		const uint32_t* findUserData(
+			const gcn::GcnShaderResource& res,
+			uint32_t                      eudIndex,
+			const UserDataArray&          userData);
+
+		void bindResource(
+			VkPipelineStageFlags               stage,
+			const gcn::GcnShaderResourceTable& table,
+			const UserDataArray&               userData);
 
 		void commitComputeStage();
 

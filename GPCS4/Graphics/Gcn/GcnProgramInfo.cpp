@@ -45,4 +45,25 @@ namespace sce::gcn
 
 		LOG_ERR("DxbcProgramInfo::executionModel: Unsupported program type");
 	}
+
+	GcnProgramType gcnProgramTypeFromVkStage(VkPipelineStageFlags stage)
+	{
+		GcnProgramType type = GcnProgramType::VertexShader;
+		// clang-format off
+		switch (stage)
+		{
+		case VK_PIPELINE_STAGE_VERTEX_SHADER_BIT: type = GcnProgramType::VertexShader; break;
+		case VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT: type = GcnProgramType::PixelShader; break;
+		case VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT: type = GcnProgramType::ComputeShader; break;
+		case VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT: type = GcnProgramType::GeometryShader; break;
+		case VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT: type = GcnProgramType::DomainShader; break;
+		case VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT: type = GcnProgramType::HullShader; break;
+		default:
+			LOG_ASSERT(false, "error pipeline stage.");
+			break;
+		}
+		// clang-format on
+		return type;
+	}
+
 }  // namespace sce::gcn

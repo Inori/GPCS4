@@ -871,6 +871,9 @@
     <ClInclude Include="Graphics\Gnm\GnmResourceFactory.h">
       <Filter>Source Files\Graphics\Gnm</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltStaging.h">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1532,6 +1535,9 @@
     </ClCompile>
     <ClCompile Include="Graphics\Gnm\GnmResourceFactory.cpp">
       <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Violet\VltStaging.cpp">
+      <Filter>Source Files\Graphics\Violet</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

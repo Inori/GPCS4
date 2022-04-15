@@ -21,6 +21,12 @@ namespace sce::gcn
 	};
 
 	/**
+	 * \brief Convert VkPipelineStageFlags to GcnProgramType
+	 */
+	GcnProgramType gcnProgramTypeFromVkStage(
+		VkPipelineStageFlags stage);
+
+	/**
      * \brief DXBC shader info
      * 
      * Stores the shader program type.
@@ -67,4 +73,7 @@ namespace sce::gcn
 	private:
 		GcnProgramType m_type = GcnProgramType::PixelShader;
 	};
+
+
+
 }  // namespace sce::gcn

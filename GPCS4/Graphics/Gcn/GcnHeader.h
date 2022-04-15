@@ -20,16 +20,15 @@ namespace sce::gcn
 		// ShaderInputUsageType
 		uint32_t usage;
 
+		// SGPR index
+		uint32_t startRegister;
+
 		// Resource is in User Data Register
 		// or in Extended User Data region.
-		bool             inEud;
-		union
-		{
-			// SGPR index
-			uint32_t startRegister;
-			// Dword offset in EUD
-			uint32_t eudOffsetInDwords;
-		};
+		bool inEud;
+
+		// Dword offset in EUD
+		uint32_t eudOffsetInDwords;
 
 		// Register size in dwords
 		uint32_t sizeInDwords;

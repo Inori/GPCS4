@@ -21,7 +21,7 @@ namespace sce::Gnm
 	{
 	}
 
-	void GnmResourceFactory::createDepthImage(
+	bool GnmResourceFactory::createDepthImage(
 		const DepthRenderTarget* depthTarget,
 		SceDepthRenderTarget&    depthImage)
 	{
@@ -63,6 +63,20 @@ namespace sce::Gnm
 		depthImage.imageView = m_device->createImageView(
 			depthImage.image, viewInfo);
 		depthImage.depthRenderTarget = *depthTarget;
+
+		return true;
+	}
+
+	bool GnmResourceFactory::createBuffer(
+		const vlt::VltBufferCreateInfo& createinfo,
+		VkMemoryPropertyFlags           memoryType,
+		const Buffer*                   buffer,
+		SceBuffer&                      sceBuffer)
+	{
+		sceBuffer.buffer     = m_device->createBuffer(createinfo, memoryType);
+		sceBuffer.bufferView = nullptr;
+		sceBuffer.gnmBuffer  = *buffer;
+		return true;
 	}
 
 }  // namespace sce::Gnm

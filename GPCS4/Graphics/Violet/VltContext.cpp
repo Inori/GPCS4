@@ -10,7 +10,11 @@ namespace sce::vlt
 	VltContext::VltContext(VltDevice* device) :
 		m_device(device),
 		m_common(&device->m_objects),
-		m_execBarriers(VltCmdType::ExecBuffer)
+		m_execBarriers(VltCmdType::ExecBuffer),
+		m_transBarriers(VltCmdType::TransferBuffer),
+		m_initBarriers(VltCmdType::InitBuffer),
+		m_transAcquires(VltCmdType::TransferBuffer),
+		m_staging(device)
 	{
 	}
 
@@ -220,6 +224,26 @@ namespace sce::vlt
 		m_flags.set(VltContextFlag::GpDirtyScissor);
 	}
 
+	void VltContext::bindResourceBuffer(
+		uint32_t              slot,
+		const VltBufferSlice& buffer)
+	{
+		if (likely(!m_rc[slot].bufferSlice.matches(buffer)))
+		{
+			m_flags.set(
+				VltContextFlag::CpDirtyResources,
+				VltContextFlag::GpDirtyResources);
+		}
+		else
+		{
+			m_flags.set(
+				VltContextFlag::CpDirtyDescriptorBinding,
+				VltContextFlag::GpDirtyDescriptorBinding);
+		}
+
+		m_rc[slot].bufferSlice = buffer;
+	}
+
 	void VltContext::bindShader(
 		VkShaderStageFlagBits stage,
 		const Rc<VltShader>&  shader)
@@ -255,6 +279,102 @@ namespace sce::vlt
 				VltContextFlag::GpDirtyPipelineState,
 				VltContextFlag::GpDirtyResources);
 		}
+	}
+
+	void VltContext::uploadBuffer(
+		const Rc<VltBuffer>& buffer,
+		const void*          data)
+	{
+		auto bufferSlice = buffer->getSliceHandle();
+
+		auto stagingSlice  = m_staging.alloc(bufferSlice.length, CACHE_LINE_SIZE);
+		auto stagingHandle = stagingSlice.getSliceHandle();
+		std::memcpy(stagingHandle.mapPtr, data, bufferSlice.length);
+
+		VkBufferCopy region;
+		region.srcOffset = stagingHandle.offset;
+		region.dstOffset = bufferSlice.offset;
+		region.size      = bufferSlice.length;
+
+		m_cmd->cmdCopyBuffer(VltCmdType::TransferBuffer,
+							 stagingHandle.handle, bufferSlice.handle, 1, &region);
+
+		m_transBarriers.releaseBuffer(
+			m_initBarriers, bufferSlice,
+			m_device->queues().transfer.queueFamily,
+			VK_PIPELINE_STAGE_TRANSFER_BIT,
+			VK_ACCESS_TRANSFER_WRITE_BIT,
+			m_device->queues().graphics.queueFamily,
+			buffer->info().stages,
+			buffer->info().access);
+
+		m_cmd->trackResource<VltAccess::Read>(stagingSlice.buffer());
+		m_cmd->trackResource<VltAccess::Write>(buffer);
+	}
+
+	void VltContext::uploadImage(
+		const Rc<VltImage>&             image,
+		const VkImageSubresourceLayers& subresources,
+		const void*                     data,
+		VkDeviceSize                    pitchPerRow,
+		VkDeviceSize                    pitchPerLayer)
+	{
+		const VltFormatInfo* formatInfo = image->formatInfo();
+
+		VkOffset3D imageOffset = { 0, 0, 0 };
+		VkExtent3D imageExtent = image->mipLevelExtent(subresources.mipLevel);
+
+		// Allocate staging buffer slice and copy data to it
+		VkExtent3D elementCount = vutil::computeBlockCount(
+			imageExtent, formatInfo->blockSize);
+		elementCount.depth *= subresources.layerCount;
+
+		auto stagingSlice  = m_staging.alloc(formatInfo->elementSize * vutil::flattenImageExtent(elementCount),
+                                            CACHE_LINE_SIZE);
+		auto stagingHandle = stagingSlice.getSliceHandle();
+
+		vutil::packImageData(stagingHandle.mapPtr, data,
+							 elementCount, formatInfo->elementSize,
+							 pitchPerRow, pitchPerLayer);
+
+		// Discard previous subresource contents
+		m_transAcquires.accessImage(image,
+									vutil::makeSubresourceRange(subresources),
+									VK_IMAGE_LAYOUT_UNDEFINED, 0, 0,
+									image->pickLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL),
+									VK_PIPELINE_STAGE_TRANSFER_BIT,
+									VK_ACCESS_TRANSFER_WRITE_BIT);
+
+		m_transAcquires.recordCommands(m_cmd);
+
+		// Perform copy on the transfer queue
+		VkBufferImageCopy region;
+		region.bufferOffset      = stagingHandle.offset;
+		region.bufferRowLength   = 0;
+		region.bufferImageHeight = 0;
+		region.imageSubresource  = subresources;
+		region.imageOffset       = imageOffset;
+		region.imageExtent       = imageExtent;
+
+		m_cmd->cmdCopyBufferToImage(VltCmdType::TransferBuffer,
+									stagingHandle.handle, image->handle(),
+									image->pickLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL),
+									1, &region);
+
+		// Transfer ownership to graphics queue
+		m_transBarriers.releaseImage(m_initBarriers,
+									 image, vutil::makeSubresourceRange(subresources),
+									 m_device->queues().transfer.queueFamily,
+									 image->pickLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL),
+									 VK_PIPELINE_STAGE_TRANSFER_BIT,
+									 VK_ACCESS_TRANSFER_WRITE_BIT,
+									 m_device->queues().graphics.queueFamily,
+									 image->info().layout,
+									 image->info().stages,
+									 image->info().access);
+
+		m_cmd->trackResource<VltAccess::Write>(image);
+		m_cmd->trackResource<VltAccess::Read>(stagingSlice.buffer());
 	}
 
 	void VltContext::signalGpuEvent(
@@ -329,5 +449,7 @@ namespace sce::vlt
 	void VltContext::updateGraphicsShaderResources()
 	{
 	}
+
+
 
 }  // namespace sce::vlt
