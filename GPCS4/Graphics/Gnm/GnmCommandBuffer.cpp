@@ -11,8 +11,7 @@ namespace sce::Gnm
 
 	GnmCommandBuffer::GnmCommandBuffer(vlt::VltDevice* device) :
 		m_device(device),
-		m_factory(device),
-		m_tracker(GPU().resourceTracker())
+		m_factory(device)
 	{
 		m_context = m_device->createContext();
 	}
@@ -23,6 +22,8 @@ namespace sce::Gnm
 
 	void GnmCommandBuffer::beginRecording()
 	{
+		m_tracker = &(GPU().resourceTracker());
+
 		m_context->beginRecording(
 			m_device->createCommandList()
 		);

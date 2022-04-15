@@ -428,7 +428,7 @@ namespace sce::Gnm
 		vlt::VltDevice*          m_device;
 		vlt::Rc<vlt::VltContext> m_context;
 		GnmResourceFactory       m_factory;
-		SceResourceTracker&      m_tracker;
+		SceResourceTracker*      m_tracker;
 	private:
 	};
 

@@ -159,7 +159,7 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setRenderTarget(uint32_t rtSlot, RenderTarget const* target)
 	{
-		auto  resource = m_tracker.find(target->getBaseAddress());
+		auto  resource = m_tracker->find(target->getBaseAddress());
 		do
 		{
 			if (!resource)
@@ -222,7 +222,7 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setDepthRenderTarget(DepthRenderTarget const* depthTarget)
 	{
-		auto resource = m_tracker.find(depthTarget->getZReadAddress());
+		auto resource = m_tracker->find(depthTarget->getZReadAddress());
 		do
 		{
 			if (!resource)
@@ -232,7 +232,7 @@ namespace sce::Gnm
 				SceDepthRenderTarget depthResource = {};
 				m_factory.createDepthImage(depthTarget, depthResource);
 
-				auto iter = m_tracker.track(depthResource).first;
+				auto iter = m_tracker->track(depthResource).first;
 				resource  = &iter->second;
 			}
 
@@ -459,7 +459,7 @@ namespace sce::Gnm
 				info.stages              = stage;
 				info.access              = VK_ACCESS_UNIFORM_READ_BIT;
 				m_factory.createBuffer(info, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vsharp, buffer);
-				m_tracker.track(buffer);
+				m_tracker->track(buffer);
 
 				m_context->uploadBuffer(buffer.buffer,
 										buffer.gnmBuffer.getBaseAddress());
@@ -480,7 +480,7 @@ namespace sce::Gnm
 				info.stages              = stage;
 				info.access              = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
 				m_factory.createBuffer(info, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vsharp, buffer);
-				m_tracker.track(buffer);
+				m_tracker->track(buffer);
 
 				m_context->uploadBuffer(buffer.buffer,
 										buffer.gnmBuffer.getBaseAddress());
