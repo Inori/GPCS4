@@ -1,9 +1,10 @@
 #pragma once
 
 #include "VltCommon.h"
+#include "VltGpuEvent.h"
 #include "VltMemory.h"
 #include "VltPipeManager.h"
-#include "VltGpuEvent.h"
+#include "VltUnbound.h"
 
 namespace sce::vlt
 {
@@ -16,9 +17,9 @@ namespace sce::vlt
 			m_device(device),
 			m_memoryManager(device),
 			m_pipelineManager(device),
-			m_eventPool(device)
-		//m_queryPool(device),
-		//m_dummyResources(device)
+			m_eventPool(device),
+			//m_queryPool(device),
+			m_dummyResources(device)
 		{
 		}
 
@@ -42,10 +43,10 @@ namespace sce::vlt
 		//	return m_queryPool;
 		//}
 
-		//DxvkUnboundResources& dummyResources()
-		//{
-		//	return m_dummyResources;
-		//}
+		VltUnboundResources& dummyResources()
+		{
+			return m_dummyResources;
+		}
 
 	private:
 		VltDevice* m_device;
@@ -55,6 +56,6 @@ namespace sce::vlt
 		VltGpuEventPool    m_eventPool;
 		//DxvkGpuQueryPool m_queryPool;
 
-		//DxvkUnboundResources m_dummyResources;
+		VltUnboundResources m_dummyResources;
 	};
 }  // namespace sce::vlt

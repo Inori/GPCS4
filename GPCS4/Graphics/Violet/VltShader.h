@@ -232,21 +232,21 @@ namespace sce::vlt
          */
 		void dump(std::ostream& outputStream) const;
 
+
 		/**
-         * \brief Sets the shader key
-         * \param [in] key Unique key
+         * \brief Read SPIR-V shader
+         * 
+         * Load shader binary from external stream.
+		 * Used for debugging purpose.
+		 * 
          */
-		void setShaderKey(const VltShaderKey& key)
-		{
-			m_key  = key;
-			m_hash = key.hash();
-		}
+		void read(std::istream& inputStream);
 
 		/**
          * \brief Retrieves shader key
          * \returns The unique shader key
          */
-		VltShaderKey getShaderKey() const
+		VltShaderKey key() const
 		{
 			return m_key;
 		}
@@ -259,7 +259,7 @@ namespace sce::vlt
          * This is better than relying on the pointer value.
          * \returns Hash value for map lookups
          */
-		size_t getHash() const
+		size_t hash() const
 		{
 			return m_hash;
 		}
@@ -283,11 +283,16 @@ namespace sce::vlt
          */
 		static size_t getHash(const Rc<VltShader>& shader)
 		{
-			return shader != nullptr ? shader->getHash() : 0;
+			return shader != nullptr ? shader->hash() : 0;
 		}
 
 	private:
-		VkShaderStageFlagBits       m_stage;
+		void updateShaderKey(const gcn::SpirvCodeBuffer& code);
+
+		static void eliminateInput(gcn::SpirvCodeBuffer& code, uint32_t location);
+
+	private:
+		VkShaderStageFlagBits      m_stage;
 		gcn::SpirvCompressedBuffer m_code;
 
 		VltResourceSlotList m_slots;
@@ -302,7 +307,7 @@ namespace sce::vlt
 		size_t m_o1IdxOffset = 0;
 		size_t m_o1LocOffset = 0;
 
-		static void eliminateInput(gcn::SpirvCodeBuffer& code, uint32_t location);
+		
 	};
 
 	/**

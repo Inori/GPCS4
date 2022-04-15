@@ -77,7 +77,6 @@ namespace sce
 		m_gpuMemory = buffer.gpuMemory();
 
 		m_memSize = buffer.memorySize();
-		LOG_ASSERT(m_memSize == buffer.buffer->memSize(), "Gnm size not match vlt size");
 	}
 
 	SceResource::SceResource(const SceTexture& texture):
@@ -88,7 +87,6 @@ namespace sce
 		m_gpuMemory = texture.gpuMemory();
 
 		m_memSize = texture.memorySize();
-		LOG_ASSERT(m_memSize == texture.image->memSize(), "Gnm size not match vlt size");
 	}
 
 	SceResource::SceResource(const SceRenderTarget& renderTarget):
@@ -99,8 +97,6 @@ namespace sce
 		m_gpuMemory = renderTarget.gpuMemory();
 
 		m_memSize = renderTarget.memorySize();
-		LOG_ASSERT(renderTarget.image->memSize() == 0 ||
-			m_memSize == renderTarget.image->memSize(), "Gnm size not match vlt size");
 	}
 
 	SceResource::SceResource(const SceDepthRenderTarget& depthRenderTarget):

@@ -7,6 +7,7 @@ namespace sce::vlt
 	VltCommandList::VltCommandList(VltDevice* device) :
 		m_device(device),
 		m_cmdBuffersUsed(0),
+		m_descriptorPoolTracker(device),
 		m_debug(device)
 	{
 		const auto& graphicsQueue = m_device->queues().graphics;

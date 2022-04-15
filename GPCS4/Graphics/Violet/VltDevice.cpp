@@ -110,6 +110,12 @@ namespace sce::vlt
 		return new VltImageView(this, image, createInfo);
 	}
 
+	Rc<VltSampler> VltDevice::createSampler(
+		const VltSamplerCreateInfo& createInfo)
+	{
+		return new VltSampler(this, createInfo);
+	}
+
 	Rc<VltCommandList> VltDevice::createCommandList()
 	{
 		Rc<VltCommandList> cmdList = m_recycledCommandLists.retrieveObject();
@@ -120,6 +126,16 @@ namespace sce::vlt
 		}
 		
 		return cmdList;
+	}
+
+	Rc<VltDescriptorPool> VltDevice::createDescriptorPool()
+	{
+		Rc<VltDescriptorPool> pool = m_recycledDescriptorPools.retrieveObject();
+
+		if (pool == nullptr)
+			pool = new VltDescriptorPool(this);
+
+		return pool;
 	}
 
 	Rc<VltContext> VltDevice::createContext()
@@ -167,6 +183,7 @@ namespace sce::vlt
 	{
 		m_recycledDescriptorPools.returnObject(pool);
 	}
+
 
 
 }  // namespace sce::vlt

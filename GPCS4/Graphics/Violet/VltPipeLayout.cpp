@@ -105,8 +105,8 @@ namespace sce::vlt
 		for (uint32_t i = 0; i < bindingCount; i++)
 			m_bindingSlots[i] = bindingInfos[i];
 
-		std::vector<VkDescriptorSetLayoutBinding>       bindings(bindingCount);
-		std::vector<VkDescriptorUpdateTemplateEntryKHR> tEntries(bindingCount);
+		std::vector<VkDescriptorSetLayoutBinding>    bindings(bindingCount);
+		std::vector<VkDescriptorUpdateTemplateEntry> tEntries(bindingCount);
 
 		for (uint32_t i = 0; i < bindingCount; i++)
 		{
@@ -172,13 +172,13 @@ namespace sce::vlt
 		// resource bindings, there won't be any descriptors to update.
 		if (bindingCount > 0)
 		{
-			VkDescriptorUpdateTemplateCreateInfoKHR templateInfo;
-			templateInfo.sType                      = VK_STRUCTURE_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_CREATE_INFO_KHR;
+			VkDescriptorUpdateTemplateCreateInfo templateInfo;
+			templateInfo.sType                      = VK_STRUCTURE_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_CREATE_INFO;
 			templateInfo.pNext                      = nullptr;
 			templateInfo.flags                      = 0;
 			templateInfo.descriptorUpdateEntryCount = tEntries.size();
 			templateInfo.pDescriptorUpdateEntries   = tEntries.data();
-			templateInfo.templateType               = VK_DESCRIPTOR_UPDATE_TEMPLATE_TYPE_DESCRIPTOR_SET_KHR;
+			templateInfo.templateType               = VK_DESCRIPTOR_UPDATE_TEMPLATE_TYPE_DESCRIPTOR_SET;
 			templateInfo.descriptorSetLayout        = m_descriptorSetLayout;
 			templateInfo.pipelineBindPoint          = pipelineBindPoint;
 			templateInfo.pipelineLayout             = m_pipelineLayout;

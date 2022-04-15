@@ -1,5 +1,5 @@
 #include "VltShader.h"
-
+#include "Sha1Hash.h"
 #include "UtilBit.h"
 #include "VltDevice.h"
 
@@ -51,7 +51,7 @@ namespace sce::vlt
 		VkShaderStageFlagBits      stage,
 		const VltResourceSlotList& slots,
 		const VltInterfaceSlots&   iface,
-		gcn::SpirvCodeBuffer      code,
+		gcn::SpirvCodeBuffer       code,
 		const VltShaderOptions&    options,
 		VltShaderConstData&&       constData) :
 		m_stage(stage),
@@ -100,6 +100,8 @@ namespace sce::vlt
 					m_flags.set(VltShaderFlag::ExportsViewportIndexLayerFromVertexStage);
 			}
 		}
+
+		updateShaderKey(code);
 	}
 
 	VltShader::~VltShader()
@@ -150,6 +152,12 @@ namespace sce::vlt
 	void VltShader::dump(std::ostream& outputStream) const
 	{
 		m_code.decompress().store(outputStream);
+	}
+
+	void VltShader::read(std::istream& inputStream)
+	{
+		m_code = SpirvCodeBuffer(inputStream);
+		updateShaderKey(m_code.decompress());
 	}
 
 	void VltShader::eliminateInput(SpirvCodeBuffer& code, uint32_t location)
@@ -359,6 +367,13 @@ namespace sce::vlt
 				}
 			}
 		}
+	}
+
+	void VltShader::updateShaderKey(const gcn::SpirvCodeBuffer& code)
+	{
+		alg::Sha1Hash hash = alg::Sha1Hash::compute(code.data(), code.size());
+		m_key              = VltShaderKey(m_stage, hash);
+		m_hash             = m_key.hash();
 	}
 
 

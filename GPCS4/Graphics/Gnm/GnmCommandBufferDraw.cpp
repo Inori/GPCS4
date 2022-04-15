@@ -300,6 +300,7 @@ namespace sce::Gnm
 	void GnmCommandBufferDraw::dispatch(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ)
 	{
 		commitComputeStage();
+
 		m_context->dispatch(threadGroupX, threadGroupY, threadGroupZ);
 	}
 

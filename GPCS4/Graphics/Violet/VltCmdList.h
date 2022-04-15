@@ -4,6 +4,7 @@
 #include "VltDebugUtil.h"
 #include "VltLifetime.h"
 #include "VltSignal.h"
+#include "VltDescriptor.h"
 
 namespace sce::vlt
 {
@@ -115,10 +116,10 @@ namespace sce::vlt
          * \brief Tracks a descriptor pool
          * \param [in] pool The descriptor pool
          */
-		//void trackDescriptorPool(Rc<DxvkDescriptorPool> pool)
-		//{
-		//	m_descriptorPoolTracker.trackDescriptorPool(pool);
-		//}
+		void trackDescriptorPool(Rc<VltDescriptorPool> pool)
+		{
+			m_descriptorPoolTracker.trackDescriptorPool(pool);
+		}
 
 		/**
          * \brief Tracks a GPU event
@@ -779,9 +780,9 @@ namespace sce::vlt
 
 		VltCmdBufferFlags m_cmdBuffersUsed;
 
-		VltLifetimeTracker m_resources;
-		//DxvkDescriptorPoolTracker m_descriptorPoolTracker;
-		VltSignalTracker   m_signalTracker;
+		VltLifetimeTracker       m_resources;
+		VltDescriptorPoolTracker m_descriptorPoolTracker;
+		VltSignalTracker         m_signalTracker;
 		//DxvkGpuQueryTracker       m_gpuQueryTracker;
 
 		VltDebugUtil m_debug;

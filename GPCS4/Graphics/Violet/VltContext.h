@@ -12,6 +12,8 @@ namespace sce::vlt
 	class VltImage;
 	class VltObjects;
 	class VltGpuEvent;
+	class VltSampler;
+	class VltDescriptorPool;
 
 	/**
      * \brief Bound shader resources
@@ -22,7 +24,7 @@ namespace sce::vlt
      */
 	struct VltShaderResourceSlot
 	{
-		// Rc<VltSampler>  sampler;
+		Rc<VltSampler>    sampler;
 		Rc<VltImageView>  imageView;
 		Rc<VltBufferView> bufferView;
 		VltBufferSlice    bufferSlice;
@@ -196,6 +198,15 @@ namespace sce::vlt
 			uint32_t        scissorCount,
 			const VkRect2D* scissorRects);
 
+        /**
+         * \brief Sets barrier control flags
+         *
+         * Barrier control flags can be used to control
+         * implicit synchronization of compute shaders.
+         * \param [in] control New barrier control flags
+         */
+		void setBarrierControl(
+			VltBarrierControlFlags control);
 
         /**
          * \brief Signals a GPU event
@@ -232,42 +243,71 @@ namespace sce::vlt
 
         void endRendering();
 
-		VltGraphicsPipeline* lookupGraphicsPipeline(
-			const VltGraphicsPipelineShaders& shaders);
-
 		bool updateGraphicsPipeline();
 
 		bool updateComputePipeline();
 		bool updateComputePipelineState();
+
+        template <VkPipelineBindPoint BindPoint>
+		void updatePushConstants();
+
+        template <VkPipelineBindPoint BindPoint>
+		void updateShaderResources(
+			const VltPipelineLayout* layout);
+
+		template <VkPipelineBindPoint BindPoint>
+		void updateShaderDescriptorSetBinding(
+			VkDescriptorSet          set,
+			const VltPipelineLayout* layout);
 
         void updateComputeShaderResources();
 		void updateGraphicsShaderResources();
 
 		template <bool Indexed, bool Indirect>
 		bool commitGraphicsState();
-
         bool commitComputeState();
+
+        void commitComputePrevBarriers();
+		void commitComputePostBarriers();
+
+        VltGraphicsPipeline* lookupGraphicsPipeline(
+			const VltGraphicsPipelineShaders& shaders);
+
+        VltComputePipeline* lookupComputePipeline(
+			const VltComputePipelineShaders& shaders);
+
+        VkDescriptorSet allocateDescriptorSet(
+			VkDescriptorSetLayout layout);
 
 	private:
 		VltDevice*  m_device;
 		VltObjects* m_common;
 
-        Rc<VltCommandList> m_cmd;
-
+        Rc<VltCommandList>    m_cmd;
+		Rc<VltDescriptorPool> m_descPool;
+        
         VltContextFlags m_flags;
 		VltContextState m_state;
+
+        VkPipeline m_gpActivePipeline = VK_NULL_HANDLE;
+		VkPipeline m_cpActivePipeline = VK_NULL_HANDLE;
 
         VltBarrierSet m_execBarriers;
 		VltBarrierSet m_transBarriers;
 		VltBarrierSet m_initBarriers;
 		VltBarrierSet m_transAcquires;
+		VltBarrierControlFlags m_barrierControl;
 		
+        VkDescriptorSet m_gpSet = VK_NULL_HANDLE;
+		VkDescriptorSet m_cpSet = VK_NULL_HANDLE;
 
         std::array<VltShaderResourceSlot, MaxNumResourceSlots> m_rc            = {};
 		std::array<VltGraphicsPipeline*, 4096>                 m_gpLookupCache = {};
+		std::array<VltComputePipeline*, 256>                   m_cpLookupCache = {};
 
         VltStagingDataAlloc m_staging;
 	};
+
 
 
 }  // namespace sce::vlt

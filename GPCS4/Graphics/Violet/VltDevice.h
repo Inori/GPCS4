@@ -10,6 +10,7 @@
 #include "VltQueue.h"
 #include "VltBuffer.h"
 #include "VltImage.h"
+#include "VltSampler.h"
 #include "VltObject.h"
 
 namespace sce::vlt
@@ -227,10 +228,31 @@ namespace sce::vlt
 
 
 		/**
+         * \brief Creates a sampler object
+         * 
+         * \param [in] createInfo Sampler parameters
+         * \returns Newly created sampler object
+         */
+		Rc<VltSampler> createSampler(
+			const VltSamplerCreateInfo& createInfo);
+
+
+		/**
         * \brief Creates a command list
         * \returns The command list
         */
 		Rc<VltCommandList> createCommandList();
+
+
+		/**
+         * \brief Creates a descriptor pool
+         * 
+         * Returns a previously recycled pool, or creates
+         * a new one if necessary. The context should take
+         * ownership of the returned pool.
+         * \returns Descriptor pool
+         */
+		Rc<VltDescriptorPool> createDescriptorPool();
 
 		/**
         * \brief Creates a context
