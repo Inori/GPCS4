@@ -105,12 +105,13 @@ namespace sce::vlt
      */
 	struct VltRasterizerState
 	{
-		VkPolygonMode      polygonMode;
-		VkCullModeFlags    cullMode;
-		VkFrontFace        frontFace;
-		VkBool32           depthClipEnable;
-		VkBool32           depthBiasEnable;
-		VkSampleCountFlags sampleCount;
+		VkPolygonMode                      polygonMode;
+		VkCullModeFlags                    cullMode;
+		VkFrontFace                        frontFace;
+		VkBool32                           depthClipEnable;
+		VkBool32                           depthBiasEnable;
+		VkSampleCountFlags                 sampleCount;
+		VkConservativeRasterizationModeEXT conservativeMode;
 	};
 
 	/**

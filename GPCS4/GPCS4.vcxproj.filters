@@ -182,6 +182,9 @@
     <Filter Include="Source Files\Graphics\Gcn">
       <UniqueIdentifier>{14ee293f-1109-4eb5-9d47-bb00adbe680a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Graphics\Sce\Shaders">
+      <UniqueIdentifier>{8368e8f7-f3ec-401d-afa9-842d03e5cf4b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SceModules\SceLibc\sce_libc.h">
@@ -880,6 +883,9 @@
     <ClInclude Include="Graphics\Violet\VltUnbound.h">
       <Filter>Source Files\Graphics\Violet</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Sce\SceSwapchainBlitter.h">
+      <Filter>Source Files\Graphics\Sce</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1551,10 +1557,24 @@
     <ClCompile Include="Graphics\Violet\VltUnbound.cpp">
       <Filter>Source Files\Graphics\Violet</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Sce\SceSwapchainBlitter.cpp">
+      <Filter>Source Files\Graphics\Sce</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Emulator\TLSStub.asm">
       <Filter>Source Files\Emulator</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Graphics\Sce\Shaders\sce_present_vert.vert">
+      <Filter>Source Files\Graphics\Sce\Shaders</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Graphics\Sce\Shaders\sce_present_frag.frag">
+      <Filter>Source Files\Graphics\Sce\Shaders</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Graphics\Sce\Shaders\sce_present_frag_blit.frag">
+      <Filter>Source Files\Graphics\Sce\Shaders</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>

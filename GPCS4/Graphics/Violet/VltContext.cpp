@@ -78,6 +78,21 @@ namespace sce::vlt
 	{
 		m_state.cb.renderTargets.depth = depthTarget;
 	}
+
+	void VltContext::pushConstants(
+		uint32_t    offset,
+		uint32_t    size,
+		const void* data)
+	{
+	}
+
+	void VltContext::draw(
+		uint32_t vertexCount,
+		uint32_t instanceCount,
+		uint32_t firstVertex,
+		uint32_t firstInstance)
+	{
+	}
 	
 	void VltContext::dispatch(
 		uint32_t x,
@@ -169,6 +184,7 @@ namespace sce::vlt
 		return true;
 	}
 
+
 	void VltContext::setViewports(
 		uint32_t          viewportCount,
 		const VkViewport* viewports)
@@ -242,6 +258,20 @@ namespace sce::vlt
 		m_rc[slot].bufferSlice = buffer;
 	}
 
+	void VltContext::bindResourceView(
+		uint32_t                 slot,
+		const Rc<VltImageView>&  imageView,
+		const Rc<VltBufferView>& bufferView)
+	{
+	}
+
+	void VltContext::bindResourceSampler(
+		uint32_t              slot,
+		const Rc<VltSampler>& sampler)
+	{
+	}
+
+
 	void VltContext::bindShader(
 		VkShaderStageFlagBits stage,
 		const Rc<VltShader>&  shader)
@@ -277,6 +307,51 @@ namespace sce::vlt
 				VltContextFlag::GpDirtyPipelineState,
 				VltContextFlag::GpDirtyResources);
 		}
+	}
+
+	void VltContext::setInputAssemblyState(
+		const VltInputAssemblyState& ia)
+	{
+	}
+
+	void VltContext::setInputLayout(
+		uint32_t                  attributeCount,
+		const VltVertexAttribute* attributes,
+		uint32_t                  bindingCount,
+		const VltVertexBinding*   bindings)
+	{
+	}
+
+	void VltContext::setRasterizerState(
+		const VltRasterizerState& rs)
+	{
+	}
+
+	void VltContext::setMultisampleState(
+		const VltMultisampleState& ms)
+	{
+	}
+
+	void VltContext::setDepthStencilState(
+		const VltDepthStencilState& ds)
+	{
+	}
+
+	void VltContext::setLogicOpState(
+		const VltLogicOpState& lo)
+	{
+	}
+
+	void VltContext::setBlendMode(
+		uint32_t attachment, const VltBlendMode& blendMode)
+	{
+	}
+
+	void VltContext::clearRenderTarget(
+		const Rc<VltImageView>& imageView,
+		VkImageAspectFlags      clearAspects,
+		VkClearValue            clearValue)
+	{
 	}
 
 	void VltContext::uploadBuffer(
@@ -890,5 +965,7 @@ namespace sce::vlt
 			}
 		}
 	}
+
+
 
 }  // namespace sce::vlt

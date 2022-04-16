@@ -208,10 +208,11 @@ namespace sce::Gnm
 
 			rtBuffer.buffer = m_device->createBuffer(info,
 													 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-														 VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+													 VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 			resource->setBuffer(rtBuffer);
 
-			VltAttachment attachment = {
+			VltAttachment attachment = 
+			{
 				rtRes.imageView,
 				VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
 			};
@@ -370,30 +371,34 @@ namespace sce::Gnm
 				image,
 				range,
 				VK_IMAGE_LAYOUT_UNDEFINED,
-				VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT,
+				VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
 				0,
-				VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL_KHR,
-				VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT,
+				VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL,
+				VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
 				VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT);
 		}
 	}
 
 	void GnmCommandBufferDraw::prepareFlip()
 	{
+		onPrepareFlip();
 	}
 
 	void GnmCommandBufferDraw::prepareFlip(void* labelAddr, uint32_t value)
 	{
 		*(uint32_t*)labelAddr = value;
+		onPrepareFlip();
 	}
 
 	void GnmCommandBufferDraw::prepareFlipWithEopInterrupt(EndOfPipeEventType eventType, CacheAction cacheAction)
 	{
+		onPrepareFlip();
 	}
 
 	void GnmCommandBufferDraw::prepareFlipWithEopInterrupt(EndOfPipeEventType eventType, void* labelAddr, uint32_t value, CacheAction cacheAction)
 	{
 		*(uint32_t*)labelAddr = value;
+		onPrepareFlip();
 	}
 
 	void GnmCommandBufferDraw::setCsShader(const gcn::CsStageRegisters* computeData, uint32_t shaderModifier)
@@ -534,6 +539,14 @@ namespace sce::Gnm
 		// it's ok to return 0 when EUD is not found
 		// since we won't use EUD index when it's not appear
 		return eudIndex;
+	}
+
+	void GnmCommandBufferDraw::onPrepareFlip()
+	{
+		// This is the last cmd for a command buffer submission,
+		// we can do some finish works before submit and present.
+
+
 	}
 
 }  // namespace sce::Gnm

@@ -75,6 +75,7 @@
     <ClInclude Include="Graphics\Sce\SceGpuQueue.h" />
     <ClInclude Include="Graphics\Sce\ScePresenter.h" />
     <ClInclude Include="Graphics\Sce\SceResourceTracker.h" />
+    <ClInclude Include="Graphics\Sce\SceSwapchainBlitter.h" />
     <ClInclude Include="Graphics\Sce\SceVideoOut.h" />
     <ClInclude Include="Graphics\SpirV\GLSL.std.450.h" />
     <ClInclude Include="Graphics\SpirV\GLSL.std.450.hpp" />
@@ -313,6 +314,7 @@
     <ClCompile Include="Graphics\Sce\SceGpuQueue.cpp" />
     <ClCompile Include="Graphics\Sce\ScePresenter.cpp" />
     <ClCompile Include="Graphics\Sce\SceResourceTracker.cpp" />
+    <ClCompile Include="Graphics\Sce\SceSwapchainBlitter.cpp" />
     <ClCompile Include="Graphics\Sce\SceVideoOut.cpp" />
     <ClCompile Include="Graphics\SpirV\SpirvCodeBuffer.cpp" />
     <ClCompile Include="Graphics\SpirV\SpirvCompression.cpp" />
@@ -499,6 +501,26 @@
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </Text>
+  </ItemGroup>
+  <PropertyGroup>
+    <CustomBuildBeforeTargets>ClCompile</CustomBuildBeforeTargets>
+  </PropertyGroup>
+  <ItemGroup>
+    <CustomBuild Include="Graphics\Sce\Shaders\sce_present_frag.frag">
+      <Message>Compiling GLSL %(Identity)</Message>
+      <Command>glslc -mfmt=num -o %(RelativeDir)%(Filename).h %(FullPath)</Command>
+      <Outputs>%(RelativeDir)%(Filename).h</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="Graphics\Sce\Shaders\sce_present_frag_blit.frag">
+      <Message>Compiling GLSL %(Identity)</Message>
+      <Command>glslc -mfmt=num -o %(RelativeDir)%(Filename).h %(FullPath)</Command>
+      <Outputs>%(RelativeDir)%(Filename).h</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="Graphics\Sce\Shaders\sce_present_vert.vert">
+      <Message>Compiling GLSL %(Identity)</Message>
+      <Command>glslc -mfmt=num -o %(RelativeDir)%(Filename).h %(FullPath)</Command>
+      <Outputs>%(RelativeDir)%(Filename).h</Outputs>
+    </CustomBuild>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

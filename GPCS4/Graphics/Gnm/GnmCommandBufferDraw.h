@@ -161,6 +161,8 @@ namespace sce::Gnm
 
 		void commitComputeStage();
 
+		void onPrepareFlip();
+
 	private:
 		std::array<GnmShaderContext, kShaderStageCount> m_shaderCtxs;
 	};

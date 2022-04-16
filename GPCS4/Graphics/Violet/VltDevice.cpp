@@ -3,6 +3,9 @@
 #include "VltInstance.h"
 
 #include "Sce/ScePresenter.h"
+#include "SpirV/SpirvCodeBuffer.h"
+
+using namespace sce::gcn;
 
 namespace sce::vlt
 {
@@ -116,6 +119,20 @@ namespace sce::vlt
 		return new VltSampler(this, createInfo);
 	}
 
+	Rc<VltShader> VltDevice::createShader(
+		VkShaderStageFlagBits    stage,
+		uint32_t                 slotCount,
+		const VltResourceSlot*   slotInfos,
+		const VltInterfaceSlots& iface,
+		const SpirvCodeBuffer&   code)
+	{
+		return new VltShader(stage,
+							 std::vector<VltResourceSlot>(slotInfos, slotInfos + slotCount),
+							 iface, code,
+							 VltShaderOptions(),
+							 VltShaderConstData());
+	}
+
 	Rc<VltCommandList> VltDevice::createCommandList()
 	{
 		Rc<VltCommandList> cmdList = m_recycledCommandLists.retrieveObject();
@@ -183,7 +200,5 @@ namespace sce::vlt
 	{
 		m_recycledDescriptorPools.returnObject(pool);
 	}
-
-
 
 }  // namespace sce::vlt

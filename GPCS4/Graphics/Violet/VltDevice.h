@@ -13,6 +13,11 @@
 #include "VltSampler.h"
 #include "VltObject.h"
 
+namespace sce::gcn
+{
+	class SpirvCodeBuffer;
+}  // namespace sce::vlt
+
 namespace sce::vlt
 {
 	class VltInstance;
@@ -235,6 +240,24 @@ namespace sce::vlt
          */
 		Rc<VltSampler> createSampler(
 			const VltSamplerCreateInfo& createInfo);
+
+
+		/**
+         * \brief Creates a shader module
+         * 
+         * \param [in] stage Shader stage
+         * \param [in] slotCount Resource slot count
+         * \param [in] slotInfos Resource slot descriptions
+         * \param [in] iface Inter-stage interface slots
+         * \param [in] code Shader code
+         * \returns New shader module
+         */
+		Rc<VltShader> createShader(
+			VkShaderStageFlagBits       stage,
+			uint32_t                    slotCount,
+			const VltResourceSlot*      slotInfos,
+			const VltInterfaceSlots&    iface,
+			const gcn::SpirvCodeBuffer& code);
 
 
 		/**

@@ -2,7 +2,7 @@
 #include "Violet/VltBuffer.h"
 #include "Violet/VltImage.h"
 
-LOG_CHANNEL(Graphic.Sce.SceResourceBank);
+LOG_CHANNEL(Graphic.Sce.SceResourceTracker);
 
 namespace sce
 {
