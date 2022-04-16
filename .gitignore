@@ -1,5 +1,13 @@
 ## Ignore Visual Studio temporary files, build results
 
+# GPCS4
+GPCS4/Graphics/Sce/Shaders/*.h
+
+# GLFW
+glfw.dir/
+
+# 3rdParty built libs
+*.lib
 
 # User-specific files
 *.rsuser
@@ -78,10 +86,3 @@ ipch/
 *.vsp
 *.vspx
 *.sap
-
-# GLFW
-glfw.dir/
-
-
-# 3rdParty built libs
-*.lib
