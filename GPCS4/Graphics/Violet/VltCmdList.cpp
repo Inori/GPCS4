@@ -88,7 +88,6 @@ namespace sce::vlt
 	{
 		const auto& graphics = m_device->queues().graphics;
 		const auto& transfer = m_device->queues().transfer;
-		const auto& compute  = m_device->queues().compute;
 
 		VltQueueSubmission info = VltQueueSubmission();
 
