@@ -67,12 +67,6 @@ namespace sce::gcn
 			switch (slot.m_usageType)
 			{
 			case kShaderInputUsageImmResource:
-			{
-				res.type = isVSharp ? 
-					VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER : VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-				res.sizeInDwords = slot.m_registerCount == 0 ? 4 : 8;
-			}
-				break;
 			case kShaderInputUsageImmRwResource:
 			{
 				res.type = isVSharp ? 

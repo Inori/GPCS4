@@ -6,6 +6,9 @@
 #include <algorithm>
 #include <unordered_map>
 #include <unordered_set>
+#include <fstream>
+
+LOG_CHANNEL("Graphic.Violet");
 
 namespace sce::vlt
 {
@@ -123,19 +126,22 @@ namespace sce::vlt
 	}
 
 	VltShaderModule VltShader::createShaderModule(
-		VltDevice*                        device,
-		const VltDescriptorSlotMapping&   mapping,
+		VltDevice*                       device,
+		const VltDescriptorSlotMapping&  mapping,
 		const VltShaderModuleCreateInfo& info)
 	{
 		SpirvCodeBuffer spirvCode = m_code.decompress();
 		uint32_t*       code      = spirvCode.data();
 
+
+		LOG_WARN("Binding remap is disabled for debugging purpose.");
+
 		// Remap resource binding IDs
-		for (uint32_t ofs : m_idOffsets)
-		{
-			if (code[ofs] < MaxNumResourceSlots)
-				code[ofs] = mapping.getBindingId(code[ofs]);
-		}
+		//for (uint32_t ofs : m_idOffsets)
+		//{
+		//	if (code[ofs] < MaxNumResourceSlots)
+		//		code[ofs] = mapping.getBindingId(code[ofs]);
+		//}
 
 		// For dual-source blending we need to re-map
 		// location 1, index 0 to location 0, index 1

@@ -24,7 +24,7 @@ namespace sce::vlt
 	{
 		auto queueFamilies = m_adapter->findQueueFamilies();
 		m_queues.graphics  = getQueue(queueFamilies.graphics, 0);
-		m_queues.graphics  = getQueue(queueFamilies.compute, 0);
+		m_queues.compute   = getQueue(queueFamilies.compute, 0);
 		m_queues.transfer  = getQueue(queueFamilies.transfer, 0);
 	}
 

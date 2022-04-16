@@ -116,7 +116,7 @@ namespace sce::vlt
 		acquire.m_memBarrier.dstStageMask |= dstStages;
 
 		VkBufferMemoryBarrier2 barrier;
-		barrier.sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+		barrier.sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2;
 		barrier.pNext               = nullptr;
 		barrier.srcStageMask        = srcStages;
 		barrier.srcAccessMask       = srcAccess;

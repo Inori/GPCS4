@@ -186,8 +186,8 @@ namespace sce::vlt
          * \returns The shader module
          */
 		VltShaderModule createShaderModule(
-			VltDevice*                        device,
-			const VltDescriptorSlotMapping&   mapping,
+			VltDevice*                       device,
+			const VltDescriptorSlotMapping&  mapping,
 			const VltShaderModuleCreateInfo& info);
 
 		/**

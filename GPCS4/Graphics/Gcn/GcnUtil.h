@@ -13,26 +13,23 @@ namespace sce::gcn
      */
 	enum DxbcBindingProperties : uint32_t
 	{
-		// read-only buffer/texture
-		GcnRoResourceBindingIndex = 0,
-		GcnRoResourceBindingCount = Gnm::kSlotCountResource +
-									Gnm::kSlotCountConstantBuffer +
-									Gnm::kSlotCountBoolConstant +
-									Gnm::kSlotCountFloatConstant,
+		GcnConstBufferBindingIndex = 0,
+		GcnConstBufferBindingCount = Gnm::kSlotCountConstantBuffer +
+									 Gnm::kSlotCountBoolConstant +
+									 Gnm::kSlotCountFloatConstant,
 
-		// sampler
-		GcnSamplerBindingIndex = GcnRoResourceBindingIndex +
-								 GcnRoResourceBindingCount,
+		GcnSamplerBindingIndex = GcnConstBufferBindingIndex +
+								 GcnConstBufferBindingCount,
 		GcnSamplerBindingCount = Gnm::kSlotCountSampler,
 
-		// read/write buffer/texture
-		GcnRwResourceBindingIndex = GcnSamplerBindingIndex +
-									GcnSamplerBindingCount,
-		GcnRwResourceBindingCount = Gnm::kSlotCountRwResource,
+		GcnResourceBindingIndex = GcnSamplerBindingIndex +
+								  GcnSamplerBindingCount,
+		GcnResourceBindingCount = Gnm::kSlotCountResource +
+								  Gnm::kSlotCountRwResource,
 
-		GcnStageBindingCount = GcnRoResourceBindingCount +
+		GcnStageBindingCount = GcnConstBufferBindingCount +
 							   GcnSamplerBindingCount +
-							   GcnRwResourceBindingCount,
+							   GcnResourceBindingCount,
 	};
 
 	/**
@@ -46,9 +43,8 @@ namespace sce::gcn
 		return GcnStageBindingCount * static_cast<uint32_t>(stage);
 	}
 
-
 	/**
-     * \brief Computes read-only buffer/texture binding index
+     * \brief Computes constant buffer binding index
 	 * 
 	 * Including ImmResource and ImmConstBuffer
      * 
@@ -56,21 +52,21 @@ namespace sce::gcn
      * \param [in] index Start register index
      * \returns Binding index
      */
-	inline uint32_t computeRoResourceBinding(GcnProgramType stage, uint32_t index)
+	inline uint32_t computeConstantBufferBinding(GcnProgramType stage, uint32_t index)
 	{
-		return computeStageBindingOffset(stage) + GcnRoResourceBindingIndex + index;
+		return computeStageBindingOffset(stage) + GcnConstBufferBindingIndex + index;
 	}
 
 	/**
-     * \brief Computes read-write buffer/texture binding index
+     * \brief Computes buffer/texture resource binding index
      * 
      * \param [in] stage Shader stage
      * \param [in] index Start register index
      * \returns Binding index
      */
-	inline uint32_t computeRwResourceBinding(GcnProgramType stage, uint32_t index)
+	inline uint32_t computeResourceBinding(GcnProgramType stage, uint32_t index)
 	{
-		return computeStageBindingOffset(stage) + GcnRwResourceBindingIndex + index;
+		return computeStageBindingOffset(stage) + GcnResourceBindingIndex + index;
 	}
 
 	/**

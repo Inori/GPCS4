@@ -768,15 +768,12 @@ namespace sce::vlt
 
 		VkCommandPool m_graphicsPool = VK_NULL_HANDLE;
 		VkCommandPool m_transferPool = VK_NULL_HANDLE;
-		VkCommandPool m_computePool  = VK_NULL_HANDLE;
 
 		VkCommandBuffer m_execBuffer  = VK_NULL_HANDLE;
 		VkCommandBuffer m_initBuffer  = VK_NULL_HANDLE;
 		VkCommandBuffer m_transBuffer = VK_NULL_HANDLE;
-		VkCommandBuffer m_compBuffer  = VK_NULL_HANDLE;
 
 		VkSemaphore m_transSemaphore = VK_NULL_HANDLE;
-		VkSemaphore m_compSemaphore  = VK_NULL_HANDLE;
 
 		VltCmdBufferFlags m_cmdBuffersUsed;
 

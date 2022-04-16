@@ -1,6 +1,8 @@
 #include "GcnCompiler.h"
 #include "GcnHeader.h"
 #include "GcnDecoder.h"
+#include "GcnUtil.h"
+#include "PlatFile.h"
 
 LOG_CHANNEL(Graphic.Gcn.GcnCompiler);
 
@@ -118,12 +120,36 @@ namespace sce::gcn
 		// Options is not used currently, pass a dummy value.
 		VltShaderOptions shaderOptions = {};
 
+		auto data = plat::LoadFile("cs_set_uint_fast.spv");
+		SpirvCodeBuffer code(data.size() / sizeof(uint32_t), (const uint32_t*)data.data());
+		
+		VltResourceSlot slot;
+		slot.slot   = computeResourceBinding(GcnProgramType::ComputeShader, 0);
+		slot.type   = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+		slot.view   = VK_IMAGE_VIEW_TYPE_1D;
+		slot.access = VK_ACCESS_SHADER_READ_BIT;
+		m_resourceSlots.push_back(slot);
+
+		slot.slot   = computeResourceBinding(GcnProgramType::ComputeShader, 4);
+		slot.type   = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+		slot.view   = VK_IMAGE_VIEW_TYPE_1D;
+		slot.access = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
+		m_resourceSlots.push_back(slot);
+
+		slot.slot   = computeConstantBufferBinding(GcnProgramType::ComputeShader, 8);
+		slot.type   = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		slot.view   = VK_IMAGE_VIEW_TYPE_1D;
+		slot.access = VK_ACCESS_SHADER_READ_BIT;
+		m_resourceSlots.push_back(slot);
+		
+
 		// Create the shader module object
 		return new VltShader(
 			m_programInfo.shaderStage(),
 			m_resourceSlots,
 			m_interfaceSlots,
-			m_module.compile(),
+			//m_module.compile(),
+			code,
 			shaderOptions,
 			std::move(m_immConstData));
 	}

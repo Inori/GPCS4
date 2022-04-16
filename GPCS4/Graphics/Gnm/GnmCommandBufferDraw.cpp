@@ -465,7 +465,7 @@ namespace sce::Gnm
 				m_context->uploadBuffer(buffer.buffer,
 										buffer.gnmBuffer.getBaseAddress());
 
-				uint32_t slot = computeRoResourceBinding(
+				uint32_t slot = computeConstantBufferBinding(
 					GcnProgramType::ComputeShader, res.startRegister);
 				m_context->bindResourceBuffer(slot, VltBufferSlice(buffer.buffer));
 			}
@@ -486,7 +486,7 @@ namespace sce::Gnm
 				m_context->uploadBuffer(buffer.buffer,
 										buffer.gnmBuffer.getBaseAddress());
 
-				uint32_t slot = computeRwResourceBinding(
+				uint32_t slot = computeResourceBinding(
 					GcnProgramType::ComputeShader, res.startRegister);
 				m_context->bindResourceBuffer(slot, VltBufferSlice(buffer.buffer));
 			}
