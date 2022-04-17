@@ -3,7 +3,6 @@
 #include "Emulator.h"
 #include "SceGnmDriver.h"
 #include "ScePresenter.h"
-#include "SceVideoOut/sce_videoout_types.h"
 #include "VirtualGPU.h"
 
 #define GLFW_INCLUDE_VULKAN
@@ -101,14 +100,9 @@ namespace sce
 				break;
 			}
 
+			m_attribute = *attribute;
+
 			SceDisplayBuffer buffer = {};
-			buffer.pixelFormat      = attribute->pixelFormat;
-			buffer.tilingMode       = attribute->tilingMode;
-			buffer.aspectRatio      = attribute->aspectRatio;
-			buffer.pitchInPixel     = attribute->pitchInPixel;
-			buffer.option           = attribute->option;
-			buffer.width            = attribute->width;
-			buffer.height           = attribute->height;
 			buffer.size             = calculateBufferSize(attribute);
 
 			for (uint32_t i = 0; i != bufferNum; ++i)
@@ -123,6 +117,11 @@ namespace sce
 			bRet = true;
 		} while (false);
 		return bRet;
+	}
+
+	const SceVideoOutBufferAttribute& SceVideoOut::displayBufferAttribute() const
+	{
+		return m_attribute;
 	}
 
 	void SceVideoOut::createPresenter(
@@ -143,15 +142,15 @@ namespace sce
 		desc.presentModes[0] = VK_PRESENT_MODE_MAILBOX_KHR;
 
 		auto& gnmDriver = GPU().gnmDriver();
-		gnmDriver.createPresenter(this, desc);
+		gnmDriver.createSwapchain(this, desc);
 	}
 
-	uint32_t SceVideoOut::numDisplayBuffer()
+	uint32_t SceVideoOut::displayBufferCount()
 	{
 		return m_displayBuffers.size();
 	}
 
-	sce::SceDisplayBuffer SceVideoOut::getDisplayBuffer(uint32_t index)
+	const SceDisplayBuffer& SceVideoOut::getDisplayBuffer(uint32_t index)
 	{
 		return m_displayBuffers[index];
 	}

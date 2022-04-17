@@ -40,10 +40,9 @@ namespace sce
 			submission.wake);
 	}
 
-	void SceGpuQueue::present(const vlt::Rc<ScePresenter>& presenter)
+	void SceGpuQueue::synchronize()
 	{
-		VltSubmitStatus status = {};
-		m_device->presentImage(presenter, &status);
+		m_device->waitForSubmission();
 	}
 
 	void SceGpuQueue::createQueue(SceQueueType type)

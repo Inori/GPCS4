@@ -1,11 +1,11 @@
 #pragma once
 
 #include "SceCommon.h"
+#include "SceVideoOut/sce_videoout_types.h"
 
 #include <vector>
 
 class GLFWwindow;
-struct SceVideoOutBufferAttribute;
 
 namespace sce
 {
@@ -75,13 +75,6 @@ namespace sce
 	struct SceDisplayBuffer
 	{
 		void*    address;
-		int32_t  pixelFormat;  // SceVideoOutPixelFormat
-		int32_t  tilingMode;   // SceVideoOutTilingMode
-		int32_t  aspectRatio;  // SceVideoOutAspectRatio
-		uint32_t pitchInPixel;
-		uint32_t option;       // SceVideoOutBufferAttributeOption
-		uint32_t width;
-		uint32_t height;
 		uint32_t size;
 	};
 
@@ -106,9 +99,13 @@ namespace sce
 			uint32_t                          bufferNum,
 			const SceVideoOutBufferAttribute* attribute);
 
-		uint32_t numDisplayBuffer();
+		const SceVideoOutBufferAttribute&
+			displayBufferAttribute() const;
 
-		SceDisplayBuffer getDisplayBuffer(uint32_t index);
+		uint32_t displayBufferCount();
+
+		const SceDisplayBuffer& 
+			getDisplayBuffer(uint32_t index);
 
 		VkSurfaceKHR getSurface(VkInstance instance);
 
@@ -130,6 +127,7 @@ namespace sce
 		int32_t  m_busType  = 0;
 		uint32_t m_flipRate = 60;
 
+		SceVideoOutBufferAttribute    m_attribute = {};
 		std::vector<SceDisplayBuffer> m_displayBuffers;
 	};
 

@@ -69,8 +69,7 @@ namespace sce
 		void submit(
 			const SceGpuSubmission& submission);
 
-		void present(
-			const vlt::Rc<ScePresenter>& presenter);
+		void synchronize();
 
 	private:
 		void createQueue(SceQueueType type);

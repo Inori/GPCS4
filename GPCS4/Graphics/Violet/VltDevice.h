@@ -313,11 +313,15 @@ namespace sce::vlt
          * the submission thread. The status of this operation
          * can be retrieved with \ref waitForSubmission.
          * \param [in] presenter The presenter
-         * \param [out] status Present status
          */
 		void presentImage(
-			const Rc<sce::ScePresenter>& presenter,
-			VltSubmitStatus*             status);
+			const Rc<sce::ScePresenter>& presenter);
+
+		/**
+         * \brief Waits for all submission works done.
+         * 
+         */
+		void waitForSubmission();
 
 		/**
         * \brief Waits until the device becomes idle

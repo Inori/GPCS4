@@ -886,6 +886,12 @@
     <ClInclude Include="Graphics\Sce\SceSwapchainBlitter.h">
       <Filter>Source Files\Graphics\Sce</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Sce\SceSwapchain.h">
+      <Filter>Source Files\Graphics\Sce</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Sce\SceResource.h">
+      <Filter>Source Files\Graphics\Sce</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1558,6 +1564,12 @@
       <Filter>Source Files\Graphics\Violet</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Sce\SceSwapchainBlitter.cpp">
+      <Filter>Source Files\Graphics\Sce</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Sce\SceSwapchain.cpp">
+      <Filter>Source Files\Graphics\Sce</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Sce\SceResource.cpp">
       <Filter>Source Files\Graphics\Sce</Filter>
     </ClCompile>
   </ItemGroup>

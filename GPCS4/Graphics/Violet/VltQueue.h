@@ -3,8 +3,6 @@
 #include "VltCommon.h"
 #include "VltCmdList.h"
 
-#include <queue>
-
 namespace sce
 {
 	class ScePresenter;
@@ -37,17 +35,6 @@ namespace sce
 		};
 
 		/**
-		 * \brief Submission status
-		 * 
-		 * Stores the result of a queue
-		 * submission or a present call.
-		 */
-		struct VltSubmitStatus
-		{
-			std::atomic<VkResult> result = { VK_SUCCESS };
-		};
-
-		/**
          * \brief A submission queue to submit cmdlist asynchronously.
          *
          * TODO:
@@ -65,12 +52,12 @@ namespace sce
 				const VltSubmitInfo& submission);
 
 			void present(
-				const VltPresentInfo& presentInfo,
-				VltSubmitStatus*      status);
+				const VltPresentInfo& presentInfo);
+
+			void synchronize();
 
 		private:
-			VltDevice*                     m_device;
-			std::queue<Rc<VltCommandList>> m_submitQueue;
+			VltDevice* m_device;
 		};
 	} // namespace vlt
 }  // namespace sce

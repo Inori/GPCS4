@@ -179,14 +179,16 @@ namespace sce::vlt
 	}
 
 	void VltDevice::presentImage(
-		const Rc<sce::ScePresenter>& presenter, 
-		VltSubmitStatus* status)
+		const Rc<sce::ScePresenter>& presenter)
 	{
-		status->result = VK_NOT_READY;
-
 		VltPresentInfo presentInfo;
 		presentInfo.presenter = presenter;
-		m_submissionQueue.present(presentInfo, status);
+		m_submissionQueue.present(presentInfo);
+	}
+
+	void VltDevice::waitForSubmission()
+	{
+		m_submissionQueue.synchronize();
 	}
 
 	void VltDevice::recycleCommandList(
@@ -200,5 +202,7 @@ namespace sce::vlt
 	{
 		m_recycledDescriptorPools.returnObject(pool);
 	}
+
+
 
 }  // namespace sce::vlt

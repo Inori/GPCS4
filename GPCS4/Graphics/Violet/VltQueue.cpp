@@ -19,31 +19,15 @@ namespace sce::vlt
 		auto& cmdList = submission.cmdList;
 		cmdList->submit(submission.waitSync, submission.wakeSync);
 
-		// simulate async
-		m_submitQueue.push(std::move(cmdList));
-	}
-
-	void VltSubmissionQueue::present(
-		const VltPresentInfo& presentInfo,
-		VltSubmitStatus*      status)
-	{
-		auto& presenter = presentInfo.presenter;
-		presenter->presentImage();
-
-		// simulate async
-		auto cmdList = m_submitQueue.front();
-		m_submitQueue.pop();
-
 		// TODO:
 		// Calling synchronize will block the CPU waiting for the submission done on GPU,
 		// thus will block the submit thread, slow down the submit speed and drop FPS.
-		// DXVK's solution is to use another thread dedicated for cmdlist submission 
+		// DXVK's solution is to use another thread dedicated for cmdlist submission
 		// thus overcome the performance problem,
 		// see https://github.com/doitsujin/dxvk/blob/master/src/dxvk/dxvk_queue.cpp
-		// 
+		//
 		// This can be easily implemented, but for now, our bottleneck is not here obviously.
 		// So I keep it single threaded to make debugging easier.
-
 
 		// Wait for command buffer submit finish.
 		cmdList->synchronize();
@@ -54,4 +38,19 @@ namespace sce::vlt
 		// Finally, recycle the cmdlist for next use.
 		m_device->recycleCommandList(cmdList);
 	}
+
+	void VltSubmissionQueue::present(
+		const VltPresentInfo& presentInfo)
+	{
+		auto& presenter = presentInfo.presenter;
+		presenter->presentImage();
+	}
+
+	void VltSubmissionQueue::synchronize()
+	{
+		// Since currently we don't use another thread to submit command buffer,
+		// we don't need to really synchronize.
+		// This need to be implemented after we support asynchronous submit.
+	}
+
 }  // namespace sce::vlt

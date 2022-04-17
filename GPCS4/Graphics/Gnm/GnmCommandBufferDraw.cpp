@@ -28,9 +28,6 @@ using namespace sce::gcn;
 namespace sce::Gnm
 {
 
-	// The compute shader using to clear color render target
-	constexpr uint64_t ShaderHashClearRT = 0x8C25642DB09D8E59;
-
 // Use this to break on a shader you want to debug.
 #define SHADER_DEBUG_BREAK(mod, hash)  \
 	if (mod->key().toUint64() == hash) \

@@ -23,7 +23,7 @@ namespace sce
 
 	class SceVideoOut;
 	class SceGpuQueue;
-	class ScePresenter;
+	class SceSwapchain;
 	struct PresenterDesc;
 
 	// Valid vqueue id should be positive value.
@@ -35,12 +35,6 @@ namespace sce
 	class SceGnmDriver
 	{
 		friend class SceVideoOut;
-
-		struct SwapImage
-		{
-			vlt::Rc<vlt::VltImage>     image;
-			vlt::Rc<vlt::VltImageView> imageView;
-		};
 
 	public:
 		SceGnmDriver();
@@ -86,11 +80,9 @@ namespace sce
 
 		bool createVltDevice();
 
-		void createPresenter(
+		void createSwapchain(
 			SceVideoOut*         videoOut,
 			const PresenterDesc& desc);
-
-		void createRenderTargetViews();
 
 		void createGraphicsQueue();
 
@@ -100,9 +92,7 @@ namespace sce
 
 		void destroyGpuQueues();
 
-		void trackSwapImage(
-			uint32_t videoOutHandle,
-			uint32_t index);
+		void trackRenderTarget(uint32_t index);
 		void resetResourceTracker();
 
 	private:
@@ -110,12 +100,11 @@ namespace sce
 		vlt::Rc<vlt::VltAdapter>  m_adapter;
 		vlt::Rc<vlt::VltDevice>   m_device;
 
-		vlt::Rc<ScePresenter>  m_presenter;
-		std::vector<SwapImage> m_swapImages;
-
 		std::unique_ptr<SceGpuQueue> m_graphicsQueue;
 		std::array<std::unique_ptr<SceGpuQueue>, MaxComputeQueueCount>
 			m_computeQueues;
+
+		std::unique_ptr<SceSwapchain> m_swapchain;
 	};
 
 }  // namespace sce

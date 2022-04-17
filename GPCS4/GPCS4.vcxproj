@@ -74,7 +74,9 @@
     <ClInclude Include="Graphics\Sce\SceGnmDriver.h" />
     <ClInclude Include="Graphics\Sce\SceGpuQueue.h" />
     <ClInclude Include="Graphics\Sce\ScePresenter.h" />
+    <ClInclude Include="Graphics\Sce\SceResource.h" />
     <ClInclude Include="Graphics\Sce\SceResourceTracker.h" />
+    <ClInclude Include="Graphics\Sce\SceSwapchain.h" />
     <ClInclude Include="Graphics\Sce\SceSwapchainBlitter.h" />
     <ClInclude Include="Graphics\Sce\SceVideoOut.h" />
     <ClInclude Include="Graphics\SpirV\GLSL.std.450.h" />
@@ -313,7 +315,9 @@
     <ClCompile Include="Graphics\Sce\SceGnmDriver.cpp" />
     <ClCompile Include="Graphics\Sce\SceGpuQueue.cpp" />
     <ClCompile Include="Graphics\Sce\ScePresenter.cpp" />
+    <ClCompile Include="Graphics\Sce\SceResource.cpp" />
     <ClCompile Include="Graphics\Sce\SceResourceTracker.cpp" />
+    <ClCompile Include="Graphics\Sce\SceSwapchain.cpp" />
     <ClCompile Include="Graphics\Sce\SceSwapchainBlitter.cpp" />
     <ClCompile Include="Graphics\Sce\SceVideoOut.cpp" />
     <ClCompile Include="Graphics\SpirV\SpirvCodeBuffer.cpp" />
