@@ -86,6 +86,31 @@ namespace sce::vlt
 			const VltAttachment& depthTarget);
 
 		/**
+         * \brief Binds index buffer
+         * 
+         * The index buffer will be used when
+         * issuing \c drawIndexed commands.
+         * \param [in] buffer New index buffer
+         * \param [in] indexType Index type
+         */
+		void bindIndexBuffer(
+			const VltBufferSlice& buffer,
+			VkIndexType           indexType);
+
+		/**
+         * \brief Binds vertex buffer
+         * 
+         * \param [in] binding Vertex buffer binding
+         * \param [in] buffer New vertex buffer
+         * \param [in] stride Stride between vertices
+         */
+		void bindVertexBuffer(
+			uint32_t              binding,
+			const VltBufferSlice& buffer,
+			uint32_t              stride);
+
+
+		/**
          * \brief Binds buffer as a shader resource
          * 
          * Can be used for uniform and storage buffers.
@@ -242,6 +267,22 @@ namespace sce::vlt
 			uint32_t firstInstance);
 
 		/**
+         * \brief Draws primitives using an index buffer
+         * 
+         * \param [in] indexCount Number of indices to draw
+         * \param [in] instanceCount Number of instances to render
+         * \param [in] firstIndex First index within the index buffer
+         * \param [in] vertexOffset Vertex ID that corresponds to index 0
+         * \param [in] firstInstance First instance ID
+         */
+		void drawIndexed(
+			uint32_t indexCount,
+			uint32_t instanceCount,
+			uint32_t firstIndex,
+			uint32_t vertexOffset,
+			uint32_t firstInstance);
+
+		/**
          * \brief Starts compute jobs
          * 
          * \param [in] x Number of threads in X direction
@@ -252,7 +293,6 @@ namespace sce::vlt
 			uint32_t x,
 			uint32_t y,
 			uint32_t z);
-
 
 		/**
          * \brief Clears an active render target
@@ -294,6 +334,33 @@ namespace sce::vlt
 			const void*                     data,
 			VkDeviceSize                    pitchPerRow,
 			VkDeviceSize                    pitchPerLayer);
+
+
+		/**
+         * \brief Initializes a buffer
+         *
+         * Clears the given buffer to zero. Only safe to call
+         * if the buffer is not currently in use by the GPU.
+         * \param [in] buffer Buffer to clear
+         */
+		void initBuffer(
+			const Rc<VltBuffer>& buffer);
+
+		/**
+         * \brief Initializes an image
+         * 
+         * Transitions the image into its default layout, and clears
+         * it to black unless the initial layout is preinitialized.
+         * Only safe to call if the image is not in use by the GPU.
+         * \param [in] image The image to initialize
+         * \param [in] subresources Image subresources
+         * \param [in] initialLayout Initial image layout
+         */
+		void initImage(
+			const Rc<VltImage>&            image,
+			const VkImageSubresourceRange& subresources,
+			VkImageLayout                  initialLayout);
+    
 
 		/**
          * \brief Transforms image subresource layouts
@@ -368,10 +435,16 @@ namespace sce::vlt
 
 		void endRendering();
 
+		void updateIndexBufferBinding();
+		void updateVertexBufferBindings();
+
 		bool updateGraphicsPipeline();
+		bool updateGraphicsPipelineState();
 
 		bool updateComputePipeline();
 		bool updateComputePipelineState();
+
+		void updateDynamicState();
 
 		template <VkPipelineBindPoint BindPoint>
 		void updatePushConstants();
@@ -404,6 +477,8 @@ namespace sce::vlt
 		VkDescriptorSet allocateDescriptorSet(
 			VkDescriptorSetLayout layout);
 
+		void updateFramebuffer();
+
 	private:
 		VltDevice*  m_device;
 		VltObjects* m_common;
@@ -418,6 +493,7 @@ namespace sce::vlt
 		VkPipeline m_cpActivePipeline = VK_NULL_HANDLE;
 
 		VltBarrierSet          m_execBarriers;
+		VltBarrierSet          m_execAcquires;
 		VltBarrierSet          m_transBarriers;
 		VltBarrierSet          m_initBarriers;
 		VltBarrierSet          m_transAcquires;

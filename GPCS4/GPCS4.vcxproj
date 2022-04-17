@@ -113,6 +113,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Graphics\Violet\VltFormat.h" />
+    <ClInclude Include="Graphics\Violet\VltFramebuffer.h" />
     <ClInclude Include="Graphics\Violet\VltGpuEvent.h" />
     <ClInclude Include="Graphics\Violet\VltGraphics.h" />
     <ClInclude Include="Graphics\Violet\VltHash.h" />
@@ -141,7 +142,7 @@
     <ClInclude Include="Graphics\Violet\VltShaderKey.h" />
     <ClInclude Include="Graphics\Violet\VltSignal.h" />
     <ClInclude Include="Graphics\Violet\VltStaging.h" />
-    <ClInclude Include="Graphics\Violet\VltState.h" />
+    <ClInclude Include="Graphics\Violet\VltRenderState.h" />
     <ClInclude Include="Graphics\Violet\VltUnbound.h" />
     <ClInclude Include="Graphics\Violet\VltUtil.h" />
     <ClInclude Include="Graphics\VirtualGPU.h" />
@@ -341,6 +342,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Graphics\Violet\VltFormat.cpp" />
+    <ClCompile Include="Graphics\Violet\VltFramebuffer.cpp" />
     <ClCompile Include="Graphics\Violet\VltGpuEvent.cpp" />
     <ClCompile Include="Graphics\Violet\VltGraphics.cpp" />
     <ClCompile Include="Graphics\Violet\VltImage.cpp" />

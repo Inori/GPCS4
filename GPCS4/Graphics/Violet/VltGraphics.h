@@ -4,7 +4,7 @@
 #include "VltHash.h"
 #include "VltPipeLayout.h"
 #include "VltShader.h"
-#include "VltState.h"
+#include "VltRenderState.h"
 
 namespace sce::vlt
 {

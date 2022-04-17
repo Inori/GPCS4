@@ -118,6 +118,10 @@ namespace sce
 
 		m_renderTargets.clear();
 		m_renderTargets.resize(displayBufferCount);
+
+		m_context->beginRecording(
+			device->createCommandList());
+
 		for (uint32_t i = 0; i != displayBufferCount; ++i)
 		{
 			SceRenderTarget& target        = m_renderTargets[i];
@@ -132,10 +136,10 @@ namespace sce
 			imageInfo.numLayers   = 1;
 			imageInfo.mipLevels   = 1;
 			imageInfo.usage       = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-			imageInfo.stages      = 0;
-			imageInfo.access      = 0;
+			imageInfo.stages      = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+			imageInfo.access      = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_SHADER_READ_BIT;
 			imageInfo.tiling      = VK_IMAGE_TILING_LINEAR;  // use linear tiling so that we can use memory alias with a buffer object
-			imageInfo.layout      = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+			imageInfo.layout      = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
 			VltImageViewCreateInfo viewInfo;
 			viewInfo.type      = VK_IMAGE_VIEW_TYPE_2D;
@@ -152,7 +156,25 @@ namespace sce
 
 			target.renderTarget.init(&spec);
 			target.renderTarget.setAddresses(displayBuffer.address, nullptr, nullptr);
+
+			// Initialize the image so that we can use it. Clearing
+			// to black prevents garbled output for the first frame.
+			VkImageSubresourceRange subresources;
+			subresources.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+			subresources.baseMipLevel   = 0;
+			subresources.levelCount     = 1;
+			subresources.baseArrayLayer = 0;
+			subresources.layerCount     = 1;
+			m_context->initImage(target.image,
+								 subresources, VK_IMAGE_LAYOUT_UNDEFINED);
 		}
+
+		device->submitCommandList(
+			m_context->endRecording(),
+			VK_NULL_HANDLE,
+			VK_NULL_HANDLE);
+
+		device->syncSubmission();
 	}
 
 	void SceSwapchain::createSwapImageViews()

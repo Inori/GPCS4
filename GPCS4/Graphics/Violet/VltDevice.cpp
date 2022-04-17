@@ -78,6 +78,18 @@ namespace sce::vlt
 		return VltDeviceQueue{ queue, family, index };
 	}
 
+	Rc<VltFramebuffer> VltDevice::createFramebuffer(
+		const VltRenderTargets& renderTargets)
+	{
+		const VltFramebufferSize defaultSize = {
+			m_properties.core.properties.limits.maxFramebufferWidth,
+			m_properties.core.properties.limits.maxFramebufferHeight,
+			m_properties.core.properties.limits.maxFramebufferLayers
+		};
+
+		return new VltFramebuffer(renderTargets, defaultSize);
+	}
+
 	Rc<VltBuffer> VltDevice::createBuffer(
 		const VltBufferCreateInfo& createInfo, 
 		VkMemoryPropertyFlags memoryType)
@@ -186,7 +198,7 @@ namespace sce::vlt
 		m_submissionQueue.present(presentInfo);
 	}
 
-	void VltDevice::waitForSubmission()
+	void VltDevice::syncSubmission()
 	{
 		m_submissionQueue.synchronize();
 	}
@@ -202,6 +214,7 @@ namespace sce::vlt
 	{
 		m_recycledDescriptorPools.returnObject(pool);
 	}
+
 
 
 

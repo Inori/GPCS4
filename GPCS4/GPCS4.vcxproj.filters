@@ -787,7 +787,7 @@
     <ClInclude Include="Graphics\Violet\VltLimit.h">
       <Filter>Source Files\Graphics\Violet</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Violet\VltState.h">
+    <ClInclude Include="Graphics\Violet\VltRenderState.h">
       <Filter>Source Files\Graphics\Violet</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Violet\VltShader.h">
@@ -891,6 +891,9 @@
     </ClInclude>
     <ClInclude Include="Graphics\Sce\SceResource.h">
       <Filter>Source Files\Graphics\Sce</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltFramebuffer.h">
+      <Filter>Source Files\Graphics\Violet</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1571,6 +1574,9 @@
     </ClCompile>
     <ClCompile Include="Graphics\Sce\SceResource.cpp">
       <Filter>Source Files\Graphics\Sce</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Violet\VltFramebuffer.cpp">
+      <Filter>Source Files\Graphics\Violet</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

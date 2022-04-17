@@ -6,12 +6,15 @@
 #include "VltGpuEvent.h"
 #include "VltDescriptor.h"
 
+LOG_CHANNEL("Graphic.Violet");
+
 namespace sce::vlt
 {
 	VltContext::VltContext(VltDevice* device) :
 		m_device(device),
 		m_common(&device->m_objects),
 		m_execBarriers(VltCmdType::ExecBuffer),
+		m_execAcquires(VltCmdType::ExecBuffer),
 		m_transBarriers(VltCmdType::TransferBuffer),
 		m_initBarriers(VltCmdType::InitBuffer),
 		m_transAcquires(VltCmdType::TransferBuffer),
@@ -71,12 +74,44 @@ namespace sce::vlt
 		const VltAttachment& target)
 	{
 		m_state.cb.renderTargets.color[slot] = target;
+
+		m_flags.set(VltContextFlag::GpDirtyFramebuffer);
 	}
 	
 	void VltContext::bindDepthRenderTarget(
 		const VltAttachment& depthTarget)
 	{
 		m_state.cb.renderTargets.depth = depthTarget;
+
+		m_flags.set(VltContextFlag::GpDirtyFramebuffer);
+	}
+
+	void VltContext::bindIndexBuffer(
+		const VltBufferSlice& buffer,
+		VkIndexType           indexType)
+	{
+		m_state.vi.indexBuffer = buffer;
+		m_state.vi.indexType   = indexType;
+
+		m_flags.set(VltContextFlag::GpDirtyIndexBuffer);
+	}
+
+	void VltContext::bindVertexBuffer(
+		uint32_t              binding,
+		const VltBufferSlice& buffer,
+		uint32_t              stride)
+	{
+		m_state.vi.vertexBuffers[binding] = buffer;
+		m_flags.set(VltContextFlag::GpDirtyVertexBuffers);
+
+		if (unlikely(!buffer.defined()))
+			stride = 0;
+
+		if (unlikely(m_state.vi.vertexStrides[binding] != stride))
+		{
+			m_state.vi.vertexStrides[binding] = stride;
+			m_flags.set(VltContextFlag::GpDirtyPipelineState);
+		}
 	}
 
 	void VltContext::pushConstants(
@@ -84,6 +119,9 @@ namespace sce::vlt
 		uint32_t    size,
 		const void* data)
 	{
+		std::memcpy(&m_state.pc.data[offset], data, size);
+
+		m_flags.set(VltContextFlag::DirtyPushConstants);
 	}
 
 	void VltContext::draw(
@@ -92,6 +130,28 @@ namespace sce::vlt
 		uint32_t firstVertex,
 		uint32_t firstInstance)
 	{
+		if (this->commitGraphicsState<false, false>())
+		{
+			m_cmd->cmdDraw(
+				vertexCount, instanceCount,
+				firstVertex, firstInstance);
+		}
+	}
+
+	void VltContext::drawIndexed(
+		uint32_t indexCount,
+		uint32_t instanceCount,
+		uint32_t firstIndex,
+		uint32_t vertexOffset,
+		uint32_t firstInstance)
+	{
+		if (this->commitGraphicsState<true, false>())
+		{
+			m_cmd->cmdDrawIndexed(
+				indexCount, instanceCount,
+				firstIndex, vertexOffset,
+				firstInstance);
+		}
 	}
 	
 	void VltContext::dispatch(
@@ -159,14 +219,163 @@ namespace sce::vlt
 		}
 	}
 
+	void VltContext::updateIndexBufferBinding()
+	{
+		m_flags.clr(VltContextFlag::GpDirtyIndexBuffer);
+
+		if (m_state.vi.indexBuffer.defined())
+		{
+			auto bufferInfo = m_state.vi.indexBuffer.getDescriptor();
+
+			m_cmd->cmdBindIndexBuffer(
+				bufferInfo.buffer.buffer,
+				bufferInfo.buffer.offset,
+				m_state.vi.indexType);
+		}
+		else
+		{
+			m_cmd->cmdBindIndexBuffer(
+				m_common->dummyResources().bufferHandle(),
+				0, VK_INDEX_TYPE_UINT32);
+		}
+	}
+
+	void VltContext::updateVertexBufferBindings()
+	{
+		m_flags.clr(VltContextFlag::GpDirtyVertexBuffers);
+
+		if (unlikely(!m_state.gp.state.il.bindingCount()))
+			return;
+
+		std::array<VkBuffer, MaxNumVertexBindings>     buffers;
+		std::array<VkDeviceSize, MaxNumVertexBindings> offsets;
+
+		// Set buffer handles and offsets for active bindings
+		for (uint32_t i = 0; i < m_state.gp.state.il.bindingCount(); i++)
+		{
+			uint32_t binding = m_state.gp.state.ilBindings[i].binding();
+
+			if (likely(m_state.vi.vertexBuffers[binding].defined()))
+			{
+				auto vbo = m_state.vi.vertexBuffers[binding].getDescriptor();
+
+				buffers[i] = vbo.buffer.buffer;
+				offsets[i] = vbo.buffer.offset;
+			}
+			else
+			{
+				buffers[i] = m_common->dummyResources().bufferHandle();
+				offsets[i] = 0;
+			}
+		}
+
+		// Vertex bindigs get remapped when compiling the
+		// pipeline, so this actually does the right thing
+		m_cmd->cmdBindVertexBuffers(
+			0, m_state.gp.state.il.bindingCount(),
+			buffers.data(), offsets.data());
+	}
+
+	
+	void VltContext::updateDynamicState()
+	{
+		if (!m_gpActivePipeline)
+			return;
+
+		if (m_flags.test(VltContextFlag::GpDirtyViewport))
+		{
+			m_flags.clr(VltContextFlag::GpDirtyViewport);
+
+			uint32_t viewportCount = m_state.gp.state.rs.viewportCount();
+			m_cmd->cmdSetViewport(0, viewportCount, m_state.vp.viewports.data());
+			m_cmd->cmdSetScissor(0, viewportCount, m_state.vp.scissorRects.data());
+		}
+
+		if (m_flags.all(VltContextFlag::GpDirtyBlendConstants,
+						VltContextFlag::GpDynamicBlendConstants))
+		{
+			m_flags.clr(VltContextFlag::GpDirtyBlendConstants);
+			m_cmd->cmdSetBlendConstants(&m_state.dyn.blendConstants.r);
+		}
+
+		if (m_flags.all(VltContextFlag::GpDirtyStencilRef,
+						VltContextFlag::GpDynamicStencilRef))
+		{
+			m_flags.clr(VltContextFlag::GpDirtyStencilRef);
+
+			m_cmd->cmdSetStencilReference(
+				VK_STENCIL_FRONT_AND_BACK,
+				m_state.dyn.stencilReference);
+		}
+
+		if (m_flags.all(VltContextFlag::GpDirtyDepthBias,
+						VltContextFlag::GpDynamicDepthBias))
+		{
+			m_flags.clr(VltContextFlag::GpDirtyDepthBias);
+
+			m_cmd->cmdSetDepthBias(
+				m_state.dyn.depthBias.depthBiasConstant,
+				m_state.dyn.depthBias.depthBiasClamp,
+				m_state.dyn.depthBias.depthBiasSlope);
+		}
+
+		if (m_flags.all(VltContextFlag::GpDirtyDepthBounds,
+						VltContextFlag::GpDynamicDepthBounds))
+		{
+			m_flags.clr(VltContextFlag::GpDirtyDepthBounds);
+
+			m_cmd->cmdSetDepthBounds(
+				m_state.dyn.depthBounds.minDepthBounds,
+				m_state.dyn.depthBounds.maxDepthBounds);
+		}
+	}
+
 	template <bool Indexed, bool Indirect>
 	bool VltContext::commitGraphicsState()
 	{
+		if (m_flags.test(VltContextFlag::GpDirtyFramebuffer))
+		{
+			this->updateFramebuffer();
+		}
+			
 		if (m_flags.test(VltContextFlag::GpDirtyPipeline))
 		{
 			if (unlikely(!this->updateGraphicsPipeline()))
 				return false;
 		}
+
+		if (!m_flags.test(VltContextFlag::GpRenderingActive))
+		{
+			this->beginRendering();
+		}
+
+		if (m_flags.test(VltContextFlag::GpDirtyIndexBuffer) && Indexed)
+			this->updateIndexBufferBinding();
+
+		if (m_flags.test(VltContextFlag::GpDirtyVertexBuffers))
+			this->updateVertexBufferBindings();
+
+		if (m_flags.any(
+				VltContextFlag::GpDirtyResources,
+				VltContextFlag::GpDirtyDescriptorBinding))
+			this->updateGraphicsShaderResources();
+
+		if (m_flags.test(VltContextFlag::GpDirtyPipelineState))
+		{
+			if (unlikely(!this->updateGraphicsPipelineState()))
+				return false;
+		}
+
+		if (m_flags.any(
+				VltContextFlag::GpDirtyViewport,
+				VltContextFlag::GpDirtyBlendConstants,
+				VltContextFlag::GpDirtyStencilRef,
+				VltContextFlag::GpDirtyDepthBias,
+				VltContextFlag::GpDirtyDepthBounds))
+			this->updateDynamicState();
+
+		if (m_flags.test(VltContextFlag::DirtyPushConstants))
+			this->updatePushConstants<VK_PIPELINE_BIND_POINT_GRAPHICS>();
 
 		return true;
 	}
@@ -184,6 +393,51 @@ namespace sce::vlt
 		return true;
 	}
 
+	bool VltContext::updateGraphicsPipelineState()
+	{
+		// Set up vertex buffer strides for active bindings
+		for (uint32_t i = 0; i < m_state.gp.state.il.bindingCount(); i++)
+		{
+			const uint32_t binding = m_state.gp.state.ilBindings[i].binding();
+			m_state.gp.state.ilBindings[i].setStride(m_state.vi.vertexStrides[binding]);
+		}
+
+		// Check which dynamic states need to be active. States that
+		// are not dynamic will be invalidated in the command buffer.
+		m_flags.clr(VltContextFlag::GpDynamicBlendConstants,
+					VltContextFlag::GpDynamicDepthBias,
+					VltContextFlag::GpDynamicDepthBounds,
+					VltContextFlag::GpDynamicStencilRef);
+
+		m_flags.set(m_state.gp.state.useDynamicBlendConstants()
+						? VltContextFlag::GpDynamicBlendConstants
+						: VltContextFlag::GpDirtyBlendConstants);
+
+		m_flags.set(m_state.gp.state.useDynamicDepthBias()
+						? VltContextFlag::GpDynamicDepthBias
+						: VltContextFlag::GpDirtyDepthBias);
+
+		m_flags.set(m_state.gp.state.useDynamicDepthBounds()
+						? VltContextFlag::GpDynamicDepthBounds
+						: VltContextFlag::GpDirtyDepthBounds);
+
+		m_flags.set(m_state.gp.state.useDynamicStencilRef()
+						? VltContextFlag::GpDynamicStencilRef
+						: VltContextFlag::GpDirtyStencilRef);
+
+		// Retrieve and bind actual Vulkan pipeline handle
+		m_gpActivePipeline = m_state.gp.pipeline->getPipelineHandle(m_state.gp.state);
+
+		if (unlikely(!m_gpActivePipeline))
+			return false;
+
+		m_cmd->cmdBindPipeline(
+			VK_PIPELINE_BIND_POINT_GRAPHICS,
+			m_gpActivePipeline);
+
+		m_flags.clr(VltContextFlag::GpDirtyPipelineState);
+		return true;
+	}
 
 	void VltContext::setViewports(
 		uint32_t          viewportCount,
@@ -263,12 +517,25 @@ namespace sce::vlt
 		const Rc<VltImageView>&  imageView,
 		const Rc<VltBufferView>& bufferView)
 	{
+		m_rc[slot].imageView   = imageView;
+		m_rc[slot].bufferView  = bufferView;
+		m_rc[slot].bufferSlice = bufferView != nullptr
+									 ? bufferView->slice()
+									 : VltBufferSlice();
+		m_flags.set(
+			VltContextFlag::CpDirtyResources,
+			VltContextFlag::GpDirtyResources);
 	}
 
 	void VltContext::bindResourceSampler(
 		uint32_t              slot,
 		const Rc<VltSampler>& sampler)
 	{
+		m_rc[slot].sampler = sampler;
+	
+		m_flags.set(
+			VltContextFlag::CpDirtyResources,
+			VltContextFlag::GpDirtyResources);
 	}
 
 
@@ -312,6 +579,12 @@ namespace sce::vlt
 	void VltContext::setInputAssemblyState(
 		const VltInputAssemblyState& ia)
 	{
+		m_state.gp.state.ia = VltIaInfo(
+			ia.primitiveTopology,
+			ia.primitiveRestart,
+			ia.patchVertexCount);
+
+		m_flags.set(VltContextFlag::GpDirtyPipelineState);
 	}
 
 	void VltContext::setInputLayout(
@@ -320,31 +593,99 @@ namespace sce::vlt
 		uint32_t                  bindingCount,
 		const VltVertexBinding*   bindings)
 	{
+		m_flags.set(
+			VltContextFlag::GpDirtyPipelineState,
+			VltContextFlag::GpDirtyVertexBuffers);
+
+		for (uint32_t i = 0; i < attributeCount; i++)
+		{
+			m_state.gp.state.ilAttributes[i] = VltIlAttribute(
+				attributes[i].location, attributes[i].binding,
+				attributes[i].format, attributes[i].offset);
+		}
+
+		for (uint32_t i = attributeCount; i < m_state.gp.state.il.attributeCount(); i++)
+			m_state.gp.state.ilAttributes[i] = VltIlAttribute();
+
+		for (uint32_t i = 0; i < bindingCount; i++)
+		{
+			m_state.gp.state.ilBindings[i] = VltIlBinding(
+				bindings[i].binding, 0, bindings[i].inputRate,
+				bindings[i].fetchRate);
+		}
+
+		for (uint32_t i = bindingCount; i < m_state.gp.state.il.bindingCount(); i++)
+			m_state.gp.state.ilBindings[i] = VltIlBinding();
+
+		m_state.gp.state.il = VltIlInfo(attributeCount, bindingCount);
 	}
 
 	void VltContext::setRasterizerState(
 		const VltRasterizerState& rs)
 	{
+		m_state.gp.state.rs = VltRsInfo(
+			rs.depthClipEnable,
+			rs.depthBiasEnable,
+			rs.polygonMode,
+			rs.cullMode,
+			rs.frontFace,
+			m_state.gp.state.rs.viewportCount(),
+			rs.sampleCount);
+
+		m_flags.set(VltContextFlag::GpDirtyPipelineState);
 	}
 
 	void VltContext::setMultisampleState(
 		const VltMultisampleState& ms)
 	{
+		m_state.gp.state.ms = VltMsInfo(
+			m_state.gp.state.ms.sampleCount(),
+			ms.sampleMask,
+			ms.enableAlphaToCoverage);
+
+		m_flags.set(VltContextFlag::GpDirtyPipelineState);
 	}
 
 	void VltContext::setDepthStencilState(
 		const VltDepthStencilState& ds)
 	{
+		m_state.gp.state.ds = VltDsInfo(
+			ds.enableDepthTest,
+			ds.enableDepthWrite,
+			m_state.gp.state.ds.enableDepthBoundsTest(),
+			ds.enableStencilTest,
+			ds.depthCompareOp);
+
+		m_state.gp.state.dsFront = VltDsStencilOp(ds.stencilOpFront);
+		m_state.gp.state.dsBack  = VltDsStencilOp(ds.stencilOpBack);
+
+		m_flags.set(VltContextFlag::GpDirtyPipelineState);
 	}
 
 	void VltContext::setLogicOpState(
 		const VltLogicOpState& lo)
 	{
+		m_state.gp.state.cb = VltCbInfo(
+			lo.enableLogicOp,
+			lo.logicOp);
+
+		m_flags.set(VltContextFlag::GpDirtyPipelineState);
 	}
 
 	void VltContext::setBlendMode(
 		uint32_t attachment, const VltBlendMode& blendMode)
 	{
+		m_state.gp.state.cbBlend[attachment] = VltCbAttachmentBlend(
+			blendMode.enableBlending,
+			blendMode.colorSrcFactor,
+			blendMode.colorDstFactor,
+			blendMode.colorBlendOp,
+			blendMode.alphaSrcFactor,
+			blendMode.alphaDstFactor,
+			blendMode.alphaBlendOp,
+			blendMode.writeMask);
+
+		m_flags.set(VltContextFlag::GpDirtyPipelineState);
 	}
 
 	void VltContext::clearRenderTarget(
@@ -450,6 +791,88 @@ namespace sce::vlt
 		m_cmd->trackResource<VltAccess::Read>(stagingSlice.buffer());
 	}
 
+	void VltContext::initBuffer(
+		const Rc<VltBuffer>& buffer)
+	{
+		auto slice = buffer->getSliceHandle();
+
+		m_cmd->cmdFillBuffer(VltCmdType::InitBuffer,
+							 slice.handle, slice.offset,
+							 util::align(slice.length, 4), 0);
+
+		m_initBarriers.accessBuffer(slice,
+									VK_PIPELINE_STAGE_TRANSFER_BIT,
+									VK_ACCESS_TRANSFER_WRITE_BIT,
+									buffer->info().stages,
+									buffer->info().access);
+
+		m_cmd->trackResource<VltAccess::Write>(buffer);
+	}
+
+	void VltContext::initImage(
+		const Rc<VltImage>&            image,
+		const VkImageSubresourceRange& subresources,
+		VkImageLayout                  initialLayout)
+	{
+		if (initialLayout == VK_IMAGE_LAYOUT_PREINITIALIZED)
+		{
+			m_initBarriers.accessImage(image, subresources,
+									   initialLayout, 0, 0,
+									   image->info().layout,
+									   image->info().stages,
+									   image->info().access);
+
+			m_cmd->trackResource<VltAccess::None>(image);
+		}
+		else
+		{
+			VkImageLayout clearLayout = image->pickLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+			// transform image to clear layout
+			m_execAcquires.accessImage(image, subresources,
+									   initialLayout, 0, 0, clearLayout,
+									   VK_PIPELINE_STAGE_TRANSFER_BIT,
+									   VK_ACCESS_TRANSFER_WRITE_BIT);
+			m_execAcquires.recordCommands(m_cmd);
+
+			auto formatInfo = image->formatInfo();
+
+			if (formatInfo->flags.any(VltFormatFlag::BlockCompressed, VltFormatFlag::MultiPlane))
+			{
+				LOG_FIXME("init compressed or multi plane image is not supported.");
+			}
+			else
+			{
+				if (subresources.aspectMask & (VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT))
+				{
+					VkClearDepthStencilValue value = {};
+
+					m_cmd->cmdClearDepthStencilImage(image->handle(),
+													 clearLayout, &value, 1, &subresources);
+				}
+				else
+				{
+					//VkClearColorValue value = {};
+					VkClearColorValue value = { .float32 = {0.5, 0.6, 0.7, 0.8} };
+
+					m_cmd->cmdClearColorImage(image->handle(),
+											  clearLayout, &value, 1, &subresources);
+				}
+			}
+
+			// transform image back to default layout
+			m_execBarriers.accessImage(image, subresources,
+									   clearLayout,
+									   VK_PIPELINE_STAGE_TRANSFER_BIT,
+									   VK_ACCESS_TRANSFER_WRITE_BIT,
+									   image->info().layout,
+									   image->info().stages,
+									   image->info().access);
+
+			m_cmd->trackResource<VltAccess::Write>(image);
+		}
+	}
+
 	void VltContext::setBarrierControl(VltBarrierControlFlags control)
 	{
 		m_barrierControl = control;
@@ -483,12 +906,43 @@ namespace sce::vlt
 
 	void VltContext::beginRendering()
 	{
+		auto& framebuffer = m_state.cb.framebuffer;
+		if (!m_flags.test(VltContextFlag::GpRenderingActive) &&
+			framebuffer != nullptr)
+		{
+			const VltFramebufferSize fbSize = framebuffer->size();
+
+			VkRect2D renderArea;
+			renderArea.offset = VkOffset2D{ 0, 0 };
+			renderArea.extent = VkExtent2D{ fbSize.width, fbSize.height };
+
+			VkRenderingInfo renderInfo      = {};
+			renderInfo.sType                = VK_STRUCTURE_TYPE_RENDERING_INFO;
+			renderInfo.pNext                = nullptr;
+			renderInfo.flags                = 0;
+			renderInfo.renderArea           = renderArea;
+			renderInfo.layerCount           = 1;
+			renderInfo.viewMask             = 0;  // TODO: This can be used to implement GNM render target mask
+			renderInfo.colorAttachmentCount = framebuffer->numColorAttachments();
+			renderInfo.pColorAttachments    = framebuffer->colorAttachments();
+			renderInfo.pDepthAttachment     = framebuffer->depthAttachment();
+			renderInfo.pStencilAttachment   = framebuffer->depthAttachment();
+
+			m_cmd->cmdBeginRendering(&renderInfo);
+
+			m_flags.set(VltContextFlag::GpRenderingActive);
+		}
 	}
 
 	void VltContext::endRendering()
 	{
-	}
+		if (m_flags.test(VltContextFlag::GpRenderingActive))
+		{
+			m_cmd->cmdEndRendering();
 
+			m_flags.clr(VltContextFlag::GpRenderingActive);
+		}
+	}
 
 	bool VltContext::commitComputeState()
 	{
@@ -798,6 +1252,15 @@ namespace sce::vlt
 
 	void VltContext::updateGraphicsShaderResources()
 	{
+		if ((m_flags.test(VltContextFlag::GpDirtyResources)) || 
+			(m_state.gp.pipeline->layout()->hasStaticBufferBindings()))
+			this->updateShaderResources<VK_PIPELINE_BIND_POINT_GRAPHICS>(m_state.gp.pipeline->layout());
+
+		this->updateShaderDescriptorSetBinding<VK_PIPELINE_BIND_POINT_GRAPHICS>(
+			m_gpSet, m_state.gp.pipeline->layout());
+
+		m_flags.clr(VltContextFlag::GpDirtyResources,
+					VltContextFlag::GpDirtyDescriptorBinding);
 	}
 
 	VltGraphicsPipeline* VltContext::lookupGraphicsPipeline(
@@ -966,6 +1429,16 @@ namespace sce::vlt
 		}
 	}
 
+	void VltContext::updateFramebuffer()
+	{
+		m_state.cb.framebuffer = m_device->createFramebuffer(
+			m_state.cb.renderTargets);
+
+		m_state.cb.framebuffer->prepareRenderingLayout(m_execAcquires);
+		m_execAcquires.recordCommands(m_cmd);
+
+		m_flags.clr(VltContextFlag::GpDirtyFramebuffer);
+	}
 
 
 }  // namespace sce::vlt

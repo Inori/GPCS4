@@ -236,7 +236,7 @@ namespace sce::Gnm
 
 			VltAttachment attachment = {
 				resource->depthRenderTarget().imageView,
-				VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL
+				VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL
 			};
 			m_context->bindDepthRenderTarget(attachment);
 

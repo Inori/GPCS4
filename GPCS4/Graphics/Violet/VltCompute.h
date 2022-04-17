@@ -2,7 +2,7 @@
 
 #include "VltCommon.h"
 #include "VltShader.h"
-#include "VltState.h"
+#include "VltRenderState.h"
 
 namespace sce::vlt
 {

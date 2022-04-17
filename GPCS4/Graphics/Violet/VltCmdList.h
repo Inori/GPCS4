@@ -217,6 +217,18 @@ namespace sce::vlt
 				m_execBuffer, queryPool, query, flags, index);
 		}
 
+		void cmdBeginRendering(
+			const VkRenderingInfo* renderInfo)
+		{
+			vkCmdBeginRendering(
+				m_execBuffer, renderInfo);
+		}
+
+		void cmdEndRendering()
+		{
+			vkCmdEndRendering(m_execBuffer);
+		}
+
 		void cmdBeginRenderPass(
 			const VkRenderPassBeginInfo* pRenderPassBegin,
 			VkSubpassContents            contents)

@@ -42,7 +42,7 @@ namespace sce
 
 	void SceGpuQueue::synchronize()
 	{
-		m_device->waitForSubmission();
+		m_device->syncSubmission();
 	}
 
 	void SceGpuQueue::createQueue(SceQueueType type)
