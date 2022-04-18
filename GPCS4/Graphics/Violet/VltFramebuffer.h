@@ -82,7 +82,8 @@ namespace sce::vlt
          */
 		const VkRenderingAttachmentInfo* colorAttachments() const
 		{
-			return m_colorAttachments.data();
+			return m_colorAttachmentCount != 0 ?
+				m_colorAttachments.data() : nullptr;
 		}
 
 		/**
@@ -90,8 +91,36 @@ namespace sce::vlt
          */
 		const VkRenderingAttachmentInfo* depthAttachment() const
 		{
-			return &m_depthAttachment;
+			return m_depthAttachment.imageView != VK_NULL_HANDLE ?
+				&m_depthAttachment : nullptr;
 		}
+
+
+		/**
+         * \brief Finds attachment index by view
+         * 
+         * Color attachments start at 0
+         * \param [in] view Image view
+         * \returns Attachment index, -1 on fail
+         */
+		int32_t findColorAttachment(
+			const Rc<VltImageView>& view) const;
+
+
+		/**
+		 * \brief Set color attachments' clear values
+		 */
+		void setColorClearValue(
+			uint32_t            index,
+			const VkClearValue& value);
+
+
+		/**
+		 * \brief Set depth attachment's clear value.
+		 */
+		void setDepthClearValue(VkClearValue value);
+
+
 
 		/**
 		 * \brief Transform attachment images to rendering-ready layout.
@@ -132,7 +161,7 @@ namespace sce::vlt
 		const VltFramebufferSize m_renderSize;
 
 		uint32_t                                                   m_colorAttachmentCount = 0;
-		std::array<VkRenderingAttachmentInfo, MaxNumRenderTargets> m_colorAttachments;
-		VkRenderingAttachmentInfo                                  m_depthAttachment;
+		std::array<VkRenderingAttachmentInfo, MaxNumRenderTargets> m_colorAttachments     = {};
+		VkRenderingAttachmentInfo                                  m_depthAttachment      = {};
 	};
 }  // namespace sce::vlt

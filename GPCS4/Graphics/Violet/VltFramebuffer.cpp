@@ -22,12 +22,16 @@ namespace sce::vlt
 			auto& colorView = m_renderTargets.color[i].view;
 			if (colorView != nullptr)
 			{
-				m_colorAttachments[m_colorAttachmentCount].imageView   = colorView->handle();
-				m_colorAttachments[m_colorAttachmentCount].imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-				m_colorAttachments[m_colorAttachmentCount].resolveMode = VK_RESOLVE_MODE_NONE;
-				m_colorAttachments[m_colorAttachmentCount].loadOp      = VK_ATTACHMENT_LOAD_OP_CLEAR;
-				m_colorAttachments[m_colorAttachmentCount].storeOp     = VK_ATTACHMENT_STORE_OP_STORE;
-				m_colorAttachments[m_colorAttachmentCount].clearValue  = clearValues[0];
+				m_colorAttachments[m_colorAttachmentCount].sType              = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+				m_colorAttachments[m_colorAttachmentCount].pNext              = nullptr;
+				m_colorAttachments[m_colorAttachmentCount].imageView          = colorView->handle();
+				m_colorAttachments[m_colorAttachmentCount].imageLayout        = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+				m_colorAttachments[m_colorAttachmentCount].resolveMode        = VK_RESOLVE_MODE_NONE;
+				m_colorAttachments[m_colorAttachmentCount].resolveImageView   = VK_NULL_HANDLE;
+				m_colorAttachments[m_colorAttachmentCount].resolveImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+				m_colorAttachments[m_colorAttachmentCount].loadOp             = VK_ATTACHMENT_LOAD_OP_CLEAR;
+				m_colorAttachments[m_colorAttachmentCount].storeOp            = VK_ATTACHMENT_STORE_OP_STORE;
+				m_colorAttachments[m_colorAttachmentCount].clearValue         = clearValues[0];
 				++m_colorAttachmentCount;
 			}
 		}
@@ -35,12 +39,16 @@ namespace sce::vlt
 		auto& depthView = m_renderTargets.depth.view;
 		if (depthView != nullptr)
 		{
-			m_depthAttachment.imageView   = depthView->handle();
-			m_depthAttachment.imageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
-			m_depthAttachment.resolveMode = VK_RESOLVE_MODE_NONE;
-			m_depthAttachment.loadOp      = VK_ATTACHMENT_LOAD_OP_CLEAR;
-			m_depthAttachment.storeOp     = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-			m_depthAttachment.clearValue  = clearValues[1];
+			m_depthAttachment.sType              = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+			m_depthAttachment.pNext              = nullptr;
+			m_depthAttachment.imageView          = depthView->handle();
+			m_depthAttachment.imageLayout        = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+			m_depthAttachment.resolveMode        = VK_RESOLVE_MODE_NONE;
+			m_depthAttachment.resolveImageView   = VK_NULL_HANDLE;
+			m_depthAttachment.resolveImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+			m_depthAttachment.loadOp             = VK_ATTACHMENT_LOAD_OP_CLEAR;
+			m_depthAttachment.storeOp            = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+			m_depthAttachment.clearValue         = clearValues[1];
 		}
 	}
 
@@ -113,7 +121,12 @@ namespace sce::vlt
 			auto& colorView = m_renderTargets.color[i].view;
 			if (colorView != nullptr)
 			{
-				auto&                   colorImage = colorView->image();
+				auto& colorImage = colorView->image();
+				if (colorImage->info().layout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+				{
+					continue;
+				}
+
 				VkImageSubresourceRange subresources;
 				subresources.aspectMask     = colorImage->formatInfo()->aspectMask;
 				subresources.baseArrayLayer = 0;
@@ -136,24 +149,51 @@ namespace sce::vlt
 		auto& depthView = m_renderTargets.depth.view;
 		if (depthView != nullptr)
 		{
-			auto&                   depthImage = depthView->image();
-			VkImageSubresourceRange subresources;
-			subresources.aspectMask     = depthImage->formatInfo()->aspectMask;
-			subresources.baseArrayLayer = 0;
-			subresources.baseMipLevel   = 0;
-			subresources.layerCount     = depthImage->info().numLayers;
-			subresources.levelCount     = depthImage->info().mipLevels;
+			auto& depthImage = depthView->image();
+			if (depthImage->info().layout != VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL)
+			{
+				VkImageSubresourceRange subresources;
+				subresources.aspectMask     = depthImage->formatInfo()->aspectMask;
+				subresources.baseArrayLayer = 0;
+				subresources.baseMipLevel   = 0;
+				subresources.layerCount     = depthImage->info().numLayers;
+				subresources.levelCount     = depthImage->info().mipLevels;
 
-			barrier.accessImage(
-				depthImage,
-				subresources,
-				VK_IMAGE_LAYOUT_UNDEFINED,
-				VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
-				0,
-				VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
-				VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
-				VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT);
+				barrier.accessImage(
+					depthImage,
+					subresources,
+					VK_IMAGE_LAYOUT_UNDEFINED,
+					VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+					0,
+					VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
+					VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+					VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT);
+			}
 		}
+	}
+
+	int32_t VltFramebuffer::findColorAttachment(
+		const Rc<VltImageView>& view) const
+	{
+		for (uint32_t i = 0; i < m_colorAttachmentCount; i++)
+		{
+			if (m_colorAttachments[i].imageView == view->handle())
+				return int32_t(i);
+		}
+
+		return -1;
+	}
+
+	void VltFramebuffer::setColorClearValue(
+		uint32_t            index,
+		const VkClearValue& value)
+	{
+		m_colorAttachments[index].clearValue = value;
+	}
+
+	void VltFramebuffer::setDepthClearValue(VkClearValue value)
+	{
+		m_depthAttachment.clearValue = value;
 	}
 
 }  // namespace sce::vlt

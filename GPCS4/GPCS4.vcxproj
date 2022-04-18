@@ -356,6 +356,7 @@
     <ClCompile Include="Graphics\Violet\VltPipeLayout.cpp" />
     <ClCompile Include="Graphics\Violet\VltPipeManager.cpp" />
     <ClCompile Include="Graphics\Violet\VltQueue.cpp" />
+    <ClCompile Include="Graphics\Violet\VltRenderTarget.cpp" />
     <ClCompile Include="Graphics\Violet\VltResource.cpp" />
     <ClCompile Include="Graphics\Violet\VltSampler.cpp" />
     <ClCompile Include="Graphics\Violet\VltShader.cpp" />

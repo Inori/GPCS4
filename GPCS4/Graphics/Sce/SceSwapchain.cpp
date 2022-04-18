@@ -128,18 +128,18 @@ namespace sce
 			const auto&      displayBuffer = videoOut->getDisplayBuffer(i);
 
 			VltImageCreateInfo imageInfo;
-			imageInfo.type        = VK_IMAGE_TYPE_2D;
-			imageInfo.format      = cvt::convertVideoOutPixelFormat((SceVideoOutPixelFormat)attribute.pixelFormat);
-			imageInfo.flags       = 0;
-			imageInfo.sampleCount = VK_SAMPLE_COUNT_1_BIT;
-			imageInfo.extent      = { attribute.width, attribute.height, 1 };
-			imageInfo.numLayers   = 1;
-			imageInfo.mipLevels   = 1;
-			imageInfo.usage       = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-			imageInfo.stages      = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-			imageInfo.access      = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_SHADER_READ_BIT;
-			imageInfo.tiling      = VK_IMAGE_TILING_LINEAR;  // use linear tiling so that we can use memory alias with a buffer object
-			imageInfo.layout      = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			imageInfo.type          = VK_IMAGE_TYPE_2D;
+			imageInfo.format        = cvt::convertVideoOutPixelFormat((SceVideoOutPixelFormat)attribute.pixelFormat);
+			imageInfo.flags         = 0;
+			imageInfo.sampleCount   = VK_SAMPLE_COUNT_1_BIT;
+			imageInfo.extent        = { attribute.width, attribute.height, 1 };
+			imageInfo.numLayers     = 1;
+			imageInfo.mipLevels     = 1;
+			imageInfo.usage         = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+			imageInfo.stages        = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+			imageInfo.access        = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_SHADER_READ_BIT;
+			imageInfo.tiling        = VK_IMAGE_TILING_OPTIMAL;  // use linear tiling so that we can use memory alias with a buffer object
+			imageInfo.layout        = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
 			VltImageViewCreateInfo viewInfo;
 			viewInfo.type      = VK_IMAGE_VIEW_TYPE_2D;
@@ -193,8 +193,8 @@ namespace sce
 		imageInfo.numLayers   = 1;
 		imageInfo.mipLevels   = 1;
 		imageInfo.usage       = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-		imageInfo.stages      = 0;
-		imageInfo.access      = 0;
+		imageInfo.stages      = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		imageInfo.access      = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 		imageInfo.tiling      = VK_IMAGE_TILING_OPTIMAL;
 		imageInfo.layout      = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 

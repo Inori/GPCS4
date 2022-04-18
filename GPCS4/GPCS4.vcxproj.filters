@@ -1578,6 +1578,9 @@
     <ClCompile Include="Graphics\Violet\VltFramebuffer.cpp">
       <Filter>Source Files\Graphics\Violet</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Violet\VltRenderTarget.cpp">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Emulator\TLSStub.asm">

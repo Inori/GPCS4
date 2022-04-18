@@ -48,10 +48,10 @@ namespace sce::vlt
 
 		/// Pipeline stages that can access
 		/// the contents of the image
-		VkPipelineStageFlags stages;
+		VkPipelineStageFlags2 stages;
 
 		/// Allowed access pattern
-		VkAccessFlags access;
+		VkAccessFlags2 access;
 
 		/// Image tiling mode
 		VkImageTiling tiling;
@@ -262,7 +262,7 @@ namespace sce::vlt
          * \brief Changes image layout
          * \param [in] layout New layout
          */
-		void setLayout(VkImageLayout layout)
+		void updateLayout(VkImageLayout layout)
 		{
 			m_info.layout = layout;
 		}

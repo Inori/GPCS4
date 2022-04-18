@@ -34,13 +34,13 @@ namespace sce::Gnm
 		imgInfo.extent.height = depthTarget->getHeight();
 		imgInfo.extent.depth  = 1;
 		// NOTE: this slice count is only valid if the array view hasn't changed since initialization!
-		imgInfo.numLayers = depthTarget->getLastArraySliceIndex() - depthTarget->getBaseArraySliceIndex() + 1;
-		imgInfo.mipLevels = 1;
-		imgInfo.usage     = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-		imgInfo.stages    = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
-		imgInfo.access    = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-		imgInfo.tiling    = VK_IMAGE_TILING_OPTIMAL;
-		imgInfo.layout    = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL_KHR;
+		imgInfo.numLayers     = depthTarget->getLastArraySliceIndex() - depthTarget->getBaseArraySliceIndex() + 1;
+		imgInfo.mipLevels     = 1;
+		imgInfo.usage         = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+		imgInfo.stages        = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+		imgInfo.access        = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+		imgInfo.tiling        = VK_IMAGE_TILING_OPTIMAL;
+		imgInfo.layout        = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
 
 		VltImageViewCreateInfo viewInfo;
 		viewInfo.type      = VK_IMAGE_VIEW_TYPE_2D;

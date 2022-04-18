@@ -1,4 +1,5 @@
 #include "VltPipeManager.h"
+#include "VltImage.h"
 
 namespace sce::vlt
 {

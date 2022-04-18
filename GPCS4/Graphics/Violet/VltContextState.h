@@ -99,7 +99,7 @@ namespace sce::vlt
 
 	struct VltPushConstantState
 	{
-		char data[MaxPushConstantSize];
+		uint8_t data[MaxPushConstantSize];
 	};
 
 	struct VltXfbState

@@ -361,6 +361,17 @@ namespace sce::vlt
 			const VkImageSubresourceRange& subresources,
 			VkImageLayout                  initialLayout);
     
+		/**
+         * \brief Changes image layout
+         * 
+         * Permanently changes the layout for a given
+         * image. Immediately performs the transition.
+         * \param [in] image The image to transition
+         * \param [in] layout New image layout
+         */
+		void changeImageLayout(
+			const Rc<VltImage>& image,
+			VkImageLayout       layout);
 
 		/**
          * \brief Transforms image subresource layouts

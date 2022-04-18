@@ -10,6 +10,10 @@
 #include <array>
 #include <vector>
 
+namespace sce
+{
+	class SceResource;
+}  // namespace sce
 
 namespace sce::Gnm
 {
@@ -21,6 +25,13 @@ namespace sce::Gnm
 		gcn::GcnShaderMeta meta     = {};
 	};
 
+
+	struct GnmGraphicsState
+	{
+		std::array<GnmShaderContext, kShaderStageCount> shaderContext = {};
+		// Display buffer back render target
+		SceResource* displayRenderTarget = nullptr;
+	};
 
 	// This class is designed for graphics development,
 	// no reverse engineering knowledge should be required.
@@ -164,7 +175,7 @@ namespace sce::Gnm
 		void onPrepareFlip();
 
 	private:
-		std::array<GnmShaderContext, kShaderStageCount> m_shaderCtxs;
+		GnmGraphicsState m_state;
 	};
 
 }  // namespace sce::Gnm

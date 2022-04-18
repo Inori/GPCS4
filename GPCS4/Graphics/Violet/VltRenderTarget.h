@@ -22,6 +22,22 @@ namespace sce::vlt
 	};
 
 	/**
+	 * \brief Rendering attachment format
+	 * 
+	 * Stores all attachments' format used for
+	 * creating pipelines.
+	 */
+	struct VltAttachmentFormat
+	{
+		VkFormat depth                      = VK_FORMAT_UNDEFINED;
+		VkFormat color[MaxNumRenderTargets] = { VK_FORMAT_UNDEFINED };
+
+		bool eq(const VltAttachmentFormat& other) const;
+
+		uint32_t colorCount() const;
+	};
+
+	/**
      * \brief Render targets
      * 
      * Stores all depth-stencil and color
@@ -31,6 +47,8 @@ namespace sce::vlt
 	{
 		VltAttachment depth;
 		VltAttachment color[MaxNumRenderTargets];
+
+		VltAttachmentFormat generateAttachmentFormat() const;
 	};
 
 }  // namespace sce::vlt

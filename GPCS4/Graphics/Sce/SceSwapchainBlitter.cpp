@@ -1,8 +1,9 @@
 #include "SceSwapchainBlitter.h"
-#include "Violet/VltDevice.h"
-#include "Violet/VltContext.h"
-#include "Violet/VltImage.h"
+
 #include "SpirV/SpirvCodeBuffer.h"
+#include "Violet/VltContext.h"
+#include "Violet/VltDevice.h"
+#include "Violet/VltImage.h"
 
 using namespace sce::vlt;
 using namespace sce::gcn;
@@ -28,7 +29,6 @@ namespace sce
 	};
 	// clang-format on
 
-
 	SceSwapchainBlitter::SceSwapchainBlitter(vlt::VltDevice* device) :
 		m_device(device)
 	{
@@ -43,9 +43,9 @@ namespace sce
 	void SceSwapchainBlitter::presentImage(
 		VltContext*             ctx,
 		const Rc<VltImageView>& dstView,
-		VkRect2D                 dstRect,
+		VkRect2D                dstRect,
 		const Rc<VltImageView>& srcView,
-		VkRect2D                 srcRect)
+		VkRect2D                srcRect)
 	{
 		// Fix up default present areas if necessary
 		if (!dstRect.extent.width || !dstRect.extent.height)
@@ -81,16 +81,15 @@ namespace sce
 		{
 			LOG_ASSERT(false, "TOOD: support resolve image.");
 		}
-
 	}
 
 	void SceSwapchainBlitter::draw(
 		VltContext*             ctx,
 		const Rc<VltShader>&    fs,
 		const Rc<VltImageView>& dstView,
-		VkRect2D                 dstRect,
+		VkRect2D                dstRect,
 		const Rc<VltImageView>& srcView,
-		VkRect2D                 srcRect)
+		VkRect2D                srcRect)
 	{
 		VltInputAssemblyState iaState;
 		iaState.primitiveTopology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
@@ -159,14 +158,19 @@ namespace sce
 		ctx->setViewports(1, &viewport);
 		ctx->setScissors(1, &dstRect);
 
-		VltAttachment targetAttachment = 
-		{
+		VltAttachment targetAttachment = {
 			dstView,
 			VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
 		};
 		ctx->bindRenderTarget(0, targetAttachment);
-		ctx->clearRenderTarget(dstView, VK_IMAGE_ASPECT_COLOR_BIT, VkClearValue());
-			
+		ctx->clearRenderTarget(
+			dstView, VK_IMAGE_ASPECT_COLOR_BIT, VkClearValue());
+		ctx->transformImage(
+			dstView->image(),
+			dstView->subresources(),
+			VK_IMAGE_LAYOUT_UNDEFINED,
+			VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+
 		ctx->bindResourceSampler(BindingIds::Image, m_samplerPresent);
 		ctx->bindResourceView(BindingIds::Image, srcView, nullptr);
 
@@ -235,6 +239,5 @@ namespace sce
 			fsResourceSlots.data(),
 			{ 1u, 1u, 0u, sizeof(PresenterArgs) },
 			fsCodeBlit);
-
 	}
 }  // namespace sce

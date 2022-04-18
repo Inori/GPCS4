@@ -169,27 +169,51 @@ namespace sce::vlt
 		}
 	}
 
+	void VltContext::changeImageLayout(
+		const Rc<VltImage>& image,
+		VkImageLayout       layout)
+	{
+		if (image->info().layout != layout)
+		{
+			this->endRendering();
+
+			VkImageSubresourceRange subresources;
+			subresources.aspectMask     = image->formatInfo()->aspectMask;
+			subresources.baseArrayLayer = 0;
+			subresources.baseMipLevel   = 0;
+			subresources.layerCount     = image->info().numLayers;
+			subresources.levelCount     = image->info().mipLevels;
+
+			if (m_execBarriers.isImageDirty(image, subresources, VltAccess::Write))
+				m_execBarriers.recordCommands(m_cmd);
+
+			m_execBarriers.accessImage(image, subresources,
+									   image->info().layout,
+									   image->info().stages,
+									   image->info().access,
+									   layout,
+									   image->info().stages,
+									   image->info().access);
+
+			image->updateLayout(layout);
+		}
+	}
+
 	void VltContext::transformImage(
 		const Rc<VltImage>&            dstImage,
 		const VkImageSubresourceRange& dstSubresources,
 		VkImageLayout                  srcLayout,
 		VkImageLayout                  dstLayout)
 	{
-		if (srcLayout != dstLayout)
-		{
-			m_execBarriers.recordCommands(m_cmd);
-
-			m_execBarriers.accessImage(
-				dstImage, dstSubresources,
-				srcLayout,
-				dstImage->info().stages,
-				dstImage->info().access,
-				dstLayout,
-				dstImage->info().stages,
-				dstImage->info().access);
-
-			m_cmd->trackResource<VltAccess::Write>(dstImage);
-		}
+		this->transformImage(
+			dstImage,
+			dstSubresources,
+			srcLayout,
+			dstImage->info().stages,
+			dstImage->info().access,
+			dstLayout,
+			dstImage->info().stages,
+			dstImage->info().access);
 	}
 
 	void VltContext::transformImage(
@@ -426,7 +450,9 @@ namespace sce::vlt
 						: VltContextFlag::GpDirtyStencilRef);
 
 		// Retrieve and bind actual Vulkan pipeline handle
-		m_gpActivePipeline = m_state.gp.pipeline->getPipelineHandle(m_state.gp.state);
+		m_gpActivePipeline = m_state.gp.pipeline->getPipelineHandle(
+			m_state.gp.state,
+			m_state.cb.renderTargets.generateAttachmentFormat());
 
 		if (unlikely(!m_gpActivePipeline))
 			return false;
@@ -693,6 +719,22 @@ namespace sce::vlt
 		VkImageAspectFlags      clearAspects,
 		VkClearValue            clearValue)
 	{
+		this->updateFramebuffer();
+
+		// TODO:
+		// Support unbound targets
+		if (clearAspects == VK_IMAGE_ASPECT_COLOR_BIT)
+		{
+			auto index = m_state.cb.framebuffer->findColorAttachment(imageView);
+			if (index >= 0)
+			{
+				m_state.cb.framebuffer->setColorClearValue(index, clearValue);
+			}
+		}
+		else
+		{
+			m_state.cb.framebuffer->setDepthClearValue(clearValue);
+		}
 	}
 
 	void VltContext::uploadBuffer(
@@ -852,8 +894,7 @@ namespace sce::vlt
 				}
 				else
 				{
-					//VkClearColorValue value = {};
-					VkClearColorValue value = { .float32 = {0.5, 0.6, 0.7, 0.8} };
+					VkClearColorValue value = {};
 
 					m_cmd->cmdClearColorImage(image->handle(),
 											  clearLayout, &value, 1, &subresources);
@@ -1439,6 +1480,7 @@ namespace sce::vlt
 
 		m_flags.clr(VltContextFlag::GpDirtyFramebuffer);
 	}
+
 
 
 }  // namespace sce::vlt

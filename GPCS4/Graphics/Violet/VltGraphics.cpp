@@ -4,6 +4,7 @@
 #include "VltPipeManager.h"
 #include "VltShader.h"
 
+
 namespace sce::vlt
 {
 
@@ -59,19 +60,20 @@ namespace sce::vlt
 	}
 
 	VkPipeline VltGraphicsPipeline::getPipelineHandle(
-		const VltGraphicsPipelineStateInfo& state)
+		const VltGraphicsPipelineStateInfo& state,
+		const VltAttachmentFormat&          format)
 	{
 		VltGraphicsPipelineInstance* instance = nullptr;
 
 		{
 			std::lock_guard<util::sync::Spinlock> lock(m_mutex);
 
-			instance = this->findInstance(state);
+			instance = this->findInstance(state, format);
 
 			if (instance)
 				return instance->pipeline();
 
-			instance = this->createInstance(state);
+			instance = this->createInstance(state, format);
 		}
 
 		if (!instance)
@@ -81,34 +83,40 @@ namespace sce::vlt
 	}
 
 	void VltGraphicsPipeline::compilePipeline(
-		const VltGraphicsPipelineStateInfo& state)
+		const VltGraphicsPipelineStateInfo& state,
+		const VltAttachmentFormat&          format)
 	{
 		std::lock_guard<util::sync::Spinlock> lock(m_mutex);
 
-		if (!this->findInstance(state))
-			this->createInstance(state);
+		if (!this->findInstance(state, format))
+			this->createInstance(state, format);
 	}
 
 	VltGraphicsPipelineInstance* VltGraphicsPipeline::createInstance(
-		const VltGraphicsPipelineStateInfo& state)
+		const VltGraphicsPipelineStateInfo& state,
+		const VltAttachmentFormat&          format)
 	{
 		// If the pipeline state vector is invalid, don't try
 		// to create a new pipeline, it won't work anyway.
 		if (!this->validatePipelineState(state))
 			return nullptr;
 
-		VkPipeline newPipelineHandle = this->createPipeline(state);
+		VkPipeline newPipelineHandle = this->createPipeline(state, format);
 
 		m_pipeMgr->m_numGraphicsPipelines += 1;
-		return &m_pipelines.emplace_back(state, newPipelineHandle);
+		return &m_pipelines.emplace_back(
+			state,
+			format,
+			newPipelineHandle);
 	}
 
 	VltGraphicsPipelineInstance* VltGraphicsPipeline::findInstance(
-		const VltGraphicsPipelineStateInfo& state)
+		const VltGraphicsPipelineStateInfo& state,
+		const VltAttachmentFormat&          format)
 	{
 		for (auto& instance : m_pipelines)
 		{
-			if (instance.isCompatible(state))
+			if (instance.isCompatible(state, format))
 				return &instance;
 		}
 
@@ -116,7 +124,8 @@ namespace sce::vlt
 	}
 
 	VkPipeline VltGraphicsPipeline::createPipeline(
-		const VltGraphicsPipelineStateInfo& state) const
+		const VltGraphicsPipelineStateInfo& state,
+		const VltAttachmentFormat&          format) const
 	{
 		if (Logger::logLevel() <= LogLevel::Debug)
 		{
@@ -157,18 +166,15 @@ namespace sce::vlt
 		auto gsm  = createShaderModule(m_shaders.gs, state);
 		auto fsm  = createShaderModule(m_shaders.fs, state);
 
+		// clang-format off
 		std::vector<VkPipelineShaderStageCreateInfo> stages;
-		if (vsm)
-			stages.push_back(vsm.stageInfo(nullptr));
-		if (tcsm)
-			stages.push_back(tcsm.stageInfo(nullptr));
-		if (tesm)
-			stages.push_back(tesm.stageInfo(nullptr));
-		if (gsm)
-			stages.push_back(gsm.stageInfo(nullptr));
-		if (fsm)
-			stages.push_back(fsm.stageInfo(nullptr));
-
+		if (vsm)  stages.push_back(vsm.stageInfo(nullptr));
+		if (tcsm) stages.push_back(tcsm.stageInfo(nullptr));
+		if (tesm) stages.push_back(tesm.stageInfo(nullptr));
+		if (gsm)  stages.push_back(gsm.stageInfo(nullptr));
+		if (fsm)  stages.push_back(fsm.stageInfo(nullptr));
+		// clang-format on
+		
 		// Fix up color write masks using the component mappings
 		std::array<VkPipelineColorBlendAttachmentState, MaxNumRenderTargets> cbBlendAttachments;
 
@@ -289,7 +295,7 @@ namespace sce::vlt
 		cbInfo.flags           = 0;
 		cbInfo.logicOpEnable   = state.cb.enableLogicOp();
 		cbInfo.logicOp         = state.cb.logicOp();
-		cbInfo.attachmentCount = VltLimits::MaxNumRenderTargets;
+		cbInfo.attachmentCount = format.colorCount();
 		cbInfo.pAttachments    = cbBlendAttachments.data();
 
 		for (uint32_t i = 0; i < 4; i++)
@@ -302,9 +308,19 @@ namespace sce::vlt
 		dyInfo.dynamicStateCount = dynamicStateCount;
 		dyInfo.pDynamicStates    = dynamicStates.data();
 
+		// Provide information for dynamic rendering
+		VkPipelineRenderingCreateInfo renderingInfo;
+		renderingInfo.sType                   = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO_KHR;
+		renderingInfo.pNext                   = VK_NULL_HANDLE;
+		renderingInfo.viewMask                = 0;
+		renderingInfo.colorAttachmentCount    = format.colorCount();
+		renderingInfo.pColorAttachmentFormats = format.color;
+		renderingInfo.depthAttachmentFormat   = format.depth;
+		renderingInfo.stencilAttachmentFormat = format.depth;
+
 		VkGraphicsPipelineCreateInfo info;
 		info.sType               = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-		info.pNext               = nullptr;
+		info.pNext               = &renderingInfo;
 		info.flags               = 0;
 		info.stageCount          = stages.size();
 		info.pStages             = stages.data();
@@ -370,7 +386,6 @@ namespace sce::vlt
 		}
 		else if (shader->stage() != VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT)
 		{
-			Logger::exception("tessellation shader not supported yet.");
 			auto prevStage = getPrevStageShader(shader->stage());
 			providedInputs = prevStage->interfaceSlots().outputSlots;
 		}

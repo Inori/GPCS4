@@ -151,7 +151,7 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setUserDataRegion(ShaderStage stage, uint32_t startUserDataSlot, const uint32_t* userData, uint32_t numDwords)
 	{
-		std::memcpy(&m_shaderCtxs[stage].userData[startUserDataSlot], userData, numDwords * sizeof(uint32_t));
+		std::memcpy(&m_state.shaderContext[stage].userData[startUserDataSlot], userData, numDwords * sizeof(uint32_t));
 	}
 
 	void GnmCommandBufferDraw::setRenderTarget(uint32_t rtSlot, RenderTarget const* target)
@@ -167,6 +167,9 @@ namespace sce::Gnm
 				LOG_ERR("can not find render target for slot %d", rtSlot);
 				break;
 			}
+
+			// Record display buffer.
+			m_state.displayRenderTarget = resource;
 
 			// update render target
 			SceRenderTarget rtRes = {};
@@ -370,9 +373,11 @@ namespace sce::Gnm
 				VK_IMAGE_LAYOUT_UNDEFINED,
 				VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
 				0,
-				VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL,
+				VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
 				VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
 				VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT);
+
+			image->updateLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 		}
 	}
 
@@ -400,7 +405,7 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setCsShader(const gcn::CsStageRegisters* computeData, uint32_t shaderModifier)
 	{
-		auto& ctx = m_shaderCtxs[kShaderStageCs];
+		auto& ctx = m_state.shaderContext[kShaderStageCs];
 		ctx.code  = reinterpret_cast<uint8_t*>(computeData->getCodeAddress());
 
 		ctx.meta.cs.computeNumThreadX = computeData->computeNumThreadX;
@@ -424,7 +429,7 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::commitComputeStage()
 	{
-		auto& ctx = m_shaderCtxs[kShaderStageCs];
+		auto& ctx = m_state.shaderContext[kShaderStageCs];
 
 		GcnModule gcnModule(
 			GcnProgramType::ComputeShader,
@@ -543,7 +548,20 @@ namespace sce::Gnm
 		// This is the last cmd for a command buffer submission,
 		// we can do some finish works before submit and present.
 
+		if (m_state.displayRenderTarget)
+		{
+			auto& image = m_state.displayRenderTarget->renderTarget().image;
+			// Transform render target to SHADER_READ layout
+			// so that we can copy it to swapchain.
+			// Note that the content must be preserved.
+			m_context->transformImage(
+				image,
+				image->getAvailableSubresources(),
+				VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+				VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
+			image->updateLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		}
 	}
 
 }  // namespace sce::Gnm
