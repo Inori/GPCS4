@@ -40,15 +40,15 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <NMakeBuildCommandLine>nmake VC-static-debug</NMakeBuildCommandLine>
-    <NMakeCleanCommandLine>nmake realclean</NMakeCleanCommandLine>
-    <NMakeReBuildCommandLine>nmake realclean VC-static-debug</NMakeReBuildCommandLine>
+    <NMakeBuildCommandLine>build VC-static-debug</NMakeBuildCommandLine>
+    <NMakeCleanCommandLine>build realclean</NMakeCleanCommandLine>
+    <NMakeReBuildCommandLine>build realclean VC-static-debug</NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <NMakeBuildCommandLine>nmake VC-static</NMakeBuildCommandLine>
-    <NMakeCleanCommandLine>nmake realclean</NMakeCleanCommandLine>
-    <NMakeReBuildCommandLine>nmake realclean VC-static</NMakeReBuildCommandLine>
+    <NMakeBuildCommandLine>build VC-static</NMakeBuildCommandLine>
+    <NMakeCleanCommandLine>build realclean</NMakeCleanCommandLine>
+    <NMakeReBuildCommandLine>build realclean VC-static</NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
   </PropertyGroup>
   <ItemDefinitionGroup>
