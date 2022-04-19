@@ -7,20 +7,20 @@
 
 namespace sce::gcn
 {
-	using VertexInputSemanticTable = std::vector<VertexInputSemantic>;
-
 	class GcnFetchShader
 	{
 	public:
-		GcnFetchShader(
-			const std::vector<uint8_t>& code);
+		GcnFetchShader(const uint8_t* code);
 		~GcnFetchShader();
 
-		VertexInputSemanticTable getVertexInputSemanticTable();
+		const VertexInputSemanticTable&
+			getVertexInputSemanticTable() const
+		{
+			return m_vsInputSemanticTable;
+		}
 
 	private:
-		void parseVsInputSemantic(
-			const std::vector<uint8_t>& code);
+		void parseVsInputSemantic(const uint8_t* code);
 
 	private:
 		VertexInputSemanticTable m_vsInputSemanticTable;

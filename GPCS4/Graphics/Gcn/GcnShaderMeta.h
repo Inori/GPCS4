@@ -1,6 +1,8 @@
 #pragma once
 
 #include "GcnCommon.h"
+#include "GcnShaderBinary.h"
+#include "GcnConstants.h"
 
 namespace sce::gcn
 {
@@ -59,8 +61,18 @@ namespace sce::gcn
 		GcnXfbInfo*  xfb;
 	};
 
+	struct GcnMetaVS
+	{
+		uint32_t            inputSemanticCount;
+		VertexInputSemantic inputSemanticTable[kMaxVertexBufferCount];
+	};
 
-	struct GcnShaderMetaCompute
+	struct GcnMetaPS
+	{
+		uint32_t placeHolder;
+	};
+
+	struct GcnMetaCS
 	{
 		uint32_t computeNumThreadX;
 		uint32_t computeNumThreadY;
@@ -73,13 +85,14 @@ namespace sce::gcn
 	 * Stores some meta information of the compiled
 	 * shader binary file but is ripped while uploading
 	 * to GPU.
-	 * These meta information is provided via StageRegisters
-	 * at runtime.
+	 * These meta information is provided at runtime.
 	 * 
 	 */
 	union GcnShaderMeta
 	{
-		GcnShaderMetaCompute cs;
+		GcnMetaVS vs;
+		GcnMetaPS ps;
+		GcnMetaCS cs;
 	};
 
 }  // namespace sce::gcn

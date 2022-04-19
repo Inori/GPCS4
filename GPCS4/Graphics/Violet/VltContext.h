@@ -217,6 +217,16 @@ namespace sce::vlt
 			uint32_t            attachment,
 			const VltBlendMode& blendMode);
 
+		/**
+		 * \brief Sets write mask for an attachment
+		 *
+		 * \param [in] attachment The attachment index
+		 * \param [in] writeMask The writeMask
+		 */
+		void setBlendMask(
+			uint32_t              attachment,
+			VkColorComponentFlags writeMask);
+
 
 		/**
          * \brief Sets viewports
@@ -238,6 +248,53 @@ namespace sce::vlt
 		void setScissors(
 			uint32_t        scissorCount,
 			const VkRect2D* scissorRects);
+
+		/**
+		 * \brief Sets blend constants
+		 *
+		 * Blend constants are a set of four floating
+		 * point numbers that may be used as an input
+		 * for blending operations.
+		 * \param [in] blendConstants Blend constants
+		 */
+		void setBlendConstants(
+			VltBlendConstants blendConstants);
+
+		/**
+		 * \brief Sets depth bias
+		 *
+		 * Depth bias has to be enabled explicitly in
+		 * the rasterizer state to have any effect.
+		 * \param [in] depthBias Depth bias values
+		 */
+		void setDepthBias(
+			VltDepthBias depthBias);
+
+		/**
+		 * \brief Sets depth bounds enable state
+		 *
+		 * Enables or disables the depth bounds test.
+		 */
+		void setDepthBoundsTestEnable(
+			VkBool32 depthBoundsTestEnable);
+
+		/**
+		 * \brief Sets depth bounds
+		 *
+		 * Updates the depth bounds values.
+		 * \param [in] depthBoundsRange Depth bounds range
+		 */
+		void setDepthBoundsRange(
+			VltDepthBoundsRange depthBoundsRange);
+
+		/**
+		 * \brief Sets stencil reference
+		 *
+		 * Sets the reference value for stencil compare operations.
+		 * \param [in] reference Reference value
+		 */
+		void setStencilReference(
+			uint32_t reference);
 
 		/**
          * \brief Updates push constants
@@ -295,16 +352,37 @@ namespace sce::vlt
 			uint32_t z);
 
 		/**
-         * \brief Clears an active render target
+         * \brief Set color clear value
+		 * 
+		 * Performed at render pass begin
          * 
-         * \param [in] imageView Render target view to clear
-         * \param [in] clearAspects Image aspects to clear
+         * \param [in] slot Slot number
          * \param [in] clearValue The clear value
          */
-		void clearRenderTarget(
-			const Rc<VltImageView>& imageView,
-			VkImageAspectFlags      clearAspects,
-			VkClearValue            clearValue);
+		void setColorClearValue(
+			uint32_t     slot,
+			VkClearValue clearValue);
+
+		/**
+		 * \brief Set depth clear value
+		 *
+		 * Performed at render pass begin
+		 * 
+		 * \param [in] clearValue The clear value
+		 */
+		void setDepthClearValue(
+			VkClearValue clearValue);
+
+
+		/**
+		 * \brief Set stencil clear value
+		 *
+		 * Performed at render pass begin
+		 *
+		 * \param [in] clearValue The clear value
+		 */
+		void setStencilClearValue(
+			VkClearValue clearValue);
 
 
 		/**
@@ -375,7 +453,9 @@ namespace sce::vlt
 
 		/**
          * \brief Transforms image subresource layouts
-         * 
+		 * 
+         * Note the internal image info layout is not changed.
+		 * 
          * \param [in] dstImage Image to transform
          * \param [in] dstSubresources Subresources
          * \param [in] srcLayout Current layout
@@ -389,6 +469,8 @@ namespace sce::vlt
 
 		/**
          * \brief Transforms image subresource layouts
+		 * 
+		 * Note the internal image info layout is not changed.
          */
 		void transformImage(
 			const Rc<VltImage>&            dstImage,
@@ -498,7 +580,7 @@ namespace sce::vlt
 		Rc<VltDescriptorPool> m_descPool;
 
 		VltContextFlags m_flags;
-		VltContextState m_state;
+		VltContextState m_state = {};
 
 		VkPipeline m_gpActivePipeline = VK_NULL_HANDLE;
 		VkPipeline m_cpActivePipeline = VK_NULL_HANDLE;

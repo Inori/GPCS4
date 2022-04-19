@@ -3,8 +3,7 @@
 
 namespace sce::gcn
 {
-	GcnFetchShader::GcnFetchShader(
-		const std::vector<uint8_t>& code)
+	GcnFetchShader::GcnFetchShader(const uint8_t* code)
 	{
 		parseVsInputSemantic(code);
 	}
@@ -13,15 +12,10 @@ namespace sce::gcn
 	{
 	}
 
-	VertexInputSemanticTable GcnFetchShader::getVertexInputSemanticTable()
+	void GcnFetchShader::parseVsInputSemantic(const uint8_t* code)
 	{
-	}
-
-	void GcnFetchShader::parseVsInputSemantic(
-		const std::vector<uint8_t>& code)
-	{
-		const uint32_t* start = reinterpret_cast<const uint32_t*>(code.data());
-		const uint32_t* end   = reinterpret_cast<const uint32_t*>(code.data() + code.size());
+		const uint32_t* start = reinterpret_cast<const uint32_t*>(code);
+		const uint32_t* end   = reinterpret_cast<const uint32_t*>(code + std::numeric_limits<uint32_t>::max());
 
 		GcnCodeSlice     codeSlice(start, end);
 		GcnDecodeContext decoder;
@@ -46,6 +40,11 @@ namespace sce::gcn
 			// We take the reverse way, extract the original input semantics from these instructions.
 
 			const auto& ins = decoder.getInstruction();
+			if (ins.opcode == GcnOpcode::S_SETPC_B64)
+			{
+				break;
+			}
+
 			if (ins.opClass != GcnInstClass::VectorMemBufFmt)
 			{
 				// We only care about the buffer_load_format_xxx instructions

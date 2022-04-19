@@ -8,8 +8,6 @@
 
 namespace sce::gcn
 {
-	using InputUsageSlotTable = std::vector<InputUsageSlot>;
-
 	/**
 	 * \brief Represent a resource bound to a GCN shader
 	 */

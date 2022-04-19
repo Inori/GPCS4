@@ -574,6 +574,11 @@ namespace sce::vlt
 			return VkColorComponentFlags(m_colorWriteMask);
 		}
 
+		void setColorWriteMask(VkColorComponentFlags mask)
+		{
+			m_colorWriteMask = mask;
+		}
+
 		VkPipelineColorBlendAttachmentState state() const
 		{
 			VkPipelineColorBlendAttachmentState result;

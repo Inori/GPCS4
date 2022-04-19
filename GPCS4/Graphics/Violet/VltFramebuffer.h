@@ -95,6 +95,14 @@ namespace sce::vlt
 				&m_depthAttachment : nullptr;
 		}
 
+		/**
+		 * \brief Retrieves stencil rendering attachments
+		 */
+		const VkRenderingAttachmentInfo* stencilAttachment() const
+		{
+			return m_stencilAttachment.imageView != VK_NULL_HANDLE ?
+				&m_stencilAttachment : nullptr;
+		}
 
 		/**
          * \brief Finds attachment index by view
@@ -119,6 +127,11 @@ namespace sce::vlt
 		 * \brief Set depth attachment's clear value.
 		 */
 		void setDepthClearValue(VkClearValue value);
+
+		/**
+		 * \brief Set stencil attachment's clear value.
+		 */
+		void setStencilClearValue(VkClearValue value);
 
 
 
@@ -163,5 +176,6 @@ namespace sce::vlt
 		uint32_t                                                   m_colorAttachmentCount = 0;
 		std::array<VkRenderingAttachmentInfo, MaxNumRenderTargets> m_colorAttachments     = {};
 		VkRenderingAttachmentInfo                                  m_depthAttachment      = {};
+		VkRenderingAttachmentInfo                                  m_stencilAttachment    = {};
 	};
 }  // namespace sce::vlt

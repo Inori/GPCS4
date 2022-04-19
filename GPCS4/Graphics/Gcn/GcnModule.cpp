@@ -63,13 +63,4 @@ namespace sce::gcn
 		}
 	}
 
-	void GcnModule::applyFetchShader(
-		const std::vector<uint8_t>& code)
-	{
-		GcnFetchShader fsShader(code);
-		m_vsInputSemanticTable = fsShader.getVertexInputSemanticTable();
-	}
-
-
-
 }  // namespace sce::gcn

@@ -107,6 +107,8 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setPsShaderUsage(const uint32_t* inputTable, uint32_t numItems)
 	{
+		// TODO:
+		// Parse the input table
 	}
 
 	void GnmCommandBufferDraw::setActiveShaderStages(ActiveShaderStages activeStages)
@@ -115,6 +117,8 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setPsShader(const gcn::PsStageRegisters* psRegs)
 	{
+		auto& ctx = m_state.shaderContext[kShaderStagePs];
+		ctx.code  = psRegs->getCodeAddress();
 	}
 
 	void GnmCommandBufferDraw::updatePsShader(const gcn::PsStageRegisters* psRegs)
@@ -127,6 +131,74 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setEmbeddedVsShader(EmbeddedVsShader shaderId, uint32_t shaderModifier)
 	{
+		LOG_ASSERT(shaderId == kEmbeddedVsShaderFullScreen, "invalid shader id %d", shaderId);
+
+		// const static uint8_t embeddedVsShaderFullScreen[] = {
+		//	0xFF, 0x03, 0xEB, 0xBE, 0x07, 0x00, 0x00, 0x00, 0x81, 0x00, 0x02, 0x36, 0x81, 0x02, 0x02, 0x34,
+		//	0xC2, 0x00, 0x00, 0x36, 0xC1, 0x02, 0x02, 0x4A, 0xC1, 0x00, 0x00, 0x4A, 0x01, 0x0B, 0x02, 0x7E,
+		//	0x00, 0x0B, 0x00, 0x7E, 0x80, 0x02, 0x04, 0x7E, 0xF2, 0x02, 0x06, 0x7E, 0xCF, 0x08, 0x00, 0xF8,
+		//	0x01, 0x00, 0x02, 0x03, 0x0F, 0x02, 0x00, 0xF8, 0x03, 0x03, 0x03, 0x03, 0x00, 0x00, 0x81, 0xBF,
+		//	0x4F, 0x72, 0x62, 0x53, 0x68, 0x64, 0x72, 0x07, 0x47, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		//	0x9F, 0xC2, 0xF8, 0x47, 0xCF, 0xA5, 0x2D, 0x9B, 0x7D, 0x5B, 0x7C, 0xFF, 0x17, 0x00, 0x00, 0x00
+		// };
+
+		// Above is the original Gnm embedded vs shader for kEmbeddedVsShaderFullScreen.
+		// It outputs vertex:
+		// 0  (-1.0, -1.0, 0.0, 1.0)
+		// 1  (1.0, -1.0, 0.0, 1.0)
+		// 2  (-1.0, 1.0, 0.0, 1.0)
+		// And treated it as a rectangle list,
+		// this will only cover the bottom-left triangle
+		// of the screen, since vulkan doesn't
+		// support rect list vertex format, so we
+		// have to use triangle list.
+
+		// Below is our replaced version.
+		// It outputs vertex:
+		// 0  (-1.0, -1.0, 0.0, 1.0)
+		// 1  (-1.0, 3.0, 0.0, 1.0)
+		// 2  (3.0, -1.0, 0.0, 1.0)
+		// We treated it as triangle list,
+		// and this way we cover the whole screen.
+
+		// Note:
+		// The generated vertex data is in clockwise,
+		// thus we must make sure the front face is
+		// VK_FRONT_FACE_CLOCKWISE. And if culling is enabled,
+		// it must be VK_CULL_MODE_BACK_BIT.
+
+		// Source code
+		/*
+		struct VS_OUTPUT
+		{
+			float4 vPosition  :  S_POSITION;
+			float2 vTexcoord  :  TEXCOORD0;
+		};
+
+		VS_OUTPUT main(uint VertexId:S_VERTEX_ID)
+		{
+			VS_OUTPUT Output;
+
+			Output.vTexcoord = float2(
+			float(VertexId & 2),
+			float(VertexId & 1) * 2.0);
+
+			Output.vPosition = float4(-1.0 + 2.0 * Output.vTexcoord, 0.0, 1.0);
+			return Output;
+		}
+		*/
+
+		const static uint8_t embeddedVsShaderFullScreen[] = {
+			0xFF, 0x03, 0xEB, 0xBE, 0x09, 0x00, 0x00, 0x00, 0x81, 0x00, 0x02, 0x36, 0x82, 0x00, 0x00, 0x36,
+			0x00, 0x0D, 0x00, 0x7E, 0x01, 0x0D, 0x04, 0x7E, 0x03, 0x00, 0x82, 0xD2, 0xF4, 0x00, 0xCE, 0x03,
+			0x04, 0x00, 0x82, 0xD2, 0xF6, 0x04, 0xCE, 0x03, 0x80, 0x02, 0x02, 0x7E, 0xF2, 0x02, 0x0A, 0x7E,
+			0xCF, 0x08, 0x00, 0xF8, 0x03, 0x04, 0x01, 0x05, 0xF4, 0x04, 0x04, 0x10, 0x0F, 0x02, 0x00, 0xF8,
+			0x00, 0x02, 0x01, 0x01, 0x00, 0x00, 0x81, 0xBF, 0x02, 0x03, 0x00, 0x00, 0x1C, 0x61, 0x6D, 0x04,
+			0x4F, 0x72, 0x62, 0x53, 0x68, 0x64, 0x72, 0x07, 0x45, 0x48, 0x00, 0x00, 0x02, 0x00, 0x08, 0x05,
+			0x61, 0xDE, 0xE7, 0xD1, 0x00, 0x00, 0x00, 0x00, 0x98, 0xE5, 0xCA, 0xB9
+		};
+
+		m_state.shaderContext[kShaderStageVs].code = reinterpret_cast<const void*>(embeddedVsShaderFullScreen);
 	}
 
 	void GnmCommandBufferDraw::updateVsShader(const gcn::VsStageRegisters* vsRegs, uint32_t shaderModifier)
@@ -169,7 +241,7 @@ namespace sce::Gnm
 			}
 
 			// Record display buffer.
-			m_state.displayRenderTarget = resource;
+			m_state.om.displayRenderTarget = resource;
 
 			// update render target
 			SceRenderTarget rtRes = {};
@@ -248,14 +320,26 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setDepthClearValue(float clearValue)
 	{
+		VkClearValue value;
+		value.depthStencil.depth = clearValue;
+		m_context->setDepthClearValue(value);
 	}
 
 	void GnmCommandBufferDraw::setStencilClearValue(uint8_t clearValue)
 	{
+		VkClearValue value;
+		value.depthStencil.stencil = clearValue;
+		m_context->setStencilClearValue(value);
 	}
 
 	void GnmCommandBufferDraw::setRenderTargetMask(uint32_t mask)
 	{
+		auto writeMasks = cvt::convertRenderTargetMask(mask);
+		for (uint32_t attachment = 0; attachment != writeMasks.size(); ++attachment)
+		{
+			m_context->setBlendMask(
+				attachment, writeMasks[attachment]);
+		}
 	}
 
 	void GnmCommandBufferDraw::setBlendControl(uint32_t rtSlot, BlendControl blendControl)
@@ -264,10 +348,57 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setDepthStencilControl(DepthStencilControl depthControl)
 	{
+		LOG_ASSERT(depthControl.stencilEnable == false, "stencil test not supported yet.");
+
+		VkCompareOp depthCmpOp = cvt::convertCompareFunc(depthControl.getDepthControlZCompareFunction());
+		VkCompareOp stencilFront = cvt::convertCompareFunc(depthControl.getStencilFunction());
+		VkCompareOp stencilBack = cvt::convertCompareFunc(depthControl.getStencilFunctionBack());
+
+		VkStencilOpState frontOp = {};
+		frontOp.compareOp        = stencilFront;
+		VkStencilOpState backOp  = {};
+		backOp.compareOp         = stencilBack;
+
+		VltDepthStencilState ds = {
+			(VkBool32)depthControl.depthEnable,
+			(VkBool32)depthControl.zWrite,
+			(VkBool32)depthControl.stencilEnable,
+			depthCmpOp,
+			frontOp,
+			backOp
+		};
+
+		m_context->setDepthBoundsTestEnable(depthControl.depthBoundsEnable);
+		m_context->setDepthStencilState(ds);
 	}
 
 	void GnmCommandBufferDraw::setDbRenderControl(DbRenderControl reg)
 	{
+		if (reg.getDepthClearEnable() && !reg.getHtileResummarizeEnable())
+		{
+			// In Gnm, when depth clear enable and HTILE compress disable
+			// all writes to the depth buffer will use the depth clear value set by
+			// DrawCommandBuffer::setDepthClearValue() instead of the fragment's depth value.
+			// 
+			// For vulkan, we use depth bound test to emulate this somehow.
+			// We first set the depth clear value to clear depth buffer once render pass begin.
+			// Then force depth bound test failed to leave depth buffer untouched.
+			// This way the depth buffer remains the clear value.
+
+			// TODO:
+			// This approach is not accurate, fix it in the future.
+
+			m_context->setDepthBoundsTestEnable(VK_TRUE);
+
+			VltDepthBoundsRange depthBounds;
+			depthBounds.minDepthBounds    = 1.0;
+			depthBounds.maxDepthBounds    = 0.0;
+			m_context->setDepthBoundsRange(depthBounds);
+		}
+		else
+		{
+			m_context->setDepthBoundsTestEnable(VK_FALSE);
+		}
 	}
 
 	void GnmCommandBufferDraw::setVgtControl(uint8_t primGroupSizeMinusOne)
@@ -276,18 +407,49 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setPrimitiveType(PrimitiveType primType)
 	{
+		VkPrimitiveTopology topology = cvt::convertPrimitiveType(primType);
+		m_state.ia.topology          = topology;
+
+		// TODO:
+		// This is a temporary solution, mainly for embedded vertex shader.
+		// For a primitive type which is not supported by vulkan natively,
+		// we need to find a workaround.
+		if (primType == kPrimitiveTypeRectList)
+		{
+			topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+		}
+
+		LOG_ASSERT(topology != VK_PRIMITIVE_TOPOLOGY_MAX_ENUM, "primType not supported.");
+
+		VltInputAssemblyState ia = {
+			topology,
+			VK_FALSE,
+			0
+		};
+		m_context->setInputAssemblyState(ia);
 	}
 
 	void GnmCommandBufferDraw::setIndexSize(IndexSize indexSize, CachePolicy cachePolicy)
 	{
+		m_state.ia.indexType = cvt::convertIndexSize(indexSize);
 	}
 
 	void GnmCommandBufferDraw::drawIndexAuto(uint32_t indexCount, DrawModifier modifier)
 	{
+		m_state.ia.indexBuffer = generateIndexBuffer(indexCount);
+		// If the index size is currently 32 bits, this command will partially set it to 16 bits
+		m_state.ia.indexType = VK_INDEX_TYPE_UINT16;
+
+		commitGraphicsState();
+
+		m_context->drawIndexed(indexCount, 1, 0, 0, 0);
 	}
 
 	void GnmCommandBufferDraw::drawIndexAuto(uint32_t indexCount)
 	{
+		DrawModifier modifier;
+		modifier.renderTargetSliceOffset = 0;
+		drawIndexAuto(indexCount, modifier);
 	}
 
 	void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void* indexAddr, DrawModifier modifier)
@@ -300,7 +462,7 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::dispatch(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ)
 	{
-		commitComputeStage();
+		commitComputeState();
 
 		m_context->dispatch(threadGroupX, threadGroupY, threadGroupZ);
 	}
@@ -376,8 +538,6 @@ namespace sce::Gnm
 				VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
 				VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
 				VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT);
-
-			image->updateLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 		}
 	}
 
@@ -406,7 +566,7 @@ namespace sce::Gnm
 	void GnmCommandBufferDraw::setCsShader(const gcn::CsStageRegisters* computeData, uint32_t shaderModifier)
 	{
 		auto& ctx = m_state.shaderContext[kShaderStageCs];
-		ctx.code  = reinterpret_cast<uint8_t*>(computeData->getCodeAddress());
+		ctx.code  = computeData->getCodeAddress();
 
 		ctx.meta.cs.computeNumThreadX = computeData->computeNumThreadX;
 		ctx.meta.cs.computeNumThreadY = computeData->computeNumThreadY;
@@ -427,15 +587,111 @@ namespace sce::Gnm
 	{
 	}
 
-	void GnmCommandBufferDraw::commitComputeStage()
+	Rc<VltBuffer> GnmCommandBufferDraw::generateIndexBuffer(uint32_t indexCount)
+	{
+		Rc<VltBuffer> buffer = nullptr;
+
+		// Auto-generated indexes are forced in 16 bits width.
+		std::vector<uint16_t> indexes;
+
+		switch (m_state.ia.topology)
+		{
+		case VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST:
+		{
+			indexes.resize(indexCount);
+			std::generate(indexes.begin(), indexes.end(),
+				[n = 0]() mutable -> uint16_t { return n++; });
+		}
+			break;
+		default:
+			LOG_ASSERT(false, "topology type not supported.");
+			break;
+		}
+
+		VltBufferCreateInfo info = {};
+		info.size                = sizeof(uint16_t) * indexes.size();
+		info.usage               = VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+		info.stages              = VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
+		info.access              = VK_ACCESS_INDEX_READ_BIT;
+
+		buffer = m_device->createBuffer(info, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+		m_context->uploadBuffer(buffer, indexes.data());
+
+		return buffer;
+	}
+
+	void GnmCommandBufferDraw::updateInputLayout(GcnModule& vsModule)
+	{
+		auto& ctx      = m_state.shaderContext[kShaderStageVs];
+		auto& resTable = vsModule.getResourceTable();
+
+		// Find fetch shader
+		VertexInputSemanticTable inputTable;
+		auto fsCode = findFetchShader(resTable, ctx.userData);
+		if (fsCode != nullptr)
+		{
+			GcnFetchShader fs(fsCode);
+			inputTable = fs.getVertexInputSemanticTable();
+		}
+
+		// Update input layout
+		if (!inputTable.empty())
+		{
+
+		}
+		else
+		{
+			m_context->setInputLayout(
+				0, nullptr,
+				0, nullptr);
+		}
+	}
+
+	void GnmCommandBufferDraw::updateVertexShaderStage()
+	{
+		// Update index
+		// All draw calls in Gnm need index buffer.
+		auto indexBuffer = m_state.ia.indexBuffer;
+		m_context->bindIndexBuffer(
+			VltBufferSlice(indexBuffer, 0, indexBuffer->info().size),
+			m_state.ia.indexType);
+
+		// Update vertex input
+		auto& ctx = m_state.shaderContext[kShaderStageVs];
+
+		GcnModule vsModule(
+			GcnProgramType::VertexShader,
+			reinterpret_cast<const uint8_t*>(ctx.code));
+
+		auto& resTable = vsModule.getResourceTable();
+
+		// Update input layout
+		updateInputLayout(vsModule);
+
+
+	}
+
+	void GnmCommandBufferDraw::updatePixelShaderStage()
+	{
+	}
+
+	void GnmCommandBufferDraw::commitGraphicsState()
+	{
+		updateVertexShaderStage();
+
+		updatePixelShaderStage();
+	}
+
+	void GnmCommandBufferDraw::commitComputeState()
 	{
 		auto& ctx = m_state.shaderContext[kShaderStageCs];
 
-		GcnModule gcnModule(
+		GcnModule csModule(
 			GcnProgramType::ComputeShader,
 			reinterpret_cast<const uint8_t*>(ctx.code));
 
-		auto& resTable = gcnModule.getResourceTable();
+		auto& resTable = csModule.getResourceTable();
 
 		// create and bind shader resources
 		bindResource(VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, resTable, ctx.userData);
@@ -443,7 +699,7 @@ namespace sce::Gnm
 		// bind the shader
 		m_context->bindShader(
 			VK_SHADER_STAGE_COMPUTE_BIT,
-			gcnModule.compile(ctx.meta));
+			csModule.compile(ctx.meta));
 	}
 
 	void GnmCommandBufferDraw::bindResource(
@@ -451,7 +707,8 @@ namespace sce::Gnm
 		const GcnShaderResourceTable& table,
 		const UserDataArray&          userData)
 	{
-		uint32_t eudIndex = findEudRegister(table);
+		// Find EUD
+		uint32_t eudIndex = findUsageRegister(table, kShaderInputUsagePtrExtendedUserData);
 		for (const auto& res : table)
 		{
 			switch (res.type)
@@ -505,6 +762,21 @@ namespace sce::Gnm
 		}
 	}
 
+	const uint8_t* GnmCommandBufferDraw::findFetchShader(
+		const gcn::GcnShaderResourceTable& table,
+		const UserDataArray&               userData)
+	{
+		const uint8_t* fsCode = nullptr;
+
+		int32_t fsReg = findUsageRegister(table, kShaderInputUsageSubPtrFetchShader);
+		if (fsReg >= 0)
+		{
+			fsCode = reinterpret_cast<const uint8_t*>(&userData[fsReg]);
+		}
+		return fsCode;
+	}
+
+
 	const uint32_t* GnmCommandBufferDraw::findUserData(
 		const gcn::GcnShaderResource& res,
 		uint32_t                      eudIndex,
@@ -523,24 +795,22 @@ namespace sce::Gnm
 		return registerData;
 	}
 
-	uint32_t GnmCommandBufferDraw::findEudRegister(
-		const GcnShaderResourceTable& table)
+	int32_t GnmCommandBufferDraw::findUsageRegister(
+		const GcnShaderResourceTable& table,
+		uint32_t                      usage)
 	{
-		// try to find EUD
-		uint32_t eudIndex = 0;
-		auto     iter     = std::find_if(table.begin(), table.end(),
-                                 [](const GcnShaderResource& res)
-                                 {
-                                     return res.usage == kShaderInputUsagePtrExtendedUserData;
-                                 });
+		int32_t regIndex = -1;
+		auto    iter     = std::find_if(table.begin(), table.end(),
+										[usage](const GcnShaderResource& res)
+										{
+											return res.usage == usage;
+										});
 		if (iter != table.end())
 		{
-			eudIndex = iter->startRegister;
+			regIndex = static_cast<uint32_t>(iter->startRegister);
 		}
 
-		// it's ok to return 0 when EUD is not found
-		// since we won't use EUD index when it's not appear
-		return eudIndex;
+		return regIndex;
 	}
 
 	void GnmCommandBufferDraw::onPrepareFlip()
@@ -548,9 +818,9 @@ namespace sce::Gnm
 		// This is the last cmd for a command buffer submission,
 		// we can do some finish works before submit and present.
 
-		if (m_state.displayRenderTarget)
+		if (m_state.om.displayRenderTarget)
 		{
-			auto& image = m_state.displayRenderTarget->renderTarget().image;
+			auto& image = m_state.om.displayRenderTarget->renderTarget().image;
 			// Transform render target to SHADER_READ layout
 			// so that we can copy it to swapchain.
 			// Note that the content must be preserved.
@@ -559,9 +829,8 @@ namespace sce::Gnm
 				image->getAvailableSubresources(),
 				VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
 				VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
-			image->updateLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 		}
 	}
+
 
 }  // namespace sce::Gnm

@@ -45,14 +45,6 @@ namespace sce::gcn
 			return m_header.getShaderResourceTable();
 		}
 
-		/**
-		 * \brief Apply fetch shader
-		 * 
-		 * Some shaders need a fetch shader
-		 * to set input semantic
-		 */
-		void applyFetchShader(
-			const std::vector<uint8_t>& code);
 
 		/**
          * \brief Compiles GCN shader to SPIR-V module
@@ -71,7 +63,6 @@ namespace sce::gcn
 	private:
 		GcnProgramInfo           m_programInfo;
 		GcnHeader                m_header;
-		VertexInputSemanticTable m_vsInputSemanticTable;
 		const uint8_t*           m_code;
 		
 		GcnShaderResourceTable m_resourceTable;

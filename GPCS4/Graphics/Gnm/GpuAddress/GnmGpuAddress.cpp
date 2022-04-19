@@ -1192,8 +1192,8 @@ MACRO_TILE:
 			{
 				// Adjust the array mode
 				// Compute the size of a slice
-				uint64_t bytesPerSlice = static_cast<uint64_t>(outPitch) * outHeight * bitsPerElement * tpTemp.m_numFragmentsPerPixel + 7;
-				bytesPerSlice /= 8; // bits to bytes
+				//uint64_t bytesPerSlice = static_cast<uint64_t>(outPitch) * outHeight * bitsPerElement * tpTemp.m_numFragmentsPerPixel + 7;
+				//bytesPerSlice /= 8; // bits to bytes
 				uint32_t interleaveSize = kPipeInterleaveBytes * kBankInterleave;
 				uint32_t bytesPerTile = kNumMicroTilePixels * thickness * nextPowerOfTwo(bitsPerElement) * tpTemp.m_numFragmentsPerPixel + 7;
 				bytesPerTile /= 8; // bits to bytes
@@ -1860,10 +1860,10 @@ int32_t sce::GpuAddress::computeDccInfo(uint64_t *outDccSizeBytes, uint32_t *out
 	uint64_t dccSize = (cbSliceSizeBytes+255) / 256;
 	uint32_t dccAlign = numBanks * numPipes * kPipeInterleaveBytes;
 	SCE_GNM_ASSERT( isPowerOfTwo(dccAlign) );
-	bool subLevelCompressible;
+	//bool subLevelCompressible;
 	if ( 0 == (dccSize & (dccAlign-1)) )
 	{
-		subLevelCompressible = true;
+		//subLevelCompressible = true;
 	}
 	else
 	{
@@ -1873,7 +1873,7 @@ int32_t sce::GpuAddress::computeDccInfo(uint64_t *outDccSizeBytes, uint32_t *out
 			dccFastClearSize = (dccSize + dccSizeAlign-1) & ~(dccSizeAlign-1);
 		}
 		dccSize = (dccSize + dccSizeAlign-1) & ~(dccSizeAlign-1);
-		subLevelCompressible = false;
+		//subLevelCompressible = false;
 	}
 	if (outDccSizeBytes)
 		*outDccSizeBytes = dccSize * cbNumSlices;

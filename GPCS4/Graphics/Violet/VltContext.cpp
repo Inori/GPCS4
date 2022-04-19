@@ -348,9 +348,12 @@ namespace sce::vlt
 		{
 			m_flags.clr(VltContextFlag::GpDirtyDepthBounds);
 
+			m_cmd->cmdSetDepthBoundsTestEnable(
+				m_state.gp.state.ds.enableDepthBoundsTest());
+
 			m_cmd->cmdSetDepthBounds(
-				m_state.dyn.depthBounds.minDepthBounds,
-				m_state.dyn.depthBounds.maxDepthBounds);
+				m_state.dyn.depthBoundsRange.minDepthBounds,
+				m_state.dyn.depthBoundsRange.maxDepthBounds);
 		}
 	}
 
@@ -516,6 +519,48 @@ namespace sce::vlt
 		}
 
 		m_flags.set(VltContextFlag::GpDirtyScissor);
+	}
+
+	
+	void VltContext::setBlendConstants(
+		VltBlendConstants blendConstants)
+	{
+		if (m_state.dyn.blendConstants != blendConstants)
+		{
+			m_state.dyn.blendConstants = blendConstants;
+			m_flags.set(VltContextFlag::GpDirtyBlendConstants);
+		}
+	}
+
+	void VltContext::setDepthBias(
+		VltDepthBias depthBias)
+	{
+		if (m_state.dyn.depthBias != depthBias)
+		{
+			m_state.dyn.depthBias = depthBias;
+			m_flags.set(VltContextFlag::GpDirtyDepthBias);
+		}
+	}
+
+	void VltContext::setDepthBoundsTestEnable(
+		VkBool32 depthBoundsTestEnable)
+	{
+		if (m_state.gp.state.ds.enableDepthBoundsTest() != depthBoundsTestEnable)
+		{
+			m_state.gp.state.ds.setEnableDepthBoundsTest(depthBoundsTestEnable);
+			m_flags.set(VltContextFlag::GpDirtyPipelineState);
+		}
+	}
+
+	void VltContext::setDepthBoundsRange(
+		VltDepthBoundsRange depthBoundsRange)
+	{
+		if (m_state.dyn.depthBoundsRange != depthBoundsRange)
+		{
+			m_state.dyn.depthBoundsRange = depthBoundsRange;
+			m_flags.set(VltContextFlag::GpDirtyDepthBounds);
+		}
+
 	}
 
 	void VltContext::bindResourceBuffer(
@@ -714,27 +759,38 @@ namespace sce::vlt
 		m_flags.set(VltContextFlag::GpDirtyPipelineState);
 	}
 
-	void VltContext::clearRenderTarget(
-		const Rc<VltImageView>& imageView,
-		VkImageAspectFlags      clearAspects,
-		VkClearValue            clearValue)
+	void VltContext::setBlendMask(
+		uint32_t              attachment,
+		VkColorComponentFlags writeMask)
+	{
+		m_state.gp.state.cbBlend[attachment].setColorWriteMask(writeMask);
+
+		m_flags.set(VltContextFlag::GpDirtyPipelineState);
+	}
+
+
+	void VltContext::setColorClearValue(
+		uint32_t     slot,
+		VkClearValue clearValue)
 	{
 		this->updateFramebuffer();
 
-		// TODO:
-		// Support unbound targets
-		if (clearAspects == VK_IMAGE_ASPECT_COLOR_BIT)
-		{
-			auto index = m_state.cb.framebuffer->findColorAttachment(imageView);
-			if (index >= 0)
-			{
-				m_state.cb.framebuffer->setColorClearValue(index, clearValue);
-			}
-		}
-		else
-		{
-			m_state.cb.framebuffer->setDepthClearValue(clearValue);
-		}
+		m_state.cb.framebuffer->setColorClearValue(slot, clearValue);
+	}
+
+	void VltContext::setDepthClearValue(
+		VkClearValue clearValue)
+	{
+		this->updateFramebuffer();
+
+		m_state.cb.framebuffer->setDepthClearValue(clearValue);
+	}
+
+	void VltContext::setStencilClearValue(VkClearValue clearValue)
+	{
+		this->updateFramebuffer();
+
+		m_state.cb.framebuffer->setStencilClearValue(clearValue);
 	}
 
 	void VltContext::uploadBuffer(
@@ -967,7 +1023,7 @@ namespace sce::vlt
 			renderInfo.colorAttachmentCount = framebuffer->numColorAttachments();
 			renderInfo.pColorAttachments    = framebuffer->colorAttachments();
 			renderInfo.pDepthAttachment     = framebuffer->depthAttachment();
-			renderInfo.pStencilAttachment   = framebuffer->depthAttachment();
+			renderInfo.pStencilAttachment   = framebuffer->stencilAttachment();
 
 			m_cmd->cmdBeginRendering(&renderInfo);
 
@@ -1472,15 +1528,20 @@ namespace sce::vlt
 
 	void VltContext::updateFramebuffer()
 	{
-		m_state.cb.framebuffer = m_device->createFramebuffer(
-			m_state.cb.renderTargets);
+		auto& framebuffer = m_state.cb.framebuffer;
 
-		m_state.cb.framebuffer->prepareRenderingLayout(m_execAcquires);
+		if (framebuffer == nullptr ||
+			!framebuffer->matchTargets(m_state.cb.renderTargets))
+		{
+			framebuffer = m_device->createFramebuffer(
+				m_state.cb.renderTargets);
+		}
+
+		framebuffer->prepareRenderingLayout(m_execAcquires);
 		m_execAcquires.recordCommands(m_cmd);
 
 		m_flags.clr(VltContextFlag::GpDirtyFramebuffer);
 	}
-
 
 
 }  // namespace sce::vlt

@@ -2,36 +2,16 @@
 
 #include "GnmCommandBuffer.h"
 #include "GnmCommon.h"
-#include "GnmConstant.h"
-#include "Gcn/GcnConstants.h"
-#include "Gcn/GcnShaderMeta.h"
-#include "Gcn/GcnModule.h"
+#include "GnmRenderState.h"
 
-#include <array>
-#include <vector>
-
-namespace sce
+namespace sce::gcn
 {
-	class SceResource;
-}  // namespace sce
+	class GcnModule;
+}  // namespace sce::gcn
 
 namespace sce::Gnm
 {
-	using UserDataArray = std::array<uint32_t, gcn::kMaxUserDataCount>;
-	struct GnmShaderContext
-	{
-		void*              code     = nullptr;
-		UserDataArray      userData = {};
-		gcn::GcnShaderMeta meta     = {};
-	};
 
-
-	struct GnmGraphicsState
-	{
-		std::array<GnmShaderContext, kShaderStageCount> shaderContext = {};
-		// Display buffer back render target
-		SceResource* displayRenderTarget = nullptr;
-	};
 
 	// This class is designed for graphics development,
 	// no reverse engineering knowledge should be required.
@@ -157,25 +137,41 @@ namespace sce::Gnm
 
 	private:
 
-		uint32_t findEudRegister(
-			const gcn::GcnShaderResourceTable& table);
+		int32_t findUsageRegister(
+			const gcn::GcnShaderResourceTable& table,
+			uint32_t                           usage);
+
+		const uint8_t* findFetchShader(
+			const gcn::GcnShaderResourceTable& table,
+			const UserDataArray&               userData);
 
 		const uint32_t* findUserData(
 			const gcn::GcnShaderResource& res,
 			uint32_t                      eudIndex,
 			const UserDataArray&          userData);
 
+
 		void bindResource(
 			VkPipelineStageFlags               stage,
 			const gcn::GcnShaderResourceTable& table,
 			const UserDataArray&               userData);
 
-		void commitComputeStage();
+		vlt::Rc<vlt::VltBuffer> generateIndexBuffer(
+			uint32_t indexCount);
+
+		void updateInputLayout(gcn::GcnModule& vsModule);
+
+		void updateVertexShaderStage();
+		void updatePixelShaderStage();
+
+		void commitGraphicsState();
+		void commitComputeState();
 
 		void onPrepareFlip();
 
 	private:
 		GnmGraphicsState m_state;
+		GnmContextFlags  m_flags; 
 	};
 
 }  // namespace sce::Gnm

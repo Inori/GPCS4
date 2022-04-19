@@ -2,6 +2,8 @@
 
 #include "GcnCommon.h"
 
+#include <vector>
+
 namespace sce::gcn
 {
 	struct ShaderBinaryInfo
@@ -48,6 +50,8 @@ namespace sce::gcn
 		};
 	};
 
+	using InputUsageSlotTable = std::vector<InputUsageSlot>;
+
 
 	struct VertexInputSemantic
 	{
@@ -56,6 +60,9 @@ namespace sce::gcn
 		uint8_t m_sizeInElements;
 		uint8_t m_reserved;
 	};
+
+	using VertexInputSemanticTable = std::vector<VertexInputSemantic>;
+
 
 
 	struct VertexExportSemantic

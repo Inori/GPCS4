@@ -125,10 +125,10 @@ namespace sce::vlt
 
 	struct VltDynamicState
 	{
-		VltBlendConstants blendConstants   = { 0.0f, 0.0f, 0.0f, 0.0f };
-		VltDepthBias      depthBias        = { 0.0f, 0.0f, 0.0f };
-		VltDepthBounds    depthBounds      = { false, 0.0f, 1.0f };
-		uint32_t          stencilReference = 0;
+		VltBlendConstants   blendConstants   = { 0.0f, 0.0f, 0.0f, 0.0f };
+		VltDepthBias        depthBias        = { 0.0f, 0.0f, 0.0f };
+		VltDepthBoundsRange depthBoundsRange = { 0.0f, 1.0f };
+		uint32_t            stencilReference = 0;
 	};
 
 	struct VltCondRenderState
