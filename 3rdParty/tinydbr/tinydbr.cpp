@@ -220,14 +220,26 @@ void TinyDBR::CommitValueAtomicT(ModuleInfo* module, size_t start_offset)
 	static_assert(std::is_integral_v<T> && sizeof(T) <= sizeof(uint64_t));
 
 	T           value = *reinterpret_cast<T*>(module->instrumented_code_local + start_offset);
-	_Atomic(T)* ptr   = reinterpret_cast<_Atomic(T)*>(module->instrumented_code_remote + start_offset);
+
+#ifdef __clang__
+	_Atomic(T)* ptr = reinterpret_cast<_Atomic(T)*>(module->instrumented_code_remote + start_offset);
+#else
+	T* ptr = reinterpret_cast<_Atomic(T)*>(module->instrumented_code_remote + start_offset);
+#endif
+	
 
 	if ((uintptr_t)ptr % sizeof(T) != 0)
 	{
 		FATAL("pointer not aligned.");
 	}
 
-	atomic_store_explicit(ptr, value, std::memory_order_relaxed);
+#ifdef __clang__
+	__c11_atomic_store(ptr, value, std::memory_order_relaxed);
+#else
+	// x86 machine aligned memory store should be atomic natively.
+	*ptr = value;
+#endif
+	
 }
 
 void TinyDBR::CommitValueAtomic(ModuleInfo* module, size_t start_offset, size_t size)
