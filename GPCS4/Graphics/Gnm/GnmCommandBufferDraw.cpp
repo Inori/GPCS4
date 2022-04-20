@@ -966,7 +966,10 @@ namespace sce::Gnm
 		GpuAddress::computeSurfaceInfo(&surfaceInfo, &params);
 
 		// TODO:
-		// Support multiple miplevels and layers
+		// Support multiple miplevels and layers initialize.
+		// reference:
+		// https://github.com/doitsujin/dxvk/blob/v1.4.6/src/d3d11/d3d11_initializer.cpp#L117
+
 		VkImageSubresourceLayers subresourceLayers;
 		subresourceLayers.aspectMask     = image->formatInfo()->aspectMask;
 		subresourceLayers.mipLevel       = 0;
