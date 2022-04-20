@@ -930,8 +930,17 @@ namespace sce::Gnm
 		m_context->uploadBuffer(buffer.buffer,
 								buffer.gnmBuffer.getBaseAddress());
 
-		uint32_t slot = computeConstantBufferBinding(
-			gcnProgramTypeFromVkStage(stage), startRegister);
+		uint32_t slot = 0;
+		if (usage == VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
+		{
+			slot = computeConstantBufferBinding(
+				gcnProgramTypeFromVkStage(stage), startRegister);
+		}
+		else
+		{
+			slot = computeResourceBinding(
+				gcnProgramTypeFromVkStage(stage), startRegister);
+		}
 
 		m_context->bindResourceBuffer(slot, VltBufferSlice(buffer.buffer));
 	}
@@ -1060,7 +1069,16 @@ namespace sce::Gnm
 				break;
 			case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
 			{
-				LOG_ASSERT(false, "TODO: support storage image.");
+				const Texture* tsharp = reinterpret_cast<const Texture*>(findUserData(res, eudIndex, userData));
+
+				bindResourceImage(
+					tsharp,
+					res.startRegister,
+					VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+					stage,
+					VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT,
+					VK_IMAGE_TILING_OPTIMAL,
+					VK_IMAGE_LAYOUT_GENERAL);
 			}
 				break;
 			case VK_DESCRIPTOR_TYPE_SAMPLER:
