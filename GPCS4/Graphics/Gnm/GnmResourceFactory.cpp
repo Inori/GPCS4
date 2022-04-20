@@ -7,6 +7,7 @@
 #include "Violet/VltDevice.h"
 #include "Violet/VltBuffer.h"
 #include "Violet/VltImage.h"
+#include "Violet/VltSampler.h"
 
 using namespace sce::vlt;
 
@@ -68,15 +69,103 @@ namespace sce::Gnm
 	}
 
 	bool GnmResourceFactory::createBuffer(
-		const vlt::VltBufferCreateInfo& createinfo,
-		VkMemoryPropertyFlags           memoryType,
-		const Buffer*                   buffer,
-		SceBuffer&                      sceBuffer)
+		const GnmBufferCreateInfo& createInfo,
+		SceBuffer&                 sceBuffer)
 	{
-		sceBuffer.buffer     = m_device->createBuffer(createinfo, memoryType);
-		sceBuffer.bufferView = nullptr;
-		sceBuffer.gnmBuffer  = *buffer;
+		auto                vsharp = createInfo.vsharp;
+		VltBufferCreateInfo info   = {};
+		info.size                  = vsharp->getSize();
+		info.usage                 = createInfo.usage;
+		info.stages                = createInfo.stage;
+		info.access                = createInfo.access;
+
+		sceBuffer.buffer           = m_device->createBuffer(info, createInfo.memoryType);
+		sceBuffer.bufferView       = nullptr;
+		sceBuffer.gnmBuffer        = *vsharp;
 		return true;
+	}
+
+	bool GnmResourceFactory::createImage(
+		const GnmImageCreateInfo& createInfo,
+		SceTexture&               sceTexture)
+	{
+		auto        tsharp = createInfo.tsharp;
+		TextureType textureType   = tsharp->getTextureType();
+
+		VkImageCreateFlags flags;
+		// clang-format off
+		switch (textureType)
+		{
+		case kTextureType2dArray: flags = VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT; break;
+		case kTextureTypeCubemap: flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT; break;
+		default: flags = 0; break;
+		}
+		// clang-format on
+
+		uint32_t mipLevelCount = tsharp->getLastMipLevel() - tsharp->getBaseMipLevel() + 1;
+
+		VltImageCreateInfo imageInfo;
+		imageInfo.type        = cvt::convertTextureType(textureType);
+		imageInfo.format      = cvt::convertDataFormat(tsharp->getDataFormat());
+		imageInfo.flags       = flags;
+		imageInfo.sampleCount = cvt::convertNumFragments(tsharp->getNumFragments());
+		imageInfo.extent      = { tsharp->getWidth(), tsharp->getHeight(), tsharp->getDepth() };
+		imageInfo.numLayers   = tsharp->getTotalArraySliceCount();
+		imageInfo.mipLevels   = mipLevelCount;
+		imageInfo.usage       = createInfo.usage;
+		imageInfo.stages      = createInfo.stage;
+		imageInfo.access      = createInfo.access;
+		imageInfo.tiling      = createInfo.tiling;
+		imageInfo.layout      = createInfo.layout;
+
+		VltImageViewCreateInfo viewInfo;
+		viewInfo.type      = cvt::convertTextureTypeView(textureType);
+		viewInfo.format    = imageInfo.format;
+		viewInfo.usage     = imageInfo.usage;
+		viewInfo.aspect    = VK_IMAGE_ASPECT_COLOR_BIT;
+		viewInfo.minLevel  = tsharp->getBaseMipLevel();
+		viewInfo.numLevels = mipLevelCount;
+		viewInfo.minLayer  = tsharp->getBaseArraySliceIndex();
+		viewInfo.numLayers = tsharp->getTotalArraySliceCount();
+
+		sceTexture.image     = m_device->createImage(imageInfo, createInfo.memoryType);
+		sceTexture.imageView = m_device->createImageView(sceTexture.image, viewInfo);
+		sceTexture.texture   = *tsharp;
+
+		return true;
+	}
+
+	bool GnmResourceFactory::createSampler(
+		const Sampler* ssharp,
+		SceSampler&    sampler)
+	{
+		DepthCompare depthComp = ssharp->getDepthCompareFunction();
+
+		static const std::array<VkClearColorValue, 3> s_borderColors = { {
+			{ { 0.0f, 0.0f, 0.0f, 0.0f } },
+			{ { 0.0f, 0.0f, 0.0f, 1.0f } },
+			{ { 1.0f, 1.0f, 1.0f, 1.0f } },
+		} };
+
+		VltSamplerCreateInfo samplerInfo;
+		samplerInfo.magFilter      = cvt::convertFilterMode(ssharp->getMagFilterMode());
+		samplerInfo.minFilter      = cvt::convertFilterMode(ssharp->getMinFilterMode());
+		samplerInfo.mipmapMode     = cvt::convertMipFilterMode(ssharp->getMipFilterMode());
+		samplerInfo.mipmapLodBias  = (float)ssharp->getLodBias();
+		samplerInfo.mipmapLodMin   = (float)ssharp->getMinLod();
+		samplerInfo.mipmapLodMax   = (float)ssharp->getMaxLod();
+		samplerInfo.useAnisotropy  = ssharp->getAnisotropyRatio() != kAnisotropyRatio1;
+		samplerInfo.maxAnisotropy  = (float)ssharp->getAnisotropyThreshold();
+		samplerInfo.addressModeU   = cvt::convertWrapMode(ssharp->getWrapModeX());
+		samplerInfo.addressModeV   = cvt::convertWrapMode(ssharp->getWrapModeY());
+		samplerInfo.addressModeW   = cvt::convertWrapMode(ssharp->getWrapModeZ());
+		samplerInfo.compareToDepth = depthComp != kDepthCompareNever;
+		samplerInfo.compareOp      = cvt::convertDepthCompare(depthComp);
+		samplerInfo.borderColor    = s_borderColors[ssharp->getBorderColor()];
+		samplerInfo.usePixelCoord  = ssharp->getForceUnnormalized();
+
+		sampler.sampler = m_device->createSampler(samplerInfo);
+		sampler.ssharp  = *ssharp;
 	}
 
 }  // namespace sce::Gnm

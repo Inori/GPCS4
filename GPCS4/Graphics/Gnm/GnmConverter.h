@@ -34,4 +34,20 @@ namespace sce::Gnm::cvt
 
 	VkIndexType convertIndexSize(IndexSize indexSize);
 
+	VkPolygonMode convertPolygonMode(PrimitiveSetupPolygonMode polyMode);
+
+	VkCullModeFlags convertCullMode(PrimitiveSetupCullFaceMode cullMode);
+
+	VkImageType convertTextureType(TextureType textureType);
+
+	VkImageViewType convertTextureTypeView(TextureType textureType);
+
+	VkFilter convertFilterMode(FilterMode mode);
+
+	VkSamplerMipmapMode convertMipFilterMode(MipFilterMode mode);
+
+	VkSamplerAddressMode convertWrapMode(WrapMode mode);
+
+	VkCompareOp convertDepthCompare(DepthCompare compare);
+
 }  // namespace sce::Gnm

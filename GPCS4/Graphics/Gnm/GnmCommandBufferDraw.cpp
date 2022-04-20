@@ -54,6 +54,22 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setPrimitiveSetup(PrimitiveSetup reg)
 	{
+		VkFrontFace     frontFace = reg.getFrontFace() == kPrimitiveSetupFrontFaceCcw ? 
+			VK_FRONT_FACE_COUNTER_CLOCKWISE : VK_FRONT_FACE_CLOCKWISE;
+		VkPolygonMode   polyMode  = cvt::convertPolygonMode(reg.getPolygonModeFront());
+		VkCullModeFlags cullMode  = cvt::convertCullMode(reg.getCullFace());
+
+		VltRasterizerState rs = {
+			polyMode,
+			cullMode,
+			frontFace,
+			VK_FALSE,
+			VK_FALSE,
+			VK_SAMPLE_COUNT_1_BIT,
+			VK_CONSERVATIVE_RASTERIZATION_MODE_DISABLED_EXT
+		};
+
+		m_context->setRasterizerState(rs);
 	}
 
 	void GnmCommandBufferDraw::setScreenScissor(int32_t left, int32_t top, int32_t right, int32_t bottom)
@@ -108,10 +124,12 @@ namespace sce::Gnm
 	{
 		// TODO:
 		// Parse the input table
+		m_state.shaderContext[kShaderStagePs].meta.ps.inputSemanticCount = numItems;
 	}
 
 	void GnmCommandBufferDraw::setActiveShaderStages(ActiveShaderStages activeStages)
 	{
+		// TODO:
 	}
 
 	void GnmCommandBufferDraw::setPsShader(const gcn::PsStageRegisters* psRegs)
@@ -126,6 +144,8 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setVsShader(const gcn::VsStageRegisters* vsRegs, uint32_t shaderModifier)
 	{
+		auto& ctx = m_state.shaderContext[kShaderStageVs];
+		ctx.code  = vsRegs->getCodeAddress();
 	}
 
 	void GnmCommandBufferDraw::setEmbeddedVsShader(EmbeddedVsShader shaderId, uint32_t shaderModifier)
@@ -206,18 +226,22 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setVsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Buffer* buffer)
 	{
+		std::memcpy(&m_state.shaderContext[stage].userData[startUserDataSlot], buffer, sizeof(Buffer));
 	}
 
 	void GnmCommandBufferDraw::setTsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Texture* tex)
 	{
+		std::memcpy(&m_state.shaderContext[stage].userData[startUserDataSlot], tex, sizeof(Texture));
 	}
 
 	void GnmCommandBufferDraw::setSsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Sampler* sampler)
 	{
+		std::memcpy(&m_state.shaderContext[stage].userData[startUserDataSlot], sampler, sizeof(Sampler));
 	}
 
 	void GnmCommandBufferDraw::setPointerInUserData(ShaderStage stage, uint32_t startUserDataSlot, void* gpuAddr)
 	{
+		std::memcpy(&m_state.shaderContext[stage].userData[startUserDataSlot], gpuAddr, sizeof(void*));
 	}
 
 	void GnmCommandBufferDraw::setUserDataRegion(ShaderStage stage, uint32_t startUserDataSlot, const uint32_t* userData, uint32_t numDwords)
@@ -343,6 +367,35 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setBlendControl(uint32_t rtSlot, BlendControl blendControl)
 	{
+		VkBlendFactor colorSrcFactor = cvt::convertBlendMultiplier(blendControl.getColorEquationSourceMultiplier());
+		VkBlendFactor colorDstFactor = cvt::convertBlendMultiplier(blendControl.getColorEquationDestinationMultiplier());
+		VkBlendOp     colorBlendOp   = cvt::convertBlendFunc(blendControl.getColorEquationBlendFunction());
+
+		VkBlendFactor alphaSrcFactor = cvt::convertBlendMultiplier(blendControl.getAlphaEquationSourceMultiplier());
+		VkBlendFactor alphaDstFactor = cvt::convertBlendMultiplier(blendControl.getAlphaEquationDestinationMultiplier());
+		VkBlendOp     alphaBlendOp   = cvt::convertBlendFunc(blendControl.getAlphaEquationBlendFunction());
+
+		VkColorComponentFlags fullMask = 
+			VK_COLOR_COMPONENT_R_BIT | 
+			VK_COLOR_COMPONENT_G_BIT | 
+			VK_COLOR_COMPONENT_B_BIT | 
+			VK_COLOR_COMPONENT_A_BIT;  
+
+		// Here we set color write mask to fullMask.
+		// The real mask value should be set through setRenderTargetMask call.
+
+		VltBlendMode blend = {
+			(VkBool32)blendControl.getBlendEnable(),
+			colorSrcFactor,
+			colorDstFactor,
+			colorBlendOp,
+			alphaSrcFactor,
+			alphaDstFactor,
+			alphaBlendOp,
+			fullMask
+		};
+
+		m_context->setBlendMode(rtSlot, blend);
 	}
 
 	void GnmCommandBufferDraw::setDepthStencilControl(DepthStencilControl depthControl)
@@ -407,8 +460,7 @@ namespace sce::Gnm
 	void GnmCommandBufferDraw::setPrimitiveType(PrimitiveType primType)
 	{
 		VkPrimitiveTopology topology = cvt::convertPrimitiveType(primType);
-		m_state.ia.topology          = topology;
-
+		
 		// TODO:
 		// This is a temporary solution, mainly for embedded vertex shader.
 		// For a primitive type which is not supported by vulkan natively,
@@ -419,6 +471,7 @@ namespace sce::Gnm
 		}
 
 		LOG_ASSERT(topology != VK_PRIMITIVE_TOPOLOGY_MAX_ENUM, "primType not supported.");
+		m_state.ia.topology = topology;
 
 		VltInputAssemblyState ia = {
 			topology,
@@ -663,20 +716,22 @@ namespace sce::Gnm
 		const Buffer* vsharp, uint32_t binding)
 	{
 		SceBuffer buffer;
-		uint32_t            stride = vsharp->getStride();
-		VltBufferCreateInfo info;
-		info.size   = stride * vsharp->getNumElements();
-		info.usage  = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-		info.stages = VK_PIPELINE_STAGE_VERTEX_INPUT_BIT | VK_PIPELINE_STAGE_TRANSFER_BIT;
-		info.access = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
-		m_factory.createBuffer(info, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vsharp, buffer);
+
+		GnmBufferCreateInfo info;
+		info.vsharp     = vsharp;
+		info.usage      = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+		info.stage      = VK_PIPELINE_STAGE_VERTEX_INPUT_BIT | VK_PIPELINE_STAGE_TRANSFER_BIT;
+		info.access     = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
+		info.memoryType = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+
+		m_factory.createBuffer(info, buffer);
 		m_tracker->track(buffer);
 
 		m_context->uploadBuffer(buffer.buffer, vsharp->getBaseAddress());
 		m_context->bindVertexBuffer(
 			binding,
 			VltBufferSlice(buffer.buffer, 0, buffer.buffer->info().size),
-			stride);
+			vsharp->getStride());
 	}
 
 	void GnmCommandBufferDraw::updateVertexBinding(GcnModule& vsModule)
@@ -736,6 +791,9 @@ namespace sce::Gnm
 				bindings[i].binding   = sema.m_semantic;
 				bindings[i].fetchRate = 0;
 				bindings[i].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+				// Fix element count
+				sema.m_sizeInElements = vsharp->getDataFormat().getNumComponents();
 			}
 
 			m_context->setInputLayout(
@@ -758,6 +816,13 @@ namespace sce::Gnm
 					break;
 				}
 			}
+
+			// Record shader meta info
+			ctx.meta.vs.inputSemanticCount = semanticCount;
+			std::memcpy(
+				ctx.meta.vs.inputSemanticTable,
+				semaTable.data(),
+				sizeof(VertexInputSemantic) * semanticCount);
 		}
 		else
 		{
@@ -786,14 +851,35 @@ namespace sce::Gnm
 
 		auto& resTable = vsModule.getResourceTable();
 
-		// Update input layout
+		// Update input layout and bind vertex buffer
 		updateVertexBinding(vsModule);
 
+		// create and bind shader resources
+		bindResource(VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, resTable, ctx.userData);
 
+		// bind the shader
+		m_context->bindShader(
+			VK_SHADER_STAGE_VERTEX_BIT,
+			vsModule.compile(ctx.meta));
 	}
 
 	void GnmCommandBufferDraw::updatePixelShaderStage()
 	{
+		auto& ctx = m_state.shaderContext[kShaderStagePs];
+
+		GcnModule psModule(
+			GcnProgramType::PixelShader,
+			reinterpret_cast<const uint8_t*>(ctx.code));
+
+		auto& resTable = psModule.getResourceTable();
+
+		// create and bind shader resources
+		bindResource(VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, resTable, ctx.userData);
+
+		// bind the shader
+		m_context->bindShader(
+			VK_SHADER_STAGE_COMPUTE_BIT,
+			psModule.compile(ctx.meta));
 	}
 
 	void GnmCommandBufferDraw::commitGraphicsState()
@@ -822,6 +908,104 @@ namespace sce::Gnm
 			csModule.compile(ctx.meta));
 	}
 
+	void GnmCommandBufferDraw::bindResourceBuffer(
+		const Buffer*         vsharp,
+		uint32_t              startRegister,
+		VkBufferUsageFlags    usage,
+		VkPipelineStageFlags2 stage,
+		VkAccessFlagBits2     access)
+	{
+		SceBuffer buffer;
+
+		GnmBufferCreateInfo info;
+		info.vsharp = vsharp;
+		info.usage  = usage;
+		info.stage  = stage;
+		info.access = access;
+		info.memoryType = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+		
+		m_factory.createBuffer(info, buffer);
+		m_tracker->track(buffer);
+
+		m_context->uploadBuffer(buffer.buffer,
+								buffer.gnmBuffer.getBaseAddress());
+
+		uint32_t slot = computeConstantBufferBinding(
+			gcnProgramTypeFromVkStage(stage), startRegister);
+
+		m_context->bindResourceBuffer(slot, VltBufferSlice(buffer.buffer));
+	}
+
+	void GnmCommandBufferDraw::bindResourceImage(
+		const Texture*        tsharp,
+		uint32_t              startRegister,
+		VkImageUsageFlags     usage,
+		VkPipelineStageFlags2 stage,
+		VkAccessFlagBits2     access,
+		VkImageTiling         tiling,
+		VkImageLayout         layout)
+	{
+		SceTexture texture;
+
+		GnmImageCreateInfo info;
+		info.tsharp = tsharp;
+		info.usage  = usage;
+		info.stage  = stage;
+		info.access = access;
+		info.tiling = tiling;
+		info.layout = layout;
+
+		m_factory.createImage(info, texture);
+		m_tracker->track(texture);
+
+		auto& image = texture.image;
+
+		GpuAddress::TilingParameters params;
+		params.initFromTexture(tsharp, 0, 0);
+		GpuAddress::SurfaceInfo surfaceInfo;
+		GpuAddress::computeSurfaceInfo(&surfaceInfo, &params);
+
+		// TODO:
+		// Support multiple miplevels and layers
+		VkImageSubresourceLayers subresourceLayers;
+		subresourceLayers.aspectMask     = image->formatInfo()->aspectMask;
+		subresourceLayers.mipLevel       = 0;
+		subresourceLayers.baseArrayLayer = 0;
+		subresourceLayers.layerCount     = 1;
+
+		m_context->transformImage(
+			image,
+			image->getAvailableSubresources(),
+			VK_IMAGE_LAYOUT_UNDEFINED,
+			image->info().layout);
+
+		m_context->uploadImage(
+			image,
+			subresourceLayers,
+			tsharp->getBaseAddress(),
+			tsharp->getPitch(),
+			surfaceInfo.m_surfaceSize);
+
+		uint32_t slot = computeResourceBinding(
+			gcnProgramTypeFromVkStage(stage), startRegister);
+
+		m_context->bindResourceView(slot, texture.imageView, nullptr);
+	}
+
+	void GnmCommandBufferDraw::bindResourceSampler(
+		const Sampler*        ssharp,
+		uint32_t              startRegister,
+		VkPipelineStageFlags2 stage)
+	{
+		SceSampler sampler;
+		m_factory.createSampler(ssharp, sampler);
+
+		uint32_t slot = computeSamplerBinding(
+			gcnProgramTypeFromVkStage(stage), startRegister);
+
+		m_context->bindResourceSampler(slot, sampler.sampler);
+	}
+
 	void GnmCommandBufferDraw::bindResource(
 		VkPipelineStageFlags          stage,
 		const GcnShaderResourceTable& table,
@@ -837,42 +1021,53 @@ namespace sce::Gnm
 			{
 				const Buffer* vsharp = reinterpret_cast<const Buffer*>(findUserData(res, eudIndex, userData));
 
-				SceBuffer           buffer;
-				VltBufferCreateInfo info = {};
-				info.size                = vsharp->getSize();
-				info.usage               = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-				info.stages              = stage;
-				info.access              = VK_ACCESS_UNIFORM_READ_BIT;
-				m_factory.createBuffer(info, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vsharp, buffer);
-				m_tracker->track(buffer);
-
-				m_context->uploadBuffer(buffer.buffer,
-										buffer.gnmBuffer.getBaseAddress());
-
-				uint32_t slot = computeConstantBufferBinding(
-					GcnProgramType::ComputeShader, res.startRegister);
-				m_context->bindResourceBuffer(slot, VltBufferSlice(buffer.buffer));
+				bindResourceBuffer(
+					vsharp,
+					res.startRegister,
+					VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+					stage,
+					VK_ACCESS_UNIFORM_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT);
 			}
 				break;
 			case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
 			{
 				const Buffer* vsharp = reinterpret_cast<const Buffer*>(findUserData(res, eudIndex, userData));
 
-				SceBuffer           buffer;
-				VltBufferCreateInfo info = {};
-				info.size                = vsharp->getSize();
-				info.usage               = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-				info.stages              = stage;
-				info.access              = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
-				m_factory.createBuffer(info, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vsharp, buffer);
-				m_tracker->track(buffer);
+				bindResourceBuffer(
+					vsharp,
+					res.startRegister,
+					VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+					stage,
+					VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT);
+			}
+				break;
+			case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+			{
+				const Texture* tsharp = reinterpret_cast<const Texture*>(findUserData(res, eudIndex, userData));
 
-				m_context->uploadBuffer(buffer.buffer,
-										buffer.gnmBuffer.getBaseAddress());
+				bindResourceImage(
+					tsharp,
+					res.startRegister,
+					VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+					stage,
+					VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT,
+					VK_IMAGE_TILING_OPTIMAL,
+					VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+			}
+				break;
+			case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+			{
+				LOG_ASSERT(false, "TODO: support storage image.");
+			}
+				break;
+			case VK_DESCRIPTOR_TYPE_SAMPLER:
+			{
+				const Sampler* ssharp = reinterpret_cast<const Sampler*>(findUserData(res, eudIndex, userData));
 
-				uint32_t slot = computeResourceBinding(
-					GcnProgramType::ComputeShader, res.startRegister);
-				m_context->bindResourceBuffer(slot, VltBufferSlice(buffer.buffer));
+				bindResourceSampler(
+					ssharp,
+					res.startRegister,
+					stage);
 			}
 				break;
 			default:

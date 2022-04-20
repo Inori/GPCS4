@@ -234,4 +234,177 @@ namespace sce::Gnm::cvt
 		return indexType;
 	}
 
+	VkPolygonMode convertPolygonMode(PrimitiveSetupPolygonMode polyMode)
+	{
+		// clang-format off
+
+		VkPolygonMode mode;
+		switch (polyMode)
+		{
+		case kPrimitiveSetupPolygonModePoint:	mode = VK_POLYGON_MODE_POINT; break;
+		case kPrimitiveSetupPolygonModeLine:	mode = VK_POLYGON_MODE_LINE; break;
+		case kPrimitiveSetupPolygonModeFill:	mode = VK_POLYGON_MODE_FILL; break;
+		}
+
+		// clang-format on
+		return mode;
+	}
+
+	VkCullModeFlags convertCullMode(PrimitiveSetupCullFaceMode cullMode)
+	{
+		// clang-format off
+
+		VkCullModeFlags mode;
+		switch (cullMode)
+		{
+		case kPrimitiveSetupCullFaceNone:  mode = VK_CULL_MODE_NONE; break;
+		case kPrimitiveSetupCullFaceFront: mode = VK_CULL_MODE_FRONT_BIT; break;
+		case kPrimitiveSetupCullFaceBack:  mode = VK_CULL_MODE_BACK_BIT; break;
+		case kPrimitiveSetupCullFaceFrontAndBack: mode = VK_CULL_MODE_FRONT_AND_BACK; break;
+		}
+
+		// clang-format on
+		return mode;
+	}
+
+	VkImageType convertTextureType(TextureType textureType)
+	{
+		VkImageType type = VK_IMAGE_TYPE_MAX_ENUM;
+
+		// clang-format off
+
+		switch (textureType)
+		{
+		case Gnm::kTextureType1d: type = VK_IMAGE_TYPE_1D; break;
+		case Gnm::kTextureType2d: type = VK_IMAGE_TYPE_2D; break;
+		case Gnm::kTextureType3d: type = VK_IMAGE_TYPE_3D; break;
+		case Gnm::kTextureTypeCubemap:
+		case Gnm::kTextureType1dArray:
+		case Gnm::kTextureType2dArray:
+		case Gnm::kTextureType2dMsaa:
+		case Gnm::kTextureType2dArrayMsaa:
+		default:
+			LOG_ASSERT(false, "texture type not supported.");
+			break;
+		}
+
+		// clang-format on
+
+		return type;
+	}
+
+	VkImageViewType convertTextureTypeView(TextureType textureType)
+	{
+		VkImageViewType type = VK_IMAGE_VIEW_TYPE_MAX_ENUM;
+
+		// clang-format off
+
+		switch (textureType)
+		{
+		case Gnm::kTextureType1d: type = VK_IMAGE_VIEW_TYPE_1D; break;
+		case Gnm::kTextureType2d: type = VK_IMAGE_VIEW_TYPE_2D; break;
+		case Gnm::kTextureType3d: type = VK_IMAGE_VIEW_TYPE_3D; break;
+		case Gnm::kTextureTypeCubemap: type = VK_IMAGE_VIEW_TYPE_CUBE; break;
+		case Gnm::kTextureType1dArray: type = VK_IMAGE_VIEW_TYPE_1D_ARRAY; break;
+		case Gnm::kTextureType2dArray: type = VK_IMAGE_VIEW_TYPE_2D_ARRAY; break;
+		case Gnm::kTextureType2dMsaa:  type = VK_IMAGE_VIEW_TYPE_2D; break;
+		case Gnm::kTextureType2dArrayMsaa: type = VK_IMAGE_VIEW_TYPE_2D_ARRAY; break;
+		default:
+			LOG_ASSERT(false, "texture type not supported.");
+			break;
+		}
+
+		// clang-format on
+
+		return type;
+	}
+
+	VkFilter convertFilterMode(FilterMode mode)
+	{
+		VkFilter filter = VK_FILTER_MAX_ENUM;
+		// clang-format off
+
+		switch (mode)
+		{
+		case Gnm::kFilterModePoint:		filter = VK_FILTER_NEAREST; break;
+		case Gnm::kFilterModeBilinear:	filter = VK_FILTER_LINEAR; break;
+		// Vulkan do not have exact matching filters, use similar ones instead.
+		case Gnm::kFilterModeAnisoPoint:	filter = VK_FILTER_NEAREST; break;
+		case Gnm::kFilterModeAnisoBilinear: filter = VK_FILTER_LINEAR; break;
+		}
+		// clang-format on
+		return filter;
+	}
+
+	VkSamplerMipmapMode convertMipFilterMode(MipFilterMode mode)
+	{
+		VkSamplerMipmapMode mipmode = VK_SAMPLER_MIPMAP_MODE_MAX_ENUM;
+
+		// clang-format off
+		switch (mode)
+		{
+		case Gnm::kMipFilterModeNone: mipmode = VK_SAMPLER_MIPMAP_MODE_NEAREST; break;
+		case Gnm::kMipFilterModePoint: mipmode = VK_SAMPLER_MIPMAP_MODE_NEAREST; break;
+		case Gnm::kMipFilterModeLinear: mipmode = VK_SAMPLER_MIPMAP_MODE_LINEAR; break;
+		}
+		// clang-format on
+		return mipmode;
+	}
+
+	VkSamplerAddressMode convertWrapMode(WrapMode mode)
+	{
+		VkSamplerAddressMode addressMode = VK_SAMPLER_ADDRESS_MODE_MAX_ENUM;
+		switch (mode)
+		{
+		case Gnm::kWrapModeWrap:
+			addressMode = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+			break;
+		case Gnm::kWrapModeMirror:
+			addressMode = VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+			break;
+		case Gnm::kWrapModeClampLastTexel:
+			addressMode = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+			break;
+		case Gnm::kWrapModeMirrorOnceLastTexel:
+			addressMode = VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+			LOG_WARN("sampler address mode not match for %d, use %d", mode, addressMode);
+			break;
+		case Gnm::kWrapModeClampHalfBorder:
+			addressMode = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+			LOG_WARN("sampler address mode not match for %d, use %d", mode, addressMode);
+			break;
+		case Gnm::kWrapModeMirrorOnceHalfBorder:
+			addressMode = VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE;
+			LOG_WARN("sampler address mode not match for %d, use %d", mode, addressMode);
+			break;
+		case Gnm::kWrapModeClampBorder:
+			addressMode = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+			break;
+		case Gnm::kWrapModeMirrorOnceBorder:
+			addressMode = VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE;
+			LOG_WARN("sampler address mode not match for %d, use %d", mode, addressMode);
+			break;
+		}
+		return addressMode;
+	}
+
+	VkCompareOp convertDepthCompare(DepthCompare compare)
+	{
+		VkCompareOp op = VK_COMPARE_OP_MAX_ENUM;
+		// clang-format off
+		switch (compare)
+		{
+		case Gnm::kDepthCompareNever:	op = VK_COMPARE_OP_NEVER; break;
+		case Gnm::kDepthCompareLess:	op = VK_COMPARE_OP_LESS; break;
+		case Gnm::kDepthCompareEqual:	op = VK_COMPARE_OP_EQUAL; break;
+		case Gnm::kDepthCompareLessEqual:		op = VK_COMPARE_OP_LESS_OR_EQUAL; break;
+		case Gnm::kDepthCompareGreater:			op = VK_COMPARE_OP_GREATER; break;
+		case Gnm::kDepthCompareNotEqual:		op = VK_COMPARE_OP_NOT_EQUAL; break;
+		case Gnm::kDepthCompareGreaterEqual:	op = VK_COMPARE_OP_GREATER_OR_EQUAL; break;
+		case Gnm::kDepthCompareAlways:			op = VK_COMPARE_OP_ALWAYS; break;
+		}
+		// clang-format on
+		return op;
+	}
+
 }  // namespace sce::Gnm::cvt

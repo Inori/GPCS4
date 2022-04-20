@@ -162,6 +162,27 @@ namespace sce::Gnm
 		inline void bindVertexBuffer(
 			const Buffer* vsharp, uint32_t binding);
 
+		void bindResourceBuffer(
+			const Buffer*         vsharp,
+			uint32_t              startRegister,
+			VkBufferUsageFlags    usage,
+			VkPipelineStageFlags2 stage,
+			VkAccessFlagBits2     access);
+
+		void bindResourceImage(
+			const Texture*        tsharp,
+			uint32_t              startRegister,
+			VkImageUsageFlags     usage,
+			VkPipelineStageFlags2 stage,
+			VkAccessFlagBits2     access,
+			VkImageTiling         tiling,
+			VkImageLayout         layout);
+
+		void bindResourceSampler(
+			const Sampler*        ssharp,
+			uint32_t              startRegister,
+			VkPipelineStageFlags2 stage);
+
 		void bindResource(
 			VkPipelineStageFlags               stage,
 			const gcn::GcnShaderResourceTable& table,

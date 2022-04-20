@@ -67,6 +67,14 @@ namespace sce::gcn
 			switch (slot.m_usageType)
 			{
 			case kShaderInputUsageImmResource:
+			{
+				// If ImmResource is a buffer, it may be pretty large,
+				// so we use SSBO.
+				res.type         = isVSharp ? 
+					VK_DESCRIPTOR_TYPE_STORAGE_BUFFER : VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+				res.sizeInDwords = slot.m_registerCount == 0 ? 4 : 8;
+			}
+				break;
 			case kShaderInputUsageImmRwResource:
 			{
 				res.type = isVSharp ? 
@@ -78,6 +86,12 @@ namespace sce::gcn
 			{
 				res.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 				res.sizeInDwords = kDwordSizeConstantBuffer;
+			}
+				break;
+			case kShaderInputUsageImmSampler:
+			{
+				res.type         = VK_DESCRIPTOR_TYPE_SAMPLER;
+				res.sizeInDwords = kDwordSizeSampler;
 			}
 				break;
 			case kShaderInputUsagePtrExtendedUserData:

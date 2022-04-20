@@ -69,7 +69,7 @@ namespace sce::gcn
 
 	struct GcnMetaPS
 	{
-		uint32_t placeHolder;
+		uint32_t inputSemanticCount;  // ps input semantic count
 	};
 
 	struct GcnMetaCS
