@@ -7,7 +7,7 @@
 #include "GnmTexture.h"
 #include "GpuAddress/GnmGpuAddress.h"
 
-
+#include "Gcn/GcnUtil.h"
 #include "Platform/PlatFile.h"
 #include "Sce/SceResourceTracker.h"
 #include "Sce/SceVideoOut.h"
@@ -15,7 +15,6 @@
 #include "Violet/VltDevice.h"
 #include "Violet/VltImage.h"
 #include "Violet/VltRenderTarget.h"
-#include "Gcn/GcnUtil.h"
 
 #include <algorithm>
 #include <functional>
@@ -621,27 +620,148 @@ namespace sce::Gnm
 		return buffer;
 	}
 
-	void GnmCommandBufferDraw::updateInputLayout(GcnModule& vsModule)
+	bool GnmCommandBufferDraw::isSingleVertexBinding(
+		const uint32_t*                 vtxTable,
+		const VertexInputSemanticTable& semanticTable)
+	{
+		struct VertexElement
+		{
+			void*    data;
+			uint32_t stride;
+		};
+
+		std::array<VertexElement, kMaxVertexBufferCount> vtxData;
+
+		uint32_t semanticCount = semanticTable.size();
+		for (uint32_t i = 0; i != semanticCount; ++i)
+		{
+			auto&    sema           = semanticTable[i];
+			uint32_t offsetInDwords = sema.m_semantic * ShaderConstantDwordSize::kDwordSizeVertexBuffer;
+			const Buffer* vtxBuffer = reinterpret_cast<const Buffer*>(vtxTable + offsetInDwords);
+
+			vtxData[i].data   = vtxBuffer->getBaseAddress();
+			vtxData[i].stride = vtxBuffer->getStride();
+		}
+
+		void* firstVertextStart = vtxData[0].data;
+		void* firstVertextEnd   = reinterpret_cast<uint8_t*>(firstVertextStart) + vtxData[0].stride;
+
+		bool isSingleBinding = true;
+		// If all left vertex attribute data start address is within the first and second
+		// vertex address of the first attribute data, 
+		// we think the game uses a single vertex buffer binding.
+		// Otherwise we use multiple bindings.
+		for (uint32_t i = 1; i != semanticCount; ++i)
+		{
+			void* vertex = vtxData[i].data;
+			isSingleBinding &= (vertex > firstVertextStart && vertex < firstVertextEnd);
+		}
+		return isSingleBinding;
+	}
+
+	inline void GnmCommandBufferDraw::bindVertexBuffer(
+		const Buffer* vsharp, uint32_t binding)
+	{
+		SceBuffer buffer;
+		uint32_t            stride = vsharp->getStride();
+		VltBufferCreateInfo info;
+		info.size   = stride * vsharp->getNumElements();
+		info.usage  = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+		info.stages = VK_PIPELINE_STAGE_VERTEX_INPUT_BIT | VK_PIPELINE_STAGE_TRANSFER_BIT;
+		info.access = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
+		m_factory.createBuffer(info, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vsharp, buffer);
+		m_tracker->track(buffer);
+
+		m_context->uploadBuffer(buffer.buffer, vsharp->getBaseAddress());
+		m_context->bindVertexBuffer(
+			binding,
+			VltBufferSlice(buffer.buffer, 0, buffer.buffer->info().size),
+			stride);
+	}
+
+	void GnmCommandBufferDraw::updateVertexBinding(GcnModule& vsModule)
 	{
 		auto& ctx      = m_state.shaderContext[kShaderStageVs];
 		auto& resTable = vsModule.getResourceTable();
 
 		// Find fetch shader
-		VertexInputSemanticTable inputTable;
+		VertexInputSemanticTable semaTable;
 		auto fsCode = findFetchShader(resTable, ctx.userData);
 		if (fsCode != nullptr)
 		{
 			GcnFetchShader fs(fsCode);
-			inputTable = fs.getVertexInputSemanticTable();
+			semaTable = fs.getVertexInputSemanticTable();
 		}
 
 		// Update input layout
-		if (!inputTable.empty())
+		if (!semaTable.empty())
 		{
+			int32_t vertexTableReg = findUsageRegister(resTable, kShaderInputUsagePtrVertexBufferTable);
+			LOG_ASSERT(vertexTableReg >= 0, "vertex table not found while input semantic exist.");
+			const uint32_t* vertexTable = &ctx.userData[vertexTableReg];
 
+			bool singleBinding = isSingleVertexBinding(vertexTable, semaTable);
+
+			std::array<VltVertexAttribute, kMaxVertexBufferCount> attributes;
+			std::array<VltVertexBinding, kMaxVertexBufferCount>   bindings;
+
+			size_t   firstAttributeOffset = 0;
+			uint32_t semanticCount        = semaTable.size();
+			for (uint32_t i = 0; i != semanticCount; ++i)
+			{
+				auto&    sema           = semaTable[i];
+				uint32_t offsetInDwords = sema.m_semantic * ShaderConstantDwordSize::kDwordSizeVertexBuffer;
+				// We need to trust format info in V#, not instructions in fetch shader.
+				// From GPU ISA:
+				// The number of bytes loaded is determined solely by sV#.dfmt,
+				// even if the instruction op count does not match.
+				const Buffer* vsharp = reinterpret_cast<const Buffer*>(vertexTable + offsetInDwords);
+
+				if (firstAttributeOffset == 0)
+				{
+					firstAttributeOffset = reinterpret_cast<size_t>(vsharp->getBaseAddress());
+				}
+
+				LOG_ASSERT(sema.m_semantic == i, "semantic index is not equal to table index.");
+
+				// Attributes
+				attributes[i].location = sema.m_semantic;
+				attributes[i].binding  = singleBinding ? 
+					0 : sema.m_semantic;
+				attributes[i].format   = cvt::convertDataFormat(vsharp->getDataFormat());
+				attributes[i].offset   = singleBinding ?
+					reinterpret_cast<size_t>(vsharp->getBaseAddress()) - firstAttributeOffset : 0;
+
+				// Bindings
+				bindings[i].binding   = sema.m_semantic;
+				bindings[i].fetchRate = 0;
+				bindings[i].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+			}
+
+			m_context->setInputLayout(
+				semanticCount,
+				attributes.data(),
+				singleBinding ? 1 : semanticCount,
+				bindings.data());
+
+			// Create, upload and bind vertex buffer
+			for (uint32_t i = 0; i != semanticCount; ++i)
+			{
+				auto&         sema           = semaTable[i];
+				uint32_t      offsetInDwords = sema.m_semantic * ShaderConstantDwordSize::kDwordSizeVertexBuffer;
+				const Buffer* vsharp         = reinterpret_cast<const Buffer*>(vertexTable + offsetInDwords);
+
+				bindVertexBuffer(vsharp, sema.m_semantic);
+
+				if (singleBinding)
+				{
+					break;
+				}
+			}
 		}
 		else
 		{
+			// No vertex buffer bind to the pipeline.
 			m_context->setInputLayout(
 				0, nullptr,
 				0, nullptr);
@@ -667,7 +787,7 @@ namespace sce::Gnm
 		auto& resTable = vsModule.getResourceTable();
 
 		// Update input layout
-		updateInputLayout(vsModule);
+		updateVertexBinding(vsModule);
 
 
 	}
@@ -831,6 +951,7 @@ namespace sce::Gnm
 				VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 		}
 	}
+
 
 
 }  // namespace sce::Gnm

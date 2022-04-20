@@ -4,6 +4,8 @@
 #include "GnmCommon.h"
 #include "GnmRenderState.h"
 
+#include "Gcn/GcnShaderBinary.h"
+
 namespace sce::gcn
 {
 	class GcnModule;
@@ -150,16 +152,22 @@ namespace sce::Gnm
 			uint32_t                      eudIndex,
 			const UserDataArray&          userData);
 
+		bool isSingleVertexBinding(
+			const uint32_t*                      vtxTable,
+			const gcn::VertexInputSemanticTable& semanticTable);
+
+		vlt::Rc<vlt::VltBuffer> generateIndexBuffer(
+			uint32_t indexCount);
+
+		inline void bindVertexBuffer(
+			const Buffer* vsharp, uint32_t binding);
 
 		void bindResource(
 			VkPipelineStageFlags               stage,
 			const gcn::GcnShaderResourceTable& table,
 			const UserDataArray&               userData);
 
-		vlt::Rc<vlt::VltBuffer> generateIndexBuffer(
-			uint32_t indexCount);
-
-		void updateInputLayout(gcn::GcnModule& vsModule);
+		void updateVertexBinding(gcn::GcnModule& vsModule);
 
 		void updateVertexShaderStage();
 		void updatePixelShaderStage();
