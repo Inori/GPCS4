@@ -4,6 +4,7 @@
 #include "GcnProgramInfo.h"
 #include "GcnInstructionIterator.h"
 #include "GcnShaderMeta.h"
+#include "GcnDecoder.h"
 
 #include "SpirV/SpirvModule.h"
 #include "Violet/VltRc.h"
@@ -19,6 +20,12 @@ namespace sce::gcn
 	class GcnHeader;
 	struct GcnShaderInstruction;
 	struct GcnAnalysisInfo;
+
+	enum class GcnZeroTest : uint32_t
+	{
+		TestZ  = 0,
+		TestNz = 1,
+	};
 
 	/**
      * \brief Scalar value type
@@ -37,78 +44,77 @@ namespace sce::gcn
 		Float64 = 5,
 		Bool    = 6,
 	};
-	  
-    /**
-     * \brief Vector type
-     * 
-     * Convenience struct that stores a scalar
-     * type and a component count. The compiler
-     * can use this to generate SPIR-V types.
-     */
+
+	/**
+	 * \brief Vector type
+	 *
+	 * Convenience struct that stores a scalar
+	 * type and a component count. The compiler
+	 * can use this to generate SPIR-V types.
+	 */
 	struct GcnVectorType
 	{
 		GcnScalarType ctype;
-		uint32_t       ccount;
+		uint32_t      ccount;
 	};
 
 	/**
-     * \brief Array type
-     * 
-     * Convenience struct that stores a scalar type, a
-     * component count and an array size. An array of
-     * length 0 will be evaluated to a vector type. The
-     * compiler can use this to generate SPIR-V types.
-     */
+	 * \brief Array type
+	 *
+	 * Convenience struct that stores a scalar type, a
+	 * component count and an array size. An array of
+	 * length 0 will be evaluated to a vector type. The
+	 * compiler can use this to generate SPIR-V types.
+	 */
 	struct GcnArrayType
 	{
 		GcnScalarType ctype;
-		uint32_t       ccount;
-		uint32_t       alength;
+		uint32_t      ccount;
+		uint32_t      alength;
 	};
 
 	/**
-     * \brief Register info
-     * 
-     * Stores the array type of a register and
-     * its storage class. The compiler can use
-     * this to generate SPIR-V pointer types.
-     */
+	 * \brief Register info
+	 *
+	 * Stores the array type of a register and
+	 * its storage class. The compiler can use
+	 * this to generate SPIR-V pointer types.
+	 */
 	struct GcnRegisterInfo
 	{
-		GcnArrayType     type;
+		GcnArrayType      type;
 		spv::StorageClass sclass;
 	};
 
 	/**
-     * \brief Register value
-     * 
-     * Stores a vector type and a SPIR-V ID that
-     * represents an intermediate value. This is
-     * used to track the type of such values.
-     */
+	 * \brief Register value
+	 *
+	 * Stores a vector type and a SPIR-V ID that
+	 * represents an intermediate value. This is
+	 * used to track the type of such values.
+	 */
 	struct GcnRegisterValue
 	{
 		GcnVectorType type;
-		uint32_t       id;
+		uint32_t      id;
 	};
 
 	/**
-     * \brief Register pointer
-     * 
-     * Stores a vector type and a SPIR-V ID that
-     * represents a pointer to such a vector. This
-     * can be used to load registers conveniently.
-     */
+	 * \brief Register pointer
+	 *
+	 * Stores a vector type and a SPIR-V ID that
+	 * represents a pointer to such a vector. This
+	 * can be used to load registers conveniently.
+	 */
 	struct GcnRegisterPointer
 	{
 		GcnVectorType type;
-		uint32_t       id;
+		uint32_t      id;
 	};
 
-
-    /**
-     * \brief Vertex shader-specific structure
-     */
+	/**
+	 * \brief Vertex shader-specific structure
+	 */
 	struct GcnCompilerVsPart
 	{
 		uint32_t functionId = 0;
@@ -120,9 +126,9 @@ namespace sce::gcn
 	};
 
 	/**
-     * \brief Pixel shader-specific structure
-     */
-	struct DxbcCompilerPsPart
+	 * \brief Pixel shader-specific structure
+	 */
+	struct GcnCompilerPsPart
 	{
 		uint32_t functionId = 0;
 
@@ -145,7 +151,7 @@ namespace sce::gcn
 	/**
      * \brief Compute shader-specific structure
      */
-	struct DxbcCompilerCsPart
+	struct GcnCompilerCsPart
 	{
 		uint32_t functionId = 0;
 
@@ -238,6 +244,111 @@ namespace sce::gcn
 		void emitCsFinalize();
 
 	private:
+		////////////////////////////
+		// Input/output preparation
+		void emitInputFetch();
+
+		void emitOutputSetup();
+		////////////////////////////////////////////////
+		// Constant building methods. These are used to
+		// generate constant vectors that store the same
+		// value in each component.
+		GcnRegisterValue emitBuildConstVecf32(
+			float              x,
+			float              y,
+			float              z,
+			float              w,
+			const GcnRegMask& writeMask);
+
+		GcnRegisterValue emitBuildConstVecu32(
+			uint32_t           x,
+			uint32_t           y,
+			uint32_t           z,
+			uint32_t           w,
+			const GcnRegMask& writeMask);
+
+		GcnRegisterValue emitBuildConstVeci32(
+			int32_t            x,
+			int32_t            y,
+			int32_t            z,
+			int32_t            w,
+			const GcnRegMask& writeMask);
+
+		GcnRegisterValue emitBuildConstVecf64(
+			double             xy,
+			double             zw,
+			const GcnRegMask& writeMask);
+		/////////////////////////////////////////
+		// Generic register manipulation methods
+		GcnRegisterValue emitRegisterBitcast(
+			GcnRegisterValue srcValue,
+			GcnScalarType    dstType);
+
+		GcnRegisterValue emitRegisterSwizzle(
+			GcnRegisterValue value,
+			GcnRegSwizzle    swizzle,
+			GcnRegMask       writeMask);
+
+		GcnRegisterValue emitRegisterExtract(
+			GcnRegisterValue value,
+			GcnRegMask       mask);
+
+		GcnRegisterValue emitRegisterInsert(
+			GcnRegisterValue dstValue,
+			GcnRegisterValue srcValue,
+			GcnRegMask       srcMask);
+
+		GcnRegisterValue emitRegisterConcat(
+			GcnRegisterValue value1,
+			GcnRegisterValue value2);
+
+		GcnRegisterValue emitRegisterExtend(
+			GcnRegisterValue value,
+			uint32_t          size);
+
+		GcnRegisterValue emitRegisterAbsolute(
+			GcnRegisterValue value);
+
+		GcnRegisterValue emitRegisterNegate(
+			GcnRegisterValue value);
+
+		GcnRegisterValue emitRegisterZeroTest(
+			GcnRegisterValue value,
+			GcnZeroTest      test);
+
+		GcnRegisterValue emitRegisterMaskBits(
+			GcnRegisterValue value,
+			uint32_t          mask);
+
+		//GcnRegisterValue emitSrcOperandModifiers(
+		//	GcnRegisterValue value,
+		//	GcnRegModifiers  modifiers);
+
+		//GcnRegisterValue emitDstOperandModifiers(
+		//	GcnRegisterValue value,
+		//	GcnOpModifiers   modifiers);
+		///////////////////////////
+		// Type definition methods
+		uint32_t getScalarTypeId(
+			GcnScalarType type);
+
+		uint32_t getVectorTypeId(
+			const GcnVectorType& type);
+
+		uint32_t getArrayTypeId(
+			const GcnArrayType& type);
+
+		uint32_t getPointerTypeId(
+			const GcnRegisterInfo& type);
+
+		uint32_t getPerVertexBlockId();
+
+		///////////////////////////
+		//
+		bool isDoubleType(
+			GcnScalarType type) const;
+
+	private:
 		GcnProgramInfo         m_programInfo;
 		const GcnHeader*       m_header;
 		GcnShaderMeta          m_meta;
@@ -249,6 +360,16 @@ namespace sce::gcn
 		// the function ID and all input/output variables.
 		uint32_t              m_entryPointId = 0;
 		std::vector<uint32_t> m_entryPointInterfaces;
+
+		//////////////////////////////////////////////
+		// Function state tracking. Required in order
+		// to properly end functions in some cases.
+		bool m_insideFunction = false;
+		////////////////////////////////////////////////////
+		// Per-vertex input and output blocks. Depending on
+		// the shader stage, these may be declared as arrays.
+		uint32_t m_perVertexIn  = 0;
+		uint32_t m_perVertexOut = 0;
 
 		///////////////////////////////////////////////////////
 		// Resource slot description for the shader.
@@ -262,6 +383,12 @@ namespace sce::gcn
 		// an array of four-component uint32 vectors.
 		uint32_t                m_immConstBuf = 0;
 		vlt::VltShaderConstData m_immConstData;
+
+		///////////////////////////////////
+		// Shader-specific data structures
+		GcnCompilerVsPart m_vs;
+		GcnCompilerPsPart m_ps;
+		GcnCompilerCsPart m_cs;
 	};
 
 }  // namespace sce::gcn

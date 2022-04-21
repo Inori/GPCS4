@@ -137,11 +137,11 @@ namespace sce::vlt
 		LOG_WARN("Binding remap is disabled for debugging purpose.");
 
 		// Remap resource binding IDs
-		//for (uint32_t ofs : m_idOffsets)
-		//{
-		//	if (code[ofs] < MaxNumResourceSlots)
-		//		code[ofs] = mapping.getBindingId(code[ofs]);
-		//}
+		for (uint32_t ofs : m_idOffsets)
+		{
+			if (code[ofs] < MaxNumResourceSlots)
+				code[ofs] = mapping.getBindingId(code[ofs]);
+		}
 
 		// For dual-source blending we need to re-map
 		// location 1, index 0 to location 0, index 1
