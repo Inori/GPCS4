@@ -2432,6 +2432,4 @@ namespace sce::gcn
 		Undefined = 0xFFFFFFFF,
 	};
 
-
-
 }  // namespace sce::gcn

@@ -21,7 +21,7 @@ namespace sce::gcn
 
 	enum GcnLimits : uint32_t
 	{
-		kMaxResourceCount        = 16,  ///< PSSL compiler limit is 128, Default value is 16
+		kMaxResourceCount        = 128, ///< PSSL compiler limit is 128, Default value is 16
 		kMaxRwResourceCount      = 16,  ///< PSSL compiler limit is 16, Default value is 16
 		kMaxSamplerCount         = 16,  ///< PSSL compiler limit is 16, Default value is 16
 		kMaxVertexBufferCount    = 32,  ///< PSSL compiler limit is 32, Default value is 16

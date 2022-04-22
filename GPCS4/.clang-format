@@ -21,6 +21,8 @@ NamespaceIndentation: All
 UseTab: ForContinuationAndIndentation
 IndentWidth: 4
 TabWidth: 4
+IndentCaseBlocks: false
+IndentCaseLabels: true
 
 ColumnLimit: 0
 SortIncludes: true

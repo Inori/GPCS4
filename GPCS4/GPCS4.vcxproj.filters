@@ -898,6 +898,9 @@
     <ClInclude Include="Graphics\Gnm\GnmRenderState.h">
       <Filter>Source Files\Graphics\Gnm</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Gcn\GcnCompilerDefs.h">
+      <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">

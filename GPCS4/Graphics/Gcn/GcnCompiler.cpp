@@ -1,10 +1,17 @@
 #include "GcnCompiler.h"
+
+#include "GcnAnalysis.h"
 #include "GcnHeader.h"
 #include "GcnUtil.h"
 #include "PlatFile.h"
 
+#include "Gnm/GnmConstant.h"
+
+#include <algorithm>
+
 LOG_CHANNEL(Graphic.Gcn.GcnCompiler);
 
+using namespace sce::Gnm;
 using namespace sce::vlt;
 
 namespace sce::gcn
@@ -54,7 +61,7 @@ namespace sce::gcn
 
 		updateProgramCounter(ins);
 	}
-	
+
 	void GcnCompiler::compileInstruction(
 		const GcnShaderInstruction& ins)
 	{
@@ -138,7 +145,10 @@ namespace sce::gcn
 		// Set up common capabilities for all shaders
 		m_module.enableCapability(spv::CapabilityShader);
 		m_module.enableCapability(spv::CapabilityImageQuery);
-    
+
+		// Declare shader resource and input interfaces
+		this->emitDclInputSlots();
+
 		// Initialize the shader module with capabilities
 		// etc. Each shader type has its own peculiarities.
 
@@ -153,12 +163,11 @@ namespace sce::gcn
 		  case GcnProgramType::ComputeShader:  emitCsInit(); break;
 		}
 		// clang-format on
-
 	}
 
 	void GcnCompiler::emitFunctionBegin(
-		uint32_t entryPoint, 
-		uint32_t returnType, 
+		uint32_t entryPoint,
+		uint32_t returnType,
 		uint32_t funcType)
 	{
 		this->emitFunctionEnd();
@@ -214,6 +223,18 @@ namespace sce::gcn
 			perVertexPointer, spv::StorageClassOutput);
 		m_entryPointInterfaces.push_back(m_perVertexOut);
 		m_module.setDebugName(m_perVertexOut, "vs_vertex_out");
+
+
+		// Main function of the vertex shader
+		m_vs.functionId = m_module.allocateId();
+		m_module.setDebugName(m_vs.functionId, "vs_main");
+
+		this->emitFunctionBegin(
+			m_vs.functionId,
+			m_module.defVoidType(),
+			m_module.defFunctionType(
+				m_module.defVoidType(), 0, nullptr));
+		this->emitFunctionLabel();
 	}
 
 	void GcnCompiler::emitHsInit()
@@ -239,7 +260,14 @@ namespace sce::gcn
 	void GcnCompiler::emitVsFinalize()
 	{
 		this->emitMainFunctionBegin();
-		this->emitInputFetch();
+		this->emitInputSetup();
+
+		// call fetch shader
+		m_module.opFunctionCall(
+			m_module.defVoidType(),
+			m_vs.fetchFuncId, 0, nullptr);
+
+		// call vs_main
 		m_module.opFunctionCall(
 			m_module.defVoidType(),
 			m_vs.functionId, 0, nullptr);
@@ -267,20 +295,614 @@ namespace sce::gcn
 	{
 	}
 
-	void GcnCompiler::emitInputFetch()
+
+	void GcnCompiler::emitDclInputSlots()
 	{
-		// Emulate fetch shader
+		// Declare resource and input interfaces in input usage slot
+
+		// Get the flattened resource table.
+		const auto& resouceTable = m_header->getShaderResourceTable();
+		for (const auto& res : resouceTable)
+		{
+			ShaderInputUsageType usage = (ShaderInputUsageType)res.usage;
+			switch (usage)
+			{
+			case kShaderInputUsageImmConstBuffer:  
+			{
+				// ImmConstBuffer is different from D3D11 ImmediateConstantBuffer
+				// It's not constant data embedded into the shader, it's just a simple buffer binding.
+				this->emitDclBuffer(res);
+			}
+				break;
+			case kShaderInputUsageImmResource:
+			case kShaderInputUsageImmRwResource:
+			{
+				if (res.type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER)
+				{
+					this->emitDclBuffer(res);
+				}
+				else
+				{
+					this->emitDclTexture(res);
+				}
+			}
+				break;
+			case kShaderInputUsageImmSampler:
+				break;
+			case kShaderInputUsagePtrVertexBufferTable:
+			{
+				LOG_ASSERT(hasFetchShader() == true, "no fetch shader found while vertex buffer table exist.");
+				// Declare vertex input
+				this->emitDclVertexInput();
+				// Emulate fetch shader with a function
+				this->emitFetchInput();
+			}
+				break;
+			case kShaderInputUsageImmAluFloatConst:
+			case kShaderInputUsageImmAluBool32Const:
+			case kShaderInputUsageImmGdsCounterRange:
+			case kShaderInputUsageImmGdsMemoryRange:
+			case kShaderInputUsageImmGwsBase:
+			case kShaderInputUsageImmLdsEsGsSize:
+			case kShaderInputUsageImmVertexBuffer:
+				LOG_ASSERT(false, "TODO: usage type %d not supported.", usage);
+				break;
+			}
+		}
+	}
+
+	void GcnCompiler::emitDclBuffer(
+		const GcnShaderResource& res)
+	{
+		uint32_t regIdx = res.startRegister;
+
+		const bool asSsbo =
+			(res.type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER);
+
+		std::string name = util::str::formatex(asSsbo ? "sb" : "cb", regIdx);
+		// Declare the uniform buffer as max supported size.
+		// Will this produce bad impact?
+		constexpr uint32_t MaxUniformBufferSize = 65536;
+		uint32_t           numConstants         = asSsbo ? 0 : MaxUniformBufferSize / 16;
+
+		uint32_t arrayType = 0;
+		if (!asSsbo)
+		{
+			// std140 layout uniform buffer data is stored as a fixed-size array
+			// of 4x32-bit vectors. SPIR-V requires explicit strides.
+			arrayType = m_module.defArrayTypeUnique(
+				getVectorTypeId({ GcnScalarType::Float32, 4 }),
+				m_module.constu32(numConstants));
+			m_module.decorateArrayStride(arrayType, 16);
+		}
+		else
+		{
+			arrayType = m_module.defRuntimeArrayTypeUnique(
+				getScalarTypeId(GcnScalarType::Float32));
+			m_module.decorateArrayStride(arrayType, 4);
+		}
+
+		// SPIR-V requires us to put that array into a
+		// struct and decorate that struct as a block.
+		const uint32_t structType = m_module.defStructTypeUnique(1, &arrayType);
+
+		m_module.decorate(structType, asSsbo
+										  ? spv::DecorationBufferBlock
+										  : spv::DecorationBlock);
+		m_module.memberDecorateOffset(structType, 0, 0);
+
+		m_module.setDebugName(structType, util::str::formatex(name.c_str(), "_t").c_str());
+		m_module.setDebugMemberName(structType, 0, "m");
+
+		// Variable that we'll use to access the buffer
+		const uint32_t varId = m_module.newVar(
+			m_module.defPointerType(structType, spv::StorageClassUniform),
+			spv::StorageClassUniform);
+
+		m_module.setDebugName(varId, name.c_str());
+
+		// Compute the VLT binding slot index for the buffer.
+		// Gnm needs to bind the actual buffers to this slot.
+		uint32_t bindingId = asSsbo ? computeResourceBinding(
+										  m_programInfo.type(), regIdx)
+									: computeConstantBufferBinding(
+										  m_programInfo.type(), regIdx);
+
+		m_module.decorateDescriptorSet(varId, 0);
+		m_module.decorateBinding(varId, bindingId);
+
+		if (res.usage == kShaderInputUsageImmResource)
+			m_module.decorate(varId, spv::DecorationNonWritable);
+
+		// Record the buffer so that we can use it
+		// while compiling buffer instructions.
+		GcnBuffer buf;
+		buf.varId            = varId;
+		buf.size             = numConstants;
+		buf.asSsbo           = asSsbo;
+		m_buffers.at(regIdx) = buf;
+
+		// Store descriptor info for the shader interface
+		VltResourceSlot resource;
+		resource.slot   = bindingId;
+		resource.type   = asSsbo
+							  ? VK_DESCRIPTOR_TYPE_STORAGE_BUFFER
+							  : VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		resource.view   = VK_IMAGE_VIEW_TYPE_MAX_ENUM;
+		resource.access = 
+			res.usage == kShaderInputUsageImmResource ? 
+			VK_ACCESS_SHADER_READ_BIT : 
+			(asSsbo ? 
+				VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT :
+				VK_ACCESS_UNIFORM_READ_BIT);
+		m_resourceSlots.push_back(resource);
+	}
+
+	void GcnCompiler::emitDclTexture(
+		const GcnShaderResource& res)
+	{
+		const uint32_t registerId = res.startRegister;
+		
+		const auto& textureInfoTable = getTextureInfoTable();
+		const auto& textureInfo      = textureInfoTable[registerId];
+
+		// We also handle unordered access views here
+		const bool isStorage = res.usage != kShaderInputUsageImmResource;
+
+		if (isStorage)
+		{
+			m_module.enableCapability(spv::CapabilityStorageImageReadWithoutFormat);
+			m_module.enableCapability(spv::CapabilityStorageImageWriteWithoutFormat);
+		}
+
+		Gnm::TextureChannelType channelType = textureInfo.channelType;
+		// Declare the actual sampled type
+		const GcnScalarType sampledType = [channelType]
+		{
+			// clang-format off
+			switch (channelType)
+			{
+				// FIXME do we have to manually clamp writes to SNORM/UNORM resources?
+				case Gnm::kTextureChannelTypeSNorm: return GcnScalarType::Float32;
+				case Gnm::kTextureChannelTypeUNorm: return GcnScalarType::Float32;
+				case Gnm::kTextureChannelTypeFloat: return GcnScalarType::Float32;
+				case Gnm::kTextureChannelTypeSInt:  return GcnScalarType::Sint32;
+				case Gnm::kTextureChannelTypeUInt:  return GcnScalarType::Uint32;
+				default: Logger::exception(util::str::formatex("GcnCompiler: Invalid sampled type: ", channelType));
+			}
+			// clang-format on
+		}();
+
+		// Declare the resource type
+		Gnm::TextureType   textureType   = textureInfo.textureType;
+		const uint32_t     sampledTypeId = getScalarTypeId(sampledType);
+		const GcnImageInfo typeInfo      = getImageType(
+				 textureType, isStorage, textureInfo.isDepth);
+
+		// Declare additional capabilities if necessary
+		switch (textureType)
+		{
+			case Gnm::kTextureType1d:
+			case Gnm::kTextureType1dArray:
+				m_module.enableCapability(isStorage
+											  ? spv::CapabilityImage1D
+											  : spv::CapabilitySampled1D);
+				break;
+			default:
+				// No additional capabilities required
+				break;
+		}
+
+		spv::ImageFormat imageFormat = spv::ImageFormatUnknown;
+
+		// If the read-without-format capability is not set and this
+		// image is access via a typed load, or if atomic operations
+		// are used,, we must define the image format explicitly.
+		//if (isStorage)
+		//{
+		//	if ((m_analysis->uavInfos[registerId].accessAtomicOp) || 
+		//		(m_analysis->uavInfos[registerId].accessTypedLoad && 
+		//			!m_moduleInfo.options.useStorageImageReadWithoutFormat))
+		//		imageFormat = getScalarImageFormat(sampledType);
+		//}
+
+		// We do not know whether the image is going to be used as
+		// a color image or a depth image yet, but we can pick the
+		// correct type when creating a sampled image object.
+		const uint32_t imageTypeId = m_module.defImageType(sampledTypeId,
+														   typeInfo.dim,
+														   typeInfo.depth,
+														   typeInfo.array,
+														   typeInfo.ms,
+														   typeInfo.sampled,
+														   imageFormat);
+
+		// We'll declare the texture variable with the color type
+		// and decide which one to use when the texture is sampled.
+		const uint32_t resourcePtrType = m_module.defPointerType(
+			imageTypeId, spv::StorageClassUniformConstant);
+
+		const uint32_t varId = m_module.newVar(resourcePtrType,
+											   spv::StorageClassUniformConstant);
+
+		m_module.setDebugName(varId,
+							  util::str::formatex(isStorage ? "r" : "t", registerId).c_str());
+
+		// Compute the VLT binding slot index for the resource.
+		// Gnm needs to bind the actual resource to this slot.
+		uint32_t bindingId = computeResourceBinding(m_programInfo.type(), registerId);
+
+		m_module.decorateDescriptorSet(varId, 0);
+		m_module.decorateBinding(varId, bindingId);
+
+		GcnTexture tex;
+		tex.imageInfo     = typeInfo;
+		tex.varId         = varId;
+		tex.sampledType   = sampledType;
+		tex.sampledTypeId = sampledTypeId;
+		tex.imageTypeId   = imageTypeId;
+		tex.colorTypeId   = imageTypeId;
+		tex.depthTypeId   = 0;
+
+		if (textureInfo.isDepth &&
+			(sampledType == GcnScalarType::Float32) &&
+			(textureType == Gnm::kTextureType2d ||
+			 textureType == Gnm::kTextureType2dArray ||
+			 textureType == Gnm::kTextureTypeCubemap))
+		{
+			tex.depthTypeId = m_module.defImageType(sampledTypeId,
+													typeInfo.dim, 1, typeInfo.array, typeInfo.ms, typeInfo.sampled,
+													spv::ImageFormatUnknown);
+		}
+
+		m_textures.at(registerId) = tex;
+
+		// Store descriptor info for the shader interface
+		VltResourceSlot resource;
+		resource.slot   = bindingId;
+		resource.view   = typeInfo.vtype;
+		resource.access = VK_ACCESS_SHADER_READ_BIT;
+
+		if (isStorage)
+		{
+			resource.type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			resource.access |= VK_ACCESS_SHADER_WRITE_BIT;
+		}
+		else
+		{
+			resource.type = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+		}
+
+		m_resourceSlots.push_back(resource);
+	}
+
+	void GcnCompiler::emitDclSampler(
+		const GcnShaderResource& res)
+	{
+		const uint32_t samplerId = res.startRegister;
+
+		// The sampler type is opaque, but we still have to
+		// define a pointer and a variable in oder to use it
+		const uint32_t samplerType    = m_module.defSamplerType();
+		const uint32_t samplerPtrType = m_module.defPointerType(
+			samplerType, spv::StorageClassUniformConstant);
+
+		// Define the sampler variable
+		const uint32_t varId = m_module.newVar(samplerPtrType,
+											   spv::StorageClassUniformConstant);
+		m_module.setDebugName(varId,
+							  util::str::formatex("s", samplerId).c_str());
+
+		m_samplers.at(samplerId).varId  = varId;
+		m_samplers.at(samplerId).typeId = samplerType;
+
+		// Compute binding slot index for the sampler
+		uint32_t bindingId = computeSamplerBinding(
+			m_programInfo.type(), samplerId);
+
+		m_module.decorateDescriptorSet(varId, 0);
+		m_module.decorateBinding(varId, bindingId);
+
+		// Store descriptor info for the shader interface
+		VltResourceSlot resource;
+		resource.slot   = bindingId;
+		resource.type   = VK_DESCRIPTOR_TYPE_SAMPLER;
+		resource.view   = VK_IMAGE_VIEW_TYPE_MAX_ENUM;
+		resource.access = 0;
+		m_resourceSlots.push_back(resource);
+	}
+	
+	void GcnCompiler::emitDclInput(
+		const VertexInputSemantic& sema)
+	{
+		GcnRegisterInfo info;
+		info.type.ctype = GcnScalarType::Float32;
+		// the count value is fixed when parsing V# in CommandBufferDraw
+		info.type.ccount  = sema.m_sizeInElements;
+		info.type.alength = 0;
+		info.sclass       = spv::StorageClassInput;
+
+		const uint32_t varId = emitNewVariable(info);
+
+		m_module.decorateLocation(varId, sema.m_semantic);
+		m_module.setDebugName(varId, util::str::formatex("v", sema.m_semantic).c_str());
+
+		// Record the input so that we can
+		// use it in fetch shader.
+		GcnRegisterPointer input;
+		input.type.ctype          = info.type.ctype;
+		input.type.ccount         = info.type.ccount;
+		input.id                  = varId;
+		m_inputs[sema.m_semantic] = input;
+
+		m_entryPointInterfaces.push_back(varId);
+
+		// Declare the input slot as defined
+		m_interfaceSlots.inputSlots |= 1u << sema.m_semantic;
+	}
+
+	void GcnCompiler::emitDclVertexInput()
+	{
+		auto table = getSemanticTable();
+		
+		for (uint32_t i = 0; i != table.second; ++i)
+		{
+			auto& sema = table.first[i];
+			this->emitDclInput(sema);
+		}
+	}
+
+	void GcnCompiler::emitInputSetup()
+	{
+		// The 16 user data registers is passed though push constants,
+		// here we copy them into predefined user data array.
+
+		// TODO
+	}
+
+	void GcnCompiler::emitFetchInput()
+	{
+		// Emulate fetch shader,
+		// load vertex input into destination vgprs.
+		m_vs.fetchFuncId = m_module.allocateId();
+		m_module.setDebugName(m_vs.fetchFuncId, "vs_fetch");
+
+		this->emitFunctionBegin(
+			m_vs.fetchFuncId,
+			m_module.defVoidType(),
+			m_module.defFunctionType(
+				m_module.defVoidType(), 0, nullptr));
+		this->emitFunctionLabel();
+
+		auto tablePair = getSemanticTable();
+		const VertexInputSemantic* semaTable = tablePair.first;
+		uint32_t                   semaCount = tablePair.second;
+		for (uint32_t i = 0; i != semaCount; ++i)
+		{
+			auto& sema = semaTable[i];
+
+			auto           value = emitValueLoad(m_inputs[sema.m_semantic]);
+			GcnInstOperand reg   = {};
+			reg.field            = GcnOperandField::VectorGPR;
+			reg.code             = sema.m_vgpr;
+			this->emitVgprArrayStore(
+				reg, sema.m_sizeInElements, value);
+		}
 	}
 
 	void GcnCompiler::emitOutputSetup()
 	{
 	}
 
-	 GcnRegisterValue GcnCompiler::emitBuildConstVecf32(
-		float              x,
-		float              y,
-		float              z,
-		float              w,
+	uint32_t GcnCompiler::emitNewVariable(
+		const GcnRegisterInfo& info)
+	{
+		const uint32_t ptrTypeId = this->getPointerTypeId(info);
+		return m_module.newVar(ptrTypeId, info.sclass);
+	}
+
+	uint32_t GcnCompiler::emitNewBuiltinVariable(
+		const GcnRegisterInfo& info,
+		spv::BuiltIn           builtIn,
+		const char*            name)
+	{
+		const uint32_t varId = emitNewVariable(info);
+
+		m_module.setDebugName(varId, name);
+		m_module.decorateBuiltIn(varId, builtIn);
+
+		if (m_programInfo.type() == GcnProgramType::PixelShader &&
+			info.type.ctype != GcnScalarType::Float32 &&
+			info.type.ctype != GcnScalarType::Bool &&
+			info.sclass == spv::StorageClassInput)
+		{
+			m_module.decorate(varId, spv::DecorationFlat);
+		}
+		
+		m_entryPointInterfaces.push_back(varId);
+		return varId;
+	}
+
+	GcnRegisterValue GcnCompiler::emitVgprLoad(
+		const GcnInstOperand& reg)
+	{
+		uint32_t            vgprIndex = reg.code - GcnCodeVGPR0;
+		GcnRegisterPointer& vgpr      = m_vgprs[vgprIndex];
+
+		// vgprs are not allowed to load before created.
+		// if this occurs, it is most likely a system value vgpr
+		// which should be initialized in emitInputSetup,
+		// please add it there.
+		LOG_ASSERT(vgpr.id != 0, "vgpr v%d is not initialized before load.", vgprIndex);
+
+		return this->emitValueLoad(vgpr);
+	}
+
+	void GcnCompiler::emitVgprStore(
+		const GcnInstOperand&   reg,
+		const GcnRegisterValue& value)
+	{
+		uint32_t            vgprIndex = reg.code - GcnCodeVGPR0;
+		GcnRegisterPointer& vgpr      = m_vgprs[vgprIndex];
+
+		// If the vgpr has not been used, we create one.
+		if (vgpr.id == 0)
+		{
+			GcnRegisterInfo info;
+			info.type.ctype   = GcnScalarType::Float32;
+			info.type.ccount  = 1;
+			info.type.alength = 0;
+			info.sclass       = spv::StorageClassPrivate;
+			uint32_t id       = emitNewVariable(info);
+
+			vgpr.type.ctype  = info.type.ctype;
+			vgpr.type.ccount = info.type.ccount;
+			vgpr.id          = id;
+		}
+
+		return this->emitValueStore(vgpr, value, GcnRegMask(true, false, false, false));
+	}
+
+	GcnRegisterValue GcnCompiler::emitVgprArrayLoad(
+		const GcnInstOperand& start,
+		uint32_t              count)
+	{
+
+		// load values in vgpr array into a vector,
+		// e.g. v[4:6] -> vec3
+	}
+
+	void GcnCompiler::emitVgprArrayStore(
+		const GcnInstOperand&   start,
+		uint32_t                count,
+		const GcnRegisterValue& value)
+	{
+		// store values in a vector into vgpr array,
+		// e.g. vec3 -> v[4:6]
+
+		LOG_ASSERT(count <= value.type.ccount, "value component count is less than store count.");
+
+		for (uint32_t i = 0; i != count ; ++i)
+		{
+			GcnInstOperand reg = start;
+			reg.code += i;
+
+			uint32_t typeId = this->getScalarTypeId(value.type.ctype);
+			uint32_t id     = m_module.opCompositeExtract(
+				typeId, value.id, 1, &i);
+
+			GcnRegisterValue val;
+			val.type.ctype  = value.type.ctype;
+			val.type.ccount = 1;
+			val.id          = id;
+			this->emitVgprStore(reg, val);
+		}
+	}
+
+	GcnRegisterValue GcnCompiler::emitSgprLoad(
+		const GcnInstOperand& reg)
+	{
+	}
+
+	void GcnCompiler::emitSgprStore(
+		const GcnInstOperand&   reg,
+		const GcnRegisterValue& value)
+	{
+	}
+
+	GcnRegisterValue GcnCompiler::emitSgprArrayLoad(
+		const GcnInstOperand& start,
+		uint32_t              count)
+	{
+		// load values in vgpr array into a vector,
+		// e.g. v[4:6] -> vec3
+	}
+
+	void GcnCompiler::emitSgprArrayStore(
+		const GcnInstOperand&   start,
+		uint32_t                count,
+		const GcnRegisterValue& value)
+	{
+		// store values in a vector into sgpr array,
+		// e.g. vec3 -> s[4:6]
+	}
+
+	GcnRegisterValue GcnCompiler::emitValueLoad(
+		GcnRegisterPointer ptr)
+	{
+		GcnRegisterValue result;
+		result.type = ptr.type;
+		result.id   = m_module.opLoad(
+			  getVectorTypeId(result.type),
+			  ptr.id);
+		return result;
+	}
+
+	void GcnCompiler::emitValueStore(
+		GcnRegisterPointer ptr,
+		GcnRegisterValue   value,
+		GcnRegMask         writeMask)
+	{
+		// If the component types are not compatible,
+		// we need to bit-cast the source variable.
+		if (value.type.ctype != ptr.type.ctype)
+			value = emitRegisterBitcast(value, ptr.type.ctype);
+
+		// If the source value consists of only one component,
+		// it is stored in all components of the destination.
+		if (value.type.ccount == 1)
+			value = emitRegisterExtend(value, writeMask.popCount());
+
+		if (ptr.type.ccount == writeMask.popCount())
+		{
+			// Simple case: We write to the entire register
+			m_module.opStore(ptr.id, value.id);
+		}
+		else
+		{
+			// We only write to part of the destination
+			// register, so we need to load and modify it
+			GcnRegisterValue tmp = emitValueLoad(ptr);
+			tmp                  = emitRegisterInsert(tmp, value, writeMask);
+
+			m_module.opStore(ptr.id, tmp.id);
+		}
+	}
+
+	GcnRegisterValue GcnCompiler::emitRegisterLoad(
+		const GcnInstOperand& reg,
+		GcnRegMask            writeMask)
+	{
+	}
+
+	void GcnCompiler::emitRegisterStore(
+		const GcnInstOperand& reg,
+		GcnRegisterValue      value)
+	{
+	}
+
+	GcnRegisterPointer GcnCompiler::emitCompositeAccess(
+		GcnRegisterPointer pointer,
+		spv::StorageClass  sclass,
+		uint32_t           index)
+	{
+		// Create a pointer into a composite object
+
+		uint32_t ptrTypeId = m_module.defPointerType(
+			getVectorTypeId(pointer.type), sclass);
+
+		GcnRegisterPointer result;
+		result.type = pointer.type;
+		result.id   = m_module.opAccessChain(
+			  ptrTypeId, pointer.id, 1, &index);
+		return result;
+	}
+
+	GcnRegisterValue GcnCompiler::emitBuildConstVecf32(
+		float             x,
+		float             y,
+		float             z,
+		float             w,
 		const GcnRegMask& writeMask)
 	{
 		// TODO refactor these functions into one single template
@@ -308,10 +930,10 @@ namespace sce::gcn
 	}
 
 	GcnRegisterValue GcnCompiler::emitBuildConstVecu32(
-		uint32_t           x,
-		uint32_t           y,
-		uint32_t           z,
-		uint32_t           w,
+		uint32_t          x,
+		uint32_t          y,
+		uint32_t          z,
+		uint32_t          w,
 		const GcnRegMask& writeMask)
 	{
 		std::array<uint32_t, 4> ids            = { 0, 0, 0, 0 };
@@ -338,10 +960,10 @@ namespace sce::gcn
 	}
 
 	GcnRegisterValue GcnCompiler::emitBuildConstVeci32(
-		int32_t            x,
-		int32_t            y,
-		int32_t            z,
-		int32_t            w,
+		int32_t           x,
+		int32_t           y,
+		int32_t           z,
+		int32_t           w,
 		const GcnRegMask& writeMask)
 	{
 		std::array<uint32_t, 4> ids            = { 0, 0, 0, 0 };
@@ -368,8 +990,8 @@ namespace sce::gcn
 	}
 
 	GcnRegisterValue GcnCompiler::emitBuildConstVecf64(
-		double             xy,
-		double             zw,
+		double            xy,
+		double            zw,
 		const GcnRegMask& writeMask)
 	{
 		std::array<uint32_t, 2> ids            = { 0, 0 };
@@ -390,7 +1012,6 @@ namespace sce::gcn
 								 : ids[0];
 		return result;
 	}
-  
 
 	GcnRegisterValue GcnCompiler::emitRegisterBitcast(
 		GcnRegisterValue srcValue,
@@ -542,7 +1163,7 @@ namespace sce::gcn
 
 	GcnRegisterValue GcnCompiler::emitRegisterExtend(
 		GcnRegisterValue value,
-		uint32_t          size)
+		uint32_t         size)
 	{
 		if (size == 1)
 			return value;
@@ -628,7 +1249,7 @@ namespace sce::gcn
 
 	GcnRegisterValue GcnCompiler::emitRegisterMaskBits(
 		GcnRegisterValue value,
-		uint32_t          mask)
+		uint32_t         mask)
 	{
 		GcnRegisterValue maskVector = emitBuildConstVecu32(
 			mask, mask, mask, mask, GcnRegMask::firstN(value.type.ccount));
@@ -641,7 +1262,7 @@ namespace sce::gcn
 		return result;
 	}
 
-	//GcnRegisterValue GcnCompiler::emitSrcOperandModifiers(
+	// GcnRegisterValue GcnCompiler::emitSrcOperandModifiers(
 	//	GcnRegisterValue value,
 	//	GcnRegModifiers  modifiers)
 	//{
@@ -653,7 +1274,7 @@ namespace sce::gcn
 	//	return value;
 	//}
 
-	//GcnRegisterValue GcnCompiler::emitDstOperandModifiers(
+	// GcnRegisterValue GcnCompiler::emitDstOperandModifiers(
 	//	GcnRegisterValue value,
 	//	GcnOpModifiers   modifiers)
 	//{
@@ -771,5 +1392,106 @@ namespace sce::gcn
 			   type == GcnScalarType::Uint64 ||
 			   type == GcnScalarType::Float64;
 	}
+
+	uint32_t GcnCompiler::getUserSgprCount() const
+	{
+		uint32_t count = 0;
+		auto     type  = m_programInfo.type();
+		// clang-format off
+		switch (type)
+		{
+		case GcnProgramType::VertexShader:	count = m_meta.vs.userSgprCount; break;
+		case GcnProgramType::PixelShader:	count = m_meta.ps.userSgprCount; break;
+		case GcnProgramType::ComputeShader:	count = m_meta.cs.userSgprCount; break;
+		case GcnProgramType::GeometryShader:count = m_meta.gs.userSgprCount; break;
+		case GcnProgramType::HullShader:	count = m_meta.hs.userSgprCount; break;
+		case GcnProgramType::DomainShader:	count = m_meta.ds.userSgprCount; break;
+		}
+		// clang-format on
+		return count;
+	}
+
+	bool GcnCompiler::hasFetchShader() const
+	{
+		auto& resTable = m_header->getShaderResourceTable();
+		auto  iter     = std::find_if(resTable.begin(), resTable.end(), 
+			[](const GcnShaderResource& res) 
+			{
+				return res.usage == kShaderInputUsageSubPtrFetchShader;
+			});
+		return iter != resTable.end();
+	}
+
+	std::pair<const VertexInputSemantic*, uint32_t> 
+		GcnCompiler::getSemanticTable()
+	{
+		const VertexInputSemantic* semanticTable = nullptr;
+		uint32_t                   semanticCount = 0;
+
+		switch (m_programInfo.type())
+		{
+			case GcnProgramType::VertexShader:
+			{
+				semanticTable = m_meta.vs.inputSemanticTable;
+				semanticCount = m_meta.vs.inputSemanticCount;
+			}
+			break;
+			default:
+				LOG_ASSERT(false, "program type not supported, please support it.");
+				break;
+		}
+
+		return std::make_pair(semanticTable, semanticCount);
+	}
+
+	const std::array<GcnTextureInfo, 128>&
+		GcnCompiler::getTextureInfoTable()
+	{
+		switch (m_programInfo.type())
+		{
+			case GcnProgramType::PixelShader:
+			{
+				return m_meta.ps.textureInfos;
+			}
+		}
+
+		LOG_ASSERT(false, "program type not supported, please support it.");
+	}
+
+	GcnImageInfo GcnCompiler::getImageType(
+		Gnm::TextureType textureType,
+		bool             isStorage,
+		bool             isDepth) const
+	{
+		uint32_t     depth    = isDepth ? 1u : 0u;
+		uint32_t     sampled  = isStorage ? 2u : 1u;
+		GcnImageInfo typeInfo = [textureType, depth, sampled]() -> GcnImageInfo
+		{
+			switch (textureType)
+			{
+				case Gnm::kTextureType1d:
+					return { spv::Dim1D, depth, 0, 0, sampled, VK_IMAGE_VIEW_TYPE_1D };
+				case Gnm::kTextureType2d:
+					return { spv::Dim2D, depth, 0, 0, sampled, VK_IMAGE_VIEW_TYPE_2D };
+				case Gnm::kTextureType3d:
+					return { spv::Dim3D, depth, 0, 0, sampled, VK_IMAGE_VIEW_TYPE_3D };
+				case Gnm::kTextureTypeCubemap:
+					return { spv::DimCube, depth, 0, 0, sampled, VK_IMAGE_VIEW_TYPE_CUBE };
+				case Gnm::kTextureType1dArray:
+					return { spv::Dim1D, depth, 1, 0, sampled, VK_IMAGE_VIEW_TYPE_1D_ARRAY };
+				case Gnm::kTextureType2dArray:
+					return { spv::Dim2D, depth, 1, 0, sampled, VK_IMAGE_VIEW_TYPE_2D_ARRAY };
+				case Gnm::kTextureType2dMsaa:
+					return { spv::Dim2D, depth, 0, 1, sampled, VK_IMAGE_VIEW_TYPE_2D };
+				case Gnm::kTextureType2dArrayMsaa:
+					return { spv::Dim2D, depth, 1, 1, sampled, VK_IMAGE_VIEW_TYPE_2D_ARRAY };
+				default:
+					Logger::exception(util::str::formatex("GcnCompiler: Unsupported resource type: ", textureType));
+			}
+		}();
+
+		return typeInfo;
+	}
+
 
 }  // namespace sce::gcn

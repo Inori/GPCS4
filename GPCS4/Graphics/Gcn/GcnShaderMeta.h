@@ -3,6 +3,9 @@
 #include "GcnCommon.h"
 #include "GcnShaderBinary.h"
 #include "GcnConstants.h"
+#include "Gnm/GnmConstant.h"
+
+#include <array>
 
 namespace sce::gcn
 {
@@ -61,22 +64,51 @@ namespace sce::gcn
 		GcnXfbInfo*  xfb;
 	};
 
+	struct GcnTextureInfo
+	{
+		Gnm::TextureType        textureType;
+		Gnm::TextureChannelType channelType;
+		bool                    isDepth;
+	};
+
 	struct GcnMetaVS
 	{
+		uint32_t userSgprCount;
+
 		uint32_t            inputSemanticCount;
 		VertexInputSemantic inputSemanticTable[kMaxVertexBufferCount];
 	};
 
 	struct GcnMetaPS
 	{
-		uint32_t inputSemanticCount;  // ps input semantic count
+		uint32_t userSgprCount;
+
+		uint32_t                        inputSemanticCount;  // ps input semantic count
+		std::array<GcnTextureInfo, 128> textureInfos;
 	};
 
 	struct GcnMetaCS
 	{
+		uint32_t userSgprCount;
+
 		uint32_t computeNumThreadX;
 		uint32_t computeNumThreadY;
 		uint32_t computeNumThreadZ;
+	};
+
+	struct GcnMetaGS
+	{
+		uint32_t userSgprCount;
+	};
+
+	struct GcnMetaHS
+	{
+		uint32_t userSgprCount;
+	};
+
+	struct GcnMetaDS
+	{
+		uint32_t userSgprCount;
 	};
 
 	/**
@@ -93,6 +125,9 @@ namespace sce::gcn
 		GcnMetaVS vs;
 		GcnMetaPS ps;
 		GcnMetaCS cs;
+		GcnMetaGS gs;
+		GcnMetaHS hs;
+		GcnMetaDS ds;
 	};
 
 }  // namespace sce::gcn

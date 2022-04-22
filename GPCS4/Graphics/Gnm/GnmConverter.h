@@ -8,6 +8,11 @@
 
 #include <array>
 
+namespace spv
+{
+	enum Dim;
+}  // namespace spv
+
 namespace sce::Gnm::cvt
 {
 	VkFormat convertZFormat(ZFormat zfmt);
@@ -49,5 +54,7 @@ namespace sce::Gnm::cvt
 	VkSamplerAddressMode convertWrapMode(WrapMode mode);
 
 	VkCompareOp convertDepthCompare(DepthCompare compare);
+
+	spv::Dim convertTextureTypeToDim(TextureType textureType);
 
 }  // namespace sce::Gnm

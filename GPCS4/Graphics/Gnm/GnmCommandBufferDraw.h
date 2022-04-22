@@ -198,6 +198,15 @@ namespace sce::Gnm
 
 		void onPrepareFlip();
 
+		ShaderStage getShaderStage(
+			VkPipelineStageFlags pipeStage);
+
+		void updateMetaTextureInfo(
+			VkPipelineStageFlags stage,
+			uint32_t             startRegister,
+			bool                 isDepth,
+			const Texture*       tsharp);
+
 	private:
 		GnmGraphicsState m_state;
 		GnmContextFlags  m_flags; 

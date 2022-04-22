@@ -11,7 +11,7 @@ namespace sce::gcn
 
 	struct GcnAnalysisInfo
 	{
-		uint32_t placeHoder;
+		uint32_t placeHolder;
 	};
 
 	/**

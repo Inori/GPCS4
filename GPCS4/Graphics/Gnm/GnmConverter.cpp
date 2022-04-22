@@ -1,4 +1,5 @@
 #include "GnmConverter.h"
+#include "SpirV/spirv.hpp"
 
 using namespace sce::vlt;
 
@@ -405,6 +406,34 @@ namespace sce::Gnm::cvt
 		}
 		// clang-format on
 		return op;
+	}
+
+	spv::Dim convertTextureTypeToDim(TextureType textureType)
+	{
+		using namespace spv;
+
+		Dim dim = DimMax;
+
+		// clang-format off
+
+		switch (textureType)
+		{
+		case Gnm::kTextureType1d: dim = Dim1D; break;
+		case Gnm::kTextureType2d: dim = Dim2D; break;
+		case Gnm::kTextureType3d: dim = Dim3D; break;
+		case Gnm::kTextureTypeCubemap:	dim = DimCube; break;
+		case Gnm::kTextureType1dArray:	dim = Dim1D; break;
+		case Gnm::kTextureType2dArray:	dim = Dim2D; break;
+		case Gnm::kTextureType2dMsaa:	dim = Dim2D; break;
+		case Gnm::kTextureType2dArrayMsaa:	dim = Dim2D; break;
+		default:
+			LOG_ASSERT(false, "texture type not supported.");
+			break;
+		}
+
+		// clang-format on
+
+		return dim;
 	}
 
 }  // namespace sce::Gnm::cvt

@@ -793,7 +793,8 @@ namespace sce::Gnm
 				bindings[i].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
 				// Fix element count
-				sema.m_sizeInElements = vsharp->getDataFormat().getNumComponents();
+				sema.m_sizeInElements = 
+					std::min(static_cast<uint32_t>(sema.m_sizeInElements), vsharp->getDataFormat().getNumComponents());
 			}
 
 			m_context->setInputLayout(
@@ -874,7 +875,7 @@ namespace sce::Gnm
 		auto& resTable = psModule.getResourceTable();
 
 		// create and bind shader resources
-		bindResource(VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, resTable, ctx.userData);
+		bindResource(VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, resTable, ctx.userData);
 
 		// bind the shader
 		m_context->bindShader(
@@ -922,25 +923,37 @@ namespace sce::Gnm
 		info.usage  = usage;
 		info.stage  = stage;
 		info.access = access;
-		info.memoryType = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-		
-		m_factory.createBuffer(info, buffer);
-		m_tracker->track(buffer);
-
-		m_context->uploadBuffer(buffer.buffer,
-								buffer.gnmBuffer.getBaseAddress());
 
 		uint32_t slot = 0;
 		if (usage == VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
 		{
+			info.memoryType = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+							  VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+
+			m_factory.createBuffer(info, buffer);
+
+			void* bufferMem = buffer.buffer->mapPtr(0);
+			std::memcpy(bufferMem,
+						buffer.gnmBuffer.getBaseAddress(),
+						buffer.gnmBuffer.getSize());
+
 			slot = computeConstantBufferBinding(
 				gcnProgramTypeFromVkStage(stage), startRegister);
 		}
 		else
 		{
+			info.memoryType = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+
+			m_factory.createBuffer(info, buffer);
+
+			m_context->uploadBuffer(buffer.buffer,
+									buffer.gnmBuffer.getBaseAddress());
+
 			slot = computeResourceBinding(
 				gcnProgramTypeFromVkStage(stage), startRegister);
 		}
+
+		m_tracker->track(buffer);
 
 		m_context->bindResourceBuffer(slot, VltBufferSlice(buffer.buffer));
 	}
@@ -1065,6 +1078,9 @@ namespace sce::Gnm
 					VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT,
 					VK_IMAGE_TILING_OPTIMAL,
 					VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+				updateMetaTextureInfo(stage, res.startRegister, false, tsharp);
+
 			}
 				break;
 			case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
@@ -1079,6 +1095,8 @@ namespace sce::Gnm
 					VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT,
 					VK_IMAGE_TILING_OPTIMAL,
 					VK_IMAGE_LAYOUT_GENERAL);
+
+				updateMetaTextureInfo(stage, res.startRegister, false, tsharp);
 			}
 				break;
 			case VK_DESCRIPTOR_TYPE_SAMPLER:
@@ -1168,6 +1186,60 @@ namespace sce::Gnm
 		}
 	}
 
+	ShaderStage GnmCommandBufferDraw::getShaderStage(
+		VkPipelineStageFlags pipeStage)
+	{
+		ShaderStage shaderStage = kShaderStageCount;
+		// clang-format off
+		switch (pipeStage)
+		{
+		case VK_PIPELINE_STAGE_VERTEX_SHADER_BIT: shaderStage = kShaderStageVs; break;
+		case VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT: shaderStage = kShaderStagePs; break;
+		case VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT: shaderStage = kShaderStageCs; break;
+		case VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT: shaderStage = kShaderStageGs; break;
+		case VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT: shaderStage = kShaderStageHs; break;
+		// Don't know which stage equals domain, and what the fuck is ES LS?
+		//case VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT: shaderStage = kShaderStageEs; break;
+		default:
+			LOG_ASSERT(false, "pipeline stage can not be converted.");
+			break;
+		}
+		// clang-format on
+		return shaderStage;
+	}
 
+	void GnmCommandBufferDraw::updateMetaTextureInfo(
+		VkPipelineStageFlags stage,
+		uint32_t             startRegister,
+		bool                 isDepth,
+		const Texture*       tsharp)
+	{
+		// T# information is ripped upon uploading shader binary to GPU,
+		// yet we need these information to proper declare image resource
+		// when recompiling shaders.
+
+		GcnTextureInfo info;
+		info.textureType = tsharp->getTextureType();
+		info.channelType = tsharp->getTextureChannelType();
+		info.isDepth     = isDepth;
+
+		switch (stage)
+		{
+		case VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT:
+		{
+			auto& ctx = m_state.shaderContext[kShaderStagePs];
+			ctx.meta.ps.textureInfos[startRegister] = info;
+		}
+			break;
+		case VK_PIPELINE_STAGE_VERTEX_SHADER_BIT:
+		case VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT:
+		case VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT:
+		case VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT:
+		case VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT:
+		default:
+			LOG_ASSERT(false, "TODO: stage %d is not supported yet, please support it.", stage);
+			break;
+		}
+	}
 
 }  // namespace sce::Gnm

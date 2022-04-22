@@ -5,6 +5,7 @@
 #include "GcnInstructionIterator.h"
 #include "GcnShaderMeta.h"
 #include "GcnDecoder.h"
+#include "GcnCompilerDefs.h"
 
 #include "SpirV/SpirvModule.h"
 #include "Violet/VltRc.h"
@@ -13,6 +14,10 @@
 
 #include <vector>
 
+namespace sce::Gnm
+{
+	enum TextureType;
+}  // namespace sce::Gnm
 
 namespace sce::gcn
 {
@@ -20,150 +25,8 @@ namespace sce::gcn
 	class GcnHeader;
 	struct GcnShaderInstruction;
 	struct GcnAnalysisInfo;
+	struct GcnShaderResource;
 
-	enum class GcnZeroTest : uint32_t
-	{
-		TestZ  = 0,
-		TestNz = 1,
-	};
-
-	/**
-     * \brief Scalar value type
-     * 
-     * Enumerates possible register component
-     * types. Scalar types are represented as
-     * a one-component vector type.
-     */
-	enum class GcnScalarType : uint32_t
-	{
-		Uint32  = 0,
-		Uint64  = 1,
-		Sint32  = 2,
-		Sint64  = 3,
-		Float32 = 4,
-		Float64 = 5,
-		Bool    = 6,
-	};
-
-	/**
-	 * \brief Vector type
-	 *
-	 * Convenience struct that stores a scalar
-	 * type and a component count. The compiler
-	 * can use this to generate SPIR-V types.
-	 */
-	struct GcnVectorType
-	{
-		GcnScalarType ctype;
-		uint32_t      ccount;
-	};
-
-	/**
-	 * \brief Array type
-	 *
-	 * Convenience struct that stores a scalar type, a
-	 * component count and an array size. An array of
-	 * length 0 will be evaluated to a vector type. The
-	 * compiler can use this to generate SPIR-V types.
-	 */
-	struct GcnArrayType
-	{
-		GcnScalarType ctype;
-		uint32_t      ccount;
-		uint32_t      alength;
-	};
-
-	/**
-	 * \brief Register info
-	 *
-	 * Stores the array type of a register and
-	 * its storage class. The compiler can use
-	 * this to generate SPIR-V pointer types.
-	 */
-	struct GcnRegisterInfo
-	{
-		GcnArrayType      type;
-		spv::StorageClass sclass;
-	};
-
-	/**
-	 * \brief Register value
-	 *
-	 * Stores a vector type and a SPIR-V ID that
-	 * represents an intermediate value. This is
-	 * used to track the type of such values.
-	 */
-	struct GcnRegisterValue
-	{
-		GcnVectorType type;
-		uint32_t      id;
-	};
-
-	/**
-	 * \brief Register pointer
-	 *
-	 * Stores a vector type and a SPIR-V ID that
-	 * represents a pointer to such a vector. This
-	 * can be used to load registers conveniently.
-	 */
-	struct GcnRegisterPointer
-	{
-		GcnVectorType type;
-		uint32_t      id;
-	};
-
-	/**
-	 * \brief Vertex shader-specific structure
-	 */
-	struct GcnCompilerVsPart
-	{
-		uint32_t functionId = 0;
-
-		uint32_t builtinVertexId     = 0;
-		uint32_t builtinInstanceId   = 0;
-		uint32_t builtinBaseVertex   = 0;
-		uint32_t builtinBaseInstance = 0;
-	};
-
-	/**
-	 * \brief Pixel shader-specific structure
-	 */
-	struct GcnCompilerPsPart
-	{
-		uint32_t functionId = 0;
-
-		uint32_t builtinFragCoord     = 0;
-		uint32_t builtinDepth         = 0;
-		uint32_t builtinStencilRef    = 0;
-		uint32_t builtinIsFrontFace   = 0;
-		uint32_t builtinSampleId      = 0;
-		uint32_t builtinSampleMaskIn  = 0;
-		uint32_t builtinSampleMaskOut = 0;
-		uint32_t builtinLayer         = 0;
-		uint32_t builtinViewportId    = 0;
-
-		uint32_t builtinLaneId = 0;
-		uint32_t killState     = 0;
-
-		uint32_t specRsSampleCount = 0;
-	};
-
-	/**
-     * \brief Compute shader-specific structure
-     */
-	struct GcnCompilerCsPart
-	{
-		uint32_t functionId = 0;
-
-		uint32_t workgroupSizeX = 0;
-		uint32_t workgroupSizeY = 0;
-		uint32_t workgroupSizeZ = 0;
-
-		uint32_t builtinGlobalInvocationId   = 0;
-		uint32_t builtinLocalInvocationId    = 0;
-		uint32_t builtinLocalInvocationIndex = 0;
-		uint32_t builtinWorkgroupId          = 0;
-	};
 
 	/**
 	 * \brief Shader recompiler
@@ -243,12 +106,86 @@ namespace sce::gcn
 		void emitPsFinalize();
 		void emitCsFinalize();
 
-	private:
 		////////////////////////////
 		// Input/output preparation
-		void emitInputFetch();
+		void emitInputSetup();
+		void emitFetchInput();
 
 		void emitOutputSetup();
+		/////////////////////////////////////////////////////
+		// Shader interface and metadata declaration methods
+		void emitDclInputSlots();
+		void emitDclVertexInput();
+		void emitDclInput(
+			const VertexInputSemantic& sema);
+
+		void emitDclBuffer(
+			const GcnShaderResource& res);
+		void emitDclTexture(
+			const GcnShaderResource& res);
+		void emitDclSampler(
+			const GcnShaderResource& res);
+		///////////////////////////////
+		// Variable definition methods
+		uint32_t emitNewVariable(
+			const GcnRegisterInfo& info);
+
+		uint32_t emitNewBuiltinVariable(
+			const GcnRegisterInfo& info,
+			spv::BuiltIn           builtIn,
+			const char*            name);
+
+		///////////////////////////////
+		// SGPR/VGPR load/store methods
+		GcnRegisterValue emitVgprLoad(
+			const GcnInstOperand& reg);
+		GcnRegisterValue emitSgprLoad(
+			const GcnInstOperand& reg);
+		GcnRegisterValue emitVgprArrayLoad(
+			const GcnInstOperand& start,
+			uint32_t              count);
+		GcnRegisterValue emitSgprArrayLoad(
+			const GcnInstOperand& start,
+			uint32_t              count);
+
+		void emitVgprStore(
+			const GcnInstOperand&   reg,
+			const GcnRegisterValue& value);
+		void emitSgprStore(
+			const GcnInstOperand&   reg,
+			const GcnRegisterValue& value);
+		void emitVgprArrayStore(
+			const GcnInstOperand&   start,
+			uint32_t                count,
+			const GcnRegisterValue& value);
+		void emitSgprArrayStore(
+			const GcnInstOperand&   start,
+			uint32_t                count,
+			const GcnRegisterValue& value);
+
+		//////////////////////////////
+		// Operand load/store methods
+		GcnRegisterValue emitValueLoad(
+			GcnRegisterPointer ptr);
+
+		void emitValueStore(
+			GcnRegisterPointer ptr,
+			GcnRegisterValue   value,
+			GcnRegMask         writeMask);
+
+		GcnRegisterValue emitRegisterLoad(
+			const GcnInstOperand& reg,
+			GcnRegMask            writeMask);
+
+		void emitRegisterStore(
+			const GcnInstOperand& reg,
+			GcnRegisterValue      value);
+
+		GcnRegisterPointer emitCompositeAccess(
+			GcnRegisterPointer pointer,
+			spv::StorageClass  sclass,
+			uint32_t           index);
+
 		////////////////////////////////////////////////
 		// Constant building methods. These are used to
 		// generate constant vectors that store the same
@@ -327,6 +264,7 @@ namespace sce::gcn
 		//GcnRegisterValue emitDstOperandModifiers(
 		//	GcnRegisterValue value,
 		//	GcnOpModifiers   modifiers);
+
 		///////////////////////////
 		// Type definition methods
 		uint32_t getScalarTypeId(
@@ -343,10 +281,26 @@ namespace sce::gcn
 
 		uint32_t getPerVertexBlockId();
 
+
 		///////////////////////////
 		//
 		bool isDoubleType(
 			GcnScalarType type) const;
+
+		uint32_t getUserSgprCount() const;
+
+		bool hasFetchShader() const;
+
+		std::pair<const VertexInputSemantic*, uint32_t>
+			getSemanticTable();
+
+		const std::array<GcnTextureInfo, 128>&
+			getTextureInfoTable();
+
+		GcnImageInfo getImageType(
+			Gnm::TextureType textureType,
+			bool             isStorage,
+			bool             isDepth) const;
 
 	private:
 		GcnProgramInfo         m_programInfo;
@@ -361,10 +315,36 @@ namespace sce::gcn
 		uint32_t              m_entryPointId = 0;
 		std::vector<uint32_t> m_entryPointInterfaces;
 
+		///////////////////////////////////////////////////
+		// Shader input interfaces
+		std::array<
+			GcnRegisterPointer, 
+			GcnMaxInterfaceRegs> m_inputs;
+
+		///////////////////////////////////////////////////
+		// VGPR/SGPR registers
+		std::array<
+			GcnRegisterPointer,
+			GcnMaxVGPR> m_vgprs = {};
+		std::array<
+			GcnRegisterPointer,
+			GcnMaxSGPR> m_sgprs = {};
+
+		//////////////////////////////////////////////////////
+		// Shader resource variables. These provide access to
+		// buffers, samplers and textures.
+		std::array<GcnBuffer, 16>   m_buffers;
+		std::array<GcnSampler, 16>  m_samplers;
+		std::array<GcnTexture, 128> m_textures;
+
 		//////////////////////////////////////////////
 		// Function state tracking. Required in order
 		// to properly end functions in some cases.
 		bool m_insideFunction = false;
+		///////////////////////////////////////////////////////////
+		// An array stores up to 16 user data registers.
+		uint32_t m_vUserDataArray = 0;
+
 		////////////////////////////////////////////////////
 		// Per-vertex input and output blocks. Depending on
 		// the shader stage, these may be declared as arrays.

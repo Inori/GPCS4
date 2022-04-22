@@ -26,6 +26,7 @@
     <ClInclude Include="Graphics\Gcn\GcnAnalysis.h" />
     <ClInclude Include="Graphics\Gcn\GcnCommon.h" />
     <ClInclude Include="Graphics\Gcn\GcnCompiler.h" />
+    <ClInclude Include="Graphics\Gcn\GcnCompilerDefs.h" />
     <ClInclude Include="Graphics\Gcn\GcnConstants.h" />
     <ClInclude Include="Graphics\Gcn\GcnDecoder.h" />
     <ClInclude Include="Graphics\Gcn\GcnEnum.h" />
