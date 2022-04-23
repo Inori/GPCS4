@@ -5,6 +5,7 @@
 #include "GcnInstructionIterator.h"
 #include "GcnShaderMeta.h"
 #include "GcnDecoder.h"
+#include "GcnStateRegister.h"
 #include "GcnCompilerDefs.h"
 
 #include "SpirV/SpirvModule.h"
@@ -36,6 +37,7 @@ namespace sce::gcn
 	 */
 	class GcnCompiler : public GcnInstructionIterator
 	{
+		friend class GcnStateRegister;
 	public:
 		GcnCompiler(
 			const std::string&     fileName,
@@ -73,6 +75,79 @@ namespace sce::gcn
 		void emitExport(const GcnShaderInstruction& ins);
 		void emitDebugProfile(const GcnShaderInstruction& ins);
 
+		/////////////////////////////////////////////////////////
+		// Class handlers
+		void emitScalarArith(const GcnShaderInstruction& ins);
+		void emitScalarAbs(const GcnShaderInstruction& ins);
+		void emitScalarMov(const GcnShaderInstruction& ins);
+		void emitScalarCmp(const GcnShaderInstruction& ins);
+		void emitScalarSelect(const GcnShaderInstruction& ins);
+		void emitScalarBitLogic(const GcnShaderInstruction& ins);
+		void emitScalarBitManip(const GcnShaderInstruction& ins);
+		void emitScalarBitField(const GcnShaderInstruction& ins);
+		void emitScalarConv(const GcnShaderInstruction& ins);
+		void emitScalarExecMask(const GcnShaderInstruction& ins);
+		void emitScalarQuadMask(const GcnShaderInstruction& ins);
+		void emitVectorRegMov(const GcnShaderInstruction& ins);
+		void emitVectorLane(const GcnShaderInstruction& ins);
+		void emitVectorBitLogic(const GcnShaderInstruction& ins);
+		void emitVectorBitField32(const GcnShaderInstruction& ins);
+		void emitVectorThreadMask(const GcnShaderInstruction& ins);
+		void emitVectorBitField64(const GcnShaderInstruction& ins);
+		void emitVectorFpArith32(const GcnShaderInstruction& ins);
+		void emitVectorFpRound32(const GcnShaderInstruction& ins);
+		void emitVectorFpField32(const GcnShaderInstruction& ins);
+		void emitVectorFpTran32(const GcnShaderInstruction& ins);
+		void emitVectorFpCmp32(const GcnShaderInstruction& ins);
+		void emitVectorFpArith64(const GcnShaderInstruction& ins);
+		void emitVectorFpRound64(const GcnShaderInstruction& ins);
+		void emitVectorFpField64(const GcnShaderInstruction& ins);
+		void emitVectorFpTran64(const GcnShaderInstruction& ins);
+		void emitVectorFpCmp64(const GcnShaderInstruction& ins);
+		void emitVectorIntArith32(const GcnShaderInstruction& ins);
+		void emitVectorIntArith64(const GcnShaderInstruction& ins);
+		void emitVectorIntCmp32(const GcnShaderInstruction& ins);
+		void emitVectorIntCmp64(const GcnShaderInstruction& ins);
+		void emitVectorConv(const GcnShaderInstruction& ins);
+		void emitVectorFpGraph32(const GcnShaderInstruction& ins);
+		void emitVectorIntGraph(const GcnShaderInstruction& ins);
+		void emitVectorMisc(const GcnShaderInstruction& ins);
+		void emitScalarProgFlow(const GcnShaderInstruction& ins);
+		void emitScalarSync(const GcnShaderInstruction& ins);
+		void emitScalarWait(const GcnShaderInstruction& ins);
+		void emitScalarCache(const GcnShaderInstruction& ins);
+		void emitScalarPrior(const GcnShaderInstruction& ins);
+		void emitScalarRegAccess(const GcnShaderInstruction& ins);
+		void emitScalarMsg(const GcnShaderInstruction& ins);
+		void emitScalarMemRd(const GcnShaderInstruction& ins);
+		void emitScalarMemUt(const GcnShaderInstruction& ins);
+		void emitVectorMemBufNoFmt(const GcnShaderInstruction& ins);
+		void emitVectorMemBufFmt(const GcnShaderInstruction& ins);
+		void emitVectorMemImgNoSmp(const GcnShaderInstruction& ins);
+		void emitVectorMemImgSmp(const GcnShaderInstruction& ins);
+		void emitVectorMemImgUt(const GcnShaderInstruction& ins);
+		void emitVectorMemL1Cache(const GcnShaderInstruction& ins);
+		void emitDsIdxRd(const GcnShaderInstruction& ins);
+		void emitDsIdxWr(const GcnShaderInstruction& ins);
+		void emitDsIdxWrXchg(const GcnShaderInstruction& ins);
+		void emitDsIdxCondXchg(const GcnShaderInstruction& ins);
+		void emitDsIdxWrap(const GcnShaderInstruction& ins);
+		void emitDsAtomicArith32(const GcnShaderInstruction& ins);
+		void emitDsAtomicArith64(const GcnShaderInstruction& ins);
+		void emitDsAtomicMinMax32(const GcnShaderInstruction& ins);
+		void emitDsAtomicMinMax64(const GcnShaderInstruction& ins);
+		void emitDsAtomicCmpSt32(const GcnShaderInstruction& ins);
+		void emitDsAtomicCmpSt64(const GcnShaderInstruction& ins);
+		void emitDsAtomicLogic32(const GcnShaderInstruction& ins);
+		void emitDsAtomicLogic64(const GcnShaderInstruction& ins);
+		void emitDsAppendCon(const GcnShaderInstruction& ins);
+		void emitDsDataShareUt(const GcnShaderInstruction& ins);
+		void emitDsDataShareMisc(const GcnShaderInstruction& ins);
+		void emitGdsSync(const GcnShaderInstruction& ins);
+		void emitGdsOrdCnt(const GcnShaderInstruction& ins);
+		void emitVectorInterpFpCache(const GcnShaderInstruction& ins);
+		void emitExp(const GcnShaderInstruction& ins);
+		void emitDbgPro(const GcnShaderInstruction& ins);
 		//////////////////////////////////////
 		// Common function definition methods
 		void emitInit();
@@ -137,10 +212,17 @@ namespace sce::gcn
 
 		///////////////////////////////
 		// SGPR/VGPR load/store methods
+		template <bool IsVgpr>
+		GcnRegisterValue emitGprLoad(
+			const GcnInstOperand& reg);
 		GcnRegisterValue emitVgprLoad(
 			const GcnInstOperand& reg);
 		GcnRegisterValue emitSgprLoad(
 			const GcnInstOperand& reg);
+		template <bool IsVgpr>
+		GcnRegisterValue emitGprArrayLoad(
+			const GcnInstOperand& start,
+			uint32_t              count);
 		GcnRegisterValue emitVgprArrayLoad(
 			const GcnInstOperand& start,
 			uint32_t              count);
@@ -148,11 +230,20 @@ namespace sce::gcn
 			const GcnInstOperand& start,
 			uint32_t              count);
 
+		template <bool IsVgpr>
+		void emitGprStore(
+			const GcnInstOperand&   reg,
+			const GcnRegisterValue& value);
 		void emitVgprStore(
 			const GcnInstOperand&   reg,
 			const GcnRegisterValue& value);
 		void emitSgprStore(
 			const GcnInstOperand&   reg,
+			const GcnRegisterValue& value);
+		template <bool IsVgpr>
+		void emitGprArrayStore(
+			const GcnInstOperand&   start,
+			uint32_t                count,
 			const GcnRegisterValue& value);
 		void emitVgprArrayStore(
 			const GcnInstOperand&   start,
@@ -173,13 +264,12 @@ namespace sce::gcn
 			GcnRegisterValue   value,
 			GcnRegMask         writeMask);
 
-		GcnRegisterValue emitRegisterLoad(
-			const GcnInstOperand& reg,
-			GcnRegMask            writeMask);
+		GcnRegisterValuePair emitRegisterLoad(
+			const GcnInstOperand& reg);
 
 		void emitRegisterStore(
-			const GcnInstOperand& reg,
-			GcnRegisterValue      value);
+			const GcnInstOperand&       reg,
+			const GcnRegisterValuePair& value);
 
 		GcnRegisterPointer emitCompositeAccess(
 			GcnRegisterPointer pointer,
@@ -220,6 +310,10 @@ namespace sce::gcn
 		GcnRegisterValue emitRegisterBitcast(
 			GcnRegisterValue srcValue,
 			GcnScalarType    dstType);
+
+		GcnRegisterValuePair emitRegisterBitcast(
+			GcnRegisterValuePair srcValue,
+			GcnScalarType        dstType);
 
 		GcnRegisterValue emitRegisterSwizzle(
 			GcnRegisterValue value,
@@ -309,6 +403,8 @@ namespace sce::gcn
 		const GcnAnalysisInfo* m_analysis;
 		SpirvModule            m_module;
 
+		// Hardware state registers.
+		GcnStateRegisters m_state;
 		///////////////////////////////////////////////////
 		// Entry point description - we'll need to declare
 		// the function ID and all input/output variables.

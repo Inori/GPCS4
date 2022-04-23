@@ -333,24 +333,28 @@ namespace sce::gcn
 		uint32_t      encodingOp = mapEncodingOp(encoding, m_instruction.opcode);
 		GcnInstFormat instFormat = gcnInstructionFormat(encoding, encodingOp);
 
+		LOG_ASSERT(instFormat.srcType != GcnScalarType::Undefined &&
+				   instFormat.dstType != GcnScalarType::Undefined,
+				   "TODO: Instruction format table not complete, please fix it manually.");
+
 		m_instruction.opClass  = instFormat.instructionClass;
 		m_instruction.category = instFormat.instructionCategory;
 		m_instruction.encoding = encoding;
 		m_instruction.srcCount = instFormat.srcCount;
 		m_instruction.length   = getEncodingLength(encoding);
 
-		// Update src operand numeric type.
+		// Update src operand scalar type.
 		// Dst operand's type is set during instruction decoding.
-		auto setOperandNumType = [&instFormat](GcnInstOperand& src)
+		auto setOperandType = [&instFormat](GcnInstOperand& src)
 		{
 			// Only update uninitialized numeric type.
-			if (src.numericType == GcnNumericType::Undefined)
+			if (src.type == GcnScalarType::Undefined)
 			{
-				src.numericType = instFormat.srcType;
+				src.type = instFormat.srcType;
 			}
 		};
 
-		std::for_each_n(std::begin(m_instruction.src), m_instruction.srcCount, setOperandNumType);
+		std::for_each_n(std::begin(m_instruction.src), m_instruction.srcCount, setOperandType);
 	}
 
 	GcnOperandField GcnDecodeContext::getOperandField(uint32_t code)

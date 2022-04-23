@@ -41,6 +41,7 @@
     <ClInclude Include="Graphics\Gcn\GcnShaderKey.h" />
     <ClInclude Include="Graphics\Gcn\GcnShaderRegField.h" />
     <ClInclude Include="Graphics\Gcn\GcnShaderRegister.h" />
+    <ClInclude Include="Graphics\Gcn\GcnStateRegister.h" />
     <ClInclude Include="Graphics\Gcn\GcnUtil.h" />
     <ClInclude Include="Graphics\Gnm\GnmRenderState.h" />
     <ClInclude Include="Graphics\Gnm\GnmResourceFactory.h" />
@@ -301,6 +302,7 @@
     <ClCompile Include="Graphics\Gcn\GcnInstructionIterator.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnModule.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnProgramInfo.cpp" />
+    <ClCompile Include="Graphics\Gcn\GcnStateRegister.cpp" />
     <ClCompile Include="Graphics\Gnm\GnmResourceFactory.cpp" />
     <ClCompile Include="Graphics\Gnm\GnmCommandBuffer.cpp" />
     <ClCompile Include="Graphics\Gnm\GnmCommandBufferDispatch.cpp" />
@@ -569,10 +571,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(ProjectDir);$(ProjectDir)Emulator;$(ProjectDir)Algorithm;$(ProjectDir)Common;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)SceModules;$(SolutionDir)3rdParty;$(SolutionDir)3rdParty\zydis\include;$(SolutionDir)3rdParty\zydis\dependencies\zycore\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
+    <EnableClangTidyCodeAnalysis>
+    </EnableClangTidyCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(ProjectDir);$(ProjectDir)Emulator;$(ProjectDir)Algorithm;$(ProjectDir)Common;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)SceModules;$(SolutionDir)3rdParty;$(SolutionDir)3rdParty\zydis\include;$(SolutionDir)3rdParty\zydis\dependencies\zycore\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
+    <EnableClangTidyCodeAnalysis>
+    </EnableClangTidyCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Label="LLVM" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClangClAdditionalOptions>-Wno-unused-variable -Wno-unused-private-field -Wno-switch -Wno-return-type -Wno-unused-function -Wno-return-type -Wno-microsoft-enum-forward-reference /showFilenames</ClangClAdditionalOptions>

@@ -30,7 +30,11 @@ namespace sce::gcn
 		m_header(&header),
 		m_meta(meta),
 		m_analysis(&analysis),
-		m_module(spvVersion(1, 3))
+		m_module(spvVersion(1, 3)),
+		m_state({
+			{ this, 1 },  // assume we have only one thread, and the thread id is 0
+			{ this, 0 },
+		})
 	{
 		// Declare an entry point ID. We'll need it during the
 		// initialization phase where the execution mode is set.
@@ -295,7 +299,6 @@ namespace sce::gcn
 	{
 	}
 
-
 	void GcnCompiler::emitDclInputSlots()
 	{
 		// Declare resource and input interfaces in input usage slot
@@ -307,46 +310,49 @@ namespace sce::gcn
 			ShaderInputUsageType usage = (ShaderInputUsageType)res.usage;
 			switch (usage)
 			{
-			case kShaderInputUsageImmConstBuffer:  
-			{
-				// ImmConstBuffer is different from D3D11 ImmediateConstantBuffer
-				// It's not constant data embedded into the shader, it's just a simple buffer binding.
-				this->emitDclBuffer(res);
-			}
-				break;
-			case kShaderInputUsageImmResource:
-			case kShaderInputUsageImmRwResource:
-			{
-				if (res.type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER)
+				case kShaderInputUsageImmConstBuffer:
 				{
+					// ImmConstBuffer is different from D3D11's ImmediateConstantBuffer
+					// It's not constant data embedded into the shader, it's just a simple buffer binding.
 					this->emitDclBuffer(res);
 				}
-				else
+					break;
+				case kShaderInputUsageImmResource:
+				case kShaderInputUsageImmRwResource:
 				{
-					this->emitDclTexture(res);
+					if (res.type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER)
+					{
+						this->emitDclBuffer(res);
+					}
+					else
+					{
+						this->emitDclTexture(res);
+					}
 				}
-			}
-				break;
-			case kShaderInputUsageImmSampler:
-				break;
-			case kShaderInputUsagePtrVertexBufferTable:
-			{
-				LOG_ASSERT(hasFetchShader() == true, "no fetch shader found while vertex buffer table exist.");
-				// Declare vertex input
-				this->emitDclVertexInput();
-				// Emulate fetch shader with a function
-				this->emitFetchInput();
-			}
-				break;
-			case kShaderInputUsageImmAluFloatConst:
-			case kShaderInputUsageImmAluBool32Const:
-			case kShaderInputUsageImmGdsCounterRange:
-			case kShaderInputUsageImmGdsMemoryRange:
-			case kShaderInputUsageImmGwsBase:
-			case kShaderInputUsageImmLdsEsGsSize:
-			case kShaderInputUsageImmVertexBuffer:
-				LOG_ASSERT(false, "TODO: usage type %d not supported.", usage);
-				break;
+					break;
+				case kShaderInputUsageImmSampler:
+				{
+					this->emitDclSampler(res);
+				}
+					break;
+				case kShaderInputUsagePtrVertexBufferTable:
+				{
+					LOG_ASSERT(hasFetchShader() == true, "no fetch shader found while vertex buffer table exist.");
+					// Declare vertex input
+					this->emitDclVertexInput();
+					// Emulate fetch shader with a function
+					this->emitFetchInput();
+				}
+					break;
+				case kShaderInputUsageImmAluFloatConst:
+				case kShaderInputUsageImmAluBool32Const:
+				case kShaderInputUsageImmGdsCounterRange:
+				case kShaderInputUsageImmGdsMemoryRange:
+				case kShaderInputUsageImmGwsBase:
+				case kShaderInputUsageImmLdsEsGsSize:
+				case kShaderInputUsageImmVertexBuffer:
+					LOG_ASSERT(false, "TODO: usage type %d not supported.", usage);
+					break;
 			}
 		}
 	}
@@ -446,7 +452,8 @@ namespace sce::gcn
 		const auto& textureInfoTable = getTextureInfoTable();
 		const auto& textureInfo      = textureInfoTable[registerId];
 
-		// We also handle unordered access views here
+		// TODO
+		// Support storage image
 		const bool isStorage = res.usage != kShaderInputUsageImmResource;
 
 		if (isStorage)
@@ -591,7 +598,7 @@ namespace sce::gcn
 		const uint32_t varId = m_module.newVar(samplerPtrType,
 											   spv::StorageClassUniformConstant);
 		m_module.setDebugName(varId,
-							  util::str::formatex("s", samplerId).c_str());
+							  util::str::formatex("sampler", samplerId).c_str());
 
 		m_samplers.at(samplerId).varId  = varId;
 		m_samplers.at(samplerId).typeId = samplerType;
@@ -625,7 +632,7 @@ namespace sce::gcn
 		const uint32_t varId = emitNewVariable(info);
 
 		m_module.decorateLocation(varId, sema.m_semantic);
-		m_module.setDebugName(varId, util::str::formatex("v", sema.m_semantic).c_str());
+		m_module.setDebugName(varId, util::str::formatex("vertex", sema.m_semantic).c_str());
 
 		// Record the input so that we can
 		// use it in fetch shader.
@@ -723,56 +730,78 @@ namespace sce::gcn
 		return varId;
 	}
 
-	GcnRegisterValue GcnCompiler::emitVgprLoad(
+	template <bool IsVgpr>
+	GcnRegisterValue GcnCompiler::emitGprLoad(
 		const GcnInstOperand& reg)
 	{
-		uint32_t            vgprIndex = reg.code - GcnCodeVGPR0;
-		GcnRegisterPointer& vgpr      = m_vgprs[vgprIndex];
+		GcnRegisterPointer* gpr = nullptr;
+		if constexpr (IsVgpr)
+		{
+			uint32_t vgprIndex = reg.code - GcnCodeVGPR0;
+			gpr                = &m_vgprs[vgprIndex];
+		}
+		else
+		{
+			gpr = &m_sgprs[reg.code];
+		}
 
-		// vgprs are not allowed to load before created.
+		// sgprs/vgprs are not allowed to load before created.
 		// if this occurs, it is most likely a system value vgpr
 		// which should be initialized in emitInputSetup,
 		// please add it there.
-		LOG_ASSERT(vgpr.id != 0, "vgpr v%d is not initialized before load.", vgprIndex);
+		LOG_ASSERT(gpr->id != 0, "sgpr/vgpr is not initialized before load.");
 
-		return this->emitValueLoad(vgpr);
+		return this->emitValueLoad(*gpr);
 	}
 
-	void GcnCompiler::emitVgprStore(
+	template <bool IsVgpr>
+	void GcnCompiler::emitGprStore(
 		const GcnInstOperand&   reg,
 		const GcnRegisterValue& value)
 	{
-		uint32_t            vgprIndex = reg.code - GcnCodeVGPR0;
-		GcnRegisterPointer& vgpr      = m_vgprs[vgprIndex];
+		GcnRegisterPointer* gpr = nullptr;
+		std::string         debugName;
+		if constexpr (IsVgpr)
+		{
+			uint32_t vgprIndex = reg.code - GcnCodeVGPR0;
+			gpr                = &m_vgprs[vgprIndex];
+			debugName          = util::str::formatex("v", vgprIndex);
+		}
+		else
+		{
+			gpr       = &m_sgprs[reg.code];
+			debugName = util::str::formatex("s", reg.code);
+		}
 
 		// If the vgpr has not been used, we create one.
-		if (vgpr.id == 0)
+		if (gpr->id == 0)
 		{
 			GcnRegisterInfo info;
 			info.type.ctype   = GcnScalarType::Float32;
 			info.type.ccount  = 1;
 			info.type.alength = 0;
 			info.sclass       = spv::StorageClassPrivate;
-			uint32_t id       = emitNewVariable(info);
 
-			vgpr.type.ctype  = info.type.ctype;
-			vgpr.type.ccount = info.type.ccount;
-			vgpr.id          = id;
+			uint32_t id = emitNewVariable(info);
+			m_module.setDebugName(id, debugName.c_str());
+
+			gpr->type.ctype  = info.type.ctype;
+			gpr->type.ccount = info.type.ccount;
+			gpr->id          = id;
 		}
 
-		return this->emitValueStore(vgpr, value, GcnRegMask(true, false, false, false));
+		return this->emitValueStore(*gpr, value, GcnRegMask(true, false, false, false));
 	}
 
-	GcnRegisterValue GcnCompiler::emitVgprArrayLoad(
+	template <bool IsVgpr>
+	GcnRegisterValue GcnCompiler::emitGprArrayLoad(
 		const GcnInstOperand& start,
 		uint32_t              count)
 	{
-
-		// load values in vgpr array into a vector,
-		// e.g. v[4:6] -> vec3
 	}
 
-	void GcnCompiler::emitVgprArrayStore(
+	template <bool IsVgpr>
+	void GcnCompiler::emitGprArrayStore(
 		const GcnInstOperand&   start,
 		uint32_t                count,
 		const GcnRegisterValue& value)
@@ -782,40 +811,69 @@ namespace sce::gcn
 
 		LOG_ASSERT(count <= value.type.ccount, "value component count is less than store count.");
 
-		for (uint32_t i = 0; i != count ; ++i)
+		for (uint32_t i = 0; i != count; ++i)
 		{
 			GcnInstOperand reg = start;
 			reg.code += i;
 
 			uint32_t typeId = this->getScalarTypeId(value.type.ctype);
 			uint32_t id     = m_module.opCompositeExtract(
-				typeId, value.id, 1, &i);
+					typeId, value.id, 1, &i);
 
 			GcnRegisterValue val;
 			val.type.ctype  = value.type.ctype;
 			val.type.ccount = 1;
 			val.id          = id;
-			this->emitVgprStore(reg, val);
+			this->emitGprStore<IsVgpr>(reg, val);
 		}
+	}
+
+	GcnRegisterValue GcnCompiler::emitVgprLoad(
+		const GcnInstOperand& reg)
+	{
+		return this->emitGprLoad<true>(reg);
+	}
+
+	void GcnCompiler::emitVgprStore(
+		const GcnInstOperand&   reg,
+		const GcnRegisterValue& value)
+	{
+		this->emitGprStore<true>(reg, value);
+	}
+
+	GcnRegisterValue GcnCompiler::emitVgprArrayLoad(
+		const GcnInstOperand& start,
+		uint32_t              count)
+	{
+		return this->emitGprArrayLoad<true>(start, count);
+	}
+
+	void GcnCompiler::emitVgprArrayStore(
+		const GcnInstOperand&   start,
+		uint32_t                count,
+		const GcnRegisterValue& value)
+	{
+		this->emitGprArrayStore<true>(start, count, value);
 	}
 
 	GcnRegisterValue GcnCompiler::emitSgprLoad(
 		const GcnInstOperand& reg)
 	{
+		return this->emitGprLoad<false>(reg);
 	}
 
 	void GcnCompiler::emitSgprStore(
 		const GcnInstOperand&   reg,
 		const GcnRegisterValue& value)
 	{
+		this->emitGprStore<false>(reg, value);
 	}
 
 	GcnRegisterValue GcnCompiler::emitSgprArrayLoad(
 		const GcnInstOperand& start,
 		uint32_t              count)
 	{
-		// load values in vgpr array into a vector,
-		// e.g. v[4:6] -> vec3
+		return this->emitGprArrayLoad<false>(start, count);
 	}
 
 	void GcnCompiler::emitSgprArrayStore(
@@ -823,8 +881,7 @@ namespace sce::gcn
 		uint32_t                count,
 		const GcnRegisterValue& value)
 	{
-		// store values in a vector into sgpr array,
-		// e.g. vec3 -> s[4:6]
+		this->emitGprArrayStore<false>(start, count, value);
 	}
 
 	GcnRegisterValue GcnCompiler::emitValueLoad(
@@ -869,16 +926,121 @@ namespace sce::gcn
 		}
 	}
 
-	GcnRegisterValue GcnCompiler::emitRegisterLoad(
-		const GcnInstOperand& reg,
-		GcnRegMask            writeMask)
+	GcnRegisterValuePair GcnCompiler::emitRegisterLoad(
+		const GcnInstOperand& reg)
 	{
+		GcnRegisterValuePair result = {};
+
+		LOG_ASSERT(reg.type != GcnScalarType::Float64, "TODO: support float64.");
+
+		bool loadHighPart = reg.type == GcnScalarType::Uint64 ||
+							reg.type == GcnScalarType::Sint64;
+
+		auto field = reg.field;
+		switch (field)
+		{
+			case GcnOperandField::ScalarGPR:
+			{
+				result.low = this->emitSgprLoad(reg);
+				if (loadHighPart)
+				{
+					GcnInstOperand highReg = reg;
+					highReg.code += 1;
+					result.high = this->emitSgprLoad(highReg);
+				}
+			}
+				break;
+			case GcnOperandField::VccLo:
+				break;
+			case GcnOperandField::VccHi:
+				break;
+			case GcnOperandField::M0:
+				break;
+			case GcnOperandField::ExecLo:
+				break;
+			case GcnOperandField::ExecHi:
+				break;
+			case GcnOperandField::ConstZero:
+				break;
+			case GcnOperandField::SignedConstIntPos:
+				break;
+			case GcnOperandField::SignedConstIntNeg:
+				break;
+			case GcnOperandField::ConstFloatPos_0_5:
+				break;
+			case GcnOperandField::ConstFloatNeg_0_5:
+				break;
+			case GcnOperandField::ConstFloatPos_1_0:
+				break;
+			case GcnOperandField::ConstFloatNeg_1_0:
+				break;
+			case GcnOperandField::ConstFloatPos_2_0:
+				break;
+			case GcnOperandField::ConstFloatNeg_2_0:
+				break;
+			case GcnOperandField::ConstFloatPos_4_0:
+				break;
+			case GcnOperandField::ConstFloatNeg_4_0:
+				break;
+			case GcnOperandField::VccZ:
+				break;
+			case GcnOperandField::ExecZ:
+				break;
+			case GcnOperandField::Scc:
+				break;
+			case GcnOperandField::LdsDirect:
+				break;
+			case GcnOperandField::LiteralConst:
+				break;
+			case GcnOperandField::VectorGPR:
+				break;
+			case GcnOperandField::Undefined:
+			default:
+				LOG_GCN_UNHANDLED_INST();
+				break;
+		}
+
+		result = emitRegisterBitcast(result, reg.type);
+
+		return result;
 	}
 
 	void GcnCompiler::emitRegisterStore(
-		const GcnInstOperand& reg,
-		GcnRegisterValue      value)
+		const GcnInstOperand&       reg,
+		const GcnRegisterValuePair& value)
 	{
+		auto field = reg.field;
+		switch (field)
+		{
+			case GcnOperandField::ScalarGPR:
+				break;
+			case GcnOperandField::VccLo:
+				break;
+			case GcnOperandField::VccHi:
+				break;
+			case GcnOperandField::M0:
+				break;
+			case GcnOperandField::ExecLo:
+				break;
+			case GcnOperandField::ExecHi:
+				break;
+			case GcnOperandField::VccZ:
+				break;
+			case GcnOperandField::ExecZ:
+				break;
+			case GcnOperandField::Scc:
+				break;
+			case GcnOperandField::LdsDirect:
+				break;
+			case GcnOperandField::LiteralConst:
+				break;
+			case GcnOperandField::VectorGPR:
+				break;
+			case GcnOperandField::Undefined:
+			default:
+				LOG_GCN_UNHANDLED_INST();
+				break;
+		}
 	}
 
 	GcnRegisterPointer GcnCompiler::emitCompositeAccess(
@@ -1034,6 +1196,42 @@ namespace sce::gcn
 		result.id = m_module.opBitcast(
 			getVectorTypeId(result.type),
 			srcValue.id);
+		return result;
+	}
+
+	GcnRegisterValuePair GcnCompiler::emitRegisterBitcast(
+		GcnRegisterValuePair srcValue,
+		GcnScalarType        dstType)
+	{
+		// Cast gpr pair
+
+		GcnRegisterValuePair result = srcValue;
+
+		LOG_ASSERT(dstType != GcnScalarType::Float64, "TODO: support float64");
+		bool castHighPart = isDoubleType(dstType);
+
+		GcnScalarType resultType = dstType;
+		if (castHighPart)
+		{
+			if (dstType == GcnScalarType::Uint64)
+			{
+				resultType = GcnScalarType::Uint32;
+			}
+			else if (dstType == GcnScalarType::Sint64)
+			{
+				resultType = GcnScalarType::Sint32;
+			}
+			else
+			{
+				LOG_ASSERT(false, "not supported.");
+			}
+		}
+
+		result.low = emitRegisterBitcast(result.low, resultType);
+		if (castHighPart)
+		{
+			result.high = emitRegisterBitcast(result.high, resultType);
+		}
 		return result;
 	}
 
@@ -1492,6 +1690,5 @@ namespace sce::gcn
 
 		return typeInfo;
 	}
-
 
 }  // namespace sce::gcn

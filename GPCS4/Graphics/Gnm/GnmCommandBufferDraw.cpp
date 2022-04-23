@@ -514,7 +514,7 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::dispatch(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ)
 	{
-		commitComputeState();
+		//commitComputeState();
 
 		m_context->dispatch(threadGroupX, threadGroupY, threadGroupZ);
 	}
@@ -838,7 +838,7 @@ namespace sce::Gnm
 	{
 		// Update index
 		// All draw calls in Gnm need index buffer.
-		auto indexBuffer = m_state.ia.indexBuffer;
+		auto& indexBuffer = m_state.ia.indexBuffer;
 		m_context->bindIndexBuffer(
 			VltBufferSlice(indexBuffer, 0, indexBuffer->info().size),
 			m_state.ia.indexType);

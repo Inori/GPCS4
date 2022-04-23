@@ -175,6 +175,32 @@ def ParseOpType(op_name):
             dst_type = src_type
     return dst_type, src_type
 
+def GetScalarType(op_type):
+    result = 'Undefined'
+
+    if op_type in ['B8', 'B16', 'B32', "U8", "U16", "U24", "U32"]:
+        result = 'Uint32'
+    elif op_type in ['B64', 'U64']:
+        result = 'Uint64'
+    elif op_type in ['F16']:
+        result = 'Float16'
+    elif op_type in ['F32']:
+        result = 'Float32'
+    elif op_type in ['F64']:
+        result = 'Float64'
+    elif op_type in ['I4', 'I8', 'I16', "I24", 'I32']:
+        result = 'Sint32'
+    elif op_type in ['I64']:
+        result = 'Sint64'
+    elif op_type in ['B96', 'B128']:
+        result = 'Undefined'
+    elif op_type in ['Undefined']:
+        result = 'Undefined'
+    else:
+        input('error type {}'.format(op_type))
+
+    return result
+
 def GetInstCategory(ins_class):
     category = ''
     if ins_class in [
@@ -305,6 +331,8 @@ def WriteOpFormat(op_dic):
             cls = inst_info[0]
             src_count = DefaultSrcCountTable[encoding]
             dst_type, src_type = ParseOpType(opcode)
+            src_type = GetScalarType(src_type)
+            dst_type = GetScalarType(dst_type)
             category = GetInstCategory(cls)
 
             if 'GCN_SRC_NONE' in mode:
@@ -321,7 +349,7 @@ def WriteOpFormat(op_dic):
             if encoding == 'GCNENC_VOP3' and (value >= 0 and value <= 247):
                 src_count = 2
 
-            code_line = '\t// {} = {}\n\t{{ GcnInstClass::{}, GcnInstCategory::{}, {}, {},\n\t\tGcnNumericType::{}, GcnNumericType::{} }},'.\
+            code_line = '\t// {} = {}\n\t{{ GcnInstClass::{}, GcnInstCategory::{}, {}, {},\n\t\tGcnScalarType::{}, GcnScalarType::{} }},'.\
                 format(value, opcode, cls, category, src_count, 1, src_type, dst_type)
             struct_array[value] = code_line
 

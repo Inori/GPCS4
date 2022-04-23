@@ -2377,30 +2377,35 @@ namespace sce::gcn
 		DebugProfile,
 	};
 
-	enum class GcnNumericType : uint32_t
+	/**
+	 * \brief Scalar value type
+	 *
+	 * Enumerates possible register component
+	 * types. Scalar types are represented as
+	 * a one-component vector type.
+	 */
+	enum class GcnScalarType : uint32_t
 	{
+		// If a instruction or it's operands scalar type
+		// is undefined, it will hit the assert
+		// in decoder, in such case,
+		// please fill it with the correct value.
 		Undefined,
+		// Some instructions' operands do not need a scalar type
+		// but 'Undefined' is used in assert to alert developer 
+		// to fix the uncompleted table,
+		// so we need a dummy value to pass the assert for 
+		// those special instructions.
+		Dummy,  
 
-		B8,
-		B16,
-		B32,
-		B64,
-		B96,
-		B128,
-		F16,
-		F32,
-		F64,
-		U8,
-		U16,
-		U24,
-		U32,
-		U64,
-		I4,
-		I8,
-		I16,
-		I24,
-		I32,
-		I64,
+		Uint32,
+		Uint64,
+		Sint32,
+		Sint64,
+		Float16,
+		Float32,
+		Float64,
+		Bool,
 	};
 
 	enum class GcnOperandField : uint32_t

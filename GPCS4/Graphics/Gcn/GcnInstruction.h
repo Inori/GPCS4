@@ -18,14 +18,14 @@ namespace sce::gcn
 		uint32_t srcCount = 0;
 		uint32_t dstCount = 0;
 
-		GcnNumericType srcType = GcnNumericType::Undefined;
-		GcnNumericType dstType = GcnNumericType::Undefined;
+		GcnScalarType srcType = GcnScalarType::Undefined;
+		GcnScalarType dstType = GcnScalarType::Undefined;
 	};
 
 	struct GcnInstOperand
 	{
-		GcnOperandField field       = GcnOperandField::Undefined;
-		GcnNumericType  numericType = GcnNumericType::Undefined;
+		GcnOperandField field = GcnOperandField::Undefined;
+		GcnScalarType   type  = GcnScalarType::Undefined;
 		union
 		{
 			uint32_t code = 0xFFFFFFFF;
