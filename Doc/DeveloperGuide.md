@@ -24,22 +24,22 @@ Build steps:
 
  
 ## Run demos/games:
-Currently, GPCS4 need a path of main elf/bin as input parameter, and will redirect all `app0` access to the `Current Working Directory`.  
+Currently, GPCS4 needs a path to the main elf/bin file as input parameter, and will redirect all `app0` access to the `Current Working Directory`.  
 ie. `/app0/shader_vv.sb` to `E:\Code\GPCS4\Debug\shader_vv.sb`  
 
 Follow the steps:
-1. Checkout a proper branch, the master branch is under heavy development and maybe not stable for test.
+1. Checkout a proper branch, the master branch is under heavy development and maybe not stable for testing.
 2. Extract `lib` from [your download](https://pastebin.com/bUxckm3y) to the folder where your game is located.
 3. Open properties window of GPCS4 project in Visual Studio, switch to Debugging tab,  
 set `Working Directory` to your game's folder.  
 set `Command Arguments` according to the help message, ie. `-E eboot.bin`.   
-Note you don't need to specify the full path because the `Working Directory` has been set to the folder the elf/bin locate.
+Note you don't need to specify the full path because the `Working Directory` has been set to the folder that the elf/bin located.
 4. Build the `x64 Debug` version and press F5.
 
 Note, if you want to test the graphics part, currently I've not implemented constant buffers, so you need to 
 `#define SCE_GNMX_ENABLE_GFX_LCUE 1` before building any demos.
 
-## For short term bug fix & feature add:
+## For short term bug fixes & feature additions:
 Read our [code style document](https://github.com/Inori/GPCS4/blob/master/Doc/CodeStyle.md), then just make a pull request, we'll see.
 
 
@@ -47,7 +47,7 @@ Read our [code style document](https://github.com/Inori/GPCS4/blob/master/Doc/Co
 
 ***Make sure you have enough free time to do this job. Don't just have a brief period of enthusiasm. This is the most important part.***
 
-Note, before you write any code, read our [code style document](https://github.com/Inori/GPCS4/blob/master/Doc/CodeStyle.md) carefully, code which do not follow the style will not be accepted.  
+Note, before you write any code, read our [code style document](https://github.com/Inori/GPCS4/blob/master/Doc/CodeStyle.md) carefully, code which does not follow the style will not be accepted.  
 Also, you can take the existing code as examples.
 
 Follow the steps:
