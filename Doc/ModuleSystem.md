@@ -10,7 +10,7 @@ To be done...
 
 ## Rules of Module Loading and Linking
 
-One thing that may confuse newcomers is that the emulator does not treat virtual and native modules equally. The virtual modules are somehow the first-class citizens in the GPCS4, which are preferred by the module system, and all of them get loaded before the game executable is loaded. The native modules, on the other hand, are loaded on-demand after the loading of the game executable, so we use the term "**override**" to describe the module system uses an implementation from a native module instead of a virtual module.
+One thing that may confuse newcomers is that the emulator does not treat virtual and native modules equally. The virtual modules are somehow the first-class citizens in the GPCS4, which are preferred by the module system, and all of them get loaded before the game executable is loaded. The native modules, on the other hand, are loaded on-demand after the loading of the game executable, so we use the term "**override**" to describe the way the module system uses an implementation from a native module instead of a virtual module.
 
 ### The Overridability Switches 
 
