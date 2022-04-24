@@ -81,6 +81,9 @@ namespace sce::gcn
 	 * The high part may be empty/undefined if
 	 * it's not needed.
 	 * 
+	 * If type is float16 or float64,
+	 * we use low to save the value.
+	 * 
 	 */
 	struct GcnRegisterValuePair
 	{

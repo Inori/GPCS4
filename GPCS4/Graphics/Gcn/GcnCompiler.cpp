@@ -1002,6 +1002,8 @@ namespace sce::gcn
 
 		result = emitRegisterBitcast(result, reg.type);
 
+		result.low = emitInputModifiers(result.low, reg.inputModifier);
+
 		return result;
 	}
 
@@ -1460,39 +1462,45 @@ namespace sce::gcn
 		return result;
 	}
 
-	// GcnRegisterValue GcnCompiler::emitSrcOperandModifiers(
-	//	GcnRegisterValue value,
-	//	GcnRegModifiers  modifiers)
-	//{
-	//	if (modifiers.test(GcnRegModifier::Abs))
-	//		value = emitRegisterAbsolute(value);
+	GcnRegisterValue GcnCompiler::emitInputModifiers(
+		GcnRegisterValue  value,
+		GcnInputModifiers modifiers)
+	{
+		if (modifiers.test(GcnInputModifier::Abs))
+			value = emitRegisterAbsolute(value);
 
-	//	if (modifiers.test(GcnRegModifier::Neg))
-	//		value = emitRegisterNegate(value);
-	//	return value;
-	//}
+		if (modifiers.test(GcnInputModifier::Neg))
+			value = emitRegisterNegate(value);
+		return value;
+	}
 
-	// GcnRegisterValue GcnCompiler::emitDstOperandModifiers(
-	//	GcnRegisterValue value,
-	//	GcnOpModifiers   modifiers)
-	//{
-	//	const uint32_t typeId = getVectorTypeId(value.type);
+	GcnRegisterValue GcnCompiler::emitOutputModifiers(
+		GcnRegisterValue   value,
+		GcnOutputModifiers modifiers)
+	{
+		const uint32_t typeId = getVectorTypeId(value.type);
 
-	//	if (value.type.ctype == GcnScalarType::Float32)
-	//	{
-	//		// Saturating only makes sense on floats
-	//		if (modifiers.saturate)
-	//		{
-	//			const GcnRegMask       mask = GcnRegMask::firstN(value.type.ccount);
-	//			const GcnRegisterValue vec0 = emitBuildConstVecf32(0.0f, 0.0f, 0.0f, 0.0f, mask);
-	//			const GcnRegisterValue vec1 = emitBuildConstVecf32(1.0f, 1.0f, 1.0f, 1.0f, mask);
+		// Output modifier only makes sense on floats
+		if (isFloatType(value.type.ctype))
+		{
+			if (modifiers.multiplier != 0.0f)
+			{
+				uint32_t multiplierId = m_module.constf32(modifiers.multiplier);
+				value.id              = m_module.opFMul(typeId, value.id, multiplierId);
+			}
 
-	//			value.id = m_module.opNClamp(typeId, value.id, vec0.id, vec1.id);
-	//		}
-	//	}
+			if (modifiers.clamp)
+			{
+				const GcnRegMask       mask = GcnRegMask::firstN(value.type.ccount);
+				const GcnRegisterValue vec0 = emitBuildConstVecf32(0.0f, 0.0f, 0.0f, 0.0f, mask);
+				const GcnRegisterValue vec1 = emitBuildConstVecf32(1.0f, 1.0f, 1.0f, 1.0f, mask);
 
-	//	return value;
-	//}
+				value.id = m_module.opNClamp(typeId, value.id, vec0.id, vec1.id);
+			}
+		}
+
+		return value;
+	}
 
 	uint32_t GcnCompiler::getScalarTypeId(GcnScalarType type)
 	{
@@ -1588,6 +1596,13 @@ namespace sce::gcn
 	{
 		return type == GcnScalarType::Sint64 ||
 			   type == GcnScalarType::Uint64 ||
+			   type == GcnScalarType::Float64;
+	}
+
+	bool GcnCompiler::isFloatType(GcnScalarType type) const
+	{
+		return type == GcnScalarType::Float16 ||
+			   type == GcnScalarType::Float32 ||
 			   type == GcnScalarType::Float64;
 	}
 
@@ -1690,5 +1705,7 @@ namespace sce::gcn
 
 		return typeInfo;
 	}
+
+
 
 }  // namespace sce::gcn

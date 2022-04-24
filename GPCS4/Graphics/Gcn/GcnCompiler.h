@@ -351,13 +351,13 @@ namespace sce::gcn
 			GcnRegisterValue value,
 			uint32_t          mask);
 
-		//GcnRegisterValue emitSrcOperandModifiers(
-		//	GcnRegisterValue value,
-		//	GcnRegModifiers  modifiers);
+		GcnRegisterValue emitInputModifiers(
+			GcnRegisterValue  value,
+			GcnInputModifiers modifiers);
 
-		//GcnRegisterValue emitDstOperandModifiers(
-		//	GcnRegisterValue value,
-		//	GcnOpModifiers   modifiers);
+		GcnRegisterValue emitOutputModifiers(
+			GcnRegisterValue   value,
+			GcnOutputModifiers modifiers);
 
 		///////////////////////////
 		// Type definition methods
@@ -379,6 +379,9 @@ namespace sce::gcn
 		///////////////////////////
 		//
 		bool isDoubleType(
+			GcnScalarType type) const;
+
+		bool isFloatType(
 			GcnScalarType type) const;
 
 		uint32_t getUserSgprCount() const;

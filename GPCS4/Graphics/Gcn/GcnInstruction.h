@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GcnEnum.h"
+#include "UtilFlag.h"
 
 #include <variant>
 
@@ -22,10 +23,42 @@ namespace sce::gcn
 		GcnScalarType dstType = GcnScalarType::Undefined;
 	};
 
+	/**
+	 * \brief Source operand modifiers
+	 *
+	 * These are applied after loading
+	 * an operand register.
+	 */
+	enum class GcnInputModifier : uint32_t
+	{
+		Neg = 0,
+		Abs = 1,
+	};
+
+	using GcnInputModifiers = util::Flags<GcnInputModifier>;
+
+	enum class GcnInputModifier : uint32_t
+	{
+		Neg = 0,
+		Abs = 1,
+	};
+
+	using GcnInputModifiers = util::Flags<GcnInputModifier>;
+
+	struct GcnOutputModifiers
+	{
+		bool  clamp      = false;
+		float multiplier = 0.0f;
+	};
+
 	struct GcnInstOperand
 	{
 		GcnOperandField field = GcnOperandField::Undefined;
 		GcnScalarType   type  = GcnScalarType::Undefined;
+
+		GcnInputModifiers  inputModifier  = {};
+		GcnOutputModifiers outputModifier = {};
+
 		union
 		{
 			uint32_t code = 0xFFFFFFFF;

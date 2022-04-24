@@ -715,6 +715,41 @@ namespace sce::gcn
 		}
 
 		m_instruction.control.vop3 = *reinterpret_cast<GcnInstControlVOP3*>(&hexInstruction);
+
+		// update input modifier
+		auto& control = m_instruction.control.vop3;
+		for (uint32_t i = 0; i != m_instruction.srcCount; ++i)
+		{
+			if (control.abs & (1u << i))
+			{
+				m_instruction.src[i].inputModifier.set(GcnInputModifier::Abs);
+			}
+
+			if (control.neg & (1u << i))
+			{
+				m_instruction.src[i].inputModifier.set(GcnInputModifier::Neg);
+			}
+		}
+
+		// update output modifier
+		auto& outputMod = m_instruction.dst[0].outputModifier;
+
+		outputMod.clamp = static_cast<bool>(control.clmp);
+		switch (control.omod)
+		{
+			case 0:
+				outputMod.multiplier = 0.0f;
+				break;
+			case 1:
+				outputMod.multiplier = 2.0f;
+				break;
+			case 2:
+				outputMod.multiplier = 4.0f;
+				break;
+			case 3:
+				outputMod.multiplier = 0.5f;
+				break;
+		}
 	}
 
 	void GcnDecodeContext::decodeInstructionMUBUF(uint64_t hexInstruction)
