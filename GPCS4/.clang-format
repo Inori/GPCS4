@@ -5,6 +5,7 @@ AlignConsecutiveAssignments: true
 AlignConsecutiveMacros: true
 AllowAllArgumentsOnNextLine: false
 AllowShortFunctionsOnASingleLine: None
+AllowShortCaseLabelsOnASingleLine: true
 
 AlignConsecutiveDeclarations: true
 BinPackParameters: false
