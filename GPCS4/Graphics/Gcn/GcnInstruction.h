@@ -24,7 +24,7 @@ namespace sce::gcn
 	};
 
 	/**
-	 * \brief Source operand modifiers
+	 * \brief Input modifiers
 	 *
 	 * These are applied after loading
 	 * an operand register.
@@ -37,14 +37,12 @@ namespace sce::gcn
 
 	using GcnInputModifiers = util::Flags<GcnInputModifier>;
 
-	enum class GcnInputModifier : uint32_t
-	{
-		Neg = 0,
-		Abs = 1,
-	};
-
-	using GcnInputModifiers = util::Flags<GcnInputModifier>;
-
+	/**
+	 * \brief Output modifiers
+	 *
+	 * These are applied before storing
+	 * an operand register.
+	 */
 	struct GcnOutputModifiers
 	{
 		bool  clamp      = false;
@@ -374,6 +372,7 @@ namespace sce::gcn
 		uint32_t             length;  // in bytes
 		GcnInstClass         opClass;
 		GcnInstControlEXP    control;
+		GcnExportTarget      target;
 
 		GcnInstOperand vsrc0;
 		GcnInstOperand vsrc1;

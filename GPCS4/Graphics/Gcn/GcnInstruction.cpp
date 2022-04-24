@@ -424,81 +424,81 @@ namespace sce::gcn
 	const std::array<GcnInstFormat, 27> g_instructionFormatSOPP = { {
 		// 0 = S_NOP
 		{ GcnInstClass::ScalarWait, GcnInstCategory::FlowControl, 0, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Dummy, GcnScalarType::Dummy },
 		// 1 = S_ENDPGM
 		{ GcnInstClass::ScalarProgFlow, GcnInstCategory::FlowControl, 0, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Dummy, GcnScalarType::Dummy },
 		// 2 = S_BRANCH
 		{ GcnInstClass::ScalarProgFlow, GcnInstCategory::FlowControl, 0, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Dummy, GcnScalarType::Dummy },
 		{},
 		// 4 = S_CBRANCH_SCC0
 		{ GcnInstClass::ScalarProgFlow, GcnInstCategory::FlowControl, 0, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Dummy, GcnScalarType::Dummy },
 		// 5 = S_CBRANCH_SCC1
 		{ GcnInstClass::ScalarProgFlow, GcnInstCategory::FlowControl, 0, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Dummy, GcnScalarType::Dummy },
 		// 6 = S_CBRANCH_VCCZ
 		{ GcnInstClass::ScalarProgFlow, GcnInstCategory::FlowControl, 0, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Dummy, GcnScalarType::Dummy },
 		// 7 = S_CBRANCH_VCCNZ
 		{ GcnInstClass::ScalarProgFlow, GcnInstCategory::FlowControl, 0, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Dummy, GcnScalarType::Dummy },
 		// 8 = S_CBRANCH_EXECZ
 		{ GcnInstClass::ScalarProgFlow, GcnInstCategory::FlowControl, 0, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Dummy, GcnScalarType::Dummy },
 		// 9 = S_CBRANCH_EXECNZ
 		{ GcnInstClass::ScalarProgFlow, GcnInstCategory::FlowControl, 0, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Dummy, GcnScalarType::Dummy },
 		// 10 = S_BARRIER
 		{ GcnInstClass::ScalarSync, GcnInstCategory::FlowControl, 0, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Dummy, GcnScalarType::Dummy },
 		{},
 		// 12 = S_WAITCNT
 		{ GcnInstClass::ScalarSync, GcnInstCategory::FlowControl, 0, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Dummy, GcnScalarType::Dummy },
 		// 13 = S_SETHALT
 		{ GcnInstClass::Undefined, GcnInstCategory::Undefined, 0, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Dummy, GcnScalarType::Dummy },
 		// 14 = S_SLEEP
 		{ GcnInstClass::ScalarSync, GcnInstCategory::FlowControl, 0, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Dummy, GcnScalarType::Dummy },
 		// 15 = S_SETPRIO
 		{ GcnInstClass::ScalarSync, GcnInstCategory::FlowControl, 0, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Dummy, GcnScalarType::Dummy },
 		// 16 = S_SENDMSG
 		{ GcnInstClass::ScalarProgFlow, GcnInstCategory::FlowControl, 0, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Dummy, GcnScalarType::Dummy },
 		// 17 = S_SENDMSGHALT
 		{ GcnInstClass::ScalarProgFlow, GcnInstCategory::FlowControl, 0, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Dummy, GcnScalarType::Dummy },
 		// 18 = S_TRAP
 		{ GcnInstClass::Undefined, GcnInstCategory::Undefined, 0, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Dummy, GcnScalarType::Dummy },
 		// 19 = S_ICACHE_INV
 		{ GcnInstClass::ScalarCache, GcnInstCategory::FlowControl, 0, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Dummy, GcnScalarType::Dummy },
 		// 20 = S_INCPERFLEVEL
 		{ GcnInstClass::DbgProf, GcnInstCategory::DebugProfile, 0, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Dummy, GcnScalarType::Dummy },
 		// 21 = S_DECPERFLEVEL
 		{ GcnInstClass::DbgProf, GcnInstCategory::DebugProfile, 0, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Dummy, GcnScalarType::Dummy },
 		// 22 = S_TTRACEDATA
 		{ GcnInstClass::DbgProf, GcnInstCategory::DebugProfile, 0, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Dummy, GcnScalarType::Dummy },
 		// 23 = S_CBRANCH_CDBGSYS
 		{ GcnInstClass::Undefined, GcnInstCategory::Undefined, 0, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Dummy, GcnScalarType::Dummy },
 		// 24 = S_CBRANCH_CDBGUSER
 		{ GcnInstClass::Undefined, GcnInstCategory::Undefined, 0, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Dummy, GcnScalarType::Dummy },
 		// 25 = S_CBRANCH_CDBGSYS_OR_USER
 		{ GcnInstClass::Undefined, GcnInstCategory::Undefined, 0, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Dummy, GcnScalarType::Dummy },
 		// 26 = S_CBRANCH_CDBGSYS_AND_USER
 		{ GcnInstClass::Undefined, GcnInstCategory::Undefined, 0, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Dummy, GcnScalarType::Dummy },
 	} };
 
 	const std::array<GcnInstFormat, 32> g_instructionFormatSMRD = { {
@@ -3836,7 +3836,7 @@ namespace sce::gcn
 
 	const std::array<GcnInstFormat, 1> g_instructionFormatEXP = { {
 		{ GcnInstClass::Exp, GcnInstCategory::Export, 4, 1,
-		  GcnScalarType::Float32, GcnScalarType::Undefined },
+		  GcnScalarType::Float32, GcnScalarType::Dummy },
 	} };
 
 	GcnInstFormat gcnInstructionFormat(GcnInstEncoding encoding, uint32_t opcode)

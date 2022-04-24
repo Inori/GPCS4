@@ -2,16 +2,24 @@
 
 #include "GcnCommon.h"
 #include "GcnInstructionIterator.h"
+#include "GcnCompilerDefs.h"
 
+#include <array>
 
 namespace sce::gcn
 {
 	class GcnProgramInfo;
 	struct GcnShaderInstruction;
 
+	struct GcnExportInfo
+	{
+		uint32_t                                  paramCount;
+		std::array<GcnRegMask, GcnMaxExportParam> params;
+	};
+
 	struct GcnAnalysisInfo
 	{
-		uint32_t placeHolder;
+		GcnExportInfo exportInfo;
 	};
 
 	/**
@@ -35,6 +43,13 @@ namespace sce::gcn
          */
 		virtual void processInstruction(
 			const GcnShaderInstruction& ins) override;
+
+	private:
+		void analyzeInstruction(
+			const GcnShaderInstruction& ins);
+
+		void analyzeExp(
+			const GcnShaderInstruction& ins);
 
 	private:
 		GcnAnalysisInfo* m_analysis = nullptr;

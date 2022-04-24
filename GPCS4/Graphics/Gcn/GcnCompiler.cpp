@@ -150,8 +150,12 @@ namespace sce::gcn
 		m_module.enableCapability(spv::CapabilityShader);
 		m_module.enableCapability(spv::CapabilityImageQuery);
 
+		// Declare hardware state register.
+		this->emitDclStateRegister();
 		// Declare shader resource and input interfaces
 		this->emitDclInputSlots();
+		// Declare export parameters
+		this->emitDclExport();
 
 		// Initialize the shader module with capabilities
 		// etc. Each shader type has its own peculiarities.
@@ -659,6 +663,75 @@ namespace sce::gcn
 		}
 	}
 
+	void GcnCompiler::emitDclOutput(uint32_t regIdx)
+	{
+		const GcnVectorType regType = getOutputRegType(regIdx);
+
+		GcnRegisterInfo info;
+		info.type.ctype   = regType.ctype;
+		info.type.ccount  = regType.ccount;
+		info.type.alength = 0;
+		info.sclass       = spv::StorageClassOutput;
+
+		const uint32_t varId = this->emitNewVariable(info);
+		m_module.setDebugName(varId, util::str::formatex("o", regIdx).c_str());
+
+		if (info.sclass == spv::StorageClassOutput)
+		{
+			m_module.decorateLocation(varId, regIdx);
+			m_entryPointInterfaces.push_back(varId);
+
+			// Add index decoration for potential dual-source blending
+			if (m_programInfo.type() == GcnProgramType::PixelShader)
+				m_module.decorateIndex(varId, 0);
+		}
+
+		m_outputs.at(regIdx) = { regType, varId };
+
+		// Declare the output slot as defined
+		m_interfaceSlots.outputSlots |= 1u << regIdx;
+	}
+
+	void GcnCompiler::emitDclExport()
+	{
+		// Declare param outputs
+		uint32_t outputCount = m_analysis->exportInfo.paramCount;
+		for (uint32_t i = 0; i != outputCount; ++i)
+		{
+			this->emitDclOutput(i);
+		}
+
+		// TODO:
+		// Other exports
+	}
+
+	void GcnCompiler::emitDclStateRegister()
+	{
+		GcnRegisterInfo info;
+		info.type.ctype   = GcnScalarType::Uint32;
+		info.type.ccount  = 1;
+		info.type.alength = 0;
+		info.sclass       = spv::StorageClassPrivate;
+
+		// M0
+		m_state.m0.type.ctype  = GcnScalarType::Uint32;
+		m_state.m0.type.ccount = 1;
+		m_state.m0.id          = this->emitNewVariable(info);
+		// SCC
+		info.type.ctype         = GcnScalarType::Bool;
+		m_state.scc.type.ctype  = GcnScalarType::Bool;
+		m_state.scc.type.ccount = 1;
+		m_state.scc.id          = this->emitNewVariable(info);
+		// VCCZ
+		m_state.vccz.type.ctype  = GcnScalarType::Bool;
+		m_state.vccz.type.ccount = 1;
+		m_state.vccz.id          = this->emitNewVariable(info);
+		// EXECZ
+		m_state.execz.type.ctype  = GcnScalarType::Bool;
+		m_state.execz.type.ccount = 1;
+		m_state.execz.id          = this->emitNewVariable(info);
+	}
+
 	void GcnCompiler::emitInputSetup()
 	{
 		// The 16 user data registers is passed though push constants,
@@ -730,6 +803,55 @@ namespace sce::gcn
 		return varId;
 	}
 
+	GcnRegisterValue GcnCompiler::emitVsSystemValueLoad(
+		GcnSystemValue sv,
+		GcnRegMask     mask)
+	{
+	}
+
+	GcnRegisterValue GcnCompiler::emitPsSystemValueLoad(
+		GcnSystemValue sv,
+		GcnRegMask     mask)
+	{
+	}
+
+	void GcnCompiler::emitVsSystemValueStore(
+		GcnSystemValue          sv,
+		GcnRegMask              mask,
+		const GcnRegisterValue& value)
+	{
+		switch (sv)
+		{
+			case GcnSystemValue::Position:
+			{
+				const uint32_t memberId = m_module.consti32(PerVertex_Position);
+
+				GcnRegisterPointer ptr;
+				ptr.type.ctype  = GcnScalarType::Float32;
+				ptr.type.ccount = 4;
+
+				ptr.id = m_module.opAccessChain(
+					m_module.defPointerType(
+						getVectorTypeId(ptr.type),
+						spv::StorageClassOutput),
+					m_perVertexOut, 1, &memberId);
+
+				emitValueStore(ptr, value, mask);
+			}
+				break;
+
+			default:
+				Logger::warn(util::str::formatex("GcnCompiler: Unhandled VS SV output: ", (uint32_t)sv));
+		}
+	}
+
+	void GcnCompiler::emitPsSystemValueStore(
+		GcnSystemValue          sv,
+		GcnRegMask              mask,
+		const GcnRegisterValue& value)
+	{
+	}
+
 	template <bool IsVgpr>
 	GcnRegisterValue GcnCompiler::emitGprLoad(
 		const GcnInstOperand& reg)
@@ -737,8 +859,7 @@ namespace sce::gcn
 		GcnRegisterPointer* gpr = nullptr;
 		if constexpr (IsVgpr)
 		{
-			uint32_t vgprIndex = reg.code - GcnCodeVGPR0;
-			gpr                = &m_vgprs[vgprIndex];
+			gpr = &m_vgprs[reg.code];
 		}
 		else
 		{
@@ -763,9 +884,8 @@ namespace sce::gcn
 		std::string         debugName;
 		if constexpr (IsVgpr)
 		{
-			uint32_t vgprIndex = reg.code - GcnCodeVGPR0;
-			gpr                = &m_vgprs[vgprIndex];
-			debugName          = util::str::formatex("v", vgprIndex);
+			gpr       = &m_vgprs[reg.code];
+			debugName = util::str::formatex("v", reg.code);
 		}
 		else
 		{
@@ -932,9 +1052,7 @@ namespace sce::gcn
 		GcnRegisterValuePair result = {};
 
 		LOG_ASSERT(reg.type != GcnScalarType::Float64, "TODO: support float64.");
-
-		bool loadHighPart = reg.type == GcnScalarType::Uint64 ||
-							reg.type == GcnScalarType::Sint64;
+		bool isDouble = this->isDoubleType(reg.type);
 
 		auto field = reg.field;
 		switch (field)
@@ -942,7 +1060,7 @@ namespace sce::gcn
 			case GcnOperandField::ScalarGPR:
 			{
 				result.low = this->emitSgprLoad(reg);
-				if (loadHighPart)
+				if (isDouble)
 				{
 					GcnInstOperand highReg = reg;
 					highReg.code += 1;
@@ -991,6 +1109,9 @@ namespace sce::gcn
 			case GcnOperandField::LdsDirect:
 				break;
 			case GcnOperandField::LiteralConst:
+			{
+				result.low = emitBuildLiteralConst(reg);
+			}
 				break;
 			case GcnOperandField::VectorGPR:
 				break;
@@ -1011,12 +1132,23 @@ namespace sce::gcn
 		const GcnInstOperand&       reg,
 		const GcnRegisterValuePair& value)
 	{
+		// Apply output modifier first
+		GcnRegisterValuePair src = value;
+		src.low                  = emitOutputModifiers(src.low, reg.outputModifier);
+
+		bool isDouble = this->isDoubleType(reg.type);
+
 		auto field = reg.field;
 		switch (field)
 		{
 			case GcnOperandField::ScalarGPR:
 				break;
 			case GcnOperandField::VccLo:
+			{
+				m_state.vcc.emitStore(
+					src,
+					GcnRegMask::firstN(isDouble ? 2 : 1));
+			}
 				break;
 			case GcnOperandField::VccHi:
 				break;
@@ -1037,6 +1169,15 @@ namespace sce::gcn
 			case GcnOperandField::LiteralConst:
 				break;
 			case GcnOperandField::VectorGPR:
+			{
+				emitVgprStore(reg, src.low);
+				if (isDouble)
+				{
+					GcnInstOperand highReg = reg;
+					highReg.code += 1;
+					emitVgprStore(highReg, src.high);
+				}
+			}
 				break;
 			case GcnOperandField::Undefined:
 			default:
@@ -1176,6 +1317,30 @@ namespace sce::gcn
 								 : ids[0];
 		return result;
 	}
+
+	GcnRegisterValue GcnCompiler::emitBuildLiteralConst(
+		const GcnInstOperand& reg)
+	{
+		LOG_ASSERT(!isDoubleType(reg.type), "literal const must be 32 bits type.");
+
+		GcnRegisterValue result;
+		result.type.ctype  = reg.type;
+		result.type.ccount = 1;
+		switch (reg.type)
+		{
+			case GcnScalarType::Uint32:
+				result.id = m_module.constu32(reg.literalConst);
+				break;
+			case GcnScalarType::Float32:
+				result.id = m_module.constf32(*reinterpret_cast<const float*>(&reg.literalConst));
+				break;
+			default:
+				LOG_GCN_UNHANDLED_INST();
+				break;
+		}
+		return result;
+	}
+
 
 	GcnRegisterValue GcnCompiler::emitRegisterBitcast(
 		GcnRegisterValue srcValue,
@@ -1483,7 +1648,7 @@ namespace sce::gcn
 		// Output modifier only makes sense on floats
 		if (isFloatType(value.type.ctype))
 		{
-			if (modifiers.multiplier != 0.0f)
+			if (!std::isnan(modifiers.multiplier))
 			{
 				uint32_t multiplierId = m_module.constf32(modifiers.multiplier);
 				value.id              = m_module.opFMul(typeId, value.id, multiplierId);
@@ -1706,6 +1871,27 @@ namespace sce::gcn
 		return typeInfo;
 	}
 
-
+	GcnVectorType GcnCompiler::getOutputRegType(
+		uint32_t paramIdx) const
+	{
+		GcnVectorType result;
+		switch (m_programInfo.type())
+		{
+			case GcnProgramType::VertexShader:
+			{
+				result.ctype  = GcnScalarType::Float32;
+				result.ccount = m_analysis->exportInfo.params[paramIdx].popCount();
+			}
+				break;
+			case GcnProgramType::PixelShader:
+			case GcnProgramType::HullShader:
+			default:
+			{
+				result.ctype  = GcnScalarType::Float32;
+				result.ccount = 4;
+			}
+		}
+		return result;
+	}
 
 }  // namespace sce::gcn

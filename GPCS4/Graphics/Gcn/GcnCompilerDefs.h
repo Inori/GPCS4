@@ -5,11 +5,12 @@
 
 namespace sce::gcn
 {
-	constexpr size_t GcnMaxInterfaceRegs = 32;
-	constexpr size_t GcnMaxSGPR          = 104;
-	constexpr size_t GcnMaxVGPR          = 256;
-	constexpr size_t GcnCodeVGPR0        = 256;
-	constexpr size_t GcnMaxOperandCount  = 5;
+	constexpr size_t   GcnMaxInterfaceRegs = 32;
+	constexpr size_t   GcnMaxSGPR          = 104;
+	constexpr size_t   GcnMaxVGPR          = 256;
+	constexpr size_t   GcnMaxOperandCount  = 5;
+	constexpr size_t   GcnMaxExportParam   = 32;
+	constexpr uint32_t GcnMinExpParam      = 32;
 
 	enum class GcnZeroTest : uint32_t
 	{

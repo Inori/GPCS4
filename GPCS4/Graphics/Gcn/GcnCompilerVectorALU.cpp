@@ -9,14 +9,16 @@ namespace sce::gcn
 		auto opClass = ins.opClass;
 		switch (opClass)
 		{
+			// Many classes of vector ALU instructions can be translated
+			// in the same flow. We place them all in the common method.
 			case GcnInstClass::VectorRegMov:
-				this->emitVectorRegMov(ins);
+			case GcnInstClass::VectorBitLogic:
+			case GcnInstClass::VectorConv:
+			case GcnInstClass::VectorFpArith32:
+				this->emitVectorAluCommon(ins);
 				break;
 			case GcnInstClass::VectorLane:
 				this->emitVectorLane(ins);
-				break;
-			case GcnInstClass::VectorBitLogic:
-				this->emitVectorBitLogic(ins);
 				break;
 			case GcnInstClass::VectorBitField32:
 				this->emitVectorBitField32(ins);
@@ -26,9 +28,6 @@ namespace sce::gcn
 				break;
 			case GcnInstClass::VectorBitField64:
 				this->emitVectorBitField64(ins);
-				break;
-			case GcnInstClass::VectorFpArith32:
-				this->emitVectorFpArith32(ins);
 				break;
 			case GcnInstClass::VectorFpRound32:
 				this->emitVectorFpRound32(ins);
@@ -69,9 +68,6 @@ namespace sce::gcn
 			case GcnInstClass::VectorIntCmp64:
 				this->emitVectorIntCmp64(ins);
 				break;
-			case GcnInstClass::VectorConv:
-				this->emitVectorConv(ins);
-				break;
 			case GcnInstClass::VectorFpGraph32:
 				this->emitVectorFpGraph32(ins);
 				break;
@@ -84,6 +80,69 @@ namespace sce::gcn
 		}
 	}
 
+	void GcnCompiler::emitVectorAluCommon(const GcnShaderInstruction& ins)
+	{
+		std::array<GcnRegisterValuePair, GcnMaxOperandCount> src;
+		for (uint32_t i = 0; i != ins.srcCount; ++i)
+		{
+			src[i] = emitRegisterLoad(ins.src[i]);
+		}
+
+		GcnRegisterValuePair dst = {};
+		dst.low.type.ctype       = ins.dst[0].type;
+		dst.low.type.ccount      = 1;
+		dst.high.type.ctype      = ins.dst[0].type;
+		dst.high.type.ccount     = 1;
+
+		const uint32_t typeId = getVectorTypeId(dst.low.type);
+
+		auto op = ins.opcode;
+		switch (op)
+		{
+			// VectorBitLogic
+			case GcnOpcode::V_AND_B32:
+			{
+				dst.low.id = m_module.opBitwiseAnd(typeId,
+												   src[0].low.id, src[1].low.id);
+			}
+				break;
+			// VectorConv
+			case GcnOpcode::V_CVT_F32_U32:
+			{
+				dst.low.id = m_module.opConvertUtoF(typeId,
+													src[0].low.id);
+			}
+				break;
+			// VectorFpArith32
+			case GcnOpcode::V_MAD_F32:
+			{
+				dst.low.id = m_module.opFAdd(typeId,
+											 m_module.opFMul(typeId,
+															 src[0].low.id,
+															 src[1].low.id),
+											 src[2].low.id);
+			}
+				break;
+			case GcnOpcode::V_MUL_F32:
+			{
+				dst.low.id = m_module.opFMul(typeId,
+											 src[0].low.id,
+											 src[1].low.id);
+			}
+				break;
+			// VectorRegMov
+			case GcnOpcode::V_MOV_B32:
+			{
+				dst.low.id = src[0].low.id;
+			}
+				break;
+			default:
+				LOG_GCN_UNHANDLED_INST();
+				break;
+		}
+
+		emitRegisterStore(ins.dst[0], dst);
+	}
 
 	void GcnCompiler::emitVectorRegMov(const GcnShaderInstruction& ins)
 	{

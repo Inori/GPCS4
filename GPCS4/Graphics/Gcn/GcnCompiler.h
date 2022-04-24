@@ -88,6 +88,7 @@ namespace sce::gcn
 		void emitScalarConv(const GcnShaderInstruction& ins);
 		void emitScalarExecMask(const GcnShaderInstruction& ins);
 		void emitScalarQuadMask(const GcnShaderInstruction& ins);
+		void emitVectorAluCommon(const GcnShaderInstruction& ins);
 		void emitVectorRegMov(const GcnShaderInstruction& ins);
 		void emitVectorLane(const GcnShaderInstruction& ins);
 		void emitVectorBitLogic(const GcnShaderInstruction& ins);
@@ -148,6 +149,11 @@ namespace sce::gcn
 		void emitVectorInterpFpCache(const GcnShaderInstruction& ins);
 		void emitExp(const GcnShaderInstruction& ins);
 		void emitDbgPro(const GcnShaderInstruction& ins);
+
+		/////////////////////////////////////////////////////////
+		// Class dispatchers
+		void emitExpPos(const GcnShaderInstruction& ins);
+		void emitExpParam(const GcnShaderInstruction& ins);
 		//////////////////////////////////////
 		// Common function definition methods
 		void emitInit();
@@ -193,6 +199,9 @@ namespace sce::gcn
 		void emitDclVertexInput();
 		void emitDclInput(
 			const VertexInputSemantic& sema);
+		void emitDclExport();
+		void emitDclOutput(
+			uint32_t regIdx);
 
 		void emitDclBuffer(
 			const GcnShaderResource& res);
@@ -200,6 +209,8 @@ namespace sce::gcn
 			const GcnShaderResource& res);
 		void emitDclSampler(
 			const GcnShaderResource& res);
+
+		void emitDclStateRegister();
 		///////////////////////////////
 		// Variable definition methods
 		uint32_t emitNewVariable(
@@ -209,6 +220,28 @@ namespace sce::gcn
 			const GcnRegisterInfo& info,
 			spv::BuiltIn           builtIn,
 			const char*            name);
+
+		//////////////////////////////////////////
+		// System value load methods (per shader)
+		GcnRegisterValue emitVsSystemValueLoad(
+			GcnSystemValue sv,
+			GcnRegMask     mask);
+
+		GcnRegisterValue emitPsSystemValueLoad(
+			GcnSystemValue sv,
+			GcnRegMask     mask);
+		///////////////////////////////////////////
+		// System value store methods (per shader)
+		void emitVsSystemValueStore(
+			GcnSystemValue          sv,
+			GcnRegMask              mask,
+			const GcnRegisterValue& value);
+
+		void emitPsSystemValueStore(
+			GcnSystemValue          sv,
+			GcnRegMask              mask,
+			const GcnRegisterValue& value);
+    
 
 		///////////////////////////////
 		// SGPR/VGPR load/store methods
@@ -305,6 +338,9 @@ namespace sce::gcn
 			double             xy,
 			double             zw,
 			const GcnRegMask& writeMask);
+
+		GcnRegisterValue emitBuildLiteralConst(
+			const GcnInstOperand& reg);
 		/////////////////////////////////////////
 		// Generic register manipulation methods
 		GcnRegisterValue emitRegisterBitcast(
@@ -399,6 +435,9 @@ namespace sce::gcn
 			bool             isStorage,
 			bool             isDepth) const;
 
+		GcnVectorType getOutputRegType(
+			uint32_t paramIdx) const;
+
 	private:
 		GcnProgramInfo         m_programInfo;
 		const GcnHeader*       m_header;
@@ -415,10 +454,13 @@ namespace sce::gcn
 		std::vector<uint32_t> m_entryPointInterfaces;
 
 		///////////////////////////////////////////////////
-		// Shader input interfaces
+		// Shader input/output interfaces
 		std::array<
 			GcnRegisterPointer, 
 			GcnMaxInterfaceRegs> m_inputs;
+		std::array<
+			GcnRegisterPointer,
+			GcnMaxInterfaceRegs> m_outputs;
 
 		///////////////////////////////////////////////////
 		// VGPR/SGPR registers

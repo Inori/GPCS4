@@ -133,13 +133,13 @@ namespace sce
 
 	void SceResource::setRenderTarget(const SceRenderTarget& renderTarget)
 	{
-		std::get<SceRenderTarget>(m_target) = renderTarget;
+		m_target = renderTarget;
 		m_type.set(SceResourceType::RenderTarget);
 	}
 
 	void SceResource::setDepthRenderTarget(const SceDepthRenderTarget& depthTarget)
 	{
-		std::get<SceDepthRenderTarget>(m_target) = depthTarget;
+		m_target = depthTarget;
 		m_type.set(SceResourceType::DepthRenderTarget);
 	}
 

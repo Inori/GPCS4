@@ -344,7 +344,6 @@ namespace sce::gcn
 		m_instruction.length   = getEncodingLength(encoding);
 
 		// Update src operand scalar type.
-		// Dst operand's type is set during instruction decoding.
 		auto setOperandType = [&instFormat](GcnInstOperand& src)
 		{
 			// Only update uninitialized numeric type.
@@ -355,6 +354,28 @@ namespace sce::gcn
 		};
 
 		std::for_each_n(std::begin(m_instruction.src), m_instruction.srcCount, setOperandType);
+
+		// Update dst operand scalar type.
+		switch (m_instruction.dstCount)
+		{
+			case 2:
+			{
+				if (m_instruction.dst[1].type == GcnScalarType::Undefined)
+				{
+					// Only VOP3B has an additional sdst operand,
+					// and it must be Uint64
+					m_instruction.dst[1].type = GcnScalarType::Uint64;
+				}
+			}
+				[[fallthrough]];
+			case 1:
+			{
+				if (m_instruction.dst[0].type == GcnScalarType::Undefined)
+				{
+					m_instruction.dst[0].type = instFormat.dstType;
+				}
+			}
+		}
 	}
 
 	GcnOperandField GcnDecodeContext::getOperandField(uint32_t code)
@@ -574,7 +595,7 @@ namespace sce::gcn
 		m_instruction.opcode = static_cast<GcnOpcode>(op + static_cast<uint32_t>(GcnOpcodeMap::OP_MAP_VOP1));
 
 		m_instruction.src[0].field = getOperandField(src0);
-		m_instruction.src[0].code  = src0;
+		m_instruction.src[0].code  = m_instruction.src[0].field == GcnOperandField::VectorGPR ? src0 - VectorGPRMin : src0;
 		m_instruction.dst[0].field = GcnOperandField::VectorGPR;
 		m_instruction.dst[0].code  = vdst;
 		m_instruction.dstCount     = 1;
@@ -589,7 +610,7 @@ namespace sce::gcn
 		m_instruction.opcode = static_cast<GcnOpcode>(op + static_cast<uint32_t>(GcnOpcodeMap::OP_MAP_VOPC));
 
 		m_instruction.src[0].field = getOperandField(src0);
-		m_instruction.src[0].code  = src0;
+		m_instruction.src[0].code  = m_instruction.src[0].field == GcnOperandField::VectorGPR ? src0 - VectorGPRMin : src0;
 		m_instruction.src[1].field = GcnOperandField::VectorGPR;
 		m_instruction.src[1].code  = vsrc1;
 	}
@@ -604,7 +625,7 @@ namespace sce::gcn
 		m_instruction.opcode = static_cast<GcnOpcode>(op + static_cast<uint32_t>(GcnOpcodeMap::OP_MAP_VOP2));
 
 		m_instruction.src[0].field = getOperandField(src0);
-		m_instruction.src[0].code  = src0;
+		m_instruction.src[0].code  = m_instruction.src[0].field == GcnOperandField::VectorGPR ? src0 - VectorGPRMin : src0;
 		m_instruction.src[1].field = GcnOperandField::VectorGPR;
 		m_instruction.src[1].code  = vsrc1;
 		m_instruction.dst[0].field = GcnOperandField::VectorGPR;
@@ -693,11 +714,11 @@ namespace sce::gcn
 		}
 
 		m_instruction.src[0].field = getOperandField(src0);
-		m_instruction.src[0].code  = src0;
+		m_instruction.src[0].code  = m_instruction.src[0].field == GcnOperandField::VectorGPR ? src0 - VectorGPRMin : src0;
 		m_instruction.src[1].field = getOperandField(src1);
-		m_instruction.src[1].code  = src1;
+		m_instruction.src[1].code  = m_instruction.src[1].field == GcnOperandField::VectorGPR ? src1 - VectorGPRMin : src1;
 		m_instruction.src[2].field = getOperandField(src2);
-		m_instruction.src[2].code  = src2;
+		m_instruction.src[2].code  = m_instruction.src[2].field == GcnOperandField::VectorGPR ? src2 - VectorGPRMin : src2;
 		m_instruction.dst[0].field = GcnOperandField::VectorGPR;
 		m_instruction.dst[0].code  = vdst;
 		m_instruction.dst[1].field = GcnOperandField::ScalarGPR;
@@ -738,7 +759,7 @@ namespace sce::gcn
 		switch (control.omod)
 		{
 			case 0:
-				outputMod.multiplier = 0.0f;
+				outputMod.multiplier = std::numeric_limits<float>::quiet_NaN();
 				break;
 			case 1:
 				outputMod.multiplier = 2.0f;
@@ -1090,6 +1111,32 @@ namespace sce::gcn
 		result.vsrc1   = ins.src[1];
 		result.vsrc2   = ins.src[2];
 		result.vsrc3   = ins.src[3];
+
+		uint32_t target = result.control.target;
+		if (target >= 0 && target <= 7)
+		{
+			result.target = GcnExportTarget::MrtN;
+		}
+		else if (target == 8)
+		{
+			result.target = GcnExportTarget::MrtZ;
+		}
+		else if (target == 9)
+		{
+			result.target = GcnExportTarget::Null;
+		}
+		else if (target >= 12 && target <= 15)
+		{
+			result.target = GcnExportTarget::Pos;
+		}
+		else if (target >= 32 && target <= 63)
+		{
+			result.target = GcnExportTarget::Param;
+		}
+		else
+		{
+			LOG_ASSERT(false, "error export target value.");
+		}
 	}
 
 	GcnInstructionVariant gcnInstructionConvert(const GcnShaderInstruction& ins)
@@ -1097,54 +1144,70 @@ namespace sce::gcn
 		GcnInstructionVariant result = {};
 		switch (ins.encoding)
 		{
-		case GcnInstEncoding::SOP1:
-			gcnInstCastToSOP1(ins, std::get<GcnShaderInstSOP1>(result));
-			break;
-		case GcnInstEncoding::SOPP:
-			gcnInstCastToSOPP(ins, std::get<GcnShaderInstSOPP>(result));
-			break;
-		case GcnInstEncoding::SOPC:
-			gcnInstCastToSOPC(ins, std::get<GcnShaderInstSOPC>(result));
-			break;
-		case GcnInstEncoding::VOP1:
-			gcnInstCastToVOP1(ins, std::get<GcnShaderInstVOP1>(result));
-			break;
-		case GcnInstEncoding::VOPC:
-			gcnInstCastToVOPC(ins, std::get<GcnShaderInstVOPC>(result));
-			break;
-		case GcnInstEncoding::VOP3:
-			gcnInstCastToVOP3(ins, std::get<GcnShaderInstVOP3>(result));
-			break;
-		case GcnInstEncoding::EXP:
-			gcnInstCastToEXP(ins, std::get<GcnShaderInstEXP>(result));
-			break;
-		case GcnInstEncoding::VINTRP:
-			gcnInstCastToVINTRP(ins, std::get<GcnShaderInstVINTRP>(result));
-			break;
-		case GcnInstEncoding::DS:
-			gcnInstCastToDS(ins, std::get<GcnShaderInstDS>(result));
-			break;
-		case GcnInstEncoding::MUBUF:
-			gcnInstCastToMUBUF(ins, std::get<GcnShaderInstMUBUF>(result));
-			break;
-		case GcnInstEncoding::MTBUF:
-			gcnInstCastToMTBUF(ins, std::get<GcnShaderInstMTBUF>(result));
-			break;
-		case GcnInstEncoding::MIMG:
-			gcnInstCastToMIMG(ins, std::get<GcnShaderInstMIMG>(result));
-			break;
-		case GcnInstEncoding::SMRD:
-			gcnInstCastToSMRD(ins, std::get<GcnShaderInstSMRD>(result));
-			break;
-		case GcnInstEncoding::SOPK:
-			gcnInstCastToSOPK(ins, std::get<GcnShaderInstSOPK>(result));
-			break;
-		case GcnInstEncoding::SOP2:
-			gcnInstCastToSOP2(ins, std::get<GcnShaderInstSOP2>(result));
-			break;
-		case GcnInstEncoding::VOP2:
-			gcnInstCastToVOP2(ins, std::get<GcnShaderInstVOP2>(result));
-			break;
+			case GcnInstEncoding::SOP1:
+				result = GcnShaderInstSOP1();
+				gcnInstCastToSOP1(ins, std::get<GcnShaderInstSOP1>(result));
+				break;
+			case GcnInstEncoding::SOPP:
+				result = GcnShaderInstSOPP();
+				gcnInstCastToSOPP(ins, std::get<GcnShaderInstSOPP>(result));
+				break;
+			case GcnInstEncoding::SOPC:
+				result = GcnShaderInstSOPC();
+				gcnInstCastToSOPC(ins, std::get<GcnShaderInstSOPC>(result));
+				break;
+			case GcnInstEncoding::VOP1:
+				result = GcnShaderInstVOP1();
+				gcnInstCastToVOP1(ins, std::get<GcnShaderInstVOP1>(result));
+				break;
+			case GcnInstEncoding::VOPC:
+				result = GcnShaderInstVOPC();
+				gcnInstCastToVOPC(ins, std::get<GcnShaderInstVOPC>(result));
+				break;
+			case GcnInstEncoding::VOP3:
+				result = GcnShaderInstVOP3();
+				gcnInstCastToVOP3(ins, std::get<GcnShaderInstVOP3>(result));
+				break;
+			case GcnInstEncoding::EXP:
+				result = GcnShaderInstEXP();
+				gcnInstCastToEXP(ins, std::get<GcnShaderInstEXP>(result));
+				break;
+			case GcnInstEncoding::VINTRP:
+				result = GcnShaderInstVINTRP();
+				gcnInstCastToVINTRP(ins, std::get<GcnShaderInstVINTRP>(result));
+				break;
+			case GcnInstEncoding::DS:
+				result = GcnShaderInstDS();
+				gcnInstCastToDS(ins, std::get<GcnShaderInstDS>(result));
+				break;
+			case GcnInstEncoding::MUBUF:
+				result = GcnShaderInstMUBUF();
+				gcnInstCastToMUBUF(ins, std::get<GcnShaderInstMUBUF>(result));
+				break;
+			case GcnInstEncoding::MTBUF:
+				result = GcnShaderInstMTBUF();
+				gcnInstCastToMTBUF(ins, std::get<GcnShaderInstMTBUF>(result));
+				break;
+			case GcnInstEncoding::MIMG:
+				result = GcnShaderInstMIMG();
+				gcnInstCastToMIMG(ins, std::get<GcnShaderInstMIMG>(result));
+				break;
+			case GcnInstEncoding::SMRD:
+				result = GcnShaderInstSMRD();
+				gcnInstCastToSMRD(ins, std::get<GcnShaderInstSMRD>(result));
+				break;
+			case GcnInstEncoding::SOPK:
+				result = GcnShaderInstSOPK();
+				gcnInstCastToSOPK(ins, std::get<GcnShaderInstSOPK>(result));
+				break;
+			case GcnInstEncoding::SOP2:
+				result = GcnShaderInstSOP2();
+				gcnInstCastToSOP2(ins, std::get<GcnShaderInstSOP2>(result));
+				break;
+			case GcnInstEncoding::VOP2:
+				result = GcnShaderInstVOP2();
+				gcnInstCastToVOP2(ins, std::get<GcnShaderInstVOP2>(result));
+				break;
 		}
 		return result;
 	}

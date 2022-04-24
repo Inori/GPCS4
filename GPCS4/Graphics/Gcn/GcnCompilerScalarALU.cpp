@@ -57,23 +57,28 @@ namespace sce::gcn
 
 	void GcnCompiler::emitScalarMov(const GcnShaderInstruction& ins)
 	{
-		std::array<GcnRegisterValuePair, GcnMaxOperandCount> src;
-		for (uint32_t i = 0; i != ins.srcCount ; ++i)
-		{
-			src[i] = emitRegisterLoad(ins.src[i]);
-		}
+		GcnRegisterValuePair src = emitRegisterLoad(ins.src[0]);
+
+		GcnRegisterValuePair dst = {};
+		dst.low.type.ctype       = ins.dst[0].type;
+		dst.low.type.ccount      = 1;
+		dst.high.type.ctype      = ins.dst[0].type;
+		dst.high.type.ccount     = 1;
 
 		auto op = ins.opcode;
 		switch (op)
 		{
 			case GcnOpcode::S_MOV_B32:
+			{
+				dst.low.id = src.low.id;
+			}
 				break;
 			default:
 				LOG_GCN_UNHANDLED_INST();
 				break;
 		}
 
-
+		emitRegisterStore(ins.dst[0], dst);
 	}
 
 	void GcnCompiler::emitScalarCmp(const GcnShaderInstruction& ins)
