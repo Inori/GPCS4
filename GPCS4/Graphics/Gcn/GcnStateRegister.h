@@ -14,10 +14,14 @@ namespace sce::gcn
 	{
 	public:
 		GcnStateRegister(
-			GcnCompiler* compiler,
-			uint64_t     initValue);
+			GcnCompiler* compiler);
 
 		~GcnStateRegister();
+
+		/**
+		 * \brief Initialize and give a init value.
+		 */
+		void init(uint64_t value);
 
 		/**
 		 * \brief Load value and return the result

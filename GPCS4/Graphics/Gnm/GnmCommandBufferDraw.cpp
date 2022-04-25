@@ -865,7 +865,7 @@ namespace sce::Gnm
 			VK_SHADER_STAGE_VERTEX_BIT,
 			shader);
 
-		std::ofstream fout(shader->key().toString(), std::ios::app | std::ios::binary);
+		std::ofstream fout(shader->key().toString(), std::ios::binary);
 		shader->dump(fout);
 	}
 

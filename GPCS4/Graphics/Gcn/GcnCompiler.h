@@ -256,6 +256,10 @@ namespace sce::gcn
 		///////////////////////////////
 		// SGPR/VGPR load/store methods
 		template <bool IsVgpr>
+		GcnRegisterPointer emitGetGprPtr(
+			const GcnInstOperand& reg);
+
+		template <bool IsVgpr>
 		GcnRegisterValue emitGprLoad(
 			const GcnInstOperand& reg);
 		GcnRegisterValue emitVgprLoad(
@@ -525,5 +529,6 @@ namespace sce::gcn
 		GcnCompilerPsPart m_ps;
 		GcnCompilerCsPart m_cs;
 	};
+
 
 }  // namespace sce::gcn

@@ -32,8 +32,8 @@ namespace sce::gcn
 		m_analysis(&analysis),
 		m_module(spvVersion(1, 3)),
 		m_state({
-			{ this, 1 },  // assume we have only one thread, and the thread id is 0
-			{ this, 0 },
+			{ this },  
+			{ this },
 		})
 	{
 		// Declare an entry point ID. We'll need it during the
@@ -156,23 +156,20 @@ namespace sce::gcn
 		this->emitDclInputSlots();
 		// Declare export parameters
 		this->emitDclExport();
-		// Initialize system defined SGPR/VGPR values.
-		this->emitInputSetup();
 
 		// Initialize the shader module with capabilities
 		// etc. Each shader type has its own peculiarities.
 
-		// clang-format off
-		switch (m_programInfo.type()) 
+		switch (m_programInfo.type())
 		{
-		  case GcnProgramType::VertexShader:   emitVsInit(); break;
-		  case GcnProgramType::HullShader:     emitHsInit(); break;
-		  case GcnProgramType::DomainShader:   emitDsInit(); break;
-		  case GcnProgramType::GeometryShader: emitGsInit(); break;
-		  case GcnProgramType::PixelShader:    emitPsInit(); break;
-		  case GcnProgramType::ComputeShader:  emitCsInit(); break;
+			case GcnProgramType::VertexShader:	emitVsInit(); break;
+			case GcnProgramType::HullShader:	emitHsInit(); break;
+			case GcnProgramType::DomainShader:	emitDsInit(); break;
+			case GcnProgramType::GeometryShader:emitGsInit(); break;
+			case GcnProgramType::PixelShader:	emitPsInit(); break;
+			case GcnProgramType::ComputeShader:	emitCsInit(); break;
 		}
-		// clang-format on
+
 	}
 
 	void GcnCompiler::emitFunctionBegin(
@@ -270,7 +267,8 @@ namespace sce::gcn
 	void GcnCompiler::emitVsFinalize()
 	{
 		this->emitMainFunctionBegin();
-		
+		// Initialize system defined SGPR/VGPR values.
+		this->emitInputSetup();
 		// Some vertex shaders do not have fetch shader.
 		if (m_vs.fetchFuncId)
 		{
@@ -739,6 +737,11 @@ namespace sce::gcn
 
 	void GcnCompiler::emitInputSetup()
 	{
+		// Set hardware state register values.
+		// assume we have only one thread, and the thread id is 0
+		m_state.exec.init(1);
+		m_state.vcc.init(0);
+
 		switch (m_programInfo.type())
 		{
 			case GcnProgramType::VertexShader: this->emitVsInputSetup(); break;
@@ -1115,32 +1118,8 @@ namespace sce::gcn
 	}
 
 	template <bool IsVgpr>
-	GcnRegisterValue GcnCompiler::emitGprLoad(
+	GcnRegisterPointer sce::gcn::GcnCompiler::emitGetGprPtr(
 		const GcnInstOperand& reg)
-	{
-		GcnRegisterPointer* gpr = nullptr;
-		if constexpr (IsVgpr)
-		{
-			gpr = &m_vgprs[reg.code];
-		}
-		else
-		{
-			gpr = &m_sgprs[reg.code];
-		}
-
-		// sgprs/vgprs are not allowed to load before created.
-		// if this occurs, it is most likely a system value vgpr
-		// which should be initialized in emitInputSetup,
-		// please add it there.
-		LOG_ASSERT(gpr->id != 0, "sgpr/vgpr is not initialized before load.");
-
-		return this->emitValueLoad(*gpr);
-	}
-
-	template <bool IsVgpr>
-	void GcnCompiler::emitGprStore(
-		const GcnInstOperand&   reg,
-		const GcnRegisterValue& value)
 	{
 		GcnRegisterPointer* gpr = nullptr;
 		std::string         debugName;
@@ -1154,6 +1133,15 @@ namespace sce::gcn
 			gpr       = &m_sgprs[reg.code];
 			debugName = util::str::formatex("s", reg.code);
 		}
+
+		// For store operation
+		// if the gpr is not created before, we just create it with no problem.
+		// For load operation
+		// if the gpr is not create before, it's most likely the gpr stores
+		// a system value, like vertex index or so.
+		// We create a empty variable here first,
+		// and then stores the system value in emitInputSetup during finalize.
+		LOG_WARN_IF(gpr->id == 0, "%s is not initialized.", debugName.c_str());
 
 		// If the vgpr has not been used, we create one.
 		if (gpr->id == 0)
@@ -1172,7 +1160,24 @@ namespace sce::gcn
 			gpr->id          = id;
 		}
 
-		return this->emitValueStore(*gpr, value, GcnRegMask(true, false, false, false));
+		return *gpr;
+	}
+
+	template <bool IsVgpr>
+	GcnRegisterValue GcnCompiler::emitGprLoad(
+		const GcnInstOperand& reg)
+	{
+		auto ptr = emitGetGprPtr<IsVgpr>(reg);
+		return this->emitValueLoad(ptr);
+	}
+
+	template <bool IsVgpr>
+	void GcnCompiler::emitGprStore(
+		const GcnInstOperand&   reg,
+		const GcnRegisterValue& value)
+	{
+		auto ptr = emitGetGprPtr<IsVgpr>(reg);
+		return this->emitValueStore(ptr, value, GcnRegMask::select(0));
 	}
 
 	template <bool IsVgpr>

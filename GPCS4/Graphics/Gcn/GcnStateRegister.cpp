@@ -8,8 +8,7 @@ namespace sce::gcn
 {
 
 	GcnStateRegister::GcnStateRegister(
-		GcnCompiler* compiler,
-		uint64_t     initValue) :
+		GcnCompiler* compiler) :
 		m_compiler(compiler)
 	{
 		GcnRegisterInfo info;
@@ -24,9 +23,16 @@ namespace sce::gcn
 
 		m_high.type = m_low.type;
 		m_high.id   = m_compiler->emitNewVariable(info);
+	}
 
-		uint32_t lowValue  = static_cast<uint32_t>(initValue & 0xFFFFFFFF);
-		uint32_t highValue = static_cast<uint32_t>((initValue >> 32) & 0xFFFFFFFF);
+	GcnStateRegister::~GcnStateRegister()
+	{
+	}
+
+	void GcnStateRegister::init(uint64_t value)
+	{
+		uint32_t lowValue  = static_cast<uint32_t>(value & 0xFFFFFFFF);
+		uint32_t highValue = static_cast<uint32_t>((value >> 32) & 0xFFFFFFFF);
 
 		auto& module = m_compiler->m_module;
 
@@ -36,10 +42,6 @@ namespace sce::gcn
 		module.opStore(
 			m_high.id,
 			module.constu32(highValue));
-	}
-
-	GcnStateRegister::~GcnStateRegister()
-	{
 	}
 
 	GcnRegisterValuePair GcnStateRegister::emitLoad(
@@ -96,4 +98,5 @@ namespace sce::gcn
 			m_compiler->emitValueStore(m_high, value.high, GcnRegMask::select(0));
 		}
 	}
+
 }  // namespace sce::gcn
