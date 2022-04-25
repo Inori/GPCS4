@@ -32,8 +32,8 @@ namespace sce::gcn
 		m_analysis(&analysis),
 		m_module(spvVersion(1, 3)),
 		m_state({
-			{ this },  
-			{ this },
+			{ this, "exec" },  
+			{ this, "vcc" },
 		})
 	{
 		// Declare an entry point ID. We'll need it during the
@@ -720,19 +720,23 @@ namespace sce::gcn
 		m_state.m0.type.ctype  = GcnScalarType::Uint32;
 		m_state.m0.type.ccount = 1;
 		m_state.m0.id          = this->emitNewVariable(info);
+		m_module.setDebugName(m_state.m0.id, "m0");
 		// SCC
 		info.type.ctype         = GcnScalarType::Bool;
 		m_state.scc.type.ctype  = GcnScalarType::Bool;
 		m_state.scc.type.ccount = 1;
 		m_state.scc.id          = this->emitNewVariable(info);
+		m_module.setDebugName(m_state.scc.id, "scc");
 		// VCCZ
 		m_state.vccz.type.ctype  = GcnScalarType::Bool;
 		m_state.vccz.type.ccount = 1;
 		m_state.vccz.id          = this->emitNewVariable(info);
+		m_module.setDebugName(m_state.vccz.id, "vccz");
 		// EXECZ
 		m_state.execz.type.ctype  = GcnScalarType::Bool;
 		m_state.execz.type.ccount = 1;
 		m_state.execz.id          = this->emitNewVariable(info);
+		m_module.setDebugName(m_state.execz.id, "execz");
 	}
 
 	void GcnCompiler::emitInputSetup()
@@ -1409,13 +1413,14 @@ namespace sce::gcn
 			case GcnOperandField::ScalarGPR:
 				break;
 			case GcnOperandField::VccLo:
-			{
 				m_state.vcc.emitStore(
 					src,
 					GcnRegMask::firstN(isDouble ? 2 : 1));
-			}
 				break;
 			case GcnOperandField::VccHi:
+				m_state.vcc.emitStore(
+					src,
+					GcnRegMask::select(1));
 				break;
 			case GcnOperandField::M0:
 				break;
@@ -1467,6 +1472,83 @@ namespace sce::gcn
 			  ptrTypeId, pointer.id, 1, &index);
 		return result;
 	}
+
+	GcnRegisterValue GcnCompiler::emitIndexLoad(
+		const GcnRegIndex& index)
+	{
+		GcnRegisterValue result;
+		if (index.relReg != nullptr)
+		{
+			result = emitRegisterLoad(*index.relReg).low;
+
+			if (index.offset != 0)
+			{
+				result.id = m_module.opIAdd(
+					getVectorTypeId(result.type), result.id,
+					m_module.consti32(index.offset));
+			}
+		}
+		else
+		{
+			result.type.ctype  = GcnScalarType::Uint32;
+			result.type.ccount = 1;
+			result.id          = m_module.constu32(index.offset);
+		}
+		return result;
+	}
+
+	void GcnCompiler::emitBufferLoadNoFmt(
+		const GcnRegIndex&    index,
+		const GcnInstOperand& dst,
+		uint32_t              count)
+	{
+		GcnRegisterInfo info;
+		info.type.ctype   = GcnScalarType::Float32;
+		info.type.ccount  = 1;
+		info.type.alength = 0;
+		info.sclass       = spv::StorageClassUniform;
+
+		uint32_t         regId  = index.regIdx;
+		GcnRegisterValue baseId = emitIndexLoad(index);
+
+		uint32_t uintTypeId = getScalarTypeId(GcnScalarType::Uint32);
+		uint32_t fpTypeId   = getScalarTypeId(GcnScalarType::Float32);
+		uint32_t ptrTypeId  = getPointerTypeId(info);
+
+		GcnInstOperand reg = dst;
+		for (uint32_t i = 0; i != count ; ++i)
+		{
+			// offset in bytes
+			uint32_t offsetId    = m_module.opIAdd(uintTypeId,
+												   baseId.id,
+												   m_module.constu32(i * 4));
+			uint32_t vec4Id      = m_module.opUDiv(uintTypeId,
+												   offsetId,
+												   m_module.constu32(16));
+			uint32_t componentId = m_module.opUDiv(uintTypeId,
+												   m_module.opUMod(uintTypeId,
+																   offsetId,
+																   m_module.constu32(16)),
+												   m_module.constu32(4));
+
+			const std::array<uint32_t, 3> indices = { { m_module.consti32(0), vec4Id, componentId } };
+			 
+			uint32_t componentPtr = m_module.opAccessChain(ptrTypeId,
+														   m_buffers.at(regId).varId,
+														   indices.size(), indices.data());
+			uint32_t itemId       = m_module.opLoad(fpTypeId,
+													componentPtr);
+
+			GcnRegisterValuePair value = {};
+			value.low.type.ctype       = GcnScalarType::Float32;
+			value.low.type.ccount      = 1;
+			value.low.id               = itemId;
+
+			reg.code += i;
+			emitRegisterStore(reg, value);
+		}
+	}
+
 
 	GcnRegisterValue GcnCompiler::emitBuildConstVecf32(
 		float             x,
@@ -2215,6 +2297,7 @@ namespace sce::gcn
 		}
 		return result;
 	}
+
 
 
 

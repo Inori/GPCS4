@@ -323,6 +323,14 @@ namespace sce::gcn
 			spv::StorageClass  sclass,
 			uint32_t           index);
 
+		GcnRegisterValue emitIndexLoad(
+			const GcnRegIndex& index);
+
+		void emitBufferLoadNoFmt(
+			const GcnRegIndex&    index,
+			const GcnInstOperand& dst,
+			uint32_t              count);
+
 		////////////////////////////////////////////////
 		// Constant building methods. These are used to
 		// generate constant vectors that store the same

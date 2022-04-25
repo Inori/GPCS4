@@ -8,7 +8,8 @@ namespace sce::gcn
 {
 
 	GcnStateRegister::GcnStateRegister(
-		GcnCompiler* compiler) :
+		GcnCompiler* compiler,
+		const char*  name) :
 		m_compiler(compiler)
 	{
 		GcnRegisterInfo info;
@@ -20,9 +21,11 @@ namespace sce::gcn
 		m_low.type.ctype  = info.type.ctype;
 		m_low.type.ccount = info.type.ccount;
 		m_low.id          = m_compiler->emitNewVariable(info);
+		m_compiler->m_module.setDebugName(m_low.id, util::str::formatex(name, "_lo").c_str());
 
 		m_high.type = m_low.type;
 		m_high.id   = m_compiler->emitNewVariable(info);
+		m_compiler->m_module.setDebugName(m_high.id, util::str::formatex(name, "_hi").c_str());
 	}
 
 	GcnStateRegister::~GcnStateRegister()

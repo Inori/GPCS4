@@ -46,7 +46,7 @@ namespace sce::gcn
 	struct GcnOutputModifiers
 	{
 		bool  clamp      = false;
-		float multiplier = 0.0f;
+		float multiplier = std::numeric_limits<float>::quiet_NaN();
 	};
 
 	struct GcnInstOperand

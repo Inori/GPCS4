@@ -14,7 +14,8 @@ namespace sce::gcn
 	{
 	public:
 		GcnStateRegister(
-			GcnCompiler* compiler);
+			GcnCompiler* compiler,
+			const char*  name);
 
 		~GcnStateRegister();
 

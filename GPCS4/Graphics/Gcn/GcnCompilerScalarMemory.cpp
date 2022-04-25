@@ -20,7 +20,36 @@ namespace sce::gcn
 
 	void GcnCompiler::emitScalarMemRd(const GcnShaderInstruction& ins)
 	{
-		LOG_GCN_UNHANDLED_INST();
+		auto smrd = gcnInstructionAs<GcnShaderInstSMRD>(ins);
+
+		auto op = ins.opcode;
+		switch (op)
+		{
+			case GcnOpcode::S_BUFFER_LOAD_DWORD:
+			case GcnOpcode::S_BUFFER_LOAD_DWORDX2:
+			case GcnOpcode::S_BUFFER_LOAD_DWORDX4:
+			case GcnOpcode::S_BUFFER_LOAD_DWORDX8:
+			case GcnOpcode::S_BUFFER_LOAD_DWORDX16:
+			{
+				GcnRegIndex index = {};
+				index.regIdx      = smrd.sbase.code;
+				if (smrd.control.imm)
+				{
+					index.offset = smrd.control.offset << 2;
+					index.relReg = nullptr;
+				}
+				else
+				{
+					index.offset = 0;
+					index.relReg = &smrd.offset;
+				}
+				emitBufferLoadNoFmt(index, smrd.sdst, smrd.control.count);
+			}
+				break;
+			default:
+				LOG_GCN_UNHANDLED_INST();
+				break;
+		}
 	}
 
 	void GcnCompiler::emitScalarMemUt(const GcnShaderInstruction& ins)

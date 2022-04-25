@@ -522,19 +522,19 @@ namespace sce::gcn
 		{},
 		// 8 = S_BUFFER_LOAD_DWORD
 		{ GcnInstClass::ScalarMemRd, GcnInstCategory::ScalarMemory, 1, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Float32, GcnScalarType::Float32 },
 		// 9 = S_BUFFER_LOAD_DWORDX2
 		{ GcnInstClass::ScalarMemRd, GcnInstCategory::ScalarMemory, 1, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Float32, GcnScalarType::Float32 },
 		// 10 = S_BUFFER_LOAD_DWORDX4
 		{ GcnInstClass::ScalarMemRd, GcnInstCategory::ScalarMemory, 1, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Float32, GcnScalarType::Float32 },
 		// 11 = S_BUFFER_LOAD_DWORDX8
 		{ GcnInstClass::ScalarMemRd, GcnInstCategory::ScalarMemory, 1, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Float32, GcnScalarType::Float32 },
 		// 12 = S_BUFFER_LOAD_DWORDX16
 		{ GcnInstClass::ScalarMemRd, GcnInstCategory::ScalarMemory, 1, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Float32, GcnScalarType::Float32 },
 		{},
 		{},
 		{},

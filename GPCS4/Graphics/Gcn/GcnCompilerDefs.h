@@ -5,6 +5,8 @@
 
 namespace sce::gcn
 {
+	struct GcnInstOperand;
+
 	constexpr size_t   GcnMaxInterfaceRegs = 32;
 	constexpr size_t   GcnMaxSGPR          = 104;
 	constexpr size_t   GcnMaxVGPR          = 256;
@@ -163,18 +165,15 @@ namespace sce::gcn
 
 
 	/**
-	 * \brief Image type information
+	 * \brief Used to index a buffer(V#)
 	 */
-	struct GcnImageInfo
+	struct GcnRegIndex
 	{
-		spv::Dim        dim     = spv::Dim1D;
-		uint32_t        depth   = 0;
-		uint32_t        array   = 0;
-		uint32_t        ms      = 0;
-		uint32_t        sampled = 0;
-
-		VkImageViewType vtype = VK_IMAGE_VIEW_TYPE_MAX_ENUM;
+		uint32_t        regIdx = 0;
+		GcnInstOperand* relReg = nullptr;
+		int32_t         offset = 0;
 	};
+  
 
 	/**
 	 * \brief Constant buffer binding
@@ -189,14 +188,17 @@ namespace sce::gcn
 	};
 
 	/**
-	 * \brief Sampler binding
-	 *
-	 * Stores information for a S#
+	 * \brief Image type information
 	 */
-	struct GcnSampler
+	struct GcnImageInfo
 	{
-		uint32_t varId  = 0;
-		uint32_t typeId = 0;
+		spv::Dim dim     = spv::Dim1D;
+		uint32_t depth   = 0;
+		uint32_t array   = 0;
+		uint32_t ms      = 0;
+		uint32_t sampled = 0;
+
+		VkImageViewType vtype = VK_IMAGE_VIEW_TYPE_MAX_ENUM;
 	};
 
 	/**
@@ -213,6 +215,17 @@ namespace sce::gcn
 		uint32_t      imageTypeId   = 0;
 		uint32_t      colorTypeId   = 0;
 		uint32_t      depthTypeId   = 0;
+	};
+
+	/**
+	 * \brief Sampler binding
+	 *
+	 * Stores information for a S#
+	 */
+	struct GcnSampler
+	{
+		uint32_t varId  = 0;
+		uint32_t typeId = 0;
 	};
 
 	/**
