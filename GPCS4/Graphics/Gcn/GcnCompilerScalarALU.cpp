@@ -69,9 +69,7 @@ namespace sce::gcn
 		switch (op)
 		{
 			case GcnOpcode::S_MOV_B32:
-			{
 				dst.low.id = src.low.id;
-			}
 				break;
 			default:
 				LOG_GCN_UNHANDLED_INST();

@@ -152,8 +152,14 @@ namespace sce::gcn
 
 		/////////////////////////////////////////////////////////
 		// Class dispatchers
-		void emitExpPos(const GcnShaderInstruction& ins);
-		void emitExpParam(const GcnShaderInstruction& ins);
+		void emitExpPosStore(
+			uint32_t                regIdx,
+			const GcnRegisterValue& value,
+			const GcnRegMask&       writeMask);
+		void emitExpParamStore(
+			uint32_t                regIdx,
+			const GcnRegisterValue& value,
+			const GcnRegMask&       writeMask);
 		//////////////////////////////////////
 		// Common function definition methods
 		void emitInit();
@@ -192,7 +198,11 @@ namespace sce::gcn
 		void emitInputSetup();
 		void emitFetchInput();
 
-		void emitOutputSetup();
+		void emitVsInputSetup();
+		void emitPsInputSetup();
+		void emitCsInputSetup();
+
+		uint32_t emitUserDataInit();
 		/////////////////////////////////////////////////////
 		// Shader interface and metadata declaration methods
 		void emitDclInputSlots();
@@ -339,7 +349,9 @@ namespace sce::gcn
 			double             zw,
 			const GcnRegMask& writeMask);
 
-		GcnRegisterValue emitBuildLiteralConst(
+		GcnRegisterValuePair emitBuildLiteralConst(
+			const GcnInstOperand& reg);
+		GcnRegisterValuePair emitBuildInlineConst(
 			const GcnInstOperand& reg);
 		/////////////////////////////////////////
 		// Generic register manipulation methods
@@ -491,6 +503,8 @@ namespace sce::gcn
 		// the shader stage, these may be declared as arrays.
 		uint32_t m_perVertexIn  = 0;
 		uint32_t m_perVertexOut = 0;
+
+		uint32_t m_primitiveIdIn = 0;
 
 		///////////////////////////////////////////////////////
 		// Resource slot description for the shader.

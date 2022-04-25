@@ -101,41 +101,31 @@ namespace sce::gcn
 		{
 			// VectorBitLogic
 			case GcnOpcode::V_AND_B32:
-			{
 				dst.low.id = m_module.opBitwiseAnd(typeId,
 												   src[0].low.id, src[1].low.id);
-			}
 			    break;
-				// VectorConv
+			// VectorConv
 			case GcnOpcode::V_CVT_F32_U32:
-			{
 				dst.low.id = m_module.opConvertUtoF(typeId,
 													src[0].low.id);
-			}
 			    break;
 			// VectorFpArith32
 			case GcnOpcode::V_MAD_F32:
-			{
 				dst.low.id = m_module.opFAdd(typeId,
 											 m_module.opFMul(typeId,
 															 src[0].low.id,
 															 src[1].low.id),
 											 src[2].low.id);
-			}
 			    break;
 			case GcnOpcode::V_MUL_F32:
-			{
 				dst.low.id = m_module.opFMul(typeId,
 											 src[0].low.id,
 											 src[1].low.id);
-			}
 			    break;
 			// VectorRegMov
 			case GcnOpcode::V_MOV_B32:
-			{
 				dst.low.id = src[0].low.id;
-			}
-			break;
+			    break;
 			default:
 				LOG_GCN_UNHANDLED_INST();
 				break;

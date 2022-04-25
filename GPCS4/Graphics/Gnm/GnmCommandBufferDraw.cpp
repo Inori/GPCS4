@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <fstream>
 
 LOG_CHANNEL(Graphic.Gnm.GnmCommandBufferDraw);
 
@@ -859,9 +860,13 @@ namespace sce::Gnm
 		bindResource(VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, resTable, ctx.userData);
 
 		// bind the shader
+		auto shader = vsModule.compile(ctx.meta);
 		m_context->bindShader(
 			VK_SHADER_STAGE_VERTEX_BIT,
-			vsModule.compile(ctx.meta));
+			shader);
+
+		std::ofstream fout(shader->key().toString(), std::ios::app | std::ios::binary);
+		shader->dump(fout);
 	}
 
 	void GnmCommandBufferDraw::updatePixelShaderStage()

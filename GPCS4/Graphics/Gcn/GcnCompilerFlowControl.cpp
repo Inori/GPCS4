@@ -35,7 +35,16 @@ namespace sce::gcn
 
 	void GcnCompiler::emitScalarProgFlow(const GcnShaderInstruction& ins)
 	{
-		LOG_GCN_UNHANDLED_INST();
+		auto op = ins.opcode;
+		switch (op)
+		{
+			case GcnOpcode::S_ENDPGM:
+				// Nothing to do.
+				break;
+			default:
+				LOG_GCN_UNHANDLED_INST();
+				break;
+		}
 	}
 
 	void GcnCompiler::emitScalarSync(const GcnShaderInstruction& ins)

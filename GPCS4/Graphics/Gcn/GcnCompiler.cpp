@@ -156,6 +156,8 @@ namespace sce::gcn
 		this->emitDclInputSlots();
 		// Declare export parameters
 		this->emitDclExport();
+		// Initialize system defined SGPR/VGPR values.
+		this->emitInputSetup();
 
 		// Initialize the shader module with capabilities
 		// etc. Each shader type has its own peculiarities.
@@ -268,18 +270,21 @@ namespace sce::gcn
 	void GcnCompiler::emitVsFinalize()
 	{
 		this->emitMainFunctionBegin();
-		this->emitInputSetup();
-
-		// call fetch shader
-		m_module.opFunctionCall(
-			m_module.defVoidType(),
-			m_vs.fetchFuncId, 0, nullptr);
+		
+		// Some vertex shaders do not have fetch shader.
+		if (m_vs.fetchFuncId)
+		{
+			// call fetch shader
+			m_module.opFunctionCall(
+				m_module.defVoidType(),
+				m_vs.fetchFuncId, 0, nullptr);
+		}
 
 		// call vs_main
 		m_module.opFunctionCall(
 			m_module.defVoidType(),
 			m_vs.functionId, 0, nullptr);
-		this->emitOutputSetup();
+		
 		this->emitFunctionEnd();
 	}
 
@@ -734,10 +739,59 @@ namespace sce::gcn
 
 	void GcnCompiler::emitInputSetup()
 	{
-		// The 16 user data registers is passed though push constants,
-		// here we copy them into predefined user data array.
+		switch (m_programInfo.type())
+		{
+			case GcnProgramType::VertexShader: this->emitVsInputSetup(); break;
+			case GcnProgramType::PixelShader: this->emitPsInputSetup(); break;
+			case GcnProgramType::ComputeShader: this->emitCsInputSetup(); break;
+			default:
+				Logger::exception("shader stage not supported.");
+				break;
+		}
+	}
 
-		// TODO
+	uint32_t GcnCompiler::emitUserDataInit()
+	{
+		// The 16 user data registers is passed though push constants,
+		// here we copy them into sgprs
+
+		// TODO:
+		return 0;
+	}
+
+	void GcnCompiler::emitVsInputSetup()
+	{
+		// Initialize SGPR
+		uint32_t userDataCount = this->emitUserDataInit();
+
+		
+		// Initialize VGPR
+		
+		// Build a dummy register to index vgpr.
+		GcnInstOperand reg = {};
+		reg.field          = GcnOperandField::VectorGPR;
+		reg.type           = GcnScalarType::Float32;
+		
+		// v0 stores index of current vertex within vertex buffer
+		GcnRegisterValue value = emitVsSystemValueLoad(GcnSystemValue::VertexId, GcnRegMask());
+		reg.code               = 0;
+		emitVgprStore(reg, value);
+	}
+
+	void GcnCompiler::emitPsInputSetup()
+	{
+		// Initialize SGPR
+		uint32_t userDataCount = this->emitUserDataInit();
+
+		// Initialize VGPR
+	}
+
+	void GcnCompiler::emitCsInputSetup()
+	{
+		// Initialize SGPR
+		uint32_t userDataCount = this->emitUserDataInit();
+
+		// Initialize VGPR
 	}
 
 	void GcnCompiler::emitFetchInput()
@@ -768,10 +822,6 @@ namespace sce::gcn
 			this->emitVgprArrayStore(
 				reg, sema.m_sizeInElements, value);
 		}
-	}
-
-	void GcnCompiler::emitOutputSetup()
-	{
 	}
 
 	uint32_t GcnCompiler::emitNewVariable(
@@ -807,12 +857,224 @@ namespace sce::gcn
 		GcnSystemValue sv,
 		GcnRegMask     mask)
 	{
+		switch (sv)
+		{
+			case GcnSystemValue::VertexId:
+			{
+				const uint32_t typeId = getScalarTypeId(GcnScalarType::Uint32);
+
+				if (m_vs.builtinVertexId == 0)
+				{
+					m_vs.builtinVertexId = emitNewBuiltinVariable({ { GcnScalarType::Uint32, 1, 0 },
+																	spv::StorageClassInput },
+																  spv::BuiltInVertexIndex,
+																  "vs_vertex_index");
+				}
+
+				if (m_vs.builtinBaseVertex == 0)
+				{
+					m_vs.builtinBaseVertex = emitNewBuiltinVariable({ { GcnScalarType::Uint32, 1, 0 },
+																	  spv::StorageClassInput },
+																	spv::BuiltInBaseVertex,
+																	"vs_base_vertex");
+				}
+
+				GcnRegisterValue result;
+				result.type.ctype  = GcnScalarType::Uint32;
+				result.type.ccount = 1;
+				result.id          = m_module.opISub(typeId,
+													 m_module.opLoad(typeId, m_vs.builtinVertexId),
+													 m_module.opLoad(typeId, m_vs.builtinBaseVertex));
+				return result;
+			}
+			break;
+
+			case GcnSystemValue::InstanceId:
+			{
+				const uint32_t typeId = getScalarTypeId(GcnScalarType::Uint32);
+
+				if (m_vs.builtinInstanceId == 0)
+				{
+					m_vs.builtinInstanceId = emitNewBuiltinVariable({ { GcnScalarType::Uint32, 1, 0 },
+																	  spv::StorageClassInput },
+																	spv::BuiltInInstanceIndex,
+																	"vs_instance_index");
+				}
+
+				if (m_vs.builtinBaseInstance == 0)
+				{
+					m_vs.builtinBaseInstance = emitNewBuiltinVariable({ { GcnScalarType::Uint32, 1, 0 },
+																		spv::StorageClassInput },
+																	  spv::BuiltInBaseInstance,
+																	  "vs_base_instance");
+				}
+
+				GcnRegisterValue result;
+				result.type.ctype  = GcnScalarType::Uint32;
+				result.type.ccount = 1;
+				result.id          = m_module.opISub(typeId,
+													 m_module.opLoad(typeId, m_vs.builtinInstanceId),
+													 m_module.opLoad(typeId, m_vs.builtinBaseInstance));
+				return result;
+			}
+			break;
+
+			default:
+				Logger::exception(util::str::formatex(
+					"GcnCompiler: Unhandled VS SV input: ", (uint32_t)sv));
+		}
 	}
 
 	GcnRegisterValue GcnCompiler::emitPsSystemValueLoad(
 		GcnSystemValue sv,
 		GcnRegMask     mask)
 	{
+		switch (sv)
+		{
+			case GcnSystemValue::Position:
+			{
+				if (m_ps.builtinFragCoord == 0)
+				{
+					m_ps.builtinFragCoord = emitNewBuiltinVariable({ { GcnScalarType::Float32, 4, 0 },
+																	 spv::StorageClassInput },
+																   spv::BuiltInFragCoord,
+																   "ps_frag_coord");
+				}
+
+				GcnRegisterPointer ptrIn;
+				ptrIn.type = { GcnScalarType::Float32, 4 };
+				ptrIn.id   = m_ps.builtinFragCoord;
+
+				// The X, Y and Z components of the SV_POSITION semantic
+				// are identical to Vulkan's FragCoord builtin, but we
+				// need to compute the reciprocal of the W component.
+				GcnRegisterValue fragCoord = emitValueLoad(ptrIn);
+
+				uint32_t componentIndex = 3;
+				uint32_t t_f32          = m_module.defFloatType(32);
+				uint32_t v_wComp        = m_module.opCompositeExtract(t_f32, fragCoord.id, 1, &componentIndex);
+				v_wComp                 = m_module.opFDiv(t_f32, m_module.constf32(1.0f), v_wComp);
+
+				fragCoord.id = m_module.opCompositeInsert(
+					getVectorTypeId(fragCoord.type),
+					v_wComp, fragCoord.id,
+					1, &componentIndex);
+
+				return emitRegisterExtract(fragCoord, mask);
+			}
+			break;
+
+			case GcnSystemValue::IsFrontFace:
+			{
+				if (m_ps.builtinIsFrontFace == 0)
+				{
+					m_ps.builtinIsFrontFace = emitNewBuiltinVariable({ { GcnScalarType::Bool, 1, 0 },
+																	   spv::StorageClassInput },
+																	 spv::BuiltInFrontFacing,
+																	 "ps_is_front_face");
+				}
+
+				GcnRegisterValue result;
+				result.type.ctype  = GcnScalarType::Uint32;
+				result.type.ccount = 1;
+				result.id          = m_module.opSelect(
+							 getVectorTypeId(result.type),
+							 m_module.opLoad(
+								 m_module.defBoolType(),
+								 m_ps.builtinIsFrontFace),
+							 m_module.constu32(0xFFFFFFFF),
+							 m_module.constu32(0x00000000));
+				return result;
+			}
+			break;
+
+			case GcnSystemValue::PrimitiveId:
+			{
+				if (m_primitiveIdIn == 0)
+				{
+					m_module.enableCapability(spv::CapabilityGeometry);
+
+					m_primitiveIdIn = emitNewBuiltinVariable({ { GcnScalarType::Uint32, 1, 0 },
+															   spv::StorageClassInput },
+															 spv::BuiltInPrimitiveId,
+															 "ps_primitive_id");
+				}
+
+				GcnRegisterPointer ptrIn;
+				ptrIn.type = { GcnScalarType::Uint32, 1 };
+				ptrIn.id   = m_primitiveIdIn;
+
+				return emitValueLoad(ptrIn);
+			}
+			break;
+
+			case GcnSystemValue::SampleIndex:
+			{
+				if (m_ps.builtinSampleId == 0)
+				{
+					m_module.enableCapability(spv::CapabilitySampleRateShading);
+
+					m_ps.builtinSampleId = emitNewBuiltinVariable({ { GcnScalarType::Uint32, 1, 0 },
+																	spv::StorageClassInput },
+																  spv::BuiltInSampleId,
+																  "ps_sample_id");
+				}
+
+				GcnRegisterPointer ptrIn;
+				ptrIn.type.ctype  = GcnScalarType::Uint32;
+				ptrIn.type.ccount = 1;
+				ptrIn.id          = m_ps.builtinSampleId;
+
+				return emitValueLoad(ptrIn);
+			}
+			break;
+
+			case GcnSystemValue::RenderTargetId:
+			{
+				if (m_ps.builtinLayer == 0)
+				{
+					m_module.enableCapability(spv::CapabilityGeometry);
+
+					m_ps.builtinLayer = emitNewBuiltinVariable({ { GcnScalarType::Uint32, 1, 0 },
+																 spv::StorageClassInput },
+															   spv::BuiltInLayer,
+															   "v_layer");
+				}
+
+				GcnRegisterPointer ptr;
+				ptr.type.ctype  = GcnScalarType::Uint32;
+				ptr.type.ccount = 1;
+				ptr.id          = m_ps.builtinLayer;
+
+				return emitValueLoad(ptr);
+			}
+			break;
+
+			case GcnSystemValue::ViewportId:
+			{
+				if (m_ps.builtinViewportId == 0)
+				{
+					m_module.enableCapability(spv::CapabilityMultiViewport);
+
+					m_ps.builtinViewportId = emitNewBuiltinVariable({ { GcnScalarType::Uint32, 1, 0 },
+																	  spv::StorageClassInput },
+																	spv::BuiltInViewportIndex,
+																	"v_viewport");
+				}
+
+				GcnRegisterPointer ptr;
+				ptr.type.ctype  = GcnScalarType::Uint32;
+				ptr.type.ccount = 1;
+				ptr.id          = m_ps.builtinViewportId;
+
+				return emitValueLoad(ptr);
+			}
+			break;
+
+			default:
+				Logger::exception(util::str::formatex(
+					"GcnCompiler: Unhandled PS SV input: ", (uint32_t)sv));
+		}
 	}
 
 	void GcnCompiler::emitVsSystemValueStore(
@@ -1052,7 +1314,7 @@ namespace sce::gcn
 		GcnRegisterValuePair result = {};
 
 		LOG_ASSERT(reg.type != GcnScalarType::Float64, "TODO: support float64.");
-		bool isDouble = this->isDoubleType(reg.type);
+		bool is64BitsType = this->isDoubleType(reg.type);
 
 		auto field = reg.field;
 		switch (field)
@@ -1060,7 +1322,7 @@ namespace sce::gcn
 			case GcnOperandField::ScalarGPR:
 			{
 				result.low = this->emitSgprLoad(reg);
-				if (isDouble)
+				if (is64BitsType)
 				{
 					GcnInstOperand highReg = reg;
 					highReg.code += 1;
@@ -1079,26 +1341,17 @@ namespace sce::gcn
 			case GcnOperandField::ExecHi:
 				break;
 			case GcnOperandField::ConstZero:
-				break;
 			case GcnOperandField::SignedConstIntPos:
-				break;
 			case GcnOperandField::SignedConstIntNeg:
-				break;
 			case GcnOperandField::ConstFloatPos_0_5:
-				break;
 			case GcnOperandField::ConstFloatNeg_0_5:
-				break;
 			case GcnOperandField::ConstFloatPos_1_0:
-				break;
 			case GcnOperandField::ConstFloatNeg_1_0:
-				break;
 			case GcnOperandField::ConstFloatPos_2_0:
-				break;
 			case GcnOperandField::ConstFloatNeg_2_0:
-				break;
 			case GcnOperandField::ConstFloatPos_4_0:
-				break;
 			case GcnOperandField::ConstFloatNeg_4_0:
+				result = emitBuildInlineConst(reg);
 				break;
 			case GcnOperandField::VccZ:
 				break;
@@ -1109,11 +1362,18 @@ namespace sce::gcn
 			case GcnOperandField::LdsDirect:
 				break;
 			case GcnOperandField::LiteralConst:
-			{
-				result.low = emitBuildLiteralConst(reg);
-			}
+				result = emitBuildLiteralConst(reg);
 				break;
 			case GcnOperandField::VectorGPR:
+			{
+				result.low = this->emitVgprLoad(reg);
+				if (is64BitsType)
+				{
+					GcnInstOperand highReg = reg;
+					highReg.code += 1;
+					result.high = this->emitVgprLoad(highReg);
+				}
+			}
 				break;
 			case GcnOperandField::Undefined:
 			default:
@@ -1318,21 +1578,22 @@ namespace sce::gcn
 		return result;
 	}
 
-	GcnRegisterValue GcnCompiler::emitBuildLiteralConst(
+	GcnRegisterValuePair GcnCompiler::emitBuildLiteralConst(
 		const GcnInstOperand& reg)
 	{
-		LOG_ASSERT(!isDoubleType(reg.type), "literal const must be 32 bits type.");
+		LOG_ASSERT(!isDoubleType(reg.type), "TODO: support 64 bis types.");
 
-		GcnRegisterValue result;
-		result.type.ctype  = reg.type;
-		result.type.ccount = 1;
+		GcnRegisterValuePair result = {};
+		result.low.type.ctype       = reg.type;
+		result.low.type.ccount      = 1;
+
 		switch (reg.type)
 		{
 			case GcnScalarType::Uint32:
-				result.id = m_module.constu32(reg.literalConst);
+				result.low.id = m_module.constu32(reg.literalConst);
 				break;
 			case GcnScalarType::Float32:
-				result.id = m_module.constf32(*reinterpret_cast<const float*>(&reg.literalConst));
+				result.low.id = m_module.constf32(*reinterpret_cast<const float*>(&reg.literalConst));
 				break;
 			default:
 				LOG_GCN_UNHANDLED_INST();
@@ -1341,6 +1602,62 @@ namespace sce::gcn
 		return result;
 	}
 
+	GcnRegisterValuePair GcnCompiler::emitBuildInlineConst(const GcnInstOperand& reg)
+	{
+		LOG_ASSERT(!isDoubleType(reg.type), "TODO: support 64 bis types.");
+
+		GcnRegisterValuePair result = {};
+		result.low.type.ctype       = reg.type;
+		result.low.type.ccount      = 1;
+		
+		auto field = reg.field;
+		switch (field)
+		{
+			case GcnOperandField::ConstZero:
+				result.low.id = m_module.consti32(0);
+				break;
+			case GcnOperandField::SignedConstIntPos:
+			{
+				constexpr int32_t InlineConstZero = 128;
+				int32_t           value           = reg.code - InlineConstZero;
+				result.low.id                     = m_module.consti32(value);
+			}
+				break;
+			case GcnOperandField::SignedConstIntNeg:
+			{
+				constexpr int32_t InlineConst64 = 192;
+				int32_t           value         = InlineConst64 - reg.code;
+				result.low.id                   = m_module.consti32(value);
+			}
+				break;
+			case GcnOperandField::ConstFloatPos_0_5:
+				result.low.id = m_module.constf32(0.5f);
+				break;
+			case GcnOperandField::ConstFloatNeg_0_5:
+				result.low.id = m_module.constf32(-0.5f);
+				break;
+			case GcnOperandField::ConstFloatPos_1_0:
+				result.low.id = m_module.constf32(1.0f);
+				break;
+			case GcnOperandField::ConstFloatNeg_1_0:
+				result.low.id = m_module.constf32(-1.0f);
+				break;
+			case GcnOperandField::ConstFloatPos_2_0:
+				result.low.id = m_module.constf32(2.0f);
+				break;
+			case GcnOperandField::ConstFloatNeg_2_0:
+				result.low.id = m_module.constf32(-2.0f);
+				break;
+			case GcnOperandField::ConstFloatPos_4_0:
+				result.low.id = m_module.constf32(4.0f);
+				break;
+			case GcnOperandField::ConstFloatNeg_4_0:
+				result.low.id = m_module.constf32(-4.0f);
+				break;
+		}
+
+		return result;
+	}
 
 	GcnRegisterValue GcnCompiler::emitRegisterBitcast(
 		GcnRegisterValue srcValue,
@@ -1893,5 +2210,7 @@ namespace sce::gcn
 		}
 		return result;
 	}
+
+
 
 }  // namespace sce::gcn

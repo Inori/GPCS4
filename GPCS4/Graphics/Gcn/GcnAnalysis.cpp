@@ -187,7 +187,7 @@ namespace sce::gcn
 		{
 			++m_analysis->exportInfo.paramCount;
 
-			uint32_t paramIndex                       = exp.control.target - GcnMinExpParam;
+			uint32_t paramIndex                       = exp.control.target - GcnExpParam0;
 			m_analysis->exportInfo.params[paramIndex] = GcnRegMask(exp.control.en);
 		}
 	}

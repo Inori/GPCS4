@@ -10,7 +10,9 @@ namespace sce::gcn
 	constexpr size_t   GcnMaxVGPR          = 256;
 	constexpr size_t   GcnMaxOperandCount  = 5;
 	constexpr size_t   GcnMaxExportParam   = 32;
-	constexpr uint32_t GcnMinExpParam      = 32;
+
+	constexpr size_t   GcnExpPos0          = 12;
+	constexpr size_t   GcnExpParam0        = 32;
 
 	enum class GcnZeroTest : uint32_t
 	{
@@ -213,7 +215,6 @@ namespace sce::gcn
 		uint32_t      depthTypeId   = 0;
 	};
 
-
 	/**
 	 * \brief Component swizzle
 	 *
@@ -336,6 +337,5 @@ namespace sce::gcn
 	private:
 		uint8_t m_mask = 0;
 	};
-
 
 }  // namespace sce::gcn

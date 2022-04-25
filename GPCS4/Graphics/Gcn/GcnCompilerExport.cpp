@@ -12,13 +12,39 @@ namespace sce::gcn
 	void GcnCompiler::emitExp(const GcnShaderInstruction& ins)
 	{
 		auto exp = gcnInstructionAs<GcnShaderInstEXP>(ins);
+
+		std::array<uint32_t, 4> src;
+
+		auto     mask           = GcnRegMask(exp.control.en);
+		uint32_t componentCount = mask.popCount();
+
+		for (uint32_t i = 0; i != componentCount; ++i)
+		{
+			src[i] = emitVgprLoad(ins.src[i]).id;
+		}
+
+		// Create the actual result vector
+		GcnRegisterValue value;
+		value.type.ctype  = GcnScalarType::Float32;
+		value.type.ccount = componentCount;
+		value.id          = m_module.opCompositeConstruct(getVectorTypeId(value.type),
+														  componentCount, src.data());
+
+		LOG_ASSERT(exp.control.compr == 0, "TODO: compressed output not supported yet.");
+
 		switch (exp.target)
 		{
 			case GcnExportTarget::Pos:
-				this->emitExpPos(ins);
+			{
+				uint32_t regIdx = exp.control.target - GcnExpPos0;
+				this->emitExpPosStore(regIdx, value, mask);
+			}
 				break;
 			case GcnExportTarget::Param:
-				this->emitExpParam(ins);
+			{
+				uint32_t regIdx = exp.control.target - GcnExpParam0;
+				this->emitExpParamStore(regIdx, value, mask);
+			}
 				break;
 			default:
 				LOG_GCN_UNHANDLED_INST();
@@ -26,62 +52,24 @@ namespace sce::gcn
 		}
 	}
 
-	void GcnCompiler::emitExpPos(const GcnShaderInstruction& ins)
+	void GcnCompiler::emitExpPosStore(uint32_t                regIdx,
+									  const GcnRegisterValue& value,
+									  const GcnRegMask&       writeMask)
 	{
-		auto exp = gcnInstructionAs<GcnShaderInstEXP>(ins);
-
-		std::array<uint32_t, 4> src;
-
-		auto     posMask        = GcnRegMask(exp.control.en);
-		uint32_t componentCount = posMask.popCount();
-
-		LOG_ASSERT(componentCount == 4, "vertex output component count should always be 4.");
-
-		for (uint32_t i = 0; i != componentCount; ++i)
-		{
-			src[i] = emitVgprLoad(ins.src[i]).id;
-		}
-
-		// Create the actual position vector
-		GcnRegisterValue position;
-		position.type.ctype  = GcnScalarType::Float32;
-		position.type.ccount = componentCount;
-		position.id          = m_module.opCompositeConstruct(
-					 getVectorTypeId(position.type),
-					 componentCount, src.data());
+		LOG_ASSERT(regIdx == 0, "only support pos0.");
+		LOG_ASSERT(writeMask.popCount() == 4, "vertex output component count should always be 4.");
 
 		emitVsSystemValueStore(GcnSystemValue::Position,
-							   posMask,
-							   position);
+							   writeMask,
+							   value);
 	}
 
-	void GcnCompiler::emitExpParam(const GcnShaderInstruction& ins)
+	void GcnCompiler::emitExpParamStore(uint32_t                regIdx,
+										const GcnRegisterValue& value,
+										const GcnRegMask&       writeMask)
 	{
-		auto exp = gcnInstructionAs<GcnShaderInstEXP>(ins);
+		auto& outputPtr = m_outputs[regIdx];
 
-		std::array<uint32_t, 4> src;
-
-		auto     paramMask      = GcnRegMask(exp.control.en);
-		uint32_t componentCount = paramMask.popCount();
-
-		LOG_ASSERT(exp.control.compr == 0, "TODO: compressed output not supported yet.");
-
-		for (uint32_t i = 0; i != componentCount; ++i)
-		{
-			src[i] = emitVgprLoad(ins.src[i]).id;
-		}
-
-		// Create the actual param vector
-		GcnRegisterValue param;
-		param.type.ctype  = GcnScalarType::Float32;
-		param.type.ccount = componentCount;
-		param.id          = m_module.opCompositeConstruct(
-					 getVectorTypeId(param.type),
-					 componentCount, src.data());
-
-		uint32_t regIndex  = exp.control.target - GcnMinExpParam;
-		auto&    outputPtr = m_outputs[regIndex];
-
-		emitValueStore(outputPtr, param, paramMask);
+		emitValueStore(outputPtr, value, writeMask);
 	}
 }  // namespace sce::gcn
