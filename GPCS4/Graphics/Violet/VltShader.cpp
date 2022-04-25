@@ -133,9 +133,6 @@ namespace sce::vlt
 		SpirvCodeBuffer spirvCode = m_code.decompress();
 		uint32_t*       code      = spirvCode.data();
 
-
-		LOG_WARN("Binding remap is disabled for debugging purpose.");
-
 		// Remap resource binding IDs
 		for (uint32_t ofs : m_idOffsets)
 		{

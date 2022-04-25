@@ -96,6 +96,7 @@ namespace sce::gcn
 				break;
 			case kShaderInputUsagePtrExtendedUserData:
 			case kShaderInputUsageSubPtrFetchShader:
+			case kShaderInputUsagePtrVertexBufferTable:
 			{
 				// This is not really a resource
 				res.type         = VK_DESCRIPTOR_TYPE_MAX_ENUM;

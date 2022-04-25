@@ -214,8 +214,8 @@ namespace sce::gcn
 
 	void GcnCompiler::emitVsInit()
 	{
-		m_module.enableCapability(spv::CapabilityClipDistance);
-		m_module.enableCapability(spv::CapabilityCullDistance);
+		//m_module.enableCapability(spv::CapabilityClipDistance);
+		//m_module.enableCapability(spv::CapabilityCullDistance);
 		m_module.enableCapability(spv::CapabilityDrawParameters);
 
 		m_module.enableExtension("SPV_KHR_shader_draw_parameters");

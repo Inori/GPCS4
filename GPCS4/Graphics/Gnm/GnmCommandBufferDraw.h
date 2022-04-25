@@ -143,7 +143,7 @@ namespace sce::Gnm
 			const gcn::GcnShaderResourceTable& table,
 			uint32_t                           usage);
 
-		const uint8_t* findFetchShader(
+		const void* findFetchShader(
 			const gcn::GcnShaderResourceTable& table,
 			const UserDataArray&               userData);
 
@@ -155,6 +155,10 @@ namespace sce::Gnm
 		bool isSingleVertexBinding(
 			const uint32_t*                      vtxTable,
 			const gcn::VertexInputSemanticTable& semanticTable);
+
+		vlt::Rc<vlt::VltBuffer> generateIndexBuffer(
+			const void* data,
+			uint32_t    size);
 
 		vlt::Rc<vlt::VltBuffer> generateIndexBuffer(
 			uint32_t indexCount);

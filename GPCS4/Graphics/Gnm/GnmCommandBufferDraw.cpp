@@ -242,7 +242,7 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setPointerInUserData(ShaderStage stage, uint32_t startUserDataSlot, void* gpuAddr)
 	{
-		std::memcpy(&m_state.shaderContext[stage].userData[startUserDataSlot], gpuAddr, sizeof(void*));
+		std::memcpy(&m_state.shaderContext[stage].userData[startUserDataSlot], &gpuAddr, sizeof(void*));
 	}
 
 	void GnmCommandBufferDraw::setUserDataRegion(ShaderStage stage, uint32_t startUserDataSlot, const uint32_t* userData, uint32_t numDwords)
@@ -507,10 +507,23 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void* indexAddr, DrawModifier modifier)
 	{
+		uint32_t indexBufferSize =
+			m_state.ia.indexType == VK_INDEX_TYPE_UINT16 ? 
+			sizeof(uint16_t) * indexCount : 
+			sizeof(uint32_t) * indexCount;
+
+		m_state.ia.indexBuffer = generateIndexBuffer(indexAddr, indexBufferSize);
+
+		commitGraphicsState();
+
+		m_context->drawIndexed(indexCount, 1, 0, 0, 0);
 	}
 
 	void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void* indexAddr)
 	{
+		DrawModifier modifier;
+		modifier.renderTargetSliceOffset = 0;
+		drawIndex(indexCount, indexAddr, modifier);
 	}
 
 	void GnmCommandBufferDraw::dispatch(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ)
@@ -640,10 +653,22 @@ namespace sce::Gnm
 	{
 	}
 
+	Rc<VltBuffer> GnmCommandBufferDraw::generateIndexBuffer(const void* data, uint32_t size)
+	{
+		VltBufferCreateInfo info = {};
+		info.size                = size;
+		info.usage               = VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+		info.stages              = VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
+		info.access              = VK_ACCESS_INDEX_READ_BIT;
+
+		Rc<VltBuffer> buffer = m_device->createBuffer(info, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+		m_context->uploadBuffer(buffer, data);
+		return buffer;
+	}
+
 	Rc<VltBuffer> GnmCommandBufferDraw::generateIndexBuffer(uint32_t indexCount)
 	{
-		Rc<VltBuffer> buffer = nullptr;
-
 		// Auto-generated indexes are forced in 16 bits width.
 		std::vector<uint16_t> indexes;
 
@@ -661,17 +686,7 @@ namespace sce::Gnm
 			break;
 		}
 
-		VltBufferCreateInfo info = {};
-		info.size                = sizeof(uint16_t) * indexes.size();
-		info.usage               = VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-		info.stages              = VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
-		info.access              = VK_ACCESS_INDEX_READ_BIT;
-
-		buffer = m_device->createBuffer(info, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-
-		m_context->uploadBuffer(buffer, indexes.data());
-
-		return buffer;
+		return generateIndexBuffer(indexes.data(), sizeof(uint16_t) * indexes.size());
 	}
 
 	bool GnmCommandBufferDraw::isSingleVertexBinding(
@@ -745,7 +760,7 @@ namespace sce::Gnm
 		auto fsCode = findFetchShader(resTable, ctx.userData);
 		if (fsCode != nullptr)
 		{
-			GcnFetchShader fs(fsCode);
+			GcnFetchShader fs(reinterpret_cast<const uint8_t*>(fsCode));
 			semaTable = fs.getVertexInputSemanticTable();
 		}
 
@@ -1125,16 +1140,16 @@ namespace sce::Gnm
 		}
 	}
 
-	const uint8_t* GnmCommandBufferDraw::findFetchShader(
+	const void* GnmCommandBufferDraw::findFetchShader(
 		const gcn::GcnShaderResourceTable& table,
 		const UserDataArray&               userData)
 	{
-		const uint8_t* fsCode = nullptr;
+		const void* fsCode = nullptr;
 
 		int32_t fsReg = findUsageRegister(table, kShaderInputUsageSubPtrFetchShader);
 		if (fsReg >= 0)
 		{
-			fsCode = reinterpret_cast<const uint8_t*>(&userData[fsReg]);
+			fsCode = *reinterpret_cast<void* const*>(&userData[fsReg]);
 		}
 		return fsCode;
 	}
