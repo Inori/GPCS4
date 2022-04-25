@@ -190,6 +190,13 @@ namespace sce::gcn
 			uint32_t paramIndex                       = exp.control.target - GcnExpParam0;
 			m_analysis->exportInfo.params[paramIndex] = GcnRegMask(exp.control.en);
 		}
+		else if (exp.target == GcnExportTarget::Mrt)
+		{
+			++m_analysis->exportInfo.mrtCount;
+
+			uint32_t mrtIndex                     = exp.control.target;
+			m_analysis->exportInfo.mrts[mrtIndex] = GcnRegMask(exp.control.en);
+		}
 	}
 
 }  // namespace sce::gcn

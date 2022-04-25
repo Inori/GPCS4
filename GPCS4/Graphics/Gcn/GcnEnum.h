@@ -2439,7 +2439,7 @@ namespace sce::gcn
 
 	enum class GcnExportTarget : uint32_t
 	{
-		MrtN,
+		Mrt,
 		MrtZ,
 		Null,
 		Pos,

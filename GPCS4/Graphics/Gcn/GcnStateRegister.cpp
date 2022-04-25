@@ -10,7 +10,17 @@ namespace sce::gcn
 	GcnStateRegister::GcnStateRegister(
 		GcnCompiler* compiler,
 		const char*  name) :
-		m_compiler(compiler)
+		m_compiler(compiler),
+		m_name(name)
+	{
+
+	}
+
+	GcnStateRegister::~GcnStateRegister()
+	{
+	}
+
+	void GcnStateRegister::create()
 	{
 		GcnRegisterInfo info;
 		info.type.ctype   = GcnScalarType::Uint32;
@@ -21,19 +31,22 @@ namespace sce::gcn
 		m_low.type.ctype  = info.type.ctype;
 		m_low.type.ccount = info.type.ccount;
 		m_low.id          = m_compiler->emitNewVariable(info);
-		m_compiler->m_module.setDebugName(m_low.id, util::str::formatex(name, "_lo").c_str());
+		m_compiler->m_module.setDebugName(m_low.id, util::str::formatex(m_name, "_lo").c_str());
 
 		m_high.type = m_low.type;
 		m_high.id   = m_compiler->emitNewVariable(info);
-		m_compiler->m_module.setDebugName(m_high.id, util::str::formatex(name, "_hi").c_str());
-	}
+		m_compiler->m_module.setDebugName(m_high.id, util::str::formatex(m_name, "_hi").c_str());
 
-	GcnStateRegister::~GcnStateRegister()
-	{
+		m_created = true;
 	}
 
 	void GcnStateRegister::init(uint64_t value)
 	{
+		if (!m_created)
+		{
+			create();
+		}
+
 		uint32_t lowValue  = static_cast<uint32_t>(value & 0xFFFFFFFF);
 		uint32_t highValue = static_cast<uint32_t>((value >> 32) & 0xFFFFFFFF);
 
@@ -52,6 +65,11 @@ namespace sce::gcn
 	{
 		LOG_ASSERT(mask.popCount() <= 2, "error mask for state register.");
 	
+		if (!m_created)
+		{
+			create();
+		}
+
 		GcnRegisterValuePair result = {};
 		if (mask.popCount() == 1)
 		{
@@ -80,6 +98,11 @@ namespace sce::gcn
 		const GcnRegMask&           mask)
 	{
 		LOG_ASSERT(mask.popCount() <= 2, "error mask for state register.");
+
+		if (!m_created)
+		{
+			create();
+		}
 
 		if (mask.popCount() == 1)
 		{

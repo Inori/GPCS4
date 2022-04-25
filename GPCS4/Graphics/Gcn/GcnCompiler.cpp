@@ -258,6 +258,41 @@ namespace sce::gcn
 
 	void GcnCompiler::emitPsInit()
 	{
+		m_module.enableCapability(spv::CapabilityDerivativeControl);
+
+		m_module.setExecutionMode(m_entryPointId,
+								  spv::ExecutionModeOriginUpperLeft);
+
+		// Main function of the pixel shader
+		m_ps.functionId = m_module.allocateId();
+		m_module.setDebugName(m_ps.functionId, "ps_main");
+
+		this->emitFunctionBegin(
+			m_ps.functionId,
+			m_module.defVoidType(),
+			m_module.defFunctionType(
+				m_module.defVoidType(), 0, nullptr));
+		this->emitFunctionLabel();
+
+		// TODO:
+		// Support discard
+		
+		//if (m_analysis->usesKill && m_moduleInfo.options.useDemoteToHelperInvocation)
+		//{
+		//	// This extension basically implements D3D-style discard
+		//	m_module.enableExtension("SPV_EXT_demote_to_helper_invocation");
+		//	m_module.enableCapability(spv::CapabilityDemoteToHelperInvocationEXT);
+		//}
+		//else if (m_analysis->usesKill && m_analysis->usesDerivatives)
+		//{
+		//	// We may have to defer kill operations to the end of
+		//	// the shader in order to keep derivatives correct.
+		//	m_ps.killState = m_module.newVarInit(
+		//		m_module.defPointerType(m_module.defBoolType(), spv::StorageClassPrivate),
+		//		spv::StorageClassPrivate, m_module.constBool(false));
+
+		//	m_module.setDebugName(m_ps.killState, "ps_kill");
+		//}
 	}
 
 	void GcnCompiler::emitCsInit()
@@ -300,6 +335,31 @@ namespace sce::gcn
 
 	void GcnCompiler::emitPsFinalize()
 	{
+		this->emitMainFunctionBegin();
+		this->emitInputSetup();
+	
+		m_module.opFunctionCall(
+			m_module.defVoidType(),
+			m_ps.functionId, 0, nullptr);
+
+		//if (m_ps.killState != 0)
+		//{
+		//	DxbcConditional cond;
+		//	cond.labelIf  = m_module.allocateId();
+		//	cond.labelEnd = m_module.allocateId();
+
+		//	uint32_t killTest = m_module.opLoad(m_module.defBoolType(), m_ps.killState);
+
+		//	m_module.opSelectionMerge(cond.labelEnd, spv::SelectionControlMaskNone);
+		//	m_module.opBranchConditional(killTest, cond.labelIf, cond.labelEnd);
+
+		//	m_module.opLabel(cond.labelIf);
+		//	m_module.opKill();
+
+		//	m_module.opLabel(cond.labelEnd);
+		//}
+
+		this->emitFunctionEnd();
 	}
 
 	void GcnCompiler::emitCsFinalize()
@@ -666,7 +726,8 @@ namespace sce::gcn
 		}
 	}
 
-	void GcnCompiler::emitDclOutput(uint32_t regIdx)
+	void GcnCompiler::emitDclOutput(uint32_t        regIdx,
+									GcnExportTarget target)
 	{
 		const GcnVectorType regType = getOutputRegType(regIdx);
 
@@ -689,7 +750,20 @@ namespace sce::gcn
 				m_module.decorateIndex(varId, 0);
 		}
 
-		m_outputs.at(regIdx) = { regType, varId };
+		switch (target)
+		{
+			case GcnExportTarget::Mrt:
+				m_mrts.at(regIdx) = { regType, varId };
+				break;
+			case GcnExportTarget::Param:
+				m_params.at(regIdx) = { regType, varId };
+				break;
+			case GcnExportTarget::MrtZ:
+			case GcnExportTarget::Null:
+			default:
+				LOG_GCN_UNHANDLED_INST();
+				break;
+		}
 
 		// Declare the output slot as defined
 		m_interfaceSlots.outputSlots |= 1u << regIdx;
@@ -698,14 +772,18 @@ namespace sce::gcn
 	void GcnCompiler::emitDclExport()
 	{
 		// Declare param outputs
-		uint32_t outputCount = m_analysis->exportInfo.paramCount;
-		for (uint32_t i = 0; i != outputCount; ++i)
+		uint32_t paramCount = m_analysis->exportInfo.paramCount;
+		for (uint32_t i = 0; i != paramCount; ++i)
 		{
-			this->emitDclOutput(i);
+			this->emitDclOutput(i, GcnExportTarget::Param);
 		}
 
-		// TODO:
-		// Other exports
+		// Declare mrt outputs
+		uint32_t mrtCount = m_analysis->exportInfo.mrtCount;
+		for (uint32_t i = 0; i != mrtCount; ++i)
+		{
+			this->emitDclOutput(i, GcnExportTarget::Mrt);
+		}
 	}
 
 	void GcnCompiler::emitDclStateRegister()
@@ -1405,17 +1483,26 @@ namespace sce::gcn
 		GcnRegisterValuePair src = value;
 		src.low                  = emitOutputModifiers(src.low, reg.outputModifier);
 
-		bool isDouble = this->isDoubleType(reg.type);
+		bool is64BitsType = this->isDoubleType(reg.type);
 
 		auto field = reg.field;
 		switch (field)
 		{
 			case GcnOperandField::ScalarGPR:
+			{
+				emitSgprStore(reg, src.low);
+				if (is64BitsType)
+				{
+					GcnInstOperand highReg = reg;
+					highReg.code += 1;
+					emitSgprStore(highReg, src.high);
+				}
+			}
 				break;
 			case GcnOperandField::VccLo:
 				m_state.vcc.emitStore(
 					src,
-					GcnRegMask::firstN(isDouble ? 2 : 1));
+					GcnRegMask::firstN(is64BitsType ? 2 : 1));
 				break;
 			case GcnOperandField::VccHi:
 				m_state.vcc.emitStore(
@@ -1441,7 +1528,7 @@ namespace sce::gcn
 			case GcnOperandField::VectorGPR:
 			{
 				emitVgprStore(reg, src.low);
-				if (isDouble)
+				if (is64BitsType)
 				{
 					GcnInstOperand highReg = reg;
 					highReg.code += 1;
@@ -1515,7 +1602,6 @@ namespace sce::gcn
 		uint32_t fpTypeId   = getScalarTypeId(GcnScalarType::Float32);
 		uint32_t ptrTypeId  = getPointerTypeId(info);
 
-		GcnInstOperand reg = dst;
 		for (uint32_t i = 0; i != count ; ++i)
 		{
 			// offset in bytes
@@ -1544,6 +1630,7 @@ namespace sce::gcn
 			value.low.type.ccount      = 1;
 			value.low.id               = itemId;
 
+			GcnInstOperand reg = dst;
 			reg.code += i;
 			emitRegisterStore(reg, value);
 		}
@@ -2297,8 +2384,6 @@ namespace sce::gcn
 		}
 		return result;
 	}
-
-
 
 
 }  // namespace sce::gcn

@@ -46,6 +46,9 @@ namespace sce::gcn
 				this->emitExpParamStore(regIdx, value, mask);
 			}
 				break;
+			case GcnExportTarget::Mrt:
+				this->emitExpMrtStore(exp.control.target, value, mask);
+				break;
 			default:
 				LOG_GCN_UNHANDLED_INST();
 				break;
@@ -68,8 +71,19 @@ namespace sce::gcn
 										const GcnRegisterValue& value,
 										const GcnRegMask&       writeMask)
 	{
-		auto& outputPtr = m_outputs[regIdx];
+		auto& outputPtr = m_params[regIdx];
 
 		emitValueStore(outputPtr, value, writeMask);
 	}
+	
+	void GcnCompiler::emitExpMrtStore(
+		uint32_t                regIdx,
+		const GcnRegisterValue& value,
+		const GcnRegMask&       writeMask)
+	{
+		auto& mrtPtr = m_mrts[regIdx];
+
+		emitValueStore(mrtPtr, value, writeMask);
+	}
+
 }  // namespace sce::gcn

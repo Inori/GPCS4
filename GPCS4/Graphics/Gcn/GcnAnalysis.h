@@ -13,8 +13,10 @@ namespace sce::gcn
 
 	struct GcnExportInfo
 	{
-		uint32_t                                  paramCount;
+		uint32_t                                  paramCount = 0;
 		std::array<GcnRegMask, GcnMaxExportParam> params;
+		uint32_t                                  mrtCount = 0;
+		std::array<GcnRegMask, GcnMaxExportParam> mrts;
 	};
 
 	struct GcnAnalysisInfo

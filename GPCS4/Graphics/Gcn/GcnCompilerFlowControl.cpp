@@ -49,7 +49,16 @@ namespace sce::gcn
 
 	void GcnCompiler::emitScalarSync(const GcnShaderInstruction& ins)
 	{
-		LOG_GCN_UNHANDLED_INST();
+		auto op = ins.opcode;
+		switch (op)
+		{
+			case GcnOpcode::S_WAITCNT:
+				// Nothing to do.
+				break;
+			default:
+				LOG_GCN_UNHANDLED_INST();
+				break;
+		}
 	}
 
 	void GcnCompiler::emitScalarWait(const GcnShaderInstruction& ins)

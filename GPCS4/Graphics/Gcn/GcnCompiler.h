@@ -160,6 +160,10 @@ namespace sce::gcn
 			uint32_t                regIdx,
 			const GcnRegisterValue& value,
 			const GcnRegMask&       writeMask);
+		void emitExpMrtStore(
+			uint32_t                regIdx,
+			const GcnRegisterValue& value,
+			const GcnRegMask&       writeMask);
 		//////////////////////////////////////
 		// Common function definition methods
 		void emitInit();
@@ -211,7 +215,8 @@ namespace sce::gcn
 			const VertexInputSemantic& sema);
 		void emitDclExport();
 		void emitDclOutput(
-			uint32_t regIdx);
+			uint32_t        regIdx,
+			GcnExportTarget target);
 
 		void emitDclBuffer(
 			const GcnShaderResource& res);
@@ -482,9 +487,14 @@ namespace sce::gcn
 		std::array<
 			GcnRegisterPointer, 
 			GcnMaxInterfaceRegs> m_inputs;
+		// Export params
 		std::array<
 			GcnRegisterPointer,
-			GcnMaxInterfaceRegs> m_outputs;
+			GcnMaxInterfaceRegs> m_params;
+		// Export mrts
+		std::array<
+			GcnRegisterPointer,
+			GcnMaxInterfaceRegs> m_mrts;
 
 		///////////////////////////////////////////////////
 		// VGPR/SGPR registers

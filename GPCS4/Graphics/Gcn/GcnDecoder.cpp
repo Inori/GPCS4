@@ -82,13 +82,13 @@ namespace sce::gcn
 
 		switch (instructionEncoding)
 		{
-		case GcnInstEncoding::SOP1:
-		case GcnInstEncoding::SOPP:
-		case GcnInstEncoding::SOPC:
-			return instructionEncoding;
+			case GcnInstEncoding::SOP1:
+			case GcnInstEncoding::SOPP:
+			case GcnInstEncoding::SOPC:
+				return instructionEncoding;
 
-		default:
-			break;
+			default:
+				break;
 		}
 
 		/// GcnEncodingMask::Mask7bit
@@ -96,12 +96,12 @@ namespace sce::gcn
 
 		switch (instructionEncoding)
 		{
-		case GcnInstEncoding::VOP1:
-		case GcnInstEncoding::VOPC:
-			return instructionEncoding;
+			case GcnInstEncoding::VOP1:
+			case GcnInstEncoding::VOPC:
+				return instructionEncoding;
 
-		default:
-			break;
+			default:
+				break;
 		}
 
 		/// GcnEncodingMask::Mask6bit
@@ -109,17 +109,17 @@ namespace sce::gcn
 
 		switch (instructionEncoding)
 		{
-		case GcnInstEncoding::VOP3:
-		case GcnInstEncoding::EXP:
-		case GcnInstEncoding::VINTRP:
-		case GcnInstEncoding::DS:
-		case GcnInstEncoding::MUBUF:
-		case GcnInstEncoding::MTBUF:
-		case GcnInstEncoding::MIMG:
-			return instructionEncoding;
+			case GcnInstEncoding::VOP3:
+			case GcnInstEncoding::EXP:
+			case GcnInstEncoding::VINTRP:
+			case GcnInstEncoding::DS:
+			case GcnInstEncoding::MUBUF:
+			case GcnInstEncoding::MTBUF:
+			case GcnInstEncoding::MIMG:
+				return instructionEncoding;
 
-		default:
-			break;
+			default:
+				break;
 		}
 
 		/// GcnEncodingMask::Mask5bit
@@ -127,11 +127,11 @@ namespace sce::gcn
 
 		switch (instructionEncoding)
 		{
-		case GcnInstEncoding::SMRD:
-			return instructionEncoding;
+			case GcnInstEncoding::SMRD:
+				return instructionEncoding;
 
-		default:
-			break;
+			default:
+				break;
 		}
 
 		/// GcnEncodingMask::Mask4bit
@@ -139,11 +139,11 @@ namespace sce::gcn
 
 		switch (instructionEncoding)
 		{
-		case GcnInstEncoding::SOPK:
-			return instructionEncoding;
+			case GcnInstEncoding::SOPK:
+				return instructionEncoding;
 
-		default:
-			break;
+			default:
+				break;
 		}
 
 		/// GcnEncodingMask::Mask2bit
@@ -151,11 +151,11 @@ namespace sce::gcn
 
 		switch (instructionEncoding)
 		{
-		case GcnInstEncoding::SOP2:
-			return instructionEncoding;
+			case GcnInstEncoding::SOP2:
+				return instructionEncoding;
 
-		default:
-			break;
+			default:
+				break;
 		}
 
 		/// GcnEncodingMask::Mask1bit
@@ -163,11 +163,11 @@ namespace sce::gcn
 
 		switch (instructionEncoding)
 		{
-		case GcnInstEncoding::VOP2:
-			return instructionEncoding;
+			case GcnInstEncoding::VOP2:
+				return instructionEncoding;
 
-		default:
-			break;
+			default:
+				break;
 		}
 
 		/// If no legal GcnInstEncoding found return GcnInstEncoding::ILLEGAL
@@ -180,27 +180,27 @@ namespace sce::gcn
 
 		switch (encoding)
 		{
-		case GcnInstEncoding::SOP1:
-		case GcnInstEncoding::SOPP:
-		case GcnInstEncoding::SOPC:
-		case GcnInstEncoding::SOPK:
-		case GcnInstEncoding::SOP2:
-		case GcnInstEncoding::VOP1:
-		case GcnInstEncoding::VOPC:
-		case GcnInstEncoding::VOP2:
-		case GcnInstEncoding::SMRD:
-		case GcnInstEncoding::VINTRP:
-			instLength = sizeof(uint32_t);
-			break;
+			case GcnInstEncoding::SOP1:
+			case GcnInstEncoding::SOPP:
+			case GcnInstEncoding::SOPC:
+			case GcnInstEncoding::SOPK:
+			case GcnInstEncoding::SOP2:
+			case GcnInstEncoding::VOP1:
+			case GcnInstEncoding::VOPC:
+			case GcnInstEncoding::VOP2:
+			case GcnInstEncoding::SMRD:
+			case GcnInstEncoding::VINTRP:
+				instLength = sizeof(uint32_t);
+				break;
 
-		case GcnInstEncoding::VOP3:
-		case GcnInstEncoding::MUBUF:
-		case GcnInstEncoding::MTBUF:
-		case GcnInstEncoding::MIMG:
-		case GcnInstEncoding::DS:
-		case GcnInstEncoding::EXP:
-			instLength = sizeof(uint64_t);
-			break;
+			case GcnInstEncoding::VOP3:
+			case GcnInstEncoding::MUBUF:
+			case GcnInstEncoding::MTBUF:
+			case GcnInstEncoding::MIMG:
+			case GcnInstEncoding::DS:
+			case GcnInstEncoding::EXP:
+				instLength = sizeof(uint64_t);
+				break;
 		}
 		return instLength;
 	}
@@ -210,54 +210,54 @@ namespace sce::gcn
 		uint32_t offset = 0;
 		switch (encoding)
 		{
-		case GcnInstEncoding::SOP1:
-			offset = (uint32_t)GcnOpcodeMap::OP_MAP_SOP1;
-			break;
-		case GcnInstEncoding::SOPP:
-			offset = (uint32_t)GcnOpcodeMap::OP_MAP_SOPP;
-			break;
-		case GcnInstEncoding::SOPC:
-			offset = (uint32_t)GcnOpcodeMap::OP_MAP_SOPC;
-			break;
-		case GcnInstEncoding::VOP1:
-			offset = (uint32_t)GcnOpcodeMap::OP_MAP_VOP1;
-			break;
-		case GcnInstEncoding::VOPC:
-			offset = (uint32_t)GcnOpcodeMap::OP_MAP_VOPC;
-			break;
-		case GcnInstEncoding::VOP3:
-			offset = (uint32_t)GcnOpcodeMap::OP_MAP_VOP3;
-			break;
-		case GcnInstEncoding::EXP:
-			offset = (uint32_t)GcnOpcodeMap::OP_MAP_EXP;
-			break;
-		case GcnInstEncoding::VINTRP:
-			offset = (uint32_t)GcnOpcodeMap::OP_MAP_VINTRP;
-			break;
-		case GcnInstEncoding::DS:
-			offset = (uint32_t)GcnOpcodeMap::OP_MAP_DS;
-			break;
-		case GcnInstEncoding::MUBUF:
-			offset = (uint32_t)GcnOpcodeMap::OP_MAP_MUBUF;
-			break;
-		case GcnInstEncoding::MTBUF:
-			offset = (uint32_t)GcnOpcodeMap::OP_MAP_MTBUF;
-			break;
-		case GcnInstEncoding::MIMG:
-			offset = (uint32_t)GcnOpcodeMap::OP_MAP_MIMG;
-			break;
-		case GcnInstEncoding::SMRD:
-			offset = (uint32_t)GcnOpcodeMap::OP_MAP_SMRD;
-			break;
-		case GcnInstEncoding::SOPK:
-			offset = (uint32_t)GcnOpcodeMap::OP_MAP_SOPK;
-			break;
-		case GcnInstEncoding::SOP2:
-			offset = (uint32_t)GcnOpcodeMap::OP_MAP_SOP2;
-			break;
-		case GcnInstEncoding::VOP2:
-			offset = (uint32_t)GcnOpcodeMap::OP_MAP_VOP2;
-			break;
+			case GcnInstEncoding::SOP1:
+				offset = (uint32_t)GcnOpcodeMap::OP_MAP_SOP1;
+				break;
+			case GcnInstEncoding::SOPP:
+				offset = (uint32_t)GcnOpcodeMap::OP_MAP_SOPP;
+				break;
+			case GcnInstEncoding::SOPC:
+				offset = (uint32_t)GcnOpcodeMap::OP_MAP_SOPC;
+				break;
+			case GcnInstEncoding::VOP1:
+				offset = (uint32_t)GcnOpcodeMap::OP_MAP_VOP1;
+				break;
+			case GcnInstEncoding::VOPC:
+				offset = (uint32_t)GcnOpcodeMap::OP_MAP_VOPC;
+				break;
+			case GcnInstEncoding::VOP3:
+				offset = (uint32_t)GcnOpcodeMap::OP_MAP_VOP3;
+				break;
+			case GcnInstEncoding::EXP:
+				offset = (uint32_t)GcnOpcodeMap::OP_MAP_EXP;
+				break;
+			case GcnInstEncoding::VINTRP:
+				offset = (uint32_t)GcnOpcodeMap::OP_MAP_VINTRP;
+				break;
+			case GcnInstEncoding::DS:
+				offset = (uint32_t)GcnOpcodeMap::OP_MAP_DS;
+				break;
+			case GcnInstEncoding::MUBUF:
+				offset = (uint32_t)GcnOpcodeMap::OP_MAP_MUBUF;
+				break;
+			case GcnInstEncoding::MTBUF:
+				offset = (uint32_t)GcnOpcodeMap::OP_MAP_MTBUF;
+				break;
+			case GcnInstEncoding::MIMG:
+				offset = (uint32_t)GcnOpcodeMap::OP_MAP_MIMG;
+				break;
+			case GcnInstEncoding::SMRD:
+				offset = (uint32_t)GcnOpcodeMap::OP_MAP_SMRD;
+				break;
+			case GcnInstEncoding::SOPK:
+				offset = (uint32_t)GcnOpcodeMap::OP_MAP_SOPK;
+				break;
+			case GcnInstEncoding::SOP2:
+				offset = (uint32_t)GcnOpcodeMap::OP_MAP_SOP2;
+				break;
+			case GcnInstEncoding::VOP2:
+				offset = (uint32_t)GcnOpcodeMap::OP_MAP_VOP2;
+				break;
 		}
 		return offset;
 	}
@@ -307,23 +307,23 @@ namespace sce::gcn
 		bool hasLiteral = false;
 		switch (encoding)
 		{
-		case GcnInstEncoding::SOPK:
-		{
-			if (opcode == (uint32_t)GcnOpcodeSOPK::S_SETREG_IMM32_B32)
+			case GcnInstEncoding::SOPK:
 			{
-				hasLiteral = true;
+				if (opcode == (uint32_t)GcnOpcodeSOPK::S_SETREG_IMM32_B32)
+				{
+					hasLiteral = true;
+				}
 			}
-		}
-		break;
-		case GcnInstEncoding::VOP2:
-		{
-			if (opcode == (uint32_t)GcnOpcodeVOP2::V_MADMK_F32 ||
-				opcode == (uint32_t)GcnOpcodeVOP2::V_MADAK_F32)
+			break;
+			case GcnInstEncoding::VOP2:
 			{
-				hasLiteral = true;
+				if (opcode == (uint32_t)GcnOpcodeVOP2::V_MADMK_F32 ||
+					opcode == (uint32_t)GcnOpcodeVOP2::V_MADAK_F32)
+				{
+					hasLiteral = true;
+				}
 			}
-		}
-		break;
+			break;
 		}
 		return hasLiteral;
 	}
@@ -334,7 +334,7 @@ namespace sce::gcn
 		GcnInstFormat instFormat = gcnInstructionFormat(encoding, encodingOp);
 
 		LOG_ASSERT(instFormat.srcType != GcnScalarType::Undefined &&
-				   instFormat.dstType != GcnScalarType::Undefined,
+					   instFormat.dstType != GcnScalarType::Undefined,
 				   "TODO: Instruction format table not complete, please fix it manually.");
 
 		m_instruction.opClass  = instFormat.instructionClass;
@@ -411,36 +411,36 @@ namespace sce::gcn
 		uint32_t hexInstruction = code.readu32();
 		switch (encoding)
 		{
-		case GcnInstEncoding::SOP1:
-			decodeInstructionSOP1(hexInstruction);
-			break;
-		case GcnInstEncoding::SOPP:
-			decodeInstructionSOPP(hexInstruction);
-			break;
-		case GcnInstEncoding::SOPC:
-			decodeInstructionSOPC(hexInstruction);
-			break;
-		case GcnInstEncoding::SOPK:
-			decodeInstructionSOPK(hexInstruction);
-			break;
-		case GcnInstEncoding::SOP2:
-			decodeInstructionSOP2(hexInstruction);
-			break;
-		case GcnInstEncoding::VOP1:
-			decodeInstructionVOP1(hexInstruction);
-			break;
-		case GcnInstEncoding::VOPC:
-			decodeInstructionVOPC(hexInstruction);
-			break;
-		case GcnInstEncoding::VOP2:
-			decodeInstructionVOP2(hexInstruction);
-			break;
-		case GcnInstEncoding::SMRD:
-			decodeInstructionSMRD(hexInstruction);
-			break;
-		case GcnInstEncoding::VINTRP:
-			decodeInstructionVINTRP(hexInstruction);
-			break;
+			case GcnInstEncoding::SOP1:
+				decodeInstructionSOP1(hexInstruction);
+				break;
+			case GcnInstEncoding::SOPP:
+				decodeInstructionSOPP(hexInstruction);
+				break;
+			case GcnInstEncoding::SOPC:
+				decodeInstructionSOPC(hexInstruction);
+				break;
+			case GcnInstEncoding::SOPK:
+				decodeInstructionSOPK(hexInstruction);
+				break;
+			case GcnInstEncoding::SOP2:
+				decodeInstructionSOP2(hexInstruction);
+				break;
+			case GcnInstEncoding::VOP1:
+				decodeInstructionVOP1(hexInstruction);
+				break;
+			case GcnInstEncoding::VOPC:
+				decodeInstructionVOPC(hexInstruction);
+				break;
+			case GcnInstEncoding::VOP2:
+				decodeInstructionVOP2(hexInstruction);
+				break;
+			case GcnInstEncoding::SMRD:
+				decodeInstructionSMRD(hexInstruction);
+				break;
+			case GcnInstEncoding::VINTRP:
+				decodeInstructionVINTRP(hexInstruction);
+				break;
 		}
 	}
 
@@ -449,24 +449,24 @@ namespace sce::gcn
 		uint64_t hexInstruction = code.readu64();
 		switch (encoding)
 		{
-		case GcnInstEncoding::VOP3:
-			decodeInstructionVOP3(hexInstruction);
-			break;
-		case GcnInstEncoding::MUBUF:
-			decodeInstructionMUBUF(hexInstruction);
-			break;
-		case GcnInstEncoding::MTBUF:
-			decodeInstructionMTBUF(hexInstruction);
-			break;
-		case GcnInstEncoding::MIMG:
-			decodeInstructionMIMG(hexInstruction);
-			break;
-		case GcnInstEncoding::DS:
-			decodeInstructionDS(hexInstruction);
-			break;
-		case GcnInstEncoding::EXP:
-			decodeInstructionEXP(hexInstruction);
-			break;
+			case GcnInstEncoding::VOP3:
+				decodeInstructionVOP3(hexInstruction);
+				break;
+			case GcnInstEncoding::MUBUF:
+				decodeInstructionMUBUF(hexInstruction);
+				break;
+			case GcnInstEncoding::MTBUF:
+				decodeInstructionMTBUF(hexInstruction);
+				break;
+			case GcnInstEncoding::MIMG:
+				decodeInstructionMIMG(hexInstruction);
+				break;
+			case GcnInstEncoding::DS:
+				decodeInstructionDS(hexInstruction);
+				break;
+			case GcnInstEncoding::EXP:
+				decodeInstructionEXP(hexInstruction);
+				break;
 		}
 	}
 
@@ -1115,7 +1115,7 @@ namespace sce::gcn
 		uint32_t target = result.control.target;
 		if (target >= 0 && target <= 7)
 		{
-			result.target = GcnExportTarget::MrtN;
+			result.target = GcnExportTarget::Mrt;
 		}
 		else if (target == 8)
 		{

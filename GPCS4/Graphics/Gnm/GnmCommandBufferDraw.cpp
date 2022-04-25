@@ -883,9 +883,13 @@ namespace sce::Gnm
 		bindResource(VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, resTable, ctx.userData);
 
 		// bind the shader
+		auto shader = psModule.compile(ctx.meta);
 		m_context->bindShader(
 			VK_SHADER_STAGE_COMPUTE_BIT,
-			psModule.compile(ctx.meta));
+			shader);
+
+		std::ofstream fout(shader->key().toString(), std::ios::binary);
+		shader->dump(fout);
 	}
 
 	void GnmCommandBufferDraw::commitGraphicsState()

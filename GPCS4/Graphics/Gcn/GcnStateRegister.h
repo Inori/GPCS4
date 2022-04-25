@@ -20,7 +20,7 @@ namespace sce::gcn
 		~GcnStateRegister();
 
 		/**
-		 * \brief Initialize and give a init value.
+		 * \brief Set a value.
 		 */
 		void init(uint64_t value);
 
@@ -50,7 +50,13 @@ namespace sce::gcn
 			const GcnRegMask&           mask);
 
 	private:
+		
+		void create();
+
+	private:
 		GcnCompiler*       m_compiler;
+		std::string        m_name;
+		bool               m_created = false;
 		GcnRegisterPointer m_low;
 		GcnRegisterPointer m_high;
 	};
