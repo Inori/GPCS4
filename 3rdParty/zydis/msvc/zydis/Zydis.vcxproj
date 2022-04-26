@@ -102,7 +102,7 @@
       </SubSystem>
       <MinimumRequiredVersion>5.02</MinimumRequiredVersion>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <AdditionalDependencies>Zycored.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Zycore.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>

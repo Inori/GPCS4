@@ -122,6 +122,16 @@ namespace sce::gcn
 											 src[0].low.id,
 											 src[1].low.id);
 			    break;
+			case GcnOpcode::V_MAC_F32:
+			{
+				auto vdst  = emitVgprLoad(ins.dst[0]);
+				dst.low.id = m_module.opFAdd(typeId,
+											 m_module.opFMul(typeId,
+															 src[0].low.id,
+															 src[1].low.id),
+											 vdst.id);
+			}
+				break;
 			// VectorRegMov
 			case GcnOpcode::V_MOV_B32:
 				dst.low.id = src[0].low.id;

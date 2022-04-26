@@ -769,7 +769,7 @@ namespace sce::Gnm
 		{
 			int32_t vertexTableReg = findUsageRegister(resTable, kShaderInputUsagePtrVertexBufferTable);
 			LOG_ASSERT(vertexTableReg >= 0, "vertex table not found while input semantic exist.");
-			const uint32_t* vertexTable = &ctx.userData[vertexTableReg];
+			const uint32_t* vertexTable = *reinterpret_cast<uint32_t* const*>(&ctx.userData[vertexTableReg]);
 
 			bool singleBinding = isSingleVertexBinding(vertexTable, semaTable);
 
@@ -1132,6 +1132,8 @@ namespace sce::Gnm
 					res.startRegister,
 					stage);
 			}
+				break;
+			case VK_DESCRIPTOR_TYPE_MAX_ENUM:
 				break;
 			default:
 				LOG_ASSERT(false, "resource type not supported.");

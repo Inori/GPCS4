@@ -1801,7 +1801,7 @@ int32_t sce::GpuAddress::computeDccInfo(uint64_t *outDccSizeBytes, uint32_t *out
 	uint32_t cbSliceSizeBytes = target->getSliceSizeInBytes();
 	uint32_t cbNumSlices = 1 + target->getLastArraySliceIndex();
 
-	int32_t status;
+	[[maybe_unused]] int32_t status;
 	Gnm::ArrayMode arrayMode;
 	status = GpuAddress::getArrayMode(&arrayMode, cbTileMode);
 	SCE_GNM_ASSERT_MSG_RETURN( status == kStatusSuccess, status, "Could not extract ArrayMode from cbTileMode (%d)", cbTileMode);

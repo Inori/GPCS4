@@ -32,7 +32,8 @@ namespace sce::gcn
 			case GcnOpcode::S_BUFFER_LOAD_DWORDX16:
 			{
 				GcnRegIndex index = {};
-				index.regIdx      = smrd.sbase.code;
+				// This is the sgpr pair index, so we need to multiply by 2
+				index.regIdx      = smrd.sbase.code * 2;
 				if (smrd.control.imm)
 				{
 					index.offset = smrd.control.offset << 2;

@@ -38,6 +38,7 @@ namespace sce::gcn
 		auto op = ins.opcode;
 		switch (op)
 		{
+			case GcnOpcode::S_SWAPPC_B64:
 			case GcnOpcode::S_ENDPGM:
 				// Nothing to do.
 				break;
