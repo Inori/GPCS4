@@ -71,6 +71,13 @@ namespace sce::gcn
 			case GcnOpcode::S_MOV_B32:
 				dst.low.id = src.low.id;
 				break;
+			case GcnOpcode::S_MOV_B64:
+			{
+				// Fix the type from Uint64 to Uint32 at the same time.
+				dst.low  = src.low;
+				dst.high = src.high;
+			}
+				break;
 			default:
 				LOG_GCN_UNHANDLED_INST();
 				break;
@@ -116,6 +123,20 @@ namespace sce::gcn
 
 	void GcnCompiler::emitScalarQuadMask(const GcnShaderInstruction& ins)
 	{
-		LOG_GCN_UNHANDLED_INST();
+		auto op = ins.opcode;
+		switch (op)
+		{
+			case GcnOpcode::S_WQM_B64:
+				// TODO:
+				// Implement this instruction.
+				// Currently we just ignore it.
+				LOG_ASSERT(ins.src[0].field == GcnOperandField::ExecLo &&
+						   ins.dst[0].field == GcnOperandField::ExecLo,
+						   "TODO: support non-exec operand quad mask.");
+				break;
+			default:
+				LOG_GCN_UNHANDLED_INST();
+				break;
+		}
 	}
 }  // namespace sce::gcn

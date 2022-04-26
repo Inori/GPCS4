@@ -109,6 +109,16 @@ namespace sce::gcn
 				dst.low.id = m_module.opConvertUtoF(typeId,
 													src[0].low.id);
 			    break;
+			case GcnOpcode::V_CVT_PKRTZ_F16_F32:
+			{
+				GcnRegisterValuePair pair;
+				pair.low    = src[0].low;
+				pair.high   = src[1].low;
+                // Do we need to "Round Toward Zero" manually?
+				auto packed = emitPackHalf2x16(pair);
+				dst.low     = packed;
+			}
+				break;
 			// VectorFpArith32
 			case GcnOpcode::V_MAD_F32:
 				dst.low.id = m_module.opFAdd(typeId,

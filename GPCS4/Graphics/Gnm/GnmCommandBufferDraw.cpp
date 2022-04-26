@@ -29,8 +29,8 @@ namespace sce::Gnm
 {
 
 // Use this to break on a shader you want to debug.
-#define SHADER_DEBUG_BREAK(mod, hash)  \
-	if (mod->key().toUint64() == hash) \
+#define SHADER_DEBUG_BREAK(mod, token)  \
+	if (mod.name() == token) \
 	{                                  \
 		__debugbreak();                \
 	}
@@ -897,6 +897,8 @@ namespace sce::Gnm
 		// create and bind shader resources
 		bindResource(VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, resTable, ctx.userData);
 
+		SHADER_DEBUG_BREAK(psModule, "SHDR_27270E5379221478");
+
 		// bind the shader
 		auto shader = psModule.compile(ctx.meta);
 		m_context->bindShader(
@@ -994,12 +996,13 @@ namespace sce::Gnm
 		SceTexture texture;
 
 		GnmImageCreateInfo info;
-		info.tsharp = tsharp;
-		info.usage  = usage;
-		info.stage  = stage;
-		info.access = access;
-		info.tiling = tiling;
-		info.layout = layout;
+		info.tsharp     = tsharp;
+		info.usage      = usage;
+		info.stage      = stage;
+		info.access     = access;
+		info.tiling     = tiling;
+		info.layout     = layout;
+		info.memoryType = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
 		m_factory.createImage(info, texture);
 		m_tracker->track(texture);
@@ -1022,11 +1025,11 @@ namespace sce::Gnm
 		subresourceLayers.baseArrayLayer = 0;
 		subresourceLayers.layerCount     = 1;
 
-		m_context->transformImage(
-			image,
-			image->getAvailableSubresources(),
-			VK_IMAGE_LAYOUT_UNDEFINED,
-			image->info().layout);
+		//m_context->transformImage(
+		//	image,
+		//	image->getAvailableSubresources(),
+		//	VK_IMAGE_LAYOUT_UNDEFINED,
+		//	image->info().layout);
 
 		m_context->uploadImage(
 			image,

@@ -706,7 +706,7 @@ namespace sce::gcn
 		  GcnScalarType::Float32, GcnScalarType::Uint32 },
 		// 47 = V_CVT_PKRTZ_F16_F32
 		{ GcnInstClass::VectorConv, GcnInstCategory::VectorALU, 2, 1,
-		  GcnScalarType::Float32, GcnScalarType::Float16 },
+		  GcnScalarType::Float32, GcnScalarType::Uint32 },
 		// 48 = V_CVT_PK_U16_U32
 		{ GcnInstClass::VectorConv, GcnInstCategory::VectorALU, 2, 1,
 		  GcnScalarType::Uint32, GcnScalarType::Uint32 },
@@ -3624,100 +3624,100 @@ namespace sce::gcn
 		  GcnScalarType::Undefined, GcnScalarType::Undefined },
 		// 32 = IMAGE_SAMPLE
 		{ GcnInstClass::VectorMemImgSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint64, GcnScalarType::Float32 },
 		// 33 = IMAGE_SAMPLE_CL
 		{ GcnInstClass::VectorMemImgSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 34 = IMAGE_SAMPLE_D
 		{ GcnInstClass::VectorMemImgSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 35 = IMAGE_SAMPLE_D_CL
 		{ GcnInstClass::VectorMemImgSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 36 = IMAGE_SAMPLE_L
 		{ GcnInstClass::VectorMemImgSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 37 = IMAGE_SAMPLE_B
 		{ GcnInstClass::VectorMemImgSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 38 = IMAGE_SAMPLE_B_CL
 		{ GcnInstClass::VectorMemImgSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 39 = IMAGE_SAMPLE_LZ
 		{ GcnInstClass::VectorMemImgSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 40 = IMAGE_SAMPLE_C
 		{ GcnInstClass::VectorMemImgSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 41 = IMAGE_SAMPLE_C_CL
 		{ GcnInstClass::VectorMemImgSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 42 = IMAGE_SAMPLE_C_D
 		{ GcnInstClass::VectorMemImgSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 43 = IMAGE_SAMPLE_C_D_CL
 		{ GcnInstClass::VectorMemImgSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 44 = IMAGE_SAMPLE_C_L
 		{ GcnInstClass::VectorMemImgSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 45 = IMAGE_SAMPLE_C_B
 		{ GcnInstClass::VectorMemImgSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 46 = IMAGE_SAMPLE_C_B_CL
 		{ GcnInstClass::VectorMemImgSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 47 = IMAGE_SAMPLE_C_LZ
 		{ GcnInstClass::VectorMemImgSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 48 = IMAGE_SAMPLE_O
 		{ GcnInstClass::VectorMemImgSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 49 = IMAGE_SAMPLE_CL_O
 		{ GcnInstClass::VectorMemImgSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 50 = IMAGE_SAMPLE_D_O
 		{ GcnInstClass::VectorMemImgSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 51 = IMAGE_SAMPLE_D_CL_O
 		{ GcnInstClass::VectorMemImgSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 52 = IMAGE_SAMPLE_L_O
 		{ GcnInstClass::VectorMemImgSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 53 = IMAGE_SAMPLE_B_O
 		{ GcnInstClass::VectorMemImgSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 54 = IMAGE_SAMPLE_B_CL_O
 		{ GcnInstClass::VectorMemImgSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 55 = IMAGE_SAMPLE_LZ_O
 		{ GcnInstClass::VectorMemImgSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 56 = IMAGE_SAMPLE_C_O
 		{ GcnInstClass::VectorMemImgSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 57 = IMAGE_SAMPLE_C_CL_O
 		{ GcnInstClass::VectorMemImgSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 58 = IMAGE_SAMPLE_C_D_O
 		{ GcnInstClass::VectorMemImgSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 59 = IMAGE_SAMPLE_C_D_CL_O
 		{ GcnInstClass::VectorMemImgSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 60 = IMAGE_SAMPLE_C_L_O
 		{ GcnInstClass::VectorMemImgSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 61 = IMAGE_SAMPLE_C_B_O
 		{ GcnInstClass::VectorMemImgSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 62 = IMAGE_SAMPLE_C_B_CL_O
 		{ GcnInstClass::VectorMemImgSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 63 = IMAGE_SAMPLE_C_LZ_O
 		{ GcnInstClass::VectorMemImgSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 64 = IMAGE_GATHER4
 		{ GcnInstClass::VectorMemImgSmp, GcnInstCategory::VectorMemory, 4, 1,
 		  GcnScalarType::Undefined, GcnScalarType::Undefined },

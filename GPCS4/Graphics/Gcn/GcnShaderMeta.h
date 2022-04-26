@@ -83,7 +83,12 @@ namespace sce::gcn
 	{
 		uint32_t userSgprCount;
 
-		uint32_t                        inputSemanticCount;  // ps input semantic count
+		// PS input semantic count
+		// This value can also be calculated by walking through
+		// the pixel shader vinterp instructions in analyzer.
+		// Does Gnm requires user to call setPsShaderUsage?
+		// If it doesn't, we need to take the walking shader way.
+		uint32_t                        inputSemanticCount;  
 		std::array<GcnTextureInfo, 128> textureInfos;
 	};
 

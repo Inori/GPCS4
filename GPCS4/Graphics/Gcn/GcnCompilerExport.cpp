@@ -15,12 +15,34 @@ namespace sce::gcn
 
 		std::array<uint32_t, 4> src;
 
+		// EN:
+		// COMPR==1: export half-dword enable. Valid values are: 0x0,3,c,f
+		// [0] enables VSRC0 : R,G from one VGPR (R in low bits, G high)
+		// [2] enables VSRC1 : B,A from one VGPR (B in low bits, A high)
+		// COMPR==0: [0-3] = enables for VSRC0..3.
+		// EN may be zero only for "NULL Pixel Shader" exports (used when exporting
+		// only valid mask to NULL target).
 		auto     mask           = GcnRegMask(exp.control.en);
 		uint32_t componentCount = mask.popCount();
-
-		for (uint32_t i = 0; i != componentCount; ++i)
+		
+		if (exp.control.compr)
 		{
-			src[i] = emitVgprLoad(ins.src[i]).id;
+			for (uint32_t i = 0; i != componentCount / 2; ++i)
+			{
+				auto packedVgpr = emitVgprLoad(ins.src[i]);
+				// Cast to uint type before unpack
+				packedVgpr      = emitRegisterBitcast(packedVgpr, GcnScalarType::Uint32);
+				auto unpackPair = emitUnpackHalf2x16(packedVgpr);
+				src[i * 2]      = unpackPair.low.id;
+				src[i * 2 + 1]  = unpackPair.high.id;
+			}
+		}
+		else
+		{
+			for (uint32_t i = 0; i != componentCount; ++i)
+			{
+				src[i] = emitVgprLoad(ins.src[i]).id;
+			}
 		}
 
 		// Create the actual result vector
@@ -29,8 +51,6 @@ namespace sce::gcn
 		value.type.ccount = componentCount;
 		value.id          = m_module.opCompositeConstruct(getVectorTypeId(value.type),
 														  componentCount, src.data());
-
-		LOG_ASSERT(exp.control.compr == 0, "TODO: compressed output not supported yet.");
 
 		switch (exp.target)
 		{

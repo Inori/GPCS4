@@ -209,10 +209,9 @@ namespace sce::gcn
 		uint32_t emitUserDataInit();
 		/////////////////////////////////////////////////////
 		// Shader interface and metadata declaration methods
-		void emitDclInputSlots();
-		void emitDclVertexInput();
 		void emitDclInput(
-			const VertexInputSemantic& sema);
+			uint32_t             regIdx,
+			GcnInterpolationMode im);
 		void emitDclExport();
 		void emitDclOutput(
 			uint32_t        regIdx,
@@ -226,6 +225,11 @@ namespace sce::gcn
 			const GcnShaderResource& res);
 
 		void emitDclStateRegister();
+		void emitDclInputSlots();
+
+		void emitDclVertexInput();
+
+		void emitDclPsInput();
 		///////////////////////////////
 		// Variable definition methods
 		uint32_t emitNewVariable(
@@ -274,13 +278,13 @@ namespace sce::gcn
 		template <bool IsVgpr>
 		GcnRegisterValue emitGprArrayLoad(
 			const GcnInstOperand& start,
-			uint32_t              count);
+			const GcnRegMask&     mask);
 		GcnRegisterValue emitVgprArrayLoad(
 			const GcnInstOperand& start,
-			uint32_t              count);
+			const GcnRegMask&     mask);
 		GcnRegisterValue emitSgprArrayLoad(
 			const GcnInstOperand& start,
-			uint32_t              count);
+			const GcnRegMask&     mask);
 
 		template <bool IsVgpr>
 		void emitGprStore(
@@ -295,16 +299,16 @@ namespace sce::gcn
 		template <bool IsVgpr>
 		void emitGprArrayStore(
 			const GcnInstOperand&   start,
-			uint32_t                count,
-			const GcnRegisterValue& value);
+			const GcnRegisterValue& value,
+			const GcnRegMask&       mask);
 		void emitVgprArrayStore(
 			const GcnInstOperand&   start,
-			uint32_t                count,
-			const GcnRegisterValue& value);
+			const GcnRegisterValue& value,
+			const GcnRegMask&       mask);
 		void emitSgprArrayStore(
 			const GcnInstOperand&   start,
-			uint32_t                count,
-			const GcnRegisterValue& value);
+			const GcnRegisterValue& value,
+			const GcnRegMask&       mask);
 
 		//////////////////////////////
 		// Operand load/store methods
@@ -323,10 +327,10 @@ namespace sce::gcn
 			const GcnInstOperand&       reg,
 			const GcnRegisterValuePair& value);
 
-		GcnRegisterPointer emitCompositeAccess(
+		GcnRegisterPointer emitVectorAccess(
 			GcnRegisterPointer pointer,
 			spv::StorageClass  sclass,
-			uint32_t           index);
+			const GcnRegMask&  mask);
 
 		GcnRegisterValue emitIndexLoad(
 			const GcnRegIndex& index);
@@ -336,6 +340,23 @@ namespace sce::gcn
 			const GcnInstOperand& dst,
 			uint32_t              count);
 
+		void emitTextureSample(
+			const GcnShaderInstruction& ins);
+
+		GcnRegisterValue emitCalcTexCoord(
+			GcnRegisterValue    coordVector,
+			const GcnImageInfo& imageInfo);
+
+		GcnRegisterValue emitLoadTexCoord(
+			const GcnInstOperand& coordReg,
+			const GcnImageInfo&   imageInfo);
+
+		///////////////////////////////////////
+		// Image register manipulation methods
+		uint32_t emitLoadSampledImage(
+			const GcnTexture& textureResource,
+			const GcnSampler& samplerResource,
+			bool              isDepthCompare);
 		////////////////////////////////////////////////
 		// Constant building methods. These are used to
 		// generate constant vectors that store the same
@@ -424,6 +445,12 @@ namespace sce::gcn
 			GcnRegisterValue   value,
 			GcnOutputModifiers modifiers);
 
+		GcnRegisterValue emitPackHalf2x16(
+			GcnRegisterValuePair src);
+
+		GcnRegisterValuePair emitUnpackHalf2x16(
+			GcnRegisterValue src);
+
 		///////////////////////////
 		// Type definition methods
 		uint32_t getScalarTypeId(
@@ -454,7 +481,7 @@ namespace sce::gcn
 		bool hasFetchShader() const;
 
 		std::pair<const VertexInputSemantic*, uint32_t>
-			getSemanticTable();
+			getSemanticTable() const;
 
 		const std::array<GcnTextureInfo, 128>&
 			getTextureInfoTable();
@@ -464,8 +491,17 @@ namespace sce::gcn
 			bool             isStorage,
 			bool             isDepth) const;
 
+		GcnVectorType getInputRegType(
+			uint32_t regIdx) const;
+
 		GcnVectorType getOutputRegType(
 			uint32_t paramIdx) const;
+
+		uint32_t getTexLayerDim(
+			const GcnImageInfo& imageType) const;
+
+		uint32_t getTexCoordDim(
+			const GcnImageInfo& imageType) const;
 
 	private:
 		GcnProgramInfo         m_programInfo;

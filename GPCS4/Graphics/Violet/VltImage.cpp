@@ -23,7 +23,7 @@ namespace sce::vlt
 		// If defined, we should provide a format list, which
 		// allows some drivers to enable image compression
 		VkImageFormatListCreateInfo formatList;
-		formatList.sType           = VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO_KHR;
+		formatList.sType           = VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO;
 		formatList.pNext           = nullptr;
 		formatList.viewFormatCount = createInfo.viewFormatCount;
 		formatList.pViewFormats    = createInfo.viewFormats;

@@ -36,7 +36,7 @@ namespace sce::gcn
 		this->runInstructionIterator(&analyzer, codeSlice);
 
 		GcnCompiler compiler(
-			m_header.key().name(),
+			this->name(),
 			m_programInfo,
 			m_header,
 			meta,

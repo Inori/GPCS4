@@ -11,6 +11,8 @@
 
 using namespace sce::vlt;
 
+LOG_CHANNEL(Graphic.Gnm.GnmResourceFactory);
+
 namespace sce::Gnm
 {
 	GnmResourceFactory::GnmResourceFactory(VltDevice* device) :
@@ -92,6 +94,9 @@ namespace sce::Gnm
 		auto        tsharp = createInfo.tsharp;
 		TextureType textureType   = tsharp->getTextureType();
 
+		auto tileMode = tsharp->getTileMode();
+		LOG_ASSERT(tileMode == kTileModeDisplay_LinearAligned, "TODO: support tiled images.");
+
 		VkImageCreateFlags flags;
 		// clang-format off
 		switch (textureType)
@@ -166,6 +171,8 @@ namespace sce::Gnm
 
 		sampler.sampler = m_device->createSampler(samplerInfo);
 		sampler.ssharp  = *ssharp;
+
+		return true;
 	}
 
 }  // namespace sce::Gnm

@@ -47,7 +47,18 @@ namespace sce::gcn
 
 	void GcnCompiler::emitVectorMemImgSmp(const GcnShaderInstruction& ins)
 	{
-		LOG_GCN_UNHANDLED_INST();
+		auto mimg = gcnInstructionAs<GcnShaderInstMIMG>(ins);
+
+		auto op = ins.opcode;
+		switch (op)
+		{
+			case GcnOpcode::IMAGE_SAMPLE:
+				emitTextureSample(ins);
+				break;
+			default:
+				LOG_GCN_UNHANDLED_INST();
+				break;
+		}
 	}
 
 	void GcnCompiler::emitVectorMemImgUt(const GcnShaderInstruction& ins)

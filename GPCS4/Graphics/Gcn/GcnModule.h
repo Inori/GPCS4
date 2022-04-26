@@ -45,6 +45,17 @@ namespace sce::gcn
 			return m_header.getShaderResourceTable();
 		}
 
+		/**
+		 * \brief Get shader name
+		 * 
+		 * The name is generate from original 
+		 * GCN shader binary hash and crc.
+		 */
+		std::string name() const
+		{
+			return m_header.key().name();
+		}
+
 
 		/**
          * \brief Compiles GCN shader to SPIR-V module

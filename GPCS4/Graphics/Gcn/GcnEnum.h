@@ -2477,4 +2477,16 @@ namespace sce::gcn
 		DepthGe                     = 67,
 		DepthLe                     = 68
 	};
+
+	enum class GcnInterpolationMode : uint32_t
+	{
+		Undefined                   = 0,
+		Constant                    = 1,
+		Linear                      = 2,
+		LinearCentroid              = 3,
+		LinearNoPerspective         = 4,
+		LinearNoPerspectiveCentroid = 5,
+		LinearSample                = 6,
+		LinearNoPerspectiveSample   = 7,
+	};
 }  // namespace sce::gcn

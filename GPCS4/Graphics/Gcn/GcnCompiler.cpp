@@ -263,6 +263,9 @@ namespace sce::gcn
 		m_module.setExecutionMode(m_entryPointId,
 								  spv::ExecutionModeOriginUpperLeft);
 
+		// Declare inputs from vertex stage.
+		this->emitDclPsInput();
+
 		// Main function of the pixel shader
 		m_ps.functionId = m_module.allocateId();
 		m_module.setDebugName(m_ps.functionId, "ps_main");
@@ -540,6 +543,7 @@ namespace sce::gcn
 				case Gnm::kTextureChannelTypeSNorm: return GcnScalarType::Float32;
 				case Gnm::kTextureChannelTypeUNorm: return GcnScalarType::Float32;
 				case Gnm::kTextureChannelTypeFloat: return GcnScalarType::Float32;
+				case Gnm::kTextureChannelTypeSrgb:  return GcnScalarType::Float32;
 				case Gnm::kTextureChannelTypeSInt:  return GcnScalarType::Sint32;
 				case Gnm::kTextureChannelTypeUInt:  return GcnScalarType::Uint32;
 				default: Logger::exception(util::str::formatex("GcnCompiler: Invalid sampled type: ", channelType));
@@ -686,20 +690,22 @@ namespace sce::gcn
 		m_resourceSlots.push_back(resource);
 	}
 	
-	void GcnCompiler::emitDclInput(
-		const VertexInputSemantic& sema)
+	void GcnCompiler::emitDclInput(uint32_t             regIdx,
+								   GcnInterpolationMode im)
 	{
+		const GcnVectorType regType = getInputRegType(regIdx);
+      
 		GcnRegisterInfo info;
-		info.type.ctype = GcnScalarType::Float32;
-		// the count value is fixed when parsing V# in CommandBufferDraw
-		info.type.ccount  = sema.m_sizeInElements;
+		info.type.ctype = regType.ctype;
+	
+		info.type.ccount  = regType.ccount;
 		info.type.alength = 0;
 		info.sclass       = spv::StorageClassInput;
 
 		const uint32_t varId = emitNewVariable(info);
 
-		m_module.decorateLocation(varId, sema.m_semantic);
-		m_module.setDebugName(varId, util::str::formatex("vertex", sema.m_semantic).c_str());
+		m_module.decorateLocation(varId, regIdx);
+		m_module.setDebugName(varId, util::str::formatex("i", regIdx).c_str());
 
 		// Record the input so that we can
 		// use it in fetch shader.
@@ -707,12 +713,32 @@ namespace sce::gcn
 		input.type.ctype          = info.type.ctype;
 		input.type.ccount         = info.type.ccount;
 		input.id                  = varId;
-		m_inputs[sema.m_semantic] = input;
+		m_inputs[regIdx]          = input;
 
 		m_entryPointInterfaces.push_back(varId);
 
+		// Interpolation mode, used in pixel shaders
+		if (im == GcnInterpolationMode::Constant)
+			m_module.decorate(varId, spv::DecorationFlat);
+
+		if (im == GcnInterpolationMode::LinearCentroid || 
+			im == GcnInterpolationMode::LinearNoPerspectiveCentroid)
+			m_module.decorate(varId, spv::DecorationCentroid);
+
+		if (im == GcnInterpolationMode::LinearNoPerspective || 
+			im == GcnInterpolationMode::LinearNoPerspectiveCentroid || 
+			im == GcnInterpolationMode::LinearNoPerspectiveSample)
+			m_module.decorate(varId, spv::DecorationNoPerspective);
+
+		if (im == GcnInterpolationMode::LinearSample || 
+			im == GcnInterpolationMode::LinearNoPerspectiveSample)
+		{
+			m_module.enableCapability(spv::CapabilitySampleRateShading);
+			m_module.decorate(varId, spv::DecorationSample);
+		}
+
 		// Declare the input slot as defined
-		m_interfaceSlots.inputSlots |= 1u << sema.m_semantic;
+		m_interfaceSlots.inputSlots |= 1u << regIdx;
 	}
 
 	void GcnCompiler::emitDclVertexInput()
@@ -722,7 +748,18 @@ namespace sce::gcn
 		for (uint32_t i = 0; i != table.second; ++i)
 		{
 			auto& sema = table.first[i];
-			this->emitDclInput(sema);
+			this->emitDclInput(sema.m_semantic,
+							   GcnInterpolationMode::Undefined);
+		}
+	}
+
+	void GcnCompiler::emitDclPsInput()
+	{
+		uint32_t inputCount = m_meta.ps.inputSemanticCount;
+		for (uint32_t i = 0; i != inputCount ; ++i)
+		{
+			this->emitDclInput(i,
+							   GcnInterpolationMode::Undefined);
 		}
 	}
 
@@ -905,7 +942,7 @@ namespace sce::gcn
 			reg.field            = GcnOperandField::VectorGPR;
 			reg.code             = sema.m_vgpr;
 			this->emitVgprArrayStore(
-				reg, sema.m_sizeInElements, value);
+				reg, value, GcnRegMask::firstN(sema.m_sizeInElements));
 		}
 	}
 
@@ -1223,7 +1260,7 @@ namespace sce::gcn
 		// a system value, like vertex index or so.
 		// We create a empty variable here first,
 		// and then stores the system value in emitInputSetup during finalize.
-		LOG_WARN_IF(gpr->id == 0, "%s is not initialized.", debugName.c_str());
+		LOG_TRACE_IF(gpr->id == 0, "%s is not initialized.", debugName.c_str());
 
 		// If the vgpr has not been used, we create one.
 		if (gpr->id == 0)
@@ -1265,34 +1302,55 @@ namespace sce::gcn
 	template <bool IsVgpr>
 	GcnRegisterValue GcnCompiler::emitGprArrayLoad(
 		const GcnInstOperand& start,
-		uint32_t              count)
+		const GcnRegMask&     mask)
 	{
+		std::array<uint32_t, 4> gpr;
+		uint32_t                componentCount = mask.popCount();
+		for (uint32_t i = 0; i != componentCount; ++i)
+		{
+			GcnInstOperand reg = start;
+			reg.code += i;
+			gpr[i] = emitGprLoad<IsVgpr>(reg).id;
+		}
+
+		GcnRegisterValue result;
+		result.type.ctype  = GcnScalarType::Float32;
+		result.type.ccount = componentCount;
+		result.id          = m_module.opCompositeConstruct(getVectorTypeId(result.type),
+														   componentCount,
+														   gpr.data());
+		return result;
 	}
 
 	template <bool IsVgpr>
 	void GcnCompiler::emitGprArrayStore(
 		const GcnInstOperand&   start,
-		uint32_t                count,
-		const GcnRegisterValue& value)
+		const GcnRegisterValue& value,
+		const GcnRegMask&       mask)
 	{
 		// store values in a vector into vgpr array,
 		// e.g. vec3 -> v[4:6]
 
-		LOG_ASSERT(count <= value.type.ccount, "value component count is less than store count.");
-
-		for (uint32_t i = 0; i != count; ++i)
+		uint32_t gprIdx = 0;
+		for (uint32_t i = 0; i != value.type.ccount; ++i)
 		{
-			GcnInstOperand reg = start;
-			reg.code += i;
+			if (!mask[i])
+			{
+				continue;
+			}
 
 			uint32_t typeId = this->getScalarTypeId(value.type.ctype);
 			uint32_t id     = m_module.opCompositeExtract(
 					typeId, value.id, 1, &i);
 
+			GcnInstOperand reg = start;
+			reg.code += (gprIdx++);
+
 			GcnRegisterValue val;
 			val.type.ctype  = value.type.ctype;
 			val.type.ccount = 1;
 			val.id          = id;
+
 			this->emitGprStore<IsVgpr>(reg, val);
 		}
 	}
@@ -1312,17 +1370,17 @@ namespace sce::gcn
 
 	GcnRegisterValue GcnCompiler::emitVgprArrayLoad(
 		const GcnInstOperand& start,
-		uint32_t              count)
+		const GcnRegMask&     mask)
 	{
-		return this->emitGprArrayLoad<true>(start, count);
+		return this->emitGprArrayLoad<true>(start, mask);
 	}
 
 	void GcnCompiler::emitVgprArrayStore(
 		const GcnInstOperand&   start,
-		uint32_t                count,
-		const GcnRegisterValue& value)
+		const GcnRegisterValue& value,
+		const GcnRegMask&       mask)
 	{
-		this->emitGprArrayStore<true>(start, count, value);
+		this->emitGprArrayStore<true>(start, value, mask);
 	}
 
 	GcnRegisterValue GcnCompiler::emitSgprLoad(
@@ -1340,17 +1398,17 @@ namespace sce::gcn
 
 	GcnRegisterValue GcnCompiler::emitSgprArrayLoad(
 		const GcnInstOperand& start,
-		uint32_t              count)
+		const GcnRegMask&     mask)
 	{
-		return this->emitGprArrayLoad<false>(start, count);
+		return this->emitGprArrayLoad<false>(start, mask);
 	}
 
 	void GcnCompiler::emitSgprArrayStore(
 		const GcnInstOperand&   start,
-		uint32_t                count,
-		const GcnRegisterValue& value)
+		const GcnRegisterValue& value,
+		const GcnRegMask&       mask)
 	{
-		this->emitGprArrayStore<false>(start, count, value);
+		this->emitGprArrayStore<false>(start, value, mask);
 	}
 
 	GcnRegisterValue GcnCompiler::emitValueLoad(
@@ -1418,14 +1476,23 @@ namespace sce::gcn
 			}
 				break;
 			case GcnOperandField::VccLo:
+				result = m_state.vcc.emitLoad(
+					GcnRegMask::firstN(is64BitsType ? 2 : 1));
 				break;
 			case GcnOperandField::VccHi:
+				result = m_state.vcc.emitLoad(
+					GcnRegMask::select(1));
 				break;
 			case GcnOperandField::M0:
+				result.low = emitValueLoad(m_state.m0);
 				break;
 			case GcnOperandField::ExecLo:
+				result = m_state.exec.emitLoad(
+					GcnRegMask::firstN(is64BitsType ? 2 : 1));
 				break;
 			case GcnOperandField::ExecHi:
+				result = m_state.exec.emitLoad(
+					GcnRegMask::select(1));
 				break;
 			case GcnOperandField::ConstZero:
 			case GcnOperandField::SignedConstIntPos:
@@ -1441,12 +1508,16 @@ namespace sce::gcn
 				result = emitBuildInlineConst(reg);
 				break;
 			case GcnOperandField::VccZ:
+				LOG_GCN_UNHANDLED_INST();
 				break;
 			case GcnOperandField::ExecZ:
+				LOG_GCN_UNHANDLED_INST();
 				break;
 			case GcnOperandField::Scc:
+				LOG_GCN_UNHANDLED_INST();
 				break;
 			case GcnOperandField::LdsDirect:
+				LOG_GCN_UNHANDLED_INST();
 				break;
 			case GcnOperandField::LiteralConst:
 				result = emitBuildLiteralConst(reg);
@@ -1498,32 +1569,39 @@ namespace sce::gcn
 					emitSgprStore(highReg, src.high);
 				}
 			}
-				break;
+			break;
 			case GcnOperandField::VccLo:
-				m_state.vcc.emitStore(
-					src,
-					GcnRegMask::firstN(is64BitsType ? 2 : 1));
+				m_state.vcc.emitStore(src,
+									  GcnRegMask::firstN(is64BitsType ? 2 : 1));
 				break;
 			case GcnOperandField::VccHi:
-				m_state.vcc.emitStore(
-					src,
-					GcnRegMask::select(1));
+				m_state.vcc.emitStore(src,
+									  GcnRegMask::select(1));
 				break;
 			case GcnOperandField::M0:
+				emitValueStore(m_state.m0,
+							   value.low,
+							   GcnRegMask::select(0));
 				break;
 			case GcnOperandField::ExecLo:
+				m_state.exec.emitStore(src,
+									   GcnRegMask::firstN(is64BitsType ? 2 : 1));
 				break;
 			case GcnOperandField::ExecHi:
+				m_state.exec.emitStore(src,
+									   GcnRegMask::select(1));
 				break;
 			case GcnOperandField::VccZ:
+				LOG_GCN_UNHANDLED_INST();
 				break;
 			case GcnOperandField::ExecZ:
+				LOG_GCN_UNHANDLED_INST();
 				break;
 			case GcnOperandField::Scc:
+				LOG_GCN_UNHANDLED_INST();
 				break;
 			case GcnOperandField::LdsDirect:
-				break;
-			case GcnOperandField::LiteralConst:
+				LOG_GCN_UNHANDLED_INST();
 				break;
 			case GcnOperandField::VectorGPR:
 			{
@@ -1543,20 +1621,24 @@ namespace sce::gcn
 		}
 	}
 
-	GcnRegisterPointer GcnCompiler::emitCompositeAccess(
+	GcnRegisterPointer GcnCompiler::emitVectorAccess(
 		GcnRegisterPointer pointer,
 		spv::StorageClass  sclass,
-		uint32_t           index)
+		const GcnRegMask&  mask)
 	{
-		// Create a pointer into a composite object
-
-		uint32_t ptrTypeId = m_module.defPointerType(
-			getVectorTypeId(pointer.type), sclass);
+		// Create a pointer into a vector object
+		LOG_ASSERT(mask.popCount() == 1, "mask can only select one component");
 
 		GcnRegisterPointer result;
-		result.type = pointer.type;
-		result.id   = m_module.opAccessChain(
-			  ptrTypeId, pointer.id, 1, &index);
+		result.type.ctype  = pointer.type.ctype;
+		result.type.ccount = mask.popCount();
+
+		uint32_t ptrTypeId = m_module.defPointerType(
+			getVectorTypeId(result.type), sclass);
+
+		uint32_t indexId = m_module.constu32(mask.firstSet());
+		result.id        = m_module.opAccessChain(
+				   ptrTypeId, pointer.id, 1, &indexId);
 		return result;
 	}
 
@@ -1634,6 +1716,125 @@ namespace sce::gcn
 			reg.code += i;
 			emitRegisterStore(reg, value);
 		}
+	}
+
+	GcnRegisterValue GcnCompiler::emitCalcTexCoord(
+		GcnRegisterValue    coordVector,
+		const GcnImageInfo& imageInfo)
+	{
+		const uint32_t dim = getTexCoordDim(imageInfo);
+
+		if (dim != coordVector.type.ccount)
+		{
+			coordVector = emitRegisterExtract(
+				coordVector, GcnRegMask::firstN(dim));
+		}
+
+		return coordVector;
+	}
+
+	GcnRegisterValue GcnCompiler::emitLoadTexCoord(
+		const GcnInstOperand& coordReg,
+		const GcnImageInfo&   imageInfo)
+	{
+		LOG_ASSERT(coordReg.type == GcnScalarType::Uint64 &&
+				   imageInfo.dim == spv::Dim2D,
+				   "TODO: support non-2D type images");
+
+		uint32_t dim         = getTexCoordDim(imageInfo);
+		auto     coordVector = emitVgprArrayLoad(coordReg,
+												 GcnRegMask::firstN(dim));
+		return emitCalcTexCoord(coordVector, imageInfo);
+	}
+
+	uint32_t GcnCompiler::emitLoadSampledImage(
+		const GcnTexture& textureResource,
+		const GcnSampler& samplerResource,
+		bool              isDepthCompare)
+	{
+		const uint32_t sampledImageType = isDepthCompare
+											  ? m_module.defSampledImageType(textureResource.depthTypeId)
+											  : m_module.defSampledImageType(textureResource.colorTypeId);
+
+		return m_module.opSampledImage(sampledImageType,
+									   m_module.opLoad(textureResource.imageTypeId, textureResource.varId),
+									   m_module.opLoad(samplerResource.typeId, samplerResource.varId));
+	}
+
+	void GcnCompiler::emitTextureSample(const GcnShaderInstruction& ins)
+	{
+		auto                  mimg        = gcnInstructionAs<GcnShaderInstMIMG>(ins);
+		const GcnInstOperand& texCoordReg = mimg.vaddr;
+		const GcnInstOperand& textureReg  = mimg.srsrc;
+		const GcnInstOperand& samplerReg  = mimg.ssamp;
+
+		// Texture and sampler register IDs
+		// These registers are 4-GPR aligned, so multiplied by 4
+		const uint32_t textureId = textureReg.code * 4;
+		const uint32_t samplerId = samplerReg.code * 4;
+
+		// Image type, which stores the image dimensions etc.
+		const GcnImageInfo imageType = m_textures.at(textureId).imageInfo;
+		// const uint32_t     imageLayerDim = getTexLayerDim(imageType);
+
+		// Load the texture coordinates. SPIR-V allows these
+		// to be float4 even if not all components are used.
+		GcnRegisterValue coord = emitLoadTexCoord(texCoordReg, imageType);
+
+		// Accumulate additional image operands. These are
+		// not part of the actual operand token in SPIR-V.
+		SpirvImageOperands imageOperands = {};
+
+		auto op             = ins.opcode;
+		bool isDepthCompare = op == GcnOpcode::IMAGE_SAMPLE_C ||
+							  op == GcnOpcode::IMAGE_SAMPLE_C_CL ||
+							  op == GcnOpcode::IMAGE_SAMPLE_C_D ||
+							  op == GcnOpcode::IMAGE_SAMPLE_C_D_CL ||
+							  op == GcnOpcode::IMAGE_SAMPLE_C_L ||
+							  op == GcnOpcode::IMAGE_SAMPLE_C_B ||
+							  op == GcnOpcode::IMAGE_SAMPLE_C_B_CL ||
+							  op == GcnOpcode::IMAGE_SAMPLE_C_LZ ||
+							  op == GcnOpcode::IMAGE_SAMPLE_C_O ||
+							  op == GcnOpcode::IMAGE_SAMPLE_C_CL_O ||
+							  op == GcnOpcode::IMAGE_SAMPLE_C_D_O ||
+							  op == GcnOpcode::IMAGE_SAMPLE_C_D_CL_O ||
+							  op == GcnOpcode::IMAGE_SAMPLE_C_L_O ||
+							  op == GcnOpcode::IMAGE_SAMPLE_C_B_O ||
+							  op == GcnOpcode::IMAGE_SAMPLE_C_B_CL_O ||
+							  op == GcnOpcode::IMAGE_SAMPLE_C_LZ_O;
+
+		// Combine the texture and the sampler into a sampled image
+		const uint32_t sampledImageId = emitLoadSampledImage(
+			m_textures.at(textureId), m_samplers.at(samplerId),
+			isDepthCompare);
+
+		// Sampling an image always returns a four-component
+		// vector, whereas depth-compare ops return a scalar.
+		GcnRegisterValue result;
+		result.type.ctype  = m_textures.at(textureId).sampledType;
+		result.type.ccount = isDepthCompare ? 1 : 4;
+
+		switch (op)
+		{
+			// Simple image sample operation
+			case GcnOpcode::IMAGE_SAMPLE:
+			{
+				result.id = m_module.opImageSampleImplicitLod(
+					getVectorTypeId(result.type),
+					sampledImageId, coord.id,
+					imageOperands);
+			}
+			break;
+			default:
+				LOG_GCN_UNHANDLED_INST();
+				break;
+		}
+
+		auto colorMask = GcnRegMask(mimg.control.dmask);
+		result         = emitRegisterExtract(result, colorMask);
+		emitVgprArrayStore(mimg.vdata,
+						   result,
+						   colorMask);
 	}
 
 
@@ -2158,6 +2359,50 @@ namespace sce::gcn
 		return value;
 	}
 
+	GcnRegisterValue GcnCompiler::emitPackHalf2x16(
+		GcnRegisterValuePair src)
+	{
+		const uint32_t t_u32   = getVectorTypeId({ GcnScalarType::Uint32, 1 });
+		const uint32_t t_f32v2 = getVectorTypeId({ GcnScalarType::Float32, 2 });
+
+		const std::array<uint32_t, 2> packIds = { { src.low.id, src.high.id } };
+
+		uint32_t uintId = m_module.opPackHalf2x16(t_u32,
+												  m_module.opCompositeConstruct(t_f32v2,
+																				packIds.size(),
+																				packIds.data()));
+
+		GcnRegisterValue result;
+		result.type.ctype  = GcnScalarType::Uint32;
+		result.type.ccount = 1;
+		result.id          = uintId;
+		return result;
+	}
+
+	GcnRegisterValuePair GcnCompiler::emitUnpackHalf2x16(
+		GcnRegisterValue src)
+	{
+		const uint32_t t_f32   = getVectorTypeId({ GcnScalarType::Float32, 1 });
+		const uint32_t t_f32v2 = getVectorTypeId({ GcnScalarType::Float32, 2 });
+
+		const uint32_t idxZero = 0;
+		const uint32_t idxOne  = 1;
+
+		GcnRegisterValuePair result;
+		result.low.type.ctype  = GcnScalarType::Float32;
+		result.low.type.ccount = 1;
+		result.high.type       = result.low.type;
+
+		uint32_t vec2Id = m_module.opUnpackHalf2x16(t_f32v2, src.id);
+		result.low.id   = m_module.opCompositeExtract(t_f32,
+													  vec2Id,
+													  1, &idxZero);
+		result.high.id  = m_module.opCompositeExtract(t_f32,
+													  vec2Id,
+													  1, &idxOne);
+		return result;
+	}
+
 	uint32_t GcnCompiler::getScalarTypeId(GcnScalarType type)
 	{
 		if (type == GcnScalarType::Float64)
@@ -2292,7 +2537,7 @@ namespace sce::gcn
 	}
 
 	std::pair<const VertexInputSemantic*, uint32_t> 
-		GcnCompiler::getSemanticTable()
+		GcnCompiler::getSemanticTable() const
 	{
 		const VertexInputSemantic* semanticTable = nullptr;
 		uint32_t                   semanticCount = 0;
@@ -2362,8 +2607,32 @@ namespace sce::gcn
 		return typeInfo;
 	}
 
-	GcnVectorType GcnCompiler::getOutputRegType(
-		uint32_t paramIdx) const
+	GcnVectorType GcnCompiler::getInputRegType(uint32_t regIdx) const
+	{
+		GcnVectorType result;
+		switch (m_programInfo.type())
+		{
+			case GcnProgramType::VertexShader:
+			{
+				const auto table = getSemanticTable();
+				LOG_ASSERT(regIdx < table.second, "reg index exceed semantic table count.");
+				auto&      sema  = table.first[regIdx];
+				result.ctype     = GcnScalarType::Float32;
+				// The count value is fixed when parsing V# in CommandBufferDraw
+				result.ccount    = sema.m_sizeInElements;
+			}
+				break;
+			default:
+			{
+				result.ctype  = GcnScalarType::Float32;
+				result.ccount = 4;
+			}
+				break;
+		}
+		return result;
+	}
+
+	GcnVectorType GcnCompiler::getOutputRegType(uint32_t paramIdx) const
 	{
 		GcnVectorType result;
 		switch (m_programInfo.type())
@@ -2383,6 +2652,24 @@ namespace sce::gcn
 			}
 		}
 		return result;
+	}
+
+	uint32_t GcnCompiler::getTexLayerDim(const GcnImageInfo& imageType) const
+	{
+		switch (imageType.dim)
+		{
+			case spv::DimBuffer:	return 1;
+			case spv::Dim1D:		return 1;
+			case spv::Dim2D:		return 2;
+			case spv::Dim3D:		return 3;
+			case spv::DimCube:		return 3;
+			default: Logger::exception("DxbcCompiler: getTexLayerDim: Unsupported image dimension");
+		}
+	}
+
+	uint32_t GcnCompiler::getTexCoordDim(const GcnImageInfo& imageType) const
+	{
+		return getTexLayerDim(imageType) + imageType.array;
 	}
 
 
