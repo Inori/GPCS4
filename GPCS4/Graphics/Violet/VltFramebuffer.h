@@ -100,8 +100,8 @@ namespace sce::vlt
 		 */
 		const VkRenderingAttachmentInfo* stencilAttachment() const
 		{
-			return m_stencilAttachment.imageView != VK_NULL_HANDLE ?
-				&m_stencilAttachment : nullptr;
+			//return m_stencilAttachment.imageView != VK_NULL_HANDLE ?
+			//	&m_stencilAttachment : nullptr;
 		}
 
 		/**
@@ -176,6 +176,6 @@ namespace sce::vlt
 		uint32_t                                                   m_colorAttachmentCount = 0;
 		std::array<VkRenderingAttachmentInfo, MaxNumRenderTargets> m_colorAttachments     = {};
 		VkRenderingAttachmentInfo                                  m_depthAttachment      = {};
-		VkRenderingAttachmentInfo                                  m_stencilAttachment    = {};
+		// VkRenderingAttachmentInfo                                  m_stencilAttachment    = {};
 	};
 }  // namespace sce::vlt

@@ -54,12 +54,10 @@ namespace sce::Gnm
 		viewInfo.numLevels = 1;
 		viewInfo.minLayer  = 0;
 		viewInfo.numLayers = 1;
-
-		VltBufferCreateInfo info;
-		info.size   = depthTarget->getZSizeAlign().m_size;
-		info.usage  = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-		info.stages = VK_PIPELINE_STAGE_TRANSFER_BIT;
-		info.access = VK_ACCESS_TRANSFER_READ_BIT;
+		if (imgInfo.format >= VK_FORMAT_D16_UNORM_S8_UINT)
+		{
+			viewInfo.aspect |= VK_IMAGE_ASPECT_STENCIL_BIT;
+		}
 
 		depthImage.image = m_device->createImage(
 			imgInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);

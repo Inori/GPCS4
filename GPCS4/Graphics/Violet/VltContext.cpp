@@ -1019,11 +1019,11 @@ namespace sce::vlt
 			renderInfo.flags                = 0;
 			renderInfo.renderArea           = renderArea;
 			renderInfo.layerCount           = 1;
-			renderInfo.viewMask             = 0;  // TODO: This can be used to implement GNM render target mask
+			renderInfo.viewMask             = 0;
 			renderInfo.colorAttachmentCount = framebuffer->numColorAttachments();
 			renderInfo.pColorAttachments    = framebuffer->colorAttachments();
 			renderInfo.pDepthAttachment     = framebuffer->depthAttachment();
-			renderInfo.pStencilAttachment   = framebuffer->stencilAttachment();
+			renderInfo.pStencilAttachment   = nullptr;
 
 			m_cmd->cmdBeginRendering(&renderInfo);
 

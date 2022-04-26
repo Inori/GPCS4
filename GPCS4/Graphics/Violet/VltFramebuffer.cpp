@@ -48,16 +48,16 @@ namespace sce::vlt
 			m_depthAttachment.storeOp            = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 			m_depthAttachment.clearValue         = clearValues[1];
 
-			m_stencilAttachment.sType              = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-			m_stencilAttachment.pNext              = nullptr;
-			m_stencilAttachment.imageView          = depthView->handle();
-			m_stencilAttachment.imageLayout        = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-			m_stencilAttachment.resolveMode        = VK_RESOLVE_MODE_NONE;
-			m_stencilAttachment.resolveImageView   = VK_NULL_HANDLE;
-			m_stencilAttachment.resolveImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-			m_stencilAttachment.loadOp             = VK_ATTACHMENT_LOAD_OP_CLEAR;
-			m_stencilAttachment.storeOp            = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-			m_stencilAttachment.clearValue         = clearValues[1];
+			//m_stencilAttachment.sType              = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+			//m_stencilAttachment.pNext              = nullptr;
+			//m_stencilAttachment.imageView          = depthView->handle();
+			//m_stencilAttachment.imageLayout        = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+			//m_stencilAttachment.resolveMode        = VK_RESOLVE_MODE_NONE;
+			//m_stencilAttachment.resolveImageView   = VK_NULL_HANDLE;
+			//m_stencilAttachment.resolveImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+			//m_stencilAttachment.loadOp             = VK_ATTACHMENT_LOAD_OP_CLEAR;
+			//m_stencilAttachment.storeOp            = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+			//m_stencilAttachment.clearValue         = clearValues[1];
 		}
 	}
 
@@ -207,7 +207,7 @@ namespace sce::vlt
 
 	void VltFramebuffer::setStencilClearValue(VkClearValue value)
 	{
-		m_stencilAttachment.clearValue = value;
+		// m_stencilAttachment.clearValue = value;
 	}
 
 }  // namespace sce::vlt

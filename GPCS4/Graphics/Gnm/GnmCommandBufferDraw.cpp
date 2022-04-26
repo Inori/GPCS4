@@ -897,7 +897,7 @@ namespace sce::Gnm
 		// create and bind shader resources
 		bindResource(VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, resTable, ctx.userData);
 
-		SHADER_DEBUG_BREAK(psModule, "SHDR_27270E5379221478");
+		// SHADER_DEBUG_BREAK(psModule, "SHDR_27270E5379221478");
 
 		// bind the shader
 		auto shader = psModule.compile(ctx.meta);
@@ -968,6 +968,7 @@ namespace sce::Gnm
 		}
 		else
 		{
+			info.stage |= VK_PIPELINE_STAGE_TRANSFER_BIT;
 			info.memoryType = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
 			m_factory.createBuffer(info, buffer);
@@ -998,7 +999,7 @@ namespace sce::Gnm
 		GnmImageCreateInfo info;
 		info.tsharp     = tsharp;
 		info.usage      = usage;
-		info.stage      = stage;
+		info.stage      = stage | VK_PIPELINE_STAGE_TRANSFER_BIT;
 		info.access     = access;
 		info.tiling     = tiling;
 		info.layout     = layout;
@@ -1024,12 +1025,6 @@ namespace sce::Gnm
 		subresourceLayers.mipLevel       = 0;
 		subresourceLayers.baseArrayLayer = 0;
 		subresourceLayers.layerCount     = 1;
-
-		//m_context->transformImage(
-		//	image,
-		//	image->getAvailableSubresources(),
-		//	VK_IMAGE_LAYOUT_UNDEFINED,
-		//	image->info().layout);
 
 		m_context->uploadImage(
 			image,
@@ -1201,18 +1196,6 @@ namespace sce::Gnm
 		// This is the last cmd for a command buffer submission,
 		// we can do some finish works before submit and present.
 
-		if (m_state.om.displayRenderTarget)
-		{
-			auto& image = m_state.om.displayRenderTarget->renderTarget().image;
-			// Transform render target to SHADER_READ layout
-			// so that we can copy it to swapchain.
-			// Note that the content must be preserved.
-			m_context->transformImage(
-				image,
-				image->getAvailableSubresources(),
-				VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-				VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-		}
 	}
 
 	ShaderStage GnmCommandBufferDraw::getShaderStage(

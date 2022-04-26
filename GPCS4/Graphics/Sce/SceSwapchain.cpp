@@ -51,13 +51,22 @@ namespace sce
 		m_context->beginRecording(
 			device->createCommandList());
 
-		// Get the render target with is draw to by commands from game.
-		auto srcImageView = m_renderTargets[index].imageView;
+		// Get the render target which is draw to by commands from game.
+		auto& target = m_renderTargets[index];
+
+		// Transform render target to SHADER_READ layout
+		// so that we can copy it to swapchain.
+		// Note that the content must be preserved.
+		m_context->transformImage(
+			target.image,
+			target.image->getAvailableSubresources(),
+			VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
 		// Record draw commands to copy render target image to swapchain image.
 		m_blitter->presentImage(m_context.ptr(),
 								m_imageViews.at(imageIndex), VkRect2D(),
-								srcImageView, VkRect2D());
+								target.imageView, VkRect2D());
 
 		auto cmdList = m_context->endRecording();
 
@@ -144,7 +153,7 @@ namespace sce
 			VltImageViewCreateInfo viewInfo;
 			viewInfo.type      = VK_IMAGE_VIEW_TYPE_2D;
 			viewInfo.format    = imageInfo.format;
-			viewInfo.usage     = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+			viewInfo.usage     = imageInfo.usage;
 			viewInfo.aspect    = VK_IMAGE_ASPECT_COLOR_BIT;
 			viewInfo.minLevel  = 0;
 			viewInfo.numLevels = 1;
