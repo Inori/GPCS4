@@ -842,16 +842,6 @@ namespace sce::gcn
 		m_state.scc.type.ccount = 1;
 		m_state.scc.id          = this->emitNewVariable(info);
 		m_module.setDebugName(m_state.scc.id, "scc");
-		// VCCZ
-		m_state.vccz.type.ctype  = GcnScalarType::Bool;
-		m_state.vccz.type.ccount = 1;
-		m_state.vccz.id          = this->emitNewVariable(info);
-		m_module.setDebugName(m_state.vccz.id, "vccz");
-		// EXECZ
-		m_state.execz.type.ctype  = GcnScalarType::Bool;
-		m_state.execz.type.ccount = 1;
-		m_state.execz.id          = this->emitNewVariable(info);
-		m_module.setDebugName(m_state.execz.id, "execz");
 	}
 
 	void GcnCompiler::emitInputSetup()

@@ -27,7 +27,7 @@ namespace sce::gcn
 		/**
 		 * \brief Load value and return the result
 		 * 
-		 * The mask can be used to specify dst width,
+		 * The mask can be used to specify result width,
 		 * either one gpr or two gpr.
 		 * e.g:
 		 * mask == 1 -> s0
@@ -39,7 +39,7 @@ namespace sce::gcn
 		/**
 		 * \brief Store value.
 		 * 
-		 * The mask can be used to specify src width,
+		 * The mask can be used to specify value width,
 		 * either one gpr or two gpr.
 		 * e.g:
 		 * mask == 1 -> s0
@@ -49,16 +49,31 @@ namespace sce::gcn
 			const GcnRegisterValuePair& value,
 			const GcnRegMask&           mask);
 
+
+		/**
+		 * \brief Zero status
+		 * 
+		 * Return a spir-v boolean type value
+		 * indicating the hardware register's zero state. 
+		 * (vccz or execz)
+		 * The state is auto updated whenever a store
+		 * operation is performed.
+		 */
+		uint32_t zflag();
+
 	private:
 		
 		void create();
+
+		void updateZflag();
 
 	private:
 		GcnCompiler*       m_compiler;
 		std::string        m_name;
 		bool               m_created = false;
-		GcnRegisterPointer m_low;
-		GcnRegisterPointer m_high;
+		GcnRegisterPointer m_low     = {};
+		GcnRegisterPointer m_high    = {};
+		uint32_t           m_zflag   = 0;
 	};
 
 
@@ -74,7 +89,5 @@ namespace sce::gcn
 
 		GcnRegisterPointer m0;
 		GcnRegisterPointer scc;
-		GcnRegisterPointer vccz;
-		GcnRegisterPointer execz;
 	};
 }  // namespace sce::gcn

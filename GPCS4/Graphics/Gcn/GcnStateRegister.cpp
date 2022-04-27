@@ -31,11 +31,18 @@ namespace sce::gcn
 		m_low.type.ctype  = info.type.ctype;
 		m_low.type.ccount = info.type.ccount;
 		m_low.id          = m_compiler->emitNewVariable(info);
-		m_compiler->m_module.setDebugName(m_low.id, util::str::formatex(m_name, "_lo").c_str());
+		m_compiler->m_module.setDebugName(m_low.id,
+										  util::str::formatex(m_name, "_lo").c_str());
 
 		m_high.type = m_low.type;
 		m_high.id   = m_compiler->emitNewVariable(info);
-		m_compiler->m_module.setDebugName(m_high.id, util::str::formatex(m_name, "_hi").c_str());
+		m_compiler->m_module.setDebugName(m_high.id,
+										  util::str::formatex(m_name, "_hi").c_str());
+
+		info.type.ctype = GcnScalarType::Bool;
+		m_zflag         = m_compiler->emitNewVariable(info);
+		m_compiler->m_module.setDebugName(m_zflag,
+										  util::str::formatex(m_name, "z").c_str());
 
 		m_created = true;
 	}
@@ -58,6 +65,9 @@ namespace sce::gcn
 		module.opStore(
 			m_high.id,
 			module.constu32(highValue));
+		module.opStore(
+			m_zflag,
+			module.constBool(static_cast<bool>(value & 1)));
 	}
 
 	GcnRegisterValuePair GcnStateRegister::emitLoad(
@@ -123,6 +133,31 @@ namespace sce::gcn
 			m_compiler->emitValueStore(m_low, value.low, GcnRegMask::select(0));
 			m_compiler->emitValueStore(m_high, value.high, GcnRegMask::select(0));
 		}
+
+		updateZflag();
+	}
+
+	uint32_t GcnStateRegister::zflag()
+	{
+		auto& module = m_compiler->m_module;
+		return module.opLoad(module.defBoolType(),
+							 m_zflag);
+	}
+
+	void GcnStateRegister::updateZflag()
+	{
+		auto& module = m_compiler->m_module;
+
+		const uint32_t uintTypeId = m_compiler->getVectorTypeId(m_low.type);
+		const uint32_t boolTypeId = module.defBoolType();
+
+		// We only need to test the lower part,
+		// in fact, only the LSB bit makes sense.
+		uint32_t valueId     = module.opLoad(uintTypeId, m_low.id);
+		uint32_t conditionId = module.opIEqual(boolTypeId,
+											   valueId,
+											   module.constu32(0));
+		module.opStore(m_zflag, conditionId);
 	}
 
 }  // namespace sce::gcn

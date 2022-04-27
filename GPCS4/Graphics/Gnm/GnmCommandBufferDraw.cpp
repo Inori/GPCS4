@@ -37,7 +37,7 @@ namespace sce::Gnm
 
 // Dump the recompiled shader to file
 // so that we can analyze it using spirv toolset.
-// #define SHADER_DUMP_FILE
+#define SHADER_DUMP_FILE
 
 
 	GnmCommandBufferDraw::GnmCommandBufferDraw(vlt::VltDevice* device) :
@@ -544,9 +544,9 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::dispatch(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ)
 	{
-		//commitComputeState();
+		commitComputeState();
 
-		//m_context->dispatch(threadGroupX, threadGroupY, threadGroupZ);
+		m_context->dispatch(threadGroupX, threadGroupY, threadGroupZ);
 	}
 
 	void GnmCommandBufferDraw::dispatchWithOrderedAppend(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ, DispatchOrderedAppendMode orderedAppendMode)
@@ -957,9 +957,14 @@ namespace sce::Gnm
 		bindResource(VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, resTable, ctx.userData);
 
 		// bind the shader
+		auto shader = csModule.compile(ctx.meta);
 		m_context->bindShader(
 			VK_SHADER_STAGE_COMPUTE_BIT,
-			csModule.compile(ctx.meta));
+			shader);
+#ifdef SHADER_DUMP_FILE
+		std::ofstream fout(shader->key().toString(), std::ios::binary);
+		shader->dump(fout);
+#endif
 	}
 
 	void GnmCommandBufferDraw::bindResourceBuffer(

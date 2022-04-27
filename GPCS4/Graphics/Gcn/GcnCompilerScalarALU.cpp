@@ -10,13 +10,11 @@ namespace sce::gcn
 		switch (opClass)
 		{
 			case GcnInstClass::ScalarArith:
-				this->emitScalarArith(ins);
+			case GcnInstClass::ScalarMov:
+				this->emitScalarAluCommon(ins);
 				break;
 			case GcnInstClass::ScalarAbs:
 				this->emitScalarAbs(ins);
-				break;
-			case GcnInstClass::ScalarMov:
-				this->emitScalarMov(ins);
 				break;
 			case GcnInstClass::ScalarCmp:
 				this->emitScalarCmp(ins);
@@ -45,6 +43,50 @@ namespace sce::gcn
 		}
 	}
 
+	void GcnCompiler::emitScalarAluCommon(const GcnShaderInstruction& ins)
+	{
+		std::array<GcnRegisterValuePair, GcnMaxOperandCount> src;
+		for (uint32_t i = 0; i != ins.srcCount; ++i)
+		{
+			src[i] = emitRegisterLoad(ins.src[i]);
+		}
+
+		GcnRegisterValuePair dst = {};
+		dst.low.type.ctype       = ins.dst[0].type;
+		dst.low.type.ccount      = 1;
+		dst.high.type.ctype      = ins.dst[0].type;
+		dst.high.type.ccount     = 1;
+
+		const uint32_t typeId = getVectorTypeId(dst.low.type);
+
+		auto op = ins.opcode;
+		switch (op)
+		{
+			// ScalarArith
+			case GcnOpcode::S_MUL_I32:
+				dst.low.id = m_module.opIMul(typeId,
+											 src[0].low.id,
+											 src[1].low.id);
+				break;
+			// ScalarMov
+			case GcnOpcode::S_MOV_B32:
+				dst.low.id = src[0].low.id;
+				break;
+			case GcnOpcode::S_MOV_B64:
+			{
+				// Fix the type from Uint64 to Uint32 at the same time.
+				dst.low  = src[0].low;
+				dst.high = src[0].high;
+			}
+				break;
+			default:
+				LOG_GCN_UNHANDLED_INST();
+				break;
+		}
+
+		emitRegisterStore(ins.dst[0], dst);
+	}
+
 	void GcnCompiler::emitScalarArith(const GcnShaderInstruction& ins)
 	{
 		LOG_GCN_UNHANDLED_INST();
@@ -57,33 +99,7 @@ namespace sce::gcn
 
 	void GcnCompiler::emitScalarMov(const GcnShaderInstruction& ins)
 	{
-		GcnRegisterValuePair src = emitRegisterLoad(ins.src[0]);
-
-		GcnRegisterValuePair dst = {};
-		dst.low.type.ctype       = ins.dst[0].type;
-		dst.low.type.ccount      = 1;
-		dst.high.type.ctype      = ins.dst[0].type;
-		dst.high.type.ccount     = 1;
-
-		auto op = ins.opcode;
-		switch (op)
-		{
-			case GcnOpcode::S_MOV_B32:
-				dst.low.id = src.low.id;
-				break;
-			case GcnOpcode::S_MOV_B64:
-			{
-				// Fix the type from Uint64 to Uint32 at the same time.
-				dst.low  = src.low;
-				dst.high = src.high;
-			}
-				break;
-			default:
-				LOG_GCN_UNHANDLED_INST();
-				break;
-		}
-
-		emitRegisterStore(ins.dst[0], dst);
+		LOG_GCN_UNHANDLED_INST();
 	}
 
 	void GcnCompiler::emitScalarCmp(const GcnShaderInstruction& ins)

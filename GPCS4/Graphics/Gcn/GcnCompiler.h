@@ -77,6 +77,7 @@ namespace sce::gcn
 
 		/////////////////////////////////////////////////////////
 		// Class handlers
+		void emitScalarAluCommon(const GcnShaderInstruction& ins);
 		void emitScalarArith(const GcnShaderInstruction& ins);
 		void emitScalarAbs(const GcnShaderInstruction& ins);
 		void emitScalarMov(const GcnShaderInstruction& ins);
@@ -89,6 +90,7 @@ namespace sce::gcn
 		void emitScalarExecMask(const GcnShaderInstruction& ins);
 		void emitScalarQuadMask(const GcnShaderInstruction& ins);
 		void emitVectorAluCommon(const GcnShaderInstruction& ins);
+		void emitVectorCmp(const GcnShaderInstruction& ins);
 		void emitVectorRegMov(const GcnShaderInstruction& ins);
 		void emitVectorLane(const GcnShaderInstruction& ins);
 		void emitVectorBitLogic(const GcnShaderInstruction& ins);

@@ -613,6 +613,9 @@ namespace sce::gcn
 		m_instruction.src[0].code  = m_instruction.src[0].field == GcnOperandField::VectorGPR ? src0 - VectorGPRMin : src0;
 		m_instruction.src[1].field = GcnOperandField::VectorGPR;
 		m_instruction.src[1].code  = vsrc1;
+		// VOPC dst is forced to VCC
+		m_instruction.dst[0].field = GcnOperandField::VccLo;
+		m_instruction.dst[0].code  = static_cast<uint32_t>(GcnOperandField::VccLo);
 	}
 
 	void GcnDecodeContext::decodeInstructionVOP2(uint32_t hexInstruction)

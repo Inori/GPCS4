@@ -15,8 +15,15 @@ namespace sce::gcn
             case GcnInstClass::VectorBitLogic:
             case GcnInstClass::VectorConv:
             case GcnInstClass::VectorFpArith32:
+			case GcnInstClass::VectorIntArith32:
                 this->emitVectorAluCommon(ins);
                 break;
+			case GcnInstClass::VectorFpCmp64:
+			case GcnInstClass::VectorFpCmp32:
+			case GcnInstClass::VectorIntCmp32:
+			case GcnInstClass::VectorIntCmp64:
+				this->emitVectorCmp(ins);
+				break;
             case GcnInstClass::VectorLane:
                 this->emitVectorLane(ins);
                 break;
@@ -38,9 +45,6 @@ namespace sce::gcn
             case GcnInstClass::VectorFpTran32:
                 this->emitVectorFpTran32(ins);
                 break;
-            case GcnInstClass::VectorFpCmp32:
-                this->emitVectorFpCmp32(ins);
-                break;
             case GcnInstClass::VectorFpArith64:
                 this->emitVectorFpArith64(ins);
                 break;
@@ -53,20 +57,8 @@ namespace sce::gcn
             case GcnInstClass::VectorFpTran64:
                 this->emitVectorFpTran64(ins);
                 break;
-            case GcnInstClass::VectorFpCmp64:
-                this->emitVectorFpCmp64(ins);
-                break;
-            case GcnInstClass::VectorIntArith32:
-                this->emitVectorIntArith32(ins);
-                break;
             case GcnInstClass::VectorIntArith64:
                 this->emitVectorIntArith64(ins);
-                break;
-            case GcnInstClass::VectorIntCmp32:
-                this->emitVectorIntCmp32(ins);
-                break;
-            case GcnInstClass::VectorIntCmp64:
-                this->emitVectorIntCmp64(ins);
                 break;
             case GcnInstClass::VectorFpGraph32:
                 this->emitVectorFpGraph32(ins);
@@ -146,6 +138,12 @@ namespace sce::gcn
 			case GcnOpcode::V_MOV_B32:
 				dst.low.id = src[0].low.id;
 			    break;
+            // VectorIntArith32
+			case GcnOpcode::V_ADD_I32:
+				dst.low.id = m_module.opIAdd(typeId,
+											 src[0].low.id,
+											 src[1].low.id);
+				break;
 			default:
 				LOG_GCN_UNHANDLED_INST();
 				break;
@@ -153,6 +151,68 @@ namespace sce::gcn
 
         emitRegisterStore(ins.dst[0], dst);
     }
+
+	void GcnCompiler::emitVectorCmp(const GcnShaderInstruction& ins)
+	{
+		const std::array<GcnRegisterValuePair, 2> src = {
+			emitRegisterLoad(ins.src[0]),
+			emitRegisterLoad(ins.src[1]),
+		};
+
+		// Condition, which is a boolean vector used
+		// to select between the ~0u and 0u vectors.
+		uint32_t condition     = 0;
+		uint32_t conditionType = m_module.defBoolType();
+
+        bool updateExec = false;
+
+		auto op = ins.opcode;
+		switch (op)
+		{
+			case GcnOpcode::V_CMPX_GT_U32:
+			{
+				condition  = m_module.opUGreaterThan(conditionType,
+													 src[0].low.id,
+													 src[1].low.id);
+				updateExec = true;
+			}
+                break;
+			default:
+				LOG_GCN_UNHANDLED_INST();
+				break;
+		}
+
+        // Generate constant vectors for selection
+		uint32_t sFalse = m_module.constu32(0u);
+		uint32_t sTrue  = m_module.constu32(~0u);
+
+        // We only need to update the LSB of the low part of the result,
+        // since we always assume we have only one thread.
+		GcnRegisterValuePair result = {};
+		result.low.type.ctype       = GcnScalarType::Uint32;
+		result.low.type.ccount      = 1;
+		if (isDoubleType(ins.dst[0].type))
+        {
+            // Alway set high 32-bits of a compare result 
+            // to zero.
+			result.high.type = result.low.type;
+			result.high.id   = m_module.constu32(0);
+        }
+
+		const uint32_t typeId = getVectorTypeId(result.low.type);
+
+		// Perform component-wise mask selection
+		// based on the condition evaluated above.
+		result.low.id = m_module.opSelect(
+			typeId, condition, sTrue, sFalse);
+
+        if (updateExec)
+        {
+			m_state.exec.emitStore(result, GcnRegMask::select(0));
+        }
+
+		emitRegisterStore(ins.dst[0], result);
+	}
 
     void GcnCompiler::emitVectorRegMov(const GcnShaderInstruction& ins)
     {
