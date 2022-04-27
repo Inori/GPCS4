@@ -400,7 +400,7 @@ DataFormat DataFormat::build(StencilFormat sFmt, TextureChannelType channelType)
 
 uint32_t DataFormat::getBytesPerElement(void) const
 {
-	return getBitsPerElement() * 8;
+	return getBitsPerElement() / 8;
 }
 
 uint32_t DataFormat::getBitsPerElement(void) const

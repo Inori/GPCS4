@@ -384,6 +384,41 @@ namespace sce::vlt
 		void setStencilClearValue(
 			VkClearValue clearValue);
 
+		/**
+		 * \brief Updates a buffer
+		 *
+		 * Copies data from the host into a buffer.
+		 * \param [in] buffer Destination buffer
+		 * \param [in] offset Offset of sub range to update
+		 * \param [in] size Length of sub range to update
+		 * \param [in] data Data to upload
+		 */
+		void updateBuffer(
+			const Rc<VltBuffer>& buffer,
+			VkDeviceSize         offset,
+			VkDeviceSize         size,
+			const void*          data);
+
+		/**
+		 * \brief Updates an image
+		 *
+		 * Copies data from the host into an image.
+		 * \param [in] image Destination image
+		 * \param [in] subsresources Image subresources to update
+		 * \param [in] imageOffset Offset of the image area to update
+		 * \param [in] imageExtent Size of the image area to update
+		 * \param [in] data Source data
+		 * \param [in] pitchPerRow Row pitch of the source data
+		 * \param [in] pitchPerLayer Layer pitch of the source data
+		 */
+		void updateImage(
+			const Rc<VltImage>&             image,
+			const VkImageSubresourceLayers& subresources,
+			VkOffset3D                      imageOffset,
+			VkExtent3D                      imageExtent,
+			const void*                     data,
+			VkDeviceSize                    pitchPerRow,
+			VkDeviceSize                    pitchPerLayer);
 
 		/**
          * \brief Uses transfer queue to initialize buffer

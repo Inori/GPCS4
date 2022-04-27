@@ -160,7 +160,7 @@ namespace sce::Gnm
 			const void* data,
 			uint32_t    size);
 
-		vlt::Rc<vlt::VltBuffer> generateIndexBuffer(
+		vlt::Rc<vlt::VltBuffer> generateIndexBufferAuto(
 			uint32_t indexCount);
 
 		inline void bindVertexBuffer(

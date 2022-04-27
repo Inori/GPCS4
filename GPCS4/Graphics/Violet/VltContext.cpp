@@ -793,6 +793,147 @@ namespace sce::vlt
 		m_state.cb.framebuffer->setStencilClearValue(clearValue);
 	}
 
+	void VltContext::updateBuffer(
+		const Rc<VltBuffer>& buffer,
+		VkDeviceSize         offset,
+		VkDeviceSize         size,
+		const void*          data)
+	{
+		
+		this->endRendering();
+
+		VltBufferSliceHandle bufferSlice = buffer->getSliceHandle(offset, size);
+		VltCmdType           cmdBuffer   = VltCmdType::ExecBuffer;
+
+		if (m_execBarriers.isBufferDirty(bufferSlice, VltAccess::Write))
+			m_execBarriers.recordCommands(m_cmd);
+
+		// Vulkan specifies that small amounts of data (up to 64kB) can
+		// be copied to a buffer directly if the size is a multiple of
+		// four. Anything else must be copied through a staging buffer.
+		// We'll limit the size to 4kB in order to keep command buffers
+		// reasonably small, we do not know how much data apps may upload.
+		if ((size <= 4096) && ((size & 0x3) == 0) && ((offset & 0x3) == 0))
+		{
+			m_cmd->cmdUpdateBuffer(
+				cmdBuffer,
+				bufferSlice.handle,
+				bufferSlice.offset,
+				bufferSlice.length,
+				data);
+		}
+		else
+		{
+			auto stagingSlice  = m_staging.alloc(CACHE_LINE_SIZE, size);
+			auto stagingHandle = stagingSlice.getSliceHandle();
+
+			std::memcpy(stagingHandle.mapPtr, data, size);
+
+			VkBufferCopy region;
+			region.srcOffset = stagingHandle.offset;
+			region.dstOffset = bufferSlice.offset;
+			region.size      = size;
+
+			m_cmd->cmdCopyBuffer(cmdBuffer,
+								 stagingHandle.handle, bufferSlice.handle, 1, &region);
+
+			m_cmd->trackResource<VltAccess::Read>(stagingSlice.buffer());
+		}
+
+		m_execBarriers.accessBuffer(
+			bufferSlice,
+			VK_PIPELINE_STAGE_TRANSFER_BIT,
+			VK_ACCESS_TRANSFER_WRITE_BIT,
+			buffer->info().stages,
+			buffer->info().access);
+
+		m_cmd->trackResource<VltAccess::Write>(buffer);
+	}
+
+	void VltContext::updateImage(
+		const Rc<VltImage>&             image,
+		const VkImageSubresourceLayers& subresources,
+		VkOffset3D                      imageOffset,
+		VkExtent3D                      imageExtent,
+		const void*                     data,
+		VkDeviceSize                    pitchPerRow,
+		VkDeviceSize                    pitchPerLayer)
+	{
+		this->endRendering();
+
+		// Upload data through a staging buffer. Special care needs to
+		// be taken when dealing with compressed image formats: Rather
+		// than copying pixels, we'll be copying blocks of pixels.
+		const VltFormatInfo* formatInfo = image->formatInfo();
+
+		// Align image extent to a full block. This is necessary in
+		// case the image size is not a multiple of the block size.
+		VkExtent3D elementCount = vutil::computeBlockCount(
+			imageExtent, formatInfo->blockSize);
+		elementCount.depth *= subresources.layerCount;
+
+		// Allocate staging buffer memory for the image data. The
+		// pixels or blocks will be tightly packed within the buffer.
+		auto stagingSlice  = m_staging.alloc(CACHE_LINE_SIZE,
+											 formatInfo->elementSize * vutil::flattenImageExtent(elementCount));
+		auto stagingHandle = stagingSlice.getSliceHandle();
+		vutil::packImageData(stagingHandle.mapPtr, data,
+							 elementCount, formatInfo->elementSize,
+							 pitchPerRow, pitchPerLayer);
+
+		// Prepare the image layout. If the given extent covers
+		// the entire image, we may discard its previous contents.
+		auto subresourceRange       = vutil::makeSubresourceRange(subresources);
+		subresourceRange.aspectMask = formatInfo->aspectMask;
+
+		if (m_execBarriers.isImageDirty(image, subresourceRange, VltAccess::Write))
+			m_execBarriers.recordCommands(m_cmd);
+
+		// Initialize the image if the entire subresource is covered
+		VkImageLayout imageLayoutInitial  = image->info().layout;
+		VkImageLayout imageLayoutTransfer = image->pickLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+		if (image->isFullSubresource(subresources, imageExtent))
+			imageLayoutInitial = VK_IMAGE_LAYOUT_UNDEFINED;
+
+		m_execAcquires.accessImage(
+			image, subresourceRange,
+			imageLayoutInitial, 0, 0,
+			imageLayoutTransfer,
+			VK_PIPELINE_STAGE_TRANSFER_BIT,
+			VK_ACCESS_TRANSFER_WRITE_BIT);
+
+		m_execAcquires.recordCommands(m_cmd);
+
+		// Copy contents of the staging buffer into the image.
+		// Since our source data is tightly packed, we do not
+		// need to specify any strides.
+		VkBufferImageCopy region;
+		region.bufferOffset      = stagingHandle.offset;
+		region.bufferRowLength   = 0;
+		region.bufferImageHeight = 0;
+		region.imageSubresource  = subresources;
+		region.imageOffset       = imageOffset;
+		region.imageExtent       = imageExtent;
+
+		m_cmd->cmdCopyBufferToImage(VltCmdType::ExecBuffer,
+									stagingHandle.handle, image->handle(),
+									imageLayoutTransfer, 1, &region);
+
+		// Transition image back into its optimal layout
+		m_execBarriers.accessImage(
+			image, subresourceRange,
+			imageLayoutTransfer,
+			VK_PIPELINE_STAGE_TRANSFER_BIT,
+			VK_ACCESS_TRANSFER_WRITE_BIT,
+			image->info().layout,
+			image->info().stages,
+			image->info().access);
+
+		m_cmd->trackResource<VltAccess::Write>(image);
+		m_cmd->trackResource<VltAccess::Read>(stagingSlice.buffer());
+	}
+
 	void VltContext::uploadBuffer(
 		const Rc<VltBuffer>& buffer,
 		const void*          data)
@@ -1007,6 +1148,8 @@ namespace sce::vlt
 		if (!m_flags.test(VltContextFlag::GpRenderingActive) &&
 			framebuffer != nullptr)
 		{
+			m_execBarriers.recordCommands(m_cmd);
+
 			const VltFramebufferSize fbSize = framebuffer->size();
 
 			VkRect2D renderArea;
@@ -1542,6 +1685,7 @@ namespace sce::vlt
 
 		m_flags.clr(VltContextFlag::GpDirtyFramebuffer);
 	}
+
 
 
 }  // namespace sce::vlt

@@ -35,6 +35,11 @@ namespace sce::Gnm
 		__debugbreak();                \
 	}
 
+// Dump the recompiled shader to file
+// so that we can analyze it using spirv toolset.
+// #define SHADER_DUMP_FILE
+
+
 	GnmCommandBufferDraw::GnmCommandBufferDraw(vlt::VltDevice* device) :
 		GnmCommandBuffer(device)
 	{
@@ -397,6 +402,17 @@ namespace sce::Gnm
 		};
 
 		m_context->setBlendMode(rtSlot, blend);
+
+		VltLogicOpState loState;
+		loState.enableLogicOp = VK_FALSE;
+		loState.logicOp       = VK_LOGIC_OP_NO_OP;
+
+		VltMultisampleState msState;
+		msState.enableAlphaToCoverage = VK_FALSE;
+		msState.sampleMask            = 0xFFFFFFFF;
+
+		m_context->setLogicOpState(loState);
+		m_context->setMultisampleState(msState);
 	}
 
 	void GnmCommandBufferDraw::setDepthStencilControl(DepthStencilControl depthControl)
@@ -489,9 +505,9 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::drawIndexAuto(uint32_t indexCount, DrawModifier modifier)
 	{
-		m_state.ia.indexBuffer = generateIndexBuffer(indexCount);
 		// If the index size is currently 32 bits, this command will partially set it to 16 bits
-		m_state.ia.indexType = VK_INDEX_TYPE_UINT16;
+		m_state.ia.indexType   = VK_INDEX_TYPE_UINT16;
+		m_state.ia.indexBuffer = generateIndexBufferAuto(indexCount);
 
 		commitGraphicsState();
 
@@ -530,7 +546,7 @@ namespace sce::Gnm
 	{
 		//commitComputeState();
 
-		m_context->dispatch(threadGroupX, threadGroupY, threadGroupZ);
+		//m_context->dispatch(threadGroupX, threadGroupY, threadGroupZ);
 	}
 
 	void GnmCommandBufferDraw::dispatchWithOrderedAppend(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ, DispatchOrderedAppendMode orderedAppendMode)
@@ -658,16 +674,19 @@ namespace sce::Gnm
 		VltBufferCreateInfo info = {};
 		info.size                = size;
 		info.usage               = VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-		info.stages              = VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
+		info.stages              = VK_PIPELINE_STAGE_VERTEX_INPUT_BIT | VK_PIPELINE_STAGE_TRANSFER_BIT;
 		info.access              = VK_ACCESS_INDEX_READ_BIT;
 
 		Rc<VltBuffer> buffer = m_device->createBuffer(info, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-		m_context->uploadBuffer(buffer, data);
+		m_context->updateBuffer(buffer,
+								0,
+								size,
+								data);
 		return buffer;
 	}
 
-	Rc<VltBuffer> GnmCommandBufferDraw::generateIndexBuffer(uint32_t indexCount)
+	Rc<VltBuffer> GnmCommandBufferDraw::generateIndexBufferAuto(uint32_t indexCount)
 	{
 		// Auto-generated indexes are forced in 16 bits width.
 		std::vector<uint16_t> indexes;
@@ -743,11 +762,14 @@ namespace sce::Gnm
 		m_factory.createBuffer(info, buffer);
 		m_tracker->track(buffer);
 
-		m_context->uploadBuffer(buffer.buffer, vsharp->getBaseAddress());
-		m_context->bindVertexBuffer(
-			binding,
-			VltBufferSlice(buffer.buffer, 0, buffer.buffer->info().size),
-			vsharp->getStride());
+		m_context->updateBuffer(buffer.buffer,
+								0,
+								vsharp->getSize(),
+								vsharp->getBaseAddress());
+
+		m_context->bindVertexBuffer(binding,
+									VltBufferSlice(buffer.buffer, 0, buffer.buffer->info().size),
+									vsharp->getStride());
 	}
 
 	void GnmCommandBufferDraw::updateVertexBinding(GcnModule& vsModule)
@@ -880,8 +902,11 @@ namespace sce::Gnm
 			VK_SHADER_STAGE_VERTEX_BIT,
 			shader);
 
+#ifdef SHADER_DUMP_FILE
 		std::ofstream fout(shader->key().toString(), std::ios::binary);
 		shader->dump(fout);
+#endif
+
 	}
 
 	void GnmCommandBufferDraw::updatePixelShaderStage()
@@ -902,11 +927,13 @@ namespace sce::Gnm
 		// bind the shader
 		auto shader = psModule.compile(ctx.meta);
 		m_context->bindShader(
-			VK_SHADER_STAGE_COMPUTE_BIT,
+			VK_SHADER_STAGE_FRAGMENT_BIT,
 			shader);
 
+#ifdef SHADER_DUMP_FILE
 		std::ofstream fout(shader->key().toString(), std::ios::binary);
 		shader->dump(fout);
+#endif
 	}
 
 	void GnmCommandBufferDraw::commitGraphicsState()
@@ -951,7 +978,7 @@ namespace sce::Gnm
 		info.access = access;
 
 		uint32_t slot = 0;
-		if (usage == VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
+		if (usage & VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
 		{
 			info.memoryType = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
 							  VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
@@ -973,7 +1000,9 @@ namespace sce::Gnm
 
 			m_factory.createBuffer(info, buffer);
 
-			m_context->uploadBuffer(buffer.buffer,
+			m_context->updateBuffer(buffer.buffer,
+									0,
+									buffer.gnmBuffer.getSize(),
 									buffer.gnmBuffer.getBaseAddress());
 
 			slot = computeResourceBinding(
@@ -1026,11 +1055,15 @@ namespace sce::Gnm
 		subresourceLayers.baseArrayLayer = 0;
 		subresourceLayers.layerCount     = 1;
 
-		m_context->uploadImage(
+		uint32_t bytesPerElement = tsharp->getDataFormat().getBytesPerElement();
+		uint32_t pitchInBytes    = surfaceInfo.m_pitch * bytesPerElement;
+		m_context->updateImage(
 			image,
 			subresourceLayers,
+			VkOffset3D{},
+			image->info().extent,
 			tsharp->getBaseAddress(),
-			tsharp->getPitch(),
+			pitchInBytes,
 			surfaceInfo.m_surfaceSize);
 
 		uint32_t slot = computeResourceBinding(
@@ -1071,9 +1104,9 @@ namespace sce::Gnm
 				bindResourceBuffer(
 					vsharp,
 					res.startRegister,
-					VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+					VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
 					stage,
-					VK_ACCESS_UNIFORM_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT);
+					VK_ACCESS_UNIFORM_READ_BIT);
 			}
 				break;
 			case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
