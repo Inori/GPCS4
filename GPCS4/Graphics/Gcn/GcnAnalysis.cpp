@@ -1,15 +1,75 @@
 #include "GcnAnalysis.h"
 #include "GcnInstruction.h"
 #include "GcnDecoder.h"
+#include "GcnCfgGenerator.h"
 
 LOG_CHANNEL(Graphic.Gcn.GcnAnalysis);
 
 namespace sce::gcn
 {
+
+	GcnCfgPass::GcnCfgPass(
+		GcnCfgGenerator& cfgGenerator,
+		GcnAnalysisInfo& analysis) :
+		m_analysis(&analysis),
+		m_cfg(&cfgGenerator)
+	{
+	}
+
+	GcnCfgPass::~GcnCfgPass()
+	{
+	}
+
+	void GcnCfgPass::processInstruction(const GcnShaderInstruction& ins)
+	{
+		auto opClass = ins.opClass;
+		if (opClass == GcnInstClass::ScalarProgFlow)
+		{
+			this->analyzeBranch(ins);
+		}
+
+		// For the first pass, we collect labels' address
+		// since we don't have this information before
+		// walking through all instructions.
+		m_cfg->collectLabel(ins);
+	}
+
+	void GcnCfgPass::analyzeBranch(const GcnShaderInstruction& ins)
+	{
+		auto op = ins.opcode;
+		switch (op)
+		{
+			case GcnOpcode::S_BRANCH:
+			case GcnOpcode::S_CBRANCH_SCC0:
+			case GcnOpcode::S_CBRANCH_SCC1:
+			case GcnOpcode::S_CBRANCH_VCCZ:
+			case GcnOpcode::S_CBRANCH_VCCNZ:
+			case GcnOpcode::S_CBRANCH_EXECZ:
+			case GcnOpcode::S_CBRANCH_EXECNZ:
+			case GcnOpcode::S_CBRANCH_CDBGSYS:
+			case GcnOpcode::S_CBRANCH_CDBGUSER:
+			case GcnOpcode::S_CBRANCH_CDBGSYS_OR_USER:
+			case GcnOpcode::S_CBRANCH_CDBGSYS_AND_USER:
+			{
+				// TODO:
+				// Remove this.
+				uint32_t target = getBranchTarget(ins);
+				m_analysis->branchLabels.insert(target);
+			}
+				break;
+			default:
+				break;
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////
+
 	GcnAnalyzer::GcnAnalyzer(
 		const GcnProgramInfo& programInfo,
+		GcnCfgGenerator&      cfgGenerator,
 		GcnAnalysisInfo&      analysis) :
-		m_analysis(&analysis)
+		m_analysis(&analysis),
+		m_cfg(&cfgGenerator)
 	{
 	}
 
@@ -177,6 +237,10 @@ namespace sce::gcn
 				LOG_GCN_UNHANDLED_INST();
 				break;
 		}
+
+		// For the second pass, we already have all vertices (basic blocks),
+		// we need to collect edges then.
+		m_cfg->collectEdge(ins);
 	}
 
 	void GcnAnalyzer::analyzeExp(const GcnShaderInstruction& ins)

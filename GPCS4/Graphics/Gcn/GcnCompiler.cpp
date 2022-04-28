@@ -61,6 +61,8 @@ namespace sce::gcn
 	void GcnCompiler::processInstruction(
 		const GcnShaderInstruction& ins)
 	{
+		emitBranchLabel();
+
 		compileInstruction(ins);
 
 		updateProgramCounter(ins);
@@ -2393,6 +2395,7 @@ namespace sce::gcn
 		return result;
 	}
 
+
 	uint32_t GcnCompiler::getScalarTypeId(GcnScalarType type)
 	{
 		if (type == GcnScalarType::Float64)
@@ -2661,6 +2664,7 @@ namespace sce::gcn
 	{
 		return getTexLayerDim(imageType) + imageType.array;
 	}
+
 
 
 }  // namespace sce::gcn

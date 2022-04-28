@@ -19,6 +19,8 @@ namespace sce::gcn
 
 		void updateProgramCounter(const GcnShaderInstruction& ins);
 
+		uint32_t getBranchTarget(const GcnShaderInstruction& ins);
+
 	protected:
 		// PC pointer, will be updated after processing each instruction.
 		uint32_t m_programCounter = 0;

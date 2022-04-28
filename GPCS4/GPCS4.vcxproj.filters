@@ -904,6 +904,9 @@
     <ClInclude Include="Graphics\Gcn\GcnStateRegister.h">
       <Filter>Source Files\Graphics\Gcn</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Gcn\GcnCfgGenerator.h">
+      <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1591,6 +1594,9 @@
       <Filter>Source Files\Graphics\Violet</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Gcn\GcnStateRegister.cpp">
+      <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Gcn\GcnCfgGenerator.cpp">
       <Filter>Source Files\Graphics\Gcn</Filter>
     </ClCompile>
   </ItemGroup>

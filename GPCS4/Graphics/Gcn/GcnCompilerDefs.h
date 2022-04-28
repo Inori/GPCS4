@@ -228,6 +228,24 @@ namespace sce::gcn
 		uint32_t typeId = 0;
 	};
 
+
+	struct GcnCfgBlock
+	{
+		uint32_t lableId  = 0;
+		size_t   labelPtr = 0;
+	};
+	
+
+	struct GcnControlGraph
+	{
+		// TODO:
+		// Convert result in boost graph to
+		// if, else, endif, loop and etc,
+		// so that the compiler can use it
+		uint32_t placeHolder;
+	};
+
+
 	/**
 	 * \brief Component swizzle
 	 *

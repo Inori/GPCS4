@@ -5,11 +5,14 @@
 #include "GcnCompilerDefs.h"
 
 #include <array>
+#include <unordered_set>
 
 namespace sce::gcn
 {
 	class GcnProgramInfo;
+	class GcnCfgGenerator;
 	struct GcnShaderInstruction;
+
 
 	struct GcnExportInfo
 	{
@@ -21,8 +24,47 @@ namespace sce::gcn
 
 	struct GcnAnalysisInfo
 	{
-		GcnExportInfo exportInfo;
+		GcnExportInfo   exportInfo;
+		GcnControlGraph controlFlow;
+		// TODO:
+		// Remove this, use GcnCfgGenerator and controlFlow
+		std::unordered_set<uint32_t> branchLabels;
 	};
+
+
+
+	/**
+	 * \brief GCN control flow graph pass
+	 *
+	 * Collect branch label information of a shader
+	 * for the latter passes.
+	 */
+	class GcnCfgPass : public GcnInstructionIterator
+	{
+	public:
+		GcnCfgPass(
+			GcnCfgGenerator& cfgGenerator,
+			GcnAnalysisInfo& analysis);
+		virtual ~GcnCfgPass();
+
+		/**
+		 * \brief Processes a single instruction
+		 * \param [in] ins The instruction
+		 */
+		virtual void processInstruction(
+			const GcnShaderInstruction& ins) override;
+
+	private:
+
+		void analyzeBranch(
+			const GcnShaderInstruction& ins);
+
+	private:
+		GcnAnalysisInfo* m_analysis = nullptr;
+		GcnCfgGenerator* m_cfg      = nullptr;
+	};
+
+
 
 	/**
 	 * \brief GCN shader analyzer
@@ -36,6 +78,7 @@ namespace sce::gcn
 	public:
 		GcnAnalyzer(
 			const GcnProgramInfo& programInfo,
+			GcnCfgGenerator&      cfgGenerator,
 			GcnAnalysisInfo&      analysis);
 		virtual ~GcnAnalyzer();
 
@@ -54,7 +97,8 @@ namespace sce::gcn
 			const GcnShaderInstruction& ins);
 
 	private:
-		GcnAnalysisInfo* m_analysis = nullptr;
+		GcnAnalysisInfo* m_analysis;
+		GcnCfgGenerator* m_cfg;
 	};
 
 

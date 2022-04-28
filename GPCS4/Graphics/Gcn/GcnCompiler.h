@@ -14,6 +14,7 @@
 #include "Violet/VltShader.h"
 
 #include <vector>
+#include <unordered_map>
 
 namespace sce::Gnm
 {
@@ -453,6 +454,11 @@ namespace sce::gcn
 		GcnRegisterValuePair emitUnpackHalf2x16(
 			GcnRegisterValue src);
 
+		
+		///////////////////////////
+		// Control flow methods
+		void emitBranchLabel();
+
 		///////////////////////////
 		// Type definition methods
 		uint32_t getScalarTypeId(
@@ -578,6 +584,10 @@ namespace sce::gcn
 		// an array of four-component uint32 vectors.
 		uint32_t                m_immConstBuf = 0;
 		vlt::VltShaderConstData m_immConstData;
+		///////////////////////////////////////////////////////
+		// CFG blocks
+		// Key is target address
+		std::unordered_map<uint32_t, GcnCfgBlock> m_controlFlowBlocks; 
 
 		///////////////////////////////////
 		// Shader-specific data structures

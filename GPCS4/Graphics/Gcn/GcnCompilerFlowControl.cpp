@@ -1,4 +1,5 @@
 #include "GcnCompiler.h"
+#include "GcnAnalysis.h"
 
 LOG_CHANNEL(Graphic.Gcn.GcnCompiler);
 
@@ -32,6 +33,40 @@ namespace sce::gcn
 				break;
 		}
 	}
+	
+	void GcnCompiler::emitBranchLabel()
+	{
+		do
+		{
+			auto& labelSet = m_analysis->branchLabels;
+			if (labelSet.find(m_programCounter) == labelSet.end())
+			{
+				break;
+			}
+
+			uint32_t labelId = 0;
+
+			auto iter = m_controlFlowBlocks.find(m_programCounter);
+			if (iter == m_controlFlowBlocks.end())
+			{
+				// This is pre-label before the branch instruction,
+				labelId = m_module.allocateId();
+
+				GcnCfgBlock block;
+				block.labelPtr = m_module.getInsertionPtr();
+				block.lableId  = labelId;
+
+				m_controlFlowBlocks.insert(
+					std::make_pair(m_programCounter, block));
+			}
+			else
+			{
+				// This is a post-label after the branch instruction
+				labelId = iter->second.lableId;
+			}
+
+		} while (false);
+	}
 
 	void GcnCompiler::emitScalarProgFlow(const GcnShaderInstruction& ins)
 	{
@@ -41,6 +76,8 @@ namespace sce::gcn
 			case GcnOpcode::S_SWAPPC_B64:
 			case GcnOpcode::S_ENDPGM:
 				// Nothing to do.
+				break;
+			case GcnOpcode::S_CBRANCH_EXECZ:
 				break;
 			default:
 				LOG_GCN_UNHANDLED_INST();
