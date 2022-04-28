@@ -2,7 +2,6 @@
 #include "GcnAnalysis.h"
 #include "GcnCompiler.h"
 #include "GcnDecoder.h"
-#include "GcnCfgGenerator.h"
 
 
 using namespace sce::vlt;
@@ -30,19 +29,15 @@ namespace sce::gcn
 		GcnCodeSlice    codeSlice(start, end);
 
 		GcnAnalysisInfo analysisInfo;
-		GcnCfgGenerator generator(analysisInfo);
 
 		// First pass
-		GcnCfgPass pass(
-			generator,
-			analysisInfo);
+		GcnCfgPass pass(analysisInfo);
 
 		this->runInstructionIterator(&pass, codeSlice);
 
 		// Second pass
 		GcnAnalyzer analyzer(
 			m_programInfo,
-			generator,
 			analysisInfo);
 
 		this->runInstructionIterator(&analyzer, codeSlice);

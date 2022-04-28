@@ -10,7 +10,6 @@
 namespace sce::gcn
 {
 	class GcnProgramInfo;
-	class GcnCfgGenerator;
 	struct GcnShaderInstruction;
 
 
@@ -24,13 +23,9 @@ namespace sce::gcn
 
 	struct GcnAnalysisInfo
 	{
-		GcnExportInfo       exportInfo;
-		GcnControlFlowGraph controlFlow;
-
+		GcnExportInfo exportInfo;
 		// CFG blocks
 		// Key is target address
-		// TODO:
-		// Remove this, use GcnCfgGenerator and controlFlow
 		std::unordered_map<uint32_t, GcnCfgBlock> controlFlowBlocks; 
 	};
 
@@ -45,7 +40,6 @@ namespace sce::gcn
 	{
 	public:
 		GcnCfgPass(
-			GcnCfgGenerator& cfgGenerator,
 			GcnAnalysisInfo& analysis);
 		virtual ~GcnCfgPass();
 
@@ -63,7 +57,6 @@ namespace sce::gcn
 
 	private:
 		GcnAnalysisInfo* m_analysis = nullptr;
-		GcnCfgGenerator* m_cfg      = nullptr;
 	};
 
 
@@ -80,7 +73,6 @@ namespace sce::gcn
 	public:
 		GcnAnalyzer(
 			const GcnProgramInfo& programInfo,
-			GcnCfgGenerator&      cfgGenerator,
 			GcnAnalysisInfo&      analysis);
 		virtual ~GcnAnalyzer();
 
@@ -100,7 +92,6 @@ namespace sce::gcn
 
 	private:
 		GcnAnalysisInfo* m_analysis;
-		GcnCfgGenerator* m_cfg;
 	};
 
 

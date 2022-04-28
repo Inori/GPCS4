@@ -1,18 +1,14 @@
 #include "GcnAnalysis.h"
 #include "GcnInstruction.h"
 #include "GcnDecoder.h"
-#include "GcnCfgGenerator.h"
 
 LOG_CHANNEL(Graphic.Gcn.GcnAnalysis);
 
 namespace sce::gcn
 {
-
 	GcnCfgPass::GcnCfgPass(
-		GcnCfgGenerator& cfgGenerator,
 		GcnAnalysisInfo& analysis) :
-		m_analysis(&analysis),
-		m_cfg(&cfgGenerator)
+		m_analysis(&analysis)
 	{
 	}
 
@@ -27,11 +23,6 @@ namespace sce::gcn
 		{
 			this->analyzeBranch(ins);
 		}
-
-		// For the first pass, we collect labels' address
-		// since we don't have this information before
-		// walking through all instructions.
-		m_cfg->collectLabel(ins);
 
 		updateProgramCounter(ins);
 	}
@@ -53,8 +44,6 @@ namespace sce::gcn
 			case GcnOpcode::S_CBRANCH_CDBGSYS_OR_USER:
 			case GcnOpcode::S_CBRANCH_CDBGSYS_AND_USER:
 			{
-				// TODO:
-				// Remove this.
 				uint32_t target = getBranchTarget(ins);
 				GcnCfgBlock block  = {};
 				m_analysis->controlFlowBlocks.insert(
@@ -70,10 +59,8 @@ namespace sce::gcn
 
 	GcnAnalyzer::GcnAnalyzer(
 		const GcnProgramInfo& programInfo,
-		GcnCfgGenerator&      cfgGenerator,
 		GcnAnalysisInfo&      analysis) :
-		m_analysis(&analysis),
-		m_cfg(&cfgGenerator)
+		m_analysis(&analysis)
 	{
 	}
 
@@ -241,10 +228,6 @@ namespace sce::gcn
 				LOG_GCN_UNHANDLED_INST();
 				break;
 		}
-
-		// For the second pass, we already have all vertices (basic blocks),
-		// we need to collect edges then.
-		m_cfg->collectEdge(ins);
 	}
 
 	void GcnAnalyzer::analyzeExp(const GcnShaderInstruction& ins)
