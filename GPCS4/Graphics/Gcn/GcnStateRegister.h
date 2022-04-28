@@ -53,7 +53,7 @@ namespace sce::gcn
 		/**
 		 * \brief Zero status
 		 * 
-		 * Return a spir-v boolean type value
+		 * Return a spir-v boolean type value id
 		 * indicating the hardware register's zero state. 
 		 * (vccz or execz)
 		 * The state is auto updated whenever a store

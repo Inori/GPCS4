@@ -20,7 +20,8 @@ namespace sce::gcn
 	uint32_t GcnInstructionIterator::getBranchTarget(const GcnShaderInstruction& ins)
 	{
 		auto     sopp   = gcnInstructionAs<GcnShaderInstSOPP>(ins);
-		uint32_t target = m_programCounter + sopp.control.simm * 4 + 4;
+		uint32_t target = static_cast<uint32_t>(static_cast<int32_t>(m_programCounter) +
+												static_cast<int32_t>(sopp.control.simm << 2) + 4);
 		return target;
 	}
 

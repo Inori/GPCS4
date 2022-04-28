@@ -236,7 +236,7 @@ namespace sce::gcn
 	};
 	
 
-	struct GcnControlGraph
+	struct GcnControlFlowGraph
 	{
 		// TODO:
 		// Convert result in boost graph to

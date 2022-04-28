@@ -5,7 +5,7 @@
 #include "GcnCompilerDefs.h"
 
 #include <array>
-#include <unordered_set>
+#include <unordered_map>
 
 namespace sce::gcn
 {
@@ -24,13 +24,15 @@ namespace sce::gcn
 
 	struct GcnAnalysisInfo
 	{
-		GcnExportInfo   exportInfo;
-		GcnControlGraph controlFlow;
+		GcnExportInfo       exportInfo;
+		GcnControlFlowGraph controlFlow;
+
+		// CFG blocks
+		// Key is target address
 		// TODO:
 		// Remove this, use GcnCfgGenerator and controlFlow
-		std::unordered_set<uint32_t> branchLabels;
+		std::unordered_map<uint32_t, GcnCfgBlock> controlFlowBlocks; 
 	};
-
 
 
 	/**

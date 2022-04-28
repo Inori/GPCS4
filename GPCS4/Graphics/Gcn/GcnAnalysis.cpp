@@ -32,6 +32,8 @@ namespace sce::gcn
 		// since we don't have this information before
 		// walking through all instructions.
 		m_cfg->collectLabel(ins);
+
+		updateProgramCounter(ins);
 	}
 
 	void GcnCfgPass::analyzeBranch(const GcnShaderInstruction& ins)
@@ -54,7 +56,9 @@ namespace sce::gcn
 				// TODO:
 				// Remove this.
 				uint32_t target = getBranchTarget(ins);
-				m_analysis->branchLabels.insert(target);
+				GcnCfgBlock block  = {};
+				m_analysis->controlFlowBlocks.insert(
+					std::make_pair(target, block));
 			}
 				break;
 			default:

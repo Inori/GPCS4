@@ -167,6 +167,8 @@ namespace sce::gcn
 			uint32_t                regIdx,
 			const GcnRegisterValue& value,
 			const GcnRegMask&       writeMask);
+
+		void emitScalarBranch(const GcnShaderInstruction& ins);
 		//////////////////////////////////////
 		// Common function definition methods
 		void emitInit();
@@ -557,9 +559,10 @@ namespace sce::gcn
 		std::array<GcnTexture, 128> m_textures;
 
 		//////////////////////////////////////////////
-		// Function state tracking. Required in order
-		// to properly end functions in some cases.
+		// Function/Block state tracking. Required in order
+		// to properly end functions and blocks in some cases.
 		bool m_insideFunction = false;
+		bool m_insideBlock    = false;
 		///////////////////////////////////////////////////////////
 		// An array stores up to 16 user data registers.
 		uint32_t m_vUserDataArray = 0;
@@ -584,10 +587,9 @@ namespace sce::gcn
 		// an array of four-component uint32 vectors.
 		uint32_t                m_immConstBuf = 0;
 		vlt::VltShaderConstData m_immConstData;
-		///////////////////////////////////////////////////////
-		// CFG blocks
-		// Key is target address
-		std::unordered_map<uint32_t, GcnCfgBlock> m_controlFlowBlocks; 
+		///////////////////////////////////////////////
+		// Control flow information.
+		std::unordered_map<uint32_t, GcnCfgBlock> m_controlFlowBlocks;
 
 		///////////////////////////////////
 		// Shader-specific data structures

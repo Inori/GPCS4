@@ -105,10 +105,12 @@ namespace sce::gcn
 		m_programCounter += ins.length;
 	}
 
-	GcnControlGraph GcnCfgGenerator::generateControlFlowGraph()
+	GcnControlFlowGraph GcnCfgGenerator::generateControlFlowGraph()
 	{
 		// Generate the final result for compiler use.
 		ControlFlowGraph* graph = reinterpret_cast<ControlFlowGraph*>(m_cfg);
+
+		return GcnControlFlowGraph();
 	}
 
 }  // namespace sce::gcn

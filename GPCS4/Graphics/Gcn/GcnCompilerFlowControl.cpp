@@ -1,5 +1,4 @@
 #include "GcnCompiler.h"
-#include "GcnAnalysis.h"
 
 LOG_CHANNEL(Graphic.Gcn.GcnCompiler);
 
@@ -38,32 +37,31 @@ namespace sce::gcn
 	{
 		do
 		{
-			auto& labelSet = m_analysis->branchLabels;
-			if (labelSet.find(m_programCounter) == labelSet.end())
+			auto iter = m_controlFlowBlocks.find(m_programCounter);
+			if (iter == m_controlFlowBlocks.end())
 			{
 				break;
 			}
 
-			uint32_t labelId = 0;
+			auto& block = iter->second;
 
-			auto iter = m_controlFlowBlocks.find(m_programCounter);
-			if (iter == m_controlFlowBlocks.end())
+			if (block.lableId == 0)
 			{
-				// This is pre-label before the branch instruction,
-				labelId = m_module.allocateId();
-
-				GcnCfgBlock block;
-				block.labelPtr = m_module.getInsertionPtr();
-				block.lableId  = labelId;
-
-				m_controlFlowBlocks.insert(
-					std::make_pair(m_programCounter, block));
+				// This is a label before the branch instruction,
+				// we need to allocate an id, and this will be used
+				// when processing the branch instruction which jumps
+				// to this label.
+				block.lableId = m_module.allocateId();
 			}
-			else
+
+			// Terminate the block when inside.
+			if (m_insideBlock)
 			{
-				// This is a post-label after the branch instruction
-				labelId = iter->second.lableId;
+				m_module.opBranch(block.lableId);
 			}
+
+			m_module.opLabel(block.lableId);
+			m_insideBlock = true;
 
 		} while (false);
 	}
@@ -78,10 +76,54 @@ namespace sce::gcn
 				// Nothing to do.
 				break;
 			case GcnOpcode::S_CBRANCH_EXECZ:
+				emitScalarBranch(ins);
 				break;
 			default:
 				LOG_GCN_UNHANDLED_INST();
 				break;
+		}
+	}
+
+	void GcnCompiler::emitScalarBranch(const GcnShaderInstruction& ins)
+	{
+		auto sopp = gcnInstructionAs<GcnShaderInstSOPP>(ins);
+
+		uint32_t branchTarget = getBranchTarget(ins);
+		auto     iter         = m_controlFlowBlocks.find(branchTarget);
+		// The target must be found, or there must be errors in analyzer.
+		LOG_ASSERT(iter != m_controlFlowBlocks.end(), "can not find branch target");
+
+		auto& block = iter->second;
+		if (block.lableId == 0)
+		{
+			// This is a label after the branch instruction,
+			// we need to allocate an id, and this will be used
+			// when we reach the label address after processing
+			// the branch instruction here.
+			block.lableId = m_module.allocateId();
+		}
+
+		uint32_t condition = 0;
+
+		auto op = ins.opcode;
+		switch (op)
+		{
+			case GcnOpcode::S_CBRANCH_EXECZ:
+				condition = m_state.exec.zflag();
+				break;
+			default:
+				LOG_GCN_UNHANDLED_INST();
+				break;
+		}
+
+		if (condition != 0)
+		{
+			uint32_t trueLabelId  = block.lableId;
+			uint32_t falseLabelId = m_module.allocateId();
+			m_module.opBranchConditional(condition, trueLabelId, falseLabelId);
+			m_module.opLabel(falseLabelId);
+
+			m_insideBlock = true;
 		}
 	}
 

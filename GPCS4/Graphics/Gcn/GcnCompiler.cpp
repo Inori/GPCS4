@@ -34,7 +34,8 @@ namespace sce::gcn
 		m_state({
 			{ this, "exec" },  
 			{ this, "vcc" },
-		})
+		}),
+		m_controlFlowBlocks(m_analysis->controlFlowBlocks)
 	{
 		// Declare an entry point ID. We'll need it during the
 		// initialization phase where the execution mode is set.
@@ -190,10 +191,16 @@ namespace sce::gcn
 
 	void GcnCompiler::emitFunctionEnd()
 	{
-		if (m_insideFunction)
+		if (m_insideBlock)
 		{
 			m_module.opReturn();
+			m_insideBlock = false;
+		}
+
+		if (m_insideFunction)
+		{
 			m_module.functionEnd();
+			m_insideFunction = false;
 		}
 
 		m_insideFunction = false;
@@ -202,6 +209,7 @@ namespace sce::gcn
 	void GcnCompiler::emitFunctionLabel()
 	{
 		m_module.opLabel(m_module.allocateId());
+		m_insideBlock = true;
 	}
 
 	void GcnCompiler::emitMainFunctionBegin()
@@ -2664,6 +2672,7 @@ namespace sce::gcn
 	{
 		return getTexLayerDim(imageType) + imageType.array;
 	}
+
 
 
 
