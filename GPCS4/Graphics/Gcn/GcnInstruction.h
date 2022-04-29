@@ -106,7 +106,7 @@ namespace sce::gcn
 		uint64_t slc : 1;
 		uint64_t tfe : 1;
 		uint64_t count : 3;
-		uint64_t : 5;
+		uint64_t size : 5;
 	};
 
 	struct GcnInstControlMTBUF
@@ -122,7 +122,7 @@ namespace sce::gcn
 		uint64_t slc : 1;
 		uint64_t tfe : 1;
 		uint64_t count : 3;
-		uint64_t : 5;
+		uint64_t size : 5;
 	};
 
 	struct GcnInstControlMIMG

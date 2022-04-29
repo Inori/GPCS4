@@ -120,6 +120,13 @@ namespace sce::gcn
 		{
 			uint32_t trueLabelId  = block.lableId;
 			uint32_t falseLabelId = m_module.allocateId();
+
+			// TODO:
+			// This is a dummy merge, it's only used to pass spirv-val checks.
+			// To implement a real merge block, see:
+			// https://github.com/Inori/GPCS4/blob/shader_cfg/GPCS4/Graphics/Gcn/GcnCfgGenerator.h#L13
+			// m_module.opSelectionMerge(falseLabelId, spv::SelectionControlMaskNone);
+
 			m_module.opBranchConditional(condition, trueLabelId, falseLabelId);
 			m_module.opLabel(falseLabelId);
 

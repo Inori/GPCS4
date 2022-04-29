@@ -169,6 +169,7 @@ namespace sce::gcn
 			const GcnRegMask&       writeMask);
 
 		void emitScalarBranch(const GcnShaderInstruction& ins);
+		void emitVectorMemBuffer(const GcnShaderInstruction& ins);
 		//////////////////////////////////////
 		// Common function definition methods
 		void emitInit();
@@ -340,11 +341,6 @@ namespace sce::gcn
 		GcnRegisterValue emitIndexLoad(
 			const GcnRegIndex& index);
 
-		void emitBufferLoadNoFmt(
-			const GcnRegIndex&    index,
-			const GcnInstOperand& dst,
-			uint32_t              count);
-
 		void emitTextureSample(
 			const GcnShaderInstruction& ins);
 
@@ -355,6 +351,20 @@ namespace sce::gcn
 		GcnRegisterValue emitLoadTexCoord(
 			const GcnInstOperand& coordReg,
 			const GcnImageInfo&   imageInfo);
+
+		GcnRegisterValue emitCalcBufferAddress(
+			const GcnShaderInstruction& ins);
+
+		///////////////////////////////
+		// Resource load/store methods
+		void emitConstantBufferLoad(
+			const GcnRegIndex&    index,
+			const GcnInstOperand& dst,
+			uint32_t              count);
+
+		void emitBufferLoadStore(
+			const GcnShaderInstruction& ins,
+			bool                        isLoad);
 
 		///////////////////////////////////////
 		// Image register manipulation methods
@@ -493,8 +503,11 @@ namespace sce::gcn
 		std::pair<const VertexInputSemantic*, uint32_t>
 			getSemanticTable() const;
 
-		const std::array<GcnTextureInfo, 128>&
-			getTextureInfoTable();
+		const std::array<GcnTextureMeta, 128>&
+			getTextureMetaTable();
+
+		GcnBufferInfo getBufferType(
+			const GcnInstOperand& reg);
 
 		GcnImageInfo getImageType(
 			Gnm::TextureType textureType,
@@ -512,6 +525,9 @@ namespace sce::gcn
 
 		uint32_t getTexCoordDim(
 			const GcnImageInfo& imageType) const;
+
+		uint32_t getBufferDataSize(
+			Gnm::BufferFormat dfmt);
 
 	private:
 		GcnProgramInfo         m_programInfo;

@@ -44,7 +44,7 @@ namespace sce::gcn
 					index.offset = 0;
 					index.relReg = &smrd.offset;
 				}
-				emitBufferLoadNoFmt(index, smrd.sdst, smrd.control.count);
+				emitConstantBufferLoad(index, smrd.sdst, smrd.control.count);
 			}
 				break;
 			default:

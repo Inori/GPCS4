@@ -205,6 +205,11 @@ namespace sce::Gnm
 		ShaderStage getShaderStage(
 			VkPipelineStageFlags pipeStage);
 
+		void updateMetaBufferInfo(
+			VkPipelineStageFlags stage,
+			uint32_t             startRegister,
+			const Buffer*        vsharp);
+
 		void updateMetaTextureInfo(
 			VkPipelineStageFlags stage,
 			uint32_t             startRegister,

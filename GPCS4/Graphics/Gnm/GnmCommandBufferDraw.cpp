@@ -1112,6 +1112,8 @@ namespace sce::Gnm
 					VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
 					stage,
 					VK_ACCESS_UNIFORM_READ_BIT);
+
+				updateMetaBufferInfo(stage, res.startRegister, vsharp);
 			}
 				break;
 			case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
@@ -1124,6 +1126,8 @@ namespace sce::Gnm
 					VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
 					stage,
 					VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT);
+
+				updateMetaBufferInfo(stage, res.startRegister, vsharp);
 			}
 				break;
 			case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
@@ -1268,27 +1272,75 @@ namespace sce::Gnm
 		// yet we need these information to proper declare image resource
 		// when recompiling shaders.
 
-		GcnTextureInfo info;
-		info.textureType = tsharp->getTextureType();
-		info.channelType = tsharp->getTextureChannelType();
-		info.isDepth     = isDepth;
+		GcnTextureMeta meta;
+		meta.textureType = tsharp->getTextureType();
+		meta.channelType = tsharp->getTextureChannelType();
+		meta.isDepth     = isDepth;
+
+		auto  shaderStage = getShaderStage(stage);
+		auto& ctx         = m_state.shaderContext[shaderStage];
 
 		switch (stage)
 		{
-		case VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT:
-		{
-			auto& ctx = m_state.shaderContext[kShaderStagePs];
-			ctx.meta.ps.textureInfos[startRegister] = info;
+			case VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT:
+				ctx.meta.ps.textureInfos[startRegister] = meta;
+				break;
+			case VK_PIPELINE_STAGE_VERTEX_SHADER_BIT:
+				ctx.meta.vs.textureInfos[startRegister] = meta;
+				break;
+			case VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT:
+				ctx.meta.cs.textureInfos[startRegister] = meta;
+				break;
+			case VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT:
+				ctx.meta.gs.textureInfos[startRegister] = meta;
+				break;
+			case VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT:
+			case VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT:
+			default:
+				LOG_ASSERT(false, "TODO: stage %d is not supported yet, please support it.", stage);
+				break;
 		}
-			break;
-		case VK_PIPELINE_STAGE_VERTEX_SHADER_BIT:
-		case VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT:
-		case VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT:
-		case VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT:
-		case VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT:
-		default:
-			LOG_ASSERT(false, "TODO: stage %d is not supported yet, please support it.", stage);
-			break;
+	}
+
+	void GnmCommandBufferDraw::updateMetaBufferInfo(
+		VkPipelineStageFlags stage, 
+		uint32_t startRegister,
+		const Buffer* vsharp)
+	{
+		static const uint32_t indexStrideTable[] = { 8, 16, 32, 64 };
+		static const uint32_t elementSizeTable[] = { 2, 4, 8, 16 };
+
+		GcnBufferMeta meta;
+		meta.stride      = vsharp->getStride();
+		meta.numRecords  = vsharp->getNumElements();
+		meta.dfmt        = (Gnm::BufferFormat)vsharp->m_vsharp.dfmt;
+		meta.nfmt        = (Gnm::BufferChannelType)vsharp->m_vsharp.nfmt;
+		meta.isSwizzle   = vsharp->isSwizzled();
+		meta.indexStride = indexStrideTable[vsharp->m_vsharp.index_stride];
+		meta.elementSize = elementSizeTable[vsharp->m_vsharp.element_size];
+
+		auto  shaderStage = getShaderStage(stage);
+		auto& ctx         = m_state.shaderContext[shaderStage];
+
+		switch (stage)
+		{
+			case VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT:
+				ctx.meta.ps.bufferInfos[startRegister] = meta;
+				break;
+			case VK_PIPELINE_STAGE_VERTEX_SHADER_BIT:
+				ctx.meta.vs.bufferInfos[startRegister] = meta;
+				break;
+			case VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT:
+				ctx.meta.cs.bufferInfos[startRegister] = meta;
+				break;
+			case VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT:
+				ctx.meta.gs.bufferInfos[startRegister] = meta;
+				break;
+			case VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT:
+			case VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT:
+			default:
+				LOG_ASSERT(false, "TODO: stage %d is not supported yet, please support it.", stage);
+				break;
 		}
 	}
 

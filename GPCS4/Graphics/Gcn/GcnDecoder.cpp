@@ -661,6 +661,13 @@ namespace sce::gcn
 		{
 			m_instruction.control.smrd.count = 1 << (op - 8);
 		}
+
+		if (m_instruction.control.smrd.imm == 0)
+		{
+			uint32_t code              = m_instruction.control.smrd.offset;
+			m_instruction.src[1].field = getOperandField(code);
+			m_instruction.src[1].code  = code;
+		}
 	}
 
 	void GcnDecodeContext::decodeInstructionVINTRP(uint32_t hexInstruction)
@@ -792,7 +799,7 @@ namespace sce::gcn
 		m_instruction.src[1].code  = vdata;
 		m_instruction.src[2].field = GcnOperandField::ScalarGPR;
 		m_instruction.src[2].code  = srsrc;
-		m_instruction.src[3].field = GcnOperandField::ScalarGPR;
+		m_instruction.src[3].field = getOperandField(soffset);
 		m_instruction.src[3].code  = soffset;
 
 		m_instruction.control.mubuf = *reinterpret_cast<GcnInstControlMUBUF*>(&hexInstruction);
@@ -801,21 +808,52 @@ namespace sce::gcn
 			op <= static_cast<uint32_t>(GcnOpcodeMUBUF::BUFFER_LOAD_FORMAT_XYZW))
 		{
 			m_instruction.control.mubuf.count = op + 1;
+			m_instruction.control.mubuf.size  = (op + 1) * sizeof(uint32_t);
 		}
 		else if (op >= static_cast<uint32_t>(GcnOpcodeMUBUF::BUFFER_STORE_FORMAT_X) &&
 				 op <= static_cast<uint32_t>(GcnOpcodeMUBUF::BUFFER_STORE_FORMAT_XYZW))
 		{
 			m_instruction.control.mubuf.count = op - 3;
+			m_instruction.control.mubuf.size  = (op + 1) * sizeof(uint32_t);
 		}
 		else if (op >= static_cast<uint32_t>(GcnOpcodeMUBUF::BUFFER_LOAD_DWORD) &&
 				 op <= static_cast<uint32_t>(GcnOpcodeMUBUF::BUFFER_LOAD_DWORDX4))
 		{
 			m_instruction.control.mubuf.count = 1 << (op - 12);
+			m_instruction.control.mubuf.size  = (op + 1) * sizeof(uint32_t);
 		}
 		else if (op >= static_cast<uint32_t>(GcnOpcodeMUBUF::BUFFER_STORE_DWORD) &&
 				 op <= static_cast<uint32_t>(GcnOpcodeMUBUF::BUFFER_STORE_DWORDX4))
 		{
 			m_instruction.control.mubuf.count = 1 << (op - 28);
+			m_instruction.control.mubuf.size  = (op + 1) * sizeof(uint32_t);
+		}
+		else if (op >= static_cast<uint32_t>(GcnOpcodeMUBUF::BUFFER_LOAD_UBYTE) &&
+				 op <= static_cast<uint32_t>(GcnOpcodeMUBUF::BUFFER_LOAD_SSHORT))
+		{
+			m_instruction.control.mubuf.count = 1;
+			if (op >= static_cast<uint32_t>(GcnOpcodeMUBUF::BUFFER_LOAD_UBYTE) &&
+				op <= static_cast<uint32_t>(GcnOpcodeMUBUF::BUFFER_LOAD_SBYTE))
+			{
+				m_instruction.control.mubuf.size = 1;
+			}
+			else
+			{
+				m_instruction.control.mubuf.size = 2;
+			}
+		}
+		else if (op >= static_cast<uint32_t>(GcnOpcodeMUBUF::BUFFER_STORE_BYTE) &&
+				 op <= static_cast<uint32_t>(GcnOpcodeMUBUF::BUFFER_STORE_SHORT))
+		{
+			m_instruction.control.mubuf.count = 1;
+			if (op == static_cast<uint32_t>(GcnOpcodeMUBUF::BUFFER_STORE_BYTE))
+			{
+				m_instruction.control.mubuf.size = 1;
+			}
+			else
+			{
+				m_instruction.control.mubuf.size = 2;
+			}
 		}
 	}
 
@@ -835,7 +873,7 @@ namespace sce::gcn
 		m_instruction.src[1].code  = vdata;
 		m_instruction.src[2].field = GcnOperandField::ScalarGPR;
 		m_instruction.src[2].code  = srsrc;
-		m_instruction.src[3].field = GcnOperandField::ScalarGPR;
+		m_instruction.src[3].field = getOperandField(soffset);
 		m_instruction.src[3].code  = soffset;
 
 		m_instruction.control.mtbuf = *reinterpret_cast<GcnInstControlMTBUF*>(&hexInstruction);
@@ -1022,22 +1060,13 @@ namespace sce::gcn
 		result.opClass = ins.opClass;
 
 		result.control = ins.control.smrd;
-
-		// TODO:
-		// Not sure how to interpret control.offset when imm is not 1
-		// since I haven't met such an instruction yet.
-		// But when we got one, complete the code then remove this assert.
-		LOG_ASSERT(result.control.imm == 1, "TODO: sgpr offset not supported yet.");
-		if (!result.control.imm)
-		{
-			// TODO:
-			// Maybe not correct.
-			result.offset.field = GcnOperandField::ScalarGPR;
-			result.offset.code  = result.control.offset;
-		}
-
 		result.sbase = ins.src[0];
 		result.sdst  = ins.dst[0];
+
+		if (!result.control.imm)
+		{
+			result.offset = ins.src[1];
+		}
 	}
 
 	inline void gcnInstCastToMUBUF(const GcnShaderInstruction& ins, GcnShaderInstMUBUF& result)

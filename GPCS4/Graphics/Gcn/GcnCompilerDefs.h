@@ -2,6 +2,7 @@
 
 #include "GcnCommon.h"
 #include "GcnEnum.h"
+#include "GcnShaderMeta.h"
 
 namespace sce::gcn
 {
@@ -173,22 +174,10 @@ namespace sce::gcn
 		GcnInstOperand* relReg = nullptr;
 		int32_t         offset = 0;
 	};
-  
+
 
 	/**
-	 * \brief Constant buffer binding
-	 *
-	 * Stores information for a V#
-	 */
-	struct GcnBuffer
-	{
-		uint32_t varId = 0;
-		uint32_t size  = 0;
-		bool     asSsbo = false;
-	};
-
-	/**
-	 * \brief Image type information
+	 * \brief Image type information from T#
 	 */
 	struct GcnImageInfo
 	{
@@ -200,6 +189,26 @@ namespace sce::gcn
 
 		VkImageViewType vtype = VK_IMAGE_VIEW_TYPE_MAX_ENUM;
 	};
+
+	struct GcnBufferInfo
+	{
+		uint32_t      varId;
+		GcnBufferMeta buffer;
+		GcnImageInfo  image;
+	};
+
+	/**
+	 * \brief Constant buffer binding
+	 *
+	 * Stores information for a V#
+	 */
+	struct GcnBuffer
+	{
+		uint32_t varId  = 0;
+		uint32_t size   = 0;
+		bool     asSsbo = false;
+	};
+
 
 	/**
 	 * \brief Shader resource binding

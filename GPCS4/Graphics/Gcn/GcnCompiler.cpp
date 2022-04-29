@@ -529,8 +529,8 @@ namespace sce::gcn
 	{
 		const uint32_t registerId = res.startRegister;
 		
-		const auto& textureInfoTable = getTextureInfoTable();
-		const auto& textureInfo      = textureInfoTable[registerId];
+		const auto& textureMetaTable = getTextureMetaTable();
+		const auto& textureInfo      = textureMetaTable[registerId];
 
 		// TODO
 		// Support storage image
@@ -1666,7 +1666,7 @@ namespace sce::gcn
 		return result;
 	}
 
-	void GcnCompiler::emitBufferLoadNoFmt(
+	void GcnCompiler::emitConstantBufferLoad(
 		const GcnRegIndex&    index,
 		const GcnInstOperand& dst,
 		uint32_t              count)
@@ -2559,8 +2559,8 @@ namespace sce::gcn
 		return std::make_pair(semanticTable, semanticCount);
 	}
 
-	const std::array<GcnTextureInfo, 128>&
-		GcnCompiler::getTextureInfoTable()
+	const std::array<GcnTextureMeta, 128>&
+		GcnCompiler::getTextureMetaTable()
 	{
 		switch (m_programInfo.type())
 		{
@@ -2571,6 +2571,32 @@ namespace sce::gcn
 		}
 
 		LOG_ASSERT(false, "program type not supported, please support it.");
+	}
+
+	GcnBufferInfo GcnCompiler::getBufferType(
+		const GcnInstOperand& reg)
+	{
+		uint32_t regIdx = reg.code << 2;
+
+		GcnBufferMeta* meta = nullptr;
+		switch (m_programInfo.type())
+		{
+			case GcnProgramType::VertexShader:	meta = &m_meta.vs.bufferInfos[regIdx]; break;
+			case GcnProgramType::PixelShader:	meta = &m_meta.ps.bufferInfos[regIdx]; break;
+			case GcnProgramType::ComputeShader: meta = &m_meta.cs.bufferInfos[regIdx]; break;
+			case GcnProgramType::GeometryShader:meta = &m_meta.gs.bufferInfos[regIdx]; break;
+			case GcnProgramType::HullShader:	meta = &m_meta.hs.bufferInfos[regIdx]; break;
+			case GcnProgramType::DomainShader:	meta = &m_meta.ds.bufferInfos[regIdx]; break;
+		}
+
+		auto& buffer = m_buffers[regIdx];
+
+		GcnBufferInfo result = {};
+		result.varId         = buffer.varId;
+		result.buffer        = *meta;
+		result.image         = GcnImageInfo();
+
+		return result;
 	}
 
 	GcnImageInfo GcnCompiler::getImageType(
@@ -2673,6 +2699,46 @@ namespace sce::gcn
 		return getTexLayerDim(imageType) + imageType.array;
 	}
 
+	uint32_t GcnCompiler::getBufferDataSize(Gnm::BufferFormat dfmt)
+	{
+		uint32_t size = 0;
+		switch (dfmt)
+		{
+			case Gnm::kBufferFormatInvalid:
+				size = 0;
+				break;
+			case Gnm::kBufferFormat8:
+				size = 1;
+				break;
+			case Gnm::kBufferFormat16:
+			case Gnm::kBufferFormat8_8:
+				size = 2;
+				break;
+			case Gnm::kBufferFormat32:
+			case Gnm::kBufferFormat16_16:
+			case Gnm::kBufferFormat10_11_11:
+			case Gnm::kBufferFormat11_11_10:
+			case Gnm::kBufferFormat10_10_10_2:
+			case Gnm::kBufferFormat2_10_10_10:
+			case Gnm::kBufferFormat8_8_8_8:
+				size = 4;
+				break;
+			case Gnm::kBufferFormat32_32:
+			case Gnm::kBufferFormat16_16_16_16:
+				size = 8;
+				break;
+			case Gnm::kBufferFormat32_32_32:
+				size = 12;
+				break;
+			case Gnm::kBufferFormat32_32_32_32:
+				size = 16;
+				break;
+			default:
+				LOG_ASSERT(false, "error dfmt passed.");
+				break;
+		}
+		return size;
+	}
 
 
 
