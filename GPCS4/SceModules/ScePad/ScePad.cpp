@@ -1,13 +1,11 @@
 #include "ScePad.h"
 #include "sce_errors.h"
 #include "sce_pad_error.h"
-
 #include "Platform/PlatProcess.h"
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-
 #include <stdexcept>
+
+using namespace plat;
 
 LOG_CHANNEL(SceModules.ScePad);
 
@@ -55,16 +53,10 @@ int SceGamepad::setVibration(int32_t handle, const ScePadVibrationParam* pParam)
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
-SceKeyboard::SceKeyboard()
+SceKeyboard::SceKeyboard():
+	m_device(plat::createInputeDevice())
 {
-	// TODO:
-	// we should seperate input message processing and graphis logic,
-	// on Windows, we can try use DirectInput, 
-	// and on linux, we can just read /dev/input/xxx device with some libraries
 	
-	//auto videoOut = getVideoOut(SCE_VIDEO_HANDLE_MAIN);
-	//m_window      = videoOut->getWindowHandle();
-	throw std::logic_error("The method or operation is not implemented.");
 }
 
 SceKeyboard::~SceKeyboard()
@@ -90,140 +82,135 @@ int SceKeyboard::readState(ScePadData* data)
 	// Just quick and dirty implement currently. :)
 
 	uint32_t buttons = 0;
-	if (glfwGetKey(m_window, GLFW_KEY_T) == GLFW_PRESS)
+	if (m_device->getKeyState(KeyCode::KEY_T) == KeyState::Press)
 	{
 		buttons |= SCE_PAD_BUTTON_UP;
 	}
 
-	if (glfwGetKey(m_window, GLFW_KEY_G) == GLFW_PRESS)
+	if (m_device->getKeyState(KeyCode::KEY_G) == KeyState::Press)
 	{
 		buttons |= SCE_PAD_BUTTON_DOWN;
 	}
 
-	if (glfwGetKey(m_window, GLFW_KEY_F) == GLFW_PRESS)
+	if (m_device->getKeyState(KeyCode::KEY_F) == KeyState::Press)
 	{
 		buttons |= SCE_PAD_BUTTON_LEFT;
 	}
 
-	if (glfwGetKey(m_window, GLFW_KEY_H) == GLFW_PRESS)
+	if (m_device->getKeyState(KeyCode::KEY_H) == KeyState::Press)
 	{
 		buttons |= SCE_PAD_BUTTON_RIGHT;
 	}
 
-	if (glfwGetKey(m_window, GLFW_KEY_I) == GLFW_PRESS)
+	if (m_device->getKeyState(KeyCode::KEY_I) == KeyState::Press)
 	{
 		buttons |= SCE_PAD_BUTTON_TRIANGLE;
 	}
 
-	if (glfwGetKey(m_window, GLFW_KEY_K) == GLFW_PRESS)
+	if (m_device->getKeyState(KeyCode::KEY_K) == KeyState::Press)
 	{
 		buttons |= SCE_PAD_BUTTON_CROSS;
 	}
 
-	if (glfwGetKey(m_window, GLFW_KEY_J) == GLFW_PRESS)
+	if (m_device->getKeyState(KeyCode::KEY_J) == KeyState::Press)
 	{
 		buttons |= SCE_PAD_BUTTON_SQUARE;
 	}
 
-	if (glfwGetKey(m_window, GLFW_KEY_L) == GLFW_PRESS)
+	if (m_device->getKeyState(KeyCode::KEY_L) == KeyState::Press)
 	{
 		buttons |= SCE_PAD_BUTTON_CIRCLE;
 	}
 
-	if (glfwGetKey(m_window, GLFW_KEY_SPACE) == GLFW_PRESS)
+	if (m_device->getKeyState(KeyCode::KEY_SPACE) == KeyState::Press)
 	{
 		buttons |= SCE_PAD_BUTTON_TOUCH_PAD;
 	}
 
-	if (glfwGetKey(m_window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+	if (m_device->getKeyState(KeyCode::KEY_LCONTROL) == KeyState::Press)
 	{
 		buttons |= SCE_PAD_BUTTON_OPTIONS;
 	}
 
+	ScePadAnalogButtons analogButtons = { 0, 0, { 2, 2 } };
 
-	ScePadAnalogButtons analogButtons = {0, 0, { 2, 2 } };
-
-	if (glfwGetKey(m_window, GLFW_KEY_Q) == GLFW_PRESS)
+	if (m_device->getKeyState(KeyCode::KEY_Q) == KeyState::Press)
 	{
 		buttons |= SCE_PAD_BUTTON_L1;
 	}
 
-	if (glfwGetKey(m_window, GLFW_KEY_E) == GLFW_PRESS)
+	if (m_device->getKeyState(KeyCode::KEY_E) == KeyState::Press)
 	{
 		buttons |= SCE_PAD_BUTTON_L2;
 		analogButtons.l2 = 255;
 	}
 
-	if (glfwGetKey(m_window, GLFW_KEY_X) == GLFW_PRESS)
+	if (m_device->getKeyState(KeyCode::KEY_X) == KeyState::Press)
 	{
 		buttons |= SCE_PAD_BUTTON_L3;
 	}
 
-
-	if (glfwGetKey(m_window, GLFW_KEY_U) == GLFW_PRESS)
+	if (m_device->getKeyState(KeyCode::KEY_U) == KeyState::Press)
 	{
 		buttons |= SCE_PAD_BUTTON_R1;
 	}
 
-	if (glfwGetKey(m_window, GLFW_KEY_O) == GLFW_PRESS)
+	if (m_device->getKeyState(KeyCode::KEY_O) == KeyState::Press)
 	{
 		buttons |= SCE_PAD_BUTTON_R2;
 		analogButtons.r2 = 255;
 	}
 
-	if (glfwGetKey(m_window, GLFW_KEY_M) == GLFW_PRESS)
+	if (m_device->getKeyState(KeyCode::KEY_M) == KeyState::Press)
 	{
 		buttons |= SCE_PAD_BUTTON_R3;
 	}
 
 	LOG_DEBUG_IF(buttons != 0, "pad buttons %08X", buttons);
 
+	ScePadAnalogStick leftStick = { 0x80, 0x80 };
 
-	ScePadAnalogStick leftStick = {0x80,0x80};
-
-	if (glfwGetKey(m_window, GLFW_KEY_A) == GLFW_PRESS) 
+	if (m_device->getKeyState(KeyCode::KEY_A) == KeyState::Press)
 	{
 		leftStick.x += -127;
 	}
 
-	if (glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS) 
+	if (m_device->getKeyState(KeyCode::KEY_D) == KeyState::Press)
 	{
 		leftStick.x += 127;
 	}
 
-	if (glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS) 
+	if (m_device->getKeyState(KeyCode::KEY_W) == KeyState::Press)
 	{
 		leftStick.y += -127;
 	}
 
-	if (glfwGetKey(m_window, GLFW_KEY_S) == GLFW_PRESS) 
+	if (m_device->getKeyState(KeyCode::KEY_S) == KeyState::Press)
 	{
 		leftStick.y += 127;
 	}
 
+	ScePadAnalogStick rightStick = { 0x80, 0x80 };
 
-	ScePadAnalogStick rightStick = {0x80,0x80};
-
-	if (glfwGetKey(m_window, GLFW_KEY_LEFT) == GLFW_PRESS) 
+	if (m_device->getKeyState(KeyCode::KEY_LEFT) == KeyState::Press)
 	{
 		rightStick.x += -127;
 	}
 
-	if (glfwGetKey(m_window, GLFW_KEY_RIGHT) == GLFW_PRESS) 
+	if (m_device->getKeyState(KeyCode::KEY_RIGHT) == KeyState::Press)
 	{
 		rightStick.x += 127;
 	}
 
-	if (glfwGetKey(m_window, GLFW_KEY_UP) == GLFW_PRESS) 
+	if (m_device->getKeyState(KeyCode::KEY_UP) == KeyState::Press)
 	{
 		rightStick.y += -127;
 	}
 
-	if (glfwGetKey(m_window, GLFW_KEY_DOWN) == GLFW_PRESS) 
+	if (m_device->getKeyState(KeyCode::KEY_DOWN) == KeyState::Press)
 	{
 		rightStick.y += 127;
 	}
-
 
 	memset(data, 0, sizeof(ScePadData));
 	data->connected      = true;

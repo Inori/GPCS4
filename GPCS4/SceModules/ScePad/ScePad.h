@@ -3,10 +3,10 @@
 #include "GPCS4Common.h"
 #include "sce_types.h"
 #include "sce_pad_types.h"
+#include "PlatInput.h"
 
 #include <memory>
 
-class GLFWwindow;
 
 class SceInputController
 {
@@ -70,7 +70,7 @@ public:
  	virtual int setVibration(int32_t handle, const ScePadVibrationParam* pParam) override;
 
  private:
-	GLFWwindow* m_window = nullptr;
+	std::unique_ptr<plat::InputDevice> m_device;
 };
 
 

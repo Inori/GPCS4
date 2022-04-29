@@ -169,6 +169,7 @@
     <ClInclude Include="Platform\PlatException.h" />
     <ClInclude Include="Platform\PlatFile.h" />
     <ClInclude Include="Platform\PlatHardware.h" />
+    <ClInclude Include="Platform\PlatInput.h" />
     <ClInclude Include="Platform\PlatMemory.h" />
     <ClInclude Include="Platform\PlatPath.h" />
     <ClInclude Include="Platform\PlatProcess.h" />
@@ -379,6 +380,7 @@
     <ClCompile Include="Platform\PlatException.cpp" />
     <ClCompile Include="Platform\PlatFile.cpp" />
     <ClCompile Include="Platform\PlatHardware.cpp" />
+    <ClCompile Include="Platform\PlatInput.cpp" />
     <ClCompile Include="Platform\PlatMemory.cpp" />
     <ClCompile Include="Platform\PlatPath.cpp" />
     <ClCompile Include="Platform\PlatProcess.cpp" />

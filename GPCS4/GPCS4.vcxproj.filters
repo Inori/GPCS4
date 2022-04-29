@@ -904,6 +904,9 @@
     <ClInclude Include="Graphics\Gcn\GcnStateRegister.h">
       <Filter>Source Files\Graphics\Gcn</Filter>
     </ClInclude>
+    <ClInclude Include="Platform\PlatInput.h">
+      <Filter>Source Files\Platform</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1592,6 +1595,9 @@
     </ClCompile>
     <ClCompile Include="Graphics\Gcn\GcnStateRegister.cpp">
       <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClCompile>
+    <ClCompile Include="Platform\PlatInput.cpp">
+      <Filter>Source Files\Platform</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
