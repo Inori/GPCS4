@@ -122,6 +122,14 @@ namespace sce::gcn
 		uint32_t computeNumThreadX;
 		uint32_t computeNumThreadY;
 		uint32_t computeNumThreadZ;
+
+		bool enableTgidX;
+		bool enableTgidY;
+		bool enableTgidZ;
+		bool enableTgSize;
+		bool enableScratch;
+
+		uint32_t threadIdInGroupCount;
 	};
 
 	struct GcnMetaGS : public GcnMetaCommon

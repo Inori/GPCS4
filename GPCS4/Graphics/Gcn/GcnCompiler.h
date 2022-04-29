@@ -212,7 +212,7 @@ namespace sce::gcn
 		void emitPsInputSetup();
 		void emitCsInputSetup();
 
-		uint32_t emitUserDataInit();
+		void emitUserDataInit();
 		/////////////////////////////////////////////////////
 		// Shader interface and metadata declaration methods
 		void emitDclInput(
@@ -234,8 +234,9 @@ namespace sce::gcn
 		void emitDclInputSlots();
 
 		void emitDclVertexInput();
-
 		void emitDclPsInput();
+		void emitDclThreadGroup();
+
 		///////////////////////////////
 		// Variable definition methods
 		uint32_t emitNewVariable(
@@ -253,6 +254,10 @@ namespace sce::gcn
 			GcnRegMask     mask);
 
 		GcnRegisterValue emitPsSystemValueLoad(
+			GcnSystemValue sv,
+			GcnRegMask     mask);
+
+		GcnRegisterValue emitCsSystemValueLoad(
 			GcnSystemValue sv,
 			GcnRegMask     mask);
 		///////////////////////////////////////////

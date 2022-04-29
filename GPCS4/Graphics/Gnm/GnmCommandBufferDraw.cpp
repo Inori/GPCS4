@@ -142,6 +142,9 @@ namespace sce::Gnm
 	{
 		auto& ctx = m_state.shaderContext[kShaderStagePs];
 		ctx.code  = psRegs->getCodeAddress();
+
+		const SPI_SHADER_PGM_RSRC2_PS* rsrc2 = reinterpret_cast<const SPI_SHADER_PGM_RSRC2_PS*>(&psRegs->spiShaderPgmRsrc2Ps);
+		ctx.meta.vs.userSgprCount            = rsrc2->user_sgpr;
 	}
 
 	void GnmCommandBufferDraw::updatePsShader(const gcn::PsStageRegisters* psRegs)
@@ -152,6 +155,9 @@ namespace sce::Gnm
 	{
 		auto& ctx = m_state.shaderContext[kShaderStageVs];
 		ctx.code  = vsRegs->getCodeAddress();
+
+		const SPI_SHADER_PGM_RSRC2_VS* rsrc2 = reinterpret_cast<const SPI_SHADER_PGM_RSRC2_VS*>(&vsRegs->spiShaderPgmRsrc2Vs);
+		ctx.meta.vs.userSgprCount = rsrc2->user_sgpr;
 	}
 
 	void GnmCommandBufferDraw::setEmbeddedVsShader(EmbeddedVsShader shaderId, uint32_t shaderModifier)
@@ -223,7 +229,9 @@ namespace sce::Gnm
 			0x61, 0xDE, 0xE7, 0xD1, 0x00, 0x00, 0x00, 0x00, 0x98, 0xE5, 0xCA, 0xB9
 		};
 
-		m_state.shaderContext[kShaderStageVs].code = reinterpret_cast<const void*>(embeddedVsShaderFullScreen);
+		auto& ctx                 = m_state.shaderContext[kShaderStageVs];
+		ctx.code                  = reinterpret_cast<const void*>(embeddedVsShaderFullScreen);
+		ctx.meta.vs.userSgprCount = 0;
 	}
 
 	void GnmCommandBufferDraw::updateVsShader(const gcn::VsStageRegisters* vsRegs, uint32_t shaderModifier)
@@ -653,6 +661,14 @@ namespace sce::Gnm
 		ctx.meta.cs.computeNumThreadX = computeData->computeNumThreadX;
 		ctx.meta.cs.computeNumThreadY = computeData->computeNumThreadY;
 		ctx.meta.cs.computeNumThreadZ = computeData->computeNumThreadZ;
+
+		const COMPUTE_PGM_RSRC2* rsrc2   = reinterpret_cast<const COMPUTE_PGM_RSRC2*>(&computeData->computePgmRsrc2);
+		ctx.meta.cs.userSgprCount        = rsrc2->user_sgpr;
+		ctx.meta.cs.enableTgidX          = rsrc2->tgid_x_en;
+		ctx.meta.cs.enableTgidY          = rsrc2->tgid_y_en;
+		ctx.meta.cs.enableTgidZ          = rsrc2->tgid_z_en;
+		ctx.meta.cs.enableTgSize         = rsrc2->tg_size_en;
+		ctx.meta.cs.threadIdInGroupCount = rsrc2->tidig_comp_cnt;
 	}
 
 	void GnmCommandBufferDraw::writeReleaseMemEventWithInterrupt(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy)

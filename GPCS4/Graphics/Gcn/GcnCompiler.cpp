@@ -310,6 +310,19 @@ namespace sce::gcn
 
 	void GcnCompiler::emitCsInit()
 	{
+		// Declare local size
+		this->emitDclThreadGroup();
+
+		// Main function of the compute shader
+		m_cs.functionId = m_module.allocateId();
+		m_module.setDebugName(m_cs.functionId, "cs_main");
+
+		this->emitFunctionBegin(
+			m_cs.functionId,
+			m_module.defVoidType(),
+			m_module.defFunctionType(
+				m_module.defVoidType(), 0, nullptr));
+		this->emitFunctionLabel();
 	}
 
 	void GcnCompiler::emitVsFinalize()
@@ -377,6 +390,14 @@ namespace sce::gcn
 
 	void GcnCompiler::emitCsFinalize()
 	{
+		this->emitMainFunctionBegin();
+		this->emitInputSetup();
+
+		m_module.opFunctionCall(
+			m_module.defVoidType(),
+			m_cs.functionId, 0, nullptr);
+
+		this->emitFunctionEnd();
 	}
 
 	void GcnCompiler::emitDclInputSlots()
@@ -773,6 +794,18 @@ namespace sce::gcn
 		}
 	}
 
+	void GcnCompiler::emitDclThreadGroup()
+	{
+		m_cs.workgroupSizeX = m_meta.cs.computeNumThreadX;
+		m_cs.workgroupSizeY = m_meta.cs.computeNumThreadY;
+		m_cs.workgroupSizeZ = m_meta.cs.computeNumThreadZ;
+
+		m_module.setLocalSize(m_entryPointId,
+							  m_cs.workgroupSizeX,
+							  m_cs.workgroupSizeY,
+							  m_cs.workgroupSizeZ);
+	}
+
 	void GcnCompiler::emitDclOutput(uint32_t        regIdx,
 									GcnExportTarget target)
 	{
@@ -872,19 +905,19 @@ namespace sce::gcn
 		}
 	}
 
-	uint32_t GcnCompiler::emitUserDataInit()
+	void GcnCompiler::emitUserDataInit()
 	{
-		// The 16 user data registers is passed though push constants,
-		// here we copy them into sgprs
-
-		// TODO:
-		return 0;
+		// Typically, up to 16 user data registers 
+		// are used to pass resource descriptors (V#, T# etc.)
+		// we don't need to initialize them since we
+		// use register id to index resource
 	}
 
 	void GcnCompiler::emitVsInputSetup()
 	{
 		// Initialize SGPR
-		uint32_t userDataCount = this->emitUserDataInit();
+		emitUserDataInit();
+		uint32_t userDataCount = m_meta.vs.userSgprCount;
 
 		
 		// Initialize VGPR
@@ -903,7 +936,8 @@ namespace sce::gcn
 	void GcnCompiler::emitPsInputSetup()
 	{
 		// Initialize SGPR
-		uint32_t userDataCount = this->emitUserDataInit();
+		emitUserDataInit();
+		uint32_t userDataCount = m_meta.ps.userSgprCount;
 
 		// Initialize VGPR
 	}
@@ -911,9 +945,49 @@ namespace sce::gcn
 	void GcnCompiler::emitCsInputSetup()
 	{
 		// Initialize SGPR
-		uint32_t userDataCount = this->emitUserDataInit();
+		emitUserDataInit();
+		uint32_t userDataCount = m_meta.cs.userSgprCount;
+		uint32_t sysSgprIdx    = userDataCount;
+
+		GcnInstOperand reg;
+		reg.field = GcnOperandField::ScalarGPR;
+		reg.type  = GcnScalarType::Float32;
+		if (m_meta.cs.enableTgidX)
+		{
+			auto value = emitCsSystemValueLoad(
+				GcnSystemValue::WorkgroupId, GcnRegMask::select(0));
+
+			reg.code = sysSgprIdx++;
+			emitSgprStore(reg, value);
+		}
+
+		if (m_meta.cs.enableTgidY)
+		{
+			auto value = emitCsSystemValueLoad(
+				GcnSystemValue::WorkgroupId, GcnRegMask::select(1));
+
+			reg.code = sysSgprIdx++;
+			emitSgprStore(reg, value);
+		}
+
+		if (m_meta.cs.enableTgidZ)
+		{
+			auto value = emitCsSystemValueLoad(
+				GcnSystemValue::WorkgroupId, GcnRegMask::select(2));
+
+			reg.code = sysSgprIdx++;
+			emitSgprStore(reg, value);
+		}
 
 		// Initialize VGPR
+		// v0 stores gl_LocalInvocationID.x
+		GcnRegisterValue value = emitCsSystemValueLoad(
+			GcnSystemValue::LocalInvocationId, GcnRegMask::select(0));
+
+		reg.field = GcnOperandField::VectorGPR;
+		reg.type  = GcnScalarType::Float32;
+		reg.code  = 0;
+		emitVgprStore(reg, value);
 	}
 
 	void GcnCompiler::emitFetchInput()
@@ -1198,6 +1272,74 @@ namespace sce::gcn
 					"GcnCompiler: Unhandled PS SV input: ", (uint32_t)sv));
 		}
 	}
+
+	GcnRegisterValue GcnCompiler::emitCsSystemValueLoad(
+		GcnSystemValue sv, GcnRegMask mask)
+	{
+		switch (sv)
+		{
+			case GcnSystemValue::GlobalInvocationId:
+			{
+				uint32_t builtinGlobalInvocationId = emitNewBuiltinVariable({ { GcnScalarType::Uint32, 3, 0 },
+																		  spv::StorageClassInput },
+																		spv::BuiltInGlobalInvocationId,
+																		"vThreadId");
+				GcnRegisterPointer ptr;
+				ptr.type.ctype  = GcnScalarType::Uint32;
+				ptr.type.ccount = 3;
+				ptr.id          = builtinGlobalInvocationId;
+				auto value      = emitValueLoad(ptr);
+				return emitRegisterExtract(value, mask);
+			}
+				break;
+			case GcnSystemValue::WorkgroupId:
+			{
+				uint32_t builtinWorkgroupId = emitNewBuiltinVariable({ { GcnScalarType::Uint32, 3, 0 },
+																   spv::StorageClassInput },
+																 spv::BuiltInWorkgroupId,
+																 "vGroupId");
+				GcnRegisterPointer ptr;
+				ptr.type.ctype  = GcnScalarType::Uint32;
+				ptr.type.ccount = 3;
+				ptr.id          = builtinWorkgroupId;
+				auto value      = emitValueLoad(ptr);
+				return emitRegisterExtract(value, mask);
+			}
+				break;
+			case GcnSystemValue::LocalInvocationId:
+			{
+				uint32_t builtinLocalInvocationId = emitNewBuiltinVariable({ { GcnScalarType::Uint32, 3, 0 },
+																		 spv::StorageClassInput },
+																	   spv::BuiltInLocalInvocationId,
+																	   "vThreadIdInGroup");
+				GcnRegisterPointer ptr;
+				ptr.type.ctype  = GcnScalarType::Uint32;
+				ptr.type.ccount = 3;
+				ptr.id          = builtinLocalInvocationId;
+				auto value      = emitValueLoad(ptr);
+				return emitRegisterExtract(value, mask);
+			}
+				break;
+			case GcnSystemValue::LocalInvocationIndex:
+			{
+				uint32_t builtinLocalInvocationIndex = emitNewBuiltinVariable({ { GcnScalarType::Uint32, 1, 0 },
+																			spv::StorageClassInput },
+																		  spv::BuiltInLocalInvocationIndex,
+																		  "vThreadIndexInGroup");
+				GcnRegisterPointer ptr;
+				ptr.type.ctype  = GcnScalarType::Uint32;
+				ptr.type.ccount = 1;
+				ptr.id          = builtinLocalInvocationIndex;
+				return emitValueLoad(ptr);
+			}
+				break;
+			default:
+				Logger::exception(util::str::formatex(
+					"GcnCompiler: Unhandled CS SV input: ", (uint32_t)sv));
+				break;
+		}
+	}
+
 
 	void GcnCompiler::emitVsSystemValueStore(
 		GcnSystemValue          sv,

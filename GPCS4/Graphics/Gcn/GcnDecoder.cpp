@@ -613,9 +613,12 @@ namespace sce::gcn
 		m_instruction.src[0].code  = m_instruction.src[0].field == GcnOperandField::VectorGPR ? src0 - VectorGPRMin : src0;
 		m_instruction.src[1].field = GcnOperandField::VectorGPR;
 		m_instruction.src[1].code  = vsrc1;
-		// VOPC dst is forced to VCC
-		m_instruction.dst[0].field = GcnOperandField::VccLo;
-		m_instruction.dst[0].code  = static_cast<uint32_t>(GcnOperandField::VccLo);
+		// VOPC dst is forced to VCC.
+		// In order to be unified with VOP3 encoding,
+		// we store it to dst[1]
+		m_instruction.dst[1].field = GcnOperandField::VccLo;
+		m_instruction.dst[1].type  = GcnScalarType::Uint64;
+		m_instruction.dst[1].code  = static_cast<uint32_t>(GcnOperandField::VccLo);
 	}
 
 	void GcnDecodeContext::decodeInstructionVOP2(uint32_t hexInstruction)
@@ -732,6 +735,7 @@ namespace sce::gcn
 		m_instruction.dst[0].field = GcnOperandField::VectorGPR;
 		m_instruction.dst[0].code  = vdst;
 		m_instruction.dst[1].field = GcnOperandField::ScalarGPR;
+		m_instruction.dst[1].type  = GcnScalarType::Uint64;
 		m_instruction.dst[1].code  = sdst;
 
 		if (op >= static_cast<uint32_t>(GcnOpcodeVOP3::V_ADD_I32) &&

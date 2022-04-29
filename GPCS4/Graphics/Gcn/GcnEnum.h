@@ -2471,11 +2471,15 @@ namespace sce::gcn
 		FinalTriInsideTessFactor    = 20,
 		FinalLineDetailTessFactor   = 21,
 		FinalLineDensityTessFactor  = 22,
+		GlobalInvocationId          = 23,
+		WorkgroupId                 = 24,
+		LocalInvocationId           = 25,
+		LocalInvocationIndex        = 26,
 		Target                      = 64,
 		Depth                       = 65,
 		Coverage                    = 66,
 		DepthGe                     = 67,
-		DepthLe                     = 68
+		DepthLe                     = 68,
 	};
 
 	enum class GcnInterpolationMode : uint32_t

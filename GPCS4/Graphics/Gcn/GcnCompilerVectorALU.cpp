@@ -191,7 +191,7 @@ namespace sce::gcn
 		GcnRegisterValuePair result = {};
 		result.low.type.ctype       = GcnScalarType::Uint32;
 		result.low.type.ccount      = 1;
-		if (isDoubleType(ins.dst[0].type))
+		if (isDoubleType(ins.dst[1].type))
         {
             // Alway set high 32-bits of a compare result 
             // to zero.
@@ -211,7 +211,7 @@ namespace sce::gcn
 			m_state.exec.emitStore(result, GcnRegMask::select(0));
         }
 
-		emitRegisterStore(ins.dst[0], result);
+		emitRegisterStore(ins.dst[1], result);
 	}
 
     void GcnCompiler::emitVectorRegMov(const GcnShaderInstruction& ins)
