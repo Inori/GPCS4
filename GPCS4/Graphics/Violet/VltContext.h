@@ -68,6 +68,14 @@ namespace sce::vlt
 		Rc<VltCommandList> endRecording();
 
 		/**
+		 * \brief Flushes command buffer
+		 *
+		 * Transparently submits the current command
+		 * buffer and allocates a new one.
+		 */
+		void flushCommandList();
+
+		/**
          * \brief Sets render targets
          * 
          * \param [in] slot Slot number

@@ -69,6 +69,17 @@ namespace sce::vlt
 		return std::exchange(m_cmd, nullptr);
 	}
 
+	void VltContext::flushCommandList()
+	{
+		m_device->submitCommandList(
+			this->endRecording(),
+			VK_NULL_HANDLE,
+			VK_NULL_HANDLE);
+
+		this->beginRecording(
+			m_device->createCommandList());
+	}
+
 	void VltContext::bindRenderTarget(
 		uint32_t             slot,
 		const VltAttachment& target)

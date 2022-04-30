@@ -6,6 +6,7 @@
 #include "GnmRenderTarget.h"
 #include "GnmStructure.h"
 #include "GnmResourceFactory.h"
+#include "GnmInitializer.h"
 #include "Violet/VltRc.h"
 
 #include <memory>
@@ -429,6 +430,7 @@ namespace sce::Gnm
 		vlt::Rc<vlt::VltContext> m_context;
 		GnmResourceFactory       m_factory;
 		SceResourceTracker*      m_tracker;
+		GnmInitializer           m_initializer;
 	private:
 	};
 

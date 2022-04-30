@@ -173,7 +173,9 @@ namespace sce::gcn
                 break;
 			case GcnOpcode::V_MADMK_F32:
 				dst.low.id = m_module.opFAdd(typeId,
-											 m_module.opFMul(typeId, src[0].low.id, src[2].low.id),
+											 m_module.opFMul(typeId,
+															 src[0].low.id,
+															 src[2].low.id),
 											 src[1].low.id);
                 break;
 			default:

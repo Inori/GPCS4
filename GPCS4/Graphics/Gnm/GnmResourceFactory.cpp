@@ -93,19 +93,17 @@ namespace sce::Gnm
 		TextureType textureType   = tsharp->getTextureType();
 
 		auto tileMode = tsharp->getTileMode();
-		LOG_ASSERT(tileMode == kTileModeDisplay_LinearAligned, "TODO: support tiled images.");
 
 		VkImageCreateFlags flags;
-		// clang-format off
 		switch (textureType)
 		{
-		case kTextureType2dArray: flags = VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT; break;
-		case kTextureTypeCubemap: flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT; break;
-		default: flags = 0; break;
+			case kTextureType2dArray: flags = VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT; break;
+			case kTextureTypeCubemap: flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT; break;
+			default: flags = 0; break;
 		}
-		// clang-format on
 
 		uint32_t mipLevelCount = tsharp->getLastMipLevel() - tsharp->getBaseMipLevel() + 1;
+		uint32_t sliceCount = tsharp->getLastArraySliceIndex() - tsharp->getBaseArraySliceIndex() + 1;
 
 		VltImageCreateInfo imageInfo;
 		imageInfo.type        = cvt::convertTextureType(textureType);
@@ -113,7 +111,7 @@ namespace sce::Gnm
 		imageInfo.flags       = flags;
 		imageInfo.sampleCount = cvt::convertNumFragments(tsharp->getNumFragments());
 		imageInfo.extent      = { tsharp->getWidth(), tsharp->getHeight(), tsharp->getDepth() };
-		imageInfo.numLayers   = tsharp->getTotalArraySliceCount();
+		imageInfo.numLayers   = sliceCount;
 		imageInfo.mipLevels   = mipLevelCount;
 		imageInfo.usage       = createInfo.usage;
 		imageInfo.stages      = createInfo.stage;
@@ -129,7 +127,7 @@ namespace sce::Gnm
 		viewInfo.minLevel  = tsharp->getBaseMipLevel();
 		viewInfo.numLevels = mipLevelCount;
 		viewInfo.minLayer  = tsharp->getBaseArraySliceIndex();
-		viewInfo.numLayers = tsharp->getTotalArraySliceCount();
+		viewInfo.numLayers = sliceCount;
 
 		sceTexture.image     = m_device->createImage(imageInfo, createInfo.memoryType);
 		sceTexture.imageView = m_device->createImageView(sceTexture.image, viewInfo);

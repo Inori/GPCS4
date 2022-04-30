@@ -1006,11 +1006,6 @@ namespace sce::Gnm
 
 			m_factory.createBuffer(info, buffer);
 
-			void* bufferMem = buffer.buffer->mapPtr(0);
-			std::memcpy(bufferMem,
-						buffer.gnmBuffer.getBaseAddress(),
-						buffer.gnmBuffer.getSize());
-
 			slot = computeConstantBufferBinding(
 				gcnProgramTypeFromVkStage(stage), startRegister);
 		}
@@ -1021,16 +1016,13 @@ namespace sce::Gnm
 
 			m_factory.createBuffer(info, buffer);
 
-			m_context->updateBuffer(buffer.buffer,
-									0,
-									buffer.gnmBuffer.getSize(),
-									buffer.gnmBuffer.getBaseAddress());
-
 			slot = computeResourceBinding(
 				gcnProgramTypeFromVkStage(stage), startRegister);
 		}
 
 		m_tracker->track(buffer);
+
+		m_initializer.initBuffer(buffer.buffer, vsharp);
 
 		m_context->bindResourceBuffer(slot, VltBufferSlice(buffer.buffer));
 	}
@@ -1058,35 +1050,8 @@ namespace sce::Gnm
 		m_factory.createImage(info, texture);
 		m_tracker->track(texture);
 
-		auto& image = texture.image;
-
-		GpuAddress::TilingParameters params;
-		params.initFromTexture(tsharp, 0, 0);
-		GpuAddress::SurfaceInfo surfaceInfo;
-		GpuAddress::computeSurfaceInfo(&surfaceInfo, &params);
-
-		// TODO:
-		// Support multiple miplevels and layers initialize.
-		// reference:
-		// https://github.com/doitsujin/dxvk/blob/v1.4.6/src/d3d11/d3d11_initializer.cpp#L117
-
-		VkImageSubresourceLayers subresourceLayers;
-		subresourceLayers.aspectMask     = image->formatInfo()->aspectMask;
-		subresourceLayers.mipLevel       = 0;
-		subresourceLayers.baseArrayLayer = 0;
-		subresourceLayers.layerCount     = 1;
-
-		uint32_t bytesPerElement = tsharp->getDataFormat().getBytesPerElement();
-		uint32_t pitchInBytes    = surfaceInfo.m_pitch * bytesPerElement;
-		m_context->updateImage(
-			image,
-			subresourceLayers,
-			VkOffset3D{},
-			image->info().extent,
-			tsharp->getBaseAddress(),
-			pitchInBytes,
-			surfaceInfo.m_surfaceSize);
-
+		m_initializer.initTexture(texture.image, tsharp);
+	
 		uint32_t slot = computeResourceBinding(
 			gcnProgramTypeFromVkStage(stage), startRegister);
 
@@ -1196,6 +1161,9 @@ namespace sce::Gnm
 				break;
 			}
 		}
+
+		// Flush memory to buffer and texture resources.
+		m_initializer.flush();
 	}
 
 	const void* GnmCommandBufferDraw::findFetchShader(

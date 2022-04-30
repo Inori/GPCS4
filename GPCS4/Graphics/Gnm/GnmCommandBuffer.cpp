@@ -11,7 +11,8 @@ namespace sce::Gnm
 
 	GnmCommandBuffer::GnmCommandBuffer(vlt::VltDevice* device) :
 		m_device(device),
-		m_factory(device)
+		m_factory(device),
+		m_initializer(device)
 	{
 		m_context = m_device->createContext();
 	}

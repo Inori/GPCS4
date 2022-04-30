@@ -122,9 +122,9 @@ namespace sce::Gnm::cvt
 			//{ kDataFormatBc2Unorm, VK_FORMAT_BC2_UNORM },
 			//{ kDataFormatBc2UBNorm, VK_FORMAT_BC2_UBNORM },
 			//{ kDataFormatBc2UnormSrgb, VK_FORMAT_BC2_UNORMSRGB },
-			//{ kDataFormatBc3Unorm, VK_FORMAT_BC3_UNORM },
+			{ kDataFormatBc3Unorm, VK_FORMAT_BC3_UNORM_BLOCK },
 			//{ kDataFormatBc3UBNorm, VK_FORMAT_BC3_UBNORM },
-			//{ kDataFormatBc3UnormSrgb, VK_FORMAT_BC3_UNORMSRGB },
+			{ kDataFormatBc3UnormSrgb, VK_FORMAT_BC3_SRGB_BLOCK },
 			//{ kDataFormatBc4Unorm, VK_FORMAT_BC4_UNORM },
 			//{ kDataFormatBc4Snorm, VK_FORMAT_BC4_SNORM },
 			//{ kDataFormatBc5Unorm, VK_FORMAT_BC5_UNORM },
@@ -170,7 +170,7 @@ namespace sce::Gnm::cvt
 		auto iter = formatMap.find(dataFormat);
 		if (iter == formatMap.end())
 		{
-			LOG_WARN("data format not found %s", dataFormatName(dataFormat));
+			LOG_ASSERT(false, "data format not found %s", dataFormatName(dataFormat));
 			format = VK_FORMAT_UNDEFINED;
 		}
 		else
@@ -248,7 +248,7 @@ namespace sce::Gnm::cvt
 
 	VkCompareOp convertCompareFunc(CompareFunc cmpFunc)
 	{
-		// clang-format off
+		
 		VkCompareOp op;
 		switch (cmpFunc)
 		{
@@ -262,7 +262,7 @@ namespace sce::Gnm::cvt
 		case kCompareFuncAlways:       op = VK_COMPARE_OP_ALWAYS; break;
 		}
 		return op;
-		// clang-format on
+		
 	}
 
 	std::array<VkColorComponentFlags, MaxNumRenderTargets>
@@ -286,7 +286,7 @@ namespace sce::Gnm::cvt
 
 	VkBlendFactor convertBlendMultiplier(BlendMultiplier blendMul)
 	{
-		// clang-format off
+		
 		VkBlendFactor factor = {};
 		switch (blendMul)
 		{
@@ -310,13 +310,13 @@ namespace sce::Gnm::cvt
 		case kBlendMultiplierConstantAlpha:			factor = VK_BLEND_FACTOR_CONSTANT_ALPHA; break;
 		case kBlendMultiplierOneMinusConstantAlpha: factor = VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA; break;
 		}
-		// clang-format on
+		
 		return factor;
 	}
 
 	VkBlendOp convertBlendFunc(BlendFunc func)
 	{
-		// clang-format off
+		
 
 		VkBlendOp op;
 		switch (func)
@@ -328,13 +328,13 @@ namespace sce::Gnm::cvt
 		case kBlendFuncReverseSubtract: op = VK_BLEND_OP_REVERSE_SUBTRACT; break;
 		}
 
-		// clang-format on
+		
 		return op;
 	}
 
 	VkPrimitiveTopology convertPrimitiveType(PrimitiveType primType)
 	{
-		// clang-format off
+		
 
 		VkPrimitiveTopology topology;
 		switch (primType)
@@ -363,13 +363,13 @@ namespace sce::Gnm::cvt
 			break;
 		}
 
-		// clang-format on
+		
 		return topology;
 	}
 
 	VkIndexType convertIndexSize(IndexSize indexSize)
 	{
-		// clang-format off
+		
 
 		VkIndexType indexType;
 		switch (indexSize)
@@ -378,14 +378,14 @@ namespace sce::Gnm::cvt
 		case kIndexSize32: indexType = VK_INDEX_TYPE_UINT32; break;
 		}
 		
-		// clang-format on
+		
 
 		return indexType;
 	}
 
 	VkPolygonMode convertPolygonMode(PrimitiveSetupPolygonMode polyMode)
 	{
-		// clang-format off
+		
 
 		VkPolygonMode mode;
 		switch (polyMode)
@@ -395,13 +395,13 @@ namespace sce::Gnm::cvt
 		case kPrimitiveSetupPolygonModeFill:	mode = VK_POLYGON_MODE_FILL; break;
 		}
 
-		// clang-format on
+		
 		return mode;
 	}
 
 	VkCullModeFlags convertCullMode(PrimitiveSetupCullFaceMode cullMode)
 	{
-		// clang-format off
+		
 
 		VkCullModeFlags mode;
 		switch (cullMode)
@@ -412,7 +412,7 @@ namespace sce::Gnm::cvt
 		case kPrimitiveSetupCullFaceFrontAndBack: mode = VK_CULL_MODE_FRONT_AND_BACK; break;
 		}
 
-		// clang-format on
+		
 		return mode;
 	}
 
@@ -420,24 +420,26 @@ namespace sce::Gnm::cvt
 	{
 		VkImageType type = VK_IMAGE_TYPE_MAX_ENUM;
 
-		// clang-format off
-
 		switch (textureType)
 		{
-		case Gnm::kTextureType1d: type = VK_IMAGE_TYPE_1D; break;
-		case Gnm::kTextureType2d: type = VK_IMAGE_TYPE_2D; break;
-		case Gnm::kTextureType3d: type = VK_IMAGE_TYPE_3D; break;
-		case Gnm::kTextureTypeCubemap:
+		case Gnm::kTextureType1d: 
 		case Gnm::kTextureType1dArray:
+			type = VK_IMAGE_TYPE_1D; 
+			break;
+		case Gnm::kTextureType2d: 
 		case Gnm::kTextureType2dArray:
 		case Gnm::kTextureType2dMsaa:
 		case Gnm::kTextureType2dArrayMsaa:
+		case Gnm::kTextureTypeCubemap:
+			type = VK_IMAGE_TYPE_2D; 
+			break;
+		case Gnm::kTextureType3d:
+			type = VK_IMAGE_TYPE_3D; 
+			break;
 		default:
 			LOG_ASSERT(false, "texture type not supported.");
 			break;
 		}
-
-		// clang-format on
 
 		return type;
 	}
@@ -445,8 +447,6 @@ namespace sce::Gnm::cvt
 	VkImageViewType convertTextureTypeView(TextureType textureType)
 	{
 		VkImageViewType type = VK_IMAGE_VIEW_TYPE_MAX_ENUM;
-
-		// clang-format off
 
 		switch (textureType)
 		{
@@ -462,16 +462,13 @@ namespace sce::Gnm::cvt
 			LOG_ASSERT(false, "texture type not supported.");
 			break;
 		}
-
-		// clang-format on
-
 		return type;
 	}
 
 	VkFilter convertFilterMode(FilterMode mode)
 	{
 		VkFilter filter = VK_FILTER_MAX_ENUM;
-		// clang-format off
+		
 
 		switch (mode)
 		{
@@ -481,7 +478,7 @@ namespace sce::Gnm::cvt
 		case Gnm::kFilterModeAnisoPoint:	filter = VK_FILTER_NEAREST; break;
 		case Gnm::kFilterModeAnisoBilinear: filter = VK_FILTER_LINEAR; break;
 		}
-		// clang-format on
+		
 		return filter;
 	}
 
@@ -489,14 +486,14 @@ namespace sce::Gnm::cvt
 	{
 		VkSamplerMipmapMode mipmode = VK_SAMPLER_MIPMAP_MODE_MAX_ENUM;
 
-		// clang-format off
+		
 		switch (mode)
 		{
 		case Gnm::kMipFilterModeNone: mipmode = VK_SAMPLER_MIPMAP_MODE_NEAREST; break;
 		case Gnm::kMipFilterModePoint: mipmode = VK_SAMPLER_MIPMAP_MODE_NEAREST; break;
 		case Gnm::kMipFilterModeLinear: mipmode = VK_SAMPLER_MIPMAP_MODE_LINEAR; break;
 		}
-		// clang-format on
+		
 		return mipmode;
 	}
 
@@ -540,7 +537,7 @@ namespace sce::Gnm::cvt
 	VkCompareOp convertDepthCompare(DepthCompare compare)
 	{
 		VkCompareOp op = VK_COMPARE_OP_MAX_ENUM;
-		// clang-format off
+		
 		switch (compare)
 		{
 		case Gnm::kDepthCompareNever:	op = VK_COMPARE_OP_NEVER; break;
@@ -552,7 +549,7 @@ namespace sce::Gnm::cvt
 		case Gnm::kDepthCompareGreaterEqual:	op = VK_COMPARE_OP_GREATER_OR_EQUAL; break;
 		case Gnm::kDepthCompareAlways:			op = VK_COMPARE_OP_ALWAYS; break;
 		}
-		// clang-format on
+		
 		return op;
 	}
 
@@ -562,7 +559,7 @@ namespace sce::Gnm::cvt
 
 		Dim dim = DimMax;
 
-		// clang-format off
+		
 
 		switch (textureType)
 		{
@@ -579,7 +576,7 @@ namespace sce::Gnm::cvt
 			break;
 		}
 
-		// clang-format on
+		
 
 		return dim;
 	}
