@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GnmCommon.h"
+
 #include "Violet/VltRc.h"
 
 #include <mutex>
@@ -30,30 +31,29 @@ namespace sce::Gnm
 		void flush();
 
 		void initBuffer(
-			vlt::Rc<vlt::VltBuffer> buffer,
-			const Buffer*           vsharp);
+			const vlt::Rc<vlt::VltBuffer>& buffer,
+			const Buffer*                  vsharp);
 
 		void initTexture(
-			vlt::Rc<vlt::VltImage> image,
-			const Texture*         tsharp);
+			const vlt::Rc<vlt::VltImage>& image,
+			const Texture*                tsharp);
 
 	private:
-
 		void initDeviceLocalBuffer(
-			vlt::Rc<vlt::VltBuffer> buffer,
-			const Buffer*           vsharp);
+			const vlt::Rc<vlt::VltBuffer>& buffer,
+			const Buffer*                  vsharp);
 
 		void initHostVisibleBuffer(
-			vlt::Rc<vlt::VltBuffer> buffer,
-			const Buffer*           vsharp);
+			const vlt::Rc<vlt::VltBuffer>& buffer,
+			const Buffer*                  vsharp);
 
 		void initDeviceLocalTexture(
-			vlt::Rc<vlt::VltImage> image,
-			const Texture*         tsharp);
+			const vlt::Rc<vlt::VltImage>& image,
+			const Texture*                tsharp);
 
 		void initHostVisibleTexture(
-			vlt::Rc<vlt::VltImage> image,
-			const Texture*         tsharp);
+			const vlt::Rc<vlt::VltImage>& image,
+			const Texture*                tsharp);
 
 		void flushImplicit();
 		void flushInternal();
@@ -61,12 +61,11 @@ namespace sce::Gnm
 	private:
 		std::mutex m_mutex;
 
-		vlt::VltDevice* m_device;
+		vlt::VltDevice*          m_device;
 		vlt::Rc<vlt::VltContext> m_context;
 
 		size_t m_transferCommands = 0;
 		size_t m_transferMemory   = 0;
 	};
-
 
 }  // namespace sce::Gnm

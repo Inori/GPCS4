@@ -168,8 +168,12 @@ namespace sce::gcn
 			const GcnRegisterValue& value,
 			const GcnRegMask&       writeMask);
 
-		void emitScalarBranch(const GcnShaderInstruction& ins);
-		void emitVectorMemBuffer(const GcnShaderInstruction& ins);
+		void emitScalarBranch(
+			const GcnShaderInstruction& ins);
+		void emitVectorMemBuffer(
+			const GcnShaderInstruction& ins);
+		void emitCubeCalculate(
+			const GcnShaderInstruction& ins);
 		//////////////////////////////////////
 		// Common function definition methods
 		void emitInit();

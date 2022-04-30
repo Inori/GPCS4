@@ -1,8 +1,10 @@
 #include "GnmInitializer.h"
+
 #include "GnmBuffer.h"
 #include "GnmTexture.h"
-#include "Violet/VltDevice.h"
+
 #include "Violet/VltContext.h"
+#include "Violet/VltDevice.h"
 
 using namespace sce::vlt;
 
@@ -10,7 +12,7 @@ LOG_CHANNEL(Graphic.Gnm.GnmInitializer);
 
 namespace sce::Gnm
 {
-	GnmInitializer::GnmInitializer(vlt::VltDevice* device):
+	GnmInitializer::GnmInitializer(vlt::VltDevice* device) :
 		m_device(device),
 		m_context(m_device->createContext())
 	{
@@ -30,7 +32,8 @@ namespace sce::Gnm
 			flushInternal();
 	}
 
-	void GnmInitializer::initBuffer(Rc<VltBuffer> buffer, const Buffer* vsharp)
+	void GnmInitializer::initBuffer(
+		const Rc<VltBuffer>& buffer, const Buffer* vsharp)
 	{
 		VkMemoryPropertyFlags memFlags = buffer->memFlags();
 
@@ -39,7 +42,8 @@ namespace sce::Gnm
 			: initDeviceLocalBuffer(buffer, vsharp);
 	}
 
-	void GnmInitializer::initTexture(Rc<VltImage> image, const Texture* tsharp)
+	void GnmInitializer::initTexture(
+		const Rc<VltImage>& image, const Texture* tsharp)
 	{
 		VkMemoryPropertyFlags memFlags = image->memFlags();
 		(memFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
@@ -48,7 +52,7 @@ namespace sce::Gnm
 	}
 
 	void GnmInitializer::initDeviceLocalBuffer(
-		vlt::Rc<vlt::VltBuffer> buffer, const Buffer* vsharp)
+		const Rc<VltBuffer>& buffer, const Buffer* vsharp)
 	{
 		std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -65,7 +69,7 @@ namespace sce::Gnm
 	}
 
 	void GnmInitializer::initHostVisibleBuffer(
-		vlt::Rc<vlt::VltBuffer> buffer, const Buffer* vsharp)
+		const Rc<VltBuffer>& buffer, const Buffer* vsharp)
 	{
 		// If the buffer is mapped, we can write data directly
 		// to the mapped memory region instead of doing it on
@@ -88,14 +92,14 @@ namespace sce::Gnm
 	}
 
 	void GnmInitializer::initDeviceLocalTexture(
-		vlt::Rc<vlt::VltImage> image, const Texture* tsharp)
+		const Rc<VltImage>& image, const Texture* tsharp)
 	{
 		std::lock_guard<std::mutex> lock(m_mutex);
 
 		auto           formatInfo      = imageFormatInfo(image->info().format);
 		uint32_t       bytesPerElement = tsharp->getDataFormat().getBytesPerElement();
 		const uint8_t* textureMem      = reinterpret_cast<uint8_t*>(tsharp->getBaseAddress());
-		
+
 		for (uint32_t layer = 0; layer < image->info().numLayers; layer++)
 		{
 			for (uint32_t level = 0; level < image->info().mipLevels; level++)
@@ -123,8 +127,10 @@ namespace sce::Gnm
 				{
 					uint64_t surfaceOffset = 0;
 					uint64_t surfaceSize   = 0;
-					GpuAddress::computeTextureSurfaceOffsetAndSize(&surfaceOffset, &surfaceSize, tsharp, level, layer);
+					GpuAddress::computeTextureSurfaceOffsetAndSize(
+						&surfaceOffset, &surfaceSize, tsharp, level, layer);
 					const void* memory = textureMem + surfaceOffset;
+
 					m_context->uploadImage(
 						image, subresourceLayers,
 						memory,
@@ -134,7 +140,7 @@ namespace sce::Gnm
 				else
 				{
 					LOG_ASSERT(false, "TODO");
-					//m_context->updateDepthStencilImage(
+					// m_context->updateDepthStencilImage(
 					//	image, subresourceLayers,
 					//	VkOffset2D{ mipLevelOffset.x, mipLevelOffset.y },
 					//	VkExtent2D{ mipLevelExtent.width, mipLevelExtent.height },
@@ -150,14 +156,14 @@ namespace sce::Gnm
 	}
 
 	void GnmInitializer::initHostVisibleTexture(
-		vlt::Rc<vlt::VltImage> image, const Texture* tsharp)
+		const Rc<VltImage>& image, const Texture* tsharp)
 	{
 		LOG_ASSERT(false, "TODO:");
 	}
 
 	void GnmInitializer::flushImplicit()
 	{
-		if (m_transferCommands > MaxTransferCommands || 
+		if (m_transferCommands > MaxTransferCommands ||
 			m_transferMemory > MaxTransferMemory)
 			flushInternal();
 	}

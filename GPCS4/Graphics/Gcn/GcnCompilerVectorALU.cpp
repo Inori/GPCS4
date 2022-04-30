@@ -156,6 +156,10 @@ namespace sce::gcn
 				dst.low.id = m_module.opInverseSqrt(typeId,
 													src[0].low.id);
 				break;
+			case GcnOpcode::V_SQRT_F32:
+				dst.low.id = m_module.opSqrt(typeId,
+											 src[0].low.id);
+				break;
             // VectorThreadMask
 			case GcnOpcode::V_CNDMASK_B32:
 			{
@@ -361,8 +365,189 @@ namespace sce::gcn
 
     void GcnCompiler::emitVectorFpGraph32(const GcnShaderInstruction& ins)
     {
-        LOG_GCN_UNHANDLED_INST();
+		auto op = ins.opcode;
+		switch (op)
+		{
+			case GcnOpcode::V_CUBEID_F32:
+			case GcnOpcode::V_CUBESC_F32:
+			case GcnOpcode::V_CUBETC_F32:
+			case GcnOpcode::V_CUBEMA_F32:
+				emitCubeCalculate(ins);
+                break;
+			default:
+				LOG_GCN_UNHANDLED_INST();
+				break;
+		}
     }
+
+    void GcnCompiler::emitCubeCalculate(const GcnShaderInstruction& ins)
+	{
+		std::array<GcnRegisterValuePair, GcnMaxOperandCount> src;
+		for (uint32_t i = 0; i != ins.srcCount; ++i)
+		{
+			src[i] = emitRegisterLoad(ins.src[i]);
+		}
+
+		GcnRegisterValuePair dst = {};
+		dst.low.type.ctype       = ins.dst[0].type;
+		dst.low.type.ccount      = 1;
+		dst.high.type.ctype      = ins.dst[0].type;
+		dst.high.type.ccount     = 1;
+
+		const uint32_t typeId     = getVectorTypeId(dst.low.type);
+		const uint32_t boolTypeId = m_module.defBoolType();
+		const uint32_t intTypeId  = getScalarTypeId(GcnScalarType::Sint32);
+		auto           op         = ins.opcode;
+
+		uint32_t resultId = 0;
+
+        uint32_t x    = src[0].low.id;
+		uint32_t y    = src[1].low.id;
+		uint32_t z    = src[2].low.id;
+        uint32_t absX = emitRegisterAbsolute(src[0].low).id;
+		uint32_t absY = emitRegisterAbsolute(src[1].low).id;
+		uint32_t absZ = emitRegisterAbsolute(src[2].low).id;
+
+        // if (abs(vz.f) >= abs(vx.f) && abs(vz.f) >= abs(vy.f))
+        uint32_t zxCondition = m_module.opFOrdGreaterThanEqual(boolTypeId,
+															   absZ, absX);
+		uint32_t zyCondition = m_module.opFOrdGreaterThanEqual(boolTypeId,
+															   absZ, absY);
+		uint32_t zxyCondition = m_module.opLogicalAnd(boolTypeId,
+													  zxCondition, zyCondition);
+        
+        uint32_t endLabel = m_module.allocateId();
+		m_module.opSelectionMerge(endLabel, spv::SelectionControlMaskNone);
+
+		uint32_t zxyLabel  = m_module.allocateId();
+		uint32_t yxIfLabel = m_module.allocateId();
+		m_module.opBranchConditional(zxyCondition, zxyLabel, yxIfLabel);
+        
+        m_module.opLabel(zxyLabel);
+		switch (op)
+		{
+			case GcnOpcode::V_CUBEID_F32:
+			{
+				uint32_t condition = m_module.opFOrdLessThan(boolTypeId,
+															 z, m_module.constf32(0.0));
+				resultId           = m_module.opSelect(typeId,
+													   condition,
+													   m_module.constf32(5.0),
+													   m_module.constf32(4.0));
+			}
+                break;
+			case GcnOpcode::V_CUBESC_F32:
+			{
+				uint32_t condition = m_module.opFOrdLessThan(boolTypeId,
+															 z, m_module.constf32(0.0));
+				resultId           = m_module.opSelect(typeId,
+													   condition,
+													   m_module.opFNegate(typeId, x),
+													   x);
+			}
+                break;
+			case GcnOpcode::V_CUBETC_F32:
+				resultId = m_module.opFNegate(typeId, y);
+                break;
+			case GcnOpcode::V_CUBEMA_F32:
+				resultId = m_module.opFMul(typeId,
+										   m_module.constf32(2.0),
+										   z);
+                break;
+		}
+		m_module.opBranch(endLabel);
+
+		// else if (abs(vy.f) >= abs(vx.f))
+		m_module.opLabel(yxIfLabel);
+		uint32_t yxCondition = m_module.opFOrdGreaterThanEqual(boolTypeId,
+															   absY, absX);
+		// A empty block right before end block used to build merge block
+		uint32_t beforeEndLabel = m_module.allocateId();
+		m_module.opSelectionMerge(beforeEndLabel, spv::SelectionControlMaskNone);
+
+		uint32_t yxLabel = m_module.allocateId();
+		uint32_t xLabel  = m_module.allocateId();
+		m_module.opBranchConditional(yxCondition, yxLabel, xLabel);
+
+		m_module.opLabel(yxLabel);
+		switch (op)
+		{
+			case GcnOpcode::V_CUBEID_F32:
+			{
+				uint32_t condition = m_module.opFOrdLessThan(boolTypeId,
+															 y, m_module.constf32(0.0));
+				resultId           = m_module.opSelect(typeId,
+													   condition,
+													   m_module.constf32(3.0),
+													   m_module.constf32(2.0));
+			}
+				break;
+			case GcnOpcode::V_CUBESC_F32:
+				resultId = x;
+				break;
+			case GcnOpcode::V_CUBETC_F32:
+			{
+				uint32_t condition = m_module.opFOrdLessThan(boolTypeId,
+															 y, m_module.constf32(0.0));
+				resultId           = m_module.opSelect(typeId,
+													   condition,
+													   m_module.opFNegate(typeId, z),
+													   z);
+			}
+				break;
+			case GcnOpcode::V_CUBEMA_F32:
+				resultId = m_module.opFMul(typeId,
+										   m_module.constf32(2.0),
+										   y);
+				break;
+		}
+		m_module.opBranch(beforeEndLabel);
+
+		// else
+		m_module.opLabel(xLabel);
+		switch (op)
+		{
+			case GcnOpcode::V_CUBEID_F32:
+			{
+				uint32_t condition = m_module.opFOrdLessThan(boolTypeId,
+															 x, m_module.constf32(0.0));
+				resultId           = m_module.opSelect(typeId,
+													   condition,
+													   m_module.constf32(1.0),
+													   m_module.constf32(0.0));
+			}
+				break;
+			case GcnOpcode::V_CUBESC_F32:
+			{
+				uint32_t condition = m_module.opFOrdLessThan(boolTypeId,
+															 x, m_module.constf32(0.0));
+				resultId           = m_module.opSelect(typeId,
+													   condition,
+													   z,
+													   m_module.opFNegate(typeId, z));
+			}
+				break;
+			case GcnOpcode::V_CUBETC_F32:
+				resultId = m_module.opFNegate(typeId, y);
+				break;
+			case GcnOpcode::V_CUBEMA_F32:
+				resultId = m_module.opFMul(typeId,
+										   m_module.constf32(2.0),
+										   x);
+				break;
+		}
+		m_module.opBranch(beforeEndLabel);
+
+		// A empty block right before end block used to build merge block
+		m_module.opLabel(beforeEndLabel);
+		m_module.opBranch(endLabel);
+
+		// End label
+		m_module.opLabel(endLabel);
+
+		dst.low.id = resultId;
+        emitRegisterStore(ins.dst[0], dst);
+	}
 
     void GcnCompiler::emitVectorIntGraph(const GcnShaderInstruction& ins)
     {
