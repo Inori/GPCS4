@@ -139,13 +139,11 @@ namespace plat
 
 #else
 
-	InputDevice* createInputeDevice()
+	std::unique_ptr<InputDevice> createInputeDevice()
 	{
+		return nullptr;
 	}
 
-	void destoryInputDevice(InputDevice* device)
-	{
-	}
 
 #endif
 

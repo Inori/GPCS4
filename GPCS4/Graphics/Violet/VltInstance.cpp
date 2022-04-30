@@ -6,6 +6,7 @@
 #include "Platform/PlatVulkan.h"
 
 #include <array>
+#include <iostream>
 
 LOG_CHANNEL(Graphic.Violet);
 
@@ -19,6 +20,12 @@ namespace sce::vlt
 
 	VltInstance::~VltInstance()
 	{
+		if (m_debugMessenger != VK_NULL_HANDLE)
+		{
+			DestroyDebugUtilsMessengerEXT(m_instance, m_debugMessenger, nullptr);
+			m_debugMessenger = nullptr;
+		}
+
 		if (m_instance != VK_NULL_HANDLE)
 		{
 			vkDestroyInstance(m_instance, nullptr);
@@ -67,6 +74,14 @@ namespace sce::vlt
 #ifdef VLT_VALIDATION_AND_DEBUG
 		insExtensionList.push_back(&insExtensions.extDebugUtils);
 		insLayers.push_back("VK_LAYER_KHRONOS_validation");
+
+		VkDebugUtilsMessengerCreateInfoEXT debugInfo = {};
+		debugInfo.sType                              = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+		debugInfo.messageSeverity                    = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+		debugInfo.messageType                        = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+		debugInfo.pfnUserCallback                    = debugCallback;
+		debugInfo.pUserData                          = this;
+
 #endif
 
 		VltNameSet extensionsEnabled;
@@ -97,7 +112,11 @@ namespace sce::vlt
 
 		VkInstanceCreateInfo info;
 		info.sType                   = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-		info.pNext                   = nullptr;
+#ifdef VLT_VALIDATION_AND_DEBUG
+		info.pNext = &debugInfo;
+#else
+		info.pNext = nullptr;
+#endif
 		info.flags                   = 0;
 		info.pApplicationInfo        = &appInfo;
 		info.enabledLayerCount       = insLayers.size();
@@ -110,6 +129,13 @@ namespace sce::vlt
 
 		if (status != VK_SUCCESS)
 			Logger::exception("DxvkInstance::createInstance: Failed to create Vulkan 1.3 instance");
+
+#ifdef VLT_VALIDATION_AND_DEBUG
+		status = CreateDebugUtilsMessengerEXT(result, &debugInfo, nullptr, &m_debugMessenger);
+		if (status != VK_SUCCESS)
+			Logger::exception("DxvkInstance::createInstance: Failed to create debug messenger.");
+#endif  // VLT_VALIDATION_AND_DEBUG
+
 
 		return result;
 	}
@@ -180,6 +206,49 @@ namespace sce::vlt
 	{
 		for (uint32_t i = 0; i < names.count(); i++)
 			Logger::info(util::str::formatex("  ", names.name(i)));
+	}
+
+	VkResult VltInstance::CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger)
+	{
+		auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+		if (func != nullptr)
+		{
+			return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
+		}
+		else
+		{
+			return VK_ERROR_EXTENSION_NOT_PRESENT;
+		}
+	}
+
+	void VltInstance::DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator)
+	{
+		auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+		if (func != nullptr)
+		{
+			func(instance, debugMessenger, pAllocator);
+		}
+	}
+
+	VKAPI_ATTR VkBool32 VKAPI_CALL VltInstance::debugCallback(
+		VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
+		VkDebugUtilsMessageTypeFlagsEXT             messageType,
+		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+		void*                                       pUserData)
+	{
+		do 
+		{
+			// Filter out structured control flow information until we fix it.
+			if (strstr(pCallbackData->pMessage, "Selection must be structured"))
+			{
+				break;
+			}
+
+			std::cerr << pCallbackData->pMessage << std::endl;
+
+		} while (false);
+
+		return VK_FALSE;
 	}
 
 }  // namespace sce::vlt
