@@ -238,8 +238,10 @@ namespace sce::vlt
 	{
 		do 
 		{
-			// Filter out structured control flow information until we fix it.
-			if (strstr(pCallbackData->pMessage, "Selection must be structured"))
+			// Filter out shader structured control flow information until we fix it.
+			// See:
+			// https://github.com/Inori/GPCS4/blob/shader_cfg/GPCS4/Graphics/Gcn/GcnCfgGenerator.h#L13
+			if (std::strstr(pCallbackData->pMessage, "Selection must be structured"))
 			{
 				break;
 			}

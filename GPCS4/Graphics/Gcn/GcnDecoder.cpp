@@ -481,8 +481,16 @@ namespace sce::gcn
 
 			if (hasLiteral)
 			{
-				uint32_t literalCount                                    = code.readu32();
-				m_instruction.src[m_instruction.srcCount++].literalConst = literalCount;
+				uint32_t      encodingOp = mapEncodingOp(encoding, m_instruction.opcode);
+				GcnInstFormat instFormat = gcnInstructionFormat(encoding, encodingOp);
+
+				uint32_t literalConst                                  = code.readu32();
+				m_instruction.src[m_instruction.srcCount].field        = GcnOperandField::LiteralConst;
+				m_instruction.src[m_instruction.srcCount].type         = instFormat.srcType;
+				m_instruction.src[m_instruction.srcCount].literalConst = literalConst;
+				// The source count information can not be detect through encoding,
+				// so we fix it.
+				++m_instruction.srcCount;
 				break;
 			}
 
@@ -498,20 +506,19 @@ namespace sce::gcn
 				isLiteralSrc);
 
 			hasLiteral = (iter != std::end(m_instruction.src));
-
 			if (hasLiteral)
 			{
-				uint32_t literalCount = code.readu32();
-				iter->literalConst    = literalCount;
+				uint32_t literalConst = code.readu32();
+				iter->literalConst    = literalConst;
 				break;
 			}
 
 		} while (false);
 
-		// Increase instruction length by 4
-		// if literal constant appended.
 		if (hasLiteral)
 		{
+			// Increase instruction length by 4
+			// if literal constant appended.
 			m_instruction.length += sizeof(uint32_t);
 		}
 	}

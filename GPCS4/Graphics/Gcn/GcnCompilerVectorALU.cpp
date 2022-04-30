@@ -16,6 +16,8 @@ namespace sce::gcn
             case GcnInstClass::VectorConv:
             case GcnInstClass::VectorFpArith32:
 			case GcnInstClass::VectorIntArith32:
+			case GcnInstClass::VectorFpTran32:
+			case GcnInstClass::VectorThreadMask:
                 this->emitVectorAluCommon(ins);
                 break;
 			case GcnInstClass::VectorFpCmp64:
@@ -30,9 +32,6 @@ namespace sce::gcn
             case GcnInstClass::VectorBitField32:
                 this->emitVectorBitField32(ins);
                 break;
-            case GcnInstClass::VectorThreadMask:
-                this->emitVectorThreadMask(ins);
-                break;
             case GcnInstClass::VectorBitField64:
                 this->emitVectorBitField64(ins);
                 break;
@@ -41,9 +40,6 @@ namespace sce::gcn
                 break;
             case GcnInstClass::VectorFpField32:
                 this->emitVectorFpField32(ins);
-                break;
-            case GcnInstClass::VectorFpTran32:
-                this->emitVectorFpTran32(ins);
                 break;
             case GcnInstClass::VectorFpArith64:
                 this->emitVectorFpArith64(ins);
@@ -134,6 +130,17 @@ namespace sce::gcn
 											 vdst.id);
 			}
 				break;
+			case GcnOpcode::V_SUB_F32:
+				dst.low.id = m_module.opISub(typeId,
+											 src[0].low.id,
+											 src[1].low.id);
+                break;
+			case GcnOpcode::V_MAX_F32:
+				dst.low.id = m_module.opFMax(typeId,
+											 src[0].low.id,
+											 src[1].low.id);
+				break;
+               
 			// VectorRegMov
 			case GcnOpcode::V_MOV_B32:
 				dst.low.id = src[0].low.id;
@@ -144,6 +151,31 @@ namespace sce::gcn
 											 src[0].low.id,
 											 src[1].low.id);
 				break;
+            // VectorFpTran32
+			case GcnOpcode::V_RSQ_F32:
+				dst.low.id = m_module.opInverseSqrt(typeId,
+													src[0].low.id);
+				break;
+            // VectorThreadMask
+			case GcnOpcode::V_CNDMASK_B32:
+			{
+				auto smask = ins.encoding == GcnInstEncoding::VOP3 ? 
+                    src[2].low : 
+                    m_state.vcc.emitLoad(GcnRegMask::select(0)).low;
+
+				// Should we calculate the LSB of the mask?
+				auto condition = emitRegisterZeroTest(smask, GcnZeroTest::TestNz);
+				dst.low.id     = m_module.opSelect(typeId,
+												   condition.id,
+												   src[1].low.id,
+												   src[0].low.id);
+			}
+                break;
+			case GcnOpcode::V_MADMK_F32:
+				dst.low.id = m_module.opFAdd(typeId,
+											 m_module.opFMul(typeId, src[0].low.id, src[2].low.id),
+											 src[1].low.id);
+                break;
 			default:
 				LOG_GCN_UNHANDLED_INST();
 				break;
@@ -177,6 +209,12 @@ namespace sce::gcn
 				updateExec = true;
 			}
                 break;
+			case GcnOpcode::V_CMP_GE_F32:
+				condition = m_module.opFOrdGreaterThanEqual(conditionType,
+															src[0].low.id,
+															src[1].low.id);
+
+			    break;
 			default:
 				LOG_GCN_UNHANDLED_INST();
 				break;
