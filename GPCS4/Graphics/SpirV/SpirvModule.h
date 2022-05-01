@@ -749,7 +749,7 @@ namespace sce::gcn
             uint32_t                resultType,
             uint32_t                matrix);
 
-    uint32_t opInverse(
+    uint32_t opMatrixInverse(
             uint32_t                resultType,
             uint32_t                matrix);
     

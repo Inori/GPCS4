@@ -11,6 +11,7 @@ namespace sce::gcn
 		{
 			case GcnInstClass::ScalarArith:
 			case GcnInstClass::ScalarMov:
+			case GcnInstClass::ScalarBitLogic:
 				this->emitScalarAluCommon(ins);
 				break;
 			case GcnInstClass::ScalarAbs:
@@ -21,9 +22,6 @@ namespace sce::gcn
 				break;
 			case GcnInstClass::ScalarSelect:
 				this->emitScalarSelect(ins);
-				break;
-			case GcnInstClass::ScalarBitLogic:
-				this->emitScalarBitLogic(ins);
 				break;
 			case GcnInstClass::ScalarBitManip:
 				this->emitScalarBitManip(ins);
@@ -52,10 +50,10 @@ namespace sce::gcn
 		}
 
 		GcnRegisterValuePair dst = {};
-		dst.low.type.ctype       = ins.dst[0].type;
+		dst.low.type.ctype       = ins.dst[0].type == GcnScalarType::Uint64 ?
+										GcnScalarType::Uint32 : ins.dst[0].type;
 		dst.low.type.ccount      = 1;
-		dst.high.type.ctype      = ins.dst[0].type;
-		dst.high.type.ccount     = 1;
+		dst.high.type            = dst.low.type;
 
 		const uint32_t typeId = getVectorTypeId(dst.low.type);
 
@@ -63,6 +61,11 @@ namespace sce::gcn
 		switch (op)
 		{
 			// ScalarArith
+			case GcnOpcode::S_ADD_I32:
+				dst.low.id = m_module.opIAdd(typeId,
+											 src[0].low.id,
+											 src[1].low.id);
+				break;
 			case GcnOpcode::S_MUL_I32:
 				dst.low.id = m_module.opIMul(typeId,
 											 src[0].low.id,
@@ -77,6 +80,21 @@ namespace sce::gcn
 				// Fix the type from Uint64 to Uint32 at the same time.
 				dst.low  = src[0].low;
 				dst.high = src[0].high;
+			}
+				break;
+			// ScalarBitLogic
+			case GcnOpcode::S_OR_B64:
+			{
+				dst.low.id  = m_module.opBitwiseOr(typeId, src[0].low.id, src[1].low.id);
+				dst.high.id = m_module.opBitwiseOr(typeId, src[0].high.id, src[1].high.id);
+			}
+				break;
+			case GcnOpcode::S_NOR_B64:
+			{
+				dst.low.id  = m_module.opNot(typeId,
+											 m_module.opBitwiseOr(typeId, src[0].low.id, src[1].low.id));
+				dst.high.id = m_module.opNot(typeId,
+											 m_module.opBitwiseOr(typeId, src[0].high.id, src[1].high.id));
 			}
 				break;
 			default:
@@ -134,7 +152,32 @@ namespace sce::gcn
 
 	void GcnCompiler::emitScalarExecMask(const GcnShaderInstruction& ins)
 	{
-		LOG_GCN_UNHANDLED_INST();
+		auto src = emitRegisterLoad(ins.src[0]);
+
+		auto exec = m_state.exec.emitLoad(GcnRegMask::firstN(2));
+		emitRegisterStore(ins.dst[0], exec);
+
+		GcnRegisterValuePair result = {};
+		result.low.type = exec.low.type;
+
+		const uint32_t typeId = getVectorTypeId(result.low.type);
+
+		auto op = ins.opcode;
+		switch (op)
+		{
+			case GcnOpcode::S_AND_SAVEEXEC_B64:
+				result.low.id = m_module.opBitwiseAnd(typeId,
+													  src.low.id,
+													  exec.low.id);
+				break;
+			default:
+				LOG_GCN_UNHANDLED_INST();
+				break;
+		}
+
+		// Only save the lower 32 bits.
+		// High 32 bits is always zero.
+		m_state.exec.emitStore(result, GcnRegMask::select(0));
 	}
 
 	void GcnCompiler::emitScalarQuadMask(const GcnShaderInstruction& ins)

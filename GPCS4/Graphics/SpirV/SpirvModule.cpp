@@ -2084,7 +2084,7 @@ namespace sce::gcn
   }
 
 
-  uint32_t SpirvModule::opInverse(
+  uint32_t SpirvModule::opMatrixInverse(
     uint32_t                resultType,
     uint32_t                matrix) {
     uint32_t resultId = this->allocateId();

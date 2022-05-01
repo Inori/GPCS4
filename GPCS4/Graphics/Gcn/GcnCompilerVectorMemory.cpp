@@ -173,12 +173,20 @@ namespace sce::gcn
 			case GcnOpcode::BUFFER_LOAD_FORMAT_XY:
 			case GcnOpcode::BUFFER_LOAD_FORMAT_XYZ:
 			case GcnOpcode::BUFFER_LOAD_FORMAT_XYZW:
+			case GcnOpcode::TBUFFER_LOAD_FORMAT_X:
+			case GcnOpcode::TBUFFER_LOAD_FORMAT_XY:
+			case GcnOpcode::TBUFFER_LOAD_FORMAT_XYZ:
+			case GcnOpcode::TBUFFER_LOAD_FORMAT_XYZW:
 				emitBufferLoadStore(ins, true);
 				break;
 			case GcnOpcode::BUFFER_STORE_FORMAT_X:
 			case GcnOpcode::BUFFER_STORE_FORMAT_XY:
 			case GcnOpcode::BUFFER_STORE_FORMAT_XYZ:
 			case GcnOpcode::BUFFER_STORE_FORMAT_XYZW:
+			case GcnOpcode::TBUFFER_STORE_FORMAT_X:
+			case GcnOpcode::TBUFFER_STORE_FORMAT_XY:
+			case GcnOpcode::TBUFFER_STORE_FORMAT_XYZ:
+			case GcnOpcode::TBUFFER_STORE_FORMAT_XYZW:
 				emitBufferLoadStore(ins, false);
 				break;
 			default:

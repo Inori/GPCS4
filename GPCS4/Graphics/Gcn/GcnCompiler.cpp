@@ -727,8 +727,7 @@ namespace sce::gcn
 		const GcnVectorType regType = getInputRegType(regIdx);
       
 		GcnRegisterInfo info;
-		info.type.ctype = regType.ctype;
-	
+		info.type.ctype   = regType.ctype;
 		info.type.ccount  = regType.ccount;
 		info.type.alength = 0;
 		info.sclass       = spv::StorageClassInput;
@@ -1482,8 +1481,17 @@ namespace sce::gcn
 			}
 
 			uint32_t typeId = this->getScalarTypeId(value.type.ctype);
-			uint32_t id     = m_module.opCompositeExtract(
+			uint32_t valueId = 0;
+			if (mask.popCount() == 1)
+			{
+				valueId = value.id;
+			}
+			else
+			{
+				valueId = m_module.opCompositeExtract(
 					typeId, value.id, 1, &i);
+			}
+
 
 			GcnInstOperand reg = start;
 			reg.code += (gprIdx++);
@@ -1491,7 +1499,7 @@ namespace sce::gcn
 			GcnRegisterValue val;
 			val.type.ctype  = value.type.ctype;
 			val.type.ccount = 1;
-			val.id          = id;
+			val.id          = valueId;
 
 			this->emitGprStore<IsVgpr>(reg, val);
 		}
@@ -1879,10 +1887,6 @@ namespace sce::gcn
 		const GcnInstOperand& coordReg,
 		const GcnImageInfo&   imageInfo)
 	{
-		LOG_ASSERT(coordReg.type == GcnScalarType::Uint64 &&
-				   imageInfo.dim == spv::Dim2D,
-				   "TODO: support non-2D type images");
-
 		uint32_t dim         = getTexCoordDim(imageInfo);
 		auto     coordVector = emitVgprArrayLoad(coordReg,
 												 GcnRegMask::firstN(dim));

@@ -760,7 +760,7 @@ namespace sce::gcn
 
 		// update input modifier
 		auto& control = m_instruction.control.vop3;
-		for (uint32_t i = 0; i != m_instruction.srcCount; ++i)
+		for (uint32_t i = 0; i != 3; ++i)
 		{
 			if (control.abs & (1u << i))
 			{

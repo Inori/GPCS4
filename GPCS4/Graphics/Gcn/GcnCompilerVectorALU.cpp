@@ -18,6 +18,8 @@ namespace sce::gcn
 			case GcnInstClass::VectorIntArith32:
 			case GcnInstClass::VectorFpTran32:
 			case GcnInstClass::VectorThreadMask:
+			case GcnInstClass::VectorBitField32:
+			case GcnInstClass::VectorIntGraph:
                 this->emitVectorAluCommon(ins);
                 break;
 			case GcnInstClass::VectorFpCmp64:
@@ -28,9 +30,6 @@ namespace sce::gcn
 				break;
             case GcnInstClass::VectorLane:
                 this->emitVectorLane(ins);
-                break;
-            case GcnInstClass::VectorBitField32:
-                this->emitVectorBitField32(ins);
                 break;
             case GcnInstClass::VectorBitField64:
                 this->emitVectorBitField64(ins);
@@ -59,9 +58,6 @@ namespace sce::gcn
             case GcnInstClass::VectorFpGraph32:
                 this->emitVectorFpGraph32(ins);
                 break;
-            case GcnInstClass::VectorIntGraph:
-                this->emitVectorIntGraph(ins);
-                break;
             case GcnInstClass::VectorMisc:
                 this->emitVectorMisc(ins);
                 break;
@@ -76,13 +72,14 @@ namespace sce::gcn
             src[i] = emitRegisterLoad(ins.src[i]);
         }
 
-        GcnRegisterValuePair dst = {};
-        dst.low.type.ctype       = ins.dst[0].type;
-        dst.low.type.ccount      = 1;
-        dst.high.type.ctype      = ins.dst[0].type;
-        dst.high.type.ccount     = 1;
+		GcnRegisterValuePair dst = {};
+		dst.low.type.ctype       = ins.dst[0].type == GcnScalarType::Uint64 ?
+										GcnScalarType::Uint32 : ins.dst[0].type;
+		dst.low.type.ccount      = 1;
+		dst.high.type            = dst.low.type;
 
-        const uint32_t typeId = getVectorTypeId(dst.low.type);
+        const uint32_t typeId     = getVectorTypeId(dst.low.type);
+		uint32_t       uintTypeId = getScalarTypeId(GcnScalarType::Uint32);
 
         auto op = ins.opcode;
 		switch (op)
@@ -97,6 +94,10 @@ namespace sce::gcn
 				dst.low.id = m_module.opConvertUtoF(typeId,
 													src[0].low.id);
 			    break;
+			case GcnOpcode::V_CVT_U32_F32:
+				dst.low.id = m_module.opConvertFtoU(typeId,
+													src[0].low.id);
+				break;
 			case GcnOpcode::V_CVT_PKRTZ_F16_F32:
 			{
 				GcnRegisterValuePair pair;
@@ -120,6 +121,11 @@ namespace sce::gcn
 											 src[0].low.id,
 											 src[1].low.id);
 			    break;
+			case GcnOpcode::V_MUL_LO_I32:
+				dst.low.id = m_module.opIMul(typeId,
+											 src[0].low.id,
+											 src[1].low.id);
+				break;
 			case GcnOpcode::V_MAC_F32:
 			{
 				auto vdst  = emitVgprLoad(ins.dst[0]);
@@ -131,16 +137,48 @@ namespace sce::gcn
 			}
 				break;
 			case GcnOpcode::V_SUB_F32:
-				dst.low.id = m_module.opISub(typeId,
+				dst.low.id = m_module.opFSub(typeId,
 											 src[0].low.id,
 											 src[1].low.id);
                 break;
+			case GcnOpcode::V_SUBREV_F32:
+				dst.low.id = m_module.opFSub(typeId,
+											 src[1].low.id,
+											 src[0].low.id);
+				break;
+			case GcnOpcode::V_SUB_I32:
+				dst.low.id = m_module.opISub(typeId,
+											 src[0].low.id,
+											 src[1].low.id);
+			case GcnOpcode::V_SUBREV_I32:
+				dst.low.id = m_module.opISub(typeId,
+											 src[1].low.id,
+											 src[0].low.id);
+				break;
 			case GcnOpcode::V_MAX_F32:
 				dst.low.id = m_module.opFMax(typeId,
 											 src[0].low.id,
 											 src[1].low.id);
 				break;
-               
+			case GcnOpcode::V_MIN_F32:
+				dst.low.id = m_module.opFMin(typeId,
+											 src[0].low.id,
+											 src[1].low.id);
+				break;
+			case GcnOpcode::V_MADMK_F32:
+				dst.low.id = m_module.opFAdd(typeId,
+											 m_module.opFMul(typeId,
+															 src[0].low.id,
+															 src[2].low.id),
+											 src[1].low.id);
+				break;
+			case GcnOpcode::V_MADAK_F32:
+				dst.low.id = m_module.opFAdd(typeId,
+											 m_module.opFMul(typeId,
+															 src[0].low.id,
+															 src[1].low.id),
+											 src[2].low.id);
+				break;
 			// VectorRegMov
 			case GcnOpcode::V_MOV_B32:
 				dst.low.id = src[0].low.id;
@@ -151,6 +189,29 @@ namespace sce::gcn
 											 src[0].low.id,
 											 src[1].low.id);
 				break;
+			case GcnOpcode::V_MAD_I32_I24:
+				dst.low.id = m_module.opIAdd(typeId,
+											 m_module.opIMul(typeId,
+															 src[0].low.id,
+															 src[1].low.id),
+											 src[2].low.id);
+				break;
+			case GcnOpcode::V_MUL_I32_I24:
+			{
+				
+				uint32_t src0 = m_module.opBitFieldUExtract(uintTypeId,
+															src[0].low.id,
+															m_module.constu32(0),
+															m_module.constu32(24));
+				uint32_t src1 = m_module.opBitFieldUExtract(uintTypeId,
+															src[1].low.id,
+															m_module.constu32(0),
+															m_module.constu32(24));
+				src0          = m_module.opBitcast(typeId, src0);
+				src1          = m_module.opBitcast(typeId, src1);
+				dst.low.id    = m_module.opIMul(typeId, src0, src1);
+			}
+				break;
             // VectorFpTran32
 			case GcnOpcode::V_RSQ_F32:
 				dst.low.id = m_module.opInverseSqrt(typeId,
@@ -158,6 +219,11 @@ namespace sce::gcn
 				break;
 			case GcnOpcode::V_SQRT_F32:
 				dst.low.id = m_module.opSqrt(typeId,
+											 src[0].low.id);
+				break;
+			case GcnOpcode::V_RCP_F32:
+				dst.low.id = m_module.opFDiv(typeId,
+											 m_module.constf32(1.0),
 											 src[0].low.id);
 				break;
             // VectorThreadMask
@@ -174,14 +240,110 @@ namespace sce::gcn
 												   src[1].low.id,
 												   src[0].low.id);
 			}
-                break;
-			case GcnOpcode::V_MADMK_F32:
-				dst.low.id = m_module.opFAdd(typeId,
-											 m_module.opFMul(typeId,
+				break;
+			// VectorBitField32
+			case GcnOpcode::V_LSHR_B32:
+			{
+				uint32_t shift = m_module.opBitFieldUExtract(typeId,
+															 src[1].low.id,
+															 m_module.constu32(0),
+															 m_module.constu32(5));
+				dst.low.id     = m_module.opShiftRightLogical(typeId,
+															  src[0].low.id,
+															  shift);
+			}
+				break;
+			case GcnOpcode::V_LSHRREV_B32:
+			{
+				uint32_t shift = m_module.opBitFieldUExtract(typeId,
 															 src[0].low.id,
-															 src[2].low.id),
-											 src[1].low.id);
-                break;
+															 m_module.constu32(0),
+															 m_module.constu32(5));
+				dst.low.id     = m_module.opShiftRightLogical(typeId,
+															  src[1].low.id,
+															  shift);
+			}
+				break;
+			case GcnOpcode::V_LSHL_B32:
+			{
+				uint32_t shift = m_module.opBitFieldUExtract(typeId,
+															 src[1].low.id,
+															 m_module.constu32(0),
+															 m_module.constu32(5));
+				dst.low.id     = m_module.opShiftLeftLogical(typeId,
+															 src[0].low.id,
+															 shift);
+			}
+				break;
+			case GcnOpcode::V_LSHLREV_B32:
+			{
+				uint32_t shift = m_module.opBitFieldUExtract(typeId,
+															 src[0].low.id,
+															 m_module.constu32(0),
+															 m_module.constu32(5));
+				dst.low.id     = m_module.opShiftLeftLogical(typeId,
+															 src[1].low.id,
+															 shift);
+			}
+				break;
+			case GcnOpcode::V_ASHR_I32:
+			{
+				uint32_t shift = m_module.opBitFieldUExtract(uintTypeId,
+															 src[1].low.id,
+															 m_module.constu32(0),
+															 m_module.constu32(5));
+				dst.low.id     = m_module.opShiftRightArithmetic(typeId,
+																 src[0].low.id,
+																 shift);
+			}
+				break;
+			case GcnOpcode::V_ASHRREV_I32:
+			{
+				uint32_t shift = m_module.opBitFieldUExtract(uintTypeId,
+															 src[0].low.id,
+															 m_module.constu32(0),
+															 m_module.constu32(5));
+				dst.low.id     = m_module.opShiftRightArithmetic(typeId,
+																 src[1].low.id,
+																 shift);
+			}
+				break;
+			case GcnOpcode::V_BFE_U32:
+			{
+				uint32_t shiftOffset = m_module.opBitFieldUExtract(typeId,
+																   src[1].low.id,
+																   m_module.constu32(0),
+																   m_module.constu32(5));
+				uint32_t shiftSize   = m_module.opBitFieldUExtract(typeId,
+																   src[2].low.id,
+																   m_module.constu32(0),
+																   m_module.constu32(5));
+				uint32_t field       = m_module.opShiftRightLogical(typeId,
+																	src[0].low.id,
+																	shiftOffset);
+				uint32_t mask        = m_module.opISub(typeId,
+													   m_module.opShiftLeftLogical(typeId,
+																				   m_module.constu32(1),
+																				   shiftSize),
+													   m_module.constu32(1));
+				dst.low.id           = m_module.opBitwiseAnd(typeId, field, mask);
+			}
+				break;
+			//VectorIntGraph
+			case GcnOpcode::V_SAD_U32:
+			{
+				// Cast to signed type first
+				auto src0 = emitRegisterBitcast(src[0].low, GcnScalarType::Sint32);
+				auto src1 = emitRegisterBitcast(src[1].low, GcnScalarType::Sint32);
+
+				uint32_t diff  = m_module.opSAbs(typeId,
+												 m_module.opISub(getScalarTypeId(GcnScalarType::Sint32),
+																 src0.id,
+																 src1.id));
+				dst.low.id = m_module.opIAdd(typeId,
+											 diff, src[2].low.id);
+			}
+				break;
 			default:
 				LOG_GCN_UNHANDLED_INST();
 				break;
@@ -207,6 +369,11 @@ namespace sce::gcn
 		auto op = ins.opcode;
 		switch (op)
 		{
+			case GcnOpcode::V_CMP_GT_I32:
+				condition = m_module.opSGreaterThan(conditionType,
+													src[0].low.id,
+													src[1].low.id);
+				break;
 			case GcnOpcode::V_CMPX_GT_U32:
 			{
 				condition  = m_module.opUGreaterThan(conditionType,
@@ -219,8 +386,25 @@ namespace sce::gcn
 				condition = m_module.opFOrdGreaterThanEqual(conditionType,
 															src[0].low.id,
 															src[1].low.id);
-
 			    break;
+			case GcnOpcode::V_CMP_NEQ_F32:
+				condition = m_module.opFOrdNotEqual(conditionType,
+													src[0].low.id,
+													src[1].low.id);
+				break;
+			case GcnOpcode::V_CMP_LE_U32:
+				condition = m_module.opULessThanEqual(conditionType,
+													  src[0].low.id,
+													  src[1].low.id);
+				break;
+			case GcnOpcode::V_CMPX_NE_U32:
+				updateExec = true;
+				[[fallthrough]];
+			case GcnOpcode::V_CMP_NE_U32:
+				condition = m_module.opINotEqual(conditionType,
+												 src[0].low.id,
+												 src[1].low.id);
+				break;
 			default:
 				LOG_GCN_UNHANDLED_INST();
 				break;
@@ -382,6 +566,9 @@ namespace sce::gcn
 
     void GcnCompiler::emitCubeCalculate(const GcnShaderInstruction& ins)
 	{
+		// TODO:
+		// Wrap cube calculate into a function
+
 		std::array<GcnRegisterValuePair, GcnMaxOperandCount> src;
 		for (uint32_t i = 0; i != ins.srcCount; ++i)
 		{
@@ -389,17 +576,21 @@ namespace sce::gcn
 		}
 
 		GcnRegisterValuePair dst = {};
-		dst.low.type.ctype       = ins.dst[0].type;
+		dst.low.type.ctype       = ins.dst[0].type == GcnScalarType::Uint64 ? GcnScalarType::Uint32 : ins.dst[0].type;
 		dst.low.type.ccount      = 1;
-		dst.high.type.ctype      = ins.dst[0].type;
-		dst.high.type.ccount     = 1;
+		dst.high.type            = dst.low.type;
 
 		const uint32_t typeId     = getVectorTypeId(dst.low.type);
 		const uint32_t boolTypeId = m_module.defBoolType();
 		const uint32_t intTypeId  = getScalarTypeId(GcnScalarType::Sint32);
 		auto           op         = ins.opcode;
 
-		uint32_t resultId = 0;
+		GcnRegisterInfo info;
+		info.type.ctype          = GcnScalarType::Float32;
+		info.type.ccount         = 1;
+		info.type.alength        = 0;
+		info.sclass              = spv::StorageClassPrivate;
+		const uint32_t resultVar = emitNewVariable(info);
 
         uint32_t x    = src[0].low.id;
 		uint32_t y    = src[1].low.id;
@@ -430,29 +621,37 @@ namespace sce::gcn
 			{
 				uint32_t condition = m_module.opFOrdLessThan(boolTypeId,
 															 z, m_module.constf32(0.0));
-				resultId           = m_module.opSelect(typeId,
+				uint32_t value     = m_module.opSelect(typeId,
 													   condition,
 													   m_module.constf32(5.0),
 													   m_module.constf32(4.0));
+				m_module.opStore(resultVar, value);
 			}
                 break;
 			case GcnOpcode::V_CUBESC_F32:
 			{
 				uint32_t condition = m_module.opFOrdLessThan(boolTypeId,
 															 z, m_module.constf32(0.0));
-				resultId           = m_module.opSelect(typeId,
+				uint32_t value     = m_module.opSelect(typeId,
 													   condition,
 													   m_module.opFNegate(typeId, x),
 													   x);
+				m_module.opStore(resultVar, value);
 			}
                 break;
 			case GcnOpcode::V_CUBETC_F32:
-				resultId = m_module.opFNegate(typeId, y);
+			{
+				uint32_t value = m_module.opFNegate(typeId, y);
+				m_module.opStore(resultVar, value);
+			}
                 break;
 			case GcnOpcode::V_CUBEMA_F32:
-				resultId = m_module.opFMul(typeId,
+			{
+				uint32_t value = m_module.opFMul(typeId,
 										   m_module.constf32(2.0),
 										   z);
+				m_module.opStore(resultVar, value);
+			}
                 break;
 		}
 		m_module.opBranch(endLabel);
@@ -476,29 +675,37 @@ namespace sce::gcn
 			{
 				uint32_t condition = m_module.opFOrdLessThan(boolTypeId,
 															 y, m_module.constf32(0.0));
-				resultId           = m_module.opSelect(typeId,
+				uint32_t value     = m_module.opSelect(typeId,
 													   condition,
 													   m_module.constf32(3.0),
 													   m_module.constf32(2.0));
+				m_module.opStore(resultVar, value);
 			}
 				break;
 			case GcnOpcode::V_CUBESC_F32:
-				resultId = x;
+			{
+				uint32_t value = x;
+				m_module.opStore(resultVar, value);
+			}
 				break;
 			case GcnOpcode::V_CUBETC_F32:
 			{
 				uint32_t condition = m_module.opFOrdLessThan(boolTypeId,
 															 y, m_module.constf32(0.0));
-				resultId           = m_module.opSelect(typeId,
+				uint32_t value     = m_module.opSelect(typeId,
 													   condition,
 													   m_module.opFNegate(typeId, z),
 													   z);
+				m_module.opStore(resultVar, value);
 			}
 				break;
 			case GcnOpcode::V_CUBEMA_F32:
-				resultId = m_module.opFMul(typeId,
+			{
+				uint32_t value = m_module.opFMul(typeId,
 										   m_module.constf32(2.0),
 										   y);
+				m_module.opStore(resultVar, value);
+			}
 				break;
 		}
 		m_module.opBranch(beforeEndLabel);
@@ -511,29 +718,37 @@ namespace sce::gcn
 			{
 				uint32_t condition = m_module.opFOrdLessThan(boolTypeId,
 															 x, m_module.constf32(0.0));
-				resultId           = m_module.opSelect(typeId,
+				uint32_t value     = m_module.opSelect(typeId,
 													   condition,
 													   m_module.constf32(1.0),
 													   m_module.constf32(0.0));
+				m_module.opStore(resultVar, value);
 			}
 				break;
 			case GcnOpcode::V_CUBESC_F32:
 			{
 				uint32_t condition = m_module.opFOrdLessThan(boolTypeId,
 															 x, m_module.constf32(0.0));
-				resultId           = m_module.opSelect(typeId,
+				uint32_t value     = m_module.opSelect(typeId,
 													   condition,
 													   z,
 													   m_module.opFNegate(typeId, z));
+				m_module.opStore(resultVar, value);
 			}
 				break;
 			case GcnOpcode::V_CUBETC_F32:
-				resultId = m_module.opFNegate(typeId, y);
+			{
+				uint32_t value = m_module.opFNegate(typeId, y);
+				m_module.opStore(resultVar, value);
+			}
 				break;
 			case GcnOpcode::V_CUBEMA_F32:
-				resultId = m_module.opFMul(typeId,
-										   m_module.constf32(2.0),
-										   x);
+			{
+				uint32_t value = m_module.opFMul(typeId,
+												 m_module.constf32(2.0),
+												 x);
+				m_module.opStore(resultVar, value);
+			}
 				break;
 		}
 		m_module.opBranch(beforeEndLabel);
@@ -545,7 +760,7 @@ namespace sce::gcn
 		// End label
 		m_module.opLabel(endLabel);
 
-		dst.low.id = resultId;
+		dst.low.id = m_module.opLoad(typeId, resultVar);
         emitRegisterStore(ins.dst[0], dst);
 	}
 

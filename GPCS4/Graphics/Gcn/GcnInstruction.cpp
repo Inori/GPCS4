@@ -1507,7 +1507,7 @@ namespace sce::gcn
 		  GcnScalarType::Float32, GcnScalarType::Uint32 },
 		// 303 = V_CVT_PKRTZ_F16_F32
 		{ GcnInstClass::VectorConv, GcnInstCategory::VectorALU, 2, 1,
-		  GcnScalarType::Float32, GcnScalarType::Float16 },
+		  GcnScalarType::Float32, GcnScalarType::Uint32 },
 		// 304 = V_CVT_PK_U16_U32
 		{ GcnInstClass::VectorConv, GcnInstCategory::VectorALU, 2, 1,
 		  GcnScalarType::Uint32, GcnScalarType::Uint32 },
@@ -3511,28 +3511,28 @@ namespace sce::gcn
 	const std::array<GcnInstFormat, 8> g_instructionFormatMTBUF = { {
 		// 0 = TBUFFER_LOAD_FORMAT_X
 		{ GcnInstClass::VectorMemBufFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Float32, GcnScalarType::Float32 },
 		// 1 = TBUFFER_LOAD_FORMAT_XY
 		{ GcnInstClass::VectorMemBufFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Float32, GcnScalarType::Float32 },
 		// 2 = TBUFFER_LOAD_FORMAT_XYZ
 		{ GcnInstClass::VectorMemBufFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Float32, GcnScalarType::Float32 },
 		// 3 = TBUFFER_LOAD_FORMAT_XYZW
 		{ GcnInstClass::VectorMemBufFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Float32, GcnScalarType::Float32 },
 		// 4 = TBUFFER_STORE_FORMAT_X
 		{ GcnInstClass::VectorMemBufFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Float32, GcnScalarType::Float32 },
 		// 5 = TBUFFER_STORE_FORMAT_XY
 		{ GcnInstClass::VectorMemBufFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Float32, GcnScalarType::Float32 },
 		// 6 = TBUFFER_STORE_FORMAT_XYZ
 		{ GcnInstClass::VectorMemBufFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Float32, GcnScalarType::Float32 },
 		// 7 = TBUFFER_STORE_FORMAT_XYZW
 		{ GcnInstClass::VectorMemBufFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Float32, GcnScalarType::Float32 },
 	} };
 
 	const std::array<GcnInstFormat, 112> g_instructionFormatMIMG = { {
