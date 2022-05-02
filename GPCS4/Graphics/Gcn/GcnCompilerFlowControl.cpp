@@ -72,10 +72,20 @@ namespace sce::gcn
 		switch (op)
 		{
 			case GcnOpcode::S_SWAPPC_B64:
-			case GcnOpcode::S_ENDPGM:
 				// Nothing to do.
 				break;
+			case GcnOpcode::S_ENDPGM:
+			{
+				if (m_insideBlock)
+				{
+					m_module.opReturn();
+					m_insideBlock = false;
+				}
+			}
+				break;
 			case GcnOpcode::S_CBRANCH_EXECZ:
+			case GcnOpcode::S_CBRANCH_SCC0:
+			case GcnOpcode::S_CBRANCH_SCC1:
 				emitScalarBranch(ins);
 				break;
 			default:
@@ -103,6 +113,8 @@ namespace sce::gcn
 			block.lableId = m_module.allocateId();
 		}
 
+		const uint32_t boolTypeId = m_module.defBoolType();
+
 		uint32_t condition = 0;
 
 		auto op = ins.opcode;
@@ -110,6 +122,13 @@ namespace sce::gcn
 		{
 			case GcnOpcode::S_CBRANCH_EXECZ:
 				condition = m_state.exec.zflag();
+				break;
+			case GcnOpcode::S_CBRANCH_SCC0:
+				condition = m_module.opLogicalNot(boolTypeId,
+												  m_module.opLoad(boolTypeId, m_state.scc.id));
+				break;
+			case GcnOpcode::S_CBRANCH_SCC1:
+				condition = m_module.opLoad(boolTypeId, m_state.scc.id);
 				break;
 			default:
 				LOG_GCN_UNHANDLED_INST();
@@ -132,6 +151,25 @@ namespace sce::gcn
 
 			m_insideBlock = true;
 		}
+	}
+
+	void GcnCompiler::emitUpdateScc(
+		GcnRegisterValuePair& dst, GcnScalarType dstType)
+	{
+		// TODO:
+		// Currently we only support zero test,
+		// we need to support carry-out and borrow-in eventually.
+
+		auto result = emitRegisterZeroTest(dst.low, GcnZeroTest::TestNz);
+		
+		if (isDoubleType(dstType))
+		{
+			auto resultHigh = emitRegisterZeroTest(dst.high, GcnZeroTest::TestNz);
+			result.id       = m_module.opLogicalAnd(m_module.defBoolType(),
+													result.id, resultHigh.id);
+		}
+
+		emitValueStore(m_state.scc, result, GcnRegMask::select(0));
 	}
 
 	void GcnCompiler::emitScalarSync(const GcnShaderInstruction& ins)

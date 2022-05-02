@@ -366,12 +366,33 @@ namespace sce::gcn
 
 		///////////////////////////////
 		// Resource load/store methods
+
+		std::vector<GcnRegisterPointer>
+		emitGetUniformBufferPtr(
+			uint32_t bufferId,
+			uint32_t baseId,
+			uint32_t count);
+
+		std::vector<GcnRegisterPointer>
+		emitGetStorageBufferPtr(
+			uint32_t bufferId,
+			uint32_t baseId,
+			uint32_t count);
+
 		void emitConstantBufferLoad(
 			const GcnRegIndex&    index,
 			const GcnInstOperand& dst,
 			uint32_t              count);
 
-		void emitBufferLoadStore(
+		std::vector<GcnRegisterPointer>
+		emitGetResourceBufferPtr(
+			const GcnShaderInstruction& ins);
+
+		void emitBufferLoadStoreNoFmt(
+			const GcnShaderInstruction& ins,
+			bool                        isLoad);
+
+		void emitBufferLoadStoreFmt(
 			const GcnShaderInstruction& ins,
 			bool                        isLoad);
 
@@ -411,10 +432,15 @@ namespace sce::gcn
 			double             zw,
 			const GcnRegMask& writeMask);
 
+		GcnRegisterValue emitBuildConstValue(
+			size_t        value,
+			GcnScalarType type);
+
 		GcnRegisterValuePair emitBuildLiteralConst(
 			const GcnInstOperand& reg);
 		GcnRegisterValuePair emitBuildInlineConst(
 			const GcnInstOperand& reg);
+
 		/////////////////////////////////////////
 		// Generic register manipulation methods
 		GcnRegisterValue emitRegisterBitcast(
@@ -480,6 +506,10 @@ namespace sce::gcn
 		// Control flow methods
 		void emitBranchLabel();
 
+		void emitUpdateScc(
+			GcnRegisterValuePair& dst,
+			GcnScalarType         dstType);
+
 		///////////////////////////
 		// Type definition methods
 		uint32_t getScalarTypeId(
@@ -503,6 +533,9 @@ namespace sce::gcn
 			GcnScalarType type) const;
 
 		bool isFloatType(
+			GcnScalarType type) const;
+
+		GcnScalarType getHalfType(
 			GcnScalarType type) const;
 
 		uint32_t getUserSgprCount() const;
@@ -535,8 +568,9 @@ namespace sce::gcn
 		uint32_t getTexCoordDim(
 			const GcnImageInfo& imageType) const;
 
-		uint32_t getBufferDataSize(
-			Gnm::BufferFormat dfmt);
+		GcnBufferFormat getBufferFormat(
+			Gnm::BufferFormat      dfmt,
+			Gnm::BufferChannelType nfmt);
 
 	private:
 		GcnProgramInfo         m_programInfo;

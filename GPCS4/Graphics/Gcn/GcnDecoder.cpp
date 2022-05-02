@@ -676,6 +676,7 @@ namespace sce::gcn
 		{
 			uint32_t code              = m_instruction.control.smrd.offset;
 			m_instruction.src[1].field = getOperandField(code);
+			m_instruction.src[1].type  = GcnScalarType::Uint32;
 			m_instruction.src[1].code  = code;
 		}
 	}

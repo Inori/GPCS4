@@ -485,7 +485,7 @@ namespace sce::gcn
 		else
 		{
 			arrayType = m_module.defRuntimeArrayTypeUnique(
-				getScalarTypeId(GcnScalarType::Float32));
+				getScalarTypeId(GcnScalarType::Uint32));
 			m_module.decorateArrayStride(arrayType, 4);
 		}
 
@@ -1816,10 +1816,9 @@ namespace sce::gcn
 		return result;
 	}
 
-	void GcnCompiler::emitConstantBufferLoad(
-		const GcnRegIndex&    index,
-		const GcnInstOperand& dst,
-		uint32_t              count)
+	std::vector<GcnRegisterPointer>
+	GcnCompiler::emitGetUniformBufferPtr(
+		uint32_t bufferId, uint32_t baseId, uint32_t count)
 	{
 		GcnRegisterInfo info;
 		info.type.ctype   = GcnScalarType::Float32;
@@ -1827,20 +1826,20 @@ namespace sce::gcn
 		info.type.alength = 0;
 		info.sclass       = spv::StorageClassUniform;
 
-		uint32_t         regId  = index.regIdx;
-		GcnRegisterValue baseId = emitIndexLoad(index);
-
 		uint32_t uintTypeId = getScalarTypeId(GcnScalarType::Uint32);
-		uint32_t fpTypeId   = getScalarTypeId(GcnScalarType::Float32);
 		uint32_t ptrTypeId  = getPointerTypeId(info);
 
-		for (uint32_t i = 0; i != count ; ++i)
+		std::vector<GcnRegisterPointer> result;
+		result.reserve(count);
+		for (uint32_t i = 0; i != count; ++i)
 		{
+			// Uniform buffers are vec4 arrays
+			
 			// offset in bytes
 			uint32_t offsetId    = m_module.opIAdd(uintTypeId,
-												   baseId.id,
+												   baseId,
 												   m_module.constu32(i * 4));
-			uint32_t vec4Id      = m_module.opUDiv(uintTypeId,
+			uint32_t uint4Id     = m_module.opUDiv(uintTypeId,
 												   offsetId,
 												   m_module.constu32(16));
 			uint32_t componentId = m_module.opUDiv(uintTypeId,
@@ -1849,18 +1848,82 @@ namespace sce::gcn
 																   m_module.constu32(16)),
 												   m_module.constu32(4));
 
-			const std::array<uint32_t, 3> indices = { { m_module.consti32(0), vec4Id, componentId } };
-			 
-			uint32_t componentPtr = m_module.opAccessChain(ptrTypeId,
-														   m_buffers.at(regId).varId,
-														   indices.size(), indices.data());
-			uint32_t itemId       = m_module.opLoad(fpTypeId,
-													componentPtr);
+			const std::array<uint32_t, 3> indices = { { m_module.consti32(0), uint4Id, componentId } };
 
+			uint32_t componentPtr = m_module.opAccessChain(ptrTypeId,
+														   bufferId,
+														   indices.size(), indices.data());
+			GcnRegisterPointer ptr;
+			ptr.type.ctype  = info.type.ctype;
+			ptr.type.ccount = 1;
+			ptr.id          = componentPtr;
+			result.push_back(ptr);
+		}
+		return result;
+	}
+
+	std::vector<GcnRegisterPointer>
+	GcnCompiler::emitGetStorageBufferPtr(
+		uint32_t bufferId, uint32_t baseId, uint32_t count)
+	{
+		GcnRegisterInfo info;
+		info.type.ctype   = GcnScalarType::Uint32;
+		info.type.ccount  = 1;
+		info.type.alength = 0;
+		info.sclass       = spv::StorageClassUniform;
+
+		uint32_t uintTypeId = getScalarTypeId(GcnScalarType::Uint32);
+		uint32_t ptrTypeId  = getPointerTypeId(info);
+
+		std::vector<GcnRegisterPointer> result;
+		result.reserve(count);
+		for (uint32_t i = 0; i != count; ++i)
+		{
+			// Storage buffers are uint arrays
+			uint32_t offsetId = m_module.opIAdd(uintTypeId,
+												baseId,
+												m_module.constu32(i * 4));
+
+			uint32_t uintIdx = m_module.opUDiv(uintTypeId,
+											   offsetId,
+											   m_module.constu32(4));
+
+			const std::array<uint32_t, 2> indices = { { m_module.constu32(0), uintIdx } };
+
+			uint32_t componentPtr = m_module.opAccessChain(ptrTypeId,
+														   bufferId,
+														   indices.size(), indices.data());
+
+			GcnRegisterPointer ptr;
+			ptr.type.ctype  = info.type.ctype;
+			ptr.type.ccount = 1;
+			ptr.id          = componentPtr;
+			result.push_back(ptr);
+		}
+		return result;
+	}
+
+	void GcnCompiler::emitConstantBufferLoad(
+		const GcnRegIndex&    index,
+		const GcnInstOperand& dst,
+		uint32_t              count)
+	{
+		uint32_t         regId  = index.regIdx;
+		GcnRegisterValue baseId = emitIndexLoad(index);
+
+		uint32_t fpTypeId = getScalarTypeId(GcnScalarType::Float32);
+
+		auto ptrList = emitGetUniformBufferPtr(m_buffers.at(regId).varId,
+											   baseId.id,
+											   count);
+
+		for (uint32_t i = 0; i != count ; ++i)
+		{
+			const auto&          ptr   = ptrList[i];
 			GcnRegisterValuePair value = {};
-			value.low.type.ctype       = GcnScalarType::Float32;
-			value.low.type.ccount      = 1;
-			value.low.id               = itemId;
+			value.low.type             = ptr.type;
+			value.low.id               = m_module.opLoad(fpTypeId,
+														 ptr.id);
 
 			GcnInstOperand reg = dst;
 			reg.code += i;
@@ -2099,6 +2162,34 @@ namespace sce::gcn
 		return result;
 	}
 
+	GcnRegisterValue GcnCompiler::emitBuildConstValue(
+		size_t value, GcnScalarType type)
+	{
+		GcnRegisterValue result;
+		result.type.ctype  = type;
+		result.type.ccount = 1;
+		switch (type)
+		{
+			case sce::gcn::GcnScalarType::Uint32:
+				result.id = m_module.constu32(static_cast<uint32_t>(value));
+				break;
+			case sce::gcn::GcnScalarType::Sint32:
+				result.id = m_module.consti32(static_cast<int32_t>(value));
+				break;
+			case sce::gcn::GcnScalarType::Float32:
+				result.id = m_module.constf32(static_cast<float>(value));
+				break;
+			case sce::gcn::GcnScalarType::Bool:
+				result.id = m_module.constBool(static_cast<bool>(value));
+				break;
+			default:
+				LOG_ASSERT(false, "type not supported");
+				break;
+		}
+		return result;
+	}
+
+
 	GcnRegisterValuePair GcnCompiler::emitBuildLiteralConst(
 		const GcnInstOperand& reg)
 	{
@@ -2125,23 +2216,38 @@ namespace sce::gcn
 
 	GcnRegisterValuePair GcnCompiler::emitBuildInlineConst(const GcnInstOperand& reg)
 	{
-		LOG_ASSERT(!isDoubleType(reg.type), "TODO: support 64 bis types.");
-
 		GcnRegisterValuePair result = {};
-		result.low.type.ctype       = reg.type;
+		result.low.type.ctype       = (reg.type == GcnScalarType::Uint64 ||
+									   reg.type == GcnScalarType::Sint64) ? getHalfType(reg.type) : reg.type;
 		result.low.type.ccount      = 1;
+		result.high.type            = result.low.type;
 		
+		bool doubleType = isDoubleType(reg.type);
 		auto field = reg.field;
 		switch (field)
 		{
 			case GcnOperandField::ConstZero:
-				result.low.id = m_module.consti32(0);
+			{
+				result.low.id         = m_module.consti32(0);
+				result.low.type.ctype = GcnScalarType::Sint32;
+				if (doubleType)
+				{
+					result.high.id         = m_module.consti32(0);
+					result.high.type.ctype = GcnScalarType::Sint32;
+				}
+			}
 				break;
 			case GcnOperandField::SignedConstIntPos:
 			{
 				constexpr int32_t InlineConstZero = 128;
 				int32_t           value           = reg.code - InlineConstZero;
 				result.low.id                     = m_module.consti32(value);
+				result.low.type.ctype             = GcnScalarType::Sint32;
+				if (doubleType)
+				{
+					result.high.id = m_module.consti32(0);
+					result.high.type.ctype = GcnScalarType::Sint32;
+				}
 			}
 				break;
 			case GcnOperandField::SignedConstIntNeg:
@@ -2149,31 +2255,37 @@ namespace sce::gcn
 				constexpr int32_t InlineConst64 = 192;
 				int32_t           value         = InlineConst64 - reg.code;
 				result.low.id                   = m_module.consti32(value);
+				result.low.type.ctype           = GcnScalarType::Sint32;
+				if (doubleType)
+				{
+					result.high.id = m_module.consti32(0);
+					result.high.type.ctype = GcnScalarType::Sint32;
+				}
 			}
 				break;
 			case GcnOperandField::ConstFloatPos_0_5:
-				result.low.id = m_module.constf32(0.5f);
+				result.low.id = doubleType ? m_module.constf64(0.5f) : m_module.constf32(0.5f);
 				break;
 			case GcnOperandField::ConstFloatNeg_0_5:
-				result.low.id = m_module.constf32(-0.5f);
+				result.low.id = doubleType ? m_module.constf64(-0.5f) : m_module.constf32(-0.5f);
 				break;
 			case GcnOperandField::ConstFloatPos_1_0:
-				result.low.id = m_module.constf32(1.0f);
+				result.low.id = doubleType ? m_module.constf64(1.0f) : m_module.constf32(1.0f);
 				break;
 			case GcnOperandField::ConstFloatNeg_1_0:
-				result.low.id = m_module.constf32(-1.0f);
+				result.low.id = doubleType ? m_module.constf64(-1.0f) : m_module.constf32(-1.0f);
 				break;
 			case GcnOperandField::ConstFloatPos_2_0:
-				result.low.id = m_module.constf32(2.0f);
+				result.low.id = doubleType ? m_module.constf64(2.0f) : m_module.constf32(2.0f);
 				break;
 			case GcnOperandField::ConstFloatNeg_2_0:
-				result.low.id = m_module.constf32(-2.0f);
+				result.low.id = doubleType ? m_module.constf64(-2.0f) : m_module.constf32(-2.0f);
 				break;
 			case GcnOperandField::ConstFloatPos_4_0:
-				result.low.id = m_module.constf32(4.0f);
+				result.low.id = doubleType ? m_module.constf64(4.0f) : m_module.constf32(4.0f);
 				break;
 			case GcnOperandField::ConstFloatNeg_4_0:
-				result.low.id = m_module.constf32(-4.0f);
+				result.low.id = doubleType ? m_module.constf64(-4.0f) : m_module.constf32(-4.0f);
 				break;
 		}
 
@@ -2654,6 +2766,21 @@ namespace sce::gcn
 			   type == GcnScalarType::Float64;
 	}
 
+	GcnScalarType GcnCompiler::getHalfType(GcnScalarType type) const
+	{
+		GcnScalarType result;
+		switch (type)
+		{
+			case GcnScalarType::Uint64:
+				result = GcnScalarType::Uint32;
+				break;
+			case GcnScalarType::Sint64:
+				result = GcnScalarType::Sint32;
+				break;
+		}
+		return result;
+	}
+
 	uint32_t GcnCompiler::getUserSgprCount() const
 	{
 		uint32_t count = 0;
@@ -2739,6 +2866,7 @@ namespace sce::gcn
 
 		GcnBufferInfo result = {};
 		result.varId         = buffer.varId;
+		result.isSsbo        = buffer.asSsbo;
 		result.buffer        = *meta;
 		result.image         = GcnImageInfo();
 
@@ -2845,46 +2973,6 @@ namespace sce::gcn
 		return getTexLayerDim(imageType) + imageType.array;
 	}
 
-	uint32_t GcnCompiler::getBufferDataSize(Gnm::BufferFormat dfmt)
-	{
-		uint32_t size = 0;
-		switch (dfmt)
-		{
-			case Gnm::kBufferFormatInvalid:
-				size = 0;
-				break;
-			case Gnm::kBufferFormat8:
-				size = 1;
-				break;
-			case Gnm::kBufferFormat16:
-			case Gnm::kBufferFormat8_8:
-				size = 2;
-				break;
-			case Gnm::kBufferFormat32:
-			case Gnm::kBufferFormat16_16:
-			case Gnm::kBufferFormat10_11_11:
-			case Gnm::kBufferFormat11_11_10:
-			case Gnm::kBufferFormat10_10_10_2:
-			case Gnm::kBufferFormat2_10_10_10:
-			case Gnm::kBufferFormat8_8_8_8:
-				size = 4;
-				break;
-			case Gnm::kBufferFormat32_32:
-			case Gnm::kBufferFormat16_16_16_16:
-				size = 8;
-				break;
-			case Gnm::kBufferFormat32_32_32:
-				size = 12;
-				break;
-			case Gnm::kBufferFormat32_32_32_32:
-				size = 16;
-				break;
-			default:
-				LOG_ASSERT(false, "error dfmt passed.");
-				break;
-		}
-		return size;
-	}
 
 
 

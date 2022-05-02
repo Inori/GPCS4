@@ -80,6 +80,7 @@ namespace sce::gcn
 
         const uint32_t typeId     = getVectorTypeId(dst.low.type);
 		uint32_t       uintTypeId = getScalarTypeId(GcnScalarType::Uint32);
+		uint32_t       sintTypeId = getScalarTypeId(GcnScalarType::Sint32);
 
         auto op = ins.opcode;
 		switch (op)
@@ -189,6 +190,7 @@ namespace sce::gcn
 											 src[0].low.id,
 											 src[1].low.id);
 				break;
+			case GcnOpcode::V_MAD_U32_U24:
 			case GcnOpcode::V_MAD_I32_I24:
 				dst.low.id = m_module.opIAdd(typeId,
 											 m_module.opIMul(typeId,
@@ -198,13 +200,14 @@ namespace sce::gcn
 				break;
 			case GcnOpcode::V_MUL_I32_I24:
 			{
-				
-				uint32_t src0 = m_module.opBitFieldUExtract(uintTypeId,
-															src[0].low.id,
+				uint32_t src0 = m_module.opBitcast(uintTypeId, src[0].low.id);
+				uint32_t src1 = m_module.opBitcast(uintTypeId, src[1].low.id);
+				src0          = m_module.opBitFieldUExtract(uintTypeId,
+															src0,
 															m_module.constu32(0),
 															m_module.constu32(24));
-				uint32_t src1 = m_module.opBitFieldUExtract(uintTypeId,
-															src[1].low.id,
+				src1          = m_module.opBitFieldUExtract(uintTypeId,
+															src1,
 															m_module.constu32(0),
 															m_module.constu32(24));
 				src0          = m_module.opBitcast(typeId, src0);
@@ -288,8 +291,9 @@ namespace sce::gcn
 				break;
 			case GcnOpcode::V_ASHR_I32:
 			{
+				uint32_t src1  = m_module.opBitcast(uintTypeId, src[1].low.id);
 				uint32_t shift = m_module.opBitFieldUExtract(uintTypeId,
-															 src[1].low.id,
+															 src1,
 															 m_module.constu32(0),
 															 m_module.constu32(5));
 				dst.low.id     = m_module.opShiftRightArithmetic(typeId,
@@ -299,8 +303,9 @@ namespace sce::gcn
 				break;
 			case GcnOpcode::V_ASHRREV_I32:
 			{
+				uint32_t src0  = m_module.opBitcast(uintTypeId, src[0].low.id);
 				uint32_t shift = m_module.opBitFieldUExtract(uintTypeId,
-															 src[0].low.id,
+															 src0,
 															 m_module.constu32(0),
 															 m_module.constu32(5));
 				dst.low.id     = m_module.opShiftRightArithmetic(typeId,
@@ -369,6 +374,11 @@ namespace sce::gcn
 		auto op = ins.opcode;
 		switch (op)
 		{
+			case GcnOpcode::V_CMP_EQ_I32:
+				condition = m_module.opIEqual(conditionType,
+											  src[0].low.id,
+											  src[1].low.id);
+				break;
 			case GcnOpcode::V_CMP_GT_I32:
 				condition = m_module.opSGreaterThan(conditionType,
 													src[0].low.id,
@@ -387,6 +397,11 @@ namespace sce::gcn
 															src[0].low.id,
 															src[1].low.id);
 			    break;
+			case GcnOpcode::V_CMP_EQ_F32:
+				condition = m_module.opFOrdEqual(conditionType,
+												 src[0].low.id,
+												 src[1].low.id);
+				break;
 			case GcnOpcode::V_CMP_NEQ_F32:
 				condition = m_module.opFOrdNotEqual(conditionType,
 													src[0].low.id,

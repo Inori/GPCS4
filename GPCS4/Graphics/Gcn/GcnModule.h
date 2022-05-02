@@ -53,7 +53,8 @@ namespace sce::gcn
 		 */
 		std::string name() const
 		{
-			return m_header.key().name();
+			return m_programInfo.name() +
+				   m_header.key().name();
 		}
 
 

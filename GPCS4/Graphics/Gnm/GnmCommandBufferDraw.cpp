@@ -919,7 +919,7 @@ namespace sce::Gnm
 			shader);
 
 #ifdef SHADER_DUMP_FILE
-		std::ofstream fout(shader->key().toString(), std::ios::binary);
+		std::ofstream fout(vsModule.name(), std::ios::binary);
 		shader->dump(fout);
 #endif
 
@@ -947,7 +947,7 @@ namespace sce::Gnm
 			shader);
 
 #ifdef SHADER_DUMP_FILE
-		std::ofstream fout(shader->key().toString(), std::ios::binary);
+		std::ofstream fout(psModule.name(), std::ios::binary);
 		shader->dump(fout);
 #endif
 	}
@@ -978,7 +978,7 @@ namespace sce::Gnm
 			VK_SHADER_STAGE_COMPUTE_BIT,
 			shader);
 #ifdef SHADER_DUMP_FILE
-		std::ofstream fout(shader->key().toString(), std::ios::binary);
+		std::ofstream fout(csModule.name(), std::ios::binary);
 		shader->dump(fout);
 #endif
 	}

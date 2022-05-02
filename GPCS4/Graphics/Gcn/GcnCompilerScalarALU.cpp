@@ -12,6 +12,8 @@ namespace sce::gcn
 			case GcnInstClass::ScalarArith:
 			case GcnInstClass::ScalarMov:
 			case GcnInstClass::ScalarBitLogic:
+			case GcnInstClass::ScalarBitManip:
+			case GcnInstClass::ScalarBitField:
 				this->emitScalarAluCommon(ins);
 				break;
 			case GcnInstClass::ScalarAbs:
@@ -22,12 +24,6 @@ namespace sce::gcn
 				break;
 			case GcnInstClass::ScalarSelect:
 				this->emitScalarSelect(ins);
-				break;
-			case GcnInstClass::ScalarBitManip:
-				this->emitScalarBitManip(ins);
-				break;
-			case GcnInstClass::ScalarBitField:
-				this->emitScalarBitField(ins);
 				break;
 			case GcnInstClass::ScalarConv:
 				this->emitScalarConv(ins);
@@ -55,34 +51,52 @@ namespace sce::gcn
 		dst.low.type.ccount      = 1;
 		dst.high.type            = dst.low.type;
 
-		const uint32_t typeId = getVectorTypeId(dst.low.type);
+		bool           ignoreScc = false;
+		const uint32_t typeId    = getVectorTypeId(dst.low.type);
 
 		auto op = ins.opcode;
 		switch (op)
 		{
 			// ScalarArith
 			case GcnOpcode::S_ADD_I32:
+			{
 				dst.low.id = m_module.opIAdd(typeId,
 											 src[0].low.id,
 											 src[1].low.id);
+				ignoreScc  = true;
+			}
 				break;
 			case GcnOpcode::S_MUL_I32:
+			{
 				dst.low.id = m_module.opIMul(typeId,
 											 src[0].low.id,
 											 src[1].low.id);
+				ignoreScc  = true;
+			}
 				break;
 			// ScalarMov
 			case GcnOpcode::S_MOV_B32:
+			{
 				dst.low.id = src[0].low.id;
+				ignoreScc  = true;
+			}
 				break;
 			case GcnOpcode::S_MOV_B64:
 			{
 				// Fix the type from Uint64 to Uint32 at the same time.
 				dst.low  = src[0].low;
 				dst.high = src[0].high;
+				ignoreScc = true;
 			}
 				break;
 			// ScalarBitLogic
+			case GcnOpcode::S_AND_B32:
+			{
+				dst.low.id = m_module.opBitwiseAnd(typeId,
+													src[0].low.id,
+													src[1].low.id);
+			}
+				break;
 			case GcnOpcode::S_OR_B64:
 			{
 				dst.low.id  = m_module.opBitwiseOr(typeId, src[0].low.id, src[1].low.id);
@@ -97,9 +111,69 @@ namespace sce::gcn
 											 m_module.opBitwiseOr(typeId, src[0].high.id, src[1].high.id));
 			}
 				break;
+			case GcnOpcode::S_ANDN2_B64:
+			{
+				dst.low.id  = m_module.opBitwiseAnd(typeId,
+													src[0].low.id,
+													m_module.opNot(typeId, src[1].low.id));
+				dst.high.id = m_module.opBitwiseAnd(typeId,
+													src[0].high.id,
+													m_module.opNot(typeId, src[1].high.id));
+			}
+				break;
+			// ScalarBitManip
+			case GcnOpcode::S_LSHL_B32:
+			{
+				uint32_t shift = m_module.opBitFieldUExtract(typeId,
+															 src[1].low.id,
+															 m_module.constu32(0),
+															 m_module.constu32(5));
+				dst.low.id     = m_module.opShiftLeftLogical(typeId,
+															 src[0].low.id,
+															 shift);
+			}
+				break;
+			case GcnOpcode::S_LSHR_B32:
+			{
+				uint32_t shift = m_module.opBitFieldUExtract(typeId,
+																src[1].low.id,
+																m_module.constu32(0),
+																m_module.constu32(5));
+				dst.low.id     = m_module.opShiftRightLogical(typeId,
+															  src[0].low.id,
+															  shift);
+			}
+				break;
+			// ScalarBitField
+			case GcnOpcode::S_BFE_U32:
+			{
+				uint32_t offset = m_module.opBitFieldUExtract(typeId,
+															  src[1].low.id,
+															  m_module.constu32(0),
+															  m_module.constu32(5));
+				uint32_t width  = m_module.opBitFieldUExtract(typeId,
+															  src[1].low.id,
+															  m_module.constu32(16),
+															  m_module.constu32(7));
+				uint32_t field  = m_module.opShiftRightLogical(typeId,
+															   src[0].low.id,
+															   offset);
+				uint32_t mask   = m_module.opISub(typeId,
+												  m_module.opShiftLeftLogical(typeId,
+																			  m_module.constu32(1),
+																			  width),
+												  m_module.constu32(1));
+				dst.low.id      = m_module.opBitwiseAnd(typeId, field, mask);
+			}
+				break;
 			default:
 				LOG_GCN_UNHANDLED_INST();
 				break;
+		}
+
+		if (!ignoreScc)
+		{
+			emitUpdateScc(dst, ins.dst[0].type);
 		}
 
 		emitRegisterStore(ins.dst[0], dst);
@@ -122,12 +196,84 @@ namespace sce::gcn
 
 	void GcnCompiler::emitScalarCmp(const GcnShaderInstruction& ins)
 	{
-		LOG_GCN_UNHANDLED_INST();
+		std::array<GcnRegisterValuePair, 2> src;
+
+		if (ins.encoding == GcnInstEncoding::SOPC || ins.encoding == GcnInstEncoding::SOP2)
+		{
+			src[0] = emitRegisterLoad(ins.src[0]);
+			src[1] = emitRegisterLoad(ins.src[1]);
+		}
+		else
+		{
+			// Deal with SOPK
+			src[0]     = emitRegisterLoad(ins.dst[0]);
+			src[1].low = emitBuildConstValue(ins.control.sopk.simm, ins.dst[0].type);
+		}
+
+		const uint32_t typeId = m_module.defBoolType();
+
+		GcnRegisterValuePair dst = {};
+		dst.low.type.ctype       = ins.dst[0].type == GcnScalarType::Uint64 ? GcnScalarType::Uint32 : ins.dst[0].type;
+		dst.low.type.ccount      = 1;
+		dst.high.type            = dst.low.type;
+
+		uint32_t condition = 0;
+
+		auto op = ins.opcode;
+		switch (op)
+		{
+			case GcnOpcode::S_CMP_EQ_I32:
+				condition = m_module.opIEqual(typeId,
+											  src[0].low.id,
+											  src[1].low.id);
+				break;
+			default:
+				LOG_GCN_UNHANDLED_INST();
+				break;
+		}
+
+		// Update SCC
+		m_module.opStore(m_state.scc.id, condition);
+
+		// SOP2 encoding requires us to save dst
+		if (ins.encoding == GcnInstEncoding::SOP2)
+		{
+			emitRegisterStore(ins.dst[0], dst);
+		}
 	}
 
 	void GcnCompiler::emitScalarSelect(const GcnShaderInstruction& ins)
 	{
-		LOG_GCN_UNHANDLED_INST();
+		const std::array<GcnRegisterValuePair, 2> src = {
+			emitRegisterLoad(ins.src[0]),
+			emitRegisterLoad(ins.src[1]),
+		};
+
+		GcnRegisterValuePair dst = {};
+		dst.low.type.ctype       = ins.dst[0].type == GcnScalarType::Uint64 ? GcnScalarType::Uint32 : ins.dst[0].type;
+		dst.low.type.ccount      = 1;
+		dst.high.type            = dst.low.type;
+
+		const uint32_t typeId = getVectorTypeId(dst.low.type);
+
+		uint32_t condition = m_module.opLoad(m_module.defBoolType(),
+											 m_state.scc.id);
+
+		auto op = ins.opcode;
+		switch (op)
+		{
+			case GcnOpcode::S_CSELECT_B32:
+				dst.low.id = m_module.opSelect(typeId,
+											   condition,
+											   src[0].low.id,
+											   src[1].low.id);
+				break;
+			default:
+				LOG_GCN_UNHANDLED_INST();
+				break;
+		}
+
+		emitRegisterStore(ins.dst[0], dst);
 	}
 
 	void GcnCompiler::emitScalarBitLogic(const GcnShaderInstruction& ins)

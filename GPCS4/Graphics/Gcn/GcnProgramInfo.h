@@ -53,6 +53,12 @@ namespace sce::gcn
 		}
 
 		/**
+		 * \brief Shader stage name
+		 * \returns Shader stage name
+		 */
+		std::string name() const;
+
+		/**
          * \brief Vulkan shader stage
          * 
          * The \c VkShaderStageFlagBits constant

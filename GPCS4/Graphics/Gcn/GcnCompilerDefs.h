@@ -188,6 +188,7 @@ namespace sce::gcn
 	struct GcnBufferInfo
 	{
 		uint32_t      varId;
+		uint32_t      isSsbo;
 		GcnBufferMeta buffer;
 		GcnImageInfo  image;
 	};
@@ -237,6 +238,19 @@ namespace sce::gcn
 	{
 		uint32_t lableId  = 0;
 		size_t   labelPtr = 0;
+	};
+
+
+	/**
+	 * \brief V# format
+	 * 
+	 * Used in format buffer load/store
+	 */
+	struct GcnBufferFormat
+	{
+		uint32_t      sizeInBytes;
+		uint32_t      channelCount;
+		GcnScalarType channelType;
 	};
 	
 

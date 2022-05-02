@@ -46,6 +46,25 @@ namespace sce::gcn
 		LOG_ERR("DxbcProgramInfo::executionModel: Unsupported program type");
 	}
 
+	std::string GcnProgramInfo::name() const
+	{
+		switch (m_type)
+		{
+			case GcnProgramType::PixelShader:
+				return "PS";
+			case GcnProgramType::VertexShader:
+				return "VS";
+			case GcnProgramType::GeometryShader:
+				return "GS";
+			case GcnProgramType::HullShader:
+				return "HS";
+			case GcnProgramType::DomainShader:
+				return "DS";
+			case GcnProgramType::ComputeShader:
+				return "CS";
+		}
+	}
+
 	GcnProgramType gcnProgramTypeFromVkStage(VkPipelineStageFlags stage)
 	{
 		GcnProgramType type = GcnProgramType::VertexShader;

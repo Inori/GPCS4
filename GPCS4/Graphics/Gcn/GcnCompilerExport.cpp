@@ -13,7 +13,7 @@ namespace sce::gcn
 	{
 		auto exp = gcnInstructionAs<GcnShaderInstEXP>(ins);
 
-		std::array<uint32_t, 4> src;
+		std::array<uint32_t, 4> src = {};
 
 		// EN:
 		// COMPR==1: export half-dword enable. Valid values are: 0x0,3,c,f
@@ -24,6 +24,13 @@ namespace sce::gcn
 		// only valid mask to NULL target).
 		auto     mask           = GcnRegMask(exp.control.en);
 		uint32_t componentCount = mask.popCount();
+
+		if (mask.popCount() == 0)
+		{
+			m_module.opKill();
+			m_insideBlock = false;
+			return;
+		}
 		
 		if (exp.control.compr)
 		{
