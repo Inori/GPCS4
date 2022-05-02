@@ -80,7 +80,8 @@ namespace sce::gcn
 
 	
 	std::vector<GcnRegisterPointer>
-		GcnCompiler::emitGetResourceBufferPtr(const GcnShaderInstruction& ins)
+	GcnCompiler::emitGetBufferComponentPtr(const GcnShaderInstruction& ins,
+										   bool                        isFormat)
 	{
 		auto op = ins.opcode;
 
@@ -88,19 +89,19 @@ namespace sce::gcn
 
 		Gnm::BufferFormat      dfmt;
 		Gnm::BufferChannelType nfmt;
+		uint32_t               size = 0;
 
 		if (ins.encoding == GcnInstEncoding::MUBUF)
 		{
 			dfmt  = bufferInfo.buffer.dfmt;
 			nfmt  = bufferInfo.buffer.nfmt;
+			size  = ins.control.mubuf.size;
 		}
 		else
 		{
 			dfmt  = (Gnm::BufferFormat)ins.control.mtbuf.dfmt;
 			nfmt  = (Gnm::BufferChannelType)ins.control.mtbuf.nfmt;
 		}
-
-		auto bufferFormat = getBufferFormat(dfmt, nfmt);
 
 		GcnRegisterInfo info;
 		info.type.ctype   = GcnScalarType::Uint32;
@@ -111,7 +112,17 @@ namespace sce::gcn
 		uint32_t ptrTypeId     = getPointerTypeId(info);
 		uint32_t uintTypeId    = getScalarTypeId(GcnScalarType::Uint32);
 
-		uint32_t dataCount = bufferFormat.sizeInBytes < 4 ? 1 : bufferFormat.sizeInBytes / 4;
+		uint32_t dataCount = 0;
+		if (isFormat)
+		{
+			auto bufferFormat = getBufferFormat(dfmt, nfmt);
+			dataCount         = bufferFormat.sizeInBytes < 4 ? 1 : bufferFormat.sizeInBytes / 4;
+		}
+		else
+		{
+			LOG_ASSERT(size != 0, "error instruction size.");
+			dataCount = size > 4 ? size / 4 : 1;
+		}
 
 		LOG_ASSERT(nfmt == Gnm::kBufferChannelTypeFloat ||
 					   nfmt == Gnm::kBufferChannelTypeUInt ||
@@ -123,13 +134,13 @@ namespace sce::gcn
 		std::vector<GcnRegisterPointer> ptrList;
 		if (bufferInfo.isSsbo)
 		{
-			ptrList = emitGetStorageBufferPtr(bufferInfo.varId,
+			ptrList = emitStorageBufferAccess(bufferInfo.varId,
 											  address.id,
 											  dataCount);
 		}
 		else
 		{
-			ptrList = emitGetUniformBufferPtr(bufferInfo.varId,
+			ptrList = emitUniformBufferAccess(bufferInfo.varId,
 											  address.id,
 											  dataCount);
 		}
@@ -137,95 +148,81 @@ namespace sce::gcn
 	}
 
 	void GcnCompiler::emitBufferLoadStoreNoFmt(const GcnShaderInstruction& ins,
-										  bool                        isLoad)
+											   bool                        isLoad)
 	{
-		/*
-		auto op = ins.opcode;
+		auto     op         = ins.opcode;
+		auto     bufferInfo = getBufferType(ins.src[2]);
+		uint32_t size       = ins.control.mubuf.size;
 
-		auto bufferInfo = getBufferType(ins.src[2]);
+		bool isSigned = op == GcnOpcode::BUFFER_LOAD_SBYTE ||
+						op == GcnOpcode::BUFFER_LOAD_SSHORT;
 
-		uint32_t               count = 0;
-		uint32_t               size  = 0;
-		Gnm::BufferFormat      dfmt;
-		Gnm::BufferChannelType nfmt;
+		GcnScalarType dataType   = bufferInfo.isSsbo ? 
+			GcnScalarType::Uint32 : GcnScalarType::Float32;
+		uint32_t      dataTypeId = getScalarTypeId(dataType);
+		
+		auto ptrList = emitGetBufferComponentPtr(ins, false);
 
-		if (ins.encoding == GcnInstEncoding::MUBUF)
+ 		uint32_t vgprCount = size > 4 ? size / 4 : 1;
+		for (uint32_t i = 0; i != vgprCount; ++i)
 		{
-			count = ins.control.mubuf.count;
-			size  = ins.control.mubuf.size;
-			dfmt  = bufferInfo.buffer.dfmt;
-			nfmt  = bufferInfo.buffer.nfmt;
+			const auto&    ptr = ptrList[i];
+			GcnInstOperand reg = ins.src[1];
+			reg.code += i;
+
+			if (isLoad)
+			{
+				uint32_t dataId = m_module.opLoad(dataTypeId,
+												  ptr.id);
+				GcnRegisterValue value;
+				value.type.ctype  = dataType;
+				value.type.ccount = 1;
+
+				if (size < 4)
+				{
+					uint32_t uintTypeId = getScalarTypeId(GcnScalarType::Uint32);
+					uint32_t sintTypeId = getScalarTypeId(GcnScalarType::Sint32);
+
+					uint32_t src = dataId;
+					if (isSigned)
+					{
+						src = m_module.opBitcast(sintTypeId, src);
+					}
+					else if (dataType == GcnScalarType::Float32)
+					{
+						src = m_module.opBitcast(uintTypeId, src);
+					}
+
+					value.id = isSigned ? m_module.opBitFieldSExtract(sintTypeId,
+																	  src,
+																	  m_module.constu32(0),
+																	  m_module.constu32(8 * size))
+										: m_module.opBitFieldUExtract(uintTypeId,
+														   src,
+														   m_module.constu32(0),
+														   m_module.constu32(8 * size));
+				}
+				else
+				{
+					value.id = dataId;
+				}
+				
+				emitVgprStore(reg, value);
+			}
+			else
+			{
+				auto value = emitVgprLoad(reg);
+				if (size < 4)
+				{
+					LOG_ASSERT(false, "support byte and ushort store.");
+				}
+				else
+				{
+					value = emitRegisterBitcast(value, dataType);
+				}
+				m_module.opStore(ptr.id, value.id);
+			}
 		}
-		else
-		{
-			count = ins.control.mtbuf.count;
-			size  = ins.control.mtbuf.size;
-			dfmt  = (Gnm::BufferFormat)ins.control.mtbuf.dfmt;
-			nfmt  = (Gnm::BufferChannelType)ins.control.mtbuf.nfmt;
-		}
-
-		bool isFormat = (op >= GcnOpcode::BUFFER_LOAD_FORMAT_X &&
-						 op <= GcnOpcode::BUFFER_STORE_FORMAT_XYZW) ||
-						(op >= GcnOpcode::TBUFFER_LOAD_FORMAT_X &&
-						 op <= GcnOpcode::TBUFFER_STORE_FORMAT_XYZW);
-
-		GcnRegisterInfo info;
-		info.type.ctype   = GcnScalarType::Float32;
-		info.type.ccount  = 1;
-		info.type.alength = 0;
-		info.sclass       = spv::StorageClassUniform;
-
-		uint32_t uintTypeId = getScalarTypeId(GcnScalarType::Uint32);
-		uint32_t fpTypeId   = getScalarTypeId(GcnScalarType::Float32);
-		uint32_t ptrTypeId  = getPointerTypeId(info);
-		*/
-		LOG_GCN_UNHANDLED_INST();
-		//// In bytes
-		//uint32_t formatDataSize = 
-		//uint32_t dataSize = isFormat ? getBufferFormat(dfmt, nfmt)
-		//							 : (size > 4 ? 4 : size);
-		//LOG_ASSERT(dataSize == 4, "TODO: support non 4 bytes types.");
-
-		//auto address = emitCalcBufferAddress(ins);
-		//for (uint32_t i = 0; i != count ; ++i)
-		//{
-		//	uint32_t addressId = address.id;
-		//	uint32_t offsetId  = m_module.opIAdd(uintTypeId,
-		//										 addressId,
-		//										 m_module.constu32(i * dataSize));
-		//	// Storage buffers are uint arrays
-		//	uint32_t uintIdx   = m_module.opUDiv(uintTypeId,
-		//										 offsetId,
-		//										 m_module.constu32(sizeof(uint32_t)));
-
-		//	const std::array<uint32_t, 2> indices = { { m_module.consti32(0), uintIdx } };
-
-		//	uint32_t componentPtr = m_module.opAccessChain(ptrTypeId,
-		//												   bufferInfo.varId,
-		//												   indices.size(), indices.data());
-
-		//	GcnInstOperand reg = ins.src[1];
-		//	reg.code += i;
-
-		//	// TODO:
-		//	// Support channel format conversion
-		//	if (isLoad)
-		//	{
-		//		uint32_t         itemId = m_module.opLoad(fpTypeId,
-		//												  componentPtr);
-		//		GcnRegisterValue value;
-		//		value.type.ctype   = GcnScalarType::Float32;
-		//		value.type.ccount  = 1;
-		//		value.id           = itemId;
-
-		//		emitVgprStore(reg, value);
-		//	}
-		//	else
-		//	{
-		//		auto value = emitVgprLoad(reg);
-		//		m_module.opStore(componentPtr, value.id);
-		//	}
-		//}
 
 	}
 
@@ -256,7 +253,7 @@ namespace sce::gcn
 			GcnScalarType::Uint32 : GcnScalarType::Float32;
 		uint32_t      dataTypeId = getScalarTypeId(dataType);
 	
-		auto     dataPtr   = emitGetResourceBufferPtr(ins);
+		auto     dataPtr   = emitGetBufferComponentPtr(ins, true);
 		uint32_t vgprCount = count;
 		for (uint32_t c = 0; c != bufferFormat.channelCount; ++c)
 		{
@@ -557,6 +554,24 @@ namespace sce::gcn
 			case GcnOpcode::TBUFFER_STORE_FORMAT_XYZ:
 			case GcnOpcode::TBUFFER_STORE_FORMAT_XYZW:
 				emitBufferLoadStoreFmt(ins, false);
+				break;
+			case GcnOpcode::BUFFER_LOAD_UBYTE:
+			case GcnOpcode::BUFFER_LOAD_SBYTE:
+			case GcnOpcode::BUFFER_LOAD_USHORT:
+			case GcnOpcode::BUFFER_LOAD_SSHORT:
+			case GcnOpcode::BUFFER_LOAD_DWORD:
+			case GcnOpcode::BUFFER_LOAD_DWORDX2:
+			case GcnOpcode::BUFFER_LOAD_DWORDX4:
+			case GcnOpcode::BUFFER_LOAD_DWORDX3:
+				emitBufferLoadStoreNoFmt(ins, true);
+				break;
+			case GcnOpcode::BUFFER_STORE_BYTE:
+			case GcnOpcode::BUFFER_STORE_SHORT:
+			case GcnOpcode::BUFFER_STORE_DWORD:
+			case GcnOpcode::BUFFER_STORE_DWORDX2:
+			case GcnOpcode::BUFFER_STORE_DWORDX4:
+			case GcnOpcode::BUFFER_STORE_DWORDX3:
+				emitBufferLoadStoreNoFmt(ins, false);
 				break;
 			default:
 				LOG_GCN_UNHANDLED_INST();

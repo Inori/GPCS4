@@ -945,6 +945,56 @@ namespace sce::gcn
 		m_instruction.dstCount     = 1;
 
 		m_instruction.control.ds = *reinterpret_cast<GcnInstControlDS*>(&hexInstruction);
+
+
+		auto instFormat = gcnInstructionFormat(GcnInstEncoding::DS, op);
+
+		m_instruction.control.ds.dual = (GcnOpcodeDS)op == GcnOpcodeDS::DS_WRITE2_B32 ||
+										(GcnOpcodeDS)op == GcnOpcodeDS::DS_WRXCHG2_RTN_B32 ||
+										(GcnOpcodeDS)op == GcnOpcodeDS::DS_READ2_B32 ||
+										(GcnOpcodeDS)op == GcnOpcodeDS::DS_WRITE2_B64 ||
+										(GcnOpcodeDS)op == GcnOpcodeDS::DS_WRXCHG2_RTN_B64 ||
+										(GcnOpcodeDS)op == GcnOpcodeDS::DS_READ2_B64;
+
+		m_instruction.control.ds.sign = instFormat.srcType == GcnScalarType::Sint32;
+
+		m_instruction.control.ds.relative = op >= static_cast<uint32_t>(GcnOpcodeDS::DS_ADD_SRC2_U32) &&
+											op <= static_cast<uint32_t>(GcnOpcodeDS::DS_MAX_SRC2_F64);
+
+		m_instruction.control.ds.stride = (GcnOpcodeDS)op == GcnOpcodeDS::DS_WRITE2ST64_B32 ||
+										  (GcnOpcodeDS)op == GcnOpcodeDS::DS_WRXCHG2ST64_RTN_B32 ||
+										  (GcnOpcodeDS)op == GcnOpcodeDS::DS_READ2ST64_B32 ||
+										  (GcnOpcodeDS)op == GcnOpcodeDS::DS_WRITE2ST64_B64 ||
+										  (GcnOpcodeDS)op == GcnOpcodeDS::DS_WRXCHG2ST64_RTN_B64 ||
+										  (GcnOpcodeDS)op == GcnOpcodeDS::DS_READ2ST64_B64;
+
+		if ((GcnOpcodeDS)op == GcnOpcodeDS::DS_WRITE_B8 ||
+			(GcnOpcodeDS)op == GcnOpcodeDS::DS_READ_I8 ||
+			(GcnOpcodeDS)op == GcnOpcodeDS::DS_READ_U8)
+		{
+			m_instruction.control.ds.size = 1;
+		}
+		else if ((GcnOpcodeDS)op == GcnOpcodeDS::DS_WRITE_B16 ||
+				 (GcnOpcodeDS)op == GcnOpcodeDS::DS_READ_I16 ||
+				 (GcnOpcodeDS)op == GcnOpcodeDS::DS_READ_U16)
+		{
+			m_instruction.control.ds.size = 2;
+		}
+		else
+		{
+			if (instFormat.srcType == GcnScalarType::Sint32 || instFormat.srcType == GcnScalarType::Uint32)
+			{
+				m_instruction.control.ds.size = 4;
+			}
+			else if (instFormat.srcType == GcnScalarType::Sint64 || instFormat.srcType == GcnScalarType::Uint64)
+			{
+				m_instruction.control.ds.size = 8;
+			}
+			else
+			{
+				m_instruction.control.ds.size = 0;
+			}
+		}
 	}
 
 	void GcnDecodeContext::decodeInstructionEXP(uint64_t hexInstruction)

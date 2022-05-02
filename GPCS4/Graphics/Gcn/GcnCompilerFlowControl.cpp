@@ -180,6 +180,12 @@ namespace sce::gcn
 			case GcnOpcode::S_WAITCNT:
 				// Nothing to do.
 				break;
+			case GcnOpcode::S_BARRIER:
+				m_module.opControlBarrier(m_module.constu32(spv::ScopeWorkgroup),
+										  m_module.constu32(spv::ScopeWorkgroup),
+										  m_module.constu32(spv::MemorySemanticsWorkgroupMemoryMask |
+															spv::MemorySemanticsAcquireReleaseMask));
+				break;
 			default:
 				LOG_GCN_UNHANDLED_INST();
 				break;

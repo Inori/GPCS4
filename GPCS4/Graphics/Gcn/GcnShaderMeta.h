@@ -130,6 +130,8 @@ namespace sce::gcn
 		bool enableScratch;
 
 		uint32_t threadIdInGroupCount;
+
+		uint32_t ldsSize;
 	};
 
 	struct GcnMetaGS : public GcnMetaCommon

@@ -46,8 +46,7 @@ namespace sce::gcn
 		}
 
 		GcnRegisterValuePair dst = {};
-		dst.low.type.ctype       = ins.dst[0].type == GcnScalarType::Uint64 ?
-										GcnScalarType::Uint32 : ins.dst[0].type;
+		dst.low.type.ctype       = getDestinationType(ins.dst[0].type);
 		dst.low.type.ccount      = 1;
 		dst.high.type            = dst.low.type;
 
@@ -89,12 +88,22 @@ namespace sce::gcn
 				ignoreScc = true;
 			}
 				break;
+			case GcnOpcode::S_MOVK_I32:
+			{
+				dst.low.id = m_module.consti32(ins.control.sopk.simm);
+				ignoreScc  = true;
+			}
+				break;
 			// ScalarBitLogic
 			case GcnOpcode::S_AND_B32:
-			{
 				dst.low.id = m_module.opBitwiseAnd(typeId,
 													src[0].low.id,
 													src[1].low.id);
+				break;
+			case GcnOpcode::S_AND_B64:
+			{
+				dst.low.id  = m_module.opBitwiseAnd(typeId, src[0].low.id, src[1].low.id);
+				dst.high.id = m_module.opBitwiseAnd(typeId, src[0].high.id, src[1].high.id);
 			}
 				break;
 			case GcnOpcode::S_OR_B64:
@@ -250,7 +259,7 @@ namespace sce::gcn
 		};
 
 		GcnRegisterValuePair dst = {};
-		dst.low.type.ctype       = ins.dst[0].type == GcnScalarType::Uint64 ? GcnScalarType::Uint32 : ins.dst[0].type;
+		dst.low.type.ctype       = getDestinationType(ins.dst[0].type);
 		dst.low.type.ccount      = 1;
 		dst.high.type            = dst.low.type;
 

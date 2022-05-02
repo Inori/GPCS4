@@ -146,7 +146,12 @@ namespace sce::gcn
 		uint64_t offset1 : 8;
 		uint64_t : 1;
 		uint64_t gds : 1;
-		uint64_t : 46;
+		uint64_t dual : 1;
+		uint64_t sign : 1;
+		uint64_t relative : 1;
+		uint64_t stride : 1;
+		uint64_t size : 4;
+		uint64_t : 38;
 	};
 
 	struct GcnInstControlVINTRP

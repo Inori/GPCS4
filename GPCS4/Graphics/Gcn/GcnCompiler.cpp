@@ -312,6 +312,8 @@ namespace sce::gcn
 	{
 		// Declare local size
 		this->emitDclThreadGroup();
+		// Declare LDS
+		this->emitDclThreadGroupSharedMemory(m_meta.cs.ldsSize);
 
 		// Main function of the compute shader
 		m_cs.functionId = m_module.allocateId();
@@ -803,6 +805,27 @@ namespace sce::gcn
 							  m_cs.workgroupSizeX,
 							  m_cs.workgroupSizeY,
 							  m_cs.workgroupSizeZ);
+	}
+
+	void GcnCompiler::emitDclThreadGroupSharedMemory(uint32_t size)
+	{
+		do 
+		{
+			if (size == 0)
+			{
+				break;
+			}
+
+			GcnRegisterInfo varInfo;
+			varInfo.type.ctype   = GcnScalarType::Uint32;
+			varInfo.type.ccount  = 1;
+			varInfo.type.alength = size / sizeof(uint32_t);
+			varInfo.sclass       = spv::StorageClassWorkgroup;
+
+			m_lds = emitNewVariable(varInfo);
+
+			m_module.setDebugName(m_lds, "lds");
+		} while (false);
 	}
 
 	void GcnCompiler::emitDclOutput(uint32_t        regIdx,
@@ -1817,7 +1840,7 @@ namespace sce::gcn
 	}
 
 	std::vector<GcnRegisterPointer>
-	GcnCompiler::emitGetUniformBufferPtr(
+	GcnCompiler::emitUniformBufferAccess(
 		uint32_t bufferId, uint32_t baseId, uint32_t count)
 	{
 		GcnRegisterInfo info;
@@ -1863,7 +1886,7 @@ namespace sce::gcn
 	}
 
 	std::vector<GcnRegisterPointer>
-	GcnCompiler::emitGetStorageBufferPtr(
+	GcnCompiler::emitStorageBufferAccess(
 		uint32_t bufferId, uint32_t baseId, uint32_t count)
 	{
 		GcnRegisterInfo info;
@@ -1913,7 +1936,7 @@ namespace sce::gcn
 
 		uint32_t fpTypeId = getScalarTypeId(GcnScalarType::Float32);
 
-		auto ptrList = emitGetUniformBufferPtr(m_buffers.at(regId).varId,
+		auto ptrList = emitUniformBufferAccess(m_buffers.at(regId).varId,
 											   baseId.id,
 											   count);
 
@@ -2203,6 +2226,9 @@ namespace sce::gcn
 		{
 			case GcnScalarType::Uint32:
 				result.low.id = m_module.constu32(reg.literalConst);
+				break;
+			case GcnScalarType::Sint32:
+				result.low.id = m_module.consti32(reg.literalConst);
 				break;
 			case GcnScalarType::Float32:
 				result.low.id = m_module.constf32(*reinterpret_cast<const float*>(&reg.literalConst));
@@ -2779,6 +2805,19 @@ namespace sce::gcn
 				break;
 		}
 		return result;
+	}
+
+	GcnScalarType GcnCompiler::getDestinationType(GcnScalarType type) const
+	{
+		GcnScalarType dstType = type;
+
+		if (type == GcnScalarType::Uint64 || 
+			type == GcnScalarType::Sint64)
+		{
+			dstType = getHalfType(type);
+		}
+
+		return dstType;
 	}
 
 	uint32_t GcnCompiler::getUserSgprCount() const

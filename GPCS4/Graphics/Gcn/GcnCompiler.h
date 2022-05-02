@@ -131,6 +131,8 @@ namespace sce::gcn
 		void emitVectorMemImgSmp(const GcnShaderInstruction& ins);
 		void emitVectorMemImgUt(const GcnShaderInstruction& ins);
 		void emitVectorMemL1Cache(const GcnShaderInstruction& ins);
+		void emitDsRead(const GcnShaderInstruction& ins);
+		void emitDsWrite(const GcnShaderInstruction& ins);
 		void emitDsIdxRd(const GcnShaderInstruction& ins);
 		void emitDsIdxWr(const GcnShaderInstruction& ins);
 		void emitDsIdxWrXchg(const GcnShaderInstruction& ins);
@@ -240,6 +242,7 @@ namespace sce::gcn
 		void emitDclVertexInput();
 		void emitDclPsInput();
 		void emitDclThreadGroup();
+		void emitDclThreadGroupSharedMemory(uint32_t size);
 
 		///////////////////////////////
 		// Variable definition methods
@@ -368,16 +371,19 @@ namespace sce::gcn
 		// Resource load/store methods
 
 		std::vector<GcnRegisterPointer>
-		emitGetUniformBufferPtr(
+		emitUniformBufferAccess(
 			uint32_t bufferId,
 			uint32_t baseId,
 			uint32_t count);
 
 		std::vector<GcnRegisterPointer>
-		emitGetStorageBufferPtr(
+		emitStorageBufferAccess(
 			uint32_t bufferId,
 			uint32_t baseId,
 			uint32_t count);
+
+		std::array<GcnRegisterPointer, 4>
+		emitDsAccess(const GcnShaderInstruction& ins);
 
 		void emitConstantBufferLoad(
 			const GcnRegIndex&    index,
@@ -385,8 +391,9 @@ namespace sce::gcn
 			uint32_t              count);
 
 		std::vector<GcnRegisterPointer>
-		emitGetResourceBufferPtr(
-			const GcnShaderInstruction& ins);
+		emitGetBufferComponentPtr(
+			const GcnShaderInstruction& ins,
+			bool                        isFormat);
 
 		void emitBufferLoadStoreNoFmt(
 			const GcnShaderInstruction& ins,
@@ -538,6 +545,9 @@ namespace sce::gcn
 		GcnScalarType getHalfType(
 			GcnScalarType type) const;
 
+		GcnScalarType getDestinationType(
+			GcnScalarType type) const;
+
 		uint32_t getUserSgprCount() const;
 
 		bool hasFetchShader() const;
@@ -633,6 +643,10 @@ namespace sce::gcn
 		uint32_t m_perVertexOut = 0;
 
 		uint32_t m_primitiveIdIn = 0;
+
+		////////////////////////////////////////////////////
+		// LDS
+		uint32_t m_lds = 0;
 
 		///////////////////////////////////////////////////////
 		// Resource slot description for the shader.

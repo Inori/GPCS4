@@ -669,6 +669,9 @@ namespace sce::Gnm
 		ctx.meta.cs.enableTgidZ          = rsrc2->tgid_z_en;
 		ctx.meta.cs.enableTgSize         = rsrc2->tg_size_en;
 		ctx.meta.cs.threadIdInGroupCount = rsrc2->tidig_comp_cnt;
+		// LDS is allocated in 128 dword blocks on PS4
+		constexpr uint32_t LDSAlignShift = 9;
+		ctx.meta.cs.ldsSize              = rsrc2->lds_size << LDSAlignShift;
 	}
 
 	void GnmCommandBufferDraw::writeReleaseMemEventWithInterrupt(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy)

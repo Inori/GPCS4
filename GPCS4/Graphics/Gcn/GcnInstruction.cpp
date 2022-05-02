@@ -3306,28 +3306,28 @@ namespace sce::gcn
 		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 8 = BUFFER_LOAD_UBYTE
 		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 9 = BUFFER_LOAD_SBYTE
 		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 10 = BUFFER_LOAD_USHORT
 		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 11 = BUFFER_LOAD_SSHORT
 		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 12 = BUFFER_LOAD_DWORD
-		{ GcnInstClass::ScalarMemRd, GcnInstCategory::ScalarMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 13 = BUFFER_LOAD_DWORDX2
-		{ GcnInstClass::ScalarMemRd, GcnInstCategory::ScalarMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 14 = BUFFER_LOAD_DWORDX4
-		{ GcnInstClass::ScalarMemRd, GcnInstCategory::ScalarMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 15 = BUFFER_LOAD_DWORDX3
-		{ GcnInstClass::ScalarMemRd, GcnInstCategory::ScalarMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		{},
 		{},
 		{},
@@ -3338,24 +3338,24 @@ namespace sce::gcn
 		{},
 		// 24 = BUFFER_STORE_BYTE
 		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		{},
 		// 26 = BUFFER_STORE_SHORT
 		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		{},
 		// 28 = BUFFER_STORE_DWORD
 		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 29 = BUFFER_STORE_DWORDX2
 		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 30 = BUFFER_STORE_DWORDX4
 		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 31 = BUFFER_STORE_DWORDX3
 		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		{},
 		{},
 		{},

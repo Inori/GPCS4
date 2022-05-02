@@ -73,8 +73,7 @@ namespace sce::gcn
         }
 
 		GcnRegisterValuePair dst = {};
-		dst.low.type.ctype       = ins.dst[0].type == GcnScalarType::Uint64 ?
-										GcnScalarType::Uint32 : ins.dst[0].type;
+		dst.low.type.ctype       = getDestinationType(ins.dst[0].type);
 		dst.low.type.ccount      = 1;
 		dst.high.type            = dst.low.type;
 
@@ -108,15 +107,20 @@ namespace sce::gcn
 				auto packed = emitPackHalf2x16(pair);
 				dst.low     = packed;
 			}
-				break;
+			break;
 			// VectorFpArith32
+			case GcnOpcode::V_ADD_F32:
+				dst.low.id = m_module.opFAdd(typeId,
+											 src[0].low.id,
+											 src[1].low.id);
+				break;
 			case GcnOpcode::V_MAD_F32:
 				dst.low.id = m_module.opFAdd(typeId,
 											 m_module.opFMul(typeId,
 															 src[0].low.id,
 															 src[1].low.id),
 											 src[2].low.id);
-			    break;
+				break;
 			case GcnOpcode::V_MUL_F32:
 				dst.low.id = m_module.opFMul(typeId,
 											 src[0].low.id,
@@ -200,18 +204,14 @@ namespace sce::gcn
 				break;
 			case GcnOpcode::V_MUL_I32_I24:
 			{
-				uint32_t src0 = m_module.opBitcast(uintTypeId, src[0].low.id);
-				uint32_t src1 = m_module.opBitcast(uintTypeId, src[1].low.id);
-				src0          = m_module.opBitFieldUExtract(uintTypeId,
-															src0,
+				uint32_t src0 = m_module.opBitFieldSExtract(typeId,
+															src[0].low.id,
 															m_module.constu32(0),
 															m_module.constu32(24));
-				src1          = m_module.opBitFieldUExtract(uintTypeId,
-															src1,
+				uint32_t src1 = m_module.opBitFieldSExtract(typeId,
+															src[1].low.id,
 															m_module.constu32(0),
 															m_module.constu32(24));
-				src0          = m_module.opBitcast(typeId, src0);
-				src1          = m_module.opBitcast(typeId, src1);
 				dst.low.id    = m_module.opIMul(typeId, src0, src1);
 			}
 				break;
@@ -385,13 +385,13 @@ namespace sce::gcn
 													src[1].low.id);
 				break;
 			case GcnOpcode::V_CMPX_GT_U32:
-			{
-				condition  = m_module.opUGreaterThan(conditionType,
-													 src[0].low.id,
-													 src[1].low.id);
 				updateExec = true;
-			}
-                break;
+				[[fallthrough]];
+			case GcnOpcode::V_CMP_GT_U32:
+				condition = m_module.opUGreaterThan(conditionType,
+													src[0].low.id,
+													src[1].low.id);
+				break;
 			case GcnOpcode::V_CMP_GE_F32:
 				condition = m_module.opFOrdGreaterThanEqual(conditionType,
 															src[0].low.id,
@@ -407,10 +407,20 @@ namespace sce::gcn
 													src[0].low.id,
 													src[1].low.id);
 				break;
+			case GcnOpcode::V_CMP_LE_I32:
+				condition = m_module.opSLessThanEqual(conditionType,
+													  src[0].low.id,
+													  src[1].low.id);
+				break;
 			case GcnOpcode::V_CMP_LE_U32:
 				condition = m_module.opULessThanEqual(conditionType,
 													  src[0].low.id,
 													  src[1].low.id);
+				break;
+			case GcnOpcode::V_CMP_LT_U32:
+				condition = m_module.opULessThan(conditionType,
+												 src[0].low.id,
+												 src[1].low.id);
 				break;
 			case GcnOpcode::V_CMPX_NE_U32:
 				updateExec = true;
@@ -591,7 +601,7 @@ namespace sce::gcn
 		}
 
 		GcnRegisterValuePair dst = {};
-		dst.low.type.ctype       = ins.dst[0].type == GcnScalarType::Uint64 ? GcnScalarType::Uint32 : ins.dst[0].type;
+		dst.low.type.ctype       = getDestinationType(ins.dst[0].type);
 		dst.low.type.ccount      = 1;
 		dst.high.type            = dst.low.type;
 
