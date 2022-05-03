@@ -27,6 +27,7 @@ namespace sce::gcn
     result.append(m_memoryModel);
     result.append(m_entryPoints);
     result.append(m_execModeInfo);
+    result.append(m_debugStrings);
     result.append(m_debugNames);
     result.append(m_annotations);
     result.append(m_typeConstDefs);
@@ -48,11 +49,6 @@ namespace sce::gcn
     }
 
     return false;
-  }
-
-  void SpirvModule::enableDebugPrintf() {
-	enableExtension("SPV_KHR_non_semantic_info");
-	instImportNonSemantic();
   }
 
   void SpirvModule::enableCapability(
@@ -159,10 +155,10 @@ namespace sce::gcn
     const char*                   string) {
     uint32_t resultId = this->allocateId();
     
-    m_debugNames.putIns (spv::OpString,
-      2 + m_debugNames.strLen(string));
-    m_debugNames.putWord(resultId);
-    m_debugNames.putStr (string);
+    m_debugStrings.putIns(spv::OpString,
+						  2 + m_debugStrings.strLen(string));
+	m_debugStrings.putWord(resultId);
+	m_debugStrings.putStr(string);
     return resultId;
   }
   
@@ -3802,6 +3798,11 @@ namespace sce::gcn
     }
   }
 
+  void SpirvModule::enableDebugPrintf() {
+	enableExtension("SPV_KHR_non_semantic_info");
+	instImportNonSemantic();
+  }
+
   void SpirvModule::opDebugPrintf(
 	  const char*     format,
 	  uint32_t        argumentCount,
@@ -3810,9 +3811,13 @@ namespace sce::gcn
       if (m_instExtNonSemantic == 0) {
 		  enableDebugPrintf();
 	  }
-		  
-	  m_code.putIns(spv::OpExtInst, 5 + argumentCount);
-	  m_code.putWord(defVoidType());
+
+      uint32_t resultType = this->defVoidType();
+	  uint32_t resultId   = this->allocateId();
+
+	  m_code.putIns(spv::OpExtInst, 6 + argumentCount);
+	  m_code.putWord(resultType);
+	  m_code.putWord(resultId);
 	  m_code.putWord(m_instExtNonSemantic);
 	  m_code.putWord(spv::NonSemanticDebugPrintfDebugPrintf);
 

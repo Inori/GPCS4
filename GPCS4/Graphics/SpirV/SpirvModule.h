@@ -1271,6 +1271,7 @@ namespace sce::gcn
     SpirvCodeBuffer m_memoryModel;
     SpirvCodeBuffer m_entryPoints;
     SpirvCodeBuffer m_execModeInfo;
+	SpirvCodeBuffer m_debugStrings;
     SpirvCodeBuffer m_debugNames;
     SpirvCodeBuffer m_annotations;
     SpirvCodeBuffer m_typeConstDefs;

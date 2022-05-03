@@ -6,10 +6,8 @@
 
 #ifdef GPCS4_DEBUG
 
-// Dump shader to file
-#define GCN_DUMP_SHADER
+// Enable shader debug printf
+#define GCN_SHADER_DEBUG_PRINTF
 
-// Enable some debug features during shader compile
-#define GCN_COMPILER_DEBUG
 
 #endif

@@ -522,12 +522,16 @@ namespace sce::gcn
 		void emitDebugPrintf(
 			const std::string& format, Args... args)
 		{
+			// Format for specifier is "%"precision <d, i, o, u, x, X, a, A, e, E, f, F, g, G, or ul>
+			// Format for vector specifier is "%"precision"v" [2, 3, or 4] [specifiers list above]
+#ifdef GCN_SHADER_DEBUG_PRINTF
 			const int count = sizeof...(args);
 
 			std::array<uint32_t, count> arguments = { args... };
 			m_module.opDebugPrintf(format.c_str(),
 								   arguments.size(),
 								   arguments.data());
+#endif  // GCN_SHADER_DEBUG_PRINTF
 		}
 
 		///////////////////////////
