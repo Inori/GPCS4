@@ -5,13 +5,13 @@
 # =====================
 # <LayerIdentifier>.debug_action
 # Specifies what action is to be taken when a layer reports information
-khronos_validation.debug_action = VK_DBG_LAYER_ACTION_LOG_MSG
+khronos_validation.debug_action = 
 
 # Log Filename
 # =====================
 # <LayerIdentifier>.log_filename
 # Specifies the output filename
-khronos_validation.log_filename = stdout
+#khronos_validation.log_filename = stdout
 
 # Message Severity
 # =====================
@@ -68,24 +68,6 @@ khronos_validation.printf_verbose = false
 # <LayerIdentifier>.printf_buffer_size
 # Set the size in bytes of the buffer used by debug printf
 khronos_validation.printf_buffer_size = 1024
-
-# Check descriptor indexing accesses
-# =====================
-# <LayerIdentifier>.gpuav_descriptor_indexing
-# Enable descriptor indexing access checking
-#khronos_validation.gpuav_descriptor_indexing = true
-
-# Check Out of Bounds 
-# =====================
-# <LayerIdentifier>.gpuav_buffer_oob
-# Enable buffer out of bounds checking
-#khronos_validation.gpuav_buffer_oob = true
-
-# Check Draw Indirect Count Buffers and firstInstance values
-# =====================
-# <LayerIdentifier>.validate_draw_indirect
-# Enable draw indirect checking
-#khronos_validation.validate_draw_indirect = true
 
 # Fine Grained Locking
 # =====================

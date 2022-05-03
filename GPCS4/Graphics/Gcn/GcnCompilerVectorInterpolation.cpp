@@ -21,9 +21,12 @@ namespace sce::gcn
 				break;
 			case GcnOpcode::V_INTERP_P2_F32:
 			{
+				LOG_ASSERT(m_programInfo.type() == GcnProgramType::PixelShader, 
+					"TODO: support vinterp for non-pixel shaders.");
 				// Stores the auto-interpolated value to dst vgpr.
-				uint32_t regIdx = vinterp.control.attr;
-				auto     mask   = GcnRegMask::select(vinterp.control.chan);
+				uint32_t attrIdx = vinterp.control.attr;
+				uint32_t regIdx  = m_meta.ps.semanticMapping[attrIdx].m_outIndex;
+				auto     mask    = GcnRegMask::select(vinterp.control.chan);
 
 				auto& input   = m_inputs[regIdx];
 				auto  compPtr = emitVectorAccess(input,

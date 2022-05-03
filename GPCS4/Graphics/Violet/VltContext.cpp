@@ -1000,7 +1000,7 @@ namespace sce::vlt
 		vutil::packImageData(stagingHandle.mapPtr, data,
 							 elementCount, formatInfo->elementSize,
 							 pitchPerRow, pitchPerLayer);
-
+		//std::memcpy(stagingHandle.mapPtr, data, pitchPerLayer);
 		// Discard previous subresource contents
 		m_transAcquires.accessImage(image,
 									vutil::makeSubresourceRange(subresources),

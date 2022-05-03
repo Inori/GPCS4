@@ -68,7 +68,7 @@ namespace sce::gcn
 	struct VertexExportSemantic
 	{                      // __cplusplus
 		uint8_t m_semantic;      ///< Description to be specified.
-		uint8_t m_outIndex : 5;  ///< Description to be specified.
+		uint8_t m_outIndex : 5;  ///< Equal to exp instruction's paramN
 		uint8_t m_reserved : 1;
 		uint8_t m_exportF16 : 2;  ///< if (m_exportF16 == 0) this shader exports a 32-bit value to this parameter; if (m_exportF16 & 1) this shader exports a 16-bit float value to the low 16-bits of each channel; if (m_exportF16 & 2) this shader exports a 16-bit float value to the high 16-bits of each channel
 	};
@@ -95,6 +95,21 @@ namespace sce::gcn
 				uint16_t m_interpF16 : 2;       ///< if (m_interpF16 == 0) this is a 32-bit float or custom value; if (m_interpF16 & 1) the low 16-bits of this parameter expect 16-bit float interpolation and/or default value; if (m_interpF16 & 2) the high 16-bits of this parameter expect 16-bit float interpolation and/or default value
 			};
 		};
+	};
+
+	// Establish a semantic mapping between 
+	// VertexExportSemantic and PixelInputSemantic.
+	// Used to calculate pixel shader input location.
+	struct PixelSemanticMapping
+	{
+		uint32_t m_outIndex : 5;
+		uint32_t m_isCustom : 1;
+		uint32_t m_reserved0 : 2;
+		uint32_t m_defaultValue : 2;
+		uint32_t m_customOrFlat : 1;  // Equal to ( m_isCustom | m_isFlatShaded ) from PixelInputSemantic
+		uint32_t m_isLinear : 1;
+		uint32_t m_isCustomDup : 1;  // Same as m_isCustom
+		uint32_t m_reserved1 : 19;
 	};
 
 }  // namespace sce::gcn

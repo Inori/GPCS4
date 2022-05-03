@@ -246,6 +246,11 @@ namespace sce::vlt
 				break;
 			}
 
+			if (std::strstr(pCallbackData->pMessage, "UNASSIGNED-DEBUG-PRINTF"))
+			{
+				break;
+			}
+
 			std::cerr << pCallbackData->pMessage << std::endl;
 
 		} while (false);

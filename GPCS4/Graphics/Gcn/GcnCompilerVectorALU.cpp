@@ -589,10 +589,89 @@ namespace sce::gcn
 		}
     }
 
+	void GcnCompiler::emitCubeCalculate(const GcnShaderInstruction& ins)
+	{
+		// For sampling a cube map,
+		// image_sample instruction use (x, y, face_id) as the coordinate,
+		// where x is calculated from s coordinate, y is calculated from t coordinate,
+		// and where s, t are calculated from the original direction vector. 
+		// See ISA manual for calculation details.
+		// This is different from vulkan (spir-v) which uses a direction vector (x, y, z).
+		// 
+		// Here we don't care the calculation details,
+		// since both v_cubexxx and image_sample instructions are under our control,
+		// we simply stores the original coordinate to the target vgpr.
+		// and when translating image_sample instruction, we just use the values stored here.
+		// (with a little fix however).
+
+
+		std::array<GcnRegisterValuePair, GcnMaxOperandCount> src;
+		for (uint32_t i = 0; i != ins.srcCount; ++i)
+		{
+			src[i] = emitRegisterLoad(ins.src[i]);
+		}
+
+		GcnRegisterValuePair dst = {};
+		dst.low.type.ctype       = getDestinationType(ins.dst[0].type);
+		dst.low.type.ccount      = 1;
+		dst.high.type            = dst.low.type;
+
+		const uint32_t typeId     = getVectorTypeId(dst.low.type);
+		const uint32_t boolTypeId = m_module.defBoolType();
+		const uint32_t intTypeId  = getScalarTypeId(GcnScalarType::Sint32);
+		auto           op         = ins.opcode;
+
+		uint32_t x = src[0].low.id;
+		uint32_t y = src[1].low.id;
+		uint32_t z = src[2].low.id;
+
+		switch (op)
+		{
+			case GcnOpcode::V_CUBEID_F32:
+				// Stores z to face_id
+				dst.low.id = z;
+				break;
+			case GcnOpcode::V_CUBESC_F32:
+				// Stores x to s coordinate
+				dst.low.id = x;
+				break;
+			case GcnOpcode::V_CUBETC_F32:
+				// Stores y to t coordinate
+				dst.low.id = y;
+				break;
+			case GcnOpcode::V_CUBEMA_F32:
+				// This is used to calculate the largest magnitude coordinate 
+				// of the direction vector, and the result will then be 
+				// used to scale the s and t coordinate.
+				// We simply returns 1.0 to disable scale.
+				dst.low.id = m_module.constf32(1.0);
+				break;
+		}
+
+		emitRegisterStore(ins.dst[0], dst);
+	}
+
+/*
     void GcnCompiler::emitCubeCalculate(const GcnShaderInstruction& ins)
 	{
 		// TODO:
 		// Wrap cube calculate into a function
+
+		//		float calcCube(float x, float y, float z)
+		//		{
+		//			float absX = abs(x);
+		//			float absY = abs(y);
+		//			float absZ = abs(z);
+		//
+		//			float faceId = 0.0;
+		//			if (absZ >= absX && absZ >= absY)
+		//				faceId = z < 0.0 ? 5 : 4;
+		//			else if (absY >= absX)
+		//				faceId = y < 0.0 ? 3 : 2;
+		//			else
+		//				faceId = x < 0.0 ? 1 : 0;
+		//			return faceId;
+		//		}
 
 		std::array<GcnRegisterValuePair, GcnMaxOperandCount> src;
 		for (uint32_t i = 0; i != ins.srcCount; ++i)
@@ -788,6 +867,7 @@ namespace sce::gcn
 		dst.low.id = m_module.opLoad(typeId, resultVar);
         emitRegisterStore(ins.dst[0], dst);
 	}
+*/
 
     void GcnCompiler::emitVectorIntGraph(const GcnShaderInstruction& ins)
     {

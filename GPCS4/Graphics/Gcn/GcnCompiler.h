@@ -364,6 +364,9 @@ namespace sce::gcn
 			const GcnInstOperand& coordReg,
 			const GcnImageInfo&   imageInfo);
 
+		GcnRegisterValue emitRecoverCubeCoord(
+			const GcnRegisterValue& coord);
+
 		GcnRegisterValue emitCalcBufferAddress(
 			const GcnShaderInstruction& ins);
 
@@ -522,6 +525,10 @@ namespace sce::gcn
 		void emitDebugPrintf(
 			const std::string& format, Args... args)
 		{
+			// Copy vk_layer_settings.txt from Misc folder to your
+			// Current Working Directory or use vkconfig.exe from SDK
+			// to enable shader debug printf.
+			//
 			// Format for specifier is "%"precision <d, i, o, u, x, X, a, A, e, E, f, F, g, G, or ul>
 			// Format for vector specifier is "%"precision"v" [2, 3, or 4] [specifiers list above]
 #ifdef GCN_SHADER_DEBUG_PRINTF

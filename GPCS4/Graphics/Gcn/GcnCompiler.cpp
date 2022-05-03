@@ -790,7 +790,7 @@ namespace sce::gcn
 		uint32_t inputCount = m_meta.ps.inputSemanticCount;
 		for (uint32_t i = 0; i != inputCount ; ++i)
 		{
-			this->emitDclInput(i,
+			this->emitDclInput(m_meta.ps.semanticMapping[i].m_outIndex,
 							   GcnInterpolationMode::Undefined);
 		}
 	}
@@ -1979,6 +1979,34 @@ namespace sce::gcn
 		return emitCalcTexCoord(coordVector, imageInfo);
 	}
 
+	GcnRegisterValue GcnCompiler::emitRecoverCubeCoord(
+		const GcnRegisterValue& coord)
+	{
+		LOG_ASSERT(coord.type.ccount == 3, "cube coordinate must be vec3.");
+		auto s = emitRegisterExtract(coord, GcnRegMask::select(0));
+		auto t = emitRegisterExtract(coord, GcnRegMask::select(1));
+		auto z = emitRegisterExtract(coord, GcnRegMask::select(2));
+
+		const uint32_t typeId = getScalarTypeId(GcnScalarType::Float32);
+
+		// We need to fix x and y coordinate,
+		// because the s and t coordinate will be scaled and plus 1.5
+		// by v_madak_f32.
+		// We already force the scale value to be 1.0 when handling v_cubema_f32,
+		// here we subtract 1.5 to recover the original value. 
+		auto x = m_module.opFSub(typeId, s.id, m_module.constf32(1.5));
+		auto y = m_module.opFSub(typeId, t.id, m_module.constf32(1.5));
+
+		std::array<uint32_t, 3> direction = { x, y, z.id };
+
+		GcnRegisterValue result;
+		result.type = coord.type;
+		result.id   = m_module.opCompositeConstruct(getVectorTypeId(result.type),
+													direction.size(),
+													direction.data());
+		return result;
+	}
+
 	uint32_t GcnCompiler::emitLoadSampledImage(
 		const GcnTexture& textureResource,
 		const GcnSampler& samplerResource,
@@ -2012,7 +2040,11 @@ namespace sce::gcn
 		// Load the texture coordinates. SPIR-V allows these
 		// to be float4 even if not all components are used.
 		GcnRegisterValue coord = emitLoadTexCoord(texCoordReg, imageType);
-
+		if (imageType.dim == spv::DimCube)
+		{
+			coord = emitRecoverCubeCoord(coord);
+		}
+		
 		// Accumulate additional image operands. These are
 		// not part of the actual operand token in SPIR-V.
 		SpirvImageOperands imageOperands = {};
@@ -2859,7 +2891,7 @@ namespace sce::gcn
 		{
 			case GcnProgramType::VertexShader:
 			{
-				semanticTable = m_meta.vs.inputSemanticTable;
+				semanticTable = m_meta.vs.inputSemanticTable.data();
 				semanticCount = m_meta.vs.inputSemanticCount;
 			}
 			break;
@@ -3011,5 +3043,7 @@ namespace sce::gcn
 	{
 		return getTexLayerDim(imageType) + imageType.array;
 	}
+
+
 
 }  // namespace sce::gcn

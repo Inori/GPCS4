@@ -103,18 +103,14 @@ namespace sce::gcn
 
 	struct GcnMetaVS : public GcnMetaCommon
 	{
-		uint32_t            inputSemanticCount;
-		VertexInputSemantic inputSemanticTable[kMaxVertexBufferCount];
+		uint32_t                                               inputSemanticCount;
+		std::array<VertexInputSemantic, kMaxVertexBufferCount> inputSemanticTable;
 	};
 
 	struct GcnMetaPS : public GcnMetaCommon
 	{
-		// PS input semantic count
-		// This value can also be calculated by walking through
-		// the pixel shader vinterp instructions in analyzer.
-		// Does Gnm requires user to call setPsShaderUsage?
-		// If it doesn't, we need to take the walking shader way.
-		uint32_t inputSemanticCount;  
+		uint32_t                                                inputSemanticCount;
+		std::array<PixelSemanticMapping, kMaxPsInputUsageCount> semanticMapping;
 	};
 
 	struct GcnMetaCS : public GcnMetaCommon

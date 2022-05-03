@@ -97,8 +97,11 @@ namespace sce::Gnm
 		std::lock_guard<std::mutex> lock(m_mutex);
 
 		auto           formatInfo      = imageFormatInfo(image->info().format);
-		uint32_t       bytesPerElement = tsharp->getDataFormat().getBytesPerElement();
+		auto           textureFormat   = tsharp->getDataFormat();
+		uint32_t       bytesPerElement = textureFormat.getTotalBytesPerElement();
+		bool           isCompressed    = textureFormat.isBlockCompressedFormat();
 		const uint8_t* textureMem      = reinterpret_cast<uint8_t*>(tsharp->getBaseAddress());
+		
 
 		for (uint32_t layer = 0; layer < image->info().numLayers; layer++)
 		{
@@ -122,7 +125,8 @@ namespace sce::Gnm
 				m_transferMemory += vutil::computeImageDataSize(
 					image->info().format, mipLevelExtent);
 
-				uint32_t pitchInBytes = surfaceInfo.m_pitch * bytesPerElement;
+				uint32_t elementPerRow = isCompressed ? surfaceInfo.m_pitch / 4 : surfaceInfo.m_pitch;
+				uint32_t pitchInBytes  = elementPerRow * bytesPerElement;
 				if (formatInfo->aspectMask != (VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT))
 				{
 					uint64_t surfaceOffset = 0;

@@ -17,6 +17,7 @@
 #include "Violet/VltRenderTarget.h"
 
 #include <algorithm>
+#include <array>
 #include <functional>
 #include <fstream>
 
@@ -128,9 +129,13 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setPsShaderUsage(const uint32_t* inputTable, uint32_t numItems)
 	{
-		// TODO:
-		// Parse the input table
-		m_state.shaderContext[kShaderStagePs].meta.ps.inputSemanticCount = numItems;
+		auto& ctx = m_state.shaderContext[kShaderStagePs];
+		std::transform(inputTable, inputTable + numItems,
+					   ctx.meta.ps.semanticMapping.begin(),
+					   [](const uint32_t reg) {
+						   return *reinterpret_cast<const PixelSemanticMapping*>(&reg);
+					   });
+		ctx.meta.ps.inputSemanticCount = numItems;
 	}
 
 	void GnmCommandBufferDraw::setActiveShaderStages(ActiveShaderStages activeStages)
@@ -878,7 +883,7 @@ namespace sce::Gnm
 			// Record shader meta info
 			ctx.meta.vs.inputSemanticCount = semanticCount;
 			std::memcpy(
-				ctx.meta.vs.inputSemanticTable,
+				ctx.meta.vs.inputSemanticTable.data(),
 				semaTable.data(),
 				sizeof(VertexInputSemantic) * semanticCount);
 		}
