@@ -2,6 +2,7 @@
 #include <array>
 
 #include "SpirvModule.h"
+#include "NonSemanticDebugPrintf.hpp"
 
 namespace sce::gcn
 {
@@ -39,7 +40,6 @@ namespace sce::gcn
     return m_id++;
   }
   
-  
   bool SpirvModule::hasCapability(
           spv::Capability         capability) {
     for (auto ins : m_capabilities) {
@@ -48,6 +48,11 @@ namespace sce::gcn
     }
 
     return false;
+  }
+
+  void SpirvModule::enableDebugPrintf() {
+	enableExtension("SPV_KHR_non_semantic_info");
+	instImportNonSemantic();
   }
 
   void SpirvModule::enableCapability(
@@ -3737,6 +3742,15 @@ namespace sce::gcn
     m_instExt.putWord(m_instExtGlsl450);
     m_instExt.putStr (name);
   }
+
+  void SpirvModule::instImportNonSemantic() {
+	m_instExtNonSemantic = this->allocateId();
+	const char* name = "NonSemantic.DebugPrintf";
+
+	m_instExt.putIns(spv::OpExtInstImport, 2 + m_instExt.strLen(name));
+	m_instExt.putWord(m_instExtNonSemantic);
+	m_instExt.putStr(name);
+  }
   
   
   uint32_t SpirvModule::getImageOperandWordCount(const SpirvImageOperands& op) const {
@@ -3787,5 +3801,27 @@ namespace sce::gcn
         m_code.putWord(op.sMinLod);
     }
   }
-  
+
+  void SpirvModule::opDebugPrintf(
+	  const char*     format,
+	  uint32_t        argumentCount,
+	  const uint32_t* argumentList)
+  {
+      if (m_instExtNonSemantic == 0) {
+		  enableDebugPrintf();
+	  }
+		  
+	  m_code.putIns(spv::OpExtInst, 5 + argumentCount);
+	  m_code.putWord(defVoidType());
+	  m_code.putWord(m_instExtNonSemantic);
+	  m_code.putWord(spv::NonSemanticDebugPrintfDebugPrintf);
+
+      uint32_t formatId = addDebugString(format);
+	  m_code.putWord(formatId);
+
+	  for (uint32_t i = 0; i < argumentCount; i++)
+		  m_code.putInt32(argumentList[i]);
+  }
+
+
 }

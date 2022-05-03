@@ -607,9 +607,6 @@
     <ClInclude Include="Graphics\Gnm\GnmRegInfo.h">
       <Filter>Source Files\Graphics\Gnm</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\SpirV\GLSL.std.450.h">
-      <Filter>Source Files\Graphics\SpirV</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\SpirV\GLSL.std.450.hpp">
       <Filter>Source Files\Graphics\SpirV</Filter>
     </ClInclude>
@@ -909,6 +906,9 @@
     </ClInclude>
     <ClInclude Include="Graphics\Gnm\GnmInitializer.h">
       <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\SpirV\NonSemanticDebugPrintf.hpp">
+      <Filter>Source Files\Graphics\SpirV</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

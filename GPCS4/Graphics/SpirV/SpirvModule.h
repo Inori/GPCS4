@@ -74,7 +74,7 @@ namespace sce::gcn
     
     void enableExtension(
       const char*                   extensionName);
-    
+
     void addEntryPoint(
             uint32_t                entryPointId,
             spv::ExecutionModel     executionModel,
@@ -1224,6 +1224,22 @@ namespace sce::gcn
             uint32_t                resultType,
             uint32_t                sourceCount,
       const SpirvPhiLabel*          sourceLabels);
+
+    uint32_t opCopyObject(
+		    uint32_t                resultType,
+		    uint32_t                operand);
+
+	void opCopyMemory(
+		    uint32_t                targetId,
+		    uint32_t                sourceId);
+
+	uint32_t opSatConvertSToU(
+		    uint32_t                resultType,
+		    uint32_t                operand);
+
+	uint32_t opSatConvertUToS(
+		    uint32_t                resultType,
+		    uint32_t                operand);
     
     void opReturn();
     
@@ -1237,27 +1253,17 @@ namespace sce::gcn
     void opEndPrimitive(
             uint32_t                streamId);
 
-    uint32_t opCopyObject(
-		    uint32_t resultType,
-		    uint32_t operand);
-
-	void opCopyMemory(
-		uint32_t targetId,
-		uint32_t sourceId);
-
-	uint32_t opSatConvertSToU(
-		uint32_t resultType,
-		uint32_t operand);
-
-	uint32_t opSatConvertUToS(
-		uint32_t resultType,
-		uint32_t operand);
+    void opDebugPrintf(
+		    const char*             format,
+		    uint32_t                argCount,
+		    const uint32_t*         argList);
     
   private:
     
     uint32_t m_version;
-    uint32_t m_id             = 1;
-    uint32_t m_instExtGlsl450 = 0;
+    uint32_t m_id                 = 1;
+    uint32_t m_instExtGlsl450     = 0;
+	uint32_t m_instExtNonSemantic = 0;
     
     SpirvCodeBuffer m_capabilities;
     SpirvCodeBuffer m_extensions;
@@ -1281,10 +1287,13 @@ namespace sce::gcn
     uint32_t defConst(
             spv::Op                 op,
             uint32_t                typeId,
-            uint32_t                argCount,
-      const uint32_t*               argIds);
+            uint32_t                argumentCount,
+		    const uint32_t*         argumentList);
     
     void instImportGlsl450();
+	void instImportNonSemantic();
+
+     void enableDebugPrintf();
     
     uint32_t getImageOperandWordCount(
       const SpirvImageOperands&     op) const;

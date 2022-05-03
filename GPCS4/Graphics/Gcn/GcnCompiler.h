@@ -508,7 +508,6 @@ namespace sce::gcn
 		GcnRegisterValuePair emitUnpackHalf2x16(
 			GcnRegisterValue src);
 
-		
 		///////////////////////////
 		// Control flow methods
 		void emitBranchLabel();
@@ -516,6 +515,20 @@ namespace sce::gcn
 		void emitUpdateScc(
 			GcnRegisterValuePair& dst,
 			GcnScalarType         dstType);
+
+		///////////////////////////
+		// Debug methods
+		template <typename... Args>
+		void emitDebugPrintf(
+			const std::string& format, Args... args)
+		{
+			const int count = sizeof...(args);
+
+			std::array<uint32_t, count> arguments = { args... };
+			m_module.opDebugPrintf(format.c_str(),
+								   arguments.size(),
+								   arguments.data());
+		}
 
 		///////////////////////////
 		// Type definition methods
@@ -581,6 +594,8 @@ namespace sce::gcn
 		GcnBufferFormat getBufferFormat(
 			Gnm::BufferFormat      dfmt,
 			Gnm::BufferChannelType nfmt);
+
+
 
 	private:
 		GcnProgramInfo         m_programInfo;

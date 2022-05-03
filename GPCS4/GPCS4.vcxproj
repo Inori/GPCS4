@@ -83,8 +83,8 @@
     <ClInclude Include="Graphics\Sce\SceSwapchain.h" />
     <ClInclude Include="Graphics\Sce\SceSwapchainBlitter.h" />
     <ClInclude Include="Graphics\Sce\SceVideoOut.h" />
-    <ClInclude Include="Graphics\SpirV\GLSL.std.450.h" />
     <ClInclude Include="Graphics\SpirV\GLSL.std.450.hpp" />
+    <ClInclude Include="Graphics\SpirV\NonSemanticDebugPrintf.hpp" />
     <ClInclude Include="Graphics\SpirV\spirv.hpp" />
     <ClInclude Include="Graphics\SpirV\SpirvCodeBuffer.h" />
     <ClInclude Include="Graphics\SpirV\SpirvCompression.h" />

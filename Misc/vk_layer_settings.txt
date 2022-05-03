@@ -1,6 +1,97 @@
-# The settings in this file can be used to configure the behavior of
-# layers in this repository.
-#
-# Note that this file must be copied to the working directory.
 
+# VK_LAYER_KHRONOS_validation
+
+# Debug Action
+# =====================
+# <LayerIdentifier>.debug_action
+# Specifies what action is to be taken when a layer reports information
+khronos_validation.debug_action = VK_DBG_LAYER_ACTION_LOG_MSG
+
+# Log Filename
+# =====================
+# <LayerIdentifier>.log_filename
+# Specifies the output filename
+khronos_validation.log_filename = stdout
+
+# Message Severity
+# =====================
+# <LayerIdentifier>.report_flags
+# Comma-delineated list of options specifying the types of messages to be
+# reported
+khronos_validation.report_flags = error,perf,info,warn
+
+# Limit Duplicated Messages
+# =====================
+# <LayerIdentifier>.enable_message_limit
+# Enable limiting of duplicate messages.
+khronos_validation.enable_message_limit = false
+
+# Max Duplicated Messages
+# =====================
+# <LayerIdentifier>.duplicate_message_limit
+# Maximum number of times any single validation message should be reported.
+#khronos_validation.duplicate_message_limit = 10
+
+# Mute Message VUIDs
+# =====================
+# <LayerIdentifier>.message_id_filter
+# List of VUIDs and VUID identifers which are to be IGNORED by the validation
+# layer
+khronos_validation.message_id_filter = 
+
+# Disables
+# =====================
+# <LayerIdentifier>.disables
+# Specify areas of validation to be disabled
+khronos_validation.disables = VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT,VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT,VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT,VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT,VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT
+
+# Enables
+# =====================
+# <LayerIdentifier>.enables
+# Setting an option here will enable specialized areas of validation
+khronos_validation.enables = VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT
+
+# Redirect Printf messages to stdout
+# =====================
+# <LayerIdentifier>.printf_to_stdout
+# Enable redirection of Debug Printf messages from the debug callback to stdout
+khronos_validation.printf_to_stdout = true
+
+# Printf verbose
+# =====================
+# <LayerIdentifier>.printf_verbose
+# Set the verbosity of debug printf messages
+khronos_validation.printf_verbose = false
+
+# Printf buffer size
+# =====================
+# <LayerIdentifier>.printf_buffer_size
+# Set the size in bytes of the buffer used by debug printf
+khronos_validation.printf_buffer_size = 1024
+
+# Check descriptor indexing accesses
+# =====================
+# <LayerIdentifier>.gpuav_descriptor_indexing
+# Enable descriptor indexing access checking
+#khronos_validation.gpuav_descriptor_indexing = true
+
+# Check Out of Bounds 
+# =====================
+# <LayerIdentifier>.gpuav_buffer_oob
+# Enable buffer out of bounds checking
+#khronos_validation.gpuav_buffer_oob = true
+
+# Check Draw Indirect Count Buffers and firstInstance values
+# =====================
+# <LayerIdentifier>.validate_draw_indirect
+# Enable draw indirect checking
+#khronos_validation.validate_draw_indirect = true
+
+# Fine Grained Locking
+# =====================
+# <LayerIdentifier>.fine_grained_locking
+# Enable fine grained locking for Core Validation, which should improve
+# performance in multithreaded applications. This is an experimental feature
+# which may cause stability problems or incorrect errors to be reported.
+khronos_validation.fine_grained_locking = false
 

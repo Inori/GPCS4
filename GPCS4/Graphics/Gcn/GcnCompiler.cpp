@@ -3012,7 +3012,4 @@ namespace sce::gcn
 		return getTexLayerDim(imageType) + imageType.array;
 	}
 
-
-
-
 }  // namespace sce::gcn
