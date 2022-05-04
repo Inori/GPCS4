@@ -87,8 +87,6 @@ namespace sce
 		device.surface           = m_device.videoOut->getSurface(instance);
 
 		m_presenter = new ScePresenter(device, desc);
-
-		createRenderTargets();
 	}
 
 	void SceSwapchain::createRenderTargets()

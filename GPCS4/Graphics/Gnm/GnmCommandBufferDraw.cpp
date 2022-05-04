@@ -309,21 +309,21 @@ namespace sce::Gnm
 			// of the render target buffer and copy the content to swapchain image
 			// at binding time, converting the tiling mode implicitly.
 
-			SceBuffer rtBuffer   = {};
-			uint32_t  bufferSize = target->getColorSizeAlign().m_size;
-			uint32_t  numUints   = bufferSize / sizeof(uint32_t);
-			rtBuffer.gnmBuffer.initAsDataBuffer(target->getBaseAddress(), Gnm::kDataFormatR32Uint, numUints);
+			//SceBuffer rtBuffer   = {};
+			//uint32_t  bufferSize = target->getColorSizeAlign().m_size;
+			//uint32_t  numUints   = bufferSize / sizeof(uint32_t);
+			//rtBuffer.gnmBuffer.initAsDataBuffer(target->getBaseAddress(), Gnm::kDataFormatR32Uint, numUints);
 
-			VltBufferCreateInfo info;
-			info.size   = bufferSize;
-			info.usage  = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-			info.stages = VK_PIPELINE_STAGE_TRANSFER_BIT;
-			info.access = VK_ACCESS_TRANSFER_READ_BIT;
+			//VltBufferCreateInfo info;
+			//info.size   = bufferSize;
+			//info.usage  = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+			//info.stages = VK_PIPELINE_STAGE_TRANSFER_BIT;
+			//info.access = VK_ACCESS_TRANSFER_READ_BIT;
 
-			rtBuffer.buffer = m_device->createBuffer(info,
-													 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-													 VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-			resource->setBuffer(rtBuffer);
+			//rtBuffer.buffer = m_device->createBuffer(info,
+			//										 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+			//										 VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+			//resource->setBuffer(rtBuffer);
 
 			VltAttachment attachment = 
 			{
@@ -977,6 +977,8 @@ namespace sce::Gnm
 		msState.enableAlphaToCoverage = VK_FALSE;
 		msState.sampleMask            = 0xFFFFFFFF;
 		m_context->setMultisampleState(msState);
+
+		m_tracker->flush(m_context.ptr());
 	}
 
 	void GnmCommandBufferDraw::commitComputeState()
@@ -1010,6 +1012,13 @@ namespace sce::Gnm
 		VkPipelineStageFlags2 stage,
 		VkAccessFlagBits2     access)
 	{
+		void* bufferAddress = vsharp->getBaseAddress();
+		auto  resource      = m_tracker->find(bufferAddress);
+		if (resource != nullptr)
+		{
+			usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+		}
+
 		SceBuffer buffer;
 
 		GnmBufferCreateInfo info;
@@ -1040,7 +1049,22 @@ namespace sce::Gnm
 				gcnProgramTypeFromVkStage(stage), startRegister);
 		}
 
-		m_tracker->track(buffer);
+		if (resource != nullptr)
+		{
+			auto type = resource->type();
+			if (type.test(SceResourceType::Texture) ||
+				type.test(SceResourceType::RenderTarget))
+			{
+				resource->setBuffer(buffer);
+				// Pending upload
+				resource->setTransform(SceTransformFlag::GpuUpload);
+			}
+		}
+		else
+		{
+			m_tracker->track(buffer);
+		}
+		
 
 		m_initializer.initBuffer(buffer.buffer, vsharp);
 

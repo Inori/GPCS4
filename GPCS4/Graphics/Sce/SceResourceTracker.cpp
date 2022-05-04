@@ -1,4 +1,8 @@
 #include "SceResourceTracker.h"
+#include "Violet/VltDevice.h"
+#include "Violet/VltContext.h"
+
+using namespace sce::vlt;
 
 LOG_CHANNEL(Graphic.Sce.SceResourceTracker);
 
@@ -32,6 +36,49 @@ namespace sce
 		}
 
 		return result;
+	}
+
+	void SceResourceTracker::flush(VltContext* context)
+	{
+		for (auto& res : m_resources)
+		{
+			auto type      = res.second.type();
+			auto transform = res.second.transform();
+
+			if (transform.test(SceTransformFlag::GpuUpload))
+			{
+				Rc<VltImage> dstImage = nullptr;
+				if (type.test(SceResourceType::RenderTarget))
+				{
+					dstImage = res.second.renderTarget().image;
+				}
+				else if (type.test(SceResourceType::Texture))
+				{
+					dstImage = res.second.texture().image;
+				}
+
+				VkExtent3D               imageExtent       = dstImage->mipLevelExtent(0);
+				VkImageSubresourceLayers subresourceLayers = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+
+				auto& srcBuffer = res.second.buffer().buffer;
+				context->copyBufferToImage(dstImage, subresourceLayers, VkOffset3D{ 0, 0, 0 }, imageExtent,
+											 srcBuffer, 0, { 0u, 0u });
+			}
+
+			if (transform.test(SceTransformFlag::GpuDownload))
+			{
+				// TODO
+			}
+
+			if (transform.test(SceTransformFlag::CpuUpload))
+			{
+				// TODO
+			}
+
+			res.second.clearTransform();
+		}
+
+		//m_context->flushCommandList();
 	}
 
 	void SceResourceTracker::reset()

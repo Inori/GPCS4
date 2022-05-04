@@ -35,6 +35,15 @@ namespace sce
 
 	using SceResourceTypeFlags = util::Flags<SceResourceType>;
 
+	enum class SceTransformFlag
+	{
+		GpuUpload   = 0,   // GPU buffer to GPU image
+		GpuDownload = 1,   // GPU image to GPU buffer
+		CpuUpload   = 2    // CPU buffer to GPU image
+	};
+
+	using SceTransformFlags = util::Flags<SceTransformFlag>;
+
 
 	struct SceBuffer
 	{
@@ -159,6 +168,21 @@ namespace sce
 			return m_type;
 		}
 
+		SceTransformFlags transform()
+		{
+			return m_transform;
+		}
+
+		void setTransform(SceTransformFlag type)
+		{
+			m_transform.set(type);
+		}
+
+		void clearTransform()
+		{
+			m_transform.clrAll();
+		}
+
 		/**
 		 * \brief Treat the resource as buffer
 		 * 
@@ -216,6 +240,7 @@ namespace sce
 		size_t m_memSize = 0;
 
 		SceResourceTypeFlags m_type;
+		SceTransformFlags    m_transform;
 
 		SceBuffer                                           m_buffer;
 		SceTexture                                          m_texture;

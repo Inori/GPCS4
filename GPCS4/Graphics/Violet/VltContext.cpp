@@ -87,6 +87,8 @@ namespace sce::vlt
 	{
 		m_state.cb.renderTargets.color[slot] = target;
 
+		resetFramebufferOps();
+
 		m_flags.set(VltContextFlag::GpDirtyFramebuffer);
 	}
 	
@@ -1899,8 +1901,7 @@ namespace sce::vlt
 									}
 								  : VltAttachmentOps{};
 		}
-
-		m_state.cb.framebuffer->setAttachmentOps(ops);
+		m_state.cb.attachmentOps = ops;
 	}
 
 }  // namespace sce::vlt

@@ -3,12 +3,19 @@
 #include "SceCommon.h"
 #include "SceResource.h"
 #include "UtilSync.h"
+#include "Violet/VltRc.h"
 
 #include <map>
 #include <variant>
 
 namespace sce
 {
+	namespace vlt
+	{
+		class VltContext;
+	}  // namespace vlt
+
+
 	/**
 	 * \brief Global resource tracker.
 	 * 
@@ -48,6 +55,11 @@ namespace sce
 		 * from start to end(not included) within the object memory.
 		 */
 		SceResource* find(void* mem);
+
+		/**
+		 * \brief Apple pending transforms
+		 */
+		void flush(vlt::VltContext* context);
 
 		/**
 		 * \brief Clear all information in the tracker

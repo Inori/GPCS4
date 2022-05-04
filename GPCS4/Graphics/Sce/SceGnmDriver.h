@@ -35,7 +35,6 @@ namespace sce
 	class SceGnmDriver
 	{
 		friend class SceVideoOut;
-
 	public:
 		SceGnmDriver();
 		~SceGnmDriver();
