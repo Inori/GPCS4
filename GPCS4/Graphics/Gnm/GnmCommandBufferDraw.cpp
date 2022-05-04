@@ -270,7 +270,7 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setRenderTarget(uint32_t rtSlot, RenderTarget const* target)
 	{
-		auto  resource = m_tracker->find(target->getBaseAddress());
+		auto resource = m_tracker->find(target->getBaseAddress());
 		do
 		{
 			if (!resource)
@@ -420,12 +420,7 @@ namespace sce::Gnm
 		loState.enableLogicOp = VK_FALSE;
 		loState.logicOp       = VK_LOGIC_OP_NO_OP;
 
-		VltMultisampleState msState;
-		msState.enableAlphaToCoverage = VK_FALSE;
-		msState.sampleMask            = 0xFFFFFFFF;
-
 		m_context->setLogicOpState(loState);
-		m_context->setMultisampleState(msState);
 	}
 
 	void GnmCommandBufferDraw::setDepthStencilControl(DepthStencilControl depthControl)
@@ -450,7 +445,11 @@ namespace sce::Gnm
 			backOp
 		};
 
-		m_context->setDepthBoundsTestEnable(depthControl.depthBoundsEnable);
+		// We use depth bounds test to emulate DbRenderControl
+		m_context->setDepthBoundsTestEnable(m_state.ds.dbClearDepth
+												? VK_TRUE
+												: depthControl.depthBoundsEnable);
+
 		m_context->setDepthStencilState(ds);
 	}
 
@@ -476,11 +475,16 @@ namespace sce::Gnm
 			depthBounds.minDepthBounds    = 1.0;
 			depthBounds.maxDepthBounds    = 0.0;
 			m_context->setDepthBoundsRange(depthBounds);
+
+			m_state.ds.dbClearDepth = true;
 		}
 		else
 		{
 			m_context->setDepthBoundsTestEnable(VK_FALSE);
+			m_state.ds.dbClearDepth = false;
 		}
+
+		
 	}
 
 	void GnmCommandBufferDraw::setVgtControl(uint8_t primGroupSizeMinusOne)
@@ -602,6 +606,8 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setDepthStencilDisable()
 	{
+		VltDepthStencilState ds = {};
+		m_context->setDepthStencilState(ds);
 	}
 
 	void GnmCommandBufferDraw::flushShaderCachesAndWait(CacheAction cacheAction, uint32_t extendedCacheMask, StallCommandBufferParserMode commandBufferStallMode)
@@ -965,6 +971,12 @@ namespace sce::Gnm
 		updateVertexShaderStage();
 
 		updatePixelShaderStage();
+
+		// Set default ms state
+		VltMultisampleState msState;
+		msState.enableAlphaToCoverage = VK_FALSE;
+		msState.sampleMask            = 0xFFFFFFFF;
+		m_context->setMultisampleState(msState);
 	}
 
 	void GnmCommandBufferDraw::commitComputeState()

@@ -27,7 +27,7 @@ namespace sce::vlt
 				m_colorAttachments[m_colorAttachmentCount].resolveMode        = VK_RESOLVE_MODE_NONE;
 				m_colorAttachments[m_colorAttachmentCount].resolveImageView   = VK_NULL_HANDLE;
 				m_colorAttachments[m_colorAttachmentCount].resolveImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-				m_colorAttachments[m_colorAttachmentCount].loadOp             = VK_ATTACHMENT_LOAD_OP_CLEAR;
+				m_colorAttachments[m_colorAttachmentCount].loadOp             = VK_ATTACHMENT_LOAD_OP_LOAD;
 				m_colorAttachments[m_colorAttachmentCount].storeOp            = VK_ATTACHMENT_STORE_OP_STORE;
 				m_colorAttachments[m_colorAttachmentCount].clearValue         = clearValues[0];
 				++m_colorAttachmentCount;
@@ -47,17 +47,6 @@ namespace sce::vlt
 			m_depthAttachment.loadOp             = VK_ATTACHMENT_LOAD_OP_CLEAR;
 			m_depthAttachment.storeOp            = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 			m_depthAttachment.clearValue         = clearValues[1];
-
-			//m_stencilAttachment.sType              = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-			//m_stencilAttachment.pNext              = nullptr;
-			//m_stencilAttachment.imageView          = depthView->handle();
-			//m_stencilAttachment.imageLayout        = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-			//m_stencilAttachment.resolveMode        = VK_RESOLVE_MODE_NONE;
-			//m_stencilAttachment.resolveImageView   = VK_NULL_HANDLE;
-			//m_stencilAttachment.resolveImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-			//m_stencilAttachment.loadOp             = VK_ATTACHMENT_LOAD_OP_CLEAR;
-			//m_stencilAttachment.storeOp            = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-			//m_stencilAttachment.clearValue         = clearValues[1];
 		}
 	}
 
@@ -181,7 +170,7 @@ namespace sce::vlt
 		}
 	}
 
-	int32_t VltFramebuffer::findColorAttachment(
+	int32_t VltFramebuffer::findAttachment(
 		const Rc<VltImageView>& view) const
 	{
 		for (uint32_t i = 0; i < m_colorAttachmentCount; i++)
@@ -190,24 +179,46 @@ namespace sce::vlt
 				return int32_t(i);
 		}
 
+		if (m_depthAttachment.imageView == view->handle())
+		{
+			return m_colorAttachmentCount;
+		}
+
 		return -1;
 	}
-
-	void VltFramebuffer::setColorClearValue(
-		uint32_t            index,
-		const VkClearValue& value)
+	
+	const sce::vlt::VltAttachment& VltFramebuffer::getAttachment(uint32_t id) const
 	{
-		m_colorAttachments[index].clearValue = value;
+		if (id == m_colorAttachmentCount)
+		{
+			return m_renderTargets.depth;
+		}
+		else
+		{
+			return m_renderTargets.color[id];
+		}
 	}
 
-	void VltFramebuffer::setDepthClearValue(VkClearValue value)
+	void VltFramebuffer::setAttachmentClearValues(const VltFrameBufferClearValues& values)
 	{
-		m_depthAttachment.clearValue = value;
+		m_depthAttachment.clearValue.depthStencil = values.depthValue.depthStencil;
+
+		for (uint32_t i = 0; i < MaxNumRenderTargets; i++)
+		{
+			m_colorAttachments[i].clearValue.color = values.colorValue[i].color;
+		}
 	}
 
-	void VltFramebuffer::setStencilClearValue(VkClearValue value)
+	void VltFramebuffer::setAttachmentOps(const VltFrameBufferOps& ops)
 	{
-		// m_stencilAttachment.clearValue = value;
+		m_depthAttachment.loadOp  = ops.depthOps.loadOp;
+		m_depthAttachment.storeOp = ops.depthOps.storeOp;
+
+		for (uint32_t i = 0; i < MaxNumRenderTargets; i++)
+		{
+			m_colorAttachments[i].loadOp  = ops.colorOps[i].loadOp;
+			m_colorAttachments[i].storeOp = ops.colorOps[i].storeOp;
+		}
 	}
 
 }  // namespace sce::vlt

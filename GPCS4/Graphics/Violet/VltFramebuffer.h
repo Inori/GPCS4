@@ -10,6 +10,30 @@ namespace sce::vlt
 	class VltBarrierSet;
 
 	/**
+	 * \brief Attachment 
+	 *
+	 * Stores the load/store ops 
+	 * and layout of a single attachment.
+	 */
+	struct VltAttachmentOps
+	{
+		VkAttachmentLoadOp  loadOp     = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		VkAttachmentStoreOp storeOp    = VK_ATTACHMENT_STORE_OP_STORE;
+	};
+
+	struct VltFrameBufferOps
+	{
+		VltAttachmentOps depthOps;
+		VltAttachmentOps colorOps[MaxNumRenderTargets];
+	};
+
+	struct VltFrameBufferClearValues
+	{
+		VkClearValue colorValue[MaxNumRenderTargets];
+		VkClearValue depthValue;
+	};
+
+	/**
      * \brief Framebuffer size
      * 
      * Stores the width, height and number of layers
@@ -23,11 +47,12 @@ namespace sce::vlt
 		uint32_t layers;
 	};
 
+
 	/**
      * \brief Framebuffer
      * 
 	 * Unlike DXVK, we use dynamic rendering so there's no
-	 * actual vulkan frambuffer objects.
+	 * actual vulkan framebuffer objects.
 	 * It's just a convenient wrapper of attachments. 
 	 * 
      */
@@ -50,6 +75,25 @@ namespace sce::vlt
 		}
 
 		/**
+		 * \brief Number of color attachments
+		 */
+		uint32_t numColorAttachments() const
+		{
+			return m_colorAttachmentCount;
+		}
+
+		/**
+		 * \brief Color target
+		 *
+		 * \param [in] id Target Index
+		 * \returns The color target
+		 */
+		const VltAttachment& getColorTarget(uint32_t id) const
+		{
+			return m_renderTargets.color[id];
+		}
+
+		/**
          * \brief Depth-stencil target
          * \returns Depth-stencil target
          */
@@ -59,23 +103,31 @@ namespace sce::vlt
 		}
 
 		/**
-         * \brief Color target
-         * 
-         * \param [in] id Target Index
-         * \returns The color target
-         */
-		const VltAttachment& getColorTarget(uint32_t id) const
-		{
-			return m_renderTargets.color[id];
-		}
+		 * \brief Finds attachment index by view
+		 *
+		 * Color attachments start at 0
+		 * \param [in] view Image view
+		 * \returns Attachment index, -1 on fail
+		 */
+		int32_t findAttachment(const Rc<VltImageView>& view) const;
 
 		/**
-         * \brief Number of color attachments
-         */
-		uint32_t numColorAttachments() const
-		{
-			return m_colorAttachmentCount;
-		}
+		 * \brief Retrieves attachment by index
+		 *
+		 * \param [in] id Framebuffer attachment ID
+		 * \returns The framebuffer attachment
+		 */
+		const VltAttachment& getAttachment(uint32_t id) const;
+
+		/**
+		 * \brief Set attachment clear values
+		 */
+		void setAttachmentClearValues(const VltFrameBufferClearValues& values);
+
+		/**
+		 * \brief Set attachment ops
+		 */
+		void setAttachmentOps(const VltFrameBufferOps& ops);
 
 		/**
          * \brief Retrieves color rendering attachments
@@ -94,46 +146,6 @@ namespace sce::vlt
 			return m_depthAttachment.imageView != VK_NULL_HANDLE ?
 				&m_depthAttachment : nullptr;
 		}
-
-		/**
-		 * \brief Retrieves stencil rendering attachments
-		 */
-		const VkRenderingAttachmentInfo* stencilAttachment() const
-		{
-			//return m_stencilAttachment.imageView != VK_NULL_HANDLE ?
-			//	&m_stencilAttachment : nullptr;
-		}
-
-		/**
-         * \brief Finds attachment index by view
-         * 
-         * Color attachments start at 0
-         * \param [in] view Image view
-         * \returns Attachment index, -1 on fail
-         */
-		int32_t findColorAttachment(
-			const Rc<VltImageView>& view) const;
-
-
-		/**
-		 * \brief Set color attachments' clear values
-		 */
-		void setColorClearValue(
-			uint32_t            index,
-			const VkClearValue& value);
-
-
-		/**
-		 * \brief Set depth attachment's clear value.
-		 */
-		void setDepthClearValue(VkClearValue value);
-
-		/**
-		 * \brief Set stencil attachment's clear value.
-		 */
-		void setStencilClearValue(VkClearValue value);
-
-
 
 		/**
 		 * \brief Transform attachment images to rendering-ready layout.
@@ -176,6 +188,5 @@ namespace sce::vlt
 		uint32_t                                                   m_colorAttachmentCount = 0;
 		std::array<VkRenderingAttachmentInfo, MaxNumRenderTargets> m_colorAttachments     = {};
 		VkRenderingAttachmentInfo                                  m_depthAttachment      = {};
-		// VkRenderingAttachmentInfo                                  m_stencilAttachment    = {};
 	};
 }  // namespace sce::vlt

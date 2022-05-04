@@ -157,11 +157,11 @@ namespace sce::vlt
 			const Rc<VltSampler>& sampler);
 
 		/**
-             * \brief Binds a shader to a given state
-             * 
-             * \param [in] stage Target shader stage
-             * \param [in] shader The shader to bind
-             */
+		 * \brief Binds a shader to a given state
+		 *
+		 * \param [in] stage Target shader stage
+		 * \param [in] shader The shader to bind
+		 */
 		void bindShader(
 			VkShaderStageFlagBits stage,
 			const Rc<VltShader>&  shader);
@@ -360,27 +360,26 @@ namespace sce::vlt
 			uint32_t z);
 
 		/**
-         * \brief Set color clear value
-		 * 
-		 * Performed at render pass begin
-         * 
-         * \param [in] slot Slot number
-         * \param [in] clearValue The clear value
-         */
-		void setColorClearValue(
-			uint32_t     slot,
-			VkClearValue clearValue);
+		 * \brief Clears an active render target
+		 *
+		 * \param [in] imageView Render target view to clear
+		 * \param [in] clearAspects Image aspects to clear
+		 * \param [in] clearValue The clear value
+		 */
+		void clearRenderTarget(
+			const Rc<VltImageView>& imageView,
+			VkImageAspectFlags      clearAspects,
+			VkClearValue            clearValue);
 
 		/**
 		 * \brief Set depth clear value
 		 *
 		 * Performed at render pass begin
-		 * 
+		 *
 		 * \param [in] clearValue The clear value
 		 */
 		void setDepthClearValue(
 			VkClearValue clearValue);
-
 
 		/**
 		 * \brief Set stencil clear value
@@ -525,7 +524,25 @@ namespace sce::vlt
 			VkPipelineStageFlags2          dstStages,
 			VkAccessFlags2                 dstAccess);
 
-
+		/**
+		 * \brief Copies data from a buffer to an image
+		 *
+		 * \param [in] dstImage Destination image
+		 * \param [in] dstSubresource Destination subresource
+		 * \param [in] dstOffset Destination area offset
+		 * \param [in] dstExtent Destination area size
+		 * \param [in] srcBuffer Source buffer
+		 * \param [in] srcOffset Source offset, in bytes
+		 * \param [in] srcExtent Source data extent
+		 */
+		void copyBufferToImage(
+			const Rc<VltImage>&      dstImage,
+			VkImageSubresourceLayers dstSubresource,
+			VkOffset3D               dstOffset,
+			VkExtent3D               dstExtent,
+			const Rc<VltBuffer>&     srcBuffer,
+			VkDeviceSize             srcOffset,
+			VkExtent2D               srcExtent);
 
 		/**
          * \brief Sets barrier control flags
@@ -613,6 +630,7 @@ namespace sce::vlt
 		VkDescriptorSet allocateDescriptorSet(
 			VkDescriptorSetLayout layout);
 
+		void resetFramebufferOps();
 		void updateFramebuffer();
 
 	private:

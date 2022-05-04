@@ -2035,13 +2035,14 @@ namespace sce::gcn
 
 		// Image type, which stores the image dimensions etc.
 		const GcnImageInfo imageType = m_textures.at(textureId).imageInfo;
-		// const uint32_t     imageLayerDim = getTexLayerDim(imageType);
 
 		// Load the texture coordinates. SPIR-V allows these
 		// to be float4 even if not all components are used.
 		GcnRegisterValue coord = emitLoadTexCoord(texCoordReg, imageType);
 		if (imageType.dim == spv::DimCube)
 		{
+			// Why do we need recover?
+			// See comments in emitCubeCalculate.
 			coord = emitRecoverCubeCoord(coord);
 		}
 		

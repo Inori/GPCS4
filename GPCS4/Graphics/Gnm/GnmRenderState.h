@@ -53,6 +53,11 @@ namespace sce::Gnm
 		VkPrimitiveTopology     topology    = VK_PRIMITIVE_TOPOLOGY_MAX_ENUM;
 	};
 
+	struct GnmDepthStencilState
+	{
+		bool dbClearDepth = false;
+	};
+
 	struct GnmOutputMergerState
 	{
 		// Display buffer back render target
@@ -64,6 +69,7 @@ namespace sce::Gnm
 		std::array<GnmShaderContext, kShaderStageCount> shaderContext = {};
 
 		GnmInputAssemblerState ia = {};
+		GnmDepthStencilState   ds = {};
 		GnmOutputMergerState   om = {};
 	};
 }  // namespace sce::Gnm

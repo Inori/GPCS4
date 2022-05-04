@@ -36,10 +36,11 @@ namespace sce::vlt
 		// before any draw or dispatch command is recorded.
 		m_flags.clr(
 			VltContextFlag::GpRenderingActive,
-			VltContextFlag::GpXfbActive,
-			VltContextFlag::GpClearRenderTargets);
+			VltContextFlag::GpXfbActive);
 
 		m_flags.set(
+			VltContextFlag::GpDirtyFramebuffer,
+			VltContextFlag::GpDirtyFramebufferState,
 			VltContextFlag::GpDirtyPipeline,
 			VltContextFlag::GpDirtyPipelineState,
 			VltContextFlag::GpDirtyResources,
@@ -254,6 +255,78 @@ namespace sce::vlt
 		}
 	}
 
+	void VltContext::copyBufferToImage(
+		const Rc<VltImage>&      dstImage,
+		VkImageSubresourceLayers dstSubresource,
+		VkOffset3D               dstOffset,
+		VkExtent3D               dstExtent,
+		const Rc<VltBuffer>&     srcBuffer,
+		VkDeviceSize             srcOffset,
+		VkExtent2D               srcExtent)
+	{
+		this->endRendering();
+
+		auto srcSlice = srcBuffer->getSliceHandle(srcOffset, 0);
+
+		// We may copy to only one aspect of a depth-stencil image,
+		// but pipeline barriers need to have all aspect bits set
+		auto dstFormatInfo = dstImage->formatInfo();
+
+		auto dstSubresourceRange       = vutil::makeSubresourceRange(dstSubresource);
+		dstSubresourceRange.aspectMask = dstFormatInfo->aspectMask;
+
+		if (m_execBarriers.isImageDirty(dstImage, dstSubresourceRange, VltAccess::Write) ||
+			m_execBarriers.isBufferDirty(srcSlice, VltAccess::Read))
+			m_execBarriers.recordCommands(m_cmd);
+
+		// Initialize the image if the entire subresource is covered
+		VkImageLayout dstImageLayoutInitial  = dstImage->info().layout;
+		VkImageLayout dstImageLayoutTransfer = dstImage->pickLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+		if (dstImage->isFullSubresource(dstSubresource, dstExtent))
+			dstImageLayoutInitial = VK_IMAGE_LAYOUT_UNDEFINED;
+
+		m_execAcquires.accessImage(
+			dstImage, dstSubresourceRange,
+			dstImageLayoutInitial, 0, 0,
+			dstImageLayoutTransfer,
+			VK_PIPELINE_STAGE_TRANSFER_BIT,
+			VK_ACCESS_TRANSFER_WRITE_BIT);
+
+		m_execAcquires.recordCommands(m_cmd);
+
+		VkBufferImageCopy copyRegion;
+		copyRegion.bufferOffset      = srcSlice.offset;
+		copyRegion.bufferRowLength   = srcExtent.width;
+		copyRegion.bufferImageHeight = srcExtent.height;
+		copyRegion.imageSubresource  = dstSubresource;
+		copyRegion.imageOffset       = dstOffset;
+		copyRegion.imageExtent       = dstExtent;
+
+		m_cmd->cmdCopyBufferToImage(VltCmdType::ExecBuffer,
+									srcSlice.handle, dstImage->handle(),
+									dstImageLayoutTransfer, 1, &copyRegion);
+
+		m_execBarriers.accessImage(
+			dstImage, dstSubresourceRange,
+			dstImageLayoutTransfer,
+			VK_PIPELINE_STAGE_TRANSFER_BIT,
+			VK_ACCESS_TRANSFER_WRITE_BIT,
+			dstImage->info().layout,
+			dstImage->info().stages,
+			dstImage->info().access);
+
+		m_execBarriers.accessBuffer(srcSlice,
+									VK_PIPELINE_STAGE_TRANSFER_BIT,
+									VK_ACCESS_TRANSFER_READ_BIT,
+									srcBuffer->info().stages,
+									srcBuffer->info().access);
+
+		m_cmd->trackResource<VltAccess::Write>(dstImage);
+		m_cmd->trackResource<VltAccess::Read>(srcBuffer);
+	}
+
+
 	void VltContext::updateIndexBufferBinding()
 	{
 		m_flags.clr(VltContextFlag::GpDirtyIndexBuffer);
@@ -371,7 +444,8 @@ namespace sce::vlt
 	template <bool Indexed, bool Indirect>
 	bool VltContext::commitGraphicsState()
 	{
-		if (m_flags.test(VltContextFlag::GpDirtyFramebuffer))
+		if (m_flags.test(VltContextFlag::GpDirtyFramebuffer) ||
+			m_flags.test(VltContextFlag::GpDirtyFramebufferState))
 		{
 			this->updateFramebuffer();
 		}
@@ -572,6 +646,15 @@ namespace sce::vlt
 			m_flags.set(VltContextFlag::GpDirtyDepthBounds);
 		}
 
+	}
+
+	void VltContext::setStencilReference(uint32_t reference)
+	{
+		if (m_state.dyn.stencilReference != reference)
+		{
+			m_state.dyn.stencilReference = reference;
+			m_flags.set(VltContextFlag::GpDirtyStencilRef);
+		}
 	}
 
 	void VltContext::bindResourceBuffer(
@@ -779,29 +862,117 @@ namespace sce::vlt
 		m_flags.set(VltContextFlag::GpDirtyPipelineState);
 	}
 
-
-	void VltContext::setColorClearValue(
-		uint32_t     slot,
-		VkClearValue clearValue)
+	void VltContext::clearRenderTarget(
+		const Rc<VltImageView>& imageView,
+		VkImageAspectFlags      clearAspects,
+		VkClearValue            clearValue)
 	{
 		this->updateFramebuffer();
 
-		m_state.cb.framebuffer->setColorClearValue(slot, clearValue);
+		// Prepare attachment ops
+		VltAttachmentOps newOp;
+		newOp.loadOp  = VK_ATTACHMENT_LOAD_OP_LOAD;
+		newOp.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+
+		if (clearAspects & VK_IMAGE_ASPECT_COLOR_BIT)
+			newOp.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+
+		if (clearAspects & VK_IMAGE_ASPECT_DEPTH_BIT)
+			newOp.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+
+		if (clearAspects & VK_IMAGE_ASPECT_STENCIL_BIT)
+			newOp.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+
+		// Make sure the color components are ordered correctly
+		if (clearAspects & VK_IMAGE_ASPECT_COLOR_BIT)
+		{
+			clearValue.color = vutil::swizzleClearColor(clearValue.color,
+														vutil::invertComponentMapping(imageView->info().swizzle));
+		}
+
+		// Check whether the render target view is an attachment
+		// of the current framebuffer and is included entirely.
+		// If not, we need to create a temporary framebuffer.
+		int32_t attachmentIndex = -1;
+
+		if (m_state.cb.framebuffer->isFullSize(imageView))
+			attachmentIndex = m_state.cb.framebuffer->findAttachment(imageView);
+
+		if (attachmentIndex < 0)
+		{
+			LOG_ASSERT(false, "TODO");
+		}
+		else if (m_flags.test(VltContextFlag::GpRenderingActive))
+		{
+			// Clear the attachment in quesion. For color images,
+			// the attachment index for the current subpass is
+			// equal to the render pass attachment index.
+			VkClearAttachment clearInfo;
+			clearInfo.aspectMask      = clearAspects;
+			clearInfo.colorAttachment = attachmentIndex;
+			clearInfo.clearValue      = clearValue;
+
+			VkClearRect clearRect;
+			clearRect.rect.offset.x      = 0;
+			clearRect.rect.offset.y      = 0;
+			clearRect.rect.extent.width  = imageView->mipLevelExtent(0).width;
+			clearRect.rect.extent.height = imageView->mipLevelExtent(0).height;
+			clearRect.baseArrayLayer     = 0;
+			clearRect.layerCount         = imageView->info().numLayers;
+
+			m_cmd->cmdClearAttachments(1, &clearInfo, 1, &clearRect);
+		}
+		else
+		{
+			// Perform the clear when starting the render pass
+			if (clearAspects & VK_IMAGE_ASPECT_COLOR_BIT)
+			{
+				m_state.cb.attachmentOps.colorOps[attachmentIndex]       = newOp;
+				m_state.cb.clearValues.colorValue[attachmentIndex].color = clearValue.color;
+			}
+
+			if (clearAspects & VK_IMAGE_ASPECT_DEPTH_BIT)
+			{
+				m_state.cb.attachmentOps.depthOps = newOp;
+				m_state.cb.clearValues.depthValue.depthStencil.depth = clearValue.depthStencil.depth;
+			}
+
+			if (clearAspects & VK_IMAGE_ASPECT_STENCIL_BIT)
+			{
+				m_state.cb.attachmentOps.depthOps                      = newOp;
+				m_state.cb.clearValues.depthValue.depthStencil.stencil = clearValue.depthStencil.stencil;
+			}
+
+			m_flags.set(VltContextFlag::GpDirtyFramebufferState);
+		}
 	}
 
-	void VltContext::setDepthClearValue(
-		VkClearValue clearValue)
+	void VltContext::setDepthClearValue(VkClearValue clearValue)
 	{
 		this->updateFramebuffer();
 
-		m_state.cb.framebuffer->setDepthClearValue(clearValue);
+		m_state.cb.clearValues.depthValue.depthStencil.depth = clearValue.depthStencil.depth;
+
+		// TODO:
+		// The way for Gnm to clear a depth target is to render a fullscreen
+		// quad while setting DeRenderControl to enable depth clear.
+		// Vulkan don't have DeRenderControl, we need to find an alternative way.
+		m_state.cb.attachmentOps.depthOps.loadOp  = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		m_state.cb.attachmentOps.depthOps.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+
+		m_flags.set(VltContextFlag::GpDirtyFramebufferState);
 	}
 
 	void VltContext::setStencilClearValue(VkClearValue clearValue)
 	{
 		this->updateFramebuffer();
 
-		m_state.cb.framebuffer->setStencilClearValue(clearValue);
+		m_state.cb.clearValues.depthValue.depthStencil.stencil = clearValue.depthStencil.stencil;
+
+		m_state.cb.attachmentOps.depthOps.loadOp  = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		m_state.cb.attachmentOps.depthOps.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+
+		m_flags.set(VltContextFlag::GpDirtyFramebufferState);
 	}
 
 	void VltContext::updateBuffer(
@@ -1180,6 +1351,10 @@ namespace sce::vlt
 			renderInfo.pStencilAttachment   = nullptr;
 
 			m_cmd->cmdBeginRendering(&renderInfo);
+
+			// Don't discard image contents if we have
+			// to stop rendering
+			resetFramebufferOps();
 
 			m_flags.set(VltContextFlag::GpRenderingActive);
 		}
@@ -1689,6 +1864,14 @@ namespace sce::vlt
 		{
 			framebuffer = m_device->createFramebuffer(
 				m_state.cb.renderTargets);
+			m_flags.set(VltContextFlag::GpDirtyFramebufferState);
+		}
+
+		if (m_flags.test(VltContextFlag::GpDirtyFramebufferState))
+		{
+			framebuffer->setAttachmentOps(m_state.cb.attachmentOps);
+			framebuffer->setAttachmentClearValues(m_state.cb.clearValues);
+			m_flags.clr(VltContextFlag::GpDirtyFramebufferState);
 		}
 
 		framebuffer->prepareRenderingLayout(m_execAcquires);
@@ -1697,6 +1880,27 @@ namespace sce::vlt
 		m_flags.clr(VltContextFlag::GpDirtyFramebuffer);
 	}
 
+	void VltContext::resetFramebufferOps()
+	{
+		VltFrameBufferOps ops;
+		ops.depthOps = m_state.cb.renderTargets.depth.view != nullptr
+						   ? VltAttachmentOps{
+								 VK_ATTACHMENT_LOAD_OP_LOAD,
+								 VK_ATTACHMENT_STORE_OP_STORE
+							 }
+						   : VltAttachmentOps{};
 
+		for (uint32_t i = 0; i < MaxNumRenderTargets; i++)
+		{
+			ops.colorOps[i] = m_state.cb.renderTargets.color[i].view != nullptr
+								  ? VltAttachmentOps{
+										VK_ATTACHMENT_LOAD_OP_LOAD,
+										VK_ATTACHMENT_STORE_OP_STORE
+									}
+								  : VltAttachmentOps{};
+		}
+
+		m_state.cb.framebuffer->setAttachmentOps(ops);
+	}
 
 }  // namespace sce::vlt

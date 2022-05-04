@@ -682,6 +682,13 @@ namespace sce::vlt
 							  depthBiasSlopeFactor);
 		}
 
+		void cmdSetDepthTestEnable(
+			VkBool32 depthTestEnable)
+		{
+			vkCmdSetDepthTestEnable(m_execBuffer,
+									depthTestEnable);
+		}
+
 		void cmdSetDepthBoundsTestEnable(
 			VkBool32 depthBoundsTestEnable)
 		{

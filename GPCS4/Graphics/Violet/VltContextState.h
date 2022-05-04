@@ -22,8 +22,8 @@ namespace sce::vlt
 		GpRenderingActive,         ///< Dynamic rendering (render pass instance) has began
 		GpCondActive,              ///< Conditional rendering is enabled
 		GpXfbActive,               ///< Transform feedback is enabled
-		GpClearRenderTargets,      ///< Render targets need to be cleared
 		GpDirtyFramebuffer,        ///< Framebuffer binding is out of date
+		GpDirtyFramebufferState,   ///< Framebuffer ops and clear values needs to be update
 		GpDirtyPipeline,           ///< Graphics pipeline binding is out of date
 		GpDirtyPipelineState,      ///< Graphics pipeline needs to be recompiled
 		GpDirtyResources,          ///< Graphics pipeline resource bindings are out of date
@@ -91,10 +91,10 @@ namespace sce::vlt
 
 	struct VltColorBlendState
 	{
-		std::array<VkClearValue, MaxNumRenderTargets> colorClearValues = {};
-		VkClearValue                                  depthClearValue;
-		VltRenderTargets                              renderTargets;
-		Rc<VltFramebuffer>                            framebuffer = nullptr;
+		Rc<VltFramebuffer>        framebuffer = nullptr;
+		VltRenderTargets          renderTargets;
+		VltFrameBufferOps         attachmentOps;
+		VltFrameBufferClearValues clearValues;
 	};
 
 	struct VltPushConstantState

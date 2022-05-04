@@ -163,7 +163,8 @@ namespace sce
 			VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
 		};
 		ctx->bindRenderTarget(0, targetAttachment);
-		ctx->setColorClearValue(0, VkClearValue());
+		ctx->clearRenderTarget(
+			dstView, VK_IMAGE_ASPECT_COLOR_BIT, VkClearValue());
 		ctx->transformImage(
 			dstView->image(),
 			dstView->subresources(),
