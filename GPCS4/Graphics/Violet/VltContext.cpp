@@ -1859,6 +1859,8 @@ namespace sce::vlt
 
 	void VltContext::updateFramebuffer()
 	{
+		this->endRendering();
+
 		auto& framebuffer = m_state.cb.framebuffer;
 
 		if (framebuffer == nullptr ||

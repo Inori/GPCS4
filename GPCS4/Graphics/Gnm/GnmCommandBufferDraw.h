@@ -216,6 +216,9 @@ namespace sce::Gnm
 			bool                 isDepth,
 			const Texture*       tsharp);
 
+		SceBuffer getResourceBuffer(
+			const GnmBufferCreateInfo& info);
+
 	private:
 		GnmGraphicsState m_state;
 		GnmContextFlags  m_flags; 

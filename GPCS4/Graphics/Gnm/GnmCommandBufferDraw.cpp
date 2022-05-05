@@ -306,38 +306,6 @@ namespace sce::Gnm
 			rtRes.renderTarget = *target;
 			resource->setRenderTarget(rtRes);
 
-			// Currently, we use vulkan swapchain image directly
-			// as the gnm render target's backend.
-			// (Maybe we should use a standalone vulkan image then bilt to swapchain in the future)
-			// And swapchain images are in optimal tiling mode.
-			//
-			// In Gnm, a common way to clear render target
-			// is to treat it as a normal buffer and use compute shader to write the desired
-			// values directly.
-			//
-			// Hence comes the problem:
-			// we can't write the swapchain images directly by the translated shader because it's not linear.
-			//
-			// To support this, we use a linear staging buffer as the backend
-			// of the render target buffer and copy the content to swapchain image
-			// at binding time, converting the tiling mode implicitly.
-
-			//SceBuffer rtBuffer   = {};
-			//uint32_t  bufferSize = target->getColorSizeAlign().m_size;
-			//uint32_t  numUints   = bufferSize / sizeof(uint32_t);
-			//rtBuffer.gnmBuffer.initAsDataBuffer(target->getBaseAddress(), Gnm::kDataFormatR32Uint, numUints);
-
-			//VltBufferCreateInfo info;
-			//info.size   = bufferSize;
-			//info.usage  = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-			//info.stages = VK_PIPELINE_STAGE_TRANSFER_BIT;
-			//info.access = VK_ACCESS_TRANSFER_READ_BIT;
-
-			//rtBuffer.buffer = m_device->createBuffer(info,
-			//										 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-			//										 VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-			//resource->setBuffer(rtBuffer);
-
 			VltAttachment attachment = 
 			{
 				rtRes.imageView,
@@ -714,19 +682,19 @@ namespace sce::Gnm
 
 	Rc<VltBuffer> GnmCommandBufferDraw::generateIndexBuffer(const void* data, uint32_t size)
 	{
-		VltBufferCreateInfo info = {};
-		info.size                = size;
-		info.usage               = VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-		info.stages              = VK_PIPELINE_STAGE_VERTEX_INPUT_BIT | VK_PIPELINE_STAGE_TRANSFER_BIT;
-		info.access              = VK_ACCESS_INDEX_READ_BIT;
+		Buffer dummy = {};
+		dummy.initAsDataBuffer(data, kDataFormatR16Uint, size / kDataFormatR16Uint.getBytesPerElement());
 
-		Rc<VltBuffer> buffer = m_device->createBuffer(info, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		GnmBufferCreateInfo info;
+		info.vsharp     = &dummy;
+		info.usage      = VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+		info.stage      = VK_PIPELINE_STAGE_VERTEX_INPUT_BIT | VK_PIPELINE_STAGE_TRANSFER_BIT;
+		info.access     = VK_ACCESS_INDEX_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
+		info.memoryType = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
-		m_context->updateBuffer(buffer,
-								0,
-								size,
-								data);
-		return buffer;
+		SceBuffer buffer = getResourceBuffer(info);
+
+		return buffer.buffer;
 	}
 
 	Rc<VltBuffer> GnmCommandBufferDraw::generateIndexBufferAuto(uint32_t indexCount)
@@ -793,8 +761,6 @@ namespace sce::Gnm
 	inline void GnmCommandBufferDraw::bindVertexBuffer(
 		const Buffer* vsharp, uint32_t binding)
 	{
-		SceBuffer buffer;
-
 		GnmBufferCreateInfo info;
 		info.vsharp     = vsharp;
 		info.usage      = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
@@ -802,13 +768,7 @@ namespace sce::Gnm
 		info.access     = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
 		info.memoryType = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
-		m_factory.createBuffer(info, buffer);
-		m_tracker->track(buffer);
-
-		m_context->updateBuffer(buffer.buffer,
-								0,
-								vsharp->getSize(),
-								vsharp->getBaseAddress());
+		SceBuffer buffer = getResourceBuffer(info);
 
 		m_context->bindVertexBuffer(binding,
 									VltBufferSlice(buffer.buffer, 0, buffer.buffer->info().size),
@@ -991,6 +951,9 @@ namespace sce::Gnm
 		msState.sampleMask            = 0xFFFFFFFF;
 		m_context->setMultisampleState(msState);
 
+		// Flush memory to buffer and texture resources.
+		m_initializer.flush();
+		// Process pending upload/download
 		m_tracker->flush(m_context.ptr());
 	}
 
@@ -1016,6 +979,63 @@ namespace sce::Gnm
 		std::ofstream fout(csModule.name(), std::ios::binary);
 		shader->dump(fout);
 #endif
+
+		m_initializer.flush();
+	}
+
+	SceBuffer GnmCommandBufferDraw::getResourceBuffer(const GnmBufferCreateInfo& info)
+	{
+		// Lookup or create buffer
+
+		SceBuffer result = {};
+
+		auto  vsharp        = info.vsharp;
+		void* bufferAddress = vsharp->getBaseAddress();
+		auto  resource      = m_tracker->find(bufferAddress);
+		if (resource != nullptr)
+		{
+			auto type = resource->type();
+			if (type.test(SceResourceType::Texture) ||
+				type.test(SceResourceType::RenderTarget) ||
+				type.test(SceResourceType::DepthRenderTarget))
+			{
+				// An image backend buffer,
+				// we create and fill the buffer,
+				// then pending a transform to do be done.
+
+				// We going to copy this buffer to it's original image,
+				// so update usage flag.
+				auto createInfo = info;
+				createInfo.usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+				m_factory.createBuffer(createInfo, result);
+
+				// upload content
+				m_initializer.initBuffer(result.buffer, vsharp);
+				
+				resource->setBuffer(result);
+				// Pending upload
+				resource->setTransform(SceTransformFlag::GpuUpload);
+			}
+			else
+			{
+				// An already exist buffer,
+				// we don't need to create a new one,
+				// just return it.
+				result = resource->buffer();
+			}
+		}
+		else
+		{
+			// A fresh new buffer,
+			// we create and fill it's content
+			m_factory.createBuffer(info, result);
+			// upload content
+			m_initializer.initBuffer(result.buffer, vsharp);
+			// track the new buffer
+			m_tracker->track(result);
+		}
+
+		return result;
 	}
 
 	void GnmCommandBufferDraw::bindResourceBuffer(
@@ -1025,62 +1045,30 @@ namespace sce::Gnm
 		VkPipelineStageFlags2 stage,
 		VkAccessFlagBits2     access)
 	{
-		void* bufferAddress = vsharp->getBaseAddress();
-		auto  resource      = m_tracker->find(bufferAddress);
-		if (resource != nullptr)
-		{
-			usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-		}
-
-		SceBuffer buffer;
-
+		
 		GnmBufferCreateInfo info;
 		info.vsharp = vsharp;
 		info.usage  = usage;
 		info.stage  = stage;
 		info.access = access;
 
-		uint32_t slot = 0;
 		if (usage & VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
 		{
 			info.memoryType = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
 							  VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-
-			m_factory.createBuffer(info, buffer);
-
-			slot = computeConstantBufferBinding(
-				gcnProgramTypeFromVkStage(stage), startRegister);
 		}
 		else
 		{
 			info.stage |= VK_PIPELINE_STAGE_TRANSFER_BIT;
 			info.memoryType = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-
-			m_factory.createBuffer(info, buffer);
-
-			slot = computeResourceBinding(
-				gcnProgramTypeFromVkStage(stage), startRegister);
 		}
 
-		if (resource != nullptr)
-		{
-			auto type = resource->type();
-			if (type.test(SceResourceType::Texture) ||
-				type.test(SceResourceType::RenderTarget))
-			{
-				resource->setBuffer(buffer);
-				// Pending upload
-				resource->setTransform(SceTransformFlag::GpuUpload);
-			}
-		}
-		else
-		{
-			m_tracker->track(buffer);
-		}
-		
-
-		m_initializer.initBuffer(buffer.buffer, vsharp);
-
+		SceBuffer buffer   = getResourceBuffer(info);
+		auto      progType = gcnProgramTypeFromVkStage(stage);
+		uint32_t  slot     = usage & VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT ? computeConstantBufferBinding(
+																			  progType, startRegister)
+																		: computeResourceBinding(
+																			  progType, startRegister);
 		m_context->bindResourceBuffer(slot, VltBufferSlice(buffer.buffer));
 	}
 
@@ -1218,9 +1206,6 @@ namespace sce::Gnm
 				break;
 			}
 		}
-
-		// Flush memory to buffer and texture resources.
-		m_initializer.flush();
 	}
 
 	const void* GnmCommandBufferDraw::findFetchShader(
@@ -1384,5 +1369,7 @@ namespace sce::Gnm
 				break;
 		}
 	}
+
+
 
 }  // namespace sce::Gnm

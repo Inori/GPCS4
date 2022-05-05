@@ -10,11 +10,11 @@ namespace sce::Gnm
 {
 
 	/**
- * \brief Index Buffer Descriptor
- *
- * Since there's no dedicated Index Buffer Descriptor in Gnm,
- * we create one.
- */
+	 * \brief Index Buffer Descriptor
+	 *
+	 * Since there's no dedicated Index Buffer Descriptor in Gnm,
+	 * we create one.
+	 */
 	struct GnmIndexBuffer
 	{
 		const void* buffer = nullptr;
@@ -40,7 +40,7 @@ namespace sce::Gnm
 			return m_vsharp;
 		}
 
-		void initAsDataBuffer(void* baseAddr, DataFormat format, uint32_t numElements)
+		void initAsDataBuffer(const void* baseAddr, DataFormat format, uint32_t numElements)
 		{
 			// From IDA
 			m_regs[3] = 0x20000000;
