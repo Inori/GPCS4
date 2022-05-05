@@ -378,6 +378,20 @@ namespace sce::gcn
 		}
 	}
 
+	bool GcnDecodeContext::isVOP3BEncoding(GcnOpcodeVOP3 opcode)
+	{
+		return opcode == GcnOpcodeVOP3::V_ADD_I32 ||
+			   opcode == GcnOpcodeVOP3::V_ADDC_U32 ||
+			   opcode == GcnOpcodeVOP3::V_SUB_I32 ||
+			   opcode == GcnOpcodeVOP3::V_SUBB_U32 ||
+			   opcode == GcnOpcodeVOP3::V_SUBREV_I32 ||
+			   opcode == GcnOpcodeVOP3::V_SUBBREV_U32 ||
+			   opcode == GcnOpcodeVOP3::V_DIV_SCALE_F32 ||
+			   opcode == GcnOpcodeVOP3::V_DIV_SCALE_F64 ||
+			   opcode == GcnOpcodeVOP3::V_MAD_U64_U32 ||
+			   opcode == GcnOpcodeVOP3::V_MAD_I64_I32;
+	}
+
 	GcnOperandField GcnDecodeContext::getOperandField(uint32_t code)
 	{
 		GcnOperandField field = {};
@@ -742,9 +756,23 @@ namespace sce::gcn
 		m_instruction.src[2].code  = m_instruction.src[2].field == GcnOperandField::VectorGPR ? src2 - VectorGPRMin : src2;
 		m_instruction.dst[0].field = GcnOperandField::VectorGPR;
 		m_instruction.dst[0].code  = vdst;
-		m_instruction.dst[1].field = GcnOperandField::ScalarGPR;
-		m_instruction.dst[1].type  = GcnScalarType::Uint64;
-		m_instruction.dst[1].code  = sdst;
+
+		GcnOpcodeVOP3 vop3Op = static_cast<GcnOpcodeVOP3>(op);
+		if (isVOP3BEncoding(vop3Op))
+		{
+			m_instruction.dst[1].field = GcnOperandField::ScalarGPR;
+			m_instruction.dst[1].type  = GcnScalarType::Uint64;
+			m_instruction.dst[1].code  = sdst;
+		}
+		else
+		{
+			if (vop3Op >= GcnOpcodeVOP3::V_CMP_F_F32 && vop3Op <= GcnOpcodeVOP3::V_CMPX_T_U64)
+			{
+				m_instruction.dst[1].field = GcnOperandField::ScalarGPR;
+				m_instruction.dst[1].type  = GcnScalarType::Uint64;
+				m_instruction.dst[1].code  = vdst;
+			}
+		}
 
 		if (op >= static_cast<uint32_t>(GcnOpcodeVOP3::V_ADD_I32) &&
 			op <= static_cast<uint32_t>(GcnOpcodeVOP3::V_DIV_SCALE_F64))
@@ -1017,6 +1045,7 @@ namespace sce::gcn
 
 		m_instruction.control.exp = *reinterpret_cast<GcnInstControlEXP*>(&hexInstruction);
 	}
+
 
 	///////////////////////////////////////////////////////////////
 

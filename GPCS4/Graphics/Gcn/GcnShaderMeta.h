@@ -111,6 +111,18 @@ namespace sce::gcn
 	{
 		uint32_t                                                inputSemanticCount;
 		std::array<PixelSemanticMapping, kMaxPsInputUsageCount> semanticMapping;
+
+		bool perspSampleEn;
+		bool perspCenterEn;
+		bool perspCentroidEn;
+		bool perspPullModelEn;
+		bool linearSampleEn;
+		bool linearCenterEn;
+		bool linearCentroidEn;
+		bool posXEn;
+		bool posYEn;
+		bool posZEn;
+		bool posWEn;
 	};
 
 	struct GcnMetaCS : public GcnMetaCommon

@@ -149,7 +149,20 @@ namespace sce::Gnm
 		ctx.code  = psRegs->getCodeAddress();
 
 		const SPI_SHADER_PGM_RSRC2_PS* rsrc2 = reinterpret_cast<const SPI_SHADER_PGM_RSRC2_PS*>(&psRegs->spiShaderPgmRsrc2Ps);
-		ctx.meta.vs.userSgprCount            = rsrc2->user_sgpr;
+		ctx.meta.ps.userSgprCount            = rsrc2->user_sgpr;
+
+		const SPI_PS_INPUT_ENA* addr = reinterpret_cast<const SPI_PS_INPUT_ENA*>(&psRegs->spiPsInputAddr);
+		ctx.meta.ps.perspSampleEn    = addr->persp_sample_ena;
+		ctx.meta.ps.perspCenterEn    = addr->persp_center_ena;
+		ctx.meta.ps.perspCentroidEn  = addr->persp_centroid_ena;
+		ctx.meta.ps.perspPullModelEn = addr->persp_pull_model_ena;
+		ctx.meta.ps.linearSampleEn   = addr->linear_sample_ena;
+		ctx.meta.ps.linearCenterEn   = addr->linear_center_ena;
+		ctx.meta.ps.linearCentroidEn = addr->linear_centroid_ena;
+		ctx.meta.ps.posXEn           = addr->pos_x_float_ena;
+		ctx.meta.ps.posYEn           = addr->pos_y_float_ena;
+		ctx.meta.ps.posZEn           = addr->pos_z_float_ena;
+		ctx.meta.ps.posWEn           = addr->pos_w_float_ena;
 	}
 
 	void GnmCommandBufferDraw::updatePsShader(const gcn::PsStageRegisters* psRegs)

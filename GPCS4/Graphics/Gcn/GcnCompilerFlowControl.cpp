@@ -1,4 +1,5 @@
 #include "GcnCompiler.h"
+#include "GcnHeader.h"
 
 LOG_CHANNEL(Graphic.Gcn.GcnCompiler);
 
@@ -140,12 +141,6 @@ namespace sce::gcn
 			uint32_t trueLabelId  = block.lableId;
 			uint32_t falseLabelId = m_module.allocateId();
 
-			// TODO:
-			// This is a dummy merge, it's only used to pass spirv-val checks.
-			// To implement a real merge block, see:
-			// https://github.com/Inori/GPCS4/blob/shader_cfg/GPCS4/Graphics/Gcn/GcnCfgGenerator.h#L13
-			// m_module.opSelectionMerge(falseLabelId, spv::SelectionControlMaskNone);
-
 			m_module.opBranchConditional(condition, trueLabelId, falseLabelId);
 			m_module.opLabel(falseLabelId);
 
@@ -165,8 +160,8 @@ namespace sce::gcn
 		if (isDoubleType(dstType))
 		{
 			auto resultHigh = emitRegisterZeroTest(dst.high, GcnZeroTest::TestNz);
-			result.id       = m_module.opLogicalAnd(m_module.defBoolType(),
-													result.id, resultHigh.id);
+			result.id       = m_module.opLogicalOr(m_module.defBoolType(),
+												   result.id, resultHigh.id);
 		}
 
 		emitValueStore(m_state.scc, result, GcnRegMask::select(0));

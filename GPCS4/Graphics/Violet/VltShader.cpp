@@ -160,6 +160,10 @@ namespace sce::vlt
 	void VltShader::read(std::istream& inputStream)
 	{
 		m_code = SpirvCodeBuffer(inputStream);
+
+		// Do not fix binding id if we read from a external binary file.
+		m_idOffsets.clear();
+
 		updateShaderKey(m_code.decompress());
 	}
 

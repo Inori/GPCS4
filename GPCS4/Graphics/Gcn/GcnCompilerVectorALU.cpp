@@ -1,4 +1,5 @@
 #include "GcnCompiler.h"
+#include "GcnHeader.h"
 
 LOG_CHANNEL(Graphic.Gcn.GcnCompiler);
 
@@ -107,7 +108,7 @@ namespace sce::gcn
 				auto packed = emitPackHalf2x16(pair);
 				dst.low     = packed;
 			}
-			break;
+				break;
 			// VectorFpArith32
 			case GcnOpcode::V_ADD_F32:
 				dst.low.id = m_module.opFAdd(typeId,
@@ -155,6 +156,7 @@ namespace sce::gcn
 				dst.low.id = m_module.opISub(typeId,
 											 src[0].low.id,
 											 src[1].low.id);
+				break;
 			case GcnOpcode::V_SUBREV_I32:
 				dst.low.id = m_module.opISub(typeId,
 											 src[1].low.id,

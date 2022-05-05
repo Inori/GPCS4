@@ -918,8 +918,8 @@ namespace sce::gcn
 
 		switch (m_programInfo.type())
 		{
-			case GcnProgramType::VertexShader: this->emitVsInputSetup(); break;
-			case GcnProgramType::PixelShader: this->emitPsInputSetup(); break;
+			case GcnProgramType::VertexShader:  this->emitVsInputSetup(); break;
+			case GcnProgramType::PixelShader:   this->emitPsInputSetup(); break;
 			case GcnProgramType::ComputeShader: this->emitCsInputSetup(); break;
 			default:
 				Logger::exception("shader stage not supported.");
@@ -962,6 +962,57 @@ namespace sce::gcn
 		uint32_t userDataCount = m_meta.ps.userSgprCount;
 
 		// Initialize VGPR
+		uint32_t vIndex = 0;
+		// Build a dummy register to index vgpr.
+		GcnInstOperand reg = {};
+		reg.field          = GcnOperandField::VectorGPR;
+		reg.type           = GcnScalarType::Float32;
+
+
+		// TODO:
+		// What is sample position and what is center position?
+		// What's the difference between screen position and them?
+		if (m_meta.ps.perspSampleEn)
+		{
+			GcnRegisterValue value;
+			value = emitPsSystemValueLoad(GcnSystemValue::Position, GcnRegMask::select(0));
+			reg.code               = vIndex++;
+			emitVgprStore(reg, value);
+
+			value = emitPsSystemValueLoad(GcnSystemValue::Position, GcnRegMask::select(1));
+			reg.code               = vIndex++;
+			emitVgprStore(reg, value);
+		}
+
+		if (m_meta.ps.perspCenterEn)
+		{
+			GcnRegisterValue value;
+			value    = emitPsSystemValueLoad(GcnSystemValue::Position, GcnRegMask::select(0));
+			reg.code = vIndex++;
+			emitVgprStore(reg, value);
+
+			value    = emitPsSystemValueLoad(GcnSystemValue::Position, GcnRegMask::select(1));
+			reg.code = vIndex++;
+			emitVgprStore(reg, value);
+		}
+
+		LOG_ASSERT(m_meta.ps.perspCentroidEn == false, "TODO");
+		LOG_ASSERT(m_meta.ps.perspPullModelEn == false, "TODO");
+		LOG_ASSERT(m_meta.ps.linearSampleEn == false, "TODO");
+		LOG_ASSERT(m_meta.ps.linearCenterEn == false, "TODO");
+		LOG_ASSERT(m_meta.ps.linearCentroidEn == false, "TODO");
+		if (m_meta.ps.posXEn)
+		{
+			GcnRegisterValue value = emitPsSystemValueLoad(GcnSystemValue::Position, GcnRegMask::select(0));
+			reg.code = vIndex++;
+			emitVgprStore(reg, value);
+		}
+		if (m_meta.ps.posYEn)
+		{
+			GcnRegisterValue value = emitPsSystemValueLoad(GcnSystemValue::Position, GcnRegMask::select(1));
+			reg.code = vIndex++;
+			emitVgprStore(reg, value);
+		}
 	}
 
 	void GcnCompiler::emitCsInputSetup()
@@ -969,7 +1020,7 @@ namespace sce::gcn
 		// Initialize SGPR
 		emitUserDataInit();
 		uint32_t userDataCount = m_meta.cs.userSgprCount;
-		uint32_t sysSgprIdx    = userDataCount;
+		uint32_t sIndex        = userDataCount;
 
 		GcnInstOperand reg;
 		reg.field = GcnOperandField::ScalarGPR;
@@ -979,7 +1030,7 @@ namespace sce::gcn
 			auto value = emitCsSystemValueLoad(
 				GcnSystemValue::WorkgroupId, GcnRegMask::select(0));
 
-			reg.code = sysSgprIdx++;
+			reg.code = sIndex++;
 			emitSgprStore(reg, value);
 		}
 
@@ -988,7 +1039,7 @@ namespace sce::gcn
 			auto value = emitCsSystemValueLoad(
 				GcnSystemValue::WorkgroupId, GcnRegMask::select(1));
 
-			reg.code = sysSgprIdx++;
+			reg.code = sIndex++;
 			emitSgprStore(reg, value);
 		}
 
@@ -997,7 +1048,7 @@ namespace sce::gcn
 			auto value = emitCsSystemValueLoad(
 				GcnSystemValue::WorkgroupId, GcnRegMask::select(2));
 
-			reg.code = sysSgprIdx++;
+			reg.code = sIndex++;
 			emitSgprStore(reg, value);
 		}
 
@@ -1862,7 +1913,7 @@ namespace sce::gcn
 			uint32_t offsetId    = m_module.opIAdd(uintTypeId,
 												   baseId,
 												   m_module.constu32(i * 4));
-			uint32_t uint4Id     = m_module.opUDiv(uintTypeId,
+			uint32_t vec4Id      = m_module.opUDiv(uintTypeId,
 												   offsetId,
 												   m_module.constu32(16));
 			uint32_t componentId = m_module.opUDiv(uintTypeId,
@@ -1871,7 +1922,7 @@ namespace sce::gcn
 																   m_module.constu32(16)),
 												   m_module.constu32(4));
 
-			const std::array<uint32_t, 3> indices = { { m_module.consti32(0), uint4Id, componentId } };
+			const std::array<uint32_t, 3> indices = { { m_module.consti32(0), vec4Id, componentId } };
 
 			uint32_t componentPtr = m_module.opAccessChain(ptrTypeId,
 														   bufferId,
@@ -1935,6 +1986,8 @@ namespace sce::gcn
 		GcnRegisterValue baseId = emitIndexLoad(index);
 
 		uint32_t fpTypeId = getScalarTypeId(GcnScalarType::Float32);
+
+
 
 		auto ptrList = emitUniformBufferAccess(m_buffers.at(regId).varId,
 											   baseId.id,
