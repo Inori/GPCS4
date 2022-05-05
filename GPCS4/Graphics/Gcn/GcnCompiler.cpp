@@ -957,17 +957,17 @@ namespace sce::gcn
 
 	void GcnCompiler::emitPsInputSetup()
 	{
+		// Build a dummy register to index gpr.
+		GcnInstOperand reg = {};
+		reg.field          = GcnOperandField::VectorGPR;
+		reg.type           = GcnScalarType::Float32;
+
 		// Initialize SGPR
 		emitUserDataInit();
 		uint32_t userDataCount = m_meta.ps.userSgprCount;
 
 		// Initialize VGPR
 		uint32_t vIndex = 0;
-		// Build a dummy register to index vgpr.
-		GcnInstOperand reg = {};
-		reg.field          = GcnOperandField::VectorGPR;
-		reg.type           = GcnScalarType::Float32;
-
 
 		// TODO:
 		// What is sample position and what is center position?
@@ -1022,9 +1022,11 @@ namespace sce::gcn
 		uint32_t userDataCount = m_meta.cs.userSgprCount;
 		uint32_t sIndex        = userDataCount;
 
+		// Build a dummy register to index gpr.
 		GcnInstOperand reg;
 		reg.field = GcnOperandField::ScalarGPR;
 		reg.type  = GcnScalarType::Float32;
+
 		if (m_meta.cs.enableTgidX)
 		{
 			auto value = emitCsSystemValueLoad(
@@ -1053,14 +1055,33 @@ namespace sce::gcn
 		}
 
 		// Initialize VGPR
+		uint32_t vIndex = 0;
+		reg.field       = GcnOperandField::VectorGPR;
+
+
 		// v0 stores gl_LocalInvocationID.x
 		GcnRegisterValue value = emitCsSystemValueLoad(
 			GcnSystemValue::LocalInvocationId, GcnRegMask::select(0));
 
-		reg.field = GcnOperandField::VectorGPR;
-		reg.type  = GcnScalarType::Float32;
-		reg.code  = 0;
+		reg.code  = vIndex++;
 		emitVgprStore(reg, value);
+
+		if (m_meta.cs.threadIdInGroupCount >= 1)
+		{
+			value = emitCsSystemValueLoad(
+				GcnSystemValue::LocalInvocationId, GcnRegMask::select(1));
+
+			reg.code = vIndex++;
+			emitVgprStore(reg, value);
+		}
+		if (m_meta.cs.threadIdInGroupCount >= 2)
+		{
+			value = emitCsSystemValueLoad(
+				GcnSystemValue::LocalInvocationId, GcnRegMask::select(2));
+
+			reg.code = vIndex++;
+			emitVgprStore(reg, value);
+		}
 	}
 
 	void GcnCompiler::emitFetchInput()
@@ -1353,56 +1374,72 @@ namespace sce::gcn
 		{
 			case GcnSystemValue::GlobalInvocationId:
 			{
-				uint32_t builtinGlobalInvocationId = emitNewBuiltinVariable({ { GcnScalarType::Uint32, 3, 0 },
-																		  spv::StorageClassInput },
-																		spv::BuiltInGlobalInvocationId,
-																		"vThreadId");
+				if (m_cs.builtinGlobalInvocationId == 0)
+				{
+					m_cs.builtinGlobalInvocationId = emitNewBuiltinVariable({ { GcnScalarType::Uint32, 3, 0 },
+																			  spv::StorageClassInput },
+																			spv::BuiltInGlobalInvocationId,
+																			"vThreadId");
+				}
+
 				GcnRegisterPointer ptr;
 				ptr.type.ctype  = GcnScalarType::Uint32;
 				ptr.type.ccount = 3;
-				ptr.id          = builtinGlobalInvocationId;
+				ptr.id          = m_cs.builtinGlobalInvocationId;
 				auto value      = emitValueLoad(ptr);
 				return emitRegisterExtract(value, mask);
 			}
 				break;
 			case GcnSystemValue::WorkgroupId:
 			{
-				uint32_t builtinWorkgroupId = emitNewBuiltinVariable({ { GcnScalarType::Uint32, 3, 0 },
-																   spv::StorageClassInput },
-																 spv::BuiltInWorkgroupId,
-																 "vGroupId");
+				if (m_cs.builtinWorkgroupId == 0)
+				{
+					m_cs.builtinWorkgroupId = emitNewBuiltinVariable({ { GcnScalarType::Uint32, 3, 0 },
+																	   spv::StorageClassInput },
+																	 spv::BuiltInWorkgroupId,
+																	 "vGroupId");
+				}
+
 				GcnRegisterPointer ptr;
 				ptr.type.ctype  = GcnScalarType::Uint32;
 				ptr.type.ccount = 3;
-				ptr.id          = builtinWorkgroupId;
+				ptr.id          = m_cs.builtinWorkgroupId;
 				auto value      = emitValueLoad(ptr);
 				return emitRegisterExtract(value, mask);
 			}
 				break;
 			case GcnSystemValue::LocalInvocationId:
 			{
-				uint32_t builtinLocalInvocationId = emitNewBuiltinVariable({ { GcnScalarType::Uint32, 3, 0 },
-																		 spv::StorageClassInput },
-																	   spv::BuiltInLocalInvocationId,
-																	   "vThreadIdInGroup");
+				if (m_cs.builtinLocalInvocationId == 0)
+				{
+					m_cs.builtinLocalInvocationId = emitNewBuiltinVariable({ { GcnScalarType::Uint32, 3, 0 },
+																			 spv::StorageClassInput },
+																		   spv::BuiltInLocalInvocationId,
+																		   "vThreadIdInGroup");
+				}
+
 				GcnRegisterPointer ptr;
 				ptr.type.ctype  = GcnScalarType::Uint32;
 				ptr.type.ccount = 3;
-				ptr.id          = builtinLocalInvocationId;
+				ptr.id          = m_cs.builtinLocalInvocationId;
 				auto value      = emitValueLoad(ptr);
 				return emitRegisterExtract(value, mask);
 			}
 				break;
 			case GcnSystemValue::LocalInvocationIndex:
 			{
-				uint32_t builtinLocalInvocationIndex = emitNewBuiltinVariable({ { GcnScalarType::Uint32, 1, 0 },
-																			spv::StorageClassInput },
-																		  spv::BuiltInLocalInvocationIndex,
-																		  "vThreadIndexInGroup");
+				if (m_cs.builtinLocalInvocationIndex == 0)
+				{
+					m_cs.builtinLocalInvocationIndex = emitNewBuiltinVariable({ { GcnScalarType::Uint32, 1, 0 },
+																				spv::StorageClassInput },
+																			  spv::BuiltInLocalInvocationIndex,
+																			  "vThreadIndexInGroup");
+				}
+
 				GcnRegisterPointer ptr;
 				ptr.type.ctype  = GcnScalarType::Uint32;
 				ptr.type.ccount = 1;
-				ptr.id          = builtinLocalInvocationIndex;
+				ptr.id          = m_cs.builtinLocalInvocationIndex;
 				return emitValueLoad(ptr);
 			}
 				break;

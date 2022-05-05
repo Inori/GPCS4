@@ -854,19 +854,21 @@ namespace sce::gcn
 				 op <= static_cast<uint32_t>(GcnOpcodeMUBUF::BUFFER_STORE_FORMAT_XYZW))
 		{
 			m_instruction.control.mubuf.count = op - 3;
-			m_instruction.control.mubuf.size  = (op + 1) * sizeof(uint32_t);
+			m_instruction.control.mubuf.size  = (op - 3) * sizeof(uint32_t);
 		}
 		else if (op >= static_cast<uint32_t>(GcnOpcodeMUBUF::BUFFER_LOAD_DWORD) &&
-				 op <= static_cast<uint32_t>(GcnOpcodeMUBUF::BUFFER_LOAD_DWORDX4))
+				 op <= static_cast<uint32_t>(GcnOpcodeMUBUF::BUFFER_LOAD_DWORDX3))
 		{
-			m_instruction.control.mubuf.count = 1 << (op - 12);
-			m_instruction.control.mubuf.size  = (op + 1) * sizeof(uint32_t);
+			m_instruction.control.mubuf.count =
+				op == static_cast<uint32_t>(GcnOpcodeMUBUF::BUFFER_LOAD_DWORDX3) ? 3 : 1 << (op - 12);
+			m_instruction.control.mubuf.size = m_instruction.control.mubuf.count * sizeof(uint32_t);
 		}
 		else if (op >= static_cast<uint32_t>(GcnOpcodeMUBUF::BUFFER_STORE_DWORD) &&
-				 op <= static_cast<uint32_t>(GcnOpcodeMUBUF::BUFFER_STORE_DWORDX4))
+				 op <= static_cast<uint32_t>(GcnOpcodeMUBUF::BUFFER_STORE_DWORDX3))
 		{
-			m_instruction.control.mubuf.count = 1 << (op - 28);
-			m_instruction.control.mubuf.size  = (op + 1) * sizeof(uint32_t);
+			m_instruction.control.mubuf.count =
+				op == static_cast<uint32_t>(GcnOpcodeMUBUF::BUFFER_STORE_DWORDX3) ? 3 : 1 << (op - 28);
+			m_instruction.control.mubuf.size = m_instruction.control.mubuf.count * sizeof(uint32_t);
 		}
 		else if (op >= static_cast<uint32_t>(GcnOpcodeMUBUF::BUFFER_LOAD_UBYTE) &&
 				 op <= static_cast<uint32_t>(GcnOpcodeMUBUF::BUFFER_LOAD_SSHORT))
