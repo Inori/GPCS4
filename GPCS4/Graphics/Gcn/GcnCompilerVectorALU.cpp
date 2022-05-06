@@ -339,16 +339,28 @@ namespace sce::gcn
 			//VectorIntGraph
 			case GcnOpcode::V_SAD_U32:
 			{
-				// Cast to signed type first
-				auto src0 = emitRegisterBitcast(src[0].low, GcnScalarType::Sint32);
-				auto src1 = emitRegisterBitcast(src[1].low, GcnScalarType::Sint32);
-
-				uint32_t diff  = m_module.opSAbs(typeId,
-												 m_module.opISub(getScalarTypeId(GcnScalarType::Sint32),
-																 src0.id,
-																 src1.id));
-				dst.low.id = m_module.opIAdd(typeId,
-											 diff, src[2].low.id);
+				// Sometimes this instruction relies on integer overflow.
+				// For example, the following instruction is equal to v2 = (v2 -1)
+				// v_sad_u32 v2, -1, 0, v2
+				
+				uint32_t sub        = m_module.opISub(typeId,
+													  src[0].low.id,
+													  src[1].low.id);
+				uint32_t isPositive = m_module.opUGreaterThan(typeId,
+															  sub,
+															  m_module.constu32(0));
+				// We shouldn't use OpSAbs directly,
+				// OpSAbs will interpret x as a signed integer first,
+				// in the edge cases like if x = 0xFFFFFFFF,
+				// the result will be 1, not 0xFFFFFFFF, which is our expected result.
+				// So we only apply opSAbs when it's negative or zero.
+				uint32_t diff       = m_module.opSelect(typeId,
+														isPositive,
+														sub,
+														m_module.opSAbs(typeId,
+																		sub));
+				dst.low.id          = m_module.opIAdd(typeId,
+													  diff, src[2].low.id);
 			}
 				break;
 			default:

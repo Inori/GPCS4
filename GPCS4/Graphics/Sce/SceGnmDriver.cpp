@@ -140,6 +140,7 @@ namespace sce
 
 		submitPresent(cmdList, displayBufferIndex);
 
+		// downloadResource();
 		// clear resource tracker every frame
 		resetResourceTracker();
 
@@ -293,6 +294,40 @@ namespace sce
 	{
 		auto& tracker = GPU().resourceTracker();
 		tracker.reset();
+	}
+
+	void SceGnmDriver::downloadResource()
+	{
+		// Download the resource from vulkan back to it's
+		// Gnm object.
+		// This has two purpose:
+		// 1. After the download, we can then safely
+		//    release vulkan object, no matter the Gnm
+		//    resource is released by game or not.
+		//    If it is released after current frame,
+		//    we are fine, the cost is a useless memory copy.
+	    //    If it is still used by the next frame,
+		//    we just create a new vulkan object using previous
+		//    content downloaded here. The cost is a vulkan object
+		//    creation.
+		// 2. If the game access the Gnm object on CPU side,
+		//    we are fine.
+		//    
+		//    This need to be optimized a lot.
+
+		auto& tracker = GPU().resourceTracker();
+
+		auto context = m_device->createContext();
+		context->beginRecording(
+			m_device->createCommandList());
+
+		tracker.download(context.ptr());
+
+		m_device->submitCommandList(
+			context->endRecording(),
+			VK_NULL_HANDLE,
+			VK_NULL_HANDLE);
+		m_device->syncSubmission();
 	}
 
 }  // namespace sce

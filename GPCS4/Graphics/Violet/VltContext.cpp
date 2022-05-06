@@ -16,8 +16,8 @@ namespace sce::vlt
 		m_execBarriers(VltCmdType::ExecBuffer),
 		m_execAcquires(VltCmdType::ExecBuffer),
 		m_transBarriers(VltCmdType::TransferBuffer),
-		m_initBarriers(VltCmdType::InitBuffer),
 		m_transAcquires(VltCmdType::TransferBuffer),
+		m_initBarriers(VltCmdType::InitBuffer),
 		m_staging(device)
 	{
 	}
@@ -255,6 +255,49 @@ namespace sce::vlt
 
 			m_cmd->trackResource<VltAccess::Write>(dstImage);
 		}
+	}
+
+	void VltContext::copyBuffer(
+		const Rc<VltBuffer>& dstBuffer,
+		VkDeviceSize         dstOffset,
+		const Rc<VltBuffer>& srcBuffer,
+		VkDeviceSize         srcOffset,
+		VkDeviceSize         numBytes)
+	{
+		if (numBytes == 0)
+			return;
+
+		this->endRendering();
+
+		auto dstSlice = dstBuffer->getSliceHandle(dstOffset, numBytes);
+		auto srcSlice = srcBuffer->getSliceHandle(srcOffset, numBytes);
+
+		if (m_execBarriers.isBufferDirty(srcSlice, VltAccess::Read) || 
+			m_execBarriers.isBufferDirty(dstSlice, VltAccess::Write))
+			m_execBarriers.recordCommands(m_cmd);
+
+		VkBufferCopy bufferRegion;
+		bufferRegion.srcOffset = srcSlice.offset;
+		bufferRegion.dstOffset = dstSlice.offset;
+		bufferRegion.size      = dstSlice.length;
+
+		m_cmd->cmdCopyBuffer(VltCmdType::ExecBuffer,
+							 srcSlice.handle, dstSlice.handle, 1, &bufferRegion);
+
+		m_execBarriers.accessBuffer(srcSlice,
+									VK_PIPELINE_STAGE_TRANSFER_BIT,
+									VK_ACCESS_TRANSFER_READ_BIT,
+									srcBuffer->info().stages,
+									srcBuffer->info().access);
+
+		m_execBarriers.accessBuffer(dstSlice,
+									VK_PIPELINE_STAGE_TRANSFER_BIT,
+									VK_ACCESS_TRANSFER_WRITE_BIT,
+									dstBuffer->info().stages,
+									dstBuffer->info().access);
+
+		m_cmd->trackResource<VltAccess::Write>(dstBuffer);
+		m_cmd->trackResource<VltAccess::Read>(srcBuffer);
 	}
 
 	void VltContext::copyBufferToImage(
@@ -1173,7 +1216,7 @@ namespace sce::vlt
 		vutil::packImageData(stagingHandle.mapPtr, data,
 							 elementCount, formatInfo->elementSize,
 							 pitchPerRow, pitchPerLayer);
-		//std::memcpy(stagingHandle.mapPtr, data, pitchPerLayer);
+
 		// Discard previous subresource contents
 		m_transAcquires.accessImage(image,
 									vutil::makeSubresourceRange(subresources),
@@ -1212,6 +1255,32 @@ namespace sce::vlt
 
 		m_cmd->trackResource<VltAccess::Write>(image);
 		m_cmd->trackResource<VltAccess::Read>(stagingSlice.buffer());
+	}
+
+	void VltContext::downloadBuffer(
+		const Rc<VltBuffer>& buffer,
+		void*                data)
+	{
+		auto bufferSlice = buffer->getSliceHandle();
+
+		auto stagingSlice  = m_staging.alloc(bufferSlice.length, CACHE_LINE_SIZE);
+		auto stagingHandle = stagingSlice.getSliceHandle();
+
+		VkBufferCopy region;
+		region.srcOffset = bufferSlice.offset;
+		region.dstOffset = stagingHandle.offset ;
+		region.size      = bufferSlice.length;
+
+		m_cmd->cmdCopyBuffer(VltCmdType::ExecBuffer,
+							 bufferSlice.handle, stagingHandle.handle, 1, &region);
+
+		flushCommandList();
+		// Wait for copying done before memcpy
+		// TODO:
+		// This should could be batched.
+		m_device->waitForIdle();
+
+		std::memcpy(data, stagingHandle.mapPtr, bufferSlice.length);
 	}
 
 	void VltContext::initBuffer(
@@ -1905,5 +1974,7 @@ namespace sce::vlt
 		}
 		m_state.cb.attachmentOps = ops;
 	}
+
+
 
 }  // namespace sce::vlt

@@ -954,7 +954,7 @@ namespace sce::Gnm
 		// Flush memory to buffer and texture resources.
 		m_initializer.flush();
 		// Process pending upload/download
-		m_tracker->flush(m_context.ptr());
+		m_tracker->transform(m_context.ptr());
 	}
 
 	void GnmCommandBufferDraw::commitComputeState()

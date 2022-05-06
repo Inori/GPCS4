@@ -38,7 +38,7 @@ namespace sce
 		return result;
 	}
 
-	void SceResourceTracker::flush(VltContext* context)
+	void SceResourceTracker::transform(VltContext* context)
 	{
 		for (auto& res : m_resources)
 		{
@@ -70,15 +70,24 @@ namespace sce
 				// TODO
 			}
 
-			if (transform.test(SceTransformFlag::CpuUpload))
-			{
-				// TODO
-			}
-
 			res.second.clearTransform();
 		}
+	}
 
-		//m_context->flushCommandList();
+	void SceResourceTracker::download(vlt::VltContext* context)
+	{
+		for (auto& res : m_resources)
+		{
+			auto type      = res.second.type();
+			auto transform = res.second.transform();
+
+			if (type.test(SceResourceType::Buffer))
+			{
+				auto& buffer = res.second.buffer();
+				void* data   = buffer.gnmBuffer.getBaseAddress();
+				context->downloadBuffer(buffer.buffer, data);
+			}
+		}
 	}
 
 	void SceResourceTracker::reset()

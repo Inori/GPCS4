@@ -34,21 +34,26 @@ namespace sce::gcn
 		const GcnShaderInstruction& ins)
 	{
 
-		bool idxen = false;
-		bool offen = false;
+		bool     idxen     = false;
+		bool     offen     = false;
+		uint32_t optOffset = 0;
 		if (ins.encoding == GcnInstEncoding::MUBUF)
 		{
-			idxen = ins.control.mubuf.idxen;
-			offen = ins.control.mubuf.offen;
+			idxen     = ins.control.mubuf.idxen;
+			offen     = ins.control.mubuf.offen;
+			optOffset = ins.control.mubuf.offset;
 		}
 		else
 		{
-			idxen = ins.control.mtbuf.idxen;
-			offen = ins.control.mtbuf.offen;
+			idxen     = ins.control.mtbuf.idxen;
+			offen     = ins.control.mtbuf.offen;
+			optOffset = ins.control.mtbuf.offset;
 		}
 
 		const uint32_t zero       = m_module.constu32(0);
 		auto           bufferInfo = getBufferType(ins.src[2]);
+
+		const uint32_t typdId = getScalarTypeId(GcnScalarType::Uint32);
 
 		auto soff = emitRegisterLoad(ins.src[3]);
 		// sV#.base is zero in our case.
@@ -59,8 +64,9 @@ namespace sce::gcn
 		GcnInstOperand offsetReg = ins.src[0];
 		offsetReg.code += static_cast<uint32_t>(idxen);
 
-		uint32_t offset = offen ? 
-			emitRegisterLoad(offsetReg).low.id : zero;
+		uint32_t offset = offen ? emitRegisterLoad(offsetReg).low.id : zero;
+		offset          = m_module.opIAdd(typdId, offset, m_module.constu32(optOffset));
+
 		uint32_t stride = m_module.constu32(bufferInfo.buffer.stride);
 
 		LOG_ASSERT(bufferInfo.buffer.isSwizzle == false, "TODO: support swizzle buffer.");
@@ -69,8 +75,6 @@ namespace sce::gcn
 		GcnRegisterValue result;
 		result.type.ctype = GcnScalarType::Uint32;
 		result.type.ccount = 1;
-
-		const uint32_t typdId = getVectorTypeId(result.type);
 
 		result.id = m_module.opIAdd(typdId,
 									m_module.opIAdd(typdId, base, offset),

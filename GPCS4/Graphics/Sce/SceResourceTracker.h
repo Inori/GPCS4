@@ -59,7 +59,15 @@ namespace sce
 		/**
 		 * \brief Apple pending transforms
 		 */
-		void flush(vlt::VltContext* context);
+		void transform(vlt::VltContext* context);
+
+		/**
+		 * \brief Download resource memory
+		 * 
+		 * Transfer resource memory from GPU to CPU
+		 * 
+		 */
+		void download(vlt::VltContext* context);
 
 		/**
 		 * \brief Clear all information in the tracker

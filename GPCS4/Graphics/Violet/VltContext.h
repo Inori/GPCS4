@@ -455,6 +455,16 @@ namespace sce::vlt
 			VkDeviceSize                    pitchPerRow,
 			VkDeviceSize                    pitchPerLayer);
 
+		/**
+		 * \brief Uses transfer queue to download buffer
+		 *
+		 * Only safe to use if the buffer is not in use by the GPU.
+		 * \param [in] buffer The buffer to download
+		 * \param [in] data The destination data to receive buffer contennt
+		 */
+		void downloadBuffer(
+			const Rc<VltBuffer>& buffer,
+			void*                data);
 
 		/**
          * \brief Initializes a buffer
@@ -523,6 +533,22 @@ namespace sce::vlt
 			VkImageLayout                  dstLayout,
 			VkPipelineStageFlags2          dstStages,
 			VkAccessFlags2                 dstAccess);
+
+		/**
+		 * \brief Copies data from one buffer to another
+		 *
+		 * \param [in] dstBuffer Destination buffer
+		 * \param [in] dstOffset Destination data offset
+		 * \param [in] srcBuffer Source buffer
+		 * \param [in] srcOffset Source data offset
+		 * \param [in] numBytes Number of bytes to copy
+		 */
+		void copyBuffer(
+			const Rc<VltBuffer>& dstBuffer,
+			VkDeviceSize         dstOffset,
+			const Rc<VltBuffer>& srcBuffer,
+			VkDeviceSize         srcOffset,
+			VkDeviceSize         numBytes);
 
 		/**
 		 * \brief Copies data from a buffer to an image
@@ -649,8 +675,8 @@ namespace sce::vlt
 		VltBarrierSet          m_execBarriers;
 		VltBarrierSet          m_execAcquires;
 		VltBarrierSet          m_transBarriers;
-		VltBarrierSet          m_initBarriers;
 		VltBarrierSet          m_transAcquires;
+		VltBarrierSet          m_initBarriers;
 		VltBarrierControlFlags m_barrierControl;
 
 		VkDescriptorSet m_gpSet = VK_NULL_HANDLE;

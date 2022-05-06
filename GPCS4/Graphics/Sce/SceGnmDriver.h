@@ -94,6 +94,8 @@ namespace sce
 		void trackRenderTarget(uint32_t index);
 		void resetResourceTracker();
 
+		void downloadResource();
+
 	private:
 		vlt::Rc<vlt::VltInstance> m_instance;
 		vlt::Rc<vlt::VltAdapter>  m_adapter;
