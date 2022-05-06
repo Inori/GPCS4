@@ -140,7 +140,7 @@ namespace sce
 
 		submitPresent(cmdList, displayBufferIndex);
 
-		// downloadResource();
+		downloadResource();
 		// clear resource tracker every frame
 		resetResourceTracker();
 

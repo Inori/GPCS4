@@ -81,7 +81,8 @@ namespace sce
 			auto type      = res.second.type();
 			auto transform = res.second.transform();
 
-			if (type.test(SceResourceType::Buffer))
+			if (type.test(SceResourceType::Buffer) &&
+				!type.any(SceResourceType::RenderTarget, SceResourceType::DepthRenderTarget))
 			{
 				auto& buffer = res.second.buffer();
 				void* data   = buffer.gnmBuffer.getBaseAddress();
