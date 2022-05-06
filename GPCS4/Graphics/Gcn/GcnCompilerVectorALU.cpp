@@ -342,25 +342,25 @@ namespace sce::gcn
 				// Sometimes this instruction relies on integer overflow.
 				// For example, the following instruction is equal to v2 = (v2 -1)
 				// v_sad_u32 v2, -1, 0, v2
-				
-				uint32_t sub        = m_module.opISub(typeId,
-													  src[0].low.id,
-													  src[1].low.id);
-				uint32_t isPositive = m_module.opUGreaterThan(typeId,
-															  sub,
-															  m_module.constu32(0));
-				// We shouldn't use OpSAbs directly,
+				uint32_t isSrc0Greater = m_module.opUGreaterThan(typeId,
+																 src[0].low.id,
+																 src[1].low.id);
+				// We shouldn't use OpSAbs,
 				// OpSAbs will interpret x as a signed integer first,
 				// in the edge cases like if x = 0xFFFFFFFF,
 				// the result will be 1, not 0xFFFFFFFF, which is our expected result.
-				// So we only apply opSAbs when it's negative or zero.
-				uint32_t diff       = m_module.opSelect(typeId,
-														isPositive,
-														sub,
-														m_module.opSAbs(typeId,
-																		sub));
-				dst.low.id          = m_module.opIAdd(typeId,
-													  diff, src[2].low.id);
+				// So we detect which one is larger first and use the larger one minus the
+				// smaller one.
+				uint32_t diff = m_module.opSelect(typeId,
+												  isSrc0Greater,
+												  m_module.opISub(typeId,
+																  src[0].low.id,
+																  src[1].low.id),
+												  m_module.opISub(typeId,
+																  src[1].low.id,
+																  src[0].low.id));
+				dst.low.id    = m_module.opIAdd(typeId,
+												diff, src[2].low.id);
 			}
 				break;
 			default:
