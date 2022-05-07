@@ -22,24 +22,14 @@ namespace sce::Gnm
 	{
 	}
 
-	void GnmCommandBuffer::beginRecording()
-	{
-		auto queueType = m_queueType == SceQueueType::Graphics
-							 ? VltQueueType::Graphics
-							 : VltQueueType::Compute;
-
-		m_tracker     = &(GPU().resourceTracker());
-		m_initializer = std::make_unique<GnmInitializer>(m_device, queueType);
-		m_context     = m_device->createContext();
-
-		m_context->beginRecording(
-			m_device->createCommandList(queueType));
-	}
-
-	vlt::Rc<vlt::VltCommandList>
-	GnmCommandBuffer::endRecording()
+	Rc<VltCommandList> GnmCommandBuffer::finalize()
 	{
 		return m_context->endRecording();
+	}
+
+	void GnmCommandBuffer::initializeDefaultHardwareState()
+	{
+		m_tracker = &(GPU().resourceTracker());
 	}
 
 	void GnmCommandBuffer::emuWriteGpuLabel(EventWriteSource selector, void* label, uint64_t value)
@@ -66,5 +56,8 @@ namespace sce::Gnm
 
 		} while (false);
 	}
+
+
+
 
 }  // namespace sce::Gnm

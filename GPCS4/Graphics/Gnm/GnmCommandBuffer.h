@@ -41,21 +41,15 @@ namespace sce::Gnm
 		virtual ~GnmCommandBuffer();
 
 		/**
-         * \brief Begins command buffer recording
-         * 
-         */
-		void beginRecording();
-
-		/**
-         * \brief Ends command buffer recording
-         * 
-         * Finishes recording the active command list.
-         * The command list can then be submitted to
-         * the device.
-         * 
-         * \returns Active command list
-         */
-		vlt::Rc<vlt::VltCommandList> endRecording();
+		 * \brief Finalizes the command buffer
+		 * 
+		 * Finishes recording the active command list.
+		 * The command list can then be submitted to
+		 * the device.
+		 * 
+		 * \returns Active command list
+		 */
+		virtual vlt::Rc<vlt::VltCommandList> finalize();
 
 		// Implement these one by one...
 
@@ -67,7 +61,7 @@ namespace sce::Gnm
 		// and fill in param structures or constant in GnmContant.h or GnmStructure.h or other source files
 		// at the same time.
 
-		virtual void initializeDefaultHardwareState() = 0;
+		virtual void initializeDefaultHardwareState();
 		// virtual void initializeToDefaultContextState() = 0;
 		// virtual void setupEsGsRingRegisters(uint32_t maxExportVertexSizeInDword) = 0;
 		// virtual void setupGsVsRingRegisters(const uint32_t vertexSizePerStreamInDword[4], uint32_t maxOutputVertexCount) = 0;
@@ -428,7 +422,6 @@ namespace sce::Gnm
 
 	protected:
 		vlt::VltDevice*          m_device;
-		SceQueueType             m_queueType;
 		vlt::Rc<vlt::VltContext> m_context;
 		GnmResourceFactory       m_factory;
 		

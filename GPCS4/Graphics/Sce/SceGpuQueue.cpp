@@ -26,16 +26,16 @@ namespace sce
 	{
 	}
 
-	Rc<VltCommandList>
-	SceGpuQueue::record(const SceGpuCommand& cmd)
+	void SceGpuQueue::record(const SceGpuCommand& cmd)
 	{
-		return m_cp->processCommandBuffer(cmd.buffer, cmd.size);
+		m_cp->processCommandBuffer(cmd.buffer, cmd.size);
 	}
 
 	void SceGpuQueue::submit(const SceGpuSubmission& submission)
 	{
+		auto commandList = m_cmdProducer->finalize();
 		m_device->submitCommandList(
-			submission.cmdList,
+			commandList,
 			submission.wait,
 			submission.wake);
 	}

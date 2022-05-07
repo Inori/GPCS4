@@ -37,8 +37,7 @@ namespace sce
 
 			void attachCommandBuffer(GnmCommandBuffer* commandBuffer);
 
-			vlt::Rc<vlt::VltCommandList> 
-				processCommandBuffer(const void* commandBuffer, uint32_t commandSize);
+			void processCommandBuffer(const void* commandBuffer, uint32_t commandSize);
 
 		private:
 			void processPM4Type0(PPM4_TYPE_0_HEADER pm4Hdr, uint32_t* regDataX);

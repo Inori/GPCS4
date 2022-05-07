@@ -137,9 +137,9 @@ namespace sce
 		SceGpuCommand cmd = {};
 		cmd.buffer        = dcbGpuAddrs[0];
 		cmd.size          = dcbSizesInBytes[0];
-		auto cmdList      = m_graphicsQueue->record(cmd);
+		m_graphicsQueue->record(cmd);
 
-		submitPresent(cmdList, displayBufferIndex);
+		submitPresent(displayBufferIndex);
 
 		downloadResource();
 		// clear resource tracker every frame
@@ -148,12 +148,9 @@ namespace sce
 		return SCE_OK;
 	}
 
-	void SceGnmDriver::submitPresent(
-		const vlt::Rc<vlt::VltCommandList>& cmdList,
-		uint32_t                            imageIndex)
+	void SceGnmDriver::submitPresent(uint32_t imageIndex)
 	{
 		SceGpuSubmission submission = {};
-		submission.cmdList          = cmdList;
 		submission.wait             = VK_NULL_HANDLE;
 		submission.wake             = VK_NULL_HANDLE;
 		m_graphicsQueue->submit(submission);

@@ -137,6 +137,8 @@ namespace sce::Gnm
 
 		virtual void setDepthStencilDisable() override;
 
+
+
 	private:
 
 		int32_t findUsageRegister(

@@ -36,7 +36,6 @@ namespace sce
 
 	struct SceGpuSubmission
 	{
-		vlt::Rc<vlt::VltCommandList> cmdList;
 		VkSemaphore wait;
 		VkSemaphore wake;
 	};
@@ -56,10 +55,8 @@ namespace sce
 	     * \param cmd Gnm command buffer.
 	     * \param displayBufferIndex Current display buffer index, 
 	     *                           using to index render target.
-	     * \returns The Violet command list recorded.
 	     */
-		vlt::Rc<vlt::VltCommandList>
-			record(const SceGpuCommand& cmd);
+		void record(const SceGpuCommand& cmd);
 
 		/**
 	     * \brief Submit vulkan command list to device.

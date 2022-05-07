@@ -87,6 +87,7 @@ namespace sce::Gnm
 
 				if (m_flipPacketDone)
 				{
+					m_flipPacketDone = false;
 					break;
 				}
 
@@ -107,20 +108,13 @@ namespace sce::Gnm
 			bRet = true;
 		} while (false);
 
-		// Clear works for this command buffer.
-		m_flipPacketDone = false;
-
 		return bRet;
 	}
 
-	Rc<VltCommandList>
-	GnmCommandProcessor::processCommandBuffer(const void* commandBuffer, uint32_t commandSize)
+	
+	void GnmCommandProcessor::processCommandBuffer(const void* commandBuffer, uint32_t commandSize)
 	{
-		m_cb->beginRecording();
-
 		processCmdInternal(commandBuffer, commandSize);
-
-		return m_cb->endRecording();
 	}
 
 	void GnmCommandProcessor::processPM4Type0(PPM4_TYPE_0_HEADER pm4Hdr, uint32_t* regDataX)

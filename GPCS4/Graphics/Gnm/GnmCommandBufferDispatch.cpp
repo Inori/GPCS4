@@ -1,7 +1,13 @@
 #include "GnmCommandBufferDispatch.h"
+#include "GnmInitializer.h"
+#include "Violet/VltDevice.h"
+#include "Violet/VltContext.h"
+#include "Violet/VltCmdList.h"
 #include "Sce/SceGpuQueue.h"
 
 #include <stdexcept>
+
+using namespace sce::vlt;
 
 namespace sce::Gnm
 {
@@ -9,7 +15,6 @@ namespace sce::Gnm
 	GnmCommandBufferDispatch::GnmCommandBufferDispatch(vlt::VltDevice* device) :
 		GnmCommandBuffer(device)
 	{
-		m_queueType = sce::SceQueueType::Compute;
 	}
 
 	GnmCommandBufferDispatch::~GnmCommandBufferDispatch()
@@ -18,7 +23,16 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDispatch::initializeDefaultHardwareState()
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		// This the first packed of a frame.
+		// We do some initialize work here.
+
+		GnmCommandBuffer::initializeDefaultHardwareState();
+
+		m_initializer = std::make_unique<GnmInitializer>(m_device, VltQueueType::Compute);
+		m_context     = m_device->createContext();
+
+		m_context->beginRecording(
+			m_device->createCommandList(VltQueueType::Compute));
 	}
 
 	void GnmCommandBufferDispatch::setViewportTransformControl(ViewportTransformControl vportControl)
@@ -88,7 +102,7 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDispatch::setVsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Buffer* buffer)
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		//throw std::logic_error("The method or operation is not implemented.");
 	}
 
 	void GnmCommandBufferDispatch::setTsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Texture* tex)
@@ -188,7 +202,7 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDispatch::dispatch(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ)
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		//throw std::logic_error("The method or operation is not implemented.");
 	}
 
 	void GnmCommandBufferDispatch::dispatchWithOrderedAppend(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ, DispatchOrderedAppendMode orderedAppendMode)
@@ -198,7 +212,7 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDispatch::writeDataInline(void* dstGpuAddr, const void* data, uint32_t sizeInDwords, WriteDataConfirmMode writeConfirm)
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		//throw std::logic_error("The method or operation is not implemented.");
 	}
 
 	void GnmCommandBufferDispatch::writeDataInlineThroughL2(void* dstGpuAddr, const void* data, uint32_t sizeInDwords, CachePolicy cachePolicy, WriteDataConfirmMode writeConfirm)
@@ -243,7 +257,7 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDispatch::flushShaderCachesAndWait(CacheAction cacheAction, uint32_t extendedCacheMask, StallCommandBufferParserMode commandBufferStallMode)
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		//throw std::logic_error("The method or operation is not implemented.");
 	}
 
 	void GnmCommandBufferDispatch::waitUntilSafeForRendering(uint32_t videoOutHandle, uint32_t displayBufferIndex)
@@ -273,12 +287,12 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDispatch::setCsShader(const gcn::CsStageRegisters* computeData, uint32_t shaderModifier)
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		//throw std::logic_error("The method or operation is not implemented.");
 	}
 
 	void GnmCommandBufferDispatch::writeReleaseMemEventWithInterrupt(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy)
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		//throw std::logic_error("The method or operation is not implemented.");
 	}
 
 	void GnmCommandBufferDispatch::writeReleaseMemEvent(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy)

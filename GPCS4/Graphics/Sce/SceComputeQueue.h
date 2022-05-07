@@ -33,8 +33,7 @@ namespace sce
 		void dingDong(uint32_t nextStartOffsetInDw);
 
 	private:
-		void submitCommand(
-			const void* command, uint32_t size);
+		void submitCommand();
 
 	private:
 		uint32_t* m_ringBegin;
@@ -44,7 +43,6 @@ namespace sce
 
 		std::mutex                   m_mutex;
 		std::unique_ptr<SceGpuQueue> m_queue;
-		std::vector<uint32_t>        m_linearBuffer;
 	};
 
 
