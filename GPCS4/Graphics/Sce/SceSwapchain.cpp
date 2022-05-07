@@ -49,7 +49,7 @@ namespace sce
 		// Resolve back buffer if it is multisampled. We
 		// only have to do it only for the first frame.
 		m_context->beginRecording(
-			device->createCommandList());
+			device->createCommandList(VltQueueType::Graphics));
 
 		// Get the render target which is draw to by commands from game.
 		auto& target = m_renderTargets[index];
@@ -127,7 +127,7 @@ namespace sce
 		m_renderTargets.resize(displayBufferCount);
 
 		m_context->beginRecording(
-			device->createCommandList());
+			device->createCommandList(VltQueueType::Graphics));
 
 		for (uint32_t i = 0; i != displayBufferCount; ++i)
 		{

@@ -26,7 +26,8 @@ namespace sce::vlt
 	void VltUnboundResources::clearResources(VltDevice* dev)
 	{
 		const Rc<VltContext> ctx = dev->createContext();
-		ctx->beginRecording(dev->createCommandList());
+		ctx->beginRecording(
+			dev->createCommandList(VltQueueType::Graphics));
 
 		this->clearBuffer(ctx, m_buffer);
 		this->clearImage(ctx, m_image1D);

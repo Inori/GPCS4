@@ -1,4 +1,5 @@
 #include "GnmCommandBufferDispatch.h"
+#include "Sce/SceGpuQueue.h"
 
 #include <stdexcept>
 
@@ -8,6 +9,7 @@ namespace sce::Gnm
 	GnmCommandBufferDispatch::GnmCommandBufferDispatch(vlt::VltDevice* device) :
 		GnmCommandBuffer(device)
 	{
+		m_queueType = sce::SceQueueType::Compute;
 	}
 
 	GnmCommandBufferDispatch::~GnmCommandBufferDispatch()

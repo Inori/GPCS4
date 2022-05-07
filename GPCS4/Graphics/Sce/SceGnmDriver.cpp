@@ -4,6 +4,7 @@
 #include "VirtualGPU.h"
 #include "SceVideoOut.h"
 #include "SceGpuQueue.h"
+#include "SceComputeQueue.h"
 #include "SceSwapchain.h"
 #include "SceResourceTracker.h"
 #include "UtilMath.h"
@@ -228,8 +229,6 @@ namespace sce
 				break;
 			}
 
-			*(uint32_t*)readPtrAddr = 0;
-
 			vqueueId = VQueueIdBegin + pipeId * MaxPipeId + queueId;
 			if (vqueueId >= MaxComputeQueueCount)
 			{
@@ -238,9 +237,10 @@ namespace sce
 			}
 
 			uint32_t vqueueIndex         = vqueueId - VQueueIdBegin;
-			m_computeQueues[vqueueIndex] = std::make_unique<SceGpuQueue>(
-				m_device.ptr(), SceQueueType::Compute);
-
+			m_computeQueues[vqueueIndex] = std::make_unique<SceComputeQueue>(m_device.ptr(),
+																			 ringBaseAddr,
+																			 ringSizeInDW,
+																			 readPtrAddr);
 		} while (false);
 
 		return vqueueId;
@@ -266,6 +266,8 @@ namespace sce
 		uint32_t vqueueId,
 		uint32_t nextStartOffsetInDw)
 	{
+		uint32_t vqueueIndex = vqueueId - VQueueIdBegin;
+		m_computeQueues[vqueueIndex]->dingDong(nextStartOffsetInDw);
 	}
 
 	void SceGnmDriver::destroyGpuQueues()
@@ -319,7 +321,7 @@ namespace sce
 
 		auto context = m_device->createContext();
 		context->beginRecording(
-			m_device->createCommandList());
+			m_device->createCommandList(VltQueueType::Graphics));
 
 		tracker.download(context.ptr());
 

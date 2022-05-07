@@ -786,6 +786,81 @@ typedef struct PM4_ME_COPY_DATA
 
 } PM4ME_COPY_DATA, *PPM4ME_COPY_DATA;
 
+
+// Packet description for
+//  INDIRECT_BUFFER_CONST
+//  INDIRECT_BUFFER
+
+enum ME_INDIRECT_BUFFER_CACHE_POLICY
+{
+	indirect_buffer_cache_policy_lru    = 0,
+	indirect_buffer_cache_policy_stream = 1,
+	indirect_buffer_cache_policy_bypass = 2,
+};
+
+typedef struct PM4_MD_CMD_INDIRECT_BUFFER
+{
+	union
+	{
+		PM4_TYPE_3_HEADER header;  ///< header
+		unsigned int      ordinal1;
+	};
+	union
+	{
+		unsigned int ibBaseLo;  ///< Indirect buffer base address, must be 4 byte aligned
+		unsigned int ordinal2;
+	};
+	union
+	{
+		struct
+		{
+			unsigned int ibBaseHi : 16;  ///< Indirect buffer base address
+			unsigned int reserved1 : 16;
+		};
+		unsigned int ibBaseHi32;  ///< Indirect buffer base address
+		unsigned int ordinal3;
+	};
+	union
+	{
+		union
+		{
+			struct
+			{
+				unsigned int ibSize : 20;    ///< Indirect buffer size
+				unsigned int chain : 1;      ///< set to chain to IB allocations
+				unsigned int reserved1 : 3;  ///< reserved
+				unsigned int vmid : 8;       ///< Virtual memory domain ID for command buffer
+			} SI;
+
+			struct
+			{
+				unsigned int ibSize : 20;  ///< Indirect buffer size
+				unsigned int chain : 1;
+				unsigned int offLoadPolling : 1;
+				unsigned int volatile__CI : 1;
+				unsigned int valid : 1;
+				unsigned int vmid : 4;
+				unsigned int cachePolicy : 2;
+				unsigned int reserved1 : 2;
+			} CI;
+
+			struct
+			{
+				unsigned int ibSize : 20;  ///< Indirect buffer size
+				unsigned int chain : 1;
+				unsigned int preEna : 1;
+				unsigned int reserved : 1;
+				unsigned int valid : 1;
+				unsigned int vmid : 4;
+				unsigned int cachePolicy : 2;
+				unsigned int preResume : 1;
+				unsigned int reserved1 : 1;
+			} VI;
+		};
+		unsigned int ordinal4;
+	};
+} PM4MD_CMD_INDIRECT_BUFFER, *PPM4MD_CMD_INDIRECT_BUFFER;
+
 //--------------------DISPATCH_DIRECT--------------------
 typedef struct PM4_ME_DISPATCH_DIRECT
 {

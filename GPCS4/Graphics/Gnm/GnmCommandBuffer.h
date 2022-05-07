@@ -15,6 +15,7 @@
 namespace sce
 {
 	class SceResourceTracker;
+	enum class SceQueueType;
 
 	namespace vlt
 	{
@@ -427,10 +428,12 @@ namespace sce::Gnm
 
 	protected:
 		vlt::VltDevice*          m_device;
+		SceQueueType             m_queueType;
 		vlt::Rc<vlt::VltContext> m_context;
 		GnmResourceFactory       m_factory;
-		SceResourceTracker*      m_tracker;
-		GnmInitializer           m_initializer;
+		
+		SceResourceTracker*             m_tracker;
+		std::unique_ptr<GnmInitializer> m_initializer;
 	private:
 	};
 

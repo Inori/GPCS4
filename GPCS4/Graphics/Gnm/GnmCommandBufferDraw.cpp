@@ -11,6 +11,7 @@
 #include "Platform/PlatFile.h"
 #include "Sce/SceResourceTracker.h"
 #include "Sce/SceVideoOut.h"
+#include "Sce/SceGpuQueue.h"
 #include "Violet/VltContext.h"
 #include "Violet/VltDevice.h"
 #include "Violet/VltImage.h"
@@ -44,6 +45,7 @@ namespace sce::Gnm
 	GnmCommandBufferDraw::GnmCommandBufferDraw(vlt::VltDevice* device) :
 		GnmCommandBuffer(device)
 	{
+		m_queueType = SceQueueType::Graphics;
 	}
 
 	GnmCommandBufferDraw::~GnmCommandBufferDraw()
@@ -952,7 +954,7 @@ namespace sce::Gnm
 		m_context->setMultisampleState(msState);
 
 		// Flush memory to buffer and texture resources.
-		m_initializer.flush();
+		m_initializer->flush();
 		// Process pending upload/download
 		m_tracker->transform(m_context.ptr());
 	}
@@ -980,7 +982,7 @@ namespace sce::Gnm
 		shader->dump(fout);
 #endif
 
-		m_initializer.flush();
+		m_initializer->flush();
 	}
 
 	SceBuffer GnmCommandBufferDraw::getResourceBuffer(const GnmBufferCreateInfo& info)
@@ -1010,7 +1012,7 @@ namespace sce::Gnm
 				m_factory.createBuffer(createInfo, result);
 
 				// upload content
-				m_initializer.initBuffer(result.buffer, vsharp);
+				m_initializer->initBuffer(result.buffer, vsharp);
 				
 				resource->setBuffer(result);
 				// Pending upload
@@ -1030,7 +1032,7 @@ namespace sce::Gnm
 			// we create and fill it's content
 			m_factory.createBuffer(info, result);
 			// upload content
-			m_initializer.initBuffer(result.buffer, vsharp);
+			m_initializer->initBuffer(result.buffer, vsharp);
 			// track the new buffer
 			m_tracker->track(result);
 		}
@@ -1095,7 +1097,7 @@ namespace sce::Gnm
 		m_factory.createImage(info, texture);
 		m_tracker->track(texture);
 
-		m_initializer.initTexture(texture.image, tsharp);
+		m_initializer->initTexture(texture.image, tsharp);
 	
 		uint32_t slot = computeResourceBinding(
 			gcnProgramTypeFromVkStage(stage), startRegister);

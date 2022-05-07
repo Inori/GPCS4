@@ -72,13 +72,16 @@ namespace sce::vlt
 
 	void VltContext::flushCommandList()
 	{
+		auto commandList = this->endRecording();
+		auto queueType   = commandList->type();
+
 		m_device->submitCommandList(
-			this->endRecording(),
+			commandList,
 			VK_NULL_HANDLE,
 			VK_NULL_HANDLE);
 
 		this->beginRecording(
-			m_device->createCommandList());
+			m_device->createCommandList(queueType));
 	}
 
 	void VltContext::bindRenderTarget(
@@ -1179,12 +1182,16 @@ namespace sce::vlt
 		m_cmd->cmdCopyBuffer(VltCmdType::TransferBuffer,
 							 stagingHandle.handle, bufferSlice.handle, 1, &region);
 
+		uint32_t acquireQueueFamily = m_cmd->type() == VltQueueType::Graphics
+										 ? m_device->queues().graphics.queueFamily
+										 : m_device->queues().compute.queueFamily;
+
 		m_transBarriers.releaseBuffer(
 			m_initBarriers, bufferSlice,
 			m_device->queues().transfer.queueFamily,
 			VK_PIPELINE_STAGE_TRANSFER_BIT,
 			VK_ACCESS_TRANSFER_WRITE_BIT,
-			m_device->queues().graphics.queueFamily,
+			acquireQueueFamily,
 			buffer->info().stages,
 			buffer->info().access);
 
@@ -1241,6 +1248,10 @@ namespace sce::vlt
 									image->pickLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL),
 									1, &region);
 
+		uint32_t acquireQueueFamily = m_cmd->type() == VltQueueType::Graphics
+										  ? m_device->queues().graphics.queueFamily
+										  : m_device->queues().compute.queueFamily;
+
 		// Transfer ownership to graphics queue
 		m_transBarriers.releaseImage(m_initBarriers,
 									 image, vutil::makeSubresourceRange(subresources),
@@ -1248,7 +1259,7 @@ namespace sce::vlt
 									 image->pickLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL),
 									 VK_PIPELINE_STAGE_TRANSFER_BIT,
 									 VK_ACCESS_TRANSFER_WRITE_BIT,
-									 m_device->queues().graphics.queueFamily,
+									 acquireQueueFamily,
 									 image->info().layout,
 									 image->info().stages,
 									 image->info().access);

@@ -4,13 +4,16 @@
 
 namespace sce::vlt
 {
-	VltCommandList::VltCommandList(VltDevice* device) :
+	VltCommandList::VltCommandList(VltDevice* device, VltQueueType queueType) :
 		m_device(device),
+		m_queueType(queueType),
 		m_cmdBuffersUsed(0),
 		m_descriptorPoolTracker(device),
 		m_debug(device)
 	{
-		const auto& graphicsQueue = m_device->queues().graphics;
+		const auto& execQueue     = m_queueType == VltQueueType::Graphics
+										? m_device->queues().graphics
+										: m_device->queues().compute;
 		const auto& transferQueue = m_device->queues().transfer;
 
 		VkFenceCreateInfo fenceInfo;
@@ -25,10 +28,10 @@ namespace sce::vlt
 		poolInfo.sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 		poolInfo.pNext            = nullptr;
 		poolInfo.flags            = 0;
-		poolInfo.queueFamilyIndex = graphicsQueue.queueFamily;
+		poolInfo.queueFamilyIndex = execQueue.queueFamily;
 
-		if (vkCreateCommandPool(m_device->handle(), &poolInfo, nullptr, &m_graphicsPool) != VK_SUCCESS)
-			Logger::exception("DxvkCommandList: Failed to create graphics command pool");
+		if (vkCreateCommandPool(m_device->handle(), &poolInfo, nullptr, &m_execPool) != VK_SUCCESS)
+			Logger::exception("DxvkCommandList: Failed to create execute command pool");
 
 		if (m_device->hasDedicatedTransferQueue())
 		{
@@ -38,23 +41,23 @@ namespace sce::vlt
 				Logger::exception("DxvkCommandList: Failed to create transfer command pool");
 		}
 
-		VkCommandBufferAllocateInfo cmdInfoGfx;
-		cmdInfoGfx.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		cmdInfoGfx.pNext              = nullptr;
-		cmdInfoGfx.commandPool        = m_graphicsPool;
-		cmdInfoGfx.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		cmdInfoGfx.commandBufferCount = 1;
+		VkCommandBufferAllocateInfo cmdInfoExec;
+		cmdInfoExec.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		cmdInfoExec.pNext              = nullptr;
+		cmdInfoExec.commandPool        = m_execPool;
+		cmdInfoExec.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		cmdInfoExec.commandBufferCount = 1;
 
 		VkCommandBufferAllocateInfo cmdInfoDma;
 		cmdInfoDma.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		cmdInfoDma.pNext              = nullptr;
-		cmdInfoDma.commandPool        = m_transferPool ? m_transferPool : m_graphicsPool;
+		cmdInfoDma.commandPool        = m_transferPool ? m_transferPool : m_execPool;
 		cmdInfoDma.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		cmdInfoDma.commandBufferCount = 1;
 
 
-		if (vkAllocateCommandBuffers(m_device->handle(), &cmdInfoGfx, &m_execBuffer) != VK_SUCCESS ||
-			vkAllocateCommandBuffers(m_device->handle(), &cmdInfoGfx, &m_initBuffer) != VK_SUCCESS ||
+		if (vkAllocateCommandBuffers(m_device->handle(), &cmdInfoExec, &m_execBuffer) != VK_SUCCESS ||
+			vkAllocateCommandBuffers(m_device->handle(), &cmdInfoExec, &m_initBuffer) != VK_SUCCESS ||
 			vkAllocateCommandBuffers(m_device->handle(), &cmdInfoDma, &m_transBuffer) != VK_SUCCESS)
 			Logger::exception("DxvkCommandList: Failed to allocate command buffer");
 
@@ -76,7 +79,7 @@ namespace sce::vlt
 
 		vkDestroySemaphore(m_device->handle(), m_transSemaphore, nullptr);
 
-		vkDestroyCommandPool(m_device->handle(), m_graphicsPool, nullptr);
+		vkDestroyCommandPool(m_device->handle(), m_execPool, nullptr);
 		vkDestroyCommandPool(m_device->handle(), m_transferPool, nullptr);
 
 		vkDestroyFence(m_device->handle(), m_fence, nullptr);
@@ -86,7 +89,9 @@ namespace sce::vlt
 		VkSemaphore waitSemaphore,
 		VkSemaphore wakeSemaphore)
 	{
-		const auto& graphics = m_device->queues().graphics;
+		const auto& exec     = m_queueType == VltQueueType::Graphics
+								   ? m_device->queues().graphics
+								   : m_device->queues().compute;
 		const auto& transfer = m_device->queues().transfer;
 
 		VltQueueSubmission info = VltQueueSubmission();
@@ -125,7 +130,7 @@ namespace sce::vlt
 		if (wakeSemaphore)
 			info.wakeSync[info.wakeCount++] = wakeSemaphore;
 
-		return submitToQueue(graphics.queueHandle, m_fence, info);
+		return submitToQueue(exec.queueHandle, m_fence, info);
 	}
 
 	VkResult VltCommandList::synchronize()
@@ -150,7 +155,7 @@ namespace sce::vlt
 		info.flags            = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 		info.pInheritanceInfo = nullptr;
 
-		if ((m_graphicsPool && vkResetCommandPool(m_device->handle(), m_graphicsPool, 0) != VK_SUCCESS) ||
+		if ((m_execPool && vkResetCommandPool(m_device->handle(), m_execPool, 0) != VK_SUCCESS) ||
 			(m_transferPool && vkResetCommandPool(m_device->handle(), m_transferPool, 0) != VK_SUCCESS))
 			Logger::err("DxvkCommandList: Failed to reset command buffer");
 

@@ -3,8 +3,8 @@
 #include "GnmBuffer.h"
 #include "GnmTexture.h"
 
-#include "Violet/VltContext.h"
 #include "Violet/VltDevice.h"
+#include "Violet/VltContext.h"
 
 using namespace sce::vlt;
 
@@ -12,12 +12,12 @@ LOG_CHANNEL(Graphic.Gnm.GnmInitializer);
 
 namespace sce::Gnm
 {
-	GnmInitializer::GnmInitializer(vlt::VltDevice* device) :
+	GnmInitializer::GnmInitializer(vlt::VltDevice* device, vlt::VltQueueType queueType) :
 		m_device(device),
 		m_context(m_device->createContext())
 	{
 		m_context->beginRecording(
-			m_device->createCommandList());
+			m_device->createCommandList(queueType));
 	}
 
 	GnmInitializer::~GnmInitializer()

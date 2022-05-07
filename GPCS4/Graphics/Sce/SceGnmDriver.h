@@ -23,6 +23,7 @@ namespace sce
 
 	class SceVideoOut;
 	class SceGpuQueue;
+	class SceComputeQueue;
 	class SceSwapchain;
 	struct PresenterDesc;
 
@@ -102,8 +103,8 @@ namespace sce
 		vlt::Rc<vlt::VltDevice>   m_device;
 
 		std::unique_ptr<SceGpuQueue> m_graphicsQueue;
-		std::array<std::unique_ptr<SceGpuQueue>, MaxComputeQueueCount>
-			m_computeQueues;
+		std::array<std::unique_ptr<SceComputeQueue>,
+				   MaxComputeQueueCount> m_computeQueues;
 
 		std::unique_ptr<SceSwapchain> m_swapchain;
 	};

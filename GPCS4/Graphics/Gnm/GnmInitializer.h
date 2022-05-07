@@ -12,6 +12,7 @@ namespace sce::vlt
 	class VltContext;
 	class VltBuffer;
 	class VltImage;
+	enum class VltQueueType : uint32_t;
 }  // namespace sce::vlt
 
 namespace sce::Gnm
@@ -25,7 +26,9 @@ namespace sce::Gnm
 		constexpr static size_t MaxTransferCommands = 512;
 
 	public:
-		GnmInitializer(vlt::VltDevice* device);
+		GnmInitializer(
+			vlt::VltDevice*   device,
+			vlt::VltQueueType queueType);
 		~GnmInitializer();
 
 		void flush();

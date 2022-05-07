@@ -45,9 +45,9 @@ namespace sce::vlt
 
 	VkPipelineStageFlags VltDevice::getShaderPipelineStages() const
 	{
-		VkPipelineStageFlags result = 
+		VkPipelineStageFlags result =
 			VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT |
-			VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | 
+			VK_PIPELINE_STAGE_VERTEX_SHADER_BIT |
 			VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 
 		if (m_features.core.features.geometryShader)
@@ -55,8 +55,8 @@ namespace sce::vlt
 
 		if (m_features.core.features.tessellationShader)
 		{
-			result |= 
-				VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT | 
+			result |=
+				VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT |
 				VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT;
 		}
 
@@ -91,35 +91,35 @@ namespace sce::vlt
 	}
 
 	Rc<VltBuffer> VltDevice::createBuffer(
-		const VltBufferCreateInfo& createInfo, 
-		VkMemoryPropertyFlags memoryType)
+		const VltBufferCreateInfo& createInfo,
+		VkMemoryPropertyFlags      memoryType)
 	{
 		return new VltBuffer(this, createInfo, m_objects.memoryManager(), memoryType);
 	}
 
 	Rc<VltBufferView> VltDevice::createBufferView(
-		const Rc<VltBuffer>& buffer, 
+		const Rc<VltBuffer>&           buffer,
 		const VltBufferViewCreateInfo& createInfo)
 	{
 		return new VltBufferView(this, buffer, createInfo);
 	}
 
 	Rc<VltImage> VltDevice::createImage(
-		const VltImageCreateInfo& createInfo, 
-		VkMemoryPropertyFlags memoryType)
+		const VltImageCreateInfo& createInfo,
+		VkMemoryPropertyFlags     memoryType)
 	{
 		return new VltImage(this, createInfo, m_objects.memoryManager(), memoryType);
 	}
 
 	Rc<VltImage> VltDevice::createImageFromVkImage(
-		const VltImageCreateInfo& createInfo, 
-		VkImage image)
+		const VltImageCreateInfo& createInfo,
+		VkImage                   image)
 	{
 		return new VltImage(this, createInfo, image);
 	}
 
 	Rc<VltImageView> VltDevice::createImageView(
-		const Rc<VltImage>& image, 
+		const Rc<VltImage>&           image,
 		const VltImageViewCreateInfo& createInfo)
 	{
 		return new VltImageView(this, image, createInfo);
@@ -145,15 +145,15 @@ namespace sce::vlt
 							 VltShaderConstData());
 	}
 
-	Rc<VltCommandList> VltDevice::createCommandList()
+	Rc<VltCommandList> VltDevice::createCommandList(VltQueueType queueType)
 	{
 		Rc<VltCommandList> cmdList = m_recycledCommandLists.retrieveObject();
 
 		if (cmdList == nullptr)
 		{
-			cmdList = new VltCommandList(this);
+			cmdList = new VltCommandList(this, queueType);
 		}
-		
+
 		return cmdList;
 	}
 
@@ -171,7 +171,7 @@ namespace sce::vlt
 	{
 		return new VltContext(this);
 	}
-	
+
 	Rc<VltGpuEvent> VltDevice::createGpuEvent()
 	{
 		auto handle = m_objects.eventPool().allocEvent();
@@ -214,8 +214,5 @@ namespace sce::vlt
 	{
 		m_recycledDescriptorPools.returnObject(pool);
 	}
-
-
-
 
 }  // namespace sce::vlt

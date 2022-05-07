@@ -342,6 +342,10 @@ namespace sce::gcn
 				// Sometimes this instruction relies on integer overflow.
 				// For example, the following instruction is equal to v2 = (v2 -1)
 				// v_sad_u32 v2, -1, 0, v2
+
+				// Vega ISA:
+				// ABSDIFF(x, y) := (x > y ? x - y : y - x) // UNSIGNED comparison
+				// D.u = ABSDIFF(S0.u, S1.u) + S2.u.
 				uint32_t isSrc0Greater = m_module.opUGreaterThan(typeId,
 																 src[0].low.id,
 																 src[1].low.id);

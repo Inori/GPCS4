@@ -274,7 +274,8 @@ namespace sce::vlt
         * \brief Creates a command list
         * \returns The command list
         */
-		Rc<VltCommandList> createCommandList();
+		Rc<VltCommandList> createCommandList(
+			VltQueueType queueType);
 
 
 		/**

@@ -910,6 +910,9 @@
     <ClInclude Include="Graphics\SpirV\NonSemanticDebugPrintf.hpp">
       <Filter>Source Files\Graphics\SpirV</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Sce\SceComputeQueue.h">
+      <Filter>Source Files\Graphics\Sce</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1604,6 +1607,9 @@
     </ClCompile>
     <ClCompile Include="Graphics\Gnm\GnmInitializer.cpp">
       <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Sce\SceComputeQueue.cpp">
+      <Filter>Source Files\Graphics\Sce</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

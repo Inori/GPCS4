@@ -5,16 +5,17 @@
 
 #include "Violet/VltCmdList.h"
 #include "Violet/VltDevice.h"
+#include "Sce/SceGpuQueue.h"
+
+using namespace sce::vlt;
 
 namespace sce::Gnm
 {
 
 	GnmCommandBuffer::GnmCommandBuffer(vlt::VltDevice* device) :
 		m_device(device),
-		m_factory(device),
-		m_initializer(device)
+		m_factory(device)
 	{
-		m_context = m_device->createContext();
 	}
 
 	GnmCommandBuffer::~GnmCommandBuffer()
@@ -23,11 +24,16 @@ namespace sce::Gnm
 
 	void GnmCommandBuffer::beginRecording()
 	{
-		m_tracker = &(GPU().resourceTracker());
+		auto queueType = m_queueType == SceQueueType::Graphics
+							 ? VltQueueType::Graphics
+							 : VltQueueType::Compute;
+
+		m_tracker     = &(GPU().resourceTracker());
+		m_initializer = std::make_unique<GnmInitializer>(m_device, queueType);
+		m_context     = m_device->createContext();
 
 		m_context->beginRecording(
-			m_device->createCommandList()
-		);
+			m_device->createCommandList(queueType));
 	}
 
 	vlt::Rc<vlt::VltCommandList>

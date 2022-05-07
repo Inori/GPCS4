@@ -76,7 +76,7 @@ namespace sce::Gnm
 					processedCmdSize += sizeof(PPM4_HEADER);
 					continue;
 				}
-				break;
+					break;
 				case PM4_TYPE_3:
 					processPM4Type3((PPM4_TYPE_3_HEADER)pm4Hdr, (uint32_t*)(pm4Hdr + 1));
 					break;
@@ -460,6 +460,17 @@ namespace sce::Gnm
 
 	void GnmCommandProcessor::onIndirectBuffer(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	{
+		PPM4MD_CMD_INDIRECT_BUFFER packet = (PPM4MD_CMD_INDIRECT_BUFFER)pm4Hdr;
+
+		void*    command = reinterpret_cast<void*>(util::buildUint64(packet->ibBaseHi32, packet->ibBaseLo));
+		uint32_t size    = packet->VI.ibSize * sizeof(uint32_t);
+
+		uint32_t oldHint = m_lastHint;
+		m_lastHint       = 0;
+
+		processCmdInternal(command, size);
+
+		m_lastHint = oldHint;
 	}
 
 	void GnmCommandProcessor::onPfpSyncMe(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)

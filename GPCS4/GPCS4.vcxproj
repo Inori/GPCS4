@@ -75,6 +75,7 @@
     <ClInclude Include="Graphics\Gnm\GpuAddress\GnmRegsinfoPrivate.h" />
     <ClInclude Include="Graphics\Gnm\GpuAddress\GnmTilerSSE2.h" />
     <ClInclude Include="Graphics\Sce\SceCommon.h" />
+    <ClInclude Include="Graphics\Sce\SceComputeQueue.h" />
     <ClInclude Include="Graphics\Sce\SceGnmDriver.h" />
     <ClInclude Include="Graphics\Sce\SceGpuQueue.h" />
     <ClInclude Include="Graphics\Sce\ScePresenter.h" />
@@ -320,6 +321,7 @@
     <ClCompile Include="Graphics\Gnm\GpuAddress\GnmSwizzler.cpp" />
     <ClCompile Include="Graphics\Gnm\GpuAddress\GnmTilemodes.cpp" />
     <ClCompile Include="Graphics\Gnm\GpuAddress\GnmTiler.cpp" />
+    <ClCompile Include="Graphics\Sce\SceComputeQueue.cpp" />
     <ClCompile Include="Graphics\Sce\SceGnmDriver.cpp" />
     <ClCompile Include="Graphics\Sce\SceGpuQueue.cpp" />
     <ClCompile Include="Graphics\Sce\ScePresenter.cpp" />

@@ -45,6 +45,18 @@ namespace sce::vlt
 	};
 
 	/**
+	 * \brief Queue type
+	 * 
+	 * Decided which queue type the command
+	 * list allocate from and submit to.
+	 */
+	enum class VltQueueType : uint32_t
+	{
+		Graphics,
+		Compute
+	};
+
+	/**
      * \brief DXVK command list
      * 
      * Stores a command buffer that a context can use to record Vulkan
@@ -57,8 +69,18 @@ namespace sce::vlt
 	{
 
 	public:
-		VltCommandList(VltDevice* device);
+		VltCommandList(
+			VltDevice*   device,
+			VltQueueType queueType);
 		virtual ~VltCommandList();
+
+		/**
+		 * \brief Queue type
+		 */
+		VltQueueType type() const
+		{
+			return m_queueType;
+		}
 
 		/**
          * \brief Submits command list
@@ -97,6 +119,7 @@ namespace sce::vlt
          * \param [in] stats Stat counters
          */
 		void endRecording();
+
 
 		/**
          * \brief Adds a resource to track
@@ -788,11 +811,12 @@ namespace sce::vlt
 			const VltQueueSubmission& info);
 
 	private:
-		VltDevice* m_device;
+		VltDevice*   m_device;
+		VltQueueType m_queueType;
 
 		VkFence m_fence;
 
-		VkCommandPool m_graphicsPool = VK_NULL_HANDLE;
+		VkCommandPool m_execPool     = VK_NULL_HANDLE;
 		VkCommandPool m_transferPool = VK_NULL_HANDLE;
 
 		VkCommandBuffer m_execBuffer  = VK_NULL_HANDLE;
