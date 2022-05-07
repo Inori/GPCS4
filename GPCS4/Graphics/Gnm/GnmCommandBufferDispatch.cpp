@@ -15,6 +15,8 @@ namespace sce::Gnm
 	GnmCommandBufferDispatch::GnmCommandBufferDispatch(vlt::VltDevice* device) :
 		GnmCommandBuffer(device)
 	{
+		m_initializer = std::make_unique<GnmInitializer>(m_device, VltQueueType::Compute);
+		m_context     = m_device->createContext();
 	}
 
 	GnmCommandBufferDispatch::~GnmCommandBufferDispatch()
@@ -27,9 +29,6 @@ namespace sce::Gnm
 		// We do some initialize work here.
 
 		GnmCommandBuffer::initializeDefaultHardwareState();
-
-		m_initializer = std::make_unique<GnmInitializer>(m_device, VltQueueType::Compute);
-		m_context     = m_device->createContext();
 
 		m_context->beginRecording(
 			m_device->createCommandList(VltQueueType::Compute));

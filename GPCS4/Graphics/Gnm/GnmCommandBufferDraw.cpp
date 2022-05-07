@@ -45,6 +45,8 @@ namespace sce::Gnm
 	GnmCommandBufferDraw::GnmCommandBufferDraw(vlt::VltDevice* device) :
 		GnmCommandBuffer(device)
 	{
+		m_initializer = std::make_unique<GnmInitializer>(m_device, VltQueueType::Graphics);
+		m_context     = m_device->createContext();
 	}
 
 	GnmCommandBufferDraw::~GnmCommandBufferDraw()
@@ -55,11 +57,7 @@ namespace sce::Gnm
 	{
 		// This the first packed of a frame.
 		// We do some initialize work here.
-
 		GnmCommandBuffer::initializeDefaultHardwareState();
-
-		m_initializer = std::make_unique<GnmInitializer>(m_device, VltQueueType::Graphics);
-		m_context     = m_device->createContext();
 
 		m_context->beginRecording(
 			m_device->createCommandList(VltQueueType::Graphics));

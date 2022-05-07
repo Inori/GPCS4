@@ -147,8 +147,9 @@ namespace sce::vlt
 
 	Rc<VltCommandList> VltDevice::createCommandList(VltQueueType queueType)
 	{
-		Rc<VltCommandList> cmdList = m_recycledCommandLists.retrieveObject();
-
+		Rc<VltCommandList> cmdList = queueType == VltQueueType::Graphics
+										 ? m_recycledCommandListsGraphics.retrieveObject()
+										 : m_recycledCommandListsCompute.retrieveObject();
 		if (cmdList == nullptr)
 		{
 			cmdList = new VltCommandList(this, queueType);
@@ -206,7 +207,14 @@ namespace sce::vlt
 	void VltDevice::recycleCommandList(
 		const Rc<VltCommandList>& cmdList)
 	{
-		m_recycledCommandLists.returnObject(cmdList);
+		if (cmdList->type() == VltQueueType::Graphics)
+		{
+			m_recycledCommandListsGraphics.returnObject(cmdList);
+		}
+		else
+		{
+			m_recycledCommandListsCompute.returnObject(cmdList);
+		}
 	}
 
 	void VltDevice::recycleDescriptorPool(

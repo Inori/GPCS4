@@ -371,7 +371,8 @@ namespace sce::vlt
 
 		VltSubmissionQueue m_submissionQueue;
 
-		VltRecycler<VltCommandList, 16> m_recycledCommandLists;
+		VltRecycler<VltCommandList, 16>    m_recycledCommandListsGraphics;
+		VltRecycler<VltCommandList, 16>    m_recycledCommandListsCompute;
 		VltRecycler<VltDescriptorPool, 16> m_recycledDescriptorPools;
 	};
 

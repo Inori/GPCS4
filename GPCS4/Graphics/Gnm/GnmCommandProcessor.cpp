@@ -111,7 +111,6 @@ namespace sce::Gnm
 		return bRet;
 	}
 
-	
 	void GnmCommandProcessor::processCommandBuffer(const void* commandBuffer, uint32_t commandSize)
 	{
 		processCmdInternal(commandBuffer, commandSize);
