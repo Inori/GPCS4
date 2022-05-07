@@ -817,14 +817,15 @@ namespace sce::Gnm
 		uint64_t            immValue    = util::buildUint64(packet->dataHi, packet->dataLo);
 		CacheAction         cacheAction = (CacheAction)packet->cache_action;
 		CachePolicy         writePolicy = (CachePolicy)packet->cache_policy;
-		if (packet->intSel)
+		if (packet->intSel == int_sel__me_release_mem__none ||
+			packet->intSel == int_sel__me_release_mem__send_data_and_write_confirm)
 		{
-			m_cb->writeReleaseMemEventWithInterrupt(
+			m_cb->writeReleaseMemEvent(
 				eventType, dstSelector, dstGpuAddr, srcSelector, immValue, cacheAction, writePolicy);
 		}
 		else
 		{
-			m_cb->writeReleaseMemEvent(
+			m_cb->writeReleaseMemEventWithInterrupt(
 				eventType, dstSelector, dstGpuAddr, srcSelector, immValue, cacheAction, writePolicy);
 		}
 	}
@@ -841,123 +842,129 @@ namespace sce::Gnm
 		IT_OpCodePriv priv = PM4_PRIV(*(uint32_t*)pm4Hdr);
 		switch (priv)
 		{
-		case OP_PRIV_INITIALIZE_DEFAULT_HARDWARE_STATE:
-			m_cb->initializeDefaultHardwareState();
-			break;
-		case OP_PRIV_INITIALIZE_TO_DEFAULT_CONTEXT_STATE:
-			break;
-		case OP_PRIV_SET_EMBEDDED_VS_SHADER:
-		{
-			GnmCmdVSShader* param = (GnmCmdVSShader*)pm4Hdr;
-			m_cb->setEmbeddedVsShader(param->shaderId, param->modifier);
-		}
-		break;
-		case OP_PRIV_SET_EMBEDDED_PS_SHADER:
-			break;
-		case OP_PRIV_SET_VS_SHADER:
-		{
-			GnmCmdVSShader* param = (GnmCmdVSShader*)pm4Hdr;
-			m_cb->setVsShader(&param->vsRegs, param->modifier);
-		}
-		break;
-		case OP_PRIV_SET_PS_SHADER:
-		{
-			GnmCmdPSShader* param = (GnmCmdPSShader*)pm4Hdr;
-			m_cb->setPsShader(&param->psRegs);
-		}
-		break;
-		case OP_PRIV_SET_CS_SHADER:
-		{
-			GnmCmdCSShader* param = (GnmCmdCSShader*)pm4Hdr;
-			m_cb->setCsShader(&param->csRegs, param->modifier);
-		}
-		break;
-		case OP_PRIV_SET_ES_SHADER:
-			break;
-		case OP_PRIV_SET_GS_SHADER:
-			break;
-		case OP_PRIV_SET_HS_SHADER:
-			break;
-		case OP_PRIV_SET_LS_SHADER:
-			break;
-		case OP_PRIV_UPDATE_GS_SHADER:
-			break;
-		case OP_PRIV_UPDATE_HS_SHADER:
-			break;
-		case OP_PRIV_UPDATE_PS_SHADER:
-		{
-			GnmCmdPSShader* param = (GnmCmdPSShader*)pm4Hdr;
-			m_cb->updatePsShader(&param->psRegs);
-		}
-		break;
-		case OP_PRIV_UPDATE_VS_SHADER:
-		{
-			GnmCmdVSShader* param = (GnmCmdVSShader*)pm4Hdr;
-			m_cb->updateVsShader(&param->vsRegs, param->modifier);
-		}
-		break;
-		case OP_PRIV_SET_VGT_CONTROL:
-		{
-			GnmCmdVgtControl* param = (GnmCmdVgtControl*)pm4Hdr;
-			m_cb->setVgtControlForNeo(param->primGroupSizeMinusOne,
-									  (WdSwitchOnlyOnEopMode)param->wdSwitchOnlyOnEopMode,
-									  (VgtPartialVsWaveMode)param->partialVsWaveMode);
-		}
-		break;
-		case OP_PRIV_RESET_VGT_CONTROL:
-			break;
-		case OP_PRIV_DRAW_INDEX:
-			onDrawIndex(pm4Hdr, itBody);
-			break;
-		case OP_PRIV_DRAW_INDEX_AUTO:
-			onDrawIndexAuto(pm4Hdr, itBody);
-			break;
-		case OP_PRIV_DRAW_INDEX_INDIRECT:
-			break;
-		case OP_PRIV_DRAW_INDEX_INDIRECT_COUNT_MULTI:
-			break;
-		case OP_PRIV_DRAW_INDEX_MULTI_INSTANCED:
-			break;
-		case OP_PRIV_DRAW_INDEX_OFFSET:
-			break;
-		case OP_PRIV_DRAW_INDIRECT:
-			break;
-		case OP_PRIV_DRAW_INDIRECT_COUNT_MULTI:
-			break;
-		case OP_PRIV_DRAW_OPAQUE_AUTO:
-			break;
-		case OP_PRIV_WAIT_UNTIL_SAFE_FOR_RENDERING:
-		{
-			GnmCmdWaitFlipDone* param = (GnmCmdWaitFlipDone*)pm4Hdr;
-			m_cb->waitUntilSafeForRendering(param->videoOutHandle, param->displayBufferIndex);
-		}
-		break;
-		case OP_PRIV_PUSH_MARKER:
-			break;
-		case OP_PRIV_PUSH_COLOR_MARKER:
-			break;
-		case OP_PRIV_POP_MARKER:
-			break;
-		case OP_PRIV_SET_MARKER:
-			break;
-		case OP_PRIV_DISPATCH_DIRECT:
-		{
-			GnmCmdDispatchDirect*     param = (GnmCmdDispatchDirect*)pm4Hdr;
-			DispatchOrderedAppendMode mode  = (DispatchOrderedAppendMode)bit::extract(param->pred, 4, 3);
-			if (mode == kDispatchOrderedAppendModeDisabled)
+			case OP_PRIV_INITIALIZE_DEFAULT_HARDWARE_STATE:
+				m_cb->initializeDefaultHardwareState();
+				break;
+			case OP_PRIV_INITIALIZE_TO_DEFAULT_CONTEXT_STATE:
+				break;
+			case OP_PRIV_SET_EMBEDDED_VS_SHADER:
 			{
-				m_cb->dispatch(param->threadGroupX, param->threadGroupY, param->threadGroupZ);
+				GnmCmdVSShader* param = (GnmCmdVSShader*)pm4Hdr;
+				m_cb->setEmbeddedVsShader(param->shaderId, param->modifier);
 			}
-			else
+			break;
+			case OP_PRIV_SET_EMBEDDED_PS_SHADER:
+				break;
+			case OP_PRIV_SET_VS_SHADER:
 			{
-				m_cb->dispatchWithOrderedAppend(param->threadGroupX, param->threadGroupY, param->threadGroupZ, mode);
+				GnmCmdVSShader* param = (GnmCmdVSShader*)pm4Hdr;
+				m_cb->setVsShader(&param->vsRegs, param->modifier);
 			}
-		}
-		break;
-		case OP_PRIV_DISPATCH_INDIRECT:
 			break;
-		default:
+			case OP_PRIV_SET_PS_SHADER:
+			{
+				GnmCmdPSShader* param = (GnmCmdPSShader*)pm4Hdr;
+				m_cb->setPsShader(&param->psRegs);
+			}
 			break;
+			case OP_PRIV_SET_CS_SHADER:
+			{
+				GnmCmdCSShader* param = (GnmCmdCSShader*)pm4Hdr;
+				m_cb->setCsShader(&param->csRegs, param->modifier);
+			}
+			break;
+			case OP_PRIV_SET_ES_SHADER:
+				break;
+			case OP_PRIV_SET_GS_SHADER:
+				break;
+			case OP_PRIV_SET_HS_SHADER:
+				break;
+			case OP_PRIV_SET_LS_SHADER:
+				break;
+			case OP_PRIV_UPDATE_GS_SHADER:
+				break;
+			case OP_PRIV_UPDATE_HS_SHADER:
+				break;
+			case OP_PRIV_UPDATE_PS_SHADER:
+			{
+				GnmCmdPSShader* param = (GnmCmdPSShader*)pm4Hdr;
+				m_cb->updatePsShader(&param->psRegs);
+			}
+			break;
+			case OP_PRIV_UPDATE_VS_SHADER:
+			{
+				GnmCmdVSShader* param = (GnmCmdVSShader*)pm4Hdr;
+				m_cb->updateVsShader(&param->vsRegs, param->modifier);
+			}
+			break;
+			case OP_PRIV_SET_VGT_CONTROL:
+			{
+				GnmCmdVgtControl* param = (GnmCmdVgtControl*)pm4Hdr;
+				m_cb->setVgtControlForNeo(param->primGroupSizeMinusOne,
+										  (WdSwitchOnlyOnEopMode)param->wdSwitchOnlyOnEopMode,
+										  (VgtPartialVsWaveMode)param->partialVsWaveMode);
+			}
+			break;
+			case OP_PRIV_RESET_VGT_CONTROL:
+				break;
+			case OP_PRIV_DRAW_INDEX:
+				onDrawIndex(pm4Hdr, itBody);
+				break;
+			case OP_PRIV_DRAW_INDEX_AUTO:
+				onDrawIndexAuto(pm4Hdr, itBody);
+				break;
+			case OP_PRIV_DRAW_INDEX_INDIRECT:
+				break;
+			case OP_PRIV_DRAW_INDEX_INDIRECT_COUNT_MULTI:
+				break;
+			case OP_PRIV_DRAW_INDEX_MULTI_INSTANCED:
+				break;
+			case OP_PRIV_DRAW_INDEX_OFFSET:
+				break;
+			case OP_PRIV_DRAW_INDIRECT:
+				break;
+			case OP_PRIV_DRAW_INDIRECT_COUNT_MULTI:
+				break;
+			case OP_PRIV_DRAW_OPAQUE_AUTO:
+				break;
+			case OP_PRIV_WAIT_UNTIL_SAFE_FOR_RENDERING:
+			{
+				GnmCmdWaitFlipDone* param = (GnmCmdWaitFlipDone*)pm4Hdr;
+				m_cb->waitUntilSafeForRendering(param->videoOutHandle, param->displayBufferIndex);
+			}
+			break;
+			case OP_PRIV_PUSH_MARKER:
+				break;
+			case OP_PRIV_PUSH_COLOR_MARKER:
+				break;
+			case OP_PRIV_POP_MARKER:
+				break;
+			case OP_PRIV_SET_MARKER:
+				break;
+			case OP_PRIV_DISPATCH_DIRECT:
+			{
+				GnmCmdDispatchDirect*     param = (GnmCmdDispatchDirect*)pm4Hdr;
+				DispatchOrderedAppendMode mode  = (DispatchOrderedAppendMode)bit::extract(param->pred, 4, 3);
+				if (mode == kDispatchOrderedAppendModeDisabled)
+				{
+					m_cb->dispatch(param->threadGroupX, param->threadGroupY, param->threadGroupZ);
+				}
+				else
+				{
+					m_cb->dispatchWithOrderedAppend(param->threadGroupX, param->threadGroupY, param->threadGroupZ, mode);
+				}
+			}
+				break;
+			case OP_PRIV_DISPATCH_INDIRECT:
+				break;
+			case OP_PRIV_COMPUTE_WAIT_ON_ADDRESS:
+			{
+				GnmCmdComputeWaitOnAddress* param = (GnmCmdComputeWaitOnAddress*)pm4Hdr;
+				m_cb->waitOnAddress((void*)param->gpuAddr, param->mask, (WaitCompareFunc)param->compareFunc, param->refValue);
+			}
+				break;
+			default:
+				break;
 		}
 	}
 

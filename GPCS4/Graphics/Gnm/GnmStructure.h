@@ -190,6 +190,16 @@ namespace sce::Gnm
 		uint32_t reserved[4];
 	};
 
+	struct GnmCmdComputeWaitOnAddress
+	{
+		uint32_t opcode;
+		uint64_t gpuAddr;
+		uint32_t mask;
+		uint32_t compareFunc;
+		uint32_t refValue;
+		uint32_t reserved[8];
+	};
+
 #pragma pack(pop)
 
 	//////////////////////////////////////////////////////////////////////////

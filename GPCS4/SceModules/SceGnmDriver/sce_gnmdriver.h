@@ -305,7 +305,13 @@ int PS4API sceRazorIsLoaded(void);
 int PS4API _import_75EC17C39AE82ECD(void);
 
 
-int PS4API sceGnmComputeWaitOnAddress(void);
+int PS4API sceGnmComputeWaitOnAddress(
+	uint32_t* cmdBuffer,
+	uint32_t  numDwords,
+	void*     gpuAddr,
+	uint32_t  mask,
+	uint32_t  compareFunc,
+	uint32_t  refValue);
 
 
 int PS4API sceGnmComputeWaitSemaphore(void);

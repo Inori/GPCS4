@@ -32,9 +32,24 @@ int PS4API sceGnmDispatchIndirectOnMec(void)
 }
 
 
-int PS4API sceGnmComputeWaitOnAddress(void)
+int PS4API sceGnmComputeWaitOnAddress(
+	uint32_t* cmdBuffer,
+	uint32_t  numDwords,
+	void*     gpuAddr,
+	uint32_t  mask,
+	uint32_t  compareFunc,
+	uint32_t  refValue)
 {
-	LOG_SCE_GRAPHIC("Not implemented");
+	LOG_SCE_GRAPHIC("cmdbuff %p numDwords %d", cmdBuffer, numDwords);
+	const uint32_t cmdSize = sizeof(GnmCmdComputeWaitOnAddress) / sizeof(uint32_t);
+	assert(numDwords == cmdSize);
+	GnmCmdComputeWaitOnAddress* param = (GnmCmdComputeWaitOnAddress*)cmdBuffer;
+	param->opcode                     = PM4_HEADER_BUILD(cmdSize, IT_GNM_PRIVATE, OP_PRIV_COMPUTE_WAIT_ON_ADDRESS);
+	param->gpuAddr                    = reinterpret_cast<uint64_t>(gpuAddr);
+	param->mask                       = mask;
+	param->compareFunc                = compareFunc;
+	param->refValue                   = refValue;
+	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
 	return SCE_OK;
 }
 

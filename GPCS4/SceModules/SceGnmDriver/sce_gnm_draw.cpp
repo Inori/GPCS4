@@ -105,12 +105,14 @@ int PS4API sceGnmDrawIndexAuto(uint32_t* cmdBuffer, uint32_t numDwords,
 }
 
 
-int PS4API sceGnmDrawIndexIndirect(uint32_t* cmdBuffer, uint32_t numDwords,
-	uint32_t dataOffsetInBytes,
+int PS4API sceGnmDrawIndexIndirect(
+	uint32_t*   cmdBuffer,
+	uint32_t    numDwords,
+	uint32_t    dataOffsetInBytes,
 	ShaderStage stage,
-	uint8_t vertexOffsetUserSgpr,
-	uint8_t instanceOffsetUserSgpr,
-	uint32_t pred)
+	uint8_t     vertexOffsetUserSgpr,
+	uint8_t     instanceOffsetUserSgpr,
+	uint32_t    pred)
 {
 	LOG_SCE_GRAPHIC("cmd %p numdw %d", cmdBuffer, numDwords);
 	//LOG_SCE_GRAPHIC("Not implemented");

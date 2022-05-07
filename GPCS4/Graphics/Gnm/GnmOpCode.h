@@ -241,6 +241,7 @@ namespace sce::Gnm
 		OP_PRIV_SET_CS_SHADER                       = 0x1E,
 		OP_PRIV_DISPATCH_DIRECT                     = 0x1F,
 		OP_PRIV_DISPATCH_INDIRECT                   = 0x20,
+		OP_PRIV_COMPUTE_WAIT_ON_ADDRESS             = 0x21,
 	};
 
 	// OpCode hints
