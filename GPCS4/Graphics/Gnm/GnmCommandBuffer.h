@@ -7,7 +7,10 @@
 #include "GnmStructure.h"
 #include "GnmResourceFactory.h"
 #include "GnmInitializer.h"
+#include "GnmRenderState.h"
 #include "Violet/VltRc.h"
+#include "Gcn/GcnShaderMeta.h"
+#include "Gcn/GcnHeader.h"
 
 #include <memory>
 
@@ -33,7 +36,6 @@ namespace sce::Gnm
 	class Buffer;
 	class Texture;
 	class Sampler;
-	struct GnmShaderContext;
 
 	class GnmCommandBuffer
 	{
@@ -422,11 +424,71 @@ namespace sce::Gnm
 	protected:
 		void emuWriteGpuLabel(EventWriteSource selector, void* label, uint64_t value);
 
+		int32_t findUsageRegister(
+			const gcn::GcnShaderResourceTable& table,
+			uint32_t                           usage);
+
+		const uint32_t* findUserData(
+			const gcn::GcnShaderResource& res,
+			uint32_t                      eudIndex,
+			const UserDataArray&          userData);
+
 		void setCsShader(
 			GnmShaderContext&            ctx,
 			const gcn::CsStageRegisters* computeData,
 			uint32_t                     shaderModifier);
 
+		void bindResourceBuffer(
+			const Buffer*         vsharp,
+			uint32_t              startRegister,
+			VkBufferUsageFlags    usage,
+			VkPipelineStageFlags2 stage,
+			VkAccessFlagBits2     access);
+
+		void bindResourceImage(
+			const Texture*        tsharp,
+			uint32_t              startRegister,
+			VkImageUsageFlags     usage,
+			VkPipelineStageFlags2 stage,
+			VkAccessFlagBits2     access,
+			VkImageTiling         tiling,
+			VkImageLayout         layout);
+
+		void bindResourceSampler(
+			const Sampler*        ssharp,
+			uint32_t              startRegister,
+			VkPipelineStageFlags2 stage);
+
+		void bindResource(
+			VkPipelineStageFlags               stage,
+			const gcn::GcnShaderResourceTable& table,
+			const UserDataArray&               userData);
+
+		void commitComputeState(
+			GnmShaderContext& ctx);
+
+
+		ShaderStage getShaderStage(
+			VkPipelineStageFlags pipeStage);
+
+		SceBuffer getResourceBuffer(
+			const GnmBufferCreateInfo& info);
+
+		virtual void updateMetaBufferInfo(
+			VkPipelineStageFlags stage,
+			uint32_t             startRegister,
+			const Buffer*        vsharp) = 0;
+
+		virtual void updateMetaTextureInfo(
+			VkPipelineStageFlags stage,
+			uint32_t             startRegister,
+			bool                 isDepth,
+			const Texture*       tsharp) = 0;
+		
+		gcn::GcnBufferMeta populateBufferMeta(
+			const Buffer* vsharp);
+		gcn::GcnTextureMeta populateTextureMeta(
+			const Texture* tsharp, bool isDepth);
 	protected:
 		vlt::VltDevice*          m_device;
 		vlt::Rc<vlt::VltContext> m_context;

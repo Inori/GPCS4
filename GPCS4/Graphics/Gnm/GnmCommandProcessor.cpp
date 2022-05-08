@@ -7,7 +7,7 @@
 #include "UtilBit.h"
 
 #include "Gcn/GcnShaderRegister.h"
-#include "Violet/VltCmdList.h"
+#include "Violet/VltBuffer.h"
 
 using namespace util;
 using namespace sce::vlt;

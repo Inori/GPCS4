@@ -12,6 +12,7 @@
 #include <stdexcept>
 
 using namespace sce::vlt;
+using namespace sce::gcn;
 
 namespace sce::Gnm
 {
@@ -205,7 +206,9 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDispatch::dispatch(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ)
 	{
-		//throw std::logic_error("The method or operation is not implemented.");
+		commitComputeState();
+
+		m_context->dispatch(threadGroupX, threadGroupY, threadGroupZ);
 	}
 
 	void GnmCommandBufferDispatch::dispatchWithOrderedAppend(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ, DispatchOrderedAppendMode orderedAppendMode)
@@ -325,5 +328,28 @@ namespace sce::Gnm
 	{
 		throw std::logic_error("The method or operation is not implemented.");
 	}
+
+	void GnmCommandBufferDispatch::commitComputeState()
+	{
+		GnmCommandBuffer::commitComputeState(m_state.shaderContext);
+
+		m_initializer->flush();
+	}
+
+	void GnmCommandBufferDispatch::updateMetaBufferInfo(
+		VkPipelineStageFlags stage, uint32_t startRegister, const Buffer* vsharp)
+	{
+		GcnBufferMeta meta = populateBufferMeta(vsharp);
+		m_state.shaderContext.meta.cs.bufferInfos[startRegister] = meta;
+	}
+
+	void GnmCommandBufferDispatch::updateMetaTextureInfo(
+		VkPipelineStageFlags stage, uint32_t startRegister, bool isDepth, const Texture* tsharp)
+	{
+		GcnTextureMeta meta = populateTextureMeta(tsharp, isDepth);
+		m_state.shaderContext.meta.cs.textureInfos[startRegister] = meta;
+	}
+
+
 
 }  // namespace sce::Gnm

@@ -13,8 +13,6 @@ namespace sce::gcn
 
 namespace sce::Gnm
 {
-
-
 	// This class is designed for graphics development,
 	// no reverse engineering knowledge should be required.
 	// It's responsible for mapping Gnm input/structures to Violet input/structures,
@@ -137,22 +135,11 @@ namespace sce::Gnm
 
 		virtual void setDepthStencilDisable() override;
 
-
-
 	private:
-
-		int32_t findUsageRegister(
-			const gcn::GcnShaderResourceTable& table,
-			uint32_t                           usage);
 
 		const void* findFetchShader(
 			const gcn::GcnShaderResourceTable& table,
 			const UserDataArray&               userData);
-
-		const uint32_t* findUserData(
-			const gcn::GcnShaderResource& res,
-			uint32_t                      eudIndex,
-			const UserDataArray&          userData);
 
 		bool isSingleVertexBinding(
 			const uint32_t*                      vtxTable,
@@ -168,31 +155,6 @@ namespace sce::Gnm
 		inline void bindVertexBuffer(
 			const Buffer* vsharp, uint32_t binding);
 
-		void bindResourceBuffer(
-			const Buffer*         vsharp,
-			uint32_t              startRegister,
-			VkBufferUsageFlags    usage,
-			VkPipelineStageFlags2 stage,
-			VkAccessFlagBits2     access);
-
-		void bindResourceImage(
-			const Texture*        tsharp,
-			uint32_t              startRegister,
-			VkImageUsageFlags     usage,
-			VkPipelineStageFlags2 stage,
-			VkAccessFlagBits2     access,
-			VkImageTiling         tiling,
-			VkImageLayout         layout);
-
-		void bindResourceSampler(
-			const Sampler*        ssharp,
-			uint32_t              startRegister,
-			VkPipelineStageFlags2 stage);
-
-		void bindResource(
-			VkPipelineStageFlags               stage,
-			const gcn::GcnShaderResourceTable& table,
-			const UserDataArray&               userData);
 
 		void updateVertexBinding(gcn::GcnModule& vsModule);
 
@@ -204,22 +166,16 @@ namespace sce::Gnm
 
 		void onPrepareFlip();
 
-		ShaderStage getShaderStage(
-			VkPipelineStageFlags pipeStage);
-
-		void updateMetaBufferInfo(
+		virtual void updateMetaBufferInfo(
 			VkPipelineStageFlags stage,
 			uint32_t             startRegister,
-			const Buffer*        vsharp);
+			const Buffer*        vsharp) override;
 
-		void updateMetaTextureInfo(
+		virtual void updateMetaTextureInfo(
 			VkPipelineStageFlags stage,
 			uint32_t             startRegister,
 			bool                 isDepth,
-			const Texture*       tsharp);
-
-		SceBuffer getResourceBuffer(
-			const GnmBufferCreateInfo& info);
+			const Texture*       tsharp) override;
 
 	private:
 		GnmGraphicsState m_state;

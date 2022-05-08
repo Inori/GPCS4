@@ -810,7 +810,6 @@ namespace sce::vlt
 		}
 
 
-
 		void cmdBeginDebugUtilsLabel(VkDebugUtilsLabelEXT* labelInfo);
 
 		void cmdEndDebugUtilsLabel();

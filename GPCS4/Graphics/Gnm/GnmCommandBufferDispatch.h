@@ -124,7 +124,24 @@ namespace sce::Gnm
 		virtual void setDepthStencilDisable() override;
 
 	private:
+
+		void commitComputeState();
+
+		void updateMetaBufferInfo(
+			VkPipelineStageFlags stage,
+			uint32_t             startRegister,
+			const Buffer*        vsharp) override;
+
+		void updateMetaTextureInfo(
+			VkPipelineStageFlags stage,
+			uint32_t             startRegister,
+			bool                 isDepth,
+			const Texture*       tsharp) override;
+
+	private:
 		GnmComputeState m_state = {};
+
+
 	};
 
 }  // namespace sce::Gnm

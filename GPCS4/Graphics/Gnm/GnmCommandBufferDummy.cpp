@@ -1,5 +1,7 @@
 #include "GnmCommandBufferDummy.h"
 
+#include "Violet/VltBuffer.h"
+
 namespace sce::Gnm
 {
 
