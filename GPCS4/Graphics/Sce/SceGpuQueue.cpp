@@ -33,9 +33,8 @@ namespace sce
 
 	void SceGpuQueue::submit(const SceGpuSubmission& submission)
 	{
-		auto commandList = m_cmdProducer->finalize();
 		m_device->submitCommandList(
-			commandList,
+			m_cmd->finalize(),
 			submission.wait,
 			submission.wake);
 	}
@@ -51,18 +50,18 @@ namespace sce
 
 		if (type == SceQueueType::Graphics)
 		{
-			m_cmdProducer = std::make_unique<GnmCommandBufferDraw>(m_device);
+			m_cmd = std::make_unique<GnmCommandBufferDraw>(m_device);
 		}
 		else
 		{
-			m_cmdProducer = std::make_unique<GnmCommandBufferDispatch>(m_device);
+			m_cmd = std::make_unique<GnmCommandBufferDispatch>(m_device);
 		}
 
 #ifdef GPCS4_NO_GRAPHICS
-		m_cmdProducer = std::make_unique<GnmCommandBufferDummy>(m_device);
+		m_cmd = std::make_unique<GnmCommandBufferDummy>(m_device);
 #endif
 
-		m_cp->attachCommandBuffer(m_cmdProducer.get());
+		m_cp->attachCommandBuffer(m_cmd.get());
 	}
 
 }  // namespace sce

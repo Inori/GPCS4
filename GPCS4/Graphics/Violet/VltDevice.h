@@ -12,6 +12,7 @@
 #include "VltImage.h"
 #include "VltSampler.h"
 #include "VltObject.h"
+#include "VltSemaphore.h"
 
 namespace sce::gcn
 {
@@ -302,6 +303,13 @@ namespace sce::vlt
          * \returns New GPU event
          */
 		Rc<VltGpuEvent> createGpuEvent();
+
+		/**
+		 * \brief Creates a semaphore
+		 * \returns New semaphore
+		 */
+		Rc<VltSemaphore> createSemaphore(
+			const VltSemaphoreCreateInfo& info);
 
 		/**
 		 * \brief Submits a command list

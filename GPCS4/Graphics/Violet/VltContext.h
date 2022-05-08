@@ -588,13 +588,6 @@ namespace sce::vlt
 			const Rc<VltGpuEvent>&  event,
 			const VkDependencyInfo* dependencyInfo);
 
-		/**
-         * \brief Waits a GPU event
-         * \param [in] event The event
-         */
-		void waitGpuEvent(
-			const Rc<VltGpuEvent>&  event,
-			const VkDependencyInfo* dependencyInfo);
 
 		/**
          * \brief Queues a signal
@@ -608,6 +601,24 @@ namespace sce::vlt
 		void signal(
 			const Rc<util::sync::Signal>& signal,
 			uint64_t                      value);
+
+		/**
+		 * \brief Queues semaphore
+		 *
+		 * Note that a semaphore may be queued
+		 * by multiple contexts.
+		 */
+		void signalSemaphore(
+			const VltSemaphoreSubmission& submission);
+
+		/**
+		 * \brief Queues semaphore
+		 * 
+		 * Note that a semaphore may be queued
+		 * by multiple contexts.
+		 */
+		void waitSemaphore(
+			const VltSemaphoreSubmission& submission);
 
 	private:
 		void beginRendering();

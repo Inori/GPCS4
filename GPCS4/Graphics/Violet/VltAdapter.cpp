@@ -430,6 +430,10 @@ namespace sce::vlt
 		enabled.vk11.pNext                = std::exchange(enabled.core.pNext, &enabled.vk11);
 		enabled.vk11.shaderDrawParameters = VK_TRUE;
 
+		enabled.vk12.sType             = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
+		enabled.vk12.pNext             = std::exchange(enabled.core.pNext, &enabled.vk12);
+		enabled.vk12.timelineSemaphore = VK_TRUE;
+
 		enabled.vk13.sType            = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
 		enabled.vk13.pNext            = std::exchange(enabled.core.pNext, &enabled.vk13);
 		enabled.vk13.synchronization2 = VK_TRUE;

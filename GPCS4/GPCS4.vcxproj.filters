@@ -913,6 +913,15 @@
     <ClInclude Include="Graphics\Sce\SceComputeQueue.h">
       <Filter>Source Files\Graphics\Sce</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltSemaphore.h">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gnm\GnmGpuLabel.h">
+      <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Sce\SceLabelManager.h">
+      <Filter>Source Files\Graphics\Sce</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1609,6 +1618,15 @@
       <Filter>Source Files\Graphics\Gnm</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Sce\SceComputeQueue.cpp">
+      <Filter>Source Files\Graphics\Sce</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Violet\VltSemaphore.cpp">
+      <Filter>Source Files\Graphics\Violet</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Gnm\GnmGpuLabel.cpp">
+      <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Sce\SceLabelManager.cpp">
       <Filter>Source Files\Graphics\Sce</Filter>
     </ClCompile>
   </ItemGroup>

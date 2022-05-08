@@ -6,6 +6,7 @@
 #include "Gnm/GnmConstant.h"
 #include "Sce/SceGnmDriver.h"
 #include "Sce/SceResourceTracker.h"
+#include "Sce/SceLabelManager.h"
 #include "Sce/SceVideoOut.h"
 
 LOG_CHANNEL(Graphic.VirtualGPU);
@@ -15,8 +16,9 @@ namespace sce
 
 	VirtualGPU::VirtualGPU()
 	{
-		m_gnmDriver = std::make_shared<SceGnmDriver>();
-		m_tracker   = std::make_shared<SceResourceTracker>();
+		m_gnmDriver    = std::make_shared<SceGnmDriver>();
+		m_tracker      = std::make_shared<SceResourceTracker>();
+		m_labelManager = std::make_shared<SceLabelManager>(m_gnmDriver->m_device.ptr());
 	}
 
 	VirtualGPU::~VirtualGPU()
@@ -73,6 +75,11 @@ namespace sce
 	SceResourceTracker& VirtualGPU::resourceTracker()
 	{
 		return *m_tracker;
+	}
+
+	SceLabelManager& VirtualGPU::labelManager()
+	{
+		return *m_labelManager;
 	}
 
 	Gnm::GpuMode VirtualGPU::mode()

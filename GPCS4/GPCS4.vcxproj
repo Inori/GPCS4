@@ -43,6 +43,7 @@
     <ClInclude Include="Graphics\Gcn\GcnShaderRegister.h" />
     <ClInclude Include="Graphics\Gcn\GcnStateRegister.h" />
     <ClInclude Include="Graphics\Gcn\GcnUtil.h" />
+    <ClInclude Include="Graphics\Gnm\GnmGpuLabel.h" />
     <ClInclude Include="Graphics\Gnm\GnmInitializer.h" />
     <ClInclude Include="Graphics\Gnm\GnmRenderState.h" />
     <ClInclude Include="Graphics\Gnm\GnmResourceFactory.h" />
@@ -78,6 +79,7 @@
     <ClInclude Include="Graphics\Sce\SceComputeQueue.h" />
     <ClInclude Include="Graphics\Sce\SceGnmDriver.h" />
     <ClInclude Include="Graphics\Sce\SceGpuQueue.h" />
+    <ClInclude Include="Graphics\Sce\SceLabelManager.h" />
     <ClInclude Include="Graphics\Sce\ScePresenter.h" />
     <ClInclude Include="Graphics\Sce\SceResource.h" />
     <ClInclude Include="Graphics\Sce\SceResourceTracker.h" />
@@ -143,6 +145,7 @@
     <ClInclude Include="Graphics\Violet\VltRenderTarget.h" />
     <ClInclude Include="Graphics\Violet\VltResource.h" />
     <ClInclude Include="Graphics\Violet\VltSampler.h" />
+    <ClInclude Include="Graphics\Violet\VltSemaphore.h" />
     <ClInclude Include="Graphics\Violet\VltShader.h" />
     <ClInclude Include="Graphics\Violet\VltShaderKey.h" />
     <ClInclude Include="Graphics\Violet\VltSignal.h" />
@@ -306,6 +309,7 @@
     <ClCompile Include="Graphics\Gcn\GcnModule.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnProgramInfo.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnStateRegister.cpp" />
+    <ClCompile Include="Graphics\Gnm\GnmGpuLabel.cpp" />
     <ClCompile Include="Graphics\Gnm\GnmInitializer.cpp" />
     <ClCompile Include="Graphics\Gnm\GnmResourceFactory.cpp" />
     <ClCompile Include="Graphics\Gnm\GnmCommandBuffer.cpp" />
@@ -324,6 +328,7 @@
     <ClCompile Include="Graphics\Sce\SceComputeQueue.cpp" />
     <ClCompile Include="Graphics\Sce\SceGnmDriver.cpp" />
     <ClCompile Include="Graphics\Sce\SceGpuQueue.cpp" />
+    <ClCompile Include="Graphics\Sce\SceLabelManager.cpp" />
     <ClCompile Include="Graphics\Sce\ScePresenter.cpp" />
     <ClCompile Include="Graphics\Sce\SceResource.cpp" />
     <ClCompile Include="Graphics\Sce\SceResourceTracker.cpp" />
@@ -368,6 +373,7 @@
     <ClCompile Include="Graphics\Violet\VltRenderTarget.cpp" />
     <ClCompile Include="Graphics\Violet\VltResource.cpp" />
     <ClCompile Include="Graphics\Violet\VltSampler.cpp" />
+    <ClCompile Include="Graphics\Violet\VltSemaphore.cpp" />
     <ClCompile Include="Graphics\Violet\VltShader.cpp" />
     <ClCompile Include="Graphics\Violet\VltShaderKey.cpp" />
     <ClCompile Include="Graphics\Violet\VltSignal.cpp" />

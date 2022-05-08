@@ -282,7 +282,7 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setPointerInUserData(ShaderStage stage, uint32_t startUserDataSlot, void* gpuAddr)
 	{
-		std::memcpy(&m_state.shaderContext[stage].userData[startUserDataSlot], &gpuAddr, sizeof(void*));
+		std::memcpy(&m_state.shaderContext[stage].userData[startUserDataSlot], gpuAddr, sizeof(void*));
 	}
 
 	void GnmCommandBufferDraw::setUserDataRegion(ShaderStage stage, uint32_t startUserDataSlot, const uint32_t* userData, uint32_t numDwords)
@@ -562,6 +562,7 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::writeDataInline(void* dstGpuAddr, const void* data, uint32_t sizeInDwords, WriteDataConfirmMode writeConfirm)
 	{
+		std::memcpy(dstGpuAddr, data, sizeInDwords * sizeof(uint32_t));
 	}
 
 	void GnmCommandBufferDraw::writeDataInlineThroughL2(void* dstGpuAddr, const void* data, uint32_t sizeInDwords, CachePolicy cachePolicy, WriteDataConfirmMode writeConfirm)
@@ -657,22 +658,7 @@ namespace sce::Gnm
 	void GnmCommandBufferDraw::setCsShader(const gcn::CsStageRegisters* computeData, uint32_t shaderModifier)
 	{
 		auto& ctx = m_state.shaderContext[kShaderStageCs];
-		ctx.code  = computeData->getCodeAddress();
-
-		ctx.meta.cs.computeNumThreadX = computeData->computeNumThreadX;
-		ctx.meta.cs.computeNumThreadY = computeData->computeNumThreadY;
-		ctx.meta.cs.computeNumThreadZ = computeData->computeNumThreadZ;
-
-		const COMPUTE_PGM_RSRC2* rsrc2   = reinterpret_cast<const COMPUTE_PGM_RSRC2*>(&computeData->computePgmRsrc2);
-		ctx.meta.cs.userSgprCount        = rsrc2->user_sgpr;
-		ctx.meta.cs.enableTgidX          = rsrc2->tgid_x_en;
-		ctx.meta.cs.enableTgidY          = rsrc2->tgid_y_en;
-		ctx.meta.cs.enableTgidZ          = rsrc2->tgid_z_en;
-		ctx.meta.cs.enableTgSize         = rsrc2->tg_size_en;
-		ctx.meta.cs.threadIdInGroupCount = rsrc2->tidig_comp_cnt;
-		// LDS is allocated in 128 dword blocks on PS4
-		constexpr uint32_t LDSAlignShift = 9;
-		ctx.meta.cs.ldsSize              = rsrc2->lds_size << LDSAlignShift;
+		GnmCommandBuffer::setCsShader(ctx, computeData, shaderModifier);
 	}
 
 	void GnmCommandBufferDraw::writeReleaseMemEventWithInterrupt(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy)
@@ -989,7 +975,7 @@ namespace sce::Gnm
 		shader->dump(fout);
 #endif
 
-		m_initializer->flush();
+		//m_initializer->flush();
 	}
 
 	SceBuffer GnmCommandBufferDraw::getResourceBuffer(const GnmBufferCreateInfo& info)

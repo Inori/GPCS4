@@ -1,9 +1,13 @@
 #include "GnmCommandBufferDispatch.h"
 #include "GnmInitializer.h"
+#include "GnmGpuLabel.h"
+#include "GnmBuffer.h"
+#include "GnmTexture.h"
 #include "Violet/VltDevice.h"
 #include "Violet/VltContext.h"
 #include "Violet/VltCmdList.h"
 #include "Sce/SceGpuQueue.h"
+#include "Sce/SceLabelManager.h"
 
 #include <stdexcept>
 
@@ -101,7 +105,7 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDispatch::setVsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Buffer* buffer)
 	{
-		//throw std::logic_error("The method or operation is not implemented.");
+		std::memcpy(&m_state.shaderContext.userData[startUserDataSlot], buffer, sizeof(Buffer));
 	}
 
 	void GnmCommandBufferDispatch::setTsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Texture* tex)
@@ -211,7 +215,17 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDispatch::writeDataInline(void* dstGpuAddr, const void* data, uint32_t sizeInDwords, WriteDataConfirmMode writeConfirm)
 	{
-		//throw std::logic_error("The method or operation is not implemented.");
+		auto label = m_labelManager->getLabel(dstGpuAddr);
+		if (sizeInDwords == 1)
+		{
+			label->set(*reinterpret_cast<const uint32_t*>(data));
+		}
+		else if (sizeInDwords == 2)
+		{
+			label->set(*reinterpret_cast<const uint64_t*>(data));
+		}
+
+		std::memcpy(dstGpuAddr, data, sizeInDwords * sizeof(uint32_t));
 	}
 
 	void GnmCommandBufferDispatch::writeDataInlineThroughL2(void* dstGpuAddr, const void* data, uint32_t sizeInDwords, CachePolicy cachePolicy, WriteDataConfirmMode writeConfirm)
@@ -236,7 +250,8 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDispatch::waitOnAddress(void* gpuAddr, uint32_t mask, WaitCompareFunc compareFunc, uint32_t refValue)
 	{
-		//throw std::logic_error("The method or operation is not implemented.");
+		auto label = m_labelManager->getLabel(gpuAddr);
+		label->wait(m_context.ptr(), mask, compareFunc, refValue);
 	}
 
 	void GnmCommandBufferDispatch::waitOnAddressAndStallCommandBufferParser(void* gpuAddr, uint32_t mask, uint32_t refValue)
@@ -256,7 +271,6 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDispatch::flushShaderCachesAndWait(CacheAction cacheAction, uint32_t extendedCacheMask, StallCommandBufferParserMode commandBufferStallMode)
 	{
-		//throw std::logic_error("The method or operation is not implemented.");
 	}
 
 	void GnmCommandBufferDispatch::waitUntilSafeForRendering(uint32_t videoOutHandle, uint32_t displayBufferIndex)
@@ -286,7 +300,7 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDispatch::setCsShader(const gcn::CsStageRegisters* computeData, uint32_t shaderModifier)
 	{
-		//throw std::logic_error("The method or operation is not implemented.");
+		GnmCommandBuffer::setCsShader(m_state.shaderContext, computeData, shaderModifier);
 	}
 
 	void GnmCommandBufferDispatch::writeReleaseMemEventWithInterrupt(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy)
@@ -296,7 +310,15 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDispatch::writeReleaseMemEvent(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy)
 	{
-		//throw std::logic_error("The method or operation is not implemented.");
+		if (eventType == kReleaseMemEventCsDone)
+		{
+			auto label = m_labelManager->getLabel(dstGpuAddr);
+			label->write(m_context.ptr(), eventType, srcSelector, immValue);
+		}
+		else
+		{
+			emuWriteGpuLabel(srcSelector, dstGpuAddr, immValue);
+		}
 	}
 
 	void GnmCommandBufferDispatch::setVgtControlForNeo(uint8_t primGroupSizeMinusOne, WdSwitchOnlyOnEopMode wdSwitchOnlyOnEopMode, VgtPartialVsWaveMode partialVsWaveMode)

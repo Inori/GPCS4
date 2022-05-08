@@ -175,8 +175,13 @@ namespace sce::vlt
 
 	Rc<VltGpuEvent> VltDevice::createGpuEvent()
 	{
-		auto handle = m_objects.eventPool().allocEvent();
-		return new VltGpuEvent(this, handle);
+		return new VltGpuEvent(this);
+	}
+
+	Rc<VltSemaphore> VltDevice::createSemaphore(
+		const VltSemaphoreCreateInfo& info)
+	{
+		return new VltSemaphore(this, info);
 	}
 
 	void VltDevice::submitCommandList(
@@ -222,5 +227,6 @@ namespace sce::vlt
 	{
 		m_recycledDescriptorPools.returnObject(pool);
 	}
+
 
 }  // namespace sce::vlt

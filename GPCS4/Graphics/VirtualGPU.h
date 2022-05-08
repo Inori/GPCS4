@@ -17,6 +17,7 @@ namespace sce
 	class SceVideoOut;
 	class SceGnmDriver;
 	class SceResourceTracker;
+	class SceLabelManager;
 	
 	class VirtualGPU final
 	{
@@ -54,6 +55,11 @@ namespace sce
 		SceResourceTracker& resourceTracker();
 
 		/**
+		 * \brief Get GPU label manager.
+		 */
+		SceLabelManager& labelManager();
+
+		/**
 		 * \brief Global GPU mode.
 		 * 
 		 * Equalrant/implementation of 
@@ -73,7 +79,8 @@ namespace sce
 
 		std::shared_ptr<SceGnmDriver> m_gnmDriver = nullptr;
 
-		std::shared_ptr<SceResourceTracker> m_tracker = nullptr;
+		std::shared_ptr<SceResourceTracker> m_tracker      = nullptr;
+		std::shared_ptr<SceLabelManager>    m_labelManager = nullptr;
 	};
 
 }  // namespace sce

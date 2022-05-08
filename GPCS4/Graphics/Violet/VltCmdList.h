@@ -4,6 +4,8 @@
 #include "VltDebugUtil.h"
 #include "VltLifetime.h"
 #include "VltSignal.h"
+#include "VltGpuEvent.h"
+#include "VltSemaphore.h"
 #include "VltDescriptor.h"
 
 namespace sce::vlt
@@ -35,13 +37,10 @@ namespace sce::vlt
      */
 	struct VltQueueSubmission
 	{
-		uint32_t             waitCount;
-		VkSemaphore          waitSync[2];
-		VkPipelineStageFlags waitMask[2];
-		uint32_t             wakeCount;
-		VkSemaphore          wakeSync[2];
-		uint32_t             cmdBufferCount;
-		VkCommandBuffer      cmdBuffers[4];
+		std::vector<VkSemaphoreSubmitInfo> waitSync;
+		std::vector<VkSemaphoreSubmitInfo> wakeSync;
+		uint32_t                           cmdBufferCount;
+		VkCommandBuffer                    cmdBuffers[4];
 	};
 
 	/**
@@ -145,16 +144,16 @@ namespace sce::vlt
 		}
 
 		/**
-         * \brief Tracks a GPU event
-         * 
-         * The event will be returned to its event pool
-         * after the command buffer has finished executing.
-         * \param [in] handle Event handle
-         */
-		//void trackGpuEvent(DxvkGpuEventHandle handle)
-		//{
-		//	m_gpuEventTracker.trackEvent(handle);
-		//}
+		 * \brief Tracks a GPU event
+		 *
+		 * The event will be returned to its event pool
+		 * after the command buffer has finished executing.
+		 * \param [in] handle Event handle
+		 */
+		void trackGpuEvent(VltGpuEventHandle handle)
+		{
+			m_gpuEventTracker.trackEvent(handle);
+		}
 
 		/**
          * \brief Tracks a GPU query
@@ -189,6 +188,31 @@ namespace sce::vlt
 			m_resources.notify();
 			m_signalTracker.notify();
 		}
+
+		/**
+		 * \brief Queues semaphore
+		 *
+		 * Queue a semaphore to be signaled.
+		 * The semaphore will be submitted
+		 * upon next command submission.
+		 * 
+		 * \param [in] semaphore The semaphore
+		 */
+		void signalSemaphore(
+			const VltSemaphoreSubmission& submission);
+
+		/**
+		 * \brief Queues semaphore
+		 *
+		 * Queue a semaphore to be wait.
+		 * The semaphore will be submitted
+		 * upon next command submission.
+		 * 
+		 * \param [in] semaphore The semaphore
+		 */
+		void waitSemaphore(
+			const VltSemaphoreSubmission& submission);
+
 
 		/**
          * \brief Resets the command list
@@ -805,6 +829,11 @@ namespace sce::vlt
 			return VK_NULL_HANDLE;
 		}
 
+		VkSemaphoreSubmitInfo populateSemaphoreSubmit(
+			VkSemaphore           semaphore,
+			uint64_t              value,
+			VkPipelineStageFlags2 stageMask);
+
 		VkResult submitToQueue(
 			VkQueue                   queue,
 			VkFence                   fence,
@@ -830,6 +859,8 @@ namespace sce::vlt
 		VltLifetimeTracker       m_resources;
 		VltDescriptorPoolTracker m_descriptorPoolTracker;
 		VltSignalTracker         m_signalTracker;
+		VltGpuEventTracker       m_gpuEventTracker;
+		VltSemaphoreTracker      m_semaphoreTracker;
 		//DxvkGpuQueryTracker       m_gpuQueryTracker;
 
 		VltDebugUtil m_debug;

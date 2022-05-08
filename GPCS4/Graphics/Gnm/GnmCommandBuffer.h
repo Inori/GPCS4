@@ -15,6 +15,7 @@
 namespace sce
 {
 	class SceResourceTracker;
+	class SceLabelManager;
 	enum class SceQueueType;
 
 	namespace vlt
@@ -32,6 +33,7 @@ namespace sce::Gnm
 	class Buffer;
 	class Texture;
 	class Sampler;
+	struct GnmShaderContext;
 
 	class GnmCommandBuffer
 	{
@@ -420,12 +422,18 @@ namespace sce::Gnm
 	protected:
 		void emuWriteGpuLabel(EventWriteSource selector, void* label, uint64_t value);
 
+		void setCsShader(
+			GnmShaderContext&            ctx,
+			const gcn::CsStageRegisters* computeData,
+			uint32_t                     shaderModifier);
+
 	protected:
 		vlt::VltDevice*          m_device;
 		vlt::Rc<vlt::VltContext> m_context;
 		GnmResourceFactory       m_factory;
 		
-		SceResourceTracker*             m_tracker;
+		SceResourceTracker*             m_tracker      = nullptr;
+		SceLabelManager*                m_labelManager = nullptr;
 		std::unique_ptr<GnmInitializer> m_initializer;
 	private:
 	};

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GnmCommandBuffer.h"
+#include "GnmRenderState.h"
 
 namespace sce::Gnm
 {
@@ -123,6 +124,7 @@ namespace sce::Gnm
 		virtual void setDepthStencilDisable() override;
 
 	private:
+		GnmComputeState m_state = {};
 	};
 
 }  // namespace sce::Gnm

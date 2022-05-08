@@ -1386,17 +1386,12 @@ namespace sce::vlt
 	{
 		this->endRecording();
 
-		m_cmd->cmdSetEvent2(event->handle(), dependencyInfo);
+		VltGpuEventHandle handle = m_common->eventPool().allocEvent();
 
+		m_cmd->cmdSetEvent2(handle.event, dependencyInfo);
+
+		m_cmd->trackGpuEvent(event->reset(handle));
 		m_cmd->trackResource<VltAccess::None>(event);
-	}
-
-	void VltContext::waitGpuEvent(
-		const Rc<VltGpuEvent>&  event,
-		const VkDependencyInfo* dependencyInfo)
-	{
-		VkEvent handle = event->handle();
-		m_cmd->cmdWaitEvents2(1, &handle, dependencyInfo);
 	}
 
 	void VltContext::signal(
@@ -1404,6 +1399,16 @@ namespace sce::vlt
 		uint64_t                      value)
 	{
 		m_cmd->queueSignal(signal, value);
+	}
+
+	void VltContext::signalSemaphore(const VltSemaphoreSubmission& submission)
+	{
+		m_cmd->signalSemaphore(submission);
+	}
+
+	void VltContext::waitSemaphore(const VltSemaphoreSubmission& submission)
+	{
+		m_cmd->waitSemaphore(submission);
 	}
 
 	void VltContext::beginRendering()
@@ -1985,7 +1990,5 @@ namespace sce::vlt
 		}
 		m_state.cb.attachmentOps = ops;
 	}
-
-
 
 }  // namespace sce::vlt

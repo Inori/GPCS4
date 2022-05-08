@@ -75,7 +75,7 @@ namespace sce
 		vlt::VltDevice* m_device;
 
 		std::unique_ptr<Gnm::GnmCommandProcessor> m_cp;
-		std::unique_ptr<Gnm::GnmCommandBuffer>    m_cmdProducer;
+		std::unique_ptr<Gnm::GnmCommandBuffer>    m_cmd;
 	};
 
 }  // namespace sce

@@ -84,9 +84,21 @@ namespace sce
 			if (type.test(SceResourceType::Buffer) &&
 				!type.any(SceResourceType::RenderTarget, SceResourceType::DepthRenderTarget))
 			{
-				auto& buffer = res.second.buffer();
-				void* data   = buffer.gnmBuffer.getBaseAddress();
-				context->downloadBuffer(buffer.buffer, data);
+				auto& buffer   = res.second.buffer().buffer;
+				void* data     = res.second.cpuMemory();
+				auto  memFlags = buffer->memFlags();
+				if (memFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+				{
+					if (!(memFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT))
+					{
+						// vkInvalidateMappedMemoryRanges()
+					}
+					std::memcpy(data, buffer->mapPtr(0), buffer->info().size);
+				}
+				else
+				{
+					context->downloadBuffer(buffer, data);
+				}
 			}
 		}
 	}

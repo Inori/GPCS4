@@ -102,16 +102,16 @@ namespace sce::vlt
 
 			if (m_device->hasDedicatedTransferQueue())
 			{
-				info.wakeSync[info.wakeCount++] = m_transSemaphore;
-				VkResult status                 = submitToQueue(transfer.queueHandle, VK_NULL_HANDLE, info);
+				info.wakeSync.emplace_back(
+					populateSemaphoreSubmit(m_transSemaphore, 0, VK_PIPELINE_STAGE_TRANSFER_BIT));
+				VkResult status = submitToQueue(transfer.queueHandle, VK_NULL_HANDLE, info);
 
 				if (status != VK_SUCCESS)
 					return status;
 
-				info                          = VltQueueSubmission();
-				info.waitSync[info.waitCount] = m_transSemaphore;
-				info.waitMask[info.waitCount] = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
-				info.waitCount += 1;
+				info = VltQueueSubmission();
+				info.waitSync.emplace_back(
+					populateSemaphoreSubmit(m_transSemaphore, 0, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT));
 			}
 		}
 
@@ -122,13 +122,18 @@ namespace sce::vlt
 
 		if (waitSemaphore)
 		{
-			info.waitSync[info.waitCount] = waitSemaphore;
-			info.waitMask[info.waitCount] = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
-			info.waitCount += 1;
+			info.waitSync.emplace_back(
+				populateSemaphoreSubmit(waitSemaphore, 0, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT));
 		}
 
 		if (wakeSemaphore)
-			info.wakeSync[info.wakeCount++] = wakeSemaphore;
+		{
+			info.wakeSync.emplace_back(
+				populateSemaphoreSubmit(wakeSemaphore, 0, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT));
+		}
+
+		// Merge semaphores queued by user.
+		mergeSemaphores(info);
 
 		return submitToQueue(exec.queueHandle, m_fence, info);
 	}
@@ -191,6 +196,8 @@ namespace sce::vlt
 		m_descriptorPoolTracker.reset();
 
 		//// Return query and event handles
+		m_gpuEventTracker.reset();
+		m_semaphoreTracker.reset();
 		//m_gpuQueryTracker.reset();
 	}
 
@@ -199,18 +206,50 @@ namespace sce::vlt
 		VkFence                   fence,
 		const VltQueueSubmission& info)
 	{
-		VkSubmitInfo submitInfo;
-		submitInfo.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		submitInfo.pNext                = nullptr;
-		submitInfo.waitSemaphoreCount   = info.waitCount;
-		submitInfo.pWaitSemaphores      = info.waitSync;
-		submitInfo.pWaitDstStageMask    = info.waitMask;
-		submitInfo.commandBufferCount   = info.cmdBufferCount;
-		submitInfo.pCommandBuffers      = info.cmdBuffers;
-		submitInfo.signalSemaphoreCount = info.wakeCount;
-		submitInfo.pSignalSemaphores    = info.wakeSync;
+		std::array<VkCommandBufferSubmitInfo, 4> commands = {};
+		std::transform(info.cmdBuffers, info.cmdBuffers + info.cmdBufferCount,
+			commands.begin(), [](VkCommandBuffer cmd)
+			{ 
+				return VkCommandBufferSubmitInfo{
+						VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO,
+						nullptr,
+						cmd,
+						0
+				};
+			});
 
-		return vkQueueSubmit(queue, 1, &submitInfo, fence);
+		VkSubmitInfo2 submitInfo;
+		submitInfo.sType                    = VK_STRUCTURE_TYPE_SUBMIT_INFO_2;
+		submitInfo.pNext                    = nullptr;
+		submitInfo.flags                    = 0;
+		submitInfo.waitSemaphoreInfoCount   = info.waitSync.size();
+		submitInfo.pWaitSemaphoreInfos      = info.waitSync.data();
+		submitInfo.commandBufferInfoCount   = info.cmdBufferCount;
+		submitInfo.pCommandBufferInfos      = commands.data();
+		submitInfo.signalSemaphoreInfoCount = info.wakeSync.size();
+		submitInfo.pSignalSemaphoreInfos    = info.wakeSync.data();
+	
+		return vkQueueSubmit2(queue, 1, &submitInfo, fence);
+	}
+
+	void VltCommandList::signalSemaphore(const VltSemaphoreSubmission& submission)
+	{
+		auto submitInfo = populateSemaphoreSubmit(submission.semaphore->handle(),
+												  submission.value,
+												  submission.stageMask);
+		m_wakeSemaphores.push_back(submitInfo);
+
+		m_semaphoreTracker.trackSemaphore(submission.semaphore);
+	}
+
+	void VltCommandList::waitSemaphore(const VltSemaphoreSubmission& submission)
+	{
+		auto submitInfo = populateSemaphoreSubmit(submission.semaphore->handle(),
+												  submission.value,
+												  submission.stageMask);
+		m_waitSemaphores.push_back(submitInfo);
+
+		m_semaphoreTracker.trackSemaphore(submission.semaphore);
 	}
 
 	void VltCommandList::updateDescriptorSets(uint32_t descriptorWriteCount, const VkWriteDescriptorSet* pDescriptorWrites)
@@ -262,5 +301,33 @@ namespace sce::vlt
 	{
 		m_debug.cmdInsertDebugUtilsLabel(m_execBuffer, labelInfo);
 	}
+
+	VkSemaphoreSubmitInfo VltCommandList::populateSemaphoreSubmit(
+		VkSemaphore           semaphore,
+		uint64_t              value,
+		VkPipelineStageFlags2 stageMask)
+	{
+		return VkSemaphoreSubmitInfo{
+			VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
+			nullptr,
+			semaphore,
+			value,
+			stageMask,
+			0,
+		};
+	}
+
+	void VltCommandList::mergeSemaphores(VltQueueSubmission& submission)
+	{
+		submission.waitSync.insert(submission.waitSync.end(),
+								   m_waitSemaphores.begin(), m_waitSemaphores.end());
+		submission.wakeSync.insert(submission.wakeSync.end(),
+								   m_wakeSemaphores.begin(), m_wakeSemaphores.end());
+
+		m_waitSemaphores.clear();
+		m_wakeSemaphores.clear();
+	}
+
+
 
 }  // namespace sce::vlt

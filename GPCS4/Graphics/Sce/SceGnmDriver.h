@@ -35,6 +35,7 @@ namespace sce
 
 	class SceGnmDriver
 	{
+		friend class VirtualGPU;
 		friend class SceVideoOut;
 	public:
 		SceGnmDriver();

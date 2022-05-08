@@ -346,7 +346,7 @@ namespace sce::gcn
 				// Vega ISA:
 				// ABSDIFF(x, y) := (x > y ? x - y : y - x) // UNSIGNED comparison
 				// D.u = ABSDIFF(S0.u, S1.u) + S2.u.
-				uint32_t isSrc0Greater = m_module.opUGreaterThan(typeId,
+				uint32_t isSrc0Greater = m_module.opUGreaterThan(m_module.defBoolType(),
 																 src[0].low.id,
 																 src[1].low.id);
 				// We shouldn't use OpSAbs,

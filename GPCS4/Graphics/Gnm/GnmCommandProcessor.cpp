@@ -712,9 +712,10 @@ namespace sce::Gnm
 				//(0x14C + 0xF) >> 5 = 10 = 2 * 5
 				stage = (ShaderStage)(((shPacket->bitfields2.reg_offset >> 5) / 2) + 1);
 			}
+
 			uint32_t stageBase = c_stageBases[stage];
 			uint32_t startSlot = shPacket->bitfields2.reg_offset + 0x2C00 - stageBase;
-			void*    gpuAddr   = reinterpret_cast<void*>(*(uint64_t*)(itBody + 1));
+			void*    gpuAddr   = reinterpret_cast<void*>(itBody + 1);
 
 			bool isPointer = false;
 			switch (m_lastHint)

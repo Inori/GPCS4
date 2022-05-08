@@ -72,4 +72,9 @@ namespace sce::Gnm
 		GnmDepthStencilState   ds = {};
 		GnmOutputMergerState   om = {};
 	};
+
+	struct GnmComputeState
+	{
+		GnmShaderContext shaderContext = {};
+	};
 }  // namespace sce::Gnm
