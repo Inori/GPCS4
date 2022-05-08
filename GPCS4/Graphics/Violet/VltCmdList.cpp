@@ -132,9 +132,6 @@ namespace sce::vlt
 				populateSemaphoreSubmit(wakeSemaphore, 0, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT));
 		}
 
-		// Merge semaphores queued by user.
-		mergeSemaphores(info);
-
 		return submitToQueue(exec.queueHandle, m_fence, info);
 	}
 
@@ -225,7 +222,7 @@ namespace sce::vlt
 		submitInfo.waitSemaphoreInfoCount   = info.waitSync.size();
 		submitInfo.pWaitSemaphoreInfos      = info.waitSync.data();
 		submitInfo.commandBufferInfoCount   = info.cmdBufferCount;
-		submitInfo.pCommandBufferInfos      = commands.data();
+		submitInfo.pCommandBufferInfos      = info.cmdBufferCount != 0 ? commands.data() : nullptr;
 		submitInfo.signalSemaphoreInfoCount = info.wakeSync.size();
 		submitInfo.pSignalSemaphoreInfos    = info.wakeSync.data();
 	
@@ -234,22 +231,12 @@ namespace sce::vlt
 
 	void VltCommandList::signalSemaphore(const VltSemaphoreSubmission& submission)
 	{
-		auto submitInfo = populateSemaphoreSubmit(submission.semaphore->handle(),
-												  submission.value,
-												  submission.stageMask);
-		m_wakeSemaphores.push_back(submitInfo);
-
-		m_semaphoreTracker.trackSemaphore(submission.semaphore);
+		submitSemaphore(submission, true);
 	}
 
 	void VltCommandList::waitSemaphore(const VltSemaphoreSubmission& submission)
 	{
-		auto submitInfo = populateSemaphoreSubmit(submission.semaphore->handle(),
-												  submission.value,
-												  submission.stageMask);
-		m_waitSemaphores.push_back(submitInfo);
-
-		m_semaphoreTracker.trackSemaphore(submission.semaphore);
+		submitSemaphore(submission, false);
 	}
 
 	void VltCommandList::updateDescriptorSets(uint32_t descriptorWriteCount, const VkWriteDescriptorSet* pDescriptorWrites)
@@ -317,17 +304,42 @@ namespace sce::vlt
 		};
 	}
 
-	void VltCommandList::mergeSemaphores(VltQueueSubmission& submission)
+	void VltCommandList::submitSemaphore(
+		const VltSemaphoreSubmission& submission, bool signal)
 	{
-		submission.waitSync.insert(submission.waitSync.end(),
-								   m_waitSemaphores.begin(), m_waitSemaphores.end());
-		submission.wakeSync.insert(submission.wakeSync.end(),
-								   m_wakeSemaphores.begin(), m_wakeSemaphores.end());
+		auto semaInfo = populateSemaphoreSubmit(submission.semaphore->handle(),
+												submission.value,
+												submission.stageMask);
 
-		m_waitSemaphores.clear();
-		m_wakeSemaphores.clear();
+		const auto& exec = m_queueType == VltQueueType::Graphics
+							   ? m_device->queues().graphics
+							   : m_device->queues().compute;
+
+		VkSubmitInfo2 submitInfo;
+		submitInfo.sType                    = VK_STRUCTURE_TYPE_SUBMIT_INFO_2;
+		submitInfo.pNext                    = nullptr;
+		submitInfo.flags                    = 0;
+		submitInfo.commandBufferInfoCount   = 0;
+		submitInfo.pCommandBufferInfos      = nullptr;
+
+		if (signal)
+		{
+			submitInfo.waitSemaphoreInfoCount   = 0;
+			submitInfo.pWaitSemaphoreInfos      = nullptr;
+			submitInfo.signalSemaphoreInfoCount = 1;
+			submitInfo.pSignalSemaphoreInfos    = &semaInfo;
+		}
+		else
+		{
+			submitInfo.waitSemaphoreInfoCount   = 1;
+			submitInfo.pWaitSemaphoreInfos      = &semaInfo;
+			submitInfo.signalSemaphoreInfoCount = 0;
+			submitInfo.pSignalSemaphoreInfos    = nullptr;
+		}
+
+		vkQueueSubmit2(exec.queueHandle, 1, &submitInfo, VK_NULL_HANDLE);
+
+		m_semaphoreTracker.trackSemaphore(submission.semaphore);
 	}
-
-
 
 }  // namespace sce::vlt

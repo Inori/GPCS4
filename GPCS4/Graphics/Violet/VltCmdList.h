@@ -834,6 +834,10 @@ namespace sce::vlt
 			uint64_t              value,
 			VkPipelineStageFlags2 stageMask);
 
+		void submitSemaphore(
+			const VltSemaphoreSubmission& submission,
+			bool                          signal);
+
 		VkResult submitToQueue(
 			VkQueue                   queue,
 			VkFence                   fence,

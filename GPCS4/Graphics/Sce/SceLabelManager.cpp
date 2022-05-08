@@ -35,7 +35,7 @@ namespace sce
 										 std::tuple(m_device, labelAddress));
 			label = &pair.first->second;
 		}
-		else
+		else 
 		{
 			label = &iter->second;
 		}
