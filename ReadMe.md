@@ -16,6 +16,11 @@ It's not intended to become a serious application.
 
 ## Latest progress
 
+![Basic Compute](https://github.com/Inori/ImageHost/blob/master/GPCS4/basic_compute.gif)  
+* Support simple compute shader, compute ring, cube maps.  
+* Use Direct Input to emulate pad.  
+
+
 ![WAD Demo](https://github.com/Inori/ImageHost/blob/master/GPCS4/wad_demo.gif)  
 First commercial game support, *We are Doomed*. Thanks to our developers.  
 It's not playable now, since the FPS is very low, because there are currently no optimizations.  
@@ -23,13 +28,6 @@ GPCS4 will recompile all the shaders, untiling all the textures and upload all t
 Besides, there are still some problems in the game pad emulation.  
 We will try to resolve these issues incrementally.
 
-![Basic Quad](https://github.com/Inori/ImageHost/blob/master/GPCS4/basic_quad.gif)  
-First correct image rendered, although this is a 2D image demo, it's actually rendered in a 3D pipeline.  
-There is still some hard-coded test code, but with more design, and most importantly, using our shader translator. There won't be any hand-written shaders anymore.  
-Next I'll focus on Nier and improve the graphics implementation.
-
-![Nier Demo](https://github.com/Inori/ImageHost/blob/master/GPCS4/nier_logo.gif)  
-This is a previous running result of Nier:Automata. It is not correct yet, and I'll try to improve it.
 
 ## Roadmap
 
