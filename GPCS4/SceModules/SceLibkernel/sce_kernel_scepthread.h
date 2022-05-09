@@ -1,26 +1,25 @@
 #pragma once
-#include "pthreads4w/pthread.h"
-#include "pthreads4w/sched.h"
-#include "pthreads4w/semaphore.h"
+#include "winpthreads/include/pthread.h"
+#include "winpthreads/include/sched.h"
+#include "winpthreads/include/semaphore.h"
 
 // pthread to sce pthread
 // Note:
 // we need to take care of the size of these structs if it's not a pointer type
-// pthread4w's implementation and ps4's implementation has different size
-typedef uint64_t				  ScePthread;
-typedef pthread_once_t            ScePthreadOnce;
+// winpthreads's implementation and ps4's implementation has different size
 
-// the following types are pointers, which is safe
-typedef pthread_attr_t            ScePthreadAttr;
-typedef pthread_barrier_t         ScePthreadBarrier;
-typedef pthread_barrierattr_t     ScePthreadBarrierattr;
-typedef pthread_condattr_t        ScePthreadCondattr;
-typedef pthread_cond_t            ScePthreadCond;
-typedef pthread_key_t             ScePthreadKey;
-typedef pthread_mutex_t           ScePthreadMutex;
-typedef pthread_mutexattr_t       ScePthreadMutexattr;
-typedef pthread_rwlock_t          ScePthreadRwlock;
-typedef pthread_rwlockattr_t      ScePthreadRwlockattr;
+typedef pthread_attr_t        ScePthreadAttr;
+typedef pthread_barrier_t     ScePthreadBarrier;
+typedef pthread_barrierattr_t ScePthreadBarrierattr;
+typedef pthread_condattr_t    ScePthreadCondattr;
+typedef pthread_cond_t        ScePthreadCond;
+typedef pthread_t             ScePthread;
+typedef pthread_key_t         ScePthreadKey;
+typedef pthread_mutex_t       ScePthreadMutex;
+typedef pthread_mutexattr_t   ScePthreadMutexattr;
+typedef pthread_once_t        ScePthreadOnce;
+typedef pthread_rwlock_t      ScePthreadRwlock;
+typedef pthread_rwlockattr_t  ScePthreadRwlockattr;
 
 
 typedef enum ScePthreadMutextype

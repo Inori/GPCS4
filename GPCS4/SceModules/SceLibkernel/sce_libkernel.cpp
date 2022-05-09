@@ -4,7 +4,7 @@
 #include "Platform.h"
 #include "SceModuleSystem.h"
 #include "VirtualGPU.h"
-#include "pthreads4w/pthread.h"
+#include "winpthreads/include/pthread.h"
 
 #include "Gnm/GnmConstant.h"
 
@@ -217,7 +217,7 @@ int PS4API scek___sys_regmgr_call()
 int PS4API scePthreadAttrGet(ScePthread thread, ScePthreadAttr* attr)
 {
 	LOG_SCE_DUMMY_IMPL();
-	*attr = nullptr;
+	pthread_attr_init(attr);
 	return SCE_OK;
 }
 

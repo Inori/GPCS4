@@ -1,6 +1,6 @@
 #pragma once
 #include "GPCS4Common.h"
-#include "pthreads4w/pthread.h"
+#include "winpthreads/include/pthread.h"
 #include <memory>
 
 class CGameThread

@@ -156,16 +156,16 @@ int PS4API scePthreadMutexInit(ScePthreadMutex *mutex, const ScePthreadMutexattr
 	if (attr == nullptr)
 	{
 		// If attr is nullptr then default will be used which is PTHREAD_MUTEX_ERRORCHECK on PS4
-		// so we make sure we set PTHREAD_MUTEX_ERRORCHECK here to match behaviour.
+		// so we make sure we set PTHREAD_MUTEX_ERRORCHECK here to match behavior.
 		pthread_mutexattr_t errorCheckMutexAttr;
 		pthread_mutexattr_init(&errorCheckMutexAttr);
 		pthread_mutexattr_settype(&errorCheckMutexAttr, PTHREAD_MUTEX_ERRORCHECK);
-		err = pthread_mutex_init((pthread_mutex_t*)mutex, &errorCheckMutexAttr);
+		err = pthread_mutex_init(mutex, &errorCheckMutexAttr);
 		pthread_mutexattr_destroy(&errorCheckMutexAttr);
 	}
 	else
 	{
-		err = pthread_mutex_init((pthread_mutex_t*)mutex, (pthread_mutexattr_t*)attr);
+		err = pthread_mutex_init(mutex, attr);
 	}
 	return pthreadErrorToSceError(err);
 }
@@ -423,33 +423,29 @@ int PS4API scePthreadAttrSetstacksize(ScePthreadAttr *attr, size_t stackSize)
 ScePthread PS4API scePthreadSelf(void)
 {
 	pthread_t pt = pthread_self();
-	ScePthread tid = g_threadSlot.GetItemIndex(pt);
-	if (tid == 0)
-	{
-		tid = g_threadSlot.GetEmptySlotIndex();
-		g_threadSlot[tid] = pt;
-	}
-	LOG_SCE_TRACE("thread self %d", tid);
-	return tid;
+	LOG_SCE_TRACE("thread self %d", pt);
+	return pt;
 }
 
 
 int PS4API scePthreadSetaffinity(ScePthread thread, const SceKernelCpumask mask)
 {
-	LOG_SCE_TRACE("mask %x", mask);
-	cpu_set_t cpuset;
-	// TODO:
-	// should limit cpu count according to running machine
-	for (int i = 0; i != SCE_KERNEL_CPU_MAX; ++i)
-	{
-		if (util::isBitSet(mask, i))
-		{
-			CPU_SET(i, &cpuset);
-		}
-	}
-
-	int err = pthread_setaffinity_np(g_threadSlot[thread], sizeof(cpu_set_t), &cpuset);
-	return pthreadErrorToSceError(err);
+	//LOG_SCE_TRACE("mask %x", mask);
+	//cpu_set_t cpuset;
+	//// TODO:
+	//// should limit cpu count according to running machine
+	//for (int i = 0; i != SCE_KERNEL_CPU_MAX; ++i)
+	//{
+	//	if (util::isBitSet(mask, i))
+	//	{
+	//		CPU_SET(i, &cpuset);
+	//	}
+	//}
+	//
+	//int err = pthread_setaffinity_np(g_threadSlot[thread], sizeof(cpu_set_t), &cpuset);
+	//return pthreadErrorToSceError(err);
+	LOG_SCE_DUMMY_IMPL();
+	return SCE_OK;
 }
 
 
@@ -519,23 +515,18 @@ int PS4API scePthreadCondattrDestroy(ScePthreadCondattr *attr)
 // if one thread create several thread, these threads' id will be same
 int PS4API scePthreadCreate(ScePthread *thread, const ScePthreadAttr *attr, void *(PS4API *entry) (void *), void *arg, const char *name)
 {
-	LOG_SCE_TRACE("thread %p attr %p entry %p arg %p name %s", thread, attr, entry, arg,"placeholder" /*name*/);
-	if (name)
-	{
-		LOG_FIXME("thread name is not supported.");
-	}
+	LOG_SCE_TRACE("thread %p attr %p entry %p arg %p name %s", thread, attr, entry, arg, "placeholder" /*name*/);
 
 	SCE_THREAD_PARAM* param = new SCE_THREAD_PARAM();
 	param->entry = (void*)entry;
 	param->arg = arg;
 
-	pthread_t pthread;
-	int err = pthread_create(&pthread, attr, newThreadWrapper, param);
-
-	ScePthread tid = g_threadSlot.GetEmptySlotIndex();
-	g_threadSlot[tid] = pthread;
-	*thread = tid;
-
+	int err = pthread_create(thread, attr, newThreadWrapper, param);
+	if (!err)
+	{
+		pthread_setname_np(*thread, name);
+	}
+	
 	return pthreadErrorToSceError(err);
 }
 
@@ -544,22 +535,9 @@ void PS4API scePthreadExit(void *value_ptr)
 {
 	LOG_SCE_TRACE("value %p", value_ptr);
 
-	// do clear
-	pthread_t emptyPt = { 0 };
-	ScePthread tid = scePthreadSelf();
-	g_threadSlot.SetItemAt(tid, emptyPt);
-
-	// TODO:
-	// I formerly compiled pthread4w using VCE(using C++ exceptions) option,
-	// and we really should do that.
-	// but in that option, pthread_exit will throw an exception which will never be caught,
-	// that's strange, and I don't know why.
-	// so I change the compile option to use setjmp/longjmp, and this works,
-	// but without stack unwinding.
-	// we should fix this later...
 	pthread_exit(value_ptr);
 
-	LOG_WARN("shoudn't reach here %d", tid);
+	LOG_WARN("shoudn't reach here.");
 }
 
 
@@ -586,11 +564,10 @@ int PS4API scePthreadGetprio(ScePthread thread, int *prio)
 	return SCE_OK;
 }
 
-
 int PS4API scePthreadJoin(ScePthread thread, void **value)
 {
 	LOG_SCE_TRACE("thread %d value %p", thread, value);
-	int err = pthread_join(g_threadSlot[thread], value);
+	int err = pthread_join(thread, value);
 	return pthreadErrorToSceError(err);
 }
 

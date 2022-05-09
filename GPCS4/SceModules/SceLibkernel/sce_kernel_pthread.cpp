@@ -48,7 +48,7 @@ int PS4API scek_pthread_cond_wait(pthread_cond_t * cond, pthread_mutex_t * mutex
 int PS4API scek_pthread_create(ScePthread *thread, const pthread_attr_t *attr,  void *(PS4API *entry) (void *), void *args)
 {
 	//LOG_FIXME("Not implemented");
-	int rc = 0;
+	int err = 0;
 
 	do
 	{
@@ -56,21 +56,16 @@ int PS4API scek_pthread_create(ScePthread *thread, const pthread_attr_t *attr,  
 		param->entry = reinterpret_cast<void*>(entry);
 		param->arg    = args;
 
-		pthread_t pth = {};
-
-		rc = pthread_create(&pth, attr, newThreadWrapper, param);
-		if (rc != 0)
+		err = pthread_create(thread, attr, newThreadWrapper, param);
+		if (err != 0)
 		{
 			delete param;	
 			break;
 		}
 
-		ScePthread tid = g_threadSlot.GetEmptySlotIndex();
-		g_threadSlot[tid] = pth;
-		*thread = tid;
 	} while (false);
 
-	return rc;
+	return err;
 }
 
 

@@ -414,7 +414,7 @@ int                        WINPTHREAD_API pthread_rwlockattr_setpshared(pthread_
 #define SIG_SETMASK 2
 #endif
 
-#include <pthread_unistd.h>
+#include "pthread_unistd.h"
 
 #undef _POSIX_THREAD_DESTRUCTOR_ITERATIONS
 #define _POSIX_THREAD_DESTRUCTOR_ITERATIONS     PTHREAD_DESTRUCTOR_ITERATIONS
