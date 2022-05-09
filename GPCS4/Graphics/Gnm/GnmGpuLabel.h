@@ -47,6 +47,7 @@ namespace sce::Gnm
 	private:
 		vlt::VltDevice* m_device;
 		void*           m_label;
+		uint64_t        m_value = 0;
 
 		vlt::Rc<vlt::VltSemaphore> m_semaphore;
 		std::future<void>          m_future;

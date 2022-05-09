@@ -39,10 +39,12 @@ namespace sce::Gnm
 			m_semaphore        = m_device->createSemaphore(info);
 		}
 
+		m_value = immValue == 0 ? 1 : immValue;
+
 		VltSemaphoreSubmission submission;
 		submission.semaphore = m_semaphore;
 		submission.stageMask = stage;
-		submission.value     = immValue;
+		submission.value     = m_value;
 
 		// Queue the semaphore
 		context->signalSemaphore(submission);
@@ -78,7 +80,7 @@ namespace sce::Gnm
 		WaitCompareFunc compareFunc,
 		uint32_t        refValue)
 	{
-		// In Gnm, writeReleaseMemEvent must be called before waitOnAddress on the same queue,
+		// In Gnm, writeReleaseMemEvent must be called before waitOnAddress within the same queue,
 		// or the GPU will be blocked.
 		// waitOnAddress can be called before writeReleaseMemEvent if it's on a different queue.
 
@@ -94,10 +96,12 @@ namespace sce::Gnm
 			m_semaphore        = m_device->createSemaphore(info);
 		}
 
+		m_value = refValue == 0 ? 1 : refValue;
+
 		VltSemaphoreSubmission submission;
 		submission.semaphore = m_semaphore;
 		submission.stageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
-		submission.value     = refValue & mask;
+		submission.value     = m_value & mask;
 		context->waitSemaphore(submission);
 	}
 
