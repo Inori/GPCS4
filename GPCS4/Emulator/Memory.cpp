@@ -43,7 +43,6 @@ int32_t MemoryAllocator::mapFlexibleMemory(void** addrInOut, size_t len, int pro
 
 		// TODO:
 		// implement flags
-		LOG_ASSERT(flags == 0, "Non-zero flags is not implemented.");
 
 		void* addrOut = allocateInternal(*addrInOut, len, SCE_KERNEL_PAGE_SIZE, prot);
 		if (!addrOut)
@@ -125,7 +124,6 @@ int32_t MemoryAllocator::mapDirectMemory(
 
 		// TODO:
 		// implement flags
-		LOG_ASSERT(flags == 0, "Non-zero flags is not implemented.");
 
 		void* addrOut = allocateInternal(*addr, len, alignment, prot);
 		if (!addrOut)

@@ -56,9 +56,23 @@ namespace sce
 
 	int VirtualGPU::videoOutClose(int32_t handle)
 	{
-		uint32_t index = handle - SceVideoOutPortBase;
-		m_videoOutSlots[index].reset();
-		return SCE_OK;
+		int result = SCE_VIDEO_OUT_ERROR_INVALID_HANDLE;
+		do 
+		{
+			if (SCE_ERROR_IS_FAILURE(handle))
+			{
+				// If the handle is an error code,
+				// we do nothing.
+				break;
+			}
+
+			uint32_t index = handle - SceVideoOutPortBase;
+			m_videoOutSlots[index].reset();
+
+			result = SCE_OK;
+		} while (false);
+
+		return result;
 	}
 
 	SceVideoOut& VirtualGPU::videoOutGet(int32_t handle)
