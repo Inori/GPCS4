@@ -25,6 +25,8 @@ namespace sce
 
 		Gnm::GnmGpuLabel* getLabel(void* labelAddress);
 
+		void reset();
+
 	private:
 		vlt::VltDevice*                             m_device;
 		std::unordered_map<void*, Gnm::GnmGpuLabel> m_labels;

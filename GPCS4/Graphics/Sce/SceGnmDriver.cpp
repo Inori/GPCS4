@@ -7,6 +7,7 @@
 #include "SceComputeQueue.h"
 #include "SceSwapchain.h"
 #include "SceResourceTracker.h"
+#include "SceLabelManager.h"
 #include "UtilMath.h"
 #include "sce_errors.h"
 
@@ -143,7 +144,7 @@ namespace sce
 
 		downloadResource();
 		// clear resource tracker every frame
-		resetResourceTracker();
+		cleanupFrame();
 
 		return SCE_OK;
 	}
@@ -289,10 +290,15 @@ namespace sce
 		tracker.track(renderTarget);
 	}
 
-	void SceGnmDriver::resetResourceTracker()
+	void SceGnmDriver::cleanupFrame()
 	{
+		// Reset global objects.
+
 		auto& tracker = GPU().resourceTracker();
 		tracker.reset();
+
+		auto& labelMgr = GPU().labelManager();
+		labelMgr.reset();
 	}
 
 	void SceGnmDriver::downloadResource()

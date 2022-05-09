@@ -41,4 +41,11 @@ namespace sce
 		}
 		return label;
 	}
+
+	void SceLabelManager::reset()
+	{
+		std::lock_guard<util::sync::Spinlock> guard(m_lock);
+		m_labels.clear();
+	}
+
 }  // namespace sce

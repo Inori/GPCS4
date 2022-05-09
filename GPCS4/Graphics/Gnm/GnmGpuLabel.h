@@ -5,6 +5,7 @@
 #include "Violet/VltRc.h"
 
 #include <unordered_map>
+#include <future>
 
 namespace sce::vlt
 {
@@ -48,6 +49,7 @@ namespace sce::Gnm
 		void*           m_label;
 
 		vlt::Rc<vlt::VltSemaphore> m_semaphore;
+		std::future<void>          m_future;
 	};
 
 }  // namespace sce::Gnm

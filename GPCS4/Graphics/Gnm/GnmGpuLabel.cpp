@@ -3,8 +3,6 @@
 #include "Violet/VltContext.h"
 #include "Violet/VltSemaphore.h"
 
-#include <future>
-
 using namespace sce::vlt;
 
 LOG_CHANNEL(Graphic.Gnm.GnmGpuLabel);
@@ -33,6 +31,8 @@ namespace sce::Gnm
 		EventWriteSource    srcSelector,
 		uint64_t            immValue)
 	{
+		LOG_ASSERT(m_semaphore == nullptr, "label is used repeatedly");
+
 		VltSemaphoreCreateInfo info;
 		info.semaphoreType = VK_SEMAPHORE_TYPE_TIMELINE;
 		info.initialValue  = 0;
@@ -47,11 +47,11 @@ namespace sce::Gnm
 
 		// Queue the semaphore
 		context->signalSemaphore(submission);
-
+		 
 		// Asynchronously set label value upon semaphore is signaled.
-		// The shared_ptr trick is to despite the blocking std::future when it destructs.
-		auto futptr = std::make_shared<std::future<void>>();
-		*futptr     = std::async(std::launch::async, [this, futptr, srcSelector, immValue]()
+		// Record the returned future so that when the class is destructed,
+		// we can make sure the label has been updated.
+		m_future = std::async(std::launch::async, [this, srcSelector, immValue]()
 			{ 
 				m_semaphore->wait(immValue);
 

@@ -92,7 +92,7 @@ namespace sce
 		void destroyGpuQueues();
 
 		void trackRenderTarget(uint32_t index);
-		void resetResourceTracker();
+		void cleanupFrame();
 
 		void downloadResource();
 
