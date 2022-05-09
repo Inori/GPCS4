@@ -2,9 +2,10 @@
 
 LOG_CHANNEL(SceModules.SceDriver.GnmEQEvent);
 
-int PS4API sceGnmAddEqEvent(void)
+int PS4API sceGnmAddEqEvent(SceKernelEqueue eq, Gnm::EqEventType id, void* udata)
 {
 	LOG_SCE_GRAPHIC("Not implemented");
+	LOG_ASSERT(id == Gnm::kEqEventGfxEop, "TODO");
 	return SCE_OK;
 }
 

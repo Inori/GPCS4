@@ -27,16 +27,16 @@ namespace sce::Gnm
 		void set(uint64_t value);
 
 		void write(
-			vlt::VltContext*    context,
-			ReleaseMemEventType eventType,
-			EventWriteSource    srcSelector,
-			uint64_t            immValue);
+			vlt::VltContext*      context,
+			VkPipelineStageFlags2 stage,
+			EventWriteSource      srcSelector,
+			uint64_t              immValue);
 
 		void writeWithInterrupt(
-			vlt::VltContext*    context,
-			ReleaseMemEventType eventType,
-			EventWriteSource    srcSelector,
-			uint64_t            immValue);
+			vlt::VltContext*      context,
+			VkPipelineStageFlags2 stage,
+			EventWriteSource      srcSelector,
+			uint64_t              immValue);
 
 		void wait(
 			vlt::VltContext* context,

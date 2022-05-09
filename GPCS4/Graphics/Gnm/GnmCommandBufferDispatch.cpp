@@ -218,22 +218,12 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDispatch::writeDataInline(void* dstGpuAddr, const void* data, uint32_t sizeInDwords, WriteDataConfirmMode writeConfirm)
 	{
-		auto label = m_labelManager->getLabel(dstGpuAddr);
-		if (sizeInDwords == 1)
-		{
-			label->set(*reinterpret_cast<const uint32_t*>(data));
-		}
-		else if (sizeInDwords == 2)
-		{
-			label->set(*reinterpret_cast<const uint64_t*>(data));
-		}
-
-		std::memcpy(dstGpuAddr, data, sizeInDwords * sizeof(uint32_t));
+		GnmCommandBuffer::writeDataInline(dstGpuAddr, data, sizeInDwords, writeConfirm);
 	}
 
 	void GnmCommandBufferDispatch::writeDataInlineThroughL2(void* dstGpuAddr, const void* data, uint32_t sizeInDwords, CachePolicy cachePolicy, WriteDataConfirmMode writeConfirm)
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		GnmCommandBuffer::writeDataInline(dstGpuAddr, data, sizeInDwords, writeConfirm);
 	}
 
 	void GnmCommandBufferDispatch::writeAtEndOfPipe(EndOfPipeEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy cachePolicy)
@@ -308,20 +298,22 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDispatch::writeReleaseMemEventWithInterrupt(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy)
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		VkPipelineStageFlags2 stage = eventType == kReleaseMemEventCsDone
+										  ? VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT
+										  : VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+
+		auto label = m_labelManager->getLabel(dstGpuAddr);
+		label->writeWithInterrupt(m_context.ptr(), stage, srcSelector, immValue);
 	}
 
 	void GnmCommandBufferDispatch::writeReleaseMemEvent(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy)
 	{
-		if (eventType == kReleaseMemEventCsDone)
-		{
-			auto label = m_labelManager->getLabel(dstGpuAddr);
-			label->write(m_context.ptr(), eventType, srcSelector, immValue);
-		}
-		else
-		{
-			emuWriteGpuLabel(srcSelector, dstGpuAddr, immValue);
-		}
+		VkPipelineStageFlags2 stage = eventType == kReleaseMemEventCsDone
+										  ? VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT
+										  : VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+
+		auto label = m_labelManager->getLabel(dstGpuAddr);
+		label->write(m_context.ptr(), stage, srcSelector, immValue);
 	}
 
 	void GnmCommandBufferDispatch::setVgtControlForNeo(uint8_t primGroupSizeMinusOne, WdSwitchOnlyOnEopMode wdSwitchOnlyOnEopMode, VgtPartialVsWaveMode partialVsWaveMode)

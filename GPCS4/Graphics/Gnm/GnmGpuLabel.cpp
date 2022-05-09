@@ -26,28 +26,27 @@ namespace sce::Gnm
 	}
 
 	void GnmGpuLabel::write(
-		VltContext*         context,
-		ReleaseMemEventType eventType,
-		EventWriteSource    srcSelector,
-		uint64_t            immValue)
+		VltContext*           context,
+		VkPipelineStageFlags2 stage,
+		EventWriteSource      srcSelector,
+		uint64_t              immValue)
 	{
-		LOG_ASSERT(m_semaphore == nullptr, "label is used repeatedly");
-
-		VltSemaphoreCreateInfo info;
-		info.semaphoreType = VK_SEMAPHORE_TYPE_TIMELINE;
-		info.initialValue  = 0;
-		m_semaphore        = m_device->createSemaphore(info);
+		if (m_semaphore == nullptr)
+		{
+			VltSemaphoreCreateInfo info;
+			info.semaphoreType = VK_SEMAPHORE_TYPE_TIMELINE;
+			info.initialValue  = 0;
+			m_semaphore        = m_device->createSemaphore(info);
+		}
 
 		VltSemaphoreSubmission submission;
 		submission.semaphore = m_semaphore;
-		submission.stageMask = eventType == kReleaseMemEventCsDone
-								   ? VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT
-								   : VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+		submission.stageMask = stage;
 		submission.value     = immValue;
 
 		// Queue the semaphore
 		context->signalSemaphore(submission);
-		 
+
 		// Asynchronously set label value upon semaphore is signaled.
 		// Record the returned future so that when the class is destructed,
 		// we can make sure the label has been updated.
@@ -63,11 +62,14 @@ namespace sce::Gnm
 	}
 
 	void GnmGpuLabel::writeWithInterrupt(
-		VltContext*         context,
-		ReleaseMemEventType eventType,
-		EventWriteSource    srcSelector,
-		uint64_t            immValue)
+		VltContext*           context,
+		VkPipelineStageFlags2 stage,
+		EventWriteSource      srcSelector,
+		uint64_t              immValue)
 	{
+		// TODO:
+		// Implement interrupt
+		write(context, stage, srcSelector, immValue);
 	}
 
 	void GnmGpuLabel::wait(
@@ -76,10 +78,21 @@ namespace sce::Gnm
 		WaitCompareFunc compareFunc,
 		uint32_t        refValue)
 	{
-		// In Gnm, writeReleaseMemEvent must be called before waitOnAddress,
+		// In Gnm, writeReleaseMemEvent must be called before waitOnAddress on the same queue,
 		// or the GPU will be blocked.
-		LOG_ASSERT(m_semaphore != nullptr, "write is not called before wait.");
+		// waitOnAddress can be called before writeReleaseMemEvent if it's on a different queue.
+
+		// TODO:
+		// Only support equal compare now.
 		LOG_ASSERT(compareFunc == kWaitCompareFuncEqual, "Only equal compareFunc is supported yet.");
+
+		if (m_semaphore == nullptr)
+		{
+			VltSemaphoreCreateInfo info;
+			info.semaphoreType = VK_SEMAPHORE_TYPE_TIMELINE;
+			info.initialValue  = 0;
+			m_semaphore        = m_device->createSemaphore(info);
+		}
 
 		VltSemaphoreSubmission submission;
 		submission.semaphore = m_semaphore;

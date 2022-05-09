@@ -391,6 +391,12 @@ namespace sce::vlt
 		void setStencilClearValue(
 			VkClearValue clearValue);
 
+
+		/**
+		 * \brief Emits barrier for render target
+		 */
+		void emitRenderTargetBarrier();
+
 		/**
 		 * \brief Updates a buffer
 		 *
@@ -669,6 +675,13 @@ namespace sce::vlt
 
 		void resetFramebufferOps();
 		void updateFramebuffer();
+
+		void emitMemoryBarrier(
+			VkDependencyFlags     flags,
+			VkPipelineStageFlags2 srcStages,
+			VkAccessFlags2        srcAccess,
+			VkPipelineStageFlags2 dstStages,
+			VkAccessFlags2        dstAccess);
 
 	private:
 		VltDevice*  m_device;

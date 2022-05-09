@@ -2,6 +2,7 @@
 
 #include "Emulator.h"
 #include "GnmRenderState.h"
+#include "GnmGpuLabel.h"
 #include "PlatProcess.h"
 #include "VirtualGPU.h"
 
@@ -10,6 +11,7 @@
 #include "Sce/SceGpuQueue.h"
 #include "Sce/SceResource.h"
 #include "Sce/SceResourceTracker.h"
+#include "Sce/SceLabelManager.h"
 #include "Violet/VltCmdList.h"
 #include "Violet/VltDevice.h"
 
@@ -40,6 +42,21 @@ namespace sce::Gnm
 	{
 		m_tracker      = &(GPU().resourceTracker());
 		m_labelManager = &(GPU().labelManager());
+	}
+
+	void GnmCommandBuffer::writeDataInline(void* dstGpuAddr, const void* data, uint32_t sizeInDwords, WriteDataConfirmMode writeConfirm)
+	{
+		auto label = m_labelManager->getLabel(dstGpuAddr);
+		if (sizeInDwords == 1)
+		{
+			label->set(*reinterpret_cast<const uint32_t*>(data));
+		}
+		else if (sizeInDwords == 2)
+		{
+			label->set(*reinterpret_cast<const uint64_t*>(data));
+		}
+
+		std::memcpy(dstGpuAddr, data, sizeInDwords * sizeof(uint32_t));
 	}
 
 	void GnmCommandBuffer::emuWriteGpuLabel(EventWriteSource selector, void* label, uint64_t value)
@@ -422,6 +439,7 @@ namespace sce::Gnm
 		meta.isDepth     = isDepth;
 		return meta;
 	}
+
 
 
 

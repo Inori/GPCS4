@@ -12,6 +12,7 @@
 #include "sce_module_common.h"
 #include "Gnm/GnmConstant.h"
 #include "Gnm/GnmStructure.h"
+#include "SceLibkernel/sce_kernel_eventqueue.h"
 
 using namespace sce;
 
@@ -37,7 +38,7 @@ int PS4API _import_8A6D99B88B5A6EEE(void);
 int PS4API _import_B616CF706EC4EEA9(void);
 
 
-int PS4API sceGnmAddEqEvent(void);
+int PS4API sceGnmAddEqEvent(SceKernelEqueue eq, Gnm::EqEventType id, void* udata);
 
 
 int PS4API sceGnmAreSubmitsAllowed(void);

@@ -1023,6 +1023,15 @@ namespace sce::vlt
 		m_flags.set(VltContextFlag::GpDirtyFramebufferState);
 	}
 
+	void VltContext::emitRenderTargetBarrier()
+	{
+		emitMemoryBarrier(VK_DEPENDENCY_BY_REGION_BIT,
+						  VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+						  VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+						  VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+						  VK_ACCESS_MEMORY_READ_BIT);
+	}
+
 	void VltContext::updateBuffer(
 		const Rc<VltBuffer>& buffer,
 		VkDeviceSize         offset,
@@ -1990,5 +1999,36 @@ namespace sce::vlt
 		}
 		m_state.cb.attachmentOps = ops;
 	}
+
+	void VltContext::emitMemoryBarrier(
+		VkDependencyFlags     flags,
+		VkPipelineStageFlags2 srcStages,
+		VkAccessFlags2        srcAccess,
+		VkPipelineStageFlags2 dstStages,
+		VkAccessFlags2        dstAccess)
+	{
+		VkMemoryBarrier2 barrier;
+		barrier.sType         = VK_STRUCTURE_TYPE_MEMORY_BARRIER_2;
+		barrier.pNext         = nullptr;
+		barrier.srcStageMask  = srcStages;
+		barrier.srcAccessMask = srcAccess;
+		barrier.dstStageMask  = dstStages;
+		barrier.dstAccessMask = dstAccess;
+
+		VkDependencyInfo info;
+		info.sType                    = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
+		info.pNext                    = nullptr;
+		info.dependencyFlags          = flags;
+		info.memoryBarrierCount       = 1;
+		info.pMemoryBarriers          = &barrier;
+		info.bufferMemoryBarrierCount = 0;
+		info.pBufferMemoryBarriers    = nullptr;
+		info.imageMemoryBarrierCount  = 0;
+		info.pImageMemoryBarriers     = nullptr;
+
+		m_cmd->cmdPipelineBarrier2(
+			VltCmdType::ExecBuffer, &info);
+	}
+
 
 }  // namespace sce::vlt

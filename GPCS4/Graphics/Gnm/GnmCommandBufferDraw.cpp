@@ -564,25 +564,42 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::writeDataInline(void* dstGpuAddr, const void* data, uint32_t sizeInDwords, WriteDataConfirmMode writeConfirm)
 	{
-		std::memcpy(dstGpuAddr, data, sizeInDwords * sizeof(uint32_t));
+		GnmCommandBuffer::writeDataInline(dstGpuAddr, data, sizeInDwords, writeConfirm);
 	}
 
 	void GnmCommandBufferDraw::writeDataInlineThroughL2(void* dstGpuAddr, const void* data, uint32_t sizeInDwords, CachePolicy cachePolicy, WriteDataConfirmMode writeConfirm)
 	{
+		GnmCommandBuffer::writeDataInline(dstGpuAddr, data, sizeInDwords, writeConfirm);
 	}
 
 	void GnmCommandBufferDraw::writeAtEndOfPipe(EndOfPipeEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy cachePolicy)
 	{
-		emuWriteGpuLabel(srcSelector, dstGpuAddr, immValue);
+		VkPipelineStageFlags2 stage = eventType == kEopCsDone
+										  ? VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT
+										  : VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+
+		auto label = m_labelManager->getLabel(dstGpuAddr);
+		label->write(m_context.ptr(), stage, srcSelector, immValue);
 	}
 
 	void GnmCommandBufferDraw::writeAtEndOfPipeWithInterrupt(EndOfPipeEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy cachePolicy)
 	{
-		emuWriteGpuLabel(srcSelector, dstGpuAddr, immValue);
+		VkPipelineStageFlags2 stage = eventType == kEopCsDone
+										  ? VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT
+										  : VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+
+		auto label = m_labelManager->getLabel(dstGpuAddr);
+		label->writeWithInterrupt(m_context.ptr(), stage, kEventWriteSource64BitsImmediate, immValue);
 	}
 
 	void GnmCommandBufferDraw::writeAtEndOfShader(EndOfShaderEventType eventType, void* dstGpuAddr, uint32_t immValue)
 	{
+		VkPipelineStageFlags2 stage = eventType == kEosPsDone
+										  ? VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT
+										  : VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+
+		auto label = m_labelManager->getLabel(dstGpuAddr);
+		label->write(m_context.ptr(), stage, kEventWriteSource64BitsImmediate, immValue);
 	}
 
 	void GnmCommandBufferDraw::waitOnAddress(void* gpuAddr, uint32_t mask, WaitCompareFunc compareFunc, uint32_t refValue)
@@ -597,6 +614,10 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::waitForGraphicsWrites(uint32_t baseAddr256, uint32_t sizeIn256ByteBlocks, uint32_t targetMask, CacheAction cacheAction, uint32_t extendedCacheMask, StallCommandBufferParserMode commandBufferStallMode)
 	{
+		// TODO:
+		// This should be done more accurately,
+		// e.g. specify the render target image and use an image barrier.
+		m_context->emitRenderTargetBarrier();
 	}
 
 	void GnmCommandBufferDraw::setDepthStencilDisable()

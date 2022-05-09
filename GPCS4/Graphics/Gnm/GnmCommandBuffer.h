@@ -213,7 +213,7 @@ namespace sce::Gnm
 		// virtual void setZPassPredicationEnable(OcclusionQueryResults *queryResults, PredicationZPassHint hint, PredicationZPassAction action) = 0;
 		// virtual void setZPassPredicationDisable(void) = 0;
 		// virtual void setPredication(void *condAddr, uint32_t predCountInDwords) = 0;
-		virtual void writeDataInline(void* dstGpuAddr, const void* data, uint32_t sizeInDwords, WriteDataConfirmMode writeConfirm)                                   = 0;
+		virtual void writeDataInline(void* dstGpuAddr, const void* data, uint32_t sizeInDwords, WriteDataConfirmMode writeConfirm);
 		virtual void writeDataInlineThroughL2(void* dstGpuAddr, const void* data, uint32_t sizeInDwords, CachePolicy cachePolicy, WriteDataConfirmMode writeConfirm) = 0;
 		// virtual void triggerEvent(EventType eventType) = 0;
 		virtual void writeAtEndOfPipe(EndOfPipeEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy cachePolicy)              = 0;
