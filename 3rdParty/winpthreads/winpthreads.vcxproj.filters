@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{0a2329f3-ff81-449b-a364-47e5a30e4c9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{a90fed7d-2da6-422f-af0a-d79f23f8ed5b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\pthread.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\pthread_compat.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\pthread_signal.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\pthread_time.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\pthread_unistd.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\sched.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\semaphore.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\barrier.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cond.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\misc.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ref.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\rwlock.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sem.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\thread.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\winpthread_internal.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\wpth_ver.h">
+      <Filter>src</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\barrier.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\clock.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cond.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\misc.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mutex.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\nanosleep.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ref.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rwlock.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sched.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sem.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\spinlock.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\thread.c">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
