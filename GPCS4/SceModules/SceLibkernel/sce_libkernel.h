@@ -528,7 +528,7 @@ int PS4API scek_pthread_create(ScePthread *thread,
 							   void *args);
 
 
-int PS4API scek_pthread_equal(ScePthread thread1, ScePthread thread2);
+int PS4API scek_pthread_equal(pthread_t thread1, pthread_t thread2);
 
 
 int PS4API scek_pthread_join(void);

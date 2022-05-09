@@ -69,7 +69,7 @@ int PS4API scek_pthread_create(ScePthread *thread, const pthread_attr_t *attr,  
 }
 
 
-int PS4API scek_pthread_equal(ScePthread thread1, ScePthread thread2)
+int PS4API scek_pthread_equal(pthread_t thread1, pthread_t thread2)
 {
 	LOG_SCE_TRACE("thread1 = %zu, thread2 = %zu", thread1, thread2);
 	return thread1 == thread2;
@@ -166,10 +166,9 @@ int PS4API scek_pthread_setschedparam(void)
 
 int PS4API scek_pthread_setspecific(pthread_key_t key, const void *value)
 {
-	LOG_SCE_DUMMY_IMPL();
 	LOG_DEBUG("key %p value %p", key, value);
-	//int err = pthread_setspecific(key, value);
-	return SCE_OK;
+	int err = pthread_setspecific(key, value);
+	return err;
 }
 
 void * PS4API scek_pthread_getspecific(pthread_key_t key) 
@@ -181,8 +180,11 @@ void * PS4API scek_pthread_getspecific(pthread_key_t key)
 
 int PS4API scek_pthread_key_create(pthread_key_t *key, void(*destructor)(void*))
 {
-	LOG_SCE_DUMMY_IMPL();
 	LOG_DEBUG("key %p destructor address %p", key, destructor);
-	//int err = pthread_key_create(key, destructor);
-	return SCE_OK;
+	// TODO:
+	// The calling convention is different,
+	// we need to make a wrapper,
+	// see scePthreadCreate
+	int err = pthread_key_create(key, nullptr);
+	return err;
 }
