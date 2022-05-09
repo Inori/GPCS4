@@ -90,7 +90,7 @@ typedef struct sce_pthread_attr_t*  ScePthreadAttr;
 
 // Note:
 // The following type mappings are unsafe.
-// We currently use these types just because
+// We currently use these mappings just because
 // we assume the system library won't access
 // private fields of those types.
 // If we found problems as development going,

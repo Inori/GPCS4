@@ -1468,6 +1468,9 @@ namespace sce::vlt
 
 	bool VltContext::commitComputeState()
 	{
+		if (m_flags.test(VltContextFlag::GpRenderingActive))
+			this->endRendering();
+
 		if (m_flags.test(VltContextFlag::CpDirtyPipeline))
 		{
 			if (unlikely(!this->updateComputePipeline()))
@@ -2007,6 +2010,8 @@ namespace sce::vlt
 		VkPipelineStageFlags2 dstStages,
 		VkAccessFlags2        dstAccess)
 	{
+		this->endRendering();
+
 		VkMemoryBarrier2 barrier;
 		barrier.sType         = VK_STRUCTURE_TYPE_MEMORY_BARRIER_2;
 		barrier.pNext         = nullptr;

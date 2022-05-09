@@ -11,6 +11,15 @@ namespace sce::gcn
 
 	void GcnCompiler::emitDbgPro(const GcnShaderInstruction& ins)
 	{
-		LOG_GCN_UNHANDLED_INST();
+		auto op = ins.opcode;
+		switch (op)
+		{
+			case GcnOpcode::S_TTRACEDATA:
+				// Nothing to do.
+				break;
+			default:
+				LOG_GCN_UNHANDLED_INST();
+				break;
+		}
 	}
 }  // namespace sce::gcn

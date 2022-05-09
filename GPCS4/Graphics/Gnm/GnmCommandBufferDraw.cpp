@@ -329,9 +329,17 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setDepthRenderTarget(DepthRenderTarget const* depthTarget)
 	{
-		auto resource = m_tracker->find(depthTarget->getZReadAddress());
+		
 		do
 		{
+			if (depthTarget == nullptr)
+			{
+				m_context->bindDepthRenderTarget(VltAttachment{});
+				break;
+			}
+
+			auto resource = m_tracker->find(depthTarget->getZReadAddress());
+
 			if (!resource)
 			{
 				// create a new depth image and track it
