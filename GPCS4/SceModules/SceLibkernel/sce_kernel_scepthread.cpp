@@ -152,6 +152,9 @@ int PS4API scePthreadMutexInit(ScePthreadMutex *mutex, const ScePthreadMutexattr
 	{
 		LOG_FIXME("set name is not supported yet.")
 	}
+
+	sce_pthread_mutex_t* object = (sce_pthread_mutex_t*)calloc(1, sizeof(sce_pthread_mutex_t));
+
 	int err = 0;
 	if (attr == nullptr)
 	{
@@ -160,13 +163,15 @@ int PS4API scePthreadMutexInit(ScePthreadMutex *mutex, const ScePthreadMutexattr
 		pthread_mutexattr_t errorCheckMutexAttr;
 		pthread_mutexattr_init(&errorCheckMutexAttr);
 		pthread_mutexattr_settype(&errorCheckMutexAttr, PTHREAD_MUTEX_ERRORCHECK);
-		err = pthread_mutex_init(mutex, &errorCheckMutexAttr);
+		err = pthread_mutex_init(&object->handle, &errorCheckMutexAttr);
 		pthread_mutexattr_destroy(&errorCheckMutexAttr);
 	}
 	else
 	{
-		err = pthread_mutex_init(mutex, attr);
+		err = pthread_mutex_init(&object->handle, attr);
 	}
+
+	*mutex = object;
 	return pthreadErrorToSceError(err);
 }
 
@@ -174,7 +179,8 @@ int PS4API scePthreadMutexInit(ScePthreadMutex *mutex, const ScePthreadMutexattr
 int PS4API scePthreadMutexDestroy(ScePthreadMutex *mutex)
 {
 	LOG_SCE_TRACE("mutex %p", mutex);
-	int err = pthread_mutex_destroy((pthread_mutex_t*)mutex);
+	int err = pthread_mutex_destroy(&((*mutex)->handle));
+	free(*mutex);
 	return pthreadErrorToSceError(err);
 }
 
@@ -183,7 +189,7 @@ int PS4API scePthreadMutexLock(ScePthreadMutex *mutex)
 {
 	// Prevent log spamming
 	// LOG_SCE_TRACE("mutex %p", mutex);
-	int err = pthread_mutex_lock((pthread_mutex_t*)mutex);
+	int err = pthread_mutex_lock(&((*mutex)->handle));
 	return pthreadErrorToSceError(err);
 }
 
@@ -192,7 +198,7 @@ int PS4API scePthreadMutexUnlock(ScePthreadMutex *mutex)
 {
 	// Prevent log spamming
 	// LOG_SCE_TRACE("mutex %p", mutex);
-	int err = pthread_mutex_unlock((pthread_mutex_t*)mutex);
+	int err = pthread_mutex_unlock(&((*mutex)->handle));
 	return pthreadErrorToSceError(err);
 }
 
@@ -200,7 +206,7 @@ int PS4API scePthreadMutexUnlock(ScePthreadMutex *mutex)
 int PS4API scePthreadMutexattrInit(ScePthreadMutexattr *attr)
 {
 	LOG_SCE_TRACE("attr %p", attr);
-	int err = pthread_mutexattr_init((pthread_mutexattr_t*)attr);
+	int err = pthread_mutexattr_init(attr);
 	return pthreadErrorToSceError(err);
 }
 
@@ -208,7 +214,7 @@ int PS4API scePthreadMutexattrInit(ScePthreadMutexattr *attr)
 int PS4API scePthreadMutexattrDestroy(ScePthreadMutexattr *attr)
 {
 	LOG_SCE_TRACE("attr %p", attr);
-	int err = pthread_mutexattr_destroy((pthread_mutexattr_t*)attr);
+	int err = pthread_mutexattr_destroy(attr);
 	return pthreadErrorToSceError(err);
 }
 
@@ -216,12 +222,8 @@ int PS4API scePthreadMutexattrDestroy(ScePthreadMutexattr *attr)
 int PS4API scePthreadMutexattrSetprotocol(ScePthreadMutexattr *attr, int protocol)
 {
 	LOG_SCE_TRACE("attr %p prot %d", attr, protocol);
-	// TODO:
-	// pthread4w do not support this call
-	// but this seems doesn't matter
-	// winpthread from MinGW64 do not actually implement this either
-	LOG_FIXME("mutex attr set protocal not implenmet.");
-	return SCE_OK;
+	int err = pthread_mutexattr_setprotocol(attr, protocol);
+	return pthreadErrorToSceError(err);
 }
 
 int sceMutexAttrTypeToPthreadType(int sceType)
@@ -252,7 +254,7 @@ int PS4API scePthreadMutexattrSettype(ScePthreadMutexattr *attr, int type)
 {
 	LOG_SCE_TRACE("attr %p type %d", attr, type);
 	int ptype = sceMutexAttrTypeToPthreadType(type);
-	int err = pthread_mutexattr_settype((pthread_mutexattr_t*)attr, ptype);
+	int err   = pthread_mutexattr_settype(attr, ptype);
 	return pthreadErrorToSceError(err);
 }
 
@@ -274,7 +276,7 @@ int PS4API scePthreadMutexTimedlock(void)
 int PS4API scePthreadMutexTrylock(ScePthreadMutex *mutex)
 {
 	LOG_SCE_TRACE("mutex %p", mutex);
-	int err = pthread_mutex_trylock((pthread_mutex_t*)mutex);
+	int err = pthread_mutex_trylock(&((*mutex)->handle));
 	return pthreadErrorToSceError(err);
 }
 
@@ -283,7 +285,9 @@ int PS4API scePthreadMutexTrylock(ScePthreadMutex *mutex)
 int PS4API scePthreadAttrInit(ScePthreadAttr *attr)
 {
 	LOG_SCE_TRACE("attr %p", attr);
-	int err = pthread_attr_init(attr);
+	sce_pthread_attr_t* object = (sce_pthread_attr_t*)calloc(1, sizeof(sce_pthread_attr_t));
+	int                 err    = pthread_attr_init(&object->handle);
+	*attr                      = object;
 	return pthreadErrorToSceError(err);
 }
 
@@ -291,7 +295,8 @@ int PS4API scePthreadAttrInit(ScePthreadAttr *attr)
 int PS4API scePthreadAttrDestroy(ScePthreadAttr *attr)
 {
 	LOG_SCE_TRACE("attr %p", attr);
-	int err = pthread_attr_destroy(attr);
+	int err = pthread_attr_destroy(&((*attr)->handle));
+	free(*attr);
 	return pthreadErrorToSceError(err);
 }
 
@@ -333,7 +338,7 @@ int PS4API scePthreadAttrSetdetachstate(ScePthreadAttr *attr, int state)
 {
 	LOG_SCE_TRACE("attr %p state %x", attr, state);
 	int pthreadState = sceDetachStateToPthreadState(state);
-	int err = pthread_attr_setdetachstate(attr, pthreadState);
+	int err          = pthread_attr_setdetachstate(&((*attr)->handle), pthreadState);
 	return pthreadErrorToSceError(err);
 }
 
@@ -359,7 +364,7 @@ int PS4API scePthreadAttrSetinheritsched(ScePthreadAttr *attr, int inheritSched)
 {
 	LOG_SCE_TRACE("attr %p inheritSched %d", attr, inheritSched);
 	int pthreadIS = sceAttrInheritSchedToPthreadInheritSched(inheritSched);
-	int err = pthread_attr_setinheritsched(attr, pthreadIS);
+	int err       = pthread_attr_setinheritsched(&((*attr)->handle), pthreadIS);
 	return pthreadErrorToSceError(err);
 }
 
@@ -400,7 +405,7 @@ int PS4API scePthreadAttrSetschedparam(ScePthreadAttr *attr, const SceKernelSche
 	LOG_SCE_TRACE("attr %p priority %d", attr, param->sched_priority);
 	sched_param pthreadParam;
 	pthreadParam.sched_priority = scePriorityToPthreadPriority(param->sched_priority);
-	int err = pthread_attr_setschedparam(attr, &pthreadParam);
+	int err                     = pthread_attr_setschedparam(&((*attr)->handle), &pthreadParam);
 	return pthreadErrorToSceError(err);
 }
 
@@ -415,7 +420,7 @@ int PS4API scePthreadAttrSetschedpolicy(void)
 int PS4API scePthreadAttrSetstacksize(ScePthreadAttr *attr, size_t stackSize)
 {
 	LOG_SCE_TRACE("attr %p stackSize %d", attr, stackSize);
-	int err = pthread_attr_setstacksize(attr, stackSize);
+	int err = pthread_attr_setstacksize(&((*attr)->handle), stackSize);
 	return pthreadErrorToSceError(err);
 }
 
@@ -487,7 +492,7 @@ int PS4API scePthreadCondSignal(ScePthreadCond *cond)
 int PS4API scePthreadCondWait(ScePthreadCond *cond, ScePthreadMutex *mutex)
 {
 	LOG_SCE_TRACE("cond %p mutex %p", cond, mutex);
-	int err = pthread_cond_wait(cond, mutex);
+	int err = pthread_cond_wait(cond, &((*mutex)->handle));
 	return pthreadErrorToSceError(err);
 }
 
@@ -521,7 +526,7 @@ int PS4API scePthreadCreate(ScePthread *thread, const ScePthreadAttr *attr, void
 	param->entry = (void*)entry;
 	param->arg = arg;
 
-	int err = pthread_create(thread, attr, newThreadWrapper, param);
+	int err = pthread_create(thread, &((*attr)->handle), newThreadWrapper, param);
 	if (!err)
 	{
 		pthread_setname_np(*thread, name);

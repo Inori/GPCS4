@@ -217,7 +217,7 @@ int PS4API scek___sys_regmgr_call()
 int PS4API scePthreadAttrGet(ScePthread thread, ScePthreadAttr* attr)
 {
 	LOG_SCE_DUMMY_IMPL();
-	pthread_attr_init(attr);
+	pthread_attr_init(&((*attr)->handle));
 	return SCE_OK;
 }
 

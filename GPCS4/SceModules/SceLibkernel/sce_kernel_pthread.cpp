@@ -86,7 +86,7 @@ int PS4API scek_pthread_join(void)
 int PS4API scek_pthread_mutex_init(pthread_mutex_t *mutex, const pthread_mutexattr_t *attr)
 {
 	LOG_SCE_TRACE("mutex %p attr %p", mutex, attr);
-	return scePthreadMutexInit(mutex, attr, nullptr);
+	return pthread_mutex_init(mutex, attr);
 }
 
 
