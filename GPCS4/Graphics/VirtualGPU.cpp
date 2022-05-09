@@ -31,25 +31,25 @@ namespace sce
 		const static uint32_t typeIndexTable[SCE_VIDEO_OUT_BUS_TYPE_COUNT] = { 0, 0, 0, 0, 0, 1, 2 };
 		do
 		{
-			if ((userId != 0 && userId != SCE_USER_SERVICE_USER_ID_SYSTEM) || index != 0)
+			if (/*(userId != 0 && userId != SCE_USER_SERVICE_USER_ID_SYSTEM) || */ index != 0)
 			{
 				// Document states that userId must be SCE_USER_SERVICE_USER_ID_SYSTEM
-				// but sample code use 0
-				LOG_WARN("invalid userId %d", userId);
+				// but sample code use 0 and Nier use user id.
+				// Fuck that..
 				result = SCE_VIDEO_OUT_ERROR_INVALID_VALUE;
 				break;
 			}
 
-			uint32_t index = typeIndexTable[type];
-			if (m_videoOutSlots[index] != nullptr)
+			uint32_t typeIndex = typeIndexTable[type];
+			if (m_videoOutSlots[typeIndex] != nullptr)
 			{
 				result = SCE_VIDEO_OUT_ERROR_RESOURCE_BUSY;
 				break;
 			}
 
-			m_videoOutSlots[index] = std::make_shared<SceVideoOut>(type, param);
+			m_videoOutSlots[typeIndex] = std::make_shared<SceVideoOut>(type, param);
 
-			result = SceVideoOutPortBase + index;
+			result = SceVideoOutPortBase + typeIndex;
 		} while (false);
 		return result;
 	}

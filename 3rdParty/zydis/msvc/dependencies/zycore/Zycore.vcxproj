@@ -1,17 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|Win32">
-      <Configuration>Debug</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|Win32">
-      <Configuration>Release</Configuration>
-      <Platform>Win32</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|x64">
       <Configuration>Release</Configuration>
@@ -28,20 +20,6 @@
     <WindowsTargetPlatformVersion>$([Microsoft.Build.Utilities.ToolLocationHelper]::GetLatestSDKTargetPlatformVersion('Windows', '10.0'))</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>ClangCL</PlatformToolset>
-    <ConfigurationType>StaticLibrary</ConfigurationType>
-    <CharacterSet>MultiByte</CharacterSet>
-    <SpectreMitigation>false</SpectreMitigation>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>ClangCL</PlatformToolset>
-    <ConfigurationType>StaticLibrary</ConfigurationType>
-    <CharacterSet>MultiByte</CharacterSet>
-    <SpectreMitigation>false</SpectreMitigation>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>ClangCL</PlatformToolset>
@@ -63,16 +41,6 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>..\..\bin\$(Configuration)$(Platform)</OutDir>
-    <IntDir>obj\$(ProjectName)-$(Platform)-$(Configuration)\</IntDir>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>..\..\bin\$(Configuration)$(Platform)</OutDir>
-    <IntDir>obj\$(ProjectName)-$(Platform)-$(Configuration)\</IntDir>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(ProjectDir)..\..\..\</OutDir>
     <IntDir>obj\$(ProjectName)-$(Platform)-$(Configuration)\</IntDir>
@@ -84,56 +52,6 @@
     <IntDir>obj\$(ProjectName)-$(Platform)-$(Configuration)\</IntDir>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <PreprocessorDefinitions>ZYCORE_STATIC_BUILD;WINVER=0x0501;_WIN32_WINNT=0x0501;NTDDI_VERSION=0x05010000;WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalOptions>/Gw </AdditionalOptions>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DiagnosticsFormat>Caret</DiagnosticsFormat>
-      <AdditionalIncludeDirectories>../../../dependencies/zycore/include;../../../dependencies/zycore;../../../dependencies/zycore/src;../..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <Optimization>Disabled</Optimization>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <OmitDefaultLibName>true</OmitDefaultLibName>
-      <WarningLevel>Level3</WarningLevel>
-      <ExceptionHandling>false</ExceptionHandling>
-      <MinimalRebuild>false</MinimalRebuild>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
-      <SupportJustMyCode>false</SupportJustMyCode>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-    </ClCompile>
-    <Lib>
-      <SubSystem>
-      </SubSystem>
-      <MinimumRequiredVersion>5.01</MinimumRequiredVersion>
-      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <TargetMachine>MachineX86</TargetMachine>
-    </Lib>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <ClCompile>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>ZYCORE_STATIC_BUILD;WINVER=0x0501;_WIN32_WINNT=0x0501;NTDDI_VERSION=0x05010000;WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DiagnosticsFormat>Caret</DiagnosticsFormat>
-      <AdditionalOptions>/Gw </AdditionalOptions>
-      <AdditionalIncludeDirectories>../../../dependencies/zycore/include;../../../dependencies/zycore;../../../dependencies/zycore/src;../..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <OmitFramePointers>true</OmitFramePointers>
-      <OmitDefaultLibName>true</OmitDefaultLibName>
-      <WarningLevel>Level3</WarningLevel>
-      <StringPooling>true</StringPooling>
-      <ExceptionHandling>false</ExceptionHandling>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
-      <SupportJustMyCode>false</SupportJustMyCode>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-    </ClCompile>
-    <Lib>
-      <SubSystem>
-      </SubSystem>
-      <MinimumRequiredVersion>5.01</MinimumRequiredVersion>
-      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <TargetMachine>MachineX86</TargetMachine>
-    </Lib>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PreprocessorDefinitions>ZYCORE_STATIC_BUILD;WINVER=0x0502;_WIN32_WINNT=0x0502;NTDDI_VERSION=0x05020000;WIN32;_WIN64;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
