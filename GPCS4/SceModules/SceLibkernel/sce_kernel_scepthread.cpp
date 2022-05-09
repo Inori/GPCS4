@@ -218,11 +218,32 @@ int PS4API scePthreadMutexattrDestroy(ScePthreadMutexattr *attr)
 	return pthreadErrorToSceError(err);
 }
 
+int sceMutexAttrProtocolToPthreadType(int protocol)
+{
+	int pthreadType = 0;
+	switch (protocol)
+	{
+		case SCE_PTHREAD_PRIO_NONE: pthreadType = PTHREAD_PRIO_NONE; break;
+		case SCE_PTHREAD_PRIO_INHERIT: pthreadType = PTHREAD_PRIO_INHERIT; break;
+		case SCE_PTHREAD_PRIO_PROTECT: pthreadType = PTHREAD_PRIO_PROTECT; break;
+	}
+	return pthreadType;
+}
 
 int PS4API scePthreadMutexattrSetprotocol(ScePthreadMutexattr *attr, int protocol)
 {
-	LOG_SCE_TRACE("attr %p prot %d", attr, protocol);
-	int err = pthread_mutexattr_setprotocol(attr, protocol);
+	
+	//LOG_SCE_TRACE("attr %p prot %d", attr, protocol);
+	LOG_SCE_DUMMY_IMPL();
+
+	// TODO:
+	// winpthreads' implementation has limit,
+	// it only support INHERIT & PROTECT protocol, others will fail.
+	// 
+	// int type = sceMutexAttrProtocolToPthreadType(protocol);
+	// int err  = pthread_mutexattr_setprotocol(attr, type);
+
+	int err = 0;
 	return pthreadErrorToSceError(err);
 }
 
