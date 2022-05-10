@@ -50,6 +50,8 @@ namespace sce::Gnm
 
 		SurfaceFormat getSurfaceFormat(void) const;
 
+		TextureChannel getChannel(uint32_t chanIdx) const;
+
 		TextureChannelType getTextureChannelType() const;
 
 		uint32_t getNumComponents(void) const;

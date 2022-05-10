@@ -170,8 +170,21 @@ namespace sce::Gnm::cvt
 		auto iter = formatMap.find(dataFormat);
 		if (iter == formatMap.end())
 		{
-			LOG_ASSERT(false, "data format not found %s", dataFormatName(dataFormat));
-			format = VK_FORMAT_UNDEFINED;
+			LOG_WARN("data format not found %s", dataFormatName(dataFormat));
+
+			// Replace the W component with 1 and try again.
+			DataFormat retryFormat = DataFormat::build(
+				(SurfaceFormat)dataFormat.m_bits.m_surfaceFormat,
+				(TextureChannelType)dataFormat.m_bits.m_channelType,
+				(TextureChannel)dataFormat.m_bits.m_channelX,
+				(TextureChannel)dataFormat.m_bits.m_channelY,
+				(TextureChannel)dataFormat.m_bits.m_channelZ,
+				kTextureChannelConstant1);
+
+			iter = formatMap.find(retryFormat);
+			LOG_ASSERT(iter != formatMap.end(), "data format still not found with retry.");
+
+			format = iter->second;
 		}
 		else
 		{

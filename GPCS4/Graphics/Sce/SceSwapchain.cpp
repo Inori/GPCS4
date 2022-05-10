@@ -145,7 +145,7 @@ namespace sce
 			imageInfo.usage         = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 			imageInfo.stages        = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 			imageInfo.access        = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_SHADER_READ_BIT;
-			imageInfo.tiling        = VK_IMAGE_TILING_OPTIMAL;  // use linear tiling so that we can use memory alias with a buffer object
+			imageInfo.tiling        = VK_IMAGE_TILING_OPTIMAL;
 			imageInfo.layout        = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
 			VltImageViewCreateInfo viewInfo;

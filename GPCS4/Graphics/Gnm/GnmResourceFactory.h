@@ -6,6 +6,7 @@ namespace sce
 {
 	class SceBuffer;
 	class SceTexture;
+	class SceRenderTarget;
 	class SceDepthRenderTarget;
 	class SceSampler;
 
@@ -20,6 +21,7 @@ namespace sce
 		class Buffer;
 		class Texture;
 		class Sampler;
+		class RenderTarget;
 		class DepthRenderTarget;
 		
 		struct GnmBufferCreateInfo
@@ -59,6 +61,10 @@ namespace sce
 			bool createDepthImage(
 				const DepthRenderTarget* depthTarget,
 				SceDepthRenderTarget&    depthImage);
+
+			bool createRenderTarget(
+				const RenderTarget* target,
+				SceRenderTarget&    targetImage);
 
 			bool createSampler(
 				const Sampler* ssharp,

@@ -101,7 +101,6 @@ namespace sce::Gnm
 		uint32_t       bytesPerElement = textureFormat.getTotalBytesPerElement();
 		bool           isCompressed    = textureFormat.isBlockCompressedFormat();
 		const uint8_t* textureMem      = reinterpret_cast<uint8_t*>(tsharp->getBaseAddress());
-		
 
 		for (uint32_t layer = 0; layer < image->info().numLayers; layer++)
 		{

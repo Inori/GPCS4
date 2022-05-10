@@ -67,6 +67,41 @@ namespace sce::Gnm
 
 		return true;
 	}
+	
+	bool GnmResourceFactory::createRenderTarget(
+		const RenderTarget* target,
+		SceRenderTarget&    targetImage)
+	{
+		VltImageCreateInfo imageInfo;
+		imageInfo.type        = VK_IMAGE_TYPE_2D;
+		imageInfo.format      = cvt::convertDataFormat(target->getDataFormat());
+		imageInfo.flags       = 0;
+		imageInfo.sampleCount = cvt::convertNumFragments(target->getNumFragments());  // Should we use getNumSamples?
+		imageInfo.extent      = { target->getWidth(), target->getHeight(), 1 };
+		imageInfo.numLayers   = 1;
+		imageInfo.mipLevels   = 1;
+		imageInfo.usage       = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+		imageInfo.stages      = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+		imageInfo.access      = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_SHADER_READ_BIT;
+		imageInfo.tiling      = VK_IMAGE_TILING_OPTIMAL;
+		imageInfo.layout      = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+		VltImageViewCreateInfo viewInfo;
+		viewInfo.type      = VK_IMAGE_VIEW_TYPE_2D;
+		viewInfo.format    = imageInfo.format;
+		viewInfo.usage     = imageInfo.usage;
+		viewInfo.aspect    = VK_IMAGE_ASPECT_COLOR_BIT;
+		viewInfo.minLevel  = 0;
+		viewInfo.numLevels = 1;
+		viewInfo.minLayer  = 0;
+		viewInfo.numLayers = 1;
+
+		targetImage.image        = m_device->createImage(imageInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		targetImage.imageView    = m_device->createImageView(targetImage.image, viewInfo);
+		targetImage.renderTarget = *target;
+
+		return true;
+	}
 
 	bool GnmResourceFactory::createBuffer(
 		const GnmBufferCreateInfo& createInfo,
@@ -170,5 +205,6 @@ namespace sce::Gnm
 
 		return true;
 	}
+
 
 }  // namespace sce::Gnm

@@ -297,29 +297,37 @@ namespace sce::Gnm
 		auto resource = m_tracker->find(target->getBaseAddress());
 		do
 		{
+			Rc<VltImageView> targetView = nullptr;
 			if (!resource)
 			{
-				// TODO:
-				// we should create new vulkan image for render target not found.
-				// see setDepthRenderTarget
-				LOG_ERR("can not find render target for slot %d", rtSlot);
-				break;
+				SceRenderTarget rtRes;
+				m_factory.createRenderTarget(target, rtRes);
+
+				Texture rtTexture;
+				rtTexture.initFromRenderTarget(target, false);
+				m_initializer->initTexture(rtRes.image, &rtTexture);
+
+				m_tracker->track(rtRes);
 			}
+			else
+			{
+				// Record display buffer.
+				m_state.om.displayRenderTarget = resource;
 
-			// Record display buffer.
-			m_state.om.displayRenderTarget = resource;
+				// update render target
+				SceRenderTarget rtRes = {};
+				rtRes.image           = resource->renderTarget().image;
+				rtRes.imageView       = resource->renderTarget().imageView;
+				// replace the dummy target with real one
+				rtRes.renderTarget = *target;
+				resource->setRenderTarget(rtRes);
 
-			// update render target
-			SceRenderTarget rtRes = {};
-			rtRes.image           = resource->renderTarget().image;
-			rtRes.imageView       = resource->renderTarget().imageView;
-			// replace the dummy target with real one
-			rtRes.renderTarget = *target;
-			resource->setRenderTarget(rtRes);
+				targetView = rtRes.imageView;
+			}
 
 			VltAttachment attachment = 
 			{
-				rtRes.imageView,
+				targetView,
 				VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
 			};
 			m_context->bindRenderTarget(rtSlot, attachment);
