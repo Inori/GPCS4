@@ -9,6 +9,9 @@ glfw.dir/
 # 3rdParty built libs
 *.lib
 
+# Build project files
+Directory.build.props
+
 # User-specific files
 *.rsuser
 *.suo
