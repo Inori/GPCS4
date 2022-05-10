@@ -597,7 +597,7 @@ namespace sce::Gnm
 										  : VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
 
 		auto label = m_labelManager->getLabel(dstGpuAddr);
-		label->writeWithInterrupt(m_context.ptr(), stage, kEventWriteSource64BitsImmediate, immValue);
+		label->writeWithInterrupt(m_context.ptr(), stage, srcSelector, immValue);
 	}
 
 	void GnmCommandBufferDraw::writeAtEndOfShader(EndOfShaderEventType eventType, void* dstGpuAddr, uint32_t immValue)
@@ -618,6 +618,7 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::waitOnAddressAndStallCommandBufferParser(void* gpuAddr, uint32_t mask, uint32_t refValue)
 	{
+		LOG_ASSERT(false, "TODO");
 	}
 
 	void GnmCommandBufferDraw::waitForGraphicsWrites(uint32_t baseAddr256, uint32_t sizeIn256ByteBlocks, uint32_t targetMask, CacheAction cacheAction, uint32_t extendedCacheMask, StallCommandBufferParserMode commandBufferStallMode)
@@ -625,7 +626,7 @@ namespace sce::Gnm
 		// TODO:
 		// This should be done more accurately,
 		// e.g. specify the render target image and use an image barrier.
-		m_context->emitRenderTargetBarrier();
+		m_context->emitRenderTargetReadbackBarrier();
 	}
 
 	void GnmCommandBufferDraw::setDepthStencilDisable()
@@ -692,16 +693,6 @@ namespace sce::Gnm
 	{
 		auto& ctx = m_state.shaderContext[kShaderStageCs];
 		GnmCommandBuffer::setCsShader(ctx, computeData, shaderModifier);
-	}
-
-	void GnmCommandBufferDraw::writeReleaseMemEventWithInterrupt(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy)
-	{
-		emuWriteGpuLabel(srcSelector, dstGpuAddr, immValue);
-	}
-
-	void GnmCommandBufferDraw::writeReleaseMemEvent(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy)
-	{
-		emuWriteGpuLabel(srcSelector, dstGpuAddr, immValue);
 	}
 
 	void GnmCommandBufferDraw::setVgtControlForNeo(uint8_t primGroupSizeMinusOne, WdSwitchOnlyOnEopMode wdSwitchOnlyOnEopMode, VgtPartialVsWaveMode partialVsWaveMode)

@@ -395,7 +395,7 @@ namespace sce::vlt
 		/**
 		 * \brief Emits barrier for render target
 		 */
-		void emitRenderTargetBarrier();
+		void emitRenderTargetReadbackBarrier();
 
 		/**
 		 * \brief Updates a buffer

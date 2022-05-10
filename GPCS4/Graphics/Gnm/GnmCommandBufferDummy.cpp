@@ -1,5 +1,5 @@
 #include "GnmCommandBufferDummy.h"
-
+#include "PlatProcess.h"
 #include "Violet/VltBuffer.h"
 
 namespace sce::Gnm
@@ -238,6 +238,31 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDummy::setVgtControlForNeo(uint8_t primGroupSizeMinusOne, WdSwitchOnlyOnEopMode wdSwitchOnlyOnEopMode, VgtPartialVsWaveMode partialVsWaveMode)
 	{
+	}
+
+	void GnmCommandBufferDummy::emuWriteGpuLabel(EventWriteSource selector, void* label, uint64_t value)
+	{
+		do
+		{
+			if (!label)
+			{
+				break;
+			}
+
+			if (selector == kEventWriteSource32BitsImmediate)
+			{
+				*(uint32_t*)label = value;
+			}
+			else if (selector == kEventWriteSource64BitsImmediate)
+			{
+				*(uint64_t*)label = value;
+			}
+			else
+			{
+				*(uint64_t*)label = plat::GetProcessTimeCounter();
+			}
+
+		} while (false);
 	}
 
 }  // namespace sce::Gnm

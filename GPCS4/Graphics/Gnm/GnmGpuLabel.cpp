@@ -2,6 +2,7 @@
 #include "Violet/VltDevice.h"
 #include "Violet/VltContext.h"
 #include "Violet/VltSemaphore.h"
+#include "PlatProcess.h"
 
 using namespace sce::vlt;
 
@@ -60,6 +61,8 @@ namespace sce::Gnm
 					*reinterpret_cast<uint32_t*>(m_label) = immValue;
 				else if (srcSelector == kEventWriteSource64BitsImmediate)
 					*reinterpret_cast<uint64_t*>(m_label) = immValue; 
+				else
+					*reinterpret_cast<uint64_t*>(m_label) = plat::GetProcessTimeCounter();
 			});
 	}
 

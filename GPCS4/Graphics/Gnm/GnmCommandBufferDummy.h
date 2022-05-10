@@ -129,6 +129,7 @@ public:
 	virtual void setDepthStencilDisable() override;
 
 private:
+	void emuWriteGpuLabel(EventWriteSource selector, void* label, uint64_t value);
 };
 
 

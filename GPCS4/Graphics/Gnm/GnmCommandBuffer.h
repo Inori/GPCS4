@@ -384,8 +384,8 @@ namespace sce::Gnm
 		// virtual void setupDispatchDrawKickRingBuffer(uint32_t krbCount, uint32_t gdsDwOffsetKrb, uint32_t gdsDwOffsetKrbCounters) = 0;
 		// virtual void dispatchDraw(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ, DispatchOrderedAppendMode orderedAppendMode, uint32_t sgprKrbLoc) = 0;
 		// virtual void triggerReleaseMemEventInterrupt(ReleaseMemEventType eventType, CacheAction cacheAction) = 0;
-		virtual void writeReleaseMemEventWithInterrupt(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy) = 0;
-		virtual void writeReleaseMemEvent(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy)              = 0;
+		virtual void writeReleaseMemEventWithInterrupt(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy);
+		virtual void writeReleaseMemEvent(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy);
 		// virtual void flushShaderCachesAndWait(CacheAction cacheAction, uint32_t extendedCacheMask) = 0;
 		// virtual void insertDingDongMarker() = 0;
 		// virtual void pushDispatchDrawAcbSubmitMarker() = 0;
@@ -422,8 +422,6 @@ namespace sce::Gnm
 		//	uint32_t interval) = 0;
 
 	protected:
-		void emuWriteGpuLabel(EventWriteSource selector, void* label, uint64_t value);
-
 		int32_t findUsageRegister(
 			const gcn::GcnShaderResourceTable& table,
 			uint32_t                           usage);

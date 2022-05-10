@@ -3,7 +3,6 @@
 #include "Emulator.h"
 #include "GnmRenderState.h"
 #include "GnmGpuLabel.h"
-#include "PlatProcess.h"
 #include "VirtualGPU.h"
 
 #include "Gcn/GcnShaderRegField.h"
@@ -59,29 +58,12 @@ namespace sce::Gnm
 		std::memcpy(dstGpuAddr, data, sizeInDwords * sizeof(uint32_t));
 	}
 
-	void GnmCommandBuffer::emuWriteGpuLabel(EventWriteSource selector, void* label, uint64_t value)
+	void GnmCommandBuffer::writeReleaseMemEventWithInterrupt(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy)
 	{
-		do
-		{
-			if (!label)
-			{
-				break;
-			}
+	}
 
-			if (selector == kEventWriteSource32BitsImmediate)
-			{
-				*(uint32_t*)label = value;
-			}
-			else if (selector == kEventWriteSource64BitsImmediate)
-			{
-				*(uint64_t*)label = value;
-			}
-			else
-			{
-				*(uint64_t*)label = plat::GetProcessTimeCounter();
-			}
-
-		} while (false);
+	void GnmCommandBuffer::writeReleaseMemEvent(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy)
+	{
 	}
 
 	const uint32_t* GnmCommandBuffer::findUserData(
@@ -439,7 +421,6 @@ namespace sce::Gnm
 		meta.isDepth     = isDepth;
 		return meta;
 	}
-
 
 
 
