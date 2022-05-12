@@ -7,6 +7,7 @@
 #include "GnmSharpBuffer.h"
 #include "GnmStructure.h"
 #include "GnmRenderTarget.h"
+#include "GnmDepthRenderTarget.h"
 #include "GpuAddress/GnmGpuAddress.h"
 
 namespace sce::Gnm
@@ -149,6 +150,116 @@ namespace sce::Gnm
 			this->setBaseAddress256ByteBlocks(v26);
 			v27 = v6->getTileSwizzleMask();
 			this->setTileSwizzleMask(v27);
+		}
+
+		void initFromDepthRenderTarget(const DepthRenderTarget* rt, bool isCubemap)
+		{
+			const DepthRenderTarget* a2 = rt;
+			uint8_t                  a3 = isCubemap;
+
+			const sce::Gnm::DepthRenderTarget* v6;    // r14
+			int                                v7;    // eax
+			int                                v8;    // eax
+			uint32_t                           v9;    // er15
+			int                                v10;   // ebx
+			int                                v11;   // er15
+			int                                v12;   // ebx
+			uint32_t                           v13;   // eax
+			int                                v14;   // esi
+			uint32_t                           v15;   // edx
+			int                                v16;   // ebx
+			uint32_t                           v17;   // edi
+			__int64                            v18;   // r15
+			unsigned int                       v19;   // eax
+			signed int                         v20;   // edx
+			bool                               v21;   // zf
+			signed int                         v22;   // ecx
+			unsigned int                       v23;   // ebx
+			int                                v24;   // eax
+			unsigned __int8                    v25;   // al
+			char                               v27;   // [rsp+4h] [rbp-3Ch]
+			__int64                            v29;   // [rsp+10h] [rbp-30h]
+
+			std::memset(this, 0, sizeof(Texture));
+			DataFormat dataFormat = DataFormat::build(rt->getZFormat());
+
+			v6              = a2;
+			v27             = isCubemap;
+			this->m_regs[1] = 0;
+			this->m_regs[3] = 0x94000000;
+			v7              = (*((uint32_t*)a2 + 12) + 0x3FFF) & 0x3FFF;
+			this->m_regs[2] = v7;
+			this->m_regs[2] = v7 | ((((*((uint32_t*)a2 + 12) >> 2) & 0xFFFC000) + 268419072) & 0xFFFC000);
+			this->m_regs[4] = ((*((uint32_t*)a2 + 6) << 16) & 0x7FF0000) | 0xE000;
+			this->m_regs[3] = 0x94000000;
+			this->m_regs[1] = 0;
+			this->m_regs[3] = (*(uint32_t*)a2 & 0x700000) | 0x94000000;
+			v8              = dataFormat.m_asInt;
+			this->m_regs[1] = (this->m_regs[1] & 0xC00FFFFF) | ((v8 << 18) & 0x3C000000) | ((v8 & 0x3F) << 20);
+			v9              = this->m_regs[3] & 0xFFFFF000;
+			v10             = v9 | (dataFormat.getChannel(0) & 7);
+			v11             = v10 + 8 * (dataFormat.getChannel(1) & 7);
+			v12             = v11 | ((dataFormat.getChannel(2) & 7) << 6);
+			v13             = v12 | ((dataFormat.getChannel(3) & 7) << 9);
+			this->m_regs[3] = v13;
+			v14             = (*((uint32_t*)a2 + 8) >> 13) & 0x7FF;
+			v15             = this->m_regs[4] & 0xFFFFE000;
+			this->m_regs[4] = v14 | (this->m_regs[4] & 0xFFFFE000);
+			v16             = *((uint32_t*)v6 + 8);
+			this->m_regs[5] = (this->m_regs[5] & 0xFC000000) | (*((uint32_t*)v6 + 8) & 0xFFE7FF);
+			v17             = this->m_regs[2];
+			this->m_regs[2] |= 0x70000000u;
+			if (v16 & 0xFFE000 && v27 == 1)
+			{
+				v19             = (v13 & 0xFFFFFFF) | 0xB0000000;
+				this->m_regs[4] = v15 | (((unsigned __int16)((v14 + 1) / 6u) + 0x1FFF) & 0x1FFF);
+				goto LABEL_15;
+			}
+			if (!(*(uint8_t*)v6 & 0xC))
+			{
+				if (v17 & 0xFFFC000)
+				{
+					v20 = 0xD0000000;
+					if (v16 & 0x7FF)
+						goto LABEL_14;
+					v21 = (v16 & 0xFFE000) == 0;
+					v22 = 0x90000000;
+					v20 = 0xD0000000;
+				}
+				else
+				{
+					v20 = 0xC0000000;
+					if (v16 & 0x7FF)
+						goto LABEL_14;
+					v21 = (v16 & 0xFFE000) == 0;
+					v22 = 0x80000000;
+					v20 = 0xC0000000;
+				}
+			LABEL_12:
+				if (v21)
+					v20 = v22;
+				goto LABEL_14;
+			}
+			v20 = 0xF0000000;
+			if (!(v16 & 0x7FF))
+			{
+				v21 = (v16 & 0xFFE000) == 0;
+				v22 = 0xE0000000;
+				v20 = 0xF0000000;
+				goto LABEL_12;
+			}
+		LABEL_14:
+			v19 = v20 | (v13 & 0xFFFFFFF);
+		LABEL_15:
+			this->m_regs[3] = v19;
+			if ((*(uint32_t*)v6 >> 2) & 3)
+				this->m_regs[3] = (v19 & 0xFFF0FFFF) | (((*(uint32_t*)v6 >> 2) & 3) << 16);
+			v23             = this->m_regs[6] & 0xFEFFFFFF;
+			this->m_regs[6] = v23 | (((unsigned int)rt->getMinimumGpuMode() == 1) << 24);
+			v24             = rt->getZReadAddress256ByteBlocks();
+			setBaseAddress256ByteBlocks(v24);
+			v25 = rt->getZReadTileSwizzleMask();
+			setTileSwizzleMask(v25);
 		}
 
 		const TSharpBuffer& getTsharp() const

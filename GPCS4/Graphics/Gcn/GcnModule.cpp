@@ -3,6 +3,9 @@
 #include "GcnCompiler.h"
 #include "GcnDecoder.h"
 
+#include "PlatFile.h"
+#include "UtilString.h"
+
 
 using namespace sce::vlt;
 
@@ -28,21 +31,28 @@ namespace sce::gcn
 		const uint32_t* end   = reinterpret_cast<const uint32_t*>(m_code + m_header.length());
 		GcnCodeSlice    codeSlice(start, end);
 
+		auto fileName = util::str::formatex(
+			"shaders/", 
+			m_programInfo.name(), 
+			"_",
+			m_header.key().name(),
+			".bin");
+
+		if (fileName.find("CS_SHDR_844598A0F388C19D") != std::string::npos)
+		{
+			__debugbreak();
+		}
+
+		plat::StoreFile(fileName, start, m_header.length());
+
 		GcnAnalysisInfo analysisInfo;
 
-		// First pass
-		GcnCfgPass pass(analysisInfo);
-
-		this->runInstructionIterator(&pass, codeSlice);
-
-		// Second pass
 		GcnAnalyzer analyzer(
 			m_programInfo,
 			analysisInfo);
 
 		this->runInstructionIterator(&analyzer, codeSlice);
 
-		// Third pass
 		GcnCompiler compiler(
 			this->name(),
 			m_programInfo,

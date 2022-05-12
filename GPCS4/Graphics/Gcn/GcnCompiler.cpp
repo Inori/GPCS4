@@ -555,9 +555,7 @@ namespace sce::gcn
 		const auto& textureMetaTable = getTextureMetaTable();
 		const auto& textureInfo      = textureMetaTable[registerId];
 
-		// TODO
-		// Support storage image
-		const bool isStorage = res.usage != kShaderInputUsageImmResource;
+		const bool isStorage = (res.type == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE);
 
 		if (isStorage)
 		{
@@ -2066,7 +2064,16 @@ namespace sce::gcn
 		uint32_t dim         = getTexCoordDim(imageInfo);
 		auto     coordVector = emitVgprArrayLoad(coordReg,
 												 GcnRegMask::firstN(dim));
-		return emitCalcTexCoord(coordVector, imageInfo);
+
+		auto result = emitCalcTexCoord(coordVector, imageInfo);
+
+		if (imageInfo.dim == spv::DimCube)
+		{
+			// Why do we need recover?
+			// See comments in emitCubeCalculate.
+			result = emitRecoverCubeCoord(result);
+		}
+		return result;
 	}
 
 	GcnRegisterValue GcnCompiler::emitRecoverCubeCoord(
@@ -2129,12 +2136,6 @@ namespace sce::gcn
 		// Load the texture coordinates. SPIR-V allows these
 		// to be float4 even if not all components are used.
 		GcnRegisterValue coord = emitLoadTexCoord(texCoordReg, imageType);
-		if (imageType.dim == spv::DimCube)
-		{
-			// Why do we need recover?
-			// See comments in emitCubeCalculate.
-			coord = emitRecoverCubeCoord(coord);
-		}
 		
 		// Accumulate additional image operands. These are
 		// not part of the actual operand token in SPIR-V.
@@ -2999,10 +3000,8 @@ namespace sce::gcn
 	{
 		switch (m_programInfo.type())
 		{
-			case GcnProgramType::PixelShader:
-			{
-				return m_meta.ps.textureInfos;
-			}
+			case GcnProgramType::PixelShader:	return m_meta.ps.textureInfos;
+			case GcnProgramType::ComputeShader:	return m_meta.cs.textureInfos;
 		}
 
 		LOG_ASSERT(false, "program type not supported, please support it.");

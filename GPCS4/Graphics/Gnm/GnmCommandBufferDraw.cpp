@@ -178,6 +178,7 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::updatePsShader(const gcn::PsStageRegisters* psRegs)
 	{
+		LOG_ASSERT(false, "TODO");
 	}
 
 	void GnmCommandBufferDraw::setVsShader(const gcn::VsStageRegisters* vsRegs, uint32_t shaderModifier)
@@ -300,6 +301,8 @@ namespace sce::Gnm
 			Rc<VltImageView> targetView = nullptr;
 			if (!resource)
 			{
+				// The render target is not a display buffer registered in video out,
+				// we create a new one.
 				SceRenderTarget rtRes;
 				m_factory.createRenderTarget(target, rtRes);
 
@@ -337,7 +340,6 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setDepthRenderTarget(DepthRenderTarget const* depthTarget)
 	{
-		
 		do
 		{
 			if (depthTarget == nullptr)
@@ -346,21 +348,41 @@ namespace sce::Gnm
 				break;
 			}
 
-			auto resource = m_tracker->find(depthTarget->getZReadAddress());
+			auto zBufferAddr = depthTarget->getZReadAddress();
+			auto resource    = m_tracker->find(zBufferAddr);
 
+			Rc<VltImageView> depthView = nullptr;
 			if (!resource)
 			{
 				// create a new depth image and track it
-
 				SceDepthRenderTarget depthResource = {};
 				m_factory.createDepthImage(depthTarget, depthResource);
+				depthView = depthResource.imageView;
 
 				auto iter = m_tracker->track(depthResource).first;
 				resource  = &iter->second;
 			}
+			else
+			{
+				auto type = resource->type();
+				if (!type.test(SceResourceType::DepthRenderTarget))
+				{
+					SceDepthRenderTarget depthResource = {};
+					m_factory.createDepthImage(depthTarget, depthResource);
+					depthView = depthResource.imageView;
+
+					resource->setDepthRenderTarget(depthResource);
+					// Pending upload
+					resource->setTransform(SceTransformFlag::GpuUpload);
+				}
+				else
+				{
+					depthView = resource->depthRenderTarget().imageView;
+				}
+			}
 
 			VltAttachment attachment = {
-				resource->depthRenderTarget().imageView,
+				depthView,
 				VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL
 			};
 			m_context->bindDepthRenderTarget(attachment);
@@ -463,7 +485,9 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setDbRenderControl(DbRenderControl reg)
 	{
-		if (reg.getDepthClearEnable() && !reg.getHtileResummarizeEnable())
+		bool depthClear    = reg.getDepthClearEnable();
+		bool htielCompress = reg.getHtileResummarizeEnable();
+		if (depthClear && !htielCompress)
 		{
 			// In Gnm, when depth clear enable and HTILE compress disable
 			// all writes to the depth buffer will use the depth clear value set by
@@ -536,7 +560,7 @@ namespace sce::Gnm
 
 		commitGraphicsState();
 
-		m_context->drawIndexed(indexCount, 1, 0, 0, 0);
+		//m_context->drawIndexed(indexCount, 1, 0, 0, 0);
 	}
 
 	void GnmCommandBufferDraw::drawIndexAuto(uint32_t indexCount)
@@ -557,7 +581,7 @@ namespace sce::Gnm
 
 		commitGraphicsState();
 
-		m_context->drawIndexed(indexCount, 1, 0, 0, 0);
+		//m_context->drawIndexed(indexCount, 1, 0, 0, 0);
 	}
 
 	void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void* indexAddr)
@@ -571,7 +595,7 @@ namespace sce::Gnm
 	{
 		commitComputeState();
 
-		m_context->dispatch(threadGroupX, threadGroupY, threadGroupZ);
+		//m_context->dispatch(threadGroupX, threadGroupY, threadGroupZ);
 	}
 
 	void GnmCommandBufferDraw::dispatchWithOrderedAppend(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ, DispatchOrderedAppendMode orderedAppendMode)
@@ -904,66 +928,80 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::updateVertexShaderStage()
 	{
-		// Update index
-		// All draw calls in Gnm need index buffer.
-		auto& indexBuffer = m_state.ia.indexBuffer;
-		m_context->bindIndexBuffer(
-			VltBufferSlice(indexBuffer, 0, indexBuffer->info().size),
-			m_state.ia.indexType);
-
 		// Update vertex input
 		auto& ctx = m_state.shaderContext[kShaderStageVs];
 
-		GcnModule vsModule(
-			GcnProgramType::VertexShader,
-			reinterpret_cast<const uint8_t*>(ctx.code));
+		do 
+		{
+			if (ctx.code == nullptr)
+			{
+				break;
+			}
 
-		auto& resTable = vsModule.getResourceTable();
+			// Update index
+			// All draw calls in Gnm need index buffer.
+			auto& indexBuffer = m_state.ia.indexBuffer;
+			m_context->bindIndexBuffer(
+				VltBufferSlice(indexBuffer, 0, indexBuffer->info().size),
+				m_state.ia.indexType);
 
-		// Update input layout and bind vertex buffer
-		updateVertexBinding(vsModule);
+			GcnModule vsModule(
+				GcnProgramType::VertexShader,
+				reinterpret_cast<const uint8_t*>(ctx.code));
 
-		// create and bind shader resources
-		bindResource(VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, resTable, ctx.userData);
+			auto& resTable = vsModule.getResourceTable();
 
-		// bind the shader
-		auto shader = vsModule.compile(ctx.meta);
-		m_context->bindShader(
-			VK_SHADER_STAGE_VERTEX_BIT,
-			shader);
+			//// Update input layout and bind vertex buffer
+			updateVertexBinding(vsModule);
+
+			//// create and bind shader resources
+			bindResource(VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, resTable, ctx.userData);
+
+			// bind the shader
+			auto shader = vsModule.compile(ctx.meta);
+			m_context->bindShader(
+				VK_SHADER_STAGE_VERTEX_BIT,
+				shader);
 
 #ifdef SHADER_DUMP_FILE
-		std::ofstream fout(vsModule.name(), std::ios::binary);
-		shader->dump(fout);
+			std::ofstream fout(vsModule.name(), std::ios::binary);
+			shader->dump(fout);
 #endif
 
+		} while (false);
 	}
 
 	void GnmCommandBufferDraw::updatePixelShaderStage()
 	{
 		auto& ctx = m_state.shaderContext[kShaderStagePs];
 
-		GcnModule psModule(
-			GcnProgramType::PixelShader,
-			reinterpret_cast<const uint8_t*>(ctx.code));
+		do 
+		{
+			if (ctx.code == nullptr)
+			{
+				break;
+			}
 
-		auto& resTable = psModule.getResourceTable();
+			GcnModule psModule(
+				GcnProgramType::PixelShader,
+				reinterpret_cast<const uint8_t*>(ctx.code));
 
-		// create and bind shader resources
-		bindResource(VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, resTable, ctx.userData);
+			auto& resTable = psModule.getResourceTable();
 
-		// SHADER_DEBUG_BREAK(psModule, "SHDR_27270E5379221478");
+			//// create and bind shader resources
+			bindResource(VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, resTable, ctx.userData);
 
-		// bind the shader
-		auto shader = psModule.compile(ctx.meta);
-		m_context->bindShader(
-			VK_SHADER_STAGE_FRAGMENT_BIT,
-			shader);
+			// bind the shader
+			auto shader = psModule.compile(ctx.meta);
+			m_context->bindShader(
+				VK_SHADER_STAGE_FRAGMENT_BIT,
+				shader);
 
 #ifdef SHADER_DUMP_FILE
-		std::ofstream fout(psModule.name(), std::ios::binary);
-		shader->dump(fout);
+			std::ofstream fout(psModule.name(), std::ios::binary);
+			shader->dump(fout);
 #endif
+		} while (false);
 	}
 
 	void GnmCommandBufferDraw::commitGraphicsState()
@@ -978,10 +1016,10 @@ namespace sce::Gnm
 		msState.sampleMask            = 0xFFFFFFFF;
 		m_context->setMultisampleState(msState);
 
-		// Flush memory to buffer and texture resources.
-		m_initializer->flush();
-		// Process pending upload/download
-		m_tracker->transform(m_context.ptr());
+		//// Flush memory to buffer and texture resources.
+		//m_initializer->flush();
+		//// Process pending upload/download
+		//m_tracker->transform(m_context.ptr());
 	}
 
 	void GnmCommandBufferDraw::commitComputeState()

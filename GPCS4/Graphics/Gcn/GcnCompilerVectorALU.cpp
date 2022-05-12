@@ -231,6 +231,14 @@ namespace sce::gcn
 											 m_module.constf32(1.0),
 											 src[0].low.id);
 				break;
+			case GcnOpcode::V_LOG_F32:
+				dst.low.id = m_module.opLog2(typeId,
+											 src[0].low.id);
+				break;
+			case GcnOpcode::V_EXP_F32:
+				dst.low.id = m_module.opExp2(typeId,
+											 src[0].low.id);
+				break;
             // VectorThreadMask
 			case GcnOpcode::V_CNDMASK_B32:
 			{
@@ -392,6 +400,10 @@ namespace sce::gcn
 		auto op = ins.opcode;
 		switch (op)
 		{
+			case GcnOpcode::V_CMPX_EQ_U32:
+				updateExec = true;
+				[[fallthrough]];
+			case GcnOpcode::V_CMP_EQ_U32:
 			case GcnOpcode::V_CMP_EQ_I32:
 				condition = m_module.opIEqual(conditionType,
 											  src[0].low.id,
@@ -409,6 +421,19 @@ namespace sce::gcn
 				condition = m_module.opUGreaterThan(conditionType,
 													src[0].low.id,
 													src[1].low.id);
+				break;
+			case GcnOpcode::V_CMPX_GE_U32:
+				updateExec = true;
+				[[fallthrough]];
+			case GcnOpcode::V_CMP_GE_U32:
+				condition = m_module.opUGreaterThanEqual(conditionType,
+														 src[0].low.id,
+														 src[1].low.id);
+				break;
+			case GcnOpcode::V_CMP_GT_F32:
+				condition = m_module.opFOrdGreaterThan(conditionType,
+													   src[0].low.id,
+													   src[1].low.id);
 				break;
 			case GcnOpcode::V_CMP_GE_F32:
 				condition = m_module.opFOrdGreaterThanEqual(conditionType,
@@ -492,7 +517,31 @@ namespace sce::gcn
 
     void GcnCompiler::emitVectorLane(const GcnShaderInstruction& ins)
     {
-        LOG_GCN_UNHANDLED_INST();
+		std::array<GcnRegisterValuePair, GcnMaxOperandCount> src;
+		for (uint32_t i = 0; i != ins.srcCount; ++i)
+		{
+			src[i] = emitRegisterLoad(ins.src[i]);
+		}
+
+		GcnRegisterValuePair dst = {};
+		dst.low.type.ctype       = getDestinationType(ins.dst[0].type);
+		dst.low.type.ccount      = 1;
+		dst.high.type            = dst.low.type;
+
+		auto op = ins.opcode;
+		switch (op)
+		{
+			case GcnOpcode::V_READFIRSTLANE_B32:
+				// EXEC is either 0 or 1, for both cases
+				// we take first thread.
+				dst.low.id = src[0].low.id;
+				break;
+			default:
+				LOG_GCN_UNHANDLED_INST();
+				break;
+		}
+
+		emitRegisterStore(ins.dst[1], dst);
     }
 
     void GcnCompiler::emitVectorBitLogic(const GcnShaderInstruction& ins)

@@ -1,5 +1,6 @@
 #include "GcnHeader.h"
 #include "GcnConstants.h"
+#include "GcnDecoder.h"
 #include "Gnm/GnmConstant.h"
 
 LOG_CHANNEL(Graphic.Gcn.GcnHeader);
@@ -11,7 +12,7 @@ namespace sce::gcn
 	GcnHeader::GcnHeader(const uint8_t* shaderCode)
 	{
 		parseHeader(shaderCode);
-		extractResourceTable();
+		extractResourceTable(shaderCode);
 	}
 
 	GcnHeader::~GcnHeader()
@@ -45,8 +46,16 @@ namespace sce::gcn
 		}
 	}
 
-	void GcnHeader::extractResourceTable()
+	void GcnHeader::extractResourceTable(const uint8_t* code)
 	{
+		// We can't distinguish some of the resource type without iterate
+		// through all shader instructions.
+		// For example, a T# in an ImmResource slot 
+		// may be either a sampled image or a storage image.
+		// If it is accessed via an IMAGE_LOAD_XXX instruction,
+		// then we can say it is a storage image.
+		auto typeInfo = analyzeResourceType(code);
+
 		m_resourceTable.reserve(m_inputUsageSlotTable.size());
 
 		for (const auto& slot : m_inputUsageSlotTable)
@@ -54,7 +63,7 @@ namespace sce::gcn
 			GcnShaderResource res = {};
 
 			res.usage         = slot.m_usageType;
-			res.inEud         = (slot.m_startRegister > kMaxUserDataCount);
+			res.inEud         = (slot.m_startRegister >= kMaxUserDataCount);
 			res.startRegister = slot.m_startRegister;
 
 			if (res.inEud)
@@ -70,8 +79,12 @@ namespace sce::gcn
 			{
 				// If ImmResource is a buffer, it may be pretty large,
 				// so we use SSBO.
-				res.type         = isVSharp ? 
-					VK_DESCRIPTOR_TYPE_STORAGE_BUFFER : VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+				res.type = isVSharp
+							   ? VK_DESCRIPTOR_TYPE_STORAGE_BUFFER
+							   : (typeInfo.m_storageImages.find(res.startRegister) != typeInfo.m_storageImages.end()
+									  ? VK_DESCRIPTOR_TYPE_STORAGE_IMAGE
+									  : VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE);
+
 				res.sizeInDwords = slot.m_registerCount == 0 ? 4 : 8;
 			}
 				break;
@@ -111,6 +124,34 @@ namespace sce::gcn
 
 			m_resourceTable.push_back(res);
 		}
+	}
+
+	GcnHeader::ResourceTypeInfo GcnHeader::analyzeResourceType(const uint8_t* code)
+	{
+		const uint32_t* start = reinterpret_cast<const uint32_t*>(code);
+		const uint32_t* end   = reinterpret_cast<const uint32_t*>(code + m_binInfo.m_length);
+		GcnCodeSlice    slice(start, end);
+
+		GcnDecodeContext decoder;
+
+		GcnHeader::ResourceTypeInfo result;
+
+		while (!slice.atEnd())
+		{
+			decoder.decodeInstruction(slice);
+
+			auto& ins = decoder.getInstruction();
+
+			if (ins.opcode >= GcnOpcode::IMAGE_LOAD &&
+				ins.opcode <= GcnOpcode::IMAGE_ATOMIC_FMAX &&
+				ins.opcode != GcnOpcode::IMAGE_GET_RESINFO)
+			{
+				uint32_t startRegister = ins.src[2].code << 2;
+				result.m_storageImages.insert(startRegister);
+			}
+		}
+
+		return result;
 	}
 
 }  // namespace sce::gcn

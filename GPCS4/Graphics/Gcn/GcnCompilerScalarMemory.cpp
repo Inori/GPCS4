@@ -1,4 +1,5 @@
 #include "GcnCompiler.h"
+#include "GcnHeader.h"
 
 LOG_CHANNEL(Graphic.Gcn.GcnCompiler);
 
@@ -47,9 +48,40 @@ namespace sce::gcn
 				emitConstantBufferLoad(index, smrd.sdst, smrd.control.count);
 			}
 				break;
+			case GcnOpcode::S_LOAD_DWORDX4:
+			case GcnOpcode::S_LOAD_DWORDX8:
+				emitRawBufferLoad(ins);
+				break;
 			default:
 				LOG_GCN_UNHANDLED_INST();
 				break;
+		}
+	}
+
+	void GcnCompiler::emitRawBufferLoad(const GcnShaderInstruction& ins)
+	{
+		// Currently, the only usage case I found for S_LOAD_DWORDX4 S_LOAD_DWORDX8
+		// is to load 4 or 8 sgpr sharp descriptors from EUD.
+		// We've already declared those resource in emitDclInputSlots,
+		// so we only check if it is used for loading sgprs in EUD in case of
+		// some unknown use cases,
+		// then we simply ignore these instructions.
+
+		const auto& resouceTable = m_header->getShaderResourceTable();
+		auto        iter         = std::find_if(
+			resouceTable.cbegin(),
+			resouceTable.cend(),
+			[](const GcnShaderResource& res)
+			{
+                return res.usage == Gnm::kShaderInputUsagePtrExtendedUserData;
+			});
+
+		if (iter != resouceTable.end())
+		{
+			// We found an EUD slot.
+			// Check if it is used as the sbase of the instruction.
+			uint32_t sbase = ins.src[0].code << 1;
+			LOG_ASSERT(sbase == iter->startRegister, "S_LOAD_XXX is not used to load EUD.");
 		}
 	}
 

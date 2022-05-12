@@ -60,7 +60,6 @@ namespace sce::gcn
 	};
 
 
-
 	/**
 	 * \brief GCN shader analyzer
 	 * 
@@ -92,6 +91,7 @@ namespace sce::gcn
 
 	private:
 		GcnAnalysisInfo* m_analysis;
+		GcnCfgPass       m_cfgPass;
 	};
 
 

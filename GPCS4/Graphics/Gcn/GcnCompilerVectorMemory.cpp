@@ -593,9 +593,69 @@ namespace sce::gcn
 		emitVectorMemBuffer(ins);
 	}
 
+	void GcnCompiler::emitStorageImageLoad(const GcnShaderInstruction& ins)
+	{
+		auto mimg = gcnInstructionAs<GcnShaderInstMIMG>(ins);
+
+		const uint32_t registerId = mimg.srsrc.code << 2;
+
+		const GcnTexture& typeInfo = m_textures.at(registerId);
+
+		// Load texture coordinates
+		GcnRegisterValue texCoord = emitLoadTexCoord(
+			mimg.vaddr, typeInfo.imageInfo);
+
+		// Additional image operands. This will store
+		// the LOD and other information if present.
+		SpirvImageOperands imageOperands;
+
+		auto op = ins.opcode;
+		switch (op)
+		{
+			case GcnOpcode::IMAGE_LOAD_MIP:
+			{
+				// The component following coordinate contains the LOD.
+				auto vaddr = mimg.vaddr;
+				vaddr.code += texCoord.type.ccount;
+
+				GcnRegisterValue imageLod = emitVgprLoad(vaddr);
+				imageLod                  = emitRegisterBitcast(imageLod, GcnScalarType::Uint32);
+
+				imageOperands.flags |= spv::ImageOperandsLodMask;
+				imageOperands.sLod = imageLod.id;
+			}
+				break;
+		}
+
+		// Load source value from the storage image.
+		GcnRegisterValue result;
+		result.type.ctype  = typeInfo.sampledType;
+		result.type.ccount = 4;
+		result.id          = m_module.opImageRead(
+					 getVectorTypeId(result.type),
+					 m_module.opLoad(typeInfo.imageTypeId, typeInfo.varId),
+					 texCoord.id, imageOperands);
+
+		// Apply component swizzle and mask
+		auto colorMask = GcnRegMask(mimg.control.dmask);
+		result         = emitRegisterExtract(result, colorMask);
+		emitVgprArrayStore(mimg.vdata,
+						   result,
+						   colorMask);
+	}
+
 	void GcnCompiler::emitVectorMemImgNoSmp(const GcnShaderInstruction& ins)
 	{
-		LOG_GCN_UNHANDLED_INST();
+		auto op = ins.opcode;
+		switch (op)
+		{
+			case GcnOpcode::IMAGE_LOAD_MIP:
+				emitStorageImageLoad(ins);
+				break;
+			default:
+				LOG_GCN_UNHANDLED_INST();
+				break;
+		}
 	}
 
 	void GcnCompiler::emitVectorMemImgSmp(const GcnShaderInstruction& ins)

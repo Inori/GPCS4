@@ -356,6 +356,9 @@ namespace sce::gcn
 		void emitTextureSample(
 			const GcnShaderInstruction& ins);
 
+		void emitStorageImageLoad(
+			const GcnShaderInstruction& ins);
+
 		GcnRegisterValue emitCalcTexCoord(
 			GcnRegisterValue    coordVector,
 			const GcnImageInfo& imageInfo);
@@ -387,6 +390,9 @@ namespace sce::gcn
 
 		std::array<GcnRegisterPointer, 4>
 		emitDsAccess(const GcnShaderInstruction& ins);
+
+		void emitRawBufferLoad(
+			const GcnShaderInstruction& ins);
 
 		void emitConstantBufferLoad(
 			const GcnRegIndex&    index,
@@ -649,7 +655,7 @@ namespace sce::gcn
 		//////////////////////////////////////////////////////
 		// Shader resource variables. These provide access to
 		// buffers, samplers and textures.
-		std::array<GcnBuffer, 16>   m_buffers;
+		std::array<GcnBuffer, 32>   m_buffers;
 		std::array<GcnSampler, 16>  m_samplers;
 		std::array<GcnTexture, 128> m_textures;
 

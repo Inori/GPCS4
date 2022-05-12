@@ -98,6 +98,15 @@ namespace sce::Gnm
 		}
 	};
 
+	/**
+	 * \brief Predefined data formats.
+	 * 
+	 * Suffix components of the form "R8", "G32", etc. indicate number of bits per indicated channel.
+	 * "norm" means float values between 0.f to 1.f or -1.f to 1.f, "int" means integer values,
+	 * "U" means unsigned values, and "S" means signed values.
+	 * 
+	 */
+
 	const DataFormat kDataFormatInvalid           = { { { kSurfaceFormatInvalid, kTextureChannelTypeUNorm, kTextureChannelConstant0, kTextureChannelConstant0, kTextureChannelConstant0, kTextureChannelConstant0, 0 } } };
 	const DataFormat kDataFormatR32G32B32A32Float = { { { kSurfaceFormat32_32_32_32, kTextureChannelTypeFloat, kTextureChannelX, kTextureChannelY, kTextureChannelZ, kTextureChannelW, 0 } } };
 	const DataFormat kDataFormatB32G32R32A32Float = { { { kSurfaceFormat32_32_32_32, kTextureChannelTypeFloat, kTextureChannelZ, kTextureChannelY, kTextureChannelX, kTextureChannelW, 0 } } };
@@ -234,6 +243,14 @@ namespace sce::Gnm
 	const DataFormat kDataFormatBc7UnormSrgbNoAlpha = { { { kSurfaceFormatBc7, kTextureChannelTypeSrgb, kTextureChannelX, kTextureChannelY, kTextureChannelZ, kTextureChannelConstant1, 0 } } };
 
 	const DataFormat kDataFormatBc3UnormRABG = { { { kSurfaceFormatBc3, kTextureChannelTypeUNorm, kTextureChannelX, kTextureChannelW, kTextureChannelZ, kTextureChannelY, 0 } } };
+
+	/**
+	 * \brief Custom data format used by some games
+	 * 
+	 * TODO:
+	 * We may need to develop algorithm to match the format dynamically. 
+	 */
+	const DataFormat kDataFormatL32FloatXXXX = { { { kSurfaceFormat32, kTextureChannelTypeFloat, kTextureChannelX, kTextureChannelX, kTextureChannelX, kTextureChannelX, 0 } } };
 	// Used for debugging purpose
 	const char* dataFormatName(DataFormat dataFmt);
 

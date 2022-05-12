@@ -5,6 +5,7 @@
 #include "GcnShaderKey.h"
 
 #include <vector>
+#include <unordered_set>
 
 namespace sce::gcn
 {
@@ -43,6 +44,11 @@ namespace sce::gcn
 	 */
 	class GcnHeader
 	{
+		struct ResourceTypeInfo
+		{
+			std::unordered_set<uint32_t> m_storageImages;
+		};
+
 	public:
 		GcnHeader(
 			const uint8_t* shaderCode);
@@ -84,7 +90,10 @@ namespace sce::gcn
 		void parseHeader(
 			const uint8_t* shaderCode);
 
-		void extractResourceTable();
+		void extractResourceTable(const uint8_t* code);
+
+		ResourceTypeInfo
+			analyzeResourceType(const uint8_t* code);
 
 	private:
 		ShaderBinaryInfo       m_binInfo = {};

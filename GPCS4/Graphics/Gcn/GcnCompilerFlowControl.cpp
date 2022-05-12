@@ -87,6 +87,7 @@ namespace sce::gcn
 			case GcnOpcode::S_CBRANCH_EXECZ:
 			case GcnOpcode::S_CBRANCH_SCC0:
 			case GcnOpcode::S_CBRANCH_SCC1:
+			case GcnOpcode::S_CBRANCH_VCCZ:
 				emitScalarBranch(ins);
 				break;
 			default:
@@ -121,6 +122,9 @@ namespace sce::gcn
 		auto op = ins.opcode;
 		switch (op)
 		{
+			case GcnOpcode::S_CBRANCH_VCCZ:
+				condition = m_state.vcc.zflag();
+				break;
 			case GcnOpcode::S_CBRANCH_EXECZ:
 				condition = m_state.exec.zflag();
 				break;

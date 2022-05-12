@@ -57,6 +57,7 @@ namespace sce::gcn
 		switch (op)
 		{
 			// ScalarArith
+			case GcnOpcode::S_ADD_U32:
 			case GcnOpcode::S_ADD_I32:
 			{
 				dst.low.id = m_module.opIAdd(typeId,
@@ -126,6 +127,16 @@ namespace sce::gcn
 													src[0].low.id,
 													m_module.opNot(typeId, src[1].low.id));
 				dst.high.id = m_module.opBitwiseAnd(typeId,
+													src[0].high.id,
+													m_module.opNot(typeId, src[1].high.id));
+			}
+				break;
+			case GcnOpcode::S_ORN2_B64:
+			{
+				dst.low.id  = m_module.opBitwiseOr(typeId,
+													src[0].low.id,
+													m_module.opNot(typeId, src[1].low.id));
+				dst.high.id = m_module.opBitwiseOr(typeId,
 													src[0].high.id,
 													m_module.opNot(typeId, src[1].high.id));
 			}

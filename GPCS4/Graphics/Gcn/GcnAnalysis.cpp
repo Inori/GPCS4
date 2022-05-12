@@ -60,7 +60,8 @@ namespace sce::gcn
 	GcnAnalyzer::GcnAnalyzer(
 		const GcnProgramInfo& programInfo,
 		GcnAnalysisInfo&      analysis) :
-		m_analysis(&analysis)
+		m_analysis(&analysis),
+		m_cfgPass(analysis)
 	{
 	}
 
@@ -74,6 +75,8 @@ namespace sce::gcn
 		analyzeInstruction(ins);
 
 		updateProgramCounter(ins);
+
+		m_cfgPass.processInstruction(ins);
 	}
 
 	void GcnAnalyzer::analyzeInstruction(const GcnShaderInstruction& ins)

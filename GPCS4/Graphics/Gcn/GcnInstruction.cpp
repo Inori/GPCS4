@@ -3538,36 +3538,36 @@ namespace sce::gcn
 	const std::array<GcnInstFormat, 112> g_instructionFormatMIMG = { {
 		// 0 = IMAGE_LOAD
 		{ GcnInstClass::VectorMemImgNoSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 1 = IMAGE_LOAD_MIP
 		{ GcnInstClass::VectorMemImgNoSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 2 = IMAGE_LOAD_PCK
 		{ GcnInstClass::VectorMemImgNoSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 3 = IMAGE_LOAD_PCK_SGN
 		{ GcnInstClass::VectorMemImgNoSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 4 = IMAGE_LOAD_MIP_PCK
 		{ GcnInstClass::VectorMemImgNoSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 5 = IMAGE_LOAD_MIP_PCK_SGN
 		{ GcnInstClass::VectorMemImgNoSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		{},
 		{},
 		// 8 = IMAGE_STORE
 		{ GcnInstClass::VectorMemImgNoSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 9 = IMAGE_STORE_MIP
 		{ GcnInstClass::VectorMemImgNoSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 10 = IMAGE_STORE_PCK
 		{ GcnInstClass::VectorMemImgNoSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		// 11 = IMAGE_STORE_MIP_PCK
 		{ GcnInstClass::VectorMemImgNoSmp, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Float32 },
 		{},
 		{},
 		// 14 = IMAGE_GET_RESINFO

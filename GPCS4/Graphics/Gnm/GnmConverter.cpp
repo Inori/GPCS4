@@ -38,6 +38,8 @@ namespace sce::Gnm::cvt
 		// so I comment it out.
 		// Should be fixed to right format value.
 		const static std::unordered_map<DataFormat, VkFormat, DataFormatHash> formatMap = {
+
+			// Predefined data formats
 			{ kDataFormatInvalid, VK_FORMAT_UNDEFINED },
 			{ kDataFormatR32G32B32A32Float, VK_FORMAT_R32G32B32A32_SFLOAT },
 			{ kDataFormatB32G32R32A32Float, VK_FORMAT_R32G32B32A32_SFLOAT },
@@ -77,7 +79,7 @@ namespace sce::Gnm::cvt
 			{ kDataFormatR16G16Uint, VK_FORMAT_R16G16_UINT },
 			{ kDataFormatR16G16Snorm, VK_FORMAT_R16G16_SNORM },
 			{ kDataFormatR16G16Sint, VK_FORMAT_R16G16_SINT },
-			//{ kDataFormatR32Float, VK_FORMAT_R32_FLOAT },
+			{ kDataFormatR32Float, VK_FORMAT_R32_SFLOAT },
 			//{ kDataFormatL32Float, VK_FORMAT_L32_FLOAT },
 			//{ kDataFormatA32Float, VK_FORMAT_A32_FLOAT },
 			{ kDataFormatR32Uint, VK_FORMAT_R32_UINT },
@@ -164,7 +166,10 @@ namespace sce::Gnm::cvt
 			//{ kDataFormatBc1UnormSrgbNoAlpha, VK_FORMAT_BC1_UNORMSRGBNOALPHA },
 			//{ kDataFormatBc7UnormNoAlpha, VK_FORMAT_BC7_UNORMNOALPHA },
 			//{ kDataFormatBc7UnormSrgbNoAlpha, VK_FORMAT_BC7_UNORMSRGBNOALPHA },
-			//{ kDataFormatBc3UnormRABG, VK_FORMAT_BC3_UNORMRABG }
+			//{ kDataFormatBc3UnormRABG, VK_FORMAT_BC3_UNORMRABG },
+
+			// Custom data formats
+			{ kDataFormatL32FloatXXXX, VK_FORMAT_R32_SFLOAT },
 		};
 
 		auto iter = formatMap.find(dataFormat);
@@ -172,14 +177,16 @@ namespace sce::Gnm::cvt
 		{
 			LOG_WARN("data format not found %s", dataFormatName(dataFormat));
 
-			// Replace the W component with 1 and try again.
+			// Reverse the W component and try again.
 			DataFormat retryFormat = DataFormat::build(
 				(SurfaceFormat)dataFormat.m_bits.m_surfaceFormat,
 				(TextureChannelType)dataFormat.m_bits.m_channelType,
 				(TextureChannel)dataFormat.m_bits.m_channelX,
 				(TextureChannel)dataFormat.m_bits.m_channelY,
 				(TextureChannel)dataFormat.m_bits.m_channelZ,
-				kTextureChannelConstant1);
+				(TextureChannel)(dataFormat.m_bits.m_channelW == kTextureChannelConstant0
+									 ? kTextureChannelConstant1
+									 : kTextureChannelConstant0));
 
 			iter = formatMap.find(retryFormat);
 			LOG_ASSERT(iter != formatMap.end(), "data format still not found with retry.");
