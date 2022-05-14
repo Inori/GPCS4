@@ -225,6 +225,7 @@
     <ClInclude Include="SceModules\SceNet\sce_net.h" />
     <ClInclude Include="SceModules\SceNpCommerce\sce_npcommerce.h" />
     <ClInclude Include="SceModules\SceNpCommon\sce_npcommon.h" />
+    <ClInclude Include="SceModules\SceNpCommon\sce_npcommon_types.h" />
     <ClInclude Include="SceModules\SceNpManager\sce_npmanager.h" />
     <ClInclude Include="SceModules\SceNpMatching2\sce_npmatching2.h" />
     <ClInclude Include="SceModules\SceNpProfileDialog\sce_npprofiledialog.h" />

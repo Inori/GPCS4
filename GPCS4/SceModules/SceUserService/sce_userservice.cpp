@@ -71,9 +71,21 @@ int PS4API sceUserServiceGetUserName(const SceUserServiceUserId userId, char *us
 int PS4API sceUserServiceGetEvent(SceUserServiceEvent* event)
 {
 	LOG_SCE_TRACE("event %p", event);
-	event->eventType = SCE_USER_SERVICE_EVENT_TYPE_LOGIN;
-	event->userId = SCE_DUMMY_USERID;
-	return SCE_USER_SERVICE_ERROR_NO_EVENT;
+
+	static bool firstEvent = true;
+
+	int ret = SCE_USER_SERVICE_ERROR_NO_EVENT;
+	// We should at least queue one login event even
+	// if there's no user login happened.
+	if (firstEvent)
+	{
+		event->eventType = SCE_USER_SERVICE_EVENT_TYPE_LOGIN;
+		event->userId    = SCE_DUMMY_USERID;
+		ret              = SCE_OK;
+		firstEvent       = false;
+	}
+
+	return ret;
 }
 
 int PS4API sceUserServiceGetLoginUserIdList(SceUserServiceLoginUserIdList* userIdList)

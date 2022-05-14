@@ -10,6 +10,7 @@
 #pragma once
 
 #include "sce_module_common.h"
+#include "../SceNpCommon/sce_npcommon_types.h"
 
 
 extern const SCE_EXPORT_MODULE g_ExpModuleSceNpManager;
@@ -46,7 +47,7 @@ int PS4API sceNpCreateAsyncRequest(void);
 int PS4API sceNpDeleteRequest(void);
 
 
-int PS4API sceNpGetNpId(void);
+int PS4API sceNpGetNpId(SceUserServiceUserId userId, SceNpId* npId);
 
 
 int PS4API sceNpGetOnlineId(void);

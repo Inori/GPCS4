@@ -60,9 +60,16 @@ int PS4API sceNpDeleteRequest(void)
 }
 
 
-int PS4API sceNpGetNpId(void)
+int PS4API sceNpGetNpId(SceUserServiceUserId userId, SceNpId* npId)
 {
-	LOG_FIXME("Not implemented");
+	LOG_SCE_DUMMY_IMPL();
+	LOG_SCE_TRACE("userId %x", userId);
+
+	LOG_ASSERT(std::strlen(GPCS4_APP_NAME) < SCE_NP_ONLINEID_MAX_LENGTH, "app name too long.");
+	std::memset(npId, 0, sizeof(SceNpId));
+	std::strcpy(npId->handle.data, GPCS4_APP_NAME);
+	npId->handle.term = '\0';
+
 	return SCE_OK;
 }
 

@@ -922,6 +922,9 @@
     <ClInclude Include="Graphics\Sce\SceLabelManager.h">
       <Filter>Source Files\Graphics\Sce</Filter>
     </ClInclude>
+    <ClInclude Include="SceModules\SceNpCommon\sce_npcommon_types.h">
+      <Filter>SceModules\SceNpCommon</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
