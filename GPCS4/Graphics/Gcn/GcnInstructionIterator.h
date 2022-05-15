@@ -17,7 +17,7 @@ namespace sce::gcn
 
 	protected:
 
-		void updateProgramCounter(const GcnShaderInstruction& ins);
+		void advanceProgramCounter(const GcnShaderInstruction& ins);
 
 		uint32_t getBranchTarget(const GcnShaderInstruction& ins);
 

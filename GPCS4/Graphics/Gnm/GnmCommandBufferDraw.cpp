@@ -560,7 +560,7 @@ namespace sce::Gnm
 
 		commitGraphicsState();
 
-		//m_context->drawIndexed(indexCount, 1, 0, 0, 0);
+		m_context->drawIndexed(indexCount, 1, 0, 0, 0);
 	}
 
 	void GnmCommandBufferDraw::drawIndexAuto(uint32_t indexCount)
@@ -581,7 +581,7 @@ namespace sce::Gnm
 
 		commitGraphicsState();
 
-		//m_context->drawIndexed(indexCount, 1, 0, 0, 0);
+		m_context->drawIndexed(indexCount, 1, 0, 0, 0);
 	}
 
 	void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void* indexAddr)
@@ -595,7 +595,7 @@ namespace sce::Gnm
 	{
 		commitComputeState();
 
-		//m_context->dispatch(threadGroupX, threadGroupY, threadGroupZ);
+		m_context->dispatch(threadGroupX, threadGroupY, threadGroupZ);
 	}
 
 	void GnmCommandBufferDraw::dispatchWithOrderedAppend(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ, DispatchOrderedAppendMode orderedAppendMode)
@@ -1017,9 +1017,9 @@ namespace sce::Gnm
 		m_context->setMultisampleState(msState);
 
 		//// Flush memory to buffer and texture resources.
-		//m_initializer->flush();
+		m_initializer->flush();
 		//// Process pending upload/download
-		//m_tracker->transform(m_context.ptr());
+		m_tracker->transform(m_context.ptr());
 	}
 
 	void GnmCommandBufferDraw::commitComputeState()
@@ -1028,7 +1028,7 @@ namespace sce::Gnm
 
 		GnmCommandBuffer::commitComputeState(ctx);
 
-		//m_initializer->flush();
+		m_initializer->flush();
 	}
 
 	const void* GnmCommandBufferDraw::findFetchShader(

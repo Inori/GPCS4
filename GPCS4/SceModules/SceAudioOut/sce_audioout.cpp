@@ -94,7 +94,7 @@ int32_t PS4API sceAudioOutOutput(int32_t handle, const void *ptr)
 
 int PS4API sceAudioOutOutputs(void)
 {
-	LOG_FIXME("Not implemented");
+	//LOG_FIXME("Not implemented");
 	return SCE_OK;
 }
 

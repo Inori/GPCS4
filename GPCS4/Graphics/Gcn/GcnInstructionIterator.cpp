@@ -12,7 +12,7 @@ namespace sce::gcn
 	{
 	}
 
-	void GcnInstructionIterator::updateProgramCounter(const GcnShaderInstruction& ins)
+	void GcnInstructionIterator::advanceProgramCounter(const GcnShaderInstruction& ins)
 	{
 		m_programCounter += ins.length;
 	}

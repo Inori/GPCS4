@@ -70,13 +70,13 @@ int PS4API sceUserServiceGetUserName(const SceUserServiceUserId userId, char *us
 
 int PS4API sceUserServiceGetEvent(SceUserServiceEvent* event)
 {
-	LOG_SCE_TRACE("event %p", event);
+	LOG_SCE_DUMMY_IMPL();
 
 	static bool firstEvent = true;
 
 	int ret = SCE_USER_SERVICE_ERROR_NO_EVENT;
 	// We should at least queue one login event even
-	// if there's no user login happened.
+	// if the user is logged in before game start.
 	if (firstEvent)
 	{
 		event->eventType = SCE_USER_SERVICE_EVENT_TYPE_LOGIN;

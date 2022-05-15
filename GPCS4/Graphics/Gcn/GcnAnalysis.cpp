@@ -24,7 +24,7 @@ namespace sce::gcn
 			this->analyzeBranch(ins);
 		}
 
-		updateProgramCounter(ins);
+		advanceProgramCounter(ins);
 	}
 
 	void GcnCfgPass::analyzeBranch(const GcnShaderInstruction& ins)
@@ -74,7 +74,7 @@ namespace sce::gcn
 	{
 		analyzeInstruction(ins);
 
-		updateProgramCounter(ins);
+		advanceProgramCounter(ins);
 
 		m_cfgPass.processInstruction(ins);
 	}

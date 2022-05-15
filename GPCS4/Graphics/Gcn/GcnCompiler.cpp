@@ -66,7 +66,7 @@ namespace sce::gcn
 
 		compileInstruction(ins);
 
-		updateProgramCounter(ins);
+		advanceProgramCounter(ins);
 	}
 
 	void GcnCompiler::compileInstruction(

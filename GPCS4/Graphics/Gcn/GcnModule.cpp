@@ -31,19 +31,21 @@ namespace sce::gcn
 		const uint32_t* end   = reinterpret_cast<const uint32_t*>(m_code + m_header.length());
 		GcnCodeSlice    codeSlice(start, end);
 
-		auto fileName = util::str::formatex(
-			"shaders/", 
-			m_programInfo.name(), 
-			"_",
-			m_header.key().name(),
-			".bin");
+		//auto fileName = util::str::formatex(
+		//	"shaders/", 
+		//	m_programInfo.name(), 
+		//	"_",
+		//	m_header.key().name(),
+		//	".bin");
 
-		if (fileName.find("CS_SHDR_844598A0F388C19D") != std::string::npos)
-		{
-			__debugbreak();
-		}
+		////if (fileName.find("CS_SHDR_844598A0F388C19D") != std::string::npos)
+		////{
+		////	__debugbreak();
+		////}
 
-		plat::StoreFile(fileName, start, m_header.length());
+		//plat::StoreFile(fileName, start, m_header.length());
+
+		//return nullptr;
 
 		GcnAnalysisInfo analysisInfo;
 
