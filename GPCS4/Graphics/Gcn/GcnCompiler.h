@@ -39,6 +39,15 @@ namespace sce::gcn
 	class GcnCompiler : public GcnInstructionIterator
 	{
 		friend class GcnStateRegister;
+
+		struct GcnGprArray
+		{
+			uint32_t    arrayId       = 0;
+			uint32_t    arrayLengthId = 0;
+			uint32_t    arrayLength   = 0;
+			std::string name;
+		};
+
 	public:
 		GcnCompiler(
 			const std::string&     fileName,
@@ -221,6 +230,9 @@ namespace sce::gcn
 		void emitUserDataInit();
 		/////////////////////////////////////////////////////
 		// Shader interface and metadata declaration methods
+		void emitDclGprArray();
+		void emitDclGprArray(
+			GcnGprArray& arrayInfo);
 		void emitDclInput(
 			uint32_t             regIdx,
 			GcnInterpolationMode im);
@@ -644,13 +656,11 @@ namespace sce::gcn
 			GcnMaxInterfaceRegs> m_mrts;
 
 		///////////////////////////////////////////////////
-		// VGPR/SGPR registers
-		std::array<
-			GcnRegisterPointer,
-			GcnMaxVGPR> m_vgprs = {};
-		std::array<
-			GcnRegisterPointer,
-			GcnMaxSGPR> m_sgprs = {};
+		// SGPR/VGRP container
+		// Some instructions use dynamic index,
+		// so we need to declare gprs in array.
+		GcnGprArray m_sArray;
+		GcnGprArray m_vArray;
 
 		//////////////////////////////////////////////////////
 		// Shader resource variables. These provide access to

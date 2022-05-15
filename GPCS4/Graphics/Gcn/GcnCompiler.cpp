@@ -113,8 +113,6 @@ namespace sce::gcn
 		// Depending on the shader type, this will prepare
 		// input registers, call various shader functions
 		// and write back the output registers.
-
-		// clang-format off
 		switch (m_programInfo.type()) 
 		{
 		  case GcnProgramType::VertexShader:   this->emitVsFinalize(); break;
@@ -124,7 +122,6 @@ namespace sce::gcn
 		  case GcnProgramType::PixelShader:    this->emitPsFinalize(); break;
 		  case GcnProgramType::ComputeShader:  this->emitCsFinalize(); break;
 		}
-		// clang-format on
 
 		// Declare the entry point, we now have all the
 		// information we need, including the interfaces
@@ -153,6 +150,8 @@ namespace sce::gcn
 		m_module.enableCapability(spv::CapabilityShader);
 		m_module.enableCapability(spv::CapabilityImageQuery);
 
+		// Declare sgpr/vgpr array.
+		this->emitDclGprArray();
 		// Declare hardware state register.
 		this->emitDclStateRegister();
 		// Declare shader resource and input interfaces
@@ -720,7 +719,39 @@ namespace sce::gcn
 		resource.access = 0;
 		m_resourceSlots.push_back(resource);
 	}
-	
+
+	void GcnCompiler::emitDclGprArray()
+	{
+		// Define sgpr array.
+		m_sArray.name = "s";
+		emitDclGprArray(m_sArray);
+
+		// Define vgpr array.
+		m_vArray.name = "v";
+		emitDclGprArray(m_vArray);
+	}
+
+	void GcnCompiler::emitDclGprArray(GcnGprArray& arrayInfo)
+	{
+		uint32_t typeId = getScalarTypeId(GcnScalarType::Float32);
+
+		// Note that mutable arrays will be compiled to
+		// registers by GPU driver, so we should make array
+		// length as small as possible, or there will be
+		// many useless registers and instructions emitted.
+
+		// Define vgpr array.
+		arrayInfo.arrayLength      = 1;
+		arrayInfo.arrayLengthId    = m_module.lateConst32(getScalarTypeId(GcnScalarType::Uint32));
+		const uint32_t arrayTypeId = m_module.defArrayType(typeId, arrayInfo.arrayLengthId);
+		const uint32_t ptrTypeId   = m_module.defPointerType(
+			  arrayTypeId, spv::StorageClassPrivate);
+
+		arrayInfo.arrayId = m_module.newVar(
+			ptrTypeId, spv::StorageClassPrivate);
+		m_module.setDebugName(arrayInfo.arrayId, arrayInfo.name.c_str());
+	}
+
 	void GcnCompiler::emitDclInput(uint32_t             regIdx,
 								   GcnInterpolationMode im)
 	{
@@ -909,6 +940,9 @@ namespace sce::gcn
 
 	void GcnCompiler::emitInputSetup()
 	{
+		m_module.setLateConst(m_vArray.arrayLengthId, &m_vArray.arrayLength);
+		m_module.setLateConst(m_sArray.arrayLengthId, &m_sArray.arrayLength);
+
 		// Set hardware state register values.
 		// assume we have only one thread, and the thread id is 0
 		m_state.exec.init(1);
@@ -1490,46 +1524,35 @@ namespace sce::gcn
 	GcnRegisterPointer sce::gcn::GcnCompiler::emitGetGprPtr(
 		const GcnInstOperand& reg)
 	{
-		GcnRegisterPointer* gpr = nullptr;
-		std::string         debugName;
+		GcnGprArray* arrayPtr = nullptr;
 		if constexpr (IsVgpr)
 		{
-			gpr       = &m_vgprs[reg.code];
-			debugName = util::str::formatex("v", reg.code);
+			arrayPtr = &m_vArray;
 		}
 		else
 		{
-			gpr       = &m_sgprs[reg.code];
-			debugName = util::str::formatex("s", reg.code);
+			arrayPtr = &m_sArray;
 		}
 
-		// For store operation
-		// if the gpr is not created before, we just create it with no problem.
-		// For load operation
-		// if the gpr is not create before, it's most likely the gpr stores
-		// a system value, like vertex index or so.
-		// We create a empty variable here first,
-		// and then stores the system value in emitInputSetup during finalize.
-		LOG_TRACE_IF(gpr->id == 0, "%s is not initialized.", debugName.c_str());
+		uint32_t arrayId      = arrayPtr->arrayId;
+		arrayPtr->arrayLength = std::max(arrayPtr->arrayLength, reg.code + 1);
 
-		// If the vgpr has not been used, we create one.
-		if (gpr->id == 0)
-		{
-			GcnRegisterInfo info;
-			info.type.ctype   = GcnScalarType::Float32;
-			info.type.ccount  = 1;
-			info.type.alength = 0;
-			info.sclass       = spv::StorageClassPrivate;
+		GcnRegisterPointer result;
+		result.type.ctype  = GcnScalarType::Float32;
+		result.type.ccount = 1;
 
-			uint32_t id = emitNewVariable(info);
-			m_module.setDebugName(id, debugName.c_str());
+		GcnRegisterInfo info;
+		info.type.ctype   = result.type.ctype;
+		info.type.ccount  = result.type.ccount;
+		info.type.alength = 0;
+		info.sclass       = spv::StorageClassPrivate;
 
-			gpr->type.ctype  = info.type.ctype;
-			gpr->type.ccount = info.type.ccount;
-			gpr->id          = id;
-		}
+		uint32_t indexId = m_module.constu32(reg.code);
+		result.id        = m_module.opAccessChain(
+				   getPointerTypeId(info), arrayId,
+				   1, &indexId);
 
-		return *gpr;
+		return result;
 	}
 
 	template <bool IsVgpr>

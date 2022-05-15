@@ -14,6 +14,8 @@
 #include "Violet/VltCmdList.h"
 #include "Violet/VltDevice.h"
 
+#include <fstream>
+
 using namespace sce::vlt;
 using namespace sce::gcn;
 
@@ -311,10 +313,10 @@ namespace sce::Gnm
 			VK_SHADER_STAGE_COMPUTE_BIT,
 			shader);
 
-#ifdef SHADER_DUMP_FILE
+//#ifdef SHADER_DUMP_FILE
 		std::ofstream fout(csModule.name(), std::ios::binary);
 		shader->dump(fout);
-#endif
+//#endif
 	}
 
 	ShaderStage GnmCommandBuffer::getShaderStage(
