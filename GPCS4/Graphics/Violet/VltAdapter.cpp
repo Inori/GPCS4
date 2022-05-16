@@ -629,6 +629,13 @@ namespace sce::vlt
 		// Query info now so that we have basic device properties available
 		vkGetPhysicalDeviceProperties2(m_handle, &m_deviceInfo.core);
 
+		m_deviceInfo.coreVk11.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_PROPERTIES;
+		m_deviceInfo.coreVk11.pNext = std::exchange(m_deviceInfo.core.pNext, &m_deviceInfo.coreVk11);
+		m_deviceInfo.coreVk12.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_PROPERTIES;
+		m_deviceInfo.coreVk12.pNext = std::exchange(m_deviceInfo.core.pNext, &m_deviceInfo.coreVk12);
+		m_deviceInfo.coreVk13.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_PROPERTIES;
+		m_deviceInfo.coreVk13.pNext = std::exchange(m_deviceInfo.core.pNext, &m_deviceInfo.coreVk13);
+
 		m_deviceInfo.coreDeviceId.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES;
 		m_deviceInfo.coreDeviceId.pNext = std::exchange(m_deviceInfo.core.pNext, &m_deviceInfo.coreDeviceId);
 

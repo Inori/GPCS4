@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GcnCommon.h"
+#include "GcnModInfo.h"
 #include "GcnProgramInfo.h"
 #include "GcnInstructionIterator.h"
 #include "GcnShaderMeta.h"
@@ -40,17 +41,10 @@ namespace sce::gcn
 	{
 		friend class GcnStateRegister;
 
-		struct GcnGprArray
-		{
-			uint32_t    arrayId       = 0;
-			uint32_t    arrayLengthId = 0;
-			uint32_t    arrayLength   = 0;
-			std::string name;
-		};
-
 	public:
 		GcnCompiler(
 			const std::string&     fileName,
+			const GcnModuleInfo&   moduleInfo,
 			const GcnProgramInfo&  programInfo,
 			const GcnHeader&       header,
 			const GcnShaderMeta&   meta,
@@ -232,7 +226,8 @@ namespace sce::gcn
 		// Shader interface and metadata declaration methods
 		void emitDclGprArray();
 		void emitDclGprArray(
-			GcnGprArray& arrayInfo);
+			GcnGprArray&       arrayInfo,
+			const std::string& name);
 		void emitDclInput(
 			uint32_t             regIdx,
 			GcnInterpolationMode im);
@@ -268,6 +263,10 @@ namespace sce::gcn
 
 		//////////////////////////////////////////
 		// System value load methods (per shader)
+		GcnRegisterValue emitCommonSystemValueLoad(
+			GcnSystemValue sv,
+			GcnRegMask     mask);
+
 		GcnRegisterValue emitVsSystemValueLoad(
 			GcnSystemValue sv,
 			GcnRegMask     mask);
@@ -342,6 +341,9 @@ namespace sce::gcn
 
 		//////////////////////////////
 		// Operand load/store methods
+		void emitLaneVgprStore(const GcnInstOperand&   reg,
+							   const GcnRegisterValue& value);
+
 		GcnRegisterValue emitValueLoad(
 			GcnRegisterPointer ptr);
 
@@ -499,7 +501,7 @@ namespace sce::gcn
 
 		GcnRegisterValue emitRegisterExtend(
 			GcnRegisterValue value,
-			uint32_t          size);
+			uint32_t         size);
 
 		GcnRegisterValue emitRegisterAbsolute(
 			GcnRegisterValue value);
@@ -513,7 +515,7 @@ namespace sce::gcn
 
 		GcnRegisterValue emitRegisterMaskBits(
 			GcnRegisterValue value,
-			uint32_t          mask);
+			uint32_t         mask);
 
 		GcnRegisterValue emitInputModifiers(
 			GcnRegisterValue  value,
@@ -527,6 +529,9 @@ namespace sce::gcn
 			GcnRegisterValuePair src);
 
 		GcnRegisterValuePair emitUnpackHalf2x16(
+			GcnRegisterValue src);
+
+		GcnRegisterValue emitWholeQuadMode(
 			GcnRegisterValue src);
 
 		///////////////////////////
@@ -624,9 +629,8 @@ namespace sce::gcn
 			Gnm::BufferFormat      dfmt,
 			Gnm::BufferChannelType nfmt);
 
-
-
 	private:
+		GcnModuleInfo          m_moduleInfo;
 		GcnProgramInfo         m_programInfo;
 		const GcnHeader*       m_header;
 		GcnShaderMeta          m_meta;
@@ -708,9 +712,10 @@ namespace sce::gcn
 
 		///////////////////////////////////
 		// Shader-specific data structures
-		GcnCompilerVsPart m_vs;
-		GcnCompilerPsPart m_ps;
-		GcnCompilerCsPart m_cs;
+		GcnCompilerCommonPart m_common;
+		GcnCompilerVsPart     m_vs;
+		GcnCompilerPsPart     m_ps;
+		GcnCompilerCsPart     m_cs;
 	};
 
 

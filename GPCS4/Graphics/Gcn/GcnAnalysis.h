@@ -5,6 +5,7 @@
 #include "GcnCompilerDefs.h"
 
 #include <array>
+#include <unordered_set>
 #include <unordered_map>
 
 namespace sce::gcn
@@ -24,9 +25,13 @@ namespace sce::gcn
 	struct GcnAnalysisInfo
 	{
 		GcnExportInfo exportInfo;
+
 		// CFG blocks
 		// Key is target address
-		std::unordered_map<uint32_t, GcnCfgBlock> controlFlowBlocks; 
+		std::unordered_map<uint32_t, GcnCfgBlock> controlFlowBlocks;
+
+		// VGPRs used by lane instructions.
+		std::unordered_set<uint32_t> laneVgprs;
 	};
 
 
@@ -87,6 +92,9 @@ namespace sce::gcn
 			const GcnShaderInstruction& ins);
 
 		void analyzeExp(
+			const GcnShaderInstruction& ins);
+
+		void analyzeLane(
 			const GcnShaderInstruction& ins);
 
 	private:

@@ -670,6 +670,9 @@ namespace sce::gcn
 		GcnOpcodeVOP2 vop2Op = static_cast<GcnOpcodeVOP2>(op);
 		if (vop2Op == GcnOpcodeVOP2::V_READLANE_B32 || vop2Op == GcnOpcodeVOP2::V_WRITELANE_B32)
 		{
+			// vsrc1 is scalar for lane instructions
+			m_instruction.src[1].field = getOperandField(vsrc1);
+
 			m_instruction.dst[1].field = getOperandField(vdst);
 			m_instruction.dst[1].type  = GcnScalarType::Uint32;
 			m_instruction.dst[1].code  = vdst;

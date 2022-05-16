@@ -34,6 +34,7 @@
     <ClInclude Include="Graphics\Gcn\GcnHeader.h" />
     <ClInclude Include="Graphics\Gcn\GcnInstruction.h" />
     <ClInclude Include="Graphics\Gcn\GcnInstructionIterator.h" />
+    <ClInclude Include="Graphics\Gcn\GcnModInfo.h" />
     <ClInclude Include="Graphics\Gcn\GcnShaderMeta.h" />
     <ClInclude Include="Graphics\Gcn\GcnModule.h" />
     <ClInclude Include="Graphics\Gcn\GcnProgramInfo.h" />

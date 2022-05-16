@@ -109,6 +109,7 @@ namespace sce::gcn
 			case GcnInstClass::VectorRegMov:
 				break;
 			case GcnInstClass::VectorLane:
+				this->analyzeLane(ins);
 				break;
 			case GcnInstClass::VectorBitLogic:
 				break;
@@ -250,6 +251,21 @@ namespace sce::gcn
 
 			uint32_t mrtIndex                     = exp.control.target;
 			m_analysis->exportInfo.mrts[mrtIndex] = GcnRegMask(exp.control.en);
+		}
+	}
+
+	void GcnAnalyzer::analyzeLane(const GcnShaderInstruction& ins)
+	{
+		auto op = ins.opcode;
+
+		// Collect lane src vgprs.
+		// We don't need to collect V_WRITELANE_B32,
+		// because we can write to the lane right at we translating
+		// that instruction.
+		if (op == GcnOpcode::V_READFIRSTLANE_B32 || op == GcnOpcode::V_READLANE_B32)
+		{
+			uint32_t vgpr = ins.src[0].code;
+			m_analysis->laneVgprs.insert(vgpr);
 		}
 	}
 

@@ -15,6 +15,9 @@ namespace sce::vlt
 	struct VltDeviceInfo
 	{
 		VkPhysicalDeviceProperties2                            core;
+		VkPhysicalDeviceVulkan11Properties                     coreVk11;
+		VkPhysicalDeviceVulkan12Properties                     coreVk12;
+		VkPhysicalDeviceVulkan13Properties                     coreVk13;
 		VkPhysicalDeviceIDProperties                           coreDeviceId;
 		VkPhysicalDeviceSubgroupProperties                     coreSubgroup;
 		VkPhysicalDeviceConservativeRasterizationPropertiesEXT extConservativeRasterization;

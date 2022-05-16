@@ -925,6 +925,9 @@
     <ClInclude Include="SceModules\SceNpCommon\sce_npcommon_types.h">
       <Filter>SceModules\SceNpCommon</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Gcn\GcnModInfo.h">
+      <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">

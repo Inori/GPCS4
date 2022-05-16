@@ -47,27 +47,23 @@ namespace sce::gcn
 		m_created = true;
 	}
 
-	void GcnStateRegister::init(uint64_t value)
+	void GcnStateRegister::init(uint32_t lowId, uint32_t highId)
 	{
 		if (!m_created)
 		{
 			create();
 		}
 
-		uint32_t lowValue  = static_cast<uint32_t>(value & 0xFFFFFFFF);
-		uint32_t highValue = static_cast<uint32_t>((value >> 32) & 0xFFFFFFFF);
-
 		auto& module = m_compiler->m_module;
 
 		module.opStore(
 			m_low.id,
-			module.constu32(lowValue));
+			lowId);
 		module.opStore(
 			m_high.id,
-			module.constu32(highValue));
-		module.opStore(
-			m_zflag,
-			module.constBool(static_cast<bool>(value & 1)));
+			highId);
+
+		updateZflag();
 	}
 
 	GcnRegisterValuePair GcnStateRegister::emitLoad(
@@ -91,13 +87,15 @@ namespace sce::gcn
 			else
 			{
 				// high 32 bits
+				// Note that we store result in low part
+				// to uniform some operations.
 				result.low = m_compiler->emitValueLoad(m_high);
 			}
 		}
 		else
 		{
 			// all 64 bits
-			result.low = m_compiler->emitValueLoad(m_low);
+			result.low  = m_compiler->emitValueLoad(m_low);
 			result.high = m_compiler->emitValueLoad(m_high);
 		}
 		return result;
@@ -151,12 +149,15 @@ namespace sce::gcn
 		const uint32_t uintTypeId = m_compiler->getVectorTypeId(m_low.type);
 		const uint32_t boolTypeId = module.defBoolType();
 
-		// We only need to test the lower part,
-		// in fact, only the LSB bit makes sense.
-		uint32_t valueId     = module.opLoad(uintTypeId, m_low.id);
-		uint32_t conditionId = module.opIEqual(boolTypeId,
-											   valueId,
-											   module.constu32(0));
+		uint32_t low         = module.opLoad(uintTypeId, m_low.id);
+		uint32_t high        = module.opLoad(uintTypeId, m_high.id);
+		uint32_t conditionId = module.opLogicalAnd(boolTypeId,
+												   module.opIEqual(boolTypeId,
+																   low,
+																   module.constu32(0)),
+												   module.opIEqual(boolTypeId,
+																   high,
+																   module.constu32(0)));
 		module.opStore(m_zflag, conditionId);
 	}
 

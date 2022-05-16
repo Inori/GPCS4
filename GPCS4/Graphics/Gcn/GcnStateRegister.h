@@ -20,9 +20,9 @@ namespace sce::gcn
 		~GcnStateRegister();
 
 		/**
-		 * \brief Set a value.
+		 * \brief Set initial value.
 		 */
-		void init(uint64_t value);
+		void init(uint32_t lowId, uint32_t highId);
 
 		/**
 		 * \brief Load value and return the result
@@ -32,6 +32,9 @@ namespace sce::gcn
 		 * e.g:
 		 * mask == 1 -> s0
 		 * mask == 3 -> s[0:1]
+		 * 
+		 * Note when mask == 2, 
+		 * the result will be put in low part.
 		 */
 		GcnRegisterValuePair emitLoad(
 			const GcnRegMask& mask);
@@ -44,6 +47,9 @@ namespace sce::gcn
 		 * e.g:
 		 * mask == 1 -> s0
 		 * mask == 3 -> s[0:1]
+		 * 
+		 * Note when mask == 2, the low part of the value
+		 * will be stored to high part of register.
 		 */
 		void emitStore(
 			const GcnRegisterValuePair& value,

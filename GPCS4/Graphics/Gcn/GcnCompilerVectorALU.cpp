@@ -478,33 +478,43 @@ namespace sce::gcn
 				break;
 		}
 
-        // Generate constant vectors for selection
-		uint32_t sFalse = m_module.constu32(0u);
-		uint32_t sTrue  = m_module.constu32(~0u);
-
-        // We only need to update the LSB of the low part of the result,
-        // since we always assume we have only one thread.
+		const uint32_t       typeId = getScalarTypeId(GcnScalarType::Uint32);
 		GcnRegisterValuePair result = {};
-		result.low.type.ctype       = GcnScalarType::Uint32;
-		result.low.type.ccount      = 1;
-		if (isDoubleType(ins.dst[1].type))
-        {
-            // Alway set high 32-bits of a compare result 
-            // to zero.
+
+		GcnRegisterValue ballot;
+		ballot.type.ctype  = GcnScalarType::Uint32;
+		ballot.type.ccount = 4;
+		ballot.id          = m_module.opGroupNonUniformBallot(getVectorTypeId(ballot.type),
+															  m_module.constu32(spv::ScopeSubgroup),
+															  condition);
+		if (m_moduleInfo.options.separateSubgroup)
+		{
+			auto low  = emitRegisterExtract(ballot, GcnRegMask::select(0));
+			auto exec = m_state.exec.emitLoad(GcnRegMask::firstN(1));
+
+			result.low.type = low.type;
+			result.low.id   = m_module.opBitwiseAnd(typeId, low.id, exec.low.id);
+			// Alway set high 32-bits of a compare result to zero,
+			// which means the high 32 lanes is inactive,
+			// we then process high 32 lanes in next neighbor subgroup.
 			result.high.type = result.low.type;
 			result.high.id   = m_module.constu32(0);
-        }
+		}
+		else
+		{
+			auto low  = emitRegisterExtract(ballot, GcnRegMask::select(0));
+			auto high = emitRegisterExtract(ballot, GcnRegMask::select(1));
+			auto exec = m_state.exec.emitLoad(GcnRegMask::firstN(2));
 
-		const uint32_t typeId = getVectorTypeId(result.low.type);
-
-		// Perform component-wise mask selection
-		// based on the condition evaluated above.
-		result.low.id = m_module.opSelect(
-			typeId, condition, sTrue, sFalse);
+			result.low.type  = low.type;
+			result.low.id    = m_module.opBitwiseAnd(typeId, low.id, exec.low.id);
+			result.high.type = high.type;
+			result.high.id   = m_module.opBitwiseAnd(typeId, high.id, exec.high.id);
+		}
 
         if (updateExec)
         {
-			m_state.exec.emitStore(result, GcnRegMask::select(0));
+			m_state.exec.emitStore(result, GcnRegMask::firstN(2));
         }
 
 		emitRegisterStore(ins.dst[1], result);
@@ -528,13 +538,15 @@ namespace sce::gcn
 		dst.low.type.ccount      = 1;
 		dst.high.type            = dst.low.type;
 
+		const uint32_t typeId = getVectorTypeId(dst.low.type);
+
 		auto op = ins.opcode;
 		switch (op)
 		{
 			case GcnOpcode::V_READFIRSTLANE_B32:
-				// EXEC is either 0 or 1, for both cases
-				// we take first thread.
-				dst.low.id = src[0].low.id;
+				dst.low.id = m_module.opGroupNonUniformBroadcastFirst(typeId,
+																	  m_module.constu32(spv::ScopeSubgroup),
+																	  src[0].low.id);
 				break;
 			default:
 				LOG_GCN_UNHANDLED_INST();

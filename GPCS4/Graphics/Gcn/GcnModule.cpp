@@ -47,6 +47,11 @@ namespace sce::gcn
 
 		//return nullptr;
 
+		// TODO:
+		// Generate module info from device.
+		GcnModuleInfo moduleInfo;
+		moduleInfo.options.separateSubgroup = true;
+
 		GcnAnalysisInfo analysisInfo;
 
 		GcnAnalyzer analyzer(
@@ -57,6 +62,7 @@ namespace sce::gcn
 
 		GcnCompiler compiler(
 			this->name(),
+			moduleInfo,
 			m_programInfo,
 			m_header,
 			meta,

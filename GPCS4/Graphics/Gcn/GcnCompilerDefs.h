@@ -111,6 +111,20 @@ namespace sce::gcn
 	};
 
 	/**
+	 * \brief Data shared by all shaders.
+	 */
+	struct GcnCompilerCommonPart
+	{
+		uint32_t subgroupSize         = 0;
+		uint32_t subgroupInvocationID = 0;
+		uint32_t subgroupEqMask       = 0;
+		uint32_t subgroupGeMask       = 0;
+		uint32_t subgroupGtMask       = 0;
+		uint32_t subgroupLeMask       = 0;
+		uint32_t subgroupLtMask       = 0;
+	};
+
+	/**
 	 * \brief Vertex shader-specific structure
 	 */
 	struct GcnCompilerVsPart
@@ -256,6 +270,17 @@ namespace sce::gcn
 		uint32_t      sizeInBytes;
 		uint32_t      channelCount;
 		GcnScalarType channelType;
+	};
+
+
+	/**
+	 * \brief SGPR/VGPR array information
+	 */
+	struct GcnGprArray
+	{
+		uint32_t    arrayId       = 0;
+		uint32_t    arrayLengthId = 0;
+		uint32_t    arrayLength   = 0;
 	};
 	
 

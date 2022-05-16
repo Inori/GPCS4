@@ -233,7 +233,7 @@ namespace sce::gcn
 		const uint32_t typeId = m_module.defBoolType();
 
 		GcnRegisterValuePair dst = {};
-		dst.low.type.ctype       = ins.dst[0].type == GcnScalarType::Uint64 ? GcnScalarType::Uint32 : ins.dst[0].type;
+		dst.low.type.ctype       = getDestinationType(ins.dst[0].type);
 		dst.low.type.ccount      = 1;
 		dst.high.type            = dst.low.type;
 
@@ -320,11 +320,13 @@ namespace sce::gcn
 	{
 		auto src = emitRegisterLoad(ins.src[0]);
 
+		// Save exec first
 		auto exec = m_state.exec.emitLoad(GcnRegMask::firstN(2));
 		emitRegisterStore(ins.dst[0], exec);
 
 		GcnRegisterValuePair result = {};
-		result.low.type = exec.low.type;
+		result.low.type             = exec.low.type;
+		result.high.type            = exec.high.type;
 
 		const uint32_t typeId = getVectorTypeId(result.low.type);
 
@@ -332,36 +334,129 @@ namespace sce::gcn
 		switch (op)
 		{
 			case GcnOpcode::S_AND_SAVEEXEC_B64:
-				result.low.id = m_module.opBitwiseAnd(typeId,
-													  src.low.id,
-													  exec.low.id);
+			{
+				result.low.id  = m_module.opBitwiseAnd(typeId,
+													   src.low.id,
+													   exec.low.id);
+				result.high.id = m_module.opBitwiseAnd(typeId,
+													   src.high.id,
+													   exec.high.id);
+			}
 				break;
 			default:
 				LOG_GCN_UNHANDLED_INST();
 				break;
 		}
 
-		// Only save the lower 32 bits.
-		// High 32 bits is always zero.
-		m_state.exec.emitStore(result, GcnRegMask::select(0));
+		m_state.exec.emitStore(result, GcnRegMask::firstN(2));
 	}
 
 	void GcnCompiler::emitScalarQuadMask(const GcnShaderInstruction& ins)
 	{
+		auto src = emitRegisterLoad(ins.src[0]);
+
+		GcnRegisterValuePair dst = {};
+		dst.low.type.ctype       = getDestinationType(ins.dst[0].type);
+		dst.low.type.ccount      = 1;
+		dst.high.type            = dst.low.type;
+
 		auto op = ins.opcode;
 		switch (op)
 		{
 			case GcnOpcode::S_WQM_B64:
-				// TODO:
-				// Implement this instruction.
-				// Currently we just ignore it.
-				LOG_ASSERT(ins.src[0].field == GcnOperandField::ExecLo &&
-						   ins.dst[0].field == GcnOperandField::ExecLo,
-						   "TODO: support non-exec operand quad mask.");
+				dst.high = emitWholeQuadMode(src.high);
+				[[fallthrough]];
+			case GcnOpcode::S_WQM_B32:
+				dst.low = emitWholeQuadMode(src.low);
 				break;
 			default:
 				LOG_GCN_UNHANDLED_INST();
 				break;
 		}
+
+		emitRegisterStore(ins.dst[0], dst);
+	}
+
+	GcnRegisterValue GcnCompiler::emitWholeQuadMode(GcnRegisterValue src)
+	{
+		// Whole Quad Mode, 32 Bit
+		// set mask for all 4 threads in each quad which has any threads active
+		// for (q=0; q<8; q++)
+		//     sdst[q*4+3:q*4].u = (ssrc[4*q+3:4*q].u != 0) ? 0xF : 0
+		//
+		// It seems we don't have an identical spirv instruction for gcn wqm.
+		//
+		// GLSL:
+		// uint mask = xxx;
+		// uint value = 0;
+		// for(uint i = 0; i != 8; ++i)
+		// {
+		//     value |= ( (((mask >> i * 4) & 0xF) != 0 ? 0xFu : 0u) << (i * 4) );
+		// }
+		// mask = value;
+
+		const uint32_t typeId = getScalarTypeId(GcnScalarType::Uint32);
+
+		uint32_t mask = src.id;
+		// Declare a temp value and initialize to zero.
+		GcnRegisterInfo info;
+		info.type.ctype   = GcnScalarType::Uint32;
+		info.type.ccount  = 1;
+		info.type.alength = 0;
+		info.sclass       = spv::StorageClassFunction;
+		// Declare a temp value and initialize to zero.
+		uint32_t value = emitNewVariable(info);
+		m_module.opStore(value, m_module.constu32(0));
+		// Declare i and initialize to zero.
+		uint32_t i = emitNewVariable(info);
+		m_module.opStore(i, m_module.constu32(0));
+
+		uint32_t labelBegin    = m_module.allocateId();
+		uint32_t labelContinue = m_module.allocateId();
+		uint32_t labelEnd      = m_module.allocateId();
+
+		m_module.opBranch(labelBegin);
+		m_module.opLabel(labelBegin);
+
+		m_module.opLoopMerge(labelEnd, labelContinue, spv::LoopControlMaskNone);
+		uint32_t labelLoop = m_module.allocateId();
+		m_module.opBranch(labelLoop);
+		m_module.opLabel(labelLoop);
+
+		uint32_t iValue    = m_module.opLoad(typeId, i);
+		uint32_t condition = m_module.opINotEqual(m_module.defBoolType(), iValue, m_module.constu32(8));
+
+		uint32_t labelDoWork = m_module.allocateId();
+		m_module.opBranchConditional(condition, labelDoWork, labelEnd);
+		m_module.opLabel(labelDoWork);
+
+		iValue              = m_module.opLoad(typeId, i);
+		uint32_t shift      = m_module.opIMul(typeId, iValue, m_module.constu32(4));
+		uint32_t threadMask = m_module.opShiftRightLogical(typeId, mask, shift);
+		threadMask          = m_module.opBitwiseAnd(typeId, threadMask, m_module.constu32(0xF));
+
+		condition     = m_module.opINotEqual(m_module.defBoolType(), threadMask, m_module.constu32(0));
+		uint32_t quad = m_module.opSelect(typeId, condition, m_module.constu32(0xF), m_module.constu32(0));
+
+		iValue             = m_module.opLoad(typeId, i);
+		shift              = m_module.opIMul(typeId, iValue, m_module.constu32(4));
+		uint32_t shiftQuad = m_module.opShiftLeftLogical(typeId, quad, shift);
+		uint32_t oldValue  = m_module.opLoad(typeId, value);
+		uint32_t newValue  = m_module.opBitwiseOr(typeId, oldValue, shiftQuad);
+		m_module.opStore(value, newValue);
+
+		m_module.opBranch(labelContinue);
+		m_module.opLabel(labelContinue);
+		iValue = m_module.opLoad(typeId, i);
+		iValue = m_module.opIAdd(typeId, iValue, m_module.constu32(1));
+		m_module.opStore(i, iValue);
+		m_module.opBranch(labelBegin);
+
+		m_module.opLabel(labelEnd);
+
+		GcnRegisterValue result;
+		result.type = src.type;
+		result.id   = m_module.opLoad(typeId, value);
+		return result;
 	}
 }  // namespace sce::gcn

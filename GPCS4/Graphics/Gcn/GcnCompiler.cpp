@@ -22,15 +22,17 @@ namespace sce::gcn
 
 	GcnCompiler::GcnCompiler(
 		const std::string&     fileName,
+		const GcnModuleInfo&   moduleInfo,
 		const GcnProgramInfo&  programInfo,
 		const GcnHeader&       header,
 		const GcnShaderMeta&   meta,
 		const GcnAnalysisInfo& analysis) :
+		m_moduleInfo(moduleInfo),
 		m_programInfo(programInfo),
 		m_header(&header),
 		m_meta(meta),
 		m_analysis(&analysis),
-		m_module(spvVersion(1, 3)),
+		m_module(spvVersion(1, 5)),
 		m_state({
 			{ this, "exec" },  
 			{ this, "vcc" },
@@ -149,6 +151,8 @@ namespace sce::gcn
 		// Set up common capabilities for all shaders
 		m_module.enableCapability(spv::CapabilityShader);
 		m_module.enableCapability(spv::CapabilityImageQuery);
+		m_module.enableCapability(spv::CapabilityGroupNonUniform);
+		m_module.enableCapability(spv::CapabilityGroupNonUniformBallot);
 
 		// Declare sgpr/vgpr array.
 		this->emitDclGprArray();
@@ -723,15 +727,14 @@ namespace sce::gcn
 	void GcnCompiler::emitDclGprArray()
 	{
 		// Define sgpr array.
-		m_sArray.name = "s";
-		emitDclGprArray(m_sArray);
+		emitDclGprArray(m_sArray, "s");
 
 		// Define vgpr array.
-		m_vArray.name = "v";
-		emitDclGprArray(m_vArray);
+		emitDclGprArray(m_vArray, "v");
 	}
 
-	void GcnCompiler::emitDclGprArray(GcnGprArray& arrayInfo)
+	void GcnCompiler::emitDclGprArray(GcnGprArray&       arrayInfo,
+									  const std::string& name)
 	{
 		uint32_t typeId = getScalarTypeId(GcnScalarType::Float32);
 
@@ -749,7 +752,7 @@ namespace sce::gcn
 
 		arrayInfo.arrayId = m_module.newVar(
 			ptrTypeId, spv::StorageClassPrivate);
-		m_module.setDebugName(arrayInfo.arrayId, arrayInfo.name.c_str());
+		m_module.setDebugName(arrayInfo.arrayId, name.c_str());
 	}
 
 	void GcnCompiler::emitDclInput(uint32_t             regIdx,
@@ -943,10 +946,28 @@ namespace sce::gcn
 		m_module.setLateConst(m_vArray.arrayLengthId, &m_vArray.arrayLength);
 		m_module.setLateConst(m_sArray.arrayLengthId, &m_sArray.arrayLength);
 
+		GcnRegisterValue ballot;
+		ballot.type.ctype  = GcnScalarType::Uint32;
+		ballot.type.ccount = 4;
+		ballot.id          = m_module.opGroupNonUniformBallot(getVectorTypeId(ballot.type),
+															  m_module.constu32(spv::ScopeSubgroup),
+															  m_module.constBool(true));
 		// Set hardware state register values.
-		// assume we have only one thread, and the thread id is 0
-		m_state.exec.init(1);
-		m_state.vcc.init(0);
+		if (m_moduleInfo.options.separateSubgroup)
+		{
+			auto low = emitRegisterExtract(ballot, GcnRegMask::select(0));
+			// Set high 32 lanes to be inactive.
+			m_state.exec.init(low.id, m_module.constu32(0));
+		}
+		else
+		{
+			auto low  = emitRegisterExtract(ballot, GcnRegMask::select(0));
+			auto high = emitRegisterExtract(ballot, GcnRegMask::select(1));
+			m_state.exec.init(low.id, high.id);
+		}
+
+		// Init vcc to 0
+		m_state.vcc.init(m_module.constu32(0), m_module.constu32(0));
 
 		switch (m_programInfo.type())
 		{
@@ -1173,6 +1194,42 @@ namespace sce::gcn
 		
 		m_entryPointInterfaces.push_back(varId);
 		return varId;
+	}
+
+	GcnRegisterValue GcnCompiler::emitCommonSystemValueLoad(GcnSystemValue sv, GcnRegMask mask)
+	{
+		switch (sv)
+		{
+			case GcnSystemValue::SubgroupEqMask:
+			{
+				if (m_common.subgroupEqMask == 0)
+				{
+					m_common.subgroupEqMask = emitNewBuiltinVariable({ { GcnScalarType::Uint32, 4, 0 },
+																	   spv::StorageClassInput },
+																	 spv::BuiltInSubgroupEqMask,
+																	 "subgroup_eq_mask");
+				}
+
+				GcnRegisterPointer ptrMask;
+				ptrMask.type = { GcnScalarType::Uint32, 4 };
+				ptrMask.id   = m_common.subgroupEqMask;
+
+				GcnRegisterValue eqMask = emitValueLoad(ptrMask);
+
+				return emitRegisterExtract(eqMask, mask);
+			}
+				break;
+			case GcnSystemValue::SubgroupGeMask:		
+			case GcnSystemValue::SubgroupGtMask:	
+			case GcnSystemValue::SubgroupLeMask:
+			case GcnSystemValue::SubgroupLtMask:
+			case GcnSystemValue::SubgroupSize:
+			case GcnSystemValue::SubgroupInvocationID:
+			default:
+				Logger::exception(util::str::formatex(
+					"GcnCompiler: Unhandled Common SV input: ", (uint32_t)sv));
+				break;
+		}
 	}
 
 	GcnRegisterValue GcnCompiler::emitVsSystemValueLoad(
@@ -1568,8 +1625,64 @@ namespace sce::gcn
 		const GcnInstOperand&   reg,
 		const GcnRegisterValue& value)
 	{
-		auto ptr = emitGetGprPtr<IsVgpr>(reg);
-		return this->emitValueStore(ptr, value, GcnRegMask::select(0));
+		if (IsVgpr &&
+			m_analysis->laneVgprs.find(reg.code) != m_analysis->laneVgprs.end())
+		{
+			emitLaneVgprStore(reg, value);
+		}
+		else
+		{
+			auto ptr = emitGetGprPtr<IsVgpr>(reg);
+			this->emitValueStore(ptr, value, GcnRegMask::select(0));
+		}
+	}
+
+	void GcnCompiler::emitLaneVgprStore(
+		const GcnInstOperand&   reg,
+		const GcnRegisterValue& value)
+	{
+		const uint32_t typeId = getScalarTypeId(GcnScalarType::Uint32);
+		// For vgprs accessed by lane instructions,
+		// we need to make sure the value is set exactly
+		// for specific lanes.
+		uint32_t condition = 0;
+		if (m_moduleInfo.options.separateSubgroup)
+		{
+			// We only test low 32 lanes,
+			// leave high 32 lanes for next neighbor subgroup.
+			auto laneMask = emitCommonSystemValueLoad(GcnSystemValue::SubgroupEqMask, GcnRegMask::select(0));
+			auto exec     = m_state.exec.emitLoad(GcnRegMask::select(0));
+
+			GcnRegisterValue value;
+			value.type  = laneMask.type;
+			value.id    = m_module.opBitwiseAnd(typeId, laneMask.id, exec.low.id);
+			auto result = emitRegisterZeroTest(value, GcnZeroTest::TestNz);
+			condition   = result.id;
+		}
+		else
+		{
+			auto lowMask   = emitCommonSystemValueLoad(GcnSystemValue::SubgroupEqMask, GcnRegMask::select(0));
+			auto highMask  = emitCommonSystemValueLoad(GcnSystemValue::SubgroupEqMask, GcnRegMask::select(1));
+			auto exec      = m_state.exec.emitLoad(GcnRegMask::firstN(2));
+			auto lowValue  = m_module.opBitwiseAnd(typeId, lowMask.id, exec.low.id);
+			auto highValue = m_module.opBitwiseAnd(typeId, highMask.id, exec.high.id);
+			auto value     = m_module.opBitwiseOr(typeId, lowValue, highValue);
+			condition      = m_module.opINotEqual(m_module.defBoolType(), value, m_module.constu32(0));
+		}
+
+		// Only store vgpr if current invocation is active in exec mask.
+		// Keep value unchanged otherwise.
+		uint32_t labelBegin = m_module.allocateId();
+		uint32_t labelEnd   = m_module.allocateId();
+		m_module.opSelectionMerge(labelEnd, spv::SelectionControlMaskNone);
+		m_module.opBranchConditional(condition, labelBegin, labelEnd);
+		m_module.opLabel(labelBegin);
+
+		auto ptr = emitGetGprPtr<true>(reg);
+		this->emitValueStore(ptr, value, GcnRegMask::select(0));
+
+		m_module.opBranch(labelEnd);
+		m_module.opLabel(labelEnd);
 	}
 
 	template <bool IsVgpr>
