@@ -214,6 +214,7 @@ namespace sce::gcn
 
 		////////////////////////////
 		// Input/output preparation
+		void emitInitState();
 		void emitInputSetup();
 		void emitFetchInput();
 

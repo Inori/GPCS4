@@ -403,7 +403,7 @@ namespace sce::gcn
 		info.type.ctype   = GcnScalarType::Uint32;
 		info.type.ccount  = 1;
 		info.type.alength = 0;
-		info.sclass       = spv::StorageClassFunction;
+		info.sclass       = spv::StorageClassPrivate;
 		// Declare a temp value and initialize to zero.
 		uint32_t value = emitNewVariable(info);
 		m_module.opStore(value, m_module.constu32(0));

@@ -477,7 +477,7 @@ namespace sce::gcn
 				LOG_GCN_UNHANDLED_INST();
 				break;
 		}
-
+		
 		const uint32_t       typeId = getScalarTypeId(GcnScalarType::Uint32);
 		GcnRegisterValuePair result = {};
 
@@ -489,11 +489,19 @@ namespace sce::gcn
 															  condition);
 		if (m_moduleInfo.options.separateSubgroup)
 		{
-			auto low  = emitRegisterExtract(ballot, GcnRegMask::select(0));
-			auto exec = m_state.exec.emitLoad(GcnRegMask::firstN(1));
+			auto ballotLow = emitRegisterExtract(ballot, GcnRegMask::select(0));
+			auto exec      = m_state.exec.emitLoad(GcnRegMask::select(0));
 
-			result.low.type = low.type;
-			result.low.id   = m_module.opBitwiseAnd(typeId, low.id, exec.low.id);
+			result.low.type = ballotLow.type;
+			//result.low.id   = m_module.opBitwiseAnd(typeId, ballotLow.id, exec.low.id);
+			result.low.id = ballotLow.id;
+			emitDebugPrintf("ballot %x\n", ballotLow.id);
+
+			//uint32_t sFalse = m_module.constu32(0u);
+			//uint32_t sTrue  = m_module.constu32(~0u);
+			//result.low.id   = m_module.opSelect(
+			//	  typeId, condition, sTrue, sFalse);
+
 			// Alway set high 32-bits of a compare result to zero,
 			// which means the high 32 lanes is inactive,
 			// we then process high 32 lanes in next neighbor subgroup.
@@ -502,14 +510,14 @@ namespace sce::gcn
 		}
 		else
 		{
-			auto low  = emitRegisterExtract(ballot, GcnRegMask::select(0));
-			auto high = emitRegisterExtract(ballot, GcnRegMask::select(1));
-			auto exec = m_state.exec.emitLoad(GcnRegMask::firstN(2));
+			auto ballotLow  = emitRegisterExtract(ballot, GcnRegMask::select(0));
+			auto ballotHigh = emitRegisterExtract(ballot, GcnRegMask::select(1));
+			auto exec       = m_state.exec.emitLoad(GcnRegMask::firstN(2));
 
-			result.low.type  = low.type;
-			result.low.id    = m_module.opBitwiseAnd(typeId, low.id, exec.low.id);
-			result.high.type = high.type;
-			result.high.id   = m_module.opBitwiseAnd(typeId, high.id, exec.high.id);
+			result.low.type  = ballotLow.type;
+			result.low.id    = m_module.opBitwiseAnd(typeId, ballotLow.id, exec.low.id);
+			result.high.type = ballotHigh.type;
+			result.high.id   = m_module.opBitwiseAnd(typeId, ballotHigh.id, exec.high.id);
 		}
 
         if (updateExec)

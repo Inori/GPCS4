@@ -32,7 +32,7 @@ namespace sce::gcn
 		m_header(&header),
 		m_meta(meta),
 		m_analysis(&analysis),
-		m_module(spvVersion(1, 5)),
+		m_module(spvVersion(1, 3)),
 		m_state({
 			{ this, "exec" },  
 			{ this, "vcc" },
@@ -941,11 +941,9 @@ namespace sce::gcn
 		m_module.setDebugName(m_state.scc.id, "scc");
 	}
 
-	void GcnCompiler::emitInputSetup()
+	
+	void GcnCompiler::emitInitState()
 	{
-		m_module.setLateConst(m_vArray.arrayLengthId, &m_vArray.arrayLength);
-		m_module.setLateConst(m_sArray.arrayLengthId, &m_sArray.arrayLength);
-
 		GcnRegisterValue ballot;
 		ballot.type.ctype  = GcnScalarType::Uint32;
 		ballot.type.ccount = 4;
@@ -956,6 +954,7 @@ namespace sce::gcn
 		if (m_moduleInfo.options.separateSubgroup)
 		{
 			auto low = emitRegisterExtract(ballot, GcnRegMask::select(0));
+			emitDebugPrintf("execlo %x\n", low.id);
 			// Set high 32 lanes to be inactive.
 			m_state.exec.init(low.id, m_module.constu32(0));
 		}
@@ -968,6 +967,14 @@ namespace sce::gcn
 
 		// Init vcc to 0
 		m_state.vcc.init(m_module.constu32(0), m_module.constu32(0));
+	}
+
+	void GcnCompiler::emitInputSetup()
+	{
+		m_module.setLateConst(m_vArray.arrayLengthId, &m_vArray.arrayLength);
+		m_module.setLateConst(m_sArray.arrayLengthId, &m_sArray.arrayLength);
+
+		emitInitState();
 
 		switch (m_programInfo.type())
 		{
@@ -3269,7 +3276,5 @@ namespace sce::gcn
 	{
 		return getTexLayerDim(imageType) + imageType.array;
 	}
-
-
 
 }  // namespace sce::gcn
