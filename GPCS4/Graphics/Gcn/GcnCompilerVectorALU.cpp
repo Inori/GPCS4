@@ -477,47 +477,52 @@ namespace sce::gcn
 				LOG_GCN_UNHANDLED_INST();
 				break;
 		}
-		
-		const uint32_t       typeId = getScalarTypeId(GcnScalarType::Uint32);
-		GcnRegisterValuePair result = {};
 
-		GcnRegisterValue ballot;
-		ballot.type.ctype  = GcnScalarType::Uint32;
-		ballot.type.ccount = 4;
-		ballot.id          = m_module.opGroupNonUniformBallot(getVectorTypeId(ballot.type),
-															  m_module.constu32(spv::ScopeSubgroup),
-															  condition);
+		const uint32_t typeId = getScalarTypeId(GcnScalarType::Uint32);
+
+		GcnRegisterValuePair result = {};
+		result.low.type.ctype       = GcnScalarType::Uint32;
+		result.low.type.ccount      = 1;
+		result.high.type            = result.low.type;
+
+		// There is no way to set "EXEC" mask in vulkan
+		// because these is no interface/instructions for this purpose.
+		// Theoretically, we can emulate exec mask if we wrap every instruction with a if statement.
+		// But that is terrible of course.
+		// As such, our goal is to keep EXEC value correct 
+		// through the entire shader execution despite whether
+		// the underlying thread is active or not.
+		// By saying correct we mean, 
+		// we'll keep EXEC value equal to the value which it should be in the original GCN shader.
+		// And this way, we can save registers in the native lane slot,
+		// such that we can implement lane instructions easier.
+		// See emitLaneVgprStore.
 		if (m_moduleInfo.options.separateSubgroup)
 		{
-			auto ballotLow = emitRegisterExtract(ballot, GcnRegMask::select(0));
-			auto exec      = m_state.exec.emitLoad(GcnRegMask::select(0));
+			auto eqMask = emitCommonSystemValueLoad(GcnSystemValue::SubgroupEqMask, GcnRegMask::select(0));
 
-			result.low.type = ballotLow.type;
-			//result.low.id   = m_module.opBitwiseAnd(typeId, ballotLow.id, exec.low.id);
-			result.low.id = ballotLow.id;
-			emitDebugPrintf("ballot %x\n", ballotLow.id);
+			uint32_t sTrue  = m_module.constu32(~0u);
+			uint32_t sFalse = m_module.opNot(typeId, eqMask.id);
+			uint32_t sValue = m_module.opSelect(typeId,
+												condition,
+												sTrue,
+												sFalse);
+			auto exec = m_state.exec.emitLoad(GcnRegMask::select(0));
 
-			//uint32_t sFalse = m_module.constu32(0u);
-			//uint32_t sTrue  = m_module.constu32(~0u);
-			//result.low.id   = m_module.opSelect(
-			//	  typeId, condition, sTrue, sFalse);
-
-			// Alway set high 32-bits of a compare result to zero,
+			result.low.id = m_module.opBitwiseAnd(typeId, sValue, exec.low.id);
+			
+			// Always set high 32-bits of the compare result to zero,
 			// which means the high 32 lanes is inactive,
 			// we then process high 32 lanes in next neighbor subgroup.
-			result.high.type = result.low.type;
 			result.high.id   = m_module.constu32(0);
 		}
 		else
 		{
-			auto ballotLow  = emitRegisterExtract(ballot, GcnRegMask::select(0));
-			auto ballotHigh = emitRegisterExtract(ballot, GcnRegMask::select(1));
-			auto exec       = m_state.exec.emitLoad(GcnRegMask::firstN(2));
+			//auto exec = m_state.exec.emitLoad(GcnRegMask::firstN(2));
 
-			result.low.type  = ballotLow.type;
-			result.low.id    = m_module.opBitwiseAnd(typeId, ballotLow.id, exec.low.id);
-			result.high.type = ballotHigh.type;
-			result.high.id   = m_module.opBitwiseAnd(typeId, ballotHigh.id, exec.high.id);
+			//result.low.id  = m_module.opBitwiseAnd(typeId, sValue, exec.low.id);
+			//result.high.id = m_module.opBitwiseAnd(typeId, sValue, exec.high.id);
+			LOG_GCN_UNHANDLED_INST();
 		}
 
         if (updateExec)

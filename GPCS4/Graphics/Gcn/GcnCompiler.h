@@ -214,7 +214,7 @@ namespace sce::gcn
 
 		////////////////////////////
 		// Input/output preparation
-		void emitInitState();
+		void emitInitStateRegister();
 		void emitInputSetup();
 		void emitFetchInput();
 
@@ -555,6 +555,22 @@ namespace sce::gcn
 			//
 			// Format for specifier is "%"precision <d, i, o, u, x, X, a, A, e, E, f, F, g, G, or ul>
 			// Format for vector specifier is "%"precision"v" [2, 3, or 4] [specifiers list above]
+			// 
+			// To conditionally print something,
+			// copy and edit the following code:
+			// 
+			// if (m_header->key().name() == "SHDR_AF20AC1F702451D8" && m_programCounter == 0x70)
+			// {
+			// 	 uint32_t labelBegin = m_module.allocateId();
+			// 	 uint32_t labelEnd   = m_module.allocateId();
+			// 	 m_module.opSelectionMerge(labelEnd, spv::SelectionControlMaskNone);
+			// 	 m_module.opBranchConditional(condition, labelBegin, labelEnd);
+			// 	 m_module.opLabel(labelBegin);
+			// 	 emitDebugPrintf("condition %d\n", condition);
+			// 	 m_module.opBranch(labelEnd);
+			// 	 m_module.opLabel(labelEnd);
+			// }
+
 #ifdef GCN_SHADER_DEBUG_PRINTF
 			const int count = sizeof...(args);
 

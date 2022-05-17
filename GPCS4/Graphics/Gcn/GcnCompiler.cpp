@@ -942,7 +942,7 @@ namespace sce::gcn
 	}
 
 	
-	void GcnCompiler::emitInitState()
+	void GcnCompiler::emitInitStateRegister()
 	{
 		GcnRegisterValue ballot;
 		ballot.type.ctype  = GcnScalarType::Uint32;
@@ -954,8 +954,8 @@ namespace sce::gcn
 		if (m_moduleInfo.options.separateSubgroup)
 		{
 			auto low = emitRegisterExtract(ballot, GcnRegMask::select(0));
-			emitDebugPrintf("execlo %x\n", low.id);
-			// Set high 32 lanes to be inactive.
+			// Set high 32 bits to zero,
+			// cheat the shader that the high 32 lanes are inactive.
 			m_state.exec.init(low.id, m_module.constu32(0));
 		}
 		else
@@ -974,7 +974,7 @@ namespace sce::gcn
 		m_module.setLateConst(m_vArray.arrayLengthId, &m_vArray.arrayLength);
 		m_module.setLateConst(m_sArray.arrayLengthId, &m_sArray.arrayLength);
 
-		emitInitState();
+		emitInitStateRegister();
 
 		switch (m_programInfo.type())
 		{
