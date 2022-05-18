@@ -485,24 +485,16 @@ namespace sce::gcn
 		result.low.type.ccount      = 1;
 		result.high.type            = result.low.type;
 
-		// There is no way to set "EXEC" mask in vulkan
-		// because these is no interface/instructions for this purpose.
-		// Theoretically, we can emulate exec mask if we wrap every instruction with a if statement.
-		// But that is terrible of course.
-		// As such, our goal is to keep EXEC value correct 
-		// through the entire shader execution despite whether
-		// the underlying thread is active or not.
-		// By saying correct we mean, 
-		// we'll keep EXEC value equal to the value which it should be in the original GCN shader.
-		// And this way, we can save registers in the native lane slot,
-		// such that we can implement lane instructions easier.
-		// See emitLaneVgprStore.
+		// Because we only set one bit against invocation id upon shader launch,
+		// we'll only operate that bit for compare instructions.
+		// This we way can use native GPU lane slot to store vgpr values,
+		// making lane instruction compiling more easier.
 		if (m_moduleInfo.options.separateSubgroup)
 		{
 			auto eqMask = emitCommonSystemValueLoad(GcnSystemValue::SubgroupEqMask, GcnRegMask::select(0));
 
-			uint32_t sTrue  = m_module.constu32(~0u);
-			uint32_t sFalse = m_module.opNot(typeId, eqMask.id);
+			uint32_t sTrue  = eqMask.id;
+			uint32_t sFalse = m_module.constu32(0u);
 			uint32_t sValue = m_module.opSelect(typeId,
 												condition,
 												sTrue,
@@ -514,15 +506,25 @@ namespace sce::gcn
 			// Always set high 32-bits of the compare result to zero,
 			// which means the high 32 lanes is inactive,
 			// we then process high 32 lanes in next neighbor subgroup.
-			result.high.id   = m_module.constu32(0);
+			result.high.id = m_module.constu32(0);
 		}
 		else
 		{
-			//auto exec = m_state.exec.emitLoad(GcnRegMask::firstN(2));
+			auto eqMask = emitCommonSystemValueLoad(GcnSystemValue::SubgroupEqMask, GcnRegMask::firstN(2));
 
-			//result.low.id  = m_module.opBitwiseAnd(typeId, sValue, exec.low.id);
-			//result.high.id = m_module.opBitwiseAnd(typeId, sValue, exec.high.id);
-			LOG_GCN_UNHANDLED_INST();
+			auto     v2True  = eqMask;
+			auto     v2False = emitBuildConstVecu32(0, 0, 0, 0, GcnRegMask::firstN(2));
+			uint32_t v2Value = m_module.opSelect(typeId,
+												 condition,
+												 v2True.id,
+												 v2False.id);
+
+			auto exec = m_state.exec.emitLoad(GcnRegMask::firstN(2));
+
+			auto sValueLow  = emitRegisterExtract(v2True, GcnRegMask::select(0));
+			auto sValueHigh = emitRegisterExtract(v2False, GcnRegMask::select(1));
+			result.low.id   = m_module.opBitwiseAnd(typeId, sValueLow.id, exec.low.id);
+			result.high.id  = m_module.opBitwiseAnd(typeId, sValueHigh.id, exec.high.id);
 		}
 
         if (updateExec)
