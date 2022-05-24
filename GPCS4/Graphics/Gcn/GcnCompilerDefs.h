@@ -3,6 +3,9 @@
 #include "GcnCommon.h"
 #include "GcnEnum.h"
 #include "GcnShaderMeta.h"
+#include "GcnInstruction.h"
+
+#include <vector>
 
 namespace sce::gcn
 {

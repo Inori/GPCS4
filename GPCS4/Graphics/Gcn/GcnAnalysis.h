@@ -34,37 +34,6 @@ namespace sce::gcn
 		std::unordered_set<uint32_t> laneVgprs;
 	};
 
-
-	/**
-	 * \brief GCN control flow graph pass
-	 *
-	 * Collect branch label information of a shader
-	 * for the latter passes.
-	 */
-	class GcnCfgPass : public GcnInstructionIterator
-	{
-	public:
-		GcnCfgPass(
-			GcnAnalysisInfo& analysis);
-		virtual ~GcnCfgPass();
-
-		/**
-		 * \brief Processes a single instruction
-		 * \param [in] ins The instruction
-		 */
-		virtual void processInstruction(
-			const GcnShaderInstruction& ins) override;
-
-	private:
-
-		void analyzeBranch(
-			const GcnShaderInstruction& ins);
-
-	private:
-		GcnAnalysisInfo* m_analysis = nullptr;
-	};
-
-
 	/**
 	 * \brief GCN shader analyzer
 	 * 
@@ -99,7 +68,6 @@ namespace sce::gcn
 
 	private:
 		GcnAnalysisInfo* m_analysis;
-		GcnCfgPass       m_cfgPass;
 	};
 
 

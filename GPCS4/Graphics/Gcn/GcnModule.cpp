@@ -2,12 +2,14 @@
 #include "GcnAnalysis.h"
 #include "GcnCompiler.h"
 #include "GcnDecoder.h"
+#include "GcnControlFlowGraph.h"
 
 #include "PlatFile.h"
 #include "UtilString.h"
 
-
 using namespace sce::vlt;
+
+LOG_CHANNEL(Graphic.Gcn.GcnModule);
 
 namespace sce::gcn
 {
@@ -29,14 +31,26 @@ namespace sce::gcn
 	{
 		const uint32_t* start = reinterpret_cast<const uint32_t*>(m_code);
 		const uint32_t* end   = reinterpret_cast<const uint32_t*>(m_code + m_header.length());
-		GcnCodeSlice    codeSlice(start, end);
+		GcnCodeSlice    slice(start, end);
 
-		//auto fileName = util::str::formatex(
-		//	"shaders/", 
-		//	m_programInfo.name(), 
-		//	"_",
-		//	m_header.key().name(),
-		//	".bin");
+		GcnInstructionList insList;
+		GcnDecodeContext   decoder;
+
+		// Decode and save instructions
+		insList.reserve(m_header.length() / sizeof(uint32_t));
+		while (!slice.atEnd())
+		{
+			decoder.decodeInstruction(slice);
+
+			insList.emplace_back(
+				decoder.getInstruction());
+		}
+
+		auto shaderName = util::str::formatex(m_programInfo.name(), "_", m_header.key().name());
+
+		LOG_TRACE("compiling shader %s", shaderName.c_str());
+		auto fileName = util::str::formatex("shaders/", shaderName, ".bin");
+		auto dotName = util::str::formatex(shaderName, ".dot");
 
 		////if (fileName.find("CS_SHDR_844598A0F388C19D") != std::string::npos)
 		////{
@@ -46,6 +60,12 @@ namespace sce::gcn
 		//plat::StoreFile(fileName, start, m_header.length());
 
 		//return nullptr;
+
+		GcnCfgPass cfgPass;
+		auto cfg = cfgPass.generateCfg(insList);
+		auto       dot = GcnCfgPass::dumpDot(cfg);
+		plat::StoreFile(dotName, dot.data(), dot.size());
+		
 
 		// TODO:
 		// Generate module info from device.
@@ -58,7 +78,7 @@ namespace sce::gcn
 			m_programInfo,
 			analysisInfo);
 
-		this->runInstructionIterator(&analyzer, codeSlice);
+		this->runInstructionIterator(&analyzer, insList);
 
 		GcnCompiler compiler(
 			this->name(),
@@ -68,24 +88,18 @@ namespace sce::gcn
 			meta,
 			analysisInfo);
 
-		this->runInstructionIterator(&compiler, codeSlice);
+		this->runInstructionIterator(&compiler, insList);
 
 		return compiler.finalize();
 	}
 
-
 	void GcnModule::runInstructionIterator(
-		GcnInstructionIterator* insIterator,
-		GcnCodeSlice            slice) const
+		GcnInstructionIterator*   insIterator,
+		const GcnInstructionList& insList) const
 	{
-		GcnDecodeContext decoder;
-
-		while (!slice.atEnd())
+		for (const auto& ins : insList)
 		{
-			decoder.decodeInstruction(slice);
-
-			insIterator->processInstruction(
-				decoder.getInstruction());
+			insIterator->processInstruction(ins);
 		}
 	}
 

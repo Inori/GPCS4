@@ -4,6 +4,7 @@
 #include "UtilFlag.h"
 
 #include <variant>
+#include <vector>
 
 namespace sce::gcn
 {
@@ -201,6 +202,8 @@ namespace sce::gcn
 		GcnInstOperand src[GcnMaxSrcCount];
 		GcnInstOperand dst[GcnMaxDstCount];
 	};
+
+	using GcnInstructionList = std::vector<GcnShaderInstruction>;
 
 	struct GcnShaderInstSOP1
 	{

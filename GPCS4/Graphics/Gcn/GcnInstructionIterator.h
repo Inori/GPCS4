@@ -12,12 +12,15 @@ namespace sce::gcn
 		GcnInstructionIterator();
 		virtual ~GcnInstructionIterator();
 
+		// TODO:
+		// Remove this virtual method
 		virtual void processInstruction(
-			const GcnShaderInstruction& ins) = 0;
+			const GcnShaderInstruction& ins);
 
 	protected:
 
 		void advanceProgramCounter(const GcnShaderInstruction& ins);
+		void resetProgramCounter();
 
 		uint32_t getBranchTarget(const GcnShaderInstruction& ins);
 

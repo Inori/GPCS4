@@ -931,6 +931,9 @@
     <ClInclude Include="Graphics\Gcn\GcnControlFlowGraph.h">
       <Filter>Source Files\Graphics\Gcn</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Gcn\GcnInstructionUtil.h">
+      <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1639,6 +1642,9 @@
       <Filter>Source Files\Graphics\Sce</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Gcn\GcnControlFlowGraph.cpp">
+      <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Gcn\GcnInstructionUtil.cpp">
       <Filter>Source Files\Graphics\Gcn</Filter>
     </ClCompile>
   </ItemGroup>

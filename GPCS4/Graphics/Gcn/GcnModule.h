@@ -7,8 +7,6 @@
 #include "GcnFetchShader.h"
 #include "Violet/VltRc.h"
 
-#include <vector>
-
 namespace sce::vlt
 {
 	class VltShader;
@@ -69,8 +67,8 @@ namespace sce::gcn
 	private:
 
 		void runInstructionIterator(
-			GcnInstructionIterator* insIterator,
-			GcnCodeSlice            slice) const;
+			GcnInstructionIterator*   insIterator,
+			const GcnInstructionList& insList) const;
 
 	private:
 		GcnProgramInfo           m_programInfo;

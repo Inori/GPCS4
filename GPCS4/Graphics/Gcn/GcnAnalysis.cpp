@@ -6,62 +6,10 @@ LOG_CHANNEL(Graphic.Gcn.GcnAnalysis);
 
 namespace sce::gcn
 {
-	GcnCfgPass::GcnCfgPass(
-		GcnAnalysisInfo& analysis) :
-		m_analysis(&analysis)
-	{
-	}
-
-	GcnCfgPass::~GcnCfgPass()
-	{
-	}
-
-	void GcnCfgPass::processInstruction(const GcnShaderInstruction& ins)
-	{
-		auto opClass = ins.opClass;
-		if (opClass == GcnInstClass::ScalarProgFlow)
-		{
-			this->analyzeBranch(ins);
-		}
-
-		advanceProgramCounter(ins);
-	}
-
-	void GcnCfgPass::analyzeBranch(const GcnShaderInstruction& ins)
-	{
-		auto op = ins.opcode;
-		switch (op)
-		{
-			case GcnOpcode::S_BRANCH:
-			case GcnOpcode::S_CBRANCH_SCC0:
-			case GcnOpcode::S_CBRANCH_SCC1:
-			case GcnOpcode::S_CBRANCH_VCCZ:
-			case GcnOpcode::S_CBRANCH_VCCNZ:
-			case GcnOpcode::S_CBRANCH_EXECZ:
-			case GcnOpcode::S_CBRANCH_EXECNZ:
-			case GcnOpcode::S_CBRANCH_CDBGSYS:
-			case GcnOpcode::S_CBRANCH_CDBGUSER:
-			case GcnOpcode::S_CBRANCH_CDBGSYS_OR_USER:
-			case GcnOpcode::S_CBRANCH_CDBGSYS_AND_USER:
-			{
-				uint32_t target = getBranchTarget(ins);
-				GcnCfgBlock block  = {};
-				m_analysis->controlFlowBlocks.insert(
-					std::make_pair(target, block));
-			}
-				break;
-			default:
-				break;
-		}
-	}
-
-	//////////////////////////////////////////////////////////////////////
-
 	GcnAnalyzer::GcnAnalyzer(
 		const GcnProgramInfo& programInfo,
 		GcnAnalysisInfo&      analysis) :
-		m_analysis(&analysis),
-		m_cfgPass(analysis)
+		m_analysis(&analysis)
 	{
 	}
 
@@ -75,8 +23,6 @@ namespace sce::gcn
 		analyzeInstruction(ins);
 
 		advanceProgramCounter(ins);
-
-		m_cfgPass.processInstruction(ins);
 	}
 
 	void GcnAnalyzer::analyzeInstruction(const GcnShaderInstruction& ins)

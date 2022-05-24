@@ -1,6 +1,9 @@
 #include "GcnInstructionIterator.h"
 #include "GcnInstruction.h"
 #include "GcnDecoder.h"
+#include "GcnInstructionUtil.h"
+
+LOG_CHANNEL(Graphic.Gcn.GcnInstructionIterator);
 
 namespace sce::gcn
 {
@@ -17,12 +20,18 @@ namespace sce::gcn
 		m_programCounter += ins.length;
 	}
 
+	void GcnInstructionIterator::resetProgramCounter()
+	{
+		m_programCounter = 0;
+	}
+
 	uint32_t GcnInstructionIterator::getBranchTarget(const GcnShaderInstruction& ins)
 	{
-		auto     sopp   = gcnInstructionAs<GcnShaderInstSOPP>(ins);
-		uint32_t target = static_cast<uint32_t>(static_cast<int32_t>(m_programCounter) +
-												static_cast<int32_t>(sopp.control.simm << 2) + 4);
-		return target;
+		return calculateBranchTarget(m_programCounter, ins);
+	}
+
+	void GcnInstructionIterator::processInstruction(const GcnShaderInstruction& ins)
+	{
 	}
 
 }  // namespace sce::gcn

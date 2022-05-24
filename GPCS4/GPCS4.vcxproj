@@ -35,6 +35,7 @@
     <ClInclude Include="Graphics\Gcn\GcnHeader.h" />
     <ClInclude Include="Graphics\Gcn\GcnInstruction.h" />
     <ClInclude Include="Graphics\Gcn\GcnInstructionIterator.h" />
+    <ClInclude Include="Graphics\Gcn\GcnInstructionUtil.h" />
     <ClInclude Include="Graphics\Gcn\GcnModInfo.h" />
     <ClInclude Include="Graphics\Gcn\GcnShaderMeta.h" />
     <ClInclude Include="Graphics\Gcn\GcnModule.h" />
@@ -310,6 +311,7 @@
     <ClCompile Include="Graphics\Gcn\GcnHeader.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnInstruction.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnInstructionIterator.cpp" />
+    <ClCompile Include="Graphics\Gcn\GcnInstructionUtil.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnModule.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnProgramInfo.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnStateRegister.cpp" />
@@ -614,6 +616,7 @@
       <AdditionalIncludeDirectories>$(VULKAN_SDK)\Include;$(SolutionDir)GPCS4;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GPCS4_DEBUG;__PTW32_STATIC_LIB;_CRT_SECURE_NO_WARNINGS;FMT_HEADER_ONLY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ControlFlowGuard>false</ControlFlowGuard>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
@@ -635,6 +638,8 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(VULKAN_SDK)\Include;$(SolutionDir)GPCS4;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__PTW32_STATIC_LIB;_CRT_SECURE_NO_WARNINGS;FMT_HEADER_ONLY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ControlFlowGuard>false</ControlFlowGuard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
