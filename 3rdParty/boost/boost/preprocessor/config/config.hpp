@@ -34,6 +34,8 @@
 #           else
 #               define BOOST_PP_CONFIG_FLAGS() (BOOST_PP_CONFIG_STRICT())
 #           endif
+#        elif defined(__INTELLISENSE__)
+#            define BOOST_PP_CONFIG_FLAGS() (BOOST_PP_CONFIG_MSVC())
 #        else
 #            define BOOST_PP_CONFIG_FLAGS() (BOOST_PP_CONFIG_EDG() | BOOST_PP_CONFIG_STRICT())
 #        endif
@@ -84,6 +86,8 @@
 # endif
 # define BOOST_PP_VARIADICS 1
 # if defined _MSC_VER && _MSC_VER >= 1400 && !defined(__clang__) && (defined(__INTELLISENSE__) || (defined(__INTEL_COMPILER) && __INTEL_COMPILER >= 1700) || !(defined __EDG__ || defined __GCCXML__ || defined __PATHSCALE__ || defined __DMC__ || defined __CODEGEARC__ || defined __BORLANDC__ || defined __MWERKS__ || defined __SUNPRO_CC || defined __HP_aCC || defined __MRC__ || defined __SC__ || defined __IBMCPP__ || defined __PGI)) && (!defined(_MSVC_TRADITIONAL) || _MSVC_TRADITIONAL)
+#     define BOOST_PP_VARIADICS_MSVC 1
+# elif defined(__INTELLISENSE__)
 #     define BOOST_PP_VARIADICS_MSVC 1
 # else
 #     define BOOST_PP_VARIADICS_MSVC 0
