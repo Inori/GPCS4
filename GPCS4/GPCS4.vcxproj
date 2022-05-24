@@ -28,6 +28,7 @@
     <ClInclude Include="Graphics\Gcn\GcnCompiler.h" />
     <ClInclude Include="Graphics\Gcn\GcnCompilerDefs.h" />
     <ClInclude Include="Graphics\Gcn\GcnConstants.h" />
+    <ClInclude Include="Graphics\Gcn\GcnControlFlowGraph.h" />
     <ClInclude Include="Graphics\Gcn\GcnDecoder.h" />
     <ClInclude Include="Graphics\Gcn\GcnEnum.h" />
     <ClInclude Include="Graphics\Gcn\GcnFetchShader.h" />
@@ -303,6 +304,7 @@
     <ClCompile Include="Graphics\Gcn\GcnCompilerVectorALU.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnCompilerVectorInterpolation.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnCompilerVectorMemory.cpp" />
+    <ClCompile Include="Graphics\Gcn\GcnControlFlowGraph.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnDecoder.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnFetchShader.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnHeader.cpp" />
@@ -583,13 +585,13 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir);$(ProjectDir)Emulator;$(ProjectDir)Algorithm;$(ProjectDir)Common;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)SceModules;$(SolutionDir)3rdParty;$(SolutionDir)3rdParty\zydis\include;$(SolutionDir)3rdParty\zydis\dependencies\zycore\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(ProjectDir)Emulator;$(ProjectDir)Algorithm;$(ProjectDir)Common;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)SceModules;$(SolutionDir)3rdParty;$(SolutionDir)3rdParty\zydis\include;$(SolutionDir)3rdParty\zydis\dependencies\zycore\include;$(SolutionDir)3rdParty\boost;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
     <EnableClangTidyCodeAnalysis>
     </EnableClangTidyCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir);$(ProjectDir)Emulator;$(ProjectDir)Algorithm;$(ProjectDir)Common;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)SceModules;$(SolutionDir)3rdParty;$(SolutionDir)3rdParty\zydis\include;$(SolutionDir)3rdParty\zydis\dependencies\zycore\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(ProjectDir)Emulator;$(ProjectDir)Algorithm;$(ProjectDir)Common;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Graphics;$(ProjectDir)SceModules;$(SolutionDir)3rdParty;$(SolutionDir)3rdParty\zydis\include;$(SolutionDir)3rdParty\zydis\dependencies\zycore\include;$(SolutionDir)3rdParty\boost;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
     <EnableClangTidyCodeAnalysis>
     </EnableClangTidyCodeAnalysis>
