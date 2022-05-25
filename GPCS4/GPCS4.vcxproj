@@ -44,7 +44,9 @@
     <ClInclude Include="Graphics\Gcn\GcnShaderKey.h" />
     <ClInclude Include="Graphics\Gcn\GcnShaderRegField.h" />
     <ClInclude Include="Graphics\Gcn\GcnShaderRegister.h" />
+    <ClInclude Include="Graphics\Gcn\GcnStackifier.h" />
     <ClInclude Include="Graphics\Gcn\GcnStateRegister.h" />
+    <ClInclude Include="Graphics\Gcn\GcnTokenList.h" />
     <ClInclude Include="Graphics\Gcn\GcnUtil.h" />
     <ClInclude Include="Graphics\Gnm\GnmGpuLabel.h" />
     <ClInclude Include="Graphics\Gnm\GnmInitializer.h" />
@@ -266,6 +268,8 @@
     <ClInclude Include="SceModules\sce_modules.h" />
     <ClInclude Include="SceModules\sce_module_common.h" />
     <ClInclude Include="SceModules\sce_types.h" />
+    <ClInclude Include="Util\Object\UtilObjectBank.h" />
+    <ClInclude Include="Util\Object\UtilStructBank.h" />
     <ClInclude Include="Util\UtilBit.h" />
     <ClInclude Include="Util\UtilContainer.h" />
     <ClInclude Include="Util\UtilFlag.h" />
@@ -314,7 +318,9 @@
     <ClCompile Include="Graphics\Gcn\GcnInstructionUtil.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnModule.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnProgramInfo.cpp" />
+    <ClCompile Include="Graphics\Gcn\GcnStackifier.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnStateRegister.cpp" />
+    <ClCompile Include="Graphics\Gcn\GcnTokenList.cpp" />
     <ClCompile Include="Graphics\Gnm\GnmGpuLabel.cpp" />
     <ClCompile Include="Graphics\Gnm\GnmInitializer.cpp" />
     <ClCompile Include="Graphics\Gnm\GnmResourceFactory.cpp" />
@@ -522,6 +528,7 @@
     <ClCompile Include="SceModules\SceVideoOut\sce_videoout_export.cpp" />
     <ClCompile Include="SceModules\SceVideoRecording\sce_videorecording.cpp" />
     <ClCompile Include="SceModules\SceVideoRecording\sce_videorecording_export.cpp" />
+    <ClCompile Include="Util\Object\UtilStructBank.cpp" />
     <ClCompile Include="Util\UtilString.cpp" />
   </ItemGroup>
   <ItemGroup>

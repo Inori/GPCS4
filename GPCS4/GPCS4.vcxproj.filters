@@ -185,6 +185,9 @@
     <Filter Include="Source Files\Graphics\Sce\Shaders">
       <UniqueIdentifier>{8368e8f7-f3ec-401d-afa9-842d03e5cf4b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Util\Object">
+      <UniqueIdentifier>{ee91fef9-c572-4982-be53-ac96b6d2283e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SceModules\SceLibc\sce_libc.h">
@@ -934,6 +937,18 @@
     <ClInclude Include="Graphics\Gcn\GcnInstructionUtil.h">
       <Filter>Source Files\Graphics\Gcn</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Gcn\GcnStackifier.h">
+      <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gcn\GcnTokenList.h">
+      <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Object\UtilObjectBank.h">
+      <Filter>Source Files\Util\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Object\UtilStructBank.h">
+      <Filter>Source Files\Util\Object</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1646,6 +1661,15 @@
     </ClCompile>
     <ClCompile Include="Graphics\Gcn\GcnInstructionUtil.cpp">
       <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Gcn\GcnStackifier.cpp">
+      <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Gcn\GcnTokenList.cpp">
+      <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\Object\UtilStructBank.cpp">
+      <Filter>Source Files\Util\Object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
