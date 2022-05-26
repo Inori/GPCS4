@@ -1,120 +1,102 @@
+#pragma once
 
 #include "UtilStructBank.h"
 
 namespace util
 {
-	// These work just like StructBanks but are for C++ objects that need their
-	// constructors and destructors called.
-
 	constexpr uint32_t DEFAULT_OBJECT_CACHE_SIZE = 32;
-
-	class DummyThingForConstructor
-	{
-	public:
-	};
 
 	class NullCS
 	{
 	public:
-		void Enter()
+		void enter()
 		{
 		}
-		void Leave()
+		void leave()
 		{
 		}
 	};
 
 	template <class T, class CS = NullCS>
-	class ObjectBank : public BaseObjectBank
+	class ObjectBank
 	{
 	public:
-		ObjectBank();
-		ObjectBank(uint32_t cacheSize, uint32_t preAllocate = 0);
-		virtual ~ObjectBank();
-
-		void init(uint32_t cacheSize, uint32_t preAllocate = 0);
-
-		void term();
-
-		// Set the cache size (in numbers of objects).
-		// Default is DEFAULT_OBJECT_CACHE_SIZE.
-		void setCacheSize(uint32_t size);
-
-		T*   allocate();
-		void free(T* pObj);
-
-	public:
-		StructBank m_bank;
-		CS         m_cs;
-	};
-
-	template <class T, class CS>
-	inline ObjectBank<T, CS>::ObjectBank()
-	{
-		sbInit(&m_bank, sizeof(T), DEFAULT_OBJECT_CACHE_SIZE);
-	}
-
-	template <class T, class CS>
-	inline ObjectBank<T, CS>::ObjectBank(uint32_t cacheSize, uint32_t preAllocate)
-	{
-		sbInitEx(&m_bank, sizeof(T), cacheSize, preAllocate);
-	}
-
-	template <class T, class CS>
-	inline ObjectBank<T, CS>::~ObjectBank()
-	{
-		sbTerm(&m_bank);
-	}
-
-	template <class T, class CS>
-	inline void ObjectBank<T, CS>::init(uint32_t cacheSize, uint32_t preAllocate)
-	{
-		m_cs.Enter();
-		sbTerm(&m_bank);
-		sbInitEx(&m_bank, sizeof(T), cacheSize, preAllocate);
-		m_cs.Leave();
-	}
-
-	template <class T, class CS>
-	inline void ObjectBank<T, CS>::term()
-	{
-		m_cs.Enter();
-		sbTerm(&m_bank);
-		sbInit(&m_bank, sizeof(T), DEFAULT_OBJECT_CACHE_SIZE);
-		m_cs.Leave();
-	}
-
-	template <class T, class CS>
-	inline void ObjectBank<T, CS>::setCacheSize(uint32_t size)
-	{
-		m_cs.Enter();
-		m_bank.m_cacheSize = size;
-		m_cs.Leave();
-	}
-
-	template <class T, class CS>
-	inline T* ObjectBank<T, CS>::allocate()
-	{
-		T* object;
-
-		m_cs.Enter();
-		object = (T*)sbAllocate(&m_Bank);
-		if (object)
+		ObjectBank()
 		{
-			::new ((DummyThingForConstructor*)0, object) T;
+			m_bank = sbCreate();
+			sbInit(m_bank, sizeof(T), DEFAULT_OBJECT_CACHE_SIZE);
 		}
-		m_cs.Leave();
 
-		return object;
-	}
+		ObjectBank(uint32_t cacheSize, uint32_t preAllocate = 0)
+		{
+			m_bank = sbCreate();
+			sbInitEx(m_bank, sizeof(T), cacheSize, preAllocate);
+		}
 
-	template <class T, class CS>
-	inline void ObjectBank<T, CS>::free(T* object)
-	{
-		m_cs.Enter();
-		object->~T();
-		sbFree(&m_bank, object);
-		m_cs.Leave();
-	}
+		~ObjectBank()
+		{
+			sbTerm(&m_bank);
+			sbDestroy(m_bank);
+		}
+
+		void init(uint32_t cacheSize, uint32_t preAllocate = 0)
+		{
+			m_cs.enter();
+			sbTerm(m_bank);
+			sbInitEx(m_bank, sizeof(T), cacheSize, preAllocate);
+			m_cs.leave();
+		}
+
+		void term()
+		{
+			m_cs.enter();
+			sbTerm(m_bank);
+			sbInit(m_bank, sizeof(T), DEFAULT_OBJECT_CACHE_SIZE);
+			m_cs.leave();
+		}
+
+		/**
+		 * \brief Set page granularity
+		 * 
+		 * Set number of objects for each real memory allocation (malloc)
+		 * Default is DEFAULT_OBJECT_CACHE_SIZE.
+		 */
+		void setPageGranularity(uint32_t size)
+		{
+			m_cs.enter();
+			m_bank->m_cacheSize = size;
+			m_cs.leave();
+		}
+
+		template <typename... Args>
+		//typename std::enable_if<std::is_constructible_v<T, Args...>, T*>::type
+		requires std::is_constructible_v<T, Args...>
+		T* allocate(Args&&... args)
+		{
+			T* object = nullptr;
+
+			m_cs.enter();
+			object = (T*)sbAllocate(m_bank);
+			if (object)
+			{
+				std::construct_at(object, std::forward<Args>(args)...);
+			}
+			m_cs.leave();
+
+			return object;
+		}
+
+		void free(T* pObj)
+		{
+			m_cs.enter();
+			std::destroy_at(pObj);
+			sbFree(m_bank, object);
+			m_cs.leave();
+		}
+
+	public:
+		StructBank* m_bank = nullptr;
+		CS          m_cs;
+	};
 
 }  // namespace util

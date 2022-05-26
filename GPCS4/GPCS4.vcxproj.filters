@@ -949,6 +949,9 @@
     <ClInclude Include="Util\Object\UtilStructBank.h">
       <Filter>Source Files\Util\Object</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Gcn\GcnLoopInfo.h">
+      <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1670,6 +1673,9 @@
     </ClCompile>
     <ClCompile Include="Util\Object\UtilStructBank.cpp">
       <Filter>Source Files\Util\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Gcn\GcnLoopInfo.cpp">
+      <Filter>Source Files\Graphics\Gcn</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

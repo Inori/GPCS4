@@ -19,9 +19,15 @@ namespace sce::gcn
 
 	typedef boost::adjacency_list<
 		boost::hash_setS, boost::vecS,
-		boost::bidirectionalS,
+		boost::directedS,
 		GcnBasicBlock>
 		GcnControlFlowGraph;
+
+	typedef GcnControlFlowGraph::vertex_descriptor 
+		GcnCfgVertex;
+
+	typedef GcnControlFlowGraph::edge_descriptor
+		GcnCfgEdge;
 
 	typedef boost::graph_traits<
 		GcnControlFlowGraph>::adjacency_iterator 

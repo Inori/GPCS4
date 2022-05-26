@@ -13,9 +13,9 @@
 // clang 12.0.0:
 // error : invalid token at start of a preprocessor expression
 
-//#if (not +0) && !defined(XBYAK_NO_OP_NAMES) // trick to detect whether 'not' is operator or not
-//	#define XBYAK_NO_OP_NAMES
-//#endif
+#if (not +0) && !defined(XBYAK_NO_OP_NAMES) // trick to detect whether 'not' is operator or not
+	#define XBYAK_NO_OP_NAMES
+#endif
 
 #include <stdio.h> // for debug print
 #include <assert.h>

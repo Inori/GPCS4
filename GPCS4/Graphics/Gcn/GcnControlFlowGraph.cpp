@@ -72,6 +72,7 @@ namespace sce::gcn
 			{
 				GcnBasicBlock block;
 				block.pcBegin = m_programCounter;
+				block.pcEnd   = m_programCounter + ins.length; // in case there is only one instruction in this block
 				block.insList.push_back(ins);
 				currentVtx = boost::add_vertex(block, m_cfg);
 			}
@@ -97,7 +98,7 @@ namespace sce::gcn
 				{
 					uint32_t branchInstPc = basicBlock.pcEnd - lastInst.length;
 					uint32_t targetPc     = calculateBranchTarget(branchInstPc, lastInst);
-					auto     successor    = findVertex(basicBlock.pcEnd);
+					auto     successor    = findVertex(targetPc);
 					LOG_ASSERT(successor.has_value(), "can't find successor for unconditional branch.");
 					boost::add_edge(vtx, successor.value(), m_cfg);
 				}

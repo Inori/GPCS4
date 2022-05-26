@@ -6,7 +6,58 @@ LOG_CHANNEL(Util.StructBank);
 
 namespace util
 {
+	struct StructLink
+	{
+		struct StructLink* m_slNext;
+	};
+
+	struct StructBankPage
+	{
+		struct StructBankPage* m_next;
+		unsigned long          m_objects;  // How many objects are in this page?
+		uint32_t               m_data[1];
+	};
+
+	struct StructBank
+	{
+		// Struct size.
+		unsigned long m_structSize;
+
+		// The actual size we allocate with (aligned to 4 bytes and with 4 bytes
+		// extra for the StructLink).
+		unsigned long m_alignedStructSize;
+
+		// How many structs per page.
+		unsigned long m_cacheSize;
+
+		// How many pages have we allocated?
+		unsigned long m_numPages;
+
+		// Total number of objects this StructBank has allocated.
+		unsigned long m_numTotalObjects;
+
+		// The first page.
+		StructBankPage* m_pageHead;
+
+		// The free list.
+		StructLink* m_freeListHead;
+	};
+
 	bool sbAllocateNewStructPage(StructBank* pBank, uint32_t nAllocations);
+
+	StructBank* sbCreate()
+	{
+		return (StructBank*)calloc(1, sizeof(StructBank));
+	}
+
+	void sbDestroy(StructBank* pBank)
+	{
+		if (pBank)
+		{
+			sbTerm(pBank);
+		}
+		free(pBank);
+	}
 
 	void sbInit(StructBank* pBank, uint32_t structSize, uint32_t cacheSize)
 	{
@@ -137,7 +188,9 @@ namespace util
 			}
 
 			// Allocate a new page.
-			pPage = (StructBankPage*)malloc((pBank->m_alignedStructSize * nAllocations) + (sizeof(StructBankPage) - sizeof(uint32_t)));
+			pPage = (StructBankPage*)malloc(
+				(pBank->m_alignedStructSize * nAllocations) + 
+				(sizeof(StructBankPage) - sizeof(uint32_t)));
 			if (!pPage)
 			{
 				break;

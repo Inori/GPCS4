@@ -53,7 +53,7 @@ namespace sce::gcn
 	{
 		auto     sopp   = gcnInstructionAs<GcnShaderInstSOPP>(ins);
 		uint32_t target = static_cast<uint32_t>(static_cast<int32_t>(pc) +
-												static_cast<int32_t>(sopp.control.simm << 2) + 4);
+												static_cast<int16_t>(sopp.control.simm << 2) + 4);
 		return target;
 	}
 
