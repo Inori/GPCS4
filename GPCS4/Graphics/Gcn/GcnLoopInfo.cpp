@@ -2,6 +2,14 @@
 
 #include <boost/graph/tiernan_all_cycles.hpp>
 
+// A workaround for boost bug.
+// See https://github.com/boostorg/graph/issues/182
+namespace boost
+{
+	template <typename G> 
+	inline void renumber_vertex_indices(G& g) { throw; }
+}  // namespace boost
+
 namespace sce::gcn
 {
 	GcnLoop::GcnLoop(const std::vector<GcnCfgVertex>& path):

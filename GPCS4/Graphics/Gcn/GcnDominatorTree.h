@@ -18,8 +18,12 @@ namespace sce::gcn
 			std::vector<GcnCfgVertex>::iterator, IndexMap>
 			DomTreePredMap;
 	public:
-		GcnDominatorTree(GcnControlFlowGraph& cfg);
+		GcnDominatorTree(
+			GcnControlFlowGraph& cfg);
 		~GcnDominatorTree();
+
+		bool dominates(
+			GcnCfgVertex u, GcnCfgVertex v) const;
 
 	private:
 		void buildDominatorMap();

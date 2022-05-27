@@ -2,7 +2,7 @@
 #include "GcnAnalysis.h"
 #include "GcnCompiler.h"
 #include "GcnDecoder.h"
-#include "GcnControlFlowGraph.h"
+#include "GcnStackifier.h"
 
 #include "PlatFile.h"
 #include "UtilString.h"
@@ -63,6 +63,7 @@ namespace sce::gcn
 
 		GcnCfgPass cfgPass;
 		auto cfg = cfgPass.generateCfg(insList);
+		GcnStackifier stackifier(cfg);
 		auto       dot = GcnCfgPass::dumpDot(cfg);
 		plat::StoreFile(dotName, dot.data(), dot.size());
 		

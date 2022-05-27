@@ -19,7 +19,7 @@ namespace sce::gcn
 
 	typedef boost::adjacency_list<
 		boost::hash_setS, boost::vecS,
-		boost::directedS,
+		boost::bidirectionalS,
 		GcnBasicBlock>
 		GcnControlFlowGraph;
 

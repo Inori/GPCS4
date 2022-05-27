@@ -35,7 +35,6 @@ namespace util
 
 		~ObjectBank()
 		{
-			sbTerm(&m_bank);
 			sbDestroy(m_bank);
 		}
 

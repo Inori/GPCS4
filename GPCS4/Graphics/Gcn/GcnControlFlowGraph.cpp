@@ -154,6 +154,9 @@ namespace sce::gcn
 		{
 			auto& basicBlock = cfg[vtx];
 			auto  nodeName   = str::format("label_%04X", basicBlock.pcBegin);
+			auto  attrList   = str::format("[label = \"%s-V%d\"]", nodeName.c_str(), static_cast<uint32_t>(vtx));
+			dot << nodeName << " " << attrList << ";\n";
+
 			dot << nodeName << "->" << "{";
 			for (const auto& succ : boost::make_iterator_range(adjacent_vertices(vtx, cfg)))
 			{
