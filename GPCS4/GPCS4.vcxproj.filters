@@ -952,6 +952,9 @@
     <ClInclude Include="Graphics\Gcn\GcnLoopInfo.h">
       <Filter>Source Files\Graphics\Gcn</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Gcn\GcnDominatorTree.h">
+      <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1675,6 +1678,9 @@
       <Filter>Source Files\Util\Object</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Gcn\GcnLoopInfo.cpp">
+      <Filter>Source Files\Graphics\Gcn</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Gcn\GcnDominatorTree.cpp">
       <Filter>Source Files\Graphics\Gcn</Filter>
     </ClCompile>
   </ItemGroup>
