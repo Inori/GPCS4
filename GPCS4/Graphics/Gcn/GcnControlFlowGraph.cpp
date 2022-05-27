@@ -26,6 +26,10 @@ namespace sce::gcn
 
 		generateEdges();
 
+		generateTerminators();
+
+		generatePredecessors();
+
 		return m_cfg;
 	}
 
@@ -130,6 +134,55 @@ namespace sce::gcn
 		}
 	}
 
+	void GcnCfgPass::generateTerminators()
+	{
+		for (const auto& vtx : boost::make_iterator_range(boost::vertices(m_cfg)))
+		{
+			auto& basicBlock = m_cfg[vtx];
+			auto& lastInst             = basicBlock.insList.back();
+			auto& terminator           = basicBlock.terminator;
+			terminator.kind            = getTerminatorKind(lastInst);
+
+			if (terminator.kind == GcnBlockTerminator::Sink)
+			{
+				continue;
+			}
+
+			for (const auto& succ : boost::make_iterator_range(adjacent_vertices(vtx, m_cfg)))
+			{
+				terminator.successors.push_back(succ);
+			}
+
+			// Make sure successors[0] is true label
+			// and successors[1] is false label
+			if (terminator.kind == GcnBlockTerminator::Conditional)
+			{
+				auto succ0 = terminator.successors[0];
+				uint32_t blockEnd = basicBlock.pcEnd;
+				uint32_t succ0Begin = m_cfg[succ0].pcBegin;
+				if (blockEnd == succ0Begin)
+				{
+					// If parent's end is equal to successor's begin,
+					// then this successor is a false label,
+					// in such case we swap the successors
+					std::swap(terminator.successors[0], terminator.successors[1]);
+				}
+			}
+		}
+	}
+
+	void GcnCfgPass::generatePredecessors()
+	{
+		for (const auto& vtx : boost::make_iterator_range(boost::vertices(m_cfg)))
+		{
+			for (const auto& edge : boost::make_iterator_range(boost::in_edges(vtx, m_cfg)))
+			{
+				auto pred = boost::source(edge, m_cfg);
+				m_cfg[vtx].predecessors.push_back(pred);
+			}
+		}
+	}
+
 	std::optional<sce::gcn::GcnControlFlowGraph::vertex_descriptor> 
 		GcnCfgPass::findVertex(uint32_t pc)
 	{
@@ -170,5 +223,34 @@ namespace sce::gcn
 		dot << "}\n";
 		return dot.str();
 	}
+
+	GcnBlockTerminator::Kind GcnCfgPass::getTerminatorKind(const GcnShaderInstruction& ins)
+	{
+		GcnBlockTerminator::Kind kind;
+		if (isTerminateInstruction(ins))
+		{
+			if (isConditionalBranch(ins))
+			{
+				kind = GcnBlockTerminator::Kind::Conditional;
+			}
+			else if (isUnconditionalBranch(ins))
+			{
+				kind = GcnBlockTerminator::Kind::Unconditional;
+			}
+			else
+			{
+				kind = GcnBlockTerminator::Kind::Sink;
+			}
+		}
+		else
+		{
+			// Block will fall through to the next block directly,
+			// as if a unconditional branch.
+			kind = GcnBlockTerminator::Kind::Unconditional;
+		}
+		return kind;
+	}
+
+
 
 }  // namespace sce::gcn

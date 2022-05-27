@@ -22,10 +22,12 @@ namespace sce::gcn
 	{
 		bool result = false;
 
-		auto entry = boost::vertex(0, m_cfg);
-		auto node  = v;
+		// Post traverse the dom tree from v to entry,
+		// if we can find a node equal to u, then u dominates v.
+		auto node = v;
 		while (node != GcnControlFlowGraph::null_vertex())
 		{
+			// Note that a vertex dominates itself by definition.
 			if (u == node)
 			{
 				result = true;

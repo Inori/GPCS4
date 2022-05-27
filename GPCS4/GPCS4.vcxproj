@@ -279,6 +279,7 @@
     <ClInclude Include="Util\UtilLikely.h" />
     <ClInclude Include="Util\UtilMath.h" />
     <ClInclude Include="Util\UtilSingleton.h" />
+    <ClInclude Include="Util\UtilVector.h" />
     <ClInclude Include="Util\UtilString.h" />
     <ClInclude Include="Util\UtilSync.h" />
   </ItemGroup>

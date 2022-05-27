@@ -30,6 +30,11 @@ namespace sce::gcn
 			return m_vertices.front();
 		}
 
+		uint32_t getNumVertices() const
+		{
+			return m_vertices.size();
+		}
+
 		bool operator==(const GcnLoop& other) const
 		{
 			return m_vertices == other.m_vertices;
@@ -74,7 +79,7 @@ namespace sce::gcn
 
 	private:
 		void detectLoops();
-		void detectLoopDomination();
+		void detectLoopNesting();
 		void detectVertexMaping();
 
 		GcnLoop* findLoop(GcnCfgVertex vtx);

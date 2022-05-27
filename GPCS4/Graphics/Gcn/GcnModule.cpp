@@ -64,6 +64,8 @@ namespace sce::gcn
 		GcnCfgPass cfgPass;
 		auto cfg = cfgPass.generateCfg(insList);
 		GcnStackifier stackifier(cfg);
+		auto tokenList = stackifier.generate();
+
 		auto       dot = GcnCfgPass::dumpDot(cfg);
 		plat::StoreFile(dotName, dot.data(), dot.size());
 		

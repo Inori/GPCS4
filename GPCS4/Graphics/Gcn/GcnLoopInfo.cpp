@@ -38,7 +38,7 @@ namespace sce::gcn
 		m_cfg(cfg)
 	{
 		detectLoops();
-		detectLoopDomination();
+		detectLoopNesting();
 		detectVertexMaping();
 	}
 
@@ -70,7 +70,7 @@ namespace sce::gcn
 		boost::tiernan_all_cycles(m_cfg, visitor);
 	}
 
-	void GcnLoopInfo::detectLoopDomination()
+	void GcnLoopInfo::detectLoopNesting()
 	{
 		for (auto& loop : m_loops)
 		{
@@ -81,7 +81,7 @@ namespace sce::gcn
 				{
 					continue;
 				}
-				// If a loop's header is a vertex of an another loop,
+				// If a loop's header is a vertex of another loop,
 				// then this loop is the child of that loop.
 				auto iter = std::find(
 					anotherloop.m_vertices.begin(), 
@@ -99,6 +99,7 @@ namespace sce::gcn
 
 	void GcnLoopInfo::detectVertexMaping()
 	{
+		// Generate the mapping of vertex to the inner most loop they occur in
 		for (const auto& vertex : boost::make_iterator_range(boost::vertices(m_cfg)))
 		{
 			auto loop = findLoop(vertex);

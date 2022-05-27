@@ -14,6 +14,16 @@ namespace sce::gcn
 	{
 	}
 
+	std::list<GcnToken*>::iterator GcnToken::getIterator(GcnTokenList& list)
+	{
+		return list.find(this);
+	}
+
+	std::list<GcnToken*>::reverse_iterator GcnToken::getRevIterator(GcnTokenList& list)
+	{
+		return std::make_reverse_iterator(--getIterator(list));
+	}
+
 	////////////////////////////////////////////////////////////
 	GcnTokenFactory::GcnTokenFactory(util::ObjectBank<GcnToken>& tokenPool):
 		m_pool(tokenPool)

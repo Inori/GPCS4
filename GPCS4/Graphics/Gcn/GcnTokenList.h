@@ -8,6 +8,8 @@
 
 namespace sce::gcn
 {
+	class GcnTokenList;
+
 	enum class GcnTokenKind : uint32_t
 	{
 		Invalid   = 0,
@@ -30,6 +32,30 @@ namespace sce::gcn
 				 GcnCfgVertex vertex,
 				 GcnToken*    match);
 		~GcnToken();
+
+		GcnTokenKind kind() const
+		{
+			return m_kind;
+		}
+
+		void setMatch(GcnToken* match)
+		{
+			m_match = match;
+		}
+
+		GcnToken* getMatch() const
+		{
+			return m_match;
+		}
+
+		const GcnCfgVertex getVertex() const
+		{
+			assert(m_vertex != GcnControlFlowGraph::null_vertex());
+			return m_vertex;
+		}
+
+		std::list<GcnToken*>::iterator getIterator(GcnTokenList& list);
+		std::list<GcnToken*>::reverse_iterator getRevIterator(GcnTokenList& list);
 
 	private:
 		GcnTokenKind m_kind;
@@ -172,6 +198,11 @@ namespace sce::gcn
 		inline const GcnToken       &back() const { return *m_list.back();  }
 		inline       GcnToken       &back()       { return *m_list.back();  }
 		// clang-format on
+
+		iterator find(GcnToken* token)
+		{
+			return std::find(m_list.begin(), m_list.end(), token);
+		}
 
 		void append(GcnToken* token)
 		{
