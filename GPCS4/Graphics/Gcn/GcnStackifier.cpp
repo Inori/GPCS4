@@ -154,7 +154,8 @@ namespace sce::gcn
 
 	void GcnTokenListBuilder::processVertex(GcnCfgVertex vtx)
 	{
-		LOG_DEBUG("process vertex %d", static_cast<size_t>(vtx));
+		// LOG_DEBUG("process vertex %d", static_cast<size_t>(vtx));
+		
 		// Check if we need to close some loop and/or if/else scopes
 		popScopes(vtx);
 
@@ -285,19 +286,16 @@ namespace sce::gcn
 			// Decrement the loop count
 			auto iter = m_loopCounts.find(loop);
 			LOG_ASSERT(iter != m_loopCounts.end(), "loop not recorded.");
-
-			LOG_DEBUG("loop vertex left %d", iter->second);
 			--iter->second;
 
 			// If the loop has parent, 
 			// then loop header is one of the vertices of parent loop,
-			// decrement parent by one
+			// decrement parent by one when count is 0.
 			auto parent = loop->getParentLoop();
 			if (iter->second == 0 && parent != nullptr)
 			{
 				iter = m_loopCounts.find(parent);
 				LOG_ASSERT(iter != m_loopCounts.end(), "parent loop not recorded.");
-				LOG_DEBUG("parent loop vertex left %d", iter->second);
 				--iter->second;
 			}
 	

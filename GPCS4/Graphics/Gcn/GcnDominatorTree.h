@@ -22,9 +22,18 @@ namespace sce::gcn
 			GcnControlFlowGraph& cfg);
 		~GcnDominatorTree();
 
+		/**
+		 * \brief Detect if u dominate v
+		 * 
+		 * Note that a vertex dominate itself
+		 * by definition.
+		 */
 		bool dominates(
 			GcnCfgVertex u, GcnCfgVertex v) const;
 
+		/**
+		 * \brief Get immediate dominator.
+		 */
 		GcnCfgVertex 
 			getImmDominator(GcnCfgVertex vtx);
 
