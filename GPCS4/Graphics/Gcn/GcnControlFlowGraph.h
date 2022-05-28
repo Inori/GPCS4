@@ -30,8 +30,7 @@ namespace sce::gcn
 		// Note that we can only do so when we choose 
 		// vecS as the vertex container.
 
-		// successors[0] is true label
-		// successors[0] is false label if exist
+		// Stores in DFS order.
 		util::static_vector<size_t, 2> successors;
 	};
 

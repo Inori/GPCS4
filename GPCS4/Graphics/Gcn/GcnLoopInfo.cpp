@@ -90,7 +90,7 @@ namespace sce::gcn
 				if (iter != anotherloop.m_vertices.end())
 				{
 					loop.m_parent       = &anotherloop;
-					anotherloop.m_child = &loop;
+					anotherloop.m_children.push_back(&loop);
 					break;
 				}
 			}
@@ -126,13 +126,31 @@ namespace sce::gcn
 	GcnLoop* GcnLoopInfo::findInnerLoop(GcnLoop* loop, GcnCfgVertex vtx)
 	{
 		GcnLoop* result = nullptr;
-		if (loop->m_child == nullptr || !loop->m_child->contains(vtx))
+		if (loop->m_children.empty())
 		{
 			result = loop;
 		}
 		else
 		{
-			result = findInnerLoop(loop->m_child, vtx);
+			bool found = false;
+			for (auto& child : loop->m_children)
+			{
+				if (!child->contains(vtx))
+				{
+					continue;
+				}
+				else
+				{
+					result = findInnerLoop(child, vtx);
+					found  = true;
+					break;
+				}
+			}
+
+			if (!found)
+			{
+				result = loop;
+			}
 		}
 		return result;
 	}

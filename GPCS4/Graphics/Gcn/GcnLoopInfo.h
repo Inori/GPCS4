@@ -35,6 +35,11 @@ namespace sce::gcn
 			return m_vertices.size();
 		}
 
+		GcnLoop* getParentLoop() const
+		{
+			return m_parent;
+		}
+
 		bool operator==(const GcnLoop& other) const
 		{
 			return m_vertices == other.m_vertices;
@@ -43,7 +48,7 @@ namespace sce::gcn
 	private:
 		std::vector<GcnCfgVertex> m_vertices;
 		GcnLoop*                  m_parent = nullptr;
-		GcnLoop*                  m_child  = nullptr;
+		std::vector<GcnLoop*>     m_children;
 	};
 
 	/**

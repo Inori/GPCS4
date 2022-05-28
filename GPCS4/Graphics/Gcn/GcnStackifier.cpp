@@ -146,12 +146,15 @@ namespace sce::gcn
 				processVertex(vtx);
 			}
 		}
+
 		popScopes(entry);
-		LOG_ASSERT(m_scopeStack.empty(), "scope not empty.");
+
+		LOG_ASSERT(m_scopeStack.empty(), "scope not all closed.");
 	}
 
 	void GcnTokenListBuilder::processVertex(GcnCfgVertex vtx)
 	{
+		LOG_DEBUG("process vertex %d", static_cast<size_t>(vtx));
 		// Check if we need to close some loop and/or if/else scopes
 		popScopes(vtx);
 
@@ -264,7 +267,7 @@ namespace sce::gcn
 
 			if (loop->getHeader() == vtx)
 			{
-				auto loopToken = m_factory.createLoop();
+				auto loopToken    = m_factory.createLoop();
 				auto loopEndToken = m_factory.createLoopEnd(loopToken);
 
 				auto loopPtr = m_tokens->insertAfter(m_insertPtr, loopToken);
@@ -281,8 +284,22 @@ namespace sce::gcn
 			// Decrement the loop count
 			auto iter = m_loopCounts.find(loop);
 			LOG_ASSERT(iter != m_loopCounts.end(), "loop not recorded.");
+
+			LOG_DEBUG("loop vertex left %d", iter->second);
 			--iter->second;
 
+			// If the loop has parent, 
+			// then loop header is one of the vertices of parent loop,
+			// decrement parent by one
+			auto parent = loop->getParentLoop();
+			if (iter->second == 0 && parent != nullptr)
+			{
+				iter = m_loopCounts.find(parent);
+				LOG_ASSERT(iter != m_loopCounts.end(), "parent loop not recorded.");
+				LOG_DEBUG("parent loop vertex left %d", iter->second);
+				--iter->second;
+			}
+	
 		} while (false);
 	}
 
@@ -425,7 +442,16 @@ namespace sce::gcn
 
 	bool GcnTokenListBuilder::isBackedge(GcnCfgVertex from, GcnCfgVertex to)
 	{
-		return m_loopInfo.isLoopHeader(to) && m_loopInfo.getLoop(to)->contains(from);
+		bool isToHeader  = m_loopInfo.isLoopHeader(to);
+		bool containFrom = false;
+
+		if (isToHeader)
+		{
+			auto loop   = m_loopInfo.getLoop(to);
+			containFrom = loop->contains(from);
+		}
+	
+		return isToHeader && containFrom;
 	}
 
 	uint32_t GcnTokenListBuilder::getNumForwardPreds(GcnCfgVertex vtx)
@@ -476,6 +502,9 @@ namespace sce::gcn
 
 		m_builder.build(tokenList);
 		LOG_ASSERT(m_verifier.verify(tokenList), "token list not valid");
+
+		auto scfg = tokenList.dump();
+		LOG_DEBUG("%s", scfg.c_str());
 
 		m_optimizer.optimize(tokenList);
 		LOG_ASSERT(m_verifier.verify(tokenList), "token list not valid");

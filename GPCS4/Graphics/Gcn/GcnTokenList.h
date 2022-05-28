@@ -57,6 +57,70 @@ namespace sce::gcn
 		std::list<GcnToken*>::iterator getIterator(GcnTokenList& list);
 		std::list<GcnToken*>::reverse_iterator getRevIterator(GcnTokenList& list);
 
+		std::string dump()
+		{
+			auto vertexName = [](GcnCfgVertex vtx) 
+			{
+				return vtx == GcnControlFlowGraph::null_vertex() 
+					? "null"
+					: std::to_string(vtx);
+			};
+			std::stringstream ss;
+			switch (m_kind)
+			{
+				case GcnTokenKind::Invalid:
+					ss << "!!!!!INVALID!!!!!" << "\n";
+					break;
+				case GcnTokenKind::Code:
+					ss << "CODE " << "V" << vertexName(m_vertex) << "\n";
+					break;
+				case GcnTokenKind::Loop:
+					ss << "LOOP " << "\n";
+					break;
+				case GcnTokenKind::Block:
+					ss << "BLOCK " << "\n";
+					break;
+				case GcnTokenKind::If:
+					ss << "IF " << "V" << vertexName(m_vertex) << "\n";
+					break;
+				case GcnTokenKind::IfNot:
+					ss << "IF_NOT" << "V" << vertexName(m_vertex) << "\n";
+					break;
+				case GcnTokenKind::Else:
+					ss << "ELSE" << "\n";
+					break;
+				case GcnTokenKind::Branch:
+					ss << "BRANCH " << "\n";
+					break;
+				case GcnTokenKind::End:
+				{
+					std::string tail;
+					switch (m_match->m_kind)
+					{
+						case GcnTokenKind::Block:
+							tail = "BLOCK";
+							break;
+						case GcnTokenKind::If:
+						case GcnTokenKind::IfNot:
+						case GcnTokenKind::Else:
+							tail = "IF";
+							break;
+						case GcnTokenKind::Loop:
+							tail = "LOOP";
+							break;
+						default:
+							tail = "";
+							break;
+					}
+					ss << "END" << tail << "\n";
+				}
+					break;
+				case GcnTokenKind::Condition:
+					ss << "CONDITION" << "\n";
+					break;
+			}
+			return ss.str();
+		}
 	private:
 		GcnTokenKind m_kind;
 		GcnCfgVertex m_vertex;
@@ -236,6 +300,36 @@ namespace sce::gcn
 		void erase(GcnToken* token)
 		{
 			std::erase(m_list, token);
+		}
+
+		std::string dump(GcnToken* target = nullptr)
+		{
+			std::stringstream ss;
+			int               indentLevel = target != nullptr;
+			for (auto& token : m_list)
+			{
+				if (token->kind() == GcnTokenKind::End || token->kind() == GcnTokenKind::Else)
+				{
+					indentLevel--;
+				}
+				
+				for (uint32_t i = 0; i != indentLevel; ++i)
+				{
+					ss << (i == 0 && target == token ? "->" : "\t");
+				}
+				
+				ss << token->dump();
+
+				if (token->kind() == GcnTokenKind::If || 
+					token->kind() == GcnTokenKind::IfNot ||
+					token->kind() == GcnTokenKind::Else || 
+					token->kind() == GcnTokenKind::Loop ||
+					token->kind() == GcnTokenKind::Block)
+				{
+					indentLevel++;
+				}
+			}
+			return ss.str();
 		}
 
 	private:

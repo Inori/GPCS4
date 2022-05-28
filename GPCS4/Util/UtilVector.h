@@ -11,7 +11,7 @@ namespace util
 		using iterator       = typename std::array<T, N>::iterator;
 		using const_iterator = typename std::array<T, N>::const_iterator;
 
-		static_vector(uint8_t n = 0) :
+		static_vector(size_t n = 0) :
 			m_size(n)
 		{
 			if (m_size > N)
@@ -43,10 +43,10 @@ namespace util
 			{
 				throw std::runtime_error("static_vector overflow");
 			}
-			return *new (ptr) T(std::forward<Args>(args)...);
+			return *std::construct_at(ptr, std::forward<Args>(args)...);
 		}
 
-		void push_back(T val)
+		void push_back(const T& val)
 		{
 			m_storage[m_size++] = val;
 			if (m_size > N)
@@ -61,7 +61,8 @@ namespace util
 			{
 				throw std::runtime_error("static_vector underflow");
 			}
-			back().~T();  // call destructor
+			T& object = back();
+			std::destroy_at(&object);
 			m_size--;
 		}
 
@@ -114,27 +115,27 @@ namespace util
 			return m_storage.end();
 		}
 
-		T& operator[](uint8_t index)
+		T& operator[](size_t index)
 		{
 			return m_storage[index];
 		}
-		const T& operator[](uint8_t index) const
+		const T& operator[](size_t index) const
 		{
 			return m_storage[index];
 		}
 
-		T& data()
+		T* data()
 		{
 			return m_storage.data();
 		}
-		const T& data() const
+		const T* data() const
 		{
 			return m_storage.data();
 		}
 
 	private:
 		std::array<T, N> m_storage;
-		uint8_t          m_size = 0;
+		size_t           m_size    = 0;
 	};
 
 

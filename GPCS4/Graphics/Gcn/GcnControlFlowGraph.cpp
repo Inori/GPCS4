@@ -152,22 +152,6 @@ namespace sce::gcn
 			{
 				terminator.successors.push_back(succ);
 			}
-
-			// Make sure successors[0] is true label
-			// and successors[1] is false label
-			if (terminator.kind == GcnBlockTerminator::Conditional)
-			{
-				auto succ0 = terminator.successors[0];
-				uint32_t blockEnd = basicBlock.pcEnd;
-				uint32_t succ0Begin = m_cfg[succ0].pcBegin;
-				if (blockEnd == succ0Begin)
-				{
-					// If parent's end is equal to successor's begin,
-					// then this successor is a false label,
-					// in such case we swap the successors
-					std::swap(terminator.successors[0], terminator.successors[1]);
-				}
-			}
 		}
 	}
 
@@ -207,7 +191,11 @@ namespace sce::gcn
 		{
 			auto& basicBlock = cfg[vtx];
 			auto  nodeName   = str::format("label_%04X", basicBlock.pcBegin);
-			auto  attrList   = str::format("[label = \"%s-V%d\"]", nodeName.c_str(), static_cast<uint32_t>(vtx));
+			auto  shape      = basicBlock.terminator.kind == GcnBlockTerminator::Sink ? "box" : "ellipse";
+			auto  attrList   = str::format("[label = \"%s-V%d\" shape=\"%s\"]",
+										   nodeName.c_str(),
+										   static_cast<uint32_t>(vtx),
+										   shape);
 			dot << nodeName << " " << attrList << ";\n";
 
 			dot << nodeName << "->" << "{";
