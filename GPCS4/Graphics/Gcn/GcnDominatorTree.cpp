@@ -50,4 +50,9 @@ namespace sce::gcn
 		boost::lengauer_tarjan_dominator_tree(m_cfg, boost::vertex(0, m_cfg), m_domMap);
 	}
 
+	GcnCfgVertex GcnDominatorTree::getImmDominator(GcnCfgVertex vtx)
+	{
+		return m_domMap[vtx];
+	}
+
 }  // namespace sce::gcn

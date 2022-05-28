@@ -25,6 +25,9 @@ namespace sce::gcn
 		bool dominates(
 			GcnCfgVertex u, GcnCfgVertex v) const;
 
+		GcnCfgVertex 
+			getImmDominator(GcnCfgVertex vtx);
+
 	private:
 		void buildDominatorMap();
 

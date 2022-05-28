@@ -90,7 +90,7 @@ namespace sce::gcn
 					ss << "ELSE" << "\n";
 					break;
 				case GcnTokenKind::Branch:
-					ss << "BRANCH " << "\n";
+					ss << "BRANCH " << m_match << "\n";
 					break;
 				case GcnTokenKind::End:
 				{

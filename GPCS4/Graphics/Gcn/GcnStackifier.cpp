@@ -215,7 +215,8 @@ namespace sce::gcn
 			}
 
 			// Otherwise, add it to to the delayed list
-			m_delayedQueues[succ].push_back(succ);
+			auto idom = m_domTree.getImmDominator(succ);
+			m_delayedQueues[idom].push_back(succ);
 		} while (false);
 	}
 
