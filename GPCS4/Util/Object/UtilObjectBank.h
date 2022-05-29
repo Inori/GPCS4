@@ -68,9 +68,9 @@ namespace util
 		}
 
 		template <typename... Args>
-		//typename std::enable_if<std::is_constructible_v<T, Args...>, T*>::type
-		requires std::is_constructible_v<T, Args...>
-		T* allocate(Args&&... args)
+		typename std::enable_if<std::is_constructible_v<T, Args...>, T*>::type
+		//requires std::is_constructible_v<T, Args...>
+		allocate(Args&&... args)
 		{
 			T* object = nullptr;
 
@@ -78,7 +78,8 @@ namespace util
 			object = (T*)sbAllocate(m_bank);
 			if (object)
 			{
-				std::construct_at(object, std::forward<Args>(args)...);
+				//std::construct_at(object, std::forward<Args>(args)...);
+				new (object) T(std::forward<Args>(args)...);
 			}
 			m_cs.leave();
 
@@ -88,7 +89,8 @@ namespace util
 		void free(T* pObj)
 		{
 			m_cs.enter();
-			std::destroy_at(pObj);
+			//std::destroy_at(pObj);
+			pObj->~T();
 			sbFree(m_bank, object);
 			m_cs.leave();
 		}

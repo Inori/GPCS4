@@ -19,9 +19,16 @@ namespace sce::gcn
 		return list.find(this);
 	}
 
-	std::list<GcnToken*>::reverse_iterator GcnToken::getRevIterator(GcnTokenList& list)
+	GcnToken* GcnToken::getPrevNode(GcnTokenList& list)
 	{
-		return std::make_reverse_iterator(--getIterator(list));
+		auto iter = getIterator(list);
+		return *(--iter);
+	}
+
+	GcnToken* GcnToken::getNextNode(GcnTokenList& list)
+	{
+		auto iter = getIterator(list);
+		return *(++iter);
 	}
 
 	////////////////////////////////////////////////////////////

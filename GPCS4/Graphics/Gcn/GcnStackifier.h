@@ -103,7 +103,26 @@ namespace sce::gcn
 		void optimize(GcnTokenList& tokens);
 
 	private:
+		template <uint32_t Kind, typename FnType>
+		void for_each_kind(FnType func);
+	
+		template <uint32_t Kind, typename FnType>
+		void for_each_kind(GcnTokenList::iterator begin,
+						   GcnTokenList::iterator end,
+						   FnType                 func);
+
+		void erase(GcnToken* token);
+
+		void removeEmptyIfs();
+		void mergeBlocks();
+
+	private:
 		GcnTokenFactory& m_factory;
+		GcnTokenList*    m_tokens = nullptr;
+		// Global state used to track 
+		// if the callback removed the current iteration element
+		std::vector<GcnTokenList::iterator> m_iterStack;
+		std::vector<uint32_t>               m_removeFlagStack;
 	};
 
 	/**
@@ -117,6 +136,8 @@ namespace sce::gcn
 	 * 
 	 * https://medium.com/leaningtech/solving-the-structured-control-flow-problem-once-and-for-all-5123117b1ee2
 	 * https://github.com/leaningtech/cheerp-compiler/blob/cheerp-2.7/llvm/lib/CheerpWriter/CFGStackifier.cpp
+	 *
+	 * Well, to be honest, I don't really understand this algorithm. Orz.
 	 */
 
 	class GcnStackifier

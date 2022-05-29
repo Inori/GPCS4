@@ -43,7 +43,8 @@ namespace util
 			{
 				throw std::runtime_error("static_vector overflow");
 			}
-			return *std::construct_at(ptr, std::forward<Args>(args)...);
+			//return *std::construct_at(ptr, std::forward<Args>(args)...);
+			return *new (ptr) T(std::forward<Args>(args)...);
 		}
 
 		void push_back(const T& val)
@@ -62,7 +63,8 @@ namespace util
 				throw std::runtime_error("static_vector underflow");
 			}
 			T& object = back();
-			std::destroy_at(&object);
+			//std::destroy_at(&object);
+			object.~T();
 			m_size--;
 		}
 

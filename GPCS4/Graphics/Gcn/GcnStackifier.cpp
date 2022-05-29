@@ -65,10 +65,8 @@ namespace sce::gcn
 					if (match != token->getMatch())
 					{
 						LOG_ERR("Top Token in the stack is not the match for current END Token:");
-						LOG_ERR("Current: ");
-						//T.dump();
-						LOG_ERR("Top: ");
-						//Match->dump();
+						LOG_ERR("Current: %s", token->dump().c_str());
+						LOG_ERR("Top: %s", match->dump().c_str());
 						return false;
 					}
 					scopeStack.pop_back();
@@ -480,6 +478,178 @@ namespace sce::gcn
 
 	void GcnTokenListOptimizer::optimize(GcnTokenList& tokens)
 	{
+		m_tokens = &tokens;
+
+		removeEmptyIfs();
+		mergeBlocks();
+	}
+
+	template <uint32_t Kind, typename FnType>
+	void GcnTokenListOptimizer::for_each_kind(FnType func)
+	{
+		for_each_kind<Kind>(m_tokens->begin(), m_tokens->end(), func);
+	}
+
+	template <uint32_t Kind, typename FnType>
+	void GcnTokenListOptimizer::for_each_kind(
+		GcnTokenList::iterator begin, GcnTokenList::iterator end, FnType func)
+	{
+		uint32_t depth = m_iterStack.size();
+
+		m_iterStack.push_back(begin);
+		m_removeFlagStack.push_back(false);
+
+		GcnTokenList::iterator& iter      = m_iterStack[depth];
+		uint32_t&               isRemoved = m_removeFlagStack[depth];
+		while (iter != end)
+		{
+			if ( ((uint32_t)(*iter)->kind() & Kind) == 0)
+			{
+				++iter;
+				continue;
+			}
+
+			func(*iter);
+
+			if (isRemoved)
+			{
+				isRemoved = false;
+			}
+			else
+			{
+				++iter;
+			}
+		}
+
+		m_iterStack.pop_back();
+		m_removeFlagStack.pop_back();
+	}
+
+	void GcnTokenListOptimizer::erase(GcnToken* token)
+	{
+		uint32_t depth = m_iterStack.size();
+		for (uint32_t i = 0; i != depth; ++i)
+		{
+			if (token->getIterator(*m_tokens) == m_iterStack[i])
+			{
+				m_removeFlagStack[i] = true;
+				++m_iterStack[i];
+			}
+		}
+		m_tokens->erase(token);
+	}
+
+	void GcnTokenListOptimizer::removeEmptyIfs()
+	{
+		for_each_kind<(uint32_t)GcnTokenKind::Else | (uint32_t)GcnTokenKind::End>([&](GcnToken* token)
+		{
+			GcnToken* prev = token->getPrevNode(*m_tokens);
+			do 
+			{
+				if (prev->getMatch() != token)
+				{
+					break;
+				}
+
+				if ((uint32_t)prev->kind() & ((uint32_t)GcnTokenKind::If | (uint32_t)GcnTokenKind::IfNot))
+				{
+					GcnToken* emptyIf = prev;
+					if (token->kind() == GcnTokenKind::Else)
+					{
+						/*
+						 * if (cond)
+						 * {}
+						 * else
+						 * {
+						 *   statement
+						 *   ...
+						 * }
+						 */
+						GcnToken* tokenElse = token;
+						GcnToken* tokenEnd  = tokenElse->getMatch();
+
+						GcnToken* tokenIfNot = m_factory.createIfNot(emptyIf->getVertex());
+						tokenIfNot->setMatch(tokenEnd);
+						tokenEnd->setMatch(tokenIfNot);
+
+						m_tokens->insertAfter(emptyIf->getIterator(*m_tokens), tokenIfNot);
+
+						erase(emptyIf);
+						erase(tokenElse);
+					}
+					else  // token kind is End
+					{
+						/*
+						 * if (cond)
+						 * {}
+						 */
+						erase(emptyIf);
+						erase(token);
+					}
+					break;
+				}
+
+				if (prev->kind() == GcnTokenKind::Else)
+				{
+					/*
+					 * if (cond)
+					 * {
+					 *   statement
+					 *   ...
+					 * }
+					 * else
+					 * {}
+					 */
+					LOG_ASSERT(token->kind() == GcnTokenKind::End, "token kind is not End");
+					GcnToken* emptyElse = prev;
+					GcnToken* tokenEnd  = token;
+					GcnToken* tokenIf   = tokenEnd->getMatch();
+					tokenIf->setMatch(tokenEnd);
+
+					erase(emptyElse);
+
+					break;
+				}
+
+			} while (false);
+		});
+
+	}
+
+	void GcnTokenListOptimizer::mergeBlocks()
+	{
+		for_each_kind<(uint32_t)GcnTokenKind::Branch>([&](GcnToken* branch)
+		{
+			do 
+			{
+				// Look for branches that target Block Tokens
+				GcnToken* oldEnd = branch->getMatch();
+				if (oldEnd->kind() != GcnTokenKind::End)
+				{
+					break;
+				}
+				// If we have an outer Block Token that ends here, we can branch to that,
+				// and remove the current one
+				GcnToken* newEnd    = oldEnd;
+				GcnToken* nextToken = newEnd->getNextNode(*m_tokens);
+				while (nextToken->kind() == GcnTokenKind::End &&
+					   nextToken->getMatch()->kind() == GcnTokenKind::Block)
+				{
+					newEnd = nextToken;
+				}
+
+				if (newEnd == oldEnd)
+				{
+					break;
+				}
+				
+				branch->setMatch(newEnd);
+
+				GcnToken* oldBegin = oldEnd->getMatch();
+				erase(oldBegin);
+				erase(oldEnd); 
+			} while (false);
+		});
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -501,9 +671,6 @@ namespace sce::gcn
 
 		m_builder.build(tokenList);
 		LOG_ASSERT(m_verifier.verify(tokenList), "token list not valid");
-
-		auto scfg = tokenList.dump();
-		LOG_DEBUG("%s", scfg.c_str());
 
 		m_optimizer.optimize(tokenList);
 		LOG_ASSERT(m_verifier.verify(tokenList), "token list not valid");

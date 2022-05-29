@@ -3,7 +3,7 @@
 #include "GcnCommon.h"
 #include "GcnControlFlowGraph.h"
 #include "UtilObjectBank.h"
-
+#include "UtilString.h"
 #include <list>
 
 namespace sce::gcn
@@ -55,9 +55,11 @@ namespace sce::gcn
 		}
 
 		std::list<GcnToken*>::iterator getIterator(GcnTokenList& list);
-		std::list<GcnToken*>::reverse_iterator getRevIterator(GcnTokenList& list);
 
-		std::string dump()
+		GcnToken* getPrevNode(GcnTokenList& list);
+		GcnToken* getNextNode(GcnTokenList& list);
+
+		std::string dump() const
 		{
 			auto vertexName = [](GcnCfgVertex vtx) 
 			{
@@ -66,6 +68,7 @@ namespace sce::gcn
 					: std::to_string(vtx);
 			};
 			std::stringstream ss;
+			ss << util::str::formatex(this) << " ";
 			switch (m_kind)
 			{
 				case GcnTokenKind::Invalid:
@@ -75,10 +78,10 @@ namespace sce::gcn
 					ss << "CODE " << "V" << vertexName(m_vertex) << "\n";
 					break;
 				case GcnTokenKind::Loop:
-					ss << "LOOP " << "\n";
+					ss << "LOOP " << util::str::formatex(m_match) << "\n";
 					break;
 				case GcnTokenKind::Block:
-					ss << "BLOCK " << "\n";
+					ss << "BLOCK " << util::str::formatex(m_match) << "\n";
 					break;
 				case GcnTokenKind::If:
 					ss << "IF " << "V" << vertexName(m_vertex) << "\n";
@@ -90,7 +93,7 @@ namespace sce::gcn
 					ss << "ELSE" << "\n";
 					break;
 				case GcnTokenKind::Branch:
-					ss << "BRANCH " << m_match << "\n";
+					ss << "BRANCH " << util::str::formatex(m_match) << "\n";
 					break;
 				case GcnTokenKind::End:
 				{
@@ -112,7 +115,7 @@ namespace sce::gcn
 							tail = "";
 							break;
 					}
-					ss << "END" << tail << "\n";
+					ss << "END" << tail << " " << util::str::formatex(m_match) << "\n";
 				}
 					break;
 				case GcnTokenKind::Condition:
@@ -299,7 +302,8 @@ namespace sce::gcn
 
 		void erase(GcnToken* token)
 		{
-			std::erase(m_list, token);
+			//std::erase(m_list, token);
+			m_list.remove_if([&](auto& elem) { return elem == token; });
 		}
 
 		std::string dump(GcnToken* target = nullptr)
@@ -315,7 +319,7 @@ namespace sce::gcn
 				
 				for (uint32_t i = 0; i != indentLevel; ++i)
 				{
-					ss << (i == 0 && target == token ? "->" : "\t");
+					ss << (i == 0 && target == token ? "->" : "  ");
 				}
 				
 				ss << token->dump();
