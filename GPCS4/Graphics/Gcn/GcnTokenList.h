@@ -3,7 +3,7 @@
 #include "GcnCommon.h"
 #include "GcnControlFlowGraph.h"
 #include "UtilObjectBank.h"
-#include "UtilString.h"
+#include "fmt/format.h"
 #include <list>
 
 namespace sce::gcn
@@ -68,7 +68,7 @@ namespace sce::gcn
 					: std::to_string(vtx);
 			};
 			std::stringstream ss;
-			ss << util::str::formatex(this) << " ";
+			ss << fmt::format("{}", (void*)this) << " ";
 			switch (m_kind)
 			{
 				case GcnTokenKind::Invalid:
@@ -78,10 +78,10 @@ namespace sce::gcn
 					ss << "CODE " << "V" << vertexName(m_vertex) << "\n";
 					break;
 				case GcnTokenKind::Loop:
-					ss << "LOOP " << util::str::formatex(m_match) << "\n";
+					ss << "LOOP " << fmt::format("{}", (void*)m_match) << "\n";
 					break;
 				case GcnTokenKind::Block:
-					ss << "BLOCK " << util::str::formatex(m_match) << "\n";
+					ss << "BLOCK " << fmt::format("{}", (void*)m_match) << "\n";
 					break;
 				case GcnTokenKind::If:
 					ss << "IF " << "V" << vertexName(m_vertex) << "\n";
@@ -93,7 +93,7 @@ namespace sce::gcn
 					ss << "ELSE" << "\n";
 					break;
 				case GcnTokenKind::Branch:
-					ss << "BRANCH " << util::str::formatex(m_match) << "\n";
+					ss << "BRANCH " << fmt::format("{}", (void*)m_match) << "\n";
 					break;
 				case GcnTokenKind::End:
 				{
@@ -115,7 +115,7 @@ namespace sce::gcn
 							tail = "";
 							break;
 					}
-					ss << "END" << tail << " " << util::str::formatex(m_match) << "\n";
+					ss << "END" << tail << " " << fmt::format("{}", (void*)m_match) << "\n";
 				}
 					break;
 				case GcnTokenKind::Condition:
