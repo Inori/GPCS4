@@ -316,7 +316,7 @@ namespace sce::gcn
 			branch->setMatch(blockEnd);
 
 			auto targetPtr = m_tokens->insertAfter(endPtr, blockEnd);
-			auto blockPtr  = findBlockBegin(targetPtr, branch->getIterator(*m_tokens));
+			auto blockPtr  = findBlockBegin(targetPtr, branch->getIterator());
 			m_tokens->insert(blockPtr, block);
 		}
 	}
@@ -390,13 +390,13 @@ namespace sce::gcn
 					break;
 				case GcnTokenKind::Else:
 					lastUnmatchedScope = (*it)->getMatch()->getMatch();
-					it                 = (*it)->getMatch()->getIterator(*m_tokens);
+					it                 = (*it)->getMatch()->getIterator();
 					break;
 				case GcnTokenKind::If:
 				case GcnTokenKind::Loop:
 				case GcnTokenKind::Block:
 					while ((*it)->kind() != GcnTokenKind::End)
-						it = (*it)->getMatch()->getIterator(*m_tokens);
+						it = (*it)->getMatch()->getIterator();
 					break;
 				default:
 					break;
@@ -405,7 +405,7 @@ namespace sce::gcn
 		// If we have an unopened scope, move the candidate to it
 		if (lastUnmatchedScope)
 		{
-			candidate = lastUnmatchedScope->getIterator(*m_tokens);
+			candidate = lastUnmatchedScope->getIterator();
 		}
 		
 		return candidate;
@@ -530,7 +530,7 @@ namespace sce::gcn
 		uint32_t depth = m_iterStack.size();
 		for (uint32_t i = 0; i != depth; ++i)
 		{
-			if (token->getIterator(*m_tokens) == m_iterStack[i])
+			if (token->getIterator() == m_iterStack[i])
 			{
 				m_removeFlagStack[i] = true;
 				++m_iterStack[i];
@@ -543,7 +543,7 @@ namespace sce::gcn
 	{
 		for_each_kind<(uint32_t)GcnTokenKind::Else | (uint32_t)GcnTokenKind::End>([&](GcnToken* token)
 		{
-			GcnToken* prev = token->getPrevNode(*m_tokens);
+			GcnToken* prev = token->getPrevNode();
 			do 
 			{
 				if (prev->getMatch() != token)
@@ -572,7 +572,7 @@ namespace sce::gcn
 						tokenIfNot->setMatch(tokenEnd);
 						tokenEnd->setMatch(tokenIfNot);
 
-						m_tokens->insertAfter(emptyIf->getIterator(*m_tokens), tokenIfNot);
+						m_tokens->insertAfter(emptyIf->getIterator(), tokenIfNot);
 
 						erase(emptyIf);
 						erase(tokenElse);
@@ -631,7 +631,7 @@ namespace sce::gcn
 				// If we have an outer Block Token that ends here, we can branch to that,
 				// and remove the current one
 				GcnToken* newEnd    = oldEnd;
-				GcnToken* nextToken = newEnd->getNextNode(*m_tokens);
+				GcnToken* nextToken = newEnd->getNextNode();
 				while (nextToken->kind() == GcnTokenKind::End &&
 					   nextToken->getMatch()->kind() == GcnTokenKind::Block)
 				{

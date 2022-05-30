@@ -14,20 +14,20 @@ namespace sce::gcn
 	{
 	}
 
-	std::list<GcnToken*>::iterator GcnToken::getIterator(GcnTokenList& list)
+	std::list<GcnToken*>::iterator GcnToken::getIterator()
 	{
-		return list.find(this);
+		return m_container->find(this);
 	}
 
-	GcnToken* GcnToken::getPrevNode(GcnTokenList& list)
+	GcnToken* GcnToken::getPrevNode()
 	{
-		auto iter = getIterator(list);
+		auto iter = getIterator();
 		return *(--iter);
 	}
 
-	GcnToken* GcnToken::getNextNode(GcnTokenList& list)
+	GcnToken* GcnToken::getNextNode()
 	{
-		auto iter = getIterator(list);
+		auto iter = getIterator();
 		return *(++iter);
 	}
 

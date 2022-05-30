@@ -27,6 +27,7 @@ namespace sce::gcn
 	class GcnToken
 	{
 		friend class GcnTokenFactory;
+		friend class GcnTokenList;
 	public:
 		GcnToken(GcnTokenKind kind,
 				 GcnCfgVertex vertex,
@@ -54,10 +55,10 @@ namespace sce::gcn
 			return m_vertex;
 		}
 
-		std::list<GcnToken*>::iterator getIterator(GcnTokenList& list);
+		std::list<GcnToken*>::iterator getIterator();
 
-		GcnToken* getPrevNode(GcnTokenList& list);
-		GcnToken* getNextNode(GcnTokenList& list);
+		GcnToken* getPrevNode();
+		GcnToken* getNextNode();
 
 		std::string dump() const
 		{
@@ -129,7 +130,8 @@ namespace sce::gcn
 		GcnCfgVertex m_vertex;
 		// A related token, for example,
 		// the match of a If token is End
-		GcnToken* m_match;
+		GcnToken*     m_match;
+		GcnTokenList* m_container = nullptr;
 	};
 
 	class GcnTokenFactory
@@ -273,16 +275,19 @@ namespace sce::gcn
 
 		void append(GcnToken* token)
 		{
+			token->m_container = this;
 			m_list.push_back(token);
 		}
 
 		iterator insert(iterator where, GcnToken* token)
 		{
+			token->m_container = this;
 			return m_list.insert(where, token);
 		}
 
 		iterator insertAfter(iterator where, GcnToken* token)
 		{
+			token->m_container = this;
 			iterator iter = {};
 			if (empty())
 			{
@@ -302,6 +307,7 @@ namespace sce::gcn
 
 		void erase(GcnToken* token)
 		{
+			token->m_container = nullptr;
 			//std::erase(m_list, token);
 			m_list.remove_if([&](auto& elem) { return elem == token; });
 		}
