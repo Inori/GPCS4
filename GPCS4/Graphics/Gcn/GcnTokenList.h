@@ -88,7 +88,7 @@ namespace sce::gcn
 					ss << "IF " << "V" << vertexName(m_vertex) << "\n";
 					break;
 				case GcnTokenKind::IfNot:
-					ss << "IF_NOT" << "V" << vertexName(m_vertex) << "\n";
+					ss << "IF_NOT " << "V" << vertexName(m_vertex) << "\n";
 					break;
 				case GcnTokenKind::Else:
 					ss << "ELSE" << "\n";

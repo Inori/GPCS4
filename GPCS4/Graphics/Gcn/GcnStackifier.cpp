@@ -206,7 +206,7 @@ namespace sce::gcn
 				break;
 			}
 
-			// If Succ is a branch, add it to the visit stack
+			// If succ is a branch, add it to the visit stack
 			if (getUniqueForwardPredecessor(succ) != GcnControlFlowGraph::null_vertex())
 			{
 				m_visitStack.emplace_back(succ, StackElement::Immediate);
@@ -467,8 +467,11 @@ namespace sce::gcn
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	GcnTokenListOptimizer::GcnTokenListOptimizer(GcnTokenFactory& factory):
+	GcnTokenListOptimizer::GcnTokenListOptimizer(
+		GcnControlFlowGraph& cfg, GcnTokenFactory& factory) :
+		m_cfg(cfg),
 		m_factory(factory)
+
 	{
 	}
 
@@ -482,6 +485,8 @@ namespace sce::gcn
 
 		removeEmptyIfs();
 		mergeBlocks();
+		removeRedundantNesting();
+		adjustLoopEnds();
 	}
 
 	template <uint32_t Kind, typename FnType>
@@ -652,12 +657,196 @@ namespace sce::gcn
 		});
 	}
 
+	bool GcnTokenListOptimizer::canFallThrough(GcnToken* T)
+	{
+		LOG_ASSERT((uint32_t)T->kind() & ((uint32_t)GcnTokenKind::If | (uint32_t)GcnTokenKind::Else),
+				   "Unexpeted test token.");
+
+		bool result = false;
+		do 
+		{
+			GcnToken* End  = T->getMatch();
+			GcnToken* Last = End->getPrevNode();
+			// If the if is empty, it does not matter that it technically falls through
+			if (Last == T)
+			{
+				break;
+			}
+
+			switch (Last->kind())
+			{
+				case GcnTokenKind::Code:
+				{
+					auto vtx  = Last->getVertex();
+					auto term = m_cfg[vtx].terminator;
+					result    = term.kind != GcnBlockTerminator::Sink;
+				}
+					break;
+				case GcnTokenKind::Branch:
+					result = false;
+					break;
+				case GcnTokenKind::End:
+				case GcnTokenKind::Condition:
+					result = true;
+					break;
+				case GcnTokenKind::If:
+				case GcnTokenKind::IfNot:
+				case GcnTokenKind::Else:
+				case GcnTokenKind::Loop:
+				case GcnTokenKind::Block:
+				case GcnTokenKind::Invalid:
+				default:
+					LOG_ASSERT(false, "Unexpeted token");
+					break;
+			}
+			
+		} while (false);
+		return result;
+	}
+
+	void GcnTokenListOptimizer::removeRedundantNesting()
+	{
+		// Iterate the End Tokens, so we handle the innermost Ifs first
+		for_each_kind<(uint32_t)GcnTokenKind::End>([&](GcnToken* tokenEnd)
+		{
+			// Find construct which has both if and else
+			GcnToken* tokenIf = tokenEnd->getMatch();
+			if (tokenIf->kind() != GcnTokenKind::If)
+			{
+				return;
+			}
+			GcnToken* tokenElse = tokenIf->getMatch();
+			if (tokenElse->kind() != GcnTokenKind::Else)
+			{
+				return;
+			}
+
+			/*
+			* Convert:
+			* 
+			* if (cond)
+			* { somecode; }
+			* else
+			* { othercode; }
+			* 
+			* to
+			* 
+			* if (cond)
+			* { somecode; }
+			* othercode;
+			*/
+			auto removeElse = [&]()
+			{
+				GcnToken* newEnd = m_factory.createIfEnd(tokenIf, nullptr);
+				m_tokens->insert(tokenElse->getIterator(), newEnd);
+				erase(tokenElse);
+				erase(tokenEnd);
+			};
+
+			/*
+				* Convert:
+				*
+				* if (cond)
+				* { somecode; }
+				* else
+				* { othercode; }
+				*
+				* to
+				*
+				* if (!cond)
+				* { othercode; }
+				* somecode;
+				*/
+			auto removeIf = [&]()
+			{
+				m_tokens->moveAfter(tokenEnd->getIterator(), std::next(tokenIf->getIterator()), tokenElse->getIterator());
+				GcnToken* tokenIfNot = m_factory.createIfNot(tokenIf->getVertex());
+				tokenIfNot->setMatch(tokenEnd);
+				tokenEnd->setMatch(tokenIfNot);
+				m_tokens->insert(tokenElse->getIterator(), tokenIfNot);
+				erase(tokenIf);
+				erase(tokenElse);
+			};
+
+			auto isBranchIf = [](GcnToken* T)
+			{
+				GcnToken* match = T->getMatch();
+				GcnToken* inner = T->getNextNode();
+				return inner->kind() == GcnTokenKind::Branch &&
+						inner->getNextNode() == match;
+			};
+
+			// Candidates for removing
+			bool elseIsCandidate = !canFallThrough(tokenIf);
+			bool ifIsCandidate   = !canFallThrough(tokenElse);
+			if (ifIsCandidate && elseIsCandidate)
+			{
+				// TODO: if both the If and the Else cannot fall through, decide which
+				// one is s better to remove. Right now, we only look if one of the two
+				// contains branch, and remove the other one
+				if (isBranchIf(tokenIf))
+					removeElse();
+				else if (isBranchIf(tokenElse))
+					removeIf();
+				else
+					removeElse();
+			}
+			else if (ifIsCandidate)
+			{
+				removeIf();
+			}
+			else if (elseIsCandidate)
+			{
+				removeElse();
+			} 
+		});
+	}
+
+	void GcnTokenListOptimizer::adjustLoopEnds()
+	{
+		for_each_kind<(uint32_t)GcnTokenKind::Loop>([&](GcnToken* Loop)
+		{
+			GcnToken* tokenEnd = Loop->getMatch();
+			GcnToken* tokenCur = tokenEnd->getPrevNode();
+			GcnToken* lastZeroDepth = nullptr;
+
+			int depth = 0;
+			while (tokenCur != Loop)
+			{
+				if ((uint32_t)tokenCur->kind() & ((uint32_t)GcnTokenKind::If |
+												  (uint32_t)GcnTokenKind::IfNot |
+												  (uint32_t)GcnTokenKind::Loop |
+												  (uint32_t)GcnTokenKind::Block))
+				{
+					--depth;
+				}
+				else if (tokenCur->kind() == GcnTokenKind::End)
+				{
+					if (depth == 0)
+					{
+						lastZeroDepth = tokenCur;
+					}
+					++depth;
+				}
+				else if (tokenCur->kind() == GcnTokenKind::Branch && tokenCur->getMatch() == Loop)
+				{
+					break;
+				}
+				tokenCur = tokenCur->getPrevNode();
+			}
+			if (lastZeroDepth != nullptr && lastZeroDepth != tokenEnd->getPrevNode())
+			{
+				m_tokens->moveAfter(lastZeroDepth->getIterator(), tokenEnd->getIterator(), std::next(tokenEnd->getIterator()));
+			} 
+		});
+	}
+
 	//////////////////////////////////////////////////////////////////////////
 	GcnStackifier::GcnStackifier(GcnControlFlowGraph& cfg) :
 		m_cfg(cfg),
 		m_factory(m_pool),
 		m_builder(cfg, m_factory),
-		m_optimizer(m_factory)
+		m_optimizer(cfg, m_factory)
 	{
 	}
 
