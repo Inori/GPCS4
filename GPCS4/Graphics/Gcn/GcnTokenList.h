@@ -3,40 +3,83 @@
 #include "GcnCommon.h"
 #include "GcnControlFlowGraph.h"
 #include "UtilObjectBank.h"
-#include "fmt/format.h"
+
+#include <fmt/format.h>
 #include <list>
 
 namespace sce::gcn
 {
+	class GcnToken;
 	class GcnTokenList;
+
+	enum class GcnConditionType : uint32_t
+	{
+		Variable,		// Condition is a variable token
+		Divergence		// Condition is (EXEC & SubgroupEqMask)
+	};
+
+	struct GcnCondition
+	{
+		GcnCondition(GcnConditionType type) :
+			m_type(type),
+			m_variable(nullptr)
+		{
+		}
+		GcnCondition(GcnToken* variable) :
+			m_type(GcnConditionType::Variable),
+			m_variable(variable)
+		{
+		}
+
+		GcnConditionType m_type;
+		GcnToken*        m_variable;
+	};
+
 
 	enum class GcnTokenKind : uint32_t
 	{
-		Invalid   = 0,
-		Code      = 1 << 0,
-		Loop      = 1 << 1,
-		Block     = 1 << 2,
-		If        = 1 << 3,
-		IfNot     = 1 << 4,
-		Else      = 1 << 5,
-		Branch    = 1 << 6,
-		End       = 1 << 7,
-		Condition = 1 << 8,
+		Invalid  = 0,
+		Code     = 1 << 0,
+		Loop     = 1 << 1,
+		Block    = 1 << 2,
+		If       = 1 << 3,
+		IfNot    = 1 << 4,
+		Else     = 1 << 5,
+		Branch   = 1 << 6,
+		End      = 1 << 7,
+		Variable = 1 << 8,
+	};
+
+	enum class GcnInterpretType
+	{
+		Code,             // use m_vertex
+		CustomCondition,  // use m_condition
+		CustomValue,      // use m_value
 	};
 
 	class GcnToken
 	{
 		friend class GcnTokenFactory;
 		friend class GcnTokenList;
+
 	public:
 		GcnToken(GcnTokenKind kind,
 				 GcnCfgVertex vertex,
+				 GcnToken*    match);
+
+		GcnToken(GcnTokenKind kind,
+				 GcnCondition condition,
 				 GcnToken*    match);
 		~GcnToken();
 
 		GcnTokenKind kind() const
 		{
 			return m_kind;
+		}
+
+		GcnInterpretType interpretType() const
+		{
+			return m_interpretType;
 		}
 
 		void setMatch(GcnToken* match)
@@ -66,7 +109,7 @@ namespace sce::gcn
 			{
 				return vtx == GcnControlFlowGraph::null_vertex() 
 					? "null"
-					: std::to_string(vtx);
+					: fmt::format("{}", vtx);
 			};
 			std::stringstream ss;
 			ss << fmt::format("{}", (void*)this) << " ";
@@ -119,18 +162,27 @@ namespace sce::gcn
 					ss << "END" << tail << " " << fmt::format("{}", (void*)m_match) << "\n";
 				}
 					break;
-				case GcnTokenKind::Condition:
+				case GcnTokenKind::Variable:
 					ss << "CONDITION" << "\n";
 					break;
 			}
 			return ss.str();
 		}
 	private:
-		GcnTokenKind m_kind;
-		GcnCfgVertex m_vertex;
+		GcnTokenKind     m_kind;
+		GcnInterpretType m_interpretType = GcnInterpretType::Code;
+
+		union
+		{
+			GcnCfgVertex m_vertex;
+			GcnCondition m_condition;
+			size_t       m_value;
+		};
+		
 		// A related token, for example,
 		// the match of a If token is End
 		GcnToken*     m_match;
+		// Container holding this token
 		GcnTokenList* m_container = nullptr;
 	};
 
@@ -174,6 +226,11 @@ namespace sce::gcn
 				GcnTokenKind::End, GcnControlFlowGraph::null_vertex(), blockBegin);
 			blockBegin->m_match = blockEnd;
 			return blockEnd;
+		}
+
+		GcnToken* createIf(GcnCondition condition)
+		{
+			return m_pool.allocate(GcnTokenKind::If, condition, nullptr);
 		}
 
 		GcnToken* createIf(GcnCfgVertex condition)
@@ -224,9 +281,9 @@ namespace sce::gcn
 				GcnTokenKind::Branch, GcnControlFlowGraph::null_vertex(), target);
 		}
 
-		GcnToken* createCondition(GcnCfgVertex condition)
+		GcnToken* createVariable(GcnCfgVertex vertex)
 		{
-			return m_pool.allocate(GcnTokenKind::Condition, condition, nullptr);
+			return m_pool.allocate(GcnTokenKind::Variable, vertex, nullptr);
 		}
 
 	private:

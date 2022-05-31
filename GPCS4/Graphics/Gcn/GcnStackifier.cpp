@@ -85,7 +85,7 @@ namespace sce::gcn
 					}
 					break;
 				}
-				case GcnTokenKind::Condition:
+				case GcnTokenKind::Variable:
 					break;
 				case GcnTokenKind::Invalid:
 					LOG_ERR("INVALID Token found");
@@ -686,7 +686,7 @@ namespace sce::gcn
 					result = false;
 					break;
 				case GcnTokenKind::End:
-				case GcnTokenKind::Condition:
+				case GcnTokenKind::Variable:
 					result = true;
 					break;
 				case GcnTokenKind::If:
@@ -842,11 +842,83 @@ namespace sce::gcn
 	}
 
 	//////////////////////////////////////////////////////////////////////////
+	GcnGotoEliminator::GcnGotoEliminator(GcnControlFlowGraph& cfg,
+										 GcnTokenFactory&     factory):
+		m_cfg(cfg),
+		m_factory(factory)
+	{
+	}
+
+	GcnGotoEliminator::~GcnGotoEliminator()
+	{
+	}
+
+	void GcnGotoEliminator::eliminate(GcnTokenList& tokens)
+	{
+		m_tokens = &tokens;
+	}
+
+	std::unordered_set<GcnToken*> GcnGotoEliminator::findGotos()
+	{
+		std::unordered_set<GcnToken*> result;
+		std::vector<const GcnToken*>  loopStack;
+		
+		for (const auto& token : *m_tokens)
+		{
+			switch (token->kind())
+			{
+				case GcnTokenKind::Code:
+				case GcnTokenKind::Block:
+				case GcnTokenKind::If:
+				case GcnTokenKind::IfNot:
+				case GcnTokenKind::Else:
+				case GcnTokenKind::Variable:
+					break;
+				case GcnTokenKind::Loop:
+					loopStack.push_back(token);
+					break;
+				case GcnTokenKind::Branch:
+				{
+					GcnToken* target = token->getMatch();
+					if (target->kind() == GcnTokenKind::End)
+					{
+						// A block, find block header.
+						target = target->getMatch();
+					}
+					
+					if (((uint32_t)target->kind() & ((uint32_t)GcnTokenKind::Block |
+													 (uint32_t)GcnTokenKind::If |
+													 (uint32_t)GcnTokenKind::IfNot)) ||
+						target != loopStack.back())
+					{
+						result.insert(token);
+					}
+				}
+					break;
+				case GcnTokenKind::End:
+				{
+					if (token->getMatch()->kind() == GcnTokenKind::Loop)
+					{
+						loopStack.pop_back();
+					}
+				}
+					break;
+				case GcnTokenKind::Invalid:
+					LOG_ASSERT(false, "Invalid token found");
+					break;
+			}
+		}
+		LOG_ASSERT(loopStack.empty(), "scope not all closed.");
+		return result;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
 	GcnStackifier::GcnStackifier(GcnControlFlowGraph& cfg) :
 		m_cfg(cfg),
 		m_factory(m_pool),
 		m_builder(cfg, m_factory),
-		m_optimizer(cfg, m_factory)
+		m_optimizer(cfg, m_factory),
+		m_eliminator(cfg, m_factory)
 	{
 	}
 
@@ -862,6 +934,9 @@ namespace sce::gcn
 		LOG_ASSERT(m_verifier.verify(tokenList), "token list not valid");
 
 		m_optimizer.optimize(tokenList);
+		LOG_ASSERT(m_verifier.verify(tokenList), "token list not valid");
+
+		m_eliminator.eliminate(tokenList);
 		LOG_ASSERT(m_verifier.verify(tokenList), "token list not valid");
 
 		return tokenList;

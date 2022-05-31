@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 
 namespace sce::gcn
 {
@@ -132,6 +133,77 @@ namespace sce::gcn
 	};
 
 	/**
+	 * \brief Goto eliminator
+	 * 
+	 * Let me clarify some concepts here.
+	 * 
+	 * The original stackifier algorithm is designed for
+	 * WebAssembly and Javascript, although there is no
+	 * goto statement for them, both of which has the "goto" concept,
+	 * WebAssembly has multi-depth br instruction and 
+	 * Javascript has labeled break/continue. They can achieve the
+	 * same effect as goto.
+	 * 
+	 * But in spirv-v and glsl world, we don't even have such method,
+	 * so we must eliminate all "goto"s in the token list.
+	 * 
+	 * There is no Goto and Label token from original stackifier,
+	 * we only have Branch token.
+	 * 
+	 * If a branch is only used to go out/continue current block,
+	 * it's just a normal break/continue statement, not goto.
+	 * If a branch is used to go out/continue blocks for more than one
+	 * depth, then it is a goto. The virtual position right after
+	 * the branch's target is the label.
+	 * 
+	 * Previously, I think we can eliminate all gotos by only
+	 * restructure the program without introducing new variable
+	 * and repeating code.
+	 * But soon I found it is impossible.
+	 * See https://en.wikipedia.org/wiki/Structured_program_theorem
+	 * In particular:
+	 * "In 1973, S. Rao Kosaraju proved that it's possible to 
+	 * avoid adding additional variables in structured programming, 
+	 * as long as arbitrary-depth, multi-level breaks from loops are allowed."
+	 * 
+	 * Sadly, We don't have multi-level exit either, maybe we can
+	 * wrap code in a function such that we can use early return
+	 * to emulate multi-level exit, but I think the generated code
+	 * would be unreadable, so I choose to use new variables.
+	 * 
+	 * The algorithm used here is from:
+	 * Taming Control Flow: A Structured Approach to Eliminating Goto Statements. 
+	 * Ana M. Erosa and Laurie J. Hendren
+	 * http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.42.1485&rep=rep1&type=pdf
+	 * 
+	 * All notations used here keeps the same with the above paper.
+	 *
+	 * Luckily, the level(depth) of goto produced by stackifier 
+	 * is always greater than the level of corresponding label,
+	 * so we only need to perform outward-movement transformation.
+	 * 
+	 */
+	class GcnGotoEliminator
+	{
+	public:
+		GcnGotoEliminator(GcnControlFlowGraph& cfg,
+						  GcnTokenFactory&     factory);
+		~GcnGotoEliminator();
+
+		void eliminate(GcnTokenList& tokens);
+
+	private:
+		std::unordered_set<GcnToken*> findGotos();
+
+	private:
+		GcnControlFlowGraph& m_cfg;
+		GcnTokenFactory&     m_factory;
+		GcnTokenList*        m_tokens = nullptr;
+	};
+
+
+
+	/**
 	 * \brief The stackifier algorithm
 	 * 
 	 * Build structured control flow graph
@@ -162,6 +234,7 @@ namespace sce::gcn
 		GcnTokenListVerifier  m_verifier;
 		GcnTokenListBuilder   m_builder;
 		GcnTokenListOptimizer m_optimizer;
+		GcnGotoEliminator     m_eliminator;
 	};
 
 }  // namespace sce::gcn
