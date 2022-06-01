@@ -1,0 +1,164 @@
+/*
+ * Copyright 2017 WebAssembly Community Group participants
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#ifndef wasm_ir_memory_h
+#define wasm_ir_memory_h
+
+#include <algorithm>
+#include <vector>
+
+#include "literal.h"
+#include "wasm-binary.h"
+#include "wasm-builder.h"
+#include "wasm.h"
+
+namespace wasm::MemoryUtils {
+
+// Flattens memory into a single data segment, or no segment. If there is
+// a segment, it starts at 0.
+// Returns true if successful (e.g. relocatable segments cannot be flattened).
+bool flatten(Module& wasm);
+
+// Ensures that the memory exists (of minimal size).
+inline void ensureExists(Memory& memory) {
+  if (!memory.exists) {
+    memory.exists = true;
+    memory.initial = memory.max = 1;
+  }
+}
+
+// Try to merge segments until they fit into web limitations.
+// Return true if successful.
+inline bool ensureLimitedSegments(Module& module) {
+  Memory& memory = module.memory;
+  if (memory.segments.size() <= WebLimitations::MaxDataSegments) {
+    return true;
+  }
+
+  // Conservatively refuse to change segments if there might be memory.init
+  // and data.drop instructions.
+  if (module.features.hasBulkMemory()) {
+    return false;
+  }
+
+  auto isEmpty = [](Memory::Segment& segment) {
+    return segment.data.size() == 0;
+  };
+
+  auto isConstantOffset = [](Memory::Segment& segment) {
+    return segment.offset && segment.offset->is<Const>();
+  };
+
+  Index numConstant = 0, numDynamic = 0;
+  bool hasPassiveSegments = false;
+  for (auto& segment : memory.segments) {
+    if (!isEmpty(segment)) {
+      if (isConstantOffset(segment)) {
+        numConstant++;
+      } else {
+        numDynamic++;
+      }
+    }
+    hasPassiveSegments |= segment.isPassive;
+  }
+
+  if (hasPassiveSegments) {
+    return false;
+  }
+
+  // check if we have too many dynamic data segments, which we can do nothing
+  // about
+  if (numDynamic + 1 >= WebLimitations::MaxDataSegments) {
+    return false;
+  }
+
+  // we'll merge constant segments if we must
+  if (numConstant + numDynamic >= WebLimitations::MaxDataSegments) {
+    numConstant = WebLimitations::MaxDataSegments - numDynamic - 1;
+    auto num = numConstant + numDynamic;
+    WASM_UNUSED(num);
+    assert(num == WebLimitations::MaxDataSegments - 1);
+  }
+
+  std::vector<Memory::Segment> mergedSegments;
+  mergedSegments.reserve(WebLimitations::MaxDataSegments);
+
+  // drop empty segments and pass through dynamic-offset segments
+  for (auto& segment : memory.segments) {
+    if (isEmpty(segment)) {
+      continue;
+    }
+    if (isConstantOffset(segment)) {
+      continue;
+    }
+    mergedSegments.push_back(segment);
+  }
+
+  // from here on, we concern ourselves with non-empty constant-offset
+  // segments, the ones which we may need to merge
+  auto isRelevant = [&](Memory::Segment& segment) {
+    return !isEmpty(segment) && isConstantOffset(segment);
+  };
+  for (Index i = 0; i < memory.segments.size(); i++) {
+    auto& segment = memory.segments[i];
+    if (!isRelevant(segment)) {
+      continue;
+    }
+    if (mergedSegments.size() + 2 < WebLimitations::MaxDataSegments) {
+      mergedSegments.push_back(segment);
+      continue;
+    }
+    // we can emit only one more segment! merge everything into one
+    // start the combined segment at the bottom of them all
+    auto start = segment.offset->cast<Const>()->value.getInteger();
+    for (Index j = i + 1; j < memory.segments.size(); j++) {
+      auto& segment = memory.segments[j];
+      if (!isRelevant(segment)) {
+        continue;
+      }
+      auto offset = segment.offset->cast<Const>()->value.getInteger();
+      start = std::min(start, offset);
+    }
+    // create the segment and add in all the data
+    auto* c = module.allocator.alloc<Const>();
+    c->value = Literal(int32_t(start));
+    c->type = Type::i32;
+
+    Memory::Segment combined(c);
+    for (Index j = i; j < memory.segments.size(); j++) {
+      auto& segment = memory.segments[j];
+      if (!isRelevant(segment)) {
+        continue;
+      }
+      auto offset = segment.offset->cast<Const>()->value.getInteger();
+      auto needed = offset + segment.data.size() - start;
+      if (combined.data.size() < needed) {
+        combined.data.resize(needed);
+      }
+      std::copy(segment.data.begin(),
+                segment.data.end(),
+                combined.data.begin() + (offset - start));
+    }
+    mergedSegments.push_back(combined);
+    break;
+  }
+
+  memory.segments.swap(mergedSegments);
+  return true;
+}
+} // namespace wasm::MemoryUtils
+
+#endif // wasm_ir_memory_h
