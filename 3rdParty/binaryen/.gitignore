@@ -27,7 +27,6 @@ test/lit/lit.site.cfg.py
 
 # files related to bulding in-tree on windows
 /.vs/
-/*.vcxproj*
 /*.dir/
 /*.sln
 /*.sdf
