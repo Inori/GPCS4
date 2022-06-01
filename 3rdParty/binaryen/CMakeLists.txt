@@ -2,6 +2,12 @@
 # https://packages.ubuntu.com/bionic/cmake
 cmake_minimum_required(VERSION 3.10.2)
 
+
+# GPCS4
+set(CMAKE_GENERATOR_TOOLSET "ClangCL")
+set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
+
+
 # Needed for C++17 (std::variant)
 # TODO(https://github.com/WebAssembly/binaryen/issues/4299): We need
 # to reduce this for compatability with emsdk.
@@ -32,10 +38,10 @@ endif()
 option(BYN_ENABLE_ASSERTIONS "Enable assertions" ON)
 
 # Turn this off to avoid the dependency on gtest.
-option(BUILD_TESTS "Build GTest-based tests" ON)
+option(BUILD_TESTS "Build GTest-based tests" OFF)
 
 # Turn this off to build only the library.
-option(BUILD_TOOLS "Build tools" ON)
+option(BUILD_TOOLS "Build tools" OFF)
 
 # Turn this on to build binaryen.js as ES5, with additional compatibility configuration for js_of_ocaml.
 option(JS_OF_OCAML "Build binaryen.js for js_of_ocaml" OFF)
@@ -140,7 +146,7 @@ endif()
 
 # For now, don't include full DWARF support in JS builds, for size.
 if(NOT EMSCRIPTEN)
-  option(BUILD_LLVM_DWARF "Enable full DWARF support" ON)
+  option(BUILD_LLVM_DWARF "Enable full DWARF support" OFF)
 
   if(BUILD_LLVM_DWARF)
     if(MSVC)
@@ -180,14 +186,18 @@ if(BYN_ENABLE_LTO)
 endif()
 
 if(MSVC)
-  if(NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    # multi-core build.
-    add_compile_flag("/MP")
-    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "19.0")
-      # VS2013 and older explicitly need /arch:sse2 set, VS2015 no longer has that option, but always enabled.
-      add_compile_flag("/arch:sse2")
-    endif()
-  endif()
+  #if(NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  #  # multi-core build.
+  # add_compile_flag("/MP")
+  # if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "19.0")
+  #   # VS2013 and older explicitly need /arch:sse2 set, VS2015 no longer has that option, but always enabled.
+  #   add_compile_flag("/arch:sse2")
+  # endif()
+  #endif()
+
+  # It seems clang-cl shipped with visual studio supports /MP
+  add_compile_flag("/MP")
+
   add_compile_flag("/wd4146") # Ignore warning "warning C4146: unary minus operator applied to unsigned type, result still unsigned", this pattern is used somewhat commonly in the code.
   # 4267 and 4244 are conversion/truncation warnings. We might want to fix these but they are currently pervasive.
   add_compile_flag("/wd4267")
@@ -197,6 +207,11 @@ if(MSVC)
   # "destructor was implicitly defined as deleted" caused by LLVM headers.
   add_compile_flag("/wd4624")
   add_compile_flag("/WX-")
+
+  add_compile_flag("/GS-")
+  add_debug_compile_flag("/MTd")
+  add_nondebug_compile_flag("/MT")
+
   add_debug_compile_flag("/Od")
   add_nondebug_compile_flag("/O2")
   add_compile_flag("/D_CRT_SECURE_NO_WARNINGS")
@@ -334,7 +349,7 @@ endif()
 add_subdirectory(third_party)
 
 # Configure lit tests
-add_subdirectory(test/lit)
+# add_subdirectory(test/lit)
 
 if(BUILD_TESTS)
   # Configure GTest unit tests
