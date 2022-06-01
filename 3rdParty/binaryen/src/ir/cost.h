@@ -161,6 +161,13 @@ struct CostAnalyzer : public OverriddenVisitor<CostAnalyzer, CostType> {
       case TruncSatUFloat32ToInt64:
       case TruncSatSFloat64ToInt64:
       case TruncSatUFloat64ToInt64:
+      case Scc0:
+      case Scc1:
+      case Vccz:
+      case Vccnz:
+      case Execz:
+      case Execnz:
+      case Divergence:
         ret = 1;
         break;
       case SqrtFloat32:
@@ -662,6 +669,7 @@ struct CostAnalyzer : public OverriddenVisitor<CostAnalyzer, CostType> {
            visit(curr->srcRef) + visit(curr->srcIndex) + visit(curr->length);
   }
   CostType visitRefAs(RefAs* curr) { return 1 + visit(curr->value); }
+  CostType visitGcnCode(GcnCode* curr) { return curr->insList.size(); }
 
 private:
   CostType nullCheckCost(Expression* ref) {

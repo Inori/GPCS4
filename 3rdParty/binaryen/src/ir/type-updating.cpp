@@ -165,6 +165,7 @@ void GlobalTypeRewriter::update() {
 #define DELEGATE_FIELD_SCOPE_NAME_USE(id, field)
 #define DELEGATE_FIELD_SCOPE_NAME_USE_VECTOR(id, field)
 #define DELEGATE_FIELD_ADDRESS(id, field)
+#define DELEGATE_FIELD_GCN_CODE(id, field)
 
 #include "wasm-delegations-fields.def"
     }

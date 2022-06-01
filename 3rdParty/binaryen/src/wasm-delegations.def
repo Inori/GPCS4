@@ -85,5 +85,6 @@ DELEGATE(ArraySet);
 DELEGATE(ArrayLen);
 DELEGATE(ArrayCopy);
 DELEGATE(RefAs);
+DELEGATE(GcnCode);
 
 #undef DELEGATE

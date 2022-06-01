@@ -579,6 +579,13 @@ public:
         return value.demoteZeroToF32x4();
       case PromoteLowVecF32x4ToVecF64x2:
         return value.promoteLowToF64x2();
+      case Scc0:
+      case Scc1:
+      case Vccz:
+      case Vccnz:
+      case Execz:
+      case Execnz:
+      case Divergence:
       case InvalidUnary:
         WASM_UNREACHABLE("invalid unary op");
     }
@@ -1956,6 +1963,11 @@ public:
         WASM_UNREACHABLE("unimplemented ref.as_*");
     }
     return value;
+  }
+
+  Flow visitGcnCode(GcnCode* curr) {
+    NOTE_ENTER("GcnCode");
+    return Flow();
   }
 
   virtual void trap(const char* why) { WASM_UNREACHABLE("unimp"); }

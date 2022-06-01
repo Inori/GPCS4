@@ -77,7 +77,12 @@
     <ClInclude Include="src\binaryen-c.h" />
     <ClInclude Include="src\cfg\Relooper.h" />
     <ClInclude Include="src\wasm-builder.h" />
+    <ClInclude Include="src\wasm-traversal.h" />
     <ClInclude Include="src\wasm.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\wasm-delegations-fields.def" />
+    <None Include="src\wasm-delegations.def" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

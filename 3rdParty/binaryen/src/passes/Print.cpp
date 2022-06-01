@@ -1234,6 +1234,27 @@ struct PrintExpressionContents
       case RelaxedTruncZeroUVecF64x2ToVecI32x4:
         o << "i32x4.relaxed_trunc_f64x2_u_zero";
         break;
+      case Scc0:
+        o << "gcn.scc0";
+        break;
+      case Scc1:
+        o << "gcn.scc1";
+        break;
+      case Vccz:
+        o << "gcn.vccz";
+        break;
+      case Vccnz:
+        o << "gcn.vccnz";
+        break;
+      case Execz:
+        o << "gcn.execz";
+        break;
+      case Execnz:
+        o << "gcn.execnz";
+        break;
+      case Divergence:
+        o << "gcn.divergence";
+        break;
       case InvalidUnary:
         WASM_UNREACHABLE("unvalid unary operator");
     }
@@ -2207,6 +2228,12 @@ struct PrintExpressionContents
         break;
       default:
         WASM_UNREACHABLE("invalid ref.is_*");
+    }
+  }
+  void visitGcnCode(GcnCode* curr) {
+    for (auto ins : curr->insList) {
+      o << ' ';
+      o << ins;
     }
   }
 };

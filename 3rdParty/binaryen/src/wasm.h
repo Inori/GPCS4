@@ -44,7 +44,10 @@ namespace wasm {
 // An index in a wasm module
 typedef uint32_t Index;
 
-// An address in linear memory.
+// GPCS4
+struct GcnShaderInstruction;
+
+  // An address in linear memory.
 struct Address {
   typedef uint32_t address32_t;
   typedef uint64_t address64_t;
@@ -225,6 +228,15 @@ enum UnaryOp {
   RelaxedTruncUVecF32x4ToVecI32x4,
   RelaxedTruncZeroSVecF64x2ToVecI32x4,
   RelaxedTruncZeroUVecF64x2ToVecI32x4,
+
+  // GPCS4
+  Scc0,
+  Scc1,
+  Vccz,
+  Vccnz,
+  Execz,
+  Execnz,
+  Divergence, // (EXEC & gl_SubgroupEqMask)
 
   InvalidUnary
 };
@@ -680,6 +692,10 @@ public:
     ArrayLenId,
     ArrayCopyId,
     RefAsId,
+
+    // GPCS4
+    GcnCodeId,
+
     NumExpressionIds
   };
   Id _id;
@@ -1645,6 +1661,15 @@ public:
 
   void finalize();
 };
+
+
+class GcnCode : public SpecificExpression<Expression::GcnCodeId> {
+public:
+  GcnCode(MixedArena& allocator) : insList(allocator) {}
+
+  ArenaVector<GcnShaderInstruction*> insList;
+};
+
 
 // Globals
 

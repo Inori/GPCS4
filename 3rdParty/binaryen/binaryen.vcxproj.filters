@@ -30,5 +30,16 @@
     <ClInclude Include="src\wasm-builder.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="src\wasm-traversal.h">
+      <Filter>src</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\wasm-delegations.def">
+      <Filter>src</Filter>
+    </None>
+    <None Include="src\wasm-delegations-fields.def">
+      <Filter>src</Filter>
+    </None>
   </ItemGroup>
 </Project>

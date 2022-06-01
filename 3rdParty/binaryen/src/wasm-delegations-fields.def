@@ -170,6 +170,10 @@
 #error please define DELEGATE_FIELD_ADDRESS(id, field)
 #endif
 
+#ifndef DELEGATE_FIELD_GCN_CODE
+#error please define DELEGATE_FIELD_GCN_CODE(id, field)
+#endif
+
 switch (DELEGATE_ID) {
   case Expression::Id::InvalidId:
   case Expression::Id::NumExpressionIds: {
@@ -713,6 +717,12 @@ switch (DELEGATE_ID) {
     DELEGATE_END(RefAs);
     break;
   }
+  case Expression::Id::GcnCodeId: {
+    DELEGATE_START(GcnCode);
+    DELEGATE_FIELD_GCN_CODE(GcnCode, insList);
+    DELEGATE_END(GcnCode);
+    break;
+  }
 }
 
 #undef DELEGATE_ID
@@ -733,3 +743,4 @@ switch (DELEGATE_ID) {
 #undef DELEGATE_FIELD_HEAPTYPE
 #undef DELEGATE_FIELD_ADDRESS
 #undef DELEGATE_GET_FIELD
+#undef DELEGATE_FIELD_GCN_CODE

@@ -107,6 +107,7 @@ public:
 #define DELEGATE_FIELD_TYPE(id, field)
 #define DELEGATE_FIELD_HEAPTYPE(id, field)
 #define DELEGATE_FIELD_ADDRESS(id, field)
+#define DELEGATE_FIELD_GCN_CODE(id, field)
 
 #include "wasm-delegations-fields.def"
   }

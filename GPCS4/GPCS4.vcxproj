@@ -591,13 +591,13 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir);$(ProjectDir)Emulator;$(ProjectDir)Algorithm;$(ProjectDir)Common;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Util\Allocator;$(ProjectDir)Graphics;$(ProjectDir)SceModules;$(SolutionDir)3rdParty;$(SolutionDir)3rdParty\zydis\include;$(SolutionDir)3rdParty\zydis\dependencies\zycore\include;$(SolutionDir)3rdParty\boost;$(SolutionDir)3rdParty\fmt\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(ProjectDir)Emulator;$(ProjectDir)Algorithm;$(ProjectDir)Common;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Util\Allocator;$(ProjectDir)Graphics;$(ProjectDir)SceModules;$(SolutionDir)3rdParty;$(SolutionDir)3rdParty\zydis\include;$(SolutionDir)3rdParty\zydis\dependencies\zycore\include;$(SolutionDir)3rdParty\fmt\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
     <EnableClangTidyCodeAnalysis>
     </EnableClangTidyCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir);$(ProjectDir)Emulator;$(ProjectDir)Algorithm;$(ProjectDir)Common;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Util\Allocator;$(ProjectDir)Graphics;$(ProjectDir)SceModules;$(SolutionDir)3rdParty;$(SolutionDir)3rdParty\zydis\include;$(SolutionDir)3rdParty\zydis\dependencies\zycore\include;$(SolutionDir)3rdParty\boost;$(SolutionDir)3rdParty\fmt\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(ProjectDir)Emulator;$(ProjectDir)Algorithm;$(ProjectDir)Common;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Util\Allocator;$(ProjectDir)Graphics;$(ProjectDir)SceModules;$(SolutionDir)3rdParty;$(SolutionDir)3rdParty\zydis\include;$(SolutionDir)3rdParty\zydis\dependencies\zycore\include;$(SolutionDir)3rdParty\fmt\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
     <EnableClangTidyCodeAnalysis>
     </EnableClangTidyCodeAnalysis>

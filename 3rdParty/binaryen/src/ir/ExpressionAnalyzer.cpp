@@ -208,6 +208,9 @@ bool ExpressionAnalyzer::flexibleEqual(Expression* left,
 
 #define DELEGATE_FIELD_INT_ARRAY(id, field) COMPARE_LIST(field)
 #define DELEGATE_FIELD_NAME_VECTOR(id, field) COMPARE_LIST(field)
+// Well, we should compare every instruction in the vector,
+// not there pointers, but that would introduce more dependency
+#define DELEGATE_FIELD_GCN_CODE(id, field) COMPARE_LIST(field)
 
 #define DELEGATE_FIELD_SCOPE_NAME_DEF(id, field)                               \
   if (castLeft->field.is() != castRight->field.is()) {                         \
@@ -334,6 +337,8 @@ struct Hasher {
 
 #define DELEGATE_FIELD_SCOPE_NAME_USE(id, field) visitScopeName(cast->field);
 
+#define DELEGATE_FIELD_GCN_CODE(id, field) visitGcnCode(cast->field);
+
 #include "wasm-delegations-fields.def"
   }
 
@@ -368,6 +373,12 @@ struct Hasher {
   void visitType(Type curr) { rehash(digest, curr.getID()); }
   void visitHeapType(HeapType curr) { rehash(digest, curr.getID()); }
   void visitAddress(Address curr) { rehash(digest, curr.addr); }
+  void visitGcnCode(const ArenaVector<GcnShaderInstruction*>& instList) 
+  {
+    for (const auto& ins : instList) {
+      rehash(digest, ins); 
+    }
+  }
 };
 
 } // anonymous namespace
