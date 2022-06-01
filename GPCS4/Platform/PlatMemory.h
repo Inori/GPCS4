@@ -75,4 +75,11 @@ struct MemoryUnMapper
 // auto release smart memory pointer
 typedef std::unique_ptr<uint8_t, MemoryUnMapper> memory_ptr;
 
+
+// aligned malloc and free
+void* aligned_malloc(size_t align, size_t size);
+
+void aligned_free(void* ptr);
+
+
 }

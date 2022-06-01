@@ -185,7 +185,7 @@
     <Filter Include="Source Files\Graphics\Sce\Shaders">
       <UniqueIdentifier>{8368e8f7-f3ec-401d-afa9-842d03e5cf4b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Util\Object">
+    <Filter Include="Source Files\Util\Allocator">
       <UniqueIdentifier>{ee91fef9-c572-4982-be53-ac96b6d2283e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -931,32 +931,23 @@
     <ClInclude Include="Graphics\Gcn\GcnModInfo.h">
       <Filter>Source Files\Graphics\Gcn</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Gcn\GcnControlFlowGraph.h">
-      <Filter>Source Files\Graphics\Gcn</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\Gcn\GcnInstructionUtil.h">
-      <Filter>Source Files\Graphics\Gcn</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Gcn\GcnStackifier.h">
-      <Filter>Source Files\Graphics\Gcn</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Gcn\GcnTokenList.h">
-      <Filter>Source Files\Graphics\Gcn</Filter>
-    </ClInclude>
-    <ClInclude Include="Util\Object\UtilObjectBank.h">
-      <Filter>Source Files\Util\Object</Filter>
-    </ClInclude>
-    <ClInclude Include="Util\Object\UtilStructBank.h">
-      <Filter>Source Files\Util\Object</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Gcn\GcnLoopInfo.h">
-      <Filter>Source Files\Graphics\Gcn</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Gcn\GcnDominatorTree.h">
       <Filter>Source Files\Graphics\Gcn</Filter>
     </ClInclude>
     <ClInclude Include="Util\UtilVector.h">
       <Filter>Source Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\UtilInsertOrdered.h">
+      <Filter>Source Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Allocator\UtilObjectBank.h">
+      <Filter>Source Files\Util\Allocator</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Allocator\UtilStructBank.h">
+      <Filter>Source Files\Util\Allocator</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Allocator\UtilArena.h">
+      <Filter>Source Files\Util\Allocator</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1665,26 +1656,11 @@
     <ClCompile Include="Graphics\Sce\SceLabelManager.cpp">
       <Filter>Source Files\Graphics\Sce</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Gcn\GcnControlFlowGraph.cpp">
-      <Filter>Source Files\Graphics\Gcn</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\Gcn\GcnInstructionUtil.cpp">
       <Filter>Source Files\Graphics\Gcn</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Gcn\GcnStackifier.cpp">
-      <Filter>Source Files\Graphics\Gcn</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\Gcn\GcnTokenList.cpp">
-      <Filter>Source Files\Graphics\Gcn</Filter>
-    </ClCompile>
-    <ClCompile Include="Util\Object\UtilStructBank.cpp">
-      <Filter>Source Files\Util\Object</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\Gcn\GcnLoopInfo.cpp">
-      <Filter>Source Files\Graphics\Gcn</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\Gcn\GcnDominatorTree.cpp">
-      <Filter>Source Files\Graphics\Gcn</Filter>
+    <ClCompile Include="Util\Allocator\UtilStructBank.cpp">
+      <Filter>Source Files\Util\Allocator</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

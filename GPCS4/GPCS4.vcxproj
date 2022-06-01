@@ -28,16 +28,13 @@
     <ClInclude Include="Graphics\Gcn\GcnCompiler.h" />
     <ClInclude Include="Graphics\Gcn\GcnCompilerDefs.h" />
     <ClInclude Include="Graphics\Gcn\GcnConstants.h" />
-    <ClInclude Include="Graphics\Gcn\GcnControlFlowGraph.h" />
     <ClInclude Include="Graphics\Gcn\GcnDecoder.h" />
-    <ClInclude Include="Graphics\Gcn\GcnDominatorTree.h" />
     <ClInclude Include="Graphics\Gcn\GcnEnum.h" />
     <ClInclude Include="Graphics\Gcn\GcnFetchShader.h" />
     <ClInclude Include="Graphics\Gcn\GcnHeader.h" />
     <ClInclude Include="Graphics\Gcn\GcnInstruction.h" />
     <ClInclude Include="Graphics\Gcn\GcnInstructionIterator.h" />
     <ClInclude Include="Graphics\Gcn\GcnInstructionUtil.h" />
-    <ClInclude Include="Graphics\Gcn\GcnLoopInfo.h" />
     <ClInclude Include="Graphics\Gcn\GcnModInfo.h" />
     <ClInclude Include="Graphics\Gcn\GcnShaderMeta.h" />
     <ClInclude Include="Graphics\Gcn\GcnModule.h" />
@@ -46,9 +43,7 @@
     <ClInclude Include="Graphics\Gcn\GcnShaderKey.h" />
     <ClInclude Include="Graphics\Gcn\GcnShaderRegField.h" />
     <ClInclude Include="Graphics\Gcn\GcnShaderRegister.h" />
-    <ClInclude Include="Graphics\Gcn\GcnStackifier.h" />
     <ClInclude Include="Graphics\Gcn\GcnStateRegister.h" />
-    <ClInclude Include="Graphics\Gcn\GcnTokenList.h" />
     <ClInclude Include="Graphics\Gcn\GcnUtil.h" />
     <ClInclude Include="Graphics\Gnm\GnmGpuLabel.h" />
     <ClInclude Include="Graphics\Gnm\GnmInitializer.h" />
@@ -270,12 +265,14 @@
     <ClInclude Include="SceModules\sce_modules.h" />
     <ClInclude Include="SceModules\sce_module_common.h" />
     <ClInclude Include="SceModules\sce_types.h" />
-    <ClInclude Include="Util\Object\UtilObjectBank.h" />
-    <ClInclude Include="Util\Object\UtilStructBank.h" />
+    <ClInclude Include="Util\Allocator\UtilArena.h" />
+    <ClInclude Include="Util\Allocator\UtilObjectBank.h" />
+    <ClInclude Include="Util\Allocator\UtilStructBank.h" />
     <ClInclude Include="Util\UtilBit.h" />
     <ClInclude Include="Util\UtilContainer.h" />
     <ClInclude Include="Util\UtilFlag.h" />
     <ClInclude Include="Util\UtilInclude.h" />
+    <ClInclude Include="Util\UtilInsertOrdered.h" />
     <ClInclude Include="Util\UtilLikely.h" />
     <ClInclude Include="Util\UtilMath.h" />
     <ClInclude Include="Util\UtilSingleton.h" />
@@ -312,20 +309,15 @@
     <ClCompile Include="Graphics\Gcn\GcnCompilerVectorALU.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnCompilerVectorInterpolation.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnCompilerVectorMemory.cpp" />
-    <ClCompile Include="Graphics\Gcn\GcnControlFlowGraph.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnDecoder.cpp" />
-    <ClCompile Include="Graphics\Gcn\GcnDominatorTree.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnFetchShader.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnHeader.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnInstruction.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnInstructionIterator.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnInstructionUtil.cpp" />
-    <ClCompile Include="Graphics\Gcn\GcnLoopInfo.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnModule.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnProgramInfo.cpp" />
-    <ClCompile Include="Graphics\Gcn\GcnStackifier.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnStateRegister.cpp" />
-    <ClCompile Include="Graphics\Gcn\GcnTokenList.cpp" />
     <ClCompile Include="Graphics\Gnm\GnmGpuLabel.cpp" />
     <ClCompile Include="Graphics\Gnm\GnmInitializer.cpp" />
     <ClCompile Include="Graphics\Gnm\GnmResourceFactory.cpp" />
@@ -533,7 +525,7 @@
     <ClCompile Include="SceModules\SceVideoOut\sce_videoout_export.cpp" />
     <ClCompile Include="SceModules\SceVideoRecording\sce_videorecording.cpp" />
     <ClCompile Include="SceModules\SceVideoRecording\sce_videorecording_export.cpp" />
-    <ClCompile Include="Util\Object\UtilStructBank.cpp" />
+    <ClCompile Include="Util\Allocator\UtilStructBank.cpp" />
     <ClCompile Include="Util\UtilString.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -599,13 +591,13 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir);$(ProjectDir)Emulator;$(ProjectDir)Algorithm;$(ProjectDir)Common;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Util\Object;$(ProjectDir)Graphics;$(ProjectDir)SceModules;$(SolutionDir)3rdParty;$(SolutionDir)3rdParty\zydis\include;$(SolutionDir)3rdParty\zydis\dependencies\zycore\include;$(SolutionDir)3rdParty\boost;$(SolutionDir)3rdParty\fmt\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(ProjectDir)Emulator;$(ProjectDir)Algorithm;$(ProjectDir)Common;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Util\Allocator;$(ProjectDir)Graphics;$(ProjectDir)SceModules;$(SolutionDir)3rdParty;$(SolutionDir)3rdParty\zydis\include;$(SolutionDir)3rdParty\zydis\dependencies\zycore\include;$(SolutionDir)3rdParty\boost;$(SolutionDir)3rdParty\fmt\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
     <EnableClangTidyCodeAnalysis>
     </EnableClangTidyCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir);$(ProjectDir)Emulator;$(ProjectDir)Algorithm;$(ProjectDir)Common;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Util\Object;$(ProjectDir)Graphics;$(ProjectDir)SceModules;$(SolutionDir)3rdParty;$(SolutionDir)3rdParty\zydis\include;$(SolutionDir)3rdParty\zydis\dependencies\zycore\include;$(SolutionDir)3rdParty\boost;$(SolutionDir)3rdParty\fmt\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(ProjectDir)Emulator;$(ProjectDir)Algorithm;$(ProjectDir)Common;$(ProjectDir)Platform;$(ProjectDir)Util;$(ProjectDir)Util\Allocator;$(ProjectDir)Graphics;$(ProjectDir)SceModules;$(SolutionDir)3rdParty;$(SolutionDir)3rdParty\zydis\include;$(SolutionDir)3rdParty\zydis\dependencies\zycore\include;$(SolutionDir)3rdParty\boost;$(SolutionDir)3rdParty\fmt\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
     <EnableClangTidyCodeAnalysis>
     </EnableClangTidyCodeAnalysis>

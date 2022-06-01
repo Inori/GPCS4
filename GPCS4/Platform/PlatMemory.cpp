@@ -209,6 +209,21 @@ bool VMQuery(void* pAddress, MemoryInformation* pInfo)
 	return ret;
 }
 
+void* aligned_malloc(size_t align, size_t size)
+{
+	_set_errno(0);
+	void* ret = _aligned_malloc(size, align);
+	if (errno == ENOMEM)
+	{
+		ret = nullptr;
+	}
+	return ret;
+}
+
+void aligned_free(void* ptr)
+{
+	_aligned_free(ptr);
+}
 
 #elif defined(GPCS4_LINUX)
 

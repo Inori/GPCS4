@@ -2,7 +2,6 @@
 #include "GcnAnalysis.h"
 #include "GcnCompiler.h"
 #include "GcnDecoder.h"
-#include "GcnStackifier.h"
 
 #include "PlatFile.h"
 #include "UtilString.h"
@@ -61,16 +60,16 @@ namespace sce::gcn
 
 		//return nullptr;
 
-		GcnCfgPass cfgPass;
-		auto cfg = cfgPass.generateCfg(insList);
-		GcnStackifier stackifier(cfg);
+		//GcnCfgPass cfgPass;
+		//auto cfg = cfgPass.generateCfg(insList);
+		//GcnStackifier stackifier(cfg);
 
-		auto tokenList = stackifier.generate();
-		auto scfg      = tokenList.dump();
-		LOG_DEBUG("%s", scfg.c_str());
+		//auto tokenList = stackifier.generate();
+		//auto scfg      = tokenList.dump();
+		//LOG_DEBUG("%s", scfg.c_str());
 
-		auto       dot = GcnCfgPass::dumpDot(cfg);
-		plat::StoreFile(dotName, dot.data(), dot.size());
+		//auto       dot = GcnCfgPass::dumpDot(cfg);
+		//plat::StoreFile(dotName, dot.data(), dot.size());
 		
 
 		// TODO:
