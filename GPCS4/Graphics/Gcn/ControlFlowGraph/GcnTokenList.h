@@ -12,49 +12,44 @@ namespace sce::gcn
 	class GcnToken;
 	class GcnTokenList;
 
-	enum class GcnConditionType : uint32_t
+	enum class GcnConditionOp : uint32_t
 	{
-		Variable,		// Condition is a variable token
-		Divergence		// Condition is (EXEC & SubgroupEqMask)
+		EqU32,
+		NeU32,
+		GeU32,
+		GtU32,
+		LeU32,
+		LtU32,
+		Scc0,
+		Scc1,
+		Vccz,
+		Vccnz,
+		Execz,
+		Execnz,
+		Divergence	// Condition is (EXEC & SubgroupEqMask)
 	};
 
-	struct GcnCondition
+	struct GcnTokenValue
 	{
-		GcnCondition(GcnConditionType type) :
-			m_type(type),
-			m_variable(nullptr)
-		{
-		}
-		GcnCondition(GcnToken* variable) :
-			m_type(GcnConditionType::Variable),
-			m_variable(variable)
-		{
-		}
-
-		GcnConditionType m_type;
-		GcnToken*        m_variable;
+		uint32_t      spvId;
+		size_t        value;
+		GcnScalarType type;
 	};
-
 
 	enum class GcnTokenKind : uint32_t
 	{
-		Invalid  = 0,
-		Code     = 1 << 0,
-		Loop     = 1 << 1,
-		Block    = 1 << 2,
-		If       = 1 << 3,
-		IfNot    = 1 << 4,
-		Else     = 1 << 5,
-		Branch   = 1 << 6,
-		End      = 1 << 7,
-		Variable = 1 << 8,
-	};
-
-	enum class GcnInterpretType
-	{
-		Code,             // use m_vertex
-		CustomCondition,  // use m_condition
-		CustomValue,      // use m_value
+		Invalid   = 0,
+		Code      = 1 << 0,
+		Loop      = 1 << 1,
+		Block     = 1 << 2,
+		If        = 1 << 3,
+		IfNot     = 1 << 4,
+		Else      = 1 << 5,
+		Branch    = 1 << 6,
+		End       = 1 << 7,
+		Condition = 1 << 8,
+		Variable  = 1 << 9,
+		SetValue  = 1 << 10,
 	};
 
 	class GcnToken
@@ -68,18 +63,22 @@ namespace sce::gcn
 				 GcnToken*    match);
 
 		GcnToken(GcnTokenKind kind,
-				 GcnCondition condition,
+				 GcnToken*    condition,
 				 GcnToken*    match);
+
+		GcnToken(GcnTokenKind         kind,
+				 const GcnTokenValue& value,
+				 GcnToken*            match);
+
+		GcnToken(GcnTokenKind   kind,
+				 GcnConditionOp condOp,
+				 GcnToken*      match);
+
 		~GcnToken();
 
 		GcnTokenKind kind() const
 		{
 			return m_kind;
-		}
-
-		GcnInterpretType interpretType() const
-		{
-			return m_interpretType;
 		}
 
 		void setMatch(GcnToken* match)
@@ -92,10 +91,25 @@ namespace sce::gcn
 			return m_match;
 		}
 
-		const GcnCfgVertex getVertex() const
+		void setSpvId(uint32_t spvId)
+		{
+			m_value.spvId = spvId;
+		}
+
+		uint32_t getSpvId() const
+		{
+			return m_value.spvId;
+		}
+
+		GcnCfgVertex getVertex() const
 		{
 			assert(m_vertex != GcnControlFlowGraph::null_vertex());
 			return m_vertex;
+		}
+
+		GcnToken* getCondition() const
+		{
+			return m_condition;
 		}
 
 		std::list<GcnToken*>::iterator getIterator();
@@ -103,80 +117,20 @@ namespace sce::gcn
 		GcnToken* getPrevNode();
 		GcnToken* getNextNode();
 
-		std::string dump() const
-		{
-			auto vertexName = [](GcnCfgVertex vtx) 
-			{
-				return vtx == GcnControlFlowGraph::null_vertex() 
-					? "null"
-					: fmt::format("{}", vtx);
-			};
-			std::stringstream ss;
-			ss << fmt::format("{}", (void*)this) << " ";
-			switch (m_kind)
-			{
-				case GcnTokenKind::Invalid:
-					ss << "!!!!!INVALID!!!!!" << "\n";
-					break;
-				case GcnTokenKind::Code:
-					ss << "CODE " << "V" << vertexName(m_vertex) << "\n";
-					break;
-				case GcnTokenKind::Loop:
-					ss << "LOOP " << fmt::format("{}", (void*)m_match) << "\n";
-					break;
-				case GcnTokenKind::Block:
-					ss << "BLOCK " << fmt::format("{}", (void*)m_match) << "\n";
-					break;
-				case GcnTokenKind::If:
-					ss << "IF " << "V" << vertexName(m_vertex) << "\n";
-					break;
-				case GcnTokenKind::IfNot:
-					ss << "IF_NOT " << "V" << vertexName(m_vertex) << "\n";
-					break;
-				case GcnTokenKind::Else:
-					ss << "ELSE" << "\n";
-					break;
-				case GcnTokenKind::Branch:
-					ss << "BRANCH " << fmt::format("{}", (void*)m_match) << "\n";
-					break;
-				case GcnTokenKind::End:
-				{
-					std::string tail;
-					switch (m_match->m_kind)
-					{
-						case GcnTokenKind::Block:
-							tail = "BLOCK";
-							break;
-						case GcnTokenKind::If:
-						case GcnTokenKind::IfNot:
-						case GcnTokenKind::Else:
-							tail = "IF";
-							break;
-						case GcnTokenKind::Loop:
-							tail = "LOOP";
-							break;
-						default:
-							tail = "";
-							break;
-					}
-					ss << "END" << tail << " " << fmt::format("{}", (void*)m_match) << "\n";
-				}
-					break;
-				case GcnTokenKind::Variable:
-					ss << "CONDITION" << "\n";
-					break;
-			}
-			return ss.str();
-		}
+		std::string dump() const;
+
+		static GcnConditionOp getConditionOp(const GcnControlFlowGraph& cfg,
+											 GcnCfgVertex               vtx);
+		static GcnConditionOp getInversePredicate(GcnConditionOp op);
 	private:
-		GcnTokenKind     m_kind;
-		GcnInterpretType m_interpretType = GcnInterpretType::Code;
+		GcnTokenKind m_kind;
 
 		union
 		{
-			GcnCfgVertex m_vertex;
-			GcnCondition m_condition;
-			size_t       m_value;
+			GcnCfgVertex   m_vertex;
+			GcnToken*      m_condition;    // used by If/IfNot token
+			GcnConditionOp m_conditionOp;  // used by Condition token
+			GcnTokenValue  m_value;        // used by Variable/SetValue token	
 		};
 		
 		// A related token, for example,
@@ -228,17 +182,12 @@ namespace sce::gcn
 			return blockEnd;
 		}
 
-		GcnToken* createIf(GcnCondition condition)
+		GcnToken* createIf(GcnToken* condition)
 		{
 			return m_pool.allocate(GcnTokenKind::If, condition, nullptr);
 		}
 
-		GcnToken* createIf(GcnCfgVertex condition)
-		{
-			return m_pool.allocate(GcnTokenKind::If, condition, nullptr);
-		}
-
-		GcnToken* createIfNot(GcnCfgVertex condition)
+		GcnToken* createIfNot(GcnToken* condition)
 		{
 			return m_pool.allocate(GcnTokenKind::IfNot, condition, nullptr);
 		}
@@ -281,9 +230,21 @@ namespace sce::gcn
 				GcnTokenKind::Branch, GcnControlFlowGraph::null_vertex(), target);
 		}
 
-		GcnToken* createVariable(GcnCfgVertex vertex)
+		GcnToken* createCondition(GcnConditionOp op, GcnToken* value = nullptr)
 		{
-			return m_pool.allocate(GcnTokenKind::Variable, vertex, nullptr);
+			assert(!value || value->m_kind == GcnTokenKind::Variable);
+			return m_pool.allocate(GcnTokenKind::Condition, op, value);
+		}
+
+		GcnToken* createVariable(GcnTokenValue init)
+		{
+			return m_pool.allocate(GcnTokenKind::Variable, init, nullptr);
+		}
+
+		GcnToken* createSetValue(GcnTokenValue value, GcnToken* variable)
+		{
+			assert(variable && variable->m_kind == GcnTokenKind::Variable);
+			return m_pool.allocate(GcnTokenKind::SetValue, value, variable);
 		}
 
 	private:

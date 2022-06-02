@@ -68,9 +68,9 @@ namespace sce::gcn
 		plat::StoreFile(dotName, dot.data(), dot.size());
 
 		GcnStackifier stackifier(cfg);
-
+		auto tokenList = stackifier.generate();
+		LOG_DEBUG("%s", tokenList.dump().c_str());
 		
-
 		// TODO:
 		// Generate module info from device.
 		GcnModuleInfo moduleInfo;

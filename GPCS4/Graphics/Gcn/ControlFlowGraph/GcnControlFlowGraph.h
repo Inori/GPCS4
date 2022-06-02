@@ -30,7 +30,8 @@ namespace sce::gcn
 		// Note that we can only do so when we choose 
 		// vecS as the vertex container.
 
-		// Stores in DFS order.
+		// We guarantee that successors[0] is true label
+		// and successors[1] is false label
 		util::static_vector<size_t, 2> successors;
 	};
 
@@ -43,21 +44,13 @@ namespace sce::gcn
 		GcnInstructionList  insList;
 	};
 
-	typedef boost::adjacency_list<
-		boost::hash_setS, boost::vecS,
-		boost::bidirectionalS,
-		GcnBasicBlock>
-		GcnControlFlowGraph;
-
-	typedef GcnControlFlowGraph::vertex_descriptor 
-		GcnCfgVertex;
-
-	typedef GcnControlFlowGraph::edge_descriptor
-		GcnCfgEdge;
-
-	typedef boost::graph_traits<
-		GcnControlFlowGraph>::adjacency_iterator 
-		GcnAdjacencyIterator;
+	using GcnControlFlowGraph  = boost::adjacency_list<boost::hash_setS,
+                                                      boost::vecS,
+                                                      boost::bidirectionalS,
+                                                      GcnBasicBlock>;
+	using GcnCfgVertex         = GcnControlFlowGraph::vertex_descriptor;
+	using GcnCfgEdge           = GcnControlFlowGraph::edge_descriptor;
+	using GcnAdjacencyIterator = boost::graph_traits<GcnControlFlowGraph>::adjacency_iterator;
 
 	/**
 	 * \brief Control flow graph pass

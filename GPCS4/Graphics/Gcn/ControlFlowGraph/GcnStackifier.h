@@ -7,7 +7,6 @@
 
 #include <vector>
 #include <unordered_map>
-#include <unordered_set>
 
 namespace sce::gcn
 {
@@ -185,6 +184,12 @@ namespace sce::gcn
 	 */
 	class GcnGotoEliminator
 	{
+		struct GotoInfo
+		{
+			GcnToken* branch;        // the "goto" token, treat branch.match as label
+			uint32_t  levelDistance; // level(goto) - level(label)
+		};
+
 	public:
 		GcnGotoEliminator(const GcnControlFlowGraph& cfg,
 						  GcnTokenFactory&           factory);
@@ -193,7 +198,7 @@ namespace sce::gcn
 		void eliminate(GcnTokenList& tokens);
 
 	private:
-		std::unordered_set<GcnToken*> findGotos();
+		std::vector<GotoInfo> findGotos();
 
 	private:
 		const GcnControlFlowGraph& m_cfg;

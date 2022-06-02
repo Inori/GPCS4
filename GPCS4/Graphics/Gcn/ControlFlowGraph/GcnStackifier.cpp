@@ -85,7 +85,7 @@ namespace sce::gcn
 					}
 					break;
 				}
-				case GcnTokenKind::Variable:
+				case GcnTokenKind::Condition:
 					break;
 				case GcnTokenKind::Invalid:
 					LOG_ERR("INVALID Token found");
@@ -183,7 +183,7 @@ namespace sce::gcn
 		// (in reverse order so they are popped in the correct order)
 		auto& term = m_cfg[vtx].terminator;
 
-		for (int i = term.successors.size() - 1; i >= 0; --i)
+		for (int i = 0; i != term.successors.size(); ++i)
 		{
 			enqueueSuccessor(vtx, term.successors[i]);
 		}
@@ -232,8 +232,13 @@ namespace sce::gcn
 		}
 		else if (terminator.kind == GcnBlockTerminator::Conditional)
 		{
-			auto ifToken = m_factory.createIf(vtx);
-			auto ifPtr   = m_tokens->insertAfter(m_insertPtr, ifToken);
+			auto condOp    = GcnToken::getConditionOp(m_cfg, vtx);
+			// Why do we need to inverse the condition?
+			// see comments in processVertex
+			auto inverseOp = GcnToken::getInversePredicate(condOp);
+			auto condition = m_factory.createCondition(inverseOp);
+			auto ifToken   = m_factory.createIf(condition);
+			auto ifPtr     = m_tokens->insertAfter(m_insertPtr, ifToken);
 
 			auto elseToken = m_factory.createElse(ifToken);
 			auto elsePtr   = m_tokens->insertAfter(ifPtr, elseToken);
@@ -241,8 +246,8 @@ namespace sce::gcn
 			auto endToken = m_factory.createIfEnd(ifToken, elseToken);
 			auto endPtr   = m_tokens->insertAfter(elsePtr, endToken);
 
-			auto ifVertex   = terminator.successors[0];
-			auto elseVertex = terminator.successors[1];
+			auto ifVertex   = terminator.successors[1];
+			auto elseVertex = terminator.successors[0];
 			bool ifNested   = (vtx == getUniqueForwardPredecessor(ifVertex));
 			bool elseNested = (vtx == getUniqueForwardPredecessor(elseVertex));
 
@@ -289,11 +294,14 @@ namespace sce::gcn
 			// If the loop has parent, 
 			// then loop header is one of the vertices of parent loop,
 			// decrement parent by one when count is 0.
-			auto parent = loop->getParentLoop();
-			if (iter->second == 0 && parent != nullptr)
+			while (iter->second == 0)
 			{
-				iter = m_loopCounts.find(parent);
-				LOG_ASSERT(iter != m_loopCounts.end(), "parent loop not recorded.");
+				auto parent = iter->first->getParentLoop();
+				iter        = m_loopCounts.find(parent);
+				if (iter == m_loopCounts.end())
+				{
+					break;
+				}
 				--iter->second;
 			}
 	
@@ -574,7 +582,7 @@ namespace sce::gcn
 						GcnToken* tokenElse = token;
 						GcnToken* tokenEnd  = tokenElse->getMatch();
 
-						GcnToken* tokenIfNot = m_factory.createIfNot(emptyIf->getVertex());
+						GcnToken* tokenIfNot = m_factory.createIfNot(emptyIf->getCondition());
 						tokenIfNot->setMatch(tokenEnd);
 						tokenEnd->setMatch(tokenIfNot);
 
@@ -687,7 +695,7 @@ namespace sce::gcn
 					result = false;
 					break;
 				case GcnTokenKind::End:
-				case GcnTokenKind::Variable:
+				case GcnTokenKind::Condition:
 					result = true;
 					break;
 				case GcnTokenKind::If:
@@ -761,7 +769,7 @@ namespace sce::gcn
 			auto removeIf = [&]()
 			{
 				m_tokens->moveAfter(tokenEnd->getIterator(), std::next(tokenIf->getIterator()), tokenElse->getIterator());
-				GcnToken* tokenIfNot = m_factory.createIfNot(tokenIf->getVertex());
+				GcnToken* tokenIfNot = m_factory.createIfNot(tokenIf->getCondition());
 				tokenIfNot->setMatch(tokenEnd);
 				tokenEnd->setMatch(tokenIfNot);
 				m_tokens->insert(tokenElse->getIterator(), tokenIfNot);
@@ -857,50 +865,54 @@ namespace sce::gcn
 	void GcnGotoEliminator::eliminate(GcnTokenList& tokens)
 	{
 		m_tokens = &tokens;
+		auto gotos = findGotos();
 	}
 
-	std::unordered_set<GcnToken*> GcnGotoEliminator::findGotos()
+	std::vector<GcnGotoEliminator::GotoInfo> 
+		GcnGotoEliminator::findGotos()
 	{
-		std::unordered_set<GcnToken*> result;
-		std::vector<const GcnToken*>  loopStack;
+		std::vector<GotoInfo>        result;
+		std::vector<const GcnToken*> scopeStack;
 		
 		for (const auto& token : *m_tokens)
 		{
 			switch (token->kind())
 			{
 				case GcnTokenKind::Code:
-				case GcnTokenKind::Block:
 				case GcnTokenKind::If:
 				case GcnTokenKind::IfNot:
 				case GcnTokenKind::Else:
-				case GcnTokenKind::Variable:
+				case GcnTokenKind::Condition:
 					break;
+				case GcnTokenKind::Block:
 				case GcnTokenKind::Loop:
-					loopStack.push_back(token);
+					scopeStack.push_back(token);
 					break;
 				case GcnTokenKind::Branch:
 				{
 					GcnToken* target = token->getMatch();
 					if (target->kind() == GcnTokenKind::End)
 					{
-						// A block, find block header.
+						// A block, replace with block header.
 						target = target->getMatch();
 					}
 					
-					if (((uint32_t)target->kind() & ((uint32_t)GcnTokenKind::Block |
-													 (uint32_t)GcnTokenKind::If |
-													 (uint32_t)GcnTokenKind::IfNot)) ||
-						target != loopStack.back())
+					auto iter     = std::find(scopeStack.rbegin(), scopeStack.rend(), target);
+					auto distance = std::distance(scopeStack.rbegin(), iter);
+					if (distance != 0)
 					{
-						result.insert(token);
+						GotoInfo info = { token, static_cast<uint32_t>(distance) };
+						result.push_back(info);
 					}
 				}
 					break;
 				case GcnTokenKind::End:
 				{
-					if (token->getMatch()->kind() == GcnTokenKind::Loop)
+					auto headerKind = token->getMatch()->kind();
+					if ((uint32_t)headerKind & ((uint32_t)GcnTokenKind::Loop |
+												(uint32_t)GcnTokenKind::Block))
 					{
-						loopStack.pop_back();
+						scopeStack.pop_back();
 					}
 				}
 					break;
@@ -909,7 +921,7 @@ namespace sce::gcn
 					break;
 			}
 		}
-		LOG_ASSERT(loopStack.empty(), "scope not all closed.");
+		LOG_ASSERT(scopeStack.empty(), "scope not all closed.");
 		return result;
 	}
 
