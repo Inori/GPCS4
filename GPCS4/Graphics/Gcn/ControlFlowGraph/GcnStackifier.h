@@ -190,6 +190,12 @@ namespace sce::gcn
 			uint32_t  levelDistance; // level(goto) - level(label)
 		};
 
+		struct Scope
+		{
+			GcnToken* head;
+			GcnToken* end;
+		};
+
 	public:
 		GcnGotoEliminator(const GcnControlFlowGraph& cfg,
 						  GcnTokenFactory&           factory);
@@ -199,6 +205,26 @@ namespace sce::gcn
 
 	private:
 		std::vector<GotoInfo> findGotos();
+
+		void eliminateGoto(const GotoInfo& info);
+
+		GcnToken* moveOutward(GcnToken* gotoToken);
+		GcnToken* moveOutwardIf(GcnToken* gotoToken, const Scope& scope);
+		GcnToken* moveOutwardLoop(GcnToken* gotoToken, const Scope& scope);
+
+		void eliminateAsCondition(GcnToken* gotoToken);
+		void eliminateAsLoop(GcnToken* gotoToken);
+
+		bool      isBackEdge(GcnToken* gotoToken);
+		bool      isInRange(GcnToken* begin,
+							GcnToken* end,
+							GcnToken* target);
+		bool      isInRange(GcnTokenList::iterator begin,
+							GcnTokenList::iterator end,
+							GcnTokenList::iterator target);
+		Scope     findOuterScope(GcnToken* gotoToken);
+		GcnToken* findScopeEnd(GcnToken* target);
+
 
 	private:
 		const GcnControlFlowGraph& m_cfg;

@@ -14,6 +14,8 @@ namespace sce::gcn
 
 	enum class GcnConditionOp : uint32_t
 	{
+		EqBool,
+		NeBool,
 		EqU32,
 		NeU32,
 		GeU32,
@@ -34,6 +36,12 @@ namespace sce::gcn
 		uint32_t      spvId;
 		size_t        value;
 		GcnScalarType type;
+	};
+
+	struct GcnTokenCondition
+	{
+		GcnConditionOp op;
+		size_t         cmpValue;
 	};
 
 	enum class GcnTokenKind : uint32_t
@@ -70,9 +78,9 @@ namespace sce::gcn
 				 const GcnTokenValue& value,
 				 GcnToken*            match);
 
-		GcnToken(GcnTokenKind   kind,
-				 GcnConditionOp condOp,
-				 GcnToken*      match);
+		GcnToken(GcnTokenKind             kind,
+				 const GcnTokenCondition& cond,
+				 GcnToken*                match);
 
 		~GcnToken();
 
@@ -127,10 +135,10 @@ namespace sce::gcn
 
 		union
 		{
-			GcnCfgVertex   m_vertex;
-			GcnToken*      m_condition;    // used by If/IfNot token
-			GcnConditionOp m_conditionOp;  // used by Condition token
-			GcnTokenValue  m_value;        // used by Variable/SetValue token	
+			GcnCfgVertex      m_vertex;
+			GcnToken*         m_condition;      // used by If/IfNot token
+			GcnTokenCondition m_conditionInfo;  // used by Condition token
+			GcnTokenValue     m_value;          // used by Variable/SetValue token	
 		};
 		
 		// A related token, for example,
@@ -230,10 +238,13 @@ namespace sce::gcn
 				GcnTokenKind::Branch, GcnControlFlowGraph::null_vertex(), target);
 		}
 
-		GcnToken* createCondition(GcnConditionOp op, GcnToken* value = nullptr)
+		GcnToken* createCondition(GcnConditionOp op, uint32_t cmpValue = 0, GcnToken* variable = nullptr)
 		{
-			assert(!value || value->m_kind == GcnTokenKind::Variable);
-			return m_pool.allocate(GcnTokenKind::Condition, op, value);
+			assert(!variable || variable->m_kind == GcnTokenKind::Variable);
+			GcnTokenCondition condition = {};
+			condition.op       = op;
+			condition.cmpValue = cmpValue;
+			return m_pool.allocate(GcnTokenKind::Condition, condition, variable);
 		}
 
 		GcnToken* createVariable(GcnTokenValue init)
@@ -328,6 +339,10 @@ namespace sce::gcn
 			token->m_container = nullptr;
 			//std::erase(m_list, token);
 			m_list.remove_if([&](auto& elem) { return elem == token; });
+		}
+
+		static bool withinRange(iterator begin, iterator end, iterator target)
+		{
 		}
 
 		std::string dump(GcnToken* target = nullptr)

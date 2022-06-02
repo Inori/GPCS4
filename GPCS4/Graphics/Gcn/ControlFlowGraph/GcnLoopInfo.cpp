@@ -132,7 +132,7 @@ namespace sce::gcn
 		}
 		else
 		{
-			bool found = false;
+			bool foundChild = false;
 			for (auto& child : loop->m_children)
 			{
 				if (!child->contains(vtx))
@@ -142,12 +142,12 @@ namespace sce::gcn
 				else
 				{
 					result = findInnerLoop(child, vtx);
-					found  = true;
+					foundChild  = true;
 					break;
 				}
 			}
 
-			if (!found)
+			if (!foundChild)
 			{
 				result = loop;
 			}
