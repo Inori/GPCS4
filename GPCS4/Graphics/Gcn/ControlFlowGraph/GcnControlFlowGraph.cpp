@@ -153,14 +153,14 @@ namespace sce::gcn
 				terminator.successors.push_back(succ);
 			}
 
-			// Make sure successors[0] is false label
-			// and successors[1] is true label
+			// Make sure successors[0] is true label
+			// and successors[1] is false label
 			if (terminator.kind == GcnBlockTerminator::Conditional)
 			{
-				auto     succ1      = terminator.successors[1];
+				auto     succ0      = terminator.successors[0];
 				uint32_t blockEnd   = basicBlock.pcEnd;
-				uint32_t succ1Begin = m_cfg[succ1].pcBegin;
-				if (blockEnd == succ1Begin)
+				uint32_t succ0Begin = m_cfg[succ0].pcBegin;
+				if (blockEnd == succ0Begin)
 				{
 					// If parent's end is equal to successor's begin,
 					// then this successor is a false label,

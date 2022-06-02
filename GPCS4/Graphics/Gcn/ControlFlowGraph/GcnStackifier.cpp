@@ -186,10 +186,6 @@ namespace sce::gcn
 		{
 			enqueueSuccessor(vtx, term.successors[i]);
 		}
-		//for (int i = 0; i != term.successors.size(); ++i)
-		//{
-		//	enqueueSuccessor(vtx, term.successors[i]);
-		//}
 	}
 
 	void GcnTokenListBuilder::enqueueSuccessor(GcnCfgVertex vtx, GcnCfgVertex succ)
@@ -236,10 +232,7 @@ namespace sce::gcn
 		else if (terminator.kind == GcnBlockTerminator::Conditional)
 		{
 			auto condOp    = GcnToken::getConditionOp(m_cfg, vtx);
-			// Why do we need to inverse the condition?
-			// see comments in processVertex
-			auto inverseOp = GcnToken::getInversePredicate(condOp);
-			auto condition = m_factory.createCondition(inverseOp);
+			auto condition = m_factory.createCondition(condOp);
 			auto ifToken   = m_factory.createIf(condition);
 			auto ifPtr     = m_tokens->insertAfter(m_insertPtr, ifToken);
 

@@ -30,9 +30,8 @@ namespace sce::gcn
 		// Note that we can only do so when we choose 
 		// vecS as the vertex container.
 
-		// For unconditional branch, successors[0] is the target
-		// We guarantee that successors[0] is false label
-		// and successors[1] is true label
+		// We guarantee that successors[0] is true label
+		// and successors[1] is false label
 		util::static_vector<size_t, 2> successors;
 	};
 
