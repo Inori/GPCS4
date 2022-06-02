@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="src\cfg">
+      <UniqueIdentifier>{de609e3a-541c-4b1b-9f07-2a2f4f4abc39}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\pass">
+      <UniqueIdentifier>{faee8707-c215-406d-87d8-19e37b9327e2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\cfg\Relooper.cpp">
+      <Filter>src\cfg</Filter>
+    </ClCompile>
+    <ClCompile Include="src\binaryen-c.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\passes\Print.cpp">
+      <Filter>src\pass</Filter>
+    </ClCompile>
+    <ClCompile Include="src\passes\pass.cpp">
+      <Filter>src\pass</Filter>
+    </ClCompile>
+    <ClCompile Include="src\passes\Vacuum.cpp">
+      <Filter>src\pass</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\cfg\Relooper.h">
+      <Filter>src\cfg</Filter>
+    </ClInclude>
+    <ClInclude Include="src\binaryen-c.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\wasm.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\wasm-builder.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\wasm-traversal.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pass.h">
+      <Filter>src</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\wasm-delegations.def">
+      <Filter>src</Filter>
+    </None>
+    <None Include="src\wasm-delegations-fields.def">
+      <Filter>src</Filter>
+    </None>
+  </ItemGroup>
+</Project>
