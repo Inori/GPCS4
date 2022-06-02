@@ -340,6 +340,33 @@ public:
     return Flow(curr->value); // heh
   }
 
+  bool isGcnUnary(Unary* curr) {
+    bool ret = false;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wswitch"
+    switch (curr->op) {
+      case Scc0:
+      case Scc1:
+      case Vccz:
+      case Vccnz:
+      case Execz:
+      case Execnz:
+      case Divergence:
+        ret = true;
+        break;
+    }
+#pragma clang diagnostic pop
+    return ret;
+  }
+
+  Literal getUnaryValue(Unary* curr, Flow& flow) {
+    if (isGcnUnary(curr)) {
+      return Literal(int32_t(1));
+    } else {
+      return flow.getSingleValue();
+    }
+  }
+
   // Unary and Binary nodes, the core math computations. We mostly just
   // delegate to the Literal::* methods, except we handle traps here.
 
@@ -349,7 +376,7 @@ public:
     if (flow.breaking()) {
       return flow;
     }
-    Literal value = flow.getSingleValue();
+    Literal value = getUnaryValue(curr, flow);
     NOTE_EVAL1(value);
     switch (curr->op) {
       case ClzInt32:
@@ -363,6 +390,14 @@ public:
         return value.popCount();
       case EqZInt32:
       case EqZInt64:
+
+      case Scc0:
+      case Scc1:
+      case Vccz:
+      case Vccnz:
+      case Execz:
+      case Execnz:
+      case Divergence:
         return value.eqz();
       case ReinterpretInt32:
         return value.castToF32();
@@ -579,13 +614,6 @@ public:
         return value.demoteZeroToF32x4();
       case PromoteLowVecF32x4ToVecF64x2:
         return value.promoteLowToF64x2();
-      case Scc0:
-      case Scc1:
-      case Vccz:
-      case Vccnz:
-      case Execz:
-      case Execnz:
-      case Divergence:
       case InvalidUnary:
         WASM_UNREACHABLE("invalid unary op");
     }

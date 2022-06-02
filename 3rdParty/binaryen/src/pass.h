@@ -274,6 +274,8 @@ struct PassRunner {
   // afterwards.
   void addDefaultGlobalOptimizationPostPasses();
 
+  void addGcnOptimizationPasses();
+
   // Run the passes on the module
   void run();
 

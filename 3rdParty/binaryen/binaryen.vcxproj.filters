@@ -8,6 +8,9 @@
     <Filter Include="src\cfg">
       <UniqueIdentifier>{de609e3a-541c-4b1b-9f07-2a2f4f4abc39}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\pass">
+      <UniqueIdentifier>{faee8707-c215-406d-87d8-19e37b9327e2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\cfg\Relooper.cpp">
@@ -15,6 +18,15 @@
     </ClCompile>
     <ClCompile Include="src\binaryen-c.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\passes\Print.cpp">
+      <Filter>src\pass</Filter>
+    </ClCompile>
+    <ClCompile Include="src\passes\pass.cpp">
+      <Filter>src\pass</Filter>
+    </ClCompile>
+    <ClCompile Include="src\passes\Vacuum.cpp">
+      <Filter>src\pass</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -31,6 +43,9 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\wasm-traversal.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pass.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>

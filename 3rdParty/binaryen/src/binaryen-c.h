@@ -602,6 +602,15 @@ BINARYEN_API BinaryenOp BinaryenRefAsFunc(void);
 BINARYEN_API BinaryenOp BinaryenRefAsData(void);
 BINARYEN_API BinaryenOp BinaryenRefAsI31(void);
 
+// GPCS4
+BINARYEN_API BinaryenOp BinaryenScc0(void);
+BINARYEN_API BinaryenOp BinaryenScc1(void);
+BINARYEN_API BinaryenOp BinaryenVccz(void);
+BINARYEN_API BinaryenOp BinaryenVccnz(void);
+BINARYEN_API BinaryenOp BinaryenExecz(void);
+BINARYEN_API BinaryenOp BinaryenExecnz(void);
+BINARYEN_API BinaryenOp BinaryenDivergence(void);
+
 BINARYEN_REF(Expression);
 
 // Block: name can be NULL. Specifying BinaryenUndefined() as the 'type'
@@ -846,6 +855,22 @@ BINARYEN_API BinaryenExpressionRef BinaryenRefIs(BinaryenModuleRef module,
 BINARYEN_API BinaryenExpressionRef BinaryenRefAs(BinaryenModuleRef module,
                                                  BinaryenOp op,
                                                  BinaryenExpressionRef value);
+
+// GPCS4
+#ifdef __cplusplus
+namespace wasm {
+struct GcnShaderInstruction;
+} // namespace wasm
+typedef const wasm::GcnShaderInstruction** BinaryenGcnInstructionRef;
+#else
+typedef GcnShaderInstruction** BinaryenGcnInstructionRef;
+#endif
+
+BINARYEN_API BinaryenExpressionRef
+BinaryenGcnCode(BinaryenModuleRef module,
+                BinaryenGcnInstructionRef insList,
+                uint32_t insCount);
+
 BINARYEN_API BinaryenExpressionRef BinaryenRefFunc(BinaryenModuleRef module,
                                                    const char* func,
                                                    BinaryenType type);
@@ -2332,6 +2357,8 @@ BINARYEN_API bool BinaryenModuleValidate(BinaryenModuleRef module);
 // global optimize and shrink level.
 BINARYEN_API void BinaryenModuleOptimize(BinaryenModuleRef module);
 
+BINARYEN_API void BinaryenModuleOptimizeGcn(BinaryenModuleRef module);
+
 // Updates the internal name mapping logic in a module. This must be called
 // after renaming module elements.
 BINARYEN_API void BinaryenModuleUpdateMaps(BinaryenModuleRef module);
@@ -2774,6 +2801,9 @@ BINARYEN_API void RelooperAddBranchForSwitch(RelooperBlockRef from,
 //        an index of an i32 local variable that is free for us to use.
 BINARYEN_API BinaryenExpressionRef RelooperRenderAndDispose(
   RelooperRef relooper, RelooperBlockRef entry, BinaryenIndex labelHelper);
+
+// In case the relooper is created but not used.
+BINARYEN_API void RelooperDispose(RelooperRef relooper);
 
 //
 // ========= ExpressionRunner ==========

@@ -1195,6 +1195,14 @@ void BinaryInstWriter::visitUnary(Unary* curr) {
       o << int8_t(BinaryConsts::SIMDPrefix)
         << U32LEB(BinaryConsts::I32x4RelaxedTruncF64x2UZero);
       break;
+    case Scc0:
+    case Scc1:
+    case Vccz:
+    case Vccnz:
+    case Execz:
+    case Execnz:
+    case Divergence:
+      break;
     case InvalidUnary:
       WASM_UNREACHABLE("invalid unary op");
   }
@@ -2239,6 +2247,10 @@ void BinaryInstWriter::visitRefAs(RefAs* curr) {
     default:
       WASM_UNREACHABLE("invalid ref.as_*");
   }
+}
+
+void BinaryInstWriter::visitGcnCode(GcnCode* curr) {
+  WASM_UNREACHABLE("gcn code not supported");
 }
 
 void BinaryInstWriter::emitScopeEnd(Expression* curr) {

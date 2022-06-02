@@ -1667,7 +1667,7 @@ class GcnCode : public SpecificExpression<Expression::GcnCodeId> {
 public:
   GcnCode(MixedArena& allocator) : insList(allocator) {}
 
-  ArenaVector<GcnShaderInstruction*> insList;
+  ArenaVector<const GcnShaderInstruction*> insList;
 };
 
 

@@ -2231,10 +2231,10 @@ struct PrintExpressionContents
     }
   }
   void visitGcnCode(GcnCode* curr) {
-    for (auto ins : curr->insList) {
-      o << ' ';
-      o << ins;
-    }
+    prepareHighlightColor(o);
+    o << "gcn_code ";
+    restoreNormalColor(o);
+    o << "ins.count " << curr->insList.size();
   }
 };
 

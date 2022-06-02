@@ -380,6 +380,9 @@ set(binaryen_SOURCES
 if(BUILD_STATIC_LIB)
   message(STATUS "Building libbinaryen as statically linked library.")
   add_library(binaryen STATIC ${binaryen_SOURCES} ${binaryen_objs})
+
+  set_target_properties(binaryen PROPERTIES OUTPUT_NAME "binaryen$<$<CONFIG:Debug>:d>")
+
   add_definitions(-DBUILD_STATIC_LIBRARY)
 else()
   message(STATUS "Building libbinaryen as shared library.")

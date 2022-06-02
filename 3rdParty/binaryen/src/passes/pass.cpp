@@ -480,6 +480,7 @@ void PassRunner::addDefaultFunctionOptimizationPasses() {
   } else {
     addIfNoDWARFIssues("precompute");
   }
+
   if (options.lowMemoryUnused) {
     if (options.optimizeLevel >= 3 || options.shrinkLevel >= 1) {
       addIfNoDWARFIssues("optimize-added-constants-propagate");
@@ -596,6 +597,21 @@ void PassRunner::addDefaultGlobalOptimizationPostPasses() {
     addIfNoDWARFIssues("generate-stack-ir");
     addIfNoDWARFIssues("optimize-stack-ir");
   }
+}
+
+void PassRunner::addGcnOptimizationPasses() {
+
+  //addIfNoDWARFIssues("remove-unused-brs");
+ 
+  addIfNoDWARFIssues("merge-blocks"); // makes remove-unused-brs more effective
+  addIfNoDWARFIssues(
+    "remove-unused-brs"); // coalesce-locals opens opportunities
+  addIfNoDWARFIssues(
+    "remove-unused-names");           // remove-unused-brs opens opportunities
+  addIfNoDWARFIssues("merge-blocks"); // clean up remove-unused-brs new blocks
+
+  // remove empty blocks and nop
+  addIfNoDWARFIssues("vacuum");
 }
 
 static void dumpWast(Name name, Module* wasm) {

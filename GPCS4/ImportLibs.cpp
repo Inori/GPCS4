@@ -18,6 +18,7 @@
 #pragma comment(lib, "../3rdParty/rtaudio/rtaudiod.lib")
 #pragma comment(lib, "../3rdParty/tinydbr/TinyDBRd.lib")
 #pragma comment(lib, "../3rdParty/fmt/fmtd.lib")
+#pragma comment(lib, "../3rdParty/binaryen/build/lib/binaryend.lib")
 
 #else
 
@@ -27,6 +28,7 @@
 #pragma comment(lib, "../3rdParty/rtaudio/rtaudio.lib")
 #pragma comment(lib, "../3rdParty/tinydbr/TinyDBR.lib")
 #pragma comment(lib, "../3rdParty/fmt/fmt.lib")
+#pragma comment(lib, "../3rdParty/binaryen/build/lib/binaryen.lib")
 
 #endif  //_DEBUG
 #endif  //GPCS4_WINDOWS

@@ -1652,10 +1652,10 @@ void FunctionValidator::visitBinary(Binary* curr) {
 }
 
 void FunctionValidator::visitUnary(Unary* curr) {
-  shouldBeUnequal(curr->value->type,
-                  Type(Type::none),
-                  curr,
-                  "unaries must not receive a none as their input");
+  //shouldBeUnequal(curr->value->type,
+  //                Type(Type::none),
+  //                curr,
+  //                "unaries must not receive a none as their input");
   if (curr->value->type == Type::unreachable) {
     return; // nothing to check
   }
@@ -1929,6 +1929,14 @@ void FunctionValidator::visitUnary(Unary* curr) {
       shouldBeEqual(curr->type, Type(Type::i32), curr, "expected i32 type");
       shouldBeEqual(
         curr->value->type, Type(Type::v128), curr, "expected v128 operand");
+      break;
+    case Scc0:
+    case Scc1:
+    case Vccz:
+    case Vccnz:
+    case Execz:
+    case Execnz:
+    case Divergence:
       break;
     case InvalidUnary:
       WASM_UNREACHABLE("invalid unary op");

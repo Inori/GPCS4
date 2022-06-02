@@ -72,10 +72,14 @@
   <ItemGroup>
     <ClCompile Include="src\binaryen-c.cpp" />
     <ClCompile Include="src\cfg\Relooper.cpp" />
+    <ClCompile Include="src\passes\pass.cpp" />
+    <ClCompile Include="src\passes\Print.cpp" />
+    <ClCompile Include="src\passes\Vacuum.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\binaryen-c.h" />
     <ClInclude Include="src\cfg\Relooper.h" />
+    <ClInclude Include="src\pass.h" />
     <ClInclude Include="src\wasm-builder.h" />
     <ClInclude Include="src\wasm-traversal.h" />
     <ClInclude Include="src\wasm.h" />

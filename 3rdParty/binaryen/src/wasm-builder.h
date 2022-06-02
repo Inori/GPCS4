@@ -974,6 +974,15 @@ public:
     ret->finalize();
     return ret;
   }
+  GcnCode* makeGcnCode(const GcnShaderInstruction** insList, uint32_t insCount) {
+    auto* ret = wasm.allocator.alloc<GcnCode>();
+    for (uint32_t i = 0; i != insCount; ++i)
+    {
+      ret->insList.push_back(insList[i]);
+    }
+    ret->finalize();
+    return ret;
+  }
 
   // Additional helpers
 

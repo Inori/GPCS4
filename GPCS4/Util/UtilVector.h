@@ -110,11 +110,11 @@ namespace util
 
 		iterator end()
 		{
-			return m_storage.end();
+			return std::next(m_storage.begin(), m_size);
 		}
 		const_iterator end() const
 		{
-			return m_storage.end();
+			return std::next(m_storage.begin(), m_size);
 		}
 
 		T& operator[](size_t index)

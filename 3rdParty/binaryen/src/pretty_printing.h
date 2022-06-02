@@ -49,6 +49,12 @@ inline std::ostream& prepareMinorColor(std::ostream& o) {
   return o;
 }
 
+inline std::ostream& prepareHighlightColor(std::ostream& o) {
+  Colors::blue(o);
+  Colors::bold(o);
+  return o;
+}
+
 inline std::ostream& restoreNormalColor(std::ostream& o) {
   Colors::normal(o);
   return o;

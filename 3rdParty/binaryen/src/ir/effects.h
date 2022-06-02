@@ -732,7 +732,10 @@ private:
       // we keep the code here simpler, but it does mean another optimization
       // cycle may be needed in some cases.
     }
-    void visitGcnCode(GcnCode* curr) {
+    void visitGcnCode(GcnCode* curr) { 
+        // Give gcn code a side effect, 
+        // such that is won't be optimized out.
+        parent.branchesOut = true; 
     }
   };
 

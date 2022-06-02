@@ -766,6 +766,16 @@ BinaryenOp BinaryenRefAsFunc(void) { return RefAsFunc; }
 BinaryenOp BinaryenRefAsData(void) { return RefAsData; };
 BinaryenOp BinaryenRefAsI31(void) { return RefAsI31; };
 
+// GPCS4
+BinaryenOp BinaryenScc0(void) { return Scc0; }
+BinaryenOp BinaryenScc1(void) { return Scc1; }
+BinaryenOp BinaryenVccz(void) { return Vccz; }
+BinaryenOp BinaryenVccnz(void) { return Vccnz; }
+BinaryenOp BinaryenExecz(void) { return Execz; }
+BinaryenOp BinaryenExecnz(void) { return Execnz; }
+BinaryenOp BinaryenDivergence(void) { return Divergence; }
+
+
 BinaryenExpressionRef BinaryenBlock(BinaryenModuleRef module,
                                     const char* name,
                                     BinaryenExpressionRef* children,
@@ -1245,6 +1255,14 @@ BinaryenExpressionRef BinaryenRefAs(BinaryenModuleRef module,
                                     BinaryenExpressionRef value) {
   return static_cast<Expression*>(
     Builder(*(Module*)module).makeRefAs(RefAsOp(op), (Expression*)value));
+}
+
+// GPCS4
+BinaryenExpressionRef BinaryenGcnCode(BinaryenModuleRef module,
+                                      BinaryenGcnInstructionRef insList,
+                                      uint32_t insCount) {
+  return static_cast<Expression*>(
+    Builder(*(Module*)module).makeGcnCode(insList, insCount));
 }
 
 BinaryenExpressionRef
@@ -3902,6 +3920,14 @@ void BinaryenModuleOptimize(BinaryenModuleRef module) {
   passRunner.run();
 }
 
+BINARYEN_API void BinaryenModuleOptimizeGcn(BinaryenModuleRef module) {
+  PassRunner passRunner((Module*)module);
+  passRunner.options = globalPassOptions;
+  passRunner.addGcnOptimizationPasses();
+  passRunner.run();
+}
+
+
 void BinaryenModuleUpdateMaps(BinaryenModuleRef module) {
   ((Module*)module)->updateMaps();
 }
@@ -4528,6 +4554,12 @@ BinaryenExpressionRef RelooperRenderAndDispose(RelooperRef relooper,
   return BinaryenExpressionRef(ret);
 }
 
+void RelooperDispose(RelooperRef relooper) {
+  auto* R = (CFG::Relooper*)relooper;
+  delete R;
+}
+
+
 //
 // ========= ExpressionRunner =========
 //
@@ -4688,3 +4720,5 @@ double _f64_load(double* ptr) { return *ptr; }
 #endif // __EMSCRIPTEN__
 
 } // extern "C"
+
+

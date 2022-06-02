@@ -574,6 +574,13 @@ void Unary::finalize() {
       break;
     case EqZInt32:
     case EqZInt64:
+    case Scc0:
+    case Scc1:
+    case Vccz:
+    case Vccnz:
+    case Execz:
+    case Execnz:
+    case Divergence:
       type = Type::i32;
       break;
     case ExtendS8Int32:

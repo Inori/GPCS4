@@ -373,7 +373,7 @@ struct Hasher {
   void visitType(Type curr) { rehash(digest, curr.getID()); }
   void visitHeapType(HeapType curr) { rehash(digest, curr.getID()); }
   void visitAddress(Address curr) { rehash(digest, curr.addr); }
-  void visitGcnCode(const ArenaVector<GcnShaderInstruction*>& instList) 
+  void visitGcnCode(const ArenaVector<const GcnShaderInstruction*>& instList) 
   {
     for (const auto& ins : instList) {
       rehash(digest, ins); 
