@@ -182,11 +182,14 @@ namespace sce::gcn
 		// Enqueue successors on the visit stack
 		// (in reverse order so they are popped in the correct order)
 		auto& term = m_cfg[vtx].terminator;
-
-		for (int i = 0; i != term.successors.size(); ++i)
+		for (int i = term.successors.size() - 1; i >= 0; --i)
 		{
 			enqueueSuccessor(vtx, term.successors[i]);
 		}
+		//for (int i = 0; i != term.successors.size(); ++i)
+		//{
+		//	enqueueSuccessor(vtx, term.successors[i]);
+		//}
 	}
 
 	void GcnTokenListBuilder::enqueueSuccessor(GcnCfgVertex vtx, GcnCfgVertex succ)
@@ -246,8 +249,8 @@ namespace sce::gcn
 			auto endToken = m_factory.createIfEnd(ifToken, elseToken);
 			auto endPtr   = m_tokens->insertAfter(elsePtr, endToken);
 
-			auto ifVertex   = terminator.successors[1];
-			auto elseVertex = terminator.successors[0];
+			auto ifVertex   = terminator.successors[0];
+			auto elseVertex = terminator.successors[1];
 			bool ifNested   = (vtx == getUniqueForwardPredecessor(ifVertex));
 			bool elseNested = (vtx == getUniqueForwardPredecessor(elseVertex));
 
