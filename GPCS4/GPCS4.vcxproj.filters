@@ -188,6 +188,9 @@
     <Filter Include="Source Files\Util\Allocator">
       <UniqueIdentifier>{ee91fef9-c572-4982-be53-ac96b6d2283e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Graphics\Gcn\ControlFlowGraph">
+      <UniqueIdentifier>{621344db-b2d0-4b7d-9fd2-a870f77da772}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SceModules\SceLibc\sce_libc.h">
@@ -946,17 +949,20 @@
     <ClInclude Include="Util\Allocator\UtilStructBank.h">
       <Filter>Source Files\Util\Allocator</Filter>
     </ClInclude>
-    <ClInclude Include="Util\Allocator\UtilArena.h">
-      <Filter>Source Files\Util\Allocator</Filter>
+    <ClInclude Include="Graphics\Gcn\ControlFlowGraph\GcnControlFlowGraph.h">
+      <Filter>Source Files\Graphics\Gcn\ControlFlowGraph</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Gcn\GcnControlFlowGraph.h">
-      <Filter>Source Files\Graphics\Gcn</Filter>
+    <ClInclude Include="Graphics\Gcn\ControlFlowGraph\GcnDominatorTree.h">
+      <Filter>Source Files\Graphics\Gcn\ControlFlowGraph</Filter>
     </ClInclude>
-    <ClInclude Include="Util\UtilHash.h">
-      <Filter>Source Files\Util</Filter>
+    <ClInclude Include="Graphics\Gcn\ControlFlowGraph\GcnLoopInfo.h">
+      <Filter>Source Files\Graphics\Gcn\ControlFlowGraph</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Gcn\GcnRelooper.h">
-      <Filter>Source Files\Graphics\Gcn</Filter>
+    <ClInclude Include="Graphics\Gcn\ControlFlowGraph\GcnStackifier.h">
+      <Filter>Source Files\Graphics\Gcn\ControlFlowGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gcn\ControlFlowGraph\GcnTokenList.h">
+      <Filter>Source Files\Graphics\Gcn\ControlFlowGraph</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1671,11 +1677,20 @@
     <ClCompile Include="Util\Allocator\UtilStructBank.cpp">
       <Filter>Source Files\Util\Allocator</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Gcn\GcnControlFlowGraph.cpp">
-      <Filter>Source Files\Graphics\Gcn</Filter>
+    <ClCompile Include="Graphics\Gcn\ControlFlowGraph\GcnControlFlowGraph.cpp">
+      <Filter>Source Files\Graphics\Gcn\ControlFlowGraph</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Gcn\GcnRelooper.cpp">
-      <Filter>Source Files\Graphics\Gcn</Filter>
+    <ClCompile Include="Graphics\Gcn\ControlFlowGraph\GcnDominatorTree.cpp">
+      <Filter>Source Files\Graphics\Gcn\ControlFlowGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Gcn\ControlFlowGraph\GcnLoopInfo.cpp">
+      <Filter>Source Files\Graphics\Gcn\ControlFlowGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Gcn\ControlFlowGraph\GcnStackifier.cpp">
+      <Filter>Source Files\Graphics\Gcn\ControlFlowGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Gcn\ControlFlowGraph\GcnTokenList.cpp">
+      <Filter>Source Files\Graphics\Gcn\ControlFlowGraph</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

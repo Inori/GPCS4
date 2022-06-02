@@ -2,8 +2,7 @@
 #include "GcnAnalysis.h"
 #include "GcnCompiler.h"
 #include "GcnDecoder.h"
-#include "GcnControlFlowGraph.h"
-#include "GcnRelooper.h"
+#include "ControlFlowGraph/GcnStackifier.h"
 
 #include "PlatFile.h"
 #include "UtilString.h"
@@ -68,8 +67,8 @@ namespace sce::gcn
 		auto       dot = GcnCfgPass::dumpDot(cfg);
 		plat::StoreFile(dotName, dot.data(), dot.size());
 
-		GcnRelooper relooper;
-		auto        ast = relooper.buildAst(cfg);
+		GcnStackifier stackifier(cfg);
+
 		
 
 		// TODO:

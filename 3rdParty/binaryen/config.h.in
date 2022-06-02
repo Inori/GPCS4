@@ -1,1 +1,0 @@
-#cmakedefine PROJECT_VERSION "${PROJECT_VERSION}"
