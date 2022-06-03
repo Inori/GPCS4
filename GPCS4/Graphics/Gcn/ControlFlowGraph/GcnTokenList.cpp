@@ -167,8 +167,7 @@ namespace sce::gcn
 				ss << "IF_NOT " << conditionName(m_condition) << "\n";
 				break;
 			case GcnTokenKind::Else:
-				ss << "ELSE"
-				   << "\n";
+				ss << "ELSE" << "\n";
 				break;
 			case GcnTokenKind::Branch:
 				ss << "BRANCH " << fmt::format("{}", (void*)m_match) << "\n";

@@ -152,7 +152,7 @@ namespace sce::gcn
 
 	void GcnTokenListBuilder::processVertex(GcnCfgVertex vtx)
 	{
-		// LOG_DEBUG("process vertex %d", static_cast<size_t>(vtx));
+		LOG_DEBUG("process vertex %d", static_cast<size_t>(vtx));
 		
 		// Check if we need to close some loop and/or if/else scopes
 		popScopes(vtx);
@@ -937,20 +937,13 @@ namespace sce::gcn
 			--distance;
 		}
 
-		auto label = gotoToken->getMatch();
-		if (gotoToken->getNextNode() == label)
-		{
-			// Simply eliminate the goto if the label is next to it
-			m_tokens->erase(gotoToken);
-		}
-		else if (isBackEdge(gotoToken))
-		{
-			eliminateAsLoop(gotoToken);
-		}
-		else
-		{
-			eliminateAsCondition(gotoToken);
-		}
+		// We don't need to do anything more,
+		// because we don't need to resolve arbitrary gotos.
+		// There will be only 2 kinds of gotos in our situation:
+		// break from multi-level loops/blocks (labeled break in JavaScript)
+		// continue multi-level loops (labeled continue in JavaScript)
+		// in both cases the code produced by outward-movement step
+		// already fits.
 	}
 
 	GcnToken* GcnGotoEliminator::moveOutward(GcnToken* gotoToken)
@@ -982,6 +975,7 @@ namespace sce::gcn
 
 	GcnToken* GcnGotoEliminator::moveOutwardIf(GcnToken* gotoToken, const Scope& scope)
 	{
+		auto gotoEnd = findScopeEnd(gotoToken);
 		// first, replace the original goto with a value set.
 		
 		// create a flag variable, initialize to false
@@ -995,7 +989,6 @@ namespace sce::gcn
 
 		// second, bracket the statement between [next(goto), prev[scope.end]]
 		// with a inverse condition
-		auto gotoEnd = findScopeEnd(gotoToken);
 		
 		// create the inverse condition if
 		auto condition  = m_factory.createCondition(GcnConditionOp::NeBool, 1, var);
@@ -1005,18 +998,18 @@ namespace sce::gcn
 		m_tokens->insertAfter(gotoEnd->getIterator(), tokenIf);
 		m_tokens->insert(scope.end->getIterator(), tokenIfEnd);
 
-		// third, move the original conditional goto to the scope end
-		auto condition  = m_factory.createCondition(GcnConditionOp::EqBool, 1, var);
-		auto tokenIf    = m_factory.createIf(condition);
-		auto tokenIfEnd = m_factory.createIfEnd(tokenIf, nullptr);
-		auto newGoto    = m_factory.createBranch(gotoToken->getMatch());
-		auto recoverVar = m_factory.createSetValue({ 0, 0, GcnScalarType::Bool }, var);
+		// third, add the original conditional goto at the scope end
+		auto conditionOut  = m_factory.createCondition(GcnConditionOp::EqBool, 1, var);
+		auto tokenIfOut    = m_factory.createIf(conditionOut);
+		auto tokenIfEndOut = m_factory.createIfEnd(tokenIfOut, nullptr);
+		auto newGoto       = m_factory.createBranch(gotoToken->getMatch());
+		auto resetVar      = m_factory.createSetValue({ 0, 0, GcnScalarType::Bool }, var);
 
 		auto wholeScopeEnd = findScopeEnd(scope.head);  // find the end of entire if else endif construct
-		ptr                = m_tokens->insertAfter(wholeScopeEnd->getIterator(), tokenIf);
-		ptr                = m_tokens->insertAfter(ptr, recoverVar);  // deactive the goto condition
+		ptr                = m_tokens->insertAfter(wholeScopeEnd->getIterator(), tokenIfOut);
+		ptr                = m_tokens->insertAfter(ptr, resetVar);  // deactive the goto condition
 		ptr                = m_tokens->insertAfter(ptr, newGoto);
-		m_tokens->insertAfter(ptr, tokenIfEnd);
+		m_tokens->insertAfter(ptr, tokenIfEndOut);
 
 		return newGoto;
 	}
@@ -1043,25 +1036,17 @@ namespace sce::gcn
 		auto tokenIf    = m_factory.createIf(condition);
 		auto tokenIfEnd = m_factory.createIfEnd(tokenIf, nullptr);
 		auto newGoto    = m_factory.createBranch(gotoToken->getMatch());
-		auto recoverVar = m_factory.createSetValue({ 0, 0, GcnScalarType::Bool }, var);
+		auto resetVar   = m_factory.createSetValue({ 0, 0, GcnScalarType::Bool }, var);
 
 		ptr = m_tokens->insertAfter(scope.end->getIterator(), tokenIf);
-		ptr = m_tokens->insertAfter(ptr, recoverVar);  // deactive the goto condition
+		ptr = m_tokens->insertAfter(ptr, resetVar);  // deactive the goto condition
 		ptr = m_tokens->insertAfter(ptr, newGoto);
 		m_tokens->insertAfter(ptr, tokenIfEnd);
 
 		return newGoto;
 	}
 
-	void GcnGotoEliminator::eliminateAsCondition(GcnToken* gotoToken)
-	{
-	}
-
-	void GcnGotoEliminator::eliminateAsLoop(GcnToken* gotoToken)
-	{
-	}
-
-	bool GcnGotoEliminator::isBackEdge(GcnToken* gotoToken)
+	bool GcnGotoEliminator::isBackGoto(GcnToken* gotoToken)
 	{
 		auto label = gotoToken->getMatch();
 		return label->kind() == GcnTokenKind::Loop;
@@ -1082,9 +1067,24 @@ namespace sce::gcn
 		GcnTokenList::iterator end,
 		GcnTokenList::iterator target)
 	{
-		auto dist1 = std::distance(begin, target);
-		auto dist2 = std::distance(target, end);
-		return (dist1 >= 0 && dist2 >= 0);
+		LOG_ASSERT(end != m_tokens->end(), "end token is out of token list range.");
+
+		bool inRange = false;
+		auto postEnd = std::next(end);
+		for (auto it = begin; it != postEnd; ++it)
+		{
+			if (it == m_tokens->end())
+			{
+				break;
+			}
+
+			if (target == it)
+			{
+				inRange = true;
+				break;
+			}
+		}
+		return inRange;
 	}
 
 	GcnGotoEliminator::Scope GcnGotoEliminator::findOuterScope(GcnToken* gotoToken)

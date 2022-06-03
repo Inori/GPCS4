@@ -152,8 +152,8 @@ namespace sce::gcn
 	 * If a branch is only used to go out/continue current block,
 	 * it's just a normal break/continue statement, not goto.
 	 * If a branch is used to go out/continue blocks for more than one
-	 * depth, then it is a goto. The virtual position right after
-	 * the branch's target is the label.
+	 * depth, then it is a goto. 
+	 * The the branch's target is the label.
 	 * 
 	 * Previously, I think we can eliminate all gotos by only
 	 * restructure the program without introducing new variable
@@ -212,10 +212,7 @@ namespace sce::gcn
 		GcnToken* moveOutwardIf(GcnToken* gotoToken, const Scope& scope);
 		GcnToken* moveOutwardLoop(GcnToken* gotoToken, const Scope& scope);
 
-		void eliminateAsCondition(GcnToken* gotoToken);
-		void eliminateAsLoop(GcnToken* gotoToken);
-
-		bool      isBackEdge(GcnToken* gotoToken);
+		bool      isBackGoto(GcnToken* gotoToken);
 		bool      isInRange(GcnToken* begin,
 							GcnToken* end,
 							GcnToken* target);

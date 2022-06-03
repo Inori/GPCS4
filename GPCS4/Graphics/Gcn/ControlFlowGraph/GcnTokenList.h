@@ -341,11 +341,7 @@ namespace sce::gcn
 			m_list.remove_if([&](auto& elem) { return elem == token; });
 		}
 
-		static bool withinRange(iterator begin, iterator end, iterator target)
-		{
-		}
-
-		std::string dump(GcnToken* target = nullptr)
+		std::string dump(const GcnToken* target = nullptr) const
 		{
 			std::stringstream ss;
 			int               indentLevel = target != nullptr;
