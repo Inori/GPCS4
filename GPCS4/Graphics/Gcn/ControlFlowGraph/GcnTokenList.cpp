@@ -218,4 +218,34 @@ namespace sce::gcn
 	{
 	}
 
+	std::string GcnTokenList::dump(const GcnToken* target /*= nullptr*/) const
+	{
+		std::stringstream ss;
+		int               indentLevel = target != nullptr;
+		for (auto& token : m_list)
+		{
+			if (token->kind() == GcnTokenKind::End || token->kind() == GcnTokenKind::Else)
+			{
+				indentLevel--;
+			}
+
+			for (uint32_t i = 0; i != indentLevel; ++i)
+			{
+				ss << (i == 0 && target == token ? "->" : "  ");
+			}
+
+			ss << token->dump();
+
+			if (token->kind() == GcnTokenKind::If ||
+				token->kind() == GcnTokenKind::IfNot ||
+				token->kind() == GcnTokenKind::Else ||
+				token->kind() == GcnTokenKind::Loop ||
+				token->kind() == GcnTokenKind::Block)
+			{
+				indentLevel++;
+			}
+		}
+		return ss.str();
+	}
+
 }  // namespace sce::gcn

@@ -8,6 +8,7 @@
 #include <list>
 #include <vector>
 #include <sstream>
+#include <unordered_map>
 
 namespace sce::gcn
 {
@@ -290,19 +291,22 @@ namespace sce::gcn
 
 		iterator find(GcnToken* token)
 		{
-			return std::find(m_list.begin(), m_list.end(), token);
+			return m_iteratorMap[token];
 		}
 
 		void append(GcnToken* token)
 		{
 			token->m_container = this;
 			m_list.push_back(token);
+			m_iteratorMap[token] = std::prev(m_list.end());
 		}
 
 		iterator insert(iterator where, GcnToken* token)
 		{
-			token->m_container = this;
-			return m_list.insert(where, token);
+			token->m_container   = this;
+			auto iter            = m_list.insert(where, token);
+			m_iteratorMap[token] = iter;
+			return iter;
 		}
 
 		iterator insertAfter(iterator where, GcnToken* token)
@@ -317,53 +321,28 @@ namespace sce::gcn
 			{
 				iter = m_list.insert(++where, token);
 			}
+			m_iteratorMap[token] = iter;
 			return iter;
 		}
 
 		void moveAfter(iterator where, iterator first, iterator last)
 		{
-			return m_list.splice(std::next(where), m_list, first, last);
+			m_list.splice(std::next(where), m_list, first, last);
 		}
-
+		
 		void erase(GcnToken* token)
 		{
 			token->m_container = nullptr;
-			//std::erase(m_list, token);
-			m_list.remove_if([&](auto& elem) { return elem == token; });
+			const auto& iter   = m_iteratorMap[token];
+			m_list.erase(iter);
+			m_iteratorMap.erase(token);
 		}
 
-		std::string dump(const GcnToken* target = nullptr) const
-		{
-			std::stringstream ss;
-			int               indentLevel = target != nullptr;
-			for (auto& token : m_list)
-			{
-				if (token->kind() == GcnTokenKind::End || token->kind() == GcnTokenKind::Else)
-				{
-					indentLevel--;
-				}
-				
-				for (uint32_t i = 0; i != indentLevel; ++i)
-				{
-					ss << (i == 0 && target == token ? "->" : "  ");
-				}
-				
-				ss << token->dump();
-
-				if (token->kind() == GcnTokenKind::If || 
-					token->kind() == GcnTokenKind::IfNot ||
-					token->kind() == GcnTokenKind::Else || 
-					token->kind() == GcnTokenKind::Loop ||
-					token->kind() == GcnTokenKind::Block)
-				{
-					indentLevel++;
-				}
-			}
-			return ss.str();
-		}
+		std::string dump(const GcnToken* target = nullptr) const;
 
 	private:
-		std::list<GcnToken*> m_list;
+		std::list<GcnToken*>                    m_list;
+		std::unordered_map<GcnToken*, iterator> m_iteratorMap;
 	};
 
 
