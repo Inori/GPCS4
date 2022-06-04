@@ -118,8 +118,11 @@ namespace sce::gcn
 		void removeRedundantNesting();
 		void mergeBlocks();
 		void adjustLoopEnds();
+		void removeRedundantLoops();
+		void removeRedundantBlocks();
 
-		bool canFallThrough(GcnToken* T);
+		bool     canFallThrough(GcnToken* T);
+		uint32_t blockLikeTokens();
 
 	private:
 		const GcnControlFlowGraph& m_cfg;

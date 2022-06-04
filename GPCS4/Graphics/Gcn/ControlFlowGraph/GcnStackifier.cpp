@@ -491,10 +491,12 @@ namespace sce::gcn
 	{
 		m_tokens = &tokens;
 
+		removeRedundantLoops();
 		removeEmptyIfs();
 		mergeBlocks();
 		removeRedundantNesting();
 		adjustLoopEnds();
+		removeRedundantBlocks();
 	}
 
 	template <uint32_t Kind, typename FnType>
@@ -847,6 +849,95 @@ namespace sce::gcn
 				m_tokens->moveAfter(lastZeroDepth->getIterator(), tokenEnd->getIterator(), std::next(tokenEnd->getIterator()));
 			} 
 		});
+	}
+
+	void GcnTokenListOptimizer::removeRedundantLoops()
+	{
+		for_each_kind<(uint32_t)GcnTokenKind::Loop>([&](GcnToken* loop)
+		{
+			std::unordered_set<GcnToken*> extraLoops;
+			auto iter = loop->getIterator();
+			while ((*(++iter))->kind() == GcnTokenKind::Loop)
+			{
+				extraLoops.insert(*iter);
+			}
+			if (extraLoops.empty())
+				return;
+			GcnTokenList::iterator searchEnd = loop->getNextNode()->getMatch()->getIterator();
+			assert((*searchEnd)->kind() == GcnTokenKind::End);
+			for_each_kind<(uint32_t)GcnTokenKind::Branch>(iter, searchEnd, [&](GcnToken* branch)
+			{
+				if (extraLoops.count(branch->getMatch()))
+				{
+					branch->setMatch(loop);
+				}
+			});
+			for (GcnToken* extraLoop : extraLoops)
+			{
+				GcnToken* loopEnd = extraLoop->getMatch();
+				erase(loopEnd);
+				erase(extraLoop);
+			} 
+		});
+	}
+
+	void GcnTokenListOptimizer::removeRedundantBlocks()
+	{
+		const uint32_t blockLikeToken = blockLikeTokens();
+
+		for_each_kind<(uint32_t)GcnTokenKind::End>([&](GcnToken* blockEnd)
+		{
+			GcnToken* block = blockEnd->getMatch();
+			if (block->kind() != GcnTokenKind::Block)
+			{
+				// skip non-block
+				return;
+			}
+
+			GcnToken* inner = block->getNextNode();
+			LOG_ASSERT(inner->kind() != GcnTokenKind::End, "empty block found.");
+			if (!((uint32_t)inner->kind() & blockLikeToken))
+			{
+				return;
+			}
+			
+			GcnToken* innerEnd = inner->getMatch();
+			// mainly for if else end construct
+			while (innerEnd->kind() != GcnTokenKind::End)
+			{
+				innerEnd = innerEnd->getMatch();
+			}
+			
+			if (innerEnd->getNextNode() != blockEnd)
+			{
+				return;
+			}
+			
+			for_each_kind<(uint32_t)GcnTokenKind::Branch>(block->getIterator(),
+														  blockEnd->getIterator(),
+			[&](GcnToken* branch)
+			{
+				if (branch->getMatch() == blockEnd)
+				{
+					if ((uint32_t)inner->kind() & ((uint32_t)GcnTokenKind::If|
+												   (uint32_t)GcnTokenKind::IfNot))
+					{
+						return;
+					}
+					branch->setMatch(innerEnd);
+				}
+			});
+			erase(block);
+			erase(blockEnd); 
+		});
+	}
+
+	uint32_t GcnTokenListOptimizer::blockLikeTokens()
+	{
+		return (uint32_t)GcnTokenKind::Block |
+			   (uint32_t)GcnTokenKind::Loop |
+			   (uint32_t)GcnTokenKind::If |
+			   (uint32_t)GcnTokenKind::IfNot;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
