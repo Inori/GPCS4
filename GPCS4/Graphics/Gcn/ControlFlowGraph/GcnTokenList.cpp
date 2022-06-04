@@ -16,7 +16,7 @@ namespace sce::gcn
 
 	GcnToken::GcnToken(GcnTokenKind kind, GcnTokenCode&& code) :
 		m_kind(kind),
-		m_code(code),
+		m_code(std::move(code)),
 		m_match(nullptr)
 	{
 	}
