@@ -71,7 +71,7 @@ namespace sce::gcn
 		void popScopes(GcnCfgVertex vtx);
 
 		GcnToken* makeCode(GcnCfgVertex vtx);
-		GcnToken* makeCondition(GcnCfgVertex vtx);
+		GcnToken* makeIf(GcnCfgVertex vtx);
 
 		GcnTokenList::iterator findBlockBegin(GcnTokenList::iterator target,
 											  GcnTokenList::iterator candidate);

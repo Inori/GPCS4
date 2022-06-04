@@ -21,13 +21,6 @@ namespace sce::gcn
 	{
 	}
 
-	GcnToken::GcnToken(GcnTokenKind kind, GcnToken* condition, GcnToken* match):
-		m_kind(kind),
-		m_condition(condition),
-		m_match(match)
-	{
-	}
-
 	GcnToken::GcnToken(GcnTokenKind kind, const GcnTokenValue& value, GcnToken* match) :
 		m_kind(kind),
 		m_value(value),
@@ -37,7 +30,7 @@ namespace sce::gcn
 
 	GcnToken::GcnToken(GcnTokenKind kind, const GcnTokenCondition& cond, GcnToken* match) :
 		m_kind(kind),
-		m_conditionInfo(cond),
+		m_condition(cond),
 		m_match(match)
 	{
 	}
@@ -94,10 +87,10 @@ namespace sce::gcn
 
 	std::string GcnToken::dump() const
 	{
-		auto conditionName = [](GcnToken* condition)
+		auto conditionName = [](const GcnTokenCondition& condition)
 		{
 			std::string name;
-			switch (condition->m_conditionInfo.op)
+			switch (condition.op)
 			{
 				case GcnConditionOp::EqBool: name = "EqBool"; break;
 				case GcnConditionOp::NeBool: name = "NeBool"; break;

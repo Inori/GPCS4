@@ -63,9 +63,8 @@ namespace sce::gcn
 		Else      = 1 << 5,
 		Branch    = 1 << 6,
 		End       = 1 << 7,
-		Condition = 1 << 8,
-		Variable  = 1 << 9,
-		SetValue  = 1 << 10,
+		Variable  = 1 << 8,
+		SetValue  = 1 << 9,
 	};
 
 	class GcnToken
@@ -79,10 +78,6 @@ namespace sce::gcn
 
 		GcnToken(GcnTokenKind   kind,
 				 GcnTokenCode&& code);
-
-		GcnToken(GcnTokenKind kind,
-				 GcnToken*    condition,
-				 GcnToken*    match);
 
 		GcnToken(GcnTokenKind         kind,
 				 const GcnTokenValue& value,
@@ -119,7 +114,7 @@ namespace sce::gcn
 			return m_value.spvId;
 		}
 
-		GcnToken* getCondition() const
+		const GcnTokenCondition& getCondition() const
 		{
 			return m_condition;
 		}
@@ -143,10 +138,9 @@ namespace sce::gcn
 
 		union
 		{
-			GcnTokenCode       m_code;           // used by Code token
-			GcnToken*          m_condition;      // used by If/IfNot token
-			GcnTokenCondition  m_conditionInfo;  // used by Condition token
-			GcnTokenValue      m_value;          // used by Variable/SetValue token
+			GcnTokenCode      m_code;       // used by Code token
+			GcnTokenCondition m_condition;  // used by If/IfNot token
+			GcnTokenValue     m_value;      // used by Variable/SetValue token
 		};
 		
 		// A related token, for example,
@@ -195,12 +189,16 @@ namespace sce::gcn
 			return blockEnd;
 		}
 
-		GcnToken* createIf(GcnToken* condition)
+		GcnToken* createIf(GcnConditionOp op, uint32_t cmpValue = 0, GcnToken* variable = nullptr)
 		{
+			assert(!variable || variable->m_kind == GcnTokenKind::Variable);
+			GcnTokenCondition condition = {};
+			condition.op                = op;
+			condition.cmpValue          = cmpValue;
 			return m_pool.allocate(GcnTokenKind::If, condition, nullptr);
 		}
 
-		GcnToken* createIfNot(GcnToken* condition)
+		GcnToken* createIfNot(const GcnTokenCondition& condition)
 		{
 			return m_pool.allocate(GcnTokenKind::IfNot, condition, nullptr);
 		}
@@ -238,15 +236,6 @@ namespace sce::gcn
 		GcnToken* createBranch(GcnToken* target)
 		{
 			return m_pool.allocate(GcnTokenKind::Branch, target);
-		}
-
-		GcnToken* createCondition(GcnConditionOp op, uint32_t cmpValue = 0, GcnToken* variable = nullptr)
-		{
-			assert(!variable || variable->m_kind == GcnTokenKind::Variable);
-			GcnTokenCondition condition = {};
-			condition.op       = op;
-			condition.cmpValue = cmpValue;
-			return m_pool.allocate(GcnTokenKind::Condition, condition, variable);
 		}
 
 		GcnToken* createVariable(GcnTokenValue init)

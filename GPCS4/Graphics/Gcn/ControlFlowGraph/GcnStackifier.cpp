@@ -88,7 +88,8 @@ namespace sce::gcn
 					}
 					break;
 				}
-				case GcnTokenKind::Condition:
+				case GcnTokenKind::Variable:
+				case GcnTokenKind::SetValue:
 					break;
 				case GcnTokenKind::Invalid:
 					LOG_ERR("INVALID Token found");
@@ -234,8 +235,7 @@ namespace sce::gcn
 		}
 		else if (terminator.kind == GcnBlockTerminator::Conditional)
 		{
-			auto condition = makeCondition(vtx);
-			auto ifToken   = m_factory.createIf(condition);
+			auto ifToken   = makeIf(vtx);
 			auto ifPtr     = m_tokens->insertAfter(m_insertPtr, ifToken);
 
 			auto elseToken = m_factory.createElse(ifToken);
@@ -389,12 +389,12 @@ namespace sce::gcn
 		return m_factory.createCode(std::move(code));
 	}
 
-	GcnToken* GcnTokenListBuilder::makeCondition(GcnCfgVertex vtx)
+	GcnToken* GcnTokenListBuilder::makeIf(GcnCfgVertex vtx)
 	{
 		const auto& block    = m_cfg[vtx];
 		const auto& lastInst = block.insList.back();
 		auto        op       = GcnToken::getConditionOp(lastInst);
-		return m_factory.createCondition(op);
+		return m_factory.createIf(op);
 	}
 
 	GcnTokenList::iterator GcnTokenListBuilder::findBlockBegin(
@@ -717,7 +717,8 @@ namespace sce::gcn
 					result = false;
 					break;
 				case GcnTokenKind::End:
-				case GcnTokenKind::Condition:
+				case GcnTokenKind::Variable:
+				case GcnTokenKind::SetValue:
 					result = true;
 					break;
 				case GcnTokenKind::If:
@@ -1006,7 +1007,8 @@ namespace sce::gcn
 				case GcnTokenKind::If:
 				case GcnTokenKind::IfNot:
 				case GcnTokenKind::Else:
-				case GcnTokenKind::Condition:
+				case GcnTokenKind::Variable:
+				case GcnTokenKind::SetValue:
 					break;
 				case GcnTokenKind::Block:
 				case GcnTokenKind::Loop:
@@ -1114,16 +1116,14 @@ namespace sce::gcn
 		// with a inverse condition
 		
 		// create the inverse condition if
-		auto condition  = m_factory.createCondition(GcnConditionOp::NeBool, 1, var);
-		auto tokenIf    = m_factory.createIf(condition);
+		auto tokenIf    = m_factory.createIf(GcnConditionOp::NeBool, 1, var);
 		auto tokenIfEnd = m_factory.createIfEnd(tokenIf, nullptr);
 		// bracket
 		m_tokens->insertAfter(gotoEnd->getIterator(), tokenIf);
 		m_tokens->insert(scope.end->getIterator(), tokenIfEnd);
 
 		// third, add the original conditional goto at the scope end
-		auto conditionOut  = m_factory.createCondition(GcnConditionOp::EqBool, 1, var);
-		auto tokenIfOut    = m_factory.createIf(conditionOut);
+		auto tokenIfOut    = m_factory.createIf(GcnConditionOp::EqBool, 1, var);
 		auto tokenIfEndOut = m_factory.createIfEnd(tokenIfOut, nullptr);
 		auto newGoto       = m_factory.createBranch(gotoToken->getMatch());
 		auto resetVar      = m_factory.createSetValue({ 0, 0, GcnScalarType::Bool }, var);
@@ -1155,8 +1155,7 @@ namespace sce::gcn
 		m_tokens->erase(gotoToken);
 
 		// second, move the original conditional goto to the scope end
-		auto condition  = m_factory.createCondition(GcnConditionOp::EqBool, 1, var);
-		auto tokenIf    = m_factory.createIf(condition);
+		auto tokenIf    = m_factory.createIf(GcnConditionOp::EqBool, 1, var);
 		auto tokenIfEnd = m_factory.createIfEnd(tokenIf, nullptr);
 		auto newGoto    = m_factory.createBranch(gotoToken->getMatch());
 		auto resetVar   = m_factory.createSetValue({ 0, 0, GcnScalarType::Bool }, var);
