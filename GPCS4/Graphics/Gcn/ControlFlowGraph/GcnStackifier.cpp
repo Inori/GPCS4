@@ -1,6 +1,9 @@
 #include "GcnStackifier.h"
 #include <unordered_set>
 
+#include <boost/graph/strong_components.hpp>
+#include <iostream>
+
 LOG_CHANNEL(Graphic.Gcn.GcnStackifier);
 
 namespace sce::gcn
@@ -1168,6 +1171,13 @@ namespace sce::gcn
 
 	GcnTokenList GcnStackifier::generate()
 	{
+		// TODO:
+		// A big todo though, stackifier algorithm doesn't support
+		// irreducible cfg, we need to convert the irreducible
+		// cfg to a reducible one manually by dispatch loops
+		// using some variables.
+		LOG_ASSERT(isIrreducible() == false, "TODO: support irreducible cfg.");
+
 		GcnTokenList tokenList;
 
 		m_builder.build(tokenList);
@@ -1182,5 +1192,69 @@ namespace sce::gcn
 		return tokenList;
 	}
 
+	bool GcnStackifier::isIrreducible()
+	{
+		using SccLabel = GcnControlFlowGraph::vertices_size_type;
+		const uint32_t vertexNum = boost::num_vertices(m_cfg);
+
+		// calculate scc component map.
+		std::vector<SccLabel> component(vertexNum);
+		const auto&           indexMap     = boost::get(boost::vertex_index, m_cfg);
+		auto                  componentMap = boost::make_iterator_property_map(component.begin(), indexMap);
+		uint32_t              sccNum       = boost::strong_components(m_cfg, componentMap);
+
+		// build a new scc map using scc label as the key.
+		std::unordered_map<
+			SccLabel, std::unordered_set<GcnCfgVertex>>
+			sccMap;
+		sccMap.reserve(sccNum);
+		for (uint32_t i = 0; i != vertexNum; ++i)
+		{
+			SccLabel scc = component[i];
+			sccMap[scc].insert(i);
+		}
+		
+		// identify multiple-entry loops
+		bool foundMultiEntryLoop = false;
+		for (const auto& pair : sccMap)
+		{
+			const auto& scc = pair.second;
+			if (scc.size() <= 1)
+			{
+				// skip non-loops
+				// SCC with more than one element is loop
+				continue;
+			}
+
+			if(isMultiEntryLoop(scc))
+			{
+				foundMultiEntryLoop = true;
+				break;
+			}
+		}
+		return foundMultiEntryLoop;
+	}
+
+	bool GcnStackifier::isMultiEntryLoop(const std::unordered_set<GcnCfgVertex>& loop)
+	{
+		// We identify all the loop headers,
+		// which are the nodes reachable from outside of the SCC.
+		// If there is more than one, 
+		// we have a multiple-entry loop.
+		uint32_t headerCount = 0;
+		for (auto vtx : loop)
+		{
+			for (const auto& edge : boost::make_iterator_range(boost::in_edges(vtx, m_cfg)))
+			{
+				auto src = boost::source(edge, m_cfg);
+				if (loop.find(src) == loop.end())
+				{
+					++headerCount;
+					break;
+				}
+			}
+		}
+		return headerCount > 1;
+	}
 
 }  // namespace sce::gcn

@@ -255,6 +255,10 @@ namespace sce::gcn
 		GcnTokenList generate();
 
 	private:
+		bool isIrreducible();
+		bool isMultiEntryLoop(
+			const std::unordered_set<GcnCfgVertex>& loop);
+	private:
 		const GcnControlFlowGraph& m_cfg;
 
 		util::ObjectBank<GcnToken> m_pool;
