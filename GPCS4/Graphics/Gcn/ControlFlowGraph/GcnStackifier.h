@@ -70,6 +70,9 @@ namespace sce::gcn
 		void processBlockScopes(const std::vector<GcnToken*>& branches);
 		void popScopes(GcnCfgVertex vtx);
 
+		GcnToken* makeCode(GcnCfgVertex vtx);
+		GcnToken* makeCondition(GcnCfgVertex vtx);
+
 		GcnTokenList::iterator findBlockBegin(GcnTokenList::iterator target,
 											  GcnTokenList::iterator candidate);
 		GcnCfgVertex           getUniqueForwardPredecessor(GcnCfgVertex vtx);
@@ -123,6 +126,7 @@ namespace sce::gcn
 
 		bool     canFallThrough(GcnToken* T);
 		uint32_t blockLikeTokens();
+		bool     isSinkToken(GcnToken* token);
 
 	private:
 		const GcnControlFlowGraph& m_cfg;

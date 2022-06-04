@@ -173,7 +173,7 @@ namespace sce::gcn
 		processLoopScopes(vtx);
 
 		// Create the token for this code block and add it to the list
-		auto codeToken = m_factory.createCode(vtx);
+		auto codeToken = makeCode(vtx);
 		m_insertPtr    = m_tokens->insertAfter(m_insertPtr, codeToken);
 		
 		// Process the successors of this block
@@ -234,8 +234,7 @@ namespace sce::gcn
 		}
 		else if (terminator.kind == GcnBlockTerminator::Conditional)
 		{
-			auto condOp    = GcnToken::getConditionOp(m_cfg, vtx);
-			auto condition = m_factory.createCondition(condOp);
+			auto condition = makeCondition(vtx);
 			auto ifToken   = m_factory.createIf(condition);
 			auto ifPtr     = m_tokens->insertAfter(m_insertPtr, ifToken);
 
@@ -380,6 +379,24 @@ namespace sce::gcn
 		}
 	}
 
+	GcnToken* GcnTokenListBuilder::makeCode(GcnCfgVertex vtx)
+	{
+		const auto& block = m_cfg[vtx];
+
+		GcnTokenCode code;
+		code.vertexId = vtx;
+		code.insList  = block.insList;
+		return m_factory.createCode(std::move(code));
+	}
+
+	GcnToken* GcnTokenListBuilder::makeCondition(GcnCfgVertex vtx)
+	{
+		const auto& block    = m_cfg[vtx];
+		const auto& lastInst = block.insList.back();
+		auto        op       = GcnToken::getConditionOp(lastInst);
+		return m_factory.createCondition(op);
+	}
+
 	GcnTokenList::iterator GcnTokenListBuilder::findBlockBegin(
 		GcnTokenList::iterator target, GcnTokenList::iterator candidate)
 	{
@@ -472,6 +489,9 @@ namespace sce::gcn
 		}
 		return result;
 	}
+
+
+
 
 	//////////////////////////////////////////////////////////////////////////
 	GcnTokenListOptimizer::GcnTokenListOptimizer(
@@ -680,22 +700,18 @@ namespace sce::gcn
 		bool result = false;
 		do 
 		{
-			GcnToken* End  = T->getMatch();
-			GcnToken* Last = End->getPrevNode();
+			GcnToken* end  = T->getMatch();
+			GcnToken* last = end->getPrevNode();
 			// If the if is empty, it does not matter that it technically falls through
-			if (Last == T)
+			if (last == T)
 			{
 				break;
 			}
 
-			switch (Last->kind())
+			switch (last->kind())
 			{
 				case GcnTokenKind::Code:
-				{
-					auto vtx  = Last->getVertex();
-					auto term = m_cfg[vtx].terminator;
-					result    = term.kind != GcnBlockTerminator::Sink;
-				}
+					result = !isSinkToken(last);
 					break;
 				case GcnTokenKind::Branch:
 					result = false;
@@ -943,6 +959,14 @@ namespace sce::gcn
 			   (uint32_t)GcnTokenKind::Loop |
 			   (uint32_t)GcnTokenKind::If |
 			   (uint32_t)GcnTokenKind::IfNot;
+	}
+
+	bool GcnTokenListOptimizer::isSinkToken(GcnToken* token)
+	{
+		LOG_ASSERT(token->kind() == GcnTokenKind::Code, "called on non-code tokens.");
+		const auto& code     = token->getCode();
+		const auto& lastInst = code.insList.back();
+		return lastInst.opcode == GcnOpcode::S_ENDPGM;
 	}
 
 	//////////////////////////////////////////////////////////////////////////

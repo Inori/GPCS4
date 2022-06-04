@@ -1,14 +1,23 @@
 #include "GcnTokenList.h"
 #include "Gcn/GcnInstructionUtil.h"
+#include "GcnControlFlowGraph.h"
+
+#include <fmt/format.h>
 
 LOG_CHANNEL(Graphic.Gcn.GcnTokenList);
 
 namespace sce::gcn
 {
-	GcnToken::GcnToken(GcnTokenKind kind, GcnCfgVertex vertex, GcnToken* match) :
+	GcnToken::GcnToken(GcnTokenKind kind, GcnToken* match):
 		m_kind(kind),
-		m_vertex(vertex),
 		m_match(match)
+	{
+	}
+
+	GcnToken::GcnToken(GcnTokenKind kind, GcnTokenCode&& code) :
+		m_kind(kind),
+		m_code(code),
+		m_match(nullptr)
 	{
 	}
 
@@ -54,13 +63,10 @@ namespace sce::gcn
 		return *(++iter);
 	}
 
-	GcnConditionOp GcnToken::getConditionOp(const GcnControlFlowGraph& cfg,
-											GcnCfgVertex               vtx)
+	GcnConditionOp GcnToken::getConditionOp(const GcnShaderInstruction& ins)
 	{
-		const auto& block = cfg[vtx];
-		const auto& lastInst = block.insList.back();
-		LOG_ASSERT(isBranchInstruction(lastInst), "expect a conditional block.");
-		auto op = lastInst.opcode;
+		LOG_ASSERT(isBranchInstruction(ins), "expect a conditional block.");
+		auto           op = ins.opcode;
 		GcnConditionOp condOp;
 		switch (op)
 		{
@@ -135,11 +141,11 @@ namespace sce::gcn
 			return tail;
 		};
 
-		auto vertexName = [](GcnCfgVertex vtx)
+		auto vertexName = [](size_t vtxId)
 		{
-			return vtx == GcnControlFlowGraph::null_vertex()
+			return vtxId == GcnControlFlowGraph::null_vertex()
 					   ? "null"
-					   : fmt::format("{}", vtx);
+					   : fmt::format("{}", vtxId);
 		};
 
 		std::stringstream ss;
@@ -152,7 +158,7 @@ namespace sce::gcn
 				break;
 			case GcnTokenKind::Code:
 				ss << "CODE "
-				   << "V" << vertexName(m_vertex) << "\n";
+				   << "V" << vertexName(m_code.vertexId) << "\n";
 				break;
 			case GcnTokenKind::Loop:
 				ss << "LOOP " << fmt::format("{}", (void*)m_match) << "\n";

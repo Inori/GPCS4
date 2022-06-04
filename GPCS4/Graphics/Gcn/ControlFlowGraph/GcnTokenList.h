@@ -1,11 +1,13 @@
 #pragma once
 
 #include "Gcn/GcnCommon.h"
-#include "GcnControlFlowGraph.h"
+#include "Gcn/GcnInstruction.h"
 #include "UtilObjectBank.h"
 
-#include <fmt/format.h>
+#include <cassert>
 #include <list>
+#include <vector>
+#include <sstream>
 
 namespace sce::gcn
 {
@@ -44,6 +46,12 @@ namespace sce::gcn
 		size_t         cmpValue;
 	};
 
+	struct GcnTokenCode
+	{
+		size_t             vertexId;  // for debugging purpose
+		GcnInstructionList insList;   // gcn instruction list
+	};
+
 	enum class GcnTokenKind : uint32_t
 	{
 		Invalid   = 0,
@@ -66,9 +74,11 @@ namespace sce::gcn
 		friend class GcnTokenList;
 
 	public:
-		GcnToken(GcnTokenKind kind,
-				 GcnCfgVertex vertex,
-				 GcnToken*    match);
+		GcnToken(GcnTokenKind        kind,
+				 GcnToken*           match);
+
+		GcnToken(GcnTokenKind   kind,
+				 GcnTokenCode&& code);
 
 		GcnToken(GcnTokenKind kind,
 				 GcnToken*    condition,
@@ -109,15 +119,14 @@ namespace sce::gcn
 			return m_value.spvId;
 		}
 
-		GcnCfgVertex getVertex() const
-		{
-			assert(m_vertex != GcnControlFlowGraph::null_vertex());
-			return m_vertex;
-		}
-
 		GcnToken* getCondition() const
 		{
 			return m_condition;
+		}
+
+		const GcnTokenCode& getCode() const
+		{
+			return m_code;
 		}
 
 		std::list<GcnToken*>::iterator getIterator();
@@ -127,18 +136,17 @@ namespace sce::gcn
 
 		std::string dump() const;
 
-		static GcnConditionOp getConditionOp(const GcnControlFlowGraph& cfg,
-											 GcnCfgVertex               vtx);
+		static GcnConditionOp getConditionOp(const GcnShaderInstruction& ins);
 		static GcnConditionOp getInversePredicate(GcnConditionOp op);
 	private:
 		GcnTokenKind m_kind;
 
 		union
 		{
-			GcnCfgVertex      m_vertex;
-			GcnToken*         m_condition;      // used by If/IfNot token
-			GcnTokenCondition m_conditionInfo;  // used by Condition token
-			GcnTokenValue     m_value;          // used by Variable/SetValue token	
+			GcnTokenCode       m_code;           // used by Code token
+			GcnToken*          m_condition;      // used by If/IfNot token
+			GcnTokenCondition  m_conditionInfo;  // used by Condition token
+			GcnTokenValue      m_value;          // used by Variable/SetValue token
 		};
 		
 		// A related token, for example,
@@ -155,37 +163,34 @@ namespace sce::gcn
 			util::ObjectBank<GcnToken>& tokenPool);
 		~GcnTokenFactory();
 
-		GcnToken* createCode(GcnCfgVertex vertex)
+		GcnToken* createCode(GcnTokenCode&& code)
 		{
-			return m_pool.allocate(GcnTokenKind::Code, vertex, nullptr);
+			return m_pool.allocate(GcnTokenKind::Code, std::move(code));
 		}
 
 		GcnToken* createLoop()
 		{
 			return m_pool.allocate(
-				GcnTokenKind::Loop, GcnControlFlowGraph::null_vertex(), nullptr);
+				GcnTokenKind::Loop, nullptr);
 		}
 
 		GcnToken* createLoopEnd(GcnToken* loopBegin)
 		{
 			assert(loopBegin && loopBegin->m_kind == GcnTokenKind::Loop);
-			auto loopEnd       = m_pool.allocate(
-				GcnTokenKind::End, GcnControlFlowGraph::null_vertex(), loopBegin);
+			auto loopEnd       = m_pool.allocate(GcnTokenKind::End, loopBegin);
 			loopBegin->m_match = loopEnd;
 			return loopEnd;
 		}
 
 		GcnToken* createBlock()
 		{
-			return m_pool.allocate(
-				GcnTokenKind::Block, GcnControlFlowGraph::null_vertex(), nullptr);
+			return m_pool.allocate(GcnTokenKind::Block, nullptr);
 		}
 
 		GcnToken* createBlockEnd(GcnToken* blockBegin)
 		{
 			assert(blockBegin && blockBegin->m_kind == GcnTokenKind::Block);
-			auto blockEnd       = m_pool.allocate(
-				GcnTokenKind::End, GcnControlFlowGraph::null_vertex(), blockBegin);
+			auto blockEnd       = m_pool.allocate(GcnTokenKind::End, blockBegin);
 			blockBegin->m_match = blockEnd;
 			return blockEnd;
 		}
@@ -203,8 +208,7 @@ namespace sce::gcn
 		GcnToken* createElse(GcnToken* tokenIf)
 		{
 			assert(!tokenIf || tokenIf->m_kind == GcnTokenKind::If);
-			auto tokenElse = m_pool.allocate(
-				GcnTokenKind::Else, GcnControlFlowGraph::null_vertex(), nullptr);
+			auto tokenElse = m_pool.allocate(GcnTokenKind::Else, nullptr);
 			if (tokenIf)
 			{
 				tokenIf->m_match = tokenElse;
@@ -218,8 +222,7 @@ namespace sce::gcn
 			assert(!tokenElse || tokenElse->m_kind == GcnTokenKind::Else);
 			assert(tokenIf || tokenElse);
 
-			auto tokenEnd = m_pool.allocate(
-				GcnTokenKind::End, GcnControlFlowGraph::null_vertex(), tokenIf);
+			auto tokenEnd = m_pool.allocate(GcnTokenKind::End, tokenIf);
 			if (tokenElse)
 			{
 				tokenElse->m_match = tokenEnd;
@@ -234,8 +237,7 @@ namespace sce::gcn
 
 		GcnToken* createBranch(GcnToken* target)
 		{
-			return m_pool.allocate(
-				GcnTokenKind::Branch, GcnControlFlowGraph::null_vertex(), target);
+			return m_pool.allocate(GcnTokenKind::Branch, target);
 		}
 
 		GcnToken* createCondition(GcnConditionOp op, uint32_t cmpValue = 0, GcnToken* variable = nullptr)
