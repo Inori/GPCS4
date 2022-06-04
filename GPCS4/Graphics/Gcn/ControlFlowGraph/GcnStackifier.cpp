@@ -497,6 +497,11 @@ namespace sce::gcn
 		removeRedundantNesting();
 		adjustLoopEnds();
 		removeRedundantBlocks();
+
+		// TODO:
+		// more optimizations.
+		// there is a removeRedundantBranches in cheerp's implementation,
+		// I'm not very clear about it, so didn't port to here.
 	}
 
 	template <uint32_t Kind, typename FnType>
