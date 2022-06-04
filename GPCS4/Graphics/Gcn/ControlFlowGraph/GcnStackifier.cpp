@@ -1039,8 +1039,8 @@ namespace sce::gcn
 		// We don't need to do anything more,
 		// because we don't need to resolve arbitrary gotos.
 		// There will be only 2 kinds of gotos in our situation:
-		// break from multi-level loops/blocks (labeled break in JavaScript)
-		// continue multi-level loops (labeled continue in JavaScript)
+		// multi-level break from loops/blocks (labeled break in JavaScript)
+		// multi-level continue for loops (labeled continue in JavaScript)
 		// in both cases the code produced by outward-movement step
 		// already fits.
 	}
