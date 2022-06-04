@@ -1280,7 +1280,8 @@ namespace sce::gcn
 		m_factory(m_pool),
 		m_builder(cfg, m_factory),
 		m_optimizer(cfg, m_factory),
-		m_eliminator(cfg, m_factory)
+		m_eliminator(cfg, m_factory),
+		m_diverger(m_factory)
 	{
 	}
 
@@ -1306,6 +1307,9 @@ namespace sce::gcn
 		LOG_ASSERT(m_verifier.verify(tokenList), "token list not valid");
 
 		m_eliminator.eliminate(tokenList);
+		LOG_ASSERT(m_verifier.verify(tokenList), "token list not valid");
+
+		m_diverger.diverge(tokenList);
 		LOG_ASSERT(m_verifier.verify(tokenList), "token list not valid");
 
 		return tokenList;

@@ -189,12 +189,12 @@ namespace sce::gcn
 
 	struct GcnShaderInstruction
 	{
-		GcnOpcode       opcode;
-		uint32_t        length;  // in bytes
-		GcnInstEncoding encoding;
-		GcnInstClass    opClass;
-		GcnInstCategory category;
-		GcnInstControl  control;
+		GcnOpcode          opcode;
+		uint32_t           length;  // in bytes
+		GcnInstEncoding    encoding;
+		GcnInstClass       opClass;
+		GcnInstCategory    category;
+		GcnInstControl     control;
 
 		uint32_t srcCount;
 		uint32_t dstCount;

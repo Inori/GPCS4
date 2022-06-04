@@ -2376,6 +2376,23 @@ namespace sce::gcn
 	};
 
 	/**
+	 * \brief Divergent Action
+	 * 
+	 * Instruction's action when 
+	 * GPU thread is not active.
+	 * 
+	 */
+	enum class GcnDivergentAction : uint32_t
+	{
+		// no operation, simply skip
+		Nop,
+		// zero the SGPR-pair destinations
+		ZeroScalar,
+		// execute as normal
+		Execute
+	};
+
+	/**
 	 * \brief Scalar value type
 	 *
 	 * Enumerates possible register component

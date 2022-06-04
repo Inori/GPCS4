@@ -10,6 +10,13 @@ namespace sce::gcn
 		return ins.opcode == GcnOpcode::S_BRANCH;
 	}
 
+	bool isForkInstruction(const GcnShaderInstruction& ins)
+	{
+		return ins.opcode == GcnOpcode::S_CBRANCH_I_FORK ||
+			   ins.opcode == GcnOpcode::S_CBRANCH_G_FORK ||
+			   ins.opcode == GcnOpcode::S_CBRANCH_JOIN;
+	}
+
 	bool isConditionalBranch(const GcnShaderInstruction& ins)
 	{
 		bool result = false;
@@ -24,9 +31,6 @@ namespace sce::gcn
 			case GcnOpcode::S_CBRANCH_EXECNZ:
 				result = true;
 				break;
-			case GcnOpcode::S_CBRANCH_I_FORK:
-			case GcnOpcode::S_CBRANCH_G_FORK:
-			case GcnOpcode::S_CBRANCH_JOIN:
 			case GcnOpcode::S_CBRANCH_CDBGSYS:
 			case GcnOpcode::S_CBRANCH_CDBGUSER:
 			case GcnOpcode::S_CBRANCH_CDBGSYS_OR_USER:
@@ -46,7 +50,9 @@ namespace sce::gcn
 
 	bool isTerminateInstruction(const GcnShaderInstruction& ins)
 	{
-		return isBranchInstruction(ins) || ins.opcode == GcnOpcode::S_ENDPGM;
+		return isBranchInstruction(ins) ||
+			   isForkInstruction(ins) ||
+			   ins.opcode == GcnOpcode::S_ENDPGM;
 	}
 
 	uint32_t calculateBranchTarget(uint32_t pc, const GcnShaderInstruction& ins)
@@ -56,5 +62,6 @@ namespace sce::gcn
 												static_cast<int16_t>(sopp.control.simm << 2) + 4);
 		return target;
 	}
+
 
 }  // namespace sce::gcn

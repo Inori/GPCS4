@@ -24,6 +24,7 @@
     <ClInclude Include="Emulator\SymbolManager.h" />
     <ClInclude Include="Emulator\VirtualCPU.h" />
     <ClInclude Include="Graphics\Gcn\ControlFlowGraph\GcnControlFlowGraph.h" />
+    <ClInclude Include="Graphics\Gcn\ControlFlowGraph\GcnDivergentFlow.h" />
     <ClInclude Include="Graphics\Gcn\ControlFlowGraph\GcnDominatorTree.h" />
     <ClInclude Include="Graphics\Gcn\ControlFlowGraph\GcnLoopInfo.h" />
     <ClInclude Include="Graphics\Gcn\ControlFlowGraph\GcnStackifier.h" />
@@ -303,6 +304,7 @@
     <ClCompile Include="Emulator\VirtualCPU.cpp" />
     <ClCompile Include="GPCS4Main.cpp" />
     <ClCompile Include="Graphics\Gcn\ControlFlowGraph\GcnControlFlowGraph.cpp" />
+    <ClCompile Include="Graphics\Gcn\ControlFlowGraph\GcnDivergentFlow.cpp" />
     <ClCompile Include="Graphics\Gcn\ControlFlowGraph\GcnDominatorTree.cpp" />
     <ClCompile Include="Graphics\Gcn\ControlFlowGraph\GcnLoopInfo.cpp" />
     <ClCompile Include="Graphics\Gcn\ControlFlowGraph\GcnStackifier.cpp" />

@@ -4,6 +4,7 @@
 #include "GcnTokenList.h"
 #include "GcnLoopInfo.h"
 #include "GcnDominatorTree.h"
+#include "GcnDivergentFlow.h"
 
 #include <vector>
 #include <unordered_map>
@@ -275,6 +276,7 @@ namespace sce::gcn
 		GcnTokenListBuilder   m_builder;
 		GcnTokenListOptimizer m_optimizer;
 		GcnGotoEliminator     m_eliminator;
+		GcnDivergentFlow      m_diverger;
 	};
 
 }  // namespace sce::gcn

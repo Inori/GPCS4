@@ -114,12 +114,12 @@ namespace sce::gcn
 			return m_value.spvId;
 		}
 
-		const GcnTokenCondition& getCondition() const
+		GcnTokenCondition& getCondition()
 		{
 			return m_condition;
 		}
 
-		const GcnTokenCode& getCode() const
+		GcnTokenCode& getCode()
 		{
 			return m_code;
 		}

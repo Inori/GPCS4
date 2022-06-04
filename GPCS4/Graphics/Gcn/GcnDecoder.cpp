@@ -1074,6 +1074,7 @@ namespace sce::gcn
 	}
 
 
+
 	///////////////////////////////////////////////////////////////
 
 	inline void gcnInstCastToSOP1(const GcnShaderInstruction& ins, GcnShaderInstSOP1& result)

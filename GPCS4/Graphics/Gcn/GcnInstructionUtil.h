@@ -11,6 +11,7 @@ namespace sce::gcn
 
 	bool isBranchInstruction(const GcnShaderInstruction& ins);
 
+	bool isForkInstruction(const GcnShaderInstruction& ins);
 	/**
 	 * \brief Is basic block terminate instruction
 	 */
