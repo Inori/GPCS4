@@ -63,5 +63,18 @@ namespace sce::gcn
 		return target;
 	}
 
+	bool isVop3BEncoding(GcnOpcode opcode)
+	{
+		return opcode == GcnOpcode::V_ADD_I32 ||
+			   opcode == GcnOpcode::V_ADDC_U32 ||
+			   opcode == GcnOpcode::V_SUB_I32 ||
+			   opcode == GcnOpcode::V_SUBB_U32 ||
+			   opcode == GcnOpcode::V_SUBREV_I32 ||
+			   opcode == GcnOpcode::V_SUBBREV_U32 ||
+			   opcode == GcnOpcode::V_DIV_SCALE_F32 ||
+			   opcode == GcnOpcode::V_DIV_SCALE_F64 ||
+			   opcode == GcnOpcode::V_MAD_U64_U32 ||
+			   opcode == GcnOpcode::V_MAD_I64_I32;
+	}
 
 }  // namespace sce::gcn

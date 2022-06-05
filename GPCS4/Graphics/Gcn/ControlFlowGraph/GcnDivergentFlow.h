@@ -14,6 +14,7 @@ namespace sce::gcn
 		void diverge(GcnTokenList& tokens);
 
 	private:
+		bool needDiverge(GcnToken* token);
 		void divergeCode(GcnToken* token);
 
 		GcnDivergentAction getDivergentAction(

@@ -35,8 +35,27 @@ namespace sce::gcn
 
 		for (auto& code : codeTokens)
 		{
+			if (!needDiverge(code))
+			{
+				continue;
+			}
+
 			divergeCode(code);
 		}
+	}
+
+	bool GcnDivergentFlow::needDiverge(GcnToken* token)
+	{
+		bool        allExecute = true;
+		const auto& insList    = token->getCode().insList;
+		
+		for (const auto& ins : insList)
+		{
+			auto dvAction = getDivergentAction(ins);
+			allExecute &= (dvAction == GcnDivergentAction::Execute);
+		}
+
+		return !allExecute;
 	}
 
 	void GcnDivergentFlow::divergeCode(GcnToken* token)
@@ -81,15 +100,27 @@ namespace sce::gcn
 			}
 		}
 
-		auto tokenInactiveCode = m_factory.createCode(std::move(inactiveCode));
 		auto tokenIf           = m_factory.createIf(GcnConditionOp::Divergence);
 		auto tokenElse         = m_factory.createElse(tokenIf);
 		auto tokenEnd          = m_factory.createIfEnd(tokenIf, tokenElse);
 
-		m_tokens->insert(token->getIterator(), tokenIf);
-		auto ptr = m_tokens->insertAfter(token->getIterator(), tokenElse);
-		ptr      = m_tokens->insertAfter(ptr, tokenInactiveCode);
-		m_tokens->insertAfter(ptr, tokenEnd);
+		if (!inactiveCode.insList.empty())
+		{
+			auto tokenInactiveCode = m_factory.createCode(std::move(inactiveCode));
+
+			m_tokens->insert(token->getIterator(), tokenIf);
+			auto ptr = m_tokens->insertAfter(token->getIterator(), tokenElse);
+			ptr      = m_tokens->insertAfter(ptr, tokenInactiveCode);
+			m_tokens->insertAfter(ptr, tokenEnd);
+		}
+		else
+		{
+			// when all instructions are nops when thread is not active,
+			// we don't need to insert an else block.
+			m_tokens->insert(token->getIterator(), tokenIf);
+			m_tokens->insertAfter(token->getIterator(), tokenEnd);
+			tokenIf->setMatch(tokenEnd);
+		}
 	}
 
 	GcnShaderInstruction GcnDivergentFlow::makeClearInstruction()
@@ -155,6 +186,11 @@ namespace sce::gcn
 				break;
 		}
 
+		auto isVCmpInst = [](GcnOpcode op) 
+		{
+			return op >= GcnOpcode::V_CMP_F_F32 && op <= GcnOpcode::V_CMPX_T_U64;
+		};
+
 		// fix some exceptions
 		auto op = ins.opcode;
 		if (op == GcnOpcode::V_READFIRSTLANE_B32 ||
@@ -163,17 +199,17 @@ namespace sce::gcn
 		{
 			action = GcnDivergentAction::Execute;
 		}
-		else if (op >= GcnOpcode::V_CMP_F_F32 && op <= GcnOpcode::V_CMPX_T_U64)
+		else if (isVCmpInst(op) || isVop3BEncoding(op))  
 		{
+			// some VOP2 instructions using the same opcode as VOP3B
+			// use VCC as the default SGPC pair,
+			// so the condition should be fine.
 			action = GcnDivergentAction::ZeroScalar;
 		}
 
-		// TODO:
-		// from the ISA manual, there are also some "carry-out"
-		// instructions with ZeroScalar action,
-		// for now I don't know what does that mean.
-
 		return action;
 	}
+
+
 
 }  // namespace sce::gcn

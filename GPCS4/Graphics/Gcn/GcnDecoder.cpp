@@ -1,5 +1,5 @@
 #include "GcnDecoder.h"
-
+#include "GcnInstructionUtil.h"
 #include "UtilBit.h"
 
 #include <algorithm>
@@ -376,20 +376,6 @@ namespace sce::gcn
 				}
 			}
 		}
-	}
-
-	bool GcnDecodeContext::isVOP3BEncoding(GcnOpcodeVOP3 opcode)
-	{
-		return opcode == GcnOpcodeVOP3::V_ADD_I32 ||
-			   opcode == GcnOpcodeVOP3::V_ADDC_U32 ||
-			   opcode == GcnOpcodeVOP3::V_SUB_I32 ||
-			   opcode == GcnOpcodeVOP3::V_SUBB_U32 ||
-			   opcode == GcnOpcodeVOP3::V_SUBREV_I32 ||
-			   opcode == GcnOpcodeVOP3::V_SUBBREV_U32 ||
-			   opcode == GcnOpcodeVOP3::V_DIV_SCALE_F32 ||
-			   opcode == GcnOpcodeVOP3::V_DIV_SCALE_F64 ||
-			   opcode == GcnOpcodeVOP3::V_MAD_U64_U32 ||
-			   opcode == GcnOpcodeVOP3::V_MAD_I64_I32;
 	}
 
 	GcnOperandField GcnDecodeContext::getOperandField(uint32_t code)
@@ -777,7 +763,7 @@ namespace sce::gcn
 		m_instruction.dst[0].code  = vdst;
 
 		GcnOpcodeVOP3 vop3Op = static_cast<GcnOpcodeVOP3>(op);
-		if (isVOP3BEncoding(vop3Op))
+		if (isVop3BEncoding(m_instruction.opcode))
 		{
 			m_instruction.dst[1].field = GcnOperandField::ScalarGPR;
 			m_instruction.dst[1].type  = GcnScalarType::Uint64;
