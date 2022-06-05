@@ -60,9 +60,29 @@ namespace sce::gcn
 
 	void GcnDivergentFlow::divergeCode(GcnToken* token)
 	{
-		// split instructions into to two blocks,
-		// one is executed when thread is active,
-		// and another is executed when thread is not active.
+		// There's should be at least two ways to
+		// implement branch divergent:
+		// 
+		// 1. Create a new block which contains
+		// only instructions that will execute
+		// when thread is not active. The original
+		// block is executed when thread is active.
+		// This will produce many repeated instructions,
+		// but reduce the count of ifs. I think this will
+		// result in better performance.
+		//
+		// 2. Split the original instruction list into
+		// many small groups, each with same executing
+		// strategy. (execute or not execute)
+		// Then bracket them using ifs.
+		// This will produce many ifs, but no repeating
+		// instructions. I think this is better for
+		// debugging purpose.
+		//
+		// TODO:
+		// The best should be implement both of them
+		// and choose one of them for proper situation.
+		// By now I only implement the first.
 
 		auto& code           = token->getCode();
 		auto& insList        = code.insList;
