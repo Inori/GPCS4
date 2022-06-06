@@ -660,35 +660,46 @@ namespace sce::gcn
 	{
 		for_each_kind<(uint32_t)GcnTokenKind::Branch>([&](GcnToken* branch)
 		{
-			do 
+			// Look for branches that target Block Tokens
+			GcnToken* oldEnd = branch->getMatch();
+			if (oldEnd->kind() != GcnTokenKind::End)
 			{
-				// Look for branches that target Block Tokens
-				GcnToken* oldEnd = branch->getMatch();
-				if (oldEnd->kind() != GcnTokenKind::End)
-				{
-					break;
-				}
-				// If we have an outer Block Token that ends here, we can branch to that,
-				// and remove the current one
-				GcnToken* newEnd    = oldEnd;
-				GcnToken* nextToken = newEnd->getNextNode();
-				while (nextToken->kind() == GcnTokenKind::End &&
-					   nextToken->getMatch()->kind() == GcnTokenKind::Block)
-				{
-					newEnd = nextToken;
-				}
+				return;
+			}
+			// If we have an outer Block Token that ends here, we can branch to that,
+			// and remove the current one
+			GcnToken* newEnd    = oldEnd;
+			GcnToken* nextToken = newEnd->getNextNode();
+			if (nextToken == nullptr)
+			{
+				// skip the last token in list
+				return;
+			}
 
-				if (newEnd == oldEnd)
-				{
-					break;
-				}
+			while (newEnd &&
+				   nextToken->kind() == GcnTokenKind::End &&
+				   nextToken->getMatch()->kind() == GcnTokenKind::Block)
+			{
+				newEnd = newEnd->getNextNode();
+			}
+
+			if (newEnd == oldEnd)
+			{
+				return;
+			}
+
+			if (newEnd == nullptr)
+			{
+				// if we reach the list end, step forward
+				// and reset with the last end token.
+				newEnd = *std::prev(m_tokens->end());
+			}
 				
-				branch->setMatch(newEnd);
+			branch->setMatch(newEnd);
 
-				GcnToken* oldBegin = oldEnd->getMatch();
-				erase(oldBegin);
-				erase(oldEnd); 
-			} while (false);
+			GcnToken* oldBegin = oldEnd->getMatch();
+			erase(oldBegin);
+			erase(oldEnd); 
 		});
 	}
 
@@ -1302,9 +1313,11 @@ namespace sce::gcn
 
 		m_builder.build(tokenList);
 		LOG_ASSERT(m_verifier.verify(tokenList), "token list not valid");
+		LOG_DEBUG("%s", tokenList.dump().c_str());
 
 		m_optimizer.optimize(tokenList);
 		LOG_ASSERT(m_verifier.verify(tokenList), "token list not valid");
+		LOG_DEBUG("%s", tokenList.dump().c_str());
 
 		m_eliminator.eliminate(tokenList);
 		LOG_ASSERT(m_verifier.verify(tokenList), "token list not valid");

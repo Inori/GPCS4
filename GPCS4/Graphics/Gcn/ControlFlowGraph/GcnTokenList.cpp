@@ -47,13 +47,13 @@ namespace sce::gcn
 	GcnToken* GcnToken::getPrevNode() const
 	{
 		auto iter = getIterator();
-		return *(--iter);
+		return iter == m_container->begin() ? nullptr : *(--iter);
 	}
 
 	GcnToken* GcnToken::getNextNode() const
 	{
 		auto iter = getIterator();
-		return *(++iter);
+		return std::next(iter) == m_container->end() ? nullptr : *(++iter);
 	}
 
 	GcnConditionOp GcnToken::getConditionOp(const GcnShaderInstruction& ins)

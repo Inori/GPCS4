@@ -243,12 +243,13 @@ namespace sce::gcn
 		/*
 		* if (mod(gl_SubgroupID, 2.0) < 1.0)
 		* {
-		*	use exec_lo
+		*	value = exec_lo
 		* }
 		* else
 		* {
-		*   use exec_hi
+		*   value = exec_hi
 		* }
+		* result = (value & gl_SubgroupEqMask.x) != 0;
 		*/
 		const uint32_t utypeId = getScalarTypeId(GcnScalarType::Uint32);
 		const uint32_t ftypeId = getScalarTypeId(GcnScalarType::Float32);
@@ -503,7 +504,7 @@ namespace sce::gcn
 			m_blockTerminators.pop_back();
 		}
 	}
-
+	
 	void GcnCompiler::emitControlFlowLoop(const GcnToken& token)
 	{
 		// Declare the 'loop' block
@@ -567,7 +568,26 @@ namespace sce::gcn
 	{
 		// we use do {} while(false); to implement block,
 		// so it's generally a loop.
-		this->emitControlFlowLoop(token);
+
+		// Declare the 'loop' block
+		GcnCfgBlock block;
+		block.type                 = GcnCfgBlockType::Loop;
+		block.b_loop.labelHeader   = m_module.allocateId();
+		block.b_loop.labelBegin    = m_module.allocateId();
+		block.b_loop.labelContinue = m_module.allocateId();
+		block.b_loop.labelBreak    = m_module.allocateId();
+		m_controlFlowStack.push_back(block);
+
+		m_module.opBranch(block.b_loop.labelHeader);
+		m_module.opLabel(block.b_loop.labelHeader);
+
+		m_module.opLoopMerge(
+			block.b_loop.labelBreak,
+			block.b_loop.labelContinue,
+			spv::LoopControlMaskNone);
+
+		m_module.opBranch(block.b_loop.labelBegin);
+		m_module.opLabel(block.b_loop.labelBegin);
 	}
 
 	void GcnCompiler::emitControlFlowEndBlock(const GcnToken& token)
