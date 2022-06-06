@@ -27,8 +27,7 @@ namespace sce::gcn
 
 		if (mask.popCount() == 0)
 		{
-			m_module.opKill();
-			m_insideBlock = false;
+			this->emitControlFlowDiscard();
 			return;
 		}
 		

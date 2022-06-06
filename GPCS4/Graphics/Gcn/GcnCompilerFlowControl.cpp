@@ -33,39 +33,6 @@ namespace sce::gcn
 				break;
 		}
 	}
-	
-	void GcnCompiler::emitBranchLabel()
-	{
-		do
-		{
-			auto iter = m_controlFlowBlocks.find(m_programCounter);
-			if (iter == m_controlFlowBlocks.end())
-			{
-				break;
-			}
-
-			auto& block = iter->second;
-
-			if (block.lableId == 0)
-			{
-				// This is a label before the branch instruction,
-				// we need to allocate an id, and this will be used
-				// when processing the branch instruction which jumps
-				// to this label.
-				block.lableId = m_module.allocateId();
-			}
-
-			// Terminate the block when inside.
-			if (m_insideBlock)
-			{
-				m_module.opBranch(block.lableId);
-			}
-
-			m_module.opLabel(block.lableId);
-			m_insideBlock = true;
-
-		} while (false);
-	}
 
 	void GcnCompiler::emitScalarProgFlow(const GcnShaderInstruction& ins)
 	{
@@ -76,79 +43,17 @@ namespace sce::gcn
 				// Nothing to do.
 				break;
 			case GcnOpcode::S_ENDPGM:
-			{
-				if (m_insideBlock)
-				{
-					m_module.opReturn();
-					m_insideBlock = false;
-				}
-			}
+				this->emitControlFlowReturn();
 				break;
+			case GcnOpcode::S_BRANCH:
 			case GcnOpcode::S_CBRANCH_EXECZ:
 			case GcnOpcode::S_CBRANCH_SCC0:
 			case GcnOpcode::S_CBRANCH_SCC1:
 			case GcnOpcode::S_CBRANCH_VCCZ:
-				emitScalarBranch(ins);
 				break;
 			default:
 				LOG_GCN_UNHANDLED_INST();
 				break;
-		}
-	}
-
-	void GcnCompiler::emitScalarBranch(const GcnShaderInstruction& ins)
-	{
-		auto sopp = gcnInstructionAs<GcnShaderInstSOPP>(ins);
-
-		uint32_t branchTarget = getBranchTarget(ins);
-		auto     iter         = m_controlFlowBlocks.find(branchTarget);
-		// The target must be found, or there must be errors in analyzer.
-		LOG_ASSERT(iter != m_controlFlowBlocks.end(), "can not find branch target");
-
-		auto& block = iter->second;
-		if (block.lableId == 0)
-		{
-			// This is a label after the branch instruction,
-			// we need to allocate an id, and this will be used
-			// when we reach the label address after processing
-			// the branch instruction here.
-			block.lableId = m_module.allocateId();
-		}
-
-		const uint32_t boolTypeId = m_module.defBoolType();
-
-		uint32_t condition = 0;
-
-		auto op = ins.opcode;
-		switch (op)
-		{
-			case GcnOpcode::S_CBRANCH_VCCZ:
-				condition = m_state.vcc.zflag();
-				break;
-			case GcnOpcode::S_CBRANCH_EXECZ:
-				condition = m_state.exec.zflag();
-				break;
-			case GcnOpcode::S_CBRANCH_SCC0:
-				condition = m_module.opLogicalNot(boolTypeId,
-												  m_module.opLoad(boolTypeId, m_state.scc.id));
-				break;
-			case GcnOpcode::S_CBRANCH_SCC1:
-				condition = m_module.opLoad(boolTypeId, m_state.scc.id);
-				break;
-			default:
-				LOG_GCN_UNHANDLED_INST();
-				break;
-		}
-
-		if (condition != 0)
-		{
-			uint32_t trueLabelId  = block.lableId;
-			uint32_t falseLabelId = m_module.allocateId();
-
-			m_module.opBranchConditional(condition, trueLabelId, falseLabelId);
-			m_module.opLabel(falseLabelId);
-
-			m_insideBlock = true;
 		}
 	}
 

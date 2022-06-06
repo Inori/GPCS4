@@ -36,7 +36,6 @@ namespace sce::gcn
 
 	struct GcnTokenValue
 	{
-		uint32_t      spvId;
 		size_t        value;
 		GcnScalarType type;
 	};
@@ -45,6 +44,7 @@ namespace sce::gcn
 	{
 		GcnConditionOp op;
 		size_t         cmpValue;
+		GcnToken*      condVar;
 	};
 
 	struct GcnTokenCode
@@ -74,8 +74,8 @@ namespace sce::gcn
 		friend class GcnTokenList;
 
 	public:
-		GcnToken(GcnTokenKind        kind,
-				 GcnToken*           match);
+		GcnToken(GcnTokenKind kind,
+				 GcnToken*    match);
 
 		GcnToken(GcnTokenKind   kind,
 				 GcnTokenCode&& code);
@@ -105,16 +105,6 @@ namespace sce::gcn
 			return m_match;
 		}
 
-		void setSpvId(uint32_t spvId)
-		{
-			m_value.spvId = spvId;
-		}
-
-		uint32_t getSpvId() const
-		{
-			return m_value.spvId;
-		}
-
 		GcnTokenCondition& getCondition()
 		{
 			return m_condition;
@@ -125,10 +115,15 @@ namespace sce::gcn
 			return m_code;
 		}
 
-		std::list<GcnToken*>::iterator getIterator();
+		GcnTokenValue& getValue()
+		{
+			return m_value;
+		}
 
-		GcnToken* getPrevNode();
-		GcnToken* getNextNode();
+		std::list<GcnToken*>::iterator getIterator() const;
+
+		GcnToken* getPrevNode() const;
+		GcnToken* getNextNode() const;
 
 		std::string dump() const;
 
@@ -196,6 +191,7 @@ namespace sce::gcn
 			GcnTokenCondition condition = {};
 			condition.op                = op;
 			condition.cmpValue          = cmpValue;
+			condition.condVar           = variable;
 			return m_pool.allocate(GcnTokenKind::If, condition, nullptr);
 		}
 
@@ -289,7 +285,7 @@ namespace sce::gcn
 		inline       GcnToken       &back()       { return *m_list.back();  }
 		// clang-format on
 
-		iterator find(GcnToken* token)
+		iterator find(const GcnToken* token)
 		{
 			return m_iteratorMap[token];
 		}
@@ -341,8 +337,10 @@ namespace sce::gcn
 		std::string dump(const GcnToken* target = nullptr) const;
 
 	private:
-		std::list<GcnToken*>                    m_list;
-		std::unordered_map<GcnToken*, iterator> m_iteratorMap;
+		std::list<GcnToken*> m_list;
+		std::unordered_map<
+			const GcnToken*,
+			iterator> m_iteratorMap;
 	};
 
 

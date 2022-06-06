@@ -118,8 +118,10 @@ namespace sce::gcn
 	 */
 	struct GcnCompilerCommonPart
 	{
+		uint32_t numSubgroups         = 0;
+		uint32_t subgroupId           = 0;
 		uint32_t subgroupSize         = 0;
-		uint32_t subgroupInvocationID = 0;
+		uint32_t subgroupInvocationId = 0;
 		uint32_t subgroupEqMask       = 0;
 		uint32_t subgroupGeMask       = 0;
 		uint32_t subgroupGtMask       = 0;
@@ -256,10 +258,38 @@ namespace sce::gcn
 	};
 
 
+	enum class GcnCfgBlockType : uint32_t
+	{
+		If,
+		Loop,
+	};
+
+	struct GcnCfgBlockIf
+	{
+		uint32_t conditionId;
+		uint32_t labelIf;
+		uint32_t labelElse;
+		uint32_t labelEnd;
+		size_t   headerPtr;
+	};
+
+	struct GcnCfgBlockLoop
+	{
+		uint32_t labelHeader;
+		uint32_t labelBegin;
+		uint32_t labelContinue;
+		uint32_t labelBreak;
+	};
+
 	struct GcnCfgBlock
 	{
-		uint32_t lableId  = 0;
-		size_t   labelPtr = 0;
+		GcnCfgBlockType type;
+
+		union
+		{
+			GcnCfgBlockIf   b_if;
+			GcnCfgBlockLoop b_loop;
+		};
 	};
 
 

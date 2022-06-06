@@ -24,7 +24,9 @@ namespace sce::Gnm
 
 namespace sce::gcn
 {
-
+	class GcnToken;
+	class GcnTokenList;
+	struct GcnTokenCondition;
 	class GcnHeader;
 	struct GcnShaderInstruction;
 	struct GcnAnalysisInfo;
@@ -37,7 +39,7 @@ namespace sce::gcn
 	 * Recompile GCN instructions into Spir-V byte code.
 	 * Produce VltShader for Violet.
 	 */
-	class GcnCompiler : public GcnInstructionIterator
+	class GcnCompiler
 	{
 		friend class GcnStateRegister;
 
@@ -52,11 +54,10 @@ namespace sce::gcn
 		virtual ~GcnCompiler();
 
 		/**
-         * \brief Processes a single instruction
-         * \param [in] ins The instruction
-         */
-		virtual void processInstruction(
-			const GcnShaderInstruction& ins) override;
+		 * \brief Compile tokens into spirv
+		 * \param [in] tokens The token list
+		 */
+		void compile(const GcnTokenList& tokens);
 
 		/**
          * \brief Finalizes the shader
@@ -65,8 +66,37 @@ namespace sce::gcn
 		vlt::Rc<vlt::VltShader> finalize();
 
 	private:
+		void compileToken(const GcnToken& token);
+		void compileTokenCode(const GcnToken& token);
+		void compileTokenLoop(const GcnToken& token);
+		void compileTokenBlock(const GcnToken& token);
+		void compileTokenIf(const GcnToken& token);
+		void compileTokenIfNot(const GcnToken& token);
+		void compileTokenElse(const GcnToken& token);
+		void compileTokenBranch(const GcnToken& token);
+		void compileTokenEnd(const GcnToken& token);
+		void compileTokenVariable(const GcnToken& token);
+		void compileTokenSetValue(const GcnToken& token);
+		void compileGlobalVariable(const GcnTokenList& tokens);
+
 		void compileInstruction(
 			const GcnShaderInstruction& ins);
+		/////////////////////////////////////
+		// Control flow instruction handlers
+		void emitControlFlowIf(const GcnToken& token);
+		void emitControlFlowElse(const GcnToken& token);
+		void emitControlFlowEndIf(const GcnToken& token);
+		void emitControlFlowLoop(const GcnToken& token);
+		void emitControlFlowEndLoop(const GcnToken& token);
+		void emitControlFlowBlock(const GcnToken& token);
+		void emitControlFlowEndBlock(const GcnToken& token);
+		void emitControlFlowBreak(const GcnToken& token);
+		void emitControlFlowReturn();
+		void emitControlFlowDiscard();
+
+		uint32_t emitControlFlowCondition(const GcnTokenCondition& condition);
+		uint32_t emitComputeDivergence();
+		uint32_t emitControlFlowDivergence();
 		/////////////////////////////////////////////////////////
 		// Category handlers
 		void emitScalarALU(const GcnShaderInstruction& ins);
@@ -173,8 +203,6 @@ namespace sce::gcn
 			const GcnRegisterValue& value,
 			const GcnRegMask&       writeMask);
 
-		void emitScalarBranch(
-			const GcnShaderInstruction& ins);
 		void emitVectorMemBuffer(
 			const GcnShaderInstruction& ins);
 		void emitCubeCalculate(
@@ -404,7 +432,7 @@ namespace sce::gcn
 			uint32_t count);
 
 		std::array<GcnRegisterPointer, 4>
-		emitDsAccess(const GcnShaderInstruction& ins);
+		     emitDsAccess(const GcnShaderInstruction& ins);
 
 		void emitRawBufferLoad(
 			const GcnShaderInstruction& ins);
@@ -433,6 +461,7 @@ namespace sce::gcn
 			const GcnTexture& textureResource,
 			const GcnSampler& samplerResource,
 			bool              isDepthCompare);
+
 		////////////////////////////////////////////////
 		// Constant building methods. These are used to
 		// generate constant vectors that store the same
@@ -535,10 +564,6 @@ namespace sce::gcn
 		GcnRegisterValue emitWholeQuadMode(
 			GcnRegisterValue src);
 
-		///////////////////////////
-		// Control flow methods
-		void emitBranchLabel();
-
 		void emitUpdateScc(
 			GcnRegisterValuePair& dst,
 			GcnScalarType         dstType);
@@ -581,6 +606,15 @@ namespace sce::gcn
 #endif  // GCN_SHADER_DEBUG_PRINTF
 		}
 
+		
+		///////////////////////////
+		// Control flow methods
+		GcnCfgBlock* cfgFindBlock(
+			const std::initializer_list<GcnCfgBlockType>& types);
+
+		bool needBreakLoop(
+			const GcnToken& token);
+	
 		///////////////////////////
 		// Type definition methods
 		uint32_t getScalarTypeId(
@@ -694,7 +728,6 @@ namespace sce::gcn
 		// Function/Block state tracking. Required in order
 		// to properly end functions and blocks in some cases.
 		bool m_insideFunction = false;
-		bool m_insideBlock    = false;
 		///////////////////////////////////////////////////////////
 		// An array stores up to 16 user data registers.
 		uint32_t m_vUserDataArray = 0;
@@ -724,8 +757,13 @@ namespace sce::gcn
 		uint32_t                m_immConstBuf = 0;
 		vlt::VltShaderConstData m_immConstData;
 		///////////////////////////////////////////////
-		// Control flow information.
-		std::unordered_map<uint32_t, GcnCfgBlock> m_controlFlowBlocks;
+		// Control flow scope stack. Stores labels for
+		// currently active if-else blocks and loops.
+		std::vector<GcnCfgBlock> m_controlFlowStack;
+		std::vector<uint32_t>    m_blockTerminators;
+		std::unordered_map<
+			const GcnToken*,
+			GcnRegisterPointer>  m_tokenVariables;
 
 		///////////////////////////////////
 		// Shader-specific data structures

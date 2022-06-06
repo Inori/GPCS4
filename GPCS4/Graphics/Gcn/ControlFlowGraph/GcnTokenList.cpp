@@ -39,18 +39,18 @@ namespace sce::gcn
 	{
 	}
 
-	std::list<GcnToken*>::iterator GcnToken::getIterator()
+	std::list<GcnToken*>::iterator GcnToken::getIterator() const
 	{
 		return m_container->find(this);
 	}
 
-	GcnToken* GcnToken::getPrevNode()
+	GcnToken* GcnToken::getPrevNode() const
 	{
 		auto iter = getIterator();
 		return *(--iter);
 	}
 
-	GcnToken* GcnToken::getNextNode()
+	GcnToken* GcnToken::getNextNode() const
 	{
 		auto iter = getIterator();
 		return *(++iter);

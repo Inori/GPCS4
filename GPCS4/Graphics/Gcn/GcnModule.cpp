@@ -50,7 +50,7 @@ namespace sce::gcn
 
 		LOG_TRACE("compiling shader %s", shaderName.c_str());
 		auto fileName = util::str::formatex("shaders/", shaderName, ".bin");
-		auto dotName = util::str::formatex(shaderName, ".dot");
+		auto dotName  = util::str::formatex(shaderName, ".dot");
 
 		////if (fileName.find("CS_SHDR_844598A0F388C19D") != std::string::npos)
 		////{
@@ -92,7 +92,7 @@ namespace sce::gcn
 			meta,
 			analysisInfo);
 
-		this->runInstructionIterator(&compiler, insList);
+		compiler.compile(tokenList);
 
 		return compiler.finalize();
 	}

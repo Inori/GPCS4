@@ -2495,13 +2495,15 @@ namespace sce::gcn
 		Coverage                    = 66,
 		DepthGe                     = 67,
 		DepthLe                     = 68,
-		SubgroupSize                = 70,
-		SubgroupInvocationID        = 71,
-		SubgroupEqMask              = 72,
-		SubgroupGeMask              = 73,
-		SubgroupGtMask              = 74,
-		SubgroupLeMask              = 75,
-		SubgroupLtMask              = 76,
+		NumSubgroups                = 70,
+		SubgroupID                  = 71,
+		SubgroupSize                = 72,
+		SubgroupInvocationID        = 73,
+		SubgroupEqMask              = 74,
+		SubgroupGeMask              = 75,
+		SubgroupGtMask              = 76,
+		SubgroupLeMask              = 77,
+		SubgroupLtMask              = 78,
 	};
 
 	enum class GcnInterpolationMode : uint32_t

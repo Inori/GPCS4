@@ -1105,9 +1105,9 @@ namespace sce::gcn
 		
 		// create a flag variable, initialize to false
 		// all variables are global so no need to worry about redefinition.
-		auto var = m_factory.createVariable({ 0, 0, GcnScalarType::Bool });
+		auto var = m_factory.createVariable({ 0, GcnScalarType::Bool });
 		// set the variable to true, marking the goto happened
-		auto setValue = m_factory.createSetValue({ 0, 1, GcnScalarType::Bool }, var);
+		auto setValue = m_factory.createSetValue({ 1, GcnScalarType::Bool }, var);
 		auto ptr      = m_tokens->insert(gotoToken->getIterator(), var);
 		ptr           = m_tokens->insertAfter(ptr, setValue);
 		m_tokens->erase(gotoToken);
@@ -1126,7 +1126,7 @@ namespace sce::gcn
 		auto tokenIfOut    = m_factory.createIf(GcnConditionOp::EqBool, 1, var);
 		auto tokenIfEndOut = m_factory.createIfEnd(tokenIfOut, nullptr);
 		auto newGoto       = m_factory.createBranch(gotoToken->getMatch());
-		auto resetVar      = m_factory.createSetValue({ 0, 0, GcnScalarType::Bool }, var);
+		auto resetVar      = m_factory.createSetValue({ 0, GcnScalarType::Bool }, var);
 
 		auto wholeScopeEnd = findScopeEnd(scope.head);  // find the end of entire if else endif construct
 		ptr                = m_tokens->insertAfter(wholeScopeEnd->getIterator(), tokenIfOut);
@@ -1143,9 +1143,9 @@ namespace sce::gcn
 
 		// create a flag variable, initialize to false
 		// all variables are global so no need to worry about redefinition.
-		auto var = m_factory.createVariable({ 0, 0, GcnScalarType::Bool });
+		auto var = m_factory.createVariable({ 0, GcnScalarType::Bool });
 		// set the variable to true, marking the goto happened
-		auto setValue = m_factory.createSetValue({ 0, 1, GcnScalarType::Bool }, var);
+		auto setValue = m_factory.createSetValue({ 1, GcnScalarType::Bool }, var);
 		// create the break
 		auto branch = m_factory.createBranch(scope.end);
 		// replace the old goto
@@ -1158,7 +1158,7 @@ namespace sce::gcn
 		auto tokenIf    = m_factory.createIf(GcnConditionOp::EqBool, 1, var);
 		auto tokenIfEnd = m_factory.createIfEnd(tokenIf, nullptr);
 		auto newGoto    = m_factory.createBranch(gotoToken->getMatch());
-		auto resetVar   = m_factory.createSetValue({ 0, 0, GcnScalarType::Bool }, var);
+		auto resetVar   = m_factory.createSetValue({ 0, GcnScalarType::Bool }, var);
 
 		ptr = m_tokens->insertAfter(scope.end->getIterator(), tokenIf);
 		ptr = m_tokens->insertAfter(ptr, resetVar);  // deactive the goto condition
@@ -1309,8 +1309,8 @@ namespace sce::gcn
 		m_eliminator.eliminate(tokenList);
 		LOG_ASSERT(m_verifier.verify(tokenList), "token list not valid");
 
-		m_diverger.diverge(tokenList);
-		LOG_ASSERT(m_verifier.verify(tokenList), "token list not valid");
+		//m_diverger.diverge(tokenList);
+		//LOG_ASSERT(m_verifier.verify(tokenList), "token list not valid");
 
 		return tokenList;
 	}

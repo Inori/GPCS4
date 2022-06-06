@@ -13,7 +13,6 @@ namespace sce::gcn
 	class GcnProgramInfo;
 	struct GcnShaderInstruction;
 
-
 	struct GcnExportInfo
 	{
 		uint32_t                                  paramCount = 0;
@@ -25,11 +24,6 @@ namespace sce::gcn
 	struct GcnAnalysisInfo
 	{
 		GcnExportInfo exportInfo;
-
-		// CFG blocks
-		// Key is target address
-		std::unordered_map<uint32_t, GcnCfgBlock> controlFlowBlocks;
-
 		// VGPRs used by lane instructions.
 		std::unordered_set<uint32_t> laneVgprs;
 	};
