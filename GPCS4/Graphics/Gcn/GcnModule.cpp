@@ -69,7 +69,6 @@ namespace sce::gcn
 
 		GcnStackifier stackifier(cfg);
 		auto tokenList = stackifier.generate();
-		LOG_DEBUG("%s", tokenList.dump().c_str());
 		
 		// TODO:
 		// Generate module info from device.

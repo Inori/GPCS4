@@ -311,7 +311,9 @@ namespace sce::gcn
 		// We will insert all the ends at this point
 		auto endPtr = m_insertPtr;
 		LOG_ASSERT(endPtr != m_tokens->end(), "reach token list end.");
-	
+
+		// We will resume the normal insertion after all the end blocks
+		++m_insertPtr;
 		for (auto& branch : branches)
 		{
 			LOG_ASSERT(branch->kind() == GcnTokenKind::Branch, "branch token kind is not branch");
@@ -325,6 +327,7 @@ namespace sce::gcn
 			auto blockPtr  = findBlockBegin(targetPtr, branch->getIterator());
 			m_tokens->insert(blockPtr, block);
 		}
+		--m_insertPtr;
 	}
 
 	void GcnTokenListBuilder::popScopes(GcnCfgVertex vtx)
@@ -666,33 +669,28 @@ namespace sce::gcn
 			{
 				return;
 			}
-			// If we have an outer Block Token that ends here, we can branch to that,
-			// and remove the current one
-			GcnToken* newEnd    = oldEnd;
-			GcnToken* nextToken = newEnd->getNextNode();
-			if (nextToken == nullptr)
+
+			if (oldEnd->getMatch()->kind() != GcnTokenKind::Block)
 			{
-				// skip the last token in list
 				return;
 			}
-
-			while (newEnd &&
-				   nextToken->kind() == GcnTokenKind::End &&
-				   nextToken->getMatch()->kind() == GcnTokenKind::Block)
+			// If we have an outer Block Token that ends here, we can branch to that,
+			// and remove the current one
+			GcnToken* newEnd = oldEnd;
+			
+			while (newEnd->getNextNode()->kind() == GcnTokenKind::End &&
+				   newEnd->getNextNode()->getMatch()->kind() == GcnTokenKind::Block)
 			{
 				newEnd = newEnd->getNextNode();
+				if (newEnd == nullptr || newEnd->getNextNode() == nullptr)
+				{
+					break;
+				}
 			}
 
 			if (newEnd == oldEnd)
 			{
 				return;
-			}
-
-			if (newEnd == nullptr)
-			{
-				// if we reach the list end, step forward
-				// and reset with the last end token.
-				newEnd = *std::prev(m_tokens->end());
 			}
 				
 			branch->setMatch(newEnd);
