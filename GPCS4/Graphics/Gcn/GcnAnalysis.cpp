@@ -21,8 +21,6 @@ namespace sce::gcn
 		const GcnShaderInstruction& ins)
 	{
 		analyzeInstruction(ins);
-
-		advanceProgramCounter(ins);
 	}
 
 	void GcnAnalyzer::analyzeInstruction(const GcnShaderInstruction& ins)

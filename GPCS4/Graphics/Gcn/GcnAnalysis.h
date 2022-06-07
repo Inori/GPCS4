@@ -1,7 +1,6 @@
 #pragma once
 
 #include "GcnCommon.h"
-#include "GcnInstructionIterator.h"
 #include "GcnCompilerDefs.h"
 
 #include <array>
@@ -35,7 +34,7 @@ namespace sce::gcn
 	 * which is not possible to get when stepping a instruction.
      * The information will later be used by the actual compiler.
 	 */
-	class GcnAnalyzer : public GcnInstructionIterator
+	class GcnAnalyzer
 	{
 	public:
 		GcnAnalyzer(
@@ -47,8 +46,8 @@ namespace sce::gcn
          * \brief Processes a single instruction
          * \param [in] ins The instruction
          */
-		virtual void processInstruction(
-			const GcnShaderInstruction& ins) override;
+		void processInstruction(
+			const GcnShaderInstruction& ins);
 
 	private:
 		void analyzeInstruction(

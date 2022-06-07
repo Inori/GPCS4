@@ -14,8 +14,9 @@ namespace sce::vlt
 
 namespace sce::gcn
 {
-	class GcnInstructionIterator;
 	union GcnShaderMeta;
+	class GcnAnalyzer;
+	class GcnCompiler;
 
 	class GcnModule
 	{
@@ -66,8 +67,15 @@ namespace sce::gcn
 
 	private:
 
-		void runInstructionIterator(
-			GcnInstructionIterator*   insIterator,
+		GcnInstructionList decodeShader(
+			GcnCodeSlice& slice) const;
+
+		void runAnalyzer(
+			GcnAnalyzer&              analyzer,
+			const GcnInstructionList& insList) const;
+
+		void runCompiler(
+			GcnCompiler&              compiler,
 			const GcnInstructionList& insList) const;
 
 	private:

@@ -156,7 +156,7 @@ namespace sce::gcn
 
 	void GcnTokenListBuilder::processVertex(GcnCfgVertex vtx)
 	{
-		LOG_DEBUG("process vertex %d", static_cast<size_t>(vtx));
+		//LOG_DEBUG("process vertex %d", static_cast<size_t>(vtx));
 		
 		// Check if we need to close some loop and/or if/else scopes
 		popScopes(vtx);
@@ -1311,11 +1311,11 @@ namespace sce::gcn
 
 		m_builder.build(tokenList);
 		LOG_ASSERT(m_verifier.verify(tokenList), "token list not valid");
-		LOG_DEBUG("%s", tokenList.dump().c_str());
+		//LOG_DEBUG("%s", tokenList.dump().c_str());
 
 		m_optimizer.optimize(tokenList);
 		LOG_ASSERT(m_verifier.verify(tokenList), "token list not valid");
-		LOG_DEBUG("%s", tokenList.dump().c_str());
+		//LOG_DEBUG("%s", tokenList.dump().c_str());
 
 		m_eliminator.eliminate(tokenList);
 		LOG_ASSERT(m_verifier.verify(tokenList), "token list not valid");

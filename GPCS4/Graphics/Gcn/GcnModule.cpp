@@ -29,10 +29,43 @@ namespace sce::gcn
 	Rc<VltShader> GcnModule::compile(
 		const GcnShaderMeta& meta) const
 	{
+		// Decode shader binary
 		const uint32_t* start = reinterpret_cast<const uint32_t*>(m_code);
 		const uint32_t* end   = reinterpret_cast<const uint32_t*>(m_code + m_header.length());
 		GcnCodeSlice    slice(start, end);
 
+		auto insList = this->decodeShader(slice);
+		
+		// Generate global information
+		GcnAnalysisInfo analysisInfo;
+
+		GcnAnalyzer analyzer(
+			m_programInfo,
+			analysisInfo);
+
+		this->runAnalyzer(analyzer, insList);
+
+		// Do the compile
+		// TODO:
+		// Generate module info from device.
+		GcnModuleInfo moduleInfo;
+		moduleInfo.options.separateSubgroup = true;
+
+		GcnCompiler compiler(
+			this->name(),
+			moduleInfo,
+			m_programInfo,
+			m_header,
+			meta,
+			analysisInfo);
+
+		this->runCompiler(compiler, insList);
+
+		return compiler.finalize();
+	}
+	
+	GcnInstructionList GcnModule::decodeShader(GcnCodeSlice& slice) const
+	{
 		GcnInstructionList insList;
 		GcnDecodeContext   decoder;
 
@@ -46,64 +79,34 @@ namespace sce::gcn
 				decoder.getInstruction());
 		}
 
-		auto shaderName = util::str::formatex(m_programInfo.name(), "_", m_header.key().name());
-
-		LOG_TRACE("compiling shader %s", shaderName.c_str());
-		auto fileName = util::str::formatex("shaders/", shaderName, ".bin");
-		auto dotName  = util::str::formatex(shaderName, ".dot");
-
-		////if (fileName.find("CS_SHDR_844598A0F388C19D") != std::string::npos)
-		////{
-		////	__debugbreak();
-		////}
-
-		//plat::StoreFile(fileName, start, m_header.length());
-
-		//return nullptr;
-
-		GcnCfgPass cfgPass;
-		auto& cfg = cfgPass.generateCfg(insList);
-
-		auto       dot = GcnCfgPass::dumpDot(cfg);
-		plat::StoreFile(dotName, dot.data(), dot.size());
-
-		GcnStackifier stackifier(cfg);
-		auto tokenList = stackifier.generate();
-		
-		// TODO:
-		// Generate module info from device.
-		GcnModuleInfo moduleInfo;
-		moduleInfo.options.separateSubgroup = true;
-
-		GcnAnalysisInfo analysisInfo;
-
-		GcnAnalyzer analyzer(
-			m_programInfo,
-			analysisInfo);
-
-		this->runInstructionIterator(&analyzer, insList);
-
-		GcnCompiler compiler(
-			this->name(),
-			moduleInfo,
-			m_programInfo,
-			m_header,
-			meta,
-			analysisInfo);
-
-		compiler.compile(tokenList);
-
-		return compiler.finalize();
+		return insList;
 	}
 
-	void GcnModule::runInstructionIterator(
-		GcnInstructionIterator*   insIterator,
-		const GcnInstructionList& insList) const
+	void GcnModule::runAnalyzer(
+		GcnAnalyzer& analyzer, const GcnInstructionList& insList) const
 	{
-		for (const auto& ins : insList)
+		for (auto& ins : insList)
 		{
-			insIterator->processInstruction(ins);
+			analyzer.processInstruction(ins);
 		}
+	}
+
+	void GcnModule::runCompiler(
+		GcnCompiler& compiler, const GcnInstructionList& insList) const
+	{
+		GcnCfgPass cfgPass;
+		auto&      cfg = cfgPass.generateCfg(insList);
+
+		//auto shaderName = util::str::formatex(m_programInfo.name(), "_", m_header.key().name());
+		//LOG_TRACE("compiling shader %s", shaderName.c_str());
+		//auto dotName  = util::str::formatex(shaderName, ".dot");
+		//auto dot = GcnCfgPass::dumpDot(cfg);
+		//plat::StoreFile(dotName, dot.data(), dot.size());
+
+		GcnStackifier stackifier(cfg);
+		auto          tokenList = stackifier.generate();
+
+		compiler.compile(tokenList);
 	}
 
 }  // namespace sce::gcn

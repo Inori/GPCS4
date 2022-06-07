@@ -30,8 +30,4 @@ namespace sce::gcn
 		return calculateBranchTarget(m_programCounter, ins);
 	}
 
-	void GcnInstructionIterator::processInstruction(const GcnShaderInstruction& ins)
-	{
-	}
-
 }  // namespace sce::gcn

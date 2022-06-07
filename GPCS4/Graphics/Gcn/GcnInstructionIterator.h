@@ -12,11 +12,6 @@ namespace sce::gcn
 		GcnInstructionIterator();
 		virtual ~GcnInstructionIterator();
 
-		// TODO:
-		// Remove this virtual method
-		virtual void processInstruction(
-			const GcnShaderInstruction& ins);
-
 	protected:
 
 		void advanceProgramCounter(const GcnShaderInstruction& ins);
