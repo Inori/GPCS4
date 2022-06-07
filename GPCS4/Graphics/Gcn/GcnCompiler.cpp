@@ -67,7 +67,7 @@ namespace sce::gcn
 		// variables used for control
 		// flow first.
 		compileGlobalVariable(tokens);
-
+		// Compile each token left
 		for (const auto& token : tokens)
 		{
 			compileToken(*token);
@@ -304,11 +304,11 @@ namespace sce::gcn
 		// so we only set EXEC bit against invocation id.
 		if (m_moduleInfo.options.separateSubgroup)
 		{
-			if (m_programInfo.type() == GcnProgramType::ComputeShader)
-			{
-				result = emitComputeDivergence();
-			}
-			else
+			//if (m_programInfo.type() == GcnProgramType::ComputeShader)
+			//{
+			//	result = emitComputeDivergence();
+			//}
+			//else
 			{
 				auto mask = emitCommonSystemValueLoad(
 					GcnSystemValue::SubgroupEqMask, GcnRegMask::select(0));
@@ -1578,6 +1578,12 @@ namespace sce::gcn
 		m_module.setDebugName(m_state.scc.id, "scc");
 	}
 
+	void GcnCompiler::emitInitCsExec(const GcnRegisterValue& eqMask)
+	{
+		// For compute shader, we initialize low 32-bits of exec
+		// with even subgroup and high 32 bis with odd.
+
+	}
 	
 	void GcnCompiler::emitInitStateRegister()
 	{
@@ -1586,15 +1592,23 @@ namespace sce::gcn
 		auto eqMask = emitCommonSystemValueLoad(
 			GcnSystemValue::SubgroupEqMask, GcnRegMask::firstN(2));
 
+		//GcnRegisterValue ballot = {};
+		//ballot.type.ctype  = GcnScalarType::Uint32;
+		//ballot.type.ccount = 4;
+		//ballot.id          = m_module.opGroupNonUniformBallot(
+		//			 getVectorTypeId(ballot.type),
+		//			 m_module.constu32(spv::ScopeSubgroup),
+		//			 m_module.constBool(true));
+
 		// We cheat the shader as if the CU only provide one single thread,
 		// so we only set EXEC bit against invocation id.
 		if (m_moduleInfo.options.separateSubgroup)
 		{
-			auto mask = emitRegisterExtract(eqMask, GcnRegMask::select(0));
-			
+			auto exec = emitRegisterExtract(eqMask, GcnRegMask::select(0));
+
 			// Set high 32 bits to zero,
 			// cheat the shader that the high 32 lanes are inactive.
-			m_state.exec.init(mask.id, m_module.constu32(0));
+			m_state.exec.init(exec.id, m_module.constu32(0));
 		}
 		else
 		{
@@ -3929,7 +3943,6 @@ namespace sce::gcn
 	{
 		return getTexLayerDim(imageType) + imageType.array;
 	}
-
 
 
 }  // namespace sce::gcn

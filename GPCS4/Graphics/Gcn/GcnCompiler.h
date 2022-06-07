@@ -242,6 +242,8 @@ namespace sce::gcn
 
 		////////////////////////////
 		// Input/output preparation
+		void emitInitCsExec(
+			const GcnRegisterValue& eqMask);
 		void emitInitStateRegister();
 		void emitInputSetup();
 		void emitFetchInput();

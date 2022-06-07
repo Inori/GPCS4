@@ -485,6 +485,14 @@ namespace sce::gcn
 		result.low.type.ccount      = 1;
 		result.high.type            = result.low.type;
 
+		//GcnRegisterValue ballot = {};
+		//ballot.type.ctype       = GcnScalarType::Uint32;
+		//ballot.type.ccount      = 4;
+		//ballot.id               = m_module.opGroupNonUniformBallot(
+		//				  getVectorTypeId(ballot.type),
+		//				  m_module.constu32(spv::ScopeSubgroup),
+		//				  m_module.constBool(true));
+
 		// Because we only set one bit against invocation id upon shader launch,
 		// we'll only operate that bit for compare instructions.
 		// This we way can use native GPU lane slot to store vgpr values,
@@ -502,6 +510,8 @@ namespace sce::gcn
 			auto exec = m_state.exec.emitLoad(GcnRegMask::select(0));
 
 			result.low.id = m_module.opBitwiseAnd(typeId, sValue, exec.low.id);
+
+			//result.low = emitRegisterExtract(ballot, GcnRegMask::select(0));
 			
 			// Always set high 32-bits of the compare result to zero,
 			// which means the high 32 lanes is inactive,

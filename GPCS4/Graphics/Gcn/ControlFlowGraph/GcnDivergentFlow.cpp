@@ -120,9 +120,9 @@ namespace sce::gcn
 			}
 		}
 
-		auto tokenIf           = m_factory.createIf(GcnConditionOp::Divergence);
-		auto tokenElse         = m_factory.createElse(tokenIf);
-		auto tokenEnd          = m_factory.createIfEnd(tokenIf, tokenElse);
+		auto tokenIf   = m_factory.createIf(GcnConditionOp::Divergence);
+		auto tokenElse = m_factory.createElse(tokenIf);
+		auto tokenEnd  = m_factory.createIfEnd(tokenIf, tokenElse);
 
 		if (!inactiveCode.insList.empty())
 		{
