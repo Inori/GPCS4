@@ -35,57 +35,8 @@ For example:
 And based on the above Sony's style, we add the following extra rules, to make our code more clean and easy to maintain.
 
 ## Rules must be followed:
-1. One function, one `return`.
 
-2. Use `do {} while(false)` pattern in functions that are complex and/or going to be complex.  
-   e.g. functions which have more than one `if` statement.  
-
-   Many people don't used to this pattern, but over the years, I only see one disadvantage of it, that is: when there's a loop in the function and you want to directly return the function within the loop, you need to define an extra flag variable to store whether or not the return condition was met. But with this only disadvantage, it brings many good things:
-   1. First and most important, this pattern forces the code to grow vertically, not to expend horizontally and nested again and again, because when a condition does not match, you just break. This way the code is more easier to read and maintain.  
-   2. "One function one return" together with "do while false" makes sure the function only has one exit point, thus you can release any resources right before the return, thus reducing things you need to remember in your mind, and remember things as less as possible is good for programming. I know there is RAII for C++, but you wouldn't like to use RAII on all resources, that would require more extra code.
-   3. It also helps people to figure out the most important part of a function, this is called *Guard Clauses*. Once you are used to it, you know what appears at the begining of a functions is just some bad condition checks which is less important, saving time again.
-
-    For examp;e:
-    ```
-    bool ModuleLoader::loadModule(std::string const &fileName, MemoryMappedModule **modOut)
-    {
-        bool retVal = false;
-        MemoryMappedModule mod = {};
-        do
-        {
-            if (!modOut)
-            {
-                break;
-            }
-
-            retVal = loadModuleFromFile(fileName, &mod);
-            if (!retVal)
-            {
-                LOG_ERR("load module failed %s", fileName.cstr());
-                break;
-            }
-
-            retVal = loadDependencies();
-            if (!retVal)
-            {
-                LOG_ERR("load dependencies failed");
-                break;
-            }
-
-            *modOut = &(m_modSystem.getMemoryMappedModules()[0]);
-            retVal  = true;
-        } while (false);
-
-        if (!retVal)
-        {
-            releaseModule(mod);
-        }
-
-        return retVal;
-    }
-    ```
-
-3. Do not write code nested more than 3 layers (`do{} while(false);` not included). Write nested statement as few as possible.  
+1. Do not write code nested more than 3 layers (`do{} while(false);` not included). Write nested statement as few as possible.  
 
    You can use `break` or `continue` to cancel nested code, or write a new function if necessary.
    
@@ -168,23 +119,73 @@ And based on the above Sony's style, we add the following extra rules, to make o
         }
     }
    ```
-4. Do not write a function longer than your sceen's height. Typically 50-80 lines at most.  
+2. Do not write a function longer than your sceen's height. Typically 50-80 lines at most.  
    Some table type functions not included, like a big `switch` statement.
 
-5. Add brace to `if`, `while` statements even if it has only one line of code followed.
+3. Add brace to `if`, `while` statements even if it has only one line of code followed.
 
-6. Do not use magic numbers directly, give it a meaningful name.
+4. Do not use magic numbers directly, give it a meaningful name.
 
-7. Local variables should be initialized when defined.
+5. Local variables should be initialized when defined.
 
-8. Do not use `goto`, use `do {} while(false)` mentioned above instead.
+6. Do not use `goto`, use `do {} while(false)` mentioned below instead.
 
-9. Do not use C++ exception.
+7. Do not use C++ exception.
 
 
 ## Rules recommended:
 
-1. Design first in your mind, then coding.  
+1. One function, one `return`, whenever possible.
+
+2. Use `do {} while(false)` pattern in functions that are complex and/or going to be complex.  
+   e.g. functions which have more than one `if` statement.  
+
+   Many people don't used to this pattern, but over the years, I only see one disadvantage of it, that is: when there's a loop in the function and you want to directly return the function within the loop, you need to define an extra flag variable to store whether or not the return condition was met. But with this only disadvantage, it brings many good things:
+   1. First and most important, this pattern forces the code to grow vertically, not to expend horizontally and nested again and again, because when a condition does not match, you just break. This way the code is more easier to read and maintain.  
+   2. "One function one return" together with "do while false" makes sure the function only has one exit point, thus you can release any resources right before the return, thus reducing things you need to remember in your mind, and remember things as less as possible is good for programming. I know there is RAII for C++, but you wouldn't like to use RAII on all resources, that would require more extra code.
+   3. It also helps people to figure out the most important part of a function, this is called *Guard Clauses*. Once you are used to it, you know what appears at the begining of a functions is just some bad condition checks which is less important, saving time again.
+
+    For examp;e:
+    ```
+    bool ModuleLoader::loadModule(std::string const &fileName, MemoryMappedModule **modOut)
+    {
+        bool retVal = false;
+        MemoryMappedModule mod = {};
+        do
+        {
+            if (!modOut)
+            {
+                break;
+            }
+
+            retVal = loadModuleFromFile(fileName, &mod);
+            if (!retVal)
+            {
+                LOG_ERR("load module failed %s", fileName.cstr());
+                break;
+            }
+
+            retVal = loadDependencies();
+            if (!retVal)
+            {
+                LOG_ERR("load dependencies failed");
+                break;
+            }
+
+            *modOut = &(m_modSystem.getMemoryMappedModules()[0]);
+            retVal  = true;
+        } while (false);
+
+        if (!retVal)
+        {
+            releaseModule(mod);
+        }
+
+        return retVal;
+    }
+    ```
+
+3. Design first in your mind, then coding.  
    It's better to make a high level design first in your mind and then coding,  
    like which class responsable for which job.  
    Think about code reuse.  
@@ -192,18 +193,18 @@ And based on the above Sony's style, we add the following extra rules, to make o
    It will make your code looks messy and hard to maintian.  
    If you are not sure how to design, we can discuss first.
 
-2. Functions should return simple type, like `void`, `bool`, `uint32_t`.
+4. Functions should return simple type, like `void`, `bool`, `uint32_t`.
 
-3. Try to name code tokens more friendly to non-english country people.  
+5. Try to name code tokens more friendly to non-english country people.  
    e.g. use `textureAlign`, not `tA`
 
-4. Use macros as few as possible.
+6. Use macros as few as possible.
 
-5. Make a variable's scope as small as possible.  
+7. Make a variable's scope as small as possible.  
    If you can use a local variable, don't make it a class member.  
    If you can use a class member, don't make it global. And so on.
 
-6. Include only required. Use forward declaration to resolve include dependencies.
+8. Include only required. Use forward declaration to resolve include dependencies.
 
 
 
