@@ -149,6 +149,18 @@ namespace sce::gcn
 
 		for (const auto& ins : insList)
 		{
+			if (open && isNonCompileInst(ins))
+			{
+				// this is an optimization,
+				// this will merge two if scope
+				// if there are only non-compile instructions
+				// between them while keeping the pc
+				// value correct
+				insertCodeToken(std::move(lastGroup));
+				pc += ins.length;
+				continue;
+			}
+
 			auto dvAction = getDivergentAction(ins);
 			switch (dvAction)
 			{
@@ -308,6 +320,12 @@ namespace sce::gcn
 		return action;
 	}
 
+	bool GcnDivergentFlow::isNonCompileInst(const GcnShaderInstruction& ins)
+	{
+		// return true if the instruction is not going to
+		// be compiled by compiler
+		return ins.opcode == GcnOpcode::S_WAITCNT;
+	}
 
 
 }  // namespace sce::gcn

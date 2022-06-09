@@ -19,7 +19,11 @@ namespace sce::gcn
 
 		GcnDivergentAction getDivergentAction(
 			const GcnShaderInstruction& ins);
+
 		GcnShaderInstruction makeClearInstruction();
+
+		bool isNonCompileInst(
+			const GcnShaderInstruction& ins);
 	private:
 		GcnTokenFactory& m_factory;
 		GcnTokenList*    m_tokens;
