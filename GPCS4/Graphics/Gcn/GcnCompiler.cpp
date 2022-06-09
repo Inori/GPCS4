@@ -132,11 +132,16 @@ namespace sce::gcn
 
 	void GcnCompiler::compileTokenCode(const GcnToken& token)
 	{
-		const auto& code    = const_cast<GcnToken&>(token).getCode();
+		const auto& code = const_cast<GcnToken&>(token).getCode();
+		
+		resetProgramCounter(code.pc);
+
 		const auto& insList = code.insList;
 		for (const auto& ins : insList)
 		{
 			compileInstruction(ins);
+
+			advanceProgramCounter(ins);
 		}
 	}
 
@@ -298,8 +303,8 @@ namespace sce::gcn
 	{
 		uint32_t result = 0;
 
-		const uint32_t u32TypeId  = getScalarTypeId(GcnScalarType::Uint32);
-		const uint32_t boolTypeId = getScalarTypeId(GcnScalarType::Uint32);
+		const uint32_t utypeId = getScalarTypeId(GcnScalarType::Uint32);
+		const uint32_t btypeId = m_module.defBoolType();
 		// We cheat the shader as if the CU only provide one single thread,
 		// so we only set EXEC bit against invocation id.
 		if (m_moduleInfo.options.separateSubgroup)
@@ -314,8 +319,8 @@ namespace sce::gcn
 					GcnSystemValue::SubgroupEqMask, GcnRegMask::select(0));
 				// For non-compute shader, we only use low 32 bits of exec.
 				auto exec  = m_state.exec.emitLoad(GcnRegMask::select(0));
-				auto value = m_module.opBitwiseAnd(u32TypeId, exec.low.id, mask.id);
-				result     = m_module.opINotEqual(boolTypeId, value, m_module.constu32(0));
+				auto value = m_module.opBitwiseAnd(utypeId, exec.low.id, mask.id);
+				result     = m_module.opINotEqual(btypeId, value, m_module.constu32(0));
 			}
 		}
 		else
@@ -1593,12 +1598,12 @@ namespace sce::gcn
 			GcnSystemValue::SubgroupEqMask, GcnRegMask::firstN(2));
 
 		//GcnRegisterValue ballot = {};
-		//ballot.type.ctype  = GcnScalarType::Uint32;
-		//ballot.type.ccount = 4;
-		//ballot.id          = m_module.opGroupNonUniformBallot(
-		//			 getVectorTypeId(ballot.type),
-		//			 m_module.constu32(spv::ScopeSubgroup),
-		//			 m_module.constBool(true));
+		//ballot.type.ctype       = GcnScalarType::Uint32;
+		//ballot.type.ccount      = 4;
+		//ballot.id               = m_module.opGroupNonUniformBallot(
+		//				  getVectorTypeId(ballot.type),
+		//				  m_module.constu32(spv::ScopeSubgroup),
+		//				  m_module.constBool(true));
 
 		// We cheat the shader as if the CU only provide one single thread,
 		// so we only set EXEC bit against invocation id.
@@ -1609,12 +1614,17 @@ namespace sce::gcn
 			// Set high 32 bits to zero,
 			// cheat the shader that the high 32 lanes are inactive.
 			m_state.exec.init(exec.id, m_module.constu32(0));
+
+			//if (m_header->key().name() == "SHDR_AF20AC1F702451D8")
+			//{
+			//	emitDebugPrintf("asuka %X\n", exec.id);
+			//}
 		}
 		else
 		{
-			auto low  = emitRegisterExtract(eqMask, GcnRegMask::select(0));
-			auto high = emitRegisterExtract(eqMask, GcnRegMask::select(1));
-			m_state.exec.init(low.id, high.id);
+			//auto low  = emitRegisterExtract(eqMask, GcnRegMask::select(0));
+			//auto high = emitRegisterExtract(eqMask, GcnRegMask::select(1));
+			//m_state.exec.init(low.id, high.id);
 		}
 
 		// Init vcc to 0

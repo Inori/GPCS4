@@ -243,14 +243,6 @@ namespace sce::vlt
 		{
 			// We filter out some already known validation informations here.
 
-			// Filter out shader structured control flow information until we fix it.
-			// See:
-			// https://github.com/Inori/GPCS4/blob/shader_cfg/GPCS4/Graphics/Gcn/GcnCfgGenerator.h#L13
-			if (std::strstr(pCallbackData->pMessage, "Selection must be structured"))
-			{
-				break;
-			}
-
 			if (std::strstr(pCallbackData->pMessage, "Invalid usage flag for VkBuffer"))
 			{
 				break;

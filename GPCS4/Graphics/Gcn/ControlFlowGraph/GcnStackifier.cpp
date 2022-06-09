@@ -388,6 +388,7 @@ namespace sce::gcn
 
 		GcnTokenCode code;
 		code.vertexId = vtx;
+		code.pc       = block.pcBegin;
 		code.insList  = block.insList;
 		return m_factory.createCode(std::move(code));
 	}
@@ -1320,8 +1321,8 @@ namespace sce::gcn
 		m_eliminator.eliminate(tokenList);
 		LOG_ASSERT(m_verifier.verify(tokenList), "token list not valid");
 
-		//m_diverger.diverge(tokenList);
-		//LOG_ASSERT(m_verifier.verify(tokenList), "token list not valid");
+		m_diverger.diverge(tokenList);
+		LOG_ASSERT(m_verifier.verify(tokenList), "token list not valid");
 
 		return tokenList;
 	}

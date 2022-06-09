@@ -39,7 +39,7 @@ namespace sce::gcn
 	 * Recompile GCN instructions into Spir-V byte code.
 	 * Produce VltShader for Violet.
 	 */
-	class GcnCompiler
+	class GcnCompiler : public GcnInstructionIterator
 	{
 		friend class GcnStateRegister;
 

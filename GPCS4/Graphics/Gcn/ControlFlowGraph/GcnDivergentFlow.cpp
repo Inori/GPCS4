@@ -60,29 +60,10 @@ namespace sce::gcn
 
 	void GcnDivergentFlow::divergeCode(GcnToken* token)
 	{
-		// There's should be at least two ways to
-		// implement branch divergent:
-		// 
-		// 1. Create a new block which contains
-		// only instructions that will execute
-		// when thread is not active. The original
-		// block is executed when thread is active.
-		// This will produce many repeated instructions,
-		// but reduce the count of ifs. I think this will
-		// result in better performance.
-		//
-		// 2. Split the original instruction list into
+		// Split the original instruction list into
 		// many small groups, each with same executing
-		// strategy. (execute or not execute)
+		// strategy. (divergent action)
 		// Then bracket them using ifs.
-		// This will produce many ifs, but no repeating
-		// instructions. I think this is better for
-		// debugging purpose.
-		//
-		// TODO:
-		// The best should be implement both of them
-		// and choose one of them for proper situation.
-		// By now I only implement the first.
 
 		auto& code           = token->getCode();
 		auto& insList        = code.insList;
@@ -96,9 +77,75 @@ namespace sce::gcn
 			insList.pop_back();
 		}
 
-		GcnTokenCode inactiveCode = {};
-		inactiveCode.vertexId     = code.vertexId;
-		inactiveCode.insList.reserve(insList.size());
+		// record the insert position
+		auto insertPtr = token->getIterator();
+
+		// Instruction group
+		// instructions in a same group have same divergent action
+		struct InstGroup
+		{
+			uint32_t           pc;
+			GcnInstructionList insList;
+		};
+
+		InstGroup lastGroup;
+		InstGroup lastZsGroup;  // last zero scalar group
+		GcnToken* lastIf = nullptr;
+
+		lastGroup.insList.reserve(insList.size());
+		lastZsGroup.insList.reserve(insList.size() / 2);
+
+		auto insertCodeToken = [&](InstGroup&& group) 
+		{
+			if (group.insList.empty())
+			{
+				return;
+			}
+
+			GcnTokenCode newCode = {};
+			newCode.vertexId     = code.vertexId;
+			newCode.pc           = group.pc;
+			newCode.insList      = std::move(group.insList);
+			auto codeToken       = m_factory.createCode(std::move(newCode));
+			insertPtr            = m_tokens->insertAfter(insertPtr, codeToken);
+		};
+
+		auto resetPc = [](InstGroup& group, uint32_t pc) 
+		{
+			if (group.insList.empty())
+			{
+				group.pc = pc;
+			}
+		};
+
+		auto openScope = [&]() 
+		{
+			// clear old group
+			insertCodeToken(std::move(lastGroup));
+			// insert if token
+			auto tokenIf = m_factory.createIf(GcnConditionOp::Divergence);
+			insertPtr    = m_tokens->insertAfter(insertPtr, tokenIf);
+			return tokenIf;
+		};
+
+		auto closeScope = [&](GcnToken* tokenIf) 
+		{
+			// insert if code
+			insertCodeToken(std::move(lastGroup));
+			// insert else code if exist
+			GcnToken* tokenElse = nullptr;
+			if (!lastZsGroup.insList.empty())
+			{
+				tokenElse = m_factory.createElse(tokenIf);
+				insertPtr = m_tokens->insertAfter(insertPtr, tokenElse);
+				insertCodeToken(std::move(lastZsGroup));
+			}
+			auto tokenEnd = m_factory.createIfEnd(tokenIf, tokenElse);
+			insertPtr     = m_tokens->insertAfter(insertPtr, tokenEnd);
+		};
+
+		bool     open = false;
+		uint32_t pc   = code.pc;
 
 		for (const auto& ins : insList)
 		{
@@ -106,41 +153,72 @@ namespace sce::gcn
 			switch (dvAction)
 			{
 				case GcnDivergentAction::Nop:
-					// simply skip 
-					break;
 				case GcnDivergentAction::ZeroScalar:
 				{
-					zeroScalarInst.dst[0] = ins.dst[1];
-					inactiveCode.insList.push_back(zeroScalarInst);
+					if (!open)
+					{
+						// open if scope
+						lastIf = openScope();
+
+						resetPc(lastGroup, pc);
+						lastGroup.insList.push_back(ins);
+						if (dvAction == GcnDivergentAction::ZeroScalar)
+						{
+							resetPc(lastZsGroup, pc);
+							zeroScalarInst.dst[0] = ins.dst[1];
+							lastZsGroup.insList.push_back(zeroScalarInst);
+						}
+
+						open = true;
+					}
+					else
+					{
+						lastGroup.insList.push_back(ins);
+						if (dvAction == GcnDivergentAction::ZeroScalar)
+						{
+							resetPc(lastZsGroup, pc);
+							zeroScalarInst.dst[0] = ins.dst[1];
+							lastZsGroup.insList.push_back(zeroScalarInst);
+						}
+					}
 				}
 					break;
 				case GcnDivergentAction::Execute:
-					inactiveCode.insList.push_back(ins);
+				{
+					if (open)
+					{
+						// close if scope
+						closeScope(lastIf);
+
+						resetPc(lastGroup, pc);
+						lastGroup.insList.push_back(ins);
+						open = false;
+					}
+					else
+					{
+						resetPc(lastGroup, pc);
+						lastGroup.insList.push_back(ins);
+					}
+				}
 					break;
 			}
+
+			// advance pc
+			pc += ins.length;
 		}
 
-		auto tokenIf   = m_factory.createIf(GcnConditionOp::Divergence);
-		auto tokenElse = m_factory.createElse(tokenIf);
-		auto tokenEnd  = m_factory.createIfEnd(tokenIf, tokenElse);
-
-		if (!inactiveCode.insList.empty())
+		if (open)
 		{
-			auto tokenInactiveCode = m_factory.createCode(std::move(inactiveCode));
+			closeScope(lastIf);
+			open = false;
+		}
 
-			m_tokens->insert(token->getIterator(), tokenIf);
-			auto ptr = m_tokens->insertAfter(token->getIterator(), tokenElse);
-			ptr      = m_tokens->insertAfter(ptr, tokenInactiveCode);
-			m_tokens->insertAfter(ptr, tokenEnd);
-		}
-		else
+		if (!lastGroup.insList.empty())
 		{
-			// when all instructions are nops when thread is not active,
-			// we don't need to insert an else block.
-			m_tokens->insert(token->getIterator(), tokenIf);
-			m_tokens->insertAfter(token->getIterator(), tokenEnd);
-			tokenIf->setMatch(tokenEnd);
+			insertCodeToken(std::move(lastGroup));
 		}
+
+		m_tokens->erase(token);
 	}
 
 	GcnShaderInstruction GcnDivergentFlow::makeClearInstruction()
@@ -148,8 +226,8 @@ namespace sce::gcn
 		// construct a 
 		// s_mov_b64 s[0:1], 0
 		// instruction.
-		// the destination sgpr pair will be
-		// changed by the caller to some
+		// the destination sgpr pair of the result will be
+		// replaced by the caller to save some
 		// cost on instruction structure constructing.
 		GcnShaderInstruction result = {};
 
@@ -222,7 +300,7 @@ namespace sce::gcn
 		else if (isVCmpInst(op) || isVop3BEncoding(op))  
 		{
 			// some VOP2 instructions using the same opcode as VOP3B
-			// use VCC as the default SGPC pair,
+			// use VCC as the default SGPR pair,
 			// so the condition should be fine.
 			action = GcnDivergentAction::ZeroScalar;
 		}

@@ -20,9 +20,9 @@ namespace sce::gcn
 		m_programCounter += ins.length;
 	}
 
-	void GcnInstructionIterator::resetProgramCounter()
+	void GcnInstructionIterator::resetProgramCounter(uint32_t pc)
 	{
-		m_programCounter = 0;
+		m_programCounter = pc;
 	}
 
 	uint32_t GcnInstructionIterator::getBranchTarget(const GcnShaderInstruction& ins)

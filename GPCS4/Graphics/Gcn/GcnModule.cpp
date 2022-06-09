@@ -97,12 +97,6 @@ namespace sce::gcn
 		GcnCfgPass cfgPass;
 		auto&      cfg = cfgPass.generateCfg(insList);
 
-		//auto shaderName = util::str::formatex(m_programInfo.name(), "_", m_header.key().name());
-		//LOG_TRACE("compiling shader %s", shaderName.c_str());
-		//auto dotName  = util::str::formatex(shaderName, ".dot");
-		//auto dot = GcnCfgPass::dumpDot(cfg);
-		//plat::StoreFile(dotName, dot.data(), dot.size());
-
 		GcnStackifier stackifier(cfg);
 		auto          tokenList = stackifier.generate();
 

@@ -41,7 +41,7 @@ namespace sce::Gnm
 
 // Dump the recompiled shader to file
 // so that we can analyze it using spirv toolset.
-// #define SHADER_DUMP_FILE
+#define SHADER_DUMP_FILE
 
 
 	GnmCommandBufferDraw::GnmCommandBufferDraw(vlt::VltDevice* device) :

@@ -491,7 +491,7 @@ namespace sce::gcn
 		//ballot.id               = m_module.opGroupNonUniformBallot(
 		//				  getVectorTypeId(ballot.type),
 		//				  m_module.constu32(spv::ScopeSubgroup),
-		//				  m_module.constBool(true));
+		//				  condition);
 
 		// Because we only set one bit against invocation id upon shader launch,
 		// we'll only operate that bit for compare instructions.
@@ -512,6 +512,12 @@ namespace sce::gcn
 			result.low.id = m_module.opBitwiseAnd(typeId, sValue, exec.low.id);
 
 			//result.low = emitRegisterExtract(ballot, GcnRegMask::select(0));
+			//result.low.id = m_module.opBitwiseAnd(typeId, low.id, exec.low.id);
+
+			//if (m_header->key().name() == "SHDR_2C6C5C88E0F9FA34" && m_programCounter == 0x3C)
+			//{
+			//	emitDebugPrintf("ballot %X\n", result.low.id);
+			//}
 			
 			// Always set high 32-bits of the compare result to zero,
 			// which means the high 32 lanes is inactive,

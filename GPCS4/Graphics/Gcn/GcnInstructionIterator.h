@@ -14,10 +14,13 @@ namespace sce::gcn
 
 	protected:
 
-		void advanceProgramCounter(const GcnShaderInstruction& ins);
-		void resetProgramCounter();
+		void advanceProgramCounter(
+			const GcnShaderInstruction& ins);
+		void resetProgramCounter(
+			uint32_t pc = 0);
 
-		uint32_t getBranchTarget(const GcnShaderInstruction& ins);
+		uint32_t getBranchTarget(
+			const GcnShaderInstruction& ins);
 
 	protected:
 		// PC pointer, will be updated after processing each instruction.

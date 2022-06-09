@@ -49,7 +49,8 @@ namespace sce::gcn
 
 	struct GcnTokenCode
 	{
-		size_t             vertexId;  // for debugging purpose
+		size_t             vertexId;  // vertex id in original CFG
+		uint32_t           pc;        // program counter of this code block
 		GcnInstructionList insList;   // gcn instruction list
 	};
 
