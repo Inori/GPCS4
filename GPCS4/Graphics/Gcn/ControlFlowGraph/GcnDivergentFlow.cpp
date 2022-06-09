@@ -92,9 +92,6 @@ namespace sce::gcn
 		InstGroup lastZsGroup;  // last zero scalar group
 		GcnToken* lastIf = nullptr;
 
-		lastGroup.insList.reserve(insList.size());
-		lastZsGroup.insList.reserve(insList.size() / 2);
-
 		auto insertCodeToken = [&](InstGroup&& group) 
 		{
 			if (group.insList.empty())
@@ -155,7 +152,7 @@ namespace sce::gcn
 				// this will merge two if scope
 				// if there are only non-compile instructions
 				// between them while keeping the pc
-				// value correct
+				// value of each code token correct
 				insertCodeToken(std::move(lastGroup));
 				pc += ins.length;
 				continue;

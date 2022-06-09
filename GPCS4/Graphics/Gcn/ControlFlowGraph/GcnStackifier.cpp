@@ -1323,6 +1323,7 @@ namespace sce::gcn
 
 		m_diverger.diverge(tokenList);
 		LOG_ASSERT(m_verifier.verify(tokenList), "token list not valid");
+		//LOG_DEBUG("%s", tokenList.dump().c_str());
 
 		return tokenList;
 	}
