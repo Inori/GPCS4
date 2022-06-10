@@ -1594,37 +1594,27 @@ namespace sce::gcn
 	{
 		// Set hardware state register values.
 
-		auto eqMask = emitCommonSystemValueLoad(
-			GcnSystemValue::SubgroupEqMask, GcnRegMask::firstN(2));
+		GcnRegisterValue ballot = {};
+		ballot.type.ctype       = GcnScalarType::Uint32;
+		ballot.type.ccount      = 4;
+		ballot.id               = m_module.opGroupNonUniformBallot(
+						  getVectorTypeId(ballot.type),
+						  m_module.constu32(spv::ScopeSubgroup),
+						  m_module.constBool(true));
 
-		//GcnRegisterValue ballot = {};
-		//ballot.type.ctype       = GcnScalarType::Uint32;
-		//ballot.type.ccount      = 4;
-		//ballot.id               = m_module.opGroupNonUniformBallot(
-		//				  getVectorTypeId(ballot.type),
-		//				  m_module.constu32(spv::ScopeSubgroup),
-		//				  m_module.constBool(true));
-
-		// We cheat the shader as if the CU only provide one single thread,
-		// so we only set EXEC bit against invocation id.
 		if (m_moduleInfo.options.separateSubgroup)
 		{
-			auto exec = emitRegisterExtract(eqMask, GcnRegMask::select(0));
+			auto exec = emitRegisterExtract(ballot, GcnRegMask::select(0));
 
 			// Set high 32 bits to zero,
 			// cheat the shader that the high 32 lanes are inactive.
 			m_state.exec.init(exec.id, m_module.constu32(0));
-
-			//if (m_header->key().name() == "SHDR_AF20AC1F702451D8")
-			//{
-			//	emitDebugPrintf("asuka %X\n", exec.id);
-			//}
 		}
 		else
 		{
-			//auto low  = emitRegisterExtract(eqMask, GcnRegMask::select(0));
-			//auto high = emitRegisterExtract(eqMask, GcnRegMask::select(1));
-			//m_state.exec.init(low.id, high.id);
+			auto low  = emitRegisterExtract(ballot, GcnRegMask::select(0));
+			auto high = emitRegisterExtract(ballot, GcnRegMask::select(1));
+			m_state.exec.init(low.id, high.id);
 		}
 
 		// Init vcc to 0

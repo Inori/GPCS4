@@ -485,40 +485,20 @@ namespace sce::gcn
 		result.low.type.ccount      = 1;
 		result.high.type            = result.low.type;
 
-		//GcnRegisterValue ballot = {};
-		//ballot.type.ctype       = GcnScalarType::Uint32;
-		//ballot.type.ccount      = 4;
-		//ballot.id               = m_module.opGroupNonUniformBallot(
-		//				  getVectorTypeId(ballot.type),
-		//				  m_module.constu32(spv::ScopeSubgroup),
-		//				  condition);
+		GcnRegisterValue ballot = {};
+		ballot.type.ctype       = GcnScalarType::Uint32;
+		ballot.type.ccount      = 4;
+		ballot.id               = m_module.opGroupNonUniformBallot(
+						  getVectorTypeId(ballot.type),
+						  m_module.constu32(spv::ScopeSubgroup),
+						  condition);
 
-		// Because we only set one bit against invocation id upon shader launch,
-		// we'll only operate that bit for compare instructions.
-		// This we way can use native GPU lane slot to store vgpr values,
-		// making lane instruction compiling more easier.
 		if (m_moduleInfo.options.separateSubgroup)
 		{
-			auto eqMask = emitCommonSystemValueLoad(GcnSystemValue::SubgroupEqMask, GcnRegMask::select(0));
+			auto exec     = m_state.exec.emitLoad(GcnRegMask::select(0));
+			auto ballotX  = emitRegisterExtract(ballot, GcnRegMask::select(0));
+			result.low.id = m_module.opBitwiseAnd(typeId, ballotX.id, exec.low.id);
 
-			uint32_t sTrue  = eqMask.id;
-			uint32_t sFalse = m_module.constu32(0u);
-			uint32_t sValue = m_module.opSelect(typeId,
-												condition,
-												sTrue,
-												sFalse);
-			auto exec = m_state.exec.emitLoad(GcnRegMask::select(0));
-
-			result.low.id = m_module.opBitwiseAnd(typeId, sValue, exec.low.id);
-
-			//result.low = emitRegisterExtract(ballot, GcnRegMask::select(0));
-			//result.low.id = m_module.opBitwiseAnd(typeId, low.id, exec.low.id);
-
-			//if (m_header->key().name() == "SHDR_2C6C5C88E0F9FA34" && m_programCounter == 0x3C)
-			//{
-			//	emitDebugPrintf("ballot %X\n", result.low.id);
-			//}
-			
 			// Always set high 32-bits of the compare result to zero,
 			// which means the high 32 lanes is inactive,
 			// we then process high 32 lanes in next neighbor subgroup.
@@ -526,21 +506,12 @@ namespace sce::gcn
 		}
 		else
 		{
-			auto eqMask = emitCommonSystemValueLoad(GcnSystemValue::SubgroupEqMask, GcnRegMask::firstN(2));
-
-			auto     v2True  = eqMask;
-			auto     v2False = emitBuildConstVecu32(0, 0, 0, 0, GcnRegMask::firstN(2));
-			uint32_t v2Value = m_module.opSelect(typeId,
-												 condition,
-												 v2True.id,
-												 v2False.id);
-
 			auto exec = m_state.exec.emitLoad(GcnRegMask::firstN(2));
 
-			auto sValueLow  = emitRegisterExtract(v2True, GcnRegMask::select(0));
-			auto sValueHigh = emitRegisterExtract(v2False, GcnRegMask::select(1));
-			result.low.id   = m_module.opBitwiseAnd(typeId, sValueLow.id, exec.low.id);
-			result.high.id  = m_module.opBitwiseAnd(typeId, sValueHigh.id, exec.high.id);
+			auto ballotX   = emitRegisterExtract(ballot, GcnRegMask::select(0));
+			auto ballotY   = emitRegisterExtract(ballot, GcnRegMask::select(1));
+			result.low.id  = m_module.opBitwiseAnd(typeId, ballotX.id, exec.low.id);
+			result.high.id = m_module.opBitwiseAnd(typeId, ballotY.id, exec.high.id);
 		}
 
         if (updateExec)
