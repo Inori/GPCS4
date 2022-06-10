@@ -132,7 +132,7 @@ namespace sce::gcn
 
 	void GcnCompiler::compileTokenCode(const GcnToken& token)
 	{
-		const auto& code = const_cast<GcnToken&>(token).getCode();
+		const auto& code = token.getCode();
 		
 		resetProgramCounter(code.pc);
 
@@ -203,7 +203,7 @@ namespace sce::gcn
 		auto iter = m_tokenVariables.find(key);
 		if (iter == m_tokenVariables.end())
 		{
-			const auto& value = const_cast<GcnToken&>(token).getValue();
+			const auto& value = token.getValue();
 
 			// create a global variable
 			GcnRegisterInfo info;
@@ -234,7 +234,7 @@ namespace sce::gcn
 
 		LOG_ASSERT(iter != m_tokenVariables.end(), "Value set before define.");
 
-		auto& value    = const_cast<GcnToken&>(token).getValue();
+		auto& value    = token.getValue();
 		auto& var      = iter->second;
 		auto  newValue = emitBuildConstValue(value.value, value.type);
 		m_module.opStore(var.id, newValue.id);
@@ -406,7 +406,7 @@ namespace sce::gcn
 
 	void GcnCompiler::emitControlFlowIf(const GcnToken& token)
 	{
-		const auto& condition   = const_cast<GcnToken&>(token).getCondition();
+		const auto& condition   = token.getCondition();
 		uint32_t    conditionId = emitControlFlowCondition(condition);
 
 		if (token.kind() == GcnTokenKind::IfNot)
@@ -700,7 +700,7 @@ namespace sce::gcn
 		{
 			if (token.kind() == GcnTokenKind::Code)
 			{
-				const auto& code     = const_cast<GcnToken&>(token).getCode();
+				const auto& code     = token.getCode();
 				const auto& lastInst = code.insList.back();
 				return lastInst.opcode == GcnOpcode::S_ENDPGM;
 			}

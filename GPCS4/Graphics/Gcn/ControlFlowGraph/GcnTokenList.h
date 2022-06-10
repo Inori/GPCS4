@@ -106,14 +106,29 @@ namespace sce::gcn
 			return m_match;
 		}
 
+		const GcnTokenCondition& getCondition() const
+		{
+			return m_condition;
+		}
+
 		GcnTokenCondition& getCondition()
 		{
 			return m_condition;
 		}
 
+		const GcnTokenCode& getCode() const
+		{
+			return m_code;
+		}
+
 		GcnTokenCode& getCode()
 		{
 			return m_code;
+		}
+
+		const GcnTokenValue& getValue() const
+		{
+			return m_value;
 		}
 
 		GcnTokenValue& getValue()
