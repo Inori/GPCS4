@@ -313,6 +313,13 @@ namespace sce::gcn
 			// so the condition should be fine.
 			action = GcnDivergentAction::ZeroScalar;
 		}
+		else if (op == GcnOpcode::EXP)
+		{
+			// treat exp instruction as always execute,
+			// we need this information to write to color output
+			// or kill the pixel no matter what exec value is.
+			action = GcnDivergentAction::Execute;
+		}
 
 		return action;
 	}
