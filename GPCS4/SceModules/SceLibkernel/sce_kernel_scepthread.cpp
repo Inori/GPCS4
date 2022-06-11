@@ -547,7 +547,12 @@ int PS4API scePthreadCreate(ScePthread *thread, const ScePthreadAttr *attr, void
 	param->entry = (void*)entry;
 	param->arg = arg;
 
-	int err = pthread_create(thread, &((*attr)->handle), newThreadWrapper, param);
+	int err = pthread_create(thread,
+							 attr
+								 ? &((*attr)->handle)
+								 : nullptr,
+							 newThreadWrapper,
+							 param);
 	if (!err)
 	{
 		pthread_setname_np(*thread, name);
