@@ -5,7 +5,7 @@
 # =====================
 # <LayerIdentifier>.debug_action
 # Specifies what action is to be taken when a layer reports information
-khronos_validation.debug_action = 
+khronos_validation.debug_action = VK_DBG_LAYER_ACTION_LOG_MSG
 
 # Log Filename
 # =====================
@@ -67,7 +67,7 @@ khronos_validation.printf_verbose = false
 # =====================
 # <LayerIdentifier>.printf_buffer_size
 # Set the size in bytes of the buffer used by debug printf
-khronos_validation.printf_buffer_size = 1024
+khronos_validation.printf_buffer_size = 65536
 
 # Fine Grained Locking
 # =====================

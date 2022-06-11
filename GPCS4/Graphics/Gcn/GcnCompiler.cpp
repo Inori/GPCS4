@@ -1856,19 +1856,19 @@ namespace sce::gcn
 	{
 		switch (sv)
 		{
-			case GcnSystemValue::SubgroupID:
+			case GcnSystemValue::SubgroupInvocationID:
 			{
-				if (m_common.subgroupId == 0)
+				if (m_common.subgroupInvocationId == 0)
 				{
-					m_common.subgroupId = emitNewBuiltinVariable({ { GcnScalarType::Uint32, 1, 0 },
-																   spv::StorageClassInput },
-																 spv::BuiltInSubgroupId,
-																 "subgroup_id");
+					m_common.subgroupInvocationId = emitNewBuiltinVariable({ { GcnScalarType::Uint32, 1, 0 },
+																			 spv::StorageClassInput },
+																		   spv::BuiltInSubgroupLocalInvocationId,
+																		   "invocation_id");
 				}
 
 				GcnRegisterPointer ptr;
 				ptr.type = { GcnScalarType::Uint32, 1 };
-				ptr.id   = m_common.subgroupId;
+				ptr.id   = m_common.subgroupInvocationId;
 				return emitValueLoad(ptr);
 			}
 				break;
@@ -1896,7 +1896,6 @@ namespace sce::gcn
 			case GcnSystemValue::SubgroupLeMask:
 			case GcnSystemValue::SubgroupLtMask:
 			case GcnSystemValue::SubgroupSize:
-			case GcnSystemValue::SubgroupInvocationID:
 			default:
 				Logger::exception(util::str::formatex(
 					"GcnCompiler: Unhandled Common SV input: ", (uint32_t)sv));
@@ -2201,6 +2200,22 @@ namespace sce::gcn
 				ptr.type.ctype  = GcnScalarType::Uint32;
 				ptr.type.ccount = 1;
 				ptr.id          = m_cs.builtinLocalInvocationIndex;
+				return emitValueLoad(ptr);
+			}
+				break;
+			case GcnSystemValue::SubgroupID:
+			{
+				if (m_common.subgroupId == 0)
+				{
+					m_common.subgroupId = emitNewBuiltinVariable({ { GcnScalarType::Uint32, 1, 0 },
+																   spv::StorageClassInput },
+																 spv::BuiltInSubgroupId,
+																 "subgroup_id");
+				}
+
+				GcnRegisterPointer ptr;
+				ptr.type = { GcnScalarType::Uint32, 1 };
+				ptr.id   = m_common.subgroupId;
 				return emitValueLoad(ptr);
 			}
 				break;
