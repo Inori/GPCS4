@@ -309,23 +309,27 @@ namespace sce::gcn
 		// so we only set EXEC bit against invocation id.
 		if (m_moduleInfo.options.separateSubgroup)
 		{
-			//if (m_programInfo.type() == GcnProgramType::ComputeShader)
-			//{
-			//	result = emitComputeDivergence();
-			//}
-			//else
-			{
-				auto mask = emitCommonSystemValueLoad(
-					GcnSystemValue::SubgroupEqMask, GcnRegMask::select(0));
-				// For non-compute shader, we only use low 32 bits of exec.
-				auto exec  = m_state.exec.emitLoad(GcnRegMask::select(0));
-				auto value = m_module.opBitwiseAnd(utypeId, exec.low.id, mask.id);
-				result     = m_module.opINotEqual(btypeId, value, m_module.constu32(0));
-			}
+			auto mask = emitCommonSystemValueLoad(
+				GcnSystemValue::SubgroupEqMask, GcnRegMask::select(0));
+			// For non-compute shader, we only use low 32 bits of exec.
+			auto exec  = m_state.exec.emitLoad(GcnRegMask::select(0));
+			auto value = m_module.opBitwiseAnd(utypeId, exec.low.id, mask.id);
+			result     = m_module.opINotEqual(btypeId, value, m_module.constu32(0));
 		}
 		else
 		{
-			LOG_ASSERT(false, "AMD GPU not supported yet.");
+			auto mask = emitCommonSystemValueLoad(
+				GcnSystemValue::SubgroupEqMask, GcnRegMask::firstN(2));
+			
+			auto exec = m_state.exec.emitLoad(GcnRegMask::firstN(2));
+
+			auto maskX   = emitRegisterExtract(mask, GcnRegMask::select(0));
+			auto maskY   = emitRegisterExtract(mask, GcnRegMask::select(1));
+			auto valueX  = m_module.opBitwiseAnd(utypeId, exec.low.id, maskX.id);
+			auto valueY  = m_module.opBitwiseAnd(utypeId, exec.high.id, maskY.id);
+			auto resultX = m_module.opINotEqual(btypeId, valueX, m_module.constu32(0));
+			auto resultY = m_module.opINotEqual(btypeId, valueY, m_module.constu32(0));
+			result       = m_module.opLogicalOr(btypeId, resultX, resultY);
 		}
 		return result;
 	}
@@ -1581,13 +1585,6 @@ namespace sce::gcn
 		m_state.scc.type.ccount = 1;
 		m_state.scc.id          = this->emitNewVariable(info);
 		m_module.setDebugName(m_state.scc.id, "scc");
-	}
-
-	void GcnCompiler::emitInitCsExec(const GcnRegisterValue& eqMask)
-	{
-		// For compute shader, we initialize low 32-bits of exec
-		// with even subgroup and high 32 bis with odd.
-
 	}
 	
 	void GcnCompiler::emitInitStateRegister()
