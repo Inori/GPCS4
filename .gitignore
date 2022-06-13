@@ -6,9 +6,6 @@ GPCS4/Graphics/Sce/Shaders/*.h
 # GLFW
 glfw.dir/
 
-# 3rdParty built libs
-*.lib
-
 # Build project files
 Directory.build.props
 
@@ -34,6 +31,7 @@ bld/
 [Oo]bj/
 [Ll]og/
 
+
 # Visual Studio 2015/2017 cache/options directory
 .vs/
 .vscode/
@@ -41,6 +39,10 @@ bld/
 # Visual Studio 2017 auto generated files
 Generated\ Files/
 
+# 3rdParty
+*.lib
+!3rdParty/boost/boost/preprocessor/debug
+!3rdParty/boost/boost/predef/architecture/x86
 
 
 # Files built by Visual Studio
