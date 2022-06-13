@@ -171,8 +171,9 @@ namespace sce::gcn
 		// Note this reserve is critical,
 		// it makes sure the vector will not reallocate
 		// memory, such that we can safely save
-		// pointer to the element in the vector.
+		// pointers to the element in the vector.
 		m_loops.reserve(headers.size());
+		// do the DFS
 		boost::depth_first_search(m_cfg, boost::visitor(vis));
 	}
 
