@@ -1,6 +1,6 @@
 #include "GcnLoopInfo.h"
 
-#include <boost/graph/tiernan_all_cycles.hpp>
+LOG_CHANNEL(Graphic.Gcn.GcnLoopInfo);
 
 // A workaround for boost bug.
 // See https://github.com/boostorg/graph/issues/182
@@ -12,8 +12,7 @@ namespace boost
 
 namespace sce::gcn
 {
-	GcnLoop::GcnLoop(const std::vector<GcnCfgVertex>& path):
-		m_vertices(path)
+	GcnLoop::GcnLoop()
 	{
 	}
 
@@ -22,23 +21,105 @@ namespace sce::gcn
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	GcnLoopInfo::LoopVisitor::LoopVisitor(std::vector<GcnLoop>& loops) :
+	GcnLoopInfo::HeaderDetector::HeaderDetector(std::unordered_set<GcnCfgVertex>& headers):
+		m_headers(headers)
+	{
+	}
+
+	void GcnLoopInfo::HeaderDetector::back_edge(GcnCfgEdge edge, const GcnControlFlowGraph& g)
+	{
+		auto target = boost::target(edge, g);
+		m_headers.insert(target);
+	}
+
+	GcnLoopInfo::LoopVisitor::LoopVisitor(
+		const std::unordered_set<GcnCfgVertex>& headers,
+		std::vector<GcnLoop>&                   loops):
+		m_headers(headers),
 		m_loops(loops)
 	{
 	}
 
-	template <typename Path, typename Graph>
-	void GcnLoopInfo::LoopVisitor::cycle(const Path& path, const Graph& g) const
+	void GcnLoopInfo::LoopVisitor::discover_vertex(GcnCfgVertex v, const GcnControlFlowGraph& g)
 	{
-		// path is of type std::vector<vertex_descriptor>
-		m_loops.emplace_back(path);
+		if (m_headers.find(v) != m_headers.end())
+		{
+			// create loop
+			auto& loop = m_loops.emplace_back(GcnLoop());
+			// add header
+			loop.m_vertices.push_back(v);
+
+			// set parent and child
+			if (!m_loopStack.empty())
+			{
+				auto parent = m_loopStack.back();
+				parent->m_children.push_back(&loop);
+				loop.m_parent = parent;
+				// also add the header to parent loop
+				// so that the parent is a complete circle
+				parent->m_vertices.push_back(v);
+			}
+
+			// push onto the stack
+			m_loopStack.push_back(&loop);
+
+			// there is a problem for boost DFS,
+			// the back_edge callback for a 
+			// self-loop vertex will not be called
+			// in DFS order, instead it will be called
+			// after all other non-self-loop back edges
+			// are visited, this cause some inconvenience.
+			// see https://github.com/boostorg/graph/issues/295
+			// 
+			// a simple solution is never push self-loop 
+			// onto the stack.
+			// so here we check if the vertex is a self-loop vertex,
+			// then pop it right now as if it is never pushed
+			if (isSelfLoop(v, g))
+			{
+				m_loopStack.pop_back();
+			}
+		}
+		else
+		{
+			if (!m_loopStack.empty())
+			{
+				auto loop = m_loopStack.back();
+				loop->m_vertices.push_back(v);
+			}
+		}
+	}
+
+	void GcnLoopInfo::LoopVisitor::back_edge(GcnCfgEdge edge, const GcnControlFlowGraph& g)
+	{
+		auto target = boost::target(edge, g);
+		LOG_ASSERT(m_loopStack.empty() || target == m_loopStack.back()->getHeader(), "loop stack not match.");
+		// self-loop vertex loop is already popped.
+		if (!isSelfLoop(target, g))
+		{
+			m_loopStack.pop_back();
+		}
+	}
+
+	bool GcnLoopInfo::LoopVisitor::isSelfLoop(GcnCfgVertex v, const GcnControlFlowGraph& g)
+	{
+		bool selfLoop = false;
+		for (const auto& edge : boost::make_iterator_range(boost::out_edges(v, g)))
+		{
+			auto target = boost::target(edge, g);
+			if (target == v)
+			{
+				selfLoop = true;
+				break;
+			}
+		}
+		return selfLoop;
 	}
 
 	GcnLoopInfo::GcnLoopInfo(const GcnControlFlowGraph& cfg) :
 		m_cfg(cfg)
 	{
 		detectLoops();
-		detectLoopNesting();
 		detectVertexMaping();
 	}
 
@@ -64,37 +145,35 @@ namespace sce::gcn
 			   (loop->getHeader() == vtx);
 	}
 
-	void GcnLoopInfo::detectLoops()
+	std::unordered_set<GcnCfgVertex> GcnLoopInfo::findLoopHeaders()
 	{
-		LoopVisitor visitor(m_loops);
-		boost::tiernan_all_cycles(m_cfg, visitor);
+		std::unordered_set<GcnCfgVertex> loopHeaders;
+		HeaderDetector                   detector(loopHeaders);
+		boost::depth_first_search(m_cfg, boost::visitor(detector));
+		return loopHeaders;
 	}
 
-	void GcnLoopInfo::detectLoopNesting()
+
+	void GcnLoopInfo::detectLoops()
 	{
-		for (auto& loop : m_loops)
-		{
-			const auto& loopHeader = loop.m_vertices.front();
-			for (auto& anotherloop : m_loops)
-			{
-				if (loop == anotherloop)
-				{
-					continue;
-				}
-				// If a loop's header is a vertex of another loop,
-				// then this loop is the child of that loop.
-				auto iter = std::find(
-					anotherloop.m_vertices.begin(), 
-					anotherloop.m_vertices.end(), 
-					loopHeader);
-				if (iter != anotherloop.m_vertices.end())
-				{
-					loop.m_parent       = &anotherloop;
-					anotherloop.m_children.push_back(&loop);
-					break;
-				}
-			}
-		}
+		// Collect loop information in two steps:
+		// 1. find all loop headers in the first traverse, so that we know
+		//    where a loop starts during the second traverse.
+		// 2. build a loop scope stack,
+		//    create the loop when we meet a loop header and insert all 
+		//    vertex in the loop
+		
+		// find all loop headers
+		auto headers = findLoopHeaders();
+
+		// create loop infos
+		LoopVisitor vis(headers, m_loops);
+		// Note this reserve is critical,
+		// it makes sure the vector will not reallocate
+		// memory, such that we can safely save
+		// pointer to the element in the vector.
+		m_loops.reserve(headers.size());
+		boost::depth_first_search(m_cfg, boost::visitor(vis));
 	}
 
 	void GcnLoopInfo::detectVertexMaping()

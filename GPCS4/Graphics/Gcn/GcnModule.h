@@ -78,6 +78,8 @@ namespace sce::gcn
 			GcnCompiler&              compiler,
 			const GcnInstructionList& insList) const;
 
+		void dumpShader() const;
+
 	private:
 		GcnProgramInfo           m_programInfo;
 		GcnHeader                m_header;

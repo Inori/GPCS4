@@ -4,6 +4,7 @@
 #include "GcnControlFlowGraph.h"
 
 #include <unordered_map>
+#include <boost/graph/depth_first_search.hpp>
 
 namespace sce::gcn
 {
@@ -14,8 +15,7 @@ namespace sce::gcn
 	{
 		friend class GcnLoopInfo;
 	public:
-		GcnLoop(
-			const std::vector<GcnCfgVertex>& path);
+		GcnLoop();
 		~GcnLoop();
 
 		bool contains(GcnCfgVertex vtx) const
@@ -56,16 +56,34 @@ namespace sce::gcn
 	 */
 	class GcnLoopInfo
 	{
-		class LoopVisitor
+		class HeaderDetector : public boost::dfs_visitor<>
 		{
 		public:
-			LoopVisitor(std::vector<GcnLoop>& loops);
+			HeaderDetector(std::unordered_set<GcnCfgVertex>& headers);
 
-			template <typename Path, typename Graph>
-			void cycle(const Path& path, const Graph& g) const;
+			void back_edge(GcnCfgEdge edge, const GcnControlFlowGraph& g);
 
 		private:
-			std::vector<GcnLoop>& m_loops;
+			std::unordered_set<GcnCfgVertex>& m_headers;
+		};
+
+		class LoopVisitor : public boost::dfs_visitor<>
+		{
+		public:
+			LoopVisitor(const std::unordered_set<GcnCfgVertex>& headers,
+						std::vector<GcnLoop>&                   loops);
+
+			void discover_vertex(GcnCfgVertex v, const GcnControlFlowGraph& g);
+
+			void back_edge(GcnCfgEdge edge, const GcnControlFlowGraph& g);
+
+		private:
+			bool isSelfLoop(GcnCfgVertex v, const GcnControlFlowGraph& g);
+
+		private:
+			const std::unordered_set<GcnCfgVertex>& m_headers;
+			std::vector<GcnLoop>&                   m_loops;
+			std::vector<GcnLoop*>                   m_loopStack;
 		};
 
 	public:
@@ -84,8 +102,10 @@ namespace sce::gcn
 
 	private:
 		void detectLoops();
-		void detectLoopNesting();
 		void detectVertexMaping();
+
+		std::unordered_set<GcnCfgVertex>
+		findLoopHeaders();
 
 		GcnLoop* findLoop(GcnCfgVertex vtx);
 		GcnLoop* findInnerLoop(GcnLoop* loop, GcnCfgVertex vtx);

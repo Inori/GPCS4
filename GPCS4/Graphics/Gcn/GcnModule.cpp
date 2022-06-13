@@ -6,6 +6,9 @@
 
 #include "PlatFile.h"
 #include "UtilString.h"
+#include "fmt/format.h"
+#include <fstream>
+
 
 using namespace sce::vlt;
 
@@ -48,7 +51,7 @@ namespace sce::gcn
 		// Do the compile
 		// TODO:
 		// Generate module info from device.
-		GcnModuleInfo moduleInfo;
+		GcnModuleInfo moduleInfo = {};
 		moduleInfo.options.separateSubgroup = true;
 
 		GcnCompiler compiler(
@@ -94,13 +97,32 @@ namespace sce::gcn
 	void GcnModule::runCompiler(
 		GcnCompiler& compiler, const GcnInstructionList& insList) const
 	{
+		LOG_DEBUG("shader name %s", this->name().c_str());
 		GcnCfgPass cfgPass;
 		auto&      cfg = cfgPass.generateCfg(insList);
+
+		if (this->name() == "CSSHDR_844598A0F388C19D")
+		{
+			__debugbreak();
+		}
+
+		//dumpShader();
+		//auto          dot = GcnCfgPass::dumpDot(cfg);
+		//std::ofstream fout(fmt::format("shaders/{}.dot", this->name()));
+		//fout << dot << std::endl;
+		//fout.close();
 
 		GcnStackifier stackifier(cfg);
 		auto          tokenList = stackifier.generate();
 
 		compiler.compile(tokenList);
+	}
+
+	void GcnModule::dumpShader() const
+	{
+		plat::StoreFile(fmt::format("shaders/{}.bin", this->name()),
+						m_code,
+						m_header.length());
 	}
 
 }  // namespace sce::gcn
