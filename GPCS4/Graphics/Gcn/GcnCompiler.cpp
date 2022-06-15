@@ -2923,6 +2923,154 @@ namespace sce::gcn
 		return result;
 	}
 
+	uint32_t GcnCompiler::emitCalcAddrComponentIndex(
+		GcnImageAddrComponent       component,
+		const GcnImageInfo&         imageInfo,
+		const GcnShaderInstruction& ins)
+	{
+		uint32_t index = 0;
+		auto     op    = ins.opcode;
+		auto     flags = GcnMimgModifierFlags(ins.control.mimg.mod);
+
+		// clang-format off
+		switch (component)
+		{
+			case GcnImageAddrComponent::Offsets:
+			{
+				if (component == GcnImageAddrComponent::Offsets) break;
+				if (flags.test(GcnMimgModifier::Offset)) ++index;
+			}
+				[[fallthrough]];
+			case GcnImageAddrComponent::Bias:
+			{
+				if (component == GcnImageAddrComponent::Bias) break;
+				if (flags.test(GcnMimgModifier::LodBias)) ++index;
+			}
+				[[fallthrough]];
+			case GcnImageAddrComponent::Zpcf:
+			{
+				if (component == GcnImageAddrComponent::Zpcf) break;
+				if (flags.test(GcnMimgModifier::Pcf)) ++index;
+			}
+				[[fallthrough]];
+			case GcnImageAddrComponent::DxDh:
+			{
+				if (component == GcnImageAddrComponent::DxDh) break;
+				if (flags.any(GcnMimgModifier::Derivative, 
+							  GcnMimgModifier::CoarseDerivative)) ++index;
+			}
+				[[fallthrough]];
+			case GcnImageAddrComponent::DyDh:
+			{
+				if (component == GcnImageAddrComponent::DyDh) break;
+				if (flags.any(GcnMimgModifier::Derivative, 
+							  GcnMimgModifier::CoarseDerivative) &&
+				    (imageInfo.dim == spv::Dim2D ||
+					 imageInfo.dim == spv::Dim3D ||
+					 imageInfo.dim == spv::DimCube)) ++index;
+			}
+				[[fallthrough]];
+			case GcnImageAddrComponent::DzDh:
+			{
+				if (component == GcnImageAddrComponent::DzDh) break;
+				if (flags.any(GcnMimgModifier::Derivative, 
+							  GcnMimgModifier::CoarseDerivative) &&
+					imageInfo.dim == spv::Dim3D) ++index;
+			}
+				[[fallthrough]];
+			case GcnImageAddrComponent::DxDv:
+			{
+				if (component == GcnImageAddrComponent::DxDv) break;
+				if (flags.any(GcnMimgModifier::Derivative, 
+							  GcnMimgModifier::CoarseDerivative)) ++index;
+			}
+				[[fallthrough]];
+			case GcnImageAddrComponent::DyDv:
+			{
+				if (component == GcnImageAddrComponent::DyDv) break;
+				if (flags.any(GcnMimgModifier::Derivative, 
+							  GcnMimgModifier::CoarseDerivative) &&
+				    (imageInfo.dim == spv::Dim2D ||
+					 imageInfo.dim == spv::Dim3D ||
+					 imageInfo.dim == spv::DimCube)) ++index;
+			}
+				[[fallthrough]];
+			case GcnImageAddrComponent::DzDv:
+			{
+				if (component == GcnImageAddrComponent::DzDv) break;
+				if (flags.any(GcnMimgModifier::Derivative, 
+							  GcnMimgModifier::CoarseDerivative) &&
+					imageInfo.dim == spv::Dim3D) ++index;
+			}
+				[[fallthrough]];
+			case GcnImageAddrComponent::X:
+			{
+				if (component == GcnImageAddrComponent::X) break;
+				++index;
+			}
+				[[fallthrough]];
+			case GcnImageAddrComponent::Y:
+			{
+				if (component == GcnImageAddrComponent::Y) break;
+				if (imageInfo.dim == spv::Dim2D ||
+					imageInfo.dim == spv::Dim3D ||
+					imageInfo.dim == spv::DimCube) ++index;
+			}
+				[[fallthrough]];
+			case GcnImageAddrComponent::Z:
+			{
+				if (component == GcnImageAddrComponent::Z) break;
+				if (imageInfo.dim == spv::Dim3D) ++index;
+			}
+				[[fallthrough]];
+			case GcnImageAddrComponent::Slice:
+			{
+				if (component == GcnImageAddrComponent::Slice) break;
+				if (ins.control.mimg.da != 0 &&
+					imageInfo.dim != spv::DimCube) ++index;
+			}
+				[[fallthrough]];
+			case GcnImageAddrComponent::FaceId:
+			{
+				if (component == GcnImageAddrComponent::FaceId) break;
+				if (imageInfo.dim == spv::DimCube) ++index;
+			}
+				[[fallthrough]];
+			case GcnImageAddrComponent::Lod:
+			{
+				if (component == GcnImageAddrComponent::Lod) break;
+				if (flags.test(GcnMimgModifier::Lod)) ++index;
+			}
+				[[fallthrough]];
+			case GcnImageAddrComponent::Clamp:
+			{
+				if (component == GcnImageAddrComponent::Clamp) break;
+				if (flags.test(GcnMimgModifier::LodClamp)) ++index;
+			}
+		}
+		// clang-format on
+		return index;
+	}
+
+	GcnRegisterValue GcnCompiler::emitLoadAddrComponent(
+		GcnImageAddrComponent       component,
+		const GcnShaderInstruction& ins)
+	{
+		const GcnInstOperand& addrReg    = ins.src[0];
+		const GcnInstOperand& textureReg = ins.src[2];
+	
+		// These registers are 4-GPR aligned, so multiplied by 4
+		const uint32_t textureId = textureReg.code * 4;
+	
+		// Image type, which stores the image dimensions etc.
+		const GcnImageInfo imageInfo = m_textures.at(textureId).imageInfo;
+
+		uint32_t index = emitCalcAddrComponentIndex(component, imageInfo, ins);
+		auto     reg   = addrReg;
+		reg.code += index;
+		return emitVgprLoad(reg);
+	}
+
 	uint32_t GcnCompiler::emitLoadSampledImage(
 		const GcnTexture& textureResource,
 		const GcnSampler& samplerResource,
@@ -2943,6 +3091,7 @@ namespace sce::gcn
 		const GcnInstOperand& texCoordReg = mimg.vaddr;
 		const GcnInstOperand& textureReg  = mimg.srsrc;
 		const GcnInstOperand& samplerReg  = mimg.ssamp;
+		auto                  flags       = GcnMimgModifierFlags(mimg.control.mod);
 
 		// Texture and sampler register IDs
 		// These registers are 4-GPR aligned, so multiplied by 4
@@ -2961,27 +3110,19 @@ namespace sce::gcn
 		SpirvImageOperands imageOperands = {};
 
 		auto op             = ins.opcode;
-		bool isDepthCompare = op == GcnOpcode::IMAGE_SAMPLE_C ||
-							  op == GcnOpcode::IMAGE_SAMPLE_C_CL ||
-							  op == GcnOpcode::IMAGE_SAMPLE_C_D ||
-							  op == GcnOpcode::IMAGE_SAMPLE_C_D_CL ||
-							  op == GcnOpcode::IMAGE_SAMPLE_C_L ||
-							  op == GcnOpcode::IMAGE_SAMPLE_C_B ||
-							  op == GcnOpcode::IMAGE_SAMPLE_C_B_CL ||
-							  op == GcnOpcode::IMAGE_SAMPLE_C_LZ ||
-							  op == GcnOpcode::IMAGE_SAMPLE_C_O ||
-							  op == GcnOpcode::IMAGE_SAMPLE_C_CL_O ||
-							  op == GcnOpcode::IMAGE_SAMPLE_C_D_O ||
-							  op == GcnOpcode::IMAGE_SAMPLE_C_D_CL_O ||
-							  op == GcnOpcode::IMAGE_SAMPLE_C_L_O ||
-							  op == GcnOpcode::IMAGE_SAMPLE_C_B_O ||
-							  op == GcnOpcode::IMAGE_SAMPLE_C_B_CL_O ||
-							  op == GcnOpcode::IMAGE_SAMPLE_C_LZ_O;
+		bool isDepthCompare = flags.test(GcnMimgModifier::Pcf);
 
 		// Combine the texture and the sampler into a sampled image
 		const uint32_t sampledImageId = emitLoadSampledImage(
 			m_textures.at(textureId), m_samplers.at(samplerId),
 			isDepthCompare);
+
+		// LOD for certain sample operations
+		const bool hasLod = flags.test(GcnMimgModifier::Lod);
+
+		const GcnRegisterValue lod = hasLod
+										 ? emitLoadAddrComponent(GcnImageAddrComponent::Lod, ins)
+										 : GcnRegisterValue();
 
 		// Sampling an image always returns a four-component
 		// vector, whereas depth-compare ops return a scalar.
@@ -2999,7 +3140,17 @@ namespace sce::gcn
 					sampledImageId, coord.id,
 					imageOperands);
 			}
-			break;
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_L:
+			{
+				imageOperands.flags |= spv::ImageOperandsLodMask;
+				imageOperands.sLod = lod.id;
+
+				result.id = m_module.opImageSampleExplicitLod(
+					getVectorTypeId(result.type), sampledImageId, coord.id,
+					imageOperands);
+			}
+				break;
 			default:
 				LOG_GCN_UNHANDLED_INST();
 				break;

@@ -138,7 +138,8 @@ namespace sce::gcn
 		uint64_t lwe : 1;
 		uint64_t : 7;
 		uint64_t slc : 1;
-		uint64_t : 38;
+		uint64_t mod : 32;
+		uint64_t : 6;
 	};
 
 	struct GcnInstControlDS

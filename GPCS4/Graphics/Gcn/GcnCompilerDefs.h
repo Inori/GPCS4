@@ -194,6 +194,28 @@ namespace sce::gcn
 		int32_t         offset = 0;
 	};
 
+	/**
+	 * \brief Component for image instruction vaddr[]
+	 */
+	enum class GcnImageAddrComponent : uint32_t
+	{
+		Offsets,
+		Bias,
+		Zpcf,
+		DxDh,
+		DyDh,
+		DzDh,
+		DxDv,
+		DyDv,
+		DzDv,
+		X,
+		Y,
+		Z,
+		Slice,
+		FaceId,
+		Lod,
+		Clamp,
+	};
 
 	/**
 	 * \brief Image type information from T#

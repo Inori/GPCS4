@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GcnCommon.h"
+#include "UtilFlag.h"
 
 namespace sce::gcn
 {
@@ -2393,6 +2394,20 @@ namespace sce::gcn
 		// execute as normal
 		Execute
 	};
+
+	enum class GcnMimgModifier : uint32_t
+	{
+		Lod,               // LOD is used instead of TA computed LOD.
+		LodBias,           // Add this BIAS to the LOD TA computes.
+		LodClamp,          // Clamp the LOD to be no larger than this value.
+		Derivative,        // Send dx/dv, dx/dy, etc. slopes to TA for it to used in LOD computation.
+		CoarseDerivative,  // Send dx/dv, dx/dy, etc. slopes to TA for it to used in LOD computation.
+		Level0,            // Force use of MIP level 0.
+		Pcf,               // Percentage closer filtering.
+		Offset             // Send X, Y, Z integer offsets (packed into 1 Dword) to offset XYZ address.
+	};
+
+	using GcnMimgModifierFlags = util::Flags<GcnMimgModifier>;
 
 	/**
 	 * \brief Scalar value type

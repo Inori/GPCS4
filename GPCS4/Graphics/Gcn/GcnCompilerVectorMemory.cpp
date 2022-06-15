@@ -666,6 +666,7 @@ namespace sce::gcn
 		switch (op)
 		{
 			case GcnOpcode::IMAGE_SAMPLE:
+			case GcnOpcode::IMAGE_SAMPLE_L:
 				emitTextureSample(ins);
 				break;
 			default:
