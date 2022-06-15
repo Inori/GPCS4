@@ -2,6 +2,9 @@
    <img width="640" src="https://github.com/Inori/GPCS4/blob/master/Misc/logo.png" alt="logo"></br>
 
 ----
+
+[![Join the chat at https://gitter.im/gpcs4emu/community](https://badges.gitter.im/gpcs4emu/community.svg)](https://gitter.im/gpcs4emu/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 # GPCS4
 A PlayStation 4 emulator which was just started.  
 A project done for fun, and for technical research.  
