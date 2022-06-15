@@ -56,7 +56,6 @@ namespace sce::gcn
 				   m_header.key().name();
 		}
 
-
 		/**
          * \brief Compiles GCN shader to SPIR-V module
          * 

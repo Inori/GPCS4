@@ -328,7 +328,8 @@ namespace sce::gcn
 	{
 		// return true if the instruction is not going to
 		// be compiled by compiler
-		return ins.opcode == GcnOpcode::S_WAITCNT;
+		return ins.opcode == GcnOpcode::S_WAITCNT ||
+			   ins.opcode == GcnOpcode::S_NOP;
 	}
 
 

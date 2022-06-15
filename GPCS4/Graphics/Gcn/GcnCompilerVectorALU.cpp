@@ -98,8 +98,16 @@ namespace sce::gcn
 				dst.low.id = m_module.opConvertUtoF(typeId,
 													src[0].low.id);
 			    break;
+			case GcnOpcode::V_CVT_F32_I32:
+				dst.low.id = m_module.opConvertStoF(typeId,
+													src[0].low.id);
+				break;
 			case GcnOpcode::V_CVT_U32_F32:
 				dst.low.id = m_module.opConvertFtoU(typeId,
+													src[0].low.id);
+				break;
+			case GcnOpcode::V_CVT_I32_F32:
+				dst.low.id = m_module.opConvertFtoS(typeId,
 													src[0].low.id);
 				break;
 			case GcnOpcode::V_CVT_PKRTZ_F16_F32:
@@ -218,6 +226,16 @@ namespace sce::gcn
 															m_module.constu32(0),
 															m_module.constu32(24));
 				dst.low.id    = m_module.opIMul(typeId, src0, src1);
+			}
+				break;
+			case GcnOpcode::V_MIN3_F32:
+			{
+				uint32_t min01 = m_module.opFMin(typeId,
+												 src[0].low.id,
+												 src[1].low.id);
+				dst.low.id     = m_module.opFMin(typeId,
+												 min01,
+												 src[2].low.id);
 			}
 				break;
             // VectorFpTran32
