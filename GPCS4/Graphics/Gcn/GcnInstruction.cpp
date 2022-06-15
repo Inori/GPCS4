@@ -344,16 +344,16 @@ namespace sce::gcn
 		{ GcnInstClass::ScalarQuadMask, GcnInstCategory::ScalarALU, 1, 1,
 		  GcnScalarType::Uint64, GcnScalarType::Uint64 },
 		// 46 = S_MOVRELS_B32
-		{ GcnInstClass::ScalarMov, GcnInstCategory::ScalarALU, 1, 1,
+		{ GcnInstClass::ScalarMovRel, GcnInstCategory::ScalarALU, 1, 1,
 		  GcnScalarType::Uint32, GcnScalarType::Uint32 },
 		// 47 = S_MOVRELS_B64
-		{ GcnInstClass::ScalarMov, GcnInstCategory::ScalarALU, 1, 1,
+		{ GcnInstClass::ScalarMovRel, GcnInstCategory::ScalarALU, 1, 1,
 		  GcnScalarType::Uint64, GcnScalarType::Uint64 },
 		// 48 = S_MOVRELD_B32
-		{ GcnInstClass::ScalarMov, GcnInstCategory::ScalarALU, 1, 1,
+		{ GcnInstClass::ScalarMovRel, GcnInstCategory::ScalarALU, 1, 1,
 		  GcnScalarType::Uint32, GcnScalarType::Uint32 },
 		// 49 = S_MOVRELD_B64
-		{ GcnInstClass::ScalarMov, GcnInstCategory::ScalarALU, 1, 1,
+		{ GcnInstClass::ScalarMovRel, GcnInstCategory::ScalarALU, 1, 1,
 		  GcnScalarType::Uint64, GcnScalarType::Uint64 },
 		// 50 = S_CBRANCH_JOIN
 		{ GcnInstClass::ScalarProgFlow, GcnInstCategory::FlowControl, 1, 1,
@@ -1879,13 +1879,13 @@ namespace sce::gcn
 		{ GcnInstClass::Undefined, GcnInstCategory::Undefined, 0, 1,
 		  GcnScalarType::Undefined, GcnScalarType::Undefined },
 		// 450 = V_MOVRELD_B32
-		{ GcnInstClass::VectorRegMov, GcnInstCategory::VectorALU, 1, 1,
+		{ GcnInstClass::VectorMovRel, GcnInstCategory::VectorALU, 1, 1,
 		  GcnScalarType::Uint32, GcnScalarType::Uint32 },
 		// 451 = V_MOVRELS_B32
-		{ GcnInstClass::VectorRegMov, GcnInstCategory::VectorALU, 1, 1,
+		{ GcnInstClass::VectorMovRel, GcnInstCategory::VectorALU, 1, 1,
 		  GcnScalarType::Uint32, GcnScalarType::Uint32 },
 		// 452 = V_MOVRELSD_B32
-		{ GcnInstClass::VectorRegMov, GcnInstCategory::VectorALU, 1, 1,
+		{ GcnInstClass::VectorMovRel, GcnInstCategory::VectorALU, 1, 1,
 		  GcnScalarType::Uint32, GcnScalarType::Uint32 },
 		{},
 		{},
@@ -2073,13 +2073,13 @@ namespace sce::gcn
 		{ GcnInstClass::Undefined, GcnInstCategory::Undefined, 0, 1,
 		  GcnScalarType::Undefined, GcnScalarType::Undefined },
 		// 66 = V_MOVRELD_B32
-		{ GcnInstClass::VectorRegMov, GcnInstCategory::VectorALU, 1, 1,
+		{ GcnInstClass::VectorMovRel, GcnInstCategory::VectorALU, 1, 1,
 		  GcnScalarType::Uint32, GcnScalarType::Uint32 },
 		// 67 = V_MOVRELS_B32
-		{ GcnInstClass::VectorRegMov, GcnInstCategory::VectorALU, 1, 1,
+		{ GcnInstClass::VectorMovRel, GcnInstCategory::VectorALU, 1, 1,
 		  GcnScalarType::Uint32, GcnScalarType::Uint32 },
 		// 68 = V_MOVRELSD_B32
-		{ GcnInstClass::VectorRegMov, GcnInstCategory::VectorALU, 1, 1,
+		{ GcnInstClass::VectorMovRel, GcnInstCategory::VectorALU, 1, 1,
 		  GcnScalarType::Uint32, GcnScalarType::Uint32 },
 		{},
 		{},

@@ -2274,6 +2274,7 @@ namespace sce::gcn
 		ScalarArith,
 		ScalarAbs,
 		ScalarMov,
+		ScalarMovRel,
 		ScalarCmp,
 		ScalarSelect,
 		ScalarBitLogic,
@@ -2284,6 +2285,7 @@ namespace sce::gcn
 		ScalarQuadMask,
 
 		VectorRegMov,
+		VectorMovRel,
 		VectorLane,
 		VectorBitLogic,
 		VectorBitField32,

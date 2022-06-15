@@ -1299,7 +1299,7 @@ namespace sce::gcn
 	{
 	}
 
-	GcnTokenList GcnStackifier::generate()
+	GcnTokenList GcnStackifier::structurize()
 	{
 		// TODO:
 		// A big todo though, stackifier algorithm doesn't support

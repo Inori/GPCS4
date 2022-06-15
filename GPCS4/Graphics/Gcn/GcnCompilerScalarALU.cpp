@@ -16,6 +16,9 @@ namespace sce::gcn
 			case GcnInstClass::ScalarBitField:
 				this->emitScalarAluCommon(ins);
 				break;
+			case GcnInstClass::ScalarMovRel:
+				this->emitScalarMovRel(ins);
+				break;
 			case GcnInstClass::ScalarAbs:
 				this->emitScalarAbs(ins);
 				break;
@@ -197,6 +200,11 @@ namespace sce::gcn
 		}
 
 		emitRegisterStore(ins.dst[0], dst);
+	}
+
+	void GcnCompiler::emitScalarMovRel(const GcnShaderInstruction& ins)
+	{
+		LOG_GCN_UNHANDLED_INST();
 	}
 
 	void GcnCompiler::emitScalarArith(const GcnShaderInstruction& ins)

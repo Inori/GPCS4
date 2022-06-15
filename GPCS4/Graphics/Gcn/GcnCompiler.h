@@ -115,6 +115,7 @@ namespace sce::gcn
 		void emitScalarArith(const GcnShaderInstruction& ins);
 		void emitScalarAbs(const GcnShaderInstruction& ins);
 		void emitScalarMov(const GcnShaderInstruction& ins);
+		void emitScalarMovRel(const GcnShaderInstruction& ins);
 		void emitScalarCmp(const GcnShaderInstruction& ins);
 		void emitScalarSelect(const GcnShaderInstruction& ins);
 		void emitScalarBitLogic(const GcnShaderInstruction& ins);
@@ -126,6 +127,7 @@ namespace sce::gcn
 		void emitVectorAluCommon(const GcnShaderInstruction& ins);
 		void emitVectorCmp(const GcnShaderInstruction& ins);
 		void emitVectorRegMov(const GcnShaderInstruction& ins);
+		void emitVectorMovRel(const GcnShaderInstruction& ins);
 		void emitVectorLane(const GcnShaderInstruction& ins);
 		void emitVectorBitLogic(const GcnShaderInstruction& ins);
 		void emitVectorBitField32(const GcnShaderInstruction& ins);
@@ -324,6 +326,9 @@ namespace sce::gcn
 		// SGPR/VGPR load/store methods
 		template <bool IsVgpr>
 		GcnRegisterPointer emitGetGprPtr(
+			uint32_t indexId);
+		template <bool IsVgpr>
+		GcnRegisterPointer emitGetGprPtr(
 			const GcnInstOperand& reg);
 
 		template <bool IsVgpr>
@@ -333,6 +338,12 @@ namespace sce::gcn
 			const GcnInstOperand& reg);
 		GcnRegisterValue emitSgprLoad(
 			const GcnInstOperand& reg);
+
+		template <bool IsVgpr>
+		GcnRegisterValue emitGprLoad(uint32_t indexId);
+		GcnRegisterValue emitVgprLoad(uint32_t indexId);
+		GcnRegisterValue emitSgprLoad(uint32_t indexId);
+
 		template <bool IsVgpr>
 		GcnRegisterValue emitGprArrayLoad(
 			const GcnInstOperand& start,
@@ -354,6 +365,18 @@ namespace sce::gcn
 		void emitSgprStore(
 			const GcnInstOperand&   reg,
 			const GcnRegisterValue& value);
+
+		template <bool IsVgpr>
+		void emitGprStore(
+			uint32_t                indexId,
+			const GcnRegisterValue& value);
+		void emitVgprStore(
+			uint32_t                indexId,
+			const GcnRegisterValue& value);
+		void emitSgprStore(
+			uint32_t                indexId,
+			const GcnRegisterValue& value);
+
 		template <bool IsVgpr>
 		void emitGprArrayStore(
 			const GcnInstOperand&   start,
@@ -370,9 +393,6 @@ namespace sce::gcn
 
 		//////////////////////////////
 		// Operand load/store methods
-		void emitLaneVgprStore(const GcnInstOperand&   reg,
-							   const GcnRegisterValue& value);
-
 		GcnRegisterValue emitValueLoad(
 			GcnRegisterPointer ptr);
 
@@ -776,6 +796,8 @@ namespace sce::gcn
 		GcnCompilerPsPart     m_ps;
 		GcnCompilerCsPart     m_cs;
 	};
+
+
 
 
 }  // namespace sce::gcn

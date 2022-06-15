@@ -34,6 +34,8 @@ namespace sce::gcn
 				break;
 			case GcnInstClass::ScalarMov:
 				break;
+			case GcnInstClass::ScalarMovRel:
+				break;
 			case GcnInstClass::ScalarCmp:
 				break;
 			case GcnInstClass::ScalarSelect:
@@ -51,6 +53,8 @@ namespace sce::gcn
 			case GcnInstClass::ScalarQuadMask:
 				break;
 			case GcnInstClass::VectorRegMov:
+				break;
+			case GcnInstClass::VectorMovRel:
 				break;
 			case GcnInstClass::VectorLane:
 				this->analyzeLane(ins);

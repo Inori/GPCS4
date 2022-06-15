@@ -23,6 +23,9 @@ namespace sce::gcn
 			case GcnInstClass::VectorIntGraph:
                 this->emitVectorAluCommon(ins);
                 break;
+			case GcnInstClass::VectorMovRel:
+				this->emitVectorMovRel(ins);
+				break;
 			case GcnInstClass::VectorFpCmp64:
 			case GcnInstClass::VectorFpCmp32:
 			case GcnInstClass::VectorIntCmp32:
@@ -383,6 +386,34 @@ namespace sce::gcn
         emitRegisterStore(ins.dst[0], dst);
     }
 
+	void GcnCompiler::emitVectorMovRel(const GcnShaderInstruction& ins)
+	{
+		const uint32_t typeId = getScalarTypeId(ins.dst[0].type);
+
+		GcnRegisterValue dst = {};
+		dst.type.ctype       = ins.dst[0].type;
+		dst.type.ccount      = 1;
+
+		auto op = ins.opcode;
+		switch (op)
+		{
+			case GcnOpcode::V_MOVRELD_B32:
+			{
+				auto     src   = emitRegisterLoad(ins.src[0]);
+				auto     m0    = emitValueLoad(m_state.m0);
+				auto     base  = m_module.constu32(ins.dst[0].code);
+				uint32_t index = m_module.opIAdd(typeId, base, m0.id);
+
+				dst.id = src.low.id;
+				emitVgprStore(index, dst);
+			}
+				break;
+			default:
+				LOG_GCN_UNHANDLED_INST();
+				break;
+		}
+	}
+
 	void GcnCompiler::emitVectorCmp(const GcnShaderInstruction& ins)
 	{
 		const std::array<GcnRegisterValuePair, 2> src = {
@@ -546,6 +577,11 @@ namespace sce::gcn
 		switch (op)
 		{
 			case GcnOpcode::V_READFIRSTLANE_B32:
+				// TODO:
+				// there may be problems if we only broadcast the value
+				// to 32 lanes, to perfectly implement this instruction,
+				// we may need to use share memory to broadcast to all
+				// 64 lanes.
 				dst.low.id = m_module.opGroupNonUniformBroadcastFirst(typeId,
 																	  m_module.constu32(spv::ScopeSubgroup),
 																	  src[0].low.id);

@@ -260,7 +260,7 @@ namespace sce::gcn
 			const GcnControlFlowGraph& cfg);
 		~GcnStackifier();
 
-		GcnTokenList generate();
+		GcnTokenList structurize();
 
 	private:
 		bool isIrreducible();

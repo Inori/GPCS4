@@ -2265,7 +2265,39 @@ namespace sce::gcn
 	}
 
 	template <bool IsVgpr>
-	GcnRegisterPointer sce::gcn::GcnCompiler::emitGetGprPtr(
+	GcnRegisterPointer GcnCompiler::emitGetGprPtr(uint32_t indexId)
+	{
+		GcnGprArray* arrayPtr = nullptr;
+		if constexpr (IsVgpr)
+		{
+			arrayPtr = &m_vArray;
+		}
+		else
+		{
+			arrayPtr = &m_sArray;
+		}
+
+		uint32_t arrayId = arrayPtr->arrayId;
+
+		GcnRegisterPointer result;
+		result.type.ctype  = GcnScalarType::Float32;
+		result.type.ccount = 1;
+
+		GcnRegisterInfo info;
+		info.type.ctype   = result.type.ctype;
+		info.type.ccount  = result.type.ccount;
+		info.type.alength = 0;
+		info.sclass       = spv::StorageClassPrivate;
+
+		result.id = m_module.opAccessChain(
+			getPointerTypeId(info), arrayId,
+			1, &indexId);
+
+		return result;
+	}
+
+	template <bool IsVgpr>
+	GcnRegisterPointer GcnCompiler::emitGetGprPtr(
 		const GcnInstOperand& reg)
 	{
 		GcnGprArray* arrayPtr = nullptr;
@@ -2278,25 +2310,11 @@ namespace sce::gcn
 			arrayPtr = &m_sArray;
 		}
 
-		uint32_t arrayId      = arrayPtr->arrayId;
 		arrayPtr->arrayLength = std::max(arrayPtr->arrayLength, reg.code + 1);
 
-		GcnRegisterPointer result;
-		result.type.ctype  = GcnScalarType::Float32;
-		result.type.ccount = 1;
-
-		GcnRegisterInfo info;
-		info.type.ctype   = result.type.ctype;
-		info.type.ccount  = result.type.ccount;
-		info.type.alength = 0;
-		info.sclass       = spv::StorageClassPrivate;
-
 		uint32_t indexId = m_module.constu32(reg.code);
-		result.id        = m_module.opAccessChain(
-				   getPointerTypeId(info), arrayId,
-				   1, &indexId);
 
-		return result;
+		return emitGetGprPtr<IsVgpr>(indexId);
 	}
 
 	template <bool IsVgpr>
@@ -2312,64 +2330,8 @@ namespace sce::gcn
 		const GcnInstOperand&   reg,
 		const GcnRegisterValue& value)
 	{
-		if (IsVgpr &&
-			m_analysis->laneVgprs.find(reg.code) != m_analysis->laneVgprs.end())
-		{
-			emitLaneVgprStore(reg, value);
-		}
-		else
-		{
-			auto ptr = emitGetGprPtr<IsVgpr>(reg);
-			this->emitValueStore(ptr, value, GcnRegMask::select(0));
-		}
-	}
-
-	void GcnCompiler::emitLaneVgprStore(
-		const GcnInstOperand&   reg,
-		const GcnRegisterValue& value)
-	{
-		const uint32_t typeId = getScalarTypeId(GcnScalarType::Uint32);
-		// For vgprs accessed by lane instructions,
-		// we need to make sure the value is set exactly
-		// for specific lanes.
-		uint32_t condition = 0;
-		if (m_moduleInfo.options.separateSubgroup)
-		{
-			// We only test low 32 lanes,
-			// leave high 32 lanes for next neighbor subgroup.
-			auto laneMask = emitCommonSystemValueLoad(GcnSystemValue::SubgroupEqMask, GcnRegMask::select(0));
-			auto exec     = m_state.exec.emitLoad(GcnRegMask::select(0));
-
-			GcnRegisterValue value;
-			value.type  = laneMask.type;
-			value.id    = m_module.opBitwiseAnd(typeId, laneMask.id, exec.low.id);
-			auto result = emitRegisterZeroTest(value, GcnZeroTest::TestNz);
-			condition   = result.id;
-		}
-		else
-		{
-			auto lowMask   = emitCommonSystemValueLoad(GcnSystemValue::SubgroupEqMask, GcnRegMask::select(0));
-			auto highMask  = emitCommonSystemValueLoad(GcnSystemValue::SubgroupEqMask, GcnRegMask::select(1));
-			auto exec      = m_state.exec.emitLoad(GcnRegMask::firstN(2));
-			auto lowValue  = m_module.opBitwiseAnd(typeId, lowMask.id, exec.low.id);
-			auto highValue = m_module.opBitwiseAnd(typeId, highMask.id, exec.high.id);
-			auto value     = m_module.opBitwiseOr(typeId, lowValue, highValue);
-			condition      = m_module.opINotEqual(m_module.defBoolType(), value, m_module.constu32(0));
-		}
-
-		// Only store vgpr if current invocation is active in exec mask.
-		// Keep value unchanged otherwise.
-		uint32_t labelBegin = m_module.allocateId();
-		uint32_t labelEnd   = m_module.allocateId();
-		m_module.opSelectionMerge(labelEnd, spv::SelectionControlMaskNone);
-		m_module.opBranchConditional(condition, labelBegin, labelEnd);
-		m_module.opLabel(labelBegin);
-
-		auto ptr = emitGetGprPtr<true>(reg);
+		auto ptr = emitGetGprPtr<IsVgpr>(reg);
 		this->emitValueStore(ptr, value, GcnRegMask::select(0));
-
-		m_module.opBranch(labelEnd);
-		m_module.opLabel(labelEnd);
 	}
 
 	template <bool IsVgpr>
@@ -2471,11 +2433,45 @@ namespace sce::gcn
 		return this->emitGprLoad<false>(reg);
 	}
 
+	template <bool IsVgpr>
+	GcnRegisterValue GcnCompiler::emitGprLoad(uint32_t indexId)
+	{
+		auto ptr = emitGetGprPtr<IsVgpr>(indexId);
+		return this->emitValueLoad(ptr);
+	}
+
+	GcnRegisterValue GcnCompiler::emitVgprLoad(uint32_t indexId)
+	{
+		return this->emitGprLoad<true>(indexId);
+	}
+
+	GcnRegisterValue GcnCompiler::emitSgprLoad(uint32_t indexId)
+	{
+		return this->emitGprLoad<false>(indexId);
+	}
+
 	void GcnCompiler::emitSgprStore(
 		const GcnInstOperand&   reg,
 		const GcnRegisterValue& value)
 	{
 		this->emitGprStore<false>(reg, value);
+	}
+
+	template <bool IsVgpr>
+	void GcnCompiler::emitGprStore(uint32_t indexId, const GcnRegisterValue& value)
+	{
+		auto ptr = emitGetGprPtr<IsVgpr>(indexId);
+		this->emitValueStore(ptr, value, GcnRegMask::select(0));
+	}
+
+	void GcnCompiler::emitVgprStore(uint32_t indexId, const GcnRegisterValue& value)
+	{
+		this->emitGprStore<true>(indexId, value);
+	}
+
+	void GcnCompiler::emitSgprStore(uint32_t indexId, const GcnRegisterValue& value)
+	{
+		this->emitGprStore<false>(indexId, value);
 	}
 
 	GcnRegisterValue GcnCompiler::emitSgprArrayLoad(
@@ -3955,6 +3951,7 @@ namespace sce::gcn
 	{
 		return getTexLayerDim(imageType) + imageType.array;
 	}
+
 
 
 }  // namespace sce::gcn

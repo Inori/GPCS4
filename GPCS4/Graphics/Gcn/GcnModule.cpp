@@ -101,11 +101,6 @@ namespace sce::gcn
 		GcnCfgPass cfgPass;
 		auto&      cfg = cfgPass.generateCfg(insList);
 
-		if (this->name() == "CSSHDR_844598A0F388C19D")
-		{
-			__debugbreak();
-		}
-
 		//dumpShader();
 		//auto          dot = GcnCfgPass::dumpDot(cfg);
 		//std::ofstream fout(fmt::format("shaders/{}.dot", this->name()));
@@ -113,7 +108,7 @@ namespace sce::gcn
 		//fout.close();
 
 		GcnStackifier stackifier(cfg);
-		auto          tokenList = stackifier.generate();
+		auto          tokenList = stackifier.structurize();
 
 		compiler.compile(tokenList);
 	}
