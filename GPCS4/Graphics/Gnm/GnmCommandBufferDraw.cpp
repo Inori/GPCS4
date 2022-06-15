@@ -33,15 +33,11 @@ namespace sce::Gnm
 {
 
 // Use this to break on a shader you want to debug.
-#define SHADER_DEBUG_BREAK(mod, token)  \
-	if (mod.name() == token) \
+#define SHADER_DEBUG_BREAK(mod, token) \
+	if (mod.name() == token)           \
 	{                                  \
 		__debugbreak();                \
 	}
-
-// Dump the recompiled shader to file
-// so that we can analyze it using spirv toolset.
-#define SHADER_DUMP_FILE
 
 
 	GnmCommandBufferDraw::GnmCommandBufferDraw(vlt::VltDevice* device) :
@@ -572,16 +568,16 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void* indexAddr, DrawModifier modifier)
 	{
-		uint32_t indexBufferSize =
-			m_state.ia.indexType == VK_INDEX_TYPE_UINT16 ? 
-			sizeof(uint16_t) * indexCount : 
-			sizeof(uint32_t) * indexCount;
+		//uint32_t indexBufferSize =
+		//	m_state.ia.indexType == VK_INDEX_TYPE_UINT16 ? 
+		//	sizeof(uint16_t) * indexCount : 
+		//	sizeof(uint32_t) * indexCount;
 
-		m_state.ia.indexBuffer = generateIndexBuffer(indexAddr, indexBufferSize);
+		//m_state.ia.indexBuffer = generateIndexBuffer(indexAddr, indexBufferSize);
 
 		commitGraphicsState();
 
-		m_context->drawIndexed(indexCount, 1, 0, 0, 0);
+		//m_context->drawIndexed(indexCount, 1, 0, 0, 0);
 	}
 
 	void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void* indexAddr)
@@ -595,7 +591,7 @@ namespace sce::Gnm
 	{
 		commitComputeState();
 
-		m_context->dispatch(threadGroupX, threadGroupY, threadGroupZ);
+		//m_context->dispatch(threadGroupX, threadGroupY, threadGroupZ);
 	}
 
 	void GnmCommandBufferDraw::dispatchWithOrderedAppend(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ, DispatchOrderedAppendMode orderedAppendMode)
@@ -940,10 +936,10 @@ namespace sce::Gnm
 
 			// Update index
 			// All draw calls in Gnm need index buffer.
-			auto& indexBuffer = m_state.ia.indexBuffer;
-			m_context->bindIndexBuffer(
-				VltBufferSlice(indexBuffer, 0, indexBuffer->info().size),
-				m_state.ia.indexType);
+			//auto& indexBuffer = m_state.ia.indexBuffer;
+			//m_context->bindIndexBuffer(
+			//	VltBufferSlice(indexBuffer, 0, indexBuffer->info().size),
+			//	m_state.ia.indexType);
 
 			GcnModule vsModule(
 				GcnProgramType::VertexShader,
@@ -958,16 +954,9 @@ namespace sce::Gnm
 			bindResource(VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, resTable, ctx.userData);
 
 			// bind the shader
-			auto shader = vsModule.compile(ctx.meta);
 			m_context->bindShader(
 				VK_SHADER_STAGE_VERTEX_BIT,
-				shader);
-
-#ifdef SHADER_DUMP_FILE
-			std::ofstream fout(vsModule.name(), std::ios::binary);
-			shader->dump(fout);
-#endif
-
+				vsModule.compile(ctx.meta));
 		} while (false);
 	}
 
@@ -992,15 +981,9 @@ namespace sce::Gnm
 			bindResource(VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, resTable, ctx.userData);
 
 			// bind the shader
-			auto shader = psModule.compile(ctx.meta);
 			m_context->bindShader(
 				VK_SHADER_STAGE_FRAGMENT_BIT,
-				shader);
-
-#ifdef SHADER_DUMP_FILE
-			std::ofstream fout(psModule.name(), std::ios::binary);
-			shader->dump(fout);
-#endif
+				psModule.compile(ctx.meta));
 		} while (false);
 	}
 
