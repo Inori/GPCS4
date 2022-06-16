@@ -2928,128 +2928,82 @@ namespace sce::gcn
 		const GcnImageInfo&         imageInfo,
 		const GcnShaderInstruction& ins)
 	{
-		uint32_t index = 0;
+		int32_t  index = -1;
 		auto     op    = ins.opcode;
 		auto     flags = GcnMimgModifierFlags(ins.control.mimg.mod);
 
 		// clang-format off
 		switch (component)
 		{
-			case GcnImageAddrComponent::Offsets:
-			{
-				if (component == GcnImageAddrComponent::Offsets) break;
-				if (flags.test(GcnMimgModifier::Offset)) ++index;
-			}
+			case GcnImageAddrComponent::Clamp:
+				if (flags.test(GcnMimgModifier::LodClamp)) ++index;
 				[[fallthrough]];
-			case GcnImageAddrComponent::Bias:
-			{
-				if (component == GcnImageAddrComponent::Bias) break;
-				if (flags.test(GcnMimgModifier::LodBias)) ++index;
-			}
+			case GcnImageAddrComponent::Lod:
+				if (flags.test(GcnMimgModifier::Lod)) ++index;
 				[[fallthrough]];
-			case GcnImageAddrComponent::Zpcf:
-			{
-				if (component == GcnImageAddrComponent::Zpcf) break;
-				if (flags.test(GcnMimgModifier::Pcf)) ++index;
-			}
+			case GcnImageAddrComponent::FaceId:
+				if (imageInfo.dim == spv::DimCube) ++index;
 				[[fallthrough]];
-			case GcnImageAddrComponent::DxDh:
-			{
-				if (component == GcnImageAddrComponent::DxDh) break;
-				if (flags.any(GcnMimgModifier::Derivative, 
-							  GcnMimgModifier::CoarseDerivative)) ++index;
-			}
+			case GcnImageAddrComponent::Slice:
+				if (ins.control.mimg.da != 0 &&
+					imageInfo.dim != spv::DimCube) ++index;
 				[[fallthrough]];
-			case GcnImageAddrComponent::DyDh:
-			{
-				if (component == GcnImageAddrComponent::DyDh) break;
-				if (flags.any(GcnMimgModifier::Derivative, 
-							  GcnMimgModifier::CoarseDerivative) &&
-				    (imageInfo.dim == spv::Dim2D ||
-					 imageInfo.dim == spv::Dim3D ||
-					 imageInfo.dim == spv::DimCube)) ++index;
-			}
-				[[fallthrough]];
-			case GcnImageAddrComponent::DzDh:
-			{
-				if (component == GcnImageAddrComponent::DzDh) break;
-				if (flags.any(GcnMimgModifier::Derivative, 
-							  GcnMimgModifier::CoarseDerivative) &&
-					imageInfo.dim == spv::Dim3D) ++index;
-			}
-				[[fallthrough]];
-			case GcnImageAddrComponent::DxDv:
-			{
-				if (component == GcnImageAddrComponent::DxDv) break;
-				if (flags.any(GcnMimgModifier::Derivative, 
-							  GcnMimgModifier::CoarseDerivative)) ++index;
-			}
-				[[fallthrough]];
-			case GcnImageAddrComponent::DyDv:
-			{
-				if (component == GcnImageAddrComponent::DyDv) break;
-				if (flags.any(GcnMimgModifier::Derivative, 
-							  GcnMimgModifier::CoarseDerivative) &&
-				    (imageInfo.dim == spv::Dim2D ||
-					 imageInfo.dim == spv::Dim3D ||
-					 imageInfo.dim == spv::DimCube)) ++index;
-			}
-				[[fallthrough]];
-			case GcnImageAddrComponent::DzDv:
-			{
-				if (component == GcnImageAddrComponent::DzDv) break;
-				if (flags.any(GcnMimgModifier::Derivative, 
-							  GcnMimgModifier::CoarseDerivative) &&
-					imageInfo.dim == spv::Dim3D) ++index;
-			}
-				[[fallthrough]];
-			case GcnImageAddrComponent::X:
-			{
-				if (component == GcnImageAddrComponent::X) break;
-				++index;
-			}
+			case GcnImageAddrComponent::Z:
+				if (imageInfo.dim == spv::Dim3D) ++index;
 				[[fallthrough]];
 			case GcnImageAddrComponent::Y:
-			{
-				if (component == GcnImageAddrComponent::Y) break;
 				if (imageInfo.dim == spv::Dim2D ||
 					imageInfo.dim == spv::Dim3D ||
 					imageInfo.dim == spv::DimCube) ++index;
-			}
 				[[fallthrough]];
-			case GcnImageAddrComponent::Z:
-			{
-				if (component == GcnImageAddrComponent::Z) break;
-				if (imageInfo.dim == spv::Dim3D) ++index;
-			}
+			case GcnImageAddrComponent::X:
+				++index;
 				[[fallthrough]];
-			case GcnImageAddrComponent::Slice:
-			{
-				if (component == GcnImageAddrComponent::Slice) break;
-				if (ins.control.mimg.da != 0 &&
-					imageInfo.dim != spv::DimCube) ++index;
-			}
+			case GcnImageAddrComponent::DzDv:
+				if (flags.any(GcnMimgModifier::Derivative, 
+							  GcnMimgModifier::CoarseDerivative) &&
+					imageInfo.dim == spv::Dim3D) ++index;
 				[[fallthrough]];
-			case GcnImageAddrComponent::FaceId:
-			{
-				if (component == GcnImageAddrComponent::FaceId) break;
-				if (imageInfo.dim == spv::DimCube) ++index;
-			}
+			case GcnImageAddrComponent::DyDv:
+				if (flags.any(GcnMimgModifier::Derivative, 
+							  GcnMimgModifier::CoarseDerivative) &&
+				    (imageInfo.dim == spv::Dim2D ||
+					 imageInfo.dim == spv::Dim3D ||
+					 imageInfo.dim == spv::DimCube)) ++index;
 				[[fallthrough]];
-			case GcnImageAddrComponent::Lod:
-			{
-				if (component == GcnImageAddrComponent::Lod) break;
-				if (flags.test(GcnMimgModifier::Lod)) ++index;
-			}
+			case GcnImageAddrComponent::DxDv:
+				if (flags.any(GcnMimgModifier::Derivative, 
+							  GcnMimgModifier::CoarseDerivative)) ++index;
 				[[fallthrough]];
-			case GcnImageAddrComponent::Clamp:
-			{
-				if (component == GcnImageAddrComponent::Clamp) break;
-				if (flags.test(GcnMimgModifier::LodClamp)) ++index;
-			}
+			case GcnImageAddrComponent::DzDh:
+				if (flags.any(GcnMimgModifier::Derivative, 
+							  GcnMimgModifier::CoarseDerivative) &&
+					imageInfo.dim == spv::Dim3D) ++index;
+				[[fallthrough]];
+			case GcnImageAddrComponent::DyDh:
+				if (flags.any(GcnMimgModifier::Derivative, 
+							  GcnMimgModifier::CoarseDerivative) &&
+				    (imageInfo.dim == spv::Dim2D ||
+					 imageInfo.dim == spv::Dim3D ||
+					 imageInfo.dim == spv::DimCube)) ++index;
+				[[fallthrough]];
+			case GcnImageAddrComponent::DxDh:
+				if (flags.any(GcnMimgModifier::Derivative, 
+							  GcnMimgModifier::CoarseDerivative)) ++index;
+				[[fallthrough]];
+			case GcnImageAddrComponent::Zpcf:
+				if (flags.test(GcnMimgModifier::Pcf)) ++index;
+				[[fallthrough]];
+			case GcnImageAddrComponent::Bias:
+				if (flags.test(GcnMimgModifier::LodBias)) ++index;
+				[[fallthrough]];
+			case GcnImageAddrComponent::Offsets:
+				if (flags.test(GcnMimgModifier::Offset)) ++index;
 		}
 		// clang-format on
-		return index;
+
+		LOG_ASSERT(index != -1, "Get vaddr component failed.");
+		return static_cast<uint32_t>(index);
 	}
 
 	GcnRegisterValue GcnCompiler::emitLoadAddrComponent(
