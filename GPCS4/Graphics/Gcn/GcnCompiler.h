@@ -433,11 +433,6 @@ namespace sce::gcn
 		GcnRegisterValue emitRecoverCubeCoord(
 			const GcnRegisterValue& coord);
 
-		uint32_t emitCalcAddrComponentIndex(
-			GcnImageAddrComponent       component,
-			const GcnImageInfo&         imageInfo,
-			const GcnShaderInstruction& ins);
-
 		GcnRegisterValue emitLoadAddrComponent(
 			GcnImageAddrComponent       component,
 			const GcnShaderInstruction& ins);
@@ -712,6 +707,11 @@ namespace sce::gcn
 		GcnBufferFormat getBufferFormat(
 			Gnm::BufferFormat      dfmt,
 			Gnm::BufferChannelType nfmt);
+
+		uint32_t calcAddrComponentIndex(
+			GcnImageAddrComponent       component,
+			const GcnImageInfo&         imageInfo,
+			const GcnShaderInstruction& ins);
 
 	private:
 		GcnModuleInfo          m_moduleInfo;

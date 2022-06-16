@@ -521,6 +521,394 @@ namespace sce::gcn
 		}
 	}
 
+	void GcnCompiler::emitStorageImageLoad(const GcnShaderInstruction& ins)
+	{
+		auto mimg = gcnInstructionAs<GcnShaderInstMIMG>(ins);
+
+		const uint32_t registerId = mimg.srsrc.code << 2;
+
+		const GcnTexture& typeInfo = m_textures.at(registerId);
+
+		// Load texture coordinates
+		GcnRegisterValue texCoord = emitLoadTexCoord(
+			mimg.vaddr, typeInfo.imageInfo);
+
+		// Additional image operands. This will store
+		// the LOD and other information if present.
+		SpirvImageOperands imageOperands;
+
+		auto op = ins.opcode;
+		switch (op)
+		{
+			case GcnOpcode::IMAGE_LOAD_MIP:
+			{
+				// The component following coordinate contains the LOD.
+				auto vaddr = mimg.vaddr;
+				vaddr.code += texCoord.type.ccount;
+
+				GcnRegisterValue imageLod = emitVgprLoad(vaddr);
+				imageLod                  = emitRegisterBitcast(imageLod, GcnScalarType::Uint32);
+
+				imageOperands.flags |= spv::ImageOperandsLodMask;
+				imageOperands.sLod = imageLod.id;
+			}
+			break;
+		}
+
+		// Load source value from the storage image.
+		GcnRegisterValue result;
+		result.type.ctype  = typeInfo.sampledType;
+		result.type.ccount = 4;
+		result.id          = m_module.opImageRead(
+					 getVectorTypeId(result.type),
+					 m_module.opLoad(typeInfo.imageTypeId, typeInfo.varId),
+					 texCoord.id, imageOperands);
+
+		// Apply component swizzle and mask
+		auto colorMask = GcnRegMask(mimg.control.dmask);
+		result         = emitRegisterExtract(result, colorMask);
+		emitVgprArrayStore(mimg.vdata,
+						   result,
+						   colorMask);
+	}
+
+	GcnRegisterValue GcnCompiler::emitCalcTexCoord(
+		GcnRegisterValue    coordVector,
+		const GcnImageInfo& imageInfo)
+	{
+		const uint32_t dim = getTexCoordDim(imageInfo);
+
+		if (dim != coordVector.type.ccount)
+		{
+			coordVector = emitRegisterExtract(
+				coordVector, GcnRegMask::firstN(dim));
+		}
+
+		return coordVector;
+	}
+
+	GcnRegisterValue GcnCompiler::emitLoadTexCoord(
+		const GcnInstOperand& coordReg,
+		const GcnImageInfo&   imageInfo)
+	{
+		uint32_t dim         = getTexCoordDim(imageInfo);
+		auto     coordVector = emitVgprArrayLoad(coordReg,
+												 GcnRegMask::firstN(dim));
+
+		auto result = emitCalcTexCoord(coordVector, imageInfo);
+
+		if (imageInfo.dim == spv::DimCube)
+		{
+			// Why do we need recover?
+			// See comments in emitCubeCalculate.
+			result = emitRecoverCubeCoord(result);
+		}
+		return result;
+	}
+
+	GcnRegisterValue GcnCompiler::emitRecoverCubeCoord(
+		const GcnRegisterValue& coord)
+	{
+		LOG_ASSERT(coord.type.ccount == 3, "cube coordinate must be vec3.");
+		auto s = emitRegisterExtract(coord, GcnRegMask::select(0));
+		auto t = emitRegisterExtract(coord, GcnRegMask::select(1));
+		auto z = emitRegisterExtract(coord, GcnRegMask::select(2));
+
+		const uint32_t typeId = getScalarTypeId(GcnScalarType::Float32);
+
+		// We need to fix x and y coordinate,
+		// because the s and t coordinate will be scaled and plus 1.5
+		// by v_madak_f32.
+		// We already force the scale value to be 1.0 when handling v_cubema_f32,
+		// here we subtract 1.5 to recover the original value. 
+		auto x = m_module.opFSub(typeId, s.id, m_module.constf32(1.5));
+		auto y = m_module.opFSub(typeId, t.id, m_module.constf32(1.5));
+
+		std::array<uint32_t, 3> direction = { x, y, z.id };
+
+		GcnRegisterValue result;
+		result.type = coord.type;
+		result.id   = m_module.opCompositeConstruct(getVectorTypeId(result.type),
+													direction.size(),
+													direction.data());
+		return result;
+	}
+
+	GcnRegisterValue GcnCompiler::emitLoadAddrComponent(
+		GcnImageAddrComponent       component,
+		const GcnShaderInstruction& ins)
+	{
+		const GcnInstOperand& addrReg    = ins.src[0];
+		const GcnInstOperand& textureReg = ins.src[2];
+	
+		// These registers are 4-GPR aligned, so multiplied by 4
+		const uint32_t textureId = textureReg.code * 4;
+	
+		// Image type, which stores the image dimensions etc.
+		const GcnImageInfo imageInfo = m_textures.at(textureId).imageInfo;
+
+		uint32_t index = calcAddrComponentIndex(component, imageInfo, ins);
+		auto     reg   = addrReg;
+		reg.code += index;
+		return emitVgprLoad(reg);
+	}
+
+	uint32_t GcnCompiler::emitLoadSampledImage(
+		const GcnTexture& textureResource,
+		const GcnSampler& samplerResource,
+		bool              isDepthCompare)
+	{
+		const uint32_t sampledImageType = isDepthCompare
+											  ? m_module.defSampledImageType(textureResource.depthTypeId)
+											  : m_module.defSampledImageType(textureResource.colorTypeId);
+
+		return m_module.opSampledImage(sampledImageType,
+									   m_module.opLoad(textureResource.imageTypeId, textureResource.varId),
+									   m_module.opLoad(samplerResource.typeId, samplerResource.varId));
+	}
+
+	void GcnCompiler::emitTextureSample(const GcnShaderInstruction& ins)
+	{
+		auto                  mimg        = gcnInstructionAs<GcnShaderInstMIMG>(ins);
+		const GcnInstOperand& texCoordReg = mimg.vaddr;
+		const GcnInstOperand& textureReg  = mimg.srsrc;
+		const GcnInstOperand& samplerReg  = mimg.ssamp;
+		auto                  flags       = GcnMimgModifierFlags(mimg.control.mod);
+
+		// Texture and sampler register IDs
+		// These registers are 4-GPR aligned, so multiplied by 4
+		const uint32_t textureId = textureReg.code * 4;
+		const uint32_t samplerId = samplerReg.code * 4;
+
+		// Image type, which stores the image dimensions etc.
+		const GcnImageInfo imageType = m_textures.at(textureId).imageInfo;
+
+		// Load the texture coordinates. SPIR-V allows these
+		// to be float4 even if not all components are used.
+		GcnRegisterValue coord = emitLoadTexCoord(texCoordReg, imageType);
+		
+		// Accumulate additional image operands. These are
+		// not part of the actual operand token in SPIR-V.
+		SpirvImageOperands imageOperands = {};
+
+		auto op             = ins.opcode;
+		bool isDepthCompare = flags.test(GcnMimgModifier::Pcf);
+
+		// Combine the texture and the sampler into a sampled image
+		const uint32_t sampledImageId = emitLoadSampledImage(
+			m_textures.at(textureId), m_samplers.at(samplerId),
+			isDepthCompare);
+
+		// LOD for certain sample operations
+		const bool hasLod = flags.test(GcnMimgModifier::Lod);
+
+		const GcnRegisterValue lod = hasLod
+										 ? emitLoadAddrComponent(GcnImageAddrComponent::Lod, ins)
+										 : GcnRegisterValue();
+
+		// Sampling an image always returns a four-component
+		// vector, whereas depth-compare ops return a scalar.
+		GcnRegisterValue result;
+		result.type.ctype  = m_textures.at(textureId).sampledType;
+		result.type.ccount = isDepthCompare ? 1 : 4;
+
+		switch (op)
+		{
+			// Simple image sample operation
+			case GcnOpcode::IMAGE_SAMPLE:
+			{
+				result.id = m_module.opImageSampleImplicitLod(
+					getVectorTypeId(result.type),
+					sampledImageId, coord.id,
+					imageOperands);
+			}
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_L:
+			{
+				imageOperands.flags |= spv::ImageOperandsLodMask;
+				imageOperands.sLod = lod.id;
+
+				result.id = m_module.opImageSampleExplicitLod(
+					getVectorTypeId(result.type), sampledImageId, coord.id,
+					imageOperands);
+			}
+				break;
+			default:
+				LOG_GCN_UNHANDLED_INST();
+				break;
+		}
+
+		auto colorMask = GcnRegMask(mimg.control.dmask);
+		result         = emitRegisterExtract(result, colorMask);
+		emitVgprArrayStore(mimg.vdata,
+						   result,
+						   colorMask);
+	}
+
+	
+	GcnBufferInfo GcnCompiler::getBufferType(
+		const GcnInstOperand& reg)
+	{
+		uint32_t regIdx = reg.code << 2;
+
+		GcnBufferMeta* meta = nullptr;
+		switch (m_programInfo.type())
+		{
+			case GcnProgramType::VertexShader: meta = &m_meta.vs.bufferInfos[regIdx]; break;
+			case GcnProgramType::PixelShader: meta = &m_meta.ps.bufferInfos[regIdx]; break;
+			case GcnProgramType::ComputeShader: meta = &m_meta.cs.bufferInfos[regIdx]; break;
+			case GcnProgramType::GeometryShader: meta = &m_meta.gs.bufferInfos[regIdx]; break;
+			case GcnProgramType::HullShader: meta = &m_meta.hs.bufferInfos[regIdx]; break;
+			case GcnProgramType::DomainShader: meta = &m_meta.ds.bufferInfos[regIdx]; break;
+		}
+
+		auto& buffer = m_buffers[regIdx];
+
+		GcnBufferInfo result = {};
+		result.varId         = buffer.varId;
+		result.isSsbo        = buffer.asSsbo;
+		result.buffer        = *meta;
+		result.image         = GcnImageInfo();
+
+		return result;
+	}
+
+	GcnImageInfo GcnCompiler::getImageType(
+		Gnm::TextureType textureType,
+		bool             isStorage,
+		bool             isDepth) const
+	{
+		uint32_t     depth    = isDepth ? 1u : 0u;
+		uint32_t     sampled  = isStorage ? 2u : 1u;
+		GcnImageInfo typeInfo = [textureType, depth, sampled]() -> GcnImageInfo
+		{
+			switch (textureType)
+			{
+				case Gnm::kTextureType1d:
+					return { spv::Dim1D, depth, 0, 0, sampled, VK_IMAGE_VIEW_TYPE_1D };
+				case Gnm::kTextureType2d:
+					return { spv::Dim2D, depth, 0, 0, sampled, VK_IMAGE_VIEW_TYPE_2D };
+				case Gnm::kTextureType3d:
+					return { spv::Dim3D, depth, 0, 0, sampled, VK_IMAGE_VIEW_TYPE_3D };
+				case Gnm::kTextureTypeCubemap:
+					return { spv::DimCube, depth, 0, 0, sampled, VK_IMAGE_VIEW_TYPE_CUBE };
+				case Gnm::kTextureType1dArray:
+					return { spv::Dim1D, depth, 1, 0, sampled, VK_IMAGE_VIEW_TYPE_1D_ARRAY };
+				case Gnm::kTextureType2dArray:
+					return { spv::Dim2D, depth, 1, 0, sampled, VK_IMAGE_VIEW_TYPE_2D_ARRAY };
+				case Gnm::kTextureType2dMsaa:
+					return { spv::Dim2D, depth, 0, 1, sampled, VK_IMAGE_VIEW_TYPE_2D };
+				case Gnm::kTextureType2dArrayMsaa:
+					return { spv::Dim2D, depth, 1, 1, sampled, VK_IMAGE_VIEW_TYPE_2D_ARRAY };
+				default:
+					Logger::exception(util::str::formatex("GcnCompiler: Unsupported resource type: ", textureType));
+			}
+		}();
+
+		return typeInfo;
+	}
+
+	uint32_t GcnCompiler::getTexLayerDim(const GcnImageInfo& imageType) const
+	{
+		switch (imageType.dim)
+		{
+			case spv::DimBuffer: return 1;
+			case spv::Dim1D: return 1;
+			case spv::Dim2D: return 2;
+			case spv::Dim3D: return 3;
+			case spv::DimCube: return 3;
+			default: Logger::exception("DxbcCompiler: getTexLayerDim: Unsupported image dimension");
+		}
+	}
+
+	uint32_t GcnCompiler::getTexCoordDim(const GcnImageInfo& imageType) const
+	{
+		return getTexLayerDim(imageType) + imageType.array;
+	}
+
+	uint32_t GcnCompiler::calcAddrComponentIndex(
+		GcnImageAddrComponent       component,
+		const GcnImageInfo&         imageInfo,
+		const GcnShaderInstruction& ins)
+	{
+		int32_t index = -1;
+		auto    op    = ins.opcode;
+		auto    flags = GcnMimgModifierFlags(ins.control.mimg.mod);
+
+		// clang-format off
+		switch (component)
+		{
+			case GcnImageAddrComponent::Clamp:
+				if (flags.test(GcnMimgModifier::LodClamp)) ++index;
+				[[fallthrough]];
+			case GcnImageAddrComponent::Lod:
+				if (flags.test(GcnMimgModifier::Lod)) ++index;
+				[[fallthrough]];
+			case GcnImageAddrComponent::FaceId:
+				if (imageInfo.dim == spv::DimCube) ++index;
+				[[fallthrough]];
+			case GcnImageAddrComponent::Slice:
+				if (ins.control.mimg.da != 0 &&
+					imageInfo.dim != spv::DimCube) ++index;
+				[[fallthrough]];
+			case GcnImageAddrComponent::Z:
+				if (imageInfo.dim == spv::Dim3D) ++index;
+				[[fallthrough]];
+			case GcnImageAddrComponent::Y:
+				if (imageInfo.dim == spv::Dim2D ||
+					imageInfo.dim == spv::Dim3D ||
+					imageInfo.dim == spv::DimCube) ++index;
+				[[fallthrough]];
+			case GcnImageAddrComponent::X:
+				++index;
+				[[fallthrough]];
+			case GcnImageAddrComponent::DzDv:
+				if (flags.any(GcnMimgModifier::Derivative, 
+							  GcnMimgModifier::CoarseDerivative) &&
+					imageInfo.dim == spv::Dim3D) ++index;
+				[[fallthrough]];
+			case GcnImageAddrComponent::DyDv:
+				if (flags.any(GcnMimgModifier::Derivative, 
+							  GcnMimgModifier::CoarseDerivative) &&
+				    (imageInfo.dim == spv::Dim2D ||
+					 imageInfo.dim == spv::Dim3D ||
+					 imageInfo.dim == spv::DimCube)) ++index;
+				[[fallthrough]];
+			case GcnImageAddrComponent::DxDv:
+				if (flags.any(GcnMimgModifier::Derivative, 
+							  GcnMimgModifier::CoarseDerivative)) ++index;
+				[[fallthrough]];
+			case GcnImageAddrComponent::DzDh:
+				if (flags.any(GcnMimgModifier::Derivative, 
+							  GcnMimgModifier::CoarseDerivative) &&
+					imageInfo.dim == spv::Dim3D) ++index;
+				[[fallthrough]];
+			case GcnImageAddrComponent::DyDh:
+				if (flags.any(GcnMimgModifier::Derivative, 
+							  GcnMimgModifier::CoarseDerivative) &&
+				    (imageInfo.dim == spv::Dim2D ||
+					 imageInfo.dim == spv::Dim3D ||
+					 imageInfo.dim == spv::DimCube)) ++index;
+				[[fallthrough]];
+			case GcnImageAddrComponent::DxDh:
+				if (flags.any(GcnMimgModifier::Derivative, 
+							  GcnMimgModifier::CoarseDerivative)) ++index;
+				[[fallthrough]];
+			case GcnImageAddrComponent::Zpcf:
+				if (flags.test(GcnMimgModifier::Pcf)) ++index;
+				[[fallthrough]];
+			case GcnImageAddrComponent::Bias:
+				if (flags.test(GcnMimgModifier::LodBias)) ++index;
+				[[fallthrough]];
+			case GcnImageAddrComponent::Offsets:
+				if (flags.test(GcnMimgModifier::Offset)) ++index;
+		}
+		// clang-format on
+
+		LOG_ASSERT(index != -1, "Get vaddr component failed.");
+		return static_cast<uint32_t>(index);
+	}
+
 	GcnBufferFormat GcnCompiler::getBufferFormat(
 		Gnm::BufferFormat dfmt, Gnm::BufferChannelType nfmt)
 	{
@@ -628,393 +1016,6 @@ namespace sce::gcn
 				break;
 		}
 		return format;
-	}
-
-	void GcnCompiler::emitStorageImageLoad(const GcnShaderInstruction& ins)
-	{
-		auto mimg = gcnInstructionAs<GcnShaderInstMIMG>(ins);
-
-		const uint32_t registerId = mimg.srsrc.code << 2;
-
-		const GcnTexture& typeInfo = m_textures.at(registerId);
-
-		// Load texture coordinates
-		GcnRegisterValue texCoord = emitLoadTexCoord(
-			mimg.vaddr, typeInfo.imageInfo);
-
-		// Additional image operands. This will store
-		// the LOD and other information if present.
-		SpirvImageOperands imageOperands;
-
-		auto op = ins.opcode;
-		switch (op)
-		{
-			case GcnOpcode::IMAGE_LOAD_MIP:
-			{
-				// The component following coordinate contains the LOD.
-				auto vaddr = mimg.vaddr;
-				vaddr.code += texCoord.type.ccount;
-
-				GcnRegisterValue imageLod = emitVgprLoad(vaddr);
-				imageLod                  = emitRegisterBitcast(imageLod, GcnScalarType::Uint32);
-
-				imageOperands.flags |= spv::ImageOperandsLodMask;
-				imageOperands.sLod = imageLod.id;
-			}
-			break;
-		}
-
-		// Load source value from the storage image.
-		GcnRegisterValue result;
-		result.type.ctype  = typeInfo.sampledType;
-		result.type.ccount = 4;
-		result.id          = m_module.opImageRead(
-					 getVectorTypeId(result.type),
-					 m_module.opLoad(typeInfo.imageTypeId, typeInfo.varId),
-					 texCoord.id, imageOperands);
-
-		// Apply component swizzle and mask
-		auto colorMask = GcnRegMask(mimg.control.dmask);
-		result         = emitRegisterExtract(result, colorMask);
-		emitVgprArrayStore(mimg.vdata,
-						   result,
-						   colorMask);
-	}
-
-	GcnBufferInfo GcnCompiler::getBufferType(
-		const GcnInstOperand& reg)
-	{
-		uint32_t regIdx = reg.code << 2;
-
-		GcnBufferMeta* meta = nullptr;
-		switch (m_programInfo.type())
-		{
-			case GcnProgramType::VertexShader: meta = &m_meta.vs.bufferInfos[regIdx]; break;
-			case GcnProgramType::PixelShader: meta = &m_meta.ps.bufferInfos[regIdx]; break;
-			case GcnProgramType::ComputeShader: meta = &m_meta.cs.bufferInfos[regIdx]; break;
-			case GcnProgramType::GeometryShader: meta = &m_meta.gs.bufferInfos[regIdx]; break;
-			case GcnProgramType::HullShader: meta = &m_meta.hs.bufferInfos[regIdx]; break;
-			case GcnProgramType::DomainShader: meta = &m_meta.ds.bufferInfos[regIdx]; break;
-		}
-
-		auto& buffer = m_buffers[regIdx];
-
-		GcnBufferInfo result = {};
-		result.varId         = buffer.varId;
-		result.isSsbo        = buffer.asSsbo;
-		result.buffer        = *meta;
-		result.image         = GcnImageInfo();
-
-		return result;
-	}
-
-	GcnImageInfo GcnCompiler::getImageType(
-		Gnm::TextureType textureType,
-		bool             isStorage,
-		bool             isDepth) const
-	{
-		uint32_t     depth    = isDepth ? 1u : 0u;
-		uint32_t     sampled  = isStorage ? 2u : 1u;
-		GcnImageInfo typeInfo = [textureType, depth, sampled]() -> GcnImageInfo
-		{
-			switch (textureType)
-			{
-				case Gnm::kTextureType1d:
-					return { spv::Dim1D, depth, 0, 0, sampled, VK_IMAGE_VIEW_TYPE_1D };
-				case Gnm::kTextureType2d:
-					return { spv::Dim2D, depth, 0, 0, sampled, VK_IMAGE_VIEW_TYPE_2D };
-				case Gnm::kTextureType3d:
-					return { spv::Dim3D, depth, 0, 0, sampled, VK_IMAGE_VIEW_TYPE_3D };
-				case Gnm::kTextureTypeCubemap:
-					return { spv::DimCube, depth, 0, 0, sampled, VK_IMAGE_VIEW_TYPE_CUBE };
-				case Gnm::kTextureType1dArray:
-					return { spv::Dim1D, depth, 1, 0, sampled, VK_IMAGE_VIEW_TYPE_1D_ARRAY };
-				case Gnm::kTextureType2dArray:
-					return { spv::Dim2D, depth, 1, 0, sampled, VK_IMAGE_VIEW_TYPE_2D_ARRAY };
-				case Gnm::kTextureType2dMsaa:
-					return { spv::Dim2D, depth, 0, 1, sampled, VK_IMAGE_VIEW_TYPE_2D };
-				case Gnm::kTextureType2dArrayMsaa:
-					return { spv::Dim2D, depth, 1, 1, sampled, VK_IMAGE_VIEW_TYPE_2D_ARRAY };
-				default:
-					Logger::exception(util::str::formatex("GcnCompiler: Unsupported resource type: ", textureType));
-			}
-		}();
-
-		return typeInfo;
-	}
-
-	uint32_t GcnCompiler::getTexLayerDim(const GcnImageInfo& imageType) const
-	{
-		switch (imageType.dim)
-		{
-			case spv::DimBuffer: return 1;
-			case spv::Dim1D: return 1;
-			case spv::Dim2D: return 2;
-			case spv::Dim3D: return 3;
-			case spv::DimCube: return 3;
-			default: Logger::exception("DxbcCompiler: getTexLayerDim: Unsupported image dimension");
-		}
-	}
-
-	uint32_t GcnCompiler::getTexCoordDim(const GcnImageInfo& imageType) const
-	{
-		return getTexLayerDim(imageType) + imageType.array;
-	}
-
-	GcnRegisterValue GcnCompiler::emitCalcTexCoord(
-		GcnRegisterValue    coordVector,
-		const GcnImageInfo& imageInfo)
-	{
-		const uint32_t dim = getTexCoordDim(imageInfo);
-
-		if (dim != coordVector.type.ccount)
-		{
-			coordVector = emitRegisterExtract(
-				coordVector, GcnRegMask::firstN(dim));
-		}
-
-		return coordVector;
-	}
-
-	GcnRegisterValue GcnCompiler::emitLoadTexCoord(
-		const GcnInstOperand& coordReg,
-		const GcnImageInfo&   imageInfo)
-	{
-		uint32_t dim         = getTexCoordDim(imageInfo);
-		auto     coordVector = emitVgprArrayLoad(coordReg,
-												 GcnRegMask::firstN(dim));
-
-		auto result = emitCalcTexCoord(coordVector, imageInfo);
-
-		if (imageInfo.dim == spv::DimCube)
-		{
-			// Why do we need recover?
-			// See comments in emitCubeCalculate.
-			result = emitRecoverCubeCoord(result);
-		}
-		return result;
-	}
-
-	GcnRegisterValue GcnCompiler::emitRecoverCubeCoord(
-		const GcnRegisterValue& coord)
-	{
-		LOG_ASSERT(coord.type.ccount == 3, "cube coordinate must be vec3.");
-		auto s = emitRegisterExtract(coord, GcnRegMask::select(0));
-		auto t = emitRegisterExtract(coord, GcnRegMask::select(1));
-		auto z = emitRegisterExtract(coord, GcnRegMask::select(2));
-
-		const uint32_t typeId = getScalarTypeId(GcnScalarType::Float32);
-
-		// We need to fix x and y coordinate,
-		// because the s and t coordinate will be scaled and plus 1.5
-		// by v_madak_f32.
-		// We already force the scale value to be 1.0 when handling v_cubema_f32,
-		// here we subtract 1.5 to recover the original value. 
-		auto x = m_module.opFSub(typeId, s.id, m_module.constf32(1.5));
-		auto y = m_module.opFSub(typeId, t.id, m_module.constf32(1.5));
-
-		std::array<uint32_t, 3> direction = { x, y, z.id };
-
-		GcnRegisterValue result;
-		result.type = coord.type;
-		result.id   = m_module.opCompositeConstruct(getVectorTypeId(result.type),
-													direction.size(),
-													direction.data());
-		return result;
-	}
-
-	uint32_t GcnCompiler::emitCalcAddrComponentIndex(
-		GcnImageAddrComponent       component,
-		const GcnImageInfo&         imageInfo,
-		const GcnShaderInstruction& ins)
-	{
-		int32_t  index = -1;
-		auto     op    = ins.opcode;
-		auto     flags = GcnMimgModifierFlags(ins.control.mimg.mod);
-
-		// clang-format off
-		switch (component)
-		{
-			case GcnImageAddrComponent::Clamp:
-				if (flags.test(GcnMimgModifier::LodClamp)) ++index;
-				[[fallthrough]];
-			case GcnImageAddrComponent::Lod:
-				if (flags.test(GcnMimgModifier::Lod)) ++index;
-				[[fallthrough]];
-			case GcnImageAddrComponent::FaceId:
-				if (imageInfo.dim == spv::DimCube) ++index;
-				[[fallthrough]];
-			case GcnImageAddrComponent::Slice:
-				if (ins.control.mimg.da != 0 &&
-					imageInfo.dim != spv::DimCube) ++index;
-				[[fallthrough]];
-			case GcnImageAddrComponent::Z:
-				if (imageInfo.dim == spv::Dim3D) ++index;
-				[[fallthrough]];
-			case GcnImageAddrComponent::Y:
-				if (imageInfo.dim == spv::Dim2D ||
-					imageInfo.dim == spv::Dim3D ||
-					imageInfo.dim == spv::DimCube) ++index;
-				[[fallthrough]];
-			case GcnImageAddrComponent::X:
-				++index;
-				[[fallthrough]];
-			case GcnImageAddrComponent::DzDv:
-				if (flags.any(GcnMimgModifier::Derivative, 
-							  GcnMimgModifier::CoarseDerivative) &&
-					imageInfo.dim == spv::Dim3D) ++index;
-				[[fallthrough]];
-			case GcnImageAddrComponent::DyDv:
-				if (flags.any(GcnMimgModifier::Derivative, 
-							  GcnMimgModifier::CoarseDerivative) &&
-				    (imageInfo.dim == spv::Dim2D ||
-					 imageInfo.dim == spv::Dim3D ||
-					 imageInfo.dim == spv::DimCube)) ++index;
-				[[fallthrough]];
-			case GcnImageAddrComponent::DxDv:
-				if (flags.any(GcnMimgModifier::Derivative, 
-							  GcnMimgModifier::CoarseDerivative)) ++index;
-				[[fallthrough]];
-			case GcnImageAddrComponent::DzDh:
-				if (flags.any(GcnMimgModifier::Derivative, 
-							  GcnMimgModifier::CoarseDerivative) &&
-					imageInfo.dim == spv::Dim3D) ++index;
-				[[fallthrough]];
-			case GcnImageAddrComponent::DyDh:
-				if (flags.any(GcnMimgModifier::Derivative, 
-							  GcnMimgModifier::CoarseDerivative) &&
-				    (imageInfo.dim == spv::Dim2D ||
-					 imageInfo.dim == spv::Dim3D ||
-					 imageInfo.dim == spv::DimCube)) ++index;
-				[[fallthrough]];
-			case GcnImageAddrComponent::DxDh:
-				if (flags.any(GcnMimgModifier::Derivative, 
-							  GcnMimgModifier::CoarseDerivative)) ++index;
-				[[fallthrough]];
-			case GcnImageAddrComponent::Zpcf:
-				if (flags.test(GcnMimgModifier::Pcf)) ++index;
-				[[fallthrough]];
-			case GcnImageAddrComponent::Bias:
-				if (flags.test(GcnMimgModifier::LodBias)) ++index;
-				[[fallthrough]];
-			case GcnImageAddrComponent::Offsets:
-				if (flags.test(GcnMimgModifier::Offset)) ++index;
-		}
-		// clang-format on
-
-		LOG_ASSERT(index != -1, "Get vaddr component failed.");
-		return static_cast<uint32_t>(index);
-	}
-
-	GcnRegisterValue GcnCompiler::emitLoadAddrComponent(
-		GcnImageAddrComponent       component,
-		const GcnShaderInstruction& ins)
-	{
-		const GcnInstOperand& addrReg    = ins.src[0];
-		const GcnInstOperand& textureReg = ins.src[2];
-	
-		// These registers are 4-GPR aligned, so multiplied by 4
-		const uint32_t textureId = textureReg.code * 4;
-	
-		// Image type, which stores the image dimensions etc.
-		const GcnImageInfo imageInfo = m_textures.at(textureId).imageInfo;
-
-		uint32_t index = emitCalcAddrComponentIndex(component, imageInfo, ins);
-		auto     reg   = addrReg;
-		reg.code += index;
-		return emitVgprLoad(reg);
-	}
-
-	uint32_t GcnCompiler::emitLoadSampledImage(
-		const GcnTexture& textureResource,
-		const GcnSampler& samplerResource,
-		bool              isDepthCompare)
-	{
-		const uint32_t sampledImageType = isDepthCompare
-											  ? m_module.defSampledImageType(textureResource.depthTypeId)
-											  : m_module.defSampledImageType(textureResource.colorTypeId);
-
-		return m_module.opSampledImage(sampledImageType,
-									   m_module.opLoad(textureResource.imageTypeId, textureResource.varId),
-									   m_module.opLoad(samplerResource.typeId, samplerResource.varId));
-	}
-
-	void GcnCompiler::emitTextureSample(const GcnShaderInstruction& ins)
-	{
-		auto                  mimg        = gcnInstructionAs<GcnShaderInstMIMG>(ins);
-		const GcnInstOperand& texCoordReg = mimg.vaddr;
-		const GcnInstOperand& textureReg  = mimg.srsrc;
-		const GcnInstOperand& samplerReg  = mimg.ssamp;
-		auto                  flags       = GcnMimgModifierFlags(mimg.control.mod);
-
-		// Texture and sampler register IDs
-		// These registers are 4-GPR aligned, so multiplied by 4
-		const uint32_t textureId = textureReg.code * 4;
-		const uint32_t samplerId = samplerReg.code * 4;
-
-		// Image type, which stores the image dimensions etc.
-		const GcnImageInfo imageType = m_textures.at(textureId).imageInfo;
-
-		// Load the texture coordinates. SPIR-V allows these
-		// to be float4 even if not all components are used.
-		GcnRegisterValue coord = emitLoadTexCoord(texCoordReg, imageType);
-		
-		// Accumulate additional image operands. These are
-		// not part of the actual operand token in SPIR-V.
-		SpirvImageOperands imageOperands = {};
-
-		auto op             = ins.opcode;
-		bool isDepthCompare = flags.test(GcnMimgModifier::Pcf);
-
-		// Combine the texture and the sampler into a sampled image
-		const uint32_t sampledImageId = emitLoadSampledImage(
-			m_textures.at(textureId), m_samplers.at(samplerId),
-			isDepthCompare);
-
-		// LOD for certain sample operations
-		const bool hasLod = flags.test(GcnMimgModifier::Lod);
-
-		const GcnRegisterValue lod = hasLod
-										 ? emitLoadAddrComponent(GcnImageAddrComponent::Lod, ins)
-										 : GcnRegisterValue();
-
-		// Sampling an image always returns a four-component
-		// vector, whereas depth-compare ops return a scalar.
-		GcnRegisterValue result;
-		result.type.ctype  = m_textures.at(textureId).sampledType;
-		result.type.ccount = isDepthCompare ? 1 : 4;
-
-		switch (op)
-		{
-			// Simple image sample operation
-			case GcnOpcode::IMAGE_SAMPLE:
-			{
-				result.id = m_module.opImageSampleImplicitLod(
-					getVectorTypeId(result.type),
-					sampledImageId, coord.id,
-					imageOperands);
-			}
-				break;
-			case GcnOpcode::IMAGE_SAMPLE_L:
-			{
-				imageOperands.flags |= spv::ImageOperandsLodMask;
-				imageOperands.sLod = lod.id;
-
-				result.id = m_module.opImageSampleExplicitLod(
-					getVectorTypeId(result.type), sampledImageId, coord.id,
-					imageOperands);
-			}
-				break;
-			default:
-				LOG_GCN_UNHANDLED_INST();
-				break;
-		}
-
-		auto colorMask = GcnRegMask(mimg.control.dmask);
-		result         = emitRegisterExtract(result, colorMask);
-		emitVgprArrayStore(mimg.vdata,
-						   result,
-						   colorMask);
 	}
 
 }  // namespace sce::gcn

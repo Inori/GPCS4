@@ -8,7 +8,6 @@ LOG_CHANNEL(Graphic.Gcn.GcnCompiler);
 
 namespace sce::gcn
 {
-
 	void GcnCompiler::compileGlobalVariable(const GcnTokenList& tokens)
 	{
 		// Initialize global variables
