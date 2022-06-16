@@ -32,55 +32,6 @@ namespace sce::gcn
 		}
 	}
 
-	void GcnCompiler::emitVectorMemBuffer(const GcnShaderInstruction& ins)
-	{
-		auto op = ins.opcode;
-		switch (op)
-		{
-			case GcnOpcode::BUFFER_LOAD_FORMAT_X:
-			case GcnOpcode::BUFFER_LOAD_FORMAT_XY:
-			case GcnOpcode::BUFFER_LOAD_FORMAT_XYZ:
-			case GcnOpcode::BUFFER_LOAD_FORMAT_XYZW:
-			case GcnOpcode::TBUFFER_LOAD_FORMAT_X:
-			case GcnOpcode::TBUFFER_LOAD_FORMAT_XY:
-			case GcnOpcode::TBUFFER_LOAD_FORMAT_XYZ:
-			case GcnOpcode::TBUFFER_LOAD_FORMAT_XYZW:
-				emitBufferLoadStoreFmt(ins, true);
-				break;
-			case GcnOpcode::BUFFER_STORE_FORMAT_X:
-			case GcnOpcode::BUFFER_STORE_FORMAT_XY:
-			case GcnOpcode::BUFFER_STORE_FORMAT_XYZ:
-			case GcnOpcode::BUFFER_STORE_FORMAT_XYZW:
-			case GcnOpcode::TBUFFER_STORE_FORMAT_X:
-			case GcnOpcode::TBUFFER_STORE_FORMAT_XY:
-			case GcnOpcode::TBUFFER_STORE_FORMAT_XYZ:
-			case GcnOpcode::TBUFFER_STORE_FORMAT_XYZW:
-				emitBufferLoadStoreFmt(ins, false);
-				break;
-			case GcnOpcode::BUFFER_LOAD_UBYTE:
-			case GcnOpcode::BUFFER_LOAD_SBYTE:
-			case GcnOpcode::BUFFER_LOAD_USHORT:
-			case GcnOpcode::BUFFER_LOAD_SSHORT:
-			case GcnOpcode::BUFFER_LOAD_DWORD:
-			case GcnOpcode::BUFFER_LOAD_DWORDX2:
-			case GcnOpcode::BUFFER_LOAD_DWORDX4:
-			case GcnOpcode::BUFFER_LOAD_DWORDX3:
-				emitBufferLoadStoreNoFmt(ins, true);
-				break;
-			case GcnOpcode::BUFFER_STORE_BYTE:
-			case GcnOpcode::BUFFER_STORE_SHORT:
-			case GcnOpcode::BUFFER_STORE_DWORD:
-			case GcnOpcode::BUFFER_STORE_DWORDX2:
-			case GcnOpcode::BUFFER_STORE_DWORDX4:
-			case GcnOpcode::BUFFER_STORE_DWORDX3:
-				emitBufferLoadStoreNoFmt(ins, false);
-				break;
-			default:
-				LOG_GCN_UNHANDLED_INST();
-				break;
-		}
-	}
-
 	void GcnCompiler::emitVectorMemBufNoFmt(const GcnShaderInstruction& ins)
 	{
 		emitVectorMemBuffer(ins);
@@ -130,6 +81,55 @@ namespace sce::gcn
 	void GcnCompiler::emitVectorMemL1Cache(const GcnShaderInstruction& ins)
 	{
 		LOG_GCN_UNHANDLED_INST();
+	}
+
+	void GcnCompiler::emitVectorMemBuffer(const GcnShaderInstruction& ins)
+	{
+		auto op = ins.opcode;
+		switch (op)
+		{
+			case GcnOpcode::BUFFER_LOAD_FORMAT_X:
+			case GcnOpcode::BUFFER_LOAD_FORMAT_XY:
+			case GcnOpcode::BUFFER_LOAD_FORMAT_XYZ:
+			case GcnOpcode::BUFFER_LOAD_FORMAT_XYZW:
+			case GcnOpcode::TBUFFER_LOAD_FORMAT_X:
+			case GcnOpcode::TBUFFER_LOAD_FORMAT_XY:
+			case GcnOpcode::TBUFFER_LOAD_FORMAT_XYZ:
+			case GcnOpcode::TBUFFER_LOAD_FORMAT_XYZW:
+				emitBufferLoadStoreFmt(ins, true);
+				break;
+			case GcnOpcode::BUFFER_STORE_FORMAT_X:
+			case GcnOpcode::BUFFER_STORE_FORMAT_XY:
+			case GcnOpcode::BUFFER_STORE_FORMAT_XYZ:
+			case GcnOpcode::BUFFER_STORE_FORMAT_XYZW:
+			case GcnOpcode::TBUFFER_STORE_FORMAT_X:
+			case GcnOpcode::TBUFFER_STORE_FORMAT_XY:
+			case GcnOpcode::TBUFFER_STORE_FORMAT_XYZ:
+			case GcnOpcode::TBUFFER_STORE_FORMAT_XYZW:
+				emitBufferLoadStoreFmt(ins, false);
+				break;
+			case GcnOpcode::BUFFER_LOAD_UBYTE:
+			case GcnOpcode::BUFFER_LOAD_SBYTE:
+			case GcnOpcode::BUFFER_LOAD_USHORT:
+			case GcnOpcode::BUFFER_LOAD_SSHORT:
+			case GcnOpcode::BUFFER_LOAD_DWORD:
+			case GcnOpcode::BUFFER_LOAD_DWORDX2:
+			case GcnOpcode::BUFFER_LOAD_DWORDX4:
+			case GcnOpcode::BUFFER_LOAD_DWORDX3:
+				emitBufferLoadStoreNoFmt(ins, true);
+				break;
+			case GcnOpcode::BUFFER_STORE_BYTE:
+			case GcnOpcode::BUFFER_STORE_SHORT:
+			case GcnOpcode::BUFFER_STORE_DWORD:
+			case GcnOpcode::BUFFER_STORE_DWORDX2:
+			case GcnOpcode::BUFFER_STORE_DWORDX4:
+			case GcnOpcode::BUFFER_STORE_DWORDX3:
+				emitBufferLoadStoreNoFmt(ins, false);
+				break;
+			default:
+				LOG_GCN_UNHANDLED_INST();
+				break;
+		}
 	}
 
 	GcnRegisterValue GcnCompiler::emitCalcBufferAddress(
