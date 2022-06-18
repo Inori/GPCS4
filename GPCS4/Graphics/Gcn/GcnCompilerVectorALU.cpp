@@ -444,6 +444,9 @@ namespace sce::gcn
 		uint32_t condition     = 0;
 		uint32_t conditionType = m_module.defBoolType();
 
+		// TODO:
+		// unordered float support.
+
         bool updateExec = false;
 
 		auto op = ins.opcode;
@@ -483,6 +486,11 @@ namespace sce::gcn
 				condition = m_module.opFOrdGreaterThan(conditionType,
 													   src[0].low.id,
 													   src[1].low.id);
+				break;
+			case GcnOpcode::V_CMP_NGT_F32:
+				condition = m_module.opFOrdLessThanEqual(conditionType,
+														 src[0].low.id,
+														 src[1].low.id);
 				break;
 			case GcnOpcode::V_CMP_GE_F32:
 				condition = m_module.opFOrdGreaterThanEqual(conditionType,

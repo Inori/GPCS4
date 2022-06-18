@@ -58,8 +58,6 @@ namespace sce::gcn
 
 	void GcnCompiler::emitVectorMemImgSmp(const GcnShaderInstruction& ins)
 	{
-		auto mimg = gcnInstructionAs<GcnShaderInstMIMG>(ins);
-
 		auto op = ins.opcode;
 		switch (op)
 		{

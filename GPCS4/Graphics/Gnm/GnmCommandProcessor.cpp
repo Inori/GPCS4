@@ -57,6 +57,15 @@ namespace sce::Gnm
 			// it's likely because there are some GnmDriver functions not implemented,
 			// so no proper private packets being inserted into the command buffer.
 
+			// TODO:
+			// There is a similar dispatch function in 
+			// PS4RazorGPUDLL.dll
+			// Version: 8.0.0.2
+			// MD5: EBB9C82A6F451F0BA240BE17B0DC78A8
+			// Offset: 0x1802C6D90 (Base: 180001000)
+			// We may get more correct result by reverse engineering
+			// that function.
+
 			const PM4_HEADER* pm4Hdr           = reinterpret_cast<const PM4_HEADER*>(commandBuffer);
 			uint32_t          processedCmdSize = 0;
 
