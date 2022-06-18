@@ -44,9 +44,7 @@ bool ELFMapper::loadFile(std::string const &filePath, NativeModule *mod)
 
 bool ELFMapper::validateHeader()
 {
-
-	bool retVal      = false;
-	auto &fileMemory = m_moduleData->m_fileMemory;
+	bool retVal = false;
 
 	do
 	{
@@ -55,6 +53,8 @@ bool ELFMapper::validateHeader()
 			LOG_ERR("file has not been loaded");
 			break;
 		}
+
+		auto& fileMemory = m_moduleData->m_fileMemory;
 
 		if (fileMemory.size() < sizeof(*m_moduleData->m_elfHeader))
 		{

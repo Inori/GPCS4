@@ -37,6 +37,10 @@ namespace sce::vlt
 
 	VltShaderConstData& VltShaderConstData::operator=(VltShaderConstData&& other)
 	{
+		if (this == std::addressof(other))
+		{
+			return *this;
+		}
 		delete[] m_data;
 		this->m_size = other.m_size;
 		this->m_data = other.m_data;

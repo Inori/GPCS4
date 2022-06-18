@@ -17,7 +17,7 @@ uint32_t PS4API sceGnmDrawInitDefaultHardwareState350(uint32_t* cmdBuffer, uint6
 	assert(numDwords >= initCmdSize);
 	GnmCmdDrawInitDefaultHardwareState* initParam = (GnmCmdDrawInitDefaultHardwareState*)cmdBuffer;
 	initParam->opcode = PM4_HEADER_BUILD(initCmdSize, IT_GNM_PRIVATE, OP_PRIV_INITIALIZE_DEFAULT_HARDWARE_STATE);
-	memset(initParam->reserved, 0, sizeof(initParam->reserved) * sizeof(uint32_t));
+	memset(initParam->reserved, 0, sizeof(initParam->reserved));
 	return initCmdSize;
 }
 
@@ -29,7 +29,7 @@ uint32_t PS4API sceGnmDrawInitDefaultHardwareState200(uint32_t* cmdBuffer, uint6
 	assert(numDwords >= initCmdSize);
 	GnmCmdDrawInitDefaultHardwareState* initParam = (GnmCmdDrawInitDefaultHardwareState*)cmdBuffer;
 	initParam->opcode                             = PM4_HEADER_BUILD(initCmdSize, IT_GNM_PRIVATE, OP_PRIV_INITIALIZE_DEFAULT_HARDWARE_STATE);
-	memset(initParam->reserved, 0, sizeof(initParam->reserved) * sizeof(uint32_t));
+	memset(initParam->reserved, 0, sizeof(initParam->reserved));
 	return initCmdSize;
 }
 
@@ -41,7 +41,7 @@ uint32_t PS4API sceGnmDrawInitDefaultHardwareState175(uint32_t* cmdBuffer, uint6
 	assert(numDwords >= initCmdSize);
 	GnmCmdDrawInitDefaultHardwareState* initParam = (GnmCmdDrawInitDefaultHardwareState*)cmdBuffer;
 	initParam->opcode = PM4_HEADER_BUILD(initCmdSize, IT_GNM_PRIVATE, OP_PRIV_INITIALIZE_DEFAULT_HARDWARE_STATE);
-	memset(initParam->reserved, 0, sizeof(initParam->reserved) * sizeof(uint32_t));
+	memset(initParam->reserved, 0, sizeof(initParam->reserved));
 	return initCmdSize;
 }
 
@@ -56,18 +56,7 @@ int PS4API sceGnmInsertWaitFlipDone(uint32_t* cmdBuffer, uint32_t numDwords, int
 	param->opcode = PM4_HEADER_BUILD(cmdSize, IT_GNM_PRIVATE, OP_PRIV_WAIT_UNTIL_SAFE_FOR_RENDERING);
 	param->videoOutHandle = videoOutHandle;
 	param->displayBufferIndex = displayBufferIndex;
-	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
-
-	// this is a hack of Nier:Automata, just let the game run without trap into infinity loop
-	//static uint32_t nCount = 0;
-	//static uint32_t nMod = 0;
-	//*(uint32_t*)((uint8_t*)gpuAddress + 0x2000034) = value + nCount;
-	//*(uint32_t*)((uint8_t*)gpuAddress + 0x200008C) = value + nCount;
-	//++nMod;
-	//if (nMod % 3 == 0)
-	//{
-	//	nCount += 3;
-	//}
+	memset(param->reserved, 0, sizeof(param->reserved));
 	return SCE_OK;
 }
 
@@ -85,7 +74,7 @@ int PS4API sceGnmDrawIndex(uint32_t* cmdBuffer, uint32_t numDwords,
 	param->indexAddr = (uintptr_t)indexAddr;
 	param->predAndMod = predAndMod;
 	param->inlineMode = (GnmEnumDrawIndexInlineMode)inlineMode;
-	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
+	memset(param->reserved, 0, sizeof(param->reserved));
 	return SCE_OK;
 }
 
@@ -100,7 +89,7 @@ int PS4API sceGnmDrawIndexAuto(uint32_t* cmdBuffer, uint32_t numDwords,
 	param->opcode = PM4_HEADER_BUILD(paramSize, IT_GNM_PRIVATE, OP_PRIV_DRAW_INDEX_AUTO);
 	param->indexCount = indexCount;
 	param->predAndMod = pred;
-	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
+	memset(param->reserved, 0, sizeof(param->reserved));
 	return SCE_OK;
 }
 
@@ -128,7 +117,7 @@ int PS4API sceGnmDrawIndexIndirect(
 	param->vertexOffsetUserSgpr   = vertexOffsetUserSgpr;
 	param->instanceOffsetUserSgpr = instanceOffsetUserSgpr;
 	param->pred                   = pred;
-	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
+	memset(param->reserved, 0, sizeof(param->reserved));
 	
 	return SCE_OK;
 }
@@ -201,7 +190,7 @@ int PS4API sceGnmSetEmbeddedVsShader(uint32_t* cmdBuffer, uint32_t numDwords,
 	param->opcode = PM4_HEADER_BUILD(paramSize, IT_GNM_PRIVATE, OP_PRIV_SET_EMBEDDED_VS_SHADER);
 	param->shaderId = shaderId;
 	param->modifier = shaderModifier;
-	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
+	memset(param->reserved, 0, sizeof(param->reserved));
 	return SCE_OK;
 }
 
@@ -253,7 +242,7 @@ int PS4API sceGnmSetCsShader(uint32_t* cmdBuffer, uint32_t numDwords,
 	{
 		memset(&param->csRegs, 0, sizeof(gcn::CsStageRegisters));
 	}
-	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
+	memset(param->reserved, 0, sizeof(param->reserved));
 	return SCE_OK;
 }
 
@@ -276,7 +265,7 @@ int PS4API sceGnmSetVsShader(uint32_t* cmdBuffer, uint32_t numDwords,
 	{
 		memset(&param->vsRegs, 0, sizeof(gcn::VsStageRegisters));
 	}
-	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
+	memset(param->reserved, 0, sizeof(param->reserved));
 	return SCE_OK;
 }
 
@@ -298,7 +287,7 @@ int PS4API sceGnmSetPsShader350(uint32_t* cmdBuffer, uint32_t numDwords,
 	{
 		memset(&param->psRegs, 0, sizeof(gcn::PsStageRegisters));
 	}
-	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
+	memset(param->reserved, 0, sizeof(param->reserved));
 	return SCE_OK;
 }
 
@@ -320,7 +309,7 @@ int PS4API sceGnmSetPsShader(uint32_t* cmdBuffer, uint32_t numDwords,
 	{
 		memset(&param->psRegs, 0, sizeof(gcn::PsStageRegisters));
 	}
-	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
+	memset(param->reserved, 0, sizeof(param->reserved));
 	return SCE_OK;
 }
 
@@ -375,7 +364,7 @@ int PS4API sceGnmUpdateVsShader(uint32_t* cmdBuffer, uint32_t numDwords,
 	{
 		memset(&param->vsRegs, 0, sizeof(gcn::VsStageRegisters));
 	}
-	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
+	memset(param->reserved, 0, sizeof(param->reserved));
 	return SCE_OK;
 }
 
@@ -397,7 +386,7 @@ int PS4API sceGnmUpdatePsShader350(uint32_t* cmdBuffer, uint32_t numDwords,
 	{
 		memset(&param->psRegs, 0, sizeof(gcn::PsStageRegisters));
 	}
-	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
+	memset(param->reserved, 0, sizeof(param->reserved));
 	return SCE_OK;
 }
 
@@ -419,7 +408,7 @@ int PS4API sceGnmUpdatePsShader(uint32_t* cmdBuffer, uint32_t numDwords,
 	{
 		memset(&param->psRegs, 0, sizeof(gcn::PsStageRegisters));
 	}
-	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
+	memset(param->reserved, 0, sizeof(param->reserved));
 	return SCE_OK;
 }
 

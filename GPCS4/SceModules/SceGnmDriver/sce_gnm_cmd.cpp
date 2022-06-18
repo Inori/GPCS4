@@ -39,7 +39,7 @@ int PS4API sceGnmInsertPopMarker(uint32_t* cmdBuffer, uint32_t numDwords)
 	assert(paramSize == numDwords);
 	GnmCmdPopMarker* param = (GnmCmdPopMarker*)cmdBuffer;
 	param->opcode = PM4_HEADER_BUILD(paramSize, IT_GNM_PRIVATE, OP_PRIV_POP_MARKER);
-	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
+	memset(param->reserved, 0, sizeof(param->reserved));
 	return SCE_OK;
 }
 
@@ -74,7 +74,7 @@ int PS4API sceGnmSetCsShaderWithModifier(uint32_t* cmdBuffer, uint32_t numDwords
 	param->opcode = PM4_HEADER_BUILD(paramSize, IT_GNM_PRIVATE, OP_PRIV_SET_CS_SHADER);
 	param->modifier = shaderModifier;
 	memcpy(&param->csRegs, csRegs, sizeof(gcn::CsStageRegisters));
-	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
+	memset(param->reserved, 0, sizeof(param->reserved));
 	return SCE_OK;
 }
 
@@ -91,7 +91,7 @@ int PS4API sceGnmDispatchDirect(uint32_t* cmdBuffer, uint32_t numDwords,
 	param->threadGroupY = threadGroupY;
 	param->threadGroupZ = threadGroupZ;
 	param->pred = pred;
-	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
+	memset(param->reserved, 0, sizeof(param->reserved));
 	return SCE_OK;
 }
 
@@ -111,7 +111,7 @@ int PS4API sceGnmDispatchIndirect(uint32_t *cmdBuffer,
 	param->opcode = PM4_HEADER_BUILD(paramSize, IT_GNM_PRIVATE, OP_PRIV_DISPATCH_INDIRECT);
 	param->dataOffsetInBytes      = dataOffsetInBytes;
 	param->flag                   = flag;
-	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
+	memset(param->reserved, 0, sizeof(param->reserved));
 	
 	return SCE_OK;
 }
