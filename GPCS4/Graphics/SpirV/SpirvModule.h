@@ -1183,11 +1183,23 @@ namespace sce::gcn
             uint32_t                resultType,
             uint32_t                execution);
     
-    uint32_t opGroupNonUniformBroadcastFirst(
+    uint32_t opGroupNonUniformBroadcast(
             uint32_t                resultType,
             uint32_t                execution,
-            uint32_t                value);
-    
+            uint32_t                value,
+		    uint32_t                id);
+
+	uint32_t opGroupNonUniformBroadcastFirst(
+		    uint32_t                resultType,
+		    uint32_t                execution,
+		    uint32_t                value);
+
+    uint32_t opGroupNonUniformShuffle(
+		    uint32_t                resultType,
+		    uint32_t                execution,
+		    uint32_t                value,
+		    uint32_t                id);
+
     void opControlBarrier(
             uint32_t                execution,
             uint32_t                memory,

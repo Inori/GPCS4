@@ -11,15 +11,17 @@ namespace sce::gcn
 {
 	struct GcnInstOperand;
 
-	constexpr size_t   GcnMaxInterfaceRegs = 32;
-	constexpr size_t   GcnMaxSGPR          = 104;
-	constexpr size_t   GcnMaxVGPR          = 256;
-	constexpr size_t   GcnMaxOperandCount  = 5;
-	constexpr size_t   GcnMaxExportParam   = 32;
-	constexpr size_t   GcnMaxResourceReg   = 64;
+	constexpr size_t GcnMaxInterfaceRegs = 32;
+	constexpr size_t GcnMaxSGPR          = 104;
+	constexpr size_t GcnMaxVGPR          = 256;
+	constexpr size_t GcnMaxOperandCount  = 5;
+	constexpr size_t GcnMaxExportParam   = 32;
+	constexpr size_t GcnMaxResourceReg   = 64;
 
-	constexpr size_t   GcnExpPos0          = 12;
-	constexpr size_t   GcnExpParam0        = 32;
+	constexpr size_t GcnExpPos0   = 12;
+	constexpr size_t GcnExpParam0 = 32;
+
+	constexpr double GcnPi = 3.14159265358979323846;
 
 	enum class GcnZeroTest : uint32_t
 	{
@@ -196,7 +198,7 @@ namespace sce::gcn
 	};
 
 	/**
-	 * \brief Component for image instruction vaddr[]
+	 * \brief Component for MIMG instruction vaddr[]
 	 */
 	enum class GcnImageAddrComponent : uint32_t
 	{

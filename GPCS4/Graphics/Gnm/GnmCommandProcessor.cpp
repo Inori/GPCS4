@@ -417,7 +417,7 @@ namespace sce::Gnm
 	void GnmCommandProcessor::onWriteData(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	{
 		PPM4ME_WRITE_DATA packet       = (PPM4ME_WRITE_DATA)pm4Hdr;
-		void*             dstGpuAddr   = reinterpret_cast<void*>(util::buildUint64(packet->dstAddrHi, packet->dstAddrLo));
+		void*             dstGpuAddr   = reinterpret_cast<void*>(util::concat<uint64_t>(packet->dstAddrHi, packet->dstAddrLo));
 		const void*       data         = &itBody[3];
 		uint32_t          sizeInDwords = (packet->header.count + 2) - 4;
 
@@ -443,7 +443,7 @@ namespace sce::Gnm
 	{
 		PPM4ME_WAIT_REG_MEM packet = (PPM4ME_WAIT_REG_MEM)pm4Hdr;
 
-		void* gpuAddr = reinterpret_cast<void*>(util::buildUint64(packet->pollAddressHi, packet->pollAddressLo));
+		void* gpuAddr = reinterpret_cast<void*>(util::concat<uint64_t>(packet->pollAddressHi, packet->pollAddressLo));
 		switch (packet->engine)
 		{
 		case engine_sel__me_wait_reg_mem__me:
@@ -464,7 +464,7 @@ namespace sce::Gnm
 	{
 		PPM4MD_CMD_INDIRECT_BUFFER packet = (PPM4MD_CMD_INDIRECT_BUFFER)pm4Hdr;
 
-		void*    command = reinterpret_cast<void*>(util::buildUint64(packet->ibBaseHi32, packet->ibBaseLo));
+		void*    command = reinterpret_cast<void*>(util::concat<uint64_t>(packet->ibBaseHi32, packet->ibBaseLo));
 		uint32_t size    = packet->VI.ibSize * sizeof(uint32_t);
 
 		uint32_t oldHint = m_lastHint;
@@ -497,9 +497,9 @@ namespace sce::Gnm
 		// TODO:
 		// this is a GPU relative address lacking of the highest byte (masked by 0xFFFFFFFFF8 or 0xFFFFFFFFFC)
 		// I'm not sure this relative to what, maybe to the command buffer.
-		void* gpuAddr = reinterpret_cast<void*>(util::buildUint64(eopPacket->addressHi, eopPacket->addressLo));
+		void* gpuAddr = reinterpret_cast<void*>(util::concat<uint64_t>(eopPacket->addressHi, eopPacket->addressLo));
 
-		uint64_t immValue    = util::buildUint64(eopPacket->dataHi, eopPacket->dataLo);
+		uint64_t immValue    = util::concat<uint64_t>(eopPacket->dataHi, eopPacket->dataLo);
 		uint8_t  cacheAction = (eopPacket->ordinal2 >> 12) & 0x3F;
 
 		if (eopPacket->intSel)
@@ -521,7 +521,7 @@ namespace sce::Gnm
 	void GnmCommandProcessor::onEventWriteEos(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	{
 		PPM4_ME_EVENT_WRITE_EOS packet     = (PPM4_ME_EVENT_WRITE_EOS)pm4Hdr;
-		uint64_t                dstGpuAddr = util::buildUint64(packet->addressHi, packet->addressLo);
+		uint64_t                dstGpuAddr = util::concat<uint64_t>(packet->addressHi, packet->addressLo);
 
 		m_cb->writeAtEndOfShader((EndOfShaderEventType)packet->eventType, reinterpret_cast<void*>(dstGpuAddr), packet->data);
 
@@ -822,9 +822,9 @@ namespace sce::Gnm
 
 		ReleaseMemEventType eventType   = (ReleaseMemEventType)packet->event_type;
 		EventWriteDest      dstSelector = (EventWriteDest)packet->dstSel;
-		void*               dstGpuAddr  = reinterpret_cast<void*>(util::buildUint64(packet->addressHi, packet->addressLo));
+		void*               dstGpuAddr  = reinterpret_cast<void*>(util::concat<uint64_t>(packet->addressHi, packet->addressLo));
 		EventWriteSource    srcSelector = (EventWriteSource)packet->dataSel;
-		uint64_t            immValue    = util::buildUint64(packet->dataHi, packet->dataLo);
+		uint64_t            immValue    = util::concat<uint64_t>(packet->dataHi, packet->dataLo);
 		CacheAction         cacheAction = (CacheAction)packet->cache_action;
 		CachePolicy         writePolicy = (CachePolicy)packet->cache_policy;
 		if (packet->intSel == int_sel__me_release_mem__none ||

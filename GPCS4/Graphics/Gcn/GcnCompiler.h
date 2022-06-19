@@ -204,6 +204,8 @@ namespace sce::gcn
 			uint32_t                regIdx,
 			const GcnRegisterValue& value,
 			const GcnRegMask&       writeMask);
+		void emitDsSwizzle(
+			const GcnShaderInstruction& ins);
 
 		void emitVectorMemBuffer(
 			const GcnShaderInstruction& ins);

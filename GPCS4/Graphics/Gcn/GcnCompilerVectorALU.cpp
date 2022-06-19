@@ -21,6 +21,7 @@ namespace sce::gcn
 			case GcnInstClass::VectorThreadMask:
 			case GcnInstClass::VectorBitField32:
 			case GcnInstClass::VectorIntGraph:
+			case GcnInstClass::VectorFpRound32:
                 this->emitVectorAluCommon(ins);
                 break;
 			case GcnInstClass::VectorMovRel:
@@ -37,9 +38,6 @@ namespace sce::gcn
                 break;
             case GcnInstClass::VectorBitField64:
                 this->emitVectorBitField64(ins);
-                break;
-            case GcnInstClass::VectorFpRound32:
-                this->emitVectorFpRound32(ins);
                 break;
             case GcnInstClass::VectorFpField32:
                 this->emitVectorFpField32(ins);
@@ -93,6 +91,10 @@ namespace sce::gcn
 				dst.low.id = m_module.opBitwiseAnd(typeId,
 												   src[0].low.id, src[1].low.id);
 			    break;
+			case GcnOpcode::V_XOR_B32:
+				dst.low.id = m_module.opBitwiseXor(typeId,
+												   src[0].low.id, src[1].low.id);
+				break;
 			// VectorConv
 			case GcnOpcode::V_CVT_F32_U32:
 				dst.low.id = m_module.opConvertUtoF(typeId,
@@ -197,6 +199,15 @@ namespace sce::gcn
 															 src[1].low.id),
 											 src[2].low.id);
 				break;
+			// VectorFpRound32
+			case GcnOpcode::V_FLOOR_F32:
+				dst.low.id = m_module.opFloor(typeId,
+											  src[0].low.id);
+				break;
+			case GcnOpcode::V_FRACT_F32:
+				dst.low.id = m_module.opFract(typeId,
+											  src[0].low.id);
+				break;
 			// VectorRegMov
 			case GcnOpcode::V_MOV_B32:
 				dst.low.id = src[0].low.id;
@@ -215,6 +226,19 @@ namespace sce::gcn
 															 src[1].low.id),
 											 src[2].low.id);
 				break;
+			case GcnOpcode::V_MUL_U32_U24:
+			{
+				uint32_t src0 = m_module.opBitFieldUExtract(typeId,
+															src[0].low.id,
+															m_module.constu32(0),
+															m_module.constu32(24));
+				uint32_t src1 = m_module.opBitFieldUExtract(typeId,
+															src[1].low.id,
+															m_module.constu32(0),
+															m_module.constu32(24));
+				dst.low.id    = m_module.opIMul(typeId, src0, src1);
+			}
+				break;
 			case GcnOpcode::V_MUL_I32_I24:
 			{
 				uint32_t src0 = m_module.opBitFieldSExtract(typeId,
@@ -226,6 +250,16 @@ namespace sce::gcn
 															m_module.constu32(0),
 															m_module.constu32(24));
 				dst.low.id    = m_module.opIMul(typeId, src0, src1);
+			}
+				break;
+			case GcnOpcode::V_MAX3_F32:
+			{
+				uint32_t max01 = m_module.opFMax(typeId,
+												 src[0].low.id,
+												 src[1].low.id);
+				dst.low.id     = m_module.opFMax(typeId,
+												 max01,
+												 src[2].low.id);
 			}
 				break;
 			case GcnOpcode::V_MIN3_F32:
@@ -260,6 +294,24 @@ namespace sce::gcn
 				dst.low.id = m_module.opExp2(typeId,
 											 src[0].low.id);
 				break;
+			case GcnOpcode::V_SIN_F32:
+			{
+				uint32_t radians = m_module.opFMul(typeId,
+												   src[0].low.id,
+												   m_module.constf32(static_cast<float>(2.0 * GcnPi)));
+				dst.low.id       = m_module.opSin(typeId,
+												  radians);
+			}
+				break;
+			case GcnOpcode::V_COS_F32:
+			{
+				uint32_t radians = m_module.opFMul(typeId,
+												   src[0].low.id,
+												   m_module.constf32(static_cast<float>(2.0 * GcnPi)));
+				dst.low.id       = m_module.opCos(typeId,
+												  radians);
+			}
+				break;	
             // VectorThreadMask
 			case GcnOpcode::V_CNDMASK_B32:
 			{

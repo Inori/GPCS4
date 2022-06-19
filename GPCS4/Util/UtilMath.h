@@ -50,8 +50,10 @@ namespace util
 		return (value > 0) && ((value & (value - 1)) == 0);
 	}
 
-	inline uint64_t buildUint64(uint32_t high, uint32_t low)
+	template<typename T, typename U>
+	inline T concat(U high, U low)
 	{
-		return (uint64_t)(high) << 32 | low;
+		return static_cast<T>(
+			static_cast<T>(high) << (sizeof(T) / 2 * 8) | static_cast<T>(low));
 	}
 }  // namespace util
