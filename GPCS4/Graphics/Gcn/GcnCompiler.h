@@ -713,6 +713,8 @@ namespace sce::gcn
 			const GcnImageInfo&         imageInfo,
 			const GcnShaderInstruction& ins);
 
+		void mapNonEudResource();
+
 	private:
 		GcnModuleInfo          m_moduleInfo;
 		GcnProgramInfo         m_programInfo;
@@ -753,9 +755,13 @@ namespace sce::gcn
 		//////////////////////////////////////////////////////
 		// Shader resource variables. These provide access to
 		// buffers, samplers and textures.
-		std::array<GcnBuffer, 32>   m_buffers;
-		std::array<GcnSampler, 16>  m_samplers;
-		std::array<GcnTexture, 128> m_textures;
+		std::array<GcnBuffer, GcnMaxResourceReg>  m_buffersDcl;
+		std::array<GcnSampler, GcnMaxResourceReg> m_samplersDcl;
+		std::array<GcnTexture, GcnMaxResourceReg> m_texturesDcl;
+
+		std::array<GcnBuffer, GcnMaxResourceReg>  m_buffers;
+		std::array<GcnSampler, GcnMaxResourceReg> m_samplers;
+		std::array<GcnTexture, GcnMaxResourceReg> m_textures;
 
 		//////////////////////////////////////////////
 		// Function/Block state tracking. Required in order

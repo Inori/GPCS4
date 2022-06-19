@@ -221,12 +221,12 @@ namespace sce::Gnm
 				{
 					const Buffer* vsharp = reinterpret_cast<const Buffer*>(findUserData(res, eudIndex, userData));
 
-					bindResourceBuffer(
-						vsharp,
-						res.startRegister,
-						VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-						stage,
-						VK_ACCESS_UNIFORM_READ_BIT);
+					//bindResourceBuffer(
+					//	vsharp,
+					//	res.startRegister,
+					//	VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+					//	stage,
+					//	VK_ACCESS_UNIFORM_READ_BIT);
 
 					updateMetaBufferInfo(stage, res.startRegister, vsharp);
 				}
@@ -235,12 +235,12 @@ namespace sce::Gnm
 				{
 					const Buffer* vsharp = reinterpret_cast<const Buffer*>(findUserData(res, eudIndex, userData));
 
-					bindResourceBuffer(
-						vsharp,
-						res.startRegister,
-						VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-						stage,
-						VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT);
+					//bindResourceBuffer(
+					//	vsharp,
+					//	res.startRegister,
+					//	VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+					//	stage,
+					//	VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT);
 
 					updateMetaBufferInfo(stage, res.startRegister, vsharp);
 				}
@@ -249,14 +249,14 @@ namespace sce::Gnm
 				{
 					const Texture* tsharp = reinterpret_cast<const Texture*>(findUserData(res, eudIndex, userData));
 
-					bindResourceImage(
-						tsharp,
-						res.startRegister,
-						VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
-						stage,
-						VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT,
-						VK_IMAGE_TILING_OPTIMAL,
-						VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+					//bindResourceImage(
+					//	tsharp,
+					//	res.startRegister,
+					//	VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+					//	stage,
+					//	VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT,
+					//	VK_IMAGE_TILING_OPTIMAL,
+					//	VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
 					updateMetaTextureInfo(stage, res.startRegister, false, tsharp);
 				}
@@ -265,14 +265,14 @@ namespace sce::Gnm
 				{
 					const Texture* tsharp = reinterpret_cast<const Texture*>(findUserData(res, eudIndex, userData));
 
-					bindResourceImage(
-						tsharp,
-						res.startRegister,
-						VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
-						stage,
-						VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT,
-						VK_IMAGE_TILING_OPTIMAL,
-						VK_IMAGE_LAYOUT_GENERAL);
+					//bindResourceImage(
+					//	tsharp,
+					//	res.startRegister,
+					//	VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+					//	stage,
+					//	VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT,
+					//	VK_IMAGE_TILING_OPTIMAL,
+					//	VK_IMAGE_LAYOUT_GENERAL);
 
 					updateMetaTextureInfo(stage, res.startRegister, false, tsharp);
 				}
@@ -281,10 +281,10 @@ namespace sce::Gnm
 				{
 					const Sampler* ssharp = reinterpret_cast<const Sampler*>(findUserData(res, eudIndex, userData));
 
-					bindResourceSampler(
-						ssharp,
-						res.startRegister,
-						stage);
+					//bindResourceSampler(
+					//	ssharp,
+					//	res.startRegister,
+					//	stage);
 				}
 				break;
 				case VK_DESCRIPTOR_TYPE_MAX_ENUM:

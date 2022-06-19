@@ -514,6 +514,9 @@ namespace sce::gcn
 					break;
 			}
 		}
+
+		// Map resource not in EUD table
+		mapNonEudResource();
 	}
 
 	void GcnCompiler::emitDclBuffer(
@@ -582,10 +585,10 @@ namespace sce::gcn
 		// Record the buffer so that we can use it
 		// while compiling buffer instructions.
 		GcnBuffer buf;
-		buf.varId            = varId;
-		buf.size             = numConstants;
-		buf.asSsbo           = asSsbo;
-		m_buffers.at(regIdx) = buf;
+		buf.varId               = varId;
+		buf.size                = numConstants;
+		buf.asSsbo              = asSsbo;
+		m_buffersDcl.at(regIdx) = buf;
 
 		// Store descriptor info for the shader interface
 		VltResourceSlot resource;
@@ -720,7 +723,7 @@ namespace sce::gcn
 													spv::ImageFormatUnknown);
 		}
 
-		m_textures.at(registerId) = tex;
+		m_texturesDcl.at(registerId) = tex;
 
 		// Store descriptor info for the shader interface
 		VltResourceSlot resource;
@@ -758,8 +761,8 @@ namespace sce::gcn
 		m_module.setDebugName(varId,
 							  util::str::formatex("sampler", samplerId).c_str());
 
-		m_samplers.at(samplerId).varId  = varId;
-		m_samplers.at(samplerId).typeId = samplerType;
+		m_samplersDcl.at(samplerId).varId = varId;
+		m_samplersDcl.at(samplerId).typeId = samplerType;
 
 		// Compute binding slot index for the sampler
 		uint32_t bindingId = computeSamplerBinding(
@@ -2248,8 +2251,6 @@ namespace sce::gcn
 
 		uint32_t fpTypeId = getScalarTypeId(GcnScalarType::Float32);
 
-
-
 		auto ptrList = emitUniformBufferAccess(m_buffers.at(regId).varId,
 											   baseId.id,
 											   count);
@@ -3128,5 +3129,41 @@ namespace sce::gcn
 		return result;
 	}
 
+	void GcnCompiler::mapNonEudResource()
+	{
+		// Map resource not in EUD table first,
+		// for EUD resource, we need to delay 
+		// mapping until s_load_dwordxN instruction
+		const auto& resouceTable = m_header->getShaderResourceTable();
+		for (const auto& res : resouceTable)
+		{
+			if (res.inEud)
+			{
+				continue;
+			}
+
+			auto regIdx = res.startRegister;
+			switch (res.type)
+			{
+				case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+				case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+					m_buffers.at(regIdx) = m_buffersDcl.at(regIdx);
+					break;
+				case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+				case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+					m_textures.at(regIdx) = m_texturesDcl.at(regIdx);
+					break;
+				case VK_DESCRIPTOR_TYPE_SAMPLER:
+					m_samplers.at(regIdx) = m_samplersDcl.at(regIdx);
+					break;
+				case VK_DESCRIPTOR_TYPE_MAX_ENUM:
+					// skip
+					break;
+				default:
+					LOG_ASSERT(false, "Not supported resouce type mapped.");
+					break;
+			}
+		}
+	}
 
 }  // namespace sce::gcn

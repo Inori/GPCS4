@@ -16,6 +16,7 @@ namespace sce::gcn
 	constexpr size_t   GcnMaxVGPR          = 256;
 	constexpr size_t   GcnMaxOperandCount  = 5;
 	constexpr size_t   GcnMaxExportParam   = 32;
+	constexpr size_t   GcnMaxResourceReg   = 64;
 
 	constexpr size_t   GcnExpPos0          = 12;
 	constexpr size_t   GcnExpParam0        = 32;

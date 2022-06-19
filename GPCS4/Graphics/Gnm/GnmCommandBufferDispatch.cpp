@@ -208,7 +208,7 @@ namespace sce::Gnm
 	{
 		commitComputeState();
 
-		m_context->dispatch(threadGroupX, threadGroupY, threadGroupZ);
+		//m_context->dispatch(threadGroupX, threadGroupY, threadGroupZ);
 	}
 
 	void GnmCommandBufferDispatch::dispatchWithOrderedAppend(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ, DispatchOrderedAppendMode orderedAppendMode)
