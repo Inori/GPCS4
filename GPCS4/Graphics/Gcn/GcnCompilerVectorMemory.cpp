@@ -63,6 +63,8 @@ namespace sce::gcn
 		{
 			case GcnOpcode::IMAGE_SAMPLE:
 			case GcnOpcode::IMAGE_SAMPLE_L:
+			case GcnOpcode::IMAGE_SAMPLE_LZ_O:
+			case GcnOpcode::IMAGE_SAMPLE_LZ:
 				emitTextureSample(ins);
 				break;
 			default:
@@ -528,8 +530,7 @@ namespace sce::gcn
 		const GcnTexture& typeInfo = m_textures.at(registerId);
 
 		// Load texture coordinates
-		GcnRegisterValue texCoord = emitLoadTexCoord(
-			mimg.vaddr, typeInfo.imageInfo);
+		GcnRegisterValue texCoord = emitLoadTexCoord(ins);
 
 		// Additional image operands. This will store
 		// the LOD and other information if present.
@@ -586,14 +587,48 @@ namespace sce::gcn
 	}
 
 	GcnRegisterValue GcnCompiler::emitLoadTexCoord(
-		const GcnInstOperand& coordReg,
-		const GcnImageInfo&   imageInfo)
+		const GcnShaderInstruction& ins)
 	{
-		uint32_t dim         = getTexCoordDim(imageInfo);
-		auto     coordVector = emitVgprArrayLoad(coordReg,
-												 GcnRegMask::firstN(dim));
+		GcnInstOperand        addrReg    = ins.src[0];
+		const GcnInstOperand& textureReg = ins.src[2];
+		auto                  flags      = GcnMimgModifierFlags(ins.control.mimg.mod);
 
-		auto result = emitCalcTexCoord(coordVector, imageInfo);
+		const uint32_t     textureId = textureReg.code * 4;
+		const GcnImageInfo imageInfo = m_textures.at(textureId).imageInfo;
+
+		uint32_t dim = getTexCoordDim(imageInfo);
+		GcnRegisterValue coord = {};
+		if (!flags.test(GcnMimgModifier::Offset))
+		{
+			uint32_t coordIndex = calcAddrComponentIndex(
+				GcnImageAddrComponent::X, imageInfo.dim, ins);
+			addrReg.code += coordIndex;
+			coord = emitVgprArrayLoad(addrReg,
+									  GcnRegMask::firstN(dim));
+		}
+		else
+		{
+			const uint32_t typeId  = getScalarTypeId(GcnScalarType::Uint32);
+			auto           offsets = emitLoadAddrComponent(GcnImageAddrComponent::Offsets, ins);
+
+			std::array<uint32_t, 3> components = {};
+			for (uint32_t i = 0; i != components.size(); ++i)
+			{
+				components[i] = m_module.opBitFieldUExtract(typeId,
+															offsets.id,
+															m_module.constu32(i * 8),
+															m_module.constu32(6));
+			}
+
+			coord.type.ctype  = offsets.type.ctype;
+			coord.type.ccount = components.size();
+			coord.id          = m_module.opCompositeConstruct(getVectorTypeId(coord.type),
+															  components.size(), components.data());
+			// spir-v image instruction requires float coordinate
+			coord             = emitRegisterBitcast(coord, GcnScalarType::Float32);
+		}
+
+		auto result = emitCalcTexCoord(coord, imageInfo);
 
 		if (imageInfo.dim == spv::DimCube)
 		{
@@ -638,6 +673,7 @@ namespace sce::gcn
 	{
 		const GcnInstOperand& addrReg    = ins.src[0];
 		const GcnInstOperand& textureReg = ins.src[2];
+		auto                  flags      = GcnMimgModifierFlags(ins.control.mimg.mod);
 	
 		// These registers are 4-GPR aligned, so multiplied by 4
 		const uint32_t textureId = textureReg.code * 4;
@@ -645,10 +681,14 @@ namespace sce::gcn
 		// Image type, which stores the image dimensions etc.
 		const GcnImageInfo imageInfo = m_textures.at(textureId).imageInfo;
 
-		uint32_t index = calcAddrComponentIndex(component, imageInfo, ins);
+		uint32_t index = calcAddrComponentIndex(component, imageInfo.dim, ins);
 		auto     reg   = addrReg;
 		reg.code += index;
-		return emitVgprLoad(reg);
+
+		auto type = flags.test(GcnMimgModifier::Offset)
+						? GcnScalarType::Uint32
+						: GcnScalarType::Float32;
+		return emitRegisterBitcast(emitVgprLoad(reg), type);
 	}
 
 	uint32_t GcnCompiler::emitLoadSampledImage(
@@ -683,7 +723,7 @@ namespace sce::gcn
 
 		// Load the texture coordinates. SPIR-V allows these
 		// to be float4 even if not all components are used.
-		GcnRegisterValue coord = emitLoadTexCoord(texCoordReg, imageType);
+		GcnRegisterValue coord = emitLoadTexCoord(ins);
 		
 		// Accumulate additional image operands. These are
 		// not part of the actual operand token in SPIR-V.
@@ -725,6 +765,17 @@ namespace sce::gcn
 			{
 				imageOperands.flags |= spv::ImageOperandsLodMask;
 				imageOperands.sLod = lod.id;
+
+				result.id = m_module.opImageSampleExplicitLod(
+					getVectorTypeId(result.type), sampledImageId, coord.id,
+					imageOperands);
+			}
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_LZ:
+			case GcnOpcode::IMAGE_SAMPLE_LZ_O:
+			{
+				imageOperands.flags |= spv::ImageOperandsLodMask;
+				imageOperands.sLod = m_module.constf32(0.0);
 
 				result.id = m_module.opImageSampleExplicitLod(
 					getVectorTypeId(result.type), sampledImageId, coord.id,
@@ -826,7 +877,7 @@ namespace sce::gcn
 
 	uint32_t GcnCompiler::calcAddrComponentIndex(
 		GcnImageAddrComponent       component,
-		const GcnImageInfo&         imageInfo,
+		spv::Dim                    dim,
 		const GcnShaderInstruction& ins)
 	{
 		int32_t index = -1;
@@ -843,19 +894,19 @@ namespace sce::gcn
 				if (flags.test(GcnMimgModifier::Lod)) ++index;
 				[[fallthrough]];
 			case GcnImageAddrComponent::FaceId:
-				if (imageInfo.dim == spv::DimCube) ++index;
+				if (dim == spv::DimCube) ++index;
 				[[fallthrough]];
 			case GcnImageAddrComponent::Slice:
 				if (ins.control.mimg.da != 0 &&
-					imageInfo.dim != spv::DimCube) ++index;
+					dim != spv::DimCube) ++index;
 				[[fallthrough]];
 			case GcnImageAddrComponent::Z:
-				if (imageInfo.dim == spv::Dim3D) ++index;
+				if (dim == spv::Dim3D) ++index;
 				[[fallthrough]];
 			case GcnImageAddrComponent::Y:
-				if (imageInfo.dim == spv::Dim2D ||
-					imageInfo.dim == spv::Dim3D ||
-					imageInfo.dim == spv::DimCube) ++index;
+				if (dim == spv::Dim2D ||
+					dim == spv::Dim3D ||
+					dim == spv::DimCube) ++index;
 				[[fallthrough]];
 			case GcnImageAddrComponent::X:
 				++index;
@@ -863,14 +914,14 @@ namespace sce::gcn
 			case GcnImageAddrComponent::DzDv:
 				if (flags.any(GcnMimgModifier::Derivative, 
 							  GcnMimgModifier::CoarseDerivative) &&
-					imageInfo.dim == spv::Dim3D) ++index;
+					dim == spv::Dim3D) ++index;
 				[[fallthrough]];
 			case GcnImageAddrComponent::DyDv:
 				if (flags.any(GcnMimgModifier::Derivative, 
 							  GcnMimgModifier::CoarseDerivative) &&
-				    (imageInfo.dim == spv::Dim2D ||
-					 imageInfo.dim == spv::Dim3D ||
-					 imageInfo.dim == spv::DimCube)) ++index;
+				    (dim == spv::Dim2D ||
+					 dim == spv::Dim3D ||
+					 dim == spv::DimCube)) ++index;
 				[[fallthrough]];
 			case GcnImageAddrComponent::DxDv:
 				if (flags.any(GcnMimgModifier::Derivative, 
@@ -879,14 +930,14 @@ namespace sce::gcn
 			case GcnImageAddrComponent::DzDh:
 				if (flags.any(GcnMimgModifier::Derivative, 
 							  GcnMimgModifier::CoarseDerivative) &&
-					imageInfo.dim == spv::Dim3D) ++index;
+					dim == spv::Dim3D) ++index;
 				[[fallthrough]];
 			case GcnImageAddrComponent::DyDh:
 				if (flags.any(GcnMimgModifier::Derivative, 
 							  GcnMimgModifier::CoarseDerivative) &&
-				    (imageInfo.dim == spv::Dim2D ||
-					 imageInfo.dim == spv::Dim3D ||
-					 imageInfo.dim == spv::DimCube)) ++index;
+				    (dim == spv::Dim2D ||
+					 dim == spv::Dim3D ||
+					 dim == spv::DimCube)) ++index;
 				[[fallthrough]];
 			case GcnImageAddrComponent::DxDh:
 				if (flags.any(GcnMimgModifier::Derivative, 

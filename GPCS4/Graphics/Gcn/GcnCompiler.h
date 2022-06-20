@@ -429,8 +429,7 @@ namespace sce::gcn
 			const GcnImageInfo& imageInfo);
 
 		GcnRegisterValue emitLoadTexCoord(
-			const GcnInstOperand& coordReg,
-			const GcnImageInfo&   imageInfo);
+			const GcnShaderInstruction& ins);
 
 		GcnRegisterValue emitRecoverCubeCoord(
 			const GcnRegisterValue& coord);
@@ -712,7 +711,7 @@ namespace sce::gcn
 
 		uint32_t calcAddrComponentIndex(
 			GcnImageAddrComponent       component,
-			const GcnImageInfo&         imageInfo,
+			spv::Dim                    dim,
 			const GcnShaderInstruction& ins);
 
 		void mapNonEudResource();

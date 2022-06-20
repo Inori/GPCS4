@@ -38,6 +38,11 @@ namespace sce::gcn
 		GcnCodeSlice    slice(start, end);
 
 		auto insList = this->decodeShader(slice);
+
+		//if (this->name() == "PSSHDR_58D2050651B6B50A")
+		//{
+		//	__debugbreak();
+		//}
 		
 		// Generate global information
 		GcnAnalysisInfo analysisInfo;
