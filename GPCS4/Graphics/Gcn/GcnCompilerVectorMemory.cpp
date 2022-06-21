@@ -625,7 +625,9 @@ namespace sce::gcn
 			coord.id          = m_module.opCompositeConstruct(getVectorTypeId(coord.type),
 															  components.size(), components.data());
 			// spir-v image instruction requires float coordinate
-			coord             = emitRegisterBitcast(coord, GcnScalarType::Float32);
+			coord.type.ctype = GcnScalarType::Float32;
+			coord.id         = m_module.opConvertUtoF(getVectorTypeId(coord.type),
+											          coord.id);
 		}
 
 		auto result = emitCalcTexCoord(coord, imageInfo);
