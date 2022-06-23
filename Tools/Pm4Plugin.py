@@ -1,6 +1,6 @@
 
 # used to debug in pycharm
-DEBUG = 0
+DEBUG = 1
 
 
 def connect_debug_server():
@@ -343,21 +343,21 @@ def write_function_array(table):
 
     fout = open('PacketArray.cpp', 'w')
     max_code, max_sub_code = get_max_code(table)
-    head = 'const std::array<const std::array<ProxyFunction, {}>, {}> m_proxyTable = {{ {{\n'.format(max_sub_code, max_code)
+    head = 'const std::array<const std::array<ProxyFunction, {}>, {}> m_proxyTable = {{ {{\n'.format(max_sub_code + 1, max_code + 1)
     fout.write(head)
     last_opcode = -1
     for opcode, proxy_list in ordered_table.items():
 
         for i in range(last_opcode + 1, opcode):
             fout.write('\t// {}\n'.format(get_code_name(i)))
-            fout.write('\t{ 0 },\n')
+            fout.write('\t{ nullptr },\n')
         last_opcode = opcode
 
         fout.write('\t// {}\n'.format(get_code_name(opcode)))
         fout.write('\t{\n')
         for proxy_func in proxy_list:
             fout.write('\t\t&{},\n'.format(proxy_func))
-        fout.write('\t\t(ProxyFunction)0,\n')
+        fout.write('\t\tnullptr,\n')
 
         fout.write('\t},\n')
         fout.write('\n')
@@ -393,6 +393,7 @@ def define_proxy_function(name, code):
     lines.append('\t' + 'uint32_t count = 0;\n')
     lines.append('\t' + 'if (false)\n')
     lines.append('\t' + '{\n')
+    lines.append('\t\t' + 'LOG_SCE_TRACE("Gnm: {}");\n'.format(recover_gnm_name(name)))
     lines.append('\t\t' + '// m_cb->{}();\n'.format(recover_gnm_name(name)))
     lines.append('\t\t' + 'count = {};\n'.format(get_enum_name(name)))
     lines.append('\t' + '}\n')

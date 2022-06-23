@@ -51,6 +51,7 @@
     <ClInclude Include="Graphics\Gcn\GcnShaderRegister.h" />
     <ClInclude Include="Graphics\Gcn\GcnStateRegister.h" />
     <ClInclude Include="Graphics\Gcn\GcnUtil.h" />
+    <ClInclude Include="Graphics\Gnm\GnmCommandProxy.h" />
     <ClInclude Include="Graphics\Gnm\GnmGpuLabel.h" />
     <ClInclude Include="Graphics\Gnm\GnmInitializer.h" />
     <ClInclude Include="Graphics\Gnm\GnmRenderState.h" />
@@ -329,6 +330,8 @@
     <ClCompile Include="Graphics\Gcn\GcnModule.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnProgramInfo.cpp" />
     <ClCompile Include="Graphics\Gcn\GcnStateRegister.cpp" />
+    <ClCompile Include="Graphics\Gnm\GnmCommandProxy.cpp" />
+    <ClCompile Include="Graphics\Gnm\GnmCommandProxyTable.cpp" />
     <ClCompile Include="Graphics\Gnm\GnmGpuLabel.cpp" />
     <ClCompile Include="Graphics\Gnm\GnmInitializer.cpp" />
     <ClCompile Include="Graphics\Gnm\GnmResourceFactory.cpp" />
