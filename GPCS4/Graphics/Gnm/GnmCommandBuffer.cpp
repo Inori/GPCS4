@@ -80,7 +80,8 @@ namespace sce::Gnm
 		}
 		else
 		{
-			const uint32_t* eudTable = &userData[eudIndex];
+			const uintptr_t eudPtr   = *reinterpret_cast<const uintptr_t*>(&userData[eudIndex]);
+			const uint32_t* eudTable = reinterpret_cast<const uint32_t*>(eudPtr);
 			registerData             = &eudTable[res.eudOffsetInDwords];
 		}
 		return registerData;

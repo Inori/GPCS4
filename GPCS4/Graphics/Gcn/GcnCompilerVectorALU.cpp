@@ -135,6 +135,12 @@ namespace sce::gcn
 															 src[1].low.id),
 											 src[2].low.id);
 				break;
+			case GcnOpcode::V_FMA_F32:
+				dst.low.id = m_module.opFFma(typeId,
+											 src[0].low.id,
+											 src[1].low.id,
+											 src[2].low.id);
+				break;
 			case GcnOpcode::V_MUL_F32:
 				dst.low.id = m_module.opFMul(typeId,
 											 src[0].low.id,
@@ -534,7 +540,11 @@ namespace sce::gcn
 														 src[0].low.id,
 														 src[1].low.id);
 				break;
+			case GcnOpcode::V_CMPX_NLE_F32:
+				updateExec = true;
+				[[fallthrough]];
 			case GcnOpcode::V_CMP_GT_F32:
+			case GcnOpcode::V_CMP_NLE_F32:
 				condition = m_module.opFOrdGreaterThan(conditionType,
 													   src[0].low.id,
 													   src[1].low.id);
@@ -569,10 +579,20 @@ namespace sce::gcn
 													  src[0].low.id,
 													  src[1].low.id);
 				break;
+			case GcnOpcode::V_CMP_LE_F32:
+				condition = m_module.opFOrdLessThanEqual(conditionType,
+														 src[0].low.id,
+														 src[1].low.id);
+				break;
 			case GcnOpcode::V_CMP_LT_U32:
 				condition = m_module.opULessThan(conditionType,
 												 src[0].low.id,
 												 src[1].low.id);
+				break;
+			case GcnOpcode::V_CMP_LT_F32:
+				condition = m_module.opFOrdLessThan(conditionType,
+													src[0].low.id,
+													src[1].low.id);
 				break;
 			case GcnOpcode::V_CMPX_NE_U32:
 				updateExec = true;

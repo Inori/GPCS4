@@ -556,7 +556,7 @@ namespace sce::Gnm
 
 		commitGraphicsState();
 
-		m_context->drawIndexed(indexCount, 1, 0, 0, 0);
+		//m_context->drawIndexed(indexCount, 1, 0, 0, 0);
 	}
 
 	void GnmCommandBufferDraw::drawIndexAuto(uint32_t indexCount)
@@ -1103,9 +1103,6 @@ namespace sce::Gnm
 				break;
 		}
 	}
-
-
-
 
 
 }  // namespace sce::Gnm
