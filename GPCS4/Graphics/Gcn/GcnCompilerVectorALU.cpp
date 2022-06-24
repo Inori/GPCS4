@@ -258,6 +258,11 @@ namespace sce::gcn
 				dst.low.id    = m_module.opIMul(typeId, src0, src1);
 			}
 				break;
+			case GcnOpcode::V_MUL_LO_U32:
+				dst.low.id = m_module.opIMul(typeId,
+											 src[0].low.id,
+											 src[1].low.id);
+				break;
 			case GcnOpcode::V_MAX3_F32:
 			{
 				uint32_t max01 = m_module.opFMax(typeId,
@@ -598,6 +603,7 @@ namespace sce::gcn
 				updateExec = true;
 				[[fallthrough]];
 			case GcnOpcode::V_CMP_NE_U32:
+			case GcnOpcode::V_CMP_NE_I32:
 				condition = m_module.opINotEqual(conditionType,
 												 src[0].low.id,
 												 src[1].low.id);

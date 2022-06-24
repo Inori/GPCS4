@@ -26,8 +26,8 @@ namespace sce::gcn
 {
 	class GcnToken;
 	class GcnTokenList;
-	struct GcnTokenCondition;
 	class GcnHeader;
+	struct GcnTokenCondition;
 	struct GcnShaderInstruction;
 	struct GcnAnalysisInfo;
 	struct GcnShaderResource;
@@ -431,6 +431,9 @@ namespace sce::gcn
 		GcnRegisterValue emitLoadTexCoord(
 			const GcnShaderInstruction& ins);
 
+		GcnRegisterValue emitLoadTexOffset(
+			const GcnShaderInstruction& ins);
+
 		GcnRegisterValue emitRecoverCubeCoord(
 			const GcnRegisterValue& coord);
 
@@ -692,6 +695,9 @@ namespace sce::gcn
 			Gnm::TextureType textureType,
 			bool             isStorage,
 			bool             isDepth) const;
+
+		GcnImageInfo getImageInfo(
+			const GcnShaderInstruction& ins) const;
 
 		GcnVectorType getInputRegType(
 			uint32_t regIdx) const;

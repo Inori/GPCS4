@@ -291,6 +291,7 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setRenderTarget(uint32_t rtSlot, RenderTarget const* target)
 	{
+		return;
 		auto resource = m_tracker->find(target->getBaseAddress());
 		do
 		{

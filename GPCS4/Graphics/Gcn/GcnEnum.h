@@ -1637,7 +1637,6 @@ namespace sce::gcn
 		V_CMP_EQ_I32     = 130 + (uint32_t)GcnOpcodeMap::OP_MAP_VOPC,
 		V_CMP_LE_I32     = 131 + (uint32_t)GcnOpcodeMap::OP_MAP_VOPC,
 		V_CMP_GT_I32     = 132 + (uint32_t)GcnOpcodeMap::OP_MAP_VOPC,
-		V_CMP_LG_I32     = 133 + (uint32_t)GcnOpcodeMap::OP_MAP_VOPC,
 		V_CMP_NE_I32     = 133 + (uint32_t)GcnOpcodeMap::OP_MAP_VOPC,
 		V_CMP_GE_I32     = 134 + (uint32_t)GcnOpcodeMap::OP_MAP_VOPC,
 		V_CMP_TRU_I32    = 135 + (uint32_t)GcnOpcodeMap::OP_MAP_VOPC,

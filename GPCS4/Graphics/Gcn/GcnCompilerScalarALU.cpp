@@ -116,6 +116,12 @@ namespace sce::gcn
 				dst.high.id = m_module.opBitwiseOr(typeId, src[0].high.id, src[1].high.id);
 			}
 				break;
+			case GcnOpcode::S_NOT_B64:
+			{
+				dst.low.id  = m_module.opNot(typeId, src[0].low.id);
+				dst.high.id = m_module.opNot(typeId, src[0].high.id);
+			}
+				break;
 			case GcnOpcode::S_NOR_B64:
 			{
 				dst.low.id  = m_module.opNot(typeId,
