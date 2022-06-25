@@ -121,7 +121,44 @@ namespace sce::gcn
 
 	void GcnCompiler::emitDsAtomicArith32(const GcnShaderInstruction& ins)
 	{
-		LOG_GCN_UNHANDLED_INST();
+		auto src = emitRegisterLoad(ins.src[0]);
+		auto ptr = emitDsAccess(ins);
+
+		GcnRegisterValuePair dst = {};
+		dst.low.type.ctype       = getDestinationType(ins.dst[0].type);
+		dst.low.type.ccount      = 1;
+		dst.high.type            = dst.low.type;
+
+		bool saveOriginal = false;
+
+		const uint32_t scopeId     = m_module.constu32(spv::ScopeWorkgroup);
+		const uint32_t semanticsId = m_module.constu32(spv::MemorySemanticsWorkgroupMemoryMask |
+													   spv::MemorySemanticsAcquireReleaseMask);
+
+		const uint32_t typeId = getScalarTypeId(GcnScalarType::Uint32);
+
+		auto op = ins.opcode;
+		switch (op)
+		{
+			case GcnOpcode::DS_ADD_RTN_U32:
+				saveOriginal = true;
+				[[fallthrough]];
+			case GcnOpcode::DS_ADD_U32:
+				dst.low.id = m_module.opAtomicIAdd(typeId,
+												   ptr[0].id,
+												   scopeId,
+												   semanticsId,
+												   src.low.id);
+				break;
+			default:
+				LOG_GCN_UNHANDLED_INST();
+				break;
+		}
+
+		if (saveOriginal)
+		{
+			emitRegisterStore(ins.dst[0], dst);
+		}
 	}
 
 	void GcnCompiler::emitDsAtomicArith64(const GcnShaderInstruction& ins)
