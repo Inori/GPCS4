@@ -589,6 +589,9 @@ namespace sce::gcn
 														 src[0].low.id,
 														 src[1].low.id);
 				break;
+			case GcnOpcode::V_CMPX_LT_U32:
+				updateExec = true;
+				[[fallthrough]];
 			case GcnOpcode::V_CMP_LT_U32:
 				condition = m_module.opULessThan(conditionType,
 												 src[0].low.id,
@@ -813,7 +816,8 @@ namespace sce::gcn
 		emitRegisterStore(ins.dst[1], dst);
 	}
 
-	uint32_t GcnCompiler::emitCsLaneRead(uint32_t slane, uint32_t src)
+	GcnRegisterValue GcnCompiler::emitCsLaneRead(const GcnRegisterValue& slane,
+												 const GcnRegisterValue& src)
 	{
 		// For compute shader, we need to broadcast the value
 		// across all 64 lanes manually by share memory if we need to separate subgroup.
@@ -829,7 +833,7 @@ namespace sce::gcn
 		// detect if slane is less than 32, which means
 		// it's in low 32 lanes
 		uint32_t isLowGroup = m_module.opULessThan(btypeId,
-												   slane,
+												   slane.id,
 												   m_module.constu32(32));
 		// detect if current subgroup is even or odd
 		uint32_t indexMod = m_module.opUMod(
@@ -844,9 +848,9 @@ namespace sce::gcn
 
 		// subtract 32 if slane is in high 32 lanes
 		uint32_t laneIndex = m_module.opSelect(utypeId, isLowGroup,
-											   slane,
+											   slane.id,
 											   m_module.opISub(utypeId,
-															   slane,
+															   slane.id,
 															   m_module.constu32(32)));
 
 		uint32_t needLoad = m_module.opLogicalOr(btypeId, isLowAndEven, isHighAndOdd);
@@ -867,7 +871,7 @@ namespace sce::gcn
 
 		uint32_t value = m_module.opGroupNonUniformShuffle(utypeId,
 														   m_module.constu32(spv::ScopeSubgroup),
-														   src,
+														   src.id,
 														   laneIndex);
 		// store broadcast value to self slot
 		const uint32_t ptrType = m_module.defPointerType(utypeId,
@@ -902,7 +906,12 @@ namespace sce::gcn
 											  m_cs.crossGroupMemoryId,
 											  1,
 											  &subgroupId.id);
-		return m_module.opLoad(utypeId, ptr);
+
+		GcnRegisterValue result;
+		result.type.ctype  = GcnScalarType::Uint32;
+		result.type.ccount = 1;
+		result.id          = m_module.opLoad(utypeId, ptr);
+		return result;
 	}
 
 	void GcnCompiler::emitLaneRead(const GcnShaderInstruction& ins)
@@ -925,7 +934,8 @@ namespace sce::gcn
 		if (m_programInfo.type() == GcnProgramType::ComputeShader &&
 			m_moduleInfo.options.separateSubgroup)
 		{
-			dst.low.id = emitCsLaneRead(src[1].low.id, src[0].low.id);
+			auto value = emitCsLaneRead(src[1].low, src[0].low);
+			dst.low.id = value.id;
 		}
 		else
 		{

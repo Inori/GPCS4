@@ -173,6 +173,7 @@ namespace sce::gcn
 		void emitDsIdxWrXchg(const GcnShaderInstruction& ins);
 		void emitDsIdxCondXchg(const GcnShaderInstruction& ins);
 		void emitDsIdxWrap(const GcnShaderInstruction& ins);
+		void emitDsAtomicCommon(const GcnShaderInstruction& ins);
 		void emitDsAtomicArith32(const GcnShaderInstruction& ins);
 		void emitDsAtomicArith64(const GcnShaderInstruction& ins);
 		void emitDsAtomicMinMax32(const GcnShaderInstruction& ins);
@@ -213,9 +214,18 @@ namespace sce::gcn
 			const GcnShaderInstruction& ins);
 		void emitLaneReadFirst(
 			const GcnShaderInstruction& ins);
-		uint32_t emitCsLaneRead(
-			uint32_t slane, uint32_t src);
+		GcnRegisterValue emitCsLaneRead(
+			const GcnRegisterValue& slane,
+			const GcnRegisterValue& src);
 		void emitLaneRead(
+			const GcnShaderInstruction& ins);
+		GcnRegisterValue emitQueryTextureSize(
+			const GcnShaderInstruction& ins);
+		GcnRegisterValue emitQueryTextureLevels(
+			const GcnShaderInstruction& ins);
+		void emitQueryTextureInfo(
+			const GcnShaderInstruction& ins);
+		void emitQueryTextureLod(
 			const GcnShaderInstruction& ins);
 		//////////////////////////////////////
 		// Common function definition methods
@@ -711,6 +721,9 @@ namespace sce::gcn
 
 		GcnVectorType getOutputRegType(
 			uint32_t paramIdx) const;
+
+		uint32_t getTexSizeDim(
+			const GcnImageInfo& imageType) const;
 
 		uint32_t getTexLayerDim(
 			const GcnImageInfo& imageType) const;

@@ -949,7 +949,7 @@ namespace sce::Gnm
 			auto& resTable = vsModule.getResourceTable();
 
 			//// Update input layout and bind vertex buffer
-			updateVertexBinding(vsModule);
+			//updateVertexBinding(vsModule);
 
 			//// create and bind shader resources
 			bindResource(VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, resTable, ctx.userData);

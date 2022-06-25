@@ -77,7 +77,19 @@ namespace sce::gcn
 
 	void GcnCompiler::emitVectorMemImgUt(const GcnShaderInstruction& ins)
 	{
-		LOG_GCN_UNHANDLED_INST();
+		auto op = ins.opcode;
+		switch (op)
+		{
+			case GcnOpcode::IMAGE_GET_RESINFO:
+				this->emitQueryTextureInfo(ins);
+				break;
+			case GcnOpcode::IMAGE_GET_LOD:
+				this->emitQueryTextureLod(ins);
+				break;
+			default:
+				LOG_GCN_UNHANDLED_INST();
+				break;
+		}
 	}
 
 	void GcnCompiler::emitVectorMemL1Cache(const GcnShaderInstruction& ins)
@@ -132,6 +144,105 @@ namespace sce::gcn
 				LOG_GCN_UNHANDLED_INST();
 				break;
 		}
+	}
+
+	GcnRegisterValue GcnCompiler::emitQueryTextureSize(const GcnShaderInstruction& ins)
+	{
+		const GcnInstOperand& textureReg = ins.src[2];
+		const uint32_t        textureId  = textureReg.code * 4;
+		const GcnTexture&     info       = m_textures.at(textureId);
+
+		GcnRegisterValue result;
+		result.type.ctype  = GcnScalarType::Uint32;
+		result.type.ccount = getTexSizeDim(info.imageInfo);
+
+		if (info.imageInfo.ms == 0 && info.imageInfo.sampled == 1)
+		{
+			auto lod  = emitRegisterLoad(ins.src[0]);
+
+			result.id = m_module.opImageQuerySizeLod(
+				getVectorTypeId(result.type),
+				m_module.opLoad(info.imageTypeId, info.varId),
+				lod.low.id);
+		}
+		else
+		{
+			result.id = m_module.opImageQuerySize(
+				getVectorTypeId(result.type),
+				m_module.opLoad(info.imageTypeId, info.varId));
+		}
+
+		return result;
+	}
+
+	GcnRegisterValue GcnCompiler::emitQueryTextureLevels(const GcnShaderInstruction& ins)
+	{
+		const GcnInstOperand& textureReg = ins.src[2];
+		const uint32_t        textureId  = textureReg.code * 4;
+		const GcnTexture&     info       = m_textures.at(textureId);
+
+		GcnRegisterValue result;
+		result.type.ctype  = GcnScalarType::Uint32;
+		result.type.ccount = 1;
+
+		if (info.imageInfo.sampled == 1)
+		{
+			result.id = m_module.opImageQueryLevels(
+				getVectorTypeId(result.type),
+				m_module.opLoad(info.imageTypeId, info.varId));
+		}
+		else
+		{
+			// Report one LOD in case of UAVs
+			result.id = m_module.constu32(1);
+		}
+		return result;
+	}
+
+	void GcnCompiler::emitQueryTextureInfo(const GcnShaderInstruction& ins)
+	{
+		GcnImageResFlags flags = GcnImageResFlags(ins.control.mimg.dmask);
+
+		GcnRegisterValue textureSize  = emitQueryTextureSize(ins);
+		GcnRegisterValue textureLevel = {}; 
+		if (flags.test(GcnImageResComponent::MipCount))
+		{
+			textureLevel = emitQueryTextureLevels(ins);
+		}
+
+		auto     vdata = ins.src[1];
+		uint32_t index = vdata.code;
+		if (flags.test(GcnImageResComponent::Width))
+		{
+			vdata.code = index++;
+			auto value = emitRegisterExtract(textureSize, GcnRegMask::select(0));
+			emitVgprStore(vdata, value);
+		}
+
+		if (flags.test(GcnImageResComponent::Height))
+		{
+			vdata.code = index++;
+			auto value = emitRegisterExtract(textureSize, GcnRegMask::select(1));
+			emitVgprStore(vdata, value);
+		}
+
+		if (flags.test(GcnImageResComponent::Depth))
+		{
+			vdata.code = index++;
+			auto value = emitRegisterExtract(textureSize, GcnRegMask::select(2));
+			emitVgprStore(vdata, value);
+		}
+
+		if (flags.test(GcnImageResComponent::MipCount))
+		{
+			vdata.code = index++;
+			emitVgprStore(vdata, textureLevel);
+		}
+	}
+
+	void GcnCompiler::emitQueryTextureLod(const GcnShaderInstruction& ins)
+	{
+		LOG_GCN_UNHANDLED_INST();
 	}
 
 	GcnRegisterValue GcnCompiler::emitCalcBufferAddress(
@@ -885,6 +996,19 @@ namespace sce::gcn
 		const uint32_t        textureId  = textureReg.code * 4;
 		GcnImageInfo          imageInfo  = m_textures.at(textureId).imageInfo;
 		return imageInfo;
+	}
+
+	uint32_t GcnCompiler::getTexSizeDim(const GcnImageInfo& imageType) const
+	{
+		switch (imageType.dim)
+		{
+			case spv::DimBuffer: return 1 + imageType.array;
+			case spv::Dim1D: return 1 + imageType.array;
+			case spv::Dim2D: return 2 + imageType.array;
+			case spv::Dim3D: return 3 + imageType.array;
+			case spv::DimCube: return 2 + imageType.array;
+			default: Logger::exception("DxbcCompiler: getTexLayerDim: Unsupported image dimension");
+		}
 	}
 
 	uint32_t GcnCompiler::getTexLayerDim(const GcnImageInfo& imageType) const

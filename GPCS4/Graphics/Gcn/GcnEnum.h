@@ -2533,4 +2533,14 @@ namespace sce::gcn
 		LinearSample                = 6,
 		LinearNoPerspectiveSample   = 7,
 	};
+
+	enum class GcnImageResComponent : uint32_t
+	{
+		Width,
+		Height,
+		Depth,
+		MipCount
+	};
+
+	using GcnImageResFlags = util::Flags<GcnImageResComponent>;
 }  // namespace sce::gcn

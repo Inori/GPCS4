@@ -102,7 +102,7 @@ namespace sce::gcn
 		GcnCfgPass cfgPass;
 		auto&      cfg = cfgPass.generateCfg(insList);
 
-		//dumpShader();
+		dumpShader();
 		//auto          dot = GcnCfgPass::dumpDot(cfg);
 		//std::ofstream fout(fmt::format("shaders/{}.dot", this->name()));
 		//fout << dot << std::endl;

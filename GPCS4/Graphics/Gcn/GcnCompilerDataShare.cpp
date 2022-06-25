@@ -26,13 +26,11 @@ namespace sce::gcn
 				this->emitDsIdxWrap(ins);
 				break;
 			case GcnInstClass::DsAtomicArith32:
-				this->emitDsAtomicArith32(ins);
+			case GcnInstClass::DsAtomicMinMax32:
+				this->emitDsAtomicCommon(ins);
 				break;
 			case GcnInstClass::DsAtomicArith64:
 				this->emitDsAtomicArith64(ins);
-				break;
-			case GcnInstClass::DsAtomicMinMax32:
-				this->emitDsAtomicMinMax32(ins);
 				break;
 			case GcnInstClass::DsAtomicMinMax64:
 				this->emitDsAtomicMinMax64(ins);
@@ -119,7 +117,7 @@ namespace sce::gcn
 		LOG_GCN_UNHANDLED_INST();
 	}
 
-	void GcnCompiler::emitDsAtomicArith32(const GcnShaderInstruction& ins)
+	void GcnCompiler::emitDsAtomicCommon(const GcnShaderInstruction& ins)
 	{
 		auto src = emitRegisterLoad(ins.src[0]);
 		auto ptr = emitDsAccess(ins);
@@ -150,6 +148,26 @@ namespace sce::gcn
 												   semanticsId,
 												   src.low.id);
 				break;
+			case GcnOpcode::DS_MIN_RTN_U32:
+				saveOriginal = true;
+				[[fallthrough]];
+			case GcnOpcode::DS_MIN_U32:
+				dst.low.id = m_module.opAtomicUMin(typeId,
+												   ptr[0].id,
+												   scopeId,
+												   semanticsId,
+												   src.low.id);
+				break;
+			case GcnOpcode::DS_MAX_RTN_U32:
+				saveOriginal = true;
+				[[fallthrough]];
+			case GcnOpcode::DS_MAX_U32:
+				dst.low.id = m_module.opAtomicUMax(typeId,
+												   ptr[0].id,
+												   scopeId,
+												   semanticsId,
+												   src.low.id);
+				break;
 			default:
 				LOG_GCN_UNHANDLED_INST();
 				break;
@@ -159,6 +177,11 @@ namespace sce::gcn
 		{
 			emitRegisterStore(ins.dst[0], dst);
 		}
+	}
+
+	void GcnCompiler::emitDsAtomicArith32(const GcnShaderInstruction& ins)
+	{
+		LOG_GCN_UNHANDLED_INST();
 	}
 
 	void GcnCompiler::emitDsAtomicArith64(const GcnShaderInstruction& ins)
