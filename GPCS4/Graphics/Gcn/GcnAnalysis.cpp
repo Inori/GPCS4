@@ -1,6 +1,7 @@
 #include "GcnAnalysis.h"
 #include "GcnInstruction.h"
 #include "GcnDecoder.h"
+#include "GcnProgramInfo.h"
 
 LOG_CHANNEL(Graphic.Gcn.GcnAnalysis);
 
@@ -9,7 +10,8 @@ namespace sce::gcn
 	GcnAnalyzer::GcnAnalyzer(
 		const GcnProgramInfo& programInfo,
 		GcnAnalysisInfo&      analysis) :
-		m_analysis(&analysis)
+		m_analysis(&analysis),
+		m_programInfo(programInfo)
 	{
 	}
 
@@ -206,14 +208,12 @@ namespace sce::gcn
 	{
 		auto op = ins.opcode;
 
-		// Collect lane src vgprs.
-		// We don't need to collect V_WRITELANE_B32,
-		// because we can write to the lane right at we translating
-		// that instruction.
-		if (op == GcnOpcode::V_READFIRSTLANE_B32 || op == GcnOpcode::V_READLANE_B32)
+		// detect if there are lane instructions in compute shader
+		if (m_programInfo.type() == GcnProgramType::ComputeShader &&
+			(op == GcnOpcode::V_READLANE_B32 ||
+			 op == GcnOpcode::V_WRITELANE_B32))
 		{
-			uint32_t vgpr = ins.src[0].code;
-			m_analysis->laneVgprs.insert(vgpr);
+			m_analysis->hasComputeLane = true;
 		}
 	}
 

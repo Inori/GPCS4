@@ -11,6 +11,7 @@
 #include "Violet/VltRc.h"
 #include "Gcn/GcnShaderMeta.h"
 #include "Gcn/GcnHeader.h"
+#include "Gcn/GcnModInfo.h"
 
 #include <memory>
 
@@ -487,6 +488,10 @@ namespace sce::Gnm
 			const Buffer* vsharp);
 		gcn::GcnTextureMeta populateTextureMeta(
 			const Texture* tsharp, bool isDepth);
+
+	private:
+		void initGcnModuleInfo();
+
 	protected:
 		vlt::VltDevice*          m_device;
 		vlt::Rc<vlt::VltContext> m_context;
@@ -495,6 +500,7 @@ namespace sce::Gnm
 		SceResourceTracker*             m_tracker      = nullptr;
 		SceLabelManager*                m_labelManager = nullptr;
 		std::unique_ptr<GnmInitializer> m_initializer;
+		gcn::GcnModuleInfo              m_moduleInfo;
 	private:
 	};
 

@@ -211,6 +211,12 @@ namespace sce::gcn
 			const GcnShaderInstruction& ins);
 		void emitCubeCalculate(
 			const GcnShaderInstruction& ins);
+		void emitLaneReadFirst(
+			const GcnShaderInstruction& ins);
+		uint32_t emitCsLaneRead(
+			uint32_t slane, uint32_t src);
+		void emitLaneRead(
+			const GcnShaderInstruction& ins);
 		//////////////////////////////////////
 		// Common function definition methods
 		void emitInit();
@@ -283,6 +289,7 @@ namespace sce::gcn
 		void emitDclPsInput();
 		void emitDclThreadGroup();
 		void emitDclThreadGroupSharedMemory(uint32_t size);
+		void emitDclCrossGroupSharedMemory();
 
 		///////////////////////////////
 		// Variable definition methods

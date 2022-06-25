@@ -30,7 +30,8 @@ namespace sce::gcn
 	}
 
 	Rc<VltShader> GcnModule::compile(
-		const GcnShaderMeta& meta) const
+		const GcnShaderMeta& meta,
+		const GcnModuleInfo& moduleInfo) const
 	{
 		// Decode shader binary
 		const uint32_t* start = reinterpret_cast<const uint32_t*>(m_code);
@@ -54,11 +55,6 @@ namespace sce::gcn
 		this->runAnalyzer(analyzer, insList);
 
 		// Do the compile
-		// TODO:
-		// Generate module info from device.
-		GcnModuleInfo moduleInfo = {};
-		moduleInfo.options.separateSubgroup = true;
-
 		GcnCompiler compiler(
 			this->name(),
 			moduleInfo,

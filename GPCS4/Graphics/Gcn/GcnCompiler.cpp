@@ -370,6 +370,8 @@ namespace sce::gcn
 		this->emitDclThreadGroup();
 		// Declare LDS
 		this->emitDclThreadGroupSharedMemory(m_meta.cs.ldsSize);
+		// Declare cross subgroup memory if needed.
+		this->emitDclCrossGroupSharedMemory();
 
 		// Main function of the compute shader
 		m_cs.functionId = m_module.allocateId();
@@ -913,6 +915,32 @@ namespace sce::gcn
 			m_lds = emitNewVariable(varInfo);
 
 			m_module.setDebugName(m_lds, "lds");
+		} while (false);
+	}
+
+	void GcnCompiler::emitDclCrossGroupSharedMemory()
+	{
+		do
+		{
+			if (!m_analysis->hasComputeLane)
+			{
+				break;
+			}
+
+			if (!m_moduleInfo.options.separateSubgroup)
+			{
+				break;
+			}
+
+			GcnRegisterInfo varInfo;
+			varInfo.type.ctype   = GcnScalarType::Uint32;
+			varInfo.type.ccount  = 1;
+			varInfo.type.alength = m_moduleInfo.maxComputeSubgroupCount;
+			varInfo.sclass       = spv::StorageClassWorkgroup;
+
+			m_cs.crossGroupMemoryId = emitNewVariable(varInfo);
+
+			m_module.setDebugName(m_lds, "cross_group_memory");
 		} while (false);
 	}
 
@@ -1615,17 +1643,17 @@ namespace sce::gcn
 				break;
 			case GcnSystemValue::SubgroupID:
 			{
-				if (m_common.subgroupId == 0)
+				if (m_cs.subgroupId == 0)
 				{
-					m_common.subgroupId = emitNewBuiltinVariable({ { GcnScalarType::Uint32, 1, 0 },
-																   spv::StorageClassInput },
-																 spv::BuiltInSubgroupId,
-																 "subgroup_id");
+					m_cs.subgroupId = emitNewBuiltinVariable({ { GcnScalarType::Uint32, 1, 0 },
+															   spv::StorageClassInput },
+															 spv::BuiltInSubgroupId,
+															 "subgroup_id");
 				}
 
 				GcnRegisterPointer ptr;
 				ptr.type = { GcnScalarType::Uint32, 1 };
-				ptr.id   = m_common.subgroupId;
+				ptr.id   = m_cs.subgroupId;
 				return emitValueLoad(ptr);
 			}
 				break;
@@ -3165,8 +3193,6 @@ namespace sce::gcn
 			}
 		}
 	}
-
-
 
 
 }  // namespace sce::gcn

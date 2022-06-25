@@ -664,38 +664,19 @@ namespace sce::gcn
 
     void GcnCompiler::emitVectorLane(const GcnShaderInstruction& ins)
     {
-		std::array<GcnRegisterValuePair, GcnMaxOperandCount> src;
-		for (uint32_t i = 0; i != ins.srcCount; ++i)
-		{
-			src[i] = emitRegisterLoad(ins.src[i]);
-		}
-
-		GcnRegisterValuePair dst = {};
-		dst.low.type.ctype       = getDestinationType(ins.dst[0].type);
-		dst.low.type.ccount      = 1;
-		dst.high.type            = dst.low.type;
-
-		const uint32_t typeId = getVectorTypeId(dst.low.type);
-
 		auto op = ins.opcode;
 		switch (op)
 		{
 			case GcnOpcode::V_READFIRSTLANE_B32:
-				// TODO:
-				// there may be problems if we only broadcast the value
-				// to 32 lanes, to perfectly implement this instruction,
-				// we may need to use share memory to broadcast to all
-				// 64 lanes.
-				dst.low.id = m_module.opGroupNonUniformBroadcastFirst(typeId,
-																	  m_module.constu32(spv::ScopeSubgroup),
-																	  src[0].low.id);
+				this->emitLaneReadFirst(ins);
+				break;
+			case GcnOpcode::V_READLANE_B32:
+				this->emitLaneRead(ins);
 				break;
 			default:
 				LOG_GCN_UNHANDLED_INST();
 				break;
 		}
-
-		emitRegisterStore(ins.dst[1], dst);
     }
 
     void GcnCompiler::emitVectorBitLogic(const GcnShaderInstruction& ins)
@@ -809,6 +790,153 @@ namespace sce::gcn
 				break;
 		}
     }
+
+	void GcnCompiler::emitLaneReadFirst(const GcnShaderInstruction& ins)
+	{
+		auto src = emitRegisterLoad(ins.src[0]);
+
+		GcnRegisterValuePair dst = {};
+		dst.low.type.ctype       = getDestinationType(ins.dst[0].type);
+		dst.low.type.ccount      = 1;
+		dst.high.type            = dst.low.type;
+
+		const uint32_t typeId = getVectorTypeId(dst.low.type);
+
+		// TODO:
+		// there may be problems if we only broadcast the value
+		// to 32 lanes, to perfectly implement this instruction,
+		// we may need to use share memory to broadcast to all
+		// 64 lanes.
+		dst.low.id = m_module.opGroupNonUniformBroadcastFirst(typeId,
+															  m_module.constu32(spv::ScopeSubgroup),
+															  src.low.id);
+		emitRegisterStore(ins.dst[1], dst);
+	}
+
+	uint32_t GcnCompiler::emitCsLaneRead(uint32_t slane, uint32_t src)
+	{
+		// For compute shader, we need to broadcast the value
+		// across all 64 lanes manually by share memory if we need to separate subgroup.
+		// Means for gl_SubgroupID which is even number, we need to broadcast
+		// the value to its' neighbor odd number subgroup, and vice versa.
+
+		const uint32_t utypeId = getScalarTypeId(GcnScalarType::Uint32);
+		const uint32_t btypeId = m_module.defBoolType();
+
+		auto subgroupId = emitCsSystemValueLoad(
+			GcnSystemValue::SubgroupID, GcnRegMask::select(0));
+
+		// detect if slane is less than 32, which means
+		// it's in low 32 lanes
+		uint32_t isLowGroup = m_module.opULessThan(btypeId,
+												   slane,
+												   m_module.constu32(32));
+		// detect if current subgroup is even or odd
+		uint32_t indexMod = m_module.opUMod(
+			utypeId, subgroupId.id, m_module.constu32(2));
+		uint32_t isEvenGroup = m_module.opIEqual(
+			btypeId, indexMod, m_module.constu32(0));
+
+		uint32_t isLowAndEven = m_module.opLogicalAnd(btypeId, isLowGroup, isEvenGroup);
+		uint32_t isHighAndOdd = m_module.opLogicalAnd(btypeId,
+													  m_module.opLogicalNot(btypeId, isLowGroup),
+													  m_module.opLogicalNot(btypeId, isEvenGroup));
+
+		// subtract 32 if slane is in high 32 lanes
+		uint32_t laneIndex = m_module.opSelect(utypeId, isLowGroup,
+											   slane,
+											   m_module.opISub(utypeId,
+															   slane,
+															   m_module.constu32(32)));
+
+		uint32_t needLoad = m_module.opLogicalOr(btypeId, isLowAndEven, isHighAndOdd);
+		// Elect one lane to perform the store operation
+		uint32_t election = m_module.opGroupNonUniformElect(
+			btypeId,
+			m_module.constu32(spv::ScopeSubgroup));
+
+		uint32_t condition = m_module.opLogicalAnd(btypeId,
+												   needLoad,
+												   election);
+
+		uint32_t labelBegin = m_module.allocateId();
+		uint32_t labelEnd   = m_module.allocateId();
+		m_module.opSelectionMerge(labelEnd, spv::SelectionControlMaskNone);
+		m_module.opBranchConditional(condition, labelBegin, labelEnd);
+		m_module.opLabel(labelBegin);
+
+		uint32_t value = m_module.opGroupNonUniformShuffle(utypeId,
+														   m_module.constu32(spv::ScopeSubgroup),
+														   src,
+														   laneIndex);
+		// store broadcast value to self slot
+		const uint32_t ptrType = m_module.defPointerType(utypeId,
+														 spv::StorageClassWorkgroup);
+		uint32_t       ptrSelf = m_module.opAccessChain(ptrType,
+														m_cs.crossGroupMemoryId,
+														1,
+														&subgroupId.id);
+		m_module.opStore(ptrSelf, value);
+
+		// store broadcast value to neighbor slot
+		uint32_t indexNeighbor = m_module.opSelect(utypeId, isEvenGroup,
+												   m_module.opIAdd(utypeId, subgroupId.id, m_module.constu32(1)),
+												   m_module.opISub(utypeId, subgroupId.id, m_module.constu32(1)));
+		uint32_t ptrNeighbor   = m_module.opAccessChain(ptrType,
+														m_cs.crossGroupMemoryId,
+														1,
+														&indexNeighbor);
+		m_module.opStore(ptrNeighbor, value);
+
+		m_module.opBranch(labelEnd);
+		m_module.opLabel(labelEnd);
+
+		// wait for store finish for all lanes
+		m_module.opControlBarrier(m_module.constu32(spv::ScopeWorkgroup),
+								  m_module.constu32(spv::ScopeWorkgroup),
+								  m_module.constu32(spv::MemorySemanticsWorkgroupMemoryMask |
+													spv::MemorySemanticsAcquireReleaseMask));
+
+		// now we can load the broadcast value from cross group share memory
+		uint32_t ptr = m_module.opAccessChain(ptrType,
+											  m_cs.crossGroupMemoryId,
+											  1,
+											  &subgroupId.id);
+		return m_module.opLoad(utypeId, ptr);
+	}
+
+	void GcnCompiler::emitLaneRead(const GcnShaderInstruction& ins)
+	{
+		m_module.enableCapability(spv::CapabilityGroupNonUniformShuffle);
+
+		std::array<GcnRegisterValuePair, GcnMaxOperandCount> src;
+		for (uint32_t i = 0; i != ins.srcCount; ++i)
+		{
+			src[i] = emitRegisterLoad(ins.src[i]);
+		}
+
+		GcnRegisterValuePair dst = {};
+		dst.low.type.ctype       = getDestinationType(ins.dst[0].type);
+		dst.low.type.ccount      = 1;
+		dst.high.type            = dst.low.type;
+
+		const uint32_t utypeId = getVectorTypeId(dst.low.type);
+
+		if (m_programInfo.type() == GcnProgramType::ComputeShader &&
+			m_moduleInfo.options.separateSubgroup)
+		{
+			dst.low.id = emitCsLaneRead(src[1].low.id, src[0].low.id);
+		}
+		else
+		{
+			dst.low.id = m_module.opGroupNonUniformShuffle(utypeId,
+														   m_module.constu32(spv::ScopeSubgroup),
+														   src[0].low.id,
+														   src[1].low.id);
+		}
+
+		emitRegisterStore(ins.dst[1], dst);
+	}
 
 	void GcnCompiler::emitCubeCalculate(const GcnShaderInstruction& ins)
 	{

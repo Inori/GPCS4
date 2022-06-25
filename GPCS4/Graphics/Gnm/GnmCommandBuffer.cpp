@@ -28,6 +28,7 @@ namespace sce::Gnm
 		m_device(device),
 		m_factory(device)
 	{
+		initGcnModuleInfo();
 	}
 
 	GnmCommandBuffer::~GnmCommandBuffer()
@@ -311,7 +312,7 @@ namespace sce::Gnm
 		// bind the shader
 		m_context->bindShader(
 			VK_SHADER_STAGE_COMPUTE_BIT,
-			csModule.compile(ctx.meta));
+			csModule.compile(ctx.meta, m_moduleInfo));
 	}
 
 	ShaderStage GnmCommandBuffer::getShaderStage(
@@ -419,6 +420,16 @@ namespace sce::Gnm
 		return meta;
 	}
 
+	void GnmCommandBuffer::initGcnModuleInfo()
+	{
+		const auto& devInfo = m_device->properties();
+
+		const uint32_t amdWavefrontSize       = 64;
+		m_moduleInfo.options.separateSubgroup = devInfo.coreSubgroup.subgroupSize < amdWavefrontSize;
+
+		m_moduleInfo.maxComputeSubgroupCount =
+			devInfo.core.properties.limits.maxComputeWorkGroupInvocations / devInfo.coreSubgroup.subgroupSize;
+	}
 
 
 }  // namespace sce::Gnm

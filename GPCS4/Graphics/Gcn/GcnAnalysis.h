@@ -23,8 +23,8 @@ namespace sce::gcn
 	struct GcnAnalysisInfo
 	{
 		GcnExportInfo exportInfo;
-		// VGPRs used by lane instructions.
-		std::unordered_set<uint32_t> laneVgprs;
+
+		bool hasComputeLane = false;
 	};
 
 	/**
@@ -60,7 +60,8 @@ namespace sce::gcn
 			const GcnShaderInstruction& ins);
 
 	private:
-		GcnAnalysisInfo* m_analysis;
+		GcnAnalysisInfo*      m_analysis;
+		const GcnProgramInfo& m_programInfo;
 	};
 
 

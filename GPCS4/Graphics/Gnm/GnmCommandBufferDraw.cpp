@@ -957,7 +957,7 @@ namespace sce::Gnm
 			// bind the shader
 			m_context->bindShader(
 				VK_SHADER_STAGE_VERTEX_BIT,
-				vsModule.compile(ctx.meta));
+				vsModule.compile(ctx.meta, m_moduleInfo));
 		} while (false);
 	}
 
@@ -984,7 +984,7 @@ namespace sce::Gnm
 			// bind the shader
 			m_context->bindShader(
 				VK_SHADER_STAGE_FRAGMENT_BIT,
-				psModule.compile(ctx.meta));
+				psModule.compile(ctx.meta, m_moduleInfo));
 		} while (false);
 	}
 

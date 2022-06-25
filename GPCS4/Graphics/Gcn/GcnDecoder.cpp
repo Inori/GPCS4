@@ -659,8 +659,8 @@ namespace sce::gcn
 		{
 			// vsrc1 is scalar for lane instructions
 			m_instruction.src[1].field = getOperandField(vsrc1);
-
-			m_instruction.dst[1].field = getOperandField(vdst);
+			// dst is sgpr
+			m_instruction.dst[1].field = GcnOperandField::ScalarGPR;
 			m_instruction.dst[1].type  = GcnScalarType::Uint32;
 			m_instruction.dst[1].code  = vdst;
 		}
@@ -786,7 +786,10 @@ namespace sce::gcn
 			}
 			else if (vop3Op >= GcnOpcodeVOP3::V_READLANE_B32 && vop3Op <= GcnOpcodeVOP3::V_WRITELANE_B32)
 			{
-				m_instruction.dst[1].field = getOperandField(vdst);
+				// vsrc1 is scalar for lane instructions
+				m_instruction.src[1].field = getOperandField(src1);
+				// dst is sgpr for lane instruction
+				m_instruction.dst[1].field = GcnOperandField::ScalarGPR;
 				m_instruction.dst[1].type  = GcnScalarType::Uint32;
 				m_instruction.dst[1].code  = vdst;
 			}

@@ -121,8 +121,6 @@ namespace sce::gcn
 	 */
 	struct GcnCompilerCommonPart
 	{
-		uint32_t numSubgroups         = 0;
-		uint32_t subgroupId           = 0;
 		uint32_t subgroupSize         = 0;
 		uint32_t subgroupInvocationId = 0;
 		uint32_t subgroupEqMask       = 0;
@@ -176,6 +174,9 @@ namespace sce::gcn
 	{
 		uint32_t functionId = 0;
 
+		uint32_t numSubgroups = 0;
+		uint32_t subgroupId   = 0;
+
 		uint32_t workgroupSizeX = 0;
 		uint32_t workgroupSizeY = 0;
 		uint32_t workgroupSizeZ = 0;
@@ -184,6 +185,8 @@ namespace sce::gcn
 		uint32_t builtinLocalInvocationId    = 0;
 		uint32_t builtinLocalInvocationIndex = 0;
 		uint32_t builtinWorkgroupId          = 0;
+
+		uint32_t crossGroupMemoryId = 0;
 	};
 
 
