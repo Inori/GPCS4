@@ -162,6 +162,7 @@ namespace sce::gcn
 		void emitScalarMemUt(const GcnShaderInstruction& ins);
 		void emitVectorMemBufNoFmt(const GcnShaderInstruction& ins);
 		void emitVectorMemBufFmt(const GcnShaderInstruction& ins);
+		void emitVectorMemBufAtomic(const GcnShaderInstruction& ins);
 		void emitVectorMemImgNoSmp(const GcnShaderInstruction& ins);
 		void emitVectorMemImgSmp(const GcnShaderInstruction& ins);
 		void emitVectorMemImgUt(const GcnShaderInstruction& ins);

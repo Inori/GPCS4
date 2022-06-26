@@ -2323,6 +2323,7 @@ namespace sce::gcn
 
 		VectorMemBufNoFmt,
 		VectorMemBufFmt,
+		VectorMemBufAtomic,
 		VectorMemImgNoSmp,
 		VectorMemImgSmp,
 		VectorMemImgUt,

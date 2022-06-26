@@ -18,6 +18,9 @@ namespace sce::gcn
 			case GcnInstClass::VectorMemBufFmt:
 				this->emitVectorMemBufFmt(ins);
 				break;
+			case GcnInstClass::VectorMemBufAtomic:
+				this->emitVectorMemBufAtomic(ins);
+				break;
 			case GcnInstClass::VectorMemImgNoSmp:
 				this->emitVectorMemImgNoSmp(ins);
 				break;
@@ -41,6 +44,39 @@ namespace sce::gcn
 	void GcnCompiler::emitVectorMemBufFmt(const GcnShaderInstruction& ins)
 	{
 		emitVectorMemBuffer(ins);
+	}
+
+	void GcnCompiler::emitVectorMemBufAtomic(const GcnShaderInstruction& ins)
+	{
+		auto ptrList = emitGetBufferComponentPtr(ins, false);
+		auto src     = emitRegisterLoad(ins.src[1]);
+
+		LOG_ASSERT(ins.control.mubuf.glc == 0 && ins.control.mubuf.slc == 0, "TODO: support GLC and SLC.");
+
+		auto           type   = getDestinationType(ins.src[1].type);
+		const uint32_t typeId = getScalarTypeId(type);
+
+		// should we use device scope?
+		uint32_t scope     = spv::ScopeDevice;
+		uint32_t semantics = spv::MemorySemanticsUniformMemoryMask |
+							 spv::MemorySemanticsAcquireReleaseMask;
+
+		const uint32_t scopeId     = m_module.constu32(scope);
+		const uint32_t semanticsId = m_module.constu32(semantics);
+
+		auto op = ins.opcode;
+		switch (op)
+		{
+			case GcnOpcode::BUFFER_ATOMIC_ADD:
+				m_module.opAtomicIAdd(typeId,
+									  ptrList[0].id,
+									  scopeId, semanticsId,
+									  src.low.id);
+				break;
+			default:
+				LOG_GCN_UNHANDLED_INST();
+				break;
+		}
 	}
 
 	void GcnCompiler::emitVectorMemImgNoSmp(const GcnShaderInstruction& ins)
@@ -248,7 +284,6 @@ namespace sce::gcn
 	GcnRegisterValue GcnCompiler::emitCalcBufferAddress(
 		const GcnShaderInstruction& ins)
 	{
-
 		bool     idxen     = false;
 		bool     offen     = false;
 		uint32_t optOffset = 0;

@@ -69,6 +69,8 @@ namespace sce::gcn
 		{
 			decodeLiteralConstant(encoding, code);
 		}
+
+		repairOperandType();
 	}
 
 	GcnInstEncoding GcnDecodeContext::getInstructionEncoding(uint32_t hexInstruction)
@@ -375,6 +377,23 @@ namespace sce::gcn
 					m_instruction.dst[0].type = instFormat.dstType;
 				}
 			}
+		}
+	}
+
+	void GcnDecodeContext::repairOperandType()
+	{
+		// Some instructions' operand type is not uniform,
+		// it's best to change the instruction table's format and fix them there,
+		// but it's a hard work.
+		// We fix them here.
+		switch (m_instruction.opcode)
+		{
+			case GcnOpcode::V_MAD_U64_U32:
+				m_instruction.src[2].type = GcnScalarType::Uint64;
+				break;
+			case GcnOpcode::V_MAD_I64_I32:
+				m_instruction.src[2].type = GcnScalarType::Sint64;
+				break;
 		}
 	}
 
@@ -918,6 +937,18 @@ namespace sce::gcn
 				m_instruction.control.mubuf.size = 2;
 			}
 		}
+		else if (op >= static_cast<uint32_t>(GcnOpcodeMUBUF::BUFFER_ATOMIC_SWAP) &&
+				 op <= static_cast<uint32_t>(GcnOpcodeMUBUF::BUFFER_ATOMIC_FMAX))
+		{
+			m_instruction.control.mubuf.count = 1;
+			m_instruction.control.mubuf.size  = sizeof(uint32_t);
+		}
+		else if (op >= static_cast<uint32_t>(GcnOpcodeMUBUF::BUFFER_ATOMIC_SWAP_X2) &&
+				 op <= static_cast<uint32_t>(GcnOpcodeMUBUF::BUFFER_ATOMIC_FMAX_X2))
+		{
+			m_instruction.control.mubuf.count = 2;
+			m_instruction.control.mubuf.size  = sizeof(uint32_t) * 2;
+		}
 	}
 
 	void GcnDecodeContext::decodeInstructionMTBUF(uint64_t hexInstruction)
@@ -1344,7 +1375,6 @@ namespace sce::gcn
 
 		m_instruction.control.exp = *reinterpret_cast<GcnInstControlEXP*>(&hexInstruction);
 	}
-
 
 
 	///////////////////////////////////////////////////////////////
