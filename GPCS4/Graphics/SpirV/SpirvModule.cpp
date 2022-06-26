@@ -1861,6 +1861,21 @@ namespace sce::gcn
     return resultId;
   }
   
+
+  uint32_t SpirvModule::opIAddCarry(
+          uint32_t                 resultType,
+          uint32_t                 a, 
+          uint32_t                 b) {
+	  uint32_t resultId = this->allocateId();
+
+	  m_code.putIns(spv::OpIAddCarry, 5);
+	  m_code.putWord(resultType);
+	  m_code.putWord(resultId);
+	  m_code.putWord(a);
+	  m_code.putWord(b);
+	  return resultId;
+  }
+
   
   uint32_t SpirvModule::opISub(
           uint32_t                resultType,
@@ -1994,6 +2009,38 @@ namespace sce::gcn
     m_code.putWord(a);
     m_code.putWord(b);
     return resultId;
+  }
+
+
+  uint32_t SpirvModule::opUMulExtended(
+          uint32_t                resultType, 
+          uint32_t                a, 
+          uint32_t                b)
+  {
+	  uint32_t resultId = this->allocateId();
+
+	  m_code.putIns(spv::OpUMulExtended, 5);
+	  m_code.putWord(resultType);
+	  m_code.putWord(resultId);
+	  m_code.putWord(a);
+	  m_code.putWord(b);
+	  return resultId;
+  }
+
+
+  uint32_t SpirvModule::opSMulExtended(
+	  uint32_t                     resultType,
+	  uint32_t                     a,
+	  uint32_t                     b)
+  {
+	  uint32_t resultId = this->allocateId();
+
+	  m_code.putIns(spv::OpSMulExtended, 5);
+	  m_code.putWord(resultType);
+	  m_code.putWord(resultId);
+	  m_code.putWord(a);
+	  m_code.putWord(b);
+	  return resultId;
   }
   
     
@@ -3863,6 +3910,7 @@ namespace sce::gcn
 	  for (uint32_t i = 0; i < argumentCount; i++)
 		  m_code.putInt32(argumentList[i]);
   }
+
 
 
 

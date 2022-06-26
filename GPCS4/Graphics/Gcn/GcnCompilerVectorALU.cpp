@@ -17,6 +17,7 @@ namespace sce::gcn
             case GcnInstClass::VectorConv:
             case GcnInstClass::VectorFpArith32:
 			case GcnInstClass::VectorIntArith32:
+			case GcnInstClass::VectorIntArith64:
 			case GcnInstClass::VectorFpTran32:
 			case GcnInstClass::VectorThreadMask:
 			case GcnInstClass::VectorBitField32:
@@ -53,9 +54,6 @@ namespace sce::gcn
                 break;
             case GcnInstClass::VectorFpTran64:
                 this->emitVectorFpTran64(ins);
-                break;
-            case GcnInstClass::VectorIntArith64:
-                this->emitVectorIntArith64(ins);
                 break;
             case GcnInstClass::VectorFpGraph32:
                 this->emitVectorFpGraph32(ins);
@@ -146,11 +144,6 @@ namespace sce::gcn
 											 src[0].low.id,
 											 src[1].low.id);
 			    break;
-			case GcnOpcode::V_MUL_LO_I32:
-				dst.low.id = m_module.opIMul(typeId,
-											 src[0].low.id,
-											 src[1].low.id);
-				break;
 			case GcnOpcode::V_MAC_F32:
 			{
 				auto vdst  = emitVgprLoad(ins.dst[0]);
@@ -258,10 +251,37 @@ namespace sce::gcn
 				dst.low.id    = m_module.opIMul(typeId, src0, src1);
 			}
 				break;
+			case GcnOpcode::V_MUL_LO_I32:
 			case GcnOpcode::V_MUL_LO_U32:
 				dst.low.id = m_module.opIMul(typeId,
 											 src[0].low.id,
 											 src[1].low.id);
+				break;
+			case GcnOpcode::V_MUL_HI_I32:
+			{
+				std::array<uint32_t, 2> members    = { typeId, typeId };
+				const uint32_t          resultType = m_module.defStructType(
+							 members.size(), members.data());
+
+				uint32_t mul         = m_module.opSMulExtended(resultType,
+															   src[0].low.id,
+															   src[1].low.id);
+				uint32_t memberIndex = 1;
+				dst.low.id           = m_module.opCompositeExtract(typeId, mul, 1, &memberIndex);
+			}
+				break;
+			case GcnOpcode::V_MUL_HI_U32:
+			{
+				std::array<uint32_t, 2> members    = { typeId, typeId };
+				const uint32_t          resultType = m_module.defStructType(
+							 members.size(), members.data());
+
+				uint32_t mul         = m_module.opUMulExtended(resultType,
+															   src[0].low.id,
+															   src[1].low.id);
+				uint32_t memberIndex = 1;
+				dst.low.id           = m_module.opCompositeExtract(typeId, mul, 1, &memberIndex);
+			}
 				break;
 			case GcnOpcode::V_MAX3_F32:
 			{
@@ -281,6 +301,37 @@ namespace sce::gcn
 				dst.low.id     = m_module.opFMin(typeId,
 												 min01,
 												 src[2].low.id);
+			}
+				break;
+			//VectorIntArith64
+			case GcnOpcode::V_MAD_U64_U32:
+			{
+				std::array<uint32_t, 2> members    = { typeId, typeId };
+				const uint32_t          resultType = m_module.defStructType(
+							 members.size(), members.data());
+
+				uint32_t mul         = m_module.opUMulExtended(resultType,
+															   src[0].low.id,
+															   src[1].low.id);
+				uint32_t memberIndex = 0;
+				uint32_t low         = m_module.opCompositeExtract(typeId, mul, 1, &memberIndex);
+				memberIndex          = 1;
+				uint32_t high        = m_module.opCompositeExtract(typeId, mul, 1, &memberIndex);
+
+				// add low part, this may produce carry out
+				uint32_t add = m_module.opIAddCarry(resultType, low, src[2].low.id);
+				// get low part result
+				memberIndex    = 0;
+				dst.low.id     = m_module.opCompositeExtract(typeId, add, 1, &memberIndex);
+				// get carry
+				memberIndex    = 1;
+				uint32_t carry = m_module.opCompositeExtract(typeId, add, 1, &memberIndex);
+				// for high part, we need to add all 3 former results
+				dst.high.id = m_module.opIAdd(typeId,
+											  m_module.opIAdd(typeId,
+															  high,
+															  src[2].high.id),
+											  carry);
 			}
 				break;
             // VectorFpTran32
@@ -594,6 +645,14 @@ namespace sce::gcn
 				[[fallthrough]];
 			case GcnOpcode::V_CMP_LT_U32:
 				condition = m_module.opULessThan(conditionType,
+												 src[0].low.id,
+												 src[1].low.id);
+				break;
+			case GcnOpcode::V_CMPX_LT_I32:
+				updateExec = true;
+				[[fallthrough]];
+			case GcnOpcode::V_CMP_LT_I32:
+				condition = m_module.opSLessThan(conditionType,
 												 src[0].low.id,
 												 src[1].low.id);
 				break;

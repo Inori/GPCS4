@@ -48,8 +48,8 @@ namespace sce::gcn
 
 	void GcnCompiler::emitVectorMemBufAtomic(const GcnShaderInstruction& ins)
 	{
-		auto ptrList = emitGetBufferComponentPtr(ins, false);
 		auto src     = emitRegisterLoad(ins.src[1]);
+		auto ptrList = emitGetBufferComponentPtr(ins, false);
 
 		LOG_ASSERT(ins.control.mubuf.glc == 0 && ins.control.mubuf.slc == 0, "TODO: support GLC and SLC.");
 

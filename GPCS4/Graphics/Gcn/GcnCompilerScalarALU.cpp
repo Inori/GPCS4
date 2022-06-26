@@ -261,6 +261,11 @@ namespace sce::gcn
 											  src[0].low.id,
 											  src[1].low.id);
 				break;
+			case GcnOpcode::S_CMP_LG_I32:
+				condition = m_module.opINotEqual(typeId,
+												 src[0].low.id,
+												 src[1].low.id);
+				break;
 			default:
 				LOG_GCN_UNHANDLED_INST();
 				break;
@@ -301,6 +306,18 @@ namespace sce::gcn
 											   condition,
 											   src[0].low.id,
 											   src[1].low.id);
+				break;
+			case GcnOpcode::S_CSELECT_B64:
+			{
+				dst.low.id  = m_module.opSelect(typeId,
+												condition,
+												src[0].low.id,
+												src[1].low.id);
+				dst.high.id = m_module.opSelect(typeId,
+												condition,
+												src[0].high.id,
+												src[1].high.id);
+			}
 				break;
 			default:
 				LOG_GCN_UNHANDLED_INST();
