@@ -3578,7 +3578,7 @@ namespace sce::gcn
 		{},
 		// 14 = IMAGE_GET_RESINFO
 		{ GcnInstClass::VectorMemImgUt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Uint32 },
 		// 15 = IMAGE_ATOMIC_SWAP
 		{ GcnInstClass::VectorMemImgNoSmp, GcnInstCategory::VectorMemory, 4, 1,
 		  GcnScalarType::Undefined, GcnScalarType::Undefined },

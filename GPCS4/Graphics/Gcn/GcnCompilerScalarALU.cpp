@@ -69,6 +69,16 @@ namespace sce::gcn
 				ignoreScc  = true;
 			}
 				break;
+			case GcnOpcode::S_ADDK_I32:
+			{
+				uint32_t imm = m_module.consti32(static_cast<int32_t>(ins.control.sopk.simm));
+				auto     old = emitRegisterLoad(ins.dst[0]);
+				dst.low.id   = m_module.opIAdd(typeId,
+											   old.low.id,
+											   imm);
+				ignoreScc  = true;
+			}
+				break;
 			case GcnOpcode::S_MUL_I32:
 			{
 				dst.low.id = m_module.opIMul(typeId,
