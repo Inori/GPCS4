@@ -394,6 +394,9 @@ namespace sce::gcn
 			case GcnOpcode::V_MAD_I64_I32:
 				m_instruction.src[2].type = GcnScalarType::Sint64;
 				break;
+			case GcnOpcode::V_ADDC_U32:
+				m_instruction.src[2].type = GcnScalarType::Uint64;
+				break;
 		}
 	}
 

@@ -51,10 +51,14 @@ namespace sce::gcn
 		auto src     = emitRegisterLoad(ins.src[1]);
 		auto ptrList = emitGetBufferComponentPtr(ins, false);
 
-		LOG_ASSERT(ins.control.mubuf.glc == 0 && ins.control.mubuf.slc == 0, "TODO: support GLC and SLC.");
+		LOG_ASSERT(ins.control.mubuf.slc == 0, "TODO: support GLC and SLC.");
 
-		auto           type   = getDestinationType(ins.src[1].type);
-		const uint32_t typeId = getScalarTypeId(type);
+		GcnRegisterValuePair dst = {};
+		dst.low.type.ctype       = getDestinationType(ins.src[1].type);
+		dst.low.type.ccount      = 1;
+		dst.high.type            = dst.low.type;
+
+		const uint32_t typeId = getScalarTypeId(dst.low.type.ctype);
 
 		// should we use device scope?
 		uint32_t scope     = spv::ScopeDevice;
@@ -68,14 +72,20 @@ namespace sce::gcn
 		switch (op)
 		{
 			case GcnOpcode::BUFFER_ATOMIC_ADD:
-				m_module.opAtomicIAdd(typeId,
-									  ptrList[0].id,
-									  scopeId, semanticsId,
-									  src.low.id);
+				dst.low.id = m_module.opAtomicIAdd(typeId,
+												   ptrList[0].id,
+												   scopeId, semanticsId,
+												   src.low.id);
 				break;
 			default:
 				LOG_GCN_UNHANDLED_INST();
 				break;
+		}
+
+		bool saveOriginal = ins.control.mubuf.glc != 0;
+		if (saveOriginal)
+		{
+			emitRegisterStore(ins.src[1], dst);
 		}
 	}
 

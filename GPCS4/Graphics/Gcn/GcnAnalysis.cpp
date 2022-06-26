@@ -127,6 +127,8 @@ namespace sce::gcn
 				break;
 			case GcnInstClass::VectorMemBufFmt:
 				break;
+			case GcnInstClass::VectorMemBufAtomic:
+				break;
 			case GcnInstClass::VectorMemImgNoSmp:
 				break;
 			case GcnInstClass::VectorMemImgSmp:

@@ -89,6 +89,10 @@ namespace sce::gcn
 				dst.low.id = m_module.opBitwiseAnd(typeId,
 												   src[0].low.id, src[1].low.id);
 			    break;
+			case GcnOpcode::V_OR_B32:
+				dst.low.id = m_module.opBitwiseOr(typeId,
+												  src[0].low.id, src[1].low.id);
+				break;
 			case GcnOpcode::V_XOR_B32:
 				dst.low.id = m_module.opBitwiseXor(typeId,
 												   src[0].low.id, src[1].low.id);
@@ -217,6 +221,30 @@ namespace sce::gcn
 											 src[0].low.id,
 											 src[1].low.id);
 				break;
+			case GcnOpcode::V_ADDC_U32:
+			{
+				if (m_moduleInfo.options.separateSubgroup)
+				{
+					auto mask    = emitCommonSystemValueLoad(GcnSystemValue::SubgroupEqMask, GcnRegMask::select(0));
+					auto laneIdx = emitCommonSystemValueLoad(GcnSystemValue::SubgroupInvocationID, GcnRegMask::select(0));
+
+					auto value = m_module.opBitwiseAnd(typeId, src[2].low.id, mask.id);
+					auto carry = m_module.opShiftRightLogical(typeId, value, laneIdx.id);
+
+					dst.low.id = m_module.opIAdd(typeId,
+												 m_module.opIAdd(typeId,
+																 src[0].low.id,
+																 src[1].low.id),
+												 carry);
+					// TODO:
+					// use OpIAddCarry and ballot op to save carry-out bits to sdst.
+				}
+				else
+				{
+					LOG_GCN_UNHANDLED_INST();
+				}
+			}
+				break;
 			case GcnOpcode::V_MAD_U32_U24:
 			case GcnOpcode::V_MAD_I32_I24:
 				dst.low.id = m_module.opIAdd(typeId,
@@ -344,6 +372,7 @@ namespace sce::gcn
 											 src[0].low.id);
 				break;
 			case GcnOpcode::V_RCP_F32:
+			case GcnOpcode::V_RCP_IFLAG_F32:
 				dst.low.id = m_module.opFDiv(typeId,
 											 m_module.constf32(1.0),
 											 src[0].low.id);

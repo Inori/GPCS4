@@ -104,6 +104,11 @@ namespace sce::gcn
 													src[0].low.id,
 													src[1].low.id);
 				break;
+			case GcnOpcode::S_OR_B32:
+				dst.low.id = m_module.opBitwiseOr(typeId,
+												  src[0].low.id,
+												  src[1].low.id);
+				break;
 			case GcnOpcode::S_AND_B64:
 			{
 				dst.low.id  = m_module.opBitwiseAnd(typeId, src[0].low.id, src[1].low.id);
@@ -261,6 +266,7 @@ namespace sce::gcn
 											  src[0].low.id,
 											  src[1].low.id);
 				break;
+			case GcnOpcode::S_CMP_LG_U32:
 			case GcnOpcode::S_CMP_LG_I32:
 				condition = m_module.opINotEqual(typeId,
 												 src[0].low.id,
