@@ -1085,8 +1085,8 @@ pthread_exit (void *res)
   id->ret_arg = res;
 
   _pthread_cleanup_dest (id->x);
-  if (id->thread_noposix == 0)
-    longjmp(id->jb, 1);
+  //if (id->thread_noposix == 0)
+  //  longjmp(id->jb, 1);
 
   /* Make sure we free ourselves if we are detached */
   if ((t = (_pthread_v *)TlsGetValue(_pthread_tls)) != NULL)
