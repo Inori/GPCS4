@@ -403,6 +403,8 @@ namespace sce::Gnm
 		{
 			policy = kCachePolicyBypass;
 		}
+
+		LOG_SCE_GRAPHIC("Gnm: setIndexSize");
 		m_cb->setIndexSize(idxSize, policy);
 	}
 
@@ -424,9 +426,11 @@ namespace sce::Gnm
 		switch (packet->dstSel)
 		{
 		case dst_sel__me_write_data__memory:
+			LOG_SCE_GRAPHIC("Gnm: writeDataInline");
 			m_cb->writeDataInline(dstGpuAddr, data, sizeInDwords, (WriteDataConfirmMode)packet->wrConfirm);
 			break;
 		case dst_sel__me_write_data__tc_l2:
+			LOG_SCE_GRAPHIC("Gnm: writeDataInlineThroughL2");
 			m_cb->writeDataInlineThroughL2(dstGpuAddr, data, sizeInDwords, (CachePolicy)packet->cachePolicy__CI, (WriteDataConfirmMode)packet->wrConfirm);
 			break;
 		default:
@@ -447,9 +451,11 @@ namespace sce::Gnm
 		switch (packet->engine)
 		{
 		case engine_sel__me_wait_reg_mem__me:
+			LOG_SCE_GRAPHIC("Gnm: waitOnAddress");
 			m_cb->waitOnAddress(gpuAddr, packet->mask, (WaitCompareFunc)packet->function, packet->reference);
 			break;
 		case engine_sel__me_wait_reg_mem__pfp:
+			LOG_SCE_GRAPHIC("Gnm: waitOnAddressAndStallCommandBufferParser");
 			m_cb->waitOnAddressAndStallCommandBufferParser(gpuAddr, packet->mask, packet->reference);
 			break;
 		case engine_sel__me_wait_reg_mem__ce:
@@ -504,6 +510,7 @@ namespace sce::Gnm
 
 		if (eopPacket->intSel)
 		{
+			LOG_SCE_GRAPHIC("Gnm: writeAtEndOfPipeWithInterrupt");
 			m_cb->writeAtEndOfPipeWithInterrupt((EndOfPipeEventType)eopPacket->eventType,
 												(EventWriteDest)dstSel, gpuAddr,
 												(EventWriteSource)eopPacket->dataSel, immValue,
@@ -511,6 +518,7 @@ namespace sce::Gnm
 		}
 		else
 		{
+			LOG_SCE_GRAPHIC("Gnm: writeAtEndOfPipe");
 			m_cb->writeAtEndOfPipe((EndOfPipeEventType)eopPacket->eventType,
 								   (EventWriteDest)dstSel, gpuAddr,
 								   (EventWriteSource)eopPacket->dataSel, immValue,
@@ -523,6 +531,7 @@ namespace sce::Gnm
 		PPM4_ME_EVENT_WRITE_EOS packet     = (PPM4_ME_EVENT_WRITE_EOS)pm4Hdr;
 		uint64_t                dstGpuAddr = util::concat<uint64_t>(packet->addressHi, packet->addressLo);
 
+		LOG_SCE_GRAPHIC("Gnm: writeAtEndOfShader");
 		m_cb->writeAtEndOfShader((EndOfShaderEventType)packet->eventType, reinterpret_cast<void*>(dstGpuAddr), packet->data);
 
 		// Skip the next IT_EVENT_WRITE_EOS packet
@@ -545,10 +554,12 @@ namespace sce::Gnm
 		uint32_t                     baseAddr256       = packet->coher_base_lo;
 		if (baseAddr256)
 		{
+			LOG_SCE_GRAPHIC("Gnm: waitForGraphicsWrites");
 			m_cb->waitForGraphicsWrites(baseAddr256, packet->coher_size, targetMask, (CacheAction)cacheAction, extendedCacheMask, stallMode);
 		}
 		else
 		{
+			LOG_SCE_GRAPHIC("Gnm: flushShaderCachesAndWait");
 			m_cb->flushShaderCachesAndWait((CacheAction)cacheAction, extendedCacheMask, stallMode);
 		}
 	}
@@ -573,6 +584,7 @@ namespace sce::Gnm
 		{
 			DbRenderControl drc = {};
 			drc.m_reg           = itBody[1];
+			LOG_SCE_GRAPHIC("Gnm: setDbRenderControl");
 			m_cb->setDbRenderControl(drc);
 		}
 		break;
@@ -580,6 +592,7 @@ namespace sce::Gnm
 		{
 			const uint32_t* inputTable = &itBody[1];
 			const uint32_t  numItems   = pm4Hdr->count;
+			LOG_SCE_GRAPHIC("Gnm: setPsShaderUsage");
 			m_cb->setPsShaderUsage(inputTable, numItems);
 		}
 		break;
@@ -587,6 +600,7 @@ namespace sce::Gnm
 		{
 			ViewportTransformControl vpc = {};
 			vpc.m_reg                    = itBody[1];
+			LOG_SCE_GRAPHIC("Gnm: setViewportTransformControl");
 			m_cb->setViewportTransformControl(vpc);
 		}
 		break;
@@ -596,6 +610,7 @@ namespace sce::Gnm
 			int32_t top    = bit::extract(itBody[1], 31, 16);
 			int32_t right  = bit::extract(itBody[2], 15, 0);
 			int32_t bottom = bit::extract(itBody[2], 31, 16);
+			LOG_SCE_GRAPHIC("Gnm: setScreenScissor");
 			m_cb->setScreenScissor(left, top, right, bottom);
 		}
 		break;
@@ -603,6 +618,7 @@ namespace sce::Gnm
 		{
 			uint32_t offsetX = bit::extract(itBody[1], 15, 0);
 			uint32_t offsetY = bit::extract(itBody[1], 31, 16);
+			LOG_SCE_GRAPHIC("Gnm: setHardwareScreenOffset");
 			m_cb->setHardwareScreenOffset(offsetX, offsetY);
 		}
 		break;
@@ -612,6 +628,7 @@ namespace sce::Gnm
 			float vertDiscard = *reinterpret_cast<float*>(&itBody[2]);
 			float horzClip    = *reinterpret_cast<float*>(&itBody[3]);
 			float horzDiscard = *reinterpret_cast<float*>(&itBody[4]);
+			LOG_SCE_GRAPHIC("Gnm: setGuardBands");
 			m_cb->setGuardBands(horzClip, vertClip, horzDiscard, vertDiscard);
 		}
 		break;
@@ -629,6 +646,7 @@ namespace sce::Gnm
 		case OP_HINT_SET_RENDER_TARGET_MASK:
 		{
 			uint32_t mask = itBody[1];
+			LOG_SCE_GRAPHIC("Gnm: setRenderTargetMask");
 			m_cb->setRenderTargetMask(mask);
 		}
 		break;
@@ -639,10 +657,12 @@ namespace sce::Gnm
 			{
 				DepthStencilControl dsc;
 				dsc.m_reg = reg;
+				LOG_SCE_GRAPHIC("Gnm: setDepthStencilControl");
 				m_cb->setDepthStencilControl(dsc);
 			}
 			else
 			{
+				LOG_SCE_GRAPHIC("Gnm: setDepthStencilDisable");
 				m_cb->setDepthStencilDisable();
 			}
 		}
@@ -651,24 +671,28 @@ namespace sce::Gnm
 		{
 			PrimitiveSetup primSetupReg;
 			primSetupReg.m_reg = itBody[1];
+			LOG_SCE_GRAPHIC("Gnm: setPrimitiveSetup");
 			m_cb->setPrimitiveSetup(primSetupReg);
 		}
 		break;
 		case OP_HINT_SET_ACTIVE_SHADER_STAGES:
 		{
 			ActiveShaderStages activeStages = static_cast<ActiveShaderStages>(itBody[1]);
+			LOG_SCE_GRAPHIC("Gnm: setActiveShaderStages");
 			m_cb->setActiveShaderStages(activeStages);
 		}
 		break;
 		case OP_HINT_SET_DEPTH_CLEAR_VALUE:
 		{
 			float clearValue = *reinterpret_cast<float*>(&itBody[1]);
+			LOG_SCE_GRAPHIC("Gnm: setDepthClearValue");
 			m_cb->setDepthClearValue(clearValue);
 		}
 		break;
 		case OP_HINT_SET_STENCIL_CLEAR_VALUE:
 		{
 			uint8_t clearValue = static_cast<uint8_t>(itBody[1]);
+			LOG_SCE_GRAPHIC("Gnm: setStencilClearValue");
 			m_cb->setStencilClearValue(clearValue);
 		}
 		break;
@@ -687,6 +711,7 @@ namespace sce::Gnm
 			uint32_t     rtSlot = regOffset - 0x1E0;
 			BlendControl bc;
 			bc.m_reg = itBody[1];
+			LOG_SCE_GRAPHIC("Gnm: setBlendControl");
 			m_cb->setBlendControl(rtSlot, bc);
 		}
 	}
@@ -730,15 +755,19 @@ namespace sce::Gnm
 			switch (m_lastHint)
 			{
 			case OP_HINT_SET_VSHARP_IN_USER_DATA:
+				LOG_SCE_GRAPHIC("Gnm: setVsharpInUserData");
 				m_cb->setVsharpInUserData(stage, startSlot, (const Buffer*)gpuAddr);
 				break;
 			case OP_HINT_SET_TSHARP_IN_USER_DATA:
+				LOG_SCE_GRAPHIC("Gnm: setTsharpInUserData");
 				m_cb->setTsharpInUserData(stage, startSlot, (const Texture*)gpuAddr);
 				break;
 			case OP_HINT_SET_SSHARP_IN_USER_DATA:
+				LOG_SCE_GRAPHIC("Gnm: setSsharpInUserData");
 				m_cb->setSsharpInUserData(stage, startSlot, (const Sampler*)gpuAddr);
 				break;
 			case OP_HINT_SET_USER_DATA_REGION:
+				LOG_SCE_GRAPHIC("Gnm: setUserDataRegion");
 				m_cb->setUserDataRegion(stage, startSlot, &itBody[1], pm4Hdr->count);
 				break;
 			default:
@@ -748,6 +777,7 @@ namespace sce::Gnm
 
 			if (isPointer && pm4Hdr->count == 2)  // 2 for a pointer type size
 			{
+				LOG_SCE_GRAPHIC("Gnm: setPointerInUserData");
 				m_cb->setPointerInUserData(stage, startSlot, gpuAddr);
 			}
 		}
@@ -789,6 +819,7 @@ namespace sce::Gnm
 		switch (setUcfgPacket->bitfields2.reg_offset)
 		{
 		case OP_HINT_SET_PRIMITIVE_TYPE_BASE:
+			LOG_SCE_GRAPHIC("Gnm: setPrimitiveType");
 			m_cb->setPrimitiveType((PrimitiveType)itBody[1]);
 			break;
 		default:
@@ -830,11 +861,13 @@ namespace sce::Gnm
 		if (packet->intSel == int_sel__me_release_mem__none ||
 			packet->intSel == int_sel__me_release_mem__send_data_and_write_confirm)
 		{
+			LOG_SCE_GRAPHIC("Gnm: writeReleaseMemEvent");
 			m_cb->writeReleaseMemEvent(
 				eventType, dstSelector, dstGpuAddr, srcSelector, immValue, cacheAction, writePolicy);
 		}
 		else
 		{
+			LOG_SCE_GRAPHIC("Gnm: writeReleaseMemEventWithInterrupt");
 			m_cb->writeReleaseMemEventWithInterrupt(
 				eventType, dstSelector, dstGpuAddr, srcSelector, immValue, cacheAction, writePolicy);
 		}
@@ -853,6 +886,7 @@ namespace sce::Gnm
 		switch (priv)
 		{
 			case OP_PRIV_INITIALIZE_DEFAULT_HARDWARE_STATE:
+				LOG_SCE_GRAPHIC("Gnm: initializeDefaultHardwareState");
 				m_cb->initializeDefaultHardwareState();
 				break;
 			case OP_PRIV_INITIALIZE_TO_DEFAULT_CONTEXT_STATE:
@@ -860,6 +894,7 @@ namespace sce::Gnm
 			case OP_PRIV_SET_EMBEDDED_VS_SHADER:
 			{
 				GnmCmdVSShader* param = (GnmCmdVSShader*)pm4Hdr;
+				LOG_SCE_GRAPHIC("Gnm: setEmbeddedVsShader");
 				m_cb->setEmbeddedVsShader(param->shaderId, param->modifier);
 			}
 			break;
@@ -868,18 +903,21 @@ namespace sce::Gnm
 			case OP_PRIV_SET_VS_SHADER:
 			{
 				GnmCmdVSShader* param = (GnmCmdVSShader*)pm4Hdr;
+				LOG_SCE_GRAPHIC("Gnm: setVsShader");
 				m_cb->setVsShader(&param->vsRegs, param->modifier);
 			}
 			break;
 			case OP_PRIV_SET_PS_SHADER:
 			{
 				GnmCmdPSShader* param = (GnmCmdPSShader*)pm4Hdr;
+				LOG_SCE_GRAPHIC("Gnm: setPsShader");
 				m_cb->setPsShader(&param->psRegs);
 			}
 			break;
 			case OP_PRIV_SET_CS_SHADER:
 			{
 				GnmCmdCSShader* param = (GnmCmdCSShader*)pm4Hdr;
+				LOG_SCE_GRAPHIC("Gnm: setCsShader");
 				m_cb->setCsShader(&param->csRegs, param->modifier);
 			}
 			break;
@@ -898,18 +936,21 @@ namespace sce::Gnm
 			case OP_PRIV_UPDATE_PS_SHADER:
 			{
 				GnmCmdPSShader* param = (GnmCmdPSShader*)pm4Hdr;
+				LOG_SCE_GRAPHIC("Gnm: updatePsShader");
 				m_cb->updatePsShader(&param->psRegs);
 			}
 			break;
 			case OP_PRIV_UPDATE_VS_SHADER:
 			{
 				GnmCmdVSShader* param = (GnmCmdVSShader*)pm4Hdr;
+				LOG_SCE_GRAPHIC("Gnm: updateVsShader");
 				m_cb->updateVsShader(&param->vsRegs, param->modifier);
 			}
 			break;
 			case OP_PRIV_SET_VGT_CONTROL:
 			{
 				GnmCmdVgtControl* param = (GnmCmdVgtControl*)pm4Hdr;
+				LOG_SCE_GRAPHIC("Gnm: setVgtControlForNeo");
 				m_cb->setVgtControlForNeo(param->primGroupSizeMinusOne,
 										  (WdSwitchOnlyOnEopMode)param->wdSwitchOnlyOnEopMode,
 										  (VgtPartialVsWaveMode)param->partialVsWaveMode);
@@ -940,6 +981,7 @@ namespace sce::Gnm
 			case OP_PRIV_WAIT_UNTIL_SAFE_FOR_RENDERING:
 			{
 				GnmCmdWaitFlipDone* param = (GnmCmdWaitFlipDone*)pm4Hdr;
+				LOG_SCE_GRAPHIC("Gnm: waitUntilSafeForRendering");
 				m_cb->waitUntilSafeForRendering(param->videoOutHandle, param->displayBufferIndex);
 			}
 			break;
@@ -957,10 +999,12 @@ namespace sce::Gnm
 				DispatchOrderedAppendMode mode  = (DispatchOrderedAppendMode)bit::extract(param->pred, 4, 3);
 				if (mode == kDispatchOrderedAppendModeDisabled)
 				{
+					LOG_SCE_GRAPHIC("Gnm: dispatch");
 					m_cb->dispatch(param->threadGroupX, param->threadGroupY, param->threadGroupZ);
 				}
 				else
 				{
+					LOG_SCE_GRAPHIC("Gnm: dispatchWithOrderedAppend");
 					m_cb->dispatchWithOrderedAppend(param->threadGroupX, param->threadGroupY, param->threadGroupZ, mode);
 				}
 			}
@@ -970,6 +1014,7 @@ namespace sce::Gnm
 			case OP_PRIV_COMPUTE_WAIT_ON_ADDRESS:
 			{
 				GnmCmdComputeWaitOnAddress* param = (GnmCmdComputeWaitOnAddress*)pm4Hdr;
+				LOG_SCE_GRAPHIC("Gnm: waitOnAddress");
 				m_cb->waitOnAddress((void*)param->gpuAddr, param->mask, (WaitCompareFunc)param->compareFunc, param->refValue);
 			}
 				break;
@@ -994,12 +1039,14 @@ namespace sce::Gnm
 			uint32_t threadGroupX = itBody[0];
 			uint32_t threadGroupY = itBody[1];
 			uint32_t threadGroupZ = itBody[2];
+			LOG_SCE_GRAPHIC("Gnm: dispatch");
 			m_cb->dispatch(threadGroupX, threadGroupY, threadGroupZ);
 		}
 		break;
 		case IT_DRAW_INDEX_AUTO:
 		{
 			uint32_t indexCount = itBody[0];
+			LOG_SCE_GRAPHIC("Gnm: drawIndexAuto");
 			m_cb->drawIndexAuto(indexCount);
 		}
 		break;
@@ -1020,9 +1067,11 @@ namespace sce::Gnm
 		switch (hint)
 		{
 		case OP_HINT_PREPARE_FLIP_VOID:
+			LOG_SCE_GRAPHIC("Gnm: prepareFlip");
 			m_cb->prepareFlip();
 			break;
 		case OP_HINT_PREPARE_FLIP_LABEL:
+			LOG_SCE_GRAPHIC("Gnm: prepareFlip");
 			m_cb->prepareFlip(labelAddr, value);
 			break;
 		case OP_HINT_PREPARE_FLIP_WITH_EOP_INTERRUPT_VOID:
@@ -1032,9 +1081,10 @@ namespace sce::Gnm
 		{
 			EndOfPipeEventType eventType   = (EndOfPipeEventType)itBody[4];
 			CacheAction        cacheAction = (CacheAction)itBody[5];
+			LOG_SCE_GRAPHIC("Gnm: prepareFlipWithEopInterrupt");
 			m_cb->prepareFlipWithEopInterrupt(eventType, labelAddr, value, cacheAction);
 		}
-		break;
+			break;
 		default:
 			break;
 		}
@@ -1045,6 +1095,7 @@ namespace sce::Gnm
 
 	void GnmCommandProcessor::onDrawIndex(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	{
+		LOG_SCE_GRAPHIC("Gnm: drawIndex");
 		GnmCmdDrawIndex* param           = (GnmCmdDrawIndex*)pm4Hdr;
 		DrawModifier     modifier        = { 0 };
 		modifier.renderTargetSliceOffset = (param->predAndMod >> 29) & 0b111;
@@ -1060,6 +1111,7 @@ namespace sce::Gnm
 
 	void GnmCommandProcessor::onDrawIndexAuto(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	{
+		LOG_SCE_GRAPHIC("Gnm: drawIndexAuto");
 		GnmCmdDrawIndexAuto* param       = (GnmCmdDrawIndexAuto*)pm4Hdr;
 		DrawModifier         modifier    = { 0 };
 		modifier.renderTargetSliceOffset = (param->predAndMod >> 29) & 0b111;
@@ -1075,6 +1127,8 @@ namespace sce::Gnm
 
 	void GnmCommandProcessor::onSetViewport(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	{
+		LOG_SCE_GRAPHIC("Gnm: setViewport");
+
 		float dmin = *reinterpret_cast<float*>(&itBody[1]);
 		float dmax = *reinterpret_cast<float*>(&itBody[2]);
 
@@ -1105,6 +1159,8 @@ namespace sce::Gnm
 		uint32_t offset    = setCtxPacket->bitfields2.reg_offset - 0x318;
 		bool     isValidRt = (offset % 15 == 0);
 
+		LOG_SCE_GRAPHIC("Gnm: setRenderTarget");
+
 		if (isValidRt)
 		{
 			uint32_t rtSlot = (setCtxPacket->bitfields2.reg_offset - 0x318) / 15;
@@ -1133,6 +1189,7 @@ namespace sce::Gnm
 
 	void GnmCommandProcessor::onSetDepthRenderTarget(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	{
+		LOG_SCE_GRAPHIC("Gnm: setDepthRenderTarget");
 		PPM4ME_SET_CONTEXT_REG nextPacket = (PPM4ME_SET_CONTEXT_REG)getNextPm4(pm4Hdr);
 		if (nextPacket->bitfields2.reg_offset == 15)
 		{
