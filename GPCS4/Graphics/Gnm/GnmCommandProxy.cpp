@@ -20,7 +20,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: sub_7FFC805A03D");
+			LOG_TRACE("Gnm: sub_7FFC805A03D");
 			// m_cb->sub_7FFC805A03D();
 			count = kPacketCountSub_7FFC805A03D0;
 		}
@@ -35,7 +35,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: prepareFlip");
+			LOG_TRACE("Gnm: prepareFlip");
 			// m_cb->sub_7FFC805A03F();
 			count = kPacketCountPrepareFlip2;
 		}
@@ -87,7 +87,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setVsharpInUserData");
+			LOG_TRACE("Gnm: setVsharpInUserData");
 			// m_cb->setVsharpInUserData();
 			count = kPacketCountSetVsharpInUserData;
 		}
@@ -139,7 +139,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setTsharpInUserData");
+			LOG_TRACE("Gnm: setTsharpInUserData");
 			// m_cb->setTsharpInUserData();
 			count = kPacketCountSetTsharpInUserData;
 		}
@@ -191,7 +191,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setSsharpInUserData");
+			LOG_TRACE("Gnm: setSsharpInUserData");
 			// m_cb->setSsharpInUserData();
 			count = kPacketCountSetSsharpInUserData;
 		}
@@ -248,7 +248,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setUserDataRegion");
+			LOG_TRACE("Gnm: setUserDataRegion");
 			// m_cb->setUserDataRegion();
 			count = kPacketCountSetUserDataRegion;
 		}
@@ -296,7 +296,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setPointerInUserData");
+			LOG_TRACE("Gnm: setPointerInUserData");
 			// m_cb->setPointerInUserData();
 			count = kPacketCountSetPointerInUserData;
 		}
@@ -344,7 +344,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setUserData");
+			LOG_TRACE("Gnm: setUserData");
 			// m_cb->setUserData();
 			count = kPacketCountSetUserData;
 		}
@@ -387,7 +387,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: prefetchIntoL");
+			LOG_TRACE("Gnm: prefetchIntoL");
 			// m_cb->prefetchIntoL();
 			count = kPacketCountPrefetchIntoL2;
 		}
@@ -420,7 +420,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: requestVideoFlip");
+			LOG_TRACE("Gnm: requestVideoFlip");
 			// m_cb->requestVideoFlip();
 			count = kPacketCountRequestVideoFlip;
 		}
@@ -453,7 +453,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: initializeDefaultHardwareState");
+			LOG_TRACE("Gnm: initializeDefaultHardwareState");
 			// m_cb->initializeDefaultHardwareState();
 			count = kPacketCountInitializeDefaultHardwareState;
 		}
@@ -502,7 +502,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: initializeToDefaultContextState");
+			LOG_TRACE("Gnm: initializeToDefaultContextState");
 			// m_cb->initializeToDefaultContextState();
 			count = kPacketCountInitializeToDefaultContextState;
 		}
@@ -541,7 +541,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: initializeToDefaultContextState");
+			LOG_TRACE("Gnm: initializeToDefaultContextState");
 			// m_cb->initializeToDefaultContextState();
 			count = kPacketCountInitializeToDefaultContextState2;
 		}
@@ -576,7 +576,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: initializeToDefaultContextState");
+			LOG_TRACE("Gnm: initializeToDefaultContextState");
 			// m_cb->initializeToDefaultContextState();
 			count = kPacketCountInitializeToDefaultContextState3;
 		}
@@ -610,7 +610,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setupEsGsRingRegisters");
+			LOG_TRACE("Gnm: setupEsGsRingRegisters");
 			// m_cb->setupEsGsRingRegisters();
 			count = kPacketCountSetupEsGsRingRegisters;
 		}
@@ -666,7 +666,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setupGsVsRingRegisters");
+			LOG_TRACE("Gnm: setupGsVsRingRegisters");
 			// m_cb->setupGsVsRingRegisters();
 			count = kPacketCountSetupGsVsRingRegisters;
 		}
@@ -701,7 +701,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: flushStreamout");
+			LOG_TRACE("Gnm: flushStreamout");
 			// m_cb->flushStreamout();
 			count = kPacketCountFlushStreamout;
 		}
@@ -745,7 +745,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setStreamoutBufferDimensions");
+			LOG_TRACE("Gnm: setStreamoutBufferDimensions");
 			// m_cb->setStreamoutBufferDimensions();
 			count = kPacketCountSetStreamoutBufferDimensions;
 		}
@@ -779,7 +779,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setStreamoutMapping");
+			LOG_TRACE("Gnm: setStreamoutMapping");
 			// m_cb->setStreamoutMapping();
 			count = kPacketCountSetStreamoutMapping;
 		}
@@ -829,7 +829,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: writeStreamoutBufferUpdate");
+			LOG_TRACE("Gnm: writeStreamoutBufferUpdate");
 			// m_cb->writeStreamoutBufferUpdate();
 			count = kPacketCountWriteStreamoutBufferUpdate;
 		}
@@ -876,7 +876,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setComputeShaderControl");
+			LOG_TRACE("Gnm: setComputeShaderControl");
 			// m_cb->setComputeShaderControl();
 			count = kPacketCountSetComputeShaderControl;
 		}
@@ -1025,7 +1025,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setGraphicsShaderControl");
+			LOG_TRACE("Gnm: setGraphicsShaderControl");
 			// m_cb->setGraphicsShaderControl();
 			count = kPacketCountSetGraphicsShaderControl;
 		}
@@ -1076,7 +1076,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setGraphicsShaderControl");
+			LOG_TRACE("Gnm: setGraphicsShaderControl");
 			// m_cb->setGraphicsShaderControl();
 			count = kPacketCountSetGraphicsShaderControl2;
 		}
@@ -1127,7 +1127,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setGraphicsShaderControl");
+			LOG_TRACE("Gnm: setGraphicsShaderControl");
 			// m_cb->setGraphicsShaderControl();
 			count = kPacketCountSetGraphicsShaderControl3;
 		}
@@ -1178,7 +1178,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setGraphicsShaderControl");
+			LOG_TRACE("Gnm: setGraphicsShaderControl");
 			// m_cb->setGraphicsShaderControl();
 			count = kPacketCountSetGraphicsShaderControl4;
 		}
@@ -1229,7 +1229,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setGraphicsShaderControl");
+			LOG_TRACE("Gnm: setGraphicsShaderControl");
 			// m_cb->setGraphicsShaderControl();
 			count = kPacketCountSetGraphicsShaderControl5;
 		}
@@ -1280,7 +1280,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setGraphicsShaderControl");
+			LOG_TRACE("Gnm: setGraphicsShaderControl");
 			// m_cb->setGraphicsShaderControl();
 			count = kPacketCountSetGraphicsShaderControl6;
 		}
@@ -1331,7 +1331,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setGraphicsShaderControl");
+			LOG_TRACE("Gnm: setGraphicsShaderControl");
 			// m_cb->setGraphicsShaderControl();
 			count = kPacketCountSetGraphicsShaderControl7;
 		}
@@ -1406,7 +1406,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setComputeResourceManagement");
+			LOG_TRACE("Gnm: setComputeResourceManagement");
 			// m_cb->setComputeResourceManagement();
 			count = kPacketCountSetComputeResourceManagement;
 		}
@@ -1471,7 +1471,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setComputeResourceManagement");
+			LOG_TRACE("Gnm: setComputeResourceManagement");
 			// m_cb->setComputeResourceManagement();
 			count = kPacketCountSetComputeResourceManagement2;
 		}
@@ -1543,7 +1543,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setComputeResourceManagementForNeo");
+			LOG_TRACE("Gnm: setComputeResourceManagementForNeo");
 			// m_cb->setComputeResourceManagementForNeo();
 			count = kPacketCountSetComputeResourceManagementForNeo;
 		}
@@ -1603,7 +1603,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setComputeResourceManagementForBase");
+			LOG_TRACE("Gnm: setComputeResourceManagementForBase");
 			// m_cb->setComputeResourceManagementForBase();
 			count = kPacketCountSetComputeResourceManagementForBase;
 		}
@@ -1646,7 +1646,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setGraphicsScratchSize");
+			LOG_TRACE("Gnm: setGraphicsScratchSize");
 			// m_cb->setGraphicsScratchSize();
 			count = kPacketCountSetGraphicsScratchSize;
 		}
@@ -1689,7 +1689,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setComputeScratchSize");
+			LOG_TRACE("Gnm: setComputeScratchSize");
 			// m_cb->setComputeScratchSize();
 			count = kPacketCountSetComputeScratchSize;
 		}
@@ -1728,7 +1728,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setViewportTransformControl");
+			LOG_TRACE("Gnm: setViewportTransformControl");
 			// m_cb->setViewportTransformControl();
 			count = kPacketCountSetViewportTransformControl;
 		}
@@ -1767,7 +1767,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setClipControl");
+			LOG_TRACE("Gnm: setClipControl");
 			// m_cb->setClipControl();
 			count = kPacketCountSetClipControl;
 		}
@@ -1817,7 +1817,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setUserClipPlane");
+			LOG_TRACE("Gnm: setUserClipPlane");
 			// m_cb->setUserClipPlane();
 			count = kPacketCountSetUserClipPlane;
 		}
@@ -1868,7 +1868,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setClipRectangle");
+			LOG_TRACE("Gnm: setClipRectangle");
 			// m_cb->setClipRectangle();
 			count = kPacketCountSetClipRectangle;
 		}
@@ -1906,7 +1906,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setClipRectangleRule");
+			LOG_TRACE("Gnm: setClipRectangleRule");
 			// m_cb->setClipRectangleRule();
 			count = kPacketCountSetClipRectangleRule;
 		}
@@ -1945,7 +1945,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setPrimitiveSetup");
+			LOG_TRACE("Gnm: setPrimitiveSetup");
 			// m_cb->setPrimitiveSetup();
 			count = kPacketCountSetPrimitiveSetup;
 		}
@@ -1984,7 +1984,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setPrimitiveResetIndexEnable");
+			LOG_TRACE("Gnm: setPrimitiveResetIndexEnable");
 			// m_cb->setPrimitiveResetIndexEnable();
 			count = kPacketCountSetPrimitiveResetIndexEnable;
 		}
@@ -2023,7 +2023,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setPrimitiveResetIndex");
+			LOG_TRACE("Gnm: setPrimitiveResetIndex");
 			// m_cb->setPrimitiveResetIndex();
 			count = kPacketCountSetPrimitiveResetIndex;
 		}
@@ -2070,7 +2070,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setVertexQuantization");
+			LOG_TRACE("Gnm: setVertexQuantization");
 			// m_cb->setVertexQuantization();
 			count = kPacketCountSetVertexQuantization;
 		}
@@ -2113,7 +2113,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setWindowOffset");
+			LOG_TRACE("Gnm: setWindowOffset");
 			// m_cb->setWindowOffset();
 			count = kPacketCountSetWindowOffset;
 		}
@@ -2160,7 +2160,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setScreenScissor");
+			LOG_TRACE("Gnm: setScreenScissor");
 			// m_cb->setScreenScissor();
 			count = kPacketCountSetScreenScissor;
 		}
@@ -2212,7 +2212,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setWindowScissor");
+			LOG_TRACE("Gnm: setWindowScissor");
 			// m_cb->setWindowScissor();
 			count = kPacketCountSetWindowScissor;
 		}
@@ -2264,7 +2264,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setGenericScissor");
+			LOG_TRACE("Gnm: setGenericScissor");
 			// m_cb->setGenericScissor();
 			count = kPacketCountSetGenericScissor;
 		}
@@ -2322,7 +2322,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setViewportScissor");
+			LOG_TRACE("Gnm: setViewportScissor");
 			// m_cb->setViewportScissor();
 			count = kPacketCountSetViewportScissor;
 		}
@@ -2393,7 +2393,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setViewport");
+			LOG_TRACE("Gnm: setViewport");
 			// m_cb->setViewport();
 			count = kPacketCountSetViewport;
 		}
@@ -2436,7 +2436,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setScanModeControl");
+			LOG_TRACE("Gnm: setScanModeControl");
 			// m_cb->setScanModeControl();
 			count = kPacketCountSetScanModeControl;
 		}
@@ -2479,7 +2479,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setAaSampleCount");
+			LOG_TRACE("Gnm: setAaSampleCount");
 			// m_cb->setAaSampleCount();
 			count = kPacketCountSetAaSampleCount;
 		}
@@ -2602,7 +2602,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setAaSampleLocationControl");
+			LOG_TRACE("Gnm: setAaSampleLocationControl");
 			// m_cb->setAaSampleLocationControl();
 			count = kPacketCountSetAaSampleLocationControl;
 		}
@@ -2641,7 +2641,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setPsShaderRate");
+			LOG_TRACE("Gnm: setPsShaderRate");
 			// m_cb->setPsShaderRate();
 			count = kPacketCountSetPsShaderRate;
 		}
@@ -2688,7 +2688,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setAaSampleMask");
+			LOG_TRACE("Gnm: setAaSampleMask");
 			// m_cb->setAaSampleMask();
 			count = kPacketCountSetAaSampleMask;
 		}
@@ -2797,7 +2797,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setAaSampleLocations");
+			LOG_TRACE("Gnm: setAaSampleLocations");
 			// m_cb->setAaSampleLocations();
 			count = kPacketCountSetAaSampleLocations;
 		}
@@ -2832,7 +2832,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setCentroidPriority");
+			LOG_TRACE("Gnm: setCentroidPriority");
 			// m_cb->setCentroidPriority();
 			count = kPacketCountSetCentroidPriority;
 		}
@@ -2870,7 +2870,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setLineWidth");
+			LOG_TRACE("Gnm: setLineWidth");
 			// m_cb->setLineWidth();
 			count = kPacketCountSetLineWidth;
 		}
@@ -2913,7 +2913,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setPointSize");
+			LOG_TRACE("Gnm: setPointSize");
 			// m_cb->setPointSize();
 			count = kPacketCountSetPointSize;
 		}
@@ -2956,7 +2956,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setPointMinMax");
+			LOG_TRACE("Gnm: setPointMinMax");
 			// m_cb->setPointMinMax();
 			count = kPacketCountSetPointMinMax;
 		}
@@ -2994,7 +2994,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setPolygonOffsetClamp");
+			LOG_TRACE("Gnm: setPolygonOffsetClamp");
 			// m_cb->setPolygonOffsetClamp();
 			count = kPacketCountSetPolygonOffsetClamp;
 		}
@@ -3032,7 +3032,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setPolygonOffsetZFormat");
+			LOG_TRACE("Gnm: setPolygonOffsetZFormat");
 			// m_cb->setPolygonOffsetZFormat();
 			count = kPacketCountSetPolygonOffsetZFormat;
 		}
@@ -3069,7 +3069,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setPolygonOffsetFront");
+			LOG_TRACE("Gnm: setPolygonOffsetFront");
 			// m_cb->setPolygonOffsetFront();
 			count = kPacketCountSetPolygonOffsetFront;
 		}
@@ -3106,7 +3106,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setPolygonOffsetBack");
+			LOG_TRACE("Gnm: setPolygonOffsetBack");
 			// m_cb->setPolygonOffsetBack();
 			count = kPacketCountSetPolygonOffsetBack;
 		}
@@ -3149,7 +3149,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setHardwareScreenOffset");
+			LOG_TRACE("Gnm: setHardwareScreenOffset");
 			// m_cb->setHardwareScreenOffset();
 			count = kPacketCountSetHardwareScreenOffset;
 		}
@@ -3188,7 +3188,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setGuardBandClip");
+			LOG_TRACE("Gnm: setGuardBandClip");
 			// m_cb->setGuardBandClip();
 			count = kPacketCountSetGuardBandClip;
 		}
@@ -3227,7 +3227,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setGuardBandDiscard");
+			LOG_TRACE("Gnm: setGuardBandDiscard");
 			// m_cb->setGuardBandDiscard();
 			count = kPacketCountSetGuardBandDiscard;
 		}
@@ -3266,7 +3266,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setInstanceStepRate");
+			LOG_TRACE("Gnm: setInstanceStepRate");
 			// m_cb->setInstanceStepRate();
 			count = kPacketCountSetInstanceStepRate;
 		}
@@ -3323,7 +3323,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setPsShaderUsage");
+			LOG_TRACE("Gnm: setPsShaderUsage");
 			// m_cb->setPsShaderUsage();
 			count = kPacketCountSetPsShaderUsage;
 		}
@@ -3355,7 +3355,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setRenderOverrideControl");
+			LOG_TRACE("Gnm: setRenderOverrideControl");
 			// m_cb->setRenderOverrideControl();
 			count = kPacketCountSetRenderOverrideControl;
 		}
@@ -3387,7 +3387,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setRenderOverride2Control");
+			LOG_TRACE("Gnm: setRenderOverride2Control");
 			// m_cb->setRenderOverride2Control();
 			count = kPacketCountSetRenderOverride2Control;
 		}
@@ -3426,7 +3426,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setActiveShaderStages");
+			LOG_TRACE("Gnm: setActiveShaderStages");
 			// m_cb->setActiveShaderStages();
 			count = kPacketCountSetActiveShaderStages;
 		}
@@ -3477,7 +3477,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setGsMode");
+			LOG_TRACE("Gnm: setGsMode");
 			// m_cb->setGsMode();
 			count = kPacketCountSetGsMode;
 		}
@@ -3520,7 +3520,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setGsOnChipControl");
+			LOG_TRACE("Gnm: setGsOnChipControl");
 			// m_cb->setGsOnChipControl();
 			count = kPacketCountSetGsOnChipControl;
 		}
@@ -3559,7 +3559,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setBorderColorTableAddr");
+			LOG_TRACE("Gnm: setBorderColorTableAddr");
 			// m_cb->setBorderColorTableAddr();
 			count = kPacketCountSetBorderColorTableAddr;
 		}
@@ -3602,7 +3602,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setPsShader");
+			LOG_TRACE("Gnm: setPsShader");
 			// m_cb->setPsShader();
 			count = kPacketCountSetPsShader;
 		}
@@ -3649,7 +3649,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setPsShader");
+			LOG_TRACE("Gnm: setPsShader");
 			// m_cb->setPsShader();
 			count = kPacketCountSetPsShader2;
 		}
@@ -3713,7 +3713,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setPsShader");
+			LOG_TRACE("Gnm: setPsShader");
 			// m_cb->setPsShader();
 			count = kPacketCountSetPsShader3;
 		}
@@ -3765,7 +3765,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setVsShader");
+			LOG_TRACE("Gnm: setVsShader");
 			// m_cb->setVsShader();
 			count = kPacketCountSetVsShader;
 		}
@@ -3801,7 +3801,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setEsShader");
+			LOG_TRACE("Gnm: setEsShader");
 			// m_cb->setEsShader();
 			count = kPacketCountSetEsShader;
 		}
@@ -3849,7 +3849,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setGsShader");
+			LOG_TRACE("Gnm: setGsShader");
 			// m_cb->setGsShader();
 			count = kPacketCountSetGsShader;
 		}
@@ -3889,7 +3889,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setCsShader");
+			LOG_TRACE("Gnm: setCsShader");
 			// m_cb->setCsShader();
 			count = kPacketCountSetCsShader;
 		}
@@ -3929,7 +3929,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setLsShader");
+			LOG_TRACE("Gnm: setLsShader");
 			// m_cb->setLsShader();
 			count = kPacketCountSetLsShader;
 		}
@@ -3977,7 +3977,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setHsShader");
+			LOG_TRACE("Gnm: setHsShader");
 			// m_cb->setHsShader();
 			count = kPacketCountSetHsShader;
 		}
@@ -4031,7 +4031,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: updatePsShader");
+			LOG_TRACE("Gnm: updatePsShader");
 			// m_cb->updatePsShader();
 			count = kPacketCountUpdatePsShader;
 		}
@@ -4076,7 +4076,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: updateVsShader");
+			LOG_TRACE("Gnm: updateVsShader");
 			// m_cb->updateVsShader();
 			count = kPacketCountUpdateVsShader;
 		}
@@ -4121,7 +4121,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: updateGsShader");
+			LOG_TRACE("Gnm: updateGsShader");
 			// m_cb->updateGsShader();
 			count = kPacketCountUpdateGsShader;
 		}
@@ -4166,7 +4166,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: updateHsShader");
+			LOG_TRACE("Gnm: updateHsShader");
 			// m_cb->updateHsShader();
 			count = kPacketCountUpdateHsShader;
 		}
@@ -4190,7 +4190,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: waitOnCe");
+			LOG_TRACE("Gnm: waitOnCe");
 			// m_cb->waitOnCe();
 			count = kPacketCountWaitOnCe;
 		}
@@ -4214,7 +4214,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: incrementDeCounter");
+			LOG_TRACE("Gnm: incrementDeCounter");
 			// m_cb->incrementDeCounter();
 			count = kPacketCountIncrementDeCounter;
 		}
@@ -4274,7 +4274,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: readDataFromGds");
+			LOG_TRACE("Gnm: readDataFromGds");
 			// m_cb->readDataFromGds();
 			count = kPacketCountReadDataFromGds;
 		}
@@ -4349,7 +4349,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setRenderTarget");
+			LOG_TRACE("Gnm: setRenderTarget");
 			// m_cb->setRenderTarget();
 			count = kPacketCountSetRenderTarget;
 		}
@@ -4425,7 +4425,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setRenderTarget");
+			LOG_TRACE("Gnm: setRenderTarget");
 			// m_cb->setRenderTarget();
 			count = kPacketCountSetRenderTarget2;
 		}
@@ -4502,7 +4502,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setRenderTarget");
+			LOG_TRACE("Gnm: setRenderTarget");
 			// m_cb->setRenderTarget();
 			count = kPacketCountSetRenderTarget3;
 		}
@@ -4549,7 +4549,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setRenderTarget");
+			LOG_TRACE("Gnm: setRenderTarget");
 			// m_cb->setRenderTarget();
 			count = kPacketCountSetRenderTarget4;
 		}
@@ -4625,7 +4625,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setDepthRenderTarget");
+			LOG_TRACE("Gnm: setDepthRenderTarget");
 			// m_cb->setDepthRenderTarget();
 			count = kPacketCountSetDepthRenderTarget;
 		}
@@ -4664,7 +4664,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setDepthRenderTarget");
+			LOG_TRACE("Gnm: setDepthRenderTarget");
 			// m_cb->setDepthRenderTarget();
 			count = kPacketCountSetDepthRenderTarget2;
 		}
@@ -4697,7 +4697,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setDepthClearValue");
+			LOG_TRACE("Gnm: setDepthClearValue");
 			// m_cb->setDepthClearValue();
 			count = kPacketCountSetDepthClearValue;
 		}
@@ -4731,7 +4731,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setStencilClearValue");
+			LOG_TRACE("Gnm: setStencilClearValue");
 			// m_cb->setStencilClearValue();
 			count = kPacketCountSetStencilClearValue;
 		}
@@ -4781,7 +4781,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setCmaskClearColor");
+			LOG_TRACE("Gnm: setCmaskClearColor");
 			// m_cb->setCmaskClearColor();
 			count = kPacketCountSetCmaskClearColor;
 		}
@@ -4817,7 +4817,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setRenderTargetMask");
+			LOG_TRACE("Gnm: setRenderTargetMask");
 			// m_cb->setRenderTargetMask();
 			count = kPacketCountSetRenderTargetMask;
 		}
@@ -4862,7 +4862,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setBlendControl");
+			LOG_TRACE("Gnm: setBlendControl");
 			// m_cb->setBlendControl();
 			count = kPacketCountSetBlendControl;
 		}
@@ -4907,7 +4907,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setBlendColor");
+			LOG_TRACE("Gnm: setBlendColor");
 			// m_cb->setBlendColor();
 			count = kPacketCountSetBlendColor;
 		}
@@ -4958,7 +4958,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setStencilSeparate");
+			LOG_TRACE("Gnm: setStencilSeparate");
 			// m_cb->setStencilSeparate();
 			count = kPacketCountSetStencilSeparate;
 		}
@@ -4992,7 +4992,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setAlphaToMaskControl");
+			LOG_TRACE("Gnm: setAlphaToMaskControl");
 			// m_cb->setAlphaToMaskControl();
 			count = kPacketCountSetAlphaToMaskControl;
 		}
@@ -5026,7 +5026,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setHtileStencil");
+			LOG_TRACE("Gnm: setHtileStencil");
 			// m_cb->setHtileStencil();
 			count = kPacketCountSetHtileStencil0;
 		}
@@ -5060,7 +5060,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setHtileStencil");
+			LOG_TRACE("Gnm: setHtileStencil");
 			// m_cb->setHtileStencil();
 			count = kPacketCountSetHtileStencil1;
 		}
@@ -5099,7 +5099,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setCbControl");
+			LOG_TRACE("Gnm: setCbControl");
 			// m_cb->setCbControl();
 			count = kPacketCountSetCbControl;
 		}
@@ -5142,7 +5142,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setDepthStencilDisable");
+			LOG_TRACE("Gnm: setDepthStencilDisable");
 			// m_cb->setDepthStencilDisable();
 			count = kPacketCountSetDepthStencilDisable;
 		}
@@ -5179,7 +5179,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setDepthBoundsRange");
+			LOG_TRACE("Gnm: setDepthBoundsRange");
 			// m_cb->setDepthBoundsRange();
 			count = kPacketCountSetDepthBoundsRange;
 		}
@@ -5213,7 +5213,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setStencilOpControl");
+			LOG_TRACE("Gnm: setStencilOpControl");
 			// m_cb->setStencilOpControl();
 			count = kPacketCountSetStencilOpControl;
 		}
@@ -5245,7 +5245,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setDbRenderControl");
+			LOG_TRACE("Gnm: setDbRenderControl");
 			// m_cb->setDbRenderControl();
 			count = kPacketCountSetDbRenderControl;
 		}
@@ -5284,7 +5284,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setDbCountControl");
+			LOG_TRACE("Gnm: setDbCountControl");
 			// m_cb->setDbCountControl();
 			count = kPacketCountSetDbCountControl;
 		}
@@ -5318,7 +5318,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setDepthEqaaControl");
+			LOG_TRACE("Gnm: setDepthEqaaControl");
 			// m_cb->setDepthEqaaControl();
 			count = kPacketCountSetDepthEqaaControl;
 		}
@@ -5352,7 +5352,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setPrimitiveIdEnable");
+			LOG_TRACE("Gnm: setPrimitiveIdEnable");
 			// m_cb->setPrimitiveIdEnable();
 			count = kPacketCountSetPrimitiveIdEnable;
 		}
@@ -5390,7 +5390,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setVgtControlForBase");
+			LOG_TRACE("Gnm: setVgtControlForBase");
 			// m_cb->setVgtControlForBase();
 			count = kPacketCountSetVgtControlForBase;
 		}
@@ -5432,7 +5432,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setVgtControlForNeo");
+			LOG_TRACE("Gnm: setVgtControlForNeo");
 			// m_cb->setVgtControlForNeo();
 			count = kPacketCountSetVgtControlForNeo;
 		}
@@ -5474,7 +5474,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setVgtControlForNeo");
+			LOG_TRACE("Gnm: setVgtControlForNeo");
 			// m_cb->setVgtControlForNeo();
 			count = kPacketCountSetVgtControlForNeo2;
 		}
@@ -5508,7 +5508,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setVertexReuseEnable");
+			LOG_TRACE("Gnm: setVertexReuseEnable");
 			// m_cb->setVertexReuseEnable();
 			count = kPacketCountSetVertexReuseEnable;
 		}
@@ -5542,7 +5542,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setPrimitiveType");
+			LOG_TRACE("Gnm: setPrimitiveType");
 			// m_cb->setPrimitiveType();
 			count = kPacketCountSetPrimitiveType;
 		}
@@ -5582,7 +5582,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setIndexSize");
+			LOG_TRACE("Gnm: setIndexSize");
 			// m_cb->setIndexSize();
 			count = kPacketCountSetIndexSize;
 		}
@@ -5614,7 +5614,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setNumInstances");
+			LOG_TRACE("Gnm: setNumInstances");
 			// m_cb->setNumInstances();
 			count = kPacketCountSetNumInstances;
 		}
@@ -5648,7 +5648,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setIndexOffset");
+			LOG_TRACE("Gnm: setIndexOffset");
 			// m_cb->setIndexOffset();
 			count = kPacketCountSetIndexOffset;
 		}
@@ -5682,7 +5682,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setIndexOffset");
+			LOG_TRACE("Gnm: setIndexOffset");
 			// m_cb->setIndexOffset();
 			count = kPacketCountSetIndexOffset2;
 		}
@@ -5735,7 +5735,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: drawOpaqueAuto");
+			LOG_TRACE("Gnm: drawOpaqueAuto");
 			// m_cb->drawOpaqueAuto();
 			count = kPacketCountDrawOpaqueAuto;
 		}
@@ -5791,7 +5791,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: drawIndexAuto");
+			LOG_TRACE("Gnm: drawIndexAuto");
 			// m_cb->drawIndexAuto();
 			count = kPacketCountDrawIndexAuto;
 		}
@@ -5872,7 +5872,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: drawIndexInline");
+			LOG_TRACE("Gnm: drawIndexInline");
 			// m_cb->drawIndexInline();
 			count = kPacketCountDrawIndexInline;
 		}
@@ -5952,7 +5952,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: drawIndexInline");
+			LOG_TRACE("Gnm: drawIndexInline");
 			// m_cb->drawIndexInline();
 			count = kPacketCountDrawIndexInline2;
 		}
@@ -6008,7 +6008,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: drawIndex");
+			LOG_TRACE("Gnm: drawIndex");
 			// m_cb->drawIndex();
 			count = kPacketCountDrawIndex;
 		}
@@ -6039,7 +6039,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setIndexBuffer");
+			LOG_TRACE("Gnm: setIndexBuffer");
 			// m_cb->setIndexBuffer();
 			count = kPacketCountSetIndexBuffer;
 		}
@@ -6071,7 +6071,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setIndexCount");
+			LOG_TRACE("Gnm: setIndexCount");
 			// m_cb->setIndexCount();
 			count = kPacketCountSetIndexCount;
 		}
@@ -6132,7 +6132,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: drawIndexOffset");
+			LOG_TRACE("Gnm: drawIndexOffset");
 			// m_cb->drawIndexOffset();
 			count = kPacketCountDrawIndexOffset;
 		}
@@ -6167,7 +6167,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setBaseIndirectArgs");
+			LOG_TRACE("Gnm: setBaseIndirectArgs");
 			// m_cb->setBaseIndirectArgs();
 			count = kPacketCountSetBaseIndirectArgs;
 		}
@@ -6228,7 +6228,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: drawIndirect");
+			LOG_TRACE("Gnm: drawIndirect");
 			// m_cb->drawIndirect();
 			count = kPacketCountDrawIndirect;
 		}
@@ -6294,7 +6294,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: drawIndirectMulti");
+			LOG_TRACE("Gnm: drawIndirectMulti");
 			// m_cb->drawIndirectMulti();
 			count = kPacketCountDrawIndirectMulti;
 		}
@@ -6365,7 +6365,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: drawIndirectCountMulti");
+			LOG_TRACE("Gnm: drawIndirectCountMulti");
 			// m_cb->drawIndirectCountMulti();
 			count = kPacketCountDrawIndirectCountMulti;
 		}
@@ -6426,7 +6426,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: drawIndexIndirect");
+			LOG_TRACE("Gnm: drawIndexIndirect");
 			// m_cb->drawIndexIndirect();
 			count = kPacketCountDrawIndexIndirect;
 		}
@@ -6492,7 +6492,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: drawIndexIndirectMulti");
+			LOG_TRACE("Gnm: drawIndexIndirectMulti");
 			// m_cb->drawIndexIndirectMulti();
 			count = kPacketCountDrawIndexIndirectMulti;
 		}
@@ -6563,7 +6563,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: drawIndexIndirectCountMulti");
+			LOG_TRACE("Gnm: drawIndexIndirectCountMulti");
 			// m_cb->drawIndexIndirectCountMulti();
 			count = kPacketCountDrawIndexIndirectCountMulti;
 		}
@@ -6597,7 +6597,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setDispatchDrawIndexDeallocationMask");
+			LOG_TRACE("Gnm: setDispatchDrawIndexDeallocationMask");
 			// m_cb->setDispatchDrawIndexDeallocationMask();
 			count = kPacketCountSetDispatchDrawIndexDeallocationMask;
 		}
@@ -6645,7 +6645,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: waitForSetupDispatchDrawKickRingBuffer");
+			LOG_TRACE("Gnm: waitForSetupDispatchDrawKickRingBuffer");
 			// m_cb->waitForSetupDispatchDrawKickRingBuffer();
 			count = kPacketCountWaitForSetupDispatchDrawKickRingBuffer;
 		}
@@ -6722,7 +6722,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: dispatchDraw");
+			LOG_TRACE("Gnm: dispatchDraw");
 			// m_cb->dispatchDraw();
 			count = kPacketCountDispatchDraw;
 		}
@@ -6797,7 +6797,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: dispatchWithOrderedAppend");
+			LOG_TRACE("Gnm: dispatchWithOrderedAppend");
 			// m_cb->dispatchWithOrderedAppend();
 			count = kPacketCountDispatchWithOrderedAppend;
 		}
@@ -6862,7 +6862,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: dispatchIndirectWithOrderedAppend");
+			LOG_TRACE("Gnm: dispatchIndirectWithOrderedAppend");
 			// m_cb->dispatchIndirectWithOrderedAppend();
 			count = kPacketCountDispatchIndirectWithOrderedAppend;
 		}
@@ -6930,7 +6930,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: drawIndexMultiInstanced");
+			LOG_TRACE("Gnm: drawIndexMultiInstanced");
 			// m_cb->drawIndexMultiInstanced();
 			count = kPacketCountDrawIndexMultiInstanced;
 		}
@@ -6978,7 +6978,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: writeOcclusionQuery");
+			LOG_TRACE("Gnm: writeOcclusionQuery");
 			// m_cb->writeOcclusionQuery();
 			count = kPacketCountWriteOcclusionQuery;
 		}
@@ -7020,7 +7020,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: writeOcclusionQuery");
+			LOG_TRACE("Gnm: writeOcclusionQuery");
 			// m_cb->writeOcclusionQuery();
 			count = kPacketCountWriteOcclusionQuery2;
 		}
@@ -7061,7 +7061,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setZPassPredicationEnable");
+			LOG_TRACE("Gnm: setZPassPredicationEnable");
 			// m_cb->setZPassPredicationEnable();
 			count = kPacketCountSetZPassPredicationEnable;
 		}
@@ -7088,7 +7088,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setZPassPredicationDisable");
+			LOG_TRACE("Gnm: setZPassPredicationDisable");
 			// m_cb->setZPassPredicationDisable();
 			count = kPacketCountSetZPassPredicationDisable;
 		}
@@ -7135,7 +7135,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: writeDataInline");
+			LOG_TRACE("Gnm: writeDataInline");
 			// m_cb->writeDataInline();
 			count = kPacketCountWriteDataInline;
 		}
@@ -7186,7 +7186,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: writeDataInlineThroughL");
+			LOG_TRACE("Gnm: writeDataInlineThroughL");
 			// m_cb->writeDataInlineThroughL();
 			count = kPacketCountWriteDataInlineThroughL2;
 		}
@@ -7273,7 +7273,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: writeAtEndOfPipe");
+			LOG_TRACE("Gnm: writeAtEndOfPipe");
 			// m_cb->writeAtEndOfPipe();
 			count = kPacketCountWriteAtEndOfPipe;
 		}
@@ -7364,7 +7364,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: writeAtEndOfPipeWithInterrupt");
+			LOG_TRACE("Gnm: writeAtEndOfPipeWithInterrupt");
 			// m_cb->writeAtEndOfPipeWithInterrupt();
 			count = kPacketCountWriteAtEndOfPipeWithInterrupt;
 		}
@@ -7407,7 +7407,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: triggerEndOfPipeInterrupt");
+			LOG_TRACE("Gnm: triggerEndOfPipeInterrupt");
 			// m_cb->triggerEndOfPipeInterrupt();
 			count = kPacketCountTriggerEndOfPipeInterrupt;
 		}
@@ -7471,7 +7471,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: writeAtEndOfShader");
+			LOG_TRACE("Gnm: writeAtEndOfShader");
 			// m_cb->writeAtEndOfShader();
 			count = kPacketCountWriteAtEndOfShader;
 		}
@@ -7496,7 +7496,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: stallCommandBufferParser");
+			LOG_TRACE("Gnm: stallCommandBufferParser");
 			// m_cb->stallCommandBufferParser();
 			count = kPacketCountStallCommandBufferParser;
 		}
@@ -7561,7 +7561,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: waitOnAddressAndStallCommandBufferParser");
+			LOG_TRACE("Gnm: waitOnAddressAndStallCommandBufferParser");
 			// m_cb->waitOnAddressAndStallCommandBufferParser();
 			count = kPacketCountWaitOnAddressAndStallCommandBufferParser;
 		}
@@ -7609,7 +7609,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: waitOnRegister");
+			LOG_TRACE("Gnm: waitOnRegister");
 			// m_cb->waitOnRegister();
 			count = kPacketCountWaitOnRegister;
 		}
@@ -7651,7 +7651,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: flushShaderCachesAndWait");
+			LOG_TRACE("Gnm: flushShaderCachesAndWait");
 			// m_cb->flushShaderCachesAndWait();
 			count = kPacketCountFlushShaderCachesAndWait;
 		}
@@ -7692,7 +7692,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: signalSemaphore");
+			LOG_TRACE("Gnm: signalSemaphore");
 			// m_cb->signalSemaphore();
 			count = kPacketCountSignalSemaphore;
 		}
@@ -7729,7 +7729,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: waitSemaphore");
+			LOG_TRACE("Gnm: waitSemaphore");
 			// m_cb->waitSemaphore();
 			count = kPacketCountWaitSemaphore;
 		}
@@ -7803,7 +7803,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: writeEventStats");
+			LOG_TRACE("Gnm: writeEventStats");
 			// m_cb->writeEventStats();
 			count = kPacketCountWriteEventStats;
 		}
@@ -7870,7 +7870,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: dmaData");
+			LOG_TRACE("Gnm: dmaData");
 			// m_cb->dmaData();
 			count = kPacketCountDmaData;
 		}
@@ -7904,7 +7904,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: disableOrderedAppendAllocationCounter");
+			LOG_TRACE("Gnm: disableOrderedAppendAllocationCounter");
 			// m_cb->disableOrderedAppendAllocationCounter();
 			count = kPacketCountDisableOrderedAppendAllocationCounter;
 		}
@@ -7975,7 +7975,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: enableOrderedAppendAllocationCounter");
+			LOG_TRACE("Gnm: enableOrderedAppendAllocationCounter");
 			// m_cb->enableOrderedAppendAllocationCounter();
 			count = kPacketCountEnableOrderedAppendAllocationCounter;
 		}
@@ -8011,7 +8011,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setVsShaderStreamoutEnable");
+			LOG_TRACE("Gnm: setVsShaderStreamoutEnable");
 			// m_cb->setVsShaderStreamoutEnable();
 			count = kPacketCountSetVsShaderStreamoutEnable;
 		}
@@ -8065,7 +8065,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setupDrawOpaqueParameters");
+			LOG_TRACE("Gnm: setupDrawOpaqueParameters");
 			// m_cb->setupDrawOpaqueParameters();
 			count = kPacketCountSetupDrawOpaqueParameters;
 		}
@@ -8109,7 +8109,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: requestMipStatsReportAndReset");
+			LOG_TRACE("Gnm: requestMipStatsReportAndReset");
 			// m_cb->requestMipStatsReportAndReset();
 			count = kPacketCountRequestMipStatsReportAndReset;
 		}
@@ -8154,7 +8154,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setGuardBands");
+			LOG_TRACE("Gnm: setGuardBands");
 			// m_cb->setGuardBands();
 			count = kPacketCountSetGuardBands;
 		}
@@ -8195,7 +8195,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setPredication");
+			LOG_TRACE("Gnm: setPredication");
 			// m_cb->setPredication();
 			count = kPacketCountSetPredication;
 		}
@@ -8228,7 +8228,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: prepareFlip");
+			LOG_TRACE("Gnm: prepareFlip");
 			// m_cb->prepareFlip();
 			count = kPacketCountPrepareFlip;
 		}
@@ -8265,7 +8265,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setObjectId");
+			LOG_TRACE("Gnm: setObjectId");
 			// m_cb->setObjectId();
 			count = kPacketCountSetObjectId;
 		}
@@ -8306,7 +8306,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setObjectIdMode");
+			LOG_TRACE("Gnm: setObjectIdMode");
 			// m_cb->setObjectIdMode();
 			count = kPacketCountSetObjectIdMode;
 		}
@@ -8343,7 +8343,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setDrawPayloadControl");
+			LOG_TRACE("Gnm: setDrawPayloadControl");
 			// m_cb->setDrawPayloadControl();
 			count = kPacketCountSetDrawPayloadControl;
 		}
@@ -8376,7 +8376,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: resetFoveatedWindow");
+			LOG_TRACE("Gnm: resetFoveatedWindow");
 			// m_cb->resetFoveatedWindow();
 			count = kPacketCountResetFoveatedWindow;
 		}
@@ -8433,7 +8433,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setFoveatedWindow");
+			LOG_TRACE("Gnm: setFoveatedWindow");
 			// m_cb->setFoveatedWindow();
 			count = kPacketCountSetFoveatedWindow;
 		}
@@ -8470,7 +8470,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setPsShaderSampleExclusionMask");
+			LOG_TRACE("Gnm: setPsShaderSampleExclusionMask");
 			// m_cb->setPsShaderSampleExclusionMask();
 			count = kPacketCountSetPsShaderSampleExclusionMask;
 		}
@@ -8515,7 +8515,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setScaledResolutionGrid");
+			LOG_TRACE("Gnm: setScaledResolutionGrid");
 			// m_cb->setScaledResolutionGrid();
 			count = kPacketCountSetScaledResolutionGrid;
 		}
@@ -8552,7 +8552,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setTessellationDistributionThresholds");
+			LOG_TRACE("Gnm: setTessellationDistributionThresholds");
 			// m_cb->setTessellationDistributionThresholds();
 			count = kPacketCountSetTessellationDistributionThresholds;
 		}
@@ -8617,7 +8617,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setTextureGradientFactors");
+			LOG_TRACE("Gnm: setTextureGradientFactors");
 			// m_cb->setTextureGradientFactors();
 			count = kPacketCountSetTextureGradientFactors;
 		}
@@ -8655,7 +8655,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setVgtNumInstances");
+			LOG_TRACE("Gnm: setVgtNumInstances");
 			// m_cb->setVgtNumInstances();
 			count = kPacketCountSetVgtNumInstances;
 		}
@@ -8685,7 +8685,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: RttvThreadTraceMarker");
+			LOG_TRACE("Gnm: RttvThreadTraceMarker");
 			// m_cb->RttvThreadTraceMarker();
 			count = kPacketCountRttvThreadTraceMarker;
 		}
@@ -8713,7 +8713,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: RttvThreadTraceMarker");
+			LOG_TRACE("Gnm: RttvThreadTraceMarker");
 			// m_cb->RttvThreadTraceMarker();
 			count = kPacketCountRttvThreadTraceMarker2;
 		}
@@ -8757,7 +8757,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setContextRegisterWithIndex");
+			LOG_TRACE("Gnm: setContextRegisterWithIndex");
 			// m_cb->setContextRegisterWithIndex();
 			count = kPacketCountSetContextRegisterWithIndex;
 		}
@@ -8796,7 +8796,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setContextRegister");
+			LOG_TRACE("Gnm: setContextRegister");
 			// m_cb->setContextRegister();
 			count = kPacketCountSetContextRegister;
 		}
@@ -8835,7 +8835,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setConfigRegister");
+			LOG_TRACE("Gnm: setConfigRegister");
 			// m_cb->setConfigRegister();
 			count = kPacketCountSetConfigRegister;
 		}
@@ -8879,7 +8879,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setUserConfigRegisterWithIndex");
+			LOG_TRACE("Gnm: setUserConfigRegisterWithIndex");
 			// m_cb->setUserConfigRegisterWithIndex();
 			count = kPacketCountSetUserConfigRegisterWithIndex;
 		}
@@ -8918,7 +8918,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setUserConfigRegister");
+			LOG_TRACE("Gnm: setUserConfigRegister");
 			// m_cb->setUserConfigRegister();
 			count = kPacketCountSetUserConfigRegister;
 		}
@@ -8961,7 +8961,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setPersistentRegister");
+			LOG_TRACE("Gnm: setPersistentRegister");
 			// m_cb->setPersistentRegister();
 			count = kPacketCountSetPersistentRegister;
 		}
@@ -9003,7 +9003,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setContextRegisterRange");
+			LOG_TRACE("Gnm: setContextRegisterRange");
 			// m_cb->setContextRegisterRange();
 			count = kPacketCountSetContextRegisterRange;
 		}
@@ -9045,7 +9045,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setConfigRegisterRange");
+			LOG_TRACE("Gnm: setConfigRegisterRange");
 			// m_cb->setConfigRegisterRange();
 			count = kPacketCountSetConfigRegisterRange;
 		}
@@ -9087,7 +9087,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setUserConfigRegisterRange");
+			LOG_TRACE("Gnm: setUserConfigRegisterRange");
 			// m_cb->setUserConfigRegisterRange();
 			count = kPacketCountSetUserConfigRegisterRange;
 		}
@@ -9133,7 +9133,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setPersistentRegisterRange");
+			LOG_TRACE("Gnm: setPersistentRegisterRange");
 			// m_cb->setPersistentRegisterRange();
 			count = kPacketCountSetPersistentRegisterRange;
 		}
@@ -9171,7 +9171,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: chainCommandBuffer");
+			LOG_TRACE("Gnm: chainCommandBuffer");
 			// m_cb->chainCommandBuffer();
 			count = kPacketCountChainCommandBuffer;
 		}
@@ -9207,7 +9207,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: pause");
+			LOG_TRACE("Gnm: pause");
 			// m_cb->pause();
 			count = kPacketCountPause;
 		}
@@ -9239,7 +9239,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: triggerEvent");
+			LOG_TRACE("Gnm: triggerEvent");
 			// m_cb->triggerEvent();
 			count = kPacketCountTriggerEvent;
 		}
@@ -9309,7 +9309,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: waitOnAddress");
+			LOG_TRACE("Gnm: waitOnAddress");
 			// m_cb->waitOnAddress();
 			count = kPacketCountWaitOnAddress;
 		}
@@ -9361,7 +9361,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: waitForGraphicsWrites");
+			LOG_TRACE("Gnm: waitForGraphicsWrites");
 			// m_cb->waitForGraphicsWrites();
 			count = kPacketCountWaitForGraphicsWrites;
 		}
@@ -9393,7 +9393,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: insertNop");
+			LOG_TRACE("Gnm: insertNop");
 			// m_cb->insertNop();
 			count = kPacketCountInsertNop;
 		}
@@ -9423,7 +9423,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: insertNop");
+			LOG_TRACE("Gnm: insertNop");
 			// m_cb->insertNop();
 			count = kPacketCountInsertNop2;
 		}
@@ -9448,7 +9448,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: incrementCeCounter");
+			LOG_TRACE("Gnm: incrementCeCounter");
 			// m_cb->incrementCeCounter();
 			count = kPacketCountIncrementCeCounter;
 		}
@@ -9473,7 +9473,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: incrementCeCounterForDispatchDraw");
+			LOG_TRACE("Gnm: incrementCeCounterForDispatchDraw");
 			// m_cb->incrementCeCounterForDispatchDraw();
 			count = kPacketCountIncrementCeCounterForDispatchDraw;
 		}
@@ -9512,7 +9512,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: waitOnDeCounterDiff");
+			LOG_TRACE("Gnm: waitOnDeCounterDiff");
 			// m_cb->waitOnDeCounterDiff();
 			count = kPacketCountWaitOnDeCounterDiff;
 		}
@@ -9561,7 +9561,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: writeToCpRam");
+			LOG_TRACE("Gnm: writeToCpRam");
 			// m_cb->writeToCpRam();
 			count = kPacketCountWriteToCpRam;
 		}
@@ -9606,7 +9606,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: cpRamDump");
+			LOG_TRACE("Gnm: cpRamDump");
 			// m_cb->cpRamDump();
 			count = kPacketCountCpRamDump;
 		}
@@ -9644,7 +9644,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: chainCommandBuffer");
+			LOG_TRACE("Gnm: chainCommandBuffer");
 			// m_cb->chainCommandBuffer();
 			count = kPacketCountChainCommandBuffer2;
 		}
@@ -9682,7 +9682,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: callCommandBuffer");
+			LOG_TRACE("Gnm: callCommandBuffer");
 			// m_cb->callCommandBuffer();
 			count = kPacketCountCallCommandBuffer;
 		}
@@ -9715,7 +9715,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: initializeDefaultHardwareState");
+			LOG_TRACE("Gnm: initializeDefaultHardwareState");
 			// m_cb->initializeDefaultHardwareState();
 			count = kPacketCountInitializeDefaultHardwareState2;
 		}
@@ -9754,7 +9754,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setQueuePriority");
+			LOG_TRACE("Gnm: setQueuePriority");
 			// m_cb->setQueuePriority();
 			count = kPacketCountSetQueuePriority;
 		}
@@ -9815,7 +9815,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: dispatchIndirectWithOrderedAppend");
+			LOG_TRACE("Gnm: dispatchIndirectWithOrderedAppend");
 			// m_cb->dispatchIndirectWithOrderedAppend();
 			count = kPacketCountDispatchIndirectWithOrderedAppend2;
 		}
@@ -9830,7 +9830,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: sub_7FFC805A03E");
+			LOG_TRACE("Gnm: sub_7FFC805A03E");
 			// m_cb->sub_7FFC805A03E();
 			count = kPacketCountSub_7FFC805A03E0;
 		}
@@ -9878,7 +9878,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setVsharpInUserData");
+			LOG_TRACE("Gnm: setVsharpInUserData");
 			// m_cb->setVsharpInUserData();
 			count = kPacketCountSetVsharpInUserData2;
 		}
@@ -9925,7 +9925,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setTsharpInUserData");
+			LOG_TRACE("Gnm: setTsharpInUserData");
 			// m_cb->setTsharpInUserData();
 			count = kPacketCountSetTsharpInUserData2;
 		}
@@ -9972,7 +9972,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setSsharpInUserData");
+			LOG_TRACE("Gnm: setSsharpInUserData");
 			// m_cb->setSsharpInUserData();
 			count = kPacketCountSetSsharpInUserData2;
 		}
@@ -10024,7 +10024,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setUserDataRegion");
+			LOG_TRACE("Gnm: setUserDataRegion");
 			// m_cb->setUserDataRegion();
 			count = kPacketCountSetUserDataRegion2;
 		}
@@ -10067,7 +10067,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setPointerInUserData");
+			LOG_TRACE("Gnm: setPointerInUserData");
 			// m_cb->setPointerInUserData();
 			count = kPacketCountSetPointerInUserData2;
 		}
@@ -10110,7 +10110,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setUserData");
+			LOG_TRACE("Gnm: setUserData");
 			// m_cb->setUserData();
 			count = kPacketCountSetUserData2;
 		}
@@ -10153,7 +10153,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: prefetchIntoL2");
+			LOG_TRACE("Gnm: prefetchIntoL2");
 			// m_cb->prefetchIntoL2();
 			count = kPacketCountPrefetchIntoL22;
 		}
@@ -10223,7 +10223,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: readDataFromGds");
+			LOG_TRACE("Gnm: readDataFromGds");
 			// m_cb->readDataFromGds();
 			count = kPacketCountReadDataFromGds2;
 		}
@@ -10314,7 +10314,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: waitOnAddress");
+			LOG_TRACE("Gnm: waitOnAddress");
 			// m_cb->waitOnAddress();
 			count = kPacketCountWaitOnAddress2;
 		}
@@ -10383,7 +10383,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: dispatchDraw");
+			LOG_TRACE("Gnm: dispatchDraw");
 			// m_cb->dispatchDraw();
 			count = kPacketCountDispatchDraw2;
 		}
@@ -10422,7 +10422,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: flushShaderCachesAndWait");
+			LOG_TRACE("Gnm: flushShaderCachesAndWait");
 			// m_cb->flushShaderCachesAndWait();
 			count = kPacketCountFlushShaderCachesAndWait2;
 		}
@@ -10472,7 +10472,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: enableOrderedAppendAllocationCounter");
+			LOG_TRACE("Gnm: enableOrderedAppendAllocationCounter");
 			// m_cb->enableOrderedAppendAllocationCounter();
 			count = kPacketCountEnableOrderedAppendAllocationCounter2;
 		}
@@ -10512,7 +10512,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setupDispatchDrawKickRingBuffer");
+			LOG_TRACE("Gnm: setupDispatchDrawKickRingBuffer");
 			// m_cb->setupDispatchDrawKickRingBuffer();
 			count = kPacketCountSetupDispatchDrawKickRingBuffer;
 		}
@@ -10550,7 +10550,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setScratchSize");
+			LOG_TRACE("Gnm: setScratchSize");
 			// m_cb->setScratchSize();
 			count = kPacketCountSetScratchSize;
 		}
@@ -10588,7 +10588,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: triggerReleaseMemEventInterrupt");
+			LOG_TRACE("Gnm: triggerReleaseMemEventInterrupt");
 			// m_cb->triggerReleaseMemEventInterrupt();
 			count = kPacketCountTriggerReleaseMemEventInterrupt;
 		}
@@ -10646,7 +10646,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: waitForResume");
+			LOG_TRACE("Gnm: waitForResume");
 			// m_cb->waitForResume();
 			count = kPacketCountWaitForResume;
 		}
@@ -10702,7 +10702,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: writeResume");
+			LOG_TRACE("Gnm: writeResume");
 			// m_cb->writeResume();
 			count = kPacketCountWriteResume;
 		}
@@ -10746,7 +10746,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: enableQueueQuantumTimer");
+			LOG_TRACE("Gnm: enableQueueQuantumTimer");
 			// m_cb->enableQueueQuantumTimer();
 			count = kPacketCountEnableQueueQuantumTimer;
 		}
@@ -10782,7 +10782,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: disableQueueQuantumTimer");
+			LOG_TRACE("Gnm: disableQueueQuantumTimer");
 			// m_cb->disableQueueQuantumTimer();
 			count = kPacketCountDisableQueueQuantumTimer;
 		}
@@ -10817,7 +10817,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: insertRttvDingDongMarker");
+			LOG_TRACE("Gnm: insertRttvDingDongMarker");
 			// m_cb->insertRttvDingDongMarker();
 			count = kPacketCountInsertRttvDingDongMarker;
 		}
@@ -10843,7 +10843,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: RttvThreadTraceMarker");
+			LOG_TRACE("Gnm: RttvThreadTraceMarker");
 			// m_cb->RttvThreadTraceMarker();
 			count = kPacketCountRttvThreadTraceMarker3;
 		}
@@ -10885,7 +10885,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: setQueueRegister");
+			LOG_TRACE("Gnm: setQueueRegister");
 			// m_cb->setQueueRegister();
 			count = kPacketCountSetQueueRegister;
 		}
@@ -10923,7 +10923,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: callCommandBuffer");
+			LOG_TRACE("Gnm: callCommandBuffer");
 			// m_cb->callCommandBuffer();
 			count = kPacketCountCallCommandBuffer2;
 		}
@@ -10974,7 +10974,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: waitForGraphicsWrites");
+			LOG_TRACE("Gnm: waitForGraphicsWrites");
 			// m_cb->waitForGraphicsWrites();
 			count = kPacketCountWaitForGraphicsWrites2;
 		}
@@ -11129,7 +11129,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: writeResumeEventWithInterrupt");
+			LOG_TRACE("Gnm: writeResumeEventWithInterrupt");
 			// m_cb->writeResumeEventWithInterrupt();
 			count = kPacketCountWriteResumeEventWithInterrupt;
 		}
@@ -11184,7 +11184,7 @@ namespace sce::Gnm
 		uint32_t count = 0;
 		if (false)
 		{
-			LOG_SCE_TRACE("Gnm: writeWaitMemCmd");
+			LOG_TRACE("Gnm: writeWaitMemCmd");
 			// m_cb->writeWaitMemCmd();
 			count = kPacketCountWriteWaitMemCmd;
 		}
