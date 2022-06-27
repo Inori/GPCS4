@@ -46,9 +46,12 @@ uint32_t PS4API sceGnmDrawInitDefaultHardwareState175(uint32_t* cmdBuffer, uint6
 }
 
 
-// called in waitUntilSafeForRendering
 int PS4API sceGnmInsertWaitFlipDone(uint32_t* cmdBuffer, uint32_t numDwords, int videoOutHandle, uint32_t displayBufferIndex)
 {
+	// called in waitUntilSafeForRendering.
+	// implementation in libSceGnmDriverForNeoMode
+	// insert a 0xC0053C00 packet header, which is same as waitOnAddress,
+	// yet we still use private packet for accuracy
 	LOG_SCE_GRAPHIC("cmdbuff %p numdws %d handle %d dpindex %d", cmdBuffer, numDwords, videoOutHandle, displayBufferIndex);
 	const uint32_t cmdSize = sizeof(GnmCmdWaitFlipDone) / sizeof(uint32_t);
 	assert(cmdSize == numDwords);

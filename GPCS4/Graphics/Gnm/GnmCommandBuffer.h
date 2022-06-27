@@ -83,7 +83,7 @@ namespace sce::Gnm
 		// virtual void setGraphicsScratchSize(uint32_t maxNumWaves, uint32_t num1KByteChunksPerWave) = 0;
 		// virtual void setComputeScratchSize(uint32_t maxNumWaves, uint32_t num1KByteChunksPerWave) = 0;
 		virtual void setViewportTransformControl(ViewportTransformControl vportControl) = 0;
-		// virtual void setClipControl(ClipControl reg) = 0;
+		virtual void setClipControl(ClipControl reg) = 0;
 		// virtual void setUserClipPlane(uint32_t clipPlane, float x, float y, float z, float w) = 0;
 		// virtual void setClipRectangle(uint32_t rectId, uint32_t left, uint32_t top, uint32_t right, uint32_t bottom) = 0;
 		// virtual void setClipRectangleRule(uint16_t clipRule) = 0;

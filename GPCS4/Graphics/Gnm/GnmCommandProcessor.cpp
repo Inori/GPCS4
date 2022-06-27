@@ -57,15 +57,6 @@ namespace sce::Gnm
 			// it's likely because there are some GnmDriver functions not implemented,
 			// so no proper private packets being inserted into the command buffer.
 
-			// TODO:
-			// There is a similar dispatch function in 
-			// PS4RazorGPUDLL.dll
-			// Version: 8.0.0.2
-			// MD5: EBB9C82A6F451F0BA240BE17B0DC78A8
-			// Offset: 0x1802C6D90 (Base: 180001000)
-			// We may get more correct result by reverse engineering
-			// that function.
-
 			const PM4_HEADER* pm4Hdr           = reinterpret_cast<const PM4_HEADER*>(commandBuffer);
 			uint32_t          processedCmdSize = 0;
 
@@ -134,7 +125,7 @@ namespace sce::Gnm
 	{
 		IT_OpCodeType opcode = (IT_OpCodeType)pm4Hdr->opcode;
 
-		LOG_DEBUG("OpCode Name %s", opcodeName(*(uint32_t*)pm4Hdr));
+		// LOG_DEBUG("OpCode Name %s", opcodeName(*(uint32_t*)pm4Hdr));
 
 		switch (opcode)
 		{
@@ -476,7 +467,10 @@ namespace sce::Gnm
 		uint32_t oldHint = m_lastHint;
 		m_lastHint       = 0;
 
+		LOG_SCE_GRAPHIC("Gnm: callCommandBuffer");
+		LOG_SCE_GRAPHIC("Gnm: (((((((((((((((((");
 		processCmdInternal(command, size);
+		LOG_SCE_GRAPHIC("Gnm: )))))))))))))))))");
 
 		m_lastHint = oldHint;
 	}
@@ -694,6 +688,14 @@ namespace sce::Gnm
 			uint8_t clearValue = static_cast<uint8_t>(itBody[1]);
 			LOG_SCE_GRAPHIC("Gnm: setStencilClearValue");
 			m_cb->setStencilClearValue(clearValue);
+		}
+		break;
+		case OP_HINT_SET_CLIP_CONTROL:
+		{
+			ClipControl clipControl;
+			clipControl.m_reg = static_cast<uint8_t>(itBody[1]);
+			LOG_SCE_GRAPHIC("Gnm: setClipControl");
+			m_cb->setClipControl(clipControl);
 		}
 		break;
 		}
@@ -1007,6 +1009,7 @@ namespace sce::Gnm
 					LOG_SCE_GRAPHIC("Gnm: dispatchWithOrderedAppend");
 					m_cb->dispatchWithOrderedAppend(param->threadGroupX, param->threadGroupY, param->threadGroupZ, mode);
 				}
+				LOG_SCE_GRAPHIC("Gnm: ---------------------------------------");
 			}
 				break;
 			case OP_PRIV_DISPATCH_INDIRECT:
@@ -1041,15 +1044,17 @@ namespace sce::Gnm
 			uint32_t threadGroupZ = itBody[2];
 			LOG_SCE_GRAPHIC("Gnm: dispatch");
 			m_cb->dispatch(threadGroupX, threadGroupY, threadGroupZ);
+			LOG_SCE_GRAPHIC("Gnm: ---------------------------------------");
 		}
-		break;
+			break;
 		case IT_DRAW_INDEX_AUTO:
 		{
 			uint32_t indexCount = itBody[0];
 			LOG_SCE_GRAPHIC("Gnm: drawIndexAuto");
 			m_cb->drawIndexAuto(indexCount);
+			LOG_SCE_GRAPHIC("Gnm: ---------------------------------------");
 		}
-		break;
+			break;
 		default:
 			LOG_FIXME("legacy opcode not handled %X", opcode);
 			break;
@@ -1089,6 +1094,8 @@ namespace sce::Gnm
 			break;
 		}
 
+		LOG_SCE_GRAPHIC("Gnm: =======================================");
+
 		// mark this is the last packet in command buffer.
 		m_flipPacketDone = true;
 	}
@@ -1107,6 +1114,7 @@ namespace sce::Gnm
 		{
 			m_cb->drawIndex(param->indexCount, (const void*)param->indexAddr, modifier);
 		}
+		LOG_SCE_GRAPHIC("Gnm: ---------------------------------------");
 	}
 
 	void GnmCommandProcessor::onDrawIndexAuto(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
@@ -1123,6 +1131,7 @@ namespace sce::Gnm
 		{
 			m_cb->drawIndexAuto(param->indexCount, modifier);
 		}
+		LOG_SCE_GRAPHIC("Gnm: ---------------------------------------");
 	}
 
 	void GnmCommandProcessor::onSetViewport(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)

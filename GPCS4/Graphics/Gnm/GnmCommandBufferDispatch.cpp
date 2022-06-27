@@ -342,6 +342,10 @@ namespace sce::Gnm
 		m_state.shaderContext.meta.cs.textureInfos[startRegister] = meta;
 	}
 
+	void GnmCommandBufferDispatch::setClipControl(ClipControl reg)
+	{
+		throw std::logic_error("The method or operation is not implemented.");
+	}
 
 
 }  // namespace sce::Gnm

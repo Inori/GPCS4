@@ -61,14 +61,6 @@ namespace sce::Gnm
 		std::memcpy(dstGpuAddr, data, sizeInDwords * sizeof(uint32_t));
 	}
 
-	void GnmCommandBuffer::writeReleaseMemEventWithInterrupt(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy)
-	{
-	}
-
-	void GnmCommandBuffer::writeReleaseMemEvent(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy)
-	{
-	}
-
 	const uint32_t* GnmCommandBuffer::findUserData(
 		const gcn::GcnShaderResource& res,
 		uint32_t                      eudIndex,
@@ -431,5 +423,12 @@ namespace sce::Gnm
 			devInfo.core.properties.limits.maxComputeWorkGroupInvocations / devInfo.coreSubgroup.subgroupSize;
 	}
 
+	void GnmCommandBuffer::writeReleaseMemEventWithInterrupt(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy)
+	{
+	}
+
+	void GnmCommandBuffer::writeReleaseMemEvent(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy)
+	{
+	}
 
 }  // namespace sce::Gnm

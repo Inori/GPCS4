@@ -664,6 +664,11 @@ namespace sce::Gnm
 		m_context->setDepthStencilState(ds);
 	}
 
+	void GnmCommandBufferDraw::setClipControl(ClipControl reg)
+	{
+		// throw std::logic_error("The method or operation is not implemented.");
+	}
+
 	void GnmCommandBufferDraw::flushShaderCachesAndWait(CacheAction cacheAction, uint32_t extendedCacheMask, StallCommandBufferParserMode commandBufferStallMode)
 	{
 	}
@@ -1104,6 +1109,7 @@ namespace sce::Gnm
 				break;
 		}
 	}
+
 
 
 }  // namespace sce::Gnm

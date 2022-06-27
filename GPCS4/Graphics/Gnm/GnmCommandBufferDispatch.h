@@ -123,6 +123,8 @@ namespace sce::Gnm
 
 		virtual void setDepthStencilDisable() override;
 
+		virtual void setClipControl(ClipControl reg) override;
+
 	private:
 
 		void commitComputeState();

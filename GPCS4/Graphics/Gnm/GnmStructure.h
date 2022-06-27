@@ -540,6 +540,97 @@ namespace sce::Gnm
 		};
 	};
 
+	class ClipControl
+	{
+	public:
+		uint8_t getUserClipPlanes(void) const
+		{
+			return clipPlanes;
+		}
+
+		ClipControlUserClipPlaneMode getUserClipPlaneMode(void) const
+		{
+			return (ClipControlUserClipPlaneMode)clipPlaneMode;
+		}
+
+		bool getUserClipPlaneCullOnly(void) const
+		{
+			return cullOnly;
+		}
+
+		bool getUserClipPlaneNegateY(void) const
+		{
+			return negateY;
+		}
+
+		ClipControlClipSpace getClipSpace(void) const
+		{
+			return (ClipControlClipSpace)clipSpace;
+		}
+
+		ClipControlZClipMode getMinZClipEnable(void) const
+		{
+			return (ClipControlZClipMode)minZClipEnable;
+		}
+
+		ClipControlZClipMode getMaxZClipEnable(void) const
+		{
+			return (ClipControlZClipMode)maxZClipEnable;
+		}
+
+		bool getClipEnable(void) const
+		{
+			return !clipDisable;
+		}
+
+		bool getCullOnClippingErrorEnable(void) const
+		{
+			return !cullOnClippingErrorDisable;
+		}
+
+		ClipControlVertexKillMode getVertexKillMode(void) const
+		{
+			return (ClipControlVertexKillMode)vertexKillMode;
+		}
+
+		bool getLinearAttributeClipEnable(void) const
+		{
+			return linearAttributeClipEnable;
+		}
+
+		bool getForceViewportIndexFromVsEnable(void) const
+		{
+			return forceViewportIndexFromVsEnable;
+		}
+
+		union
+		{
+			struct
+			{
+				uint32_t clipPlanes : 6;
+				uint32_t : 7;
+				uint32_t negateY : 1;
+				uint32_t clipPlaneMode : 2;
+
+				uint32_t clipDisable : 1;
+				uint32_t cullOnly : 1;
+				uint32_t : 1;
+				uint32_t clipSpace : 1;
+				uint32_t cullOnClippingErrorDisable : 1;
+				uint32_t vertexKillMode : 1;
+				uint32_t : 1;
+				uint32_t : 1;
+				uint32_t linearAttributeClipEnable : 1;
+				uint32_t forceViewportIndexFromVsEnable : 1;
+				uint32_t minZClipEnable : 1;
+				uint32_t maxZClipEnable : 1;
+				uint32_t : 4;
+			};
+
+			uint32_t m_reg;
+		};
+	};
+
 	//////////////////////////////////////////////////////////////////////////
 	typedef uint32_t AlignmentType;
 
