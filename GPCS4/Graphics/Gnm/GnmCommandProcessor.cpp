@@ -698,6 +698,24 @@ namespace sce::Gnm
 			m_cb->setClipControl(clipControl);
 		}
 		break;
+		case OP_HINT_SET_DB_COUNT_CONTROL:
+		{
+			uint32_t value = itBody[1];
+			value          = value - 0x11000100;
+			uint32_t perfectZPassCounts = bit::extract(value, 1, 1);
+			uint32_t log2SampleRate     = bit::extract(value, 6, 4);
+			LOG_SCE_GRAPHIC("Gnm: setDbCountControl");
+			m_cb->setDbCountControl((DbCountControlPerfectZPassCounts)perfectZPassCounts, log2SampleRate);
+		}
+		break;
+		case OP_HINT_SET_BORDER_COLOR_TABLE_ADDR:
+		{
+			uint32_t value = itBody[1];
+			void*    tableAddr = reinterpret_cast<void*>(value << 8);
+			LOG_SCE_GRAPHIC("Gnm: setBorderColorTableAddr");
+			m_cb->setBorderColorTableAddr(tableAddr);
+		}
+		break;
 		}
 
 		if (regOffset >= 0xB4 && regOffset <= 0xD2)

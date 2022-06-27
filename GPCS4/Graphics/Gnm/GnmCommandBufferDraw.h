@@ -133,6 +133,10 @@ namespace sce::Gnm
 
 		virtual void setClipControl(ClipControl reg) override;
 
+		virtual void setDbCountControl(DbCountControlPerfectZPassCounts perfectZPassCounts, uint32_t log2SampleRate) override;
+
+		virtual void setBorderColorTableAddr(void* tableAddr) override;
+
 	private:
 
 		const void* findFetchShader(

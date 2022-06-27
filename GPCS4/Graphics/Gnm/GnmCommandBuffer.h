@@ -137,7 +137,7 @@ namespace sce::Gnm
 		// virtual void setHsShader(const HsStageRegisters *hsRegs, const TessellationRegisters *tessRegs) = 0;
 		// virtual void setHsShader(const HsStageRegisters *hsRegs, const TessellationRegisters *tessRegs, TessellationDistributionMode distributionMode) = 0;
 		// virtual void updateHsShader(const HsStageRegisters *hsRegs, const TessellationRegisters *tessRegs) = 0;
-		// virtual void setBorderColorTableAddr(void *tableAddr) = 0;
+		virtual void setBorderColorTableAddr(void *tableAddr) = 0;
 		// virtual void waitOnCe() = 0;
 		// virtual void incrementDeCounter() = 0;
 		// virtual void readDataFromGds(EndOfShaderEventType eventType, void *dstGpuAddr, uint32_t gdsOffsetInDwords, uint32_t gdsSizeInDwords) = 0;
@@ -166,7 +166,7 @@ namespace sce::Gnm
 		// virtual void setDepthBoundsRange(float depthBoundsMin, float depthBoundsMax) = 0;
 		// virtual void setStencilOpControl(StencilOpControl stencilControl) = 0;
 		virtual void setDbRenderControl(DbRenderControl reg) = 0;
-		// virtual void setDbCountControl(DbCountControlPerfectZPassCounts perfectZPassCounts, uint32_t log2SampleRate) = 0;
+		virtual void setDbCountControl(DbCountControlPerfectZPassCounts perfectZPassCounts, uint32_t log2SampleRate) = 0;
 		// virtual void setDepthEqaaControl(DepthEqaaControl depthEqaa) = 0;
 		// virtual void setPrimitiveIdEnable(bool enable) = 0;
 		// virtual void resetVgtControl() = 0;

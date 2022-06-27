@@ -1110,6 +1110,14 @@ namespace sce::Gnm
 		}
 	}
 
+	void GnmCommandBufferDraw::setDbCountControl(DbCountControlPerfectZPassCounts perfectZPassCounts, uint32_t log2SampleRate)
+	{
+		// throw std::logic_error("The method or operation is not implemented.");
+	}
 
+	void GnmCommandBufferDraw::setBorderColorTableAddr(void* tableAddr)
+	{
+		throw std::logic_error("The method or operation is not implemented.");
+	}
 
 }  // namespace sce::Gnm
