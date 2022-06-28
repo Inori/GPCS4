@@ -356,6 +356,16 @@ namespace sce::Gnm
 		default:
 			break;
 		}
+
+		if ((hint & 0xFFF) == 0)
+		{
+			LOG_SCE_GRAPHIC("Gnm: allocateFromCommandBuffer");
+			uint32_t align             = (hint - 0x68750000) >> 12;
+			uint32_t alignInBytes      = 1 << align;
+			uint32_t packetSizeInBytes = PM4_LENGTH_DW(pm4Hdr->u32All) * 4;
+			uint32_t size              = (uintptr_t)pm4Hdr + packetSizeInBytes - (((uintptr_t)pm4Hdr + alignInBytes + 7) & ~(alignInBytes - 1));
+			m_cb->allocateFromCommandBuffer(size, (EmbeddedDataAlignment)align);
+		}
 	}
 
 	void GnmCommandProcessor::onSetBase(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
@@ -481,6 +491,10 @@ namespace sce::Gnm
 
 	void GnmCommandProcessor::onEventWrite(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	{
+		LOG_SCE_GRAPHIC("Gnm: triggerEvent");
+		uint32_t value = itBody[0];
+		uint32_t type  = bit::extract(value, 5, 0);
+		m_cb->triggerEvent((EventType)type);
 	}
 
 	void GnmCommandProcessor::onEventWriteEop(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
@@ -527,13 +541,26 @@ namespace sce::Gnm
 
 		LOG_SCE_GRAPHIC("Gnm: writeAtEndOfShader");
 		m_cb->writeAtEndOfShader((EndOfShaderEventType)packet->eventType, reinterpret_cast<void*>(dstGpuAddr), packet->data);
-
-		// Skip the next IT_EVENT_WRITE_EOS packet
-		m_skipPm4Count = 1;
 	}
 
 	void GnmCommandProcessor::onDmaData(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
 	{
+		PPM4ME_DMA_DATA        dmaData      = (PPM4ME_DMA_DATA)pm4Hdr;
+		uint32_t               hint         = dmaData->ordinal2;
+		switch (hint)
+		{
+			case OP_HINT_WRITE_GPU_PREFETCH_INTO_L2:
+			{
+				if (dmaData->dst_addr_lo != OP_HINT_WRITE_GPU_PREFETCH_INTO_L2_2)
+				{
+					break;
+				}
+				LOG_SCE_GRAPHIC("Gnm: prefetchIntoL2");
+				uint64_t addr = util::concat<uint64_t>(dmaData->src_addr_hi, dmaData->src_addr_lo_or_data);
+				m_cb->prefetchIntoL2((void*)addr, dmaData->bitfields7.byte_count);
+			}
+				break;
+		}
 	}
 
 	void GnmCommandProcessor::onAcquireMem(PPM4_TYPE_3_HEADER pm4Hdr, uint32_t* itBody)
@@ -714,6 +741,40 @@ namespace sce::Gnm
 			void*    tableAddr = reinterpret_cast<void*>(value << 8);
 			LOG_SCE_GRAPHIC("Gnm: setBorderColorTableAddr");
 			m_cb->setBorderColorTableAddr(tableAddr);
+		}
+		break;
+		case OP_HINT_SET_STENCIL_OR_SEPARATE:
+		{
+			StencilControl front, back;
+			front.m_reg = itBody[1];
+			back.m_reg  = itBody[2];
+			if (front.m_reg == back.m_reg)
+			{
+				LOG_SCE_GRAPHIC("Gnm: setStencil");
+				m_cb->setStencil(front);
+			}
+			else
+			{
+				LOG_SCE_GRAPHIC("Gnm: setStencilSeparate");
+				m_cb->setStencilSeparate(front, back);
+			}
+		}
+		break;
+		case OP_HINT_SET_STENCIL_OP_CONTROL:
+		{
+			StencilOpControl opCtrl;
+			opCtrl.m_reg = itBody[1];
+			LOG_SCE_GRAPHIC("Gnm: setStencilOpControl");
+			m_cb->setStencilOpControl(opCtrl);
+		}
+		break;
+		case OP_HINT_SET_CB_CONTROL:
+		{
+			uint32_t value = itBody[1];
+			uint32_t mode  = bit::extract(value, 6, 4);
+			uint32_t op    = bit::extract(value, 23, 16);
+			LOG_SCE_GRAPHIC("Gnm: setCbControl");
+			m_cb->setCbControl((CbMode)mode, (RasterOp)op);
 		}
 		break;
 		}
@@ -1006,10 +1067,24 @@ namespace sce::Gnm
 			}
 			break;
 			case OP_PRIV_PUSH_MARKER:
+			{
+				GnmCmdPushMarker* param = (GnmCmdPushMarker*)pm4Hdr;
+				LOG_SCE_GRAPHIC("Gnm: pushMarker");
+				m_cb->pushMarker(param->debugString);
+			}
 				break;
 			case OP_PRIV_PUSH_COLOR_MARKER:
+			{
+				GnmCmdPushColorMarker* param = (GnmCmdPushColorMarker*)pm4Hdr;
+				LOG_SCE_GRAPHIC("Gnm: pushColorMarker");
+				m_cb->pushMarker(param->debugString, param->argbColor);
+			}
 				break;
 			case OP_PRIV_POP_MARKER:
+			{
+				LOG_SCE_GRAPHIC("Gnm: popMarker");
+				m_cb->popMarker();
+			}
 				break;
 			case OP_PRIV_SET_MARKER:
 				break;

@@ -1120,4 +1120,54 @@ namespace sce::Gnm
 		// throw std::logic_error("The method or operation is not implemented.");
 	}
 
+	void* GnmCommandBufferDraw::allocateFromCommandBuffer(uint32_t sizeInBytes, EmbeddedDataAlignment alignment)
+	{
+		return nullptr;
+	}
+
+	void GnmCommandBufferDraw::setStencilSeparate(StencilControl front, StencilControl back)
+	{
+		// throw std::logic_error("The method or operation is not implemented.");
+	}
+
+	void GnmCommandBufferDraw::setCbControl(CbMode mode, RasterOp op)
+	{
+		// throw std::logic_error("The method or operation is not implemented.");
+	}
+
+	void GnmCommandBufferDraw::setStencilOpControl(StencilOpControl stencilControl)
+	{
+		// throw std::logic_error("The method or operation is not implemented.");
+	}
+
+	void GnmCommandBufferDraw::triggerEvent(EventType eventType)
+	{
+		// throw std::logic_error("The method or operation is not implemented.");
+	}
+
+	void GnmCommandBufferDraw::prefetchIntoL2(void* dataAddr, uint32_t sizeInBytes)
+	{
+		// throw std::logic_error("The method or operation is not implemented.");
+	}
+
+	void GnmCommandBufferDraw::setStencil(StencilControl stencilControl)
+	{
+		// throw std::logic_error("The method or operation is not implemented.");
+	}
+
+	void GnmCommandBufferDraw::pushMarker(const char* debugString)
+	{
+		//throw std::logic_error("The method or operation is not implemented.");
+	}
+
+	void GnmCommandBufferDraw::pushMarker(const char* debugString, uint32_t argbColor)
+	{
+		//throw std::logic_error("The method or operation is not implemented.");
+	}
+
+	void GnmCommandBufferDraw::popMarker()
+	{
+		//throw std::logic_error("The method or operation is not implemented.");
+	}
+
 }  // namespace sce::Gnm

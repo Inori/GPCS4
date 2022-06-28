@@ -180,7 +180,7 @@ int PS4API sceGnmInsertDingDongMarker(void);
 int PS4API sceGnmInsertPopMarker(uint32_t* cmdBuffer, uint32_t numDwords);
 
 
-int PS4API sceGnmInsertPushColorMarker(void);
+int PS4API sceGnmInsertPushColorMarker(uint32_t* cmdBuffer, uint32_t numDwords, const char* debugString, uint32_t argbColor);
 
 
 int PS4API sceGnmInsertPushMarker(uint32_t* cmdBuffer, uint32_t numDwords, const char *debugString);

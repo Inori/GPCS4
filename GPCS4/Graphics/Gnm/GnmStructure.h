@@ -98,7 +98,9 @@ namespace sce::Gnm
 	// not fixed size
 	struct GnmCmdPushColorMarker
 	{
-		uint32_t* reserved;
+		uint32_t opcode;
+		uint32_t argbColor;
+		char     debugString[1];
 	};
 
 	struct GnmCmdPopMarker
@@ -625,6 +627,75 @@ namespace sce::Gnm
 				uint32_t minZClipEnable : 1;
 				uint32_t maxZClipEnable : 1;
 				uint32_t : 4;
+			};
+
+			uint32_t m_reg;
+		};
+	};
+
+	class StencilControl
+	{
+	public:
+		union
+		{
+			struct
+			{
+				uint8_t m_testVal;
+				uint8_t m_mask;
+				uint8_t m_writeMask;
+				uint8_t m_opVal;   
+			};
+
+			uint32_t m_reg;
+		};
+	};
+
+	class StencilOpControl
+	{
+	public:
+		StencilOp getStencilOpFail(void) const
+		{
+			return (StencilOp)opFail;
+		}
+
+		StencilOp getStencilOpZPass(void) const
+		{
+			return (StencilOp)opZPass;
+		}
+
+		StencilOp getStencilOpZFail(void) const
+		{
+			return (StencilOp)opZFail;
+		}
+
+		StencilOp getStencilOpBackFail(void) const
+		{
+			return (StencilOp)opBackFail;
+		}
+
+		StencilOp getStencilOpBackZPass(void) const
+		{
+			return (StencilOp)opBackZPass;
+		}
+
+		StencilOp getStencilOpBackZFail(void) const
+		{
+			return (StencilOp)opBackZFail;
+		}
+		
+
+		union
+		{
+			struct
+			{
+				uint32_t opFail : 4;
+				uint32_t opZPass : 4;
+				uint32_t opZFail : 4;
+				uint32_t opBackFail : 4;
+
+				uint32_t opBackZPass : 4;
+				uint32_t opBackZFail : 4;
+				uint32_t : 8;
 			};
 
 			uint32_t m_reg;

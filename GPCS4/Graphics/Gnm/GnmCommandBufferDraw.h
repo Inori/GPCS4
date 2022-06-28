@@ -137,7 +137,27 @@ namespace sce::Gnm
 
 		virtual void setBorderColorTableAddr(void* tableAddr) override;
 
-	private:
+		virtual void* allocateFromCommandBuffer(uint32_t sizeInBytes, EmbeddedDataAlignment alignment) override;
+
+		virtual void setStencilSeparate(StencilControl front, StencilControl back) override;
+
+		virtual void setCbControl(CbMode mode, RasterOp op) override;
+
+		virtual void setStencilOpControl(StencilOpControl stencilControl) override;
+
+		virtual void triggerEvent(EventType eventType) override;
+
+		virtual void prefetchIntoL2(void* dataAddr, uint32_t sizeInBytes) override;
+
+		virtual void setStencil(StencilControl stencilControl) override;
+
+		virtual void pushMarker(const char* debugString) override;
+
+		virtual void pushMarker(const char* debugString, uint32_t argbColor) override;
+
+		virtual void popMarker() override;
+
+ private:
 
 		const void* findFetchShader(
 			const gcn::GcnShaderResourceTable& table,

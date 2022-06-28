@@ -25,9 +25,17 @@ int PS4API sceGnmInsertPushMarker(uint32_t* cmdBuffer, uint32_t numDwords, const
 }
 
 
-int PS4API sceGnmInsertPushColorMarker(void)
+int PS4API sceGnmInsertPushColorMarker(uint32_t* cmdBuffer, uint32_t numDwords, const char* debugString, uint32_t argbColor)
 {
-	LOG_SCE_GRAPHIC("Not implemented");
+	LOG_SCE_GRAPHIC("cmd %p numdw %d str %p argb %x", cmdBuffer, numDwords, debugString, argbColor);
+	GnmCmdPushColorMarker* param = (GnmCmdPushColorMarker*)cmdBuffer;
+	param->opcode                = PM4_HEADER_BUILD(numDwords, IT_GNM_PRIVATE, OP_PRIV_PUSH_COLOR_MARKER);
+	param->argbColor             = argbColor;
+	uint32_t strLen              = strlen(debugString);
+	if ((numDwords - 2) * sizeof(uint32_t) > strLen)
+	{
+		strcpy(param->debugString, debugString);
+	}
 	return SCE_OK;
 }
 
