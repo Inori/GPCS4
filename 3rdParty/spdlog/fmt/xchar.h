@@ -5,7 +5,7 @@
 
 #pragma once
 //
-// include bundled or external copy of fmtlib's ostream support
+// include bundled or external copy of fmtlib's xchar support
 //
 
 #if !defined(SPDLOG_USE_STD_FORMAT)
@@ -15,8 +15,8 @@
 #                define FMT_HEADER_ONLY
 #            endif
 #        endif
-#        include <spdlog/fmt/bundled/ostream.h>
+#        include <spdlog/fmt/bundled/xchar.h>
 #    else
-#        include <fmt/ostream.h>
+#        include <fmt/xchar.h>
 #    endif
 #endif
