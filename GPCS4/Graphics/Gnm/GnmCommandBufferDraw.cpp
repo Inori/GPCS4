@@ -557,7 +557,7 @@ namespace sce::Gnm
 
 		commitGraphicsState();
 
-		//m_context->drawIndexed(indexCount, 1, 0, 0, 0);
+		m_context->drawIndexed(indexCount, 1, 0, 0, 0);
 	}
 
 	void GnmCommandBufferDraw::drawIndexAuto(uint32_t indexCount)
@@ -569,16 +569,16 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void* indexAddr, DrawModifier modifier)
 	{
-		//uint32_t indexBufferSize =
-		//	m_state.ia.indexType == VK_INDEX_TYPE_UINT16 ? 
-		//	sizeof(uint16_t) * indexCount : 
-		//	sizeof(uint32_t) * indexCount;
+		uint32_t indexBufferSize =
+			m_state.ia.indexType == VK_INDEX_TYPE_UINT16
+				? sizeof(uint16_t) * indexCount
+				: sizeof(uint32_t) * indexCount;
 
-		//m_state.ia.indexBuffer = generateIndexBuffer(indexAddr, indexBufferSize);
+		m_state.ia.indexBuffer = generateIndexBuffer(indexAddr, indexBufferSize);
 
 		commitGraphicsState();
 
-		//m_context->drawIndexed(indexCount, 1, 0, 0, 0);
+		m_context->drawIndexed(indexCount, 1, 0, 0, 0);
 	}
 
 	void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void* indexAddr)
@@ -592,7 +592,7 @@ namespace sce::Gnm
 	{
 		commitComputeState();
 
-		//m_context->dispatch(threadGroupX, threadGroupY, threadGroupZ);
+		m_context->dispatch(threadGroupX, threadGroupY, threadGroupZ);
 	}
 
 	void GnmCommandBufferDraw::dispatchWithOrderedAppend(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ, DispatchOrderedAppendMode orderedAppendMode)
@@ -942,10 +942,10 @@ namespace sce::Gnm
 
 			// Update index
 			// All draw calls in Gnm need index buffer.
-			//auto& indexBuffer = m_state.ia.indexBuffer;
-			//m_context->bindIndexBuffer(
-			//	VltBufferSlice(indexBuffer, 0, indexBuffer->info().size),
-			//	m_state.ia.indexType);
+			auto& indexBuffer = m_state.ia.indexBuffer;
+			m_context->bindIndexBuffer(
+				VltBufferSlice(indexBuffer, 0, indexBuffer->info().size),
+				m_state.ia.indexType);
 
 			GcnModule vsModule(
 				GcnProgramType::VertexShader,
@@ -954,7 +954,7 @@ namespace sce::Gnm
 			auto& resTable = vsModule.getResourceTable();
 
 			//// Update input layout and bind vertex buffer
-			//updateVertexBinding(vsModule);
+			updateVertexBinding(vsModule);
 
 			//// create and bind shader resources
 			bindResource(VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, resTable, ctx.userData);
@@ -983,7 +983,7 @@ namespace sce::Gnm
 
 			auto& resTable = psModule.getResourceTable();
 
-			//// create and bind shader resources
+			// create and bind shader resources
 			bindResource(VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, resTable, ctx.userData);
 
 			// bind the shader
@@ -1005,9 +1005,9 @@ namespace sce::Gnm
 		msState.sampleMask            = 0xFFFFFFFF;
 		m_context->setMultisampleState(msState);
 
-		//// Flush memory to buffer and texture resources.
+		// Flush memory to buffer and texture resources.
 		m_initializer->flush();
-		//// Process pending upload/download
+		// Process pending upload/download
 		m_tracker->transform(m_context.ptr());
 	}
 
