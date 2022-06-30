@@ -58,24 +58,27 @@ namespace sce::vlt
 	};
 
 	/**
-     * \brief Depth bounds range
-     * 
-     * Stores depth bounds values.
-     */
-	struct VltDepthBoundsRange
+	 * \brief Depth bounds
+	 *
+	 * Stores depth bounds values.
+	 */
+	struct VltDepthBounds
 	{
-		float minDepthBounds;
-		float maxDepthBounds;
+		VkBool32 enableDepthBounds;
+		float    minDepthBounds;
+		float    maxDepthBounds;
 
-		bool operator==(const VltDepthBoundsRange& other) const
-		{ 
-			return minDepthBounds == other.minDepthBounds &&
+		bool operator==(const VltDepthBounds& other) const
+		{
+			return enableDepthBounds == other.enableDepthBounds &&
+				   minDepthBounds == other.minDepthBounds &&
 				   maxDepthBounds == other.maxDepthBounds;
 		}
 
-		bool operator!=(const VltDepthBoundsRange& other) const
+		bool operator!=(const VltDepthBounds& other) const
 		{
-			return minDepthBounds != other.minDepthBounds ||
+			return enableDepthBounds != other.enableDepthBounds ||
+				   minDepthBounds != other.minDepthBounds ||
 				   maxDepthBounds != other.maxDepthBounds;
 		}
 	};

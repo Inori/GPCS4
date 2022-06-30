@@ -76,22 +76,15 @@ namespace sce::vlt
 		void flushCommandList();
 
 		/**
-         * \brief Sets render targets
-         * 
-         * \param [in] slot Slot number
-         * \param [in] targets Render targets to bind
-         */
-		void bindRenderTarget(
-			uint32_t             slot,
-			const VltAttachment& target);
+		 * \brief Sets render targets
+		 *
+		 * Creates a framebuffer on the fly if necessary
+		 * and binds it using \c bindFramebuffer.
+		 * \param [in] targets Render targets to bind
+		 */
+		void bindRenderTargets(
+			const VltRenderTargets& targets);
 
-		/**
-         * \brief Sets depth render targets
-         * 
-         * \param [in] targets Render targets to bind
-         */
-		void bindDepthRenderTarget(
-			const VltAttachment& depthTarget);
 
 		/**
          * \brief Binds index buffer
@@ -226,36 +219,17 @@ namespace sce::vlt
 			const VltBlendMode& blendMode);
 
 		/**
-		 * \brief Sets write mask for an attachment
+		 * \brief Sets viewports
 		 *
-		 * \param [in] attachment The attachment index
-		 * \param [in] writeMask The writeMask
+		 * \param [in] viewportCount Number of viewports
+		 * \param [in] viewports The viewports
+		 * \param [in] scissorRects Schissor rectangles
 		 */
-		void setBlendMask(
-			uint32_t              attachment,
-			VkColorComponentFlags writeMask);
-
-
-		/**
-         * \brief Sets viewports
-         * 
-         * \param [in] viewportCount Number of viewports
-         * \param [in] viewports The viewports
-         * \param [in] scissorRects Schissor rectangles
-         */
 		void setViewports(
 			uint32_t          viewportCount,
-			const VkViewport* viewports);
+			const VkViewport* viewports,
+			const VkRect2D*   scissorRects);
 
-		/**
-         * \brief Sets viewports
-         * 
-         * \param [in] scissorCount Number of schissor rectangles
-         * \param [in] scissorRects Schissor rectangles
-         */
-		void setScissors(
-			uint32_t        scissorCount,
-			const VkRect2D* scissorRects);
 
 		/**
 		 * \brief Sets blend constants
@@ -279,21 +253,14 @@ namespace sce::vlt
 			VltDepthBias depthBias);
 
 		/**
-		 * \brief Sets depth bounds enable state
-		 *
-		 * Enables or disables the depth bounds test.
-		 */
-		void setDepthBoundsTestEnable(
-			VkBool32 depthBoundsTestEnable);
-
-		/**
 		 * \brief Sets depth bounds
 		 *
-		 * Updates the depth bounds values.
-		 * \param [in] depthBoundsRange Depth bounds range
+		 * Enables or disables the depth bounds test,
+		 * and updates the values if necessary.
+		 * \param [in] depthBounds Depth bounds
 		 */
-		void setDepthBoundsRange(
-			VltDepthBoundsRange depthBoundsRange);
+		void setDepthBounds(
+			VltDepthBounds depthBounds);
 
 		/**
 		 * \brief Sets stencil reference

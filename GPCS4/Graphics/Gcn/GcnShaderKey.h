@@ -12,9 +12,9 @@ namespace sce::gcn
 	{
 	public:
 		GcnShaderKey(
-			uint32_t crc, uint32_t hash)
+			uint32_t hash, uint32_t crc)
 		{
-			m_key = util::concat<uint64_t>(crc, hash);
+			m_key = util::concat<uint64_t>(hash, crc);
 		}
 
 		~GcnShaderKey() = default;
@@ -27,6 +27,11 @@ namespace sce::gcn
 		std::string name() const
 		{
 			return util::str::format("SHDR_%llX", m_key);
+		}
+
+		bool operator==(const GcnShaderKey& other) const
+		{
+			return m_key == other.m_key;
 		}
 
 	private:

@@ -1,7 +1,9 @@
 #include "GcnHeader.h"
 #include "GcnConstants.h"
 #include "GcnDecoder.h"
+#include "GcnProgramInfo.h"
 #include "Gnm/GnmConstant.h"
+
 
 LOG_CHANNEL(Graphic.Gcn.GcnHeader);
 
@@ -9,18 +11,7 @@ using namespace sce::Gnm;
 
 namespace sce::gcn
 {
-	GcnHeader::GcnHeader(const uint8_t* shaderCode)
-	{
-		parseHeader(shaderCode);
-		extractResourceTable(shaderCode);
-	}
-
-	GcnHeader::~GcnHeader()
-	{
-	}
-
-	void GcnHeader::parseHeader(
-		const uint8_t* shaderCode)
+	GcnBinaryInfo::GcnBinaryInfo(const uint8_t* shaderCode)
 	{
 		const uint32_t* token         = reinterpret_cast<const uint32_t*>(shaderCode);
 		const uint32_t  tokenMovVccHi = 0xBEEB03FF;
@@ -31,7 +22,64 @@ namespace sce::gcn
 		// but if it is, we can still search for the header magic 'OrbShdr'
 		LOG_ASSERT(token[0] == tokenMovVccHi, "first instruction is not s_mov_b32 vcc_hi, #imm");
 
-		const ShaderBinaryInfo* binaryInfo = reinterpret_cast<const ShaderBinaryInfo*>(token + (token[1] + 1) * 2);
+		m_binInfo = reinterpret_cast<const ShaderBinaryInfo*>(token + (token[1] + 1) * 2);
+	}
+
+	GcnBinaryInfo::~GcnBinaryInfo()
+	{
+	}
+
+	GcnHeader::GcnHeader(const uint8_t* shaderCode)
+	{
+		parseHeader(shaderCode);
+		extractResourceTable(shaderCode);
+	}
+
+	GcnHeader::~GcnHeader()
+	{
+	}
+
+	GcnProgramType GcnHeader::type() const
+	{
+		GcnProgramType   result;
+		ShaderBinaryType binType = static_cast<ShaderBinaryType>(m_binInfo.m_type);
+		switch (binType)
+		{
+			case ShaderBinaryType::kPixelShader:
+				result = GcnProgramType::PixelShader;
+				break;
+			case ShaderBinaryType::kVertexShader:
+				result = GcnProgramType::VertexShader;
+				break;
+			case ShaderBinaryType::kComputeShader:
+				result = GcnProgramType::ComputeShader;
+				break;
+			case ShaderBinaryType::kGeometryShader:
+				result = GcnProgramType::GeometryShader;
+				break;
+			case ShaderBinaryType::kHullShader:
+				result = GcnProgramType::HullShader;
+				break;
+			case ShaderBinaryType::kDomainShader:
+				result = GcnProgramType::DomainShader;
+				break;
+			case ShaderBinaryType::kLocalShader:
+			case ShaderBinaryType::kExportShader:
+			case ShaderBinaryType::kUnknown:
+			default:
+				LOG_ASSERT(false, "unknown shader type.");
+				break;
+		}
+		return result;
+	}
+
+	void GcnHeader::parseHeader(
+		const uint8_t* shaderCode)
+	{
+	
+		GcnBinaryInfo info(shaderCode);
+
+		const ShaderBinaryInfo* binaryInfo = info.info();
 		std::memcpy(&m_binInfo, binaryInfo, sizeof(ShaderBinaryInfo));
 
 		// Get usage masks and input usage slots
@@ -153,5 +201,7 @@ namespace sce::gcn
 
 		return result;
 	}
+
+
 
 }  // namespace sce::gcn

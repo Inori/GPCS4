@@ -252,6 +252,16 @@ namespace sce::vlt
 		}
 
 		/**
+		 * \brief Sets the shader key
+		 * \param [in] key Unique key
+		 */
+		void setShaderKey(const VltShaderKey& key)
+		{
+			m_key  = key;
+			m_hash = key.hash();
+		}
+
+		/**
          * \brief Get lookup hash
          * 
          * Retrieves a non-unique hash value derived from the
@@ -287,7 +297,6 @@ namespace sce::vlt
 		}
 
 	private:
-		void updateShaderKey(const gcn::SpirvCodeBuffer& code);
 
 		static void eliminateInput(gcn::SpirvCodeBuffer& code, uint32_t location);
 
@@ -306,8 +315,6 @@ namespace sce::vlt
 
 		size_t m_o1IdxOffset = 0;
 		size_t m_o1LocOffset = 0;
-
-		
 	};
 
 	/**

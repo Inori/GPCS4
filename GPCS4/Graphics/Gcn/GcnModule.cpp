@@ -16,11 +16,9 @@ LOG_CHANNEL(Graphic.Gcn.GcnModule);
 
 namespace sce::gcn
 {
-	GcnModule::GcnModule(
-		GcnProgramType type,
-		const uint8_t* code) :
-		m_programInfo(type),
+	GcnModule::GcnModule(const uint8_t* code) :
 		m_header(code),
+		m_programInfo(m_header.type()),
 		m_code(code)
 	{
 	}
@@ -39,11 +37,6 @@ namespace sce::gcn
 		GcnCodeSlice    slice(start, end);
 
 		auto insList = this->decodeShader(slice);
-
-		//if (this->name() == "PSSHDR_58D2050651B6B50A")
-		//{
-		//	__debugbreak();
-		//}
 		
 		// Generate global information
 		GcnAnalysisInfo analysisInfo;

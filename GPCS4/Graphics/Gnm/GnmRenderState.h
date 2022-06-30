@@ -77,4 +77,10 @@ namespace sce::Gnm
 	{
 		GnmShaderContext shaderContext = {};
 	};
+
+	struct GnmRenderState
+	{
+		GnmGraphicsState gp;
+		GnmComputeState  cp;
+	};
 }  // namespace sce::Gnm

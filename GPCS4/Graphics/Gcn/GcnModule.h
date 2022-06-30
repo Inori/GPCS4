@@ -22,9 +22,7 @@ namespace sce::gcn
 	class GcnModule
 	{
 	public:
-		GcnModule(
-			GcnProgramType type,
-			const uint8_t* code);
+		GcnModule(const uint8_t* code);
 		~GcnModule();
 
 		/**
@@ -82,9 +80,9 @@ namespace sce::gcn
 		void dumpShader() const;
 
 	private:
-		GcnProgramInfo           m_programInfo;
-		GcnHeader                m_header;
-		const uint8_t*           m_code;
+		GcnHeader      m_header;
+		GcnProgramInfo m_programInfo;
+		const uint8_t* m_code;
 		
 		GcnShaderResourceTable m_resourceTable;
 	};

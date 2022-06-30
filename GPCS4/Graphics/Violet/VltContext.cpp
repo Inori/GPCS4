@@ -84,24 +84,27 @@ namespace sce::vlt
 			m_device->createCommandList(queueType));
 	}
 
-	void VltContext::bindRenderTarget(
-		uint32_t             slot,
-		const VltAttachment& target)
+	void VltContext::bindRenderTargets(const VltRenderTargets& targets)
 	{
-		m_state.cb.renderTargets.color[slot] = target;
+		// Set up default render pass ops
+		m_state.cb.renderTargets = targets;
 
-		resetFramebufferOps();
+		this->resetFramebufferOps();
 
-		m_flags.set(VltContextFlag::GpDirtyFramebuffer);
+		if (m_state.cb.framebuffer == nullptr || !m_state.cb.framebuffer->matchTargets(targets))
+		{
+			// Create a new framebuffer object next
+			// time we start rendering something
+			m_flags.set(VltContextFlag::GpDirtyFramebuffer);
+		}
+		else
+		{
+			// Don't redundantly spill the render pass if
+			// the same render targets are bound again
+			m_flags.clr(VltContextFlag::GpDirtyFramebuffer);
+		}
 	}
 	
-	void VltContext::bindDepthRenderTarget(
-		const VltAttachment& depthTarget)
-	{
-		m_state.cb.renderTargets.depth = depthTarget;
-
-		m_flags.set(VltContextFlag::GpDirtyFramebuffer);
-	}
 
 	void VltContext::bindIndexBuffer(
 		const VltBufferSlice& buffer,
@@ -484,8 +487,8 @@ namespace sce::vlt
 				m_state.gp.state.ds.enableDepthBoundsTest());
 
 			m_cmd->cmdSetDepthBounds(
-				m_state.dyn.depthBoundsRange.minDepthBounds,
-				m_state.dyn.depthBoundsRange.maxDepthBounds);
+				m_state.dyn.depthBounds.minDepthBounds,
+				m_state.dyn.depthBounds.maxDepthBounds);
 		}
 	}
 
@@ -603,7 +606,8 @@ namespace sce::vlt
 
 	void VltContext::setViewports(
 		uint32_t          viewportCount,
-		const VkViewport* viewports)
+		const VkViewport* viewports,
+		const VkRect2D*   scissorRects)
 	{
 		if (m_state.gp.state.rs.viewportCount() != viewportCount)
 		{
@@ -613,13 +617,13 @@ namespace sce::vlt
 
 		for (uint32_t i = 0; i < viewportCount; i++)
 		{
-			m_state.vp.viewports[i] = viewports[i];
+			m_state.vp.viewports[i]    = viewports[i];
+			m_state.vp.scissorRects[i] = scissorRects[i];
 
-			// Vulkan viewports are not allowed to have a width
-			// of zero (but zero height is allowed),
-			// so we fall back to a dummy viewport
+			// Vulkan viewports are not allowed to have a width or
+			// height of zero, so we fall back to a dummy viewport
 			// and instead set an empty scissor rect, which is legal.
-			if (viewports[i].width == 0.0f)
+			if (viewports[i].width == 0.0f || viewports[i].height == 0.0f)
 			{
 				m_state.vp.viewports[i] = VkViewport{
 					0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f
@@ -634,27 +638,6 @@ namespace sce::vlt
 		m_flags.set(VltContextFlag::GpDirtyViewport);
 	}
 
-	void VltContext::setScissors(
-		uint32_t        scissorCount,
-		const VkRect2D* scissorRects)
-	{
-		// Assume count of scissor and viewport are always equal.
-		// In fact, these's only one scissor for Gnm
-		if (m_state.gp.state.rs.viewportCount() != scissorCount)
-		{
-			m_state.gp.state.rs.setViewportCount(scissorCount);
-			m_flags.set(VltContextFlag::GpDirtyPipelineState);
-		}
-
-		for (uint32_t i = 0; i < scissorCount; i++)
-		{
-			m_state.vp.scissorRects[i] = scissorRects[i];
-		}
-
-		m_flags.set(VltContextFlag::GpDirtyScissor);
-	}
-
-	
 	void VltContext::setBlendConstants(
 		VltBlendConstants blendConstants)
 	{
@@ -675,25 +658,19 @@ namespace sce::vlt
 		}
 	}
 
-	void VltContext::setDepthBoundsTestEnable(
-		VkBool32 depthBoundsTestEnable)
+	void VltContext::setDepthBounds(VltDepthBounds depthBounds)
 	{
-		if (m_state.gp.state.ds.enableDepthBoundsTest() != depthBoundsTestEnable)
+		if (m_state.dyn.depthBounds != depthBounds)
 		{
-			m_state.gp.state.ds.setEnableDepthBoundsTest(depthBoundsTestEnable);
-			m_flags.set(VltContextFlag::GpDirtyPipelineState);
-		}
-	}
-
-	void VltContext::setDepthBoundsRange(
-		VltDepthBoundsRange depthBoundsRange)
-	{
-		if (m_state.dyn.depthBoundsRange != depthBoundsRange)
-		{
-			m_state.dyn.depthBoundsRange = depthBoundsRange;
+			m_state.dyn.depthBounds = depthBounds;
 			m_flags.set(VltContextFlag::GpDirtyDepthBounds);
 		}
 
+		if (m_state.gp.state.ds.enableDepthBoundsTest() != depthBounds.enableDepthBounds)
+		{
+			m_state.gp.state.ds.setEnableDepthBoundsTest(depthBounds.enableDepthBounds);
+			m_flags.set(VltContextFlag::GpDirtyPipelineState);
+		}
 	}
 
 	void VltContext::setStencilReference(uint32_t reference)
@@ -897,15 +874,6 @@ namespace sce::vlt
 			blendMode.alphaDstFactor,
 			blendMode.alphaBlendOp,
 			blendMode.writeMask);
-
-		m_flags.set(VltContextFlag::GpDirtyPipelineState);
-	}
-
-	void VltContext::setBlendMask(
-		uint32_t              attachment,
-		VkColorComponentFlags writeMask)
-	{
-		m_state.gp.state.cbBlend[attachment].setColorWriteMask(writeMask);
 
 		m_flags.set(VltContextFlag::GpDirtyPipelineState);
 	}
@@ -2035,6 +2003,7 @@ namespace sce::vlt
 		m_cmd->cmdPipelineBarrier2(
 			VltCmdType::ExecBuffer, &info);
 	}
+
 
 
 }  // namespace sce::vlt

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Sha1Hash.h"
 #include "VltCommon.h"
 #include "VltHash.h"
+#include "Gcn/GcnShaderKey.h"
 
 namespace sce::vlt
 {
@@ -32,9 +32,9 @@ namespace sce::vlt
          */
 		VltShaderKey(
 			VkShaderStageFlagBits stage,
-			alg::Sha1Hash         hash) :
+			gcn::GcnShaderKey     key) :
 			m_type(stage),
-			m_sha1(hash)
+			m_key(key)
 		{
 		}
 
@@ -53,14 +53,14 @@ namespace sce::vlt
 		/**
          * \brief Checks whether two keys are equal
          * 
-         * \param [in] key The shader key to compare to
+         * \param [in] other The shader key to compare to
          * \returns \c true if the two keys are equal
          */
-		bool eq(const VltShaderKey& key) const;
+		bool eq(const VltShaderKey& other) const;
 
 	private:
 		VkShaderStageFlags m_type;
-		alg::Sha1Hash      m_sha1;
+		gcn::GcnShaderKey  m_key;
 	};
 
 }  // namespace sce::vlt

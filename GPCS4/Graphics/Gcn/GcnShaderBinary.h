@@ -6,6 +6,19 @@
 
 namespace sce::gcn
 {
+	enum class ShaderBinaryType : uint8_t
+	{
+		kPixelShader    = 0,  ///< PS stage shader.
+		kVertexShader   = 1,  ///< VS stage shader
+		kExportShader   = 2,
+		kLocalShader    = 3,
+		kComputeShader  = 4,  ///< CS stage shader.
+		kGeometryShader = 5,
+		kUnknown        = 6,
+		kHullShader     = 7,  ///< HS stage shader.
+		kDomainShader   = 8,  ///< DS stage shader with embedded CS stage frontend shader.
+	} ShaderType;
+
 	struct ShaderBinaryInfo
 	{
 		uint8_t m_signature[7];  // 'OrbShdr'

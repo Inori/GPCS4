@@ -149,7 +149,6 @@ namespace sce::vlt
 			dynamicStates[dynamicStateCount++] = VK_DYNAMIC_STATE_DEPTH_BOUNDS_TEST_ENABLE;
 		}
 			
-
 		if (state.useDynamicBlendConstants())
 			dynamicStates[dynamicStateCount++] = VK_DYNAMIC_STATE_BLEND_CONSTANTS;
 

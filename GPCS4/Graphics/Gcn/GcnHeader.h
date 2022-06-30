@@ -9,6 +9,8 @@
 
 namespace sce::gcn
 {
+	enum class GcnProgramType;
+
 	/**
 	 * \brief Represent a resource bound to a GCN shader
 	 */
@@ -35,6 +37,54 @@ namespace sce::gcn
 
 	using GcnShaderResourceTable = std::vector<GcnShaderResource>;
 
+	/**
+	 * \brief Light weight binary information parser
+	 *
+	 * Data in this class is not persistent, will become
+	 * invalid when shader code released.
+	 */
+	class GcnBinaryInfo
+	{
+	public:
+		GcnBinaryInfo(
+			const uint8_t* shaderCode);
+		~GcnBinaryInfo();
+
+		/**
+		 * \brief Code length
+		 * 
+		 * Gcn instruction code length in bytes.
+		 * Does not include header and 
+		 * other meta information
+		 */
+		uint32_t length() const
+		{
+			return m_binInfo->m_length;
+		}
+
+		/**
+		 * \brief Unique key
+		 * 
+		 * Used to identify the shader
+		 */
+		GcnShaderKey key() const
+		{
+			return GcnShaderKey(
+				m_binInfo->m_shaderHash0, m_binInfo->m_crc32);
+		}
+
+		/**
+		 * \brief Information of shader binary
+		 */
+		const ShaderBinaryInfo* info() const
+		{
+			return m_binInfo;
+		}
+
+	private:
+		const ShaderBinaryInfo* m_binInfo = nullptr;
+	};
+
 
 	/**
 	 * \brief Header information 
@@ -54,6 +104,8 @@ namespace sce::gcn
 			const uint8_t* shaderCode);
 		~GcnHeader();
 
+		GcnProgramType type() const;
+
 		/**
 		 * \brief Unique id of the shader
 		 */
@@ -69,11 +121,6 @@ namespace sce::gcn
 		uint32_t length() const
 		{
 			return m_binInfo.m_length;
-		}
-
-		const ShaderBinaryInfo& getShaderBinaryInfo() const
-		{
-			return m_binInfo;
 		}
 
 		const InputUsageSlotTable& getInputUsageSlotTable() const

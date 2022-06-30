@@ -37,7 +37,6 @@ namespace sce::vlt
 		GpDirtyDepthBounds,        ///< Depth bounds have changed
 		GpDirtyStencilRef,         ///< Stencil reference has changed
 		GpDirtyViewport,           ///< Viewport has changed
-		GpDirtyScissor,            ///< Scissor has changed
 		GpDirtyPredicate,          ///< Predicate has changed
 		GpDynamicBlendConstants,   ///< Blend constants are dynamic
 		GpDynamicDepthBias,        ///< Depth bias is dynamic
@@ -125,10 +124,10 @@ namespace sce::vlt
 
 	struct VltDynamicState
 	{
-		VltBlendConstants   blendConstants   = { 0.0f, 0.0f, 0.0f, 0.0f };
-		VltDepthBias        depthBias        = { 0.0f, 0.0f, 0.0f };
-		VltDepthBoundsRange depthBoundsRange = { 0.0f, 1.0f };
-		uint32_t            stencilReference = 0;
+		VltBlendConstants blendConstants   = { 0.0f, 0.0f, 0.0f, 0.0f };
+		VltDepthBias      depthBias        = { 0.0f, 0.0f, 0.0f };
+		VltDepthBounds    depthBounds      = { false, 0.0f, 1.0f };
+		uint32_t          stencilReference = 0;
 	};
 
 	struct VltCondRenderState

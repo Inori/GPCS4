@@ -107,8 +107,6 @@ namespace sce::vlt
 					m_flags.set(VltShaderFlag::ExportsViewportIndexLayerFromVertexStage);
 			}
 		}
-
-		updateShaderKey(code);
 	}
 
 	VltShader::~VltShader()
@@ -168,7 +166,10 @@ namespace sce::vlt
 		// Do not fix binding id if we read from a external binary file.
 		m_idOffsets.clear();
 
-		updateShaderKey(m_code.decompress());
+		auto          code = m_code.decompress();
+		alg::Sha1Hash hash = alg::Sha1Hash::compute(code.data(), code.size());
+		m_key              = VltShaderKey(m_stage, hash);
+		m_hash             = m_key.hash();
 	}
 
 	void VltShader::eliminateInput(SpirvCodeBuffer& code, uint32_t location)
@@ -379,14 +380,6 @@ namespace sce::vlt
 			}
 		}
 	}
-
-	void VltShader::updateShaderKey(const gcn::SpirvCodeBuffer& code)
-	{
-		alg::Sha1Hash hash = alg::Sha1Hash::compute(code.data(), code.size());
-		m_key              = VltShaderKey(m_stage, hash);
-		m_hash             = m_key.hash();
-	}
-
 
 	VltShaderModule::VltShaderModule() :
 		m_device(nullptr), m_stage()

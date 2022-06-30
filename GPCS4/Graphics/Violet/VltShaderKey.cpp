@@ -4,7 +4,7 @@ namespace sce::vlt
 {
 	VltShaderKey::VltShaderKey() :
 		m_type(0),
-		m_sha1(alg::Sha1Hash::compute(nullptr, 0))
+		m_key(0, 0)
 	{
 	}
 
@@ -36,7 +36,7 @@ namespace sce::vlt
 			prefix = "";
 		}
 
-		return util::str::formatex(prefix, m_sha1.toString());
+		return util::str::formatex(prefix, m_key.name());
 	}
 
 	size_t VltShaderKey::hash() const
@@ -44,14 +44,15 @@ namespace sce::vlt
 		VltHashState result;
 		result.add(uint32_t(m_type));
 
-		for (uint32_t i = 0; i < 5; i++)
-			result.add(m_sha1.dword(i));
+		uint64_t key = m_key.key();
+		result.add(key);
 
 		return result;
 	}
 
-	bool VltShaderKey::eq(const VltShaderKey& key) const
+	bool VltShaderKey::eq(const VltShaderKey& other) const
 	{
-		return m_type == key.m_type && m_sha1 == key.m_sha1;
+		return m_type == other.m_type &&
+			   m_key == other.m_key;
 	}
 }  // namespace sce::vlt
