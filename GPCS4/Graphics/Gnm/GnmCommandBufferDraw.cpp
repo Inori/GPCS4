@@ -291,7 +291,6 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setRenderTarget(uint32_t rtSlot, RenderTarget const* target)
 	{
-		return;
 		auto resource = m_tracker->find(target->getBaseAddress());
 		do
 		{
@@ -553,7 +552,7 @@ namespace sce::Gnm
 	{
 		// If the index size is currently 32 bits, this command will partially set it to 16 bits
 		m_state.ia.indexType   = VK_INDEX_TYPE_UINT16;
-		// m_state.ia.indexBuffer = generateIndexBufferAuto(indexCount);
+		m_state.ia.indexBuffer = generateIndexBufferAuto(indexCount);
 
 		commitGraphicsState();
 

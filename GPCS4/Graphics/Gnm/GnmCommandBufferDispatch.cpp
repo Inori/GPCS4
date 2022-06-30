@@ -359,7 +359,7 @@ namespace sce::Gnm
 
 	void* GnmCommandBufferDispatch::allocateFromCommandBuffer(uint32_t sizeInBytes, EmbeddedDataAlignment alignment)
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		return nullptr;
 	}
 
 	void GnmCommandBufferDispatch::setStencilSeparate(StencilControl front, StencilControl back)

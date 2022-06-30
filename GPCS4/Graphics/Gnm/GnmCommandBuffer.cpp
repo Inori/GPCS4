@@ -48,17 +48,22 @@ namespace sce::Gnm
 
 	void GnmCommandBuffer::writeDataInline(void* dstGpuAddr, const void* data, uint32_t sizeInDwords, WriteDataConfirmMode writeConfirm)
 	{
-		auto label = m_labelManager->getLabel(dstGpuAddr);
+		auto             label    = m_labelManager->getLabel(dstGpuAddr);
+		uint64_t         value    = 0;
+		EventWriteSource selector = kEventWriteSource32BitsImmediate;
 		if (sizeInDwords == 1)
 		{
-			label->set(*reinterpret_cast<const uint32_t*>(data));
+			selector = kEventWriteSource32BitsImmediate;
+			value = *reinterpret_cast<const uint32_t*>(data);
 		}
 		else if (sizeInDwords == 2)
 		{
-			label->set(*reinterpret_cast<const uint64_t*>(data));
+			selector = kEventWriteSource64BitsImmediate;
+			value = *reinterpret_cast<const uint64_t*>(data);
 		}
 
-		std::memcpy(dstGpuAddr, data, sizeInDwords * sizeof(uint32_t));
+		//std::memcpy(dstGpuAddr, data, sizeInDwords * sizeof(uint32_t));
+		label->write(m_context.ptr(), VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, selector, value);
 	}
 
 	const uint32_t* GnmCommandBuffer::findUserData(

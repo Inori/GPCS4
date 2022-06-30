@@ -720,7 +720,7 @@ namespace sce::Gnm
 		case OP_HINT_SET_CLIP_CONTROL:
 		{
 			ClipControl clipControl;
-			clipControl.m_reg = static_cast<uint8_t>(itBody[1]);
+			clipControl.m_reg = itBody[1];
 			LOG_SCE_GRAPHIC("Gnm: setClipControl");
 			m_cb->setClipControl(clipControl);
 		}
