@@ -15,6 +15,7 @@ namespace sce::Gnm
 		m_device(device),
 		m_label(label)
 	{
+		createSemaphore();
 	}
 
 	GnmGpuLabel::~GnmGpuLabel()
@@ -32,14 +33,6 @@ namespace sce::Gnm
 		EventWriteSource      srcSelector,
 		uint64_t              immValue)
 	{
-		if (m_semaphore == nullptr)
-		{
-			VltSemaphoreCreateInfo info;
-			info.semaphoreType = VK_SEMAPHORE_TYPE_TIMELINE;
-			info.initialValue  = 0;
-			m_semaphore        = m_device->createSemaphore(info);
-		}
-
 		m_value = immValue == 0 ? 1 : immValue;
 
 		VltSemaphoreSubmission submission;
@@ -91,14 +84,6 @@ namespace sce::Gnm
 		// Only support equal compare now.
 		LOG_ASSERT(compareFunc == kWaitCompareFuncEqual, "Only equal compareFunc is supported yet.");
 
-		if (m_semaphore == nullptr)
-		{
-			VltSemaphoreCreateInfo info;
-			info.semaphoreType = VK_SEMAPHORE_TYPE_TIMELINE;
-			info.initialValue  = 0;
-			m_semaphore        = m_device->createSemaphore(info);
-		}
-
 		m_value = refValue == 0 ? 1 : refValue;
 
 		VltSemaphoreSubmission submission;
@@ -106,6 +91,14 @@ namespace sce::Gnm
 		submission.stageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
 		submission.value     = m_value & mask;
 		context->waitSemaphore(submission);
+	}
+
+	void GnmGpuLabel::createSemaphore()
+	{
+		VltSemaphoreCreateInfo info;
+		info.semaphoreType = VK_SEMAPHORE_TYPE_TIMELINE;
+		info.initialValue  = 0;
+		m_semaphore        = m_device->createSemaphore(info);
 	}
 
 }  // namespace sce::Gnm

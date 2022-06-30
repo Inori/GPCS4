@@ -51,7 +51,11 @@ int PS4API sceKernelGetDirectMemoryType(sce_off_t start, int *memoryType,
 	sce_off_t *regionStartOut, sce_off_t *regionEndOut)
 {
 	LOG_SCE_DUMMY_IMPL();
-	*memoryType = SCE_KERNEL_WB_GARLIC;
+	// It is not possible to perform writes to SCE_KERNEL_WB_GARLIC type memory. 
+	// Set another memory type, perform the write, 
+	// then change the memory type to SCE_KERNEL_WB_GARLIC.
+	// 
+	// *memoryType = SCE_KERNEL_WB_GARLIC;
 	*memoryType = SCE_KERNEL_WC_GARLIC;
 	return SCE_OK;
 }

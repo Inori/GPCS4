@@ -55,8 +55,10 @@ namespace sce::gcn
 		GcnRegisterValue value;
 		value.type.ctype  = GcnScalarType::Float32;
 		value.type.ccount = componentCount;
-		value.id          = m_module.opCompositeConstruct(getVectorTypeId(value.type),
-														  componentCount, src.data());
+		value.id          = componentCount == 1
+								? src[0]
+								: m_module.opCompositeConstruct(getVectorTypeId(value.type),
+																componentCount, src.data());
 
 		switch (exp.target)
 		{

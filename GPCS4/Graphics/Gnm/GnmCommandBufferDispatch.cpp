@@ -342,6 +342,69 @@ namespace sce::Gnm
 		m_state.shaderContext.meta.cs.textureInfos[startRegister] = meta;
 	}
 
+	void GnmCommandBufferDispatch::setClipControl(ClipControl reg)
+	{
+		throw std::logic_error("The method or operation is not implemented.");
+	}
 
+	void GnmCommandBufferDispatch::setDbCountControl(DbCountControlPerfectZPassCounts perfectZPassCounts, uint32_t log2SampleRate)
+	{
+		throw std::logic_error("The method or operation is not implemented.");
+	}
+
+	void GnmCommandBufferDispatch::setBorderColorTableAddr(void* tableAddr)
+	{
+		throw std::logic_error("The method or operation is not implemented.");
+	}
+
+	void* GnmCommandBufferDispatch::allocateFromCommandBuffer(uint32_t sizeInBytes, EmbeddedDataAlignment alignment)
+	{
+		return nullptr;
+	}
+
+	void GnmCommandBufferDispatch::setStencilSeparate(StencilControl front, StencilControl back)
+	{
+		throw std::logic_error("The method or operation is not implemented.");
+	}
+
+	void GnmCommandBufferDispatch::setCbControl(CbMode mode, RasterOp op)
+	{
+		throw std::logic_error("The method or operation is not implemented.");
+	}
+
+	void GnmCommandBufferDispatch::setStencilOpControl(StencilOpControl stencilControl)
+	{
+		throw std::logic_error("The method or operation is not implemented.");
+	}
+
+	void GnmCommandBufferDispatch::triggerEvent(EventType eventType)
+	{
+		throw std::logic_error("The method or operation is not implemented.");
+	}
+
+	void GnmCommandBufferDispatch::prefetchIntoL2(void* dataAddr, uint32_t sizeInBytes)
+	{
+		throw std::logic_error("The method or operation is not implemented.");
+	}
+
+	void GnmCommandBufferDispatch::setStencil(StencilControl stencilControl)
+	{
+		throw std::logic_error("The method or operation is not implemented.");
+	}
+
+	void GnmCommandBufferDispatch::pushMarker(const char* debugString)
+	{
+		throw std::logic_error("The method or operation is not implemented.");
+	}
+
+	void GnmCommandBufferDispatch::pushMarker(const char* debugString, uint32_t argbColor)
+	{
+		throw std::logic_error("The method or operation is not implemented.");
+	}
+
+	void GnmCommandBufferDispatch::popMarker()
+	{
+		throw std::logic_error("The method or operation is not implemented.");
+	}
 
 }  // namespace sce::Gnm

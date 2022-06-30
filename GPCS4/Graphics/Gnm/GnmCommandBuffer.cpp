@@ -28,6 +28,7 @@ namespace sce::Gnm
 		m_device(device),
 		m_factory(device)
 	{
+		initGcnModuleInfo();
 	}
 
 	GnmCommandBuffer::~GnmCommandBuffer()
@@ -47,25 +48,22 @@ namespace sce::Gnm
 
 	void GnmCommandBuffer::writeDataInline(void* dstGpuAddr, const void* data, uint32_t sizeInDwords, WriteDataConfirmMode writeConfirm)
 	{
-		auto label = m_labelManager->getLabel(dstGpuAddr);
+		auto             label    = m_labelManager->getLabel(dstGpuAddr);
+		uint64_t         value    = 0;
+		EventWriteSource selector = kEventWriteSource32BitsImmediate;
 		if (sizeInDwords == 1)
 		{
-			label->set(*reinterpret_cast<const uint32_t*>(data));
+			selector = kEventWriteSource32BitsImmediate;
+			value = *reinterpret_cast<const uint32_t*>(data);
 		}
 		else if (sizeInDwords == 2)
 		{
-			label->set(*reinterpret_cast<const uint64_t*>(data));
+			selector = kEventWriteSource64BitsImmediate;
+			value = *reinterpret_cast<const uint64_t*>(data);
 		}
 
-		std::memcpy(dstGpuAddr, data, sizeInDwords * sizeof(uint32_t));
-	}
-
-	void GnmCommandBuffer::writeReleaseMemEventWithInterrupt(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy)
-	{
-	}
-
-	void GnmCommandBuffer::writeReleaseMemEvent(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy)
-	{
+		//std::memcpy(dstGpuAddr, data, sizeInDwords * sizeof(uint32_t));
+		label->write(m_context.ptr(), VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, selector, value);
 	}
 
 	const uint32_t* GnmCommandBuffer::findUserData(
@@ -80,7 +78,8 @@ namespace sce::Gnm
 		}
 		else
 		{
-			const uint32_t* eudTable = &userData[eudIndex];
+			const uintptr_t eudPtr   = *reinterpret_cast<const uintptr_t*>(&userData[eudIndex]);
+			const uint32_t* eudTable = reinterpret_cast<const uint32_t*>(eudPtr);
 			registerData             = &eudTable[res.eudOffsetInDwords];
 		}
 		return registerData;
@@ -230,7 +229,7 @@ namespace sce::Gnm
 
 					updateMetaBufferInfo(stage, res.startRegister, vsharp);
 				}
-				break;
+					break;
 				case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
 				{
 					const Buffer* vsharp = reinterpret_cast<const Buffer*>(findUserData(res, eudIndex, userData));
@@ -244,7 +243,7 @@ namespace sce::Gnm
 
 					updateMetaBufferInfo(stage, res.startRegister, vsharp);
 				}
-				break;
+					break;
 				case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
 				{
 					const Texture* tsharp = reinterpret_cast<const Texture*>(findUserData(res, eudIndex, userData));
@@ -260,7 +259,7 @@ namespace sce::Gnm
 
 					updateMetaTextureInfo(stage, res.startRegister, false, tsharp);
 				}
-				break;
+					break;
 				case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
 				{
 					const Texture* tsharp = reinterpret_cast<const Texture*>(findUserData(res, eudIndex, userData));
@@ -276,7 +275,7 @@ namespace sce::Gnm
 
 					updateMetaTextureInfo(stage, res.startRegister, false, tsharp);
 				}
-				break;
+					break;
 				case VK_DESCRIPTOR_TYPE_SAMPLER:
 				{
 					const Sampler* ssharp = reinterpret_cast<const Sampler*>(findUserData(res, eudIndex, userData));
@@ -286,7 +285,7 @@ namespace sce::Gnm
 						res.startRegister,
 						stage);
 				}
-				break;
+					break;
 				case VK_DESCRIPTOR_TYPE_MAX_ENUM:
 					break;
 				default:
@@ -308,15 +307,9 @@ namespace sce::Gnm
 		bindResource(VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, resTable, ctx.userData);
 
 		// bind the shader
-		auto shader = csModule.compile(ctx.meta);
 		m_context->bindShader(
 			VK_SHADER_STAGE_COMPUTE_BIT,
-			shader);
-
-//#ifdef SHADER_DUMP_FILE
-		std::ofstream fout(csModule.name(), std::ios::binary);
-		shader->dump(fout);
-//#endif
+			csModule.compile(ctx.meta, m_moduleInfo));
 	}
 
 	ShaderStage GnmCommandBuffer::getShaderStage(
@@ -424,6 +417,23 @@ namespace sce::Gnm
 		return meta;
 	}
 
+	void GnmCommandBuffer::initGcnModuleInfo()
+	{
+		const auto& devInfo = m_device->properties();
 
+		const uint32_t amdWavefrontSize       = 64;
+		m_moduleInfo.options.separateSubgroup = devInfo.coreSubgroup.subgroupSize < amdWavefrontSize;
+
+		m_moduleInfo.maxComputeSubgroupCount =
+			devInfo.core.properties.limits.maxComputeWorkGroupInvocations / devInfo.coreSubgroup.subgroupSize;
+	}
+
+	void GnmCommandBuffer::writeReleaseMemEventWithInterrupt(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy)
+	{
+	}
+
+	void GnmCommandBuffer::writeReleaseMemEvent(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy)
+	{
+	}
 
 }  // namespace sce::Gnm

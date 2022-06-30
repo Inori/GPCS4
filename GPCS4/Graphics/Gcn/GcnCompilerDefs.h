@@ -11,14 +11,17 @@ namespace sce::gcn
 {
 	struct GcnInstOperand;
 
-	constexpr size_t   GcnMaxInterfaceRegs = 32;
-	constexpr size_t   GcnMaxSGPR          = 104;
-	constexpr size_t   GcnMaxVGPR          = 256;
-	constexpr size_t   GcnMaxOperandCount  = 5;
-	constexpr size_t   GcnMaxExportParam   = 32;
+	constexpr size_t GcnMaxInterfaceRegs = 32;
+	constexpr size_t GcnMaxSGPR          = 104;
+	constexpr size_t GcnMaxVGPR          = 256;
+	constexpr size_t GcnMaxOperandCount  = 5;
+	constexpr size_t GcnMaxExportParam   = 32;
+	constexpr size_t GcnMaxResourceReg   = 64;
 
-	constexpr size_t   GcnExpPos0          = 12;
-	constexpr size_t   GcnExpParam0        = 32;
+	constexpr size_t GcnExpPos0   = 12;
+	constexpr size_t GcnExpParam0 = 32;
+
+	constexpr double GcnPi = 3.14159265358979323846;
 
 	enum class GcnZeroTest : uint32_t
 	{
@@ -118,8 +121,6 @@ namespace sce::gcn
 	 */
 	struct GcnCompilerCommonPart
 	{
-		uint32_t numSubgroups         = 0;
-		uint32_t subgroupId           = 0;
 		uint32_t subgroupSize         = 0;
 		uint32_t subgroupInvocationId = 0;
 		uint32_t subgroupEqMask       = 0;
@@ -173,6 +174,9 @@ namespace sce::gcn
 	{
 		uint32_t functionId = 0;
 
+		uint32_t numSubgroups = 0;
+		uint32_t subgroupId   = 0;
+
 		uint32_t workgroupSizeX = 0;
 		uint32_t workgroupSizeY = 0;
 		uint32_t workgroupSizeZ = 0;
@@ -181,6 +185,8 @@ namespace sce::gcn
 		uint32_t builtinLocalInvocationId    = 0;
 		uint32_t builtinLocalInvocationIndex = 0;
 		uint32_t builtinWorkgroupId          = 0;
+
+		uint32_t crossGroupMemoryId = 0;
 	};
 
 
@@ -194,6 +200,28 @@ namespace sce::gcn
 		int32_t         offset = 0;
 	};
 
+	/**
+	 * \brief Component for MIMG instruction vaddr[]
+	 */
+	enum class GcnImageAddrComponent : uint32_t
+	{
+		Offsets,
+		Bias,
+		Zpcf,
+		DxDh,
+		DyDh,
+		DzDh,
+		DxDv,
+		DyDv,
+		DzDv,
+		X,
+		Y,
+		Z,
+		Slice,
+		FaceId,
+		Lod,
+		Clamp,
+	};
 
 	/**
 	 * \brief Image type information from T#

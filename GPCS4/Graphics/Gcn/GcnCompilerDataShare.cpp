@@ -1,4 +1,5 @@
 #include "GcnCompiler.h"
+#include "UtilMath.h"
 
 LOG_CHANNEL(Graphic.Gcn.GcnCompiler);
 
@@ -25,13 +26,11 @@ namespace sce::gcn
 				this->emitDsIdxWrap(ins);
 				break;
 			case GcnInstClass::DsAtomicArith32:
-				this->emitDsAtomicArith32(ins);
+			case GcnInstClass::DsAtomicMinMax32:
+				this->emitDsAtomicCommon(ins);
 				break;
 			case GcnInstClass::DsAtomicArith64:
 				this->emitDsAtomicArith64(ins);
-				break;
-			case GcnInstClass::DsAtomicMinMax32:
-				this->emitDsAtomicMinMax32(ins);
 				break;
 			case GcnInstClass::DsAtomicMinMax64:
 				this->emitDsAtomicMinMax64(ins);
@@ -66,18 +65,206 @@ namespace sce::gcn
 		}
 	}
 
-	std::array<sce::gcn::GcnRegisterPointer, 4> 
-		GcnCompiler::emitDsAccess(const GcnShaderInstruction& ins)
+	void GcnCompiler::emitDsIdxRd(const GcnShaderInstruction& ins)
+	{
+		auto op = ins.opcode;
+		switch (op)
+		{
+			case GcnOpcode::DS_READ_I8:
+			case GcnOpcode::DS_READ_U8:
+			case GcnOpcode::DS_READ_I16:
+			case GcnOpcode::DS_READ_U16:
+			case GcnOpcode::DS_READ_B64:
+			case GcnOpcode::DS_READ_B32:
+			case GcnOpcode::DS_READ2_B32:
+				this->emitDsRead(ins);
+				break;
+			default:
+				LOG_GCN_UNHANDLED_INST();
+				break;
+		}
+	}
+
+	void GcnCompiler::emitDsIdxWr(const GcnShaderInstruction& ins)
+	{
+		auto op = ins.opcode;
+		switch (op)
+		{
+			case GcnOpcode::DS_WRITE_B8:
+			case GcnOpcode::DS_WRITE_B16:
+			case GcnOpcode::DS_WRITE_B32:
+			case GcnOpcode::DS_WRITE_B64:
+				this->emitDsWrite(ins);
+				break;
+			default:
+				LOG_GCN_UNHANDLED_INST();
+				break;
+		}
+	}
+
+	void GcnCompiler::emitDsIdxWrXchg(const GcnShaderInstruction& ins)
+	{
+		LOG_GCN_UNHANDLED_INST();
+	}
+
+	void GcnCompiler::emitDsIdxCondXchg(const GcnShaderInstruction& ins)
+	{
+		LOG_GCN_UNHANDLED_INST();
+	}
+
+	void GcnCompiler::emitDsIdxWrap(const GcnShaderInstruction& ins)
+	{
+		LOG_GCN_UNHANDLED_INST();
+	}
+
+	void GcnCompiler::emitDsAtomicCommon(const GcnShaderInstruction& ins)
+	{
+		auto src = emitRegisterLoad(ins.src[0]);
+		auto ptr = emitDsAccess(ins);
+
+		GcnRegisterValuePair dst = {};
+		dst.low.type.ctype       = getDestinationType(ins.dst[0].type);
+		dst.low.type.ccount      = 1;
+		dst.high.type            = dst.low.type;
+
+		bool saveOriginal = false;
+
+		const uint32_t scopeId     = m_module.constu32(spv::ScopeWorkgroup);
+		const uint32_t semanticsId = m_module.constu32(spv::MemorySemanticsWorkgroupMemoryMask |
+													   spv::MemorySemanticsAcquireReleaseMask);
+
+		const uint32_t typeId = getScalarTypeId(GcnScalarType::Uint32);
+
+		auto op = ins.opcode;
+		switch (op)
+		{
+			case GcnOpcode::DS_ADD_RTN_U32:
+				saveOriginal = true;
+				[[fallthrough]];
+			case GcnOpcode::DS_ADD_U32:
+				dst.low.id = m_module.opAtomicIAdd(typeId,
+												   ptr[0].id,
+												   scopeId,
+												   semanticsId,
+												   src.low.id);
+				break;
+			case GcnOpcode::DS_MIN_RTN_U32:
+				saveOriginal = true;
+				[[fallthrough]];
+			case GcnOpcode::DS_MIN_U32:
+				dst.low.id = m_module.opAtomicUMin(typeId,
+												   ptr[0].id,
+												   scopeId,
+												   semanticsId,
+												   src.low.id);
+				break;
+			case GcnOpcode::DS_MAX_RTN_U32:
+				saveOriginal = true;
+				[[fallthrough]];
+			case GcnOpcode::DS_MAX_U32:
+				dst.low.id = m_module.opAtomicUMax(typeId,
+												   ptr[0].id,
+												   scopeId,
+												   semanticsId,
+												   src.low.id);
+				break;
+			default:
+				LOG_GCN_UNHANDLED_INST();
+				break;
+		}
+
+		if (saveOriginal)
+		{
+			emitRegisterStore(ins.dst[0], dst);
+		}
+	}
+
+	void GcnCompiler::emitDsAtomicArith32(const GcnShaderInstruction& ins)
+	{
+		LOG_GCN_UNHANDLED_INST();
+	}
+
+	void GcnCompiler::emitDsAtomicArith64(const GcnShaderInstruction& ins)
+	{
+		LOG_GCN_UNHANDLED_INST();
+	}
+
+	void GcnCompiler::emitDsAtomicMinMax32(const GcnShaderInstruction& ins)
+	{
+		LOG_GCN_UNHANDLED_INST();
+	}
+
+	void GcnCompiler::emitDsAtomicMinMax64(const GcnShaderInstruction& ins)
+	{
+		LOG_GCN_UNHANDLED_INST();
+	}
+
+	void GcnCompiler::emitDsAtomicCmpSt32(const GcnShaderInstruction& ins)
+	{
+		LOG_GCN_UNHANDLED_INST();
+	}
+
+	void GcnCompiler::emitDsAtomicCmpSt64(const GcnShaderInstruction& ins)
+	{
+		LOG_GCN_UNHANDLED_INST();
+	}
+
+	void GcnCompiler::emitDsAtomicLogic32(const GcnShaderInstruction& ins)
+	{
+		LOG_GCN_UNHANDLED_INST();
+	}
+
+	void GcnCompiler::emitDsAtomicLogic64(const GcnShaderInstruction& ins)
+	{
+		LOG_GCN_UNHANDLED_INST();
+	}
+
+	void GcnCompiler::emitDsAppendCon(const GcnShaderInstruction& ins)
+	{
+		LOG_GCN_UNHANDLED_INST();
+	}
+
+	void GcnCompiler::emitDsDataShareUt(const GcnShaderInstruction& ins)
+	{
+		auto op = ins.opcode;
+		switch (op)
+		{
+			case GcnOpcode::DS_SWIZZLE_B32:
+				emitDsSwizzle(ins);
+				break;
+			default:
+				LOG_GCN_UNHANDLED_INST();
+				break;
+		}
+	}
+
+	void GcnCompiler::emitDsDataShareMisc(const GcnShaderInstruction& ins)
+	{
+		LOG_GCN_UNHANDLED_INST();
+	}
+
+	void GcnCompiler::emitGdsSync(const GcnShaderInstruction& ins)
+	{
+		LOG_GCN_UNHANDLED_INST();
+	}
+
+	void GcnCompiler::emitGdsOrdCnt(const GcnShaderInstruction& ins)
+	{
+		LOG_GCN_UNHANDLED_INST();
+	}
+
+	std::array<sce::gcn::GcnRegisterPointer, 4>
+	GcnCompiler::emitDsAccess(const GcnShaderInstruction& ins)
 	{
 		// one u8, s8, u16, s16  : result[0]
 		// one u32 result[0]
-		// two u32 result[0] result[1] 
+		// two u32 result[0] result[1]
 		// one u64 result[0] result[1]
 		// two u64 (result[0] result[1]) (result[2] result[3])
 
-		auto ds = gcnInstructionAs<GcnShaderInstDS>(ins);
+		auto        ds      = gcnInstructionAs<GcnShaderInstDS>(ins);
 		const auto& control = ds.control;
-		
+
 		LOG_ASSERT(control.relative == 0, "TODO: support relative offset mode.");
 
 		LOG_ASSERT(control.gds == 0, "TODO: support GDS.");
@@ -201,7 +388,7 @@ namespace sce::gcn
 				dst.low.id  = m_module.opLoad(typeId, ptrList[0].id);
 				dst.high.id = m_module.opLoad(typeId, ptrList[1].id);
 			}
-				break;
+			break;
 			default:
 				LOG_GCN_UNHANDLED_INST();
 				break;
@@ -244,120 +431,145 @@ namespace sce::gcn
 		}
 	}
 
-	void GcnCompiler::emitDsIdxRd(const GcnShaderInstruction& ins)
+	void GcnCompiler::emitDsSwizzle(const GcnShaderInstruction& ins)
 	{
-		auto op = ins.opcode;
-		switch (op)
+		//  // QDMode - full data sharing in 4 consecutive threads
+		//  if (offset[15]) {
+		//       for (i = 0; i < 32; i+=4) {
+		//            thread_out[i+0] = thread_valid[i+offset[1:0]] ? thread_in[i+offset[1:0]] : 0;
+		//            thread_out[i+1] = thread_valid[i+offset[3:2]] ? thread_in[i+offset[3:2]] : 0;
+		//            thread_out[i+2] = thread_valid[i+offset[5:4]] ? thread_in[i+offset[5:4]] : 0;
+		//            thread_out[i+3] = thread_valid[i+offset[7:6]] ? thread_in[i+offset[7:6]] : 0;
+		//       }
+		//  }
+		//
+		//  // BitMode - limited data sharing in 32 consecutive threads
+		//  else {
+		//       and_mask = offset[4:0];
+		//       or_mask = offset[9:5];
+		//       xor_mask = offset[14:10];
+		//       for (i = 0; i < 32; i++)
+		//       {
+		//           j = ((i & (0x20 | and_mask)) | or_mask) ^ xor_mask;
+		//           thread_out[i] = thread_valid[j] ? thread_in[j] : 0;
+		//       }
+		//  }
+		//  // Same shuffle applied to the second half of wavefront
+
+		enum DsMode : uint8_t
 		{
-			case GcnOpcode::DS_READ_I8:
-			case GcnOpcode::DS_READ_U8:
-			case GcnOpcode::DS_READ_I16:
-			case GcnOpcode::DS_READ_U16:
-			case GcnOpcode::DS_READ_B64:
-			case GcnOpcode::DS_READ_B32:
-			case GcnOpcode::DS_READ2_B32:
-				this->emitDsRead(ins);
-				break;
-			default:
-				LOG_GCN_UNHANDLED_INST();
-				break;
-		}
-	}
+			BitMode = 0,
+			QdMode  = 1,
+		};
 
-	void GcnCompiler::emitDsIdxWr(const GcnShaderInstruction& ins)
-	{
-		auto op = ins.opcode;
-		switch (op)
+		union DsPattern
 		{
-			case GcnOpcode::DS_WRITE_B8:
-			case GcnOpcode::DS_WRITE_B16:
-			case GcnOpcode::DS_WRITE_B32:
-			case GcnOpcode::DS_WRITE_B64:
-				this->emitDsWrite(ins);
-				break;
-			default:
-				LOG_GCN_UNHANDLED_INST();
-				break;
+			struct Mode
+			{
+				uint16_t : 15;
+				uint16_t mode : 1;
+			} m;
+
+			struct QdMode
+			{
+				uint16_t lane0 : 2;
+				uint16_t lane1 : 2;
+				uint16_t lane2 : 2;
+				uint16_t lane3 : 2;
+				uint16_t : 7;
+				uint16_t mode : 1;
+			} qd;
+
+			struct BitMode
+			{
+				uint16_t mask_and : 5;
+				uint16_t mask_or : 5;
+				uint16_t mask_xor : 5;
+				uint16_t mode : 1;
+			} bit;
+		};
+
+		m_module.enableCapability(spv::CapabilityGroupNonUniformShuffle);
+
+		auto src = emitRegisterLoad(ins.src[0]);
+
+		GcnRegisterValuePair dst = {};
+		dst.low.type.ctype       = getDestinationType(ins.dst[0].type);
+		dst.low.type.ccount      = 1;
+		dst.high.type            = dst.low.type;
+
+		const uint32_t typeId = getScalarTypeId(GcnScalarType::Uint32);
+
+		auto invocationId = emitCommonSystemValueLoad(
+			GcnSystemValue::SubgroupInvocationID, GcnRegMask::select(0));
+
+		uint16_t   offset    = util::concat<uint16_t>(ins.control.ds.offset1, ins.control.ds.offset0);
+		DsPattern* pat       = reinterpret_cast<DsPattern*>(&offset);
+		uint32_t   laneIndex = 0;
+
+		if (pat->m.mode == QdMode)
+		{
+			uint32_t mod = m_module.opUMod(typeId, invocationId.id, m_module.constu32(4));
+
+			std::array<uint32_t, 4> offs = {
+				m_module.constu32(pat->qd.lane0),
+				m_module.constu32(pat->qd.lane1),
+				m_module.constu32(pat->qd.lane2),
+				m_module.constu32(pat->qd.lane3)
+			};
+
+			uint32_t arrayTypeId = getArrayTypeId({ GcnScalarType::Uint32, 1, offs.size() });
+
+			uint32_t laneOffsetArray = m_module.constComposite(
+				arrayTypeId,
+				offs.size(),
+				offs.data());
+
+			uint32_t varId = m_module.newVarInit(
+				m_module.defPointerType(arrayTypeId, spv::StorageClassPrivate),
+				spv::StorageClassPrivate, laneOffsetArray);
+
+			uint32_t ptr = m_module.opAccessChain(m_module.defPointerType(typeId, spv::StorageClassPrivate),
+												  varId,
+												  1,
+												  &mod);
+			uint32_t laneOffset = m_module.opLoad(typeId, ptr);
+			uint32_t laneBase   = m_module.opUDiv(typeId, invocationId.id, m_module.constu32(4));
+			laneIndex           = m_module.opIAdd(typeId, laneBase, laneOffset);
 		}
-	}
+		else
+		{
+			uint32_t maskAnd = m_module.constu32(pat->bit.mask_and);
+			uint32_t maskOr  = m_module.constu32(pat->bit.mask_or);
+			uint32_t maskXor = m_module.constu32(pat->bit.mask_xor);
 
-	void GcnCompiler::emitDsIdxWrXchg(const GcnShaderInstruction& ins)
-	{
-		LOG_GCN_UNHANDLED_INST();
-	}
+			// or 0x20 to protect high 32 lanes if subgroup size is greater than 32
+			maskAnd = m_module.opBitwiseOr(typeId, m_module.constu32(0x20), maskAnd);
 
-	void GcnCompiler::emitDsIdxCondXchg(const GcnShaderInstruction& ins)
-	{
-		LOG_GCN_UNHANDLED_INST();
-	}
+			uint32_t valAnd = m_module.opBitwiseAnd(typeId, invocationId.id, maskAnd);
+			uint32_t valOr  = m_module.opBitwiseOr(typeId, valAnd, maskOr);
+			laneIndex       = m_module.opBitwiseXor(typeId, valOr, maskXor);
+		}
 
-	void GcnCompiler::emitDsIdxWrap(const GcnShaderInstruction& ins)
-	{
-		LOG_GCN_UNHANDLED_INST();
-	}
+		uint32_t laneValue = m_module.opGroupNonUniformShuffle(typeId,
+															   m_module.constu32(spv::ScopeSubgroup),
+															   src.low.id,
+															   laneIndex);
 
-	void GcnCompiler::emitDsAtomicArith32(const GcnShaderInstruction& ins)
-	{
-		LOG_GCN_UNHANDLED_INST();
-	}
+		// Detect if src lane is active,
+		// if it's inactive, we need to return 0 for dst.
+		uint32_t laneMask = m_module.opShiftLeftLogical(typeId, m_module.constu32(1), laneIndex);
+		auto     exec     = m_state.exec.emitLoad(GcnRegMask::select(0));
 
-	void GcnCompiler::emitDsAtomicArith64(const GcnShaderInstruction& ins)
-	{
-		LOG_GCN_UNHANDLED_INST();
-	}
+		uint32_t laneActive = m_module.opINotEqual(m_module.defBoolType(),
+												   m_module.opBitwiseAnd(typeId, exec.low.id, laneMask),
+												   m_module.constu32(0));
 
-	void GcnCompiler::emitDsAtomicMinMax32(const GcnShaderInstruction& ins)
-	{
-		LOG_GCN_UNHANDLED_INST();
-	}
+		dst.low.id = m_module.opSelect(typeId,
+									   laneActive,
+									   laneValue,
+									   m_module.constu32(0));
 
-	void GcnCompiler::emitDsAtomicMinMax64(const GcnShaderInstruction& ins)
-	{
-		LOG_GCN_UNHANDLED_INST();
-	}
-
-	void GcnCompiler::emitDsAtomicCmpSt32(const GcnShaderInstruction& ins)
-	{
-		LOG_GCN_UNHANDLED_INST();
-	}
-
-	void GcnCompiler::emitDsAtomicCmpSt64(const GcnShaderInstruction& ins)
-	{
-		LOG_GCN_UNHANDLED_INST();
-	}
-
-	void GcnCompiler::emitDsAtomicLogic32(const GcnShaderInstruction& ins)
-	{
-		LOG_GCN_UNHANDLED_INST();
-	}
-
-	void GcnCompiler::emitDsAtomicLogic64(const GcnShaderInstruction& ins)
-	{
-		LOG_GCN_UNHANDLED_INST();
-	}
-
-	void GcnCompiler::emitDsAppendCon(const GcnShaderInstruction& ins)
-	{
-		LOG_GCN_UNHANDLED_INST();
-	}
-
-	void GcnCompiler::emitDsDataShareUt(const GcnShaderInstruction& ins)
-	{
-		LOG_GCN_UNHANDLED_INST();
-	}
-
-	void GcnCompiler::emitDsDataShareMisc(const GcnShaderInstruction& ins)
-	{
-		LOG_GCN_UNHANDLED_INST();
-	}
-
-	void GcnCompiler::emitGdsSync(const GcnShaderInstruction& ins)
-	{
-		LOG_GCN_UNHANDLED_INST();
-	}
-
-	void GcnCompiler::emitGdsOrdCnt(const GcnShaderInstruction& ins)
-	{
-		LOG_GCN_UNHANDLED_INST();
+		emitRegisterStore(ins.dst[0], dst);
 	}
 }  // namespace sce::gcn

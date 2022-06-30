@@ -14,7 +14,7 @@ namespace sce::gcn
 		GcnShaderKey(
 			uint32_t crc, uint32_t hash)
 		{
-			m_key = util::buildUint64(crc, hash);
+			m_key = util::concat<uint64_t>(crc, hash);
 		}
 
 		~GcnShaderKey() = default;

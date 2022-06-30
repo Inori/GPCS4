@@ -30,7 +30,8 @@ namespace sce::gcn
 	}
 
 	Rc<VltShader> GcnModule::compile(
-		const GcnShaderMeta& meta) const
+		const GcnShaderMeta& meta,
+		const GcnModuleInfo& moduleInfo) const
 	{
 		// Decode shader binary
 		const uint32_t* start = reinterpret_cast<const uint32_t*>(m_code);
@@ -38,6 +39,11 @@ namespace sce::gcn
 		GcnCodeSlice    slice(start, end);
 
 		auto insList = this->decodeShader(slice);
+
+		//if (this->name() == "PSSHDR_58D2050651B6B50A")
+		//{
+		//	__debugbreak();
+		//}
 		
 		// Generate global information
 		GcnAnalysisInfo analysisInfo;
@@ -49,11 +55,6 @@ namespace sce::gcn
 		this->runAnalyzer(analyzer, insList);
 
 		// Do the compile
-		// TODO:
-		// Generate module info from device.
-		GcnModuleInfo moduleInfo = {};
-		moduleInfo.options.separateSubgroup = true;
-
 		GcnCompiler compiler(
 			this->name(),
 			moduleInfo,
@@ -101,19 +102,14 @@ namespace sce::gcn
 		GcnCfgPass cfgPass;
 		auto&      cfg = cfgPass.generateCfg(insList);
 
-		if (this->name() == "CSSHDR_844598A0F388C19D")
-		{
-			__debugbreak();
-		}
-
-		//dumpShader();
+		dumpShader();
 		//auto          dot = GcnCfgPass::dumpDot(cfg);
 		//std::ofstream fout(fmt::format("shaders/{}.dot", this->name()));
 		//fout << dot << std::endl;
 		//fout.close();
 
 		GcnStackifier stackifier(cfg);
-		auto          tokenList = stackifier.generate();
+		auto          tokenList = stackifier.structurize();
 
 		compiler.compile(tokenList);
 	}

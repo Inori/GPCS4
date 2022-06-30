@@ -33,15 +33,11 @@ namespace sce::Gnm
 {
 
 // Use this to break on a shader you want to debug.
-#define SHADER_DEBUG_BREAK(mod, token)  \
-	if (mod.name() == token) \
+#define SHADER_DEBUG_BREAK(mod, token) \
+	if (mod.name() == token)           \
 	{                                  \
 		__debugbreak();                \
 	}
-
-// Dump the recompiled shader to file
-// so that we can analyze it using spirv toolset.
-#define SHADER_DUMP_FILE
 
 
 	GnmCommandBufferDraw::GnmCommandBufferDraw(vlt::VltDevice* device) :
@@ -573,9 +569,9 @@ namespace sce::Gnm
 	void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void* indexAddr, DrawModifier modifier)
 	{
 		uint32_t indexBufferSize =
-			m_state.ia.indexType == VK_INDEX_TYPE_UINT16 ? 
-			sizeof(uint16_t) * indexCount : 
-			sizeof(uint32_t) * indexCount;
+			m_state.ia.indexType == VK_INDEX_TYPE_UINT16
+				? sizeof(uint16_t) * indexCount
+				: sizeof(uint32_t) * indexCount;
 
 		m_state.ia.indexBuffer = generateIndexBuffer(indexAddr, indexBufferSize);
 
@@ -665,6 +661,11 @@ namespace sce::Gnm
 	{
 		VltDepthStencilState ds = {};
 		m_context->setDepthStencilState(ds);
+	}
+
+	void GnmCommandBufferDraw::setClipControl(ClipControl reg)
+	{
+		// throw std::logic_error("The method or operation is not implemented.");
 	}
 
 	void GnmCommandBufferDraw::flushShaderCachesAndWait(CacheAction cacheAction, uint32_t extendedCacheMask, StallCommandBufferParserMode commandBufferStallMode)
@@ -958,16 +959,9 @@ namespace sce::Gnm
 			bindResource(VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, resTable, ctx.userData);
 
 			// bind the shader
-			auto shader = vsModule.compile(ctx.meta);
 			m_context->bindShader(
 				VK_SHADER_STAGE_VERTEX_BIT,
-				shader);
-
-#ifdef SHADER_DUMP_FILE
-			std::ofstream fout(vsModule.name(), std::ios::binary);
-			shader->dump(fout);
-#endif
-
+				vsModule.compile(ctx.meta, m_moduleInfo));
 		} while (false);
 	}
 
@@ -988,19 +982,13 @@ namespace sce::Gnm
 
 			auto& resTable = psModule.getResourceTable();
 
-			//// create and bind shader resources
+			// create and bind shader resources
 			bindResource(VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, resTable, ctx.userData);
 
 			// bind the shader
-			auto shader = psModule.compile(ctx.meta);
 			m_context->bindShader(
 				VK_SHADER_STAGE_FRAGMENT_BIT,
-				shader);
-
-#ifdef SHADER_DUMP_FILE
-			std::ofstream fout(psModule.name(), std::ios::binary);
-			shader->dump(fout);
-#endif
+				psModule.compile(ctx.meta, m_moduleInfo));
 		} while (false);
 	}
 
@@ -1016,9 +1004,9 @@ namespace sce::Gnm
 		msState.sampleMask            = 0xFFFFFFFF;
 		m_context->setMultisampleState(msState);
 
-		//// Flush memory to buffer and texture resources.
+		// Flush memory to buffer and texture resources.
 		m_initializer->flush();
-		//// Process pending upload/download
+		// Process pending upload/download
 		m_tracker->transform(m_context.ptr());
 	}
 
@@ -1121,8 +1109,64 @@ namespace sce::Gnm
 		}
 	}
 
+	void GnmCommandBufferDraw::setDbCountControl(DbCountControlPerfectZPassCounts perfectZPassCounts, uint32_t log2SampleRate)
+	{
+		// throw std::logic_error("The method or operation is not implemented.");
+	}
 
+	void GnmCommandBufferDraw::setBorderColorTableAddr(void* tableAddr)
+	{
+		// throw std::logic_error("The method or operation is not implemented.");
+	}
 
+	void* GnmCommandBufferDraw::allocateFromCommandBuffer(uint32_t sizeInBytes, EmbeddedDataAlignment alignment)
+	{
+		return nullptr;
+	}
 
+	void GnmCommandBufferDraw::setStencilSeparate(StencilControl front, StencilControl back)
+	{
+		// throw std::logic_error("The method or operation is not implemented.");
+	}
+
+	void GnmCommandBufferDraw::setCbControl(CbMode mode, RasterOp op)
+	{
+		// throw std::logic_error("The method or operation is not implemented.");
+	}
+
+	void GnmCommandBufferDraw::setStencilOpControl(StencilOpControl stencilControl)
+	{
+		// throw std::logic_error("The method or operation is not implemented.");
+	}
+
+	void GnmCommandBufferDraw::triggerEvent(EventType eventType)
+	{
+		// throw std::logic_error("The method or operation is not implemented.");
+	}
+
+	void GnmCommandBufferDraw::prefetchIntoL2(void* dataAddr, uint32_t sizeInBytes)
+	{
+		// throw std::logic_error("The method or operation is not implemented.");
+	}
+
+	void GnmCommandBufferDraw::setStencil(StencilControl stencilControl)
+	{
+		// throw std::logic_error("The method or operation is not implemented.");
+	}
+
+	void GnmCommandBufferDraw::pushMarker(const char* debugString)
+	{
+		//throw std::logic_error("The method or operation is not implemented.");
+	}
+
+	void GnmCommandBufferDraw::pushMarker(const char* debugString, uint32_t argbColor)
+	{
+		//throw std::logic_error("The method or operation is not implemented.");
+	}
+
+	void GnmCommandBufferDraw::popMarker()
+	{
+		//throw std::logic_error("The method or operation is not implemented.");
+	}
 
 }  // namespace sce::Gnm

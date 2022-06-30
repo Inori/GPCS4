@@ -16,6 +16,9 @@ namespace sce::gcn
 			case GcnInstClass::ScalarBitField:
 				this->emitScalarAluCommon(ins);
 				break;
+			case GcnInstClass::ScalarMovRel:
+				this->emitScalarMovRel(ins);
+				break;
 			case GcnInstClass::ScalarAbs:
 				this->emitScalarAbs(ins);
 				break;
@@ -66,6 +69,16 @@ namespace sce::gcn
 				ignoreScc  = true;
 			}
 				break;
+			case GcnOpcode::S_ADDK_I32:
+			{
+				uint32_t imm = m_module.consti32(static_cast<int32_t>(ins.control.sopk.simm));
+				auto     old = emitRegisterLoad(ins.dst[0]);
+				dst.low.id   = m_module.opIAdd(typeId,
+											   old.low.id,
+											   imm);
+				ignoreScc  = true;
+			}
+				break;
 			case GcnOpcode::S_MUL_I32:
 			{
 				dst.low.id = m_module.opIMul(typeId,
@@ -101,6 +114,11 @@ namespace sce::gcn
 													src[0].low.id,
 													src[1].low.id);
 				break;
+			case GcnOpcode::S_OR_B32:
+				dst.low.id = m_module.opBitwiseOr(typeId,
+												  src[0].low.id,
+												  src[1].low.id);
+				break;
 			case GcnOpcode::S_AND_B64:
 			{
 				dst.low.id  = m_module.opBitwiseAnd(typeId, src[0].low.id, src[1].low.id);
@@ -111,6 +129,12 @@ namespace sce::gcn
 			{
 				dst.low.id  = m_module.opBitwiseOr(typeId, src[0].low.id, src[1].low.id);
 				dst.high.id = m_module.opBitwiseOr(typeId, src[0].high.id, src[1].high.id);
+			}
+				break;
+			case GcnOpcode::S_NOT_B64:
+			{
+				dst.low.id  = m_module.opNot(typeId, src[0].low.id);
+				dst.high.id = m_module.opNot(typeId, src[0].high.id);
 			}
 				break;
 			case GcnOpcode::S_NOR_B64:
@@ -199,6 +223,11 @@ namespace sce::gcn
 		emitRegisterStore(ins.dst[0], dst);
 	}
 
+	void GcnCompiler::emitScalarMovRel(const GcnShaderInstruction& ins)
+	{
+		LOG_GCN_UNHANDLED_INST();
+	}
+
 	void GcnCompiler::emitScalarArith(const GcnShaderInstruction& ins)
 	{
 		LOG_GCN_UNHANDLED_INST();
@@ -247,6 +276,12 @@ namespace sce::gcn
 											  src[0].low.id,
 											  src[1].low.id);
 				break;
+			case GcnOpcode::S_CMP_LG_U32:
+			case GcnOpcode::S_CMP_LG_I32:
+				condition = m_module.opINotEqual(typeId,
+												 src[0].low.id,
+												 src[1].low.id);
+				break;
 			default:
 				LOG_GCN_UNHANDLED_INST();
 				break;
@@ -287,6 +322,18 @@ namespace sce::gcn
 											   condition,
 											   src[0].low.id,
 											   src[1].low.id);
+				break;
+			case GcnOpcode::S_CSELECT_B64:
+			{
+				dst.low.id  = m_module.opSelect(typeId,
+												condition,
+												src[0].low.id,
+												src[1].low.id);
+				dst.high.id = m_module.opSelect(typeId,
+												condition,
+												src[0].high.id,
+												src[1].high.id);
+			}
 				break;
 			default:
 				LOG_GCN_UNHANDLED_INST();

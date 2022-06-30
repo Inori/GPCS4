@@ -134,6 +134,7 @@ static AudioProperties getAudioProperties(uint32_t param)
 		props.nChannels   = 1;
 		props.bytesPerSample  = 4;
 		props.audioFormat = RTAUDIO_FORMAT_FLOAT32;
+		break;
 	}
 
 	case SCE_AUDIO_OUT_PARAM_FORMAT_FLOAT_STEREO:

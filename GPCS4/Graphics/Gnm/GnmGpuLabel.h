@@ -43,6 +43,9 @@ namespace sce::Gnm
 			uint32_t         mask,
 			WaitCompareFunc  compareFunc,
 			uint32_t         refValue);
+
+	private:
+		void createSemaphore();
 		
 	private:
 		vlt::VltDevice* m_device;

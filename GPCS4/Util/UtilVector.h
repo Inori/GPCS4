@@ -119,10 +119,18 @@ namespace util
 
 		T& operator[](size_t index)
 		{
+			if (index >= m_size)
+			{
+				throw std::runtime_error("static_vector out of range");
+			}
 			return m_storage[index];
 		}
 		const T& operator[](size_t index) const
 		{
+			if (index >= m_size)
+			{
+				throw std::runtime_error("static_vector out of range");
+			}
 			return m_storage[index];
 		}
 
@@ -137,7 +145,7 @@ namespace util
 
 	private:
 		std::array<T, N> m_storage;
-		size_t           m_size    = 0;
+		size_t           m_size = 0;
 	};
 
 

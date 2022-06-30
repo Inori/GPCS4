@@ -11,6 +11,7 @@
 #include "Violet/VltRc.h"
 #include "Gcn/GcnShaderMeta.h"
 #include "Gcn/GcnHeader.h"
+#include "Gcn/GcnModInfo.h"
 
 #include <memory>
 
@@ -82,7 +83,7 @@ namespace sce::Gnm
 		// virtual void setGraphicsScratchSize(uint32_t maxNumWaves, uint32_t num1KByteChunksPerWave) = 0;
 		// virtual void setComputeScratchSize(uint32_t maxNumWaves, uint32_t num1KByteChunksPerWave) = 0;
 		virtual void setViewportTransformControl(ViewportTransformControl vportControl) = 0;
-		// virtual void setClipControl(ClipControl reg) = 0;
+		virtual void setClipControl(ClipControl reg) = 0;
 		// virtual void setUserClipPlane(uint32_t clipPlane, float x, float y, float z, float w) = 0;
 		// virtual void setClipRectangle(uint32_t rectId, uint32_t left, uint32_t top, uint32_t right, uint32_t bottom) = 0;
 		// virtual void setClipRectangleRule(uint16_t clipRule) = 0;
@@ -136,11 +137,11 @@ namespace sce::Gnm
 		// virtual void setHsShader(const HsStageRegisters *hsRegs, const TessellationRegisters *tessRegs) = 0;
 		// virtual void setHsShader(const HsStageRegisters *hsRegs, const TessellationRegisters *tessRegs, TessellationDistributionMode distributionMode) = 0;
 		// virtual void updateHsShader(const HsStageRegisters *hsRegs, const TessellationRegisters *tessRegs) = 0;
-		// virtual void setBorderColorTableAddr(void *tableAddr) = 0;
+		virtual void setBorderColorTableAddr(void *tableAddr) = 0;
 		// virtual void waitOnCe() = 0;
 		// virtual void incrementDeCounter() = 0;
 		// virtual void readDataFromGds(EndOfShaderEventType eventType, void *dstGpuAddr, uint32_t gdsOffsetInDwords, uint32_t gdsSizeInDwords) = 0;
-		// virtual void *allocateFromCommandBuffer(uint32_t sizeInBytes, EmbeddedDataAlignment alignment) = 0;
+		virtual void *allocateFromCommandBuffer(uint32_t sizeInBytes, EmbeddedDataAlignment alignment) = 0;
 		virtual void setVsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Buffer* buffer)   = 0;
 		virtual void setTsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Texture* tex)     = 0;
 		virtual void setSsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Sampler* sampler) = 0;
@@ -154,18 +155,18 @@ namespace sce::Gnm
 		virtual void setRenderTargetMask(uint32_t mask)                                                                             = 0;
 		virtual void setBlendControl(uint32_t rtSlot, BlendControl blendControl)                                                    = 0;
 		// virtual void setBlendColor(float red, float green, float blue, float alpha) = 0;
-		// virtual void setStencil(StencilControl stencilControl) = 0;
-		// virtual void setStencilSeparate(StencilControl front, StencilControl back) = 0;
+		virtual void setStencil(StencilControl stencilControl) = 0;
+		virtual void setStencilSeparate(StencilControl front, StencilControl back) = 0;
 		// virtual void setAlphaToMaskControl(AlphaToMaskControl alphaToMaskControl) = 0;
 		// virtual void setHtileStencil0(HtileStencilControl htileStencilControl) = 0;
 		// virtual void setHtileStencil1(HtileStencilControl htileStencilControl) = 0;
-		// virtual void setCbControl(CbMode mode, RasterOp op) = 0;
+		virtual void setCbControl(CbMode mode, RasterOp op) = 0;
 		virtual void setDepthStencilControl(DepthStencilControl depthControl) = 0;
 		virtual void setDepthStencilDisable()                                 = 0;
 		// virtual void setDepthBoundsRange(float depthBoundsMin, float depthBoundsMax) = 0;
-		// virtual void setStencilOpControl(StencilOpControl stencilControl) = 0;
+		virtual void setStencilOpControl(StencilOpControl stencilControl) = 0;
 		virtual void setDbRenderControl(DbRenderControl reg) = 0;
-		// virtual void setDbCountControl(DbCountControlPerfectZPassCounts perfectZPassCounts, uint32_t log2SampleRate) = 0;
+		virtual void setDbCountControl(DbCountControlPerfectZPassCounts perfectZPassCounts, uint32_t log2SampleRate) = 0;
 		// virtual void setDepthEqaaControl(DepthEqaaControl depthEqaa) = 0;
 		// virtual void setPrimitiveIdEnable(bool enable) = 0;
 		// virtual void resetVgtControl() = 0;
@@ -215,7 +216,7 @@ namespace sce::Gnm
 		// virtual void setPredication(void *condAddr, uint32_t predCountInDwords) = 0;
 		virtual void writeDataInline(void* dstGpuAddr, const void* data, uint32_t sizeInDwords, WriteDataConfirmMode writeConfirm);
 		virtual void writeDataInlineThroughL2(void* dstGpuAddr, const void* data, uint32_t sizeInDwords, CachePolicy cachePolicy, WriteDataConfirmMode writeConfirm) = 0;
-		// virtual void triggerEvent(EventType eventType) = 0;
+		virtual void triggerEvent(EventType eventType) = 0;
 		virtual void writeAtEndOfPipe(EndOfPipeEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy cachePolicy)              = 0;
 		virtual void writeAtEndOfPipeWithInterrupt(EndOfPipeEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy cachePolicy) = 0;
 		// virtual void triggerEndOfPipeInterrupt(EndOfPipeEventType eventType, CacheAction cacheAction) = 0;
@@ -232,13 +233,13 @@ namespace sce::Gnm
 		// virtual void insertNop(uint32_t numDwords) = 0;
 		// virtual void setMarker(const char *debugString) = 0;
 		// virtual void setMarker(const char *debugString, uint32_t argbColor) = 0;
-		// virtual void pushMarker(const char *debugString) = 0;
-		// virtual void pushMarker(const char *debugString, uint32_t argbColor) = 0;
-		// virtual void popMarker() = 0;
+		virtual void pushMarker(const char *debugString) = 0;
+		virtual void pushMarker(const char *debugString, uint32_t argbColor) = 0;
+		virtual void popMarker() = 0;
 		// virtual void markDispatchDrawAcbAddress(uint32_t const* addrAcb, uint32_t const* addrAcbBegin) = 0;
 		// virtual void dmaData(DmaDataDst	dstSel, uint64_t dst, DmaDataSrc srcSel, uint64_t srcOrData, uint32_t numBytes, DmaDataBlockingMode isBlocking) = 0;
 		// virtual void requestMipStatsReportAndReset(void *outputBuffer, uint32_t sizeInByte) = 0;
-		// virtual void prefetchIntoL2(void *dataAddr, uint32_t sizeInBytes) = 0;
+		virtual void prefetchIntoL2(void *dataAddr, uint32_t sizeInBytes) = 0;
 		virtual void waitUntilSafeForRendering(uint32_t videoOutHandle, uint32_t displayBufferIndex)                                     = 0;
 		virtual void prepareFlip()                                                                                                       = 0;
 		virtual void prepareFlip(void* labelAddr, uint32_t value)                                                                        = 0;
@@ -487,6 +488,10 @@ namespace sce::Gnm
 			const Buffer* vsharp);
 		gcn::GcnTextureMeta populateTextureMeta(
 			const Texture* tsharp, bool isDepth);
+
+	private:
+		void initGcnModuleInfo();
+
 	protected:
 		vlt::VltDevice*          m_device;
 		vlt::Rc<vlt::VltContext> m_context;
@@ -495,6 +500,7 @@ namespace sce::Gnm
 		SceResourceTracker*             m_tracker      = nullptr;
 		SceLabelManager*                m_labelManager = nullptr;
 		std::unique_ptr<GnmInitializer> m_initializer;
+		gcn::GcnModuleInfo              m_moduleInfo;
 	private:
 	};
 

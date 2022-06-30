@@ -62,10 +62,8 @@ namespace sce::gcn
 	{
 		// Currently, the only usage case I found for S_LOAD_DWORDX4 S_LOAD_DWORDX8
 		// is to load 4 or 8 sgpr sharp descriptors from EUD.
-		// We've already declared those resource in emitDclInputSlots,
-		// so we only check if it is used for loading sgprs in EUD in case of
-		// some unknown use cases,
-		// then we simply ignore these instructions.
+
+		LOG_ASSERT(ins.control.smrd.imm == 1, "TODO: support soffset eud load.");
 
 		const auto& resouceTable = m_header->getShaderResourceTable();
 		auto        iter         = std::find_if(
@@ -82,6 +80,40 @@ namespace sce::gcn
 			// Check if it is used as the sbase of the instruction.
 			uint32_t sbase = ins.src[0].code << 1;
 			LOG_ASSERT(sbase == iter->startRegister, "S_LOAD_XXX is not used to load EUD.");
+
+			uint32_t eudOffset = ins.control.smrd.offset;
+			uint32_t eudReg    = eudOffset + kMaxUserDataCount;
+			uint32_t dstReg    = ins.dst[0].code;
+
+			auto resIt = std::find_if(
+				resouceTable.cbegin(),
+				resouceTable.cend(),
+				[eudReg](const GcnShaderResource& res)
+				{
+					return res.startRegister == eudReg;
+				});
+
+			auto& res = *resIt;
+			switch (res.type)
+			{
+				case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+				case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+					m_buffers.at(dstReg) = m_buffersDcl.at(eudReg);
+					break;
+				case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+				case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+					m_textures.at(dstReg) = m_texturesDcl.at(eudReg);
+					break;
+				case VK_DESCRIPTOR_TYPE_SAMPLER:
+					m_samplers.at(dstReg) = m_samplersDcl.at(eudReg);
+					break;
+				case VK_DESCRIPTOR_TYPE_MAX_ENUM:
+					// skip
+					break;
+				default:
+					LOG_ASSERT(false, "Not supported resouce type mapped.");
+					break;
+			}
 		}
 	}
 

@@ -1085,8 +1085,8 @@ pthread_exit (void *res)
   id->ret_arg = res;
 
   _pthread_cleanup_dest (id->x);
-  if (id->thread_noposix == 0)
-    longjmp(id->jb, 1);
+  //if (id->thread_noposix == 0)
+  //  longjmp(id->jb, 1);
 
   /* Make sure we free ourselves if we are detached */
   if ((t = (_pthread_v *)TlsGetValue(_pthread_tls)) != NULL)
@@ -1633,7 +1633,7 @@ pthread_create (pthread_t *th, const pthread_attr_t *attr, void *(* func)(void *
   /* Make sure tv->h has value of INVALID_HANDLE_VALUE */
   _ReadWriteBarrier();
 
-  thrd = (HANDLE) _beginthreadex(NULL, ssize, (unsigned int (__stdcall *)(void *))pthread_create_wrapper, tv, 0x4/*CREATE_SUSPEND*/, NULL);
+  thrd = (HANDLE) _beginthreadex(NULL, ssize, (unsigned int (__stdcall *)(void *))pthread_create_wrapper, tv, 0x4/*CREATE_SUSPEND*/, (unsigned int*)&tv->tid);
   if (thrd == INVALID_HANDLE_VALUE)
     thrd = 0;
   /* Failed */

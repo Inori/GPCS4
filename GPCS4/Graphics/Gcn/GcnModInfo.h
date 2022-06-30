@@ -67,5 +67,8 @@ namespace sce::gcn
 	struct GcnModuleInfo
 	{
 		GcnOptions options;
+		// maximum subgroup count in a single local workgroup
+		// equal to maxComputeWorkGroupInvocations / subgroupSize
+		uint32_t   maxComputeSubgroupCount;
 	};
 }  // namespace sce::gcn

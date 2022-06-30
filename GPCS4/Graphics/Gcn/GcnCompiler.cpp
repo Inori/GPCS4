@@ -116,24 +116,10 @@ namespace sce::gcn
 		}
 	}
 
-	void GcnCompiler::compileGlobalVariable(const GcnTokenList& tokens)
-	{
-		// Initialize global variables
-		for (const auto& token : tokens)
-		{
-			if (token->kind() != GcnTokenKind::Variable)
-			{
-				continue;
-			}
-
-			compileTokenVariable(*token);
-		}
-	}
-
 	void GcnCompiler::compileTokenCode(const GcnToken& token)
 	{
 		const auto& code = token.getCode();
-		
+
 		resetProgramCounter(code.pc);
 
 		const auto& insList = code.insList;
@@ -143,585 +129,6 @@ namespace sce::gcn
 
 			advanceProgramCounter(ins);
 		}
-	}
-
-	void GcnCompiler::compileTokenLoop(const GcnToken& token)
-	{
-		this->emitControlFlowLoop(token);
-	}
-
-	void GcnCompiler::compileTokenBlock(const GcnToken& token)
-	{
-		this->emitControlFlowBlock(token);
-	}
-
-	void GcnCompiler::compileTokenIf(const GcnToken& token)
-	{
-		this->emitControlFlowIf(token);
-	}
-
-	void GcnCompiler::compileTokenIfNot(const GcnToken& token)
-	{
-		this->emitControlFlowIf(token);
-	}
-
-	void GcnCompiler::compileTokenElse(const GcnToken& token)
-	{
-		this->emitControlFlowElse(token);
-	}
-
-	void GcnCompiler::compileTokenBranch(const GcnToken& token)
-	{
-		this->emitControlFlowBreak(token);
-	}
-
-	void GcnCompiler::compileTokenEnd(const GcnToken& token)
-	{
-		auto match = token.getMatch();
-		auto kind  = match->kind();
-		switch (kind)
-		{
-			case GcnTokenKind::If:
-			case GcnTokenKind::IfNot:
-				this->emitControlFlowEndIf(token);
-				break;
-			case GcnTokenKind::Loop:
-				this->emitControlFlowEndLoop(token);
-				break;
-			case GcnTokenKind::Block:
-				this->emitControlFlowEndBlock(token);
-				break;
-			default:
-				Logger::exception(fmt::format("GcnCompiler: Invalid header kind: {}", (uint32_t)kind));
-				break;
-		}
-	}
-
-	void GcnCompiler::compileTokenVariable(const GcnToken& token)
-	{
-		auto key  = &token;
-		auto iter = m_tokenVariables.find(key);
-		if (iter == m_tokenVariables.end())
-		{
-			const auto& value = token.getValue();
-
-			// create a global variable
-			GcnRegisterInfo info;
-			info.type.ctype   = value.type;
-			info.type.ccount  = 1;
-			info.type.alength = 0;
-			info.sclass       = spv::StorageClassPrivate;
-			uint32_t varId    = emitNewVariable(info);
-			m_module.setDebugName(varId, fmt::format("goto_{}", varId).c_str());
-
-			// init with a value
-			auto init = emitBuildConstValue(value.value, value.type);
-			m_module.opStore(varId, init.id);
-
-			// save the new variable
-			GcnRegisterPointer ptr;
-			ptr.type.ctype        = info.type.ctype;
-			ptr.type.ccount       = info.type.ccount;
-			ptr.id                = varId;
-			m_tokenVariables[key] = ptr;
-		}
-	}
-
-	void GcnCompiler::compileTokenSetValue(const GcnToken& token)
-	{
-		auto target = token.getMatch();
-		auto iter   = m_tokenVariables.find(target);
-
-		LOG_ASSERT(iter != m_tokenVariables.end(), "Value set before define.");
-
-		auto& value    = token.getValue();
-		auto& var      = iter->second;
-		auto  newValue = emitBuildConstValue(value.value, value.type);
-		m_module.opStore(var.id, newValue.id);
-	}
-
-	
-	uint32_t GcnCompiler::emitComputeDivergence()
-	{
-		// For compute shader, we use even subgroup against low 32 bits of exec
-		// and odd subgroup for high 32 bits.
-		/*
-		* if (mod(gl_SubgroupID, 2.0) < 1.0)
-		* {
-		*	value = exec_lo
-		* }
-		* else
-		* {
-		*   value = exec_hi
-		* }
-		* result = (value & gl_SubgroupEqMask.x) != 0;
-		*/
-		const uint32_t utypeId = getScalarTypeId(GcnScalarType::Uint32);
-		const uint32_t ftypeId = getScalarTypeId(GcnScalarType::Float32);
-		const uint32_t btypeId = m_module.defBoolType();
-		
-		auto subgroupId = emitCommonSystemValueLoad(GcnSystemValue::SubgroupID, GcnRegMask::select(0));
-		// float modulo should be faster than integer modulo
-		auto subFId     = m_module.opConvertUtoF(ftypeId, subgroupId.id);
-		auto isEven     = m_module.opFOrdLessThan(btypeId, subFId, m_module.constf32(1.0));
-
-		uint32_t labelEven = m_module.allocateId();
-		uint32_t labelOdd  = m_module.allocateId();
-		uint32_t labelMerge  = m_module.allocateId();
-
-		m_module.opSelectionMerge(labelMerge, spv::SelectionControlMaskNone);
-		m_module.opBranchConditional(isEven, labelEven, labelOdd);
-		m_module.opLabel(labelEven);
-		
-		auto execLo = m_state.exec.emitLoad(GcnRegMask::select(0));
-
-		m_module.opBranch(labelMerge);
-		m_module.opLabel(labelOdd);
-
-		auto execHi = m_state.exec.emitLoad(GcnRegMask::select(1));
-
-		m_module.opBranch(labelMerge);
-		m_module.opLabel(labelMerge);
-
-		// Merge the result with a phi function
-		const std::array<SpirvPhiLabel, 2> phiLabels = { {
-			{ execLo.low.id, labelEven },
-			{ execHi.low.id, labelOdd },
-		} };
-
-		uint32_t exec = m_module.opPhi(
-			utypeId, phiLabels.size(), phiLabels.data());
-		auto mask = emitCommonSystemValueLoad(
-			GcnSystemValue::SubgroupEqMask, GcnRegMask::select(0));
-
-		auto     value  = m_module.opBitwiseAnd(utypeId, exec, mask.id);
-		uint32_t result = m_module.opINotEqual(btypeId, value, m_module.constu32(0));
-		return result;
-	}
-
-	uint32_t GcnCompiler::emitControlFlowDivergence()
-	{
-		uint32_t result = 0;
-
-		const uint32_t utypeId = getScalarTypeId(GcnScalarType::Uint32);
-		const uint32_t btypeId = m_module.defBoolType();
-		// We cheat the shader as if the CU only provide one single thread,
-		// so we only set EXEC bit against invocation id.
-		if (m_moduleInfo.options.separateSubgroup)
-		{
-			auto mask = emitCommonSystemValueLoad(
-				GcnSystemValue::SubgroupEqMask, GcnRegMask::select(0));
-			// For non-compute shader, we only use low 32 bits of exec.
-			auto exec  = m_state.exec.emitLoad(GcnRegMask::select(0));
-			auto value = m_module.opBitwiseAnd(utypeId, exec.low.id, mask.id);
-			result     = m_module.opINotEqual(btypeId, value, m_module.constu32(0));
-		}
-		else
-		{
-			auto mask = emitCommonSystemValueLoad(
-				GcnSystemValue::SubgroupEqMask, GcnRegMask::firstN(2));
-			
-			auto exec = m_state.exec.emitLoad(GcnRegMask::firstN(2));
-
-			auto maskX   = emitRegisterExtract(mask, GcnRegMask::select(0));
-			auto maskY   = emitRegisterExtract(mask, GcnRegMask::select(1));
-			auto valueX  = m_module.opBitwiseAnd(utypeId, exec.low.id, maskX.id);
-			auto valueY  = m_module.opBitwiseAnd(utypeId, exec.high.id, maskY.id);
-			auto resultX = m_module.opINotEqual(btypeId, valueX, m_module.constu32(0));
-			auto resultY = m_module.opINotEqual(btypeId, valueY, m_module.constu32(0));
-			result       = m_module.opLogicalOr(btypeId, resultX, resultY);
-		}
-		return result;
-	}
-
-	uint32_t GcnCompiler::emitControlFlowCondition(const GcnTokenCondition& condition)
-	{
-		uint32_t result = 0;
-
-		const uint32_t typeId = m_module.defBoolType();
-
-		auto loadCompareValue = [&]() 
-		{
-			auto        key     = condition.condVar;
-			const auto& condVar = m_tokenVariables[key];
-			uint32_t    lhs     = m_module.opLoad(getVectorTypeId(condVar.type), condVar.id);
-
-			auto     cmpValue = emitBuildConstValue(condition.cmpValue, condVar.type.ctype);
-			uint32_t rhs      = cmpValue.id;
-			return std::make_pair(lhs, rhs);
-		};
-
-		auto op = condition.op;
-		switch (op)
-		{
-			case GcnConditionOp::EqBool:
-			{
-				auto cmpValue = loadCompareValue();
-				result        = m_module.opLogicalEqual(typeId, cmpValue.first, cmpValue.second);
-			}
-				break;
-			case GcnConditionOp::NeBool:
-			{
-				auto cmpValue = loadCompareValue();
-				result        = m_module.opLogicalNotEqual(typeId, cmpValue.first, cmpValue.second);
-			}
-				break;
-			case GcnConditionOp::Scc0:
-			{
-				uint32_t scc = m_module.opLoad(typeId, m_state.scc.id);
-				result       = m_module.opLogicalNot(typeId, scc);
-			}
-				break;
-			case GcnConditionOp::Scc1:
-				result = m_module.opLoad(typeId, m_state.scc.id);
-				break;
-			case GcnConditionOp::Vccz:
-				result = m_state.vcc.zflag();
-				break;
-			case GcnConditionOp::Vccnz:
-			{
-				uint32_t vccz = m_state.vcc.zflag();
-				result        = m_module.opLogicalNot(typeId, vccz);
-			}
-				break;
-			case GcnConditionOp::Execz:
-				result = m_state.exec.zflag();
-				break;
-			case GcnConditionOp::Execnz:
-			{
-				uint32_t execz = m_state.exec.zflag();
-				result         = m_module.opLogicalNot(typeId, execz);
-			}
-				break;
-			case GcnConditionOp::Divergence:
-				result = emitControlFlowDivergence();
-				break;
-			case GcnConditionOp::EqU32:
-			case GcnConditionOp::NeU32:
-			case GcnConditionOp::GeU32:
-			case GcnConditionOp::GtU32:
-			case GcnConditionOp::LeU32:
-			case GcnConditionOp::LtU32:
-				LOG_GCN_UNHANDLED_INST();
-				break;
-		}
-		return result;
-	}
-
-	void GcnCompiler::emitControlFlowIf(const GcnToken& token)
-	{
-		const auto& condition   = token.getCondition();
-		uint32_t    conditionId = emitControlFlowCondition(condition);
-
-		if (token.kind() == GcnTokenKind::IfNot)
-		{
-			conditionId = m_module.opLogicalNot(m_module.defBoolType(), conditionId);
-		}
-
-		// Declare the 'if' block. We do not know if there
-		// will be an 'else' block or not, so we'll assume
-		// that there is one and leave it empty otherwise.
-		GcnCfgBlock block;
-		block.type             = GcnCfgBlockType::If;
-		block.b_if.conditionId = conditionId;
-		block.b_if.labelIf     = m_module.allocateId();
-		block.b_if.labelElse   = 0;
-		block.b_if.labelEnd    = m_module.allocateId();
-		block.b_if.headerPtr   = m_module.getInsertionPtr();
-		m_controlFlowStack.push_back(block);
-
-		// We'll insert the branch instruction when closing
-		// the block, since we don't know whether or not an
-		// else block is needed right now.
-		m_module.opLabel(block.b_if.labelIf);
-	}
-
-	void GcnCompiler::emitControlFlowElse(const GcnToken& token)
-	{
-		if (m_controlFlowStack.size() == 0 || 
-			m_controlFlowStack.back().type != GcnCfgBlockType::If || 
-			m_controlFlowStack.back().b_if.labelElse != 0)
-		{
-			Logger::exception("GcnCompiler: 'Else' without 'If' found");
-		}
-
-		GcnCfgBlock& block = m_controlFlowStack.back();
-
-		if (m_blockTerminators.empty())
-		{
-			// Set the 'Else' flag so that we do
-			// not insert a dummy block on 'EndIf'
-			block.b_if.labelElse = m_module.allocateId();
-			// Close the 'If' block by branching to
-			// the merge block we declared earlier
-			m_module.opBranch(block.b_if.labelEnd);
-			m_module.opLabel(block.b_if.labelElse);
-		}
-		else
-		{
-			// if the block is already closed by other terminator instruction,
-			// then don't emit branch
-			block.b_if.labelElse = m_blockTerminators.back();
-			// remove the terminator
-			m_blockTerminators.pop_back();
-		}
-	}
-
-	void GcnCompiler::emitControlFlowEndIf(const GcnToken& token)
-	{
-		if (m_controlFlowStack.size() == 0 || 
-			m_controlFlowStack.back().type != GcnCfgBlockType::If)
-		{
-			Logger::exception("GcnCompiler: 'EndIf' without 'If' found");
-		}
-		
-		// Remove the block from the stack, it's closed
-		GcnCfgBlock block = m_controlFlowStack.back();
-		m_controlFlowStack.pop_back();
-
-		uint32_t labelMerge = m_blockTerminators.empty()
-								  ? block.b_if.labelEnd
-								  : m_blockTerminators.back();
-
-		// Write out the 'if' header
-		m_module.beginInsertion(block.b_if.headerPtr);
-
-		m_module.opSelectionMerge(
-			labelMerge,
-			spv::SelectionControlMaskNone);
-
-		m_module.opBranchConditional(
-			block.b_if.conditionId,
-			block.b_if.labelIf,
-			block.b_if.labelElse != 0
-				? block.b_if.labelElse
-				: labelMerge);
-
-		m_module.endInsertion();
-
-		if (m_blockTerminators.empty())
-		{
-			// End the active 'if' or 'else' block
-			m_module.opBranch(labelMerge);
-			m_module.opLabel(labelMerge);
-		}
-		else
-		{
-			// if the block is already closed by other terminator instruction,
-			// then don't emit branch
-			// remove the terminator
-			m_blockTerminators.pop_back();
-		}
-	}
-	
-	void GcnCompiler::emitControlFlowLoop(const GcnToken& token)
-	{
-		// Declare the 'loop' block
-		GcnCfgBlock block;
-		block.type                 = GcnCfgBlockType::Loop;
-		block.b_loop.labelHeader   = m_module.allocateId();
-		block.b_loop.labelBegin    = m_module.allocateId();
-		block.b_loop.labelContinue = m_module.allocateId();
-		block.b_loop.labelBreak    = m_module.allocateId();
-		m_controlFlowStack.push_back(block);
-
-		m_module.opBranch(block.b_loop.labelHeader);
-		m_module.opLabel(block.b_loop.labelHeader);
-
-		m_module.opLoopMerge(
-			block.b_loop.labelBreak,
-			block.b_loop.labelContinue,
-			spv::LoopControlMaskNone);
-
-		m_module.opBranch(block.b_loop.labelBegin);
-		m_module.opLabel(block.b_loop.labelBegin);
-
-		// This will make for(;;) becomes while(true)
-		uint32_t labelTrue = m_module.allocateId();
-		m_module.opBranchConditional(m_module.constBool(true),
-									 labelTrue,
-									 block.b_loop.labelBreak);
-		m_module.opLabel(labelTrue);
-	}
-
-	void GcnCompiler::emitControlFlowEndLoop(const GcnToken& token)
-	{
-		if (m_controlFlowStack.size() == 0 ||
-			m_controlFlowStack.back().type != GcnCfgBlockType::Loop)
-		{
-			Logger::exception("GcnCompiler: 'EndLoop' without 'Loop' found");
-		}
-		
-		// Remove the block from the stack, it's closed
-		const GcnCfgBlock block = m_controlFlowStack.back();
-		m_controlFlowStack.pop_back();
-
-		if (needBreakLoop(token))
-		{
-			m_module.opBranch(block.b_loop.labelBreak);
-			// following OpBranch need a open block
-			uint32_t label = m_module.allocateId();
-			m_module.opLabel(label);
-		}
-
-		// Declare the continue block
-		m_module.opBranch(block.b_loop.labelContinue);
-		m_module.opLabel(block.b_loop.labelContinue);
-
-		// Declare the merge block
-		m_module.opBranch(block.b_loop.labelHeader);
-		m_module.opLabel(block.b_loop.labelBreak);
-	}
-
-	void GcnCompiler::emitControlFlowBlock(const GcnToken& token)
-	{
-		// we use do {} while(false); to implement block,
-		// so it's generally a loop.
-
-		// Declare the 'loop' block
-		GcnCfgBlock block;
-		block.type                 = GcnCfgBlockType::Loop;
-		block.b_loop.labelHeader   = m_module.allocateId();
-		block.b_loop.labelBegin    = m_module.allocateId();
-		block.b_loop.labelContinue = m_module.allocateId();
-		block.b_loop.labelBreak    = m_module.allocateId();
-		m_controlFlowStack.push_back(block);
-
-		m_module.opBranch(block.b_loop.labelHeader);
-		m_module.opLabel(block.b_loop.labelHeader);
-
-		m_module.opLoopMerge(
-			block.b_loop.labelBreak,
-			block.b_loop.labelContinue,
-			spv::LoopControlMaskNone);
-
-		m_module.opBranch(block.b_loop.labelBegin);
-		m_module.opLabel(block.b_loop.labelBegin);
-	}
-
-	void GcnCompiler::emitControlFlowEndBlock(const GcnToken& token)
-	{
-		if (m_controlFlowStack.size() == 0 ||
-			m_controlFlowStack.back().type != GcnCfgBlockType::Loop)
-		{
-			Logger::exception("GcnCompiler: 'EndLoop' without 'Loop' found");
-		}
-
-		// Remove the block from the stack, it's closed
-		const GcnCfgBlock block = m_controlFlowStack.back();
-		m_controlFlowStack.pop_back();
-
-		// Declare the continue block
-		m_module.opBranch(block.b_loop.labelContinue);
-		m_module.opLabel(block.b_loop.labelContinue);
-
-		// Declare the merge block,
-		// we use do {} while(false); to implement a block,
-		m_module.opBranchConditional(m_module.constBool(false),
-									 block.b_loop.labelHeader,
-									 block.b_loop.labelBreak);
-		m_module.opLabel(block.b_loop.labelBreak);
-	}
-
-	void GcnCompiler::emitControlFlowBreak(const GcnToken& token)
-	{
-		// implement break and continue
-		auto       target  = token.getMatch();
-		const bool isBreak = target->kind() != GcnTokenKind::Loop;
-
-		GcnCfgBlock* cfgBlock = cfgFindBlock({ GcnCfgBlockType::Loop });
-		if (cfgBlock == nullptr)
-		{
-			Logger::exception("GcnCompiler: 'Break' or 'Continue' outside 'Loop' or 'Switch' found");
-		}
-
-		m_module.opBranch(isBreak
-							? cfgBlock->b_loop.labelBreak
-							: cfgBlock->b_loop.labelContinue);
-	
-		// Subsequent instructions assume that there is an open block
-		const uint32_t labelId = m_module.allocateId();
-		m_module.opLabel(labelId);
-	}
-
-	void GcnCompiler::emitControlFlowReturn()
-	{
-		if (m_controlFlowStack.size() != 0)
-		{
-			uint32_t labelId = m_module.allocateId();
-
-			m_module.opReturn();
-			m_module.opLabel(labelId);
-
-			m_blockTerminators.push_back(labelId);
-		}
-		else
-		{
-			// Last instruction in the current function
-			this->emitFunctionEnd();
-		}
-	}
-
-	void GcnCompiler::emitControlFlowDiscard()
-	{
-		if (m_controlFlowStack.size() != 0)
-		{
-			uint32_t labelId = m_module.allocateId();
-
-			m_module.opKill();
-			m_module.opLabel(labelId);
-
-			m_blockTerminators.push_back(labelId);
-		}
-		else
-		{
-			// Last instruction in the current function
-			this->emitFunctionEnd();
-		}
-	}
-
-	GcnCfgBlock* GcnCompiler::cfgFindBlock(
-		const std::initializer_list<GcnCfgBlockType>& types)
-	{
-		for (auto cur = m_controlFlowStack.rbegin();
-			 cur != m_controlFlowStack.rend(); cur++)
-		{
-			for (auto type : types)
-			{
-				if (cur->type == type)
-					return &(*cur);
-			}
-		}
-
-		return nullptr;
-	}
-	
-	bool GcnCompiler::needBreakLoop(const GcnToken& token)
-	{
-		bool need = false;
-
-		auto isSinkToken = [](const GcnToken& token) 
-		{
-			if (token.kind() == GcnTokenKind::Code)
-			{
-				const auto& code     = token.getCode();
-				const auto& lastInst = code.insList.back();
-				return lastInst.opcode == GcnOpcode::S_ENDPGM;
-			}
-			return false;
-		};
-
-		auto match = token.getMatch();
-		if (match->kind() == GcnTokenKind::Loop)
-		{
-			auto prev = token.getPrevNode();
-			if (prev->kind() != GcnTokenKind::Branch && !isSinkToken(token))
-			{
-				need = true;
-			}
-		}
-
-		return need;
 	}
 
 	void GcnCompiler::compileInstruction(
@@ -963,6 +370,8 @@ namespace sce::gcn
 		this->emitDclThreadGroup();
 		// Declare LDS
 		this->emitDclThreadGroupSharedMemory(m_meta.cs.ldsSize);
+		// Declare cross subgroup memory if needed.
+		this->emitDclCrossGroupSharedMemory();
 
 		// Main function of the compute shader
 		m_cs.functionId = m_module.allocateId();
@@ -1107,6 +516,9 @@ namespace sce::gcn
 					break;
 			}
 		}
+
+		// Map resource not in EUD table
+		mapNonEudResource();
 	}
 
 	void GcnCompiler::emitDclBuffer(
@@ -1175,10 +587,10 @@ namespace sce::gcn
 		// Record the buffer so that we can use it
 		// while compiling buffer instructions.
 		GcnBuffer buf;
-		buf.varId            = varId;
-		buf.size             = numConstants;
-		buf.asSsbo           = asSsbo;
-		m_buffers.at(regIdx) = buf;
+		buf.varId               = varId;
+		buf.size                = numConstants;
+		buf.asSsbo              = asSsbo;
+		m_buffersDcl.at(regIdx) = buf;
 
 		// Store descriptor info for the shader interface
 		VltResourceSlot resource;
@@ -1313,7 +725,7 @@ namespace sce::gcn
 													spv::ImageFormatUnknown);
 		}
 
-		m_textures.at(registerId) = tex;
+		m_texturesDcl.at(registerId) = tex;
 
 		// Store descriptor info for the shader interface
 		VltResourceSlot resource;
@@ -1351,8 +763,8 @@ namespace sce::gcn
 		m_module.setDebugName(varId,
 							  util::str::formatex("sampler", samplerId).c_str());
 
-		m_samplers.at(samplerId).varId  = varId;
-		m_samplers.at(samplerId).typeId = samplerType;
+		m_samplersDcl.at(samplerId).varId = varId;
+		m_samplersDcl.at(samplerId).typeId = samplerType;
 
 		// Compute binding slot index for the sampler
 		uint32_t bindingId = computeSamplerBinding(
@@ -1503,6 +915,32 @@ namespace sce::gcn
 			m_lds = emitNewVariable(varInfo);
 
 			m_module.setDebugName(m_lds, "lds");
+		} while (false);
+	}
+
+	void GcnCompiler::emitDclCrossGroupSharedMemory()
+	{
+		do
+		{
+			if (!m_analysis->hasComputeLane)
+			{
+				break;
+			}
+
+			if (!m_moduleInfo.options.separateSubgroup)
+			{
+				break;
+			}
+
+			GcnRegisterInfo varInfo;
+			varInfo.type.ctype   = GcnScalarType::Uint32;
+			varInfo.type.ccount  = 1;
+			varInfo.type.alength = m_moduleInfo.maxComputeSubgroupCount;
+			varInfo.sclass       = spv::StorageClassWorkgroup;
+
+			m_cs.crossGroupMemoryId = emitNewVariable(varInfo);
+
+			m_module.setDebugName(m_lds, "cross_group_memory");
 		} while (false);
 	}
 
@@ -2205,17 +1643,17 @@ namespace sce::gcn
 				break;
 			case GcnSystemValue::SubgroupID:
 			{
-				if (m_common.subgroupId == 0)
+				if (m_cs.subgroupId == 0)
 				{
-					m_common.subgroupId = emitNewBuiltinVariable({ { GcnScalarType::Uint32, 1, 0 },
-																   spv::StorageClassInput },
-																 spv::BuiltInSubgroupId,
-																 "subgroup_id");
+					m_cs.subgroupId = emitNewBuiltinVariable({ { GcnScalarType::Uint32, 1, 0 },
+															   spv::StorageClassInput },
+															 spv::BuiltInSubgroupId,
+															 "subgroup_id");
 				}
 
 				GcnRegisterPointer ptr;
 				ptr.type = { GcnScalarType::Uint32, 1 };
-				ptr.id   = m_common.subgroupId;
+				ptr.id   = m_cs.subgroupId;
 				return emitValueLoad(ptr);
 			}
 				break;
@@ -2265,7 +1703,39 @@ namespace sce::gcn
 	}
 
 	template <bool IsVgpr>
-	GcnRegisterPointer sce::gcn::GcnCompiler::emitGetGprPtr(
+	GcnRegisterPointer GcnCompiler::emitGetGprPtr(uint32_t indexId)
+	{
+		GcnGprArray* arrayPtr = nullptr;
+		if constexpr (IsVgpr)
+		{
+			arrayPtr = &m_vArray;
+		}
+		else
+		{
+			arrayPtr = &m_sArray;
+		}
+
+		uint32_t arrayId = arrayPtr->arrayId;
+
+		GcnRegisterPointer result;
+		result.type.ctype  = GcnScalarType::Float32;
+		result.type.ccount = 1;
+
+		GcnRegisterInfo info;
+		info.type.ctype   = result.type.ctype;
+		info.type.ccount  = result.type.ccount;
+		info.type.alength = 0;
+		info.sclass       = spv::StorageClassPrivate;
+
+		result.id = m_module.opAccessChain(
+			getPointerTypeId(info), arrayId,
+			1, &indexId);
+
+		return result;
+	}
+
+	template <bool IsVgpr>
+	GcnRegisterPointer GcnCompiler::emitGetGprPtr(
 		const GcnInstOperand& reg)
 	{
 		GcnGprArray* arrayPtr = nullptr;
@@ -2278,25 +1748,11 @@ namespace sce::gcn
 			arrayPtr = &m_sArray;
 		}
 
-		uint32_t arrayId      = arrayPtr->arrayId;
 		arrayPtr->arrayLength = std::max(arrayPtr->arrayLength, reg.code + 1);
 
-		GcnRegisterPointer result;
-		result.type.ctype  = GcnScalarType::Float32;
-		result.type.ccount = 1;
-
-		GcnRegisterInfo info;
-		info.type.ctype   = result.type.ctype;
-		info.type.ccount  = result.type.ccount;
-		info.type.alength = 0;
-		info.sclass       = spv::StorageClassPrivate;
-
 		uint32_t indexId = m_module.constu32(reg.code);
-		result.id        = m_module.opAccessChain(
-				   getPointerTypeId(info), arrayId,
-				   1, &indexId);
 
-		return result;
+		return emitGetGprPtr<IsVgpr>(indexId);
 	}
 
 	template <bool IsVgpr>
@@ -2312,64 +1768,8 @@ namespace sce::gcn
 		const GcnInstOperand&   reg,
 		const GcnRegisterValue& value)
 	{
-		if (IsVgpr &&
-			m_analysis->laneVgprs.find(reg.code) != m_analysis->laneVgprs.end())
-		{
-			emitLaneVgprStore(reg, value);
-		}
-		else
-		{
-			auto ptr = emitGetGprPtr<IsVgpr>(reg);
-			this->emitValueStore(ptr, value, GcnRegMask::select(0));
-		}
-	}
-
-	void GcnCompiler::emitLaneVgprStore(
-		const GcnInstOperand&   reg,
-		const GcnRegisterValue& value)
-	{
-		const uint32_t typeId = getScalarTypeId(GcnScalarType::Uint32);
-		// For vgprs accessed by lane instructions,
-		// we need to make sure the value is set exactly
-		// for specific lanes.
-		uint32_t condition = 0;
-		if (m_moduleInfo.options.separateSubgroup)
-		{
-			// We only test low 32 lanes,
-			// leave high 32 lanes for next neighbor subgroup.
-			auto laneMask = emitCommonSystemValueLoad(GcnSystemValue::SubgroupEqMask, GcnRegMask::select(0));
-			auto exec     = m_state.exec.emitLoad(GcnRegMask::select(0));
-
-			GcnRegisterValue value;
-			value.type  = laneMask.type;
-			value.id    = m_module.opBitwiseAnd(typeId, laneMask.id, exec.low.id);
-			auto result = emitRegisterZeroTest(value, GcnZeroTest::TestNz);
-			condition   = result.id;
-		}
-		else
-		{
-			auto lowMask   = emitCommonSystemValueLoad(GcnSystemValue::SubgroupEqMask, GcnRegMask::select(0));
-			auto highMask  = emitCommonSystemValueLoad(GcnSystemValue::SubgroupEqMask, GcnRegMask::select(1));
-			auto exec      = m_state.exec.emitLoad(GcnRegMask::firstN(2));
-			auto lowValue  = m_module.opBitwiseAnd(typeId, lowMask.id, exec.low.id);
-			auto highValue = m_module.opBitwiseAnd(typeId, highMask.id, exec.high.id);
-			auto value     = m_module.opBitwiseOr(typeId, lowValue, highValue);
-			condition      = m_module.opINotEqual(m_module.defBoolType(), value, m_module.constu32(0));
-		}
-
-		// Only store vgpr if current invocation is active in exec mask.
-		// Keep value unchanged otherwise.
-		uint32_t labelBegin = m_module.allocateId();
-		uint32_t labelEnd   = m_module.allocateId();
-		m_module.opSelectionMerge(labelEnd, spv::SelectionControlMaskNone);
-		m_module.opBranchConditional(condition, labelBegin, labelEnd);
-		m_module.opLabel(labelBegin);
-
-		auto ptr = emitGetGprPtr<true>(reg);
+		auto ptr = emitGetGprPtr<IsVgpr>(reg);
 		this->emitValueStore(ptr, value, GcnRegMask::select(0));
-
-		m_module.opBranch(labelEnd);
-		m_module.opLabel(labelEnd);
 	}
 
 	template <bool IsVgpr>
@@ -2471,11 +1871,45 @@ namespace sce::gcn
 		return this->emitGprLoad<false>(reg);
 	}
 
+	template <bool IsVgpr>
+	GcnRegisterValue GcnCompiler::emitGprLoad(uint32_t indexId)
+	{
+		auto ptr = emitGetGprPtr<IsVgpr>(indexId);
+		return this->emitValueLoad(ptr);
+	}
+
+	GcnRegisterValue GcnCompiler::emitVgprLoad(uint32_t indexId)
+	{
+		return this->emitGprLoad<true>(indexId);
+	}
+
+	GcnRegisterValue GcnCompiler::emitSgprLoad(uint32_t indexId)
+	{
+		return this->emitGprLoad<false>(indexId);
+	}
+
 	void GcnCompiler::emitSgprStore(
 		const GcnInstOperand&   reg,
 		const GcnRegisterValue& value)
 	{
 		this->emitGprStore<false>(reg, value);
+	}
+
+	template <bool IsVgpr>
+	void GcnCompiler::emitGprStore(uint32_t indexId, const GcnRegisterValue& value)
+	{
+		auto ptr = emitGetGprPtr<IsVgpr>(indexId);
+		this->emitValueStore(ptr, value, GcnRegMask::select(0));
+	}
+
+	void GcnCompiler::emitVgprStore(uint32_t indexId, const GcnRegisterValue& value)
+	{
+		this->emitGprStore<true>(indexId, value);
+	}
+
+	void GcnCompiler::emitSgprStore(uint32_t indexId, const GcnRegisterValue& value)
+	{
+		this->emitGprStore<false>(indexId, value);
 	}
 
 	GcnRegisterValue GcnCompiler::emitSgprArrayLoad(
@@ -2845,8 +2279,6 @@ namespace sce::gcn
 
 		uint32_t fpTypeId = getScalarTypeId(GcnScalarType::Float32);
 
-
-
 		auto ptrList = emitUniformBufferAccess(m_buffers.at(regId).varId,
 											   baseId.id,
 											   count);
@@ -2863,157 +2295,6 @@ namespace sce::gcn
 			reg.code += i;
 			emitRegisterStore(reg, value);
 		}
-	}
-
-	GcnRegisterValue GcnCompiler::emitCalcTexCoord(
-		GcnRegisterValue    coordVector,
-		const GcnImageInfo& imageInfo)
-	{
-		const uint32_t dim = getTexCoordDim(imageInfo);
-
-		if (dim != coordVector.type.ccount)
-		{
-			coordVector = emitRegisterExtract(
-				coordVector, GcnRegMask::firstN(dim));
-		}
-
-		return coordVector;
-	}
-
-	GcnRegisterValue GcnCompiler::emitLoadTexCoord(
-		const GcnInstOperand& coordReg,
-		const GcnImageInfo&   imageInfo)
-	{
-		uint32_t dim         = getTexCoordDim(imageInfo);
-		auto     coordVector = emitVgprArrayLoad(coordReg,
-												 GcnRegMask::firstN(dim));
-
-		auto result = emitCalcTexCoord(coordVector, imageInfo);
-
-		if (imageInfo.dim == spv::DimCube)
-		{
-			// Why do we need recover?
-			// See comments in emitCubeCalculate.
-			result = emitRecoverCubeCoord(result);
-		}
-		return result;
-	}
-
-	GcnRegisterValue GcnCompiler::emitRecoverCubeCoord(
-		const GcnRegisterValue& coord)
-	{
-		LOG_ASSERT(coord.type.ccount == 3, "cube coordinate must be vec3.");
-		auto s = emitRegisterExtract(coord, GcnRegMask::select(0));
-		auto t = emitRegisterExtract(coord, GcnRegMask::select(1));
-		auto z = emitRegisterExtract(coord, GcnRegMask::select(2));
-
-		const uint32_t typeId = getScalarTypeId(GcnScalarType::Float32);
-
-		// We need to fix x and y coordinate,
-		// because the s and t coordinate will be scaled and plus 1.5
-		// by v_madak_f32.
-		// We already force the scale value to be 1.0 when handling v_cubema_f32,
-		// here we subtract 1.5 to recover the original value. 
-		auto x = m_module.opFSub(typeId, s.id, m_module.constf32(1.5));
-		auto y = m_module.opFSub(typeId, t.id, m_module.constf32(1.5));
-
-		std::array<uint32_t, 3> direction = { x, y, z.id };
-
-		GcnRegisterValue result;
-		result.type = coord.type;
-		result.id   = m_module.opCompositeConstruct(getVectorTypeId(result.type),
-													direction.size(),
-													direction.data());
-		return result;
-	}
-
-	uint32_t GcnCompiler::emitLoadSampledImage(
-		const GcnTexture& textureResource,
-		const GcnSampler& samplerResource,
-		bool              isDepthCompare)
-	{
-		const uint32_t sampledImageType = isDepthCompare
-											  ? m_module.defSampledImageType(textureResource.depthTypeId)
-											  : m_module.defSampledImageType(textureResource.colorTypeId);
-
-		return m_module.opSampledImage(sampledImageType,
-									   m_module.opLoad(textureResource.imageTypeId, textureResource.varId),
-									   m_module.opLoad(samplerResource.typeId, samplerResource.varId));
-	}
-
-	void GcnCompiler::emitTextureSample(const GcnShaderInstruction& ins)
-	{
-		auto                  mimg        = gcnInstructionAs<GcnShaderInstMIMG>(ins);
-		const GcnInstOperand& texCoordReg = mimg.vaddr;
-		const GcnInstOperand& textureReg  = mimg.srsrc;
-		const GcnInstOperand& samplerReg  = mimg.ssamp;
-
-		// Texture and sampler register IDs
-		// These registers are 4-GPR aligned, so multiplied by 4
-		const uint32_t textureId = textureReg.code * 4;
-		const uint32_t samplerId = samplerReg.code * 4;
-
-		// Image type, which stores the image dimensions etc.
-		const GcnImageInfo imageType = m_textures.at(textureId).imageInfo;
-
-		// Load the texture coordinates. SPIR-V allows these
-		// to be float4 even if not all components are used.
-		GcnRegisterValue coord = emitLoadTexCoord(texCoordReg, imageType);
-		
-		// Accumulate additional image operands. These are
-		// not part of the actual operand token in SPIR-V.
-		SpirvImageOperands imageOperands = {};
-
-		auto op             = ins.opcode;
-		bool isDepthCompare = op == GcnOpcode::IMAGE_SAMPLE_C ||
-							  op == GcnOpcode::IMAGE_SAMPLE_C_CL ||
-							  op == GcnOpcode::IMAGE_SAMPLE_C_D ||
-							  op == GcnOpcode::IMAGE_SAMPLE_C_D_CL ||
-							  op == GcnOpcode::IMAGE_SAMPLE_C_L ||
-							  op == GcnOpcode::IMAGE_SAMPLE_C_B ||
-							  op == GcnOpcode::IMAGE_SAMPLE_C_B_CL ||
-							  op == GcnOpcode::IMAGE_SAMPLE_C_LZ ||
-							  op == GcnOpcode::IMAGE_SAMPLE_C_O ||
-							  op == GcnOpcode::IMAGE_SAMPLE_C_CL_O ||
-							  op == GcnOpcode::IMAGE_SAMPLE_C_D_O ||
-							  op == GcnOpcode::IMAGE_SAMPLE_C_D_CL_O ||
-							  op == GcnOpcode::IMAGE_SAMPLE_C_L_O ||
-							  op == GcnOpcode::IMAGE_SAMPLE_C_B_O ||
-							  op == GcnOpcode::IMAGE_SAMPLE_C_B_CL_O ||
-							  op == GcnOpcode::IMAGE_SAMPLE_C_LZ_O;
-
-		// Combine the texture and the sampler into a sampled image
-		const uint32_t sampledImageId = emitLoadSampledImage(
-			m_textures.at(textureId), m_samplers.at(samplerId),
-			isDepthCompare);
-
-		// Sampling an image always returns a four-component
-		// vector, whereas depth-compare ops return a scalar.
-		GcnRegisterValue result;
-		result.type.ctype  = m_textures.at(textureId).sampledType;
-		result.type.ccount = isDepthCompare ? 1 : 4;
-
-		switch (op)
-		{
-			// Simple image sample operation
-			case GcnOpcode::IMAGE_SAMPLE:
-			{
-				result.id = m_module.opImageSampleImplicitLod(
-					getVectorTypeId(result.type),
-					sampledImageId, coord.id,
-					imageOperands);
-			}
-			break;
-			default:
-				LOG_GCN_UNHANDLED_INST();
-				break;
-		}
-
-		auto colorMask = GcnRegMask(mimg.control.dmask);
-		result         = emitRegisterExtract(result, colorMask);
-		emitVgprArrayStore(mimg.vdata,
-						   result,
-						   colorMask);
 	}
 
 	GcnRegisterValue GcnCompiler::emitBuildConstVecf32(
@@ -3829,68 +3110,6 @@ namespace sce::gcn
 		LOG_ASSERT(false, "program type not supported, please support it.");
 	}
 
-	GcnBufferInfo GcnCompiler::getBufferType(
-		const GcnInstOperand& reg)
-	{
-		uint32_t regIdx = reg.code << 2;
-
-		GcnBufferMeta* meta = nullptr;
-		switch (m_programInfo.type())
-		{
-			case GcnProgramType::VertexShader:	meta = &m_meta.vs.bufferInfos[regIdx]; break;
-			case GcnProgramType::PixelShader:	meta = &m_meta.ps.bufferInfos[regIdx]; break;
-			case GcnProgramType::ComputeShader: meta = &m_meta.cs.bufferInfos[regIdx]; break;
-			case GcnProgramType::GeometryShader:meta = &m_meta.gs.bufferInfos[regIdx]; break;
-			case GcnProgramType::HullShader:	meta = &m_meta.hs.bufferInfos[regIdx]; break;
-			case GcnProgramType::DomainShader:	meta = &m_meta.ds.bufferInfos[regIdx]; break;
-		}
-
-		auto& buffer = m_buffers[regIdx];
-
-		GcnBufferInfo result = {};
-		result.varId         = buffer.varId;
-		result.isSsbo        = buffer.asSsbo;
-		result.buffer        = *meta;
-		result.image         = GcnImageInfo();
-
-		return result;
-	}
-
-	GcnImageInfo GcnCompiler::getImageType(
-		Gnm::TextureType textureType,
-		bool             isStorage,
-		bool             isDepth) const
-	{
-		uint32_t     depth    = isDepth ? 1u : 0u;
-		uint32_t     sampled  = isStorage ? 2u : 1u;
-		GcnImageInfo typeInfo = [textureType, depth, sampled]() -> GcnImageInfo
-		{
-			switch (textureType)
-			{
-				case Gnm::kTextureType1d:
-					return { spv::Dim1D, depth, 0, 0, sampled, VK_IMAGE_VIEW_TYPE_1D };
-				case Gnm::kTextureType2d:
-					return { spv::Dim2D, depth, 0, 0, sampled, VK_IMAGE_VIEW_TYPE_2D };
-				case Gnm::kTextureType3d:
-					return { spv::Dim3D, depth, 0, 0, sampled, VK_IMAGE_VIEW_TYPE_3D };
-				case Gnm::kTextureTypeCubemap:
-					return { spv::DimCube, depth, 0, 0, sampled, VK_IMAGE_VIEW_TYPE_CUBE };
-				case Gnm::kTextureType1dArray:
-					return { spv::Dim1D, depth, 1, 0, sampled, VK_IMAGE_VIEW_TYPE_1D_ARRAY };
-				case Gnm::kTextureType2dArray:
-					return { spv::Dim2D, depth, 1, 0, sampled, VK_IMAGE_VIEW_TYPE_2D_ARRAY };
-				case Gnm::kTextureType2dMsaa:
-					return { spv::Dim2D, depth, 0, 1, sampled, VK_IMAGE_VIEW_TYPE_2D };
-				case Gnm::kTextureType2dArrayMsaa:
-					return { spv::Dim2D, depth, 1, 1, sampled, VK_IMAGE_VIEW_TYPE_2D_ARRAY };
-				default:
-					Logger::exception(util::str::formatex("GcnCompiler: Unsupported resource type: ", textureType));
-			}
-		}();
-
-		return typeInfo;
-	}
-
 	GcnVectorType GcnCompiler::getInputRegType(uint32_t regIdx) const
 	{
 		GcnVectorType result;
@@ -3938,23 +3157,43 @@ namespace sce::gcn
 		return result;
 	}
 
-	uint32_t GcnCompiler::getTexLayerDim(const GcnImageInfo& imageType) const
+	void GcnCompiler::mapNonEudResource()
 	{
-		switch (imageType.dim)
+		// Map resource not in EUD table first,
+		// for EUD resource, we need to delay 
+		// mapping until s_load_dwordxN instruction
+		const auto& resouceTable = m_header->getShaderResourceTable();
+		for (const auto& res : resouceTable)
 		{
-			case spv::DimBuffer:	return 1;
-			case spv::Dim1D:		return 1;
-			case spv::Dim2D:		return 2;
-			case spv::Dim3D:		return 3;
-			case spv::DimCube:		return 3;
-			default: Logger::exception("DxbcCompiler: getTexLayerDim: Unsupported image dimension");
+			if (res.inEud)
+			{
+				continue;
+			}
+
+			auto regIdx = res.startRegister;
+			switch (res.type)
+			{
+				case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+				case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+					m_buffers.at(regIdx) = m_buffersDcl.at(regIdx);
+					break;
+				case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+				case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+					m_textures.at(regIdx) = m_texturesDcl.at(regIdx);
+					break;
+				case VK_DESCRIPTOR_TYPE_SAMPLER:
+					m_samplers.at(regIdx) = m_samplersDcl.at(regIdx);
+					break;
+				case VK_DESCRIPTOR_TYPE_MAX_ENUM:
+					// skip
+					break;
+				default:
+					LOG_ASSERT(false, "Not supported resouce type mapped.");
+					break;
+			}
 		}
 	}
 
-	uint32_t GcnCompiler::getTexCoordDim(const GcnImageInfo& imageType) const
-	{
-		return getTexLayerDim(imageType) + imageType.array;
-	}
 
 
 }  // namespace sce::gcn

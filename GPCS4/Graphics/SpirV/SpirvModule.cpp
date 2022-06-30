@@ -1578,7 +1578,7 @@ namespace sce::gcn
           uint32_t                valueCount,
     const uint32_t*               valueArray) {
     uint32_t resultId = this->allocateId();
-    
+
     m_code.putIns (spv::OpCompositeConstruct, 3 + valueCount);
     m_code.putWord(resultType);
     m_code.putWord(resultId);
@@ -1861,6 +1861,21 @@ namespace sce::gcn
     return resultId;
   }
   
+
+  uint32_t SpirvModule::opIAddCarry(
+          uint32_t                 resultType,
+          uint32_t                 a, 
+          uint32_t                 b) {
+	  uint32_t resultId = this->allocateId();
+
+	  m_code.putIns(spv::OpIAddCarry, 5);
+	  m_code.putWord(resultType);
+	  m_code.putWord(resultId);
+	  m_code.putWord(a);
+	  m_code.putWord(b);
+	  return resultId;
+  }
+
   
   uint32_t SpirvModule::opISub(
           uint32_t                resultType,
@@ -1994,6 +2009,38 @@ namespace sce::gcn
     m_code.putWord(a);
     m_code.putWord(b);
     return resultId;
+  }
+
+
+  uint32_t SpirvModule::opUMulExtended(
+          uint32_t                resultType, 
+          uint32_t                a, 
+          uint32_t                b)
+  {
+	  uint32_t resultId = this->allocateId();
+
+	  m_code.putIns(spv::OpUMulExtended, 5);
+	  m_code.putWord(resultType);
+	  m_code.putWord(resultId);
+	  m_code.putWord(a);
+	  m_code.putWord(b);
+	  return resultId;
+  }
+
+
+  uint32_t SpirvModule::opSMulExtended(
+	  uint32_t                     resultType,
+	  uint32_t                     a,
+	  uint32_t                     b)
+  {
+	  uint32_t resultId = this->allocateId();
+
+	  m_code.putIns(spv::OpSMulExtended, 5);
+	  m_code.putWord(resultType);
+	  m_code.putWord(resultId);
+	  m_code.putWord(a);
+	  m_code.putWord(b);
+	  return resultId;
   }
   
     
@@ -3472,7 +3519,25 @@ namespace sce::gcn
     return resultId;
   }
 
-  
+
+  uint32_t SpirvModule::opGroupNonUniformBroadcast(
+	  uint32_t resultType,
+	  uint32_t execution,
+	  uint32_t value,
+	  uint32_t id)
+  {
+	  uint32_t resultId = this->allocateId();
+
+	  m_code.putIns(spv::OpGroupNonUniformBroadcast, 6);
+	  m_code.putWord(resultType);
+	  m_code.putWord(resultId);
+	  m_code.putWord(execution);
+	  m_code.putWord(value);
+	  m_code.putWord(id);
+	  return resultId;
+  }
+
+
   uint32_t SpirvModule::opGroupNonUniformBroadcastFirst(
           uint32_t                resultType,
           uint32_t                execution,
@@ -3485,6 +3550,24 @@ namespace sce::gcn
     m_code.putWord(execution);
     m_code.putWord(value);
     return resultId;
+  }
+
+
+  uint32_t SpirvModule::opGroupNonUniformShuffle(
+	  uint32_t resultType,
+	  uint32_t execution,
+	  uint32_t value,
+	  uint32_t id)
+  {
+	  uint32_t resultId = this->allocateId();
+
+	  m_code.putIns(spv::OpGroupNonUniformShuffle, 6);
+	  m_code.putWord(resultType);
+	  m_code.putWord(resultId);
+	  m_code.putWord(execution);
+	  m_code.putWord(value);
+	  m_code.putWord(id);
+	  return resultId;
   }
 
 
@@ -3827,6 +3910,8 @@ namespace sce::gcn
 	  for (uint32_t i = 0; i < argumentCount; i++)
 		  m_code.putInt32(argumentList[i]);
   }
+
+
 
 
 }

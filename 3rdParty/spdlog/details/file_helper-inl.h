@@ -4,7 +4,7 @@
 #pragma once
 
 #ifndef SPDLOG_HEADER_ONLY
-#include <spdlog/details/file_helper.h>
+#    include <spdlog/details/file_helper.h>
 #endif
 
 #include <spdlog/details/os.h>
@@ -20,6 +20,10 @@
 namespace spdlog {
 namespace details {
 
+SPDLOG_INLINE file_helper::file_helper(const file_event_handlers &event_handlers)
+    : event_handlers_(event_handlers)
+{}
+
 SPDLOG_INLINE file_helper::~file_helper()
 {
     close();
@@ -29,14 +33,37 @@ SPDLOG_INLINE void file_helper::open(const filename_t &fname, bool truncate)
 {
     close();
     filename_ = fname;
-    auto *mode = truncate ? SPDLOG_FILENAME_T("wb") : SPDLOG_FILENAME_T("ab");
 
+    auto *mode = SPDLOG_FILENAME_T("ab");
+    auto *trunc_mode = SPDLOG_FILENAME_T("wb");
+
+    if (event_handlers_.before_open)
+    {
+        event_handlers_.before_open(filename_);
+    }
     for (int tries = 0; tries < open_tries_; ++tries)
     {
         // create containing folder if not exists already.
         os::create_dir(os::dir_name(fname));
+        if (truncate)
+        {
+            // Truncate by opening-and-closing a tmp file in "wb" mode, always
+            // opening the actual log-we-write-to in "ab" mode, since that
+            // interacts more politely with eternal processes that might
+            // rotate/truncate the file underneath us.
+            std::FILE *tmp;
+            if (os::fopen_s(&tmp, fname, trunc_mode))
+            {
+                continue;
+            }
+            std::fclose(tmp);
+        }
         if (!os::fopen_s(&fd_, fname, mode))
         {
+            if (event_handlers_.after_open)
+            {
+                event_handlers_.after_open(filename_, fd_);
+            }
             return;
         }
 
@@ -57,15 +84,28 @@ SPDLOG_INLINE void file_helper::reopen(bool truncate)
 
 SPDLOG_INLINE void file_helper::flush()
 {
-    std::fflush(fd_);
+    if (std::fflush(fd_) != 0)
+    {
+        throw_spdlog_ex("Failed flush to file " + os::filename_to_str(filename_), errno);
+    }
 }
 
 SPDLOG_INLINE void file_helper::close()
 {
     if (fd_ != nullptr)
     {
+        if (event_handlers_.before_close)
+        {
+            event_handlers_.before_close(filename_, fd_);
+        }
+
         std::fclose(fd_);
         fd_ = nullptr;
+
+        if (event_handlers_.after_close)
+        {
+            event_handlers_.after_close(filename_);
+        }
     }
 }
 
@@ -118,7 +158,7 @@ SPDLOG_INLINE std::tuple<filename_t, filename_t> file_helper::split_by_extension
     }
 
     // treat cases like "/etc/rc.d/somelogfile or "/abc/.hiddenfile"
-    auto folder_index = fname.rfind(details::os::folder_sep);
+    auto folder_index = fname.find_last_of(details::os::folder_seps_filename);
     if (folder_index != filename_t::npos && folder_index >= ext_index - 1)
     {
         return std::make_tuple(fname, filename_t());

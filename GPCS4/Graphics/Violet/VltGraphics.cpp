@@ -134,7 +134,7 @@ namespace sce::vlt
 		}
 
 		// Set up dynamic states as needed
-		std::array<VkDynamicState, 6> dynamicStates;
+		std::array<VkDynamicState, 7> dynamicStates;
 		uint32_t                      dynamicStateCount = 0;
 
 		dynamicStates[dynamicStateCount++] = VK_DYNAMIC_STATE_VIEWPORT;

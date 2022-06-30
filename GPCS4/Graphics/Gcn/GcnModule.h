@@ -17,6 +17,7 @@ namespace sce::gcn
 	union GcnShaderMeta;
 	class GcnAnalyzer;
 	class GcnCompiler;
+	struct GcnModuleInfo;
 
 	class GcnModule
 	{
@@ -56,14 +57,14 @@ namespace sce::gcn
 				   m_header.key().name();
 		}
 
-
 		/**
          * \brief Compiles GCN shader to SPIR-V module
          * 
          * \returns The compiled shader object
          */
 		vlt::Rc<vlt::VltShader> compile(
-			const GcnShaderMeta& meta) const;
+			const GcnShaderMeta& meta,
+			const GcnModuleInfo& moduleInfo) const;
 
 	private:
 

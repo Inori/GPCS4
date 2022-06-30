@@ -69,6 +69,8 @@ namespace sce::gcn
 		{
 			decodeLiteralConstant(encoding, code);
 		}
+
+		repairOperandType();
 	}
 
 	GcnInstEncoding GcnDecodeContext::getInstructionEncoding(uint32_t hexInstruction)
@@ -378,6 +380,26 @@ namespace sce::gcn
 		}
 	}
 
+	void GcnDecodeContext::repairOperandType()
+	{
+		// Some instructions' operand type is not uniform,
+		// it's best to change the instruction table's format and fix them there,
+		// but it's a hard work.
+		// We fix them here.
+		switch (m_instruction.opcode)
+		{
+			case GcnOpcode::V_MAD_U64_U32:
+				m_instruction.src[2].type = GcnScalarType::Uint64;
+				break;
+			case GcnOpcode::V_MAD_I64_I32:
+				m_instruction.src[2].type = GcnScalarType::Sint64;
+				break;
+			case GcnOpcode::V_ADDC_U32:
+				m_instruction.src[2].type = GcnScalarType::Uint64;
+				break;
+		}
+	}
+
 	GcnOperandField GcnDecodeContext::getOperandField(uint32_t code)
 	{
 		GcnOperandField field = {};
@@ -659,8 +681,8 @@ namespace sce::gcn
 		{
 			// vsrc1 is scalar for lane instructions
 			m_instruction.src[1].field = getOperandField(vsrc1);
-
-			m_instruction.dst[1].field = getOperandField(vdst);
+			// dst is sgpr
+			m_instruction.dst[1].field = GcnOperandField::ScalarGPR;
 			m_instruction.dst[1].type  = GcnScalarType::Uint32;
 			m_instruction.dst[1].code  = vdst;
 		}
@@ -786,7 +808,10 @@ namespace sce::gcn
 			}
 			else if (vop3Op >= GcnOpcodeVOP3::V_READLANE_B32 && vop3Op <= GcnOpcodeVOP3::V_WRITELANE_B32)
 			{
-				m_instruction.dst[1].field = getOperandField(vdst);
+				// vsrc1 is scalar for lane instructions
+				m_instruction.src[1].field = getOperandField(src1);
+				// dst is sgpr for lane instruction
+				m_instruction.dst[1].field = GcnOperandField::ScalarGPR;
 				m_instruction.dst[1].type  = GcnScalarType::Uint32;
 				m_instruction.dst[1].code  = vdst;
 			}
@@ -915,6 +940,18 @@ namespace sce::gcn
 				m_instruction.control.mubuf.size = 2;
 			}
 		}
+		else if (op >= static_cast<uint32_t>(GcnOpcodeMUBUF::BUFFER_ATOMIC_SWAP) &&
+				 op <= static_cast<uint32_t>(GcnOpcodeMUBUF::BUFFER_ATOMIC_FMAX))
+		{
+			m_instruction.control.mubuf.count = 1;
+			m_instruction.control.mubuf.size  = sizeof(uint32_t);
+		}
+		else if (op >= static_cast<uint32_t>(GcnOpcodeMUBUF::BUFFER_ATOMIC_SWAP_X2) &&
+				 op <= static_cast<uint32_t>(GcnOpcodeMUBUF::BUFFER_ATOMIC_FMAX_X2))
+		{
+			m_instruction.control.mubuf.count = 2;
+			m_instruction.control.mubuf.size  = sizeof(uint32_t) * 2;
+		}
 	}
 
 	void GcnDecodeContext::decodeInstructionMTBUF(uint64_t hexInstruction)
@@ -950,6 +987,281 @@ namespace sce::gcn
 		}
 	}
 
+	uint32_t GcnDecodeContext::getMimgModifier(GcnOpcode opcode)
+	{
+		GcnMimgModifierFlags flags = {};
+
+		switch (opcode)
+		{
+			case GcnOpcode::IMAGE_SAMPLE:
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_CL:
+				flags.set(GcnMimgModifier::LodClamp);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_D:
+				flags.set(GcnMimgModifier::Derivative);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_D_CL:
+				flags.set(GcnMimgModifier::Derivative,
+						  GcnMimgModifier::LodClamp);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_L:
+				flags.set(GcnMimgModifier::Lod);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_B:
+				flags.set(GcnMimgModifier::LodBias);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_B_CL:
+				flags.set(GcnMimgModifier::LodBias,
+						  GcnMimgModifier::LodClamp);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_LZ:
+				flags.set(GcnMimgModifier::Level0);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_C:
+				flags.set(GcnMimgModifier::Pcf);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_C_CL:
+				flags.set(GcnMimgModifier::Pcf,
+						  GcnMimgModifier::LodClamp);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_C_D:
+				flags.set(GcnMimgModifier::Pcf,
+						  GcnMimgModifier::Derivative);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_C_D_CL:
+				flags.set(GcnMimgModifier::Pcf,
+						  GcnMimgModifier::Derivative,
+						  GcnMimgModifier::LodClamp);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_C_L:
+				flags.set(GcnMimgModifier::Pcf,
+						  GcnMimgModifier::Lod);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_C_B:
+				flags.set(GcnMimgModifier::Pcf,
+						  GcnMimgModifier::LodBias);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_C_B_CL:
+				flags.set(GcnMimgModifier::Pcf,
+						  GcnMimgModifier::LodBias,
+						  GcnMimgModifier::LodClamp);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_C_LZ:
+				flags.set(GcnMimgModifier::Pcf,
+						  GcnMimgModifier::Level0);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_O:
+				flags.set(GcnMimgModifier::Offset);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_CL_O:
+				flags.set(GcnMimgModifier::LodClamp,
+						  GcnMimgModifier::Offset);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_D_O:
+				flags.set(GcnMimgModifier::Derivative,
+						  GcnMimgModifier::Offset);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_D_CL_O:
+				flags.set(GcnMimgModifier::Derivative,
+						  GcnMimgModifier::LodClamp,
+						  GcnMimgModifier::Offset);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_L_O:
+				flags.set(GcnMimgModifier::Lod,
+						  GcnMimgModifier::Offset);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_B_O:
+				flags.set(GcnMimgModifier::LodBias,
+						  GcnMimgModifier::Offset);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_B_CL_O:
+				flags.set(GcnMimgModifier::LodBias,
+						  GcnMimgModifier::LodClamp,
+						  GcnMimgModifier::Offset);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_LZ_O:
+				flags.set(GcnMimgModifier::Level0,
+						  GcnMimgModifier::Offset);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_C_O:
+				flags.set(GcnMimgModifier::Pcf,
+						  GcnMimgModifier::Offset);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_C_CL_O:
+				flags.set(GcnMimgModifier::Pcf,
+						  GcnMimgModifier::LodClamp,
+						  GcnMimgModifier::Offset);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_C_D_O:
+				flags.set(GcnMimgModifier::Pcf,
+						  GcnMimgModifier::Derivative,
+						  GcnMimgModifier::Offset);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_C_D_CL_O:
+				flags.set(GcnMimgModifier::Pcf,
+						  GcnMimgModifier::Derivative,
+						  GcnMimgModifier::LodClamp,
+						  GcnMimgModifier::Offset);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_C_L_O:
+				flags.set(GcnMimgModifier::Pcf,
+						  GcnMimgModifier::Lod,
+						  GcnMimgModifier::Offset);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_C_B_O:
+				flags.set(GcnMimgModifier::Pcf,
+						  GcnMimgModifier::LodBias,
+						  GcnMimgModifier::Offset);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_C_B_CL_O:
+				flags.set(GcnMimgModifier::Pcf,
+						  GcnMimgModifier::LodBias,
+						  GcnMimgModifier::LodClamp,
+						  GcnMimgModifier::Offset);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_C_LZ_O:
+				flags.set(GcnMimgModifier::Pcf,
+						  GcnMimgModifier::Level0,
+						  GcnMimgModifier::Offset);
+				break;
+			case GcnOpcode::IMAGE_GATHER4:
+				break;
+			case GcnOpcode::IMAGE_GATHER4_CL:
+				flags.set(GcnMimgModifier::LodClamp);
+				break;
+			case GcnOpcode::IMAGE_GATHER4_L:
+				flags.set(GcnMimgModifier::Lod);
+				break;
+			case GcnOpcode::IMAGE_GATHER4_B:
+				flags.set(GcnMimgModifier::LodBias);
+				break;
+			case GcnOpcode::IMAGE_GATHER4_B_CL:
+				flags.set(GcnMimgModifier::LodBias,
+						  GcnMimgModifier::LodClamp);
+				break;
+			case GcnOpcode::IMAGE_GATHER4_LZ:
+				flags.set(GcnMimgModifier::Level0);
+				break;
+			case GcnOpcode::IMAGE_GATHER4_C:
+				flags.set(GcnMimgModifier::Pcf);
+				break;
+			case GcnOpcode::IMAGE_GATHER4_C_CL:
+				flags.set(GcnMimgModifier::Pcf,
+						  GcnMimgModifier::LodClamp);
+				break;
+			case GcnOpcode::IMAGE_GATHER4_C_L:
+				flags.set(GcnMimgModifier::Pcf,
+						  GcnMimgModifier::Lod);
+				break;
+			case GcnOpcode::IMAGE_GATHER4_C_B:
+				flags.set(GcnMimgModifier::Pcf,
+						  GcnMimgModifier::LodBias);
+				break;
+			case GcnOpcode::IMAGE_GATHER4_C_B_CL:
+				flags.set(GcnMimgModifier::Pcf,
+						  GcnMimgModifier::LodBias,
+						  GcnMimgModifier::LodClamp);
+				break;
+			case GcnOpcode::IMAGE_GATHER4_C_LZ:
+				flags.set(GcnMimgModifier::Pcf,
+						  GcnMimgModifier::Level0);
+				break;
+			case GcnOpcode::IMAGE_GATHER4_O:
+				flags.set(GcnMimgModifier::Offset);
+				break;
+			case GcnOpcode::IMAGE_GATHER4_CL_O:
+				flags.set(GcnMimgModifier::LodClamp,
+						  GcnMimgModifier::Offset);
+				break;
+			case GcnOpcode::IMAGE_GATHER4_L_O:
+				flags.set(GcnMimgModifier::Lod,
+						  GcnMimgModifier::Offset);
+				break;
+			case GcnOpcode::IMAGE_GATHER4_B_O:
+				flags.set(GcnMimgModifier::LodBias,
+						  GcnMimgModifier::Offset);
+				break;
+			case GcnOpcode::IMAGE_GATHER4_B_CL_O:
+				flags.set(GcnMimgModifier::LodBias,
+						  GcnMimgModifier::LodClamp,
+						  GcnMimgModifier::Offset);
+				break;
+			case GcnOpcode::IMAGE_GATHER4_LZ_O:
+				flags.set(GcnMimgModifier::Level0,
+						  GcnMimgModifier::Offset);
+				break;
+			case GcnOpcode::IMAGE_GATHER4_C_O:
+				flags.set(GcnMimgModifier::Pcf,
+						  GcnMimgModifier::Offset);
+				break;
+			case GcnOpcode::IMAGE_GATHER4_C_CL_O:
+				flags.set(GcnMimgModifier::Pcf,
+						  GcnMimgModifier::LodClamp,
+						  GcnMimgModifier::Offset);
+				break;
+			case GcnOpcode::IMAGE_GATHER4_C_L_O:
+				flags.set(GcnMimgModifier::Pcf,
+						  GcnMimgModifier::Lod,
+						  GcnMimgModifier::Offset);
+				break;
+			case GcnOpcode::IMAGE_GATHER4_C_B_O:
+				flags.set(GcnMimgModifier::Pcf,
+						  GcnMimgModifier::LodBias,
+						  GcnMimgModifier::Offset);
+				break;
+			case GcnOpcode::IMAGE_GATHER4_C_B_CL_O:
+				flags.set(GcnMimgModifier::Pcf,
+						  GcnMimgModifier::LodBias,
+						  GcnMimgModifier::LodClamp,
+						  GcnMimgModifier::Offset);
+				break;
+			case GcnOpcode::IMAGE_GATHER4_C_LZ_O:
+				flags.set(GcnMimgModifier::Pcf,
+						  GcnMimgModifier::Level0,
+						  GcnMimgModifier::Offset);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_CD:
+				flags.set(GcnMimgModifier::CoarseDerivative);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_CD_CL:
+				flags.set(GcnMimgModifier::CoarseDerivative,
+						  GcnMimgModifier::LodClamp);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_C_CD:
+				flags.set(GcnMimgModifier::Pcf,
+						  GcnMimgModifier::CoarseDerivative);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_C_CD_CL:
+				flags.set(GcnMimgModifier::Pcf,
+						  GcnMimgModifier::CoarseDerivative,
+						  GcnMimgModifier::LodClamp);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_CD_O:
+				flags.set(GcnMimgModifier::CoarseDerivative,
+						  GcnMimgModifier::Offset);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_CD_CL_O:
+				flags.set(GcnMimgModifier::CoarseDerivative,
+						  GcnMimgModifier::LodClamp,
+						  GcnMimgModifier::Offset);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_C_CD_O:
+				flags.set(GcnMimgModifier::Pcf,
+						  GcnMimgModifier::CoarseDerivative,
+						  GcnMimgModifier::Offset);
+				break;
+			case GcnOpcode::IMAGE_SAMPLE_C_CD_CL_O:
+				flags.set(GcnMimgModifier::Pcf,
+						  GcnMimgModifier::CoarseDerivative,
+						  GcnMimgModifier::LodClamp,
+						  GcnMimgModifier::Offset);
+				break;
+		}
+
+		return flags.raw();
+	}
+
 	void GcnDecodeContext::decodeInstructionMIMG(uint64_t hexInstruction)
 	{
 		uint32_t op    = bit::extract(hexInstruction, 24, 18);
@@ -969,7 +1281,8 @@ namespace sce::gcn
 		m_instruction.src[3].field = GcnOperandField::ScalarGPR;
 		m_instruction.src[3].code  = ssamp;
 
-		m_instruction.control.mimg = *reinterpret_cast<GcnInstControlMIMG*>(&hexInstruction);
+		m_instruction.control.mimg     = *reinterpret_cast<GcnInstControlMIMG*>(&hexInstruction);
+		m_instruction.control.mimg.mod = getMimgModifier(m_instruction.opcode);
 	}
 
 	void GcnDecodeContext::decodeInstructionDS(uint64_t hexInstruction)
@@ -1065,7 +1378,6 @@ namespace sce::gcn
 
 		m_instruction.control.exp = *reinterpret_cast<GcnInstControlEXP*>(&hexInstruction);
 	}
-
 
 
 	///////////////////////////////////////////////////////////////

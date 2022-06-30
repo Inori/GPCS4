@@ -674,6 +674,11 @@ namespace sce::gcn
             uint32_t                resultType,
             uint32_t                a,
             uint32_t                b);
+
+    uint32_t opIAddCarry(
+		    uint32_t                resultType,
+		    uint32_t                a,
+		    uint32_t                b);
     
     uint32_t opISub(
             uint32_t                resultType,
@@ -719,6 +724,16 @@ namespace sce::gcn
             uint32_t                resultType,
             uint32_t                a,
             uint32_t                b);
+
+    uint32_t opUMulExtended(
+		    uint32_t                resultType,
+		    uint32_t                a,
+		    uint32_t                b);
+
+    uint32_t opSMulExtended(
+		    uint32_t                resultType,
+		    uint32_t                a,
+		    uint32_t                b);
     
     uint32_t opFMul(
             uint32_t                resultType,
@@ -1183,11 +1198,23 @@ namespace sce::gcn
             uint32_t                resultType,
             uint32_t                execution);
     
-    uint32_t opGroupNonUniformBroadcastFirst(
+    uint32_t opGroupNonUniformBroadcast(
             uint32_t                resultType,
             uint32_t                execution,
-            uint32_t                value);
-    
+            uint32_t                value,
+		    uint32_t                id);
+
+	uint32_t opGroupNonUniformBroadcastFirst(
+		    uint32_t                resultType,
+		    uint32_t                execution,
+		    uint32_t                value);
+
+    uint32_t opGroupNonUniformShuffle(
+		    uint32_t                resultType,
+		    uint32_t                execution,
+		    uint32_t                value,
+		    uint32_t                id);
+
     void opControlBarrier(
             uint32_t                execution,
             uint32_t                memory,

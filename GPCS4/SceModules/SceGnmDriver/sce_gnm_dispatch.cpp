@@ -13,7 +13,7 @@ uint32_t PS4API sceGnmDispatchInitDefaultHardwareState(uint32_t* cmdBuffer, uint
 	assert(numDwords >= initCmdSize);
 	GnmCmdDispatchInitDefaultHardwareState* initParam = (GnmCmdDispatchInitDefaultHardwareState*)cmdBuffer;
 	initParam->opcode = PM4_HEADER_BUILD(initCmdSize, IT_GNM_PRIVATE, OP_PRIV_INITIALIZE_DEFAULT_HARDWARE_STATE);
-	memset(initParam->reserved, 0, sizeof(initParam->reserved) * sizeof(uint32_t));
+	memset(initParam->reserved, 0, sizeof(initParam->reserved));
 	return initCmdSize;
 }
 
@@ -49,7 +49,7 @@ int PS4API sceGnmComputeWaitOnAddress(
 	param->mask                       = mask;
 	param->compareFunc                = compareFunc;
 	param->refValue                   = refValue;
-	memset(param->reserved, 0, sizeof(param->reserved) * sizeof(uint32_t));
+	memset(param->reserved, 0, sizeof(param->reserved));
 	return SCE_OK;
 }
 

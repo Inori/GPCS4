@@ -344,16 +344,16 @@ namespace sce::gcn
 		{ GcnInstClass::ScalarQuadMask, GcnInstCategory::ScalarALU, 1, 1,
 		  GcnScalarType::Uint64, GcnScalarType::Uint64 },
 		// 46 = S_MOVRELS_B32
-		{ GcnInstClass::ScalarMov, GcnInstCategory::ScalarALU, 1, 1,
+		{ GcnInstClass::ScalarMovRel, GcnInstCategory::ScalarALU, 1, 1,
 		  GcnScalarType::Uint32, GcnScalarType::Uint32 },
 		// 47 = S_MOVRELS_B64
-		{ GcnInstClass::ScalarMov, GcnInstCategory::ScalarALU, 1, 1,
+		{ GcnInstClass::ScalarMovRel, GcnInstCategory::ScalarALU, 1, 1,
 		  GcnScalarType::Uint64, GcnScalarType::Uint64 },
 		// 48 = S_MOVRELD_B32
-		{ GcnInstClass::ScalarMov, GcnInstCategory::ScalarALU, 1, 1,
+		{ GcnInstClass::ScalarMovRel, GcnInstCategory::ScalarALU, 1, 1,
 		  GcnScalarType::Uint32, GcnScalarType::Uint32 },
 		// 49 = S_MOVRELD_B64
-		{ GcnInstClass::ScalarMov, GcnInstCategory::ScalarALU, 1, 1,
+		{ GcnInstClass::ScalarMovRel, GcnInstCategory::ScalarALU, 1, 1,
 		  GcnScalarType::Uint64, GcnScalarType::Uint64 },
 		// 50 = S_CBRANCH_JOIN
 		{ GcnInstClass::ScalarProgFlow, GcnInstCategory::FlowControl, 1, 1,
@@ -1687,9 +1687,15 @@ namespace sce::gcn
 		// 372 = V_TRIG_PREOP_F64
 		{ GcnInstClass::VectorFpTran64, GcnInstCategory::VectorALU, 2, 1,
 		  GcnScalarType::Float64, GcnScalarType::Float64 },
-		{},
-		{},
-		{},
+		// 373 = V_MQSAD_U32_U8
+		{ GcnInstClass::VectorIntGraph, GcnInstCategory::VectorALU, 3, 1,
+		  GcnScalarType::Uint32, GcnScalarType::Uint32 },
+		// 374 = V_MAD_U64_U32
+		{ GcnInstClass::VectorIntArith64, GcnInstCategory::VectorALU, 3, 1,
+		  GcnScalarType::Uint32, GcnScalarType::Uint64 },
+		// 375 = V_MAD_I64_I32
+		{ GcnInstClass::VectorIntArith64, GcnInstCategory::VectorALU, 3, 1,
+		  GcnScalarType::Sint32, GcnScalarType::Sint64 },
 		{},
 		{},
 		{},
@@ -1879,13 +1885,13 @@ namespace sce::gcn
 		{ GcnInstClass::Undefined, GcnInstCategory::Undefined, 0, 1,
 		  GcnScalarType::Undefined, GcnScalarType::Undefined },
 		// 450 = V_MOVRELD_B32
-		{ GcnInstClass::VectorRegMov, GcnInstCategory::VectorALU, 1, 1,
+		{ GcnInstClass::VectorMovRel, GcnInstCategory::VectorALU, 1, 1,
 		  GcnScalarType::Uint32, GcnScalarType::Uint32 },
 		// 451 = V_MOVRELS_B32
-		{ GcnInstClass::VectorRegMov, GcnInstCategory::VectorALU, 1, 1,
+		{ GcnInstClass::VectorMovRel, GcnInstCategory::VectorALU, 1, 1,
 		  GcnScalarType::Uint32, GcnScalarType::Uint32 },
 		// 452 = V_MOVRELSD_B32
-		{ GcnInstClass::VectorRegMov, GcnInstCategory::VectorALU, 1, 1,
+		{ GcnInstClass::VectorMovRel, GcnInstCategory::VectorALU, 1, 1,
 		  GcnScalarType::Uint32, GcnScalarType::Uint32 },
 		{},
 		{},
@@ -2073,13 +2079,13 @@ namespace sce::gcn
 		{ GcnInstClass::Undefined, GcnInstCategory::Undefined, 0, 1,
 		  GcnScalarType::Undefined, GcnScalarType::Undefined },
 		// 66 = V_MOVRELD_B32
-		{ GcnInstClass::VectorRegMov, GcnInstCategory::VectorALU, 1, 1,
+		{ GcnInstClass::VectorMovRel, GcnInstCategory::VectorALU, 1, 1,
 		  GcnScalarType::Uint32, GcnScalarType::Uint32 },
 		// 67 = V_MOVRELS_B32
-		{ GcnInstClass::VectorRegMov, GcnInstCategory::VectorALU, 1, 1,
+		{ GcnInstClass::VectorMovRel, GcnInstCategory::VectorALU, 1, 1,
 		  GcnScalarType::Uint32, GcnScalarType::Uint32 },
 		// 68 = V_MOVRELSD_B32
-		{ GcnInstClass::VectorRegMov, GcnInstCategory::VectorALU, 1, 1,
+		{ GcnInstClass::VectorMovRel, GcnInstCategory::VectorALU, 1, 1,
 		  GcnScalarType::Uint32, GcnScalarType::Uint32 },
 		{},
 		{},
@@ -3373,54 +3379,54 @@ namespace sce::gcn
 		{},
 		{},
 		// 48 = BUFFER_ATOMIC_SWAP
-		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufAtomic, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Uint32, GcnScalarType::Uint32 },
 		// 49 = BUFFER_ATOMIC_CMPSWAP
-		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufAtomic, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Uint32, GcnScalarType::Uint32 },
 		// 50 = BUFFER_ATOMIC_ADD
-		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufAtomic, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Uint32, GcnScalarType::Uint32 },
 		// 51 = BUFFER_ATOMIC_SUB
-		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufAtomic, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Uint32, GcnScalarType::Uint32 },
 		{},
 		// 53 = BUFFER_ATOMIC_SMIN
-		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufAtomic, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Uint32, GcnScalarType::Uint32 },
 		// 54 = BUFFER_ATOMIC_UMIN
-		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufAtomic, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Uint32, GcnScalarType::Uint32 },
 		// 55 = BUFFER_ATOMIC_SMAX
-		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufAtomic, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Uint32, GcnScalarType::Uint32 },
 		// 56 = BUFFER_ATOMIC_UMAX
-		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufAtomic, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Uint32, GcnScalarType::Uint32 },
 		// 57 = BUFFER_ATOMIC_AND
-		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufAtomic, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Uint32, GcnScalarType::Uint32 },
 		// 58 = BUFFER_ATOMIC_OR
-		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufAtomic, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Uint32, GcnScalarType::Uint32 },
 		// 59 = BUFFER_ATOMIC_XOR
-		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufAtomic, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Uint32, GcnScalarType::Uint32 },
 		// 60 = BUFFER_ATOMIC_INC
-		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufAtomic, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Uint32, GcnScalarType::Uint32 },
 		// 61 = BUFFER_ATOMIC_DEC
-		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufAtomic, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Uint32, GcnScalarType::Uint32 },
 		// 62 = BUFFER_ATOMIC_FCMPSWAP
-		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufAtomic, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Float32, GcnScalarType::Float32 },
 		// 63 = BUFFER_ATOMIC_FMIN
-		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufAtomic, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Float32, GcnScalarType::Float32 },
 		// 64 = BUFFER_ATOMIC_FMAX
-		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufAtomic, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Float32, GcnScalarType::Float32 },
 		{},
 		{},
 		{},
@@ -3437,54 +3443,54 @@ namespace sce::gcn
 		{},
 		{},
 		// 80 = BUFFER_ATOMIC_SWAP_X2
-		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufAtomic, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Uint64, GcnScalarType::Uint32 },
 		// 81 = BUFFER_ATOMIC_CMPSWAP_X2
-		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufAtomic, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Uint64, GcnScalarType::Uint32 },
 		// 82 = BUFFER_ATOMIC_ADD_X2
-		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufAtomic, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Uint64, GcnScalarType::Uint32 },
 		// 83 = BUFFER_ATOMIC_SUB_X2
-		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufAtomic, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Uint64, GcnScalarType::Uint32 },
 		{},
 		// 85 = BUFFER_ATOMIC_SMIN_X2
-		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufAtomic, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Uint64, GcnScalarType::Uint32 },
 		// 86 = BUFFER_ATOMIC_UMIN_X2
-		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufAtomic, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Uint64, GcnScalarType::Uint32 },
 		// 87 = BUFFER_ATOMIC_SMAX_X2
-		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufAtomic, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Uint64, GcnScalarType::Uint32 },
 		// 88 = BUFFER_ATOMIC_UMAX_X2
-		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufAtomic, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Uint64, GcnScalarType::Uint32 },
 		// 89 = BUFFER_ATOMIC_AND_X2
-		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufAtomic, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Uint64, GcnScalarType::Uint32 },
 		// 90 = BUFFER_ATOMIC_OR_X2
-		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufAtomic, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Uint64, GcnScalarType::Uint32 },
 		// 91 = BUFFER_ATOMIC_XOR_X2
-		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufAtomic, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Uint64, GcnScalarType::Uint32 },
 		// 92 = BUFFER_ATOMIC_INC_X2
-		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufAtomic, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Uint64, GcnScalarType::Uint32 },
 		// 93 = BUFFER_ATOMIC_DEC_X2
-		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufAtomic, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Uint64, GcnScalarType::Uint32 },
 		// 94 = BUFFER_ATOMIC_FCMPSWAP_X2
-		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufAtomic, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Float64, GcnScalarType::Float64 },
 		// 95 = BUFFER_ATOMIC_FMIN_X2
-		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufAtomic, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Float64, GcnScalarType::Float64 },
 		// 96 = BUFFER_ATOMIC_FMAX_X2
-		{ GcnInstClass::VectorMemBufNoFmt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		{ GcnInstClass::VectorMemBufAtomic, GcnInstCategory::VectorMemory, 4, 1,
+		  GcnScalarType::Float64, GcnScalarType::Float64 },
 		{},
 		{},
 		{},
@@ -3572,7 +3578,7 @@ namespace sce::gcn
 		{},
 		// 14 = IMAGE_GET_RESINFO
 		{ GcnInstClass::VectorMemImgUt, GcnInstCategory::VectorMemory, 4, 1,
-		  GcnScalarType::Undefined, GcnScalarType::Undefined },
+		  GcnScalarType::Uint32, GcnScalarType::Uint32 },
 		// 15 = IMAGE_ATOMIC_SWAP
 		{ GcnInstClass::VectorMemImgNoSmp, GcnInstCategory::VectorMemory, 4, 1,
 		  GcnScalarType::Undefined, GcnScalarType::Undefined },

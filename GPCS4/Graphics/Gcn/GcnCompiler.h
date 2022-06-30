@@ -26,8 +26,8 @@ namespace sce::gcn
 {
 	class GcnToken;
 	class GcnTokenList;
-	struct GcnTokenCondition;
 	class GcnHeader;
+	struct GcnTokenCondition;
 	struct GcnShaderInstruction;
 	struct GcnAnalysisInfo;
 	struct GcnShaderResource;
@@ -115,6 +115,7 @@ namespace sce::gcn
 		void emitScalarArith(const GcnShaderInstruction& ins);
 		void emitScalarAbs(const GcnShaderInstruction& ins);
 		void emitScalarMov(const GcnShaderInstruction& ins);
+		void emitScalarMovRel(const GcnShaderInstruction& ins);
 		void emitScalarCmp(const GcnShaderInstruction& ins);
 		void emitScalarSelect(const GcnShaderInstruction& ins);
 		void emitScalarBitLogic(const GcnShaderInstruction& ins);
@@ -126,6 +127,7 @@ namespace sce::gcn
 		void emitVectorAluCommon(const GcnShaderInstruction& ins);
 		void emitVectorCmp(const GcnShaderInstruction& ins);
 		void emitVectorRegMov(const GcnShaderInstruction& ins);
+		void emitVectorMovRel(const GcnShaderInstruction& ins);
 		void emitVectorLane(const GcnShaderInstruction& ins);
 		void emitVectorBitLogic(const GcnShaderInstruction& ins);
 		void emitVectorBitField32(const GcnShaderInstruction& ins);
@@ -160,6 +162,7 @@ namespace sce::gcn
 		void emitScalarMemUt(const GcnShaderInstruction& ins);
 		void emitVectorMemBufNoFmt(const GcnShaderInstruction& ins);
 		void emitVectorMemBufFmt(const GcnShaderInstruction& ins);
+		void emitVectorMemBufAtomic(const GcnShaderInstruction& ins);
 		void emitVectorMemImgNoSmp(const GcnShaderInstruction& ins);
 		void emitVectorMemImgSmp(const GcnShaderInstruction& ins);
 		void emitVectorMemImgUt(const GcnShaderInstruction& ins);
@@ -171,6 +174,7 @@ namespace sce::gcn
 		void emitDsIdxWrXchg(const GcnShaderInstruction& ins);
 		void emitDsIdxCondXchg(const GcnShaderInstruction& ins);
 		void emitDsIdxWrap(const GcnShaderInstruction& ins);
+		void emitDsAtomicCommon(const GcnShaderInstruction& ins);
 		void emitDsAtomicArith32(const GcnShaderInstruction& ins);
 		void emitDsAtomicArith64(const GcnShaderInstruction& ins);
 		void emitDsAtomicMinMax32(const GcnShaderInstruction& ins);
@@ -202,10 +206,27 @@ namespace sce::gcn
 			uint32_t                regIdx,
 			const GcnRegisterValue& value,
 			const GcnRegMask&       writeMask);
+		void emitDsSwizzle(
+			const GcnShaderInstruction& ins);
 
 		void emitVectorMemBuffer(
 			const GcnShaderInstruction& ins);
 		void emitCubeCalculate(
+			const GcnShaderInstruction& ins);
+		void emitLaneReadFirst(
+			const GcnShaderInstruction& ins);
+		GcnRegisterValue emitCsLaneRead(
+			const GcnRegisterValue& slane,
+			const GcnRegisterValue& src);
+		void emitLaneRead(
+			const GcnShaderInstruction& ins);
+		GcnRegisterValue emitQueryTextureSize(
+			const GcnShaderInstruction& ins);
+		GcnRegisterValue emitQueryTextureLevels(
+			const GcnShaderInstruction& ins);
+		void emitQueryTextureInfo(
+			const GcnShaderInstruction& ins);
+		void emitQueryTextureLod(
 			const GcnShaderInstruction& ins);
 		//////////////////////////////////////
 		// Common function definition methods
@@ -279,6 +300,7 @@ namespace sce::gcn
 		void emitDclPsInput();
 		void emitDclThreadGroup();
 		void emitDclThreadGroupSharedMemory(uint32_t size);
+		void emitDclCrossGroupSharedMemory();
 
 		///////////////////////////////
 		// Variable definition methods
@@ -324,6 +346,9 @@ namespace sce::gcn
 		// SGPR/VGPR load/store methods
 		template <bool IsVgpr>
 		GcnRegisterPointer emitGetGprPtr(
+			uint32_t indexId);
+		template <bool IsVgpr>
+		GcnRegisterPointer emitGetGprPtr(
 			const GcnInstOperand& reg);
 
 		template <bool IsVgpr>
@@ -333,6 +358,12 @@ namespace sce::gcn
 			const GcnInstOperand& reg);
 		GcnRegisterValue emitSgprLoad(
 			const GcnInstOperand& reg);
+
+		template <bool IsVgpr>
+		GcnRegisterValue emitGprLoad(uint32_t indexId);
+		GcnRegisterValue emitVgprLoad(uint32_t indexId);
+		GcnRegisterValue emitSgprLoad(uint32_t indexId);
+
 		template <bool IsVgpr>
 		GcnRegisterValue emitGprArrayLoad(
 			const GcnInstOperand& start,
@@ -354,6 +385,18 @@ namespace sce::gcn
 		void emitSgprStore(
 			const GcnInstOperand&   reg,
 			const GcnRegisterValue& value);
+
+		template <bool IsVgpr>
+		void emitGprStore(
+			uint32_t                indexId,
+			const GcnRegisterValue& value);
+		void emitVgprStore(
+			uint32_t                indexId,
+			const GcnRegisterValue& value);
+		void emitSgprStore(
+			uint32_t                indexId,
+			const GcnRegisterValue& value);
+
 		template <bool IsVgpr>
 		void emitGprArrayStore(
 			const GcnInstOperand&   start,
@@ -370,9 +413,6 @@ namespace sce::gcn
 
 		//////////////////////////////
 		// Operand load/store methods
-		void emitLaneVgprStore(const GcnInstOperand&   reg,
-							   const GcnRegisterValue& value);
-
 		GcnRegisterValue emitValueLoad(
 			GcnRegisterPointer ptr);
 
@@ -407,11 +447,17 @@ namespace sce::gcn
 			const GcnImageInfo& imageInfo);
 
 		GcnRegisterValue emitLoadTexCoord(
-			const GcnInstOperand& coordReg,
-			const GcnImageInfo&   imageInfo);
+			const GcnShaderInstruction& ins);
+
+		GcnRegisterValue emitLoadTexOffset(
+			const GcnShaderInstruction& ins);
 
 		GcnRegisterValue emitRecoverCubeCoord(
 			const GcnRegisterValue& coord);
+
+		GcnRegisterValue emitLoadAddrComponent(
+			GcnImageAddrComponent       component,
+			const GcnShaderInstruction& ins);
 
 		GcnRegisterValue emitCalcBufferAddress(
 			const GcnShaderInstruction& ins);
@@ -668,11 +714,17 @@ namespace sce::gcn
 			bool             isStorage,
 			bool             isDepth) const;
 
+		GcnImageInfo getImageInfo(
+			const GcnShaderInstruction& ins) const;
+
 		GcnVectorType getInputRegType(
 			uint32_t regIdx) const;
 
 		GcnVectorType getOutputRegType(
 			uint32_t paramIdx) const;
+
+		uint32_t getTexSizeDim(
+			const GcnImageInfo& imageType) const;
 
 		uint32_t getTexLayerDim(
 			const GcnImageInfo& imageType) const;
@@ -683,6 +735,13 @@ namespace sce::gcn
 		GcnBufferFormat getBufferFormat(
 			Gnm::BufferFormat      dfmt,
 			Gnm::BufferChannelType nfmt);
+
+		uint32_t calcAddrComponentIndex(
+			GcnImageAddrComponent       component,
+			spv::Dim                    dim,
+			const GcnShaderInstruction& ins);
+
+		void mapNonEudResource();
 
 	private:
 		GcnModuleInfo          m_moduleInfo;
@@ -724,9 +783,13 @@ namespace sce::gcn
 		//////////////////////////////////////////////////////
 		// Shader resource variables. These provide access to
 		// buffers, samplers and textures.
-		std::array<GcnBuffer, 32>   m_buffers;
-		std::array<GcnSampler, 16>  m_samplers;
-		std::array<GcnTexture, 128> m_textures;
+		std::array<GcnBuffer, GcnMaxResourceReg>  m_buffersDcl;
+		std::array<GcnSampler, GcnMaxResourceReg> m_samplersDcl;
+		std::array<GcnTexture, GcnMaxResourceReg> m_texturesDcl;
+
+		std::array<GcnBuffer, GcnMaxResourceReg>  m_buffers;
+		std::array<GcnSampler, GcnMaxResourceReg> m_samplers;
+		std::array<GcnTexture, GcnMaxResourceReg> m_textures;
 
 		//////////////////////////////////////////////
 		// Function/Block state tracking. Required in order
@@ -776,6 +839,8 @@ namespace sce::gcn
 		GcnCompilerPsPart     m_ps;
 		GcnCompilerCsPart     m_cs;
 	};
+
+
 
 
 }  // namespace sce::gcn

@@ -73,6 +73,8 @@ namespace sce::gcn
 		uint32_t        mapEncodingOp(GcnInstEncoding encoding, GcnOpcode opcode);
 		bool            hasAdditionalLiteral(GcnInstEncoding encoding, uint32_t opcode);
 		void            updateInstructionMeta(GcnInstEncoding encoding);
+		uint32_t        getMimgModifier(GcnOpcode opcode);
+		void            repairOperandType();
 
 		GcnOperandField getOperandField(uint32_t code);
 

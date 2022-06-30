@@ -368,7 +368,7 @@ void* MemoryAllocator::allocateInternal(void* addrIn, size_t len, size_t alignme
 				break;
 			}
 
-			if (retAddress)
+			if (addrOut == nullptr)
 			{
 				// unlikely
 				plat::VMFree(retAddress);
