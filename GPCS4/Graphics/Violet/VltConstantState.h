@@ -203,7 +203,7 @@ namespace sce::vlt
      * Stores the description of all active
      * vertex attributes and vertex bindings.
      */
-	struct DxvkInputLayout
+	struct VltInputLayout
 	{
 		uint32_t numAttributes;
 		uint32_t numBindings;

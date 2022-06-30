@@ -136,7 +136,7 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setPsShaderUsage(const uint32_t* inputTable, uint32_t numItems)
 	{
-		auto& ctx = m_state.shaderContext[kShaderStagePs];
+		auto& ctx = m_state.sc[kShaderStagePs];
 		std::transform(inputTable, inputTable + numItems,
 					   ctx.meta.ps.semanticMapping.begin(),
 					   [](const uint32_t reg) {
@@ -152,7 +152,7 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setPsShader(const gcn::PsStageRegisters* psRegs)
 	{
-		auto& ctx = m_state.shaderContext[kShaderStagePs];
+		auto& ctx = m_state.sc[kShaderStagePs];
 		ctx.code  = psRegs->getCodeAddress();
 
 		const SPI_SHADER_PGM_RSRC2_PS* rsrc2 = reinterpret_cast<const SPI_SHADER_PGM_RSRC2_PS*>(&psRegs->spiShaderPgmRsrc2Ps);
@@ -179,7 +179,7 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setVsShader(const gcn::VsStageRegisters* vsRegs, uint32_t shaderModifier)
 	{
-		auto& ctx = m_state.shaderContext[kShaderStageVs];
+		auto& ctx = m_state.sc[kShaderStageVs];
 		ctx.code  = vsRegs->getCodeAddress();
 
 		const SPI_SHADER_PGM_RSRC2_VS* rsrc2 = reinterpret_cast<const SPI_SHADER_PGM_RSRC2_VS*>(&vsRegs->spiShaderPgmRsrc2Vs);
@@ -255,7 +255,7 @@ namespace sce::Gnm
 			0x61, 0xDE, 0xE7, 0xD1, 0x00, 0x00, 0x00, 0x00, 0x98, 0xE5, 0xCA, 0xB9
 		};
 
-		auto& ctx                 = m_state.shaderContext[kShaderStageVs];
+		auto& ctx                 = m_state.sc[kShaderStageVs];
 		ctx.code                  = reinterpret_cast<const void*>(embeddedVsShaderFullScreen);
 		ctx.meta.vs.userSgprCount = 0;
 	}
@@ -266,27 +266,27 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setVsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Buffer* buffer)
 	{
-		std::memcpy(&m_state.shaderContext[stage].userData[startUserDataSlot], buffer, sizeof(Buffer));
+		std::memcpy(&m_state.sc[stage].userData[startUserDataSlot], buffer, sizeof(Buffer));
 	}
 
 	void GnmCommandBufferDraw::setTsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Texture* tex)
 	{
-		std::memcpy(&m_state.shaderContext[stage].userData[startUserDataSlot], tex, sizeof(Texture));
+		std::memcpy(&m_state.sc[stage].userData[startUserDataSlot], tex, sizeof(Texture));
 	}
 
 	void GnmCommandBufferDraw::setSsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Sampler* sampler)
 	{
-		std::memcpy(&m_state.shaderContext[stage].userData[startUserDataSlot], sampler, sizeof(Sampler));
+		std::memcpy(&m_state.sc[stage].userData[startUserDataSlot], sampler, sizeof(Sampler));
 	}
 
 	void GnmCommandBufferDraw::setPointerInUserData(ShaderStage stage, uint32_t startUserDataSlot, void* gpuAddr)
 	{
-		std::memcpy(&m_state.shaderContext[stage].userData[startUserDataSlot], gpuAddr, sizeof(void*));
+		std::memcpy(&m_state.sc[stage].userData[startUserDataSlot], gpuAddr, sizeof(void*));
 	}
 
 	void GnmCommandBufferDraw::setUserDataRegion(ShaderStage stage, uint32_t startUserDataSlot, const uint32_t* userData, uint32_t numDwords)
 	{
-		std::memcpy(&m_state.shaderContext[stage].userData[startUserDataSlot], userData, numDwords * sizeof(uint32_t));
+		std::memcpy(&m_state.sc[stage].userData[startUserDataSlot], userData, numDwords * sizeof(uint32_t));
 	}
 
 	void GnmCommandBufferDraw::setRenderTarget(uint32_t rtSlot, RenderTarget const* target)
@@ -310,9 +310,6 @@ namespace sce::Gnm
 			}
 			else
 			{
-				// Record display buffer.
-				m_state.om.displayRenderTarget = resource;
-
 				// update render target
 				SceRenderTarget rtRes = {};
 				rtRes.image           = resource->renderTarget().image;
@@ -724,7 +721,7 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setCsShader(const gcn::CsStageRegisters* computeData, uint32_t shaderModifier)
 	{
-		auto& ctx = m_state.shaderContext[kShaderStageCs];
+		auto& ctx = m_state.sc[kShaderStageCs];
 		GnmCommandBuffer::setCsShader(ctx, computeData, shaderModifier);
 	}
 
@@ -829,7 +826,7 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::updateVertexBinding(GcnModule& vsModule)
 	{
-		auto& ctx      = m_state.shaderContext[kShaderStageVs];
+		auto& ctx      = m_state.sc[kShaderStageVs];
 		auto& resTable = vsModule.getResourceTable();
 
 		// Find fetch shader
@@ -930,7 +927,7 @@ namespace sce::Gnm
 	void GnmCommandBufferDraw::updateVertexShaderStage()
 	{
 		// Update vertex input
-		auto& ctx = m_state.shaderContext[kShaderStageVs];
+		auto& ctx = m_state.sc[kShaderStageVs];
 
 		do 
 		{
@@ -967,7 +964,7 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::updatePixelShaderStage()
 	{
-		auto& ctx = m_state.shaderContext[kShaderStagePs];
+		auto& ctx = m_state.sc[kShaderStagePs];
 
 		do 
 		{
@@ -1012,7 +1009,7 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::commitComputeState()
 	{
-		auto& ctx = m_state.shaderContext[kShaderStageCs];
+		auto& ctx = m_state.sc[kShaderStageCs];
 
 		GnmCommandBuffer::commitComputeState(ctx);
 
@@ -1053,7 +1050,7 @@ namespace sce::Gnm
 		GcnTextureMeta meta = populateTextureMeta(tsharp, isDepth);
 
 		auto  shaderStage = getShaderStage(stage);
-		auto& ctx         = m_state.shaderContext[shaderStage];
+		auto& ctx         = m_state.sc[shaderStage];
 
 		switch (stage)
 		{
@@ -1085,7 +1082,7 @@ namespace sce::Gnm
 		GcnBufferMeta meta = populateBufferMeta(vsharp);
 
 		auto  shaderStage = getShaderStage(stage);
-		auto& ctx         = m_state.shaderContext[shaderStage];
+		auto& ctx         = m_state.sc[shaderStage];
 
 		switch (stage)
 		{

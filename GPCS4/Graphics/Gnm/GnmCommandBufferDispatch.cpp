@@ -1,13 +1,15 @@
 #include "GnmCommandBufferDispatch.h"
-#include "GnmInitializer.h"
-#include "GnmGpuLabel.h"
+
 #include "GnmBuffer.h"
+#include "GnmGpuLabel.h"
+#include "GnmInitializer.h"
 #include "GnmTexture.h"
-#include "Violet/VltDevice.h"
-#include "Violet/VltContext.h"
-#include "Violet/VltCmdList.h"
+
 #include "Sce/SceGpuQueue.h"
 #include "Sce/SceLabelManager.h"
+#include "Violet/VltCmdList.h"
+#include "Violet/VltContext.h"
+#include "Violet/VltDevice.h"
 
 #include <stdexcept>
 
@@ -106,7 +108,7 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDispatch::setVsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Buffer* buffer)
 	{
-		std::memcpy(&m_state.shaderContext.userData[startUserDataSlot], buffer, sizeof(Buffer));
+		std::memcpy(&m_state.sc.userData[startUserDataSlot], buffer, sizeof(Buffer));
 	}
 
 	void GnmCommandBufferDispatch::setTsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Texture* tex)
@@ -293,7 +295,7 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDispatch::setCsShader(const gcn::CsStageRegisters* computeData, uint32_t shaderModifier)
 	{
-		GnmCommandBuffer::setCsShader(m_state.shaderContext, computeData, shaderModifier);
+		GnmCommandBuffer::setCsShader(m_state.sc, computeData, shaderModifier);
 	}
 
 	void GnmCommandBufferDispatch::writeReleaseMemEventWithInterrupt(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy)
@@ -323,7 +325,7 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDispatch::commitComputeState()
 	{
-		GnmCommandBuffer::commitComputeState(m_state.shaderContext);
+		GnmCommandBuffer::commitComputeState(m_state.sc);
 
 		m_initializer->flush();
 	}
@@ -331,15 +333,15 @@ namespace sce::Gnm
 	void GnmCommandBufferDispatch::updateMetaBufferInfo(
 		VkPipelineStageFlags stage, uint32_t startRegister, const Buffer* vsharp)
 	{
-		GcnBufferMeta meta = populateBufferMeta(vsharp);
-		m_state.shaderContext.meta.cs.bufferInfos[startRegister] = meta;
+		GcnBufferMeta meta                            = populateBufferMeta(vsharp);
+		m_state.sc.meta.cs.bufferInfos[startRegister] = meta;
 	}
 
 	void GnmCommandBufferDispatch::updateMetaTextureInfo(
 		VkPipelineStageFlags stage, uint32_t startRegister, bool isDepth, const Texture* tsharp)
 	{
-		GcnTextureMeta meta = populateTextureMeta(tsharp, isDepth);
-		m_state.shaderContext.meta.cs.textureInfos[startRegister] = meta;
+		GcnTextureMeta meta                            = populateTextureMeta(tsharp, isDepth);
+		m_state.sc.meta.cs.textureInfos[startRegister] = meta;
 	}
 
 	void GnmCommandBufferDispatch::setClipControl(ClipControl reg)

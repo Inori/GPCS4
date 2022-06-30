@@ -970,6 +970,12 @@
     <ClInclude Include="Graphics\Gnm\GnmCommandProxy.h">
       <Filter>Source Files\Graphics\Gnm</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Gnm\GnmShader.h">
+      <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gnm\GnmLimits.h">
+      <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1705,6 +1711,9 @@
       <Filter>Source Files\Graphics\Gnm</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Gnm\GnmCommandProxyTable.cpp">
+      <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Gnm\GnmShader.cpp">
       <Filter>Source Files\Graphics\Gnm</Filter>
     </ClCompile>
   </ItemGroup>
