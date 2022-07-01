@@ -3,6 +3,7 @@
 #include "Emulator.h"
 #include "GnmRenderState.h"
 #include "GnmGpuLabel.h"
+#include "GnmLabelManager.h"
 #include "VirtualGPU.h"
 
 #include "Gcn/GcnShaderRegField.h"
@@ -10,7 +11,6 @@
 #include "Sce/SceGpuQueue.h"
 #include "Sce/SceResource.h"
 #include "Sce/SceResourceTracker.h"
-#include "Sce/SceLabelManager.h"
 #include "Violet/VltCmdList.h"
 #include "Violet/VltDevice.h"
 
@@ -69,7 +69,7 @@ namespace sce::Gnm
 	const uint32_t* GnmCommandBuffer::findUserData(
 		const gcn::GcnShaderResource& res,
 		uint32_t                      eudIndex,
-		const UserDataArray&          userData)
+		const UserDataSlot&          userData)
 	{
 		const uint32_t* registerData = nullptr;
 		if (!res.inEud)
@@ -208,7 +208,7 @@ namespace sce::Gnm
 	void GnmCommandBuffer::bindResource(
 		VkPipelineStageFlags          stage,
 		const GcnShaderResourceTable& table,
-		const UserDataArray&          userData)
+		const UserDataSlot&          userData)
 	{
 		// Find EUD
 		uint32_t eudIndex = findUsageRegister(table, kShaderInputUsagePtrExtendedUserData);

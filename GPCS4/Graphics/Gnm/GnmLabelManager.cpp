@@ -1,26 +1,23 @@
-#include "SceLabelManager.h"
-
-#include "Gnm/GnmGpuLabel.h"
+#include "GnmLabelManager.h"
+#include "GnmGpuLabel.h"
 #include "Violet/VltDevice.h"
 
 #include <mutex>
 
 LOG_CHANNEL(Graphic.Gnm.SceLabelManager);
 
-namespace sce
+namespace sce::Gnm
 {
-	using namespace Gnm;
-
-	SceLabelManager::SceLabelManager(vlt::VltDevice* device) :
+	GnmLabelManager::GnmLabelManager(vlt::VltDevice* device) :
 		m_device(device)
 	{
 	}
 
-	SceLabelManager::~SceLabelManager()
+	GnmLabelManager::~GnmLabelManager()
 	{
 	}
 
-	GnmGpuLabel* SceLabelManager::getLabel(void* labelAddress)
+	GnmGpuLabel* GnmLabelManager::getLabel(void* labelAddress)
 	{
 		LOG_ASSERT(labelAddress != nullptr, "null label address passed.");
 
@@ -42,7 +39,7 @@ namespace sce
 		return label;
 	}
 
-	void SceLabelManager::reset()
+	void GnmLabelManager::reset()
 	{
 		std::lock_guard<util::sync::Spinlock> guard(m_lock);
 		m_labels.clear();

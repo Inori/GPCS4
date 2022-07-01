@@ -12,12 +12,12 @@ namespace sce
 	namespace Gnm
 	{
 		enum GpuMode;
+		class GnmLabelManager;
 	}  // namespace Gnm
 
 	class SceVideoOut;
 	class SceGnmDriver;
 	class SceResourceTracker;
-	class SceLabelManager;
 	
 	class VirtualGPU final
 	{
@@ -57,7 +57,7 @@ namespace sce
 		/**
 		 * \brief Get GPU label manager.
 		 */
-		SceLabelManager& labelManager();
+		Gnm::GnmLabelManager& labelManager();
 
 		/**
 		 * \brief Global GPU mode.
@@ -79,8 +79,8 @@ namespace sce
 
 		std::shared_ptr<SceGnmDriver> m_gnmDriver = nullptr;
 
-		std::shared_ptr<SceResourceTracker> m_tracker      = nullptr;
-		std::shared_ptr<SceLabelManager>    m_labelManager = nullptr;
+		std::shared_ptr<SceResourceTracker>   m_tracker      = nullptr;
+		std::shared_ptr<Gnm::GnmLabelManager> m_labelManager = nullptr;
 	};
 
 }  // namespace sce

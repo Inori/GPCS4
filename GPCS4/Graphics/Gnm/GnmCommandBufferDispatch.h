@@ -165,9 +165,7 @@ namespace sce::Gnm
 			const Texture*       tsharp) override;
 
 	private:
-		GnmComputeState m_state = {};
-
-
+	
 	};
 
 }  // namespace sce::Gnm

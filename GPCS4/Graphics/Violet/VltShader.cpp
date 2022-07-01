@@ -166,10 +166,9 @@ namespace sce::vlt
 		// Do not fix binding id if we read from a external binary file.
 		m_idOffsets.clear();
 
-		auto          code = m_code.decompress();
-		alg::Sha1Hash hash = alg::Sha1Hash::compute(code.data(), code.size());
-		m_key              = VltShaderKey(m_stage, hash);
-		m_hash             = m_key.hash();
+		auto code = m_code.decompress();
+		m_key     = VltShaderKey(m_stage, GcnShaderKey(0, 0));
+		m_hash    = m_key.hash();
 	}
 
 	void VltShader::eliminateInput(SpirvCodeBuffer& code, uint32_t location)

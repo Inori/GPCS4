@@ -2,17 +2,16 @@
 
 #include "GnmBuffer.h"
 #include "GnmConverter.h"
+#include "GnmGpuLabel.h"
 #include "GnmSampler.h"
 #include "GnmSharpBuffer.h"
 #include "GnmTexture.h"
-#include "GnmGpuLabel.h"
 #include "GpuAddress/GnmGpuAddress.h"
 
 #include "Gcn/GcnUtil.h"
 #include "Platform/PlatFile.h"
 #include "Sce/SceGpuQueue.h"
 #include "Sce/SceResourceTracker.h"
-#include "Sce/SceLabelManager.h"
 #include "Sce/SceVideoOut.h"
 #include "Violet/VltContext.h"
 #include "Violet/VltDevice.h"
@@ -31,15 +30,6 @@ using namespace sce::gcn;
 
 namespace sce::Gnm
 {
-
-// Use this to break on a shader you want to debug.
-#define SHADER_DEBUG_BREAK(mod, token) \
-	if (mod.name() == token)           \
-	{                                  \
-		__debugbreak();                \
-	}
-
-
 	GnmCommandBufferDraw::GnmCommandBufferDraw(vlt::VltDevice* device) :
 		GnmCommandBuffer(device)
 	{
@@ -57,6 +47,10 @@ namespace sce::Gnm
 		// We do some initialize work here.
 		GnmCommandBuffer::initializeDefaultHardwareState();
 
+		initDefaultRenderState();
+
+		m_flags.clrAll();
+
 		m_context->beginRecording(
 			m_device->createCommandList(VltQueueType::Graphics));
 	}
@@ -68,22 +62,15 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setPrimitiveSetup(PrimitiveSetup reg)
 	{
-		VkFrontFace     frontFace = reg.getFrontFace() == kPrimitiveSetupFrontFaceCcw ? 
-			VK_FRONT_FACE_COUNTER_CLOCKWISE : VK_FRONT_FACE_CLOCKWISE;
+		VkFrontFace     frontFace = reg.getFrontFace() == kPrimitiveSetupFrontFaceCcw ? VK_FRONT_FACE_COUNTER_CLOCKWISE : VK_FRONT_FACE_CLOCKWISE;
 		VkPolygonMode   polyMode  = cvt::convertPolygonMode(reg.getPolygonModeFront());
 		VkCullModeFlags cullMode  = cvt::convertCullMode(reg.getCullFace());
 
-		VltRasterizerState rs = {
-			polyMode,
-			cullMode,
-			frontFace,
-			VK_FALSE,
-			VK_FALSE,
-			VK_SAMPLE_COUNT_1_BIT,
-			VK_CONSERVATIVE_RASTERIZATION_MODE_DISABLED_EXT
-		};
+		m_state.gp.rs.state.polygonMode = polyMode;
+		m_state.gp.rs.state.cullMode    = cullMode;
+		m_state.gp.rs.state.frontFace   = frontFace;
 
-		m_context->setRasterizerState(rs);
+		m_flags.set(GnmContextFlag::DirtyRasterizerState);
 	}
 
 	void GnmCommandBufferDraw::setScreenScissor(int32_t left, int32_t top, int32_t right, int32_t bottom)
@@ -93,7 +80,10 @@ namespace sce::Gnm
 		scissor.offset.y      = top;
 		scissor.extent.width  = right - left;
 		scissor.extent.height = bottom - top;
-		m_context->setScissors(1, &scissor);
+
+		m_state.gp.rs.scissors[0] = scissor;
+
+		m_flags.set(GnmContextFlag::DirtyViewportScissor);
 	}
 
 	void GnmCommandBufferDraw::setViewport(uint32_t viewportId, float dmin, float dmax, const float scale[3], const float offset[3])
@@ -121,7 +111,15 @@ namespace sce::Gnm
 		viewport.minDepth = dmin;
 		viewport.maxDepth = dmax;
 
-		m_context->setViewports(1, &viewport);
+		// Is this correct to always use max viewport id?
+		if (viewportId > m_state.gp.rs.numViewports)
+		{
+			m_state.gp.rs.numViewports = viewportId;
+		}
+
+		m_state.gp.rs.viewports[viewportId] = viewport;
+
+		m_flags.set(GnmContextFlag::DirtyViewportScissor);
 	}
 
 	void GnmCommandBufferDraw::setHardwareScreenOffset(uint32_t offsetX, uint32_t offsetY)
@@ -136,10 +134,11 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setPsShaderUsage(const uint32_t* inputTable, uint32_t numItems)
 	{
-		auto& ctx = m_state.sc[kShaderStagePs];
+		auto& ctx = m_state.gp.sc[kShaderStagePs];
 		std::transform(inputTable, inputTable + numItems,
 					   ctx.meta.ps.semanticMapping.begin(),
-					   [](const uint32_t reg) {
+					   [](const uint32_t reg)
+					   {
 						   return *reinterpret_cast<const PixelSemanticMapping*>(&reg);
 					   });
 		ctx.meta.ps.inputSemanticCount = numItems;
@@ -152,7 +151,7 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setPsShader(const gcn::PsStageRegisters* psRegs)
 	{
-		auto& ctx = m_state.sc[kShaderStagePs];
+		auto& ctx = m_state.gp.sc[kShaderStagePs];
 		ctx.code  = psRegs->getCodeAddress();
 
 		const SPI_SHADER_PGM_RSRC2_PS* rsrc2 = reinterpret_cast<const SPI_SHADER_PGM_RSRC2_PS*>(&psRegs->spiShaderPgmRsrc2Ps);
@@ -179,11 +178,11 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setVsShader(const gcn::VsStageRegisters* vsRegs, uint32_t shaderModifier)
 	{
-		auto& ctx = m_state.sc[kShaderStageVs];
+		auto& ctx = m_state.gp.sc[kShaderStageVs];
 		ctx.code  = vsRegs->getCodeAddress();
 
 		const SPI_SHADER_PGM_RSRC2_VS* rsrc2 = reinterpret_cast<const SPI_SHADER_PGM_RSRC2_VS*>(&vsRegs->spiShaderPgmRsrc2Vs);
-		ctx.meta.vs.userSgprCount = rsrc2->user_sgpr;
+		ctx.meta.vs.userSgprCount            = rsrc2->user_sgpr;
 	}
 
 	void GnmCommandBufferDraw::setEmbeddedVsShader(EmbeddedVsShader shaderId, uint32_t shaderModifier)
@@ -255,7 +254,7 @@ namespace sce::Gnm
 			0x61, 0xDE, 0xE7, 0xD1, 0x00, 0x00, 0x00, 0x00, 0x98, 0xE5, 0xCA, 0xB9
 		};
 
-		auto& ctx                 = m_state.sc[kShaderStageVs];
+		auto& ctx                 = m_state.gp.sc[kShaderStageVs];
 		ctx.code                  = reinterpret_cast<const void*>(embeddedVsShaderFullScreen);
 		ctx.meta.vs.userSgprCount = 0;
 	}
@@ -266,35 +265,42 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setVsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Buffer* buffer)
 	{
-		std::memcpy(&m_state.sc[stage].userData[startUserDataSlot], buffer, sizeof(Buffer));
+		std::memcpy(&m_state.gp.sc[stage].userData[startUserDataSlot], buffer, sizeof(Buffer));
 	}
 
 	void GnmCommandBufferDraw::setTsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Texture* tex)
 	{
-		std::memcpy(&m_state.sc[stage].userData[startUserDataSlot], tex, sizeof(Texture));
+		std::memcpy(&m_state.gp.sc[stage].userData[startUserDataSlot], tex, sizeof(Texture));
 	}
 
 	void GnmCommandBufferDraw::setSsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Sampler* sampler)
 	{
-		std::memcpy(&m_state.sc[stage].userData[startUserDataSlot], sampler, sizeof(Sampler));
+		std::memcpy(&m_state.gp.sc[stage].userData[startUserDataSlot], sampler, sizeof(Sampler));
 	}
 
 	void GnmCommandBufferDraw::setPointerInUserData(ShaderStage stage, uint32_t startUserDataSlot, void* gpuAddr)
 	{
-		std::memcpy(&m_state.sc[stage].userData[startUserDataSlot], gpuAddr, sizeof(void*));
+		std::memcpy(&m_state.gp.sc[stage].userData[startUserDataSlot], gpuAddr, sizeof(void*));
 	}
 
 	void GnmCommandBufferDraw::setUserDataRegion(ShaderStage stage, uint32_t startUserDataSlot, const uint32_t* userData, uint32_t numDwords)
 	{
-		std::memcpy(&m_state.sc[stage].userData[startUserDataSlot], userData, numDwords * sizeof(uint32_t));
+		std::memcpy(&m_state.gp.sc[stage].userData[startUserDataSlot], userData, numDwords * sizeof(uint32_t));
 	}
 
 	void GnmCommandBufferDraw::setRenderTarget(uint32_t rtSlot, RenderTarget const* target)
 	{
-		auto resource = m_tracker->find(target->getBaseAddress());
-		do
+		Rc<VltImageView> targetView = nullptr;
+
+		do 
 		{
-			Rc<VltImageView> targetView = nullptr;
+			if (target == nullptr)
+			{
+				break;
+			}
+
+			auto resource = m_tracker->find(target->getBaseAddress());
+
 			if (!resource)
 			{
 				// The render target is not a display buffer registered in video out,
@@ -305,6 +311,8 @@ namespace sce::Gnm
 				Texture rtTexture;
 				rtTexture.initFromRenderTarget(target, false);
 				m_initializer->initTexture(rtRes.image, &rtTexture);
+
+				targetView = rtRes.imageView;
 
 				m_tracker->track(rtRes);
 			}
@@ -320,31 +328,32 @@ namespace sce::Gnm
 
 				targetView = rtRes.imageView;
 			}
+		} while (false);
 
-			VltAttachment attachment = 
-			{
+		if (m_state.gp.om.renderTargets.color[rtSlot].view != targetView)
+		{
+			m_state.gp.om.renderTargets.color[rtSlot] = {
 				targetView,
 				VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
 			};
-			m_context->bindRenderTarget(rtSlot, attachment);
 
-		} while (false);
+			m_flags.set(GnmContextFlag::DirtyRenderTargets);
+		}
 	}
 
 	void GnmCommandBufferDraw::setDepthRenderTarget(DepthRenderTarget const* depthTarget)
 	{
+		Rc<VltImageView> depthView = nullptr;
 		do
 		{
 			if (depthTarget == nullptr)
 			{
-				m_context->bindDepthRenderTarget(VltAttachment{});
 				break;
 			}
 
 			auto zBufferAddr = depthTarget->getZReadAddress();
 			auto resource    = m_tracker->find(zBufferAddr);
-
-			Rc<VltImageView> depthView = nullptr;
+			
 			if (!resource)
 			{
 				// create a new depth image and track it
@@ -374,13 +383,16 @@ namespace sce::Gnm
 				}
 			}
 
-			VltAttachment attachment = {
+		} while (false);
+
+		if (m_state.gp.om.renderTargets.depth.view != depthView)
+		{
+			m_state.gp.om.renderTargets.depth = {
 				depthView,
 				VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL
 			};
-			m_context->bindDepthRenderTarget(attachment);
-
-		} while (false);
+			m_flags.set(GnmContextFlag::DirtyRenderTargets);
+		}
 	}
 
 	void GnmCommandBufferDraw::setDepthClearValue(float clearValue)
@@ -399,11 +411,18 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setRenderTargetMask(uint32_t mask)
 	{
+		bool dirty      = false;
 		auto writeMasks = cvt::convertRenderTargetMask(mask);
-		for (uint32_t attachment = 0; attachment != writeMasks.size(); ++attachment)
+		for (uint32_t i = 0; i != writeMasks.size(); ++i)
 		{
-			m_context->setBlendMask(
-				attachment, writeMasks[attachment]);
+			dirty |= m_state.gp.om.blendModes[i].writeMask == writeMasks[i];
+
+			m_state.gp.om.blendModes[i].writeMask = writeMasks[i];
+		}
+
+		if (dirty)
+		{
+			m_flags.set(GnmContextFlag::DirtyBlendState);
 		}
 	}
 
@@ -417,11 +436,11 @@ namespace sce::Gnm
 		VkBlendFactor alphaDstFactor = cvt::convertBlendMultiplier(blendControl.getAlphaEquationDestinationMultiplier());
 		VkBlendOp     alphaBlendOp   = cvt::convertBlendFunc(blendControl.getAlphaEquationBlendFunction());
 
-		VkColorComponentFlags fullMask = 
-			VK_COLOR_COMPONENT_R_BIT | 
-			VK_COLOR_COMPONENT_G_BIT | 
-			VK_COLOR_COMPONENT_B_BIT | 
-			VK_COLOR_COMPONENT_A_BIT;  
+		VkColorComponentFlags fullMask =
+			VK_COLOR_COMPONENT_R_BIT |
+			VK_COLOR_COMPONENT_G_BIT |
+			VK_COLOR_COMPONENT_B_BIT |
+			VK_COLOR_COMPONENT_A_BIT;
 
 		// Here we set color write mask to fullMask.
 		// The real mask value should be set through setRenderTargetMask call.
@@ -450,9 +469,9 @@ namespace sce::Gnm
 	{
 		LOG_ASSERT(depthControl.stencilEnable == false, "stencil test not supported yet.");
 
-		VkCompareOp depthCmpOp = cvt::convertCompareFunc(depthControl.getDepthControlZCompareFunction());
+		VkCompareOp depthCmpOp   = cvt::convertCompareFunc(depthControl.getDepthControlZCompareFunction());
 		VkCompareOp stencilFront = cvt::convertCompareFunc(depthControl.getStencilFunction());
-		VkCompareOp stencilBack = cvt::convertCompareFunc(depthControl.getStencilFunctionBack());
+		VkCompareOp stencilBack  = cvt::convertCompareFunc(depthControl.getStencilFunctionBack());
 
 		VkStencilOpState frontOp = {};
 		frontOp.compareOp        = stencilFront;
@@ -485,7 +504,7 @@ namespace sce::Gnm
 			// In Gnm, when depth clear enable and HTILE compress disable
 			// all writes to the depth buffer will use the depth clear value set by
 			// DrawCommandBuffer::setDepthClearValue() instead of the fragment's depth value.
-			// 
+			//
 			// For vulkan, we use depth bound test to emulate this somehow.
 			// We first set the depth clear value to clear depth buffer once render pass begin.
 			// Then force depth bound test failed to leave depth buffer untouched.
@@ -497,8 +516,8 @@ namespace sce::Gnm
 			m_context->setDepthBoundsTestEnable(VK_TRUE);
 
 			VltDepthBoundsRange depthBounds;
-			depthBounds.minDepthBounds    = 1.0;
-			depthBounds.maxDepthBounds    = 0.0;
+			depthBounds.minDepthBounds = 1.0;
+			depthBounds.maxDepthBounds = 0.0;
 			m_context->setDepthBoundsRange(depthBounds);
 
 			m_state.ds.dbClearDepth = true;
@@ -508,8 +527,6 @@ namespace sce::Gnm
 			m_context->setDepthBoundsTestEnable(VK_FALSE);
 			m_state.ds.dbClearDepth = false;
 		}
-
-		
 	}
 
 	void GnmCommandBufferDraw::setVgtControl(uint8_t primGroupSizeMinusOne)
@@ -519,7 +536,7 @@ namespace sce::Gnm
 	void GnmCommandBufferDraw::setPrimitiveType(PrimitiveType primType)
 	{
 		VkPrimitiveTopology topology = cvt::convertPrimitiveType(primType);
-		
+
 		// TODO:
 		// This is a temporary solution, mainly for embedded vertex shader.
 		// For a primitive type which is not supported by vulkan natively,
@@ -753,16 +770,17 @@ namespace sce::Gnm
 
 		switch (m_state.ia.topology)
 		{
-		case VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST:
-		{
-			indexes.resize(indexCount);
-			std::generate(indexes.begin(), indexes.end(),
-				[n = 0]() mutable -> uint16_t { return n++; });
-		}
+			case VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST:
+			{
+				indexes.resize(indexCount);
+				std::generate(indexes.begin(), indexes.end(),
+							  [n = 0]() mutable -> uint16_t
+							  { return n++; });
+			}
 			break;
-		default:
-			LOG_ASSERT(false, "topology type not supported.");
-			break;
+			default:
+				LOG_ASSERT(false, "topology type not supported.");
+				break;
 		}
 
 		return generateIndexBuffer(indexes.data(), sizeof(uint16_t) * indexes.size());
@@ -783,9 +801,9 @@ namespace sce::Gnm
 		uint32_t semanticCount = semanticTable.size();
 		for (uint32_t i = 0; i != semanticCount; ++i)
 		{
-			auto&    sema           = semanticTable[i];
-			uint32_t offsetInDwords = sema.m_semantic * ShaderConstantDwordSize::kDwordSizeVertexBuffer;
-			const Buffer* vtxBuffer = reinterpret_cast<const Buffer*>(vtxTable + offsetInDwords);
+			auto&         sema           = semanticTable[i];
+			uint32_t      offsetInDwords = sema.m_semantic * ShaderConstantDwordSize::kDwordSizeVertexBuffer;
+			const Buffer* vtxBuffer      = reinterpret_cast<const Buffer*>(vtxTable + offsetInDwords);
 
 			vtxData[i].data   = vtxBuffer->getBaseAddress();
 			vtxData[i].stride = vtxBuffer->getStride();
@@ -796,7 +814,7 @@ namespace sce::Gnm
 
 		bool isSingleBinding = true;
 		// If all left vertex attribute data start address is within the first and second
-		// vertex address of the first attribute data, 
+		// vertex address of the first attribute data,
 		// we think the game uses a single vertex buffer binding.
 		// Otherwise we use multiple bindings.
 		for (uint32_t i = 1; i != semanticCount; ++i)
@@ -824,14 +842,14 @@ namespace sce::Gnm
 									vsharp->getStride());
 	}
 
-	void GnmCommandBufferDraw::updateVertexBinding(GcnModule& vsModule)
+	void GnmCommandBufferDraw::updateVertexBinding(GnmShader& vsModule)
 	{
 		auto& ctx      = m_state.sc[kShaderStageVs];
 		auto& resTable = vsModule.getResourceTable();
 
 		// Find fetch shader
 		VertexInputSemanticTable semaTable;
-		auto fsCode = findFetchShader(resTable, ctx.userData);
+		auto                     fsCode = findFetchShader(resTable, ctx.userData);
 		if (fsCode != nullptr)
 		{
 			GcnFetchShader fs(reinterpret_cast<const uint8_t*>(fsCode));
@@ -871,11 +889,9 @@ namespace sce::Gnm
 
 				// Attributes
 				attributes[i].location = sema.m_semantic;
-				attributes[i].binding  = singleBinding ? 
-					0 : sema.m_semantic;
+				attributes[i].binding  = singleBinding ? 0 : sema.m_semantic;
 				attributes[i].format   = cvt::convertDataFormat(vsharp->getDataFormat());
-				attributes[i].offset   = singleBinding ?
-					reinterpret_cast<size_t>(vsharp->getBaseAddress()) - firstAttributeOffset : 0;
+				attributes[i].offset   = singleBinding ? reinterpret_cast<size_t>(vsharp->getBaseAddress()) - firstAttributeOffset : 0;
 
 				// Bindings
 				bindings[i].binding   = sema.m_semantic;
@@ -883,7 +899,7 @@ namespace sce::Gnm
 				bindings[i].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
 				// Fix element count
-				sema.m_sizeInElements = 
+				sema.m_sizeInElements =
 					std::min(static_cast<uint32_t>(sema.m_sizeInElements), vsharp->getDataFormat().getNumComponents());
 			}
 
@@ -929,7 +945,7 @@ namespace sce::Gnm
 		// Update vertex input
 		auto& ctx = m_state.sc[kShaderStageVs];
 
-		do 
+		do
 		{
 			if (ctx.code == nullptr)
 			{
@@ -966,7 +982,7 @@ namespace sce::Gnm
 	{
 		auto& ctx = m_state.sc[kShaderStagePs];
 
-		do 
+		do
 		{
 			if (ctx.code == nullptr)
 			{
@@ -1018,7 +1034,7 @@ namespace sce::Gnm
 
 	const void* GnmCommandBufferDraw::findFetchShader(
 		const gcn::GcnShaderResourceTable& table,
-		const UserDataArray&               userData)
+		const UserDataSlot&                userData)
 	{
 		const void* fsCode = nullptr;
 
@@ -1034,7 +1050,6 @@ namespace sce::Gnm
 	{
 		// This is the last cmd for a command buffer submission,
 		// we can do some finish works before submit and present.
-
 	}
 
 	void GnmCommandBufferDraw::updateMetaTextureInfo(
@@ -1153,17 +1168,147 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::pushMarker(const char* debugString)
 	{
-		//throw std::logic_error("The method or operation is not implemented.");
+		// throw std::logic_error("The method or operation is not implemented.");
 	}
 
 	void GnmCommandBufferDraw::pushMarker(const char* debugString, uint32_t argbColor)
 	{
-		//throw std::logic_error("The method or operation is not implemented.");
+		// throw std::logic_error("The method or operation is not implemented.");
 	}
 
 	void GnmCommandBufferDraw::popMarker()
 	{
-		//throw std::logic_error("The method or operation is not implemented.");
+		// throw std::logic_error("The method or operation is not implemented.");
+	}
+
+	void GnmCommandBufferDraw::applyRenderState()
+	{
+		if (m_flags.test(GnmContextFlag::DirtyRasterizerState))
+		{
+			applyRasterizerState();
+		}
+	}
+
+	void GnmCommandBufferDraw::applyInputLayout()
+	{
+	}
+
+	void GnmCommandBufferDraw::applyPrimitiveTopology()
+	{
+	}
+
+	void GnmCommandBufferDraw::applyBlendState()
+	{
+	}
+
+	void GnmCommandBufferDraw::applyBlendFactor()
+	{
+	}
+
+	void GnmCommandBufferDraw::applyDepthStencilState()
+	{
+	}
+
+	void GnmCommandBufferDraw::applyStencilRef()
+	{
+	}
+
+	void GnmCommandBufferDraw::applyRasterizerState()
+	{
+		m_context->setRasterizerState(
+			m_state.gp.rs.state);
+
+		m_flags.clr(GnmContextFlag::DirtyRasterizerState);
+	}
+
+	void GnmCommandBufferDraw::applyViewportState()
+	{
+	}
+	
+	void GnmCommandBufferDraw::initDefaultRenderState()
+	{
+		m_state.gp.sc = {};
+
+		m_state.gp.ia.indexBuffer = nullptr;
+		m_state.gp.ia.indexType   = VK_INDEX_TYPE_UINT16;
+		initDefaultPrimitiveTopology(&m_state.gp.ia.isState);
+
+		m_state.gp.rs = {};
+		initDefaultRasterizerState(&m_state.gp.rs.state);
+
+		m_state.gp.om = {};
+		initDefaultDepthStencilState(&m_state.gp.om.dsState);
+
+		VltBlendMode cbState;
+		initDefaultBlendState(&cbState,
+							  &m_state.gp.om.loState,
+							  &m_state.gp.om.msState);
+		std::fill(m_state.gp.om.blendModes.begin(),
+				  m_state.gp.om.blendModes.end(),
+				  cbState);
+
+		m_state.cp.sc = {};
+	}
+
+	void GnmCommandBufferDraw::initDefaultPrimitiveTopology(
+		VltInputAssemblyState* iaState)
+	{
+		iaState->primitiveTopology = VK_PRIMITIVE_TOPOLOGY_MAX_ENUM;
+		iaState->primitiveRestart  = VK_FALSE;
+		iaState->patchVertexCount  = 0;
+	}
+
+	void GnmCommandBufferDraw::initDefaultRasterizerState(
+		VltRasterizerState* rsState)
+	{
+		rsState->polygonMode      = VK_POLYGON_MODE_FILL;
+		rsState->cullMode         = VK_CULL_MODE_BACK_BIT;
+		rsState->frontFace        = VK_FRONT_FACE_CLOCKWISE;
+		rsState->depthClipEnable  = VK_TRUE;
+		rsState->depthBiasEnable  = VK_FALSE;
+		rsState->sampleCount      = VK_SAMPLE_COUNT_1_BIT;
+		rsState->conservativeMode = VK_CONSERVATIVE_RASTERIZATION_MODE_DISABLED_EXT;
+	}
+
+	void GnmCommandBufferDraw::initDefaultDepthStencilState(
+		VltDepthStencilState* dsState)
+	{
+		VkStencilOpState stencilOp;
+		stencilOp.failOp      = VK_STENCIL_OP_KEEP;
+		stencilOp.passOp      = VK_STENCIL_OP_KEEP;
+		stencilOp.depthFailOp = VK_STENCIL_OP_KEEP;
+		stencilOp.compareOp   = VK_COMPARE_OP_ALWAYS;
+		stencilOp.compareMask = 255;
+		stencilOp.writeMask   = 255;
+		stencilOp.reference   = 0;
+
+		dsState->enableDepthTest   = VK_TRUE;
+		dsState->enableDepthWrite  = VK_TRUE;
+		dsState->enableStencilTest = VK_FALSE;
+		dsState->depthCompareOp    = VK_COMPARE_OP_LESS;
+		dsState->stencilOpFront    = stencilOp;
+		dsState->stencilOpBack     = stencilOp;
+	}
+
+	void GnmCommandBufferDraw::initDefaultBlendState(
+		VltBlendMode*        cbState,
+		VltLogicOpState*     loState,
+		VltMultisampleState* msState)
+	{
+		cbState->enableBlending = VK_FALSE;
+		cbState->colorSrcFactor = VK_BLEND_FACTOR_ONE;
+		cbState->colorDstFactor = VK_BLEND_FACTOR_ZERO;
+		cbState->colorBlendOp   = VK_BLEND_OP_ADD;
+		cbState->alphaSrcFactor = VK_BLEND_FACTOR_ONE;
+		cbState->alphaDstFactor = VK_BLEND_FACTOR_ZERO;
+		cbState->alphaBlendOp   = VK_BLEND_OP_ADD;
+		cbState->writeMask      = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+
+		loState->enableLogicOp = VK_FALSE;
+		loState->logicOp       = VK_LOGIC_OP_NO_OP;
+
+		msState->sampleMask            = 0xFFFFFFFF;
+		msState->enableAlphaToCoverage = VK_FALSE;
 	}
 
 }  // namespace sce::Gnm

@@ -2,20 +2,19 @@
 
 #include "GnmCommon.h"
 #include "Gcn/GcnModInfo.h"
-#include "Violet/VltHash.h"
+#include "Gcn/GcnHeader.h"
+#include "Gcn/GcnShaderMeta.h"
+#include "Violet/VltShaderKey.h"
 
+#include <array>
 #include <mutex>
 #include <unordered_map>
 
 namespace sce::vlt
 {
-	class VltShaderKey;
+	class VltShader;
 }  // namespace sce::vlt
 
-namespace sce::gcn
-{
-	union GcnShaderMeta;
-}  // namespace sce::vlt
 
 namespace sce::Gnm
 {
@@ -32,17 +31,23 @@ namespace sce::Gnm
 		GnmShader();
 		GnmShader(const vlt::VltShaderKey*  key,
 				  const gcn::GcnModuleInfo* moduleInfo,
-				  const GcnShaderMeta&      meta,
+				  const gcn::GcnShaderMeta& meta,
 				  const void*               code);
 		~GnmShader();
 
-		vlt::Rc<VltShader> getShader() const
+		vlt::Rc<vlt::VltShader> getShader() const
 		{
 			return m_shader;
 		}
 
+		const gcn::GcnShaderResourceTable& getResources() const
+		{
+			return m_resources;
+		}
+
 	private:
-		vlt::Rc<vlt::VltShader> m_shader;
+		vlt::Rc<vlt::VltShader>     m_shader;
+		gcn::GcnShaderResourceTable m_resources;
 	};
 
 	/**
@@ -60,10 +65,10 @@ namespace sce::Gnm
 		GcnShaderModuleSet();
 		~GcnShaderModuleSet();
 
-		GnmShader GetShaderModule(
+		GnmShader getShaderModule(
 			const vlt::VltShaderKey*  key,
 			const gcn::GcnModuleInfo* moduleInfo,
-			const GcnShaderMeta&      meta,
+			const gcn::GcnShaderMeta& meta,
 			const void*               code);
 
 	private:

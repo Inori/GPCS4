@@ -27,6 +27,8 @@ namespace sce::Gnm
 		GcnModule module(
 			reinterpret_cast<const uint8_t*>(code));
 
+		m_resources = module.getResourceTable();
+
 		m_shader = module.compile(meta, *moduleInfo);
 		m_shader->setShaderKey(*key);
 	}
@@ -43,7 +45,7 @@ namespace sce::Gnm
 	{
 	}
 
-	GnmShader GcnShaderModuleSet::GetShaderModule(const VltShaderKey*  key,
+	GnmShader GcnShaderModuleSet::getShaderModule(const VltShaderKey*  key,
 												  const GcnModuleInfo* moduleInfo,
 												  const GcnShaderMeta& meta,
 												  const void*          code)

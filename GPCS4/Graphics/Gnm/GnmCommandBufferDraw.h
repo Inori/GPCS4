@@ -5,14 +5,11 @@
 #include "GnmRenderState.h"
 
 #include "Gcn/GcnShaderBinary.h"
-
-namespace sce::gcn
-{
-	class GcnModule;
-}  // namespace sce::gcn
+#include "Violet/VltContextState.h"
 
 namespace sce::Gnm
 {
+	class GnmShader;
 	// This class is designed for graphics development,
 	// no reverse engineering knowledge should be required.
 	// It's responsible for mapping Gnm input/structures to Violet input/structures,
@@ -157,11 +154,10 @@ namespace sce::Gnm
 
 		virtual void popMarker() override;
 
- private:
-
+	private:
 		const void* findFetchShader(
 			const gcn::GcnShaderResourceTable& table,
-			const UserDataArray&               userData);
+			const UserDataSlot&                userData);
 
 		bool isSingleVertexBinding(
 			const uint32_t*                      vtxTable,
@@ -177,8 +173,7 @@ namespace sce::Gnm
 		inline void bindVertexBuffer(
 			const Buffer* vsharp, uint32_t binding);
 
-
-		void updateVertexBinding(gcn::GcnModule& vsModule);
+		void updateVertexBinding(GnmShader& vsModule);
 
 		void updateVertexShaderStage();
 		void updatePixelShaderStage();
@@ -199,9 +194,41 @@ namespace sce::Gnm
 			bool                 isDepth,
 			const Texture*       tsharp) override;
 
+		void applyRenderState();
+
+		void applyInputLayout();
+
+		void applyPrimitiveTopology();
+
+		void applyBlendState();
+
+		void applyBlendFactor();
+
+		void applyDepthStencilState();
+
+		void applyStencilRef();
+
+		void applyRasterizerState();
+
+		void applyViewportState();
+
+		void initDefaultRenderState();
+
+		static void initDefaultPrimitiveTopology(
+			vlt::VltInputAssemblyState* iaState);
+
+		static void initDefaultRasterizerState(
+			vlt::VltRasterizerState* rsState);
+
+		static void initDefaultDepthStencilState(
+			vlt::VltDepthStencilState* dsState);
+
+		static void initDefaultBlendState(
+			vlt::VltBlendMode*        cbState,
+			vlt::VltLogicOpState*     loState,
+			vlt::VltMultisampleState* msState);
+
 	private:
-		GnmGraphicsState m_state;
-		GnmContextFlags  m_flags; 
 	};
 
 }  // namespace sce::Gnm

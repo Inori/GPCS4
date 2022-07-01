@@ -1,29 +1,26 @@
 #pragma once
 
-#include "SceCommon.h"
+#include "GnmCommon.h"
 #include "UtilSync.h"
 
 #include <unordered_map>
 
-namespace sce
+namespace sce::vlt
 {
-	namespace vlt
-	{
-		class VltDevice;
-	}  // namespace vlt
+	class VltDevice;
+}  // namespace vlt
 
-	namespace Gnm
-	{
-		class GnmGpuLabel;
-	}  // namespace Gnm
+namespace sce::Gnm
+{
+	class GnmGpuLabel;
 
-	class SceLabelManager
+	class GnmLabelManager
 	{
 	public:
-		SceLabelManager(vlt::VltDevice* device);
-		~SceLabelManager();
+		GnmLabelManager(vlt::VltDevice* device);
+		~GnmLabelManager();
 
-		Gnm::GnmGpuLabel* getLabel(void* labelAddress);
+		GnmGpuLabel* getLabel(void* labelAddress);
 
 		void reset();
 

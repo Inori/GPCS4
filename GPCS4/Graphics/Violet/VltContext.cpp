@@ -963,34 +963,6 @@ namespace sce::vlt
 		}
 	}
 
-	void VltContext::setDepthClearValue(VkClearValue clearValue)
-	{
-		this->updateFramebuffer();
-
-		m_state.cb.clearValues.depthValue.depthStencil.depth = clearValue.depthStencil.depth;
-
-		// TODO:
-		// The way for Gnm to clear a depth target is to render a fullscreen
-		// quad while setting DeRenderControl to enable depth clear.
-		// Vulkan don't have DeRenderControl, we need to find an alternative way.
-		m_state.cb.attachmentOps.depthOps.loadOp  = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		m_state.cb.attachmentOps.depthOps.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-
-		m_flags.set(VltContextFlag::GpDirtyFramebufferState);
-	}
-
-	void VltContext::setStencilClearValue(VkClearValue clearValue)
-	{
-		this->updateFramebuffer();
-
-		m_state.cb.clearValues.depthValue.depthStencil.stencil = clearValue.depthStencil.stencil;
-
-		m_state.cb.attachmentOps.depthOps.loadOp  = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		m_state.cb.attachmentOps.depthOps.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-
-		m_flags.set(VltContextFlag::GpDirtyFramebufferState);
-	}
-
 	void VltContext::emitRenderTargetReadbackBarrier()
 	{
 		emitMemoryBarrier(VK_DEPENDENCY_BY_REGION_BIT,

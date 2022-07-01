@@ -339,27 +339,6 @@ namespace sce::vlt
 			VkClearValue            clearValue);
 
 		/**
-		 * \brief Set depth clear value
-		 *
-		 * Performed at render pass begin
-		 *
-		 * \param [in] clearValue The clear value
-		 */
-		void setDepthClearValue(
-			VkClearValue clearValue);
-
-		/**
-		 * \brief Set stencil clear value
-		 *
-		 * Performed at render pass begin
-		 *
-		 * \param [in] clearValue The clear value
-		 */
-		void setStencilClearValue(
-			VkClearValue clearValue);
-
-
-		/**
 		 * \brief Emits barrier for render target
 		 */
 		void emitRenderTargetReadbackBarrier();

@@ -19,7 +19,6 @@
 namespace sce
 {
 	class SceResourceTracker;
-	class SceLabelManager;
 	enum class SceQueueType;
 
 	namespace vlt
@@ -27,16 +26,16 @@ namespace sce
 		class VltDevice;
 		class VltContext;
 		class VltCommandList;
-	}  // namespace vlt
-}  // namespace sce
+	}  
+} 
 
 
 namespace sce::Gnm
 {
-
 	class Buffer;
 	class Texture;
 	class Sampler;
+	class GnmLabelManager;
 
 	class GnmCommandBuffer
 	{
@@ -430,7 +429,7 @@ namespace sce::Gnm
 		const uint32_t* findUserData(
 			const gcn::GcnShaderResource& res,
 			uint32_t                      eudIndex,
-			const UserDataArray&          userData);
+			const UserDataSlot&          userData);
 
 		void setCsShader(
 			GnmShaderContext&            ctx,
@@ -461,7 +460,7 @@ namespace sce::Gnm
 		void bindResource(
 			VkPipelineStageFlags               stage,
 			const gcn::GcnShaderResourceTable& table,
-			const UserDataArray&               userData);
+			const UserDataSlot&               userData);
 
 		void commitComputeState(
 			GnmShaderContext& ctx);
@@ -497,10 +496,14 @@ namespace sce::Gnm
 		vlt::Rc<vlt::VltContext> m_context;
 		GnmResourceFactory       m_factory;
 		
+		GnmRenderState  m_state;
+		GnmContextFlags m_flags; 
+		
 		SceResourceTracker*             m_tracker      = nullptr;
-		SceLabelManager*                m_labelManager = nullptr;
+		GnmLabelManager*                m_labelManager = nullptr;
 		std::unique_ptr<GnmInitializer> m_initializer;
 		gcn::GcnModuleInfo              m_moduleInfo;
+		
 	private:
 	};
 

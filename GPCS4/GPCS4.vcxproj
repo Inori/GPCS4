@@ -57,6 +57,7 @@
     </ClInclude>
     <ClInclude Include="Graphics\Gnm\GnmGpuLabel.h" />
     <ClInclude Include="Graphics\Gnm\GnmInitializer.h" />
+    <ClInclude Include="Graphics\Gnm\GnmLabelManager.h" />
     <ClInclude Include="Graphics\Gnm\GnmLimits.h" />
     <ClInclude Include="Graphics\Gnm\GnmRenderState.h" />
     <ClInclude Include="Graphics\Gnm\GnmResourceFactory.h" />
@@ -93,7 +94,6 @@
     <ClInclude Include="Graphics\Sce\SceComputeQueue.h" />
     <ClInclude Include="Graphics\Sce\SceGnmDriver.h" />
     <ClInclude Include="Graphics\Sce\SceGpuQueue.h" />
-    <ClInclude Include="Graphics\Sce\SceLabelManager.h" />
     <ClInclude Include="Graphics\Sce\ScePresenter.h" />
     <ClInclude Include="Graphics\Sce\SceResource.h" />
     <ClInclude Include="Graphics\Sce\SceResourceTracker.h" />
@@ -345,6 +345,7 @@
     </ClCompile>
     <ClCompile Include="Graphics\Gnm\GnmGpuLabel.cpp" />
     <ClCompile Include="Graphics\Gnm\GnmInitializer.cpp" />
+    <ClCompile Include="Graphics\Gnm\GnmLabelManager.cpp" />
     <ClCompile Include="Graphics\Gnm\GnmResourceFactory.cpp" />
     <ClCompile Include="Graphics\Gnm\GnmCommandBuffer.cpp" />
     <ClCompile Include="Graphics\Gnm\GnmCommandBufferDispatch.cpp" />
@@ -363,7 +364,6 @@
     <ClCompile Include="Graphics\Sce\SceComputeQueue.cpp" />
     <ClCompile Include="Graphics\Sce\SceGnmDriver.cpp" />
     <ClCompile Include="Graphics\Sce\SceGpuQueue.cpp" />
-    <ClCompile Include="Graphics\Sce\SceLabelManager.cpp" />
     <ClCompile Include="Graphics\Sce\ScePresenter.cpp" />
     <ClCompile Include="Graphics\Sce\SceResource.cpp" />
     <ClCompile Include="Graphics\Sce\SceResourceTracker.cpp" />

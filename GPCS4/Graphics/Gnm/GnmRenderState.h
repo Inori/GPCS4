@@ -2,13 +2,15 @@
 
 #include "GnmCommon.h"
 #include "GnmConstant.h"
-#include "GnmStructure.h"
 #include "GnmLimits.h"
+#include "GnmStructure.h"
 #include "UtilFlag.h"
+
 #include "Gcn/GcnConstants.h"
-#include "Gcn/GcnShaderMeta.h"
 #include "Gcn/GcnModule.h"
+#include "Gcn/GcnShaderMeta.h"
 #include "Violet/VltConstantState.h"
+#include "Violet/VltRenderTarget.h"
 
 #include <array>
 
@@ -26,54 +28,54 @@ namespace sce
 namespace sce::Gnm
 {
 	/**
-     * \brief Graphics pipeline state flags
-     * 
-     * Stores some information on which state
-     * of the graphics and compute pipelines
-     * has changed and/or needs to be updated.
-     */
+	 * \brief Graphics pipeline state flags
+	 *
+	 * Stores some information on which state
+	 * of the graphics and compute pipelines
+	 * has changed and/or needs to be updated.
+	 */
 	enum class GnmContextFlag : uint32_t
 	{
-		GpPlaceHolder,            ///< PlaceHolder
+		DirtyViewportScissor,
+		DirtyRasterizerState,
+		DirtyRenderTargets,
+		DirtyBlendState,
 	};
 
 	using GnmContextFlags = util::Flags<GnmContextFlag>;
 
+	using UserDataSlot = std::array<uint32_t, gcn::kMaxUserDataCount>;
 
-	using UserDataArray = std::array<uint32_t, gcn::kMaxUserDataCount>;
 	struct GnmShaderContext
 	{
 		const void*        code     = nullptr;
-		UserDataArray      userData = {};
-		gcn::GcnShaderMeta meta     = {};
+		UserDataSlot       userData = {};
+		gcn::GcnShaderMeta meta;
 	};
 
 	struct GnmInputAssemblerState
 	{
-		vlt::Rc<vlt::VltBuffer> indexBuffer = nullptr;
-		VkIndexType             indexType   = VK_INDEX_TYPE_UINT32;
-		VkPrimitiveTopology     topology    = VK_PRIMITIVE_TOPOLOGY_MAX_ENUM;
+		vlt::Rc<vlt::VltBuffer>    indexBuffer = nullptr;
+		VkIndexType                indexType   = VK_INDEX_TYPE_UINT32;
+		vlt::VltInputAssemblyState isState;
 	};
 
 	struct GnmRasterizerState
 	{
 		uint32_t numViewports = 0;
-		uint32_t numScissors  = 0;
 
+		VkRect2D                                scissor;
 		std::array<VkViewport, MaxNumViewports> viewports;
-		std::array<VkRect2D, MaxNumViewports>   scissors;
-		VltRasterizerState state;
+		vlt::VltRasterizerState                 state;
 	};
 
 	struct GnmOutputMergerState
 	{
-		std::array<vlt::Rc<VltImageView>, MaxNumRenderTargets> renderTargetViews;
-		vlt::Rc<VltImageView>                                  depthStencilView;
-
+		vlt::VltRenderTargets       renderTargets;
+		vlt::VltDepthStencilState   dsState;
+		vlt::VltMultisampleState    msState;
+		vlt::VltLogicOpState        loState;
 		std::array<VltBlendMode, 8> blendModes;
-		VltDepthStencilState        dsState;
-		VltMultisampleState         msState;
-		VltLogicOpState             loState;
 
 		float    blendFactor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 		uint32_t sampleMask     = 0xFFFFFFFFu;

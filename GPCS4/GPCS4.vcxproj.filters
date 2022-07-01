@@ -925,9 +925,6 @@
     <ClInclude Include="Graphics\Gnm\GnmGpuLabel.h">
       <Filter>Source Files\Graphics\Gnm</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Sce\SceLabelManager.h">
-      <Filter>Source Files\Graphics\Sce</Filter>
-    </ClInclude>
     <ClInclude Include="SceModules\SceNpCommon\sce_npcommon_types.h">
       <Filter>SceModules\SceNpCommon</Filter>
     </ClInclude>
@@ -974,6 +971,9 @@
       <Filter>Source Files\Graphics\Gnm</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Gnm\GnmLimits.h">
+      <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Gnm\GnmLabelManager.h">
       <Filter>Source Files\Graphics\Gnm</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1680,9 +1680,6 @@
     <ClCompile Include="Graphics\Gnm\GnmGpuLabel.cpp">
       <Filter>Source Files\Graphics\Gnm</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Sce\SceLabelManager.cpp">
-      <Filter>Source Files\Graphics\Sce</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\Gcn\GcnInstructionUtil.cpp">
       <Filter>Source Files\Graphics\Gcn</Filter>
     </ClCompile>
@@ -1714,6 +1711,9 @@
       <Filter>Source Files\Graphics\Gnm</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Gnm\GnmShader.cpp">
+      <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Gnm\GnmLabelManager.cpp">
       <Filter>Source Files\Graphics\Gnm</Filter>
     </ClCompile>
   </ItemGroup>
