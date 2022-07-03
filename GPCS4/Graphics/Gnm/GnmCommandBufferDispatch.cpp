@@ -19,8 +19,9 @@ using namespace sce::gcn;
 namespace sce::Gnm
 {
 
-	GnmCommandBufferDispatch::GnmCommandBufferDispatch(vlt::VltDevice* device) :
-		GnmCommandBuffer(device)
+	GnmCommandBufferDispatch::GnmCommandBufferDispatch(vlt::VltDevice* device,
+													   SceObjects&     objects) :
+		GnmCommandBuffer(device, objects)
 	{
 		m_initializer = std::make_unique<GnmInitializer>(m_device, VltQueueType::Compute);
 		m_context     = m_device->createContext();
@@ -245,7 +246,7 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDispatch::waitOnAddress(void* gpuAddr, uint32_t mask, WaitCompareFunc compareFunc, uint32_t refValue)
 	{
-		auto label = m_labelManager->getLabel(gpuAddr);
+		auto label = m_labelManager.getLabel(gpuAddr);
 		label->wait(m_context.ptr(), mask, compareFunc, refValue);
 	}
 
@@ -304,7 +305,7 @@ namespace sce::Gnm
 										  ? VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT
 										  : VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
 
-		auto label = m_labelManager->getLabel(dstGpuAddr);
+		auto label = m_labelManager.getLabel(dstGpuAddr);
 		label->writeWithInterrupt(m_context.ptr(), stage, srcSelector, immValue);
 	}
 
@@ -314,7 +315,7 @@ namespace sce::Gnm
 										  ? VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT
 										  : VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
 
-		auto label = m_labelManager->getLabel(dstGpuAddr);
+		auto label = m_labelManager.getLabel(dstGpuAddr);
 		label->write(m_context.ptr(), stage, srcSelector, immValue);
 	}
 

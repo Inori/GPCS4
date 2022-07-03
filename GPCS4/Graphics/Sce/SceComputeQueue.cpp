@@ -6,16 +6,16 @@
 namespace sce
 {
 
-	SceComputeQueue::SceComputeQueue(
-		vlt::VltDevice* device,
-		void*           ringBaseAddr,
-		uint32_t        ringSizeInDW,
-		void*           readPtrAddr):
+	SceComputeQueue::SceComputeQueue(vlt::VltDevice* device,
+									 SceObjects&     objects,
+									 void*           ringBaseAddr,
+									 uint32_t        ringSizeInDW,
+									 void*           readPtrAddr) :
 		m_ringBegin(reinterpret_cast<uint32_t*>(ringBaseAddr)),
 		m_ringEnd(m_ringBegin + ringSizeInDW),
 		m_ringCmd(m_ringBegin),
 		m_offsetPtr(reinterpret_cast<uint32_t*>(readPtrAddr)),
-		m_queue(std::make_unique<SceGpuQueue>(device, SceQueueType::Compute))
+		m_queue(std::make_unique<SceGpuQueue>(SceQueueType::Compute, device, objects))
 	{
 		*m_offsetPtr = 0;
 	}

@@ -58,12 +58,12 @@ namespace sce::Gnm
 	 * and reuse them rather than creating new ones. This
 	 * class is thread-safe.
 	 */
-	class GcnShaderModuleSet
+	class GnmShaderModuleSet
 	{
 
 	public:
-		GcnShaderModuleSet();
-		~GcnShaderModuleSet();
+		GnmShaderModuleSet();
+		~GnmShaderModuleSet();
 
 		GnmShader getShaderModule(
 			const vlt::VltShaderKey*  key,

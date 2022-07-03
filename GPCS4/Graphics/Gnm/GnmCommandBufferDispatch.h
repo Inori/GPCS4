@@ -9,7 +9,8 @@ namespace sce::Gnm
 	class GnmCommandBufferDispatch : public GnmCommandBuffer
 	{
 	public:
-		GnmCommandBufferDispatch(vlt::VltDevice* device);
+		GnmCommandBufferDispatch(vlt::VltDevice* device,
+								 SceObjects&     objects);
 
 		virtual ~GnmCommandBufferDispatch();
 

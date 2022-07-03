@@ -40,6 +40,7 @@ namespace sce::Gnm
 		DirtyRasterizerState,
 		DirtyRenderTargets,
 		DirtyBlendState,
+		DirtyDepthStencilState,
 	};
 
 	using GnmContextFlags = util::Flags<GnmContextFlag>;

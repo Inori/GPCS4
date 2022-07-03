@@ -7,10 +7,11 @@
 #include "SceComputeQueue.h"
 #include "SceSwapchain.h"
 #include "SceResourceTracker.h"
-#include "SceLabelManager.h"
+#include "SceObjects.h"
 #include "UtilMath.h"
 #include "sce_errors.h"
 
+#include "Gnm/GnmLabelManager.h"
 #include "Gnm/GnmCommandBufferDraw.h"
 #include "Gnm/GnmCommandBufferDummy.h"
 #include "Gnm/GnmCommandProcessor.h"
@@ -77,6 +78,8 @@ namespace sce
 			{
 				break;
 			}
+
+			m_objects = std::make_unique<SceObjects>(m_device.ptr());
 
 			ret = true;
 		}while(false);
@@ -185,7 +188,7 @@ namespace sce
 	{
 		// Create the only graphics queue.
 		m_graphicsQueue = std::make_unique<SceGpuQueue>(
-			m_device.ptr(), SceQueueType::Graphics);
+			SceQueueType::Graphics, m_device.ptr(), *m_objects);
 	}
 
 	uint32_t SceGnmDriver::mapComputeQueue(uint32_t pipeId,

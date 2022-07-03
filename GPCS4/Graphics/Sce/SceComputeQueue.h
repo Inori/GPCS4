@@ -14,6 +14,7 @@ namespace sce
 	}  // namespace vlt
 
 	class SceGpuQueue;
+	class SceObjects;
 
 	/**
 	 * \brief Compute queue
@@ -25,6 +26,7 @@ namespace sce
 	{
 	public:
 		SceComputeQueue(vlt::VltDevice* device,
+						SceObjects&     objects,
 						void*           ringBaseAddr,
 						uint32_t        ringSizeInDW,
 						void*           readPtrAddr);

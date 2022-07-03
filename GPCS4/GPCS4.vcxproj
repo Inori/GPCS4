@@ -94,6 +94,7 @@
     <ClInclude Include="Graphics\Sce\SceComputeQueue.h" />
     <ClInclude Include="Graphics\Sce\SceGnmDriver.h" />
     <ClInclude Include="Graphics\Sce\SceGpuQueue.h" />
+    <ClInclude Include="Graphics\Sce\SceObjects.h" />
     <ClInclude Include="Graphics\Sce\ScePresenter.h" />
     <ClInclude Include="Graphics\Sce\SceResource.h" />
     <ClInclude Include="Graphics\Sce\SceResourceTracker.h" />

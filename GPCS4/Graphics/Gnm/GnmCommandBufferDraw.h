@@ -18,7 +18,8 @@ namespace sce::Gnm
 	class GnmCommandBufferDraw : public GnmCommandBuffer
 	{
 	public:
-		GnmCommandBufferDraw(vlt::VltDevice* device);
+		GnmCommandBufferDraw(vlt::VltDevice* device,
+							 SceObjects&     objects);
 
 		virtual ~GnmCommandBufferDraw();
 
@@ -173,7 +174,7 @@ namespace sce::Gnm
 		inline void bindVertexBuffer(
 			const Buffer* vsharp, uint32_t binding);
 
-		void updateVertexBinding(GnmShader& vsModule);
+		void updateVertexBinding(GnmShader& shader);
 
 		void updateVertexShaderStage();
 		void updatePixelShaderStage();

@@ -14,9 +14,9 @@ namespace sce
 	using namespace Gnm;
 	using namespace vlt;
 
-	SceGpuQueue::SceGpuQueue(
-		vlt::VltDevice* device,
-		SceQueueType    type) :
+	SceGpuQueue::SceGpuQueue(SceQueueType    type,
+							 vlt::VltDevice* device,
+							 SceObjects&     objects) :
 		m_device(device)
 	{
 		createQueue(type);
@@ -44,7 +44,8 @@ namespace sce
 		m_device->syncSubmission();
 	}
 
-	void SceGpuQueue::createQueue(SceQueueType type)
+	void SceGpuQueue::createQueue(
+		SceQueueType type, SceObjects& objects)
 	{
 		m_cp = std::make_unique<GnmCommandProcessor>();
 

@@ -5,8 +5,9 @@
 namespace sce::Gnm
 {
 
-	GnmCommandBufferDummy::GnmCommandBufferDummy(vlt::VltDevice* device) :
-		GnmCommandBuffer(device)
+	GnmCommandBufferDummy::GnmCommandBufferDummy(vlt::VltDevice* device,
+												 SceObjects&     objects) :
+		GnmCommandBuffer(device, objects)
 	{
 	}
 

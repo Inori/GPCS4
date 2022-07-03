@@ -11,6 +11,7 @@
 #include "Sce/SceGpuQueue.h"
 #include "Sce/SceResource.h"
 #include "Sce/SceResourceTracker.h"
+#include "Sce/SceObjects.h"
 #include "Violet/VltCmdList.h"
 #include "Violet/VltDevice.h"
 
@@ -23,10 +24,13 @@ LOG_CHANNEL(Graphic.Gnm.GnmCommandBuffer);
 
 namespace sce::Gnm
 {
-
-	GnmCommandBuffer::GnmCommandBuffer(vlt::VltDevice* device) :
+	GnmCommandBuffer::GnmCommandBuffer(vlt::VltDevice* device,
+									   SceObjects&     objects) :
 		m_device(device),
-		m_factory(device)
+		m_factory(device),
+		m_tracker(objects.resourceTracker()),
+		m_labelManager(objects.labelManager()),
+		m_shaderModules(objects.shaderModuleSet())
 	{
 		initGcnModuleInfo();
 	}
@@ -42,13 +46,11 @@ namespace sce::Gnm
 
 	void GnmCommandBuffer::initializeDefaultHardwareState()
 	{
-		m_tracker      = &(GPU().resourceTracker());
-		m_labelManager = &(GPU().labelManager());
 	}
 
 	void GnmCommandBuffer::writeDataInline(void* dstGpuAddr, const void* data, uint32_t sizeInDwords, WriteDataConfirmMode writeConfirm)
 	{
-		auto             label    = m_labelManager->getLabel(dstGpuAddr);
+		auto             label    = m_labelManager.getLabel(dstGpuAddr);
 		uint64_t         value    = 0;
 		EventWriteSource selector = kEventWriteSource32BitsImmediate;
 		if (sizeInDwords == 1)
@@ -181,7 +183,7 @@ namespace sce::Gnm
 		info.memoryType = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
 		m_factory.createImage(info, texture);
-		m_tracker->track(texture);
+		m_tracker.track(texture);
 
 		m_initializer->initTexture(texture.image, tsharp);
 
@@ -298,7 +300,6 @@ namespace sce::Gnm
 	void GnmCommandBuffer::commitComputeState(GnmShaderContext& ctx)
 	{
 		GcnModule csModule(
-			GcnProgramType::ComputeShader,
 			reinterpret_cast<const uint8_t*>(ctx.code));
 
 		auto& resTable = csModule.getResourceTable();
@@ -342,7 +343,7 @@ namespace sce::Gnm
 
 		auto  vsharp        = info.vsharp;
 		void* bufferAddress = vsharp->getBaseAddress();
-		auto  resource      = m_tracker->find(bufferAddress);
+		auto  resource      = m_tracker.find(bufferAddress);
 		if (resource != nullptr)
 		{
 			auto type = resource->type();
@@ -383,7 +384,7 @@ namespace sce::Gnm
 			// upload content
 			m_initializer->initBuffer(result.buffer, vsharp);
 			// track the new buffer
-			m_tracker->track(result);
+			m_tracker.track(result);
 		}
 
 		return result;

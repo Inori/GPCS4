@@ -37,15 +37,15 @@ namespace sce::Gnm
 	{
 	}
 
-	GcnShaderModuleSet::GcnShaderModuleSet()
+	GnmShaderModuleSet::GnmShaderModuleSet()
 	{
 	}
 
-	GcnShaderModuleSet::~GcnShaderModuleSet()
+	GnmShaderModuleSet::~GnmShaderModuleSet()
 	{
 	}
 
-	GnmShader GcnShaderModuleSet::getShaderModule(const VltShaderKey*  key,
+	GnmShader GnmShaderModuleSet::getShaderModule(const VltShaderKey*  key,
 												  const GcnModuleInfo* moduleInfo,
 												  const GcnShaderMeta& meta,
 												  const void*          code)

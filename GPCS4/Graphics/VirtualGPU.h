@@ -78,9 +78,6 @@ namespace sce
 			m_videoOutSlots = {};
 
 		std::shared_ptr<SceGnmDriver> m_gnmDriver = nullptr;
-
-		std::shared_ptr<SceResourceTracker>   m_tracker      = nullptr;
-		std::shared_ptr<Gnm::GnmLabelManager> m_labelManager = nullptr;
 	};
 
 }  // namespace sce

@@ -19,6 +19,7 @@
 namespace sce
 {
 	class SceResourceTracker;
+	class SceObjects;
 	enum class SceQueueType;
 
 	namespace vlt
@@ -36,11 +37,14 @@ namespace sce::Gnm
 	class Texture;
 	class Sampler;
 	class GnmLabelManager;
+	class GnmShaderModuleSet;
 
 	class GnmCommandBuffer
 	{
 	public:
-		GnmCommandBuffer(vlt::VltDevice* device);
+		GnmCommandBuffer(
+			vlt::VltDevice* device,
+			SceObjects&     objects);
 
 		virtual ~GnmCommandBuffer();
 
@@ -499,8 +503,9 @@ namespace sce::Gnm
 		GnmRenderState  m_state;
 		GnmContextFlags m_flags; 
 		
-		SceResourceTracker*             m_tracker      = nullptr;
-		GnmLabelManager*                m_labelManager = nullptr;
+		SceResourceTracker&             m_tracker;
+		GnmLabelManager&                m_labelManager;
+		GnmShaderModuleSet&             m_shaderModules;
 		std::unique_ptr<GnmInitializer> m_initializer;
 		gcn::GcnModuleInfo              m_moduleInfo;
 		

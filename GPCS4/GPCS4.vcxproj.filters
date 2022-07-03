@@ -976,6 +976,9 @@
     <ClInclude Include="Graphics\Gnm\GnmLabelManager.h">
       <Filter>Source Files\Graphics\Gnm</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Sce\SceObjects.h">
+      <Filter>Source Files\Graphics\Sce</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">

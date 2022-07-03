@@ -9,6 +9,7 @@
 namespace sce
 {
 	class ScePresenter;
+	class SceObjects;
 
 	namespace vlt
 	{
@@ -44,8 +45,9 @@ namespace sce
 	{
 	public:
 		SceGpuQueue(
+			SceQueueType    type,
 			vlt::VltDevice* device,
-			SceQueueType    type);
+			SceObjects&     objects);
 		~SceGpuQueue();
 
 		/**
@@ -69,7 +71,8 @@ namespace sce
 		void synchronize();
 
 	private:
-		void createQueue(SceQueueType type);
+		void createQueue(
+			SceQueueType type, SceObjects& objects);
 
 	private:
 		vlt::VltDevice* m_device;

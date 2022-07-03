@@ -16,9 +16,7 @@ namespace sce
 
 	VirtualGPU::VirtualGPU()
 	{
-		m_gnmDriver    = std::make_shared<SceGnmDriver>();
-		m_tracker      = std::make_shared<SceResourceTracker>();
-		m_labelManager = std::make_shared<SceLabelManager>(m_gnmDriver->m_device.ptr());
+		m_gnmDriver = std::make_shared<SceGnmDriver>();
 	}
 
 	VirtualGPU::~VirtualGPU()
@@ -84,16 +82,6 @@ namespace sce
 	SceGnmDriver& VirtualGPU::gnmDriver()
 	{
 		return *m_gnmDriver;
-	}
-
-	SceResourceTracker& VirtualGPU::resourceTracker()
-	{
-		return *m_tracker;
-	}
-
-	SceLabelManager& VirtualGPU::labelManager()
-	{
-		return *m_labelManager;
 	}
 
 	Gnm::GpuMode VirtualGPU::mode()

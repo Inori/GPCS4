@@ -1,7 +1,6 @@
 #pragma once
 
 #include "SceCommon.h"
-
 #include "Violet/VltRc.h"
 
 #include <array>
@@ -19,12 +18,13 @@ namespace sce
 		class VltCommandList;
 		class VltImage;
 		class VltImageView;
-	}  // namespace vlt
+	}
 
 	class SceVideoOut;
 	class SceGpuQueue;
 	class SceComputeQueue;
 	class SceSwapchain;
+	class SceObjects;
 	struct PresenterDesc;
 
 	// Valid vqueue id should be positive value.
@@ -106,6 +106,7 @@ namespace sce
 				   MaxComputeQueueCount> m_computeQueues;
 
 		std::unique_ptr<SceSwapchain> m_swapchain;
+		std::unique_ptr<SceObjects>   m_objects;
 	};
 
 }  // namespace sce
