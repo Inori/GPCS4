@@ -19,7 +19,7 @@ namespace sce
 							 SceObjects&     objects) :
 		m_device(device)
 	{
-		createQueue(type);
+		createQueue(type, objects);
 	}
 
 	SceGpuQueue::~SceGpuQueue()
@@ -51,15 +51,15 @@ namespace sce
 
 		if (type == SceQueueType::Graphics)
 		{
-			m_cmd = std::make_unique<GnmCommandBufferDraw>(m_device);
+			m_cmd = std::make_unique<GnmCommandBufferDraw>(m_device, objects);
 		}
 		else
 		{
-			m_cmd = std::make_unique<GnmCommandBufferDispatch>(m_device);
+			m_cmd = std::make_unique<GnmCommandBufferDispatch>(m_device, objects);
 		}
 
 #ifdef GPCS4_NO_GRAPHICS
-		m_cmd = std::make_unique<GnmCommandBufferDummy>(m_device);
+		m_cmd = std::make_unique<GnmCommandBufferDummy>(m_device, objects);
 #endif
 
 		m_cp->attachCommandBuffer(m_cmd.get());

@@ -852,6 +852,22 @@ namespace sce::vlt
 		m_flags.set(VltContextFlag::GpDirtyPipelineState);
 	}
 
+	void VltContext::setDepthStencilClear(
+		const VltDepthStencilClear& dsClear)
+	{
+		m_state.cb.attachmentOps.depth.loadOp   = dsClear.enableDepthClear
+													  ? VK_ATTACHMENT_LOAD_OP_CLEAR
+													  : VK_ATTACHMENT_LOAD_OP_LOAD;
+		m_state.cb.attachmentOps.stencil.loadOp = dsClear.enableStencilClear
+													  ? VK_ATTACHMENT_LOAD_OP_CLEAR
+													  : VK_ATTACHMENT_LOAD_OP_LOAD;
+
+		m_state.cb.clearValues.depth   = dsClear.depthValue;
+		m_state.cb.clearValues.stencil = dsClear.stencilValue;
+	
+		m_flags.set(VltContextFlag::GpDirtyFramebufferState);
+	}
+
 	void VltContext::setLogicOpState(
 		const VltLogicOpState& lo)
 	{
@@ -943,20 +959,20 @@ namespace sce::vlt
 			// Perform the clear when starting the render pass
 			if (clearAspects & VK_IMAGE_ASPECT_COLOR_BIT)
 			{
-				m_state.cb.attachmentOps.colorOps[attachmentIndex]       = newOp;
-				m_state.cb.clearValues.colorValue[attachmentIndex].color = clearValue.color;
+				m_state.cb.attachmentOps.color[attachmentIndex]       = newOp;
+				m_state.cb.clearValues.color[attachmentIndex].color = clearValue.color;
 			}
 
 			if (clearAspects & VK_IMAGE_ASPECT_DEPTH_BIT)
 			{
-				m_state.cb.attachmentOps.depthOps = newOp;
-				m_state.cb.clearValues.depthValue.depthStencil.depth = clearValue.depthStencil.depth;
+				m_state.cb.attachmentOps.depth = newOp;
+				m_state.cb.clearValues.depth.depthStencil.depth = clearValue.depthStencil.depth;
 			}
 
 			if (clearAspects & VK_IMAGE_ASPECT_STENCIL_BIT)
 			{
-				m_state.cb.attachmentOps.depthOps                      = newOp;
-				m_state.cb.clearValues.depthValue.depthStencil.stencil = clearValue.depthStencil.stencil;
+				m_state.cb.attachmentOps.depth                      = newOp;
+				m_state.cb.clearValues.depth.depthStencil.stencil = clearValue.depthStencil.stencil;
 			}
 
 			m_flags.set(VltContextFlag::GpDirtyFramebufferState);
@@ -1925,7 +1941,7 @@ namespace sce::vlt
 	void VltContext::resetFramebufferOps()
 	{
 		VltFrameBufferOps ops;
-		ops.depthOps = m_state.cb.renderTargets.depth.view != nullptr
+		ops.depth = m_state.cb.renderTargets.depth.view != nullptr
 						   ? VltAttachmentOps{
 								 VK_ATTACHMENT_LOAD_OP_LOAD,
 								 VK_ATTACHMENT_STORE_OP_STORE
@@ -1934,7 +1950,7 @@ namespace sce::vlt
 
 		for (uint32_t i = 0; i < MaxNumRenderTargets; i++)
 		{
-			ops.colorOps[i] = m_state.cb.renderTargets.color[i].view != nullptr
+			ops.color[i] = m_state.cb.renderTargets.color[i].view != nullptr
 								  ? VltAttachmentOps{
 										VK_ATTACHMENT_LOAD_OP_LOAD,
 										VK_ATTACHMENT_STORE_OP_STORE

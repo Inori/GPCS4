@@ -17,20 +17,22 @@ namespace sce::vlt
 	 */
 	struct VltAttachmentOps
 	{
-		VkAttachmentLoadOp  loadOp     = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		VkAttachmentStoreOp storeOp    = VK_ATTACHMENT_STORE_OP_STORE;
+		VkAttachmentLoadOp  loadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		VkAttachmentStoreOp storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 	};
 
 	struct VltFrameBufferOps
 	{
-		VltAttachmentOps depthOps;
-		VltAttachmentOps colorOps[MaxNumRenderTargets];
+		VltAttachmentOps depth;
+		VltAttachmentOps stencil;
+		VltAttachmentOps color[MaxNumRenderTargets];
 	};
 
 	struct VltFrameBufferClearValues
 	{
-		VkClearValue colorValue[MaxNumRenderTargets];
-		VkClearValue depthValue;
+		VkClearValue color[MaxNumRenderTargets];
+		VkClearValue depth;
+		VkClearValue stencil;
 	};
 
 	/**

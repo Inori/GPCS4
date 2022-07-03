@@ -8,6 +8,7 @@
 #include "GnmResourceFactory.h"
 #include "GnmInitializer.h"
 #include "GnmRenderState.h"
+#include "GnmShader.h"
 #include "Violet/VltRc.h"
 #include "Gcn/GcnShaderMeta.h"
 #include "Gcn/GcnHeader.h"
@@ -491,6 +492,10 @@ namespace sce::Gnm
 			const Buffer* vsharp);
 		gcn::GcnTextureMeta populateTextureMeta(
 			const Texture* tsharp, bool isDepth);
+
+		GnmShader getShader(
+			const void*         code,
+			gcn::GcnShaderMeta& meta);
 
 	private:
 		void initGcnModuleInfo();

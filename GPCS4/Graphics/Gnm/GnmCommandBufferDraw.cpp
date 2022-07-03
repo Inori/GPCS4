@@ -3,13 +3,14 @@
 #include "GnmBuffer.h"
 #include "GnmConverter.h"
 #include "GnmGpuLabel.h"
+#include "GnmLabelManager.h"
 #include "GnmSampler.h"
+#include "GnmShader.h"
 #include "GnmSharpBuffer.h"
 #include "GnmTexture.h"
-#include "GnmLabelManager.h"
-#include "GnmShader.h"
 #include "GpuAddress/GnmGpuAddress.h"
 
+#include "Gcn/GcnHeader.h"
 #include "Gcn/GcnUtil.h"
 #include "Platform/PlatFile.h"
 #include "Sce/SceGpuQueue.h"
@@ -129,7 +130,7 @@ namespace sce::Gnm
 				 viewport.height != vp.height ||
 				 viewport.minDepth != vp.minDepth ||
 				 viewport.maxDepth != vp.maxDepth;
-			
+
 		if (dirty)
 		{
 			m_state.gp.rs.viewports[viewportId] = viewport;
@@ -308,7 +309,7 @@ namespace sce::Gnm
 	{
 		Rc<VltImageView> targetView = nullptr;
 
-		do 
+		do
 		{
 			if (target == nullptr)
 			{
@@ -369,7 +370,7 @@ namespace sce::Gnm
 
 			auto zBufferAddr = depthTarget->getZReadAddress();
 			auto resource    = m_tracker.find(zBufferAddr);
-			
+
 			if (!resource)
 			{
 				// create a new depth image and track it
@@ -413,16 +414,20 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setDepthClearValue(float clearValue)
 	{
-		VkClearValue value;
-		value.depthStencil.depth = clearValue;
-		m_context->setDepthClearValue(value);
+		if (m_state.gp.om.dsClear.depthValue.depthStencil.depth != clearValue)
+		{
+			m_state.gp.om.dsClear.depthValue.depthStencil.depth = clearValue;
+			m_flags.set(GnmContextFlag::DirtyDepthStencilClear);
+		}
 	}
 
 	void GnmCommandBufferDraw::setStencilClearValue(uint8_t clearValue)
 	{
-		VkClearValue value;
-		value.depthStencil.stencil = clearValue;
-		m_context->setStencilClearValue(value);
+		if (m_state.gp.om.dsClear.stencilValue.depthStencil.stencil != clearValue)
+		{
+			m_state.gp.om.dsClear.stencilValue.depthStencil.stencil = clearValue;
+			m_flags.set(GnmContextFlag::DirtyDepthStencilClear);
+		}
 	}
 
 	void GnmCommandBufferDraw::setRenderTargetMask(uint32_t mask)
@@ -497,6 +502,11 @@ namespace sce::Gnm
 					 ds.stencilOpFront.compareOp != stencilFront ||
 					 ds.stencilOpBack.compareOp != stencilBack;
 
+		// In vulkan, depth write can only be enabled, 
+		// when depth test is also enabled. 
+		// If depth test is disabled then depth writes are also disabled, 
+		// regardless of the value of 
+		// VkPipelineDepthStencilStateCreateInfo::depthWriteEnable
 		if (dirty)
 		{
 			ds.enableDepthTest          = depthControl.depthEnable;
@@ -511,36 +521,36 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setDbRenderControl(DbRenderControl reg)
 	{
-		//bool depthClear    = reg.getDepthClearEnable();
-		//bool htielCompress = reg.getHtileResummarizeEnable();
-		//if (depthClear && !htielCompress)
-		//{
-		//	// In Gnm, when depth clear enable and HTILE compress disable
-		//	// all writes to the depth buffer will use the depth clear value set by
-		//	// DrawCommandBuffer::setDepthClearValue() instead of the fragment's depth value.
-		//	//
-		//	// For vulkan, we use depth bound test to emulate this somehow.
-		//	// We first set the depth clear value to clear depth buffer once render pass begin.
-		//	// Then force depth bound test failed to leave depth buffer untouched.
-		//	// This way the depth buffer remains the clear value.
+		bool     depthClear    = reg.getDepthClearEnable();
+		bool     htielCompress = reg.getHtileResummarizeEnable();
+		VkBool32 depthWrite    = VK_TRUE;
+		if (depthClear && !htielCompress)
+		{
+			// In Gnm, when depth clear enable and HTILE compress disable
+			// all writes to the depth buffer will use the depth clear value set by
+			// DrawCommandBuffer::setDepthClearValue() instead of the fragment's depth value.
+			//
+			// For vulkan, we set depth clear value and LOAD_OP_CLEAR when render pass begin,
+			// then disable depth write so that depth buffer keeps the clear value.
+			depthWrite = VK_FALSE;
+		}
+		else
+		{
+			depthWrite = VK_TRUE;
+		}
 
-		//	// TODO:
-		//	// This approach is not accurate, fix it in the future.
+		if (m_state.gp.om.dsState.enableDepthWrite != depthWrite)
+		{
+			m_state.gp.om.dsState.enableDepthWrite = depthWrite;
+			m_flags.set(GnmContextFlag::DirtyDepthStencilState);
+		}
 
-		//	m_context->setDepthBoundsTestEnable(VK_TRUE);
-
-		//	VltDepthBoundsRange depthBounds;
-		//	depthBounds.minDepthBounds = 1.0;
-		//	depthBounds.maxDepthBounds = 0.0;
-		//	m_context->setDepthBoundsRange(depthBounds);
-
-		//	m_state.ds.dbClearDepth = true;
-		//}
-		//else
-		//{
-		//	m_context->setDepthBoundsTestEnable(VK_FALSE);
-		//	m_state.ds.dbClearDepth = false;
-		//}
+		bool clearDepth = (!depthWrite);
+		if (m_state.gp.om.dsClear.enableDepthClear != clearDepth)
+		{
+			m_state.gp.om.dsClear.enableDepthClear = clearDepth;
+			m_flags.set(GnmContextFlag::DirtyDepthStencilClear);
+		}
 	}
 
 	void GnmCommandBufferDraw::setVgtControl(uint8_t primGroupSizeMinusOne)
@@ -707,11 +717,10 @@ namespace sce::Gnm
 		// or should we create a new render target image and then bilt to swapchain like DXVK does?
 
 		// get render target from swapchain
-		auto& tracker    = GPU().resourceTracker();
 		auto& videoOut   = GPU().videoOutGet(videoOutHandle);
 		auto  dispBuffer = videoOut.getDisplayBuffer(displayBufferIndex);
 
-		auto res = tracker.find(dispBuffer.address);
+		auto res = m_tracker.find(dispBuffer.address);
 		if (res)
 		{
 			auto& image = res->renderTarget().image;
@@ -973,13 +982,12 @@ namespace sce::Gnm
 				VltBufferSlice(indexBuffer, 0, indexBuffer->info().size),
 				m_state.gp.ia.indexType);
 
-			GcnModule vsModule(
-				reinterpret_cast<const uint8_t*>(ctx.code));
+			auto shader = getShader(ctx.code, ctx.meta);
 
-			auto& resTable = vsModule.getResourceTable();
+			auto& resTable = shader.getResources();
 
 			//// Update input layout and bind vertex buffer
-			updateVertexBinding(vsModule);
+			updateVertexBinding(shader);
 
 			//// create and bind shader resources
 			bindResource(VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, resTable, ctx.userData);
@@ -987,7 +995,7 @@ namespace sce::Gnm
 			// bind the shader
 			m_context->bindShader(
 				VK_SHADER_STAGE_VERTEX_BIT,
-				vsModule.compile(ctx.meta, m_moduleInfo));
+				shader.handle());
 		} while (false);
 	}
 
@@ -1002,10 +1010,9 @@ namespace sce::Gnm
 				break;
 			}
 
-			GcnModule psModule(
-				reinterpret_cast<const uint8_t*>(ctx.code));
+			auto shader = getShader(ctx.code, ctx.meta);
 
-			auto& resTable = psModule.getResourceTable();
+			auto& resTable = shader.getResources();
 
 			// create and bind shader resources
 			bindResource(VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, resTable, ctx.userData);
@@ -1013,7 +1020,7 @@ namespace sce::Gnm
 			// bind the shader
 			m_context->bindShader(
 				VK_SHADER_STAGE_FRAGMENT_BIT,
-				psModule.compile(ctx.meta, m_moduleInfo));
+				shader.handle());
 		} while (false);
 	}
 
@@ -1236,7 +1243,7 @@ namespace sce::Gnm
 	void GnmCommandBufferDraw::applyViewportState()
 	{
 	}
-	
+
 	void GnmCommandBufferDraw::initDefaultRenderState()
 	{
 		m_state.gp.sc = {};

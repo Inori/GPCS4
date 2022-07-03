@@ -143,6 +143,20 @@ namespace sce::vlt
 	};
 
 	/**
+	 * \brief Depth-stencil clear
+	 *
+	 * Defines the depth and stencil
+	 * clear values and state
+	 */
+	struct VltDepthStencilClear
+	{
+		VkBool32     enableDepthClear;
+		VkClearValue depthValue;
+		VkBool32     enableStencilClear;
+		VkClearValue stencilValue;
+	};
+
+	/**
      * \brief Logic op state
      * Defines a logic op.
      */

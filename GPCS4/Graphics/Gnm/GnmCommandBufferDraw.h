@@ -156,20 +156,6 @@ namespace sce::Gnm
 		virtual void popMarker() override;
 
 	private:
-		const void* findFetchShader(
-			const gcn::GcnShaderResourceTable& table,
-			const UserDataSlot&                userData);
-
-		bool isSingleVertexBinding(
-			const uint32_t*                      vtxTable,
-			const gcn::VertexInputSemanticTable& semanticTable);
-
-		vlt::Rc<vlt::VltBuffer> generateIndexBuffer(
-			const void* data,
-			uint32_t    size);
-
-		vlt::Rc<vlt::VltBuffer> generateIndexBufferAuto(
-			uint32_t indexCount);
 
 		inline void bindVertexBuffer(
 			const Buffer* vsharp, uint32_t binding);
@@ -228,6 +214,21 @@ namespace sce::Gnm
 			vlt::VltBlendMode*        cbState,
 			vlt::VltLogicOpState*     loState,
 			vlt::VltMultisampleState* msState);
+
+		const void* findFetchShader(
+			const gcn::GcnShaderResourceTable& table,
+			const UserDataSlot&                userData);
+
+		bool isSingleVertexBinding(
+			const uint32_t*                      vtxTable,
+			const gcn::VertexInputSemanticTable& semanticTable);
+
+		vlt::Rc<vlt::VltBuffer> generateIndexBuffer(
+			const void* data,
+			uint32_t    size);
+
+		vlt::Rc<vlt::VltBuffer> generateIndexBufferAuto(
+			uint32_t indexCount);
 
 	private:
 	};

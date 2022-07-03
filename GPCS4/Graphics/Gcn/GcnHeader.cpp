@@ -11,7 +11,7 @@ using namespace sce::Gnm;
 
 namespace sce::gcn
 {
-	GcnBinaryInfo::GcnBinaryInfo(const uint8_t* shaderCode)
+	GcnBinaryInfo::GcnBinaryInfo(const void* shaderCode)
 	{
 		const uint32_t* token         = reinterpret_cast<const uint32_t*>(shaderCode);
 		const uint32_t  tokenMovVccHi = 0xBEEB03FF;
@@ -29,6 +29,40 @@ namespace sce::gcn
 	{
 	}
 
+	VkShaderStageFlagBits GcnBinaryInfo::stage() const
+	{
+		VkShaderStageFlagBits result = VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM;
+		ShaderBinaryType binType = static_cast<ShaderBinaryType>(m_binInfo->m_type);
+		switch (binType)
+		{
+			case ShaderBinaryType::kPixelShader:
+				result = VK_SHADER_STAGE_FRAGMENT_BIT;
+				break;
+			case ShaderBinaryType::kVertexShader:
+				result = VK_SHADER_STAGE_VERTEX_BIT;
+				break;
+			case ShaderBinaryType::kComputeShader:
+				result = VK_SHADER_STAGE_COMPUTE_BIT;
+				break;
+			case ShaderBinaryType::kGeometryShader:
+				result = VK_SHADER_STAGE_GEOMETRY_BIT;
+				break;
+			case ShaderBinaryType::kHullShader:
+				result = VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
+				break;
+			case ShaderBinaryType::kDomainShader:
+				result = VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
+				break;
+			case ShaderBinaryType::kLocalShader:
+			case ShaderBinaryType::kExportShader:
+			case ShaderBinaryType::kUnknown:
+			default:
+				LOG_ASSERT(false, "unknown shader stage.");
+				break;
+		}
+		return result;
+	}
+
 	GcnHeader::GcnHeader(const uint8_t* shaderCode)
 	{
 		parseHeader(shaderCode);
@@ -41,7 +75,7 @@ namespace sce::gcn
 
 	GcnProgramType GcnHeader::type() const
 	{
-		GcnProgramType   result;
+		GcnProgramType result = GcnProgramType::VertexShader;
 		ShaderBinaryType binType = static_cast<ShaderBinaryType>(m_binInfo.m_type);
 		switch (binType)
 		{

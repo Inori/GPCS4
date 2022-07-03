@@ -202,6 +202,13 @@ namespace sce::vlt
 			const VltDepthStencilState& ds);
 
 		/**
+		 * \brief Sets depth stencil clear
+		 * \param [in] ds New state object
+		 */
+		void setDepthStencilClear(
+			const VltDepthStencilClear& dsClear);
+
+		/**
          * \brief Sets logic op state
          * \param [in] lo New state object
          */

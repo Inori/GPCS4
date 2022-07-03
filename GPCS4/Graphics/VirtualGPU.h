@@ -50,16 +50,6 @@ namespace sce
 		SceGnmDriver& gnmDriver();
 
 		/**
-		 * \brief Get GPU resource tracker.
-		 */
-		SceResourceTracker& resourceTracker();
-
-		/**
-		 * \brief Get GPU label manager.
-		 */
-		Gnm::GnmLabelManager& labelManager();
-
-		/**
 		 * \brief Global GPU mode.
 		 * 
 		 * Equalrant/implementation of 

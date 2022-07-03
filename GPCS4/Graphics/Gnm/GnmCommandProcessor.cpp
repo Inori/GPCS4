@@ -8,6 +8,7 @@
 
 #include "Gcn/GcnShaderRegister.h"
 #include "Violet/VltBuffer.h"
+#include "Violet/VltImage.h"
 
 using namespace util;
 using namespace sce::vlt;

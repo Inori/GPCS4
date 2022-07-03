@@ -201,23 +201,23 @@ namespace sce::vlt
 
 	void VltFramebuffer::setAttachmentClearValues(const VltFrameBufferClearValues& values)
 	{
-		m_depthAttachment.clearValue.depthStencil = values.depthValue.depthStencil;
+		m_depthAttachment.clearValue.depthStencil = values.depth.depthStencil;
 
 		for (uint32_t i = 0; i < MaxNumRenderTargets; i++)
 		{
-			m_colorAttachments[i].clearValue.color = values.colorValue[i].color;
+			m_colorAttachments[i].clearValue.color = values.color[i].color;
 		}
 	}
 
 	void VltFramebuffer::setAttachmentOps(const VltFrameBufferOps& ops)
 	{
-		m_depthAttachment.loadOp  = ops.depthOps.loadOp;
-		m_depthAttachment.storeOp = ops.depthOps.storeOp;
+		m_depthAttachment.loadOp  = ops.depth.loadOp;
+		m_depthAttachment.storeOp = ops.depth.storeOp;
 
 		for (uint32_t i = 0; i < MaxNumRenderTargets; i++)
 		{
-			m_colorAttachments[i].loadOp  = ops.colorOps[i].loadOp;
-			m_colorAttachments[i].storeOp = ops.colorOps[i].storeOp;
+			m_colorAttachments[i].loadOp  = ops.color[i].loadOp;
+			m_colorAttachments[i].storeOp = ops.color[i].storeOp;
 		}
 	}
 

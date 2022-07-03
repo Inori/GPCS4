@@ -1,6 +1,7 @@
 #include "GnmCommandBufferDummy.h"
 #include "PlatProcess.h"
 #include "Violet/VltBuffer.h"
+#include "Violet/VltImage.h"
 
 namespace sce::Gnm
 {

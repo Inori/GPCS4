@@ -4,16 +4,12 @@
 #include "Gcn/GcnModInfo.h"
 #include "Gcn/GcnHeader.h"
 #include "Gcn/GcnShaderMeta.h"
-#include "Violet/VltShaderKey.h"
+#include "Violet/VltShader.h"
 
 #include <array>
 #include <mutex>
 #include <unordered_map>
 
-namespace sce::vlt
-{
-	class VltShader;
-}  // namespace sce::vlt
 
 
 namespace sce::Gnm
@@ -35,7 +31,7 @@ namespace sce::Gnm
 				  const void*               code);
 		~GnmShader();
 
-		vlt::Rc<vlt::VltShader> getShader() const
+		vlt::Rc<vlt::VltShader> handle() const
 		{
 			return m_shader;
 		}

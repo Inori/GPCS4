@@ -239,6 +239,7 @@ namespace sce
 
 			uint32_t vqueueIndex         = vqueueId - VQueueIdBegin;
 			m_computeQueues[vqueueIndex] = std::make_unique<SceComputeQueue>(m_device.ptr(),
+																			 *m_objects,
 																			 ringBaseAddr,
 																			 ringSizeInDW,
 																			 readPtrAddr);
@@ -286,7 +287,7 @@ namespace sce
 
 	void SceGnmDriver::trackRenderTarget(uint32_t index)
 	{
-		auto& tracker = GPU().resourceTracker();
+		auto& tracker = m_objects->resourceTracker();
 
 		auto& renderTarget = m_swapchain->getImage(index);
 
@@ -297,10 +298,10 @@ namespace sce
 	{
 		// Reset global objects.
 
-		auto& tracker = GPU().resourceTracker();
+		auto& tracker = m_objects->resourceTracker();
 		tracker.reset();
 
-		auto& labelMgr = GPU().labelManager();
+		auto& labelMgr = m_objects->labelManager();
 		labelMgr.reset();
 	}
 
@@ -323,7 +324,7 @@ namespace sce
 		//    
 		//    This need to be optimized a lot.
 
-		auto& tracker = GPU().resourceTracker();
+		auto& tracker = m_objects->resourceTracker();
 
 		auto context = m_device->createContext();
 		context->beginRecording(

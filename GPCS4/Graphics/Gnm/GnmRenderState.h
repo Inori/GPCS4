@@ -41,6 +41,7 @@ namespace sce::Gnm
 		DirtyRenderTargets,
 		DirtyBlendState,
 		DirtyDepthStencilState,
+		DirtyDepthStencilClear,
 	};
 
 	using GnmContextFlags = util::Flags<GnmContextFlag>;
@@ -72,11 +73,12 @@ namespace sce::Gnm
 
 	struct GnmOutputMergerState
 	{
-		vlt::VltRenderTargets       renderTargets;
-		vlt::VltDepthStencilState   dsState;
-		vlt::VltMultisampleState    msState;
-		vlt::VltLogicOpState        loState;
-		std::array<VltBlendMode, 8> blendModes;
+		vlt::VltRenderTargets            renderTargets;
+		vlt::VltDepthStencilState        dsState;
+		vlt::VltMultisampleState         msState;
+		vlt::VltLogicOpState             loState;
+		vlt::VltDepthStencilClear        dsClear;
+		std::array<vlt::VltBlendMode, 8> blendModes;
 
 		float    blendFactor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 		uint32_t sampleMask     = 0xFFFFFFFFu;

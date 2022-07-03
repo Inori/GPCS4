@@ -299,10 +299,9 @@ namespace sce::Gnm
 
 	void GnmCommandBuffer::commitComputeState(GnmShaderContext& ctx)
 	{
-		GcnModule csModule(
-			reinterpret_cast<const uint8_t*>(ctx.code));
+		auto shader = getShader(ctx.code, ctx.meta);
 
-		auto& resTable = csModule.getResourceTable();
+		auto& resTable = shader.getResources();
 
 		// create and bind shader resources
 		bindResource(VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, resTable, ctx.userData);
@@ -310,7 +309,7 @@ namespace sce::Gnm
 		// bind the shader
 		m_context->bindShader(
 			VK_SHADER_STAGE_COMPUTE_BIT,
-			csModule.compile(ctx.meta, m_moduleInfo));
+			shader.handle());
 	}
 
 	ShaderStage GnmCommandBuffer::getShaderStage(
@@ -435,6 +434,15 @@ namespace sce::Gnm
 
 	void GnmCommandBuffer::writeReleaseMemEvent(ReleaseMemEventType eventType, EventWriteDest dstSelector, void* dstGpuAddr, EventWriteSource srcSelector, uint64_t immValue, CacheAction cacheAction, CachePolicy writePolicy)
 	{
+	}
+
+	GnmShader GnmCommandBuffer::getShader(
+		const void* code, GcnShaderMeta& meta)
+	{
+		GcnBinaryInfo info(code);
+		VltShaderKey  key(info.stage(), info.key());
+		return m_shaderModules.getShaderModule(
+			&key, &m_moduleInfo, meta, code);
 	}
 
 }  // namespace sce::Gnm

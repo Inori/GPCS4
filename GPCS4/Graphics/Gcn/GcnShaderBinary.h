@@ -17,7 +17,7 @@ namespace sce::gcn
 		kUnknown        = 6,
 		kHullShader     = 7,  ///< HS stage shader.
 		kDomainShader   = 8,  ///< DS stage shader with embedded CS stage frontend shader.
-	} ShaderType;
+	};
 
 	struct ShaderBinaryInfo
 	{

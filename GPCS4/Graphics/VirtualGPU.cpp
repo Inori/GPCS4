@@ -5,8 +5,6 @@
 
 #include "Gnm/GnmConstant.h"
 #include "Sce/SceGnmDriver.h"
-#include "Sce/SceResourceTracker.h"
-#include "Sce/SceLabelManager.h"
 #include "Sce/SceVideoOut.h"
 
 LOG_CHANNEL(Graphic.VirtualGPU);

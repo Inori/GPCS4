@@ -9,7 +9,7 @@
 
 namespace sce::gcn
 {
-	enum class GcnProgramType;
+	enum class GcnProgramType : uint16_t;
 
 	/**
 	 * \brief Represent a resource bound to a GCN shader
@@ -47,7 +47,7 @@ namespace sce::gcn
 	{
 	public:
 		GcnBinaryInfo(
-			const uint8_t* shaderCode);
+			const void* shaderCode);
 		~GcnBinaryInfo();
 
 		/**
@@ -72,6 +72,11 @@ namespace sce::gcn
 			return GcnShaderKey(
 				m_binInfo->m_shaderHash0, m_binInfo->m_crc32);
 		}
+
+		/**
+		 * \brief Shader stage
+		 */
+		VkShaderStageFlagBits stage() const;
 
 		/**
 		 * \brief Information of shader binary

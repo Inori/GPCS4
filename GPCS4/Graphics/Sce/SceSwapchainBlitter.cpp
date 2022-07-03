@@ -155,14 +155,14 @@ namespace sce
 		viewport.minDepth = 0.0f;
 		viewport.maxDepth = 1.0f;
 
-		ctx->setViewports(1, &viewport);
-		ctx->setScissors(1, &dstRect);
+		ctx->setViewports(1, &viewport, &dstRect);
 
-		VltAttachment targetAttachment = {
-			dstView,
-			VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-		};
-		ctx->bindRenderTarget(0, targetAttachment);
+		VltRenderTargets renderTargets;
+		renderTargets.color[0].view   = dstView;
+		renderTargets.color[0].layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+		ctx->bindRenderTargets(renderTargets);
+
 		ctx->clearRenderTarget(
 			dstView, VK_IMAGE_ASPECT_COLOR_BIT, VkClearValue());
 		ctx->transformImage(

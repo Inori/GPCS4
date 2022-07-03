@@ -78,7 +78,7 @@ namespace sce::Gnm
 			}
 		}
 
-		return std::move(shader);
+		return shader;
 	}
 
 
