@@ -157,8 +157,18 @@ namespace sce::Gnm
 
 	private:
 
-		inline void bindVertexBuffer(
+		void bindVertexBuffer(
 			const Buffer* vsharp, uint32_t binding);
+
+		void bindVertexBuffers(
+			gcn::VertexInputSemanticTable& semantic,
+			const uint32_t*                vertexTable,
+			uint32_t                       bufferCount);
+
+		void updateInputLayout(
+			gcn::VertexInputSemanticTable& semantic,
+			const uint32_t*                vertexTable,
+			uint32_t                       bufferCount);
 
 		void updateVertexBinding(GnmShader& shader);
 

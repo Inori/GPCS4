@@ -887,72 +887,16 @@ namespace sce::Gnm
 			const uint32_t* vertexTable = *reinterpret_cast<uint32_t* const*>(&ctx.userData[vertexTableReg]);
 
 			bool singleBinding = isSingleVertexBinding(vertexTable, semaTable);
+			uint32_t bindingCount  = singleBinding ? 1 : semaTable.size();
 
-			std::array<VltVertexAttribute, kMaxVertexBufferCount> attributes;
-			std::array<VltVertexBinding, kMaxVertexBufferCount>   bindings;
-
-			size_t   firstAttributeOffset = 0;
-			uint32_t semanticCount        = semaTable.size();
-			for (uint32_t i = 0; i != semanticCount; ++i)
-			{
-				auto&    sema           = semaTable[i];
-				uint32_t offsetInDwords = sema.m_semantic * ShaderConstantDwordSize::kDwordSizeVertexBuffer;
-				// We need to trust format info in V#, not instructions in fetch shader.
-				// From GPU ISA:
-				// The number of bytes loaded is determined solely by sV#.dfmt,
-				// even if the instruction op count does not match.
-				const Buffer* vsharp = reinterpret_cast<const Buffer*>(vertexTable + offsetInDwords);
-
-				if (firstAttributeOffset == 0)
-				{
-					firstAttributeOffset = reinterpret_cast<size_t>(vsharp->getBaseAddress());
-				}
-
-				LOG_ASSERT(sema.m_semantic == i, "semantic index is not equal to table index.");
-
-				// Attributes
-				attributes[i].location = sema.m_semantic;
-				attributes[i].binding  = singleBinding ? 0 : sema.m_semantic;
-				attributes[i].format   = cvt::convertDataFormat(vsharp->getDataFormat());
-				attributes[i].offset   = singleBinding ? reinterpret_cast<size_t>(vsharp->getBaseAddress()) - firstAttributeOffset : 0;
-
-				// Bindings
-				bindings[i].binding   = sema.m_semantic;
-				bindings[i].fetchRate = 0;
-				bindings[i].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
-				// Fix element count
-				sema.m_sizeInElements =
-					std::min(static_cast<uint32_t>(sema.m_sizeInElements), vsharp->getDataFormat().getNumComponents());
-			}
-
-			m_context->setInputLayout(
-				semanticCount,
-				attributes.data(),
-				singleBinding ? 1 : semanticCount,
-				bindings.data());
-
-			// Create, upload and bind vertex buffer
-			for (uint32_t i = 0; i != semanticCount; ++i)
-			{
-				auto&         sema           = semaTable[i];
-				uint32_t      offsetInDwords = sema.m_semantic * ShaderConstantDwordSize::kDwordSizeVertexBuffer;
-				const Buffer* vsharp         = reinterpret_cast<const Buffer*>(vertexTable + offsetInDwords);
-
-				bindVertexBuffer(vsharp, sema.m_semantic);
-
-				if (singleBinding)
-				{
-					break;
-				}
-			}
+			updateInputLayout(semaTable, vertexTable, bindingCount);
+			bindVertexBuffers(semaTable, vertexTable, bindingCount);
 
 			// Record shader meta info
-			ctx.meta.vs.inputSemanticCount = semanticCount;
-			std::memcpy(
-				ctx.meta.vs.inputSemanticTable.data(),
-				semaTable.data(),
-				sizeof(VertexInputSemantic) * semanticCount);
+			std::copy(semaTable.begin(),
+					  semaTable.end(),
+					  ctx.meta.vs.inputSemanticTable.begin());
+			ctx.meta.vs.inputSemanticCount = semaTable.size();
 		}
 		else
 		{
@@ -960,6 +904,76 @@ namespace sce::Gnm
 			m_context->setInputLayout(
 				0, nullptr,
 				0, nullptr);
+		}
+	}
+
+	void GnmCommandBufferDraw::updateInputLayout(
+		gcn::VertexInputSemanticTable& semantic,
+		const uint32_t*                vertexTable,
+		uint32_t                       bufferCount)
+	{
+		bool singleBinding = (bufferCount == 1);
+
+		std::array<VltVertexAttribute, kMaxVertexBufferCount> attributes;
+		std::array<VltVertexBinding, kMaxVertexBufferCount>   bindings;
+
+		size_t   firstAttributeOffset = 0;
+		uint32_t semanticCount        = semantic.size();
+		for (uint32_t i = 0; i != semanticCount; ++i)
+		{
+			auto&    sema           = semantic[i];
+			uint32_t offsetInDwords = sema.m_semantic * ShaderConstantDwordSize::kDwordSizeVertexBuffer;
+			// We need to trust format info in V#, not instructions in fetch shader.
+			// From GPU ISA:
+			// The number of bytes loaded is determined solely by sV#.dfmt,
+			// even if the instruction op count does not match.
+			const Buffer* vsharp = reinterpret_cast<const Buffer*>(vertexTable + offsetInDwords);
+
+			if (firstAttributeOffset == 0)
+			{
+				firstAttributeOffset = reinterpret_cast<size_t>(vsharp->getBaseAddress());
+			}
+
+			LOG_ASSERT(sema.m_semantic == i, "semantic index is not equal to table index.");
+
+			// Attributes
+			attributes[i].location = sema.m_semantic;
+			attributes[i].binding  = singleBinding ? 0 : sema.m_semantic;
+			attributes[i].format   = cvt::convertDataFormat(vsharp->getDataFormat());
+			attributes[i].offset   = singleBinding
+										 ? reinterpret_cast<size_t>(vsharp->getBaseAddress()) - firstAttributeOffset
+										 : 0;
+
+			// Bindings
+			bindings[i].binding   = sema.m_semantic;
+			bindings[i].fetchRate = 0;
+			bindings[i].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+			// Fix element count
+			sema.m_sizeInElements = std::min(static_cast<uint32_t>(sema.m_sizeInElements),
+											 vsharp->getDataFormat().getNumComponents());
+		}
+
+		m_context->setInputLayout(
+			semanticCount,
+			attributes.data(),
+			singleBinding ? 1 : semanticCount,
+			bindings.data());
+	}
+
+	void GnmCommandBufferDraw::bindVertexBuffers(
+		gcn::VertexInputSemanticTable& semantic,
+		const uint32_t*                vertexTable,
+		uint32_t                       bufferCount)
+	{
+		// Create, upload and bind vertex buffer
+		for (uint32_t i = 0; i != bufferCount; ++i)
+		{
+			auto&         sema           = semantic[i];
+			uint32_t      offsetInDwords = sema.m_semantic * ShaderConstantDwordSize::kDwordSizeVertexBuffer;
+			const Buffer* vsharp         = reinterpret_cast<const Buffer*>(vertexTable + offsetInDwords);
+
+			bindVertexBuffer(vsharp, sema.m_semantic);
 		}
 	}
 
@@ -1335,5 +1349,7 @@ namespace sce::Gnm
 		msState->sampleMask            = 0xFFFFFFFF;
 		msState->enableAlphaToCoverage = VK_FALSE;
 	}
+
+
 
 }  // namespace sce::Gnm
