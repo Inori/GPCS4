@@ -980,6 +980,19 @@ namespace sce::Gnm
 									vsharp->getStride());
 	}
 
+	void GnmCommandBufferDraw::bindIndexBuffer()
+	{
+		// Update index
+		// All draw calls in Gnm need index buffer.
+		auto& indexBuffer = m_state.gp.ia.indexBuffer;
+		auto  slice       = VltBufferSlice(indexBuffer,
+                                    0,
+                                    indexBuffer->info().size);
+		m_context->bindIndexBuffer(
+			slice,
+			m_state.gp.ia.indexType);
+	}
+
 	void GnmCommandBufferDraw::updateVertexShaderStage()
 	{
 		// Update vertex input
@@ -992,27 +1005,21 @@ namespace sce::Gnm
 				break;
 			}
 
-			// Update index
-			// All draw calls in Gnm need index buffer.
-			auto& indexBuffer = m_state.gp.ia.indexBuffer;
-			m_context->bindIndexBuffer(
-				VltBufferSlice(indexBuffer, 0, indexBuffer->info().size),
-				m_state.gp.ia.indexType);
-
-			auto shader = getShader(ctx.code, ctx.meta);
-
+			auto  shader   = getShader(ctx.code);
 			auto& resTable = shader.getResources();
 
-			//// Update input layout and bind vertex buffer
+			bindIndexBuffer();
+
+			// Update input layout and bind vertex buffer
 			updateVertexBinding(shader);
 
-			//// create and bind shader resources
+			// create and bind shader resources
 			bindResource(VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, resTable, ctx.userData);
 
 			// bind the shader
 			m_context->bindShader(
 				VK_SHADER_STAGE_VERTEX_BIT,
-				shader.handle());
+				shader.compile(m_moduleInfo, ctx.meta));
 		} while (false);
 	}
 
@@ -1027,8 +1034,7 @@ namespace sce::Gnm
 				break;
 			}
 
-			auto shader = getShader(ctx.code, ctx.meta);
-
+			auto  shader   = getShader(ctx.code);
 			auto& resTable = shader.getResources();
 
 			// create and bind shader resources
@@ -1037,7 +1043,7 @@ namespace sce::Gnm
 			// bind the shader
 			m_context->bindShader(
 				VK_SHADER_STAGE_FRAGMENT_BIT,
-				shader.handle());
+				shader.compile(m_moduleInfo, ctx.meta));
 		} while (false);
 	}
 
@@ -1352,7 +1358,6 @@ namespace sce::Gnm
 		msState->sampleMask            = 0xFFFFFFFF;
 		msState->enableAlphaToCoverage = VK_FALSE;
 	}
-
 
 
 }  // namespace sce::Gnm

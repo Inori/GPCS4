@@ -157,6 +157,8 @@ namespace sce::Gnm
 
 	private:
 
+		void bindIndexBuffer();
+
 		void bindVertexBuffer(
 			const Buffer* vsharp, uint32_t binding);
 

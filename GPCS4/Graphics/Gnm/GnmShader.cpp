@@ -1,6 +1,6 @@
 #include "GnmShader.h"
 #include "Violet/VltShader.h"
-#include "Gcn/GcnModule.h"
+
 #include "Gcn/GcnShaderMeta.h"
 
 
@@ -11,30 +11,34 @@ using namespace sce::vlt;
 
 namespace sce::Gnm
 {
-	GnmShader::GnmShader() :
-		m_shader(nullptr)
-	{
-	}
+	//GnmShader::GnmShader() :
+	//	m_shader(nullptr)
+	//{
+	//}
 
-	GnmShader::GnmShader(const vlt::VltShaderKey*  key,
-						 const gcn::GcnModuleInfo* moduleInfo,
-						 const GcnShaderMeta&      meta,
-						 const void*               code)
+	GnmShader::GnmShader(const VltShaderKey& key,
+						 const void*         code):
+		m_key(key),
+		m_module(reinterpret_cast<const uint8_t*>(code))
 	{
-		const std::string name = key->toString();
+		const std::string name = key.toString();
 		LOG_DEBUG("Compiling shader %s", name.c_str());
-
-		GcnModule module(
-			reinterpret_cast<const uint8_t*>(code));
-
-		m_resources = module.getResourceTable();
-
-		m_shader = module.compile(meta, *moduleInfo);
-		m_shader->setShaderKey(*key);
 	}
 
 	GnmShader::~GnmShader()
 	{
+	}
+
+	Rc<VltShader> GnmShader::compile(
+		const GcnModuleInfo& moduleInfo,
+		const GcnShaderMeta& meta)
+	{
+		if (m_shader == nullptr)
+		{
+			m_shader = m_module.compile(meta, moduleInfo);
+			m_shader->setShaderKey(m_key);
+		}
+		return m_shader;
 	}
 
 	GnmShaderModuleSet::GnmShaderModuleSet()
@@ -45,16 +49,14 @@ namespace sce::Gnm
 	{
 	}
 
-	GnmShader GnmShaderModuleSet::getShaderModule(const VltShaderKey*  key,
-												  const GcnModuleInfo* moduleInfo,
-												  const GcnShaderMeta& meta,
-												  const void*          code)
+	GnmShader GnmShaderModuleSet::getShaderModule(const vlt::VltShaderKey& key,
+												  const void*              code)
 	{
 		// Use the shader's unique key for the lookup
 		{
 			std::unique_lock<std::mutex> lock(m_mutex);
 
-			auto entry = m_modules.find(*key);
+			auto entry = m_modules.find(key);
 			if (entry != m_modules.end())
 			{
 				return entry->second;
@@ -63,7 +65,7 @@ namespace sce::Gnm
 
 		// This shader has not been compiled yet, so we have to create a
 		// new module. This takes a while, so we won't lock the structure.
-		GnmShader shader = GnmShader(key, moduleInfo, meta, code);
+		GnmShader shader = GnmShader(key, code);
 
 		// Insert the new module into the lookup table. If another thread
 		// has compiled the same shader in the meantime, we should return
@@ -71,7 +73,7 @@ namespace sce::Gnm
 		{
 			std::unique_lock<std::mutex> lock(m_mutex);
 
-			auto status = m_modules.insert({ *key, shader });
+			auto status = m_modules.insert({ key, shader });
 			if (!status.second)
 			{
 				return status.first->second;

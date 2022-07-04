@@ -493,9 +493,7 @@ namespace sce::Gnm
 		gcn::GcnTextureMeta populateTextureMeta(
 			const Texture* tsharp, bool isDepth);
 
-		GnmShader getShader(
-			const void*         code,
-			gcn::GcnShaderMeta& meta);
+		GnmShader getShader(const void* code);
 
 	private:
 		void initGcnModuleInfo();

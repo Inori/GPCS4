@@ -1,15 +1,12 @@
 #pragma once
 
 #include "GnmCommon.h"
-#include "Gcn/GcnModInfo.h"
-#include "Gcn/GcnHeader.h"
-#include "Gcn/GcnShaderMeta.h"
+#include "Gcn/GcnModule.h"
 #include "Violet/VltShader.h"
 
 #include <array>
 #include <mutex>
 #include <unordered_map>
-
 
 
 namespace sce::Gnm
@@ -24,26 +21,25 @@ namespace sce::Gnm
 	class GnmShader
 	{
 	public:
-		GnmShader();
-		GnmShader(const vlt::VltShaderKey*  key,
-				  const gcn::GcnModuleInfo* moduleInfo,
-				  const gcn::GcnShaderMeta& meta,
-				  const void*               code);
+		//GnmShader();
+		GnmShader(const vlt::VltShaderKey& key,
+				  const void*              code);
 		~GnmShader();
 
-		vlt::Rc<vlt::VltShader> handle() const
-		{
-			return m_shader;
-		}
+		vlt::Rc<vlt::VltShader>
+		compile(const gcn::GcnModuleInfo& moduleInfo,
+				const gcn::GcnShaderMeta& meta);
 
-		const gcn::GcnShaderResourceTable& getResources() const
+		const gcn::GcnShaderResourceTable&
+		getResources() const
 		{
-			return m_resources;
+			return m_module.getResourceTable();
 		}
 
 	private:
-		vlt::Rc<vlt::VltShader>     m_shader;
-		gcn::GcnShaderResourceTable m_resources;
+		vlt::VltShaderKey       m_key;
+		vlt::Rc<vlt::VltShader> m_shader;
+		gcn::GcnModule          m_module;
 	};
 
 	/**
@@ -62,10 +58,8 @@ namespace sce::Gnm
 		~GnmShaderModuleSet();
 
 		GnmShader getShaderModule(
-			const vlt::VltShaderKey*  key,
-			const gcn::GcnModuleInfo* moduleInfo,
-			const gcn::GcnShaderMeta& meta,
-			const void*               code);
+			const vlt::VltShaderKey& key,
+			const void*              code);
 
 	private:
 		std::mutex m_mutex;

@@ -210,7 +210,7 @@ namespace sce::Gnm
 	void GnmCommandBuffer::bindResource(
 		VkPipelineStageFlags          stage,
 		const GcnShaderResourceTable& table,
-		const UserDataSlot&          userData)
+		const UserDataSlot&           userData)
 	{
 		// Find EUD
 		uint32_t eudIndex = findUsageRegister(table, kShaderInputUsagePtrExtendedUserData);
@@ -299,8 +299,7 @@ namespace sce::Gnm
 
 	void GnmCommandBuffer::commitComputeState(GnmShaderContext& ctx)
 	{
-		auto shader = getShader(ctx.code, ctx.meta);
-
+		auto  shader   = getShader(ctx.code);
 		auto& resTable = shader.getResources();
 
 		// create and bind shader resources
@@ -309,7 +308,7 @@ namespace sce::Gnm
 		// bind the shader
 		m_context->bindShader(
 			VK_SHADER_STAGE_COMPUTE_BIT,
-			shader.handle());
+			shader.compile(m_moduleInfo, ctx.meta));
 	}
 
 	ShaderStage GnmCommandBuffer::getShaderStage(
@@ -436,13 +435,11 @@ namespace sce::Gnm
 	{
 	}
 
-	GnmShader GnmCommandBuffer::getShader(
-		const void* code, GcnShaderMeta& meta)
+	GnmShader GnmCommandBuffer::getShader(const void* code)
 	{
 		GcnBinaryInfo info(code);
 		VltShaderKey  key(info.stage(), info.key());
-		return m_shaderModules.getShaderModule(
-			&key, &m_moduleInfo, meta, code);
+		return m_shaderModules.getShaderModule(key, code);
 	}
 
 }  // namespace sce::Gnm
