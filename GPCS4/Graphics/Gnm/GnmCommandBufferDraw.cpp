@@ -133,6 +133,7 @@ namespace sce::Gnm
 
 		if (dirty)
 		{
+			m_state.gp.rs.numViewports          = maxCount;
 			m_state.gp.rs.viewports[viewportId] = viewport;
 
 			m_flags.set(GnmContextFlag::DirtyViewportScissor);
@@ -502,10 +503,16 @@ namespace sce::Gnm
 					 ds.stencilOpFront.compareOp != stencilFront ||
 					 ds.stencilOpBack.compareOp != stencilBack;
 
+		// When depth clear is enabled,
+		// we use render pass to clear the depth buffer,
+		// so we need to disable depth write to protect
+		// the cleared value not touched.
+		VkBool32 depthWrite = depthControl.zWrite &&
+							  !m_state.gp.om.dsClear.enableDepthClear;
 		if (dirty)
 		{
 			ds.enableDepthTest          = depthControl.depthEnable;
-			ds.enableDepthWrite         = depthControl.zWrite;
+			ds.enableDepthWrite         = depthWrite;
 			ds.enableStencilTest        = depthControl.stencilEnable;
 			ds.depthCompareOp           = depthCmpOp;
 			ds.stencilOpFront.compareOp = stencilFront;
@@ -1225,6 +1232,11 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::applyRenderState()
 	{
+		if (m_flags.test(GnmContextFlag::DirtyRenderTargets))
+		{
+			appplyRenderTargets();
+		}
+
 		if (m_flags.test(GnmContextFlag::DirtyBlendState))
 		{
 			applyBlendState();
@@ -1325,6 +1337,14 @@ namespace sce::Gnm
 		m_flags.clr(GnmContextFlag::DirtyViewportScissor);
 	}
 
+	void GnmCommandBufferDraw::appplyRenderTargets()
+	{
+		m_context->bindRenderTargets(
+			m_state.gp.om.renderTargets);
+
+		m_flags.clr(GnmContextFlag::DirtyRenderTargets);
+	}
+
 	void GnmCommandBufferDraw::initDefaultRenderState()
 	{
 		m_state.gp.sc = {};
@@ -1416,7 +1436,6 @@ namespace sce::Gnm
 		msState->sampleMask            = 0xFFFFFFFF;
 		msState->enableAlphaToCoverage = VK_FALSE;
 	}
-
 
 
 }  // namespace sce::Gnm

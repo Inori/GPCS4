@@ -211,6 +211,8 @@ namespace sce::Gnm
 
 		void applyViewportState();
 
+		void appplyRenderTargets();
+
 		void initDefaultRenderState();
 
 		static void initDefaultPrimitiveTopology(
