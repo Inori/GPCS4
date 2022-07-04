@@ -848,23 +848,6 @@ namespace sce::Gnm
 		return isSingleBinding;
 	}
 
-	inline void GnmCommandBufferDraw::bindVertexBuffer(
-		const Buffer* vsharp, uint32_t binding)
-	{
-		GnmBufferCreateInfo info;
-		info.vsharp     = vsharp;
-		info.usage      = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-		info.stage      = VK_PIPELINE_STAGE_VERTEX_INPUT_BIT | VK_PIPELINE_STAGE_TRANSFER_BIT;
-		info.access     = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
-		info.memoryType = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-
-		SceBuffer buffer = getResourceBuffer(info);
-
-		m_context->bindVertexBuffer(binding,
-									VltBufferSlice(buffer.buffer, 0, buffer.buffer->info().size),
-									vsharp->getStride());
-	}
-
 	void GnmCommandBufferDraw::updateVertexBinding(GnmShader& shader)
 	{
 		auto& ctx      = m_state.gp.sc[kShaderStageVs];
@@ -975,6 +958,26 @@ namespace sce::Gnm
 
 			bindVertexBuffer(vsharp, sema.m_semantic);
 		}
+	}
+
+	void GnmCommandBufferDraw::bindVertexBuffer(
+		const Buffer* vsharp,
+		uint32_t      binding)
+	{
+		GnmBufferCreateInfo info;
+		info.vsharp     = vsharp;
+		info.usage      = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+		info.stage      = VK_PIPELINE_STAGE_VERTEX_INPUT_BIT | VK_PIPELINE_STAGE_TRANSFER_BIT;
+		info.access     = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
+		info.memoryType = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+
+		SceBuffer buffer = getResourceBuffer(info);
+		auto      slice  = VltBufferSlice(buffer.buffer,
+                                    0,
+                                    buffer.buffer->info().size);
+		m_context->bindVertexBuffer(binding,
+									slice,
+									vsharp->getStride());
 	}
 
 	void GnmCommandBufferDraw::updateVertexShaderStage()
