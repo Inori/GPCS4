@@ -65,8 +65,10 @@ namespace sce::Gnm
 	struct GnmRasterizerState
 	{
 		uint32_t numViewports = 0;
+		uint32_t numScissors  = 0;
 
-		VkRect2D                                scissor;
+		VkRect2D                                screenScissor;
+		std::array<VkRect2D, MaxNumViewports>   scissors;
 		std::array<VkViewport, MaxNumViewports> viewports;
 		vlt::VltRasterizerState                 state;
 	};
@@ -78,7 +80,8 @@ namespace sce::Gnm
 		vlt::VltMultisampleState         msState;
 		vlt::VltLogicOpState             loState;
 		vlt::VltDepthStencilClear        dsClear;
-		std::array<vlt::VltBlendMode, 8> blendModes;
+
+		std::array<vlt::VltBlendMode, MaxNumRenderTargets> blendModes;
 
 		float    blendFactor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 		uint32_t sampleMask     = 0xFFFFFFFFu;

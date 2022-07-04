@@ -195,8 +195,6 @@ namespace sce::Gnm
 
 		void applyRenderState();
 
-		void applyInputLayout();
-
 		void applyPrimitiveTopology();
 
 		void applyBlendState();
@@ -204,6 +202,8 @@ namespace sce::Gnm
 		void applyBlendFactor();
 
 		void applyDepthStencilState();
+
+		void applyDepthStencilClear();
 
 		void applyStencilRef();
 

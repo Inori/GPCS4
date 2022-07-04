@@ -83,12 +83,12 @@ namespace sce::Gnm
 		scissor.extent.width  = right - left;
 		scissor.extent.height = bottom - top;
 
-		bool dirty = m_state.gp.rs.scissor.offset != scissor.offset ||
-					 m_state.gp.rs.scissor.extent != scissor.extent;
+		bool dirty = m_state.gp.rs.screenScissor.offset != scissor.offset ||
+					 m_state.gp.rs.screenScissor.extent != scissor.extent;
 
 		if (dirty)
 		{
-			m_state.gp.rs.scissor = scissor;
+			m_state.gp.rs.screenScissor = scissor;
 			m_flags.set(GnmContextFlag::DirtyViewportScissor);
 		}
 	}
@@ -502,11 +502,6 @@ namespace sce::Gnm
 					 ds.stencilOpFront.compareOp != stencilFront ||
 					 ds.stencilOpBack.compareOp != stencilBack;
 
-		// In vulkan, depth write can only be enabled, 
-		// when depth test is also enabled. 
-		// If depth test is disabled then depth writes are also disabled, 
-		// regardless of the value of 
-		// VkPipelineDepthStencilStateCreateInfo::depthWriteEnable
 		if (dirty)
 		{
 			ds.enableDepthTest          = depthControl.depthEnable;
@@ -538,6 +533,12 @@ namespace sce::Gnm
 		{
 			depthWrite = VK_TRUE;
 		}
+
+		// In vulkan, depth write can only be enabled,
+		// when depth test is also enabled.
+		// If depth test is disabled then depth writes are also disabled,
+		// regardless of the value of
+		// VkPipelineDepthStencilStateCreateInfo::depthWriteEnable
 
 		if (m_state.gp.om.dsState.enableDepthWrite != depthWrite)
 		{
@@ -571,14 +572,9 @@ namespace sce::Gnm
 		}
 
 		LOG_ASSERT(topology != VK_PRIMITIVE_TOPOLOGY_MAX_ENUM, "primType not supported.");
-		m_state.gp.ia.isState.primitiveTopology = topology;
+		m_state.gp.ia.isState = { topology, VK_FALSE, 0 };
 
-		VltInputAssemblyState ia = {
-			topology,
-			VK_FALSE,
-			0
-		};
-		m_context->setInputAssemblyState(ia);
+		applyPrimitiveTopology();
 	}
 
 	void GnmCommandBufferDraw::setIndexSize(IndexSize indexSize, CachePolicy cachePolicy)
@@ -697,8 +693,8 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setDepthStencilDisable()
 	{
-		VltDepthStencilState ds = {};
-		m_context->setDepthStencilState(ds);
+		m_state.gp.om.dsState = VltDepthStencilState();
+		m_flags.set(GnmContextFlag::DirtyDepthStencilState);
 	}
 
 	void GnmCommandBufferDraw::setClipControl(ClipControl reg)
@@ -1053,6 +1049,8 @@ namespace sce::Gnm
 
 		updatePixelShaderStage();
 
+		applyRenderState();
+
 		// Set default ms state
 		VltMultisampleState msState;
 		msState.enableAlphaToCoverage = VK_FALSE;
@@ -1092,6 +1090,8 @@ namespace sce::Gnm
 	{
 		// This is the last cmd for a command buffer submission,
 		// we can do some finish works before submit and present.
+
+		applyRenderState();
 	}
 
 	void GnmCommandBufferDraw::updateMetaTextureInfo(
@@ -1225,22 +1225,52 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::applyRenderState()
 	{
+		if (m_flags.test(GnmContextFlag::DirtyBlendState))
+		{
+			applyBlendState();
+		}
+
+		if (m_flags.test(GnmContextFlag::DirtyDepthStencilState))
+		{
+			applyDepthStencilState();
+		}
+
+		if (m_flags.test(GnmContextFlag::DirtyDepthStencilClear))
+		{
+			applyDepthStencilClear();
+		}
+
 		if (m_flags.test(GnmContextFlag::DirtyRasterizerState))
 		{
 			applyRasterizerState();
 		}
-	}
 
-	void GnmCommandBufferDraw::applyInputLayout()
-	{
+		if (m_flags.test(GnmContextFlag::DirtyViewportScissor))
+		{
+			applyViewportState();
+		}
 	}
 
 	void GnmCommandBufferDraw::applyPrimitiveTopology()
 	{
+		m_context->setInputAssemblyState(
+			m_state.gp.ia.isState);
 	}
 
 	void GnmCommandBufferDraw::applyBlendState()
 	{
+		const auto& bm = m_state.gp.om.blendModes;
+		for (uint32_t i = 0; i != bm.size(); ++i)
+		{
+			m_context->setBlendMode(i, bm[i]);
+		}
+
+		m_context->setLogicOpState(
+			m_state.gp.om.loState);
+		m_context->setMultisampleState(
+			m_state.gp.om.msState);
+
+		m_flags.clr(GnmContextFlag::DirtyBlendState);
 	}
 
 	void GnmCommandBufferDraw::applyBlendFactor()
@@ -1249,6 +1279,18 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::applyDepthStencilState()
 	{
+		m_context->setDepthStencilState(
+			m_state.gp.om.dsState);
+
+		m_flags.clr(GnmContextFlag::DirtyDepthStencilState);
+	}
+
+	void GnmCommandBufferDraw::applyDepthStencilClear()
+	{
+		m_context->setDepthStencilClear(
+			m_state.gp.om.dsClear);
+
+		m_flags.clr(GnmContextFlag::DirtyDepthStencilClear);
 	}
 
 	void GnmCommandBufferDraw::applyStencilRef()
@@ -1265,6 +1307,22 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::applyViewportState()
 	{
+		if (likely(m_state.gp.rs.numViewports == 1))
+		{
+			m_context->setViewports(1,
+									m_state.gp.rs.viewports.data(),
+									&m_state.gp.rs.screenScissor);
+		}
+		else
+		{
+			// TODO:
+			// How to set screen scissor together with viewport
+			// scissor ?
+			m_context->setViewports(m_state.gp.rs.numViewports,
+									m_state.gp.rs.viewports.data(),
+									m_state.gp.rs.scissors.data());
+		}
+		m_flags.clr(GnmContextFlag::DirtyViewportScissor);
 	}
 
 	void GnmCommandBufferDraw::initDefaultRenderState()
@@ -1358,6 +1416,7 @@ namespace sce::Gnm
 		msState->sampleMask            = 0xFFFFFFFF;
 		msState->enableAlphaToCoverage = VK_FALSE;
 	}
+
 
 
 }  // namespace sce::Gnm
