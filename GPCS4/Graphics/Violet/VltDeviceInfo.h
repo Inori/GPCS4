@@ -54,5 +54,6 @@ namespace sce::vlt
 		VkPhysicalDeviceTransformFeedbackFeaturesEXT              extTransformFeedback;
 		VkPhysicalDeviceVertexAttributeDivisorFeaturesEXT         extVertexAttributeDivisor;
 		VkPhysicalDeviceBufferDeviceAddressFeaturesKHR            khrBufferDeviceAddress;
+		VkPhysicalDeviceColorWriteEnableFeaturesEXT               extColorWriteEnable;
 	};
 }  // namespace sce::vlt

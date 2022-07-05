@@ -16,45 +16,27 @@ namespace spv
 namespace sce::Gnm::cvt
 {
 	VkFormat convertZFormat(ZFormat zfmt);
-
-	VkSampleCountFlagBits 
-		convertNumFragments(NumFragments numFragments);
-
-	VkFormat convertDataFormat(DataFormat dataFormat);
-
-	VkFormat convertVideoOutPixelFormat(SceVideoOutPixelFormat format);
-
-	DataFormat convertDataFormatFromVideoOutPixelFormat(SceVideoOutPixelFormat format);
-
+	VkSampleCountFlagBits
+				convertNumFragments(NumFragments numFragments);
+	VkFormat    convertDataFormat(DataFormat dataFormat);
+	VkFormat    convertVideoOutPixelFormat(SceVideoOutPixelFormat format);
+	DataFormat  convertDataFormatFromVideoOutPixelFormat(SceVideoOutPixelFormat format);
 	VkCompareOp convertCompareFunc(CompareFunc cmpFunc);
-
 	std::array<VkColorComponentFlags, vlt::MaxNumRenderTargets>
-	convertRenderTargetMask(uint32_t mask);
-
-	VkBlendFactor convertBlendMultiplier(BlendMultiplier blendMul);
-
-	VkBlendOp convertBlendFunc(BlendFunc func);
-
-	VkPrimitiveTopology convertPrimitiveType(PrimitiveType primType);
-
-	VkIndexType convertIndexSize(IndexSize indexSize);
-
-	VkPolygonMode convertPolygonMode(PrimitiveSetupPolygonMode polyMode);
-
-	VkCullModeFlags convertCullMode(PrimitiveSetupCullFaceMode cullMode);
-
-	VkImageType convertTextureType(TextureType textureType);
-
-	VkImageViewType convertTextureTypeView(TextureType textureType);
-
-	VkFilter convertFilterMode(FilterMode mode);
-
-	VkSamplerMipmapMode convertMipFilterMode(MipFilterMode mode);
-
+						 convertRenderTargetMask(uint32_t mask);
+	VkBlendFactor        convertBlendMultiplier(BlendMultiplier blendMul);
+	VkBlendOp            convertBlendFunc(BlendFunc func);
+	VkPrimitiveTopology  convertPrimitiveType(PrimitiveType primType);
+	VkIndexType          convertIndexSize(IndexSize indexSize);
+	VkPolygonMode        convertPolygonMode(PrimitiveSetupPolygonMode polyMode);
+	VkCullModeFlags      convertCullMode(PrimitiveSetupCullFaceMode cullMode);
+	VkImageType          convertTextureType(TextureType textureType);
+	VkImageViewType      convertTextureTypeView(TextureType textureType);
+	VkFilter             convertFilterMode(FilterMode mode);
+	VkSamplerMipmapMode  convertMipFilterMode(MipFilterMode mode);
 	VkSamplerAddressMode convertWrapMode(WrapMode mode);
-
-	VkCompareOp convertDepthCompare(DepthCompare compare);
-
-	spv::Dim convertTextureTypeToDim(TextureType textureType);
+	VkCompareOp          convertDepthCompare(DepthCompare compare);
+	spv::Dim             convertTextureTypeToDim(TextureType textureType);
+	VkLogicOp            convertRasterOp(RasterOp op);
 
 }  // namespace sce::Gnm

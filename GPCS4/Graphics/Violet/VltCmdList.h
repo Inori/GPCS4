@@ -752,6 +752,15 @@ namespace sce::vlt
 								maxDepthBounds);
 		}
 
+		void cmdSetColorWriteEnableEXT(
+			uint32_t        attachmentCount,
+			const VkBool32* colorWriteEnables)
+		{
+			vkCmdSetColorWriteEnableEXT(m_execBuffer,
+										attachmentCount,
+										colorWriteEnables);
+		}
+
 		void cmdSetEvent(
 			VkEvent              event,
 			VkPipelineStageFlags stages)

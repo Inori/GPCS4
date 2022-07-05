@@ -399,7 +399,9 @@ namespace sce::vlt
 			&& (m_deviceFeatures.extVertexAttributeDivisor.vertexAttributeInstanceRateDivisor
 					|| !required.extVertexAttributeDivisor.vertexAttributeInstanceRateDivisor)
 			&& (m_deviceFeatures.extVertexAttributeDivisor.vertexAttributeInstanceRateZeroDivisor
-					|| !required.extVertexAttributeDivisor.vertexAttributeInstanceRateZeroDivisor);
+					|| !required.extVertexAttributeDivisor.vertexAttributeInstanceRateZeroDivisor)
+			&& (m_deviceFeatures.extColorWriteEnable.colorWriteEnable
+					|| !required.extColorWriteEnable.colorWriteEnable);
 	}
 	// clang-format on
 
@@ -452,7 +454,6 @@ namespace sce::vlt
 			enabled.extDepthClipEnable.pNext           = std::exchange(enabled.core.pNext, &enabled.extDepthClipEnable);
 			enabled.extDepthClipEnable.depthClipEnable = VK_TRUE;
 		}
-
 	}
 
 
@@ -790,6 +791,12 @@ namespace sce::vlt
 		{
 			m_deviceFeatures.khrBufferDeviceAddress.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES_KHR;
 			m_deviceFeatures.khrBufferDeviceAddress.pNext = std::exchange(m_deviceFeatures.core.pNext, &m_deviceFeatures.khrBufferDeviceAddress);
+		}
+
+		if (m_deviceExtensions.supports(VK_EXT_COLOR_WRITE_ENABLE_EXTENSION_NAME))
+		{
+			m_deviceFeatures.extColorWriteEnable.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COLOR_WRITE_ENABLE_FEATURES_EXT;
+			m_deviceFeatures.extColorWriteEnable.pNext = std::exchange(m_deviceFeatures.core.pNext, &m_deviceFeatures.extColorWriteEnable);
 		}
 
 		vkGetPhysicalDeviceFeatures2(m_handle, &m_deviceFeatures.core);

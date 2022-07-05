@@ -601,4 +601,61 @@ namespace sce::Gnm::cvt
 		return dim;
 	}
 
+	VkLogicOp convertRasterOp(RasterOp op)
+	{
+		VkLogicOp lo = VK_LOGIC_OP_MAX_ENUM;
+		switch (op)
+		{
+			case Gnm::kRasterOpBlackness:
+				lo = VK_LOGIC_OP_CLEAR;
+				break;
+			case Gnm::kRasterOpNor:
+				lo = VK_LOGIC_OP_NOR;
+				break;
+			case Gnm::kRasterOpAndInverted:
+				lo = VK_LOGIC_OP_AND_INVERTED;
+				break;
+			case Gnm::kRasterOpCopyInverted:
+				lo = VK_LOGIC_OP_COPY_INVERTED;
+				break;
+			case Gnm::kRasterOpAndReverse:
+				lo = VK_LOGIC_OP_AND_REVERSE;
+				break;
+			case Gnm::kRasterOpInvert:
+				lo = VK_LOGIC_OP_INVERT;
+				break;
+			case Gnm::kRasterOpXor:
+				lo = VK_LOGIC_OP_XOR;
+				break;
+			case Gnm::kRasterOpNand:
+				lo = VK_LOGIC_OP_NAND;
+				break;
+			case Gnm::kRasterOpAnd:
+				lo = VK_LOGIC_OP_AND;
+				break;
+			case Gnm::kRasterOpEquiv:
+				lo = VK_LOGIC_OP_EQUIVALENT;
+				break;
+			case Gnm::kRasterOpNoop:
+				lo = VK_LOGIC_OP_NO_OP;
+				break;
+			case Gnm::kRasterOpOrInverted:
+				lo = VK_LOGIC_OP_OR_INVERTED;
+				break;
+			case Gnm::kRasterOpCopy:
+				lo = VK_LOGIC_OP_COPY;
+				break;
+			case Gnm::kRasterOpOrReverse:
+				lo = VK_LOGIC_OP_OR_REVERSE;
+				break;
+			case Gnm::kRasterOpOr:
+				lo = VK_LOGIC_OP_OR;
+				break;
+			case Gnm::kRasterOpSet:
+				lo = VK_LOGIC_OP_SET;
+				break;
+		}
+		return lo;
+	}
+
 }  // namespace sce::Gnm::cvt

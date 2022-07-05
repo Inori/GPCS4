@@ -1199,7 +1199,23 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setCbControl(CbMode mode, RasterOp op)
 	{
-		// throw std::logic_error("The method or operation is not implemented.");
+		if (mode == kCbModeDisable)
+		{
+			setRenderTargetMask(0);
+		}
+
+		bool      enableLo = (op != kRasterOpCopy);
+		VkLogicOp lo       = cvt::convertRasterOp(op);
+
+		bool dirty = (m_state.gp.om.loState.enableLogicOp != enableLo) ||
+					 m_state.gp.om.loState.logicOp != lo;
+
+		if (dirty)
+		{
+			m_state.gp.om.loState.enableLogicOp = enableLo;
+			m_state.gp.om.loState.logicOp       = lo;
+			m_flags.set(GnmContextFlag::DirtyBlendState);
+		}
 	}
 
 	void GnmCommandBufferDraw::setStencilOpControl(StencilOpControl stencilControl)
