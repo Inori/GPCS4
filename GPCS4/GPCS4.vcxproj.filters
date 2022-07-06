@@ -979,6 +979,12 @@
     <ClInclude Include="Graphics\Sce\SceObjects.h">
       <Filter>Source Files\Graphics\Sce</Filter>
     </ClInclude>
+    <ClInclude Include="Util\UtilRenderDoc.h">
+      <Filter>Source Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform\PlatModule.h">
+      <Filter>Source Files\Platform</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1718,6 +1724,12 @@
     </ClCompile>
     <ClCompile Include="Graphics\Gnm\GnmLabelManager.cpp">
       <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\UtilRenderDoc.cpp">
+      <Filter>Source Files\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Platform\PlatModule.cpp">
+      <Filter>Source Files\Platform</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
