@@ -64,7 +64,9 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setPrimitiveSetup(PrimitiveSetup reg)
 	{
-		VkFrontFace     frontFace = reg.getFrontFace() == kPrimitiveSetupFrontFaceCcw ? VK_FRONT_FACE_COUNTER_CLOCKWISE : VK_FRONT_FACE_CLOCKWISE;
+		VkFrontFace     frontFace = reg.getFrontFace() == kPrimitiveSetupFrontFaceCcw
+										? VK_FRONT_FACE_COUNTER_CLOCKWISE
+										: VK_FRONT_FACE_CLOCKWISE;
 		VkPolygonMode   polyMode  = cvt::convertPolygonMode(reg.getPolygonModeFront());
 		VkCullModeFlags cullMode  = cvt::convertCullMode(reg.getCullFace());
 
@@ -75,7 +77,8 @@ namespace sce::Gnm
 		m_flags.set(GnmContextFlag::DirtyRasterizerState);
 	}
 
-	void GnmCommandBufferDraw::setScreenScissor(int32_t left, int32_t top, int32_t right, int32_t bottom)
+	void GnmCommandBufferDraw::setScreenScissor(
+		int32_t left, int32_t top, int32_t right, int32_t bottom)
 	{
 		VkRect2D scissor;
 		scissor.offset.x      = left;
@@ -93,7 +96,8 @@ namespace sce::Gnm
 		}
 	}
 
-	void GnmCommandBufferDraw::setViewport(uint32_t viewportId, float dmin, float dmax, const float scale[3], const float offset[3])
+	void GnmCommandBufferDraw::setViewport(
+		uint32_t viewportId, float dmin, float dmax, const float scale[3], const float offset[3])
 	{
 		// The viewport's origin in Gnm is in the lower left of the screen,
 		// with Y pointing up.
@@ -145,7 +149,8 @@ namespace sce::Gnm
 		// TODO:
 	}
 
-	void GnmCommandBufferDraw::setGuardBands(float horzClip, float vertClip, float horzDiscard, float vertDiscard)
+	void GnmCommandBufferDraw::setGuardBands(
+		float horzClip, float vertClip, float horzDiscard, float vertDiscard)
 	{
 		// TODO:
 	}
@@ -172,8 +177,9 @@ namespace sce::Gnm
 		auto& ctx = m_state.gp.sc[kShaderStagePs];
 		ctx.code  = psRegs->getCodeAddress();
 
-		const SPI_SHADER_PGM_RSRC2_PS* rsrc2 = reinterpret_cast<const SPI_SHADER_PGM_RSRC2_PS*>(&psRegs->spiShaderPgmRsrc2Ps);
-		ctx.meta.ps.userSgprCount            = rsrc2->user_sgpr;
+		const SPI_SHADER_PGM_RSRC2_PS* rsrc2 =
+			reinterpret_cast<const SPI_SHADER_PGM_RSRC2_PS*>(&psRegs->spiShaderPgmRsrc2Ps);
+		ctx.meta.ps.userSgprCount = rsrc2->user_sgpr;
 
 		const SPI_PS_INPUT_ENA* addr = reinterpret_cast<const SPI_PS_INPUT_ENA*>(&psRegs->spiPsInputAddr);
 		ctx.meta.ps.perspSampleEn    = addr->persp_sample_ena;
@@ -199,8 +205,9 @@ namespace sce::Gnm
 		auto& ctx = m_state.gp.sc[kShaderStageVs];
 		ctx.code  = vsRegs->getCodeAddress();
 
-		const SPI_SHADER_PGM_RSRC2_VS* rsrc2 = reinterpret_cast<const SPI_SHADER_PGM_RSRC2_VS*>(&vsRegs->spiShaderPgmRsrc2Vs);
-		ctx.meta.vs.userSgprCount            = rsrc2->user_sgpr;
+		const SPI_SHADER_PGM_RSRC2_VS* rsrc2 =
+			reinterpret_cast<const SPI_SHADER_PGM_RSRC2_VS*>(&vsRegs->spiShaderPgmRsrc2Vs);
+		ctx.meta.vs.userSgprCount = rsrc2->user_sgpr;
 	}
 
 	void GnmCommandBufferDraw::setEmbeddedVsShader(EmbeddedVsShader shaderId, uint32_t shaderModifier)
@@ -301,7 +308,8 @@ namespace sce::Gnm
 		std::memcpy(&m_state.gp.sc[stage].userData[startUserDataSlot], gpuAddr, sizeof(void*));
 	}
 
-	void GnmCommandBufferDraw::setUserDataRegion(ShaderStage stage, uint32_t startUserDataSlot, const uint32_t* userData, uint32_t numDwords)
+	void GnmCommandBufferDraw::setUserDataRegion(
+		ShaderStage stage, uint32_t startUserDataSlot, const uint32_t* userData, uint32_t numDwords)
 	{
 		std::memcpy(&m_state.gp.sc[stage].userData[startUserDataSlot], userData, numDwords * sizeof(uint32_t));
 	}
@@ -591,13 +599,9 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::drawIndexAuto(uint32_t indexCount, DrawModifier modifier)
 	{
-		// If the index size is currently 32 bits, this command will partially set it to 16 bits
-		m_state.gp.ia.indexType   = VK_INDEX_TYPE_UINT16;
-		m_state.gp.ia.indexBuffer = generateIndexBufferAuto(indexCount);
+		commitGraphicsState<false>();
 
-		commitGraphicsState();
-
-		m_context->drawIndexed(indexCount, 1, 0, 0, 0);
+		m_context->draw(indexCount, 1, 0, 0);
 	}
 
 	void GnmCommandBufferDraw::drawIndexAuto(uint32_t indexCount)
@@ -609,14 +613,9 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::drawIndex(uint32_t indexCount, const void* indexAddr, DrawModifier modifier)
 	{
-		uint32_t indexBufferSize =
-			m_state.gp.ia.indexType == VK_INDEX_TYPE_UINT16
-				? sizeof(uint16_t) * indexCount
-				: sizeof(uint32_t) * indexCount;
+		updateIndexBuffer(indexAddr, indexCount);
 
-		m_state.gp.ia.indexBuffer = generateIndexBuffer(indexAddr, indexBufferSize);
-
-		commitGraphicsState();
+		commitGraphicsState<true>();
 
 		m_context->drawIndexed(indexCount, 1, 0, 0, 0);
 	}
@@ -954,6 +953,19 @@ namespace sce::Gnm
 			bindings.data());
 	}
 
+	void GnmCommandBufferDraw::updateIndexBuffer(
+		const void* indexAddr,
+		uint32_t    indexCount)
+	{
+		uint32_t indexBufferSize =
+			m_state.gp.ia.indexType == VK_INDEX_TYPE_UINT16
+				? sizeof(uint16_t) * indexCount
+				: sizeof(uint32_t) * indexCount;
+
+		m_state.gp.ia.indexBuffer =
+			generateIndexBuffer(indexAddr, indexBufferSize);
+	}
+
 	void GnmCommandBufferDraw::bindVertexBuffers(
 		gcn::VertexInputSemanticTable& semantic,
 		const uint32_t*                vertexTable,
@@ -1003,6 +1015,7 @@ namespace sce::Gnm
 			m_state.gp.ia.indexType);
 	}
 
+	template <bool Indexed>
 	void GnmCommandBufferDraw::updateVertexShaderStage()
 	{
 		// Update vertex input
@@ -1018,7 +1031,10 @@ namespace sce::Gnm
 			auto  shader   = getShader(ctx.code);
 			auto& resTable = shader.getResources();
 
-			bindIndexBuffer();
+			if constexpr (Indexed)
+			{
+				bindIndexBuffer();
+			}
 
 			// Update input layout and bind vertex buffer
 			updateVertexBinding(shader);
@@ -1057,19 +1073,14 @@ namespace sce::Gnm
 		} while (false);
 	}
 
+	template <bool Indexed>
 	void GnmCommandBufferDraw::commitGraphicsState()
 	{
-		updateVertexShaderStage();
+		updateVertexShaderStage<Indexed>();
 
 		updatePixelShaderStage();
 
 		applyRenderState();
-
-		// Set default ms state
-		VltMultisampleState msState;
-		msState.enableAlphaToCoverage = VK_FALSE;
-		msState.sampleMask            = 0xFFFFFFFF;
-		m_context->setMultisampleState(msState);
 
 		// Flush memory to buffer and texture resources.
 		m_initializer->flush();
@@ -1459,6 +1470,7 @@ namespace sce::Gnm
 		msState->sampleMask            = 0xFFFFFFFF;
 		msState->enableAlphaToCoverage = VK_FALSE;
 	}
+
 
 
 }  // namespace sce::Gnm

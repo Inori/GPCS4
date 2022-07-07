@@ -172,11 +172,15 @@ namespace sce::Gnm
 			const uint32_t*                vertexTable,
 			uint32_t                       bufferCount);
 
+		void updateIndexBuffer(
+			const void* indexAddr,
+			uint32_t    indexCount);
 		void updateVertexBinding(GnmShader& shader);
-
+		template<bool Indexed>
 		void updateVertexShaderStage();
 		void updatePixelShaderStage();
 
+		template <bool Indexed>
 		void commitGraphicsState();
 		void commitComputeState();
 
