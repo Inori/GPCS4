@@ -8,6 +8,7 @@
 #include "GpuAddress/GnmGpuAddress.h"
 #include "Emulator.h"
 #include "VirtualGPU.h"
+#include "UtilBit.h"
 
 namespace sce::Gnm
 {
@@ -62,7 +63,7 @@ namespace sce::Gnm
 		Gnm::RenderTargetInitFlags m_flags;    
 	};
 
-	class RenderTarget
+	class alignas(16) RenderTarget
 	{
 	public:
 		enum
@@ -90,6 +91,16 @@ namespace sce::Gnm
 		{
 			std::memcpy(m_regs, other.m_regs, sizeof(m_regs));
 			return *this;
+		}
+
+		bool operator==(const RenderTarget& other) const
+		{
+			return util::bit::bcmpeq(this, &other);
+		}
+
+		bool operator!=(const RenderTarget& other) const
+		{
+			return !util::bit::bcmpeq(this, &other);
 		}
 
 

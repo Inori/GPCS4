@@ -316,107 +316,30 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setRenderTarget(uint32_t rtSlot, RenderTarget const* target)
 	{
-		Rc<VltImageView> targetView = nullptr;
+		// target is pointed to a temporary constructed object on stack,
+		// so we need to save all the object, not pointer
+		const auto& tgt = target != nullptr
+							  ? *target
+							  : RenderTarget();
 
-		do
+		if (m_state.gp.om.targets.color[rtSlot] != tgt)
 		{
-			if (target == nullptr)
-			{
-				break;
-			}
-
-			auto resource = m_tracker.find(target->getBaseAddress());
-
-			if (!resource)
-			{
-				// The render target is not a display buffer registered in video out,
-				// we create a new one.
-				SceRenderTarget rtRes;
-				m_factory.createRenderTarget(target, rtRes);
-
-				Texture rtTexture;
-				rtTexture.initFromRenderTarget(target, false);
-				m_initializer->initTexture(rtRes.image, &rtTexture);
-
-				targetView = rtRes.imageView;
-
-				m_tracker.track(rtRes);
-			}
-			else
-			{
-				// update render target
-				SceRenderTarget rtRes = {};
-				rtRes.image           = resource->renderTarget().image;
-				rtRes.imageView       = resource->renderTarget().imageView;
-				// replace the dummy target with real one
-				rtRes.renderTarget = *target;
-				resource->setRenderTarget(rtRes);
-
-				targetView = rtRes.imageView;
-			}
-		} while (false);
-
-		if (m_state.gp.om.renderTargets.color[rtSlot].view != targetView)
-		{
-			m_state.gp.om.renderTargets.color[rtSlot] = {
-				targetView,
-				VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-			};
-
+			m_state.gp.om.targets.color[rtSlot] = tgt;
 			m_flags.set(GnmContextFlag::DirtyRenderTargets);
 		}
 	}
 
 	void GnmCommandBufferDraw::setDepthRenderTarget(DepthRenderTarget const* depthTarget)
 	{
-		Rc<VltImageView> depthView = nullptr;
-		do
+		// target is pointed to a temporary constructed object on stack,
+		// so we need to save all the object, not pointer
+		const auto& tgt = depthTarget != nullptr
+							  ? *depthTarget
+							  : DepthRenderTarget();
+
+		if (m_state.gp.om.targets.depth != tgt)
 		{
-			if (depthTarget == nullptr)
-			{
-				break;
-			}
-
-			auto zBufferAddr = depthTarget->getZReadAddress();
-			auto resource    = m_tracker.find(zBufferAddr);
-
-			if (!resource)
-			{
-				// create a new depth image and track it
-				SceDepthRenderTarget depthResource = {};
-				m_factory.createDepthImage(depthTarget, depthResource);
-				depthView = depthResource.imageView;
-
-				auto iter = m_tracker.track(depthResource).first;
-				resource  = &iter->second;
-			}
-			else
-			{
-				auto type = resource->type();
-				if (!type.test(SceResourceType::DepthRenderTarget))
-				{
-					SceDepthRenderTarget depthResource = {};
-					m_factory.createDepthImage(depthTarget, depthResource);
-					depthView = depthResource.imageView;
-
-					resource->setDepthRenderTarget(depthResource);
-					// Pending upload
-					resource->setTransform(SceTransformFlag::GpuUpload);
-				}
-				else
-				{
-					depthView = resource->depthRenderTarget().imageView;
-				}
-			}
-
-		} while (false);
-
-		if (m_state.gp.om.renderTargets.depth.view != depthView)
-		{
-			m_state.gp.om.renderTargets.depth = {
-				depthView,
-				VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL
-			};
+			m_state.gp.om.targets.depth = tgt;
 			m_flags.set(GnmContextFlag::DirtyRenderTargets);
 		}
 	}
@@ -1373,8 +1296,9 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::appplyRenderTargets()
 	{
-		m_context->bindRenderTargets(
-			m_state.gp.om.renderTargets);
+		auto targets = getRenderTargets();
+
+		m_context->bindRenderTargets(targets);
 
 		m_flags.clr(GnmContextFlag::DirtyRenderTargets);
 	}
@@ -1471,6 +1395,107 @@ namespace sce::Gnm
 		msState->enableAlphaToCoverage = VK_FALSE;
 	}
 
+	VltRenderTargets GnmCommandBufferDraw::getRenderTargets()
+	{
+		VltRenderTargets result = {};
 
+		for (uint32_t slot = 0; slot != MaxNumRenderTargets; ++slot)
+		{
+			auto& target = m_state.gp.om.targets.color[slot];
+
+			if (target.getBaseAddress() == nullptr)
+			{
+				continue;
+			}
+
+			auto targetView = getColorTarget(target);
+
+			result.color[slot] = VltAttachment{
+				targetView,
+				targetView->imageInfo().layout
+			};
+		}
+
+		auto& depthTarget = m_state.gp.om.targets.depth;
+		if (depthTarget.getZReadAddress() != nullptr)
+		{
+			auto depthView = getDepthTarget(depthTarget);
+
+			result.depth = VltAttachment{
+				depthView,
+				depthView->imageInfo().layout
+			};
+		}
+
+		return result;
+	}
+
+	Rc<VltImageView> GnmCommandBufferDraw::getColorTarget(
+		const RenderTarget& target)
+	{
+		Rc<VltImageView> targetView = nullptr;
+		auto             resource   = m_tracker.find(target.getBaseAddress());
+		if (!resource)
+		{
+			// The render target is not a display buffer registered in video out,
+			// we create a new one.
+			SceRenderTarget rtRes;
+			m_factory.createRenderTarget(&target, rtRes);
+			Texture rtTexture;
+			rtTexture.initFromRenderTarget(&target, false);
+			m_initializer->initTexture(rtRes.image, &rtTexture);
+			targetView = rtRes.imageView;
+			m_tracker.track(rtRes);
+		}
+		else
+		{
+			// update render target
+			SceRenderTarget rtRes = {};
+			rtRes.image           = resource->renderTarget().image;
+			rtRes.imageView       = resource->renderTarget().imageView;
+			// replace the dummy target with real one
+			rtRes.renderTarget = target;
+			resource->setRenderTarget(rtRes);
+			targetView = rtRes.imageView;
+		}
+		return targetView;
+	}
+
+	Rc<VltImageView> GnmCommandBufferDraw::getDepthTarget(
+		const DepthRenderTarget& depthTarget)
+	{
+		Rc<VltImageView> depthView = nullptr;
+		auto             zBufferAddr = depthTarget.getZReadAddress();
+		auto             resource    = m_tracker.find(zBufferAddr);
+
+		if (!resource)
+		{
+			// create a new depth image and track it
+			SceDepthRenderTarget depthResource = {};
+			m_factory.createDepthImage(&depthTarget, depthResource);
+			depthView = depthResource.imageView;
+
+			m_tracker.track(depthResource);
+		}
+		else
+		{
+			auto type = resource->type();
+			if (!type.test(SceResourceType::DepthRenderTarget))
+			{
+				SceDepthRenderTarget depthResource = {};
+				m_factory.createDepthImage(&depthTarget, depthResource);
+				depthView = depthResource.imageView;
+
+				resource->setDepthRenderTarget(depthResource);
+				// Pending upload
+				resource->setTransform(SceTransformFlag::GpuUpload);
+			}
+			else
+			{
+				depthView = resource->depthRenderTarget().imageView;
+			}
+		}
+		return depthView;
+	}
 
 }  // namespace sce::Gnm

@@ -5,6 +5,7 @@
 #include "GnmRegInfo.h"
 #include "GnmStructure.h"
 #include "GpuAddress/GnmGpuAddress.h"
+#include "UtilBit.h"
 
 namespace sce::Gnm
 {
@@ -20,7 +21,7 @@ namespace sce::Gnm
 		int32_t asInt;
 	};
 
-	class DepthRenderTarget
+	class alignas(16) DepthRenderTarget
 	{
 	public:
 		enum
@@ -44,6 +45,16 @@ namespace sce::Gnm
 		{
 			std::memcpy(m_regs, other.m_regs, sizeof(m_regs));
 			return *this;
+		}
+
+		bool operator==(const DepthRenderTarget& other) const
+		{
+			return util::bit::bcmpeq(this, &other);
+		}
+
+		bool operator!=(const DepthRenderTarget& other) const
+		{
+			return !util::bit::bcmpeq(this, &other);
 		}
 
 		SizeAlign getZSizeAlign(void) const

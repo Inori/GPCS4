@@ -73,9 +73,15 @@ namespace sce::Gnm
 		vlt::VltRasterizerState                 state;
 	};
 
+	struct GnmRenderTargets
+	{
+		std::array<RenderTarget, MaxNumRenderTargets> color;
+		DepthRenderTarget                             depth;
+	};
+
 	struct GnmOutputMergerState
 	{
-		vlt::VltRenderTargets            renderTargets;
+		GnmRenderTargets                 targets;
 		vlt::VltDepthStencilState        dsState;
 		vlt::VltMultisampleState         msState;
 		vlt::VltLogicOpState             loState;

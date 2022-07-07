@@ -248,6 +248,12 @@ namespace sce::Gnm
 		vlt::Rc<vlt::VltBuffer> generateIndexBufferAuto(
 			uint32_t indexCount);
 
+		vlt::VltRenderTargets      getRenderTargets();
+		vlt::Rc<vlt::VltImageView> getColorTarget(
+			const RenderTarget& target);
+		vlt::Rc<vlt::VltImageView> getDepthTarget(
+			const DepthRenderTarget& depthTarget);
+
 	private:
 	};
 
