@@ -1433,6 +1433,8 @@ namespace sce::Gnm
 	Rc<VltImageView> GnmCommandBufferDraw::getColorTarget(
 		const RenderTarget& target)
 	{
+		LOG_ASSERT(target.getBaseAddress() != nullptr, "invalid render target");
+
 		Rc<VltImageView> targetView = nullptr;
 		auto             resource   = m_tracker.find(target.getBaseAddress());
 		if (!resource)
@@ -1464,6 +1466,8 @@ namespace sce::Gnm
 	Rc<VltImageView> GnmCommandBufferDraw::getDepthTarget(
 		const DepthRenderTarget& depthTarget)
 	{
+		LOG_ASSERT(depthTarget.getZReadAddress() != nullptr, "invalid depth target");
+
 		Rc<VltImageView> depthView = nullptr;
 		auto             zBufferAddr = depthTarget.getZReadAddress();
 		auto             resource    = m_tracker.find(zBufferAddr);
