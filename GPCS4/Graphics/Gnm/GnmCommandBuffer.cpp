@@ -303,7 +303,9 @@ namespace sce::Gnm
 		auto& resTable = shader.getResources();
 
 		// create and bind shader resources
-		bindResource(VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, resTable, ctx.userData);
+		bindResource(VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+					 resTable,
+					 ctx.userData);
 
 		// bind the shader
 		m_context->bindShader(
@@ -345,9 +347,9 @@ namespace sce::Gnm
 		if (resource != nullptr)
 		{
 			auto type = resource->type();
-			if (type.test(SceResourceType::Texture) ||
-				type.test(SceResourceType::RenderTarget) ||
-				type.test(SceResourceType::DepthRenderTarget))
+			if (type.any(SceResourceType::Texture,
+						 SceResourceType::RenderTarget,
+						 SceResourceType::DepthRenderTarget))
 			{
 				// An image backend buffer,
 				// we create and fill the buffer,

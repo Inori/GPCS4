@@ -13,19 +13,10 @@ namespace sce::vlt
 		~VltDebugUtil();
 
 		void setObjectName(
-			uint64_t object, VkDebugReportObjectTypeEXT objType, const char* objName);
+			VkDebugUtilsObjectNameInfoEXT* nameInfo);
 
 		void setObjectTag(
-			uint64_t object, VkDebugReportObjectTypeEXT objType, void* tagData, size_t tagSize, uint64_t tagName = 0);
-
-		void cmdMarkerBegin(
-			VkCommandBuffer command, const char* marker);
-
-		void cmdMarkerEnd(
-			VkCommandBuffer command);
-
-		void cmdMarkerInsert(
-			VkCommandBuffer command, const char* marker);
+			VkDebugUtilsObjectTagInfoEXT* tagInfo);
 
 		void cmdBeginDebugUtilsLabel(
 			VkCommandBuffer command, VkDebugUtilsLabelEXT* labelInfo);
@@ -42,11 +33,8 @@ namespace sce::vlt
 	private:
 		VltDevice* m_device;
 
-		static PFN_vkDebugMarkerSetObjectTagEXT  pfnDebugMarkerSetObjectTag;
-		static PFN_vkDebugMarkerSetObjectNameEXT pfnDebugMarkerSetObjectName;
-		static PFN_vkCmdDebugMarkerBeginEXT      pfnCmdDebugMarkerBegin;
-		static PFN_vkCmdDebugMarkerEndEXT        pfnCmdDebugMarkerEnd;
-		static PFN_vkCmdDebugMarkerInsertEXT     pfnCmdDebugMarkerInsert;
+		static PFN_vkSetDebugUtilsObjectNameEXT pfnSetDebugUtilsObjectNameEXT;
+		static PFN_vkSetDebugUtilsObjectTagEXT  pfnSetDebugUtilsObjectTagEXT;
 
 		static PFN_vkCmdBeginDebugUtilsLabelEXT  pfnCmdBeginDebugUtilsLabelEXT;
 		static PFN_vkCmdEndDebugUtilsLabelEXT    pfnCmdEndDebugUtilsLabelEXT;

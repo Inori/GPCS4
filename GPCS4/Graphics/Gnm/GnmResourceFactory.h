@@ -1,6 +1,9 @@
 #pragma once
 
 #include "GnmCommon.h"
+#include "Violet/VltDebugUtil.h"
+
+#include <atomic>
 
 namespace sce
 {
@@ -71,7 +74,10 @@ namespace sce
 				SceSampler&    sampler);
 
 		private:
-			vlt::VltDevice* m_device;
+			vlt::VltDevice*   m_device;
+			vlt::VltDebugUtil m_debugUtil;
+
+			static std::atomic_size_t s_objectId;
 		};
 
 

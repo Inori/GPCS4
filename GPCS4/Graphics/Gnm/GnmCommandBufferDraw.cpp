@@ -622,8 +622,13 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setDepthStencilDisable()
 	{
-		m_state.gp.om.dsState = VltDepthStencilState();
-		m_flags.set(GnmContextFlag::DirtyDepthStencilState);
+		if (m_state.gp.om.dsState.enableDepthTest != VK_FALSE ||
+			m_state.gp.om.dsState.enableDepthWrite != VK_FALSE ||
+			m_state.gp.om.dsState.enableStencilTest != VK_FALSE)
+		{
+			m_state.gp.om.dsState = VltDepthStencilState();
+			m_flags.set(GnmContextFlag::DirtyDepthStencilState);
+		}
 	}
 
 	void GnmCommandBufferDraw::setClipControl(ClipControl reg)
@@ -963,12 +968,16 @@ namespace sce::Gnm
 			updateVertexBinding(shader);
 
 			// create and bind shader resources
-			bindResource(VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, resTable, ctx.userData);
+			bindResource(VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
+						 resTable,
+						 ctx.userData);
 
 			// bind the shader
 			m_context->bindShader(
 				VK_SHADER_STAGE_VERTEX_BIT,
-				shader.compile(m_moduleInfo, ctx.meta));
+				shader.compile(m_moduleInfo,
+							   ctx.meta));
+
 		} while (false);
 	}
 
@@ -987,12 +996,16 @@ namespace sce::Gnm
 			auto& resTable = shader.getResources();
 
 			// create and bind shader resources
-			bindResource(VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, resTable, ctx.userData);
+			bindResource(VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+						 resTable,
+						 ctx.userData);
 
 			// bind the shader
 			m_context->bindShader(
 				VK_SHADER_STAGE_FRAGMENT_BIT,
-				shader.compile(m_moduleInfo, ctx.meta));
+				shader.compile(m_moduleInfo,
+							   ctx.meta));
+
 		} while (false);
 	}
 

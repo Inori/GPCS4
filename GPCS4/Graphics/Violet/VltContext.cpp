@@ -1377,6 +1377,30 @@ namespace sce::vlt
 		m_cmd->waitSemaphore(submission);
 	}
 
+	void VltContext::beginDebugLabel(VkDebugUtilsLabelEXT* label)
+	{
+		if (!m_device->instance()->extensions().extDebugUtils)
+			return;
+
+		m_cmd->cmdBeginDebugUtilsLabel(label);
+	}
+
+	void VltContext::endDebugLabel()
+	{
+		if (!m_device->instance()->extensions().extDebugUtils)
+			return;
+
+		m_cmd->cmdEndDebugUtilsLabel();
+	}
+
+	void VltContext::insertDebugLabel(VkDebugUtilsLabelEXT* label)
+	{
+		if (!m_device->instance()->extensions().extDebugUtils)
+			return;
+
+		m_cmd->cmdInsertDebugUtilsLabel(label);
+	}
+
 	void VltContext::beginRendering()
 	{
 		auto& framebuffer = m_state.cb.framebuffer;
@@ -1991,7 +2015,6 @@ namespace sce::vlt
 		m_cmd->cmdPipelineBarrier2(
 			VltCmdType::ExecBuffer, &info);
 	}
-
 
 
 }  // namespace sce::vlt

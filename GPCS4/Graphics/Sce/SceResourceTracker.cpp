@@ -48,21 +48,31 @@ namespace sce
 			if (transform.test(SceTransformFlag::GpuUpload))
 			{
 				Rc<VltImage> dstImage = nullptr;
-				if (type.test(SceResourceType::RenderTarget))
-				{
-					dstImage = res.second.renderTarget().image;
-				}
-				else if (type.test(SceResourceType::Texture))
+				if (type.test(SceResourceType::Texture))
 				{
 					dstImage = res.second.texture().image;
 				}
+				else if (type.test(SceResourceType::RenderTarget))
+				{
+					dstImage = res.second.renderTarget().image;
+				}
+				else if (type.test(SceResourceType::DepthRenderTarget))
+				{
+					dstImage = res.second.depthRenderTarget().image;
+				}
 
 				VkExtent3D               imageExtent       = dstImage->mipLevelExtent(0);
-				VkImageSubresourceLayers subresourceLayers = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+				VkImageSubresourceLayers subresourceLayers = 
+				{
+					dstImage->formatInfo()->aspectMask, 0, 0, 1
+				};
 
 				auto& srcBuffer = res.second.buffer().buffer;
-				context->copyBufferToImage(dstImage, subresourceLayers, VkOffset3D{ 0, 0, 0 }, imageExtent,
-											 srcBuffer, 0, { 0u, 0u });
+				context->copyBufferToImage(dstImage,
+										   subresourceLayers,
+										   VkOffset3D{ 0, 0, 0 },
+										   imageExtent,
+										   srcBuffer, 0, { 0u, 0u });
 			}
 
 			if (transform.test(SceTransformFlag::GpuDownload))

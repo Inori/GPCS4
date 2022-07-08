@@ -8,6 +8,7 @@
 #include "Violet/VltBuffer.h"
 #include "Violet/VltImage.h"
 #include "Violet/VltSampler.h"
+#include "fmt/format.h"
 
 using namespace sce::vlt;
 
@@ -15,8 +16,11 @@ LOG_CHANNEL(Graphic.Gnm.GnmResourceFactory);
 
 namespace sce::Gnm
 {
+	std::atomic<size_t> GnmResourceFactory::s_objectId = 0;
+
 	GnmResourceFactory::GnmResourceFactory(VltDevice* device) :
-		m_device(device)
+		m_device(device),
+		m_debugUtil(device)
 	{
 	}
 
@@ -39,7 +43,7 @@ namespace sce::Gnm
 		// NOTE: this slice count is only valid if the array view hasn't changed since initialization!
 		imgInfo.numLayers     = depthTarget->getLastArraySliceIndex() - depthTarget->getBaseArraySliceIndex() + 1;
 		imgInfo.mipLevels     = 1;
-		imgInfo.usage         = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+		imgInfo.usage         = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 		imgInfo.stages        = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
 		imgInfo.access        = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 		imgInfo.tiling        = VK_IMAGE_TILING_OPTIMAL;
@@ -64,6 +68,27 @@ namespace sce::Gnm
 		depthImage.imageView = m_device->createImageView(
 			depthImage.image, viewInfo);
 		depthImage.depthRenderTarget = *depthTarget;
+
+		// Set debug name
+		auto imageName = fmt::format("DepthTarget_{}_{}",
+									 s_objectId++,
+									 fmt::ptr(depthTarget->getZReadAddress()));
+		auto viewName  = fmt::format("DepthView_{}_{}",
+									 s_objectId++,
+									 fmt::ptr(depthTarget->getZReadAddress()));
+		
+		VkDebugUtilsObjectNameInfoEXT nameInfo;
+		nameInfo.sType        = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
+		nameInfo.pNext        = nullptr;
+		nameInfo.objectType   = VK_OBJECT_TYPE_IMAGE;
+		nameInfo.pObjectName  = imageName.c_str();
+		nameInfo.objectHandle = (uint64_t)depthImage.image->handle();
+		m_debugUtil.setObjectName(&nameInfo);
+
+		nameInfo.objectType   = VK_OBJECT_TYPE_IMAGE_VIEW;
+		nameInfo.pObjectName  = viewName.c_str();
+		nameInfo.objectHandle = (uint64_t)depthImage.imageView->handle();
+		m_debugUtil.setObjectName(&nameInfo);
 
 		return true;
 	}
@@ -100,6 +125,27 @@ namespace sce::Gnm
 		targetImage.imageView    = m_device->createImageView(targetImage.image, viewInfo);
 		targetImage.renderTarget = *target;
 
+		// Set debug name
+		auto imageName = fmt::format("ColorTarget_{}_{}",
+									 s_objectId++,
+									 fmt::ptr(target->getBaseAddress()));
+		auto viewName  = fmt::format("ColorView_{}_{}",
+									 s_objectId++,
+									 fmt::ptr(target->getBaseAddress()));
+
+		VkDebugUtilsObjectNameInfoEXT nameInfo;
+		nameInfo.sType        = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
+		nameInfo.pNext        = nullptr;
+		nameInfo.objectType   = VK_OBJECT_TYPE_IMAGE;
+		nameInfo.pObjectName  = imageName.c_str();
+		nameInfo.objectHandle = (uint64_t)targetImage.image->handle();
+		m_debugUtil.setObjectName(&nameInfo);
+
+		nameInfo.objectType   = VK_OBJECT_TYPE_IMAGE_VIEW;
+		nameInfo.pObjectName  = viewName.c_str();
+		nameInfo.objectHandle = (uint64_t)targetImage.imageView->handle();
+		m_debugUtil.setObjectName(&nameInfo);
+
 		return true;
 	}
 
@@ -114,9 +160,23 @@ namespace sce::Gnm
 		info.stages                = createInfo.stage;
 		info.access                = createInfo.access;
 
-		sceBuffer.buffer           = m_device->createBuffer(info, createInfo.memoryType);
-		sceBuffer.bufferView       = nullptr;
-		sceBuffer.gnmBuffer        = *vsharp;
+		sceBuffer.buffer     = m_device->createBuffer(info, createInfo.memoryType);
+		sceBuffer.bufferView = nullptr;
+		sceBuffer.gnmBuffer  = *vsharp;
+
+		// Set debug name
+		auto bufferName = fmt::format("Buffer_{}_{}",
+									  s_objectId++,
+									  fmt::ptr(vsharp->getBaseAddress()));
+
+		VkDebugUtilsObjectNameInfoEXT nameInfo;
+		nameInfo.sType        = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
+		nameInfo.pNext        = nullptr;
+		nameInfo.objectType   = VK_OBJECT_TYPE_BUFFER;
+		nameInfo.pObjectName  = bufferName.c_str();
+		nameInfo.objectHandle = (uint64_t)sceBuffer.buffer->getSliceHandle().handle;
+		m_debugUtil.setObjectName(&nameInfo);
+
 		return true;
 	}
 
@@ -168,6 +228,32 @@ namespace sce::Gnm
 		sceTexture.imageView = m_device->createImageView(sceTexture.image, viewInfo);
 		sceTexture.texture   = *tsharp;
 
+		if (s_objectId == 196)
+		{
+			__debugbreak();
+		}
+
+		// Set debug name
+		auto imageName = fmt::format("Texture_{}_{}",
+									 s_objectId++,
+									 fmt::ptr(tsharp->getBaseAddress()));
+		auto viewName  = fmt::format("TextureView_{}_{}",
+									 s_objectId++,
+									 fmt::ptr(tsharp->getBaseAddress()));
+
+		VkDebugUtilsObjectNameInfoEXT nameInfo;
+		nameInfo.sType        = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
+		nameInfo.pNext        = nullptr;
+		nameInfo.objectType   = VK_OBJECT_TYPE_IMAGE;
+		nameInfo.pObjectName  = imageName.c_str();
+		nameInfo.objectHandle = (uint64_t)sceTexture.image->handle();
+		m_debugUtil.setObjectName(&nameInfo);
+
+		nameInfo.objectType   = VK_OBJECT_TYPE_IMAGE_VIEW;
+		nameInfo.pObjectName  = viewName.c_str();
+		nameInfo.objectHandle = (uint64_t)sceTexture.imageView->handle();
+		m_debugUtil.setObjectName(&nameInfo);
+
 		return true;
 	}
 
@@ -203,8 +289,20 @@ namespace sce::Gnm
 		sampler.sampler = m_device->createSampler(samplerInfo);
 		sampler.ssharp  = *ssharp;
 
+		// Set debug name
+		auto samplerName = fmt::format("Sampler_{}", s_objectId++);
+
+		VkDebugUtilsObjectNameInfoEXT nameInfo;
+		nameInfo.sType        = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
+		nameInfo.pNext        = nullptr;
+		nameInfo.objectType   = VK_OBJECT_TYPE_SAMPLER;
+		nameInfo.pObjectName  = samplerName.c_str();
+		nameInfo.objectHandle = (uint64_t)sampler.sampler->handle();
+		m_debugUtil.setObjectName(&nameInfo);
+
 		return true;
 	}
 
+	
 
 }  // namespace sce::Gnm
