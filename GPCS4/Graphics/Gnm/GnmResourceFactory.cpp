@@ -258,8 +258,21 @@ namespace sce::Gnm
 	}
 
 	bool GnmResourceFactory::createSampler(
-		const Sampler* ssharp,
-		SceSampler&    sampler)
+		const Sampler*  ssharp,
+		Rc<VltSampler>& sampler)
+	{
+		sampler = m_samplerCache.getSampler(*ssharp);
+
+		if (sampler == nullptr)
+		{
+			sampler = createSampler(ssharp);
+			m_samplerCache.addSampler(*ssharp, sampler);
+		}
+
+		return true;
+	}
+
+	Rc<VltSampler> GnmResourceFactory::createSampler(const Sampler* ssharp)
 	{
 		DepthCompare depthComp = ssharp->getDepthCompareFunction();
 
@@ -281,13 +294,12 @@ namespace sce::Gnm
 		samplerInfo.addressModeU   = cvt::convertWrapMode(ssharp->getWrapModeX());
 		samplerInfo.addressModeV   = cvt::convertWrapMode(ssharp->getWrapModeY());
 		samplerInfo.addressModeW   = cvt::convertWrapMode(ssharp->getWrapModeZ());
-		samplerInfo.compareToDepth = depthComp != kDepthCompareNever;
+		samplerInfo.compareToDepth = VkBool32(depthComp != kDepthCompareNever);
 		samplerInfo.compareOp      = cvt::convertDepthCompare(depthComp);
 		samplerInfo.borderColor    = s_borderColors[ssharp->getBorderColor()];
 		samplerInfo.usePixelCoord  = ssharp->getForceUnnormalized();
 
-		sampler.sampler = m_device->createSampler(samplerInfo);
-		sampler.ssharp  = *ssharp;
+		Rc<VltSampler> result = m_device->createSampler(samplerInfo);
 
 		// Set debug name
 		auto samplerName = fmt::format("Sampler_{}", s_objectId++);
@@ -297,12 +309,11 @@ namespace sce::Gnm
 		nameInfo.pNext        = nullptr;
 		nameInfo.objectType   = VK_OBJECT_TYPE_SAMPLER;
 		nameInfo.pObjectName  = samplerName.c_str();
-		nameInfo.objectHandle = (uint64_t)sampler.sampler->handle();
+		nameInfo.objectHandle = (uint64_t)result->handle();
 		m_debugUtil.setObjectName(&nameInfo);
 
-		return true;
+		return result;
 	}
-
 	
 
 }  // namespace sce::Gnm

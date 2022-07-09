@@ -102,17 +102,6 @@ namespace sce
 		size_t memorySize() const;
 	};
 
-	/**
-	 * Sampler is not memory resource so it won't be
-	 * tracked by resource tracker.
-	 * It is placed here just for convenience.
-	 */
-	struct SceSampler
-	{
-		Gnm::Sampler             ssharp;
-		vlt::Rc<vlt::VltSampler> sampler;
-	};
-
 
 	/**
 	 * \brief Represent a Gnm resource with backing memory.

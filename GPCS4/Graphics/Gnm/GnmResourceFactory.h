@@ -1,7 +1,9 @@
 #pragma once
 
 #include "GnmCommon.h"
+#include "GnmSamplerCache.h"
 #include "Violet/VltDebugUtil.h"
+
 
 #include <atomic>
 
@@ -70,12 +72,17 @@ namespace sce
 				SceRenderTarget&    targetImage);
 
 			bool createSampler(
-				const Sampler* ssharp,
-				SceSampler&    sampler);
+				const Sampler*            ssharp,
+				vlt::Rc<vlt::VltSampler>& sampler);
+
+		private:
+			vlt::Rc<vlt::VltSampler> createSampler(
+				const Sampler* ssharp);
 
 		private:
 			vlt::VltDevice*   m_device;
 			vlt::VltDebugUtil m_debugUtil;
+			GnmSamplerCache   m_samplerCache;
 
 			static std::atomic_size_t s_objectId;
 		};

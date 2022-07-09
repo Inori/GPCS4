@@ -78,6 +78,7 @@
     <ClInclude Include="Graphics\Gnm\GnmRegInfo.h" />
     <ClInclude Include="Graphics\Gnm\GnmRenderTarget.h" />
     <ClInclude Include="Graphics\Gnm\GnmSampler.h" />
+    <ClInclude Include="Graphics\Gnm\GnmSamplerCache.h" />
     <ClInclude Include="Graphics\Gnm\GnmShader.h" />
     <ClInclude Include="Graphics\Gnm\GnmSharpBuffer.h" />
     <ClInclude Include="Graphics\Gnm\GnmStructure.h" />
@@ -358,6 +359,7 @@
     <ClCompile Include="Graphics\Gnm\GnmConverter.cpp" />
     <ClCompile Include="Graphics\Gnm\GnmDataFormat.cpp" />
     <ClCompile Include="Graphics\Gnm\GnmOpCode.cpp" />
+    <ClCompile Include="Graphics\Gnm\GnmSamplerCache.cpp" />
     <ClCompile Include="Graphics\Gnm\GnmShader.cpp" />
     <ClCompile Include="Graphics\Gnm\GpuAddress\GnmGpuAddress.cpp" />
     <ClCompile Include="Graphics\Gnm\GpuAddress\GnmGpuAddressInternal.cpp" />

@@ -198,13 +198,13 @@ namespace sce::Gnm
 		uint32_t              startRegister,
 		VkPipelineStageFlags2 stage)
 	{
-		SceSampler sampler;
+		Rc<VltSampler> sampler = nullptr;
 		m_factory.createSampler(ssharp, sampler);
 
 		uint32_t slot = computeSamplerBinding(
 			gcnProgramTypeFromVkStage(stage), startRegister);
 
-		m_context->bindResourceSampler(slot, sampler.sampler);
+		m_context->bindResourceSampler(slot, sampler);
 	}
 
 	void GnmCommandBuffer::bindResource(

@@ -985,6 +985,9 @@
     <ClInclude Include="Platform\PlatModule.h">
       <Filter>Source Files\Platform</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Gnm\GnmSamplerCache.h">
+      <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Loader\EbootObject.cpp">
@@ -1730,6 +1733,9 @@
     </ClCompile>
     <ClCompile Include="Platform\PlatModule.cpp">
       <Filter>Source Files\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Gnm\GnmSamplerCache.cpp">
+      <Filter>Source Files\Graphics\Gnm</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

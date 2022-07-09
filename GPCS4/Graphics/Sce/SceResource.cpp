@@ -2,6 +2,9 @@
 
 #include "Violet/VltBuffer.h"
 #include "Violet/VltImage.h"
+#include "Violet/VltHash.h"
+
+using namespace sce::vlt;
 
 namespace sce
 {
