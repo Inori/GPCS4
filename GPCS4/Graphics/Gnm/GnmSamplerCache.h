@@ -24,7 +24,6 @@ namespace sce::Gnm
 
 	/**
 	 * \brief Sampler cache
-	 * 
 	 */
 	class GnmSamplerCache
 	{

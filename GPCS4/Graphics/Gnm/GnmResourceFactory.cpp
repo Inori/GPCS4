@@ -97,6 +97,7 @@ namespace sce::Gnm
 		const RenderTarget* target,
 		SceRenderTarget&    targetImage)
 	{
+
 		VltImageCreateInfo imageInfo;
 		imageInfo.type        = VK_IMAGE_TYPE_2D;
 		imageInfo.format      = cvt::convertDataFormat(target->getDataFormat());
@@ -105,11 +106,23 @@ namespace sce::Gnm
 		imageInfo.extent      = { target->getWidth(), target->getHeight(), 1 };
 		imageInfo.numLayers   = 1;
 		imageInfo.mipLevels   = 1;
-		imageInfo.usage       = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-		imageInfo.stages      = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-		imageInfo.access      = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_SHADER_READ_BIT;
-		imageInfo.tiling      = VK_IMAGE_TILING_OPTIMAL;
-		imageInfo.layout      = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+		imageInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT |
+						  VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+						  VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+						  VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+
+		imageInfo.stages = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT |
+						   VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT |
+						   VK_PIPELINE_STAGE_TRANSFER_BIT;
+
+		imageInfo.access = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
+						   VK_ACCESS_SHADER_READ_BIT |
+						   VK_ACCESS_TRANSFER_READ_BIT |
+						   VK_ACCESS_TRANSFER_WRITE_BIT;
+
+		imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+		imageInfo.layout = VK_IMAGE_LAYOUT_GENERAL;
 
 		VltImageViewCreateInfo viewInfo;
 		viewInfo.type      = VK_IMAGE_VIEW_TYPE_2D;

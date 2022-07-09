@@ -225,27 +225,8 @@ namespace sce::vlt
 		VkImageLayout                  srcLayout,
 		VkImageLayout                  dstLayout)
 	{
-		this->transformImage(
-			dstImage,
-			dstSubresources,
-			srcLayout,
-			dstImage->info().stages,
-			dstImage->info().access,
-			dstLayout,
-			dstImage->info().stages,
-			dstImage->info().access);
-	}
+		this->endRendering();
 
-	void VltContext::transformImage(
-		const Rc<VltImage>&            dstImage,
-		const VkImageSubresourceRange& dstSubresources,
-		VkImageLayout                  srcLayout,
-		VkPipelineStageFlags2          srcStages,
-		VkAccessFlags2                 srcAccess,
-		VkImageLayout                  dstLayout,
-		VkPipelineStageFlags2          dstStages,
-		VkAccessFlags2                 dstAccess)
-	{
 		if (srcLayout != dstLayout)
 		{
 			m_execBarriers.recordCommands(m_cmd);
@@ -253,11 +234,11 @@ namespace sce::vlt
 			m_execBarriers.accessImage(
 				dstImage, dstSubresources,
 				srcLayout,
-				srcStages,
-				srcAccess,
+				dstImage->info().stages,
+				dstImage->info().access,
 				dstLayout,
-				dstStages,
-				dstAccess);
+				dstImage->info().stages,
+				dstImage->info().access);
 
 			m_cmd->trackResource<VltAccess::Write>(dstImage);
 		}
@@ -1407,6 +1388,8 @@ namespace sce::vlt
 		if (!m_flags.test(VltContextFlag::GpRenderingActive) &&
 			framebuffer != nullptr)
 		{
+			framebuffer->prepareLayout(this);
+
 			m_execBarriers.recordCommands(m_cmd);
 
 			const VltFramebufferSize fbSize = framebuffer->size();
@@ -1679,7 +1662,9 @@ namespace sce::vlt
 		}
 
 		// Allocate and update descriptor set
-		auto& set = BindPoint == VK_PIPELINE_BIND_POINT_GRAPHICS ? m_gpSet : m_cpSet;
+		auto& set = BindPoint == VK_PIPELINE_BIND_POINT_GRAPHICS
+						? m_gpSet
+						: m_cpSet;
 
 		if (layout->bindingCount())
 		{
@@ -1955,9 +1940,6 @@ namespace sce::vlt
 			framebuffer->setAttachmentClearValues(m_state.cb.clearValues);
 			m_flags.clr(VltContextFlag::GpDirtyFramebufferState);
 		}
-
-		framebuffer->prepareRenderingLayout(m_execAcquires);
-		m_execAcquires.recordCommands(m_cmd);
 
 		m_flags.clr(VltContextFlag::GpDirtyFramebuffer);
 	}

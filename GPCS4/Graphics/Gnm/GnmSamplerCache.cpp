@@ -5,6 +5,16 @@ using namespace sce::vlt;
 
 namespace sce::Gnm
 {
+	size_t GnmSamplerHash::operator()(const Sampler& object) const
+	{
+		VltHashState state;
+		state.add(object.m_regs[0]);
+		state.add(object.m_regs[1]);
+		state.add(object.m_regs[2]);
+		state.add(object.m_regs[3]);
+		return state;
+	}
+
 	GnmSamplerCache::GnmSamplerCache()
 	{
 	}
@@ -31,16 +41,6 @@ namespace sce::Gnm
 		const Rc<VltSampler>& sampler)
 	{
 		m_samplers.emplace(ssharp, sampler);
-	}
-
-	size_t GnmSamplerHash::operator()(const Sampler& object) const
-	{
-		VltHashState state;
-		state.add(object.m_regs[0]);
-		state.add(object.m_regs[1]);
-		state.add(object.m_regs[2]);
-		state.add(object.m_regs[3]);
-		return state;
 	}
 
 }  // namespace sce::Gnm

@@ -470,12 +470,14 @@ namespace sce::Gnm
 		void commitComputeState(
 			GnmShaderContext& ctx);
 
-
 		ShaderStage getShaderStage(
 			VkPipelineStageFlags pipeStage);
 
 		SceBuffer getResourceBuffer(
 			const GnmBufferCreateInfo& info);
+
+		SceTexture getResourceTexture(
+			const GnmImageCreateInfo& info);
 
 		virtual void updateMetaBufferInfo(
 			VkPipelineStageFlags stage,

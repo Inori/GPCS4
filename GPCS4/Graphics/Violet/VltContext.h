@@ -479,21 +479,6 @@ namespace sce::vlt
 			VkImageLayout                  dstLayout);
 
 		/**
-         * \brief Transforms image subresource layouts
-		 * 
-		 * Note the internal image info layout is not changed.
-         */
-		void transformImage(
-			const Rc<VltImage>&            dstImage,
-			const VkImageSubresourceRange& dstSubresources,
-			VkImageLayout                  srcLayout,
-			VkPipelineStageFlags2          srcStages,
-			VkAccessFlags2                 srcAccess,
-			VkImageLayout                  dstLayout,
-			VkPipelineStageFlags2          dstStages,
-			VkAccessFlags2                 dstAccess);
-
-		/**
 		 * \brief Copies data from one buffer to another
 		 *
 		 * \param [in] dstBuffer Destination buffer

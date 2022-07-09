@@ -171,8 +171,6 @@ namespace sce::Gnm
 		VkImageTiling         tiling,
 		VkImageLayout         layout)
 	{
-		SceTexture texture;
-
 		GnmImageCreateInfo info;
 		info.tsharp     = tsharp;
 		info.usage      = usage;
@@ -182,13 +180,10 @@ namespace sce::Gnm
 		info.layout     = layout;
 		info.memoryType = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
-		m_factory.createImage(info, texture);
-		m_tracker.track(texture);
-
-		m_initializer->initTexture(texture.image, tsharp);
-
-		uint32_t slot = computeResourceBinding(
-			gcnProgramTypeFromVkStage(stage), startRegister);
+		SceTexture texture  = getResourceTexture(info);
+		auto       progType = gcnProgramTypeFromVkStage(stage);
+		uint32_t   slot     = computeResourceBinding(progType,
+													 startRegister);
 
 		m_context->bindResourceView(slot, texture.imageView, nullptr);
 	}
@@ -198,6 +193,9 @@ namespace sce::Gnm
 		uint32_t              startRegister,
 		VkPipelineStageFlags2 stage)
 	{
+		// Samplers are cached internally
+		// in resource factory
+
 		Rc<VltSampler> sampler = nullptr;
 		m_factory.createSampler(ssharp, sampler);
 
@@ -349,7 +347,8 @@ namespace sce::Gnm
 			auto type = resource->type();
 			if (type.any(SceResourceType::Texture,
 						 SceResourceType::RenderTarget,
-						 SceResourceType::DepthRenderTarget))
+						 SceResourceType::DepthRenderTarget) &&
+				!type.test(SceResourceType::Buffer))
 			{
 				// An image backend buffer,
 				// we create and fill the buffer,
@@ -384,6 +383,64 @@ namespace sce::Gnm
 			// upload content
 			m_initializer->initBuffer(result.buffer, vsharp);
 			// track the new buffer
+			m_tracker.track(result);
+		}
+
+		return result;
+	}
+
+	SceTexture GnmCommandBuffer::getResourceTexture(
+		const GnmImageCreateInfo& info)
+	{
+		SceTexture result = {};
+
+		const auto& tsharp = info.tsharp;
+		void*       memory = tsharp->getBaseAddress();
+
+		auto resource = m_tracker.find(memory);
+		if (resource != nullptr)
+		{
+			auto type = resource->type();
+			if (type.test(SceResourceType::Buffer) &&
+				!type.test(SceResourceType::Texture))
+			{
+				m_factory.createImage(info, result);
+				m_initializer->initTexture(result.image, tsharp);
+
+				resource->setTexture(result);
+				resource->setTransform(SceTransformFlag::GpuUpload);
+			}
+			else if (type.test(SceResourceType::RenderTarget) &&
+					 !type.test(SceResourceType::Texture))
+			{
+				const auto& target = resource->renderTarget();
+				result.image       = target.image;
+				result.imageView   = target.imageView;
+				result.texture     = *tsharp;
+				resource->setTexture(result);
+			}
+			else if (type.test(SceResourceType::DepthRenderTarget) &&
+					 !type.test(SceResourceType::Texture))
+			{
+				const auto& target = resource->depthRenderTarget();
+				result.image       = target.image;
+				result.imageView   = target.imageView;
+				result.texture     = *tsharp;
+				resource->setTexture(result);
+			}
+			else
+			{
+				result = resource->texture();
+			}
+		}
+		else
+		{
+			// create a fresh new texture,
+			// initialize and track it
+			m_factory.createImage(info, result);
+
+			m_initializer->initTexture(result.image, tsharp);
+
 			m_tracker.track(result);
 		}
 
@@ -443,5 +500,7 @@ namespace sce::Gnm
 		VltShaderKey  key(info.stage(), info.key());
 		return m_shaderModules.getShaderModule(key, code);
 	}
+
+
 
 }  // namespace sce::Gnm

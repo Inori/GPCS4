@@ -1,6 +1,6 @@
 #include "VltFramebuffer.h"
 
-#include "VltBarrier.h"
+#include "VltContext.h"
 #include "VltImage.h"
 
 namespace sce::vlt
@@ -112,36 +112,26 @@ namespace sce::vlt
 		return VltFramebufferSize{ extent.width, extent.height, layers };
 	}
 
-	void VltFramebuffer::prepareRenderingLayout(VltBarrierSet& barrier)
+	void VltFramebuffer::prepareLayout(VltContext* ctx)
 	{
 		for (uint32_t i = 0; i < MaxNumRenderTargets; i++)
 		{
 			auto& colorView = m_renderTargets.color[i].view;
-			if (colorView != nullptr)
+			if (colorView == nullptr)
 			{
-				auto& colorImage = colorView->image();
-				if (colorImage->info().layout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
-				{
-					continue;
-				}
-
-				VkImageSubresourceRange subresources;
-				subresources.aspectMask     = colorImage->formatInfo()->aspectMask;
-				subresources.baseArrayLayer = 0;
-				subresources.baseMipLevel   = 0;
-				subresources.layerCount     = colorImage->info().numLayers;
-				subresources.levelCount     = colorImage->info().mipLevels;
-
-				barrier.accessImage(
-					colorImage,
-					subresources,
-					VK_IMAGE_LAYOUT_UNDEFINED,
-					VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-					0,
-					VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-					VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-					VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT);
+				continue;
 			}
+
+			auto& colorImage = colorView->image();
+			if (colorImage->info().layout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+			{
+				continue;
+			}
+
+			ctx->transformImage(colorImage,
+								colorImage->getAvailableSubresources(),
+								VK_IMAGE_LAYOUT_UNDEFINED,
+								VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 		}
 
 		auto& depthView = m_renderTargets.depth.view;
@@ -150,23 +140,39 @@ namespace sce::vlt
 			auto& depthImage = depthView->image();
 			if (depthImage->info().layout != VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL)
 			{
-				VkImageSubresourceRange subresources;
-				subresources.aspectMask     = depthImage->formatInfo()->aspectMask;
-				subresources.baseArrayLayer = 0;
-				subresources.baseMipLevel   = 0;
-				subresources.layerCount     = depthImage->info().numLayers;
-				subresources.levelCount     = depthImage->info().mipLevels;
-
-				barrier.accessImage(
-					depthImage,
-					subresources,
-					VK_IMAGE_LAYOUT_UNDEFINED,
-					VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
-					0,
-					VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
-					VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
-					VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT);
+				ctx->transformImage(depthImage,
+									depthImage->getAvailableSubresources(),
+									VK_IMAGE_LAYOUT_UNDEFINED,
+									VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
 			}
+		}
+	}
+
+	void VltFramebuffer::restoreLayout(VltContext* ctx)
+	{
+		for (uint32_t i = 0; i < MaxNumRenderTargets; i++)
+		{
+			auto& colorView = m_renderTargets.color[i].view;
+			if (colorView == nullptr)
+			{
+				continue;
+			}
+
+			auto& colorImage = colorView->image();
+			ctx->transformImage(colorImage,
+								colorImage->getAvailableSubresources(),
+								VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+								colorImage->info().layout);
+		}
+
+		auto& depthView = m_renderTargets.depth.view;
+		if (depthView != nullptr)
+		{
+			auto& depthImage = depthView->image();
+			ctx->transformImage(depthImage,
+								depthImage->getAvailableSubresources(),
+								VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
+								depthImage->info().layout);
 		}
 	}
 
@@ -220,5 +226,7 @@ namespace sce::vlt
 			m_colorAttachments[i].storeOp = ops.color[i].storeOp;
 		}
 	}
+
+
 
 }  // namespace sce::vlt

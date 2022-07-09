@@ -7,7 +7,7 @@
 
 namespace sce::vlt
 {
-	class VltBarrierSet;
+	class VltContext;
 
 	/**
 	 * \brief Attachment 
@@ -151,9 +151,13 @@ namespace sce::vlt
 
 		/**
 		 * \brief Transform attachment images to rendering-ready layout.
-		 * 
 		 */
-		void prepareRenderingLayout(VltBarrierSet& barrier);
+		void prepareLayout(VltContext* ctx);
+
+		/**
+		 * \brief Restore attachment images to its' original layout
+		 */
+		void restoreLayout(VltContext* ctx);
 
 		/**
          * \brief Checks whether the framebuffer's targets match

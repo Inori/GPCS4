@@ -5,12 +5,11 @@
 #include "GnmDataFormat.h"
 #include "GnmRegInfo.h"
 #include "GnmSharpBuffer.h"
-#include "UtilBit.h"
 
 namespace sce::Gnm
 {
 
-	class alignas(16) Sampler
+	class Sampler
 	{
 	public:
 		enum
@@ -24,12 +23,12 @@ namespace sce::Gnm
 
 		bool operator==(const Sampler& other) const
 		{
-			return util::bit::bcmpeq(this, &other);
+			return !std::memcmp(this, &other, sizeof(Sampler));
 		}
 
 		bool operator!=(const Sampler& other) const
 		{
-			return !util::bit::bcmpeq(this, &other);
+			return std::memcmp(this, &other, sizeof(Sampler));
 		}
 
 		const SSharpBuffer& getSsharp() const
