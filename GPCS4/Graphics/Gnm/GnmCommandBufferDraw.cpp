@@ -650,28 +650,6 @@ namespace sce::Gnm
 	void GnmCommandBufferDraw::waitUntilSafeForRendering(uint32_t videoOutHandle, uint32_t displayBufferIndex)
 	{
 		// This cmd blocks command processor until the specified display buffer is no longer displayed.
-		// should we call vkAcquireNextImageKHR here to implement it?
-		// or should we create a new render target image and then bilt to swapchain like DXVK does?
-
-		// get render target from swapchain
-		auto& videoOut   = GPU().videoOutGet(videoOutHandle);
-		auto  dispBuffer = videoOut.getDisplayBuffer(displayBufferIndex);
-
-		auto res = m_tracker.find(dispBuffer.address);
-		if (res)
-		{
-			auto& image = res->renderTarget().image;
-			auto  range = res->renderTarget().imageView->imageSubresources();
-			m_context->transformImage(
-				image,
-				range,
-				VK_IMAGE_LAYOUT_UNDEFINED,
-				VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-				0,
-				VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-				VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-				VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT);
-		}
 	}
 
 	void GnmCommandBufferDraw::prepareFlip()
@@ -1425,7 +1403,7 @@ namespace sce::Gnm
 
 			result.color[slot] = VltAttachment{
 				targetView,
-				targetView->imageInfo().layout
+				VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL
 			};
 		}
 
@@ -1436,7 +1414,7 @@ namespace sce::Gnm
 
 			result.depth = VltAttachment{
 				depthView,
-				depthView->imageInfo().layout
+				VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL
 			};
 		}
 

@@ -165,11 +165,6 @@ namespace sce
 
 		ctx->clearRenderTarget(
 			dstView, VK_IMAGE_ASPECT_COLOR_BIT, VkClearValue());
-		ctx->transformImage(
-			dstView->image(),
-			dstView->subresources(),
-			VK_IMAGE_LAYOUT_UNDEFINED,
-			VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
 		ctx->bindResourceSampler(BindingIds::Image, m_samplerPresent);
 		ctx->bindResourceView(BindingIds::Image, srcView, nullptr);

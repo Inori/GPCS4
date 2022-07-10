@@ -454,8 +454,7 @@ namespace sce::Gnm
 			VkImageUsageFlags     usage,
 			VkPipelineStageFlags2 stage,
 			VkAccessFlagBits2     access,
-			VkImageTiling         tiling,
-			VkImageLayout         layout);
+			VkImageTiling         tiling);
 
 		void bindResourceSampler(
 			const Sampler*        ssharp,

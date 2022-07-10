@@ -168,8 +168,7 @@ namespace sce::Gnm
 		VkImageUsageFlags     usage,
 		VkPipelineStageFlags2 stage,
 		VkAccessFlagBits2     access,
-		VkImageTiling         tiling,
-		VkImageLayout         layout)
+		VkImageTiling         tiling)
 	{
 		GnmImageCreateInfo info;
 		info.tsharp     = tsharp;
@@ -177,7 +176,6 @@ namespace sce::Gnm
 		info.stage      = stage | VK_PIPELINE_STAGE_TRANSFER_BIT;
 		info.access     = access;
 		info.tiling     = tiling;
-		info.layout     = layout;
 		info.memoryType = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
 		SceTexture texture  = getResourceTexture(info);
@@ -254,8 +252,7 @@ namespace sce::Gnm
 						VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
 						stage,
 						VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT,
-						VK_IMAGE_TILING_OPTIMAL,
-						VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+						VK_IMAGE_TILING_OPTIMAL);
 
 					updateMetaTextureInfo(stage, res.startRegister, false, tsharp);
 				}
@@ -270,8 +267,7 @@ namespace sce::Gnm
 						VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
 						stage,
 						VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT,
-						VK_IMAGE_TILING_OPTIMAL,
-						VK_IMAGE_LAYOUT_GENERAL);
+						VK_IMAGE_TILING_OPTIMAL);
 
 					updateMetaTextureInfo(stage, res.startRegister, false, tsharp);
 				}

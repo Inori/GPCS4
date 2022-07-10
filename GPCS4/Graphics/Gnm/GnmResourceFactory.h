@@ -45,7 +45,6 @@ namespace sce
 			VkPipelineStageFlags2 stage;
 			VkAccessFlagBits2     access;
 			VkImageTiling         tiling;
-			VkImageLayout         layout;
 			VkMemoryPropertyFlags memoryType;
 		};
 
@@ -78,6 +77,8 @@ namespace sce
 		private:
 			vlt::Rc<vlt::VltSampler> createSampler(
 				const Sampler* ssharp);
+
+			VkImageLayout optimizeLayout(VkImageUsageFlags usage);
 
 		private:
 			vlt::VltDevice*   m_device;

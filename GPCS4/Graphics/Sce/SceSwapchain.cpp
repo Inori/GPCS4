@@ -54,15 +54,6 @@ namespace sce
 		// Get the render target which is draw to by commands from game.
 		auto& target = m_renderTargets[index];
 
-		// Transform render target to SHADER_READ layout
-		// so that we can copy it to swapchain.
-		// Note that the content must be preserved.
-		m_context->transformImage(
-			target.image,
-			target.image->getAvailableSubresources(),
-			VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
 		// Record draw commands to copy render target image to swapchain image.
 		m_blitter->presentImage(m_context.ptr(),
 								m_imageViews.at(imageIndex), VkRect2D(),
@@ -226,5 +217,52 @@ namespace sce
 				m_device.device->createImageView(image, viewInfo);
 		}
 	}
+
+	void SceSwapchain::transitionImageLayout()
+	{
+		// Transition swapchain image's layout to VK_IMAGE_LAYOUT_PRESENT_SRC_KHR.
+		// Because we are using dynamic rendering, the layout can not be
+		// transformed implicitly.
+		PresenterInfo info = m_presenter->info();
+
+		VltImageCreateInfo imageInfo;
+		imageInfo.type        = VK_IMAGE_TYPE_2D;
+		imageInfo.format      = info.format.format;
+		imageInfo.flags       = 0;
+		imageInfo.sampleCount = VK_SAMPLE_COUNT_1_BIT;
+		imageInfo.extent      = { info.imageExtent.width, info.imageExtent.height, 1 };
+		imageInfo.numLayers   = 1;
+		imageInfo.mipLevels   = 1;
+		imageInfo.usage       = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+		imageInfo.stages      = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		imageInfo.access      = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		imageInfo.tiling      = VK_IMAGE_TILING_OPTIMAL;
+		imageInfo.layout      = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+		auto& device = m_device.device;
+		m_context->beginRecording(
+			device->createCommandList(VltQueueType::Graphics));
+
+		for (uint32_t i = 0; i < info.imageCount; i++)
+		{
+			VkImage imageHandle = m_presenter->getImage(i).image;
+
+			Rc<VltImage> image =
+				m_device.device->createImageFromVkImage(imageInfo, imageHandle);
+
+			m_context->transformImage(image,
+									  image->getAvailableSubresources(),
+									  VK_IMAGE_LAYOUT_UNDEFINED,
+									  image->info().layout);
+		}
+
+		device->submitCommandList(
+			m_context->endRecording(),
+			VK_NULL_HANDLE,
+			VK_NULL_HANDLE);
+
+		device->syncSubmission();
+	}
+
 
 }  // namespace sce

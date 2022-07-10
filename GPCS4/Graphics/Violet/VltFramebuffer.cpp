@@ -2,6 +2,7 @@
 
 #include "VltContext.h"
 #include "VltImage.h"
+#include "VltSampler.h"
 
 namespace sce::vlt
 {
@@ -110,70 +111,6 @@ namespace sce::vlt
 		auto extent = renderTarget->mipLevelExtent(0);
 		auto layers = renderTarget->info().numLayers;
 		return VltFramebufferSize{ extent.width, extent.height, layers };
-	}
-
-	void VltFramebuffer::prepareLayout(VltContext* ctx)
-	{
-		for (uint32_t i = 0; i < MaxNumRenderTargets; i++)
-		{
-			auto& colorView = m_renderTargets.color[i].view;
-			if (colorView == nullptr)
-			{
-				continue;
-			}
-
-			auto& colorImage = colorView->image();
-			if (colorImage->info().layout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
-			{
-				continue;
-			}
-
-			ctx->transformImage(colorImage,
-								colorImage->getAvailableSubresources(),
-								VK_IMAGE_LAYOUT_UNDEFINED,
-								VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-		}
-
-		auto& depthView = m_renderTargets.depth.view;
-		if (depthView != nullptr)
-		{
-			auto& depthImage = depthView->image();
-			if (depthImage->info().layout != VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL)
-			{
-				ctx->transformImage(depthImage,
-									depthImage->getAvailableSubresources(),
-									VK_IMAGE_LAYOUT_UNDEFINED,
-									VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
-			}
-		}
-	}
-
-	void VltFramebuffer::restoreLayout(VltContext* ctx)
-	{
-		for (uint32_t i = 0; i < MaxNumRenderTargets; i++)
-		{
-			auto& colorView = m_renderTargets.color[i].view;
-			if (colorView == nullptr)
-			{
-				continue;
-			}
-
-			auto& colorImage = colorView->image();
-			ctx->transformImage(colorImage,
-								colorImage->getAvailableSubresources(),
-								VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-								colorImage->info().layout);
-		}
-
-		auto& depthView = m_renderTargets.depth.view;
-		if (depthView != nullptr)
-		{
-			auto& depthImage = depthView->image();
-			ctx->transformImage(depthImage,
-								depthImage->getAvailableSubresources(),
-								VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
-								depthImage->info().layout);
-		}
 	}
 
 	int32_t VltFramebuffer::findAttachment(

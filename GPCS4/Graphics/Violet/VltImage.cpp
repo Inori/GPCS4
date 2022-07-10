@@ -125,7 +125,6 @@ namespace sce::vlt
 		m_device(device),
 		m_info(info), m_image({ image })
 	{
-
 		m_viewFormats.resize(info.viewFormatCount);
 		for (uint32_t i = 0; i < info.viewFormatCount; i++)
 			m_viewFormats[i] = info.viewFormats[i];

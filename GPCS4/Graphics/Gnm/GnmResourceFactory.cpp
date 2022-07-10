@@ -122,7 +122,7 @@ namespace sce::Gnm
 						   VK_ACCESS_TRANSFER_WRITE_BIT;
 
 		imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-		imageInfo.layout = VK_IMAGE_LAYOUT_GENERAL;
+		imageInfo.layout = optimizeLayout(imageInfo.usage);
 
 		VltImageViewCreateInfo viewInfo;
 		viewInfo.type      = VK_IMAGE_VIEW_TYPE_2D;
@@ -225,7 +225,7 @@ namespace sce::Gnm
 		imageInfo.stages      = createInfo.stage;
 		imageInfo.access      = createInfo.access;
 		imageInfo.tiling      = createInfo.tiling;
-		imageInfo.layout      = createInfo.layout;
+		imageInfo.layout      = optimizeLayout(imageInfo.usage);
 
 		VltImageViewCreateInfo viewInfo;
 		viewInfo.type      = cvt::convertTextureTypeView(textureType);
@@ -326,6 +326,39 @@ namespace sce::Gnm
 		m_debugUtil.setObjectName(&nameInfo);
 
 		return result;
+	}
+
+	VkImageLayout GnmResourceFactory::optimizeLayout(VkImageUsageFlags usage)
+	{
+		const VkImageUsageFlags usageFlags = usage;
+
+		// Filter out unnecessary flags. Transfer operations
+		// are handled by the backend in a transparent manner.
+		usage &= ~(VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+				   VK_IMAGE_USAGE_TRANSFER_SRC_BIT);
+
+		// If the image is used only as an attachment, we never
+		// have to transform the image back to a different layout
+		if (usage == VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT)
+			return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+		if (usage == VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT)
+			return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+		usage &= ~(VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+				   VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
+
+		// If the image is used for reading but not as a storage
+		// image, we can optimize the image for texture access
+		if (usage == VK_IMAGE_USAGE_SAMPLED_BIT)
+		{
+			return usageFlags & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT
+					   ? VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL
+					   : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		}
+
+		// Otherwise, we have to stick with the default layout
+		return VK_IMAGE_LAYOUT_GENERAL;
 	}
 	
 

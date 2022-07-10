@@ -1388,8 +1388,6 @@ namespace sce::vlt
 		if (!m_flags.test(VltContextFlag::GpRenderingActive) &&
 			framebuffer != nullptr)
 		{
-			framebuffer->prepareLayout(this);
-
 			m_execBarriers.recordCommands(m_cmd);
 
 			const VltFramebufferSize fbSize = framebuffer->size();

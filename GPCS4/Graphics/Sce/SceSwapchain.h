@@ -53,6 +53,8 @@ namespace sce
 
 		void createSwapImageViews();
 
+		void transitionImageLayout();
+
 	private:
 		SceSwapchainDevice m_device;
 

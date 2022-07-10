@@ -150,16 +150,6 @@ namespace sce::vlt
 		}
 
 		/**
-		 * \brief Transform attachment images to rendering-ready layout.
-		 */
-		void prepareLayout(VltContext* ctx);
-
-		/**
-		 * \brief Restore attachment images to its' original layout
-		 */
-		void restoreLayout(VltContext* ctx);
-
-		/**
          * \brief Checks whether the framebuffer's targets match
          * 
          * \param [in] renderTargets Render targets to check
