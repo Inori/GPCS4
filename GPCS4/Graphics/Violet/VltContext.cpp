@@ -40,7 +40,6 @@ namespace sce::vlt
 
 		m_flags.set(
 			VltContextFlag::GpDirtyFramebuffer,
-			VltContextFlag::GpDirtyFramebufferState,
 			VltContextFlag::GpDirtyPipeline,
 			VltContextFlag::GpDirtyPipelineState,
 			VltContextFlag::GpDirtyResources,
@@ -478,8 +477,7 @@ namespace sce::vlt
 	template <bool Indexed, bool Indirect>
 	bool VltContext::commitGraphicsState()
 	{
-		if (m_flags.test(VltContextFlag::GpDirtyFramebuffer) ||
-			m_flags.test(VltContextFlag::GpDirtyFramebufferState))
+		if (m_flags.test(VltContextFlag::GpDirtyFramebuffer))
 		{
 			this->updateFramebuffer();
 		}
@@ -830,22 +828,6 @@ namespace sce::vlt
 		m_state.gp.state.dsBack  = VltDsStencilOp(ds.stencilOpBack);
 
 		m_flags.set(VltContextFlag::GpDirtyPipelineState);
-	}
-
-	void VltContext::setDepthStencilClear(
-		const VltDepthStencilClear& dsClear)
-	{
-		m_state.cb.renderPassOps.depthOps.loadOpD = dsClear.enableDepthClear
-														? VK_ATTACHMENT_LOAD_OP_CLEAR
-														: VK_ATTACHMENT_LOAD_OP_LOAD;
-
-		m_state.cb.renderPassOps.depthOps.loadOpS = dsClear.enableStencilClear
-													  ? VK_ATTACHMENT_LOAD_OP_CLEAR
-													  : VK_ATTACHMENT_LOAD_OP_LOAD;
-
-		m_state.cb.renderPassOps.depthOps.clearValue = dsClear.depthValue.depthStencil;
-	
-		m_flags.set(VltContextFlag::GpDirtyFramebufferState);
 	}
 
 	void VltContext::setLogicOpState(

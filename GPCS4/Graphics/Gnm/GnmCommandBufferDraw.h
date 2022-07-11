@@ -197,6 +197,9 @@ namespace sce::Gnm
 			bool                 isDepth,
 			const Texture*       tsharp) override;
 
+		void clearDepthStencil(
+			const vlt::Rc<vlt::VltImageView>& view);
+
 		void applyRenderState();
 
 		void applyPrimitiveTopology();
@@ -206,8 +209,6 @@ namespace sce::Gnm
 		void applyBlendFactor();
 
 		void applyDepthStencilState();
-
-		void applyDepthStencilClear();
 
 		void applyStencilRef();
 

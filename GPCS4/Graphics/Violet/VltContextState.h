@@ -24,7 +24,6 @@ namespace sce::vlt
 		GpCondActive,              ///< Conditional rendering is enabled
 		GpXfbActive,               ///< Transform feedback is enabled
 		GpDirtyFramebuffer,        ///< Framebuffer binding is out of date
-		GpDirtyFramebufferState,   ///< Framebuffer ops and clear values needs to be update
 		GpDirtyPipeline,           ///< Graphics pipeline binding is out of date
 		GpDirtyPipelineState,      ///< Graphics pipeline needs to be recompiled
 		GpDirtyResources,          ///< Graphics pipeline resource bindings are out of date

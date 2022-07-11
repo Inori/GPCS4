@@ -40,7 +40,8 @@ namespace sce::Gnm
 		DirtyRenderTargets,
 		DirtyBlendState,
 		DirtyDepthStencilState,
-		DirtyDepthStencilClear,
+		
+		ClearDepthStencil,
 	};
 
 	using GnmContextFlags = util::Flags<GnmContextFlag>;
@@ -78,14 +79,22 @@ namespace sce::Gnm
 		DepthRenderTarget                             depth;
 	};
 
+	struct GnmDepthStencilClear
+	{
+		VkBool32                 clearD;
+		VkBool32                 clearS;
+		VkClearDepthStencilValue valueD;
+		VkClearDepthStencilValue valueS;
+	};
+
 	struct GnmOutputMergerState
 	{
 		GnmRenderTargets                 targets;
+		GnmDepthStencilClear             dsClear;
 		vlt::VltDepthStencilState        dsState;
 		vlt::VltMultisampleState         msState;
 		vlt::VltLogicOpState             loState;
-		vlt::VltDepthStencilClear        dsClear;
-
+		
 		std::array<vlt::VltBlendMode, MaxNumRenderTargets> blendModes;
 
 		float    blendFactor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };

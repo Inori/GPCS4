@@ -345,20 +345,12 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::setDepthClearValue(float clearValue)
 	{
-		if (m_state.gp.om.dsClear.depthValue.depthStencil.depth != clearValue)
-		{
-			m_state.gp.om.dsClear.depthValue.depthStencil.depth = clearValue;
-			m_flags.set(GnmContextFlag::DirtyDepthStencilClear);
-		}
+		m_state.gp.om.dsClear.valueD.depth = clearValue;
 	}
 
 	void GnmCommandBufferDraw::setStencilClearValue(uint8_t clearValue)
 	{
-		if (m_state.gp.om.dsClear.stencilValue.depthStencil.stencil != clearValue)
-		{
-			m_state.gp.om.dsClear.stencilValue.depthStencil.stencil = clearValue;
-			m_flags.set(GnmContextFlag::DirtyDepthStencilClear);
-		}
+		m_state.gp.om.dsClear.valueS.stencil = clearValue;
 	}
 
 	void GnmCommandBufferDraw::setRenderTargetMask(uint32_t mask)
@@ -438,7 +430,7 @@ namespace sce::Gnm
 		// so we need to disable depth write to protect
 		// the cleared value not touched.
 		VkBool32 depthWrite = depthControl.zWrite &&
-							  !m_state.gp.om.dsClear.enableDepthClear;
+							  !m_state.gp.om.dsClear.clearD;
 		if (dirty)
 		{
 			ds.enableDepthTest          = depthControl.depthEnable;
@@ -477,6 +469,9 @@ namespace sce::Gnm
 		// regardless of the value of
 		// VkPipelineDepthStencilStateCreateInfo::depthWriteEnable
 
+		// TODO:
+		// Support stencil
+
 		if (m_state.gp.om.dsState.enableDepthWrite != depthWrite)
 		{
 			m_state.gp.om.dsState.enableDepthWrite = depthWrite;
@@ -484,10 +479,14 @@ namespace sce::Gnm
 		}
 
 		bool clearDepth = (!depthWrite);
-		if (m_state.gp.om.dsClear.enableDepthClear != clearDepth)
+		m_state.gp.om.dsClear.clearD = VkBool32(clearDepth);
+		if (clearDepth)
 		{
-			m_state.gp.om.dsClear.enableDepthClear = clearDepth;
-			m_flags.set(GnmContextFlag::DirtyDepthStencilClear);
+			m_flags.set(GnmContextFlag::ClearDepthStencil);
+		}
+		else
+		{
+			m_flags.clr(GnmContextFlag::ClearDepthStencil);
 		}
 	}
 
@@ -1194,11 +1193,6 @@ namespace sce::Gnm
 			applyDepthStencilState();
 		}
 
-		if (m_flags.test(GnmContextFlag::DirtyDepthStencilClear))
-		{
-			applyDepthStencilClear();
-		}
-
 		if (m_flags.test(GnmContextFlag::DirtyRasterizerState))
 		{
 			applyRasterizerState();
@@ -1244,12 +1238,27 @@ namespace sce::Gnm
 		m_flags.clr(GnmContextFlag::DirtyDepthStencilState);
 	}
 
-	void GnmCommandBufferDraw::applyDepthStencilClear()
+	void GnmCommandBufferDraw::clearDepthStencil(
+		const vlt::Rc<vlt::VltImageView>& view)
 	{
-		m_context->setDepthStencilClear(
-			m_state.gp.om.dsClear);
+		VkImageAspectFlags clearAspects = 0;
+		if (m_state.gp.om.dsClear.clearD)
+		{
+			clearAspects |= VK_IMAGE_ASPECT_DEPTH_BIT;
+		}
 
-		m_flags.clr(GnmContextFlag::DirtyDepthStencilClear);
+		if (m_state.gp.om.dsClear.clearS)
+		{
+			clearAspects |= VK_IMAGE_ASPECT_STENCIL_BIT;
+		}
+
+		VkClearValue clearValue = { .depthStencil = m_state.gp.om.dsClear.valueD };
+
+		m_context->clearRenderTarget(view,
+									 clearAspects,
+									 clearValue);
+
+		m_flags.clr(GnmContextFlag::ClearDepthStencil);
 	}
 
 	void GnmCommandBufferDraw::applyStencilRef()
@@ -1291,6 +1300,11 @@ namespace sce::Gnm
 		m_context->bindRenderTargets(targets);
 
 		m_flags.clr(GnmContextFlag::DirtyRenderTargets);
+
+		if (m_flags.test(GnmContextFlag::ClearDepthStencil))
+		{
+			clearDepthStencil(targets.depth.view);
+		}
 	}
 
 	void GnmCommandBufferDraw::initDefaultRenderState()
@@ -1491,5 +1505,6 @@ namespace sce::Gnm
 		}
 		return depthView;
 	}
+
 
 }  // namespace sce::Gnm
