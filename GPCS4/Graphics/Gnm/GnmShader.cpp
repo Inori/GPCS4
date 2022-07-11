@@ -33,9 +33,6 @@ namespace sce::Gnm
 		{
 			m_shader = m_module.compile(meta, moduleInfo);
 			m_shader->setShaderKey(m_key);
-			
-			// std::ofstream fout(m_shader->debugName(), std::ofstream::binary);
-			// m_shader->dump(fout);
 		}
 		return m_shader;
 	}
