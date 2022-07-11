@@ -10,7 +10,6 @@
 #include "Gcn/GcnModule.h"
 #include "Gcn/GcnShaderMeta.h"
 #include "Violet/VltConstantState.h"
-#include "Violet/VltRenderTarget.h"
 
 #include <array>
 

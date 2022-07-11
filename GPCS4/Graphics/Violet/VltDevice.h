@@ -177,15 +177,10 @@ namespace sce::vlt
 		VkPipelineStageFlags getShaderPipelineStages() const;
 
 		/**
-         * \brief Creates framebuffer for a set of render targets
-         * 
-         * Automatically deduces framebuffer dimensions
-         * from the supplied render target views.
-         * \param [in] renderTargets Render targets
-         * \returns The framebuffer object
-         */
-		Rc<VltFramebuffer> createFramebuffer(
-			const VltRenderTargets& renderTargets);
+		 * \brief Queries default framebuffer size
+		 * \returns Default framebuffer size
+		 */
+		VltFramebufferSize getDefaultFramebufferSize() const;
 
 		/**
          * \brief Creates a buffer object

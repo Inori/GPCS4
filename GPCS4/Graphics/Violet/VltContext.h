@@ -591,9 +591,23 @@ namespace sce::vlt
 		void insertDebugLabel(VkDebugUtilsLabelEXT* label);
 
 	private:
-		void beginRendering();
 
-		void endRendering();
+		void startRenderPass();
+		void spillRenderPass();
+
+		void renderPassEmitInitBarriers(
+			const VltFramebufferInfo& framebufferInfo,
+			const VltRenderPassOps&   ops);
+
+		void renderPassEmitPostBarriers(
+			const VltFramebufferInfo& framebufferInfo,
+			const VltRenderPassOps&   ops);
+
+		void renderPassBindFramebuffer(
+			const VltFramebufferInfo& framebufferInfo,
+			const VltRenderPassOps&   ops);
+
+		void renderPassUnbindFramebuffer();
 
 		void updateIndexBufferBinding();
 		void updateVertexBufferBindings();
@@ -637,8 +651,35 @@ namespace sce::vlt
 		VkDescriptorSet allocateDescriptorSet(
 			VkDescriptorSetLayout layout);
 
-		void resetFramebufferOps();
+		void resetRenderPassOps(
+			const VltRenderTargets& renderTargets,
+			VltRenderPassOps&       renderPassOps);
+
+		VltFramebufferInfo makeFramebufferInfo(
+			const VltRenderTargets& renderTargets);
+
+		void updateRenderTargetLayouts(
+			const VltFramebufferInfo& newFb,
+			const VltFramebufferInfo& oldFb);
+
 		void updateFramebuffer();
+
+		void applyRenderTargetLoadLayouts();
+
+		void applyRenderTargetStoreLayouts();
+
+		void transitionRenderTargetLayouts(
+			VltBarrierSet& barriers);
+
+		void transitionColorAttachment(
+			VltBarrierSet&       barriers,
+			const VltAttachment& attachment,
+			VkImageLayout        oldLayout);
+
+		void transitionDepthAttachment(
+			VltBarrierSet&       barriers,
+			const VltAttachment& attachment,
+			VkImageLayout        oldLayout);
 
 		void emitMemoryBarrier(
 			VkDependencyFlags     flags,
@@ -646,6 +687,25 @@ namespace sce::vlt
 			VkAccessFlags2        srcAccess,
 			VkPipelineStageFlags2 dstStages,
 			VkAccessFlags2        dstAccess);
+
+		void performClear(
+			const Rc<VltImageView>& imageView,
+			int32_t                 attachmentIndex,
+			VkImageAspectFlags      discardAspects,
+			VkImageAspectFlags      clearAspects,
+			VkClearValue            clearValue);
+
+		void deferClear(
+			const Rc<VltImageView>& imageView,
+			VkImageAspectFlags      clearAspects,
+			VkClearValue            clearValue);
+
+		void deferDiscard(
+			const Rc<VltImageView>& imageView,
+			VkImageAspectFlags      discardAspects);
+
+		void flushClears(
+			bool useRenderPass);
 
 	private:
 		VltDevice*  m_device;
@@ -656,6 +716,8 @@ namespace sce::vlt
 
 		VltContextFlags m_flags;
 		VltContextState m_state = {};
+
+		VltRenderTargetLayouts m_rtLayouts = {};
 
 		VkPipeline m_gpActivePipeline = VK_NULL_HANDLE;
 		VkPipeline m_cpActivePipeline = VK_NULL_HANDLE;
@@ -669,6 +731,8 @@ namespace sce::vlt
 
 		VkDescriptorSet m_gpSet = VK_NULL_HANDLE;
 		VkDescriptorSet m_cpSet = VK_NULL_HANDLE;
+
+		std::vector<VltDeferredClear> m_deferredClears;
 
 		std::array<VltShaderResourceSlot, MaxNumResourceSlots> m_rc            = {};
 		std::array<VltGraphicsPipeline*, 4096>                 m_gpLookupCache = {};

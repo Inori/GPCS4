@@ -808,9 +808,6 @@
     <ClInclude Include="Graphics\Violet\VltConstantState.h">
       <Filter>Source Files\Graphics\Violet</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Violet\VltRenderTarget.h">
-      <Filter>Source Files\Graphics\Violet</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\Gnm\GnmConverter.h">
       <Filter>Source Files\Graphics\Gnm</Filter>
     </ClInclude>
@@ -987,6 +984,9 @@
     </ClInclude>
     <ClInclude Include="Graphics\Gnm\GnmSamplerCache.h">
       <Filter>Source Files\Graphics\Gnm</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Violet\VltRenderPass.h">
+      <Filter>Source Files\Graphics\Violet</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1669,9 +1669,6 @@
       <Filter>Source Files\Graphics\Sce</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Violet\VltFramebuffer.cpp">
-      <Filter>Source Files\Graphics\Violet</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\Violet\VltRenderTarget.cpp">
       <Filter>Source Files\Graphics\Violet</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Gcn\GcnStateRegister.cpp">

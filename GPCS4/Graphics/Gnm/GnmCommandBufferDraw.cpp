@@ -19,7 +19,6 @@
 #include "Violet/VltContext.h"
 #include "Violet/VltDevice.h"
 #include "Violet/VltImage.h"
-#include "Violet/VltRenderTarget.h"
 
 #include <algorithm>
 #include <array>

@@ -5,7 +5,6 @@
 #include "VltPipeLayout.h"
 #include "VltShader.h"
 #include "VltRenderState.h"
-#include "VltRenderTarget.h"
 
 namespace sce::vlt
 {
@@ -67,6 +66,20 @@ namespace sce::vlt
 		float msSampleShadingFactor = 0.0;
 	};
 
+
+	struct VltGraphicsPipelineDynamicRenderingState
+	{
+		VltGraphicsPipelineDynamicRenderingState();
+
+		VltGraphicsPipelineDynamicRenderingState(
+			const VltGraphicsPipelineStateInfo& state);
+
+		VkPipelineRenderingCreateInfoKHR rtInfo = { VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO_KHR };
+
+		std::array<VkFormat, MaxNumRenderTargets> rtColorFormats = {};
+	};
+
+
 	/**
      * \brief Graphics pipeline instance
      * 
@@ -75,36 +88,20 @@ namespace sce::vlt
      */
 	class VltGraphicsPipelineInstance
 	{
-
+		friend class VltGraphicsPipeline;
 	public:
 		VltGraphicsPipelineInstance() :
-			m_stateVector(),
+			m_state(),
 			m_pipeline(VK_NULL_HANDLE)
 		{
 		}
 
 		VltGraphicsPipelineInstance(
 			const VltGraphicsPipelineStateInfo& state,
-			const VltAttachmentFormat&          format,
 			VkPipeline                          pipe) :
-			m_stateVector(state),
-			m_format(format),
+			m_state(state),
 			m_pipeline(pipe)
 		{
-		}
-
-		/**
-         * \brief Checks for matching pipeline state
-         * 
-         * \param [in] stateVector Graphics pipeline state
-         * \returns \c true if the specialization is compatible
-         */
-		bool isCompatible(
-			const VltGraphicsPipelineStateInfo& state,
-			const VltAttachmentFormat&          format)
-		{
-			return m_stateVector == state &&
-				   m_format.eq(format);
 		}
 
 		/**
@@ -117,8 +114,7 @@ namespace sce::vlt
 		}
 
 	private:
-		VltGraphicsPipelineStateInfo m_stateVector;
-		VltAttachmentFormat          m_format;
+		VltGraphicsPipelineStateInfo m_state;
 		VkPipeline                   m_pipeline;
 	};
 
@@ -187,12 +183,10 @@ namespace sce::vlt
          * Retrieves a pipeline handle for the given pipeline
          * state. If necessary, a new pipeline will be created.
          * \param [in] state Pipeline state vector
-         * \param [in] format Attachments' format
          * \returns Pipeline handle
          */
 		VkPipeline getPipelineHandle(
-			const VltGraphicsPipelineStateInfo& state,
-			const VltAttachmentFormat&          format);
+			const VltGraphicsPipelineStateInfo& state);
 
 		/**
          * \brief Compiles a pipeline
@@ -202,8 +196,7 @@ namespace sce::vlt
          * \param [in] state Pipeline state vector
          */
 		void compilePipeline(
-			const VltGraphicsPipelineStateInfo& state,
-			const VltAttachmentFormat&          format);
+			const VltGraphicsPipelineStateInfo& state);
 
 	private:
 		VltDevice*          m_device;
@@ -225,16 +218,13 @@ namespace sce::vlt
 		std::vector<VltGraphicsPipelineInstance> m_pipelines;
 
 		VltGraphicsPipelineInstance* createInstance(
-			const VltGraphicsPipelineStateInfo& state,
-			const VltAttachmentFormat&          format);
+			const VltGraphicsPipelineStateInfo& state);
 
 		VltGraphicsPipelineInstance* findInstance(
-			const VltGraphicsPipelineStateInfo& state,
-			const VltAttachmentFormat&          format);
+			const VltGraphicsPipelineStateInfo& state);
 
 		VkPipeline createPipeline(
-			const VltGraphicsPipelineStateInfo& state,
-			const VltAttachmentFormat&          format) const;
+			const VltGraphicsPipelineStateInfo& state) const;
 
 		void destroyPipeline(
 			VkPipeline pipeline) const;

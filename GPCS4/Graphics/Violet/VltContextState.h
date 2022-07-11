@@ -7,6 +7,7 @@
 #include "VltGraphics.h"
 #include "VltLimit.h"
 #include "VltFramebuffer.h"
+#include "VltRenderPass.h"
 
 namespace sce::vlt
 {
@@ -19,7 +20,7 @@ namespace sce::vlt
      */
 	enum class VltContextFlag : uint32_t
 	{
-		GpRenderingActive,         ///< Dynamic rendering (render pass instance) has began
+		GpRenderPassBound,         ///< Render pass is currently bound
 		GpCondActive,              ///< Conditional rendering is enabled
 		GpXfbActive,               ///< Transform feedback is enabled
 		GpDirtyFramebuffer,        ///< Framebuffer binding is out of date
@@ -90,10 +91,9 @@ namespace sce::vlt
 
 	struct VltColorBlendState
 	{
-		Rc<VltFramebuffer>        framebuffer = nullptr;
-		VltRenderTargets          renderTargets;
-		VltFrameBufferOps         attachmentOps;
-		VltFrameBufferClearValues clearValues;
+		VltRenderTargets   renderTargets;
+		VltRenderPassOps   renderPassOps;
+		VltFramebufferInfo framebufferInfo;
 	};
 
 	struct VltPushConstantState
@@ -134,6 +134,14 @@ namespace sce::vlt
 	{
 		VltBufferSlice                 predicate;
 		VkConditionalRenderingFlagsEXT flags;
+	};
+
+	struct VltDeferredClear
+	{
+		Rc<VltImageView>   imageView;
+		VkImageAspectFlags discardAspects;
+		VkImageAspectFlags clearAspects;
+		VkClearValue       clearValue;
 	};
 
 	/**

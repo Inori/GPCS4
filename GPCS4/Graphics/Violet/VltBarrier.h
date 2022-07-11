@@ -94,6 +94,12 @@ namespace sce::vlt
 			return m_memBarrier.srcStageMask;
 		}
 
+		bool hasResourceBarriers() const
+		{
+			return !m_bufSlices.empty() ||
+				   !m_imgSlices.empty();
+		}
+
 		void recordCommands(
 			const Rc<VltCommandList>& commandList);
 

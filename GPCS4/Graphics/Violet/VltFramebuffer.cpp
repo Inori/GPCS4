@@ -6,56 +6,50 @@
 
 namespace sce::vlt
 {
-	VltFramebuffer::VltFramebuffer(
+
+	VltFramebufferInfo::VltFramebufferInfo()
+	{
+	}
+
+	VltFramebufferInfo::VltFramebufferInfo(
 		const VltRenderTargets&   renderTargets,
 		const VltFramebufferSize& defaultSize) :
 		m_renderTargets(renderTargets),
 		m_renderSize(computeRenderSize(defaultSize))
 	{
-		std::array<VkClearValue, 2> clearValues = {};
-		clearValues[0].color                    = { { 0.0f, 0.0f, 0.0f, 0.0f } };
-		clearValues[1].depthStencil             = { 0.0f, 0 };
 
-		for (uint32_t i = 0; i != MaxNumRenderTargets; ++i)
+		for (uint32_t i = 0; i < MaxNumRenderTargets; i++)
 		{
-			auto& colorView = m_renderTargets.color[i].view;
-			if (colorView != nullptr)
+			if (m_renderTargets.color[i].view != nullptr)
 			{
-				m_colorAttachments[m_colorAttachmentCount].sType              = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-				m_colorAttachments[m_colorAttachmentCount].pNext              = nullptr;
-				m_colorAttachments[m_colorAttachmentCount].imageView          = colorView->handle();
-				m_colorAttachments[m_colorAttachmentCount].imageLayout        = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-				m_colorAttachments[m_colorAttachmentCount].resolveMode        = VK_RESOLVE_MODE_NONE;
-				m_colorAttachments[m_colorAttachmentCount].resolveImageView   = VK_NULL_HANDLE;
-				m_colorAttachments[m_colorAttachmentCount].resolveImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-				m_colorAttachments[m_colorAttachmentCount].loadOp             = VK_ATTACHMENT_LOAD_OP_LOAD;
-				m_colorAttachments[m_colorAttachmentCount].storeOp            = VK_ATTACHMENT_STORE_OP_STORE;
-				m_colorAttachments[m_colorAttachmentCount].clearValue         = clearValues[0];
-				++m_colorAttachmentCount;
+				m_attachments[m_attachmentCount++] = i;
+				m_sampleCount                      = m_renderTargets.color[i].view->imageInfo().sampleCount;
 			}
 		}
 
-		auto& depthView = m_renderTargets.depth.view;
-		if (depthView != nullptr)
+		if (m_renderTargets.depth.view != nullptr)
 		{
-			m_depthAttachment.sType              = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-			m_depthAttachment.pNext              = nullptr;
-			m_depthAttachment.imageView          = depthView->handle();
-			m_depthAttachment.imageLayout        = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-			m_depthAttachment.resolveMode        = VK_RESOLVE_MODE_NONE;
-			m_depthAttachment.resolveImageView   = VK_NULL_HANDLE;
-			m_depthAttachment.resolveImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-			m_depthAttachment.loadOp             = VK_ATTACHMENT_LOAD_OP_CLEAR;
-			m_depthAttachment.storeOp            = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-			m_depthAttachment.clearValue         = clearValues[1];
+			m_attachments[m_attachmentCount++] = -1;
+			m_sampleCount                      = m_renderTargets.depth.view->imageInfo().sampleCount;
 		}
 	}
 
-	VltFramebuffer::~VltFramebuffer()
+	VltFramebufferInfo::~VltFramebufferInfo()
 	{
 	}
 
-	bool VltFramebuffer::matchTargets(const VltRenderTargets& renderTargets)
+	int32_t VltFramebufferInfo::findAttachment(const Rc<VltImageView>& view) const
+	{
+		for (uint32_t i = 0; i < m_attachmentCount; i++)
+		{
+			if (getAttachment(i).view->matchesView(view))
+				return int32_t(i);
+		}
+
+		return -1;
+	}
+
+	bool VltFramebufferInfo::hasTargets(const VltRenderTargets& renderTargets)
 	{
 		bool eq = m_renderTargets.depth.view == renderTargets.depth.view &&
 				  m_renderTargets.depth.layout == renderTargets.depth.layout;
@@ -69,14 +63,44 @@ namespace sce::vlt
 		return eq;
 	}
 
-	bool VltFramebuffer::isFullSize(const Rc<VltImageView>& view) const
+	bool VltFramebufferInfo::isFullSize(const Rc<VltImageView>& view) const
 	{
 		return m_renderSize.width == view->mipLevelExtent(0).width &&
 			   m_renderSize.height == view->mipLevelExtent(0).height &&
 			   m_renderSize.layers == view->info().numLayers;
 	}
 
-	VltFramebufferSize VltFramebuffer::computeRenderSize(
+	bool VltFramebufferInfo::isWritable(uint32_t attachmentIndex, VkImageAspectFlags aspects) const
+	{
+		VkImageAspectFlags writableAspects = 
+			vutil::getWritableAspectsForLayout(getAttachment(attachmentIndex).layout);
+		return (writableAspects & aspects) == aspects;
+	}
+
+	VltRtInfo VltFramebufferInfo::getRtInfo() const
+	{
+		VkFormat           depthStencilFormat          = VK_FORMAT_UNDEFINED;
+		VkImageAspectFlags depthStencilReadOnlyAspects = 0;
+
+		if (m_renderTargets.depth.view != nullptr)
+		{
+			depthStencilFormat          = m_renderTargets.depth.view->info().format;
+			depthStencilReadOnlyAspects = m_renderTargets.depth.view->formatInfo()->aspectMask &
+										  ~vutil::getWritableAspectsForLayout(m_renderTargets.depth.layout);
+		}
+
+		std::array<VkFormat, MaxNumRenderTargets> colorFormats = {};
+		for (uint32_t i = 0; i < MaxNumRenderTargets; i++)
+		{
+			if (m_renderTargets.color[i].view != nullptr)
+				colorFormats[i] = m_renderTargets.color[i].view->info().format;
+		}
+
+		return VltRtInfo(MaxNumRenderTargets, colorFormats.data(),
+						 depthStencilFormat, depthStencilReadOnlyAspects);
+	}
+
+	VltFramebufferSize VltFramebufferInfo::computeRenderSize(
 		const VltFramebufferSize& defaultSize) const
 	{
 		// Some games bind render targets of a different size and
@@ -105,65 +129,11 @@ namespace sce::vlt
 		return minSize;
 	}
 
-	VltFramebufferSize VltFramebuffer::computeRenderTargetSize(
+	VltFramebufferSize VltFramebufferInfo::computeRenderTargetSize(
 		const Rc<VltImageView>& renderTarget) const
 	{
 		auto extent = renderTarget->mipLevelExtent(0);
 		auto layers = renderTarget->info().numLayers;
 		return VltFramebufferSize{ extent.width, extent.height, layers };
 	}
-
-	int32_t VltFramebuffer::findAttachment(
-		const Rc<VltImageView>& view) const
-	{
-		for (uint32_t i = 0; i < m_colorAttachmentCount; i++)
-		{
-			if (m_colorAttachments[i].imageView == view->handle())
-				return int32_t(i);
-		}
-
-		if (m_depthAttachment.imageView == view->handle())
-		{
-			return m_colorAttachmentCount;
-		}
-
-		return -1;
-	}
-	
-	const sce::vlt::VltAttachment& VltFramebuffer::getAttachment(uint32_t id) const
-	{
-		if (id == m_colorAttachmentCount)
-		{
-			return m_renderTargets.depth;
-		}
-		else
-		{
-			return m_renderTargets.color[id];
-		}
-	}
-
-	void VltFramebuffer::setAttachmentClearValues(const VltFrameBufferClearValues& values)
-	{
-		m_depthAttachment.clearValue.depthStencil = values.depth.depthStencil;
-
-		for (uint32_t i = 0; i < MaxNumRenderTargets; i++)
-		{
-			m_colorAttachments[i].clearValue.color = values.color[i].color;
-		}
-	}
-
-	void VltFramebuffer::setAttachmentOps(const VltFrameBufferOps& ops)
-	{
-		m_depthAttachment.loadOp  = ops.depth.loadOp;
-		m_depthAttachment.storeOp = ops.depth.storeOp;
-
-		for (uint32_t i = 0; i < MaxNumRenderTargets; i++)
-		{
-			m_colorAttachments[i].loadOp  = ops.color[i].loadOp;
-			m_colorAttachments[i].storeOp = ops.color[i].storeOp;
-		}
-	}
-
-
-
 }  // namespace sce::vlt

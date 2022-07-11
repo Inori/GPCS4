@@ -35,7 +35,7 @@ namespace sce::vlt
 		// undefined, so we have to bind and set up everything
 		// before any draw or dispatch command is recorded.
 		m_flags.clr(
-			VltContextFlag::GpRenderingActive,
+			VltContextFlag::GpRenderPassBound,
 			VltContextFlag::GpXfbActive);
 
 		m_flags.set(
@@ -60,7 +60,7 @@ namespace sce::vlt
 
 	Rc<VltCommandList> VltContext::endRecording()
 	{
-		this->endRendering();
+		this->spillRenderPass();
 
 		m_execBarriers.recordCommands(m_cmd);
 		m_transBarriers.recordCommands(m_cmd);
@@ -89,9 +89,11 @@ namespace sce::vlt
 		// Set up default render pass ops
 		m_state.cb.renderTargets = targets;
 
-		this->resetFramebufferOps();
+		this->resetRenderPassOps(
+			m_state.cb.renderTargets,
+			m_state.cb.renderPassOps);
 
-		if (m_state.cb.framebuffer == nullptr || !m_state.cb.framebuffer->matchTargets(targets))
+		if (!m_state.cb.framebufferInfo.hasTargets(targets))
 		{
 			// Create a new framebuffer object next
 			// time we start rendering something
@@ -195,7 +197,7 @@ namespace sce::vlt
 	{
 		if (image->info().layout != layout)
 		{
-			this->endRendering();
+			this->spillRenderPass();
 
 			VkImageSubresourceRange subresources;
 			subresources.aspectMask     = image->formatInfo()->aspectMask;
@@ -225,7 +227,7 @@ namespace sce::vlt
 		VkImageLayout                  srcLayout,
 		VkImageLayout                  dstLayout)
 	{
-		this->endRendering();
+		this->spillRenderPass();
 
 		if (srcLayout != dstLayout)
 		{
@@ -254,7 +256,7 @@ namespace sce::vlt
 		if (numBytes == 0)
 			return;
 
-		this->endRendering();
+		this->spillRenderPass();
 
 		auto dstSlice = dstBuffer->getSliceHandle(dstOffset, numBytes);
 		auto srcSlice = srcBuffer->getSliceHandle(srcOffset, numBytes);
@@ -296,7 +298,7 @@ namespace sce::vlt
 		VkDeviceSize             srcOffset,
 		VkExtent2D               srcExtent)
 	{
-		this->endRendering();
+		this->spillRenderPass();
 
 		auto srcSlice = srcBuffer->getSliceHandle(srcOffset, 0);
 
@@ -488,9 +490,9 @@ namespace sce::vlt
 				return false;
 		}
 
-		if (!m_flags.test(VltContextFlag::GpRenderingActive))
+		if (!m_flags.test(VltContextFlag::GpRenderPassBound))
 		{
-			this->beginRendering();
+			this->startRenderPass();
 		}
 
 		if (m_flags.test(VltContextFlag::GpDirtyIndexBuffer) && Indexed)
@@ -571,8 +573,7 @@ namespace sce::vlt
 
 		// Retrieve and bind actual Vulkan pipeline handle
 		m_gpActivePipeline = m_state.gp.pipeline->getPipelineHandle(
-			m_state.gp.state,
-			m_state.cb.renderTargets.generateAttachmentFormat());
+			m_state.gp.state);
 
 		if (unlikely(!m_gpActivePipeline))
 			return false;
@@ -836,15 +837,15 @@ namespace sce::vlt
 	void VltContext::setDepthStencilClear(
 		const VltDepthStencilClear& dsClear)
 	{
-		m_state.cb.attachmentOps.depth.loadOp   = dsClear.enableDepthClear
-													  ? VK_ATTACHMENT_LOAD_OP_CLEAR
-													  : VK_ATTACHMENT_LOAD_OP_LOAD;
-		m_state.cb.attachmentOps.stencil.loadOp = dsClear.enableStencilClear
+		m_state.cb.renderPassOps.depthOps.loadOpD = dsClear.enableDepthClear
+														? VK_ATTACHMENT_LOAD_OP_CLEAR
+														: VK_ATTACHMENT_LOAD_OP_LOAD;
+
+		m_state.cb.renderPassOps.depthOps.loadOpS = dsClear.enableStencilClear
 													  ? VK_ATTACHMENT_LOAD_OP_CLEAR
 													  : VK_ATTACHMENT_LOAD_OP_LOAD;
 
-		m_state.cb.clearValues.depth   = dsClear.depthValue;
-		m_state.cb.clearValues.stencil = dsClear.stencilValue;
+		m_state.cb.renderPassOps.depthOps.clearValue = dsClear.depthValue.depthStencil;
 	
 		m_flags.set(VltContextFlag::GpDirtyFramebufferState);
 	}
@@ -880,22 +881,6 @@ namespace sce::vlt
 		VkImageAspectFlags      clearAspects,
 		VkClearValue            clearValue)
 	{
-		this->updateFramebuffer();
-
-		// Prepare attachment ops
-		VltAttachmentOps newOp;
-		newOp.loadOp  = VK_ATTACHMENT_LOAD_OP_LOAD;
-		newOp.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-
-		if (clearAspects & VK_IMAGE_ASPECT_COLOR_BIT)
-			newOp.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-
-		if (clearAspects & VK_IMAGE_ASPECT_DEPTH_BIT)
-			newOp.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-
-		if (clearAspects & VK_IMAGE_ASPECT_STENCIL_BIT)
-			newOp.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-
 		// Make sure the color components are ordered correctly
 		if (clearAspects & VK_IMAGE_ASPECT_COLOR_BIT)
 		{
@@ -908,21 +893,16 @@ namespace sce::vlt
 		// If not, we need to create a temporary framebuffer.
 		int32_t attachmentIndex = -1;
 
-		if (m_state.cb.framebuffer->isFullSize(imageView))
-			attachmentIndex = m_state.cb.framebuffer->findAttachment(imageView);
+		if (m_state.cb.framebufferInfo.isFullSize(imageView))
+			attachmentIndex = m_state.cb.framebufferInfo.findAttachment(imageView);
 
-		if (attachmentIndex < 0)
+		if (attachmentIndex >= 0 && m_flags.test(VltContextFlag::GpRenderPassBound))
 		{
-			LOG_ASSERT(false, "TODO");
-		}
-		else if (m_flags.test(VltContextFlag::GpRenderingActive))
-		{
-			// Clear the attachment in quesion. For color images,
-			// the attachment index for the current subpass is
-			// equal to the render pass attachment index.
+			uint32_t colorIndex = std::max(0, m_state.cb.framebufferInfo.getColorAttachmentIndex(attachmentIndex));
+
 			VkClearAttachment clearInfo;
 			clearInfo.aspectMask      = clearAspects;
-			clearInfo.colorAttachment = attachmentIndex;
+			clearInfo.colorAttachment = colorIndex;
 			clearInfo.clearValue      = clearValue;
 
 			VkClearRect clearRect;
@@ -937,26 +917,7 @@ namespace sce::vlt
 		}
 		else
 		{
-			// Perform the clear when starting the render pass
-			if (clearAspects & VK_IMAGE_ASPECT_COLOR_BIT)
-			{
-				m_state.cb.attachmentOps.color[attachmentIndex]       = newOp;
-				m_state.cb.clearValues.color[attachmentIndex].color = clearValue.color;
-			}
-
-			if (clearAspects & VK_IMAGE_ASPECT_DEPTH_BIT)
-			{
-				m_state.cb.attachmentOps.depth = newOp;
-				m_state.cb.clearValues.depth.depthStencil.depth = clearValue.depthStencil.depth;
-			}
-
-			if (clearAspects & VK_IMAGE_ASPECT_STENCIL_BIT)
-			{
-				m_state.cb.attachmentOps.depth                      = newOp;
-				m_state.cb.clearValues.depth.depthStencil.stencil = clearValue.depthStencil.stencil;
-			}
-
-			m_flags.set(VltContextFlag::GpDirtyFramebufferState);
+			this->deferClear(imageView, clearAspects, clearValue);
 		}
 	}
 
@@ -977,7 +938,7 @@ namespace sce::vlt
 		const void*          data)
 	{
 		
-		this->endRendering();
+		this->spillRenderPass();
 
 		VltBufferSliceHandle bufferSlice = buffer->getSliceHandle(offset, size);
 		VltCmdType           cmdBuffer   = VltCmdType::ExecBuffer;
@@ -1036,7 +997,7 @@ namespace sce::vlt
 		VkDeviceSize                    pitchPerRow,
 		VkDeviceSize                    pitchPerLayer)
 	{
-		this->endRendering();
+		this->spillRenderPass();
 
 		// Upload data through a staging buffer. Special care needs to
 		// be taken when dealing with compressed image formats: Rather
@@ -1382,56 +1343,317 @@ namespace sce::vlt
 		m_cmd->cmdInsertDebugUtilsLabel(label);
 	}
 
-	void VltContext::beginRendering()
+	void VltContext::startRenderPass()
 	{
-		auto& framebuffer = m_state.cb.framebuffer;
-		if (!m_flags.test(VltContextFlag::GpRenderingActive) &&
-			framebuffer != nullptr)
+		if (!m_flags.test(VltContextFlag::GpRenderPassBound))
 		{
-			m_execBarriers.recordCommands(m_cmd);
+			this->applyRenderTargetLoadLayouts();
+			this->flushClears(true);
 
-			const VltFramebufferSize fbSize = framebuffer->size();
+			m_flags.set(
+				VltContextFlag::GpRenderPassBound,
+				VltContextFlag::GpDirtyPipeline,
+				VltContextFlag::GpDirtyPipelineState,
+				VltContextFlag::GpDirtyVertexBuffers,
+				VltContextFlag::GpDirtyIndexBuffer,
+				VltContextFlag::GpDirtyXfbBuffers,
+				VltContextFlag::GpDirtyBlendConstants,
+				VltContextFlag::GpDirtyStencilRef,
+				VltContextFlag::GpDirtyViewport,
+				VltContextFlag::GpDirtyDepthBias,
+				VltContextFlag::GpDirtyDepthBounds,
+				VltContextFlag::DirtyPushConstants);
 
-			VkRect2D renderArea;
-			renderArea.offset = VkOffset2D{ 0, 0 };
-			renderArea.extent = VkExtent2D{ fbSize.width, fbSize.height };
+			this->renderPassBindFramebuffer(
+				m_state.cb.framebufferInfo,
+				m_state.cb.renderPassOps);
 
-			VkRenderingInfo renderInfo      = {};
-			renderInfo.sType                = VK_STRUCTURE_TYPE_RENDERING_INFO;
-			renderInfo.pNext                = nullptr;
-			renderInfo.flags                = 0;
-			renderInfo.renderArea           = renderArea;
-			renderInfo.layerCount           = 1;
-			renderInfo.viewMask             = 0;
-			renderInfo.colorAttachmentCount = framebuffer->numColorAttachments();
-			renderInfo.pColorAttachments    = framebuffer->colorAttachments();
-			renderInfo.pDepthAttachment     = framebuffer->depthAttachment();
-			renderInfo.pStencilAttachment   = nullptr;
-
-			m_cmd->cmdBeginRendering(&renderInfo);
+			// Track the final layout of each render target
+			this->applyRenderTargetStoreLayouts();
 
 			// Don't discard image contents if we have
-			// to stop rendering
-			resetFramebufferOps();
-
-			m_flags.set(VltContextFlag::GpRenderingActive);
+			// to spill the current render pass
+			this->resetRenderPassOps(
+				m_state.cb.renderTargets,
+				m_state.cb.renderPassOps);
 		}
 	}
 
-	void VltContext::endRendering()
+	void VltContext::spillRenderPass()
 	{
-		if (m_flags.test(VltContextFlag::GpRenderingActive))
+		if (m_flags.test(VltContextFlag::GpRenderPassBound))
 		{
-			m_cmd->cmdEndRendering();
+			m_flags.clr(VltContextFlag::GpRenderPassBound);
 
-			m_flags.clr(VltContextFlag::GpRenderingActive);
+			this->renderPassUnbindFramebuffer();
+			this->transitionRenderTargetLayouts(m_execBarriers);
+
+			m_execBarriers.recordCommands(m_cmd);
 		}
+		else
+		{
+			// Execute deferred clears if necessary
+			this->flushClears(false);
+		}
+	}
+
+	void VltContext::renderPassEmitInitBarriers(
+		const VltFramebufferInfo& framebufferInfo,
+		const VltRenderPassOps&   ops)
+	{
+		// If any of the involved images are dirty, emit all pending barriers now.
+		// Otherwise, skip this step so that we can more efficiently batch barriers.
+		for (uint32_t i = 0; i < framebufferInfo.numAttachments(); i++)
+		{
+			const auto& attachment = framebufferInfo.getAttachment(i);
+
+			if (m_execBarriers.isImageDirty(
+					attachment.view->image(),
+					attachment.view->imageSubresources(),
+					VltAccess::Write))
+			{
+				m_execBarriers.recordCommands(m_cmd);
+				break;
+			}
+		}
+
+		// Transition all images to the render layout as necessary
+		const auto& depthAttachment = framebufferInfo.getDepthTarget();
+
+		if (depthAttachment.layout != ops.depthOps.loadLayout && depthAttachment.view != nullptr)
+		{
+			VkImageAspectFlags depthAspects = depthAttachment.view->info().aspect;
+
+			VkPipelineStageFlags depthStages =
+				VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT |
+				VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+			VkAccessFlags depthAccess = 0;
+
+			if (((depthAspects & VK_IMAGE_ASPECT_DEPTH_BIT) && ops.depthOps.loadOpD == VK_ATTACHMENT_LOAD_OP_LOAD) || 
+				((depthAspects & VK_IMAGE_ASPECT_STENCIL_BIT) && ops.depthOps.loadOpS == VK_ATTACHMENT_LOAD_OP_LOAD))
+				depthAccess |= VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+
+			if (((depthAspects & VK_IMAGE_ASPECT_DEPTH_BIT) && ops.depthOps.loadOpD != VK_ATTACHMENT_LOAD_OP_LOAD) || 
+				((depthAspects & VK_IMAGE_ASPECT_STENCIL_BIT) && ops.depthOps.loadOpS != VK_ATTACHMENT_LOAD_OP_LOAD) || 
+				(depthAttachment.layout != VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL))
+				depthAccess |= VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+			if (depthAttachment.layout != VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
+			{
+				depthStages |= m_device->getShaderPipelineStages();
+				depthAccess |= VK_ACCESS_SHADER_READ_BIT;
+			}
+
+			m_execBarriers.accessImage(
+				depthAttachment.view->image(),
+				depthAttachment.view->imageSubresources(),
+				ops.depthOps.loadLayout,
+				depthStages, 0,
+				depthAttachment.layout,
+				depthStages, depthAccess);
+		}
+
+		for (uint32_t i = 0; i < MaxNumRenderTargets; i++)
+		{
+			const auto& colorAttachment = framebufferInfo.getColorTarget(i);
+
+			if (colorAttachment.layout != ops.colorOps[i].loadLayout && colorAttachment.view != nullptr)
+			{
+				VkAccessFlags colorAccess = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+				if (ops.colorOps[i].loadOp == VK_ATTACHMENT_LOAD_OP_LOAD)
+					colorAccess |= VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
+
+				m_execBarriers.accessImage(
+					colorAttachment.view->image(),
+					colorAttachment.view->imageSubresources(),
+					ops.colorOps[i].loadLayout,
+					VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0,
+					colorAttachment.layout,
+					VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+					colorAccess);
+			}
+		}
+
+		// Unconditionally emit barriers here. We need to do this
+		// even if there are no layout transitions, since we don't
+		// track resource usage during render passes.
+		m_execBarriers.recordCommands(m_cmd);
+	}
+
+	void VltContext::renderPassEmitPostBarriers(
+		const VltFramebufferInfo& framebufferInfo,
+		const VltRenderPassOps&   ops)
+	{
+		const auto& depthAttachment = framebufferInfo.getDepthTarget();
+
+		if (depthAttachment.view != nullptr)
+		{
+			if (depthAttachment.layout != ops.depthOps.storeLayout)
+			{
+				m_execBarriers.accessImage(
+					depthAttachment.view->image(),
+					depthAttachment.view->imageSubresources(),
+					depthAttachment.layout,
+					VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT |
+						VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+					VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT |
+						VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+					ops.depthOps.storeLayout,
+					depthAttachment.view->imageInfo().stages,
+					depthAttachment.view->imageInfo().access);
+			}
+			else
+			{
+				VkAccessFlags srcAccess = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+
+				if (depthAttachment.layout != VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL)
+					srcAccess |= VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+				m_execBarriers.accessMemory(
+					VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT |
+						VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+					srcAccess,
+					depthAttachment.view->imageInfo().stages,
+					depthAttachment.view->imageInfo().access);
+			}
+		}
+
+		for (uint32_t i = 0; i < MaxNumRenderTargets; i++)
+		{
+			const auto& colorAttachment = framebufferInfo.getColorTarget(i);
+
+			if (colorAttachment.view != nullptr)
+			{
+				if (colorAttachment.layout != ops.colorOps[i].storeLayout)
+				{
+					m_execBarriers.accessImage(
+						colorAttachment.view->image(),
+						colorAttachment.view->imageSubresources(),
+						colorAttachment.layout,
+						VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+						VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
+							VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+						ops.colorOps[i].storeLayout,
+						colorAttachment.view->imageInfo().stages,
+						colorAttachment.view->imageInfo().access);
+				}
+				else
+				{
+					m_execBarriers.accessMemory(
+						VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+						VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
+							VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+						colorAttachment.view->imageInfo().stages,
+						colorAttachment.view->imageInfo().access);
+				}
+			}
+		}
+
+		// Do not flush barriers here. This is intended since
+		// we pre-record them when binding the framebuffer.
+	}
+
+	void VltContext::renderPassBindFramebuffer(
+		const VltFramebufferInfo& framebufferInfo,
+		const VltRenderPassOps&   ops)
+	{
+		const VltFramebufferSize fbSize = framebufferInfo.size();
+
+		this->renderPassEmitInitBarriers(framebufferInfo, ops);
+		this->renderPassEmitPostBarriers(framebufferInfo, ops);
+
+		uint32_t colorInfoCount = 0;
+
+		std::array<VkRenderingAttachmentInfoKHR, MaxNumRenderTargets> colorInfos;
+
+		for (uint32_t i = 0; i < MaxNumRenderTargets; i++)
+		{
+			const auto& colorTarget = framebufferInfo.getColorTarget(i);
+			colorInfos[i]           = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR };
+
+			if (colorTarget.view != nullptr)
+			{
+				colorInfos[i].imageView   = colorTarget.view->handle();
+				colorInfos[i].imageLayout = colorTarget.layout;
+				colorInfos[i].loadOp      = ops.colorOps[i].loadOp;
+				colorInfos[i].storeOp     = VK_ATTACHMENT_STORE_OP_STORE;
+
+				if (ops.colorOps[i].loadOp == VK_ATTACHMENT_LOAD_OP_CLEAR)
+					colorInfos[i].clearValue.color = ops.colorOps[i].clearValue;
+
+				colorInfoCount = i + 1;
+			}
+		}
+
+		VkRenderingAttachmentInfoKHR depthInfo           = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR };
+		VkImageAspectFlags           depthStencilAspects = 0;
+
+		if (framebufferInfo.getDepthTarget().view != nullptr)
+		{
+			const auto& depthTarget = framebufferInfo.getDepthTarget();
+			depthStencilAspects     = depthTarget.view->info().aspect;
+			depthInfo.imageView     = depthTarget.view->handle();
+			depthInfo.imageLayout   = depthTarget.layout;
+			depthInfo.loadOp        = ops.depthOps.loadOpD;
+			depthInfo.storeOp       = VK_ATTACHMENT_STORE_OP_STORE;
+
+			if (ops.depthOps.loadOpD == VK_ATTACHMENT_LOAD_OP_CLEAR)
+				depthInfo.clearValue.depthStencil.depth = ops.depthOps.clearValue.depth;
+		}
+
+		VkRenderingAttachmentInfoKHR stencilInfo = depthInfo;
+
+		if (framebufferInfo.getDepthTarget().view != nullptr)
+		{
+			stencilInfo.loadOp  = ops.depthOps.loadOpS;
+			stencilInfo.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+
+			if (ops.depthOps.loadOpS == VK_ATTACHMENT_LOAD_OP_CLEAR)
+				stencilInfo.clearValue.depthStencil.stencil = ops.depthOps.clearValue.stencil;
+		}
+
+		VkRenderingInfoKHR renderingInfo = { VK_STRUCTURE_TYPE_RENDERING_INFO_KHR };
+		renderingInfo.renderArea.offset  = VkOffset2D{ 0, 0 };
+		renderingInfo.renderArea.extent  = VkExtent2D{ fbSize.width, fbSize.height };
+		renderingInfo.layerCount         = fbSize.layers;
+
+		if (colorInfoCount)
+		{
+			renderingInfo.colorAttachmentCount = colorInfoCount;
+			renderingInfo.pColorAttachments    = colorInfos.data();
+		}
+
+		if (depthStencilAspects & VK_IMAGE_ASPECT_DEPTH_BIT)
+			renderingInfo.pDepthAttachment = &depthInfo;
+
+		if (depthStencilAspects & VK_IMAGE_ASPECT_STENCIL_BIT)
+			renderingInfo.pStencilAttachment = &stencilInfo;
+
+		m_cmd->cmdBeginRendering(&renderingInfo);
+
+		for (uint32_t i = 0; i < framebufferInfo.numAttachments(); i++)
+		{
+			m_cmd->trackResource<VltAccess::None>(framebufferInfo.getAttachment(i).view);
+			m_cmd->trackResource<VltAccess::Write>(framebufferInfo.getAttachment(i).view->image());
+		}
+	}
+
+	void VltContext::renderPassUnbindFramebuffer()
+	{
+		m_cmd->cmdEndRendering();
+
+		// If there are pending layout transitions, execute them immediately
+		// since the backend expects images to be in the store layout after
+		// a render pass instance. This is expected to be rare.
+		if (m_execBarriers.hasResourceBarriers())
+			m_execBarriers.recordCommands(m_cmd);
 	}
 
 	bool VltContext::commitComputeState()
 	{
-		if (m_flags.test(VltContextFlag::GpRenderingActive))
-			this->endRendering();
+		if (m_flags.test(VltContextFlag::GpRenderPassBound))
+			this->spillRenderPass();
 
 		if (m_flags.test(VltContextFlag::CpDirtyPipeline))
 		{
@@ -1920,48 +2142,210 @@ namespace sce::vlt
 
 	void VltContext::updateFramebuffer()
 	{
-		this->endRendering();
-
-		auto& framebuffer = m_state.cb.framebuffer;
-
-		if (framebuffer == nullptr ||
-			!framebuffer->matchTargets(m_state.cb.renderTargets))
+		if (m_flags.test(VltContextFlag::GpDirtyFramebuffer))
 		{
-			framebuffer = m_device->createFramebuffer(
-				m_state.cb.renderTargets);
-			m_flags.set(VltContextFlag::GpDirtyFramebufferState);
-		}
+			m_flags.clr(VltContextFlag::GpDirtyFramebuffer);
 
-		if (m_flags.test(VltContextFlag::GpDirtyFramebufferState))
-		{
-			framebuffer->setAttachmentOps(m_state.cb.attachmentOps);
-			framebuffer->setAttachmentClearValues(m_state.cb.clearValues);
-			m_flags.clr(VltContextFlag::GpDirtyFramebufferState);
-		}
+			this->spillRenderPass();
 
-		m_flags.clr(VltContextFlag::GpDirtyFramebuffer);
+			VltFramebufferInfo fbInfo = makeFramebufferInfo(m_state.cb.renderTargets);
+			this->updateRenderTargetLayouts(fbInfo, m_state.cb.framebufferInfo);
+
+			// Update relevant graphics pipeline state
+			m_state.gp.state.ms.setSampleCount(fbInfo.getSampleCount());
+			m_state.gp.state.rt        = fbInfo.getRtInfo();
+			m_state.cb.framebufferInfo = fbInfo;
+
+			for (uint32_t i = 0; i < MaxNumRenderTargets; i++)
+			{
+				const Rc<VltImageView>& attachment = fbInfo.getColorTarget(i).view;
+
+				VkComponentMapping mapping = attachment != nullptr
+												 ? vutil::invertComponentMapping(attachment->info().swizzle)
+												 : VkComponentMapping();
+
+				m_state.gp.state.cbSwizzle[i] = VltCbAttachmentSwizzle(mapping);
+			}
+
+			m_flags.set(VltContextFlag::GpDirtyPipelineState);
+		}
 	}
 
-	void VltContext::resetFramebufferOps()
+	void VltContext::resetRenderPassOps(
+		const VltRenderTargets& renderTargets,
+		VltRenderPassOps&       renderPassOps)
 	{
-		VltFrameBufferOps ops;
-		ops.depth = m_state.cb.renderTargets.depth.view != nullptr
-						   ? VltAttachmentOps{
-								 VK_ATTACHMENT_LOAD_OP_LOAD,
-								 VK_ATTACHMENT_STORE_OP_STORE
-							 }
-						   : VltAttachmentOps{};
+		if (renderTargets.depth.view != nullptr)
+		{
+			renderPassOps.depthOps = VltDepthAttachmentOps{
+				VK_ATTACHMENT_LOAD_OP_LOAD, VK_ATTACHMENT_LOAD_OP_LOAD,
+				renderTargets.depth.layout, renderTargets.depth.layout
+			};
+		}
+		else
+		{
+			renderPassOps.depthOps = VltDepthAttachmentOps{};
+		}
 
 		for (uint32_t i = 0; i < MaxNumRenderTargets; i++)
 		{
-			ops.color[i] = m_state.cb.renderTargets.color[i].view != nullptr
-								  ? VltAttachmentOps{
-										VK_ATTACHMENT_LOAD_OP_LOAD,
-										VK_ATTACHMENT_STORE_OP_STORE
-									}
-								  : VltAttachmentOps{};
+			if (renderTargets.color[i].view != nullptr)
+			{
+				renderPassOps.colorOps[i] = VltColorAttachmentOps{
+					VK_ATTACHMENT_LOAD_OP_LOAD,
+					renderTargets.color[i].layout,
+					renderTargets.color[i].layout
+				};
+			}
+			else
+			{
+				renderPassOps.colorOps[i] = VltColorAttachmentOps{};
+			}
 		}
-		m_state.cb.attachmentOps = ops;
+	}
+
+	VltFramebufferInfo VltContext::makeFramebufferInfo(
+		const VltRenderTargets& renderTargets)
+	{
+		return VltFramebufferInfo(renderTargets, m_device->getDefaultFramebufferSize());
+	}
+
+	void VltContext::updateRenderTargetLayouts(
+		const VltFramebufferInfo& newFb,
+		const VltFramebufferInfo& oldFb)
+	{
+		VltRenderTargetLayouts layouts = {};
+
+		for (uint32_t i = 0; i < MaxNumRenderTargets; i++)
+		{
+			if (newFb.getColorTarget(i).view != nullptr)
+				layouts.color[i] = newFb.getColorTarget(i).view->imageInfo().layout;
+		}
+
+		if (newFb.getDepthTarget().view != nullptr)
+			layouts.depth = newFb.getDepthTarget().view->imageInfo().layout;
+
+		// Check whether any of the previous attachments have been moved
+		// around or been rebound with a different view. This may help
+		// reduce the number of image layout transitions between passes.
+		for (uint32_t i = 0; i < MaxNumRenderTargets; i++)
+		{
+			const VltAttachment& oldAttachment = oldFb.getColorTarget(i);
+
+			if (oldAttachment.view != nullptr)
+			{
+				bool found = false;
+
+				for (uint32_t j = 0; j < MaxNumRenderTargets && !found; j++)
+				{
+					const VltAttachment& newAttachment = newFb.getColorTarget(j);
+
+					found = newAttachment.view == oldAttachment.view ||
+							(newAttachment.view != nullptr &&
+							 newAttachment.view->image() == oldAttachment.view->image() &&
+							 newAttachment.view->subresources() == oldAttachment.view->subresources());
+
+					if (found)
+						layouts.color[j] = m_rtLayouts.color[i];
+				}
+			}
+		}
+
+		const VltAttachment& oldAttachment = oldFb.getDepthTarget();
+
+		if (oldAttachment.view != nullptr)
+		{
+			const VltAttachment& newAttachment = newFb.getDepthTarget();
+
+			bool found = newAttachment.view == oldAttachment.view ||
+						 (newAttachment.view != nullptr &&
+						  newAttachment.view->image() == oldAttachment.view->image() &&
+						  newAttachment.view->subresources() == oldAttachment.view->subresources());
+
+			if (found)
+				layouts.depth = m_rtLayouts.depth;
+		}
+
+		m_rtLayouts = layouts;
+	}
+
+	void VltContext::applyRenderTargetLoadLayouts()
+	{
+		for (uint32_t i = 0; i < MaxNumRenderTargets; i++)
+			m_state.cb.renderPassOps.colorOps[i].loadLayout = m_rtLayouts.color[i];
+
+		m_state.cb.renderPassOps.depthOps.loadLayout = m_rtLayouts.depth;
+	}
+
+	void VltContext::applyRenderTargetStoreLayouts()
+	{
+		for (uint32_t i = 0; i < MaxNumRenderTargets; i++)
+			m_rtLayouts.color[i] = m_state.cb.renderPassOps.colorOps[i].storeLayout;
+
+		m_rtLayouts.depth = m_state.cb.renderPassOps.depthOps.storeLayout;
+	}
+
+	void VltContext::transitionRenderTargetLayouts(VltBarrierSet& barriers)
+	{
+		for (uint32_t i = 0; i < MaxNumRenderTargets; i++)
+		{
+			const VltAttachment& color = m_state.cb.framebufferInfo.getColorTarget(i);
+
+			if (color.view != nullptr)
+			{
+				this->transitionColorAttachment(barriers, color, m_rtLayouts.color[i]);
+				m_rtLayouts.color[i] = color.view->imageInfo().layout;
+			}
+		}
+
+		const VltAttachment& depth = m_state.cb.framebufferInfo.getDepthTarget();
+
+		if (depth.view != nullptr)
+		{
+			this->transitionDepthAttachment(barriers, depth, m_rtLayouts.depth);
+			m_rtLayouts.depth = depth.view->imageInfo().layout;
+		}
+	}
+
+	void VltContext::transitionColorAttachment(VltBarrierSet&       barriers,
+											   const VltAttachment& attachment,
+											   VkImageLayout        oldLayout)
+	{
+		if (oldLayout != attachment.view->imageInfo().layout)
+		{
+			barriers.accessImage(
+				attachment.view->image(),
+				attachment.view->imageSubresources(), oldLayout,
+				VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+				VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+				attachment.view->imageInfo().layout,
+				attachment.view->imageInfo().stages,
+				attachment.view->imageInfo().access);
+
+			m_cmd->trackResource<VltAccess::Write>(attachment.view->image());
+		}
+	}
+
+	void VltContext::transitionDepthAttachment(VltBarrierSet&       barriers,
+											   const VltAttachment& attachment,
+											   VkImageLayout        oldLayout)
+	{
+		if (oldLayout != attachment.view->imageInfo().layout)
+		{
+			barriers.accessImage(
+				attachment.view->image(),
+				attachment.view->imageSubresources(), oldLayout,
+				VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT |
+					VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+				oldLayout != VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL
+					? VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT
+					: 0,
+				attachment.view->imageInfo().layout,
+				attachment.view->imageInfo().stages,
+				attachment.view->imageInfo().access);
+
+			m_cmd->trackResource<VltAccess::Write>(attachment.view->image());
+		}
 	}
 
 	void VltContext::emitMemoryBarrier(
@@ -1971,7 +2355,7 @@ namespace sce::vlt
 		VkPipelineStageFlags2 dstStages,
 		VkAccessFlags2        dstAccess)
 	{
-		this->endRendering();
+		this->spillRenderPass();
 
 		VkMemoryBarrier2 barrier;
 		barrier.sType         = VK_STRUCTURE_TYPE_MEMORY_BARRIER_2;
@@ -1995,6 +2379,268 @@ namespace sce::vlt
 		m_cmd->cmdPipelineBarrier2(
 			VltCmdType::ExecBuffer, &info);
 	}
+
+	void VltContext::performClear(
+		const Rc<VltImageView>& imageView,
+		int32_t                 attachmentIndex,
+		VkImageAspectFlags      discardAspects,
+		VkImageAspectFlags      clearAspects,
+		VkClearValue            clearValue)
+	{
+		VltColorAttachmentOps colorOp;
+		colorOp.loadOp      = VK_ATTACHMENT_LOAD_OP_LOAD;
+		colorOp.loadLayout  = imageView->imageInfo().layout;
+		colorOp.storeLayout = imageView->imageInfo().layout;
+
+		VltDepthAttachmentOps depthOp;
+		depthOp.loadOpD     = VK_ATTACHMENT_LOAD_OP_LOAD;
+		depthOp.loadOpS     = VK_ATTACHMENT_LOAD_OP_LOAD;
+		depthOp.loadLayout  = imageView->imageInfo().layout;
+		depthOp.storeLayout = imageView->imageInfo().layout;
+
+		if (clearAspects & VK_IMAGE_ASPECT_COLOR_BIT)
+			colorOp.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		else if (discardAspects & VK_IMAGE_ASPECT_COLOR_BIT)
+			colorOp.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+
+		if (clearAspects & VK_IMAGE_ASPECT_DEPTH_BIT)
+			depthOp.loadOpD = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		else if (discardAspects & VK_IMAGE_ASPECT_DEPTH_BIT)
+			depthOp.loadOpD = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+
+		if (clearAspects & VK_IMAGE_ASPECT_STENCIL_BIT)
+			depthOp.loadOpS = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		else if (discardAspects & VK_IMAGE_ASPECT_DEPTH_BIT)
+			depthOp.loadOpS = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+
+		if (attachmentIndex >= 0 && !m_state.cb.framebufferInfo.isWritable(attachmentIndex, clearAspects | discardAspects))
+		{
+			// Do not fold the clear/discard into the render pass if any of the affected aspects
+			// isn't writable. We can only hit this particular path when starting a render pass,
+			// so we can safely manipulate load layouts here.
+			int32_t       colorIndex   = m_state.cb.framebufferInfo.getColorAttachmentIndex(attachmentIndex);
+			VkImageLayout renderLayout = m_state.cb.framebufferInfo.getAttachment(attachmentIndex).layout;
+
+			if (colorIndex < 0)
+			{
+				depthOp.loadLayout                           = m_state.cb.renderPassOps.depthOps.loadLayout;
+				depthOp.storeLayout                          = renderLayout;
+				m_state.cb.renderPassOps.depthOps.loadLayout = renderLayout;
+			}
+			else
+			{
+				colorOp.loadLayout                                       = m_state.cb.renderPassOps.colorOps[colorIndex].loadLayout;
+				colorOp.storeLayout                                      = renderLayout;
+				m_state.cb.renderPassOps.colorOps[colorIndex].loadLayout = renderLayout;
+			}
+
+			attachmentIndex = -1;
+		}
+
+		bool is3D = imageView->imageInfo().type == VK_IMAGE_TYPE_3D;
+
+		if ((clearAspects | discardAspects) == imageView->info().aspect && !is3D)
+		{
+			colorOp.loadLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+			depthOp.loadLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		}
+
+		if (attachmentIndex < 0)
+		{
+			if (m_execBarriers.isImageDirty(imageView->image(), imageView->imageSubresources(), VltAccess::Write))
+				m_execBarriers.recordCommands(m_cmd);
+
+			// Set up a temporary render pass to execute the clear
+			VkImageLayout imageLayout = ((clearAspects | discardAspects) & VK_IMAGE_ASPECT_COLOR_BIT)
+											? imageView->pickLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+											: imageView->pickLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+
+			VkRenderingAttachmentInfoKHR attachmentInfo = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR };
+			attachmentInfo.imageView                    = imageView->handle();
+			attachmentInfo.imageLayout                  = imageLayout;
+			attachmentInfo.storeOp                      = VK_ATTACHMENT_STORE_OP_STORE;
+			attachmentInfo.clearValue                   = clearValue;
+
+			VkRenderingAttachmentInfoKHR stencilInfo = attachmentInfo;
+
+			VkExtent3D extent = imageView->mipLevelExtent(0);
+
+			VkRenderingInfoKHR renderingInfo = { VK_STRUCTURE_TYPE_RENDERING_INFO_KHR };
+			renderingInfo.renderArea.extent  = { extent.width, extent.height };
+			renderingInfo.layerCount         = imageView->info().numLayers;
+
+			VkImageLayout loadLayout;
+			VkImageLayout storeLayout;
+
+			VkPipelineStageFlags clearStages = 0;
+			VkAccessFlags        clearAccess = 0;
+
+			if ((clearAspects | discardAspects) & VK_IMAGE_ASPECT_COLOR_BIT)
+			{
+				clearStages |= VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+				clearAccess |= VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+				attachmentInfo.loadOp = colorOp.loadOp;
+
+				renderingInfo.colorAttachmentCount = 1;
+				renderingInfo.pColorAttachments    = &attachmentInfo;
+
+				loadLayout  = colorOp.loadLayout;
+				storeLayout = colorOp.storeLayout;
+			}
+			else
+			{
+				clearStages |= VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT |
+							   VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+				clearAccess |= VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+				if (imageView->info().aspect & VK_IMAGE_ASPECT_DEPTH_BIT)
+				{
+					renderingInfo.pDepthAttachment = &attachmentInfo;
+					attachmentInfo.loadOp          = depthOp.loadOpD;
+				}
+
+				if (imageView->info().aspect & VK_IMAGE_ASPECT_STENCIL_BIT)
+				{
+					renderingInfo.pStencilAttachment = &stencilInfo;
+					stencilInfo.loadOp               = depthOp.loadOpS;
+				}
+
+				loadLayout  = depthOp.loadLayout;
+				storeLayout = depthOp.storeLayout;
+			}
+
+			if (loadLayout != imageLayout)
+			{
+				m_execAcquires.accessImage(
+					imageView->image(),
+					imageView->imageSubresources(),
+					loadLayout, clearStages, 0,
+					imageLayout, clearStages, clearAccess);
+
+				m_execAcquires.recordCommands(m_cmd);
+			}
+
+			m_cmd->cmdBeginRendering(&renderingInfo);
+			m_cmd->cmdEndRendering();
+
+			m_execBarriers.accessImage(
+				imageView->image(),
+				imageView->imageSubresources(),
+				imageLayout, clearStages, clearAccess,
+				storeLayout,
+				imageView->imageInfo().stages,
+				imageView->imageInfo().access);
+
+			m_cmd->trackResource<VltAccess::None>(imageView);
+			m_cmd->trackResource<VltAccess::Write>(imageView->image());
+		}
+		else
+		{
+			// Perform the operation when starting the next render pass
+			if ((clearAspects | discardAspects) & VK_IMAGE_ASPECT_COLOR_BIT)
+			{
+				uint32_t colorIndex = m_state.cb.framebufferInfo.getColorAttachmentIndex(attachmentIndex);
+
+				m_state.cb.renderPassOps.colorOps[colorIndex].loadOp = colorOp.loadOp;
+				if (m_state.cb.renderPassOps.colorOps[colorIndex].loadOp != VK_ATTACHMENT_LOAD_OP_LOAD && !is3D)
+					m_state.cb.renderPassOps.colorOps[colorIndex].loadLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+				m_state.cb.renderPassOps.colorOps[colorIndex].clearValue = clearValue.color;
+			}
+
+			if ((clearAspects | discardAspects) & VK_IMAGE_ASPECT_DEPTH_BIT)
+			{
+				m_state.cb.renderPassOps.depthOps.loadOpD          = depthOp.loadOpD;
+				m_state.cb.renderPassOps.depthOps.clearValue.depth = clearValue.depthStencil.depth;
+			}
+
+			if ((clearAspects | discardAspects) & VK_IMAGE_ASPECT_STENCIL_BIT)
+			{
+				m_state.cb.renderPassOps.depthOps.loadOpS            = depthOp.loadOpS;
+				m_state.cb.renderPassOps.depthOps.clearValue.stencil = clearValue.depthStencil.stencil;
+			}
+
+			if ((clearAspects | discardAspects) & (VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT))
+			{
+				if (m_state.cb.renderPassOps.depthOps.loadOpD != VK_ATTACHMENT_LOAD_OP_LOAD &&
+					m_state.cb.renderPassOps.depthOps.loadOpS != VK_ATTACHMENT_LOAD_OP_LOAD)
+					m_state.cb.renderPassOps.depthOps.loadLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+			}
+		}
+	}
+
+	void VltContext::deferClear(
+		const Rc<VltImageView>& imageView,
+		VkImageAspectFlags      clearAspects,
+		VkClearValue            clearValue)
+	{
+		for (auto& entry : m_deferredClears)
+		{
+			if (entry.imageView->matchesView(imageView))
+			{
+				entry.imageView = imageView;
+				entry.discardAspects &= ~clearAspects;
+				entry.clearAspects |= clearAspects;
+
+				if (clearAspects & VK_IMAGE_ASPECT_COLOR_BIT)
+					entry.clearValue.color = clearValue.color;
+				if (clearAspects & VK_IMAGE_ASPECT_DEPTH_BIT)
+					entry.clearValue.depthStencil.depth = clearValue.depthStencil.depth;
+				if (clearAspects & VK_IMAGE_ASPECT_STENCIL_BIT)
+					entry.clearValue.depthStencil.stencil = clearValue.depthStencil.stencil;
+
+				return;
+			}
+			else if (entry.imageView->checkSubresourceOverlap(imageView))
+			{
+				this->spillRenderPass();
+				break;
+			}
+		}
+
+		m_deferredClears.push_back({ imageView, 0, clearAspects, clearValue });
+	}
+
+	void VltContext::deferDiscard(
+		const Rc<VltImageView>& imageView,
+		VkImageAspectFlags      discardAspects)
+	{
+		for (auto& entry : m_deferredClears)
+		{
+			if (entry.imageView->matchesView(imageView))
+			{
+				entry.imageView = imageView;
+				entry.discardAspects |= discardAspects;
+				entry.clearAspects &= ~discardAspects;
+				return;
+			}
+			else if (entry.imageView->checkSubresourceOverlap(imageView))
+			{
+				this->spillRenderPass();
+				break;
+			}
+		}
+
+		m_deferredClears.push_back({ imageView, discardAspects });
+	}
+
+	void VltContext::flushClears(bool useRenderPass)
+	{
+		for (const auto& clear : m_deferredClears)
+		{
+			int32_t attachmentIndex = -1;
+
+			if (useRenderPass && m_state.cb.framebufferInfo.isFullSize(clear.imageView))
+				attachmentIndex = m_state.cb.framebufferInfo.findAttachment(clear.imageView);
+
+			this->performClear(clear.imageView, attachmentIndex,
+							   clear.discardAspects, clear.clearAspects, clear.clearValue);
+		}
+
+		m_deferredClears.clear();
+	}
+
 
 
 }  // namespace sce::vlt

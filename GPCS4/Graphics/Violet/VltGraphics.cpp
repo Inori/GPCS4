@@ -8,6 +8,44 @@
 namespace sce::vlt
 {
 
+	VltGraphicsPipelineDynamicRenderingState::VltGraphicsPipelineDynamicRenderingState()
+	{
+	}
+
+	VltGraphicsPipelineDynamicRenderingState::VltGraphicsPipelineDynamicRenderingState(
+		const VltGraphicsPipelineStateInfo& state)
+	{
+		for (uint32_t i = 0; i < MaxNumRenderTargets; i++)
+		{
+			rtColorFormats[i] = state.rt.getColorFormat(i);
+
+			if (rtColorFormats[i] != VK_FORMAT_UNDEFINED)
+			{
+				rtInfo.colorAttachmentCount = i + 1;
+			}
+		}
+
+		if (rtInfo.colorAttachmentCount)
+		{
+			rtInfo.pColorAttachmentFormats = rtColorFormats.data();
+		}
+
+		// Set up depth-stencil format accordingly.
+		VkFormat rtDepthFormat = state.rt.getDepthStencilFormat();
+
+		if (rtDepthFormat)
+		{
+			auto rtDepthFormatInfo = imageFormatInfo(rtDepthFormat);
+
+			if (rtDepthFormatInfo->aspectMask & VK_IMAGE_ASPECT_DEPTH_BIT)
+				rtInfo.depthAttachmentFormat = rtDepthFormat;
+
+			if (rtDepthFormatInfo->aspectMask & VK_IMAGE_ASPECT_STENCIL_BIT)
+				rtInfo.stencilAttachmentFormat = rtDepthFormat;
+		}
+	}
+
+
 	VltGraphicsPipeline::VltGraphicsPipeline(
 		VltPipelineManager*        pipeMgr,
 		VltGraphicsPipelineShaders shaders) :
@@ -60,20 +98,19 @@ namespace sce::vlt
 	}
 
 	VkPipeline VltGraphicsPipeline::getPipelineHandle(
-		const VltGraphicsPipelineStateInfo& state,
-		const VltAttachmentFormat&          format)
+		const VltGraphicsPipelineStateInfo& state)
 	{
 		VltGraphicsPipelineInstance* instance = nullptr;
 
 		{
 			std::lock_guard<util::sync::Spinlock> lock(m_mutex);
 
-			instance = this->findInstance(state, format);
+			instance = this->findInstance(state);
 
 			if (instance)
 				return instance->pipeline();
 
-			instance = this->createInstance(state, format);
+			instance = this->createInstance(state);
 		}
 
 		if (!instance)
@@ -83,40 +120,36 @@ namespace sce::vlt
 	}
 
 	void VltGraphicsPipeline::compilePipeline(
-		const VltGraphicsPipelineStateInfo& state,
-		const VltAttachmentFormat&          format)
+		const VltGraphicsPipelineStateInfo& state)
 	{
 		std::lock_guard<util::sync::Spinlock> lock(m_mutex);
 
-		if (!this->findInstance(state, format))
-			this->createInstance(state, format);
+		if (!this->findInstance(state))
+			this->createInstance(state);
 	}
 
 	VltGraphicsPipelineInstance* VltGraphicsPipeline::createInstance(
-		const VltGraphicsPipelineStateInfo& state,
-		const VltAttachmentFormat&          format)
+		const VltGraphicsPipelineStateInfo& state)
 	{
 		// If the pipeline state vector is invalid, don't try
 		// to create a new pipeline, it won't work anyway.
 		if (!this->validatePipelineState(state))
 			return nullptr;
 
-		VkPipeline newPipelineHandle = this->createPipeline(state, format);
+		VkPipeline newPipelineHandle = this->createPipeline(state);
 
 		m_pipeMgr->m_numGraphicsPipelines += 1;
 		return &m_pipelines.emplace_back(
 			state,
-			format,
 			newPipelineHandle);
 	}
 
 	VltGraphicsPipelineInstance* VltGraphicsPipeline::findInstance(
-		const VltGraphicsPipelineStateInfo& state,
-		const VltAttachmentFormat&          format)
+		const VltGraphicsPipelineStateInfo& state)
 	{
 		for (auto& instance : m_pipelines)
 		{
-			if (instance.isCompatible(state, format))
+			if (instance.m_state == state)
 				return &instance;
 		}
 
@@ -124,8 +157,7 @@ namespace sce::vlt
 	}
 
 	VkPipeline VltGraphicsPipeline::createPipeline(
-		const VltGraphicsPipelineStateInfo& state,
-		const VltAttachmentFormat&          format) const
+		const VltGraphicsPipelineStateInfo& state) const
 	{
 		if (Logger::logLevel() <= LogLevel::Debug)
 		{
@@ -298,7 +330,7 @@ namespace sce::vlt
 		cbInfo.flags           = 0;
 		cbInfo.logicOpEnable   = state.cb.enableLogicOp();
 		cbInfo.logicOp         = state.cb.logicOp();
-		cbInfo.attachmentCount = format.colorCount();
+		cbInfo.attachmentCount = MaxNumRenderTargets;
 		cbInfo.pAttachments    = cbBlendAttachments.data();
 
 		for (uint32_t i = 0; i < 4; i++)
@@ -312,18 +344,11 @@ namespace sce::vlt
 		dyInfo.pDynamicStates    = dynamicStates.data();
 
 		// Provide information for dynamic rendering
-		VkPipelineRenderingCreateInfo renderingInfo;
-		renderingInfo.sType                   = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO_KHR;
-		renderingInfo.pNext                   = VK_NULL_HANDLE;
-		renderingInfo.viewMask                = 0;
-		renderingInfo.colorAttachmentCount    = format.colorCount();
-		renderingInfo.pColorAttachmentFormats = format.color;
-		renderingInfo.depthAttachmentFormat   = format.depth;
-		renderingInfo.stencilAttachmentFormat = format.depth;
+		VltGraphicsPipelineDynamicRenderingState rtState(state);
 
 		VkGraphicsPipelineCreateInfo info;
 		info.sType               = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-		info.pNext               = &renderingInfo;
+		info.pNext               = &rtState.rtInfo;
 		info.flags               = 0;
 		info.stageCount          = stages.size();
 		info.pStages             = stages.data();
@@ -481,5 +506,6 @@ namespace sce::vlt
 
 		// TODO log more pipeline state
 	}
+
 
 }  // namespace sce::vlt

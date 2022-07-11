@@ -63,6 +63,15 @@ namespace sce::vlt
 		return result;
 	}
 
+	VltFramebufferSize VltDevice::getDefaultFramebufferSize() const
+	{
+		return VltFramebufferSize{
+			m_properties.core.properties.limits.maxFramebufferWidth,
+			m_properties.core.properties.limits.maxFramebufferHeight,
+			m_properties.core.properties.limits.maxFramebufferLayers
+		};
+	}
+
 	void VltDevice::waitForIdle()
 	{
 		if (vkDeviceWaitIdle(m_device) != VK_SUCCESS)
@@ -76,18 +85,6 @@ namespace sce::vlt
 		VkQueue queue = VK_NULL_HANDLE;
 		vkGetDeviceQueue(m_device, family, index, &queue);
 		return VltDeviceQueue{ queue, family, index };
-	}
-
-	Rc<VltFramebuffer> VltDevice::createFramebuffer(
-		const VltRenderTargets& renderTargets)
-	{
-		const VltFramebufferSize defaultSize = {
-			m_properties.core.properties.limits.maxFramebufferWidth,
-			m_properties.core.properties.limits.maxFramebufferHeight,
-			m_properties.core.properties.limits.maxFramebufferLayers
-		};
-
-		return new VltFramebuffer(renderTargets, defaultSize);
 	}
 
 	Rc<VltBuffer> VltDevice::createBuffer(
@@ -227,6 +224,7 @@ namespace sce::vlt
 	{
 		m_recycledDescriptorPools.returnObject(pool);
 	}
+
 
 
 }  // namespace sce::vlt
