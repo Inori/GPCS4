@@ -21,7 +21,6 @@ namespace sce::Gnm
 	class GnmShader
 	{
 	public:
-		//GnmShader();
 		GnmShader(const vlt::VltShaderKey& key,
 				  const void*              code);
 		~GnmShader();

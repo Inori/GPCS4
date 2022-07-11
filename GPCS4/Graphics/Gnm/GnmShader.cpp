@@ -1,7 +1,8 @@
 #include "GnmShader.h"
 #include "Violet/VltShader.h"
-
 #include "Gcn/GcnShaderMeta.h"
+
+#include <fstream>
 
 
 LOG_CHANNEL(Graphic.Gnm.GnmShader);
@@ -11,11 +12,6 @@ using namespace sce::vlt;
 
 namespace sce::Gnm
 {
-	//GnmShader::GnmShader() :
-	//	m_shader(nullptr)
-	//{
-	//}
-
 	GnmShader::GnmShader(const VltShaderKey& key,
 						 const void*         code):
 		m_key(key),
@@ -37,6 +33,9 @@ namespace sce::Gnm
 		{
 			m_shader = m_module.compile(meta, moduleInfo);
 			m_shader->setShaderKey(m_key);
+			
+			// std::ofstream fout(m_shader->debugName(), std::ofstream::binary);
+			// m_shader->dump(fout);
 		}
 		return m_shader;
 	}

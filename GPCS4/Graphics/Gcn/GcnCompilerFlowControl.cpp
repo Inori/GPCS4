@@ -576,12 +576,18 @@ namespace sce::gcn
 	{
 		if (m_controlFlowStack.size() != 0)
 		{
-			uint32_t labelId = m_module.allocateId();
+			// Discard exp instruction in gcn shader
+			// will follow a s_endpgm instruction.
+			// We don't need OpReturn in such case.
+			if (m_blockTerminators.empty())
+			{
+				uint32_t labelId = m_module.allocateId();
 
-			m_module.opReturn();
-			m_module.opLabel(labelId);
+				m_module.opReturn();
+				m_module.opLabel(labelId);
 
-			m_blockTerminators.push_back(labelId);
+				m_blockTerminators.push_back(labelId);
+			}
 		}
 		else
 		{

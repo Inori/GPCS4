@@ -324,13 +324,16 @@ namespace sce::vlt
 		dsInfo.minDepthBounds        = 0.0f;
 		dsInfo.maxDepthBounds        = 1.0f;
 
+		// Provide information for dynamic rendering
+		VltGraphicsPipelineDynamicRenderingState rtState(state);
+
 		VkPipelineColorBlendStateCreateInfo cbInfo;
 		cbInfo.sType           = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
 		cbInfo.pNext           = nullptr;
 		cbInfo.flags           = 0;
 		cbInfo.logicOpEnable   = state.cb.enableLogicOp();
 		cbInfo.logicOp         = state.cb.logicOp();
-		cbInfo.attachmentCount = MaxNumRenderTargets;
+		cbInfo.attachmentCount = rtState.rtInfo.colorAttachmentCount;
 		cbInfo.pAttachments    = cbBlendAttachments.data();
 
 		for (uint32_t i = 0; i < 4; i++)
@@ -342,9 +345,6 @@ namespace sce::vlt
 		dyInfo.flags             = 0;
 		dyInfo.dynamicStateCount = dynamicStateCount;
 		dyInfo.pDynamicStates    = dynamicStates.data();
-
-		// Provide information for dynamic rendering
-		VltGraphicsPipelineDynamicRenderingState rtState(state);
 
 		VkGraphicsPipelineCreateInfo info;
 		info.sType               = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;

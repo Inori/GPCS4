@@ -1402,7 +1402,7 @@ namespace sce::Gnm
 
 			result.color[slot] = VltAttachment{
 				targetView,
-				VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL
+				VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
 			};
 		}
 
@@ -1413,7 +1413,7 @@ namespace sce::Gnm
 
 			result.depth = VltAttachment{
 				depthView,
-				VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL
+				VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL
 			};
 		}
 

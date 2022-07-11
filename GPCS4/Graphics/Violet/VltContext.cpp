@@ -491,9 +491,7 @@ namespace sce::vlt
 		}
 
 		if (!m_flags.test(VltContextFlag::GpRenderPassBound))
-		{
 			this->startRenderPass();
-		}
 
 		if (m_flags.test(VltContextFlag::GpDirtyIndexBuffer) && Indexed)
 			this->updateIndexBufferBinding();
