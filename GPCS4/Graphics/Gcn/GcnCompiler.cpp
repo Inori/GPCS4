@@ -2269,26 +2269,33 @@ namespace sce::gcn
 		return result;
 	}
 
-	void GcnCompiler::emitConstantBufferLoad(
+	void GcnCompiler::emitScalarBufferLoad(
 		const GcnRegIndex&    index,
 		const GcnInstOperand& dst,
 		uint32_t              count)
 	{
 		uint32_t         regId  = index.regIdx;
 		GcnRegisterValue baseId = emitIndexLoad(index);
+		const auto&      buffer = m_buffers.at(regId);
 
-		uint32_t fpTypeId = getScalarTypeId(GcnScalarType::Float32);
+		const uint32_t typeId = getScalarTypeId(buffer.asSsbo
+													? GcnScalarType::Uint32
+													: GcnScalarType::Float32);
 
-		auto ptrList = emitUniformBufferAccess(m_buffers.at(regId).varId,
-											   baseId.id,
-											   count);
+		auto ptrList = buffer.asSsbo
+						   ? emitStorageBufferAccess(buffer.varId,
+													 baseId.id,
+													 count)
+						   : emitUniformBufferAccess(buffer.varId,
+													 baseId.id,
+													 count);
 
 		for (uint32_t i = 0; i != count ; ++i)
 		{
 			const auto&          ptr   = ptrList[i];
 			GcnRegisterValuePair value = {};
 			value.low.type             = ptr.type;
-			value.low.id               = m_module.opLoad(fpTypeId,
+			value.low.id               = m_module.opLoad(typeId,
 														 ptr.id);
 
 			GcnInstOperand reg = dst;

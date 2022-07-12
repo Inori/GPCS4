@@ -3,7 +3,7 @@
 #include "Gcn/GcnShaderMeta.h"
 
 #include <fstream>
-
+#include <fmt/format.h>
 
 LOG_CHANNEL(Graphic.Gnm.GnmShader);
 
@@ -33,6 +33,11 @@ namespace sce::Gnm
 		{
 			m_shader = m_module.compile(meta, moduleInfo);
 			m_shader->setShaderKey(m_key);
+
+			std::ofstream fout(
+				fmt::format("shaders/{}", m_shader->debugName()), 
+				std::ofstream::binary);
+			m_shader->dump(fout);
 		}
 		return m_shader;
 	}

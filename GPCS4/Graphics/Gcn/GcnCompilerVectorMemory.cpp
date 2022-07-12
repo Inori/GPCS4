@@ -720,7 +720,7 @@ namespace sce::gcn
 
 		if (flags.test(GcnMimgModifier::Offset))
 		{
-			m_module.enableCapability(spv::CapabilityImageGatherExtended);
+			// m_module.enableCapability(spv::CapabilityImageGatherExtended);
 
 			auto offset = emitLoadTexOffset(ins);
 

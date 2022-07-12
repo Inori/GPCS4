@@ -45,7 +45,8 @@ namespace sce::gcn
 					index.offset = 0;
 					index.relReg = &smrd.offset;
 				}
-				emitConstantBufferLoad(index, smrd.sdst, smrd.control.count);
+
+				emitScalarBufferLoad(index, smrd.sdst, smrd.control.count);
 			}
 				break;
 			case GcnOpcode::S_LOAD_DWORDX4:

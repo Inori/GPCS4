@@ -483,7 +483,7 @@ namespace sce::gcn
 		void emitRawBufferLoad(
 			const GcnShaderInstruction& ins);
 
-		void emitConstantBufferLoad(
+		void emitScalarBufferLoad(
 			const GcnRegIndex&    index,
 			const GcnInstOperand& dst,
 			uint32_t              count);
