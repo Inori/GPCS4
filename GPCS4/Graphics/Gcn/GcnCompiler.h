@@ -711,7 +711,7 @@ namespace sce::gcn
 
 		GcnImageInfo getImageType(
 			Gnm::TextureType textureType,
-			bool             isStorage,
+			bool             isUav,
 			bool             isDepth) const;
 
 		GcnImageInfo getImageInfo(
@@ -738,7 +738,6 @@ namespace sce::gcn
 
 		uint32_t calcAddrComponentIndex(
 			GcnImageAddrComponent       component,
-			spv::Dim                    dim,
 			const GcnShaderInstruction& ins);
 
 		void mapNonEudResource();

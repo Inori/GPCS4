@@ -2,6 +2,7 @@
 #include "GcnConstants.h"
 #include "GcnDecoder.h"
 #include "GcnProgramInfo.h"
+#include "GcnInstructionUtil.h"
 #include "Gnm/GnmConstant.h"
 
 
@@ -158,22 +159,47 @@ namespace sce::gcn
 			switch (slot.m_usageType)
 			{
 			case kShaderInputUsageImmResource:
-			{
-				// If ImmResource is a buffer, it may be pretty large,
-				// so we use SSBO.
-				res.type = isVSharp
-							   ? VK_DESCRIPTOR_TYPE_STORAGE_BUFFER
-							   : (typeInfo.m_storageImages.find(res.startRegister) != typeInfo.m_storageImages.end()
-									  ? VK_DESCRIPTOR_TYPE_STORAGE_IMAGE
-									  : VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE);
-
-				res.sizeInDwords = slot.m_registerCount == 0 ? 4 : 8;
-			}
-				break;
 			case kShaderInputUsageImmRwResource:
 			{
-				res.type = isVSharp ? 
-					VK_DESCRIPTOR_TYPE_STORAGE_BUFFER : VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+				if (isVSharp)
+				{
+					// We use ssbo instead of ubo no matter 
+					// it is read-only or read-write,
+					// since the buffer could be pretty large.
+					res.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+				}
+				else
+				{
+					auto iter  = typeInfo.uavs.find(res.startRegister);
+					bool isUav = iter != typeInfo.uavs.end();
+					if (!isUav)
+					{
+						res.type = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+					}
+					else
+					{
+						// It's annoying to translate image_load_mip
+						// instruction.
+						// Normally, we should use OpImageRead/Write,
+						// to access UAVs, but these two opcodes doesn't
+						// support LOD operands.
+						// On AMD GPU, we have SPV_AMD_shader_image_load_store_lod to ease things,
+						// but no identical method for Nvidia GPU.
+						// So we need to use OpImageFetch to replace OpImageRead,
+						// thus to declare the image as sampled.
+						// For image_store_mip, I don't have a good idea as of now.
+						bool isUavRead = iter->second;
+						if (isUavRead)
+						{
+							res.type = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+						}
+						else
+						{
+							res.type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+						}
+					}
+				}
+			
 				res.sizeInDwords = slot.m_registerCount == 0 ? 4 : 8;
 			}
 				break;
@@ -224,12 +250,10 @@ namespace sce::gcn
 
 			auto& ins = decoder.getInstruction();
 
-			if (ins.opcode >= GcnOpcode::IMAGE_LOAD &&
-				ins.opcode <= GcnOpcode::IMAGE_ATOMIC_FMAX &&
-				ins.opcode != GcnOpcode::IMAGE_GET_RESINFO)
+			if (isImageAccessNoSampling(ins))
 			{
-				uint32_t startRegister = ins.src[2].code << 2;
-				result.m_storageImages.insert(startRegister);
+				uint32_t startRegister     = ins.src[2].code << 2;
+				result.uavs[startRegister] = isUavReadAccess(ins);
 			}
 		}
 

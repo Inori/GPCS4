@@ -5,7 +5,7 @@
 #include "GcnShaderKey.h"
 
 #include <vector>
-#include <unordered_set>
+#include <unordered_map>
 
 namespace sce::gcn
 {
@@ -33,6 +33,9 @@ namespace sce::gcn
 
 		// Register size in dwords
 		uint32_t sizeInDwords;
+
+		// Is the image going to be sampled
+		bool isSampled;
 	};
 
 	using GcnShaderResourceTable = std::vector<GcnShaderResource>;
@@ -101,7 +104,8 @@ namespace sce::gcn
 	{
 		struct ResourceTypeInfo
 		{
-			std::unordered_set<uint32_t> m_storageImages;
+			std::unordered_map<
+				uint32_t, bool> uavs;
 		};
 
 	public:

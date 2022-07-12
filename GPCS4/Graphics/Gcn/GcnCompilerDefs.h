@@ -219,6 +219,7 @@ namespace sce::gcn
 		Z,
 		Slice,
 		FaceId,
+		FragId,
 		Lod,
 		Clamp,
 	};

@@ -1,4 +1,5 @@
 #include "GcnCompiler.h"
+#include "GcnInstructionUtil.h"
 #include "UtilVector.h"
 
 using namespace sce::vlt;
@@ -793,12 +794,11 @@ namespace sce::gcn
 	{
 		auto mimg = gcnInstructionAs<GcnShaderInstMIMG>(ins);
 
-		const uint32_t registerId = mimg.srsrc.code << 2;
-
-		const GcnTexture& typeInfo = m_textures.at(registerId);
+		const uint32_t    registerId = mimg.srsrc.code << 2;
+		const GcnTexture& typeInfo   = m_textures.at(registerId);
 
 		// Load texture coordinates
-		GcnRegisterValue texCoord = emitLoadTexCoord(ins);
+		GcnRegisterValue coord = emitLoadTexCoord(ins);
 
 		// Additional image operands. This will store
 		// the LOD and other information if present.
@@ -809,12 +809,8 @@ namespace sce::gcn
 		{
 			case GcnOpcode::IMAGE_LOAD_MIP:
 			{
-				// The component following coordinate contains the LOD.
-				auto vaddr = mimg.vaddr;
-				vaddr.code += texCoord.type.ccount;
-
-				GcnRegisterValue imageLod = emitVgprLoad(vaddr);
-				imageLod                  = emitRegisterBitcast(imageLod, GcnScalarType::Uint32);
+				GcnRegisterValue imageLod = 
+					emitLoadAddrComponent(GcnImageAddrComponent::Lod, ins);
 
 				imageOperands.flags |= spv::ImageOperandsLodMask;
 				imageOperands.sLod = imageLod.id;
@@ -826,10 +822,10 @@ namespace sce::gcn
 		GcnRegisterValue result;
 		result.type.ctype  = typeInfo.sampledType;
 		result.type.ccount = 4;
-		result.id          = m_module.opImageRead(
+		result.id          = m_module.opImageFetch(
 					 getVectorTypeId(result.type),
 					 m_module.opLoad(typeInfo.imageTypeId, typeInfo.varId),
-					 texCoord.id, imageOperands);
+					 coord.id, imageOperands);
 
 		// Apply component swizzle and mask
 		auto colorMask = GcnRegMask(mimg.control.dmask);
@@ -863,13 +859,16 @@ namespace sce::gcn
 
 		uint32_t dim        = getTexCoordDim(imageInfo);
 		uint32_t coordIndex = calcAddrComponentIndex(
-			GcnImageAddrComponent::X, imageInfo.dim, ins);
+			GcnImageAddrComponent::X, ins);
 
 		addrReg.code += coordIndex;
 		GcnRegisterValue coord = emitVgprArrayLoad(
 			addrReg, GcnRegMask::firstN(dim));
 
 		auto result = emitCalcTexCoord(coord, imageInfo);
+		// Some non-sampling image instructions use
+		// integer coordinate offset, we need to do a cast.
+		result = emitRegisterBitcast(result, addrReg.type);
 
 		if (imageInfo.dim == spv::DimCube)
 		{
@@ -948,13 +947,23 @@ namespace sce::gcn
 		// Image type, which stores the image dimensions etc.
 		const GcnImageInfo imageInfo = m_textures.at(textureId).imageInfo;
 
-		uint32_t index = calcAddrComponentIndex(component, imageInfo.dim, ins);
+		uint32_t index = calcAddrComponentIndex(component, ins);
 		auto     reg   = addrReg;
 		reg.code += index;
 
-		auto type = flags.test(GcnMimgModifier::Offset)
-						? GcnScalarType::Uint32
-						: GcnScalarType::Float32;
+		GcnScalarType type = GcnScalarType::Float32;
+		if (isImageAccessNoSampling(ins))
+		{
+			// Non-sampling instructions always use 
+			// integer components
+			type = GcnScalarType::Uint32;
+		}
+		else
+		{
+			auto type = flags.test(GcnMimgModifier::Offset)
+							? GcnScalarType::Uint32
+							: GcnScalarType::Float32;
+		}
 		return emitRegisterBitcast(emitVgprLoad(reg), type);
 	}
 
@@ -1002,11 +1011,11 @@ namespace sce::gcn
 
 	GcnImageInfo GcnCompiler::getImageType(
 		Gnm::TextureType textureType,
-		bool             isStorage,
+		bool             isUav,
 		bool             isDepth) const
 	{
 		uint32_t     depth    = isDepth ? 1u : 0u;
-		uint32_t     sampled  = isStorage ? 2u : 1u;
+		uint32_t     sampled  = isUav ? 2u : 1u;
 		GcnImageInfo typeInfo = [textureType, depth, sampled]() -> GcnImageInfo
 		{
 			switch (textureType)
@@ -1076,12 +1085,14 @@ namespace sce::gcn
 
 	uint32_t GcnCompiler::calcAddrComponentIndex(
 		GcnImageAddrComponent       component,
-		spv::Dim                    dim,
 		const GcnShaderInstruction& ins)
 	{
-		int32_t index = -1;
-		auto    op    = ins.opcode;
-		auto    flags = GcnMimgModifierFlags(ins.control.mimg.mod);
+		int32_t index      = -1;
+		auto    flags      = GcnMimgModifierFlags(ins.control.mimg.mod);
+		auto    imageInfo  = getImageInfo(ins);
+		auto    dim        = imageInfo.dim;
+		auto    msaa       = imageInfo.ms;
+		bool    noSampling = isImageAccessNoSampling(ins);
 
 		// clang-format off
 		switch (component)
@@ -1091,6 +1102,11 @@ namespace sce::gcn
 				[[fallthrough]];
 			case GcnImageAddrComponent::Lod:
 				if (flags.test(GcnMimgModifier::Lod)) ++index;
+				[[fallthrough]];
+			case GcnImageAddrComponent::FragId:
+				if (noSampling &&
+					dim == spv::Dim2D &&
+					msaa != 0) ++index;
 				[[fallthrough]];
 			case GcnImageAddrComponent::FaceId:
 				if (dim == spv::DimCube) ++index;

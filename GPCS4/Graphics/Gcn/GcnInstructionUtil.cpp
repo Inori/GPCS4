@@ -77,4 +77,27 @@ namespace sce::gcn
 			   opcode == GcnOpcode::V_MAD_I64_I32;
 	}
 
+	bool isImageAccessSampling(const GcnShaderInstruction& ins)
+	{
+		auto op = ins.opcode;
+		return op >= GcnOpcode::IMAGE_SAMPLE &&
+			   op <= GcnOpcode::IMAGE_SAMPLE_C_CD_CL_O &&
+			   op != GcnOpcode::IMAGE_GET_LOD;
+	}
+
+	bool isImageAccessNoSampling(const GcnShaderInstruction& ins)
+	{
+		auto op = ins.opcode;
+		return op >= GcnOpcode::IMAGE_LOAD &&
+			   op <= GcnOpcode::IMAGE_ATOMIC_FMAX &&
+			   op != GcnOpcode::IMAGE_GET_RESINFO;
+	}
+
+	bool isUavReadAccess(const GcnShaderInstruction& ins)
+	{
+		auto op = ins.opcode;
+		return op >= GcnOpcode::IMAGE_LOAD &&
+			   op <= GcnOpcode::IMAGE_LOAD_MIP_PCK_SGN;
+	}
+
 }  // namespace sce::gcn
