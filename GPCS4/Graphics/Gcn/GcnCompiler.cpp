@@ -2477,10 +2477,6 @@ namespace sce::gcn
 	GcnRegisterValuePair GcnCompiler::emitBuildInlineConst(const GcnInstOperand& reg)
 	{
 		GcnRegisterValuePair result = {};
-		result.low.type.ctype       = (reg.type == GcnScalarType::Uint64 ||
-									   reg.type == GcnScalarType::Sint64) ? getHalfType(reg.type) : reg.type;
-		result.low.type.ccount      = 1;
-		result.high.type            = result.low.type;
 		
 		bool doubleType = isDoubleType(reg.type);
 		auto field = reg.field;
@@ -2488,38 +2484,32 @@ namespace sce::gcn
 		{
 			case GcnOperandField::ConstZero:
 			{
-				result.low.id         = m_module.consti32(0);
-				result.low.type.ctype = GcnScalarType::Sint32;
+				result.low.id = m_module.consti32(0);
 				if (doubleType)
 				{
-					result.high.id         = m_module.consti32(0);
-					result.high.type.ctype = GcnScalarType::Sint32;
+					result.high.id = m_module.consti32(0);
 				}
 			}
-				break;
+			break;
 			case GcnOperandField::SignedConstIntPos:
 			{
 				constexpr int32_t InlineConstZero = 128;
 				int32_t           value           = reg.code - InlineConstZero;
 				result.low.id                     = m_module.consti32(value);
-				result.low.type.ctype             = GcnScalarType::Sint32;
 				if (doubleType)
 				{
 					result.high.id = m_module.consti32(0);
-					result.high.type.ctype = GcnScalarType::Sint32;
 				}
 			}
-				break;
+			break;
 			case GcnOperandField::SignedConstIntNeg:
 			{
 				constexpr int32_t InlineConst64 = 192;
 				int32_t           value         = InlineConst64 - reg.code;
 				result.low.id                   = m_module.consti32(value);
-				result.low.type.ctype           = GcnScalarType::Sint32;
 				if (doubleType)
 				{
 					result.high.id = m_module.consti32(0);
-					result.high.type.ctype = GcnScalarType::Sint32;
 				}
 			}
 				break;
@@ -2548,6 +2538,20 @@ namespace sce::gcn
 				result.low.id = doubleType ? m_module.constf64(-4.0f) : m_module.constf32(-4.0f);
 				break;
 		}
+
+		if (field >= GcnOperandField::ConstZero && field <= GcnOperandField::SignedConstIntNeg)
+		{
+			result.low.type.ctype = GcnScalarType::Sint32;
+		}
+		else
+		{
+			result.low.type.ctype = doubleType
+										? GcnScalarType::Float64
+										: GcnScalarType::Float32;
+		}
+
+		result.low.type.ccount = 1;
+		result.high.type       = result.low.type;
 
 		return result;
 	}
@@ -3200,7 +3204,6 @@ namespace sce::gcn
 			}
 		}
 	}
-
 
 
 }  // namespace sce::gcn

@@ -221,7 +221,8 @@ namespace sce::gcn
 		void emitLaneRead(
 			const GcnShaderInstruction& ins);
 		GcnRegisterValue emitQueryTextureSize(
-			const GcnShaderInstruction& ins);
+			const GcnShaderInstruction& ins,
+			const GcnRegisterValue&     lod);
 		GcnRegisterValue emitQueryTextureLevels(
 			const GcnShaderInstruction& ins);
 		void emitQueryTextureInfo(
@@ -451,6 +452,14 @@ namespace sce::gcn
 
 		GcnRegisterValue emitLoadTexOffset(
 			const GcnShaderInstruction& ins);
+
+		GcnRegisterValue emitCalcQueryLod(
+			const GcnRegisterValue& lod);
+
+		GcnRegisterValue emitApplyTexOffset(
+			const GcnShaderInstruction& ins,
+			const GcnRegisterValue&     coord,
+			const GcnRegisterValue&     lod);
 
 		GcnRegisterValue emitRecoverCubeCoord(
 			const GcnRegisterValue& coord);

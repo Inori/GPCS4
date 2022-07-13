@@ -193,7 +193,9 @@ namespace sce::gcn
 		}
 	}
 
-	GcnRegisterValue GcnCompiler::emitQueryTextureSize(const GcnShaderInstruction& ins)
+	GcnRegisterValue GcnCompiler::emitQueryTextureSize(
+		const GcnShaderInstruction& ins,
+		const GcnRegisterValue&     lod)
 	{
 		const GcnInstOperand& textureReg = ins.src[2];
 		const uint32_t        textureId  = textureReg.code * 4;
@@ -205,12 +207,10 @@ namespace sce::gcn
 
 		if (info.imageInfo.ms == 0 && info.imageInfo.sampled == 1)
 		{
-			auto lod  = emitRegisterLoad(ins.src[0]);
-
 			result.id = m_module.opImageQuerySizeLod(
 				getVectorTypeId(result.type),
 				m_module.opLoad(info.imageTypeId, info.varId),
-				lod.low.id);
+				lod.id);
 		}
 		else
 		{
@@ -250,8 +250,10 @@ namespace sce::gcn
 	{
 		GcnImageResFlags flags = GcnImageResFlags(ins.control.mimg.dmask);
 
-		GcnRegisterValue textureSize  = emitQueryTextureSize(ins);
-		GcnRegisterValue textureLevel = {}; 
+		auto             lod          = emitRegisterLoad(ins.src[0]);
+		GcnRegisterValue textureSize  = emitQueryTextureSize(ins, lod.low);
+		GcnRegisterValue textureLevel = {};
+
 		if (flags.test(GcnImageResComponent::MipCount))
 		{
 			textureLevel = emitQueryTextureLevels(ins);
@@ -720,12 +722,7 @@ namespace sce::gcn
 
 		if (flags.test(GcnMimgModifier::Offset))
 		{
-			// m_module.enableCapability(spv::CapabilityImageGatherExtended);
-
-			auto offset = emitLoadTexOffset(ins);
-
-			imageOperands.flags |= spv::ImageOperandsOffsetMask;
-			imageOperands.sConstOffset = offset.id;
+			coord = emitApplyTexOffset(ins, coord, lod);
 		}
 
 		// Combine the texture and the sampler into a sampled image
@@ -881,7 +878,7 @@ namespace sce::gcn
 
 	GcnRegisterValue GcnCompiler::emitLoadTexOffset(const GcnShaderInstruction& ins)
 	{
-		const uint32_t typeId  = getScalarTypeId(GcnScalarType::Uint32);
+		const uint32_t typeId  = getScalarTypeId(GcnScalarType::Sint32);
 		auto           offsets = emitLoadAddrComponent(GcnImageAddrComponent::Offsets, ins);
 
 		const GcnImageInfo imageInfo = getImageInfo(ins);
@@ -890,7 +887,7 @@ namespace sce::gcn
 		util::static_vector<uint32_t, 3> components;
 		for (uint32_t i = 0; i != dim; ++i)
 		{
-			uint32_t offsetId = m_module.opBitFieldUExtract(typeId,
+			uint32_t offsetId = m_module.opBitFieldSExtract(typeId,
 															offsets.id,
 															m_module.constu32(i * 8),
 															m_module.constu32(6));
@@ -898,10 +895,71 @@ namespace sce::gcn
 		}
 
 		GcnRegisterValue result = {};
-		result.type.ctype       = GcnScalarType::Uint32;
+		result.type.ctype       = GcnScalarType::Sint32;
 		result.type.ccount      = components.size();
 		result.id               = m_module.opCompositeConstruct(getVectorTypeId(result.type),
 																components.size(), components.data());
+		return result;
+	}
+
+	GcnRegisterValue GcnCompiler::emitCalcQueryLod(
+		const GcnRegisterValue& lod)
+	{
+		GcnRegisterValue result;
+		result.type.ctype  = GcnScalarType::Uint32;
+		result.type.ccount = 1;
+		if (result.id == 0)
+		{
+			// If instruction doesn't have lod component,
+			// we need to feed a zero lod for image size query.
+			result.id = m_module.constu32(0);
+		}
+		else
+		{
+			result.id = m_module.opConvertFtoU(
+				getVectorTypeId(result.type),
+				lod.id);
+		}
+		return result;
+	}
+
+	GcnRegisterValue GcnCompiler::emitApplyTexOffset(
+		const GcnShaderInstruction& ins,
+		const GcnRegisterValue&     coord,
+		const GcnRegisterValue&     lod)
+	{
+		// Spir-v doesn't allow non-constant texture offset for OpImageSample*,
+		// so we need to calculate the coordinate manually.
+
+		GcnRegisterValue result;
+
+		// Calculate lod used to query image size
+		auto queryLod = emitCalcQueryLod(lod);
+
+		// Unnormalized texel coordinate
+		auto size_u = emitQueryTextureSize(ins, queryLod);
+
+		result.type.ctype     = GcnScalarType::Float32;
+		result.type.ccount    = size_u.type.ccount;
+		const uint32_t typeId = getVectorTypeId(result.type);
+
+		uint32_t size_f     = m_module.opConvertUtoF(typeId,
+													 size_u.id);
+		uint32_t coordUnorm = m_module.opFMul(typeId, coord.id, size_f);
+
+		// Apply offset
+		auto     offset_s      = emitLoadTexOffset(ins);
+		uint32_t offset_f      = m_module.opConvertStoF(typeId,
+														offset_s.id);
+		uint32_t coordAdjusted = m_module.opFAdd(typeId,
+												 coordUnorm,
+												 offset_f);
+
+		// Normalized texel coordinate
+		result.id = m_module.opFDiv(typeId,
+									coordAdjusted,
+									size_f);
+
 		return result;
 	}
 
@@ -960,9 +1018,9 @@ namespace sce::gcn
 		}
 		else
 		{
-			auto type = flags.test(GcnMimgModifier::Offset)
-							? GcnScalarType::Uint32
-							: GcnScalarType::Float32;
+			type = flags.test(GcnMimgModifier::Offset)
+					   ? GcnScalarType::Sint32
+					   : GcnScalarType::Float32;
 		}
 		return emitRegisterBitcast(emitVgprLoad(reg), type);
 	}

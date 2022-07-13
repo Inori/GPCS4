@@ -418,15 +418,16 @@ namespace sce::vlt
 		// Modify and add request features as development goes.
 
 		// Create pNext chain for additional device features
-		enabled.core.sType                       = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2_KHR;
-		enabled.core.pNext                       = nullptr;
-		enabled.core.features.geometryShader     = VK_TRUE;
-		enabled.core.features.samplerAnisotropy  = supported.core.features.samplerAnisotropy;
-		enabled.core.features.shaderFloat64      = VK_TRUE;
-		enabled.core.features.shaderInt64        = VK_TRUE;
-		enabled.core.features.tessellationShader = VK_TRUE;
-		enabled.core.features.logicOp            = VK_TRUE;
-		enabled.core.features.imageCubeArray     = VK_TRUE;
+		enabled.core.sType                              = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2_KHR;
+		enabled.core.pNext                              = nullptr;
+		enabled.core.features.geometryShader            = VK_TRUE;
+		enabled.core.features.samplerAnisotropy         = supported.core.features.samplerAnisotropy;
+		enabled.core.features.shaderFloat64             = VK_TRUE;
+		enabled.core.features.shaderInt64               = VK_TRUE;
+		enabled.core.features.tessellationShader        = VK_TRUE;
+		enabled.core.features.logicOp                   = VK_TRUE;
+		enabled.core.features.imageCubeArray            = VK_TRUE;
+		enabled.core.features.shaderImageGatherExtended = VK_TRUE;
 
 		enabled.vk11.sType                = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES;
 		enabled.vk11.pNext                = std::exchange(enabled.core.pNext, &enabled.vk11);

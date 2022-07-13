@@ -406,12 +406,18 @@ namespace sce::gcn
             // VectorThreadMask
 			case GcnOpcode::V_CNDMASK_B32:
 			{
-				auto smask = ins.encoding == GcnInstEncoding::VOP3 ? 
-                    src[2].low : 
-                    m_state.vcc.emitLoad(GcnRegMask::select(0)).low;
+				auto smask  = ins.encoding == GcnInstEncoding::VOP3
+								  ? src[2].low
+								  : m_state.vcc.emitLoad(GcnRegMask::select(0)).low;
+				auto eqMask = emitCommonSystemValueLoad(
+					GcnSystemValue::SubgroupEqMask, GcnRegMask::select(0));
+
+				auto mask = smask;
+				mask.id   = m_module.opBitwiseAnd(
+					  typeId, smask.id, eqMask.id);
 
 				// Should we calculate the LSB of the mask?
-				auto condition = emitRegisterZeroTest(smask, GcnZeroTest::TestNz);
+				auto condition = emitRegisterZeroTest(mask, GcnZeroTest::TestNz);
 				dst.low.id     = m_module.opSelect(typeId,
 												   condition.id,
 												   src[1].low.id,
