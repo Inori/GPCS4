@@ -187,6 +187,9 @@ namespace sce::gcn
 						// but no identical method for Nvidia GPU.
 						// So we need to use OpImageFetch to replace OpImageRead,
 						// thus to declare the image as sampled.
+						// (Well OpImageFetch will be translated back to image_load_mip
+						// eventually on AMD GPU, tested on RadeonGPUAnalyzer,
+						// not sure for Nvidia.)
 						// For image_store_mip, I don't have a good idea as of now.
 						bool isUavRead = iter->second;
 						if (isUavRead)
