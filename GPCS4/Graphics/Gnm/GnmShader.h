@@ -25,15 +25,20 @@ namespace sce::Gnm
 				  const void*              code);
 		~GnmShader();
 
-		vlt::Rc<vlt::VltShader>
-		compile(const gcn::GcnModuleInfo& moduleInfo,
-				const gcn::GcnShaderMeta& meta);
+		std::string name() const
+		{
+			return m_module.name();
+		}
 
 		const gcn::GcnShaderResourceTable&
 		getResources() const
 		{
 			return m_module.getResourceTable();
 		}
+
+		vlt::Rc<vlt::VltShader>
+		compile(const gcn::GcnModuleInfo& moduleInfo,
+				const gcn::GcnShaderMeta& meta);
 
 	private:
 		vlt::VltShaderKey       m_key;

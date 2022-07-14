@@ -478,15 +478,11 @@ namespace sce::vlt
 	bool VltContext::commitGraphicsState()
 	{
 		if (m_flags.test(VltContextFlag::GpDirtyFramebuffer))
-		{
 			this->updateFramebuffer();
-		}
 			
 		if (m_flags.test(VltContextFlag::GpDirtyPipeline))
-		{
 			if (unlikely(!this->updateGraphicsPipeline()))
 				return false;
-		}
 
 		if (!m_flags.test(VltContextFlag::GpRenderPassBound))
 			this->startRenderPass();
@@ -503,10 +499,8 @@ namespace sce::vlt
 			this->updateGraphicsShaderResources();
 
 		if (m_flags.test(VltContextFlag::GpDirtyPipelineState))
-		{
 			if (unlikely(!this->updateGraphicsPipelineState()))
 				return false;
-		}
 
 		if (m_flags.any(
 				VltContextFlag::GpDirtyViewport,

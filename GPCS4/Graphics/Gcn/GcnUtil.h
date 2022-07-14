@@ -2,7 +2,7 @@
 
 #include "GcnCommon.h"
 #include "GcnProgramInfo.h"
-
+#include "GcnCompilerDefs.h"
 #include "Gnm/GnmConstant.h"
 
 namespace sce::gcn
@@ -14,18 +14,15 @@ namespace sce::gcn
 	enum DxbcBindingProperties : uint32_t
 	{
 		GcnConstBufferBindingIndex = 0,
-		GcnConstBufferBindingCount = Gnm::kSlotCountConstantBuffer +
-									 Gnm::kSlotCountBoolConstant +
-									 Gnm::kSlotCountFloatConstant,
+		GcnConstBufferBindingCount = GcnMaxSGPR,
 
 		GcnSamplerBindingIndex = GcnConstBufferBindingIndex +
 								 GcnConstBufferBindingCount,
-		GcnSamplerBindingCount = Gnm::kSlotCountSampler,
+		GcnSamplerBindingCount = GcnMaxSGPR,
 
 		GcnResourceBindingIndex = GcnSamplerBindingIndex +
 								  GcnSamplerBindingCount,
-		GcnResourceBindingCount = Gnm::kSlotCountResource +
-								  Gnm::kSlotCountRwResource,
+		GcnResourceBindingCount = GcnMaxSGPR,
 
 		GcnStageBindingCount = GcnConstBufferBindingCount +
 							   GcnSamplerBindingCount +
