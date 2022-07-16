@@ -134,5 +134,15 @@ namespace util::bit {
 	  return !std::memcmp(a, b, sizeof(T));
 #endif
   }
+
+  /**
+   * \brief Reverse the bits in a byte
+   * 
+   * http://graphics.stanford.edu/~seander/bithacks.html
+   */
+  inline uint8_t reverseByte(uint8_t x)
+  {
+	  return ((x * 0x80200802ULL) & 0x0884422110ULL) * 0x0101010101ULL >> 32;
+  }
   
 }

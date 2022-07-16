@@ -411,7 +411,7 @@ bool NativeModule::getExportSymbols(SymbolList *exportSymbols) const
 bool NativeModule::getUnresolvedSymbols(SymbolList *symbolList) const
 {
 	LOG_ASSERT(symbolList != nullptr, "%s", "null pointer error");
-	auto modSystem = CSceModuleSystem::GetInstance();
+	auto modSystem = CSceModuleSystem::instance();
 
 	for (auto index : m_importSymbols)
 	{

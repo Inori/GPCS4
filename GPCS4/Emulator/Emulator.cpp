@@ -82,7 +82,7 @@ bool Emulator::Init()
 
 void Emulator::Unit()
 {
-	auto modManager = CSceModuleSystem::GetInstance();
+	auto modManager = CSceModuleSystem::instance();
 	modManager->clearModules();
 }
 

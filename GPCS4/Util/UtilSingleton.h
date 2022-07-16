@@ -11,7 +11,7 @@ namespace util
 	class Singleton
 	{
 	public:
-		static T* GetInstance()
+		static T* instance()
 		{
 			if (mInstance == NULL)  //TODO: Double-Check
 			{

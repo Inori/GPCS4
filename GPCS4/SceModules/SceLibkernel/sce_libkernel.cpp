@@ -160,7 +160,7 @@ int PS4API sceKernelUuidCreate(void)
 void *PS4API sceKernelGetProcParam(uint64_t p1, uint64_t p2)
 {
 	LOG_DEBUG("param1: %zu, param2: %zu", p1, p2);
-	auto moduleSystem = CSceModuleSystem::GetInstance();
+	auto moduleSystem = CSceModuleSystem::instance();
 	auto procParam    = moduleSystem->getEbootModuleInfo()->pProcParam;
 	return procParam;
 }

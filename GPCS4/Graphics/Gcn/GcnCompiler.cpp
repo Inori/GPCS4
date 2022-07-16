@@ -1805,7 +1805,7 @@ namespace sce::gcn
 		// e.g. vec3 -> v[4:6]
 
 		uint32_t gprIdx = 0;
-		for (uint32_t i = 0; i != value.type.ccount; ++i)
+		for (uint32_t i = 0; i != 4; ++i)
 		{
 			if (!mask[i])
 			{
@@ -1814,7 +1814,7 @@ namespace sce::gcn
 
 			uint32_t typeId = this->getScalarTypeId(value.type.ctype);
 			uint32_t valueId = 0;
-			if (mask.popCount() == 1)
+			if (value.type.ccount == 1)
 			{
 				valueId = value.id;
 			}

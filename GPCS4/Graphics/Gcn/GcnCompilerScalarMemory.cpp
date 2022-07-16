@@ -51,7 +51,7 @@ namespace sce::gcn
 				break;
 			case GcnOpcode::S_LOAD_DWORDX4:
 			case GcnOpcode::S_LOAD_DWORDX8:
-				emitRawBufferLoad(ins);
+				mapEudResource(ins);
 				break;
 			default:
 				LOG_GCN_UNHANDLED_INST();
@@ -59,7 +59,7 @@ namespace sce::gcn
 		}
 	}
 
-	void GcnCompiler::emitRawBufferLoad(const GcnShaderInstruction& ins)
+	void GcnCompiler::mapEudResource(const GcnShaderInstruction& ins)
 	{
 		// Currently, the only usage case I found for S_LOAD_DWORDX4 S_LOAD_DWORDX8
 		// is to load 4 or 8 sgpr sharp descriptors from EUD.

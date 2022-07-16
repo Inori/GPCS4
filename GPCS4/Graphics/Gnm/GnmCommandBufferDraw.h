@@ -255,6 +255,7 @@ namespace sce::Gnm
 		vlt::Rc<vlt::VltImageView> getDepthTarget(
 			const DepthRenderTarget& depthTarget);
 
+
 	private:
 	};
 

@@ -489,9 +489,6 @@ namespace sce::gcn
 		std::array<GcnRegisterPointer, 4>
 		     emitDsAccess(const GcnShaderInstruction& ins);
 
-		void emitRawBufferLoad(
-			const GcnShaderInstruction& ins);
-
 		void emitScalarBufferLoad(
 			const GcnRegIndex&    index,
 			const GcnInstOperand& dst,
@@ -625,36 +622,36 @@ namespace sce::gcn
 
 		///////////////////////////
 		// Debug methods
+
+		// Copy vk_layer_settings.txt from Misc folder to your
+		// Current Working Directory or use vkconfig.exe from SDK
+		// to enable shader debug printf.
+		// Note that normally we need to specify big enough
+		// buffer size and limit the number of messages by conditionally using invocation ID
+		//
+		// Format for specifier is "%"precision <d, i, o, u, x, X, a, A, e, E, f, F, g, G, or ul>
+		// Format for vector specifier is "%"precision"v" [2, 3, or 4] [specifiers list above]
+		//
+		// To conditionally print something,
+		// copy and edit the following code:
+		//
+		// if (m_header->key().name() == "SHDR_AF20AC1F702451D8" && m_programCounter == 0x70)
+		//{
+		//	auto     invId      = emitCommonSystemValueLoad(GcnSystemValue::SubgroupInvocationID, 0);
+		//	auto     condition  = m_module.opIEqual(m_module.defBoolType(), invId.id, m_module.constu32(1));
+		//	uint32_t labelBegin = m_module.allocateId();
+		//	uint32_t labelEnd   = m_module.allocateId();
+		//	m_module.opSelectionMerge(labelEnd, spv::SelectionControlMaskNone);
+		//	m_module.opBranchConditional(condition, labelBegin, labelEnd);
+		//	m_module.opLabel(labelBegin);
+		//	emitDebugPrintf("id %X\n", invId.id);
+		//	m_module.opBranch(labelEnd);
+		//	m_module.opLabel(labelEnd);
+		//}
 		template <typename... Args>
 		void emitDebugPrintf(
 			const std::string& format, Args... args)
 		{
-			// Copy vk_layer_settings.txt from Misc folder to your
-			// Current Working Directory or use vkconfig.exe from SDK
-			// to enable shader debug printf.
-			// Note that normally we need to specify big enough
-			// buffer size and limit the number of messages by conditionally using invocation ID
-			//
-			// Format for specifier is "%"precision <d, i, o, u, x, X, a, A, e, E, f, F, g, G, or ul>
-			// Format for vector specifier is "%"precision"v" [2, 3, or 4] [specifiers list above]
-			// 
-			// To conditionally print something,
-			// copy and edit the following code:
-			// 
-			//if (m_header->key().name() == "SHDR_AF20AC1F702451D8" && m_programCounter == 0x70)
-			//{
-			//	auto     invId      = emitCommonSystemValueLoad(GcnSystemValue::SubgroupInvocationID, 0);
-			//	auto     condition  = m_module.opIEqual(m_module.defBoolType(), invId.id, m_module.constu32(1));
-			//	uint32_t labelBegin = m_module.allocateId();
-			//	uint32_t labelEnd   = m_module.allocateId();
-			//	m_module.opSelectionMerge(labelEnd, spv::SelectionControlMaskNone);
-			//	m_module.opBranchConditional(condition, labelBegin, labelEnd);
-			//	m_module.opLabel(labelBegin);
-			//	emitDebugPrintf("id %X\n", invId.id);
-			//	m_module.opBranch(labelEnd);
-			//	m_module.opLabel(labelEnd);
-			//}
-
 #ifdef GCN_SHADER_DEBUG_PRINTF
 			const int count = sizeof...(args);
 
@@ -747,6 +744,9 @@ namespace sce::gcn
 
 		uint32_t calcAddrComponentIndex(
 			GcnImageAddrComponent       component,
+			const GcnShaderInstruction& ins);
+
+		void mapEudResource(
 			const GcnShaderInstruction& ins);
 
 		void mapNonEudResource();

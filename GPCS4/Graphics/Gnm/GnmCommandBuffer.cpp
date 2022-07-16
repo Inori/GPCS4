@@ -360,8 +360,11 @@ namespace sce::Gnm
 				m_initializer->initBuffer(result.buffer, vsharp);
 
 				resource->setBuffer(result);
-				// Pending upload
-				resource->setTransform(SceTransformFlag::GpuUpload);
+				if (vsharp->getResourceMemoryType() != kResourceMemoryTypeRO)
+				{
+					// Pending upload
+					resource->setTransform(SceTransformFlag::GpuUpload);
+				}
 			}
 			else
 			{
@@ -404,7 +407,12 @@ namespace sce::Gnm
 				m_initializer->initTexture(result.image, tsharp);
 
 				resource->setTexture(result);
-				resource->setTransform(SceTransformFlag::GpuUpload);
+
+				auto& buffer = resource->buffer();
+				if (buffer.gnmBuffer.getResourceMemoryType() != kResourceMemoryTypeRO)
+				{
+					resource->setTransform(SceTransformFlag::GpuUpload);
+				}
 			}
 			else if (type.test(SceResourceType::RenderTarget) &&
 					 !type.test(SceResourceType::Texture))

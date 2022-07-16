@@ -22,7 +22,7 @@ void* newThreadWrapper(void* arg)
 		ret = pSceEntry(param->arg);
 
 		// release tls data
-		TLSManager* tlsMgr = TLSManager::GetInstance();
+		TLSManager* tlsMgr = TLSManager::instance();
 		tlsMgr->notifyThreadExit();
 
 	} while (false);

@@ -144,7 +144,7 @@ bool Emulator::registerModules()
 	bool bRet = false;
 	do 
 	{
-		CSceModuleSystem* pModuleSystem = CSceModuleSystem::GetInstance();
+		CSceModuleSystem* pModuleSystem = CSceModuleSystem::instance();
 		if (!pModuleSystem)
 		{
 			break;

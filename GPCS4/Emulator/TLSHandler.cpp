@@ -476,7 +476,7 @@ bool installTLSManager()
 	bool ret = false;
 	do
 	{
-		TLSManager* tlsMgr = TLSManager::GetInstance();
+		TLSManager* tlsMgr = TLSManager::instance();
 		if (!tlsMgr)
 		{
 			break;
@@ -492,6 +492,6 @@ bool installTLSManager()
 
 void uninstallTLSManager()
 {
-	TLSManager* tlsMgr = TLSManager::GetInstance();
+	TLSManager* tlsMgr = TLSManager::instance();
 	tlsMgr->uninstall();
 }

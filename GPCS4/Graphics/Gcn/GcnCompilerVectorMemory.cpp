@@ -1,6 +1,8 @@
 #include "GcnCompiler.h"
 #include "GcnInstructionUtil.h"
+#include "GcnHeader.h"
 #include "UtilVector.h"
+#include "UtilBit.h"
 
 using namespace sce::vlt;
 
@@ -780,8 +782,13 @@ namespace sce::gcn
 				break;
 		}
 
-		auto colorMask = GcnRegMask(mimg.control.dmask);
-		result         = emitRegisterExtract(result, colorMask);
+		// The ISA set says dmask mask RGBA from LSB to MSB,
+		// but it should be the reverse, which is
+		// DMASK[0] = alpha, DMASK[1] = blue, DMASK[2] = green, DMASK[3] = red
+		uint8_t  byte      = util::bit::reverseByte(mimg.control.dmask);
+		uint32_t mask      = byte >> 4;
+		auto     colorMask = GcnRegMask(mask);
+		result             = emitRegisterExtract(result, colorMask);
 		emitVgprArrayStore(mimg.vdata,
 						   result,
 						   colorMask);
@@ -827,9 +834,25 @@ namespace sce::gcn
 		// Apply component swizzle and mask
 		auto colorMask = GcnRegMask(mimg.control.dmask);
 		result         = emitRegisterExtract(result, colorMask);
+
 		emitVgprArrayStore(mimg.vdata,
 						   result,
 						   colorMask);
+
+		if (m_header->key().name() == "SHDR_844598A0F388C19D" /*&& m_programCounter == 0x70*/)
+		{
+			// auto     invId      = emitCommonSystemValueLoad(GcnSystemValue::SubgroupInvocationID, 0);
+			// auto     condition  = m_module.opIEqual(m_module.defBoolType(), invId.id, m_module.constu32(1));
+			// uint32_t labelBegin = m_module.allocateId();
+			// uint32_t labelEnd   = m_module.allocateId();
+			// m_module.opSelectionMerge(labelEnd, spv::SelectionControlMaskNone);
+			// m_module.opBranchConditional(condition, labelBegin, labelEnd);
+			// m_module.opLabel(labelBegin);
+			// emitDebugPrintf("mip %f\n", result.id);
+			// m_module.opBranch(labelEnd);
+			// m_module.opLabel(labelEnd);
+			m_module.opReturn();
+		}
 	}
 
 	GcnRegisterValue GcnCompiler::emitCalcTexCoord(

@@ -19,6 +19,7 @@
 #include "Violet/VltContext.h"
 #include "Violet/VltDevice.h"
 #include "Violet/VltImage.h"
+#include "UtilRenderDoc.h"
 
 #include <algorithm>
 #include <array>
@@ -29,6 +30,7 @@ LOG_CHANNEL(Graphic.Gnm.GnmCommandBufferDraw);
 
 using namespace sce::vlt;
 using namespace sce::gcn;
+using namespace util;
 
 namespace sce::Gnm
 {
@@ -196,7 +198,7 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::updatePsShader(const gcn::PsStageRegisters* psRegs)
 	{
-		LOG_ASSERT(false, "TODO");
+		setPsShader(psRegs);
 	}
 
 	void GnmCommandBufferDraw::setVsShader(const gcn::VsStageRegisters* vsRegs, uint32_t shaderModifier)
@@ -285,6 +287,7 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::updateVsShader(const gcn::VsStageRegisters* vsRegs, uint32_t shaderModifier)
 	{
+		setVsShader(vsRegs, shaderModifier);
 	}
 
 	void GnmCommandBufferDraw::setVsharpInUserData(ShaderStage stage, uint32_t startUserDataSlot, const Buffer* buffer)
@@ -359,7 +362,7 @@ namespace sce::Gnm
 		auto writeMasks = cvt::convertRenderTargetMask(mask);
 		for (uint32_t i = 0; i != writeMasks.size(); ++i)
 		{
-			dirty |= m_state.gp.om.blendModes[i].writeMask == writeMasks[i];
+			dirty |= (m_state.gp.om.blendModes[i].writeMask != writeMasks[i]);
 
 			m_state.gp.om.blendModes[i].writeMask = writeMasks[i];
 		}
@@ -957,6 +960,7 @@ namespace sce::Gnm
 		} while (false);
 	}
 
+	static uint32_t count = 0;
 	void GnmCommandBufferDraw::updatePixelShaderStage()
 	{
 		auto& ctx = m_state.gp.sc[kShaderStagePs];
@@ -970,6 +974,18 @@ namespace sce::Gnm
 
 			auto  shader   = getShader(ctx.code);
 			auto& resTable = shader.getResources();
+
+			
+			if (shader.name().find("F3FAB76ECBEAABD2") != std::string::npos)
+			{
+				++count;
+				if (count == 5)
+				{
+					RdcController::instance()->triggerCapture();
+				}
+				//__debugbreak();
+			}
+
 
 			// create and bind shader resources
 			bindResource(VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,

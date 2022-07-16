@@ -332,8 +332,8 @@ bool ModuleLoader::initializeModules()
 	auto &mods  = m_modSystem.getAllNativeModules();
 	bool retVal = true;
 
-	auto tlsManager = TLSManager::GetInstance();
-	uint32_t tlsIndex = TLS_MODULE_ID_MAIN;
+	auto     tlsManager = TLSManager::instance();
+	uint32_t tlsIndex   = TLS_MODULE_ID_MAIN;
 	// intialize TLS
 	for (auto const &mod : mods)
 	{

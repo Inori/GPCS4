@@ -52,7 +52,7 @@ private:
 
 inline Emulator& TheEmulator()
 {
-	return *Emulator::GetInstance();
+	return *Emulator::instance();
 }
 
 inline VirtualCPU& CPU()

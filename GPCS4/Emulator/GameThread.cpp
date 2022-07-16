@@ -82,7 +82,7 @@ void* CGameThread::ThreadFunc(void* pArg)
 
 		void* pRet = RunGameThread(pThis);
 
-		TLSManager* tlsMgr = TLSManager::GetInstance();
+		TLSManager* tlsMgr = TLSManager::instance();
 		tlsMgr->notifyThreadExit();
 
 		pthread_exit(pRet);

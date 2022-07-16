@@ -7,7 +7,10 @@
 
 LOG_CHANNEL(Linker);
 
-CLinker::CLinker() : m_modSystem{*CSceModuleSystem::GetInstance()} {}
+CLinker::CLinker() :
+	m_modSystem{ *CSceModuleSystem::instance() }
+{
+}
 
 // resolveSymbol always returns true
 bool CLinker::resolveSymbol(NativeModule const &mod,

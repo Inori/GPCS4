@@ -63,8 +63,8 @@ int main(int argc, char* argv[])
 			break;
 		}
 
-		CLinker      linker = { *CSceModuleSystem::GetInstance() };
-		ModuleLoader loader = { *CSceModuleSystem::GetInstance(), linker };
+		CLinker      linker = { *CSceModuleSystem::instance() };
+		ModuleLoader loader = { *CSceModuleSystem::instance(), linker };
 
 		auto          eboot       = optResult["E"].as<std::string>();
 		NativeModule* ebootModule = nullptr;
