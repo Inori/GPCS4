@@ -118,7 +118,7 @@ namespace sce::Gnm::cvt
 			//{ kDataFormatR1ReversedUint, VK_FORMAT_R1_REVERSEDUINT },
 			//{ kDataFormatL1ReversedUint, VK_FORMAT_L1_REVERSEDUINT },
 			//{ kDataFormatA1ReversedUint, VK_FORMAT_A1_REVERSEDUINT },
-			//{ kDataFormatBc1Unorm, VK_FORMAT_BC1_UNORM },
+			{ kDataFormatBc1Unorm, VK_FORMAT_BC1_RGBA_UNORM_BLOCK },
 			//{ kDataFormatBc1UBNorm, VK_FORMAT_BC1_UBNORM },
 			//{ kDataFormatBc1UnormSrgb, VK_FORMAT_BC1_UNORMSRGB },
 			//{ kDataFormatBc2Unorm, VK_FORMAT_BC2_UNORM },

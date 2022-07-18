@@ -976,10 +976,11 @@ namespace sce::Gnm
 			auto& resTable = shader.getResources();
 
 			
+			//if (shader.name().find("1C3E9BEC02B89E0E") != std::string::npos)
 			if (shader.name().find("F3FAB76ECBEAABD2") != std::string::npos)
 			{
 				++count;
-				if (count == 5)
+				if (count == 1)
 				{
 					RdcController::instance()->triggerCapture();
 				}

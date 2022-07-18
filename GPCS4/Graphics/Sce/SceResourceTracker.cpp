@@ -92,7 +92,8 @@ namespace sce
 			auto transform = res.second.transform();
 
 			if (type.test(SceResourceType::Buffer) &&
-				!type.any(SceResourceType::RenderTarget, SceResourceType::DepthRenderTarget))
+				!type.any(SceResourceType::RenderTarget,
+						  SceResourceType::DepthRenderTarget))
 			{
 				auto& buffer   = res.second.buffer().buffer;
 				void* data     = res.second.cpuMemory();
