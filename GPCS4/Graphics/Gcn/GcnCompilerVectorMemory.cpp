@@ -782,12 +782,7 @@ namespace sce::gcn
 				break;
 		}
 
-		// The ISA set says dmask mask RGBA from LSB to MSB,
-		// but it should be the reverse, which is
-		// DMASK[0] = alpha, DMASK[1] = blue, DMASK[2] = green, DMASK[3] = red
-		uint8_t  byte      = util::bit::reverseByte(mimg.control.dmask);
-		uint32_t mask      = byte >> 4;
-		auto     colorMask = GcnRegMask(mask);
+		auto     colorMask = GcnRegMask(mimg.control.dmask);
 		result             = emitRegisterExtract(result, colorMask);
 		emitVgprArrayStore(mimg.vdata,
 						   result,

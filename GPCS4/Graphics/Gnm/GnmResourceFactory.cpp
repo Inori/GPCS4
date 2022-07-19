@@ -211,12 +211,15 @@ namespace sce::Gnm
 			default: flags = 0; break;
 		}
 
-		uint32_t mipLevelCount = tsharp->getLastMipLevel() - tsharp->getBaseMipLevel() + 1;
-		uint32_t sliceCount = tsharp->getLastArraySliceIndex() - tsharp->getBaseArraySliceIndex() + 1;
+		uint32_t mipLevelCount = tsharp->getLastMipLevel() -
+								 tsharp->getBaseMipLevel() + 1;
+		uint32_t sliceCount = tsharp->getLastArraySliceIndex() -
+							  tsharp->getBaseArraySliceIndex() + 1;
+		auto format = tsharp->getDataFormat();
 
 		VltImageCreateInfo imageInfo;
 		imageInfo.type        = cvt::convertTextureType(textureType);
-		imageInfo.format      = cvt::convertDataFormat(tsharp->getDataFormat());
+		imageInfo.format      = cvt::convertDataFormat(format);
 		imageInfo.flags       = flags;
 		imageInfo.sampleCount = cvt::convertNumFragments(tsharp->getNumFragments());
 		imageInfo.extent      = { tsharp->getWidth(), tsharp->getHeight(), tsharp->getDepth() };
@@ -237,6 +240,7 @@ namespace sce::Gnm
 		viewInfo.numLevels = mipLevelCount;
 		viewInfo.minLayer  = tsharp->getBaseArraySliceIndex();
 		viewInfo.numLayers = sliceCount;
+		viewInfo.swizzle   = calculateSwizzle(format);
 
 		sceTexture.image     = m_device->createImage(imageInfo, createInfo.memoryType);
 		sceTexture.imageView = m_device->createImageView(sceTexture.image, viewInfo);
@@ -361,6 +365,45 @@ namespace sce::Gnm
 		// Otherwise, we have to stick with the default layout
 		return VK_IMAGE_LAYOUT_GENERAL;
 	}
-	
+
+	VkComponentMapping GnmResourceFactory::calculateSwizzle(DataFormat format)
+	{
+		VkComponentMapping result;
+
+		auto selectComponent = [](TextureChannel channel)
+		{
+			switch (channel)
+			{
+				case Gnm::kTextureChannelConstant0: return VK_COMPONENT_SWIZZLE_ZERO;
+				case Gnm::kTextureChannelConstant1: return VK_COMPONENT_SWIZZLE_ONE;
+				case Gnm::kTextureChannelX: return VK_COMPONENT_SWIZZLE_R;
+				case Gnm::kTextureChannelY: return VK_COMPONENT_SWIZZLE_G;
+				case Gnm::kTextureChannelZ: return VK_COMPONENT_SWIZZLE_B;
+				case Gnm::kTextureChannelW: return VK_COMPONENT_SWIZZLE_A;
+			}
+		};
+
+		auto x   = static_cast<TextureChannel>(format.m_bits.m_channelX);
+		result.r = x == Gnm::kTextureChannelX
+					   ? VK_COMPONENT_SWIZZLE_IDENTITY
+					   : selectComponent(x);
+
+		auto y   = static_cast<TextureChannel>(format.m_bits.m_channelY);
+		result.g = y == Gnm::kTextureChannelY
+					   ? VK_COMPONENT_SWIZZLE_IDENTITY
+					   : selectComponent(y);
+
+		auto z   = static_cast<TextureChannel>(format.m_bits.m_channelZ);
+		result.b = z == Gnm::kTextureChannelZ
+					   ? VK_COMPONENT_SWIZZLE_IDENTITY
+					   : selectComponent(z);
+
+		auto w   = static_cast<TextureChannel>(format.m_bits.m_channelW);
+		result.a = w == Gnm::kTextureChannelW
+					   ? VK_COMPONENT_SWIZZLE_IDENTITY
+					   : selectComponent(w);
+
+		return result;
+	}
 
 }  // namespace sce::Gnm

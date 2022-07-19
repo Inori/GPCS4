@@ -80,6 +80,8 @@ namespace sce
 
 			VkImageLayout optimizeLayout(VkImageUsageFlags usage);
 
+			VkComponentMapping calculateSwizzle(DataFormat format);
+
 		private:
 			vlt::VltDevice*   m_device;
 			vlt::VltDebugUtil m_debugUtil;
