@@ -1804,36 +1804,36 @@ namespace sce::gcn
 		// store values in a vector into vgpr array,
 		// e.g. vec3 -> v[4:6]
 
-		uint32_t gprIdx = 0;
-		for (uint32_t i = 0; i != 4; ++i)
-		{
-			if (!mask[i])
-			{
-				continue;
-			}
+		LOG_ASSERT(value.type.ccount >= mask.popCount(), "component count is less than mask.");
 
-			uint32_t typeId = this->getScalarTypeId(value.type.ctype);
+		GcnInstOperand reg = start;
+
+		// get continuous value
+		auto vec = emitRegisterExtract(value, mask);
+		// stores to gpr one by one
+		for (uint32_t i = 0; i != vec.type.ccount; ++i)
+		{
+			uint32_t typeId  = this->getScalarTypeId(vec.type.ctype);
 			uint32_t valueId = 0;
-			if (value.type.ccount == 1)
+			if (vec.type.ccount == 1)
 			{
-				valueId = value.id;
+				valueId = vec.id;
 			}
 			else
 			{
 				valueId = m_module.opCompositeExtract(
-					typeId, value.id, 1, &i);
+					typeId, vec.id, 1, &i);
 			}
 
-
-			GcnInstOperand reg = start;
-			reg.code += (gprIdx++);
-
 			GcnRegisterValue val;
-			val.type.ctype  = value.type.ctype;
+			val.type.ctype  = vec.type.ctype;
 			val.type.ccount = 1;
 			val.id          = valueId;
 
 			this->emitGprStore<IsVgpr>(reg, val);
+
+			// advance to next gpr
+			++reg.code;
 		}
 	}
 

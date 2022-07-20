@@ -553,6 +553,11 @@ namespace sce::Gnm
 
 	void GnmCommandBufferDraw::dispatch(uint32_t threadGroupX, uint32_t threadGroupY, uint32_t threadGroupZ)
 	{
+		if (threadGroupX == 0x1e && threadGroupY == 0x438)
+		{
+			return;
+		}
+
 		commitComputeState();
 
 		m_context->dispatch(threadGroupX, threadGroupY, threadGroupZ);
@@ -976,11 +981,10 @@ namespace sce::Gnm
 			auto& resTable = shader.getResources();
 
 			
-			//if (shader.name().find("1C3E9BEC02B89E0E") != std::string::npos)
-			if (shader.name().find("F3FAB76ECBEAABD2") != std::string::npos)
+			if (shader.name().find("1C3E9BEC02B89E0E") != std::string::npos)
 			{
 				++count;
-				if (count == 1)
+				if (count == 2)
 				{
 					RdcController::instance()->triggerCapture();
 				}

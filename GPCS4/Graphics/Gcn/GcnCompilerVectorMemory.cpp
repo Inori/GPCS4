@@ -3,6 +3,7 @@
 #include "GcnHeader.h"
 #include "UtilVector.h"
 #include "UtilBit.h"
+#include "UtilRenderDoc.h"
 
 using namespace sce::vlt;
 
@@ -782,8 +783,7 @@ namespace sce::gcn
 				break;
 		}
 
-		auto     colorMask = GcnRegMask(mimg.control.dmask);
-		result             = emitRegisterExtract(result, colorMask);
+		auto colorMask = GcnRegMask(mimg.control.dmask);
 		emitVgprArrayStore(mimg.vdata,
 						   result,
 						   colorMask);
@@ -834,20 +834,21 @@ namespace sce::gcn
 						   result,
 						   colorMask);
 
-		if (m_header->key().name() == "SHDR_844598A0F388C19D" /*&& m_programCounter == 0x70*/)
-		{
-			// auto     invId      = emitCommonSystemValueLoad(GcnSystemValue::SubgroupInvocationID, 0);
-			// auto     condition  = m_module.opIEqual(m_module.defBoolType(), invId.id, m_module.constu32(1));
-			// uint32_t labelBegin = m_module.allocateId();
-			// uint32_t labelEnd   = m_module.allocateId();
-			// m_module.opSelectionMerge(labelEnd, spv::SelectionControlMaskNone);
-			// m_module.opBranchConditional(condition, labelBegin, labelEnd);
-			// m_module.opLabel(labelBegin);
-			// emitDebugPrintf("mip %f\n", result.id);
-			// m_module.opBranch(labelEnd);
-			// m_module.opLabel(labelEnd);
-			m_module.opReturn();
-		}
+		//if (m_header->key().name() == "SHDR_844598A0F388C19D" /*&& m_programCounter == 0x70*/)
+		//{
+		//	// auto     invId      = emitCommonSystemValueLoad(GcnSystemValue::SubgroupInvocationID, 0);
+		//	// auto     condition  = m_module.opIEqual(m_module.defBoolType(), invId.id, m_module.constu32(1));
+		//	// uint32_t labelBegin = m_module.allocateId();
+		//	// uint32_t labelEnd   = m_module.allocateId();
+		//	// m_module.opSelectionMerge(labelEnd, spv::SelectionControlMaskNone);
+		//	// m_module.opBranchConditional(condition, labelBegin, labelEnd);
+		//	// m_module.opLabel(labelBegin);
+		//	// emitDebugPrintf("mip %f\n", result.id);
+		//	// m_module.opBranch(labelEnd);
+		//	// m_module.opLabel(labelEnd);
+		//	m_module.opReturn();
+		//	util::RdcController::instance()->triggerCapture();
+		//}
 	}
 
 	GcnRegisterValue GcnCompiler::emitCalcTexCoord(
