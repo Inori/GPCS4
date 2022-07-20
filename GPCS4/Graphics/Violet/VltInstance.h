@@ -1,6 +1,7 @@
 #pragma once
 
 #include "VltCommon.h"
+#include "VltLoader.h"
 #include "VltExtension.h"
 
 
@@ -28,7 +29,7 @@ namespace sce::vlt
 		 */
 		VkInstance handle()
 		{
-			return m_instance;
+			return m_vki->instance();
 		}
 
 		/**
@@ -71,13 +72,12 @@ namespace sce::vlt
 
 		static void logNameList(const VltNameList& names);
 
-		VkResult CreateDebugUtilsMessengerEXT(
+		VkResult createDebugUtilsMessengerEXT(
 			VkInstance                                instance,
 			const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
 			const VkAllocationCallbacks*              pAllocator,
 			VkDebugUtilsMessengerEXT*                 pDebugMessenger);
-
-		void DestroyDebugUtilsMessengerEXT(
+		void destroyDebugUtilsMessengerEXT(
 			VkInstance                   instance,
 			VkDebugUtilsMessengerEXT     debugMessenger,
 			const VkAllocationCallbacks* pAllocator);
@@ -89,7 +89,7 @@ namespace sce::vlt
 			void*                                       pUserData);
 
 	private:
-		VkInstance            m_instance = VK_NULL_HANDLE;
+		Rc<vk::InstanceFn>    m_vki;
 		VltInstanceExtensions m_extensions;
 
 		std::vector<Rc<VltAdapter>> m_adapters;

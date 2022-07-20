@@ -8,8 +8,7 @@ namespace sce::vlt
 		m_device(device),
 		m_queueType(queueType),
 		m_cmdBuffersUsed(0),
-		m_descriptorPoolTracker(device),
-		m_debug(device)
+		m_descriptorPoolTracker(device)
 	{
 		const auto& execQueue     = m_queueType == VltQueueType::Graphics
 										? m_device->queues().graphics
@@ -276,17 +275,17 @@ namespace sce::vlt
 
 	void VltCommandList::cmdBeginDebugUtilsLabel(VkDebugUtilsLabelEXT* labelInfo)
 	{
-		m_debug.cmdBeginDebugUtilsLabel(m_execBuffer, labelInfo);
+		m_device->vkd()->vkCmdBeginDebugUtilsLabelEXT(m_execBuffer, labelInfo);
 	}
 
 	void VltCommandList::cmdEndDebugUtilsLabel()
 	{
-		m_debug.cmdEndDebugUtilsLabel(m_execBuffer);
+		m_device->vkd()->vkCmdEndDebugUtilsLabelEXT(m_execBuffer);
 	}
 
 	void VltCommandList::cmdInsertDebugUtilsLabel(VkDebugUtilsLabelEXT* labelInfo)
 	{
-		m_debug.cmdInsertDebugUtilsLabel(m_execBuffer, labelInfo);
+		m_device->vkd()->vkCmdInsertDebugUtilsLabelEXT(m_execBuffer, labelInfo);
 	}
 
 	VkSemaphoreSubmitInfo VltCommandList::populateSemaphoreSubmit(

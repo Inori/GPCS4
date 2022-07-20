@@ -14,7 +14,7 @@ namespace sce::vlt
 {
 	VltInstance::VltInstance()
 	{
-		m_instance = this->createInstance();
+		m_vki      = new vk::InstanceFn(true, this->createInstance());
 		m_adapters = this->queryAdapters();
 	}
 
@@ -22,14 +22,8 @@ namespace sce::vlt
 	{
 		if (m_debugMessenger != VK_NULL_HANDLE)
 		{
-			DestroyDebugUtilsMessengerEXT(m_instance, m_debugMessenger, nullptr);
+			destroyDebugUtilsMessengerEXT(m_vki->instance(), m_debugMessenger, nullptr);
 			m_debugMessenger = nullptr;
-		}
-
-		if (m_instance != VK_NULL_HANDLE)
-		{
-			vkDestroyInstance(m_instance, nullptr);
-			m_instance = VK_NULL_HANDLE;
 		}
 	}
 
@@ -134,7 +128,7 @@ namespace sce::vlt
 			Logger::exception("DxvkInstance::createInstance: Failed to create Vulkan 1.3 instance");
 
 #ifdef VLT_VALIDATION_AND_DEBUG
-		status = CreateDebugUtilsMessengerEXT(result, &debugInfo, nullptr, &m_debugMessenger);
+		status = createDebugUtilsMessengerEXT(result, &debugInfo, nullptr, &m_debugMessenger);
 		if (status != VK_SUCCESS)
 			Logger::exception("DxvkInstance::createInstance: Failed to create debug messenger.");
 #endif  // VLT_VALIDATION_AND_DEBUG
@@ -146,11 +140,11 @@ namespace sce::vlt
 	std::vector<Rc<VltAdapter>> VltInstance::queryAdapters()
 	{
 		uint32_t numAdapters = 0;
-		if (vkEnumeratePhysicalDevices(m_instance, &numAdapters, nullptr) != VK_SUCCESS)
+		if (vkEnumeratePhysicalDevices(m_vki->instance(), &numAdapters, nullptr) != VK_SUCCESS)
 			Logger::exception("DxvkInstance::enumAdapters: Failed to enumerate adapters");
 
 		std::vector<VkPhysicalDevice> adapters(numAdapters);
-		if (vkEnumeratePhysicalDevices(m_instance, &numAdapters, adapters.data()) != VK_SUCCESS)
+		if (vkEnumeratePhysicalDevices(m_vki->instance(), &numAdapters, adapters.data()) != VK_SUCCESS)
 			Logger::exception("DxvkInstance::enumAdapters: Failed to enumerate adapters");
 
 		std::vector<VkPhysicalDeviceProperties> deviceProperties(numAdapters);
@@ -211,7 +205,11 @@ namespace sce::vlt
 			Logger::info(util::str::formatex("  ", names.name(i)));
 	}
 
-	VkResult VltInstance::CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger)
+	VkResult VltInstance::createDebugUtilsMessengerEXT(
+		VkInstance                                instance,
+		const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+		const VkAllocationCallbacks*              pAllocator,
+		VkDebugUtilsMessengerEXT*                 pDebugMessenger)
 	{
 		auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
 		if (func != nullptr)
@@ -224,7 +222,10 @@ namespace sce::vlt
 		}
 	}
 
-	void VltInstance::DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator)
+	void VltInstance::destroyDebugUtilsMessengerEXT(
+		VkInstance                   instance,
+		VkDebugUtilsMessengerEXT     debugMessenger,
+		const VkAllocationCallbacks* pAllocator)
 	{
 		auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
 		if (func != nullptr)

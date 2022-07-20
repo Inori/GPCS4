@@ -19,8 +19,7 @@ namespace sce::Gnm
 	std::atomic<size_t> GnmResourceFactory::s_objectId = 0;
 
 	GnmResourceFactory::GnmResourceFactory(VltDevice* device) :
-		m_device(device),
-		m_debugUtil(device)
+		m_device(device)
 	{
 	}
 
@@ -43,11 +42,20 @@ namespace sce::Gnm
 		// NOTE: this slice count is only valid if the array view hasn't changed since initialization!
 		imgInfo.numLayers     = depthTarget->getLastArraySliceIndex() - depthTarget->getBaseArraySliceIndex() + 1;
 		imgInfo.mipLevels     = 1;
-		imgInfo.usage         = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-		imgInfo.stages        = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
-		imgInfo.access        = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-		imgInfo.tiling        = VK_IMAGE_TILING_OPTIMAL;
-		imgInfo.layout        = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+
+		imgInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT |
+						VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+						VK_IMAGE_USAGE_SAMPLED_BIT;
+
+		imgInfo.stages = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT |
+						 VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT |
+						 VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+
+		imgInfo.access = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT |
+						 VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+		imgInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+		imgInfo.layout = optimizeLayout(imgInfo.usage);
 
 		VltImageViewCreateInfo viewInfo;
 		viewInfo.type      = VK_IMAGE_VIEW_TYPE_2D;
@@ -83,12 +91,12 @@ namespace sce::Gnm
 		nameInfo.objectType   = VK_OBJECT_TYPE_IMAGE;
 		nameInfo.pObjectName  = imageName.c_str();
 		nameInfo.objectHandle = (uint64_t)depthImage.image->handle();
-		m_debugUtil.setObjectName(&nameInfo);
+		setObjectName(&nameInfo);
 
 		nameInfo.objectType   = VK_OBJECT_TYPE_IMAGE_VIEW;
 		nameInfo.pObjectName  = viewName.c_str();
 		nameInfo.objectHandle = (uint64_t)depthImage.imageView->handle();
-		m_debugUtil.setObjectName(&nameInfo);
+		setObjectName(&nameInfo);
 
 		return true;
 	}
@@ -153,12 +161,12 @@ namespace sce::Gnm
 		nameInfo.objectType   = VK_OBJECT_TYPE_IMAGE;
 		nameInfo.pObjectName  = imageName.c_str();
 		nameInfo.objectHandle = (uint64_t)targetImage.image->handle();
-		m_debugUtil.setObjectName(&nameInfo);
+		setObjectName(&nameInfo);
 
 		nameInfo.objectType   = VK_OBJECT_TYPE_IMAGE_VIEW;
 		nameInfo.pObjectName  = viewName.c_str();
 		nameInfo.objectHandle = (uint64_t)targetImage.imageView->handle();
-		m_debugUtil.setObjectName(&nameInfo);
+		setObjectName(&nameInfo);
 
 		return true;
 	}
@@ -189,7 +197,7 @@ namespace sce::Gnm
 		nameInfo.objectType   = VK_OBJECT_TYPE_BUFFER;
 		nameInfo.pObjectName  = bufferName.c_str();
 		nameInfo.objectHandle = (uint64_t)sceBuffer.buffer->getSliceHandle().handle;
-		m_debugUtil.setObjectName(&nameInfo);
+		setObjectName(&nameInfo);
 
 		return true;
 	}
@@ -246,11 +254,6 @@ namespace sce::Gnm
 		sceTexture.imageView = m_device->createImageView(sceTexture.image, viewInfo);
 		sceTexture.texture   = *tsharp;
 
-		if (s_objectId == 196)
-		{
-			__debugbreak();
-		}
-
 		// Set debug name
 		auto imageName = fmt::format("Texture_{}_{}",
 									 s_objectId++,
@@ -265,12 +268,12 @@ namespace sce::Gnm
 		nameInfo.objectType   = VK_OBJECT_TYPE_IMAGE;
 		nameInfo.pObjectName  = imageName.c_str();
 		nameInfo.objectHandle = (uint64_t)sceTexture.image->handle();
-		m_debugUtil.setObjectName(&nameInfo);
+		setObjectName(&nameInfo);
 
 		nameInfo.objectType   = VK_OBJECT_TYPE_IMAGE_VIEW;
 		nameInfo.pObjectName  = viewName.c_str();
 		nameInfo.objectHandle = (uint64_t)sceTexture.imageView->handle();
-		m_debugUtil.setObjectName(&nameInfo);
+		setObjectName(&nameInfo);
 
 		return true;
 	}
@@ -328,7 +331,7 @@ namespace sce::Gnm
 		nameInfo.objectType   = VK_OBJECT_TYPE_SAMPLER;
 		nameInfo.pObjectName  = samplerName.c_str();
 		nameInfo.objectHandle = (uint64_t)result->handle();
-		m_debugUtil.setObjectName(&nameInfo);
+		setObjectName(&nameInfo);
 
 		return result;
 	}
@@ -404,6 +407,11 @@ namespace sce::Gnm
 					   : selectComponent(w);
 
 		return result;
+	}
+
+	void GnmResourceFactory::setObjectName(VkDebugUtilsObjectNameInfoEXT* nameInfo)
+	{
+		m_device->vkd()->vkSetDebugUtilsObjectNameEXT(m_device->handle(), nameInfo);
 	}
 
 }  // namespace sce::Gnm

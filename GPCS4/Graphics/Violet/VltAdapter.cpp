@@ -544,8 +544,9 @@ namespace sce::vlt
 		if (vr != VK_SUCCESS)
 			Logger::exception("DxvkAdapter: Failed to create device");
 
-		Rc<VltDevice> result = new VltDevice(
-			instance, this, device, devExtensions, requestFeatures);
+		Rc<VltDevice> result = new VltDevice(instance, this,
+											 new vk::DeviceFn(true, instance->handle(), device),
+											 devExtensions, requestFeatures);
 		return result;
 	}
 

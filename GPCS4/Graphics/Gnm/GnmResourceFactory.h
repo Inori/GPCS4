@@ -2,8 +2,6 @@
 
 #include "GnmCommon.h"
 #include "GnmSamplerCache.h"
-#include "Violet/VltDebugUtil.h"
-
 
 #include <atomic>
 
@@ -82,10 +80,12 @@ namespace sce
 
 			VkComponentMapping calculateSwizzle(DataFormat format);
 
+			inline void setObjectName(
+				VkDebugUtilsObjectNameInfoEXT* nameInfo);
+
 		private:
-			vlt::VltDevice*   m_device;
-			vlt::VltDebugUtil m_debugUtil;
-			GnmSamplerCache   m_samplerCache;
+			vlt::VltDevice* m_device;
+			GnmSamplerCache m_samplerCache;
 
 			static std::atomic_size_t s_objectId;
 		};

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "VltCommon.h"
+#include "VltLoader.h"
 #include "UtilSync.h"
 #include "VltInstance.h"
 #include "VltAdapter.h"
@@ -64,11 +65,20 @@ namespace sce::vlt
 		VltDevice(
 			const Rc<VltInstance>&     instance,
 			const Rc<VltAdapter>&      adapter,
-			VkDevice                   device,
+			const Rc<vk::DeviceFn>&    vkd,
 			const VltDeviceExtensions& extensions,
 			const VltDeviceFeatures&   features);
 
 		~VltDevice();
+
+		/**
+		 * \brief Vulkan device functions
+		 * \returns Vulkan device functions
+		 */
+		Rc<vk::DeviceFn> vkd() const
+		{
+			return m_vkd;
+		}
 
 		/**
          * \brief Logical device handle
@@ -76,7 +86,7 @@ namespace sce::vlt
          */
 		VkDevice handle() const
 		{
-			return m_device;
+			return m_vkd->device();
 		}
 
 		/**
@@ -359,8 +369,7 @@ namespace sce::vlt
 			uint32_t index) const;
 
 	private:
-		VkDevice m_device;
-
+		Rc<vk::DeviceFn>    m_vkd;
 		Rc<VltInstance>     m_instance;
 		Rc<VltAdapter>      m_adapter;
 		VltDeviceExtensions m_extensions;

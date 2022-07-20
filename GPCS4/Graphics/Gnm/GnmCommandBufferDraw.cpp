@@ -979,7 +979,6 @@ namespace sce::Gnm
 
 			auto  shader   = getShader(ctx.code);
 			auto& resTable = shader.getResources();
-
 			
 			if (shader.name().find("1C3E9BEC02B89E0E") != std::string::npos)
 			{

@@ -13,10 +13,10 @@ namespace sce::vlt
 	VltDevice::VltDevice(
 		const Rc<VltInstance>&     instance,
 		const Rc<VltAdapter>&      adapter,
-		VkDevice                   device,
+		const Rc<vk::DeviceFn>&    vkd,
 		const VltDeviceExtensions& extensions,
 		const VltDeviceFeatures&   features) :
-		m_device(device),
+		m_vkd(vkd),
 		m_instance(instance),
 		m_adapter(adapter),
 		m_extensions(extensions),
@@ -74,7 +74,7 @@ namespace sce::vlt
 
 	void VltDevice::waitForIdle()
 	{
-		if (vkDeviceWaitIdle(m_device) != VK_SUCCESS)
+		if (vkDeviceWaitIdle(m_vkd->device()) != VK_SUCCESS)
 			Logger::err("DxvkDevice: waitForIdle: Operation failed");
 	}
 
@@ -83,7 +83,7 @@ namespace sce::vlt
 		uint32_t index) const
 	{
 		VkQueue queue = VK_NULL_HANDLE;
-		vkGetDeviceQueue(m_device, family, index, &queue);
+		vkGetDeviceQueue(m_vkd->device(), family, index, &queue);
 		return VltDeviceQueue{ queue, family, index };
 	}
 

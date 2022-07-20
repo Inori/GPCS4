@@ -1,7 +1,6 @@
 #pragma once
 
 #include "VltCommon.h"
-#include "VltDebugUtil.h"
 #include "VltLifetime.h"
 #include "VltSignal.h"
 #include "VltGpuEvent.h"
@@ -874,8 +873,6 @@ namespace sce::vlt
 		VltGpuEventTracker       m_gpuEventTracker;
 		VltSemaphoreTracker      m_semaphoreTracker;
 		//DxvkGpuQueryTracker       m_gpuQueryTracker;
-
-		VltDebugUtil m_debug;
 	};
 
 }  // namespace sce::vlt

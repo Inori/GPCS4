@@ -126,7 +126,6 @@
     <ClInclude Include="Graphics\Violet\VltConstantState.h" />
     <ClInclude Include="Graphics\Violet\VltContext.h" />
     <ClInclude Include="Graphics\Violet\VltContextState.h" />
-    <ClInclude Include="Graphics\Violet\VltDebugUtil.h" />
     <ClInclude Include="Graphics\Violet\VltDescriptor.h" />
     <ClInclude Include="Graphics\Violet\VltDevice.h" />
     <ClInclude Include="Graphics\Violet\VltDeviceFilter.h" />
@@ -147,6 +146,7 @@
     </ClInclude>
     <ClInclude Include="Graphics\Violet\VltLifetime.h" />
     <ClInclude Include="Graphics\Violet\VltLimit.h" />
+    <ClInclude Include="Graphics\Violet\VltLoader.h" />
     <ClInclude Include="Graphics\Violet\VltLog.h" />
     <ClInclude Include="Graphics\Violet\VltMemory.h" />
     <ClInclude Include="Graphics\Violet\VltObject.h" />
@@ -387,7 +387,6 @@
     <ClCompile Include="Graphics\Violet\VltCmdList.cpp" />
     <ClCompile Include="Graphics\Violet\VltCompute.cpp" />
     <ClCompile Include="Graphics\Violet\VltContext.cpp" />
-    <ClCompile Include="Graphics\Violet\VltDebugUtil.cpp" />
     <ClCompile Include="Graphics\Violet\VltDescriptor.cpp" />
     <ClCompile Include="Graphics\Violet\VltDevice.cpp" />
     <ClCompile Include="Graphics\Violet\VltDeviceFilter.cpp" />
@@ -405,6 +404,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Graphics\Violet\VltLifetime.cpp" />
+    <ClCompile Include="Graphics\Violet\VltLoader.cpp" />
     <ClCompile Include="Graphics\Violet\VltLog.cpp" />
     <ClCompile Include="Graphics\Violet\VltMemory.cpp" />
     <ClCompile Include="Graphics\Violet\VltPipeLayout.cpp" />

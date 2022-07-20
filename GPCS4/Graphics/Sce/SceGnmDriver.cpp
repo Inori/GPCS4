@@ -145,7 +145,7 @@ namespace sce
 
 		submitPresent(displayBufferIndex);
 
-		downloadResource();
+		//downloadResource();
 		// clear resource tracker every frame
 		cleanupFrame();
 
