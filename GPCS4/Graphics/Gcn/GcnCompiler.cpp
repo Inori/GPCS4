@@ -714,8 +714,7 @@ namespace sce::gcn
 		tex.colorTypeId   = imageTypeId;
 		tex.depthTypeId   = 0;
 
-		if (textureInfo.isDepth &&
-			(sampledType == GcnScalarType::Float32) &&
+		if ((sampledType == GcnScalarType::Float32) &&
 			(textureType == Gnm::kTextureType2d ||
 			 textureType == Gnm::kTextureType2dArray ||
 			 textureType == Gnm::kTextureTypeCubemap))
