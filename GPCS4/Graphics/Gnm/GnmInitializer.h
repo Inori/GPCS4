@@ -15,6 +15,11 @@ namespace sce::vlt
 	enum class VltQueueType : uint32_t;
 }  // namespace sce::vlt
 
+namespace sce::GpuAddress
+{
+	class TilingParameters;
+}  // namespace sce::GpuAddress
+
 namespace sce::Gnm
 {
 	class Buffer;
@@ -57,6 +62,11 @@ namespace sce::Gnm
 		void initHostVisibleTexture(
 			const vlt::Rc<vlt::VltImage>& image,
 			const Texture*                tsharp);
+
+		void computeUntiledSize(
+			uint32_t*                           outWidth,
+			uint32_t*                           outHeight,
+			const GpuAddress::TilingParameters* tp);
 
 		void flushImplicit();
 		void flushInternal();

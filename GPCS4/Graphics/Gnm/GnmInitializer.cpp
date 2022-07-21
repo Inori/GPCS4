@@ -104,7 +104,7 @@ namespace sce::Gnm
 		auto     tileMode        = tsharp->getTileMode();
 		uint8_t* textureMem      = reinterpret_cast<uint8_t*>(tsharp->getBaseAddress());
 
-		if (image->info().extent.width == 256 && image->info().extent.height == 16)
+		if (image->info().extent.width == 1024 && image->info().extent.height == 256)
 		{
 			__debugbreak();
 		}
@@ -124,50 +124,50 @@ namespace sce::Gnm
 
 				GpuAddress::TilingParameters params;
 				params.initFromTexture(tsharp, level, layer);
-				GpuAddress::SurfaceInfo surfaceInfo;
-				GpuAddress::computeSurfaceInfo(&surfaceInfo, &params);
 
-				VkOffset3D mipLevelOffset = { 0, 0, 0 };
-				VkExtent3D mipLevelExtent = image->mipLevelExtent(level);
+				uint32_t pitch = 0;
+				uint32_t height = 0;
+				if (isTiled)
+				{
+					computeUntiledSize(&pitch, &height, &params);
+				}
+				else
+				{
+					pitch  = tsharp->getPitch() >> level;
+					height = tsharp->getHeight() >> level;
+				}
 
-				m_transferCommands += 1;
-				m_transferMemory += vutil::computeImageDataSize(
-					image->info().format, mipLevelExtent);
+				uint32_t elementPerRow = isCompressed ? pitch / 4 : pitch;
+				uint32_t pitchPerRow   = elementPerRow * bytesPerElement;
+				uint32_t pitchPerLayer = pitchPerRow * height;
 
-				uint32_t elementPerRow = isCompressed ? surfaceInfo.m_pitch / 4 : surfaceInfo.m_pitch;
-				uint32_t pitchInBytes  = elementPerRow * bytesPerElement;
+				uint64_t surfaceOffset = 0;
+				uint64_t surfaceSize   = 0;
+				GpuAddress::computeTextureSurfaceOffsetAndSize(
+					&surfaceOffset, &surfaceSize, tsharp, level, layer);
+				void* memory = textureMem + surfaceOffset;
+
+				if (isTiled)
+				{
+					// allocate enough memory
+					uint64_t      untiledSize = 0;
+					AlignmentType align       = 0;
+					GpuAddress::computeUntiledSurfaceSize(&untiledSize, &align, &params);
+					void* untiled = plat::aligned_malloc(align, untiledSize);
+					// detail surface
+					// TODO:
+					// Should be done on GPU using compute shader
+					detileSurface(untiled, memory, &params);
+					memory = untiled;
+				}
+
 				if (formatInfo->aspectMask != (VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT))
 				{
-					uint64_t surfaceOffset = 0;
-					uint64_t surfaceSize   = 0;
-					GpuAddress::computeTextureSurfaceOffsetAndSize(
-						&surfaceOffset, &surfaceSize, tsharp, level, layer);
-					void* memory = textureMem + surfaceOffset;
-
-					if (isTiled)
-					{
-						// allocate enough memory
-						uint64_t      untiledSize = 0;
-						AlignmentType align       = 0;
-						GpuAddress::computeUntiledSurfaceSize(&untiledSize, &align, &params);
-						void* untiled = plat::aligned_malloc(align, untiledSize);
-						// detail surface
-						// TODO:
-						// Should be done on GPU using compute shader
-						detileSurface(untiled, memory, &params);
-						memory = untiled;
-					}
-
 					m_context->uploadImage(
 						image, subresourceLayers,
 						memory,
-						pitchInBytes,
-						surfaceInfo.m_surfaceSize);
-
-					if (isTiled)
-					{
-						plat::aligned_free(memory);
-					}
+						pitchPerRow,
+						pitchPerLayer);
 				}
 				else
 				{
@@ -181,6 +181,14 @@ namespace sce::Gnm
 					//	pInitialData[id].SysMemSlicePitch,
 					//	packedFormat);
 				}
+
+				if (isTiled)
+				{
+					plat::aligned_free(memory);
+				}
+				
+				m_transferCommands += 1;
+				m_transferMemory += pitchPerLayer;
 			}
 		}
 
@@ -206,6 +214,44 @@ namespace sce::Gnm
 
 		m_transferCommands = 0;
 		m_transferMemory   = 0;
+	}
+
+	void GnmInitializer::computeUntiledSize(
+		uint32_t*                           outWidth,
+		uint32_t*                           outHeight,
+		const GpuAddress::TilingParameters* tp)
+	{
+		uint32_t paddedWidth  = tp->m_linearWidth;
+		uint32_t paddedHeight = tp->m_linearHeight;
+		if (tp->m_isBlockCompressed)
+		{
+			switch (tp->m_bitsPerFragment)
+			{
+				case 1:
+					paddedWidth = std::max((paddedWidth + 7ULL) / 8ULL, 1ULL);
+					break;
+				case 4:
+				case 8:
+					paddedWidth  = std::max((paddedWidth + 3ULL) / 4ULL, 1ULL);
+					paddedHeight = std::max((paddedHeight + 3ULL) / 4ULL, 1ULL);
+					break;
+				case 16:
+					// TODO
+					break;
+				default:
+					LOG_ASSERT(!tp->m_isBlockCompressed, "Unknown bit depth for block-compressed format");
+					break;
+			}
+		}
+
+		if (outWidth)
+		{
+			*outWidth = paddedWidth;
+		}
+		if (outHeight)
+		{
+			*outHeight = paddedHeight;
+		}
 	}
 
 }  // namespace sce::Gnm
