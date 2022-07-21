@@ -5,6 +5,7 @@
 
 #include "Violet/VltDevice.h"
 #include "Violet/VltContext.h"
+#include "PlatMemory.h"
 
 using namespace sce::vlt;
 
@@ -96,11 +97,20 @@ namespace sce::Gnm
 	{
 		std::lock_guard<std::mutex> lock(m_mutex);
 
-		auto           formatInfo      = imageFormatInfo(image->info().format);
-		auto           textureFormat   = tsharp->getDataFormat();
-		uint32_t       bytesPerElement = textureFormat.getTotalBytesPerElement();
-		bool           isCompressed    = textureFormat.isBlockCompressedFormat();
-		const uint8_t* textureMem      = reinterpret_cast<uint8_t*>(tsharp->getBaseAddress());
+		auto     formatInfo      = imageFormatInfo(image->info().format);
+		auto     textureFormat   = tsharp->getDataFormat();
+		uint32_t bytesPerElement = textureFormat.getTotalBytesPerElement();
+		bool     isCompressed    = textureFormat.isBlockCompressedFormat();
+		auto     tileMode        = tsharp->getTileMode();
+		uint8_t* textureMem      = reinterpret_cast<uint8_t*>(tsharp->getBaseAddress());
+
+		if (image->info().extent.width == 256 && image->info().extent.height == 16)
+		{
+			__debugbreak();
+		}
+
+		bool isTiled = tileMode != kTileModeDisplay_LinearAligned &&
+					   tileMode != kTileModeDisplay_LinearGeneral;
 
 		for (uint32_t layer = 0; layer < image->info().numLayers; layer++)
 		{
@@ -132,13 +142,32 @@ namespace sce::Gnm
 					uint64_t surfaceSize   = 0;
 					GpuAddress::computeTextureSurfaceOffsetAndSize(
 						&surfaceOffset, &surfaceSize, tsharp, level, layer);
-					const void* memory = textureMem + surfaceOffset;
+					void* memory = textureMem + surfaceOffset;
+
+					if (isTiled)
+					{
+						// allocate enough memory
+						uint64_t      untiledSize = 0;
+						AlignmentType align       = 0;
+						GpuAddress::computeUntiledSurfaceSize(&untiledSize, &align, &params);
+						void* untiled = plat::aligned_malloc(align, untiledSize);
+						// detail surface
+						// TODO:
+						// Should be done on GPU using compute shader
+						detileSurface(untiled, memory, &params);
+						memory = untiled;
+					}
 
 					m_context->uploadImage(
 						image, subresourceLayers,
 						memory,
 						pitchInBytes,
 						surfaceInfo.m_surfaceSize);
+
+					if (isTiled)
+					{
+						plat::aligned_free(memory);
+					}
 				}
 				else
 				{
