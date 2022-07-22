@@ -64,9 +64,15 @@ namespace sce::Gnm
 			const Texture*                tsharp);
 
 		void computeUntiledSize(
-			uint32_t*                           outWidth,
-			uint32_t*                           outHeight,
+			uint32_t*                           outPitch,
+			uint32_t*                           outSize,
 			const GpuAddress::TilingParameters* tp);
+
+		void computeLinearSize(
+			uint32_t*      outPitch,
+			uint32_t*      outSize,
+			uint32_t       mipLevel,
+			const Texture* tsharp);
 
 		void flushImplicit();
 		void flushInternal();

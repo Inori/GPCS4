@@ -98,16 +98,8 @@ namespace sce::Gnm
 		std::lock_guard<std::mutex> lock(m_mutex);
 
 		auto     formatInfo      = imageFormatInfo(image->info().format);
-		auto     textureFormat   = tsharp->getDataFormat();
-		uint32_t bytesPerElement = textureFormat.getTotalBytesPerElement();
-		bool     isCompressed    = textureFormat.isBlockCompressedFormat();
 		auto     tileMode        = tsharp->getTileMode();
 		uint8_t* textureMem      = reinterpret_cast<uint8_t*>(tsharp->getBaseAddress());
-
-		if (image->info().extent.width == 1024 && image->info().extent.height == 256)
-		{
-			__debugbreak();
-		}
 
 		bool isTiled = tileMode != kTileModeDisplay_LinearAligned &&
 					   tileMode != kTileModeDisplay_LinearGeneral;
@@ -125,21 +117,18 @@ namespace sce::Gnm
 				GpuAddress::TilingParameters params;
 				params.initFromTexture(tsharp, level, layer);
 
-				uint32_t pitch = 0;
-				uint32_t height = 0;
+				uint32_t pitchPerRow   = 0;
+				uint32_t pitchPerLayer = 0;
 				if (isTiled)
 				{
-					computeUntiledSize(&pitch, &height, &params);
+					// If the texture is tiled, we need to detile it
+					// and pass the untiled texture's size to vlt.
+					computeUntiledSize(&pitchPerRow, &pitchPerLayer, &params);
 				}
 				else
 				{
-					pitch  = tsharp->getPitch() >> level;
-					height = tsharp->getHeight() >> level;
+					computeLinearSize(&pitchPerRow, &pitchPerLayer, level, tsharp);
 				}
-
-				uint32_t elementPerRow = isCompressed ? pitch / 4 : pitch;
-				uint32_t pitchPerRow   = elementPerRow * bytesPerElement;
-				uint32_t pitchPerLayer = pitchPerRow * height;
 
 				uint64_t surfaceOffset = 0;
 				uint64_t surfaceSize   = 0;
@@ -149,14 +138,10 @@ namespace sce::Gnm
 
 				if (isTiled)
 				{
-					// allocate enough memory
-					uint64_t      untiledSize = 0;
-					AlignmentType align       = 0;
-					GpuAddress::computeUntiledSurfaceSize(&untiledSize, &align, &params);
-					void* untiled = plat::aligned_malloc(align, untiledSize);
+					void* untiled = plat::aligned_malloc(1, pitchPerLayer);
 					// detail surface
 					// TODO:
-					// Should be done on GPU using compute shader
+					// should be done on GPU using compute shader
 					detileSurface(untiled, memory, &params);
 					memory = untiled;
 				}
@@ -217,21 +202,27 @@ namespace sce::Gnm
 	}
 
 	void GnmInitializer::computeUntiledSize(
-		uint32_t*                           outWidth,
-		uint32_t*                           outHeight,
+		uint32_t*                           outPitch,
+		uint32_t*                           outSize,
 		const GpuAddress::TilingParameters* tp)
 	{
-		uint32_t paddedWidth  = tp->m_linearWidth;
-		uint32_t paddedHeight = tp->m_linearHeight;
+		// modified version of GpuAddress::computeUntiledSurfaceSize,
+		// to compute width bytes and total bytes
+
+		uint32_t bitsPerElement = tp->m_bitsPerFragment;
+		uint32_t paddedWidth    = tp->m_linearWidth;
+		uint32_t paddedHeight   = tp->m_linearHeight;
 		if (tp->m_isBlockCompressed)
 		{
 			switch (tp->m_bitsPerFragment)
 			{
 				case 1:
+					bitsPerElement = 8;
 					paddedWidth = std::max((paddedWidth + 7ULL) / 8ULL, 1ULL);
 					break;
 				case 4:
 				case 8:
+					bitsPerElement *= 16;
 					paddedWidth  = std::max((paddedWidth + 3ULL) / 4ULL, 1ULL);
 					paddedHeight = std::max((paddedHeight + 3ULL) / 4ULL, 1ULL);
 					break;
@@ -244,13 +235,41 @@ namespace sce::Gnm
 			}
 		}
 
-		if (outWidth)
+		if (outPitch)
 		{
-			*outWidth = paddedWidth;
+			uint32_t widthBits = paddedWidth * tp->m_numFragmentsPerPixel * bitsPerElement;
+			*outPitch          = (widthBits + 7) / 8;
 		}
-		if (outHeight)
+		if (outSize)
 		{
-			*outHeight = paddedHeight;
+			uint64_t totalBits = paddedWidth * paddedHeight * tp->m_linearDepth * tp->m_numFragmentsPerPixel * bitsPerElement;
+			*outSize           = (totalBits + 7) / 8;
+		}
+	}
+
+	void GnmInitializer::computeLinearSize(
+		uint32_t*      outPitch,
+		uint32_t*      outSize,
+		uint32_t       mipLevel,
+		const Texture* tsharp)
+	{
+		auto     textureFormat   = tsharp->getDataFormat();
+		uint32_t bytesPerElement = textureFormat.getTotalBytesPerElement();
+		bool     isCompressed    = textureFormat.isBlockCompressedFormat();
+
+		uint32_t pitch         = std::max(tsharp->getPitch() >> mipLevel, 1u);
+		uint32_t height        = std::max(tsharp->getHeight() >> mipLevel, 1u);
+		uint32_t elementPerRow = isCompressed ? pitch / 4 : pitch;
+		uint32_t pitchPerRow   = elementPerRow * bytesPerElement;
+		uint32_t pitchPerLayer = pitchPerRow * height;
+
+		if (outPitch)
+		{
+			*outPitch = pitchPerRow;
+		}
+		if (outSize)
+		{
+			*outSize = pitchPerLayer;
 		}
 	}
 
