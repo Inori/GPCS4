@@ -958,9 +958,6 @@
     <ClInclude Include="Graphics\Gcn\ControlFlowGraph\GcnDivergentFlow.h">
       <Filter>Source Files\Graphics\Gcn\ControlFlowGraph</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Gnm\GnmCommandProxy.h">
-      <Filter>Source Files\Graphics\Gnm</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\Gnm\GnmShader.h">
       <Filter>Source Files\Graphics\Gnm</Filter>
     </ClInclude>
@@ -1709,12 +1706,6 @@
     </ClCompile>
     <ClCompile Include="Graphics\Gcn\ControlFlowGraph\GcnDivergentFlow.cpp">
       <Filter>Source Files\Graphics\Gcn\ControlFlowGraph</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\Gnm\GnmCommandProxy.cpp">
-      <Filter>Source Files\Graphics\Gnm</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\Gnm\GnmCommandProxyTable.cpp">
-      <Filter>Source Files\Graphics\Gnm</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Gnm\GnmShader.cpp">
       <Filter>Source Files\Graphics\Gnm</Filter>

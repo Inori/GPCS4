@@ -635,7 +635,7 @@ namespace sce::gcn
 		// To conditionally print something,
 		// copy and edit the following code:
 		//
-		// if (m_header->key().name() == "SHDR_AF20AC1F702451D8" && m_programCounter == 0x70)
+		//if (m_header->key().name() == "SHDR_AF20AC1F702451D8" && m_programCounter == 0x70)
 		//{
 		//	auto     invId      = emitCommonSystemValueLoad(GcnSystemValue::SubgroupInvocationID, 0);
 		//	auto     condition  = m_module.opIEqual(m_module.defBoolType(), invId.id, m_module.constu32(1));

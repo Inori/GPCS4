@@ -25,6 +25,7 @@
 #include <array>
 #include <fstream>
 #include <functional>
+#include <thread>
 
 LOG_CHANNEL(Graphic.Gnm.GnmCommandBufferDraw);
 
@@ -943,6 +944,11 @@ namespace sce::Gnm
 			auto  shader   = getShader(ctx.code);
 			auto& resTable = shader.getResources();
 
+			//if (shader.name().find("5EBFDA0415B9C404") != std::string::npos)
+			//{
+			//	__debugbreak();
+			//}
+
 			if constexpr (Indexed)
 			{
 				bindIndexBuffer();
@@ -985,11 +991,10 @@ namespace sce::Gnm
 				++count;
 				if (count == 2)
 				{
-					RdcController::instance()->triggerCapture();
+					//RdcController::instance()->triggerCapture();
 				}
 				//__debugbreak();
 			}
-
 
 			// create and bind shader resources
 			bindResource(VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,

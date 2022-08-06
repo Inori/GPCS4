@@ -391,6 +391,11 @@ namespace sce::Gnm
 	SceTexture GnmCommandBuffer::getResourceTexture(
 		const GnmImageCreateInfo& info)
 	{
+		// TODO:
+		// we need to map texture memory to vulkan image
+		// and map different resource descriptor (texture, render target, depth render target)
+		// to specific image views.
+
 		SceTexture result = {};
 
 		const auto& tsharp = info.tsharp;
