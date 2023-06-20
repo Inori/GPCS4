@@ -192,8 +192,8 @@ static const SCE_EXPORT_FUNCTION g_pSceLibc_libc_FunctionTable[] =
 
 static const SCE_EXPORT_FUNCTION g_pSceLibc_libc_setjmp_FunctionTable[] =
 {
-	{ 0xF85FBD8618BA93D4, "_longjmp", (void*)_longjmp },
-	{ 0xB23A64AE1BA0BD52, "_setjmp", (void*)_setjmp },
+	{ 0xF85FBD8618BA93D4, "_longjmp", (void*)sce_longjmp },
+	{ 0xB23A64AE1BA0BD52, "_setjmp", (void*)sce_setjmp },
 	SCE_FUNCTION_ENTRY_END
 };
 

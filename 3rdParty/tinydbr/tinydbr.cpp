@@ -22,7 +22,6 @@ limitations under the License.
 #include <list>
 #include <stdbool.h>
 #include <stdio.h>
-#include <stdatomic.h>
 
 
 #ifdef ARM64
@@ -234,7 +233,7 @@ void TinyDBR::CommitValueAtomicT(ModuleInfo* module, size_t start_offset)
 	}
 
 #ifdef __clang__
-	__c11_atomic_store(ptr, value, memory_order_relaxed);
+	__c11_atomic_store(ptr, value, std::memory_order_relaxed);
 #else
 	// x86 machine aligned memory store should be atomic natively.
 	*ptr = value;

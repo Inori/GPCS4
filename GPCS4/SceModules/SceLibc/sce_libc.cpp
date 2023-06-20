@@ -274,14 +274,14 @@ int PS4API scec_roundf(void)
 // library: libc_setjmp
 //////////////////////////////////////////////////////////////////////////
 
-int PS4API _longjmp(void)
+int PS4API sce_longjmp(void)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
 }
 
 
-int PS4API _setjmp(void)
+int PS4API sce_setjmp(void)
 {
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
