@@ -65,12 +65,6 @@ jobs:
         submodules: recursive
 
 
-    - name: Add MSBuild to PATH
-      uses: microsoft/setup-msbuild@v1.3.1
-      with:
-        msbuild-architecture: x64
-
-
     - name: Setup clang-cl
       working-directory: ${{env.GITHUB_WORKSPACE}}
       # Fix a LLVM/VS bug which installs/checks wrong path.
@@ -86,11 +80,12 @@ jobs:
          $vk_bin="$vk_sdk\Bin"
          "VULKAN_SDK=$vk_sdk" >> $env:GITHUB_ENV
          "$vk_bin" >> $env:GITHUB_PATH
-      
-    - name: Test glslc
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: Write-Host $Env:PATH;dir $Env:VULKAN_SDK\Bin;glslc -mfmt=num -o out.h ".\Graphics\Sce\Shaders\sce_present_frag.frag"
 
+
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v1.3.1
+      with:
+        msbuild-architecture: x64
 
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
