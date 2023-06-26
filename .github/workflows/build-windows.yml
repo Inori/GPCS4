@@ -15,9 +15,9 @@ env:
   # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
   BUILD_CONFIGURATION: Release
 
-  VULKAN_SDK_PATH: C:\\VulkanSDK
+  VULKAN_SDK_PATH: C:\VulkanSDK
 
-  LLVM_PATH: C:\\LLVM
+  LLVM_PATH: C:\LLVM
 
 permissions:
   contents: read
