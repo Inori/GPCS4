@@ -82,9 +82,10 @@ jobs:
 
     - name: Setup Vulkan SDK Path
       run: |
-         $env:VULKAN_SDK = "${{env.VULKAN_SDK_PATH}}\\1.3.250.0"
-         $env:VK_SDK_PATH = $env:VULKAN_SDK
-         $env:Path = "$env:VULKAN_SDK\\Bin;" + $env:Path
+         $vk_sdk="${{env.VULKAN_SDK_PATH}}\1.3.250.0"
+         [Environment]::SetEnvironmentVariable("VULKAN_SDK", $vk_sdk, [EnvironmentVariableTarget]::Machine)
+         [Environment]::SetEnvironmentVariable("VK_SDK_PATH", $vk_sdk, [EnvironmentVariableTarget]::Machine)
+         [Environment]::SetEnvironmentVariable("Path", $vk_sdk + "\\Bin;" + [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::Machine), [EnvironmentVariableTarget]::Machine)
   
 
     - name: Test glslc
