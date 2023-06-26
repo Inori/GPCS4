@@ -10,11 +10,6 @@ env:
   # Path to the solution file relative to the root of the project.
   SOLUTION_FILE_PATH: .
 
-  # Configuration type to build.
-  # You can convert this to a build matrix if you need coverage of multiple configuration types.
-  # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-  BUILD_CONFIGURATION: Release
-
   VULKAN_SDK_PATH: C:\VulkanSDK
 
   LLVM_PATH: C:\LLVM
@@ -35,6 +30,7 @@ jobs:
          path: "${{env.VULKAN_SDK_PATH}}"
          key: key-vulkan-sdk
          
+
     - name: Install Vulkan SDK
       if: ${{steps.cache-vulkan-sdk.outputs.cache-hit != 'true'}}
       run: |
@@ -50,6 +46,7 @@ jobs:
          path: "${{env.LLVM_PATH}}"
          key: key-llvm
          
+
     - name: Install LLVM
       if: ${{steps.cache-llvm.outputs.cache-hit != 'true'}}
       run: |
@@ -87,8 +84,11 @@ jobs:
       with:
         msbuild-architecture: x64
 
+
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
-      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
+      run: |
+         msbuild /m /p:Configuration=Debug ${{env.SOLUTION_FILE_PATH}}
+         msbuild /m /p:Configuration=Release ${{env.SOLUTION_FILE_PATH}}
