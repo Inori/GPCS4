@@ -31,13 +31,13 @@ jobs:
 
     - name: Cache Vulkan SDK
       id: cache-vulkan-sdk
-      uses: actions/cache@v1.2.1
+      uses: actions/cache@v3
       with:
          path: "C:\\VulkanSDK"
          key: vulkan-sdk
          
     - name: Setup Vulkan SDK
-      if: steps.cache-vulkan-sdk.outputs.cache-hit != 'true'
+      if: ${{steps.cache-vulkan-sdk.outputs.cache-hit != 'true'}}
       run: |
          Invoke-WebRequest -Uri "https://sdk.lunarg.com/sdk/download/1.3.250.0/windows/VulkanSDK-1.3.250.0-Installer.exe" -OutFile VulkanSDK.exe
          $installer = Start-Process -FilePath VulkanSDK.exe -Wait -PassThru -ArgumentList @("/S");
@@ -46,13 +46,13 @@ jobs:
 
     - name: Cache LLVM
       id: cache-llvm
-      uses: actions/cache@v1.2.1
+      uses: actions/cache@v3
       with:
          path: "C:\\Program Files\\LLVM"
          key: llvm
          
     - name: Setup LLVM
-      if: steps.cache-llvm.outputs.cache-hit != 'true'
+      if: ${{steps.cache-llvm.outputs.cache-hit != 'true'}}
       run: |
          Invoke-WebRequest -Uri "https://github.com/llvm/llvm-project/releases/download/llvmorg-16.0.6/LLVM-16.0.6-win64.exe" -OutFile LLVM.exe
          $installer = Start-Process -FilePath LLVM.exe -Wait -PassThru -ArgumentList @("/S");
