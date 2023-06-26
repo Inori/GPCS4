@@ -32,7 +32,7 @@ jobs:
       id: cache-vulkan-sdk
       uses: actions/cache@v3
       with:
-         path: "${{env.VULKAN_SDK_PATH}}"
+         path: "C:\\VulkanSDK"
          key: vulkan-sdk
          
     - name: Setup Vulkan SDK
@@ -47,7 +47,7 @@ jobs:
       id: cache-llvm
       uses: actions/cache@v3
       with:
-         path: "${{env.LLVM_PATH}}"
+         path: "C:\\LLVM"
          key: llvm
          
     - name: Setup LLVM
@@ -79,6 +79,10 @@ jobs:
          $lib_path="${{env.LLVM_PATH}}\\lib\\clang\\16";if(Test-Path $lib_path){ Rename-Item -Path $lib_path -NewName "16.0.6" }
          Set-Content -Path .\Directory.build.props -Value "<Project>`n  <PropertyGroup>`n    <LLVMInstallDir>${{env.LLVM_PATH}}</LLVMInstallDir>`n    <LLVMToolsVersion>16.0.6</LLVMToolsVersion>`n  </PropertyGroup>`n</Project>"
 
+
+    - name: Test glslc
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: glslc -mfmt=num -o out.h "Graphics\\Sce\\Shaders\\sce_present_frag.frag"
 
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
