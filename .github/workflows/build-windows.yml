@@ -80,14 +80,16 @@ jobs:
          Set-Content -Path .\Directory.build.props -Value "<Project>`n  <PropertyGroup>`n    <LLVMInstallDir>${{env.LLVM_PATH}}</LLVMInstallDir>`n    <LLVMToolsVersion>16.0.6</LLVMToolsVersion>`n  </PropertyGroup>`n</Project>"
 
 
-    - name: Setup Vulkan SDK Path
+    - name: Setup Vulkan SDK path
       run: |
-         $vk_sdk="${{env.VULKAN_SDK_PATH}}\1.3.250.0\Bin"
-         "$vk_sdk" >> $env:GITHUB_PATH
+         $vk_sdk="${{env.VULKAN_SDK_PATH}}\1.3.250.0"
+         $vk_bin="$vk_sdk\Bin"
+         "VULKAN_SDK=$vk_sdk" >> $env:GITHUB_ENV
+         "$vk_bin" >> $env:GITHUB_PATH
       
     - name: Test glslc
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: Write-Host $Env:PATH;glslc -mfmt=num -o out.h "Graphics\\Sce\\Shaders\\sce_present_frag.frag"
+      run: Write-Host $Env:PATH;dir $Env:VULKAN_SDK\Bin;glslc -mfmt=num -o out.h ".\Graphics\Sce\Shaders\sce_present_frag.frag"
 
 
     - name: Build
