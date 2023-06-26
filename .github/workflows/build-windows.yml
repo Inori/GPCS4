@@ -54,7 +54,7 @@ jobs:
       if: ${{steps.cache-llvm.outputs.cache-hit != 'true'}}
       run: |
          Invoke-WebRequest -Uri "https://github.com/llvm/llvm-project/releases/download/llvmorg-16.0.6/LLVM-16.0.6-win64.exe" -OutFile LLVM.exe
-         $installer = Start-Process -FilePath LLVM.exe -Wait -PassThru -ArgumentList @("/S /D={{env.LLVM_PATH}}");
+         $installer = Start-Process -FilePath LLVM.exe -Wait -PassThru -ArgumentList @("/S /D=${{env.LLVM_PATH}}");
          $installer.WaitForExit();
          
 
@@ -73,8 +73,11 @@ jobs:
 
     - name: Setup clang-cl
       working-directory: ${{env.GITHUB_WORKSPACE}}
+      # Fix a LLVM/VS bug which installs/checks wrong path.
+      # Then write a Directory.build.props file to specify clang-cl path.
       run: |
-         Set-Content -Path .\Directory.build.props -Value "<Project>`n  <PropertyGroup>`n    <LLVMInstallDir>{{env.LLVM_PATH}}</LLVMInstallDir>`n    <LLVMToolsVersion>16.0.6</LLVMToolsVersion>`n  </PropertyGroup>`n</Project>"
+         $lib_path="${{env.LLVM_PATH}}\\lib\\clang\\16";if(Test-Path $lib_path){ Rename-Item -Path $lib_path -NewName "16.0.6" }
+         Set-Content -Path .\Directory.build.props -Value "<Project>`n  <PropertyGroup>`n    <LLVMInstallDir>${{env.LLVM_PATH}}</LLVMInstallDir>`n    <LLVMToolsVersion>16.0.6</LLVMToolsVersion>`n  </PropertyGroup>`n</Project>"
 
 
     - name: Build
