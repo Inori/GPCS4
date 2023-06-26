@@ -83,11 +83,8 @@ jobs:
     - name: Setup Vulkan SDK Path
       run: |
          $vk_sdk="${{env.VULKAN_SDK_PATH}}\1.3.250.0"
-         [Environment]::SetEnvironmentVariable("VULKAN_SDK", $vk_sdk, [EnvironmentVariableTarget]::Machine)
-         [Environment]::SetEnvironmentVariable("VK_SDK_PATH", $vk_sdk, [EnvironmentVariableTarget]::Machine)
-         [Environment]::SetEnvironmentVariable("Path", $vk_sdk + "\\Bin;" + [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::Machine), [EnvironmentVariableTarget]::Machine)
-  
-
+         "$vk_sdk" >> $env:GITHUB_PATH
+      
     - name: Test glslc
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: Write-Host $Env:PATH;dir $Env:VULKAN_SDK\\bin;glslc -mfmt=num -o out.h "Graphics\\Sce\\Shaders\\sce_present_frag.frag"
