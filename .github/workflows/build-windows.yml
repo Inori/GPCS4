@@ -90,5 +90,17 @@ jobs:
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
       run: |
-         msbuild /m /p:Configuration=Debug ${{env.SOLUTION_FILE_PATH}}
-         msbuild /m /p:Configuration=Release ${{env.SOLUTION_FILE_PATH}}
+         msbuild /m /p:Configuration=Debug /t:Rebuild ${{env.SOLUTION_FILE_PATH}}
+         msbuild /m /p:Configuration=Release /t:Rebuild ${{env.SOLUTION_FILE_PATH}}
+
+
+    - name: Upload build files
+      id: upload-artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: gpcs4-${{ env.GITHUB_SHA }}
+        path: |
+          x64
+          !x64/**/*.pdb
+          !x64/**/*.lib
+        if-no-files-found: error
