@@ -32,8 +32,8 @@ jobs:
       id: cache-vulkan-sdk
       uses: actions/cache@v3
       with:
-         path: "C:\\VulkanSDK"
-         key: vulkan-sdk
+         path: "${{env.VULKAN_SDK_PATH}}"
+         key: key-vulkan-sdk
          
     - name: Setup Vulkan SDK
       if: ${{steps.cache-vulkan-sdk.outputs.cache-hit != 'true'}}
@@ -47,8 +47,8 @@ jobs:
       id: cache-llvm
       uses: actions/cache@v3
       with:
-         path: "C:\\LLVM"
-         key: llvm
+         path: "${{env.LLVM_PATH}}"
+         key: key-llvm
          
     - name: Setup LLVM
       if: ${{steps.cache-llvm.outputs.cache-hit != 'true'}}
@@ -82,7 +82,7 @@ jobs:
 
     - name: Test glslc
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: glslc -mfmt=num -o out.h "Graphics\\Sce\\Shaders\\sce_present_frag.frag"
+      run: Write-Host $Env:PATH;dir $Env:VULKAN_SDK\\bin;glslc -mfmt=num -o out.h "Graphics\\Sce\\Shaders\\sce_present_frag.frag"
 
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
