@@ -1,0 +1,77 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Build GPCS4
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+env:
+  # Path to the solution file relative to the root of the project.
+  SOLUTION_FILE_PATH: .
+
+  # Configuration type to build.
+  # You can convert this to a build matrix if you need coverage of multiple configuration types.
+  # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+  BUILD_CONFIGURATION: Release
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+
+    - name: Cache Vulkan SDK
+      id: cache-vulkan-sdk
+      uses: actions/cache@v1.2.1
+      with:
+         path: "C:\\VulkanSDK"
+         key: vulkan-sdk
+         
+    - name: Setup Vulkan SDK
+      if: steps.cache-vulkan-sdk.outputs.cache-hit != 'true'
+      run: |
+         Invoke-WebRequest -Uri "https://sdk.lunarg.com/sdk/download/1.3.250.0/windows/VulkanSDK-1.3.250.0-Installer.exe" -OutFile VulkanSDK.exe
+         $installer = Start-Process -FilePath VulkanSDK.exe -Wait -PassThru -ArgumentList @("/S");
+         $installer.WaitForExit();
+
+
+    - name: Cache LLVM
+      id: cache-llvm
+      uses: actions/cache@v1.2.1
+      with:
+         path: "C:\\Program Files\\LLVM"
+         key: llvm
+         
+    - name: Setup LLVM
+      if: steps.cache-llvm.outputs.cache-hit != 'true'
+      run: |
+         Invoke-WebRequest -Uri "https://github.com/llvm/llvm-project/releases/download/llvmorg-16.0.6/LLVM-16.0.6-win64.exe" -OutFile LLVM.exe
+         $installer = Start-Process -FilePath LLVM.exe -Wait -PassThru -ArgumentList @("/S");
+         $installer.WaitForExit();
+         
+
+    - name: Checkout code
+      id: checkout-code
+      uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
+
+
+    - name: Build
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      # Add additional options to the MSBuild command line here (like platform or verbosity level).
+      # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
+      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
