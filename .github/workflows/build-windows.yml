@@ -94,11 +94,17 @@ jobs:
          msbuild /m /p:Configuration=Release /t:Rebuild ${{env.SOLUTION_FILE_PATH}}
 
 
+    - name: Setup git hash
+      run: |
+         $git_hash = @(git rev-parse --short HEAD)
+         "GIT_HASH_SHORT=$git_hash" >> $env:GITHUB_ENV   
+
+
     - name: Upload build files
       id: upload-artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: gpcs4-${{ env.GITHUB_SHA }}
+        name: gpcs4-${{ env.GIT_HASH_SHORT }}
         path: |
           x64
           !x64/**/*.pdb
