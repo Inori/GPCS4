@@ -95,7 +95,6 @@ jobs:
 
 
     - name: Upload build files
-      working-directory: ${{env.GITHUB_WORKSPACE}}
       id: upload-artifacts
       uses: actions/upload-artifact@v3
       with:
