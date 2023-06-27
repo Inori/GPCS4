@@ -69,7 +69,8 @@ jobs:
       # Fix a LLVM/VS bug which installs/checks wrong path.
       # Then write a Directory.build.props file to specify clang-cl path.
       run: |
-         $lib_path="${{env.LLVM_PATH}}\lib\clang\16";if(Test-Path $lib_path){ Rename-Item -Path $lib_path -NewName "${{env.LLVM_VERSION}}" }
+         $lib_path="${{env.LLVM_PATH}}\lib\clang\16"
+         if(Test-Path $lib_path) { Rename-Item -Path $lib_path -NewName "${{env.LLVM_VERSION}}" }
          Set-Content -Path .\Directory.build.props -Value "<Project>`n  <PropertyGroup>`n    <LLVMInstallDir>${{env.LLVM_PATH}}</LLVMInstallDir>`n    <LLVMToolsVersion>${{env.LLVM_VERSION}}</LLVMToolsVersion>`n  </PropertyGroup>`n</Project>"
 
 

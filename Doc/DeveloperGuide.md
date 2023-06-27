@@ -21,7 +21,7 @@ Build steps:
 2. Checkout a proper branch.  
 3. Close your Visual Studio first, install Vulkan SDK listed above.
 4. Restart Visual Studio, build 3rdParty libraries one by one, then GPCS4.
-5. If you still can't build, try to change clang or vulkan sdk version. My clang version is 13.0.0 and vulkan sdk version is 1.3.204.1. Other versions are not tested.
+5. If you still can't build, try to change clang or vulkan sdk version. My clang version is 16.0.6 and vulkan sdk version is 1.3.204.1. Other versions are not tested. Or see the the [action script](https://github.com/Inori/GPCS4/blob/master/.github/workflows/build-windows.yml)
 
  
 ## Run demos/games:
