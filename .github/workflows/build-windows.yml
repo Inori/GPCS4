@@ -11,8 +11,10 @@ env:
   SOLUTION_FILE_PATH: .
 
   VULKAN_SDK_PATH: C:\VulkanSDK
+  VULKAN_SDK_VERSIOIN: 1.3.250.0
 
   LLVM_PATH: C:\LLVM
+  LLVM_VERSION: 16.0.6
 
 permissions:
   contents: read
@@ -34,8 +36,8 @@ jobs:
     - name: Install Vulkan SDK
       if: ${{steps.cache-vulkan-sdk.outputs.cache-hit != 'true'}}
       run: |
-         Invoke-WebRequest -Uri "https://sdk.lunarg.com/sdk/download/1.3.250.0/windows/VulkanSDK-1.3.250.0-Installer.exe" -OutFile VulkanSDK.exe
-         $installer = Start-Process -FilePath VulkanSDK.exe -Wait -PassThru -ArgumentList @("--root ${{env.VULKAN_SDK_PATH}}\1.3.250.0 --accept-licenses --default-answer --confirm-command install");
+         Invoke-WebRequest -Uri "https://sdk.lunarg.com/sdk/download/${{env.VULKAN_SDK_VERSIOIN}}/windows/VulkanSDK-${{env.VULKAN_SDK_VERSIOIN}}-Installer.exe" -OutFile VulkanSDK.exe
+         $installer = Start-Process -FilePath VulkanSDK.exe -Wait -PassThru -ArgumentList @("--root ${{env.VULKAN_SDK_PATH}}\${{env.VULKAN_SDK_VERSIOIN}} --accept-licenses --default-answer --confirm-command install");
          $installer.WaitForExit();
 
 
@@ -50,7 +52,7 @@ jobs:
     - name: Install LLVM
       if: ${{steps.cache-llvm.outputs.cache-hit != 'true'}}
       run: |
-         Invoke-WebRequest -Uri "https://github.com/llvm/llvm-project/releases/download/llvmorg-16.0.6/LLVM-16.0.6-win64.exe" -OutFile LLVM.exe
+         Invoke-WebRequest -Uri "https://github.com/llvm/llvm-project/releases/download/llvmorg-${{env.LLVM_VERSION}}/LLVM-${{env.LLVM_VERSION}}-win64.exe" -OutFile LLVM.exe
          $installer = Start-Process -FilePath LLVM.exe -Wait -PassThru -ArgumentList @("/S /D=${{env.LLVM_PATH}}");
          $installer.WaitForExit();
          
@@ -67,13 +69,13 @@ jobs:
       # Fix a LLVM/VS bug which installs/checks wrong path.
       # Then write a Directory.build.props file to specify clang-cl path.
       run: |
-         $lib_path="${{env.LLVM_PATH}}\lib\clang\16";if(Test-Path $lib_path){ Rename-Item -Path $lib_path -NewName "16.0.6" }
-         Set-Content -Path .\Directory.build.props -Value "<Project>`n  <PropertyGroup>`n    <LLVMInstallDir>${{env.LLVM_PATH}}</LLVMInstallDir>`n    <LLVMToolsVersion>16.0.6</LLVMToolsVersion>`n  </PropertyGroup>`n</Project>"
+         $lib_path="${{env.LLVM_PATH}}\lib\clang\16";if(Test-Path $lib_path){ Rename-Item -Path $lib_path -NewName "${{env.LLVM_VERSION}}" }
+         Set-Content -Path .\Directory.build.props -Value "<Project>`n  <PropertyGroup>`n    <LLVMInstallDir>${{env.LLVM_PATH}}</LLVMInstallDir>`n    <LLVMToolsVersion>${{env.LLVM_VERSION}}</LLVMToolsVersion>`n  </PropertyGroup>`n</Project>"
 
 
     - name: Setup Vulkan SDK path
       run: |
-         $vk_sdk="${{env.VULKAN_SDK_PATH}}\1.3.250.0"
+         $vk_sdk="${{env.VULKAN_SDK_PATH}}\${{env.VULKAN_SDK_VERSIOIN}}"
          $vk_bin="$vk_sdk\Bin"
          "VULKAN_SDK=$vk_sdk" >> $env:GITHUB_ENV
          "$vk_bin" >> $env:GITHUB_PATH
