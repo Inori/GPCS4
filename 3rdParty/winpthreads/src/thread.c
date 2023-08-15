@@ -403,7 +403,7 @@ replace_spin_keys (pthread_spinlock_t *old, pthread_spinlock_t new)
 #define THREADID_LEN THREADERR_LEN + 66 + 1 + 1
       int i;
       char thread_id[THREADID_LEN] = THREADERR;
-      _ultoa ((unsigned long) GetCurrentThreadId (), &thread_id[THREADERR_LEN], 10);
+      _ultoa_s ((unsigned long)GetCurrentThreadId(), &thread_id[THREADERR_LEN], THREADERR_LEN, 10);
       for (i = THREADERR_LEN; thread_id[i] != '\0' && i < THREADID_LEN - 1; i++)
         {
         }
@@ -1835,7 +1835,7 @@ pthread_setname_np (pthread_t thread, const char *name)
       || tv->h == INVALID_HANDLE_VALUE)
     return ESRCH;
 
-  stored_name = strdup (name);
+  stored_name = _strdup (name);
   if (stored_name == NULL)
     return ENOMEM;
 

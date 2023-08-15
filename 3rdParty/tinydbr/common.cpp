@@ -134,7 +134,7 @@ std::string UnicodeToAnsi(const std::wstring& wstr, unsigned int code_page)
 	std::string result;
 	int len = WideCharToMultiByte(code_page, 0, wstr.c_str(), -1, NULL, 0, NULL, 0);
 	result.resize(len);
-	WideCharToMultiByte(code_page, 0, wstr.c_str(), -1, result.data(), len, NULL, 0);
+	WideCharToMultiByte(code_page, 0, wstr.c_str(), -1, (LPSTR)result.data(), len, NULL, 0);
 	return result;
 }
 

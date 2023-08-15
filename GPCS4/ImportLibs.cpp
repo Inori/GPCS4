@@ -12,12 +12,12 @@
 #ifdef GPCS4_WINDOWS
 #ifdef _DEBUG
 
-#pragma comment(lib, "../3rdParty/winpthreads/winpthreadsd.lib")
-#pragma comment(lib, "../3rdParty/zydis/Zydisd.lib")
-#pragma comment(lib, "../3rdParty/glfw/glfw3d.lib")
-#pragma comment(lib, "../3rdParty/rtaudio/rtaudiod.lib")
-#pragma comment(lib, "../3rdParty/tinydbr/TinyDBRd.lib")
-#pragma comment(lib, "../3rdParty/fmt/fmtd.lib")
+//#pragma comment(lib, "../3rdParty/winpthreads/winpthreadsd.lib")
+//#pragma comment(lib, "../3rdParty/zydis/Zydisd.lib")
+//#pragma comment(lib, "../3rdParty/glfw/glfw3d.lib")
+//#pragma comment(lib, "../3rdParty/rtaudio/rtaudiod.lib")
+//#pragma comment(lib, "../3rdParty/tinydbr/TinyDBRd.lib")
+//#pragma comment(lib, "../3rdParty/fmt/fmtd.lib")
 
 #else
 

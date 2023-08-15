@@ -216,7 +216,7 @@ void TinyDBR::CommitCode(ModuleInfo* module, size_t start_offset, size_t size)
 template <typename T>
 void TinyDBR::CommitValueAtomicT(ModuleInfo* module, size_t start_offset)
 {
-	static_assert(std::is_integral_v<T> && sizeof(T) <= sizeof(uint64_t));
+	static_assert(std::is_integral_v<T> && sizeof(T) <= sizeof(uint64_t), "size exceed uint64_t");
 
 	T           value = *reinterpret_cast<T*>(module->instrumented_code_local + start_offset);
 
