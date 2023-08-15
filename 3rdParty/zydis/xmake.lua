@@ -47,7 +47,7 @@ target("zydis")
 
         -- add_syslinks("Ole32.lib")
     else
-        print("TODO")
+        print("zydis TODO")
     end
 
     add_deps("zycore")

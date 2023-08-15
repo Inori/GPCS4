@@ -1,14 +1,17 @@
 #include "PlatThread.h"
 
+#ifdef GPCS4_WINDOWS
+	#define WIN32_LEAN_AND_MEAN
+	#include <Windows.h>
+	#undef WIN32_LEAN_AND_MEAN
+#else
+	#include <unistd.h>
+#endif
+
 namespace plat
 {;
 
 #ifdef GPCS4_WINDOWS
-
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#undef WIN32_LEAN_AND_MEAN
-
 
 uint64_t GetThreadId(void)
 {

@@ -16,7 +16,7 @@ target("tinydbr")
         add_headerfiles("windows/*.h")
         add_files("windows/*.cpp")
     else
-        print("TODO")
+        print("tinydbr TODO")
     end
 
     add_deps("zydis")

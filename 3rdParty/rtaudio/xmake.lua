@@ -14,5 +14,5 @@ target("rtaudio")
 
         add_syslinks("Ole32.lib")
     else
-        print("TODO")
+        print("rtaudio TODO")
     end

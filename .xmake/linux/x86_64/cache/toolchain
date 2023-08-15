@@ -1,0 +1,22 @@
+{
+    tool_target_GPCS4_linux_x64_cc = {
+        program = "/usr/bin/clang",
+        toolname = "clang",
+        toolchain_info = {
+            cachekey = "clang_arch_x64_plat_linux",
+            name = "clang",
+            arch = "x64",
+            plat = "linux"
+        }
+    },
+    tool_target_GPCS4_linux_x64_cxx = {
+        program = "/usr/bin/clang",
+        toolname = "clang",
+        toolchain_info = {
+            cachekey = "clang_arch_x64_plat_linux",
+            name = "clang",
+            arch = "x64",
+            plat = "linux"
+        }
+    }
+}

@@ -27,11 +27,14 @@ else
 end
 
 
-includes("3rdParty/glfw")
-includes("3rdParty/winpthreads")
-includes("3rdParty/rtaudio")
-includes("3rdParty/zydis")
-includes("3rdParty/tinydbr")
+-- includes("3rdParty/glfw")
+-- includes("3rdParty/rtaudio")
+-- includes("3rdParty/zydis")
+-- includes("3rdParty/tinydbr")
+
+if is_os("windows") then 
+    includes("3rdParty/winpthreads")
+end
 
 
 target("GPCS4")
@@ -51,21 +54,30 @@ target("GPCS4")
     end
 
     -- C/C++ Defines
-    add_defines("__PTW32_STATIC_LIB",
-                "_CRT_SECURE_NO_WARNINGS",
-                "FMT_HEADER_ONLY")
+    add_defines("FMT_HEADER_ONLY")
+
+    if is_os("windows") then 
+        add_defines("GPCS4_WINDOWS")
+        add_defines("__PTW32_STATIC_LIB",
+                    "_CRT_SECURE_NO_WARNINGS")
+    else 
+        add_defines("GPCS4_LINUX")
+    end 
 
     if is_mode("debug") then
-        add_defines("_DEBUG", "GPCS4_DEBUG")
+        add_defines("GPCS4_DEBUG")
     end
 
     -- Include and Souce Files
-    on_load(function (target)
-        import("xmake.llvm")
-        target:add("includedirs", llvm.find_include())
-    end)
+    if is_os("windows") then
+        on_load(function (target)
+            import("xmake.llvm")
+            target:add("includedirs", llvm.find_include())
+        end)
 
-    add_includedirs("$(env VULKAN_SDK)/Include")
+        add_includedirs("$(env VULKAN_SDK)/Include")
+    end
+
     add_includedirs("GPCS4/",
                     "GPCS4/Emulator",
                     "GPCS4/Algorithm",
@@ -80,6 +92,7 @@ target("GPCS4")
                     "3rdParty/zydis/dependencies/zycore/include",
                     "3rdParty/fmt/include",
                     "3rdParty/boost")
+
     add_headerfiles("GPCS4/**.h")
     add_files("GPCS4/**.cpp", "GPCS4/**.c")
 
@@ -94,11 +107,14 @@ target("GPCS4")
                      "legacy_stdio_definitions.lib",
                      "user32.lib")
     else
-        print("TODO")
+        print("gpcs4 TODO")
     end
 
-    add_deps("glfw")
-    add_deps("winpthreads")
-    add_deps("rtaudio")
-    add_deps("zydis")
-    add_deps("tinydbr")
+    -- add_deps("glfw")
+    -- add_deps("rtaudio")
+    -- add_deps("zydis")
+    -- add_deps("tinydbr")
+
+    if is_os("windows") then 
+        add_deps("winpthreads")
+    end

@@ -1,5 +1,11 @@
 #include "PlatDebug.h"
 
+#ifdef GPCS4_WINDOWS
+
+#else
+#include <signal.h>
+#endif
+
 namespace plat
 {
 

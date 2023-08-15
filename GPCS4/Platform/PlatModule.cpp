@@ -7,7 +7,7 @@
 #undef WIN32_LEAN_AND_MEAN
 
 #else
-#error "not implemented"
+// #error "not implemented"
 #endif
 
 namespace plat

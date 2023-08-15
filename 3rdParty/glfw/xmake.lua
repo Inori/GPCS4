@@ -28,7 +28,7 @@ target("glfw")
         add_syslinks("Shell32.lib",
                      "Gdi32.lib")
     else
-        print("TODO")
+        print("glfw TODO")
     end
 
     -- add_filegroups("include", {rootdir = "./", files = {"src/*.h"}})
