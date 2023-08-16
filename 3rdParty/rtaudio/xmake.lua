@@ -8,11 +8,11 @@ target("rtaudio")
     add_files("*.cpp")
     add_filegroups("src", {rootdir = "./"})
 
-    if is_os("windows") then
+    if is_plat("windows") then
         add_defines("__WINDOWS_WASAPI__",
                     "_CRT_SECURE_NO_WARNINGS")
 
-        add_syslinks("Ole32.lib")
+        add_syslinks("ole32")
     else
         print("rtaudio TODO")
     end

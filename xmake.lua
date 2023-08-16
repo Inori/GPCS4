@@ -1,14 +1,15 @@
 set_project("GPCS4")
+set_version("0.2.3")
 set_xmakever("2.8.1")
 
 add_rules("mode.release", "mode.debug")
 
--- Only support x64
-set_plat(os.host())
-set_arch("x64")
+set_allowedplats("windows")
+set_allowedarchs("x64")
+set_allowedmodes("debug", "release")
 
 -- Only support clang
-if is_os("windows") then
+if is_plat("windows") then
     set_toolchains("clang-cl")
 
     if is_mode("debug") then
@@ -27,18 +28,19 @@ else
 end
 
 
--- includes("3rdParty/glfw")
--- includes("3rdParty/rtaudio")
--- includes("3rdParty/zydis")
--- includes("3rdParty/tinydbr")
+includes("3rdParty/glfw")
+includes("3rdParty/rtaudio")
+includes("3rdParty/zydis")
+includes("3rdParty/tinydbr")
 
-if is_os("windows") then 
+if is_plat("windows") then 
     includes("3rdParty/winpthreads")
 end
 
+includes("xmake")
 
 target("GPCS4")
-    set_kind("binary")
+    add_rules("module.program")
     set_languages("c11", "cxx17")
 
     -- C/C++ Flags
@@ -50,13 +52,13 @@ target("GPCS4")
                  "-Wno-microsoft-enum-forward-reference",
                  "-Wno-nonportable-include-path")
     if is_mode("release") then
-        add_cxxflags("-flto=thin")
+        -- add_cxxflags("-flto=thin")
     end
 
     -- C/C++ Defines
     add_defines("FMT_HEADER_ONLY")
 
-    if is_os("windows") then 
+    if is_plat("windows") then 
         add_defines("GPCS4_WINDOWS")
         add_defines("__PTW32_STATIC_LIB",
                     "_CRT_SECURE_NO_WARNINGS")
@@ -66,16 +68,6 @@ target("GPCS4")
 
     if is_mode("debug") then
         add_defines("GPCS4_DEBUG")
-    end
-
-    -- Include and Souce Files
-    if is_os("windows") then
-        on_load(function (target)
-            import("xmake.llvm")
-            target:add("includedirs", llvm.find_include())
-        end)
-
-        add_includedirs("$(env VULKAN_SDK)/Include")
     end
 
     add_includedirs("GPCS4/",
@@ -96,25 +88,30 @@ target("GPCS4")
     add_headerfiles("GPCS4/**.h")
     add_files("GPCS4/**.cpp", "GPCS4/**.c")
 
+    local shader_path = "GPCS4/Graphics/Sce/Shaders"
+    add_rules("module.shader", {outputdir = path.join(os.projectdir(), shader_path)})
+    add_files(path.join(shader_path, "*.vert"))
+    add_files(path.join(shader_path, "*.frag"))
+
     -- linked libraries
-    if is_os("windows") then
-        add_linkdirs("$(env VULKAN_SDK)/Lib")
-        add_links("vulkan-1.lib")
-        add_syslinks("ksuser.lib",
-                     "mfplat.lib",
-                     "mfuuid.lib",
-                     "wmcodecdspuuid.lib",
-                     "legacy_stdio_definitions.lib",
-                     "user32.lib")
+    if is_plat("windows") then
+        add_syslinks("ksuser",
+                     "mfplat",
+                     "mfuuid",
+                     "wmcodecdspuuid",
+                     "legacy_stdio_definitions",
+                     "user32")
     else
         print("gpcs4 TODO")
     end
 
-    -- add_deps("glfw")
-    -- add_deps("rtaudio")
-    -- add_deps("zydis")
-    -- add_deps("tinydbr")
+    add_packages("vulkansdk")
 
-    if is_os("windows") then 
+    add_deps("glfw")
+    add_deps("rtaudio")
+    add_deps("zydis")
+    add_deps("tinydbr")
+
+    if is_plat("windows") then 
         add_deps("winpthreads")
     end

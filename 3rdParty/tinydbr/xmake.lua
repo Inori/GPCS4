@@ -12,7 +12,7 @@ target("tinydbr")
 
     add_filegroups("src", {rootdir = "./"})
 
-    if is_os("windows") then
+    if is_plat("windows") then
         add_headerfiles("windows/*.h")
         add_files("windows/*.cpp")
     else

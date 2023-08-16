@@ -10,7 +10,7 @@ target("zycore")
     add_filegroups("src", {rootdir = "dependencies/zycore/src/"})
     add_filegroups("include", {rootdir = "dependencies/zycore/include/Zycore/"})
 
-    if is_os("windows") then
+    if is_plat("windows") then
         add_defines("WINVER=0x0502",
                     "_WIN32_WINNT=0x0502",
                     "NTDDI_VERSION=0x05020000",
@@ -39,7 +39,7 @@ target("zydis")
     add_files("src/**.c")
     add_filegroups("include", {rootdir = "include/Zydis/"})
 
-    if is_os("windows") then
+    if is_plat("windows") then
         add_defines("WINVER=0x0502",
                     "_WIN32_WINNT=0x0502",
                     "NTDDI_VERSION=0x05020000",
