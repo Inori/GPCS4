@@ -10,6 +10,7 @@
 #else
 	#include <inttypes.h>
     #include <unistd.h>
+	#define _read read
 	#define _write write
 #endif
 
