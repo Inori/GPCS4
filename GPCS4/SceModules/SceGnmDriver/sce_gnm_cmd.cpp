@@ -2,6 +2,7 @@
 #include "Gnm/GnmOpCode.h"
 #include "Gnm/GnmStructure.h"
 #include <cassert>
+#include <cstring>
 
 LOG_CHANNEL(SceModules.SceGnmDriver.GnmCmd);
 

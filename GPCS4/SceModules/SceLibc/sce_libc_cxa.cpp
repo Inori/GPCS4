@@ -1,6 +1,11 @@
 #include "sce_libc.h"
 #include <mutex>
-#include "winpthreads/include/pthread.h"
+
+#ifdef GPCS4_WINDOWS
+	#include "winpthreads/include/pthread.h"
+#else
+	#include <pthread.h>
+#endif
 
 LOG_CHANNEL(SceModules.SceLibc.cxa);
 
@@ -41,7 +46,7 @@ CXA_EXIT_HANDLER_ARRAY g_cxa_exit_handlers;
 static pthread_mutex_t __guard_mutex;
 static pthread_once_t __once_control = PTHREAD_ONCE_INIT;
 
-static void makeRecusiveMutex() // ½« __guard_mutex ³õÊ¼»¯ÎªµÝ¹éËø
+static void makeRecusiveMutex() // ï¿½ï¿½ __guard_mutex ï¿½ï¿½Ê¼ï¿½ï¿½Îªï¿½Ý¹ï¿½ï¿½ï¿½
 {
 	pthread_mutexattr_t recursiveMutexAttr;
 	pthread_mutexattr_init(&recursiveMutexAttr);

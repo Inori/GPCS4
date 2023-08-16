@@ -1,7 +1,12 @@
 #pragma once
 #include "sce_libkernel.h"
-#include "winpthreads/include/pthread.h"
 #include "MapSlot.h"
+
+#ifdef GPCS4_WINDOWS
+	#include "winpthreads/include/pthread.h"
+#else
+	#include <pthread.h>
+#endif
 
 struct SCE_THREAD_PARAM
 {

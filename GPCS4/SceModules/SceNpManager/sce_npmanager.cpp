@@ -1,4 +1,5 @@
 #include "sce_npmanager.h"
+#include <cstring>
 
 
 // Note:

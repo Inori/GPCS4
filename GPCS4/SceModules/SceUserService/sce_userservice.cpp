@@ -1,5 +1,6 @@
 #include "sce_userservice.h"
 #include "sce_userservice_error.h"
+#include <cstring>
 
 // Note:
 // The codebase is generated using GenerateCode.py

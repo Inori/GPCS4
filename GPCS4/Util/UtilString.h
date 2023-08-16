@@ -20,7 +20,7 @@ namespace util::str
 	template <typename... Tx>
 	void formatex1(std::stringstream& str, const wchar_t* arg, const Tx&... args)
 	{
-		str << fromws(arg);
+		str << plat::fromws(arg);
 		formatex1(str, args...);
 	}
 

@@ -62,7 +62,7 @@ namespace sce
 		/** @brief Specifies the modes that the PlayStation®4 GPU supports. 
 
 				Not all PlayStation®4 systems support all GPU modes. */
-		typedef enum GpuMode
+		typedef enum GpuMode : unsigned int
 		{
 			kGpuModeBase = 0, ///< GPU mode that Standard PlayStation®4 systems use.
 			kGpuModeNeo  = 1, ///< GPU mode that PlayStation®4 Pro systems use.

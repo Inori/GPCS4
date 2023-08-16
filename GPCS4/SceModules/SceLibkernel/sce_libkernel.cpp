@@ -4,7 +4,13 @@
 #include "Platform.h"
 #include "SceModuleSystem.h"
 #include "VirtualGPU.h"
-#include "winpthreads/include/pthread.h"
+
+#ifdef GPCS4_WINDOWS
+	#include "winpthreads/include/pthread.h"
+#else
+	#include <pthread.h>
+#endif
+
 
 #include "Gnm/GnmConstant.h"
 

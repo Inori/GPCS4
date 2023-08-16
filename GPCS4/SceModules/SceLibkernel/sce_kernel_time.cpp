@@ -1,6 +1,7 @@
 #include "sce_libkernel.h"
 #include "Platform.h"
 #include <ctime>
+#include <cstring>
 
 LOG_CHANNEL(SceModules.SceLibkernel.time);
 

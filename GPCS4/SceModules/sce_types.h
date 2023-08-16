@@ -97,7 +97,8 @@ struct sce_div_t
 typedef int64_t sce_off_t;
 
 typedef int64_t ssize_t;
-
+typedef int     errno_t;
+typedef size_t  rsize_t;
 
 //////////////////////////////////////////////////////////////////////////
 

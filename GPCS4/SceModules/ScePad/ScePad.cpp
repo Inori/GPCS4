@@ -4,6 +4,7 @@
 #include "Platform/PlatProcess.h"
 
 #include <stdexcept>
+#include <cstring>
 
 using namespace plat;
 

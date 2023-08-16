@@ -11,7 +11,7 @@ namespace sce
 {
 	namespace Gnm
 	{
-		enum GpuMode;
+		enum GpuMode: unsigned int;
 		class GnmLabelManager;
 	}  // namespace Gnm
 

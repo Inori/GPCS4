@@ -2,9 +2,16 @@
 #include "sce_kernel_file.h"
 #include "MapSlot.h"
 #include "Platform/PlatPath.h"
-#include <io.h>
 #include <fcntl.h>
 #include <cstdio>
+
+#ifdef GPCS4_WINDOWS
+	#include <io.h>
+#else
+	#include <inttypes.h>
+    #include <unistd.h>
+	#define _write write
+#endif
 
 LOG_CHANNEL(SceModules.SceLibkernel.file);
 

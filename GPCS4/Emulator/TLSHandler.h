@@ -3,7 +3,7 @@
 #include "GPCS4Common.h"
 #include "UtilSingleton.h"
 #include "PlatException.h"
-#include "zydis/Zydis.h"
+#include "Zydis/Zydis.h"
 
 #include <array>
 #include <mutex>
@@ -69,7 +69,7 @@ struct TLSBlock
 	uint32_t align = 0;
 	// tls index == module id
 	uint32_t index = 0;
-	// Dynamically-loaded modules here don¡¯t mean any dynamic shared objects,
+	// Dynamically-loaded modules here donï¿½ï¿½t mean any dynamic shared objects,
 	// they only refer to the shared objects that are loaded by explicitly calling dlopen
 	bool isDynamic = false;
 	// TLS image offset at TCB block

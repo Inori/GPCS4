@@ -95,3 +95,4 @@ ipch/
 # xmake
 [Bb]uild/
 vsxmake*
+.xmake/

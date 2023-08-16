@@ -4,7 +4,56 @@
 #include <cstring>
 #include <cstdarg>
 
+
 LOG_CHANNEL(SceModules.SceLibc.string);
+
+#ifdef GPCS4_LINUX
+
+// well it seems there's no secure version of these functions on linux
+// even if __STDC_WANT_LIB_EXT1__ is defined.
+// reference implementation can be found here:
+// https://github.com/rurban/safeclib
+// or we may just import safeclib directly as 3rd party some day.
+
+errno_t mbstowcs_s(size_t* retvalp, wchar_t *dest,
+                   rsize_t dmax, const char * src,
+                   rsize_t len)
+{
+	LOG_FIXME("Not implemented");
+}
+
+errno_t strcat_s(char *dest, rsize_t destsz, const char *src)
+{
+	LOG_FIXME("Not implemented");
+}
+
+errno_t strcpy_s(char *dest, rsize_t dest_size, const char *src)
+{
+	LOG_FIXME("Not implemented");
+}
+
+int vsprintf_s( char * buffer, rsize_t bufsz,
+                const char * format, va_list vlist )
+{
+	LOG_FIXME("Not implemented");
+}
+
+errno_t strncpy_s(char* dest, rsize_t destsz, const char* src, rsize_t count)
+{
+	LOG_FIXME("Not implemented");
+}
+
+size_t strnlen_s(const char *str, size_t strsz)
+{
+	LOG_FIXME("Not implemented");
+}
+
+errno_t wcscpy_s(wchar_t * dest, rsize_t destsz, const wchar_t * src)
+{
+	LOG_FIXME("Not implemented");
+}
+
+#endif
 
 int PS4API scec_mblen(void)
 {
@@ -18,7 +67,6 @@ int PS4API scec_mbsrtowcs(void)
 	LOG_FIXME("Not implemented");
 	return SCE_OK;
 }
-
 
 errno_t PS4API scec_mbstowcs_s(size_t * retval, wchar_t * dst, rsize_t dstsz, const char * src, rsize_t len)
 {
@@ -98,7 +146,7 @@ PS4API scec_sprintf(char *str, const char *format, ...)
 	va_list arg_list;
 
 	va_start(arg_list, format);
-	int ret = vsprintf(buffer, format, arg_list);
+	int ret = vsprintf(str, format, arg_list);
 	va_end(arg_list);
 	return ret;
 #endif

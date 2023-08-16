@@ -1,6 +1,7 @@
 #include "sce_libkernel.h"
 #include "sce_kernel_eventflag.h"
 #include "SceEventFlag.h"
+#include <cstring>
 
 LOG_CHANNEL(SceModules.SceLibkernel.eventflag);
 

@@ -39,7 +39,7 @@ end
 
 target("GPCS4")
     set_kind("binary")
-    set_languages("cxx17")
+    set_languages("c11", "cxx17")
 
     -- C/C++ Flags
     add_cxxflags("-Wno-unused-variable",

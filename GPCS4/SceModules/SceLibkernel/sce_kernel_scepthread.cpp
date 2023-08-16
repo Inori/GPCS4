@@ -419,6 +419,13 @@ int scePriorityToPthreadPriority(int oldPriority)
 	return newPriority;
 }
 
+#else
+
+int scePriorityToPthreadPriority(int oldPriority)
+{
+	return oldPriority;
+}
+
 #endif
 
 int PS4API scePthreadAttrSetschedparam(ScePthreadAttr *attr, const SceKernelSchedParam *param)
