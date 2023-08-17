@@ -5,6 +5,7 @@
 
 #include <variant>
 #include <vector>
+#include <limits>
 
 namespace sce::gcn
 {

@@ -49,6 +49,7 @@ target("GPCS4")
                  "-Wno-unused-function",
                  "-Wno-microsoft-enum-forward-reference",
                  "-Wno-nonportable-include-path")
+
     if is_mode("release") then
         add_cxxflags("-flto=thin")
     end

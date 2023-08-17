@@ -186,7 +186,7 @@ namespace sce::Gnm
 				m_regs[5] = (m_regs[5] & 0xFFFE0FFF) | ((spec->m_numSamples & 7) << 12) | ((spec->m_numFragments & 3) << 15);
 
 				m_regs[1] = (unsigned int)(m_regs[1] & 0x800FF800) |
-							(((unsigned __int16)(surfaceInfo.m_pitch >> 3) + 0x7FF) & 0x7FF) |
+							(((unsigned short)(surfaceInfo.m_pitch >> 3) + 0x7FF) & 0x7FF) |
 							(((surfaceInfo.m_pitch >> 3 << 20) + 0x7FF00000) & 0x7FF00000);
 
 				uint32_t v21 = (surfaceInfo.m_pitch * surfaceInfo.m_height >> 6) + 0x3FFFFF;
@@ -240,7 +240,7 @@ namespace sce::Gnm
 			int                      v4;  // er15
 			RenderTargetChannelOrder order;  // [rsp+0h] [rbp-40h]
 			RenderTargetChannelType  type;  // [rsp+4h] [rbp-3Ch]
-			__int64                  v9;  // [rsp+10h] [rbp-30h]
+			int64_t                  v9;  // [rsp+10h] [rbp-30h]
 
 			bool typeConvertable = format.getRenderTargetChannelType(&type);
 			

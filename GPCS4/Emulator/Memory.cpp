@@ -2,6 +2,8 @@
 
 #include "SceModules/sce_errors.h"
 #include <mutex>
+#include <cstring>
+#include <algorithm>
 
 LOG_CHANNEL(Memory);
 

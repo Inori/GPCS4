@@ -8,6 +8,7 @@
 
 #include <cstdio>
 #include <memory>
+#include <cstdarg>
 #include <cxxopts/cxxopts.hpp>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/msvc_sink.h>
@@ -47,17 +48,23 @@ void initSpdLog()
 	console_sink->set_level(spdlog::level::trace);  // message generating filter
 	console_sink->set_pattern("[%t][%^%l%$]%v");
 
+#ifdef GPCS4_WINDOWS
 	auto msvc_sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
 	msvc_sink->set_level(spdlog::level::trace);  // message generating filter
 	msvc_sink->set_pattern("[%t][%^%l%$]%v");
+#endif // GPCS4_WINDOWS
 
 	auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("GPCS4.log", true);
 	file_sink->set_level(spdlog::level::trace);
 	file_sink->set_pattern("[%t][%^%l%$]%v");
 
-	//g_logger.reset(new spdlog::logger("GPCS4", { console_sink }));
-	//g_logger.reset(new spdlog::logger("GPCS4", { msvc_sink, file_sink, console_sink }));
+#ifdef GPCS4_WINDOWS
 	g_logger.reset(new spdlog::logger("GPCS4", { msvc_sink }));
+	//g_logger.reset(new spdlog::logger("GPCS4", { msvc_sink, file_sink, console_sink }));
+#else
+	g_logger.reset(new spdlog::logger("GPCS4", { console_sink }));
+#endif // GPCS4_WINDOWS
+	
 	g_logger->set_level(spdlog::level::trace);  // message showing filter
 
 	//g_logger->flush_on(spdlog::level::trace); // I/O cost
@@ -111,7 +118,8 @@ void Channel::print(Level nLevel, const char* szFunction, const char* szSourcePa
 	va_list stArgList;
 	va_start(stArgList, szFormat);
 	char szTempStr[LOG_STR_BUFFER_LEN + 1] = { 0 };
-	vsprintf_s(szTempStr, LOG_STR_BUFFER_LEN, szFormat, stArgList);
+	//vsprintf_s(szTempStr, LOG_STR_BUFFER_LEN, szFormat, stArgList);
+	vsprintf(szTempStr, szFormat, stArgList);
 	va_end(stArgList);
 
 	switch (nLevel)
@@ -150,9 +158,11 @@ void Channel::assert_(const char* szExpression, const char* szFunction, const ch
 	va_list stArgList;
 	va_start(stArgList, szFormat);
 	char szTempStr[LOG_STR_BUFFER_LEN + 1] = { 0 };
-	vsprintf_s(szTempStr, LOG_STR_BUFFER_LEN, szFormat, stArgList);
+	//vsprintf_s(szTempStr, LOG_STR_BUFFER_LEN, szFormat, stArgList);
+	vsprintf(szTempStr, szFormat, stArgList);
 	char szMsgBoxStr[LOG_STR_BUFFER_LEN + 1] = { 0 };
-	sprintf_s(szMsgBoxStr, LOG_STR_BUFFER_LEN, "[Assert@%s]: %s\n[Cause]: %s\n[Path]: %s(%d): %s", getName().c_str(), szExpression, szTempStr, szSourcePath, nLine, szFunction);
+	//sprintf_s(szMsgBoxStr, LOG_STR_BUFFER_LEN, "[Assert@%s]: %s\n[Cause]: %s\n[Path]: %s(%d): %s", getName().c_str(), szExpression, szTempStr, szSourcePath, nLine, szFunction);
+	sprintf(szMsgBoxStr, "[Assert@%s]: %s\n[Cause]: %s\n[Path]: %s(%d): %s", getName().c_str(), szExpression, szTempStr, szSourcePath, nLine, szFunction);
 	va_end(stArgList);
 
 	g_logger->critical("[{}]{}({}): [Assert: {}] {}", getName(), szFunction, nLine, szExpression, szTempStr);

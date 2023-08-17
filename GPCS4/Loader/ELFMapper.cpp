@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cstring>
 
 
 #ifdef MODSYS_DISABLE_MAPPER_LOG_DEBUG

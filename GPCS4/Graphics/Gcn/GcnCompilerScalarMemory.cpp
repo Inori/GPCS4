@@ -1,5 +1,6 @@
 #include "GcnCompiler.h"
 #include "GcnHeader.h"
+#include <algorithm>
 
 LOG_CHANNEL(Graphic.Gcn.GcnCompiler);
 

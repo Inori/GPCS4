@@ -220,4 +220,9 @@ namespace util
 		return ret;
 	}
 
+	void* sbSetCacheSize(StructBank* pBank, uint32_t size)
+	{
+		pBank->m_cacheSize = size;
+	}
+
 }  // namespace util

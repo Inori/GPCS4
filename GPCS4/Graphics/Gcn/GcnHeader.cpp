@@ -5,6 +5,8 @@
 #include "GcnInstructionUtil.h"
 #include "Gnm/GnmConstant.h"
 
+#include <cstring>
+
 
 LOG_CHANNEL(Graphic.Gcn.GcnHeader);
 

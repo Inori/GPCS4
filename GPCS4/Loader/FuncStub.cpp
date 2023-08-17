@@ -1,5 +1,6 @@
 #include "FuncStub.h"
 #include "PlatDebug.h"
+#include <cstring>
 
 LOG_CHANNEL(Loader.FuncStub);
 

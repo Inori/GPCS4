@@ -10,8 +10,20 @@
 #else
 	#include <inttypes.h>
     #include <unistd.h>
+	#include <fcntl.h>
+	#include <sys/stat.h>
+	
+	#define _open open
+	#define _lseek lseek
 	#define _read read
 	#define _write write
+	#define _stat stat
+
+	#define _S_IREAD	S_IREAD
+	#define _S_IWRITE	S_IWRITE
+	#define _S_IFMT		S_IFMT
+	#define _S_IFREG	S_IFREG
+	#define _S_IFDIR	S_IFDIR
 #endif
 
 LOG_CHANNEL(SceModules.SceLibkernel.file);
@@ -159,15 +171,22 @@ int PS4API sceKernelOpen(const char *path, int flags, SceKernelMode mode)
 
 	int ret_fd = hasError ? -1 : idx;
 	return ret_fd;
+#else
+	LOG_FIXME("Not implemented");
 #endif  //GPCS4_WINDOWS
 }
 
 
 ssize_t PS4API sceKernelRead(int d, void *buf, size_t nbytes)
 {
+#ifdef GPCS4_WINDOWS
 	LOG_SCE_TRACE("d %d buff %p nbytes %x", d, buf, nbytes);
 	int fd = g_fdSlots[d].fd;
 	return _read(fd, buf, nbytes);
+#else
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+#endif  //GPCS4_WINDOWS
 }
 
 
@@ -180,9 +199,14 @@ ssize_t PS4API sceKernelWrite(int d, const void *buf, size_t nbytes)
 
 sce_off_t PS4API sceKernelLseek(int fildes, sce_off_t offset, int whence)
 {
+#ifdef GPCS4_WINDOWS
 	LOG_SCE_TRACE("fd %d off %d where %d", fildes, offset, whence);
 	int fd = g_fdSlots[fildes].fd;
 	return _lseeki64(fd, offset, whence);
+#else
+	LOG_FIXME("Not implemented");
+	return SCE_OK;
+#endif  //GPCS4_WINDOWS
 }
 
 
@@ -263,22 +287,22 @@ int PS4API sceKernelStat(const char *path, SceKernelStat *sb)
 	LOG_SCE_TRACE("path %s sb %p", path, sb);
 	std::string pcPath = plat::PS4PathToPCPath(path);
 
-	struct _stat stat;
-	int ret = _stat(pcPath.c_str(), &stat);
-	sb->st_mode = getSceFileMode(stat.st_mode);
+	struct _stat fileStat;
+	int ret = _stat(pcPath.c_str(), &fileStat);
+	sb->st_mode = getSceFileMode(fileStat.st_mode);
 	//sb->st_atim = stat.st_atime;
 	//sb->st_mtim = stat.st_mtime;
 	//sb->st_ctim = stat.st_ctime;
-	sb->st_size = stat.st_size;
+	sb->st_size = fileStat.st_size;
 	//sb->st_birthtim = stat.st_ctime; //?
-	if (stat.st_mode & _S_IFMT & _S_IFDIR)
+	if (fileStat.st_mode & _S_IFMT & _S_IFDIR)
 	{
 		sb->st_blocks = plat::FileCountInDirectory(pcPath);
 		sb->st_blksize = sizeof(SceKernelDirent);
 	}
 	else
 	{
-		sb->st_blocks = stat.st_size / SSD_BLOCK_SIZE + (stat.st_size % SSD_BLOCK_SIZE) ? 1 : 0;
+		sb->st_blocks = fileStat.st_size / SSD_BLOCK_SIZE + (fileStat.st_size % SSD_BLOCK_SIZE) ? 1 : 0;
 		sb->st_blksize = SSD_BLOCK_SIZE;
 	}
 	return ret;
@@ -342,6 +366,7 @@ int PS4API sceKernelFtruncate(void)
 	return SCE_OK;
 }
 
+#ifdef GPCS4_WINDOWS
 inline uint8_t getSceFileType(dirent* ent)
 {
 	uint8_t type = SCE_KERNEL_DT_UNKNOWN;
@@ -368,6 +393,7 @@ inline uint8_t getSceFileType(dirent* ent)
 
 	return type;
 }
+#endif  //GPCS4_WINDOWS
 
 int PS4API sceKernelGetdents(int fd, char *buf, int nbytes)
 {

@@ -1,6 +1,8 @@
 #include "TLSHandler.h"
 #include "PlatMemory.h"
 #include "UtilMath.h"
+#include <cstring>
+#include <algorithm>
 
 LOG_CHANNEL(Emulator.TLSHandler);
 

@@ -1,5 +1,6 @@
 #include <array>
 #include <cstring>
+#include <limits>
 
 #include "SpirvCodeBuffer.h"
 

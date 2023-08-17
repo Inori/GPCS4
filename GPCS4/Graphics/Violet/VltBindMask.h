@@ -124,7 +124,7 @@ namespace sce::vlt
 			if (!mask)
 				return -1;
 
-			return BitCount * intId + bit::tzcnt(mask);
+			return BitCount * intId + util::bit::tzcnt(mask);
 		}
 
 		bool operator==(const VltBindingSet& other) const

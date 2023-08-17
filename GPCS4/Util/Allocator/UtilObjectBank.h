@@ -63,7 +63,7 @@ namespace util
 		void setPageGranularity(uint32_t size)
 		{
 			m_cs.enter();
-			m_bank->m_cacheSize = size;
+			sbSetCacheSize(m_bank, size);
 			m_cs.leave();
 		}
 
@@ -86,11 +86,11 @@ namespace util
 			return object;
 		}
 
-		void free(T* pObj)
+		void free(T* object)
 		{
 			m_cs.enter();
-			//std::destroy_at(pObj);
-			pObj->~T();
+			//std::destroy_at(object);
+			object->~T();
 			sbFree(m_bank, object);
 			m_cs.leave();
 		}

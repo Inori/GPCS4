@@ -37,4 +37,7 @@ namespace util
 	// of StructBank'd structures and don't want to worry about freeing them all individually.
 	void sbFreeAll(StructBank* pBank);
 
+	// 
+	void* sbSetCacheSize(StructBank* pBank, uint32_t size);
+
 }  // namespace util

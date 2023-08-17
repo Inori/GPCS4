@@ -93,7 +93,7 @@ namespace sce::Gnm
 			if (v16 & 0xFFE000 && v29 == 1)
 			{
 				v19             = (v13 & 0xFFFFFFF) | 0xB0000000;
-				this->m_regs[4] = v15 | (((unsigned __int16)((v14 + 1) / 6u) + 0x1FFF) & 0x1FFF);
+				this->m_regs[4] = v15 | (((uint16_t)((v14 + 1) / 6u) + 0x1FFF) & 0x1FFF);
 				goto LABEL_15;
 			}
 			if (!(*((uint32_t*)v6 + 5) & 0x18000))
@@ -169,16 +169,16 @@ namespace sce::Gnm
 			uint32_t                           v15;   // edx
 			int                                v16;   // ebx
 			uint32_t                           v17;   // edi
-			__int64                            v18;   // r15
+			int64_t                            v18;   // r15
 			unsigned int                       v19;   // eax
 			signed int                         v20;   // edx
 			bool                               v21;   // zf
 			signed int                         v22;   // ecx
 			unsigned int                       v23;   // ebx
 			int                                v24;   // eax
-			unsigned __int8                    v25;   // al
+			uint8_t		                   	   v25;   // al
 			char                               v27;   // [rsp+4h] [rbp-3Ch]
-			__int64                            v29;   // [rsp+10h] [rbp-30h]
+			int64_t                            v29;   // [rsp+10h] [rbp-30h]
 
 			std::memset(this, 0, sizeof(Texture));
 			DataFormat dataFormat = DataFormat::build(rt->getZFormat());
@@ -212,7 +212,7 @@ namespace sce::Gnm
 			if (v16 & 0xFFE000 && v27 == 1)
 			{
 				v19             = (v13 & 0xFFFFFFF) | 0xB0000000;
-				this->m_regs[4] = v15 | (((unsigned __int16)((v14 + 1) / 6u) + 0x1FFF) & 0x1FFF);
+				this->m_regs[4] = v15 | (((uint16_t)((v14 + 1) / 6u) + 0x1FFF) & 0x1FFF);
 				goto LABEL_15;
 			}
 			if (!(*(uint8_t*)v6 & 0xC))

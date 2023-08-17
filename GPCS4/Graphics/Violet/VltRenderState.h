@@ -4,6 +4,7 @@
 #include "VltBindMask.h"
 #include "VltCommon.h"
 #include "VltUtil.h"
+#include <cstring>
 
 namespace sce::vlt
 {
