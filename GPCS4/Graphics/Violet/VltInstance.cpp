@@ -7,6 +7,7 @@
 
 #include <array>
 #include <iostream>
+#include <cstring>
 
 LOG_CHANNEL(Graphic.Violet);
 

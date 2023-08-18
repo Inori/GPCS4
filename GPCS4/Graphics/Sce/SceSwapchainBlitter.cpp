@@ -15,16 +15,19 @@ namespace sce
 	// clang-format off
 	static const uint32_t sce_present_vert[]      = 
 	{ 
+		0
 		//#include "Shaders/sce_present_vert.h" 
 	};
 
 	static const uint32_t sce_present_frag[]      = 
 	{
+		0
 		//#include "Shaders/sce_present_frag.h"
 	};
 
 	static const uint32_t sce_present_frag_blit[] = 
 	{
+		0
 		//#include "Shaders/sce_present_frag_blit.h"
 	};
 	// clang-format on

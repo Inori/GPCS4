@@ -1,5 +1,7 @@
 #include "VltUtil.h"
 
+#include <cstring>
+
 namespace sce::vlt::vutil
 {
 

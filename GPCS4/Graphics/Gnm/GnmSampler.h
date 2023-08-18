@@ -6,6 +6,8 @@
 #include "GnmRegInfo.h"
 #include "GnmSharpBuffer.h"
 
+#include <cstring>
+
 namespace sce::Gnm
 {
 
