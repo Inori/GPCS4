@@ -1,5 +1,4 @@
 #include "GnmConverter.h"
-#include "SpirV/spirv.hpp"
 
 using namespace sce::vlt;
 
@@ -576,8 +575,6 @@ namespace sce::Gnm::cvt
 		using namespace spv;
 
 		Dim dim = DimMax;
-
-		
 
 		switch (textureType)
 		{

@@ -6,7 +6,7 @@
 #include "VirtualGPU.h"
 
 #define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#include <glfw/glfw3.h>
 
 namespace sce
 {

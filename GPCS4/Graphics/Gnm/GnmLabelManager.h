@@ -4,6 +4,7 @@
 #include "UtilSync.h"
 
 #include <unordered_map>
+#include <memory>
 
 namespace sce::vlt
 {
@@ -26,7 +27,7 @@ namespace sce::Gnm
 
 	private:
 		vlt::VltDevice*                             m_device;
-		std::unordered_map<void*, Gnm::GnmGpuLabel> m_labels;
+		std::unordered_map<void*, std::shared_ptr<Gnm::GnmGpuLabel>> m_labels;
 		util::sync::Spinlock                        m_lock;
 	};
 }  // namespace sce

@@ -27,14 +27,16 @@ namespace sce::Gnm
 		auto iter = m_labels.find(labelAddress);
 		if (iter == m_labels.end())
 		{
-			auto pair = m_labels.emplace(std::piecewise_construct,
-										 std::tuple(labelAddress),
-										 std::tuple(m_device, labelAddress));
-			label = &pair.first->second;
+			// auto pair = m_labels.emplace(std::piecewise_construct,
+			// 							 std::tuple(labelAddress),
+			// 							 std::tuple(m_device, labelAddress));
+			auto pair = m_labels.emplace(labelAddress,
+										 std::make_shared<Gnm::GnmGpuLabel>(m_device, labelAddress));
+			label = pair.first->second.get();
 		}
 		else 
 		{
-			label = &iter->second;
+			label = iter->second.get();
 		}
 		return label;
 	}

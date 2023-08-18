@@ -144,5 +144,21 @@ namespace util::bit {
   {
 	  return ((x * 0x80200802ULL) & 0x0884422110ULL) * 0x0101010101ULL >> 32;
   }
+
+  inline unsigned char bittest(std::int32_t const *a, std::int32_t b)
+  {
+      auto const bits{ reinterpret_cast<unsigned char const*>(a) };
+      auto const value{ bits[b >> 3] };
+      auto const mask{ (unsigned char)(1 << (b & 7)) };
+      return (value & mask) != 0;
+  }
+
+  inline unsigned char bittest64(std::int64_t const *a, std::int64_t b)
+  {
+      auto const bits{ reinterpret_cast<unsigned char const*>(a) };
+      auto const value{ bits[b >> 3] };
+      auto const mask{ (unsigned char)(1 << (b & 7)) };
+      return (value & mask) != 0;
+  }
   
 }

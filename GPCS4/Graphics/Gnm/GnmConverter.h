@@ -5,13 +5,9 @@
 #include "SceVideoOut/sce_videoout_types.h"
 
 #include "Violet/VltLimit.h"
+#include "SpirV/spirv.hpp"
 
 #include <array>
-
-namespace spv
-{
-	enum Dim;
-}  // namespace spv
 
 namespace sce::Gnm::cvt
 {

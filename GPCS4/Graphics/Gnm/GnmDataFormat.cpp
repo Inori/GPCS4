@@ -1,6 +1,5 @@
 #include "GnmDataFormat.h"
-
-#include <intrin.h>
+#include "UtilBit.h"
 
 LOG_CHANNEL(Graphic.Gnm.GnmDataFormat);
 
@@ -576,7 +575,7 @@ namespace sce::Gnm
 		unsigned int*    a1 = (unsigned int*)this;
 		int*             a2 = (int*)outOrder;
 		unsigned int     v2;      // ecx
-		unsigned __int64 v3;      // rax
+		uint64_t		 v3;      // rax
 		unsigned int     v4;      // edx
 		int              v5;      // er11
 		int              v6;      // er10
@@ -584,15 +583,15 @@ namespace sce::Gnm
 		int              v8;      // er9
 		signed int       v9;      // edi
 		char             result;  // al
-		signed __int64   v11;     // rdi
+		int64_t			 v11;     // rdi
 		bool             v12;     // dl
 		bool             v13;     // cl
 
 		v2 = *a1;
-		v3 = (unsigned __int8)*a1;
-		if ((unsigned __int8)*a1 > 0x3Cu)
+		v3 = (uint8_t)*a1;
+		if ((uint8_t)*a1 > 0x3Cu)
 			return 0;
-		v4 = s_numComponentsPerElement[(unsigned __int8)v2];
+		v4 = s_numComponentsPerElement[(uint8_t)v2];
 		if (v4 - 1 > 3)
 			return 0;
 		v5 = (v2 >> 12) & 7;
@@ -644,7 +643,7 @@ namespace sce::Gnm
 		v11 = 0x4000107000120C0LL;
 		v12 = v5 == 4 && v6 == 5;
 		v13 = v12 && v8 == 6;
-		if (_bittest64(&v11, v3))
+		if (util::bit::bittest64(&v11, v3))
 		{
 			v9 = 0;
 			if (v13)
