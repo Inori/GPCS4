@@ -1,5 +1,7 @@
 #include "GcnCompiler.h"
 #include "GcnHeader.h"
+#include "PlatDebug.h"
+
 #include <algorithm>
 
 LOG_CHANNEL(Graphic.Gcn.GcnCompiler);

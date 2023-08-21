@@ -1,6 +1,7 @@
 #include "GcnCompiler.h"
 #include "ControlFlowGraph/GcnTokenList.h"
 #include "fmt/format.h"
+#include "PlatDebug.h"
 
 using namespace sce::vlt;
 

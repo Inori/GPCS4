@@ -2,6 +2,7 @@
 #include "GcnInstruction.h"
 #include "GcnDecoder.h"
 #include "GcnProgramInfo.h"
+#include "PlatDebug.h"
 
 LOG_CHANNEL(Graphic.Gcn.GcnAnalysis);
 

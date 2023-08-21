@@ -4,6 +4,7 @@
 #include "GcnHeader.h"
 #include "GcnUtil.h"
 #include "PlatFile.h"
+#include "PlatDebug.h"
 #include "ControlFlowGraph/GcnTokenList.h"
 #include "Gnm/GnmConstant.h"
 

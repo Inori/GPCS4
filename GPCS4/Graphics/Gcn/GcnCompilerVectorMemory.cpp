@@ -4,6 +4,7 @@
 #include "UtilVector.h"
 #include "UtilBit.h"
 #include "UtilRenderDoc.h"
+#include "PlatDebug.h"
 
 using namespace sce::vlt;
 

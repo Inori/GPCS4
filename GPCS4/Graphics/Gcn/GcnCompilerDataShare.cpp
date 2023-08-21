@@ -1,5 +1,6 @@
 #include "GcnCompiler.h"
 #include "UtilMath.h"
+#include "PlatDebug.h"
 
 LOG_CHANNEL(Graphic.Gcn.GcnCompiler);
 
