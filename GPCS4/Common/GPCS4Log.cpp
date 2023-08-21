@@ -5,6 +5,7 @@
 #include "GPCS4Log.h"
 
 #include "UtilString.h"
+#include "PlatDebug.h"
 
 #include <cstdio>
 #include <memory>
@@ -170,7 +171,7 @@ void Channel::assert_(const char* szExpression, const char* szFunction, const ch
 	showMessageBox("Assertion Fail", szMsgBoxStr);
 
 #ifdef GPCS4_DEBUG
-	::__debugbreak();
+	plat::debugBreakPoint();
 #else
 	exit(-1);
 #endif  // !GPCS4_DEBUG
