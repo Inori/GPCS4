@@ -27,7 +27,7 @@ else
 end
 
 
--- includes("3rdParty/glfw")
+includes("3rdParty/glfw")
 -- includes("3rdParty/rtaudio")
 -- includes("3rdParty/zydis")
 -- includes("3rdParty/tinydbr")
@@ -51,7 +51,7 @@ target("GPCS4")
                  "-Wno-nonportable-include-path")
 
     if is_mode("release") then
-        add_cxxflags("-flto=thin")
+        -- add_cxxflags("-flto=thin")
     end
 
     -- C/C++ Defines
@@ -109,9 +109,10 @@ target("GPCS4")
                      "user32.lib")
     else
         print("gpcs4 TODO")
+        add_syslinks("vulkan")
     end
 
-    -- add_deps("glfw")
+    add_deps("glfw")
     -- add_deps("rtaudio")
     -- add_deps("zydis")
     -- add_deps("tinydbr")

@@ -27,8 +27,27 @@ target("glfw")
 
         add_syslinks("Shell32.lib",
                      "Gdi32.lib")
+        add_defines("_GLFW_WIN32")
     else
-        print("glfw TODO")
+        add_files("src/context.c",
+                  "src/egl_context.c",
+                  "src/init.c",
+                  "src/input.c",
+                  "src/monitor.c",
+                  "src/osmesa_context.c",
+                  "src/vulkan.c",
+                  "src/glx_context.c",
+                  "src/x11_init.c",
+                  "src/linux_joystick.c",
+                  "src/x11_monitor.c",
+                  "src/xkb_unicode.c",
+                  "src/posix_thread.c",
+                  "src/posix_time.c",
+                  "src/x11_window.c",
+                  "src/window.c")
+        -- TODO: add wayland support
+        add_syslinks("X11", "Xrandr", "dl", "pthread")
+        add_defines("_GLFW_X11")
     end
 
     -- add_filegroups("include", {rootdir = "./", files = {"src/*.h"}})
