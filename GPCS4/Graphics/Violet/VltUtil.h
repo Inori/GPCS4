@@ -4,6 +4,8 @@
 #include "VltFormat.h"
 #include "VltResource.h"
 
+#include <utility>
+
 namespace sce::vlt::vutil
 {
 	inline VkImageSubresourceRange makeSubresourceRange(
