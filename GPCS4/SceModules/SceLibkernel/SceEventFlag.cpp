@@ -2,9 +2,10 @@
 #include "sce_errors.h"
 #include "sce_kernel_eventflag.h"
 #include "Platform/PlatThread.h"
-#include <functional>
 
 #include <functional>
+#include <stdexcept>
+#include <utility>
 
 LOG_CHANNEL(SceModules.SceLibkernel.SceEventFlag);
 

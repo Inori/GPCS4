@@ -8,6 +8,7 @@
 #include "VltResource.h"
 
 #include <unordered_map>
+#include <utility>
 
 namespace sce::vlt
 {
