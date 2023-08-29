@@ -8,7 +8,9 @@ target("glfw")
     add_headerfiles("glfw3.h", "glfw3native.h")
     add_filegroups("include", {rootdir = "./", files = {"*.h"}})
 
-    if is_os("windows") then
+    add_packages("vulkansdk")
+
+    if is_plat("windows") then
         add_files("src/context.c",
                   "src/egl_context.c",
                   "src/init.c",
@@ -25,10 +27,13 @@ target("glfw")
                   "src/win32_window.c",
                   "src/window.c")
 
-        add_syslinks("Shell32.lib",
-                     "Gdi32.lib")
+        add_syslinks("user32", "shell32", "gdi32")
     else
         print("glfw TODO")
+        -- TODO: add wayland support
+        add_deps("libx11", "libxrandr", "libxrender", "libxinerama", "libxfixes", "libxcursor", "libxi", "libxext")
+        add_syslinks("dl", "pthread")
+        add_defines("_GLFW_X11")
     end
 
     -- add_filegroups("include", {rootdir = "./", files = {"src/*.h"}})
